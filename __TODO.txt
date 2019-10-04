@@ -1,0 +1,144 @@
+﻿-- begin LIBATION INTO GITHUB ---------------------------------------------------------------------------------------------------------------------
+create libation public github -- must ignore bin/obj
+-- end LIBATION INTO GITHUB ---------------------------------------------------------------------------------------------------------------------
+
+-- begin LEGACY ---------------------------------------------------------------------------------------------------------------------
+create legacy space to hold legacy code
+
+scraping code
+"legacy inAudible wire-up code"
+-- end LEGACY ---------------------------------------------------------------------------------------------------------------------
+
+-- begin UPGRADE TO EF CORE 3 ---------------------------------------------------------------------------------------------------------------------
+dinah.EFCore, DataLayer
+2.2.6 == no problem
+3.0.0 == problem:
+System.InvalidOperationException: 'The type 'UserDefinedItem' cannot be configured as non-owned because an owned entity type with the same name already exists.'
+
+https://github.com/aspnet/EntityFrameworkCore/issues/15681
+https://www.infoq.com/news/2019/06/EF-Core-3-Breaking-Changes/
+https://docs.microsoft.com/en-us/ef/core/modeling/owned-entities
+https://docs.microsoft.com/en-us/ef/core/what-is-new/ef-core-3.0/breaking-changes
+  new version: WithOwner
+  usage
+    .OwnsOne(...).WithOwner()
+    .OwnsMany(...).WithOwner()
+-- end UPGRADE TO EF CORE 3 ---------------------------------------------------------------------------------------------------------------------
+
+-- begin REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
+incl episodes. eg: "Bill Bryson's Appliance of Science"
+  refining episode retrieval might also get rid of the need for IsEpisodes property
+replace all scraping with audible api
+    public partial class ScanLibraryDialog : Form, IIndexLibraryDialog
+        public async Task DoMainWorkAsync()
+            using (var pageRetriever = websiteProcessorControl1.GetPageRetriever())
+                jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
+
+break out DTOs. currently coupled with scraping
+
+note: some json importing may still be relevant. might want to allow custom importing
+
+scraping stuff to remove:
+order matters. go from top to bottom:
+
+REMOVED PROJECT REFERENCES
+3.2 Domain Utilities (post database)
+    DomainServices
+        AudibleDotComAutomation
+3.1 Domain Internal Utilities
+    InternalUtilities
+        Scraping
+
+REMOVED PROJECTS
+2 Utilities (domain ignorant)
+  Scraping
+  AudibleDotComAutomation
+  AudibleDotCom
+  CookieMonster
+
+REMOVED FILES
+\Libation\InternalUtilities\UNTESTED\DataConverter.cs
+\Libation\DomainServices\UNTESTED\DownloadLibrary.cs
+\Libation\DomainServices\UNTESTED\ScrapeBookDetails.cs
+
+ADDED PROJECT REFERENCES
+3.1 Domain Internal Utilities
+    InternalUtilities
+        DTOs
+-- end REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
+
+-- begin CLEAN UP ARCHITECTURE ---------------------------------------------------------------------------------------------------------------------
+my ui sucks. it's also tightly coupled with biz logic. can't replace ui until biz logic is extracted and loosely. remove all biz logic from presentation/winforms layer
+-- end CLEAN UP ARCHITECTURE ---------------------------------------------------------------------------------------------------------------------
+
+-- begin UNIT TESTS ---------------------------------------------------------------------------------------------------------------------
+all "UNTESTED" code needs unit tests
+Turn into unit tests or demos
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core.Windows.Forms\UNTESTED\TextBoxBaseTextWriter.cs
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core\UNTESTED\EnumerationExamples.cs
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core\UNTESTED\EnumExt.cs
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core\UNTESTED\_Collections\Generic\IEnumerable[T]Ext.cs
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core\UNTESTED\_IO\MultiTextWriter.cs
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\AudibleDotComAutomation\UNTESTED\Selenium.Examples.cs
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\DataLayer\UNTESTED\_scratch pad\ScratchPad.cs
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\BookLiberation\ProcessorAutomationController.Examples.cs
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\Scraping\UNTESTED\Rules\ScraperRules.Examples.cs
+  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\Scraping\UNTESTED\Selectors\ByFactory.Example.cs
+  search 'example code' on:
+    C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs
+-- end UNIT TESTS ---------------------------------------------------------------------------------------------------------------------
+
+-- begin DECRYPTING ---------------------------------------------------------------------------------------------------------------------
+replace inaudible/inaudible lite with pure ffmpeg
+benefits of inaudible:
+  highly configurable
+  embedded cover image
+  chapter-ized
+  cue and nfo files
+can hopefully get most of this with simple decrypt. possibly including the new chapter titles
+
+better chapters in many m4b files. to see, try re-downloading. examples: bobiverse, sharp objects
+
+raw ffmpeg decrypting is significantly faster than inAudible/AaxDecrypter method:
+inAudible/AaxDecrypter
+  tiny file
+    40 sec decrypt
+    40 sec chapterize + tag
+  huge file
+    60 sec decrypt
+    120 sec chapterize + tag
+directly call ffmpeg (decrypt only)
+  tiny file
+    17 sec decrypt
+  huge file
+    39 sec decrypt
+-- end DECRYPTING ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENT, PERFORMANCE: TAGS ---------------------------------------------------------------------------------------------------------------------
+tag edits still take forever and block UI
+unlikely to be an issue with file write. in fact, should probably roll back this change
+also touches parts of code which: db write via a hook, search engine re-index
+-- end ENHANCEMENT, PERFORMANCE: TAGS ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
+
+when a book/pdf is NOT liberated, calculating the grid's [Liberated][NOT d/l'ed] label is very slow
+
+-- end ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENT: REMOVE BOOK ---------------------------------------------------------------------------------------------------------------------
+how to remove a book?
+previously difficult due to implementation details regarding scraping and importing. should be trivial after api replaces scraping
+-- end ENHANCEMENT: REMOVE BOOK ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENT: NEW VIEWS ---------------------------------------------------------------------------------------------------------------------
+menu views. filter could work for grid display; just use the lucene query language
+1) menu to show all tags and count of each. click on tag so see only those books
+2) tree to show all categories and subcategories. click on category so see only those books
+-- end ENHANCEMENT: NEW VIEWS ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENT: LOGGING, ERROR HANDLING ---------------------------------------------------------------------------------------------------------------------
+LibationWinForm and Audible API need better logging and error handling
+incl log levels, db query logging
+see AaxDecryptorWinForms.initLogging()
+-- end ENHANCEMENT: LOGGING ---------------------------------------------------------------------------------------------------------------------

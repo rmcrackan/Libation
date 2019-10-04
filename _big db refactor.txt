@@ -1,0 +1,55 @@
+proposed extensible schema to generalize beyond audible
+
+problems
+0) reeks of premature optimization
+- i'm currently only doing audible audiobooks. this adds several layers of abstraction for the sake of possible expansion
+- there's a good chance that supporting another platform may not conform to this schema, in which case i'd have done this for nothing. genres are one likely pain point
+- libation is currently single-user. hopefully the below would suffice for adding users, but if i'm wrong it might be all pain and no gain
+1) very thorough == very complex
+2) there are some books which would still be difficult to taxonimize
+- joy of cooking. has become more of a brand
+- the bible. has different versions that aren't just editions
+- dictionary. authored by a publisher
+3) "books" vs "editions" is a confusing problem waiting to happen
+
+[AIPK=auto increm PK]
+
+(libation) users [AIPK id, name, join date]
+audible users [AIPK id, AUDIBLE-PK username]
+libation audible users [PK user id, PK audible user id -- cluster PK across all FKs]
+- potential danger in multi-user environment. wouldn't want one libation user getting access to a different libation user's audible info
+contributors [AIPK id, name]. prev people. incl publishers
+audible authors [PK/FK contributor id, AUDIBLE-PK author id]
+roles [AIPK id, name]. seeded: author, narrator, publisher. could expand (eg: translator, editor) without each needing a new table
+books [AIPK id, title, desc]
+book contributors [FK book id, FK contributor id, FK role id, order -- cluster PK across all FKs]
+- likely only authors
+editions [AIPK id, FK book id, title]. could expand to include year, is first edition, is abridged
+- reasons for optional different title: "Ender's Game: Special 20th Anniversary Edition", "Harry Potter and the Sorcerer's Stone" vs "Harry Potter and the Philosopher's Stone" vs "Harry Potter y la piedra filosofal", "Midnight Riot" vs "Rivers of London"
+edition contributors [FK edition id, FK contributor id, FK role id, order -- cluster PK across all FKs]
+- likely everything except authors. eg narrators, publisher
+audiobooks [PK/FK edition id, lengthInMinutes]
+- could expand to other formats by adding other similar tables. eg: print with #pages and isbn, ebook with mb
+audible origins [AIPK id, name]. seeded: library. detail. json. series
+audible books [PK/FK edition id, AUDIBLE-PK product id, picture id, sku, 3 ratings, audible category id, audible origin id]
+- could expand to other vendors by adding other similar tables
+audible user ratings [PK/FK edition id, audible user id, 3 ratings]
+audible supplements [AIPK id, FK edition id, download url]
+- pdfs only. although book download info could be the same format, they're substantially different and subject to change
+audible book downloads [PK/FK edition id, audible user id, bookdownloadlink]
+pictures [AIPK id, FK edition id, filename (xyz.jpg -- not incl path)]
+audible categories [AIPK id, AUDIBLE-PK category id, name, parent]. may only nest 1 deep
+(libation) library [FK libation user id, FK edition id, date added -- cluster PK across all FKs]
+(libation) user defined [FK libation user id, FK edition id, tagsRaw (, notes...) -- cluster PK across all FKs]
+- there's no reason to restrict tags to library items, so don't combine/link this table with library
+series [AIPK id, name]
+audible series [FK series id, AUDIBLE-PK series id/asin, audible origin id]
+- could also include a 'name' field for what audible calls this series
+series books [FK series id, FK book id (NOT edition id), index -- cluster PK across all FKs]
+- "index" not "order". display this number; don't just put in this sequence
+- index is float instead of int to allow for in-between books. eg 2.5
+- if only using "editions" (ie: getting rid of the "books" table), to show 2 editions as the same book in a series, give them the same index
+(libation) user shelves [AIPK id, FK libation user id, name, desc]
+- custom shelf. similar to library but very different in philosophy. likely different in evolving details
+(libation) shelf books [AIPK id, FK user shelf id, date added, order]
+- technically, it's no violation to list a book more than once so use AIPK

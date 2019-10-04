@@ -1,0 +1,154 @@
+-- begin AUDIBLE DETAILS ---------------------------------------------------------------------------------------------------------------------
+
+alternate book id (eg BK_RAND_006061) is called 'sku' , 'sku_lite' , 'prod_id' , 'product_id' in different parts of the site
+
+-- end AUDIBLE DETAILS ---------------------------------------------------------------------------------------------------------------------
+
+-- begin DOTNET CORE DI ---------------------------------------------------------------------------------------------------------------------
+from: https://andrewlock.net/using-dependency-injection-in-a-net-core-console-application/
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        //setup our DI
+        var serviceProvider = new ServiceCollection()
+            .AddLogging()
+            .AddSingleton<IFooService, FooService>()
+            .AddSingleton<IBarService, BarService>()
+            .BuildServiceProvider();
+
+        //configure console logging
+        serviceProvider
+            .GetService<ILoggerFactory>()
+            .AddConsole(LogLevel.Debug);
+
+        var logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger<Program>();
+        logger.LogDebug("Starting application");
+
+        //do the actual work here
+        var bar = serviceProvider.GetService<IBarService>();
+        bar.DoSomeRealWork();
+
+        logger.LogDebug("All done!");
+    }
+}
+-- end DOTNET CORE DI ---------------------------------------------------------------------------------------------------------------------
+
+-- begin SOLUTION LAYOUT ---------------------------------------------------------------------------------------------------------------------
+core libraries
+  extend Standard Libraries
+  additional simple libraries for general purpose programming
+utils: domain ignorant
+domain: biz logic
+  db ignorant
+  db, domain objects
+  db aware
+    incl non-db persistence. unless it needs to be tied into a db intercepter
+    all user-provided data must be backed up to json
+  utilities: domain aware
+application
+
+do NOT combine jsons for
+- audible-scraped persistence: library, book details
+- libation-generated persistence: FilePaths.json
+- user-defined persistence: BookTags.json
+-- end SOLUTION LAYOUT ---------------------------------------------------------------------------------------------------------------------
+
+-- begin EF CORE ---------------------------------------------------------------------------------------------------------------------
+transaction notes
+-----------------
+// https://msdn.microsoft.com/en-us/data/dn456843.aspx
+// Rollback is called by transaction Dispose(). No need to call it explicitly
+  using (var dbContext = new LibationContext())
+  using (var dbContextTransaction = dbContext.Database.BeginTransaction())
+  {
+      refreshAction(dbContext, productItems);
+      dbContext.SaveChanges();
+      dbContextTransaction.Commit();
+  }
+
+aggregate root is transactional boundary
+  // //context.Database.CurrentTransaction
+  //var dbTransaction = Microsoft.EntityFrameworkCore.Storage.DbContextTransactionExtensions.GetDbTransaction(context.Database.CurrentTransaction);
+  // // test with and without : using (TransactionScope scope = new TransactionScope())
+  //System.Transactions.Transaction.Current.TransactionCompleted += (sender, e) => { };
+  // also : https://docs.microsoft.com/en-us/dotnet/api/system.transactions.transaction.enlistvolatile
+
+pattern when using 1 db context per form
+    public Ctor()
+    {
+        InitializeComponent();
+        // dispose context here only. DO NOT dispose in OnParentChanged(). parent form will call dispose after this one has been switched.
+        // disposing context prematurely can result in:
+        //   The ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
+        this.Disposed += (_, __) => context?.Dispose();
+    }
+-- end EF CORE ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ASYNC/AWAIT ---------------------------------------------------------------------------------------------------------------------
+Using Async and Await to update the UI Thread – Stephen Haunts { Coding in the Trenches }
+https://stephenhaunts.com/2014/10/14/using-async-and-await-to-update-the-ui-thread/
+
+Using Async and Await to update the UI Thread Part 2 – Stephen Haunts { Coding in the Trenches }
+https://stephenhaunts.com/2014/10/16/using-async-and-await-to-update-the-ui-thread-part-2/
+
+Simple Async Await Example for Asynchronous Programming – Stephen Haunts { Coding in the Trenches }
+https://stephenhaunts.com/2014/10/10/simple-async-await-example-for-asynchronous-programming/
+
+Async and Await -- Stephen Cleary's famous intro
+https://blog.stephencleary.com/2012/02/async-and-await.html
+
+Async-Await - Best Practices in Asynchronous Programming -- Stephen Cleary
+https://msdn.microsoft.com/en-us/magazine/jj991977.aspx
+
+
+ASYNC PARALLELISM -- pre C# 8
+=================
+private async Task WaitThreeSeconds(int param)
+{
+    Console.WriteLine($"{param} started ------ ({DateTime.Now:hh:mm:ss}) ---");
+    await Task.Delay(3000);
+    Console.WriteLine($"{ param} finished ------({ DateTime.Now:hh:mm: ss}) ---");
+}
+///////////////////////////////////////////////////////////////////////
+// SERIAL CODE
+var listOfInts = new List<int>() { 1, 2, 3 };
+foreach (var integer in listOfInts)
+    await WaitThreeSeconds(integer);
+// SERIAL RESULTS
+1 started ------ (00:00:40) ---
+1 finished ------(00:00: 43) ---
+2 started ------ (00:00:43) ---
+2 finished ------(00:00: 46) ---
+3 started ------ (00:00:46) ---
+2 finished ------(00:00: 49) ---
+///////////////////////////////////////////////////////////////////////
+// PARALLEL CODE
+var listOfInts = new List<int>() { 1, 2, 3 };
+var tasks = new List<Task>();
+foreach (var integer in listOfInts)
+    tasks.Add(WaitThreeSeconds(integer));
+await Task.WhenAll(tasks);
+// PARALLEL RESULTS
+1 started ------ (00:00:02) ---
+2 started ------ (00:00:02) ---
+3 started ------ (00:00:02) ---
+3 finished ------(00:00: 05) ---
+2 finished ------(00:00: 05) ---
+1 finished ------(00:00: 05) ---
+///////////////////////////////////////////////////////////////////////
+// similar. note that await IS NOT being used in the top method calls. TASKS are returned. those tasks are later awaited in parallel
+var catTask = FeedCatAsync();
+var houseTask = SellHouseAsync();
+var carTask = BuyCarAsync();
+
+await Task.WhenAll(catTask, houseTask, carTask).ConfigureAwait(false);
+
+var cat = await catTask;
+var house = await houseTask;
+var car = await carTask;
+-- end ASYNC/AWAIT ---------------------------------------------------------------------------------------------------------------------

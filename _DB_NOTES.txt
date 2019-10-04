@@ -1,0 +1,67 @@
+Logging/Debugging (EF CORE)
+===========================
+Once you configure logging on a DbContext instance it will be enabled on all instances of that DbContext type
+using (var context = new MyContext())
+	context.ConfigureLogging(s => System.Diagnostics.Debug.WriteLine(s)); // write to Visual Studio "Output" tab
+    //context.ConfigureLogging(s => Console.WriteLine(s));
+see comments at top of file:
+    Dinah.EntityFrameworkCore\DbContextLoggingExtensions.cs
+
+LocalDb
+=======
+SSMS db connection: (LocalDb)\MSSQLLocalDB
+eg: Server=(localdb)\mssqllocaldb;Database=DataLayer.LibationContext;Integrated Security=true;
+LocalDb database files live at:
+  C:\Users\[user]\DataLayer.LibationContext.mdf
+  C:\Users\[user]\DataLayer.LibationContext_log.ldf
+
+Migrations
+==========
+
+Visual Studio, EF Core 2.0
+--------------------------
+View > Other Windows > Package Manager Console
+Default project: DataLayer
+Startup project: DataLayer
+since we have mult contexts, must use -context:
+
+        Add-Migration MyComment -context LibationContext
+		Update-Database -context LibationContext
+
+
+QUICK VIEW
+==========
+declare @productId nvarchar(450) = 'B075Y4SWJ8'
+  declare @bookId int
+  declare @catId int
+  select @bookId = b.BookId from Books b where b.AudibleProductId = @productId
+  select @catId = b.CategoryId from Books b where b.AudibleProductId = @productId
+select * from Books b where b.AudibleProductId = @productId
+select *
+  from BookContributor bc
+  join Contributors c on bc.ContributorId = c.ContributorId
+  where bc.BookId = @bookId order by role, [order]
+select *
+  from SeriesBook sb
+  join Series s on sb.SeriesId = s.SeriesId
+  where sb.BookId = @bookId
+select *
+  from Categories c1
+  left join Categories c2 on c1.ParentCategoryCategoryId = c2.CategoryId
+  where c1.CategoryId = @catId
+
+
+ERROR
+=====
+Add-Migration : The term 'Add-Migration' is not recognized as the name of a cmdlet, function, script file, or operable program
+
+SOLUTION
+--------
+dependencies > manage nuget packages
+add: Microsoft.EntityFrameworkCore.Tools
+
+
+SQLite
+======
+SQLite does not support all migrations (schema changes) due to limitations in SQLite
+delete db before running Update-Database?

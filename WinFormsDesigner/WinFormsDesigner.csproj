@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0807616A-A77A-4B08-A65A-1582B09E114B}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>LibationWinForm_Framework</RootNamespace>
+    <AssemblyName>LibationWinForm_Framework</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BookLiberation\AutomatedBackupsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BookLiberation\AutomatedBackupsForm.Designer.cs">
+      <DependentUpon>AutomatedBackupsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BookLiberation\NoLongerAvailableForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BookLiberation\NoLongerAvailableForm.Designer.cs">
+      <DependentUpon>NoLongerAvailableForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BookLiberation\DownloadForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BookLiberation\DownloadForm.Designer.cs">
+      <DependentUpon>DownloadForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BookLiberation\DecryptForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BookLiberation\DecryptForm.Designer.cs">
+      <DependentUpon>DecryptForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\EditQuickFilters.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\EditQuickFilters.Designer.cs">
+      <DependentUpon>EditQuickFilters.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\EditTagsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\EditTagsDialog.Designer.cs">
+      <DependentUpon>EditTagsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="IndexDialogs\ScanLibraryDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="IndexDialogs\ScanLibraryDialog.Designer.cs">
+      <DependentUpon>ScanLibraryDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="IndexDialogs\WebsiteProcessorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="IndexDialogs\WebsiteProcessorControl.Designer.cs">
+      <DependentUpon>WebsiteProcessorControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SearchSyntaxDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\SearchSyntaxDialog.Designer.cs">
+      <DependentUpon>SearchSyntaxDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\SettingsDialog.Designer.cs">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ProductsGrid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ProductsGrid.Designer.cs">
+      <DependentUpon>ProductsGrid.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GridEntry.cs" />
+    <Compile Include="Program.cs" />
+    <EmbeddedResource Include="BookLiberation\AutomatedBackupsForm.resx">
+      <DependentUpon>AutomatedBackupsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BookLiberation\DownloadForm.resx">
+      <DependentUpon>DownloadForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BookLiberation\DecryptForm.resx">
+      <DependentUpon>DecryptForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BookLiberation\NoLongerAvailableForm.resx">
+      <DependentUpon>NoLongerAvailableForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\EditQuickFilters.resx">
+      <DependentUpon>EditQuickFilters.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\EditTagsDialog.resx">
+      <DependentUpon>EditTagsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="IndexDialogs\ScanLibraryDialog.resx">
+      <DependentUpon>ScanLibraryDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="IndexDialogs\WebsiteProcessorControl.resx">
+      <DependentUpon>WebsiteProcessorControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\SearchSyntaxDialog.resx">
+      <DependentUpon>SearchSyntaxDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\SettingsDialog.resx">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProductsGrid.resx">
+      <DependentUpon>ProductsGrid.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\DataSources\LibationWinForm_Framework.ProductGrids.GridEntry.datasource" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.111.0\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.111.0\build\net46\System.Data.SQLite.Core.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.111.0\build\net46\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.111.0\build\net46\System.Data.SQLite.Core.targets'))" />
+  </Target>
+</Project>

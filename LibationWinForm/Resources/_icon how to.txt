@@ -1,0 +1,12 @@
+﻿how to create the app's icon
+============================
+https://www.flaticon.com/free-icon/glass-with-wine_33529#term=wine&page=1&position=59
+get this image, color=black, at each of these sizes: 16,32,64,128,256
+
+from this answer: https://stackoverflow.com/a/16922387
+install image magick. in the install process, check legacy support (necessary for "convert")
+go to the install dir: C:\Program Files\ImageMagick...
+run the convert method from the stackoverflow example
+run cmd
+drag/drop convert.exe into cmd
+...

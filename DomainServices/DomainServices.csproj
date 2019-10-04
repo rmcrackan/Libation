@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AaxDecrypter\AaxDecrypter.csproj" />
+    <ProjectReference Include="..\AudibleDotComAutomation\AudibleDotComAutomation.csproj" />
+    <ProjectReference Include="..\InternalUtilities\InternalUtilities.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,5 @@
+﻿series: http://codeclimber.net.nz/archive/2009/08/27/how-to-get-started-with-lucenenet/
+case study: http://codeclimber.net.nz/archive/2010/02/26/lucenenet-is-powering-subtext-25-search/
+series: http://www.codewrecks.com/blog/index.php/2012/08/25/index-your-blog-using-tags-and-lucene-net/
+query syntax: http://www.lucenetutorial.com/lucene-query-syntax.html
+bool search: http://lucene.apache.org/core/7_3_1/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#Boolean_operators
