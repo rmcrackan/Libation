@@ -177,26 +177,19 @@ namespace LibationSearchEngine
 
             log();
 
-            // location of index/create the index
-            using (var index = getIndex())
-            {
-                var exists = IndexReader.IndexExists(index);
-                var createNewIndex = overwrite || !exists;
+			// location of index/create the index
+			using var index = getIndex();
+            var exists = IndexReader.IndexExists(index);
+            var createNewIndex = overwrite || !exists;
 
-                // analyzer for tokenizing text. same analyzer should be used for indexing and searching
-                using (var analyzer = new StandardAnalyzer(Version))
-                using (var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED))
-                {
-                    foreach (var libraryBook in library)
-                    {
-                        var doc = createBookIndexDocument(libraryBook);
-                        ixWriter.AddDocument(doc);
-                    }
-
-                    // don't optimize. deprecated: ixWriter.Optimize();
-                    // ixWriter.Commit(); not needed if we're about to dispose of writer anyway. could be needed within the using() block
-                }
-            }
+			// analyzer for tokenizing text. same analyzer should be used for indexing and searching
+			using var analyzer = new StandardAnalyzer(Version);
+			using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
+			foreach (var libraryBook in library)
+			{
+				var doc = createBookIndexDocument(libraryBook);
+				ixWriter.AddDocument(doc);
+			}
 
             log();
         }
@@ -247,47 +240,41 @@ namespace LibationSearchEngine
             var document = createBookIndexDocument(libraryBook);
             var createNewIndex = false;
 
-            using (var index = getIndex())
-            using (var analyzer = new StandardAnalyzer(Version))
-            using (var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED))
-            {
-                ixWriter.DeleteDocuments(term);
-                ixWriter.AddDocument(document);
-            }
-        }
+			using var index = getIndex();
+			using var analyzer = new StandardAnalyzer(Version);
+			using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
+			ixWriter.DeleteDocuments(term);
+			ixWriter.AddDocument(document);
+		}
 
         public void UpdateTags(string productId, string tags)
         {
             var productTerm = new Term(_ID_, productId);
 
-            using (var index = getIndex())
-            {
-                Document document;
+			using var index = getIndex();
 
-                // get existing document
-                using (var searcher = new IndexSearcher(index))
-                {
-                    var query = new TermQuery(productTerm);
-                    var docs = searcher.Search(query, 1);
-                    var scoreDoc = docs.ScoreDocs.SingleOrDefault();
-                    if (scoreDoc == null)
-                        throw new Exception("document not found");
-                    document = searcher.Doc(scoreDoc.Doc);
-                }
+			// get existing document
+			using var searcher = new IndexSearcher(index);
+			var query = new TermQuery(productTerm);
+			var docs = searcher.Search(query, 1);
+			var scoreDoc = docs.ScoreDocs.SingleOrDefault();
+			if (scoreDoc == null)
+				throw new Exception("document not found");
+			var document = searcher.Doc(scoreDoc.Doc);
 
-                // update document entry with new tags
-                // fields are key value pairs and MULTIPLE FIELDS CAN HAVE THE SAME KEY. must remove old before adding new
-                // REMEMBER: all fields, including 'tags' are case-specific
-                document.RemoveField(TAGS);
-                document.AddAnalyzed(TAGS, tags);
 
-                // update index
-                var createNewIndex = false;
-                using (var analyzer = new StandardAnalyzer(Version))
-                using (var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED))
-                    ixWriter.UpdateDocument(productTerm, document, analyzer);
-            }
-        }
+			// update document entry with new tags
+			// fields are key value pairs and MULTIPLE FIELDS CAN HAVE THE SAME KEY. must remove old before adding new
+			// REMEMBER: all fields, including 'tags' are case-specific
+			document.RemoveField(TAGS);
+			document.AddAnalyzed(TAGS, tags);
+
+			// update index
+			var createNewIndex = false;
+			using var analyzer = new StandardAnalyzer(Version);
+			using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
+			ixWriter.UpdateDocument(productTerm, document, analyzer);
+		}
 
         public SearchResultSet Search(string searchString)
         {
@@ -381,35 +368,33 @@ namespace LibationSearchEngine
 
             var defaultField = ALL;
 
-            using (var index = getIndex())
-            using (var searcher = new IndexSearcher(index))
-            using (var analyzer = new StandardAnalyzer(Version))
-            {
-                var query = analyzer.GetQuery(defaultField, searchString);
+			using var index = getIndex();
+			using var searcher = new IndexSearcher(index);
+			using var analyzer = new StandardAnalyzer(Version);
+			var query = analyzer.GetQuery(defaultField, searchString);
 
 
-                // lucene doesn't allow only negations. eg this returns nothing:
-                //     -tags:hidden
-                // work arounds: https://kb.ucla.edu/articles/pure-negation-query-in-lucene
-                // HOWEVER, doing this to any other type of query can cause EVERYTHING to be a match unless "Occur" is carefully set
-                // this should really check that all leaf nodes are MUST_NOT
-                if (query is BooleanQuery boolQuery)
-                {
-                    var occurs = getOccurs_recurs(boolQuery);
-                    if (occurs.Any() && occurs.All(o => o == Occur.MUST_NOT))
-                        boolQuery.Add(new MatchAllDocsQuery(), Occur.MUST);
-                }
+			// lucene doesn't allow only negations. eg this returns nothing:
+			//     -tags:hidden
+			// work arounds: https://kb.ucla.edu/articles/pure-negation-query-in-lucene
+			// HOWEVER, doing this to any other type of query can cause EVERYTHING to be a match unless "Occur" is carefully set
+			// this should really check that all leaf nodes are MUST_NOT
+			if (query is BooleanQuery boolQuery)
+			{
+				var occurs = getOccurs_recurs(boolQuery);
+				if (occurs.Any() && occurs.All(o => o == Occur.MUST_NOT))
+					boolQuery.Add(new MatchAllDocsQuery(), Occur.MUST);
+			}
 
-                Console.WriteLine($"  query: {query}");
+			Console.WriteLine($"  query: {query}");
 
-                var docs = searcher
-                    .Search(query, MaxSearchResultsToReturn)
-                    .ScoreDocs
-                    .Select(ds => new ScoreDocExplicit(searcher.Doc(ds.Doc), ds.Score))
-                    .ToList();
-                return new SearchResultSet(query.ToString(), docs);
-            }
-        }
+			var docs = searcher
+				.Search(query, MaxSearchResultsToReturn)
+				.ScoreDocs
+				.Select(ds => new ScoreDocExplicit(searcher.Doc(ds.Doc), ds.Score))
+				.ToList();
+			return new SearchResultSet(query.ToString(), docs);
+		}
 
         private IEnumerable<Occur> getOccurs_recurs(BooleanQuery query)
         {

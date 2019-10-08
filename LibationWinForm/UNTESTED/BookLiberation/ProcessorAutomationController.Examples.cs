@@ -11,12 +11,12 @@ namespace LibationWinForm.BookLiberation
     {
         async Task BackupBookAsync(string productId)
         {
-            LibraryBook libraryBook;
-            using (var context = LibationContext.Create())
-                libraryBook = context
-                    .Library
-                    .GetLibrary()
-                    .SingleOrDefault(lb => lb.Book.AudibleProductId == productId);
+			using var context = LibationContext.Create();
+
+            var libraryBook = context
+                .Library
+                .GetLibrary()
+                .SingleOrDefault(lb => lb.Book.AudibleProductId == productId);
 
             if (libraryBook == null)
                 return;

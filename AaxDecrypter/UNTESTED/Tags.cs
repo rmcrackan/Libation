@@ -25,35 +25,31 @@ namespace AaxDecrypter
 
         public Tags(string file)
         {
-            using (TagLib.File tagLibFile = TagLib.File.Create(file, "audio/mp4", ReadStyle.Average))
-            {
-                this.title = tagLibFile.Tag.Title.Replace(" (Unabridged)", "");
-                this.album = tagLibFile.Tag.Album.Replace(" (Unabridged)", "");
-                this.author = tagLibFile.Tag.FirstPerformer;
-                this.year = tagLibFile.Tag.Year.ToString();
-                this.comments = tagLibFile.Tag.Comment;
-                this.duration = tagLibFile.Properties.Duration;
-                this.genre = tagLibFile.Tag.FirstGenre;
+			using TagLib.File tagLibFile = TagLib.File.Create(file, "audio/mp4", ReadStyle.Average);
+			this.title = tagLibFile.Tag.Title.Replace(" (Unabridged)", "");
+			this.album = tagLibFile.Tag.Album.Replace(" (Unabridged)", "");
+			this.author = tagLibFile.Tag.FirstPerformer;
+			this.year = tagLibFile.Tag.Year.ToString();
+			this.comments = tagLibFile.Tag.Comment;
+			this.duration = tagLibFile.Properties.Duration;
+			this.genre = tagLibFile.Tag.FirstGenre;
 
-                var tag = tagLibFile.GetTag(TagTypes.Apple, true);
-                this.publisher = tag.Publisher;
-                this.narrator = string.IsNullOrWhiteSpace(tagLibFile.Tag.FirstComposer) ? tag.Narrator : tagLibFile.Tag.FirstComposer;
-                this.comments = !string.IsNullOrWhiteSpace(tag.LongDescription) ? tag.LongDescription : tag.Description;
-                this.id = tag.AudibleCDEK;
-            }
-        }
+			var tag = tagLibFile.GetTag(TagTypes.Apple, true);
+			this.publisher = tag.Publisher;
+			this.narrator = string.IsNullOrWhiteSpace(tagLibFile.Tag.FirstComposer) ? tag.Narrator : tagLibFile.Tag.FirstComposer;
+			this.comments = !string.IsNullOrWhiteSpace(tag.LongDescription) ? tag.LongDescription : tag.Description;
+			this.id = tag.AudibleCDEK;
+		}
 
         public void AddAppleTags(string file)
         {
-            using (var file1 = TagLib.File.Create(file, "audio/mp4", ReadStyle.Average))
-            {
-                var tag = (AppleTag)file1.GetTag(TagTypes.Apple, true);
-                tag.Publisher = this.publisher;
-                tag.LongDescription = this.comments;
-                tag.Description = this.comments;
-                file1.Save();
-            }
-        }
+			using var file1 = TagLib.File.Create(file, "audio/mp4", ReadStyle.Average);
+			var tag = (AppleTag)file1.GetTag(TagTypes.Apple, true);
+			tag.Publisher = this.publisher;
+			tag.LongDescription = this.comments;
+			tag.Description = this.comments;
+			file1.Save();
+		}
 
         public string GenerateFfmpegTags()
         {

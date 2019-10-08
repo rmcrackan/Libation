@@ -43,8 +43,8 @@ namespace DomainServices
 
             var destinationFilename = Path.Combine(destinationDir, Path.GetFileName(url));
 
-            using (var webClient = await GetWebClient(destinationFilename))
-                await webClient.DownloadFileTaskAsync(url, destinationFilename);
+			using var webClient = await GetWebClient(destinationFilename);
+            await webClient.DownloadFileTaskAsync(url, destinationFilename);
 
             var statusHandler = new StatusHandler();
             var exists = await AudibleFileStorage.PDF.ExistsAsync(product.AudibleProductId);

@@ -23,22 +23,20 @@ namespace ffmpeg_decrypt
 
 		private void inpbutton_Click(object sender, EventArgs e)
 		{
-			using (var ofd = new OpenFileDialog { Filter = "Audible Audio Files|*.aax", Title = "Select an Audible Audio File", FileName = "" })
+			using var ofd = new OpenFileDialog { Filter = "Audible Audio Files|*.aax", Title = "Select an Audible Audio File", FileName = "" };
+			if (ofd.ShowDialog() == DialogResult.OK)
 			{
-				if (ofd.ShowDialog() == DialogResult.OK)
-				{
-					inputdisplay.Text = ofd.FileName;
-					outputdisplay.Text = Path.GetDirectoryName(ofd.FileName);
-					convertbutton.Enabled = true;
-				}
+				inputdisplay.Text = ofd.FileName;
+				outputdisplay.Text = Path.GetDirectoryName(ofd.FileName);
+				convertbutton.Enabled = true;
 			}
 		}
 
 		private void outpbutton_Click(object sender, EventArgs e)
 		{
-			using (var fbd = new FolderBrowserDialog())
-				if (fbd.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
-					outputdisplay.Text = fbd.SelectedPath;
+			using var fbd = new FolderBrowserDialog();
+			if (fbd.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+				outputdisplay.Text = fbd.SelectedPath;
 		}
 
 		private async void convertbutton_Click(object sender, EventArgs e)
@@ -87,18 +85,15 @@ namespace ffmpeg_decrypt
 				WorkingDirectory = Directory.GetCurrentDirectory()
 			};
 
-			string ffprobeStderr;
-			using (var ffp = new Process { StartInfo = startInfo })
-			{
-				ffp.Start();
+			using var ffp = new Process { StartInfo = startInfo };
+			ffp.Start();
 
-				// checksum is in the debug info. ffprobe's debug info is written to stderr, not stdout
-				ffprobeStderr = ffp.StandardError.ReadToEnd();
+			// checksum is in the debug info. ffprobe's debug info is written to stderr, not stdout
+			var ffprobeStderr = ffp.StandardError.ReadToEnd();
 
-				await Task.Run(() => ffp.WaitForExit());
+			await Task.Run(() => ffp.WaitForExit());
 
-				ffp.Close();
-			}
+			ffp.Close();
 
 			// example checksum line:
 			// ... [aax] file checksum == 0c527840c4f18517157eb0b4f9d6f9317ce60cd1
@@ -135,16 +130,13 @@ namespace ffmpeg_decrypt
 				WorkingDirectory = Directory.GetCurrentDirectory()
 			};
 
-			string rcrackStdout;
-			using (var rcr = new Process { StartInfo = startInfo })
-			{
-				rcr.Start();
+			using var rcr = new Process { StartInfo = startInfo };
+			rcr.Start();
 
-				rcrackStdout = rcr.StandardOutput.ReadToEnd();
+			var rcrackStdout = rcr.StandardOutput.ReadToEnd();
 
-				await Task.Run(() => rcr.WaitForExit());
-				rcr.Close();
-			}
+			await Task.Run(() => rcr.WaitForExit());
+			rcr.Close();
 
 			// example result
 			// 0c527840c4f18517157eb0b4f9d6f9317ce60cd1  \xbd\x89X\x09  hex:bd895809
@@ -202,15 +194,13 @@ namespace ffmpeg_decrypt
 				WorkingDirectory = Directory.GetCurrentDirectory()
 			};
 
-			using (var ffm = new Process { StartInfo = startInfo, EnableRaisingEvents = true })
-			{
-				ffm.ErrorDataReceived += (s, ea) => debugWindow.UIThread(() => debugWindow.AppendText($"DEBUG: {ea.Data}\r\n"));
+			using var ffm = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
+			ffm.ErrorDataReceived += (s, ea) => debugWindow.UIThread(() => debugWindow.AppendText($"DEBUG: {ea.Data}\r\n"));
 
-				ffm.Start();
-				ffm.BeginErrorReadLine();
-				await Task.Run(() => ffm.WaitForExit());
-				ffm.Close();
-			}
+			ffm.Start();
+			ffm.BeginErrorReadLine();
+			await Task.Run(() => ffm.WaitForExit());
+			ffm.Close();
 		}
 
 		/// <summary>extract embedded resource to file if it doesn't already exist</summary>
@@ -224,11 +214,11 @@ namespace ffmpeg_decrypt
 			// this technique works but there are easier ways:
 			// https://stackoverflow.com/questions/13031778/how-can-i-extract-a-file-from-an-embedded-resource-and-save-it-to-disk
 			Directory.CreateDirectory(resdir);
-			using (var resource = System.Reflection.Assembly.GetCallingAssembly().GetManifestResourceStream($"{nameof(ffmpeg_decrypt)}.res." + resourceName))
-			using (var reader = new BinaryReader(resource))
-			using (var file = new FileStream(Path.Combine(resdir, resourceName), FileMode.OpenOrCreate))
-			using (var writer = new BinaryWriter(file))
-				writer.Write(reader.ReadBytes((int)resource.Length));
+			using var resource = System.Reflection.Assembly.GetCallingAssembly().GetManifestResourceStream($"{nameof(ffmpeg_decrypt)}.res." + resourceName);
+			using var reader = new BinaryReader(resource);
+			using var file = new FileStream(Path.Combine(resdir, resourceName), FileMode.OpenOrCreate);
+			using var writer = new BinaryWriter(file);
+			writer.Write(reader.ReadBytes((int)resource.Length));
 		}
 
 		private void decryptConvertRb_CheckedChanged(object sender, EventArgs e) => convertGb.Enabled = convertRb.Checked;

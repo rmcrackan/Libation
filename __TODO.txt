@@ -11,8 +11,8 @@ incl episodes. eg: "Bill Bryson's Appliance of Science"
 replace all scraping with audible api
     public partial class ScanLibraryDialog : Form, IIndexLibraryDialog
         public async Task DoMainWorkAsync()
-            using (var pageRetriever = websiteProcessorControl1.GetPageRetriever())
-                jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
+            using var pageRetriever = websiteProcessorControl1.GetPageRetriever();
+            jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
 
 break out DTOs. currently coupled with scraping
 

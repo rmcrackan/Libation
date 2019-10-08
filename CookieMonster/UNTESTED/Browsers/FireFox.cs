@@ -28,27 +28,23 @@ namespace CookieMonster
 
             File.Copy(strPath, strTemp, true);
 
-            // Now open the temporary cookie jar and extract Value from the cookie if we find it.
-            using (var conn = new SQLiteConnection("Data Source=" + strTemp + ";pooling=false"))
-            using (var cmd = conn.CreateCommand())
-            {
-                cmd.CommandText = "SELECT host, name, value, lastAccessed, expiry FROM moz_cookies; ";
+			// Now open the temporary cookie jar and extract Value from the cookie if we find it.
+			using var conn = new SQLiteConnection("Data Source=" + strTemp + ";pooling=false");
+			using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT host, name, value, lastAccessed, expiry FROM moz_cookies; ";
 
-                conn.Open();
-                using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
-                {
-                    while (reader.Read())
-                    {
-                        var host_key = reader.GetString(0);
-                        var name = reader.GetString(1);
-                        var value = reader.GetString(2);
-                        var lastAccessed = reader.GetInt32(3);
-                        var expiry = reader.GetInt32(4);
+            conn.Open();
+			using var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+			while (reader.Read())
+			{
+			    var host_key = reader.GetString(0);
+			    var name = reader.GetString(1);
+			    var value = reader.GetString(2);
+			    var lastAccessed = reader.GetInt32(3);
+			    var expiry = reader.GetInt32(4);
 
-                        col.Add(new CookieValue { Browser = "firefox", Domain = host_key, Name = name, Value = value, LastAccess = lastAccessedToDateTime(lastAccessed), Expires = expiryToDateTime(expiry) });
-                    }
-                }
-            }
+			    col.Add(new CookieValue { Browser = "firefox", Domain = host_key, Name = name, Value = value, LastAccess = lastAccessedToDateTime(lastAccessed), Expires = expiryToDateTime(expiry) });
+			}
 
             if (FileUtility.FileExists(strTemp))
                 File.Delete(strTemp);

@@ -63,18 +63,16 @@ transaction notes
 -----------------
 // https://msdn.microsoft.com/en-us/data/dn456843.aspx
 // Rollback is called by transaction Dispose(). No need to call it explicitly
-  using (var dbContext = new LibationContext())
-  using (var dbContextTransaction = dbContext.Database.BeginTransaction())
-  {
-      refreshAction(dbContext, productItems);
-      dbContext.SaveChanges();
-      dbContextTransaction.Commit();
-  }
+  using var dbContext = new LibationContext();
+  using var dbContextTransaction = dbContext.Database.BeginTransaction();
+  refreshAction(dbContext, productItems);
+  dbContext.SaveChanges();
+  dbContextTransaction.Commit();
 
 aggregate root is transactional boundary
   // //context.Database.CurrentTransaction
   //var dbTransaction = Microsoft.EntityFrameworkCore.Storage.DbContextTransactionExtensions.GetDbTransaction(context.Database.CurrentTransaction);
-  // // test with and without : using (TransactionScope scope = new TransactionScope())
+  // // test with and without : using TransactionScope scope = new TransactionScope();
   //System.Transactions.Transaction.Current.TransactionCompleted += (sender, e) => { };
   // also : https://docs.microsoft.com/en-us/dotnet/api/system.transactions.transaction.enlistvolatile
 

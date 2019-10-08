@@ -94,27 +94,27 @@ var pageSource = new AudiblePageSource(AudiblePageType.Library, html, null);
 
         private static async Task<string> getLibraryPageAsync(CookieContainer cookies, int pageNum)
         {
-            #region // POST example (from 2017 ajax)
-            // var destination = "https://www.audible.com/lib-ajax";
-            // var webRequest = (HttpWebRequest)WebRequest.Create(destination);
-            // webRequest.Method = "POST";
-            // webRequest.Accept = "*/*";
-            // webRequest.AllowAutoRedirect = false;
-            // webRequest.UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.0.3705)";
-            // webRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
-            // webRequest.Credentials = null;
-            //
-            // webRequest.CookieContainer = new CookieContainer();
-            // webRequest.CookieContainer.Add(cookies.GetCookies(new Uri(destination)));
-            //
-            // var postData = $"progType=all&timeFilter=all&itemsPerPage={itemsPerPage}&searchTerm=&searchType=&sortColumn=&sortType=down&page={pageNum}&mode=normal&subId=&subTitle=";
-            // var data = Encoding.UTF8.GetBytes(postData);
-            // webRequest.ContentLength = data.Length;
-            // using (var dataStream = webRequest.GetRequestStream())
-            //     dataStream.Write(data, 0, data.Length);
-            #endregion
+			#region // POST example (from 2017 ajax)
+			// var destination = "https://www.audible.com/lib-ajax";
+			// var webRequest = (HttpWebRequest)WebRequest.Create(destination);
+			// webRequest.Method = "POST";
+			// webRequest.Accept = "*/*";
+			// webRequest.AllowAutoRedirect = false;
+			// webRequest.UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.0.3705)";
+			// webRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
+			// webRequest.Credentials = null;
+			//
+			// webRequest.CookieContainer = new CookieContainer();
+			// webRequest.CookieContainer.Add(cookies.GetCookies(new Uri(destination)));
+			//
+			// var postData = $"progType=all&timeFilter=all&itemsPerPage={itemsPerPage}&searchTerm=&searchType=&sortColumn=&sortType=down&page={pageNum}&mode=normal&subId=&subTitle=";
+			// var data = Encoding.UTF8.GetBytes(postData);
+			// webRequest.ContentLength = data.Length;
+			// using var dataStream = webRequest.GetRequestStream();
+			// dataStream.Write(data, 0, data.Length);
+			#endregion
 
-var destination = "https://" + $"www.audible.com/lib?purchaseDateFilter=all&programFilter=all&sortBy=PURCHASE_DATE.dsc&page={pageNum}";
+            var destination = "https://" + $"www.audible.com/lib?purchaseDateFilter=all&programFilter=all&sortBy=PURCHASE_DATE.dsc&page={pageNum}";
             var webRequest = (HttpWebRequest)WebRequest.Create(destination);
             webRequest.UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.0.3705)";
 

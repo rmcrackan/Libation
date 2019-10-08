@@ -72,37 +72,35 @@ namespace DomainServices
                     // download htm
                     string source;
                     var url = AudiblePage.Product.GetUrl(productId);
-                    using (var webClient = await GetWebClient($"Getting Book Details for {libraryBook.Book.Title}"))
-                    {
-                        try
-                        {
-                            source = await webClient.DownloadStringTaskAsync(url);
-                            var detailsAudiblePageSource = new AudiblePageSource(AudiblePageType.ProductDetails, source, productId);
+					using var webClient = await GetWebClient($"Getting Book Details for {libraryBook.Book.Title}");
+					try
+					{
+						source = await webClient.DownloadStringTaskAsync(url);
+						var detailsAudiblePageSource = new AudiblePageSource(AudiblePageType.ProductDetails, source, productId);
 
-                            // good habit to persist htm before attempting to parse it. this way, if there's a parse error, we can test errors on a local copy
-                            DataConverter.AudiblePageSource_2_HtmFile_Product(detailsAudiblePageSource);
+						// good habit to persist htm before attempting to parse it. this way, if there's a parse error, we can test errors on a local copy
+						DataConverter.AudiblePageSource_2_HtmFile_Product(detailsAudiblePageSource);
 
-                            bookDetailDTO = AudibleScraper.ScrapeBookDetailsSource(detailsAudiblePageSource);
-                        }
-                        catch (System.Net.WebException webEx)
-                        {
-                            // cannot continue if NoLongerAvailableAction is null,
-                            // else we'll be right back here next loop (and infinitely) with no failure condition
-                            if (webEx.Status != System.Net.WebExceptionStatus.ConnectionClosed || NoLongerAvailableAction == null)
-                                throw;
+						bookDetailDTO = AudibleScraper.ScrapeBookDetailsSource(detailsAudiblePageSource);
+					}
+					catch (System.Net.WebException webEx)
+					{
+						// cannot continue if NoLongerAvailableAction is null,
+						// else we'll be right back here next loop (and infinitely) with no failure condition
+						if (webEx.Status != System.Net.WebExceptionStatus.ConnectionClosed || NoLongerAvailableAction == null)
+							throw;
 
-                            var nlaEnum = NoLongerAvailableAction.Invoke(
-                                libraryBook.Book.Title,
-                                AudiblePage.Product.GetUrl(libraryBook.Book.AudibleProductId));
-                            if (nlaEnum == NoLongerAvailableEnum.Abort)
-                                return new StatusHandler { "Cannot scrape book details. Aborting." };
-                            else if (nlaEnum == NoLongerAvailableEnum.MarkAsMissing)
-                                bookDetailDTO = new BookDetailDTO { ProductId = productId };
-                            else
-                                throw;
-                        }
-                    }
-                }
+						var nlaEnum = NoLongerAvailableAction.Invoke(
+							libraryBook.Book.Title,
+							AudiblePage.Product.GetUrl(libraryBook.Book.AudibleProductId));
+						if (nlaEnum == NoLongerAvailableEnum.Abort)
+							return new StatusHandler { "Cannot scrape book details. Aborting." };
+						else if (nlaEnum == NoLongerAvailableEnum.MarkAsMissing)
+							bookDetailDTO = new BookDetailDTO { ProductId = productId };
+						else
+							throw;
+					}
+				}
 
                 DataConverter.Value_2_JsonFile(bookDetailDTO, jsonFileInfo.FullName);
             }

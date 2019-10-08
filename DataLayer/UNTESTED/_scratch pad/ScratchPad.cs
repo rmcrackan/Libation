@@ -13,13 +13,11 @@ namespace _scratch_pad
     //        var user = new Student() { Name = "Dinah Cheshire" };
     //        var udi = new UserDef { UserDefId = 1, TagsRaw = "my,tags" };
 
-    //        using (var context = new MyTestContextDesignTimeDbContextFactory().Create())
-    //        {
-    //            context.Add(user);
-    //            //context.Add(udi);
-    //            context.Update(udi);
-    //            context.SaveChanges();
-    //        }
+    //        using var context = new MyTestContextDesignTimeDbContextFactory().Create();
+    //        context.Add(user);
+    //        //context.Add(udi);
+    //        context.Update(udi);
+    //        context.SaveChanges();
 
     //        Console.WriteLine($"Student was saved in the database with id: {user.Id}");
     //    }

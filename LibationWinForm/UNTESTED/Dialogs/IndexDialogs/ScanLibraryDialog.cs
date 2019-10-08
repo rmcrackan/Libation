@@ -25,9 +25,8 @@ namespace LibationWinForm
 
         public async Task DoMainWorkAsync()
         {
-            List<FileInfo> jsonFilepaths;
-            using (var pageRetriever = websiteProcessorControl1.GetPageRetriever())
-                jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
+			using var pageRetriever = websiteProcessorControl1.GetPageRetriever();
+			var jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
 
             successMessages.Add($"Downloaded {"library page".PluralizeWithCount(jsonFilepaths.Count)}");
 

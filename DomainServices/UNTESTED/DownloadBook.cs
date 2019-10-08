@@ -43,13 +43,11 @@ namespace DomainServices
                 .Replace("&DownloadType=Now", "")
                 + "&asin=&source=audible_adm&size=&browser_type=&assemble_url=http://cds.audible.com/download";
             var uri = new Uri(aaxDownloadLink);
-            using (var webClient = await GetWebClient(tempAaxFilename))
-            {
-                // for book downloads only: pretend to be the audible download manager. from inAudible:
-                webClient.Headers["User-Agent"] = "Audible ADM 6.6.0.15;Windows Vista Service Pack 1 Build 7601";
 
-                await webClient.DownloadFileTaskAsync(uri, tempAaxFilename);
-            }
+			using var webClient = await GetWebClient(tempAaxFilename);
+            // for book downloads only: pretend to be the audible download manager. from inAudible:
+            webClient.Headers["User-Agent"] = "Audible ADM 6.6.0.15;Windows Vista Service Pack 1 Build 7601";
+            await webClient.DownloadFileTaskAsync(uri, tempAaxFilename);
 
             // move
             var aaxFilename = FileUtility.GetValidFilename(

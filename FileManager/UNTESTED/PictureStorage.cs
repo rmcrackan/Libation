@@ -39,39 +39,37 @@ namespace FileManager
             {
                 try
                 {
-                    using (var webClient = new System.Net.WebClient())
-                    {
-                        // download any that don't exist
-                        {
-                            if (!FileUtility.FileExists(path80))
-                            {
-                                var bytes = webClient.DownloadData(
-                                    "https://images-na.ssl-images-amazon.com/images/I/" + pictureId + "._SL80_.jpg");
-                                File.WriteAllBytes(path80, bytes);
-                            }
-                        }
+					using var webClient = new System.Net.WebClient();
+					// download any that don't exist
+					{
+						if (!FileUtility.FileExists(path80))
+						{
+							var bytes = webClient.DownloadData(
+								"https://images-na.ssl-images-amazon.com/images/I/" + pictureId + "._SL80_.jpg");
+							File.WriteAllBytes(path80, bytes);
+						}
+					}
 
-                        {
-                            if (!FileUtility.FileExists(path300))
-                            {
-                                var bytes = webClient.DownloadData(
-                                    "https://images-na.ssl-images-amazon.com/images/I/" + pictureId + "._SL300_.jpg");
-                                File.WriteAllBytes(path300, bytes);
-                            }
-                        }
+					{
+						if (!FileUtility.FileExists(path300))
+						{
+							var bytes = webClient.DownloadData(
+								"https://images-na.ssl-images-amazon.com/images/I/" + pictureId + "._SL300_.jpg");
+							File.WriteAllBytes(path300, bytes);
+						}
+					}
 
-                        {
-                            if (!FileUtility.FileExists(path500))
-                            {
-                                var bytes = webClient.DownloadData(
-                                    "https://m.media-amazon.com/images/I/" + pictureId + "._SL500_.jpg");
-                                File.WriteAllBytes(path500, bytes);
-                            }
-                        }
+					{
+						if (!FileUtility.FileExists(path500))
+						{
+							var bytes = webClient.DownloadData(
+								"https://m.media-amazon.com/images/I/" + pictureId + "._SL500_.jpg");
+							File.WriteAllBytes(path500, bytes);
+						}
+					}
 
-                        break;
-                    }
-                }
+					break;
+				}
                 catch { retry++; }
             }
             while (retry < 3);

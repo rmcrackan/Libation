@@ -1,7 +1,7 @@
 Logging/Debugging (EF CORE)
 ===========================
 Once you configure logging on a DbContext instance it will be enabled on all instances of that DbContext type
-using (var context = new MyContext())
+    using var context = new MyContext();
 	context.ConfigureLogging(s => System.Diagnostics.Debug.WriteLine(s)); // write to Visual Studio "Output" tab
     //context.ConfigureLogging(s => Console.WriteLine(s));
 see comments at top of file:

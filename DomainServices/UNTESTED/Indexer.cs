@@ -55,28 +55,25 @@ namespace DomainServices
 
 			productItems = filterAndValidate(productItems);
 
-            int newEntries;
-            using (var context = LibationContext.Create())
-            {
-                var dtoImporter = new DtoImporter(context);
+			using var context = LibationContext.Create();
+            var dtoImporter = new DtoImporter(context);
 
-                #region // benchmarks. re-importing a library with 500 books, all with book details json files
-                /*
-                dtoImporter.ReplaceLibrary           1.2 seconds
-                SaveChanges()                        3.4
-                ReloadBookDetails()                  1.3
-                SaveChanges()                        1.4
-                 */
-                #endregion
-                // LONG RUNNING
-                newEntries = await Task.Run(() => dtoImporter.ReplaceLibrary(productItems));
-                await context.SaveChangesAsync();
+            #region // benchmarks. re-importing a library with 500 books, all with book details json files
+            /*
+            dtoImporter.ReplaceLibrary           1.2 seconds
+            SaveChanges()                        3.4
+            ReloadBookDetails()                  1.3
+            SaveChanges()                        1.4
+            */
+            #endregion
+            // LONG RUNNING
+            var newEntries = await Task.Run(() => dtoImporter.ReplaceLibrary(productItems));
+            await context.SaveChangesAsync();
 
-                // must be broken out. see notes in dtoImporter.ReplaceLibrary()
-                // LONG RUNNING
-                await Task.Run(() => dtoImporter.ReloadBookDetails(productItems));
-                await context.SaveChangesAsync();
-            }
+            // must be broken out. see notes in dtoImporter.ReplaceLibrary()
+            // LONG RUNNING
+            await Task.Run(() => dtoImporter.ReloadBookDetails(productItems));
+            await context.SaveChangesAsync();
 
             await postIndexActionAsync?.Invoke();
 
@@ -111,13 +108,10 @@ namespace DomainServices
         #region update book tags
         public static int IndexChangedTags(Book book)
         {
-            // update disconnected entity
-            int qtyChanges;
-            using (var context = LibationContext.Create())
-            {
-                context.Update(book);
-                qtyChanges = context.SaveChanges();
-            }
+			// update disconnected entity
+			using var context = LibationContext.Create();
+            context.Update(book);
+            var qtyChanges = context.SaveChanges();
 
             // this part is tags-specific
             if (qtyChanges > 0)
@@ -151,19 +145,15 @@ namespace DomainServices
 
             validate(bookDetailDTO);
 
-            using (var context = LibationContext.Create())
-            {
-                var dtoImporter = new DtoImporter(context);
-                // LONG RUNNING
-                await Task.Run(() => dtoImporter.UpdateBookDetails(bookDetailDTO));
-                context.SaveChanges();
+			using var context = LibationContext.Create();
+            var dtoImporter = new DtoImporter(context);
+            // LONG RUNNING
+            await Task.Run(() => dtoImporter.UpdateBookDetails(bookDetailDTO));
+            context.SaveChanges();
 
-                // after saving, delete orphan contributors
-                var count = context.RemoveOrphans();
-                if (count > 0)
-                {
-                }
-            }
+            // after saving, delete orphan contributors
+            var count = context.RemoveOrphans();
+            if (count > 0) { } // don't think there's a to-do here
 
             await postIndexActionAsync?.Invoke();
         }

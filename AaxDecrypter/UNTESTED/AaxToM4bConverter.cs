@@ -117,9 +117,9 @@ namespace AaxDecrypter
 
         private void saveCover(string aaxFile)
         {
-            using (var file = TagLib.File.Create(aaxFile, "audio/mp4", TagLib.ReadStyle.Average))
-                this.coverBytes = file.Tag.Pictures[0].Data.Data;
-        }
+			using var file = TagLib.File.Create(aaxFile, "audio/mp4", TagLib.ReadStyle.Average);
+			this.coverBytes = file.Tag.Pictures[0].Data.Data;
+		}
 
         private void printPrelim()
         {
