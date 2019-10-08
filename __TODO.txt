@@ -5,22 +5,6 @@ scraping code
 "legacy inAudible wire-up code"
 -- end LEGACY ---------------------------------------------------------------------------------------------------------------------
 
--- begin UPGRADE TO EF CORE 3 ---------------------------------------------------------------------------------------------------------------------
-dinah.EFCore, DataLayer
-2.2.6 == no problem
-3.0.0 == problem:
-System.InvalidOperationException: 'The type 'UserDefinedItem' cannot be configured as non-owned because an owned entity type with the same name already exists.'
-
-https://github.com/aspnet/EntityFrameworkCore/issues/15681
-https://www.infoq.com/news/2019/06/EF-Core-3-Breaking-Changes/
-https://docs.microsoft.com/en-us/ef/core/modeling/owned-entities
-https://docs.microsoft.com/en-us/ef/core/what-is-new/ef-core-3.0/breaking-changes
-  new version: WithOwner
-  usage
-    .OwnsOne(...).WithOwner()
-    .OwnsMany(...).WithOwner()
--- end UPGRADE TO EF CORE 3 ---------------------------------------------------------------------------------------------------------------------
-
 -- begin REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
 incl episodes. eg: "Bill Bryson's Appliance of Science"
   refining episode retrieval might also get rid of the need for IsEpisodes property
@@ -117,9 +101,7 @@ also touches parts of code which: db write via a hook, search engine re-index
 -- end ENHANCEMENT, PERFORMANCE: TAGS ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
-
 when a book/pdf is NOT liberated, calculating the grid's [Liberated][NOT d/l'ed] label is very slow
-
 -- end ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT: REMOVE BOOK ---------------------------------------------------------------------------------------------------------------------

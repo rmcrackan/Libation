@@ -51,8 +51,6 @@ namespace DataLayer
             modelBuilder.ApplyConfiguration(new BookConfig());
             modelBuilder.ApplyConfiguration(new ContributorConfig());
             modelBuilder.ApplyConfiguration(new BookContributorConfig());
-            modelBuilder.ApplyConfiguration(new SupplementConfig());
-            modelBuilder.ApplyConfiguration(new UserDefinedItemConfig());
             modelBuilder.ApplyConfiguration(new LibraryBookConfig());
             modelBuilder.ApplyConfiguration(new SeriesConfig());
             modelBuilder.ApplyConfiguration(new SeriesBookConfig());

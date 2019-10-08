@@ -10,14 +10,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(LibationContext))]
-    [Migration("20190124192324_EmptyCategorySeed")]
-    partial class EmptyCategorySeed
+    [Migration("20191007202808_UpgradeToCore3")]
+    partial class UpgradeToCore3
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.0-rtm-35687")
+                .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -25,27 +25,35 @@ namespace DataLayer.Migrations
                 {
                     b.Property<int>("BookId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AudibleProductId");
+                    b.Property<string>("AudibleProductId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CategoryId");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime?>("DatePublished");
+                    b.Property<DateTime?>("DatePublished")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("HasBookDetails");
+                    b.Property<bool>("HasBookDetails")
+                        .HasColumnType("bit");
 
-                    b.Property<bool>("IsAbridged");
+                    b.Property<bool>("IsAbridged")
+                        .HasColumnType("bit");
 
-                    b.Property<int>("LengthInMinutes");
+                    b.Property<int>("LengthInMinutes")
+                        .HasColumnType("int");
 
-                    b.Property<string>("PictureId");
+                    b.Property<string>("PictureId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Publisher");
-
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("BookId");
 
@@ -58,13 +66,17 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("DataLayer.BookContributor", b =>
                 {
-                    b.Property<int>("BookId");
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("ContributorId");
+                    b.Property<int>("ContributorId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("Role");
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
-                    b.Property<byte>("Order");
+                    b.Property<byte>("Order")
+                        .HasColumnType("tinyint");
 
                     b.HasKey("BookId", "ContributorId", "Role");
 
@@ -79,13 +91,17 @@ namespace DataLayer.Migrations
                 {
                     b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AudibleCategoryId");
+                    b.Property<string>("AudibleCategoryId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ParentCategoryCategoryId");
+                    b.Property<int?>("ParentCategoryCategoryId")
+                        .HasColumnType("int");
 
                     b.HasKey("CategoryId");
 
@@ -108,11 +124,14 @@ namespace DataLayer.Migrations
                 {
                     b.Property<int>("ContributorId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AudibleAuthorId");
+                    b.Property<string>("AudibleAuthorId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ContributorId");
 
@@ -123,11 +142,14 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("DataLayer.LibraryBook", b =>
                 {
-                    b.Property<int>("BookId");
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("DateAdded");
+                    b.Property<DateTime>("DateAdded")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("DownloadBookLink");
+                    b.Property<string>("DownloadBookLink")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("BookId");
 
@@ -138,11 +160,14 @@ namespace DataLayer.Migrations
                 {
                     b.Property<int>("SeriesId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AudibleSeriesId");
+                    b.Property<string>("AudibleSeriesId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SeriesId");
 
@@ -153,11 +178,14 @@ namespace DataLayer.Migrations
 
             modelBuilder.Entity("DataLayer.SeriesBook", b =>
                 {
-                    b.Property<int>("SeriesId");
+                    b.Property<int>("SeriesId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("BookId");
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
 
-                    b.Property<float?>("Index");
+                    b.Property<float?>("Index")
+                        .HasColumnType("real");
 
                     b.HasKey("SeriesId", "BookId");
 
@@ -173,17 +201,45 @@ namespace DataLayer.Migrations
                     b.HasOne("DataLayer.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("DataLayer.Rating", "Rating", b1 =>
+                        {
+                            b1.Property<int>("BookId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
+                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                            b1.Property<float>("OverallRating")
+                                .HasColumnType("real");
+
+                            b1.Property<float>("PerformanceRating")
+                                .HasColumnType("real");
+
+                            b1.Property<float>("StoryRating")
+                                .HasColumnType("real");
+
+                            b1.HasKey("BookId");
+
+                            b1.ToTable("Books");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BookId");
+                        });
 
                     b.OwnsMany("DataLayer.Supplement", "Supplements", b1 =>
                         {
                             b1.Property<int>("SupplementId")
                                 .ValueGeneratedOnAdd()
+                                .HasColumnType("int")
                                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                            b1.Property<int>("BookId");
+                            b1.Property<int>("BookId")
+                                .HasColumnType("int");
 
-                            b1.Property<string>("Url");
+                            b1.Property<string>("Url")
+                                .HasColumnType("nvarchar(max)");
 
                             b1.HasKey("SupplementId");
 
@@ -191,68 +247,46 @@ namespace DataLayer.Migrations
 
                             b1.ToTable("Supplement");
 
-                            b1.HasOne("DataLayer.Book", "Book")
-                                .WithMany("Supplements")
-                                .HasForeignKey("BookId")
-                                .OnDelete(DeleteBehavior.Cascade);
+                            b1.WithOwner("Book")
+                                .HasForeignKey("BookId");
                         });
 
                     b.OwnsOne("DataLayer.UserDefinedItem", "UserDefinedItem", b1 =>
                         {
-                            b1.Property<int>("BookId");
+                            b1.Property<int>("BookId")
+                                .HasColumnType("int");
 
-                            b1.Property<string>("Tags");
+                            b1.Property<string>("Tags")
+                                .HasColumnType("nvarchar(max)");
 
                             b1.HasKey("BookId");
 
                             b1.ToTable("UserDefinedItem");
 
-                            b1.HasOne("DataLayer.Book", "Book")
-                                .WithOne("UserDefinedItem")
-                                .HasForeignKey("DataLayer.UserDefinedItem", "BookId")
-                                .OnDelete(DeleteBehavior.Cascade);
+                            b1.WithOwner("Book")
+                                .HasForeignKey("BookId");
 
                             b1.OwnsOne("DataLayer.Rating", "Rating", b2 =>
                                 {
-                                    b2.Property<int>("UserDefinedItemBookId");
+                                    b2.Property<int>("UserDefinedItemBookId")
+                                        .HasColumnType("int");
 
-                                    b2.Property<float>("OverallRating");
+                                    b2.Property<float>("OverallRating")
+                                        .HasColumnType("real");
 
-                                    b2.Property<float>("PerformanceRating");
+                                    b2.Property<float>("PerformanceRating")
+                                        .HasColumnType("real");
 
-                                    b2.Property<float>("StoryRating");
+                                    b2.Property<float>("StoryRating")
+                                        .HasColumnType("real");
 
                                     b2.HasKey("UserDefinedItemBookId");
 
                                     b2.ToTable("UserDefinedItem");
 
-                                    b2.HasOne("DataLayer.UserDefinedItem")
-                                        .WithOne("Rating")
-                                        .HasForeignKey("DataLayer.Rating", "UserDefinedItemBookId")
-                                        .OnDelete(DeleteBehavior.Cascade);
+                                    b2.WithOwner()
+                                        .HasForeignKey("UserDefinedItemBookId");
                                 });
-                        });
-
-                    b.OwnsOne("DataLayer.Rating", "Rating", b1 =>
-                        {
-                            b1.Property<int>("BookId")
-                                .ValueGeneratedOnAdd()
-                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                            b1.Property<float>("OverallRating");
-
-                            b1.Property<float>("PerformanceRating");
-
-                            b1.Property<float>("StoryRating");
-
-                            b1.HasKey("BookId");
-
-                            b1.ToTable("Books");
-
-                            b1.HasOne("DataLayer.Book")
-                                .WithOne("Rating")
-                                .HasForeignKey("DataLayer.Rating", "BookId")
-                                .OnDelete(DeleteBehavior.Cascade);
                         });
                 });
 
@@ -261,12 +295,14 @@ namespace DataLayer.Migrations
                     b.HasOne("DataLayer.Book", "Book")
                         .WithMany("ContributorsLink")
                         .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DataLayer.Contributor", "Contributor")
                         .WithMany("BooksLink")
                         .HasForeignKey("ContributorId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DataLayer.Category", b =>
@@ -281,7 +317,8 @@ namespace DataLayer.Migrations
                     b.HasOne("DataLayer.Book", "Book")
                         .WithOne()
                         .HasForeignKey("DataLayer.LibraryBook", "BookId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DataLayer.SeriesBook", b =>
@@ -289,12 +326,14 @@ namespace DataLayer.Migrations
                     b.HasOne("DataLayer.Book", "Book")
                         .WithMany("SeriesLink")
                         .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DataLayer.Series", "Series")
                         .WithMany("BooksLink")
                         .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

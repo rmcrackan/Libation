@@ -8,7 +8,7 @@ namespace DataLayer
     public static class RemoveOrphansCommand
     {
         public static int RemoveOrphans(this LibationContext context)
-            => context.Database.ExecuteSqlCommand(@"
+            => context.Database.ExecuteSqlRaw(@"
                 delete c
                 from Contributors c
                 left join BookContributor bc on c.ContributorId = bc.ContributorId

@@ -1,10 +1,9 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DataLayer.Migrations
 {
-    public partial class Initial : Migration
+    public partial class UpgradeToCore3 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +12,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     CategoryId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     AudibleCategoryId = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
                     ParentCategoryCategoryId = table.Column<int>(nullable: true)
@@ -34,7 +33,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     ContributorId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(nullable: true),
                     AudibleAuthorId = table.Column<string>(nullable: true)
                 },
@@ -48,7 +47,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     SeriesId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     AudibleSeriesId = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true)
                 },
@@ -62,7 +61,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     BookId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     AudibleProductId = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
@@ -70,12 +69,11 @@ namespace DataLayer.Migrations
                     PictureId = table.Column<string>(nullable: true),
                     HasBookDetails = table.Column<bool>(nullable: false),
                     IsAbridged = table.Column<bool>(nullable: false),
-                    Publisher = table.Column<string>(nullable: true),
                     DatePublished = table.Column<DateTime>(nullable: true),
                     CategoryId = table.Column<int>(nullable: false),
-                    Rating_OverallRating = table.Column<float>(nullable: false),
-                    Rating_PerformanceRating = table.Column<float>(nullable: false),
-                    Rating_StoryRating = table.Column<float>(nullable: false)
+                    Rating_OverallRating = table.Column<float>(nullable: true),
+                    Rating_PerformanceRating = table.Column<float>(nullable: true),
+                    Rating_StoryRating = table.Column<float>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -163,7 +161,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     SupplementId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     BookId = table.Column<int>(nullable: false),
                     Url = table.Column<string>(nullable: true)
                 },
@@ -184,9 +182,9 @@ namespace DataLayer.Migrations
                 {
                     BookId = table.Column<int>(nullable: false),
                     Tags = table.Column<string>(nullable: true),
-                    Rating_OverallRating = table.Column<float>(nullable: false),
-                    Rating_PerformanceRating = table.Column<float>(nullable: false),
-                    Rating_StoryRating = table.Column<float>(nullable: false)
+                    Rating_OverallRating = table.Column<float>(nullable: true),
+                    Rating_PerformanceRating = table.Column<float>(nullable: true),
+                    Rating_StoryRating = table.Column<float>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -198,6 +196,11 @@ namespace DataLayer.Migrations
                         principalColumn: "BookId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "CategoryId", "AudibleCategoryId", "Name", "ParentCategoryCategoryId" },
+                values: new object[] { -1, "", "", null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookContributor_BookId",

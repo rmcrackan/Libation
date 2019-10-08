@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core;
-using Dinah.EntityFrameworkCore;
+using Dinah.Core.Collections.Generic;
 using FileManager;
 using InternalUtilities;
 using Newtonsoft.Json;
@@ -53,7 +53,7 @@ namespace DomainServices
             if (productItems == null || !productItems.Any())
                 return (0, 0);
 
-            filterAndValidate(productItems);
+			productItems = filterAndValidate(productItems);
 
             int newEntries;
             using (var context = LibationContext.Create())
@@ -82,7 +82,7 @@ namespace DomainServices
 
             return (productItems.Count, newEntries);
         }
-        private static void filterAndValidate(List<LibraryDTO> collection)
+        private static List<LibraryDTO> filterAndValidate(List<LibraryDTO> collection)
         {
             //debug//var episodes = collection.Where(dto => dto.IsEpisodes).ToList();
 
@@ -92,16 +92,19 @@ namespace DomainServices
             if (collection.Any(pi => string.IsNullOrWhiteSpace(pi.ProductId)))
                 throw new Exception("All product items must contain a Product Id");
 
-            var duplicateIds = collection
-                .GroupBy(pi => pi.ProductId)
-                .Where(grp => grp.Count() > 1)
-                .Select(grp => grp.Key);
+			return collection.DistinctBy(pi => pi.ProductId).ToList();
 
-            if (duplicateIds.Any())
-                throw new Exception("Cannot insert multiples of the same ProductId. Duplicates:"
-                    + duplicateIds
-                    .Select(a => "\r\n- " + a)
-                    .Aggregate((a, b) => a + b));
+    //        var duplicateIds = collection
+    //            .GroupBy(pi => pi.ProductId)
+    //            .Where(grp => grp.Count() > 1)
+    //            .Select(grp => grp.Key)
+				//.ToList();
+
+    //        if (duplicateIds.Any())
+    //            throw new Exception("Cannot insert multiples of the same ProductId. Duplicates:"
+    //                + duplicateIds
+    //                .Select(a => "\r\n- " + a)
+    //                .Aggregate((a, b) => a + b));
         }
         #endregion
 
