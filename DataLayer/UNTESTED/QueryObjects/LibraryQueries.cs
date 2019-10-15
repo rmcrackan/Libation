@@ -10,19 +10,19 @@ namespace DataLayer
         {
 			using var context = LibationContext.Create();
 			return context
-.Library
-.AsNoTracking()
-.GetLibrary()
-.ToList();
+                .Library
+                .AsNoTracking()
+                .GetLibrary()
+                .ToList();
 		}
 
         public static LibraryBook GetLibraryBook_Flat_NoTracking(string productId)
         {
 			using var context = LibationContext.Create();
 			return context
-.Library
-.AsNoTracking()
-.GetLibraryBook(productId);
+                .Library
+                .AsNoTracking()
+                .GetLibraryBook(productId);
 		}
 
         /// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>
