@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using AudibleDotCom;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
+using DTOs;
 using InternalUtilities;
 using Scraping;
-using Scraping.BookDetail;
 
 namespace DomainServices
 {

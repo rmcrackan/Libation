@@ -2,7 +2,7 @@
 using Scraping.Rules;
 using Scraping.Selectors;
 
-using DTO = Scraping.BookDetail.BookDetailDTO;
+using DTO = DTOs.BookDetailDTO;
 
 namespace Scraping.BookDetail
 {

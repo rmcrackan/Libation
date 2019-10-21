@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using DataLayer;
-using Scraping.BookDetail;
-using Scraping.Library;
+using DTOs;
 
-namespace InternalUtilities
+namespace DomainServices
 {
     public class DtoImporter
     {

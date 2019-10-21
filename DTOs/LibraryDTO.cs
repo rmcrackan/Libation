@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Scraping.Library
+namespace DTOs
 {
     public class LibraryDTO
     {

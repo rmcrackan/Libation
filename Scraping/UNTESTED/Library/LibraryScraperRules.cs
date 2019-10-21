@@ -2,7 +2,7 @@
 using Scraping.Rules;
 using Scraping.Selectors;
 
-using DTO = Scraping.Library.LibraryDTO;
+using DTO = DTOs.LibraryDTO;
 
 namespace Scraping.Library
 {

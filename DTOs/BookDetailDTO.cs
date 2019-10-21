@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Scraping.BookDetail
+namespace DTOs
 {
     public class SeriesEntry
     {

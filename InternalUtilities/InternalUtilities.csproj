@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
     <ProjectReference Include="..\LibationSearchEngine\LibationSearchEngine.csproj" />
     <ProjectReference Include="..\Scraping\Scraping.csproj" />
   </ItemGroup>

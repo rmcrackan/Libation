@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using AudibleDotCom;
 using Dinah.Core;
+using DTOs;
 using FileManager;
 using Scraping.Selectors;
 

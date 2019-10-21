@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AudibleDotCom;
+using DTOs;
 using Scraping.Selectors;
 
 namespace Scraping.Library

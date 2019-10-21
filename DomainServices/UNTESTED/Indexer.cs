@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Collections.Generic;
+using DTOs;
 using FileManager;
 using InternalUtilities;
 using Newtonsoft.Json;
-using Scraping.BookDetail;
-using Scraping.Library;
 
 namespace DomainServices
 {

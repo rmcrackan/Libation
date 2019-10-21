@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AudibleDotCom;
 using Dinah.Core;
+using DTOs;
 using Newtonsoft.Json.Linq;
 using Scraping.Selectors;
 

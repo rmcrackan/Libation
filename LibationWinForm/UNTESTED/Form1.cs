@@ -179,7 +179,7 @@ namespace LibationWinForm
         }
         #endregion
 
-        #region grid select
+        #region reload grid
         bool isProcessingGridSelect = false;
         private void reloadGrid()
         {
@@ -355,7 +355,13 @@ namespace LibationWinForm
             #endregion
         }
 
-        private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e) => await indexDialog(new ScanLibraryDialog());
+		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			// audible api
+
+			// scrape
+			await indexDialog(new ScanLibraryDialog());
+		}
 
         private async void reimportMostRecentLibraryScanToolStripMenuItem_Click(object sender, EventArgs e)
         {

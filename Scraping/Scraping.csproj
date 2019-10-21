@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AudibleDotCom\AudibleDotCom.csproj" />
+    <ProjectReference Include="..\DTOs\DTOs.csproj" />
   </ItemGroup>
 
 </Project>

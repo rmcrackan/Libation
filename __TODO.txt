@@ -1,8 +1,5 @@
 ﻿-- begin CONFIG FILES ---------------------------------------------------------------------------------------------------------------------
 try saving back into config
-https://stackoverflow.com/questions/40970944/how-to-update-values-into-appsetting-json
-
-move ConsoleConfigDemo into TestCommon
 
 multiple files named "appsettings.json" will overwrite each other
 
@@ -22,6 +19,10 @@ from here can set up a shared dir anywhere. use recursive upward search to find 
 -- end CONFIG FILES ---------------------------------------------------------------------------------------------------------------------
 
 -- begin REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
+integrate API into libation. eventually entirely replace all other authentication methods, audible communication. incl book download
+logged-in user's own ratings (aka rating-star(s)) -- is "provided_review"
+unlike traditional scraping, audible api calls do not need to be humanized. can likely delete humanizer altogether. still needed for downloading pdf.s?
+
 incl episodes. eg: "Bill Bryson's Appliance of Science"
   refining episode retrieval might also get rid of the need for IsEpisodes property
 replace all scraping with audible api
@@ -29,8 +30,6 @@ replace all scraping with audible api
         public async Task DoMainWorkAsync()
             using var pageRetriever = websiteProcessorControl1.GetPageRetriever();
             jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
-
-break out DTOs. currently coupled with scraping
 
 note: some json importing may still be relevant. might want to allow custom importing
 
