@@ -6,7 +6,7 @@ using DataLayer;
 using Dinah.Core.ErrorHandling;
 using FileManager;
 
-namespace DomainServices
+namespace ScrapingDomainServices
 {
     public class DownloadPdf : DownloadableBase
     {

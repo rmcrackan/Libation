@@ -4,7 +4,7 @@ using DataLayer;
 using Dinah.Core.ErrorHandling;
 using FileManager;
 
-namespace DomainServices
+namespace ScrapingDomainServices
 {
     /// <summary>
     /// Download DRM book and decrypt audiobook files.

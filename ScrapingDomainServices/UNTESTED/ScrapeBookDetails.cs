@@ -10,7 +10,7 @@ using DTOs;
 using InternalUtilities;
 using Scraping;
 
-namespace DomainServices
+namespace ScrapingDomainServices
 {
     /// <summary>
     /// book detail page:

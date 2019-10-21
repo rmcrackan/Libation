@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace DomainServices
+namespace ScrapingDomainServices
 {
     public interface IDownloadable : IProcessable
     {

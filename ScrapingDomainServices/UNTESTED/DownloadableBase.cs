@@ -5,7 +5,7 @@ using DataLayer;
 using Dinah.Core.ErrorHandling;
 using Dinah.Core.Humanizer;
 
-namespace DomainServices
+namespace ScrapingDomainServices
 {
     public abstract class DownloadableBase : IDownloadable
     {

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using DomainServices;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Collections.Generic;
 using Dinah.Core.Windows.Forms;
 using FileManager;
+using ScrapingDomainServices;
 
 namespace LibationWinForm
 {

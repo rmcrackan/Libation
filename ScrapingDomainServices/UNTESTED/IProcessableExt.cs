@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
 
-namespace DomainServices
+namespace ScrapingDomainServices
 {
     public static class IProcessableExt
     {

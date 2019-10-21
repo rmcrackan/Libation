@@ -8,7 +8,7 @@ using AudibleDotComAutomation;
 using FileManager;
 using Scraping;
 
-namespace DomainServices
+namespace ScrapingDomainServices
 {
     public static class DownloadLibrary
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using DataLayer;
 using DTOs;
 
-namespace DomainServices
+namespace ScrapingDomainServices
 {
     public class DtoImporter
     {

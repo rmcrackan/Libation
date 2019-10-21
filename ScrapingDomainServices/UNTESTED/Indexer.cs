@@ -12,7 +12,7 @@ using FileManager;
 using InternalUtilities;
 using Newtonsoft.Json;
 
-namespace DomainServices
+namespace ScrapingDomainServices
 {
     public static class Indexer
     {
