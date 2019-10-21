@@ -202,7 +202,7 @@ namespace LibationWinForm
         {
             book.UserDefinedItem.Tags = newTags;
 
-            var qtyChanges = DomainServices.Indexer.IndexChangedTags(book);
+            var qtyChanges = ScrapingDomainServices.Indexer.IndexChangedTags(book);
             return qtyChanges;
         }
 

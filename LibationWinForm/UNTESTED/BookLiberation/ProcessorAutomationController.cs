@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DomainServices;
+using ScrapingDomainServices;
 
 namespace LibationWinForm.BookLiberation
 {
