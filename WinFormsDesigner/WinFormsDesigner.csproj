@@ -41,8 +41,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BookLiberation\AutomatedBackupsForm.cs">
@@ -75,22 +77,40 @@
     <Compile Include="Dialogs\EditQuickFilters.Designer.cs">
       <DependentUpon>EditQuickFilters.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\Login\AudibleLoginDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\Login\AudibleLoginDialog.Designer.cs">
+      <DependentUpon>AudibleLoginDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Login\CaptchaDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\Login\CaptchaDialog.Designer.cs">
+      <DependentUpon>CaptchaDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Login\_2faCodeDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\Login\_2faCodeDialog.Designer.cs">
+      <DependentUpon>_2faCodeDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditTagsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dialogs\EditTagsDialog.Designer.cs">
       <DependentUpon>EditTagsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="IndexDialogs\ScanLibraryDialog.cs">
+    <Compile Include="Dialogs\IndexDialogs\ScanLibraryDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="IndexDialogs\ScanLibraryDialog.Designer.cs">
+    <Compile Include="Dialogs\IndexDialogs\ScanLibraryDialog.Designer.cs">
       <DependentUpon>ScanLibraryDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="IndexDialogs\WebsiteProcessorControl.cs">
+    <Compile Include="Dialogs\IndexDialogs\WebsiteProcessorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="IndexDialogs\WebsiteProcessorControl.Designer.cs">
+    <Compile Include="Dialogs\IndexDialogs\WebsiteProcessorControl.Designer.cs">
       <DependentUpon>WebsiteProcessorControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\SearchSyntaxDialog.cs">
@@ -137,10 +157,19 @@
     <EmbeddedResource Include="Dialogs\EditTagsDialog.resx">
       <DependentUpon>EditTagsDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="IndexDialogs\ScanLibraryDialog.resx">
+    <EmbeddedResource Include="Dialogs\Login\AudibleLoginDialog.resx">
+      <DependentUpon>AudibleLoginDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\Login\CaptchaDialog.resx">
+      <DependentUpon>CaptchaDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\Login\_2faCodeDialog.resx">
+      <DependentUpon>_2faCodeDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\IndexDialogs\ScanLibraryDialog.resx">
       <DependentUpon>ScanLibraryDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="IndexDialogs\WebsiteProcessorControl.resx">
+    <EmbeddedResource Include="Dialogs\IndexDialogs\WebsiteProcessorControl.resx">
       <DependentUpon>WebsiteProcessorControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\SearchSyntaxDialog.resx">
@@ -157,6 +186,7 @@
     </EmbeddedResource>
     <None Include="Properties\DataSources\LibationWinForm_Framework.ProductGrids.GridEntry.datasource" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.111.0\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.111.0\build\net46\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		REFERENCE.txt = REFERENCE.txt
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.2 Domain Utilities (post database)", "3.2 Domain Utilities (post database)", "{41CDCC73-9B81-49DD-9570-C54406E852AF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.2 Domain Utilities (database aware)", "3.2 Domain Utilities (database aware)", "{41CDCC73-9B81-49DD-9570-C54406E852AF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Application", "4 Application", "{8679CAC8-9164-4007-BDD2-F004810EDA14}"
 EndProject
@@ -83,7 +83,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuceneNet303r2.Tests", "..\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DTOs", "DTOs\DTOs.csproj", "{5FDA62B1-55FD-407A-BECA-38A969235541}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudibleApiDomainService", "AudibleApiDomainService\AudibleApiDomainService.csproj", "{A1AB4B4B-6855-4BD0-BC54-C2FFDB20E050}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AudibleApiDomainService", "AudibleApiDomainService\AudibleApiDomainService.csproj", "{A1AB4B4B-6855-4BD0-BC54-C2FFDB20E050}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

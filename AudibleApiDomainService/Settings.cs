@@ -1,10 +1,17 @@
-﻿namespace AudibleApiDomainService
+﻿using System.IO;
+using FileManager;
+
+namespace AudibleApiDomainService
 {
 	public class Settings
 	{
-		// identityTokens.json
-		public string IdentityFilePath { get; set; }
+		public string IdentityFilePath { get; }
+		public string LocaleCountryCode { get; }
 
-		public string LocaleCountryCode { get; set; }
+		public Settings(Configuration config)
+		{
+			IdentityFilePath = Path.Combine(config.LibationFiles, "identityTokens.json");
+			LocaleCountryCode = config.LocaleCountryCode;
+		}
 	}
 }

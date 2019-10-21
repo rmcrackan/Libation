@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Dinah.Core\Dinah.Core\Dinah.Core.csproj" />
+    <ProjectReference Include="..\..\audible api\AudibleApi\AudibleApi\AudibleApi.csproj" />
+    <ProjectReference Include="..\FileManager\FileManager.csproj" />
+    <ProjectReference Include="..\ScrapingDomainServices\ScrapingDomainServices.csproj" />
   </ItemGroup>
 
 </Project>
