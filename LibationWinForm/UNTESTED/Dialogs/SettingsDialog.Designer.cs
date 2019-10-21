@@ -55,7 +55,9 @@
             this.decryptInProgressDescLbl = new System.Windows.Forms.Label();
             this.saveBtn = new System.Windows.Forms.Button();
             this.cancelBtn = new System.Windows.Forms.Button();
-            this.libationFilesGb.SuspendLayout();
+			this.audibleLocaleLbl = new System.Windows.Forms.Label();
+			this.audibleLocaleCb = new System.Windows.Forms.ComboBox();
+			this.libationFilesGb.SuspendLayout();
             this.downloadsInProgressGb.SuspendLayout();
             this.decryptInProgressGb.SuspendLayout();
             this.SuspendLayout();
@@ -99,7 +101,7 @@
             this.booksLocationLbl.Location = new System.Drawing.Point(7, 103);
             this.booksLocationLbl.Name = "booksLocationLbl";
             this.booksLocationLbl.Size = new System.Drawing.Size(77, 13);
-            this.booksLocationLbl.TabIndex = 6;
+            this.booksLocationLbl.TabIndex = 8;
             this.booksLocationLbl.Text = "Books location";
             // 
             // booksLocationTb
@@ -107,14 +109,14 @@
             this.booksLocationTb.Location = new System.Drawing.Point(90, 100);
             this.booksLocationTb.Name = "booksLocationTb";
             this.booksLocationTb.Size = new System.Drawing.Size(657, 20);
-            this.booksLocationTb.TabIndex = 7;
+            this.booksLocationTb.TabIndex = 9;
             // 
             // booksLocationSearchBtn
             // 
             this.booksLocationSearchBtn.Location = new System.Drawing.Point(753, 98);
             this.booksLocationSearchBtn.Name = "booksLocationSearchBtn";
             this.booksLocationSearchBtn.Size = new System.Drawing.Size(35, 23);
-            this.booksLocationSearchBtn.TabIndex = 8;
+            this.booksLocationSearchBtn.TabIndex = 10;
             this.booksLocationSearchBtn.Text = "...";
             this.booksLocationSearchBtn.UseVisualStyleBackColor = true;
             this.booksLocationSearchBtn.Click += new System.EventHandler(this.booksLocationSearchBtn_Click);
@@ -143,7 +145,7 @@
             this.booksLocationDescLbl.Location = new System.Drawing.Point(87, 123);
             this.booksLocationDescLbl.Name = "booksLocationDescLbl";
             this.booksLocationDescLbl.Size = new System.Drawing.Size(36, 13);
-            this.booksLocationDescLbl.TabIndex = 9;
+            this.booksLocationDescLbl.TabIndex = 11;
             this.booksLocationDescLbl.Text = "[desc]";
             // 
             // libationFilesGb
@@ -157,7 +159,7 @@
             this.libationFilesGb.Location = new System.Drawing.Point(12, 139);
             this.libationFilesGb.Name = "libationFilesGb";
             this.libationFilesGb.Size = new System.Drawing.Size(776, 131);
-            this.libationFilesGb.TabIndex = 10;
+            this.libationFilesGb.TabIndex = 12;
             this.libationFilesGb.TabStop = false;
             this.libationFilesGb.Text = "Libation files";
             // 
@@ -235,7 +237,7 @@
             this.downloadsInProgressGb.Location = new System.Drawing.Point(12, 276);
             this.downloadsInProgressGb.Name = "downloadsInProgressGb";
             this.downloadsInProgressGb.Size = new System.Drawing.Size(776, 117);
-            this.downloadsInProgressGb.TabIndex = 11;
+            this.downloadsInProgressGb.TabIndex = 13;
             this.downloadsInProgressGb.TabStop = false;
             this.downloadsInProgressGb.Text = "Downloads in progress";
             // 
@@ -280,7 +282,7 @@
             this.decryptInProgressGb.Location = new System.Drawing.Point(12, 399);
             this.decryptInProgressGb.Name = "decryptInProgressGb";
             this.decryptInProgressGb.Size = new System.Drawing.Size(776, 117);
-            this.decryptInProgressGb.TabIndex = 12;
+            this.decryptInProgressGb.TabIndex = 14;
             this.decryptInProgressGb.TabStop = false;
             this.decryptInProgressGb.Text = "Decrypt in progress";
             // 
@@ -291,7 +293,7 @@
             this.decryptInProgressLibationFilesRb.Location = new System.Drawing.Point(6, 81);
             this.decryptInProgressLibationFilesRb.Name = "decryptInProgressLibationFilesRb";
             this.decryptInProgressLibationFilesRb.Size = new System.Drawing.Size(177, 30);
-            this.decryptInProgressLibationFilesRb.TabIndex = 3;
+            this.decryptInProgressLibationFilesRb.TabIndex = 2;
             this.decryptInProgressLibationFilesRb.TabStop = true;
             this.decryptInProgressLibationFilesRb.Text = "[desc]\r\n[libationFiles\\DecryptInProgress]";
             this.decryptInProgressLibationFilesRb.UseVisualStyleBackColor = true;
@@ -303,7 +305,7 @@
             this.decryptInProgressWinTempRb.Location = new System.Drawing.Point(6, 45);
             this.decryptInProgressWinTempRb.Name = "decryptInProgressWinTempRb";
             this.decryptInProgressWinTempRb.Size = new System.Drawing.Size(166, 30);
-            this.decryptInProgressWinTempRb.TabIndex = 2;
+            this.decryptInProgressWinTempRb.TabIndex = 1;
             this.decryptInProgressWinTempRb.TabStop = true;
             this.decryptInProgressWinTempRb.Text = "[desc]\r\n[winTemp\\DecryptInProgress]";
             this.decryptInProgressWinTempRb.UseVisualStyleBackColor = true;
@@ -314,7 +316,7 @@
             this.decryptInProgressDescLbl.Location = new System.Drawing.Point(6, 16);
             this.decryptInProgressDescLbl.Name = "decryptInProgressDescLbl";
             this.decryptInProgressDescLbl.Size = new System.Drawing.Size(38, 26);
-            this.decryptInProgressDescLbl.TabIndex = 1;
+            this.decryptInProgressDescLbl.TabIndex = 0;
             this.decryptInProgressDescLbl.Text = "[desc]\r\n[line 2]";
             // 
             // saveBtn
@@ -323,7 +325,7 @@
             this.saveBtn.Location = new System.Drawing.Point(612, 522);
             this.saveBtn.Name = "saveBtn";
             this.saveBtn.Size = new System.Drawing.Size(75, 23);
-            this.saveBtn.TabIndex = 13;
+            this.saveBtn.TabIndex = 15;
             this.saveBtn.Text = "Save";
             this.saveBtn.UseVisualStyleBackColor = true;
             this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
@@ -335,19 +337,45 @@
             this.cancelBtn.Location = new System.Drawing.Point(713, 522);
             this.cancelBtn.Name = "cancelBtn";
             this.cancelBtn.Size = new System.Drawing.Size(75, 23);
-            this.cancelBtn.TabIndex = 14;
+            this.cancelBtn.TabIndex = 16;
             this.cancelBtn.Text = "Cancel";
             this.cancelBtn.UseVisualStyleBackColor = true;
             this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
-            // 
-            // SettingsDialog
-            // 
-            this.AcceptButton = this.saveBtn;
+			// 
+			// audibleLocaleLbl
+			// 
+			this.audibleLocaleLbl.AutoSize = true;
+			this.audibleLocaleLbl.Location = new System.Drawing.Point(273, 59);
+			this.audibleLocaleLbl.Name = "audibleLocaleLbl";
+			this.audibleLocaleLbl.Size = new System.Drawing.Size(77, 13);
+			this.audibleLocaleLbl.TabIndex = 6;
+			this.audibleLocaleLbl.Text = "Audible Locale";
+			// 
+			// audibleLocaleCb
+			// 
+			this.audibleLocaleCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.audibleLocaleCb.FormattingEnabled = true;
+			this.audibleLocaleCb.Items.AddRange(new object[] {
+			"us",
+			"uk",
+			"germany",
+			"france",
+			"canada"});
+			this.audibleLocaleCb.Location = new System.Drawing.Point(356, 56);
+			this.audibleLocaleCb.Name = "audibleLocaleCb";
+			this.audibleLocaleCb.Size = new System.Drawing.Size(121, 21);
+			this.audibleLocaleCb.TabIndex = 7;
+			// 
+			// SettingsDialog
+			// 
+			this.AcceptButton = this.saveBtn;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelBtn;
             this.ClientSize = new System.Drawing.Size(800, 557);
-            this.Controls.Add(this.cancelBtn);
+			this.Controls.Add(this.audibleLocaleCb);
+			this.Controls.Add(this.audibleLocaleLbl);
+			this.Controls.Add(this.cancelBtn);
             this.Controls.Add(this.saveBtn);
             this.Controls.Add(this.decryptInProgressGb);
             this.Controls.Add(this.downloadsInProgressGb);
@@ -407,5 +435,7 @@
         private System.Windows.Forms.RadioButton decryptInProgressWinTempRb;
         private System.Windows.Forms.Button saveBtn;
         private System.Windows.Forms.Button cancelBtn;
-    }
+		private System.Windows.Forms.Label audibleLocaleLbl;
+		private System.Windows.Forms.ComboBox audibleLocaleCb;
+	}
 }

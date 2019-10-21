@@ -12,10 +12,10 @@ utils: domain ignorant
 domain: biz logic
   db ignorant
   db, domain objects
-  db aware
+  domain internal utilities: domain aware. db ignorant
+  domain utilities: domain aware. db aware
     incl non-db persistence. unless it needs to be tied into a db intercepter
     all user-provided data must be backed up to json
-  utilities: domain aware
 application
 
 do NOT combine jsons for

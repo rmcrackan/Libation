@@ -11,8 +11,8 @@ Microsoft.EntityFrameworkCore.Sqlite
 MIGRATIONS require standard, not core
 using standard instead of core. edit 3 things in csproj
 1of3: pluralize xml TargetFramework tag to TargetFrameworks
-2of2: TargetFrameworks from: netstandard2.0
-to: netcoreapp2.1;netstandard2.0
+2of2: TargetFrameworks from: netstandard2.1
+to: netcoreapp3.0;netstandard2.1
 3of3: add
   <PropertyGroup>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>

@@ -358,6 +358,8 @@ namespace LibationWinForm
 		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			// audible api
+//var client = new AudibleApiDomainService.AudibleApiLibationClient(config.);
+//await client.ImportLibraryAsync();
 
 			// scrape
 			await indexDialog(new ScanLibraryDialog());

@@ -8,6 +8,7 @@ namespace WinFormsDesigner
 		public SettingsDialog()
 		{
 			InitializeComponent();
+			audibleLocaleCb.SelectedIndex = 0;
 		}
 	}
 }

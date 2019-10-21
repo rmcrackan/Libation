@@ -23,8 +23,9 @@ namespace LibationWinForm
         public SettingsDialog()
         {
             InitializeComponent();
+			audibleLocaleCb.SelectedIndex = 0;
 
-            exeRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), "Libation"));
+			exeRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), "Libation"));
             myDocs = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Libation"));
         }
 
@@ -38,6 +39,8 @@ namespace LibationWinForm
 
             this.booksLocationTb.Text = config.Books;
             this.booksLocationDescLbl.Text = desc(nameof(config.Books));
+
+			this.audibleLocaleCb.Text = config.LocaleCountryCode;
 
             libationFilesDescLbl.Text = desc(nameof(config.LibationFiles));
             this.libationFilesRootRb.Text = "In the same folder that Libation is running from\r\n" + exeRoot;
@@ -103,7 +106,7 @@ namespace LibationWinForm
 
         private static void selectFolder(string desc, TextBox textbox)
         {
-            var dialog = new FolderBrowserDialog { Description = desc, SelectedPath = "" };
+            using var dialog = new FolderBrowserDialog { Description = desc, SelectedPath = "" };
             dialog.ShowDialog();
             if (!string.IsNullOrWhiteSpace(dialog.SelectedPath))
                 textbox.Text = dialog.SelectedPath;
@@ -122,6 +125,8 @@ namespace LibationWinForm
                 pathsChanged = true;
                 config.Books = this.booksLocationTb.Text;
             }
+
+			config.LocaleCountryCode = this.audibleLocaleCb.Text;
 
             var libationDir
                 = libationFilesRootRb.Checked ? exeRoot

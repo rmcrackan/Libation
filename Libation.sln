@@ -35,11 +35,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AudibleDotComAutomation", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CookieMonster", "CookieMonster\CookieMonster.csproj", "{7BD02E29-3430-4D06-88D2-5CECEE9ABD01}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DomainServices", "DomainServices\DomainServices.csproj", "{393B5B27-D15C-4F77-9457-FA14BA8F3C73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScrapingDomainServices", "ScrapingDomainServices\ScrapingDomainServices.csproj", "{393B5B27-D15C-4F77-9457-FA14BA8F3C73}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalUtilities", "InternalUtilities\InternalUtilities.csproj", "{06882742-27A6-4347-97D9-56162CEC9C11}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.1 Domain Internal Utilities", "3.1 Domain Internal Utilities", "{F0CBB7A7-D3FB-41FF-8F47-CF3F6A592249}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.1 Domain Internal Utilities (db ignorant)", "3.1 Domain Internal Utilities (db ignorant)", "{F0CBB7A7-D3FB-41FF-8F47-CF3F6A592249}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationSearchEngine", "LibationSearchEngine\LibationSearchEngine.csproj", "{2E1F5DB4-40CC-4804-A893-5DCE0193E598}"
 EndProject
@@ -82,6 +82,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuceneNet303r2.Tests", "..\LuceneNet303r2\LuceneNet303r2.Tests\LuceneNet303r2.Tests.csproj", "{5A7681A5-60D9-480B-9AC7-63E0812A2548}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DTOs", "DTOs\DTOs.csproj", "{5FDA62B1-55FD-407A-BECA-38A969235541}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudibleApiDomainService", "AudibleApiDomainService\AudibleApiDomainService.csproj", "{A1AB4B4B-6855-4BD0-BC54-C2FFDB20E050}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -201,6 +203,10 @@ Global
 		{5FDA62B1-55FD-407A-BECA-38A969235541}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FDA62B1-55FD-407A-BECA-38A969235541}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FDA62B1-55FD-407A-BECA-38A969235541}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1AB4B4B-6855-4BD0-BC54-C2FFDB20E050}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1AB4B4B-6855-4BD0-BC54-C2FFDB20E050}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1AB4B4B-6855-4BD0-BC54-C2FFDB20E050}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1AB4B4B-6855-4BD0-BC54-C2FFDB20E050}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -234,6 +240,7 @@ Global
 		{35803735-B669-4090-9681-CC7F7FABDC71} = {7FBBB086-0807-4998-85BF-6D1A49C8AD05}
 		{5A7681A5-60D9-480B-9AC7-63E0812A2548} = {38E6C6D9-963A-4C5B-89F4-F2F14885ADFD}
 		{5FDA62B1-55FD-407A-BECA-38A969235541} = {7FBBB086-0807-4998-85BF-6D1A49C8AD05}
+		{A1AB4B4B-6855-4BD0-BC54-C2FFDB20E050} = {41CDCC73-9B81-49DD-9570-C54406E852AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {615E00ED-BAEF-4E8E-A92A-9B82D87942A9}
