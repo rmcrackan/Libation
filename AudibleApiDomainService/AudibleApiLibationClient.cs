@@ -88,6 +88,8 @@ namespace AudibleApiDomainService
 		public async Task<JObject> TestGetLibraryAsync()
 		{
 			var x = await _api.GetLibraryAsync();
+var str = x.ToString();
+
 			return x;
 		}
 

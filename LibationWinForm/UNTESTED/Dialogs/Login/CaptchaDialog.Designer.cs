@@ -39,20 +39,20 @@
 			// 
 			this.captchaPb.Location = new System.Drawing.Point(12, 12);
 			this.captchaPb.Name = "captchaPb";
-			this.captchaPb.Size = new System.Drawing.Size(429, 186);
+			this.captchaPb.Size = new System.Drawing.Size(200, 70);
 			this.captchaPb.TabIndex = 0;
 			this.captchaPb.TabStop = false;
 			// 
 			// answerTb
 			// 
-			this.answerTb.Location = new System.Drawing.Point(118, 206);
+			this.answerTb.Location = new System.Drawing.Point(118, 88);
 			this.answerTb.Name = "answerTb";
-			this.answerTb.Size = new System.Drawing.Size(100, 20);
+			this.answerTb.Size = new System.Drawing.Size(94, 20);
 			this.answerTb.TabIndex = 1;
 			// 
 			// submitBtn
 			// 
-			this.submitBtn.Location = new System.Drawing.Point(366, 204);
+			this.submitBtn.Location = new System.Drawing.Point(137, 114);
 			this.submitBtn.Name = "submitBtn";
 			this.submitBtn.Size = new System.Drawing.Size(75, 23);
 			this.submitBtn.TabIndex = 2;
@@ -63,7 +63,7 @@
 			// answerLbl
 			// 
 			this.answerLbl.AutoSize = true;
-			this.answerLbl.Location = new System.Drawing.Point(12, 209);
+			this.answerLbl.Location = new System.Drawing.Point(12, 91);
 			this.answerLbl.Name = "answerLbl";
 			this.answerLbl.Size = new System.Drawing.Size(100, 13);
 			this.answerLbl.TabIndex = 0;
@@ -74,7 +74,7 @@
 			this.AcceptButton = this.submitBtn;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(453, 239);
+			this.ClientSize = new System.Drawing.Size(224, 149);
 			this.Controls.Add(this.answerLbl);
 			this.Controls.Add(this.submitBtn);
 			this.Controls.Add(this.answerTb);
