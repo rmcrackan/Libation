@@ -98,7 +98,7 @@
             // booksLocationLbl
             // 
             this.booksLocationLbl.AutoSize = true;
-            this.booksLocationLbl.Location = new System.Drawing.Point(7, 103);
+            this.booksLocationLbl.Location = new System.Drawing.Point(7, 125);
             this.booksLocationLbl.Name = "booksLocationLbl";
             this.booksLocationLbl.Size = new System.Drawing.Size(77, 13);
             this.booksLocationLbl.TabIndex = 8;
@@ -106,14 +106,14 @@
             // 
             // booksLocationTb
             // 
-            this.booksLocationTb.Location = new System.Drawing.Point(90, 100);
+            this.booksLocationTb.Location = new System.Drawing.Point(90, 122);
             this.booksLocationTb.Name = "booksLocationTb";
             this.booksLocationTb.Size = new System.Drawing.Size(657, 20);
             this.booksLocationTb.TabIndex = 9;
             // 
             // booksLocationSearchBtn
             // 
-            this.booksLocationSearchBtn.Location = new System.Drawing.Point(753, 98);
+            this.booksLocationSearchBtn.Location = new System.Drawing.Point(753, 120);
             this.booksLocationSearchBtn.Name = "booksLocationSearchBtn";
             this.booksLocationSearchBtn.Size = new System.Drawing.Size(35, 23);
             this.booksLocationSearchBtn.TabIndex = 10;
@@ -142,7 +142,7 @@
             // booksLocationDescLbl
             // 
             this.booksLocationDescLbl.AutoSize = true;
-            this.booksLocationDescLbl.Location = new System.Drawing.Point(87, 123);
+            this.booksLocationDescLbl.Location = new System.Drawing.Point(87, 145);
             this.booksLocationDescLbl.Name = "booksLocationDescLbl";
             this.booksLocationDescLbl.Size = new System.Drawing.Size(36, 13);
             this.booksLocationDescLbl.TabIndex = 11;
@@ -156,7 +156,7 @@
             this.libationFilesGb.Controls.Add(this.libationFilesCustomRb);
             this.libationFilesGb.Controls.Add(this.libationFilesMyDocsRb);
             this.libationFilesGb.Controls.Add(this.libationFilesRootRb);
-            this.libationFilesGb.Location = new System.Drawing.Point(12, 139);
+            this.libationFilesGb.Location = new System.Drawing.Point(12, 161);
             this.libationFilesGb.Name = "libationFilesGb";
             this.libationFilesGb.Size = new System.Drawing.Size(776, 131);
             this.libationFilesGb.TabIndex = 12;
@@ -234,7 +234,7 @@
             this.downloadsInProgressGb.Controls.Add(this.downloadsInProgressLibationFilesRb);
             this.downloadsInProgressGb.Controls.Add(this.downloadsInProgressWinTempRb);
             this.downloadsInProgressGb.Controls.Add(this.downloadsInProgressDescLbl);
-            this.downloadsInProgressGb.Location = new System.Drawing.Point(12, 276);
+            this.downloadsInProgressGb.Location = new System.Drawing.Point(12, 298);
             this.downloadsInProgressGb.Name = "downloadsInProgressGb";
             this.downloadsInProgressGb.Size = new System.Drawing.Size(776, 117);
             this.downloadsInProgressGb.TabIndex = 13;
@@ -279,7 +279,7 @@
             this.decryptInProgressGb.Controls.Add(this.decryptInProgressLibationFilesRb);
             this.decryptInProgressGb.Controls.Add(this.decryptInProgressWinTempRb);
             this.decryptInProgressGb.Controls.Add(this.decryptInProgressDescLbl);
-            this.decryptInProgressGb.Location = new System.Drawing.Point(12, 399);
+            this.decryptInProgressGb.Location = new System.Drawing.Point(12, 421);
             this.decryptInProgressGb.Name = "decryptInProgressGb";
             this.decryptInProgressGb.Size = new System.Drawing.Size(776, 117);
             this.decryptInProgressGb.TabIndex = 14;
@@ -322,7 +322,7 @@
             // saveBtn
             // 
             this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.saveBtn.Location = new System.Drawing.Point(612, 522);
+            this.saveBtn.Location = new System.Drawing.Point(612, 544);
             this.saveBtn.Name = "saveBtn";
             this.saveBtn.Size = new System.Drawing.Size(75, 23);
             this.saveBtn.TabIndex = 15;
@@ -334,7 +334,7 @@
             // 
             this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelBtn.Location = new System.Drawing.Point(713, 522);
+            this.cancelBtn.Location = new System.Drawing.Point(713, 544);
             this.cancelBtn.Name = "cancelBtn";
             this.cancelBtn.Size = new System.Drawing.Size(75, 23);
             this.cancelBtn.TabIndex = 16;
@@ -345,7 +345,7 @@
 			// audibleLocaleLbl
 			// 
 			this.audibleLocaleLbl.AutoSize = true;
-			this.audibleLocaleLbl.Location = new System.Drawing.Point(273, 59);
+			this.audibleLocaleLbl.Location = new System.Drawing.Point(7, 98);
 			this.audibleLocaleLbl.Name = "audibleLocaleLbl";
 			this.audibleLocaleLbl.Size = new System.Drawing.Size(77, 13);
 			this.audibleLocaleLbl.TabIndex = 6;
@@ -361,7 +361,7 @@
 			"germany",
 			"france",
 			"canada"});
-			this.audibleLocaleCb.Location = new System.Drawing.Point(356, 56);
+			this.audibleLocaleCb.Location = new System.Drawing.Point(90, 95);
 			this.audibleLocaleCb.Name = "audibleLocaleCb";
 			this.audibleLocaleCb.Size = new System.Drawing.Size(121, 21);
 			this.audibleLocaleCb.TabIndex = 7;
@@ -372,7 +372,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelBtn;
-            this.ClientSize = new System.Drawing.Size(800, 557);
+            this.ClientSize = new System.Drawing.Size(800, 579);
 			this.Controls.Add(this.audibleLocaleCb);
 			this.Controls.Add(this.audibleLocaleLbl);
 			this.Controls.Add(this.cancelBtn);
