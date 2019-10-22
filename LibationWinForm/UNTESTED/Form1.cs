@@ -361,7 +361,7 @@ namespace LibationWinForm
 			var settings = new AudibleApiDomainService.Settings(config);
 			var responder = new Login.WinformResponder();
 			var client = await AudibleApiDomainService.AudibleApiLibationClient.CreateClientAsync(settings, responder);
-var testResult = await client.TestGetLibraryAsync();
+
 await client.ImportLibraryAsync();
 
 			// scrape

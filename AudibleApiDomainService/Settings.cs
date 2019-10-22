@@ -10,7 +10,7 @@ namespace AudibleApiDomainService
 
 		public Settings(Configuration config)
 		{
-			IdentityFilePath = Path.Combine(config.LibationFiles, "identityTokens.json");
+			IdentityFilePath = Path.Combine(config.LibationFiles, "IdentityTokens.json");
 			LocaleCountryCode = config.LocaleCountryCode;
 		}
 	}

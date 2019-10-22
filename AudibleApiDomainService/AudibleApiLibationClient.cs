@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AudibleApi;
@@ -85,14 +87,6 @@ namespace AudibleApiDomainService
 		}
 		#endregion
 
-		public async Task<JObject> TestGetLibraryAsync()
-		{
-			var x = await _api.GetLibraryAsync();
-var str = x.ToString();
-
-			return x;
-		}
-
 		//public async Task DownloadBookAsync(string asinToDownload)
 		//{
 		//	// console example
@@ -117,8 +111,36 @@ var str = x.ToString();
 		public async Task ImportLibraryAsync()
 		{
 			// json = api.GetLibrary
+			var jObjects = await GetLibraryItemsAsync();
 			// json => DTOs
 			// indexer.update(DTOs)
+		}
+
+		private async Task<List<JObject>> GetLibraryItemsAsync()
+		{
+			var allJsonResults = new List<JObject>();
+			var pageNum = 1;
+
+			while (true)
+			{
+				var page = await _api.GetLibraryAsync(new LibraryOptions
+				{
+					NumberOfResultPerPage = 1000,
+					PageNumber = pageNum
+				});
+
+				var debugStr = page.ToString();
+
+				var items = page["items"].Cast<JObject>();
+				allJsonResults.AddRange(items);
+
+				if (!items.Any())
+					break;
+
+				pageNum++;
+			}
+
+			return allJsonResults;
 		}
 	}
 }
