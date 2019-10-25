@@ -371,7 +371,7 @@ namespace ScrapingDomainServices
             {
                 var series
                     = context.Series.Local.SingleOrDefault(c => c.AudibleSeriesId == seriesId)
-                    ?? context.Series.Add(new Series(new AudibleSeriesId(seriesId))).Entity;
+                    ?? context.Series.Add(new DataLayer.Series(new AudibleSeriesId(seriesId))).Entity;
                 series.UpdateName(seriesName);
             }
         }

@@ -32,5 +32,7 @@ namespace DTOs
         public List<(string categoryId, string categoryName)> Categories { get; } = new List<(string categoryId, string categoryName)>();
 
         public List<SeriesEntry> Series { get; } = new List<SeriesEntry>();
-    }
+
+		public override string ToString() => $"[{ProductId}] {Title}";
+	}
 }

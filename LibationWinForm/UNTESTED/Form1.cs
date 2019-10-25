@@ -15,7 +15,7 @@ namespace LibationWinForm
     public partial class Form1 : Form
     {
         // initial call here will initiate config loading
-        private Configuration config = Configuration.Instance;
+        private Configuration config { get; } = Configuration.Instance;
 
         private string backupsCountsLbl_Format;
         private string pdfsCountsLbl_Format;

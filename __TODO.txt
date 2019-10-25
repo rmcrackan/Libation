@@ -1,13 +1,11 @@
 ﻿-- begin CONFIG FILES ---------------------------------------------------------------------------------------------------------------------
-try saving back into config
+.\appsettings.json should only be a pointer to the real settings file location: LibationSettings.json
+replace complex config saving throughout with new way in my ConsoleDependencyInjection solution
+all settings should be strongly typed
+re-create my shortcuts and bak
 
 multiple files named "appsettings.json" will overwrite each other
-
 libraries should avoid this generic name. ok for applications to use them
-
-LibationSettings.json => appsettings.json
-also, move these settings into a strong type
-re-create my shortcuts and bak
 
 Audible API
 C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\audible api\AudibleApi\_Tests\AudibleApi.Tests\bin\Debug\netcoreapp3.0\L1
@@ -30,6 +28,9 @@ replace all scraping with audible api
         public async Task DoMainWorkAsync()
             using var pageRetriever = websiteProcessorControl1.GetPageRetriever();
             jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
+
+move old DTOs back into scraping so it's easier to move them all to new legacy area
+library to return strongly typed LibraryApiV10
 
 note: some json importing may still be relevant. might want to allow custom importing
 
@@ -60,13 +61,20 @@ ADDED PROJECT REFERENCES
 3.1 Domain Internal Utilities
     InternalUtilities
         DTOs
+
+Audible API. GET /1.0/library , GET /1.0/library/{asin}
+TONS of expensive conversion: GetLibraryAsync > string > JObject > string > LibraryApiV10
 -- end REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
 
--- begin LEGACY ---------------------------------------------------------------------------------------------------------------------
-create legacy space to hold legacy code
+-- begin ENHANCEMENT, CATEGORIES ---------------------------------------------------------------------------------------------------------------------
+add support for multiple categories
+-- end ENHANCEMENT, CATEGORIES ---------------------------------------------------------------------------------------------------------------------
 
-scraping code
-"legacy inAudible wire-up code"
+-- begin LEGACY ---------------------------------------------------------------------------------------------------------------------
+retain legacy functionality in out-of-the-way area. turn on/off in settings?
+
+> scraping code
+> "legacy inAudible wire-up code"
 -- end LEGACY ---------------------------------------------------------------------------------------------------------------------
 
 -- begin CLEAN UP ARCHITECTURE ---------------------------------------------------------------------------------------------------------------------
@@ -76,18 +84,19 @@ my ui sucks. it's also tightly coupled with biz logic. can't replace ui until bi
 -- begin UNIT TESTS ---------------------------------------------------------------------------------------------------------------------
 all "UNTESTED" code needs unit tests
 Turn into unit tests or demos
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core.Windows.Forms\UNTESTED\TextBoxBaseTextWriter.cs
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core\UNTESTED\EnumerationExamples.cs
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core\UNTESTED\EnumExt.cs
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core\UNTESTED\_Collections\Generic\IEnumerable[T]Ext.cs
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Dinah.Core\Dinah.Core\UNTESTED\_IO\MultiTextWriter.cs
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\AudibleDotComAutomation\UNTESTED\Selenium.Examples.cs
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\DataLayer\UNTESTED\_scratch pad\ScratchPad.cs
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\BookLiberation\ProcessorAutomationController.Examples.cs
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\Scraping\UNTESTED\Rules\ScraperRules.Examples.cs
-  C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\Scraping\UNTESTED\Selectors\ByFactory.Example.cs
-  search 'example code' on:
-    C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs
+  TextBoxBaseTextWriter.cs
+  EnumerationExamples.cs
+  EnumExt.cs
+  IEnumerable[T]Ext.cs
+  MultiTextWriter.cs
+  Selenium.Examples.cs
+  ScratchPad.cs
+  ProcessorAutomationController.Examples.cs
+  ScraperRules.Examples.cs
+  ByFactory.Example.cs
+  search 'example code' on: LibationWinForm\...\Form1.cs
+  EnumerationFlagsExtensions.EXAMPLES()
+  // examples
 -- end UNIT TESTS ---------------------------------------------------------------------------------------------------------------------
 
 -- begin DECRYPTING ---------------------------------------------------------------------------------------------------------------------

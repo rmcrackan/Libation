@@ -48,15 +48,19 @@ namespace CookieMonster
 					value = Encoding.ASCII.GetString(decodedData);
 				}
 
-				col.Add(new CookieValue { Browser = "chrome", Domain = host_key, Name = name, Value = value, LastAccess = chromeTimeToDateTimeUtc(last_access_utc), Expires = chromeTimeToDateTimeUtc(expires_utc) });
+				try
+				{
+					// if something goes wrong in this step (eg: a cookie has an invalid filetime), then just skip this cookie
+					col.Add(new CookieValue { Browser = "chrome", Domain = host_key, Name = name, Value = value, LastAccess = chromeTimeToDateTimeUtc(last_access_utc), Expires = chromeTimeToDateTimeUtc(expires_utc) });
+				}
+				catch { }
 			}
-
 
 			return col;
 		}
 
-        // Chrome uses 1601-01-01 00:00:00 UTC as the epoch (ie the starting point for the millisecond time counter).
-        // this is the same as "FILETIME" in Win32 except FILETIME uses 100ns ticks instead of ms.
-        private static DateTime chromeTimeToDateTimeUtc(long time) => DateTime.SpecifyKind(DateTime.FromFileTime(time * 10), DateTimeKind.Utc);
-    }
+		// Chrome uses 1601-01-01 00:00:00 UTC as the epoch (ie the starting point for the millisecond time counter).
+		// this is the same as "FILETIME" in Win32 except FILETIME uses 100ns ticks instead of ms.
+		private static DateTime chromeTimeToDateTimeUtc(long time) => DateTime.SpecifyKind(DateTime.FromFileTime(time * 10), DateTimeKind.Utc);
+	}
 }

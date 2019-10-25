@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using AudibleApi;
 using AudibleApi.Authentication;
 using AudibleApi.Authorization;
-using Newtonsoft.Json.Linq;
+using DTOs;
 
 namespace AudibleApiDomainService
 {
@@ -87,6 +87,46 @@ namespace AudibleApiDomainService
 		}
 		#endregion
 
+		public async Task ImportLibraryAsync()
+		{
+			try
+			{
+				var items = await GetLibraryItemsAsync();
+//var (total, newEntries) = await ScrapingDomainServices.Indexer.IndexLibraryAsync(items);
+			}
+			catch (Exception ex)
+			{
+				// catch here for easier debugging
+				throw;
+			}
+		}
+
+		private async Task<List<Item>> GetLibraryItemsAsync()
+		{
+			var allItems = new List<Item>();
+
+			for (var i = 1; ; i++)
+			{
+				var page = await _api.GetLibraryAsync(new LibraryOptions
+				{
+					NumberOfResultPerPage = 1000,
+					PageNumber = i,
+					PurchasedAfter = new DateTime(2000, 1, 1),
+					ResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS
+				});
+
+				// important! use this convert method
+				var libResult = LibraryApiV10.FromJson(page.ToString());
+
+				if (!libResult.Items.Any())
+					break;
+
+				allItems.AddRange(libResult.Items);
+			}
+
+			return allItems;
+		}
+
 		//public async Task DownloadBookAsync(string asinToDownload)
 		//{
 		//	// console example
@@ -107,40 +147,5 @@ namespace AudibleApiDomainService
 
 		//	File.Delete(finalFile);
 		//}
-
-		public async Task ImportLibraryAsync()
-		{
-			// json = api.GetLibrary
-			var jObjects = await GetLibraryItemsAsync();
-			// json => DTOs
-			// indexer.update(DTOs)
-		}
-
-		private async Task<List<JObject>> GetLibraryItemsAsync()
-		{
-			var allJsonResults = new List<JObject>();
-			var pageNum = 1;
-
-			while (true)
-			{
-				var page = await _api.GetLibraryAsync(new LibraryOptions
-				{
-					NumberOfResultPerPage = 1000,
-					PageNumber = pageNum
-				});
-
-				var debugStr = page.ToString();
-
-				var items = page["items"].Cast<JObject>();
-				allJsonResults.AddRange(items);
-
-				if (!items.Any())
-					break;
-
-				pageNum++;
-			}
-
-			return allJsonResults;
-		}
 	}
 }

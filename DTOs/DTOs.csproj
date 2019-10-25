@@ -4,4 +4,8 @@
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Dinah.Core\Dinah.Core\Dinah.Core.csproj" />
+  </ItemGroup>
+
 </Project>

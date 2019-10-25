@@ -18,8 +18,8 @@ LocalDb database files live at:
 Migrations
 ==========
 
-Visual Studio, EF Core 2.0
---------------------------
+Visual Studio, EF Core
+----------------------
 View > Other Windows > Package Manager Console
 Default project: DataLayer
 Startup project: DataLayer
