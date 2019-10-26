@@ -68,6 +68,7 @@ TONS of expensive conversion: GetLibraryAsync > string > JObject > string > Libr
 
 -- begin ENHANCEMENT, CATEGORIES ---------------------------------------------------------------------------------------------------------------------
 add support for multiple categories
+when i do this, learn about the different CategoryLadder.Root enums. probably only need Root.Genres
 -- end ENHANCEMENT, CATEGORIES ---------------------------------------------------------------------------------------------------------------------
 
 -- begin LEGACY ---------------------------------------------------------------------------------------------------------------------

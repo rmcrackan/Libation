@@ -9,6 +9,9 @@ namespace DTOs
 	{
 		public IEnumerable<Person> AuthorsDistinct => Items.GetAuthorsDistinct();
 		public IEnumerable<Person> NarratorsDistinct => Items.GetNarratorsDistinct();
+		public IEnumerable<Series> SeriesDistinct => Items.GetSeriesDistinct();
+		public IEnumerable<Ladder> ParentCategoriesDistinct => Items.GetParentCategoriesDistinct();
+		public IEnumerable<Ladder> ChildCategoriesDistinct => Items.GetChildCategoriesDistinct();
 
 		public override string ToString() => $"{Items.Length} {nameof(Items)}, {ResponseGroups.Length} {nameof(ResponseGroups)}";
 	}
@@ -41,8 +44,12 @@ namespace DTOs
 		public DateTime? DatePublished => IssueDate?.UtcDateTime; // item.IssueDate == item.ReleaseDate
 		public string Publisher => PublisherName;
 
-		// future: need support for multiple categories
+		// these category properties assume:
+		// - we're only exposing 1 category, irrespective of how many the Item actually has
+		// - each ladder will have either 1 or 2 levels: parent and optional child
 		public Ladder[] Categories => CategoryLadders?.FirstOrDefault()?.Ladder ?? new Ladder[0];
+		public Ladder ParentCategory => Categories[0];
+		public Ladder ChildCategory => Categories.Length > 1 ? Categories[1] : null;
 
 		// LibraryDTO.DownloadBookLink will be handled differently. see api.DownloadAaxWorkaroundAsync(asin)
 
