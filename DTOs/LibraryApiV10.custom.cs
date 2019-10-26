@@ -8,7 +8,8 @@ namespace DTOs
 	public partial class LibraryApiV10
 	{
 		public IEnumerable<Person> AuthorsDistinct => Items.GetAuthorsDistinct();
-		public IEnumerable<Person> NarratorsDistinct => Items.GetNarratorsDistinct();
+		public IEnumerable<string> NarratorsDistinct => Items.GetNarratorsDistinct();
+		public IEnumerable<string> PublishersDistinct => Items.GetPublishersDistinct();
 		public IEnumerable<Series> SeriesDistinct => Items.GetSeriesDistinct();
 		public IEnumerable<Ladder> ParentCategoriesDistinct => Items.GetParentCategoriesDistinct();
 		public IEnumerable<Ladder> ChildCategoriesDistinct => Items.GetChildCategoriesDistinct();

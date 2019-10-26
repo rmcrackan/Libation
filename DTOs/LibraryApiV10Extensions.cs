@@ -10,8 +10,11 @@ namespace DTOs
 		public static IEnumerable<Person> GetAuthorsDistinct(this IEnumerable<Item> items)
 			=> items.SelectMany(i => i.Authors).DistinctBy(a => new { a.Name, a.Asin });
 
-		public static IEnumerable<Person> GetNarratorsDistinct(this IEnumerable<Item> items)
-			=> items.SelectMany(i => i.Narrators).DistinctBy(n => new { n.Name, n.Asin });
+		public static IEnumerable<string> GetNarratorsDistinct(this IEnumerable<Item> items)
+			=> items.SelectMany(i => i.Narrators, (i, n) => n.Name).Distinct();
+
+		public static IEnumerable<string> GetPublishersDistinct(this IEnumerable<Item> items)
+			=> items.Select(i => i.Publisher).Distinct();
 
 		public static IEnumerable<Series> GetSeriesDistinct(this IEnumerable<Item> items)
 			=> items.SelectMany(i => i.Series).DistinctBy(s => new { s.SeriesName, s.SeriesId });
