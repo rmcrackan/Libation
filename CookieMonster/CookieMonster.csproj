@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.112" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.6.0" />
   </ItemGroup>
 

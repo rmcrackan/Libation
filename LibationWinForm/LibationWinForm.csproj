@@ -11,7 +11,7 @@
     <ProjectReference Include="..\..\audible api\AudibleApi\AudibleApi\AudibleApi.csproj" />
     <ProjectReference Include="..\..\Dinah.Core\Dinah.Core.Drawing\Dinah.Core.Drawing.csproj" />
     <ProjectReference Include="..\..\Dinah.Core\Dinah.Core.Windows.Forms\Dinah.Core.Windows.Forms.csproj" />
-    <ProjectReference Include="..\AudibleApiDomainService\AudibleApiDomainService.csproj" />
+    <ProjectReference Include="..\DtoImporterService\DtoImporterService.csproj" />
     <ProjectReference Include="..\ScrapingDomainServices\ScrapingDomainServices.csproj" />
   </ItemGroup>
 

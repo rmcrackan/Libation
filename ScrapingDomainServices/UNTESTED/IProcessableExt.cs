@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DataLayer;
+using Dinah.Core.Collections.Generic;
 using Dinah.Core.ErrorHandling;
 
 namespace ScrapingDomainServices
@@ -37,8 +38,12 @@ namespace ScrapingDomainServices
             var libraryBooks = LibraryQueries.GetLibrary_Flat_NoTracking();
 
             foreach (var libraryBook in libraryBooks)
-                if (await processable.ValidateAsync(libraryBook))
-                    return libraryBook;
+                if (
+// hardcoded blacklist
+//episodes
+!libraryBook.Book.AudibleProductId.In("B079ZTTL4J", "B0779LK1TX", "B0779H7B38", "B0779M3KGC", "B076PQ6G9Z", "B07D4M18YC") &&
+					await processable.ValidateAsync(libraryBook))
+						return libraryBook;
 
             return null;
         }

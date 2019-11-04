@@ -83,8 +83,8 @@ namespace LibationWinForm.BookLiberation
             // close form on DOWNLOAD completed, not final Completed. Else for BackupBook this form won't close until DECRYPT is also complete
             void fileDownloadCompleted(object _, string __) => downloadDialog.Close();
 
-            void downloadProgressChanged(object _, System.Net.DownloadProgressChangedEventArgs arg)
-                => downloadDialog.DownloadProgressChanged(arg.BytesReceived, arg.TotalBytesToReceive);
+            void downloadProgressChanged(object _, Dinah.Core.Net.Http.DownloadProgress progress)
+                => downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive.Value);
 
             void unsubscribe(object _ = null, EventArgs __ = null)
             {

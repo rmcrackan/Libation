@@ -43,7 +43,7 @@ namespace ScrapingDomainServices
 
             var destinationFilename = Path.Combine(destinationDir, Path.GetFileName(url));
 
-			using var webClient = await GetWebClient(destinationFilename);
+			using var webClient = await GetWebClientAsync(destinationFilename);
             await webClient.DownloadFileTaskAsync(url, destinationFilename);
 
             var statusHandler = new StatusHandler();

@@ -72,7 +72,7 @@ namespace ScrapingDomainServices
                     // download htm
                     string source;
                     var url = AudiblePage.Product.GetUrl(productId);
-					using var webClient = await GetWebClient($"Getting Book Details for {libraryBook.Book.Title}");
+					using var webClient = await GetWebClientAsync($"Getting Book Details for {libraryBook.Book.Title}");
 					try
 					{
 						source = await webClient.DownloadStringTaskAsync(url);

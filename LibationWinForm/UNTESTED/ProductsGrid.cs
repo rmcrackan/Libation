@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Dinah.Core.DataBinding;
 using DataLayer;
+using Dinah.Core.Collections.Generic;
 
 namespace LibationWinForm
 {
@@ -76,11 +77,14 @@ namespace LibationWinForm
 
                 col.HeaderText = col.HeaderText.Replace("_", " ");
 
-                if (col.Name == nameof(GridEntry.Title))
-                    col.Width *= 2;
-
-                if (col.Name == nameof(GridEntry.Misc))
-                    col.Width = (int)(col.Width * 1.35);
+				col.Width = col.Name switch
+				{
+					nameof(GridEntry.Cover) => 80,
+					nameof(GridEntry.Title) => col.Width * 2,
+					nameof(GridEntry.Misc) => (int)(col.Width * 1.35),
+					var n when n.In(nameof(GridEntry.My_Rating), nameof(GridEntry.Product_Rating)) => col.Width + 8,
+					_ => col.Width
+				};
             }
 
 
@@ -88,12 +92,14 @@ namespace LibationWinForm
             // transform into sorted GridEntry.s BEFORE binding
             //
             var lib = LibraryQueries.GetLibrary_Flat_NoTracking();
-            var orderedGridEntries = lib
+			var orderedGridEntries = lib
                 .Select(lb => new GridEntry(lb)).ToList()
-                // default load order: sort by author, then series, then title
-                .OrderBy(ge => ge.Authors)
-                    .ThenBy(ge => ge.Series)
-                    .ThenBy(ge => ge.Title)
+				// default load order
+				.OrderByDescending(ge => ge.Purchase_Date)
+                //// more advanced example: sort by author, then series, then title
+                //.OrderBy(ge => ge.Authors)
+                //    .ThenBy(ge => ge.Series)
+                //    .ThenBy(ge => ge.Title)
                 .ToList();
 
             //

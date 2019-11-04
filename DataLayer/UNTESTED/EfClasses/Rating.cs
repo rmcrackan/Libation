@@ -64,11 +64,11 @@ namespace DataLayer
             var items = new List<string>();
 
             if (OverallRating > 0)
-                items.Add($"Overall:  {getStars(OverallRating)}");
+                items.Add($"Overall:   {getStars(OverallRating)}");
             if (PerformanceRating > 0)
                 items.Add($"Perform: {getStars(PerformanceRating)}");
             if (StoryRating > 0)
-                items.Add($"Story:     {getStars(StoryRating)}");
+                items.Add($"Story:      {getStars(StoryRating)}");
 
             return string.Join("\r\n", items);
         }

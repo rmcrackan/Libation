@@ -11,7 +11,7 @@ namespace DataLayer
 			using var context = LibationContext.Create();
 			return context
                 .Library
-                .AsNoTracking()
+//.AsNoTracking()
                 .GetLibrary()
                 .ToList();
 		}
@@ -21,8 +21,8 @@ namespace DataLayer
 			using var context = LibationContext.Create();
 			return context
                 .Library
-                .AsNoTracking()
-                .GetLibraryBook(productId);
+//.AsNoTracking()
+				.GetLibraryBook(productId);
 		}
 
         /// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>

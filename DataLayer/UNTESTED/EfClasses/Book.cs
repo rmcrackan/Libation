@@ -62,8 +62,7 @@ namespace DataLayer
             string title,
             string description,
             int lengthInMinutes,
-            IEnumerable<Contributor> authors,
-            IEnumerable<Contributor> narrators)
+            IEnumerable<Contributor> authors)
         {
             // validate
             ArgumentValidator.EnsureNotNull(audibleProductId, nameof(audibleProductId));
@@ -88,7 +87,7 @@ namespace DataLayer
 
             // assigns with biz logic
             ReplaceAuthors(authors);
-            ReplaceNarrators(narrators);
+            //ReplaceNarrators(narrators);
 
             // import previously saved tags
             // do this immediately. any save occurs before reloading tags will overwrite persistent tags with new blank entries; all old persisted tags will be lost
@@ -218,7 +217,6 @@ namespace DataLayer
             //  Are automatically loaded, and can only be tracked by a DbContext alongside their owner."
 
             ArgumentValidator.EnsureNotNullOrWhiteSpace(url, nameof(url));
-            url = FileManager.FileUtility.RestoreDeclawed(url);
 
             if (!_supplements.Any(s => url.EqualsInsensitive(url)))
                 _supplements.Add(new Supplement(this, url));

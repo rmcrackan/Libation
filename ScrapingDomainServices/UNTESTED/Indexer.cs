@@ -26,7 +26,8 @@ namespace ScrapingDomainServices
         public static async Task<(int total, int newEntries)> IndexLibraryAsync(List<FileInfo> jsonFileInfos)
         {
             var productItems = jsonFileInfos.SelectMany(fi => json2libraryDtos(fi)).ToList();
-            return await IndexLibraryAsync(productItems);
+            var newEntries = await IndexLibraryAsync(productItems);
+            return (productItems.Count, newEntries);
         }
         private static Regex jsonIsCollectionRegex = new Regex(@"^\s*\[\s*\{", RegexOptions.Compiled);
         private static IEnumerable<LibraryDTO> json2libraryDtos(FileInfo jsonFileInfo)
@@ -44,13 +45,11 @@ namespace ScrapingDomainServices
         }
 
         // new full index or library-file import: re-create search index
-        public static async Task<(int total, int newEntries)> IndexLibraryAsync(List<LibraryDTO> productItems)
-            => await IndexLibraryAsync(productItems, SearchEngineActions.FullReIndexAsync);
-
-        private static async Task<(int total, int newEntries)> IndexLibraryAsync(List<LibraryDTO> productItems, Func<Task> postIndexActionAsync)
+        /// <returns>qty new entries</returns>
+		public static async Task<int> IndexLibraryAsync(List<LibraryDTO> productItems)
         {
             if (productItems == null || !productItems.Any())
-                return (0, 0);
+                return 0;
 
 			productItems = filterAndValidate(productItems);
 
@@ -74,9 +73,9 @@ namespace ScrapingDomainServices
             await Task.Run(() => dtoImporter.ReloadBookDetails(productItems));
             await context.SaveChangesAsync();
 
-            await postIndexActionAsync?.Invoke();
+            await SearchEngineActions.FullReIndexAsync();
 
-            return (productItems.Count, newEntries);
+            return newEntries;
         }
         private static List<LibraryDTO> filterAndValidate(List<LibraryDTO> collection)
         {
@@ -121,19 +120,6 @@ namespace ScrapingDomainServices
         #endregion
 
         #region book details
-        public static async Task IndexBookDetailsAsync(FileInfo jsonFileInfo)
-        {
-            var bookDetailDTO = json2bookDetailDto(jsonFileInfo);
-            await IndexBookDetailsAsync(bookDetailDTO);
-        }
-        private static BookDetailDTO json2bookDetailDto(FileInfo jsonFileInfo)
-        {
-            validateJsonFile(jsonFileInfo);
-
-            var serialized = File.ReadAllText(jsonFileInfo.FullName);
-            return JsonConvert.DeserializeObject<BookDetailDTO>(serialized);
-        }
-
         public static async Task IndexBookDetailsAsync(BookDetailDTO bookDetailDTO)
             => await indexBookDetailsAsync(bookDetailDTO, () => SearchEngineActions.ProductReIndexAsync(bookDetailDTO.ProductId));
 

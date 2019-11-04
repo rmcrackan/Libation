@@ -7,103 +7,132 @@ using DataLayer;
 
 namespace LibationWinForm
 {
-    internal class GridEntry
-    {
-        private LibraryBook libraryBook;
-        private Book book => libraryBook.Book;
+	internal class GridEntry
+	{
+		private LibraryBook libraryBook;
+		private Book book => libraryBook.Book;
 
-        public Book GetBook() => book;
+		public Book GetBook() => book;
 
-        // this special case is obvious and ugly
-        public void REPLACE_Library_Book(LibraryBook libraryBook) => this.libraryBook = libraryBook;
+		// this special case is obvious and ugly
+		public void REPLACE_Library_Book(LibraryBook libraryBook) => this.libraryBook = libraryBook;
 
-        public GridEntry(LibraryBook libraryBook) => this.libraryBook = libraryBook;
+		public GridEntry(LibraryBook libraryBook) => this.libraryBook = libraryBook;
 
-        // hide from public fields from Data Source GUI with [Browsable(false)]
+		// hide from public fields from Data Source GUI with [Browsable(false)]
 
-        [Browsable(false)]
-        public string Tags => book.UserDefinedItem.Tags;
-        [Browsable(false)]
-        public IEnumerable<string> TagsEnumerated => book.UserDefinedItem.TagsEnumerated;
+		[Browsable(false)]
+		public string Tags => book.UserDefinedItem.Tags;
+		[Browsable(false)]
+		public IEnumerable<string> TagsEnumerated => book.UserDefinedItem.TagsEnumerated;
 
-        private Dictionary<string, string> formatReplacements { get; } = new Dictionary<string, string>();
-        public bool TryGetFormatted(string key, out string value) => formatReplacements.TryGetValue(key, out value);
+		// formatReplacements is what gets displayed
+		// the value that gets returned from the property is the cell's value
+		// this allows for the value to be sorted one way and displayed another
+		// eg:
+		//   orig title: The Computer
+		//   formatReplacement: The Computer
+		//   value for sorting: Computer
+		private Dictionary<string, string> formatReplacements { get; } = new Dictionary<string, string>();
+		public bool TryGetFormatted(string key, out string value) => formatReplacements.TryGetValue(key, out value);
 
-        public Image Cover =>
-            Dinah.Core.Drawing.ImageConverter.GetPictureFromBytes(
-                FileManager.PictureStorage.GetImage(book.PictureId, FileManager.PictureStorage.PictureSize._80x80)
-                );
+		public Image Cover =>
+			Dinah.Core.Drawing.ImageConverter.GetPictureFromBytes(
+				FileManager.PictureStorage.GetImage(book.PictureId, FileManager.PictureStorage.PictureSize._80x80)
+				);
 
-        public string Title
-        {
-            get
-            {
-                formatReplacements[nameof(Title)] = book.Title;
+		public string Title
+		{
+			get
+			{
+				formatReplacements[nameof(Title)] = book.Title;
 
-                var sortName = book.Title
-                    .Replace("|", "")
-                    .Replace(":", "")
-                    .ToLowerInvariant();
-                if (sortName.StartsWith("the ") || sortName.StartsWith("a ") || sortName.StartsWith("an "))
-                    sortName = sortName.Substring(sortName.IndexOf(" ") + 1);
+				var sortName = book.Title
+					.Replace("|", "")
+					.Replace(":", "")
+					.ToLowerInvariant();
+				if (sortName.StartsWith("the ") || sortName.StartsWith("a ") || sortName.StartsWith("an "))
+					sortName = sortName.Substring(sortName.IndexOf(" ") + 1);
 
-                return sortName;
-            }
-        }
+				return sortName;
+			}
+		}
 
-        public string Authors => book.AuthorNames;
-        public string Narrators => book.NarratorNames;
+		public string Authors => book.AuthorNames;
+		public string Narrators => book.NarratorNames;
 
-        public int Length
-        {
-            get
-            {
-                formatReplacements[nameof(Length)]
-                    = book.LengthInMinutes == 0
-                    ? "[pre-release]"
-                    : $"{book.LengthInMinutes / 60} hr {book.LengthInMinutes % 60} min";
+		public int Length
+		{
+			get
+			{
+				formatReplacements[nameof(Length)]
+					= book.LengthInMinutes == 0
+					? ""
+					: $"{book.LengthInMinutes / 60} hr {book.LengthInMinutes % 60} min";
 
-                return book.LengthInMinutes;
-            }
-        }
+				return book.LengthInMinutes;
+			}
+		}
 
-        public string Series => book.SeriesNames;
+		public string Series => book.SeriesNames;
 
-        public string Description
-            => book.Description == null ? ""
-            : book.Description.Length < 63 ? book.Description
-            : book.Description.Substring(0, 60) + "...";
+		private string descriptionCache = null;
+		public string Description
+		{
+			get
+			{
+				// HtmlAgilityPack is expensive. cache results
+				if (descriptionCache is null)
+				{
+					if (book.Description is null)
+						descriptionCache = "";
+					else
+					{
+						var doc = new HtmlAgilityPack.HtmlDocument();
+						doc.LoadHtml(book.Description);
+						var noHtml = doc.DocumentNode.InnerText;
+						descriptionCache
+							= noHtml.Length < 63
+							? noHtml
+							: noHtml.Substring(0, 60) + "...";
+					}
+				}
 
-        public string Category => string.Join(" > ", book.CategoriesNames);
+				return descriptionCache;
+			}
+		}
 
-        // star ratings retain numeric value but display star text. this is needed because just using star text doesn't sort correctly:
-        // - star
-        // - star star
-        // - star 1/2
+		public string Category => string.Join(" > ", book.CategoriesNames);
 
-        public string Product_Rating
-        {
-            get
-            {
-                Rating rating = book.Rating;
+		// star ratings retain numeric value but display star text. this is needed because just using star text doesn't sort correctly:
+		// - star
+		// - star star
+		// - star 1/2
 
-                formatReplacements[nameof(Product_Rating)] = starString(rating);
+		public string Product_Rating
+		{
+			get
+			{
+				formatReplacements[nameof(Product_Rating)] = starString(book.Rating);
+				return firstScore(book.Rating);
+			}
+		}
 
-                return firstScore(rating);
-            }
-        }
-
-        public DateTime? Purchase_Date => libraryBook.DateAdded;
+		public string Purchase_Date
+		{
+			get
+			{
+				formatReplacements[nameof(Purchase_Date)] = libraryBook.DateAdded.ToString("d");
+				return libraryBook.DateAdded.ToString("yyyy-MM-dd HH:mm:ss");
+			}
+		}
 
         public string My_Rating
         {
             get
             {
-                Rating rating = book.UserDefinedItem.Rating;
-
-                formatReplacements[nameof(My_Rating)] = starString(rating);
-
-                return firstScore(rating);
+                formatReplacements[nameof(My_Rating)] = starString(book.UserDefinedItem.Rating);
+                return firstScore(book.UserDefinedItem.Rating);
             }
         }
 

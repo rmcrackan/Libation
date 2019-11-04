@@ -357,18 +357,48 @@ namespace LibationWinForm
 
 		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			// audible api
-			var settings = new AudibleApiDomainService.Settings(config);
-			var responder = new Login.WinformResponder();
-			var client = await AudibleApiDomainService.AudibleApiLibationClient.CreateClientAsync(settings, responder);
-
-await client.ImportLibraryAsync();
-
-			// scrape
-			await indexDialog(new ScanLibraryDialog());
+// legacy/scraping method
+			//await indexDialog(new ScanLibraryDialog());
+// new/api method
+await audibleApi();
 		}
 
-        private async void reimportMostRecentLibraryScanToolStripMenuItem_Click(object sender, EventArgs e)
+		private async Task audibleApi()
+		{
+			var identityFilePath = System.IO.Path.Combine(config.LibationFiles, "IdentityTokens.json");
+			var callback = new Login.WinformResponder();
+			var api = await AudibleApi.EzApiCreator.GetApiAsync(identityFilePath, callback, config.LocaleCountryCode);
+
+			int totalCount;
+			int newCount;
+
+			// seems to be very common the 1st time after long absence. either figure out why, or run 2x before declaring error
+			try
+			{
+				var items = await InternalUtilities.AudibleApiExtensions.GetAllLibraryItemsAsync(api);
+				totalCount = items.Count;
+				newCount = await Task.Run(() => new DtoImporterService.LibraryImporter().Import(items));
+			}
+			catch
+			{
+				try
+				{
+					var items = await InternalUtilities.AudibleApiExtensions.GetAllLibraryItemsAsync(api);
+					totalCount = items.Count;
+					newCount = await Task.Run(() => new DtoImporterService.LibraryImporter().Import(items));
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show("Error importing library.\r\n" + ex.Message, "Error importing library", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return;
+				}
+			}
+
+			await InternalUtilities.SearchEngineActions.FullReIndexAsync();
+			await indexComplete(totalCount, newCount);
+		}
+
+		private async void reimportMostRecentLibraryScanToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // DO NOT ConfigureAwait(false)
             // this would result in index() => reloadGrid() => setGrid() => "gridPanel.Controls.Remove(currProductsGrid);"
@@ -377,15 +407,15 @@ await client.ImportLibraryAsync();
 
             MessageBox.Show($"Total processed: {TotalBooksProcessed}\r\nNew: {NewBooksAdded}");
 
-            await index(NewBooksAdded, TotalBooksProcessed);
+            await indexComplete(TotalBooksProcessed, NewBooksAdded);
         }
 
         private async Task indexDialog(IIndexLibraryDialog dialog)
         {
             if (!dialog.RunDialog().In(DialogResult.Abort, DialogResult.Cancel, DialogResult.None))
-                await index(dialog.NewBooksAdded, dialog.TotalBooksProcessed);
+                await indexComplete(dialog.TotalBooksProcessed, dialog.NewBooksAdded);
         }
-        private async Task index(int newBooksAdded, int totalBooksProcessed)
+        private async Task indexComplete(int totalBooksProcessed, int newBooksAdded)
         {
             // update backup counts if we have new library items
             if (newBooksAdded > 0)

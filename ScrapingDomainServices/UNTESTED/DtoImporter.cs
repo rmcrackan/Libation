@@ -93,7 +93,7 @@ namespace ScrapingDomainServices
 
                 // if no narrators listed, author is the narrator
                 if (!libraryDTO.Narrators.Any())
-                    libraryDTO.Narrators = libraryDTO.Narrators = authors.Select(a => a.Name).ToArray();
+                    libraryDTO.Narrators = authors.Select(a => a.Name).ToArray();
 
                 // nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
                 var narrators = libraryDTO
@@ -102,18 +102,19 @@ namespace ScrapingDomainServices
                     .ToList();
 
                 book = context.Books.Add(new Book(
-                    new AudibleProductId(libraryDTO.ProductId), libraryDTO.Title, libraryDTO.Description, libraryDTO.LengthInMinutes, authors, narrators))
+                    new AudibleProductId(libraryDTO.ProductId), libraryDTO.Title, libraryDTO.Description, libraryDTO.LengthInMinutes, authors))
                     .Entity;
+				book.ReplaceNarrators(narrators);
             }
 
             // set/update book-specific info which may have changed
             book.PictureId = libraryDTO.PictureId;
             book.UpdateProductRating(libraryDTO.Product_OverallStars, libraryDTO.Product_PerformanceStars, libraryDTO.Product_StoryStars);
-            foreach (var url in libraryDTO.SupplementUrls)
-                book.AddSupplementDownloadUrl(url);
+			foreach (var url in libraryDTO.SupplementUrls)
+				book.AddSupplementDownloadUrl(FileManager.FileUtility.RestoreDeclawed(url));
 
-            // important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
-            book.UserDefinedItem.UpdateRating(libraryDTO.MyUserRating_Overall, libraryDTO.MyUserRating_Performance, libraryDTO.MyUserRating_Story);
+			// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
+			book.UserDefinedItem.UpdateRating(libraryDTO.MyUserRating_Overall, libraryDTO.MyUserRating_Performance, libraryDTO.MyUserRating_Story);
 
             // update series even for existing books. these are occasionally updated
             var seriesIds = libraryDTO.Series.Select(kvp => kvp.Key).ToList();

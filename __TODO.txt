@@ -1,4 +1,121 @@
-﻿-- begin CONFIG FILES ---------------------------------------------------------------------------------------------------------------------
+﻿-- begin REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
+integrate API into libation. replace all authentication, audible communication
+
+IN-PROGRESS
+-----------
+download via api with UI integration
+- functionality: episodes
+library import UI
+- disable main ui
+- updates on which stage and how long it's expected to take
+- error handling
+- dialog/pop up when done. show how many new and total
+move biz logic out of UI (Form1.scanLibraryToolStripMenuItem_Click)
+- non-db dependent: InternalUtilities. see: SearchEngineActions
+  InternalUtilities.AudibleApiExtensions may not belong here. not sure
+- db dependent: eg DtoImporterService
+
+extract IdentityTokens.json into FileManager
+replace all hardcoded occurances
+
+FIX
+// hardcoded blacklist
+
+datalayer stuff (eg: Book) need better ToString
+
+MOVE TO LEGACY
+--------------
+- scraping code
+- "legacy inAudible wire-up code"
+Book.IsEpisodes
+Book.HasBookDetails
+LibraryBook.DownloadBookLink
+humanizer
+replace all scraping with audible api
+    public partial class ScanLibraryDialog : Form, IIndexLibraryDialog
+        public async Task DoMainWorkAsync()
+            using var pageRetriever = websiteProcessorControl1.GetPageRetriever();
+            jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
+scraping stuff to remove. order matters. go from top to bottom:
+REMOVED PROJECT REFERENCES
+3.2 Domain Utilities (post database)
+    DomainServices
+        AudibleDotComAutomation
+3.1 Domain Internal Utilities
+    InternalUtilities
+        Scraping
+REMOVED PROJECTS
+2 Utilities (domain ignorant)
+  Scraping
+  AudibleDotComAutomation
+  AudibleDotCom
+  CookieMonster
+REMOVED FILES
+\Libation\InternalUtilities\UNTESTED\DataConverter.cs
+\Libation\DomainServices\UNTESTED\DownloadLibrary.cs
+\Libation\DomainServices\UNTESTED\ScrapeBookDetails.cs
+ADDED PROJECT REFERENCES
+3.1 Domain Internal Utilities
+    InternalUtilities
+        DTOs
+-- end REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------
+imports are PAINFULLY slow for just a few hundred items. wtf is taking so long?
+-- end ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
+when a book/pdf is NOT liberated, calculating the grid's [Liberated][NOT d/l'ed] label is very slow
+https://stackoverflow.com/a/12046333
+https://codereview.stackexchange.com/a/135074
+// do NOT use lock() or Monitor with async/await
+private static int _lockFlag = 0; // 0 - free
+if (Interlocked.CompareExchange(ref _lockFlag, 1, 0) != 0) return;
+// only 1 thread will enter here without locking the object/put the other threads to sleep
+try { await DoWorkAsync(); }
+// free the lock
+finally { Interlocked.Decrement(ref _lockFlag); }
+
+use stop light icons for liberated state: red=none, yellow=downloaded encrypted, green=liberated
+
+need a way to liberate ad hoc books and pdf.s
+
+use pdf icon with and without and X over it to indicate status
+-- end ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENTS, GET LIBRARY ---------------------------------------------------------------------------------------------------------------------
+Audible API. GET /1.0/library , GET /1.0/library/{asin}
+TONS of expensive conversion: GetLibraryAsync > string > JObject > string > LibraryApiV10
+-- end ENHANCEMENTS, GET LIBRARY ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENTS, EPISODES ---------------------------------------------------------------------------------------------------------------------
+grid: episodes need a better Download_Status and Length/LengthInMinutes
+download: need a way to liberate episodes. show in grid 'x/y downloaded/liberated' etc
+-- end ENHANCEMENTS, EPISODES ---------------------------------------------------------------------------------------------------------------------
+
+-- begin BUG, MOVING FILES ---------------------------------------------------------------------------------------------------------------------
+with libation closed, move files
+start libation
+can get error below
+fixed on restart
+
+Form1_Load ... await setBackupCountsAsync();
+Collection was modified; enumeration operation may not execute.
+stack trace
+   at System.ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion()
+   at System.Collections.Generic.List`1.Enumerator.MoveNextRare()
+   at System.Linq.Enumerable.SingleOrDefault[TSource](IEnumerable`1 source, Func`2 predicate)
+   at FileManager.FilePathCache.GetPath(String id, FileType type) in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\FileManager\UNTESTED\FilePathCache.cs:line 33
+   at FileManager.AudibleFileStorage.<getAsync>d__32.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\FileManager\UNTESTED\AudibleFileStorage.cs:line 112
+   at FileManager.AudibleFileStorage.<GetAsync>d__31.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\FileManager\UNTESTED\AudibleFileStorage.cs:line 107
+   at FileManager.AudibleFileStorage.<ExistsAsync>d__30.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\FileManager\UNTESTED\AudibleFileStorage.cs:line 104
+   at LibationWinForm.Form1.<<setBookBackupCountsAsync>g__getAudioFileStateAsync|15_1>d.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs:line 110
+   at LibationWinForm.Form1.<setBookBackupCountsAsync>d__15.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs:line 117
+   at LibationWinForm.Form1.<setBackupCountsAsync>d__13.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs:line 81
+   at LibationWinForm.Form1.<Form1_Load>d__11.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs:line 60
+-- end BUG, MOVING FILES ---------------------------------------------------------------------------------------------------------------------
+
+-- begin CONFIG FILES ---------------------------------------------------------------------------------------------------------------------
 .\appsettings.json should only be a pointer to the real settings file location: LibationSettings.json
 replace complex config saving throughout with new way in my ConsoleDependencyInjection solution
 all settings should be strongly typed
@@ -16,67 +133,20 @@ BasePath => recursively search directories upward-only until fild dir with .sln
 from here can set up a shared dir anywhere. use recursive upward search to find it. store shared files here. eg: identityTokens.json, ComputedTestValues
 -- end CONFIG FILES ---------------------------------------------------------------------------------------------------------------------
 
--- begin REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
-integrate API into libation. eventually entirely replace all other authentication methods, audible communication. incl book download
-logged-in user's own ratings (aka rating-star(s)) -- is "provided_review"
-unlike traditional scraping, audible api calls do not need to be humanized. can likely delete humanizer altogether. still needed for downloading pdf.s?
+-- begin TAGS ---------------------------------------------------------------------------------------------------------------------
+pulling previous tags into new Books. think: reloading db
+move out of Book and into DtoMapper?
 
-incl episodes. eg: "Bill Bryson's Appliance of Science"
-  refining episode retrieval might also get rid of the need for IsEpisodes property
-replace all scraping with audible api
-    public partial class ScanLibraryDialog : Form, IIndexLibraryDialog
-        public async Task DoMainWorkAsync()
-            using var pageRetriever = websiteProcessorControl1.GetPageRetriever();
-            jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
+Extract file and tag stuff from domain objects. This should exist only in data layer. If domain objects are able to call EF context, it should go through data layer
+Why are tags in file AND database?
 
-move old DTOs back into scraping so it's easier to move them all to new legacy area
-library to return strongly typed LibraryApiV10
-
-note: some json importing may still be relevant. might want to allow custom importing
-
-scraping stuff to remove:
-order matters. go from top to bottom:
-
-REMOVED PROJECT REFERENCES
-3.2 Domain Utilities (post database)
-    DomainServices
-        AudibleDotComAutomation
-3.1 Domain Internal Utilities
-    InternalUtilities
-        Scraping
-
-REMOVED PROJECTS
-2 Utilities (domain ignorant)
-  Scraping
-  AudibleDotComAutomation
-  AudibleDotCom
-  CookieMonster
-
-REMOVED FILES
-\Libation\InternalUtilities\UNTESTED\DataConverter.cs
-\Libation\DomainServices\UNTESTED\DownloadLibrary.cs
-\Libation\DomainServices\UNTESTED\ScrapeBookDetails.cs
-
-ADDED PROJECT REFERENCES
-3.1 Domain Internal Utilities
-    InternalUtilities
-        DTOs
-
-Audible API. GET /1.0/library , GET /1.0/library/{asin}
-TONS of expensive conversion: GetLibraryAsync > string > JObject > string > LibraryApiV10
--- end REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
+extract FileManager dependency from data layer
+-- end TAGS ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, CATEGORIES ---------------------------------------------------------------------------------------------------------------------
 add support for multiple categories
 when i do this, learn about the different CategoryLadder.Root enums. probably only need Root.Genres
 -- end ENHANCEMENT, CATEGORIES ---------------------------------------------------------------------------------------------------------------------
-
--- begin LEGACY ---------------------------------------------------------------------------------------------------------------------
-retain legacy functionality in out-of-the-way area. turn on/off in settings?
-
-> scraping code
-> "legacy inAudible wire-up code"
--- end LEGACY ---------------------------------------------------------------------------------------------------------------------
 
 -- begin CLEAN UP ARCHITECTURE ---------------------------------------------------------------------------------------------------------------------
 my ui sucks. it's also tightly coupled with biz logic. can't replace ui until biz logic is extracted and loosely. remove all biz logic from presentation/winforms layer
@@ -98,6 +168,9 @@ Turn into unit tests or demos
   search 'example code' on: LibationWinForm\...\Form1.cs
   EnumerationFlagsExtensions.EXAMPLES()
   // examples
+  scratchpad
+  scratch pad
+  scratch_pad
 -- end UNIT TESTS ---------------------------------------------------------------------------------------------------------------------
 
 -- begin DECRYPTING ---------------------------------------------------------------------------------------------------------------------
@@ -128,6 +201,7 @@ directly call ffmpeg (decrypt only)
 
 -- begin ENHANCEMENT, UI: LONG RUNNING TASKS ---------------------------------------------------------------------------------------------------------------------
 long running tasks are appropriately async. however there's no way for the user to see that the task is running (vs nothing happened) except to wait and see if the final notification ever comes
+need events to update UI with progress
 -- end ENHANCEMENT, UI: LONG RUNNING TASKS ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, PERFORMANCE: TAGS ---------------------------------------------------------------------------------------------------------------------
@@ -135,10 +209,6 @@ tag edits still take forever and block UI
 unlikely to be an issue with file write. in fact, should probably roll back this change
 also touches parts of code which: db write via a hook, search engine re-index
 -- end ENHANCEMENT, PERFORMANCE: TAGS ---------------------------------------------------------------------------------------------------------------------
-
--- begin ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
-when a book/pdf is NOT liberated, calculating the grid's [Liberated][NOT d/l'ed] label is very slow
--- end ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT: REMOVE BOOK ---------------------------------------------------------------------------------------------------------------------
 how to remove a book?

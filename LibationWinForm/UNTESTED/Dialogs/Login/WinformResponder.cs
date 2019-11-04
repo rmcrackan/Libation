@@ -3,7 +3,7 @@ using LibationWinForm.Dialogs.Login;
 
 namespace LibationWinForm.Login
 {
-	public class WinformResponder : AudibleApiDomainService.IAudibleApiResponder
+	public class WinformResponder : AudibleApi.ILoginCallback
 	{
 		public string Get2faCode()
 		{
