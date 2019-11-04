@@ -3,8 +3,6 @@ integrate API into libation. replace all authentication, audible communication
 
 IN-PROGRESS
 -----------
-download via api with UI integration
-- functionality: episodes
 library import UI
 - disable main ui
 - updates on which stage and how long it's expected to take

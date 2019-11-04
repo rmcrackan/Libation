@@ -17,17 +17,17 @@ namespace LibationWinForm
         // initial call here will initiate config loading
         private Configuration config { get; } = Configuration.Instance;
 
-        private string backupsCountsLbl_Format;
-        private string pdfsCountsLbl_Format;
-        private string visibleCountLbl_Format;
+        private string backupsCountsLbl_Format { get; }
+        private string pdfsCountsLbl_Format { get; }
+		private string visibleCountLbl_Format { get; }
 
-        private string reimportMostRecentLibraryScanToolStripMenuItem_format;
-        private string beginImportingBookDetailsToolStripMenuItem_format;
+		private string reimportMostRecentLibraryScanToolStripMenuItem_format { get; }
+		private string beginImportingBookDetailsToolStripMenuItem_format { get; }
 
-        private string beginBookBackupsToolStripMenuItem_format;
-        private string beginPdfBackupsToolStripMenuItem_format;
+		private string beginBookBackupsToolStripMenuItem_format { get; }
+		private string beginPdfBackupsToolStripMenuItem_format { get; }
 
-        public Form1()
+		public Form1()
         {
             InitializeComponent();
 
@@ -372,24 +372,48 @@ await audibleApi();
 			int totalCount;
 			int newCount;
 
-			// seems to be very common the 1st time after long absence. either figure out why, or run 2x before declaring error
+			// bug on audible's side. the 1st time after a long absence, a query to get library will return without titles or authors. a subsequent identical query will be successful. this is true whether or tokens are refreshed
+			// worse, this 1st dummy call doesn't seem to help:
+			//    var page = await api.GetLibraryAsync(new AudibleApi.LibraryOptions { NumberOfResultPerPage = 1, PageNumber = 1, PurchasedAfter = DateTime.Now.AddYears(-20), ResponseGroups = AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS });
+			// i don't want to incur the cost of making a full dummy call every time because it fails sometimes
 			try
 			{
 				var items = await InternalUtilities.AudibleApiExtensions.GetAllLibraryItemsAsync(api);
+
+				// remove episode parents
+				items.RemoveAll(i => i.Episodes);
+//				// add individual/children episodes
+//				var childIds = items
+//					.Where(i => i.Episodes)
+//					.SelectMany(ep => ep.Relationships)
+//					.Where(r => r.RelationshipToProduct == AudibleApiDTOs.RelationshipToProduct.Child && r.RelationshipType == AudibleApiDTOs.RelationshipType.Episode)
+//					.Select(c => c.Asin)
+//					.ToList();
+//				foreach (var childId in childIds)
+//				{
+//// clean this up
+//					var bookResult = await api.GetLibraryBookAsync(childId, AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS);
+//					var bookResultString = bookResult.ToString();
+//					var bookResultJson = AudibleApiDTOs.LibraryApiV10.FromJson(bookResultString);
+//					var bookItem = bookResultJson.Item;
+//					items.Add(bookItem);
+//				}
+// extract code in 'try' so retry in 'catch' isn't duplicate code
 				totalCount = items.Count;
 				newCount = await Task.Run(() => new DtoImporterService.LibraryImporter().Import(items));
 			}
-			catch
+			catch (Exception ex1)
 			{
 				try
 				{
 					var items = await InternalUtilities.AudibleApiExtensions.GetAllLibraryItemsAsync(api);
+					items.RemoveAll(i => i.Episodes);
 					totalCount = items.Count;
 					newCount = await Task.Run(() => new DtoImporterService.LibraryImporter().Import(items));
 				}
-				catch (Exception ex)
+				catch (Exception ex2)
 				{
-					MessageBox.Show("Error importing library.\r\n" + ex.Message, "Error importing library", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show("Error importing library.\r\n" + ex2.Message, "Error importing library", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return;
 				}
 			}
