@@ -29,6 +29,7 @@ namespace DtoImporterService
 				var libraryBook = new LibraryBook(
 					context.Books.Local.Single(b => b.AudibleProductId == newItem.ProductId),
 					newItem.DateAdded
+// needed for scraping
 //,FileManager.FileUtility.RestoreDeclawed(newLibraryDTO.DownloadBookLink)
 					);
 				context.Library.Add(libraryBook);

@@ -1,11 +1,7 @@
 ﻿-- begin REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
-library import UI
-move biz logic out of UI (Form1.scanLibraryToolStripMenuItem_Click)
-- non-db dependent: InternalUtilities. see: SearchEngineActions
-  InternalUtilities.AudibleApiExtensions may not belong here. not sure
-- db dependent: eg DtoImporterService
-
-
+make a github release version
+in REFERENCE.txt, say which version still has legacy scraping code in tact
+remove scraping code. don't 'move' it
 
 MOVE TO LEGACY
 --------------

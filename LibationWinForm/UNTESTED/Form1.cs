@@ -358,7 +358,7 @@ namespace LibationWinForm
 		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 // legacy/scraping method
-			//await indexDialog(new ScanLibraryDialog());
+//await indexDialog(new ScanLibraryDialog());
 // new/api method
 await indexDialog(new IndexLibraryDialog());
 		}

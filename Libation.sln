@@ -87,7 +87,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AudibleApiDTOs.Tests", "..\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AudibleApiClientExample", "..\audible api\AudibleApi\_Demos\AudibleApiClientExample\AudibleApiClientExample.csproj", "{282EEE16-F569-47E1-992F-C6DB8AEC7AA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationService", "ApplicationService\ApplicationService.csproj", "{B95650EA-25F0-449E-BA5D-99126BC5D730}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationServices", "ApplicationServices\ApplicationServices.csproj", "{B95650EA-25F0-449E-BA5D-99126BC5D730}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
