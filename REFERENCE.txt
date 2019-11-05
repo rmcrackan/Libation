@@ -1,5 +1,7 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
+
+v3.0.1 : Legacy inAudible wire-up code is still present but is commented out. All future check-ins are not guaranteed to have inAudible wire-up code
 v3.0 : This version is fully powered by the Audible API. Legacy scraping code is still present but is commented out. All future check-ins are not guaranteed to have any scraping code
 -- end VERSIONING ---------------------------------------------------------------------------------------------------------------------
 
