@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
-using ScrapingDomainServices;
+using Dinah.Core.ErrorHandling;
+using FileLiberator;
 
 namespace LibationWinForm.BookLiberation
 {
@@ -24,11 +25,18 @@ namespace LibationWinForm.BookLiberation
             var backupBook = new BackupBook();
             backupBook.Download.Completed += SetBackupCountsAsync;
             backupBook.Decrypt.Completed += SetBackupCountsAsync;
-            await backupBook.ProcessValidateLibraryBookAsync(libraryBook);
-        }
+            await ProcessValidateLibraryBookAsync(backupBook, libraryBook);
+		}
 
-        // Download First Book (Download encrypted/DRM file)
-        async Task DownloadFirstBookAsync()
+		static async Task<StatusHandler> ProcessValidateLibraryBookAsync(IProcessable processable, LibraryBook libraryBook)
+		{
+			if (!await processable.ValidateAsync(libraryBook))
+				return new StatusHandler { "Validation failed" };
+			return await processable.ProcessAsync(libraryBook);
+		}
+
+		// Download First Book (Download encrypted/DRM file)
+		async Task DownloadFirstBookAsync()
         {
             var downloadBook = ProcessorAutomationController.GetWiredUpDownloadBook();
             downloadBook.Completed += SetBackupCountsAsync;

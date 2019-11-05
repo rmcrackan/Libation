@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\audible api\AudibleApi\AudibleApi\AudibleApi.csproj" />
-    <ProjectReference Include="..\Scraping\Scraping.csproj" />
+    <ProjectReference Include="..\FileManager\FileManager.csproj" />
   </ItemGroup>
 
 </Project>

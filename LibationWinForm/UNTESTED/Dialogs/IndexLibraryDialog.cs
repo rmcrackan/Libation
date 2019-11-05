@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ApplicationService;
+using ApplicationServices;
 
 namespace LibationWinForm
 {
@@ -22,8 +22,6 @@ namespace LibationWinForm
 			this.Shown += (_, __) => AcceptButton.PerformClick();
 		}
 
-		public string StringBasedValidate() => null;
-
 		List<string> successMessages { get; } = new List<string>();
 		public string SuccessMessage => string.Join("\r\n", successMessages);
 
@@ -33,8 +31,8 @@ namespace LibationWinForm
 		public async Task DoMainWorkAsync()
 		{
 			var callback = new Login.WinformResponder();
-			var refresher = new LibraryIndexer();
-			(TotalBooksProcessed, NewBooksAdded) = await refresher.IndexAsync(callback);
+			var indexer = new LibraryIndexer();
+			(TotalBooksProcessed, NewBooksAdded) = await indexer.IndexAsync(callback);
 
 			successMessages.Add($"Total processed: {TotalBooksProcessed}");
 			successMessages.Add($"New: {NewBooksAdded}");

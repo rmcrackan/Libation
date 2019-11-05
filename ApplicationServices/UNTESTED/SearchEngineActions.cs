@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using DataLayer;
 
-namespace ApplicationService
+namespace ApplicationServices
 {
 	public static class SearchEngineActions
 	{
@@ -15,12 +15,6 @@ namespace ApplicationService
 		{
 			var engine = new LibationSearchEngine.SearchEngine();
 			engine.UpdateTags(book.AudibleProductId, book.UserDefinedItem.Tags);
-		}
-
-		public static async Task ProductReIndexAsync(string productId)
-		{
-			var engine = new LibationSearchEngine.SearchEngine();
-			await engine.UpdateBookAsync(productId).ConfigureAwait(false);
 		}
 	}
 }

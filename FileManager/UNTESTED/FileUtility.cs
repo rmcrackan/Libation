@@ -27,13 +27,6 @@ namespace FileManager
             return File.Exists(path);
         }
 
-        /// <param name="proposedPath">acceptable inputs:
-        ///   example.txt
-        ///   C:\Users\username\Desktop\example.txt</param>
-        /// <returns>Returns full name and path of unused filename. including (#)</returns>
-        public static string GetValidFilename(string proposedPath)
-            => GetValidFilename(Path.GetDirectoryName(proposedPath), Path.GetFileNameWithoutExtension(proposedPath), Path.GetExtension(proposedPath));
-
         public static string GetValidFilename(string dirFullPath, string filename, string extension, params string[] metadataSuffixes)
         {
             if (string.IsNullOrWhiteSpace(dirFullPath))
@@ -77,21 +70,6 @@ namespace FileManager
                 property = property.Replace(ch.ToString(), "");
             return property;
         }
-
-        public static string Declaw(string str)
-            => str
-                .Replace("<script", "<sxcript")
-                .Replace(".net", ".nxet")
-                .Replace(".com", ".cxom")
-                .Replace("<link", "<lxink")
-                .Replace("http", "hxttp");
-        public static string RestoreDeclawed(string str)
-            => str
-                ?.Replace("<sxcript", "<script")
-                .Replace(".nxet", ".net")
-                .Replace(".cxom", ".com")
-                .Replace("<lxink", "<link")
-                .Replace("hxttp", "http");
 
         public static string TitleCompressed(string title)
             => new string(title

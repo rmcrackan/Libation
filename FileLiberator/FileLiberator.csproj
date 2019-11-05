@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Dinah.Core\Dinah.Core\Dinah.Core.csproj" />
+    <ProjectReference Include="..\AaxDecrypter\AaxDecrypter.csproj" />
+    <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
+    <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
+    <ProjectReference Include="..\FileManager\FileManager.csproj" />
+    <ProjectReference Include="..\InternalUtilities\InternalUtilities.csproj" />
+  </ItemGroup>
+
+</Project>

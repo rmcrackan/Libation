@@ -33,7 +33,7 @@ namespace InternalUtilities
 			var items = await AudibleApiExtensions.GetAllLibraryItemsAsync(api);
 
 			// remove episode parents
-			items.RemoveAll(i => i.Episodes);
+			items.RemoveAll(i => i.IsEpisodes);
 
 			#region // episode handling. doesn't quite work
 			//				// add individual/children episodes

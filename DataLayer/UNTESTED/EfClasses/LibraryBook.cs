@@ -10,18 +10,12 @@ namespace DataLayer
 
         public DateTime DateAdded { get; private set; }
 
-/// <summary>For downloading AAX file</summary>
-public string DownloadBookLink { get; private set; }
-
         private LibraryBook() { }
-        public LibraryBook(Book book, DateTime dateAdded
-, string downloadBookLink = null
-)
+        public LibraryBook(Book book, DateTime dateAdded)
         {
             ArgumentValidator.EnsureNotNull(book, nameof(book));
             Book = book;
             DateAdded = dateAdded;
-DownloadBookLink = downloadBookLink;
         }
     }
 }

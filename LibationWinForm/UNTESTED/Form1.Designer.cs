@@ -34,10 +34,8 @@
             this.filterBtn = new System.Windows.Forms.Button();
             this.filterSearchTb = new System.Windows.Forms.TextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.indexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scanLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.reimportMostRecentLibraryScanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.beginImportingBookDetailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.liberateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.beginBookBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.beginPdfBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -100,7 +98,7 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.indexToolStripMenuItem,
+            this.importToolStripMenuItem,
             this.liberateToolStripMenuItem,
             this.quickFiltersToolStripMenuItem,
             this.settingsToolStripMenuItem});
@@ -110,37 +108,20 @@
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // indexToolStripMenuItem
+            // importToolStripMenuItem
             // 
-            this.indexToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.scanLibraryToolStripMenuItem,
-            this.reimportMostRecentLibraryScanToolStripMenuItem,
-            this.beginImportingBookDetailsToolStripMenuItem});
-            this.indexToolStripMenuItem.Name = "indexToolStripMenuItem";
-            this.indexToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
-            this.indexToolStripMenuItem.Text = "&Index";
-            this.indexToolStripMenuItem.DropDownOpening += new System.EventHandler(this.indexToolStripMenuItem_DropDownOpening);
+            this.importToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.scanLibraryToolStripMenuItem});
+            this.importToolStripMenuItem.Name = "importToolStripMenuItem";
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
+            this.importToolStripMenuItem.Text = "&Import";
             // 
             // scanLibraryToolStripMenuItem
             // 
             this.scanLibraryToolStripMenuItem.Name = "scanLibraryToolStripMenuItem";
             this.scanLibraryToolStripMenuItem.Size = new System.Drawing.Size(277, 22);
-            this.scanLibraryToolStripMenuItem.Text = "Scan &Library...";
+            this.scanLibraryToolStripMenuItem.Text = "Scan &Library";
             this.scanLibraryToolStripMenuItem.Click += new System.EventHandler(this.scanLibraryToolStripMenuItem_Click);
-            // 
-            // reimportMostRecentLibraryScanToolStripMenuItem
-            // 
-            this.reimportMostRecentLibraryScanToolStripMenuItem.Name = "reimportMostRecentLibraryScanToolStripMenuItem";
-            this.reimportMostRecentLibraryScanToolStripMenuItem.Size = new System.Drawing.Size(277, 22);
-            this.reimportMostRecentLibraryScanToolStripMenuItem.Text = "Re-&import most recent library scan: {0}";
-            this.reimportMostRecentLibraryScanToolStripMenuItem.Click += new System.EventHandler(this.reimportMostRecentLibraryScanToolStripMenuItem_Click);
-            // 
-            // beginImportingBookDetailsToolStripMenuItem
-            // 
-            this.beginImportingBookDetailsToolStripMenuItem.Name = "beginImportingBookDetailsToolStripMenuItem";
-            this.beginImportingBookDetailsToolStripMenuItem.Size = new System.Drawing.Size(277, 22);
-            this.beginImportingBookDetailsToolStripMenuItem.Text = "Begin importing book details: {0}";
-            this.beginImportingBookDetailsToolStripMenuItem.Click += new System.EventHandler(this.beginImportingBookDetailsToolStripMenuItem_Click);
             // 
             // liberateToolStripMenuItem
             // 
@@ -277,7 +258,7 @@
         #endregion
         private System.Windows.Forms.Panel gridPanel;
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem indexToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel springLbl;
         private System.Windows.Forms.ToolStripStatusLabel visibleCountLbl;
@@ -291,8 +272,6 @@
         private System.Windows.Forms.Button filterHelpBtn;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem scanLibraryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem reimportMostRecentLibraryScanToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem beginImportingBookDetailsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem quickFiltersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem firstFilterIsDefaultToolStripMenuItem;
         private System.Windows.Forms.Button addFilterBtn;

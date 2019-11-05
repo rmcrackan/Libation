@@ -231,8 +231,8 @@ namespace LibationSearchEngine
             return doc;
         }
 
-        public async Task UpdateBookAsync(string productId) => await Task.Run(() => updateBook(productId));
-        private void updateBook(string productId)
+		/// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
+		public void UpdateBook(string productId)
         {
             var libraryBook = LibraryQueries.GetLibraryBook_Flat_NoTracking(productId);
             var term = new Term(_ID_, productId);

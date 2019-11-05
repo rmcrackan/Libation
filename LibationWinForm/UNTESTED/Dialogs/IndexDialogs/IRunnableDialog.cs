@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace LibationWinForm
 {
-    public interface IRunnableDialog : IValidatable
+    public interface IRunnableDialog
     {
         IButtonControl AcceptButton { get; set; }
         Control.ControlCollection Controls { get; }

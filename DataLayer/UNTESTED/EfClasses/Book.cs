@@ -30,7 +30,6 @@ namespace DataLayer
         public string PictureId { get; set; }
 
         // book details
-        public bool HasBookDetails { get; private set; }
         public bool IsAbridged { get; private set; }
         public DateTime? DatePublished { get; private set; }
 
@@ -231,8 +230,6 @@ namespace DataLayer
             // don't overwrite with default values
             IsAbridged |= isAbridged;
             DatePublished = datePublished ?? DatePublished;
-
-            HasBookDetails = true;
         }
 
         public void UpdateCategory(Category category, DbContext context = null)

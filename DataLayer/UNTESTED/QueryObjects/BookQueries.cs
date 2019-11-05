@@ -8,14 +8,6 @@ namespace DataLayer
 {
     public static class BookQueries
     {
-        public static int BooksWithoutDetailsCount()
-        {
-			using var context = LibationContext.Create();
-			return context
-                .Books
-                .Count(b => !b.HasBookDetails);
-		}
-
         public static Book GetBook_Flat_NoTracking(string productId)
         {
 			using var context = LibationContext.Create();

@@ -53,12 +53,6 @@
     <Compile Include="BookLiberation\AutomatedBackupsForm.Designer.cs">
       <DependentUpon>AutomatedBackupsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="BookLiberation\NoLongerAvailableForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BookLiberation\NoLongerAvailableForm.Designer.cs">
-      <DependentUpon>NoLongerAvailableForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="BookLiberation\DownloadForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -107,18 +101,6 @@
     <Compile Include="Dialogs\EditTagsDialog.Designer.cs">
       <DependentUpon>EditTagsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\IndexDialogs\ScanLibraryDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\IndexDialogs\ScanLibraryDialog.Designer.cs">
-      <DependentUpon>ScanLibraryDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\IndexDialogs\WebsiteProcessorControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Dialogs\IndexDialogs\WebsiteProcessorControl.Designer.cs">
-      <DependentUpon>WebsiteProcessorControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\SearchSyntaxDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -154,9 +136,6 @@
     <EmbeddedResource Include="BookLiberation\DecryptForm.resx">
       <DependentUpon>DecryptForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="BookLiberation\NoLongerAvailableForm.resx">
-      <DependentUpon>NoLongerAvailableForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\EditQuickFilters.resx">
       <DependentUpon>EditQuickFilters.cs</DependentUpon>
     </EmbeddedResource>
@@ -174,12 +153,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\Login\_2faCodeDialog.resx">
       <DependentUpon>_2faCodeDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\IndexDialogs\ScanLibraryDialog.resx">
-      <DependentUpon>ScanLibraryDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\IndexDialogs\WebsiteProcessorControl.resx">
-      <DependentUpon>WebsiteProcessorControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\SearchSyntaxDialog.resx">
       <DependentUpon>SearchSyntaxDialog.cs</DependentUpon>

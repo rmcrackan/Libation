@@ -4,7 +4,7 @@ using AudibleApi;
 using DtoImporterService;
 using InternalUtilities;
 
-namespace ApplicationService
+namespace ApplicationServices
 {
 	public class LibraryIndexer
 	{

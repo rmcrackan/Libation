@@ -36,26 +36,6 @@ namespace LibationWinForm
 
         public static async Task Run(this IRunnableDialog dialog)
         {
-            // validate children
-            //   OfType<T>() -- skips items which aren't of the required type
-            //   Cast<T>() -- throws an exception
-            var errorStrings = dialog
-                // get children
-                .Controls
-                    .GetControlListRecursive()
-                    .OfType<IValidatable>()
-                // and self
-                .Append(dialog)
-                // validate. get errors
-                .Select(c => c.StringBasedValidate())
-                // ignore successes
-                .Where(e => e != null);
-            if (errorStrings.Any())
-            {
-                MessageBox.Show(errorStrings.Aggregate((a, b) => a + "\r\n" + b));
-                return;
-            }
-
             // get top level controls only. If Enabled, disable and push on stack
             var disabledStack = disable(dialog);
 

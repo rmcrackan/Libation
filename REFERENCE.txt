@@ -1,5 +1,7 @@
--- begin LEGACY CODE ---------------------------------------------------------------------------------------------------------------------
--- end LEGACY CODE ---------------------------------------------------------------------------------------------------------------------
+-- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
+https://github.com/rmcrackan/Libation/releases
+v3.0 : This version is fully powered by the Audible API. Legacy scraping code is still present but is commented out. All future check-ins are not guaranteed to have any scraping code
+-- end VERSIONING ---------------------------------------------------------------------------------------------------------------------
 
 -- begin AUDIBLE DETAILS ---------------------------------------------------------------------------------------------------------------------
 alternate book id (eg BK_RAND_006061) is called 'sku' , 'sku_lite' , 'prod_id' , 'product_id' in different parts of the site

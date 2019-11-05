@@ -1,43 +1,7 @@
 ﻿-- begin REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
-make a github release version
-in REFERENCE.txt, say which version still has legacy scraping code in tact
-remove scraping code. don't 'move' it
 
-MOVE TO LEGACY
---------------
-- scraping code
-- "legacy inAudible wire-up code"
-Book.IsEpisodes
-Book.HasBookDetails
-LibraryBook.DownloadBookLink
-humanizer
-replace all scraping with audible api
-    public partial class ScanLibraryDialog : Form, IIndexLibraryDialog
-        public async Task DoMainWorkAsync()
-            using var pageRetriever = websiteProcessorControl1.GetPageRetriever();
-            jsonFilepaths = await DownloadLibrary.DownloadLibraryAsync(pageRetriever).ConfigureAwait(false);
-scraping stuff to remove. order matters. go from top to bottom:
-REMOVED PROJECT REFERENCES
-3.2 Domain Utilities (post database)
-    DomainServices
-        AudibleDotComAutomation
-3.1 Domain Internal Utilities
-    InternalUtilities
-        Scraping
-REMOVED PROJECTS
-2 Utilities (domain ignorant)
-  Scraping
-  AudibleDotComAutomation
-  AudibleDotCom
-  CookieMonster
-REMOVED FILES
-\Libation\InternalUtilities\UNTESTED\DataConverter.cs
-\Libation\DomainServices\UNTESTED\DownloadLibrary.cs
-\Libation\DomainServices\UNTESTED\ScrapeBookDetails.cs
-ADDED PROJECT REFERENCES
-3.1 Domain Internal Utilities
-    InternalUtilities
-        DTOs
+"legacy inAudible wire-up code"
+
 -- end REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------

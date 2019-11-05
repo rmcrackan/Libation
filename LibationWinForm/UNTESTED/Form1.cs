@@ -8,7 +8,6 @@ using Dinah.Core;
 using Dinah.Core.Collections.Generic;
 using Dinah.Core.Windows.Forms;
 using FileManager;
-using ScrapingDomainServices;
 
 namespace LibationWinForm
 {
@@ -21,9 +20,6 @@ namespace LibationWinForm
         private string pdfsCountsLbl_Format { get; }
 		private string visibleCountLbl_Format { get; }
 
-		private string reimportMostRecentLibraryScanToolStripMenuItem_format { get; }
-		private string beginImportingBookDetailsToolStripMenuItem_format { get; }
-
 		private string beginBookBackupsToolStripMenuItem_format { get; }
 		private string beginPdfBackupsToolStripMenuItem_format { get; }
 
@@ -35,9 +31,6 @@ namespace LibationWinForm
             backupsCountsLbl_Format = backupsCountsLbl.Text;
             pdfsCountsLbl_Format = pdfsCountsLbl.Text;
             visibleCountLbl_Format = visibleCountLbl.Text;
-
-            reimportMostRecentLibraryScanToolStripMenuItem_format = reimportMostRecentLibraryScanToolStripMenuItem.Text;
-            beginImportingBookDetailsToolStripMenuItem_format = beginImportingBookDetailsToolStripMenuItem.Text;
 
             beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
             beginPdfBackupsToolStripMenuItem_format = beginPdfBackupsToolStripMenuItem.Text;
@@ -258,150 +251,22 @@ namespace LibationWinForm
                 doFilter();
             }
         }
-        #endregion
+		#endregion
 
-        #region index menu
-        //
-        // IMPORTANT
-        //
-        // IRunnableDialog.Run() extension method contains work flow
-        //
-        #region // example code: chaining multiple dialogs
-        public class MyDialog1 : IRunnableDialog
-        {
-            public IEnumerable<string> Files;
-
-            public IButtonControl AcceptButton { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-            public Control.ControlCollection Controls => throw new NotImplementedException();
-            public string SuccessMessage => throw new NotImplementedException();
-            public DialogResult DialogResult { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-            public void Close() => throw new NotImplementedException();
-            public Task DoMainWorkAsync() => throw new NotImplementedException();
-            public DialogResult ShowDialog() => throw new NotImplementedException();
-            public string StringBasedValidate() => throw new NotImplementedException();
-        }
-        public class MyDialog2 : Form, IIndexLibraryDialog
-        {
-            public MyDialog2(IEnumerable<string> files) { }
-            Button BeginFileImportBtn = new Button();
-
-            public void Begin() => BeginFileImportBtn.PerformClick();
-
-            public int TotalBooksProcessed => throw new NotImplementedException();
-            public int NewBooksAdded => throw new NotImplementedException();
-            public string SuccessMessage => throw new NotImplementedException();
-            public Task DoMainWorkAsync() => throw new NotImplementedException();
-            public string StringBasedValidate() => throw new NotImplementedException();
-        }
-        private async void downloadPagesToFile(object sender, EventArgs e)
-        {
-            var dialog1 = new MyDialog1();
-            if (dialog1.RunDialog() != DialogResult.OK || !dialog1.Files.Any())
-                return;
-
-            if (MessageBox.Show("Index from these files?", "Index?", MessageBoxButtons.YesNo) == DialogResult.Yes)
-            {
-                var dialog2  = new MyDialog2(dialog1.Files);
-                dialog2.Shown += (_, __) => dialog2.Begin();
-                await indexDialog(dialog2);
-            }
-        }
-        #endregion
-
-        private void indexToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
-        {
-            #region label: Re-import most recent library scan
-            {
-                var libDir = WebpageStorage.GetMostRecentLibraryDir();
-                if (libDir == null)
-                {
-                    reimportMostRecentLibraryScanToolStripMenuItem.Enabled = false;
-                    reimportMostRecentLibraryScanToolStripMenuItem.Text = string.Format(reimportMostRecentLibraryScanToolStripMenuItem_format, "No previous scans");
-                }
-                else
-                {
-                    reimportMostRecentLibraryScanToolStripMenuItem.Enabled = true;
-
-                    var now = DateTime.Now;
-                    var span = now - libDir.CreationTime;
-                    var ago
-                        // less than 1 min
-                        = (int)span.TotalSeconds < 60 ? $"{(int)span.TotalSeconds} sec ago"
-                        // less than 1 hr
-                        : (int)span.TotalMinutes < 60 ? $"{(int)span.TotalMinutes} min ago"
-                        // today. eg: 4:25 PM
-                        : now.Date == libDir.CreationTime.Date ? libDir.CreationTime.ToString("h:mm tt")
-                        // else date and time
-                        : libDir.CreationTime.ToString("MM/dd/yyyy h:mm tt");
-                    reimportMostRecentLibraryScanToolStripMenuItem.Text = string.Format(reimportMostRecentLibraryScanToolStripMenuItem_format, ago);
-                }
-            }
-            #endregion
-
-            #region label: Begin importing book details
-            {
-                var noDetails = BookQueries.BooksWithoutDetailsCount();
-                if (noDetails == 0)
-                {
-                    beginImportingBookDetailsToolStripMenuItem.Enabled = false;
-                    beginImportingBookDetailsToolStripMenuItem.Text = string.Format(beginImportingBookDetailsToolStripMenuItem_format, "No books without details");
-                }
-                else
-                {
-                    beginImportingBookDetailsToolStripMenuItem.Enabled = true;
-                    beginImportingBookDetailsToolStripMenuItem.Text = string.Format(beginImportingBookDetailsToolStripMenuItem_format, $"{noDetails} remaining");
-                }
-            }
-            #endregion
-        }
-
+		#region index menu
 		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-// legacy/scraping method
-//await indexDialog(new ScanLibraryDialog());
-// new/api method
-await indexDialog(new IndexLibraryDialog());
-		}
+			var dialog = new IndexLibraryDialog();
 
-		private async void reimportMostRecentLibraryScanToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // DO NOT ConfigureAwait(false)
-            // this would result in index() => reloadGrid() => setGrid() => "gridPanel.Controls.Remove(currProductsGrid);"
-            // throwing 'Cross-thread operation not valid: Control 'ProductsGrid' accessed from a thread other than the thread it was created on.'
-            var (TotalBooksProcessed, NewBooksAdded) = await Indexer.IndexLibraryAsync(WebpageStorage.GetMostRecentLibraryDir());
+			if (dialog.RunDialog().In(DialogResult.Abort, DialogResult.Cancel, DialogResult.None))
+				return;
 
-            MessageBox.Show($"Total processed: {TotalBooksProcessed}\r\nNew: {NewBooksAdded}");
-
-            await indexComplete(TotalBooksProcessed, NewBooksAdded);
-        }
-
-        private async Task indexDialog(IIndexLibraryDialog dialog)
-        {
-            if (!dialog.RunDialog().In(DialogResult.Abort, DialogResult.Cancel, DialogResult.None))
-                await indexComplete(dialog.TotalBooksProcessed, dialog.NewBooksAdded);
-        }
-        private async Task indexComplete(int totalBooksProcessed, int newBooksAdded)
-        {
             // update backup counts if we have new library items
-            if (newBooksAdded > 0)
+            if (dialog.NewBooksAdded > 0)
                 await setBackupCountsAsync();
 
-            // skip reload if:
-            // - no grid is loaded
-            // - none indexed
-            if (currProductsGrid == null || totalBooksProcessed == 0)
-                return;
-
-            reloadGrid();
-        }
-
-        private void updateGridRow(object _, string productId) => currProductsGrid?.UpdateRow(productId);
-
-        private async void beginImportingBookDetailsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var scrapeBookDetails = BookLiberation.ProcessorAutomationController.GetWiredUpScrapeBookDetails();
-            scrapeBookDetails.BookSuccessfullyImported += updateGridRow;
-            await BookLiberation.ProcessorAutomationController.RunAutomaticDownload(scrapeBookDetails);
+            if (dialog.TotalBooksProcessed > 0)
+				reloadGrid();
         }
         #endregion
 

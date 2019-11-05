@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ScrapingDomainServices;
+using FileLiberator;
 
 namespace LibationWinForm.BookLiberation
 {
@@ -38,21 +38,6 @@ namespace LibationWinForm.BookLiberation
             var downloadPdf = new DownloadPdf();
             downloadPdf.Begin += (_, __) => wireUpDownloadable(downloadPdf);
             return downloadPdf;
-        }
-        public static ScrapeBookDetails GetWiredUpScrapeBookDetails()
-        {
-            var scrapeBookDetails = new ScrapeBookDetails();
-            scrapeBookDetails.Begin += (_, __) => wireUpDownloadable(scrapeBookDetails);
-
-            scrapeBookDetails.NoLongerAvailableAction = noLongerAvailableUI;
-
-            return scrapeBookDetails;
-        }
-        static ScrapeBookDetails.NoLongerAvailableEnum noLongerAvailableUI(string title, string url)
-        {
-            var nla = new NoLongerAvailableForm(title, url);
-            nla.ShowDialog();
-            return nla.EnumResult;
         }
 
         // subscribed to Begin event because a new form should be created+processed+closed on each iteration
