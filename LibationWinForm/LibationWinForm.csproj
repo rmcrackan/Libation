@@ -11,7 +11,9 @@
     <ProjectReference Include="..\..\audible api\AudibleApi\AudibleApi\AudibleApi.csproj" />
     <ProjectReference Include="..\..\Dinah.Core\Dinah.Core.Drawing\Dinah.Core.Drawing.csproj" />
     <ProjectReference Include="..\..\Dinah.Core\Dinah.Core.Windows.Forms\Dinah.Core.Windows.Forms.csproj" />
+    <ProjectReference Include="..\ApplicationService\ApplicationService.csproj" />
     <ProjectReference Include="..\DtoImporterService\DtoImporterService.csproj" />
+    <ProjectReference Include="..\LibationSearchEngine\LibationSearchEngine.csproj" />
     <ProjectReference Include="..\ScrapingDomainServices\ScrapingDomainServices.csproj" />
   </ItemGroup>
 
@@ -20,6 +22,12 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="UNTESTED\Dialogs\IndexLibraryDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UNTESTED\Dialogs\IndexLibraryDialog.Designer.cs">
+      <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
     </Compile>
   </ItemGroup>
 

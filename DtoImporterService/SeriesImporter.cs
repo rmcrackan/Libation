@@ -3,23 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using AudibleApiDTOs;
 using DataLayer;
+using InternalUtilities;
 
 namespace DtoImporterService
 {
 	public class SeriesImporter : ItemsImporterBase
 	{
-		public override IEnumerable<Exception> Validate(IEnumerable<Item> items)
-		{
-			var exceptions = new List<Exception>();
-
-			var distinct = items .GetSeriesDistinct();
-			if (distinct.Any(s => s.SeriesId is null))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(AudibleApiDTOs.Series.SeriesId)}", nameof(items)));
-			if (distinct.Any(s => s.SeriesName is null))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(AudibleApiDTOs.Series.SeriesName)}", nameof(items)));
-
-			return exceptions;
-		}
+		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new SeriesValidator().Validate(items);
 
 		protected override int DoImport(IEnumerable<Item> items, LibationContext context)
 		{

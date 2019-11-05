@@ -17,7 +17,7 @@ namespace LibationWinForm
 
         public string StringBasedValidate() => null;
 
-        List<string> successMessages = new List<string>();
+        List<string> successMessages { get; } = new List<string>();
         public string SuccessMessage => string.Join("\r\n", successMessages);
 
         public int NewBooksAdded { get; private set; }

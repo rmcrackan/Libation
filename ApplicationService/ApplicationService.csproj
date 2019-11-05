@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -6,8 +6,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\audible api\AudibleApi\AudibleApiDTOs\AudibleApiDTOs.csproj" />
-    <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
+    <ProjectReference Include="..\..\audible api\AudibleApi\AudibleApi\AudibleApi.csproj" />
+    <ProjectReference Include="..\DtoImporterService\DtoImporterService.csproj" />
     <ProjectReference Include="..\InternalUtilities\InternalUtilities.csproj" />
+    <ProjectReference Include="..\LibationSearchEngine\LibationSearchEngine.csproj" />
   </ItemGroup>
 
 </Project>

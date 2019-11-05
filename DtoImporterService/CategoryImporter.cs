@@ -3,26 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using AudibleApiDTOs;
 using DataLayer;
+using InternalUtilities;
 
 namespace DtoImporterService
 {
 	public class CategoryImporter : ItemsImporterBase
 	{
-		public override IEnumerable<Exception> Validate(IEnumerable<Item> items)
-		{
-			var exceptions = new List<Exception>();
-
-			var distinct = items.GetCategoriesDistinct();
-			if (distinct.Any(s => s.CategoryId is null))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Categories)} with null {nameof(Ladder.CategoryId)}", nameof(items)));
-			if (distinct.Any(s => s.CategoryName is null))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Categories)} with null {nameof(Ladder.CategoryName)}", nameof(items)));
-
-			if (items.GetCategoryPairsDistinct().Any(p => p.Length > 2))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Categories)} with wrong number of categories. Expecting 0, 1, or 2 categories per title", nameof(items)));
-
-			return exceptions;
-		}
+		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new CategoryValidator().Validate(items);
 
 		protected override int DoImport(IEnumerable<Item> items, LibationContext context)
 		{

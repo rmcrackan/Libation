@@ -1,25 +1,11 @@
 ﻿-- begin REPLACE SCRAPING WITH API ---------------------------------------------------------------------------------------------------------------------
-integrate API into libation. replace all authentication, audible communication
-
-IN-PROGRESS
------------
 library import UI
-- disable main ui
-- updates on which stage and how long it's expected to take
-- error handling
-- dialog/pop up when done. show how many new and total
 move biz logic out of UI (Form1.scanLibraryToolStripMenuItem_Click)
 - non-db dependent: InternalUtilities. see: SearchEngineActions
   InternalUtilities.AudibleApiExtensions may not belong here. not sure
 - db dependent: eg DtoImporterService
 
-extract IdentityTokens.json into FileManager
-replace all hardcoded occurances
 
-FIX
-// hardcoded blacklist
-
-datalayer stuff (eg: Book) need better ToString
 
 MOVE TO LEGACY
 --------------
@@ -81,15 +67,14 @@ need a way to liberate ad hoc books and pdf.s
 use pdf icon with and without and X over it to indicate status
 -- end ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
 
--- begin ENHANCEMENTS, GET LIBRARY ---------------------------------------------------------------------------------------------------------------------
+-- begin ENHANCEMENT, GET LIBRARY ---------------------------------------------------------------------------------------------------------------------
 Audible API. GET /1.0/library , GET /1.0/library/{asin}
 TONS of expensive conversion: GetLibraryAsync > string > JObject > string > LibraryApiV10
--- end ENHANCEMENTS, GET LIBRARY ---------------------------------------------------------------------------------------------------------------------
+-- end ENHANCEMENT, GET LIBRARY ---------------------------------------------------------------------------------------------------------------------
 
--- begin ENHANCEMENTS, EPISODES ---------------------------------------------------------------------------------------------------------------------
-grid: episodes need a better Download_Status and Length/LengthInMinutes
-download: need a way to liberate episodes. show in grid 'x/y downloaded/liberated' etc
--- end ENHANCEMENTS, EPISODES ---------------------------------------------------------------------------------------------------------------------
+-- begin ENHANCEMENT, DEBUGGING ---------------------------------------------------------------------------------------------------------------------
+datalayer stuff (eg: Book) need better ToString
+-- end ENHANCEMENT, DEBUGGING ---------------------------------------------------------------------------------------------------------------------
 
 -- begin BUG, MOVING FILES ---------------------------------------------------------------------------------------------------------------------
 with libation closed, move files

@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ApplicationService;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Collections.Generic;
 using DTOs;
 using FileManager;
-using InternalUtilities;
 using Newtonsoft.Json;
 
 namespace ScrapingDomainServices

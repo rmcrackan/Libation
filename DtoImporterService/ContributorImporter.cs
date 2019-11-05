@@ -3,22 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using AudibleApiDTOs;
 using DataLayer;
+using InternalUtilities;
 
 namespace DtoImporterService
 {
 	public class ContributorImporter : ItemsImporterBase
 	{
-		public override IEnumerable<Exception> Validate(IEnumerable<Item> items)
-		{
-			var exceptions = new List<Exception>();
-
-			if (items.GetAuthorsDistinct().Any(a => string.IsNullOrWhiteSpace(a.Name)))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Authors)} with null {nameof(Person.Name)}", nameof(items)));
-			if (items.GetNarratorsDistinct().Any(a => string.IsNullOrWhiteSpace(a.Name)))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Narrators)} with null {nameof(Person.Name)}", nameof(items)));
-
-			return exceptions;
-		}
+		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new ContributorValidator().Validate(items);
 
 		protected override int DoImport(IEnumerable<Item> items, LibationContext context)
 		{

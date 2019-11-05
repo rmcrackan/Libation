@@ -83,8 +83,7 @@ tempAaxFilename = await performApiDownloadAsync(libraryBook, tempAaxFilename);
 
 		private async Task<string> performApiDownloadAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
-			var identityFilePath = Path.Combine(Configuration.Instance.LibationFiles, "IdentityTokens.json");
-			var api = await AudibleApi.EzApiCreator.GetApiAsync(identityFilePath);
+			var api = await AudibleApi.EzApiCreator.GetApiAsync(AudibleApiStorage.IdentityTokensFile);
 
 			var progress = new Progress<Dinah.Core.Net.Http.DownloadProgress>();
 			progress.ProgressChanged += (_, e) => Invoke_DownloadProgressChanged(this, e);

@@ -6,7 +6,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AaxDecrypter\AaxDecrypter.csproj" />
+    <ProjectReference Include="..\ApplicationService\ApplicationService.csproj" />
     <ProjectReference Include="..\AudibleDotComAutomation\AudibleDotComAutomation.csproj" />
+    <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
     <ProjectReference Include="..\InternalUtilities\InternalUtilities.csproj" />
   </ItemGroup>
 

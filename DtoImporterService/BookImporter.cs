@@ -3,24 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using AudibleApiDTOs;
 using DataLayer;
+using InternalUtilities;
 
 namespace DtoImporterService
 {
 	public class BookImporter : ItemsImporterBase
 	{
-		public override IEnumerable<Exception> Validate(IEnumerable<Item> items)
-		{
-			var exceptions = new List<Exception>();
-
-			if (items.Any(i => string.IsNullOrWhiteSpace(i.ProductId)))
-				exceptions.Add(new ArgumentException($"Collection contains item(s) with blank {nameof(Item.ProductId)}", nameof(items)));
-			if (items.Any(i => string.IsNullOrWhiteSpace(i.Title)))
-				exceptions.Add(new ArgumentException($"Collection contains item(s) with blank {nameof(Item.Title)}", nameof(items)));
-			if (items.Any(i => i.Authors is null))
-				exceptions.Add(new ArgumentException($"Collection contains item(s) with null {nameof(Item.Authors)}", nameof(items)));
-
-			return exceptions;
-		}
+		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new BookValidator().Validate(items);
 
 		protected override int DoImport(IEnumerable<Item> items, LibationContext context)
 		{

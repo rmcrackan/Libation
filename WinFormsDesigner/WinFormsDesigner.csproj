@@ -77,6 +77,12 @@
     <Compile Include="Dialogs\EditQuickFilters.Designer.cs">
       <DependentUpon>EditQuickFilters.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\IndexLibraryDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\IndexLibraryDialog.Designer.cs">
+      <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Login\AudibleLoginDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -156,6 +162,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\EditTagsDialog.resx">
       <DependentUpon>EditTagsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\IndexLibraryDialog.resx">
+      <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\Login\AudibleLoginDialog.resx">
       <DependentUpon>AudibleLoginDialog.cs</DependentUpon>
