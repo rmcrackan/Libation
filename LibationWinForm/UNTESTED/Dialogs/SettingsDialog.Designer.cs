@@ -202,10 +202,11 @@
             this.libationFilesCustomRb.TabIndex = 3;
             this.libationFilesCustomRb.TabStop = true;
             this.libationFilesCustomRb.UseVisualStyleBackColor = true;
+            this.libationFilesCustomRb.CheckedChanged += new System.EventHandler(this.libationFilesCustomRb_CheckedChanged);
             // 
             // libationFilesMyDocsRb
             // 
-            this.libationFilesMyDocsRb.AutoSize = true;
+			this.libationFilesMyDocsRb.AutoSize = true;
             this.libationFilesMyDocsRb.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.libationFilesMyDocsRb.Location = new System.Drawing.Point(9, 68);
             this.libationFilesMyDocsRb.Name = "libationFilesMyDocsRb";

@@ -1,4 +1,27 @@
-﻿-- begin ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------
+﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
+Screenshots and examples. Import. Search. Save tag. Search by tag.
+Link to site with search syntax
+
+Warn of know performance issues
+- Library import
+- Tag add/edit
+- Grid is slow to respond loading when books aren't liberated
+
+Error logging
+
+Instructions on how to send me error logs
+
+how to use tags. add, edit, search. spaces, underscores. search
+partial (eg: [bio] also shows auto_bio)
+
+instructions for using and saving filters
+
+how to tag for hidden/greyed out
+
+Create release version and installer
+-- end BETA ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------
 imports are PAINFULLY slow for just a few hundred items. wtf is taking so long?
 -- end ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------
 
@@ -43,14 +66,14 @@ stack trace
    at System.ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion()
    at System.Collections.Generic.List`1.Enumerator.MoveNextRare()
    at System.Linq.Enumerable.SingleOrDefault[TSource](IEnumerable`1 source, Func`2 predicate)
-   at FileManager.FilePathCache.GetPath(String id, FileType type) in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\FileManager\UNTESTED\FilePathCache.cs:line 33
-   at FileManager.AudibleFileStorage.<getAsync>d__32.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\FileManager\UNTESTED\AudibleFileStorage.cs:line 112
-   at FileManager.AudibleFileStorage.<GetAsync>d__31.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\FileManager\UNTESTED\AudibleFileStorage.cs:line 107
-   at FileManager.AudibleFileStorage.<ExistsAsync>d__30.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\FileManager\UNTESTED\AudibleFileStorage.cs:line 104
-   at LibationWinForm.Form1.<<setBookBackupCountsAsync>g__getAudioFileStateAsync|15_1>d.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs:line 110
-   at LibationWinForm.Form1.<setBookBackupCountsAsync>d__15.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs:line 117
-   at LibationWinForm.Form1.<setBackupCountsAsync>d__13.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs:line 81
-   at LibationWinForm.Form1.<Form1_Load>d__11.MoveNext() in C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\Libation\LibationWinForm\UNTESTED\Form1.cs:line 60
+   at FileManager.FilePathCache.GetPath(String id, FileType type) in \Libation\FileManager\UNTESTED\FilePathCache.cs:line 33
+   at FileManager.AudibleFileStorage.<getAsync>d__32.MoveNext() in \Libation\FileManager\UNTESTED\AudibleFileStorage.cs:line 112
+   at FileManager.AudibleFileStorage.<GetAsync>d__31.MoveNext() in \Libation\FileManager\UNTESTED\AudibleFileStorage.cs:line 107
+   at FileManager.AudibleFileStorage.<ExistsAsync>d__30.MoveNext() in \Libation\FileManager\UNTESTED\AudibleFileStorage.cs:line 104
+   at LibationWinForm.Form1.<<setBookBackupCountsAsync>g__getAudioFileStateAsync|15_1>d.MoveNext() in \Libation\LibationWinForm\UNTESTED\Form1.cs:line 110
+   at LibationWinForm.Form1.<setBookBackupCountsAsync>d__15.MoveNext() in \Libation\LibationWinForm\UNTESTED\Form1.cs:line 117
+   at LibationWinForm.Form1.<setBackupCountsAsync>d__13.MoveNext() in \Libation\LibationWinForm\UNTESTED\Form1.cs:line 81
+   at LibationWinForm.Form1.<Form1_Load>d__11.MoveNext() in \Libation\LibationWinForm\UNTESTED\Form1.cs:line 60
 -- end BUG, MOVING FILES ---------------------------------------------------------------------------------------------------------------------
 
 -- begin CONFIG FILES ---------------------------------------------------------------------------------------------------------------------
@@ -63,8 +86,8 @@ multiple files named "appsettings.json" will overwrite each other
 libraries should avoid this generic name. ok for applications to use them
 
 Audible API
-C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\audible api\AudibleApi\_Tests\AudibleApi.Tests\bin\Debug\netcoreapp3.0\L1
-C:\Dropbox\Dinah's folder\coding\_NET\Visual Studio 2019\audible api\AudibleApi\_Tests\AudibleApi.Tests\bin\Debug\netcoreapp3.0\ComputedTestValues
+\AudibleApi\_Tests\AudibleApi.Tests\bin\Debug\netcoreapp3.0\L1
+\AudibleApi\_Tests\AudibleApi.Tests\bin\Debug\netcoreapp3.0\ComputedTestValues
   14+ json files
 these can go in a shared solution folder
 BasePath => recursively search directories upward-only until fild dir with .sln
