@@ -4,6 +4,7 @@ Create instructions, examples, screenshots:
   counts based on the audible id being present somewhere
 - download pdf.s
   counts based on the audible id being present somewhere
+  screenshots. explain all parts
 - Search
   Lucene Query Parser Syntax
   an easier to follow tutorial: http://www.lucenetutorial.com/lucene-query-syntax.html
@@ -22,6 +23,12 @@ Warn of know performance issues
 - Grid is slow to respond loading when books aren't liberated
 
 Create release version and installer
+
+
+HOW TO HANDLE?
+DownloadsFinal
+.aax
+1 kb
 -- end BETA ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------
