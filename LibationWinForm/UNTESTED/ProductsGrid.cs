@@ -266,9 +266,10 @@ namespace LibationWinForm
             }
             currencyManager.ResumeBinding();
 
+			var luceneSearchString_debug = searchResults.SearchString;
 
             // after applying filters, display new visible count
-            parent.SetVisibleCount(dataGridView.Rows.Cast<DataGridViewRow>().Count(r => r.Visible), searchResults.SearchString);
+            parent.SetVisibleCount(dataGridView.Rows.Cast<DataGridViewRow>().Count(r => r.Visible), luceneSearchString_debug);
         }
         #endregion
 

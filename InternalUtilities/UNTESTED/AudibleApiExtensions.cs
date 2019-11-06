@@ -28,7 +28,7 @@ namespace InternalUtilities
 				});
 
 				// important! use this convert method
-				var libResult = LibraryApiV10.FromJson(page.ToString());
+				var libResult = LibraryDtoV10.FromJson(page.ToString());
 
 				if (!libResult.Items.Any())
 					break;

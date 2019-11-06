@@ -46,7 +46,7 @@ namespace InternalUtilities
 			//				foreach (var childId in childIds)
 			//				{
 			//					var bookResult = await api.GetLibraryBookAsync(childId, AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS);
-			//					var bookItem = AudibleApiDTOs.LibraryApiV10.FromJson(bookResult.ToString()).Item;
+			//					var bookItem = AudibleApiDTOs.LibraryDtoV10.FromJson(bookResult.ToString()).Item;
 			//					items.Add(bookItem);
 			//				}
 			#endregion

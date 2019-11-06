@@ -55,17 +55,17 @@ namespace LibationWinForm
         }
 
         #region bottom: qty books visible
-        public void SetVisibleCount(int qty, string str = null)
+        public void SetVisibleCount(int qty, string luceneSearchString = null)
         {
             visibleCountLbl.Text = string.Format(visibleCountLbl_Format, qty);
 
-            if (!string.IsNullOrWhiteSpace(str))
-                visibleCountLbl.Text += " | " + str;
-        }
-        #endregion
+			//if (!string.IsNullOrWhiteSpace(luceneSearchString))
+			//    visibleCountLbl.Text += " | " + luceneSearchString;
+		}
+		#endregion
 
-        #region bottom: backup counts
-        private async Task setBackupCountsAsync()
+		#region bottom: backup counts
+		private async Task setBackupCountsAsync()
         {
             var books = LibraryQueries.GetLibrary_Flat_NoTracking()
                 .Select(sp => sp.Book)

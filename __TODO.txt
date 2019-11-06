@@ -23,7 +23,8 @@ use pdf icon with and without and X over it to indicate status
 
 -- begin ENHANCEMENT, GET LIBRARY ---------------------------------------------------------------------------------------------------------------------
 Audible API. GET /1.0/library , GET /1.0/library/{asin}
-TONS of expensive conversion: GetLibraryAsync > string > JObject > string > LibraryApiV10
+TONS of expensive conversion: GetLibraryAsync > string > JObject > string > LibraryDtoV10
+same for GetLibraryBookAsync > ... > BookDtoV10
 -- end ENHANCEMENT, GET LIBRARY ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, DEBUGGING ---------------------------------------------------------------------------------------------------------------------
