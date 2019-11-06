@@ -80,6 +80,12 @@ Why are tags in file AND database?
 extract FileManager dependency from data layer
 -- end TAGS ---------------------------------------------------------------------------------------------------------------------
 
+-- begin ENHANCEMENT, PERFORMANCE: TAGS ---------------------------------------------------------------------------------------------------------------------
+tag edits still take forever and block UI
+unlikely to be an issue with file write. in fact, should probably roll back this change
+also touches parts of code which: db write via a hook, search engine re-index
+-- end ENHANCEMENT, PERFORMANCE: TAGS ---------------------------------------------------------------------------------------------------------------------
+
 -- begin ENHANCEMENT, CATEGORIES ---------------------------------------------------------------------------------------------------------------------
 add support for multiple categories
 when i do this, learn about the different CategoryLadder.Root enums. probably only need Root.Genres
@@ -136,20 +142,9 @@ directly call ffmpeg (decrypt only)
     39 sec decrypt
 -- end DECRYPTING ---------------------------------------------------------------------------------------------------------------------
 
--- begin ENHANCEMENT, UI: LONG RUNNING TASKS ---------------------------------------------------------------------------------------------------------------------
-long running tasks are appropriately async. however there's no way for the user to see that the task is running (vs nothing happened) except to wait and see if the final notification ever comes
-need events to update UI with progress
--- end ENHANCEMENT, UI: LONG RUNNING TASKS ---------------------------------------------------------------------------------------------------------------------
-
--- begin ENHANCEMENT, PERFORMANCE: TAGS ---------------------------------------------------------------------------------------------------------------------
-tag edits still take forever and block UI
-unlikely to be an issue with file write. in fact, should probably roll back this change
-also touches parts of code which: db write via a hook, search engine re-index
--- end ENHANCEMENT, PERFORMANCE: TAGS ---------------------------------------------------------------------------------------------------------------------
-
 -- begin ENHANCEMENT: REMOVE BOOK ---------------------------------------------------------------------------------------------------------------------
 how to remove a book?
-previously difficult due to implementation details regarding scraping and importing. should be trivial after api replaces scraping
+previously difficult due to implementation details regarding scraping and importing. should now be trivial
 -- end ENHANCEMENT: REMOVE BOOK ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT: NEW VIEWS ---------------------------------------------------------------------------------------------------------------------

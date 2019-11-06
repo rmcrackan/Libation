@@ -115,7 +115,7 @@ namespace LibationWinForm
             // update bottom numbers
             var pending = noProgress + downloadedOnly;
             var text
-                = !results.Any() ? "No books. Begin by indexing your library"
+                = !results.Any() ? "No books. Begin by importing your library"
                 : pending > 0 ? string.Format(backupsCountsLbl_Format, noProgress, downloadedOnly, fullyBackedUp)
                 : $"All {"book".PluralizeWithCount(fullyBackedUp)} backed up";
             statusStrip1.UIThread(() => backupsCountsLbl.Text = text);

@@ -70,10 +70,5 @@ namespace FileManager
                 property = property.Replace(ch.ToString(), "");
             return property;
         }
-
-        public static string TitleCompressed(string title)
-            => new string(title
-                .Where(c => (char.IsLetterOrDigit(c)))
-                .ToArray());
     }
 }
