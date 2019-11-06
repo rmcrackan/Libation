@@ -7,7 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 	ProjectSection(SolutionItems) = preProject
 		__TODO.txt = __TODO.txt
 		_DB_NOTES.txt = _DB_NOTES.txt
-		lucenenet source code.txt = lucenenet source code.txt
 		REFERENCE.txt = REFERENCE.txt
 	EndProjectSection
 EndProject

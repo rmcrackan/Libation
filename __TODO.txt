@@ -1,22 +1,22 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-Screenshots and examples. Import. Search. Save tag. Search by tag.
-Link to site with search syntax
+Create instructions, examples, screenshots:
+- Import
+- Search
+  Link to site with search syntax
+- Tags
+  Save tag
+  Search by tag
+  how to use tags. add, edit, search. spaces, underscores. search
+  partial (eg: [bio] also shows auto_bio)
+- instructions for using and saving filters
+- how to tag for hidden/greyed out
+- download books
+- download pdf.s
 
 Warn of know performance issues
 - Library import
 - Tag add/edit
 - Grid is slow to respond loading when books aren't liberated
-
-Error logging
-
-Instructions on how to send me error logs
-
-how to use tags. add, edit, search. spaces, underscores. search
-partial (eg: [bio] also shows auto_bio)
-
-instructions for using and saving filters
-
-how to tag for hidden/greyed out
 
 Create release version and installer
 -- end BETA ---------------------------------------------------------------------------------------------------------------------
