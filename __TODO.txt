@@ -1,17 +1,20 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
 Create instructions, examples, screenshots:
-- Import
+- download books
+  counts based on the audible id being present somewhere
+- download pdf.s
+  counts based on the audible id being present somewhere
 - Search
-  Link to site with search syntax
+  Lucene Query Parser Syntax
+  an easier to follow tutorial: http://www.lucenetutorial.com/lucene-query-syntax.html
+  full official guide: https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
 - Tags
   Save tag
   Search by tag
   how to use tags. add, edit, search. spaces, underscores. search
   partial (eg: [bio] also shows auto_bio)
-- instructions for using and saving filters
+- instructions for using and saving filters. incl options, settings, default load
 - how to tag for hidden/greyed out
-- download books
-- download pdf.s
 
 Warn of know performance issues
 - Library import
