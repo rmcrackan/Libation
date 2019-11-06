@@ -92,6 +92,15 @@ namespace LibationWinForm
             // transform into sorted GridEntry.s BEFORE binding
             //
             var lib = LibraryQueries.GetLibrary_Flat_NoTracking();
+
+			// if no data. hide all columns. return
+			if (!lib.Any())
+			{
+				for (var i = dataGridView.ColumnCount - 1; i >= 0; i--)
+					dataGridView.Columns.RemoveAt(i);
+				return;
+			}
+
 			var orderedGridEntries = lib
                 .Select(lb => new GridEntry(lb)).ToList()
 				// default load order
@@ -106,32 +115,6 @@ namespace LibationWinForm
             // BIND
             //
             gridEntryBindingSource.DataSource = orderedGridEntries.ToSortableBindingList();
-
-            //
-            // AFTER BINDING, BEFORE FILTERING
-            //
-            // now that we have data, remove/hide text columns with blank data. don't search image and button columns.
-            // simplifies the interface in general. also distinuishes library from wish list etc w/o explicit filters.
-            // must be AFTER BINDING, BEFORE FILTERING because we don't want to remove rows when valid data is simply not visible due to filtering.
-            for (var c = dataGridView.ColumnCount - 1; c >= 0; c--)
-            {
-                if (!(dataGridView.Columns[c] is DataGridViewTextBoxColumn textCol))
-                    continue;
-
-                bool hasData = false;
-                for (var r = 0; r < dataGridView.RowCount; r++)
-                {
-                    var value = dataGridView[c, r].Value;
-                    if (value != null && value.ToString() != "")
-                    {
-                        hasData = true;
-                        break;
-                    }
-                }
-
-                if (!hasData)
-                    dataGridView.Columns.Remove(textCol);
-            }
 
             //
             // FILTER
