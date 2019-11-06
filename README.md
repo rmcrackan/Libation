@@ -1,14 +1,30 @@
-# Libation
-Libation: Liberate your Library
+# Libation: Liberate your Library
 
-Audible audiobook manager
+## Audible audiobook manager
 
-* Download
-* Decrypt. Remove DRM
-* Organize
-* Advanced search
-* Tags
-* Open-source
+### The good
+
+* Import library from audible, including cover art
+* Download and remove DRM from all books
+* Download accompanying PDFs
+* Add tags to books for better organization
+* Powerful advanced search built on the Lucene search engine
+* Customizable saved filters for common searches
+* Open source
+* Tested on US Audible only. Should theoretically also work for Canada, UK, Germany, and France
+
+### The bad
+
 * Windows only
+* Several known speed/performance issues
+* Made by a programmer, not a designer so the goals are function rather than beauty. And it shows
 
-Current version is functional but is built around a fragile scraping engine. The next version will replace this part with API calls which will make it significantly more robust.
+### The ugly
+
+* Documentation? Yer lookin' at it
+* This is a single-developer personal passion project. Support, response, updates, enhancements, bug fixes etc are as my free time allows
+* I have a full-time job, a life, and a finite attention span. Therefore a lot of time can potentially go by with no improvements of any kind
+
+Disclaimer: I've made every good-faith effort to include nothing insecure, malicious, anti-privacy, or destructive. That said: use at your own risk.
+
+I made this for myself and I want to share it with the great programming and audible/audiobook communiites which have been so generous with their time and help.
