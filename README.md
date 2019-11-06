@@ -28,3 +28,19 @@
 Disclaimer: I've made every good-faith effort to include nothing insecure, malicious, anti-privacy, or destructive. That said: use at your own risk.
 
 I made this for myself and I want to share it with the great programming and audible/audiobook communiites which have been so generous with their time and help.
+
+## Getting started
+
+### Import your library
+
+Select Import > Scan Library:
+
+![Import step 1](images/Import1.png)
+
+You'll see this window while it's scanning:
+
+![Import step 2](images/Import2.png)
+
+Success! We see how many new titles are imported:
+
+![Import step 3](images/Import3.png)
