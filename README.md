@@ -144,6 +144,7 @@ Libation's advanced searching is built on the powerful Lucene search engine. Sim
 * Synonyms so you don't have to memorize magic words. Eg: author and author**s** will both work
 * Click [?] button for a full list of search fields and synonyms ![Filter options](images/FilterOptions.png)
 * Search by tag like \[this\]
+* When tags have an underscore you can use part of the tag. This is useful for quick categories. The below examples make this more clear.
 
 #### Search examples
 
@@ -162,5 +163,10 @@ If you only want to see potter except for Harry Potter
 Only books written by Neil Gaiman where he also narrates his own book. (If you don't include AND, you'll see everything written by Neil Gaiman and also all books in your library which are self-narrated.)
 
 ![Search example: author:gaiman AND authornarrated](images/SearchExampleGaimanAuthorNarrated.png)
+
+I tagged autobiographies as auto_bio and biographies written by someone else as bio. I can get only autobiographies with \[auto_bio\] or get both by searching \[bio\]
+
+![Search example: \[bio\]](images/SearchExampleBio.png)
+![Search example: \[auto_bio\]](images/SearchExampleAutoBio.png)
 
 ### Filters
