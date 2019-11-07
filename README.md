@@ -14,7 +14,7 @@
 3. [Searching and filtering](#searching-and-filtering)
     - [Tags](#tags)
     - [Searches](#searches)
-        - [Search examples](#search-examples)
+    - [Search examples](#search-examples)
     - [Filters](#filters)
 
 ## Audible audiobook manager
@@ -146,7 +146,7 @@ Libation's advanced searching is built on the powerful Lucene search engine. Sim
 * Search by tag like \[this\]
 * When tags have an underscore you can use part of the tag. This is useful for quick categories. The below examples make this more clear.
 
-#### Search examples
+### Search examples
 
 Search for anything with the word potter
 
