@@ -1,5 +1,21 @@
 # Libation: Liberate your Library
 
+# Table of Contents
+
+[Audible audiobook manager](#audible-audiobook-manager)
+* [The good](#the-good)
+* [The bad](#the-bad)
+* [The ugly](#the-ugly)
+
+[Getting started](#getting-started)
+* [Import your library](#import-your-library)
+* [Download your books -- DRM-free!](#download-your-books----drm-free)
+* [Download PDF attachments](#download-pdf-attachments)
+* [Details of downloaded files](#details-of-downloaded-files)
+
+[Searching and filtering](#searching-and-filtering)
+* [Tags](#tags)
+
 ## Audible audiobook manager
 
 ### The good
@@ -12,6 +28,8 @@
 * Customizable saved filters for common searches
 * Open source
 * Tested on US Audible only. Should theoretically also work for Canada, UK, Germany, and France
+
+<a name="theBad"/>
 
 ### The bad
 
