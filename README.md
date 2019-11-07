@@ -44,3 +44,53 @@ You'll see this window while it's scanning:
 Success! We see how many new titles are imported:
 
 ![Import step 3](images/Import3.png)
+
+### Download your books -- DRM-free!
+
+Automatically download some or all of your audible books. This shows you how much of your library is not yet downloaded and decrypted:
+
+![Liberate book step 1](images/LiberateBook1.png)
+
+Select Liberate > Begin Book Backups
+
+![Liberate book step 2](images/LiberateBook2.png)
+
+First the original book with DRM is downloaded
+
+![Liberate book step 3](images/LiberateBook3.png)
+
+Then it's decrypted so you can use it on any device you choose. The very first time you decrypt a book, this step will take a while. Every other book will go much faster. The first time, Libation has to figure out the special decryption key which allows your personal books to be unlocked.
+
+![Liberate book step 4](images/LiberateBook4.png)
+
+And voila! If you have multiple books not yet liberated, Libation will automatically move on to the next.
+
+![Liberate book step 5](images/LiberateBook5.png)
+
+### Download PDF attachments
+
+For books which include PDF downloads, Libation can download these for you as well and will attempt to store them with the book
+
+![PDF download step 1](images/PdfDownload1.png)
+
+Select Liberate > Begin PDF Backups
+
+![PDF download step 2](images/PdfDownload2.png)
+
+The downloads work just like with books, only with no additional decryption needed.
+
+![PDF download step 3](images/PdfDownload3.png)
+
+Ta da!
+
+![PDF download step 4](images/PdfDownload4.png)
+
+### Details of downloaded files
+
+![Post download](images/PostDownload.png)
+
+When you set up Libation, you'll specify a Books directory. Libation looks inside that directory and all subdirectories to look for files or folders with each library book's audible id. This way, organization is completely up to you. When you download + decrypt a book, you get several files
+
+* .m4b: your audiobook in m4b format. This is the most pure version of your audiobook and retains the highest quality. Now that it's decrypted, you can play it on any audio player and put it on any device. If you'd like, you can also use 3rd party tools to turn it into an mp3. The freedom to do what you want with your files was the original inspiration for Libation.
+* .cue: this is a file which logs where chapter breaks occur. Many tools are able to use this if you want to split your book into files along chapter lines.
+* .nfo: This is just some general info about the book and includes some technical stats about the audiofile.
