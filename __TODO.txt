@@ -1,11 +1,5 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-- Tags
-  add, edit
-  spaces, underscores
 - Search
-  Lucene Query Parser Syntax
-  an easier to follow tutorial: http://www.lucenetutorial.com/lucene-query-syntax.html
-  full official guide: https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
   lower left shows how many matches are visible
   without field specified, common fields are used: title, author, narrator, book's audible id
   [?] button for list of all fields
@@ -19,7 +13,6 @@
     syntax
     partial tag search (eg: [bio] also shows auto_bio)
 - filters. using. saving. options, settings, default load
-- how to tag for hidden/greyed out
 
 Warn of known performance issues
 - Library import
@@ -29,6 +22,12 @@ Warn of known performance issues
 
 Create release version and installer
 -- end BETA ---------------------------------------------------------------------------------------------------------------------
+
+-- begin ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
+scan library in background?
+can include a notice somewhere that it's in-process
+why block the UI?
+-- end ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
 
 -- begin BUG, FILE DOWNLOAD ---------------------------------------------------------------------------------------------------------------------
 reproduce: try to do the api download with a bad codec
