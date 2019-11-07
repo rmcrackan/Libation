@@ -1,14 +1,4 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-- Search
-  examples
-    potter
-    "harry potter"
-    potter NOT "harry potter"
-    author:gaiman AND authornarrated
-  tags
-    search by tag
-    syntax
-    partial tag search (eg: [bio] also shows auto_bio)
 - filters. using. saving. options, settings, default load
 
 Warn of known performance issues
