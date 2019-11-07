@@ -13,6 +13,9 @@
     - [Details of downloaded files](#details-of-downloaded-files)
 3. [Searching and filtering](#searching-and-filtering)
     - [Tags](#tags)
+    - [Searches](#searches)
+        - [Search examples](#search-examples)
+    - [Filters](#filters)
 
 ## Audible audiobook manager
 
@@ -117,14 +120,46 @@ When you set up Libation, you'll specify a Books directory. Libation looks insid
 
 To add tags to a title, click the tags button
 
-![tags step 1](images/Tags1.png)
+![Tags step 1](images/Tags1.png)
 
 Add as many tags as you'd like. Tags are separated by a space. Each tag can contain letters, numbers, and underscores
 
-![tags step 2](images/Tags2.png)
+![Tags step 2](images/Tags2.png)
 
-Tags are saved non-case specific for easy search. There is one special tag "hidden" which will also grey-out a title's text
+Tags are saved non-case specific for easy search. There is one special tag "hidden" which will also grey-out the book
 
-![tags step 3](images/Tags3.png)
+![Tags step 3](images/Tags3.png)
 
 To edit tags, just click the button again.
+
+### Searches
+
+Libation's advanced searching is built on the powerful Lucene search engine. Simple searches are effortless and powerful searches are simple.
+
+* Type anything in the search box to search common fields: title, authors, narrators, and the book's audible id
+* Use Lucene's "Query Parser Syntax" for advanced searching.
+    * Easy tutorial: http://www.lucenetutorial.com/lucene-query-syntax.html
+    * Full official guide: https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
+* Tons of search fields, specific to audiobooks
+* Synonyms so you don't have to memorize magic words. Eg: author and author**s** will both work
+* Click [?] button for a full list of search fields and synonyms ![Filter options](images/FilterOptions.png)
+
+#### Search examples
+
+Search for anything with the word potter
+
+![Search example: potter](images/SearchExamplePotter.png)
+
+If you only want to see Harry Potter
+
+![Search example: "harry potter"](images/SearchExampleHarryPotter.png)
+
+If you only want to see potter except for Harry Potter
+
+![Search example: "potter NOT harry"](images/SearchExamplePotterNotHarry.png.png)
+
+Only books written by Neil Gaiman where he also narrates his own book. (If you don't include AND, you'll see everything written by Neil Gaiman and also all books in your library which are self-narrated.)
+
+![Search example: author:gaiman AND authornarrated](images/SearchExampleGaimanAuthorNarrated.png.png)
+
+### Filters
