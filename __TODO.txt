@@ -1,35 +1,40 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-Create instructions, examples, screenshots:
-- download books
-  counts based on the audible id being present somewhere
-- download pdf.s
-  counts based on the audible id being present somewhere
-  screenshots. explain all parts
+- Tags
+  add, edit
+  spaces, underscores
 - Search
   Lucene Query Parser Syntax
   an easier to follow tutorial: http://www.lucenetutorial.com/lucene-query-syntax.html
   full official guide: https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
-- Tags
-  Save tag
-  Search by tag
-  how to use tags. add, edit, search. spaces, underscores. search
-  partial (eg: [bio] also shows auto_bio)
-- instructions for using and saving filters. incl options, settings, default load
+  lower left shows how many matches are visible
+  without field specified, common fields are used: title, author, narrator, book's audible id
+  [?] button for list of all fields
+  examples
+    potter
+    "harry potter"
+    potter NOT "harry potter"
+    author:gaiman AND authornarrated
+  tags
+    search by tag
+    syntax
+    partial tag search (eg: [bio] also shows auto_bio)
+- filters. using. saving. options, settings, default load
 - how to tag for hidden/greyed out
 
-Warn of know performance issues
+Warn of known performance issues
 - Library import
 - Tag add/edit
 - Grid is slow to respond loading when books aren't liberated
+- get decrypt key -- unavoidable
 
 Create release version and installer
-
-
-HOW TO HANDLE?
-DownloadsFinal
-.aax
-1 kb
 -- end BETA ---------------------------------------------------------------------------------------------------------------------
+
+-- begin BUG, FILE DOWNLOAD ---------------------------------------------------------------------------------------------------------------------
+reproduce: try to do the api download with a bad codec
+result: DownloadsFinal dir   .aax file   1 kb
+this resulted from an exception. we should not be keeping a file after exception
+-- end BUG, FILE DOWNLOAD ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------
 imports are PAINFULLY slow for just a few hundred items. wtf is taking so long?
