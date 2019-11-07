@@ -143,6 +143,7 @@ Libation's advanced searching is built on the powerful Lucene search engine. Sim
 * Tons of search fields, specific to audiobooks
 * Synonyms so you don't have to memorize magic words. Eg: author and author**s** will both work
 * Click [?] button for a full list of search fields and synonyms ![Filter options](images/FilterOptions.png)
+* Search by tag like \[this\]
 
 #### Search examples
 
@@ -156,10 +157,10 @@ If you only want to see Harry Potter
 
 If you only want to see potter except for Harry Potter
 
-![Search example: "potter NOT harry"](images/SearchExamplePotterNotHarry.png.png)
+![Search example: "potter NOT harry"](images/SearchExamplePotterNotHarry.png)
 
 Only books written by Neil Gaiman where he also narrates his own book. (If you don't include AND, you'll see everything written by Neil Gaiman and also all books in your library which are self-narrated.)
 
-![Search example: author:gaiman AND authornarrated](images/SearchExampleGaimanAuthorNarrated.png.png)
+![Search example: author:gaiman AND authornarrated](images/SearchExampleGaimanAuthorNarrated.png)
 
 ### Filters
