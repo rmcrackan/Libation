@@ -134,7 +134,7 @@ To edit tags, just click the button again.
 
 ### Searches
 
-Libation's advanced searching is built on the powerful Lucene search engine. Simple searches are effortless and powerful searches are simple.
+Libation's advanced searching is built on the powerful Lucene search engine. Simple searches are effortless and powerful searches are simple. To search, just type and click Filter or press enter
 
 * Type anything in the search box to search common fields: title, authors, narrators, and the book's audible id
 * Use Lucene's "Query Parser Syntax" for advanced searching.
@@ -170,3 +170,11 @@ I tagged autobiographies as auto_bio and biographies written by someone else as 
 ![Search example: \[auto_bio\]](images/SearchExampleAutoBio.png)
 
 ### Filters
+
+If you have a search you want to save, click Add To Quick Filters to save it in your Quick Filters list. To use it again, select it from the Quick Filters list.
+
+To edit this list go to Quick Filters > Edit quick filters. Here you can re-order the list, delete filters, double-click a filter to edit it, or double-click the bottom blank box to add a new filter.
+
+Check "Quick Filters > Start Libation with 1st filter Default" to have your top filter automatically applied when Libation starts. In this top example, I want to always start without these: at books I've tagged hidden, books I've tagged as free_audible_originals, and books which I have rated.
+
+![default filters](images/FiltersDefault.png)
