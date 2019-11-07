@@ -1,8 +1,5 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
 - Search
-  lower left shows how many matches are visible
-  without field specified, common fields are used: title, author, narrator, book's audible id
-  [?] button for list of all fields
   examples
     potter
     "harry potter"
