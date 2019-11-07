@@ -1,6 +1,4 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-- filters. using. saving. options, settings, default load
-
 Warn of known performance issues
 - Library import
 - Tag add/edit
