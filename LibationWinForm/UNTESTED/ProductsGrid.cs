@@ -22,13 +22,11 @@ namespace LibationWinForm
     // - click on Data Sources > ProductItem. drowdown: DataGridView
     // - drag/drop ProductItem on design surface
     public partial class ProductsGrid : UserControl
-    {
-        private DataGridView dataGridView;
+	{
+		public event EventHandler<int> VisibleCountChanged;
 
-        private Form1 parent;
+		private DataGridView dataGridView;
 
-        // this is a simple ctor for loading library and wish list. can expand later for other options. eg: overload ctor
-        public ProductsGrid(Form1 parent) : this() => this.parent = parent;
         public ProductsGrid() => InitializeComponent();
 
         private bool hasBeenDisplayed = false;
@@ -54,7 +52,7 @@ namespace LibationWinForm
             dataGridView.CellFormatting += replaceFormatted;
             dataGridView.CellFormatting += hiddenFormatting;
             // sorting breaks filters. must reapply filters after sorting
-            dataGridView.Sorted += (_, __) => Filter();
+            dataGridView.Sorted += (_, __) => filter();
 
             { // add tag buttons
                 var editUserTagsButton = new DataGridViewButtonColumn { HeaderText = "Edit Tags" };
@@ -119,7 +117,7 @@ namespace LibationWinForm
             //
             // FILTER
             //
-            Filter();
+            filter();
         }
 
         private void paintEditTag_TextAndImage(object sender, DataGridViewCellPaintingEventArgs e)
@@ -184,7 +182,7 @@ namespace LibationWinForm
             // needed to update text colors
             dataGridView.InvalidateRow(e.RowIndex);
 
-            Filter();
+            filter();
         }
 
         private static int saveChangedTags(Book book, string newTags)
@@ -232,10 +230,13 @@ namespace LibationWinForm
 
         #region filter
         string _filterSearchString;
-        public void Filter() => Filter(_filterSearchString);
+        private void filter() => Filter(_filterSearchString);
         public void Filter(string searchString)
         {
             _filterSearchString = searchString;
+
+			if (dataGridView.Rows.Count == 0)
+				return;
 
             var searchResults = new LibationSearchEngine.SearchEngine().Search(searchString);
             var productIds = searchResults.Docs.Select(d => d.ProductId).ToList();
@@ -248,11 +249,9 @@ namespace LibationWinForm
                     dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).GetBook().AudibleProductId);
             }
             currencyManager.ResumeBinding();
+			VisibleCountChanged?.Invoke(this, dataGridView.Rows.Cast<DataGridViewRow>().Count(r => r.Visible));
 
 			var luceneSearchString_debug = searchResults.SearchString;
-
-            // after applying filters, display new visible count
-            parent.SetVisibleCount(dataGridView.Rows.Cast<DataGridViewRow>().Count(r => r.Visible), luceneSearchString_debug);
         }
         #endregion
 

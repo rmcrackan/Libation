@@ -54,14 +54,43 @@ namespace LibationWinForm
             }
         }
 
-        #region bottom: qty books visible
-        public void SetVisibleCount(int qty, string luceneSearchString = null)
+        #region reload grid
+        bool isProcessingGridSelect = false;
+        private void reloadGrid()
         {
-            visibleCountLbl.Text = string.Format(visibleCountLbl_Format, qty);
+            // suppressed filter while init'ing UI
+            var prev_isProcessingGridSelect = isProcessingGridSelect;
+            isProcessingGridSelect = true;
+            setGrid();
+            isProcessingGridSelect = prev_isProcessingGridSelect;
 
-			//if (!string.IsNullOrWhiteSpace(luceneSearchString))
-			//    visibleCountLbl.Text += " | " + luceneSearchString;
-		}
+            // UI init complete. now we can apply filter
+            doFilter(lastGoodFilter);
+        }
+
+        ProductsGrid currProductsGrid;
+        private void setGrid()
+        {
+            SuspendLayout();
+            {
+                if (currProductsGrid != null)
+                {
+                    gridPanel.Controls.Remove(currProductsGrid);
+                    currProductsGrid.VisibleCountChanged -= setVisibleCount;
+                    currProductsGrid.Dispose();
+                }
+
+                currProductsGrid = new ProductsGrid { Dock = DockStyle.Fill };
+                currProductsGrid.VisibleCountChanged += setVisibleCount;
+                gridPanel.Controls.Add(currProductsGrid);
+                currProductsGrid.Display();
+            }
+            ResumeLayout();
+        }
+		#endregion
+
+        #region bottom: qty books visible
+        private void setVisibleCount(object _, int qty) => visibleCountLbl.Text = string.Format(visibleCountLbl_Format, qty);
 		#endregion
 
 		#region bottom: backup counts
@@ -172,41 +201,8 @@ namespace LibationWinForm
         }
         #endregion
 
-        #region reload grid
-        bool isProcessingGridSelect = false;
-        private void reloadGrid()
-        {
-            // suppressed filter while init'ing UI
-            var prev_isProcessingGridSelect = isProcessingGridSelect;
-            isProcessingGridSelect = true;
-            setGrid();
-            isProcessingGridSelect = prev_isProcessingGridSelect;
-
-            // UI init complete. now we can apply filter
-            doFilter(lastGoodFilter);
-        }
-
-        ProductsGrid currProductsGrid;
-        private void setGrid()
-        {
-            SuspendLayout();
-            {
-                if (currProductsGrid != null)
-                {
-                    gridPanel.Controls.Remove(currProductsGrid);
-                    currProductsGrid.Dispose();
-                }
-
-                currProductsGrid = new ProductsGrid(this) { Dock = DockStyle.Fill };
-                gridPanel.Controls.Add(currProductsGrid);
-                currProductsGrid.Display();
-            }
-            ResumeLayout();
-        }
-        #endregion
-
-        #region filter
-        private void filterHelpBtn_Click(object sender, EventArgs e) => new Dialogs.SearchSyntaxDialog().ShowDialog();
+		#region filter
+		private void filterHelpBtn_Click(object sender, EventArgs e) => new Dialogs.SearchSyntaxDialog().ShowDialog();
 
         private void AddFilterBtn_Click(object sender, EventArgs e)
         {
@@ -247,8 +243,7 @@ namespace LibationWinForm
                 MessageBox.Show($"Bad filter string:\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // re-apply last good filter
-                filterSearchTb.Text = lastGoodFilter;
-                doFilter();
+                doFilter(lastGoodFilter);
             }
         }
 		#endregion

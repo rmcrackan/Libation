@@ -18,7 +18,11 @@ namespace LibationWinForm
 		public SettingsDialog()
 		{
 			InitializeComponent();
-			audibleLocaleCb.SelectedIndex = 0;
+			this.libationFilesCustomTb.TextChanged += (_, __) =>
+			{
+				if (!string.IsNullOrWhiteSpace(libationFilesCustomTb.Text))
+					this.libationFilesCustomRb.Checked = true;
+			};
 
 			exeRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), "Libation"));
 			myDocs = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Libation"));
@@ -34,10 +38,16 @@ namespace LibationWinForm
 			this.decryptKeyTb.Text = config.DecryptKey;
 			this.decryptKeyDescLbl.Text = desc(nameof(config.DecryptKey));
 
-			this.booksLocationTb.Text = config.Books;
+			this.booksLocationTb.Text
+				= !string.IsNullOrWhiteSpace(config.Books) 
+				? config.Books
+				: Path.GetDirectoryName(Exe.FileLocationOnDisk);
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
 
-			this.audibleLocaleCb.Text = config.LocaleCountryCode;
+			this.audibleLocaleCb.Text
+				= !string.IsNullOrWhiteSpace(config.LocaleCountryCode)
+				? config.LocaleCountryCode
+				: "us";
 
 			libationFilesDescLbl.Text = desc(nameof(config.LibationFiles));
 			this.libationFilesRootRb.Text = "In the same folder that Libation is running from\r\n" + exeRoot;
@@ -80,13 +90,11 @@ namespace LibationWinForm
 					break;
 			}
 
-			libationFiles_Changed(this, null);
+            libationFiles_Changed(this, null);
 		}
 
 		private void libationFiles_Changed(object sender, EventArgs e)
 		{
-			Check_libationFilesCustom_RadioButton();
-
 			var libationFilesDir
 				= libationFilesRootRb.Checked ? exeRoot
 				: libationFilesMyDocsRb.Checked ? myDocs
@@ -101,14 +109,7 @@ namespace LibationWinForm
 
 		private void booksLocationSearchBtn_Click(object sender, EventArgs e) => selectFolder("Search for books location", this.booksLocationTb);
 
-		private void libationFilesCustomBtn_Click(object sender, EventArgs e)
-		{
-			Check_libationFilesCustom_RadioButton();
-			selectFolder("Search for Libation Files location", this.libationFilesCustomTb);
-		}
-		private void libationFilesCustomRb_CheckedChanged(object sender, EventArgs e) => Check_libationFilesCustom_RadioButton();
-
-		private void Check_libationFilesCustom_RadioButton() => this.libationFilesCustomRb.Checked = true;
+        private void libationFilesCustomBtn_Click(object sender, EventArgs e) => selectFolder("Search for Libation Files location", this.libationFilesCustomTb);
 
 		private static void selectFolder(string desc, TextBox textbox)
         {

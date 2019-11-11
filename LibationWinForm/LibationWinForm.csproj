@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>libation.ico</ApplicationIcon>
+    <AssemblyName>Libation</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

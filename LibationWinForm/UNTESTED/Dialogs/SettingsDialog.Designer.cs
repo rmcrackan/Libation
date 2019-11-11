@@ -202,7 +202,6 @@
             this.libationFilesCustomRb.TabIndex = 3;
             this.libationFilesCustomRb.TabStop = true;
             this.libationFilesCustomRb.UseVisualStyleBackColor = true;
-            this.libationFilesCustomRb.CheckedChanged += new System.EventHandler(this.libationFilesCustomRb_CheckedChanged);
             // 
             // libationFilesMyDocsRb
             // 

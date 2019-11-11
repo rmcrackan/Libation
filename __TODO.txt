@@ -1,4 +1,19 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
+if db present but no search files -- re-create
+
+make sure the new "if (dataGridView.Rows.Count == 0)" doesn't break filtering if all are invisible
+- load products. do a search with 0 results. do a search with results
+
+libation errors on another computer:
+  copy pw, LibationSettings.json
+  file not found. probably about file locations. the bottom right and bottom left counts don't update
+  ONLY file in libation files: IdentityTokens.json. no other files OR folders
+exception after library scan
+  file not found. same file?
+no mdf,ldf files created in C:\Users\[username]
+
+throttle needed for downloading images, pdf.s
+
 Warn of known performance issues
 - Library import
 - Tag add/edit
@@ -6,6 +21,7 @@ Warn of known performance issues
 - get decrypt key -- unavoidable
 
 Create release version and installer
+https://dotnetcoretutorials.com/2019/06/20/publishing-a-single-exe-file-in-net-core-3-0/
 -- end BETA ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
