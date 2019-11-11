@@ -31,8 +31,7 @@ namespace LibationWinForm
 		public async Task DoMainWorkAsync()
 		{
 			var callback = new Login.WinformResponder();
-			var indexer = new LibraryIndexer();
-			(TotalBooksProcessed, NewBooksAdded) = await indexer.IndexAsync(callback);
+			(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.IndexLibraryAsync(callback);
 
 			successMessages.Add($"Total processed: {TotalBooksProcessed}");
 			successMessages.Add($"New: {NewBooksAdded}");

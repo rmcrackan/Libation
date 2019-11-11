@@ -160,8 +160,7 @@ namespace LibationSearchEngine
 
         private Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
 
-        public async Task CreateNewIndexAsync() => await Task.Run(() => createNewIndex(true));
-        private void createNewIndex(bool overwrite)
+		public void CreateNewIndex(bool overwrite = true)
         {
             // 300 products
             // 1st run after app is started: 400ms

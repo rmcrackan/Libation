@@ -2,9 +2,10 @@
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Dinah.Core.DataBinding;
+using ApplicationServices;
 using DataLayer;
 using Dinah.Core.Collections.Generic;
+using Dinah.Core.DataBinding;
 
 namespace LibationWinForm
 {
@@ -189,7 +190,7 @@ namespace LibationWinForm
         {
             book.UserDefinedItem.Tags = newTags;
 
-            var qtyChanges = ApplicationServices.TagUpdater.IndexChangedTags(book);
+            var qtyChanges = LibraryCommands.IndexChangedTags(book);
             return qtyChanges;
         }
 
@@ -238,7 +239,7 @@ namespace LibationWinForm
 			if (dataGridView.Rows.Count == 0)
 				return;
 
-            var searchResults = new LibationSearchEngine.SearchEngine().Search(searchString);
+            var searchResults = SearchEngineCommands.Search(searchString);
             var productIds = searchResults.Docs.Select(d => d.ProductId).ToList();
 
             // https://stackoverflow.com/a/18942430

@@ -1,21 +1,18 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
 if db present but no search files -- re-create
 
+when library scan complete: close "Scan Library" dialog and THEN show results dialog
+
 make sure the new "if (dataGridView.Rows.Count == 0)" doesn't break filtering if all are invisible
 - load products. do a search with 0 results. do a search with results
 
-libation errors on another computer:
-  copy pw, LibationSettings.json
-  file not found. probably about file locations. the bottom right and bottom left counts don't update
-  ONLY file in libation files: IdentityTokens.json. no other files OR folders
-exception after library scan
-  file not found. same file?
-no mdf,ldf files created in C:\Users\[username]
-
 throttle needed for downloading images, pdf.s
+
+no mdf,ldf files created in C:\Users\[username]
 
 Warn of known performance issues
 - Library import
+  incl image d/l. need to throttle
 - Tag add/edit
 - Grid is slow to respond loading when books aren't liberated
 - get decrypt key -- unavoidable
@@ -27,7 +24,7 @@ https://dotnetcoretutorials.com/2019/06/20/publishing-a-single-exe-file-in-net-c
 -- begin ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
 scan library in background?
 can include a notice somewhere that it's in-process
-why block the UI?
+why block the UI at all?
 -- end ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
 
 -- begin BUG, FILE DOWNLOAD ---------------------------------------------------------------------------------------------------------------------
