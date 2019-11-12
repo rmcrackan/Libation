@@ -251,22 +251,25 @@ namespace LibationWinForm
 		#region index menu
 		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var dialog = new IndexLibraryDialog();
+			using var dialog = new IndexLibraryDialog();
+			dialog.ShowDialog();
 
-			if (dialog.RunDialog().In(DialogResult.Abort, DialogResult.Cancel, DialogResult.None))
-				return;
+			var totalProcessed = dialog.TotalBooksProcessed;
+			var newAdded = dialog.NewBooksAdded;
 
-            // update backup counts if we have new library items
-            if (dialog.NewBooksAdded > 0)
-                await setBackupCountsAsync();
+			MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
 
-            if (dialog.TotalBooksProcessed > 0)
+			// update backup counts if we have new library items
+			if (newAdded > 0)
+				await setBackupCountsAsync();
+
+			if (totalProcessed > 0)
 				reloadGrid();
-        }
-        #endregion
+		}
+		#endregion
 
-        #region liberate menu
-        private async void setBackupCountsAsync(object _, string __) => await setBackupCountsAsync();
+		#region liberate menu
+		private async void setBackupCountsAsync(object _, string __) => await setBackupCountsAsync();
 
         private async void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
         {

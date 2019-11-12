@@ -51,7 +51,6 @@
 			this.MinimizeBox = false;
 			this.Name = "IndexLibraryDialog";
 			this.ShowIcon = false;
-			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Scan Library";
 			this.ResumeLayout(false);

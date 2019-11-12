@@ -1,11 +1,4 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-if db present but no search files -- re-create
-
-when library scan complete: close "Scan Library" dialog and THEN show results dialog
-
-make sure the new "if (dataGridView.Rows.Count == 0)" doesn't break filtering if all are invisible
-- load products. do a search with 0 results. do a search with results
-
 throttle needed for downloading images, pdf.s
 
 no mdf,ldf files created in C:\Users\[username]
