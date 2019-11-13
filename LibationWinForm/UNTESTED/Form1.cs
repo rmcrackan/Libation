@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Collections.Generic;
+using Dinah.Core.Drawing;
 using Dinah.Core.Windows.Forms;
 using FileManager;
 
@@ -41,7 +42,13 @@ namespace LibationWinForm
             // call static ctor. There are bad race conditions if static ctor is first executed when we're running in parallel in setBackupCountsAsync()
             var foo = FilePathCache.JsonFile;
 
-            reloadGrid();
+			// load default/missing cover images. this will also initiate the background image downloader
+			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
+			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
+			PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
+			PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
+
+			reloadGrid();
 
             // also applies filter. ONLY call AFTER loading grid
             loadInitialQuickFilterState();

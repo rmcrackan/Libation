@@ -49,7 +49,7 @@ namespace inAudibleLite
 			this.txtInputFile.Text = openFileDialog.FileName;
 			converter = await AaxToM4bConverter.CreateAsync(this.txtInputFile.Text, this.decryptKeyTb.Text);
 
-			pictureBox1.Image = Dinah.Core.Drawing.ImageConverter.GetPictureFromBytes(converter.coverBytes);
+			pictureBox1.Image = Dinah.Core.Drawing.ImageReader.ToImage(converter.coverBytes);
 
 			this.txtOutputFile.Text = converter.outputFileName;
 

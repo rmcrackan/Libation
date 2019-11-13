@@ -37,9 +37,7 @@ namespace LibationWinForm
 		public bool TryGetFormatted(string key, out string value) => formatReplacements.TryGetValue(key, out value);
 
 		public Image Cover =>
-			Dinah.Core.Drawing.ImageConverter.GetPictureFromBytes(
-				FileManager.PictureStorage.GetImage(book.PictureId, FileManager.PictureStorage.PictureSize._80x80)
-				);
+			WindowsDesktopUtilities.WinAudibleImageServer.GetImage(book.PictureId, FileManager.PictureSize._80x80);
 
 		public string Title
 		{

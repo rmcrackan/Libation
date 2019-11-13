@@ -2,77 +2,108 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 
 namespace FileManager
 {
-    /// <summary>
-    /// Files are small. Entire file is read from disk every time. No volitile storage. Paths are well known
-    /// </summary>
+	public enum PictureSize { _80x80, _300x300, _500x500 }
+	public struct PictureDefinition
+	{
+		public string PictureId { get; }
+		public PictureSize Size { get; }
+
+		public PictureDefinition(string pictureId, PictureSize pictureSize)
+		{
+			PictureId = pictureId;
+			Size = pictureSize;
+		}
+	}
     public static class PictureStorage
     {
-        public enum PictureSize { _80x80, _300x300, _500x500 }
-
         // not customizable. don't move to config
         private static string ImagesDirectory { get; }
             = new DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectory("Images").FullName;
 
-        private static string getPath(string pictureId, PictureSize size)
-            => Path.Combine(ImagesDirectory, $"{pictureId}{size}.jpg");
+		private static string getPath(PictureDefinition def)
+			=> Path.Combine(ImagesDirectory, $"{def.PictureId}{def.Size}.jpg");
 
-        public static byte[] GetImage(string pictureId, PictureSize size)
-        {
-            var path = getPath(pictureId, size);
-            if (!FileUtility.FileExists(path))
-                DownloadImages(pictureId);
+		private static System.Timers.Timer timer { get; }
+		static PictureStorage()
+		{
+			timer = new System.Timers.Timer(700)
+			{
+				AutoReset = true,
+				Enabled = true
+			};
+			timer.Elapsed += (_, __) => timerDownload();
+		}
 
-            return File.ReadAllBytes(path);
-        }
+		private static Dictionary<PictureDefinition, byte[]> cache { get; } = new Dictionary<PictureDefinition, byte[]>();
+		public static (bool isDefault, byte[] bytes) GetPicture(PictureDefinition def)
+		{
+			if (!cache.ContainsKey(def))
+				cache.Add(def, null);
+			return (cache[def] == null, cache[def] ?? getDefaultImage(def.Size));
+		}
 
-        public static void DownloadImages(string pictureId)
-        {
-            var path80 = getPath(pictureId, PictureSize._80x80);
-            var path300 = getPath(pictureId, PictureSize._300x300);
-            var path500 = getPath(pictureId, PictureSize._500x500);
+		private static Dictionary<PictureSize, byte[]> defaultImages { get; } = new Dictionary<PictureSize, byte[]>();
+		public static void SetDefaultImage(PictureSize pictureSize, byte[] bytes)
+			=> defaultImages[pictureSize] = bytes;
+		private static byte[] getDefaultImage(PictureSize size)
+			=> defaultImages.ContainsKey(size)
+			? defaultImages[size]
+			: new byte[0];
 
-            int retry = 0;
-            do
-            {
-                try
-                {
-					using var webClient = new System.Net.WebClient();
-					// download any that don't exist
-					{
-						if (!FileUtility.FileExists(path80))
-						{
-							var bytes = webClient.DownloadData(
-								"https://images-na.ssl-images-amazon.com/images/I/" + pictureId + "._SL80_.jpg");
-							File.WriteAllBytes(path80, bytes);
-						}
-					}
+		// necessary to avoid IO errors. ReadAllBytes and WriteAllBytes can conflict in some cases, esp when debugging
+		private static bool isProcessing;
+		private static void timerDownload()
+		{
+			try
+			{
+				if (isProcessing)
+					return;
+				isProcessing = true;
 
-					{
-						if (!FileUtility.FileExists(path300))
-						{
-							var bytes = webClient.DownloadData(
-								"https://images-na.ssl-images-amazon.com/images/I/" + pictureId + "._SL300_.jpg");
-							File.WriteAllBytes(path300, bytes);
-						}
-					}
+				PictureDefinition def;
+				string path;
 
-					{
-						if (!FileUtility.FileExists(path500))
-						{
-							var bytes = webClient.DownloadData(
-								"https://m.media-amazon.com/images/I/" + pictureId + "._SL500_.jpg");
-							File.WriteAllBytes(path500, bytes);
-						}
-					}
+				while (true)
+				{
+					def = cache
+						.Where(kvp => kvp.Value is null)
+						.Select(kvp => kvp.Key)
+						// 80x80 should be 1st since it's enum value == 0
+						.OrderBy(d => d.PictureId)
+						.FirstOrDefault();
+					// no more null entries. all requsted images are cached
+					if (string.IsNullOrWhiteSpace(def.PictureId))
+						return;
 
-					break;
+					path = getPath(def);
+					// we found the next one to download
+					if (!FileUtility.FileExists(path))
+						break;
+
+					// file exists. read into cache. try again
+					// the point is to throttle web calls. therefore only return if we performed a d/l or there are no null cache entries
+					cache[def] = File.ReadAllBytes(path);
 				}
-                catch { retry++; }
-            }
-            while (retry < 3);
-        }
-    }
+
+				var bytes = download(def);
+				File.WriteAllBytes(path, bytes);
+				cache[def] = bytes;
+			}
+			finally
+			{
+				isProcessing = false;
+			}
+		}
+		private static HttpClient imageDownloadClient { get; } = new HttpClient();
+		private static byte[] download(PictureDefinition def)
+		{
+			var sz = def.Size.ToString().Split('x')[1];
+			var bytes = imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}._SL{sz}_.jpg").Result;
+			return bytes;
+		}
+	}
 }

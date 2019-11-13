@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Dinah.Core\Dinah.Core.Drawing\Dinah.Core.Drawing.csproj" />
-    <ProjectReference Include="..\..\..\Dinah.Core\Dinah.Core.Windows.Forms\Dinah.Core.Windows.Forms.csproj" />
+    <ProjectReference Include="..\..\..\Dinah.Core\Dinah.Core.WindowsDesktop\Dinah.Core.WindowsDesktop.csproj" />
     <ProjectReference Include="..\..\AaxDecrypter\AaxDecrypter.csproj" />
   </ItemGroup>
 

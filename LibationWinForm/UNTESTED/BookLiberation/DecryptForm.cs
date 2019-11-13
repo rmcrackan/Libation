@@ -56,10 +56,10 @@ namespace LibationWinForm.BookLiberation
             => bookInfoLbl.UIThread(() => bookInfoLbl.Text = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}");
 
         public void SetCoverImage(byte[] coverBytes)
-            => pictureBox1.UIThread(() => pictureBox1.Image = ImageConverter.GetPictureFromBytes(coverBytes));
+            => pictureBox1.UIThread(() => pictureBox1.Image = ImageReader.ToImage(coverBytes));
 
-        public void AppendError(Exception ex) => AppendText("ERROR: " + ex.Message);
-        public void AppendText(string text) =>
+        public static void AppendError(Exception ex) => AppendText("ERROR: " + ex.Message);
+        public static void AppendText(string text) =>
             // redirected to log textbox
             Console.WriteLine($"{DateTime.Now} {text}")
             //logTb.UIThread(() => logTb.AppendText($"{DateTime.Now} {text}{Environment.NewLine}"))

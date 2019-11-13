@@ -1,5 +1,5 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-throttle needed for downloading images, pdf.s
+throttle needed for downloading pdf.s
 
 no mdf,ldf files created in C:\Users\[username]
 

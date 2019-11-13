@@ -118,6 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="default_cover_300x300" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\img-coverart-prod-unavailable_300x300.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="default_cover_500x500" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\img-coverart-prod-unavailable_500x500.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="default_cover_80x80" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\img-coverart-prod-unavailable_80x80.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="edit_tags_25x25" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\edit-tags-25x25.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
