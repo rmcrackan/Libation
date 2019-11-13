@@ -64,10 +64,12 @@ namespace FileManager
 		private static bool isProcessing;
 		private static void timerDownload()
 		{
+			// must live outside try-catch, else 'finally' can reset another thread's lock
+			if (isProcessing)
+				return;
+
 			try
 			{
-				if (isProcessing)
-					return;
 				isProcessing = true;
 
 				var def = cache

@@ -113,14 +113,14 @@
             this.importToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.scanLibraryToolStripMenuItem});
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
-            this.importToolStripMenuItem.Text = "&Import";
+			this.importToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
+			this.importToolStripMenuItem.Text = "&Import";
             // 
             // scanLibraryToolStripMenuItem
             // 
             this.scanLibraryToolStripMenuItem.Name = "scanLibraryToolStripMenuItem";
-            this.scanLibraryToolStripMenuItem.Size = new System.Drawing.Size(277, 22);
-            this.scanLibraryToolStripMenuItem.Text = "Scan &Library";
+			this.scanLibraryToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+			this.scanLibraryToolStripMenuItem.Text = "Scan &Library";
             this.scanLibraryToolStripMenuItem.Click += new System.EventHandler(this.scanLibraryToolStripMenuItem_Click);
             // 
             // liberateToolStripMenuItem
@@ -135,16 +135,16 @@
             // beginBookBackupsToolStripMenuItem
             // 
             this.beginBookBackupsToolStripMenuItem.Name = "beginBookBackupsToolStripMenuItem";
-            this.beginBookBackupsToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
-            this.beginBookBackupsToolStripMenuItem.Text = "Begin &Book Backups: {0}";
-            this.beginBookBackupsToolStripMenuItem.Click += new System.EventHandler(this.beginBookBackupsToolStripMenuItem_Click);
+			this.beginBookBackupsToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+			this.beginBookBackupsToolStripMenuItem.Text = "Begin &Book and PDF Backups: {0}";
+			this.beginBookBackupsToolStripMenuItem.Click += new System.EventHandler(this.beginBookBackupsToolStripMenuItem_Click);
             // 
             // beginPdfBackupsToolStripMenuItem
             // 
             this.beginPdfBackupsToolStripMenuItem.Name = "beginPdfBackupsToolStripMenuItem";
-            this.beginPdfBackupsToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
-            this.beginPdfBackupsToolStripMenuItem.Text = "Begin &PDF Backups: {0}";
-            this.beginPdfBackupsToolStripMenuItem.Click += new System.EventHandler(this.beginPdfBackupsToolStripMenuItem_Click);
+			this.beginPdfBackupsToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+			this.beginPdfBackupsToolStripMenuItem.Text = "Begin &PDF Only Backups: {0}";
+			this.beginPdfBackupsToolStripMenuItem.Click += new System.EventHandler(this.beginPdfBackupsToolStripMenuItem_Click);
             // 
             // quickFiltersToolStripMenuItem
             // 
