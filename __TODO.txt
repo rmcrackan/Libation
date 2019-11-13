@@ -1,13 +1,4 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-UI
-- download now incl pdf
-- update wording in menu
-  pdf menu should be 'PDFs only'
-
-README
-- download now incl pdf
-- update readme
-
 OLD WEB DOWNLOADER
 - download logic in DownloadPdf should look more like DownloadBook
 

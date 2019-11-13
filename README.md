@@ -88,7 +88,7 @@ And voila! If you have multiple books not yet liberated, Libation will automatic
 
 ### Download PDF attachments
 
-For books which include PDF downloads, Libation can download these for you as well and will attempt to store them with the book
+For books which include PDF downloads, Libation can download these for you as well and will attempt to store them with the book. "Book backup" will already download an available PDF. This additional option is useful when Audible adds a PDF to your book after you've already backed it up.
 
 ![PDF download step 1](images/PdfDownload1.png)
 
