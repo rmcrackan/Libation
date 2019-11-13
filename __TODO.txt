@@ -1,11 +1,24 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
 throttle needed for downloading pdf.s
 
+
+
+picture storage should be more responsive if on disk?
+
+
+download now incl pdf
+pdf menu should be 'PDFs only'
+
+update wording in menu
+update readme
+
+
+
+
 no mdf,ldf files created in C:\Users\[username]
 
 Warn of known performance issues
 - Library import
-  incl image d/l. need to throttle
 - Tag add/edit
 - Grid is slow to respond loading when books aren't liberated
 - get decrypt key -- unavoidable
@@ -16,14 +29,16 @@ https://dotnetcoretutorials.com/2019/06/20/publishing-a-single-exe-file-in-net-c
 
 -- begin ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
 scan library in background?
-can include a notice somewhere that it's in-process
+can include a notice somewhere that a scan is in-process
 why block the UI at all?
+what to do if new books? don't want to refresh grid when user isn't expecting it
 -- end ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
 
 -- begin BUG, FILE DOWNLOAD ---------------------------------------------------------------------------------------------------------------------
 reproduce: try to do the api download with a bad codec
 result: DownloadsFinal dir   .aax file   1 kb
 this resulted from an exception. we should not be keeping a file after exception
+if error: show error. DownloadBook delete bad file
 -- end BUG, FILE DOWNLOAD ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------
@@ -31,7 +46,7 @@ imports are PAINFULLY slow for just a few hundred items. wtf is taking so long?
 -- end ENHANCEMENT, PERFORMANCE: IMPORT ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, PERFORMANCE: GRID ---------------------------------------------------------------------------------------------------------------------
-when a book/pdf is NOT liberated, calculating the grid's [Liberated][NOT d/l'ed] label is very slow
+when a book/pdf is NOT liberated, calculating the grid's [Liberated][NOT d/l'ed] label is very slow. use something similar to PictureStorage's timer to run on a separate thread
 https://stackoverflow.com/a/12046333
 https://codereview.stackexchange.com/a/135074
 // do NOT use lock() or Monitor with async/await

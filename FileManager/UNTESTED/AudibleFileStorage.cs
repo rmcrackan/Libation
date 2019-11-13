@@ -29,8 +29,10 @@ namespace FileManager
             [".aac"] = FileType.Audio,
             [".mp4"] = FileType.Audio,
             [".m4a"] = FileType.Audio,
+			[".ogg"] = FileType.Audio,
+			[".flac"] = FileType.Audio,
 
-            [".aax"] = FileType.AAX,
+			[".aax"] = FileType.AAX,
 
             [".pdf"] = FileType.PDF,
             [".zip"] = FileType.PDF,

@@ -23,8 +23,8 @@ namespace LibationWinForm.BookLiberation
                 return;
 
             var backupBook = new BackupBook();
-            backupBook.Download.Completed += SetBackupCountsAsync;
-            backupBook.Decrypt.Completed += SetBackupCountsAsync;
+            backupBook.DownloadBook.Completed += SetBackupCountsAsync;
+            backupBook.DecryptBook.Completed += SetBackupCountsAsync;
             await ProcessValidateLibraryBookAsync(backupBook, libraryBook);
 		}
 
@@ -55,8 +55,8 @@ namespace LibationWinForm.BookLiberation
         async Task BackupFirstBookAsync()
         {
             var backupBook = ProcessorAutomationController.GetWiredUpBackupBook();
-            backupBook.Download.Completed += SetBackupCountsAsync;
-            backupBook.Decrypt.Completed += SetBackupCountsAsync;
+            backupBook.DownloadBook.Completed += SetBackupCountsAsync;
+            backupBook.DecryptBook.Completed += SetBackupCountsAsync;
             await backupBook.ProcessFirstValidAsync();
         }
 

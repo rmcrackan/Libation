@@ -12,7 +12,7 @@ using FileManager;
 namespace FileLiberator
 {
     /// <summary>
-    /// Download DRM book and decrypt audiobook files.
+    /// Decrypt audiobook files
     /// 
     /// Processes:
     /// Download: download aax file: the DRM encrypted audiobook

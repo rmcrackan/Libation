@@ -281,9 +281,10 @@ namespace LibationWinForm
         private async void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var backupBook = BookLiberation.ProcessorAutomationController.GetWiredUpBackupBook();
-            backupBook.Download.Completed += setBackupCountsAsync;
-            backupBook.Decrypt.Completed += setBackupCountsAsync;
-            await BookLiberation.ProcessorAutomationController.RunAutomaticBackup(backupBook);
+            backupBook.DownloadBook.Completed += setBackupCountsAsync;
+            backupBook.DecryptBook.Completed += setBackupCountsAsync;
+			backupBook.DownloadPdf.Completed += setBackupCountsAsync;
+			await BookLiberation.ProcessorAutomationController.RunAutomaticBackup(backupBook);
         }
 
         private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)

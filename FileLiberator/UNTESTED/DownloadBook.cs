@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using FileManager;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
+using FileManager;
 
 namespace FileLiberator
 {
     /// <summary>
-    /// Download DRM book and decrypt audiobook files.
+    /// Download DRM book
     /// 
     /// Processes:
     /// Download: download aax file: the DRM encrypted audiobook
