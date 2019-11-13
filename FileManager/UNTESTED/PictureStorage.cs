@@ -42,7 +42,13 @@ namespace FileManager
 		public static (bool isDefault, byte[] bytes) GetPicture(PictureDefinition def)
 		{
 			if (!cache.ContainsKey(def))
-				cache.Add(def, null);
+			{
+				var path = getPath(def);
+				cache[def]
+					= FileUtility.FileExists(path)
+					? File.ReadAllBytes(path)
+					: null;
+			}
 			return (cache[def] == null, cache[def] ?? getDefaultImage(def.Size));
 		}
 
@@ -64,33 +70,19 @@ namespace FileManager
 					return;
 				isProcessing = true;
 
-				PictureDefinition def;
-				string path;
+				var def = cache
+					.Where(kvp => kvp.Value is null)
+					.Select(kvp => kvp.Key)
+					// 80x80 should be 1st since it's enum value == 0
+					.OrderBy(d => d.PictureId)
+					.FirstOrDefault();
 
-				while (true)
-				{
-					def = cache
-						.Where(kvp => kvp.Value is null)
-						.Select(kvp => kvp.Key)
-						// 80x80 should be 1st since it's enum value == 0
-						.OrderBy(d => d.PictureId)
-						.FirstOrDefault();
-					// no more null entries. all requsted images are cached
-					if (string.IsNullOrWhiteSpace(def.PictureId))
-						return;
+				// no more null entries. all requsted images are cached
+				if (string.IsNullOrWhiteSpace(def.PictureId))
+					return;
 
-					path = getPath(def);
-					// we found the next one to download
-					if (!FileUtility.FileExists(path))
-						break;
-
-					// file exists. read into cache. try again
-					// the point is to throttle web calls. therefore only return if we performed a d/l or there are no null cache entries
-					cache[def] = File.ReadAllBytes(path);
-				}
-
-				var bytes = download(def);
-				File.WriteAllBytes(path, bytes);
+				var bytes = downloadBytes(def);
+				saveFile(def, bytes);
 				cache[def] = bytes;
 			}
 			finally
@@ -98,12 +90,18 @@ namespace FileManager
 				isProcessing = false;
 			}
 		}
+
 		private static HttpClient imageDownloadClient { get; } = new HttpClient();
-		private static byte[] download(PictureDefinition def)
+		private static byte[] downloadBytes(PictureDefinition def)
 		{
 			var sz = def.Size.ToString().Split('x')[1];
-			var bytes = imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}._SL{sz}_.jpg").Result;
-			return bytes;
+			return imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}._SL{sz}_.jpg").Result;
+		}
+
+		private static void saveFile(PictureDefinition def, byte[] bytes)
+		{
+			var path = getPath(def);
+			File.WriteAllBytes(path, bytes);
 		}
 	}
 }

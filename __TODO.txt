@@ -1,30 +1,27 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-throttle needed for downloading pdf.s
+UI
+- download now incl pdf
+- update wording in menu
+  pdf menu should be 'PDFs only'
 
+README
+- download now incl pdf
+- update readme
 
+OLD WEB DOWNLOADER
+- download logic in DownloadPdf should look more like DownloadBook
 
-picture storage should be more responsive if on disk?
+TESTING
+possible bug: no mdf,ldf files created in C:\Users\[username]
 
-
-download now incl pdf
-pdf menu should be 'PDFs only'
-
-update wording in menu
-update readme
-
-
-
-
-no mdf,ldf files created in C:\Users\[username]
-
-Warn of known performance issues
-- Library import
-- Tag add/edit
-- Grid is slow to respond loading when books aren't liberated
-- get decrypt key -- unavoidable
-
-Create release version and installer
-https://dotnetcoretutorials.com/2019/06/20/publishing-a-single-exe-file-in-net-core-3-0/
+RELEASE TO BETA
+- Create release version and installer
+  https://dotnetcoretutorials.com/2019/06/20/publishing-a-single-exe-file-in-net-core-3-0/
+- Warn of known performance issues
+  - Library import
+  - Tag add/edit
+  - Grid is slow to respond loading when books aren't liberated
+  - get decrypt key -- unavoidable
 -- end BETA ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
