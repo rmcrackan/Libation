@@ -1,18 +1,32 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
 OLD WEB DOWNLOADER
-- download logic in DownloadPdf should look more like DownloadBook
+download logic in DownloadPdf should look more like DownloadBook
 
-TESTING
-possible bug: no mdf,ldf files created in C:\Users\[username]
+TESTING BUG
+dbl clk. long pause. exception:
+System.ComponentModel.Win32Exception (2): The system cannot find the file specified.
+"continue" button allows me to keep using
+bottom #s do not update
+login succeeded. IdentityTokens.json successfully created
+received above error again during scan. continue
+stuck on scan. force quit from task manager
+only files:
+  Images -- empty dir
+  IdentityTokens.json -- populated
+no mdf, ldf
+
+REPLACE DB
+need completely need db? replace LocalDb with sqlite? embedded document nosql?
+
+CREATE INSTALLER
+see REFERENCE.txt > HOW TO PUBLISH
 
 RELEASE TO BETA
-- Create release version and installer
-  https://dotnetcoretutorials.com/2019/06/20/publishing-a-single-exe-file-in-net-core-3-0/
-- Warn of known performance issues
-  - Library import
-  - Tag add/edit
-  - Grid is slow to respond loading when books aren't liberated
-  - get decrypt key -- unavoidable
+Warn of known performance issues
+- Library import
+- Tag add/edit
+- Grid is slow to respond loading when books aren't liberated
+- get decrypt key -- unavoidable
 -- end BETA ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
@@ -90,8 +104,12 @@ replace complex config saving throughout with new way in my ConsoleDependencyInj
 all settings should be strongly typed
 re-create my shortcuts and bak
 
+for appsettings.json to get copied in the single-file release, project must incl <ExcludeFromSingleFile>true
+
 multiple files named "appsettings.json" will overwrite each other
-libraries should avoid this generic name. ok for applications to use them
+libraries should avoid this generic name. in general: ok for applications to use them
+there are exceptions: datalayer has appsettings which is copied to winform. if winform uses appsettings also, it will override datalayer's
+
 
 Audible API
 \AudibleApi\_Tests\AudibleApi.Tests\bin\Debug\netcoreapp3.0\L1

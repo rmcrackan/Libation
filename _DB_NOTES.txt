@@ -29,36 +29,13 @@ since we have mult contexts, must use -context:
 		Update-Database -context LibationContext
 
 
-QUICK VIEW
-==========
-declare @productId nvarchar(450) = 'B075Y4SWJ8'
-  declare @bookId int
-  declare @catId int
-  select @bookId = b.BookId from Books b where b.AudibleProductId = @productId
-  select @catId = b.CategoryId from Books b where b.AudibleProductId = @productId
-select * from Books b where b.AudibleProductId = @productId
-select *
-  from BookContributor bc
-  join Contributors c on bc.ContributorId = c.ContributorId
-  where bc.BookId = @bookId order by role, [order]
-select *
-  from SeriesBook sb
-  join Series s on sb.SeriesId = s.SeriesId
-  where sb.BookId = @bookId
-select *
-  from Categories c1
-  left join Categories c2 on c1.ParentCategoryCategoryId = c2.CategoryId
-  where c1.CategoryId = @catId
-
-
 ERROR
 =====
 Add-Migration : The term 'Add-Migration' is not recognized as the name of a cmdlet, function, script file, or operable program
 
 SOLUTION
 --------
-dependencies > manage nuget packages
-add: Microsoft.EntityFrameworkCore.Tools
+add nuget pkg: Microsoft.EntityFrameworkCore.Tools
 
 
 SQLite

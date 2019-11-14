@@ -5,6 +5,29 @@ v3.0.1 : Legacy inAudible wire-up code is still present but is commented out. Al
 v3.0 : This version is fully powered by the Audible API. Legacy scraping code is still present but is commented out. All future check-ins are not guaranteed to have any scraping code
 -- end VERSIONING ---------------------------------------------------------------------------------------------------------------------
 
+-- begin HOW TO PUBLISH ---------------------------------------------------------------------------------------------------------------------
+OPTION 1: UI
+rt-clk project > Publish...
+click Publish
+
+OPTION 2: cmd line
+change dir to folder containing project
+  cd C:\[full...path]\Libation\LibationWinForm
+this will use the parameters specified in csproj
+dotnet publish -c Release
+
+OPTION 3: cmd line, custom
+open csproj
+remove: PublishTrimmed, PublishReadyToRun, PublishSingleFile, RuntimeIdentifier
+run customized publish. examples:
+publish all platforms
+  dotnet publish -c Release
+publish win64 platform only
+  dotnet publish -r win-x64 -c Release
+publish win64 platform, single-file
+  dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true
+-- end HOW TO PUBLISH ---------------------------------------------------------------------------------------------------------------------
+
 -- begin AUDIBLE DETAILS ---------------------------------------------------------------------------------------------------------------------
 alternate book id (eg BK_RAND_006061) is called 'sku' , 'sku_lite' , 'prod_id' , 'product_id' in different parts of the site
 -- end AUDIBLE DETAILS ---------------------------------------------------------------------------------------------------------------------
