@@ -41,9 +41,9 @@ namespace FileLiberator
             => await AudibleFileStorage.AAX.ExistsAsync(productId)
             && !await AudibleFileStorage.Audio.ExistsAsync(productId);
 
-        // do NOT use ConfigureAwait(false) on ProcessUnregistered()
-        // often does a lot with forms in the UI context
-        public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+		// do NOT use ConfigureAwait(false) on ProcessAsync()
+		// often calls events which prints to forms in the UI context
+		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
             var displayMessage = $"[{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}";
 
@@ -60,11 +60,8 @@ namespace FileLiberator
                 if (await AudibleFileStorage.Audio.ExistsAsync(libraryBook.Book.AudibleProductId))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-                string proposedOutputFile = Path.Combine(AudibleFileStorage.DecryptInProgress, $"[{libraryBook.Book.AudibleProductId}].m4b");
-
-                string outputAudioFilename;
-                //outputAudioFilename = await inAudibleDecrypt(proposedOutputFile, aaxFilename);
-                outputAudioFilename = await aaxToM4bConverterDecrypt(proposedOutputFile, aaxFilename);
+                var proposedOutputFile = Path.Combine(AudibleFileStorage.DecryptInProgress, $"[{libraryBook.Book.AudibleProductId}].m4b");
+                var outputAudioFilename = await aaxToM4bConverterDecrypt(proposedOutputFile, aaxFilename);
 
                 // decrypt failed
                 if (outputAudioFilename == null)

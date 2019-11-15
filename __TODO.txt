@@ -1,6 +1,5 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-OLD WEB DOWNLOADER
-download logic in DownloadPdf should look more like DownloadBook
+Replace StatusHandler with CSharpFunctionalExtensions
 
 TESTING BUG
 dbl clk. long pause. exception:

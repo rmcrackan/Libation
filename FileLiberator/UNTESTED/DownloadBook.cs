@@ -21,55 +21,46 @@ namespace FileLiberator
             => !await AudibleFileStorage.Audio.ExistsAsync(libraryBook.Book.AudibleProductId)
             && !await AudibleFileStorage.AAX.ExistsAsync(libraryBook.Book.AudibleProductId);
 
-        public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
+		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
-			var tempAaxFilename = FileUtility.GetValidFilename(
+			var tempAaxFilename = getDownloadPath(libraryBook);
+			var actualFilePath = await downloadBookAsync(libraryBook, tempAaxFilename);
+			moveBook(libraryBook, actualFilePath);
+			return await verifyDownloadAsync(libraryBook);
+		}
+
+		private static string getDownloadPath(LibraryBook libraryBook)
+			=> FileUtility.GetValidFilename(
 				AudibleFileStorage.DownloadsInProgress,
 				libraryBook.Book.Title,
 				"aax",
 				libraryBook.Book.AudibleProductId);
 
-			// if getting from full title:
-			// '?' is allowed
-			// colons are inconsistent but not problematic to just leave them
-			// - 1 colon: sometimes full title is used. sometimes only the part before the colon is used
-			// - multple colons: only the part before the final colon is used
-			//   e.g. Alien: Out of the Shadows: An Audible Original Drama => Alien: Out of the Shadows
-			// in cases where title includes '&', just use everything before the '&' and ignore the rest
-			//// var adhTitle = product.Title.Split('&')[0]
+		private async Task<string> downloadBookAsync(LibraryBook libraryBook, string tempAaxFilename)
+		{
+			var api = await AudibleApi.EzApiCreator.GetApiAsync(AudibleApiStorage.IdentityTokensFile);
 
-			// new/api method
-			tempAaxFilename = await performApiDownloadAsync(libraryBook, tempAaxFilename);
+			var actualFilePath = await PerformDownloadAsync(
+				tempAaxFilename,
+				(p) => api.DownloadAaxWorkaroundAsync(libraryBook.Book.AudibleProductId, tempAaxFilename, p));
 
-			// move
-			var aaxFilename = FileUtility.GetValidFilename(
+			return actualFilePath;
+		}
+
+		private void moveBook(LibraryBook libraryBook, string actualFilePath)
+		{
+			var newAaxFilename = FileUtility.GetValidFilename(
 				AudibleFileStorage.DownloadsFinal,
 				libraryBook.Book.Title,
 				"aax",
 				libraryBook.Book.AudibleProductId);
-			File.Move(tempAaxFilename, aaxFilename);
-
-			var statusHandler = new StatusHandler();
-			var isDownloaded = await AudibleFileStorage.AAX.ExistsAsync(libraryBook.Book.AudibleProductId);
-			if (isDownloaded)
-				Invoke_StatusUpdate($"Downloaded: {aaxFilename}");
-			else
-				statusHandler.AddError("Downloaded AAX file cannot be found");
-			return statusHandler;
+			File.Move(actualFilePath, newAaxFilename);
+			Invoke_StatusUpdate($"Successfully downloaded. Moved to: {newAaxFilename}");
 		}
 
-		private async Task<string> performApiDownloadAsync(LibraryBook libraryBook, string tempAaxFilename)
-		{
-			var api = await AudibleApi.EzApiCreator.GetApiAsync(AudibleApiStorage.IdentityTokensFile);
-
-			var progress = new Progress<Dinah.Core.Net.Http.DownloadProgress>();
-			progress.ProgressChanged += (_, e) => Invoke_DownloadProgressChanged(this, e);
-
-			Invoke_DownloadBegin(tempAaxFilename);
-			var actualFilePath = await api.DownloadAaxWorkaroundAsync(libraryBook.Book.AudibleProductId, tempAaxFilename, progress);
-			Invoke_DownloadCompleted(this, $"Completed: {actualFilePath}");
-
-			return actualFilePath;
-		}
+		private static async Task<StatusHandler> verifyDownloadAsync(LibraryBook libraryBook)
+			=> !await AudibleFileStorage.AAX.ExistsAsync(libraryBook.Book.AudibleProductId)
+			? new StatusHandler { "Downloaded AAX file cannot be found" }
+			: new StatusHandler();
 	}
 }

@@ -31,9 +31,9 @@ namespace FileLiberator
         private async Task<bool> validateAsync_ConfigureAwaitFalse(string productId)
             => !await AudibleFileStorage.Audio.ExistsAsync(productId);
 
-        // do NOT use ConfigureAwait(false) on ProcessUnregistered()
-        // often does a lot with forms in the UI context
-        public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+		// do NOT use ConfigureAwait(false) on ProcessAsync()
+		// often calls events which prints to forms in the UI context
+		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
 			var productId = libraryBook.Book.AudibleProductId;
             var displayMessage = $"[{productId}] {libraryBook.Book.Title}";
@@ -44,19 +44,19 @@ namespace FileLiberator
 			{
 				{
 					var statusHandler = await processAsync(libraryBook, AudibleFileStorage.AAX, DownloadBook);
-					if (statusHandler.Any())
+					if (statusHandler.HasErrors)
 						return statusHandler;
 				}
 
 				{
 					var statusHandler = await processAsync(libraryBook, AudibleFileStorage.Audio, DecryptBook);
-					if (statusHandler.Any())
+					if (statusHandler.HasErrors)
 						return statusHandler;
 				}
 
 				{
 					var statusHandler = await processAsync(libraryBook, AudibleFileStorage.PDF, DownloadPdf);
-					if (statusHandler.Any())
+					if (statusHandler.HasErrors)
 						return statusHandler;
 				}
 

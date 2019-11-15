@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
+using Dinah.Core.Net.Http;
 
 namespace FileLiberator
 {
@@ -10,23 +11,20 @@ namespace FileLiberator
 		public event EventHandler<string> Begin;
 		public event EventHandler<string> Completed;
 
-		public event EventHandler<string> StatusUpdate;
 		public event EventHandler<string> DownloadBegin;
-		public event EventHandler<Dinah.Core.Net.Http.DownloadProgress> DownloadProgressChanged;
+		public event EventHandler<DownloadProgress> DownloadProgressChanged;
 		public event EventHandler<string> DownloadCompleted;
-		protected void Invoke_StatusUpdate(string message) => StatusUpdate?.Invoke(this, message);
-		protected void Invoke_DownloadBegin(string downloadMessage) => DownloadBegin?.Invoke(this, downloadMessage);
-		protected void Invoke_DownloadProgressChanged(object sender, Dinah.Core.Net.Http.DownloadProgress progress) => DownloadProgressChanged?.Invoke(sender, progress);
-		protected void Invoke_DownloadCompleted(object sender, string str) => DownloadCompleted?.Invoke(sender, str);
 
+		public event EventHandler<string> StatusUpdate;
+		protected void Invoke_StatusUpdate(string message) => StatusUpdate?.Invoke(this, message);
 
         public abstract Task<bool> ValidateAsync(LibraryBook libraryBook);
 
         public abstract Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook);
 
-        // do NOT use ConfigureAwait(false) on ProcessUnregistered()
-        // often does a lot with forms in the UI context
-        public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+		// do NOT use ConfigureAwait(false) on ProcessAsync()
+		// often calls events which prints to forms in the UI context
+		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
             var displayMessage = $"[{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}";
 
@@ -41,5 +39,25 @@ namespace FileLiberator
                 Completed?.Invoke(this, displayMessage);
             }
         }
-    }
+
+		protected async Task<string> PerformDownloadAsync(string proposedDownloadFilePath, Func<Progress<DownloadProgress>, Task<string>> func)
+		{
+			var progress = new Progress<DownloadProgress>();
+			progress.ProgressChanged += (_, e) => DownloadProgressChanged?.Invoke(this, e);
+
+			DownloadBegin?.Invoke(this, proposedDownloadFilePath);
+
+			try
+			{
+				var result = await func(progress);
+				StatusUpdate?.Invoke(this, result);
+
+				return result;
+			}
+			finally
+			{
+				DownloadCompleted?.Invoke(this, proposedDownloadFilePath);
+			}
+		}
+	}
 }
