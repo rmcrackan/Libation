@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DataLayer.Migrations
 {
-    public partial class UpgradeToCore3 : Migration
+    public partial class Fresh : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -67,7 +67,6 @@ namespace DataLayer.Migrations
                     Description = table.Column<string>(nullable: true),
                     LengthInMinutes = table.Column<int>(nullable: false),
                     PictureId = table.Column<string>(nullable: true),
-                    HasBookDetails = table.Column<bool>(nullable: false),
                     IsAbridged = table.Column<bool>(nullable: false),
                     DatePublished = table.Column<DateTime>(nullable: true),
                     CategoryId = table.Column<int>(nullable: false),
@@ -117,8 +116,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     BookId = table.Column<int>(nullable: false),
-                    DateAdded = table.Column<DateTime>(nullable: false),
-                    DownloadBookLink = table.Column<string>(nullable: true)
+                    DateAdded = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {

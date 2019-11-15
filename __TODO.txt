@@ -1,6 +1,4 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-Replace StatusHandler with CSharpFunctionalExtensions
-
 TESTING BUG
 dbl clk. long pause. exception:
 System.ComponentModel.Win32Exception (2): The system cannot find the file specified.

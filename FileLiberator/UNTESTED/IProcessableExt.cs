@@ -22,7 +22,8 @@ namespace FileLiberator
             if (libraryBook == null)
                 return null;
 
-            var status = await processable.ProcessAsync(libraryBook);
+			// this should never happen. check anyway. ProcessFirstValidAsync returning null is the signal that we're done. we can't let another IProcessable accidentally send this commans
+			var status = await processable.ProcessAsync(libraryBook);
             if (status == null)
                 throw new Exception("Processable should never return a null status");
 

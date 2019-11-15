@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(LibationContext))]
-    [Migration("20191105183104_NoScraping")]
-    partial class NoScraping
+    [Migration("20191115193402_Fresh")]
+    partial class Fresh
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
