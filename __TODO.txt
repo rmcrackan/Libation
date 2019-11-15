@@ -13,7 +13,7 @@ only files:
 no mdf, ldf
 
 REPLACE DB
-need completely need db? replace LocalDb with sqlite? embedded document nosql?
+need completely new db? replace LocalDb with sqlite? embedded document nosql (LiteDB)?
 
 CREATE INSTALLER
 see REFERENCE.txt > HOW TO PUBLISH
@@ -24,6 +24,7 @@ Warn of known performance issues
 - Tag add/edit
 - Grid is slow to respond loading when books aren't liberated
 - get decrypt key -- unavoidable
+- images can take a bit to initially load. downloading is throttled as to not get the IP blocked by audible
 -- end BETA ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
@@ -123,6 +124,8 @@ move out of Book and into DtoMapper?
 
 Extract file and tag stuff from domain objects. This should exist only in data layer. If domain objects are able to call EF context, it should go through data layer
 Why are tags in file AND database?
+
+why use a relational db? i'm treating it like a nosql db. use LiteDB instead?
 
 extract FileManager dependency from data layer
 -- end TAGS ---------------------------------------------------------------------------------------------------------------------
