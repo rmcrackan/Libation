@@ -1,15 +1,17 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
-v3.0.3 : Switch to SQLite
+v3.0.3 : Switch to SQLite. No longer relies on LocalDB, which must be installed separately
 v3.0.2 : Final using LocalDB
 v3.0.1 : Legacy inAudible wire-up code is still present but is commented out. All future check-ins are not guaranteed to have inAudible wire-up code
 v3.0 : This version is fully powered by the Audible API. Legacy scraping code is still present but is commented out. All future check-ins are not guaranteed to have any scraping code
+v2 : new library page scraping. still chrome cookies. all decryption is handled natively. no inAudible dependency
+v1 : old library ajax scraping. wish list scraping. chrome cookies. directly call local inAudible. .net framework
 -- end VERSIONING ---------------------------------------------------------------------------------------------------------------------
 
 -- begin HOW TO PUBLISH ---------------------------------------------------------------------------------------------------------------------
 OPTION 1: UI
-rt-clk project > Publish...
+rt-clk project project > Publish...
 click Publish
 
 OPTION 2: cmd line

@@ -43,19 +43,19 @@ namespace FileLiberator
             try
 			{
 				{
-					var statusHandler = await processAsync(libraryBook, AudibleFileStorage.AAX, DownloadBook);
+					var statusHandler = await DownloadBook.TryProcessAsync(libraryBook);
 					if (statusHandler.HasErrors)
 						return statusHandler;
 				}
 
 				{
-					var statusHandler = await processAsync(libraryBook, AudibleFileStorage.Audio, DecryptBook);
+					var statusHandler = await DecryptBook.TryProcessAsync(libraryBook);
 					if (statusHandler.HasErrors)
 						return statusHandler;
 				}
 
 				{
-					var statusHandler = await processAsync(libraryBook, AudibleFileStorage.PDF, DownloadPdf);
+					var statusHandler = await DownloadPdf.TryProcessAsync(libraryBook);
 					if (statusHandler.HasErrors)
 						return statusHandler;
 				}
@@ -67,10 +67,5 @@ namespace FileLiberator
                 Completed?.Invoke(this, displayMessage);
             }
         }
-
-		private static async Task<StatusHandler> processAsync(LibraryBook libraryBook, AudibleFileStorage afs, IProcessable processable)
-			=> !await afs.ExistsAsync(libraryBook.Book.AudibleProductId)
-			? await processable.ProcessAsync(libraryBook)
-			: new StatusHandler();
 	}
 }

@@ -1,24 +1,17 @@
 ﻿-- begin BETA ---------------------------------------------------------------------------------------------------------------------
-TESTING BUG
-dbl clk. long pause. exception:
-System.ComponentModel.Win32Exception (2): The system cannot find the file specified.
-"continue" button allows me to keep using
-bottom #s do not update
-login succeeded. IdentityTokens.json successfully created
-received above error again during scan. continue
-stuck on scan. force quit from task manager
-only files:
-  Images -- empty dir
-  IdentityTokens.json -- populated
-no mdf, ldf
-
-REPLACE DB
-need completely new db? replace LocalDb with sqlite? embedded document nosql (LiteDB)?
+FINAL PRE-BETA TEST
+create release
+  v3.1 beta
+  update REFERENCE.txt with this release
+publish exe and attach it to the beta release
+start beta: contact beta members
 
 CREATE INSTALLER
 see REFERENCE.txt > HOW TO PUBLISH
 
 RELEASE TO BETA
+Note: run Libation.exe -- icon is a black wine glass
+I recommend making a shortcut. I'm working on a more manageable install but it's low priority
 Warn of known performance issues
 - Library import
 - Tag add/edit
@@ -26,6 +19,16 @@ Warn of known performance issues
 - get decrypt key -- unavoidable
 - images can take a bit to initially load. downloading is throttled as to not get the IP blocked by audible
 -- end BETA ---------------------------------------------------------------------------------------------------------------------
+
+-- begin SINGLE FILE PUBLISH ---------------------------------------------------------------------------------------------------------------------
+SINGLE FILE. FUTURE FIX
+    <!-- <PublishSingleFile>true</PublishSingleFile> -->
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+Runs from weird temp location
+- Weird default location for files
+- Can’t find json
+- don't have external exe.s
+-- end SINGLE FILE PUBLISH ---------------------------------------------------------------------------------------------------------------------
 
 -- begin ENHANCEMENT, IMPORT UI ---------------------------------------------------------------------------------------------------------------------
 scan library in background?

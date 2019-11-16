@@ -40,5 +40,10 @@ namespace FileLiberator
 
             return null;
         }
-    }
+
+		public static async Task<StatusHandler> TryProcessAsync(this IProcessable processable, LibraryBook libraryBook)
+			=> await processable.ValidateAsync(libraryBook)
+			? await processable.ProcessAsync(libraryBook)
+			: new StatusHandler();
+	}
 }

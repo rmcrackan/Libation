@@ -13,12 +13,8 @@ namespace FileLiberator
 	public class DownloadPdf : DownloadableBase
 	{
 		public override async Task<bool> ValidateAsync(LibraryBook libraryBook)
-		{
-			if (string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook)))
-				return false;
-
-			return !await AudibleFileStorage.PDF.ExistsAsync(libraryBook.Book.AudibleProductId);
-		}
+			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
+			&& !await AudibleFileStorage.PDF.ExistsAsync(libraryBook.Book.AudibleProductId);
 
 		private static string getdownloadUrl(LibraryBook libraryBook)
 			=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
