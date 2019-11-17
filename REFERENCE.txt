@@ -1,6 +1,7 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
+v3.1-beta.1 : RELEASE TO BETA
 v3.0.3 : Switch to SQLite. No longer relies on LocalDB, which must be installed separately
 v3.0.2 : Final using LocalDB
 v3.0.1 : Legacy inAudible wire-up code is still present but is commented out. All future check-ins are not guaranteed to have inAudible wire-up code
