@@ -57,37 +57,39 @@ namespace DtoImporterService
 						.Select(a => context.Contributors.Local.Single(c => a.Name == c.Name))
 						.ToList();
 
+					// if no narrators listed, author is the narrator
+					if (item.Narrators is null || !item.Narrators.Any())
+						item.Narrators = item.Authors;
+					// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
+					var narrators = item
+						.Narrators
+						.Select(n => context.Contributors.Local.Single(c => n.Name == c.Name))
+						.ToList();
+
 					book = context.Books.Add(new Book(
-						new AudibleProductId(item.ProductId), item.Title, item.Description, item.LengthInMinutes, authors))
-						.Entity;
+						new AudibleProductId(item.ProductId),
+						item.Title,
+						item.Description,
+						item.LengthInMinutes,
+						authors,
+						narrators)
+					).Entity;
+
+					var publisherName = item.Publisher;
+					if (!string.IsNullOrWhiteSpace(publisherName))
+					{
+						var publisher = context.Contributors.Local.Single(c => publisherName == c.Name);
+						book.ReplacePublisher(publisher);
+					}
 
 					qtyNew++;
 				}
-
-				// if no narrators listed, author is the narrator
-				if (item.Narrators is null || !item.Narrators.Any())
-					item.Narrators = item.Authors;
-				// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
-				var narrators = item
-					.Narrators
-					.Select(n => context.Contributors.Local.Single(c => n.Name == c.Name))
-					.ToList();
-				// not all books have narrators. these will already be using author as narrator. don't undo this
-				if (narrators.Any())
-					book.ReplaceNarrators(narrators);
 
 				// set/update book-specific info which may have changed
 				book.PictureId = item.PictureId;
 				book.UpdateProductRating(item.Product_OverallStars, item.Product_PerformanceStars, item.Product_StoryStars);
 				if (!string.IsNullOrWhiteSpace(item.SupplementUrl))
 					book.AddSupplementDownloadUrl(item.SupplementUrl);
-
-				var publisherName = item.Publisher;
-				if (!string.IsNullOrWhiteSpace(publisherName))
-				{
-					var publisher = context.Contributors.Local.Single(c => publisherName == c.Name);
-					book.ReplacePublisher(publisher);
-				}
 
 				// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
 				book.UserDefinedItem.UpdateRating(item.MyUserRating_Overall, item.MyUserRating_Performance, item.MyUserRating_Story);

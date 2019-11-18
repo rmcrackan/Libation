@@ -5,13 +5,19 @@ using Microsoft.EntityFrameworkCore;
 namespace DataLayer
 {
     public static class LibraryQueries
-    {
-        public static List<LibraryBook> GetLibrary_Flat_NoTracking()
+	{
+		public static List<LibraryBook> GetLibrary_Flat_WithTracking(this LibationContext context)
+			=> context
+				.Library
+				.GetLibrary()
+				.ToList();
+
+		public static List<LibraryBook> GetLibrary_Flat_NoTracking()
         {
 			using var context = LibationContext.Create();
 			return context
                 .Library
-//.AsNoTracking()
+                .AsNoTracking()
                 .GetLibrary()
                 .ToList();
 		}
@@ -21,7 +27,7 @@ namespace DataLayer
 			using var context = LibationContext.Create();
 			return context
                 .Library
-//.AsNoTracking()
+                .AsNoTracking()
 				.GetLibraryBook(productId);
 		}
 

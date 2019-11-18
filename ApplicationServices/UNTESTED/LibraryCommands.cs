@@ -23,14 +23,12 @@ namespace ApplicationServices
 			return (totalCount, newCount);
 		}
 
-		public static int IndexChangedTags(Book book)
+		public static int UpdateTags(this LibationContext context, Book book, string newTags)
 		{
-			// update disconnected entity
-			using var context = LibationContext.Create();
-			context.Update(book);
+			book.UserDefinedItem.Tags = newTags;
+
 			var qtyChanges = context.SaveChanges();
 
-			// this part is tags-specific
 			if (qtyChanges > 0)
 				SearchEngineCommands.UpdateBookTags(book);
 

@@ -61,12 +61,17 @@ namespace DataLayer
             string title,
             string description,
             int lengthInMinutes,
-            IEnumerable<Contributor> authors)
+			IEnumerable<Contributor> authors,
+			IEnumerable<Contributor> narrators)
         {
             // validate
             ArgumentValidator.EnsureNotNull(audibleProductId, nameof(audibleProductId));
             var productId = audibleProductId.Id;
             ArgumentValidator.EnsureNotNullOrWhiteSpace(productId, nameof(productId));
+
+			// assign as soon as possible. stuff below relies on this
+            AudibleProductId = productId;
+
             ArgumentValidator.EnsureNotNullOrWhiteSpace(title, nameof(title));
 
             // non-ef-ctor init.s
@@ -79,19 +84,13 @@ namespace DataLayer
             CategoryId = Category.GetEmpty().CategoryId;
 
             // simple assigns
-            AudibleProductId = productId;
             Title = title;
             Description = description;
             LengthInMinutes = lengthInMinutes;
 
             // assigns with biz logic
             ReplaceAuthors(authors);
-            //ReplaceNarrators(narrators);
-
-            // import previously saved tags
-            // do this immediately. any save occurs before reloading tags will overwrite persistent tags with new blank entries; all old persisted tags will be lost
-            // if refactoring, DO NOT use "ProductId" before it's assigned to. to be safe, just use "productId"
-            UserDefinedItem = new UserDefinedItem(this) { Tags = FileManager.TagsPersistence.GetTags(productId) };
+            ReplaceNarrators(narrators);
         }
 
         #region contributors, authors, narrators

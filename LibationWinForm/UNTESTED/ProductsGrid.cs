@@ -27,10 +27,15 @@ namespace LibationWinForm
 		public event EventHandler<int> VisibleCountChanged;
 
 		private DataGridView dataGridView;
+		private LibationContext context;
 
-        public ProductsGrid() => InitializeComponent();
+		public ProductsGrid()
+		{
+			InitializeComponent();
+			Disposed += (_, __) => { if (context != null) context.Dispose(); };
+		}
 
-        private bool hasBeenDisplayed = false;
+		private bool hasBeenDisplayed = false;
         public void Display()
         {
             if (hasBeenDisplayed)
@@ -87,10 +92,11 @@ namespace LibationWinForm
             }
 
 
-            //
-            // transform into sorted GridEntry.s BEFORE binding
-            //
-            var lib = LibraryQueries.GetLibrary_Flat_NoTracking();
+			//
+			// transform into sorted GridEntry.s BEFORE binding
+			//
+			context = LibationContext.Create();
+			var lib = context.GetLibrary_Flat_WithTracking();
 
 			// if no data. hide all columns. return
 			if (!lib.Any())
@@ -174,8 +180,8 @@ namespace LibationWinForm
             if (editTagsForm.ShowDialog() != DialogResult.OK)
                 return;
 
-            var qtyChanges = saveChangedTags(liveGridEntry.GetBook(), editTagsForm.NewTags);
-            if (qtyChanges == 0)
+			var qtyChanges = context.UpdateTags(liveGridEntry.GetBook(), editTagsForm.NewTags);
+			if (qtyChanges == 0)
                 return;
 
             // force a re-draw, and re-apply filters
@@ -184,14 +190,6 @@ namespace LibationWinForm
             dataGridView.InvalidateRow(e.RowIndex);
 
             filter();
-        }
-
-        private static int saveChangedTags(Book book, string newTags)
-        {
-            book.UserDefinedItem.Tags = newTags;
-
-            var qtyChanges = LibraryCommands.IndexChangedTags(book);
-            return qtyChanges;
         }
 
         #region Cell Formatting
@@ -212,22 +210,6 @@ namespace LibationWinForm
                 : dataGridView.DefaultCellStyle;
         }
         #endregion
-
-        public void UpdateRow(string productId)
-        {
-            for (var r = dataGridView.RowCount - 1; r >= 0; r--)
-            {
-                var gridEntry = getGridEntry(r);
-                if (gridEntry.GetBook().AudibleProductId == productId)
-                {
-                    var libBook = LibraryQueries.GetLibraryBook_Flat_NoTracking(productId);
-                    gridEntry.REPLACE_Library_Book(libBook);
-                    dataGridView.InvalidateRow(r);
-
-                    return;
-                }
-            }
-        }
 
         #region filter
         string _filterSearchString;

@@ -3,64 +3,57 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 
 namespace FileManager
 {
     /// <summary>
     /// Tags must also be stored in db for search performance. Stored in json file to survive a db reset.
-    /// json is only read when a product is first loaded
+    /// json is only read when a product is first loaded into the db
     /// json is only written to when tags are edited
     /// json access is infrequent and one-off
-    /// all other reads happen against db. No volitile storage
     /// </summary>
     public static class TagsPersistence
     {
-        public static string TagsFile => Path.Combine(Configuration.Instance.LibationFiles, "BookTags.json");
+		private static string TagsFile => Path.Combine(Configuration.Instance.LibationFiles, "BookTags.json");
 
         private static object locker { get; } = new object();
 
+		// if failed, retry only 1 time after a wait of 100 ms
+		// 1st save attempt sometimes fails with
+		//   The requested operation cannot be performed on a file with a user-mapped section open.
+		private static RetryPolicy policy { get; }
+			= Policy.Handle<Exception>()
+			.WaitAndRetry(new[] { TimeSpan.FromMilliseconds(100) });
+
         public static void Save(string productId, string tags)
-			=> System.Threading.Tasks.Task.Run(() => save_fireAndForget(productId, tags));
-
-		private static void save_fireAndForget(string productId, string tags)
 		{
+			ensureCache();
+
+			cache[productId] = tags;
+
 			lock (locker)
-			{
-				// get all
-				var allDictionary = retrieve();
-
-				// update/upsert tag list
-				allDictionary[productId] = tags;
-
-				// re-save:
-				//   this often fails the first time with
-				//     The requested operation cannot be performed on a file with a user-mapped section open.
-				//   2nd immediate attempt failing was rare. So I added sleep. We'll see...
-				void resave() => File.WriteAllText(TagsFile, JsonConvert.SerializeObject(allDictionary, Formatting.Indented));
-				try { resave(); }
-				catch (IOException debugEx)
-				{
-					// 1000 was always reliable but very slow. trying other values
-					var waitMs = 100;
-
-					System.Threading.Thread.Sleep(waitMs);
-					resave();
-				}
-			}
+				policy.Execute(() => File.WriteAllText(TagsFile, JsonConvert.SerializeObject(cache, Formatting.Indented)));
 		}
+
+		private static Dictionary<string, string> cache;
 
 		public static string GetTags(string productId)
         {
-            var dic = retrieve();
-            return dic.ContainsKey(productId) ? dic[productId] : null;
+			ensureCache();
+
+			cache.TryGetValue(productId, out string value);
+			return value;
         }
 
-        private static Dictionary<string, string> retrieve()
-        {
-            if (!FileUtility.FileExists(TagsFile))
-                return new Dictionary<string, string>();
-			lock (locker)
-				return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(TagsFile));
-        }
-    }
+		private static void ensureCache()
+		{
+			if (cache is null)
+				lock (locker)
+					cache = !FileUtility.FileExists(TagsFile)
+						? new Dictionary<string, string>()
+						: JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(TagsFile));
+		}
+	}
 }

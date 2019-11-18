@@ -13,29 +13,36 @@ namespace DataLayer
 
         private UserDefinedItem() { }
         internal UserDefinedItem(Book book)
-        {
-            ArgumentValidator.EnsureNotNull(book, nameof(book));
+		{
+			ArgumentValidator.EnsureNotNull(book, nameof(book));
             Book = book;
-        }
+
+			// import previously saved tags
+			ArgumentValidator.EnsureNotNullOrWhiteSpace(book.AudibleProductId, nameof(book.AudibleProductId));
+			Tags = FileManager.TagsPersistence.GetTags(book.AudibleProductId);
+		}
 
         private string _tags = "";
         public string Tags
         {
             get => _tags;
             set => _tags = sanitize(value);
-        }
-        #region sanitize tags: space delimited. Inline/denormalized. Lower case. Alpha numeric and hyphen
-        // only legal chars are letters numbers underscores and separating whitespace
-        //
-        // technically, the only char.s which aren't easily supported are  \  [  ]
-        // however, whitelisting is far safer than blacklisting (eg: new lines, non-printable character)
-        // it's easy to expand whitelist as needed
-        // for lucene, ToLower() isn't needed because search is case-inspecific. for here, it prevents duplicates
-        //
-        // there are also other allowed but misleading characters. eg: the ^ operator defines a 'boost' score
-        // full list of characters which must be escaped:
-        //   + - && || ! ( ) { } [ ] ^ " ~ * ? : \
-        static Regex regex = new Regex(@"[^\w\d\s_]", RegexOptions.Compiled);
+		}
+
+		public IEnumerable<string> TagsEnumerated => Tags == "" ? new string[0] : Tags.Split(null as char[], StringSplitOptions.RemoveEmptyEntries);
+
+		#region sanitize tags: space delimited. Inline/denormalized. Lower case. Alpha numeric and hyphen
+		// only legal chars are letters numbers underscores and separating whitespace
+		//
+		// technically, the only char.s which aren't easily supported are  \  [  ]
+		// however, whitelisting is far safer than blacklisting (eg: new lines, non-printable character)
+		// it's easy to expand whitelist as needed
+		// for lucene, ToLower() isn't needed because search is case-inspecific. for here, it prevents duplicates
+		//
+		// there are also other allowed but misleading characters. eg: the ^ operator defines a 'boost' score
+		// full list of characters which must be escaped:
+		//   + - && || ! ( ) { } [ ] ^ " ~ * ? : \
+		static Regex regex { get; } = new Regex(@"[^\w\d\s_]", RegexOptions.Compiled);
         private static string sanitize(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
@@ -63,8 +70,6 @@ namespace DataLayer
 
             return string.Join(" ", unique);
         }
-
-        public IEnumerable<string> TagsEnumerated => Tags == "" ? new string[0] : Tags.Split(null as char[], StringSplitOptions.RemoveEmptyEntries);
         #endregion
 
         // owned: not an optional one-to-one
