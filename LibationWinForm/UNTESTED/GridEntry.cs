@@ -146,8 +146,8 @@ namespace LibationWinForm
             get
             {
                 var details = new List<string>();
-                if (book.HasPdfs)
-                    details.Add("Has PDFs");
+                if (book.HasPdf)
+                    details.Add("Has PDF");
                 if (book.IsAbridged)
                     details.Add("Abridged");
                 if (book.DatePublished.HasValue)

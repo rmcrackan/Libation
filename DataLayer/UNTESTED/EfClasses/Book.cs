@@ -206,7 +206,7 @@ namespace DataLayer
         #region supplements
         private HashSet<Supplement> _supplements;
         public IEnumerable<Supplement> Supplements => _supplements?.ToList();
-        public bool HasPdfs => Supplements.Any();
+        public bool HasPdf => Supplements.Any();
 
         public void AddSupplementDownloadUrl(string url)
         {
