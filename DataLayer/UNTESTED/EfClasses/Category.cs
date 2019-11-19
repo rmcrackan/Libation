@@ -48,5 +48,7 @@ namespace DataLayer
             if (parentCategory != null)
                 ParentCategory = parentCategory;
         }
-    }
+
+		public override string ToString() => $"[{AudibleCategoryId}] {Name}";
+	}
 }

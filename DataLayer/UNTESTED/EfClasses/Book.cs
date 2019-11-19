@@ -246,5 +246,7 @@ namespace DataLayer
             context.Entry(this).Reference(s => s.Category).Load();
             Category = category;
         }
-    }
+
+		public override string ToString() => $"[{AudibleProductId}] {Title}";
+	}
 }

@@ -20,5 +20,7 @@ namespace DataLayer
             Book = book;
             Url = url;
         }
-    }
+
+		public override string ToString() => $"{Book} {Url.Substring(Url.Length - 4)}";
+	}
 }

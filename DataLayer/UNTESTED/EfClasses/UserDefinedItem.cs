@@ -78,5 +78,7 @@ namespace DataLayer
 
         public void UpdateRating(float overallRating, float performanceRating, float storyRating)
             => Rating.Update(overallRating, performanceRating, storyRating);
-    }
+
+		public override string ToString() => $"{Book} {Rating} {Tags}";
+	}
 }

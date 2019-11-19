@@ -67,11 +67,9 @@ namespace DtoImporterService
 				var person = context.Contributors.Local.SingleOrDefault(c => c.Name == p.Name);
 				if (person == null)
 				{
-					person = context.Contributors.Add(new Contributor(p.Name)).Entity;
+					person = context.Contributors.Add(new Contributor(p.Name, p.Asin)).Entity;
 					qtyNew++;
 				}
-
-				person.UpdateAudibleAuthorId(p.Asin);
 			}
 
 			return qtyNew;

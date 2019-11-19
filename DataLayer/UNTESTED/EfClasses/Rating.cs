@@ -72,5 +72,7 @@ namespace DataLayer
 
             return string.Join("\r\n", items);
         }
-    }
+
+		public override string ToString() => $"Overall={OverallRating} Perf={PerformanceRating} Story={StoryRating}";
+	}
 }

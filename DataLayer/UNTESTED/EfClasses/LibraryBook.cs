@@ -17,5 +17,7 @@ namespace DataLayer
             Book = book;
             DateAdded = dateAdded;
         }
-    }
+
+		public override string ToString() => $"{DateAdded:d} {Book}";
+	}
 }

@@ -66,5 +66,7 @@ namespace DataLayer
             if (_booksLink.SingleOrDefault(sb => sb.Book == book) == null)
                 _booksLink.Add(new SeriesBook(this, book, index));
         }
-    }
+
+		public override string ToString() => Name;
+	}
 }

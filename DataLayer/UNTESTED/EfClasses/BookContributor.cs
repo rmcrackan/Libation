@@ -23,5 +23,7 @@ namespace DataLayer
             Role = role;
             Order = order;
         }
-    }
+
+		public override string ToString() => $"{Book} {Contributor} {Role} {Order}";
+	}
 }

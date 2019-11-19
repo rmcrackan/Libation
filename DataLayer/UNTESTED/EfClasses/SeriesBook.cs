@@ -34,5 +34,7 @@ namespace DataLayer
             if (index.HasValue)
                 Index = index.Value;
         }
-    }
+
+		public override string ToString() => $"Series={Series} Book={Book}";
+	}
 }

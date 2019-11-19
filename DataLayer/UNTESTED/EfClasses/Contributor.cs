@@ -25,6 +25,8 @@ namespace DataLayer
         private HashSet<BookContributor> _booksLink;
         public IEnumerable<BookContributor> BooksLink => _booksLink?.ToList();
 
+        public string AudibleContributorId { get; private set; }
+
         private Contributor() { }
         public Contributor(string name)
         {
@@ -34,49 +36,13 @@ namespace DataLayer
 
             Name = name;
         }
+		public Contributor(string name, string audibleContributorId) : this(name)
+		{
+			// don't overwrite with null or whitespace but not an error
+			if (!string.IsNullOrWhiteSpace(audibleContributorId))
+				AudibleContributorId = audibleContributorId;
+		}
 
-        public string AudibleAuthorId { get; private set; }
-        public void UpdateAudibleAuthorId(string authorId)
-        {
-            // don't overwrite with null or whitespace but not an error
-            if (!string.IsNullOrWhiteSpace(authorId))
-                AudibleAuthorId = authorId;
-        }
-
-        #region // AudibleAuthorId refactor: separate author-specific info. overkill for a single optional string
-        ///// <summary>Most authors in Audible have a unique id</summary>
-        //public AudibleAuthorProperty AudibleAuthorProperty { get; private set; }
-        //public void UpdateAuthorId(string authorId, LibationContext context = null)
-        //{
-        //    if (authorId == null)
-        //        return;
-        //    if (AudibleAuthorProperty != null)
-        //    {
-        //        AudibleAuthorProperty.UpdateAudibleAuthorId(authorId);
-        //        return;
-        //    }
-        //    if (context == null)
-        //        throw new ArgumentNullException(nameof(context), "You must provide a context");
-        //    if (context.Contributors.Find(ContributorId) == null)
-        //        throw new InvalidOperationException("Could not update audible author id.");
-        //    var audibleAuthorProperty = new AudibleAuthorProperty();
-        //    audibleAuthorProperty.UpdateAudibleAuthorId(authorId);
-        //    context.AuthorProperties.Add(audibleAuthorProperty);
-        //}
-        //public class AudibleAuthorProperty
-        //{
-        //    public int ContributorId { get; private set; }
-        //    public Contributor Contributor { get; set; }
-
-        //    public string AudibleAuthorId { get; private set; }
-
-        //    public void UpdateAudibleAuthorId(string authorId)
-        //    {
-        //        if (!string.IsNullOrWhiteSpace(authorId))
-        //            AudibleAuthorId = authorId;
-        //    }
-        //}
-        //// ...and create EF table config
-        #endregion
-    }
+		public override string ToString() => Name;
+	}
 }

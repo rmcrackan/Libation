@@ -3,54 +3,50 @@ using System;
 using DataLayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(LibationContext))]
-    [Migration("20191115193402_Fresh")]
+    [Migration("20191119144803_Fresh")]
     partial class Fresh
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "3.0.0");
 
             modelBuilder.Entity("DataLayer.Book", b =>
                 {
                     b.Property<int>("BookId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleProductId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("DatePublished")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAbridged")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("LengthInMinutes")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PictureId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("BookId");
 
@@ -64,16 +60,16 @@ namespace DataLayer.Migrations
             modelBuilder.Entity("DataLayer.BookContributor", b =>
                 {
                     b.Property<int>("BookId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ContributorId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Role")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<byte>("Order")
-                        .HasColumnType("tinyint");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("BookId", "ContributorId", "Role");
 
@@ -88,17 +84,16 @@ namespace DataLayer.Migrations
                 {
                     b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleCategoryId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("ParentCategoryCategoryId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("CategoryId");
 
@@ -121,14 +116,13 @@ namespace DataLayer.Migrations
                 {
                     b.Property<int>("ContributorId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("AudibleAuthorId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("AudibleContributorId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("ContributorId");
 
@@ -140,10 +134,10 @@ namespace DataLayer.Migrations
             modelBuilder.Entity("DataLayer.LibraryBook", b =>
                 {
                     b.Property<int>("BookId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DateAdded")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("BookId");
 
@@ -154,14 +148,13 @@ namespace DataLayer.Migrations
                 {
                     b.Property<int>("SeriesId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AudibleSeriesId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("SeriesId");
 
@@ -173,13 +166,13 @@ namespace DataLayer.Migrations
             modelBuilder.Entity("DataLayer.SeriesBook", b =>
                 {
                     b.Property<int>("SeriesId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("BookId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<float?>("Index")
-                        .HasColumnType("real");
+                        .HasColumnType("REAL");
 
                     b.HasKey("SeriesId", "BookId");
 
@@ -201,18 +194,16 @@ namespace DataLayer.Migrations
                     b.OwnsOne("DataLayer.Rating", "Rating", b1 =>
                         {
                             b1.Property<int>("BookId")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int")
-                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .HasColumnType("INTEGER");
 
                             b1.Property<float>("OverallRating")
-                                .HasColumnType("real");
+                                .HasColumnType("REAL");
 
                             b1.Property<float>("PerformanceRating")
-                                .HasColumnType("real");
+                                .HasColumnType("REAL");
 
                             b1.Property<float>("StoryRating")
-                                .HasColumnType("real");
+                                .HasColumnType("REAL");
 
                             b1.HasKey("BookId");
 
@@ -226,14 +217,13 @@ namespace DataLayer.Migrations
                         {
                             b1.Property<int>("SupplementId")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("int")
-                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .HasColumnType("INTEGER");
 
                             b1.Property<int>("BookId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Url")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("TEXT");
 
                             b1.HasKey("SupplementId");
 
@@ -248,10 +238,10 @@ namespace DataLayer.Migrations
                     b.OwnsOne("DataLayer.UserDefinedItem", "UserDefinedItem", b1 =>
                         {
                             b1.Property<int>("BookId")
-                                .HasColumnType("int");
+                                .HasColumnType("INTEGER");
 
                             b1.Property<string>("Tags")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("TEXT");
 
                             b1.HasKey("BookId");
 
@@ -263,16 +253,16 @@ namespace DataLayer.Migrations
                             b1.OwnsOne("DataLayer.Rating", "Rating", b2 =>
                                 {
                                     b2.Property<int>("UserDefinedItemBookId")
-                                        .HasColumnType("int");
+                                        .HasColumnType("INTEGER");
 
                                     b2.Property<float>("OverallRating")
-                                        .HasColumnType("real");
+                                        .HasColumnType("REAL");
 
                                     b2.Property<float>("PerformanceRating")
-                                        .HasColumnType("real");
+                                        .HasColumnType("REAL");
 
                                     b2.Property<float>("StoryRating")
-                                        .HasColumnType("real");
+                                        .HasColumnType("REAL");
 
                                     b2.HasKey("UserDefinedItemBookId");
 

@@ -1,6 +1,7 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
+v3.1-beta.2 : fixed known performance issue: Tag add/edit
 v3.1-beta.1 : RELEASE TO BETA
 v3.0.3 : Switch to SQLite. No longer relies on LocalDB, which must be installed separately
 v3.0.2 : Final using LocalDB
@@ -38,19 +39,6 @@ alternate book id (eg BK_RAND_006061) is called 'sku' , 'sku_lite' , 'prod_id' ,
 -- end AUDIBLE DETAILS ---------------------------------------------------------------------------------------------------------------------
 
 -- begin SOLUTION LAYOUT ---------------------------------------------------------------------------------------------------------------------
-core libraries
-  extend Standard Libraries
-  additional simple libraries for general purpose programming
-utils: domain ignorant
-domain: biz logic
-  db ignorant
-  db, domain objects
-  domain internal utilities: domain aware. db ignorant
-  domain utilities: domain aware. db aware
-    incl non-db persistence. unless it needs to be tied into a db intercepter
-    all user-provided data must be backed up to json
-application
-
 do NOT combine jsons for
 - audible-scraped persistence: library, book details
 - libation-generated persistence: FilePaths.json
@@ -74,31 +62,4 @@ aggregate root is transactional boundary
   // // test with and without : using TransactionScope scope = new TransactionScope();
   //System.Transactions.Transaction.Current.TransactionCompleted += (sender, e) => { };
   // also : https://docs.microsoft.com/en-us/dotnet/api/system.transactions.transaction.enlistvolatile
-
-pattern when using 1 db context per form
-    public Ctor()
-    {
-        InitializeComponent();
-        // dispose context here only. DO NOT dispose in OnParentChanged(). parent form will call dispose after this one has been switched.
-        // disposing context prematurely can result in:
-        //   The ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
-        this.Disposed += (_, __) => context?.Dispose();
-    }
 -- end EF CORE ---------------------------------------------------------------------------------------------------------------------
-
--- begin ASYNC/AWAIT ---------------------------------------------------------------------------------------------------------------------
-Using Async and Await to update the UI Thread – Stephen Haunts { Coding in the Trenches }
-https://stephenhaunts.com/2014/10/14/using-async-and-await-to-update-the-ui-thread/
-
-Using Async and Await to update the UI Thread Part 2 – Stephen Haunts { Coding in the Trenches }
-https://stephenhaunts.com/2014/10/16/using-async-and-await-to-update-the-ui-thread-part-2/
-
-Simple Async Await Example for Asynchronous Programming – Stephen Haunts { Coding in the Trenches }
-https://stephenhaunts.com/2014/10/10/simple-async-await-example-for-asynchronous-programming/
-
-Async and Await -- Stephen Cleary's famous intro
-https://blog.stephencleary.com/2012/02/async-and-await.html
-
-Async-Await - Best Practices in Asynchronous Programming -- Stephen Cleary
-https://msdn.microsoft.com/en-us/magazine/jj991977.aspx
--- end ASYNC/AWAIT ---------------------------------------------------------------------------------------------------------------------

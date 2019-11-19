@@ -12,7 +12,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     CategoryId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     AudibleCategoryId = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
                     ParentCategoryCategoryId = table.Column<int>(nullable: true)
@@ -33,9 +33,9 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     ContributorId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(nullable: true),
-                    AudibleAuthorId = table.Column<string>(nullable: true)
+                    AudibleContributorId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -47,7 +47,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     SeriesId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     AudibleSeriesId = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true)
                 },
@@ -61,7 +61,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     BookId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     AudibleProductId = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
@@ -159,7 +159,7 @@ namespace DataLayer.Migrations
                 columns: table => new
                 {
                     SupplementId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     BookId = table.Column<int>(nullable: false),
                     Url = table.Column<string>(nullable: true)
                 },

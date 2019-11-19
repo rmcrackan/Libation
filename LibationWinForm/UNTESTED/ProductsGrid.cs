@@ -32,7 +32,7 @@ namespace LibationWinForm
 		public ProductsGrid()
 		{
 			InitializeComponent();
-			Disposed += (_, __) => { if (context != null) context.Dispose(); };
+			Disposed += (_, __) => context?.Dispose();
 		}
 
 		private bool hasBeenDisplayed = false;
