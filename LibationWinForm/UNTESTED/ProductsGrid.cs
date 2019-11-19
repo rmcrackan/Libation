@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -6,6 +7,7 @@ using ApplicationServices;
 using DataLayer;
 using Dinah.Core.Collections.Generic;
 using Dinah.Core.DataBinding;
+using Dinah.Core.Windows.Forms;
 
 namespace LibationWinForm
 {
@@ -32,7 +34,10 @@ namespace LibationWinForm
 		public ProductsGrid()
 		{
 			InitializeComponent();
+
 			Disposed += (_, __) => context?.Dispose();
+
+			manageLiveImageUpdateSubscriptions();
 		}
 
 		private bool hasBeenDisplayed = false;
@@ -232,12 +237,38 @@ namespace LibationWinForm
                     dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).GetBook().AudibleProductId);
             }
             currencyManager.ResumeBinding();
-			VisibleCountChanged?.Invoke(this, dataGridView.Rows.Cast<DataGridViewRow>().Count(r => r.Visible));
+			VisibleCountChanged?.Invoke(this, dataGridView.AsEnumerable().Count(r => r.Visible));
 
 			var luceneSearchString_debug = searchResults.SearchString;
         }
-        #endregion
+		#endregion
 
-        private GridEntry getGridEntry(int rowIndex) => (GridEntry)dataGridView.Rows[rowIndex].DataBoundItem;
-    }
+		#region live update newly downloaded and cached images
+		private void manageLiveImageUpdateSubscriptions()
+		{
+			FileManager.PictureStorage.PictureCached += crossThreadImageUpdate;
+			Disposed += (_, __) => FileManager.PictureStorage.PictureCached -= crossThreadImageUpdate;
+		}
+
+		private void crossThreadImageUpdate(object _, string pictureId)
+			=> dataGridView.UIThread(() => updateRowImage(pictureId));
+		private void updateRowImage(string pictureId)
+		{
+			var rowId = getRowId((ge) => ge.GetBook().PictureId == pictureId);
+			if (rowId > -1)
+				dataGridView.InvalidateRow(rowId);
+		}
+		#endregion
+
+		private GridEntry getGridEntry(int rowIndex) => (GridEntry)dataGridView.Rows[rowIndex].DataBoundItem;
+
+		private int getRowId(Func<GridEntry, bool> func)
+		{
+			for (var r = 0; r < dataGridView.RowCount; r++)
+				if (func(getGridEntry(r)))
+					return r;
+
+			return -1;
+		}
+	}
 }

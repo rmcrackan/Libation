@@ -38,6 +38,8 @@ namespace FileManager
 			timer.Elapsed += (_, __) => timerDownload();
 		}
 
+		public static event EventHandler<string> PictureCached;
+
 		private static Dictionary<PictureDefinition, byte[]> cache { get; } = new Dictionary<PictureDefinition, byte[]>();
 		public static (bool isDefault, byte[] bytes) GetPicture(PictureDefinition def)
 		{
@@ -86,6 +88,8 @@ namespace FileManager
 				var bytes = downloadBytes(def);
 				saveFile(def, bytes);
 				cache[def] = bytes;
+
+				PictureCached?.Invoke(nameof(PictureStorage), def.PictureId);
 			}
 			finally
 			{
