@@ -168,8 +168,8 @@ namespace LibationWinForm
             get
             {
                 var print
-                    = FileManager.AudibleFileStorage.Audio.ExistsAsync(book.AudibleProductId).GetAwaiter().GetResult() ? "Liberated"
-                    : FileManager.AudibleFileStorage.AAX.ExistsAsync(book.AudibleProductId).GetAwaiter().GetResult() ? "DRM"
+                    = FileManager.AudibleFileStorage.Audio.Exists(book.AudibleProductId) ? "Liberated"
+                    : FileManager.AudibleFileStorage.AAX.Exists(book.AudibleProductId) ? "DRM"
                     : "NOT d/l'ed";
 
                 if (!book.Supplements.Any())
@@ -178,7 +178,7 @@ namespace LibationWinForm
                 print += "\r\n";
                 
                 var downloadStatuses = book.Supplements
-                    .Select(d => FileManager.AudibleFileStorage.PDF.ExistsAsync(book.AudibleProductId).GetAwaiter().GetResult())
+                    .Select(d => FileManager.AudibleFileStorage.PDF.Exists(book.AudibleProductId))
                     // break delayed execution right now!
                     .ToList();
                 var count = downloadStatuses.Count;

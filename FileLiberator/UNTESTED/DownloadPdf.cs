@@ -12,26 +12,26 @@ namespace FileLiberator
 {
 	public class DownloadPdf : DownloadableBase
 	{
-		public override async Task<bool> ValidateAsync(LibraryBook libraryBook)
+		public override bool Validate(LibraryBook libraryBook)
 			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
-			&& !await AudibleFileStorage.PDF.ExistsAsync(libraryBook.Book.AudibleProductId);
+			&& !AudibleFileStorage.PDF.Exists(libraryBook.Book.AudibleProductId);
 
 		private static string getdownloadUrl(LibraryBook libraryBook)
 			=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
 
 		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
-			var proposedDownloadFilePath = await getProposedDownloadFilePathAsync(libraryBook);
+			var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
 			await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
-			return await verifyDownloadAsync(libraryBook);
+			return verifyDownload(libraryBook);
 		}
 
-		private static async Task<string> getProposedDownloadFilePathAsync(LibraryBook libraryBook)
+		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
 		{
 			// if audio file exists, get it's dir. else return base Book dir
 			var destinationDir =
 				// this is safe b/c GetDirectoryName(null) == null
-				Path.GetDirectoryName(await AudibleFileStorage.Audio.GetAsync(libraryBook.Book.AudibleProductId))
+				Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId))
 				?? AudibleFileStorage.PDF.StorageDirectory;
 
 			return Path.Combine(destinationDir, Path.GetFileName(getdownloadUrl(libraryBook)));
@@ -45,8 +45,8 @@ namespace FileLiberator
 				(p) => client.DownloadFileAsync(getdownloadUrl(libraryBook), proposedDownloadFilePath, p));
 		}
 
-		private static async Task<StatusHandler> verifyDownloadAsync(LibraryBook libraryBook)
-			=> !await AudibleFileStorage.PDF.ExistsAsync(libraryBook.Book.AudibleProductId)
+		private static StatusHandler verifyDownload(LibraryBook libraryBook)
+			=> !AudibleFileStorage.PDF.Exists(libraryBook.Book.AudibleProductId)
 			? new StatusHandler { "Downloaded PDF cannot be found" }
 			: new StatusHandler();
 	}

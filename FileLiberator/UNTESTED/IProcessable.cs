@@ -14,8 +14,8 @@ namespace FileLiberator
 
         event EventHandler<string> Completed;
 
-        /// <returns>True == Valid</returns>
-        Task<bool> ValidateAsync(LibraryBook libraryBook);
+		/// <returns>True == Valid</returns>
+		bool Validate(LibraryBook libraryBook);
 
         /// <returns>True == success</returns>
         Task<StatusHandler> ProcessAsync(LibraryBook libraryBook);

@@ -34,12 +34,9 @@ namespace FileLiberator
         public event EventHandler<string> DecryptCompleted;
         public event EventHandler<string> Completed;
 
-        // ValidateAsync() doesn't need UI context
-        public async Task<bool> ValidateAsync(LibraryBook libraryBook)
-            => await validateAsync_ConfigureAwaitFalse(libraryBook.Book.AudibleProductId).ConfigureAwait(false);
-        private async Task<bool> validateAsync_ConfigureAwaitFalse(string productId)
-            => await AudibleFileStorage.AAX.ExistsAsync(productId)
-            && !await AudibleFileStorage.Audio.ExistsAsync(productId);
+        public bool Validate(LibraryBook libraryBook)
+            => AudibleFileStorage.AAX.Exists(libraryBook.Book.AudibleProductId)
+            && !AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
 
 		// do NOT use ConfigureAwait(false) on ProcessAsync()
 		// often calls events which prints to forms in the UI context
@@ -51,13 +48,13 @@ namespace FileLiberator
 
             try
             {
-                var aaxFilename = await AudibleFileStorage.AAX.GetAsync(libraryBook.Book.AudibleProductId);
+                var aaxFilename = AudibleFileStorage.AAX.GetPath(libraryBook.Book.AudibleProductId);
 
                 if (aaxFilename == null)
                     return new StatusHandler { "aaxFilename parameter is null" };
                 if (!FileUtility.FileExists(aaxFilename))
                     return new StatusHandler { $"Cannot find AAX file: {aaxFilename}" };
-                if (await AudibleFileStorage.Audio.ExistsAsync(libraryBook.Book.AudibleProductId))
+                if (AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
                 var proposedOutputFile = Path.Combine(AudibleFileStorage.DecryptInProgress, $"[{libraryBook.Book.AudibleProductId}].m4b");
@@ -72,7 +69,7 @@ namespace FileLiberator
                 Dinah.Core.IO.FileExt.SafeDelete(aaxFilename);
 
                 var statusHandler = new StatusHandler();
-                var finalAudioExists = await AudibleFileStorage.Audio.ExistsAsync(libraryBook.Book.AudibleProductId);
+                var finalAudioExists = AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
                 if (!finalAudioExists)
                     statusHandler.AddError("Cannot find final audio file after decryption");
                 return statusHandler;

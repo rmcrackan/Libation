@@ -18,7 +18,7 @@ namespace FileLiberator
 		public event EventHandler<string> StatusUpdate;
 		protected void Invoke_StatusUpdate(string message) => StatusUpdate?.Invoke(this, message);
 
-        public abstract Task<bool> ValidateAsync(LibraryBook libraryBook);
+        public abstract bool Validate(LibraryBook libraryBook);
 
         public abstract Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook);
 

@@ -30,7 +30,7 @@ namespace LibationWinForm.BookLiberation
 
 		static async Task<StatusHandler> ProcessValidateLibraryBookAsync(IProcessable processable, LibraryBook libraryBook)
 		{
-			if (!await processable.ValidateAsync(libraryBook))
+			if (!processable.Validate(libraryBook))
 				return new StatusHandler { "Validation failed" };
 			return await processable.ProcessAsync(libraryBook);
 		}

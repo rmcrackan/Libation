@@ -25,11 +25,8 @@ namespace FileLiberator
         public DecryptBook DecryptBook { get; } = new DecryptBook();
 		public DownloadPdf DownloadPdf { get; } = new DownloadPdf();
 
-		// ValidateAsync() doesn't need UI context
-		public async Task<bool> ValidateAsync(LibraryBook libraryBook)
-            => await validateAsync_ConfigureAwaitFalse(libraryBook.Book.AudibleProductId).ConfigureAwait(false);
-        private async Task<bool> validateAsync_ConfigureAwaitFalse(string productId)
-            => !await AudibleFileStorage.Audio.ExistsAsync(productId);
+		public bool Validate(LibraryBook libraryBook)
+            => !AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
 
 		// do NOT use ConfigureAwait(false) on ProcessAsync()
 		// often calls events which prints to forms in the UI context

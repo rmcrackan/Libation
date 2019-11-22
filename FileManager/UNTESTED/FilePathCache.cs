@@ -15,7 +15,7 @@ namespace FileManager
             public string Path { get; set; }
         }
 
-        static List<CacheEntry> inMemoryCache = new List<CacheEntry>();
+        static List<CacheEntry> inMemoryCache { get; } = new List<CacheEntry>();
 
         public static string JsonFile => Path.Combine(Configuration.Instance.LibationFiles, "FilePaths.json");
 

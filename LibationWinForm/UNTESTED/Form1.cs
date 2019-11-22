@@ -37,7 +37,7 @@ namespace LibationWinForm
             beginPdfBackupsToolStripMenuItem_format = beginPdfBackupsToolStripMenuItem.Text;
         }
 
-        private async void Form1_Load(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
 		{
 			// call static ctor. There are bad race conditions if static ctor is first executed when we're running in parallel in setBackupCountsAsync()
 			var foo = FilePathCache.JsonFile;
@@ -59,7 +59,7 @@ namespace LibationWinForm
                 backupsCountsLbl.Text = "[Calculating backed up book quantities]";
                 pdfsCountsLbl.Text = "[Calculating backed up PDFs]";
 
-                await setBackupCountsAsync();
+                setBackupCounts();
             }
         }
 
@@ -103,52 +103,34 @@ namespace LibationWinForm
 		#endregion
 
 		#region bottom: backup counts
-		private async Task setBackupCountsAsync()
+		private void setBackupCounts()
         {
             var books = LibraryQueries.GetLibrary_Flat_NoTracking()
                 .Select(sp => sp.Book)
                 .ToList();
 
-            await setBookBackupCountsAsync(books).ConfigureAwait(false);
-            await setPdfBackupCountsAsync(books).ConfigureAwait(false);
+			setBookBackupCounts(books);
+			setPdfBackupCounts(books);
         }
         enum AudioFileState { full, aax, none }
-        private async Task setBookBackupCountsAsync(IEnumerable<Book> books)
+        private void setBookBackupCounts(IEnumerable<Book> books)
         {
-            var libraryProductIds = books
-                .Select(b => b.AudibleProductId)
-                .ToList();
-
-            var noProgress = 0;
-            var downloadedOnly = 0;
-            var fullyBackedUp = 0;
-
-
-            //// serial
-            //foreach (var productId in libraryProductIds)
-            //{
-            //    if (await AudibleFileStorage.Audio.ExistsAsync(productId))
-            //        fullyBackedUp++;
-            //    else if (await AudibleFileStorage.AAX.ExistsAsync(productId))
-            //        downloadedOnly++;
-            //    else
-            //        noProgress++;
-            //}
-
-            // parallel
-            async Task<AudioFileState> getAudioFileStateAsync(string productId)
+			AudioFileState getAudioFileState(string productId)
             {
-                if (await AudibleFileStorage.Audio.ExistsAsync(productId))
+                if (AudibleFileStorage.Audio.Exists(productId))
                     return AudioFileState.full;
-                if (await AudibleFileStorage.AAX.ExistsAsync(productId))
+                if (AudibleFileStorage.AAX.Exists(productId))
                     return AudioFileState.aax;
                 return AudioFileState.none;
-            }
-            var tasks = libraryProductIds.Select(productId => getAudioFileStateAsync(productId));
-            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
-            fullyBackedUp = results.Count(r => r == AudioFileState.full);
-            downloadedOnly = results.Count(r => r == AudioFileState.aax);
-            noProgress = results.Count(r => r == AudioFileState.none);
+			}
+
+			var results = books
+				.AsParallel()
+				.Select(b => getAudioFileState(b.AudibleProductId))
+				.ToList();
+			var fullyBackedUp = results.Count(r => r == AudioFileState.full);
+			var downloadedOnly = results.Count(r => r == AudioFileState.aax);
+			var noProgress = results.Count(r => r == AudioFileState.none);
 
             // update bottom numbers
             var pending = noProgress + downloadedOnly;
@@ -166,32 +148,15 @@ namespace LibationWinForm
             menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Enabled = pending > 0);
             menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Text = string.Format(beginBookBackupsToolStripMenuItem_format, menuItemText));
         }
-        private async Task setPdfBackupCountsAsync(IEnumerable<Book> books)
+        private void setPdfBackupCounts(IEnumerable<Book> books)
         {
-            var libraryProductIds = books
-                .Where(b => b.Supplements.Any())
-                .Select(b => b.AudibleProductId)
-                .ToList();
-
-            int notDownloaded;
-            int downloaded;
-
-            //// serial
-            //notDownloaded = 0;
-            //downloaded = 0;
-            //foreach (var productId in libraryProductIds)
-            //{
-            //    if (await AudibleFileStorage.PDF.ExistsAsync(productId))
-            //        downloaded++;
-            //    else
-            //        notDownloaded++;
-            //}
-
-            // parallel
-            var tasks = libraryProductIds.Select(productId => AudibleFileStorage.PDF.ExistsAsync(productId));
-            var boolResults = await Task.WhenAll(tasks).ConfigureAwait(false);
-            downloaded = boolResults.Count(r => r);
-            notDownloaded = boolResults.Count(r => !r);
+            var boolResults = books
+				.AsParallel()
+				.Where(b => b.Supplements.Any())
+				.Select(b => AudibleFileStorage.PDF.Exists(b.AudibleProductId))
+				.ToList();
+            var downloaded = boolResults.Count(r => r);
+            var notDownloaded = boolResults.Count(r => !r);
 
             // update bottom numbers
             var text
@@ -258,7 +223,7 @@ namespace LibationWinForm
 		#endregion
 
 		#region index menu
-		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
+		private void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using var dialog = new IndexLibraryDialog();
 			dialog.ShowDialog();
@@ -270,7 +235,7 @@ namespace LibationWinForm
 
 			// update backup counts if we have new library items
 			if (newAdded > 0)
-				await setBackupCountsAsync();
+				setBackupCounts();
 
 			if (totalProcessed > 0)
 				reloadGrid();
@@ -278,21 +243,21 @@ namespace LibationWinForm
 		#endregion
 
 		#region liberate menu
-		private async void setBackupCountsAsync(object _, string __) => await setBackupCountsAsync();
+		private void setBackupCounts(object _, string __) => setBackupCounts();
 
         private async void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var backupBook = BookLiberation.ProcessorAutomationController.GetWiredUpBackupBook();
-            backupBook.DownloadBook.Completed += setBackupCountsAsync;
-            backupBook.DecryptBook.Completed += setBackupCountsAsync;
-			backupBook.DownloadPdf.Completed += setBackupCountsAsync;
+            backupBook.DownloadBook.Completed += setBackupCounts;
+            backupBook.DecryptBook.Completed += setBackupCounts;
+			backupBook.DownloadPdf.Completed += setBackupCounts;
 			await BookLiberation.ProcessorAutomationController.RunAutomaticBackup(backupBook);
         }
 
         private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var downloadPdf = BookLiberation.ProcessorAutomationController.GetWiredUpDownloadPdf();
-            downloadPdf.Completed += setBackupCountsAsync;
+            downloadPdf.Completed += setBackupCounts;
             await BookLiberation.ProcessorAutomationController.RunAutomaticDownload(downloadPdf);
         }
         #endregion

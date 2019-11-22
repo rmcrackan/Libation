@@ -17,16 +17,16 @@ namespace FileLiberator
     /// </summary>
     public class DownloadBook : DownloadableBase
     {
-        public override async Task<bool> ValidateAsync(LibraryBook libraryBook)
-            => !await AudibleFileStorage.Audio.ExistsAsync(libraryBook.Book.AudibleProductId)
-            && !await AudibleFileStorage.AAX.ExistsAsync(libraryBook.Book.AudibleProductId);
+        public override bool Validate(LibraryBook libraryBook)
+            => !AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId)
+            && !AudibleFileStorage.AAX.Exists(libraryBook.Book.AudibleProductId);
 
 		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
 			var tempAaxFilename = getDownloadPath(libraryBook);
 			var actualFilePath = await downloadBookAsync(libraryBook, tempAaxFilename);
 			moveBook(libraryBook, actualFilePath);
-			return await verifyDownloadAsync(libraryBook);
+			return verifyDownload(libraryBook);
 		}
 
 		private static string getDownloadPath(LibraryBook libraryBook)
@@ -58,8 +58,8 @@ namespace FileLiberator
 			Invoke_StatusUpdate($"Successfully downloaded. Moved to: {newAaxFilename}");
 		}
 
-		private static async Task<StatusHandler> verifyDownloadAsync(LibraryBook libraryBook)
-			=> !await AudibleFileStorage.AAX.ExistsAsync(libraryBook.Book.AudibleProductId)
+		private static StatusHandler verifyDownload(LibraryBook libraryBook)
+			=> !AudibleFileStorage.AAX.Exists(libraryBook.Book.AudibleProductId)
 			? new StatusHandler { "Downloaded AAX file cannot be found" }
 			: new StatusHandler();
 	}

@@ -9,8 +9,7 @@ namespace FileLiberator
     {
         //
         // DO NOT USE ConfigureAwait(false) WITH ProcessAsync() unless ensuring ProcessAsync() implementation is cross-thread compatible
-        // - ValidateAsync() doesn't need UI context. however, each class already uses ConfigureAwait(false)
-        // - ProcessAsync() often does a lot with forms in the UI context
+        // ProcessAsync() often does a lot with forms in the UI context
         //
 
 
@@ -18,7 +17,7 @@ namespace FileLiberator
         /// <returns>Returns either the status handler from the process, or null if all books have been processed</returns>
         public static async Task<StatusHandler> ProcessFirstValidAsync(this IProcessable processable)
         {
-            var libraryBook = await processable.GetNextValidAsync();
+            var libraryBook = processable.GetNextValid();
             if (libraryBook == null)
                 return null;
 
@@ -30,19 +29,19 @@ namespace FileLiberator
             return status;
         }
 
-        public static async Task<LibraryBook> GetNextValidAsync(this IProcessable processable)
+        public static LibraryBook GetNextValid(this IProcessable processable)
         {
             var libraryBooks = LibraryQueries.GetLibrary_Flat_NoTracking();
 
             foreach (var libraryBook in libraryBooks)
-                if (await processable.ValidateAsync(libraryBook))
+                if (processable.Validate(libraryBook))
                     return libraryBook;
 
             return null;
         }
 
 		public static async Task<StatusHandler> TryProcessAsync(this IProcessable processable, LibraryBook libraryBook)
-			=> await processable.ValidateAsync(libraryBook)
+			=> processable.Validate(libraryBook)
 			? await processable.ProcessAsync(libraryBook)
 			: new StatusHandler();
 	}
