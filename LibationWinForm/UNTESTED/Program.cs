@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Serilog;
 
 namespace LibationWinForm
 {
@@ -13,6 +14,8 @@ namespace LibationWinForm
 
 			if (!createSettings())
 				return;
+
+			init();
 
 			Application.Run(new Form1());
 		}
@@ -29,7 +32,7 @@ Please fill in a few settings on the following page. You can also change these s
 After you make your selections, get started by importing your library.
 Go to Import > Scan Library
 ".Trim();
-			MessageBox.Show(welcomeText, "Welcom to Libation", MessageBoxButtons.OK);
+			MessageBox.Show(welcomeText, "Welcome to Libation", MessageBoxButtons.OK);
 			var dialogResult = new SettingsDialog().ShowDialog();
 			if (dialogResult != DialogResult.OK)
 			{
@@ -38,6 +41,15 @@ Go to Import > Scan Library
 			}
 
 			return true;
+		}
+
+		private static void init()
+		{
+			var logPath = System.IO.Path.Combine(FileManager.Configuration.Instance.LibationFiles, "Log.log");
+			Log.Logger = new LoggerConfiguration()
+				.MinimumLevel.Debug()
+				.WriteTo.File(logPath, rollingInterval: RollingInterval.Month)
+				.CreateLogger();
 		}
 	}
 }

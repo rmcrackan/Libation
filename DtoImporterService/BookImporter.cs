@@ -51,77 +51,81 @@ namespace DtoImporterService
 				var book = context.Books.Local.SingleOrDefault(p => p.AudibleProductId == item.ProductId);
 				if (book is null)
 				{
-					// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
-					var authors = item
-						.Authors
-						.Select(a => context.Contributors.Local.Single(c => a.Name == c.Name))
-						.ToList();
-
-					// if no narrators listed, author is the narrator
-					if (item.Narrators is null || !item.Narrators.Any())
-						item.Narrators = item.Authors;
-					// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
-					var narrators = item
-						.Narrators
-						.Select(n => context.Contributors.Local.Single(c => n.Name == c.Name))
-						.ToList();
-
-					book = context.Books.Add(new Book(
-						new AudibleProductId(item.ProductId),
-						item.Title,
-						item.Description,
-						item.LengthInMinutes,
-						authors,
-						narrators)
-					).Entity;
-
-					var publisherName = item.Publisher;
-					if (!string.IsNullOrWhiteSpace(publisherName))
-					{
-						var publisher = context.Contributors.Local.Single(c => publisherName == c.Name);
-						book.ReplacePublisher(publisher);
-					}
-
+					book = createNewBook(item, context);
 					qtyNew++;
 				}
 
-				// set/update book-specific info which may have changed
-				book.PictureId = item.PictureId;
-				book.UpdateProductRating(item.Product_OverallStars, item.Product_PerformanceStars, item.Product_StoryStars);
-				if (!string.IsNullOrWhiteSpace(item.SupplementUrl))
-					book.AddSupplementDownloadUrl(item.SupplementUrl);
-
-				// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
-				book.UserDefinedItem.UpdateRating(item.MyUserRating_Overall, item.MyUserRating_Performance, item.MyUserRating_Story);
-
-				//
-				// this was round 1 when it was a 2 step process
-				//
-				//// update series even for existing books. these are occasionally updated
-				//var seriesIds = item.Series.Select(kvp => kvp.SeriesId).ToList();
-				//var allSeries = context.Series.Local.Where(c => seriesIds.Contains(c.AudibleSeriesId)).ToList();
-				//foreach (var series in allSeries)
-				//	book.UpsertSeries(series);
-
-				// these will upsert over library-scraped series, but will not leave orphans
-				if (item.Series != null)
-				{
-					foreach (var seriesEntry in item.Series)
-					{
-						var series = context.Series.Local.Single(s => seriesEntry.SeriesId == s.AudibleSeriesId);
-						book.UpsertSeries(series, seriesEntry.Index);
-					}
-				}
-
-				// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
-				var category = context.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == item.Categories.LastOrDefault().CategoryId);
-				if (category != null)
-					book.UpdateCategory(category, context);
-
-				book.UpdateBookDetails(item.IsAbridged, item.DatePublished);
+				updateBook(item, book, context);
 			}
 
 			return qtyNew;
+		}
+
+		private static Book createNewBook(Item item, LibationContext context)
+		{
+			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
+			var authors = item
+				.Authors
+				.Select(a => context.Contributors.Local.Single(c => a.Name == c.Name))
+				.ToList();
+
+			// if no narrators listed, author is the narrator
+			if (item.Narrators is null || !item.Narrators.Any())
+				item.Narrators = item.Authors;
+			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
+			var narrators = item
+				.Narrators
+				.Select(n => context.Contributors.Local.Single(c => n.Name == c.Name))
+				.ToList();
+
+			var book = context.Books.Add(new Book(
+				new AudibleProductId(item.ProductId),
+				item.Title,
+				item.Description,
+				item.LengthInMinutes,
+				authors,
+				narrators)
+			).Entity;
+
+			var publisherName = item.Publisher;
+			if (!string.IsNullOrWhiteSpace(publisherName))
+			{
+				var publisher = context.Contributors.Local.Single(c => publisherName == c.Name);
+				book.ReplacePublisher(publisher);
+			}
+
+			// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
+			var category = context.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == item.Categories.LastOrDefault().CategoryId);
+			if (category != null)
+				book.UpdateCategory(category, context);
+
+			book.UpdateBookDetails(item.IsAbridged, item.DatePublished);
+
+			if (!string.IsNullOrWhiteSpace(item.SupplementUrl))
+				book.AddSupplementDownloadUrl(item.SupplementUrl);
+
+			return book;
+		}
+
+		private static void updateBook(Item item, Book book, LibationContext context)
+		{
+			// set/update book-specific info which may have changed
+			book.PictureId = item.PictureId;
+			book.UpdateProductRating(item.Product_OverallStars, item.Product_PerformanceStars, item.Product_StoryStars);
+
+			// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
+			book.UserDefinedItem.UpdateRating(item.MyUserRating_Overall, item.MyUserRating_Performance, item.MyUserRating_Story);
+
+			// update series even for existing books. these are occasionally updated
+			// these will upsert over library-scraped series, but will not leave orphans
+			if (item.Series != null)
+			{
+				foreach (var seriesEntry in item.Series)
+				{
+					var series = context.Series.Local.Single(s => seriesEntry.SeriesId == s.AudibleSeriesId);
+					book.UpsertSeries(series, seriesEntry.Index);
+				}
+			}
 		}
 	}
 }

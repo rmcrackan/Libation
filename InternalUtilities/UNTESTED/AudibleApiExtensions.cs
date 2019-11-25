@@ -27,8 +27,19 @@ namespace InternalUtilities
 					ResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS
 				});
 
-				// important! use this convert method
-				var libResult = LibraryDtoV10.FromJson(page.ToString());
+				string pageStr = null;
+				LibraryDtoV10 libResult;
+				try
+				{
+					pageStr = page.ToString();
+					// important! use this convert method
+					libResult = LibraryDtoV10.FromJson(pageStr);
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, "Error converting library for importing use. Full library:\r\n" + pageStr);
+					throw;
+				}
 
 				if (!libResult.Items.Any())
 					break;

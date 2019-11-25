@@ -20,12 +20,28 @@ namespace DtoImporterService
 				}
 			}
 
-			var exceptions = Validate(param);
-			if (exceptions != null && exceptions.Any())
-				throw new AggregateException($"Device Jobs Service configuration validation failed", exceptions);
+			try
+			{
+				var exceptions = Validate(param);
+				if (exceptions != null && exceptions.Any())
+					throw new AggregateException($"Importer validation failed", exceptions);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Import error: validation");
+				throw;
+			}
 
-			var result = func(param, context);
-			return result;
+			try
+			{
+				var result = func(param, context);
+				return result;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Import error: post-validation importing");
+				throw;
+			}
 		}
 		IEnumerable<Exception> Validate(T param);
 	}

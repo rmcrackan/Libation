@@ -19,10 +19,10 @@ namespace DtoImporterService
 			var publishers = items.GetPublishersDistinct().ToList();
 
 			// load db existing => .Local
-			var allNames = authors
-				.Select(a => a.Name)
+			var allNames = publishers
+				.Union(authors.Select(n => n.Name))
 				.Union(narrators.Select(n => n.Name))
-				.Union(publishers)
+				.Where(name => !string.IsNullOrWhiteSpace(name))
 				.ToList();
 			loadLocal_contributors(allNames, context);
 
@@ -36,9 +36,6 @@ namespace DtoImporterService
 
 		private void loadLocal_contributors(List<string> contributorNames, LibationContext context)
 		{
-			contributorNames.Remove(null);
-			contributorNames.Remove("");
-
 			//// BAD: very inefficient
 			// var x = context.Contributors.Local.Where(c => !contribNames.Contains(c.Name));
 

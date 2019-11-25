@@ -28,7 +28,7 @@ namespace InternalUtilities
 
 		private async Task<List<Item>> getItemsAsync(ILoginCallback callback)
 		{
-			var api = await EzApiCreator.GetApiAsync(AudibleApiStorage.IdentityTokensFile, callback, Configuration.Instance.LocaleCountryCode);
+			var api = await getApiAsync(callback);
 			var items = await AudibleApiExtensions.GetAllLibraryItemsAsync(api);
 
 			// remove episode parents
@@ -60,6 +60,20 @@ namespace InternalUtilities
 			}
 
 			return items;
+		}
+
+		private async Task<Api> getApiAsync(ILoginCallback callback)
+		{
+			try
+			{
+				return await EzApiCreator.GetApiAsync(AudibleApiStorage.IdentityTokensFile, callback, Configuration.Instance.LocaleCountryCode);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error getting Audible API");
+				throw;
+			}
+
 		}
 
 		private static List<IValidator> getValidators()

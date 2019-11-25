@@ -17,17 +17,17 @@ namespace DtoImporterService
 			var series = items.GetSeriesDistinct().ToList();
 
 			// load db existing => .Local
-			var seriesIds = series.Select(s => s.SeriesId).ToList();
-			loadLocal_series(seriesIds, context);
+			loadLocal_series(series, context);
 
 			// upsert
 			var qtyNew = upsertSeries(series, context);
 			return qtyNew;
 		}
 
-		private void loadLocal_series(List<string> seriesIds, LibationContext context)
+		private void loadLocal_series(List<AudibleApiDTOs.Series> series, LibationContext context)
 		{
-			var localIds = context.Series.Local.Select(s => s.AudibleSeriesId);
+			var seriesIds = series.Select(s => s.SeriesId).ToList();
+			var localIds = context.Series.Local.Select(s => s.AudibleSeriesId).ToList();
 			var remainingSeriesIds = seriesIds
 				.Distinct()
 				.Except(localIds)
