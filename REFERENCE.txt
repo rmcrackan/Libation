@@ -1,6 +1,7 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
+v3.1-beta.4 : Added beta-specific logging
 v3.1-beta.3 : fixed known performance issue: Full-screen grid is slow to respond loading when books aren't liberated
 v3.1-beta.2 : fixed known performance issue: Tag add/edit
 v3.1-beta.1 : RELEASE TO BETA
