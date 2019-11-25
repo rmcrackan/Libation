@@ -56,10 +56,13 @@ namespace DataLayer
             modelBuilder.ApplyConfiguration(new SeriesBookConfig());
             modelBuilder.ApplyConfiguration(new CategoryConfig());
 
-            // seeds go here. examples in scratch pad
-            modelBuilder
-                .Entity<Category>()
-                .HasData(Category.GetEmpty());
+			// seeds go here. examples in scratch pad
+			modelBuilder
+				.Entity<Category>()
+				.HasData(Category.GetEmpty());
+			modelBuilder
+				.Entity<Contributor>()
+				.HasData(Contributor.GetEmpty());
 
             // views are now supported via "query types" (instead of "entity types"): https://docs.microsoft.com/en-us/ef/core/modeling/query-types
         }

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(LibationContext))]
-    [Migration("20191119144803_Fresh")]
+    [Migration("20191125182309_Fresh")]
     partial class Fresh
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -129,6 +129,13 @@ namespace DataLayer.Migrations
                     b.HasIndex("Name");
 
                     b.ToTable("Contributors");
+
+                    b.HasData(
+                        new
+                        {
+                            ContributorId = -1,
+                            Name = ""
+                        });
                 });
 
             modelBuilder.Entity("DataLayer.LibraryBook", b =>

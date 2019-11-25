@@ -47,11 +47,10 @@ namespace DtoImporterService
 				.ToList();
 
 			// load existing => local
+			// remember to include default/empty/missing
+			var emptyName = Contributor.GetEmpty().Name;
 			if (remainingContribNames.Any())
-				context.Contributors.Where(c => remainingContribNames.Contains(c.Name)).ToList();
-			// _________________________________^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-			// i tried to extract this pattern, but this part prohibits doing so
-			// wouldn't work anyway for Books.GetBooks()
+				context.Contributors.Where(c => remainingContribNames.Contains(c.Name) || c.Name == emptyName).ToList();
 		}
 
 		// only use after loading contributors => local

@@ -200,6 +200,11 @@ namespace DataLayer.Migrations
                 columns: new[] { "CategoryId", "AudibleCategoryId", "Name", "ParentCategoryCategoryId" },
                 values: new object[] { -1, "", "", null });
 
+            migrationBuilder.InsertData(
+                table: "Contributors",
+                columns: new[] { "ContributorId", "AudibleContributorId", "Name" },
+                values: new object[] { -1, null, "" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_BookContributor_BookId",
                 table: "BookContributor",

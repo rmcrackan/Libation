@@ -29,12 +29,12 @@ namespace InternalUtilities
 		{
 			var exceptions = new List<Exception>();
 
+			// a book having no authors is rare but allowed
+
 			if (items.Any(i => string.IsNullOrWhiteSpace(i.ProductId)))
 				exceptions.Add(new ArgumentException($"Collection contains item(s) with blank {nameof(Item.ProductId)}", nameof(items)));
 			if (items.Any(i => string.IsNullOrWhiteSpace(i.Title)))
 				exceptions.Add(new ArgumentException($"Collection contains item(s) with blank {nameof(Item.Title)}", nameof(items)));
-			if (items.Any(i => i.Authors is null))
-				exceptions.Add(new ArgumentException($"Collection contains item(s) with null {nameof(Item.Authors)}", nameof(items)));
 
 			return exceptions;
 		}

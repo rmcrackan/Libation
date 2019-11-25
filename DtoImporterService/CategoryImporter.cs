@@ -33,8 +33,11 @@ namespace DtoImporterService
 				.Except(localIds)
 				.ToList();
 
+			// load existing => local
+			// remember to include default/empty/missing
+			var emptyName = Contributor.GetEmpty().Name;
 			if (remainingCategoryIds.Any())
-				context.Categories.Where(c => remainingCategoryIds.Contains(c.AudibleCategoryId)).ToList();
+				context.Categories.Where(c => remainingCategoryIds.Contains(c.AudibleCategoryId) || c.Name == emptyName).ToList();
 		}
 
 		// only use after loading contributors => local

@@ -63,20 +63,30 @@ namespace DtoImporterService
 
 		private static Book createNewBook(Item item, LibationContext context)
 		{
+			// absence of authors is very rare, but possible
+			if (!item.Authors?.Any() ?? true)
+				item.Authors = new[] { new Person { Name = "", Asin = null } };
+
 			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
 			var authors = item
 				.Authors
 				.Select(a => context.Contributors.Local.Single(c => a.Name == c.Name))
 				.ToList();
 
-			// if no narrators listed, author is the narrator
-			if (item.Narrators is null || !item.Narrators.Any())
-				item.Narrators = item.Authors;
-			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
-			var narrators = item
-				.Narrators
-				.Select(n => context.Contributors.Local.Single(c => n.Name == c.Name))
-				.ToList();
+			var narrators
+				= item.Narrators is null || !item.Narrators.Any()
+				// if no narrators listed, author is the narrator
+				? authors
+				// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
+				: item
+					.Narrators
+					.Select(n => context.Contributors.Local.Single(c => n.Name == c.Name))
+					.ToList();
+
+			// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
+			// absence of categories is very rare, but possible
+			var lastCategory = item.Categories.LastOrDefault()?.CategoryId ?? "";
+			var category = context.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == lastCategory);
 
 			var book = context.Books.Add(new Book(
 				new AudibleProductId(item.ProductId),
@@ -84,7 +94,8 @@ namespace DtoImporterService
 				item.Description,
 				item.LengthInMinutes,
 				authors,
-				narrators)
+				narrators,
+				category)
 			).Entity;
 
 			var publisherName = item.Publisher;
@@ -93,11 +104,6 @@ namespace DtoImporterService
 				var publisher = context.Contributors.Local.Single(c => publisherName == c.Name);
 				book.ReplacePublisher(publisher);
 			}
-
-			// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
-			var category = context.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == item.Categories.LastOrDefault().CategoryId);
-			if (category != null)
-				book.UpdateCategory(category, context);
 
 			book.UpdateBookDetails(item.IsAbridged, item.DatePublished);
 

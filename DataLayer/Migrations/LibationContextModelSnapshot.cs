@@ -127,6 +127,13 @@ namespace DataLayer.Migrations
                     b.HasIndex("Name");
 
                     b.ToTable("Contributors");
+
+                    b.HasData(
+                        new
+                        {
+                            ContributorId = -1,
+                            Name = ""
+                        });
                 });
 
             modelBuilder.Entity("DataLayer.LibraryBook", b =>

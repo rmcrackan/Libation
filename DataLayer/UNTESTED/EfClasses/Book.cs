@@ -62,7 +62,8 @@ namespace DataLayer
             string description,
             int lengthInMinutes,
 			IEnumerable<Contributor> authors,
-			IEnumerable<Contributor> narrators)
+			IEnumerable<Contributor> narrators,
+			Category category)
         {
             // validate
             ArgumentValidator.EnsureNotNull(audibleProductId, nameof(audibleProductId));
@@ -80,8 +81,7 @@ namespace DataLayer
             _seriesLink = new HashSet<SeriesBook>();
             _supplements = new HashSet<Supplement>();
 
-            // since category/id is never null, nullity means it hasn't been loaded
-            CategoryId = Category.GetEmpty().CategoryId;
+			Category = category;
 
             // simple assigns
             Title = title;
@@ -91,7 +91,7 @@ namespace DataLayer
             // assigns with biz logic
             ReplaceAuthors(authors);
             ReplaceNarrators(narrators);
-        }
+		}
 
         #region contributors, authors, narrators
         // use uninitialised backing fields - this means we can detect if the collection was loaded
@@ -233,8 +233,8 @@ namespace DataLayer
 
         public void UpdateCategory(Category category, DbContext context = null)
         {
-            // since category is never null, nullity means it hasn't been loaded
-            if (Category != null || CategoryId == Category.GetEmpty().CategoryId)
+            // since category is never null, nullity means it hasn't been loaded. non null means we're correctly loaded. just overwrite
+            if (Category != null)
             {
                 Category = category;
                 return;

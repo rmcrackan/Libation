@@ -18,8 +18,7 @@ namespace DataLayer
     public class Category
     {
         // Empty is a special case. use private ctor w/o validation
-        public static Category GetEmpty() => new Category { CategoryId = -1, AudibleCategoryId = "", Name = "", ParentCategory = null };
-        public bool IsEmpty() => string.IsNullOrWhiteSpace(AudibleCategoryId) || string.IsNullOrWhiteSpace(Name) || ParentCategory == null;
+        public static Category GetEmpty() => new Category { CategoryId = -1, AudibleCategoryId = "", Name = "" };
 
         internal int CategoryId { get; private set; }
         public string AudibleCategoryId { get; private set; }
