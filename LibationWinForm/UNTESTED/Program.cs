@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Dinah.Core.Logging;
 using Serilog;
 
 namespace LibationWinForm
@@ -45,11 +46,29 @@ Go to Import > Scan Library
 
 		private static void init()
 		{
+			// default. for reference. output example:
+			// 2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
+			var default_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}";
+			// with class and method info. output example:
+			// 2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForm.Program.init()) Begin Libation
+			var code_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
+
+
 			var logPath = System.IO.Path.Combine(FileManager.Configuration.Instance.LibationFiles, "Log.log");
+
 			Log.Logger = new LoggerConfiguration()
+				.Enrich.WithCaller()
 				.MinimumLevel.Debug()
-				.WriteTo.File(logPath, rollingInterval: RollingInterval.Month)
+				.WriteTo.File(logPath,
+					rollingInterval: RollingInterval.Month,
+					outputTemplate: code_outputTemplate)
 				.CreateLogger();
+
+			Log.Logger.Debug("Begin Libation");
+
+			// .Here() captures debug info via System.Runtime.CompilerServices attributes. Warning: expensive
+			//var withLineNumbers_outputTemplate = "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}in method {MemberName} at {FilePath}:{LineNumber}{NewLine}{Exception}{NewLine}";
+			//Log.Logger.Here().Debug("Begin Libation. Debug with line numbers");
 		}
 	}
 }

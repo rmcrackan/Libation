@@ -105,12 +105,12 @@ namespace FileManager
             catch (IOException)
             {
                 try { resave(); }
-                catch (IOException)
-                {
-                    Console.WriteLine("...that's not good");
-                    throw;
-                }
-            }
+				catch (IOException ex)
+				{
+					Serilog.Log.Logger.Error(ex, "Error saving QuickFilters.json");
+					throw;
+				}
+			}
         }
     }
 }

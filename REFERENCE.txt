@@ -1,6 +1,7 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
+v3.1-beta.6 : Improved logging
 v3.1-beta.5 : Improved importing
 v3.1-beta.4 : Added beta-specific logging
 v3.1-beta.3 : fixed known performance issue: Full-screen grid is slow to respond loading when books aren't liberated

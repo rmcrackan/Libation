@@ -19,12 +19,11 @@ namespace LibationWinForm
 		{
 			try
 			{
-				(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.IndexLibraryAsync(new Login.WinformResponder());
+				(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportLibraryAsync(new Login.WinformResponder());
 			}
 			catch (Exception ex)
 			{
-				var msg = "Error importing library. Please try again. If this happens after 2 or 3 tries, contact administrator";
-				Serilog.Log.Logger.Error(ex, msg);
+				var msg = "Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator";
 				MessageBox.Show(msg, "Error importing library", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 

@@ -13,10 +13,20 @@ namespace LibationWinForm.BookLiberation
             InitializeComponent();
         }
 
-        public void AppendError(Exception ex) => AppendText("ERROR: " + ex.Message);
-        public void AppendText(string text) => logTb.UIThread(() => logTb.AppendText($"{DateTime.Now} {text}{Environment.NewLine}"));
+		public void AppendError(Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Automated backup: error");
+			appendText("ERROR: " + ex.Message);
+		}
+		public void AppendText(string text)
+		{
+			Serilog.Log.Logger.Debug($"Automated backup: {text}");
+			appendText(text);
+		}
+		private void appendText(string text)
+			=> logTb.UIThread(() => logTb.AppendText($"{DateTime.Now} {text}{Environment.NewLine}"));
 
-        public void FinalizeUI()
+		public void FinalizeUI()
         {
             keepGoingCb.Enabled = false;
             logTb.AppendText("");

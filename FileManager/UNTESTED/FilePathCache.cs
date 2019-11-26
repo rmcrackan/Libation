@@ -83,9 +83,9 @@ namespace FileManager
             catch (IOException)
             {
                 try { resave(); }
-                catch (IOException)
-                {
-                    Console.WriteLine("...that's not good");
+                catch (IOException ex)
+				{
+					Serilog.Log.Logger.Error(ex, "Error saving FilePaths.json");
                     throw;
                 }
             }

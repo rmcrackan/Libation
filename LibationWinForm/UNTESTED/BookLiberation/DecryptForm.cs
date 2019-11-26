@@ -13,11 +13,10 @@ namespace LibationWinForm.BookLiberation
             InitializeComponent();
         }
 
-        System.IO.TextWriter origOut = Console.Out;
+        System.IO.TextWriter origOut { get; } = Console.Out;
         private void DecryptForm_Load(object sender, EventArgs e)
         {
             // redirect Console.WriteLine to console, textbox
-            System.IO.TextWriter origOut = Console.Out;
             var controlWriter = new RichTextBoxTextWriter(this.rtbLog);
             var multiLogger = new MultiTextWriter(origOut, controlWriter);
             Console.SetOut(multiLogger);
@@ -58,13 +57,19 @@ namespace LibationWinForm.BookLiberation
         public void SetCoverImage(byte[] coverBytes)
             => pictureBox1.UIThread(() => pictureBox1.Image = ImageReader.ToImage(coverBytes));
 
-        public static void AppendError(Exception ex) => AppendText("ERROR: " + ex.Message);
-        public static void AppendText(string text) =>
-            // redirected to log textbox
-            Console.WriteLine($"{DateTime.Now} {text}")
-            //logTb.UIThread(() => logTb.AppendText($"{DateTime.Now} {text}{Environment.NewLine}"))
-            ;
+		public void AppendError(Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Decrypt form: error");
+			appendText("ERROR: " + ex.Message);
+		}
+		public void AppendText(string text)
+		{
+			Serilog.Log.Logger.Debug($"Decrypt form: {text}");
+			appendText(text);
+		}
+		private void appendText(string text) => Console.WriteLine($"{DateTime.Now} {text}");
 
-        public void UpdateProgress(int percentage) => progressBar1.UIThread(() => progressBar1.Value = percentage);
+
+		public void UpdateProgress(int percentage) => progressBar1.UIThread(() => progressBar1.Value = percentage);
     }
 }

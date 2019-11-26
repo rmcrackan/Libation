@@ -27,11 +27,11 @@ namespace InternalUtilities
 					ResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS
 				});
 
-				string pageStr = null;
+				var pageStr = page.ToString();
+
 				LibraryDtoV10 libResult;
 				try
 				{
-					pageStr = page.ToString();
 					// important! use this convert method
 					libResult = LibraryDtoV10.FromJson(pageStr);
 				}
@@ -43,6 +43,8 @@ namespace InternalUtilities
 
 				if (!libResult.Items.Any())
 					break;
+				else
+					Serilog.Log.Logger.Debug($"Page {i}: {libResult.Items.Length} results");
 
 				allItems.AddRange(libResult.Items);
 			}
