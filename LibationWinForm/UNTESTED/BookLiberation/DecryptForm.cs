@@ -8,7 +8,13 @@ namespace LibationWinForm.BookLiberation
 {
     public partial class DecryptForm : Form
     {
-        public DecryptForm()
+		class SerilogTextWriter : System.IO.TextWriter
+		{
+			public override System.Text.Encoding Encoding => System.Text.Encoding.ASCII;
+			public override void WriteLine(string value) => Serilog.Log.Logger.Debug(value);
+		}
+
+		public DecryptForm()
         {
             InitializeComponent();
         }
@@ -18,7 +24,7 @@ namespace LibationWinForm.BookLiberation
         {
             // redirect Console.WriteLine to console, textbox
             var controlWriter = new RichTextBoxTextWriter(this.rtbLog);
-            var multiLogger = new MultiTextWriter(origOut, controlWriter);
+            var multiLogger = new MultiTextWriter(origOut, controlWriter, new SerilogTextWriter());
             Console.SetOut(multiLogger);
         }
 
@@ -56,19 +62,6 @@ namespace LibationWinForm.BookLiberation
 
         public void SetCoverImage(byte[] coverBytes)
             => pictureBox1.UIThread(() => pictureBox1.Image = ImageReader.ToImage(coverBytes));
-
-		public void AppendError(Exception ex)
-		{
-			Serilog.Log.Logger.Error(ex, "Decrypt form: error");
-			appendText("ERROR: " + ex.Message);
-		}
-		public void AppendText(string text)
-		{
-			Serilog.Log.Logger.Debug($"Decrypt form: {text}");
-			appendText(text);
-		}
-		private void appendText(string text) => Console.WriteLine($"{DateTime.Now} {text}");
-
 
 		public void UpdateProgress(int percentage) => progressBar1.UIThread(() => progressBar1.Value = percentage);
     }
