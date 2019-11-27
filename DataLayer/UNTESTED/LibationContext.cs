@@ -64,7 +64,8 @@ namespace DataLayer
 				.Entity<Contributor>()
 				.HasData(Contributor.GetEmpty());
 
-            // views are now supported via "query types" (instead of "entity types"): https://docs.microsoft.com/en-us/ef/core/modeling/query-types
-        }
-    }
+			// views are now supported via "keyless entity types" (instead of "entity types" or the prev "query types"):
+			// https://docs.microsoft.com/en-us/ef/core/modeling/keyless-entity-types
+		}
+	}
 }

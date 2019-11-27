@@ -109,21 +109,9 @@ namespace LibationWinForm
                 .Select(sp => sp.Book)
                 .ToList();
 
-			// will often fail once if book has been moved while libation is closed. just retry once for now
-			// fix actual issue later
-			//   FilePathCache.GetPath() :: inMemoryCache.SingleOrDefault(i => i.Id == id && i.FileType == type)
-			try
-			{
-				setBookBackupCounts(books);
-				setPdfBackupCounts(books);
-			}
-			catch (Exception ex)
-			{
-				System.Threading.Thread.Sleep(100);
-				setBookBackupCounts(books);
-				setPdfBackupCounts(books);
-			}
-        }
+			setBookBackupCounts(books);
+			setPdfBackupCounts(books);
+		}
         enum AudioFileState { full, aax, none }
         private void setBookBackupCounts(IEnumerable<Book> books)
         {
