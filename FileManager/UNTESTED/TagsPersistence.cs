@@ -27,11 +27,13 @@ namespace FileManager
 			= Policy.Handle<Exception>()
 			.WaitAndRetry(new[] { TimeSpan.FromMilliseconds(100) });
 
-        public static void Save(string productId, string tags)
+		public static void Save(IEnumerable<(string productId, string tags)> tagsCollection)
 		{
 			ensureCache();
 
-			cache[productId] = tags;
+			// on initial reload, there's a huge benefit to adding to cache individually then updating the file only once
+			foreach ((string productId, string tags) in tagsCollection)
+				cache[productId] = tags;
 
 			lock (locker)
 				policy.Execute(() => File.WriteAllText(TagsFile, JsonConvert.SerializeObject(cache, Formatting.Indented)));

@@ -26,13 +26,13 @@ namespace DataLayer
 
 		private static void persistTags(List<EntityEntry> modifiedEntities)
 		{
-			var tagSets = modifiedEntities
+			var tagsCollection = modifiedEntities
 				.Select(e => e.Entity as UserDefinedItem)
 				// filter by null but NOT by blank. blank is the valid way to show the absence of tags
 				.Where(a => a != null)
+				.Select(t => (t.Book.AudibleProductId, t.Tags))
 				.ToList();
-			foreach (var t in tagSets)
-				FileManager.TagsPersistence.Save(t.Book.AudibleProductId, t.Tags);
+			FileManager.TagsPersistence.Save(tagsCollection);
 		}
 	}
 }

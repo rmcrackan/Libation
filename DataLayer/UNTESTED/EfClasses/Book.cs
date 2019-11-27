@@ -123,16 +123,10 @@ namespace DataLayer
             ArgumentValidator.EnsureEnumerableNotNullOrEmpty(newContributors, nameof(newContributors));
 
             // the edge cases of doing local-loaded vs remote-only got weird. just load it
-            if (_contributorsLink == null)
-            {
-                ArgumentValidator.EnsureNotNull(context, nameof(context));
-                if (!context.Entry(this).IsKeySet)
-                    throw new InvalidOperationException("Could not add contributors");
+            if (_contributorsLink is null)
+				getEntry(context).Collection(s => s.ContributorsLink).Load();
 
-                context.Entry(this).Collection(s => s.ContributorsLink).Load();
-            }
-
-            var roleContributions = getContributions(role);
+			var roleContributions = getContributions(role);
             var isIdentical = roleContributions.Select(c => c.Contributor).SequenceEqual(newContributors);
             if (isIdentical)
                 return;
@@ -140,7 +134,8 @@ namespace DataLayer
             _contributorsLink.RemoveWhere(bc => bc.Role == role);
             addNewContributors(newContributors, role);
         }
-        private void addNewContributors(IEnumerable<Contributor> newContributors, Role role)
+
+		private void addNewContributors(IEnumerable<Contributor> newContributors, Role role)
         {
             byte order = 0;
             var newContributionsEnum = newContributors.Select(c => new BookContributor(this, c, role, order++));
@@ -154,6 +149,18 @@ namespace DataLayer
                 .OrderBy(a => a.Order)
                 .ToList();
         #endregion
+
+		private Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<Book> getEntry(DbContext context)
+		{
+			ArgumentValidator.EnsureNotNull(context, nameof(context));
+
+			var entry = context.Entry(this);
+
+			if (!entry.IsKeySet)
+				throw new InvalidOperationException("Could not load a valid Book from database");
+
+			return entry;
+		}
 
         #region series
         private HashSet<SeriesBook> _seriesLink;
@@ -186,16 +193,10 @@ namespace DataLayer
 
             // our add() is conditional upon what's already included in the collection.
             // therefore if not loaded, a trip is required. might as well just load it
-            if (_seriesLink == null)
-            {
-                ArgumentValidator.EnsureNotNull(context, nameof(context));
-                if (!context.Entry(this).IsKeySet)
-                    throw new InvalidOperationException("Could not add series");
+            if (_seriesLink is null)
+				getEntry(context).Collection(s => s.SeriesLink).Load();
 
-                context.Entry(this).Collection(s => s.SeriesLink).Load();
-            }
-
-            var singleSeriesBook = _seriesLink.SingleOrDefault(sb => sb.Series == series);
+			var singleSeriesBook = _seriesLink.SingleOrDefault(sb => sb.Series == series);
             if (singleSeriesBook == null)
                 _seriesLink.Add(new SeriesBook(series, this, index));
             else
@@ -211,8 +212,7 @@ namespace DataLayer
         public void AddSupplementDownloadUrl(string url)
         {
             // supplements are owned by Book, so no need to Load():
-            // OwnsMany: "Can only ever appear on navigation properties of other entity types.
-            //  Are automatically loaded, and can only be tracked by a DbContext alongside their owner."
+            //  Are automatically loaded, and can only be tracked by a DbContext alongside their owner.
 
             ArgumentValidator.EnsureNotNullOrWhiteSpace(url, nameof(url));
 
@@ -232,19 +232,12 @@ namespace DataLayer
         }
 
         public void UpdateCategory(Category category, DbContext context = null)
-        {
-            // since category is never null, nullity means it hasn't been loaded. non null means we're correctly loaded. just overwrite
-            if (Category != null)
-            {
-                Category = category;
-                return;
-            }
+		{
+			// since category is never null, nullity means it hasn't been loaded
+			if (Category is null)
+				getEntry(context).Reference(s => s.Category).Load();
 
-            if (context == null)
-                throw new Exception("need context");
-            
-            context.Entry(this).Reference(s => s.Category).Load();
-            Category = category;
+			Category = category;
         }
 
 		public override string ToString() => $"[{AudibleProductId}] {Title}";

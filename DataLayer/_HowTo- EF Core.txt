@@ -7,15 +7,22 @@ nuget
 Microsoft.EntityFrameworkCore.Tools (needed for using Package Manager Console)
 Microsoft.EntityFrameworkCore.Sqlite
 
-MIGRATIONS require standard, not core
-using standard instead of core. edit 3 things in csproj
-1of3: pluralize xml TargetFramework tag to TargetFrameworks
-2of2: TargetFrameworks from: netstandard2.1
-to: netcoreapp3.0;netstandard2.1
-3of3: add
-  <PropertyGroup>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-  </PropertyGroup>
+MIGRATIONS
+  require core, not standard
+  this can be a problem b/c standard and framework can only reference standard, not core
+TO USE MIGRATIONS (core and/or standard)
+  add to csproj
+    <PropertyGroup>
+      <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    </PropertyGroup>
+TO USE MIGRATIONS AS *BOTH* CORE AND STANDARD
+  edit csproj
+    pluralize this xml tag
+      from: TargetFramework
+      to: TargetFrameworks
+    inside of TargetFrameworks
+      from: netstandard2.1
+      to: netcoreapp3.0;netstandard2.1
 
 run. error
 SQLite Error 1: 'no such table: Blogs'.
