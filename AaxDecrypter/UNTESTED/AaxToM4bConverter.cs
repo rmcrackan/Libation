@@ -72,8 +72,9 @@ namespace AaxDecrypter
         }
         private AaxToM4bConverter(string inputFile, string decryptKey)
         {
-            if (string.IsNullOrWhiteSpace(inputFile)) throw new ArgumentNullException(nameof(inputFile), "Input file may not be null or whitespace");
-            if (!File.Exists(inputFile)) throw new ArgumentNullException(nameof(inputFile), "File does not exist");
+			ArgumentValidator.EnsureNotNullOrWhiteSpace(inputFile, nameof(inputFile));
+            if (!File.Exists(inputFile))
+                throw new ArgumentNullException(nameof(inputFile), "File does not exist");
 
             steps = new StepSequence
             {
@@ -89,20 +90,20 @@ namespace AaxDecrypter
                 ["End: Create Nfo"] = End_CreateNfo
             };
 
-            this.inputFileName = inputFile;
+            inputFileName = inputFile;
             this.decryptKey = decryptKey;
         }
 
         private async Task prelimProcessing()
         {
-            this.tags = new Tags(this.inputFileName);
-            this.encodingInfo = new EncodingInfo(this.inputFileName);
-            this.chapters = new Chapters(this.inputFileName, this.tags.duration.TotalSeconds);
+            tags = new Tags(inputFileName);
+            encodingInfo = new EncodingInfo(inputFileName);
+            chapters = new Chapters(inputFileName, tags.duration.TotalSeconds);
 
             var defaultFilename = Path.Combine(
-                Path.GetDirectoryName(this.inputFileName),
-                getASCIITag(this.tags.author),
-                getASCIITag(this.tags.title) + ".m4b"
+                Path.GetDirectoryName(inputFileName),
+                getASCIITag(tags.author),
+                getASCIITag(tags.title) + ".m4b"
                 );
             SetOutputFilename(defaultFilename);
 
@@ -118,7 +119,7 @@ namespace AaxDecrypter
         private void saveCover(string aaxFile)
         {
 			using var file = TagLib.File.Create(aaxFile, "audio/mp4", TagLib.ReadStyle.Average);
-			this.coverBytes = file.Tag.Pictures[0].Data.Data;
+			coverBytes = file.Tag.Pictures[0].Data.Data;
 		}
 
         private void printPrelim()
@@ -156,21 +157,21 @@ namespace AaxDecrypter
 
         public void SetOutputFilename(string outFileName)
         {
-            this.outputFileName = outFileName;
+            outputFileName = outFileName;
 
-            if (Path.GetExtension(this.outputFileName) != ".m4b")
-                this.outputFileName = outputFileWithNewExt(".m4b");
+            if (Path.GetExtension(outputFileName) != ".m4b")
+                outputFileName = outputFileWithNewExt(".m4b");
 
-            this.outDir = Path.GetDirectoryName(this.outputFileName);
+            outDir = Path.GetDirectoryName(outputFileName);
         }
 
         private string outputFileWithNewExt(string extension)
-            => Path.Combine(this.outDir, Path.GetFileNameWithoutExtension(this.outputFileName) + '.' + extension.Trim('.'));
+            => Path.Combine(outDir, Path.GetFileNameWithoutExtension(outputFileName) + '.' + extension.Trim('.'));
 
         public bool Step1_CreateDir()
         {
-            ProcessRunner.WorkingDir = this.outDir;
-            Directory.CreateDirectory(this.outDir);
+            ProcessRunner.WorkingDir = outDir;
+            Directory.CreateDirectory(outDir);
             return true;
         }
 
@@ -178,7 +179,7 @@ namespace AaxDecrypter
         {
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            var tempRipFile = Path.Combine(this.outDir, "funny.aac");
+            var tempRipFile = Path.Combine(outDir, "funny.aac");
 
             var fail = "WARNING-Decrypt failure. ";
 
@@ -193,7 +194,7 @@ namespace AaxDecrypter
                 if (returnCode == -99)
                 {
                     Console.WriteLine($"{fail}Incorrect decrypt key: {decryptKey}");
-                    this.decryptKey = null;
+                    decryptKey = null;
                     returnCode = getKey_decrypt(tempRipFile);
                 }
             }
@@ -232,7 +233,7 @@ namespace AaxDecrypter
 
             Console.WriteLine("Cracking activation bytes");
             var activation_bytes = BytesCracker.GetActivationBytes(checksum);
-            this.decryptKey = activation_bytes;
+            decryptKey = activation_bytes;
             Console.WriteLine("Activation bytes cracked. Decrypt key: " + activation_bytes);
         }
 
@@ -243,10 +244,10 @@ namespace AaxDecrypter
             Console.WriteLine("Decrypting with key " + decryptKey);
 
             var returnCode = 100;
-            var thread = new Thread(() => returnCode = this.ngDecrypt());
+            var thread = new Thread(() => returnCode = ngDecrypt());
             thread.Start();
 
-            double fileLen = new FileInfo(this.inputFileName).Length;
+            double fileLen = new FileInfo(inputFileName).Length;
             while (thread.IsAlive && returnCode == 100)
             {
                 Thread.Sleep(500);
@@ -266,7 +267,7 @@ namespace AaxDecrypter
             var info = new ProcessStartInfo
             {
                 FileName = DecryptSupportLibraries.mp4trackdumpPath,
-                Arguments = "-c " + this.encodingInfo.channels + " -r " + this.encodingInfo.sampleRate + " \"" + this.inputFileName + "\""
+                Arguments = "-c " + encodingInfo.channels + " -r " + encodingInfo.sampleRate + " \"" + inputFileName + "\""
             };
             info.EnvironmentVariables["VARIABLE"] = decryptKey;
 
@@ -280,20 +281,20 @@ namespace AaxDecrypter
         }
 
         // temp file names for steps 3, 4, 5
-        string tempChapsPath => Path.Combine(this.outDir, "tempChaps.mp4");
+        string tempChapsPath => Path.Combine(outDir, "tempChaps.mp4");
         string mp4_file => outputFileWithNewExt(".mp4");
         string ff_txt_file => mp4_file + ".ff.txt";
 
         public bool Step3_Chapterize()
         {
             string str1 = "";
-            if (this.chapters.FirstChapterStart != 0.0)
+            if (chapters.FirstChapterStart != 0.0)
             {
-                str1 = " -ss " + this.chapters.FirstChapterStart.ToString("0.000", CultureInfo.InvariantCulture) + " -t " + (this.chapters.LastChapterStart - 1.0).ToString("0.000", CultureInfo.InvariantCulture) + " ";
+                str1 = " -ss " + chapters.FirstChapterStart.ToString("0.000", CultureInfo.InvariantCulture) + " -t " + (chapters.LastChapterStart - 1.0).ToString("0.000", CultureInfo.InvariantCulture) + " ";
             }
 
-            string ffmpegTags = this.tags.GenerateFfmpegTags();
-            string ffmpegChapters = this.chapters.GenerateFfmpegChapters();
+            string ffmpegTags = tags.GenerateFfmpegTags();
+            string ffmpegChapters = chapters.GenerateFfmpegChapters();
             File.WriteAllText(ff_txt_file, ffmpegTags + ffmpegChapters);
 
             var tagAndChapterInfo = new ProcessStartInfo
@@ -309,8 +310,8 @@ namespace AaxDecrypter
         public bool Step4_InsertCoverArt()
         {
             // save cover image as temp file
-            var coverPath = Path.Combine(this.outDir, "cover-" + Guid.NewGuid() + ".jpg");
-            FileExt.CreateFile(coverPath, this.coverBytes);
+            var coverPath = Path.Combine(outDir, "cover-" + Guid.NewGuid() + ".jpg");
+            FileExt.CreateFile(coverPath, coverBytes);
 
             var insertCoverArtInfo = new ProcessStartInfo
             {
@@ -329,26 +330,26 @@ namespace AaxDecrypter
         {
             FileExt.SafeDelete(mp4_file);
             FileExt.SafeDelete(ff_txt_file);
-            FileExt.SafeMove(tempChapsPath, this.outputFileName);
+            FileExt.SafeMove(tempChapsPath, outputFileName);
 
             return true;
         }
 
         public bool Step6_AddTags()
         {
-            this.tags.AddAppleTags(this.outputFileName);
+            tags.AddAppleTags(outputFileName);
             return true;
         }
 
         public bool End_CreateCue()
         {
-            File.WriteAllText(outputFileWithNewExt(".cue"), this.chapters.GetCuefromChapters(Path.GetFileName(this.outputFileName)));
+            File.WriteAllText(outputFileWithNewExt(".cue"), chapters.GetCuefromChapters(Path.GetFileName(outputFileName)));
             return true;
         }
 
         public bool End_CreateNfo()
         {
-            File.WriteAllText(outputFileWithNewExt(".nfo"), NFO.CreateNfoContents(AppName, this.tags, this.encodingInfo, this.chapters));
+            File.WriteAllText(outputFileWithNewExt(".nfo"), NFO.CreateNfoContents(AppName, tags, encodingInfo, chapters));
             return true;
         }
     }

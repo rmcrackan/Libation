@@ -28,7 +28,7 @@ namespace AaxDecrypter
 			using TagLib.File tagLibFile = TagLib.File.Create(file, "audio/mp4", ReadStyle.Average);
 			this.title = tagLibFile.Tag.Title.Replace(" (Unabridged)", "");
 			this.album = tagLibFile.Tag.Album.Replace(" (Unabridged)", "");
-			this.author = tagLibFile.Tag.FirstPerformer;
+			this.author = tagLibFile.Tag.FirstPerformer ?? "[unknown]";
 			this.year = tagLibFile.Tag.Year.ToString();
 			this.comments = tagLibFile.Tag.Comment;
 			this.duration = tagLibFile.Properties.Duration;
