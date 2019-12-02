@@ -101,11 +101,9 @@ namespace FileLiberator
                 // REAL WORK DONE HERE
                 var success = await Task.Run(() => converter.Run());
 
+                // decrypt failed
                 if (!success)
-                {
-                    Console.WriteLine("decrypt failed");
                     return null;
-                }
 
                 Configuration.Instance.DecryptKey = converter.decryptKey;
 
