@@ -105,7 +105,9 @@ namespace AaxDecrypter
                 getASCIITag(tags.author),
                 getASCIITag(tags.title) + ".m4b"
                 );
-            SetOutputFilename(defaultFilename);
+
+			// set default name
+			SetOutputFilename(defaultFilename);
 
             await Task.Run(() => saveCover(inputFileName));
         }
@@ -161,6 +163,9 @@ namespace AaxDecrypter
 
             if (Path.GetExtension(outputFileName) != ".m4b")
                 outputFileName = outputFileWithNewExt(".m4b");
+
+			if (File.Exists(outputFileName))
+				File.Delete(outputFileName);
 
             outDir = Path.GetDirectoryName(outputFileName);
         }
@@ -280,8 +285,9 @@ namespace AaxDecrypter
             return exitCode;
         }
 
-        // temp file names for steps 3, 4, 5
-        string tempChapsPath => Path.Combine(outDir, "tempChaps.mp4");
+		// temp file names for steps 3, 4, 5
+        string tempChapsGuid { get; } = Guid.NewGuid().ToString().ToUpper().Replace("-", "");
+        string tempChapsPath => Path.Combine(outDir, $"tempChaps_{tempChapsGuid}.mp4");
         string mp4_file => outputFileWithNewExt(".mp4");
         string ff_txt_file => mp4_file + ".ff.txt";
 

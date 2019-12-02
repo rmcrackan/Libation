@@ -44,6 +44,14 @@ namespace FileLiberator
 				tempAaxFilename,
 				(p) => api.DownloadAaxWorkaroundAsync(libraryBook.Book.AudibleProductId, tempAaxFilename, p));
 
+			// if bad file download, a 0-33 byte file will be created
+			System.Threading.Thread.Sleep(100);
+			if (new FileInfo(actualFilePath).Length < 100)
+			{
+				File.Delete(actualFilePath);
+				throw new Exception("Error downloading file");
+			}
+
 			return actualFilePath;
 		}
 
