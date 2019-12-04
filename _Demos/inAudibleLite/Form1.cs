@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using AaxDecrypter;
 using Dinah.Core.IO;
+using Dinah.Core.Logging;
 using Dinah.Core.Windows.Forms;
+using Serilog;
 
 namespace inAudibleLite
 {
@@ -23,18 +25,44 @@ namespace inAudibleLite
 			InitializeComponent();
 			this.btnConvert.Enabled = false;
 
-			initLogging();
+			initSerilog();
+			redirectWriteLine();
 		}
 
-		private void initLogging()
+		private static void initSerilog()
+		{
+			// default. for reference. output example:
+			// 2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
+			var default_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}";
+			// with class and method info. output example:
+			// 2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForm.Program.init()) Begin Libation
+			var code_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
+
+
+			var logPath = Path.Combine(Path.GetTempPath(), "Log.log");
+
+			Log.Logger = new LoggerConfiguration()
+				.Enrich.WithCaller()
+				.MinimumLevel.Debug()
+				.WriteTo.File(logPath,
+					rollingInterval: RollingInterval.Month,
+					outputTemplate: code_outputTemplate)
+				.CreateLogger();
+
+			Log.Logger.Debug("Begin Libation");
+
+			// .Here() captures debug info via System.Runtime.CompilerServices attributes. Warning: expensive
+			//var withLineNumbers_outputTemplate = "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}in method {MemberName} at {FilePath}:{LineNumber}{NewLine}{Exception}{NewLine}";
+			//Log.Logger.Here().Debug("Begin Libation. Debug with line numbers");
+		}
+
+		private void redirectWriteLine()
 		{
 			// redirect Console.WriteLine to console, log file, textbox
-			var origOut = Console.Out;
-			var controlWriter = new RichTextBoxTextWriter(this.rtbLog);
-			var tempPath = Path.GetTempPath();
-			var logger1 = new FileLogger(Path.Combine(tempPath, APP_NAME));
-			var logger2 = new FileLoggerTextWriter(logger1);
-			var multiLogger = new MultiTextWriter(origOut, controlWriter, logger2);
+			var multiLogger = new MultiTextWriter(
+				Console.Out,
+				new RichTextBoxTextWriter(this.rtbLog),
+				new SerilogTextWriter());
 			Console.SetOut(multiLogger);
 		}
 

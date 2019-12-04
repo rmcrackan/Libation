@@ -8,12 +8,6 @@ namespace LibationWinForm.BookLiberation
 {
     public partial class DecryptForm : Form
     {
-		class SerilogTextWriter : System.IO.TextWriter
-		{
-			public override System.Text.Encoding Encoding => System.Text.Encoding.ASCII;
-			public override void WriteLine(string value) => Serilog.Log.Logger.Debug(value);
-		}
-
 		public DecryptForm()
         {
             InitializeComponent();
@@ -23,8 +17,10 @@ namespace LibationWinForm.BookLiberation
         private void DecryptForm_Load(object sender, EventArgs e)
         {
             // redirect Console.WriteLine to console, textbox
-            var controlWriter = new RichTextBoxTextWriter(this.rtbLog);
-            var multiLogger = new MultiTextWriter(origOut, controlWriter, new SerilogTextWriter());
+            var multiLogger = new MultiTextWriter(
+                origOut,
+                new RichTextBoxTextWriter(this.rtbLog),
+                new SerilogTextWriter());
             Console.SetOut(multiLogger);
         }
 
