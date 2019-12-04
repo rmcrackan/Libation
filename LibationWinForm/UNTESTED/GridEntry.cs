@@ -26,15 +26,15 @@ namespace LibationWinForm
 		[Browsable(false)]
 		public IEnumerable<string> TagsEnumerated => book.UserDefinedItem.TagsEnumerated;
 
-		// formatReplacements is what gets displayed
+		// displayValues is what gets displayed
 		// the value that gets returned from the property is the cell's value
 		// this allows for the value to be sorted one way and displayed another
 		// eg:
 		//   orig title: The Computer
 		//   formatReplacement: The Computer
 		//   value for sorting: Computer
-		private Dictionary<string, string> formatReplacements { get; } = new Dictionary<string, string>();
-		public bool TryGetFormatted(string key, out string value) => formatReplacements.TryGetValue(key, out value);
+		private Dictionary<string, string> displayValues { get; } = new Dictionary<string, string>();
+		public bool TryDisplayValue(string key, out string value) => displayValues.TryGetValue(key, out value);
 
 		public Image Cover =>
 			WindowsDesktopUtilities.WinAudibleImageServer.GetImage(book.PictureId, FileManager.PictureSize._80x80);
@@ -43,16 +43,8 @@ namespace LibationWinForm
 		{
 			get
 			{
-				formatReplacements[nameof(Title)] = book.Title;
-
-				var sortName = book.Title
-					.Replace("|", "")
-					.Replace(":", "")
-					.ToLowerInvariant();
-				if (sortName.StartsWith("the ") || sortName.StartsWith("a ") || sortName.StartsWith("an "))
-					sortName = sortName.Substring(sortName.IndexOf(" ") + 1);
-
-				return sortName;
+				displayValues[nameof(Title)] = book.Title;
+				return getSortName(book.Title);
 			}
 		}
 
@@ -63,7 +55,7 @@ namespace LibationWinForm
 		{
 			get
 			{
-				formatReplacements[nameof(Length)]
+				displayValues[nameof(Length)]
 					= book.LengthInMinutes == 0
 					? ""
 					: $"{book.LengthInMinutes / 60} hr {book.LengthInMinutes % 60} min";
@@ -72,7 +64,29 @@ namespace LibationWinForm
 			}
 		}
 
-		public string Series => book.SeriesNames;
+		public string Series
+		{
+			get
+			{
+				displayValues[nameof(Series)] = book.SeriesNames;
+				return getSortName(book.SeriesNames);
+			}
+		}
+
+		private static string[] sortPrefixIgnores { get; } = new[] { "the", "a", "an" };
+		private static string getSortName(string unformattedName)
+		{
+			var sortName = unformattedName
+				.Replace("|", "")
+				.Replace(":", "")
+				.ToLowerInvariant()
+				.Trim();
+
+			if (sortPrefixIgnores.Any(prefix => sortName.StartsWith(prefix + " ")))
+				sortName = sortName.Substring(sortName.IndexOf(" ") + 1).TrimStart();
+
+			return sortName;
+		}
 
 		private string descriptionCache = null;
 		public string Description
@@ -111,7 +125,7 @@ namespace LibationWinForm
 		{
 			get
 			{
-				formatReplacements[nameof(Product_Rating)] = starString(book.Rating);
+				displayValues[nameof(Product_Rating)] = starString(book.Rating);
 				return firstScore(book.Rating);
 			}
 		}
@@ -120,7 +134,7 @@ namespace LibationWinForm
 		{
 			get
 			{
-				formatReplacements[nameof(Purchase_Date)] = libraryBook.DateAdded.ToString("d");
+				displayValues[nameof(Purchase_Date)] = libraryBook.DateAdded.ToString("d");
 				return libraryBook.DateAdded.ToString("yyyy-MM-dd HH:mm:ss");
 			}
 		}
@@ -129,7 +143,7 @@ namespace LibationWinForm
         {
             get
             {
-                formatReplacements[nameof(My_Rating)] = starString(book.UserDefinedItem.Rating);
+                displayValues[nameof(My_Rating)] = starString(book.UserDefinedItem.Rating);
                 return firstScore(book.UserDefinedItem.Rating);
             }
         }

@@ -179,7 +179,7 @@ namespace LibationWinForm
             var liveGridEntry = getGridEntry(e.RowIndex);
 
             // EditTagsDialog should display better-formatted title
-            liveGridEntry.TryGetFormatted(nameof(liveGridEntry.Title), out string value);
+            liveGridEntry.TryDisplayValue(nameof(liveGridEntry.Title), out string value);
 
             var editTagsForm = new EditTagsDialog(value, liveGridEntry.Tags);
             if (editTagsForm.ShowDialog() != DialogResult.OK)
@@ -201,11 +201,11 @@ namespace LibationWinForm
         private void replaceFormatted(object sender, DataGridViewCellFormattingEventArgs e)
         {
             var col = ((DataGridView)sender).Columns[e.ColumnIndex];
-            if (col is DataGridViewTextBoxColumn textCol && getGridEntry(e.RowIndex).TryGetFormatted(textCol.Name, out string value))
+            if (col is DataGridViewTextBoxColumn textCol && getGridEntry(e.RowIndex).TryDisplayValue(textCol.Name, out string value))
                 e.Value = value;
         }
 
-        private void hiddenFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        private void hiddenFormatting(object _, DataGridViewCellFormattingEventArgs e)
         {
             var isHidden = getGridEntry(e.RowIndex).TagsEnumerated.Contains("hidden");
 
