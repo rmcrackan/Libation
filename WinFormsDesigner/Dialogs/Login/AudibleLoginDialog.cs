@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LibationWinForm_Framework.Dialogs.Login
+namespace WinFormsDesigner.Dialogs.Login
 {
 	public partial class AudibleLoginDialog : Form
 	{

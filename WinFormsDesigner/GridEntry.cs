@@ -12,6 +12,9 @@ namespace WinFormsDesigner
         [Browsable(false)]
         public IEnumerable<string> TagsEnumerated { get; set; }
 
+		[Browsable(false)]
+		public string Download_Status { get; set; }
+
 		public Image Cover { get; set; }
 		public string Title { get; set; }
 		public string Authors { get; set; }
@@ -24,6 +27,5 @@ namespace WinFormsDesigner
 		public DateTime? Purchase_Date { get; set; }
 		public string My_Rating { get; set; }
         public string Misc { get; set; }
-		public string Download_Status { get; set; }
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace LibationWinForm_Framework.Dialogs
+﻿namespace WinFormsDesigner.Dialogs
 {
 	partial class IndexLibraryDialog
 	{

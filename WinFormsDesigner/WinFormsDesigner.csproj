@@ -166,7 +166,7 @@
     <EmbeddedResource Include="ProductsGrid.resx">
       <DependentUpon>ProductsGrid.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="Properties\DataSources\LibationWinForm_Framework.ProductGrids.GridEntry.datasource" />
+    <None Include="Properties\DataSources\WinFormsDesigner.GridEntry.datasource" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

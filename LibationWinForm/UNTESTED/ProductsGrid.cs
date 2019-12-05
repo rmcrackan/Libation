@@ -28,27 +28,28 @@ namespace LibationWinForm
 	{
 		public event EventHandler<int> VisibleCountChanged;
 
-		private DataGridView dataGridView;
+        private const string EDIT_TAGS = "Edit Tags";
+        private const string LIBERATE = "Liberate";
+
+        // alias
+        private DataGridView dataGridView => gridEntryDataGridView;
+
 		private LibationContext context;
 
 		public ProductsGrid()
 		{
 			InitializeComponent();
-
+            formatDataGridView();
+            addLiberateButtons();
+            addEditTagsButtons();
+            formatColumns();
 			Disposed += (_, __) => context?.Dispose();
 
 			manageLiveImageUpdateSubscriptions();
 		}
 
-		private bool hasBeenDisplayed = false;
-        public void Display()
+        private void formatDataGridView()
         {
-            if (hasBeenDisplayed)
-                return;
-            hasBeenDisplayed = true;
-
-            dataGridView = gridEntryDataGridView;
-
             dataGridView.Dock = DockStyle.Fill;
             dataGridView.AllowUserToAddRows = false;
             dataGridView.AllowUserToDeleteRows = false;
@@ -57,26 +58,150 @@ namespace LibationWinForm
             dataGridView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             dataGridView.ReadOnly = true;
             dataGridView.RowHeadersVisible = false;
+
             // adjust height for 80x80 pictures.
             // this must be done before databinding. or can alter later by iterating through rows
             dataGridView.RowTemplate.Height = 82;
             dataGridView.CellFormatting += replaceFormatted;
             dataGridView.CellFormatting += hiddenFormatting;
+
             // sorting breaks filters. must reapply filters after sorting
             dataGridView.Sorted += (_, __) => filter();
+        }
 
-            { // add tag buttons
-                var editUserTagsButton = new DataGridViewButtonColumn { HeaderText = "Edit Tags" };
-                dataGridView.Columns.Add(editUserTagsButton);
+        #region format text cells. ie: not buttons
+        private void replaceFormatted(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            var col = ((DataGridView)sender).Columns[e.ColumnIndex];
+            if (col is DataGridViewTextBoxColumn textCol && GetGridEntry(e.RowIndex).TryDisplayValue(textCol.Name, out string value))
+                e.Value = value;
+        }
 
-                // add image and handle click
-                dataGridView.CellPainting += paintEditTag_TextAndImage;
-                dataGridView.CellContentClick += dataGridView_GridButtonClick;
+        private void hiddenFormatting(object _, DataGridViewCellFormattingEventArgs e)
+        {
+            var isHidden = GetGridEntry(e.RowIndex).TagsEnumerated.Contains("hidden");
+
+            dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Style
+                = isHidden
+                ? new DataGridViewCellStyle { ForeColor = Color.LightGray }
+                : dataGridView.DefaultCellStyle;
+        }
+        #endregion
+
+        #region liberation buttons
+        private void addLiberateButtons()
+        {
+            dataGridView.Columns.Insert(0, new DataGridViewButtonColumn { HeaderText = LIBERATE });
+
+            dataGridView.CellPainting += liberate_Paint;
+            dataGridView.CellContentClick += liberate_Click;
+        }
+
+        private void liberate_Paint(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            var dgv = (DataGridView)sender;
+
+            if (!isColumnValid(dgv, e.RowIndex, e.ColumnIndex, LIBERATE))
+                return;
+
+            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = GetGridEntry(e.RowIndex).Download_Status;
+        }
+
+        private void liberate_Click(object sender, DataGridViewCellEventArgs e)
+        {
+            var dgv = (DataGridView)sender;
+
+            if (!isColumnValid(dgv, e.RowIndex, e.ColumnIndex, LIBERATE))
+                return;
+
+        }
+        #endregion
+
+        #region tag buttons
+        private void addEditTagsButtons()
+        {
+            dataGridView.Columns.Add(new DataGridViewButtonColumn { HeaderText = EDIT_TAGS });
+
+            dataGridView.CellPainting += editTags_Paint;
+            dataGridView.CellContentClick += editTags_Click;
+        }
+
+        private void editTags_Paint(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            // DataGridView Image for Button Column: https://stackoverflow.com/a/36253883
+
+            var dgv = (DataGridView)sender;
+
+            if (!isColumnValid(dgv, e.RowIndex, e.ColumnIndex, EDIT_TAGS))
+                return;
+
+            var displayTags = GetGridEntry(e.RowIndex).TagsEnumerated.ToList();
+
+            var cell = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+            if (displayTags.Any())
+                cell.Value = string.Join("\r\n", displayTags);
+            else // no tags: use image
+            {
+                // clear tag text
+                cell.Value = "";
+
+                var image = Properties.Resources.edit_tags_25x25;
+
+                e.Paint(e.CellBounds, DataGridViewPaintParts.All);
+
+                var w = image.Width;
+                var h = image.Height;
+                var x = e.CellBounds.Left + (e.CellBounds.Width - w) / 2;
+                var y = e.CellBounds.Top + (e.CellBounds.Height - h) / 2;
+
+                e.Graphics.DrawImage(image, new Rectangle(x, y, w, h));
+                e.Handled = true;
             }
+        }
 
+        private void editTags_Click(object sender, DataGridViewCellEventArgs e)
+        {
+            // handle grid button click: https://stackoverflow.com/a/13687844
+
+            var dgv = (DataGridView)sender;
+
+            if (!isColumnValid(dgv, e.RowIndex, e.ColumnIndex, EDIT_TAGS))
+                return;
+
+            var liveGridEntry = GetGridEntry(e.RowIndex);
+
+            // EditTagsDialog should display better-formatted title
+            liveGridEntry.TryDisplayValue(nameof(liveGridEntry.Title), out string value);
+
+            var editTagsForm = new EditTagsDialog(value, liveGridEntry.Tags);
+            if (editTagsForm.ShowDialog() != DialogResult.OK)
+                return;
+
+			var qtyChanges = context.UpdateTags(liveGridEntry.GetBook(), editTagsForm.NewTags);
+			if (qtyChanges == 0)
+                return;
+
+            // force a re-draw, and re-apply filters
+
+            // needed to update text colors
+            dgv.InvalidateRow(e.RowIndex);
+
+            filter();
+        }
+        #endregion
+
+        private static bool isColumnValid(DataGridView dgv, int rowIndex, int colIndex, string colName)
+        {
+            var col = dgv.Columns[colIndex];
+            return rowIndex >= 0 && col.HeaderText == colName && col is DataGridViewButtonColumn;
+        }
+
+        private void formatColumns()
+        {
             for (var i = dataGridView.ColumnCount - 1; i >= 0; i--)
             {
-                DataGridViewColumn col = dataGridView.Columns[i];
+                var col = dataGridView.Columns[i];
 
                 // initial HeaderText is the lookup name from GridEntry class. any formatting below won't change this
                 col.Name = col.HeaderText;
@@ -86,35 +211,59 @@ namespace LibationWinForm
 
                 col.HeaderText = col.HeaderText.Replace("_", " ");
 
-				col.Width = col.Name switch
-				{
-					nameof(GridEntry.Cover) => 80,
-					nameof(GridEntry.Title) => col.Width * 2,
-					nameof(GridEntry.Misc) => (int)(col.Width * 1.35),
-					var n when n.In(nameof(GridEntry.My_Rating), nameof(GridEntry.Product_Rating)) => col.Width + 8,
-					_ => col.Width
-				};
+                col.Width = col.Name switch
+                {
+                    nameof(GridEntry.Cover) => 80,
+                    nameof(GridEntry.Title) => col.Width * 2,
+                    nameof(GridEntry.Misc) => (int)(col.Width * 1.35),
+                    var n when n.In(nameof(GridEntry.My_Rating), nameof(GridEntry.Product_Rating)) => col.Width + 8,
+                    _ => col.Width
+                };
+            }
+        }
+
+		#region live update newly downloaded and cached images
+		private void manageLiveImageUpdateSubscriptions()
+		{
+			FileManager.PictureStorage.PictureCached += crossThreadImageUpdate;
+			Disposed += (_, __) => FileManager.PictureStorage.PictureCached -= crossThreadImageUpdate;
+		}
+
+		private void crossThreadImageUpdate(object _, string pictureId)
+			=> dataGridView.UIThread(() => updateRowImage(pictureId));
+		private void updateRowImage(string pictureId)
+		{
+			var rowId = GetRowId((ge) => ge.GetBook().PictureId == pictureId);
+			if (rowId > -1)
+				dataGridView.InvalidateRow(rowId);
+		}
+		#endregion
+
+		private bool hasBeenDisplayed = false;
+        public void Display()
+        {
+            if (hasBeenDisplayed)
+                return;
+            hasBeenDisplayed = true;
+
+            //
+            // transform into sorted GridEntry.s BEFORE binding
+            //
+            context = LibationContext.Create();
+            var lib = context.GetLibrary_Flat_WithTracking();
+
+            // if no data. hide all columns. return
+            if (!lib.Any())
+            {
+                for (var i = dataGridView.ColumnCount - 1; i >= 0; i--)
+                    dataGridView.Columns.RemoveAt(i);
+                return;
             }
 
-
-			//
-			// transform into sorted GridEntry.s BEFORE binding
-			//
-			context = LibationContext.Create();
-			var lib = context.GetLibrary_Flat_WithTracking();
-
-			// if no data. hide all columns. return
-			if (!lib.Any())
-			{
-				for (var i = dataGridView.ColumnCount - 1; i >= 0; i--)
-					dataGridView.Columns.RemoveAt(i);
-				return;
-			}
-
-			var orderedGridEntries = lib
+            var orderedGridEntries = lib
                 .Select(lb => new GridEntry(lb)).ToList()
-				// default load order
-				.OrderByDescending(ge => ge.Purchase_Date)
+                // default load order
+                .OrderByDescending(ge => ge.Purchase_Date)
                 //// more advanced example: sort by author, then series, then title
                 //.OrderBy(ge => ge.Authors)
                 //    .ThenBy(ge => ge.Series)
@@ -131,90 +280,6 @@ namespace LibationWinForm
             //
             filter();
         }
-
-        private void paintEditTag_TextAndImage(object sender, DataGridViewCellPaintingEventArgs e)
-        {
-            // DataGridView Image for Button Column: https://stackoverflow.com/a/36253883
-
-            if (e.RowIndex < 0 || !(((DataGridView)sender).Columns[e.ColumnIndex] is DataGridViewButtonColumn))
-                return;
-
-
-            var gridEntry = getGridEntry(e.RowIndex);
-            var displayTags = gridEntry.TagsEnumerated.ToList();
-
-            if (displayTags.Any())
-                dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = string.Join("\r\n", displayTags);
-            else // no tags: use image
-            {
-                // clear tag text
-                dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "";
-
-                // images from: icons8.com -- search: tags
-                var image = Properties.Resources.edit_tags_25x25;
-
-                e.Paint(e.CellBounds, DataGridViewPaintParts.All);
-
-                var w = image.Width;
-                var h = image.Height;
-                var x = e.CellBounds.Left + (e.CellBounds.Width - w) / 2;
-                var y = e.CellBounds.Top + (e.CellBounds.Height - h) / 2;
-
-                e.Graphics.DrawImage(image, new Rectangle(x, y, w, h));
-                e.Handled = true;
-            }
-        }
-
-        private void dataGridView_GridButtonClick(object sender, DataGridViewCellEventArgs e)
-        {
-            // handle grid button click: https://stackoverflow.com/a/13687844
-
-            if (e.RowIndex < 0)
-                return;
-            if (sender != dataGridView)
-                throw new Exception($"{nameof(dataGridView_GridButtonClick)} has incorrect sender ...somehow");
-            if (!(dataGridView.Columns[e.ColumnIndex] is DataGridViewButtonColumn))
-                return;
-
-            var liveGridEntry = getGridEntry(e.RowIndex);
-
-            // EditTagsDialog should display better-formatted title
-            liveGridEntry.TryDisplayValue(nameof(liveGridEntry.Title), out string value);
-
-            var editTagsForm = new EditTagsDialog(value, liveGridEntry.Tags);
-            if (editTagsForm.ShowDialog() != DialogResult.OK)
-                return;
-
-			var qtyChanges = context.UpdateTags(liveGridEntry.GetBook(), editTagsForm.NewTags);
-			if (qtyChanges == 0)
-                return;
-
-            // force a re-draw, and re-apply filters
-
-            // needed to update text colors
-            dataGridView.InvalidateRow(e.RowIndex);
-
-            filter();
-        }
-
-        #region Cell Formatting
-        private void replaceFormatted(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            var col = ((DataGridView)sender).Columns[e.ColumnIndex];
-            if (col is DataGridViewTextBoxColumn textCol && getGridEntry(e.RowIndex).TryDisplayValue(textCol.Name, out string value))
-                e.Value = value;
-        }
-
-        private void hiddenFormatting(object _, DataGridViewCellFormattingEventArgs e)
-        {
-            var isHidden = getGridEntry(e.RowIndex).TagsEnumerated.Contains("hidden");
-
-            dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Style
-                = isHidden
-                ? new DataGridViewCellStyle { ForeColor = Color.LightGray }
-                : dataGridView.DefaultCellStyle;
-        }
-        #endregion
 
         #region filter
         string _filterSearchString;
@@ -234,41 +299,17 @@ namespace LibationWinForm
             currencyManager.SuspendBinding();
             {
                 for (var r = dataGridView.RowCount - 1; r >= 0; r--)
-                    dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).GetBook().AudibleProductId);
+                    dataGridView.Rows[r].Visible = productIds.Contains(GetGridEntry(r).GetBook().AudibleProductId);
             }
             currencyManager.ResumeBinding();
 			VisibleCountChanged?.Invoke(this, dataGridView.AsEnumerable().Count(r => r.Visible));
 
 			var luceneSearchString_debug = searchResults.SearchString;
         }
-		#endregion
+        #endregion
 
-		#region live update newly downloaded and cached images
-		private void manageLiveImageUpdateSubscriptions()
-		{
-			FileManager.PictureStorage.PictureCached += crossThreadImageUpdate;
-			Disposed += (_, __) => FileManager.PictureStorage.PictureCached -= crossThreadImageUpdate;
-		}
+        private int GetRowId(Func<GridEntry, bool> func) => dataGridView.GetRowIdOfBoundItem(func);
 
-		private void crossThreadImageUpdate(object _, string pictureId)
-			=> dataGridView.UIThread(() => updateRowImage(pictureId));
-		private void updateRowImage(string pictureId)
-		{
-			var rowId = getRowId((ge) => ge.GetBook().PictureId == pictureId);
-			if (rowId > -1)
-				dataGridView.InvalidateRow(rowId);
-		}
-		#endregion
-
-		private GridEntry getGridEntry(int rowIndex) => (GridEntry)dataGridView.Rows[rowIndex].DataBoundItem;
-
-		private int getRowId(Func<GridEntry, bool> func)
-		{
-			for (var r = 0; r < dataGridView.RowCount; r++)
-				if (func(getGridEntry(r)))
-					return r;
-
-			return -1;
-		}
+        private GridEntry GetGridEntry(int rowIndex) => dataGridView.GetBoundItem<GridEntry>(rowIndex);
 	}
 }

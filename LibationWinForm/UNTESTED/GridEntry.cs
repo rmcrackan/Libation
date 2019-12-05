@@ -26,6 +26,45 @@ namespace LibationWinForm
 		[Browsable(false)]
 		public IEnumerable<string> TagsEnumerated => book.UserDefinedItem.TagsEnumerated;
 
+		[Browsable(false)]
+		public string Download_Status
+		{
+			get
+			{
+				var print
+					= FileManager.AudibleFileStorage.Audio.Exists(book.AudibleProductId) ? "Liberated"
+					: FileManager.AudibleFileStorage.AAX.Exists(book.AudibleProductId) ? "DRM"
+					: "NOT d/l'ed";
+
+				if (!book.Supplements.Any())
+					return print;
+
+				print += "\r\n";
+
+				var downloadStatuses = book.Supplements
+					.Select(d => FileManager.AudibleFileStorage.PDF.Exists(book.AudibleProductId))
+					// break delayed execution right now!
+					.ToList();
+				var count = downloadStatuses.Count;
+				if (count == 1)
+				{
+					print += downloadStatuses[0]
+						? "PDF d/l'ed"
+						: "PDF NOT d/l'ed";
+				}
+				else
+				{
+					var downloadedCount = downloadStatuses.Count(s => s);
+					print
+						+= downloadedCount == count ? $"{count} PDFs d/l'ed"
+						: downloadedCount == 0 ? $"{count} PDFs NOT d/l'ed"
+						: $"{downloadedCount} of {count} PDFs d/l'ed";
+				}
+
+				return print;
+			}
+		}
+
 		// displayValues is what gets displayed
 		// the value that gets returned from the property is the cell's value
 		// this allows for the value to be sorted one way and displayed another
@@ -174,44 +213,6 @@ namespace LibationWinForm
                     return "[details not imported]";
 
                 return string.Join("\r\n", details);
-            }
-        }
-
-        public string Download_Status
-        {
-            get
-            {
-                var print
-                    = FileManager.AudibleFileStorage.Audio.Exists(book.AudibleProductId) ? "Liberated"
-                    : FileManager.AudibleFileStorage.AAX.Exists(book.AudibleProductId) ? "DRM"
-                    : "NOT d/l'ed";
-
-                if (!book.Supplements.Any())
-                    return print;
-
-                print += "\r\n";
-                
-                var downloadStatuses = book.Supplements
-                    .Select(d => FileManager.AudibleFileStorage.PDF.Exists(book.AudibleProductId))
-                    // break delayed execution right now!
-                    .ToList();
-                var count = downloadStatuses.Count;
-                if (count == 1)
-                {
-                    print += downloadStatuses[0]
-                        ? "PDF d/l'ed"
-                        : "PDF NOT d/l'ed";
-                }
-                else
-                {
-                    var downloadedCount = downloadStatuses.Count(s => s);
-                    print
-                        += downloadedCount == count ? $"{count} PDFs d/l'ed"
-                        : downloadedCount == 0 ? $"{count} PDFs NOT d/l'ed"
-                        : $"{downloadedCount} of {count} PDFs d/l'ed";
-                }
-
-                return print;
             }
         }
     }

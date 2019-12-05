@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LibationWinForm_Framework.Dialogs
+namespace WinFormsDesigner.Dialogs
 {
 	public partial class IndexLibraryDialog : Form
 	{

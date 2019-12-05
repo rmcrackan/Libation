@@ -1,4 +1,4 @@
-﻿namespace LibationWinForm_Framework.Dialogs.Login
+﻿namespace WinFormsDesigner.Dialogs.Login
 {
 	partial class AudibleLoginDialog
 	{
