@@ -25,8 +25,9 @@ namespace LibationWinForm
     // - click on Data Sources > ProductItem. drowdown: DataGridView
     // - drag/drop ProductItem on design surface
     public partial class ProductsGrid : UserControl
-	{
-		public event EventHandler<int> VisibleCountChanged;
+    {
+        public event EventHandler<int> VisibleCountChanged;
+        public event EventHandler BackupCountsChanged;
 
         private const string EDIT_TAGS = "Edit Tags";
         private const string LIBERATE = "Liberate";
@@ -77,14 +78,19 @@ namespace LibationWinForm
                 e.Value = value;
         }
 
-        private void hiddenFormatting(object _, DataGridViewCellFormattingEventArgs e)
+        private void hiddenFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
+            var dgv = (DataGridView)sender;
+            // no action needed for buttons
+            if (e.RowIndex < 0 || dgv.Columns[e.ColumnIndex] is DataGridViewButtonColumn)
+                return;
+
             var isHidden = GetGridEntry(e.RowIndex).TagsEnumerated.Contains("hidden");
 
-            dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Style
+            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style
                 = isHidden
                 ? new DataGridViewCellStyle { ForeColor = Color.LightGray }
-                : dataGridView.DefaultCellStyle;
+                : dgv.DefaultCellStyle;
         }
         #endregion
 
@@ -107,15 +113,29 @@ namespace LibationWinForm
             dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = GetGridEntry(e.RowIndex).Download_Status;
         }
 
-        private void liberate_Click(object sender, DataGridViewCellEventArgs e)
+        private async void liberate_Click(object sender, DataGridViewCellEventArgs e)
         {
             var dgv = (DataGridView)sender;
 
             if (!isColumnValid(dgv, e.RowIndex, e.ColumnIndex, LIBERATE))
                 return;
+            
+            var productId = GetGridEntry(e.RowIndex).GetBook().AudibleProductId;
 
+            var backupBook = BookLiberation.ProcessorAutomationController.GetWiredUpBackupBook((_, __) => RefreshRow(productId));
+            await BookLiberation.ProcessorAutomationController.RunSingleBackupAsync(backupBook, productId);
         }
         #endregion
+
+        public void RefreshRow(string productId)
+        {
+            var rowId = GetRowId((ge) => ge.GetBook().AudibleProductId == productId);
+
+            // update cells incl Liberate button text
+            dataGridView.InvalidateRow(rowId);
+
+            BackupCountsChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         #region tag buttons
         private void addEditTagsButtons()
@@ -279,6 +299,8 @@ namespace LibationWinForm
             // FILTER
             //
             filter();
+
+            BackupCountsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         #region filter

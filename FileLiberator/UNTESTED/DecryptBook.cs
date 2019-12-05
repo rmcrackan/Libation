@@ -21,7 +21,7 @@ namespace FileLiberator
     /// </summary>
     public class DecryptBook : IDecryptable
     {
-        public event EventHandler<string> Begin;
+        public event EventHandler<LibraryBook> Begin;
         public event EventHandler<string> StatusUpdate;
         public event EventHandler<string> DecryptBegin;
 
@@ -32,7 +32,7 @@ namespace FileLiberator
         public event EventHandler<int> UpdateProgress;
 
         public event EventHandler<string> DecryptCompleted;
-        public event EventHandler<string> Completed;
+        public event EventHandler<LibraryBook> Completed;
 
         public bool Validate(LibraryBook libraryBook)
             => AudibleFileStorage.AAX.Exists(libraryBook.Book.AudibleProductId)
@@ -42,9 +42,7 @@ namespace FileLiberator
 		// often calls events which prints to forms in the UI context
 		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
-            var displayMessage = $"[{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}";
-
-            Begin?.Invoke(this, displayMessage);
+            Begin?.Invoke(this, libraryBook);
 
             try
             {
@@ -76,7 +74,7 @@ namespace FileLiberator
             }
             finally
             {
-                Completed?.Invoke(this, displayMessage);
+                Completed?.Invoke(this, libraryBook);
             }
         }
 

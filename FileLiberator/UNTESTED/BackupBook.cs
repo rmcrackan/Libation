@@ -17,9 +17,9 @@ namespace FileLiberator
     /// </summary>
     public class BackupBook : IProcessable
     {
-        public event EventHandler<string> Begin;
+        public event EventHandler<LibraryBook> Begin;
         public event EventHandler<string> StatusUpdate;
-        public event EventHandler<string> Completed;
+        public event EventHandler<LibraryBook> Completed;
 
         public DownloadBook DownloadBook { get; } = new DownloadBook();
         public DecryptBook DecryptBook { get; } = new DecryptBook();
@@ -32,10 +32,7 @@ namespace FileLiberator
 		// often calls events which prints to forms in the UI context
 		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
-			var productId = libraryBook.Book.AudibleProductId;
-            var displayMessage = $"[{productId}] {libraryBook.Book.Title}";
-
-            Begin?.Invoke(this, displayMessage);
+            Begin?.Invoke(this, libraryBook);
 
             try
 			{
@@ -61,7 +58,7 @@ namespace FileLiberator
 			}
 			finally
             {
-                Completed?.Invoke(this, displayMessage);
+                Completed?.Invoke(this, libraryBook);
             }
         }
 	}

@@ -8,8 +8,8 @@ namespace FileLiberator
 {
 	public abstract class DownloadableBase : IDownloadable
 	{
-		public event EventHandler<string> Begin;
-		public event EventHandler<string> Completed;
+		public event EventHandler<LibraryBook> Begin;
+		public event EventHandler<LibraryBook> Completed;
 
 		public event EventHandler<string> DownloadBegin;
 		public event EventHandler<DownloadProgress> DownloadProgressChanged;
@@ -26,9 +26,7 @@ namespace FileLiberator
 		// often calls events which prints to forms in the UI context
 		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
-            var displayMessage = $"[{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}";
-
-            Begin?.Invoke(this, displayMessage);
+            Begin?.Invoke(this, libraryBook);
 
             try
             {
@@ -36,7 +34,7 @@ namespace FileLiberator
             }
             finally
             {
-                Completed?.Invoke(this, displayMessage);
+                Completed?.Invoke(this, libraryBook);
             }
         }
 

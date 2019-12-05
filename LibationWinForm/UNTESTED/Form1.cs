@@ -59,7 +59,7 @@ namespace LibationWinForm
                 backupsCountsLbl.Text = "[Calculating backed up book quantities]";
                 pdfsCountsLbl.Text = "[Calculating backed up PDFs]";
 
-                setBackupCounts();
+                setBackupCounts(null, null);
             }
         }
 
@@ -86,24 +86,26 @@ namespace LibationWinForm
                 {
                     gridPanel.Controls.Remove(currProductsGrid);
                     currProductsGrid.VisibleCountChanged -= setVisibleCount;
+                    currProductsGrid.BackupCountsChanged -= setBackupCounts;
                     currProductsGrid.Dispose();
                 }
 
                 currProductsGrid = new ProductsGrid { Dock = DockStyle.Fill };
                 currProductsGrid.VisibleCountChanged += setVisibleCount;
+                currProductsGrid.BackupCountsChanged += setBackupCounts;
                 gridPanel.Controls.Add(currProductsGrid);
                 currProductsGrid.Display();
             }
             ResumeLayout();
         }
-		#endregion
+        #endregion
 
         #region bottom: qty books visible
         private void setVisibleCount(object _, int qty) => visibleCountLbl.Text = string.Format(visibleCountLbl_Format, qty);
-		#endregion
+        #endregion
 
-		#region bottom: backup counts
-		private void setBackupCounts()
+        #region bottom: backup counts
+        private void setBackupCounts(object _, object __)
         {
             var books = LibraryQueries.GetLibrary_Flat_NoTracking()
                 .Select(sp => sp.Book)
@@ -175,8 +177,8 @@ namespace LibationWinForm
         }
         #endregion
 
-		#region filter
-		private void filterHelpBtn_Click(object sender, EventArgs e) => new Dialogs.SearchSyntaxDialog().ShowDialog();
+        #region filter
+        private void filterHelpBtn_Click(object sender, EventArgs e) => new Dialogs.SearchSyntaxDialog().ShowDialog();
 
         private void AddFilterBtn_Click(object sender, EventArgs e)
         {
@@ -233,33 +235,25 @@ namespace LibationWinForm
 
 			MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
 
-			// update backup counts if we have new library items
-			if (newAdded > 0)
-				setBackupCounts();
-
 			if (totalProcessed > 0)
 				reloadGrid();
 		}
-		#endregion
+        #endregion
 
-		#region liberate menu
-		private void setBackupCounts(object _, string __) => setBackupCounts();
-
+        #region liberate menu
         private async void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var backupBook = BookLiberation.ProcessorAutomationController.GetWiredUpBackupBook();
-            backupBook.DownloadBook.Completed += setBackupCounts;
-            backupBook.DecryptBook.Completed += setBackupCounts;
-			backupBook.DownloadPdf.Completed += setBackupCounts;
-			await BookLiberation.ProcessorAutomationController.RunAutomaticBackup(backupBook);
+            var backupBook = BookLiberation.ProcessorAutomationController.GetWiredUpBackupBook(updateGridRow);
+			await BookLiberation.ProcessorAutomationController.RunAutomaticBackupAsync(backupBook);
         }
 
         private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var downloadPdf = BookLiberation.ProcessorAutomationController.GetWiredUpDownloadPdf();
-            downloadPdf.Completed += setBackupCounts;
-            await BookLiberation.ProcessorAutomationController.RunAutomaticDownload(downloadPdf);
+            var downloadPdf = BookLiberation.ProcessorAutomationController.GetWiredUpDownloadPdf(updateGridRow);
+            await BookLiberation.ProcessorAutomationController.RunAutomaticDownloadAsync(downloadPdf);
         }
+
+        private void updateGridRow(object _, LibraryBook libraryBook) => currProductsGrid.RefreshRow(libraryBook.Book.AudibleProductId);
         #endregion
 
         #region quick filters menu
