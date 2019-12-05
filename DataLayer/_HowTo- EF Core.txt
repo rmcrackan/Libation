@@ -22,7 +22,7 @@ TO USE MIGRATIONS AS *BOTH* CORE AND STANDARD
       to: TargetFrameworks
     inside of TargetFrameworks
       from: netstandard2.1
-      to: netcoreapp3.0;netstandard2.1
+      to: netcoreapp3.1;netstandard2.1
 
 run. error
 SQLite Error 1: 'no such table: Blogs'.

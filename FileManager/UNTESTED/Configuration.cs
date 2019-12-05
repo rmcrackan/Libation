@@ -141,10 +141,10 @@ namespace FileManager
         private static string getNonDevelopmentDir(string path)
         {
             // examples:
-            // \Libation\Core2_0\bin\Debug\netcoreapp3.0
+            // \Libation\Core2_0\bin\Debug\netcoreapp3.1
             // \Libation\StndLib\bin\Debug\netstandard2.1
             // \Libation\MyWnfrm\bin\Debug
-            // \Libation\Core2_0\bin\Release\netcoreapp3.0
+            // \Libation\Core2_0\bin\Release\netcoreapp3.1
             // \Libation\StndLib\bin\Release\netstandard2.1
             // \Libation\MyWnfrm\bin\Release
 
