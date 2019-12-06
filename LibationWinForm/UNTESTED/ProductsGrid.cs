@@ -122,8 +122,18 @@ namespace LibationWinForm
             
             var productId = GetGridEntry(e.RowIndex).GetBook().AudibleProductId;
 
-            var backupBook = BookLiberation.ProcessorAutomationController.GetWiredUpBackupBook((_, __) => RefreshRow(productId));
-            await BookLiberation.ProcessorAutomationController.RunSingleBackupAsync(backupBook, productId);
+            // if liberated, open explorer to file
+            if (FileManager.AudibleFileStorage.Audio.Exists(productId))
+            {
+                var filePath = FileManager.AudibleFileStorage.Audio.GetPath(productId);
+                System.Diagnostics.Process.Start("explorer.exe", $"/select, \"{filePath}\"");
+            }
+            // else liberate
+            else
+            {
+                var backupBook = BookLiberation.ProcessorAutomationController.GetWiredUpBackupBook((_, __) => RefreshRow(productId));
+                await BookLiberation.ProcessorAutomationController.RunSingleBackupAsync(backupBook, productId);
+            }
         }
         #endregion
 
