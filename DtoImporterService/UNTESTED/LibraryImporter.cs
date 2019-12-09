@@ -9,27 +9,29 @@ namespace DtoImporterService
 {
 	public class LibraryImporter : ItemsImporterBase
 	{
+		public LibraryImporter(LibationContext context) : base(context) { }
+
 		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new LibraryValidator().Validate(items);
 
-		protected override int DoImport(IEnumerable<Item> items, LibationContext context)
+		protected override int DoImport(IEnumerable<Item> items)
 		{
-			new BookImporter().Import(items, context);
+			new BookImporter(DbContext).Import(items);
 
-			var qtyNew = upsertLibraryBooks(items, context);
+			var qtyNew = upsertLibraryBooks(items);
 			return qtyNew;
 		}
 
-		private int upsertLibraryBooks(IEnumerable<Item> items, LibationContext context)
+		private int upsertLibraryBooks(IEnumerable<Item> items)
 		{
-			var currentLibraryProductIds = context.Library.Select(l => l.Book.AudibleProductId).ToList();
+			var currentLibraryProductIds = DbContext.Library.Select(l => l.Book.AudibleProductId).ToList();
 			var newItems = items.Where(dto => !currentLibraryProductIds.Contains(dto.ProductId)).ToList();
 
 			foreach (var newItem in newItems)
 			{
 				var libraryBook = new LibraryBook(
-					context.Books.Local.Single(b => b.AudibleProductId == newItem.ProductId),
+					DbContext.Books.Local.Single(b => b.AudibleProductId == newItem.ProductId),
 					newItem.DateAdded);
-				context.Library.Add(libraryBook);
+				DbContext.Library.Add(libraryBook);
 			}
 
 			var qtyNew = newItems.Count;

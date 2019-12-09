@@ -3,23 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using AudibleApiDTOs;
 using DataLayer;
+using Dinah.Core;
 
 namespace DtoImporterService
 {
-	public interface IContextRunner<T>
+	public abstract class ImporterBase<T>
 	{
-		public TResult Run<TResult>(Func<T, LibationContext, TResult> func, T param, LibationContext context = null)
-		{
-			if (context is null)
-			{
-				using (context = LibationContext.Create())
-				{
-					var r = Run(func, param, context);
-					context.SaveChanges();
-					return r;
-				}
-			}
+		protected LibationContext DbContext { get; }
 
+		public ImporterBase(LibationContext context)
+		{
+			ArgumentValidator.EnsureNotNull(DbContext, nameof(context));
+			DbContext = context;
+		}
+
+		/// <summary>LONG RUNNING. call with await Task.Run</summary>
+		public int Import(T param) => Run(DoImport, param);
+
+		public TResult Run<TResult>(Func<T, TResult> func, T param)
+		{
 			try
 			{
 				var exceptions = Validate(param);
@@ -34,7 +36,7 @@ namespace DtoImporterService
 
 			try
 			{
-				var result = func(param, context);
+				var result = func(param);
 				return result;
 			}
 			catch (Exception ex)
@@ -43,18 +45,13 @@ namespace DtoImporterService
 				throw;
 			}
 		}
-		IEnumerable<Exception> Validate(T param);
-	}
 
-	public abstract class ImporterBase<T> : IContextRunner<T>
-	{
-		/// <summary>LONG RUNNING. call with await Task.Run</summary>
-		public int Import(T param, LibationContext context = null)
-			=> ((IContextRunner<T>)this).Run(DoImport, param, context);
-
-		protected abstract int DoImport(T elements, LibationContext context);
+		protected abstract int DoImport(T elements);
 		public abstract IEnumerable<Exception> Validate(T param);
 	}
 
-	public abstract class ItemsImporterBase : ImporterBase<IEnumerable<Item>> { }
+	public abstract class ItemsImporterBase : ImporterBase<IEnumerable<Item>>
+	{
+		public ItemsImporterBase(LibationContext context) : base(context) { }
+	}
 }

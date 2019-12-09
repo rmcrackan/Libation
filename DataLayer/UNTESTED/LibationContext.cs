@@ -25,10 +25,10 @@ namespace DataLayer
         public DbSet<Series> Series { get; private set; }
         public DbSet<Category> Categories { get; private set; }
 
-        public static LibationContext Create()
+        public static LibationContext Create(string connectionString)
         {
             var factory = new LibationContextFactory();
-            var context = factory.Create();
+            var context = factory.Create(connectionString);
             return context;
         }
 

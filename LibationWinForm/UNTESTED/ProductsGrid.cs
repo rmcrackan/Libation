@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -279,7 +278,7 @@ namespace LibationWinForm
             //
             // transform into sorted GridEntry.s BEFORE binding
             //
-            context = LibationContext.Create();
+            context = DbContexts.GetContext();
             var lib = context.GetLibrary_Flat_WithTracking();
 
             // if no data. hide all columns. return

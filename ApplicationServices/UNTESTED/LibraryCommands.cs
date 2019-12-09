@@ -18,7 +18,8 @@ namespace ApplicationServices
 				var totalCount = items.Count;
 				Serilog.Log.Logger.Debug($"GetAllLibraryItems: Total count {totalCount}");
 
-				var libImporter = new LibraryImporter();
+				using var context = DbContexts.GetContext();
+				var libImporter = new LibraryImporter(context);
 				var newCount = await Task.Run(() => libImporter.Import(items));
 				Serilog.Log.Logger.Debug($"Import: New count {newCount}");
 

@@ -9,25 +9,27 @@ namespace DtoImporterService
 {
 	public class CategoryImporter : ItemsImporterBase
 	{
+		public CategoryImporter(LibationContext context) : base(context) { }
+
 		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new CategoryValidator().Validate(items);
 
-		protected override int DoImport(IEnumerable<Item> items, LibationContext context)
+		protected override int DoImport(IEnumerable<Item> items)
 		{
 			// get distinct
 			var categoryIds = items.GetCategoriesDistinct().Select(c => c.CategoryId).ToList();
 
 			// load db existing => .Local
-			loadLocal_categories(categoryIds, context);
+			loadLocal_categories(categoryIds);
 
 			// upsert
 			var categoryPairs = items.GetCategoryPairsDistinct().ToList();
-			var qtyNew = upsertCategories(categoryPairs, context);
+			var qtyNew = upsertCategories(categoryPairs);
 			return qtyNew;
 		}
 
-		private void loadLocal_categories(List<string> categoryIds, LibationContext context)
+		private void loadLocal_categories(List<string> categoryIds)
 		{
-			var localIds = context.Categories.Local.Select(c => c.AudibleCategoryId);
+			var localIds = DbContext.Categories.Local.Select(c => c.AudibleCategoryId);
 			var remainingCategoryIds = categoryIds
 				.Distinct()
 				.Except(localIds)
@@ -37,11 +39,11 @@ namespace DtoImporterService
 			// remember to include default/empty/missing
 			var emptyName = Contributor.GetEmpty().Name;
 			if (remainingCategoryIds.Any())
-				context.Categories.Where(c => remainingCategoryIds.Contains(c.AudibleCategoryId) || c.Name == emptyName).ToList();
+				DbContext.Categories.Where(c => remainingCategoryIds.Contains(c.AudibleCategoryId) || c.Name == emptyName).ToList();
 		}
 
 		// only use after loading contributors => local
-		private int upsertCategories(List<Ladder[]> categoryPairs, LibationContext context)
+		private int upsertCategories(List<Ladder[]> categoryPairs)
 		{
 			var qtyNew = 0;
 
@@ -54,12 +56,12 @@ namespace DtoImporterService
 
 					Category parentCategory = null;
 					if (i == 1)
-						parentCategory = context.Categories.Local.Single(c => c.AudibleCategoryId == pair[0].CategoryId);
+						parentCategory = DbContext.Categories.Local.Single(c => c.AudibleCategoryId == pair[0].CategoryId);
 
-					var category = context.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == id);
+					var category = DbContext.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == id);
 					if (category is null)
 					{
-						category = context.Categories.Add(new Category(new AudibleCategoryId(id), name)).Entity;
+						category = DbContext.Categories.Add(new Category(new AudibleCategoryId(id), name)).Entity;
 						qtyNew++;
 					}
 

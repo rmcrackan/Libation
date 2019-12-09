@@ -12,24 +12,18 @@ namespace DataLayer
 				.GetLibrary()
 				.ToList();
 
-		public static List<LibraryBook> GetLibrary_Flat_NoTracking()
-        {
-			using var context = LibationContext.Create();
-			return context
+		public static List<LibraryBook> GetLibrary_Flat_NoTracking(this LibationContext context)
+            => context
                 .Library
                 .AsNoTracking()
                 .GetLibrary()
                 .ToList();
-		}
 
-        public static LibraryBook GetLibraryBook_Flat_NoTracking(string productId)
-        {
-			using var context = LibationContext.Create();
-			return context
+        public static LibraryBook GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId)
+            => context
                 .Library
                 .AsNoTracking()
-				.GetLibraryBook(productId);
-		}
+                .GetLibraryBook(productId);
 
         /// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>
         public static IQueryable<LibraryBook> GetLibrary(this IQueryable<LibraryBook> library)

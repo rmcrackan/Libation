@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core;
 using FileManager;
@@ -18,6 +17,8 @@ namespace LibationSearchEngine
     public class SearchEngine
     {
         public const Lucene.Net.Util.Version Version = Lucene.Net.Util.Version.LUCENE_30;
+
+        private LibationContext context { get; }
 
         // not customizable. don't move to config
         private static string SearchEngineDirectory { get; }
@@ -160,7 +161,9 @@ namespace LibationSearchEngine
 
         private Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
 
-		public void CreateNewIndex(bool overwrite = true)
+        public SearchEngine(LibationContext context) => this.context = context;
+
+        public void CreateNewIndex(bool overwrite = true)
         {
             // 300 products
             // 1st run after app is started: 400ms
@@ -172,7 +175,7 @@ namespace LibationSearchEngine
 
             log();
 
-            var library = LibraryQueries.GetLibrary_Flat_NoTracking();
+            var library = context.GetLibrary_Flat_NoTracking();
 
             log();
 
@@ -233,7 +236,7 @@ namespace LibationSearchEngine
 		/// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
 		public void UpdateBook(string productId)
         {
-            var libraryBook = LibraryQueries.GetLibraryBook_Flat_NoTracking(productId);
+            var libraryBook = context.GetLibraryBook_Flat_NoTracking(productId);
             var term = new Term(_ID_, productId);
 
             var document = createBookIndexDocument(libraryBook);

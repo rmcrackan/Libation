@@ -8,14 +8,11 @@ namespace DataLayer
 {
     public static class BookQueries
     {
-        public static Book GetBook_Flat_NoTracking(string productId)
-        {
-			using var context = LibationContext.Create();
-			return context
+        public static Book GetBook_Flat_NoTracking(this LibationContext context, string productId)
+            => context
                 .Books
                 .AsNoTracking()
                 .GetBook(productId);
-		}
 
         public static Book GetBook(this IQueryable<Book> books, string productId)
             => books

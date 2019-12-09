@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
-using Dinah.Core.Collections.Generic;
 using Dinah.Core.Drawing;
 using Dinah.Core.Windows.Forms;
 using FileManager;
@@ -107,7 +106,8 @@ namespace LibationWinForm
         #region bottom: backup counts
         private void setBackupCounts(object _, object __)
         {
-            var books = LibraryQueries.GetLibrary_Flat_NoTracking()
+            var books = DbContexts.GetContext()
+                .GetLibrary_Flat_NoTracking()
                 .Select(sp => sp.Book)
                 .ToList();
 

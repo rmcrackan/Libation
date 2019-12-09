@@ -9,9 +9,11 @@ namespace DtoImporterService
 {
 	public class ContributorImporter : ItemsImporterBase
 	{
+		public ContributorImporter(LibationContext context) : base(context) { }
+
 		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new ContributorValidator().Validate(items);
 
-		protected override int DoImport(IEnumerable<Item> items, LibationContext context)
+		protected override int DoImport(IEnumerable<Item> items)
 		{
 			// get distinct
 			var authors = items.GetAuthorsDistinct().ToList();
@@ -24,23 +26,23 @@ namespace DtoImporterService
 				.Union(narrators.Select(n => n.Name))
 				.Where(name => !string.IsNullOrWhiteSpace(name))
 				.ToList();
-			loadLocal_contributors(allNames, context);
+			loadLocal_contributors(allNames);
 
 			// upsert
 			var qtyNew = 0;
-			qtyNew += upsertPeople(authors, context);
-			qtyNew += upsertPeople(narrators, context);
-			qtyNew += upsertPublishers(publishers, context);
+			qtyNew += upsertPeople(authors);
+			qtyNew += upsertPeople(narrators);
+			qtyNew += upsertPublishers(publishers);
 			return qtyNew;
 		}
 
-		private void loadLocal_contributors(List<string> contributorNames, LibationContext context)
+		private void loadLocal_contributors(List<string> contributorNames)
 		{
 			//// BAD: very inefficient
 			// var x = context.Contributors.Local.Where(c => !contribNames.Contains(c.Name));
 
 			// GOOD: Except() is efficient. Due to hashing, it's close to O(n)
-			var localNames = context.Contributors.Local.Select(c => c.Name);
+			var localNames = DbContext.Contributors.Local.Select(c => c.Name);
 			var remainingContribNames = contributorNames
 				.Distinct()
 				.Except(localNames)
@@ -50,20 +52,20 @@ namespace DtoImporterService
 			// remember to include default/empty/missing
 			var emptyName = Contributor.GetEmpty().Name;
 			if (remainingContribNames.Any())
-				context.Contributors.Where(c => remainingContribNames.Contains(c.Name) || c.Name == emptyName).ToList();
+				DbContext.Contributors.Where(c => remainingContribNames.Contains(c.Name) || c.Name == emptyName).ToList();
 		}
 
 		// only use after loading contributors => local
-		private int upsertPeople(List<Person> people, LibationContext context)
+		private int upsertPeople(List<Person> people)
 		{
 			var qtyNew = 0;
 
 			foreach (var p in people)
 			{
-				var person = context.Contributors.Local.SingleOrDefault(c => c.Name == p.Name);
+				var person = DbContext.Contributors.Local.SingleOrDefault(c => c.Name == p.Name);
 				if (person == null)
 				{
-					person = context.Contributors.Add(new Contributor(p.Name, p.Asin)).Entity;
+					person = DbContext.Contributors.Add(new Contributor(p.Name, p.Asin)).Entity;
 					qtyNew++;
 				}
 			}
@@ -72,15 +74,15 @@ namespace DtoImporterService
 		}
 
 		// only use after loading contributors => local
-		private int upsertPublishers(List<string> publishers, LibationContext context)
+		private int upsertPublishers(List<string> publishers)
 		{
 			var qtyNew = 0;
 
 			foreach (var publisherName in publishers)
 			{
-				if (context.Contributors.Local.SingleOrDefault(c => c.Name == publisherName) == null)
+				if (DbContext.Contributors.Local.SingleOrDefault(c => c.Name == publisherName) == null)
 				{
-					context.Contributors.Add(new Contributor(publisherName));
+					DbContext.Contributors.Add(new Contributor(publisherName));
 					qtyNew++;
 				}
 			}

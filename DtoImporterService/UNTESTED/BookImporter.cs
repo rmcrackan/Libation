@@ -9,29 +9,31 @@ namespace DtoImporterService
 {
 	public class BookImporter : ItemsImporterBase
 	{
+		public BookImporter(LibationContext context) : base(context) { }
+
 		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new BookValidator().Validate(items);
 
-		protected override int DoImport(IEnumerable<Item> items, LibationContext context)
+		protected override int DoImport(IEnumerable<Item> items)
 		{
 			// pre-req.s
-			new ContributorImporter().Import(items, context);
-			new SeriesImporter().Import(items, context);
-			new CategoryImporter().Import(items, context);
+			new ContributorImporter(DbContext).Import(items);
+			new SeriesImporter(DbContext).Import(items);
+			new CategoryImporter(DbContext).Import(items);
 
 			// get distinct
 			var productIds = items.Select(i => i.ProductId).ToList();
 
 			// load db existing => .Local
-			loadLocal_books(productIds, context);
+			loadLocal_books(productIds);
 
 			// upsert
-			var qtyNew = upsertBooks(items, context);
+			var qtyNew = upsertBooks(items);
 			return qtyNew;
 		}
 
-		private void loadLocal_books(List<string> productIds, LibationContext context)
+		private void loadLocal_books(List<string> productIds)
 		{
-			var localProductIds = context.Books.Local.Select(b => b.AudibleProductId);
+			var localProductIds = DbContext.Books.Local.Select(b => b.AudibleProductId);
 			var remainingProductIds = productIds
 				.Distinct()
 				.Except(localProductIds)
@@ -39,29 +41,29 @@ namespace DtoImporterService
 
 			// GetBooks() eager loads Series, category, et al
 			if (remainingProductIds.Any())
-				context.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();
+				DbContext.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();
 		}
 
-		private int upsertBooks(IEnumerable<Item> items, LibationContext context)
+		private int upsertBooks(IEnumerable<Item> items)
 		{
 			var qtyNew = 0;
 
 			foreach (var item in items)
 			{
-				var book = context.Books.Local.SingleOrDefault(p => p.AudibleProductId == item.ProductId);
+				var book = DbContext.Books.Local.SingleOrDefault(p => p.AudibleProductId == item.ProductId);
 				if (book is null)
 				{
-					book = createNewBook(item, context);
+					book = createNewBook(item);
 					qtyNew++;
 				}
 
-				updateBook(item, book, context);
+				updateBook(item, book);
 			}
 
 			return qtyNew;
 		}
 
-		private static Book createNewBook(Item item, LibationContext context)
+		private Book createNewBook(Item item)
 		{
 			// absence of authors is very rare, but possible
 			if (!item.Authors?.Any() ?? true)
@@ -70,7 +72,7 @@ namespace DtoImporterService
 			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
 			var authors = item
 				.Authors
-				.Select(a => context.Contributors.Local.Single(c => a.Name == c.Name))
+				.Select(a => DbContext.Contributors.Local.Single(c => a.Name == c.Name))
 				.ToList();
 
 			var narrators
@@ -80,15 +82,15 @@ namespace DtoImporterService
 				// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
 				: item
 					.Narrators
-					.Select(n => context.Contributors.Local.Single(c => n.Name == c.Name))
+					.Select(n => DbContext.Contributors.Local.Single(c => n.Name == c.Name))
 					.ToList();
 
 			// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
 			// absence of categories is very rare, but possible
 			var lastCategory = item.Categories.LastOrDefault()?.CategoryId ?? "";
-			var category = context.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == lastCategory);
+			var category = DbContext.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == lastCategory);
 
-			var book = context.Books.Add(new Book(
+			var book = DbContext.Books.Add(new Book(
 				new AudibleProductId(item.ProductId),
 				item.Title,
 				item.Description,
@@ -101,7 +103,7 @@ namespace DtoImporterService
 			var publisherName = item.Publisher;
 			if (!string.IsNullOrWhiteSpace(publisherName))
 			{
-				var publisher = context.Contributors.Local.Single(c => publisherName == c.Name);
+				var publisher = DbContext.Contributors.Local.Single(c => publisherName == c.Name);
 				book.ReplacePublisher(publisher);
 			}
 
@@ -113,7 +115,7 @@ namespace DtoImporterService
 			return book;
 		}
 
-		private static void updateBook(Item item, Book book, LibationContext context)
+		private void updateBook(Item item, Book book)
 		{
 			// set/update book-specific info which may have changed
 			book.PictureId = item.PictureId;
@@ -128,7 +130,7 @@ namespace DtoImporterService
 			{
 				foreach (var seriesEntry in item.Series)
 				{
-					var series = context.Series.Local.Single(s => seriesEntry.SeriesId == s.AudibleSeriesId);
+					var series = DbContext.Series.Local.Single(s => seriesEntry.SeriesId == s.AudibleSeriesId);
 					book.UpsertSeries(series, seriesEntry.Index);
 				}
 			}

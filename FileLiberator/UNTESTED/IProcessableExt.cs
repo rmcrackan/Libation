@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using ApplicationServices;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
 
@@ -29,7 +30,7 @@ namespace FileLiberator
         /// <returns>Returns either the status handler from the process, or null if all books have been processed</returns>
         public static async Task<StatusHandler> ProcessSingleAsync(this IProcessable processable, string productId)
         {
-            using var context = LibationContext.Create();
+            using var context = DbContexts.GetContext();
             var libraryBook = context
                 .Library
                 .GetLibrary()
@@ -55,7 +56,7 @@ namespace FileLiberator
 
         private static LibraryBook getNextValidBook(this IProcessable processable)
         {
-            var libraryBooks = LibraryQueries.GetLibrary_Flat_NoTracking();
+            var libraryBooks = DbContexts.GetContext().GetLibrary_Flat_NoTracking();
 
             foreach (var libraryBook in libraryBooks)
                 if (processable.Validate(libraryBook))
