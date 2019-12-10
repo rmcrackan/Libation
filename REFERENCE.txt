@@ -26,7 +26,7 @@ click Publish
 
 OPTION 2: cmd line
 change dir to folder containing project
-  cd C:\[full...path]\Libation\LibationWinForm
+  cd C:\[full...path]\Libation\LibationWinForms
 this will use the parameters specified in csproj
 dotnet publish -c Release
 

@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using Dinah.Core.Logging;
 using FileManager;
-using LibationWinForm;
+using LibationWinForms;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -54,7 +54,7 @@ Go to Import > Scan Library
 			// 2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
 			var default_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}";
 			// with class and method info. output example:
-			// 2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForm.Program.init()) Begin Libation
+			// 2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForms.Program.init()) Begin Libation
 			var code_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
 
 

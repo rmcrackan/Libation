@@ -50,7 +50,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AudibleApi", "..\audible ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AudibleApi.Tests", "..\audible api\AudibleApi\_Tests\AudibleApi.Tests\AudibleApi.Tests.csproj", "{111420E2-D4F0-4068-B46A-C4B6DCC823DC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationWinForm", "LibationWinForm\LibationWinForm.csproj", "{635F00E1-AAD1-45F7-BEB7-D909AD33B9F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationWinForms", "LibationWinForms\LibationWinForms.csproj", "{635F00E1-AAD1-45F7-BEB7-D909AD33B9F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsDesigner", "WinFormsDesigner\WinFormsDesigner.csproj", "{0807616A-A77A-4B08-A65A-1582B09E114B}"
 EndProject

@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LibationWinForm\LibationWinForm.csproj" />
+    <ProjectReference Include="..\LibationWinForms\LibationWinForms.csproj" />
   </ItemGroup>
 
   <ItemGroup>
