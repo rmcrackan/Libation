@@ -1,29 +1,33 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using Dinah.Core.Logging;
+using FileManager;
+using LibationWinForm;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
-namespace LibationWinForm
+namespace LibationLauncher
 {
-    static class Program
-    {
-        [STAThread]
-        static void Main()
+	static class Program
+	{
+		[STAThread]
+		static void Main()
 		{
+			Application.SetHighDpiMode(HighDpiMode.SystemAware);
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
 			if (!createSettings())
 				return;
 
-			init();
+			initLogging();
 
 			Application.Run(new Form1());
 		}
 
 		private static bool createSettings()
 		{
-			if (!string.IsNullOrWhiteSpace(FileManager.Configuration.Instance.Books))
+			if (!string.IsNullOrWhiteSpace(Configuration.Instance.Books))
 				return true;
 
 			var welcomeText = @"
@@ -44,7 +48,7 @@ Go to Import > Scan Library
 			return true;
 		}
 
-		private static void init()
+		private static void initLogging()
 		{
 			// default. for reference. output example:
 			// 2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
@@ -54,8 +58,14 @@ Go to Import > Scan Library
 			var code_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
 
 
-			var logPath = System.IO.Path.Combine(FileManager.Configuration.Instance.LibationFiles, "Log.log");
+			var logPath = System.IO.Path.Combine(Configuration.Instance.LibationFiles, "Log.log");
 
+//var configuration = new ConfigurationBuilder()
+//	.AddJsonFile("appsettings.json")
+//	.Build();
+//Log.Logger = new LoggerConfiguration()
+//  .ReadFrom.Configuration(configuration)
+//  .CreateLogger();
 			Log.Logger = new LoggerConfiguration()
 				.Enrich.WithCaller()
 				.MinimumLevel.Debug()

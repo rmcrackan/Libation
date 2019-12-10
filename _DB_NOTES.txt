@@ -9,6 +9,7 @@ see comments at top of file:
 
 LocalDb
 =======
+only works if LocalDb is separately installed on host box
 SSMS db connection: (LocalDb)\MSSQLLocalDB
 eg: Server=(localdb)\mssqllocaldb;Database=DataLayer.LibationContext;Integrated Security=true;
 LocalDb database files live at:

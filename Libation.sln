@@ -78,7 +78,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationServices", "Appl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dinah.Core.WindowsDesktop", "..\Dinah.Core\Dinah.Core.WindowsDesktop\Dinah.Core.WindowsDesktop.csproj", "{059CE32C-9AD6-45E9-A166-790DFFB0B730}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsDesktopUtilities", "WindowsDesktopUtilities\WindowsDesktopUtilities.csproj", "{E7EFD64D-6630-4426-B09C-B6862A92E3FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsDesktopUtilities", "WindowsDesktopUtilities\WindowsDesktopUtilities.csproj", "{E7EFD64D-6630-4426-B09C-B6862A92E3FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibationLauncher", "LibationLauncher\LibationLauncher.csproj", "{F3B04A3A-20C8-4582-A54A-715AF6A5D859}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -194,6 +196,10 @@ Global
 		{E7EFD64D-6630-4426-B09C-B6862A92E3FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7EFD64D-6630-4426-B09C-B6862A92E3FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7EFD64D-6630-4426-B09C-B6862A92E3FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3B04A3A-20C8-4582-A54A-715AF6A5D859}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3B04A3A-20C8-4582-A54A-715AF6A5D859}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3B04A3A-20C8-4582-A54A-715AF6A5D859}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3B04A3A-20C8-4582-A54A-715AF6A5D859}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -226,6 +232,7 @@ Global
 		{B95650EA-25F0-449E-BA5D-99126BC5D730} = {41CDCC73-9B81-49DD-9570-C54406E852AF}
 		{059CE32C-9AD6-45E9-A166-790DFFB0B730} = {43E3ACB3-E0BC-4370-8DBB-E3720C8C8FD1}
 		{E7EFD64D-6630-4426-B09C-B6862A92E3FD} = {F0CBB7A7-D3FB-41FF-8F47-CF3F6A592249}
+		{F3B04A3A-20C8-4582-A54A-715AF6A5D859} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {615E00ED-BAEF-4E8E-A92A-9B82D87942A9}
