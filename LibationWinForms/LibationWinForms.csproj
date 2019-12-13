@@ -23,11 +23,29 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Update="UNTESTED\Dialogs\LibationFilesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UNTESTED\Dialogs\LibationFilesDialog.Designer.cs">
+      <DependentUpon>LibationFilesDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Update="UNTESTED\Dialogs\SettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UNTESTED\Dialogs\SettingsDialog.Designer.cs">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Update="UNTESTED\Dialogs\IndexLibraryDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="UNTESTED\Dialogs\IndexLibraryDialog.Designer.cs">
       <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Update="UNTESTED\Dialogs\SetupDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UNTESTED\Dialogs\SetupDialog.Designer.cs">
+      <DependentUpon>SetupDialog.cs</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -35,6 +53,15 @@
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="UNTESTED\Dialogs\LibationFilesDialog.resx">
+      <DependentUpon>LibationFilesDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="UNTESTED\Dialogs\SettingsDialog.resx">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="UNTESTED\Dialogs\SetupDialog.resx">
+      <DependentUpon>SetupDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
 

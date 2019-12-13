@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0807616A-A77A-4B08-A65A-1582B09E114B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>LibationWinForm_Framework</RootNamespace>
-    <AssemblyName>LibationWinForm_Framework</AssemblyName>
+    <RootNamespace>WinFormsDesigner</RootNamespace>
+    <AssemblyName>WinFormsDesigner</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -77,6 +77,12 @@
     <Compile Include="Dialogs\IndexLibraryDialog.Designer.cs">
       <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\LibationFilesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\LibationFilesDialog.Designer.cs">
+      <DependentUpon>LibationFilesDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Login\AudibleLoginDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -101,17 +107,23 @@
     <Compile Include="Dialogs\EditTagsDialog.Designer.cs">
       <DependentUpon>EditTagsDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\SettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\SettingsDialog.Designer.cs">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\SearchSyntaxDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dialogs\SearchSyntaxDialog.Designer.cs">
       <DependentUpon>SearchSyntaxDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\SettingsDialog.cs">
+    <Compile Include="Dialogs\SetupDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\SettingsDialog.Designer.cs">
-      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    <Compile Include="Dialogs\SetupDialog.Designer.cs">
+      <DependentUpon>SetupDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -145,6 +157,9 @@
     <EmbeddedResource Include="Dialogs\IndexLibraryDialog.resx">
       <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\LibationFilesDialog.resx">
+      <DependentUpon>LibationFilesDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\Login\AudibleLoginDialog.resx">
       <DependentUpon>AudibleLoginDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -154,11 +169,14 @@
     <EmbeddedResource Include="Dialogs\Login\_2faCodeDialog.resx">
       <DependentUpon>_2faCodeDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\SettingsDialog.resx">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\SearchSyntaxDialog.resx">
       <DependentUpon>SearchSyntaxDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\SettingsDialog.resx">
-      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    <EmbeddedResource Include="Dialogs\SetupDialog.resx">
+      <DependentUpon>SetupDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

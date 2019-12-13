@@ -23,7 +23,7 @@ namespace FileManager
         static FilePathCache()
         {
 			// load json into memory. if file doesn't exist, nothing to do. save() will create if needed
-			if (FileUtility.FileExists(JsonFile))
+			if (File.Exists(JsonFile))
 			{
 				var list = JsonConvert.DeserializeObject<List<CacheEntry>>(File.ReadAllText(JsonFile));
 				cache = new Cache<CacheEntry>(list);
@@ -39,7 +39,7 @@ namespace FileManager
             if (entry == null)
                 return null;
 
-            if (!FileUtility.FileExists(entry.Path))
+            if (!File.Exists(entry.Path))
             {
                 remove(entry);
                 return null;
@@ -56,7 +56,7 @@ namespace FileManager
 
         public static void Upsert(string id, FileType type, string path)
         {
-            if (!FileUtility.FileExists(path))
+            if (!File.Exists(path))
                 throw new FileNotFoundException("Cannot add path to cache. File not found");
 
 			var entry = cache.SingleOrDefault(i => i.Id == id && i.FileType == type);

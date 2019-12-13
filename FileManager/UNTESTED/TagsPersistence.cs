@@ -53,7 +53,7 @@ namespace FileManager
 		{
 			if (cache is null)
 				lock (locker)
-					cache = !FileUtility.FileExists(TagsFile)
+					cache = !File.Exists(TagsFile)
 						? new Dictionary<string, string>()
 						: JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(TagsFile));
 		}

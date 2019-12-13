@@ -7,6 +7,7 @@ using DataLayer;
 using Dinah.Core.Collections.Generic;
 using Dinah.Core.DataBinding;
 using Dinah.Core.Windows.Forms;
+using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {

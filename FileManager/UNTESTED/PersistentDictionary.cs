@@ -35,6 +35,9 @@ namespace FileManager
             // not found. create blank file
             if (!File.Exists(Filepath))
             {
+                // will create any missing directories, incl subdirectories. if all already exist: no action
+                Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+
                 File.WriteAllText(Filepath, "{}");
 
                 // give system time to create file before first use
@@ -44,14 +47,19 @@ namespace FileManager
             settingsDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Filepath));
         }
 
-        public IEnumerable<string> Keys => settingsDic.Keys.Cast<string>();
-
-        public void AddKeys(params string[] keys)
+        public void EnsureEntries<T>()
         {
-            if (keys == null || keys.Length == 0)
+            var stringProperties = 
+                GetPropertiesToPersist(typeof(T))
+                .Select(p => p.Name)
+                .ToList();
+            var keys = settingsDic.Keys.Cast<string>().ToList();
+            var missingKeys = stringProperties.Except(keys).ToList();
+
+            if (!missingKeys.Any())
                 return;
 
-            foreach (var key in keys)
+            foreach (var key in missingKeys)
                 settingsDic.Add(key, null);
             save();
         }

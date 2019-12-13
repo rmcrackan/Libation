@@ -8,6 +8,7 @@ using Dinah.Core;
 using Dinah.Core.Drawing;
 using Dinah.Core.Windows.Forms;
 using FileManager;
+using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {

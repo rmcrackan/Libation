@@ -47,7 +47,7 @@ namespace FileManager
 			{
 				var path = getPath(def);
 				cache[def]
-					= FileUtility.FileExists(path)
+					= File.Exists(path)
 					? File.ReadAllBytes(path)
 					: null;
 			}

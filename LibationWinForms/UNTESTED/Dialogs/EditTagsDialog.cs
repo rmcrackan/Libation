@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace LibationWinForms
+namespace LibationWinForms.Dialogs
 {
     public partial class EditTagsDialog : Form
     {

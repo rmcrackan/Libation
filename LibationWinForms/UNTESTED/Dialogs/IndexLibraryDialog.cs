@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 using ApplicationServices;
+using LibationWinForms.Login;
 
-namespace LibationWinForms
+namespace LibationWinForms.Dialogs
 {
 	public partial class IndexLibraryDialog : Form
 	{
@@ -19,7 +20,7 @@ namespace LibationWinForms
 		{
 			try
 			{
-				(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportLibraryAsync(new Login.WinformResponder());
+				(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportLibraryAsync(new WinformResponder());
 			}
 			catch (Exception ex)
 			{

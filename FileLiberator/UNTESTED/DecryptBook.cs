@@ -50,7 +50,7 @@ namespace FileLiberator
 
                 if (aaxFilename == null)
                     return new StatusHandler { "aaxFilename parameter is null" };
-                if (!FileUtility.FileExists(aaxFilename))
+                if (!File.Exists(aaxFilename))
                     return new StatusHandler { $"Cannot find AAX file: {aaxFilename}" };
                 if (AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };

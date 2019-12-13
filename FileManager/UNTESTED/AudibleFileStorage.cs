@@ -39,7 +39,7 @@ namespace FileManager
                 Configuration.Instance.DecryptInProgressEnum = "WinTemp";
             var M4bRootDir
                 = Configuration.Instance.DecryptInProgressEnum == "WinTemp" // else "LibationFiles"
-                ? Configuration.Instance.WinTemp
+                ? Configuration.WinTemp
                 : Configuration.Instance.LibationFiles;
             DecryptInProgress = Path.Combine(M4bRootDir, "DecryptInProgress");
             Directory.CreateDirectory(DecryptInProgress);
@@ -50,7 +50,7 @@ namespace FileManager
                 Configuration.Instance.DownloadsInProgressEnum = "WinTemp";
             var AaxRootDir
                 = Configuration.Instance.DownloadsInProgressEnum == "WinTemp" // else "LibationFiles"
-                ? Configuration.Instance.WinTemp
+                ? Configuration.WinTemp
                 : Configuration.Instance.LibationFiles;
             DownloadsInProgress = Path.Combine(AaxRootDir, "DownloadsInProgress");
             Directory.CreateDirectory(DownloadsInProgress);

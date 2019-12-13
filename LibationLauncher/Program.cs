@@ -1,10 +1,13 @@
 using System;
+using System.IO;
 using System.Windows.Forms;
 using Dinah.Core.Logging;
 using FileManager;
 using LibationWinForms;
+using LibationWinForms.Dialogs;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using WinFormsDesigner.Dialogs;
 
 namespace LibationLauncher
 {
@@ -17,35 +20,49 @@ namespace LibationLauncher
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
-			if (!createSettings())
-				return;
-
+			createSettings();
 			initLogging();
 
 			Application.Run(new Form1());
 		}
 
-		private static bool createSettings()
+		private static void createSettings()
 		{
-			if (!string.IsNullOrWhiteSpace(Configuration.Instance.Books))
-				return true;
+			var config = Configuration.Instance;
+			if (config.IsComplete)
+				return;
 
-			var welcomeText = @"
-This appears to be your first time using Libation. Welcome.
-Please fill in a few settings on the following page. You can also change these settings later.
+			var isAdvanced = false;
 
-After you make your selections, get started by importing your library.
-Go to Import > Scan Library
-".Trim();
-			MessageBox.Show(welcomeText, "Welcome to Libation", MessageBoxButtons.OK);
-			var dialogResult = new SettingsDialog().ShowDialog();
-			if (dialogResult != DialogResult.OK)
+			var setupDialog = new SetupDialog();
+			setupDialog.NoQuestionsBtn_Click += (_, __) =>
 			{
-				MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				return false;
+				config.DecryptKey ??= "";
+				config.LocaleCountryCode ??= "us";
+				config.DownloadsInProgressEnum ??= "WinTemp";
+				config.DecryptInProgressEnum ??= "WinTemp";
+				config.Books ??= Configuration.AppDir;
+			};
+			// setupDialog.BasicBtn_Click += (_, __) => // no action needed
+			setupDialog.AdvancedBtn_Click += (_, __) => isAdvanced = true;
+			setupDialog.ShowDialog();
+
+			if (isAdvanced)
+			{
+				var dialog = new LibationFilesDialog();
+				if (dialog.ShowDialog() != DialogResult.OK)
+					MessageBox.Show("Libation Files location not changed");
 			}
 
-			return true;
+			if (config.IsComplete)
+				return;
+
+			if (new SettingsDialog().ShowDialog() == DialogResult.OK)
+				return;
+
+			MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			Application.Exit();
+			Environment.Exit(0);
 		}
 
 		private static void initLogging()
@@ -58,7 +75,7 @@ Go to Import > Scan Library
 			var code_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
 
 
-			var logPath = System.IO.Path.Combine(Configuration.Instance.LibationFiles, "Log.log");
+			var logPath = Path.Combine(Configuration.Instance.LibationFiles, "Log.log");
 
 //var configuration = new ConfigurationBuilder()
 //	.AddJsonFile("appsettings.json")

@@ -22,7 +22,7 @@ namespace FileManager
         static QuickFilters()
         {
             // load json into memory. if file doesn't exist, nothing to do. save() will create if needed
-            if (FileUtility.FileExists(JsonFile))
+            if (File.Exists(JsonFile))
                 inMemoryState = JsonConvert.DeserializeObject<FilterState>(File.ReadAllText(JsonFile));
         }
 
