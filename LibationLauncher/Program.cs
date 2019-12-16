@@ -7,7 +7,6 @@ using LibationWinForms;
 using LibationWinForms.Dialogs;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using WinFormsDesigner.Dialogs;
 
 namespace LibationLauncher
 {

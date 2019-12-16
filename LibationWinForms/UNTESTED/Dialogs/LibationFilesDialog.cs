@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using FileManager;
 
-namespace WinFormsDesigner.Dialogs
+namespace LibationWinForms.Dialogs
 {
 	public partial class LibationFilesDialog : Form
 	{

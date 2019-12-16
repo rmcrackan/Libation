@@ -302,8 +302,26 @@ namespace LibationWinForms
         private void EditQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new Dialogs.EditQuickFilters(this).ShowDialog();
         #endregion
 
-        #region settings menu item
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
+        #region settings menu
+        private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
+
+        private void advancedSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var oldLocation = Configuration.Instance.LibationFiles;
+            new LibationFilesDialog().ShowDialog();
+
+            // no change
+            if (System.IO.Path.GetFullPath(oldLocation).EqualsInsensitive(System.IO.Path.GetFullPath(Configuration.Instance.LibationFiles)))
+                return;
+
+            MessageBox.Show(
+                "You have changed a file path important for this program. All files will remain in their original location; nothing will be moved. Libation must be restarted so these changes are handled correctly.",
+                "Closing Libation",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Exclamation);
+            Application.Exit();
+            Environment.Exit(0);
+        }
         #endregion
     }
 }

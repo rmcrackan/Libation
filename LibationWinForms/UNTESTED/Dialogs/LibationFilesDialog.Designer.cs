@@ -1,4 +1,4 @@
-﻿namespace WinFormsDesigner.Dialogs
+﻿namespace LibationWinForms.Dialogs
 {
 	partial class LibationFilesDialog
 	{

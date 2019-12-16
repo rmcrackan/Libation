@@ -44,6 +44,8 @@
 			this.editQuickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.basicSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.advancedSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.visibleCountLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
@@ -169,9 +171,24 @@
 			// 
 			// settingsToolStripMenuItem
 			// 
+			this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.basicSettingsToolStripMenuItem,
+            this.advancedSettingsToolStripMenuItem});
 			this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
 			this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.settingsToolStripMenuItem.Text = "&Settings";
+			// 
+			// basicSettingsToolStripMenuItem
+			// 
+			this.basicSettingsToolStripMenuItem.Name = "basicSettingsToolStripMenuItem";
+			this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.basicSettingsToolStripMenuItem.Text = "&Basic Settings";
+			// 
+			// advancedSettingsToolStripMenuItem
+			// 
+			this.advancedSettingsToolStripMenuItem.Name = "advancedSettingsToolStripMenuItem";
+			this.advancedSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.advancedSettingsToolStripMenuItem.Text = "&Advanced Settings";
 			// 
 			// statusStrip1
 			// 
@@ -266,6 +283,8 @@
         private System.Windows.Forms.Button addFilterBtn;
         private System.Windows.Forms.ToolStripMenuItem editQuickFiltersToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-    }
+		private System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem advancedSettingsToolStripMenuItem;
+	}
 }
 
