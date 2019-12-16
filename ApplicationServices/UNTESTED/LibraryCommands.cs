@@ -21,6 +21,7 @@ namespace ApplicationServices
 				using var context = DbContexts.GetContext();
 				var libImporter = new LibraryImporter(context);
 				var newCount = await Task.Run(() => libImporter.Import(items));
+				context.SaveChanges();
 				Serilog.Log.Logger.Debug($"Import: New count {newCount}");
 
 				await Task.Run(() => SearchEngineCommands.FullReIndex());

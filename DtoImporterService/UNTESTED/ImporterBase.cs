@@ -13,7 +13,7 @@ namespace DtoImporterService
 
 		public ImporterBase(LibationContext context)
 		{
-			ArgumentValidator.EnsureNotNull(DbContext, nameof(context));
+			ArgumentValidator.EnsureNotNull(context, nameof(context));
 			DbContext = context;
 		}
 
