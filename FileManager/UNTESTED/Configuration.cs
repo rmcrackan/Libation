@@ -58,13 +58,14 @@ namespace FileManager
             set => persistentDictionary[nameof(Books)] = value;
         }
 
+        private const string APP_DIR = "AppDir";
         public static string AppDir { get; } = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), LIBATION_FILES));
         public static string MyDocs { get; } = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), LIBATION_FILES));
         public static string WinTemp { get; } = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation"));
 
         private Dictionary<string, string> wellKnownPaths { get; } = new Dictionary<string, string>
         {
-            ["AppDir"] = AppDir,
+            [APP_DIR] = AppDir,
             ["MyDocs"] = MyDocs,
             ["WinTemp"] = WinTemp
         };
@@ -130,7 +131,7 @@ namespace FileManager
         {
             static string createSettingsJson()
             {
-                var dir = "AppDir";
+                var dir = APP_DIR;
                 File.WriteAllText(APPSETTINGS_JSON, new JObject { { LIBATION_FILES, dir } }.ToString(Formatting.Indented));
                 return dir;
             }

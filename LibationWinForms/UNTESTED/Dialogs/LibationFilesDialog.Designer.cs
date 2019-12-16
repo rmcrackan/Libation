@@ -98,7 +98,7 @@
 			this.libationFilesRootRb.Size = new System.Drawing.Size(113, 30);
 			this.libationFilesRootRb.TabIndex = 1;
 			this.libationFilesRootRb.TabStop = true;
-			this.libationFilesRootRb.Text = "[desc]\r\n[exeRoot\\Libation]";
+			this.libationFilesRootRb.Text = "[desc]\r\n[appDir\\Libation]";
 			this.libationFilesRootRb.UseVisualStyleBackColor = true;
 			// 
 			// cancelBtn
