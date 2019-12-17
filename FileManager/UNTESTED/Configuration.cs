@@ -47,15 +47,15 @@ namespace FileManager
         [Description("Your user-specific key used to decrypt your audible files (*.aax) into audio files you can use anywhere (*.m4b). Leave alone in most cases")]
         public string DecryptKey
         {
-            get => persistentDictionary[nameof(DecryptKey)];
-            set => persistentDictionary[nameof(DecryptKey)] = value;
+            get => persistentDictionary.GetString(nameof(DecryptKey));
+            set => persistentDictionary.Set(nameof(DecryptKey), value);
         }
 
         [Description("Location for book storage. Includes destination of newly liberated books")]
         public string Books
         {
-            get => persistentDictionary[nameof(Books)];
-            set => persistentDictionary[nameof(Books)] = value;
+            get => persistentDictionary.GetString(nameof(Books));
+            set => persistentDictionary.Set(nameof(Books), value);
         }
 
         private const string APP_DIR = "AppDir";
@@ -79,22 +79,22 @@ namespace FileManager
         [Description("Temporary location of files while they're in process of being downloaded.\r\nWhen download is complete, the final file will be in [LibationFiles]\\DownloadsFinal")]
         public string DownloadsInProgressEnum
         {
-            get => persistentDictionary[nameof(DownloadsInProgressEnum)];
-            set => persistentDictionary[nameof(DownloadsInProgressEnum)] = value;
+            get => persistentDictionary.GetString(nameof(DownloadsInProgressEnum));
+            set => persistentDictionary.Set(nameof(DownloadsInProgressEnum), value);
         }
 
         // temp/working dir(s) should be outside of dropbox
         [Description("Temporary location of files while they're in process of being decrypted.\r\nWhen decryption is complete, the final file will be in Books location")]
         public string DecryptInProgressEnum
         {
-            get => persistentDictionary[nameof(DecryptInProgressEnum)];
-            set => persistentDictionary[nameof(DecryptInProgressEnum)] = value;
+            get => persistentDictionary.GetString(nameof(DecryptInProgressEnum));
+            set => persistentDictionary.Set(nameof(DecryptInProgressEnum), value);
         }
 
         public string LocaleCountryCode
         {
-            get => persistentDictionary[nameof(LocaleCountryCode)];
-            set => persistentDictionary[nameof(LocaleCountryCode)] = value;
+            get => persistentDictionary.GetString(nameof(LocaleCountryCode));
+            set => persistentDictionary.Set(nameof(LocaleCountryCode), value);
         }
 
         // note: any potential file manager static ctors can't compensate if storage dir is changed at run time via settings. this is partly bad architecture. but the side effect is desirable. if changing LibationFiles location: restart app
@@ -123,7 +123,6 @@ namespace FileManager
 
             // load json values into memory. create if not exists
             persistentDictionary = new PersistentDictionary(SettingsJsonPath);
-            persistentDictionary.EnsureEntries<Configuration>();
 
             return value;
         }

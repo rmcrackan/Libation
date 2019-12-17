@@ -20,21 +20,28 @@ namespace LibationWinForms.Dialogs
 		{
 			this.decryptKeyTb.Text = config.DecryptKey;
 			this.decryptKeyDescLbl.Text = desc(nameof(config.DecryptKey));
+			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
+			this.downloadsInProgressDescLbl.Text = desc(nameof(config.DownloadsInProgressEnum));
+			this.decryptInProgressDescLbl.Text = desc(nameof(config.DecryptInProgressEnum));
+
+			var winTempText = "In your Windows temporary folder\r\n";
+			this.downloadsInProgressWinTempRb.Text = $"{winTempText}{Path.Combine(Configuration.WinTemp, "DownloadsInProgress")}";
+			this.decryptInProgressWinTempRb.Text = $"{winTempText}{Path.Combine(Configuration.WinTemp, "DecryptInProgress")}";
+
+			var libFileText = "In your Libation Files (ie: program-created files)\r\n";
+			this.downloadsInProgressLibationFilesRb.Text = $"{libFileText}{Path.Combine(config.LibationFiles, "DownloadsInProgress")}";
+			this.decryptInProgressLibationFilesRb.Text = $"{libFileText}{Path.Combine(config.LibationFiles, "DecryptInProgress")}";
 
 			this.booksLocationTb.Text
 				= !string.IsNullOrWhiteSpace(config.Books)
 				? config.Books
 				: Path.GetDirectoryName(Exe.FileLocationOnDisk);
-			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
 
 			this.audibleLocaleCb.Text
 				= !string.IsNullOrWhiteSpace(config.LocaleCountryCode)
 				? config.LocaleCountryCode
 				: "us";
 
-			this.downloadsInProgressDescLbl.Text = desc(nameof(config.DownloadsInProgressEnum));
-			var winTempDownloadsInProgress = Path.Combine(Configuration.WinTemp, "DownloadsInProgress");
-			this.downloadsInProgressWinTempRb.Text = "In your Windows temporary folder\r\n" + winTempDownloadsInProgress;
 			switch (config.DownloadsInProgressEnum)
 			{
 				case "LibationFiles":
@@ -46,9 +53,6 @@ namespace LibationWinForms.Dialogs
 					break;
 			}
 
-			this.decryptInProgressDescLbl.Text = desc(nameof(config.DecryptInProgressEnum));
-			var winTempDecryptInProgress = Path.Combine(Configuration.WinTemp, "DecryptInProgress");
-			this.decryptInProgressWinTempRb.Text = "In your Windows temporary folder\r\n" + winTempDecryptInProgress;
 			switch (config.DecryptInProgressEnum)
 			{
 				case "LibationFiles":
