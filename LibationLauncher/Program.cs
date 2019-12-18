@@ -109,7 +109,7 @@ namespace LibationLauncher
 			//Log.Logger.Here().Debug("Begin Libation. Debug with line numbers");
 		}
 
-		private static string defaultLoggingLevel = "Information";
+		private static string defaultLoggingLevel { get; } = "Information";
 		private static void ensureLoggingConfig(Configuration config)
 		{
 			if (config.GetObject("Logging") != null)

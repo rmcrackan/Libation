@@ -1,6 +1,7 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
+v3.1-beta.11 : Improved configuration and settings file management. Configurable logging
 v3.1-beta.10 : New feature: clicking Liberate button on a liberated item navigates to that audio file
 v3.1-beta.9 : New feature: liberate individual book
 v3.1-beta.8 : Bugfix: decrypt file conflict
