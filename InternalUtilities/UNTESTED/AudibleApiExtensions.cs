@@ -44,7 +44,7 @@ namespace InternalUtilities
 				if (!libResult.Items.Any())
 					break;
 				else
-					Serilog.Log.Logger.Debug($"Page {i}: {libResult.Items.Length} results");
+					Serilog.Log.Logger.Information($"Page {i}: {libResult.Items.Length} results");
 
 				allItems.AddRange(libResult.Items);
 			}

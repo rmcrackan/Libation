@@ -31,7 +31,7 @@ namespace LibationWinForms.BookLiberation
 		}
 		public void AppendText(string text)
 		{
-			Serilog.Log.Logger.Debug($"Automated backup: {text}");
+			Serilog.Log.Logger.Information($"Automated backup: {text}");
 			appendText(text);
 		}
 		private void appendText(string text)

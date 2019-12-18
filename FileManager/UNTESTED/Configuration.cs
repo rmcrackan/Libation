@@ -35,14 +35,13 @@ namespace FileManager
 
         private PersistentDictionary persistentDictionary;
 
-        public bool IsComplete
+        public bool FilesExist
             => File.Exists(APPSETTINGS_JSON)
-            && Directory.Exists(LibationFiles)
-            && Directory.Exists(Books)
             && File.Exists(SettingsJsonPath)
-            && !string.IsNullOrWhiteSpace(LocaleCountryCode)
-            && !string.IsNullOrWhiteSpace(DownloadsInProgressEnum)
-            && !string.IsNullOrWhiteSpace(DecryptInProgressEnum);
+            && Directory.Exists(LibationFiles)
+            && Directory.Exists(Books);
+
+        public string SettingsJsonPath => Path.Combine(LibationFiles, "Settings.json");
 
         [Description("Your user-specific key used to decrypt your audible files (*.aax) into audio files you can use anywhere (*.m4b). Leave alone in most cases")]
         public string DecryptKey
@@ -69,7 +68,7 @@ namespace FileManager
             ["MyDocs"] = MyDocs,
             ["WinTemp"] = WinTemp
         };
-        private Dictionary<string, string> cache { get; } = new Dictionary<string, string>();
+        private string libationFilesPathCache;
 
         // default setting and directory creation occur in class responsible for files.
         // config class is only responsible for path. not responsible for setting defaults, dir validation, or dir creation
@@ -107,57 +106,51 @@ namespace FileManager
         private const string LIBATION_FILES = "LibationFiles";
 
         [Description("Location for storage of program-created files")]
-        public string LibationFiles
-            => cache.ContainsKey(LIBATION_FILES)
-            ? cache[LIBATION_FILES]
-            : getLibationFiles();
+        public string LibationFiles => libationFilesPathCache ?? getLibationFiles();
         private string getLibationFiles()
         {
             var value = getLiberationFilesSettingFromJson();
 
+            // this looks weird but is correct for translating wellKnownPaths
             if (wellKnownPaths.ContainsKey(value))
                 value = wellKnownPaths[value];
 
-            // must write here before SettingsJsonPath in next step tries to read from dictionary
-            cache[LIBATION_FILES] = value;
+            // must write here before SettingsJsonPath in next step reads cache
+            libationFilesPathCache = value;
 
             // load json values into memory. create if not exists
             persistentDictionary = new PersistentDictionary(SettingsJsonPath);
 
-            return value;
+            return libationFilesPathCache;
         }
         private string getLiberationFilesSettingFromJson()
         {
-            static string createSettingsJson()
-            {
-                var dir = APP_DIR;
-                File.WriteAllText(APPSETTINGS_JSON, new JObject { { LIBATION_FILES, dir } }.ToString(Formatting.Indented));
-                return dir;
-            }
-
-            if (!File.Exists(APPSETTINGS_JSON))
-                return createSettingsJson();
-
-            var appSettingsContents = File.ReadAllText(APPSETTINGS_JSON);
-
-            JObject jObj;
             try
             {
-                jObj = JObject.Parse(appSettingsContents);
-            }
-            catch
-            {
-                return createSettingsJson();
-            }
+                if (File.Exists(APPSETTINGS_JSON))
+                {
+                    var appSettingsContents = File.ReadAllText(APPSETTINGS_JSON);
+                    var jObj = JObject.Parse(appSettingsContents);
 
-            if (!jObj.ContainsKey(LIBATION_FILES))
-                return createSettingsJson();
+                    if (jObj.ContainsKey(LIBATION_FILES))
+                    {
+                        var value = jObj[LIBATION_FILES].Value<string>();
 
-            var value = jObj[LIBATION_FILES].Value<string>();
-            return value;
+                        // do not check whether directory exists. special/meta directory (eg: AppDir) is valid
+                        if (!string.IsNullOrWhiteSpace(value))
+                            return value;
+                    }
+                }
+            }
+            catch { }
+
+            File.WriteAllText(APPSETTINGS_JSON, new JObject { { LIBATION_FILES, APP_DIR } }.ToString(Formatting.Indented));
+            return APP_DIR;
         }
 
-        private string SettingsJsonPath => Path.Combine(LibationFiles, "Settings.json");
+        public object GetObject(string propertyName) => persistentDictionary.GetObject(propertyName);
+        public void SetObject(string propertyName, object newValue) => persistentDictionary.Set(propertyName, newValue);
+        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue) => persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue);
 
         public static string GetDescription(string propertyName)
         {
@@ -185,7 +178,7 @@ namespace FileManager
             }
 
 
-            cache.Remove(LIBATION_FILES);
+            libationFilesPathCache = null;
 
 
             var contents = File.ReadAllText(APPSETTINGS_JSON);

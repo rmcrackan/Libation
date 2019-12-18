@@ -16,16 +16,16 @@ namespace ApplicationServices
 				var audibleApiActions = new AudibleApiActions();
 				var items = await audibleApiActions.GetAllLibraryItemsAsync(callback);
 				var totalCount = items.Count;
-				Serilog.Log.Logger.Debug($"GetAllLibraryItems: Total count {totalCount}");
+				Serilog.Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
 				using var context = DbContexts.GetContext();
 				var libImporter = new LibraryImporter(context);
 				var newCount = await Task.Run(() => libImporter.Import(items));
 				context.SaveChanges();
-				Serilog.Log.Logger.Debug($"Import: New count {newCount}");
+				Serilog.Log.Logger.Information($"Import: New count {newCount}");
 
 				await Task.Run(() => SearchEngineCommands.FullReIndex());
-				Serilog.Log.Logger.Debug("FullReIndex: success");
+				Serilog.Log.Logger.Information("FullReIndex: success");
 
 				return (totalCount, newCount);
 			}

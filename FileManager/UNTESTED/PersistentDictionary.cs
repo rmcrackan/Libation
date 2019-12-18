@@ -87,6 +87,18 @@ namespace FileManager
             }
         }
 
+        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue)
+        {
+            lock (locker)
+            {
+                var jObject = readFile();
+                var token = jObject.SelectToken(jsonPath);
+                var debug_oldValue = (string)token[propertyName];
+                token[propertyName] = newValue;
+                File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+            }
+        }
+
         private JObject readFile()
         {
             var settingsJsonContents = File.ReadAllText(Filepath);
