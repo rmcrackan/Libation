@@ -26,44 +26,19 @@ namespace LibationWinForms
 		[Browsable(false)]
 		public IEnumerable<string> TagsEnumerated => book.UserDefinedItem.TagsEnumerated;
 
+		public enum LiberatedState { NotDownloaded, DRM, Liberated }
 		[Browsable(false)]
-		public string Download_Status
-		{
-			get
-			{
-				var print
-					= FileManager.AudibleFileStorage.Audio.Exists(book.AudibleProductId) ? "Liberated"
-					: FileManager.AudibleFileStorage.AAX.Exists(book.AudibleProductId) ? "DRM"
-					: "NOT d/l'ed";
+		public LiberatedState Liberated_Status
+			=> FileManager.AudibleFileStorage.Audio.Exists(book.AudibleProductId) ? LiberatedState.Liberated
+			: FileManager.AudibleFileStorage.AAX.Exists(book.AudibleProductId) ? LiberatedState.DRM
+			: LiberatedState.NotDownloaded;
 
-				if (!book.Supplements.Any())
-					return print;
-
-				print += "\r\n";
-
-				var downloadStatuses = book.Supplements
-					.Select(d => FileManager.AudibleFileStorage.PDF.Exists(book.AudibleProductId))
-					// break delayed execution right now!
-					.ToList();
-				var count = downloadStatuses.Count;
-				if (count == 1)
-				{
-					print += downloadStatuses[0]
-						? "PDF d/l'ed"
-						: "PDF NOT d/l'ed";
-				}
-				else
-				{
-					var downloadedCount = downloadStatuses.Count(s => s);
-					print
-						+= downloadedCount == count ? $"{count} PDFs d/l'ed"
-						: downloadedCount == 0 ? $"{count} PDFs NOT d/l'ed"
-						: $"{downloadedCount} of {count} PDFs d/l'ed";
-				}
-
-				return print;
-			}
-		}
+		public enum PdfState { NoPdf, Downloaded, NotDownloaded }
+		[Browsable(false)]
+		public PdfState Pdf_Status
+			=> !book.Supplements.Any() ? PdfState.NoPdf
+			: FileManager.AudibleFileStorage.PDF.Exists(book.AudibleProductId) ? PdfState.Downloaded
+			: PdfState.NotDownloaded;
 
 		// displayValues is what gets displayed
 		// the value that gets returned from the property is the cell's value

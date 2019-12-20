@@ -74,8 +74,16 @@ namespace LibationWinForms
         private void replaceFormatted(object sender, DataGridViewCellFormattingEventArgs e)
         {
             var col = ((DataGridView)sender).Columns[e.ColumnIndex];
-            if (col is DataGridViewTextBoxColumn textCol && GetGridEntry(e.RowIndex).TryDisplayValue(textCol.Name, out string value))
+            if (col is DataGridViewTextBoxColumn textCol && getGridEntry(e.RowIndex).TryDisplayValue(textCol.Name, out string value))
+            {
+                // DO NOT DO THIS: getCell(e).Value = value;
+                // it's the wrong way and will infinitely call CellFormatting on each assign
+
+                // this is the correct way. will actually set FormattedValue (and EditedFormattedValue) while leaving Value as-is for sorting
                 e.Value = value;
+
+                getCell(e).ToolTipText = value;
+            }
         }
 
         private void hiddenFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -85,9 +93,9 @@ namespace LibationWinForms
             if (e.RowIndex < 0 || dgv.Columns[e.ColumnIndex] is DataGridViewButtonColumn)
                 return;
 
-            var isHidden = GetGridEntry(e.RowIndex).TagsEnumerated.Contains("hidden");
+            var isHidden = getGridEntry(e.RowIndex).TagsEnumerated.Contains("hidden");
 
-            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style
+            getCell(e).Style
                 = isHidden
                 ? new DataGridViewCellStyle { ForeColor = Color.LightGray }
                 : dgv.DefaultCellStyle;
@@ -105,22 +113,66 @@ namespace LibationWinForms
 
         private void liberate_Paint(object sender, DataGridViewCellPaintingEventArgs e)
         {
-            var dgv = (DataGridView)sender;
-
-            if (!isColumnValid(dgv, e.RowIndex, e.ColumnIndex, LIBERATE))
+            if (!isColumnValid(e, LIBERATE))
                 return;
 
-            dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = GetGridEntry(e.RowIndex).Download_Status;
+            var cell = getCell(e);
+            var gridEntry = getGridEntry(e.RowIndex);
+            var liberatedStatus = gridEntry.Liberated_Status;
+            var pdfStatus = gridEntry.Pdf_Status;
+
+            // mouseover text
+            {
+                var libState = liberatedStatus switch
+                {
+                    GridEntry.LiberatedState.Liberated => "Liberated",
+                    GridEntry.LiberatedState.DRM => "Downloaded but needs DRM removed",
+                    GridEntry.LiberatedState.NotDownloaded => "Book NOT downloaded",
+                    _ => throw new Exception("Unexpected liberation state")
+                };
+
+                var pdfState = pdfStatus switch
+                {
+                    GridEntry.PdfState.Downloaded => "\r\nPDF downloaded",
+                    GridEntry.PdfState.NotDownloaded => "\r\nPDF NOT downloaded",
+                    GridEntry.PdfState.NoPdf => "",
+                    _ => throw new Exception("Unexpected PDF state")
+                };
+
+                var text = libState + pdfState;
+
+                if (liberatedStatus == GridEntry.LiberatedState.NotDownloaded ||
+                    liberatedStatus == GridEntry.LiberatedState.DRM ||
+                    pdfStatus == GridEntry.PdfState.NotDownloaded)
+                    text += "\r\nClick to complete";
+
+                //DEBUG//cell.Value = text;
+                cell.ToolTipText = text;
+            }
+
+            // draw img
+            {
+                var image_lib
+                    = liberatedStatus == GridEntry.LiberatedState.NotDownloaded ? "red"
+                    : liberatedStatus == GridEntry.LiberatedState.DRM ? "yellow"
+                    : liberatedStatus == GridEntry.LiberatedState.Liberated ? "green"
+                    : throw new Exception("Unexpected liberation state");
+                var image_pdf
+                    = pdfStatus == GridEntry.PdfState.NoPdf ? ""
+                    : pdfStatus == GridEntry.PdfState.NotDownloaded ? "_pdf_no"
+                    : pdfStatus == GridEntry.PdfState.Downloaded ? "_pdf_yes"
+                    : throw new Exception("Unexpected PDF state");
+                var image = (Bitmap)Properties.Resources.ResourceManager.GetObject($"liberate_{image_lib}{image_pdf}");
+                drawImage(e, image);
+            }
         }
 
         private async void liberate_Click(object sender, DataGridViewCellEventArgs e)
         {
-            var dgv = (DataGridView)sender;
-
-            if (!isColumnValid(dgv, e.RowIndex, e.ColumnIndex, LIBERATE))
+            if (!isColumnValid(e, LIBERATE))
                 return;
             
-            var productId = GetGridEntry(e.RowIndex).GetBook().AudibleProductId;
+            var productId = getGridEntry(e.RowIndex).GetBook().AudibleProductId;
 
             // if liberated, open explorer to file
             if (FileManager.AudibleFileStorage.Audio.Exists(productId))
@@ -139,7 +191,7 @@ namespace LibationWinForms
 
         public void RefreshRow(string productId)
         {
-            var rowId = GetRowId((ge) => ge.GetBook().AudibleProductId == productId);
+            var rowId = getRowId((ge) => ge.GetBook().AudibleProductId == productId);
 
             // update cells incl Liberate button text
             dataGridView.InvalidateRow(rowId);
@@ -160,33 +212,21 @@ namespace LibationWinForms
         {
             // DataGridView Image for Button Column: https://stackoverflow.com/a/36253883
 
-            var dgv = (DataGridView)sender;
-
-            if (!isColumnValid(dgv, e.RowIndex, e.ColumnIndex, EDIT_TAGS))
+            if (!isColumnValid(e, EDIT_TAGS))
                 return;
 
-            var displayTags = GetGridEntry(e.RowIndex).TagsEnumerated.ToList();
+            var cell = getCell(e);
+            var gridEntry = getGridEntry(e.RowIndex);
 
-            var cell = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            var displayTags = gridEntry.TagsEnumerated.ToList();
 
             if (displayTags.Any())
                 cell.Value = string.Join("\r\n", displayTags);
-            else // no tags: use image
+            else
             {
-                // clear tag text
+                // if removing all tags: clear previous tag text
                 cell.Value = "";
-
-                var image = Properties.Resources.edit_tags_25x25;
-
-                e.Paint(e.CellBounds, DataGridViewPaintParts.All);
-
-                var w = image.Width;
-                var h = image.Height;
-                var x = e.CellBounds.Left + (e.CellBounds.Width - w) / 2;
-                var y = e.CellBounds.Top + (e.CellBounds.Height - h) / 2;
-
-                e.Graphics.DrawImage(image, new Rectangle(x, y, w, h));
-                e.Handled = true;
+                drawImage(e, Properties.Resources.edit_tags_25x25);
             }
         }
 
@@ -196,10 +236,10 @@ namespace LibationWinForms
 
             var dgv = (DataGridView)sender;
 
-            if (!isColumnValid(dgv, e.RowIndex, e.ColumnIndex, EDIT_TAGS))
+            if (!isColumnValid(e, EDIT_TAGS))
                 return;
 
-            var liveGridEntry = GetGridEntry(e.RowIndex);
+            var liveGridEntry = getGridEntry(e.RowIndex);
 
             // EditTagsDialog should display better-formatted title
             liveGridEntry.TryDisplayValue(nameof(liveGridEntry.Title), out string value);
@@ -221,10 +261,25 @@ namespace LibationWinForms
         }
         #endregion
 
-        private static bool isColumnValid(DataGridView dgv, int rowIndex, int colIndex, string colName)
+        private static void drawImage(DataGridViewCellPaintingEventArgs e, Bitmap image)
         {
-            var col = dgv.Columns[colIndex];
-            return rowIndex >= 0 && col.HeaderText == colName && col is DataGridViewButtonColumn;
+            e.Paint(e.CellBounds, DataGridViewPaintParts.All);
+
+            var w = image.Width;
+            var h = image.Height;
+            var x = e.CellBounds.Left + (e.CellBounds.Width - w) / 2;
+            var y = e.CellBounds.Top + (e.CellBounds.Height - h) / 2;
+
+            e.Graphics.DrawImage(image, new Rectangle(x, y, w, h));
+            e.Handled = true;
+        }
+
+        private bool isColumnValid(DataGridViewCellEventArgs e, string colName) => isColumnValid(e.RowIndex, e.ColumnIndex, colName);
+        private bool isColumnValid(DataGridViewCellPaintingEventArgs e, string colName) => isColumnValid(e.RowIndex, e.ColumnIndex, colName);
+        private bool isColumnValid(int rowIndex, int colIndex, string colName)
+        {
+            var col = dataGridView.Columns[colIndex];
+            return rowIndex >= 0 && col.Name == colName && col is DataGridViewButtonColumn;
         }
 
         private void formatColumns()
@@ -243,6 +298,7 @@ namespace LibationWinForms
 
                 col.Width = col.Name switch
                 {
+                    LIBERATE => 70,
                     nameof(GridEntry.Cover) => 80,
                     nameof(GridEntry.Title) => col.Width * 2,
                     nameof(GridEntry.Misc) => (int)(col.Width * 1.35),
@@ -263,7 +319,7 @@ namespace LibationWinForms
 			=> dataGridView.UIThread(() => updateRowImage(pictureId));
 		private void updateRowImage(string pictureId)
 		{
-			var rowId = GetRowId((ge) => ge.GetBook().PictureId == pictureId);
+			var rowId = getRowId((ge) => ge.GetBook().PictureId == pictureId);
 			if (rowId > -1)
 				dataGridView.InvalidateRow(rowId);
 		}
@@ -331,7 +387,7 @@ namespace LibationWinForms
             currencyManager.SuspendBinding();
             {
                 for (var r = dataGridView.RowCount - 1; r >= 0; r--)
-                    dataGridView.Rows[r].Visible = productIds.Contains(GetGridEntry(r).GetBook().AudibleProductId);
+                    dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).GetBook().AudibleProductId);
             }
             currencyManager.ResumeBinding();
 			VisibleCountChanged?.Invoke(this, dataGridView.AsEnumerable().Count(r => r.Visible));
@@ -340,8 +396,14 @@ namespace LibationWinForms
         }
         #endregion
 
-        private int GetRowId(Func<GridEntry, bool> func) => dataGridView.GetRowIdOfBoundItem(func);
+        private int getRowId(Func<GridEntry, bool> func) => dataGridView.GetRowIdOfBoundItem(func);
 
-        private GridEntry GetGridEntry(int rowIndex) => dataGridView.GetBoundItem<GridEntry>(rowIndex);
-	}
+        private GridEntry getGridEntry(int rowIndex) => dataGridView.GetBoundItem<GridEntry>(rowIndex);
+
+        private DataGridViewCell getCell(DataGridViewCellFormattingEventArgs e) => getCell(e.RowIndex, e.ColumnIndex);
+
+        private DataGridViewCell getCell(DataGridViewCellPaintingEventArgs e) => getCell(e.RowIndex, e.ColumnIndex);
+
+        private DataGridViewCell getCell(int rowIndex, int columnIndex) => dataGridView.Rows[rowIndex].Cells[columnIndex];
+    }
 }
