@@ -16,6 +16,8 @@
     - [Searches](#searches)
     - [Search examples](#search-examples)
     - [Filters](#filters)
+4. [Advanced](#advanced)
+    - [Files and folders](#files-and-folders)
 
 ## Audible audiobook manager
 
@@ -98,6 +100,8 @@ Then it's decrypted so you can use it on any device you choose. The very first t
 And voila! If you have multiple books not yet liberated, Libation will automatically move on to the next.
 
 ![Liberate book step 5](images/LiberateBook5.png)
+
+The Audible id must be somewhere in the book's file or folder name for Libation to detect your downloaded book.
 
 ### Download PDF attachments
 
@@ -189,3 +193,15 @@ To edit this list go to Quick Filters > Edit quick filters. Here you can re-orde
 Check "Quick Filters > Start Libation with 1st filter Default" to have your top filter automatically applied when Libation starts. In this top example, I want to always start without these: at books I've tagged hidden, books I've tagged as free_audible_originals, and books which I have rated.
 
 ![default filters](images/FiltersDefault.png)
+
+## Advanced
+
+### Files and folders
+
+To make upgrades and reinstalls easier, Libation separates all of its responsibilities to a few different folders. If you don't want to mess with this stuff: ignore it. Read on if you like a little more control over your files.
+
+* In Libation's initial folder are the files that make up the program. Since nothing else is here, just copy new files here to upgrade the program. Delete this folder to delete Libation.
+
+* In a separate folder, Libation keeps track of all of the files it creates like settings and downloaded images. After an upgrade, Libation might think that's its being run for the first time. Just click ADVANCED SETUP and point to this folder. Libation will reload your library and settings.
+
+* The last important folder is the "books location." This is where Libation looks for your downloaded and decrypted books. This is how it knows which books still need to be downloaded. The Audible id must be somewhere in the book's file or folder name for Libation to detect your downloaded book.
