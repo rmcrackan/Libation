@@ -69,6 +69,16 @@ Success! We see how many new titles are imported:
 
 Automatically download some or all of your audible books. This shows you how much of your library is not yet downloaded and decrypted:
 
+The stoplights will tell you a title's status:
+
+* Red: not downloaded
+* Yellow: downloaded but still encrypted with DRM
+* Green: downloaded and decrypted
+* PDF with arrow: not downloaded
+* PDF without arrow: downloaded)
+
+Or hover over the button to see the status.
+
 ![Liberate book step 1](images/LiberateBook1.png)
 
 Select Liberate > Begin Book Backups
