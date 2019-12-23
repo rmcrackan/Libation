@@ -167,12 +167,9 @@ If you only want to see Harry Potter
 
 ![Search example: "harry potter"](images/SearchExampleHarryPotter.png)
 
-If you only want to see potter except for Harry Potter
+If you only want to see potter except for Harry Potter. You can also use "-" instead of "NOT"
 
 ![Search example: "potter NOT harry"](images/SearchExamplePotterNotHarry.png)
-
-Can also use "-" instead of "NOT"
-
 ![Search example: "potter -harry"](images/SearchExamplePotterNotHarry2.png)
 
 To see only books written by Neil Gaiman where he also narrates his own book. (If you don't include AND, you'll see everything written by Neil Gaiman and also all books in your library which are self-narrated.)
