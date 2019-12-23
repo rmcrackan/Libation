@@ -123,16 +123,6 @@ namespace LibationWinForms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap liberate_green_pdf_blank {
-            get {
-                object obj = ResourceManager.GetObject("liberate_green_pdf_blank", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap liberate_green_pdf_no {
             get {
                 object obj = ResourceManager.GetObject("liberate_green_pdf_no", resourceCulture);
@@ -163,16 +153,6 @@ namespace LibationWinForms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap liberate_red_pdf_blank {
-            get {
-                object obj = ResourceManager.GetObject("liberate_red_pdf_blank", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap liberate_red_pdf_no {
             get {
                 object obj = ResourceManager.GetObject("liberate_red_pdf_no", resourceCulture);
@@ -196,16 +176,6 @@ namespace LibationWinForms.Properties {
         internal static System.Drawing.Bitmap liberate_yellow {
             get {
                 object obj = ResourceManager.GetObject("liberate_yellow", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap liberate_yellow_pdf_blank {
-            get {
-                object obj = ResourceManager.GetObject("liberate_yellow_pdf_blank", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
