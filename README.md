@@ -71,11 +71,11 @@ Automatically download some or all of your audible books. This shows you how muc
 
 The stoplights will tell you a title's status:
 
-* Red: not downloaded
-* Yellow: downloaded but still encrypted with DRM
 * Green: downloaded and decrypted
+* Yellow: downloaded but still encrypted with DRM
+* Red: not downloaded
+* PDF icon without arrow: downloaded
 * PDF with arrow: not downloaded
-* PDF without arrow: downloaded)
 
 Or hover over the button to see the status.
 
