@@ -16,6 +16,8 @@
     - [Searches](#searches)
     - [Search examples](#search-examples)
     - [Filters](#filters)
+4. [Advanced](#advanced)
+    - [Files and folders](#files-and-folders)
 
 ## Audible audiobook manager
 
@@ -69,6 +71,16 @@ Success! We see how many new titles are imported:
 
 Automatically download some or all of your audible books. This shows you how much of your library is not yet downloaded and decrypted:
 
+The stoplights will tell you a title's status:
+
+* Green: downloaded and decrypted
+* Yellow: downloaded but still encrypted with DRM
+* Red: not downloaded
+* PDF icon without arrow: downloaded
+* PDF with arrow: not downloaded
+
+Or hover over the button to see the status.
+
 ![Liberate book step 1](images/LiberateBook1.png)
 
 Select Liberate > Begin Book Backups
@@ -88,6 +100,8 @@ Then it's decrypted so you can use it on any device you choose. The very first t
 And voila! If you have multiple books not yet liberated, Libation will automatically move on to the next.
 
 ![Liberate book step 5](images/LiberateBook5.png)
+
+The Audible id must be somewhere in the book's file or folder name for Libation to detect your downloaded book.
 
 ### Download PDF attachments
 
@@ -153,11 +167,12 @@ If you only want to see Harry Potter
 
 ![Search example: "harry potter"](images/SearchExampleHarryPotter.png)
 
-If you only want to see potter except for Harry Potter
+If you only want to see potter except for Harry Potter. You can also use "-" instead of "NOT"
 
 ![Search example: "potter NOT harry"](images/SearchExamplePotterNotHarry.png)
+![Search example: "potter -harry"](images/SearchExamplePotterNotHarry2.png)
 
-Only books written by Neil Gaiman where he also narrates his own book. (If you don't include AND, you'll see everything written by Neil Gaiman and also all books in your library which are self-narrated.)
+To see only books written by Neil Gaiman where he also narrates his own book. (If you don't include AND, you'll see everything written by Neil Gaiman and also all books in your library which are self-narrated.)
 
 ![Search example: author:gaiman AND authornarrated](images/SearchExampleGaimanAuthorNarrated.png)
 
@@ -175,3 +190,15 @@ To edit this list go to Quick Filters > Edit quick filters. Here you can re-orde
 Check "Quick Filters > Start Libation with 1st filter Default" to have your top filter automatically applied when Libation starts. In this top example, I want to always start without these: at books I've tagged hidden, books I've tagged as free_audible_originals, and books which I have rated.
 
 ![default filters](images/FiltersDefault.png)
+
+## Advanced
+
+### Files and folders
+
+To make upgrades and reinstalls easier, Libation separates all of its responsibilities to a few different folders. If you don't want to mess with this stuff: ignore it. Read on if you like a little more control over your files.
+
+* In Libation's initial folder are the files that make up the program. Since nothing else is here, just copy new files here to upgrade the program. Delete this folder to delete Libation.
+
+* In a separate folder, Libation keeps track of all of the files it creates like settings and downloaded images. After an upgrade, Libation might think that's its being run for the first time. Just click ADVANCED SETUP and point to this folder. Libation will reload your library and settings.
+
+* The last important folder is the "books location." This is where Libation looks for your downloaded and decrypted books. This is how it knows which books still need to be downloaded. The Audible id must be somewhere in the book's file or folder name for Libation to detect your downloaded book.
