@@ -36,6 +36,7 @@
 
 * Windows only
 * Several known speed/performance issues
+* Large file size
 * Made by a programmer, not a designer so the goals are function rather than beauty. And it shows
 
 ### The ugly
@@ -71,6 +72,8 @@ Automatically download some or all of your audible books. This shows you how muc
 ![Liberate book step 1](images/LiberateBook1.png)
 
 Select Liberate > Begin Book Backups
+
+You can also click on the stop light to download only that title and its PDF
 
 ![Liberate book step 2](images/LiberateBook2.png)
 
