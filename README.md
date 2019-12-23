@@ -36,6 +36,7 @@
 
 * Windows only
 * Several known speed/performance issues
+* Large file size
 * Made by a programmer, not a designer so the goals are function rather than beauty. And it shows
 
 ### The ugly
@@ -72,6 +73,8 @@ Automatically download some or all of your audible books. This shows you how muc
 
 Select Liberate > Begin Book Backups
 
+You can also click on the stop light to download only that title and its PDF
+
 ![Liberate book step 2](images/LiberateBook2.png)
 
 First the original book with DRM is downloaded
@@ -90,8 +93,6 @@ And voila! If you have multiple books not yet liberated, Libation will automatic
 
 For books which include PDF downloads, Libation can download these for you as well and will attempt to store them with the book. "Book backup" will already download an available PDF. This additional option is useful when Audible adds a PDF to your book after you've already backed it up.
 
-![PDF download step 1](images/PdfDownload1.png)
-
 Select Liberate > Begin PDF Backups
 
 ![PDF download step 2](images/PdfDownload2.png)
@@ -99,10 +100,6 @@ Select Liberate > Begin PDF Backups
 The downloads work just like with books, only with no additional decryption needed.
 
 ![PDF download step 3](images/PdfDownload3.png)
-
-Ta da!
-
-![PDF download step 4](images/PdfDownload4.png)
 
 ### Details of downloaded files
 
