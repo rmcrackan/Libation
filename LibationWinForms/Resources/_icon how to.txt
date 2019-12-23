@@ -1,6 +1,6 @@
 ﻿how to create the app's icon
 ============================
-https://www.flaticon.com/free-icon/glass-with-wine_33529#term=wine&page=1&position=59
+orig from (no longer available) https://www.flaticon.com/free-icon/glass-with-wine_33529
 get this image, color=black, at each of these sizes: 16,32,64,128,256
 
 from this answer: https://stackoverflow.com/a/16922387
