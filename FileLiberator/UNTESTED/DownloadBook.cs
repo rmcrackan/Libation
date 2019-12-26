@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using DataLayer;
+using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using FileManager;
 
@@ -44,11 +45,17 @@ namespace FileLiberator
 				tempAaxFilename,
 				(p) => api.DownloadAaxWorkaroundAsync(libraryBook.Book.AudibleProductId, tempAaxFilename, p));
 
-			// if bad file download, a 0-33 byte file will be created
 			System.Threading.Thread.Sleep(100);
+			// if bad file download, a 0-33 byte file will be created
+			// if service unavailable, a 52 byte string will be saved as file
 			if (new FileInfo(actualFilePath).Length < 100)
 			{
+				var contents = File.ReadAllText(actualFilePath);
 				File.Delete(actualFilePath);
+
+				var unavailable = "Content Delivery Companion Service is not available.";
+				if (contents.StartsWithInsensitive(unavailable))
+					throw new Exception(unavailable);
 				throw new Exception("Error downloading file");
 			}
 
