@@ -33,13 +33,13 @@ namespace LibationWinForms.BookLiberation
         }
 
         #region timer
-        Timer timer = new Timer { Interval = 1000 };
+        private Timer timer { get; } = new Timer { Interval = 1000 };
         private void DownloadForm_Load(object sender, EventArgs e)
         {
             timer.Tick += new EventHandler(timer_Tick);
             timer.Start();
         }
-        DateTime lastDownloadProgress = DateTime.Now;
+        private DateTime lastDownloadProgress = DateTime.Now;
         private void timer_Tick(object sender, EventArgs e)
         {
             // if no update in the last 30 seconds, display frozen label

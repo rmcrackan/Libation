@@ -16,15 +16,17 @@ namespace FileLiberator
 			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
 			&& !AudibleFileStorage.PDF.Exists(libraryBook.Book.AudibleProductId);
 
-		private static string getdownloadUrl(LibraryBook libraryBook)
-			=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
-
 		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
 			var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
 			await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
 			return verifyDownload(libraryBook);
 		}
+
+		private static StatusHandler verifyDownload(LibraryBook libraryBook)
+			=> !AudibleFileStorage.PDF.Exists(libraryBook.Book.AudibleProductId)
+			? new StatusHandler { "Downloaded PDF cannot be found" }
+			: new StatusHandler();
 
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
 		{
@@ -39,15 +41,15 @@ namespace FileLiberator
 
 		private async Task downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
 		{
+			var downloadUrl = getdownloadUrl(libraryBook);
+
 			var client = new HttpClient();
 			var actualDownloadedFilePath = await PerformDownloadAsync(
 				proposedDownloadFilePath,
-				(p) => client.DownloadFileAsync(getdownloadUrl(libraryBook), proposedDownloadFilePath, p));
+				(p) => client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, p));
 		}
 
-		private static StatusHandler verifyDownload(LibraryBook libraryBook)
-			=> !AudibleFileStorage.PDF.Exists(libraryBook.Book.AudibleProductId)
-			? new StatusHandler { "Downloaded PDF cannot be found" }
-			: new StatusHandler();
+		private static string getdownloadUrl(LibraryBook libraryBook)
+			=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
 	}
 }

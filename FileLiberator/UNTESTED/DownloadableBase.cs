@@ -6,7 +6,7 @@ using Dinah.Core.Net.Http;
 
 namespace FileLiberator
 {
-	public abstract class DownloadableBase : IDownloadable
+	public abstract class DownloadableBase : IDownloadableProcessable
 	{
 		public event EventHandler<LibraryBook> Begin;
 		public event EventHandler<LibraryBook> Completed;

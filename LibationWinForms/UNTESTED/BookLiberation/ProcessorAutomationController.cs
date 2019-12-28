@@ -6,15 +6,28 @@ using FileLiberator;
 
 namespace LibationWinForms.BookLiberation
 {
-    // matches a file processor with a form
     public static class ProcessorAutomationController
     {
-        //
-        // these utility methods ensure proper wiring
-        // 1) we can't forget to do it
-        // 2) we can't accidentally do it mult times becaues we lost track of complexity
-        //
-        public static BackupBook GetWiredUpBackupBook(EventHandler<LibraryBook> completedAction = null)
+        public static async Task BackupSingleBookAsync(string productId, EventHandler<LibraryBook> completedAction = null)
+        {
+            var backupBook = getWiredUpBackupBook(completedAction);
+
+            var automatedBackupsForm = attachToBackupsForm(backupBook);
+            automatedBackupsForm.KeepGoingVisible = false;
+
+            await runSingleBackupAsync(backupBook, automatedBackupsForm, productId);
+        }
+
+        public static async Task BackupAllBooksAsync(EventHandler<LibraryBook> completedAction = null)
+        {
+            var backupBook = getWiredUpBackupBook(completedAction);
+
+            var automatedBackupsForm = attachToBackupsForm(backupBook);
+
+            await runBackupLoopAsync(backupBook, automatedBackupsForm);
+        }
+
+        private static BackupBook getWiredUpBackupBook(EventHandler<LibraryBook> completedAction)
         {
             var backupBook = new BackupBook();
 
@@ -32,7 +45,65 @@ namespace LibationWinForms.BookLiberation
             return backupBook;
         }
 
-        public static DownloadPdf GetWiredUpDownloadPdf(EventHandler<LibraryBook> completedAction = null)
+        private static AutomatedBackupsForm attachToBackupsForm(BackupBook backupBook)
+        {
+            #region create form
+            var automatedBackupsForm = new AutomatedBackupsForm();
+            #endregion
+
+            #region define how model actions will affect form behavior
+            void downloadBookBegin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Download Step, Begin: {libraryBook.Book}");
+            void statusUpdate(object _, string str) => automatedBackupsForm.AppendText("- " + str);
+            void downloadBookCompleted(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Download Step, Completed: {libraryBook.Book}");
+            void decryptBookBegin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Decrypt Step, Begin: {libraryBook.Book}");
+            // extra line after book is completely finished
+            void decryptBookCompleted(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Decrypt Step, Completed: {libraryBook.Book}{Environment.NewLine}");
+            void downloadPdfBegin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"PDF Step, Begin: {libraryBook.Book}");
+            // extra line after book is completely finished
+            void downloadPdfCompleted(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"PDF Step, Completed: {libraryBook.Book}{Environment.NewLine}");
+            #endregion
+
+            #region subscribe new form to model's events
+            backupBook.DownloadBook.Begin += downloadBookBegin;
+            backupBook.DownloadBook.StatusUpdate += statusUpdate;
+            backupBook.DownloadBook.Completed += downloadBookCompleted;
+            backupBook.DecryptBook.Begin += decryptBookBegin;
+            backupBook.DecryptBook.StatusUpdate += statusUpdate;
+            backupBook.DecryptBook.Completed += decryptBookCompleted;
+            backupBook.DownloadPdf.Begin += downloadPdfBegin;
+            backupBook.DownloadPdf.StatusUpdate += statusUpdate;
+            backupBook.DownloadPdf.Completed += downloadPdfCompleted;
+            #endregion
+
+            #region when form closes, unsubscribe from model's events
+            // unsubscribe so disposed forms aren't still trying to receive notifications
+            automatedBackupsForm.FormClosing += (_, __) =>
+            {
+                backupBook.DownloadBook.Begin -= downloadBookBegin;
+                backupBook.DownloadBook.StatusUpdate -= statusUpdate;
+                backupBook.DownloadBook.Completed -= downloadBookCompleted;
+                backupBook.DecryptBook.Begin -= decryptBookBegin;
+                backupBook.DecryptBook.StatusUpdate -= statusUpdate;
+                backupBook.DecryptBook.Completed -= decryptBookCompleted;
+                backupBook.DownloadPdf.Begin -= downloadPdfBegin;
+                backupBook.DownloadPdf.StatusUpdate -= statusUpdate;
+                backupBook.DownloadPdf.Completed -= downloadPdfCompleted;
+            };
+            #endregion
+
+            return automatedBackupsForm;
+        }
+
+        public static async Task BackupAllPdfsAsync(EventHandler<LibraryBook> completedAction = null)
+        {
+            var downloadPdf = getWiredUpDownloadPdf(completedAction);
+
+            var automatedBackupsForm = attachToBackupsForm(downloadPdf);
+
+            await runBackupLoopAsync(downloadPdf, automatedBackupsForm);
+        }
+
+        private static DownloadPdf getWiredUpDownloadPdf(EventHandler<LibraryBook> completedAction)
         {
             var downloadPdf = new DownloadPdf();
 
@@ -44,8 +115,25 @@ namespace LibationWinForms.BookLiberation
             return downloadPdf;
         }
 
+        public static async Task DownloadFileAsync(string url, string destination)
+        {
+            var downloadFile = new DownloadFile();
+
+            // frustratingly copy pasta from wireUpEvents(IDownloadable downloadable) due to Completed being EventHandler<LibraryBook>
+            var downloadDialog = new DownloadForm();
+            downloadFile.DownloadBegin += (_, str) =>
+            {
+                downloadDialog.UpdateFilename(str);
+                downloadDialog.Show();
+            };
+            downloadFile.DownloadProgressChanged += (_, progress) => downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive.Value);
+            downloadFile.DownloadCompleted += (_, __) => downloadDialog.Close();
+
+            await downloadFile.PerformDownloadFileAsync(url, destination);
+        }
+
         // subscribed to Begin event because a new form should be created+processed+closed on each iteration
-        private static void wireUpEvents(IDownloadable downloadable)
+        private static void wireUpEvents(IDownloadableProcessable downloadable)
         {
             #region create form
             var downloadDialog = new DownloadForm();
@@ -156,13 +244,7 @@ namespace LibationWinForms.BookLiberation
             #endregion
         }
 
-        public static async Task RunAutomaticDownloadAsync(IDownloadable downloadable)
-        {
-            AutomatedBackupsForm automatedBackupsForm = attachToBackupsForm(downloadable);
-            await runBackupLoopAsync(downloadable, automatedBackupsForm);
-        }
-
-        private static AutomatedBackupsForm attachToBackupsForm(IDownloadable downloadable)
+        private static AutomatedBackupsForm attachToBackupsForm(IDownloadableProcessable downloadable)
         {
             #region create form
             var automatedBackupsForm = new AutomatedBackupsForm();
@@ -188,68 +270,6 @@ namespace LibationWinForms.BookLiberation
                 downloadable.Begin -= begin;
                 downloadable.StatusUpdate -= statusUpdate;
                 downloadable.Completed -= completed;
-            };
-            #endregion
-
-            return automatedBackupsForm;
-        }
-
-        public static async Task RunAutomaticBackupAsync(BackupBook backupBook)
-        {
-            var automatedBackupsForm = attachToBackupsForm(backupBook);
-            await runBackupLoopAsync(backupBook, automatedBackupsForm);
-        }
-
-        public static async Task RunSingleBackupAsync(BackupBook backupBook, string productId)
-        {
-            var automatedBackupsForm = attachToBackupsForm(backupBook);
-            automatedBackupsForm.KeepGoingVisible = false;
-            await runSingleBackupAsync(backupBook, automatedBackupsForm, productId);
-        }
-
-        private static AutomatedBackupsForm attachToBackupsForm(BackupBook backupBook)
-        {
-            #region create form
-            var automatedBackupsForm = new AutomatedBackupsForm();
-            #endregion
-
-            #region define how model actions will affect form behavior
-            void downloadBookBegin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Download Step, Begin: {libraryBook.Book}");
-            void statusUpdate(object _, string str) => automatedBackupsForm.AppendText("- " + str);
-            void downloadBookCompleted(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Download Step, Completed: {libraryBook.Book}");
-            void decryptBookBegin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Decrypt Step, Begin: {libraryBook.Book}");
-            // extra line after book is completely finished
-            void decryptBookCompleted(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Decrypt Step, Completed: {libraryBook.Book}{Environment.NewLine}");
-            void downloadPdfBegin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"PDF Step, Begin: {libraryBook.Book}");
-            // extra line after book is completely finished
-            void downloadPdfCompleted(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"PDF Step, Completed: {libraryBook.Book}{Environment.NewLine}");
-            #endregion
-
-            #region subscribe new form to model's events
-            backupBook.DownloadBook.Begin += downloadBookBegin;
-            backupBook.DownloadBook.StatusUpdate += statusUpdate;
-            backupBook.DownloadBook.Completed += downloadBookCompleted;
-            backupBook.DecryptBook.Begin += decryptBookBegin;
-            backupBook.DecryptBook.StatusUpdate += statusUpdate;
-            backupBook.DecryptBook.Completed += decryptBookCompleted;
-            backupBook.DownloadPdf.Begin += downloadPdfBegin;
-            backupBook.DownloadPdf.StatusUpdate += statusUpdate;
-            backupBook.DownloadPdf.Completed += downloadPdfCompleted;
-            #endregion
-
-            #region when form closes, unsubscribe from model's events
-            // unsubscribe so disposed forms aren't still trying to receive notifications
-            automatedBackupsForm.FormClosing += (_, __) =>
-            {
-                backupBook.DownloadBook.Begin -= downloadBookBegin;
-                backupBook.DownloadBook.StatusUpdate -= statusUpdate;
-                backupBook.DownloadBook.Completed -= downloadBookCompleted;
-                backupBook.DecryptBook.Begin -= decryptBookBegin;
-                backupBook.DecryptBook.StatusUpdate -= statusUpdate;
-                backupBook.DecryptBook.Completed -= decryptBookCompleted;
-                backupBook.DownloadPdf.Begin -= downloadPdfBegin;
-                backupBook.DownloadPdf.StatusUpdate -= statusUpdate;
-                backupBook.DownloadPdf.Completed -= downloadPdfCompleted;
             };
             #endregion
 

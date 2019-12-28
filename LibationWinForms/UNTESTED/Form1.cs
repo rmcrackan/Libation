@@ -112,7 +112,7 @@ namespace LibationWinForms
         enum AudioFileState { full, aax, none }
         private void setBookBackupCounts(IEnumerable<Book> books)
         {
-			AudioFileState getAudioFileState(string productId)
+            static AudioFileState getAudioFileState(string productId)
             {
                 if (AudibleFileStorage.Audio.Exists(productId))
                     return AudioFileState.full;
@@ -237,16 +237,10 @@ namespace LibationWinForms
 
         #region liberate menu
         private async void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var backupBook = BookLiberation.ProcessorAutomationController.GetWiredUpBackupBook(updateGridRow);
-			await BookLiberation.ProcessorAutomationController.RunAutomaticBackupAsync(backupBook);
-        }
+            => await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(updateGridRow);
 
         private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var downloadPdf = BookLiberation.ProcessorAutomationController.GetWiredUpDownloadPdf(updateGridRow);
-            await BookLiberation.ProcessorAutomationController.RunAutomaticDownloadAsync(downloadPdf);
-        }
+            => await BookLiberation.ProcessorAutomationController.BackupAllPdfsAsync(updateGridRow);
 
         private void updateGridRow(object _, LibraryBook libraryBook) => currProductsGrid.RefreshRow(libraryBook.Book.AudibleProductId);
         #endregion
