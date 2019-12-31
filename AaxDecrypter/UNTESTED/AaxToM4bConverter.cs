@@ -293,14 +293,14 @@ namespace AaxDecrypter
 
         public bool Step3_Chapterize()
         {
-            string str1 = "";
+            var str1 = "";
             if (chapters.FirstChapterStart != 0.0)
             {
                 str1 = " -ss " + chapters.FirstChapterStart.ToString("0.000", CultureInfo.InvariantCulture) + " -t " + (chapters.LastChapterStart - 1.0).ToString("0.000", CultureInfo.InvariantCulture) + " ";
             }
 
-            string ffmpegTags = tags.GenerateFfmpegTags();
-            string ffmpegChapters = chapters.GenerateFfmpegChapters();
+            var ffmpegTags = tags.GenerateFfmpegTags();
+            var ffmpegChapters = chapters.GenerateFfmpegChapters();
             File.WriteAllText(ff_txt_file, ffmpegTags + ffmpegChapters);
 
             var tagAndChapterInfo = new ProcessStartInfo

@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Text;
 using TagLib;
 using TagLib.Mpeg4;
 using Dinah.Core;
@@ -23,52 +18,50 @@ namespace AaxDecrypter
         public string genre { get; }
         public TimeSpan duration { get; }
 
+        // input file
         public Tags(string file)
         {
-			using TagLib.File tagLibFile = TagLib.File.Create(file, "audio/mp4", ReadStyle.Average);
-			this.title = tagLibFile.Tag.Title.Replace(" (Unabridged)", "");
-			this.album = tagLibFile.Tag.Album.Replace(" (Unabridged)", "");
-			this.author = tagLibFile.Tag.FirstPerformer ?? "[unknown]";
-			this.year = tagLibFile.Tag.Year.ToString();
-			this.comments = tagLibFile.Tag.Comment;
-			this.duration = tagLibFile.Properties.Duration;
-			this.genre = tagLibFile.Tag.FirstGenre;
+            using var tagLibFile = TagLib.File.Create(file, "audio/mp4", ReadStyle.Average);
+			title = tagLibFile.Tag.Title.Replace(" (Unabridged)", "");
+			album = tagLibFile.Tag.Album.Replace(" (Unabridged)", "");
+			author = tagLibFile.Tag.FirstPerformer ?? "[unknown]";
+			year = tagLibFile.Tag.Year.ToString();
+			comments = tagLibFile.Tag.Comment ?? "";
+			duration = tagLibFile.Properties.Duration;
+			genre = tagLibFile.Tag.FirstGenre ?? "";
 
-			var tag = tagLibFile.GetTag(TagTypes.Apple, true);
-			this.publisher = tag.Publisher;
-			this.narrator = string.IsNullOrWhiteSpace(tagLibFile.Tag.FirstComposer) ? tag.Narrator : tagLibFile.Tag.FirstComposer;
-			this.comments = !string.IsNullOrWhiteSpace(tag.LongDescription) ? tag.LongDescription : tag.Description;
-			this.id = tag.AudibleCDEK;
+            var tag = tagLibFile.GetTag(TagTypes.Apple, true);
+			publisher = tag.Publisher ?? "";
+			narrator = string.IsNullOrWhiteSpace(tagLibFile.Tag.FirstComposer) ? tag.Narrator : tagLibFile.Tag.FirstComposer;
+			comments = !string.IsNullOrWhiteSpace(tag.LongDescription) ? tag.LongDescription : tag.Description;
+			id = tag.AudibleCDEK;
 		}
 
+        // my best guess of what this step is doing:
+        // re-publish the data we read from the input file => output file
         public void AddAppleTags(string file)
         {
-			using var file1 = TagLib.File.Create(file, "audio/mp4", ReadStyle.Average);
-			var tag = (AppleTag)file1.GetTag(TagTypes.Apple, true);
-			tag.Publisher = this.publisher;
-			tag.LongDescription = this.comments;
-			tag.Description = this.comments;
-			file1.Save();
+            using var tagLibFile = TagLib.File.Create(file, "audio/mp4", ReadStyle.Average);
+            var tag = (AppleTag)tagLibFile.GetTag(TagTypes.Apple, true);
+			tag.Publisher = publisher;
+			tag.LongDescription = comments;
+			tag.Description = comments;
+            tagLibFile.Save();
 		}
 
         public string GenerateFfmpegTags()
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            stringBuilder.Append(";FFMETADATA1\n");
-            stringBuilder.Append("major_brand=aax\n");
-            stringBuilder.Append("minor_version=1\n");
-            stringBuilder.Append("compatible_brands=aax M4B mp42isom\n");
-            stringBuilder.Append("date=" + this.year + "\n");
-            stringBuilder.Append("genre=" + this.genre + "\n");
-            stringBuilder.Append("title=" + this.title + "\n");
-            stringBuilder.Append("artist=" + this.author + "\n");
-            stringBuilder.Append("album=" + this.album + "\n");
-            stringBuilder.Append("composer=" + this.narrator + "\n");
-            stringBuilder.Append("comment=" + this.comments.Truncate(254) + "\n");
-            stringBuilder.Append("description=" + this.comments + "\n");
-
-            return stringBuilder.ToString();
-        }
+            => $";FFMETADATA1"
+            + $"\nmajor_brand=aax"
+            + $"\nminor_version=1"
+            + $"\ncompatible_brands=aax M4B mp42isom"
+            + $"\ndate={year}"
+            + $"\ngenre={genre}"
+            + $"\ntitle={title}"
+            + $"\nartist={author}"
+            + $"\nalbum={album}"
+            + $"\ncomposer={narrator}"
+            + $"\ncomment={comments.Truncate(254)}"
+            + $"\ndescription={comments}"
+            + $"\n";
     }
 }

@@ -1,6 +1,7 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
+v3.1.2 : null checks
 v3.1.1 : Check if upgrade available on github
 v3.1.0 : FIRST PUBLIC RELEASE
 v3.1-beta.11 : Improved configuration and settings file management. Configurable logging

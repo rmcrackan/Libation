@@ -17,10 +17,10 @@ namespace AaxDecrypter
 
         public Chapters(string file, double totalTime)
         {
-            this.markers = getAAXChapters(file);
+            markers = getAAXChapters(file);
 
             // add end time
-            this.markers.Add(totalTime);
+            markers.Add(totalTime);
         }
 
         private static List<double> getAAXChapters(string file)
@@ -42,7 +42,7 @@ namespace AaxDecrypter
         }
 
         // subtract 1 b/c end time marker is a real entry but isn't a real chapter
-        public int Count() => this.markers.Count - 1;
+        public int Count() => markers.Count - 1;
 
         public string GetCuefromChapters(string fileName)
         {
@@ -56,7 +56,7 @@ namespace AaxDecrypter
             {
                 var chapter = i + 1;
 
-                var timeSpan = TimeSpan.FromSeconds(this.markers[i]);
+                var timeSpan = TimeSpan.FromSeconds(markers[i]);
                 var minutes = Math.Floor(timeSpan.TotalMinutes).ToString();
                 var seconds = timeSpan.Seconds.ToString("D2");
                 var milliseconds = (timeSpan.Milliseconds / 10).ToString("D2");
@@ -78,8 +78,8 @@ namespace AaxDecrypter
             {
                 var chapter = i + 1;
 
-                var start = this.markers[i] * 1000.0;
-                var end = this.markers[i + 1] * 1000.0;
+                var start = markers[i] * 1000.0;
+                var end = markers[i + 1] * 1000.0;
                 var chapterName = chapter.ToString("D3");
 
                 stringBuilder.Append("[CHAPTER]\n");
