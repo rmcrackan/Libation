@@ -49,12 +49,10 @@ namespace LibationWinForms
             // also applies filter. ONLY call AFTER loading grid
             loadInitialQuickFilterState();
 
-            { // init bottom counts
-                backupsCountsLbl.Text = "[Calculating backed up book quantities]";
-                pdfsCountsLbl.Text = "[Calculating backed up PDFs]";
-
-                setBackupCounts(null, null);
-            }
+            // init bottom counts
+            backupsCountsLbl.Text = "[Calculating backed up book quantities]";
+            pdfsCountsLbl.Text = "[Calculating backed up PDFs]";
+            setBackupCounts(null, null);
         }
 
         #region reload grid
@@ -142,6 +140,7 @@ namespace LibationWinForms
                 = pending > 0
                 ? $"{pending} remaining"
                 : "All books have been liberated";
+            Serilog.Log.Logger.Information(menuItemText);
             menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Enabled = pending > 0);
             menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Text = string.Format(beginBookBackupsToolStripMenuItem_format, menuItemText));
         }
@@ -167,6 +166,7 @@ namespace LibationWinForms
                 = notDownloaded > 0
                 ? $"{notDownloaded} remaining"
                 : "All PDFs have been downloaded";
+            Serilog.Log.Logger.Information(menuItemText);
             menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Enabled = notDownloaded > 0);
             menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Text = string.Format(beginPdfBackupsToolStripMenuItem_format, menuItemText));
         }

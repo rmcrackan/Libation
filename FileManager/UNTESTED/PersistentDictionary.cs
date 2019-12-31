@@ -64,7 +64,34 @@ namespace FileManager
             // set cache
             stringCache[propertyName] = newValue;
 
-            // set in file
+            writeFile(propertyName, newValue);
+        }
+
+        public void Set(string propertyName, object newValue)
+        {
+            // set cache
+            objectCache[propertyName] = newValue;
+
+            var parsedNewValue = JToken.Parse(JsonConvert.SerializeObject(newValue));
+            writeFile(propertyName, parsedNewValue);
+        }
+
+        private void writeFile(string propertyName, JToken newValue)
+        {
+            try
+            {
+                var str = newValue?.ToString();
+                var formattedValue
+                    = str is null ? "[null]"
+                    : string.IsNullOrEmpty(str) ? "[empty]"
+                    : string.IsNullOrWhiteSpace(str) ? $"[whitespace. Length={str.Length}]"
+                    : str.Length > 100 ? $"[Length={str.Length}] {str[0..50]}...{str[^50..^0]}"
+                    : str;
+                Serilog.Log.Logger.Information($"Config changed. {propertyName}={formattedValue}");
+            }
+            catch { }
+
+            // write new setting to file
             lock (locker)
             {
                 var jObject = readFile();
@@ -73,20 +100,7 @@ namespace FileManager
             }
         }
 
-        public void Set(string propertyName, object newValue)
-        {
-            // set cache
-            objectCache[propertyName] = newValue;
-
-            // set in file
-            lock (locker)
-            {
-                var jObject = readFile();
-                jObject[propertyName] = JToken.Parse(JsonConvert.SerializeObject(newValue));
-                File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
-            }
-        }
-
+        // special case: no caching. no logging
         public void SetWithJsonPath(string jsonPath, string propertyName, string newValue)
         {
             lock (locker)
@@ -94,6 +108,7 @@ namespace FileManager
                 var jObject = readFile();
                 var token = jObject.SelectToken(jsonPath);
                 var debug_oldValue = (string)token[propertyName];
+
                 token[propertyName] = newValue;
                 File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
             }

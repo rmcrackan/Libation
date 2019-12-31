@@ -40,13 +40,15 @@
 			this.welcomeLbl.AutoSize = true;
 			this.welcomeLbl.Location = new System.Drawing.Point(12, 9);
 			this.welcomeLbl.Name = "welcomeLbl";
-			this.welcomeLbl.Size = new System.Drawing.Size(399, 78);
+			this.welcomeLbl.Size = new System.Drawing.Size(399, 117);
 			this.welcomeLbl.TabIndex = 0;
 			this.welcomeLbl.Text = resources.GetString("welcomeLbl.Text");
 			// 
 			// noQuestionsBtn
 			// 
-			this.noQuestionsBtn.Location = new System.Drawing.Point(15, 90);
+			this.noQuestionsBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.noQuestionsBtn.Location = new System.Drawing.Point(15, 129);
 			this.noQuestionsBtn.Name = "noQuestionsBtn";
 			this.noQuestionsBtn.Size = new System.Drawing.Size(396, 57);
 			this.noQuestionsBtn.TabIndex = 1;
@@ -55,7 +57,9 @@
 			// 
 			// basicBtn
 			// 
-			this.basicBtn.Location = new System.Drawing.Point(15, 153);
+			this.basicBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.basicBtn.Location = new System.Drawing.Point(15, 192);
 			this.basicBtn.Name = "basicBtn";
 			this.basicBtn.Size = new System.Drawing.Size(396, 57);
 			this.basicBtn.TabIndex = 2;
@@ -64,7 +68,9 @@
 			// 
 			// advancedBtn
 			// 
-			this.advancedBtn.Location = new System.Drawing.Point(15, 216);
+			this.advancedBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.advancedBtn.Location = new System.Drawing.Point(15, 255);
 			this.advancedBtn.Name = "advancedBtn";
 			this.advancedBtn.Size = new System.Drawing.Size(396, 57);
 			this.advancedBtn.TabIndex = 3;
@@ -75,7 +81,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(423, 285);
+			this.ClientSize = new System.Drawing.Size(423, 324);
 			this.Controls.Add(this.advancedBtn);
 			this.Controls.Add(this.basicBtn);
 			this.Controls.Add(this.noQuestionsBtn);

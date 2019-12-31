@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using FileManager;
 using LibationWinForms;
@@ -191,7 +190,6 @@ namespace LibationLauncher
 			//Log.Logger.Here().Debug("Begin Libation. Debug with line numbers");
 		}
 
-		private static event Action cheating;
 		private static void checkForUpdate()
 		{
 			try
@@ -247,8 +245,9 @@ namespace LibationLauncher
 		private static void logStartupState()
 		{
 			Log.Logger.Information("Begin Libation");
-
 			Log.Logger.Information($"Version: {BuildVersion}");
+			Log.Logger.Information($"LibationFiles: {Configuration.Instance.LibationFiles}");
+			Log.Logger.Information($"Audible locale: {Configuration.Instance.LocaleCountryCode}");
 		}
 
 		private static Version BuildVersion => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
