@@ -174,15 +174,23 @@ namespace LibationWinForms
             
             var productId = getGridEntry(e.RowIndex).GetBook().AudibleProductId;
 
-            // not liberated: liberate
-            if (!FileManager.AudibleFileStorage.Audio.Exists(productId))
-                await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(productId, (_, __) => RefreshRow(productId));
             // liberated: open explorer to file
-            else
+            if (FileManager.AudibleFileStorage.Audio.Exists(productId))
             {
                 var filePath = FileManager.AudibleFileStorage.Audio.GetPath(productId);
                 System.Diagnostics.Process.Start("explorer.exe", $"/select, \"{filePath}\"");
+                return;
             }
+
+            // not liberated: liberate
+            var msg
+                = "Liberate entire library instead?"
+                + "\r\n\r\nClick Yes to begin liberating your entire library"
+                + "\r\n\r\nClick No to liberate this book only";
+            if (MessageBox.Show(msg, "Liberate entire library?", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync((_, libraryBook) => RefreshRow(libraryBook.Book.AudibleProductId));
+            else
+                await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(productId, (_, __) => RefreshRow(productId));
         }
         #endregion
 
