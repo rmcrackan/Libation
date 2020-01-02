@@ -1,6 +1,7 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
+v3.1.3 : fix weirdness with build number
 v3.1.2 : minor bug fixes
 v3.1.1 : Check if upgrade available on github
 v3.1.0 : FIRST PUBLIC RELEASE
