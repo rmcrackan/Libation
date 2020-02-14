@@ -73,7 +73,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(168, 52);
             this.label4.TabIndex = 3;
-            this.label4.Text = "BOOL FIELDS\r\n\r\nFind books that you haven\'t rated:\r\n     -IsRated";
+            this.label4.Text = "BOOLEAN (TRUE/FALSE) FIELDS\r\n\r\nFind books that you haven\'t rated:\r\n     -IsRated";
             // 
             // label5
             // 

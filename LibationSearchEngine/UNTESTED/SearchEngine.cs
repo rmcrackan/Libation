@@ -105,13 +105,23 @@ namespace LibationSearchEngine
                     ["HasPDF"] = lb => lb.Book.Supplements.Any(),
                     ["PDFs"] = lb => lb.Book.Supplements.Any(),
                     ["PDF"] = lb => lb.Book.Supplements.Any(),
+
                     ["IsRated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,
                     ["Rated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,
-                    ["IsAuthorNarrated"] = lb => lb.Book.Authors.Intersect(lb.Book.Narrators).Any(),
-                    ["AuthorNarrated"] = lb => lb.Book.Authors.Intersect(lb.Book.Narrators).Any(),
+
+                    ["IsAuthorNarrated"] = lb => isAuthorNarrated(lb),
+                    ["AuthorNarrated"] = lb => isAuthorNarrated(lb),
+
                     [nameof(Book.IsAbridged)] = lb => lb.Book.IsAbridged,
                     ["Abridged"] = lb => lb.Book.IsAbridged,
                 });
+
+        private static bool isAuthorNarrated(LibraryBook lb)
+        {
+            var authors = lb.Book.Authors.Select(a => a.Name).ToArray();
+            var narrators = lb.Book.Narrators.Select(a => a.Name).ToArray();
+            return authors.Intersect(narrators).Any();
+        }
 
         // use these common fields in the "all" default search field
         private static IEnumerable<Func<LibraryBook, string>> allFieldIndexRules { get; }
