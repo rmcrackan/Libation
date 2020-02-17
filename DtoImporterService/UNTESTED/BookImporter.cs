@@ -131,7 +131,18 @@ namespace DtoImporterService
 				foreach (var seriesEntry in item.Series)
 				{
 					var series = DbContext.Series.Local.Single(s => seriesEntry.SeriesId == s.AudibleSeriesId);
-					book.UpsertSeries(series, seriesEntry.Index);
+
+					var index = 0f;
+					try
+					{
+						index = seriesEntry.Index;
+					}
+					catch (Exception ex)
+					{
+						Serilog.Log.Logger.Error(ex, $"Error parsing series index. Title: {item.Title}. ASIN: {item.Asin}. Series index: {seriesEntry.Sequence}");
+					}
+
+					book.UpsertSeries(series, index);
 				}
 			}
 		}
