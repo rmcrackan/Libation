@@ -129,18 +129,21 @@ namespace LibationWinForms
 
             // update bottom numbers
             var pending = noProgress + downloadedOnly;
-            var text
+            var statusStripText
                 = !results.Any() ? "No books. Begin by importing your library"
                 : pending > 0 ? string.Format(backupsCountsLbl_Format, noProgress, downloadedOnly, fullyBackedUp)
                 : $"All {"book".PluralizeWithCount(fullyBackedUp)} backed up";
-            statusStrip1.UIThread(() => backupsCountsLbl.Text = text);
 
             // update menu item
             var menuItemText
                 = pending > 0
                 ? $"{pending} remaining"
                 : "All books have been liberated";
-            Serilog.Log.Logger.Information(menuItemText);
+
+            Serilog.Log.Logger.Information("Book counts. {@DebugInfo}", new { fullyBackedUp, downloadedOnly, noProgress, pending, statusStripText, menuItemText });
+
+            // update UI
+            statusStrip1.UIThread(() => backupsCountsLbl.Text = statusStripText);
             menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Enabled = pending > 0);
             menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Text = string.Format(beginBookBackupsToolStripMenuItem_format, menuItemText));
         }
@@ -155,18 +158,21 @@ namespace LibationWinForms
             var notDownloaded = boolResults.Count(r => !r);
 
             // update bottom numbers
-            var text
+            var statusStripText
                 = !boolResults.Any() ? ""
                 : notDownloaded > 0 ? string.Format(pdfsCountsLbl_Format, notDownloaded, downloaded)
                 : $"|  All {downloaded} PDFs downloaded";
-            statusStrip1.UIThread(() => pdfsCountsLbl.Text = text);
 
             // update menu item
             var menuItemText
                 = notDownloaded > 0
                 ? $"{notDownloaded} remaining"
                 : "All PDFs have been downloaded";
-            Serilog.Log.Logger.Information(menuItemText);
+
+            Serilog.Log.Logger.Information("PDF counts. {@DebugInfo}", new { downloaded, notDownloaded, statusStripText, menuItemText });
+
+            // update UI
+            statusStrip1.UIThread(() => pdfsCountsLbl.Text = statusStripText);
             menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Enabled = notDownloaded > 0);
             menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Text = string.Format(beginPdfBackupsToolStripMenuItem_format, menuItemText));
         }

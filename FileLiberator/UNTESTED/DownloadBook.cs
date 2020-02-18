@@ -18,6 +18,8 @@ namespace FileLiberator
     /// </summary>
     public class DownloadBook : DownloadableBase
     {
+		private const string SERVICE_UNAVAILABLE = "Content Delivery Companion Service is not available.";
+
         public override bool Validate(LibraryBook libraryBook)
             => !AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId)
             && !AudibleFileStorage.AAX.Exists(libraryBook.Book.AudibleProductId);
@@ -48,18 +50,29 @@ namespace FileLiberator
 			System.Threading.Thread.Sleep(100);
 			// if bad file download, a 0-33 byte file will be created
 			// if service unavailable, a 52 byte string will be saved as file
-			if (new FileInfo(actualFilePath).Length < 100)
+			var length = new FileInfo(actualFilePath).Length;
+
+			if (length > 100)
+				return actualFilePath;
+
+			var contents = File.ReadAllText(actualFilePath);
+			File.Delete(actualFilePath);
+
+			var exMsg = contents.StartsWithInsensitive(SERVICE_UNAVAILABLE)
+				? SERVICE_UNAVAILABLE
+				: "Error downloading file";
+
+			var ex = new Exception(exMsg);
+			Serilog.Log.Error(ex, "Download error {@DebugInfo}", new
 			{
-				var contents = File.ReadAllText(actualFilePath);
-				File.Delete(actualFilePath);
-
-				var unavailable = "Content Delivery Companion Service is not available.";
-				if (contents.StartsWithInsensitive(unavailable))
-					throw new Exception(unavailable);
-				throw new Exception("Error downloading file");
-			}
-
-			return actualFilePath;
+				libraryBook.Book.Title,
+				libraryBook.Book.AudibleProductId,
+				tempAaxFilename,
+				actualFilePath,
+				length,
+				contents
+			});
+			throw ex;
 		}
 
 		private void moveBook(LibraryBook libraryBook, string actualFilePath)

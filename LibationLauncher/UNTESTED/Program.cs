@@ -244,10 +244,27 @@ namespace LibationLauncher
 
 		private static void logStartupState()
 		{
-			Log.Logger.Information("Begin Libation");
-			Log.Logger.Information($"Version: {BuildVersion}");
-			Log.Logger.Information($"LibationFiles: {Configuration.Instance.LibationFiles}");
-			Log.Logger.Information($"Audible locale: {Configuration.Instance.LocaleCountryCode}");
+			var config = Configuration.Instance;
+
+			Log.Logger.Information("Begin Libation. {@DebugInfo}", new
+			{
+				Version = BuildVersion.ToString(),
+
+				AudibleLocale = config.LocaleCountryCode,
+				config.LibationFiles,
+				AudibleFileStorage.BooksDirectory,
+
+				config.DownloadsInProgressEnum,
+				DownloadsInProgressDir = AudibleFileStorage.DownloadsInProgress,
+				DownloadsInProgressFiles = Directory.EnumerateFiles(AudibleFileStorage.DownloadsInProgress).Count(),
+
+				AudibleFileStorage.DownloadsFinal,
+				DownloadsFinalFiles = Directory.EnumerateFiles(AudibleFileStorage.DownloadsFinal).Count(),
+
+				config.DecryptInProgressEnum,
+				DecryptInProgressDir = AudibleFileStorage.DecryptInProgress,
+				DecryptInProgressFiles = Directory.EnumerateFiles(AudibleFileStorage.DecryptInProgress).Count(),
+			});
 		}
 
 		private static Version BuildVersion => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
