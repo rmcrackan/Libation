@@ -1,6 +1,7 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
+v3.1.8 : Experimental: add Australia to locale options
 v3.1.7 : Improved logging
 v3.1.6 : Bugfix: some series indexes/sequences formats cause library not to import
 v3.1.5 : Bugfix: some series indexes/sequences could cause library not to import
