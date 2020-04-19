@@ -30,7 +30,7 @@
 * Powerful advanced search built on the Lucene search engine
 * Customizable saved filters for common searches
 * Open source
-* Tested on US Audible only. Should theoretically also work for Canada, UK, Germany, and France
+* Tested on US Audible only. Should theoretically also work for Canada, UK, Germany, France, and Australia
 
 <a name="theBad"/>
 
