@@ -1,5 +1,7 @@
 # Libation: Liberate your Library
 
+## [Download Libation](releases)
+
 # Table of Contents
 
 1. [Audible audiobook manager](#audible-audiobook-manager)
