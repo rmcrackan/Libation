@@ -1,6 +1,6 @@
 # Libation: Liberate your Library
 
-## [Download Libation](releases)
+## [Download Libation](https://github.com/rmcrackan/Libation/releases)
 
 # Table of Contents
 
