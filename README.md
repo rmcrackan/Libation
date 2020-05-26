@@ -1,5 +1,7 @@
 # Libation: Liberate your Library
 
+## [Download Libation](https://github.com/rmcrackan/Libation/releases)
+
 # Table of Contents
 
 1. [Audible audiobook manager](#audible-audiobook-manager)
