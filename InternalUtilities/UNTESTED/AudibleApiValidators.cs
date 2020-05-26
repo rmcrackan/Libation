@@ -51,9 +51,6 @@ namespace InternalUtilities
 			if (distinct.Any(s => s.CategoryName is null))
 				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Categories)} with null {nameof(Ladder.CategoryName)}", nameof(items)));
 
-			if (items.GetCategoryPairsDistinct().Any(p => p.Length > 2))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Categories)} with wrong number of categories. Expecting 0, 1, or 2 categories per title", nameof(items)));
-
 			return exceptions;
 		}
 	}

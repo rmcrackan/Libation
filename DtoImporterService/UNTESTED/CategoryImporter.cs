@@ -51,6 +51,10 @@ namespace DtoImporterService
 			{
 				for (var i = 0; i < pair.Length; i++)
 				{
+					// not yet supported: depth beyond 0 and 1
+					if (i > 1)
+						break;
+
 					var id = pair[i].CategoryId;
 					var name = pair[i].CategoryName;
 
