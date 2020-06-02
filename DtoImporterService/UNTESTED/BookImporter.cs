@@ -86,8 +86,16 @@ namespace DtoImporterService
 					.ToList();
 
 			// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
-			// absence of categories is very rare, but possible
-			var lastCategory = item.Categories.LastOrDefault()?.CategoryId ?? "";
+			// absence of categories is also possible
+
+			// CATEGORY HACK: only use the 1st 2 categories
+			// (real impl: var lastCategory = item.Categories.LastOrDefault()?.CategoryId ?? "";)
+			var lastCategory
+				= item.Categories.Length == 0 ? ""
+				: item.Categories.Length == 1 ? item.Categories[0].CategoryId
+				// 2+
+				: item.Categories[1].CategoryId;
+
 			var category = DbContext.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == lastCategory);
 
 			var book = DbContext.Books.Add(new Book(
