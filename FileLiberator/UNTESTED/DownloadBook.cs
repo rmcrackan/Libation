@@ -41,7 +41,7 @@ namespace FileLiberator
 
 		private async Task<string> downloadBookAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
-			var api = await AudibleApi.EzApiCreator.GetApiAsync(AudibleApiStorage.IdentityTokensFile);
+			var api = await AudibleApi.EzApiCreator.GetApiAsync(AudibleApiStorage.IdentityTokensFile, null, Configuration.Instance.LocaleCountryCode);
 
 			var actualFilePath = await PerformDownloadAsync(
 				tempAaxFilename,
