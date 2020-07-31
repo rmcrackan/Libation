@@ -55,6 +55,8 @@ I made this for myself and I want to share it with the great programming and aud
 
 ## Getting started
 
+#### [Download Libation](https://github.com/rmcrackan/Libation/releases)
+
 ### Import your library
 
 Select Import > Scan Library:
