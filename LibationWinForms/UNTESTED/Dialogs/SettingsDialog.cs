@@ -77,8 +77,23 @@ namespace LibationWinForms.Dialogs
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			config.DecryptKey = this.decryptKeyTb.Text;
-			config.LocaleCountryCode = this.audibleLocaleCb.Text;
+			var origLocale = config.LocaleCountryCode;
+			var newLocale = this.audibleLocaleCb.Text;
+
+			if (origLocale == newLocale)
+			{
+				config.DecryptKey = this.decryptKeyTb.Text;
+			}
+			else
+			{
+				// when changing locale:
+				// - delete decrypt key
+				// - clear/delete identity tokens file
+				config.LocaleCountryCode = newLocale;
+				config.DecryptKey = "";
+				File.Delete(AudibleApiStorage.IdentityTokensFile);
+			}
+
 			config.DownloadsInProgressEnum = downloadsInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";
 			config.DecryptInProgressEnum = decryptInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";
 
