@@ -91,7 +91,7 @@ namespace LibationWinForms.Dialogs
 				// - clear/delete identity tokens file
 				config.LocaleCountryCode = newLocale;
 				config.DecryptKey = "";
-				File.Delete(AudibleApiStorage.IdentityTokensFile);
+				File.Delete(AudibleApiStorage.AccountsSettingsFile);
 			}
 
 			config.DownloadsInProgressEnum = downloadsInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";

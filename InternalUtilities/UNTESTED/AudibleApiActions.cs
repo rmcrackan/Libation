@@ -28,7 +28,7 @@ namespace InternalUtilities
 
 		private async Task<List<Item>> getItemsAsync(ILoginCallback callback)
 		{
-			var api = await EzApiCreator.GetApiAsync(AudibleApiStorage.IdentityTokensFile, callback, Configuration.Instance.LocaleCountryCode);
+			var api = await EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFile, callback, Configuration.Instance.LocaleCountryCode);
 			var items = await AudibleApiExtensions.GetAllLibraryItemsAsync(api);
 
 			// remove episode parents
