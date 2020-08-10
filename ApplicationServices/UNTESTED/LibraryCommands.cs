@@ -13,8 +13,7 @@ namespace ApplicationServices
 		{
 			try
 			{
-				var audibleApiActions = new AudibleApiActions();
-				var items = await audibleApiActions.GetAllLibraryItemsAsync(callback);
+				var items = await AudibleApiActions.GetAllLibraryItemsAsync(callback);
 				var totalCount = items.Count;
 				Serilog.Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 

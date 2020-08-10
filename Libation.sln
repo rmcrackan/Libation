@@ -10,13 +10,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		REFERENCE.txt = REFERENCE.txt
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.2 Domain Utilities (database aware)", "3.2 Domain Utilities (database aware)", "{41CDCC73-9B81-49DD-9570-C54406E852AF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 Domain Utilities (db aware)", "5 Domain Utilities (db aware)", "{41CDCC73-9B81-49DD-9570-C54406E852AF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Application", "4 Application", "{8679CAC8-9164-4007-BDD2-F004810EDA14}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6 Application", "6 Application", "{8679CAC8-9164-4007-BDD2-F004810EDA14}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 Core Libraries", "1 Core Libraries", "{43E3ACB3-E0BC-4370-8DBB-E3720C8C8FD1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 Domain", "3 Domain", "{751093DD-5DBA-463E-ADBE-E05FAFB6983E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 Domain (db)", "4 Domain (db)", "{751093DD-5DBA-463E-ADBE-E05FAFB6983E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 Utilities (domain ignorant)", "2 Utilities (domain ignorant)", "{7FBBB086-0807-4998-85BF-6D1A49C8AD05}"
 EndProject
@@ -30,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileLiberator", "FileLibera
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalUtilities", "InternalUtilities\InternalUtilities.csproj", "{06882742-27A6-4347-97D9-56162CEC9C11}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.1 Domain Internal Utilities (db ignorant)", "3.1 Domain Internal Utilities (db ignorant)", "{F0CBB7A7-D3FB-41FF-8F47-CF3F6A592249}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 Domain Internal Utilities (db ignorant)", "3 Domain Internal Utilities (db ignorant)", "{F0CBB7A7-D3FB-41FF-8F47-CF3F6A592249}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationSearchEngine", "LibationSearchEngine\LibationSearchEngine.csproj", "{2E1F5DB4-40CC-4804-A893-5DCE0193E598}"
 EndProject
@@ -80,7 +80,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dinah.Core.WindowsDesktop",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsDesktopUtilities", "WindowsDesktopUtilities\WindowsDesktopUtilities.csproj", "{E7EFD64D-6630-4426-B09C-B6862A92E3FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibationLauncher", "LibationLauncher\LibationLauncher.csproj", "{F3B04A3A-20C8-4582-A54A-715AF6A5D859}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationLauncher", "LibationLauncher\LibationLauncher.csproj", "{F3B04A3A-20C8-4582-A54A-715AF6A5D859}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

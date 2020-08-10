@@ -5,6 +5,7 @@ using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using FileManager;
+using InternalUtilities;
 
 namespace FileLiberator
 {
@@ -41,7 +42,7 @@ namespace FileLiberator
 
 		private async Task<string> downloadBookAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
-			var api = await AudibleApi.EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFile, null, Configuration.Instance.LocaleCountryCode);
+			var api = await AudibleApiActions.GetApiAsync();
 
 			var actualFilePath = await PerformDownloadAsync(
 				tempAaxFilename,
