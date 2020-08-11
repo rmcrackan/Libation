@@ -15,13 +15,9 @@ namespace InternalUtilities
 		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
 		public static async Task<Api> GetApiAsync(ILoginCallback loginCallback = null)
 		{
-			var identityFilePath = AudibleApiStorage.AccountsSettingsFile;
-
-			// TODO: get jsonpath from ... somewhere
-			string jsonPath = null;
 			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
 
-			return await EzApiCreator.GetApiAsync(identityFilePath, loginCallback, jsonPath);
+			return await EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFile, AudibleApiStorage.GetJsonPath(), loginCallback);
 		}
 
 		private static AsyncRetryPolicy policy { get; }
