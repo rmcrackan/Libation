@@ -26,6 +26,9 @@ namespace DataLayer
         public string Description { get; private set; }
         public int LengthInMinutes { get; private set; }
 
+        // immutable-ish. should be immutable. mutability is necessary for v3 => v4 upgrades
+        public string Locale { get; private set; }
+
         // mutable
         public string PictureId { get; set; }
 

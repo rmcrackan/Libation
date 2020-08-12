@@ -1,4 +1,8 @@
-﻿HOW TO CREATE: EF CORE PROJECT
+﻿FOR QUICK MIGRATION INSTRUCTIONS:
+_DB_NOTES.txt
+
+
+HOW TO CREATE: EF CORE PROJECT
 ==============================
 example is for sqlite but the same works with MsSql
 

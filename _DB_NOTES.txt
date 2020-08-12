@@ -25,9 +25,9 @@ View > Other Windows > Package Manager Console
 Default project: DataLayer
 Startup project: DataLayer
 since we have mult contexts, must use -context:
-
         Add-Migration MyComment -context LibationContext
 		Update-Database -context LibationContext
+Startup project: reset to prev. eg: LibationLauncher
 
 
 ERROR
