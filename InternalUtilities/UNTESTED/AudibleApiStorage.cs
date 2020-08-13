@@ -1,10 +1,17 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 using System.IO;
+using System.Linq;
+using AudibleApi;
+using FileManager;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-namespace FileManager
+namespace InternalUtilities
 {
 	public static class AudibleApiStorage
 	{
+		public static string AccountsSettingsFileLegacy30 => Path.Combine(Configuration.Instance.LibationFiles, "IdentityTokens.json");
+
 		public static string AccountsSettingsFile => Path.Combine(Configuration.Instance.LibationFiles, "AccountsSettings.json");
 
 		public static string GetJsonPath(

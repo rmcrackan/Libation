@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using Dinah.Core;
 using FileManager;
+using InternalUtilities;
 
 namespace LibationWinForms.Dialogs
 {

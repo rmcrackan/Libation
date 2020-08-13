@@ -12,6 +12,13 @@ namespace InternalUtilities
 {
 	public static class AudibleApiActions
 	{
+		public static async Task<Api> GetApiAsyncLegacy30(ILoginCallback loginCallback = null)
+		{
+			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
+
+			return await EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFileLegacy30, null, loginCallback);
+		}
+
 		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
 		public static async Task<Api> GetApiAsync(ILoginCallback loginCallback = null)
 		{
