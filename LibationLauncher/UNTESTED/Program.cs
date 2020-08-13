@@ -3,9 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using FileManager;
+using InternalUtilities;
 using LibationWinForms;
 using LibationWinForms.Dialogs;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 
@@ -21,6 +23,10 @@ namespace LibationLauncher
 			Application.SetCompatibleTextRenderingDefault(false);
 
 			createSettings();
+
+			ensureIdentityFile();
+			migrateIdentityFile();
+			updateSettingsFile();
 
 			ensureLoggingConfig();
 			ensureSerilogConfig();
@@ -76,6 +82,67 @@ namespace LibationLauncher
 			Environment.Exit(0);
 		}
 
+		private static void ensureIdentityFile()
+		{
+			if (File.Exists(AudibleApiStorage.AccountsSettingsFile))
+				return;
+
+			var jObj = new JObject {
+				{ "AccountsSettings", new JArray() }
+			};
+			var contents = jObj.ToString(Formatting.Indented);
+			File.WriteAllText(AudibleApiStorage.AccountsSettingsFile, contents);
+		}
+
+		private static void migrateIdentityFile()
+		{
+			if (!File.Exists(AudibleApiStorage.AccountsSettingsFileLegacy30))
+				return;
+
+			try
+			{
+				//
+				// for all in here: read directly from json file => JObject. A lot of this is legacy; don't rely on applicable POCOs
+				//
+				var legacyContents = File.ReadAllText(AudibleApiStorage.AccountsSettingsFileLegacy30);
+				var legacyJObj = JObject.Parse(legacyContents);
+
+				// attempt to update legacy token file with locale from settings
+				if (!legacyJObj.ContainsKey("LocaleName"))
+				{
+					var settings = File.ReadAllText(Configuration.Instance.SettingsFilePath);
+					var settingsJObj = JObject.Parse(settings);
+					if (settingsJObj.TryGetValue("LocaleCountryCode", out var localeName))
+					{
+						// update legacy token file with locale from settings
+						legacyJObj.AddFirst(new JProperty("LocaleName", localeName.Value<string>()));
+
+						// save
+						var newContents = legacyJObj.ToString(Formatting.Indented);
+						File.WriteAllText(AudibleApiStorage.AccountsSettingsFileLegacy30, newContents);
+
+						// re get contents
+						legacyContents = File.ReadAllText(AudibleApiStorage.AccountsSettingsFileLegacy30);
+						legacyJObj = JObject.Parse(legacyContents);
+					}
+				}
+
+// more to do?
+
+			}
+			catch
+			{
+				// migration is a convenience. if something goes wrong: just move on
+			}
+
+// more to do. prob deleting legacy token file
+
+		}
+
+		private static void updateSettingsFile()
+		{
+//throw new NotImplementedException();
+		}
 
 		private static string defaultLoggingLevel { get; } = "Information";
 		private static void ensureLoggingConfig()
