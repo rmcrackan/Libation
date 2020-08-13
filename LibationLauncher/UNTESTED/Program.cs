@@ -33,6 +33,12 @@ namespace LibationLauncher
 
 		private static void createSettings()
 		{
+			static bool configSetupIsComplete(Configuration config)
+				=> config.FilesExist
+				&& !string.IsNullOrWhiteSpace(config.LocaleCountryCode)
+				&& !string.IsNullOrWhiteSpace(config.DownloadsInProgressEnum)
+				&& !string.IsNullOrWhiteSpace(config.DecryptInProgressEnum);
+
 			var config = Configuration.Instance;
 			if (configSetupIsComplete(config))
 				return;
@@ -70,11 +76,6 @@ namespace LibationLauncher
 			Environment.Exit(0);
 		}
 
-		private static bool configSetupIsComplete(Configuration config)
-			=> config.FilesExist
-			&& !string.IsNullOrWhiteSpace(config.LocaleCountryCode)
-			&& !string.IsNullOrWhiteSpace(config.DownloadsInProgressEnum)
-			&& !string.IsNullOrWhiteSpace(config.DecryptInProgressEnum);
 
 		private static string defaultLoggingLevel { get; } = "Information";
 		private static void ensureLoggingConfig()
@@ -169,7 +170,7 @@ namespace LibationLauncher
 
 			// CONFIGURATION-DRIVEN (json)
 			var configuration = new ConfigurationBuilder()
-				.AddJsonFile(config.SettingsJsonPath)
+				.AddJsonFile(config.SettingsFilePath)
 				.Build();
 			Log.Logger = new LoggerConfiguration()
 			  .ReadFrom.Configuration(configuration)
