@@ -37,11 +37,11 @@ namespace FileManager
 
         public bool FilesExist
             => File.Exists(APPSETTINGS_JSON)
-            && File.Exists(SettingsJsonPath)
+            && File.Exists(SettingsFilePath)
             && Directory.Exists(LibationFiles)
             && Directory.Exists(Books);
 
-        public string SettingsJsonPath => Path.Combine(LibationFiles, "Settings.json");
+        public string SettingsFilePath => Path.Combine(LibationFiles, "Settings.json");
 
         [Description("Your user-specific key used to decrypt your audible files (*.aax) into audio files you can use anywhere (*.m4b). Leave alone in most cases")]
         public string DecryptKey
@@ -115,11 +115,11 @@ namespace FileManager
             if (wellKnownPaths.ContainsKey(value))
                 value = wellKnownPaths[value];
 
-            // must write here before SettingsJsonPath in next step reads cache
+            // must write here before SettingsFilePath in next step reads cache
             libationFilesPathCache = value;
 
             // load json values into memory. create if not exists
-            persistentDictionary = new PersistentDictionary(SettingsJsonPath);
+            persistentDictionary = new PersistentDictionary(SettingsFilePath);
 
             return libationFilesPathCache;
         }
@@ -171,7 +171,7 @@ namespace FileManager
             // if moving from default, delete old settings file and dir (if empty)
             if (LibationFiles.EqualsInsensitive(AppDir))
             {
-                File.Delete(SettingsJsonPath);
+                File.Delete(SettingsFilePath);
                 System.Threading.Thread.Sleep(100);
                 if (!Directory.EnumerateDirectories(AppDir).Any() && !Directory.EnumerateFiles(AppDir).Any())
                     Directory.Delete(AppDir);
