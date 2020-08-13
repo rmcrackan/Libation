@@ -23,27 +23,19 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\LibationFilesDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="UNTESTED\Dialogs\LibationFilesDialog.cs" />
     <Compile Update="UNTESTED\Dialogs\LibationFilesDialog.Designer.cs">
       <DependentUpon>LibationFilesDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\SettingsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="UNTESTED\Dialogs\SettingsDialog.cs" />
     <Compile Update="UNTESTED\Dialogs\SettingsDialog.Designer.cs">
       <DependentUpon>SettingsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\IndexLibraryDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="UNTESTED\Dialogs\IndexLibraryDialog.cs" />
     <Compile Update="UNTESTED\Dialogs\IndexLibraryDialog.Designer.cs">
       <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\SetupDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="UNTESTED\Dialogs\SetupDialog.cs" />
     <Compile Update="UNTESTED\Dialogs\SetupDialog.Designer.cs">
       <DependentUpon>SetupDialog.cs</DependentUpon>
     </Compile>
