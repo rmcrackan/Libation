@@ -18,9 +18,9 @@ namespace FileManager
 			//var usernameSanitized = JsonConvert.ToString(username);
 
 			////var localeSanitized = JsonConvert.ToString(locale);
-			////return $"$.ApiConnectionSettings[?(@.Username == '{usernameSanitized}' && @.IdentityTokens.Locale == '{localeSanitized}')].IdentityTokens";
+			////return $"$.AccountsSettings[?(@.Username == '{usernameSanitized}' && @.IdentityTokens.Locale == '{localeSanitized}')].IdentityTokens";
 
-			//return $"$.ApiConnectionSettings[?(@.Username == '{usernameSanitized}')].IdentityTokens";
+			//return $"$.AccountsSettings[?(@.Username == '{usernameSanitized}')].IdentityTokens";
 		}
 	}
 }
