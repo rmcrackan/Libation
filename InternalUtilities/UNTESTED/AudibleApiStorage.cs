@@ -14,6 +14,15 @@ namespace InternalUtilities
 
 		public static string AccountsSettingsFile => Path.Combine(Configuration.Instance.LibationFiles, "AccountsSettings.json");
 
+		public static void EnsureAccountsSettingsFileExists()
+		{
+			if (File.Exists(AccountsSettingsFile))
+				return;
+
+			// saves. BEWARE: this will overwrite an existing file
+			_ = new AccountsPersister(new Accounts(), AccountsSettingsFile);
+		}
+
 		// TEMP
 		public static string GetJsonPath() => null;
 

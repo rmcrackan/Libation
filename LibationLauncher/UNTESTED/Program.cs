@@ -24,7 +24,7 @@ namespace LibationLauncher
 
 			createSettings();
 
-			ensureIdentityFile();
+			AudibleApiStorage.EnsureAccountsSettingsFileExists();
 			migrateIdentityFile();
 			updateSettingsFile();
 
@@ -82,18 +82,6 @@ namespace LibationLauncher
 			Environment.Exit(0);
 		}
 
-		private static void ensureIdentityFile()
-		{
-			if (File.Exists(AudibleApiStorage.AccountsSettingsFile))
-				return;
-
-			var jObj = new JObject {
-				{ "AccountsSettings", new JArray() }
-			};
-			var contents = jObj.ToString(Formatting.Indented);
-			File.WriteAllText(AudibleApiStorage.AccountsSettingsFile, contents);
-		}
-
 		private static void migrateIdentityFile()
 		{
 			if (!File.Exists(AudibleApiStorage.AccountsSettingsFileLegacy30))
@@ -102,8 +90,9 @@ namespace LibationLauncher
 			try
 			{
 				//
-				// for all in here: read directly from json file => JObject. A lot of this is legacy; don't rely on applicable POCOs
+				// in here: read directly from json file => JObject. A lot of this is legacy; don't rely on applicable POCOs
 				//
+
 				var legacyContents = File.ReadAllText(AudibleApiStorage.AccountsSettingsFileLegacy30);
 				var legacyJObj = JObject.Parse(legacyContents);
 
@@ -126,6 +115,11 @@ namespace LibationLauncher
 						legacyJObj = JObject.Parse(legacyContents);
 					}
 				}
+
+				// create new account stub in new file
+				var api = AudibleApiActions.GetApiAsyncLegacy30Async().GetAwaiter().GetResult();
+				var email = api.GetEmailAsync().GetAwaiter().GetResult();
+				var locale = api.GetLocaleAsync(AudibleApi.CustomerOptions.All).GetAwaiter().GetResult();
 
 // more to do?
 

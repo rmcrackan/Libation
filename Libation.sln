@@ -82,6 +82,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsDesktopUtilities", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationLauncher", "LibationLauncher\LibationLauncher.csproj", "{F3B04A3A-20C8-4582-A54A-715AF6A5D859}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 Libation Tests", "0 Libation Tests", "{67E66E82-5532-4440-AFB3-9FB1DF9DEF53}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InternalUtilities.Tests", "_Tests\InternalUtilities.Tests\InternalUtilities.Tests.csproj", "{8447C956-B03E-4F59-9DD4-877793B849D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -200,6 +204,10 @@ Global
 		{F3B04A3A-20C8-4582-A54A-715AF6A5D859}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3B04A3A-20C8-4582-A54A-715AF6A5D859}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3B04A3A-20C8-4582-A54A-715AF6A5D859}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8447C956-B03E-4F59-9DD4-877793B849D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8447C956-B03E-4F59-9DD4-877793B849D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8447C956-B03E-4F59-9DD4-877793B849D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8447C956-B03E-4F59-9DD4-877793B849D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -233,6 +241,7 @@ Global
 		{059CE32C-9AD6-45E9-A166-790DFFB0B730} = {43E3ACB3-E0BC-4370-8DBB-E3720C8C8FD1}
 		{E7EFD64D-6630-4426-B09C-B6862A92E3FD} = {F0CBB7A7-D3FB-41FF-8F47-CF3F6A592249}
 		{F3B04A3A-20C8-4582-A54A-715AF6A5D859} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
+		{8447C956-B03E-4F59-9DD4-877793B849D9} = {67E66E82-5532-4440-AFB3-9FB1DF9DEF53}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {615E00ED-BAEF-4E8E-A92A-9B82D87942A9}
