@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AudibleApi;
 using AudibleApi.Authorization;
 using Dinah.Core;
@@ -28,7 +29,12 @@ namespace InternalUtilities
 	{
 		public event EventHandler Updated;
 		private void update(object sender = null, EventArgs e = null)
-			=> Updated?.Invoke(this, new EventArgs());
+		{
+			foreach (var account in AccountsSettings)
+				validate(account);
+			update_no_validate();
+		}
+		private void update_no_validate() => Updated?.Invoke(this, new EventArgs());
 
 		public Accounts() { }
 
@@ -45,15 +51,13 @@ namespace InternalUtilities
 			// 'set' is only used by json deser
 			set
 			{
-				_accountsSettings_backing = value;
-
-				if (_accountsSettings_backing is null)
+				if (value is null)
 					return;
 
-				foreach (var acct in _accountsSettings_backing)
-					acct.Updated += update;
+				foreach (var account in value)
+					_add(account);
 
-				update();
+				update_no_validate();
 			}
 		}
 		[JsonIgnore]
@@ -66,29 +70,78 @@ namespace InternalUtilities
 		public string ToJson(Formatting formatting = Formatting.Indented)
 			=> JsonConvert.SerializeObject(this, formatting, Identity.GetJsonSerializerSettings());
 
-public void UNITTEST_Seed(Account account)
+		public void Add(Account account)
 		{
-			_accountsSettings_backing.Add(account);
-			update();
+			_add(account);
+			update_no_validate();
 		}
 
-		// replace UNITTEST_Seed
+		public void _add(Account account)
+		{
+			validate(account);
 
-		// when creating Account object (get, update, insert), subscribe to it's update. including all new ones on initial load
-		// removing: unsubscribe
+			_accountsSettings_backing.Add(account);
+			account.Updated += update;
+		}
 
-		// IEnumerable<Account> GetAllAccounts
+		// more common naming convention alias for internal collection
+		public IReadOnlyList<Account> GetAll() => AccountsSettings;
 
-		// void UpsertAccount (id, locale)
-		//   if not exists
-		//     create account w/null identity
-		//     save in file
-		//   return Account?
-		//   return bool/enum of whether is newly created?
+		public Account GetAccount(string accountId, string locale)
+		{
+			if (locale is null)
+				return null;
 
-		// how to persist edits to [Account] obj?
-		//   account name, decryptkey, id tokens, ...
-		//   persistence happens in [Accounts], not [Account]. an [Account] accidentally created directly shouldn't mess up expected workflow ???
+			return AccountsSettings.SingleOrDefault(a => a.AccountId == accountId && a.IdentityTokens.Locale.Name == locale);
+		}
+
+		public Account Upsert(string accountId, string locale)
+		{
+			var acct = GetAccount(accountId, locale);
+
+			if (acct != null)
+				return acct;
+
+			var l = Localization.Locales.Single(l => l.Name == locale);
+			var id = new Identity(l);
+
+			var account = new Account(accountId) { IdentityTokens = id };
+			Add(account);
+			return account;
+		}
+
+		public bool Delete(Account account)
+		{
+			if (!_accountsSettings_backing.Contains(account))
+				return false;
+
+			account.Updated -= update;
+			return _accountsSettings_backing.Remove(account);
+		}
+
+		public bool Delete(string accountId, string locale)
+		{
+			var acct = GetAccount(accountId, locale);
+			if (acct is null)
+				return false;
+			return Delete(acct);
+		}
+
+		private void validate(Account account)
+		{
+			ArgumentValidator.EnsureNotNull(account, nameof(account));
+
+			var accountId = account.AccountId;
+			var locale = account?.IdentityTokens?.Locale?.Name;
+
+			var acct = GetAccount(accountId, locale);
+
+			if (acct is null || account is null)
+				return;
+
+			if (acct != account)
+				throw new InvalidOperationException("Cannot add an account with the same account Id and Locale");
+		}
 	}
 	public class Account : Updatable
 	{
