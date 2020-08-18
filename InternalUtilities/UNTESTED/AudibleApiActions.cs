@@ -24,7 +24,7 @@ namespace InternalUtilities
 		{
 			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
 
-			return await EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFile, AudibleApiStorage.GetJsonPath(), loginCallback);
+			return await EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFile, AudibleApiStorage.GetIdentityTokensJsonPath(), loginCallback);
 		}
 
 		private static AsyncRetryPolicy policy { get; }

@@ -26,7 +26,6 @@ namespace LibationLauncher
 
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
 			migrateIdentityFile();
-			updateSettingsFile();
 
 			ensureLoggingConfig();
 			ensureSerilogConfig();
@@ -101,6 +100,9 @@ namespace LibationLauncher
 
 			// delete legacy token file
 			File.Delete(AudibleApiStorage.AccountsSettingsFileLegacy30);
+
+			// in reality, only need to run this when migating v3 => v4. put inside here so already upgraded versions won't make this check
+			updateSettingsFile();
 		}
 
 		private static void updateLegacyFileWithLocale()
@@ -170,15 +172,27 @@ namespace LibationLauncher
 			if (!File.Exists(Configuration.Instance.SettingsFilePath))
 				return;
 
+// don't delete old settings until new values are used
+// remember to remove these from Configuration.cs
+throw new NotImplementedException();
+
 			// use JObject to remove decrypt key and locale from Settings.json
 			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
 			var jObj = JObject.Parse(settingsContents);
 
-			jObj.Property("DecryptKey")?.Remove();
-			jObj.Property("LocaleCountryCode")?.Remove();
+			var resave = false;
 
-// remember to remove these from Configuration.cs
-throw new NotImplementedException();
+			var jDecryptKey = jObj.Property("DecryptKey");
+			var jLocale = jObj.Property("LocaleCountryCode");
+
+			jDecryptKey?.Remove();
+			jLocale?.Remove();
+
+			if (jDecryptKey != null || jLocale != null)
+			{
+				var newContents = jObj.ToString(Formatting.Indented);
+				File.WriteAllText(Configuration.Instance.SettingsFilePath, newContents);
+			}
 		}
 
 		private static string defaultLoggingLevel { get; } = "Information";
