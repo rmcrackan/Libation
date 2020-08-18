@@ -87,55 +87,98 @@ namespace LibationLauncher
 			if (!File.Exists(AudibleApiStorage.AccountsSettingsFileLegacy30))
 				return;
 
+			// in here: don't rely on applicable POCOs. some is legacy and must be: json file => JObject
 			try
 			{
-				//
-				// in here: read directly from json file => JObject. A lot of this is legacy; don't rely on applicable POCOs
-				//
+				updateLegacyFileWithLocale();
 
-				var legacyContents = File.ReadAllText(AudibleApiStorage.AccountsSettingsFileLegacy30);
-				var legacyJObj = JObject.Parse(legacyContents);
+				var account = addAccountToNewAccountFile();
 
-				// attempt to update legacy token file with locale from settings
-				if (!legacyJObj.ContainsKey("LocaleName"))
-				{
-					var settings = File.ReadAllText(Configuration.Instance.SettingsFilePath);
-					var settingsJObj = JObject.Parse(settings);
-					if (settingsJObj.TryGetValue("LocaleCountryCode", out var localeName))
-					{
-						// update legacy token file with locale from settings
-						legacyJObj.AddFirst(new JProperty("LocaleName", localeName.Value<string>()));
-
-						// save
-						var newContents = legacyJObj.ToString(Formatting.Indented);
-						File.WriteAllText(AudibleApiStorage.AccountsSettingsFileLegacy30, newContents);
-
-						// re get contents
-						legacyContents = File.ReadAllText(AudibleApiStorage.AccountsSettingsFileLegacy30);
-						legacyJObj = JObject.Parse(legacyContents);
-					}
-				}
-
-				// create new account stub in new file
-				var api = AudibleApiActions.GetApiAsyncLegacy30Async().GetAwaiter().GetResult();
-				var email = api.GetEmailAsync().GetAwaiter().GetResult();
-				var locale = api.GetLocaleAsync(AudibleApi.CustomerOptions.All).GetAwaiter().GetResult();
-
-// more to do?
-
+				importDecryptKey(account);
 			}
-			catch
+			// migration is a convenience. if something goes wrong: just move on
+			catch { }
+
+			// delete legacy token file
+			File.Delete(AudibleApiStorage.AccountsSettingsFileLegacy30);
+		}
+
+		private static void updateLegacyFileWithLocale()
+		{
+			var legacyContents = File.ReadAllText(AudibleApiStorage.AccountsSettingsFileLegacy30);
+			var legacyJObj = JObject.Parse(legacyContents);
+
+			// attempt to update legacy token file with locale from settings
+			if (!legacyJObj.ContainsKey("LocaleName"))
 			{
-				// migration is a convenience. if something goes wrong: just move on
+				var settings = File.ReadAllText(Configuration.Instance.SettingsFilePath);
+				var settingsJObj = JObject.Parse(settings);
+				if (settingsJObj.TryGetValue("LocaleCountryCode", out var localeName))
+				{
+					// update legacy token file with locale from settings
+					legacyJObj.AddFirst(new JProperty("LocaleName", localeName.Value<string>()));
+
+					// save
+					var newContents = legacyJObj.ToString(Formatting.Indented);
+					File.WriteAllText(AudibleApiStorage.AccountsSettingsFileLegacy30, newContents);
+				}
 			}
+		}
 
-// more to do. prob deleting legacy token file
+		private static Account addAccountToNewAccountFile()
+		{
+			var api = AudibleApiActions.GetApiAsyncLegacy30Async().GetAwaiter().GetResult();
+			var email = api.GetEmailAsync().GetAwaiter().GetResult();
+			var locale = api.GetLocaleAsync(AudibleApi.CustomerOptions.All).GetAwaiter().GetResult();
 
+			// identity has likely been updated above. re-get contents
+			var legacyContents = File.ReadAllText(AudibleApiStorage.AccountsSettingsFileLegacy30);
+
+			var identity = AudibleApi.Authorization.Identity.FromJson(legacyContents);
+
+			if (!identity.IsValid)
+				return null;
+
+			var accountsPersist = new AccountsPersister(AudibleApiStorage.AccountsSettingsFile);
+			var account = new Account(email)
+			{
+				AccountName = $"{email} - {locale.Name}",
+				IdentityTokens = identity
+			};
+
+			// saves to new file
+			accountsPersist.Accounts.Add(account);
+
+			return account;
+		}
+
+		private static void importDecryptKey(Account account)
+		{
+			if (account is null || !string.IsNullOrWhiteSpace(account.DecryptKey) || !File.Exists(Configuration.Instance.SettingsFilePath))
+				return;
+
+			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
+			if (JObject.Parse(settingsContents).TryGetValue("DecryptKey", out var jToken))
+			{
+				var decryptKey = jToken.Value<string>() ?? "";
+				account.DecryptKey = decryptKey;
+			}
 		}
 
 		private static void updateSettingsFile()
 		{
-//throw new NotImplementedException();
+			if (!File.Exists(Configuration.Instance.SettingsFilePath))
+				return;
+
+			// use JObject to remove decrypt key and locale from Settings.json
+			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
+			var jObj = JObject.Parse(settingsContents);
+
+			jObj.Property("DecryptKey")?.Remove();
+			jObj.Property("LocaleCountryCode")?.Remove();
+
+// remember to remove these from Configuration.cs
+throw new NotImplementedException();
 		}
 
 		private static string defaultLoggingLevel { get; } = "Information";

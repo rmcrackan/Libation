@@ -16,17 +16,15 @@ namespace InternalUtilities
 
 		public static void EnsureAccountsSettingsFileExists()
 		{
-			if (File.Exists(AccountsSettingsFile))
-				return;
-
 			// saves. BEWARE: this will overwrite an existing file
-			_ = new AccountsPersister(new Accounts(), AccountsSettingsFile);
+			if (!File.Exists(AccountsSettingsFile))
+				_ = new AccountsPersister(new Accounts(), AccountsSettingsFile);
 		}
 
 		// TEMP
-		public static string GetJsonPath() => null;
+		public static string GetIdentityTokensJsonPath() => null;
 
-		public static string GetJsonPath(string username, string locale)
+		public static string GetIdentityTokensJsonPath(string username, string locale)
 		{
 			var usernameSanitized = JsonConvert.ToString(username);
 			var localeSanitized = JsonConvert.ToString(locale);
