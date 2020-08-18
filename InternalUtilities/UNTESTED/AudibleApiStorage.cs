@@ -10,8 +10,6 @@ namespace InternalUtilities
 {
 	public static class AudibleApiStorage
 	{
-		public static string AccountsSettingsFileLegacy30 => Path.Combine(Configuration.Instance.LibationFiles, "IdentityTokens.json");
-
 		public static string AccountsSettingsFile => Path.Combine(Configuration.Instance.LibationFiles, "AccountsSettings.json");
 
 		public static void EnsureAccountsSettingsFileExists()

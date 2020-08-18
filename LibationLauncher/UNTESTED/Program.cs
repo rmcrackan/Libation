@@ -25,7 +25,8 @@ namespace LibationLauncher
 			createSettings();
 
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
-			migrateIdentityFile();
+
+			migrate_v3_to_v4();
 
 			ensureLoggingConfig();
 			ensureSerilogConfig();
@@ -81,33 +82,35 @@ namespace LibationLauncher
 			Environment.Exit(0);
 		}
 
-		private static void migrateIdentityFile()
+		#region v3 => v4 migration
+		static string AccountsSettingsFileLegacy30 => Path.Combine(Configuration.Instance.LibationFiles, "IdentityTokens.json");
+
+		private static void migrate_v3_to_v4()
 		{
-			if (!File.Exists(AudibleApiStorage.AccountsSettingsFileLegacy30))
-				return;
-
-			// in here: don't rely on applicable POCOs. some is legacy and must be: json file => JObject
-			try
+			if (File.Exists(AccountsSettingsFileLegacy30))
 			{
-				updateLegacyFileWithLocale();
+				// don't always rely on applicable POCOs. some is legacy and must be: json file => JObject
+				try
+				{
+					updateLegacyFileWithLocale();
 
-				var account = addAccountToNewAccountFile();
+					var account = addAccountToNewAccountFile();
 
-				importDecryptKey(account);
+					importDecryptKey(account);
+				}
+				// migration is a convenience. if something goes wrong: just move on
+				catch { }
+
+				// delete legacy token file
+				File.Delete(AccountsSettingsFileLegacy30);
 			}
-			// migration is a convenience. if something goes wrong: just move on
-			catch { }
 
-			// delete legacy token file
-			File.Delete(AudibleApiStorage.AccountsSettingsFileLegacy30);
-
-			// in reality, only need to run this when migating v3 => v4. put inside here so already upgraded versions won't make this check
 			updateSettingsFile();
 		}
 
 		private static void updateLegacyFileWithLocale()
 		{
-			var legacyContents = File.ReadAllText(AudibleApiStorage.AccountsSettingsFileLegacy30);
+			var legacyContents = File.ReadAllText(AccountsSettingsFileLegacy30);
 			var legacyJObj = JObject.Parse(legacyContents);
 
 			// attempt to update legacy token file with locale from settings
@@ -122,19 +125,20 @@ namespace LibationLauncher
 
 					// save
 					var newContents = legacyJObj.ToString(Formatting.Indented);
-					File.WriteAllText(AudibleApiStorage.AccountsSettingsFileLegacy30, newContents);
+					File.WriteAllText(AccountsSettingsFileLegacy30, newContents);
 				}
 			}
 		}
 
 		private static Account addAccountToNewAccountFile()
 		{
-			var api = AudibleApiActions.GetApiAsyncLegacy30Async().GetAwaiter().GetResult();
+			AudibleApi.Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
+			var api = AudibleApi.EzApiCreator.GetApiAsync(AccountsSettingsFileLegacy30).GetAwaiter().GetResult();
 			var email = api.GetEmailAsync().GetAwaiter().GetResult();
 			var locale = api.GetLocaleAsync(AudibleApi.CustomerOptions.All).GetAwaiter().GetResult();
 
 			// identity has likely been updated above. re-get contents
-			var legacyContents = File.ReadAllText(AudibleApiStorage.AccountsSettingsFileLegacy30);
+			var legacyContents = File.ReadAllText(AccountsSettingsFileLegacy30);
 
 			var identity = AudibleApi.Authorization.Identity.FromJson(legacyContents);
 
@@ -194,6 +198,7 @@ throw new NotImplementedException();
 				File.WriteAllText(Configuration.Instance.SettingsFilePath, newContents);
 			}
 		}
+		#endregion
 
 		private static string defaultLoggingLevel { get; } = "Information";
 		private static void ensureLoggingConfig()
