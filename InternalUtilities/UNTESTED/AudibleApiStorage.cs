@@ -20,24 +20,32 @@ namespace InternalUtilities
 		}
 
 		// convenience for for tests and demos. don't use in production Libation
-		public static Account TEST_GetFirstAccount()
-			=> new AccountsPersister(AccountsSettingsFile).Accounts.GetAll().FirstOrDefault();
-		// convenience for for tests and demos. don't use in production Libation
 		public static string TEST_GetFirstIdentityTokensJsonPath()
 			=> TEST_GetFirstAccount().GetIdentityTokensJsonPath();
-
-		// TEMP
-		public static string GetIdentityTokensJsonPath() => null;
+		// convenience for for tests and demos. don't use in production Libation
+		public static Account TEST_GetFirstAccount()
+			=> new AccountsPersister(AccountsSettingsFile).Accounts.GetAll().FirstOrDefault();
 
 		public static string GetIdentityTokensJsonPath(this Account account)
-			=> GetIdentityTokensJsonPath(account.AccountId, account?.IdentityTokens?.Locale.Name);
-
+			=> GetIdentityTokensJsonPath(account.AccountId, account.Locale?.Name);
 		public static string GetIdentityTokensJsonPath(string username, string locale)
 		{
-			var usernameSanitized = JsonConvert.ToString(username);
-			var localeSanitized = JsonConvert.ToString(locale);
+			var usernameSanitized = trimSurroundingQuotes(JsonConvert.ToString(username));
+			var localeSanitized = trimSurroundingQuotes(JsonConvert.ToString(locale));
 
-			return $"$.AccountsSettings[?(@.Username == '{usernameSanitized}' && @.IdentityTokens.Locale == '{localeSanitized}')].IdentityTokens";
+			return $"$.AccountsSettings[?(@.AccountId == '{usernameSanitized}' && @.IdentityTokens.LocaleName == '{localeSanitized}')].IdentityTokens";
 		}
+		// SubString algo is better than .Trim("\"")
+		//   orig string  "
+		//   json string  "\""
+		// Eg:
+		//   =>           str.Trim("\"")
+		//   output       \
+		// vs
+		//   =>           str.Substring(1, str.Length - 2)
+		//   output       \"
+		// also works with surrounding single quotes
+		private static string trimSurroundingQuotes(string str)
+			=> str.Substring(1, str.Length - 2);
 	}
 }

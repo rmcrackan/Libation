@@ -87,6 +87,13 @@ namespace LibationLauncher
 
 		private static void migrate_v3_to_v4()
 		{
+			migrateLegacyIdentityFile();
+
+			updateSettingsFile();
+		}
+
+		private static void migrateLegacyIdentityFile()
+		{
 			if (File.Exists(AccountsSettingsFileLegacy30))
 			{
 				// don't always rely on applicable POCOs. some is legacy and must be: json file => JObject
@@ -104,8 +111,6 @@ namespace LibationLauncher
 				// delete legacy token file
 				File.Delete(AccountsSettingsFileLegacy30);
 			}
-
-			updateSettingsFile();
 		}
 
 		private static void updateLegacyFileWithLocale()
@@ -178,7 +183,7 @@ namespace LibationLauncher
 
 // don't delete old settings until new values are used
 // remember to remove these from Configuration.cs
-throw new NotImplementedException();
+return;
 
 			// use JObject to remove decrypt key and locale from Settings.json
 			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
