@@ -4,17 +4,22 @@ using System.Linq;
 using AudibleApiDTOs;
 using DataLayer;
 using Dinah.Core;
+using InternalUtilities;
 
 namespace DtoImporterService
 {
 	public abstract class ImporterBase<T>
 	{
 		protected LibationContext DbContext { get; }
+		protected Account Account { get; }
 
-		public ImporterBase(LibationContext context)
+		protected ImporterBase(LibationContext context, Account account)
 		{
 			ArgumentValidator.EnsureNotNull(context, nameof(context));
+			ArgumentValidator.EnsureNotNull(account, nameof(account));
+
 			DbContext = context;
+			Account = account;
 		}
 
 		/// <summary>LONG RUNNING. call with await Task.Run</summary>
@@ -52,6 +57,6 @@ namespace DtoImporterService
 
 	public abstract class ItemsImporterBase : ImporterBase<IEnumerable<Item>>
 	{
-		public ItemsImporterBase(LibationContext context) : base(context) { }
+		protected ItemsImporterBase(LibationContext context, Account account) : base(context, account) { }
 	}
 }

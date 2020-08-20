@@ -9,7 +9,7 @@ namespace DtoImporterService
 {
 	public class CategoryImporter : ItemsImporterBase
 	{
-		public CategoryImporter(LibationContext context) : base(context) { }
+		public CategoryImporter(LibationContext context, Account account) : base(context, account) { }
 
 		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new CategoryValidator().Validate(items);
 

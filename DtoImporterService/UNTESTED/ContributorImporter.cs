@@ -9,7 +9,7 @@ namespace DtoImporterService
 {
 	public class ContributorImporter : ItemsImporterBase
 	{
-		public ContributorImporter(LibationContext context) : base(context) { }
+		public ContributorImporter(LibationContext context, Account account) : base(context, account) { }
 
 		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new ContributorValidator().Validate(items);
 

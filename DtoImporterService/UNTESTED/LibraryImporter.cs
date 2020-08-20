@@ -9,13 +9,13 @@ namespace DtoImporterService
 {
 	public class LibraryImporter : ItemsImporterBase
 	{
-		public LibraryImporter(LibationContext context) : base(context) { }
+		public LibraryImporter(LibationContext context, Account account) : base(context, account) { }
 
 		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new LibraryValidator().Validate(items);
 
 		protected override int DoImport(IEnumerable<Item> items)
 		{
-			new BookImporter(DbContext).Import(items);
+			new BookImporter(DbContext, Account).Import(items);
 
 			var qtyNew = upsertLibraryBooks(items);
 			return qtyNew;

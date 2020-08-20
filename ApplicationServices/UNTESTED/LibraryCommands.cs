@@ -13,13 +13,15 @@ namespace ApplicationServices
 		{
 			try
 			{
-				var items = await AudibleApiActions.GetAllLibraryItemsAsync(callback);
+				var account = AudibleApiStorage.TEST_GetFirstAccount();
+
+				var items = await AudibleApiActions.GetAllLibraryItemsAsync(account, callback);
 				var totalCount = items.Count;
 				Serilog.Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
 				using var context = DbContexts.GetContext();
-				var libImporter = new LibraryImporter(context);
-				var newCount = await Task.Run(() => libImporter.Import(items));
+				var libraryImporter = new LibraryImporter(context, account);
+				var newCount = await Task.Run(() => libraryImporter.Import(items));
 				context.SaveChanges();
 				Serilog.Log.Logger.Information($"Import: New count {newCount}");
 

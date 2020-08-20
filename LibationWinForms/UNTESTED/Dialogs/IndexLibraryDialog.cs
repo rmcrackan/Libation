@@ -22,7 +22,7 @@ namespace LibationWinForms.Dialogs
 			{
 				(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportLibraryAsync(new WinformResponder());
 			}
-			catch (Exception ex)
+			catch
 			{
 				var msg = "Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator";
 				MessageBox.Show(msg, "Error importing library", MessageBoxButtons.OK, MessageBoxIcon.Error);

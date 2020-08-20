@@ -9,7 +9,7 @@ namespace DtoImporterService
 {
 	public class SeriesImporter : ItemsImporterBase
 	{
-		public SeriesImporter(LibationContext context) : base(context) { }
+		public SeriesImporter(LibationContext context, Account account) : base(context, account) { }
 
 		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new SeriesValidator().Validate(items);
 

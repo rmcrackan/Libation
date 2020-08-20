@@ -20,22 +20,30 @@ namespace InternalUtilities
 			return await EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFile, AudibleApiStorage.TEST_GetFirstIdentityTokensJsonPath(), loginCallback);
 		}
 
+		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
+		public static async Task<Api> GetApiAsync(Account account, ILoginCallback loginCallback = null)
+		{
+			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
+
+			return await EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFile, account.GetIdentityTokensJsonPath(), loginCallback);
+		}
+
 		private static AsyncRetryPolicy policy { get; }
 			= Policy.Handle<Exception>()
 			// 2 retries == 3 total
 			.RetryAsync(2);
 
-		public static Task<List<Item>> GetAllLibraryItemsAsync(ILoginCallback callback)
+		public static Task<List<Item>> GetAllLibraryItemsAsync(Account account, ILoginCallback callback)
 		{
 			// bug on audible's side. the 1st time after a long absence, a query to get library will return without titles or authors. a subsequent identical query will be successful. this is true whether or tokens are refreshed
 			// worse, this 1st dummy call doesn't seem to help:
 			//    var page = await api.GetLibraryAsync(new AudibleApi.LibraryOptions { NumberOfResultPerPage = 1, PageNumber = 1, PurchasedAfter = DateTime.Now.AddYears(-20), ResponseGroups = AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS });
 			// i don't want to incur the cost of making a full dummy call every time because it fails sometimes
-			return policy.ExecuteAsync(() => getItemsAsync(callback));
+			return policy.ExecuteAsync(() => getItemsAsync(account, callback));
 		}
-		private static async Task<List<Item>> getItemsAsync(ILoginCallback callback)
+		private static async Task<List<Item>> getItemsAsync(Account account, ILoginCallback callback)
 		{
-			var api = await GetApiAsync(callback);
+			var api = await GetApiAsync(account, callback);
 			var items = await api.GetAllLibraryItemsAsync();
 
 			// remove episode parents

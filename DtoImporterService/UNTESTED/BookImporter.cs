@@ -9,16 +9,16 @@ namespace DtoImporterService
 {
 	public class BookImporter : ItemsImporterBase
 	{
-		public BookImporter(LibationContext context) : base(context) { }
+		public BookImporter(LibationContext context, Account account) : base(context, account) { }
 
 		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new BookValidator().Validate(items);
 
 		protected override int DoImport(IEnumerable<Item> items)
 		{
 			// pre-req.s
-			new ContributorImporter(DbContext).Import(items);
-			new SeriesImporter(DbContext).Import(items);
-			new CategoryImporter(DbContext).Import(items);
+			new ContributorImporter(DbContext, Account).Import(items);
+			new SeriesImporter(DbContext, Account).Import(items);
+			new CategoryImporter(DbContext, Account).Import(items);
 
 			// get distinct
 			var productIds = items.Select(i => i.ProductId).ToList();
