@@ -14,13 +14,20 @@ namespace DataLayer
         public string Account { get; private set; }
 
         private LibraryBook() { }
-        public LibraryBook(Book book, DateTime dateAdded)
+        public LibraryBook(Book book, DateTime dateAdded, string account)
         {
             ArgumentValidator.EnsureNotNull(book, nameof(book));
+            ArgumentValidator.EnsureNotNull(account, nameof(account));
+
             Book = book;
             DateAdded = dateAdded;
+            Account = account;
         }
 
-		public override string ToString() => $"{DateAdded:d} {Book}";
+        // needed for v3 => v4 upgrade
+        public void UpdateAccount(string account)
+            => Account ??= account;
+
+        public override string ToString() => $"{DateAdded:d} {Book}";
 	}
 }

@@ -105,7 +105,8 @@ namespace DtoImporterService
 				item.LengthInMinutes,
 				authors,
 				narrators,
-				category)
+				category,
+				Account.Locale.Name)
 			).Entity;
 
 			var publisherName = item.Publisher;
@@ -129,6 +130,7 @@ namespace DtoImporterService
 			book.PictureId = item.PictureId;
 			book.UpdateProductRating(item.Product_OverallStars, item.Product_PerformanceStars, item.Product_StoryStars);
 
+			// needed during v3 => v4 migration
 			book.UpdateLocale(Account.Locale.Name);
 
 			// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import

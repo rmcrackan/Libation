@@ -30,9 +30,15 @@ namespace DtoImporterService
 			{
 				var libraryBook = new LibraryBook(
 					DbContext.Books.Local.Single(b => b.AudibleProductId == newItem.ProductId),
-					newItem.DateAdded);
+					newItem.DateAdded,
+					Account.AccountId);
 				DbContext.Library.Add(libraryBook);
 			}
+
+			// needed for v3 => v4 upgrade
+			var toUpdate = DbContext.Library.Where(l => l.Account == null);
+			foreach (var u in toUpdate)
+				u.UpdateAccount(Account.AccountId);
 
 			var qtyNew = newItems.Count;
 			return qtyNew;

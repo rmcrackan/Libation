@@ -66,7 +66,7 @@ namespace DataLayer
             int lengthInMinutes,
 			IEnumerable<Contributor> authors,
 			IEnumerable<Contributor> narrators,
-			Category category)
+			Category category, string localeName)
         {
             // validate
             ArgumentValidator.EnsureNotNull(audibleProductId, nameof(audibleProductId));
@@ -75,6 +75,7 @@ namespace DataLayer
 
 			// assign as soon as possible. stuff below relies on this
             AudibleProductId = productId;
+            Locale = localeName;
 
             ArgumentValidator.EnsureNotNullOrWhiteSpace(title, nameof(title));
 
@@ -243,6 +244,7 @@ namespace DataLayer
 			Category = category;
         }
 
+        // needed for v3 => v4 upgrade
         public void UpdateLocale(string localeName)
             => Locale ??= localeName;
 
