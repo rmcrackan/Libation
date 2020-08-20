@@ -129,6 +129,8 @@ namespace DtoImporterService
 			book.PictureId = item.PictureId;
 			book.UpdateProductRating(item.Product_OverallStars, item.Product_PerformanceStars, item.Product_StoryStars);
 
+			book.UpdateLocale(Account.Locale.Name);
+
 			// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
 			book.UserDefinedItem.UpdateRating(item.MyUserRating_Overall, item.MyUserRating_Performance, item.MyUserRating_Story);
 

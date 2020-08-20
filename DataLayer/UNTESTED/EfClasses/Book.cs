@@ -243,6 +243,9 @@ namespace DataLayer
 			Category = category;
         }
 
-		public override string ToString() => $"[{AudibleProductId}] {Title}";
+        public void UpdateLocale(string localeName)
+            => Locale ??= localeName;
+
+        public override string ToString() => $"[{AudibleProductId}] {Title}";
 	}
 }
