@@ -102,7 +102,7 @@ namespace InternalUtilities
 			if (acct != null)
 				return acct;
 
-			var l = Localization.Locales.Single(l => l.Name == locale);
+			var l = Localization.Get(locale);
 			var id = new Identity(l);
 
 			var account = new Account(accountId) { IdentityTokens = id };

@@ -137,6 +137,8 @@ namespace AccountsTests
     public class AccountsTestBase
     {
         protected string TestFile;
+        protected Locale usLocale => Localization.Get("us");
+        protected Locale ukLocale => Localization.Get("uk");
 
         protected void WriteToTestFile(string contents)
             => File.WriteAllText(TestFile, contents);
@@ -205,7 +207,6 @@ namespace AccountsTests
         [TestMethod]
         public void save_with_identity()
         {
-            var usLocale = Localization.Locales.Single(l => l.Name == "us");
             var id = new Identity(usLocale);
             var idJson = JsonConvert.SerializeObject(id, Identity.GetJsonSerializerSettings());
 
@@ -235,8 +236,7 @@ namespace AccountsTests
             // load file. create account
             using (var p = new AccountsPersister(TestFile))
             {
-                var localeIn = Localization.Locales.Single(l => l.Name == "us");
-                var idIn = new Identity(localeIn);
+                var idIn = new Identity(usLocale);
                 var acctIn = new Account("a0") { AccountName = "n0", IdentityTokens = idIn };
 
                 p.Accounts.Add(acctIn);
@@ -263,8 +263,7 @@ namespace AccountsTests
             // load file. create account 0
             using (var p = new AccountsPersister(TestFile))
             {
-                var localeIn = Localization.Locales.Single(l => l.Name == "us");
-                var idIn = new Identity(localeIn);
+                var idIn = new Identity(usLocale);
                 var acctIn = new Account("a0") { AccountName = "n0", IdentityTokens = idIn };
 
                 p.Accounts.Add(acctIn);
@@ -283,8 +282,7 @@ namespace AccountsTests
             // load file. create account 1
             using (var p = new AccountsPersister(TestFile))
             {
-                var localeIn = Localization.Locales.Single(l => l.Name == "uk");
-                var idIn = new Identity(localeIn);
+                var idIn = new Identity(ukLocale);
                 var acctIn = new Account("a1") { AccountName = "n1", IdentityTokens = idIn };
 
                 p.Accounts.Add(acctIn);
@@ -314,8 +312,7 @@ namespace AccountsTests
             // load file. create 2 accounts
             using (var p = new AccountsPersister(TestFile))
             {
-                var locale1 = Localization.Locales.Single(l => l.Name == "us");
-                var id1 = new Identity(locale1);
+                var id1 = new Identity(usLocale);
                 var acct1 = new Account("a0") { AccountName = "n0", IdentityTokens = id1 };
                 p.Accounts.Add(acct1);
 
@@ -341,13 +338,11 @@ namespace AccountsTests
             // load file. create 2 accounts
             using (var p = new AccountsPersister(TestFile))
             {
-                var locale1 = Localization.Locales.Single(l => l.Name == "us");
-                var id1 = new Identity(locale1);
+                var id1 = new Identity(usLocale);
                 var acct1 = new Account("a0") { AccountName = "n0", IdentityTokens = id1 };
                 p.Accounts.Add(acct1);
 
-                var locale2 = Localization.Locales.Single(l => l.Name == "uk");
-                var id2 = new Identity(locale2);
+                var id2 = new Identity(ukLocale);
                 var acct2 = new Account("a1") { AccountName = "n1", IdentityTokens = id2 };
 
                 p.Accounts.Add(acct2);
@@ -387,13 +382,11 @@ namespace AccountsTests
             // load file. create 2 accounts
             using (var p = new AccountsPersister(TestFile))
             {
-                var locale1 = Localization.Locales.Single(l => l.Name == "us");
-                var id1 = new Identity(locale1);
+                var id1 = new Identity(usLocale);
                 var acct1 = new Account("a0") { AccountName = "n0", IdentityTokens = id1 };
                 p.Accounts.Add(acct1);
 
-                var locale2 = Localization.Locales.Single(l => l.Name == "uk");
-                var id2 = new Identity(locale2);
+                var id2 = new Identity(ukLocale);
                 var acct2 = new Account("a1") { AccountName = "n1", IdentityTokens = id2 };
 
                 p.Accounts.Add(acct2);
@@ -402,8 +395,7 @@ namespace AccountsTests
             // update identity on existing file
             using (var p = new AccountsPersister(TestFile))
             {
-                var locale = Localization.Locales.Single(l => l.Name == "uk");
-                var id = new Identity(locale);
+                var id = new Identity(ukLocale);
 
                 var acct0 = p.Accounts.AccountsSettings[0];
                 acct0.IdentityTokens = id;
@@ -437,13 +429,11 @@ namespace AccountsTests
             // load file. create 2 accounts
             using (var p = new AccountsPersister(TestFile))
             {
-                var locale1 = Localization.Locales.Single(l => l.Name == "us");
-                var id1 = new Identity(locale1);
+                var id1 = new Identity(usLocale);
                 var acct1 = new Account("a0") { AccountName = "n0", IdentityTokens = id1 };
                 p.Accounts.Add(acct1);
 
-                var locale2 = Localization.Locales.Single(l => l.Name == "uk");
-                var id2 = new Identity(locale2);
+                var id2 = new Identity(ukLocale);
                 var acct2 = new Account("a1") { AccountName = "n1", IdentityTokens = id2 };
 
                 p.Accounts.Add(acct2);
@@ -482,12 +472,10 @@ namespace AccountsTests
         [TestMethod]
         public void get_where()
         {
-            var us = Localization.Locales.Single(l => l.Name == "us");
-            var idUs = new Identity(us);
+            var idUs = new Identity(usLocale);
             var acct1 = new Account("cng") { IdentityTokens = idUs, AccountName = "foo" };
 
-            var uk = Localization.Locales.Single(l => l.Name == "uk");
-            var idUk = new Identity(uk);
+            var idUk = new Identity(ukLocale);
             var acct2 = new Account("cng") { IdentityTokens = idUk, AccountName = "bar" };
 
             var accounts = new Accounts();
@@ -595,8 +583,7 @@ namespace AccountsTests
         {
             var accounts = new Accounts();
 
-            var localeIn = Localization.Locales.Single(l => l.Name == "us");
-            var idIn = new Identity(localeIn);
+            var idIn = new Identity(usLocale);
 
             var a1 = new Account("a") { AccountName = "one", IdentityTokens = idIn };
             accounts.Add(a1);
@@ -612,8 +599,7 @@ namespace AccountsTests
         {
             var accounts = new Accounts();
 
-            var localeIn = Localization.Locales.Single(l => l.Name == "us");
-            var idIn = new Identity(localeIn);
+            var idIn = new Identity(usLocale);
 
             var a1 = new Account("a") { AccountName = "one", IdentityTokens = idIn };
             accounts.Add(a1);
