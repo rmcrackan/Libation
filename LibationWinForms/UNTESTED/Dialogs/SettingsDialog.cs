@@ -38,11 +38,6 @@ namespace LibationWinForms.Dialogs
 				? config.Books
 				: Path.GetDirectoryName(Exe.FileLocationOnDisk);
 
-			this.audibleLocaleCb.Text
-				= !string.IsNullOrWhiteSpace(config.LocaleCountryCode)
-				? config.LocaleCountryCode
-				: "us";
-
 			switch (config.DownloadsInProgressEnum)
 			{
 				case "LibationFiles":
@@ -78,22 +73,7 @@ namespace LibationWinForms.Dialogs
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			var origLocale = config.LocaleCountryCode;
-			var newLocale = this.audibleLocaleCb.Text;
-
-			if (origLocale == newLocale)
-			{
-				config.DecryptKey = this.decryptKeyTb.Text;
-			}
-			else
-			{
-				// when changing locale:
-				// - delete decrypt key
-				// - clear/delete identity tokens file
-				config.LocaleCountryCode = newLocale;
-				config.DecryptKey = "";
-				File.Delete(AudibleApiStorage.AccountsSettingsFile);
-			}
+			config.DecryptKey = this.decryptKeyTb.Text;
 
 			config.DownloadsInProgressEnum = downloadsInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";
 			config.DecryptInProgressEnum = decryptInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";

@@ -45,8 +45,6 @@
 			this.decryptInProgressDescLbl = new System.Windows.Forms.Label();
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.cancelBtn = new System.Windows.Forms.Button();
-			this.audibleLocaleLbl = new System.Windows.Forms.Label();
-			this.audibleLocaleCb = new System.Windows.Forms.ComboBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.downloadsInProgressGb.SuspendLayout();
 			this.decryptInProgressGb.SuspendLayout();
@@ -206,7 +204,7 @@
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(612, 404);
+			this.saveBtn.Location = new System.Drawing.Point(612, 367);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(75, 23);
 			this.saveBtn.TabIndex = 7;
@@ -218,37 +216,13 @@
 			// 
 			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(713, 404);
+			this.cancelBtn.Location = new System.Drawing.Point(713, 367);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(75, 23);
 			this.cancelBtn.TabIndex = 8;
 			this.cancelBtn.Text = "Cancel";
 			this.cancelBtn.UseVisualStyleBackColor = true;
 			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
-			// 
-			// audibleLocaleLbl
-			// 
-			this.audibleLocaleLbl.AutoSize = true;
-			this.audibleLocaleLbl.Location = new System.Drawing.Point(12, 56);
-			this.audibleLocaleLbl.Name = "audibleLocaleLbl";
-			this.audibleLocaleLbl.Size = new System.Drawing.Size(77, 13);
-			this.audibleLocaleLbl.TabIndex = 4;
-			this.audibleLocaleLbl.Text = "Audible Locale";
-			// 
-			// audibleLocaleCb
-			// 
-			this.audibleLocaleCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.audibleLocaleCb.FormattingEnabled = true;
-			this.audibleLocaleCb.Items.AddRange(new object[] {
-			"us",
-			"uk",
-			"germany",
-			"france",
-			"canada"});
-			this.audibleLocaleCb.Location = new System.Drawing.Point(95, 53);
-			this.audibleLocaleCb.Name = "audibleLocaleCb";
-			this.audibleLocaleCb.Size = new System.Drawing.Size(53, 21);
-			this.audibleLocaleCb.TabIndex = 5;
 			// 
 			// groupBox1
 			// 
@@ -257,7 +231,7 @@
 			this.groupBox1.Controls.Add(this.decryptKeyDescLbl);
 			this.groupBox1.Controls.Add(this.downloadsInProgressGb);
 			this.groupBox1.Controls.Add(this.decryptInProgressGb);
-			this.groupBox1.Location = new System.Drawing.Point(15, 90);
+			this.groupBox1.Location = new System.Drawing.Point(15, 53);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(773, 308);
 			this.groupBox1.TabIndex = 6;
@@ -270,10 +244,8 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(800, 439);
+			this.ClientSize = new System.Drawing.Size(800, 402);
 			this.Controls.Add(this.groupBox1);
-			this.Controls.Add(this.audibleLocaleCb);
-			this.Controls.Add(this.audibleLocaleLbl);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.saveBtn);
 			this.Controls.Add(this.booksLocationDescLbl);
@@ -314,8 +286,6 @@
 		private System.Windows.Forms.RadioButton decryptInProgressWinTempRb;
 		private System.Windows.Forms.Button saveBtn;
 		private System.Windows.Forms.Button cancelBtn;
-		private System.Windows.Forms.Label audibleLocaleLbl;
-		private System.Windows.Forms.ComboBox audibleLocaleCb;
 		private System.Windows.Forms.GroupBox groupBox1;
 	}
 }

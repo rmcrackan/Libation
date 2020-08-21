@@ -4,6 +4,7 @@ using AudibleApi;
 using DataLayer;
 using DtoImporterService;
 using InternalUtilities;
+using Serilog;
 
 namespace ApplicationServices
 {
@@ -15,24 +16,31 @@ namespace ApplicationServices
 			{
 				var account = AudibleApiStorage.TEST_GetFirstAccount();
 
+				Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
+				{
+					account.AccountName,
+					account.AccountId,
+					LocaleName = account.Locale.Name,
+				});
+
 				var items = await AudibleApiActions.GetAllLibraryItemsAsync(account, callback);
 				var totalCount = items.Count;
-				Serilog.Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
+				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
 				using var context = DbContexts.GetContext();
 				var libraryImporter = new LibraryImporter(context, account);
 				var newCount = await Task.Run(() => libraryImporter.Import(items));
 				context.SaveChanges();
-				Serilog.Log.Logger.Information($"Import: New count {newCount}");
+				Log.Logger.Information($"Import: New count {newCount}");
 
 				await Task.Run(() => SearchEngineCommands.FullReIndex());
-				Serilog.Log.Logger.Information("FullReIndex: success");
+				Log.Logger.Information("FullReIndex: success");
 
 				return (totalCount, newCount);
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "Error importing library");
+				Log.Logger.Error(ex, "Error importing library");
 				throw;
 			}
 		}
@@ -52,7 +60,7 @@ namespace ApplicationServices
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "Error updating tags");
+				Log.Logger.Error(ex, "Error updating tags");
 				throw;
 			}
 		}

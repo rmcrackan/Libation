@@ -42,7 +42,6 @@ namespace LibationLauncher
 		{
 			static bool configSetupIsComplete(Configuration config)
 				=> config.FilesExist
-				&& !string.IsNullOrWhiteSpace(config.LocaleCountryCode)
 				&& !string.IsNullOrWhiteSpace(config.DownloadsInProgressEnum)
 				&& !string.IsNullOrWhiteSpace(config.DecryptInProgressEnum);
 
@@ -56,7 +55,6 @@ namespace LibationLauncher
 			setupDialog.NoQuestionsBtn_Click += (_, __) =>
 			{
 				config.DecryptKey ??= "";
-				config.LocaleCountryCode ??= "us";
 				config.DownloadsInProgressEnum ??= "WinTemp";
 				config.DecryptInProgressEnum ??= "WinTemp";
 				config.Books ??= Configuration.AppDir;
@@ -142,7 +140,7 @@ namespace LibationLauncher
 			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
 			var jObj = JObject.Parse(settingsContents);
 			var jLocale = jObj.Property("LocaleCountryCode");
-			var localeName = jLocale.Value<string>();
+			var localeName = jLocale.Value.Value<string>();
 			var locale = Localization.Get(localeName);
 
 			var api = EzApiCreator.GetApiAsync(locale, AccountsSettingsFileLegacy30).GetAwaiter().GetResult();
@@ -187,23 +185,22 @@ namespace LibationLauncher
 			if (!File.Exists(Configuration.Instance.SettingsFilePath))
 				return;
 
-// don't delete old settings until new values are used
-// remember to remove these from Configuration.cs
-return;
-
 			// use JObject to remove decrypt key and locale from Settings.json
 			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
 			var jObj = JObject.Parse(settingsContents);
 
-			var resave = false;
-
-			var jDecryptKey = jObj.Property("DecryptKey");
 			var jLocale = jObj.Property("LocaleCountryCode");
 
-			jDecryptKey?.Remove();
+//// don't delete old setting until new value is used
+//// remember to remove these from Configuration.cs
+//var jDecryptKey = jObj.Property("DecryptKey");
+
+//jDecryptKey?.Remove();
 			jLocale?.Remove();
 
-			if (jDecryptKey != null || jLocale != null)
+			if (
+//jDecryptKey != null ||
+				jLocale != null)
 			{
 				var newContents = jObj.ToString(Formatting.Indented);
 				File.WriteAllText(Configuration.Instance.SettingsFilePath, newContents);
@@ -385,7 +382,6 @@ return;
 			{
 				Version = BuildVersion.ToString(),
 
-				AudibleLocale = config.LocaleCountryCode,
 				config.LibationFiles,
 				AudibleFileStorage.BooksDirectory,
 

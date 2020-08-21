@@ -90,12 +90,6 @@ namespace FileManager
             set => persistentDictionary.Set(nameof(DecryptInProgressEnum), value);
         }
 
-        public string LocaleCountryCode
-        {
-            get => persistentDictionary.GetString(nameof(LocaleCountryCode));
-            set => persistentDictionary.Set(nameof(LocaleCountryCode), value);
-        }
-
         // note: any potential file manager static ctors can't compensate if storage dir is changed at run time via settings. this is partly bad architecture. but the side effect is desirable. if changing LibationFiles location: restart app
 
         // singleton stuff
