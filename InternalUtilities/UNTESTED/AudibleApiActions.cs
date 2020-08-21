@@ -13,20 +13,12 @@ namespace InternalUtilities
 	public static class AudibleApiActions
 	{
 		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
-		public static async Task<Api> GetApiAsync(Locale locale, ILoginCallback loginCallback = null)
-		{
-			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
-
-			return await EzApiCreator.GetApiAsync(locale, AudibleApiStorage.AccountsSettingsFile, AudibleApiStorage.TEST_GetFirstIdentityTokensJsonPath(), loginCallback);
-		}
+		public static Task<Api> GetApiAsync(Locale locale, ILoginCallback loginCallback = null)
+			=> EzApiCreator.GetApiAsync(locale, AudibleApiStorage.AccountsSettingsFile, AudibleApiStorage.TEST_GetFirstIdentityTokensJsonPath(), loginCallback);
 
 		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
-		public static async Task<Api> GetApiAsync(Account account, ILoginCallback loginCallback = null)
-		{
-			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
-
-			return await EzApiCreator.GetApiAsync(account.Locale, AudibleApiStorage.AccountsSettingsFile, account.GetIdentityTokensJsonPath(), loginCallback);
-		}
+		public static Task<Api> GetApiAsync(Account account, ILoginCallback loginCallback = null)
+			=> EzApiCreator.GetApiAsync(account.Locale, AudibleApiStorage.AccountsSettingsFile, account.GetIdentityTokensJsonPath(), loginCallback);
 
 		private static AsyncRetryPolicy policy { get; }
 			= Policy.Handle<Exception>()

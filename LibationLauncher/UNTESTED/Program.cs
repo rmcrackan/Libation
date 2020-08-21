@@ -145,7 +145,6 @@ namespace LibationLauncher
 			var localeName = jLocale.Value<string>();
 			var locale = Localization.Get(localeName);
 
-			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
 			var api = EzApiCreator.GetApiAsync(locale, AccountsSettingsFileLegacy30).GetAwaiter().GetResult();
 			var email = api.GetEmailAsync().GetAwaiter().GetResult();
 
