@@ -276,13 +276,13 @@ namespace AaxDecrypter
             };
             info.EnvironmentVariables["VARIABLE"] = decryptKey;
 
-            var (output, exitCode) = info.RunHidden();
+            var result = info.RunHidden();
 
             // bad checksum -- bad decrypt key
-            if (output.Contains("checksums mismatch, aborting!"))
+            if (result.Output.Contains("checksums mismatch, aborting!"))
                 return -99;
 
-            return exitCode;
+            return result.ExitCode;
         }
 
 		// temp file names for steps 3, 4, 5

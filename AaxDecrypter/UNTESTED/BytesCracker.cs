@@ -21,8 +21,7 @@ namespace AaxDecrypter
             };
 
             // checksum is in the debug info. ffprobe's debug info is written to stderr, not stdout
-            var readErrorOutput = true;
-            var ffprobeStderr = info.RunHidden(readErrorOutput).Output;
+            var ffprobeStderr = info.RunHidden().Error;
 
             // example checksum line:
             // ... [aax] file checksum == 0c527840c4f18517157eb0b4f9d6f9317ce60cd1
