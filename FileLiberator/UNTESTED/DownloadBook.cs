@@ -43,8 +43,7 @@ namespace FileLiberator
 
 		private async Task<string> downloadBookAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
-			var locale = Localization.Get(libraryBook.Book.Locale);
-			var api = await AudibleApiActions.GetApiAsync(locale);
+			var api = await AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
 
 			var actualFilePath = await PerformDownloadAsync(
 				tempAaxFilename,

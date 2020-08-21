@@ -136,11 +136,12 @@ namespace LibationLauncher
 
 		private static Account addAccountToNewAccountFile()
 		{
-			// get locale from settings file
+			// get required locale from settings file
 			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
-			var jObj = JObject.Parse(settingsContents);
-			var jLocale = jObj.Property("LocaleCountryCode");
-			var localeName = jLocale.Value.Value<string>();
+			if (!JObject.Parse(settingsContents).TryGetValue("LocaleCountryCode", out var jLocale))
+				return null;
+
+			var localeName = jLocale.Value<string>();
 			var locale = Localization.Get(localeName);
 
 			var api = EzApiCreator.GetApiAsync(locale, AccountsSettingsFileLegacy30).GetAwaiter().GetResult();

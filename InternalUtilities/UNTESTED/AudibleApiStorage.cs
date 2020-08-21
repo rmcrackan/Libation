@@ -28,12 +28,12 @@ namespace InternalUtilities
 
 		public static string GetIdentityTokensJsonPath(this Account account)
 			=> GetIdentityTokensJsonPath(account.AccountId, account.Locale?.Name);
-		public static string GetIdentityTokensJsonPath(string username, string locale)
+		public static string GetIdentityTokensJsonPath(string username, string localeName)
 		{
 			var usernameSanitized = trimSurroundingQuotes(JsonConvert.ToString(username));
-			var localeSanitized = trimSurroundingQuotes(JsonConvert.ToString(locale));
+			var localeNameSanitized = trimSurroundingQuotes(JsonConvert.ToString(localeName));
 
-			return $"$.AccountsSettings[?(@.AccountId == '{usernameSanitized}' && @.IdentityTokens.LocaleName == '{localeSanitized}')].IdentityTokens";
+			return $"$.AccountsSettings[?(@.AccountId == '{usernameSanitized}' && @.IdentityTokens.LocaleName == '{localeNameSanitized}')].IdentityTokens";
 		}
 		// SubString algo is better than .Trim("\"")
 		//   orig string  "
