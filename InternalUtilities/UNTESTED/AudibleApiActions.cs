@@ -13,11 +13,11 @@ namespace InternalUtilities
 	public static class AudibleApiActions
 	{
 		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
-		public static async Task<Api> GetApiAsync(ILoginCallback loginCallback = null)
+		public static async Task<Api> GetApiAsync(Locale locale, ILoginCallback loginCallback = null)
 		{
 			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
 
-			return await EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFile, AudibleApiStorage.TEST_GetFirstIdentityTokensJsonPath(), loginCallback);
+			return await EzApiCreator.GetApiAsync(locale, AudibleApiStorage.AccountsSettingsFile, AudibleApiStorage.TEST_GetFirstIdentityTokensJsonPath(), loginCallback);
 		}
 
 		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
@@ -25,7 +25,7 @@ namespace InternalUtilities
 		{
 			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
 
-			return await EzApiCreator.GetApiAsync(AudibleApiStorage.AccountsSettingsFile, account.GetIdentityTokensJsonPath(), loginCallback);
+			return await EzApiCreator.GetApiAsync(account.Locale, AudibleApiStorage.AccountsSettingsFile, account.GetIdentityTokensJsonPath(), loginCallback);
 		}
 
 		private static AsyncRetryPolicy policy { get; }

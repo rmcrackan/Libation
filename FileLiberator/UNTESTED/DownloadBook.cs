@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using AudibleApi;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
@@ -42,7 +43,8 @@ namespace FileLiberator
 
 		private async Task<string> downloadBookAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
-			var api = await AudibleApiActions.GetApiAsync();
+			var locale = Localization.Get(libraryBook.Book.Locale);
+			var api = await AudibleApiActions.GetApiAsync(locale);
 
 			var actualFilePath = await PerformDownloadAsync(
 				tempAaxFilename,

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using AudibleApi;
 using FileManager;
 using InternalUtilities;
 using LibationWinForms;
@@ -137,10 +138,16 @@ namespace LibationLauncher
 
 		private static Account addAccountToNewAccountFile()
 		{
-			AudibleApi.Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
-			var api = AudibleApi.EzApiCreator.GetApiAsync(AccountsSettingsFileLegacy30).GetAwaiter().GetResult();
+			// get locale from settings file
+			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
+			var jObj = JObject.Parse(settingsContents);
+			var jLocale = jObj.Property("LocaleCountryCode");
+			var localeName = jLocale.Value<string>();
+			var locale = Localization.Get(localeName);
+
+			Localization.SetLocale(Configuration.Instance.LocaleCountryCode);
+			var api = EzApiCreator.GetApiAsync(locale, AccountsSettingsFileLegacy30).GetAwaiter().GetResult();
 			var email = api.GetEmailAsync().GetAwaiter().GetResult();
-			var locale = api.GetLocaleAsync(AudibleApi.CustomerOptions.All).GetAwaiter().GetResult();
 
 			// identity has likely been updated above. re-get contents
 			var legacyContents = File.ReadAllText(AccountsSettingsFileLegacy30);
