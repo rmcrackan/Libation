@@ -23,6 +23,17 @@ namespace DtoImporterService
 
 		private int upsertLibraryBooks(IEnumerable<Item> items)
 		{
+			// technically, we should be able to have duplicate books from separate accounts.
+			// this would violate the current pk and would be difficult to deal with elsewhere:
+			// - what to show in the grid
+			// - which to consider liberated
+			//
+			// sqlite cannot alter pk. the work around is an extensive headache. it'll be fixed in pre .net5/efcore5
+			//
+			// currently, inserting LibraryBook will throw error if the same book is in multiple accounts for the same region.
+			//
+			// CURRENT SOLUTION: don't re-insert
+			
 			var currentLibraryProductIds = DbContext.Library.Select(l => l.Book.AudibleProductId).ToList();
 			var newItems = items.Where(dto => !currentLibraryProductIds.Contains(dto.ProductId)).ToList();
 

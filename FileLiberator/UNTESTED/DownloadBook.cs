@@ -43,6 +43,8 @@ namespace FileLiberator
 
 		private async Task<string> downloadBookAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
+			validate(libraryBook);
+
 			var api = await AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
 
 			var actualFilePath = await PerformDownloadAsync(
@@ -75,6 +77,28 @@ namespace FileLiberator
 				contents
 			});
 			throw ex;
+		}
+
+		private static void validate(LibraryBook libraryBook)
+		{
+			string errorString(string field)
+				=> $"{errorTitle()}\r\nCannot download book. {field} is not known. Try re-importing the account which owns this book.";
+
+			string errorTitle()
+			{
+				var title
+					= (libraryBook.Book.Title.Length > 53)
+					? $"{libraryBook.Book.Title.Truncate(50)}..."
+					: libraryBook.Book.Title;
+				var errorBookTitle = $"{title} [{libraryBook.Book.AudibleProductId}]";
+				return errorBookTitle;
+			};
+
+			if (string.IsNullOrWhiteSpace(libraryBook.Account))
+				throw new Exception(errorString("Account"));
+
+			if (string.IsNullOrWhiteSpace(libraryBook.Book.Locale))
+				throw new Exception(errorString("Locale"));
 		}
 
 		private void moveBook(LibraryBook libraryBook, string actualFilePath)
