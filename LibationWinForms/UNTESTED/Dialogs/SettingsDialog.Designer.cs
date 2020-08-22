@@ -28,12 +28,9 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.decryptKeyLbl = new System.Windows.Forms.Label();
-			this.decryptKeyTb = new System.Windows.Forms.TextBox();
 			this.booksLocationLbl = new System.Windows.Forms.Label();
 			this.booksLocationTb = new System.Windows.Forms.TextBox();
 			this.booksLocationSearchBtn = new System.Windows.Forms.Button();
-			this.decryptKeyDescLbl = new System.Windows.Forms.Label();
 			this.booksLocationDescLbl = new System.Windows.Forms.Label();
 			this.downloadsInProgressGb = new System.Windows.Forms.GroupBox();
 			this.downloadsInProgressLibationFilesRb = new System.Windows.Forms.RadioButton();
@@ -50,22 +47,6 @@
 			this.decryptInProgressGb.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
-			// 
-			// decryptKeyLbl
-			// 
-			this.decryptKeyLbl.AutoSize = true;
-			this.decryptKeyLbl.Location = new System.Drawing.Point(6, 22);
-			this.decryptKeyLbl.Name = "decryptKeyLbl";
-			this.decryptKeyLbl.Size = new System.Drawing.Size(64, 13);
-			this.decryptKeyLbl.TabIndex = 0;
-			this.decryptKeyLbl.Text = "Decrypt key";
-			// 
-			// decryptKeyTb
-			// 
-			this.decryptKeyTb.Location = new System.Drawing.Point(76, 19);
-			this.decryptKeyTb.Name = "decryptKeyTb";
-			this.decryptKeyTb.Size = new System.Drawing.Size(100, 20);
-			this.decryptKeyTb.TabIndex = 1;
 			// 
 			// booksLocationLbl
 			// 
@@ -92,15 +73,6 @@
 			this.booksLocationSearchBtn.Text = "...";
 			this.booksLocationSearchBtn.UseVisualStyleBackColor = true;
 			this.booksLocationSearchBtn.Click += new System.EventHandler(this.booksLocationSearchBtn_Click);
-			// 
-			// decryptKeyDescLbl
-			// 
-			this.decryptKeyDescLbl.AutoSize = true;
-			this.decryptKeyDescLbl.Location = new System.Drawing.Point(73, 42);
-			this.decryptKeyDescLbl.Name = "decryptKeyDescLbl";
-			this.decryptKeyDescLbl.Size = new System.Drawing.Size(36, 13);
-			this.decryptKeyDescLbl.TabIndex = 2;
-			this.decryptKeyDescLbl.Text = "[desc]";
 			// 
 			// booksLocationDescLbl
 			// 
@@ -226,9 +198,6 @@
 			// 
 			// groupBox1
 			// 
-			this.groupBox1.Controls.Add(this.decryptKeyTb);
-			this.groupBox1.Controls.Add(this.decryptKeyLbl);
-			this.groupBox1.Controls.Add(this.decryptKeyDescLbl);
 			this.groupBox1.Controls.Add(this.downloadsInProgressGb);
 			this.groupBox1.Controls.Add(this.decryptInProgressGb);
 			this.groupBox1.Location = new System.Drawing.Point(15, 53);
@@ -269,12 +238,9 @@
 		}
 
 		#endregion
-		private System.Windows.Forms.Label decryptKeyLbl;
-		private System.Windows.Forms.TextBox decryptKeyTb;
 		private System.Windows.Forms.Label booksLocationLbl;
 		private System.Windows.Forms.TextBox booksLocationTb;
 		private System.Windows.Forms.Button booksLocationSearchBtn;
-		private System.Windows.Forms.Label decryptKeyDescLbl;
 		private System.Windows.Forms.Label booksLocationDescLbl;
 		private System.Windows.Forms.GroupBox downloadsInProgressGb;
 		private System.Windows.Forms.Label downloadsInProgressDescLbl;

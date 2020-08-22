@@ -19,8 +19,6 @@ namespace LibationWinForms.Dialogs
 
 		private void SettingsDialog_Load(object sender, EventArgs e)
 		{
-			this.decryptKeyTb.Text = config.DecryptKey;
-			this.decryptKeyDescLbl.Text = desc(nameof(config.DecryptKey));
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
 			this.downloadsInProgressDescLbl.Text = desc(nameof(config.DownloadsInProgressEnum));
 			this.decryptInProgressDescLbl.Text = desc(nameof(config.DecryptInProgressEnum));
@@ -73,8 +71,6 @@ namespace LibationWinForms.Dialogs
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			config.DecryptKey = this.decryptKeyTb.Text;
-
 			config.DownloadsInProgressEnum = downloadsInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";
 			config.DecryptInProgressEnum = decryptInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";
 

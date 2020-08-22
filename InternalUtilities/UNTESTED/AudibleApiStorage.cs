@@ -24,7 +24,10 @@ namespace InternalUtilities
 			=> TEST_GetFirstAccount().GetIdentityTokensJsonPath();
 		// convenience for for tests and demos. don't use in production Libation
 		public static Account TEST_GetFirstAccount()
-			=> new AccountsPersister(AccountsSettingsFile).Accounts.GetAll().FirstOrDefault();
+			=> GetAccounts().GetAll().FirstOrDefault();
+
+		public static Accounts GetAccounts()
+			=> new AccountsPersister(AccountsSettingsFile).Accounts;
 
 		public static string GetIdentityTokensJsonPath(this Account account)
 			=> GetIdentityTokensJsonPath(account.AccountId, account.Locale?.Name);

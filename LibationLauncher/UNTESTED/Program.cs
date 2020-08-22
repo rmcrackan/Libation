@@ -54,7 +54,6 @@ namespace LibationLauncher
 			var setupDialog = new SetupDialog();
 			setupDialog.NoQuestionsBtn_Click += (_, __) =>
 			{
-				config.DecryptKey ??= "";
 				config.DownloadsInProgressEnum ??= "WinTemp";
 				config.DecryptInProgressEnum ??= "WinTemp";
 				config.Books ??= Configuration.AppDir;
@@ -155,7 +154,6 @@ namespace LibationLauncher
 			if (!identity.IsValid)
 				return null;
 
-			var accountsPersist = new AccountsPersister(AudibleApiStorage.AccountsSettingsFile);
 			var account = new Account(email)
 			{
 				AccountName = $"{email} - {locale.Name}",
@@ -163,7 +161,7 @@ namespace LibationLauncher
 			};
 
 			// saves to new file
-			accountsPersist.Accounts.Add(account);
+			AudibleApiStorage.GetAccounts().Add(account);
 
 			return account;
 		}
@@ -191,17 +189,12 @@ namespace LibationLauncher
 			var jObj = JObject.Parse(settingsContents);
 
 			var jLocale = jObj.Property("LocaleCountryCode");
-
-//// don't delete old setting until new value is used
-//// remember to remove these from Configuration.cs
-//var jDecryptKey = jObj.Property("DecryptKey");
-
-//jDecryptKey?.Remove();
+			var jDecryptKey = jObj.Property("DecryptKey");
+			
+			jDecryptKey?.Remove();
 			jLocale?.Remove();
 
-			if (
-//jDecryptKey != null ||
-				jLocale != null)
+			if (jDecryptKey != null || jLocale != null)
 			{
 				var newContents = jObj.ToString(Formatting.Indented);
 				File.WriteAllText(Configuration.Instance.SettingsFilePath, newContents);

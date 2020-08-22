@@ -8,6 +8,7 @@ using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using FileManager;
+using InternalUtilities;
 
 namespace FileLiberator
 {
@@ -56,7 +57,12 @@ namespace FileLiberator
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
                 var proposedOutputFile = Path.Combine(AudibleFileStorage.DecryptInProgress, $"[{libraryBook.Book.AudibleProductId}].m4b");
-                var outputAudioFilename = await aaxToM4bConverterDecrypt(proposedOutputFile, aaxFilename);
+
+                var account = AudibleApiStorage
+                    .GetAccounts()
+                    .GetAccount(libraryBook.Account, libraryBook.Book.Locale);
+
+                var outputAudioFilename = await aaxToM4bConverterDecrypt(proposedOutputFile, aaxFilename, account);
 
                 // decrypt failed
                 if (outputAudioFilename == null)
@@ -78,13 +84,13 @@ namespace FileLiberator
             }
         }
 
-        private async Task<string> aaxToM4bConverterDecrypt(string proposedOutputFile, string aaxFilename)
+        private async Task<string> aaxToM4bConverterDecrypt(string proposedOutputFile, string aaxFilename, Account account)
         {
             DecryptBegin?.Invoke(this, $"Begin decrypting {aaxFilename}");
 
             try
             {
-                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, Configuration.Instance.DecryptKey);
+                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, account.DecryptKey);
                 converter.AppName = "Libation";
 
                 TitleDiscovered?.Invoke(this, converter.tags.title);
@@ -103,7 +109,7 @@ namespace FileLiberator
                 if (!success)
                     return null;
 
-                Configuration.Instance.DecryptKey = converter.decryptKey;
+                account.DecryptKey = converter.decryptKey;
 
                 return converter.outputFileName;
             }

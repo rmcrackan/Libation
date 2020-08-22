@@ -43,13 +43,6 @@ namespace FileManager
 
         public string SettingsFilePath => Path.Combine(LibationFiles, "Settings.json");
 
-        [Description("Your user-specific key used to decrypt your audible files (*.aax) into audio files you can use anywhere (*.m4b). Leave alone in most cases")]
-        public string DecryptKey
-        {
-            get => persistentDictionary.GetString(nameof(DecryptKey));
-            set => persistentDictionary.Set(nameof(DecryptKey), value);
-        }
-
         [Description("Location for book storage. Includes destination of newly liberated books")]
         public string Books
         {
