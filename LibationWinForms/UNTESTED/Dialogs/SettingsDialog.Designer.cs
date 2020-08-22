@@ -88,7 +88,7 @@
 			this.downloadsInProgressGb.Controls.Add(this.downloadsInProgressLibationFilesRb);
 			this.downloadsInProgressGb.Controls.Add(this.downloadsInProgressWinTempRb);
 			this.downloadsInProgressGb.Controls.Add(this.downloadsInProgressDescLbl);
-			this.downloadsInProgressGb.Location = new System.Drawing.Point(15, 58);
+			this.downloadsInProgressGb.Location = new System.Drawing.Point(15, 19);
 			this.downloadsInProgressGb.Name = "downloadsInProgressGb";
 			this.downloadsInProgressGb.Size = new System.Drawing.Size(758, 117);
 			this.downloadsInProgressGb.TabIndex = 4;
@@ -133,7 +133,7 @@
 			this.decryptInProgressGb.Controls.Add(this.decryptInProgressLibationFilesRb);
 			this.decryptInProgressGb.Controls.Add(this.decryptInProgressWinTempRb);
 			this.decryptInProgressGb.Controls.Add(this.decryptInProgressDescLbl);
-			this.decryptInProgressGb.Location = new System.Drawing.Point(9, 183);
+			this.decryptInProgressGb.Location = new System.Drawing.Point(9, 144);
 			this.decryptInProgressGb.Name = "decryptInProgressGb";
 			this.decryptInProgressGb.Size = new System.Drawing.Size(758, 117);
 			this.decryptInProgressGb.TabIndex = 5;
@@ -176,7 +176,7 @@
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(612, 367);
+			this.saveBtn.Location = new System.Drawing.Point(612, 328);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(75, 23);
 			this.saveBtn.TabIndex = 7;
@@ -188,7 +188,7 @@
 			// 
 			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(713, 367);
+			this.cancelBtn.Location = new System.Drawing.Point(713, 328);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(75, 23);
 			this.cancelBtn.TabIndex = 8;
@@ -202,7 +202,7 @@
 			this.groupBox1.Controls.Add(this.decryptInProgressGb);
 			this.groupBox1.Location = new System.Drawing.Point(15, 53);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(773, 308);
+			this.groupBox1.Size = new System.Drawing.Size(773, 269);
 			this.groupBox1.TabIndex = 6;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Advanced settings for control freaks";
@@ -213,7 +213,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(800, 402);
+			this.ClientSize = new System.Drawing.Size(800, 363);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.saveBtn);
@@ -231,7 +231,6 @@
 			this.decryptInProgressGb.ResumeLayout(false);
 			this.decryptInProgressGb.PerformLayout();
 			this.groupBox1.ResumeLayout(false);
-			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
