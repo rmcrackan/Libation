@@ -10,11 +10,11 @@ namespace LibationWinForms.Dialogs
         const string BLACK_UP_POINTING_TRIANGLE = "\u25B2";
         const string BLACK_DOWN_POINTING_TRIANGLE = "\u25BC";
 
-        const string COL_Original = "Original";
-        const string COL_Delete = "Delete";
-        const string COL_Filter = "Filter";
-        const string COL_MoveUp = "MoveUp";
-        const string COL_MoveDown = "MoveDown";
+        const string COL_Original = nameof(Original);
+        const string COL_Delete = nameof(Delete);
+        const string COL_Filter = nameof(Filter);
+        const string COL_MoveUp = nameof(MoveUp);
+        const string COL_MoveDown = nameof(MoveDown);
 
         Form1 _parent { get; }
 
@@ -26,10 +26,10 @@ namespace LibationWinForms.Dialogs
 
             dataGridView1.Columns[COL_Filter].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            populateFilters();
+            populateGridValues();
         }
 
-        private void populateFilters()
+        private void populateGridValues()
         {
             var filters = QuickFilters.Filters;
             if (!filters.Any())
@@ -37,6 +37,13 @@ namespace LibationWinForms.Dialogs
 
             foreach (var filter in filters)
                 dataGridView1.Rows.Add(filter, "X", filter, BLACK_UP_POINTING_TRIANGLE, BLACK_DOWN_POINTING_TRIANGLE);
+        }
+
+        private void dataGridView1_DefaultValuesNeeded(object sender, DataGridViewRowEventArgs e)
+        {
+            e.Row.Cells[COL_Delete].Value = "X";
+            e.Row.Cells[COL_MoveUp].Value = BLACK_UP_POINTING_TRIANGLE;
+            e.Row.Cells[COL_MoveDown].Value = BLACK_DOWN_POINTING_TRIANGLE;
         }
 
         private void saveBtn_Click(object sender, EventArgs e)

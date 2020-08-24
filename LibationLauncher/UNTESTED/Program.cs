@@ -157,6 +157,7 @@ namespace LibationLauncher
 			var account = new Account(email)
 			{
 				AccountName = $"{email} - {locale.Name}",
+				LibraryScan = true,
 				IdentityTokens = identity
 			};
 

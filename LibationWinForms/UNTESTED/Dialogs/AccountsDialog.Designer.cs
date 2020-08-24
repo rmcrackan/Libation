@@ -35,8 +35,8 @@
 			this.DeleteAccount = new System.Windows.Forms.DataGridViewButtonColumn();
 			this.LibraryScan = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			this.AccountId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.AccountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.Locale = new System.Windows.Forms.DataGridViewComboBoxColumn();
+			this.AccountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -75,8 +75,8 @@
             this.DeleteAccount,
             this.LibraryScan,
             this.AccountId,
-            this.AccountName,
-            this.Locale});
+            this.Locale,
+            this.AccountName});
 			this.dataGridView1.Location = new System.Drawing.Point(12, 12);
 			this.dataGridView1.MultiSelect = false;
 			this.dataGridView1.Name = "dataGridView1";
@@ -118,17 +118,17 @@
 			this.AccountId.Name = "AccountId";
 			this.AccountId.Width = 111;
 			// 
-			// AccountName
-			// 
-			this.AccountName.HeaderText = "Account nickname (optional)";
-			this.AccountName.Name = "AccountName";
-			this.AccountName.Width = 152;
-			// 
 			// Locale
 			// 
 			this.Locale.HeaderText = "Locale";
 			this.Locale.Name = "Locale";
 			this.Locale.Width = 45;
+			// 
+			// AccountName
+			// 
+			this.AccountName.HeaderText = "Account nickname (optional)";
+			this.AccountName.Name = "AccountName";
+			this.AccountName.Width = 152;
 			// 
 			// AccountsDialog
 			// 
@@ -156,7 +156,7 @@
 		private System.Windows.Forms.DataGridViewButtonColumn DeleteAccount;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn LibraryScan;
 		private System.Windows.Forms.DataGridViewTextBoxColumn AccountId;
-		private System.Windows.Forms.DataGridViewTextBoxColumn AccountName;
 		private System.Windows.Forms.DataGridViewComboBoxColumn Locale;
+		private System.Windows.Forms.DataGridViewTextBoxColumn AccountName;
 	}
 }

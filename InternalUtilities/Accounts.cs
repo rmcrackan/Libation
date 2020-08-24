@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AudibleApi;
@@ -25,7 +26,11 @@ namespace InternalUtilities
 		protected override JsonSerializerSettings GetSerializerSettings()
 			=> Identity.GetJsonSerializerSettings();
 	}
-	public class Accounts : Updatable
+	// 'Accounts' is intentionally not IEnumerable<> so that properties can be added/extended
+	// from newtonsoft (https://www.newtonsoft.com/json/help/html/SerializationGuide.htm):
+	//   .NET :  IList, IEnumerable, IList<T>, Array
+	//   JSON :  Array (properties on the collection will not be serialized)
+	public class Accounts : IUpdatable
 	{
 		public event EventHandler Updated;
 		private void update(object sender = null, EventArgs e = null)
@@ -143,7 +148,7 @@ namespace InternalUtilities
 				throw new InvalidOperationException("Cannot add an account with the same account Id and Locale");
 		}
 	}
-	public class Account : Updatable
+	public class Account : IUpdatable
 	{
 		public event EventHandler Updated;
 		private void update(object sender = null, EventArgs e = null)
@@ -168,6 +173,10 @@ namespace InternalUtilities
 				update();
 			}
 		}
+
+		// whether to include this account when scanning libraries.
+		// technically this is an app setting; not an attribute of account. but since it's managed with accounts, it makes sense to put this exception-to-the-rule here
+		public bool LibraryScan { get; set; }
 
 		private string _decryptKey = "";
 		public string DecryptKey
