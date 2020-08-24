@@ -300,6 +300,8 @@ namespace LibationWinForms
         #endregion
 
         #region settings menu
+        private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog().ShowDialog();
+
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 
         private void advancedSettingsToolStripMenuItem_Click(object sender, EventArgs e)

@@ -44,6 +44,7 @@
 			this.editQuickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.accountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.basicSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.advancedSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -169,7 +170,7 @@
 			// 
 			this.editQuickFiltersToolStripMenuItem.Name = "editQuickFiltersToolStripMenuItem";
 			this.editQuickFiltersToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
-			this.editQuickFiltersToolStripMenuItem.Text = "&Edit quick filters";
+			this.editQuickFiltersToolStripMenuItem.Text = "&Edit quick filters...";
 			this.editQuickFiltersToolStripMenuItem.Click += new System.EventHandler(this.EditQuickFiltersToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
@@ -180,24 +181,32 @@
 			// settingsToolStripMenuItem
 			// 
 			this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.accountsToolStripMenuItem,
 			this.basicSettingsToolStripMenuItem,
 			this.advancedSettingsToolStripMenuItem});
 			this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
 			this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.settingsToolStripMenuItem.Text = "&Settings";
 			// 
+			// accountsToolStripMenuItem
+			// 
+			this.accountsToolStripMenuItem.Name = "accountsToolStripMenuItem";
+			this.accountsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+			this.accountsToolStripMenuItem.Text = "&Accounts...";
+			this.accountsToolStripMenuItem.Click += new System.EventHandler(this.accountsToolStripMenuItem_Click);
+			// 
 			// basicSettingsToolStripMenuItem
 			// 
 			this.basicSettingsToolStripMenuItem.Name = "basicSettingsToolStripMenuItem";
-			this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.basicSettingsToolStripMenuItem.Text = "&Basic Settings";
+			this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+			this.basicSettingsToolStripMenuItem.Text = "&Basic Settings...";
 			this.basicSettingsToolStripMenuItem.Click += new System.EventHandler(this.basicSettingsToolStripMenuItem_Click);
 			// 
 			// advancedSettingsToolStripMenuItem
 			// 
 			this.advancedSettingsToolStripMenuItem.Name = "advancedSettingsToolStripMenuItem";
-			this.advancedSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.advancedSettingsToolStripMenuItem.Text = "&Advanced Settings";
+			this.advancedSettingsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+			this.advancedSettingsToolStripMenuItem.Text = "Ad&vanced Settings...";
 			this.advancedSettingsToolStripMenuItem.Click += new System.EventHandler(this.advancedSettingsToolStripMenuItem_Click);
 			// 
 			// statusStrip1
@@ -222,7 +231,7 @@
 			// springLbl
 			// 
 			this.springLbl.Name = "springLbl";
-			this.springLbl.Size = new System.Drawing.Size(232, 17);
+			this.springLbl.Size = new System.Drawing.Size(233, 17);
 			this.springLbl.Spring = true;
 			// 
 			// backupsCountsLbl
@@ -234,7 +243,7 @@
 			// pdfsCountsLbl
 			// 
 			this.pdfsCountsLbl.Name = "pdfsCountsLbl";
-			this.pdfsCountsLbl.Size = new System.Drawing.Size(219, 17);
+			this.pdfsCountsLbl.Size = new System.Drawing.Size(218, 17);
 			this.pdfsCountsLbl.Text = "|  PDFs: NOT d/l\'ed: {0}  Downloaded: {1}";
 			// 
 			// addFilterBtn
@@ -297,6 +306,7 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem advancedSettingsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
 	}
 }
 

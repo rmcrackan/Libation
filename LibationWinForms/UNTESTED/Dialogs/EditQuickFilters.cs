@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using FileManager;
 
 namespace LibationWinForms.Dialogs
 {
-    public partial class EditQuickFilters : Form
+	public partial class EditQuickFilters : Form
     {
+        const string BLACK_UP_POINTING_TRIANGLE = "\u25B2";
+        const string BLACK_DOWN_POINTING_TRIANGLE = "\u25BC";
+
         const string COL_Original = "Original";
         const string COL_Delete = "Delete";
         const string COL_Filter = "Filter";
@@ -39,10 +36,10 @@ namespace LibationWinForms.Dialogs
                 return;
 
             foreach (var filter in filters)
-                dataGridView1.Rows.Add(filter, "X", filter, "\u25B2", "\u25BC");
+                dataGridView1.Rows.Add(filter, "X", filter, BLACK_UP_POINTING_TRIANGLE, BLACK_DOWN_POINTING_TRIANGLE);
         }
 
-        private void SaveBtn_Click(object sender, EventArgs e)
+        private void saveBtn_Click(object sender, EventArgs e)
         {
             var list = dataGridView1.Rows
                 .OfType<DataGridViewRow>()
@@ -54,7 +51,7 @@ namespace LibationWinForms.Dialogs
             this.Close();
         }
 
-        private void CancelBtn_Click(object sender, EventArgs e) => this.Close();
+        private void cancelBtn_Click(object sender, EventArgs e) => this.Close();
 
         private void DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {

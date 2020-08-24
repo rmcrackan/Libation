@@ -49,7 +49,7 @@
             this.cancelBtn.TabIndex = 2;
             this.cancelBtn.Text = "Cancel";
             this.cancelBtn.UseVisualStyleBackColor = true;
-            this.cancelBtn.Click += new System.EventHandler(this.CancelBtn_Click);
+            this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
             // 
             // saveBtn
             // 
@@ -60,7 +60,7 @@
             this.saveBtn.TabIndex = 1;
             this.saveBtn.Text = "Save";
             this.saveBtn.UseVisualStyleBackColor = true;
-            this.saveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
+            this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
             // 
             // dataGridView1
             // 

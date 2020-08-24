@@ -65,6 +65,12 @@
     <Compile Include="BookLiberation\DecryptForm.Designer.cs">
       <DependentUpon>DecryptForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\AccountsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\AccountsDialog.Designer.cs">
+      <DependentUpon>AccountsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditQuickFilters.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -148,8 +154,12 @@
     <EmbeddedResource Include="BookLiberation\DecryptForm.resx">
       <DependentUpon>DecryptForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\AccountsDialog.resx">
+      <DependentUpon>AccountsDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\EditQuickFilters.resx">
       <DependentUpon>EditQuickFilters.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\EditTagsDialog.resx">
       <DependentUpon>EditTagsDialog.cs</DependentUpon>
