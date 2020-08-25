@@ -115,6 +115,7 @@ namespace AccountsTests
     {
       ""AccountId"": ""cng"",
       ""AccountName"": ""my main login"",
+      ""LibraryScan"": false,
       ""DecryptKey"": ""asdfasdf"",
       ""IdentityTokens"": {
         ""LocaleName"": ""[empty]"",
