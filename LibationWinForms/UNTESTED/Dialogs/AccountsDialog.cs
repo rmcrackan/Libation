@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Windows.Forms;
 using AudibleApi;
-using FileManager;
 using InternalUtilities;
 
 namespace LibationWinForms.Dialogs
@@ -37,7 +36,12 @@ namespace LibationWinForms.Dialogs
 
 		private void populateGridValues()
 		{
-			var accounts = AudibleApiStorage.GetAccounts().AccountsSettings;
+			// WARNING
+			// behind the scenes this returns a AccountsSettings
+			// accounts persister will write ANY EDIT to object immediately to file
+			// here: copy strings
+			// only persist in 'save' step
+			var accounts = AudibleApiStorage.GetAccountsSettings().Accounts;
 			if (!accounts.Any())
 				return;
 
@@ -92,42 +96,21 @@ namespace LibationWinForms.Dialogs
 
 		private void cancelBtn_Click(object sender, EventArgs e) => this.Close();
 
-		#region TEMP
-
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
+			var accounts = AudibleApiStorage.GetAccountsSettings()
+				.Accounts;
+
+			// find added
+			// validate
+
+			// find deleted
+
+			// find edited
+			// validate
+
+			// persist
 
 		}
-
-		private void dataGridView1_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
-		{
-
-		}
-
-		private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-		{
-
-			//if (e.ColumnIndex == dataGridView1.Columns["ItemID"].Index)  //if the ItemID-cell is edited
-			//{
-			//	dataGridView1.Rows[e.RowIndex].ReadOnly = true;  // set all row as read-only
-			//	dataGridView1.Rows[e.RowIndex].Cells["ItemID"].ReadOnly = false;  //except ItemID-cell
-			//}
-		}
-
-		private void dataGridView1_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
-		{
-
-			//if (dataGridView1.Rows[e.RowIndex].Cells["ItemID"].Value != null)
-			//{
-			//	dataGridView1.Rows[e.RowIndex].ReadOnly = true;  // set all row as read-only
-			//	dataGridView1.Rows[e.RowIndex].Cells["ItemID"].ReadOnly = false;  //except ItemID-cell
-			//}
-		}
-
-		private void dataGridView1_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
-		{
-
-		}
-		#endregion
 	}
 }

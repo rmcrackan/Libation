@@ -34,11 +34,11 @@ namespace AccountsTests
         {
             var json = @"
 {
-  ""AccountsSettings"": []
+  ""Accounts"": []
 }
 ".Trim();
-            var accounts = Accounts.FromJson(json);
-            accounts.AccountsSettings.Count.Should().Be(0);
+            var accountsSettings = AccountsSettings.FromJson(json);
+            accountsSettings.Accounts.Count.Should().Be(0);
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace AccountsTests
         {
             var json = @"
 {
-  ""AccountsSettings"": [
+  ""Accounts"": [
 	{
       ""AccountId"": ""cng"",
       ""AccountName"": ""my main login"",
@@ -56,10 +56,10 @@ namespace AccountsTests
   ]
 }
 ".Trim();
-            var accounts = Accounts.FromJson(json);
-            accounts.AccountsSettings.Count.Should().Be(1);
-            accounts.AccountsSettings[0].AccountId.Should().Be("cng");
-            accounts.AccountsSettings[0].IdentityTokens.Should().BeNull();
+            var accountsSettings = AccountsSettings.FromJson(json);
+            accountsSettings.Accounts.Count.Should().Be(1);
+            accountsSettings.Accounts[0].AccountId.Should().Be("cng");
+            accountsSettings.Accounts[0].IdentityTokens.Should().BeNull();
         }
 
         [TestMethod]
@@ -69,7 +69,7 @@ namespace AccountsTests
 
             var json = $@"
 {{
-  ""AccountsSettings"": [
+  ""Accounts"": [
 	{{
       ""AccountId"": ""cng"",
       ""AccountName"": ""my main login"",
@@ -79,11 +79,11 @@ namespace AccountsTests
   ]
 }}
 ".Trim();
-            var accounts = Accounts.FromJson(json);
-            accounts.AccountsSettings.Count.Should().Be(1);
-            accounts.AccountsSettings[0].AccountId.Should().Be("cng");
-            accounts.AccountsSettings[0].IdentityTokens.Should().NotBeNull();
-            accounts.AccountsSettings[0].IdentityTokens.ExistingAccessToken.TokenValue.Should().Be(AccessTokenValue);
+            var accountsSettings = AccountsSettings.FromJson(json);
+            accountsSettings.Accounts.Count.Should().Be(1);
+            accountsSettings.Accounts[0].AccountId.Should().Be("cng");
+            accountsSettings.Accounts[0].IdentityTokens.Should().NotBeNull();
+            accountsSettings.Accounts[0].IdentityTokens.ExistingAccessToken.TokenValue.Should().Be(AccessTokenValue);
         }
     }
 
@@ -96,7 +96,7 @@ namespace AccountsTests
             var id = JsonConvert.SerializeObject(Identity.Empty, Identity.GetJsonSerializerSettings());
             var jsonIn = $@"
 {{
-  ""AccountsSettings"": [
+  ""Accounts"": [
 	{{
       ""AccountId"": ""cng"",
       ""AccountName"": ""my main login"",
@@ -106,12 +106,12 @@ namespace AccountsTests
   ]
 }}
 ".Trim();
-            var accounts = Accounts.FromJson(jsonIn);
+            var accountsSettings = AccountsSettings.FromJson(jsonIn);
 
-            var jsonOut = accounts.ToJson();
+            var jsonOut = accountsSettings.ToJson();
             jsonOut.Should().Be(@"
 {
-  ""AccountsSettings"": [
+  ""Accounts"": [
     {
       ""AccountId"": ""cng"",
       ""AccountName"": ""my main login"",
@@ -162,12 +162,12 @@ namespace AccountsTests
         public void create_file()
 		{
             File.Exists(TestFile).Should().BeFalse();
-            var accounts = new Accounts();
-            _ = new AccountsPersister(accounts, TestFile);
+            var accountsSettings = new AccountsSettings();
+            _ = new AccountsSettingsPersister(accountsSettings, TestFile);
             File.Exists(TestFile).Should().BeTrue();
             File.ReadAllText(TestFile).Should().Be(@"
 {
-  ""AccountsSettings"": []
+  ""Accounts"": []
 }
 ".Trim());
         }
@@ -179,12 +179,12 @@ namespace AccountsTests
             WriteToTestFile("foo");
             File.Exists(TestFile).Should().BeTrue();
             
-            var accounts = new Accounts();
-            _ = new AccountsPersister(accounts, TestFile);
+            var accountsSettings = new AccountsSettings();
+            _ = new AccountsSettingsPersister(accountsSettings, TestFile);
             File.Exists(TestFile).Should().BeTrue();
             File.ReadAllText(TestFile).Should().Be(@"
 {
-  ""AccountsSettings"": []
+  ""Accounts"": []
 }
 ".Trim());
         }
@@ -192,16 +192,16 @@ namespace AccountsTests
         [TestMethod]
         public void save_multiple_children()
         {
-            var accounts = new Accounts();
-            accounts.Add(new Account("a0") { AccountName = "n0" });
-            accounts.Add(new Account("a1") { AccountName = "n1" });
+            var accountsSettings = new AccountsSettings();
+            accountsSettings.Add(new Account("a0") { AccountName = "n0" });
+            accountsSettings.Add(new Account("a1") { AccountName = "n1" });
 
             // dispose to cease auto-updates
-            using (var p = new AccountsPersister(accounts, TestFile)) { }
+            using (var p = new AccountsSettingsPersister(accountsSettings, TestFile)) { }
 
-            var persister = new AccountsPersister(TestFile);
-            persister.Accounts.AccountsSettings.Count.Should().Be(2);
-            persister.Accounts.AccountsSettings[1].AccountName.Should().Be("n1");
+            var persister = new AccountsSettingsPersister(TestFile);
+            persister.AccountsSettings.Accounts.Count.Should().Be(2);
+            persister.AccountsSettings.Accounts[1].AccountName.Should().Be("n1");
         }
 
         [TestMethod]
@@ -210,14 +210,14 @@ namespace AccountsTests
             var id = new Identity(usLocale);
             var idJson = JsonConvert.SerializeObject(id, Identity.GetJsonSerializerSettings());
 
-            var accounts = new Accounts();
-            accounts.Add(new Account("a0") { AccountName = "n0", IdentityTokens = id });
+            var accountsSettings = new AccountsSettings();
+            accountsSettings.Add(new Account("a0") { AccountName = "n0", IdentityTokens = id });
 
             // dispose to cease auto-updates
-            using (var p = new AccountsPersister(accounts, TestFile)) { }
+            using (var p = new AccountsSettingsPersister(accountsSettings, TestFile)) { }
 
-            var persister = new AccountsPersister(TestFile);
-            var acct = persister.Accounts.AccountsSettings[0];
+            var persister = new AccountsSettingsPersister(TestFile);
+            var acct = persister.AccountsSettings.Accounts[0];
             acct.AccountName.Should().Be("n0");
             acct.Locale.CountryCode.Should().Be("us");
         }
@@ -231,22 +231,22 @@ namespace AccountsTests
         public void save_1_account()
         {
             // create initial file
-            using (var p = new AccountsPersister(new Accounts(), TestFile)) { }
+            using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile)) { }
 
             // load file. create account
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
                 var idIn = new Identity(usLocale);
                 var acctIn = new Account("a0") { AccountName = "n0", IdentityTokens = idIn };
 
-                p.Accounts.Add(acctIn);
+                p.AccountsSettings.Add(acctIn);
             }
 
             // re-load file. ensure account still exists
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
-                p.Accounts.AccountsSettings.Count.Should().Be(1);
-                var acct0 = p.Accounts.AccountsSettings[0];
+                p.AccountsSettings.Accounts.Count.Should().Be(1);
+                var acct0 = p.AccountsSettings.Accounts[0];
                 acct0.AccountName.Should().Be("n0");
                 acct0.Locale.CountryCode.Should().Be("us");
             }
@@ -258,46 +258,46 @@ namespace AccountsTests
         public void save_2_accounts()
         {
             // create initial file
-            using (var p = new AccountsPersister(new Accounts(), TestFile)) { }
+            using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile)) { }
 
             // load file. create account 0
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
                 var idIn = new Identity(usLocale);
                 var acctIn = new Account("a0") { AccountName = "n0", IdentityTokens = idIn };
 
-                p.Accounts.Add(acctIn);
+                p.AccountsSettings.Add(acctIn);
             }
 
             // re-load file. ensure account still exists
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
-                p.Accounts.AccountsSettings.Count.Should().Be(1);
+                p.AccountsSettings.Accounts.Count.Should().Be(1);
 
-                var acct0 = p.Accounts.AccountsSettings[0];
+                var acct0 = p.AccountsSettings.Accounts[0];
                 acct0.AccountName.Should().Be("n0");
                 acct0.Locale.CountryCode.Should().Be("us");
             }
 
             // load file. create account 1
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
                 var idIn = new Identity(ukLocale);
                 var acctIn = new Account("a1") { AccountName = "n1", IdentityTokens = idIn };
 
-                p.Accounts.Add(acctIn);
+                p.AccountsSettings.Add(acctIn);
             }
 
             // re-load file. ensure both accounts still exist
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
-                p.Accounts.AccountsSettings.Count.Should().Be(2);
+                p.AccountsSettings.Accounts.Count.Should().Be(2);
 
-                var acct0 = p.Accounts.AccountsSettings[0];
+                var acct0 = p.AccountsSettings.Accounts[0];
                 acct0.AccountName.Should().Be("n0");
                 acct0.Locale.CountryCode.Should().Be("us");
 
-                var acct1 = p.Accounts.AccountsSettings[1];
+                var acct1 = p.AccountsSettings.Accounts[1];
                 acct1.AccountName.Should().Be("n1");
                 acct1.Locale.CountryCode.Should().Be("uk");
             }
@@ -307,23 +307,23 @@ namespace AccountsTests
         public void update_Account_field_just_added()
         {
             // create initial file
-            using (var p = new AccountsPersister(new Accounts(), TestFile)) { }
+            using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile)) { }
 
             // load file. create 2 accounts
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
                 var id1 = new Identity(usLocale);
                 var acct1 = new Account("a0") { AccountName = "n0", IdentityTokens = id1 };
-                p.Accounts.Add(acct1);
+                p.AccountsSettings.Add(acct1);
 
                 // update just-added item. note: this is different than the subscription which happens on initial collection load. ensure this works also
                 acct1.AccountName = "new";
             }
 
             // verify save property
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
-                var acct0 = p.Accounts.AccountsSettings[0];
+                var acct0 = p.AccountsSettings.Accounts[0];
                 acct0.AccountName.Should().Be("new");
             }
         }
@@ -333,40 +333,40 @@ namespace AccountsTests
         public void update_Account_field()
         {
             // create initial file
-            using (var p = new AccountsPersister(new Accounts(), TestFile)) { }
+            using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile)) { }
 
             // load file. create 2 accounts
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
                 var id1 = new Identity(usLocale);
                 var acct1 = new Account("a0") { AccountName = "n0", IdentityTokens = id1 };
-                p.Accounts.Add(acct1);
+                p.AccountsSettings.Add(acct1);
 
                 var id2 = new Identity(ukLocale);
                 var acct2 = new Account("a1") { AccountName = "n1", IdentityTokens = id2 };
 
-                p.Accounts.Add(acct2);
+                p.AccountsSettings.Add(acct2);
             }
 
             // update AccountName on existing file
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
-                var acct0 = p.Accounts.AccountsSettings[0];
+                var acct0 = p.AccountsSettings.Accounts[0];
                 acct0.AccountName = "new";
             }
 
             // re-load file. ensure both accounts still exist
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
-                p.Accounts.AccountsSettings.Count.Should().Be(2);
+                p.AccountsSettings.Accounts.Count.Should().Be(2);
 
-                var acct0 = p.Accounts.AccountsSettings[0];
+                var acct0 = p.AccountsSettings.Accounts[0];
                 // new
                 acct0.AccountName.Should().Be("new");
 
                 // still here
                 acct0.Locale.CountryCode.Should().Be("us");
-                var acct1 = p.Accounts.AccountsSettings[1];
+                var acct1 = p.AccountsSettings.Accounts[1];
                 acct1.AccountName.Should().Be("n1");
                 acct1.Locale.CountryCode.Should().Be("uk");
             }
@@ -377,42 +377,42 @@ namespace AccountsTests
         public void replace_identity()
         {
             // create initial file
-            using (var p = new AccountsPersister(new Accounts(), TestFile)) { }
+            using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile)) { }
 
             // load file. create 2 accounts
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
                 var id1 = new Identity(usLocale);
                 var acct1 = new Account("a0") { AccountName = "n0", IdentityTokens = id1 };
-                p.Accounts.Add(acct1);
+                p.AccountsSettings.Add(acct1);
 
                 var id2 = new Identity(ukLocale);
                 var acct2 = new Account("a1") { AccountName = "n1", IdentityTokens = id2 };
 
-                p.Accounts.Add(acct2);
+                p.AccountsSettings.Add(acct2);
             }
 
             // update identity on existing file
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
                 var id = new Identity(ukLocale);
 
-                var acct0 = p.Accounts.AccountsSettings[0];
+                var acct0 = p.AccountsSettings.Accounts[0];
                 acct0.IdentityTokens = id;
             }
 
             // re-load file. ensure both accounts still exist
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
-                p.Accounts.AccountsSettings.Count.Should().Be(2);
+                p.AccountsSettings.Accounts.Count.Should().Be(2);
 
-                var acct0 = p.Accounts.AccountsSettings[0];
+                var acct0 = p.AccountsSettings.Accounts[0];
                 // new
                 acct0.Locale.CountryCode.Should().Be("uk");
 
                 // still here
                 acct0.AccountName.Should().Be("n0");
-                var acct1 = p.Accounts.AccountsSettings[1];
+                var acct1 = p.AccountsSettings.Accounts[1];
                 acct1.AccountName.Should().Be("n1");
                 acct1.Locale.CountryCode.Should().Be("uk");
             }
@@ -424,42 +424,42 @@ namespace AccountsTests
         public void update_identity_field()
         {
             // create initial file
-            using (var p = new AccountsPersister(new Accounts(), TestFile)) { }
+            using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile)) { }
 
             // load file. create 2 accounts
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
                 var id1 = new Identity(usLocale);
                 var acct1 = new Account("a0") { AccountName = "n0", IdentityTokens = id1 };
-                p.Accounts.Add(acct1);
+                p.AccountsSettings.Add(acct1);
 
                 var id2 = new Identity(ukLocale);
                 var acct2 = new Account("a1") { AccountName = "n1", IdentityTokens = id2 };
 
-                p.Accounts.Add(acct2);
+                p.AccountsSettings.Add(acct2);
             }
 
             // update identity on existing file
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
-                p.Accounts.AccountsSettings[0]
+                p.AccountsSettings.Accounts[0]
                     .IdentityTokens
                     .Update(new AccessToken("Atna|_NEW_", DateTime.Now.AddDays(1)));
             }
 
             // re-load file. ensure both accounts still exist
-            using (var p = new AccountsPersister(TestFile))
+            using (var p = new AccountsSettingsPersister(TestFile))
             {
-                p.Accounts.AccountsSettings.Count.Should().Be(2);
+                p.AccountsSettings.Accounts.Count.Should().Be(2);
 
-                var acct0 = p.Accounts.AccountsSettings[0];
+                var acct0 = p.AccountsSettings.Accounts[0];
                 // new
                 acct0.IdentityTokens.ExistingAccessToken.TokenValue.Should().Be("Atna|_NEW_");
 
                 // still here
                 acct0.AccountName.Should().Be("n0");
                 acct0.Locale.CountryCode.Should().Be("us");
-                var acct1 = p.Accounts.AccountsSettings[1];
+                var acct1 = p.AccountsSettings.Accounts[1];
                 acct1.AccountName.Should().Be("n1");
                 acct1.Locale.CountryCode.Should().Be("uk");
             }
@@ -478,11 +478,11 @@ namespace AccountsTests
             var idUk = new Identity(ukLocale);
             var acct2 = new Account("cng") { IdentityTokens = idUk, AccountName = "bar" };
 
-            var accounts = new Accounts();
-            accounts.Add(acct1);
-            accounts.Add(acct2);
+            var accountsSettings = new AccountsSettings();
+            accountsSettings.Add(acct1);
+            accountsSettings.Add(acct2);
 
-            accounts.GetAccount("cng", "uk").AccountName.Should().Be("bar");
+            accountsSettings.GetAccount("cng", "uk").AccountName.Should().Be("bar");
         }
     }
 
@@ -492,23 +492,23 @@ namespace AccountsTests
         [TestMethod]
         public void upsert_new()
         {
-            var accounts = new Accounts();
-            accounts.AccountsSettings.Count.Should().Be(0);
+            var accountsSettings = new AccountsSettings();
+            accountsSettings.Accounts.Count.Should().Be(0);
 
-            accounts.Upsert("cng", "us");
+            accountsSettings.Upsert("cng", "us");
 
-            accounts.AccountsSettings.Count.Should().Be(1);
-            accounts.GetAccount("cng", "us").AccountId.Should().Be("cng");
+            accountsSettings.Accounts.Count.Should().Be(1);
+            accountsSettings.GetAccount("cng", "us").AccountId.Should().Be("cng");
         }
 
         [TestMethod]
         public void upsert_exists()
         {
-            var accounts = new Accounts();
-            var orig = accounts.Upsert("cng", "us");
+            var accountsSettings = new AccountsSettings();
+            var orig = accountsSettings.Upsert("cng", "us");
             orig.AccountName = "foo";
 
-            var exists = accounts.Upsert("cng", "us");
+            var exists = accountsSettings.Upsert("cng", "us");
             exists.AccountName.Should().Be("foo");
 
             orig.Should().IsSameOrEqualTo(exists);
@@ -521,28 +521,28 @@ namespace AccountsTests
         [TestMethod]
         public void delete_account()
         {
-            var accounts = new Accounts();
-            var acct = accounts.Upsert("cng", "us");
-            accounts.AccountsSettings.Count.Should().Be(1);
+            var accountsSettings = new AccountsSettings();
+            var acct = accountsSettings.Upsert("cng", "us");
+            accountsSettings.Accounts.Count.Should().Be(1);
 
-            var removed = accounts.Delete(acct);
+            var removed = accountsSettings.Delete(acct);
             removed.Should().BeTrue();
 
-            accounts.AccountsSettings.Count.Should().Be(0);
+            accountsSettings.Accounts.Count.Should().Be(0);
         }
 
         [TestMethod]
         public void delete_where()
         {
-            var accounts = new Accounts();
-            var acct = accounts.Upsert("cng", "us");
-            accounts.AccountsSettings.Count.Should().Be(1);
+            var accountsSettings = new AccountsSettings();
+            _ = accountsSettings.Upsert("cng", "us");
+            accountsSettings.Accounts.Count.Should().Be(1);
 
-            accounts.Delete("baz", "baz").Should().BeFalse();
-            accounts.AccountsSettings.Count.Should().Be(1);
+            accountsSettings.Delete("baz", "baz").Should().BeFalse();
+            accountsSettings.Accounts.Count.Should().Be(1);
 
-            accounts.Delete("cng", "us").Should().BeTrue();
-            accounts.AccountsSettings.Count.Should().Be(0);
+            accountsSettings.Delete("cng", "us").Should().BeTrue();
+            accountsSettings.Accounts.Count.Should().Be(0);
         }
 
         [TestMethod]
@@ -550,26 +550,26 @@ namespace AccountsTests
         {
             Account acct;
 
-            using (var p = new AccountsPersister(new Accounts(), TestFile))
+            using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile))
             {
-                acct = p.Accounts.Upsert("foo", "us");
-                p.Accounts.AccountsSettings.Count.Should().Be(1);
+                acct = p.AccountsSettings.Upsert("foo", "us");
+                p.AccountsSettings.Accounts.Count.Should().Be(1);
                 acct.AccountName = "old";
             }
 
-            using (var p = new AccountsPersister(new Accounts(), TestFile))
+            using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile))
             {
-                p.Accounts.Delete(acct);
-                p.Accounts.AccountsSettings.Count.Should().Be(0);
+                p.AccountsSettings.Delete(acct);
+                p.AccountsSettings.Accounts.Count.Should().Be(0);
             }
 
-            using (var p = new AccountsPersister(new Accounts(), TestFile))
+            using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile))
             {
-                File.ReadAllText(TestFile).Should().Be("{\r\n  \"AccountsSettings\": []\r\n}".Trim());
+                File.ReadAllText(TestFile).Should().Be("{\r\n  \"Accounts\": []\r\n}".Trim());
 
                 acct.AccountName = "new";
 
-                File.ReadAllText(TestFile).Should().Be("{\r\n  \"AccountsSettings\": []\r\n}".Trim());
+                File.ReadAllText(TestFile).Should().Be("{\r\n  \"Accounts\": []\r\n}".Trim());
             }
         }
     }
@@ -581,31 +581,31 @@ namespace AccountsTests
         [TestMethod]
         public void violate_validation()
         {
-            var accounts = new Accounts();
+            var accountsSettings = new AccountsSettings();
 
             var idIn = new Identity(usLocale);
 
             var a1 = new Account("a") { AccountName = "one", IdentityTokens = idIn };
-            accounts.Add(a1);
+            accountsSettings.Add(a1);
 
             var a2 = new Account("a") { AccountName = "two", IdentityTokens = idIn };
 
             // violation: validate()
-            Assert.ThrowsException<InvalidOperationException>(() => accounts.Add(a2));
+            Assert.ThrowsException<InvalidOperationException>(() => accountsSettings.Add(a2));
         }
 
         [TestMethod]
         public void identity_violate_validation()
         {
-            var accounts = new Accounts();
+            var accountsSettings = new AccountsSettings();
 
             var idIn = new Identity(usLocale);
 
             var a1 = new Account("a") { AccountName = "one", IdentityTokens = idIn };
-            accounts.Add(a1);
+            accountsSettings.Add(a1);
 
             var a2 = new Account("a") { AccountName = "two" };
-            accounts.Add(a2);
+            accountsSettings.Add(a2);
 
             // violation: GetAccount.SingleOrDefault
             Assert.ThrowsException<InvalidOperationException>(() => a2.IdentityTokens = idIn);

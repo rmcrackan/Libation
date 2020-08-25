@@ -10,49 +10,49 @@ using Newtonsoft.Json;
 
 namespace InternalUtilities
 {
-	public class AccountsPersister : JsonFilePersister<Accounts>
+	public class AccountsSettingsPersister : JsonFilePersister<AccountsSettings>
 	{
 		/// <summary>Alias for Target </summary>
-		public Accounts Accounts => Target;
+		public AccountsSettings AccountsSettings => Target;
 
 		/// <summary>uses path. create file if doesn't yet exist</summary>
-		public AccountsPersister(Accounts target, string path, string jsonPath = null)
+		public AccountsSettingsPersister(AccountsSettings target, string path, string jsonPath = null)
 			: base(target, path, jsonPath) { }
 
 		/// <summary>load from existing file</summary>
-		public AccountsPersister(string path, string jsonPath = null)
+		public AccountsSettingsPersister(string path, string jsonPath = null)
 			: base(path, jsonPath) { }
 
 		protected override JsonSerializerSettings GetSerializerSettings()
 			=> Identity.GetJsonSerializerSettings();
 	}
-	// 'Accounts' is intentionally not IEnumerable<> so that properties can be added/extended
+	// 'AccountsSettings' is intentionally not IEnumerable<> so that properties can be added/extended
 	// from newtonsoft (https://www.newtonsoft.com/json/help/html/SerializationGuide.htm):
 	//   .NET :  IList, IEnumerable, IList<T>, Array
 	//   JSON :  Array (properties on the collection will not be serialized)
-	public class Accounts : IUpdatable
+	public class AccountsSettings : IUpdatable
 	{
 		public event EventHandler Updated;
 		private void update(object sender = null, EventArgs e = null)
 		{
-			foreach (var account in AccountsSettings)
+			foreach (var account in Accounts)
 				validate(account);
 			update_no_validate();
 		}
 		private void update_no_validate() => Updated?.Invoke(this, new EventArgs());
 
-		public Accounts() { }
+		public AccountsSettings() { }
 
-		// for some reason this will make the json instantiator use _accountsSettings_json.set()
+		// for some reason this will make the json instantiator use _accounts_json.set()
 		[JsonConstructor]
-		protected Accounts(List<Account> accounts) { }
+		protected AccountsSettings(List<Account> accountsSettings) { }
 
-		#region AccountsSettings
-		private List<Account> _accountsSettings_backing = new List<Account>();
-		[JsonProperty(PropertyName = "AccountsSettings")]
-		private List<Account> _accountsSettings_json
+		#region Accounts
+		private List<Account> _accounts_backing = new List<Account>();
+		[JsonProperty(PropertyName = "Accounts")]
+		private List<Account> _accounts_json
 		{
-			get => _accountsSettings_backing;
+			get => _accounts_backing;
 			// 'set' is only used by json deser
 			set
 			{
@@ -66,11 +66,11 @@ namespace InternalUtilities
 			}
 		}
 		[JsonIgnore]
-		public IReadOnlyList<Account> AccountsSettings => _accountsSettings_json.AsReadOnly();
+		public IReadOnlyList<Account> Accounts => _accounts_json.AsReadOnly();
 		#endregion
 
-		public static Accounts FromJson(string json)
-			=> JsonConvert.DeserializeObject<Accounts>(json, Identity.GetJsonSerializerSettings());
+		public static AccountsSettings FromJson(string json)
+			=> JsonConvert.DeserializeObject<AccountsSettings>(json, Identity.GetJsonSerializerSettings());
 
 		public string ToJson(Formatting formatting = Formatting.Indented)
 			=> JsonConvert.SerializeObject(this, formatting, Identity.GetJsonSerializerSettings());
@@ -85,19 +85,19 @@ namespace InternalUtilities
 		{
 			validate(account);
 
-			_accountsSettings_backing.Add(account);
+			_accounts_backing.Add(account);
 			account.Updated += update;
 		}
 
 		// more common naming convention alias for internal collection
-		public IReadOnlyList<Account> GetAll() => AccountsSettings;
+		public IReadOnlyList<Account> GetAll() => Accounts;
 
 		public Account GetAccount(string accountId, string locale)
 		{
 			if (locale is null)
 				return null;
 
-			return AccountsSettings.SingleOrDefault(a => a.AccountId == accountId && a.IdentityTokens.Locale.Name == locale);
+			return Accounts.SingleOrDefault(a => a.AccountId == accountId && a.IdentityTokens.Locale.Name == locale);
 		}
 
 		public Account Upsert(string accountId, string locale)
@@ -117,11 +117,11 @@ namespace InternalUtilities
 
 		public bool Delete(Account account)
 		{
-			if (!_accountsSettings_backing.Contains(account))
+			if (!_accounts_backing.Contains(account))
 				return false;
 
 			account.Updated -= update;
-			return _accountsSettings_backing.Remove(account);
+			return _accounts_backing.Remove(account);
 		}
 
 		public bool Delete(string accountId, string locale)

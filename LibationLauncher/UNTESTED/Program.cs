@@ -162,7 +162,7 @@ namespace LibationLauncher
 			};
 
 			// saves to new file
-			AudibleApiStorage.GetAccounts().Add(account);
+			AudibleApiStorage.GetAccountsSettings().Add(account);
 
 			return account;
 		}

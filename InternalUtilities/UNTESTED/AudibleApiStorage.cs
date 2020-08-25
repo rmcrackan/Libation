@@ -16,7 +16,7 @@ namespace InternalUtilities
 		{
 			// saves. BEWARE: this will overwrite an existing file
 			if (!File.Exists(AccountsSettingsFile))
-				_ = new AccountsPersister(new Accounts(), AccountsSettingsFile);
+				_ = new AccountsSettingsPersister(new AccountsSettings(), AccountsSettingsFile);
 		}
 
 		// convenience for for tests and demos. don't use in production Libation
@@ -24,10 +24,10 @@ namespace InternalUtilities
 			=> TEST_GetFirstAccount().GetIdentityTokensJsonPath();
 		// convenience for for tests and demos. don't use in production Libation
 		public static Account TEST_GetFirstAccount()
-			=> GetAccounts().GetAll().FirstOrDefault();
+			=> GetAccountsSettings().GetAll().FirstOrDefault();
 
-		public static Accounts GetAccounts()
-			=> new AccountsPersister(AccountsSettingsFile).Accounts;
+		public static AccountsSettings GetAccountsSettings()
+			=> new AccountsSettingsPersister(AccountsSettingsFile).AccountsSettings;
 
 		public static string GetIdentityTokensJsonPath(this Account account)
 			=> GetIdentityTokensJsonPath(account.AccountId, account.Locale?.Name);
@@ -36,7 +36,7 @@ namespace InternalUtilities
 			var usernameSanitized = trimSurroundingQuotes(JsonConvert.ToString(username));
 			var localeNameSanitized = trimSurroundingQuotes(JsonConvert.ToString(localeName));
 
-			return $"$.AccountsSettings[?(@.AccountId == '{usernameSanitized}' && @.IdentityTokens.LocaleName == '{localeNameSanitized}')].IdentityTokens";
+			return $"$.Accounts[?(@.AccountId == '{usernameSanitized}' && @.IdentityTokens.LocaleName == '{localeNameSanitized}')].IdentityTokens";
 		}
 		// SubString algo is better than .Trim("\"")
 		//   orig string  "

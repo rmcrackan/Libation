@@ -33,7 +33,7 @@ namespace DtoImporterService
 			// currently, inserting LibraryBook will throw error if the same book is in multiple accounts for the same region.
 			//
 			// CURRENT SOLUTION: don't re-insert
-			
+
 			var currentLibraryProductIds = DbContext.Library.Select(l => l.Book.AudibleProductId).ToList();
 			var newItems = items.Where(dto => !currentLibraryProductIds.Contains(dto.ProductId)).ToList();
 
