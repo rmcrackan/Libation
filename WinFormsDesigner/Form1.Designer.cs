@@ -53,15 +53,17 @@
 			this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.addFilterBtn = new System.Windows.Forms.Button();
+			this.scanLibraryOfAllAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.scanLibraryOfSomeAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// gridPanel
 			// 
-			this.gridPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.gridPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.gridPanel.Location = new System.Drawing.Point(12, 56);
 			this.gridPanel.Name = "gridPanel";
 			this.gridPanel.Size = new System.Drawing.Size(839, 386);
@@ -88,8 +90,8 @@
 			// 
 			// filterSearchTb
 			// 
-			this.filterSearchTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.filterSearchTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.filterSearchTb.Location = new System.Drawing.Point(186, 29);
 			this.filterSearchTb.Name = "filterSearchTb";
 			this.filterSearchTb.Size = new System.Drawing.Size(584, 20);
@@ -98,10 +100,10 @@
 			// menuStrip1
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.importToolStripMenuItem,
-			this.liberateToolStripMenuItem,
-			this.quickFiltersToolStripMenuItem,
-			this.settingsToolStripMenuItem});
+            this.importToolStripMenuItem,
+            this.liberateToolStripMenuItem,
+            this.quickFiltersToolStripMenuItem,
+            this.settingsToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(863, 24);
@@ -111,7 +113,9 @@
 			// importToolStripMenuItem
 			// 
 			this.importToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.scanLibraryToolStripMenuItem});
+            this.scanLibraryToolStripMenuItem,
+            this.scanLibraryOfAllAccountsToolStripMenuItem,
+            this.scanLibraryOfSomeAccountsToolStripMenuItem});
 			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
 			this.importToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
 			this.importToolStripMenuItem.Text = "&Import";
@@ -119,14 +123,14 @@
 			// scanLibraryToolStripMenuItem
 			// 
 			this.scanLibraryToolStripMenuItem.Name = "scanLibraryToolStripMenuItem";
-			this.scanLibraryToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+			this.scanLibraryToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
 			this.scanLibraryToolStripMenuItem.Text = "Scan &Library";
 			// 
 			// liberateToolStripMenuItem
 			// 
 			this.liberateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.beginBookBackupsToolStripMenuItem,
-			this.beginPdfBackupsToolStripMenuItem});
+            this.beginBookBackupsToolStripMenuItem,
+            this.beginPdfBackupsToolStripMenuItem});
 			this.liberateToolStripMenuItem.Name = "liberateToolStripMenuItem";
 			this.liberateToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.liberateToolStripMenuItem.Text = "&Liberate";
@@ -146,9 +150,9 @@
 			// quickFiltersToolStripMenuItem
 			// 
 			this.quickFiltersToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.firstFilterIsDefaultToolStripMenuItem,
-			this.editQuickFiltersToolStripMenuItem,
-			this.toolStripSeparator1});
+            this.firstFilterIsDefaultToolStripMenuItem,
+            this.editQuickFiltersToolStripMenuItem,
+            this.toolStripSeparator1});
 			this.quickFiltersToolStripMenuItem.Name = "quickFiltersToolStripMenuItem";
 			this.quickFiltersToolStripMenuItem.Size = new System.Drawing.Size(84, 20);
 			this.quickFiltersToolStripMenuItem.Text = "Quick &Filters";
@@ -173,9 +177,9 @@
 			// settingsToolStripMenuItem
 			// 
 			this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.accountsToolStripMenuItem,
-			this.basicSettingsToolStripMenuItem,
-			this.advancedSettingsToolStripMenuItem});
+            this.accountsToolStripMenuItem,
+            this.basicSettingsToolStripMenuItem,
+            this.advancedSettingsToolStripMenuItem});
 			this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
 			this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.settingsToolStripMenuItem.Text = "&Settings";
@@ -201,10 +205,10 @@
 			// statusStrip1
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.visibleCountLbl,
-			this.springLbl,
-			this.backupsCountsLbl,
-			this.pdfsCountsLbl});
+            this.visibleCountLbl,
+            this.springLbl,
+            this.backupsCountsLbl,
+            this.pdfsCountsLbl});
 			this.statusStrip1.Location = new System.Drawing.Point(0, 445);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(863, 22);
@@ -243,6 +247,18 @@
 			this.addFilterBtn.TabIndex = 4;
 			this.addFilterBtn.Text = "Add To Quick Filters";
 			this.addFilterBtn.UseVisualStyleBackColor = true;
+			// 
+			// scanLibraryOfAllAccountsToolStripMenuItem
+			// 
+			this.scanLibraryOfAllAccountsToolStripMenuItem.Name = "scanLibraryOfAllAccountsToolStripMenuItem";
+			this.scanLibraryOfAllAccountsToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.scanLibraryOfAllAccountsToolStripMenuItem.Text = "Scan Library of &All Accounts";
+			// 
+			// scanLibraryOfSomeAccountsToolStripMenuItem
+			// 
+			this.scanLibraryOfSomeAccountsToolStripMenuItem.Name = "scanLibraryOfSomeAccountsToolStripMenuItem";
+			this.scanLibraryOfSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.scanLibraryOfSomeAccountsToolStripMenuItem.Text = "Scan Library of &Some Accounts...";
 			// 
 			// Form1
 			// 
@@ -295,5 +311,7 @@
 		private System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem advancedSettingsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfSomeAccountsToolStripMenuItem;
 	}
 }

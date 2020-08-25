@@ -238,7 +238,15 @@ namespace LibationWinForms
 
 			if (totalProcessed > 0)
 				reloadGrid();
-		}
+        }
+
+private void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+{
+}
+
+private void scanLibraryOfSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+{
+}
         #endregion
 
         #region liberate menu
@@ -300,7 +308,8 @@ namespace LibationWinForms
         #endregion
 
         #region settings menu
-        private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog().ShowDialog();
+        private void accountsToolStripMenuItem_Click(object sender, EventArgs e)
+=> new AccountsDialog().ShowDialog();
 
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 

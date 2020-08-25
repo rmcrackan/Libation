@@ -12,5 +12,5 @@ namespace WinFormsDesigner
         {
             InitializeComponent();
         }
-    }
+	}
 }
