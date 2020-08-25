@@ -51,36 +51,16 @@ namespace InternalUtilities
 		public IReadOnlyList<Account> Accounts => _accounts_json.AsReadOnly();
 		#endregion
 
+		#region de/serialize
 		public static AccountsSettings FromJson(string json)
 			=> JsonConvert.DeserializeObject<AccountsSettings>(json, Identity.GetJsonSerializerSettings());
 
 		public string ToJson(Formatting formatting = Formatting.Indented)
 			=> JsonConvert.SerializeObject(this, formatting, Identity.GetJsonSerializerSettings());
-
-		public void Add(Account account)
-		{
-			_add(account);
-			update_no_validate();
-		}
-
-		public void _add(Account account)
-		{
-			validate(account);
-
-			_accounts_backing.Add(account);
-			account.Updated += update;
-		}
+		#endregion
 
 		// more common naming convention alias for internal collection
 		public IReadOnlyList<Account> GetAll() => Accounts;
-
-		public Account GetAccount(string accountId, string locale)
-		{
-			if (locale is null)
-				return null;
-
-			return Accounts.SingleOrDefault(a => a.AccountId == accountId && a.IdentityTokens.Locale.Name == locale);
-		}
 
 		public Account Upsert(string accountId, string locale)
 		{
@@ -97,13 +77,26 @@ namespace InternalUtilities
 			return account;
 		}
 
-		public bool Delete(Account account)
+		public void Add(Account account)
 		{
-			if (!_accounts_backing.Contains(account))
-				return false;
+			_add(account);
+			update_no_validate();
+		}
 
-			account.Updated -= update;
-			return _accounts_backing.Remove(account);
+		public void _add(Account account)
+		{
+			validate(account);
+
+			_accounts_backing.Add(account);
+			account.Updated += update;
+		}
+
+		public Account GetAccount(string accountId, string locale)
+		{
+			if (locale is null)
+				return null;
+
+			return Accounts.SingleOrDefault(a => a.AccountId == accountId && a.IdentityTokens.Locale.Name == locale);
 		}
 
 		public bool Delete(string accountId, string locale)
@@ -112,6 +105,15 @@ namespace InternalUtilities
 			if (acct is null)
 				return false;
 			return Delete(acct);
+		}
+
+		public bool Delete(Account account)
+		{
+			if (!_accounts_backing.Contains(account))
+				return false;
+
+			account.Updated -= update;
+			return _accounts_backing.Remove(account);
 		}
 
 		private void validate(Account account)

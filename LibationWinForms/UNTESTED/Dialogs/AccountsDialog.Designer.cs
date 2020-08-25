@@ -31,7 +31,6 @@
 			this.cancelBtn = new System.Windows.Forms.Button();
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.dataGridView1 = new System.Windows.Forms.DataGridView();
-			this.Original = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.DeleteAccount = new System.Windows.Forms.DataGridViewButtonColumn();
 			this.LibraryScan = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			this.AccountId = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -71,7 +70,6 @@
 			this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
 			this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Original,
             this.DeleteAccount,
             this.LibraryScan,
             this.AccountId,
@@ -84,15 +82,6 @@
 			this.dataGridView1.TabIndex = 0;
 			this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView1_CellContentClick);
 			this.dataGridView1.DefaultValuesNeeded += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView1_DefaultValuesNeeded);
-			// 
-			// Original
-			// 
-			this.Original.HeaderText = "Original";
-			this.Original.Name = "Original";
-			this.Original.ReadOnly = true;
-			this.Original.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-			this.Original.Visible = false;
-			this.Original.Width = 48;
 			// 
 			// DeleteAccount
 			// 
@@ -148,7 +137,6 @@
 		private System.Windows.Forms.Button cancelBtn;
 		private System.Windows.Forms.Button saveBtn;
 		private System.Windows.Forms.DataGridView dataGridView1;
-		private System.Windows.Forms.DataGridViewTextBoxColumn Original;
 		private System.Windows.Forms.DataGridViewButtonColumn DeleteAccount;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn LibraryScan;
 		private System.Windows.Forms.DataGridViewTextBoxColumn AccountId;

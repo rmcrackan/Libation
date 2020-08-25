@@ -26,8 +26,8 @@ namespace InternalUtilities
 		public static Account TEST_GetFirstAccount()
 			=> GetPersistentAccountsSettings().GetAll().FirstOrDefault();
 
-		public static AccountsSettings GetPersistentAccountsSettings()
-			=> new AccountsSettingsPersister(AccountsSettingsFile).AccountsSettings;
+		public static AccountsSettings GetPersistentAccountsSettings() => GetAccountsSettingsPersister().AccountsSettings;
+		public static AccountsSettingsPersister GetAccountsSettingsPersister() => new AccountsSettingsPersister(AccountsSettingsFile);
 
 		public static string GetIdentityTokensJsonPath(this Account account)
 			=> GetIdentityTokensJsonPath(account.AccountId, account.Locale?.Name);

@@ -26,18 +26,36 @@ using static TestAudibleApiCommon.ComputedTestValues;
 
 namespace AccountsTests
 {
+    public class AccountsTestBase
+    {
+        protected const string EMPTY_FILE = "{\r\n  \"Accounts\": []\r\n}";
+
+        protected string TestFile;
+        protected Locale usLocale => Localization.Get("us");
+        protected Locale ukLocale => Localization.Get("uk");
+
+        protected void WriteToTestFile(string contents)
+            => File.WriteAllText(TestFile, contents);
+
+        [TestInitialize]
+        public void TestInit()
+            => TestFile = Guid.NewGuid() + ".txt";
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            if (File.Exists(TestFile))
+                File.Delete(TestFile);
+        }
+    }
+
     [TestClass]
-    public class FromJson
+    public class FromJson : AccountsTestBase
     {
         [TestMethod]
         public void _0_accounts()
         {
-            var json = @"
-{
-  ""Accounts"": []
-}
-".Trim();
-            var accountsSettings = AccountsSettings.FromJson(json);
+            var accountsSettings = AccountsSettings.FromJson(EMPTY_FILE);
             accountsSettings.Accounts.Count.Should().Be(0);
         }
 
@@ -121,7 +139,7 @@ namespace AccountsTests
         ""LocaleName"": ""[empty]"",
         ""ExistingAccessToken"": {
           ""TokenValue"": ""Atna|"",
-          ""Expires"": ""9999-12-31T23:59:59.9999999""
+          ""Expires"": ""0001-01-01T00:00:00""
         },
         ""PrivateKey"": null,
         ""AdpToken"": null,
@@ -135,27 +153,6 @@ namespace AccountsTests
         }
     }
 
-    public class AccountsTestBase
-    {
-        protected string TestFile;
-        protected Locale usLocale => Localization.Get("us");
-        protected Locale ukLocale => Localization.Get("uk");
-
-        protected void WriteToTestFile(string contents)
-            => File.WriteAllText(TestFile, contents);
-
-        [TestInitialize]
-        public void TestInit()
-            => TestFile = Guid.NewGuid() + ".txt";
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            if (File.Exists(TestFile))
-                File.Delete(TestFile);
-        }
-    }
-
     [TestClass]
     public class ctor : AccountsTestBase
     {
@@ -166,11 +163,7 @@ namespace AccountsTests
             var accountsSettings = new AccountsSettings();
             _ = new AccountsSettingsPersister(accountsSettings, TestFile);
             File.Exists(TestFile).Should().BeTrue();
-            File.ReadAllText(TestFile).Should().Be(@"
-{
-  ""Accounts"": []
-}
-".Trim());
+            File.ReadAllText(TestFile).Should().Be(EMPTY_FILE);
         }
 
         [TestMethod]
@@ -183,11 +176,7 @@ namespace AccountsTests
             var accountsSettings = new AccountsSettings();
             _ = new AccountsSettingsPersister(accountsSettings, TestFile);
             File.Exists(TestFile).Should().BeTrue();
-            File.ReadAllText(TestFile).Should().Be(@"
-{
-  ""Accounts"": []
-}
-".Trim());
+            File.ReadAllText(TestFile).Should().Be(EMPTY_FILE);
         }
 
         [TestMethod]
@@ -566,11 +555,11 @@ namespace AccountsTests
 
             using (var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile))
             {
-                File.ReadAllText(TestFile).Should().Be("{\r\n  \"Accounts\": []\r\n}".Trim());
+                File.ReadAllText(TestFile).Should().Be(EMPTY_FILE);
 
                 acct.AccountName = "new";
 
-                File.ReadAllText(TestFile).Should().Be("{\r\n  \"Accounts\": []\r\n}".Trim());
+                File.ReadAllText(TestFile).Should().Be(EMPTY_FILE);
             }
         }
     }
@@ -610,6 +599,73 @@ namespace AccountsTests
 
             // violation: GetAccount.SingleOrDefault
             Assert.ThrowsException<InvalidOperationException>(() => a2.IdentityTokens = idIn);
+        }
+    }
+
+    [TestClass]
+    public class transactions : AccountsTestBase
+    {
+        [TestMethod]
+        public void atomic_update_at_end()
+        {
+            var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile);
+            p.BeginTransation();
+
+            // upserted account will not persist until CommitTransation
+            var acct = p.AccountsSettings.Upsert("cng", "us");
+            acct.AccountName = "foo";
+
+            File.ReadAllText(TestFile).Should().Be(EMPTY_FILE);
+            p.IsInTransaction.Should().BeTrue();
+
+            p.CommitTransation();
+            p.IsInTransaction.Should().BeFalse();
+
+
+            var jsonOut = File.ReadAllText(TestFile);//.Should().Be(EMPTY_FILE);
+            jsonOut.Should().Be(@"
+{
+  ""Accounts"": [
+    {
+      ""AccountId"": ""cng"",
+      ""AccountName"": ""foo"",
+      ""LibraryScan"": true,
+      ""DecryptKey"": """",
+      ""IdentityTokens"": {
+        ""LocaleName"": ""us"",
+        ""ExistingAccessToken"": {
+          ""TokenValue"": ""Atna|"",
+          ""Expires"": ""0001-01-01T00:00:00""
+        },
+        ""PrivateKey"": null,
+        ""AdpToken"": null,
+        ""RefreshToken"": null,
+        ""Cookies"": []
+      }
+    }
+  ]
+}
+".Trim());
+        }
+
+        [TestMethod]
+        public void abandoned_transaction()
+        {
+            var p = new AccountsSettingsPersister(new AccountsSettings(), TestFile);
+            try
+            {
+                p.BeginTransation();
+
+                var acct = p.AccountsSettings.Upsert("cng", "us");
+                acct.AccountName = "foo";
+                throw new Exception();
+            }
+            catch { }
+            finally
+            {
+                File.ReadAllText(TestFile).Should().Be(EMPTY_FILE);
+                p.IsInTransaction.Should().BeTrue();
+            }
         }
     }
 }

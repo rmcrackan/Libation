@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using AudibleApi;
@@ -8,9 +9,6 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class AccountsDialog : Form
 	{
-		const string NON_BREAKING_SPACE = "\u00a0";
-
-		const string COL_Original = nameof(Original);
 		const string COL_Delete = nameof(DeleteAccount);
 		const string COL_LibraryScan = nameof(LibraryScan);
 		const string COL_AccountId = nameof(AccountId);
@@ -26,12 +24,6 @@ namespace LibationWinForms.Dialogs
 			populateDropDown();
 
 			populateGridValues();
-		}
-
-		struct OriginalValue
-		{
-			public string AccountId { get; set; }
-			public string LocaleName { get; set; }
 		}
 
 		private void populateDropDown()
@@ -51,7 +43,6 @@ namespace LibationWinForms.Dialogs
 
 			foreach (var account in accounts)
 				dataGridView1.Rows.Add(
-					new OriginalValue { AccountId = account.AccountId, LocaleName = account.Locale.Name },
 					"X",
 					account.LibraryScan,
 					account.AccountId,
@@ -61,7 +52,6 @@ namespace LibationWinForms.Dialogs
 
 		private void dataGridView1_DefaultValuesNeeded(object sender, DataGridViewRowEventArgs e)
 		{
-			e.Row.Cells[COL_Original].Value = new OriginalValue();
 			e.Row.Cells[COL_Delete].Value = "X";
 			e.Row.Cells[COL_LibraryScan].Value = true;
 		}
@@ -101,44 +91,82 @@ namespace LibationWinForms.Dialogs
 
 		private void cancelBtn_Click(object sender, EventArgs e) => this.Close();
 
+		class AccountDto
+		{
+			public string AccountId { get; set; }
+			public string AccountName { get; set; }
+			public string LocaleName { get; set; }
+			public bool LibraryScan { get; set; }
+		}
+
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			foreach (DataGridViewRow row in this.dataGridView1.Rows)
+			try
 			{
-				if (row.IsNewRow)
-					continue;
+				// without transaction, accounts persister will write ANY EDIT immediately to file.
+				var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+				persister.BeginTransation();
 
-				var original = (OriginalValue)row.Cells[COL_Original].Value;
-				var originalAccountId = original.AccountId;
-				var originalLocaleName = original.LocaleName;
+				persist(persister.AccountsSettings);
 
-				var libraryScan = (bool)row.Cells[COL_LibraryScan].Value;
-				var accountId = (string)row.Cells[COL_AccountId].Value;
-				var localeName = (string)row.Cells[COL_Locale].Value;
-				var accountName = (string)row.Cells[COL_AccountName].Value;
+				persister.CommitTransation();
+
+				this.Close();
 			}
-
-			// WARNING: accounts persister will write ANY EDIT immediately to file.
-			// Take NO action on persistent objects until the end
-			var accountsSettings = AudibleApiStorage.GetPersistentAccountsSettings();
-
-			var existingAccounts = accountsSettings.Accounts;
-
-			foreach (var account in existingAccounts)
+			catch (Exception ex)
 			{
+				MessageBox.Show($"Error: {ex.Message}", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
-
-			// editing account id is a special case
-			// an account is defined by its account id, therefore this is really a different account. the user won't care about this distinction though
-
-			// added: find and validate
-
-			// edited: find and validate
-
-			// deleted: find
-
-			// persist
-
 		}
+
+		private void persist(AccountsSettings accountsSettings)
+		{
+			var existingAccounts = accountsSettings.Accounts;
+			var dtos = getRowDtos();
+
+			// editing account id is a special case. an account is defined by its account id, therefore this is really a different account. the user won't care about this distinction though.
+			// these will be caught below by normal means and re-created minus the convenience of persisting identity tokens
+
+			// delete
+			for (var i = existingAccounts.Count - 1; i >= 0; i--)
+			{
+				var existing = existingAccounts[i];
+				if (!dtos.Any(dto =>
+					dto.AccountId?.ToLower().Trim() == existing.AccountId.ToLower()
+					&& dto.LocaleName == existing.Locale?.Name))
+				{
+					accountsSettings.Delete(existing);
+				}
+			}
+
+			// upsert each. validation occurs through Account and AccountsSettings
+			foreach (var dto in dtos)
+			{
+				if (string.IsNullOrWhiteSpace(dto.AccountId))
+					throw new Exception("Please enter an account id for all accounts");
+				if (string.IsNullOrWhiteSpace(dto.LocaleName))
+					throw new Exception("Please select a local name for all accounts");
+
+				var acct = accountsSettings.Upsert(dto.AccountId, dto.LocaleName);
+				acct.LibraryScan = dto.LibraryScan;
+				acct.AccountName
+					= string.IsNullOrWhiteSpace(dto.AccountName)
+					? $"{dto.AccountId} - {dto.LocaleName}"
+					: dto.AccountName.Trim();
+			}
+		}
+
+		private List<AccountDto> getRowDtos()
+			=> dataGridView1.Rows
+				.Cast<DataGridViewRow>()
+				.Where(r => !r.IsNewRow)
+				.Select(r => new AccountDto
+				{
+					AccountId = (string)r.Cells[COL_AccountId].Value,
+					AccountName = (string)r.Cells[COL_AccountName].Value,
+					LocaleName = (string)r.Cells[COL_Locale].Value,
+					LibraryScan = (bool)r.Cells[COL_LibraryScan].Value
+				})
+				.ToList();
 	}
 }
