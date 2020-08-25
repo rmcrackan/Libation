@@ -8,6 +8,7 @@ using Dinah.Core;
 using Dinah.Core.Drawing;
 using Dinah.Core.Windows.Forms;
 using FileManager;
+using InternalUtilities;
 using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
@@ -42,6 +43,8 @@ namespace LibationWinForms
 			PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
 			PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
 
+            setImportMenu();
+
 			setVisibleCount(null, 0);
 
 			reloadGrid();
@@ -55,8 +58,8 @@ namespace LibationWinForms
             setBackupCounts(null, null);
         }
 
-        #region reload grid
-        bool isProcessingGridSelect = false;
+		#region reload grid
+		bool isProcessingGridSelect = false;
         private void reloadGrid()
         {
             // suppressed filter while init'ing UI
@@ -223,10 +226,19 @@ namespace LibationWinForms
                 doFilter(lastGoodFilter);
             }
         }
-		#endregion
+        #endregion
 
-		#region index menu
-		private void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
+        #region Import menu
+        private void setImportMenu()
+        {
+            var hasMultipleAccounts = AudibleApiStorage.GetPersistentAccountsSettings().Accounts.Count > 1;
+
+            scanLibraryToolStripMenuItem.Visible = !hasMultipleAccounts;
+            scanLibraryOfAllAccountsToolStripMenuItem.Visible = hasMultipleAccounts;
+            scanLibraryOfSomeAccountsToolStripMenuItem.Visible = hasMultipleAccounts;
+        }
+
+        private void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using var dialog = new IndexLibraryDialog();
 			dialog.ShowDialog();
@@ -309,7 +321,10 @@ private void scanLibraryOfSomeAccountsToolStripMenuItem_Click(object sender, Eve
 
         #region settings menu
         private void accountsToolStripMenuItem_Click(object sender, EventArgs e)
-=> new AccountsDialog().ShowDialog();
+        {
+            new AccountsDialog().ShowDialog();
+            setImportMenu();
+        }
 
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 

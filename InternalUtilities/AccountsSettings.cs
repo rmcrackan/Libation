@@ -113,7 +113,9 @@ namespace InternalUtilities
 				return false;
 
 			account.Updated -= update;
-			return _accounts_backing.Remove(account);
+			var result = _accounts_backing.Remove(account);
+			update_no_validate();
+			return result;
 		}
 
 		private void validate(Account account)
