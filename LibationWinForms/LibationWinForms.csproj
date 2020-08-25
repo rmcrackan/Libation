@@ -27,6 +27,12 @@
     <Compile Update="UNTESTED\Dialogs\LibationFilesDialog.Designer.cs">
       <DependentUpon>LibationFilesDialog.cs</DependentUpon>
     </Compile>
+    <Compile Update="UNTESTED\Dialogs\ScanAccountsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UNTESTED\Dialogs\ScanAccountsDialog.Designer.cs">
+      <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Update="UNTESTED\Dialogs\SettingsDialog.cs" />
     <Compile Update="UNTESTED\Dialogs\SettingsDialog.Designer.cs">
       <DependentUpon>SettingsDialog.cs</DependentUpon>
@@ -48,6 +54,9 @@
     </EmbeddedResource>
     <EmbeddedResource Update="UNTESTED\Dialogs\LibationFilesDialog.resx">
       <DependentUpon>LibationFilesDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="UNTESTED\Dialogs\ScanAccountsDialog.resx">
+      <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="UNTESTED\Dialogs\SettingsDialog.resx">
       <DependentUpon>SettingsDialog.cs</DependentUpon>

@@ -536,6 +536,31 @@ namespace AccountsTests
         }
 
         [TestMethod]
+        public void delete_updates()
+        {
+            var i = 0;
+            void update(object sender, EventArgs e) => i++;
+
+            var accountsSettings = new AccountsSettings();
+			accountsSettings.Updated += update;
+
+            accountsSettings.Accounts.Count.Should().Be(0);
+            i.Should().Be(0);
+
+            _ = accountsSettings.Upsert("cng", "us");
+            accountsSettings.Accounts.Count.Should().Be(1);
+            i.Should().Be(1);
+
+            accountsSettings.Delete("baz", "baz").Should().BeFalse();
+            accountsSettings.Accounts.Count.Should().Be(1);
+            i.Should().Be(1);
+
+            accountsSettings.Delete("cng", "us").Should().BeTrue();
+            accountsSettings.Accounts.Count.Should().Be(0);
+            i.Should().Be(2); // <== this is the one being tested
+        }
+
+		[TestMethod]
         public void deleted_account_should_not_persist_file()
         {
             Account acct;

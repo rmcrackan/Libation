@@ -113,6 +113,12 @@
     <Compile Include="Dialogs\EditTagsDialog.Designer.cs">
       <DependentUpon>EditTagsDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\ScanAccountsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ScanAccountsDialog.Designer.cs">
+      <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\SettingsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -178,6 +184,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\Login\_2faCodeDialog.resx">
       <DependentUpon>_2faCodeDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\ScanAccountsDialog.resx">
+      <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\SettingsDialog.resx">
       <DependentUpon>SettingsDialog.cs</DependentUpon>
