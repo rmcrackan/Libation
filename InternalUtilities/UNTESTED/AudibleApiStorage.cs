@@ -24,9 +24,9 @@ namespace InternalUtilities
 			=> TEST_GetFirstAccount().GetIdentityTokensJsonPath();
 		// convenience for for tests and demos. don't use in production Libation
 		public static Account TEST_GetFirstAccount()
-			=> GetAccountsSettings().GetAll().FirstOrDefault();
+			=> GetPersistentAccountsSettings().GetAll().FirstOrDefault();
 
-		public static AccountsSettings GetAccountsSettings()
+		public static AccountsSettings GetPersistentAccountsSettings()
 			=> new AccountsSettingsPersister(AccountsSettingsFile).AccountsSettings;
 
 		public static string GetIdentityTokensJsonPath(this Account account)

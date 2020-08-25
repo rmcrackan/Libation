@@ -28,6 +28,12 @@ namespace LibationWinForms.Dialogs
 			populateGridValues();
 		}
 
+		struct OriginalValue
+		{
+			public string AccountId { get; set; }
+			public string LocaleName { get; set; }
+		}
+
 		private void populateDropDown()
 			=> (dataGridView1.Columns[COL_Locale] as DataGridViewComboBoxColumn).DataSource
 				= Localization.Locales
@@ -36,18 +42,16 @@ namespace LibationWinForms.Dialogs
 
 		private void populateGridValues()
 		{
-			// WARNING
-			// behind the scenes this returns a AccountsSettings
-			// accounts persister will write ANY EDIT to object immediately to file
+			// WARNING: accounts persister will write ANY EDIT to object immediately to file
 			// here: copy strings
 			// only persist in 'save' step
-			var accounts = AudibleApiStorage.GetAccountsSettings().Accounts;
+			var accounts = AudibleApiStorage.GetPersistentAccountsSettings().Accounts;
 			if (!accounts.Any())
 				return;
 
 			foreach (var account in accounts)
 				dataGridView1.Rows.Add(
-					new { account.AccountId, account.Locale.Name },
+					new OriginalValue { AccountId = account.AccountId, LocaleName = account.Locale.Name },
 					"X",
 					account.LibraryScan,
 					account.AccountId,
@@ -57,6 +61,7 @@ namespace LibationWinForms.Dialogs
 
 		private void dataGridView1_DefaultValuesNeeded(object sender, DataGridViewRowEventArgs e)
 		{
+			e.Row.Cells[COL_Original].Value = new OriginalValue();
 			e.Row.Cells[COL_Delete].Value = "X";
 			e.Row.Cells[COL_LibraryScan].Value = true;
 		}
@@ -98,16 +103,39 @@ namespace LibationWinForms.Dialogs
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			var accounts = AudibleApiStorage.GetAccountsSettings()
-				.Accounts;
+			foreach (DataGridViewRow row in this.dataGridView1.Rows)
+			{
+				if (row.IsNewRow)
+					continue;
 
-			// find added
-			// validate
+				var original = (OriginalValue)row.Cells[COL_Original].Value;
+				var originalAccountId = original.AccountId;
+				var originalLocaleName = original.LocaleName;
 
-			// find deleted
+				var libraryScan = (bool)row.Cells[COL_LibraryScan].Value;
+				var accountId = (string)row.Cells[COL_AccountId].Value;
+				var localeName = (string)row.Cells[COL_Locale].Value;
+				var accountName = (string)row.Cells[COL_AccountName].Value;
+			}
 
-			// find edited
-			// validate
+			// WARNING: accounts persister will write ANY EDIT immediately to file.
+			// Take NO action on persistent objects until the end
+			var accountsSettings = AudibleApiStorage.GetPersistentAccountsSettings();
+
+			var existingAccounts = accountsSettings.Accounts;
+
+			foreach (var account in existingAccounts)
+			{
+			}
+
+			// editing account id is a special case
+			// an account is defined by its account id, therefore this is really a different account. the user won't care about this distinction though
+
+			// added: find and validate
+
+			// edited: find and validate
+
+			// deleted: find
 
 			// persist
 

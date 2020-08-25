@@ -59,7 +59,7 @@ namespace FileLiberator
                 var proposedOutputFile = Path.Combine(AudibleFileStorage.DecryptInProgress, $"[{libraryBook.Book.AudibleProductId}].m4b");
 
                 var account = AudibleApiStorage
-                    .GetAccountsSettings()
+                    .GetPersistentAccountsSettings()
                     .GetAccount(libraryBook.Account, libraryBook.Book.Locale);
 
                 var outputAudioFilename = await aaxToM4bConverterDecrypt(proposedOutputFile, aaxFilename, account);
