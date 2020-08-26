@@ -12,34 +12,19 @@ namespace ApplicationServices
 {
 	public static class LibraryCommands
 	{
-//		public static async Task<(int totalCount, int newCount)> ImportAccountsAsync(IEnumerable<Account> accounts, ILoginCallback callback)
-//		{
-////throw new NotImplementedException();
-////			foreach (var account in accounts)
-////			{
-////			}
-//		}
-		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Account account, ILoginCallback callback)
+		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(ILoginCallback callback, params Account[] accounts)
 		{
+			if (accounts is null || accounts.Length == 0)
+				return (0, 0);
+
 			try
 			{
-				Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
-				{
-					account.AccountName,
-					account.AccountId,
-					LocaleName = account.Locale.Name,
-				});
+				var importItems = await scanAccountsAsync(callback, accounts);
 
-				var dtoItems = await AudibleApiActions.GetAllLibraryItemsAsync(account, callback);
-				var items = dtoItems.Select(d => new ImportItem { DtoItem = d, Account = account }).ToList();
-
-				var totalCount = items.Count;
+				var totalCount = importItems.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
-				using var context = DbContexts.GetContext();
-				var libraryImporter = new LibraryImporter(context);
-				var newCount = await Task.Run(() => libraryImporter.Import(items));
-				context.SaveChanges();
+				var newCount = await getNewCountAsync(importItems);
 				Log.Logger.Information($"Import: New count {newCount}");
 
 				await Task.Run(() => SearchEngineCommands.FullReIndex());
@@ -52,6 +37,39 @@ namespace ApplicationServices
 				Log.Logger.Error(ex, "Error importing library");
 				throw;
 			}
+		}
+
+		private static async Task<List<ImportItem>> scanAccountsAsync(ILoginCallback callback, Account[] accounts)
+		{
+			var tasks = accounts.Select(account => scanAccountAsync(callback, account)).ToList();
+			var arrayOfLists = await Task.WhenAll(tasks);
+			var importItems = arrayOfLists.SelectMany(a => a).ToList();
+			return importItems;
+		}
+
+		private static async Task<List<ImportItem>> scanAccountAsync(ILoginCallback callback, Account account)
+		{
+			Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
+
+			Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
+			{
+				account.AccountName,
+				account.AccountId,
+				LocaleName = account.Locale?.Name,
+			});
+
+			var dtoItems = await AudibleApiActions.GetAllLibraryItemsAsync(account, callback);
+			return dtoItems.Select(d => new ImportItem { DtoItem = d, Account = account }).ToList();
+		}
+
+		private static async Task<int> getNewCountAsync(List<ImportItem> importItems)
+		{
+			using var context = DbContexts.GetContext();
+			var libraryImporter = new LibraryImporter(context);
+			var newCount = await Task.Run(() => libraryImporter.Import(importItems));
+			context.SaveChanges();
+
+			return newCount;
 		}
 
 		public static int UpdateTags(this LibationContext context, Book book, string newTags)

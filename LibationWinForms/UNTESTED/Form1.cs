@@ -239,8 +239,34 @@ namespace LibationWinForms
         }
 
         private void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var firstAccount = AudibleApiStorage.GetPersistentAccountsSettings().GetAll().FirstOrDefault();
+            scanLibraries(firstAccount);
+        }
+
+        private void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var allAccounts = AudibleApiStorage.GetPersistentAccountsSettings().GetAll();
+            scanLibraries(allAccounts);
+        }
+
+        private void scanLibraryOfSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using var scanAccountsDialog = new ScanAccountsDialog();
+
+            if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            if (!scanAccountsDialog.CheckedAccounts.Any())
+                return;
+
+            scanLibraries(scanAccountsDialog.CheckedAccounts);
+        }
+
+        private void scanLibraries(IEnumerable<Account> accounts) => scanLibraries(accounts.ToArray());
+        private void scanLibraries(params Account[] accounts)
 		{
-			using var dialog = new IndexLibraryDialog();
+			using var dialog = new IndexLibraryDialog(accounts);
 			dialog.ShowDialog();
 
 			var totalProcessed = dialog.TotalBooksProcessed;
@@ -251,25 +277,6 @@ namespace LibationWinForms
 			if (totalProcessed > 0)
 				reloadGrid();
         }
-
-private void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
-{
-}
-
-private void scanLibraryOfSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
-{
-            using var scanAccountsDialog = new ScanAccountsDialog();
-
-            if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            if (!scanAccountsDialog.CheckedAccounts.Any())
-                return;
-
-            var checkedAccounts = scanAccountsDialog.CheckedAccounts;
-
-
-}
         #endregion
 
         #region liberate menu

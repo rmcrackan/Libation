@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using AudibleApi;
 using FileManager;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace InternalUtilities
 {
@@ -18,13 +16,6 @@ namespace InternalUtilities
 			if (!File.Exists(AccountsSettingsFile))
 				_ = new AccountsSettingsPersister(new AccountsSettings(), AccountsSettingsFile);
 		}
-
-		// convenience for for tests and demos. don't use in production Libation
-		public static string TEST_GetFirstIdentityTokensJsonPath()
-			=> TEST_GetFirstAccount().GetIdentityTokensJsonPath();
-		// convenience for for tests and demos. don't use in production Libation
-		public static Account TEST_GetFirstAccount()
-			=> GetPersistentAccountsSettings().GetAll().FirstOrDefault();
 
 		public static AccountsSettings GetPersistentAccountsSettings() => GetAccountsSettingsPersister().AccountsSettings;
 		public static AccountsSettingsPersister GetAccountsSettingsPersister() => new AccountsSettingsPersister(AccountsSettingsFile);
