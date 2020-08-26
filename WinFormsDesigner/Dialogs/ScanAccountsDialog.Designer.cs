@@ -39,9 +39,10 @@
 			this.accountsLbl.AutoSize = true;
 			this.accountsLbl.Location = new System.Drawing.Point(12, 9);
 			this.accountsLbl.Name = "accountsLbl";
-			this.accountsLbl.Size = new System.Drawing.Size(193, 13);
+			this.accountsLbl.Size = new System.Drawing.Size(467, 13);
 			this.accountsLbl.TabIndex = 0;
-			this.accountsLbl.Text = "Check the accounts to scan and import";
+			this.accountsLbl.Text = "Check the accounts to scan and import. To change default selections, go to: Setti" +
+    "ngs > Accounts";
 			// 
 			// accountsClb
 			// 
