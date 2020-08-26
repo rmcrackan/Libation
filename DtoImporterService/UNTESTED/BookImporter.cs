@@ -9,25 +9,25 @@ namespace DtoImporterService
 {
 	public class BookImporter : ItemsImporterBase
 	{
-		public BookImporter(LibationContext context, Account account) : base(context, account) { }
+		public BookImporter(LibationContext context) : base(context) { }
 
-		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new BookValidator().Validate(items);
+		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new BookValidator().Validate(importItems.Select(i => i.DtoItem));
 
-		protected override int DoImport(IEnumerable<Item> items)
+		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
 			// pre-req.s
-			new ContributorImporter(DbContext, Account).Import(items);
-			new SeriesImporter(DbContext, Account).Import(items);
-			new CategoryImporter(DbContext, Account).Import(items);
+			new ContributorImporter(DbContext).Import(importItems);
+			new SeriesImporter(DbContext).Import(importItems);
+			new CategoryImporter(DbContext).Import(importItems);
 
 			// get distinct
-			var productIds = items.Select(i => i.ProductId).ToList();
+			var productIds = importItems.Select(i => i.DtoItem.ProductId).ToList();
 
 			// load db existing => .Local
 			loadLocal_books(productIds);
 
 			// upsert
-			var qtyNew = upsertBooks(items);
+			var qtyNew = upsertBooks(importItems);
 			return qtyNew;
 		}
 
@@ -44,13 +44,13 @@ namespace DtoImporterService
 				DbContext.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();
 		}
 
-		private int upsertBooks(IEnumerable<Item> items)
+		private int upsertBooks(IEnumerable<ImportItem> importItems)
 		{
 			var qtyNew = 0;
 
-			foreach (var item in items)
+			foreach (var item in importItems)
 			{
-				var book = DbContext.Books.Local.SingleOrDefault(p => p.AudibleProductId == item.ProductId);
+				var book = DbContext.Books.Local.SingleOrDefault(p => p.AudibleProductId == item.DtoItem.ProductId);
 				if (book is null)
 				{
 					book = createNewBook(item);
@@ -63,8 +63,10 @@ namespace DtoImporterService
 			return qtyNew;
 		}
 
-		private Book createNewBook(Item item)
+		private Book createNewBook(ImportItem importItem)
 		{
+			var item = importItem.DtoItem;
+
 			// absence of authors is very rare, but possible
 			if (!item.Authors?.Any() ?? true)
 				item.Authors = new[] { new Person { Name = "", Asin = null } };
@@ -106,7 +108,7 @@ namespace DtoImporterService
 				authors,
 				narrators,
 				category,
-				Account.Locale.Name)
+				importItem.Account.Locale.Name)
 			).Entity;
 
 			var publisherName = item.Publisher;
@@ -124,14 +126,16 @@ namespace DtoImporterService
 			return book;
 		}
 
-		private void updateBook(Item item, Book book)
+		private void updateBook(ImportItem importItem, Book book)
 		{
+			var item = importItem.DtoItem;
+
 			// set/update book-specific info which may have changed
 			book.PictureId = item.PictureId;
 			book.UpdateProductRating(item.Product_OverallStars, item.Product_PerformanceStars, item.Product_StoryStars);
 
 			// needed during v3 => v4 migration
-			book.UpdateLocale(Account.Locale.Name);
+			book.UpdateLocale(importItem.Account.Locale.Name);
 
 			// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
 			book.UserDefinedItem.UpdateRating(item.MyUserRating_Overall, item.MyUserRating_Performance, item.MyUserRating_Story);

@@ -111,6 +111,7 @@ namespace LibationWinForms.Dialogs
 
 				persister.CommitTransation();
 
+				this.DialogResult = DialogResult.OK;
 				this.Close();
 			}
 			catch (Exception ex)

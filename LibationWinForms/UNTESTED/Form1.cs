@@ -258,6 +258,17 @@ private void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, Even
 
 private void scanLibraryOfSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
 {
+            using var scanAccountsDialog = new ScanAccountsDialog();
+
+            if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            if (!scanAccountsDialog.CheckedAccounts.Any())
+                return;
+
+            var checkedAccounts = scanAccountsDialog.CheckedAccounts;
+
+
 }
         #endregion
 

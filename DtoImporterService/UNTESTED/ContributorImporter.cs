@@ -9,16 +9,25 @@ namespace DtoImporterService
 {
 	public class ContributorImporter : ItemsImporterBase
 	{
-		public ContributorImporter(LibationContext context, Account account) : base(context, account) { }
+		public ContributorImporter(LibationContext context) : base(context) { }
 
-		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new ContributorValidator().Validate(items);
+		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new ContributorValidator().Validate(importItems.Select(i => i.DtoItem));
 
-		protected override int DoImport(IEnumerable<Item> items)
+		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
 			// get distinct
-			var authors = items.GetAuthorsDistinct().ToList();
-			var narrators = items.GetNarratorsDistinct().ToList();
-			var publishers = items.GetPublishersDistinct().ToList();
+			var authors = importItems
+				.Select(i => i.DtoItem)
+				.GetAuthorsDistinct()
+				.ToList();
+			var narrators = importItems
+				.Select(i => i.DtoItem)
+				.GetNarratorsDistinct()
+				.ToList();
+			var publishers = importItems
+				.Select(i => i.DtoItem)
+				.GetPublishersDistinct()
+				.ToList();
 
 			// load db existing => .Local
 			var allNames = publishers

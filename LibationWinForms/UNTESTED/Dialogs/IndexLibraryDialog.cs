@@ -16,11 +16,11 @@ namespace LibationWinForms.Dialogs
 			this.Shown += IndexLibraryDialog_Shown;
 		}
 
-		private async void IndexLibraryDialog_Shown(object sender, System.EventArgs e)
+		private async void IndexLibraryDialog_Shown(object sender, EventArgs e)
 		{
 			try
 			{
-				(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportLibraryAsync(new WinformResponder());
+				(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync(InternalUtilities.AudibleApiStorage.TEST_GetFirstAccount(), new WinformResponder());
 			}
 			catch
 			{

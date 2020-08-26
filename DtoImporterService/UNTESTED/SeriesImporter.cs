@@ -9,14 +9,17 @@ namespace DtoImporterService
 {
 	public class SeriesImporter : ItemsImporterBase
 	{
-		public SeriesImporter(LibationContext context, Account account) : base(context, account) { }
+		public SeriesImporter(LibationContext context) : base(context) { }
 
-		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new SeriesValidator().Validate(items);
+		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new SeriesValidator().Validate(importItems.Select(i => i.DtoItem));
 
-		protected override int DoImport(IEnumerable<Item> items)
+		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
 			// get distinct
-			var series = items.GetSeriesDistinct().ToList();
+			var series = importItems
+				.Select(i => i.DtoItem)
+				.GetSeriesDistinct()
+				.ToList();
 
 			// load db existing => .Local
 			loadLocal_series(series);

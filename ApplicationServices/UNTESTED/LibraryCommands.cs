@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AudibleApi;
 using DataLayer;
@@ -10,12 +12,17 @@ namespace ApplicationServices
 {
 	public static class LibraryCommands
 	{
-		public static async Task<(int totalCount, int newCount)> ImportLibraryAsync(ILoginCallback callback)
+//		public static async Task<(int totalCount, int newCount)> ImportAccountsAsync(IEnumerable<Account> accounts, ILoginCallback callback)
+//		{
+////throw new NotImplementedException();
+////			foreach (var account in accounts)
+////			{
+////			}
+//		}
+		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Account account, ILoginCallback callback)
 		{
 			try
 			{
-				var account = AudibleApiStorage.TEST_GetFirstAccount();
-
 				Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
 				{
 					account.AccountName,
@@ -23,12 +30,14 @@ namespace ApplicationServices
 					LocaleName = account.Locale.Name,
 				});
 
-				var items = await AudibleApiActions.GetAllLibraryItemsAsync(account, callback);
+				var dtoItems = await AudibleApiActions.GetAllLibraryItemsAsync(account, callback);
+				var items = dtoItems.Select(d => new ImportItem { DtoItem = d, Account = account }).ToList();
+
 				var totalCount = items.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
 				using var context = DbContexts.GetContext();
-				var libraryImporter = new LibraryImporter(context, account);
+				var libraryImporter = new LibraryImporter(context);
 				var newCount = await Task.Run(() => libraryImporter.Import(items));
 				context.SaveChanges();
 				Log.Logger.Information($"Import: New count {newCount}");

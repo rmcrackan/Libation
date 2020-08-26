@@ -9,19 +9,19 @@ namespace DtoImporterService
 {
 	public class LibraryImporter : ItemsImporterBase
 	{
-		public LibraryImporter(LibationContext context, Account account) : base(context, account) { }
+		public LibraryImporter(LibationContext context) : base(context) { }
 
-		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new LibraryValidator().Validate(items);
+		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new LibraryValidator().Validate(importItems.Select(i => i.DtoItem));
 
-		protected override int DoImport(IEnumerable<Item> items)
+		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
-			new BookImporter(DbContext, Account).Import(items);
+			new BookImporter(DbContext).Import(importItems);
 
-			var qtyNew = upsertLibraryBooks(items);
+			var qtyNew = upsertLibraryBooks(importItems);
 			return qtyNew;
 		}
 
-		private int upsertLibraryBooks(IEnumerable<Item> items)
+		private int upsertLibraryBooks(IEnumerable<ImportItem> importItems)
 		{
 			// technically, we should be able to have duplicate books from separate accounts.
 			// this would violate the current pk and would be difficult to deal with elsewhere:
@@ -35,21 +35,25 @@ namespace DtoImporterService
 			// CURRENT SOLUTION: don't re-insert
 
 			var currentLibraryProductIds = DbContext.Library.Select(l => l.Book.AudibleProductId).ToList();
-			var newItems = items.Where(dto => !currentLibraryProductIds.Contains(dto.ProductId)).ToList();
+			var newItems = importItems.Where(dto => !currentLibraryProductIds.Contains(dto.DtoItem.ProductId)).ToList();
 
 			foreach (var newItem in newItems)
 			{
 				var libraryBook = new LibraryBook(
-					DbContext.Books.Local.Single(b => b.AudibleProductId == newItem.ProductId),
-					newItem.DateAdded,
-					Account.AccountId);
+					DbContext.Books.Local.Single(b => b.AudibleProductId == newItem.DtoItem.ProductId),
+					newItem.DtoItem.DateAdded,
+					newItem.Account.AccountId);
 				DbContext.Library.Add(libraryBook);
 			}
 
 			// needed for v3 => v4 upgrade
 			var toUpdate = DbContext.Library.Where(l => l.Account == null);
 			foreach (var u in toUpdate)
-				u.UpdateAccount(Account.AccountId);
+			{
+				var item = importItems.FirstOrDefault(ii => ii.DtoItem.ProductId == u.Book.AudibleProductId);
+				if (item != null)
+					u.UpdateAccount(item.Account.AccountId);
+			}
 
 			var qtyNew = newItems.Count;
 			return qtyNew;

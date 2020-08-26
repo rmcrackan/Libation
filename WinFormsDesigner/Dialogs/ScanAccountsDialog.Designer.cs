@@ -51,13 +51,13 @@
 			this.accountsClb.FormattingEnabled = true;
 			this.accountsClb.Location = new System.Drawing.Point(12, 25);
 			this.accountsClb.Name = "accountsClb";
-			this.accountsClb.Size = new System.Drawing.Size(265, 94);
+			this.accountsClb.Size = new System.Drawing.Size(560, 94);
 			this.accountsClb.TabIndex = 1;
 			// 
 			// importBtn
 			// 
 			this.importBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.importBtn.Location = new System.Drawing.Point(101, 125);
+			this.importBtn.Location = new System.Drawing.Point(396, 125);
 			this.importBtn.Name = "importBtn";
 			this.importBtn.Size = new System.Drawing.Size(75, 23);
 			this.importBtn.TabIndex = 2;
@@ -68,7 +68,7 @@
 			// 
 			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(202, 125);
+			this.cancelBtn.Location = new System.Drawing.Point(497, 125);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(75, 23);
 			this.cancelBtn.TabIndex = 3;
@@ -81,7 +81,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(289, 160);
+			this.ClientSize = new System.Drawing.Size(584, 160);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.importBtn);
 			this.Controls.Add(this.accountsClb);

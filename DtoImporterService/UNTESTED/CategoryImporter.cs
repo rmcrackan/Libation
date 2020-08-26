@@ -9,20 +9,26 @@ namespace DtoImporterService
 {
 	public class CategoryImporter : ItemsImporterBase
 	{
-		public CategoryImporter(LibationContext context, Account account) : base(context, account) { }
+		public CategoryImporter(LibationContext context) : base(context) { }
 
-		public override IEnumerable<Exception> Validate(IEnumerable<Item> items) => new CategoryValidator().Validate(items);
+		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new CategoryValidator().Validate(importItems.Select(i => i.DtoItem));
 
-		protected override int DoImport(IEnumerable<Item> items)
+		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
 			// get distinct
-			var categoryIds = items.GetCategoriesDistinct().Select(c => c.CategoryId).ToList();
+			var categoryIds = importItems
+				.Select(i => i.DtoItem)
+				.GetCategoriesDistinct()
+				.Select(c => c.CategoryId).ToList();
 
 			// load db existing => .Local
 			loadLocal_categories(categoryIds);
 
 			// upsert
-			var categoryPairs = items.GetCategoryPairsDistinct().ToList();
+			var categoryPairs = importItems
+				.Select(i => i.DtoItem)
+				.GetCategoryPairsDistinct()
+				.ToList();
 			var qtyNew = upsertCategories(categoryPairs);
 			return qtyNew;
 		}
