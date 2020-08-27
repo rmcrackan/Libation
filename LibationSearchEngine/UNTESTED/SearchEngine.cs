@@ -72,7 +72,12 @@ namespace LibationSearchEngine
                     ["CategoriesId"] = lb => lb.Book.CategoriesIds == null ? null : string.Join(", ", lb.Book.CategoriesIds),
                     ["CategoryId"] = lb => lb.Book.CategoriesIds == null ? null : string.Join(", ", lb.Book.CategoriesIds),
 
-                    [TAGS.FirstCharToUpper()] = lb => lb.Book.UserDefinedItem.Tags
+                    [TAGS.FirstCharToUpper()] = lb => lb.Book.UserDefinedItem.Tags,
+
+                    ["Locale"] = lb => lb.Book.Locale,
+                    ["Region"] = lb => lb.Book.Locale,
+                    ["Account"] = lb => lb.Account,
+                    ["Email"] = lb => lb.Account
                 }
                 );
 

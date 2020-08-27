@@ -89,7 +89,7 @@
             // 
             this.closeBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.closeBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.closeBtn.Location = new System.Drawing.Point(890, 415);
+            this.closeBtn.Location = new System.Drawing.Point(890, 465);
             this.closeBtn.Name = "closeBtn";
             this.closeBtn.Size = new System.Drawing.Size(75, 23);
             this.closeBtn.TabIndex = 5;
@@ -103,7 +103,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.closeBtn;
-            this.ClientSize = new System.Drawing.Size(977, 450);
+            this.ClientSize = new System.Drawing.Size(977, 500);
             this.Controls.Add(this.closeBtn);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
