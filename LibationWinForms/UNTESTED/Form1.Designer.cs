@@ -36,6 +36,8 @@
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.scanLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.scanLibraryOfAllAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.scanLibraryOfSomeAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.liberateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.beginBookBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.beginPdfBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,8 +55,7 @@
 			this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.addFilterBtn = new System.Windows.Forms.Button();
-			this.scanLibraryOfAllAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.scanLibraryOfSomeAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.noAccountsYetAddAccountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -116,8 +117,9 @@
 			// importToolStripMenuItem
 			// 
 			this.importToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.noAccountsYetAddAccountToolStripMenuItem,
 			this.scanLibraryToolStripMenuItem,
-            this.scanLibraryOfAllAccountsToolStripMenuItem,
+			this.scanLibraryOfAllAccountsToolStripMenuItem,
             this.scanLibraryOfSomeAccountsToolStripMenuItem});
 			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
 			this.importToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
@@ -129,6 +131,20 @@
 			this.scanLibraryToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
 			this.scanLibraryToolStripMenuItem.Text = "Scan &Library";
 			this.scanLibraryToolStripMenuItem.Click += new System.EventHandler(this.scanLibraryToolStripMenuItem_Click);
+			// 
+			// scanLibraryOfAllAccountsToolStripMenuItem
+			// 
+			this.scanLibraryOfAllAccountsToolStripMenuItem.Name = "scanLibraryOfAllAccountsToolStripMenuItem";
+			this.scanLibraryOfAllAccountsToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.scanLibraryOfAllAccountsToolStripMenuItem.Text = "Scan Library of &All Accounts";
+			this.scanLibraryOfAllAccountsToolStripMenuItem.Click += new System.EventHandler(this.scanLibraryOfAllAccountsToolStripMenuItem_Click);
+			// 
+			// scanLibraryOfSomeAccountsToolStripMenuItem
+			// 
+			this.scanLibraryOfSomeAccountsToolStripMenuItem.Name = "scanLibraryOfSomeAccountsToolStripMenuItem";
+			this.scanLibraryOfSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.scanLibraryOfSomeAccountsToolStripMenuItem.Text = "Scan Library of &Some Accounts...";
+			this.scanLibraryOfSomeAccountsToolStripMenuItem.Click += new System.EventHandler(this.scanLibraryOfSomeAccountsToolStripMenuItem_Click);
 			// 
 			// liberateToolStripMenuItem
 			// 
@@ -260,19 +276,12 @@
 			this.addFilterBtn.UseVisualStyleBackColor = true;
 			this.addFilterBtn.Click += new System.EventHandler(this.AddFilterBtn_Click);
 			// 
-			// scanLibraryOfAllAccountsToolStripMenuItem
+			// noAccountsYetAddAccountToolStripMenuItem
 			// 
-			this.scanLibraryOfAllAccountsToolStripMenuItem.Name = "scanLibraryOfAllAccountsToolStripMenuItem";
-			this.scanLibraryOfAllAccountsToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
-			this.scanLibraryOfAllAccountsToolStripMenuItem.Text = "Scan Library of &All Accounts";
-			this.scanLibraryOfAllAccountsToolStripMenuItem.Click += new System.EventHandler(this.scanLibraryOfAllAccountsToolStripMenuItem_Click);
-			// 
-			// scanLibraryOfSomeAccountsToolStripMenuItem
-			// 
-			this.scanLibraryOfSomeAccountsToolStripMenuItem.Name = "scanLibraryOfSomeAccountsToolStripMenuItem";
-			this.scanLibraryOfSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
-			this.scanLibraryOfSomeAccountsToolStripMenuItem.Text = "Scan Library of &Some Accounts...";
-			this.scanLibraryOfSomeAccountsToolStripMenuItem.Click += new System.EventHandler(this.scanLibraryOfSomeAccountsToolStripMenuItem_Click);
+			this.noAccountsYetAddAccountToolStripMenuItem.Name = "noAccountsYetAddAccountToolStripMenuItem";
+			this.noAccountsYetAddAccountToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.noAccountsYetAddAccountToolStripMenuItem.Text = "No accounts yet. A&dd Account...";
+			this.noAccountsYetAddAccountToolStripMenuItem.Click += new System.EventHandler(this.noAccountsYetAddAccountToolStripMenuItem_Click);
 			// 
 			// Form1
 			// 
@@ -328,5 +337,6 @@
 		private System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfSomeAccountsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem noAccountsYetAddAccountToolStripMenuItem;
 	}
 }

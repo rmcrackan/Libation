@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AudibleApi;
 using AudibleApiDTOs;
-using FileManager;
 using Polly;
 using Polly.Retry;
 
@@ -41,6 +40,7 @@ namespace InternalUtilities
 			// i don't want to incur the cost of making a full dummy call every time because it fails sometimes
 			return policy.ExecuteAsync(() => getItemsAsync(account, callback));
 		}
+
 		private static async Task<List<Item>> getItemsAsync(Account account, ILoginCallback callback)
 		{
 			var api = await GetApiAsync(account, callback);

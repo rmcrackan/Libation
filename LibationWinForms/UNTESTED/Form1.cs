@@ -231,11 +231,18 @@ namespace LibationWinForms
         #region Import menu
         private void setImportMenu()
         {
-            var hasMultipleAccounts = AudibleApiStorage.GetPersistentAccountsSettings().Accounts.Count > 1;
+            var count = AudibleApiStorage.GetPersistentAccountsSettings().Accounts.Count;
 
-            scanLibraryToolStripMenuItem.Visible = !hasMultipleAccounts;
-            scanLibraryOfAllAccountsToolStripMenuItem.Visible = hasMultipleAccounts;
-            scanLibraryOfSomeAccountsToolStripMenuItem.Visible = hasMultipleAccounts;
+            noAccountsYetAddAccountToolStripMenuItem.Visible = count == 0;
+            scanLibraryToolStripMenuItem.Visible = count == 1;
+            scanLibraryOfAllAccountsToolStripMenuItem.Visible = count > 1;
+            scanLibraryOfSomeAccountsToolStripMenuItem.Visible = count > 1;
+        }
+
+        private void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("To load your Audible library, come back here to the Import menu after adding your account");
+            accountsToolStripMenuItem_Click(sender, e);
         }
 
         private void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)

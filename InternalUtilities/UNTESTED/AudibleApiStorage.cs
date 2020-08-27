@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using FileManager;
 using Newtonsoft.Json;
 
@@ -29,17 +28,20 @@ namespace InternalUtilities
 
 			return $"$.Accounts[?(@.AccountId == '{usernameSanitized}' && @.IdentityTokens.LocaleName == '{localeNameSanitized}')].IdentityTokens";
 		}
-		// SubString algo is better than .Trim("\"")
-		//   orig string  "
-		//   json string  "\""
-		// Eg:
-		//   =>           str.Trim("\"")
-		//   output       \
-		// vs
-		//   =>           str.Substring(1, str.Length - 2)
-		//   output       \"
-		// also works with surrounding single quotes
 		private static string trimSurroundingQuotes(string str)
-			=> str.Substring(1, str.Length - 2);
+		{
+			// SubString algo is better than .Trim("\"")
+			//   orig string  "
+			//   json string  "\""
+			// Eg:
+			//   =>           str.Trim("\"")
+			//   output       \
+			// vs
+			//   =>           str.Substring(1, str.Length - 2)
+			//   output       \"
+			// also works with surrounding single quotes
+
+			return str.Substring(1, str.Length - 2);
+		}
 	}
 }
