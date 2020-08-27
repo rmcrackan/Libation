@@ -174,17 +174,28 @@ namespace LibationWinForms
             get
             {
                 var details = new List<string>();
+
+				var locale
+					= string.IsNullOrWhiteSpace(book.Locale)
+					? "[unknown]"
+					: book.Locale;
+				var acct
+					= string.IsNullOrWhiteSpace(libraryBook.Account)
+					? "[unknown]"
+					: libraryBook.Account;
+				details.Add($"Account: {locale} - {acct}");
+
                 if (book.HasPdf)
                     details.Add("Has PDF");
                 if (book.IsAbridged)
                     details.Add("Abridged");
                 if (book.DatePublished.HasValue)
-                    details.Add($"Date pub'd: {book.DatePublished.Value.ToString("MM/dd/yyyy")}");
+                    details.Add($"Date pub'd: {book.DatePublished.Value:MM/dd/yyyy}");
                 // this goes last since it's most likely to have a line-break
                 if (!string.IsNullOrWhiteSpace(book.Publisher))
-                    details.Add($"Pub: {book.Publisher}");
+                    details.Add($"Pub: {book.Publisher.Trim()}");
 
-                if (!details.Any())
+				if (!details.Any())
                     return "[details not imported]";
 
                 return string.Join("\r\n", details);
