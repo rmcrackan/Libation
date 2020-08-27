@@ -42,7 +42,7 @@ namespace LibationWinForms.Dialogs
 
 		private void editBtn_Click(object sender, EventArgs e)
 		{
-			if (new AccountsDialog(_parent).ShowDialog()== DialogResult.OK)
+			if (new AccountsDialog(_parent).ShowDialog() == DialogResult.OK)
 			{
 				// clear grid
 				this.accountsClb.Items.Clear();
