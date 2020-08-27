@@ -32,6 +32,7 @@
 			this.accountsClb = new System.Windows.Forms.CheckedListBox();
 			this.importBtn = new System.Windows.Forms.Button();
 			this.cancelBtn = new System.Windows.Forms.Button();
+			this.editBtn = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// accountsLbl
@@ -61,7 +62,7 @@
 			this.importBtn.Location = new System.Drawing.Point(396, 125);
 			this.importBtn.Name = "importBtn";
 			this.importBtn.Size = new System.Drawing.Size(75, 23);
-			this.importBtn.TabIndex = 2;
+			this.importBtn.TabIndex = 3;
 			this.importBtn.Text = "Import";
 			this.importBtn.UseVisualStyleBackColor = true;
 			// 
@@ -72,9 +73,19 @@
 			this.cancelBtn.Location = new System.Drawing.Point(497, 125);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(75, 23);
-			this.cancelBtn.TabIndex = 3;
+			this.cancelBtn.TabIndex = 4;
 			this.cancelBtn.Text = "Cancel";
 			this.cancelBtn.UseVisualStyleBackColor = true;
+			// 
+			// editBtn
+			// 
+			this.editBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.editBtn.Location = new System.Drawing.Point(12, 125);
+			this.editBtn.Name = "editBtn";
+			this.editBtn.Size = new System.Drawing.Size(90, 23);
+			this.editBtn.TabIndex = 2;
+			this.editBtn.Text = "Edit accounts";
+			this.editBtn.UseVisualStyleBackColor = true;
 			// 
 			// ScanAccountsDialog
 			// 
@@ -83,6 +94,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
 			this.ClientSize = new System.Drawing.Size(584, 160);
+			this.Controls.Add(this.editBtn);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.importBtn);
 			this.Controls.Add(this.accountsClb);
@@ -100,5 +112,6 @@
 		private System.Windows.Forms.CheckedListBox accountsClb;
 		private System.Windows.Forms.Button importBtn;
 		private System.Windows.Forms.Button cancelBtn;
+		private System.Windows.Forms.Button editBtn;
 	}
 }

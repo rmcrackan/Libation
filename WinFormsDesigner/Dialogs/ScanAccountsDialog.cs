@@ -12,7 +12,7 @@ namespace WinFormsDesigner.Dialogs
 {
 	public partial class ScanAccountsDialog : Form
 	{
-		public ScanAccountsDialog()
+		public ScanAccountsDialog(Form1 parent)
 		{
 			InitializeComponent();
 		}

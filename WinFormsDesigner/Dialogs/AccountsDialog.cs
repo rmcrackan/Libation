@@ -5,7 +5,7 @@ namespace WinFormsDesigner.Dialogs
 {
 	public partial class AccountsDialog : Form
 	{
-		public AccountsDialog()
+		public AccountsDialog(Form1 parent)
 		{
 			InitializeComponent();
 		}

@@ -12,8 +12,12 @@ namespace LibationWinForms.Dialogs
 	{
 		public List<Account> CheckedAccounts { get; } = new List<Account>();
 
-		public ScanAccountsDialog()
+		Form1 _parent { get; }
+
+		public ScanAccountsDialog(Form1 parent)
 		{
+			_parent = parent;
+
 			InitializeComponent();
 		}
 
@@ -25,12 +29,26 @@ namespace LibationWinForms.Dialogs
 		}
 		private void ScanAccountsDialog_Load(object sender, EventArgs e)
 		{
+			// DO NOT dispose of this connection.
+			// Here we (clumsily) connect to the persistent file. Accounts returned from here are used throughout library scan INCLUDING updates. eg: identity tokens
 			var accounts = AudibleApiStorage.GetPersistentAccountsSettings().Accounts;
 
 			foreach (var account in accounts)
 			{
 				var item = new listItem { Account=account,Text = $"{account.AccountName} ({account.AccountId} - {account.Locale.Name})" };
 				this.accountsClb.Items.Add(item, account.LibraryScan);
+			}
+		}
+
+		private void editBtn_Click(object sender, EventArgs e)
+		{
+			if (new AccountsDialog(_parent).ShowDialog()== DialogResult.OK)
+			{
+				// clear grid
+				this.accountsClb.Items.Clear();
+
+				// reload grid and default checkboxes
+				ScanAccountsDialog_Load(sender, e);
 			}
 		}
 

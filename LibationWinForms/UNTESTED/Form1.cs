@@ -43,7 +43,7 @@ namespace LibationWinForms
 			PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
 			PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
 
-            setImportMenu();
+            RefreshImportMenu();
 
 			setVisibleCount(null, 0);
 
@@ -182,7 +182,7 @@ namespace LibationWinForms
         #endregion
 
         #region filter
-        private void filterHelpBtn_Click(object sender, EventArgs e) => new Dialogs.SearchSyntaxDialog().ShowDialog();
+        private void filterHelpBtn_Click(object sender, EventArgs e) => new SearchSyntaxDialog().ShowDialog();
 
         private void AddFilterBtn_Click(object sender, EventArgs e)
         {
@@ -229,7 +229,7 @@ namespace LibationWinForms
         #endregion
 
         #region Import menu
-        private void setImportMenu()
+        public void RefreshImportMenu()
         {
             var count = AudibleApiStorage.GetPersistentAccountsSettings().Accounts.Count;
 
@@ -242,7 +242,7 @@ namespace LibationWinForms
         private void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("To load your Audible library, come back here to the Import menu after adding your account");
-            accountsToolStripMenuItem_Click(sender, e);
+            new AccountsDialog(this).ShowDialog();
         }
 
         private void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -259,7 +259,7 @@ namespace LibationWinForms
 
         private void scanLibraryOfSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using var scanAccountsDialog = new ScanAccountsDialog();
+            using var scanAccountsDialog = new ScanAccountsDialog(this);
 
             if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
                 return;
@@ -341,15 +341,11 @@ namespace LibationWinForms
             }
         }
 
-        private void EditQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new Dialogs.EditQuickFilters(this).ShowDialog();
+        private void EditQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new EditQuickFilters(this).ShowDialog();
         #endregion
 
         #region settings menu
-        private void accountsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new AccountsDialog().ShowDialog();
-            setImportMenu();
-        }
+        private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog(this).ShowDialog();
 
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 

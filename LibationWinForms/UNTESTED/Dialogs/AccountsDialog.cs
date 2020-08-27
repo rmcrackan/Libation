@@ -15,8 +15,12 @@ namespace LibationWinForms.Dialogs
 		const string COL_AccountName = nameof(AccountName);
 		const string COL_Locale = nameof(Locale);
 
-		public AccountsDialog()
+		Form1 _parent { get; }
+
+		public AccountsDialog(Form1 parent)
 		{
+			_parent = parent;
+
 			InitializeComponent();
 
 			dataGridView1.Columns[COL_AccountName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
@@ -111,6 +115,7 @@ namespace LibationWinForms.Dialogs
 
 				persister.CommitTransation();
 
+				_parent.RefreshImportMenu();
 				this.DialogResult = DialogResult.OK;
 				this.Close();
 			}
