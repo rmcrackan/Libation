@@ -71,6 +71,8 @@ namespace FileLiberator
 			{
 				libraryBook.Book.Title,
 				libraryBook.Book.AudibleProductId,
+				libraryBook.Book.Locale,
+				libraryBook.Account,
 				tempAaxFilename,
 				actualFilePath,
 				length,

@@ -46,6 +46,14 @@ namespace FileLiberator
 
         private static async Task<StatusHandler> processBookAsync(IProcessable processable, LibraryBook libraryBook)
         {
+            Serilog.Log.Information("Begin " + nameof(processBookAsync) + " {@DebugInfo}", new
+            {
+                libraryBook.Book.Title,
+                libraryBook.Book.AudibleProductId,
+                libraryBook.Book.Locale,
+                libraryBook.Account
+            });
+
             // this should never happen. check anyway. ProcessFirstValidAsync returning null is the signal that we're done. we can't let another IProcessable accidentally send this command
             var status = await processable.ProcessAsync(libraryBook);
             if (status == null)
