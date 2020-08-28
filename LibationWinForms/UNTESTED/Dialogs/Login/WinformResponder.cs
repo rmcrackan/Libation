@@ -1,10 +1,19 @@
 ﻿using System;
+using AudibleApi;
+using InternalUtilities;
 using LibationWinForms.Dialogs.Login;
 
 namespace LibationWinForms.Login
 {
-	public class WinformResponder : AudibleApi.ILoginCallback
+	public class WinformResponder : ILoginCallback
 	{
+		private Account _account { get; }
+
+		public WinformResponder(Account account)
+		{
+			_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
+		}
+
 		public string Get2faCode()
 		{
 			using var dialog = new _2faCodeDialog();

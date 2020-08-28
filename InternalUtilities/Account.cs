@@ -88,8 +88,7 @@ namespace InternalUtilities
 
 		public Account(string accountId)
 		{
-			ArgumentValidator.EnsureNotNullOrWhiteSpace(accountId, nameof(accountId));
-			AccountId = accountId.Trim();
+			AccountId = ArgumentValidator.EnsureNotNullOrWhiteSpace(accountId, nameof(accountId)).Trim();
 		}
 
 		public override string ToString() => $"{AccountId} - {Locale?.Name ?? "[empty]"}";

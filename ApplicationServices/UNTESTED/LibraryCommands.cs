@@ -12,14 +12,14 @@ namespace ApplicationServices
 {
 	public static class LibraryCommands
 	{
-		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(ILoginCallback callback, params Account[] accounts)
+		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
 		{
 			if (accounts is null || accounts.Length == 0)
 				return (0, 0);
 
 			try
 			{
-				var importItems = await scanAccountsAsync(callback, accounts);
+				var importItems = await scanAccountsAsync(loginCallbackFactoryFunc, accounts);
 
 				var totalCount = importItems.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
@@ -39,11 +39,13 @@ namespace ApplicationServices
 			}
 		}
 
-		private static async Task<List<ImportItem>> scanAccountsAsync(ILoginCallback callback, Account[] accounts)
+		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, Account[] accounts)
 		{
 			var tasks = new List<Task<List<ImportItem>>>();
 			foreach (var account in accounts)
 			{
+				var callback = loginCallbackFactoryFunc(account);
+
 				// get APIs in serial, esp b/c of logins
 				var api = await AudibleApiActions.GetApiAsync(callback, account);
 
