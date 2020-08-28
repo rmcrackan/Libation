@@ -17,7 +17,9 @@ namespace LibationWinForms.Dialogs.Login
 		{
 			Email = this.emailTb.Text;
 			Password = this.passwordTb.Text;
+
 			DialogResult = DialogResult.OK;
+			// Close() not needed for AcceptButton
 		}
 	}
 }

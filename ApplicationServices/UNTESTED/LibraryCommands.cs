@@ -41,13 +41,23 @@ namespace ApplicationServices
 
 		private static async Task<List<ImportItem>> scanAccountsAsync(ILoginCallback callback, Account[] accounts)
 		{
-			var tasks = accounts.Select(account => scanAccountAsync(callback, account)).ToList();
+			var tasks = new List<Task<List<ImportItem>>>();
+			foreach (var account in accounts)
+			{
+				// get APIs in serial, esp b/c of logins
+				var api = await AudibleApiActions.GetApiAsync(callback, account);
+
+				// add scanAccountAsync as a TASK: do not await
+				tasks.Add(scanAccountAsync(api, account));
+			}
+
+			// import library in parallel
 			var arrayOfLists = await Task.WhenAll(tasks);
 			var importItems = arrayOfLists.SelectMany(a => a).ToList();
 			return importItems;
 		}
 
-		private static async Task<List<ImportItem>> scanAccountAsync(ILoginCallback callback, Account account)
+		private static async Task<List<ImportItem>> scanAccountAsync(Api api, Account account)
 		{
 			Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
 
@@ -59,7 +69,7 @@ namespace ApplicationServices
 				LocaleName = localeName,
 			});
 
-			var dtoItems = await AudibleApiActions.GetAllLibraryItemsAsync(account, callback);
+			var dtoItems = await AudibleApiActions.GetLibraryValidatedAsync(api);
 			return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = localeName }).ToList();
 		}
 

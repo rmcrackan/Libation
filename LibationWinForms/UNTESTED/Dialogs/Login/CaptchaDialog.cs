@@ -25,7 +25,9 @@ namespace LibationWinForms.Dialogs.Login
 		private void submitBtn_Click(object sender, EventArgs e)
 		{
 			Answer = this.answerTb.Text;
+
 			DialogResult = DialogResult.OK;
+			// Close() not needed for AcceptButton
 		}
 	}
 }
