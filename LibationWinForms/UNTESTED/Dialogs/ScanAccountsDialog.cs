@@ -29,13 +29,16 @@ namespace LibationWinForms.Dialogs
 		}
 		private void ScanAccountsDialog_Load(object sender, EventArgs e)
 		{
-			// DO NOT dispose of this connection.
-			// Here we (clumsily) connect to the persistent file. Accounts returned from here are used throughout library scan INCLUDING updates. eg: identity tokens
-			var accounts = AudibleApiStorage.GetPersistentAccountsSettings().Accounts;
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			var accounts = persister.AccountsSettings.Accounts;
 
 			foreach (var account in accounts)
 			{
-				var item = new listItem { Account=account,Text = $"{account.AccountName} ({account.AccountId} - {account.Locale.Name})" };
+				var item = new listItem
+				{
+					Account = account,
+					Text = $"{account.AccountName} ({account.AccountId} - {account.Locale.Name})"
+				};
 				this.accountsClb.Items.Add(item, account.LibraryScan);
 			}
 		}

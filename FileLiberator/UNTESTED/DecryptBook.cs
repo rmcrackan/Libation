@@ -56,13 +56,7 @@ namespace FileLiberator
                 if (AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-                var proposedOutputFile = Path.Combine(AudibleFileStorage.DecryptInProgress, $"[{libraryBook.Book.AudibleProductId}].m4b");
-
-                var account = AudibleApiStorage
-                    .GetPersistentAccountsSettings()
-                    .GetAccount(libraryBook.Account, libraryBook.Book.Locale);
-
-                var outputAudioFilename = await aaxToM4bConverterDecrypt(proposedOutputFile, aaxFilename, account);
+                var outputAudioFilename = await aaxToM4bConverterDecrypt(aaxFilename, libraryBook);
 
                 // decrypt failed
                 if (outputAudioFilename == null)
@@ -84,12 +78,18 @@ namespace FileLiberator
             }
         }
 
-        private async Task<string> aaxToM4bConverterDecrypt(string proposedOutputFile, string aaxFilename, Account account)
+        private async Task<string> aaxToM4bConverterDecrypt(string aaxFilename, LibraryBook libraryBook)
         {
             DecryptBegin?.Invoke(this, $"Begin decrypting {aaxFilename}");
 
             try
             {
+                using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+
+                var account = persister
+                    .AccountsSettings
+                    .GetAccount(libraryBook.Account, libraryBook.Book.Locale);
+
                 var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, account.DecryptKey);
                 converter.AppName = "Libation";
 
@@ -98,7 +98,8 @@ namespace FileLiberator
                 NarratorsDiscovered?.Invoke(this, converter.tags.narrator);
                 CoverImageFilepathDiscovered?.Invoke(this, converter.coverBytes);
 
-				// override default which was set in CreateAsync
+                // override default which was set in CreateAsync
+                var proposedOutputFile = Path.Combine(AudibleFileStorage.DecryptInProgress, $"[{libraryBook.Book.AudibleProductId}].m4b");
                 converter.SetOutputFilename(proposedOutputFile);
                 converter.DecryptProgressUpdate += (s, progress) => UpdateProgress?.Invoke(this, progress);
 

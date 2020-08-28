@@ -16,7 +16,7 @@ namespace InternalUtilities
 				_ = new AccountsSettingsPersister(new AccountsSettings(), AccountsSettingsFile);
 		}
 
-		public static AccountsSettings GetPersistentAccountsSettings() => GetAccountsSettingsPersister().AccountsSettings;
+		/// <summary>If you use this, be a good citizen and DISPOSE of it</summary>
 		public static AccountsSettingsPersister GetAccountsSettingsPersister() => new AccountsSettingsPersister(AccountsSettingsFile);
 
 		public static string GetIdentityTokensJsonPath(this Account account)

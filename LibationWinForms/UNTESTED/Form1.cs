@@ -231,7 +231,8 @@ namespace LibationWinForms
         #region Import menu
         public void RefreshImportMenu()
         {
-            var count = AudibleApiStorage.GetPersistentAccountsSettings().Accounts.Count;
+            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+            var count = persister.AccountsSettings.Accounts.Count;
 
             noAccountsYetAddAccountToolStripMenuItem.Visible = count == 0;
             scanLibraryToolStripMenuItem.Visible = count == 1;
@@ -247,13 +248,15 @@ namespace LibationWinForms
 
         private void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var firstAccount = AudibleApiStorage.GetPersistentAccountsSettings().GetAll().FirstOrDefault();
+            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+            var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
             scanLibraries(firstAccount);
         }
 
         private void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var allAccounts = AudibleApiStorage.GetPersistentAccountsSettings().GetAll();
+            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+            var allAccounts = persister.AccountsSettings.GetAll();
             scanLibraries(allAccounts);
         }
 

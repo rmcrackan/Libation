@@ -51,15 +51,16 @@ namespace ApplicationServices
 		{
 			Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
 
+			var localeName = account.Locale?.Name;
 			Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
 			{
 				account.AccountName,
 				account.AccountId,
-				LocaleName = account.Locale?.Name,
+				LocaleName = localeName,
 			});
 
 			var dtoItems = await AudibleApiActions.GetAllLibraryItemsAsync(account, callback);
-			return dtoItems.Select(d => new ImportItem { DtoItem = d, Account = account }).ToList();
+			return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = localeName }).ToList();
 		}
 
 		private static async Task<int> getNewCountAsync(List<ImportItem> importItems)

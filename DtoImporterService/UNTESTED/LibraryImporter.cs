@@ -42,7 +42,7 @@ namespace DtoImporterService
 				var libraryBook = new LibraryBook(
 					DbContext.Books.Local.Single(b => b.AudibleProductId == newItem.DtoItem.ProductId),
 					newItem.DtoItem.DateAdded,
-					newItem.Account.AccountId);
+					newItem.AccountId);
 				DbContext.Library.Add(libraryBook);
 			}
 
@@ -52,7 +52,7 @@ namespace DtoImporterService
 			{
 				var item = importItems.FirstOrDefault(ii => ii.DtoItem.ProductId == u.Book.AudibleProductId);
 				if (item != null)
-					u.UpdateAccount(item.Account.AccountId);
+					u.UpdateAccount(item.AccountId);
 			}
 
 			var qtyNew = newItems.Count;

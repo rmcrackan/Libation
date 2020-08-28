@@ -39,9 +39,10 @@ namespace LibationWinForms.Dialogs
 		private void populateGridValues()
 		{
 			// WARNING: accounts persister will write ANY EDIT to object immediately to file
-			// here: copy strings
+			// here: copy strings and dispose of persister
 			// only persist in 'save' step
-			var accounts = AudibleApiStorage.GetPersistentAccountsSettings().Accounts;
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			var accounts = persister.AccountsSettings.Accounts;
 			if (!accounts.Any())
 				return;
 
@@ -107,12 +108,11 @@ namespace LibationWinForms.Dialogs
 		{
 			try
 			{
-				// without transaction, accounts persister will write ANY EDIT immediately to file.
-				var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+				// without transaction, accounts persister will write ANY EDIT immediately to file
+				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+
 				persister.BeginTransation();
-
 				persist(persister.AccountsSettings);
-
 				persister.CommitTransation();
 
 				_parent.RefreshImportMenu();
