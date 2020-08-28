@@ -32,7 +32,7 @@ namespace LibationWinForms.Login
 
 		public (string email, string password) GetLogin()
 		{
-			using var dialog = new AudibleLoginDialog();
+			using var dialog = new AudibleLoginDialog(_account);
 			if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 				return (dialog.Email, dialog.Password);
 			return (null, null);

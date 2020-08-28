@@ -29,10 +29,10 @@
 		private void InitializeComponent()
 		{
 			this.passwordLbl = new System.Windows.Forms.Label();
-			this.emailLbl = new System.Windows.Forms.Label();
 			this.passwordTb = new System.Windows.Forms.TextBox();
-			this.emailTb = new System.Windows.Forms.TextBox();
 			this.submitBtn = new System.Windows.Forms.Button();
+			this.localeLbl = new System.Windows.Forms.Label();
+			this.usernameLbl = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// passwordLbl
@@ -44,15 +44,6 @@
 			this.passwordLbl.TabIndex = 2;
 			this.passwordLbl.Text = "Password";
 			// 
-			// emailLbl
-			// 
-			this.emailLbl.AutoSize = true;
-			this.emailLbl.Location = new System.Drawing.Point(12, 15);
-			this.emailLbl.Name = "emailLbl";
-			this.emailLbl.Size = new System.Drawing.Size(32, 13);
-			this.emailLbl.TabIndex = 0;
-			this.emailLbl.Text = "Email";
-			// 
 			// passwordTb
 			// 
 			this.passwordTb.Location = new System.Drawing.Point(71, 38);
@@ -60,13 +51,6 @@
 			this.passwordTb.PasswordChar = '*';
 			this.passwordTb.Size = new System.Drawing.Size(200, 20);
 			this.passwordTb.TabIndex = 3;
-			// 
-			// emailTb
-			// 
-			this.emailTb.Location = new System.Drawing.Point(71, 12);
-			this.emailTb.Name = "emailTb";
-			this.emailTb.Size = new System.Drawing.Size(200, 20);
-			this.emailTb.TabIndex = 1;
 			// 
 			// submitBtn
 			// 
@@ -78,17 +62,35 @@
 			this.submitBtn.UseVisualStyleBackColor = true;
 			this.submitBtn.Click += new System.EventHandler(this.submitBtn_Click);
 			// 
+			// localeLbl
+			// 
+			this.localeLbl.AutoSize = true;
+			this.localeLbl.Location = new System.Drawing.Point(12, 9);
+			this.localeLbl.Name = "localeLbl";
+			this.localeLbl.Size = new System.Drawing.Size(59, 13);
+			this.localeLbl.TabIndex = 0;
+			this.localeLbl.Text = "Locale: {0}";
+			// 
+			// usernameLbl
+			// 
+			this.usernameLbl.AutoSize = true;
+			this.usernameLbl.Location = new System.Drawing.Point(12, 22);
+			this.usernameLbl.Name = "usernameLbl";
+			this.usernameLbl.Size = new System.Drawing.Size(75, 13);
+			this.usernameLbl.TabIndex = 1;
+			this.usernameLbl.Text = "Username: {0}";
+			// 
 			// AudibleLoginDialog
 			// 
 			this.AcceptButton = this.submitBtn;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(283, 99);
+			this.Controls.Add(this.usernameLbl);
+			this.Controls.Add(this.localeLbl);
 			this.Controls.Add(this.submitBtn);
 			this.Controls.Add(this.passwordLbl);
-			this.Controls.Add(this.emailLbl);
 			this.Controls.Add(this.passwordTb);
-			this.Controls.Add(this.emailTb);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
@@ -104,9 +106,9 @@
 		#endregion
 
 		private System.Windows.Forms.Label passwordLbl;
-		private System.Windows.Forms.Label emailLbl;
 		private System.Windows.Forms.TextBox passwordTb;
-		private System.Windows.Forms.TextBox emailTb;
 		private System.Windows.Forms.Button submitBtn;
+		private System.Windows.Forms.Label localeLbl;
+		private System.Windows.Forms.Label usernameLbl;
 	}
 }
