@@ -50,6 +50,7 @@ namespace InternalUtilities
 		}
 
 		private string _decryptKey = "";
+		/// <summary>aka: activation bytes</summary>
 		public string DecryptKey
 		{
 			get => _decryptKey;
