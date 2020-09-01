@@ -13,19 +13,33 @@ namespace InternalUtilities
 	{
 		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
 		public static Task<Api> GetApiAsync(string username, string localeName, ILoginCallback loginCallback = null)
-			=> EzApiCreator.GetApiAsync(
+		{
+			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
+			{
+				username,
+				LocaleName = localeName,
+			});
+			return EzApiCreator.GetApiAsync(
 				Localization.Get(localeName),
 				AudibleApiStorage.AccountsSettingsFile,
 				AudibleApiStorage.GetIdentityTokensJsonPath(username, localeName),
 				loginCallback);
+		}
 
 		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
 		public static Task<Api> GetApiAsync(ILoginCallback loginCallback, Account account)
-			=> EzApiCreator.GetApiAsync(
+		{
+			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
+			{
+				AccountId = account?.AccountId ?? "[empty]",
+				LocaleName = account?.Locale?.Name
+			});
+			return EzApiCreator.GetApiAsync(
 				account.Locale,
 				AudibleApiStorage.AccountsSettingsFile,
 				account.GetIdentityTokensJsonPath(),
 				loginCallback);
+		}
 
 		private static AsyncRetryPolicy policy { get; }
 			= Policy.Handle<Exception>()
