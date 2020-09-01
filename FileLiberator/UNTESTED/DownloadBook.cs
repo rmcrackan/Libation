@@ -67,7 +67,7 @@ namespace FileLiberator
 				: "Error downloading file";
 
 			var ex = new Exception(exMsg);
-			Serilog.Log.Error(ex, "Download error {@DebugInfo}", new
+			Serilog.Log.Logger.Error(ex, "Download error {@DebugInfo}", new
 			{
 				libraryBook.Book.Title,
 				libraryBook.Book.AudibleProductId,

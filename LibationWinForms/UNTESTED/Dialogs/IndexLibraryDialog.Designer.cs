@@ -36,7 +36,7 @@
 			this.label1.AutoSize = true;
 			this.label1.Location = new System.Drawing.Point(28, 24);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(260, 13);
+			this.label1.Size = new System.Drawing.Size(263, 13);
 			this.label1.TabIndex = 0;
 			this.label1.Text = "Scanning Audible library. This may take a few minutes";
 			// 
@@ -44,7 +44,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(319, 63);
+			this.ClientSize = new System.Drawing.Size(440, 63);
 			this.Controls.Add(this.label1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.MaximizeBox = false;

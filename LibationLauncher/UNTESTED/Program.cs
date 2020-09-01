@@ -99,9 +99,12 @@ namespace LibationLauncher
 				{
 					updateLegacyFileWithLocale();
 
-					var account = addAccountToNewAccountFile();
+					var account = createAccountFromLegacySettings();
+					account.DecryptKey = getDecryptKey(account);
 
-					importDecryptKey(account);
+					// the next few methods need persistence. to be a good citizen, dispose of persister at the end of current scope
+					using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+					persister.AccountsSettings.Add(account);
 				}
 				// migration is a convenience. if something goes wrong: just move on
 				catch { }
@@ -133,7 +136,7 @@ namespace LibationLauncher
 			}
 		}
 
-		private static Account addAccountToNewAccountFile()
+		private static Account createAccountFromLegacySettings()
 		{
 			// get required locale from settings file
 			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
@@ -161,24 +164,22 @@ namespace LibationLauncher
 				IdentityTokens = identity
 			};
 
-			// saves to new file
-			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			persister.AccountsSettings.Add(account);
-
 			return account;
 		}
 
-		private static void importDecryptKey(Account account)
+		private static string getDecryptKey(Account account)
 		{
-			if (account is null || !string.IsNullOrWhiteSpace(account.DecryptKey) || !File.Exists(Configuration.Instance.SettingsFilePath))
-				return;
+			if (!string.IsNullOrWhiteSpace(account?.DecryptKey))
+				return account.DecryptKey;
+
+			if (!File.Exists(Configuration.Instance.SettingsFilePath) || account is null)
+				return "";
 
 			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
 			if (JObject.Parse(settingsContents).TryGetValue("DecryptKey", out var jToken))
-			{
-				var decryptKey = jToken.Value<string>() ?? "";
-				account.DecryptKey = decryptKey;
-			}
+				return jToken.Value<string>() ?? "";
+
+			return "";
 		}
 
 		private static void updateSettingsFile()
