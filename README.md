@@ -9,6 +9,7 @@
     - [The bad](#the-bad)
     - [The ugly](#the-ugly)
 2. [Getting started](#getting-started)
+    - [Create Accounts](#create-accounts)
     - [Import your library](#import-your-library)
     - [Download your books -- DRM-free!](#download-your-books----drm-free)
     - [Download PDF attachments](#download-pdf-attachments)
@@ -57,11 +58,25 @@ I made this for myself and I want to share it with the great programming and aud
 
 #### [Download Libation](https://github.com/rmcrackan/Libation/releases)
 
+### Create Accounts
+
+Create your account(s):
+
+![Create your accounts, menu](images/v40_accounts.png)
+
+New locale options include many more regions including old audible accounts which pre-date the amazon acquisition
+
+![Choose your account locales](images/v40_locales.png)
+
 ### Import your library
 
 Select Import > Scan Library:
 
 ![Import step 1](images/Import1.png)
+
+Or if you have multiple accounts, you'll get to choose whether to scan all accounts or just the ones you select:
+
+![Import which accounts](images/v40_import.png)
 
 You'll see this window while it's scanning:
 
