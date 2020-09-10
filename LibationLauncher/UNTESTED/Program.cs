@@ -27,7 +27,8 @@ namespace LibationLauncher
 
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
 
-			migrate_v3_to_v4();
+			migrate_to_v4_0_0();
+			migrate_to_v4_0_3(); // add setting for whether to delete/retain aax
 
 			ensureLoggingConfig();
 			ensureSerilogConfig();
@@ -83,7 +84,7 @@ namespace LibationLauncher
 		#region v3 => v4 migration
 		static string AccountsSettingsFileLegacy30 => Path.Combine(Configuration.Instance.LibationFiles, "IdentityTokens.json");
 
-		private static void migrate_v3_to_v4()
+		private static void migrate_to_v4_0_0()
 		{
 			migrateLegacyIdentityFile();
 
@@ -199,6 +200,27 @@ namespace LibationLauncher
 
 			if (jDecryptKey != null || jLocale != null)
 			{
+				var newContents = jObj.ToString(Formatting.Indented);
+				File.WriteAllText(Configuration.Instance.SettingsFilePath, newContents);
+			}
+		}
+		#endregion
+
+		#region migrate_to_v4_0_3 add setting for whether to delete/retain aax
+		private static void migrate_to_v4_0_3()
+		{
+			if (!File.Exists(Configuration.Instance.SettingsFilePath))
+				return;
+
+			// use JObject to remove decrypt key and locale from Settings.json
+			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
+			var jObj = JObject.Parse(settingsContents);
+
+			var jRetainAaxFiles = jObj.Property("RetainAaxFiles");
+			if (jRetainAaxFiles is null)
+			{
+				jObj.Add("RetainAaxFiles", false);
+			
 				var newContents = jObj.ToString(Formatting.Indented);
 				File.WriteAllText(Configuration.Instance.SettingsFilePath, newContents);
 			}

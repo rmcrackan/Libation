@@ -62,9 +62,21 @@ namespace FileLiberator
                 if (outputAudioFilename == null)
                     return new StatusHandler { "Decrypt failed" };
 
-                moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
+                var destinationDir = moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
 
-                Dinah.Core.IO.FileExt.SafeDelete(aaxFilename);
+                var config = Configuration.Instance;
+                if (config.RetainAaxFiles)
+                {
+                    var newAaxFilename = FileUtility.GetValidFilename(
+                        destinationDir,
+                        Path.GetFileNameWithoutExtension(aaxFilename),
+                        "aax");
+                    File.Move(aaxFilename, newAaxFilename);
+                }
+                else
+                {
+                    Dinah.Core.IO.FileExt.SafeDelete(aaxFilename);
+                }
 
                 var statusHandler = new StatusHandler();
                 var finalAudioExists = AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
@@ -120,7 +132,7 @@ namespace FileLiberator
             }
         }
 
-        private static void moveFilesToBooksDir(Book product, string outputAudioFilename)
+        private static string moveFilesToBooksDir(Book product, string outputAudioFilename)
 		{
 			// create final directory. move each file into it. MOVE AUDIO FILE LAST
 			// new dir: safetitle_limit50char + " [" + productId + "]"
@@ -142,7 +154,9 @@ namespace FileLiberator
 
 				File.Move(f.FullName, dest);
 			}
-		}
+
+            return destinationDir;
+        }
 
 		private static string getDestDir(Book product)
 		{

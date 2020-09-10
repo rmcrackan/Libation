@@ -40,8 +40,13 @@ namespace FileManager
             return stringCache[propertyName];
         }
 
-        public T Get<T>(string propertyName) where T : class
-            => GetObject(propertyName) is T obj ? obj : default;
+        public T Get<T>(string propertyName)
+        {
+            var o = GetObject(propertyName);
+            if (o is null) return default;
+            if (o is JToken jt) return jt.Value<T>();
+            return (T)o;
+        }
 
         public object GetObject(string propertyName)
         {

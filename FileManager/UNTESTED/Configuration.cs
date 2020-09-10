@@ -83,6 +83,13 @@ namespace FileManager
             set => persistentDictionary.Set(nameof(DecryptInProgressEnum), value);
         }
 
+        [Description("Retain .aax files after decrypting?")]
+        public bool RetainAaxFiles
+        {
+            get => persistentDictionary.Get<bool>(nameof(RetainAaxFiles));
+            set => persistentDictionary.Set(nameof(RetainAaxFiles), value);
+        }
+
         // note: any potential file manager static ctors can't compensate if storage dir is changed at run time via settings. this is partly bad architecture. but the side effect is desirable. if changing LibationFiles location: restart app
 
         // singleton stuff
