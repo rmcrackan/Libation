@@ -35,12 +35,14 @@
 			this.filterSearchTb = new System.Windows.Forms.TextBox();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.noAccountsYetAddAccountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.scanLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.scanLibraryOfAllAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.scanLibraryOfSomeAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.liberateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.beginBookBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.beginPdfBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.quickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.firstFilterIsDefaultToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.editQuickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,6 +58,7 @@
 			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.addFilterBtn = new System.Windows.Forms.Button();
 			this.noAccountsYetAddAccountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exportLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -106,6 +109,7 @@
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.importToolStripMenuItem,
 			this.liberateToolStripMenuItem,
+			this.exportToolStripMenuItem,
 			this.quickFiltersToolStripMenuItem,
 			this.settingsToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -124,6 +128,12 @@
 			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
 			this.importToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
 			this.importToolStripMenuItem.Text = "&Import";
+			// 
+			// noAccountsYetAddAccountToolStripMenuItem
+			// 
+			this.noAccountsYetAddAccountToolStripMenuItem.Name = "noAccountsYetAddAccountToolStripMenuItem";
+			this.noAccountsYetAddAccountToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.noAccountsYetAddAccountToolStripMenuItem.Text = "No accounts yet. A&dd Account...";
 			// 
 			// scanLibraryToolStripMenuItem
 			// 
@@ -168,6 +178,14 @@
 			this.beginPdfBackupsToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
 			this.beginPdfBackupsToolStripMenuItem.Text = "Begin &PDF Only Backups: {0}";
 			this.beginPdfBackupsToolStripMenuItem.Click += new System.EventHandler(this.beginPdfBackupsToolStripMenuItem_Click);
+			// 
+			// exportToolStripMenuItem
+			// 
+			this.exportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.exportLibraryToolStripMenuItem});
+			this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
+			this.exportToolStripMenuItem.Size = new System.Drawing.Size(53, 20);
+			this.exportToolStripMenuItem.Text = "E&xport";
 			// 
 			// quickFiltersToolStripMenuItem
 			// 
@@ -283,6 +301,13 @@
 			this.noAccountsYetAddAccountToolStripMenuItem.Text = "No accounts yet. A&dd Account...";
 			this.noAccountsYetAddAccountToolStripMenuItem.Click += new System.EventHandler(this.noAccountsYetAddAccountToolStripMenuItem_Click);
 			// 
+			// exportLibraryToolStripMenuItem
+			// 
+			this.exportLibraryToolStripMenuItem.Name = "exportLibraryToolStripMenuItem";
+			this.exportLibraryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.exportLibraryToolStripMenuItem.Text = "E&xport Library...";
+			this.exportLibraryToolStripMenuItem.Click += new System.EventHandler(this.exportLibraryToolStripMenuItem_Click);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -338,5 +363,7 @@
 		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfSomeAccountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem noAccountsYetAddAccountToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem exportLibraryToolStripMenuItem;
 	}
 }

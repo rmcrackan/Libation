@@ -24,7 +24,7 @@ namespace ApplicationServices
 				var totalCount = importItems.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
-				var newCount = await getNewCountAsync(importItems);
+				var newCount = await importIntoDbAsync(importItems);
 				Log.Logger.Information($"Import: New count {newCount}");
 
 				await Task.Run(() => SearchEngineCommands.FullReIndex());
@@ -75,7 +75,7 @@ namespace ApplicationServices
 			return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = localeName }).ToList();
 		}
 
-		private static async Task<int> getNewCountAsync(List<ImportItem> importItems)
+		private static async Task<int> importIntoDbAsync(List<ImportItem> importItems)
 		{
 			using var context = DbContexts.GetContext();
 			var libraryImporter = new LibraryImporter(context);

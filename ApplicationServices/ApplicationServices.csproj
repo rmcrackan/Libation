@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="15.0.5" />
+    <PackageReference Include="NPOI" Version="2.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\audible api\AudibleApi\AudibleApiDTOs\AudibleApiDTOs.csproj" />
     <ProjectReference Include="..\..\audible api\AudibleApi\AudibleApi\AudibleApi.csproj" />
     <ProjectReference Include="..\DtoImporterService\DtoImporterService.csproj" />

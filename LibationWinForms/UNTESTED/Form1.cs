@@ -130,6 +130,9 @@ namespace LibationWinForms
 			var downloadedOnly = results.Count(r => r == AudioFileState.aax);
 			var noProgress = results.Count(r => r == AudioFileState.none);
 
+            // enable/disable export
+            exportLibraryToolStripMenuItem.Enabled = results.Any();
+
             // update bottom numbers
             var pending = noProgress + downloadedOnly;
             var statusStripText
@@ -297,6 +300,38 @@ namespace LibationWinForms
             => await BookLiberation.ProcessorAutomationController.BackupAllPdfsAsync(updateGridRow);
 
         private void updateGridRow(object _, LibraryBook libraryBook) => currProductsGrid.RefreshRow(libraryBook.Book.AudibleProductId);
+        #endregion
+
+        #region Export menu
+        private void exportLibraryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var saveFileDialog = new SaveFileDialog
+                {
+                    Title = "Where to export Library",
+                    Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
+                };
+
+                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                    return;
+
+                switch (saveFileDialog.FilterIndex)
+                {
+                    case 1: // csv
+                    default:
+                        LibraryExporter.ToCsv(saveFileDialog.FileName);
+                        break;
+                }
+                
+                MessageBox.Show("Library exported to:\r\n" + saveFileDialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Error attempting to export library");
+                MessageBox.Show("Error attempting to export your library. Error message:\r\n\r\n" + ex.Message, "Error exporting", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         #endregion
 
         #region quick filters menu
