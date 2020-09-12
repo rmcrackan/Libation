@@ -11,6 +11,15 @@ namespace ApplicationServices
 {
 	public class ExportDto
 	{
+		public static string GetName(string fieldName)
+		{
+			var property = typeof(ExportDto).GetProperty(fieldName);
+			var attribute = property.GetCustomAttributes(typeof(NameAttribute), true)[0];
+			var description = (NameAttribute)attribute;
+			var text = description.Names;
+			return text[0];
+		}
+
 		[Name("Account")]
 		public string Account { get; set; }
 
@@ -40,9 +49,9 @@ namespace ApplicationServices
 
 		[Name("Pdf url")]
 		public string PdfUrl { get; set; }
-		
+
 		[Name("Series Names")]
-		public string SeriesNames{ get; set; }
+		public string SeriesNames { get; set; }
 
 		[Name("Series Order")]
 		public string SeriesOrder { get; set; }
@@ -58,10 +67,10 @@ namespace ApplicationServices
 
 		[Name("Cover Id")]
 		public string PictureId { get; set; }
-		
+
 		[Name("Is Abridged?")]
 		public bool IsAbridged { get; set; }
-		
+
 		[Name("Date Published")]
 		public DateTime? DatePublished { get; set; }
 
@@ -112,16 +121,6 @@ namespace ApplicationServices
 	}
 	public static class LibraryExporter
 	{
-		private static List<acct> GetAccts()
-		{
-			var ia = true;
-			var userAccounts = new List<acct>();
-			for (var i = 0; i < 7; i++)
-				userAccounts.Add(new acct { UserName = "u" + i, Email = "e" + i, CreationDate = DateTime.Now.AddDays(-i * 2), LastLoginDate = DateTime.Now.AddDays(-i), IsApproved = (ia = !ia), Comment = "c [ ] * % , ' \" \\ \n " + i });
-
-			return userAccounts;
-		}
-
 		public static void ToCsv(string saveFilePath)
 		{
 			using var context = DbContexts.GetContext();
@@ -150,13 +149,7 @@ namespace ApplicationServices
 		public static void ToXlsx(string saveFilePath)
 		{
 			using var context = DbContexts.GetContext();
-
-			var library = context.GetLibrary_Flat_NoTracking();
-		}
-
-		public static void TEST_ToXlsx(string saveFilePath)
-		{
-			// https://steemit.com/utopian-io/@haig/how-to-create-excel-spreadsheets-using-npoi
+			var dtos = context.GetLibrary_Flat_NoTracking().ToDtos();
 
 			var workbook = new XSSFWorkbook();
 			var sheet = workbook.CreateSheet("Library");
@@ -171,63 +164,105 @@ namespace ApplicationServices
 			var rowIndex = 0;
 			var row = sheet.CreateRow(rowIndex);
 
+			var columns = new[] {
+				nameof (ExportDto.Account),
+				nameof (ExportDto.DateAdded),
+				nameof (ExportDto.AudibleProductId),
+				nameof (ExportDto.Locale),
+				nameof (ExportDto.Title),
+				nameof (ExportDto.AuthorNames),
+				nameof (ExportDto.NarratorNames),
+				nameof (ExportDto.LengthInMinutes),
+				nameof (ExportDto.Publisher),
+				nameof (ExportDto.PdfUrl),
+				nameof (ExportDto.SeriesNames),
+				nameof (ExportDto.SeriesOrder),
+				nameof (ExportDto.CommunityRatingOverall),
+				nameof (ExportDto.CommunityRatingPerformance),
+				nameof (ExportDto.CommunityRatingStory),
+				nameof (ExportDto.PictureId),
+				nameof (ExportDto.IsAbridged),
+				nameof (ExportDto.DatePublished),
+				nameof (ExportDto.CategoriesNames),
+				nameof (ExportDto.MyRatingOverall),
+				nameof (ExportDto.MyRatingPerformance),
+				nameof (ExportDto.MyRatingStory),
+				nameof (ExportDto.MyLibationTags)
+			};
+			var col = 0;
+			foreach (var c in columns)
 			{
-				var cell = row.CreateCell(0);
-				cell.SetCellValue("Username");
+				var cell = row.CreateCell(col++);
+				var name = ExportDto.GetName(c);
+				cell.SetCellValue(name);
 				cell.CellStyle = detailSubtotalCellStyle;
 			}
-			{
-				var cell = row.CreateCell(1);
-				cell.SetCellValue("Email");
-				cell.CellStyle = detailSubtotalCellStyle;
-			}
-			{
-				var cell = row.CreateCell(2);
-				cell.SetCellValue("Joined");
-				cell.CellStyle = detailSubtotalCellStyle;
-			}
-			{
-				var cell = row.CreateCell(3);
-				cell.SetCellValue("Last Login");
-				cell.CellStyle = detailSubtotalCellStyle;
-			}
-			{
-				var cell = row.CreateCell(4);
-				cell.SetCellValue("Approved?");
-				cell.CellStyle = detailSubtotalCellStyle;
-			}
-			{
-				var cell = row.CreateCell(5);
-				cell.SetCellValue("Comments");
-				cell.CellStyle = detailSubtotalCellStyle;
-			}
+
+			var dateFormat = workbook.CreateDataFormat();
+			var dateStyle = workbook.CreateCellStyle();
+			dateStyle.DataFormat = dateFormat.GetFormat("MM/dd/yyyy HH:mm:ss");
 
 			rowIndex++;
 
 			// Add data rows
-			foreach (acct account in GetAccts())
+			foreach (var dto in dtos)
 			{
+				col = 0;
+
 				row = sheet.CreateRow(rowIndex);
-				row.CreateCell(0).SetCellValue(account.UserName);
-				row.CreateCell(1).SetCellValue(account.Email);
-				row.CreateCell(2).SetCellValue(account.CreationDate.ToShortDateString());
-				row.CreateCell(3).SetCellValue(account.LastLoginDate.ToShortDateString());
-				row.CreateCell(4).SetCellValue(account.IsApproved);
-				row.CreateCell(5).SetCellValue(account.Comment);
+
+				row.CreateCell(col++).SetCellValue(dto.Account);
+
+				var dateAddedCell = row.CreateCell(col++);
+				dateAddedCell.CellStyle = dateStyle;
+				dateAddedCell.SetCellValue(dto.DateAdded);
+
+				row.CreateCell(col++).SetCellValue(dto.AudibleProductId);
+				row.CreateCell(col++).SetCellValue(dto.Locale);
+				row.CreateCell(col++).SetCellValue(dto.Title);
+				row.CreateCell(col++).SetCellValue(dto.AuthorNames);
+				row.CreateCell(col++).SetCellValue(dto.NarratorNames);
+				row.CreateCell(col++).SetCellValue(dto.LengthInMinutes);
+				row.CreateCell(col++).SetCellValue(dto.Publisher);
+				row.CreateCell(col++).SetCellValue(dto.PdfUrl);
+				row.CreateCell(col++).SetCellValue(dto.SeriesNames);
+				row.CreateCell(col++).SetCellValue(dto.SeriesOrder);
+
+				col = createCell(row, col, dto.CommunityRatingOverall);
+				col = createCell(row, col, dto.CommunityRatingPerformance);
+				col = createCell(row, col, dto.CommunityRatingStory);
+
+				row.CreateCell(col++).SetCellValue(dto.PictureId);
+				row.CreateCell(col++).SetCellValue(dto.IsAbridged);
+
+				var datePubCell = row.CreateCell(col++);
+				datePubCell.CellStyle = dateStyle;
+				if (dto.DatePublished.HasValue)
+					datePubCell.SetCellValue(dto.DatePublished.Value);
+				else
+					datePubCell.SetCellValue("");
+
+				row.CreateCell(col++).SetCellValue(dto.CategoriesNames);
+
+				col = createCell(row, col, dto.MyRatingOverall);
+				col = createCell(row, col, dto.MyRatingPerformance);
+				col = createCell(row, col, dto.MyRatingStory);
+
+				row.CreateCell(col++).SetCellValue(dto.MyLibationTags);
+
 				rowIndex++;
 			}
 
 			using var fileData = new System.IO.FileStream(saveFilePath, System.IO.FileMode.Create);
 			workbook.Write(fileData);
 		}
-		class acct
+		private static int createCell(NPOI.SS.UserModel.IRow row, int col, float? nullableFloat)
 		{
-			public string UserName { get; set; }
-			public string Email { get; set; }
-			public DateTime CreationDate { get; set; }
-			public DateTime LastLoginDate { get; set; }
-			public bool IsApproved { get; set; }
-			public string Comment { get; set; }
+			if (nullableFloat.HasValue)
+				row.CreateCell(col++).SetCellValue(nullableFloat.Value);
+			else
+				row.CreateCell(col++).SetCellValue("");
+			return col;
 		}
 	}
 }

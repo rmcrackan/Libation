@@ -310,7 +310,7 @@ namespace LibationWinForms
                 var saveFileDialog = new SaveFileDialog
                 {
                     Title = "Where to export Library",
-                    Filter = "CSV files (*.csv)|*.csv|JSON files (*.json)|*.json|All files (*.*)|*.*"
+                    Filter = "Excel Workbook (*.xlsx)|*.xlsx|CSV files (*.csv)|*.csv|JSON files (*.json)|*.json" // + "|All files (*.*)|*.*"
                 };
 
                 if (saveFileDialog.ShowDialog() != DialogResult.OK)
@@ -319,15 +319,18 @@ namespace LibationWinForms
                 // FilterIndex is 1-based, NOT 0-based
                 switch (saveFileDialog.FilterIndex)
                 {
-                    case 2: // json
-                        LibraryExporter.ToJson(saveFileDialog.FileName);
-                        break;
-                    case 1: // csv
+                    case 1: // xlsx
                     default:
+                        LibraryExporter.ToXlsx(saveFileDialog.FileName);
+                        break;
+                    case 2: // csv
                         LibraryExporter.ToCsv(saveFileDialog.FileName);
                         break;
+                    case 3: // json
+                        LibraryExporter.ToJson(saveFileDialog.FileName);
+                        break;
                 }
-                
+
                 MessageBox.Show("Library exported to:\r\n" + saveFileDialog.FileName);
             }
             catch (Exception ex)
