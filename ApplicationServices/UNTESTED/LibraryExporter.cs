@@ -138,6 +138,15 @@ namespace ApplicationServices
 			csv.WriteRecords(dtos);
 		}
 
+		public static void ToJson(string saveFilePath)
+		{
+			using var context = DbContexts.GetContext();
+			var dtos = context.GetLibrary_Flat_NoTracking().ToDtos();
+
+			var json = Newtonsoft.Json.JsonConvert.SerializeObject(dtos, Newtonsoft.Json.Formatting.Indented);
+			System.IO.File.WriteAllText(saveFilePath, json);
+		}
+
 		public static void ToXlsx(string saveFilePath)
 		{
 			using var context = DbContexts.GetContext();
@@ -219,14 +228,6 @@ namespace ApplicationServices
 			public DateTime LastLoginDate { get; set; }
 			public bool IsApproved { get; set; }
 			public string Comment { get; set; }
-		}
-
-		public static void ToJson(string saveFilePath)
-		{
-			using var context = DbContexts.GetContext();
-
-			var library = context.GetLibrary_Flat_NoTracking();
-
 		}
 	}
 }

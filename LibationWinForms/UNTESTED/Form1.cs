@@ -310,14 +310,18 @@ namespace LibationWinForms
                 var saveFileDialog = new SaveFileDialog
                 {
                     Title = "Where to export Library",
-                    Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
+                    Filter = "CSV files (*.csv)|*.csv|JSON files (*.json)|*.json|All files (*.*)|*.*"
                 };
 
                 if (saveFileDialog.ShowDialog() != DialogResult.OK)
                     return;
 
+                // FilterIndex is 1-based, NOT 0-based
                 switch (saveFileDialog.FilterIndex)
                 {
+                    case 2: // json
+                        LibraryExporter.ToJson(saveFileDialog.FileName);
+                        break;
                     case 1: // csv
                     default:
                         LibraryExporter.ToCsv(saveFileDialog.FileName);
