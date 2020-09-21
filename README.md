@@ -14,6 +14,7 @@
     - [Download your books -- DRM-free!](#download-your-books----drm-free)
     - [Download PDF attachments](#download-pdf-attachments)
     - [Details of downloaded files](#details-of-downloaded-files)
+    - [Export your library](#export-your-library)
 3. [Searching and filtering](#searching-and-filtering)
     - [Tags](#tags)
     - [Searches](#searches)
@@ -143,6 +144,12 @@ When you set up Libation, you'll specify a Books directory. Libation looks insid
 * .m4b: your audiobook in m4b format. This is the most pure version of your audiobook and retains the highest quality. Now that it's decrypted, you can play it on any audio player and put it on any device. If you'd like, you can also use 3rd party tools to turn it into an mp3. The freedom to do what you want with your files was the original inspiration for Libation.
 * .cue: this is a file which logs where chapter breaks occur. Many tools are able to use this if you want to split your book into files along chapter lines.
 * .nfo: This is just some general info about the book and includes some technical stats about the audiofile.
+
+### Export your library
+
+![Export](images/Export.png)
+
+Export your library to Excel, CSV, or JSON
 
 ## Searching and filtering
 
