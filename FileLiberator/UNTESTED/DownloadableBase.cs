@@ -38,6 +38,9 @@ namespace FileLiberator
             }
         }
 
+		protected static Task<AudibleApi.Api> GetApiAsync(LibraryBook libraryBook)
+			=> InternalUtilities.AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
+
 		protected async Task<string> PerformDownloadAsync(string proposedDownloadFilePath, Func<Progress<DownloadProgress>, Task<string>> func)
 		{
 			var progress = new Progress<DownloadProgress>();

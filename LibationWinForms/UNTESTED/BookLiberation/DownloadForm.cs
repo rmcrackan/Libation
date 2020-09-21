@@ -17,15 +17,15 @@ namespace LibationWinForms.BookLiberation
         // thread-safe UI updates
         public void UpdateFilename(string title) => filenameLbl.UIThread(() => filenameLbl.Text = title);
 
-        public void DownloadProgressChanged(long BytesReceived, long TotalBytesToReceive)
+        public void DownloadProgressChanged(long BytesReceived, long? TotalBytesToReceive)
         {
             // this won't happen with download file. it will happen with download string
-            if (TotalBytesToReceive < 0)
+            if (!TotalBytesToReceive.HasValue || TotalBytesToReceive.Value <= 0)
                 return;
 
-            progressLbl.UIThread(() => progressLbl.Text = $"{BytesReceived:#,##0} of {TotalBytesToReceive:#,##0}");
+            progressLbl.UIThread(() => progressLbl.Text = $"{BytesReceived:#,##0} of {TotalBytesToReceive.Value:#,##0}");
 
-            var d = double.Parse(BytesReceived.ToString()) / double.Parse(TotalBytesToReceive.ToString()) * 100.0;
+            var d = double.Parse(BytesReceived.ToString()) / double.Parse(TotalBytesToReceive.Value.ToString()) * 100.0;
             var i = int.Parse(Math.Truncate(d).ToString());
             progressBar1.UIThread(() => progressBar1.Value = i);
 

@@ -126,7 +126,7 @@ namespace LibationWinForms.BookLiberation
                 downloadDialog.UpdateFilename(str);
                 downloadDialog.Show();
             };
-            downloadFile.DownloadProgressChanged += (_, progress) => downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive.Value);
+            downloadFile.DownloadProgressChanged += (_, progress) => downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive);
             downloadFile.DownloadCompleted += (_, __) => downloadDialog.Close();
 
             await downloadFile.PerformDownloadFileAsync(url, destination);
@@ -161,7 +161,7 @@ namespace LibationWinForms.BookLiberation
             void fileDownloadCompleted(object _, string __) => downloadDialog.Close();
 
             void downloadProgressChanged(object _, Dinah.Core.Net.Http.DownloadProgress progress)
-                => downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive.Value);
+                => downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive);
 
             void unsubscribe(object _ = null, EventArgs __ = null)
             {

@@ -45,7 +45,7 @@ namespace FileLiberator
 		{
 			validate(libraryBook);
 
-			var api = await AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
+			var api = await GetApiAsync(libraryBook);
 
 			var actualFilePath = await PerformDownloadAsync(
 				tempAaxFilename,
