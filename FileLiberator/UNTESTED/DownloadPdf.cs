@@ -31,12 +31,18 @@ namespace FileLiberator
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
 		{
 			// if audio file exists, get it's dir. else return base Book dir
-			var destinationDir =
-				// this is safe b/c GetDirectoryName(null) == null
-				Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId))
-				?? AudibleFileStorage.PDF.StorageDirectory;
+			var existingPath = Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId));
+			var file = getdownloadUrl(libraryBook);
 
-			return Path.Combine(destinationDir, Path.GetFileName(getdownloadUrl(libraryBook)));
+			if (existingPath != null)
+				return Path.Combine(existingPath, Path.GetFileName(file));
+
+			var full = FileUtility.GetValidFilename(
+				AudibleFileStorage.PDF.StorageDirectory,
+				libraryBook.Book.Title,
+				Path.GetExtension(file),
+				libraryBook.Book.AudibleProductId);
+			return full;
 		}
 
 		private async Task downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
