@@ -10,7 +10,7 @@ namespace LibationWinForms.BookLiberation
     {
         public static async Task BackupSingleBookAsync(string productId, EventHandler<LibraryBook> completedAction = null)
         {
-            Serilog.Log.Information("Begin " + nameof(BackupSingleBookAsync) + " {@DebugInfo}", new { productId });
+            Serilog.Log.Logger.Information("Begin " + nameof(BackupSingleBookAsync) + " {@DebugInfo}", new { productId });
 
             var backupBook = getWiredUpBackupBook(completedAction);
 
@@ -22,7 +22,7 @@ namespace LibationWinForms.BookLiberation
 
         public static async Task BackupAllBooksAsync(EventHandler<LibraryBook> completedAction = null)
         {
-            Serilog.Log.Information("Begin " + nameof(BackupAllBooksAsync));
+            Serilog.Log.Logger.Information("Begin " + nameof(BackupAllBooksAsync));
 
             var backupBook = getWiredUpBackupBook(completedAction);
 
@@ -100,7 +100,7 @@ namespace LibationWinForms.BookLiberation
 
         public static async Task BackupAllPdfsAsync(EventHandler<LibraryBook> completedAction = null)
         {
-            Serilog.Log.Information("Begin " + nameof(BackupAllPdfsAsync));
+            Serilog.Log.Logger.Information("Begin " + nameof(BackupAllPdfsAsync));
 
             var downloadPdf = getWiredUpDownloadPdf(completedAction);
 

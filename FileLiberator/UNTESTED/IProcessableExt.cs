@@ -46,7 +46,7 @@ namespace FileLiberator
 
         private static async Task<StatusHandler> processBookAsync(IProcessable processable, LibraryBook libraryBook)
         {
-            Serilog.Log.Information("Begin " + nameof(processBookAsync) + " {@DebugInfo}", new
+            Serilog.Log.Logger.Information("Begin " + nameof(processBookAsync) + " {@DebugInfo}", new
             {
                 libraryBook.Book.Title,
                 libraryBook.Book.AudibleProductId,

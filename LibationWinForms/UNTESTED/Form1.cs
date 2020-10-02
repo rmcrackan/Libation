@@ -335,7 +335,7 @@ namespace LibationWinForms
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, "Error attempting to export library");
+                Serilog.Log.Logger.Error(ex, "Error attempting to export library");
                 MessageBox.Show("Error attempting to export your library. Error message:\r\n\r\n" + ex.Message, "Error exporting", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
