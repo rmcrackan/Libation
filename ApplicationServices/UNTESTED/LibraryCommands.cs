@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AudibleApi;
 using DataLayer;
+using Dinah.Core;
 using DtoImporterService;
 using InternalUtilities;
 using Serilog;
@@ -61,13 +62,13 @@ namespace ApplicationServices
 
 		private static async Task<List<ImportItem>> scanAccountAsync(Api api, Account account)
 		{
-			Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
+			ArgumentValidator.EnsureNotNull(account, nameof(account));
 
 			var localeName = account.Locale?.Name;
 			Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
 			{
-				account.AccountName,
-				account.AccountId,
+				AccountName = account.AccountName.ToMask(),
+				AccountId = account.AccountId.ToMask(),
 				LocaleName = localeName,
 			});
 

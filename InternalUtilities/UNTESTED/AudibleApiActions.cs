@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AudibleApi;
 using AudibleApiDTOs;
+using Dinah.Core;
 using Polly;
 using Polly.Retry;
 
@@ -16,7 +17,7 @@ namespace InternalUtilities
 		{
 			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
 			{
-				username,
+				Username = username.ToMask(),
 				LocaleName = localeName,
 			});
 			return EzApiCreator.GetApiAsync(
@@ -31,7 +32,7 @@ namespace InternalUtilities
 		{
 			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
 			{
-				AccountId = account?.AccountId ?? "[empty]",
+				AccountId = account?.AccountId.ToMask() ?? "[empty]",
 				LocaleName = account?.Locale?.Name
 			});
 			return EzApiCreator.GetApiAsync(
