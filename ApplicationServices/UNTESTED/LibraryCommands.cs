@@ -33,6 +33,24 @@ namespace ApplicationServices
 
 				return (totalCount, newCount);
 			}
+			catch (AudibleApi.Authentication.LoginFailedException lfEx)
+			{
+				lfEx.MoveResponseBodyFile(FileManager.Configuration.Instance.LibationFiles);
+
+				// nuget Serilog.Exceptions would automatically log custom properties
+				//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
+				//   https://github.com/RehanSaeed/Serilog.Exceptions
+				// work-around: use 3rd param. don't just put exception object in 3rd param -- info overload: stack trace, etc
+				Log.Logger.Error(lfEx, "Error importing library. Login failed. {@DebugInfo}", new {
+					lfEx.RequestInputFields,
+					lfEx.RequestUrl,
+					ResponseStatusCodeNumber = (int)lfEx.ResponseStatusCode,
+					ResponseStatusCodeDesc = lfEx.ResponseStatusCode,
+					lfEx.ResponseInputFields,
+					lfEx.ResponseBodyFilePath
+				});
+				throw;
+			}
 			catch (Exception ex)
 			{
 				Log.Logger.Error(ex, "Error importing library");

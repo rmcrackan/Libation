@@ -323,8 +323,8 @@ namespace LibationLauncher
 				.AddJsonFile(config.SettingsFilePath)
 				.Build();
 			Log.Logger = new LoggerConfiguration()
-			  .ReadFrom.Configuration(configuration)
-			  .CreateLogger();
+				.ReadFrom.Configuration(configuration)
+				.CreateLogger();
 
 			//// MANUAL HARD CODED
 			//Log.Logger = new LoggerConfiguration()
