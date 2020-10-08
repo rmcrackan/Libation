@@ -37,5 +37,11 @@ namespace LibationWinForms.Login
 				return (dialog.Email, dialog.Password);
 			return (null, null);
 		}
+
+		public void ShowApprovalNeeded()
+		{
+			using var dialog = new ApprovalNeededDialog();
+			dialog.ShowDialog();
+		}
 	}
 }

@@ -89,6 +89,12 @@
     <Compile Include="Dialogs\LibationFilesDialog.Designer.cs">
       <DependentUpon>LibationFilesDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\Login\ApprovalNeededDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\Login\ApprovalNeededDialog.Designer.cs">
+      <DependentUpon>ApprovalNeededDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Login\AudibleLoginDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -175,15 +181,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\LibationFilesDialog.resx">
       <DependentUpon>LibationFilesDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Login\AudibleLoginDialog.resx">
-      <DependentUpon>AudibleLoginDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Login\CaptchaDialog.resx">
-      <DependentUpon>CaptchaDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Login\_2faCodeDialog.resx">
-      <DependentUpon>_2faCodeDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ScanAccountsDialog.resx">
       <DependentUpon>ScanAccountsDialog.cs</DependentUpon>

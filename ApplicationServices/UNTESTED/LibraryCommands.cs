@@ -42,7 +42,6 @@ namespace ApplicationServices
 				//   https://github.com/RehanSaeed/Serilog.Exceptions
 				// work-around: use 3rd param. don't just put exception object in 3rd param -- info overload: stack trace, etc
 				Log.Logger.Error(lfEx, "Error importing library. Login failed. {@DebugInfo}", new {
-					lfEx.RequestInputFields,
 					lfEx.RequestUrl,
 					ResponseStatusCodeNumber = (int)lfEx.ResponseStatusCode,
 					ResponseStatusCodeDesc = lfEx.ResponseStatusCode,

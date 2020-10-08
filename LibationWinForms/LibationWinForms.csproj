@@ -27,6 +27,10 @@
     <Compile Update="UNTESTED\Dialogs\LibationFilesDialog.Designer.cs">
       <DependentUpon>LibationFilesDialog.cs</DependentUpon>
     </Compile>
+    <Compile Update="UNTESTED\Dialogs\Login\ApprovalNeededDialog.cs" />
+    <Compile Update="UNTESTED\Dialogs\Login\ApprovalNeededDialog.Designer.cs">
+      <DependentUpon>ApprovalNeededDialog.cs</DependentUpon>
+    </Compile>
     <Compile Update="UNTESTED\Dialogs\ScanAccountsDialog.cs" />
     <Compile Update="UNTESTED\Dialogs\ScanAccountsDialog.Designer.cs">
       <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
