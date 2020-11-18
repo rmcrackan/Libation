@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="15.0.6" />
+    <PackageReference Include="CsvHelper" Version="16.0.0" />
     <PackageReference Include="NPOI" Version="2.5.1" />
   </ItemGroup>
 
