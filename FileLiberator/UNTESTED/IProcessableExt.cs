@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApplicationServices;
 using DataLayer;
+using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 
 namespace FileLiberator
@@ -51,7 +52,7 @@ namespace FileLiberator
                 libraryBook.Book.Title,
                 libraryBook.Book.AudibleProductId,
                 libraryBook.Book.Locale,
-                libraryBook.Account
+                Account = libraryBook.Account?.ToMask() ?? "[empty]"
             });
 
             // this should never happen. check anyway. ProcessFirstValidAsync returning null is the signal that we're done. we can't let another IProcessable accidentally send this command
