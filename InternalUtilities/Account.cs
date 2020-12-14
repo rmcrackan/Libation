@@ -93,5 +93,11 @@ namespace InternalUtilities
 		}
 
 		public override string ToString() => $"{AccountId} - {Locale?.Name ?? "[empty]"}";
+
+		public string MaskedLogEntry => @$"AccountId={mask(AccountId)}|AccountName={mask(AccountName)}|Locale={Locale?.Name ?? "[empty]"}";
+		private static string mask(string str)
+			=> str is null ? "[null]"
+			: str == string.Empty ? "[empty]"
+			: str.ToMask();
 	}
 }

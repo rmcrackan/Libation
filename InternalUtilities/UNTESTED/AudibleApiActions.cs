@@ -32,7 +32,7 @@ namespace InternalUtilities
 		{
 			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
 			{
-				AccountId = account?.AccountId.ToMask() ?? "[empty]",
+				Account = account?.MaskedLogEntry ?? "[null]",
 				LocaleName = account?.Locale?.Name
 			});
 			return EzApiCreator.GetApiAsync(

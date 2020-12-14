@@ -81,16 +81,13 @@ namespace ApplicationServices
 		{
 			ArgumentValidator.EnsureNotNull(account, nameof(account));
 
-			var localeName = account.Locale?.Name;
 			Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
 			{
-				AccountName = account.AccountName.ToMask(),
-				AccountId = account.AccountId.ToMask(),
-				LocaleName = localeName,
+				Account = account?.MaskedLogEntry ?? "[null]"
 			});
 
 			var dtoItems = await AudibleApiActions.GetLibraryValidatedAsync(api);
-			return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = localeName }).ToList();
+			return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = account.Locale?.Name }).ToList();
 		}
 
 		private static async Task<int> importIntoDbAsync(List<ImportItem> importItems)

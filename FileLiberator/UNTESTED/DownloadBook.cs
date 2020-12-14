@@ -72,7 +72,7 @@ namespace FileLiberator
 				libraryBook.Book.Title,
 				libraryBook.Book.AudibleProductId,
 				libraryBook.Book.Locale,
-				libraryBook.Account,
+				Account = libraryBook.Account?.ToMask() ?? "[empty]",
 				tempAaxFilename,
 				actualFilePath,
 				length,
