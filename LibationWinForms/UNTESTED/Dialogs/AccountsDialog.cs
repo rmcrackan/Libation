@@ -151,7 +151,7 @@ namespace LibationWinForms.Dialogs
 				if (string.IsNullOrWhiteSpace(dto.AccountId))
 					throw new Exception("Please enter an account id for all accounts");
 				if (string.IsNullOrWhiteSpace(dto.LocaleName))
-					throw new Exception("Please select a local name for all accounts");
+					throw new Exception("Please select a locale (i.e.: country or region) for all accounts");
 
 				var acct = accountsSettings.Upsert(dto.AccountId, dto.LocaleName);
 				acct.LibraryScan = dto.LibraryScan;
