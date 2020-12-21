@@ -288,13 +288,22 @@ namespace LibationWinForms.BookLiberation
         {
             automatedBackupsForm.Show();
 
+            // processable.ProcessFirstValidAsync used to be encapsulated elsewhere. however, support for 'skip this time only' requires state. iterators provide this state for free. therefore: use foreach/iterator here
             try
             {
-                var shouldContinue = true;
-                while (shouldContinue)
+                foreach (var libraryBook in processable.GetValidLibraryBooks())
                 {
-                    var statusHandler = await processable.ProcessFirstValidAsync();
-                    shouldContinue = validateStatus(statusHandler, automatedBackupsForm);
+                    try
+                    {
+                        var statusHandler = await processable.ProcessBookAsync_NoValidation(libraryBook);
+                        if (!validateStatus(statusHandler, automatedBackupsForm))
+                            break;
+                    }
+                    catch (Exception e)
+                    {
+                        automatedBackupsForm.AppendError(e);
+                        DisplaySkipDialog(automatedBackupsForm, libraryBook, e);
+                    }
                 }
             }
             catch (Exception ex)
@@ -311,15 +320,61 @@ namespace LibationWinForms.BookLiberation
 
             try
             {
-                var statusHandler = await processable.ProcessSingleAsync(productId);
-                validateStatus(statusHandler, automatedBackupsForm);
+                var libraryBook = IProcessableExt.GetSingleLibraryBook(productId);
+
+                try
+                {
+                    var statusHandler = await processable.ProcessSingleAsync(libraryBook);
+                    validateStatus(statusHandler, automatedBackupsForm);
+                }
+                catch (Exception ex)
+                {
+                    automatedBackupsForm.AppendError(ex);
+                    DisplaySkipDialog(automatedBackupsForm, libraryBook, ex);
+                }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                automatedBackupsForm.AppendError(ex);
+                automatedBackupsForm.AppendError(e);
             }
 
             automatedBackupsForm.FinalizeUI();
+        }
+
+        private static void DisplaySkipDialog(AutomatedBackupsForm automatedBackupsForm, LibraryBook libraryBook, Exception ex)
+        {
+
+            try
+            {
+                var text = @$"
+The below error occurred while trying to process this book. Skip this book permanently?
+
+- Click YES to skip this book permanently.
+
+- Click NO to skip the book this time only. We'll try again later.
+
+Error:
+{ex.Message}
+".Trim();
+                var dialogResult = System.Windows.Forms.MessageBox.Show(
+                    text,
+                    "Skip importing this book?",
+                    System.Windows.Forms.MessageBoxButtons.YesNo,
+                    System.Windows.Forms.MessageBoxIcon.Question);
+
+                if (dialogResult != System.Windows.Forms.DialogResult.Yes)
+                {
+                    FileManager.AudibleFileStorage.Audio.CreateSkipFile(
+                        libraryBook.Book.Title,
+                        libraryBook.Book.AudibleProductId,
+                        ex.Message + "\r\n|\r\n" + ex.StackTrace);
+                }
+            }
+            catch (Exception exc)
+            {
+                automatedBackupsForm.AppendText($"Error attempting to display {nameof(DisplaySkipDialog)}");
+                automatedBackupsForm.AppendError(exc);
+            }
         }
 
         private static bool validateStatus(StatusHandler statusHandler, AutomatedBackupsForm automatedBackupsForm)

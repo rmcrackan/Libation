@@ -137,7 +137,7 @@ namespace FileLiberator
 			// create final directory. move each file into it. MOVE AUDIO FILE LAST
 			// new dir: safetitle_limit50char + " [" + productId + "]"
 
-			var destinationDir = getDestDir(product);
+			var destinationDir = AudibleFileStorage.Audio.GetDestDir(product.Title, product.AudibleProductId);
 			Directory.CreateDirectory(destinationDir);
 
 			var sortedFiles = getProductFilesSorted(product, outputAudioFilename);
@@ -157,18 +157,6 @@ namespace FileLiberator
 
             return destinationDir;
         }
-
-		private static string getDestDir(Book product)
-		{
-			// to prevent the paths from getting too long, we don't need after the 1st ":" for the folder
-			var underscoreIndex = product.Title.IndexOf(':');
-			var titleDir
-				= underscoreIndex < 4
-				? product.Title
-				: product.Title.Substring(0, underscoreIndex);
-			var finalDir = FileUtility.GetValidFilename(AudibleFileStorage.BooksDirectory, titleDir, null, product.AudibleProductId);
-			return finalDir;
-		}
 
 		private static List<FileInfo> getProductFilesSorted(Book product, string outputAudioFilename)
 		{

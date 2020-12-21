@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApplicationServices;
@@ -16,38 +17,37 @@ namespace FileLiberator
         //
 
 
-        /// <summary>Process the first valid product. Create default context</summary>
-        /// <returns>Returns either the status handler from the process, or null if all books have been processed</returns>
-        public static async Task<StatusHandler> ProcessFirstValidAsync(this IProcessable processable)
-        {
-            var libraryBook = processable.getNextValidBook();
-            if (libraryBook == null)
-                return null;
+        // when used in foreach: stateful. deferred execution
+        public static IEnumerable<LibraryBook> GetValidLibraryBooks(this IProcessable processable)
+            => DbContexts.GetContext()
+            .GetLibrary_Flat_NoTracking()
+            .Where(libraryBook => processable.Validate(libraryBook));
 
-            return await processBookAsync(processable, libraryBook);
-        }
-
-        /// <summary>Process the first valid product. Create default context</summary>
-        /// <returns>Returns either the status handler from the process, or null if all books have been processed</returns>
-        public static async Task<StatusHandler> ProcessSingleAsync(this IProcessable processable, string productId)
+        public static LibraryBook GetSingleLibraryBook(string productId)
         {
             using var context = DbContexts.GetContext();
             var libraryBook = context
                 .Library
                 .GetLibrary()
                 .SingleOrDefault(lb => lb.Book.AudibleProductId == productId);
+            return libraryBook;
+        }
 
+        /// <summary>Process the first valid product. Create default context</summary>
+        /// <returns>Returns either the status handler from the process, or null if all books have been processed</returns>
+        public static async Task<StatusHandler> ProcessSingleAsync(this IProcessable processable, LibraryBook libraryBook)
+        {
             if (libraryBook == null)
                 return null;
             if (!processable.Validate(libraryBook))
                 return new StatusHandler { "Validation failed" };
 
-            return await processBookAsync(processable, libraryBook);
+            return await processable.ProcessBookAsync_NoValidation(libraryBook);
         }
 
-        private static async Task<StatusHandler> processBookAsync(IProcessable processable, LibraryBook libraryBook)
+        public static async Task<StatusHandler> ProcessBookAsync_NoValidation(this IProcessable processable, LibraryBook libraryBook)
         {
-            Serilog.Log.Logger.Information("Begin " + nameof(processBookAsync) + " {@DebugInfo}", new
+            Serilog.Log.Logger.Information("Begin " + nameof(ProcessBookAsync_NoValidation) + " {@DebugInfo}", new
             {
                 libraryBook.Book.Title,
                 libraryBook.Book.AudibleProductId,
@@ -62,17 +62,6 @@ namespace FileLiberator
 
             return status;
         }
-
-        private static LibraryBook getNextValidBook(this IProcessable processable)
-        {
-            var libraryBooks = DbContexts.GetContext().GetLibrary_Flat_NoTracking();
-
-            foreach (var libraryBook in libraryBooks)
-                if (processable.Validate(libraryBook))
-                    return libraryBook;
-
-            return null;
-        }   
 
 		public static async Task<StatusHandler> TryProcessAsync(this IProcessable processable, LibraryBook libraryBook)
 			=> processable.Validate(libraryBook)
