@@ -143,7 +143,10 @@ namespace FileManager
 
         public void CreateSkipFile(string title, string asin, string contents)
         {
-            var path = FileUtility.GetValidFilename(GetDestDir(title, asin), title, SKIP_FILE_EXT, asin);
+            var destinationDir = GetDestDir(title, asin);
+            Directory.CreateDirectory(destinationDir);
+
+            var path = FileUtility.GetValidFilename(destinationDir, title, SKIP_FILE_EXT, asin);
             File.WriteAllText(path, contents);
         }
     }
