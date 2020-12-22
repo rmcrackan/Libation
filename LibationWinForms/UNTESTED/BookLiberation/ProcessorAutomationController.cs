@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DataLayer;
+using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using FileLiberator;
 
@@ -346,6 +347,12 @@ namespace LibationWinForms.BookLiberation
 
             try
             {
+                const int TRUNC = 150;
+
+                var errMsg = ex.Message.Truncate(TRUNC);
+                if (ex.Message.Length > TRUNC)
+                    errMsg += "...";
+
                 var text = @$"
 The below error occurred while trying to process this book. Skip this book permanently?
 
@@ -354,7 +361,7 @@ The below error occurred while trying to process this book. Skip this book perma
 - Click NO to skip the book this time only. We'll try again later.
 
 Error:
-{ex.Message}
+{errMsg}
 ".Trim();
                 var dialogResult = System.Windows.Forms.MessageBox.Show(
                     text,
