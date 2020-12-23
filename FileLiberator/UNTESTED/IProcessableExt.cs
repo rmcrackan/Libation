@@ -33,12 +33,8 @@ namespace FileLiberator
             return libraryBook;
         }
 
-        /// <summary>Process the first valid product. Create default context</summary>
-        /// <returns>Returns either the status handler from the process, or null if all books have been processed</returns>
         public static async Task<StatusHandler> ProcessSingleAsync(this IProcessable processable, LibraryBook libraryBook)
         {
-            if (libraryBook == null)
-                return null;
             if (!processable.Validate(libraryBook))
                 return new StatusHandler { "Validation failed" };
 
@@ -55,10 +51,9 @@ namespace FileLiberator
                 Account = libraryBook.Account?.ToMask() ?? "[empty]"
             });
 
-            // this should never happen. check anyway. ProcessFirstValidAsync returning null is the signal that we're done. we can't let another IProcessable accidentally send this command
-            var status = await processable.ProcessAsync(libraryBook);
-            if (status == null)
-                throw new Exception("Processable should never return a null status");
+            var status
+                = (await processable.ProcessAsync(libraryBook))
+                ?? new StatusHandler { "Processable should never return a null status" };
 
             return status;
         }

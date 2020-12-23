@@ -141,13 +141,15 @@ namespace FileManager
 
         public AudioFileStorage() : base(FileType.Audio) { }
 
-        public void CreateSkipFile(string title, string asin, string contents)
+        public string CreateSkipFile(string title, string asin, string contents = null)
         {
             var destinationDir = GetDestDir(title, asin);
             Directory.CreateDirectory(destinationDir);
 
             var path = FileUtility.GetValidFilename(destinationDir, title, SKIP_FILE_EXT, asin);
-            File.WriteAllText(path, contents);
+            File.WriteAllText(path, contents ?? string.Empty);
+
+            return path;
         }
     }
 

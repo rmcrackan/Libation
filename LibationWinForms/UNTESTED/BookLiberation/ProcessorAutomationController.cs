@@ -1,12 +1,45 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using DataLayer;
-using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using FileLiberator;
 
 namespace LibationWinForms.BookLiberation
 {
+    // decouple serilog and form. include convenience factory method
+    public class LogMe
+    {
+        public event EventHandler<string> LogInfo;
+        public event EventHandler<string> LogErrorString;
+        public event EventHandler<(Exception, string)> LogError;
+
+        public static LogMe RegisterForm(AutomatedBackupsForm form)
+        {
+            var logMe = new LogMe();
+
+            logMe.LogInfo += (_, text) => Serilog.Log.Logger.Information($"Automated backup: {text}");
+            logMe.LogInfo += (_, text) => form.WriteLine(text);
+
+            logMe.LogErrorString += (_, text) => Serilog.Log.Logger.Error(text);
+            logMe.LogErrorString += (_, text) => form.WriteLine(text);
+
+			logMe.LogError += (_, tuple) => Serilog.Log.Logger.Error(tuple.Item1, tuple.Item2 ?? "Automated backup: error");
+            logMe.LogError += (_, tuple) =>
+            {
+                form.WriteLine(tuple.Item2 ?? "Automated backup: error");
+                form.WriteLine("ERROR: " + tuple.Item1.Message);
+            };
+
+            return logMe;
+        }
+
+        public void Info(string text) => LogInfo?.Invoke(this, text);
+        public void Error(string text) => LogErrorString?.Invoke(this, text);
+        public void Error(Exception ex, string text = null) => LogError?.Invoke(this, (ex, text));
+    }
+
     public static class ProcessorAutomationController
     {
         public static async Task BackupSingleBookAsync(string productId, EventHandler<LibraryBook> completedAction = null)
@@ -15,10 +48,12 @@ namespace LibationWinForms.BookLiberation
 
             var backupBook = getWiredUpBackupBook(completedAction);
 
-            var automatedBackupsForm = attachToBackupsForm(backupBook);
+            (AutomatedBackupsForm automatedBackupsForm, LogMe logMe) = attachToBackupsForm(backupBook);
             automatedBackupsForm.KeepGoingVisible = false;
 
-            await runSingleBackupAsync(backupBook, automatedBackupsForm, productId);
+            var libraryBook = IProcessableExt.GetSingleLibraryBook(productId);
+            // continue even if libraryBook is null. we'll display even that in the processing box
+            await new BackupSingle(logMe, backupBook, automatedBackupsForm, libraryBook).RunBackupAsync();
         }
 
         public static async Task BackupAllBooksAsync(EventHandler<LibraryBook> completedAction = null)
@@ -27,9 +62,8 @@ namespace LibationWinForms.BookLiberation
 
             var backupBook = getWiredUpBackupBook(completedAction);
 
-            var automatedBackupsForm = attachToBackupsForm(backupBook);
-
-            await runBackupLoopAsync(backupBook, automatedBackupsForm);
+            (AutomatedBackupsForm automatedBackupsForm, LogMe logMe) = attachToBackupsForm(backupBook);
+            await new BackupLoop(logMe, backupBook, automatedBackupsForm).RunBackupAsync();
         }
 
         private static BackupBook getWiredUpBackupBook(EventHandler<LibraryBook> completedAction)
@@ -38,7 +72,7 @@ namespace LibationWinForms.BookLiberation
 
             backupBook.DownloadBook.Begin += (_, __) => wireUpEvents(backupBook.DownloadBook);
             backupBook.DecryptBook.Begin += (_, __) => wireUpEvents(backupBook.DecryptBook);
-			backupBook.DownloadPdf.Begin += (_, __) => wireUpEvents(backupBook.DownloadPdf);
+            backupBook.DownloadPdf.Begin += (_, __) => wireUpEvents(backupBook.DownloadPdf);
 
             if (completedAction != null)
             {
@@ -50,22 +84,23 @@ namespace LibationWinForms.BookLiberation
             return backupBook;
         }
 
-        private static AutomatedBackupsForm attachToBackupsForm(BackupBook backupBook)
+        private static (AutomatedBackupsForm, LogMe) attachToBackupsForm(BackupBook backupBook)
         {
-            #region create form
+            #region create form and logger
             var automatedBackupsForm = new AutomatedBackupsForm();
+            var logMe = LogMe.RegisterForm(automatedBackupsForm);
             #endregion
 
             #region define how model actions will affect form behavior
-            void downloadBookBegin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Download Step, Begin: {libraryBook.Book}");
-            void statusUpdate(object _, string str) => automatedBackupsForm.AppendText("- " + str);
-            void downloadBookCompleted(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Download Step, Completed: {libraryBook.Book}");
-            void decryptBookBegin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Decrypt Step, Begin: {libraryBook.Book}");
+            void downloadBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Download Step, Begin: {libraryBook.Book}");
+            void statusUpdate(object _, string str) => logMe.Info("- " + str);
+            void downloadBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Download Step, Completed: {libraryBook.Book}");
+            void decryptBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Decrypt Step, Begin: {libraryBook.Book}");
             // extra line after book is completely finished
-            void decryptBookCompleted(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Decrypt Step, Completed: {libraryBook.Book}{Environment.NewLine}");
-            void downloadPdfBegin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"PDF Step, Begin: {libraryBook.Book}");
+            void decryptBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Decrypt Step, Completed: {libraryBook.Book}{Environment.NewLine}");
+            void downloadPdfBegin(object _, LibraryBook libraryBook) => logMe.Info($"PDF Step, Begin: {libraryBook.Book}");
             // extra line after book is completely finished
-            void downloadPdfCompleted(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"PDF Step, Completed: {libraryBook.Book}{Environment.NewLine}");
+            void downloadPdfCompleted(object _, LibraryBook libraryBook) => logMe.Info($"PDF Step, Completed: {libraryBook.Book}{Environment.NewLine}");
             #endregion
 
             #region subscribe new form to model's events
@@ -96,7 +131,7 @@ namespace LibationWinForms.BookLiberation
             };
             #endregion
 
-            return automatedBackupsForm;
+            return (automatedBackupsForm, logMe);
         }
 
         public static async Task BackupAllPdfsAsync(EventHandler<LibraryBook> completedAction = null)
@@ -105,9 +140,8 @@ namespace LibationWinForms.BookLiberation
 
             var downloadPdf = getWiredUpDownloadPdf(completedAction);
 
-            var automatedBackupsForm = attachToBackupsForm(downloadPdf);
-
-            await runBackupLoopAsync(downloadPdf, automatedBackupsForm);
+			(AutomatedBackupsForm automatedBackupsForm, LogMe logMe) = attachToBackupsForm(downloadPdf);
+            await new BackupLoop(logMe, downloadPdf, automatedBackupsForm).RunBackupAsync();
         }
 
         private static DownloadPdf getWiredUpDownloadPdf(EventHandler<LibraryBook> completedAction)
@@ -251,17 +285,18 @@ namespace LibationWinForms.BookLiberation
             #endregion
         }
 
-        private static AutomatedBackupsForm attachToBackupsForm(IDownloadableProcessable downloadable)
+        private static (AutomatedBackupsForm, LogMe) attachToBackupsForm(IDownloadableProcessable downloadable)
         {
-            #region create form
+            #region create form and logger
             var automatedBackupsForm = new AutomatedBackupsForm();
+            var logMe = LogMe.RegisterForm(automatedBackupsForm);
             #endregion
 
             #region define how model actions will affect form behavior
-            void begin(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Begin: {libraryBook.Book}");
-            void statusUpdate(object _, string str) => automatedBackupsForm.AppendText("- " + str);
+            void begin(object _, LibraryBook libraryBook) => logMe.Info($"Begin: {libraryBook.Book}");
+            void statusUpdate(object _, string str) => logMe.Info("- " + str);
             // extra line after book is completely finished
-            void completed(object _, LibraryBook libraryBook) => automatedBackupsForm.AppendText($"Completed: {libraryBook.Book}{Environment.NewLine}");
+            void completed(object _, LibraryBook libraryBook) => logMe.Info($"Completed: {libraryBook.Book}{Environment.NewLine}");
             #endregion
 
             #region subscribe new form to model's events
@@ -280,134 +315,157 @@ namespace LibationWinForms.BookLiberation
             };
             #endregion
 
-            return automatedBackupsForm;
+            return (automatedBackupsForm, logMe);
+        }
+    }
+
+    abstract class BackupRunner
+    {
+        protected LogMe LogMe { get; }
+        protected IProcessable Processable { get; }
+        protected AutomatedBackupsForm AutomatedBackupsForm { get; }
+
+        protected BackupRunner(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm)
+        {
+            LogMe = logMe;
+            Processable = processable;
+            AutomatedBackupsForm = automatedBackupsForm;
         }
 
-        // automated backups looper feels like a composible IProcessable: logic, UI, begin + process child + end
-        // however the process step doesn't follow the pattern: Validate(product) + Process(product)
-        private static async Task runBackupLoopAsync(IProcessable processable, AutomatedBackupsForm automatedBackupsForm)
-        {
-            automatedBackupsForm.Show();
+        protected abstract Task RunAsync();
 
-            // processable.ProcessFirstValidAsync used to be encapsulated elsewhere. however, support for 'skip this time only' requires state. iterators provide this state for free. therefore: use foreach/iterator here
+        public async Task RunBackupAsync()
+        {
+            AutomatedBackupsForm.Show();
+
             try
             {
-                foreach (var libraryBook in processable.GetValidLibraryBooks())
-                {
-                    try
-                    {
-                        var statusHandler = await processable.ProcessBookAsync_NoValidation(libraryBook);
-                        if (!validateStatus(statusHandler, automatedBackupsForm))
-                            break;
-                    }
-                    catch (Exception e)
-                    {
-                        automatedBackupsForm.AppendError(e);
-                        DisplaySkipDialog(automatedBackupsForm, libraryBook, e);
-                    }
-                }
+                await RunAsync();
             }
             catch (Exception ex)
             {
-                automatedBackupsForm.AppendError(ex);
+                LogMe.Error(ex);
             }
 
-            automatedBackupsForm.FinalizeUI();
+            AutomatedBackupsForm.FinalizeUI();
+            LogMe.Info("DONE");
         }
 
-        private static async Task runSingleBackupAsync(IProcessable processable, AutomatedBackupsForm automatedBackupsForm, string productId)
+        protected abstract string SkipDialogText { get; }
+        protected abstract MessageBoxButtons SkipDialogButtons { get; }
+        protected abstract DialogResult CreateSkipFileResult { get; }
+
+        protected bool ValidateStatusAsync(StatusHandler statusHandler, LibraryBook libraryBook)
         {
-            automatedBackupsForm.Show();
+            if (!statusHandler.HasErrors)
+                return true;
+
+            LogMe.Error("ERROR. All books have not been processed. Most recent valid book: processing failed");
+            foreach (var errorMessage in statusHandler.Errors)
+                LogMe.Error(errorMessage);
 
             try
             {
-                var libraryBook = IProcessableExt.GetSingleLibraryBook(productId);
+                var dialogResult = MessageBox.Show(SkipDialogText, "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question);
 
-                try
+                if (dialogResult == DialogResult.Abort)
+                    return false;
+
+                if (dialogResult == CreateSkipFileResult)
                 {
-                    var statusHandler = await processable.ProcessSingleAsync(libraryBook);
-                    validateStatus(statusHandler, automatedBackupsForm);
+                    var path = FileManager.AudibleFileStorage.Audio.CreateSkipFile(
+                        libraryBook.Book.Title,
+                        libraryBook.Book.AudibleProductId,
+                        statusHandler.Errors.Aggregate((a, b) => $"{a}\r\n{b}"));
+                    LogMe.Info($@"
+Created new skip file
+  [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}
+  {path}
+".Trim());
                 }
-                catch (Exception ex)
-                {
-                    automatedBackupsForm.AppendError(ex);
-                    DisplaySkipDialog(automatedBackupsForm, libraryBook, ex);
-                }
+
+                return true;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                automatedBackupsForm.AppendError(e);
+                LogMe.Error(ex, "Error attempting to display skip option box");
+                return false;
             }
-
-            automatedBackupsForm.FinalizeUI();
         }
+    }
+    class BackupSingle : BackupRunner
+    {
+        private LibraryBook _libraryBook { get; }
 
-        private static void DisplaySkipDialog(AutomatedBackupsForm automatedBackupsForm, LibraryBook libraryBook, Exception ex)
-        {
-
-            try
-            {
-                const int TRUNC = 150;
-
-                var errMsg = ex.Message.Truncate(TRUNC);
-                if (ex.Message.Length > TRUNC)
-                    errMsg += "...";
-
-                var text = @$"
-The below error occurred while trying to process this book. Skip this book permanently?
+		protected override string SkipDialogText => @"
+An error occurred while trying to process this book. Skip this book permanently?
 
 - Click YES to skip this book permanently.
 
 - Click NO to skip the book this time only. We'll try again later.
-
-Error:
-{errMsg}
 ".Trim();
-                var dialogResult = System.Windows.Forms.MessageBox.Show(
-                    text,
-                    "Skip importing this book?",
-                    System.Windows.Forms.MessageBoxButtons.YesNo,
-                    System.Windows.Forms.MessageBoxIcon.Question);
+		protected override MessageBoxButtons SkipDialogButtons => MessageBoxButtons.YesNo;
+		protected override DialogResult CreateSkipFileResult => DialogResult.Yes;
 
-                if (dialogResult != System.Windows.Forms.DialogResult.Yes)
-                {
-                    FileManager.AudibleFileStorage.Audio.CreateSkipFile(
-                        libraryBook.Book.Title,
-                        libraryBook.Book.AudibleProductId,
-                        ex.Message + "\r\n|\r\n" + ex.StackTrace);
-                }
-            }
-            catch (Exception exc)
-            {
-                automatedBackupsForm.AppendText($"Error attempting to display {nameof(DisplaySkipDialog)}");
-                automatedBackupsForm.AppendError(exc);
-            }
+		public BackupSingle(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm, LibraryBook libraryBook)
+            : base(logMe, processable, automatedBackupsForm)
+        {
+            _libraryBook = libraryBook;
         }
 
-        private static bool validateStatus(StatusHandler statusHandler, AutomatedBackupsForm automatedBackupsForm)
+		protected override async Task RunAsync()
         {
-            if (statusHandler == null)
+            if (_libraryBook is null)
+                return;
+
+            var statusHandler = await Processable.ProcessSingleAsync(_libraryBook);
+            ValidateStatusAsync(statusHandler, _libraryBook);
+        }
+    }
+    class BackupLoop : BackupRunner
+    {
+		protected override string SkipDialogText => @"
+An error occurred while trying to process this book
+
+- ABORT: stop processing books.
+
+- RETRY: retry this book later. Just skip it for now. Continue processing books. (Will try this book again later.)
+
+- IGNORE: Permanently ignore this book. Continue processing books. (Will not try this book again later.)
+".Trim();
+        protected override MessageBoxButtons SkipDialogButtons => MessageBoxButtons.AbortRetryIgnore;
+        protected override DialogResult CreateSkipFileResult => DialogResult.Ignore;
+
+        public BackupLoop(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm)
+            : base(logMe, processable, automatedBackupsForm) { }
+
+        protected override async Task RunAsync()
+        {
+            // support for 'skip this time only' requires state. iterators provide this state for free. therefore: use foreach/iterator here
+            foreach (var libraryBook in Processable.GetValidLibraryBooks())
             {
-                automatedBackupsForm.AppendText("Done. All books have been processed");
-                return false;
+                try
+                {
+                    var statusHandler = await Processable.ProcessBookAsync_NoValidation(libraryBook);
+
+                    var keepGoing = ValidateStatusAsync(statusHandler, libraryBook);
+                    if (!keepGoing)
+                        return;
+
+                    if (!AutomatedBackupsForm.KeepGoing)
+                    {
+                        if (AutomatedBackupsForm.KeepGoingVisible && !AutomatedBackupsForm.KeepGoingChecked)
+                            LogMe.Info("'Keep going' is unchecked");
+                        return;
+                    }
+                }
+                catch (Exception exc)
+                {
+                    LogMe.Error(exc);
+                }
             }
 
-            if (statusHandler.HasErrors)
-            {
-                automatedBackupsForm.AppendText("ERROR. All books have not been processed. Most recent valid book: processing failed");
-                foreach (var errorMessage in statusHandler.Errors)
-                    automatedBackupsForm.AppendText(errorMessage);
-                return false;
-            }
-
-            if (!automatedBackupsForm.KeepGoing)
-            {
-                if (automatedBackupsForm.KeepGoingVisible && !automatedBackupsForm.KeepGoingChecked)
-                    automatedBackupsForm.AppendText("'Keep going' is unchecked");
-                return false;
-            }
-
-            return true;
+            LogMe.Info("Done. All books have been processed");
         }
     }
 }
