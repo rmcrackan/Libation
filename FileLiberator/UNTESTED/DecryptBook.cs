@@ -78,11 +78,11 @@ namespace FileLiberator
                     Dinah.Core.IO.FileExt.SafeDelete(aaxFilename);
                 }
 
-                var statusHandler = new StatusHandler();
                 var finalAudioExists = AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
                 if (!finalAudioExists)
-                    statusHandler.AddError("Cannot find final audio file after decryption");
-                return statusHandler;
+                    return new StatusHandler { "Cannot find final audio file after decryption" };
+
+                return new StatusHandler();
             }
             finally
             {

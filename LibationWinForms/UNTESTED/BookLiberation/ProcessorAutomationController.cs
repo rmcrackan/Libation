@@ -334,6 +334,10 @@ namespace LibationWinForms.BookLiberation
 
         protected abstract Task RunAsync();
 
+        protected abstract string SkipDialogText { get; }
+        protected abstract MessageBoxButtons SkipDialogButtons { get; }
+        protected abstract DialogResult CreateSkipFileResult { get; }
+
         public async Task RunBackupAsync()
         {
             AutomatedBackupsForm.Show();
@@ -351,46 +355,47 @@ namespace LibationWinForms.BookLiberation
             LogMe.Info("DONE");
         }
 
-        protected abstract string SkipDialogText { get; }
-        protected abstract MessageBoxButtons SkipDialogButtons { get; }
-        protected abstract DialogResult CreateSkipFileResult { get; }
-
-        protected bool ValidateStatusAsync(StatusHandler statusHandler, LibraryBook libraryBook)
+        protected async Task<bool> ProcessOneAsync(Func<LibraryBook, Task<StatusHandler>> func, LibraryBook libraryBook)
         {
-            if (!statusHandler.HasErrors)
-                return true;
-
-            LogMe.Error("ERROR. All books have not been processed. Most recent valid book: processing failed");
-            foreach (var errorMessage in statusHandler.Errors)
-                LogMe.Error(errorMessage);
+            string logMessage;
 
             try
             {
-                var dialogResult = MessageBox.Show(SkipDialogText, "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question);
+                var statusHandler = await func(libraryBook);
 
-                if (dialogResult == DialogResult.Abort)
-                    return false;
+                if (statusHandler.IsSuccess)
+                    return true;
 
-                if (dialogResult == CreateSkipFileResult)
-                {
-                    var path = FileManager.AudibleFileStorage.Audio.CreateSkipFile(
-                        libraryBook.Book.Title,
-                        libraryBook.Book.AudibleProductId,
-                        statusHandler.Errors.Aggregate((a, b) => $"{a}\r\n{b}"));
-                    LogMe.Info($@"
-Created new skip file
-  [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}
-  {path}
-".Trim());
-                }
+                foreach (var errorMessage in statusHandler.Errors)
+                    LogMe.Error(errorMessage);
 
-                return true;
+                logMessage = statusHandler.Errors.Aggregate((a, b) => $"{a}\r\n{b}");
             }
             catch (Exception ex)
             {
-                LogMe.Error(ex, "Error attempting to display skip option box");
-                return false;
+                LogMe.Error(ex);
+
+                logMessage = ex.Message + "\r\n|\r\n" + ex.StackTrace;
             }
+
+            LogMe.Error("ERROR. All books have not been processed. Most recent book: processing failed");
+
+            var dialogResult = MessageBox.Show(SkipDialogText, "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question);
+
+            if (dialogResult == DialogResult.Abort)
+                return false;
+
+            if (dialogResult == CreateSkipFileResult)
+            {
+                var path = FileManager.AudibleFileStorage.Audio.CreateSkipFile(libraryBook.Book.Title, libraryBook.Book.AudibleProductId, logMessage);
+                LogMe.Info($@"
+Created new 'skip' file
+  [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}
+  {path}
+".Trim());
+            }
+
+            return true;
         }
     }
     class BackupSingle : BackupRunner
@@ -415,11 +420,8 @@ An error occurred while trying to process this book. Skip this book permanently?
 
 		protected override async Task RunAsync()
         {
-            if (_libraryBook is null)
-                return;
-
-            var statusHandler = await Processable.ProcessSingleAsync(_libraryBook);
-            ValidateStatusAsync(statusHandler, _libraryBook);
+            if (_libraryBook is not null)
+                await ProcessOneAsync(Processable.ProcessSingleAsync, _libraryBook);
         }
     }
     class BackupLoop : BackupRunner
@@ -443,29 +445,20 @@ An error occurred while trying to process this book
         {
             // support for 'skip this time only' requires state. iterators provide this state for free. therefore: use foreach/iterator here
             foreach (var libraryBook in Processable.GetValidLibraryBooks())
-            {
-                try
-                {
-                    var statusHandler = await Processable.ProcessBookAsync_NoValidation(libraryBook);
+			{
+				var keepGoing = await ProcessOneAsync(Processable.ProcessBookAsync_NoValidation, libraryBook);
+				if (!keepGoing)
+					return;
 
-                    var keepGoing = ValidateStatusAsync(statusHandler, libraryBook);
-                    if (!keepGoing)
-                        return;
+				if (!AutomatedBackupsForm.KeepGoing)
+				{
+					if (AutomatedBackupsForm.KeepGoingVisible && !AutomatedBackupsForm.KeepGoingChecked)
+						LogMe.Info("'Keep going' is unchecked");
+					return;
+				}
+			}
 
-                    if (!AutomatedBackupsForm.KeepGoing)
-                    {
-                        if (AutomatedBackupsForm.KeepGoingVisible && !AutomatedBackupsForm.KeepGoingChecked)
-                            LogMe.Info("'Keep going' is unchecked");
-                        return;
-                    }
-                }
-                catch (Exception exc)
-                {
-                    LogMe.Error(exc);
-                }
-            }
-
-            LogMe.Info("Done. All books have been processed");
+			LogMe.Info("Done. All books have been processed");
         }
-    }
+	}
 }
