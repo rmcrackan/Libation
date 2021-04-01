@@ -74,6 +74,16 @@ namespace LibationWinForms.BookLiberation
             backupBook.DecryptBook.Begin += (_, __) => wireUpEvents(backupBook.DecryptBook);
             backupBook.DownloadPdf.Begin += (_, __) => wireUpEvents(backupBook.DownloadPdf);
 
+            // must occur before completedAction. A common use case is:
+            // - filter by -liberated
+            // - liberate only that book
+            //   completedAction is to refresh grid
+            // - want to see that book disappear from grid
+            // also for this to work, updateIsLiberated can NOT be async
+            backupBook.DownloadBook.Completed += updateIsLiberated;
+            backupBook.DecryptBook.Completed += updateIsLiberated;
+            backupBook.DownloadPdf.Completed += updateIsLiberated;
+
             if (completedAction != null)
             {
                 backupBook.DownloadBook.Completed += completedAction;
@@ -81,16 +91,10 @@ namespace LibationWinForms.BookLiberation
                 backupBook.DownloadPdf.Completed += completedAction;
             }
 
-			// enables search engine to index for things like "IsLiberated"
-			backupBook.DownloadBook.Completed += reindex;
-            backupBook.DecryptBook.Completed += reindex;
-            backupBook.DownloadPdf.Completed += reindex;
-
             return backupBook;
         }
 
-		private static async void reindex(object sender, LibraryBook e)
-            => await Task.Run(() => ApplicationServices.SearchEngineCommands.FullReIndex());
+        private static void updateIsLiberated(object sender, LibraryBook e) => ApplicationServices.SearchEngineCommands.UpdateIsLiberated(e.Book);
 
         private static (AutomatedBackupsForm, LogMe) attachToBackupsForm(BackupBook backupBook)
         {

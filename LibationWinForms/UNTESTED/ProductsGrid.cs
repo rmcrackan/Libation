@@ -201,6 +201,9 @@ namespace LibationWinForms
             // update cells incl Liberate button text
             dataGridView.InvalidateRow(rowId);
 
+            // needed in case filtering by -IsLiberated and it gets changed to Liberated. want to immediately show the change
+            filter();
+
             BackupCountsChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -396,8 +399,6 @@ namespace LibationWinForms
             }
             currencyManager.ResumeBinding();
 			VisibleCountChanged?.Invoke(this, dataGridView.AsEnumerable().Count(r => r.Visible));
-
-			var luceneSearchString_debug = searchResults.SearchString;
         }
         #endregion
 

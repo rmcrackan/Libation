@@ -26,9 +26,16 @@ namespace LibationSearchEngine
 
         public const string _ID_ = "_ID_";
         public const string TAGS = "tags";
+        // special field for each book which includes all major parts of the book's metadata. enables non-targetting searching
         public const string ALL = "all";
 
-        private static ReadOnlyDictionary<string, Func<LibraryBook, string>> idIndexRules { get; }
+        // the workaround which allows displaying all books when query is empty
+        public const string ALL_QUERY = "*:*";
+
+        public SearchEngine(LibationContext context) => this.context = context;
+
+		#region index rules
+		private static ReadOnlyDictionary<string, Func<LibraryBook, string>> idIndexRules { get; }
             = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
                 new Dictionary<string, Func<LibraryBook, string>>
                 {
@@ -38,6 +45,7 @@ namespace LibationSearchEngine
                     ["ASIN"] = lb => lb.Book.AudibleProductId
                 }
                 );
+
         private static ReadOnlyDictionary<string, Func<LibraryBook, string>> stringIndexRules { get; }
             = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
                 new Dictionary<string, Func<LibraryBook, string>>
@@ -98,6 +106,7 @@ namespace LibationSearchEngine
                     ["MyRating"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating.ToLuceneString()
                 }
                 );
+
         private static ReadOnlyDictionary<string, Func<LibraryBook, bool>> boolIndexRules { get; }
             = new ReadOnlyDictionary<string, Func<LibraryBook, bool>>(
                 new Dictionary<string, Func<LibraryBook, bool>>
@@ -114,16 +123,17 @@ namespace LibationSearchEngine
                     ["IsRated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,
                     ["Rated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,
 
-                    ["IsAuthorNarrated"] = lb => isAuthorNarrated(lb),
-                    ["AuthorNarrated"] = lb => isAuthorNarrated(lb),
+                    ["IsAuthorNarrated"] = isAuthorNarrated,
+                    ["AuthorNarrated"] = isAuthorNarrated,
 
                     [nameof(Book.IsAbridged)] = lb => lb.Book.IsAbridged,
                     ["Abridged"] = lb => lb.Book.IsAbridged,
 
                     // this will only be evaluated at time of re-index. ie: state of files moved later will be out of sync until next re-index
-                    ["IsLiberated"] = lb => AudibleFileStorage.Audio.Exists(lb.Book.AudibleProductId),
-                    ["Liberated"] = lb => AudibleFileStorage.Audio.Exists(lb.Book.AudibleProductId),
-                });
+                    ["IsLiberated"] = lb => isLiberated(lb.Book.AudibleProductId),
+                    ["Liberated"] = lb => isLiberated(lb.Book.AudibleProductId),
+                }
+                );
 
         private static bool isAuthorNarrated(LibraryBook lb)
         {
@@ -131,6 +141,8 @@ namespace LibationSearchEngine
             var narrators = lb.Book.Narrators.Select(a => a.Name).ToArray();
             return authors.Intersect(narrators).Any();
         }
+
+        private static bool isLiberated(string id) => AudibleFileStorage.Audio.Exists(id);
 
         // use these common fields in the "all" default search field
         private static IEnumerable<Func<LibraryBook, string>> allFieldIndexRules { get; }
@@ -141,8 +153,10 @@ namespace LibationSearchEngine
                 stringIndexRules[nameof(Book.AuthorNames)],
                 stringIndexRules[nameof(Book.NarratorNames)]
             };
+		#endregion
 
-        public static IEnumerable<string> GetSearchIdFields()
+		#region get search fields. used for display in help
+		public static IEnumerable<string> GetSearchIdFields()
         {
             foreach (var key in idIndexRules.Keys)
                 yield return key;
@@ -177,11 +191,13 @@ namespace LibationSearchEngine
             foreach (var key in numberIndexRules.Keys)
                 yield return key;
         }
+		#endregion
 
-        private Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
-
-        public SearchEngine(LibationContext context) => this.context = context;
-
+		#region create and update index
+        /// <summary>
+        /// create new. ie: full re-index
+        /// </summary>
+        /// <param name="overwrite"></param>
         public void CreateNewIndex(bool overwrite = true)
         {
             // 300 products
@@ -214,6 +230,22 @@ namespace LibationSearchEngine
 
             log();
         }
+
+		/// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
+		public void UpdateBook(string productId)
+        {
+            var libraryBook = context.GetLibraryBook_Flat_NoTracking(productId);
+            var term = new Term(_ID_, productId);
+
+            var document = createBookIndexDocument(libraryBook);
+            var createNewIndex = false;
+
+			using var index = getIndex();
+			using var analyzer = new StandardAnalyzer(Version);
+			using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
+			ixWriter.DeleteDocuments(term);
+			ixWriter.AddDocument(document);
+		}
 
         private static Document createBookIndexDocument(LibraryBook libraryBook)
         {
@@ -252,55 +284,72 @@ namespace LibationSearchEngine
             return doc;
         }
 
-		/// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
-		public void UpdateBook(string productId)
-        {
-            var libraryBook = context.GetLibraryBook_Flat_NoTracking(productId);
-            var term = new Term(_ID_, productId);
+        // update single document entry
+        // all fields, including 'tags' are case-specific
+        public void UpdateTags(string productId, string tags) => updateAnalyzedField(productId, TAGS, tags);
 
-            var document = createBookIndexDocument(libraryBook);
-            var createNewIndex = false;
+        // all fields are case-specific
+        private static void updateAnalyzedField(string productId, string fieldName, string newValue)
+            => updateDocument(
+                productId,
+                d =>
+                {
+                    // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
+                    // ie: must remove old before adding new else will create unwanted duplicates.
+                    d.RemoveField(fieldName);
+                    d.AddAnalyzed(fieldName, newValue);
+                });
 
-			using var index = getIndex();
-			using var analyzer = new StandardAnalyzer(Version);
-			using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
-			ixWriter.DeleteDocuments(term);
-			ixWriter.AddDocument(document);
-		}
+        // update single document entry
+        public void UpdateIsLiberated(string productId)
+            => updateDocument(
+                productId,
+                d =>
+                {
+                    // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
+                    // ie: must remove old before adding new else will create unwanted duplicates.
+                    var v = isLiberated(productId);
+                    d.RemoveField("IsLiberated");
+                    d.AddBool("IsLiberated", v);
+                    d.RemoveField("Liberated");
+                    d.AddBool("Liberated", v);
+                });
 
-        public void UpdateTags(string productId, string tags)
+        private static void updateDocument(string productId, Action<Document> action)
         {
             var productTerm = new Term(_ID_, productId);
 
-			using var index = getIndex();
+            using var index = getIndex();
 
-			// get existing document
-			using var searcher = new IndexSearcher(index);
-			var query = new TermQuery(productTerm);
-			var docs = searcher.Search(query, 1);
-			var scoreDoc = docs.ScoreDocs.SingleOrDefault();
-			if (scoreDoc == null)
-				throw new Exception("document not found");
-			var document = searcher.Doc(scoreDoc.Doc);
+            // get existing document
+            using var searcher = new IndexSearcher(index);
+            var query = new TermQuery(productTerm);
+            var docs = searcher.Search(query, 1);
+            var scoreDoc = docs.ScoreDocs.SingleOrDefault();
+            if (scoreDoc == null)
+                throw new Exception("document not found");
+            var document = searcher.Doc(scoreDoc.Doc);
 
 
-			// update document entry with new tags
-			// fields are key value pairs and MULTIPLE FIELDS CAN HAVE THE SAME KEY. must remove old before adding new
-			// REMEMBER: all fields, including 'tags' are case-specific
-			document.RemoveField(TAGS);
-			document.AddAnalyzed(TAGS, tags);
+            // perform update
+            action(document);
 
-			// update index
-			var createNewIndex = false;
-			using var analyzer = new StandardAnalyzer(Version);
-			using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
-			ixWriter.UpdateDocument(productTerm, document, analyzer);
-		}
 
+            // update index
+            var createNewIndex = false;
+            using var analyzer = new StandardAnalyzer(Version);
+            using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
+            ixWriter.UpdateDocument(productTerm, document, analyzer);
+        }
+		#endregion
+
+		#region search
         public SearchResultSet Search(string searchString)
         {
+            Serilog.Log.Logger.Debug("original search string: {@DebugInfo}", new { searchString });
+
             if (string.IsNullOrWhiteSpace(searchString))
-                searchString = "*:*";
+                searchString = ALL_QUERY;
 
             #region apply formatting
             searchString = parseTag(searchString);
@@ -315,14 +364,19 @@ namespace LibationSearchEngine
             searchString = lowerFieldNames(searchString);
             #endregion
 
+            Serilog.Log.Logger.Debug("formatted search string: {@DebugInfo}", new { searchString });
+
             var results = generalSearch(searchString);
+
+            Serilog.Log.Logger.Debug("Hit(s): {@DebugInfo}", new { count = results.Docs.Count() });
 
             displayResults(results);
 
             return results;
         }
 
-        private static string parseTag(string tagSearchString)
+		#region format query string
+		private static string parseTag(string tagSearchString)
         {
             var allMatches = LuceneRegex
                 .TagRegex
@@ -380,13 +434,10 @@ namespace LibationSearchEngine
 
             return searchString;
         }
-
-        public int MaxSearchResultsToReturn { get; set; } = 999;
+		#endregion
 
         private SearchResultSet generalSearch(string searchString)
         {
-            Console.WriteLine($"searchString: {searchString}");
-
             var defaultField = ALL;
 
 			using var index = getIndex();
@@ -407,14 +458,14 @@ namespace LibationSearchEngine
 					boolQuery.Add(new MatchAllDocsQuery(), Occur.MUST);
 			}
 
-			Console.WriteLine($"  query: {query}");
-
 			var docs = searcher
-				.Search(query, MaxSearchResultsToReturn)
+				.Search(query, searcher.MaxDoc + 1)
 				.ScoreDocs
 				.Select(ds => new ScoreDocExplicit(searcher.Doc(ds.Doc), ds.Score))
 				.ToList();
-			return new SearchResultSet(query.ToString(), docs);
+            var queryString = query.ToString();
+            Serilog.Log.Logger.Debug("query: {@DebugInfo}", new { queryString });
+			return new SearchResultSet(queryString, docs);
 		}
 
         private IEnumerable<Occur> getOccurs_recurs(BooleanQuery query)
@@ -434,7 +485,6 @@ namespace LibationSearchEngine
 
         private void displayResults(SearchResultSet docs)
         {
-            Console.WriteLine($"Hit(s): {docs.Docs.Count()}");
             //for (int i = 0; i < docs.Docs.Count(); i++)
             //{
             //    var sde = docs.Docs.First();
@@ -442,13 +492,14 @@ namespace LibationSearchEngine
             //    Document doc = sde.Doc;
             //    float score = sde.Score;
 
-            //    Console.WriteLine($"{(i + 1)}) score={score}. Fields:");
+            //    Serilog.Log.Logger.Debug($"{(i + 1)}) score={score}. Fields:");
             //    var allFields = doc.GetFields();
             //    foreach (var f in allFields)
-            //        Console.WriteLine($"   [{f.Name}]={f.StringValue}");
+            //        Serilog.Log.Logger.Debug($"   [{f.Name}]={f.StringValue}");
             //}
-
-            //Console.WriteLine();
         }
+		#endregion
+
+		private static Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
     }
 }
