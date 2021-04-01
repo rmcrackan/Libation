@@ -347,14 +347,24 @@ namespace LibationSearchEngine
         public SearchResultSet Search(string searchString)
         {
             Serilog.Log.Logger.Debug("original search string: {@DebugInfo}", new { searchString });
+            searchString = FormatSearchQuery(searchString);
+            Serilog.Log.Logger.Debug("formatted search string: {@DebugInfo}", new { searchString });
 
+            var results = generalSearch(searchString);
+            Serilog.Log.Logger.Debug("Hit(s): {@DebugInfo}", new { count = results.Docs.Count() });
+            displayResults(results);
+
+            return results;
+        }
+
+        public static string FormatSearchQuery(string searchString)
+        {
             if (string.IsNullOrWhiteSpace(searchString))
-                searchString = ALL_QUERY;
-
-            #region apply formatting
-            searchString = parseTag(searchString);
+                return ALL_QUERY;
 
             searchString = replaceBools(searchString);
+
+            searchString = parseTag(searchString);
 
             // in ranges " TO " must be uppercase
             searchString = searchString.Replace(" to ", " TO ");
@@ -362,17 +372,8 @@ namespace LibationSearchEngine
             searchString = padNumbers(searchString);
 
             searchString = lowerFieldNames(searchString);
-            #endregion
 
-            Serilog.Log.Logger.Debug("formatted search string: {@DebugInfo}", new { searchString });
-
-            var results = generalSearch(searchString);
-
-            Serilog.Log.Logger.Debug("Hit(s): {@DebugInfo}", new { count = results.Docs.Count() });
-
-            displayResults(results);
-
-            return results;
+            return searchString;
         }
 
 		#region format query string
@@ -395,9 +396,10 @@ namespace LibationSearchEngine
 
         private static string replaceBools(string searchString)
         {
-            // negative look-ahead for optional spaces then colon. don't want to double-up. eg:"israted:false" => "israted:false:True"
             foreach (var boolSearch in boolIndexRules.Keys)
-                searchString = Regex.Replace(searchString, $@"\b({boolSearch})\b(?!\s*:)", @"$1:True", RegexOptions.IgnoreCase);
+                searchString =
+                    LuceneRegex.GetBoolRegex(boolSearch)
+                    .Replace(searchString, @"$1:True");
 
             return searchString;
         }
@@ -434,7 +436,7 @@ namespace LibationSearchEngine
 
             return searchString;
         }
-		#endregion
+        #endregion
 
         private SearchResultSet generalSearch(string searchString)
         {

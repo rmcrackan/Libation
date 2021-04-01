@@ -42,5 +42,56 @@ namespace LibationSearchEngine
         //   positive look behind: beginning  space  {  [  :
         //   positive look ahead: end  space  ]  }
         public static Regex NumbersRegex { get; } = new Regex(@"(?<=^|\s|\{|\[|:)(\d+\.?\d*)(?=$|\s|\]|\})", RegexOptions.Compiled);
+
+        /// <summary>
+        /// proper bools are single keywords which are turned into keyword:True
+        /// if bordered by colons or inside brackets, they are not stand-alone bool keywords
+        /// the negative lookbehind and lookahead patterns prevent bugs where a bool keyword is also a user-defined tag:
+        ///   [israted]
+        ///     parseTag => tags:israted
+        ///     replaceBools => tags:israted:True
+        ///   or
+        ///     [israted]
+        ///       replaceBools => israted:True
+        ///         parseTag => [israted:True]
+        /// also don't want to apply :True where the value already exists:
+        ///   israted:false => israted:false:True
+        ///   
+        /// despite using parans, lookahead and lookbehind are zero-length assertions which do not capture. therefore the bool search keyword is still $1 since it's the first and only capture
+        /// </summary>
+        private static string boolPattern_parameterized { get; }
+            = @"
+(?<!                # begin negative lookbehind
+  [                 #   begin char set
+    :               #     colon
+    \[              #     open bracket, escaped
+  ]                 #   end char set
+  \s*               #   optional space
+)                   # end negative lookbehind
+
+\b                  # word boundary
+  ({0})             #   captured bool search keyword. this is the $1 reference used in regex.Replace
+\b                  # word boundary
+
+(?!                 # begin negative lookahead
+  \s*               #   optional space
+  [                 #   begin char set
+    :               #     colon
+    \]              #     close bracket, escaped
+  ]                 #   end char set
+)                   # end negative lookahead
+";
+        private static Dictionary<string, Regex> boolRegexDic { get; } = new Dictionary<string, Regex>();
+        public static Regex GetBoolRegex(string boolSearch)
+        {
+            if (boolRegexDic.TryGetValue(boolSearch, out var regex))
+                return regex;
+
+            var boolPattern = string.Format(boolPattern_parameterized, boolSearch);
+            regex = new Regex(boolPattern, RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            boolRegexDic.Add(boolSearch, regex);
+
+            return regex;
+        }
     }
 }
