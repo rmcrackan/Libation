@@ -119,6 +119,10 @@ namespace LibationSearchEngine
 
                     [nameof(Book.IsAbridged)] = lb => lb.Book.IsAbridged,
                     ["Abridged"] = lb => lb.Book.IsAbridged,
+
+                    // this will only be evaluated at time of re-index. ie: state of files moved later will be out of sync until next re-index
+                    ["IsLiberated"] = lb => AudibleFileStorage.Audio.Exists(lb.Book.AudibleProductId),
+                    ["Liberated"] = lb => AudibleFileStorage.Audio.Exists(lb.Book.AudibleProductId),
                 });
 
         private static bool isAuthorNarrated(LibraryBook lb)

@@ -81,8 +81,16 @@ namespace LibationWinForms.BookLiberation
                 backupBook.DownloadPdf.Completed += completedAction;
             }
 
+			// enables search engine to index for things like "IsLiberated"
+			backupBook.DownloadBook.Completed += reindex;
+            backupBook.DecryptBook.Completed += reindex;
+            backupBook.DownloadPdf.Completed += reindex;
+
             return backupBook;
         }
+
+		private static async void reindex(object sender, LibraryBook e)
+            => await Task.Run(() => ApplicationServices.SearchEngineCommands.FullReIndex());
 
         private static (AutomatedBackupsForm, LogMe) attachToBackupsForm(BackupBook backupBook)
         {
