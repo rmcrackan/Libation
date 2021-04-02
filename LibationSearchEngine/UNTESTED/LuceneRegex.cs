@@ -61,11 +61,14 @@ namespace LibationSearchEngine
         /// </summary>
         private static string boolPattern_parameterized { get; }
             = @"
+### IMPORTANT: 'ignore whitespace' is only partially honored in character sets
+### - new lines are ok
+### - ANY leading whitespace is treated like actual matching spaces  :(
+
+                    ### can't begin with colon. incorrect syntax
+                    ### can't begin with open bracket: this signals the start of a tag
 (?<!                # begin negative lookbehind
-  [                 #   begin char set
-    :               #     colon
-    \[              #     open bracket, escaped
-  ]                 #   end char set
+  [:\[]             #   char set: colon and open bracket, escaped
   \s*               #   optional space
 )                   # end negative lookbehind
 
@@ -73,12 +76,11 @@ namespace LibationSearchEngine
   ({0})             #   captured bool search keyword. this is the $1 reference used in regex.Replace
 \b                  # word boundary
 
+                    ### can't end with colon. this signals that the bool's value already exists
+                    ### can't begin with close bracket: this signals the end of a tag
 (?!                 # begin negative lookahead
   \s*               #   optional space
-  [                 #   begin char set
-    :               #     colon
-    \]              #     close bracket, escaped
-  ]                 #   end char set
+  [:\]]             #   char set: colon and close bracket, escaped
 )                   # end negative lookahead
 ";
         private static Dictionary<string, Regex> boolRegexDic { get; } = new Dictionary<string, Regex>();
