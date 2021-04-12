@@ -144,15 +144,21 @@ namespace FileLiberator
 
 			var musicFileExt = Path.GetExtension(outputAudioFilename).Trim('.');
 
-			foreach (var f in sortedFiles)
-			{
-				var dest = AudibleFileStorage.Audio.IsFileTypeMatch(f)
-					// audio filename: safetitle_limit50char + " [" + productId + "]." + audio_ext
-					? FileUtility.GetValidFilename(destinationDir, product.Title, musicFileExt, product.AudibleProductId)
-					// non-audio filename: safetitle_limit50char + " [" + productId + "][" + audio_ext +"]." + non_audio_ext
-					: FileUtility.GetValidFilename(destinationDir, product.Title, f.Extension, product.AudibleProductId, musicFileExt);
+            // audio filename: safetitle_limit50char + " [" + productId + "]." + audio_ext
+            var audioFileName = FileUtility.GetValidFilename(destinationDir, product.Title, musicFileExt, product.AudibleProductId);
 
-				File.Move(f.FullName, dest);
+            foreach (var f in sortedFiles)
+            {
+                var dest
+                    = AudibleFileStorage.Audio.IsFileTypeMatch(f)
+                    ? audioFileName
+                    // non-audio filename: safetitle_limit50char + " [" + productId + "][" + audio_ext +"]." + non_audio_ext
+                    : FileUtility.GetValidFilename(destinationDir, product.Title, f.Extension, product.AudibleProductId, musicFileExt);
+
+                if (Path.GetExtension(dest).Trim('.').ToLower() == "cue")
+                    Cue.UpdateFileName(f, audioFileName);
+
+                File.Move(f.FullName, dest);
 			}
 
             return destinationDir;

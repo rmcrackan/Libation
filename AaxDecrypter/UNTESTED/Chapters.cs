@@ -41,40 +41,20 @@ namespace AaxDecrypter
             return chapters;
         }
 
-        // subtract 1 b/c end time marker is a real entry but isn't a real chapter
-        public int Count() => markers.Count - 1;
+        // subtract 1 b/c end time marker is a real entry but isn't a real chapter. ie: fencepost
+        public int Count => markers.Count - 1;
 
-        public string GetCuefromChapters(string fileName)
+        public IEnumerable<TimeSpan> GetBeginningTimes()
         {
-            var stringBuilder = new StringBuilder();
-            if (fileName != "")
-            {
-                stringBuilder.Append("FILE \"" + fileName + "\" MP4\n");
-            }
-
-            for (var i = 0; i < Count(); i++)
-            {
-                var chapter = i + 1;
-
-                var timeSpan = TimeSpan.FromSeconds(markers[i]);
-                var minutes = Math.Floor(timeSpan.TotalMinutes).ToString();
-                var seconds = timeSpan.Seconds.ToString("D2");
-                var milliseconds = (timeSpan.Milliseconds / 10).ToString("D2");
-                string str = minutes + ":" + seconds + ":" + milliseconds;
-
-                stringBuilder.Append("TRACK " + chapter + " AUDIO\n");
-                stringBuilder.Append("  TITLE \"Chapter " + chapter.ToString("D2") + "\"\n");
-                stringBuilder.Append("  INDEX 01 " + str + "\n");
-            }
-
-            return stringBuilder.ToString();
+            for (var i = 0; i < Count; i++)
+                yield return TimeSpan.FromSeconds(markers[i]);
         }
 
         public string GenerateFfmpegChapters()
         {
             var stringBuilder = new StringBuilder();
 
-            for (var i = 0; i < Count(); i++)
+            for (var i = 0; i < Count; i++)
             {
                 var chapter = i + 1;
 

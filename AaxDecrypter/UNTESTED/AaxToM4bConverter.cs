@@ -102,20 +102,14 @@ namespace AaxDecrypter
 
             var defaultFilename = Path.Combine(
                 Path.GetDirectoryName(inputFileName),
-                getASCIITag(tags.author),
-                getASCIITag(tags.title) + ".m4b"
+                PathLib.ToPathSafeString(tags.author),
+                PathLib.ToPathSafeString(tags.title) + ".m4b"
                 );
 
 			// set default name
 			SetOutputFilename(defaultFilename);
 
             await Task.Run(() => saveCover(inputFileName));
-        }
-        private string getASCIITag(string property)
-        {
-            foreach (char ch in new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))
-                property = property.Replace(ch.ToString(), "");
-            return property;
         }
 
         private void saveCover(string aaxFile)
@@ -126,19 +120,14 @@ namespace AaxDecrypter
 
         private void printPrelim()
         {
-            Console.WriteLine("Audible Book ID = " + tags.id);
+            Console.WriteLine($"Audible Book ID = {tags.id}");
 
-            Console.WriteLine("Book: " + tags.title);
-            Console.WriteLine("Author: " + tags.author);
-            Console.WriteLine("Narrator: " + tags.narrator);
-            Console.WriteLine("Year: " + tags.year);
-            Console.WriteLine("Total Time: "
-                + tags.duration.GetTotalTimeFormatted()
-                + " in " + chapters.Count() + " chapters");
-            Console.WriteLine("WARNING-Source is "
-                + encodingInfo.originalBitrate + " kbits @ "
-                + encodingInfo.sampleRate + "Hz, "
-                + encodingInfo.channels + " channels");
+            Console.WriteLine($"Book: {tags.title}");
+            Console.WriteLine($"Author: {tags.author}");
+            Console.WriteLine($"Narrator: {tags.narrator}");
+            Console.WriteLine($"Year: {tags.year}");
+            Console.WriteLine($"Total Time: {tags.duration.GetTotalTimeFormatted()} in {chapters.Count} chapters");
+            Console.WriteLine($"WARNING-Source is {encodingInfo.originalBitrate} kbits @ {encodingInfo.sampleRate}Hz, {encodingInfo.channels} channels");
         }
 
         public bool Run()
@@ -159,19 +148,14 @@ namespace AaxDecrypter
 
         public void SetOutputFilename(string outFileName)
         {
-            outputFileName = outFileName;
-
-            if (Path.GetExtension(outputFileName) != ".m4b")
-                outputFileName = outputFileWithNewExt(".m4b");
-
-			if (File.Exists(outputFileName))
-				File.Delete(outputFileName);
-
+            outputFileName = PathLib.ReplaceExtension(outFileName, ".m4b");
             outDir = Path.GetDirectoryName(outputFileName);
+
+            if (File.Exists(outputFileName))
+                File.Delete(outputFileName);
         }
 
-        private string outputFileWithNewExt(string extension)
-            => Path.Combine(outDir, Path.GetFileNameWithoutExtension(outputFileName) + '.' + extension.Trim('.'));
+        private string outputFileWithNewExt(string extension) => PathLib.ReplaceExtension(outputFileName, extension);
 
         public bool Step1_CreateDir()
         {
@@ -349,13 +333,13 @@ namespace AaxDecrypter
 
         public bool End_CreateCue()
         {
-            File.WriteAllText(outputFileWithNewExt(".cue"), chapters.GetCuefromChapters(Path.GetFileName(outputFileName)));
+            File.WriteAllText(outputFileWithNewExt(".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), chapters));
             return true;
         }
 
         public bool End_CreateNfo()
         {
-            File.WriteAllText(outputFileWithNewExt(".nfo"), NFO.CreateNfoContents(AppName, tags, encodingInfo, chapters));
+            File.WriteAllText(outputFileWithNewExt(".nfo"), NFO.CreateContents(AppName, tags, encodingInfo, chapters));
             return true;
         }
     }

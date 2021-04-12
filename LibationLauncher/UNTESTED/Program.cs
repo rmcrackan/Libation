@@ -380,17 +380,23 @@ namespace LibationLauncher
 				try
 				{
 					LibationWinForms.BookLiberation.ProcessorAutomationController.DownloadFileAsync(zipUrl, selectedPath).GetAwaiter().GetResult();
-					MessageBox.Show($"File downloaded");
+					MessageBox.Show("File downloaded");
 				}
 				catch (Exception ex)
 				{
-					MessageBox.Show($"ERROR: {ex.Message}\r\n{ex.StackTrace}");
+					Error(ex, "Error downloading update");
 				}
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show($"Error checking for update. ERROR: {ex.Message}\r\n{ex.StackTrace}");
+				Error(ex, "Error checking for update");
 			}
+		}
+
+		private static void Error(Exception ex, string message)
+		{
+			Log.Logger.Error(ex, message);
+			MessageBox.Show($"{message}\r\nSee log for details");
 		}
 
 		private static void logStartupState()
