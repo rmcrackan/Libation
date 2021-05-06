@@ -56,9 +56,10 @@ namespace DataLayer
             modelBuilder.ApplyConfiguration(new SeriesBookConfig());
             modelBuilder.ApplyConfiguration(new CategoryConfig());
 
-			// seeds go here. examples in scratch pad
-			modelBuilder
-				.Entity<Category>()
+            // seeds go here. examples in Dinah.EntityFrameworkCore.Tests\DbContextFactoryExample.cs
+
+            modelBuilder
+                .Entity<Category>()
 				.HasData(Category.GetEmpty());
 			modelBuilder
 				.Entity<Contributor>()
