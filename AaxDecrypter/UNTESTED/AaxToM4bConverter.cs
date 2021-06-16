@@ -98,7 +98,7 @@ namespace AaxDecrypter
         {
             tags = new Tags(inputFileName);
             encodingInfo = new EncodingInfo(inputFileName);
-            chapters = new Chapters(inputFileName, tags.duration.TotalSeconds);
+            chapters = new AAXChapters(inputFileName);
 
             var defaultFilename = Path.Combine(
                 Path.GetDirectoryName(inputFileName),
@@ -278,9 +278,9 @@ namespace AaxDecrypter
         public bool Step3_Chapterize()
         {
             var str1 = "";
-            if (chapters.FirstChapterStart != 0.0)
+            if (chapters.FirstChapter.StartTime != 0.0)
             {
-                str1 = " -ss " + chapters.FirstChapterStart.ToString("0.000", CultureInfo.InvariantCulture) + " -t " + (chapters.LastChapterStart - 1.0).ToString("0.000", CultureInfo.InvariantCulture) + " ";
+                str1 = " -ss " + chapters.FirstChapter.StartTime.ToString("0.000", CultureInfo.InvariantCulture) + " -t " + chapters.LastChapter.EndTime.ToString("0.000", CultureInfo.InvariantCulture) + " ";
             }
 
             var ffmpegTags = tags.GenerateFfmpegTags();

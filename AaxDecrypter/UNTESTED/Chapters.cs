@@ -1,72 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Text;
-using Dinah.Core.Diagnostics;
 
 namespace AaxDecrypter
 {
-    public class Chapters
+    public abstract class Chapters
     {
-        private List<double> markers { get; }
-
-        public double FirstChapterStart => markers[0];
-        public double LastChapterStart => markers[markers.Count - 1];
-
-        public Chapters(string file, double totalTime)
+        private List<Chapter> _chapterList = new();
+        public int Count => _chapterList.Count;
+        public Chapter FirstChapter => _chapterList[0];
+        public Chapter LastChapter => _chapterList[Count - 1];
+        public IEnumerable<Chapter> ChapterList => _chapterList.AsEnumerable();
+        public IEnumerable<TimeSpan> GetBeginningTimes() => ChapterList.Select(c => TimeSpan.FromSeconds(c.StartTime));
+        protected void AddChapter(Chapter chapter)
         {
-            markers = getAAXChapters(file);
-
-            // add end time
-            markers.Add(totalTime);
+            _chapterList.Add(chapter);
         }
-
-        private static List<double> getAAXChapters(string file)
-        {
-            var info = new ProcessStartInfo
-            {
-                FileName = DecryptSupportLibraries.ffprobePath,
-                Arguments = "-loglevel panic -show_chapters -print_format xml \"" + file + "\""
-            };
-            var xml = info.RunHidden().Output;
-
-            var xmlDocument = new System.Xml.XmlDocument();
-            xmlDocument.LoadXml(xml);
-            var chapters = xmlDocument.SelectNodes("/ffprobe/chapters/chapter")
-                .Cast<System.Xml.XmlNode>()
-                .Select(xmlNode => double.Parse(xmlNode.Attributes["start_time"].Value.Replace(",", "."), CultureInfo.InvariantCulture))
-                .ToList();
-            return chapters;
-        }
-
-        // subtract 1 b/c end time marker is a real entry but isn't a real chapter. ie: fencepost
-        public int Count => markers.Count - 1;
-
-        public IEnumerable<TimeSpan> GetBeginningTimes()
-        {
-            for (var i = 0; i < Count; i++)
-                yield return TimeSpan.FromSeconds(markers[i]);
-        }
-
         public string GenerateFfmpegChapters()
         {
             var stringBuilder = new StringBuilder();
 
-            for (var i = 0; i < Count; i++)
+            foreach (Chapter c in ChapterList)
             {
-                var chapter = i + 1;
-
-                var start = markers[i] * 1000.0;
-                var end = markers[i + 1] * 1000.0;
-                var chapterName = chapter.ToString("D3");
-
                 stringBuilder.Append("[CHAPTER]\n");
                 stringBuilder.Append("TIMEBASE=1/1000\n");
-                stringBuilder.Append("START=" + start + "\n");
-                stringBuilder.Append("END=" + end + "\n");
-                stringBuilder.Append("title=" + chapterName + "\n");
+                stringBuilder.Append("START=" + c.StartTime * 1000 + "\n");
+                stringBuilder.Append("END=" + c.EndTime * 1000 + "\n");
+                stringBuilder.Append("title=" + c.Title + "\n");
             }
 
             return stringBuilder.ToString();
