@@ -14,20 +14,15 @@ namespace AaxDecrypter
 
             stringBuilder.AppendLine(GetFileLine(filePath, "MP3"));
 
-            var beginningTimes = chapters.GetBeginningTimes().ToList();
-            for (var i = 0; i < beginningTimes.Count; i++)
+            var trackCount = 0;
+            foreach (Chapter c in chapters.ChapterList)
             {
-                var chapter = i + 1;
+                trackCount++;
+                var startTime = TimeSpan.FromSeconds(c.StartTime);
 
-                var timeSpan = beginningTimes[i];
-                var minutes = Math.Floor(timeSpan.TotalMinutes).ToString();
-                var seconds = timeSpan.Seconds.ToString("D2");
-                var milliseconds = (timeSpan.Milliseconds / 10).ToString("D2");
-                var time = minutes + ":" + seconds + ":" + milliseconds;
-
-                stringBuilder.AppendLine($"TRACK {chapter} AUDIO");
-                stringBuilder.AppendLine($"  TITLE \"Chapter {chapter:D2}\"");
-                stringBuilder.AppendLine($"  INDEX 01 {time}");
+                stringBuilder.AppendLine($"TRACK {trackCount} AUDIO");
+                stringBuilder.AppendLine($"  TITLE \"{c.Title}\"");
+                stringBuilder.AppendLine($"  INDEX 01 {(int)startTime.TotalMinutes}:{startTime:ss\\:ff}");
             }
 
             return stringBuilder.ToString();
