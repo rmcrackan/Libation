@@ -62,9 +62,10 @@ namespace AaxDecrypter
         public Tags tags { get; private set; }
         public EncodingInfo encodingInfo { get; private set; }
 
-        public static async Task<AaxToM4bConverter> CreateAsync(string inputFile, string decryptKey)
+        public static async Task<AaxToM4bConverter> CreateAsync(string inputFile, string decryptKey, Chapters chapters = null)
         {
             var converter = new AaxToM4bConverter(inputFile, decryptKey);
+            converter.chapters = chapters ?? new AAXChapters(inputFile);
             await converter.prelimProcessing();
             converter.printPrelim();
 
@@ -98,7 +99,6 @@ namespace AaxDecrypter
         {
             tags = new Tags(inputFileName);
             encodingInfo = new EncodingInfo(inputFileName);
-            chapters = new AAXChapters(inputFileName);
 
             var defaultFilename = Path.Combine(
                 Path.GetDirectoryName(inputFileName),

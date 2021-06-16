@@ -17,6 +17,10 @@ namespace AaxDecrypter
         {
             _chapterList.Add(chapter);
         }
+        protected void AddChapters(IEnumerable<Chapter> chapters)
+        {
+            _chapterList.AddRange(chapters);
+        }
         public string GenerateFfmpegChapters()
         {
             var stringBuilder = new StringBuilder();
