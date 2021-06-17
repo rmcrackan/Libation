@@ -22,28 +22,28 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\LibationFilesDialog.cs" />
-    <Compile Update="UNTESTED\Dialogs\LibationFilesDialog.Designer.cs">
+    <Compile Update="Dialogs\LibationFilesDialog.cs" />
+    <Compile Update="Dialogs\LibationFilesDialog.Designer.cs">
       <DependentUpon>LibationFilesDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\Login\ApprovalNeededDialog.cs" />
-    <Compile Update="UNTESTED\Dialogs\Login\ApprovalNeededDialog.Designer.cs">
+    <Compile Update="Dialogs\Login\ApprovalNeededDialog.cs" />
+    <Compile Update="Dialogs\Login\ApprovalNeededDialog.Designer.cs">
       <DependentUpon>ApprovalNeededDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\ScanAccountsDialog.cs" />
-    <Compile Update="UNTESTED\Dialogs\ScanAccountsDialog.Designer.cs">
+    <Compile Update="Dialogs\ScanAccountsDialog.cs" />
+    <Compile Update="Dialogs\ScanAccountsDialog.Designer.cs">
       <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\SettingsDialog.cs" />
-    <Compile Update="UNTESTED\Dialogs\SettingsDialog.Designer.cs">
+    <Compile Update="Dialogs\SettingsDialog.cs" />
+    <Compile Update="Dialogs\SettingsDialog.Designer.cs">
       <DependentUpon>SettingsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\IndexLibraryDialog.cs" />
-    <Compile Update="UNTESTED\Dialogs\IndexLibraryDialog.Designer.cs">
+    <Compile Update="Dialogs\IndexLibraryDialog.cs" />
+    <Compile Update="Dialogs\IndexLibraryDialog.Designer.cs">
       <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="UNTESTED\Dialogs\SetupDialog.cs" />
-    <Compile Update="UNTESTED\Dialogs\SetupDialog.Designer.cs">
+    <Compile Update="Dialogs\SetupDialog.cs" />
+    <Compile Update="Dialogs\SetupDialog.Designer.cs">
       <DependentUpon>SetupDialog.cs</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -53,16 +53,16 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Update="UNTESTED\Dialogs\LibationFilesDialog.resx">
+    <EmbeddedResource Update="Dialogs\LibationFilesDialog.resx">
       <DependentUpon>LibationFilesDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="UNTESTED\Dialogs\ScanAccountsDialog.resx">
+    <EmbeddedResource Update="Dialogs\ScanAccountsDialog.resx">
       <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="UNTESTED\Dialogs\SettingsDialog.resx">
+    <EmbeddedResource Update="Dialogs\SettingsDialog.resx">
       <DependentUpon>SettingsDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="UNTESTED\Dialogs\SetupDialog.resx">
+    <EmbeddedResource Update="Dialogs\SetupDialog.resx">
       <DependentUpon>SetupDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
