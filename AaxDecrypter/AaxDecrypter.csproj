@@ -11,56 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="..\..\..\..\..\..\Dinah%2527s folder\coding\_NET\Visual Studio 2019\Libation\AaxDecrypter\UNTESTED\BytesCrackerLib\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Dinah.Core\Dinah.Core\Dinah.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="BytesCrackerLib\alglib1.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_0_10000x789935_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_1_10000x791425_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_2_10000x790991_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_3_10000x792120_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_4_10000x790743_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_5_10000x790568_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_6_10000x791458_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_7_10000x791707_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_8_10000x790202_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\audible_byte#4-4_9_10000x791022_0.rtc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\ffmpeg.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\ffprobe.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="BytesCrackerLib\rcrack.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="DecryptLib\AtomicParsley.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

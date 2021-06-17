@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AaxDecrypter;
+using AudibleApi;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
@@ -56,9 +57,11 @@ namespace FileLiberator
                 if (AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-                var chapters = await downloadChapterNames(libraryBook);
+				var api = await AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
 
-                var outputAudioFilename = await aaxToM4bConverterDecrypt(aaxFilename, libraryBook, chapters);
+                var chapters = await downloadChapterNames(libraryBook, api);
+
+                var outputAudioFilename = await aaxToM4bConverterDecrypt(aaxFilename, libraryBook, chapters, api);
 
                 // decrypt failed
                 if (outputAudioFilename == null)
@@ -92,7 +95,23 @@ namespace FileLiberator
             }
         }
 
-        private async Task<string> aaxToM4bConverterDecrypt(string aaxFilename, LibraryBook libraryBook, Chapters chapters = null)
+        private static async Task<Chapters> downloadChapterNames(LibraryBook libraryBook, Api api)
+        {
+            try
+            {
+                var contentMetadata = await api.GetLibraryBookMetadataAsync(libraryBook.Book.AudibleProductId);
+                if (contentMetadata?.ChapterInfo is null)
+                    return null;
+
+                return new DownloadedChapters(contentMetadata.ChapterInfo);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private async Task<string> aaxToM4bConverterDecrypt(string aaxFilename, LibraryBook libraryBook, Chapters chapters, Api api)
         {
             DecryptBegin?.Invoke(this, $"Begin decrypting {aaxFilename}");
 
@@ -104,7 +123,7 @@ namespace FileLiberator
                     .AccountsSettings
                     .GetAccount(libraryBook.Account, libraryBook.Book.Locale);
 
-                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, account.DecryptKey, chapters);
+                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, account.DecryptKey, api.GetActivationBytesAsync, chapters);
                 converter.AppName = "Libation";
 
                 TitleDiscovered?.Invoke(this, converter.tags.title);
@@ -131,23 +150,6 @@ namespace FileLiberator
             finally
             {
                 DecryptCompleted?.Invoke(this, $"Completed decrypting {aaxFilename}");
-            }
-        }
-
-        private async Task<Chapters> downloadChapterNames(LibraryBook libraryBook)
-        {
-            try
-            {
-                var api = await AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
-                var contentMetadata = await api.GetLibraryBookMetadataAsync(libraryBook.Book.AudibleProductId);
-
-                if (contentMetadata?.ChapterInfo != null)
-                    return new DownloadedChapters(contentMetadata.ChapterInfo);
-                return null;
-            }
-            catch
-            {
-                return null;
             }
         }
 

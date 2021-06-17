@@ -66,6 +66,14 @@ namespace inAudibleLite
 			Console.SetOut(multiLogger);
 		}
 
+		string aaxPath;
+		public async Task<string> getActivationBytes()
+		{
+			var checksum = await ffmpeg_decrypt.RCrack.GetChecksum(aaxPath);
+			var activationBytes = await ffmpeg_decrypt.RCrack.GetActivationBytes(checksum);
+			return activationBytes;
+		}
+
 		private async void btnSelectFile_Click(object sender, EventArgs e)
 		{
 			var openFileDialog = new OpenFileDialog { Filter = "Audible files (*.aax)|*.aax" };
@@ -75,7 +83,8 @@ namespace inAudibleLite
 			this.rtbLog.Clear();
 
 			this.txtInputFile.Text = openFileDialog.FileName;
-			converter = await AaxToM4bConverter.CreateAsync(this.txtInputFile.Text, this.decryptKeyTb.Text);
+			aaxPath = this.txtInputFile.Text;
+			converter = await AaxToM4bConverter.CreateAsync(this.txtInputFile.Text, this.decryptKeyTb.Text, getActivationBytes);
 
 			pictureBox1.Image = Dinah.Core.Drawing.ImageReader.ToImage(converter.coverBytes);
 
@@ -90,7 +99,7 @@ namespace inAudibleLite
 
 			// only re-process prelim stats if input filename was changed
 			//also pick up new decrypt key, etc//if (this.txtInputFile.Text != converter?.inputFileName)
-			converter = await AaxToM4bConverter.CreateAsync(this.txtInputFile.Text, this.decryptKeyTb.Text);
+			converter = await AaxToM4bConverter.CreateAsync(this.txtInputFile.Text, this.decryptKeyTb.Text, getActivationBytes);
 
 			converter.AppName = APP_NAME;
 			converter.SetOutputFilename(this.txtOutputFile.Text);

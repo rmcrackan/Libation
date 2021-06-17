@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Dinah.Core\Dinah.Core.WindowsDesktop\Dinah.Core.WindowsDesktop.csproj" />
     <ProjectReference Include="..\..\AaxDecrypter\AaxDecrypter.csproj" />
+    <ProjectReference Include="..\ffmpeg decrypt\ffmpeg decrypt.csproj" />
   </ItemGroup>
 
 </Project>

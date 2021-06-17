@@ -62,16 +62,18 @@ namespace AaxDecrypter
         public Tags tags { get; private set; }
         public EncodingInfo encodingInfo { get; private set; }
 
-        public static async Task<AaxToM4bConverter> CreateAsync(string inputFile, string decryptKey, Chapters chapters = null)
+        private Func<Task<string>> getKeyFuncAsync { get; }
+
+        public static async Task<AaxToM4bConverter> CreateAsync(string inputFile, string decryptKey, Func<Task<string>> getKeyFunc, Chapters chapters = null)
         {
-            var converter = new AaxToM4bConverter(inputFile, decryptKey);
+            var converter = new AaxToM4bConverter(inputFile, decryptKey, getKeyFunc);
             converter.chapters = chapters ?? new AAXChapters(inputFile);
             await converter.prelimProcessing();
             converter.printPrelim();
 
             return converter;
         }
-        private AaxToM4bConverter(string inputFile, string decryptKey)
+        private AaxToM4bConverter(string inputFile, string decryptKey, Func<Task<string>> getKeyFunc)
         {
 			ArgumentValidator.EnsureNotNullOrWhiteSpace(inputFile, nameof(inputFile));
             if (!File.Exists(inputFile))
@@ -93,6 +95,7 @@ namespace AaxDecrypter
 
             inputFileName = inputFile;
             this.decryptKey = decryptKey;
+            this.getKeyFuncAsync = getKeyFunc;
         }
 
         private async Task prelimProcessing()
@@ -209,22 +212,12 @@ namespace AaxDecrypter
 
         private int getKey_decrypt(string tempRipFile)
         {
-            getKey();
+            decryptKey = getKey();
             return decrypt(tempRipFile);
         }
-        private void getKey()
-        {
-            Console.WriteLine("Discovering decrypt key");
 
-            Console.WriteLine("Getting file hash");
-            var checksum = BytesCracker.GetChecksum(inputFileName);
-            Console.WriteLine("File hash calculated: " + checksum);
-
-            Console.WriteLine("Cracking activation bytes");
-            var activation_bytes = BytesCracker.GetActivationBytes(checksum);
-            decryptKey = activation_bytes;
-            Console.WriteLine("Activation bytes cracked. Decrypt key: " + activation_bytes);
-        }
+        // I am NOT happy about doing async this way. Async needs to be added to Step framework
+        string getKey() => getKeyFuncAsync().GetAwaiter().GetResult();
 
         private int decrypt(string tempRipFile)
         {
