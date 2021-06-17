@@ -56,7 +56,9 @@ namespace FileLiberator
                 if (AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-                var outputAudioFilename = await aaxToM4bConverterDecrypt(aaxFilename, libraryBook);
+                var chapters = await downloadChapterNames(libraryBook);
+
+                var outputAudioFilename = await aaxToM4bConverterDecrypt(aaxFilename, libraryBook, chapters);
 
                 // decrypt failed
                 if (outputAudioFilename == null)
@@ -90,7 +92,7 @@ namespace FileLiberator
             }
         }
 
-        private async Task<string> aaxToM4bConverterDecrypt(string aaxFilename, LibraryBook libraryBook)
+        private async Task<string> aaxToM4bConverterDecrypt(string aaxFilename, LibraryBook libraryBook, Chapters chapters = null)
         {
             DecryptBegin?.Invoke(this, $"Begin decrypting {aaxFilename}");
 
@@ -102,7 +104,7 @@ namespace FileLiberator
                     .AccountsSettings
                     .GetAccount(libraryBook.Account, libraryBook.Book.Locale);
 
-                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, account.DecryptKey);
+                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, account.DecryptKey, chapters);
                 converter.AppName = "Libation";
 
                 TitleDiscovered?.Invoke(this, converter.tags.title);
@@ -129,6 +131,23 @@ namespace FileLiberator
             finally
             {
                 DecryptCompleted?.Invoke(this, $"Completed decrypting {aaxFilename}");
+            }
+        }
+
+        private async Task<Chapters> downloadChapterNames(LibraryBook libraryBook)
+        {
+            try
+            {
+                var api = await AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
+                var contentMetadata = await api.GetLibraryBookMetadataAsync(libraryBook.Book.AudibleProductId);
+
+                if (contentMetadata?.ChapterInfo != null)
+                    return new DownloadedChapters(contentMetadata.ChapterInfo);
+                return null;
+            }
+            catch
+            {
+                return null;
             }
         }
 

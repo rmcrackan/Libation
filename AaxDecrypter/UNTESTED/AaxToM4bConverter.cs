@@ -62,9 +62,10 @@ namespace AaxDecrypter
         public Tags tags { get; private set; }
         public EncodingInfo encodingInfo { get; private set; }
 
-        public static async Task<AaxToM4bConverter> CreateAsync(string inputFile, string decryptKey)
+        public static async Task<AaxToM4bConverter> CreateAsync(string inputFile, string decryptKey, Chapters chapters = null)
         {
             var converter = new AaxToM4bConverter(inputFile, decryptKey);
+            converter.chapters = chapters ?? new AAXChapters(inputFile);
             await converter.prelimProcessing();
             converter.printPrelim();
 
@@ -98,7 +99,6 @@ namespace AaxDecrypter
         {
             tags = new Tags(inputFileName);
             encodingInfo = new EncodingInfo(inputFileName);
-            chapters = new Chapters(inputFileName, tags.duration.TotalSeconds);
 
             var defaultFilename = Path.Combine(
                 Path.GetDirectoryName(inputFileName),
@@ -278,9 +278,9 @@ namespace AaxDecrypter
         public bool Step3_Chapterize()
         {
             var str1 = "";
-            if (chapters.FirstChapterStart != 0.0)
+            if (chapters.FirstChapter.StartTime != 0.0)
             {
-                str1 = " -ss " + chapters.FirstChapterStart.ToString("0.000", CultureInfo.InvariantCulture) + " -t " + (chapters.LastChapterStart - 1.0).ToString("0.000", CultureInfo.InvariantCulture) + " ";
+                str1 = " -ss " + chapters.FirstChapter.StartTime.ToString("0.000", CultureInfo.InvariantCulture) + " -t " + chapters.LastChapter.EndTime.ToString("0.000", CultureInfo.InvariantCulture) + " ";
             }
 
             var ffmpegTags = tags.GenerateFfmpegTags();
