@@ -42,14 +42,14 @@ dotnet publish -c Release
 
 OPTION 3: cmd line, custom
 open csproj
-remove: PublishTrimmed, PublishReadyToRun, PublishSingleFile, RuntimeIdentifier
+remove: PublishTrimmed, PublishReadyToRun, RuntimeIdentifier
 run customized publish. examples:
 publish all platforms
   dotnet publish -c Release
 publish win64 platform only
   dotnet publish -r win-x64 -c Release
 publish win64 platform, single-file
-  dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true
+  dotnet publish -r win-x64 -c Release
 -- end HOW TO PUBLISH ---------------------------------------------------------------------------------------------------------------------
 
 -- begin IMAGES ---------------------------------------------------------------------------------------------------------------------
