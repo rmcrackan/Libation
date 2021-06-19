@@ -48,7 +48,8 @@ namespace AaxDecrypter
         public event EventHandler<int> DecryptProgressUpdate;
 
         public string inputFileName { get; }
-        public string decryptKey { get; private set; }
+        public string audible_key { get; private set; }
+        public string audible_iv { get; private set; }
 
         private StepSequence steps { get; }
         public byte[] coverBytes { get; private set; }
@@ -62,20 +63,21 @@ namespace AaxDecrypter
         public Tags tags { get; private set; }
         public EncodingInfo encodingInfo { get; private set; }
 
-        private Func<Task<string>> getKeyFuncAsync { get; }
-
-        public static async Task<AaxToM4bConverter> CreateAsync(string inputFile, string decryptKey, Func<Task<string>> getKeyFunc, Chapters chapters = null)
+        public static async Task<AaxToM4bConverter> CreateAsync(string inputFile, string audible_key, string audible_iv, Chapters chapters = null)
         {
-            var converter = new AaxToM4bConverter(inputFile, decryptKey, getKeyFunc);
+            var converter = new AaxToM4bConverter(inputFile, audible_key, audible_iv);
             converter.chapters = chapters ?? new AAXChapters(inputFile);
             await converter.prelimProcessing();
             converter.printPrelim();
 
             return converter;
         }
-        private AaxToM4bConverter(string inputFile, string decryptKey, Func<Task<string>> getKeyFunc)
+        private AaxToM4bConverter(string inputFile, string audible_key, string audible_iv)
         {
-			ArgumentValidator.EnsureNotNullOrWhiteSpace(inputFile, nameof(inputFile));
+            ArgumentValidator.EnsureNotNullOrWhiteSpace(inputFile, nameof(inputFile));
+            ArgumentValidator.EnsureNotNullOrWhiteSpace(audible_key, nameof(audible_key));
+            ArgumentValidator.EnsureNotNullOrWhiteSpace(audible_iv, nameof(audible_iv));
+
             if (!File.Exists(inputFile))
                 throw new ArgumentNullException(nameof(inputFile), "File does not exist");
 
@@ -94,8 +96,8 @@ namespace AaxDecrypter
             };
 
             inputFileName = inputFile;
-            this.decryptKey = decryptKey;
-            this.getKeyFuncAsync = getKeyFunc;
+            this.audible_key = audible_key;
+            this.audible_iv = audible_iv;
         }
 
         private async Task prelimProcessing()
@@ -109,17 +111,17 @@ namespace AaxDecrypter
                 PathLib.ToPathSafeString(tags.title) + ".m4b"
                 );
 
-			// set default name
-			SetOutputFilename(defaultFilename);
+            // set default name
+            SetOutputFilename(defaultFilename);
 
             await Task.Run(() => saveCover(inputFileName));
         }
 
         private void saveCover(string aaxFile)
         {
-			using var file = TagLib.File.Create(aaxFile, "audio/mp4", TagLib.ReadStyle.Average);
-			coverBytes = file.Tag.Pictures[0].Data.Data;
-		}
+            using var file = TagLib.File.Create(aaxFile, "audio/mp4", TagLib.ReadStyle.Average);
+            coverBytes = file.Tag.Pictures[0].Data.Data;
+        }
 
         private void printPrelim()
         {
@@ -171,27 +173,16 @@ namespace AaxDecrypter
         {
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            var tempRipFile = Path.Combine(outDir, "funny.aac");
+            var tempRipFile = Path.Combine(outDir, "funny.mp4");
 
             var fail = "WARNING-Decrypt failure. ";
 
             int returnCode;
-            if (string.IsNullOrWhiteSpace(decryptKey))
-            {
-                returnCode = getKey_decrypt(tempRipFile);
-            }
-            else
-            {
-                returnCode = decrypt(tempRipFile);
-                if (returnCode == -99)
-                {
-                    Console.WriteLine($"{fail}Incorrect decrypt key: {decryptKey}");
-                    decryptKey = null;
-                    returnCode = getKey_decrypt(tempRipFile);
-                }
-            }
 
-            if (returnCode == 100)
+            returnCode = decrypt(tempRipFile);
+            if (returnCode == -99)
+                Console.WriteLine($"{fail}Incorrect decrypt key.");
+            else if (returnCode == 100)
                 Console.WriteLine($"{fail}Thread completed without changing return code. This shouldn't be possible");
             else if (returnCode == 0)
             {
@@ -200,8 +191,6 @@ namespace AaxDecrypter
                 DecryptProgressUpdate?.Invoke(this, 100);
                 return true;
             }
-            else if (returnCode == -99)
-                Console.WriteLine($"{fail}Incorrect decrypt key: {decryptKey}");
             else // any other returnCode
                 Console.WriteLine($"{fail}Unknown failure code: {returnCode}");
 
@@ -210,24 +199,16 @@ namespace AaxDecrypter
             return false;
         }
 
-        private int getKey_decrypt(string tempRipFile)
-        {
-            decryptKey = getKey();
-            return decrypt(tempRipFile);
-        }
-
-        // I am NOT happy about doing async this way. Async needs to be added to Step framework
-        string getKey() => getKeyFuncAsync().GetAwaiter().GetResult();
 
         private int decrypt(string tempRipFile)
         {
             FileExt.SafeDelete(tempRipFile);
 
-            Console.WriteLine("Decrypting with key " + decryptKey);
+            Console.WriteLine($"Decrypting with key={audible_key}, iv={audible_iv}");
 
             var returnCode = 100;
-            var thread = new Thread(() => returnCode = ngDecrypt());
-            thread.Start();
+            var thread = new Thread((b) => returnCode = ngDecrypt(b));
+            thread.Start(tempRipFile);
 
             double fileLen = new FileInfo(inputFileName).Length;
             while (thread.IsAlive && returnCode == 100)
@@ -244,25 +225,35 @@ namespace AaxDecrypter
             return returnCode;
         }
 
-        private int ngDecrypt()
+        private int ngDecrypt(object tempFileNameObj)
         {
+            var tempFileName = tempFileNameObj as string;
+
+            string args = "-audible_key "
+                + audible_key
+                + " -audible_iv "
+                + audible_iv
+                + " -i "
+                + "\"" + inputFileName + "\""
+                + " -c:a copy -vn -sn -dn -y "
+                + "\"" + tempFileName + "\"";
+
             var info = new ProcessStartInfo
             {
-                FileName = DecryptSupportLibraries.mp4trackdumpPath,
-                Arguments = "-c " + encodingInfo.channels + " -r " + encodingInfo.sampleRate + " \"" + inputFileName + "\""
+                FileName = DecryptSupportLibraries.ffmpegPath,
+                Arguments = args
             };
-            info.EnvironmentVariables["VARIABLE"] = decryptKey;
 
             var result = info.RunHidden();
 
-            // bad checksum -- bad decrypt key
-            if (result.Output.Contains("checksums mismatch, aborting!"))
+            // failed to decrypt
+            if (result.Error.Contains("aac bitstream error"))
                 return -99;
 
             return result.ExitCode;
         }
 
-		// temp file names for steps 3, 4, 5
+        // temp file names for steps 3, 4, 5
         string tempChapsGuid { get; } = Guid.NewGuid().ToString().ToUpper().Replace("-", "");
         string tempChapsPath => Path.Combine(outDir, $"tempChaps_{tempChapsGuid}.mp4");
         string mp4_file => outputFileWithNewExt(".mp4");

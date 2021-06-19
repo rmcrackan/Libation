@@ -6,7 +6,8 @@ using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using FileManager;
-using InternalUtilities;
+using System.Net.Http;
+using Dinah.Core.Net.Http;
 
 namespace FileLiberator
 {
@@ -29,7 +30,7 @@ namespace FileLiberator
 		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
 			var tempAaxFilename = getDownloadPath(libraryBook);
-			var actualFilePath = await downloadBookAsync(libraryBook, tempAaxFilename);
+			var actualFilePath = await downloadAacxBookAsync(libraryBook, tempAaxFilename);
 			moveBook(libraryBook, actualFilePath);
 			return verifyDownload(libraryBook);
 		}
@@ -40,7 +41,53 @@ namespace FileLiberator
 				libraryBook.Book.Title,
 				"aax",
 				libraryBook.Book.AudibleProductId);
+		private async Task<string> downloadAacxBookAsync(LibraryBook libraryBook, string tempAaxFilename)
+		{
+			validate(libraryBook);
 
+			var api = await GetApiAsync(libraryBook);
+
+			var dlLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+
+			libraryBook.Book.AudibleKey = dlLic.AudibleKey;
+			libraryBook.Book.AudibleIV = dlLic.AudibleIV;
+
+			var client = new HttpClient();
+			client.DefaultRequestHeaders.Add("User-Agent", Resources.UserAgent);
+
+			var actualFilePath = await PerformDownloadAsync(
+				tempAaxFilename,
+				(p) => client.DownloadFileAsync(dlLic.DownloadUri.AbsoluteUri, tempAaxFilename, p));
+
+			System.Threading.Thread.Sleep(100);
+			// if bad file download, a 0-33 byte file will be created
+			// if service unavailable, a 52 byte string will be saved as file
+			var length = new FileInfo(actualFilePath).Length;
+
+			if (length > 100)
+				return actualFilePath;
+
+			var contents = File.ReadAllText(actualFilePath);
+			File.Delete(actualFilePath);
+
+			var exMsg = contents.StartsWithInsensitive(SERVICE_UNAVAILABLE)
+				? SERVICE_UNAVAILABLE
+				: "Error downloading file";
+
+			var ex = new Exception(exMsg);
+			Serilog.Log.Logger.Error(ex, "Download error {@DebugInfo}", new
+			{
+				libraryBook.Book.Title,
+				libraryBook.Book.AudibleProductId,
+				libraryBook.Book.Locale,
+				Account = libraryBook.Account?.ToMask() ?? "[empty]",
+				tempAaxFilename,
+				actualFilePath,
+				length,
+				contents
+			});
+			throw ex;
+		}
 		private async Task<string> downloadBookAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
 			validate(libraryBook);

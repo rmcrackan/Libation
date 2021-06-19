@@ -18,19 +18,19 @@
     <None Update="DecryptLib\AtomicParsley.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DecryptLib\avcodec-57.dll">
+    <None Update="DecryptLib\avcodec-58.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DecryptLib\avdevice-57.dll">
+    <None Update="DecryptLib\avdevice-58.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DecryptLib\avfilter-6.dll">
+    <None Update="DecryptLib\avfilter-7.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DecryptLib\avformat-57.dll">
+    <None Update="DecryptLib\avformat-58.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DecryptLib\avutil-55.dll">
+    <None Update="DecryptLib\avutil-56.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="DecryptLib\cygcrypto-1.0.0.dll">
@@ -63,10 +63,10 @@
     <None Update="DecryptLib\postproc-54.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DecryptLib\swresample-2.dll">
+    <None Update="DecryptLib\swresample-3.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DecryptLib\swscale-4.dll">
+    <None Update="DecryptLib\swscale-5.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="DecryptLib\taglib-sharp.dll">
