@@ -60,8 +60,8 @@ namespace InternalUtilities
 		{
 			var items = await api.GetAllLibraryItemsAsync();
 
-			// remove episode parents and 'audible plus' check-outs
-			items.RemoveAll(i => i.IsEpisodes || i.IsNonLibraryAudiblePlus);
+			// remove episode parents
+			items.RemoveAll(i => i.IsEpisodes);
 
 			#region // episode handling. doesn't quite work
 			//				// add individual/children episodes
