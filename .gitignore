@@ -333,3 +333,4 @@ ASALocalRun/
 # manually ignored files
 /__TODO.txt
 /DataLayer/LibationContext.db
+/AaxDecrypter/DecryptLib/avformat-58.dll.bak

@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DecryptLib\avformat-58.dll.bak" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="taglib-sharp">
       <HintPath>lib\taglib-sharp.dll</HintPath>
     </Reference>
