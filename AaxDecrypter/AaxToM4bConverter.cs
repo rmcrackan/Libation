@@ -173,7 +173,7 @@ namespace AaxDecrypter
         {
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            var tempRipFile = Path.Combine(outDir, "funny.mp4");
+            var tempRipFile = Path.Combine(outDir, "funny.aac");
 
             var fail = "WARNING-Decrypt failure. ";
 
