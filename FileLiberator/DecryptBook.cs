@@ -119,11 +119,7 @@ namespace FileLiberator
             {
                 using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 
-                var account = persister
-                    .AccountsSettings
-                    .GetAccount(libraryBook.Account, libraryBook.Book.Locale);
-
-                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, account.DecryptKey, api.GetActivationBytesAsync, chapters);
+                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, libraryBook.Book.AudibleKey, libraryBook.Book.AudibleIV, chapters);
                 converter.AppName = "Libation";
 
                 TitleDiscovered?.Invoke(this, converter.tags.title);
@@ -142,8 +138,6 @@ namespace FileLiberator
                 // decrypt failed
                 if (!success)
                     return null;
-
-                account.DecryptKey = converter.decryptKey;
 
                 return converter.outputFileName;
             }

@@ -6,7 +6,8 @@ using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using FileManager;
-using InternalUtilities;
+using System.Net.Http;
+using Dinah.Core.Net.Http;
 
 namespace FileLiberator
 {
@@ -29,7 +30,7 @@ namespace FileLiberator
 		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
 			var tempAaxFilename = getDownloadPath(libraryBook);
-			var actualFilePath = await downloadBookAsync(libraryBook, tempAaxFilename);
+			var actualFilePath = await downloadAaxcBookAsync(libraryBook, tempAaxFilename);
 			moveBook(libraryBook, actualFilePath);
 			return verifyDownload(libraryBook);
 		}
@@ -40,16 +41,23 @@ namespace FileLiberator
 				libraryBook.Book.Title,
 				"aax",
 				libraryBook.Book.AudibleProductId);
-
-		private async Task<string> downloadBookAsync(LibraryBook libraryBook, string tempAaxFilename)
+		private async Task<string> downloadAaxcBookAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
 			validate(libraryBook);
 
 			var api = await GetApiAsync(libraryBook);
 
+			var dlLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+
+			libraryBook.Book.AudibleKey = dlLic.AudibleKey;
+			libraryBook.Book.AudibleIV = dlLic.AudibleIV;
+
+			var client = new HttpClient();
+			client.DefaultRequestHeaders.Add("User-Agent", Resources.UserAgent);
+
 			var actualFilePath = await PerformDownloadAsync(
 				tempAaxFilename,
-				(p) => api.DownloadAaxWorkaroundAsync(libraryBook.Book.AudibleProductId, tempAaxFilename, p));
+				(p) => client.DownloadFileAsync(dlLic.DownloadUri.AbsoluteUri, tempAaxFilename, p));
 
 			System.Threading.Thread.Sleep(100);
 			// if bad file download, a 0-33 byte file will be created

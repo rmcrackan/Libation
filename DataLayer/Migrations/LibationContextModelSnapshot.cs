@@ -14,13 +14,19 @@ namespace DataLayer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.7");
+                .HasAnnotation("ProductVersion", "5.0.5");
 
             modelBuilder.Entity("DataLayer.Book", b =>
                 {
                     b.Property<int>("BookId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("AudibleIV")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AudibleKey")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("AudibleProductId")
                         .HasColumnType("TEXT");
@@ -244,6 +250,8 @@ namespace DataLayer.Migrations
 
                             b1.WithOwner("Book")
                                 .HasForeignKey("BookId");
+
+                            b1.Navigation("Book");
                         });
 
                     b.OwnsOne("DataLayer.UserDefinedItem", "UserDefinedItem", b1 =>
@@ -282,7 +290,19 @@ namespace DataLayer.Migrations
                                     b2.WithOwner()
                                         .HasForeignKey("UserDefinedItemBookId");
                                 });
+
+                            b1.Navigation("Book");
+
+                            b1.Navigation("Rating");
                         });
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Rating");
+
+                    b.Navigation("Supplements");
+
+                    b.Navigation("UserDefinedItem");
                 });
 
             modelBuilder.Entity("DataLayer.BookContributor", b =>
@@ -298,6 +318,10 @@ namespace DataLayer.Migrations
                         .HasForeignKey("ContributorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Contributor");
                 });
 
             modelBuilder.Entity("DataLayer.Category", b =>
@@ -305,6 +329,8 @@ namespace DataLayer.Migrations
                     b.HasOne("DataLayer.Category", "ParentCategory")
                         .WithMany()
                         .HasForeignKey("ParentCategoryCategoryId");
+
+                    b.Navigation("ParentCategory");
                 });
 
             modelBuilder.Entity("DataLayer.LibraryBook", b =>
@@ -314,6 +340,8 @@ namespace DataLayer.Migrations
                         .HasForeignKey("DataLayer.LibraryBook", "BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Book");
                 });
 
             modelBuilder.Entity("DataLayer.SeriesBook", b =>
@@ -329,6 +357,27 @@ namespace DataLayer.Migrations
                         .HasForeignKey("SeriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Series");
+                });
+
+            modelBuilder.Entity("DataLayer.Book", b =>
+                {
+                    b.Navigation("ContributorsLink");
+
+                    b.Navigation("SeriesLink");
+                });
+
+            modelBuilder.Entity("DataLayer.Contributor", b =>
+                {
+                    b.Navigation("BooksLink");
+                });
+
+            modelBuilder.Entity("DataLayer.Series", b =>
+                {
+                    b.Navigation("BooksLink");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,7 +6,7 @@ namespace AaxDecrypter
     {
         // OTHER EXTERNAL DEPENDENCIES
         // ffprobe has these pre-req.s as I'm using it:
-        // avcodec-57.dll, avdevice-57.dll, avfilter-6.dll, avformat-57.dll, avutil-55.dll, postproc-54.dll, swresample-2.dll, swscale-4.dll, taglib-sharp.dll
+        // avcodec-58.dll, avdevice-58.dll, avfilter-7.dll, avformat-58.dll, avutil-56.dll, postproc-54.dll, swresample-3.dll, swscale-5.dll, taglib-sharp.dll
         //
         // something else needs the cygwin files (cyg*.dll)
 
@@ -16,6 +16,5 @@ namespace AaxDecrypter
         public static string ffmpegPath { get; } = Path.Combine(decryptLib_, "ffmpeg.exe");
         public static string ffprobePath { get; } = Path.Combine(decryptLib_, "ffprobe.exe");
         public static string atomicParsleyPath { get; } = Path.Combine(decryptLib_, "AtomicParsley.exe");
-        public static string mp4trackdumpPath { get; } = Path.Combine(decryptLib_, "mp4trackdump.exe");
     }
 }
