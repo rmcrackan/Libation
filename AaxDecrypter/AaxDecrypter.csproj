@@ -33,31 +33,10 @@
     <None Update="DecryptLib\avutil-56.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="DecryptLib\cygcrypto-1.0.0.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="DecryptLib\cyggcc_s-1.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="DecryptLib\cygmp4v2-2.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="DecryptLib\cygstdc++-6.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="DecryptLib\cygwin1.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="DecryptLib\cygz.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="DecryptLib\ffmpeg.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="DecryptLib\ffprobe.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="DecryptLib\mp4trackdump.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="DecryptLib\postproc-54.dll">
