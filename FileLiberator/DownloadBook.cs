@@ -30,7 +30,7 @@ namespace FileLiberator
 		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
 			var tempAaxFilename = getDownloadPath(libraryBook);
-			var actualFilePath = await downloadAacxBookAsync(libraryBook, tempAaxFilename);
+			var actualFilePath = await downloadAaxcBookAsync(libraryBook, tempAaxFilename);
 			moveBook(libraryBook, actualFilePath);
 			return verifyDownload(libraryBook);
 		}
@@ -41,7 +41,7 @@ namespace FileLiberator
 				libraryBook.Book.Title,
 				"aax",
 				libraryBook.Book.AudibleProductId);
-		private async Task<string> downloadAacxBookAsync(LibraryBook libraryBook, string tempAaxFilename)
+		private async Task<string> downloadAaxcBookAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
 			validate(libraryBook);
 
@@ -58,45 +58,6 @@ namespace FileLiberator
 			var actualFilePath = await PerformDownloadAsync(
 				tempAaxFilename,
 				(p) => client.DownloadFileAsync(dlLic.DownloadUri.AbsoluteUri, tempAaxFilename, p));
-
-			System.Threading.Thread.Sleep(100);
-			// if bad file download, a 0-33 byte file will be created
-			// if service unavailable, a 52 byte string will be saved as file
-			var length = new FileInfo(actualFilePath).Length;
-
-			if (length > 100)
-				return actualFilePath;
-
-			var contents = File.ReadAllText(actualFilePath);
-			File.Delete(actualFilePath);
-
-			var exMsg = contents.StartsWithInsensitive(SERVICE_UNAVAILABLE)
-				? SERVICE_UNAVAILABLE
-				: "Error downloading file";
-
-			var ex = new Exception(exMsg);
-			Serilog.Log.Logger.Error(ex, "Download error {@DebugInfo}", new
-			{
-				libraryBook.Book.Title,
-				libraryBook.Book.AudibleProductId,
-				libraryBook.Book.Locale,
-				Account = libraryBook.Account?.ToMask() ?? "[empty]",
-				tempAaxFilename,
-				actualFilePath,
-				length,
-				contents
-			});
-			throw ex;
-		}
-		private async Task<string> downloadBookAsync(LibraryBook libraryBook, string tempAaxFilename)
-		{
-			validate(libraryBook);
-
-			var api = await GetApiAsync(libraryBook);
-
-			var actualFilePath = await PerformDownloadAsync(
-				tempAaxFilename,
-				(p) => api.DownloadAaxWorkaroundAsync(libraryBook.Book.AudibleProductId, tempAaxFilename, p));
 
 			System.Threading.Thread.Sleep(100);
 			// if bad file download, a 0-33 byte file will be created
