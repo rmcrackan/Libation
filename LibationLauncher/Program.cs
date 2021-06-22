@@ -242,8 +242,8 @@ namespace LibationLauncher
 				var identity = account.IdentityTokens;
 
 				if (!string.IsNullOrWhiteSpace(identity.DeviceType) &&
-					!string.IsNullOrWhiteSpace(identity.DeviceType) &&
-					!string.IsNullOrWhiteSpace(identity.DeviceType))
+					!string.IsNullOrWhiteSpace(identity.DeviceSerialNumber) &&
+					!string.IsNullOrWhiteSpace(identity.AmazonAccountId))
 					continue;
 
 				var authorize = new AudibleApi.Authorization.Authorize(identity?.Locale);
