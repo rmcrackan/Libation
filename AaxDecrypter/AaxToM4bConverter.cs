@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -207,8 +206,8 @@ namespace AaxDecrypter
             Console.WriteLine($"Decrypting with key={audible_key}, iv={audible_iv}");
 
             var returnCode = 100;
-            var thread = new Thread((b) => returnCode = ngDecrypt(b));
-            thread.Start(tempRipFile);
+            var thread = new Thread(_ => returnCode = ngDecrypt(tempRipFile));
+            thread.Start();
 
             double fileLen = new FileInfo(inputFileName).Length;
             while (thread.IsAlive && returnCode == 100)
@@ -225,7 +224,7 @@ namespace AaxDecrypter
             return returnCode;
         }
 
-        private int ngDecrypt(object tempFileNameObj)
+        private int ngDecrypt(string tempFileName)
         {
             #region avformat-58.dll HACK EXPLANATION
             /* avformat-58.dll HACK EXPLANATION
@@ -301,8 +300,6 @@ namespace AaxDecrypter
              */
             #endregion
 
-            var tempFileName = tempFileNameObj as string;
-
             string args = "-audible_key "
                 + audible_key
                 + " -audible_iv "
@@ -350,10 +347,28 @@ namespace AaxDecrypter
                 FileName = DecryptSupportLibraries.ffmpegPath,
                 Arguments = "-y -i \"" + mp4_file + "\" -f ffmetadata -i \"" + ff_txt_file + "\" -map_metadata 1  -bsf:a aac_adtstoasc -c:a copy" + str1 + " -map 0 \"" + tempChapsPath + "\""
             };
-            tagAndChapterInfo.RunHidden();
+
+            var thread = new Thread(_ => tagAndChapterInfo.RunHidden());
+            thread.Start();
+
+            double fileLen = new FileInfo(mp4_file).Length;
+
+            while (thread.IsAlive)
+            {
+                Thread.Sleep(500);
+                if (File.Exists(tempChapsPath))
+                {
+                    double tempLen = new FileInfo(tempChapsPath).Length;
+                    var percentProgress = tempLen / fileLen * 100.0;
+                    DecryptProgressUpdate?.Invoke(this, (int)percentProgress);
+                }
+            }
+
+            DecryptProgressUpdate?.Invoke(this, 0);
 
             return true;
         }
+
 
         public bool Step4_InsertCoverArt()
         {
