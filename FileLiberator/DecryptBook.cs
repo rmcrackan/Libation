@@ -57,30 +57,33 @@ namespace FileLiberator
                 if (AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-				var api = await AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
+                var chapters = await downloadChapterNamesAsync(libraryBook);
 
-                var chapters = await downloadChapterNames(libraryBook, api);
-
-                var outputAudioFilename = await aaxToM4bConverterDecrypt(aaxFilename, libraryBook, chapters, api);
+                var outputAudioFilename = await aaxToM4bConverterDecryptAsync(aaxFilename, libraryBook, chapters);
 
                 // decrypt failed
                 if (outputAudioFilename == null)
                     return new StatusHandler { "Decrypt failed" };
 
+                // moves files and returns dest dir. Do not put inside of if(RetainAaxFiles)
                 var destinationDir = moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
 
-                var config = Configuration.Instance;
-                if (config.RetainAaxFiles)
+                var jsonFilename = PathLib.ReplaceExtension(aaxFilename, "json");
+                if (Configuration.Instance.RetainAaxFiles)
                 {
                     var newAaxFilename = FileUtility.GetValidFilename(
                         destinationDir,
                         Path.GetFileNameWithoutExtension(aaxFilename),
                         "aax");
                     File.Move(aaxFilename, newAaxFilename);
+
+                    var newJsonFilename = PathLib.ReplaceExtension(newAaxFilename, "json");
+                    File.Move(jsonFilename, newJsonFilename);
                 }
                 else
                 {
                     Dinah.Core.IO.FileExt.SafeDelete(aaxFilename);
+                    Dinah.Core.IO.FileExt.SafeDelete(jsonFilename);
                 }
 
                 var finalAudioExists = AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
@@ -95,10 +98,11 @@ namespace FileLiberator
             }
         }
 
-        private static async Task<Chapters> downloadChapterNames(LibraryBook libraryBook, Api api)
+        private static async Task<Chapters> downloadChapterNamesAsync(LibraryBook libraryBook)
         {
             try
             {
+                var api = await AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
                 var contentMetadata = await api.GetLibraryBookMetadataAsync(libraryBook.Book.AudibleProductId);
                 if (contentMetadata?.ChapterInfo is null)
                     return null;
@@ -111,15 +115,17 @@ namespace FileLiberator
             }
         }
 
-        private async Task<string> aaxToM4bConverterDecrypt(string aaxFilename, LibraryBook libraryBook, Chapters chapters, Api api)
+        private async Task<string> aaxToM4bConverterDecryptAsync(string aaxFilename, LibraryBook libraryBook, Chapters chapters)
         {
             DecryptBegin?.Invoke(this, $"Begin decrypting {aaxFilename}");
 
             try
             {
-                using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+                var jsonPath = PathLib.ReplaceExtension(aaxFilename, "json");
+                var jsonContents = File.ReadAllText(jsonPath);
+                var dlLic = Newtonsoft.Json.JsonConvert.DeserializeObject<AudibleApiDTOs.DownloadLicense>(jsonContents);
 
-                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, libraryBook.Book.AudibleKey, libraryBook.Book.AudibleIV, chapters);
+                var converter = await AaxToM4bConverter.CreateAsync(aaxFilename, dlLic.AudibleKey, dlLic.AudibleIV, chapters);
                 converter.AppName = "Libation";
 
                 TitleDiscovered?.Invoke(this, converter.tags.title);

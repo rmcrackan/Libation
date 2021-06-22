@@ -31,8 +31,6 @@ namespace DataLayer
 
         // mutable
         public string PictureId { get; set; }
-        public string AudibleKey { get; set; }
-        public string AudibleIV { get; set; }
 
         // book details
         public bool IsAbridged { get; private set; }
