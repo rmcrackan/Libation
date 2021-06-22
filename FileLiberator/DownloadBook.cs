@@ -41,6 +41,7 @@ namespace FileLiberator
 				libraryBook.Book.Title,
 				"aax",
 				libraryBook.Book.AudibleProductId);
+
 		private async Task<string> downloadAaxcBookAsync(LibraryBook libraryBook, string tempAaxFilename)
 		{
 			validate(libraryBook);
@@ -49,26 +50,30 @@ namespace FileLiberator
 
 			var dlLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
 
-			libraryBook.Book.AudibleKey = dlLic.AudibleKey;
-			libraryBook.Book.AudibleIV = dlLic.AudibleIV;
-			// persist changes
-			ApplicationServices.LibraryCommands.UpdateBook(libraryBook.Book);
-
 			var client = new HttpClient();
 			client.DefaultRequestHeaders.Add("User-Agent", Resources.UserAgent);
 
 			var actualFilePath = await PerformDownloadAsync(
 				tempAaxFilename,
-				(p) => client.DownloadFileAsync(dlLic.DownloadUri.AbsoluteUri, tempAaxFilename, p));
+				(p) => client.DownloadFileAsync(new Uri(dlLic.DownloadUrl).AbsoluteUri, tempAaxFilename, p));
 
 			System.Threading.Thread.Sleep(100);
 			// if bad file download, a 0-33 byte file will be created
 			// if service unavailable, a 52 byte string will be saved as file
 			var length = new FileInfo(actualFilePath).Length;
 
+			// success. save json and return
 			if (length > 100)
-				return actualFilePath;
+			{
+				// save along side book
+				var jsonPath = PathLib.ReplaceExtension(actualFilePath, "json");
+				var jsonContents = Newtonsoft.Json.JsonConvert.SerializeObject(dlLic, Newtonsoft.Json.Formatting.Indented);
+				File.WriteAllText(jsonPath, jsonContents);
 
+				return actualFilePath;
+			}
+
+			// else: failure. clean up and throw
 			var contents = File.ReadAllText(actualFilePath);
 			File.Delete(actualFilePath);
 
@@ -121,6 +126,12 @@ namespace FileLiberator
 				"aax",
 				libraryBook.Book.AudibleProductId);
 			File.Move(actualFilePath, newAaxFilename);
+
+			// also move DownloadLicense json file
+			var jsonPathOld = PathLib.ReplaceExtension(actualFilePath, "json");
+			var jsonPathNew = PathLib.ReplaceExtension(newAaxFilename, "json");
+			File.Move(jsonPathOld, jsonPathNew);
+
 			Invoke_StatusUpdate($"Successfully downloaded. Moved to: {newAaxFilename}");
 		}
 

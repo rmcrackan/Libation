@@ -119,13 +119,5 @@ namespace ApplicationServices
 				throw;
 			}
 		}
-
-		// I hate how unintuitive this is to use/remember. Will hopefully be cleaned up in a future comprehensive data strategy overhaul
-		public static void UpdateBook(Book book)
-		{
-			using var context = DbContexts.GetContext();
-			context.Update(book);
-			context.SaveChanges();
-		}
 	}
 }
