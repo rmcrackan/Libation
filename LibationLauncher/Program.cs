@@ -244,7 +244,7 @@ namespace LibationLauncher
 				if (!string.IsNullOrWhiteSpace(identity.DeviceType) &&
 					!string.IsNullOrWhiteSpace(identity.DeviceType) &&
 					!string.IsNullOrWhiteSpace(identity.DeviceType))
-					break;
+					continue;
 
 				var authorize = new AudibleApi.Authorization.Authorize(identity?.Locale);
 
