@@ -237,16 +237,19 @@ namespace LibationLauncher
 
 			var accountsPersister = AudibleApiStorage.GetAccountsSettingsPersister();
 
-			foreach (var account in accountsPersister.AccountsSettings.Accounts)
+			foreach (var account in accountsPersister?.AccountsSettings?.Accounts)
 			{
-				var identity = account.IdentityTokens;
+				var identity = account?.IdentityTokens;
+
+				if (identity is null)
+					continue;
 
 				if (!string.IsNullOrWhiteSpace(identity.DeviceType) &&
 					!string.IsNullOrWhiteSpace(identity.DeviceSerialNumber) &&
 					!string.IsNullOrWhiteSpace(identity.AmazonAccountId))
 					continue;
 
-				var authorize = new AudibleApi.Authorization.Authorize(identity?.Locale);
+				var authorize = new AudibleApi.Authorization.Authorize(identity.Locale);
 
 				try
 				{
