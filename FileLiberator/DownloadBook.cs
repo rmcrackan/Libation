@@ -51,6 +51,8 @@ namespace FileLiberator
 
 			libraryBook.Book.AudibleKey = dlLic.AudibleKey;
 			libraryBook.Book.AudibleIV = dlLic.AudibleIV;
+			// persist changes
+			ApplicationServices.LibraryCommands.UpdateBook(libraryBook.Book);
 
 			var client = new HttpClient();
 			client.DefaultRequestHeaders.Add("User-Agent", Resources.UserAgent);
