@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -173,7 +172,7 @@ namespace AaxDecrypter
         {
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            var tempRipFile = Path.Combine(outDir, "funny.mp4");
+            var tempRipFile = Path.Combine(outDir, "funny.aac");
 
             var fail = "WARNING-Decrypt failure. ";
 
@@ -207,8 +206,8 @@ namespace AaxDecrypter
             Console.WriteLine($"Decrypting with key={audible_key}, iv={audible_iv}");
 
             var returnCode = 100;
-            var thread = new Thread((b) => returnCode = ngDecrypt(b));
-            thread.Start(tempRipFile);
+            var thread = new Thread(_ => returnCode = ngDecrypt(tempRipFile));
+            thread.Start();
 
             double fileLen = new FileInfo(inputFileName).Length;
             while (thread.IsAlive && returnCode == 100)
@@ -225,9 +224,81 @@ namespace AaxDecrypter
             return returnCode;
         }
 
-        private int ngDecrypt(object tempFileNameObj)
+        private int ngDecrypt(string tempFileName)
         {
-            var tempFileName = tempFileNameObj as string;
+            #region avformat-58.dll HACK EXPLANATION
+            /* avformat-58.dll HACK EXPLANATION
+             * 
+             * FFMPEG refused to copy the aac stream from AAXC files with 44kHz sample rates
+             * with error "Scalable configurations are not allowed in ADTS". The adts encoder
+             * can be found on github at:              
+             * https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/adtsenc.c
+             * 
+             * adtsenc detects scalable aac by a flag in the aac metadata and throws an error if
+             * it is set. It appears that all aaxc files contain aac streams that can be written 
+             * to adts, but either the codec is parsing the header incorrectly or the aaxc
+             * header is incorrect. 
+             * 
+             * As a workaround, i've modified avformat-58.dll to allow adtsenc to ignore the 
+             * scalable flag and continue. To modify:
+             * 
+             * Open ffmpeg.exe in x64dbg (https://x64dbg.com)
+             * 
+             * Navigate to the avformat module and search for the error string "Scalable 
+             * configurations are not allowed in ADTS". (00007FFE16AA5899 in example below).
+             * 
+             * 00007FFE16AA587B | 4C:8D05 DE5E6900     | lea r8,qword ptr ds:[7FFE1713B760]       | 00007FFE1713B760:"960/120 MDCT window is not allowed in ADTS\n"
+             * 00007FFE16AA5882 | BA 10000000          | mov edx,10                               |
+             * 00007FFE16AA5887 | 4C:89F1              | mov rcx,r14                              |
+             * 00007FFE16AA588A | E8 697A1900          | call <JMP.&av_log>                       |
+             * 00007FFE16AA588F | B8 B7B1BBBE          | mov eax,BEBBB1B7                         |
+             * 00007FFE16AA5894 | E9 D5F8FFFF          | jmp avformat-58.7FFE16AA516E             |
+             * 00007FFE16AA5899 | 4C:8D05 F05E6900     | lea r8,qword ptr ds:[7FFE1713B790]       | 00007FFE1713B790:"Scalable configurations are not allowed in ADTS\n"
+             * 00007FFE16AA58A0 | BA 10000000          | mov edx,10                               |
+             * 00007FFE16AA58A5 | 4C:89F1              | mov rcx,r14                              |
+             * 00007FFE16AA58A8 | E8 4B7A1900          | call <JMP.&av_log>                       |
+             * 00007FFE16AA58AD | B8 B7B1BBBE          | mov eax,BEBBB1B7                         |
+             * 00007FFE16AA58B2 | E9 B7F8FFFF          | jmp avformat-58.7FFE16AA516E             |
+             * 00007FFE16AA58B7 | 4C:8D05 4A5E6900     | lea r8,qword ptr ds:[7FFE1713B708]       | 00007FFE1713B708:"MPEG-4 AOT %d is not allowed in ADTS\n"
+             * 00007FFE16AA58BE | BA 10000000          | mov edx,10                               |
+             * 00007FFE16AA58C3 | 4C:89F1              | mov rcx,r14                              |
+             * 00007FFE16AA58C6 | E8 2D7A1900          | call <JMP.&av_log>                       |
+             * 00007FFE16AA58CB | B8 B7B1BBBE          | mov eax,BEBBB1B7                         |
+             * 00007FFE16AA58D0 | E9 99F8FFFF          | jmp avformat-58.7FFE16AA516E             |
+             * 00007FFE16AA58D5 | 4C:8D05 EC5E6900     | lea r8,qword ptr ds:[7FFE1713B7C8]       | 00007FFE1713B7C8:"Extension flag is not allowed in ADTS\n"
+             * 00007FFE16AA58DC | BA 10000000          | mov edx,10                               |
+             * 00007FFE16AA58E1 | 4C:89F1              | mov rcx,r14                              |
+             * 00007FFE16AA58E4 | E8 0F7A1900          | call <JMP.&av_log>                       |
+             * 00007FFE16AA58E9 | B8 B7B1BBBE          | mov eax,BEBBB1B7                         |
+             * 00007FFE16AA58EE | E9 7BF8FFFF          | jmp avformat-58.7FFE16AA516E             |
+             * 00007FFE16AA58F3 | 4C:8D05 365E6900     | lea r8,qword ptr ds:[7FFE1713B730]       | 00007FFE1713B730:"Escape sample rate index illegal in ADTS\n"
+             * 00007FFE16AA58FA | BA 10000000          | mov edx,10                               |
+             * 00007FFE16AA58FF | 4C:89F1              | mov rcx,r14                              |
+             * 00007FFE16AA5902 | E8 F1791900          | call <JMP.&av_log>                       |
+             * 00007FFE16AA5907 | B8 B7B1BBBE          | mov eax,BEBBB1B7                         |
+             * 00007FFE16AA590C | E9 5DF8FFFF          | jmp avformat-58.7FFE16AA516E             |
+             * 
+             * Select the instruction  that loads the error string's address, and search for all
+             * references. You should only find one referance, a conditional jump
+             * (00007FFE16AA513C example below).
+             * 
+             * 00007FFE16AA511D | 89C2                 | mov edx,eax                              |
+             * 00007FFE16AA511F | 89C1                 | mov ecx,eax                              |
+             * 00007FFE16AA5121 | 83C0 01              | add eax,1                                |
+             * 00007FFE16AA5124 | C1EA 03              | shr edx,3                                |
+             * 00007FFE16AA5127 | 83E1 07              | and ecx,7                                |
+             * 00007FFE16AA512A | 41:8B1414            | mov edx,dword ptr ds:[r12+rdx]           |
+             * 00007FFE16AA512E | 0FCA                 | bswap edx                                |
+             * 00007FFE16AA5130 | D3E2                 | shl edx,cl                               |
+             * 00007FFE16AA5132 | C1EA FF              | shr edx,FF                               |
+             * 00007FFE16AA5135 | 39F8                 | cmp eax,edi                              |
+             * 00007FFE16AA5137 | 0F47C7               | cmova eax,edi                            |
+             * 00007FFE16AA513A | 85D2                 | test edx,edx                             |
+             * 00007FFE16AA513C | 0F85 57070000        | jne avformat-58.7FFE16AA5899             |
+             * 
+             * Edit that jump with six nop instructions and save the patched assembly.
+             */
+            #endregion
 
             string args = "-audible_key "
                 + audible_key
@@ -276,10 +347,28 @@ namespace AaxDecrypter
                 FileName = DecryptSupportLibraries.ffmpegPath,
                 Arguments = "-y -i \"" + mp4_file + "\" -f ffmetadata -i \"" + ff_txt_file + "\" -map_metadata 1  -bsf:a aac_adtstoasc -c:a copy" + str1 + " -map 0 \"" + tempChapsPath + "\""
             };
-            tagAndChapterInfo.RunHidden();
+
+            var thread = new Thread(_ => tagAndChapterInfo.RunHidden());
+            thread.Start();
+
+            double fileLen = new FileInfo(mp4_file).Length;
+
+            while (thread.IsAlive)
+            {
+                Thread.Sleep(500);
+                if (File.Exists(tempChapsPath))
+                {
+                    double tempLen = new FileInfo(tempChapsPath).Length;
+                    var percentProgress = tempLen / fileLen * 100.0;
+                    DecryptProgressUpdate?.Invoke(this, (int)percentProgress);
+                }
+            }
+
+            DecryptProgressUpdate?.Invoke(this, 0);
 
             return true;
         }
+
 
         public bool Step4_InsertCoverArt()
         {

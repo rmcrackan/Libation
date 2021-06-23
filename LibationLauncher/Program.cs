@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using AudibleApi;
+using AudibleApi.Authorization;
 using FileManager;
 using InternalUtilities;
 using LibationWinForms;
@@ -29,6 +30,7 @@ namespace LibationLauncher
 
 			migrate_to_v4_0_0();
 			migrate_to_v4_0_3(); // add setting for whether to delete/retain aax
+			migrate_to_v5_x_x();
 
 			ensureLoggingConfig();
 			ensureSerilogConfig();
@@ -194,7 +196,7 @@ namespace LibationLauncher
 
 			var jLocale = jObj.Property("LocaleCountryCode");
 			var jDecryptKey = jObj.Property("DecryptKey");
-			
+
 			jDecryptKey?.Remove();
 			jLocale?.Remove();
 
@@ -220,14 +222,51 @@ namespace LibationLauncher
 			if (jRetainAaxFiles is null)
 			{
 				jObj.Add("RetainAaxFiles", false);
-			
+
 				var newContents = jObj.ToString(Formatting.Indented);
 				File.WriteAllText(Configuration.Instance.SettingsFilePath, newContents);
 			}
 		}
 		#endregion
 
-		private static string defaultLoggingLevel { get; } = "Information";
+		#region migrate_to_v5_x_x re-gegister device if device info not in settings
+		private static void migrate_to_v5_x_x()
+		{
+			if (!File.Exists(AudibleApiStorage.AccountsSettingsFile))
+				return;
+
+			var accountsPersister = AudibleApiStorage.GetAccountsSettingsPersister();
+
+			foreach (var account in accountsPersister?.AccountsSettings?.Accounts)
+			{
+				var identity = account?.IdentityTokens;
+
+				if (identity is null)
+					continue;
+
+				if (!string.IsNullOrWhiteSpace(identity.DeviceType) &&
+					!string.IsNullOrWhiteSpace(identity.DeviceSerialNumber) &&
+					!string.IsNullOrWhiteSpace(identity.AmazonAccountId))
+					continue;
+
+				var authorize = new AudibleApi.Authorization.Authorize(identity.Locale);
+
+				try
+				{
+					authorize.DeregisterAsync(identity.ExistingAccessToken, identity.Cookies.ToKeyValuePair()).GetAwaiter().GetResult();
+					identity.Invalidate();
+
+					var api = AudibleApiActions.GetApiAsync(new LibationWinForms.Login.WinformResponder(account), account).GetAwaiter().GetResult();
+				}
+                catch
+                {
+					// Don't care if it fails
+                }
+			}
+		}
+        #endregion
+
+        private static string defaultLoggingLevel { get; } = "Information";
 		private static void ensureLoggingConfig()
 		{
 			var config = Configuration.Instance;
