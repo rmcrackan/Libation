@@ -30,7 +30,7 @@ namespace LibationLauncher
 
 			migrate_to_v4_0_0();
 			migrate_to_v4_0_3(); // add setting for whether to delete/retain aax
-			migrate_to_v5_x_x();
+			migrate_to_v5_0_0();
 
 			ensureLoggingConfig();
 			ensureSerilogConfig();
@@ -229,15 +229,19 @@ namespace LibationLauncher
 		}
 		#endregion
 
-		#region migrate_to_v5_x_x re-gegister device if device info not in settings
-		private static void migrate_to_v5_x_x()
+		#region migrate_to_v5_0_0 re-gegister device if device info not in settings
+		private static void migrate_to_v5_0_0()
 		{
 			if (!File.Exists(AudibleApiStorage.AccountsSettingsFile))
 				return;
 
 			var accountsPersister = AudibleApiStorage.GetAccountsSettingsPersister();
 
-			foreach (var account in accountsPersister?.AccountsSettings?.Accounts)
+			var accounts = accountsPersister?.AccountsSettings?.Accounts;
+			if (accounts is null)
+				return;
+
+			foreach (var account in accounts)
 			{
 				var identity = account?.IdentityTokens;
 
@@ -249,7 +253,7 @@ namespace LibationLauncher
 					!string.IsNullOrWhiteSpace(identity.AmazonAccountId))
 					continue;
 
-				var authorize = new AudibleApi.Authorization.Authorize(identity.Locale);
+				var authorize = new Authorize(identity.Locale);
 
 				try
 				{
