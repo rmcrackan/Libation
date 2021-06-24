@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
+using FileLiberator.AaxcDownloadDecrypt;
 using FileManager;
 
 namespace FileLiberator
@@ -21,8 +22,9 @@ namespace FileLiberator
         public event EventHandler<string> StatusUpdate;
         public event EventHandler<LibraryBook> Completed;
 
-        public DownloadBook DownloadBook { get; } = new DownloadBook();
-        public DecryptBook DecryptBook { get; } = new DecryptBook();
+
+		public DownloadBookDummy DownloadBook { get; } = new DownloadBookDummy();
+        public DownloadDecryptBook DecryptBook { get; } = new DownloadDecryptBook();
 		public DownloadPdf DownloadPdf { get; } = new DownloadPdf();
 
 		public bool Validate(LibraryBook libraryBook)

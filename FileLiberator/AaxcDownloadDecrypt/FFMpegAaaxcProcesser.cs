@@ -1,0 +1,201 @@
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+namespace FileLiberator.AaxcDownloadDecrypt
+{
+    public class AaxcProgress : EventArgs
+    {
+        public TimeSpan ProcessedTime { get; set; }
+        public TimeSpan AudioDuration { get; set; }
+        public double ProgressPercent => Math.Round(100 * ProcessedTime.TotalSeconds / AudioDuration.TotalSeconds,2);
+    }
+    /// <summary>
+    /// Download audible aaxc, decrypt, remux, add metadata, and insert cover art.
+    /// </summary>
+    class FFMpegAaaxcProcesser
+    {
+        public event EventHandler<AaxcProgress> ProgressUpdate;
+        public string FFMpegPath { get; }
+        public bool IsRunning { get; set; } = false;
+        public bool Succeeded { get; private set; }
+
+
+        private static Regex processedTimeRegex = new Regex("time=(\\d{2}):(\\d{2}):(\\d{2}).\\d{2}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static Regex durationRegex = new Regex("Duration: (\\d{2}):(\\d{2}):(\\d{2}).\\d{2}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private TimeSpan duration { get; set; }
+        private TimeSpan position { get; set; }
+        public FFMpegAaaxcProcesser(string ffmpegPath)
+        {
+            FFMpegPath = ffmpegPath;
+        }
+
+        public async Task ProcessBook(string aaxcUrl, string userAgent, string audibleKey, string audibleIV, string artworkPath, string metadataPath, string outputFile)
+        {
+            //This process gets the aaxc from the url and streams the decrypted
+            //aac stream to standard output
+            var downloader = new Process
+            {
+                StartInfo = getDownloaderStartInfo(aaxcUrl, userAgent, audibleKey, audibleIV)
+            };
+
+            //This process retreves an aac stream from standard input and muxes
+            // it into an m4b along with the cover art and metadata.
+            var remuxer = new Process
+            {
+                StartInfo = getRemuxerStartInfo(artworkPath, metadataPath, outputFile)
+            };
+
+            IsRunning = true;
+
+            downloader.ErrorDataReceived += Downloader_ErrorDataReceived;
+            remuxer.ErrorDataReceived += Remuxer_ErrorDataReceived;
+
+            downloader.Start();
+            downloader.BeginErrorReadLine();
+
+            var pipedOutput = downloader.StandardOutput.BaseStream;
+
+            remuxer.Start();
+            remuxer.BeginErrorReadLine();
+
+            var pipedInput = remuxer.StandardInput.BaseStream;
+
+            int lastRead = 0;
+
+            byte[] buffer = new byte[16 * 1024];
+
+            //All the work done here. Copy download standard output into
+            //remuxer standard input
+            await Task.Run(() =>
+            {
+                do
+                {
+                    lastRead = pipedOutput.Read(buffer, 0, buffer.Length);
+                    pipedInput.Write(buffer, 0, lastRead);
+                } while (lastRead > 0 && !remuxer.HasExited);
+            });
+
+            pipedInput.Close();
+
+            //If the remuxer exited due to failure, downloader will still have
+            //data in the pipe. Force kill downloader to continue.
+            if (remuxer.HasExited && !downloader.HasExited)
+                downloader.Kill();
+
+            remuxer.WaitForExit();
+            downloader.WaitForExit();
+
+            IsRunning = false;
+            Succeeded = downloader.ExitCode == 0 && remuxer.ExitCode == 0;
+        }
+
+        private void Downloader_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data) && durationRegex.IsMatch(e.Data))
+            {
+                //get total audio stream duration
+                var match = durationRegex.Match(e.Data);
+
+                int hours = int.Parse(match.Groups[1].Value);
+                int minutes = int.Parse(match.Groups[2].Value);
+                int seconds = int.Parse(match.Groups[3].Value);
+
+                duration = new TimeSpan(hours, minutes, seconds);
+            }
+        }
+
+        private void Remuxer_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(e.Data) && processedTimeRegex.IsMatch(e.Data))
+            {
+                //get timestamp of of last processed audio stream position
+                var match = processedTimeRegex.Match(e.Data);
+
+                int hours = int.Parse(match.Groups[1].Value);
+                int minutes = int.Parse(match.Groups[2].Value);
+                int seconds = int.Parse(match.Groups[3].Value);
+
+                position = new TimeSpan(hours, minutes, seconds);
+
+                ProgressUpdate?.Invoke(sender, new AaxcProgress
+                {
+                    ProcessedTime = position,
+                    AudioDuration = duration
+                });
+            }
+        }
+
+        private ProcessStartInfo getDownloaderStartInfo(string aaxcUrl, string userAgent, string audibleKey, string audibleIV) =>
+         new ProcessStartInfo
+            {
+                FileName = FFMpegPath,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+                WorkingDirectory = Path.GetDirectoryName(FFMpegPath),
+                ArgumentList ={
+                    "-nostdin",
+                    "-audible_key",
+                    audibleKey,
+                    "-audible_iv",
+                    audibleIV,
+                    "-i",
+                    aaxcUrl,
+                    "-user_agent",
+                    userAgent, //user-agent is requied for CDN to serve the file
+                    "-c:a", //audio codec
+                    "copy", //copy stream
+                    "-f", //force output format: adts
+                    "adts",
+                    "pipe:" //pipe output to standard output
+                }
+            };
+
+        private ProcessStartInfo getRemuxerStartInfo(string artworkPath, string metadataPath, string outputFile) =>
+         new ProcessStartInfo
+         {
+             FileName = FFMpegPath,
+             RedirectStandardError = true,
+             RedirectStandardInput = true,
+             CreateNoWindow = true,
+             WindowStyle = ProcessWindowStyle.Hidden,
+             UseShellExecute = false,
+             WorkingDirectory = Path.GetDirectoryName(FFMpegPath),
+
+             ArgumentList =
+                {   
+                    "-thread_queue_size",
+                    "1024",
+                    "-f", //force input format: aac
+                    "aac",
+                    "-i",
+                    "pipe:", //input from standard input
+                    "-i",
+                    artworkPath,
+                    "-i",
+                    metadataPath,
+                    "-map",
+                    "0",
+                    "-map",
+                    "1",
+                    "-map_metadata",
+                    "2",
+                    "-c", //codec copy
+                    "copy",
+                    "-c:v:1", //video codec from file [1] (artwork)
+                    "png", //video codec
+                    "-disposition:v:1", 
+                    "attached_pic",
+                    "-f", //force output format: mp4
+                    "mp4",
+                    outputFile,
+                    "-y" //overwritte existing
+             }
+         };
+    }
+}
