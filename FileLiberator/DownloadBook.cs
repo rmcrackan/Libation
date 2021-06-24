@@ -39,7 +39,7 @@ namespace FileLiberator
 			=> FileUtility.GetValidFilename(
 				AudibleFileStorage.DownloadsInProgress,
 				libraryBook.Book.Title,
-				"aax",
+				"aaxc",
 				libraryBook.Book.AudibleProductId);
 
 		private async Task<string> downloadAaxcBookAsync(LibraryBook libraryBook, string tempAaxFilename)
