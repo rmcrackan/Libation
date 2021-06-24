@@ -142,7 +142,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
             File.WriteAllText(metadataPath, ffmpegTags + ffmpegChapters);
 
-            var aaxcProcesser = new FFMpegAaaxcProcesser(DecryptSupportLibraries.ffmpegPath);
+            var aaxcProcesser = new FFMpegAaxcProcesser(DecryptSupportLibraries.ffmpegPath);
 
             aaxcProcesser.ProgressUpdate += (_, e) => 
             DecryptProgressUpdate?.Invoke(this, (int)e.ProgressPercent);

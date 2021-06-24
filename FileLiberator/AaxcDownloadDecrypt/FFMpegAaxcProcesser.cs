@@ -15,7 +15,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
     /// <summary>
     /// Download audible aaxc, decrypt, remux, add metadata, and insert cover art.
     /// </summary>
-    class FFMpegAaaxcProcesser
+    class FFMpegAaxcProcesser
     {
         public event EventHandler<AaxcProgress> ProgressUpdate;
         public string FFMpegPath { get; }
@@ -27,7 +27,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
         private static Regex durationRegex = new Regex("Duration: (\\d{2}):(\\d{2}):(\\d{2}).\\d{2}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private TimeSpan duration { get; set; }
         private TimeSpan position { get; set; }
-        public FFMpegAaaxcProcesser(string ffmpegPath)
+        public FFMpegAaxcProcesser(string ffmpegPath)
         {
             FFMpegPath = ffmpegPath;
         }
