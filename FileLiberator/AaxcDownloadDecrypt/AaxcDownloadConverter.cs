@@ -29,9 +29,10 @@ namespace FileLiberator.AaxcDownloadDecrypt
     {
         bool Step1_CreateDir();
         bool Step2_DownloadAndCombine();
-        bool Step3_CreateCue();
-        bool Step4_CreateNfo();
-        bool Step5_Cleanup();
+        bool Step3_InsertCoverArt();
+        bool Step4_CreateCue();
+        bool Step5_CreateNfo();
+        bool Step6_Cleanup();
     }
     class AaxcDownloadConverter : IAdvancedAaxcToM4bConverter
     {
@@ -71,9 +72,10 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
                 ["Step 1: Create Dir"] = Step1_CreateDir,
                 ["Step 2: Download and Combine Audiobook"] = Step2_DownloadAndCombine,
-                ["Step 3 Create Cue"] = Step3_CreateCue,
-                ["Step 4 Create Nfo"] = Step4_CreateNfo,
-                ["Step 5: Cleanup"] = Step5_Cleanup,
+                ["Step 3 Insert Cover Art"] = Step3_InsertCoverArt,
+                ["Step 4 Create Cue"] = Step4_CreateCue,
+                ["Step 5 Create Nfo"] = Step5_CreateNfo,
+                ["Step 6: Cleanup"] = Step6_Cleanup,
             };
 
             downloadLicense = dlLic;
@@ -135,8 +137,6 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
         public bool Step2_DownloadAndCombine()
         {
-            File.WriteAllBytes(coverArtPath, tags.coverArt);
-
             var ffmpegTags = tags.GenerateFfmpegTags();
             var ffmpegChapters = GenerateFfmpegChapters(chapters);
 
@@ -152,7 +152,6 @@ namespace FileLiberator.AaxcDownloadDecrypt
                 Resources.UserAgent,
                 downloadLicense.AudibleKey,
                 downloadLicense.AudibleIV,
-                coverArtPath,
                 metadataPath,
                 outputFileName)
                 .GetAwaiter()
@@ -177,21 +176,37 @@ namespace FileLiberator.AaxcDownloadDecrypt
             return stringBuilder.ToString();
         }
 
-        public bool Step3_CreateCue()
+        public bool Step3_InsertCoverArt()
+        {
+
+            File.WriteAllBytes(coverArtPath, tags.coverArt);
+
+            var insertCoverArtInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = DecryptSupportLibraries.atomicParsleyPath,
+                Arguments = "\"" + outputFileName + "\" --encodingTool \"" + AppName + "\" --artwork \"" + coverArtPath + "\" --overWrite"
+            };
+            insertCoverArtInfo.RunHidden();
+
+            // delete temp file
+            FileExt.SafeDelete(coverArtPath);
+
+            return true;
+        }
+        public bool Step4_CreateCue()
         {
             File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), chapters));
             return true;
         }
 
-        public bool Step4_CreateNfo()
+        public bool Step5_CreateNfo()
         {
             File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, tags, chapters));
             return true;
         }
 
-        public bool Step5_Cleanup()
+        public bool Step6_Cleanup()
         {
-            FileExt.SafeDelete(coverArtPath);
             FileExt.SafeDelete(metadataPath);
             return true;
         }

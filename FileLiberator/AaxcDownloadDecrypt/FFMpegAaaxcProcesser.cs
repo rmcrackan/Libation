@@ -32,7 +32,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
             FFMpegPath = ffmpegPath;
         }
 
-        public async Task ProcessBook(string aaxcUrl, string userAgent, string audibleKey, string audibleIV, string artworkPath, string metadataPath, string outputFile)
+        public async Task ProcessBook(string aaxcUrl, string userAgent, string audibleKey, string audibleIV, string metadataPath, string outputFile)
         {
             //This process gets the aaxc from the url and streams the decrypted
             //aac stream to standard output
@@ -45,7 +45,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
             // it into an m4b along with the cover art and metadata.
             var remuxer = new Process
             {
-                StartInfo = getRemuxerStartInfo(artworkPath, metadataPath, outputFile)
+                StartInfo = getRemuxerStartInfo(metadataPath, outputFile)
             };
 
             IsRunning = true;
@@ -156,7 +156,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
                 }
             };
 
-        private ProcessStartInfo getRemuxerStartInfo(string artworkPath, string metadataPath, string outputFile) =>
+        private ProcessStartInfo getRemuxerStartInfo(string metadataPath, string outputFile) =>
          new ProcessStartInfo
          {
              FileName = FFMpegPath,
@@ -176,21 +176,13 @@ namespace FileLiberator.AaxcDownloadDecrypt
                     "-i",
                     "pipe:", //input from standard input
                     "-i",
-                    artworkPath,
-                    "-i",
                     metadataPath,
                     "-map",
                     "0",
-                    "-map",
-                    "1",
                     "-map_metadata",
-                    "2",
+                    "1",
                     "-c", //codec copy
-                    "copy",
-                    "-c:v:1", //video codec from file [1] (artwork)
-                    "png", //video codec
-                    "-disposition:v:1", 
-                    "attached_pic",
+                    "copy",                    
                     "-f", //force output format: mp4
                     "mp4",
                     outputFile,

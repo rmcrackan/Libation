@@ -20,6 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="DecryptLib\AtomicParsley.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="DecryptLib\avcodec-58.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
