@@ -8,13 +8,13 @@ namespace FileLiberator.AaxcDownloadDecrypt
 {
    
     /// <summary>
-    /// Download audible aaxc, decrypt, remux, add metadata, and insert cover art.
+    /// Download audible aaxc, decrypt, remux,and add metadata.
     /// </summary>
     class FFMpegAaxcProcesser
     {
         public event EventHandler<TimeSpan> ProgressUpdate;
         public string FFMpegPath { get; }
-        public bool IsRunning { get; set; } = false;
+        public bool IsRunning { get; private set; }
         public bool Succeeded { get; private set; }
 
 
@@ -57,16 +57,14 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
             byte[] buffer = new byte[16 * 1024];
 
+
             //All the work done here. Copy download standard output into
             //remuxer standard input
-            await Task.Run(() =>
+            do
             {
-                do
-                {
-                    lastRead = pipedOutput.Read(buffer, 0, buffer.Length);
-                    pipedInput.Write(buffer, 0, lastRead);
-                } while (lastRead > 0 && !remuxer.HasExited);
-            });
+                lastRead = await pipedOutput.ReadAsync(buffer, 0, buffer.Length);
+                await pipedInput.WriteAsync(buffer, 0, lastRead);
+            } while (lastRead > 0 && !remuxer.HasExited);
 
             pipedInput.Close();
 

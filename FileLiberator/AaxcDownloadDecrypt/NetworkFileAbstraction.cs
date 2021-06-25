@@ -85,7 +85,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
             }
             public override int Read(byte[] buffer, int offset, int count)
             {
-                long requiredLength = Position + offset + count;
+                long requiredLength = Position + count;
 
                 if (requiredLength > networkBytesRead)
                     readWebFileToPosition(requiredLength);
@@ -112,7 +112,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
             /// <summary>
             /// Read more data from <see cref="_networkStream"/> into <see cref="_fileBacker"/> as needed. 
             /// </summary>
-            /// <param name="requiredLength"></param>
+            /// <param name="requiredLength">Length of strem required for the operation.</param>
             private void readWebFileToPosition(long requiredLength)
             {
                 byte[] buff = new byte[BUFF_SZ];

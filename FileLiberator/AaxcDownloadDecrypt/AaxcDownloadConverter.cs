@@ -14,9 +14,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
     public interface ISimpleAaxToM4bConverter2
     {
         event EventHandler<int> DecryptProgressUpdate;
-
         bool Run();
-
         string AppName { get; set; }
         string outDir { get; }
         string outputFileName { get; }
@@ -162,7 +160,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
         private void AaxcProcesser_ProgressUpdate(object sender, TimeSpan e)
         {
-            double progressPercent = Math.Max(100 * e.TotalSeconds / tags.duration.TotalSeconds, 1);
+            double progressPercent = 100 * e.TotalSeconds / tags.duration.TotalSeconds;
 
             DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
         }
@@ -185,7 +183,6 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
         public bool Step3_InsertCoverArt()
         {
-
             File.WriteAllBytes(coverArtPath, tags.coverArt);
 
             var insertCoverArtInfo = new System.Diagnostics.ProcessStartInfo
