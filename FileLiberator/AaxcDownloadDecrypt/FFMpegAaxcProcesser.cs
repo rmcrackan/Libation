@@ -19,9 +19,6 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
 
         private static Regex processedTimeRegex = new Regex("time=(\\d{2}):(\\d{2}):(\\d{2}).\\d{2}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static Regex durationRegex = new Regex("Duration: (\\d{2}):(\\d{2}):(\\d{2}).\\d{2}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private TimeSpan duration { get; set; }
-        private TimeSpan position { get; set; }
         public FFMpegAaxcProcesser(string ffmpegPath)
         {
             FFMpegPath = ffmpegPath;
@@ -95,7 +92,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
                 int minutes = int.Parse(match.Groups[2].Value);
                 int seconds = int.Parse(match.Groups[3].Value);
 
-                position = new TimeSpan(hours, minutes, seconds);
+                var position = new TimeSpan(hours, minutes, seconds);
 
                 ProgressUpdate?.Invoke(sender, position);
             }
