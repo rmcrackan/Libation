@@ -144,8 +144,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
             var aaxcProcesser = new FFMpegAaxcProcesser(DecryptSupportLibraries.ffmpegPath);
 
-            aaxcProcesser.ProgressUpdate += (_, e) => 
-            DecryptProgressUpdate?.Invoke(this, (int)e.ProgressPercent);
+            aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
 
             aaxcProcesser.ProcessBook(
                 downloadLicense.DownloadUrl,
@@ -158,6 +157,13 @@ namespace FileLiberator.AaxcDownloadDecrypt
                 .GetResult();
 
             return aaxcProcesser.Succeeded;
+        }
+
+        private void AaxcProcesser_ProgressUpdate(object sender, TimeSpan e)
+        {
+            double progressPercent = Math.Max(100 * e.TotalSeconds / tags.duration.TotalSeconds, 1);
+
+            DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
         }
 
         private static string GenerateFfmpegChapters(ChapterInfo chapters)

@@ -6,18 +6,13 @@ using System.Threading.Tasks;
 
 namespace FileLiberator.AaxcDownloadDecrypt
 {
-    public class AaxcProgress : EventArgs
-    {
-        public TimeSpan ProcessedTime { get; set; }
-        public TimeSpan AudioDuration { get; set; }
-        public double ProgressPercent => Math.Round(100 * ProcessedTime.TotalSeconds / AudioDuration.TotalSeconds,2);
-    }
+   
     /// <summary>
     /// Download audible aaxc, decrypt, remux, add metadata, and insert cover art.
     /// </summary>
     class FFMpegAaxcProcesser
     {
-        public event EventHandler<AaxcProgress> ProgressUpdate;
+        public event EventHandler<TimeSpan> ProgressUpdate;
         public string FFMpegPath { get; }
         public bool IsRunning { get; set; } = false;
         public bool Succeeded { get; private set; }
@@ -50,11 +45,9 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
             IsRunning = true;
 
-            downloader.ErrorDataReceived += Downloader_ErrorDataReceived;
             remuxer.ErrorDataReceived += Remuxer_ErrorDataReceived;
 
             downloader.Start();
-            downloader.BeginErrorReadLine();
 
             var pipedOutput = downloader.StandardOutput.BaseStream;
 
@@ -91,22 +84,6 @@ namespace FileLiberator.AaxcDownloadDecrypt
             IsRunning = false;
             Succeeded = downloader.ExitCode == 0 && remuxer.ExitCode == 0;
         }
-
-        private void Downloader_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(e.Data) && durationRegex.IsMatch(e.Data))
-            {
-                //get total audio stream duration
-                var match = durationRegex.Match(e.Data);
-
-                int hours = int.Parse(match.Groups[1].Value);
-                int minutes = int.Parse(match.Groups[2].Value);
-                int seconds = int.Parse(match.Groups[3].Value);
-
-                duration = new TimeSpan(hours, minutes, seconds);
-            }
-        }
-
         private void Remuxer_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Data) && processedTimeRegex.IsMatch(e.Data))
@@ -120,11 +97,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
                 position = new TimeSpan(hours, minutes, seconds);
 
-                ProgressUpdate?.Invoke(sender, new AaxcProgress
-                {
-                    ProcessedTime = position,
-                    AudioDuration = duration
-                });
+                ProgressUpdate?.Invoke(sender, position);
             }
         }
 
@@ -133,7 +106,6 @@ namespace FileLiberator.AaxcDownloadDecrypt
             {
                 FileName = FFMpegPath,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
                 UseShellExecute = false,
