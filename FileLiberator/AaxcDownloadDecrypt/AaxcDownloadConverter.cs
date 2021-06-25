@@ -156,6 +156,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
                 .GetAwaiter()
                 .GetResult();
 
+            DecryptProgressUpdate?.Invoke(this, 0);
             return aaxcProcesser.Succeeded;
         }
 
