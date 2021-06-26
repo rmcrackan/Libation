@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Dinah.Core;
 
@@ -8,17 +7,17 @@ namespace AaxDecrypter
 {
     public static class Cue
     {
-        public static string CreateContents(string filePath, Chapters chapters)
+        public static string CreateContents(string filePath, ChapterInfo chapters)
         {
             var stringBuilder = new StringBuilder();
 
             stringBuilder.AppendLine(GetFileLine(filePath, "MP3"));
 
             var trackCount = 0;
-            foreach (Chapter c in chapters.ChapterList)
+            foreach (var c in chapters.Chapters)
             {
                 trackCount++;
-                var startTime = TimeSpan.FromSeconds(c.StartTime);
+                var startTime = TimeSpan.FromMilliseconds(c.StartOffsetMs);
 
                 stringBuilder.AppendLine($"TRACK {trackCount} AUDIO");
                 stringBuilder.AppendLine($"  TITLE \"{c.Title}\"");

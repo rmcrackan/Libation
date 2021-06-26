@@ -2,39 +2,48 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
-    public abstract class Chapters
+    public class ChapterInfo
     {
-        private List<Chapter> _chapterList = new();
+        private List<Chapter> _chapterList = new List<Chapter>();
+        public IEnumerable<Chapter> Chapters => _chapterList.AsEnumerable();
         public int Count => _chapterList.Count;
-        public Chapter FirstChapter => _chapterList[0];
-        public Chapter LastChapter => _chapterList[Count - 1];
-        public IEnumerable<Chapter> ChapterList => _chapterList.AsEnumerable();
-        public IEnumerable<TimeSpan> GetBeginningTimes() => ChapterList.Select(c => TimeSpan.FromSeconds(c.StartTime));
-        protected void AddChapter(Chapter chapter)
+        public void AddChapter(Chapter chapter)
         {
             _chapterList.Add(chapter);
         }
-        protected void AddChapters(IEnumerable<Chapter> chapters)
+        public string ToFFMeta()
         {
-            _chapterList.AddRange(chapters);
-        }
-        public string GenerateFfmpegChapters()
-        {
-            var stringBuilder = new StringBuilder();
-
-            foreach (Chapter c in ChapterList)
+            var ffmetaChapters = new StringBuilder();
+            foreach (var c in Chapters)
             {
-                stringBuilder.Append("[CHAPTER]\n");
-                stringBuilder.Append("TIMEBASE=1/1000\n");
-                stringBuilder.Append("START=" + c.StartTime * 1000 + "\n");
-                stringBuilder.Append("END=" + c.EndTime * 1000 + "\n");
-                stringBuilder.Append("title=" + c.Title + "\n");
+                ffmetaChapters.AppendLine(c.ToFFMeta());
             }
+            return ffmetaChapters.ToString();
+        }
+    }
+    public class Chapter
+    {
+        public string Title { get; }
+        public long StartOffsetMs { get; }
+        public long EndOffsetMs { get; }
+        public Chapter(string title, long startOffsetMs, long lengthMs)
+        {
+            Title = title;
+            StartOffsetMs = startOffsetMs;
+            EndOffsetMs = StartOffsetMs + lengthMs;
+        }
 
-            return stringBuilder.ToString();
+        public string ToFFMeta()
+        {
+            return "[CHAPTER]\n" +
+                "TIMEBASE=1/1000\n" +
+                "START=" + StartOffsetMs + "\n" +
+                "END=" + EndOffsetMs + "\n" +
+                "title=" + Title;
         }
     }
 }

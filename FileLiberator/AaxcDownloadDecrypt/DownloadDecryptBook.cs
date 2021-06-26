@@ -8,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AaxDecrypter;
+using AudibleApi;
 
 namespace FileLiberator.AaxcDownloadDecrypt
 {
@@ -70,15 +72,21 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
                 var contentMetadata = await api.GetLibraryBookMetadataAsync(libraryBook.Book.AudibleProductId);
 
+                var aaxcDecryptDlLic = new AaxDecrypter.DownloadLicense(dlLic.DownloadUrl, dlLic.AudibleKey, dlLic.AudibleIV, Resources.UserAgent);
 
-                var newDownloader = await AaxcDownloadConverter.CreateAsync(Path.GetDirectoryName(destinationDir), dlLic, contentMetadata?.ChapterInfo);
+                var aaxcDecryptChapters = new AaxDecrypter.ChapterInfo();
+
+                foreach (var chap in contentMetadata?.ChapterInfo?.Chapters)
+                    aaxcDecryptChapters.AddChapter(new Chapter(chap.Title, chap.StartOffsetMs, chap.LengthMs));
+
+                var newDownloader = await AaxcDownloadConverter.CreateAsync(Path.GetDirectoryName(destinationDir), aaxcDecryptDlLic, aaxcDecryptChapters);
 
                 newDownloader.AppName = "Libation";
 
-                TitleDiscovered?.Invoke(this, newDownloader.tags.title);
-                AuthorsDiscovered?.Invoke(this, newDownloader.tags.author);
-                NarratorsDiscovered?.Invoke(this, newDownloader.tags.narrator);
-                CoverImageFilepathDiscovered?.Invoke(this, newDownloader.tags.coverArt);
+                TitleDiscovered?.Invoke(this, newDownloader.Title);
+                AuthorsDiscovered?.Invoke(this, newDownloader.Author);
+                NarratorsDiscovered?.Invoke(this, newDownloader.Narrator);
+                CoverImageFilepathDiscovered?.Invoke(this, newDownloader.CoverArt);
 
                 // override default which was set in CreateAsync
                 var proposedOutputFile = Path.Combine(destinationDir, $"{libraryBook.Book.Title} [{libraryBook.Book.AudibleProductId}].m4b");
