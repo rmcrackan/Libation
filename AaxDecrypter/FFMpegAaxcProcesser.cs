@@ -37,8 +37,6 @@ namespace AaxDecrypter
                 WorkingDirectory = Path.GetDirectoryName(FFMpegPath),
                 ArgumentList =
                     {
-                        "-ignore_chapters", //prevents ffmpeg from copying chapter info from aaxc to output file
-                        "true",
                         "-audible_key",
                         audibleKey,
                         "-audible_iv",
