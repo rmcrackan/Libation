@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
-   
+
     /// <summary>
     /// Download audible aaxc, decrypt, remux,and add metadata.
     /// </summary>
@@ -22,23 +22,57 @@ namespace AaxDecrypter
         {
             FFMpegPath = ffmpegPath;
         }
+        public async Task ProcessBook(string aaxcUrl, string userAgent, string audibleKey, string audibleIV, string outputFile)
+        {
+
+            //This process gets the aaxc from the url and streams the decrypted
+            //m4b to the output file. Preserves album art, and ignores metadata.
+            var StartInfo = new ProcessStartInfo
+            {
+                FileName = FFMpegPath,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+                WorkingDirectory = Path.GetDirectoryName(FFMpegPath),
+                ArgumentList =
+                    {
+                        "-ignore_chapters", //prevents ffmpeg from copying chapter info from aaxc to output file
+                        "true",
+                        "-audible_key",
+                        audibleKey,
+                        "-audible_iv",
+                        audibleIV,
+                        "-user_agent",
+                        userAgent,
+                        "-i",
+                        aaxcUrl,
+                        "-c", //audio codec
+                        "copy", //copy stream
+                        "-f", //force output format: adts
+                        "mp4",
+                        outputFile, //pipe output to standard output
+                        "-y"
+                    }
+            };
+
+            await ProcessBool(StartInfo);
+        }
 
         public async Task ProcessBook(string aaxcUrl, string userAgent, string audibleKey, string audibleIV, string metadataPath, string outputFile)
         {
 
             //This process gets the aaxc from the url and streams the decrypted
             //m4b to the output file. Preserves album art, but replaces metadata.
-            var downloader = new Process
+            var StartInfo = new ProcessStartInfo
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = FFMpegPath,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    UseShellExecute = false,
-                    WorkingDirectory = Path.GetDirectoryName(FFMpegPath),
-                    ArgumentList =
+                FileName = FFMpegPath,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+                WorkingDirectory = Path.GetDirectoryName(FFMpegPath),
+                ArgumentList =
                     {
                         "-ignore_chapters", //prevents ffmpeg from copying chapter info from aaxc to output file
                         "true",
@@ -63,7 +97,15 @@ namespace AaxDecrypter
                         outputFile, //pipe output to standard output
                         "-y"
                     }
-                }
+            };
+            await ProcessBool(StartInfo);
+        }
+
+        private async Task ProcessBool(ProcessStartInfo startInfo)
+        {
+            var downloader = new Process
+            {
+                StartInfo = startInfo
             };
 
             IsRunning = true;
@@ -79,6 +121,7 @@ namespace AaxDecrypter
             IsRunning = false;
             Succeeded = downloader.ExitCode == 0;
         }
+
         private void Remuxer_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Data))
@@ -104,6 +147,5 @@ namespace AaxDecrypter
                 process.Kill();
             }
         }
-
     }
 }

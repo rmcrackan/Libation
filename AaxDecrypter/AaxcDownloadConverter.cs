@@ -3,7 +3,6 @@ using Dinah.Core.Diagnostics;
 using Dinah.Core.IO;
 using Dinah.Core.StepRunner;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,9 +17,11 @@ namespace AaxDecrypter
         string outDir { get; }
         string outputFileName { get; }
         ChapterInfo chapters { get; }
-        TagLib.Mpeg4.File tags { get; }
         void SetOutputFilename(string outFileName);
-
+        string Title { get; }
+        string Author { get; }
+        string Narrator { get; }
+        byte[] CoverArt { get; }
     }
     public interface IAdvancedAaxcToM4bConverter : ISimpleAaxToM4bConverter2
     {
@@ -32,20 +33,17 @@ namespace AaxDecrypter
     }
     public class AaxcDownloadConverter : IAdvancedAaxcToM4bConverter
     {
+        public event EventHandler<int> DecryptProgressUpdate;
         public string AppName { get; set; } = nameof(AaxcDownloadConverter);
         public string outDir { get; private set; }
         public string outputFileName { get; private set; }
         public ChapterInfo chapters { get; private set; }
-        public TagLib.Mpeg4.File tags { get; private set; }
-        public event EventHandler<int> DecryptProgressUpdate;
+        public string Title => aaxcTagLib.Tag.Title.Replace(" (Unabridged)", "");
+        public string Author => aaxcTagLib.Tag.FirstPerformer ?? "[unknown]";
+        public string Narrator => string.IsNullOrWhiteSpace(aaxcTagLib.Tag.FirstComposer) ? aaxcTagLib.GetTag(TagLib.TagTypes.Apple).Narrator : aaxcTagLib.Tag.FirstComposer;
+        public byte[] CoverArt => aaxcTagLib.Tag.Pictures.Length > 0 ? aaxcTagLib.Tag.Pictures[0].Data.Data : default;
 
-        public string Title => tags.Tag.Title.Replace(" (Unabridged)", "");
-        public string Author => tags.Tag.FirstPerformer ?? "[unknown]";
-        public string Narrator => string.IsNullOrWhiteSpace(tags.Tag.FirstComposer) ? tags.GetTag(TagLib.TagTypes.Apple).Narrator : tags.Tag.FirstComposer;
-        public byte[] CoverArt => tags.Tag.Pictures.Length > 0 ? tags.Tag.Pictures[0].Data.Data : default;
-
-
-
+        private TagLib.Mpeg4.File aaxcTagLib { get; set; }
         private StepSequence steps { get; }
         private DownloadLicense downloadLicense { get; set; }
         private string metadataPath => Path.Combine(outDir, Path.GetFileName(outputFileName) + ".ffmeta");
@@ -73,9 +71,9 @@ namespace AaxDecrypter
 
                 ["Step 1: Create Dir"] = Step1_CreateDir,
                 ["Step 2: Download and Combine Audiobook"] = Step2_DownloadAndCombine,
-                ["Step 2: Restore Aaxc Metadata"] = Step3_RestoreMetadata,
-                ["Step 3 Create Cue"] = Step4_CreateCue,
-                ["Step 4 Create Nfo"] = Step5_CreateNfo,
+                ["Step 3: Restore Aaxc Metadata"] = Step3_RestoreMetadata,
+                ["Step 4: Create Cue"] = Step4_CreateCue,
+                ["Step 5: Create Nfo"] = Step5_CreateNfo,
             };
 
             downloadLicense = dlLic;
@@ -90,12 +88,12 @@ namespace AaxDecrypter
 
             var networkFile = await NetworkFileAbstraction.CreateAsync(client, new Uri(downloadLicense.DownloadUrl));
 
-            tags = await Task.Run(() => TagLib.File.Create(networkFile, "audio/mp4", TagLib.ReadStyle.Average) as TagLib.Mpeg4.File);
+            aaxcTagLib = await Task.Run(() => TagLib.File.Create(networkFile, "audio/mp4", TagLib.ReadStyle.Average) as TagLib.Mpeg4.File);
 
             var defaultFilename = Path.Combine(
               outDir,
-              PathLib.ToPathSafeString(tags.Tag.FirstPerformer??"[unknown]"),
-              PathLib.ToPathSafeString(tags.Tag.Title.Replace(" (Unabridged)", "")) + ".m4b"
+              PathLib.ToPathSafeString(aaxcTagLib.Tag.FirstPerformer??"[unknown]"),
+              PathLib.ToPathSafeString(aaxcTagLib.Tag.Title.Replace(" (Unabridged)", "")) + ".m4b"
               );
 
             SetOutputFilename(defaultFilename);
@@ -120,7 +118,7 @@ namespace AaxDecrypter
                 return false;
             }
 
-            var speedup = (int)(tags.Properties.Duration.TotalSeconds / (long)Elapsed.TotalSeconds);
+            var speedup = (int)(aaxcTagLib.Properties.Duration.TotalSeconds / (long)Elapsed.TotalSeconds);
             Console.WriteLine("Speedup is " + speedup + "x realtime.");
             Console.WriteLine("Done");
             return true;
@@ -162,37 +160,9 @@ namespace AaxDecrypter
 
         private void AaxcProcesser_ProgressUpdate(object sender, TimeSpan e)
         {
-            double progressPercent = 100 * e.TotalSeconds / tags.Properties.Duration.TotalSeconds;
+            double progressPercent = 100 * e.TotalSeconds / aaxcTagLib.Properties.Duration.TotalSeconds;
 
             DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
-
-            speedSamples.Enqueue(new DataRate
-            {
-                SampleTime = DateTime.Now,
-                ProcessPosition = e
-            });
-
-            int sampleNum = 5;
-
-            if (speedSamples.Count < sampleNum) return;
-
-            var oldestSample = speedSamples.Dequeue();
-            double harmonicDenom = 0;
-            foreach (var sample in speedSamples)
-            {
-                double inverseRate = (sample.SampleTime - oldestSample.SampleTime).TotalSeconds / (sample.ProcessPosition.TotalSeconds - oldestSample.ProcessPosition.TotalSeconds);
-                harmonicDenom += inverseRate;
-                oldestSample = sample;
-            }
-            double averageRate = (sampleNum - 1) / harmonicDenom;
-
-        }
-
-        private Queue<DataRate> speedSamples = new Queue<DataRate>(5);
-        private class DataRate
-        {
-            public DateTime SampleTime;
-            public TimeSpan ProcessPosition;
         }
 
         public bool Step3_RestoreMetadata()
@@ -202,7 +172,7 @@ namespace AaxDecrypter
             var destTags = outFile.GetTag(TagLib.TagTypes.Apple) as TagLib.Mpeg4.AppleTag;
             destTags.Clear();
 
-            var sourceTag = tags.GetTag(TagLib.TagTypes.Apple) as TagLib.Mpeg4.AppleTag;
+            var sourceTag = aaxcTagLib.GetTag(TagLib.TagTypes.Apple) as TagLib.Mpeg4.AppleTag;
 
             //copy all metadata fields in the source file, even those that TagLib doesn't
             //recognize, to the output file.
@@ -222,7 +192,7 @@ namespace AaxDecrypter
 
         public bool Step5_CreateNfo()
         {
-            File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, tags, chapters));
+            File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxcTagLib, chapters));
             return true;
         }
     }
