@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
-
     /// <summary>
     /// Download audible aaxc, decrypt, remux,and add metadata.
     /// </summary>

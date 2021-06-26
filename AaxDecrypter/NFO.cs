@@ -3,28 +3,28 @@ namespace AaxDecrypter
 {
     public static class NFO
     {
-        public static string CreateContents(string ripper, TagLib.File tags, ChapterInfo chapters)
+        public static string CreateContents(string ripper, TagLib.File aaxcTagLib, ChapterInfo chapters)
         {
-            var tag = tags.GetTag(TagLib.TagTypes.Apple);
+            var tag = aaxcTagLib.GetTag(TagLib.TagTypes.Apple);
 
-            string narator = string.IsNullOrWhiteSpace(tags.Tag.FirstComposer) ? tag.Narrator : tags.Tag.FirstComposer;
+            string narator = string.IsNullOrWhiteSpace(aaxcTagLib.Tag.FirstComposer) ? tag.Narrator : aaxcTagLib.Tag.FirstComposer;
 
-            var _hours = (int)tags.Properties.Duration.TotalHours;
+            var _hours = (int)aaxcTagLib.Properties.Duration.TotalHours;
             var myDuration
                 = (_hours > 0 ? _hours + " hours, " : "")
-                + tags.Properties.Duration.Minutes + " minutes, "
-                + tags.Properties.Duration.Seconds + " seconds";
+                + aaxcTagLib.Properties.Duration.Minutes + " minutes, "
+                + aaxcTagLib.Properties.Duration.Seconds + " seconds";
 
             var header
                 = "General Information\r\n"
                 + "===================\r\n"
-                + $" Title:                  {tags.Tag.Title.Replace(" (Unabridged)", "")}\r\n"
-                + $" Author:                 {tags.Tag.FirstPerformer ?? "[unknown]"}\r\n"
-                + $" Read By:                {tags.Tag.FirstPerformer??"[unknown]"}\r\n"
-                + $" Copyright:              {tags.Tag.Year}\r\n"
-                + $" Audiobook Copyright:    {tags.Tag.Year}\r\n";
-            if (!string.IsNullOrEmpty(tags.Tag.FirstGenre))
-                header += $" Genre:                  {tags.Tag.FirstGenre}\r\n";
+                + $" Title:                  {aaxcTagLib.Tag.Title.Replace(" (Unabridged)", "")}\r\n"
+                + $" Author:                 {aaxcTagLib.Tag.FirstPerformer ?? "[unknown]"}\r\n"
+                + $" Read By:                {aaxcTagLib.GetTag(TagLib.TagTypes.Apple).Narrator??"[unknown]"}\r\n"
+                + $" Copyright:              {aaxcTagLib.Tag.Year}\r\n"
+                + $" Audiobook Copyright:    {aaxcTagLib.Tag.Year}\r\n";
+            if (!string.IsNullOrEmpty(aaxcTagLib.Tag.FirstGenre))
+                header += $" Genre:                  {aaxcTagLib.Tag.FirstGenre}\r\n";
 
             var s
                 = header
@@ -36,15 +36,15 @@ namespace AaxDecrypter
                 + "Media Information\r\n"
                 + "=================\r\n"
                 + " Source Format:          Audible AAX\r\n"
-                + $" Source Sample Rate:     {tags.Properties.AudioSampleRate} Hz\r\n"
-                + $" Source Channels:        {tags.Properties.AudioChannels}\r\n"
-                + $" Source Bitrate:         {tags.Properties.AudioBitrate} kbits\r\n"
+                + $" Source Sample Rate:     {aaxcTagLib.Properties.AudioSampleRate} Hz\r\n"
+                + $" Source Channels:        {aaxcTagLib.Properties.AudioChannels}\r\n"
+                + $" Source Bitrate:         {aaxcTagLib.Properties.AudioBitrate} kbits\r\n"
                 + "\r\n"
                 + " Lossless Encode:        Yes\r\n"
                 + " Encoded Codec:          AAC / M4B\r\n"
-                + $" Encoded Sample Rate:    {tags.Properties.AudioSampleRate} Hz\r\n"
-                + $" Encoded Channels:       {tags.Properties.AudioChannels}\r\n"
-                + $" Encoded Bitrate:        {tags.Properties.AudioBitrate} kbits\r\n"
+                + $" Encoded Sample Rate:    {aaxcTagLib.Properties.AudioSampleRate} Hz\r\n"
+                + $" Encoded Channels:       {aaxcTagLib.Properties.AudioChannels}\r\n"
+                + $" Encoded Bitrate:        {aaxcTagLib.Properties.AudioBitrate} kbits\r\n"
                 + "\r\n"
                 + $" Ripper:                 {ripper}\r\n"
                 + "\r\n"

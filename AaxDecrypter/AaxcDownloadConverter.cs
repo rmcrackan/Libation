@@ -40,7 +40,7 @@ namespace AaxDecrypter
         public ChapterInfo chapters { get; private set; }
         public string Title => aaxcTagLib.Tag.Title.Replace(" (Unabridged)", "");
         public string Author => aaxcTagLib.Tag.FirstPerformer ?? "[unknown]";
-        public string Narrator => string.IsNullOrWhiteSpace(aaxcTagLib.Tag.FirstComposer) ? aaxcTagLib.GetTag(TagLib.TagTypes.Apple).Narrator : aaxcTagLib.Tag.FirstComposer;
+        public string Narrator => aaxcTagLib.GetTag(TagLib.TagTypes.Apple).Narrator;
         public byte[] CoverArt => aaxcTagLib.Tag.Pictures.Length > 0 ? aaxcTagLib.Tag.Pictures[0].Data.Data : default;
 
         private TagLib.Mpeg4.File aaxcTagLib { get; set; }
