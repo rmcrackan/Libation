@@ -132,8 +132,7 @@ namespace AaxDecrypter
 
         public bool Step2_DownloadAndCombine()
         {
-
-            var aaxcProcesser = new FFMpegAaxcProcesser(DecryptSupportLibraries.ffmpegPath);
+            var aaxcProcesser = new FFMpegAaxcProcesser(downloadLicense);
             aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
 
             string metadataPath = null;
@@ -147,10 +146,6 @@ namespace AaxDecrypter
             }
 
             aaxcProcesser.ProcessBook(
-                downloadLicense.DownloadUrl,
-                downloadLicense.UserAgent,
-                downloadLicense.AudibleKey,
-                downloadLicense.AudibleIV,
                 outputFileName,
                 metadataPath)
                 .GetAwaiter()
@@ -172,9 +167,8 @@ namespace AaxDecrypter
         }
 
         /// <summary>
-        /// Copy all aacx metadata to m4b file.
+        /// Copy all aacx metadata to m4b file, including cover art.
         /// </summary>
-        /// <returns></returns>
         public bool Step3_RestoreMetadata()
         {
             var outFile = new TagLib.Mpeg4.File(outputFileName, TagLib.ReadStyle.Average);
@@ -186,6 +180,8 @@ namespace AaxDecrypter
 
             //copy all metadata fields in the source file, even those that TagLib doesn't
             //recognize, to the output file.
+            //NOTE: Chapters aren't stored in MPEG-4 metadata. They are encoded as a Timed
+            //Text Stream (MPEG-4 Part 17), so taglib doesn't read or write them.
             foreach (var stag in sourceTag)
             {
                 destTags.SetData(stag.BoxType, stag.Children.Cast<TagLib.Mpeg4.AppleDataBox>().ToArray());
