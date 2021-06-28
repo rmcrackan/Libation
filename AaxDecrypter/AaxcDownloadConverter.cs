@@ -50,6 +50,7 @@ namespace AaxDecrypter
         private StepSequence steps { get; }
         private DownloadLicense downloadLicense { get; set; }
         private FFMpegAaxcProcesser aaxcProcesser;
+
         public static async Task<AaxcDownloadConverter> CreateAsync(string outDirectory, DownloadLicense dlLic, ChapterInfo chapters = null)
         {
             var converter = new AaxcDownloadConverter(outDirectory, dlLic, chapters);           
@@ -170,14 +171,11 @@ namespace AaxDecrypter
         private void AaxcProcesser_ProgressUpdate(object sender, TimeSpan e)
         {
             double averageRate = getAverageProcessRate(e);
-
             double remainingSecsToProcess = (aaxcTagLib.Properties.Duration - e).TotalSeconds;
-
             double estTimeRemaining = remainingSecsToProcess / averageRate;
 
             if (double.IsNormal(estTimeRemaining))
                 DecryptTimeRemaining?.Invoke(this, TimeSpan.FromSeconds(estTimeRemaining));
-
 
             double progressPercent = 100 * e.TotalSeconds / aaxcTagLib.Properties.Duration.TotalSeconds;
 
@@ -185,7 +183,7 @@ namespace AaxDecrypter
         }
 
         /// <summary>
-        /// Calculates the average processing rate based on the last <see cref="MAX_NUM_AVERAGE"/> samples.
+        /// Calculates the average processing rate based on the last 2 to <see cref="MAX_NUM_AVERAGE"/> samples.
         /// </summary>
         /// <param name="lastProcessedPosition">Position in the audio file last processed</param>
         /// <returns>The average processing rate, in book_duration_seconds / second.</returns>
@@ -200,7 +198,7 @@ namespace AaxDecrypter
             if (streamPositions.Count < 2)
                 return double.PositiveInfinity;
 
-            //Calculate the harmonic mean of the last AVERAGE_NUM progress updates
+            //Calculate the harmonic mean of the last 2 to MAX_NUM_AVERAGE progress updates
             //Units are Book_Duration_Seconds / second
 
             var lastPos = streamPositions.Count > MAX_NUM_AVERAGE ?  streamPositions.Dequeue() : null;
@@ -226,6 +224,7 @@ namespace AaxDecrypter
             double harmonicMean = harmonicNumerator / harmonicDenominator;
             return harmonicMean;
         }
+
         private const int MAX_NUM_AVERAGE = 15;
         private class StreamPosition
         {
