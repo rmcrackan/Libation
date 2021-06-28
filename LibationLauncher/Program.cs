@@ -60,6 +60,7 @@ namespace LibationLauncher
 				config.DownloadsInProgressEnum ??= "WinTemp";
 				config.DecryptInProgressEnum ??= "WinTemp";
 				config.Books ??= Configuration.AppDir;
+				config.DownloadChapters = true;
 			};
 			// setupDialog.BasicBtn_Click += (_, __) => // no action needed
 			setupDialog.AdvancedBtn_Click += (_, __) => isAdvanced = true;
@@ -232,6 +233,13 @@ namespace LibationLauncher
 		#region migrate_to_v5_0_0 re-gegister device if device info not in settings
 		private static void migrate_to_v5_0_0()
 		{
+			var persistentDictionary = new PersistentDictionary(Configuration.Instance.SettingsFilePath);
+
+			if (persistentDictionary.GetString("DownloadChapters") is null)
+            {
+				persistentDictionary.Set("DownloadChapters", true);
+			}
+
 			if (!File.Exists(AudibleApiStorage.AccountsSettingsFile))
 				return;
 
