@@ -264,6 +264,7 @@ namespace LibationWinForms.BookLiberation
             void narratorsDiscovered(object _, string narrators) => decryptDialog.SetNarratorNames(narrators);
             void coverImageFilepathDiscovered(object _, byte[] coverBytes) => decryptDialog.SetCoverImage(coverBytes);
             void updateProgress(object _, int percentage) => decryptDialog.UpdateProgress(percentage);
+            void updateRemainingTime(object _, TimeSpan remaining) => decryptDialog.UpdateRemainingTime(remaining);
 
             void decryptCompleted(object _, string __) => decryptDialog.Close();
             #endregion
@@ -276,6 +277,7 @@ namespace LibationWinForms.BookLiberation
             decryptBook.NarratorsDiscovered += narratorsDiscovered;
             decryptBook.CoverImageFilepathDiscovered += coverImageFilepathDiscovered;
             decryptBook.UpdateProgress += updateProgress;
+            decryptBook.UpdateRemainingTime += updateRemainingTime;
 
             decryptBook.DecryptCompleted += decryptCompleted;
             #endregion
@@ -293,6 +295,7 @@ namespace LibationWinForms.BookLiberation
                 decryptBook.UpdateProgress -= updateProgress;
 
                 decryptBook.DecryptCompleted -= decryptCompleted;
+                decryptBook.Cancel();
             };
             #endregion
         }

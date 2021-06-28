@@ -25,6 +25,8 @@ namespace AaxDecrypter
         private StringBuilder remuxerError = new StringBuilder();
         private StringBuilder downloaderError = new StringBuilder();
         private static Regex processedTimeRegex = new Regex("time=(\\d{2}):(\\d{2}):(\\d{2}).\\d{2}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private Process downloader;
+        private Process remuxer;
 
         public FFMpegAaxcProcesser( DownloadLicense downloadLicense)
         {
@@ -36,14 +38,14 @@ namespace AaxDecrypter
         {
             //This process gets the aaxc from the url and streams the decrypted
             //aac stream to standard output
-            var downloader = new Process
+            downloader = new Process
             {
                 StartInfo = getDownloaderStartInfo()
             };
 
             //This process retreves an aac stream from standard input and muxes
             // it into an m4b along with the cover art and metadata.
-            var remuxer = new Process
+            remuxer = new Process
             {
                 StartInfo = getRemuxerStartInfo(outputFile, ffmetaChaptersPath)
             };
@@ -90,7 +92,11 @@ namespace AaxDecrypter
             IsRunning = false;
             Succeeded = downloader.ExitCode == 0 && remuxer.ExitCode == 0;
         }
-
+        public void Cancel()
+        {
+            if (IsRunning && !remuxer.HasExited)
+                remuxer.Kill();
+        }
         private void Downloader_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Data))

@@ -3,13 +3,14 @@ using Dinah.Core.Diagnostics;
 using Dinah.Core.IO;
 using Dinah.Core.StepRunner;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
-    public interface ISimpleAaxToM4bConverter2
+    public interface ISimpleAaxToM4bConverter
     {
         event EventHandler<int> DecryptProgressUpdate;
         bool Run();
@@ -23,8 +24,9 @@ namespace AaxDecrypter
         string Narrator { get; }
         byte[] CoverArt { get; }
     }
-    public interface IAdvancedAaxcToM4bConverter : ISimpleAaxToM4bConverter2
+    public interface IAdvancedAaxcToM4bConverter : ISimpleAaxToM4bConverter
     {
+        void Cancel();
         bool Step1_CreateDir();
         bool Step2_DownloadAndCombine();
         bool Step3_RestoreMetadata();
@@ -34,6 +36,7 @@ namespace AaxDecrypter
     public class AaxcDownloadConverter : IAdvancedAaxcToM4bConverter
     {
         public event EventHandler<int> DecryptProgressUpdate;
+        public event EventHandler<TimeSpan> DecryptTimeRemaining;
         public string AppName { get; set; } = nameof(AaxcDownloadConverter);
         public string outDir { get; private set; }
         public string outputFileName { get; private set; }
@@ -46,7 +49,7 @@ namespace AaxDecrypter
         private TagLib.Mpeg4.File aaxcTagLib { get; set; }
         private StepSequence steps { get; }
         private DownloadLicense downloadLicense { get; set; }
-
+        private FFMpegAaxcProcesser aaxcProcesser;
         public static async Task<AaxcDownloadConverter> CreateAsync(string outDirectory, DownloadLicense dlLic, ChapterInfo chapters = null)
         {
             var converter = new AaxcDownloadConverter(outDirectory, dlLic, chapters);           
@@ -132,7 +135,7 @@ namespace AaxDecrypter
 
         public bool Step2_DownloadAndCombine()
         {
-            var aaxcProcesser = new FFMpegAaxcProcesser(downloadLicense);
+            aaxcProcesser = new FFMpegAaxcProcesser(downloadLicense);
             aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
 
             bool userSuppliedChapters = chapters != null;
@@ -166,10 +169,71 @@ namespace AaxDecrypter
 
         private void AaxcProcesser_ProgressUpdate(object sender, TimeSpan e)
         {
+            double averageRate = getAverageProcessRate(e);
+
+            double remainingSecsToProcess = (aaxcTagLib.Properties.Duration - e).TotalSeconds;
+
+            double estTimeRemaining = remainingSecsToProcess / averageRate;
+
+            if (double.IsNormal(estTimeRemaining))
+                DecryptTimeRemaining?.Invoke(this, TimeSpan.FromSeconds(estTimeRemaining));
+
+
             double progressPercent = 100 * e.TotalSeconds / aaxcTagLib.Properties.Duration.TotalSeconds;
 
             DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
         }
+
+        /// <summary>
+        /// Calculates the average processing rate based on the last <see cref="MAX_NUM_AVERAGE"/> samples.
+        /// </summary>
+        /// <param name="lastProcessedPosition">Position in the audio file last processed</param>
+        /// <returns>The average processing rate, in book_duration_seconds / second.</returns>
+        private double getAverageProcessRate(TimeSpan lastProcessedPosition)
+        {
+            streamPositions.Enqueue(new StreamPosition
+            {
+                ProcessPosition = lastProcessedPosition,
+                EventTime = DateTime.Now,
+            });
+
+            if (streamPositions.Count < 2)
+                return double.PositiveInfinity;
+
+            //Calculate the harmonic mean of the last AVERAGE_NUM progress updates
+            //Units are Book_Duration_Seconds / second
+
+            var lastPos = streamPositions.Count > MAX_NUM_AVERAGE ?  streamPositions.Dequeue() : null;
+
+            double harmonicDenominator = 0;
+            int harmonicNumerator = 0;
+
+            foreach (var pos in streamPositions)
+            {
+                if (lastPos is null)
+                {
+                    lastPos = pos;
+                    continue;
+                }
+                double dP = (pos.ProcessPosition - lastPos.ProcessPosition).TotalSeconds;
+                double dT = (pos.EventTime - lastPos.EventTime).TotalSeconds;
+
+                harmonicDenominator += dT / dP;
+                harmonicNumerator++;
+                lastPos = pos;
+            }
+
+            double harmonicMean = harmonicNumerator / harmonicDenominator;
+            return harmonicMean;
+        }
+        private const int MAX_NUM_AVERAGE = 15;
+        private class StreamPosition
+        {
+            public TimeSpan ProcessPosition { get; set; }
+            public DateTime EventTime { get; set; }
+        }
+
+        private Queue<StreamPosition> streamPositions = new Queue<StreamPosition>();
 
         /// <summary>
         /// Copy all aacx metadata to m4b file, including cover art.
@@ -206,6 +270,11 @@ namespace AaxDecrypter
         {
             File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxcTagLib, chapters));
             return true;
+        }
+
+        public void Cancel()
+        {
+            aaxcProcesser.Cancel();
         }
     }
 }

@@ -22,10 +22,12 @@ namespace FileLiberator.AaxcDownloadDecrypt
         public event EventHandler<string> NarratorsDiscovered;
         public event EventHandler<byte[]> CoverImageFilepathDiscovered;
         public event EventHandler<int> UpdateProgress;
+        public event EventHandler<TimeSpan> UpdateRemainingTime;
         public event EventHandler<string> DecryptCompleted;
         public event EventHandler<LibraryBook> Completed;
         public event EventHandler<string> StatusUpdate;
 
+        private AaxcDownloadConverter aaxcDownloader;
         public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
             Begin?.Invoke(this, libraryBook);
@@ -74,7 +76,6 @@ namespace FileLiberator.AaxcDownloadDecrypt
 
                 var destinationDirectory = Path.GetDirectoryName(destinationDir);
 
-                AaxcDownloadConverter newDownloader;
                 if (Configuration.Instance.DownloadChapters)
                 {
                     var contentMetadata = await api.GetLibraryBookMetadataAsync(libraryBook.Book.AudibleProductId);
@@ -84,33 +85,34 @@ namespace FileLiberator.AaxcDownloadDecrypt
                     foreach (var chap in contentMetadata?.ChapterInfo?.Chapters)
                         aaxcDecryptChapters.AddChapter(new Chapter(chap.Title, chap.StartOffsetMs, chap.LengthMs));
 
-                    newDownloader = await AaxcDownloadConverter.CreateAsync(destinationDirectory, aaxcDecryptDlLic, aaxcDecryptChapters);
+                    aaxcDownloader = await AaxcDownloadConverter.CreateAsync(destinationDirectory, aaxcDecryptDlLic, aaxcDecryptChapters);
                 }
                 else
                 {
-                    newDownloader = await AaxcDownloadConverter.CreateAsync(destinationDirectory, aaxcDecryptDlLic);
+                    aaxcDownloader = await AaxcDownloadConverter.CreateAsync(destinationDirectory, aaxcDecryptDlLic);
                 }
 
-                newDownloader.AppName = "Libation";
+                aaxcDownloader.AppName = "Libation";
 
-                TitleDiscovered?.Invoke(this, newDownloader.Title);
-                AuthorsDiscovered?.Invoke(this, newDownloader.Author);
-                NarratorsDiscovered?.Invoke(this, newDownloader.Narrator);
-                CoverImageFilepathDiscovered?.Invoke(this, newDownloader.CoverArt);
+                TitleDiscovered?.Invoke(this, aaxcDownloader.Title);
+                AuthorsDiscovered?.Invoke(this, aaxcDownloader.Author);
+                NarratorsDiscovered?.Invoke(this, aaxcDownloader.Narrator);
+                CoverImageFilepathDiscovered?.Invoke(this, aaxcDownloader.CoverArt);
 
                 // override default which was set in CreateAsync
                 var proposedOutputFile = Path.Combine(destinationDir, $"{libraryBook.Book.Title} [{libraryBook.Book.AudibleProductId}].m4b");
-                newDownloader.SetOutputFilename(proposedOutputFile);
-                newDownloader.DecryptProgressUpdate += (s, progress) => UpdateProgress?.Invoke(this, progress);
+                aaxcDownloader.SetOutputFilename(proposedOutputFile);
+                aaxcDownloader.DecryptProgressUpdate += (s, progress) => UpdateProgress?.Invoke(this, progress);
+                aaxcDownloader.DecryptTimeRemaining += (s, remaining) => UpdateRemainingTime?.Invoke(this, remaining);
 
                 // REAL WORK DONE HERE
-                var success = await Task.Run(() => newDownloader.Run());
+                var success = await Task.Run(() => aaxcDownloader.Run());
 
                 // decrypt failed
                 if (!success)
                     return null;
 
-                return newDownloader.outputFileName;
+                return aaxcDownloader.outputFileName;
             }
             finally
             {
@@ -195,6 +197,9 @@ namespace FileLiberator.AaxcDownloadDecrypt
             => !AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId)
             && !AudibleFileStorage.AAX.Exists(libraryBook.Book.AudibleProductId);
 
-
+        public void Cancel()
+        {
+            aaxcDownloader.Cancel();
+        }
     }
 }

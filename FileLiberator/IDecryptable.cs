@@ -11,7 +11,9 @@ namespace FileLiberator
         event EventHandler<string> NarratorsDiscovered;
         event EventHandler<byte[]> CoverImageFilepathDiscovered;
         event EventHandler<int> UpdateProgress;
+        event EventHandler<TimeSpan> UpdateRemainingTime;
 
         event EventHandler<string> DecryptCompleted;
+        void Cancel();
     }
 }
