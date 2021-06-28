@@ -293,6 +293,7 @@ namespace LibationWinForms.BookLiberation
                 decryptBook.NarratorsDiscovered -= narratorsDiscovered;
                 decryptBook.CoverImageFilepathDiscovered -= coverImageFilepathDiscovered;
                 decryptBook.UpdateProgress -= updateProgress;
+                decryptBook.UpdateRemainingTime -= updateRemainingTime;
 
                 decryptBook.DecryptCompleted -= decryptCompleted;
                 decryptBook.Cancel();
