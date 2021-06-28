@@ -13,10 +13,4 @@
     <ProjectReference Include="..\InternalUtilities\InternalUtilities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="taglib-sharp">
-      <HintPath>DecryptLib\taglib-sharp.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>
