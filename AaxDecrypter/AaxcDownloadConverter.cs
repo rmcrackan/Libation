@@ -46,9 +46,8 @@ namespace AaxDecrypter
         private TagLib.Mpeg4.File aaxcTagLib { get; set; }
         private StepSequence steps { get; }
         private DownloadLicense downloadLicense { get; set; }
-        private string metadataPath => Path.Combine(outDir, Path.GetFileName(outputFileName) + ".ffmeta");
 
-        public static async Task<AaxcDownloadConverter> CreateAsync(string outDirectory, DownloadLicense dlLic, ChapterInfo chapters)
+        public static async Task<AaxcDownloadConverter> CreateAsync(string outDirectory, DownloadLicense dlLic, ChapterInfo chapters = null)
         {
             var converter = new AaxcDownloadConverter(outDirectory, dlLic, chapters);           
             await converter.prelimProcessing();
@@ -59,7 +58,6 @@ namespace AaxDecrypter
         {
             ArgumentValidator.EnsureNotNullOrWhiteSpace(outDirectory, nameof(outDirectory));
             ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
-            ArgumentValidator.EnsureNotNull(chapters, nameof(chapters));
 
             if (!Directory.Exists(outDirectory))
                 throw new ArgumentNullException(nameof(outDirectory), "Directory does not exist");
@@ -134,27 +132,35 @@ namespace AaxDecrypter
 
         public bool Step2_DownloadAndCombine()
         {
-            var ffmetaHeader = $";FFMETADATA1\n";
-
-            File.WriteAllText(metadataPath, ffmetaHeader + chapters.ToFFMeta());
 
             var aaxcProcesser = new FFMpegAaxcProcesser(DecryptSupportLibraries.ffmpegPath);
-
             aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
+
+            string metadataPath = null;
+
+            if (chapters != null)
+            {
+                //Only write chaopters to the metadata file. All other aaxc metadata will be
+                //wiped out but is restored in Step 3.
+                metadataPath = Path.Combine(outDir, Path.GetFileName(outputFileName) + ".ffmeta");
+                File.WriteAllText(metadataPath, chapters.ToFFMeta(true));
+            }
 
             aaxcProcesser.ProcessBook(
                 downloadLicense.DownloadUrl,
                 downloadLicense.UserAgent,
                 downloadLicense.AudibleKey,
                 downloadLicense.AudibleIV,
-                metadataPath,
-                outputFileName)
+                outputFileName,
+                metadataPath)
                 .GetAwaiter()
                 .GetResult();
 
+            if (chapters != null)
+                FileExt.SafeDelete(metadataPath);
+
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            FileExt.SafeDelete(metadataPath);
             return aaxcProcesser.Succeeded;
         }
 
@@ -165,6 +171,10 @@ namespace AaxDecrypter
             DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
         }
 
+        /// <summary>
+        /// Copy all aacx metadata to m4b file.
+        /// </summary>
+        /// <returns></returns>
         public bool Step3_RestoreMetadata()
         {
             var outFile = new TagLib.Mpeg4.File(outputFileName, TagLib.ReadStyle.Average);
