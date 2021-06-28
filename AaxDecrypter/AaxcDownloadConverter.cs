@@ -135,9 +135,11 @@ namespace AaxDecrypter
             var aaxcProcesser = new FFMpegAaxcProcesser(downloadLicense);
             aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
 
+            bool userSuppliedChapters = chapters != null;
+
             string metadataPath = null;
 
-            if (chapters != null)
+            if (userSuppliedChapters)
             {
                 //Only write chaopters to the metadata file. All other aaxc metadata will be
                 //wiped out but is restored in Step 3.
@@ -151,7 +153,10 @@ namespace AaxDecrypter
                 .GetAwaiter()
                 .GetResult();
 
-            if (chapters != null)
+            if (!userSuppliedChapters && aaxcProcesser.Succeeded)
+                chapters = new ChapterInfo(outputFileName);
+
+            if (userSuppliedChapters)
                 FileExt.SafeDelete(metadataPath);
 
             DecryptProgressUpdate?.Invoke(this, 0);
@@ -187,6 +192,7 @@ namespace AaxDecrypter
                 destTags.SetData(stag.BoxType, stag.Children.Cast<TagLib.Mpeg4.AppleDataBox>().ToArray());
             }
             outFile.Save();
+
             return true;
         }
 
