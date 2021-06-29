@@ -79,78 +79,6 @@ namespace AccountsTests
             accountsSettings.Accounts[0].AccountId.Should().Be("cng");
             accountsSettings.Accounts[0].IdentityTokens.Should().BeNull();
         }
-
-        [TestMethod]
-        public void _1_account_populated()
-        {
-            var id = GetIdentityJson(Future);
-
-            var json = $@"
-{{
-  ""Accounts"": [
-	{{
-      ""AccountId"": ""cng"",
-      ""AccountName"": ""my main login"",
-      ""DecryptKey"": ""asdfasdf"",
-      ""IdentityTokens"": {id}
-    }}
-  ]
-}}
-".Trim();
-            var accountsSettings = AccountsSettings.FromJson(json);
-            accountsSettings.Accounts.Count.Should().Be(1);
-            accountsSettings.Accounts[0].AccountId.Should().Be("cng");
-            accountsSettings.Accounts[0].IdentityTokens.Should().NotBeNull();
-            accountsSettings.Accounts[0].IdentityTokens.ExistingAccessToken.TokenValue.Should().Be(AccessTokenValue);
-        }
-    }
-
-    [TestClass]
-    public class ToJson
-    {
-        [TestMethod]
-        public void serialize()
-        {
-            var id = JsonConvert.SerializeObject(Identity.Empty, Identity.GetJsonSerializerSettings());
-            var jsonIn = $@"
-{{
-  ""Accounts"": [
-	{{
-      ""AccountId"": ""cng"",
-      ""AccountName"": ""my main login"",
-      ""DecryptKey"": ""asdfasdf"",
-      ""IdentityTokens"": {id}
-    }}
-  ]
-}}
-".Trim();
-            var accountsSettings = AccountsSettings.FromJson(jsonIn);
-
-            var jsonOut = accountsSettings.ToJson();
-            jsonOut.Should().Be(@"
-{
-  ""Accounts"": [
-    {
-      ""AccountId"": ""cng"",
-      ""AccountName"": ""my main login"",
-      ""LibraryScan"": true,
-      ""DecryptKey"": ""asdfasdf"",
-      ""IdentityTokens"": {
-        ""LocaleName"": ""[empty]"",
-        ""ExistingAccessToken"": {
-          ""TokenValue"": ""Atna|"",
-          ""Expires"": ""0001-01-01T00:00:00""
-        },
-        ""PrivateKey"": null,
-        ""AdpToken"": null,
-        ""RefreshToken"": null,
-        ""Cookies"": []
-      }
-    }
-  ]
-}
-".Trim());
-        }
     }
 
     [TestClass]
@@ -645,32 +573,6 @@ namespace AccountsTests
 
             p.CommitTransation();
             p.IsInTransaction.Should().BeFalse();
-
-
-            var jsonOut = File.ReadAllText(TestFile);//.Should().Be(EMPTY_FILE);
-            jsonOut.Should().Be(@"
-{
-  ""Accounts"": [
-    {
-      ""AccountId"": ""cng"",
-      ""AccountName"": ""foo"",
-      ""LibraryScan"": true,
-      ""DecryptKey"": """",
-      ""IdentityTokens"": {
-        ""LocaleName"": ""us"",
-        ""ExistingAccessToken"": {
-          ""TokenValue"": ""Atna|"",
-          ""Expires"": ""0001-01-01T00:00:00""
-        },
-        ""PrivateKey"": null,
-        ""AdpToken"": null,
-        ""RefreshToken"": null,
-        ""Cookies"": []
-      }
-    }
-  ]
-}
-".Trim());
         }
 
         [TestMethod]
