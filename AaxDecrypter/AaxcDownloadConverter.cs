@@ -273,7 +273,7 @@ namespace AaxDecrypter
 
         public void Cancel()
         {
-            aaxcProcesser.Cancel();
+            aaxcProcesser?.Cancel();
         }
     }
 }
