@@ -100,7 +100,7 @@ namespace FileLiberator.AaxcDownloadDecrypt
                 CoverImageFilepathDiscovered?.Invoke(this, aaxcDownloader.CoverArt);
 
                 // override default which was set in CreateAsync
-                var proposedOutputFile = Path.Combine(destinationDir, $"{libraryBook.Book.Title} [{libraryBook.Book.AudibleProductId}].m4b");
+                var proposedOutputFile = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].m4b");
                 aaxcDownloader.SetOutputFilename(proposedOutputFile);
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => UpdateProgress?.Invoke(this, progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => UpdateRemainingTime?.Invoke(this, remaining);
