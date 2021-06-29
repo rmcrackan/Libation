@@ -97,7 +97,9 @@ namespace FileLiberator.AaxcDownloadDecrypt
                 TitleDiscovered?.Invoke(this, aaxcDownloader.Title);
                 AuthorsDiscovered?.Invoke(this, aaxcDownloader.Author);
                 NarratorsDiscovered?.Invoke(this, aaxcDownloader.Narrator);
-                CoverImageFilepathDiscovered?.Invoke(this, aaxcDownloader.CoverArt);
+
+                if (aaxcDownloader.CoverArt is not null)
+                    CoverImageFilepathDiscovered?.Invoke(this, aaxcDownloader.CoverArt);
 
                 // override default which was set in CreateAsync
                 var proposedOutputFile = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].m4b");
