@@ -41,10 +41,10 @@ namespace AaxDecrypter
         public string outDir { get; private set; }
         public string outputFileName { get; private set; }
         public ChapterInfo chapters { get; private set; }
-        public string Title => aaxcTagLib.TitleSansUnabridged ?? "[unknown]";
+        public string Title => aaxcTagLib.TitleSansUnabridged;
         public string Author => aaxcTagLib.FirstAuthor ?? "[unknown]";
         public string Narrator => aaxcTagLib.Narrator ?? "[unknown]";
-        public byte[] CoverArt => aaxcTagLib.Tag.Pictures.Length > 0 ? aaxcTagLib.Tag.Pictures[0].Data.Data : default;
+        public byte[] CoverArt => aaxcTagLib.AppleTags.Pictures.Length > 0 ? aaxcTagLib.Tag.Pictures[0].Data.Data : default;
 
         private AaxcTagLibFile aaxcTagLib { get; set; }
         private StepSequence steps { get; }
@@ -90,12 +90,12 @@ namespace AaxDecrypter
 
             var networkFile = await NetworkFileAbstraction.CreateAsync(client, new Uri(downloadLicense.DownloadUrl));
 
-            aaxcTagLib = await Task.Run(() => new AaxcTagLibFile(networkFile));
+            aaxcTagLib = await Task.Run(() => new  AaxcTagLibFile(networkFile));
 
             var defaultFilename = Path.Combine(
               outDir,
-              PathLib.ToPathSafeString(aaxcTagLib.Tag.FirstPerformer??"[unknown]"),
-              PathLib.ToPathSafeString(aaxcTagLib.Tag.Title.Replace(" (Unabridged)", "")) + ".m4b"
+              PathLib.ToPathSafeString(aaxcTagLib.FirstAuthor ?? "[unknown]"),
+              PathLib.ToPathSafeString(aaxcTagLib.TitleSansUnabridged) + ".m4b"
               );
 
             SetOutputFilename(defaultFilename);
@@ -260,7 +260,7 @@ namespace AaxDecrypter
 
         public void Cancel()
         {
-            aaxcProcesser.Cancel();
+            aaxcProcesser?.Cancel();
         }
     }
 }
