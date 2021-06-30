@@ -17,11 +17,11 @@ namespace AaxDecrypter
         private static ReadOnlyByteVector descriptionType = new ReadOnlyByteVector(0xa9, (byte)'d', (byte)'e', (byte)'s');
         private static ReadOnlyByteVector publisherType = new ReadOnlyByteVector(0xa9, (byte)'p', (byte)'u', (byte)'b');
         public string Narrator { get; }
+        public string Comment { get; }
         public string LongDescription { get; }
         public string ReleaseDate { get; }
         public string Publisher { get; }
-        //TagLib uses @ART, which is the Artist tag
-        public string[] Authors => AppleTags.Performers;
+        public string[] Authors { get; }
         public string FirstAuthor { get; }
         public string TitleSansUnabridged { get; }
         public string BookCopyright { get; }
@@ -39,7 +39,12 @@ namespace AaxDecrypter
 
             TitleSansUnabridged = AppleTags.Title?.Replace(" (Unabridged)", "");
 
-            FirstAuthor = Authors?.Length > 0 ? unicodeToAscii(Authors[0]) : default;
+            Comment = AppleTags.Comment is not null ? unicodeToAscii(AppleTags.Comment) : default;
+
+            //TagLib uses @ART, which is the Artist tag
+            Authors = AppleTags.Performers.Select(author => unicodeToAscii(author)).ToArray();
+
+            FirstAuthor = Authors?.Length > 0 ? Authors[0] : default;
 
             string[] text = AppleTags.GetText(publisherType);
             Publisher = text.Length == 0 ? null : text[0];
@@ -55,9 +60,11 @@ namespace AaxDecrypter
 
         }
 
-        public AaxcTagLibFile(string path) : this(new LocalFileAbstraction(path))
+        public AaxcTagLibFile(string path) 
+            : this(new LocalFileAbstraction(path))
         {
         }
+
         public void CopyTagsFrom(AaxcTagLibFile sourceFile)
         {
             AppleTags.Clear();

@@ -5,8 +5,6 @@ namespace AaxDecrypter
     {
         public static string CreateContents(string ripper, AaxcTagLibFile aaxcTagLib, ChapterInfo chapters)
         {
-            var tag = aaxcTagLib.AppleTags;
-
             var _hours = (int)aaxcTagLib.Properties.Duration.TotalHours;
             var myDuration
                 = (_hours > 0 ? _hours + " hours, " : string.Empty)
@@ -21,13 +19,12 @@ namespace AaxDecrypter
                 + $" Read By:                {aaxcTagLib.Narrator ?? "[unknown]"}\r\n"
                 + $" Release Date:           {aaxcTagLib.ReleaseDate ?? "[unknown]"}\r\n"
                 + $" Book Copyright:         {aaxcTagLib.BookCopyright ?? "[unknown]"}\r\n"
-                + $" Recording Copyright:    {aaxcTagLib.RecordingCopyright ?? "[unknown]"}\r\n";
-            if (!string.IsNullOrEmpty(tag.FirstGenre))
-                header += $" Genre:                  {aaxcTagLib.AppleTags.FirstGenre}\r\n";
+                + $" Recording Copyright:    {aaxcTagLib.RecordingCopyright ?? "[unknown]"}\r\n"
+                + $" Genre:                  {aaxcTagLib.AppleTags.FirstGenre ?? "[unknown]"}\r\n";
 
             var s
                 = header
-                + $" Publisher:              {aaxcTagLib.Publisher ?? string.Empty}\r\n"
+                + $" Publisher:              {aaxcTagLib.Publisher ?? "[unknown]"}\r\n"
                 + $" Duration:               {myDuration}\r\n"
                 + $" Chapters:               {chapters.Count}\r\n"
                 + "\r\n"
@@ -50,7 +47,7 @@ namespace AaxDecrypter
                 + "\r\n"
                 + "Book Description\r\n"
                 + "================\r\n"
-                + (!string.IsNullOrWhiteSpace(aaxcTagLib.LongDescription) ? aaxcTagLib.LongDescription : aaxcTagLib.Tag.Comment);
+                + (!string.IsNullOrWhiteSpace(aaxcTagLib.LongDescription) ? aaxcTagLib.LongDescription : aaxcTagLib.Comment);
 
             return s;
         }
