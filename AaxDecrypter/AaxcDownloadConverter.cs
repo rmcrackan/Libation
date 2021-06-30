@@ -41,9 +41,9 @@ namespace AaxDecrypter
         public string outDir { get; private set; }
         public string outputFileName { get; private set; }
         public ChapterInfo chapters { get; private set; }
-        public string Title => aaxcTagLib.Tag.Title.Replace(" (Unabridged)", "");
+        public string Title => aaxcTagLib.Tag.Title?.Replace(" (Unabridged)", "") ?? "[unknown]";
         public string Author => aaxcTagLib.Tag.FirstPerformer ?? "[unknown]";
-        public string Narrator => aaxcTagLib.GetTag(TagLib.TagTypes.Apple).Narrator;
+        public string Narrator => aaxcTagLib.GetTag(TagLib.TagTypes.Apple).Narrator ?? "[unknown]";
         public byte[] CoverArt => aaxcTagLib.Tag.Pictures.Length > 0 ? aaxcTagLib.Tag.Pictures[0].Data.Data : default;
 
         private TagLib.Mpeg4.File aaxcTagLib { get; set; }
@@ -273,7 +273,7 @@ namespace AaxDecrypter
 
         public void Cancel()
         {
-            aaxcProcesser?.Cancel();
+            aaxcProcesser.Cancel();
         }
     }
 }
