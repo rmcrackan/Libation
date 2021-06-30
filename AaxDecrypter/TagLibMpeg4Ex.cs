@@ -9,50 +9,59 @@ namespace AaxDecrypter
     {
         public AppleTag AppleTags => GetTag(TagTypes.Apple) as AppleTag;
 
-        private static ReadOnlyByteVector naratorType = new ReadOnlyByteVector(0xa9, (byte)'n', (byte)'r', (byte)'t');
+        private static ReadOnlyByteVector narratorType = new ReadOnlyByteVector(0xa9, (byte)'n', (byte)'r', (byte)'t');
         private static ReadOnlyByteVector descriptionType = new ReadOnlyByteVector(0xa9, (byte)'d', (byte)'e', (byte)'s');
         private static ReadOnlyByteVector publisherType = new ReadOnlyByteVector(0xa9, (byte)'p', (byte)'u', (byte)'b');
-        public string Narrator { get; }
-        public string Comment { get; }
-        public string LongDescription { get; }
-        public string ReleaseDate { get; }
-        public string Publisher { get; }
-        public string[] Authors { get; }
-        public string FirstAuthor { get; }
-        public string TitleSansUnabridged { get; }
-        public string BookCopyright { get; }
-        public string RecordingCopyright { get; }
 
-        private string[] _copyright;
+        public string AsciiTitleSansUnabridged => TitleSansUnabridged is not null? unicodeToAscii(TitleSansUnabridged) : default;
+        public string AsciiFirstAuthor => FirstAuthor is not null? unicodeToAscii(FirstAuthor) : default;
+        public string AsciiNarrator => Narrator is not null ? unicodeToAscii(Narrator) : default;
+        public string AsciiComment => Comment is not null ? unicodeToAscii(Comment) : default;
+        public string AsciiLongDescription => LongDescription is not null ? unicodeToAscii(LongDescription) : default;
+
+        public string Comment => AppleTags.Comment;
+        public string[] Authors => AppleTags.Performers;
+        public string FirstAuthor => Authors?.Length > 0 ? Authors[0] : default;
+        public string TitleSansUnabridged => AppleTags.Title?.Replace(" (Unabridged)", "");
+        public string BookCopyright => _copyright is not null && _copyright.Length > 0 ? _copyright[0] : default;
+        public string RecordingCopyright => _copyright is not null && _copyright.Length > 1 ? _copyright[1] : default;
+        public string Narrator 
+        { 
+            get
+            {
+                string[] text = AppleTags.GetText(narratorType);
+                return text.Length == 0 ? default : text[0];
+            }
+        }
+        public string LongDescription 
+        { 
+            get
+            {
+                string[] text = AppleTags.GetText(descriptionType);
+                return text.Length == 0 ? default : text[0];
+            }
+        }
+        public string ReleaseDate
+        {
+            get
+            {
+                string[] text = AppleTags.GetText("rldt");
+                return text.Length == 0 ? default : text[0];
+            }
+        }
+        public string Publisher
+        {
+            get
+            {
+                string[] text = AppleTags.GetText(publisherType);
+                return text.Length == 0 ? default : text[0];
+            }
+        }
+
+        private string[] _copyright => AppleTags.Copyright?.Replace("&#169;", string.Empty)?.Replace("(P)", string.Empty)?.Split(';');
         public AaxcTagLibFile(IFileAbstraction abstraction)
             : base(abstraction, ReadStyle.Average)
-        {
-            _copyright = AppleTags.Copyright?.Replace("&#169;", string.Empty).Replace("(P)", string.Empty)?.Split(';');
-
-            BookCopyright = _copyright is not null && _copyright.Length > 0 ? _copyright[0] : default;
-
-            RecordingCopyright = _copyright is not null && _copyright.Length > 1 ? _copyright[1] : default;
-
-            TitleSansUnabridged = AppleTags.Title?.Replace(" (Unabridged)", "");
-
-            Comment = AppleTags.Comment is not null ? unicodeToAscii(AppleTags.Comment) : default;
-
-            //TagLib uses @ART ID for Performers, which is the Artist tag
-            Authors = AppleTags.Performers.Select(author => unicodeToAscii(author)).ToArray();
-
-            FirstAuthor = Authors?.Length > 0 ? Authors[0] : default;
-
-            string[] text = AppleTags.GetText(publisherType);
-            Publisher = text.Length == 0 ? default : text[0];
-
-            text = AppleTags.GetText("rldt");
-            ReleaseDate = text.Length == 0 ? default : text[0];
-
-            text = AppleTags.GetText(descriptionType);
-            LongDescription = text.Length == 0 ? default : unicodeToAscii(text[0]);
-
-            text = AppleTags.GetText(naratorType);
-            Narrator = text.Length == 0 ? default : unicodeToAscii(text[0]);
+        {          
         }
 
         public AaxcTagLibFile(string path) 

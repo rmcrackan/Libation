@@ -14,9 +14,9 @@ namespace AaxDecrypter
             var nfoString
                 = "General Information\r\n"
                 + "======================\r\n"
-                + $" Title:                  {aaxcTagLib.TitleSansUnabridged ?? "[unknown]"}\r\n"
-                + $" Author:                 {aaxcTagLib.FirstAuthor ?? "[unknown]"}\r\n"
-                + $" Read By:                {aaxcTagLib.Narrator ?? "[unknown]"}\r\n"
+                + $" Title:                  {aaxcTagLib.AsciiTitleSansUnabridged ?? "[unknown]"}\r\n"
+                + $" Author:                 {aaxcTagLib.AsciiFirstAuthor ?? "[unknown]"}\r\n"
+                + $" Read By:                {aaxcTagLib.AsciiNarrator ?? "[unknown]"}\r\n"
                 + $" Release Date:           {aaxcTagLib.ReleaseDate ?? "[unknown]"}\r\n"
                 + $" Book Copyright:         {aaxcTagLib.BookCopyright ?? "[unknown]"}\r\n"
                 + $" Recording Copyright:    {aaxcTagLib.RecordingCopyright ?? "[unknown]"}\r\n"
@@ -44,7 +44,7 @@ namespace AaxDecrypter
                 + "\r\n"
                 + "Book Description\r\n"
                 + "================\r\n"
-                + (!string.IsNullOrWhiteSpace(aaxcTagLib.LongDescription) ? aaxcTagLib.LongDescription : aaxcTagLib.Comment);
+                + (!string.IsNullOrWhiteSpace(aaxcTagLib.LongDescription) ? aaxcTagLib.AsciiLongDescription : aaxcTagLib.AsciiComment);
 
             return nfoString;
         }
