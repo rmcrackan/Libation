@@ -7,13 +7,25 @@ using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
+    class AaxcProcessUpdate
+    {
+        public AaxcProcessUpdate(TimeSpan position, double speed)
+        {
+            ProcessPosition = position;
+            ProcessSpeed = speed;
+            EventTime = DateTime.Now;
+        }
+        public TimeSpan ProcessPosition { get; }
+        public double ProcessSpeed { get; }
+        public DateTime EventTime { get; }
+    }
 
     /// <summary>
     /// Download audible aaxc, decrypt, and remux with chapters.
     /// </summary>
     class FFMpegAaxcProcesser
     {
-        public event EventHandler<TimeSpan> ProgressUpdate;
+        public event EventHandler<AaxcProcessUpdate> ProgressUpdate;
         public string FFMpegPath { get; }
         public DownloadLicense DownloadLicense { get; }
         public bool IsRunning { get; private set; }
@@ -24,7 +36,7 @@ namespace AaxDecrypter
 
         private StringBuilder remuxerError = new StringBuilder();
         private StringBuilder downloaderError = new StringBuilder();
-        private static Regex processedTimeRegex = new Regex("time=(\\d{2}):(\\d{2}):(\\d{2}).\\d{2}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static Regex processedTimeRegex = new Regex("time=(\\d{2}):(\\d{2}):(\\d{2}).\\d{2}.*speed=\\s{0,1}([0-9]*[.]?[0-9]+)(?:e\\+([0-9]+)){0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private Process downloader;
         private Process remuxer;
 
@@ -115,6 +127,7 @@ namespace AaxDecrypter
             if (processedTimeRegex.IsMatch(e.Data))
             {
                 //get timestamp of of last processed audio stream position
+                //and processing speed
                 var match = processedTimeRegex.Match(e.Data);
 
                 int hours = int.Parse(match.Groups[1].Value);
@@ -123,7 +136,11 @@ namespace AaxDecrypter
 
                 var position = new TimeSpan(hours, minutes, seconds);
 
-                ProgressUpdate?.Invoke(sender, position);
+                double speed = double.Parse(match.Groups[4].Value);
+                int exp = match.Groups[5].Success ? int.Parse(match.Groups[5].Value) : 0;
+                speed *= Math.Pow(10, exp);
+
+                ProgressUpdate?.Invoke(this, new AaxcProcessUpdate(position, speed));
             }
 
             if (e.Data.Contains("aac bitstream error"))

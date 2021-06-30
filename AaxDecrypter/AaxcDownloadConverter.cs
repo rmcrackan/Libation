@@ -168,71 +168,18 @@ namespace AaxDecrypter
             return aaxcProcesser.Succeeded;
         }
 
-        private void AaxcProcesser_ProgressUpdate(object sender, TimeSpan e)
+        private void AaxcProcesser_ProgressUpdate(object sender, AaxcProcessUpdate e)
         {
-            double averageRate = getAverageProcessRate(e);
-            double remainingSecsToProcess = (aaxcTagLib.Properties.Duration - e).TotalSeconds;
-            double estTimeRemaining = remainingSecsToProcess / averageRate;
+            double remainingSecsToProcess = (aaxcTagLib.Properties.Duration - e.ProcessPosition).TotalSeconds;
+            double estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
 
             if (double.IsNormal(estTimeRemaining))
-                DecryptTimeRemaining?.Invoke(this, TimeSpan.FromSeconds(estTimeRemaining));
+                DecryptTimeRemaining?.Invoke(this, TimeSpan.FromSeconds(estTimeRemaining));           
 
-            double progressPercent = 100 * e.TotalSeconds / aaxcTagLib.Properties.Duration.TotalSeconds;
+            double progressPercent = 100 * e.ProcessPosition.TotalSeconds / aaxcTagLib.Properties.Duration.TotalSeconds;
 
             DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
         }
-
-        /// <summary>
-        /// Calculates the average processing rate based on the last 2 to <see cref="MAX_NUM_AVERAGE"/> samples.
-        /// </summary>
-        /// <param name="lastProcessedPosition">Position in the audio file last processed</param>
-        /// <returns>The average processing rate, in book_duration_seconds / second.</returns>
-        private double getAverageProcessRate(TimeSpan lastProcessedPosition)
-        {
-            streamPositions.Enqueue(new StreamPosition
-            {
-                ProcessPosition = lastProcessedPosition,
-                EventTime = DateTime.Now,
-            });
-
-            if (streamPositions.Count < 2)
-                return double.PositiveInfinity;
-
-            //Calculate the harmonic mean of the last 2 to MAX_NUM_AVERAGE progress updates
-            //Units are Book_Duration_Seconds / second
-
-            var lastPos = streamPositions.Count > MAX_NUM_AVERAGE ?  streamPositions.Dequeue() : null;
-
-            double harmonicDenominator = 0;
-            int harmonicNumerator = 0;
-
-            foreach (var pos in streamPositions)
-            {
-                if (lastPos is null)
-                {
-                    lastPos = pos;
-                    continue;
-                }
-                double dP = (pos.ProcessPosition - lastPos.ProcessPosition).TotalSeconds;
-                double dT = (pos.EventTime - lastPos.EventTime).TotalSeconds;
-
-                harmonicDenominator += dT / dP;
-                harmonicNumerator++;
-                lastPos = pos;
-            }
-
-            double harmonicMean = harmonicNumerator / harmonicDenominator;
-            return harmonicMean;
-        }
-
-        private const int MAX_NUM_AVERAGE = 15;
-        private class StreamPosition
-        {
-            public TimeSpan ProcessPosition { get; set; }
-            public DateTime EventTime { get; set; }
-        }
-
-        private Queue<StreamPosition> streamPositions = new Queue<StreamPosition>();
 
         /// <summary>
         /// Copy all aacx metadata to m4b file, including cover art.
