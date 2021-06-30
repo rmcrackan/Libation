@@ -10,51 +10,53 @@ using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
-    public interface ISimpleAaxToM4bConverter
+    public interface ISimpleAaxcToM4bConverter
     {
+        event EventHandler<AaxcTagLibFile> RetrievedTags;
+        event EventHandler<byte[]> RetrievedCoverArt;
+        event EventHandler<TimeSpan> DecryptTimeRemaining;
         event EventHandler<int> DecryptProgressUpdate;
         bool Run();
         string AppName { get; set; }
         string outDir { get; }
         string outputFileName { get; }
         ChapterInfo chapters { get; }
+        AaxcTagLibFile aaxcTagLib { get; }
+        byte[] coverArt { get; }
+        void SetCoverArt(byte[] coverArt);
         void SetOutputFilename(string outFileName);
-        string Title { get; }
-        string Author { get; }
-        string Narrator { get; }
-        byte[] CoverArt { get; }
     }
-    public interface IAdvancedAaxcToM4bConverter : ISimpleAaxToM4bConverter
+    public interface IAdvancedAaxcToM4bConverter : ISimpleAaxcToM4bConverter
     {
         void Cancel();
         bool Step1_CreateDir();
-        bool Step2_DownloadAndCombine();
-        bool Step3_RestoreMetadata();
-        bool Step4_CreateCue();
-        bool Step5_CreateNfo();
+        bool Step2_GetMetadata();
+        bool Step3_DownloadAndCombine();
+        bool Step4_RestoreMetadata();
+        bool Step5_CreateCue();
+        bool Step6_CreateNfo();
     }
     public class AaxcDownloadConverter : IAdvancedAaxcToM4bConverter
     {
+        public event EventHandler<AaxcTagLibFile> RetrievedTags;
+        public event EventHandler<byte[]> RetrievedCoverArt;
         public event EventHandler<int> DecryptProgressUpdate;
         public event EventHandler<TimeSpan> DecryptTimeRemaining;
         public string AppName { get; set; } = nameof(AaxcDownloadConverter);
         public string outDir { get; private set; }
         public string outputFileName { get; private set; }
         public ChapterInfo chapters { get; private set; }
-        public string Title => aaxcTagLib.TitleSansUnabridged;
-        public string Author => aaxcTagLib.FirstAuthor ?? "[unknown]";
-        public string Narrator => aaxcTagLib.Narrator ?? "[unknown]";
-        public byte[] CoverArt => aaxcTagLib.AppleTags.Pictures.Length > 0 ? aaxcTagLib.Tag.Pictures[0].Data.Data : default;
+        public AaxcTagLibFile aaxcTagLib { get; private set; }
+        public byte[] coverArt { get; private set; }
 
-        private AaxcTagLibFile aaxcTagLib { get; set; }
         private StepSequence steps { get; }
         private DownloadLicense downloadLicense { get; set; }
         private FFMpegAaxcProcesser aaxcProcesser;
 
-        public static async Task<AaxcDownloadConverter> CreateAsync(string outDirectory, DownloadLicense dlLic, ChapterInfo chapters = null)
+        public static AaxcDownloadConverter Create(string outDirectory, DownloadLicense dlLic, ChapterInfo chapters = null)
         {
-            var converter = new AaxcDownloadConverter(outDirectory, dlLic, chapters);           
-            await converter.prelimProcessing();
+            var converter = new AaxcDownloadConverter(outDirectory, dlLic, chapters);
+            converter.SetOutputFilename(Path.GetTempFileName());
             return converter;
         }
 
@@ -72,33 +74,15 @@ namespace AaxDecrypter
                 Name = "Convert Aax To M4b",
 
                 ["Step 1: Create Dir"] = Step1_CreateDir,
-                ["Step 2: Download and Combine Audiobook"] = Step2_DownloadAndCombine,
-                ["Step 3: Restore Aaxc Metadata"] = Step3_RestoreMetadata,
-                ["Step 4: Create Cue"] = Step4_CreateCue,
-                ["Step 5: Create Nfo"] = Step5_CreateNfo,
+                ["Step 2: Get Aaxc Metadata"] = Step2_GetMetadata,
+                ["Step 3: Download Decrypted Audiobook"] = Step3_DownloadAndCombine,
+                ["Step 4: Restore Aaxc Metadata"] = Step4_RestoreMetadata,
+                ["Step 5: Create Cue"] = Step5_CreateCue,
+                ["Step 6: Create Nfo"] = Step6_CreateNfo,
             };
 
             downloadLicense = dlLic;
             this.chapters = chapters;
-        }
-
-        private async Task prelimProcessing()
-        {
-            //Get metadata from the file over http
-            var client = new System.Net.Http.HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", downloadLicense.UserAgent);
-
-            var networkFile = await NetworkFileAbstraction.CreateAsync(client, new Uri(downloadLicense.DownloadUrl));
-
-            aaxcTagLib = await Task.Run(() => new  AaxcTagLibFile(networkFile));
-
-            var defaultFilename = Path.Combine(
-              outDir,
-              PathLib.ToPathSafeString(aaxcTagLib.FirstAuthor ?? "[unknown]"),
-              PathLib.ToPathSafeString(aaxcTagLib.TitleSansUnabridged) + ".m4b"
-              );
-
-            SetOutputFilename(defaultFilename);
         }
 
         public void SetOutputFilename(string outFileName)
@@ -108,6 +92,14 @@ namespace AaxDecrypter
 
             if (File.Exists(outputFileName))
                 File.Delete(outputFileName);
+        }
+
+        public void SetCoverArt(byte[] coverArt)
+        {
+            if (coverArt is null) return;
+
+            this.coverArt = coverArt;
+            RetrievedCoverArt?.Invoke(this, coverArt);
         }
 
         public bool Run()
@@ -134,7 +126,27 @@ namespace AaxDecrypter
             return true;
         }
 
-        public bool Step2_DownloadAndCombine()
+        public bool Step2_GetMetadata()
+        {
+            //Get metadata from the file over http
+            var client = new System.Net.Http.HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", downloadLicense.UserAgent);
+            var networkFile = NetworkFileAbstraction.CreateAsync(client, new Uri(downloadLicense.DownloadUrl)).GetAwaiter().GetResult();
+
+            aaxcTagLib = new AaxcTagLibFile(networkFile);
+
+            if (coverArt is null && aaxcTagLib.AppleTags.Pictures.Length > 0)
+            {
+                coverArt = aaxcTagLib.AppleTags.Pictures[0].Data.Data;
+            }
+
+            RetrievedTags?.Invoke(this, aaxcTagLib);
+            RetrievedCoverArt?.Invoke(this, coverArt);
+
+            return true;
+        }
+
+        public bool Step3_DownloadAndCombine()
         {
             aaxcProcesser = new FFMpegAaxcProcesser(downloadLicense);
             aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
@@ -184,22 +196,28 @@ namespace AaxDecrypter
         /// <summary>
         /// Copy all aacx metadata to m4b file, including cover art.
         /// </summary>
-        public bool Step3_RestoreMetadata()
+        public bool Step4_RestoreMetadata()
         {
             var outFile = new AaxcTagLibFile(outputFileName);
             outFile.CopyTagsFrom(aaxcTagLib);
+
+            if (outFile.AppleTags.Pictures.Length == 0 && coverArt is not null)
+            {
+                outFile.AddPicture(coverArt);
+            }
+
             outFile.Save();
 
             return true;
         }
 
-        public bool Step4_CreateCue()
+        public bool Step5_CreateCue()
         {
             File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), chapters));
             return true;
         }
 
-        public bool Step5_CreateNfo()
+        public bool Step6_CreateNfo()
         {
             File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxcTagLib, chapters));
             return true;
