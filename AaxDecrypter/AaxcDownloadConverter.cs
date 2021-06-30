@@ -41,12 +41,12 @@ namespace AaxDecrypter
         public string outDir { get; private set; }
         public string outputFileName { get; private set; }
         public ChapterInfo chapters { get; private set; }
-        public string Title => aaxcTagLib.Tag.Title?.Replace(" (Unabridged)", "") ?? "[unknown]";
-        public string Author => aaxcTagLib.Tag.FirstPerformer ?? "[unknown]";
-        public string Narrator => aaxcTagLib.GetTag(TagLib.TagTypes.Apple).Narrator ?? "[unknown]";
+        public string Title => aaxcTagLib.TitleSansUnabridged ?? "[unknown]";
+        public string Author => aaxcTagLib.FirstAuthor ?? "[unknown]";
+        public string Narrator => aaxcTagLib.Narrator ?? "[unknown]";
         public byte[] CoverArt => aaxcTagLib.Tag.Pictures.Length > 0 ? aaxcTagLib.Tag.Pictures[0].Data.Data : default;
 
-        private TagLib.Mpeg4.File aaxcTagLib { get; set; }
+        private AaxcTagLibFile aaxcTagLib { get; set; }
         private StepSequence steps { get; }
         private DownloadLicense downloadLicense { get; set; }
         private FFMpegAaxcProcesser aaxcProcesser;
@@ -90,7 +90,7 @@ namespace AaxDecrypter
 
             var networkFile = await NetworkFileAbstraction.CreateAsync(client, new Uri(downloadLicense.DownloadUrl));
 
-            aaxcTagLib = await Task.Run(() => TagLib.File.Create(networkFile, "audio/mp4", TagLib.ReadStyle.Average) as TagLib.Mpeg4.File);
+            aaxcTagLib = await Task.Run(() => new AaxcTagLibFile(networkFile));
 
             var defaultFilename = Path.Combine(
               outDir,
@@ -239,21 +239,8 @@ namespace AaxDecrypter
         /// </summary>
         public bool Step3_RestoreMetadata()
         {
-            var outFile = new TagLib.Mpeg4.File(outputFileName, TagLib.ReadStyle.Average);
-
-            var destTags = outFile.GetTag(TagLib.TagTypes.Apple) as TagLib.Mpeg4.AppleTag;
-            destTags.Clear();
-
-            var sourceTag = aaxcTagLib.GetTag(TagLib.TagTypes.Apple) as TagLib.Mpeg4.AppleTag;
-
-            //copy all metadata fields in the source file, even those that TagLib doesn't
-            //recognize, to the output file.
-            //NOTE: Chapters aren't stored in MPEG-4 metadata. They are encoded as a Timed
-            //Text Stream (MPEG-4 Part 17), so taglib doesn't read or write them.
-            foreach (var stag in sourceTag)
-            {
-                destTags.SetData(stag.BoxType, stag.Children.Cast<TagLib.Mpeg4.AppleDataBox>().ToArray());
-            }
+            var outFile = new AaxcTagLibFile(outputFileName);
+            outFile.CopyTagsFrom(aaxcTagLib);
             outFile.Save();
 
             return true;

@@ -3,32 +3,31 @@ namespace AaxDecrypter
 {
     public static class NFO
     {
-        public static string CreateContents(string ripper, TagLib.File aaxcTagLib, ChapterInfo chapters)
+        public static string CreateContents(string ripper, AaxcTagLibFile aaxcTagLib, ChapterInfo chapters)
         {
-            var tag = aaxcTagLib.GetTag(TagLib.TagTypes.Apple);
-
-            string narator = string.IsNullOrWhiteSpace(aaxcTagLib.Tag.FirstComposer) ? tag.Narrator : aaxcTagLib.Tag.FirstComposer;
+            var tag = aaxcTagLib.AppleTags;
 
             var _hours = (int)aaxcTagLib.Properties.Duration.TotalHours;
             var myDuration
-                = (_hours > 0 ? _hours + " hours, " : "")
+                = (_hours > 0 ? _hours + " hours, " : string.Empty)
                 + aaxcTagLib.Properties.Duration.Minutes + " minutes, "
                 + aaxcTagLib.Properties.Duration.Seconds + " seconds";
 
             var header
                 = "General Information\r\n"
                 + "===================\r\n"
-                + $" Title:                  {aaxcTagLib.Tag.Title.Replace(" (Unabridged)", "")}\r\n"
-                + $" Author:                 {aaxcTagLib.Tag.FirstPerformer ?? "[unknown]"}\r\n"
-                + $" Read By:                {aaxcTagLib.GetTag(TagLib.TagTypes.Apple).Narrator??"[unknown]"}\r\n"
-                + $" Copyright:              {aaxcTagLib.Tag.Year}\r\n"
-                + $" Audiobook Copyright:    {aaxcTagLib.Tag.Year}\r\n";
-            if (!string.IsNullOrEmpty(aaxcTagLib.Tag.FirstGenre))
-                header += $" Genre:                  {aaxcTagLib.Tag.FirstGenre}\r\n";
+                + $" Title:                  {aaxcTagLib.TitleSansUnabridged ?? "[unknown]"}\r\n"
+                + $" Author:                 {aaxcTagLib.FirstAuthor ?? "[unknown]"}\r\n"
+                + $" Read By:                {aaxcTagLib.Narrator ?? "[unknown]"}\r\n"
+                + $" Release Date:           {aaxcTagLib.ReleaseDate ?? "[unknown]"}\r\n"
+                + $" Book Copyright:         {aaxcTagLib.BookCopyright ?? "[unknown]"}\r\n"
+                + $" Recording Copyright:    {aaxcTagLib.RecordingCopyright ?? "[unknown]"}\r\n";
+            if (!string.IsNullOrEmpty(tag.FirstGenre))
+                header += $" Genre:                  {aaxcTagLib.AppleTags.FirstGenre}\r\n";
 
             var s
                 = header
-                + $" Publisher:              {tag.Publisher ?? ""}\r\n"
+                + $" Publisher:              {aaxcTagLib.Publisher ?? string.Empty}\r\n"
                 + $" Duration:               {myDuration}\r\n"
                 + $" Chapters:               {chapters.Count}\r\n"
                 + "\r\n"
@@ -38,20 +37,20 @@ namespace AaxDecrypter
                 + " Source Format:          Audible AAX\r\n"
                 + $" Source Sample Rate:     {aaxcTagLib.Properties.AudioSampleRate} Hz\r\n"
                 + $" Source Channels:        {aaxcTagLib.Properties.AudioChannels}\r\n"
-                + $" Source Bitrate:         {aaxcTagLib.Properties.AudioBitrate} kbits\r\n"
+                + $" Source Bitrate:         {aaxcTagLib.Properties.AudioBitrate} Kbps\r\n"
                 + "\r\n"
                 + " Lossless Encode:        Yes\r\n"
                 + " Encoded Codec:          AAC / M4B\r\n"
                 + $" Encoded Sample Rate:    {aaxcTagLib.Properties.AudioSampleRate} Hz\r\n"
                 + $" Encoded Channels:       {aaxcTagLib.Properties.AudioChannels}\r\n"
-                + $" Encoded Bitrate:        {aaxcTagLib.Properties.AudioBitrate} kbits\r\n"
+                + $" Encoded Bitrate:        {aaxcTagLib.Properties.AudioBitrate} Kbps\r\n"
                 + "\r\n"
                 + $" Ripper:                 {ripper}\r\n"
                 + "\r\n"
                 + "\r\n"
                 + "Book Description\r\n"
                 + "================\r\n"
-                + (!string.IsNullOrWhiteSpace(tag.LongDescription) ? tag.LongDescription : tag.Description);
+                + (!string.IsNullOrWhiteSpace(aaxcTagLib.LongDescription) ? aaxcTagLib.LongDescription : aaxcTagLib.Tag.Comment);
 
             return s;
         }
