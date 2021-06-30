@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TagLib;
 using TagLib.Mpeg4;
 
@@ -41,38 +37,39 @@ namespace AaxDecrypter
 
             Comment = AppleTags.Comment is not null ? unicodeToAscii(AppleTags.Comment) : default;
 
-            //TagLib uses @ART, which is the Artist tag
+            //TagLib uses @ART ID for Performers, which is the Artist tag
             Authors = AppleTags.Performers.Select(author => unicodeToAscii(author)).ToArray();
 
             FirstAuthor = Authors?.Length > 0 ? Authors[0] : default;
 
             string[] text = AppleTags.GetText(publisherType);
-            Publisher = text.Length == 0 ? null : text[0];
+            Publisher = text.Length == 0 ? default : text[0];
 
             text = AppleTags.GetText("rldt");
-            ReleaseDate = text.Length == 0 ? null : text[0];
+            ReleaseDate = text.Length == 0 ? default : text[0];
 
             text = AppleTags.GetText(descriptionType);
-            LongDescription = text.Length == 0 ? null : unicodeToAscii(text[0]);
+            LongDescription = text.Length == 0 ? default : unicodeToAscii(text[0]);
 
             text = AppleTags.GetText(naratorType);
-            Narrator = text.Length == 0 ? null : unicodeToAscii(text[0]);
-
+            Narrator = text.Length == 0 ? default : unicodeToAscii(text[0]);
         }
 
         public AaxcTagLibFile(string path) 
             : this(new LocalFileAbstraction(path))
         {
         }
-
+        /// <summary>
+        /// Copy all metadata fields in the source file, even those that TagLib doesn't
+        /// recognize, to the output file.
+        /// NOTE: Chapters aren't stored in MPEG-4 metadata. They are encoded as a Timed
+        /// Text Stream (MPEG-4 Part 17), so taglib doesn't read or write them.
+        /// </summary>
+        /// <param name="sourceFile">File from which tags will be coppied.</param>
         public void CopyTagsFrom(AaxcTagLibFile sourceFile)
         {
             AppleTags.Clear();
 
-            //copy all metadata fields in the source file, even those that TagLib doesn't
-            //recognize, to the output file.
-            //NOTE: Chapters aren't stored in MPEG-4 metadata. They are encoded as a Timed
-            //Text Stream (MPEG-4 Part 17), so taglib doesn't read or write them.
             foreach (var stag in sourceFile.AppleTags)
             {
                 AppleTags.SetData(stag.BoxType, stag.Children.Cast<AppleDataBox>().ToArray());

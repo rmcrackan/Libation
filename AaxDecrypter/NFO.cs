@@ -11,26 +11,23 @@ namespace AaxDecrypter
                 + aaxcTagLib.Properties.Duration.Minutes + " minutes, "
                 + aaxcTagLib.Properties.Duration.Seconds + " seconds";
 
-            var header
+            var nfoString
                 = "General Information\r\n"
-                + "===================\r\n"
+                + "======================\r\n"
                 + $" Title:                  {aaxcTagLib.TitleSansUnabridged ?? "[unknown]"}\r\n"
                 + $" Author:                 {aaxcTagLib.FirstAuthor ?? "[unknown]"}\r\n"
                 + $" Read By:                {aaxcTagLib.Narrator ?? "[unknown]"}\r\n"
                 + $" Release Date:           {aaxcTagLib.ReleaseDate ?? "[unknown]"}\r\n"
                 + $" Book Copyright:         {aaxcTagLib.BookCopyright ?? "[unknown]"}\r\n"
                 + $" Recording Copyright:    {aaxcTagLib.RecordingCopyright ?? "[unknown]"}\r\n"
-                + $" Genre:                  {aaxcTagLib.AppleTags.FirstGenre ?? "[unknown]"}\r\n";
-
-            var s
-                = header
+                + $" Genre:                  {aaxcTagLib.AppleTags.FirstGenre ?? "[unknown]"}\r\n"
                 + $" Publisher:              {aaxcTagLib.Publisher ?? "[unknown]"}\r\n"
                 + $" Duration:               {myDuration}\r\n"
                 + $" Chapters:               {chapters.Count}\r\n"
                 + "\r\n"
                 + "\r\n"
                 + "Media Information\r\n"
-                + "=================\r\n"
+                + "======================\r\n"
                 + " Source Format:          Audible AAX\r\n"
                 + $" Source Sample Rate:     {aaxcTagLib.Properties.AudioSampleRate} Hz\r\n"
                 + $" Source Channels:        {aaxcTagLib.Properties.AudioChannels}\r\n"
@@ -49,7 +46,7 @@ namespace AaxDecrypter
                 + "================\r\n"
                 + (!string.IsNullOrWhiteSpace(aaxcTagLib.LongDescription) ? aaxcTagLib.LongDescription : aaxcTagLib.Comment);
 
-            return s;
+            return nfoString;
         }
     }
 }

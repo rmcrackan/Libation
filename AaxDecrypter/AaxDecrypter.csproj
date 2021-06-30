@@ -9,12 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="taglib-sharp">
-      <HintPath>lib\taglib-sharp.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Dinah.Core\Dinah.Core\Dinah.Core.csproj" />
   </ItemGroup>
 
