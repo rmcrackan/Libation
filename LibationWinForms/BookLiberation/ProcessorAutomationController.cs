@@ -70,7 +70,6 @@ namespace LibationWinForms.BookLiberation
         {
             var backupBook = new BackupBook();
 
-            backupBook.DownloadBook.Begin += (_, __) => wireUpEvents(backupBook.DownloadBook);
             backupBook.DecryptBook.Begin += (_, __) => wireUpEvents(backupBook.DecryptBook);
             backupBook.DownloadPdf.Begin += (_, __) => wireUpEvents(backupBook.DownloadPdf);
 
@@ -80,13 +79,11 @@ namespace LibationWinForms.BookLiberation
             //   completedAction is to refresh grid
             // - want to see that book disappear from grid
             // also for this to work, updateIsLiberated can NOT be async
-            backupBook.DownloadBook.Completed += updateIsLiberated;
             backupBook.DecryptBook.Completed += updateIsLiberated;
             backupBook.DownloadPdf.Completed += updateIsLiberated;
 
             if (completedAction != null)
             {
-                backupBook.DownloadBook.Completed += completedAction;
                 backupBook.DecryptBook.Completed += completedAction;
                 backupBook.DownloadPdf.Completed += completedAction;
             }
@@ -116,9 +113,6 @@ namespace LibationWinForms.BookLiberation
             #endregion
 
             #region subscribe new form to model's events
-            backupBook.DownloadBook.Begin += downloadBookBegin;
-            backupBook.DownloadBook.StatusUpdate += statusUpdate;
-            backupBook.DownloadBook.Completed += downloadBookCompleted;
             backupBook.DecryptBook.Begin += decryptBookBegin;
             backupBook.DecryptBook.StatusUpdate += statusUpdate;
             backupBook.DecryptBook.Completed += decryptBookCompleted;
@@ -131,9 +125,6 @@ namespace LibationWinForms.BookLiberation
             // unsubscribe so disposed forms aren't still trying to receive notifications
             automatedBackupsForm.FormClosing += (_, __) =>
             {
-                backupBook.DownloadBook.Begin -= downloadBookBegin;
-                backupBook.DownloadBook.StatusUpdate -= statusUpdate;
-                backupBook.DownloadBook.Completed -= downloadBookCompleted;
                 backupBook.DecryptBook.Begin -= decryptBookBegin;
                 backupBook.DecryptBook.StatusUpdate -= statusUpdate;
                 backupBook.DecryptBook.Completed -= decryptBookCompleted;
