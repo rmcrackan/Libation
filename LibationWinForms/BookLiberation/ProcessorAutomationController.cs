@@ -101,9 +101,7 @@ namespace LibationWinForms.BookLiberation
             #endregion
 
             #region define how model actions will affect form behavior
-            void downloadBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Download Step, Begin: {libraryBook.Book}");
             void statusUpdate(object _, string str) => logMe.Info("- " + str);
-            void downloadBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Download Step, Completed: {libraryBook.Book}");
             void decryptBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Decrypt Step, Begin: {libraryBook.Book}");
             // extra line after book is completely finished
             void decryptBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Decrypt Step, Completed: {libraryBook.Book}{Environment.NewLine}");
