@@ -84,7 +84,10 @@ namespace AaxDecrypter
                 AppleTags.SetData(stag.BoxType, stag.Children.Cast<AppleDataBox>().ToArray());
             }
         }
-
+        public void AddPicture(byte[] coverArt)
+        {
+            AppleTags.SetData("covr", coverArt, 0);
+        }
 
         /// <summary>
         /// Attempts to convert unicode characters to an approximately equal ASCII character.
