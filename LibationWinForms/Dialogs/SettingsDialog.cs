@@ -36,7 +36,7 @@ namespace LibationWinForms.Dialogs
 				? config.Books
 				: Path.GetDirectoryName(Exe.FileLocationOnDisk);
 
-			downloadChaptersCbox.Checked = config.DownloadChapters;
+			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
 
 			switch (config.DownloadsInProgressEnum)
 			{
@@ -73,7 +73,7 @@ namespace LibationWinForms.Dialogs
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			config.DownloadChapters = downloadChaptersCbox.Checked;
+			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
 			config.DownloadsInProgressEnum = downloadsInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";
 			config.DecryptInProgressEnum = decryptInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";
 

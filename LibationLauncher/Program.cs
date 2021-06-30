@@ -60,7 +60,7 @@ namespace LibationLauncher
 				config.DownloadsInProgressEnum ??= "WinTemp";
 				config.DecryptInProgressEnum ??= "WinTemp";
 				config.Books ??= Configuration.AppDir;
-				config.DownloadChapters = true;
+				config.AllowLibationFixup = true;
 			};
 			// setupDialog.BasicBtn_Click += (_, __) => // no action needed
 			setupDialog.AdvancedBtn_Click += (_, __) => isAdvanced = true;
@@ -235,9 +235,9 @@ namespace LibationLauncher
 		{
 			var persistentDictionary = new PersistentDictionary(Configuration.Instance.SettingsFilePath);
 
-			if (persistentDictionary.GetString("DownloadChapters") is null)
+			if (persistentDictionary.GetString("AllowLibationFixup") is null)
             {
-				persistentDictionary.Set("DownloadChapters", true);
+				persistentDictionary.Set("AllowLibationFixup", true);
 			}
 
 			if (!File.Exists(AudibleApiStorage.AccountsSettingsFile))

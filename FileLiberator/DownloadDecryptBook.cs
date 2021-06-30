@@ -73,7 +73,7 @@ namespace FileLiberator
 
                 var aaxcDecryptDlLic = new DownloadLicense(dlLic.DownloadUrl, dlLic.AudibleKey, dlLic.AudibleIV, Resources.UserAgent);
 
-                if (Configuration.Instance.DownloadChapters)
+                if (Configuration.Instance.AllowLibationFixup)
                 {
                     var contentMetadata = await api.GetLibraryBookMetadataAsync(libraryBook.Book.AudibleProductId);
                     var aaxcDecryptChapters = new ChapterInfo();
@@ -115,7 +115,7 @@ namespace FileLiberator
 
         private void AaxcDownloader_RetrievedCoverArt(object sender, byte[] e)
         {
-            if (e is null && Configuration.Instance.DownloadChapters)
+            if (e is null && Configuration.Instance.AllowLibationFixup)
             {
                 RequestCoverArt?.Invoke(this, aaxcDownloader.SetCoverArt);
             }
