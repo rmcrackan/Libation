@@ -15,6 +15,7 @@ namespace FileLiberator
 {
     public class DownloadDecryptBook : IDecryptable
     {
+        public event EventHandler<Action<byte[]>> RequestCoverArt;
         public event EventHandler<LibraryBook> Begin;
         public event EventHandler<string> DecryptBegin;
         public event EventHandler<string> TitleDiscovered;
@@ -72,38 +73,30 @@ namespace FileLiberator
 
                 var aaxcDecryptDlLic = new DownloadLicense(dlLic.DownloadUrl, dlLic.AudibleKey, dlLic.AudibleIV, Resources.UserAgent);
 
-                var destinationDirectory = Path.GetDirectoryName(destinationDir);
-
                 if (Configuration.Instance.DownloadChapters)
                 {
                     var contentMetadata = await api.GetLibraryBookMetadataAsync(libraryBook.Book.AudibleProductId);
-
                     var aaxcDecryptChapters = new ChapterInfo();
 
                     foreach (var chap in contentMetadata?.ChapterInfo?.Chapters)
                         aaxcDecryptChapters.AddChapter(new Chapter(chap.Title, chap.StartOffsetMs, chap.LengthMs));
 
-                    aaxcDownloader = await AaxcDownloadConverter.CreateAsync(destinationDirectory, aaxcDecryptDlLic, aaxcDecryptChapters);
+                    aaxcDownloader = AaxcDownloadConverter.Create(destinationDir, aaxcDecryptDlLic, aaxcDecryptChapters);
                 }
                 else
                 {
-                    aaxcDownloader = await AaxcDownloadConverter.CreateAsync(destinationDirectory, aaxcDecryptDlLic);
+                    aaxcDownloader = AaxcDownloadConverter.Create(destinationDir, aaxcDecryptDlLic);
                 }
 
-                aaxcDownloader.AppName = "Libation";
-
-                TitleDiscovered?.Invoke(this, aaxcDownloader.Title);
-                AuthorsDiscovered?.Invoke(this, aaxcDownloader.Author);
-                NarratorsDiscovered?.Invoke(this, aaxcDownloader.Narrator);
-
-                if (aaxcDownloader.CoverArt is not null)
-                    CoverImageFilepathDiscovered?.Invoke(this, aaxcDownloader.CoverArt);
+                aaxcDownloader.AppName = "Libation";                              
 
                 // override default which was set in CreateAsync
                 var proposedOutputFile = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].m4b");
                 aaxcDownloader.SetOutputFilename(proposedOutputFile);
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => UpdateProgress?.Invoke(this, progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => UpdateRemainingTime?.Invoke(this, remaining);
+                aaxcDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
+                aaxcDownloader.RetrievedTags += aaxcDownloader_RetrievedTags;
 
                 // REAL WORK DONE HERE
                 var success = await Task.Run(() => aaxcDownloader.Run());
@@ -118,6 +111,25 @@ namespace FileLiberator
             {
                 DecryptCompleted?.Invoke(this, $"Completed downloading and decrypting {libraryBook.Book.Title}");
             }
+        }
+
+        private void AaxcDownloader_RetrievedCoverArt(object sender, byte[] e)
+        {
+            if (e is null && Configuration.Instance.DownloadChapters)
+            {
+                RequestCoverArt?.Invoke(this, aaxcDownloader.SetCoverArt);
+            }
+            else
+            {
+                CoverImageFilepathDiscovered?.Invoke(this, e);
+            }
+        }
+
+        private void aaxcDownloader_RetrievedTags(object sender, AaxcTagLibFile e)
+        {
+            TitleDiscovered?.Invoke(this, e.TitleSansUnabridged);
+            AuthorsDiscovered?.Invoke(this, e.FirstAuthor ?? "[unknown]");
+            NarratorsDiscovered?.Invoke(this, e.Narrator ?? "[unknown]");           
         }
 
         private static string moveFilesToBooksDir(Book product, string outputAudioFilename)
