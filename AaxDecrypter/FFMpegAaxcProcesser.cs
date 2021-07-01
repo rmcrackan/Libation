@@ -34,9 +34,9 @@ namespace AaxDecrypter
         public string FFMpegDownloaderStandardError => downloaderError.ToString();
 
 
-        private StringBuilder remuxerError = new StringBuilder();
-        private StringBuilder downloaderError = new StringBuilder();
-        private static Regex processedTimeRegex = new Regex("time=(\\d{2}):(\\d{2}):(\\d{2}).\\d{2}.*speed=\\s{0,1}([0-9]*[.]?[0-9]+)(?:e\\+([0-9]+)){0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private StringBuilder remuxerError { get; } = new StringBuilder();
+        private StringBuilder downloaderError { get; } = new StringBuilder();
+        private static Regex processedTimeRegex { get; } = new Regex("time=(\\d{2}):(\\d{2}):(\\d{2}).\\d{2}.*speed=\\s{0,1}([0-9]*[.]?[0-9]+)(?:e\\+([0-9]+)){0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private Process downloader;
         private Process remuxer;
         private bool isCanceled = false;
