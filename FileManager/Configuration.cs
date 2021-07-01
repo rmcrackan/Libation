@@ -83,11 +83,11 @@ namespace FileManager
             set => persistentDictionary.Set(nameof(DecryptInProgressEnum), value);
         }
 
-        [Description("Download chapter titles from Audible?")]
-        public bool DownloadChapters
+        [Description("Allow Libation for fix up audiobook metadata?")]
+        public bool AllowLibationFixup
         {
-            get => persistentDictionary.Get<bool>(nameof(DownloadChapters));
-            set => persistentDictionary.Set(nameof(DownloadChapters), value);
+            get => persistentDictionary.Get<bool>(nameof(AllowLibationFixup));
+            set => persistentDictionary.Set(nameof(AllowLibationFixup), value);
         }
         // note: any potential file manager static ctors can't compensate if storage dir is changed at run time via settings. this is partly bad architecture. but the side effect is desirable. if changing LibationFiles location: restart app
 

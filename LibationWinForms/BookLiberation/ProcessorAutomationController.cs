@@ -25,7 +25,7 @@ namespace LibationWinForms.BookLiberation
             logMe.LogErrorString += (_, text) => Serilog.Log.Logger.Error(text);
             logMe.LogErrorString += (_, text) => form.WriteLine(text);
 
-			logMe.LogError += (_, tuple) => Serilog.Log.Logger.Error(tuple.Item1, tuple.Item2 ?? "Automated backup: error");
+            logMe.LogError += (_, tuple) => Serilog.Log.Logger.Error(tuple.Item1, tuple.Item2 ?? "Automated backup: error");
             logMe.LogError += (_, tuple) =>
             {
                 form.WriteLine(tuple.Item2 ?? "Automated backup: error");
@@ -70,8 +70,7 @@ namespace LibationWinForms.BookLiberation
         {
             var backupBook = new BackupBook();
 
-            backupBook.DownloadBook.Begin += (_, __) => wireUpEvents(backupBook.DownloadBook);
-            backupBook.DecryptBook.Begin += (_, __) => wireUpEvents(backupBook.DecryptBook);
+            backupBook.DecryptBook.Begin += (_, l) => wireUpEvents(backupBook.DecryptBook, l);
             backupBook.DownloadPdf.Begin += (_, __) => wireUpEvents(backupBook.DownloadPdf);
 
             // must occur before completedAction. A common use case is:
@@ -80,13 +79,11 @@ namespace LibationWinForms.BookLiberation
             //   completedAction is to refresh grid
             // - want to see that book disappear from grid
             // also for this to work, updateIsLiberated can NOT be async
-            backupBook.DownloadBook.Completed += updateIsLiberated;
             backupBook.DecryptBook.Completed += updateIsLiberated;
             backupBook.DownloadPdf.Completed += updateIsLiberated;
 
             if (completedAction != null)
             {
-                backupBook.DownloadBook.Completed += completedAction;
                 backupBook.DecryptBook.Completed += completedAction;
                 backupBook.DownloadPdf.Completed += completedAction;
             }
@@ -104,9 +101,7 @@ namespace LibationWinForms.BookLiberation
             #endregion
 
             #region define how model actions will affect form behavior
-            void downloadBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Download Step, Begin: {libraryBook.Book}");
             void statusUpdate(object _, string str) => logMe.Info("- " + str);
-            void downloadBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Download Step, Completed: {libraryBook.Book}");
             void decryptBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Decrypt Step, Begin: {libraryBook.Book}");
             // extra line after book is completely finished
             void decryptBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Decrypt Step, Completed: {libraryBook.Book}{Environment.NewLine}");
@@ -116,9 +111,6 @@ namespace LibationWinForms.BookLiberation
             #endregion
 
             #region subscribe new form to model's events
-            backupBook.DownloadBook.Begin += downloadBookBegin;
-            backupBook.DownloadBook.StatusUpdate += statusUpdate;
-            backupBook.DownloadBook.Completed += downloadBookCompleted;
             backupBook.DecryptBook.Begin += decryptBookBegin;
             backupBook.DecryptBook.StatusUpdate += statusUpdate;
             backupBook.DecryptBook.Completed += decryptBookCompleted;
@@ -131,9 +123,6 @@ namespace LibationWinForms.BookLiberation
             // unsubscribe so disposed forms aren't still trying to receive notifications
             automatedBackupsForm.FormClosing += (_, __) =>
             {
-                backupBook.DownloadBook.Begin -= downloadBookBegin;
-                backupBook.DownloadBook.StatusUpdate -= statusUpdate;
-                backupBook.DownloadBook.Completed -= downloadBookCompleted;
                 backupBook.DecryptBook.Begin -= decryptBookBegin;
                 backupBook.DecryptBook.StatusUpdate -= statusUpdate;
                 backupBook.DecryptBook.Completed -= decryptBookCompleted;
@@ -152,7 +141,7 @@ namespace LibationWinForms.BookLiberation
 
             var downloadPdf = getWiredUpDownloadPdf(completedAction);
 
-			(AutomatedBackupsForm automatedBackupsForm, LogMe logMe) = attachToBackupsForm(downloadPdf);
+            (AutomatedBackupsForm automatedBackupsForm, LogMe logMe) = attachToBackupsForm(downloadPdf);
             await new BackupLoop(logMe, downloadPdf, automatedBackupsForm).RunBackupAsync();
         }
 
@@ -250,10 +239,21 @@ namespace LibationWinForms.BookLiberation
         }
 
         // subscribed to Begin event because a new form should be created+processed+closed on each iteration
-        private static void wireUpEvents(IDecryptable decryptBook)
+        private static void wireUpEvents(IDecryptable decryptBook, LibraryBook libraryBook)
         {
             #region create form
             var decryptDialog = new DecryptForm();
+            #endregion
+
+            #region Set initially displayed book properties from library info.
+            decryptDialog.SetTitle(libraryBook.Book.Title);
+            decryptDialog.SetAuthorNames(string.Join(", ", libraryBook.Book.Authors));
+            decryptDialog.SetNarratorNames(string.Join(", ", libraryBook.Book.NarratorNames));
+            decryptDialog.SetCoverImage(
+                WindowsDesktopUtilities.WinAudibleImageServer.GetImage(
+                    libraryBook.Book.PictureId,
+                    FileManager.PictureSize._80x80
+                    ));
             #endregion
 
             #region define how model actions will affect form behavior
@@ -262,11 +262,28 @@ namespace LibationWinForms.BookLiberation
             void titleDiscovered(object _, string title) => decryptDialog.SetTitle(title);
             void authorsDiscovered(object _, string authors) => decryptDialog.SetAuthorNames(authors);
             void narratorsDiscovered(object _, string narrators) => decryptDialog.SetNarratorNames(narrators);
-            void coverImageFilepathDiscovered(object _, byte[] coverBytes) => decryptDialog.SetCoverImage(coverBytes);
+            void coverImageFilepathDiscovered(object _, byte[] coverBytes) => decryptDialog.SetCoverImage(Dinah.Core.Drawing.ImageReader.ToImage(coverBytes));
             void updateProgress(object _, int percentage) => decryptDialog.UpdateProgress(percentage);
             void updateRemainingTime(object _, TimeSpan remaining) => decryptDialog.UpdateRemainingTime(remaining);
 
             void decryptCompleted(object _, string __) => decryptDialog.Close();
+           
+            void requestCoverArt(object _, Action<byte[]> setArt)
+            {
+                var picDef = new FileManager.PictureDefinition(libraryBook.Book.PictureId, FileManager.PictureSize._500x500);
+                (bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(picDef);
+
+                if (isDefault)
+                {
+                    void pictureCached(object _, string pictureId) => onPictureCached(libraryBook, pictureId, setArt, pictureCached);
+                    FileManager.PictureStorage.PictureCached += pictureCached;
+                }
+                else
+                    setArt(picture);
+            }
+                      
+
+
             #endregion
 
             #region subscribe new form to model's events
@@ -278,6 +295,7 @@ namespace LibationWinForms.BookLiberation
             decryptBook.CoverImageFilepathDiscovered += coverImageFilepathDiscovered;
             decryptBook.UpdateProgress += updateProgress;
             decryptBook.UpdateRemainingTime += updateRemainingTime;
+            decryptBook.RequestCoverArt += requestCoverArt;
 
             decryptBook.DecryptCompleted += decryptCompleted;
             #endregion
@@ -294,13 +312,25 @@ namespace LibationWinForms.BookLiberation
                 decryptBook.CoverImageFilepathDiscovered -= coverImageFilepathDiscovered;
                 decryptBook.UpdateProgress -= updateProgress;
                 decryptBook.UpdateRemainingTime -= updateRemainingTime;
+                decryptBook.RequestCoverArt -= requestCoverArt;
 
                 decryptBook.DecryptCompleted -= decryptCompleted;
                 decryptBook.Cancel();
             };
             #endregion
         }
+        private static void onPictureCached(LibraryBook libraryBook, string picId, Action<byte[]> setArt, EventHandler<string> pictureCacheDelegate)
+        {
+            if (picId == libraryBook.Book.PictureId)
+            {
+                FileManager.PictureStorage.PictureCached -= pictureCacheDelegate;
 
+                var picDef = new FileManager.PictureDefinition(libraryBook.Book.PictureId, FileManager.PictureSize._500x500);
+                (_, byte[] picture) = FileManager.PictureStorage.GetPicture(picDef);
+
+                setArt(picture);
+            }
+        }
         private static (AutomatedBackupsForm, LogMe) attachToBackupsForm(IDownloadableProcessable downloadable)
         {
             #region create form and logger
@@ -418,23 +448,23 @@ Created new 'skip' file
     {
         private LibraryBook _libraryBook { get; }
 
-		protected override string SkipDialogText => @"
+        protected override string SkipDialogText => @"
 An error occurred while trying to process this book. Skip this book permanently?
 
 - Click YES to skip this book permanently.
 
 - Click NO to skip the book this time only. We'll try again later.
 ".Trim();
-		protected override MessageBoxButtons SkipDialogButtons => MessageBoxButtons.YesNo;
-		protected override DialogResult CreateSkipFileResult => DialogResult.Yes;
+        protected override MessageBoxButtons SkipDialogButtons => MessageBoxButtons.YesNo;
+        protected override DialogResult CreateSkipFileResult => DialogResult.Yes;
 
-		public BackupSingle(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm, LibraryBook libraryBook)
+        public BackupSingle(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm, LibraryBook libraryBook)
             : base(logMe, processable, automatedBackupsForm)
         {
             _libraryBook = libraryBook;
         }
 
-		protected override async Task RunAsync()
+        protected override async Task RunAsync()
         {
             if (_libraryBook is not null)
                 await ProcessOneAsync(Processable.ProcessSingleAsync, _libraryBook);
@@ -442,7 +472,7 @@ An error occurred while trying to process this book. Skip this book permanently?
     }
     class BackupLoop : BackupRunner
     {
-		protected override string SkipDialogText => @"
+        protected override string SkipDialogText => @"
 An error occurred while trying to process this book
 
 - ABORT: stop processing books.
@@ -461,20 +491,20 @@ An error occurred while trying to process this book
         {
             // support for 'skip this time only' requires state. iterators provide this state for free. therefore: use foreach/iterator here
             foreach (var libraryBook in Processable.GetValidLibraryBooks())
-			{
-				var keepGoing = await ProcessOneAsync(Processable.ProcessBookAsync_NoValidation, libraryBook);
-				if (!keepGoing)
-					return;
+            {
+                var keepGoing = await ProcessOneAsync(Processable.ProcessBookAsync_NoValidation, libraryBook);
+                if (!keepGoing)
+                    return;
 
-				if (!AutomatedBackupsForm.KeepGoing)
-				{
-					if (AutomatedBackupsForm.KeepGoingVisible && !AutomatedBackupsForm.KeepGoingChecked)
-						LogMe.Info("'Keep going' is unchecked");
-					return;
-				}
-			}
+                if (!AutomatedBackupsForm.KeepGoing)
+                {
+                    if (AutomatedBackupsForm.KeepGoingVisible && !AutomatedBackupsForm.KeepGoingChecked)
+                        LogMe.Info("'Keep going' is unchecked");
+                    return;
+                }
+            }
 
-			LogMe.Info("Done. All books have been processed");
+            LogMe.Info("Done. All books have been processed");
         }
-	}
+    }
 }

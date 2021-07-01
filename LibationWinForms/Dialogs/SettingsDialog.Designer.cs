@@ -43,7 +43,7 @@
             this.saveBtn = new System.Windows.Forms.Button();
             this.cancelBtn = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.downloadChaptersCbox = new System.Windows.Forms.CheckBox();
+            this.allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
             this.downloadsInProgressGb.SuspendLayout();
             this.decryptInProgressGb.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -215,7 +215,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.downloadChaptersCbox);
+            this.groupBox1.Controls.Add(this.allowLibationFixupCbox);
             this.groupBox1.Controls.Add(this.downloadsInProgressGb);
             this.groupBox1.Controls.Add(this.decryptInProgressGb);
             this.groupBox1.Location = new System.Drawing.Point(18, 61);
@@ -229,13 +229,13 @@
             // 
             // downloadChaptersCbox
             // 
-            this.downloadChaptersCbox.AutoSize = true;
-            this.downloadChaptersCbox.Location = new System.Drawing.Point(10, 24);
-            this.downloadChaptersCbox.Name = "downloadChaptersCbox";
-            this.downloadChaptersCbox.Size = new System.Drawing.Size(224, 19);
-            this.downloadChaptersCbox.TabIndex = 6;
-            this.downloadChaptersCbox.Text = "Download chapter titles from Audible";
-            this.downloadChaptersCbox.UseVisualStyleBackColor = true;
+            this.allowLibationFixupCbox.AutoSize = true;
+            this.allowLibationFixupCbox.Location = new System.Drawing.Point(10, 24);
+            this.allowLibationFixupCbox.Name = "downloadChaptersCbox";
+            this.allowLibationFixupCbox.Size = new System.Drawing.Size(262, 19);
+            this.allowLibationFixupCbox.TabIndex = 6;
+            this.allowLibationFixupCbox.Text = "Allow Libation to fix up audiobook metadata";
+            this.allowLibationFixupCbox.UseVisualStyleBackColor = true;
             // 
             // SettingsDialog
             // 
@@ -284,6 +284,6 @@
 		private System.Windows.Forms.Button saveBtn;
 		private System.Windows.Forms.Button cancelBtn;
 		private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.CheckBox downloadChaptersCbox;
+        private System.Windows.Forms.CheckBox allowLibationFixupCbox;
     }
 }

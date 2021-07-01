@@ -56,15 +56,22 @@ namespace LibationWinForms.BookLiberation
         private void updateBookInfo()
             => bookInfoLbl.UIThread(() => bookInfoLbl.Text = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}");
 
-        public void SetCoverImage(byte[] coverBytes)
-            => pictureBox1.UIThread(() => pictureBox1.Image = ImageReader.ToImage(coverBytes));
+        public void SetCoverImage(System.Drawing.Image coverImage)
+            => pictureBox1.UIThread(() => pictureBox1.Image = coverImage);
 
         public void UpdateProgress(int percentage)
         {
             if (percentage == 0)
                 remainingTimeLbl.UIThread(() => remainingTimeLbl.Text = "ETA:\r\n0 sec");
 
-            progressBar1.UIThread(() => progressBar1.Value = percentage);
+            if (percentage == int.MaxValue)
+                progressBar1.UIThread(() => progressBar1.Style = ProgressBarStyle.Marquee);
+            else
+                progressBar1.UIThread(() =>
+                {
+                    progressBar1.Value = percentage;
+                    progressBar1.Style = ProgressBarStyle.Blocks;
+                });
         }
 
         public void UpdateRemainingTime(TimeSpan remaining)
