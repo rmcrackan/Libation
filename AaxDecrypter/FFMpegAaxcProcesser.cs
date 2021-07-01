@@ -39,6 +39,7 @@ namespace AaxDecrypter
         private static Regex processedTimeRegex = new Regex("time=(\\d{2}):(\\d{2}):(\\d{2}).\\d{2}.*speed=\\s{0,1}([0-9]*[.]?[0-9]+)(?:e\\+([0-9]+)){0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private Process downloader;
         private Process remuxer;
+        private bool isCanceled = false;
 
         public FFMpegAaxcProcesser( DownloadLicense downloadLicense)
         {
@@ -71,6 +72,9 @@ namespace AaxDecrypter
             remuxer.ErrorDataReceived += Remuxer_ErrorDataReceived;
             remuxer.Start();
             remuxer.BeginErrorReadLine();
+
+            //Thic check needs to be placed after remuxer has started
+            if (isCanceled) return;
 
             var pipedOutput = downloader.StandardOutput.BaseStream;
             var pipedInput = remuxer.StandardInput.BaseStream;
@@ -106,8 +110,12 @@ namespace AaxDecrypter
         }
         public void Cancel()
         {
+            isCanceled = true;
+
             if (IsRunning && !remuxer.HasExited)
                 remuxer.Kill();
+            if (IsRunning && !downloader.HasExited)
+                downloader.Kill();
         }
         private void Downloader_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {

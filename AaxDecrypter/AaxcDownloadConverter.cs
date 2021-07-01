@@ -52,6 +52,7 @@ namespace AaxDecrypter
         private StepSequence steps { get; }
         private DownloadLicense downloadLicense { get; set; }
         private FFMpegAaxcProcesser aaxcProcesser;
+        private bool isCanceled { get; set; }
 
         public static AaxcDownloadConverter Create(string outDirectory, DownloadLicense dlLic, ChapterInfo chapters = null)
         {
@@ -80,6 +81,9 @@ namespace AaxDecrypter
                 ["Step 5: Create Cue"] = Step5_CreateCue,
                 ["Step 6: Create Nfo"] = Step6_CreateNfo,
             };
+
+            aaxcProcesser = new FFMpegAaxcProcesser(dlLic);
+            aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
 
             downloadLicense = dlLic;
             this.chapters = chapters;
@@ -123,7 +127,7 @@ namespace AaxDecrypter
             ProcessRunner.WorkingDir = outDir;
             Directory.CreateDirectory(outDir);
 
-            return true;
+            return !isCanceled;
         }
 
         public bool Step2_GetMetadata()
@@ -143,14 +147,11 @@ namespace AaxDecrypter
             RetrievedTags?.Invoke(this, aaxcTagLib);
             RetrievedCoverArt?.Invoke(this, coverArt);
 
-            return true;
+            return !isCanceled; 
         }
 
         public bool Step3_DownloadAndCombine()
         {
-            aaxcProcesser = new FFMpegAaxcProcesser(downloadLicense);
-            aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
-
             bool userSuppliedChapters = chapters != null;
 
             string metadataPath = null;
@@ -177,7 +178,7 @@ namespace AaxDecrypter
 
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            return aaxcProcesser.Succeeded;
+            return aaxcProcesser.Succeeded && !isCanceled;
         }
 
         private void AaxcProcesser_ProgressUpdate(object sender, AaxcProcessUpdate e)
@@ -208,24 +209,25 @@ namespace AaxDecrypter
 
             outFile.Save();
 
-            return true;
+            return !isCanceled;
         }
 
         public bool Step5_CreateCue()
         {
             File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), chapters));
-            return true;
+            return !isCanceled;
         }
 
         public bool Step6_CreateNfo()
         {
             File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxcTagLib, chapters));
-            return true;
+            return !isCanceled;
         }
 
         public void Cancel()
         {
-            aaxcProcesser?.Cancel();
+            isCanceled = true;
+            aaxcProcesser.Cancel();
         }
     }
 }
