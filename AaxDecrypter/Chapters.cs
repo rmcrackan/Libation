@@ -23,8 +23,8 @@ namespace AaxDecrypter
                 Arguments = "-loglevel panic -show_chapters -print_format json \"" + audiobookFile + "\""
             };
 
-            var xml = info.RunHidden().Output;
-            var chapterJObject = JObject.Parse(xml);
+            var jString = info.RunHidden().Output;
+            var chapterJObject = JObject.Parse(jString);
             var chapters = chapterJObject["chapters"]
                 .Select(c => new Chapter(
                     c["tags"]?["title"]?.Value<string>(), 
