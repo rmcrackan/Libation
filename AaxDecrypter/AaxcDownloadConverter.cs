@@ -3,10 +3,7 @@ using Dinah.Core.Diagnostics;
 using Dinah.Core.IO;
 using Dinah.Core.StepRunner;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
