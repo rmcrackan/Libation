@@ -119,7 +119,8 @@ namespace FileLiberator
             {
                 RequestCoverArt?.Invoke(this, aaxcDownloader.SetCoverArt);
             }
-            else
+
+            if (e is not null)
             {
                 CoverImageFilepathDiscovered?.Invoke(this, e);
             }
