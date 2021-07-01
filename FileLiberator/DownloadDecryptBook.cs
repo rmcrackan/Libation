@@ -71,14 +71,25 @@ namespace FileLiberator
 
                 var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
 
-                var aaxcDecryptDlLic = new DownloadLicense(contentLic.ContentMetadata?.ContentUrl?.OfflineUrl, contentLic.Voucher?.Key, contentLic.Voucher?.Iv, Resources.UserAgent);
+                var aaxcDecryptDlLic = new DownloadLicense
+                    (
+                    contentLic.ContentMetadata?.ContentUrl?.OfflineUrl,
+                    contentLic.Voucher?.Key,
+                    contentLic.Voucher?.Iv,
+                    Resources.UserAgent
+                    );
 
                 if (Configuration.Instance.AllowLibationFixup)
                 {
                     aaxcDecryptDlLic.ChapterInfo = new ChapterInfo();
 
                     foreach (var chap in contentLic.ContentMetadata?.ChapterInfo?.Chapters)
-                        aaxcDecryptDlLic.ChapterInfo.AddChapter(new Chapter(chap.Title, chap.StartOffsetMs, chap.LengthMs));
+                        aaxcDecryptDlLic.ChapterInfo.AddChapter(
+                            new Chapter(
+                                chap.Title,
+                                chap.StartOffsetMs,
+                                chap.LengthMs
+                                ));
                 }
 
                 aaxcDownloader = AaxcDownloadConverter.Create(destinationDir, aaxcDecryptDlLic);
