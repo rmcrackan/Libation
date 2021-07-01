@@ -44,7 +44,7 @@ namespace FileLiberator
                 if (outputAudioFilename is null)
                     return new StatusHandler { "Decrypt failed" };
 
-                // moves files and returns dest dir. Do not put inside of if(RetainAaxFiles)
+                // moves files and returns dest dir
                 _ = moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
 
                 var finalAudioExists = AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
