@@ -1,5 +1,6 @@
 ﻿using Dinah.Core;
 using Dinah.Core.Diagnostics;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -66,8 +67,8 @@ namespace AaxDecrypter
     public class Chapter
     {
         public string Title { get; }
-        public long StartOffsetMs { get; }
-        public long EndOffsetMs { get; }
+        public TimeSpan StartOffset { get; }
+        public TimeSpan EndOffset { get; }
         public Chapter(string title, long startOffsetMs, long lengthMs)
         {
             ArgumentValidator.EnsureNotNullOrEmpty(title, nameof(title));
@@ -75,16 +76,16 @@ namespace AaxDecrypter
             ArgumentValidator.EnsureGreaterThan(lengthMs, nameof(lengthMs), 0);
 
             Title = title;
-            StartOffsetMs = startOffsetMs;
-            EndOffsetMs = StartOffsetMs + lengthMs;
+            StartOffset = TimeSpan.FromMilliseconds(startOffsetMs);
+            EndOffset = StartOffset +  TimeSpan.FromMilliseconds(lengthMs);
         }
 
         public string ToFFMeta()
         {
             return "[CHAPTER]\n" +
                 "TIMEBASE=1/1000\n" +
-                "START=" + StartOffsetMs + "\n" +
-                "END=" + EndOffsetMs + "\n" +
+                "START=" + StartOffset.TotalMilliseconds + "\n" +
+                "END=" + EndOffset.TotalMilliseconds + "\n" +
                 "title=" + Title;
         }
     }

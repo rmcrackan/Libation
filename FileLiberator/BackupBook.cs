@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
-using FileLiberator;
 using FileManager;
 
 namespace FileLiberator

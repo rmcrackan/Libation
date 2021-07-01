@@ -17,11 +17,10 @@ namespace AaxDecrypter
             foreach (var c in chapters.Chapters)
             {
                 trackCount++;
-                var startTime = TimeSpan.FromMilliseconds(c.StartOffsetMs);
 
                 stringBuilder.AppendLine($"TRACK {trackCount} AUDIO");
                 stringBuilder.AppendLine($"  TITLE \"{c.Title}\"");
-                stringBuilder.AppendLine($"  INDEX 01 {(int)startTime.TotalMinutes}:{startTime:ss\\:ff}");
+                stringBuilder.AppendLine($"  INDEX 01 {(int)c.StartOffset.TotalMinutes}:{c.StartOffset:ss\\:ff}");
             }
 
             return stringBuilder.ToString();

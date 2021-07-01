@@ -3,10 +3,7 @@ using Dinah.Core.Diagnostics;
 using Dinah.Core.IO;
 using Dinah.Core.StepRunner;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
@@ -20,7 +17,7 @@ namespace AaxDecrypter
         string AppName { get; set; }
         string outDir { get; }
         string outputFileName { get; }
-        ChapterInfo chapters { get; }
+        DownloadLicense downloadLicense { get; }
         AaxcTagLibFile aaxcTagLib { get; }
         byte[] coverArt { get; }
         void SetCoverArt(byte[] coverArt);
@@ -45,23 +42,22 @@ namespace AaxDecrypter
         public string AppName { get; set; } = nameof(AaxcDownloadConverter);
         public string outDir { get; private set; }
         public string outputFileName { get; private set; }
-        public ChapterInfo chapters { get; private set; }
+        public DownloadLicense downloadLicense { get; private set; }
         public AaxcTagLibFile aaxcTagLib { get; private set; }
         public byte[] coverArt { get; private set; }
 
         private StepSequence steps { get; }
-        private DownloadLicense downloadLicense { get; set; }
         private FFMpegAaxcProcesser aaxcProcesser;
         private bool isCanceled { get; set; }
 
-        public static AaxcDownloadConverter Create(string outDirectory, DownloadLicense dlLic, ChapterInfo chapters = null)
+        public static AaxcDownloadConverter Create(string outDirectory, DownloadLicense dlLic)
         {
-            var converter = new AaxcDownloadConverter(outDirectory, dlLic, chapters);
+            var converter = new AaxcDownloadConverter(outDirectory, dlLic);
             converter.SetOutputFilename(Path.GetTempFileName());
             return converter;
         }
 
-        private AaxcDownloadConverter(string outDirectory, DownloadLicense dlLic, ChapterInfo chapters)
+        private AaxcDownloadConverter(string outDirectory, DownloadLicense dlLic)
         {
             ArgumentValidator.EnsureNotNullOrWhiteSpace(outDirectory, nameof(outDirectory));
             ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
@@ -86,7 +82,6 @@ namespace AaxDecrypter
             aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
 
             downloadLicense = dlLic;
-            this.chapters = chapters;
         }
 
         public void SetOutputFilename(string outFileName)
@@ -147,13 +142,14 @@ namespace AaxDecrypter
             RetrievedTags?.Invoke(this, aaxcTagLib);
             RetrievedCoverArt?.Invoke(this, coverArt);
 
-            return !isCanceled; 
+            return !isCanceled;
         }
 
         public bool Step3_DownloadAndCombine()
         {
             DecryptProgressUpdate?.Invoke(this, int.MaxValue);
-            bool userSuppliedChapters = chapters != null;
+
+            bool userSuppliedChapters = downloadLicense.ChapterInfo != null;
 
             string metadataPath = null;
 
@@ -162,7 +158,7 @@ namespace AaxDecrypter
                 //Only write chaopters to the metadata file. All other aaxc metadata will be
                 //wiped out but is restored in Step 3.
                 metadataPath = Path.Combine(outDir, Path.GetFileName(outputFileName) + ".ffmeta");
-                File.WriteAllText(metadataPath, chapters.ToFFMeta(true));
+                File.WriteAllText(metadataPath, downloadLicense.ChapterInfo.ToFFMeta(true));
             }
 
             aaxcProcesser.ProcessBook(
@@ -172,7 +168,7 @@ namespace AaxDecrypter
                 .GetResult();
 
             if (!userSuppliedChapters && aaxcProcesser.Succeeded)
-                chapters = new ChapterInfo(outputFileName);
+                downloadLicense.ChapterInfo = new ChapterInfo(outputFileName);
 
             if (userSuppliedChapters)
                 FileExt.SafeDelete(metadataPath);
@@ -188,7 +184,7 @@ namespace AaxDecrypter
             double estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
 
             if (double.IsNormal(estTimeRemaining))
-                DecryptTimeRemaining?.Invoke(this, TimeSpan.FromSeconds(estTimeRemaining));           
+                DecryptTimeRemaining?.Invoke(this, TimeSpan.FromSeconds(estTimeRemaining));
 
             double progressPercent = 100 * e.ProcessPosition.TotalSeconds / aaxcTagLib.Properties.Duration.TotalSeconds;
 
@@ -215,13 +211,13 @@ namespace AaxDecrypter
 
         public bool Step5_CreateCue()
         {
-            File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), chapters));
+            File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), downloadLicense.ChapterInfo));
             return !isCanceled;
         }
 
         public bool Step6_CreateNfo()
         {
-            File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxcTagLib, chapters));
+            File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxcTagLib, downloadLicense.ChapterInfo));
             return !isCanceled;
         }
 
