@@ -265,25 +265,32 @@ namespace LibationWinForms.BookLiberation
             void coverImageFilepathDiscovered(object _, byte[] coverBytes) => decryptDialog.SetCoverImage(Dinah.Core.Drawing.ImageReader.ToImage(coverBytes));
             void updateProgress(object _, int percentage) => decryptDialog.UpdateProgress(percentage);
             void updateRemainingTime(object _, TimeSpan remaining) => decryptDialog.UpdateRemainingTime(remaining);
-
             void decryptCompleted(object _, string __) => decryptDialog.Close();
            
-            void requestCoverArt(object _, Action<byte[]> setArt)
+            void requestCoverArt(object _, Action<byte[]> setCoverArtDelegate)
             {
                 var picDef = new FileManager.PictureDefinition(libraryBook.Book.PictureId, FileManager.PictureSize._500x500);
                 (bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(picDef);
 
                 if (isDefault)
                 {
-                    void pictureCached(object _, string pictureId) => onPictureCached(libraryBook, pictureId, setArt, pictureCached);
+                    void pictureCached(object _, string pictureId)
+                    {
+                        if (pictureId == libraryBook.Book.PictureId)
+                        {
+                            FileManager.PictureStorage.PictureCached -= pictureCached;
+
+                            var picDef = new FileManager.PictureDefinition(libraryBook.Book.PictureId, FileManager.PictureSize._500x500);
+                            (_, picture) = FileManager.PictureStorage.GetPicture(picDef);
+
+                            setCoverArtDelegate(picture);
+                        }
+                    };
                     FileManager.PictureStorage.PictureCached += pictureCached;
                 }
                 else
-                    setArt(picture);
+                    setCoverArtDelegate(picture);
             }
-                      
-
-
             #endregion
 
             #region subscribe new form to model's events
@@ -319,18 +326,7 @@ namespace LibationWinForms.BookLiberation
             };
             #endregion
         }
-        private static void onPictureCached(LibraryBook libraryBook, string picId, Action<byte[]> setArt, EventHandler<string> pictureCacheDelegate)
-        {
-            if (picId == libraryBook.Book.PictureId)
-            {
-                FileManager.PictureStorage.PictureCached -= pictureCacheDelegate;
-
-                var picDef = new FileManager.PictureDefinition(libraryBook.Book.PictureId, FileManager.PictureSize._500x500);
-                (_, byte[] picture) = FileManager.PictureStorage.GetPicture(picDef);
-
-                setArt(picture);
-            }
-        }
+        
         private static (AutomatedBackupsForm, LogMe) attachToBackupsForm(IDownloadableProcessable downloadable)
         {
             #region create form and logger
