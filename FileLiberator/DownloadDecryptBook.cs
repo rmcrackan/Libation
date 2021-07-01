@@ -69,24 +69,19 @@ namespace FileLiberator
 
                 var api = await InternalUtilities.AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
 
-                var dlLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+                var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
 
-                var aaxcDecryptDlLic = new DownloadLicense(dlLic.DownloadUrl, dlLic.AudibleKey, dlLic.AudibleIV, Resources.UserAgent);
+                var aaxcDecryptDlLic = new DownloadLicense(contentLic.ContentMetadata?.ContentUrl?.OfflineUrl, contentLic.Voucher?.Key, contentLic.Voucher?.Iv, Resources.UserAgent);
 
                 if (Configuration.Instance.AllowLibationFixup)
                 {
-                    var contentMetadata = await api.GetLibraryBookMetadataAsync(libraryBook.Book.AudibleProductId);
-                    var aaxcDecryptChapters = new ChapterInfo();
+                    aaxcDecryptDlLic.ChapterInfo = new ChapterInfo();
 
-                    foreach (var chap in contentMetadata?.ChapterInfo?.Chapters)
-                        aaxcDecryptChapters.AddChapter(new Chapter(chap.Title, chap.StartOffsetMs, chap.LengthMs));
+                    foreach (var chap in contentLic.ContentMetadata?.ChapterInfo?.Chapters)
+                        aaxcDecryptDlLic.ChapterInfo.AddChapter(new Chapter(chap.Title, chap.StartOffsetMs, chap.LengthMs));
+                }
 
-                    aaxcDownloader = AaxcDownloadConverter.Create(destinationDir, aaxcDecryptDlLic, aaxcDecryptChapters);
-                }
-                else
-                {
-                    aaxcDownloader = AaxcDownloadConverter.Create(destinationDir, aaxcDecryptDlLic);
-                }
+                aaxcDownloader = AaxcDownloadConverter.Create(destinationDir, aaxcDecryptDlLic);
 
                 aaxcDownloader.AppName = "Libation";                              
 

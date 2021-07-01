@@ -1,9 +1,4 @@
 ﻿using Dinah.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
@@ -13,6 +8,7 @@ namespace AaxDecrypter
         public string AudibleKey { get; }
         public string AudibleIV { get; }
         public string UserAgent { get; }
+        public ChapterInfo ChapterInfo { get; set; }
 
         public DownloadLicense(string downloadUrl, string audibleKey, string audibleIV, string userAgent)
         {
