@@ -64,7 +64,14 @@ namespace LibationWinForms.BookLiberation
             if (percentage == 0)
                 remainingTimeLbl.UIThread(() => remainingTimeLbl.Text = "ETA:\r\n0 sec");
 
-            progressBar1.UIThread(() => progressBar1.Value = percentage);
+            if (percentage == int.MaxValue)
+                progressBar1.UIThread(() => progressBar1.Style = ProgressBarStyle.Marquee);
+            else
+                progressBar1.UIThread(() =>
+                {
+                    progressBar1.Value = percentage;
+                    progressBar1.Style = ProgressBarStyle.Blocks;
+                });
         }
 
         public void UpdateRemainingTime(TimeSpan remaining)

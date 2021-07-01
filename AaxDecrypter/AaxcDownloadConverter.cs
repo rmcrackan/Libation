@@ -152,6 +152,7 @@ namespace AaxDecrypter
 
         public bool Step3_DownloadAndCombine()
         {
+            DecryptProgressUpdate?.Invoke(this, int.MaxValue);
             bool userSuppliedChapters = chapters != null;
 
             string metadataPath = null;
