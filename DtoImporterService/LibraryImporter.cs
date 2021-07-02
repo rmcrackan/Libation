@@ -35,10 +35,7 @@ namespace DtoImporterService
 			// CURRENT SOLUTION: don't re-insert
 
 			var currentLibraryProductIds = DbContext.Library.Select(l => l.Book.AudibleProductId);
-			var audibleLibraryProductIds = importItems.Select(i => i.DtoItem.ProductId);
-
 			var newItems = importItems.Where(dto => !currentLibraryProductIds.Contains(dto.DtoItem.ProductId));
-			var removedItems = DbContext.Library.Where(l => !audibleLibraryProductIds.Contains(l.Book.AudibleProductId));
 
 			foreach (var newItem in newItems)
 			{
@@ -58,10 +55,7 @@ namespace DtoImporterService
 					u.UpdateAccount(item.AccountId);
 			}
 
-			DbContext.Library.RemoveRange(removedItems);
-
 			var qtyNew = newItems.Count();
-			var qtyRemoved = removedItems.Count();
 			return qtyNew;
 		}
 	}
