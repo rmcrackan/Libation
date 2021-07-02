@@ -211,13 +211,27 @@ namespace AaxDecrypter
 
         public bool Step5_CreateCue()
         {
-            File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), downloadLicense.ChapterInfo));
+            try
+            {
+                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), downloadLicense.ChapterInfo));
+            }
+            catch (Exception ex)
+            {
+                //TODO Add log entry
+            }
             return !isCanceled;
         }
 
         public bool Step6_CreateNfo()
         {
-            File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxcTagLib, downloadLicense.ChapterInfo));
+            try
+            {
+                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxcTagLib, downloadLicense.ChapterInfo));
+            }
+            catch (Exception ex)
+            {
+                //TODO Add log entry
+            }
             return !isCanceled;
         }
 
