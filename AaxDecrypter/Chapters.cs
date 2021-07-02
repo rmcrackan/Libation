@@ -1,9 +1,9 @@
 ﻿using Dinah.Core;
 using Dinah.Core.Diagnostics;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -14,36 +14,25 @@ namespace AaxDecrypter
         private List<Chapter> _chapterList = new List<Chapter>();
         public IEnumerable<Chapter> Chapters => _chapterList.AsEnumerable();
         public int Count => _chapterList.Count;
-
         public ChapterInfo() { }
         public ChapterInfo(string audiobookFile) 
         {
             var info = new ProcessStartInfo
             {
                 FileName = DecryptSupportLibraries.ffprobePath,
-                Arguments = "-loglevel panic -show_chapters -print_format xml \"" + audiobookFile + "\""
+                Arguments = "-loglevel panic -show_chapters -print_format json \"" + audiobookFile + "\""
             };
-            var xml = info.RunHidden().Output;
 
-            var xmlDocument = new System.Xml.XmlDocument();
-            xmlDocument.LoadXml(xml);
-            var chaptersXml = xmlDocument.SelectNodes("/ffprobe/chapters/chapter")
-                .Cast<System.Xml.XmlNode>()
-                .Where(n => n.Name == "chapter");
+            var jString = info.RunHidden().Output;
+            var chapterJObject = JObject.Parse(jString);
+            var chapters = chapterJObject["chapters"]
+                .Select(c => new Chapter(
+                    c["tags"]?["title"]?.Value<string>(), 
+                    c["start_time"].Value<double>(),
+                    c["end_time"].Value<double>()
+                    ));
 
-            foreach (var cnode in chaptersXml)
-            {
-                double startTime = double.Parse(cnode.Attributes["start_time"].Value.Replace(",", "."), CultureInfo.InvariantCulture);
-                double endTime = double.Parse(cnode.Attributes["end_time"].Value.Replace(",", "."), CultureInfo.InvariantCulture);
-
-                string chapterTitle = cnode.ChildNodes
-                    .Cast<System.Xml.XmlNode>()
-                    .Where(childnode => childnode.Attributes["key"].Value == "title")
-                    .Select(childnode => childnode.Attributes["value"].Value)
-                    .FirstOrDefault();
-
-                AddChapter(new Chapter(chapterTitle, (long)(startTime * 1000), (long)((endTime - startTime) * 1000)));
-            }
+            _chapterList.AddRange(chapters);
         }
         public void AddChapter(Chapter chapter)
         {
@@ -78,6 +67,10 @@ namespace AaxDecrypter
             Title = title;
             StartOffset = TimeSpan.FromMilliseconds(startOffsetMs);
             EndOffset = StartOffset +  TimeSpan.FromMilliseconds(lengthMs);
+        }
+        public Chapter(string title, double startTimeSec, double endTimeSec)
+            :this(title, (long)(startTimeSec * 1000), (long)((endTimeSec - startTimeSec) * 1000))
+        {
         }
 
         public string ToFFMeta()

@@ -30,7 +30,7 @@ namespace LibationLauncher
 
 			migrate_to_v4_0_0();
 			migrate_to_v5_0_0();
-
+			
 			ensureLoggingConfig();
 			ensureSerilogConfig();
 			configureLogging();
@@ -213,9 +213,10 @@ namespace LibationLauncher
 		{
 			var persistentDictionary = new PersistentDictionary(Configuration.Instance.SettingsFilePath);
 
-			if (persistentDictionary.GetString("AllowLibationFixup") is null)
+			var config = Configuration.Instance;
+			if (persistentDictionary.GetString(nameof(config.AllowLibationFixup)) is null)
             {
-				persistentDictionary.Set("AllowLibationFixup", true);
+				persistentDictionary.Set(nameof(config.AllowLibationFixup), true);
 			}
 
 			if (!File.Exists(AudibleApiStorage.AccountsSettingsFile))
