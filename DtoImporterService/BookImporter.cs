@@ -21,7 +21,7 @@ namespace DtoImporterService
 			new CategoryImporter(DbContext).Import(importItems);
 
 			// get distinct
-			var productIds = importItems.Select(i => i.DtoItem.ProductId).ToList();
+			var productIds = importItems.Select(i => i.DtoItem.ProductId);
 
 			// load db existing => .Local
 			loadLocal_books(productIds);
@@ -31,7 +31,7 @@ namespace DtoImporterService
 			return qtyNew;
 		}
 
-		private void loadLocal_books(List<string> productIds)
+		private void loadLocal_books(IEnumerable<string> productIds)
 		{
 			var localProductIds = DbContext.Books.Local.Select(b => b.AudibleProductId);
 			var remainingProductIds = productIds
