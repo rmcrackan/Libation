@@ -284,8 +284,9 @@ namespace LibationWinForms
 
 			var totalProcessed = dialog.TotalBooksProcessed;
 			var newAdded = dialog.NewBooksAdded;
+            var oldRemoved = dialog.OldBooksRemoved;
 
-			MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
+			MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}\r\nRemoved: {oldRemoved}");
 
 			if (totalProcessed > 0)
 				reloadGrid();

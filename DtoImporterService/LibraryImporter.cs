@@ -62,7 +62,7 @@ namespace DtoImporterService
 
 			var qtyNew = newItems.Count();
 			var qtyRemoved = removedItems.Count();
-			return qtyNew;
+			return (qtyNew << 0x10) | (qtyRemoved & 0xffff);
 		}
 	}
 }

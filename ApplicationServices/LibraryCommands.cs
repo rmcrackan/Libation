@@ -13,10 +13,10 @@ namespace ApplicationServices
 {
 	public static class LibraryCommands
 	{
-		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
+		public static async Task<(int totalCount, int newCount, int removedCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
 		{
 			if (accounts is null || accounts.Length == 0)
-				return (0, 0);
+				return (0, 0, 0);
 
 			try
 			{
@@ -25,13 +25,13 @@ namespace ApplicationServices
 				var totalCount = importItems.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
-				var newCount = await importIntoDbAsync(importItems);
+				(var newCount, var removedCount) = await importIntoDbAsync(importItems);
 				Log.Logger.Information($"Import: New count {newCount}");
 
 				await Task.Run(() => SearchEngineCommands.FullReIndex());
 				Log.Logger.Information("FullReIndex: success");
 
-				return (totalCount, newCount);
+				return (totalCount, newCount, removedCount);
 			}
 			catch (AudibleApi.Authentication.LoginFailedException lfEx)
 			{
@@ -90,14 +90,16 @@ namespace ApplicationServices
 			return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = account.Locale?.Name }).ToList();
 		}
 
-		private static async Task<int> importIntoDbAsync(List<ImportItem> importItems)
+		private static async Task<(ushort newCount, ushort removedCount)> importIntoDbAsync(List<ImportItem> importItems)
 		{
 			using var context = DbContexts.GetContext();
 			var libraryImporter = new LibraryImporter(context);
-			var newCount = await Task.Run(() => libraryImporter.Import(importItems));
+			var newAndRemoved = await Task.Run(() => libraryImporter.Import(importItems));
 			context.SaveChanges();
 
-			return newCount;
+			var newCount = (ushort)(newAndRemoved >> 0x10);
+			var removedCount = (ushort)(newAndRemoved & 0xffff);
+			return (newCount, removedCount);
 		}
 
 		public static int UpdateTags(this LibationContext context, Book book, string newTags)

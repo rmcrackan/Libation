@@ -11,6 +11,7 @@ namespace LibationWinForms.Dialogs
 		private Account[] _accounts { get; }
 
 		public int NewBooksAdded { get; private set; }
+		public int OldBooksRemoved { get; private set; }
 		public int TotalBooksProcessed { get; private set; }
 
 		public IndexLibraryDialog(params Account[] accounts)
@@ -31,7 +32,7 @@ namespace LibationWinForms.Dialogs
 
 				try
 				{
-					(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync((account) => new WinformResponder(account), _accounts);
+					(TotalBooksProcessed, NewBooksAdded, OldBooksRemoved) = await LibraryCommands.ImportAccountAsync((account) => new WinformResponder(account), _accounts);
 				}
 				catch (Exception ex)
 				{
