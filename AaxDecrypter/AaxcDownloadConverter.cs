@@ -128,12 +128,32 @@ namespace AaxDecrypter
         public bool Step2_GetMetadata()
         {
             //Get metadata from the file over http
-            var client = new System.Net.Http.HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", downloadLicense.UserAgent);
-            var networkFile = NetworkFileAbstraction.CreateAsync(client, new Uri(downloadLicense.DownloadUrl)).GetAwaiter().GetResult();
+
+            NetworkFileStreamPersister nfsPersister;
+
+            string jsonDownloadState = PathLib.ReplaceExtension(outputFileName, ".json");
+            string tempFile = PathLib.ReplaceExtension(outputFileName, ".aaxc");
+
+            if (File.Exists(jsonDownloadState))
+            {
+                nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
+            }
+            else
+            {
+                var headers = new System.Net.WebHeaderCollection();
+                headers.Add("User-Agent", downloadLicense.UserAgent);
+
+                NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
+                nfsPersister = new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
+                nfsPersister.Target.BeginDownloading().GetAwaiter().GetResult();
+            }
+
+            var networkFile = new NetworkFileAbstraction(nfsPersister.Target);
+
+            nfsPersister.Dispose();
 
             aaxcTagLib = new AaxcTagLibFile(networkFile);
-
+            
             if (coverArt is null && aaxcTagLib.AppleTags.Pictures.Length > 0)
             {
                 coverArt = aaxcTagLib.AppleTags.Pictures[0].Data.Data;
