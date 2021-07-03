@@ -7,7 +7,7 @@ namespace AaxDecrypter
     {
 
 		/// <summary>Alias for Target </summary>
-		public NetworkFileStream Identity => Target;
+		public NetworkFileStream NetworkFileStream => Target;
 
 		/// <summary>uses path. create file if doesn't yet exist</summary>
 		public NetworkFileStreamPersister(NetworkFileStream networkFileStream, string path, string jsonPath = null)

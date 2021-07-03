@@ -148,7 +148,7 @@ namespace AaxDecrypter
                 nfsPersister.Target.BeginDownloading().GetAwaiter().GetResult();
             }
 
-            var networkFile = new NetworkFileAbstraction(nfsPersister.Target);
+            var networkFile = new NetworkFileAbstraction(nfsPersister.NetworkFileStream);
 
             nfsPersister.Dispose();
 
