@@ -79,7 +79,8 @@ namespace AaxDecrypter
         private Stream _networkStream { get; set; }
         private bool hasBegunDownloading { get; set; }
         private bool isCancelled { get; set; }
-        private Action cancelDownloadCallback { get; set; }
+        private bool finishedDownloading { get; set; }
+        private Action downloadThreadCompleteCallback { get; set; }
 
         #endregion
 
@@ -154,7 +155,11 @@ namespace AaxDecrypter
         public async Task BeginDownloading()
         {
             if (ContentLength != 0 && WritePosition == ContentLength)
+            {
+                hasBegunDownloading = true;
+                finishedDownloading = true;
                 return;
+            }
 
             if (ContentLength != 0 && WritePosition > ContentLength)
                 throw new Exception($"Specified write position (0x{WritePosition:X10}) is larger than the file size.");
@@ -177,11 +182,6 @@ namespace AaxDecrypter
             //Download the file in the background.
             Thread downloadThread = new Thread(() => DownloadFile());
             downloadThread.Start();
-
-            while(!File.Exists(SaveFilePath) && new FileInfo(SaveFilePath).Length > 1000)
-            {
-                Thread.Sleep(100);
-            }
 
             hasBegunDownloading = true;
             return;
@@ -208,7 +208,6 @@ namespace AaxDecrypter
                     _writeFile.Flush();
                     WritePosition = downloadPosition;
                     Update();
-
                     nextFlush = downloadPosition + DATA_FLUSH_SZ;
                 }
 
@@ -225,7 +224,8 @@ namespace AaxDecrypter
             if (WritePosition > ContentLength)
                 throw new Exception("Downloaded file is larger than expected.");
 
-            cancelDownloadCallback?.Invoke();
+            finishedDownloading = true;
+            downloadThreadCompleteCallback?.Invoke();
         }
 
         #endregion
@@ -362,19 +362,15 @@ namespace AaxDecrypter
             if (!hasBegunDownloading)
                 throw new Exception($"Must call {nameof(BeginDownloading)} before attempting to read {nameof(NetworkFileStream)};");
 
+            long toRead = Math.Min(count, Length - Position);
+            long requiredPosition = Position + toRead;
+
             //read operation will block until file contains enough data
             //to fulfil the request.
+            while (requiredPosition > WritePosition)
+                Thread.Sleep(0);
+
             return _readFile.Read(buffer, offset, count);
-        }
-
-        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            if (!hasBegunDownloading)
-                throw new Exception($"Must call {nameof(BeginDownloading)} before attempting to read {nameof(NetworkFileStream)};");
-
-            //read operation will block until file contains enough data
-            //to fulfil the request.
-            return await _readFile.ReadAsync(buffer, offset, count, cancellationToken);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -393,7 +389,6 @@ namespace AaxDecrypter
                     newPosition = offset;
                     break;
             }
-
             ReadToPosition(newPosition);
 
             _readFile.Position = newPosition;
@@ -406,24 +401,28 @@ namespace AaxDecrypter
         /// <param name="neededPosition">The minimum required data length in <see cref="SaveFilePath"/>.</param>
         private void ReadToPosition(long neededPosition)
         {
-            long totalBytesRead = _readFile.Position;
-
             byte[] buff = new byte[DOWNLOAD_BUFF_SZ];
             do
             {
-                totalBytesRead += Read(buff, 0, DOWNLOAD_BUFF_SZ);
-            } while (totalBytesRead < neededPosition);
+                Read(buff, 0, DOWNLOAD_BUFF_SZ);
+            } while (neededPosition > WritePosition);
         }
         public override void Close()
         {
             isCancelled = true;
-            cancelDownloadCallback = () =>
-            {
-                _readFile.Close();
-                _writeFile.Close();
-                _networkStream?.Close();
-                Update();
-            };
+            downloadThreadCompleteCallback = CloseAction;
+
+            //ensure that close will run even if called after callback was fired.
+            if (finishedDownloading)
+                CloseAction();
+
+        }
+        private void CloseAction()
+        {
+            _readFile.Close();
+            _writeFile.Close();
+            _networkStream?.Close();
+            Update();
         }
 
         #endregion
