@@ -367,7 +367,7 @@ namespace AaxDecrypter
 
             //read operation will block until file contains enough data
             //to fulfil the request.
-            while (requiredPosition > WritePosition)
+            while (requiredPosition > WritePosition && !isCancelled)
                 Thread.Sleep(0);
 
             return _readFile.Read(buffer, offset, count);
