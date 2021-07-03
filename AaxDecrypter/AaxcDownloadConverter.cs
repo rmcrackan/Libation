@@ -230,7 +230,7 @@ namespace AaxDecrypter
             }
             catch (Exception ex)
             {
-                Serilog.Log.Logger.Error(ex, $"{nameof(Step5_CreateCue)}. FAILED");
+                Serilog.Log.Logger.Error(ex, $"{nameof(Step6_CreateNfo)}. FAILED");
             }
             return !isCanceled;
         }

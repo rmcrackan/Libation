@@ -218,7 +218,7 @@ namespace FileLiberator
 
         public void Cancel()
         {
-            aaxcDownloader.Cancel();
+            aaxcDownloader?.Cancel();
         }
     }
 }

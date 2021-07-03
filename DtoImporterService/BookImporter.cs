@@ -67,6 +67,9 @@ namespace DtoImporterService
 		{
 			var item = importItem.DtoItem;
 
+			//Add any subtitle after the title title.
+			var title = item.Title + (!string.IsNullOrWhiteSpace(item.Subtitle) ? $": {item.Subtitle}" : "");
+
 			// absence of authors is very rare, but possible
 			if (!item.Authors?.Any() ?? true)
 				item.Authors = new[] { new Person { Name = "", Asin = null } };
@@ -102,7 +105,7 @@ namespace DtoImporterService
 
 			var book = DbContext.Books.Add(new Book(
 				new AudibleProductId(item.ProductId),
-				item.Title,
+				title,
 				item.Description,
 				item.LengthInMinutes,
 				authors,
