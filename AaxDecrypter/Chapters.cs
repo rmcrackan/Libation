@@ -62,7 +62,8 @@ namespace AaxDecrypter
         {
             ArgumentValidator.EnsureNotNullOrEmpty(title, nameof(title));
             ArgumentValidator.EnsureGreaterThan(startOffsetMs, nameof(startOffsetMs), -1);
-            ArgumentValidator.EnsureGreaterThan(lengthMs, nameof(lengthMs), 0);
+
+            // do not validate lengthMs for '> 0'. It is valid to set sections this way. eg: 11-22-63 [B005UR3VFO] by Stephen King
 
             Title = title;
             StartOffset = TimeSpan.FromMilliseconds(startOffsetMs);
