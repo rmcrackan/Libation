@@ -38,7 +38,7 @@ namespace FileLiberator
                 if (AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-                var outputAudioFilename = await aaxToM4bConverterDecryptAsync(AudibleFileStorage.DecryptInProgress, libraryBook);
+                var outputAudioFilename = await aaxToM4bConverterDecryptAsync(AudibleFileStorage.DownloadsInProgress, AudibleFileStorage.DecryptInProgress, libraryBook);
 
                 // decrypt failed
                 if (outputAudioFilename is null)
@@ -59,7 +59,7 @@ namespace FileLiberator
             }
         }
 
-        private async Task<string> aaxToM4bConverterDecryptAsync(string destinationDir, LibraryBook libraryBook)
+        private async Task<string> aaxToM4bConverterDecryptAsync(string cacheDir, string destinationDir, LibraryBook libraryBook)
         {
             DecryptBegin?.Invoke(this, $"Begin decrypting {libraryBook}");
 
@@ -92,7 +92,7 @@ namespace FileLiberator
                                 ));
                 }
 
-                aaxcDownloader = AaxcDownloadConverter.Create(destinationDir, aaxcDecryptDlLic);
+                aaxcDownloader = AaxcDownloadConverter.Create(cacheDir, destinationDir, aaxcDecryptDlLic);
 
                 aaxcDownloader.AppName = "Libation";                              
 

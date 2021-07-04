@@ -15,13 +15,20 @@ namespace AaxDecrypter
     /// </summary>
     public class SingleUriCookieContainer : CookieContainer
     {
-        public SingleUriCookieContainer(Uri uri)
-        {
-            Uri = uri;
+        private Uri baseAddress;
+        public Uri Uri
+        { 
+            get => baseAddress; 
+            set 
+            { 
+                baseAddress = new UriBuilder(value.Scheme, value.Host).Uri; 
+            } 
         }
-        public Uri Uri { get; }
 
-        public CookieCollection GetCookies() => base.GetCookies(Uri);
+        public CookieCollection GetCookies()
+        {
+            return base.GetCookies(Uri);
+        }
     }
 
     /// <summary>
@@ -43,7 +50,7 @@ namespace AaxDecrypter
         /// Http(s) address of the file to download.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public Uri Uri { get; }
+        public Uri Uri { get; private set; }
 
         /// <summary>
         /// All cookies set by caller or by the remote server.
@@ -73,7 +80,7 @@ namespace AaxDecrypter
 
         #region Private Properties
 
-        private HttpWebRequest HttpRequest { get; }
+        private HttpWebRequest HttpRequest { get; set; }
         private FileStream _writeFile { get; }
         private FileStream _readFile { get; }
         private Stream _networkStream { get; set; }
@@ -118,26 +125,20 @@ namespace AaxDecrypter
             Uri = uri;
             WritePosition = writePosition;
             RequestHeaders = requestHeaders ?? new WebHeaderCollection();
-            CookieContainer = cookies ?? new SingleUriCookieContainer(uri);
-
-            HttpRequest = WebRequest.CreateHttp(uri);
-
-            HttpRequest.CookieContainer = CookieContainer;
-            HttpRequest.Headers = RequestHeaders;
-            //If NetworkFileStream is resuming, Header will already contain a range.
-            HttpRequest.Headers.Remove("Range");
-            HttpRequest.AddRange(WritePosition);
-
+            CookieContainer = cookies ?? new SingleUriCookieContainer { Uri = uri };
+            
             _writeFile = new FileStream(SaveFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite)
             {
                 Position = WritePosition
             };
 
             _readFile = new FileStream(SaveFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+            SetUriForSameFile(uri);
         }
 
         #endregion
-
+               
         #region Downloader
 
         /// <summary>
@@ -150,9 +151,32 @@ namespace AaxDecrypter
         }
 
         /// <summary>
+        /// Set a different <see cref="System.Uri"/> to the same file targeted by this instance of <see cref="NetworkFileStream"/>
+        /// </summary>
+        /// <param name="uriToSameFile">New <see cref="System.Uri"/> host must match existing host.</param>
+        public void SetUriForSameFile(Uri uriToSameFile)
+        {
+            ArgumentValidator.EnsureNotNullOrWhiteSpace(uriToSameFile?.AbsoluteUri, nameof(uriToSameFile));
+
+            if (uriToSameFile.Host != Uri.Host)
+                throw new ArgumentException($"New uri to the same file must have the same host.\r\n Old Host :{Uri.Host}\r\nNew Host: {uriToSameFile.Host}");
+            if (hasBegunDownloading && !finishedDownloading)
+                throw new Exception("Cannot change Uri during a download operation.");
+
+            Uri = uriToSameFile;
+            HttpRequest = WebRequest.CreateHttp(Uri);
+
+            HttpRequest.CookieContainer = CookieContainer;
+            HttpRequest.Headers = RequestHeaders;
+            //If NetworkFileStream is resuming, Header will already contain a range.
+            HttpRequest.Headers.Remove("Range");
+            HttpRequest.AddRange(WritePosition);
+        }
+
+        /// <summary>
         /// Begins downloading <see cref="Uri"/> to <see cref="SaveFilePath"/> in a background thread.
         /// </summary>
-        public async Task BeginDownloading()
+        private void BeginDownloading()
         {
             if (ContentLength != 0 && WritePosition == ContentLength)
             {
@@ -164,7 +188,7 @@ namespace AaxDecrypter
             if (ContentLength != 0 && WritePosition > ContentLength)
                 throw new Exception($"Specified write position (0x{WritePosition:X10}) is larger than the file size.");
 
-            var response = await HttpRequest.GetResponseAsync() as HttpWebResponse;
+            var response = HttpRequest.GetResponse() as HttpWebResponse;
 
             if (response.StatusCode != HttpStatusCode.PartialContent)
                 throw new Exception($"Server at {Uri.Host} responded with unexpected status code: {response.StatusCode}.");
@@ -249,8 +273,9 @@ namespace AaxDecrypter
             {
                 var jObj = JObject.Load(reader);
 
-                var result = new SingleUriCookieContainer(new Uri(jObj["Uri"].Value<string>()))
+                var result = new SingleUriCookieContainer()
                 {
+                    Uri = new Uri(jObj["Uri"].Value<string>()),
                     Capacity = jObj["Capacity"].Value<int>(),
                     MaxCookieSize = jObj["MaxCookieSize"].Value<int>(),
                     PerDomainCapacity = jObj["PerDomainCapacity"].Value<int>()
@@ -360,13 +385,13 @@ namespace AaxDecrypter
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (!hasBegunDownloading)
-                throw new Exception($"Must call {nameof(BeginDownloading)} before attempting to read {nameof(NetworkFileStream)};");
+                BeginDownloading();
 
             long toRead = Math.Min(count, Length - Position);
             long requiredPosition = Position + toRead;
 
             //read operation will block until file contains enough data
-            //to fulfil the request.
+            //to fulfil the request, or until cancelled.
             while (requiredPosition > WritePosition && !isCancelled)
                 Thread.Sleep(0);
 

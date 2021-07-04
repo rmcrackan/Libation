@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AaxDecrypter
@@ -31,27 +32,30 @@ namespace AaxDecrypter
         public bool IsRunning { get; private set; }
         public bool Succeeded { get; private set; }
         public string FFMpegRemuxerStandardError => remuxerError.ToString();
-        public string FFMpegDownloaderStandardError => downloaderError.ToString();
+        public string FFMpegDecrypterStandardError => decrypterError.ToString();
 
 
         private StringBuilder remuxerError { get; } = new StringBuilder();
-        private StringBuilder downloaderError { get; } = new StringBuilder();
+        private StringBuilder decrypterError { get; } = new StringBuilder();
         private static Regex processedTimeRegex { get; } = new Regex("time=(\\d{2}):(\\d{2}):(\\d{2}).\\d{2}.*speed=\\s{0,1}([0-9]*[.]?[0-9]+)(?:e\\+([0-9]+)){0,1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private Process downloader;
+        private Process decrypter;
         private Process remuxer;
+        private Stream inputFile;
         private bool isCanceled = false;
 
-        public FFMpegAaxcProcesser( DownloadLicense downloadLicense)
+        public FFMpegAaxcProcesser(DownloadLicense downloadLicense)
         {
             FFMpegPath = DecryptSupportLibraries.ffmpegPath;
             DownloadLicense = downloadLicense;
         }
 
-        public async Task ProcessBook(string outputFile, string ffmetaChaptersPath = null)
+        public async Task ProcessBook(Stream inputFile, string outputFile, string ffmetaChaptersPath)
         {
+            this.inputFile = inputFile;
+
             //This process gets the aaxc from the url and streams the decrypted
             //aac stream to standard output
-            downloader = new Process
+            decrypter = new Process
             {
                 StartInfo = getDownloaderStartInfo()
             };
@@ -65,64 +69,81 @@ namespace AaxDecrypter
 
             IsRunning = true;
 
-            downloader.ErrorDataReceived += Downloader_ErrorDataReceived;
-            downloader.Start();
-            downloader.BeginErrorReadLine();
+            decrypter.ErrorDataReceived += Downloader_ErrorDataReceived;
+            decrypter.Start();
+            decrypter.BeginErrorReadLine();
 
             remuxer.ErrorDataReceived += Remuxer_ErrorDataReceived;
             remuxer.Start();
             remuxer.BeginErrorReadLine();
 
-            //Thic check needs to be placed after remuxer has started
+            //Thic check needs to be placed after remuxer has started.
             if (isCanceled) return;
 
-            var pipedOutput = downloader.StandardOutput.BaseStream;
-            var pipedInput = remuxer.StandardInput.BaseStream;
+            var decrypterInput = decrypter.StandardInput.BaseStream;
+            var decrypterOutput = decrypter.StandardOutput.BaseStream;
+            var remuxerInput = remuxer.StandardInput.BaseStream;
 
+            //Read inputFile into decrypter stdin in the background
+            var t = new Thread(() => CopyStream(inputFile, decrypterInput, decrypter));           
+            t.Start();
 
             //All the work done here. Copy download standard output into
             //remuxer standard input
-            await Task.Run(() =>
-            {
-                int lastRead = 0;
-                byte[] buffer = new byte[32 * 1024];
-
-                do
-                {
-                    lastRead = pipedOutput.Read(buffer, 0, buffer.Length);
-                    pipedInput.Write(buffer, 0, lastRead);
-                } while (lastRead > 0 && !remuxer.HasExited);
-            });
-
-            //Closing input stream terminates remuxer
-            pipedInput.Close();
+            await Task.Run(() => CopyStream(decrypterOutput, remuxerInput, remuxer));
 
             //If the remuxer exited due to failure, downloader will still have
             //data in the pipe. Force kill downloader to continue.
-            if (remuxer.HasExited && !downloader.HasExited)
-                downloader.Kill();
+            if (remuxer.HasExited && !decrypter.HasExited)
+                decrypter.Kill();
 
             remuxer.WaitForExit();
-            downloader.WaitForExit();
+            decrypter.WaitForExit();
 
             IsRunning = false;
-            Succeeded = downloader.ExitCode == 0 && remuxer.ExitCode == 0;
+            Succeeded = decrypter.ExitCode == 0 && remuxer.ExitCode == 0;
         }
+
+        private void CopyStream(Stream inputStream, Stream outputStream, Process returnOnProcExit)
+        {
+            try
+            {
+                byte[] buffer = new byte[32 * 1024];
+                int lastRead;
+                do
+                {
+                    lastRead = inputStream.Read(buffer, 0, buffer.Length);
+                    outputStream.Write(buffer, 0, lastRead);
+                } while (lastRead > 0 && !returnOnProcExit.HasExited);
+            }
+            catch (IOException ex)
+            { 
+                //There is no way to tell if the process closed the input stream
+                //before trying to write to it. If it did close, throws IOException.
+                isCanceled = true; 
+            }
+            finally
+            {
+                outputStream.Close();
+            }
+        }
+
         public void Cancel()
         {
             isCanceled = true;
 
             if (IsRunning && !remuxer.HasExited)
                 remuxer.Kill();
-            if (IsRunning && !downloader.HasExited)
-                downloader.Kill();
+            if (IsRunning && !decrypter.HasExited)
+                decrypter.Kill();
+            inputFile?.Close();
         }
         private void Downloader_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Data))
                 return;
 
-            downloaderError.AppendLine(e.Data);            
+            decrypterError.AppendLine(e.Data);            
         }
 
         private void Remuxer_ErrorDataReceived(object sender, DataReceivedEventArgs e)
@@ -165,21 +186,21 @@ namespace AaxDecrypter
          {
              FileName = FFMpegPath,
              RedirectStandardError = true,
+             RedirectStandardInput = true,
              RedirectStandardOutput = true,
              CreateNoWindow = true,
              WindowStyle = ProcessWindowStyle.Hidden,
              UseShellExecute = false,
              WorkingDirectory = Path.GetDirectoryName(FFMpegPath),
              ArgumentList ={
-                    "-nostdin",
                     "-audible_key",
                     DownloadLicense.AudibleKey,
                     "-audible_iv",
                     DownloadLicense.AudibleIV,
-                    "-user_agent",
-                    DownloadLicense.UserAgent, //user-agent is requied for CDN to serve the file
+                    "-f",
+                    "mp4",
                     "-i",
-                    DownloadLicense.DownloadUrl, 
+                    "pipe:",
                     "-c:a", //audio codec
                     "copy", //copy stream
                     "-f", //force output format: adts
@@ -208,26 +229,15 @@ namespace AaxDecrypter
             startInfo.ArgumentList.Add("-i"); //read input from stdin
             startInfo.ArgumentList.Add("pipe:");
 
-            if (ffmetaChaptersPath is null)
-            {
-                //copy metadata from aaxc file.
-                startInfo.ArgumentList.Add("-user_agent");
-                startInfo.ArgumentList.Add(DownloadLicense.UserAgent);
-                startInfo.ArgumentList.Add("-i");
-                startInfo.ArgumentList.Add(DownloadLicense.DownloadUrl);
-            }
-            else
-            {
-                //copy metadata from supplied metadata file
-                startInfo.ArgumentList.Add("-f");
-                startInfo.ArgumentList.Add("ffmetadata");
-                startInfo.ArgumentList.Add("-i");
-                startInfo.ArgumentList.Add(ffmetaChaptersPath);
-            }
+            //copy metadata from supplied metadata file
+            startInfo.ArgumentList.Add("-f");
+            startInfo.ArgumentList.Add("ffmetadata");
+            startInfo.ArgumentList.Add("-i");
+            startInfo.ArgumentList.Add(ffmetaChaptersPath);
 
             startInfo.ArgumentList.Add("-map"); //map file 0 (aac audio stream)
             startInfo.ArgumentList.Add("0");
-            startInfo.ArgumentList.Add("-map_chapters"); //copy chapter data from file 1 (either metadata file or aaxc file)
+            startInfo.ArgumentList.Add("-map_chapters"); //copy chapter data from file metadata file
             startInfo.ArgumentList.Add("1");
             startInfo.ArgumentList.Add("-c"); //copy all mapped streams
             startInfo.ArgumentList.Add("copy");
