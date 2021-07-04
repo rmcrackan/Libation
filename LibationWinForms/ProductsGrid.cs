@@ -182,15 +182,7 @@ namespace LibationWinForms
                 return;
             }
 
-            // not liberated: liberate
-            var msg
-                = "Liberate entire library instead?"
-                + "\r\n\r\nClick Yes to begin liberating your entire library"
-                + "\r\n\r\nClick No to liberate this book only";
-            if (MessageBox.Show(msg, "Liberate entire library?", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync((_, libraryBook) => RefreshRow(libraryBook.Book.AudibleProductId));
-            else
-                await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(productId, (_, __) => RefreshRow(productId));
+            await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(productId, (_, __) => RefreshRow(productId));
         }
         #endregion
 
