@@ -15,21 +15,28 @@ namespace LibationWinForms.BookLiberation
         public event EventHandler<string> LogErrorString;
         public event EventHandler<(Exception, string)> LogError;
 
-        public static LogMe RegisterForm(AutomatedBackupsForm form)
+        private LogMe()
+        {
+            LogInfo += (_, text) => Serilog.Log.Logger.Information($"Automated backup: {text}");
+            LogErrorString += (_, text) => Serilog.Log.Logger.Error(text);
+            LogError += (_, tuple) => Serilog.Log.Logger.Error(tuple.Item1, tuple.Item2 ?? "Automated backup: error");
+        }
+
+        public static LogMe RegisterForm(AutomatedBackupsForm form = null)
         {
             var logMe = new LogMe();
 
-            logMe.LogInfo += (_, text) => Serilog.Log.Logger.Information($"Automated backup: {text}");
-            logMe.LogInfo += (_, text) => form.WriteLine(text);
+            if (form is null)
+                return logMe;
 
-            logMe.LogErrorString += (_, text) => Serilog.Log.Logger.Error(text);
-            logMe.LogErrorString += (_, text) => form.WriteLine(text);
+            logMe.LogInfo += (_, text) => form?.WriteLine(text);
 
-            logMe.LogError += (_, tuple) => Serilog.Log.Logger.Error(tuple.Item1, tuple.Item2 ?? "Automated backup: error");
+            logMe.LogErrorString += (_, text) => form?.WriteLine(text);
+
             logMe.LogError += (_, tuple) =>
             {
-                form.WriteLine(tuple.Item2 ?? "Automated backup: error");
-                form.WriteLine("ERROR: " + tuple.Item1.Message);
+                form?.WriteLine(tuple.Item2 ?? "Automated backup: error");
+                form?.WriteLine("ERROR: " + tuple.Item1.Message);
             };
 
             return logMe;
@@ -48,13 +55,13 @@ namespace LibationWinForms.BookLiberation
 
             var backupBook = getWiredUpBackupBook(completedAction);
            
-            (Action unsibscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook);
+            (Action unsubscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook);
 
             var libraryBook = IProcessableExt.GetSingleLibraryBook(productId);
             // continue even if libraryBook is null. we'll display even that in the processing box
             await new BackupSingle(logMe, backupBook, libraryBook).RunBackupAsync();
 
-            unsibscribeEvents();
+            unsubscribeEvents();
         }
 
         public static async Task BackupAllBooksAsync(EventHandler<LibraryBook> completedAction = null)
@@ -64,11 +71,11 @@ namespace LibationWinForms.BookLiberation
             var backupBook = getWiredUpBackupBook(completedAction);
             var automatedBackupsForm = new AutomatedBackupsForm();
 
-            (Action unsibscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook, automatedBackupsForm);
+            (Action unsubscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook, automatedBackupsForm);
 
             await new BackupLoop(logMe, backupBook, automatedBackupsForm).RunBackupAsync();
 
-            unsibscribeEvents();
+            unsubscribeEvents();
         }
 
         private static BackupBook getWiredUpBackupBook(EventHandler<LibraryBook> completedAction)
@@ -98,10 +105,10 @@ namespace LibationWinForms.BookLiberation
 
         private static void updateIsLiberated(object sender, LibraryBook e) => ApplicationServices.SearchEngineCommands.UpdateIsLiberated(e.Book);
 
-        private static (Action unsibscribeEvents, LogMe) attachToBackupsForm(BackupBook backupBook, AutomatedBackupsForm automatedBackupsForm = null)
+        private static (Action unsubscribeEvents, LogMe) attachToBackupsForm(BackupBook backupBook, AutomatedBackupsForm automatedBackupsForm = null)
         {
             #region create logger
-            var logMe = automatedBackupsForm is null? new LogMe() : LogMe.RegisterForm(automatedBackupsForm);
+            var logMe = LogMe.RegisterForm(automatedBackupsForm);
             #endregion
 
             #region define how model actions will affect form behavior
@@ -125,7 +132,7 @@ namespace LibationWinForms.BookLiberation
 
             #region when form closes, unsubscribe from model's events
             // unsubscribe so disposed forms aren't still trying to receive notifications
-            Action unsibscribe = () =>
+            Action unsubscribe = () =>
             {
                 backupBook.DecryptBook.Begin -= decryptBookBegin;
                 backupBook.DecryptBook.StatusUpdate -= statusUpdate;
@@ -136,7 +143,7 @@ namespace LibationWinForms.BookLiberation
             };
             #endregion
 
-            return (unsibscribe, logMe);
+            return (unsubscribe, logMe);
         }
 
         public static async Task BackupAllPdfsAsync(EventHandler<LibraryBook> completedAction = null)
