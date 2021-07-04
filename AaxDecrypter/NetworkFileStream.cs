@@ -138,6 +138,17 @@ namespace AaxDecrypter
         }
 
         #endregion
+               
+        #region Downloader
+
+        /// <summary>
+        /// Update the <see cref="JsonFilePersister"/>.
+        /// </summary>
+        private void Update()
+        {
+            RequestHeaders = HttpRequest.Headers;
+            Updated?.Invoke(this, new EventArgs());
+        }
 
         /// <summary>
         /// Set a different <see cref="System.Uri"/> to the same file targeted by this instance of <see cref="NetworkFileStream"/>
@@ -160,18 +171,6 @@ namespace AaxDecrypter
             //If NetworkFileStream is resuming, Header will already contain a range.
             HttpRequest.Headers.Remove("Range");
             HttpRequest.AddRange(WritePosition);
-
-        }
-
-        #region Downloader
-
-        /// <summary>
-        /// Update the <see cref="JsonFilePersister"/>.
-        /// </summary>
-        private void Update()
-        {
-            RequestHeaders = HttpRequest.Headers;
-            Updated?.Invoke(this, new EventArgs());
         }
 
         /// <summary>
@@ -392,7 +391,7 @@ namespace AaxDecrypter
             long requiredPosition = Position + toRead;
 
             //read operation will block until file contains enough data
-            //to fulfil the request.
+            //to fulfil the request, or until cancelled.
             while (requiredPosition > WritePosition && !isCancelled)
                 Thread.Sleep(0);
 

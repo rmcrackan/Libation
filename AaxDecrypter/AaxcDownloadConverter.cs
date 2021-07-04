@@ -32,6 +32,7 @@ namespace AaxDecrypter
         bool Step4_RestoreMetadata();
         bool Step5_CreateCue();
         bool Step6_CreateNfo();
+        bool Step7_Cleanup();
     }
     public class AaxcDownloadConverter : IAdvancedAaxcToM4bConverter
     {
@@ -41,6 +42,7 @@ namespace AaxDecrypter
         public event EventHandler<TimeSpan> DecryptTimeRemaining;
         public string AppName { get; set; } = nameof(AaxcDownloadConverter);
         public string outDir { get; private set; }
+        public string cacheDir { get; private set; }
         public string outputFileName { get; private set; }
         public DownloadLicense downloadLicense { get; private set; }
         public AaxcTagLibFile aaxcTagLib { get; private set; }
@@ -49,26 +51,32 @@ namespace AaxDecrypter
         private StepSequence steps { get; }
         private FFMpegAaxcProcesser aaxcProcesser;
         private bool isCanceled { get; set; }
+        private string jsonDownloadState => Path.Combine(cacheDir, Path.GetFileNameWithoutExtension(outputFileName) + ".json");
+        private string tempFile => PathLib.ReplaceExtension(jsonDownloadState, ".aaxc");
 
-        public static AaxcDownloadConverter Create(string outDirectory, DownloadLicense dlLic)
+        public static AaxcDownloadConverter Create(string cacheDirectory, string outDirectory, DownloadLicense dlLic)
         {
-            var converter = new AaxcDownloadConverter(outDirectory, dlLic);
+            var converter = new AaxcDownloadConverter(cacheDirectory, outDirectory, dlLic);
             converter.SetOutputFilename(Path.GetTempFileName());
             return converter;
         }
 
-        private AaxcDownloadConverter(string outDirectory, DownloadLicense dlLic)
+        private AaxcDownloadConverter(string cacheDirectory, string outDirectory, DownloadLicense dlLic)
         {
             ArgumentValidator.EnsureNotNullOrWhiteSpace(outDirectory, nameof(outDirectory));
             ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
 
             if (!Directory.Exists(outDirectory))
+                throw new ArgumentNullException(nameof(cacheDirectory), "Directory does not exist");
+            if (!Directory.Exists(outDirectory))
                 throw new ArgumentNullException(nameof(outDirectory), "Directory does not exist");
+
+            cacheDir = cacheDirectory;
             outDir = outDirectory;
 
             steps = new StepSequence
             {
-                Name = "Convert Aax To M4b",
+                Name = "Download and Convert Aaxc To M4b",
 
                 ["Step 1: Create Dir"] = Step1_CreateDir,
                 ["Step 2: Get Aaxc Metadata"] = Step2_GetMetadata,
@@ -76,6 +84,7 @@ namespace AaxDecrypter
                 ["Step 4: Restore Aaxc Metadata"] = Step4_RestoreMetadata,
                 ["Step 5: Create Cue"] = Step5_CreateCue,
                 ["Step 6: Create Nfo"] = Step6_CreateNfo,
+                ["Step 7: Cleanup"] = Step7_Cleanup,
             };
 
             aaxcProcesser = new FFMpegAaxcProcesser(dlLic);
@@ -130,10 +139,6 @@ namespace AaxDecrypter
             //Get metadata from the file over http
 
             NetworkFileStreamPersister nfsPersister;
-
-            string jsonDownloadState = PathLib.ReplaceExtension(outputFileName, ".json");
-            string tempFile = PathLib.ReplaceExtension(outputFileName, ".aaxc");
-
             if (File.Exists(jsonDownloadState))
             {
                 nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
@@ -145,15 +150,13 @@ namespace AaxDecrypter
 
                 NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
                 nfsPersister = new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
-                nfsPersister.Target.BeginDownloading().GetAwaiter().GetResult();
             }
 
             var networkFile = new NetworkFileAbstraction(nfsPersister.NetworkFileStream);
-
+            aaxcTagLib = new AaxcTagLibFile(networkFile);
             nfsPersister.Dispose();
 
-            aaxcTagLib = new AaxcTagLibFile(networkFile);
-            
+
             if (coverArt is null && aaxcTagLib.AppleTags.Pictures.Length > 0)
             {
                 coverArt = aaxcTagLib.AppleTags.Pictures[0].Data.Data;
@@ -169,29 +172,50 @@ namespace AaxDecrypter
         {
             DecryptProgressUpdate?.Invoke(this, int.MaxValue);
 
-            bool userSuppliedChapters = downloadLicense.ChapterInfo != null;
-
-            string metadataPath = null;
-
-            if (userSuppliedChapters)
+            NetworkFileStreamPersister nfsPersister;
+            if (File.Exists(jsonDownloadState))
             {
-                //Only write chaopters to the metadata file. All other aaxc metadata will be
-                //wiped out but is restored in Step 3.
-                metadataPath = Path.Combine(outDir, Path.GetFileName(outputFileName) + ".ffmeta");
-                File.WriteAllText(metadataPath, downloadLicense.ChapterInfo.ToFFMeta(true));
+                nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
+                //If More thaan ~1 hour has elapsed since getting the download url, it will expire.
+                //The new url will be to the same file.
+                nfsPersister.NetworkFileStream.SetUriForSameFile(new Uri(downloadLicense.DownloadUrl));
+            }
+            else
+            {
+                var headers = new System.Net.WebHeaderCollection();
+                headers.Add("User-Agent", downloadLicense.UserAgent);
+
+                NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
+                nfsPersister = new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
             }
 
+            string metadataPath = Path.Combine(outDir, Path.GetFileName(outputFileName) + ".ffmeta");
+
+            if (downloadLicense.ChapterInfo is null)
+            {
+                //If we want to keep the original chapters, we need to get them from the url.
+                //Ffprobe needs to seek to find metadata and it can't seek a pipe. Also, there's
+                //no guarantee that enough of the file will have been downloaded at this point
+                //to be able to use the cache file.
+                downloadLicense.ChapterInfo = new ChapterInfo(downloadLicense.DownloadUrl);
+            }
+
+            //Only write chapters to the metadata file. All other aaxc metadata will be
+            //wiped out but is restored in Step 3.                
+            File.WriteAllText(metadataPath, downloadLicense.ChapterInfo.ToFFMeta(true));
+
+
             aaxcProcesser.ProcessBook(
+                nfsPersister.NetworkFileStream,
                 outputFileName,
                 metadataPath)
                 .GetAwaiter()
                 .GetResult();
 
-            if (!userSuppliedChapters && aaxcProcesser.Succeeded)
-                downloadLicense.ChapterInfo = new ChapterInfo(outputFileName);
+            nfsPersister.NetworkFileStream.Close();
+            nfsPersister.Dispose();
 
-            if (userSuppliedChapters)
-                FileExt.SafeDelete(metadataPath);
+            FileExt.SafeDelete(metadataPath);
 
             DecryptProgressUpdate?.Invoke(this, 0);
 
@@ -252,6 +276,13 @@ namespace AaxDecrypter
             {
                 Serilog.Log.Logger.Error(ex, $"{nameof(Step6_CreateNfo)}. FAILED");
             }
+            return !isCanceled;
+        }
+
+        public bool Step7_Cleanup()
+        {
+            FileExt.SafeDelete(jsonDownloadState);
+            FileExt.SafeDelete(tempFile);
             return !isCanceled;
         }
 

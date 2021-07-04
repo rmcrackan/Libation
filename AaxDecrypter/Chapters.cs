@@ -15,7 +15,7 @@ namespace AaxDecrypter
         public IEnumerable<Chapter> Chapters => _chapterList.AsEnumerable();
         public int Count => _chapterList.Count;
         public ChapterInfo() { }
-        public ChapterInfo(string audiobookFile) 
+        public ChapterInfo(string audiobookFile)
         {
             var info = new ProcessStartInfo
             {
@@ -27,7 +27,7 @@ namespace AaxDecrypter
             var chapterJObject = JObject.Parse(jString);
             var chapters = chapterJObject["chapters"]
                 .Select(c => new Chapter(
-                    c["tags"]?["title"]?.Value<string>(), 
+                    c["tags"]?["title"]?.Value<string>(),
                     c["start_time"].Value<double>(),
                     c["end_time"].Value<double>()
                     ));
@@ -44,7 +44,7 @@ namespace AaxDecrypter
             var ffmetaChapters = new StringBuilder();
 
             if (includeFFMetaHeader)
-                ffmetaChapters.AppendLine(";FFMETADATA1\n");
+                ffmetaChapters.AppendLine(";FFMETADATA1");
 
             foreach (var c in Chapters)
             {
@@ -66,10 +66,10 @@ namespace AaxDecrypter
 
             Title = title;
             StartOffset = TimeSpan.FromMilliseconds(startOffsetMs);
-            EndOffset = StartOffset +  TimeSpan.FromMilliseconds(lengthMs);
+            EndOffset = StartOffset + TimeSpan.FromMilliseconds(lengthMs);
         }
         public Chapter(string title, double startTimeSec, double endTimeSec)
-            :this(title, (long)(startTimeSec * 1000), (long)((endTimeSec - startTimeSec) * 1000))
+            : this(title, (long)(startTimeSec * 1000), (long)((endTimeSec - startTimeSec) * 1000))
         {
         }
 
