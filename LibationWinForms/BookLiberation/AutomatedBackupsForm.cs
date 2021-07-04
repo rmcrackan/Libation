@@ -24,13 +24,18 @@ namespace LibationWinForms.BookLiberation
             InitializeComponent();
         }
 
-		public void WriteLine(string text)
-			=> logTb.UIThread(() => logTb.AppendText($"{DateTime.Now} {text}{Environment.NewLine}"));
+        public void WriteLine(string text)
+        {
+            if (!IsDisposed)
+                logTb.UIThread(() => logTb.AppendText($"{DateTime.Now} {text}{Environment.NewLine}"));
+        }
 
 		public void FinalizeUI()
         {
             keepGoingCb.Enabled = false;
-            logTb.AppendText("");
+
+            if (!IsDisposed)
+                logTb.AppendText("");
         }
 
         private void AutomatedBackupsForm_FormClosing(object sender, FormClosingEventArgs e) => keepGoingCb.Checked = false;

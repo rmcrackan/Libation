@@ -213,8 +213,7 @@ namespace FileLiberator
 		}
 
         public bool Validate(LibraryBook libraryBook)
-            => !AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId)
-            && !AudibleFileStorage.AAX.Exists(libraryBook.Book.AudibleProductId);
+            => !AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
 
         public void Cancel()
         {

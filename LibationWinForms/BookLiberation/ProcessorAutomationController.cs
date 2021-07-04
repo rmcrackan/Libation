@@ -47,13 +47,14 @@ namespace LibationWinForms.BookLiberation
             Serilog.Log.Logger.Information("Begin " + nameof(BackupSingleBookAsync) + " {@DebugInfo}", new { productId });
 
             var backupBook = getWiredUpBackupBook(completedAction);
-
-            (AutomatedBackupsForm automatedBackupsForm, LogMe logMe) = attachToBackupsForm(backupBook);
-            automatedBackupsForm.KeepGoingVisible = false;
+           
+            (Action unsibscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook);
 
             var libraryBook = IProcessableExt.GetSingleLibraryBook(productId);
             // continue even if libraryBook is null. we'll display even that in the processing box
-            await new BackupSingle(logMe, backupBook, automatedBackupsForm, libraryBook).RunBackupAsync();
+            await new BackupSingle(logMe, backupBook, libraryBook).RunBackupAsync();
+
+            unsibscribeEvents();
         }
 
         public static async Task BackupAllBooksAsync(EventHandler<LibraryBook> completedAction = null)
@@ -61,9 +62,13 @@ namespace LibationWinForms.BookLiberation
             Serilog.Log.Logger.Information("Begin " + nameof(BackupAllBooksAsync));
 
             var backupBook = getWiredUpBackupBook(completedAction);
+            var automatedBackupsForm = new AutomatedBackupsForm();
 
-            (AutomatedBackupsForm automatedBackupsForm, LogMe logMe) = attachToBackupsForm(backupBook);
+            (Action unsibscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook, automatedBackupsForm);
+
             await new BackupLoop(logMe, backupBook, automatedBackupsForm).RunBackupAsync();
+
+            unsibscribeEvents();
         }
 
         private static BackupBook getWiredUpBackupBook(EventHandler<LibraryBook> completedAction)
@@ -93,11 +98,10 @@ namespace LibationWinForms.BookLiberation
 
         private static void updateIsLiberated(object sender, LibraryBook e) => ApplicationServices.SearchEngineCommands.UpdateIsLiberated(e.Book);
 
-        private static (AutomatedBackupsForm, LogMe) attachToBackupsForm(BackupBook backupBook)
+        private static (Action unsibscribeEvents, LogMe) attachToBackupsForm(BackupBook backupBook, AutomatedBackupsForm automatedBackupsForm = null)
         {
-            #region create form and logger
-            var automatedBackupsForm = new AutomatedBackupsForm();
-            var logMe = LogMe.RegisterForm(automatedBackupsForm);
+            #region create logger
+            var logMe = automatedBackupsForm is null? new LogMe() : LogMe.RegisterForm(automatedBackupsForm);
             #endregion
 
             #region define how model actions will affect form behavior
@@ -121,7 +125,7 @@ namespace LibationWinForms.BookLiberation
 
             #region when form closes, unsubscribe from model's events
             // unsubscribe so disposed forms aren't still trying to receive notifications
-            automatedBackupsForm.FormClosing += (_, __) =>
+            Action unsibscribe = () =>
             {
                 backupBook.DecryptBook.Begin -= decryptBookBegin;
                 backupBook.DecryptBook.StatusUpdate -= statusUpdate;
@@ -132,7 +136,7 @@ namespace LibationWinForms.BookLiberation
             };
             #endregion
 
-            return (automatedBackupsForm, logMe);
+            return (unsibscribe, logMe);
         }
 
         public static async Task BackupAllPdfsAsync(EventHandler<LibraryBook> completedAction = null)
@@ -367,7 +371,7 @@ namespace LibationWinForms.BookLiberation
         protected IProcessable Processable { get; }
         protected AutomatedBackupsForm AutomatedBackupsForm { get; }
 
-        protected BackupRunner(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm)
+        protected BackupRunner(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm = null)
         {
             LogMe = logMe;
             Processable = processable;
@@ -382,7 +386,7 @@ namespace LibationWinForms.BookLiberation
 
         public async Task RunBackupAsync()
         {
-            AutomatedBackupsForm.Show();
+            AutomatedBackupsForm?.Show();
 
             try
             {
@@ -393,7 +397,7 @@ namespace LibationWinForms.BookLiberation
                 LogMe.Error(ex);
             }
 
-            AutomatedBackupsForm.FinalizeUI();
+            AutomatedBackupsForm?.FinalizeUI();
             LogMe.Info("DONE");
         }
 
@@ -454,8 +458,8 @@ An error occurred while trying to process this book. Skip this book permanently?
         protected override MessageBoxButtons SkipDialogButtons => MessageBoxButtons.YesNo;
         protected override DialogResult CreateSkipFileResult => DialogResult.Yes;
 
-        public BackupSingle(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm, LibraryBook libraryBook)
-            : base(logMe, processable, automatedBackupsForm)
+        public BackupSingle(LogMe logMe, IProcessable processable, LibraryBook libraryBook)
+            : base(logMe, processable)
         {
             _libraryBook = libraryBook;
         }
@@ -491,6 +495,9 @@ An error occurred while trying to process this book
                 var keepGoing = await ProcessOneAsync(Processable.ProcessBookAsync_NoValidation, libraryBook);
                 if (!keepGoing)
                     return;
+
+                if (AutomatedBackupsForm.IsDisposed)
+                    break;
 
                 if (!AutomatedBackupsForm.KeepGoing)
                 {

@@ -142,6 +142,9 @@ namespace AaxDecrypter
             if (File.Exists(jsonDownloadState))
             {
                 nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
+                //If More thaan ~1 hour has elapsed since getting the download url, it will expire.
+                //The new url will be to the same file.
+                nfsPersister.NetworkFileStream.SetUriForSameFile(new Uri(downloadLicense.DownloadUrl));
             }
             else
             {

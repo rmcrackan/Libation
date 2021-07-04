@@ -26,11 +26,11 @@ namespace LibationWinForms
 		[Browsable(false)]
 		public IEnumerable<string> TagsEnumerated => book.UserDefinedItem.TagsEnumerated;
 
-		public enum LiberatedState { NotDownloaded, DRM, Liberated }
+		public enum LiberatedState { NotDownloaded, PartialDownload, Liberated }
 		[Browsable(false)]
 		public LiberatedState Liberated_Status
 			=> FileManager.AudibleFileStorage.Audio.Exists(book.AudibleProductId) ? LiberatedState.Liberated
-			: FileManager.AudibleFileStorage.AAX.Exists(book.AudibleProductId) ? LiberatedState.DRM
+			: FileManager.AudibleFileStorage.AAXC.Exists(book.AudibleProductId) ? LiberatedState.PartialDownload
 			: LiberatedState.NotDownloaded;
 
 		public enum PdfState { NoPdf, Downloaded, NotDownloaded }

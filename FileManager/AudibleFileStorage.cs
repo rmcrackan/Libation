@@ -9,7 +9,7 @@ using Dinah.Core.Collections.Generic;
 namespace FileManager
 {
     // could add images here, but for now images are stored in a well-known location
-    public enum FileType { Unknown, Audio, AAX, PDF }
+    public enum FileType { Unknown, Audio, AAXC, PDF }
 
 	/// <summary>
 	/// Files are large. File contents are never read by app.
@@ -25,7 +25,7 @@ namespace FileManager
 
 		#region static
 		public static AudioFileStorage Audio { get; } = new AudioFileStorage();
-		public static AudibleFileStorage AAX { get; } = new AaxFileStorage();
+		public static AudibleFileStorage AAXC { get; } = new AaxcFileStorage();
 		public static AudibleFileStorage PDF { get; } = new PdfFileStorage();
 
 		public static string DownloadsInProgress
@@ -77,7 +77,7 @@ namespace FileManager
         public FileType FileType => (FileType)Value;
 
 		private IEnumerable<string> extensions_noDots { get; }
-		private string extAggr { get; }
+        private string extAggr { get; }
 
         protected AudibleFileStorage(FileType fileType) : base((int)fileType, fileType.ToString())
 		{
@@ -153,16 +153,16 @@ namespace FileManager
         }
     }
 
-    public class AaxFileStorage : AudibleFileStorage
+    public class AaxcFileStorage : AudibleFileStorage
     {
-        public override string[] Extensions { get; } = new[] { "aax" };
+        public override string[] Extensions { get; } = new[] { "aaxc" };
 
         // we always want to use the latest config value, therefore
         // - DO use 'get' arrow "=>"
         // - do NOT use assign "="
-        public override string StorageDirectory => DownloadsFinal;
+        public override string StorageDirectory => DownloadsInProgress;
 
-        public AaxFileStorage() : base(FileType.AAX) { }
+        public AaxcFileStorage() : base(FileType.AAXC) { }
     }
 
     public class PdfFileStorage : AudibleFileStorage
