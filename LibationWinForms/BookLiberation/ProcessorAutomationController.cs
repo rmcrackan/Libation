@@ -66,9 +66,9 @@ namespace LibationWinForms.BookLiberation
 
             (Action unsibscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook, automatedBackupsForm);
 
-            automatedBackupsForm.FormClosing += (_, __) => unsibscribeEvents();
-
             await new BackupLoop(logMe, backupBook, automatedBackupsForm).RunBackupAsync();
+
+            unsibscribeEvents();
         }
 
         private static BackupBook getWiredUpBackupBook(EventHandler<LibraryBook> completedAction)
@@ -495,6 +495,9 @@ An error occurred while trying to process this book
                 var keepGoing = await ProcessOneAsync(Processable.ProcessBookAsync_NoValidation, libraryBook);
                 if (!keepGoing)
                     return;
+
+                if (AutomatedBackupsForm.IsDisposed)
+                    break;
 
                 if (!AutomatedBackupsForm.KeepGoing)
                 {
