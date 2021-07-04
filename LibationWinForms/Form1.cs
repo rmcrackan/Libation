@@ -117,7 +117,7 @@ namespace LibationWinForms
             {
                 if (AudibleFileStorage.Audio.Exists(productId))
                     return AudioFileState.full;
-                if (AudibleFileStorage.AAX.Exists(productId))
+                if (AudibleFileStorage.AAXC.Exists(productId))
                     return AudioFileState.aax;
                 return AudioFileState.none;
 			}

@@ -126,7 +126,7 @@ namespace LibationWinForms
                 var libState = liberatedStatus switch
                 {
                     GridEntry.LiberatedState.Liberated => "Liberated",
-                    GridEntry.LiberatedState.DRM => "Downloaded but needs DRM removed",
+                    GridEntry.LiberatedState.PartialDownload => "File has been at least\r\npartially downloaded",
                     GridEntry.LiberatedState.NotDownloaded => "Book NOT downloaded",
                     _ => throw new Exception("Unexpected liberation state")
                 };
@@ -142,7 +142,7 @@ namespace LibationWinForms
                 var text = libState + pdfState;
 
                 if (liberatedStatus == GridEntry.LiberatedState.NotDownloaded ||
-                    liberatedStatus == GridEntry.LiberatedState.DRM ||
+                    liberatedStatus == GridEntry.LiberatedState.PartialDownload ||
                     pdfStatus == GridEntry.PdfState.NotDownloaded)
                     text += "\r\nClick to complete";
 
@@ -154,7 +154,7 @@ namespace LibationWinForms
             {
                 var image_lib
                     = liberatedStatus == GridEntry.LiberatedState.NotDownloaded ? "red"
-                    : liberatedStatus == GridEntry.LiberatedState.DRM ? "yellow"
+                    : liberatedStatus == GridEntry.LiberatedState.PartialDownload ? "yellow"
                     : liberatedStatus == GridEntry.LiberatedState.Liberated ? "green"
                     : throw new Exception("Unexpected liberation state");
                 var image_pdf
