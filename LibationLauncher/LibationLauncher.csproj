@@ -13,7 +13,7 @@
     <!-- <PublishSingleFile>true</PublishSingleFile> -->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
 
-    <Version>5.1.1.1</Version>
+    <Version>5.1.2.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

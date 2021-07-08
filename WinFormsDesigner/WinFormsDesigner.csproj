@@ -182,6 +182,9 @@
     <EmbeddedResource Include="Dialogs\LibationFilesDialog.resx">
       <DependentUpon>LibationFilesDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\Login\ApprovalNeededDialog.resx">
+      <DependentUpon>ApprovalNeededDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ScanAccountsDialog.resx">
       <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
     </EmbeddedResource>

@@ -34,7 +34,8 @@
 			// 
 			// approvedBtn
 			// 
-			this.approvedBtn.Location = new System.Drawing.Point(15, 25);
+			this.approvedBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.approvedBtn.Location = new System.Drawing.Point(18, 75);
 			this.approvedBtn.Name = "approvedBtn";
 			this.approvedBtn.Size = new System.Drawing.Size(79, 23);
 			this.approvedBtn.TabIndex = 1;
@@ -46,16 +47,17 @@
 			this.label1.AutoSize = true;
 			this.label1.Location = new System.Drawing.Point(12, 9);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(104, 13);
+			this.label1.Size = new System.Drawing.Size(280, 39);
 			this.label1.TabIndex = 0;
-			this.label1.Text = "Click after approving";
+			this.label1.Text = "Amazon is sending you an email.\r\n\r\nPlease press this button after you approve the" +
+    " notification.";
 			// 
 			// ApprovalNeededDialog
 			// 
 			this.AcceptButton = this.approvedBtn;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(149, 60);
+			this.ClientSize = new System.Drawing.Size(345, 115);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.approvedBtn);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -64,7 +66,7 @@
 			this.Name = "ApprovalNeededDialog";
 			this.ShowIcon = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Approval Needed";
+			this.Text = "Approval Alert Detected";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
