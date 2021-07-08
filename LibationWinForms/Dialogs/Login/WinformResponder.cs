@@ -30,6 +30,14 @@ namespace LibationWinForms.Login
 			return null;
 		}
 
+		public (string name, string value) GetMfaChoice(MfaConfig mfaConfig)
+		{
+			using var dialog = new MfaDialog(mfaConfig);
+			if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				return (dialog.SelectedName, dialog.SelectedValue);
+			return (null, null);
+		}
+
 		public (string email, string password) GetLogin()
 		{
 			using var dialog = new AudibleLoginDialog(_account);

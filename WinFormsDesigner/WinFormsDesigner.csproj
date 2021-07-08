@@ -107,6 +107,12 @@
     <Compile Include="Dialogs\Login\CaptchaDialog.Designer.cs">
       <DependentUpon>CaptchaDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\Login\MfaDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\Login\MfaDialog.Designer.cs">
+      <DependentUpon>MfaDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\Login\_2faCodeDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -184,6 +190,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\Login\ApprovalNeededDialog.resx">
       <DependentUpon>ApprovalNeededDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\Login\MfaDialog.resx">
+      <DependentUpon>MfaDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ScanAccountsDialog.resx">
       <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
