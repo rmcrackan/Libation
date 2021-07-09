@@ -23,12 +23,9 @@ namespace LibationWinForms.Dialogs.Login
 			// optional string settings
 			if (!string.IsNullOrWhiteSpace(mfaConfig.Title))
 				this.Text = mfaConfig.Title;
-			if (!string.IsNullOrWhiteSpace(mfaConfig.Button1Text))
-				this.radioButton1.Text = mfaConfig.Button1Text;
-			if (!string.IsNullOrWhiteSpace(mfaConfig.Button2Text))
-				this.radioButton2.Text = mfaConfig.Button2Text;
-			if (!string.IsNullOrWhiteSpace(mfaConfig.Button3Text))
-				this.radioButton3.Text = mfaConfig.Button3Text;
+			setOptional(this.radioButton1, mfaConfig.Button1Text);
+			setOptional(this.radioButton2, mfaConfig.Button2Text);
+			setOptional(this.radioButton3, mfaConfig.Button3Text);
 
 			// mandatory values
 			radioButton1.Name = mfaConfig.Button1Name;
@@ -41,6 +38,11 @@ namespace LibationWinForms.Dialogs.Login
 			radioButton3.Tag = mfaConfig.Button3Value;
 		}
 
+		private static void setOptional(RadioButton radioButton, string text)
+		{
+			if (!string.IsNullOrWhiteSpace(text))
+				radioButton.Text = text;
+		}
 
 		public string SelectedName { get; private set; }
 		public string SelectedValue { get; private set; }

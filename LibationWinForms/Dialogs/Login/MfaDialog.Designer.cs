@@ -44,6 +44,7 @@ namespace LibationWinForms.Dialogs.Login
 			this.submitBtn.TabIndex = 3;
 			this.submitBtn.Text = "Submit";
 			this.submitBtn.UseVisualStyleBackColor = true;
+			this.submitBtn.Click += new System.EventHandler(this.submitBtn_Click);
 			// 
 			// radioButton1
 			// 
