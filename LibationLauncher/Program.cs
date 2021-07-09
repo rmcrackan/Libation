@@ -379,7 +379,7 @@ namespace LibationLauncher
 
 				// https://octokitnet.readthedocs.io/en/latest/releases/
 				var releases =  gitHubClient.Repository.Release.GetAll("rmcrackan", "Libation").GetAwaiter().GetResult();
-				var latest = releases.First(r => !r.Draft);
+				var latest = releases.First(r => !r.Draft && !r.Prerelease);
 
 				var latestVersionString = latest.TagName.Trim('v');
 				if (!Version.TryParse(latestVersionString, out var latestRelease))
