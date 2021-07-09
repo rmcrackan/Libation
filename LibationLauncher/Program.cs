@@ -433,6 +433,8 @@ namespace LibationLauncher
 		{
 			var config = Configuration.Instance;
 
+			// begin logging session with a form feed
+			Log.Logger.Information("\r\n\f");
 			Log.Logger.Information("Begin Libation. {@DebugInfo}", new
 			{
 				Version = BuildVersion.ToString(),
