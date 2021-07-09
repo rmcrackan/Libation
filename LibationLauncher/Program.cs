@@ -437,6 +437,13 @@ namespace LibationLauncher
 			{
 				Version = BuildVersion.ToString(),
 
+				LogLevel_Verbose_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Verbose),
+				LogLevel_Debug_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Debug),
+				LogLevel_Information_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Information),
+				LogLevel_Warning_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Warning),
+				LogLevel_Error_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Error),
+				LogLevel_Fatal_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Fatal),
+
 				config.LibationFiles,
 				AudibleFileStorage.BooksDirectory,
 
