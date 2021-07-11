@@ -176,7 +176,7 @@ namespace AaxDecrypter
         /// <summary>
         /// Begins downloading <see cref="Uri"/> to <see cref="SaveFilePath"/> in a background thread.
         /// </summary>
-        private void BeginDownloading()
+        public void BeginDownloading()
         {
             if (ContentLength != 0 && WritePosition == ContentLength)
             {
@@ -393,7 +393,7 @@ namespace AaxDecrypter
             //read operation will block until file contains enough data
             //to fulfil the request, or until cancelled.
             while (requiredPosition > WritePosition && !isCancelled)
-                Thread.Sleep(0);
+                Thread.Sleep(2);
 
             return _readFile.Read(buffer, offset, count);
         }

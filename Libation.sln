@@ -86,6 +86,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationSearchEngine.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dinah.EntityFrameworkCore.Tests", "..\Dinah.Core\_Tests\Dinah.EntityFrameworkCore.Tests\Dinah.EntityFrameworkCore.Tests.csproj", "{6F5131A0-09AE-4707-B82B-5E53CB74688E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAXClean", "..\AAXClean\AAXClean.csproj", "{94BEB7CC-511D-45AB-9F09-09BE858EE486}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -208,6 +210,10 @@ Global
 		{6F5131A0-09AE-4707-B82B-5E53CB74688E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F5131A0-09AE-4707-B82B-5E53CB74688E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F5131A0-09AE-4707-B82B-5E53CB74688E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94BEB7CC-511D-45AB-9F09-09BE858EE486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94BEB7CC-511D-45AB-9F09-09BE858EE486}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94BEB7CC-511D-45AB-9F09-09BE858EE486}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94BEB7CC-511D-45AB-9F09-09BE858EE486}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -242,6 +248,7 @@ Global
 		{8447C956-B03E-4F59-9DD4-877793B849D9} = {67E66E82-5532-4440-AFB3-9FB1DF9DEF53}
 		{C5B21768-C7C9-4FCB-AC1E-187B223D5A98} = {67E66E82-5532-4440-AFB3-9FB1DF9DEF53}
 		{6F5131A0-09AE-4707-B82B-5E53CB74688E} = {38E6C6D9-963A-4C5B-89F4-F2F14885ADFD}
+		{94BEB7CC-511D-45AB-9F09-09BE858EE486} = {7FBBB086-0807-4998-85BF-6D1A49C8AD05}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {615E00ED-BAEF-4E8E-A92A-9B82D87942A9}
