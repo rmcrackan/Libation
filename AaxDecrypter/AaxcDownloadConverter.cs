@@ -173,10 +173,15 @@ namespace AaxDecrypter
             var decryptedBook = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, downloadLicense.ChapterInfo);
             aaxFile.DecryptionProgressUpdate -= AaxFile_DecryptionProgressUpdate;
 
-            decryptedBook?.AppleTags?.SetCoverArt(coverArt);
-            decryptedBook?.Save();
-            decryptedBook?.Close();
+            downloadLicense.ChapterInfo = aaxFile.Chapters;
 
+            if (coverArt is not null)
+            {
+                decryptedBook?.AppleTags?.SetCoverArt(coverArt);
+                decryptedBook?.Save();
+            }
+
+            decryptedBook?.Close();
             nfsPersister.Dispose();
 
             DecryptProgressUpdate?.Invoke(this, 0);
