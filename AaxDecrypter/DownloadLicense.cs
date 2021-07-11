@@ -1,4 +1,5 @@
-﻿using Dinah.Core;
+﻿using AAXClean;
+using Dinah.Core;
 
 namespace AaxDecrypter
 {

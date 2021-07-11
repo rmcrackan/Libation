@@ -81,15 +81,10 @@ namespace FileLiberator
 
                 if (Configuration.Instance.AllowLibationFixup)
                 {
-                    aaxcDecryptDlLic.ChapterInfo = new ChapterInfo();
+                    aaxcDecryptDlLic.ChapterInfo = new AAXClean.ChapterInfo();
 
                     foreach (var chap in contentLic.ContentMetadata?.ChapterInfo?.Chapters)
-                        aaxcDecryptDlLic.ChapterInfo.AddChapter(
-                            new Chapter(
-                                chap.Title,
-                                chap.StartOffsetMs,
-                                chap.LengthMs
-                                ));
+                        aaxcDecryptDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
 
                 aaxcDownloader = AaxcDownloadConverter.Create(cacheDir, destinationDir, aaxcDecryptDlLic);
@@ -132,7 +127,7 @@ namespace FileLiberator
             }
         }
 
-        private void aaxcDownloader_RetrievedTags(object sender, AaxcTagLibFile e)
+        private void aaxcDownloader_RetrievedTags(object sender, AAXClean.AppleTags e)
         {
             TitleDiscovered?.Invoke(this, e.TitleSansUnabridged);
             AuthorsDiscovered?.Invoke(this, e.FirstAuthor ?? "[unknown]");

@@ -1,4 +1,5 @@
-﻿using Dinah.Core;
+﻿using AAXClean;
+using Dinah.Core;
 using Dinah.Core.Diagnostics;
 using Dinah.Core.IO;
 using Dinah.Core.StepRunner;
@@ -9,7 +10,7 @@ namespace AaxDecrypter
 {
     public interface ISimpleAaxcToM4bConverter
     {
-        event EventHandler<AaxcTagLibFile> RetrievedTags;
+        event EventHandler<AppleTags> RetrievedTags;
         event EventHandler<byte[]> RetrievedCoverArt;
         event EventHandler<TimeSpan> DecryptTimeRemaining;
         event EventHandler<int> DecryptProgressUpdate;
@@ -18,7 +19,7 @@ namespace AaxDecrypter
         string outDir { get; }
         string outputFileName { get; }
         DownloadLicense downloadLicense { get; }
-        AaxcTagLibFile aaxcTagLib { get; }
+        Mp4File aaxFile { get; }
         byte[] coverArt { get; }
         void SetCoverArt(byte[] coverArt);
         void SetOutputFilename(string outFileName);
@@ -29,14 +30,13 @@ namespace AaxDecrypter
         bool Step1_CreateDir();
         bool Step2_GetMetadata();
         bool Step3_DownloadAndCombine();
-        bool Step4_RestoreMetadata();
         bool Step5_CreateCue();
         bool Step6_CreateNfo();
         bool Step7_Cleanup();
     }
     public class AaxcDownloadConverter : IAdvancedAaxcToM4bConverter
     {
-        public event EventHandler<AaxcTagLibFile> RetrievedTags;
+        public event EventHandler<AppleTags> RetrievedTags;
         public event EventHandler<byte[]> RetrievedCoverArt;
         public event EventHandler<int> DecryptProgressUpdate;
         public event EventHandler<TimeSpan> DecryptTimeRemaining;
@@ -45,11 +45,11 @@ namespace AaxDecrypter
         public string cacheDir { get; private set; }
         public string outputFileName { get; private set; }
         public DownloadLicense downloadLicense { get; private set; }
-        public AaxcTagLibFile aaxcTagLib { get; private set; }
+        public Mp4File aaxFile { get; private set; }
         public byte[] coverArt { get; private set; }
 
         private StepSequence steps { get; }
-        private FFMpegAaxcProcesser aaxcProcesser;
+        private NetworkFileStreamPersister nfsPersister;
         private bool isCanceled { get; set; }
         private string jsonDownloadState => Path.Combine(cacheDir, Path.GetFileNameWithoutExtension(outputFileName) + ".json");
         private string tempFile => PathLib.ReplaceExtension(jsonDownloadState, ".aaxc");
@@ -81,14 +81,10 @@ namespace AaxDecrypter
                 ["Step 1: Create Dir"] = Step1_CreateDir,
                 ["Step 2: Get Aaxc Metadata"] = Step2_GetMetadata,
                 ["Step 3: Download Decrypted Audiobook"] = Step3_DownloadAndCombine,
-                ["Step 4: Restore Aaxc Metadata"] = Step4_RestoreMetadata,
                 ["Step 5: Create Cue"] = Step5_CreateCue,
                 ["Step 6: Create Nfo"] = Step6_CreateNfo,
                 ["Step 7: Cleanup"] = Step7_Cleanup,
             };
-
-            aaxcProcesser = new FFMpegAaxcProcesser(dlLic);
-            aaxcProcesser.ProgressUpdate += AaxcProcesser_ProgressUpdate;
 
             downloadLicense = dlLic;
         }
@@ -120,7 +116,7 @@ namespace AaxDecrypter
                 return false;
             }
 
-            var speedup = (int)(aaxcTagLib.Properties.Duration.TotalSeconds / (long)Elapsed.TotalSeconds);
+            var speedup = (int)(aaxFile.Duration.TotalSeconds / (long)Elapsed.TotalSeconds);
             Console.WriteLine("Speedup is " + speedup + "x realtime.");
             Console.WriteLine("Done");
             return true;
@@ -137,8 +133,7 @@ namespace AaxDecrypter
         public bool Step2_GetMetadata()
         {
             //Get metadata from the file over http
-
-            NetworkFileStreamPersister nfsPersister;
+                       
             if (File.Exists(jsonDownloadState))
             {
                 nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
@@ -154,18 +149,12 @@ namespace AaxDecrypter
                 NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
                 nfsPersister = new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
             }
+            nfsPersister.NetworkFileStream.BeginDownloading();
 
-            var networkFile = new NetworkFileAbstraction(nfsPersister.NetworkFileStream);
-            aaxcTagLib = new AaxcTagLibFile(networkFile);
-            nfsPersister.Dispose();
+            aaxFile = new Mp4File(nfsPersister.NetworkFileStream);
+            coverArt = aaxFile.AppleTags.Cover;
 
-
-            if (coverArt is null && aaxcTagLib.AppleTags.Pictures.Length > 0)
-            {
-                coverArt = aaxcTagLib.AppleTags.Pictures[0].Data.Data;
-            }
-
-            RetrievedTags?.Invoke(this, aaxcTagLib);
+            RetrievedTags?.Invoke(this, aaxFile.AppleTags);
             RetrievedCoverArt?.Invoke(this, coverArt);
 
             return !isCanceled;
@@ -175,85 +164,38 @@ namespace AaxDecrypter
         {
             DecryptProgressUpdate?.Invoke(this, int.MaxValue);
 
-            NetworkFileStreamPersister nfsPersister;
-            if (File.Exists(jsonDownloadState))
-            {
-                nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
-                //If More thaan ~1 hour has elapsed since getting the download url, it will expire.
-                //The new url will be to the same file.
-                nfsPersister.NetworkFileStream.SetUriForSameFile(new Uri(downloadLicense.DownloadUrl));
-            }
-            else
-            {
-                var headers = new System.Net.WebHeaderCollection();
-                headers.Add("User-Agent", downloadLicense.UserAgent);
+            if (File.Exists(outputFileName))
+                FileExt.SafeDelete(outputFileName);
 
-                NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
-                nfsPersister = new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
-            }
+            FileStream outFile = File.OpenWrite(outputFileName);
 
-            string metadataPath = Path.Combine(outDir, Path.GetFileName(outputFileName) + ".ffmeta");
+            aaxFile.DecryptionProgressUpdate += AaxFile_DecryptionProgressUpdate;
+            var decryptedBook = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, downloadLicense.ChapterInfo);
+            aaxFile.DecryptionProgressUpdate -= AaxFile_DecryptionProgressUpdate;
 
-            if (downloadLicense.ChapterInfo is null)
-            {
-                //If we want to keep the original chapters, we need to get them from the url.
-                //Ffprobe needs to seek to find metadata and it can't seek a pipe. Also, there's
-                //no guarantee that enough of the file will have been downloaded at this point
-                //to be able to use the cache file.
-                downloadLicense.ChapterInfo = new ChapterInfo(downloadLicense.DownloadUrl);
-            }
+            decryptedBook?.AppleTags?.SetCoverArt(coverArt);
+            decryptedBook?.Save();
+            decryptedBook?.Close();
 
-            //Only write chapters to the metadata file. All other aaxc metadata will be
-            //wiped out but is restored in Step 3.                
-            File.WriteAllText(metadataPath, downloadLicense.ChapterInfo.ToFFMeta(true));
-
-
-            aaxcProcesser.ProcessBook(
-                nfsPersister.NetworkFileStream,
-                outputFileName,
-                metadataPath)
-                .GetAwaiter()
-                .GetResult();
-
-            nfsPersister.NetworkFileStream.Close();
             nfsPersister.Dispose();
-
-            FileExt.SafeDelete(metadataPath);
 
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            return aaxcProcesser.Succeeded && !isCanceled;
+            return aaxFile is not null && !isCanceled;
         }
 
-        private void AaxcProcesser_ProgressUpdate(object sender, AaxcProcessUpdate e)
+        private void AaxFile_DecryptionProgressUpdate(object sender, DecryptionProgressEventArgs e)
         {
-            double remainingSecsToProcess = (aaxcTagLib.Properties.Duration - e.ProcessPosition).TotalSeconds;
+            var duration = aaxFile.Duration;
+            double remainingSecsToProcess = (duration - e.ProcessPosition).TotalSeconds;
             double estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
 
             if (double.IsNormal(estTimeRemaining))
                 DecryptTimeRemaining?.Invoke(this, TimeSpan.FromSeconds(estTimeRemaining));
 
-            double progressPercent = 100 * e.ProcessPosition.TotalSeconds / aaxcTagLib.Properties.Duration.TotalSeconds;
+            double progressPercent = 100 * e.ProcessPosition.TotalSeconds / duration.TotalSeconds;
 
             DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
-        }
-
-        /// <summary>
-        /// Copy all aacx metadata to m4b file, including cover art.
-        /// </summary>
-        public bool Step4_RestoreMetadata()
-        {
-            var outFile = new AaxcTagLibFile(outputFileName);
-            outFile.CopyTagsFrom(aaxcTagLib);
-
-            if (outFile.AppleTags.Pictures.Length == 0 && coverArt is not null)
-            {
-                outFile.AddPicture(coverArt);
-            }
-
-            outFile.Save();
-
-            return !isCanceled;
         }
 
         public bool Step5_CreateCue()
@@ -273,7 +215,7 @@ namespace AaxDecrypter
         {
             try
             {
-                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxcTagLib, downloadLicense.ChapterInfo));
+                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxFile, downloadLicense.ChapterInfo));
             }
             catch (Exception ex)
             {
@@ -292,7 +234,7 @@ namespace AaxDecrypter
         public void Cancel()
         {
             isCanceled = true;
-            aaxcProcesser.Cancel();
+            aaxFile?.Cancel();
         }
     }
 }
