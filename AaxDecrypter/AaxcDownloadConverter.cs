@@ -19,7 +19,7 @@ namespace AaxDecrypter
         string outDir { get; }
         string outputFileName { get; }
         DownloadLicense downloadLicense { get; }
-        Mp4File aaxFile { get; }
+        AaxFile aaxFile { get; }
         byte[] coverArt { get; }
         void SetCoverArt(byte[] coverArt);
         void SetOutputFilename(string outFileName);
@@ -45,7 +45,7 @@ namespace AaxDecrypter
         public string cacheDir { get; private set; }
         public string outputFileName { get; private set; }
         public DownloadLicense downloadLicense { get; private set; }
-        public Mp4File aaxFile { get; private set; }
+        public AaxFile aaxFile { get; private set; }
         public byte[] coverArt { get; private set; }
 
         private StepSequence steps { get; }
@@ -151,7 +151,7 @@ namespace AaxDecrypter
             }
             nfsPersister.NetworkFileStream.BeginDownloading();
 
-            aaxFile = new Mp4File(nfsPersister.NetworkFileStream);
+            aaxFile = new AaxFile(nfsPersister.NetworkFileStream);
             coverArt = aaxFile.AppleTags.Cover;
 
             RetrievedTags?.Invoke(this, aaxFile.AppleTags);
@@ -170,7 +170,7 @@ namespace AaxDecrypter
             FileStream outFile = File.OpenWrite(outputFileName);
 
             aaxFile.DecryptionProgressUpdate += AaxFile_DecryptionProgressUpdate;
-            var decryptedBook = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, downloadLicense.ChapterInfo);
+            using var decryptedBook = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, downloadLicense.ChapterInfo);
             aaxFile.DecryptionProgressUpdate -= AaxFile_DecryptionProgressUpdate;
 
             downloadLicense.ChapterInfo = aaxFile.Chapters;
