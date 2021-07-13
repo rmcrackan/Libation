@@ -19,7 +19,7 @@ namespace AaxDecrypter
         string outDir { get; }
         string outputFileName { get; }
         DownloadLicense downloadLicense { get; }
-        Mp4File aaxFile { get; }
+        AaxFile aaxFile { get; }
         byte[] coverArt { get; }
         void SetCoverArt(byte[] coverArt);
         void SetOutputFilename(string outFileName);
@@ -45,7 +45,7 @@ namespace AaxDecrypter
         public string cacheDir { get; private set; }
         public string outputFileName { get; private set; }
         public DownloadLicense downloadLicense { get; private set; }
-        public Mp4File aaxFile { get; private set; }
+        public AaxFile aaxFile { get; private set; }
         public byte[] coverArt { get; private set; }
 
         private StepSequence steps { get; }
@@ -136,28 +136,41 @@ namespace AaxDecrypter
                        
             if (File.Exists(jsonDownloadState))
             {
-                nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
-                //If More thaan ~1 hour has elapsed since getting the download url, it will expire.
-                //The new url will be to the same file.
-                nfsPersister.NetworkFileStream.SetUriForSameFile(new Uri(downloadLicense.DownloadUrl));
+                try
+                {
+                    nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
+                    //If More thaan ~1 hour has elapsed since getting the download url, it will expire.
+                    //The new url will be to the same file.
+                    nfsPersister.NetworkFileStream.SetUriForSameFile(new Uri(downloadLicense.DownloadUrl));
+                }
+                catch
+                {
+                    FileExt.SafeDelete(jsonDownloadState);
+                    FileExt.SafeDelete(tempFile);
+                    nfsPersister = NewNetworkFilePersister();
+                }
             }
             else
             {
-                var headers = new System.Net.WebHeaderCollection();
-                headers.Add("User-Agent", downloadLicense.UserAgent);
-
-                NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
-                nfsPersister = new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
+                nfsPersister = NewNetworkFilePersister();
             }
             nfsPersister.NetworkFileStream.BeginDownloading();
 
-            aaxFile = new Mp4File(nfsPersister.NetworkFileStream);
+            aaxFile = new AaxFile(nfsPersister.NetworkFileStream);
             coverArt = aaxFile.AppleTags.Cover;
 
             RetrievedTags?.Invoke(this, aaxFile.AppleTags);
             RetrievedCoverArt?.Invoke(this, coverArt);
 
             return !isCanceled;
+        }
+        private NetworkFileStreamPersister NewNetworkFilePersister()
+        {
+            var headers = new System.Net.WebHeaderCollection();
+            headers.Add("User-Agent", downloadLicense.UserAgent);
+
+            NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
+            return new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
         }
 
         public bool Step3_DownloadAndCombine()
@@ -170,7 +183,7 @@ namespace AaxDecrypter
             FileStream outFile = File.OpenWrite(outputFileName);
 
             aaxFile.DecryptionProgressUpdate += AaxFile_DecryptionProgressUpdate;
-            var decryptedBook = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, downloadLicense.ChapterInfo);
+            using var decryptedBook = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, downloadLicense.ChapterInfo);
             aaxFile.DecryptionProgressUpdate -= AaxFile_DecryptionProgressUpdate;
 
             downloadLicense.ChapterInfo = aaxFile.Chapters;
