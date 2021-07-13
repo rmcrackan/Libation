@@ -6,18 +6,9 @@ namespace LibationWinForms.BookLiberation
 {
     public partial class AutomatedBackupsForm : Form
     {
-        public bool KeepGoingVisible
-        {
-            get => keepGoingCb.Visible;
-            set => keepGoingCb.Visible = value;
-        }
-
         public bool KeepGoingChecked => keepGoingCb.Checked;
 
-        public bool KeepGoing
-            => keepGoingCb.Visible
-            && keepGoingCb.Enabled
-            && keepGoingCb.Checked;
+        public bool KeepGoing => keepGoingCb.Enabled && keepGoingCb.Checked;
 
         public AutomatedBackupsForm()
         {

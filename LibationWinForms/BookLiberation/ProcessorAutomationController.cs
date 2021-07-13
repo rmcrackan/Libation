@@ -508,7 +508,7 @@ An error occurred while trying to process this book
 
                 if (!AutomatedBackupsForm.KeepGoing)
                 {
-                    if (AutomatedBackupsForm.KeepGoingVisible && !AutomatedBackupsForm.KeepGoingChecked)
+                    if (!AutomatedBackupsForm.KeepGoingChecked)
                         LogMe.Info("'Keep going' is unchecked");
                     return;
                 }
