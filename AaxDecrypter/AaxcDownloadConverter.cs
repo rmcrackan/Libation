@@ -136,18 +136,23 @@ namespace AaxDecrypter
                        
             if (File.Exists(jsonDownloadState))
             {
-                nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
-                //If More thaan ~1 hour has elapsed since getting the download url, it will expire.
-                //The new url will be to the same file.
-                nfsPersister.NetworkFileStream.SetUriForSameFile(new Uri(downloadLicense.DownloadUrl));
+                try
+                {
+                    nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
+                    //If More thaan ~1 hour has elapsed since getting the download url, it will expire.
+                    //The new url will be to the same file.
+                    nfsPersister.NetworkFileStream.SetUriForSameFile(new Uri(downloadLicense.DownloadUrl));
+                }
+                catch
+                {
+                    FileExt.SafeDelete(jsonDownloadState);
+                    FileExt.SafeDelete(tempFile);
+                    nfsPersister = NewNetworkFilePersister();
+                }
             }
             else
             {
-                var headers = new System.Net.WebHeaderCollection();
-                headers.Add("User-Agent", downloadLicense.UserAgent);
-
-                NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
-                nfsPersister = new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
+                nfsPersister = NewNetworkFilePersister();
             }
             nfsPersister.NetworkFileStream.BeginDownloading();
 
@@ -158,6 +163,14 @@ namespace AaxDecrypter
             RetrievedCoverArt?.Invoke(this, coverArt);
 
             return !isCanceled;
+        }
+        private NetworkFileStreamPersister NewNetworkFilePersister()
+        {
+            var headers = new System.Net.WebHeaderCollection();
+            headers.Add("User-Agent", downloadLicense.UserAgent);
+
+            NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
+            return new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
         }
 
         public bool Step3_DownloadAndCombine()
