@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using AudibleApi;
 using AudibleApi.Authorization;
+using Dinah.Core.Logging;
 using FileManager;
 using InternalUtilities;
 using LibationWinForms;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
+using Serilog.Events;
 
 namespace LibationLauncher
 {
@@ -31,7 +33,6 @@ namespace LibationLauncher
 			migrate_to_v4_0_0();
 			migrate_to_v5_0_0();
 			
-			ensureLoggingConfig();
 			ensureSerilogConfig();
 			configureLogging();
 			checkForUpdate();
@@ -155,7 +156,7 @@ namespace LibationLauncher
 			// identity has likely been updated above. re-get contents
 			var legacyContents = File.ReadAllText(AccountsSettingsFileLegacy30);
 
-			var identity = AudibleApi.Authorization.Identity.FromJson(legacyContents);
+			var identity = Identity.FromJson(legacyContents);
 
 			if (!identity.IsValid)
 				return null;
@@ -257,41 +258,12 @@ namespace LibationLauncher
 		}
         #endregion
 
-        private static string defaultLoggingLevel { get; } = "Information";
-		private static void ensureLoggingConfig()
-		{
-			var config = Configuration.Instance;
-
-			if (config.GetObject("Logging") != null)
-				return;
-
-			// "Logging": {
-			//   "LogLevel": {
-			//     "Default": "Debug"
-			//   }
-			// }
-			var loggingObj = new JObject
-			{
-				{
-					"LogLevel", new JObject { { "Default", defaultLoggingLevel } }
-				}
-			};
-			config.SetObject("Logging", loggingObj);
-		}
-
-		private static void ensureSerilogConfig()
+        private static void ensureSerilogConfig()
 		{
 			var config = Configuration.Instance;
 
 			if (config.GetObject("Serilog") != null)
 				return;
-
-			// default. for reference. output example:
-			// 2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
-			var default_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}";
-			// with class and method info. output example:
-			// 2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForms.Program.init()) Begin Libation
-			var code_outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
 
 			// "Serilog": {
 			//   "MinimumLevel": "Information"
@@ -312,7 +284,7 @@ namespace LibationLauncher
 			// }
 			var serilogObj = new JObject
 			{
-				{ "MinimumLevel", defaultLoggingLevel },
+				{ "MinimumLevel", "Information" },
 				{ "WriteTo", new JArray
 					{
 						new JObject { {"Name", "Console" } },
@@ -325,7 +297,12 @@ namespace LibationLauncher
 									// for this sink to work, a path must be provided. we override this below
 									{ "path", Path.Combine(Configuration.Instance.LibationFiles, "_Log.log") },
 									{ "rollingInterval", "Month" },
-									{ "outputTemplate", code_outputTemplate }
+									// Serilog template formatting examples
+									// - default:                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+									//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
+									// - with class and method info: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
+									//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForms.Program.init()) Begin Libation
+									{ "outputTemplate", "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}" }
 								}
 							}
 						}
@@ -439,12 +416,12 @@ namespace LibationLauncher
 			{
 				Version = BuildVersion.ToString(),
 
-				LogLevel_Verbose_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Verbose),
-				LogLevel_Debug_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Debug),
-				LogLevel_Information_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Information),
-				LogLevel_Warning_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Warning),
-				LogLevel_Error_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Error),
-				LogLevel_Fatal_Enabled = Serilog.Log.Logger.IsEnabled(Serilog.Events.LogEventLevel.Fatal),
+				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
+				LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
+				LogLevel_Information_Enabled = Log.Logger.IsInformationEnabled(),
+				LogLevel_Warning_Enabled = Log.Logger.IsWarningEnabled(),
+				LogLevel_Error_Enabled = Log.Logger.IsErrorEnabled(),
+				LogLevel_Fatal_Enabled = Log.Logger.IsFatalEnabled(),
 
 				config.LibationFiles,
 				AudibleFileStorage.BooksDirectory,
@@ -460,6 +437,20 @@ namespace LibationLauncher
 				DecryptInProgressDir = AudibleFileStorage.DecryptInProgress,
 				DecryptInProgressFiles = Directory.EnumerateFiles(AudibleFileStorage.DecryptInProgress).Count(),
 			});
+
+			// when turning on debug (and especially Verbose) to share logs, some privacy settings may not be obscured
+			if (Log.Logger.IsVerboseEnabled())
+				MessageBox.Show(@"
+Warning: verbose logging is enabled.
+
+This should be used for debugging only. It creates many
+more logs and debug files, neither of which are as
+strictly anonomous.
+
+When you are finished debugging, it's highly recommended
+to set your debug MinimumLevel to Information and restart
+Libation.
+".Trim(), "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
 		private static Version BuildVersion => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;

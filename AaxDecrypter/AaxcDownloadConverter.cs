@@ -30,9 +30,9 @@ namespace AaxDecrypter
         bool Step1_CreateDir();
         bool Step2_GetMetadata();
         bool Step3_DownloadAndCombine();
-        bool Step5_CreateCue();
-        bool Step6_CreateNfo();
-        bool Step7_Cleanup();
+        bool Step4_CreateCue();
+        bool Step5_CreateNfo();
+        bool Step6_Cleanup();
     }
     public class AaxcDownloadConverter : IAdvancedAaxcToM4bConverter
     {
@@ -81,9 +81,9 @@ namespace AaxDecrypter
                 ["Step 1: Create Dir"] = Step1_CreateDir,
                 ["Step 2: Get Aaxc Metadata"] = Step2_GetMetadata,
                 ["Step 3: Download Decrypted Audiobook"] = Step3_DownloadAndCombine,
-                ["Step 5: Create Cue"] = Step5_CreateCue,
-                ["Step 6: Create Nfo"] = Step6_CreateNfo,
-                ["Step 7: Cleanup"] = Step7_Cleanup,
+                ["Step 4: Create Cue"] = Step4_CreateCue,
+                ["Step 5: Create Nfo"] = Step5_CreateNfo,
+                ["Step 6: Cleanup"] = Step6_Cleanup,
             };
 
             downloadLicense = dlLic;
@@ -216,7 +216,7 @@ namespace AaxDecrypter
             DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
         }
 
-        public bool Step5_CreateCue()
+        public bool Step4_CreateCue()
         {
             try
             {
@@ -224,12 +224,12 @@ namespace AaxDecrypter
             }
             catch (Exception ex)
             {
-                Serilog.Log.Logger.Error(ex, $"{nameof(Step5_CreateCue)}. FAILED");
+                Serilog.Log.Logger.Error(ex, $"{nameof(Step4_CreateCue)}. FAILED");
             }
             return !isCanceled;
         }
 
-        public bool Step6_CreateNfo()
+        public bool Step5_CreateNfo()
         {
             try
             {
@@ -237,12 +237,12 @@ namespace AaxDecrypter
             }
             catch (Exception ex)
             {
-                Serilog.Log.Logger.Error(ex, $"{nameof(Step6_CreateNfo)}. FAILED");
+                Serilog.Log.Logger.Error(ex, $"{nameof(Step5_CreateNfo)}. FAILED");
             }
             return !isCanceled;
         }
 
-        public bool Step7_Cleanup()
+        public bool Step6_Cleanup()
         {
             FileExt.SafeDelete(jsonDownloadState);
             FileExt.SafeDelete(tempFile);

@@ -100,8 +100,13 @@ namespace FileManager
             lock (locker)
             {
                 var jObject = readFile();
+                var startContents = JsonConvert.SerializeObject(jObject, Formatting.Indented);
+
                 jObject[propertyName] = newValue;
-                File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+                var endContents = JsonConvert.SerializeObject(jObject, Formatting.Indented);
+
+                if (startContents != endContents)
+                    File.WriteAllText(Filepath, endContents);
             }
         }
 
@@ -112,10 +117,13 @@ namespace FileManager
             {
                 var jObject = readFile();
                 var token = jObject.SelectToken(jsonPath);
-                var debug_oldValue = (string)token[propertyName];
+                var oldValue = (string)token[propertyName];
 
-                token[propertyName] = newValue;
-                File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+                if (oldValue != newValue)
+                {
+                    token[propertyName] = newValue;
+                    File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+                }
             }
         }
 

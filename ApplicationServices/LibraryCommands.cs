@@ -35,7 +35,7 @@ namespace ApplicationServices
 			}
 			catch (AudibleApi.Authentication.LoginFailedException lfEx)
 			{
-				lfEx.MoveResponseBodyFile(FileManager.Configuration.Instance.LibationFiles);
+				lfEx.SaveFiles(FileManager.Configuration.Instance.LibationFiles);
 
 				// nuget Serilog.Exceptions would automatically log custom properties
 				//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
@@ -46,7 +46,7 @@ namespace ApplicationServices
 					ResponseStatusCodeNumber = (int)lfEx.ResponseStatusCode,
 					ResponseStatusCodeDesc = lfEx.ResponseStatusCode,
 					lfEx.ResponseInputFields,
-					lfEx.ResponseBodyFilePath
+					lfEx.ResponseBodyFilePaths
 				});
 				throw;
 			}
