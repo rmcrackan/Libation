@@ -59,7 +59,11 @@ namespace LibationWinForms.Dialogs
             this.Close();
         }
 
-        private void cancelBtn_Click(object sender, EventArgs e) => this.Close();
+        private void cancelBtn_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
 
         private void DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {

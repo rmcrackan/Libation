@@ -19,6 +19,9 @@ namespace LibationWinForms.Dialogs
 
 		private void SettingsDialog_Load(object sender, EventArgs e)
 		{
+			if (this.DesignMode)
+				return;
+
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
 			this.downloadsInProgressDescLbl.Text = desc(nameof(config.DownloadsInProgressEnum));
 			this.decryptInProgressDescLbl.Text = desc(nameof(config.DecryptInProgressEnum));
@@ -90,6 +93,10 @@ namespace LibationWinForms.Dialogs
 			this.Close();
 		}
 
-		private void cancelBtn_Click(object sender, EventArgs e) => this.Close();
+		private void cancelBtn_Click(object sender, EventArgs e)
+		{
+			this.DialogResult = DialogResult.Cancel;
+			this.Close();
+		}
 	}
 }

@@ -22,6 +22,9 @@ namespace LibationWinForms.Dialogs
 
 		private void LibationFilesDialog_Load(object sender, EventArgs e)
 		{
+			if (this.DesignMode)
+				return;
+
 			libationFilesDescLbl.Text = desc(nameof(config.LibationFiles));
 			this.libationFilesRootRb.Text = "In the same folder that Libation is running from\r\n" + Configuration.AppDir;
 			this.libationFilesMyDocsRb.Text = "In My Documents\r\n" + Configuration.MyDocs;
@@ -62,6 +65,10 @@ namespace LibationWinForms.Dialogs
 			this.Close();
 		}
 
-		private void cancelBtn_Click(object sender, EventArgs e) => this.Close();
+		private void cancelBtn_Click(object sender, EventArgs e)
+		{
+			this.DialogResult = DialogResult.Cancel;
+			this.Close();
+		}
 	}
 }
