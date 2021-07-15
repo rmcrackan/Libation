@@ -177,7 +177,7 @@ namespace AaxDecrypter
         {
             OutputFormat format = OutputFormat.Mp4a;
 
-            DecryptProgressUpdate?.Invoke(this, int.MaxValue);
+            DecryptProgressUpdate?.Invoke(this, 0);
 
             if (File.Exists(outputFileName))
                 FileExt.SafeDelete(outputFileName);
