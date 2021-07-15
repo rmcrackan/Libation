@@ -175,6 +175,8 @@ namespace AaxDecrypter
 
         public bool Step3_DownloadAndCombine()
         {
+            OutputFormat format = OutputFormat.Mp3;
+
             DecryptProgressUpdate?.Invoke(this, int.MaxValue);
 
             if (File.Exists(outputFileName))
@@ -182,27 +184,32 @@ namespace AaxDecrypter
 
             FileStream outFile = File.OpenWrite(outputFileName);
 
-            aaxFile.DecryptionProgressUpdate += AaxFile_DecryptionProgressUpdate;
-            using var decryptedBook = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, downloadLicense.ChapterInfo);
-            aaxFile.DecryptionProgressUpdate -= AaxFile_DecryptionProgressUpdate;
+            aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+            var decryptionResult = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, format, downloadLicense.ChapterInfo);
+            aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
             downloadLicense.ChapterInfo = aaxFile.Chapters;
 
-            if (coverArt is not null)
+            if (decryptionResult == ConversionResult.NoErrorsDetected
+                && coverArt is not null
+                && format == OutputFormat.Mp4a)
             {
-                decryptedBook?.AppleTags?.SetCoverArt(coverArt);
-                decryptedBook?.Save();
+                //This handles a special case where the aaxc file doesn't contain cover art and
+                //Libation downloaded it instead (Animal Farm). Currently only works for Mp4a files.
+                using var decryptedBook = new Mp4File(outputFileName, FileAccess.ReadWrite);
+                decryptedBook.AppleTags?.SetCoverArt(coverArt);
+                decryptedBook.Save();
+                decryptedBook.Close();
             }
 
-            decryptedBook?.Close();
             nfsPersister.Dispose();
 
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            return aaxFile is not null && !isCanceled;
+            return decryptionResult == ConversionResult.NoErrorsDetected && !isCanceled;
         }
 
-        private void AaxFile_DecryptionProgressUpdate(object sender, DecryptionProgressEventArgs e)
+        private void AaxFile_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
         {
             var duration = aaxFile.Duration;
             double remainingSecsToProcess = (duration - e.ProcessPosition).TotalSeconds;
