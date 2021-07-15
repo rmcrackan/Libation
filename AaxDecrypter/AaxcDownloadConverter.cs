@@ -8,94 +8,52 @@ using System.IO;
 
 namespace AaxDecrypter
 {
-    public interface ISimpleAaxcToM4bConverter
-    {
-        event EventHandler<AppleTags> RetrievedTags;
-        event EventHandler<byte[]> RetrievedCoverArt;
-        event EventHandler<TimeSpan> DecryptTimeRemaining;
-        event EventHandler<int> DecryptProgressUpdate;
-        bool Run();
-        string AppName { get; set; }
-        string outDir { get; }
-        string outputFileName { get; }
-        DownloadLicense downloadLicense { get; }
-        AaxFile aaxFile { get; }
-        byte[] coverArt { get; }
-        void SetCoverArt(byte[] coverArt);
-        void SetOutputFilename(string outFileName);
-    }
-    public interface IAdvancedAaxcToM4bConverter : ISimpleAaxcToM4bConverter
-    {
-        void Cancel();
-        bool Step1_CreateDir();
-        bool Step2_GetMetadata();
-        bool Step3_DownloadAndCombine();
-        bool Step4_CreateCue();
-        bool Step5_CreateNfo();
-        bool Step6_Cleanup();
-    }
-    public class AaxcDownloadConverter : IAdvancedAaxcToM4bConverter
+    public class AaxcDownloadConverter
     {
         public event EventHandler<AppleTags> RetrievedTags;
         public event EventHandler<byte[]> RetrievedCoverArt;
         public event EventHandler<int> DecryptProgressUpdate;
         public event EventHandler<TimeSpan> DecryptTimeRemaining;
         public string AppName { get; set; } = nameof(AaxcDownloadConverter);
-        public string outDir { get; private set; }
-        public string cacheDir { get; private set; }
-        public string outputFileName { get; private set; }
-        public DownloadLicense downloadLicense { get; private set; }
-        public AaxFile aaxFile { get; private set; }
-        public byte[] coverArt { get; private set; }
+        public string OutputFileName { get; private set; }
+
+        private string cacheDir { get; }
+        private DownloadLicense downloadLicense { get; }
+        private AaxFile aaxFile;
+        private byte[] coverArt;
 
         private StepSequence steps { get; }
         private NetworkFileStreamPersister nfsPersister;
         private bool isCanceled { get; set; }
-        private string jsonDownloadState => Path.Combine(cacheDir, Path.GetFileNameWithoutExtension(outputFileName) + ".json");
+        private string jsonDownloadState => Path.Combine(cacheDir, Path.GetFileNameWithoutExtension(OutputFileName) + ".json");
         private string tempFile => PathLib.ReplaceExtension(jsonDownloadState, ".aaxc");
 
-        public static AaxcDownloadConverter Create(string cacheDirectory, string outDirectory, DownloadLicense dlLic)
+        public AaxcDownloadConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic)
         {
-            var converter = new AaxcDownloadConverter(cacheDirectory, outDirectory, dlLic);
-            converter.SetOutputFilename(Path.GetTempFileName());
-            return converter;
-        }
+            ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
+            OutputFileName = PathLib.ReplaceExtension(outFileName, ".m4b");
+            var outDir = Path.GetDirectoryName(OutputFileName);
+            if (!Directory.Exists(outDir))
+                throw new ArgumentNullException(nameof(outDir), "Directory does not exist");
+            if (File.Exists(OutputFileName))
+                File.Delete(OutputFileName);
 
-        private AaxcDownloadConverter(string cacheDirectory, string outDirectory, DownloadLicense dlLic)
-        {
-            ArgumentValidator.EnsureNotNullOrWhiteSpace(outDirectory, nameof(outDirectory));
-            ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
-
-            if (!Directory.Exists(outDirectory))
+            if (!Directory.Exists(cacheDirectory))
                 throw new ArgumentNullException(nameof(cacheDirectory), "Directory does not exist");
-            if (!Directory.Exists(outDirectory))
-                throw new ArgumentNullException(nameof(outDirectory), "Directory does not exist");
-
             cacheDir = cacheDirectory;
-            outDir = outDirectory;
+
+            downloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
 
             steps = new StepSequence
             {
                 Name = "Download and Convert Aaxc To M4b",
 
-                ["Step 1: Create Dir"] = Step1_CreateDir,
-                ["Step 2: Get Aaxc Metadata"] = Step2_GetMetadata,
-                ["Step 3: Download Decrypted Audiobook"] = Step3_DownloadAndCombine,
-                ["Step 4: Create Cue"] = Step4_CreateCue,
-                ["Step 5: Create Nfo"] = Step5_CreateNfo,
-                ["Step 6: Cleanup"] = Step6_Cleanup,
+                ["Step 1: Get Aaxc Metadata"] = Step1_GetMetadata,
+                ["Step 2: Download Decrypted Audiobook"] = Step2_DownloadAndCombine,
+                ["Step 3: Create Cue"] = Step3_CreateCue,
+                ["Step 4: Create Nfo"] = Step4_CreateNfo,
+                ["Step 5: Cleanup"] = Step5_Cleanup,
             };
-
-            downloadLicense = dlLic;
-        }
-
-        public void SetOutputFilename(string outFileName)
-        {
-            outputFileName = PathLib.ReplaceExtension(outFileName, ".m4b");
-            outDir = Path.GetDirectoryName(outputFileName);
-
-            if (File.Exists(outputFileName))
-                File.Delete(outputFileName);
         }
 
         public void SetCoverArt(byte[] coverArt)
@@ -122,15 +80,7 @@ namespace AaxDecrypter
             return true;
         }
 
-        public bool Step1_CreateDir()
-        {
-            ProcessRunner.WorkingDir = outDir;
-            Directory.CreateDirectory(outDir);
-
-            return !isCanceled;
-        }
-
-        public bool Step2_GetMetadata()
+        public bool Step1_GetMetadata()
         {
             //Get metadata from the file over http
                        
@@ -173,16 +123,16 @@ namespace AaxDecrypter
             return new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
         }
 
-        public bool Step3_DownloadAndCombine()
+        public bool Step2_DownloadAndCombine()
         {
             OutputFormat format = OutputFormat.Mp4a;
 
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            if (File.Exists(outputFileName))
-                FileExt.SafeDelete(outputFileName);
+            if (File.Exists(OutputFileName))
+                FileExt.SafeDelete(OutputFileName);
 
-            FileStream outFile = File.OpenWrite(outputFileName);
+            FileStream outFile = File.OpenWrite(OutputFileName);
 
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
             var decryptionResult = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, format, downloadLicense.ChapterInfo);
@@ -196,7 +146,7 @@ namespace AaxDecrypter
             {
                 //This handles a special case where the aaxc file doesn't contain cover art and
                 //Libation downloaded it instead (Animal Farm). Currently only works for Mp4a files.
-                using var decryptedBook = new Mp4File(outputFileName, FileAccess.ReadWrite);
+                using var decryptedBook = new Mp4File(OutputFileName, FileAccess.ReadWrite);
                 decryptedBook.AppleTags?.SetCoverArt(coverArt);
                 decryptedBook.Save();
                 decryptedBook.Close();
@@ -223,33 +173,35 @@ namespace AaxDecrypter
             DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
         }
 
-        public bool Step4_CreateCue()
+        public bool Step3_CreateCue()
         {
+            // not a critical step. its failure should not prevent future steps from running
             try
             {
-                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), downloadLicense.ChapterInfo));
+                File.WriteAllText(PathLib.ReplaceExtension(OutputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(OutputFileName), downloadLicense.ChapterInfo));
             }
             catch (Exception ex)
             {
-                Serilog.Log.Logger.Error(ex, $"{nameof(Step4_CreateCue)}. FAILED");
+                Serilog.Log.Logger.Error(ex, $"{nameof(Step3_CreateCue)}. FAILED");
             }
             return !isCanceled;
         }
 
-        public bool Step5_CreateNfo()
+        public bool Step4_CreateNfo()
         {
+            // not a critical step. its failure should not prevent future steps from running
             try
             {
-                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxFile, downloadLicense.ChapterInfo));
+                File.WriteAllText(PathLib.ReplaceExtension(OutputFileName, ".nfo"), NFO.CreateContents(AppName, aaxFile, downloadLicense.ChapterInfo));
             }
             catch (Exception ex)
             {
-                Serilog.Log.Logger.Error(ex, $"{nameof(Step5_CreateNfo)}. FAILED");
+                Serilog.Log.Logger.Error(ex, $"{nameof(Step4_CreateNfo)}. FAILED");
             }
             return !isCanceled;
         }
 
-        public bool Step6_Cleanup()
+        public bool Step5_Cleanup()
         {
             FileExt.SafeDelete(jsonDownloadState);
             FileExt.SafeDelete(tempFile);
