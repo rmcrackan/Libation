@@ -6,6 +6,7 @@ using Dinah.Core.Net.Http;
 namespace FileLiberator
 {
 	// frustratingly copy pasta from DownloadableBase and DownloadPdf
+	// currently only used to download the .zip flies for upgrade
 	public class DownloadFile : IDownloadable
 	{
 		public event EventHandler<string> DownloadBegin;

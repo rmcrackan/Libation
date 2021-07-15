@@ -41,114 +41,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BookLiberation\AutomatedBackupsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BookLiberation\AutomatedBackupsForm.Designer.cs">
-      <DependentUpon>AutomatedBackupsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="BookLiberation\DownloadForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BookLiberation\DownloadForm.Designer.cs">
-      <DependentUpon>DownloadForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="BookLiberation\DecryptForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BookLiberation\DecryptForm.Designer.cs">
-      <DependentUpon>DecryptForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\AccountsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\AccountsDialog.Designer.cs">
-      <DependentUpon>AccountsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\EditQuickFilters.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\EditQuickFilters.Designer.cs">
-      <DependentUpon>EditQuickFilters.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\IndexLibraryDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\IndexLibraryDialog.Designer.cs">
-      <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\LibationFilesDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\LibationFilesDialog.Designer.cs">
-      <DependentUpon>LibationFilesDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\Login\ApprovalNeededDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\Login\ApprovalNeededDialog.Designer.cs">
-      <DependentUpon>ApprovalNeededDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\Login\AudibleLoginDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\Login\AudibleLoginDialog.Designer.cs">
-      <DependentUpon>AudibleLoginDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\Login\CaptchaDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\Login\CaptchaDialog.Designer.cs">
-      <DependentUpon>CaptchaDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\Login\MfaDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\Login\MfaDialog.Designer.cs">
-      <DependentUpon>MfaDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\Login\_2faCodeDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\Login\_2faCodeDialog.Designer.cs">
-      <DependentUpon>_2faCodeDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\EditTagsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\EditTagsDialog.Designer.cs">
-      <DependentUpon>EditTagsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\ScanAccountsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\ScanAccountsDialog.Designer.cs">
-      <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\SettingsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\SettingsDialog.Designer.cs">
-      <DependentUpon>SettingsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\SearchSyntaxDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\SearchSyntaxDialog.Designer.cs">
-      <DependentUpon>SearchSyntaxDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\SetupDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\SetupDialog.Designer.cs">
-      <DependentUpon>SetupDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -163,49 +59,6 @@
     </Compile>
     <Compile Include="GridEntry.cs" />
     <Compile Include="Program.cs" />
-    <EmbeddedResource Include="BookLiberation\AutomatedBackupsForm.resx">
-      <DependentUpon>AutomatedBackupsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="BookLiberation\DownloadForm.resx">
-      <DependentUpon>DownloadForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="BookLiberation\DecryptForm.resx">
-      <DependentUpon>DecryptForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\AccountsDialog.resx">
-      <DependentUpon>AccountsDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\EditQuickFilters.resx">
-      <DependentUpon>EditQuickFilters.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\EditTagsDialog.resx">
-      <DependentUpon>EditTagsDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\IndexLibraryDialog.resx">
-      <DependentUpon>IndexLibraryDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\LibationFilesDialog.resx">
-      <DependentUpon>LibationFilesDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Login\ApprovalNeededDialog.resx">
-      <DependentUpon>ApprovalNeededDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Login\MfaDialog.resx">
-      <DependentUpon>MfaDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\ScanAccountsDialog.resx">
-      <DependentUpon>ScanAccountsDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\SettingsDialog.resx">
-      <DependentUpon>SettingsDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\SearchSyntaxDialog.resx">
-      <DependentUpon>SearchSyntaxDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\SetupDialog.resx">
-      <DependentUpon>SetupDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
