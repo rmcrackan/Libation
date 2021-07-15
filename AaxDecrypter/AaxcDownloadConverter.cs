@@ -175,7 +175,7 @@ namespace AaxDecrypter
 
         public bool Step3_DownloadAndCombine()
         {
-            OutputFormat format = OutputFormat.Mp3;
+            OutputFormat format = OutputFormat.Mp4a;
 
             DecryptProgressUpdate?.Invoke(this, int.MaxValue);
 
