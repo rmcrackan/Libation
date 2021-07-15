@@ -118,12 +118,13 @@ namespace FileManager
         }
         private string getLiberationFilesSettingFromJson()
         {
+            string startingContents = null;
             try
             {
                 if (File.Exists(APPSETTINGS_JSON))
                 {
-                    var appSettingsContents = File.ReadAllText(APPSETTINGS_JSON);
-                    var jObj = JObject.Parse(appSettingsContents);
+                    startingContents = File.ReadAllText(APPSETTINGS_JSON);
+                    var jObj = JObject.Parse(startingContents);
 
                     if (jObj.ContainsKey(LIBATION_FILES))
                     {
@@ -137,7 +138,11 @@ namespace FileManager
             }
             catch { }
 
-            File.WriteAllText(APPSETTINGS_JSON, new JObject { { LIBATION_FILES, APP_DIR } }.ToString(Formatting.Indented));
+            var endingContents = new JObject { { LIBATION_FILES, APP_DIR } }.ToString(Formatting.Indented);
+
+            if (startingContents != endingContents)
+                File.WriteAllText(APPSETTINGS_JSON, endingContents);
+
             return APP_DIR;
         }
 
@@ -174,13 +179,14 @@ namespace FileManager
             libationFilesPathCache = null;
 
 
-            var contents = File.ReadAllText(APPSETTINGS_JSON);
-            var jObj = JObject.Parse(contents);
+            var startingContents = File.ReadAllText(APPSETTINGS_JSON);
+            var jObj = JObject.Parse(startingContents);
 
             jObj[LIBATION_FILES] = directory;
 
-            var output = JsonConvert.SerializeObject(jObj, Formatting.Indented);
-            File.WriteAllText(APPSETTINGS_JSON, output);
+            var endingContents = JsonConvert.SerializeObject(jObj, Formatting.Indented);
+            if (startingContents != endingContents)
+                File.WriteAllText(APPSETTINGS_JSON, endingContents);
 
 
             return true;
