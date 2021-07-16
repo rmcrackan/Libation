@@ -65,19 +65,19 @@ namespace FileManager
         {
             None = 0,
 
-            [Description("In my Users folder")]
+            [Description("My Users folder")]
             UserProfile = 1,
 
-            [Description("In the same folder that Libation is running from")]
+            [Description("The same folder that Libation is running from")]
             AppDir = 2,
 
-            [Description("In your Windows temporary folder")]
+            [Description("Windows temporary folder")]
             WinTemp = 3,
 
-            [Description("In My Documents")]
+            [Description("My Documents")]
             MyDocs = 4,
 
-            [Description("In your settings folder (aka: Libation Files)")]
+            [Description("Your settings folder (aka: Libation Files)")]
             LibationFiles = 5
         }
         // use func calls so we always get the latest value of LibationFiles

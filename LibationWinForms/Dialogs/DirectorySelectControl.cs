@@ -36,7 +36,7 @@ namespace LibationWinForms.Dialogs
 		/// <summary>Set items for combobox</summary>
 		/// <param name="knownDirectories">List rather than IEnumerable so that client can determine display order</param>
 		/// <param name="defaultDirectory">Optional default item to select</param>
-		public void SetDirectoryItems(List<Configuration.KnownDirectories> knownDirectories, Configuration.KnownDirectories? defaultDirectory = Configuration.KnownDirectories.UserProfile)
+		public void SetDirectoryItems(List<Configuration.KnownDirectories> knownDirectories, Configuration.KnownDirectories? defaultDirectory = null)
 		{
 			this.directoryComboBox.Items.Clear();
 
@@ -46,29 +46,23 @@ namespace LibationWinForms.Dialogs
 			SelectDirectory(defaultDirectory);
 		}
 
-		/// <summary>select, set default, or rehydrate</summary>
+		/// <summary>set selection</summary>
 		/// <param name="directory"></param>
 		/// <returns>True is there was a matching entry</returns>
 		public bool SelectDirectory(string directory) => SelectDirectory(Configuration.GetKnownDirectory(directory));
 
-		/// <summary>select, set default, or rehydrate</summary>
+		/// <summary>set selection</summary>
 		/// <param name="directory"></param>
 		/// <returns>True is there was a matching entry</returns>
 		public bool SelectDirectory(Configuration.KnownDirectories? directory)
 		{
 			if (directory is null || directory == Configuration.KnownDirectories.None)
-			{
-				this.directoryComboBox.SelectedIndex = 0;
 				return false;
-			}
 
 			// set default
 			var item = this.directoryComboBox.Items.Cast<DirectoryComboBoxItem>().SingleOrDefault(item => item.Value == directory.Value);
 			if (item is null)
-			{
-				this.directoryComboBox.SelectedIndex = 0;
 				return false;
-			}
 
 			this.directoryComboBox.SelectedItem = item;
 			return true;

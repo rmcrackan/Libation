@@ -28,7 +28,7 @@ namespace LibationWinForms.Dialogs
 		public void SetDirectoryItems(List<Configuration.KnownDirectories> knownDirectories, Configuration.KnownDirectories? defaultDirectory = Configuration.KnownDirectories.UserProfile)
 			=> this.directorySelectControl.SetDirectoryItems(knownDirectories, defaultDirectory);
 
-		/// <summary>select, set default, or rehydrate</summary>
+		/// <summary>set selection</summary>
 		/// <param name="directory"></param>
 		public void SelectDirectory(Configuration.KnownDirectories directory)
 		{
@@ -37,7 +37,7 @@ namespace LibationWinForms.Dialogs
 				selectDir(directory, null);
 		}
 
-		/// <summary>select, set default, or rehydrate</summary>
+		/// <summary>set selection</summary>
 		public void SelectDirectory(string directory)
 		{
 			directory = directory?.Trim() ?? "";
@@ -46,11 +46,14 @@ namespace LibationWinForms.Dialogs
 
 		private void selectDir(Configuration.KnownDirectories knownDir, string customDir)
 		{
-			var unknown = knownDir == Configuration.KnownDirectories.None;
-			customDirectoryRb.Checked = unknown;
-			knownDirectoryRb.Checked = !unknown;
-			this.directorySelectControl.SelectDirectory(knownDir);
-			this.customTb.Text = unknown ? customDir : "";
+			var isKnown
+				= knownDir != Configuration.KnownDirectories.None
+				// this could be a well known dir which isn't an option in this particular dropdown. This will always be true of LibationFiles
+				&& this.directorySelectControl.SelectDirectory(knownDir);
+			
+			customDirectoryRb.Checked = !isKnown;
+			knownDirectoryRb.Checked = isKnown;
+			this.customTb.Text = isKnown ? "" : customDir;
 		}
 
 		private string dirSearchTitle;
