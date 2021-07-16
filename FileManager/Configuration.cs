@@ -50,18 +50,62 @@ namespace FileManager
             set => persistentDictionary.Set(nameof(Books), value);
         }
 
-        private const string APP_DIR = "AppDir";
-        public static string AppDir { get; } = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), LIBATION_FILES));
-        public static string MyDocs { get; } = Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), LIBATION_FILES));
-        public static string WinTemp { get; } = Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation"));
+		#region known directories
+		public const string WIN_TEMP_LABEL = "WinTemp";
+        public const string LIBATION_FILES_LABEL = "LibationFiles";
+        public const string USER_PROFILE_LABEL = "UserProfile";
+        
+        public static string AppDir_Relative => @".\LibationFiles";
+        public static string AppDir_Absolute => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), LIBATION_FILES));
+        public static string MyDocs => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "LibationFiles"));
+        public static string WinTemp => Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation"));
+        public static string UserProfile => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Libation"));
 
-        private Dictionary<string, string> wellKnownPaths { get; } = new Dictionary<string, string>
+        public enum KnownDirectories
         {
-            [APP_DIR] = AppDir,
-            ["MyDocs"] = MyDocs,
-            ["WinTemp"] = WinTemp
+            None = 0,
+
+            [Description("In my Users folder")]
+            UserProfile = 1,
+
+            [Description("In the same folder that Libation is running from")]
+            AppDir = 2,
+
+            [Description("In your Windows temporary folder")]
+            WinTemp = 3,
+
+            [Description("In My Documents")]
+            MyDocs = 4,
+
+            [Description("In your settings folder (aka: Libation Files)")]
+            LibationFiles = 5
+        }
+        // use func calls so we always get the latest value of LibationFiles
+        private static List<(KnownDirectories directory, Func<string> getPathFunc)> directoryOptionsPaths { get; } = new()
+        {
+            (KnownDirectories.None, () => null),
+            (KnownDirectories.UserProfile, () => UserProfile),
+            (KnownDirectories.AppDir, () => AppDir_Relative),
+            (KnownDirectories.WinTemp, () => WinTemp),
+            (KnownDirectories.MyDocs, () => MyDocs),
+            // this is important to not let very early calls try to accidentally load LibationFiles too early
+            (KnownDirectories.LibationFiles, () => libationFilesPathCache)
         };
-        private string libationFilesPathCache;
+        public static string GetKnownDirectoryPath(KnownDirectories directory)
+        {
+            var dirFunc = directoryOptionsPaths.SingleOrDefault(dirFunc => dirFunc.directory == directory);
+            return dirFunc == default ? null : dirFunc.getPathFunc();
+        }
+        public static KnownDirectories GetKnownDirectory(string directory)
+        {
+            // especially important so a very early call doesn't match null => LibationFiles
+            if (string.IsNullOrWhiteSpace(directory))
+                return KnownDirectories.None;
+
+            var dirFunc = directoryOptionsPaths.SingleOrDefault(dirFunc => dirFunc.getPathFunc() == directory);
+            return dirFunc == default ? KnownDirectories.None : dirFunc.directory;
+        }
+        #endregion
 
         // default setting and directory creation occur in class responsible for files.
         // config class is only responsible for path. not responsible for setting defaults, dir validation, or dir creation
@@ -96,26 +140,29 @@ namespace FileManager
         private Configuration() { }
 
         private const string APPSETTINGS_JSON = "appsettings.json";
+        // this is the key in appsettings. Happens to match the metadirectory name but separate concern. keep separate
         private const string LIBATION_FILES = "LibationFiles";
 
         [Description("Location for storage of program-created files")]
-        public string LibationFiles => libationFilesPathCache ?? getLibationFiles();
-        private string getLibationFiles()
+        public string LibationFiles
         {
-            var value = getLiberationFilesSettingFromJson();
+            get
+            {
+                if (libationFilesPathCache is not null)
+                    return libationFilesPathCache;
 
-            // this looks weird but is correct for translating wellKnownPaths
-            if (wellKnownPaths.ContainsKey(value))
-                value = wellKnownPaths[value];
+                // must write here before SettingsFilePath in next step reads cache
+                libationFilesPathCache = getLiberationFilesSettingFromJson();
 
-            // must write here before SettingsFilePath in next step reads cache
-            libationFilesPathCache = value;
+                // load json values into memory. create settings if not exists
+                persistentDictionary = new PersistentDictionary(SettingsFilePath);
 
-            // load json values into memory. create if not exists
-            persistentDictionary = new PersistentDictionary(SettingsFilePath);
-
-            return libationFilesPathCache;
+                return libationFilesPathCache;
+            }
         }
+
+        private static string libationFilesPathCache;
+
         private string getLiberationFilesSettingFromJson()
         {
             string startingContents = null;
@@ -124,26 +171,33 @@ namespace FileManager
                 if (File.Exists(APPSETTINGS_JSON))
                 {
                     startingContents = File.ReadAllText(APPSETTINGS_JSON);
-                    var jObj = JObject.Parse(startingContents);
+                    var startingJObj = JObject.Parse(startingContents);
 
-                    if (jObj.ContainsKey(LIBATION_FILES))
+                    if (startingJObj.ContainsKey(LIBATION_FILES))
                     {
-                        var value = jObj[LIBATION_FILES].Value<string>();
+                        var startingValue = startingJObj[LIBATION_FILES].Value<string>();
 
                         // do not check whether directory exists. special/meta directory (eg: AppDir) is valid
-                        if (!string.IsNullOrWhiteSpace(value))
-                            return value;
+                        if (!string.IsNullOrWhiteSpace(startingValue))
+                            return startingValue;
                     }
                 }
             }
             catch { }
 
-            var endingContents = new JObject { { LIBATION_FILES, APP_DIR } }.ToString(Formatting.Indented);
-
+            // not found. write to file. read from file
+            var endingContents = new JObject { { LIBATION_FILES, UserProfile } }.ToString(Formatting.Indented);
             if (startingContents != endingContents)
+            {
                 File.WriteAllText(APPSETTINGS_JSON, endingContents);
+                System.Threading.Thread.Sleep(100);
+            }
 
-            return APP_DIR;
+            // do not check whether directory exists. special/meta directory (eg: AppDir) is valid
+            // verify from live file. no try/catch. want failures to be visible
+            var jObjFinal = JObject.Parse(File.ReadAllText(APPSETTINGS_JSON));
+            var valueFinal = jObjFinal[LIBATION_FILES].Value<string>();
+            return valueFinal;
         }
 
         public object GetObject(string propertyName) => persistentDictionary.GetObject(propertyName);
@@ -163,17 +217,16 @@ namespace FileManager
 
         public bool TrySetLibationFiles(string directory)
         {
-            if (!Directory.Exists(directory) && !wellKnownPaths.ContainsKey(directory))
-                return false;
+            // this is WRONG. need to MOVE settings; not DELETE them
 
-            // if moving from default, delete old settings file and dir (if empty)
-            if (LibationFiles.EqualsInsensitive(AppDir))
-            {
-                File.Delete(SettingsFilePath);
-                System.Threading.Thread.Sleep(100);
-                if (!Directory.EnumerateDirectories(AppDir).Any() && !Directory.EnumerateFiles(AppDir).Any())
-                    Directory.Delete(AppDir);
-            }
+            //// if moving from default, delete old settings file and dir (if empty)
+            //if (LibationFiles.EqualsInsensitive(AppDir))
+            //{
+            //    File.Delete(SettingsFilePath);
+            //    System.Threading.Thread.Sleep(100);
+            //    if (!Directory.EnumerateDirectories(AppDir).Any() && !Directory.EnumerateFiles(AppDir).Any())
+            //        Directory.Delete(AppDir);
+            //}
 
 
             libationFilesPathCache = null;

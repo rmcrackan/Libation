@@ -43,10 +43,10 @@ namespace LibationWinForms.Dialogs
 
 			switch (config.DownloadsInProgressEnum)
 			{
-				case "LibationFiles":
+				case Configuration.LIBATION_FILES_LABEL:
 					downloadsInProgressLibationFilesRb.Checked = true;
 					break;
-				case "WinTemp":
+				case Configuration.WIN_TEMP_LABEL:
 				default:
 					downloadsInProgressWinTempRb.Checked = true;
 					break;
@@ -54,10 +54,10 @@ namespace LibationWinForms.Dialogs
 
 			switch (config.DecryptInProgressEnum)
 			{
-				case "LibationFiles":
+				case Configuration.LIBATION_FILES_LABEL:
 					decryptInProgressLibationFilesRb.Checked = true;
 					break;
-				case "WinTemp":
+				case Configuration.WIN_TEMP_LABEL:
 				default:
 					decryptInProgressWinTempRb.Checked = true;
 					break;
@@ -77,8 +77,8 @@ namespace LibationWinForms.Dialogs
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
-			config.DownloadsInProgressEnum = downloadsInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";
-			config.DecryptInProgressEnum = decryptInProgressLibationFilesRb.Checked ? "LibationFiles" : "WinTemp";
+			config.DownloadsInProgressEnum = downloadsInProgressLibationFilesRb.Checked ? Configuration.LIBATION_FILES_LABEL : Configuration.WIN_TEMP_LABEL;
+			config.DecryptInProgressEnum = decryptInProgressLibationFilesRb.Checked ? Configuration.LIBATION_FILES_LABEL : Configuration.WIN_TEMP_LABEL;
 
 			var newBooks = this.booksLocationTb.Text;
 			if (!Directory.Exists(newBooks))

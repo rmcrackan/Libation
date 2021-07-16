@@ -32,6 +32,7 @@ namespace LibationLauncher
 
 			migrate_to_v4_0_0();
 			migrate_to_v5_0_0();
+			migrate_to_v5_2_0();
 			
 			ensureSerilogConfig();
 			configureLogging();
@@ -57,9 +58,9 @@ namespace LibationLauncher
 			var setupDialog = new SetupDialog();
 			setupDialog.NoQuestionsBtn_Click += (_, __) =>
 			{
-				config.DownloadsInProgressEnum ??= "WinTemp";
-				config.DecryptInProgressEnum ??= "WinTemp";
-				config.Books ??= Configuration.AppDir;
+				config.DownloadsInProgressEnum ??= Configuration.WIN_TEMP_LABEL;
+				config.DecryptInProgressEnum ??= Configuration.WIN_TEMP_LABEL;
+				config.Books ??= Configuration.AppDir_Relative;
 				config.AllowLibationFixup = true;
 			};
 			// setupDialog.BasicBtn_Click += (_, __) => // no action needed
@@ -256,9 +257,53 @@ namespace LibationLauncher
                 }
 			}
 		}
-        #endregion
+		#endregion
 
-        private static void ensureSerilogConfig()
+		#region migrate to v5.2.0 : get rid of meta-directories
+		private static void migrate_to_v5_2_0()
+		{
+			var config = Configuration.Instance;
+
+			{
+				var newPath = TranslatePath(config.DecryptInProgressEnum);
+				if (newPath != config.DecryptInProgressEnum)
+					config.DecryptInProgressEnum = newPath;
+			}
+
+			{
+				var newPath = TranslatePath(config.DownloadsInProgressEnum);
+				if (newPath != config.DownloadsInProgressEnum)
+					config.DownloadsInProgressEnum = newPath;
+			}
+
+			{
+				var appsettings = "appsettings.json";
+				var libationFiles = "LibationFiles";
+
+				var jObj = JObject.Parse(File.ReadAllText(appsettings));
+				var origVlaue = jObj[libationFiles].Value<string>();
+				var newValue = TranslatePath(origVlaue);
+
+				if (newValue != origVlaue)
+				{
+					var contents = new JObject { { libationFiles, newValue } }.ToString(Formatting.Indented);
+					File.WriteAllText(appsettings, contents);
+				}
+			}
+		}
+
+		private static string TranslatePath(string path)
+			=> path switch
+			{
+				"AppDir" => Configuration.AppDir_Relative,
+				"MyDocs" => Configuration.MyDocs,
+				Configuration.USER_PROFILE_LABEL => Configuration.UserProfile,
+				Configuration.WIN_TEMP_LABEL => Configuration.WinTemp,
+				_ => path
+			};
+		#endregion
+
+		private static void ensureSerilogConfig()
 		{
 			var config = Configuration.Instance;
 

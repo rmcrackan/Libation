@@ -28,36 +28,9 @@ namespace FileManager
 		public static AudibleFileStorage AAXC { get; } = new AaxcFileStorage();
 		public static AudibleFileStorage PDF { get; } = new PdfFileStorage();
 
-		public static string DownloadsInProgress
-        {
-            get
-            {
-                if (!Configuration.Instance.DownloadsInProgressEnum.In("WinTemp", "LibationFiles"))
-                    Configuration.Instance.DownloadsInProgressEnum = "WinTemp";
-                var AaxRootDir
-                    = Configuration.Instance.DownloadsInProgressEnum == "WinTemp"
-                    ? Configuration.WinTemp
-                    : Configuration.Instance.LibationFiles;
+		public static string DownloadsInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.DownloadsInProgressEnum, "DownloadsInProgress")).FullName;
 
-                return Directory.CreateDirectory(Path.Combine(AaxRootDir, "DownloadsInProgress")).FullName;
-            }
-        }
-
-        public static string DecryptInProgress
-        {
-            get
-            {
-                if (!Configuration.Instance.DecryptInProgressEnum.In("WinTemp", "LibationFiles"))
-                    Configuration.Instance.DecryptInProgressEnum = "WinTemp";
-
-                var M4bRootDir
-                    = Configuration.Instance.DecryptInProgressEnum == "WinTemp"
-                    ? Configuration.WinTemp
-                    : Configuration.Instance.LibationFiles;
-
-                return Directory.CreateDirectory(Path.Combine(M4bRootDir, "DecryptInProgress")).FullName;
-            }
-        }
+        public static string DecryptInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.DecryptInProgressEnum, "DecryptInProgress")).FullName;
 
         // not customizable. don't move to config
         public static string DownloadsFinal => new DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectory("DownloadsFinal").FullName;

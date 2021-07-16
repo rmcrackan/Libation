@@ -26,9 +26,9 @@ namespace LibationWinForms.Dialogs
 				return;
 
 			libationFilesDescLbl.Text = desc(nameof(config.LibationFiles));
-			this.libationFilesRootRb.Text = "In the same folder that Libation is running from\r\n" + Configuration.AppDir;
+			this.libationFilesRootRb.Text = "In the same folder that Libation is running from\r\n" + Configuration.AppDir_Relative;
 			this.libationFilesMyDocsRb.Text = "In My Documents\r\n" + Configuration.MyDocs;
-			if (config.LibationFiles == Configuration.AppDir)
+			if (config.LibationFiles == Configuration.AppDir_Relative)
 				libationFilesRootRb.Checked = true;
 			else if (config.LibationFiles == Configuration.MyDocs)
 				libationFilesMyDocsRb.Checked = true;
@@ -52,7 +52,7 @@ namespace LibationWinForms.Dialogs
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
 			var libationDir
-				= libationFilesRootRb.Checked ? Configuration.AppDir
+				= libationFilesRootRb.Checked ? Configuration.AppDir_Relative
 				: libationFilesMyDocsRb.Checked ? Configuration.MyDocs
 				: libationFilesCustomTb.Text;
 			if (!config.TrySetLibationFiles(libationDir))
