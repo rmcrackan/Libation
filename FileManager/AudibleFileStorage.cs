@@ -32,9 +32,6 @@ namespace FileManager
 
         public static string DecryptInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.DecryptInProgressEnum, "DecryptInProgress")).FullName;
 
-        // not customizable. don't move to config
-        public static string DownloadsFinal => new DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectory("DownloadsFinal").FullName;
-
         public static string BooksDirectory
         {
             get

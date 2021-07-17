@@ -3,7 +3,6 @@ using System.IO;
 using System.Windows.Forms;
 using Dinah.Core;
 using FileManager;
-using InternalUtilities;
 
 namespace LibationWinForms.Dialogs
 {
@@ -12,10 +11,7 @@ namespace LibationWinForms.Dialogs
 		Configuration config { get; } = Configuration.Instance;
 		Func<string, string> desc { get; } = Configuration.GetDescription;
 
-		public SettingsDialog()
-		{
-			InitializeComponent();
-		}
+		public SettingsDialog() => InitializeComponent();
 
 		private void SettingsDialog_Load(object sender, EventArgs e)
 		{

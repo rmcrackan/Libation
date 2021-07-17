@@ -56,7 +56,7 @@ namespace FileManager
         public const string USER_PROFILE_LABEL = "UserProfile";
         
         public static string AppDir_Relative => @".\LibationFiles";
-        public static string AppDir_Absolute => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), LIBATION_FILES));
+        public static string AppDir_Absolute => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), LIBATION_FILES_KEY));
         public static string MyDocs => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "LibationFiles"));
         public static string WinTemp => Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation"));
         public static string UserProfile => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Libation"));
@@ -112,6 +112,13 @@ namespace FileManager
         // exceptions: appsettings.json, LibationFiles dir, Settings.json
 
         // temp/working dir(s) should be outside of dropbox
+        [Description("Temporary location of files while they're in process of being downloaded and decrypted.\r\nWhen decryption is complete, the final file will be in Books location\r\nRecommend not using a folder which is backed up real time. Eg: Dropbox, iCloud, Google Drive")]
+        public string InProgress
+        {
+            get => persistentDictionary.GetString(nameof(InProgress));
+            set => persistentDictionary.Set(nameof(InProgress), value);
+        }
+
         [Description("Temporary location of files while they're in process of being downloaded.\r\nWhen download is complete, the final file will be in [LibationFiles]\\DownloadsFinal")]
         public string DownloadsInProgressEnum
         {
@@ -140,8 +147,8 @@ namespace FileManager
         private Configuration() { }
 
         private const string APPSETTINGS_JSON = "appsettings.json";
-        // this is the key in appsettings. Happens to match the metadirectory name but separate concern. keep separate
-        private const string LIBATION_FILES = "LibationFiles";
+        // this is the key in appsettings. The string happens to match the metadirectory name but separate concern. keep separate
+        private const string LIBATION_FILES_KEY = "LibationFiles";
 
         [Description("Location for storage of program-created files")]
         public string LibationFiles
@@ -173,11 +180,9 @@ namespace FileManager
                     startingContents = File.ReadAllText(APPSETTINGS_JSON);
                     var startingJObj = JObject.Parse(startingContents);
 
-                    if (startingJObj.ContainsKey(LIBATION_FILES))
+                    if (startingJObj.ContainsKey(LIBATION_FILES_KEY))
                     {
-                        var startingValue = startingJObj[LIBATION_FILES].Value<string>();
-
-                        // do not check whether directory exists. special/meta directory (eg: AppDir) is valid
+                        var startingValue = startingJObj[LIBATION_FILES_KEY].Value<string>();
                         if (!string.IsNullOrWhiteSpace(startingValue))
                             return startingValue;
                     }
@@ -186,7 +191,7 @@ namespace FileManager
             catch { }
 
             // not found. write to file. read from file
-            var endingContents = new JObject { { LIBATION_FILES, UserProfile } }.ToString(Formatting.Indented);
+            var endingContents = new JObject { { LIBATION_FILES_KEY, UserProfile } }.ToString(Formatting.Indented);
             if (startingContents != endingContents)
             {
                 File.WriteAllText(APPSETTINGS_JSON, endingContents);
@@ -196,7 +201,7 @@ namespace FileManager
             // do not check whether directory exists. special/meta directory (eg: AppDir) is valid
             // verify from live file. no try/catch. want failures to be visible
             var jObjFinal = JObject.Parse(File.ReadAllText(APPSETTINGS_JSON));
-            var valueFinal = jObjFinal[LIBATION_FILES].Value<string>();
+            var valueFinal = jObjFinal[LIBATION_FILES_KEY].Value<string>();
             return valueFinal;
         }
 
@@ -235,7 +240,7 @@ namespace FileManager
             var startingContents = File.ReadAllText(APPSETTINGS_JSON);
             var jObj = JObject.Parse(startingContents);
 
-            jObj[LIBATION_FILES] = directory;
+            jObj[LIBATION_FILES_KEY] = directory;
 
             var endingContents = JsonConvert.SerializeObject(jObj, Formatting.Indented);
             if (startingContents != endingContents)

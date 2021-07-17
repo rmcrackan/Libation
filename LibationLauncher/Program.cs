@@ -26,13 +26,15 @@ namespace LibationLauncher
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
+			// must occur before access to Configuration instance
+			migrate_to_v5_2_0();
+
 			createSettings();
 
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
 
 			migrate_to_v4_0_0();
 			migrate_to_v5_0_0();
-			migrate_to_v5_2_0();
 			
 			ensureSerilogConfig();
 			configureLogging();
@@ -259,46 +261,32 @@ namespace LibationLauncher
 		}
 		#endregion
 
-		#region migrate to v5.2.0 : get rid of meta-directories
+		#region migrate to v5.2.0 : get rid of meta-directories, combine DownloadsInProgressEnum and DecryptInProgressEnum => InProgress
 		private static void migrate_to_v5_2_0()
 		{
-			var config = Configuration.Instance;
-
 			{
-				var newPath = TranslatePath(config.DecryptInProgressEnum);
-				if (newPath != config.DecryptInProgressEnum)
-					config.DecryptInProgressEnum = newPath;
+				var settingsKey = "DownloadsInProgressEnum";
+				UNSAFE_MigrationHelper.Settings_Update(settingsKey, translatePath(UNSAFE_MigrationHelper.Settings_Get(settingsKey)));
 			}
 
 			{
-				var newPath = TranslatePath(config.DownloadsInProgressEnum);
-				if (newPath != config.DownloadsInProgressEnum)
-					config.DownloadsInProgressEnum = newPath;
+				var settingsKey = "DecryptInProgressEnum";
+				UNSAFE_MigrationHelper.Settings_Update(settingsKey, translatePath(UNSAFE_MigrationHelper.Settings_Get(settingsKey)));
 			}
 
-			{
-				var appsettings = "appsettings.json";
-				var libationFiles = "LibationFiles";
-
-				var jObj = JObject.Parse(File.ReadAllText(appsettings));
-				var origVlaue = jObj[libationFiles].Value<string>();
-				var newValue = TranslatePath(origVlaue);
-
-				if (newValue != origVlaue)
-				{
-					var contents = new JObject { { libationFiles, newValue } }.ToString(Formatting.Indented);
-					File.WriteAllText(appsettings, contents);
-				}
-			}
+			UNSAFE_MigrationHelper.AppSettings_Update(
+				UNSAFE_MigrationHelper.LIBATION_FILES_KEY,
+				translatePath(UNSAFE_MigrationHelper.AppSettings_Get(UNSAFE_MigrationHelper.LIBATION_FILES_KEY))
+				);
 		}
 
-		private static string TranslatePath(string path)
+		private static string translatePath(string path)
 			=> path switch
 			{
-				"AppDir" => Configuration.AppDir_Relative,
-				"MyDocs" => Configuration.MyDocs,
-				Configuration.USER_PROFILE_LABEL => Configuration.UserProfile,
-				Configuration.WIN_TEMP_LABEL => Configuration.WinTemp,
+				"AppDir" => @".\LibationFiles",
+				"MyDocs" => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "LibationFiles")),
+				"UserProfile" => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Libation")),
+				"WinTemp" => Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation")),
 				_ => path
 			};
 		#endregion
@@ -474,9 +462,6 @@ namespace LibationLauncher
 				config.DownloadsInProgressEnum,
 				DownloadsInProgressDir = AudibleFileStorage.DownloadsInProgress,
 				DownloadsInProgressFiles = Directory.EnumerateFiles(AudibleFileStorage.DownloadsInProgress).Count(),
-
-				AudibleFileStorage.DownloadsFinal,
-				DownloadsFinalFiles = Directory.EnumerateFiles(AudibleFileStorage.DownloadsFinal).Count(),
 
 				config.DecryptInProgressEnum,
 				DecryptInProgressDir = AudibleFileStorage.DecryptInProgress,
