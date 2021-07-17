@@ -13,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
-using Serilog.Events;
 
 namespace LibationLauncher
 {
@@ -266,18 +265,21 @@ namespace LibationLauncher
 		{
 			{
 				var settingsKey = "DownloadsInProgressEnum";
-				UNSAFE_MigrationHelper.Settings_Update(settingsKey, translatePath(UNSAFE_MigrationHelper.Settings_Get(settingsKey)));
+				if (UNSAFE_MigrationHelper.Settings_TryGet(settingsKey, out var value))
+					UNSAFE_MigrationHelper.Settings_Update(settingsKey, translatePath(value));
 			}
 
 			{
 				var settingsKey = "DecryptInProgressEnum";
-				UNSAFE_MigrationHelper.Settings_Update(settingsKey, translatePath(UNSAFE_MigrationHelper.Settings_Get(settingsKey)));
+				if (UNSAFE_MigrationHelper.Settings_TryGet(settingsKey, out var value))
+					UNSAFE_MigrationHelper.Settings_Update(settingsKey, translatePath(value));
 			}
 
-			UNSAFE_MigrationHelper.AppSettings_Update(
-				UNSAFE_MigrationHelper.LIBATION_FILES_KEY,
-				translatePath(UNSAFE_MigrationHelper.AppSettings_Get(UNSAFE_MigrationHelper.LIBATION_FILES_KEY))
-				);
+			{ // appsettings.json
+				var appSettingsKey = UNSAFE_MigrationHelper.LIBATION_FILES_KEY;
+				if (UNSAFE_MigrationHelper.AppSettings_TryGet(appSettingsKey, out var value))
+					UNSAFE_MigrationHelper.AppSettings_Update(appSettingsKey, translatePath(value));
+			}
 		}
 
 		private static string translatePath(string path)

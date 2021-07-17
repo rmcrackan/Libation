@@ -16,16 +16,15 @@ namespace LibationLauncher
 
 		public static bool AppSettingsJson_Exists => File.Exists(APPSETTINGS_JSON);
 
-		public static string AppSettings_Get(string key)
+		public static bool AppSettings_TryGet(string key, out string value)
 		{
 			bool success = false;
 			JToken val = null;
 
 			process_AppSettingsJson(jObj => success = jObj.TryGetValue(key, out val), false);
 
-			if (success)
-				return val.Value<string>();
-			return null;
+			value = success ? val.Value<string>() : null;
+			return success;
 		}
 
 		/// <summary>only insert if not exists</summary>
@@ -80,22 +79,21 @@ namespace LibationLauncher
 		{
 			get
 			{
-				var value = AppSettings_Get(LIBATION_FILES_KEY);
-				return value is null ? null : Path.Combine(value, SETTINGS_JSON);
+				var success = AppSettings_TryGet(LIBATION_FILES_KEY, out var value);
+				return !success || value is null ? null : Path.Combine(value, SETTINGS_JSON);
 			}
 		}
 		public static bool SettingsJson_Exists => SettingsJsonPath is not null && File.Exists(SettingsJsonPath);
 
-		public static string Settings_Get(string key)
+		public static bool Settings_TryGet(string key, out string value)
 		{
 			bool success = false;
 			JToken val = null;
 
 			process_SettingsJson(jObj => success = jObj.TryGetValue(key, out val), false);
 
-			if (success)
-				return val.Value<string>();
-			return null;
+			value = success ? val.Value<string>() : null;
+			return success;
 		}
 
 		/// <summary>only insert if not exists</summary>
