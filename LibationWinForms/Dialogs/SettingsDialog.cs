@@ -30,6 +30,10 @@ namespace LibationWinForms.Dialogs
 			booksSelectControl.SelectDirectory(config.Books);
 
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
+			convertLosslessRb.Checked = !config.DecryptToLossy;
+			convertLossyRb.Checked = config.DecryptToLossy;
+
+			allowLibationFixupCbox_CheckedChanged(this, e);
 
 			inProgressSelectControl.SetDirectoryItems(new()
 			{
@@ -45,6 +49,7 @@ namespace LibationWinForms.Dialogs
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
+			config.DecryptToLossy = convertLossyRb.Checked;
 
 			config.InProgress = inProgressSelectControl.SelectedDirectory;
 			
@@ -66,5 +71,16 @@ namespace LibationWinForms.Dialogs
 			this.DialogResult = DialogResult.Cancel;
 			this.Close();
 		}
-	}
+
+        private void allowLibationFixupCbox_CheckedChanged(object sender, EventArgs e)
+        {
+			convertLosslessRb.Enabled = allowLibationFixupCbox.Checked;
+			convertLossyRb.Enabled = allowLibationFixupCbox.Checked;
+
+			if (!allowLibationFixupCbox.Checked)
+            {
+				convertLosslessRb.Checked = true;
+			}
+		}
+    }
 }
