@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
+using Dinah.Core.Windows.Forms;
 using FileLiberator;
 
 namespace LibationWinForms.BookLiberation
@@ -168,21 +169,27 @@ namespace LibationWinForms.BookLiberation
             return downloadPdf;
         }
 
-        public static async Task DownloadFileAsync(string url, string destination)
+        public static void DownloadFile(string url, string destination, bool showDownloadCompletedDialog = false)
         {
-            var downloadFile = new DownloadFile();
-
-            // frustratingly copy pasta from wireUpEvents(IDownloadable downloadable) due to Completed being EventHandler<LibraryBook>
             var downloadDialog = new DownloadForm();
-            downloadFile.DownloadBegin += (_, str) =>
-            {
-                downloadDialog.UpdateFilename(str);
-                downloadDialog.Show();
-            };
-            downloadFile.DownloadProgressChanged += (_, progress) => downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive);
-            downloadFile.DownloadCompleted += (_, __) => downloadDialog.Close();
+            downloadDialog.UpdateFilename(destination);
+            downloadDialog.Show();
 
-            await downloadFile.PerformDownloadFileAsync(url, destination);
+            new System.Threading.Thread(() => {
+                var downloadFile = new DownloadFile();
+
+                downloadFile.DownloadProgressChanged += (_, progress) => downloadDialog.UIThread(() =>
+                    downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive)
+                    );
+                downloadFile.DownloadCompleted += (_, __) => downloadDialog.UIThread(() =>
+                {
+                    downloadDialog.Close();
+                    if (showDownloadCompletedDialog)
+                        MessageBox.Show("File downloaded");
+                });
+
+                downloadFile.PerformDownloadFileAsync(url, destination).GetAwaiter().GetResult();
+            }).Start();
         }
 
         // subscribed to Begin event because a new form should be created+processed+closed on each iteration

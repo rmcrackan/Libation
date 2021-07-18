@@ -46,7 +46,7 @@ namespace LibationWinForms.BookLiberation
             lastUpdateLbl.UIThread(() => lastUpdateLbl.Visible = lastDownloadProgress.AddSeconds(30) < DateTime.Now);
             if (lastUpdateLbl.Visible)
             {
-                var diff = lastDownloadProgress - DateTime.Now;
+                var diff = DateTime.Now - lastDownloadProgress;
                 var min = (int)diff.TotalMinutes;
                 var minText = min > 0 ? $"{min}min " : "";
 

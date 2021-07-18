@@ -37,6 +37,9 @@ namespace LibationWinForms
 
         private void Form1_Load(object sender, EventArgs e)
 		{
+            if (this.DesignMode)
+                return;
+
 			// load default/missing cover images. this will also initiate the background image downloader
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));

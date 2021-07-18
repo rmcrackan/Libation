@@ -12,44 +12,44 @@ namespace LibationLauncher
 	internal static class UNSAFE_MigrationHelper
 	{
 		#region appsettings.json
-		public const string APPSETTINGS_JSON = "appsettings.json";
+		private const string APPSETTINGS_JSON = "appsettings.json";
 
-		public static bool AppSettingsJson_Exists => File.Exists(APPSETTINGS_JSON);
+		public static bool APPSETTINGS_Json_Exists => File.Exists(APPSETTINGS_JSON);
 
-		public static bool AppSettings_TryGet(string key, out string value)
+		public static bool APPSETTINGS_TryGet(string key, out string value)
 		{
 			bool success = false;
 			JToken val = null;
 
-			process_AppSettingsJson(jObj => success = jObj.TryGetValue(key, out val), false);
+			process_APPSETTINGS_Json(jObj => success = jObj.TryGetValue(key, out val), false);
 
 			value = success ? val.Value<string>() : null;
 			return success;
 		}
 
 		/// <summary>only insert if not exists</summary>
-		public static void AppSettings_Insert(string key, string value)
-			=> process_AppSettingsJson(jObj => jObj.TryAdd(key, value));
+		public static void APPSETTINGS_Insert(string key, string value)
+			=> process_APPSETTINGS_Json(jObj => jObj.TryAdd(key, value));
 
 		/// <summary>only update if exists</summary>
-		public static void AppSettings_Update(string key, string value)
-			=> process_AppSettingsJson(jObj => {
+		public static void APPSETTINGS_Update(string key, string value)
+			=> process_APPSETTINGS_Json(jObj => {
 				if (jObj.ContainsKey(key))
 					jObj[key] = value;
 			});
 
 		/// <summary>only delete if exists</summary>
-		public static void AppSettings_Delete(string key)
-			=> process_AppSettingsJson(jObj => {
+		public static void APPSETTINGS_Delete(string key)
+			=> process_APPSETTINGS_Json(jObj => {
 				if (jObj.ContainsKey(key))
 					jObj.Remove(key);
 			});
 
 		/// <param name="save">True: save if contents changed. False: no not attempt save</param>
-		private static void process_AppSettingsJson(Action<JObject> action, bool save = true)
+		private static void process_APPSETTINGS_Json(Action<JObject> action, bool save = true)
 		{
 			// only insert if not exists
-			if (!AppSettingsJson_Exists)
+			if (!APPSETTINGS_Json_Exists)
 				return;
 
 			var startingContents = File.ReadAllText(APPSETTINGS_JSON);
@@ -73,13 +73,13 @@ namespace LibationLauncher
 
 		#region Settings.json
 		public const string LIBATION_FILES_KEY = "LibationFiles";
-		public const string SETTINGS_JSON = "Settings.json";
+		private const string SETTINGS_JSON = "Settings.json";
 
 		public static string SettingsJsonPath
 		{
 			get
 			{
-				var success = AppSettings_TryGet(LIBATION_FILES_KEY, out var value);
+				var success = APPSETTINGS_TryGet(LIBATION_FILES_KEY, out var value);
 				return !success || value is null ? null : Path.Combine(value, SETTINGS_JSON);
 			}
 		}

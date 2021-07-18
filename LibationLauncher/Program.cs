@@ -277,8 +277,8 @@ namespace LibationLauncher
 
 			{ // appsettings.json
 				var appSettingsKey = UNSAFE_MigrationHelper.LIBATION_FILES_KEY;
-				if (UNSAFE_MigrationHelper.AppSettings_TryGet(appSettingsKey, out var value))
-					UNSAFE_MigrationHelper.AppSettings_Update(appSettingsKey, translatePath(value));
+				if (UNSAFE_MigrationHelper.APPSETTINGS_TryGet(appSettingsKey, out var value))
+					UNSAFE_MigrationHelper.APPSETTINGS_Update(appSettingsKey, translatePath(value));
 			}
 		}
 
@@ -421,8 +421,7 @@ namespace LibationLauncher
 
 				try
 				{
-					LibationWinForms.BookLiberation.ProcessorAutomationController.DownloadFileAsync(zipUrl, selectedPath).GetAwaiter().GetResult();
-					MessageBox.Show("File downloaded");
+					LibationWinForms.BookLiberation.ProcessorAutomationController.DownloadFile(zipUrl, selectedPath, true);
 				}
 				catch (Exception ex)
 				{
