@@ -18,19 +18,19 @@ namespace LibationWinForms.Dialogs
 
 			libationFilesDescLbl.Text = desc(nameof(config.LibationFiles));
 
-			directoryOrCustomSelectControl.SetSearchTitle("Libation Files");
-			directoryOrCustomSelectControl.SetDirectoryItems(new()
+			libationFilesSelectControl.SetSearchTitle("Libation Files");
+			libationFilesSelectControl.SetDirectoryItems(new()
 			{
 				Configuration.KnownDirectories.UserProfile,
 				Configuration.KnownDirectories.AppDir,
 				Configuration.KnownDirectories.MyDocs
 			}, Configuration.KnownDirectories.UserProfile);
-			directoryOrCustomSelectControl.SelectDirectory(config.LibationFiles);
+			libationFilesSelectControl.SelectDirectory(config.LibationFiles);
 		}
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			var libationDir = directoryOrCustomSelectControl.SelectedDirectory;
+			var libationDir = libationFilesSelectControl.SelectedDirectory;
 			if (!config.TrySetLibationFiles(libationDir))
 			{
 				MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationDir);

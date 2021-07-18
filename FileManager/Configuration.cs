@@ -51,10 +51,6 @@ namespace FileManager
         }
 
 		#region known directories
-		public const string WIN_TEMP_LABEL = "WinTemp";
-        public const string LIBATION_FILES_LABEL = "LibationFiles";
-        public const string USER_PROFILE_LABEL = "UserProfile";
-        
         public static string AppDir_Relative => @".\LibationFiles";
         public static string AppDir_Absolute => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), LIBATION_FILES_KEY));
         public static string MyDocs => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "LibationFiles"));
@@ -119,21 +115,6 @@ namespace FileManager
             set => persistentDictionary.Set(nameof(InProgress), value);
         }
 
-        [Description("Temporary location of files while they're in process of being downloaded.\r\nWhen download is complete, the final file will be in [LibationFiles]\\DownloadsFinal")]
-        public string DownloadsInProgressEnum
-        {
-            get => persistentDictionary.GetString(nameof(DownloadsInProgressEnum));
-            set => persistentDictionary.Set(nameof(DownloadsInProgressEnum), value);
-        }
-
-        // temp/working dir(s) should be outside of dropbox
-        [Description("Temporary location of files while they're in process of being decrypted.\r\nWhen decryption is complete, the final file will be in Books location")]
-        public string DecryptInProgressEnum
-        {
-            get => persistentDictionary.GetString(nameof(DecryptInProgressEnum));
-            set => persistentDictionary.Set(nameof(DecryptInProgressEnum), value);
-        }
-
         [Description("Allow Libation for fix up audiobook metadata?")]
         public bool AllowLibationFixup
         {
@@ -147,7 +128,6 @@ namespace FileManager
         private Configuration() { }
 
         private const string APPSETTINGS_JSON = "appsettings.json";
-        // this is the key in appsettings. The string happens to match the metadirectory name but separate concern. keep separate
         private const string LIBATION_FILES_KEY = "LibationFiles";
 
         [Description("Location for storage of program-created files")]

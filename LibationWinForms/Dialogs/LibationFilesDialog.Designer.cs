@@ -31,7 +31,7 @@
 			this.libationFilesDescLbl = new System.Windows.Forms.Label();
 			this.cancelBtn = new System.Windows.Forms.Button();
 			this.saveBtn = new System.Windows.Forms.Button();
-			this.directoryOrCustomSelectControl = new LibationWinForms.Dialogs.DirectoryOrCustomSelectControl();
+			this.libationFilesSelectControl = new LibationWinForms.Dialogs.DirectoryOrCustomSelectControl();
 			this.SuspendLayout();
 			// 
 			// libationFilesDescLbl
@@ -52,7 +52,7 @@
 			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
-			this.cancelBtn.TabIndex = 10;
+			this.cancelBtn.TabIndex = 3;
 			this.cancelBtn.Text = "Cancel";
 			this.cancelBtn.UseVisualStyleBackColor = true;
 			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
@@ -64,26 +64,26 @@
 			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(88, 27);
-			this.saveBtn.TabIndex = 9;
+			this.saveBtn.TabIndex = 2;
 			this.saveBtn.Text = "Save";
 			this.saveBtn.UseVisualStyleBackColor = true;
 			this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
 			// 
-			// directoryOrCustomSelectControl
+			// libationFilesSelectControl
 			// 
-			this.directoryOrCustomSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.libationFilesSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.directoryOrCustomSelectControl.Location = new System.Drawing.Point(14, 28);
-			this.directoryOrCustomSelectControl.Name = "directoryOrCustomSelectControl";
-			this.directoryOrCustomSelectControl.Size = new System.Drawing.Size(909, 81);
-			this.directoryOrCustomSelectControl.TabIndex = 11;
+			this.libationFilesSelectControl.Location = new System.Drawing.Point(14, 28);
+			this.libationFilesSelectControl.Name = "libationFilesSelectControl";
+			this.libationFilesSelectControl.Size = new System.Drawing.Size(909, 81);
+			this.libationFilesSelectControl.TabIndex = 1;
 			// 
 			// LibationFilesDialog
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(933, 158);
-			this.Controls.Add(this.directoryOrCustomSelectControl);
+			this.Controls.Add(this.libationFilesSelectControl);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.saveBtn);
 			this.Controls.Add(this.libationFilesDescLbl);
@@ -103,6 +103,6 @@
 		private System.Windows.Forms.Label libationFilesDescLbl;
 		private System.Windows.Forms.Button cancelBtn;
 		private System.Windows.Forms.Button saveBtn;
-		private DirectoryOrCustomSelectControl directoryOrCustomSelectControl;
+		private DirectoryOrCustomSelectControl libationFilesSelectControl;
 	}
 }

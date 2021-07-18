@@ -28,9 +28,9 @@ namespace FileManager
 		public static AudibleFileStorage AAXC { get; } = new AaxcFileStorage();
 		public static AudibleFileStorage PDF { get; } = new PdfFileStorage();
 
-		public static string DownloadsInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.DownloadsInProgressEnum, "DownloadsInProgress")).FullName;
+		public static string DownloadsInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
 
-        public static string DecryptInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.DecryptInProgressEnum, "DecryptInProgress")).FullName;
+        public static string DecryptInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
 
         public static string BooksDirectory
         {

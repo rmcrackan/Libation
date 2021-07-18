@@ -47,8 +47,7 @@ namespace LibationLauncher
 		{
 			static bool configSetupIsComplete(Configuration config)
 				=> config.FilesExist
-				&& !string.IsNullOrWhiteSpace(config.DownloadsInProgressEnum)
-				&& !string.IsNullOrWhiteSpace(config.DecryptInProgressEnum);
+				&& !string.IsNullOrWhiteSpace(config.InProgress);
 
 			var config = Configuration.Instance;
 			if (configSetupIsComplete(config))
@@ -59,8 +58,7 @@ namespace LibationLauncher
 			var setupDialog = new SetupDialog();
 			setupDialog.NoQuestionsBtn_Click += (_, __) =>
 			{
-				config.DownloadsInProgressEnum ??= Configuration.WIN_TEMP_LABEL;
-				config.DecryptInProgressEnum ??= Configuration.WIN_TEMP_LABEL;
+				config.InProgress ??= Configuration.WinTemp;
 				config.Books ??= Configuration.AppDir_Relative;
 				config.AllowLibationFixup = true;
 			};
@@ -266,13 +264,14 @@ namespace LibationLauncher
 			{
 				var settingsKey = "DownloadsInProgressEnum";
 				if (UNSAFE_MigrationHelper.Settings_TryGet(settingsKey, out var value))
-					UNSAFE_MigrationHelper.Settings_Update(settingsKey, translatePath(value));
+				{
+					UNSAFE_MigrationHelper.Settings_Delete(settingsKey);
+					UNSAFE_MigrationHelper.Settings_Insert("InProgress", translatePath(value));
+				}
 			}
 
 			{
-				var settingsKey = "DecryptInProgressEnum";
-				if (UNSAFE_MigrationHelper.Settings_TryGet(settingsKey, out var value))
-					UNSAFE_MigrationHelper.Settings_Update(settingsKey, translatePath(value));
+				UNSAFE_MigrationHelper.Settings_Delete("DecryptInProgressEnum");
 			}
 
 			{ // appsettings.json
@@ -460,11 +459,11 @@ namespace LibationLauncher
 				config.LibationFiles,
 				AudibleFileStorage.BooksDirectory,
 
-				config.DownloadsInProgressEnum,
+				config.InProgress,
+
 				DownloadsInProgressDir = AudibleFileStorage.DownloadsInProgress,
 				DownloadsInProgressFiles = Directory.EnumerateFiles(AudibleFileStorage.DownloadsInProgress).Count(),
 
-				config.DecryptInProgressEnum,
 				DecryptInProgressDir = AudibleFileStorage.DecryptInProgress,
 				DecryptInProgressFiles = Directory.EnumerateFiles(AudibleFileStorage.DecryptInProgress).Count(),
 			});

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
-using Dinah.Core;
 using FileManager;
 
 namespace LibationWinForms.Dialogs
@@ -19,64 +18,37 @@ namespace LibationWinForms.Dialogs
 				return;
 
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
-			this.downloadsInProgressDescLbl.Text = desc(nameof(config.DownloadsInProgressEnum));
-			this.decryptInProgressDescLbl.Text = desc(nameof(config.DecryptInProgressEnum));
+			this.inProgressDescLbl.Text = desc(nameof(config.InProgress));
 
-			var winTempText = "In your Windows temporary folder\r\n";
-			this.downloadsInProgressWinTempRb.Text = $"{winTempText}{Path.Combine(Configuration.WinTemp, "DownloadsInProgress")}";
-			this.decryptInProgressWinTempRb.Text = $"{winTempText}{Path.Combine(Configuration.WinTemp, "DecryptInProgress")}";
-
-			var libFileText = "In your Libation Files (ie: program-created files)\r\n";
-			this.downloadsInProgressLibationFilesRb.Text = $"{libFileText}{Path.Combine(config.LibationFiles, "DownloadsInProgress")}";
-			this.decryptInProgressLibationFilesRb.Text = $"{libFileText}{Path.Combine(config.LibationFiles, "DecryptInProgress")}";
-
-			this.booksLocationTb.Text
-				= !string.IsNullOrWhiteSpace(config.Books)
-				? config.Books
-				: Path.GetDirectoryName(Exe.FileLocationOnDisk);
+			booksSelectControl.SetSearchTitle("books location");
+			booksSelectControl.SetDirectoryItems(new()
+			{
+				Configuration.KnownDirectories.UserProfile,
+				Configuration.KnownDirectories.AppDir,
+				Configuration.KnownDirectories.MyDocs
+			}, Configuration.KnownDirectories.UserProfile);
+			booksSelectControl.SelectDirectory(config.Books);
 
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
 
-			switch (config.DownloadsInProgressEnum)
+			inProgressSelectControl.SetDirectoryItems(new()
 			{
-				case Configuration.LIBATION_FILES_LABEL:
-					downloadsInProgressLibationFilesRb.Checked = true;
-					break;
-				case Configuration.WIN_TEMP_LABEL:
-				default:
-					downloadsInProgressWinTempRb.Checked = true;
-					break;
-			}
-
-			switch (config.DecryptInProgressEnum)
-			{
-				case Configuration.LIBATION_FILES_LABEL:
-					decryptInProgressLibationFilesRb.Checked = true;
-					break;
-				case Configuration.WIN_TEMP_LABEL:
-				default:
-					decryptInProgressWinTempRb.Checked = true;
-					break;
-			}
-		}
-
-		private void booksLocationSearchBtn_Click(object sender, EventArgs e) => selectFolder("Search for books location", this.booksLocationTb);
-
-		private static void selectFolder(string desc, TextBox textbox)
-		{
-			using var dialog = new FolderBrowserDialog { Description = desc, SelectedPath = "" };
-			dialog.ShowDialog();
-			if (!string.IsNullOrWhiteSpace(dialog.SelectedPath))
-				textbox.Text = dialog.SelectedPath;
+				Configuration.KnownDirectories.WinTemp,
+				Configuration.KnownDirectories.UserProfile,
+				Configuration.KnownDirectories.AppDir,
+				Configuration.KnownDirectories.MyDocs,
+				Configuration.KnownDirectories.LibationFiles
+			}, Configuration.KnownDirectories.WinTemp);
+			inProgressSelectControl.SelectDirectory(config.InProgress);
 		}
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
-			config.DownloadsInProgressEnum = downloadsInProgressLibationFilesRb.Checked ? Configuration.LIBATION_FILES_LABEL : Configuration.WIN_TEMP_LABEL;
-			config.DecryptInProgressEnum = decryptInProgressLibationFilesRb.Checked ? Configuration.LIBATION_FILES_LABEL : Configuration.WIN_TEMP_LABEL;
 
-			var newBooks = this.booksLocationTb.Text;
+			config.InProgress = inProgressSelectControl.SelectedDirectory;
+			
+			var newBooks = booksSelectControl.SelectedDirectory;
 			if (!Directory.Exists(newBooks))
 			{
 				MessageBox.Show($"Not saving change to Books location. This folder does not exist:\r\n{newBooks}");
