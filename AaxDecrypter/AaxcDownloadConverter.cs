@@ -53,7 +53,7 @@ namespace AaxDecrypter
 
             steps = new StepSequence
             {
-                Name = "Download and Convert Aaxc To M4b",
+                Name = "Download and Convert Aaxc To " + (outputFormat == OutputFormat.Mp4a ? "M4b" : "Mp3"),
 
                 ["Step 1: Get Aaxc Metadata"] = Step1_GetMetadata,
                 ["Step 2: Download Decrypted Audiobook"] = Step2_DownloadAndCombine,
