@@ -43,14 +43,14 @@ namespace LibationWinForms.BookLiberation
         private void timer_Tick(object sender, EventArgs e)
         {
             // if no update in the last 30 seconds, display frozen label
-            lastUpdateLbl.Visible = lastDownloadProgress.AddSeconds(30) < DateTime.Now;
+            lastUpdateLbl.UIThread(() => lastUpdateLbl.Visible = lastDownloadProgress.AddSeconds(30) < DateTime.Now);
             if (lastUpdateLbl.Visible)
             {
                 var diff = lastDownloadProgress - DateTime.Now;
                 var min = (int)diff.TotalMinutes;
                 var minText = min > 0 ? $"{min}min " : "";
-                
-                lastUpdateLbl.Text = $"Frozen? Last download activity: {minText}{diff.Seconds}sec ago";
+
+                lastUpdateLbl.UIThread(() => lastUpdateLbl.Text = $"Frozen? Last download activity: {minText}{diff.Seconds}sec ago");
             }
         }
         private void DownloadForm_FormClosing(object sender, FormClosingEventArgs e) => timer.Stop();
