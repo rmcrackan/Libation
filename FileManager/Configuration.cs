@@ -121,6 +121,13 @@ namespace FileManager
             get => persistentDictionary.Get<bool>(nameof(AllowLibationFixup));
             set => persistentDictionary.Set(nameof(AllowLibationFixup), value);
         }
+
+        [Description("Decrypt to lossy format?")]
+        public bool DecryptToLossy
+        {
+            get => persistentDictionary.Get<bool>(nameof(DecryptToLossy));
+            set => persistentDictionary.Set(nameof(DecryptToLossy), value);
+        }
         // note: any potential file manager static ctors can't compensate if storage dir is changed at run time via settings. this is partly bad architecture. but the side effect is desirable. if changing LibationFiles location: restart app
 
         // singleton stuff

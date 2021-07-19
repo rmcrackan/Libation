@@ -87,8 +87,20 @@ namespace FileLiberator
                         aaxcDecryptDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
 
-                var proposedOutputFile = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].m4b");
-                aaxcDownloader = new AaxcDownloadConverter(proposedOutputFile, cacheDir, aaxcDecryptDlLic) { AppName = "Libation" };
+
+                var format = Configuration.Instance.DecryptToLossy ? OutputFormat.Mp3 : OutputFormat.Mp4a;
+
+                var extension = format switch
+                {
+                    OutputFormat.Mp4a => "m4b",
+                    OutputFormat.Mp3 => "mp3",
+                    _ => throw new NotImplementedException(),
+                };
+
+                 var proposedOutputFile = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{extension}");
+
+
+                aaxcDownloader = new AaxcDownloadConverter(proposedOutputFile, cacheDir, aaxcDecryptDlLic, format) { AppName = "Libation" };
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => UpdateProgress?.Invoke(this, progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => UpdateRemainingTime?.Invoke(this, remaining);
                 aaxcDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;

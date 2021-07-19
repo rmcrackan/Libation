@@ -8,6 +8,11 @@ using System.IO;
 
 namespace AaxDecrypter
 {
+    public enum OutputFormat
+    {
+        Mp4a,
+        Mp3
+    }
     public class AaxcDownloadConverter
     {
         public event EventHandler<AppleTags> RetrievedTags;
@@ -21,6 +26,7 @@ namespace AaxDecrypter
         private DownloadLicense downloadLicense { get; }
         private AaxFile aaxFile;
         private byte[] coverArt;
+        private OutputFormat OutputFormat;
 
         private StepSequence steps { get; }
         private NetworkFileStreamPersister nfsPersister;
@@ -28,10 +34,10 @@ namespace AaxDecrypter
         private string jsonDownloadState => Path.Combine(cacheDir, Path.GetFileNameWithoutExtension(OutputFileName) + ".json");
         private string tempFile => PathLib.ReplaceExtension(jsonDownloadState, ".aaxc");
 
-        public AaxcDownloadConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+        public AaxcDownloadConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic, OutputFormat outputFormat)
         {
             ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
-            OutputFileName = PathLib.ReplaceExtension(outFileName, ".m4b");
+            OutputFileName = outFileName;
             var outDir = Path.GetDirectoryName(OutputFileName);
             if (!Directory.Exists(outDir))
                 throw new ArgumentNullException(nameof(outDir), "Directory does not exist");
@@ -43,10 +49,11 @@ namespace AaxDecrypter
             cacheDir = cacheDirectory;
 
             downloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
+            OutputFormat = outputFormat;
 
             steps = new StepSequence
             {
-                Name = "Download and Convert Aaxc To M4b",
+                Name = "Download and Convert Aaxc To " + (outputFormat == OutputFormat.Mp4a ? "M4b" : "Mp3"),
 
                 ["Step 1: Get Aaxc Metadata"] = Step1_GetMetadata,
                 ["Step 2: Download Decrypted Audiobook"] = Step2_DownloadAndCombine,
@@ -125,7 +132,6 @@ namespace AaxDecrypter
 
         public bool Step2_DownloadAndCombine()
         {
-            OutputFormat format = OutputFormat.Mp4a;
 
             DecryptProgressUpdate?.Invoke(this, 0);
 
@@ -134,15 +140,20 @@ namespace AaxDecrypter
 
             FileStream outFile = File.OpenWrite(OutputFileName);
 
+            aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
+
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-            var decryptionResult = aaxFile.DecryptAaxc(outFile, downloadLicense.AudibleKey, downloadLicense.AudibleIV, format, downloadLicense.ChapterInfo);
+
+            var decryptionResult = OutputFormat == OutputFormat.Mp4a ? aaxFile.ConvertToMp4a(outFile, downloadLicense.ChapterInfo) : aaxFile.ConvertToMp3(outFile);
             aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
+
+            aaxFile.Close();
 
             downloadLicense.ChapterInfo = aaxFile.Chapters;
 
             if (decryptionResult == ConversionResult.NoErrorsDetected
                 && coverArt is not null
-                && format == OutputFormat.Mp4a)
+                && OutputFormat == OutputFormat.Mp4a)
             {
                 //This handles a special case where the aaxc file doesn't contain cover art and
                 //Libation downloaded it instead (Animal Farm). Currently only works for Mp4a files.
