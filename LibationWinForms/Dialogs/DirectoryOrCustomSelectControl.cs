@@ -9,9 +9,11 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class DirectoryOrCustomSelectControl : UserControl
 	{
+		public bool SelectedDirectoryIsKnown => knownDirectoryRb.Checked;
+		public bool SelectedDirectoryIsCustom => customDirectoryRb.Checked;
 		public string SelectedDirectory
-			=> customDirectoryRb.Checked ? customTb.Text.Trim()
-			: knownDirectoryRb.Checked ? directorySelectControl.SelectedDirectory
+			=> SelectedDirectoryIsKnown ? directorySelectControl.SelectedDirectory
+			: SelectedDirectoryIsCustom ? customTb.Text.Trim()
 			: null;
 
 		public DirectoryOrCustomSelectControl()
@@ -25,8 +27,8 @@ namespace LibationWinForms.Dialogs
 		/// <summary>Set items for combobox</summary>
 		/// <param name="knownDirectories">List rather than IEnumerable so that client can determine display order</param>
 		/// <param name="defaultDirectory"></param>
-		public void SetDirectoryItems(List<Configuration.KnownDirectories> knownDirectories, Configuration.KnownDirectories? defaultDirectory = Configuration.KnownDirectories.UserProfile)
-			=> this.directorySelectControl.SetDirectoryItems(knownDirectories, defaultDirectory);
+		public void SetDirectoryItems(List<Configuration.KnownDirectories> knownDirectories, Configuration.KnownDirectories? defaultDirectory = Configuration.KnownDirectories.UserProfile, string subDirectory = null)
+			=> this.directorySelectControl.SetDirectoryItems(knownDirectories, defaultDirectory, subDirectory);
 
 		/// <summary>set selection</summary>
 		/// <param name="directory"></param>
@@ -41,7 +43,13 @@ namespace LibationWinForms.Dialogs
 		public void SelectDirectory(string directory)
 		{
 			directory = directory?.Trim() ?? "";
-			selectDir(Configuration.GetKnownDirectory(directory), directory);
+
+			// remove SubDirectory setting to find known directories
+			var noSubDir = this.directorySelectControl.RemoveSubDirectoryFromPath(directory);
+			var knownDir = Configuration.GetKnownDirectory(noSubDir);
+			// DO NOT remove SubDirectory setting for custom
+			var customDir = directory;
+			selectDir(knownDir, customDir);
 		}
 
 		private void selectDir(Configuration.KnownDirectories knownDir, string customDir)

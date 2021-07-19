@@ -6,8 +6,7 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class LibationFilesDialog : Form
 	{
-		private Configuration config { get; } = Configuration.Instance;
-		private Func<string, string> desc { get; } = Configuration.GetDescription;
+		public string SelectedDirectory { get; private set; }
 
 		public LibationFilesDialog() => InitializeComponent();
 
@@ -16,7 +15,9 @@ namespace LibationWinForms.Dialogs
 			if (this.DesignMode)
 				return;
 
-			libationFilesDescLbl.Text = desc(nameof(config.LibationFiles));
+			var config = Configuration.Instance;
+
+			libationFilesDescLbl.Text = Configuration.GetDescription(nameof(config.LibationFiles));
 
 			libationFilesSelectControl.SetSearchTitle("Libation Files");
 			libationFilesSelectControl.SetDirectoryItems(new()
@@ -31,11 +32,14 @@ namespace LibationWinForms.Dialogs
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
 			var libationDir = libationFilesSelectControl.SelectedDirectory;
-			if (!config.TrySetLibationFiles(libationDir))
+
+			if (!System.IO.Directory.Exists(libationDir))
 			{
 				MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationDir);
 				return;
 			}
+
+			SelectedDirectory = libationDir;
 
 			this.DialogResult = DialogResult.OK;
 			this.Close();

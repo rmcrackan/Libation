@@ -5,33 +5,25 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class SetupDialog : Form
 	{
-		public event EventHandler NoQuestionsBtn_Click
+		public bool IsNewUser { get; private set; }
+		public bool IsReturningUser { get; private set; }
+
+		public SetupDialog() => InitializeComponent();
+
+		private void newUserBtn_Click(object sender, EventArgs e)
 		{
-			add => noQuestionsBtn.Click += value;
-			remove => noQuestionsBtn.Click -= value;
+			IsNewUser = true;
+
+			this.DialogResult = DialogResult.OK;
+			Close();
 		}
 
-		public event EventHandler BasicBtn_Click
+		private void returningUserBtn_Click(object sender, EventArgs e)
 		{
-			add => basicBtn.Click += value;
-			remove => basicBtn.Click -= value;
+			IsReturningUser = true;
+
+			this.DialogResult = DialogResult.OK;
+			Close();
 		}
-
-		public event EventHandler AdvancedBtn_Click
-		{
-			add => advancedBtn.Click += value;
-			remove => advancedBtn.Click -= value;
-		}
-
-		public SetupDialog()
-		{
-			InitializeComponent();
-
-			noQuestionsBtn.Click += btn_Click;
-			basicBtn.Click += btn_Click;
-			advancedBtn.Click += btn_Click;
-		}
-
-		private void btn_Click(object sender, EventArgs e) => Close();
 	}
 }

@@ -10,20 +10,25 @@ namespace FileManager
     public class PersistentDictionary
     {
         public string Filepath { get; }
+        public bool IsReadOnly { get; }
 
         // optimize for strings. expectation is most settings will be strings and a rare exception will be something else
         private Dictionary<string, string> stringCache { get; } = new Dictionary<string, string>();
         private Dictionary<string, object> objectCache { get; } = new Dictionary<string, object>();
 
-        public PersistentDictionary(string filepath)
+        public PersistentDictionary(string filepath, bool isReadOnly = false)
         {
             Filepath = filepath;
+            IsReadOnly = isReadOnly;
 
             if (File.Exists(Filepath))
                 return;
 
             // will create any missing directories, incl subdirectories. if all already exist: no action
             Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+
+            if (IsReadOnly)
+                return;
 
             File.WriteAllText(Filepath, "{}");
             System.Threading.Thread.Sleep(100);
@@ -34,7 +39,9 @@ namespace FileManager
             if (!stringCache.ContainsKey(propertyName))
             {
                 var jObject = readFile();
-                stringCache[propertyName] = jObject.ContainsKey(propertyName) ? jObject[propertyName].Value<string>() : null;
+                if (!jObject.ContainsKey(propertyName))
+                    return null;
+                stringCache[propertyName] = jObject[propertyName].Value<string>();
             }
 
             return stringCache[propertyName];
@@ -42,10 +49,10 @@ namespace FileManager
 
         public T Get<T>(string propertyName)
         {
-            var o = GetObject(propertyName);
-            if (o is null) return default;
-            if (o is JToken jt) return jt.Value<T>();
-            return (T)o;
+            var obj = GetObject(propertyName);
+            if (obj is null) return default;
+            if (obj is JToken jToken) return jToken.Value<T>();
+            return (T)obj;
         }
 
         public object GetObject(string propertyName)
@@ -53,17 +60,21 @@ namespace FileManager
             if (!objectCache.ContainsKey(propertyName))
             {
                 var jObject = readFile();
-                objectCache[propertyName] = jObject.ContainsKey(propertyName) ? jObject[propertyName].Value<object>() : null;
+                if (!jObject.ContainsKey(propertyName))
+                    return null;
+                objectCache[propertyName] = jObject[propertyName].Value<object>();
             }
 
             return objectCache[propertyName];
         }
 
+        public bool Exists(string propertyName) => readFile().ContainsKey(propertyName);
+
         private object locker { get; } = new object();
         public void Set(string propertyName, string newValue)
         {
             // only do this check in string cache, NOT object cache
-            if (stringCache[propertyName] == newValue)
+            if (stringCache.ContainsKey(propertyName) && stringCache[propertyName] == newValue)
                 return;
 
             // set cache
@@ -83,6 +94,9 @@ namespace FileManager
 
         private void writeFile(string propertyName, JToken newValue)
         {
+            if (IsReadOnly)
+                return;
+
             try
             {
                 var str = newValue?.ToString();
@@ -113,6 +127,9 @@ namespace FileManager
         // special case: no caching. no logging
         public void SetWithJsonPath(string jsonPath, string propertyName, string newValue)
         {
+            if (IsReadOnly)
+                return;
+
             lock (locker)
             {
                 var jObject = readFile();

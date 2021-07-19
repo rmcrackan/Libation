@@ -399,12 +399,19 @@ namespace LibationWinForms
 
         private void advancedSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var oldLocation = Configuration.Instance.LibationFiles;
-            new LibationFilesDialog().ShowDialog();
+            var libationFilesDialog = new LibationFilesDialog();
+            if (libationFilesDialog.ShowDialog() != DialogResult.OK)
+                return;
 
             // no change
-            if (System.IO.Path.GetFullPath(oldLocation).EqualsInsensitive(System.IO.Path.GetFullPath(Configuration.Instance.LibationFiles)))
+            if (System.IO.Path.GetFullPath(libationFilesDialog.SelectedDirectory).EqualsInsensitive(System.IO.Path.GetFullPath(Configuration.Instance.LibationFiles)))
                 return;
+
+            if (!Configuration.Instance.TrySetLibationFiles(libationFilesDialog.SelectedDirectory))
+            {
+                MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationFilesDialog.SelectedDirectory);
+                return;
+            }
 
             MessageBox.Show(
                 "You have changed a file path important for this program. All files will remain in their original location; nothing will be moved. Libation must be restarted so these changes are handled correctly.",

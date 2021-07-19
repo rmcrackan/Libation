@@ -11,11 +11,28 @@ namespace FileManager
 {
     public class Configuration
     {
-        // settings will be persisted when all are true
-        // - property (not field)
-        // - string
-        // - public getter
-        // - public setter
+        public bool LibationSettingsAreValid
+            => File.Exists(APPSETTINGS_JSON)
+            && SettingsFileIsValid(SettingsFilePath);
+
+        public static bool SettingsFileIsValid(string settingsFile)
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(settingsFile)) || !File.Exists(settingsFile))
+                return false;
+
+            var pDic = new PersistentDictionary(settingsFile, isReadOnly: true);
+
+            var booksDir = pDic.GetString(nameof(Books));
+            if (booksDir is null || !Directory.Exists(booksDir))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(pDic.GetString(nameof(InProgress))))
+                return false;
+
+            return true;
+        }
+
+        #region persistent configuration settings/values
 
         #region // properties to test reflection
         /*
@@ -33,15 +50,38 @@ namespace FileManager
         */
         #endregion
 
+        // settings will be persisted when all are true
+        // - property (not field)
+        // - string
+        // - public getter
+        // - public setter
+
+        // note: any potential file manager static ctors can't compensate if storage dir is changed at run time via settings. this is partly bad architecture. but the side effect is desirable. if changing LibationFiles location: restart app
+
+        // default setting and directory creation occur in class responsible for files.
+        // config class is only responsible for path. not responsible for setting defaults, dir validation, or dir creation
+        // exceptions: appsettings.json, LibationFiles dir, Settings.json
+
         private PersistentDictionary persistentDictionary;
 
-        public bool FilesExist
-            => File.Exists(APPSETTINGS_JSON)
-            && File.Exists(SettingsFilePath)
-            && Directory.Exists(LibationFiles)
-            && Directory.Exists(Books);
+        public object GetObject(string propertyName) => persistentDictionary.GetObject(propertyName);
+        public void SetObject(string propertyName, object newValue) => persistentDictionary.Set(propertyName, newValue);
+        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue) => persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue);
 
         public string SettingsFilePath => Path.Combine(LibationFiles, "Settings.json");
+
+        public static string GetDescription(string propertyName)
+        {
+            var attribute = typeof(Configuration)
+                .GetProperty(propertyName)
+                ?.GetCustomAttributes(typeof(DescriptionAttribute), true)
+                .SingleOrDefault()
+                as DescriptionAttribute;
+
+            return attribute?.Description;
+        }
+
+        public bool Exists(string propertyName) => persistentDictionary.Exists(propertyName);
 
         [Description("Location for book storage. Includes destination of newly liberated books")]
         public string Books
@@ -50,10 +90,34 @@ namespace FileManager
             set => persistentDictionary.Set(nameof(Books), value);
         }
 
-		#region known directories
-        public static string AppDir_Relative => @".\LibationFiles";
+        // temp/working dir(s) should be outside of dropbox
+        [Description("Temporary location of files while they're in process of being downloaded and decrypted.\r\nWhen decryption is complete, the final file will be in Books location\r\nRecommend not using a folder which is backed up real time. Eg: Dropbox, iCloud, Google Drive")]
+        public string InProgress
+        {
+            get => persistentDictionary.GetString(nameof(InProgress));
+            set => persistentDictionary.Set(nameof(InProgress), value);
+        }
+
+        [Description("Allow Libation for fix up audiobook metadata?")]
+        public bool AllowLibationFixup
+        {
+            get => persistentDictionary.Get<bool>(nameof(AllowLibationFixup));
+            set => persistentDictionary.Set(nameof(AllowLibationFixup), value);
+        }
+
+        [Description("Decrypt to lossy format?")]
+        public bool DecryptToLossy
+        {
+            get => persistentDictionary.Get<bool>(nameof(DecryptToLossy));
+            set => persistentDictionary.Set(nameof(DecryptToLossy), value);
+        }
+
+        #endregion
+
+        #region known directories
+        public static string AppDir_Relative => $@".\{LIBATION_FILES_KEY}";
         public static string AppDir_Absolute => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), LIBATION_FILES_KEY));
-        public static string MyDocs => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "LibationFiles"));
+        public static string MyDocs => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Libation"));
         public static string WinTemp => Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation"));
         public static string UserProfile => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Libation"));
 
@@ -84,7 +148,8 @@ namespace FileManager
             (KnownDirectories.AppDir, () => AppDir_Relative),
             (KnownDirectories.WinTemp, () => WinTemp),
             (KnownDirectories.MyDocs, () => MyDocs),
-            // this is important to not let very early calls try to accidentally load LibationFiles too early
+            // this is important to not let very early calls try to accidentally load LibationFiles too early.
+            // also, keep this at bottom of this list
             (KnownDirectories.LibationFiles, () => libationFilesPathCache)
         };
         public static string GetKnownDirectoryPath(KnownDirectories directory)
@@ -98,43 +163,21 @@ namespace FileManager
             if (string.IsNullOrWhiteSpace(directory))
                 return KnownDirectories.None;
 
-            var dirFunc = directoryOptionsPaths.SingleOrDefault(dirFunc => dirFunc.getPathFunc() == directory);
+            // 'First' instead of 'Single' because LibationFiles could match other directories. eg: default value of LibationFiles == UserProfile.
+            // since it's a list, order matters and non-LibationFiles will be returned first
+            var dirFunc = directoryOptionsPaths.FirstOrDefault(dirFunc => dirFunc.getPathFunc() == directory);
             return dirFunc == default ? KnownDirectories.None : dirFunc.directory;
         }
-        #endregion
+		#endregion
 
-        // default setting and directory creation occur in class responsible for files.
-        // config class is only responsible for path. not responsible for setting defaults, dir validation, or dir creation
-        // exceptions: appsettings.json, LibationFiles dir, Settings.json
-
-        // temp/working dir(s) should be outside of dropbox
-        [Description("Temporary location of files while they're in process of being downloaded and decrypted.\r\nWhen decryption is complete, the final file will be in Books location\r\nRecommend not using a folder which is backed up real time. Eg: Dropbox, iCloud, Google Drive")]
-        public string InProgress
-        {
-            get => persistentDictionary.GetString(nameof(InProgress));
-            set => persistentDictionary.Set(nameof(InProgress), value);
-        }
-
-        [Description("Allow Libation for fix up audiobook metadata?")]
-        public bool AllowLibationFixup
-        {
-            get => persistentDictionary.Get<bool>(nameof(AllowLibationFixup));
-            set => persistentDictionary.Set(nameof(AllowLibationFixup), value);
-        }
-
-        [Description("Decrypt to lossy format?")]
-        public bool DecryptToLossy
-        {
-            get => persistentDictionary.Get<bool>(nameof(DecryptToLossy));
-            set => persistentDictionary.Set(nameof(DecryptToLossy), value);
-        }
-        // note: any potential file manager static ctors can't compensate if storage dir is changed at run time via settings. this is partly bad architecture. but the side effect is desirable. if changing LibationFiles location: restart app
-
-        // singleton stuff
-        public static Configuration Instance { get; } = new Configuration();
+		#region singleton stuff
+		public static Configuration Instance { get; } = new Configuration();
         private Configuration() { }
+		#endregion
 
-        private const string APPSETTINGS_JSON = "appsettings.json";
+		#region LibationFiles
+
+		private const string APPSETTINGS_JSON = "appsettings.json";
         private const string LIBATION_FILES_KEY = "LibationFiles";
 
         [Description("Location for storage of program-created files")]
@@ -192,21 +235,6 @@ namespace FileManager
             return valueFinal;
         }
 
-        public object GetObject(string propertyName) => persistentDictionary.GetObject(propertyName);
-        public void SetObject(string propertyName, object newValue) => persistentDictionary.Set(propertyName, newValue);
-        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue) => persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue);
-
-        public static string GetDescription(string propertyName)
-        {
-            var attribute = typeof(Configuration)
-                .GetProperty(propertyName)
-                ?.GetCustomAttributes(typeof(DescriptionAttribute), true)
-                .SingleOrDefault()
-                as DescriptionAttribute;
-
-            return attribute?.Description;
-        }
-
         public bool TrySetLibationFiles(string directory)
         {
             // this is WRONG. need to MOVE settings; not DELETE them
@@ -236,5 +264,6 @@ namespace FileManager
 
             return true;
         }
+        #endregion
     }
 }

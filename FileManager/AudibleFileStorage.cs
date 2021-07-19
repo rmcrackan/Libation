@@ -37,7 +37,7 @@ namespace FileManager
             get
             {
                 if (string.IsNullOrWhiteSpace(Configuration.Instance.Books))
-                    Configuration.Instance.Books = Path.Combine(Configuration.Instance.LibationFiles, "Books");
+                    Configuration.Instance.Books = Path.Combine(Configuration.UserProfile, "Books");
                 return Directory.CreateDirectory(Configuration.Instance.Books).FullName;
             }
         }

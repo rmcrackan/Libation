@@ -26,199 +26,119 @@ namespace LibationLauncher
 			Application.SetCompatibleTextRenderingDefault(false);
 
 			// must occur before access to Configuration instance
-			migrate_to_v5_2_0();
+			migrate_to_v5_2_0__pre_config();
 
-			createSettings();
+
+			//***********************************************//
+			//                                               //
+			//   do not use Configuration before this line   //
+			//                                               //
+			//***********************************************//
+
+
+			var config = Configuration.Instance;
+
+			createSettings(config);
 
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
 
-			migrate_to_v4_0_0();
-			migrate_to_v5_0_0();
-			
-			ensureSerilogConfig();
-			configureLogging();
-			checkForUpdate();
-			logStartupState();
+			migrate_to_v5_0_0(config);
+			migrate_to_v5_2_0__post_config(config);
+
+			ensureSerilogConfig(config);
+			configureLogging(config);
+			checkForUpdate(config);
+			logStartupState(config);
 
 			Application.Run(new Form1());
 		}
 
-		private static void createSettings()
+		private static void createSettings(Configuration config)
 		{
-			static bool configSetupIsComplete(Configuration config)
-				=> config.FilesExist
-				&& !string.IsNullOrWhiteSpace(config.InProgress);
+			// all returns should be preceded by either:
+			// - if config.LibationSettingsAreValid
+			// - error message, Exit()
 
-			var config = Configuration.Instance;
-			if (configSetupIsComplete(config))
+			static void CancelInstallation()
+			{
+				MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				Application.Exit();
+				Environment.Exit(0);
+			}
+
+			if (config.LibationSettingsAreValid)
 				return;
 
-			var isAdvanced = false;
+			var defaultLibationFilesDir = Configuration.UserProfile;
+
+			// check for existing settigns in default location
+			var defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
+			if (Configuration.SettingsFileIsValid(defaultSettingsFile))
+				config.TrySetLibationFiles(defaultLibationFilesDir);
+
+			if (config.LibationSettingsAreValid)
+				return;
 
 			var setupDialog = new SetupDialog();
-			setupDialog.NoQuestionsBtn_Click += (_, __) =>
+			if (setupDialog.ShowDialog() != DialogResult.OK)
 			{
-				config.InProgress ??= Configuration.WinTemp;
-				config.Books ??= Configuration.AppDir_Relative;
+				CancelInstallation();
+				return;
+			}
+
+			if (setupDialog.IsNewUser)
+				config.TrySetLibationFiles(defaultLibationFilesDir);
+			else if (setupDialog.IsReturningUser)
+			{
+				var libationFilesDialog = new LibationFilesDialog();
+
+				if (libationFilesDialog.ShowDialog() != DialogResult.OK)
+				{
+					CancelInstallation();
+					return;
+				}
+
+				config.TrySetLibationFiles(libationFilesDialog.SelectedDirectory);
+				if (config.LibationSettingsAreValid)
+					return;
+
+				// path did not result in valid settings
+				MessageBox.Show(
+					$"No valid settings were found at this location.\r\nWould you like to create a new install settings in this folder?\r\n\r\n{libationFilesDialog.SelectedDirectory}",
+					"New install?",
+					MessageBoxButtons.YesNo,
+					MessageBoxIcon.Question);
+
+				if (libationFilesDialog.ShowDialog() != DialogResult.Yes)
+				{
+					CancelInstallation();
+					return;
+				}
+			}
+
+			// if 'new user' was clicked, or if 'returning user' chose new install: show basic settings dialog
+			config.Books ??= Path.Combine(defaultLibationFilesDir, "Books");
+			config.InProgress ??= Configuration.WinTemp;
+			config.AllowLibationFixup = true;
+			config.DecryptToLossy = false;
+
+			if (new SettingsDialog().ShowDialog() != DialogResult.OK)
+			{
+				CancelInstallation();
+				return;
+			}
+
+			if (config.LibationSettingsAreValid)
+				return;
+
+			CancelInstallation();
+		}
+
+		#region migrate_to_v5_0_0 re-register device if device info not in settings
+		private static void migrate_to_v5_0_0(Configuration config)
+		{
+			if (!config.Exists(nameof(config.AllowLibationFixup)))
 				config.AllowLibationFixup = true;
-			};
-			// setupDialog.BasicBtn_Click += (_, __) => // no action needed
-			setupDialog.AdvancedBtn_Click += (_, __) => isAdvanced = true;
-			setupDialog.ShowDialog();
-
-			if (isAdvanced)
-			{
-				var dialog = new LibationFilesDialog();
-				if (dialog.ShowDialog() != DialogResult.OK)
-					MessageBox.Show("Libation Files location not changed");
-			}
-
-			if (configSetupIsComplete(config))
-				return;
-
-			if (new SettingsDialog().ShowDialog() == DialogResult.OK)
-				return;
-
-			MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-			Application.Exit();
-			Environment.Exit(0);
-		}
-
-		#region v3 => v4 migration
-		static string AccountsSettingsFileLegacy30 => Path.Combine(Configuration.Instance.LibationFiles, "IdentityTokens.json");
-
-		private static void migrate_to_v4_0_0()
-		{
-			migrateLegacyIdentityFile();
-
-			updateSettingsFile();
-		}
-
-		private static void migrateLegacyIdentityFile()
-		{
-			if (File.Exists(AccountsSettingsFileLegacy30))
-			{
-				// don't always rely on applicable POCOs. some is legacy and must be: json file => JObject
-				try
-				{
-					updateLegacyFileWithLocale();
-
-					var account = createAccountFromLegacySettings();
-					account.DecryptKey = getDecryptKey(account);
-
-					// the next few methods need persistence. to be a good citizen, dispose of persister at the end of current scope
-					using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-					persister.AccountsSettings.Add(account);
-				}
-				// migration is a convenience. if something goes wrong: just move on
-				catch { }
-
-				// delete legacy token file
-				File.Delete(AccountsSettingsFileLegacy30);
-			}
-		}
-
-		private static void updateLegacyFileWithLocale()
-		{
-			var legacyContents = File.ReadAllText(AccountsSettingsFileLegacy30);
-			var legacyJObj = JObject.Parse(legacyContents);
-
-			// attempt to update legacy token file with locale from settings
-			if (!legacyJObj.ContainsKey("LocaleName"))
-			{
-				var settings = File.ReadAllText(Configuration.Instance.SettingsFilePath);
-				var settingsJObj = JObject.Parse(settings);
-				if (settingsJObj.TryGetValue("LocaleCountryCode", out var localeName))
-				{
-					// update legacy token file with locale from settings
-					legacyJObj.AddFirst(new JProperty("LocaleName", localeName.Value<string>()));
-
-					// save
-					var newContents = legacyJObj.ToString(Formatting.Indented);
-					File.WriteAllText(AccountsSettingsFileLegacy30, newContents);
-				}
-			}
-		}
-
-		private static Account createAccountFromLegacySettings()
-		{
-			// get required locale from settings file
-			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
-			if (!JObject.Parse(settingsContents).TryGetValue("LocaleCountryCode", out var jLocale))
-				return null;
-
-			var localeName = jLocale.Value<string>();
-			var locale = Localization.Get(localeName);
-
-			var api = EzApiCreator.GetApiAsync(locale, AccountsSettingsFileLegacy30).GetAwaiter().GetResult();
-			var email = api.GetEmailAsync().GetAwaiter().GetResult();
-
-			// identity has likely been updated above. re-get contents
-			var legacyContents = File.ReadAllText(AccountsSettingsFileLegacy30);
-
-			var identity = Identity.FromJson(legacyContents);
-
-			if (!identity.IsValid)
-				return null;
-
-			var account = new Account(email)
-			{
-				AccountName = $"{email} - {locale.Name}",
-				LibraryScan = true,
-				IdentityTokens = identity
-			};
-
-			return account;
-		}
-
-		private static string getDecryptKey(Account account)
-		{
-			if (!string.IsNullOrWhiteSpace(account?.DecryptKey))
-				return account.DecryptKey;
-
-			if (!File.Exists(Configuration.Instance.SettingsFilePath) || account is null)
-				return "";
-
-			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
-			if (JObject.Parse(settingsContents).TryGetValue("DecryptKey", out var jToken))
-				return jToken.Value<string>() ?? "";
-
-			return "";
-		}
-
-		private static void updateSettingsFile()
-		{
-			if (!File.Exists(Configuration.Instance.SettingsFilePath))
-				return;
-
-			// use JObject to remove decrypt key and locale from Settings.json
-			var settingsContents = File.ReadAllText(Configuration.Instance.SettingsFilePath);
-			var jObj = JObject.Parse(settingsContents);
-
-			var jLocale = jObj.Property("LocaleCountryCode");
-			var jDecryptKey = jObj.Property("DecryptKey");
-
-			jDecryptKey?.Remove();
-			jLocale?.Remove();
-
-			if (jDecryptKey != null || jLocale != null)
-			{
-				var newContents = jObj.ToString(Formatting.Indented);
-				File.WriteAllText(Configuration.Instance.SettingsFilePath, newContents);
-			}
-		}
-		#endregion
-
-		#region migrate_to_v5_0_0 re-gegister device if device info not in settings
-		private static void migrate_to_v5_0_0()
-		{
-			var persistentDictionary = new PersistentDictionary(Configuration.Instance.SettingsFilePath);
-
-			var config = Configuration.Instance;
-			if (persistentDictionary.GetString(nameof(config.AllowLibationFixup)) is null)
-            {
-				persistentDictionary.Set(nameof(config.AllowLibationFixup), true);
-			}
 
 			if (!File.Exists(AudibleApiStorage.AccountsSettingsFile))
 				return;
@@ -258,8 +178,9 @@ namespace LibationLauncher
 		}
 		#endregion
 
-		#region migrate to v5.2.0 : get rid of meta-directories, combine DownloadsInProgressEnum and DecryptInProgressEnum => InProgress
-		private static void migrate_to_v5_2_0()
+		#region migrate to v5.2.0
+		// get rid of meta-directories, combine DownloadsInProgressEnum and DecryptInProgressEnum => InProgress
+		private static void migrate_to_v5_2_0__pre_config()
 		{
 			{
 				var settingsKey = "DownloadsInProgressEnum";
@@ -290,12 +211,19 @@ namespace LibationLauncher
 				"WinTemp" => Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation")),
 				_ => path
 			};
+
+		private static void migrate_to_v5_2_0__post_config(Configuration config)
+		{
+			if (!config.Exists(nameof(config.AllowLibationFixup)))
+				config.AllowLibationFixup = true;
+
+			if (!config.Exists(nameof(config.DecryptToLossy)))
+				config.DecryptToLossy = false;
+		}
 		#endregion
 
-		private static void ensureSerilogConfig()
+		private static void ensureSerilogConfig(Configuration config)
 		{
-			var config = Configuration.Instance;
-
 			if (config.GetObject("Serilog") != null)
 				return;
 
@@ -348,10 +276,8 @@ namespace LibationLauncher
 			config.SetObject("Serilog", serilogObj);
 		}
 
-		private static void configureLogging()
+		private static void configureLogging(Configuration config)
 		{
-			var config = Configuration.Instance;
-
 			// override path. always use current libation files
 			var logPath = Path.Combine(Configuration.Instance.LibationFiles, "Log.log");
 			config.SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath);
@@ -382,7 +308,7 @@ namespace LibationLauncher
 			//Log.Logger.Here().Debug("Begin Libation. Debug with line numbers");
 		}
 
-		private static void checkForUpdate()
+		private static void checkForUpdate(Configuration config)
 		{
 			try
 			{
@@ -439,10 +365,8 @@ namespace LibationLauncher
 			MessageBox.Show($"{message}\r\nSee log for details");
 		}
 
-		private static void logStartupState()
+		private static void logStartupState(Configuration config)
 		{
-			var config = Configuration.Instance;
-
 			// begin logging session with a form feed
 			Log.Logger.Information("\r\n\f");
 			Log.Logger.Information("Begin Libation. {@DebugInfo}", new

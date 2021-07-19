@@ -21,12 +21,15 @@ namespace LibationWinForms.Dialogs
 			this.inProgressDescLbl.Text = desc(nameof(config.InProgress));
 
 			booksSelectControl.SetSearchTitle("books location");
-			booksSelectControl.SetDirectoryItems(new()
-			{
+			booksSelectControl.SetDirectoryItems(
+				new()
+				{
+					Configuration.KnownDirectories.UserProfile,
+					Configuration.KnownDirectories.AppDir,
+					Configuration.KnownDirectories.MyDocs
+				},
 				Configuration.KnownDirectories.UserProfile,
-				Configuration.KnownDirectories.AppDir,
-				Configuration.KnownDirectories.MyDocs
-			}, Configuration.KnownDirectories.UserProfile);
+				"Books");
 			booksSelectControl.SelectDirectory(config.Books);
 
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
@@ -54,13 +57,26 @@ namespace LibationWinForms.Dialogs
 			config.InProgress = inProgressSelectControl.SelectedDirectory;
 			
 			var newBooks = booksSelectControl.SelectedDirectory;
-			if (!Directory.Exists(newBooks))
+
+			if (string.IsNullOrWhiteSpace(newBooks))
 			{
-				MessageBox.Show($"Not saving change to Books location. This folder does not exist:\r\n{newBooks}");
+				MessageBox.Show("Cannot set Books Location to blank");
 				return;
 			}
-			else
-				config.Books = newBooks;
+
+			if (!Directory.Exists(newBooks))
+			{
+				if (booksSelectControl.SelectedDirectoryIsCustom)
+				{
+					MessageBox.Show($"Not saving change to Books location. This folder does not exist:\r\n{newBooks}");
+					return;
+				}
+
+				if (booksSelectControl.SelectedDirectoryIsKnown)
+					Directory.CreateDirectory(newBooks);
+			}
+			
+			config.Books = newBooks;
 
 			this.DialogResult = DialogResult.OK;
 			this.Close();

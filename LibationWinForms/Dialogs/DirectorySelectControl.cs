@@ -13,14 +13,17 @@ namespace LibationWinForms.Dialogs
 		{
 			public string Description { get; }
 			public Configuration.KnownDirectories Value { get; }
+			private DirectorySelectControl _parentControl;
 
-			public string FullPath => Configuration.GetKnownDirectoryPath(Value);
+			public string FullPath => _parentControl.AddSubDirectoryToPath(Configuration.GetKnownDirectoryPath(Value));
 
 			/// <summary>Displaying relative paths is confusing. UI should display absolute equivalent</summary>
-			public string UiDisplayPath => Value == Configuration.KnownDirectories.AppDir ? Configuration.AppDir_Absolute : FullPath;
+			public string UiDisplayPath => Value == Configuration.KnownDirectories.AppDir ? _parentControl.AddSubDirectoryToPath(Configuration.AppDir_Absolute) : FullPath;
 
-			public DirectoryComboBoxItem(Configuration.KnownDirectories knownDirectory)
+			public DirectoryComboBoxItem(DirectorySelectControl parentControl, Configuration.KnownDirectories knownDirectory)
 			{
+				_parentControl = parentControl;
+
 				Value = knownDirectory;
 				Description = Value.GetDescription();
 			}
@@ -28,20 +31,42 @@ namespace LibationWinForms.Dialogs
 			public override string ToString() => Description;
 		}
 
-		private DirectoryComboBoxItem selectedItem => (DirectoryComboBoxItem)this.directoryComboBox.SelectedItem;
 		public string SelectedDirectory => selectedItem?.FullPath;
+
+		private string _subDirectory;
+		internal string AddSubDirectoryToPath(string path) => string.IsNullOrWhiteSpace(_subDirectory) ? path : System.IO.Path.Combine(path, _subDirectory);
+		internal string RemoveSubDirectoryFromPath(string path)
+		{
+			if (string.IsNullOrWhiteSpace(_subDirectory))
+				return path;
+
+			path = path?.Trim() ?? "";
+			if (string.IsNullOrWhiteSpace(path))
+				return path;
+
+			var bottomDir = System.IO.Path.GetFileName(path);
+			if (_subDirectory.EqualsInsensitive(bottomDir))
+				return System.IO.Path.GetDirectoryName(path);
+
+			return path;
+		}
+
+		private DirectoryComboBoxItem selectedItem => (DirectoryComboBoxItem)this.directoryComboBox.SelectedItem;
 
 		public DirectorySelectControl() => InitializeComponent();
 
 		/// <summary>Set items for combobox</summary>
 		/// <param name="knownDirectories">List rather than IEnumerable so that client can determine display order</param>
 		/// <param name="defaultDirectory">Optional default item to select</param>
-		public void SetDirectoryItems(List<Configuration.KnownDirectories> knownDirectories, Configuration.KnownDirectories? defaultDirectory = null)
+		public void SetDirectoryItems(List<Configuration.KnownDirectories> knownDirectories, Configuration.KnownDirectories? defaultDirectory = null, string subDirectory = null)
 		{
+			// set this 1st so all DirectoryComboBoxItems can reference it
+			_subDirectory = subDirectory;
+
 			this.directoryComboBox.Items.Clear();
 
 			foreach (var dir in knownDirectories.Where(d => d != Configuration.KnownDirectories.None).Distinct())
-				this.directoryComboBox.Items.Add(new DirectoryComboBoxItem(dir));
+				this.directoryComboBox.Items.Add(new DirectoryComboBoxItem(this, dir));
 
 			SelectDirectory(defaultDirectory);
 		}
@@ -49,7 +74,14 @@ namespace LibationWinForms.Dialogs
 		/// <summary>set selection</summary>
 		/// <param name="directory"></param>
 		/// <returns>True is there was a matching entry</returns>
-		public bool SelectDirectory(string directory) => SelectDirectory(Configuration.GetKnownDirectory(directory));
+		public bool SelectDirectory(string directory)
+		{
+			directory = directory?.Trim() ?? "";
+
+			var noSubDir = RemoveSubDirectoryFromPath(directory);
+			var knownDir = Configuration.GetKnownDirectory(noSubDir);
+			return SelectDirectory(knownDir);
+		}
 
 		/// <summary>set selection</summary>
 		/// <param name="directory"></param>
