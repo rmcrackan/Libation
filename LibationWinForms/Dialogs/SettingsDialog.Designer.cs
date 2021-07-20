@@ -39,6 +39,7 @@
 			this.allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
 			this.booksSelectControl = new LibationWinForms.Dialogs.DirectoryOrCustomSelectControl();
 			this.booksGb = new System.Windows.Forms.GroupBox();
+			this.logsBtn = new System.Windows.Forms.Button();
 			this.advancedSettingsGb.SuspendLayout();
 			this.booksGb.SuspendLayout();
 			this.SuspendLayout();
@@ -92,6 +93,7 @@
 			// 
 			this.advancedSettingsGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.advancedSettingsGb.Controls.Add(this.logsBtn);
 			this.advancedSettingsGb.Controls.Add(this.convertLossyRb);
 			this.advancedSettingsGb.Controls.Add(this.convertLosslessRb);
 			this.advancedSettingsGb.Controls.Add(this.inProgressSelectControl);
@@ -172,6 +174,16 @@
 			this.booksGb.TabStop = false;
 			this.booksGb.Text = "Books location";
 			// 
+			// logsBtn
+			// 
+			this.logsBtn.Location = new System.Drawing.Point(826, 18);
+			this.logsBtn.Name = "logsBtn";
+			this.logsBtn.Size = new System.Drawing.Size(75, 64);
+			this.logsBtn.TabIndex = 3;
+			this.logsBtn.Text = "Open log\r\nfiles folder";
+			this.logsBtn.UseVisualStyleBackColor = true;
+			this.logsBtn.Click += new System.EventHandler(this.logsBtn_Click);
+			// 
 			// SettingsDialog
 			// 
 			this.AcceptButton = this.saveBtn;
@@ -209,5 +221,6 @@
         private System.Windows.Forms.RadioButton convertLossyRb;
         private System.Windows.Forms.RadioButton convertLosslessRb;
 		private System.Windows.Forms.GroupBox booksGb;
+		private System.Windows.Forms.Button logsBtn;
 	}
 }

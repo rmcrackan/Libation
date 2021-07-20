@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using Dinah.Core;
 using FileManager;
 
 namespace LibationWinForms.Dialogs
@@ -49,13 +50,26 @@ namespace LibationWinForms.Dialogs
 			inProgressSelectControl.SelectDirectory(config.InProgress);
 		}
 
+        private void allowLibationFixupCbox_CheckedChanged(object sender, EventArgs e)
+        {
+			convertLosslessRb.Enabled = allowLibationFixupCbox.Checked;
+			convertLossyRb.Enabled = allowLibationFixupCbox.Checked;
+
+			if (!allowLibationFixupCbox.Checked)
+            {
+				convertLosslessRb.Checked = true;
+			}
+		}
+
+		private void logsBtn_Click(object sender, EventArgs e) => Go.To.Folder(Configuration.Instance.LibationFiles);
+
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
 			config.DecryptToLossy = convertLossyRb.Checked;
 
 			config.InProgress = inProgressSelectControl.SelectedDirectory;
-			
+
 			var newBooks = booksSelectControl.SelectedDirectory;
 
 			if (string.IsNullOrWhiteSpace(newBooks))
@@ -75,7 +89,7 @@ namespace LibationWinForms.Dialogs
 				if (booksSelectControl.SelectedDirectoryIsKnown)
 					Directory.CreateDirectory(newBooks);
 			}
-			
+
 			config.Books = newBooks;
 
 			this.DialogResult = DialogResult.OK;
@@ -87,16 +101,5 @@ namespace LibationWinForms.Dialogs
 			this.DialogResult = DialogResult.Cancel;
 			this.Close();
 		}
-
-        private void allowLibationFixupCbox_CheckedChanged(object sender, EventArgs e)
-        {
-			convertLosslessRb.Enabled = allowLibationFixupCbox.Checked;
-			convertLossyRb.Enabled = allowLibationFixupCbox.Checked;
-
-			if (!allowLibationFixupCbox.Checked)
-            {
-				convertLosslessRb.Checked = true;
-			}
-		}
-    }
+	}
 }
