@@ -71,7 +71,8 @@ namespace DtoImporterService
 
 			foreach (var p in people)
 			{
-				var person = DbContext.Contributors.Local.SingleOrDefault(c => c.Name == p.Name);
+				// Should be 'Single' not 'First'. A user had a duplicate get in somehow though so I'm now using 'First' defensively
+				var person = DbContext.Contributors.Local.FirstOrDefault(c => c.Name == p.Name);
 				if (person == null)
 				{
 					person = DbContext.Contributors.Add(new Contributor(p.Name, p.Asin)).Entity;
