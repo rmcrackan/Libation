@@ -122,10 +122,10 @@
 			this.convertLosslessRb.Checked = true;
 			this.convertLosslessRb.Location = new System.Drawing.Point(7, 63);
 			this.convertLosslessRb.Name = "convertLosslessRb";
-			this.convertLosslessRb.Size = new System.Drawing.Size(307, 19);
+			this.convertLosslessRb.Size = new System.Drawing.Size(327, 19);
 			this.convertLosslessRb.TabIndex = 0;
 			this.convertLosslessRb.TabStop = true;
-			this.convertLosslessRb.Text = "Download books as .M4B files (Lossless Mp4a format)";
+			this.convertLosslessRb.Text = "Download my books as .M4B files (Lossless Mp4a format)";
 			this.convertLosslessRb.UseVisualStyleBackColor = true;
 			// 
 			// inProgressSelectControl

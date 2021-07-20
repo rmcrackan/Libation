@@ -43,6 +43,7 @@
 			this.beginBookBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.beginPdfBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exportLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.quickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.firstFilterIsDefaultToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.editQuickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,27 +58,27 @@
 			this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.addFilterBtn = new System.Windows.Forms.Button();
-			this.noAccountsYetAddAccountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.exportLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// gridPanel
 			// 
-			this.gridPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this.gridPanel.Location = new System.Drawing.Point(12, 56);
+			this.gridPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.gridPanel.Location = new System.Drawing.Point(14, 65);
+			this.gridPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.gridPanel.Name = "gridPanel";
-			this.gridPanel.Size = new System.Drawing.Size(839, 386);
+			this.gridPanel.Size = new System.Drawing.Size(979, 445);
 			this.gridPanel.TabIndex = 5;
 			// 
 			// filterHelpBtn
 			// 
-			this.filterHelpBtn.Location = new System.Drawing.Point(12, 27);
+			this.filterHelpBtn.Location = new System.Drawing.Point(14, 31);
+			this.filterHelpBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterHelpBtn.Name = "filterHelpBtn";
-			this.filterHelpBtn.Size = new System.Drawing.Size(22, 23);
+			this.filterHelpBtn.Size = new System.Drawing.Size(26, 27);
 			this.filterHelpBtn.TabIndex = 3;
 			this.filterHelpBtn.Text = "?";
 			this.filterHelpBtn.UseVisualStyleBackColor = true;
@@ -86,9 +87,10 @@
 			// filterBtn
 			// 
 			this.filterBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.filterBtn.Location = new System.Drawing.Point(776, 27);
+			this.filterBtn.Location = new System.Drawing.Point(905, 31);
+			this.filterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterBtn.Name = "filterBtn";
-			this.filterBtn.Size = new System.Drawing.Size(75, 23);
+			this.filterBtn.Size = new System.Drawing.Size(88, 27);
 			this.filterBtn.TabIndex = 2;
 			this.filterBtn.Text = "Filter";
 			this.filterBtn.UseVisualStyleBackColor = true;
@@ -96,34 +98,36 @@
 			// 
 			// filterSearchTb
 			// 
-			this.filterSearchTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this.filterSearchTb.Location = new System.Drawing.Point(186, 29);
+			this.filterSearchTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.filterSearchTb.Location = new System.Drawing.Point(217, 33);
+			this.filterSearchTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterSearchTb.Name = "filterSearchTb";
-			this.filterSearchTb.Size = new System.Drawing.Size(584, 20);
+			this.filterSearchTb.Size = new System.Drawing.Size(681, 23);
 			this.filterSearchTb.TabIndex = 1;
 			this.filterSearchTb.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.filterSearchTb_KeyPress);
 			// 
 			// menuStrip1
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.importToolStripMenuItem,
-			this.liberateToolStripMenuItem,
-			this.exportToolStripMenuItem,
-			this.quickFiltersToolStripMenuItem,
-			this.settingsToolStripMenuItem});
+            this.importToolStripMenuItem,
+            this.liberateToolStripMenuItem,
+            this.exportToolStripMenuItem,
+            this.quickFiltersToolStripMenuItem,
+            this.settingsToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(863, 24);
+			this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
+			this.menuStrip1.Size = new System.Drawing.Size(1007, 24);
 			this.menuStrip1.TabIndex = 0;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
 			// importToolStripMenuItem
 			// 
 			this.importToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.noAccountsYetAddAccountToolStripMenuItem,
-			this.scanLibraryToolStripMenuItem,
-			this.scanLibraryOfAllAccountsToolStripMenuItem,
+            this.noAccountsYetAddAccountToolStripMenuItem,
+            this.scanLibraryToolStripMenuItem,
+            this.scanLibraryOfAllAccountsToolStripMenuItem,
             this.scanLibraryOfSomeAccountsToolStripMenuItem});
 			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
 			this.importToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
@@ -134,6 +138,7 @@
 			this.noAccountsYetAddAccountToolStripMenuItem.Name = "noAccountsYetAddAccountToolStripMenuItem";
 			this.noAccountsYetAddAccountToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
 			this.noAccountsYetAddAccountToolStripMenuItem.Text = "No accounts yet. A&dd Account...";
+			this.noAccountsYetAddAccountToolStripMenuItem.Click += new System.EventHandler(this.noAccountsYetAddAccountToolStripMenuItem_Click);
 			// 
 			// scanLibraryToolStripMenuItem
 			// 
@@ -159,8 +164,8 @@
 			// liberateToolStripMenuItem
 			// 
 			this.liberateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.beginBookBackupsToolStripMenuItem,
-			this.beginPdfBackupsToolStripMenuItem});
+            this.beginBookBackupsToolStripMenuItem,
+            this.beginPdfBackupsToolStripMenuItem});
 			this.liberateToolStripMenuItem.Name = "liberateToolStripMenuItem";
 			this.liberateToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.liberateToolStripMenuItem.Text = "&Liberate";
@@ -182,17 +187,24 @@
 			// exportToolStripMenuItem
 			// 
 			this.exportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.exportLibraryToolStripMenuItem});
+            this.exportLibraryToolStripMenuItem});
 			this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
 			this.exportToolStripMenuItem.Size = new System.Drawing.Size(53, 20);
 			this.exportToolStripMenuItem.Text = "E&xport";
 			// 
+			// exportLibraryToolStripMenuItem
+			// 
+			this.exportLibraryToolStripMenuItem.Name = "exportLibraryToolStripMenuItem";
+			this.exportLibraryToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+			this.exportLibraryToolStripMenuItem.Text = "E&xport Library...";
+			this.exportLibraryToolStripMenuItem.Click += new System.EventHandler(this.exportLibraryToolStripMenuItem_Click);
+			// 
 			// quickFiltersToolStripMenuItem
 			// 
 			this.quickFiltersToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.firstFilterIsDefaultToolStripMenuItem,
-			this.editQuickFiltersToolStripMenuItem,
-			this.toolStripSeparator1});
+            this.firstFilterIsDefaultToolStripMenuItem,
+            this.editQuickFiltersToolStripMenuItem,
+            this.toolStripSeparator1});
 			this.quickFiltersToolStripMenuItem.Name = "quickFiltersToolStripMenuItem";
 			this.quickFiltersToolStripMenuItem.Size = new System.Drawing.Size(84, 20);
 			this.quickFiltersToolStripMenuItem.Text = "Quick &Filters";
@@ -219,9 +231,9 @@
 			// settingsToolStripMenuItem
 			// 
 			this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.accountsToolStripMenuItem,
-			this.basicSettingsToolStripMenuItem,
-			this.advancedSettingsToolStripMenuItem});
+            this.accountsToolStripMenuItem,
+            this.basicSettingsToolStripMenuItem,
+            this.advancedSettingsToolStripMenuItem});
 			this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
 			this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.settingsToolStripMenuItem.Text = "&Settings";
@@ -237,26 +249,27 @@
 			// 
 			this.basicSettingsToolStripMenuItem.Name = "basicSettingsToolStripMenuItem";
 			this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-			this.basicSettingsToolStripMenuItem.Text = "&Basic Settings...";
+			this.basicSettingsToolStripMenuItem.Text = "&Settings...";
 			this.basicSettingsToolStripMenuItem.Click += new System.EventHandler(this.basicSettingsToolStripMenuItem_Click);
 			// 
 			// advancedSettingsToolStripMenuItem
 			// 
 			this.advancedSettingsToolStripMenuItem.Name = "advancedSettingsToolStripMenuItem";
 			this.advancedSettingsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-			this.advancedSettingsToolStripMenuItem.Text = "Ad&vanced Settings...";
+			this.advancedSettingsToolStripMenuItem.Text = "&Move settings files...";
 			this.advancedSettingsToolStripMenuItem.Click += new System.EventHandler(this.advancedSettingsToolStripMenuItem_Click);
 			// 
 			// statusStrip1
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.visibleCountLbl,
-			this.springLbl,
-			this.backupsCountsLbl,
-			this.pdfsCountsLbl});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 445);
+            this.visibleCountLbl,
+            this.springLbl,
+            this.backupsCountsLbl,
+            this.pdfsCountsLbl});
+			this.statusStrip1.Location = new System.Drawing.Point(0, 517);
 			this.statusStrip1.Name = "statusStrip1";
-			this.statusStrip1.Size = new System.Drawing.Size(863, 22);
+			this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
+			this.statusStrip1.Size = new System.Drawing.Size(1007, 22);
 			this.statusStrip1.TabIndex = 6;
 			this.statusStrip1.Text = "statusStrip1";
 			// 
@@ -269,7 +282,7 @@
 			// springLbl
 			// 
 			this.springLbl.Name = "springLbl";
-			this.springLbl.Size = new System.Drawing.Size(233, 17);
+			this.springLbl.Size = new System.Drawing.Size(375, 17);
 			this.springLbl.Spring = true;
 			// 
 			// backupsCountsLbl
@@ -286,33 +299,20 @@
 			// 
 			// addFilterBtn
 			// 
-			this.addFilterBtn.Location = new System.Drawing.Point(40, 27);
+			this.addFilterBtn.Location = new System.Drawing.Point(47, 31);
+			this.addFilterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.addFilterBtn.Name = "addFilterBtn";
-			this.addFilterBtn.Size = new System.Drawing.Size(140, 23);
+			this.addFilterBtn.Size = new System.Drawing.Size(163, 27);
 			this.addFilterBtn.TabIndex = 4;
 			this.addFilterBtn.Text = "Add To Quick Filters";
 			this.addFilterBtn.UseVisualStyleBackColor = true;
 			this.addFilterBtn.Click += new System.EventHandler(this.AddFilterBtn_Click);
 			// 
-			// noAccountsYetAddAccountToolStripMenuItem
-			// 
-			this.noAccountsYetAddAccountToolStripMenuItem.Name = "noAccountsYetAddAccountToolStripMenuItem";
-			this.noAccountsYetAddAccountToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
-			this.noAccountsYetAddAccountToolStripMenuItem.Text = "No accounts yet. A&dd Account...";
-			this.noAccountsYetAddAccountToolStripMenuItem.Click += new System.EventHandler(this.noAccountsYetAddAccountToolStripMenuItem_Click);
-			// 
-			// exportLibraryToolStripMenuItem
-			// 
-			this.exportLibraryToolStripMenuItem.Name = "exportLibraryToolStripMenuItem";
-			this.exportLibraryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.exportLibraryToolStripMenuItem.Text = "E&xport Library...";
-			this.exportLibraryToolStripMenuItem.Click += new System.EventHandler(this.exportLibraryToolStripMenuItem_Click);
-			// 
 			// Form1
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(863, 467);
+			this.ClientSize = new System.Drawing.Size(1007, 539);
 			this.Controls.Add(this.filterBtn);
 			this.Controls.Add(this.addFilterBtn);
 			this.Controls.Add(this.filterSearchTb);
@@ -322,6 +322,7 @@
 			this.Controls.Add(this.menuStrip1);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStrip1;
+			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Name = "Form1";
 			this.Text = "Libation: Liberate your Library";
 			this.Load += new System.EventHandler(this.Form1_Load);
