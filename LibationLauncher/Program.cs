@@ -310,13 +310,15 @@ namespace LibationLauncher
 
 		private static void checkForUpdate(Configuration config)
 		{
+			string zipUrl;
+			string selectedPath;
+
 			try
 			{
-				var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("Libation"));
-
-				// https://octokitnet.readthedocs.io/en/latest/releases/
-				var releases =  gitHubClient.Repository.Release.GetAll("rmcrackan", "Libation").GetAwaiter().GetResult();
-				var latest = releases.First(r => !r.Draft && !r.Prerelease);
+				// timed out
+				var latest = getLatestRelease(TimeSpan.FromSeconds(30));
+				if (latest is null)
+					return;
 
 				var latestVersionString = latest.TagName.Trim('v');
 				if (!Version.TryParse(latestVersionString, out var latestRelease))
@@ -328,41 +330,53 @@ namespace LibationLauncher
 
 				// we have an update
 				var zip = latest.Assets.FirstOrDefault(a => a.BrowserDownloadUrl.EndsWith(".zip"));
-				var zipUrl = zip?.BrowserDownloadUrl;
+				zipUrl = zip?.BrowserDownloadUrl;
 				if (zipUrl is null)
 				{
 					MessageBox.Show(latest.HtmlUrl, "New version available");
 					return;
 				}
 
-				var result = MessageBox.Show($"New version available @ {latest.HtmlUrl}\r\nDownload the zip file?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+				var result = MessageBox.Show($"New version available @ {latest.HtmlUrl}\r\nDownload the zip file?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 				if (result != DialogResult.Yes)
 					return;
 
 				using var fileSelector = new SaveFileDialog { FileName = zip.Name, Filter = "Zip Files (*.zip)|*.zip|All files (*.*)|*.*" };
 				if (fileSelector.ShowDialog() != DialogResult.OK)
 					return;
-				var selectedPath = fileSelector.FileName;
-
-				try
-				{
-					LibationWinForms.BookLiberation.ProcessorAutomationController.DownloadFile(zipUrl, selectedPath, true);
-				}
-				catch (Exception ex)
-				{
-					Error(ex, "Error downloading update");
-				}
+				selectedPath = fileSelector.FileName;
 			}
 			catch (Exception ex)
 			{
-				Error(ex, "Error checking for update");
+				MessageBoxAlertAdmin.Show("Error checking for update", "Error checking for update", ex);
+				return;
+			}
+
+			try
+			{
+				LibationWinForms.BookLiberation.ProcessorAutomationController.DownloadFile(zipUrl, selectedPath, true);
+			}
+			catch (Exception ex)
+			{
+				MessageBoxAlertAdmin.Show("Error downloading update", "Error downloading update", ex);
 			}
 		}
 
-		private static void Error(Exception ex, string message)
+		private static Octokit.Release getLatestRelease(TimeSpan timeout)
 		{
-			Log.Logger.Error(ex, message);
-			MessageBox.Show($"{message}\r\nSee log for details");
+			var task = System.Threading.Tasks.Task.Run(() => getLatestRelease());
+			if (task.Wait(timeout))
+				return task.Result;
+			return null;
+		}
+		private static Octokit.Release getLatestRelease()
+		{
+			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("Libation"));
+
+			// https://octokitnet.readthedocs.io/en/latest/releases/
+			var releases = gitHubClient.Repository.Release.GetAll("rmcrackan", "Libation").GetAwaiter().GetResult();
+			var latest = releases.First(r => !r.Draft && !r.Prerelease);
+			return latest;
 		}
 
 		private static void logStartupState(Configuration config)

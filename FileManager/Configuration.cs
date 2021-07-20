@@ -259,7 +259,11 @@ namespace FileManager
 
             var endingContents = JsonConvert.SerializeObject(jObj, Formatting.Indented);
             if (startingContents != endingContents)
+            {
+                try { Serilog.Log.Logger.Information("Libation files changed {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory }); }
+                catch { }
                 File.WriteAllText(APPSETTINGS_JSON, endingContents);
+            }
 
 
             return true;

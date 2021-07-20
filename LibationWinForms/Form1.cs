@@ -338,8 +338,7 @@ namespace LibationWinForms
             }
             catch (Exception ex)
             {
-                Serilog.Log.Logger.Error(ex, "Error attempting to export library");
-                MessageBox.Show("Error attempting to export your library. Error message:\r\n\r\n" + ex.Message, "Error exporting", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBoxAlertAdmin.Show("Error attempting to export your library.", "Error exporting", ex);
             }
         }
         #endregion
@@ -409,7 +408,7 @@ namespace LibationWinForms
 
             if (!Configuration.Instance.TrySetLibationFiles(libationFilesDialog.SelectedDirectory))
             {
-                MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationFilesDialog.SelectedDirectory);
+                MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationFilesDialog.SelectedDirectory, "Error saving change", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

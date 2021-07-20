@@ -60,7 +60,7 @@ namespace LibationWinForms.Dialogs
 
 			if (string.IsNullOrWhiteSpace(newBooks))
 			{
-				MessageBox.Show("Cannot set Books Location to blank");
+				MessageBox.Show("Cannot set Books Location to blank", "Location is blank", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 
@@ -68,7 +68,7 @@ namespace LibationWinForms.Dialogs
 			{
 				if (booksSelectControl.SelectedDirectoryIsCustom)
 				{
-					MessageBox.Show($"Not saving change to Books location. This folder does not exist:\r\n{newBooks}");
+					MessageBox.Show($"Not saving change to Books location. This folder does not exist:\r\n{newBooks}", "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return;
 				}
 

@@ -35,7 +35,7 @@ namespace LibationWinForms.Dialogs
 
 			if (!System.IO.Directory.Exists(libationDir))
 			{
-				MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationDir);
+				MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationDir, "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 

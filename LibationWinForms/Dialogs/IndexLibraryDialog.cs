@@ -35,9 +35,10 @@ namespace LibationWinForms.Dialogs
 				}
 				catch (Exception ex)
 				{
-					var msg = "Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator";
-					Serilog.Log.Logger.Error(ex, msg);
-					MessageBox.Show(msg, "Error importing library", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBoxAlertAdmin.Show(
+						"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
+						"Error importing library",
+						ex);
 				}
 			}
 

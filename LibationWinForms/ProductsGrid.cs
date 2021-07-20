@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
+using Dinah.Core;
 using Dinah.Core.Collections.Generic;
 using Dinah.Core.DataBinding;
 using Dinah.Core.Windows.Forms;
@@ -178,7 +179,7 @@ namespace LibationWinForms
             if (FileManager.AudibleFileStorage.Audio.Exists(productId))
             {
                 var filePath = FileManager.AudibleFileStorage.Audio.GetPath(productId);
-                System.Diagnostics.Process.Start("explorer.exe", $"/select, \"{filePath}\"");
+                Go.To.File(filePath);
                 return;
             }
 
