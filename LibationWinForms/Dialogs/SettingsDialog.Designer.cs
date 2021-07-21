@@ -33,13 +33,15 @@
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.cancelBtn = new System.Windows.Forms.Button();
 			this.advancedSettingsGb = new System.Windows.Forms.GroupBox();
+			this.logsBtn = new System.Windows.Forms.Button();
 			this.convertLossyRb = new System.Windows.Forms.RadioButton();
 			this.convertLosslessRb = new System.Windows.Forms.RadioButton();
 			this.inProgressSelectControl = new LibationWinForms.Dialogs.DirectorySelectControl();
 			this.allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
 			this.booksSelectControl = new LibationWinForms.Dialogs.DirectoryOrCustomSelectControl();
 			this.booksGb = new System.Windows.Forms.GroupBox();
-			this.logsBtn = new System.Windows.Forms.Button();
+			this.loggingLevelLbl = new System.Windows.Forms.Label();
+			this.loggingLevelCb = new System.Windows.Forms.ComboBox();
 			this.advancedSettingsGb.SuspendLayout();
 			this.booksGb.SuspendLayout();
 			this.SuspendLayout();
@@ -67,7 +69,7 @@
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(714, 380);
+			this.saveBtn.Location = new System.Drawing.Point(714, 409);
 			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(88, 27);
@@ -80,7 +82,7 @@
 			// 
 			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(832, 380);
+			this.cancelBtn.Location = new System.Drawing.Point(832, 409);
 			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
@@ -93,20 +95,29 @@
 			// 
 			this.advancedSettingsGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.advancedSettingsGb.Controls.Add(this.logsBtn);
 			this.advancedSettingsGb.Controls.Add(this.convertLossyRb);
 			this.advancedSettingsGb.Controls.Add(this.convertLosslessRb);
 			this.advancedSettingsGb.Controls.Add(this.inProgressSelectControl);
 			this.advancedSettingsGb.Controls.Add(this.allowLibationFixupCbox);
 			this.advancedSettingsGb.Controls.Add(this.inProgressDescLbl);
-			this.advancedSettingsGb.Location = new System.Drawing.Point(12, 141);
+			this.advancedSettingsGb.Location = new System.Drawing.Point(12, 170);
 			this.advancedSettingsGb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.advancedSettingsGb.Name = "advancedSettingsGb";
 			this.advancedSettingsGb.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.advancedSettingsGb.Size = new System.Drawing.Size(908, 226);
-			this.advancedSettingsGb.TabIndex = 3;
+			this.advancedSettingsGb.TabIndex = 5;
 			this.advancedSettingsGb.TabStop = false;
 			this.advancedSettingsGb.Text = "Advanced settings for control freaks";
+			// 
+			// logsBtn
+			// 
+			this.logsBtn.Location = new System.Drawing.Point(262, 141);
+			this.logsBtn.Name = "logsBtn";
+			this.logsBtn.Size = new System.Drawing.Size(132, 23);
+			this.logsBtn.TabIndex = 4;
+			this.logsBtn.Text = "Open log folder";
+			this.logsBtn.UseVisualStyleBackColor = true;
+			this.logsBtn.Click += new System.EventHandler(this.logsBtn_Click);
 			// 
 			// convertLossyRb
 			// 
@@ -170,19 +181,27 @@
 			this.booksGb.Location = new System.Drawing.Point(12, 12);
 			this.booksGb.Name = "booksGb";
 			this.booksGb.Size = new System.Drawing.Size(908, 123);
-			this.booksGb.TabIndex = 6;
+			this.booksGb.TabIndex = 1;
 			this.booksGb.TabStop = false;
 			this.booksGb.Text = "Books location";
 			// 
-			// logsBtn
+			// loggingLevelLbl
 			// 
-			this.logsBtn.Location = new System.Drawing.Point(826, 18);
-			this.logsBtn.Name = "logsBtn";
-			this.logsBtn.Size = new System.Drawing.Size(75, 64);
-			this.logsBtn.TabIndex = 3;
-			this.logsBtn.Text = "Open log\r\nfiles folder";
-			this.logsBtn.UseVisualStyleBackColor = true;
-			this.logsBtn.Click += new System.EventHandler(this.logsBtn_Click);
+			this.loggingLevelLbl.AutoSize = true;
+			this.loggingLevelLbl.Location = new System.Drawing.Point(12, 144);
+			this.loggingLevelLbl.Name = "loggingLevelLbl";
+			this.loggingLevelLbl.Size = new System.Drawing.Size(78, 15);
+			this.loggingLevelLbl.TabIndex = 2;
+			this.loggingLevelLbl.Text = "Logging level";
+			// 
+			// loggingLevelCb
+			// 
+			this.loggingLevelCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.loggingLevelCb.FormattingEnabled = true;
+			this.loggingLevelCb.Location = new System.Drawing.Point(96, 141);
+			this.loggingLevelCb.Name = "loggingLevelCb";
+			this.loggingLevelCb.Size = new System.Drawing.Size(129, 23);
+			this.loggingLevelCb.TabIndex = 3;
 			// 
 			// SettingsDialog
 			// 
@@ -190,7 +209,10 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(933, 421);
+			this.ClientSize = new System.Drawing.Size(933, 450);
+			this.Controls.Add(this.logsBtn);
+			this.Controls.Add(this.loggingLevelCb);
+			this.Controls.Add(this.loggingLevelLbl);
 			this.Controls.Add(this.booksGb);
 			this.Controls.Add(this.advancedSettingsGb);
 			this.Controls.Add(this.cancelBtn);
@@ -206,6 +228,7 @@
 			this.booksGb.ResumeLayout(false);
 			this.booksGb.PerformLayout();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -222,5 +245,7 @@
         private System.Windows.Forms.RadioButton convertLosslessRb;
 		private System.Windows.Forms.GroupBox booksGb;
 		private System.Windows.Forms.Button logsBtn;
+		private System.Windows.Forms.Label loggingLevelLbl;
+		private System.Windows.Forms.ComboBox loggingLevelCb;
 	}
 }

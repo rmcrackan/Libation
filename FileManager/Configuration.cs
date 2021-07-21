@@ -4,8 +4,12 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using Dinah.Core;
+using Dinah.Core.Logging;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
+using Serilog.Events;
 
 namespace FileManager
 {
@@ -34,28 +38,6 @@ namespace FileManager
 
         #region persistent configuration settings/values
 
-        #region // properties to test reflection
-        /*
-        // field should NOT be populated
-        public string TestField;
-        // int should NOT be populated
-        public int TestInt { get; set; }
-        // read-only should NOT be populated
-        public string TestGet { get; } // get only: should NOT get auto-populated
-        // set-only should NOT be populated
-        public string TestSet { private get; set; }
-
-        // get and set: SHOULD be auto-populated
-        public string TestGetSet { get; set; }
-        */
-        #endregion
-
-        // settings will be persisted when all are true
-        // - property (not field)
-        // - string
-        // - public getter
-        // - public setter
-
         // note: any potential file manager static ctors can't compensate if storage dir is changed at run time via settings. this is partly bad architecture. but the side effect is desirable. if changing LibationFiles location: restart app
 
         // default setting and directory creation occur in class responsible for files.
@@ -65,8 +47,8 @@ namespace FileManager
         private PersistentDictionary persistentDictionary;
 
         public object GetObject(string propertyName) => persistentDictionary.GetObject(propertyName);
-        public void SetObject(string propertyName, object newValue) => persistentDictionary.Set(propertyName, newValue);
-        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue) => persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue);
+        public void SetObject(string propertyName, object newValue) => persistentDictionary.SetNonString(propertyName, newValue);
+        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false) => persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue, suppressLogging);
 
         public string SettingsFilePath => Path.Combine(LibationFiles, "Settings.json");
 
@@ -87,7 +69,7 @@ namespace FileManager
         public string Books
         {
             get => persistentDictionary.GetString(nameof(Books));
-            set => persistentDictionary.Set(nameof(Books), value);
+            set => persistentDictionary.SetString(nameof(Books), value);
         }
 
         // temp/working dir(s) should be outside of dropbox
@@ -95,21 +77,21 @@ namespace FileManager
         public string InProgress
         {
             get => persistentDictionary.GetString(nameof(InProgress));
-            set => persistentDictionary.Set(nameof(InProgress), value);
+            set => persistentDictionary.SetString(nameof(InProgress), value);
         }
 
         [Description("Allow Libation for fix up audiobook metadata?")]
         public bool AllowLibationFixup
         {
-            get => persistentDictionary.Get<bool>(nameof(AllowLibationFixup));
-            set => persistentDictionary.Set(nameof(AllowLibationFixup), value);
+            get => persistentDictionary.GetNonString<bool>(nameof(AllowLibationFixup));
+            set => persistentDictionary.SetNonString(nameof(AllowLibationFixup), value);
         }
 
         [Description("Decrypt to lossy format?")]
         public bool DecryptToLossy
         {
-            get => persistentDictionary.Get<bool>(nameof(DecryptToLossy));
-            set => persistentDictionary.Set(nameof(DecryptToLossy), value);
+            get => persistentDictionary.GetNonString<bool>(nameof(DecryptToLossy));
+            set => persistentDictionary.SetNonString(nameof(DecryptToLossy), value);
         }
 
         #endregion
@@ -168,6 +150,53 @@ namespace FileManager
             var dirFunc = directoryOptionsPaths.FirstOrDefault(dirFunc => dirFunc.getPathFunc() == directory);
             return dirFunc == default ? KnownDirectories.None : dirFunc.directory;
         }
+        #endregion
+
+        #region logging
+        private IConfigurationRoot configuration;
+        public void ConfigureLogging()
+        {
+            configuration = new ConfigurationBuilder()
+                .AddJsonFile(SettingsFilePath, optional: false, reloadOnChange: true)
+                .Build();
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
+        }
+
+        [Description("The importance of a log event")]
+        public LogEventLevel LogLevel
+        {
+            get
+            {
+                try
+                {
+                    var logLevelStr = persistentDictionary.GetStringFromJsonPath("Serilog", "MinimumLevel");
+                    var logLevelEnum = Enum<LogEventLevel>.Parse(logLevelStr);
+                    return logLevelEnum;
+                }
+                catch
+                {
+                    return LogEventLevel.Information;
+                }
+            }
+            set
+            {
+                persistentDictionary.SetWithJsonPath("Serilog", "MinimumLevel", value.ToString());
+
+                configuration.Reload();
+
+                Log.Logger.Information("Updated LogLevel MinimumLevel. {@DebugInfo}", new
+                {
+                    LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
+                    LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
+                    LogLevel_Information_Enabled = Log.Logger.IsInformationEnabled(),
+                    LogLevel_Warning_Enabled = Log.Logger.IsWarningEnabled(),
+                    LogLevel_Error_Enabled = Log.Logger.IsErrorEnabled(),
+                    LogLevel_Fatal_Enabled = Log.Logger.IsFatalEnabled()
+                });
+            }
+        }
 		#endregion
 
 		#region singleton stuff
@@ -191,7 +220,12 @@ namespace FileManager
                 // must write here before SettingsFilePath in next step reads cache
                 libationFilesPathCache = getLiberationFilesSettingFromJson();
 
-                // load json values into memory. create settings if not exists
+                // Config init in Program.ensureSerilogConfig() only happens when serilog setting is first created (prob on 1st run).
+                // This Set() enforces current LibationFiles every time we restart Libation or redirect LibationFiles
+                var logPath = Path.Combine(LibationFiles, "Log.log");
+                SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath, true);
+                configuration?.Reload();
+
                 persistentDictionary = new PersistentDictionary(SettingsFilePath);
 
                 return libationFilesPathCache;
@@ -259,18 +293,19 @@ namespace FileManager
             if (startingContents == endingContents)
                 return true;
 
-            try
-            {
-                Serilog.Log.Logger.Information("Libation files changed {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory });
-            }
-            catch { }
-
             // now it's set in the file again but no settings have moved yet
             File.WriteAllText(APPSETTINGS_JSON, endingContents);
 
+            try
+            {
+                Log.Logger.Information("Libation files changed {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory });
+            }
+            catch { }
+
             //// attempting this will try to change the settings file which has not yet been moved
+            //// after this is fixed, can remove it from Program.configureLogging()
             // var logPath = Path.Combine(LibationFiles, "Log.log");
-            // SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath);
+            // SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath, true);
 
             return true;
         }

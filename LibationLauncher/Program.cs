@@ -10,7 +10,6 @@ using FileManager;
 using InternalUtilities;
 using LibationWinForms;
 using LibationWinForms.Dialogs;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
@@ -285,27 +284,16 @@ namespace LibationLauncher
 		}
 
 		// to restore original: Console.SetOut(origOut);
-		private static System.IO.TextWriter origOut { get; } = Console.Out;
+		private static TextWriter origOut { get; } = Console.Out;
 
 		private static void configureLogging(Configuration config)
 		{
-			{
-				// always override path here.
-				// init in ensureSerilogConfig() only happens when serilog setting is first created (prob on 1st run).
-				// the override here uses current libation files every time we restart libation
-				var logPath = Path.Combine(config.LibationFiles, "Log.log");
-				config.SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath);
-			}
+			config.ConfigureLogging();
 
-			var configuration = new ConfigurationBuilder()
-				.AddJsonFile(config.SettingsFilePath, optional: false, reloadOnChange: true)
-				.Build();
-			Log.Logger = new LoggerConfiguration()
-				.ReadFrom.Configuration(configuration)
-				.CreateLogger();
-
-			// Fwd Console to serilog. Serilog also write to Console (should probably change this) so it might be asking for trouble.
-			// First SerilogTextWriter needs to be more robust and tested. Esp the Write() methods
+			// Fwd Console to serilog.
+			// Serilog also write to Console (should probably change this) so it might be asking for trouble.
+			// SerilogTextWriter needs to be more robust and tested. Esp the Write() methods.
+			// Empirical testing so far has shown no issues.
 			Console.SetOut(new MultiTextWriter(origOut, new SerilogTextWriter()));
 
 			// .Here() captures debug info via System.Runtime.CompilerServices attributes. Warning: expensive

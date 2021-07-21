@@ -47,7 +47,7 @@ namespace FileManager
             return stringCache[propertyName];
         }
 
-        public T Get<T>(string propertyName)
+        public T GetNonString<T>(string propertyName)
         {
             var obj = GetObject(propertyName);
             if (obj is null) return default;
@@ -68,10 +68,32 @@ namespace FileManager
             return objectCache[propertyName];
         }
 
+        public string GetStringFromJsonPath(string jsonPath, string propertyName) => GetStringFromJsonPath($"{jsonPath}.{propertyName}");
+        public string GetStringFromJsonPath(string jsonPath)
+        {
+            if (!stringCache.ContainsKey(jsonPath))
+            {
+                try
+                {
+                    var jObject = readFile();
+                    var token = jObject.SelectToken(jsonPath);
+                    if (token is null)
+                        return null;
+                    stringCache[jsonPath] = (string)token;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            return stringCache[jsonPath];
+        }
+
         public bool Exists(string propertyName) => readFile().ContainsKey(propertyName);
 
         private object locker { get; } = new object();
-        public void Set(string propertyName, string newValue)
+        public void SetString(string propertyName, string newValue)
         {
             // only do this check in string cache, NOT object cache
             if (stringCache.ContainsKey(propertyName) && stringCache[propertyName] == newValue)
@@ -83,7 +105,7 @@ namespace FileManager
             writeFile(propertyName, newValue);
         }
 
-        public void Set(string propertyName, object newValue)
+        public void SetNonString(string propertyName, object newValue)
         {
             // set cache
             objectCache[propertyName] = newValue;
@@ -97,19 +119,6 @@ namespace FileManager
             if (IsReadOnly)
                 return;
 
-            try
-            {
-                var str = newValue?.ToString();
-                var formattedValue
-                    = str is null ? "[null]"
-                    : string.IsNullOrEmpty(str) ? "[empty]"
-                    : string.IsNullOrWhiteSpace(str) ? $"[whitespace. Length={str.Length}]"
-                    : str.Length > 100 ? $"[Length={str.Length}] {str[0..50]}...{str[^50..^0]}"
-                    : str;
-                Serilog.Log.Logger.Information($"Config changed. {propertyName}={formattedValue}");
-            }
-            catch { }
-
             // write new setting to file
             lock (locker)
             {
@@ -119,30 +128,66 @@ namespace FileManager
                 jObject[propertyName] = newValue;
                 var endContents = JsonConvert.SerializeObject(jObject, Formatting.Indented);
 
-                if (startContents != endContents)
-                    File.WriteAllText(Filepath, endContents);
+                if (startContents == endContents)
+                    return;
+                
+                File.WriteAllText(Filepath, endContents);
             }
+
+            try
+            {
+                var str = formatValueForLog(newValue?.ToString());
+                Serilog.Log.Logger.Information("Config changed. {@DebugInfo}", new { propertyName, newValue = str });
+            }
+            catch { }
         }
 
-        // special case: no caching. no logging
-        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue)
+        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false)
         {
             if (IsReadOnly)
                 return;
+
+            var path = $"{jsonPath}.{propertyName}";
+
+            {
+                // only do this check in string cache, NOT object cache
+                if (stringCache.ContainsKey(path) && stringCache[path] == newValue)
+                    return;
+
+                // set cache
+                stringCache[path] = newValue;
+            }
 
             lock (locker)
             {
                 var jObject = readFile();
                 var token = jObject.SelectToken(jsonPath);
-                var oldValue = (string)token[propertyName];
+                var oldValue = token.Value<string>(propertyName);
 
-                if (oldValue != newValue)
+                if (oldValue == newValue)
+                    return;
+
+                token[propertyName] = newValue;
+                File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+            }
+
+            if (!suppressLogging)
+            {
+                try
                 {
-                    token[propertyName] = newValue;
-                    File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+                    var str = formatValueForLog(newValue?.ToString());
+                    Serilog.Log.Logger.Information("Config changed. {@DebugInfo}", new { jsonPath, propertyName, newValue = str });
                 }
+                catch { }
             }
         }
+
+        private static string formatValueForLog(string value)
+            => value is null ? "[null]"
+            : string.IsNullOrEmpty(value) ? "[empty]"
+            : string.IsNullOrWhiteSpace(value) ? $"[whitespace. Length={value.Length}]"
+            : value.Length > 100 ? $"[Length={value.Length}] {value[0..50]}...{value[^50..^0]}"
+            : value;
 
         private JObject readFile()
         {

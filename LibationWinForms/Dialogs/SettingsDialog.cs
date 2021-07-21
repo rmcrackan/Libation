@@ -18,6 +18,13 @@ namespace LibationWinForms.Dialogs
 			if (this.DesignMode)
 				return;
 
+			{
+				loggingLevelCb.Items.Clear();
+				foreach (var level in Enum<Serilog.Events.LogEventLevel>.GetValues())
+					loggingLevelCb.Items.Add(level);
+				loggingLevelCb.SelectedItem = config.LogLevel;
+			}
+
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
 			this.inProgressDescLbl.Text = desc(nameof(config.InProgress));
 
@@ -65,11 +72,6 @@ namespace LibationWinForms.Dialogs
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
-			config.DecryptToLossy = convertLossyRb.Checked;
-
-			config.InProgress = inProgressSelectControl.SelectedDirectory;
-
 			var newBooks = booksSelectControl.SelectedDirectory;
 
 			if (string.IsNullOrWhiteSpace(newBooks))
@@ -91,6 +93,13 @@ namespace LibationWinForms.Dialogs
 			}
 
 			config.Books = newBooks;
+
+			config.LogLevel = (Serilog.Events.LogEventLevel)loggingLevelCb.SelectedItem;
+
+			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
+			config.DecryptToLossy = convertLossyRb.Checked;
+
+			config.InProgress = inProgressSelectControl.SelectedDirectory;
 
 			this.DialogResult = DialogResult.OK;
 			this.Close();
