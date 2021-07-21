@@ -156,6 +156,11 @@ namespace FileManager
         private IConfigurationRoot configuration;
         public void ConfigureLogging()
         {
+            //// with code. also persists to Settings.json
+            //SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath, true);
+            //// hack which achieves the same, in memory only
+            //configuration["Serilog:WriteTo:1:Args:path"] = logPath;
+
             configuration = new ConfigurationBuilder()
                 .AddJsonFile(SettingsFilePath, optional: false, reloadOnChange: true)
                 .Build();
