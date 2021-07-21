@@ -1,43 +1,21 @@
 ﻿using System;
 using System.Windows.Forms;
-using Dinah.Core.Drawing;
-using Dinah.Core.IO;
 using Dinah.Core.Windows.Forms;
 
 namespace LibationWinForms.BookLiberation
 {
     public partial class DecryptForm : Form
     {
-		public DecryptForm()
-        {
-            InitializeComponent();
-        }
-
-        System.IO.TextWriter origOut { get; } = Console.Out;
-        private void DecryptForm_Load(object sender, EventArgs e)
-        {
-            // redirect Console.WriteLine to console, textbox
-            var multiLogger = new MultiTextWriter(
-                origOut,
-                new RichTextBoxTextWriter(this.rtbLog),
-                new SerilogTextWriter());
-            Console.SetOut(multiLogger);
-        }
-
-        private void DecryptForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            // restore original
-            Console.SetOut(origOut);
-        }
+		public DecryptForm() => InitializeComponent();
 
         // book info
-        string title;
-        string authorNames;
-        string narratorNames;
+        private string title;
+        private string authorNames;
+        private string narratorNames;
 
         public void SetTitle(string title)
         {
-            this.UIThread(() => this.Text = " Decrypting " + title);
+            this.UIThread(() => this.Text = "Decrypting " + title);
             this.title = title;
             updateBookInfo();
         }
@@ -62,15 +40,15 @@ namespace LibationWinForms.BookLiberation
         public void UpdateProgress(int percentage)
         {
             if (percentage == 0)
-                remainingTimeLbl.UIThread(() => remainingTimeLbl.Text = "ETA:\r\n0 sec");
-
+                updateRemainingTime(0);
             else
                 progressBar1.UIThread(() => progressBar1.Value = percentage);
         }
 
         public void UpdateRemainingTime(TimeSpan remaining)
-        {
-            remainingTimeLbl.UIThread(() => remainingTimeLbl.Text = $"ETA:\r\n{(int)remaining.TotalSeconds} sec");
-        }
+            => updateRemainingTime((int)remaining.TotalSeconds);
+
+        private void updateRemainingTime(int remaining)
+            => remainingTimeLbl.UIThread(() => remainingTimeLbl.Text = $"ETA:\r\n{remaining} sec");
     }
 }

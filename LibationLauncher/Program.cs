@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using AudibleApi;
 using AudibleApi.Authorization;
+using Dinah.Core.IO;
 using Dinah.Core.Logging;
 using FileManager;
 using InternalUtilities;
@@ -18,9 +19,16 @@ namespace LibationLauncher
 {
 	static class Program
 	{
+		[System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+		[return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+		static extern bool AllocConsole();
+
 		[STAThread]
 		static void Main()
 		{
+			//// uncomment to see Console. MUST be called before anything writes to Console. Might only work from VS
+			//AllocConsole();
+
 			Application.SetHighDpiMode(HighDpiMode.SystemAware);
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
@@ -47,8 +55,8 @@ namespace LibationLauncher
 
 			ensureSerilogConfig(config);
 			configureLogging(config);
-			checkForUpdate(config);
 			logStartupState(config);
+			checkForUpdate(config);
 
 			Application.Run(new Form1());
 		}
@@ -257,7 +265,7 @@ namespace LibationLauncher
 								new JObject
 								{
 									// for this sink to work, a path must be provided. we override this below
-									{ "path", Path.Combine(Configuration.Instance.LibationFiles, "_Log.log") },
+									{ "path", Path.Combine(config.LibationFiles, "_Log.log") },
 									{ "rollingInterval", "Month" },
 									// Serilog template formatting examples
 									// - default:                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
@@ -276,107 +284,33 @@ namespace LibationLauncher
 			config.SetObject("Serilog", serilogObj);
 		}
 
+		// to restore original: Console.SetOut(origOut);
+		private static System.IO.TextWriter origOut { get; } = Console.Out;
+
 		private static void configureLogging(Configuration config)
 		{
-			// override path. always use current libation files
-			var logPath = Path.Combine(Configuration.Instance.LibationFiles, "Log.log");
-			config.SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath);
+			{
+				// always override path here.
+				// init in ensureSerilogConfig() only happens when serilog setting is first created (prob on 1st run).
+				// the override here uses current libation files every time we restart libation
+				var logPath = Path.Combine(config.LibationFiles, "Log.log");
+				config.SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath);
+			}
 
-			//// hack which achieves the same
-			//configuration["Serilog:WriteTo:1:Args:path"] = logPath;
-
-			// CONFIGURATION-DRIVEN (json)
 			var configuration = new ConfigurationBuilder()
-				.AddJsonFile(config.SettingsFilePath)
+				.AddJsonFile(config.SettingsFilePath, optional: false, reloadOnChange: true)
 				.Build();
 			Log.Logger = new LoggerConfiguration()
 				.ReadFrom.Configuration(configuration)
 				.CreateLogger();
 
-			//// MANUAL HARD CODED
-			//Log.Logger = new LoggerConfiguration()
-			//  // requires: using Dinah.Core.Logging;
-			//	.Enrich.WithCaller()
-			//	.MinimumLevel.Information()
-			//	.WriteTo.File(logPath,
-			//		rollingInterval: RollingInterval.Month,
-			//		outputTemplate: code_outputTemplate)
-			//	.CreateLogger();
+			// Fwd Console to serilog. Serilog also write to Console (should probably change this) so it might be asking for trouble.
+			// First SerilogTextWriter needs to be more robust and tested. Esp the Write() methods
+			Console.SetOut(new MultiTextWriter(origOut, new SerilogTextWriter()));
 
 			// .Here() captures debug info via System.Runtime.CompilerServices attributes. Warning: expensive
 			//var withLineNumbers_outputTemplate = "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}in method {MemberName} at {FilePath}:{LineNumber}{NewLine}{Exception}{NewLine}";
 			//Log.Logger.Here().Debug("Begin Libation. Debug with line numbers");
-		}
-
-		private static void checkForUpdate(Configuration config)
-		{
-			string zipUrl;
-			string selectedPath;
-
-			try
-			{
-				// timed out
-				var latest = getLatestRelease(TimeSpan.FromSeconds(30));
-				if (latest is null)
-					return;
-
-				var latestVersionString = latest.TagName.Trim('v');
-				if (!Version.TryParse(latestVersionString, out var latestRelease))
-					return;
-
-				// we're up to date
-				if (latestRelease <= BuildVersion)
-					return;
-
-				// we have an update
-				var zip = latest.Assets.FirstOrDefault(a => a.BrowserDownloadUrl.EndsWith(".zip"));
-				zipUrl = zip?.BrowserDownloadUrl;
-				if (zipUrl is null)
-				{
-					MessageBox.Show(latest.HtmlUrl, "New version available");
-					return;
-				}
-
-				var result = MessageBox.Show($"New version available @ {latest.HtmlUrl}\r\nDownload the zip file?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-				if (result != DialogResult.Yes)
-					return;
-
-				using var fileSelector = new SaveFileDialog { FileName = zip.Name, Filter = "Zip Files (*.zip)|*.zip|All files (*.*)|*.*" };
-				if (fileSelector.ShowDialog() != DialogResult.OK)
-					return;
-				selectedPath = fileSelector.FileName;
-			}
-			catch (Exception ex)
-			{
-				MessageBoxAlertAdmin.Show("Error checking for update", "Error checking for update", ex);
-				return;
-			}
-
-			try
-			{
-				LibationWinForms.BookLiberation.ProcessorAutomationController.DownloadFile(zipUrl, selectedPath, true);
-			}
-			catch (Exception ex)
-			{
-				MessageBoxAlertAdmin.Show("Error downloading update", "Error downloading update", ex);
-			}
-		}
-
-		private static Octokit.Release getLatestRelease(TimeSpan timeout)
-		{
-			var task = System.Threading.Tasks.Task.Run(() => getLatestRelease());
-			if (task.Wait(timeout))
-				return task.Result;
-			return null;
-		}
-		private static Octokit.Release getLatestRelease()
-		{
-			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("Libation"));
-
-			// https://octokitnet.readthedocs.io/en/latest/releases/
-			var releases = gitHubClient.Repository.Release.GetAll("rmcrackan", "Libation").GetAwaiter().GetResult();
-			var latest = releases.First(r => !r.Draft && !r.Prerelease);
-			return latest;
 		}
 
 		private static void logStartupState(Configuration config)
@@ -419,6 +353,86 @@ When you are finished debugging, it's highly recommended
 to set your debug MinimumLevel to Information and restart
 Libation.
 ".Trim(), "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+		}
+
+		private static void checkForUpdate(Configuration config)
+		{
+			string zipUrl;
+			string selectedPath;
+
+			try
+			{
+				// timed out
+				var latest = getLatestRelease(TimeSpan.FromSeconds(30));
+				if (latest is null)
+					return;
+
+				var latestVersionString = latest.TagName.Trim('v');
+				if (!Version.TryParse(latestVersionString, out var latestRelease))
+					return;
+
+				// we're up to date
+				if (latestRelease <= BuildVersion)
+					return;
+
+				// we have an update
+				var zip = latest.Assets.FirstOrDefault(a => a.BrowserDownloadUrl.EndsWith(".zip"));
+				zipUrl = zip?.BrowserDownloadUrl;
+
+				Log.Logger.Information("Update available: {@DebugInfo}", new {
+					latestRelease = latestRelease.ToString(),
+					latest.HtmlUrl,
+					zipUrl
+				});
+
+				if (zipUrl is null)
+				{
+					MessageBox.Show(latest.HtmlUrl, "New version available");
+					return;
+				}
+
+				var result = MessageBox.Show($"New version available @ {latest.HtmlUrl}\r\nDownload the zip file?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+				if (result != DialogResult.Yes)
+					return;
+
+				using var fileSelector = new SaveFileDialog { FileName = zip.Name, Filter = "Zip Files (*.zip)|*.zip|All files (*.*)|*.*" };
+				if (fileSelector.ShowDialog() != DialogResult.OK)
+					return;
+				selectedPath = fileSelector.FileName;
+			}
+			catch (Exception ex)
+			{
+				MessageBoxAlertAdmin.Show("Error checking for update", "Error checking for update", ex);
+				return;
+			}
+
+			try
+			{
+				LibationWinForms.BookLiberation.ProcessorAutomationController.DownloadFile(zipUrl, selectedPath, true);
+			}
+			catch (Exception ex)
+			{
+				MessageBoxAlertAdmin.Show("Error downloading update", "Error downloading update", ex);
+			}
+		}
+
+		private static Octokit.Release getLatestRelease(TimeSpan timeout)
+		{
+			var task = System.Threading.Tasks.Task.Run(() => getLatestRelease());
+			if (task.Wait(timeout))
+				return task.Result;
+
+			Log.Logger.Information("Timed out");
+			return null;
+		}
+		private static Octokit.Release getLatestRelease()
+		{
+			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("Libation"));
+
+			// https://octokitnet.readthedocs.io/en/latest/releases/
+			var releases = gitHubClient.Repository.Release.GetAll("rmcrackan", "Libation").GetAwaiter().GetResult();
+			var latest = releases.First(r => !r.Draft && !r.Prerelease);
+			return latest;
 		}
 
 		private static Version BuildVersion => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;

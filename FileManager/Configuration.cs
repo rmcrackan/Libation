@@ -248,9 +248,7 @@ namespace FileManager
             //        Directory.Delete(AppDir);
             //}
 
-
             libationFilesPathCache = null;
-
 
             var startingContents = File.ReadAllText(APPSETTINGS_JSON);
             var jObj = JObject.Parse(startingContents);
@@ -258,13 +256,21 @@ namespace FileManager
             jObj[LIBATION_FILES_KEY] = directory;
 
             var endingContents = JsonConvert.SerializeObject(jObj, Formatting.Indented);
-            if (startingContents != endingContents)
-            {
-                try { Serilog.Log.Logger.Information("Libation files changed {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory }); }
-                catch { }
-                File.WriteAllText(APPSETTINGS_JSON, endingContents);
-            }
+            if (startingContents == endingContents)
+                return true;
 
+            try
+            {
+                Serilog.Log.Logger.Information("Libation files changed {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory });
+            }
+            catch { }
+
+            // now it's set in the file again but no settings have moved yet
+            File.WriteAllText(APPSETTINGS_JSON, endingContents);
+
+            //// attempting this will try to change the settings file which has not yet been moved
+            // var logPath = Path.Combine(LibationFiles, "Log.log");
+            // SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath);
 
             return true;
         }

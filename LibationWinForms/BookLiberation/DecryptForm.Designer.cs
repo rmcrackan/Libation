@@ -31,7 +31,6 @@
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
 			this.bookInfoLbl = new System.Windows.Forms.Label();
 			this.progressBar1 = new System.Windows.Forms.ProgressBar();
-			this.rtbLog = new System.Windows.Forms.RichTextBox();
 			this.remainingTimeLbl = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
@@ -60,28 +59,16 @@
 			// 
 			this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.progressBar1.Location = new System.Drawing.Point(14, 607);
+			this.progressBar1.Location = new System.Drawing.Point(14, 143);
 			this.progressBar1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.progressBar1.Name = "progressBar1";
 			this.progressBar1.Size = new System.Drawing.Size(611, 27);
 			this.progressBar1.TabIndex = 2;
 			// 
-			// rtbLog
-			// 
-			this.rtbLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.rtbLog.Location = new System.Drawing.Point(14, 136);
-			this.rtbLog.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.rtbLog.Name = "rtbLog";
-			this.rtbLog.Size = new System.Drawing.Size(678, 463);
-			this.rtbLog.TabIndex = 1;
-			this.rtbLog.Text = "";
-			// 
 			// remainingTimeLbl
 			// 
 			this.remainingTimeLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.remainingTimeLbl.Location = new System.Drawing.Point(632, 607);
+			this.remainingTimeLbl.Location = new System.Drawing.Point(632, 143);
 			this.remainingTimeLbl.Name = "remainingTimeLbl";
 			this.remainingTimeLbl.Size = new System.Drawing.Size(60, 31);
 			this.remainingTimeLbl.TabIndex = 3;
@@ -92,9 +79,8 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(707, 647);
+			this.ClientSize = new System.Drawing.Size(707, 183);
 			this.Controls.Add(this.remainingTimeLbl);
-			this.Controls.Add(this.rtbLog);
 			this.Controls.Add(this.progressBar1);
 			this.Controls.Add(this.bookInfoLbl);
 			this.Controls.Add(this.pictureBox1);
@@ -102,8 +88,6 @@
 			this.Name = "DecryptForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "DecryptForm";
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DecryptForm_FormClosing);
-			this.Load += new System.EventHandler(this.DecryptForm_Load);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -115,7 +99,6 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label bookInfoLbl;
         private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.RichTextBox rtbLog;
         private System.Windows.Forms.Label remainingTimeLbl;
     }
 }
