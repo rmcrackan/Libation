@@ -49,7 +49,7 @@ namespace LibationWinForms.Dialogs
 			// customDirectoryRb
 			// 
 			this.customDirectoryRb.AutoSize = true;
-			this.customDirectoryRb.Location = new System.Drawing.Point(2, 56);
+			this.customDirectoryRb.Location = new System.Drawing.Point(2, 62);
 			this.customDirectoryRb.Name = "customDirectoryRb";
 			this.customDirectoryRb.Size = new System.Drawing.Size(14, 13);
 			this.customDirectoryRb.TabIndex = 2;
@@ -60,7 +60,7 @@ namespace LibationWinForms.Dialogs
 			// 
 			this.customTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.customTb.Location = new System.Drawing.Point(22, 52);
+			this.customTb.Location = new System.Drawing.Point(22, 58);
 			this.customTb.Name = "customTb";
 			this.customTb.Size = new System.Drawing.Size(588, 23);
 			this.customTb.TabIndex = 3;
@@ -68,7 +68,7 @@ namespace LibationWinForms.Dialogs
 			// customBtn
 			// 
 			this.customBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.customBtn.Location = new System.Drawing.Point(616, 52);
+			this.customBtn.Location = new System.Drawing.Point(616, 58);
 			this.customBtn.Name = "customBtn";
 			this.customBtn.Size = new System.Drawing.Size(41, 27);
 			this.customBtn.TabIndex = 4;
@@ -82,7 +82,7 @@ namespace LibationWinForms.Dialogs
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.directorySelectControl.Location = new System.Drawing.Point(23, 0);
 			this.directorySelectControl.Name = "directorySelectControl";
-			this.directorySelectControl.Size = new System.Drawing.Size(635, 46);
+			this.directorySelectControl.Size = new System.Drawing.Size(635, 52);
 			this.directorySelectControl.TabIndex = 5;
 			// 
 			// DirectoryOrCustomSelectControl
@@ -95,7 +95,7 @@ namespace LibationWinForms.Dialogs
 			this.Controls.Add(this.customDirectoryRb);
 			this.Controls.Add(this.knownDirectoryRb);
 			this.Name = "DirectoryOrCustomSelectControl";
-			this.Size = new System.Drawing.Size(660, 81);
+			this.Size = new System.Drawing.Size(660, 87);
 			this.Load += new System.EventHandler(this.DirectoryOrCustomSelectControl_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();

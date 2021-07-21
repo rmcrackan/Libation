@@ -222,16 +222,17 @@ namespace FileManager
                 if (libationFilesPathCache is not null)
                     return libationFilesPathCache;
 
-                // must write here before SettingsFilePath in next step reads cache
+                // FIRST: must write here before SettingsFilePath in next step reads cache
                 libationFilesPathCache = getLiberationFilesSettingFromJson();
+
+                // SECOND. before setting to json file with SetWithJsonPath, PersistentDictionary must exist
+                persistentDictionary = new PersistentDictionary(SettingsFilePath);
 
                 // Config init in Program.ensureSerilogConfig() only happens when serilog setting is first created (prob on 1st run).
                 // This Set() enforces current LibationFiles every time we restart Libation or redirect LibationFiles
                 var logPath = Path.Combine(LibationFiles, "Log.log");
                 SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath, true);
                 configuration?.Reload();
-
-                persistentDictionary = new PersistentDictionary(SettingsFilePath);
 
                 return libationFilesPathCache;
             }

@@ -30,7 +30,7 @@ namespace LibationWinForms.Dialogs
 		private void InitializeComponent()
 		{
 			this.directoryComboBox = new System.Windows.Forms.ComboBox();
-			this.label1 = new System.Windows.Forms.Label();
+			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			// 
 			// directoryComboBox
@@ -45,23 +45,24 @@ namespace LibationWinForms.Dialogs
 			this.directoryComboBox.TabIndex = 0;
 			this.directoryComboBox.SelectedIndexChanged += new System.EventHandler(this.directoryComboBox_SelectedIndexChanged);
 			// 
-			// label1
+			// textBox1
 			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(0, 26);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(97, 15);
-			this.label1.TabIndex = 1;
-			this.label1.Text = "Select a directory";
+			this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.textBox1.Location = new System.Drawing.Point(0, 29);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.ReadOnly = true;
+			this.textBox1.Size = new System.Drawing.Size(647, 23);
+			this.textBox1.TabIndex = 1;
 			// 
 			// DirectorySelectControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.label1);
+			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.directoryComboBox);
 			this.Name = "DirectorySelectControl";
-			this.Size = new System.Drawing.Size(647, 46);
+			this.Size = new System.Drawing.Size(647, 52);
 			this.Load += new System.EventHandler(this.DirectorySelectControl_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -71,6 +72,6 @@ namespace LibationWinForms.Dialogs
 		#endregion
 
 		private System.Windows.Forms.ComboBox directoryComboBox;
-		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.TextBox textBox1;
 	}
 }

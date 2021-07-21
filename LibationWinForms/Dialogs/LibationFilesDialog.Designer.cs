@@ -75,14 +75,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.libationFilesSelectControl.Location = new System.Drawing.Point(14, 28);
 			this.libationFilesSelectControl.Name = "libationFilesSelectControl";
-			this.libationFilesSelectControl.Size = new System.Drawing.Size(909, 81);
+			this.libationFilesSelectControl.Size = new System.Drawing.Size(909, 87);
 			this.libationFilesSelectControl.TabIndex = 1;
 			// 
 			// LibationFilesDialog
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(933, 158);
+			this.ClientSize = new System.Drawing.Size(933, 164);
 			this.Controls.Add(this.libationFilesSelectControl);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.saveBtn);

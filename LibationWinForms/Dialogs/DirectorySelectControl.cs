@@ -107,6 +107,6 @@ namespace LibationWinForms.Dialogs
 
 		}
 
-		private void directoryComboBox_SelectedIndexChanged(object sender, EventArgs e) => this.label1.Text = selectedItem.UiDisplayPath;
+		private void directoryComboBox_SelectedIndexChanged(object sender, EventArgs e) => this.textBox1.Text = selectedItem.UiDisplayPath;
 	}
 }

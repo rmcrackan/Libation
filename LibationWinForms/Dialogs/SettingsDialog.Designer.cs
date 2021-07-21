@@ -33,11 +33,11 @@
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.cancelBtn = new System.Windows.Forms.Button();
 			this.advancedSettingsGb = new System.Windows.Forms.GroupBox();
-			this.logsBtn = new System.Windows.Forms.Button();
 			this.convertLossyRb = new System.Windows.Forms.RadioButton();
 			this.convertLosslessRb = new System.Windows.Forms.RadioButton();
 			this.inProgressSelectControl = new LibationWinForms.Dialogs.DirectorySelectControl();
 			this.allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
+			this.logsBtn = new System.Windows.Forms.Button();
 			this.booksSelectControl = new LibationWinForms.Dialogs.DirectoryOrCustomSelectControl();
 			this.booksGb = new System.Windows.Forms.GroupBox();
 			this.loggingLevelLbl = new System.Windows.Forms.Label();
@@ -69,7 +69,7 @@
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(714, 409);
+			this.saveBtn.Location = new System.Drawing.Point(714, 419);
 			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(88, 27);
@@ -82,7 +82,7 @@
 			// 
 			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(832, 409);
+			this.cancelBtn.Location = new System.Drawing.Point(832, 419);
 			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
@@ -100,24 +100,14 @@
 			this.advancedSettingsGb.Controls.Add(this.inProgressSelectControl);
 			this.advancedSettingsGb.Controls.Add(this.allowLibationFixupCbox);
 			this.advancedSettingsGb.Controls.Add(this.inProgressDescLbl);
-			this.advancedSettingsGb.Location = new System.Drawing.Point(12, 170);
+			this.advancedSettingsGb.Location = new System.Drawing.Point(12, 176);
 			this.advancedSettingsGb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.advancedSettingsGb.Name = "advancedSettingsGb";
 			this.advancedSettingsGb.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.advancedSettingsGb.Size = new System.Drawing.Size(908, 226);
+			this.advancedSettingsGb.Size = new System.Drawing.Size(908, 232);
 			this.advancedSettingsGb.TabIndex = 5;
 			this.advancedSettingsGb.TabStop = false;
 			this.advancedSettingsGb.Text = "Advanced settings for control freaks";
-			// 
-			// logsBtn
-			// 
-			this.logsBtn.Location = new System.Drawing.Point(262, 141);
-			this.logsBtn.Name = "logsBtn";
-			this.logsBtn.Size = new System.Drawing.Size(132, 23);
-			this.logsBtn.TabIndex = 4;
-			this.logsBtn.Text = "Open log folder";
-			this.logsBtn.UseVisualStyleBackColor = true;
-			this.logsBtn.Click += new System.EventHandler(this.logsBtn_Click);
 			// 
 			// convertLossyRb
 			// 
@@ -147,7 +137,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.inProgressSelectControl.Location = new System.Drawing.Point(10, 175);
 			this.inProgressSelectControl.Name = "inProgressSelectControl";
-			this.inProgressSelectControl.Size = new System.Drawing.Size(552, 46);
+			this.inProgressSelectControl.Size = new System.Drawing.Size(552, 52);
 			this.inProgressSelectControl.TabIndex = 2;
 			// 
 			// allowLibationFixupCbox
@@ -163,13 +153,23 @@
 			this.allowLibationFixupCbox.UseVisualStyleBackColor = true;
 			this.allowLibationFixupCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
 			// 
+			// logsBtn
+			// 
+			this.logsBtn.Location = new System.Drawing.Point(262, 147);
+			this.logsBtn.Name = "logsBtn";
+			this.logsBtn.Size = new System.Drawing.Size(132, 23);
+			this.logsBtn.TabIndex = 4;
+			this.logsBtn.Text = "Open log folder";
+			this.logsBtn.UseVisualStyleBackColor = true;
+			this.logsBtn.Click += new System.EventHandler(this.logsBtn_Click);
+			// 
 			// booksSelectControl
 			// 
 			this.booksSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.booksSelectControl.Location = new System.Drawing.Point(7, 37);
 			this.booksSelectControl.Name = "booksSelectControl";
-			this.booksSelectControl.Size = new System.Drawing.Size(895, 81);
+			this.booksSelectControl.Size = new System.Drawing.Size(895, 87);
 			this.booksSelectControl.TabIndex = 1;
 			// 
 			// booksGb
@@ -180,7 +180,7 @@
 			this.booksGb.Controls.Add(this.booksLocationDescLbl);
 			this.booksGb.Location = new System.Drawing.Point(12, 12);
 			this.booksGb.Name = "booksGb";
-			this.booksGb.Size = new System.Drawing.Size(908, 123);
+			this.booksGb.Size = new System.Drawing.Size(908, 129);
 			this.booksGb.TabIndex = 1;
 			this.booksGb.TabStop = false;
 			this.booksGb.Text = "Books location";
@@ -188,7 +188,7 @@
 			// loggingLevelLbl
 			// 
 			this.loggingLevelLbl.AutoSize = true;
-			this.loggingLevelLbl.Location = new System.Drawing.Point(12, 144);
+			this.loggingLevelLbl.Location = new System.Drawing.Point(12, 150);
 			this.loggingLevelLbl.Name = "loggingLevelLbl";
 			this.loggingLevelLbl.Size = new System.Drawing.Size(78, 15);
 			this.loggingLevelLbl.TabIndex = 2;
@@ -198,7 +198,7 @@
 			// 
 			this.loggingLevelCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.loggingLevelCb.FormattingEnabled = true;
-			this.loggingLevelCb.Location = new System.Drawing.Point(96, 141);
+			this.loggingLevelCb.Location = new System.Drawing.Point(96, 147);
 			this.loggingLevelCb.Name = "loggingLevelCb";
 			this.loggingLevelCb.Size = new System.Drawing.Size(129, 23);
 			this.loggingLevelCb.TabIndex = 3;
@@ -209,7 +209,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(933, 450);
+			this.ClientSize = new System.Drawing.Size(933, 462);
 			this.Controls.Add(this.logsBtn);
 			this.Controls.Add(this.loggingLevelCb);
 			this.Controls.Add(this.loggingLevelLbl);
