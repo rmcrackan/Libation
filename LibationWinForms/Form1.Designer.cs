@@ -51,7 +51,6 @@
 			this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.accountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.basicSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.advancedSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.visibleCountLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
@@ -232,8 +231,7 @@
 			// 
 			this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.accountsToolStripMenuItem,
-            this.basicSettingsToolStripMenuItem,
-            this.advancedSettingsToolStripMenuItem});
+            this.basicSettingsToolStripMenuItem});
 			this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
 			this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.settingsToolStripMenuItem.Text = "&Settings";
@@ -241,23 +239,16 @@
 			// accountsToolStripMenuItem
 			// 
 			this.accountsToolStripMenuItem.Name = "accountsToolStripMenuItem";
-			this.accountsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+			this.accountsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.accountsToolStripMenuItem.Text = "&Accounts...";
 			this.accountsToolStripMenuItem.Click += new System.EventHandler(this.accountsToolStripMenuItem_Click);
 			// 
 			// basicSettingsToolStripMenuItem
 			// 
 			this.basicSettingsToolStripMenuItem.Name = "basicSettingsToolStripMenuItem";
-			this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+			this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.basicSettingsToolStripMenuItem.Text = "&Settings...";
 			this.basicSettingsToolStripMenuItem.Click += new System.EventHandler(this.basicSettingsToolStripMenuItem_Click);
-			// 
-			// advancedSettingsToolStripMenuItem
-			// 
-			this.advancedSettingsToolStripMenuItem.Name = "advancedSettingsToolStripMenuItem";
-			this.advancedSettingsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-			this.advancedSettingsToolStripMenuItem.Text = "&Move settings files...";
-			this.advancedSettingsToolStripMenuItem.Click += new System.EventHandler(this.advancedSettingsToolStripMenuItem_Click);
 			// 
 			// statusStrip1
 			// 
@@ -359,7 +350,6 @@
 		private System.Windows.Forms.ToolStripMenuItem editQuickFiltersToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem advancedSettingsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfSomeAccountsToolStripMenuItem;

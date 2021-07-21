@@ -275,19 +275,8 @@ namespace FileManager
             return valueFinal;
         }
 
-        public bool TrySetLibationFiles(string directory)
+        public void SetLibationFiles(string directory)
         {
-            // this is WRONG. need to MOVE settings; not DELETE them
-
-            //// if moving from default, delete old settings file and dir (if empty)
-            //if (LibationFiles.EqualsInsensitive(AppDir))
-            //{
-            //    File.Delete(SettingsFilePath);
-            //    System.Threading.Thread.Sleep(100);
-            //    if (!Directory.EnumerateDirectories(AppDir).Any() && !Directory.EnumerateFiles(AppDir).Any())
-            //        Directory.Delete(AppDir);
-            //}
-
             libationFilesPathCache = null;
 
             var startingContents = File.ReadAllText(APPSETTINGS_JSON);
@@ -297,7 +286,7 @@ namespace FileManager
 
             var endingContents = JsonConvert.SerializeObject(jObj, Formatting.Indented);
             if (startingContents == endingContents)
-                return true;
+                return;
 
             // now it's set in the file again but no settings have moved yet
             File.WriteAllText(APPSETTINGS_JSON, endingContents);
@@ -307,13 +296,6 @@ namespace FileManager
                 Log.Logger.Information("Libation files changed {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory });
             }
             catch { }
-
-            //// attempting this will try to change the settings file which has not yet been moved
-            //// after this is fixed, can remove it from Program.configureLogging()
-            // var logPath = Path.Combine(LibationFiles, "Log.log");
-            // SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath, true);
-
-            return true;
         }
         #endregion
     }

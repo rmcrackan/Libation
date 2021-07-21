@@ -395,31 +395,6 @@ namespace LibationWinForms
         private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog(this).ShowDialog();
 
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
-
-        private void advancedSettingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var libationFilesDialog = new LibationFilesDialog();
-            if (libationFilesDialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            // no change
-            if (System.IO.Path.GetFullPath(libationFilesDialog.SelectedDirectory).EqualsInsensitive(System.IO.Path.GetFullPath(Configuration.Instance.LibationFiles)))
-                return;
-
-            if (!Configuration.Instance.TrySetLibationFiles(libationFilesDialog.SelectedDirectory))
-            {
-                MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationFilesDialog.SelectedDirectory, "Error saving change", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            MessageBox.Show(
-                "You have changed a file path important for this program. All files will remain in their original location; nothing will be moved. Libation must be restarted so these changes are handled correctly.",
-                "Closing Libation",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Exclamation);
-            Application.Exit();
-            Environment.Exit(0);
-        }
         #endregion
     }
 }

@@ -81,7 +81,7 @@ namespace LibationLauncher
 			// check for existing settigns in default location
 			var defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
 			if (Configuration.SettingsFileIsValid(defaultSettingsFile))
-				config.TrySetLibationFiles(defaultLibationFilesDir);
+				config.SetLibationFiles(defaultLibationFilesDir);
 
 			if (config.LibationSettingsAreValid)
 				return;
@@ -94,7 +94,7 @@ namespace LibationLauncher
 			}
 
 			if (setupDialog.IsNewUser)
-				config.TrySetLibationFiles(defaultLibationFilesDir);
+				config.SetLibationFiles(defaultLibationFilesDir);
 			else if (setupDialog.IsReturningUser)
 			{
 				var libationFilesDialog = new LibationFilesDialog();
@@ -105,7 +105,7 @@ namespace LibationLauncher
 					return;
 				}
 
-				config.TrySetLibationFiles(libationFilesDialog.SelectedDirectory);
+				config.SetLibationFiles(libationFilesDialog.SelectedDirectory);
 				if (config.LibationSettingsAreValid)
 					return;
 
