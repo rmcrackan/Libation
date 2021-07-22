@@ -142,33 +142,44 @@ namespace FileManager
             catch { }
         }
 
-        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false)
+        /// <summary>WILL ONLY set if already present. WILL NOT create new</summary>
+        /// <returns>Value was changed</returns>
+        public bool SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false)
         {
             if (IsReadOnly)
-                return;
+                return false;
 
             var path = $"{jsonPath}.{propertyName}";
 
             {
                 // only do this check in string cache, NOT object cache
                 if (stringCache.ContainsKey(path) && stringCache[path] == newValue)
-                    return;
+                    return false;
 
                 // set cache
                 stringCache[path] = newValue;
             }
 
-            lock (locker)
+            try
             {
-                var jObject = readFile();
-                var token = jObject.SelectToken(jsonPath);
-                var oldValue = token.Value<string>(propertyName);
+                lock (locker)
+                {
+                    var jObject = readFile();
+                    var token = jObject.SelectToken(jsonPath);
+                    if (token is null || token[propertyName] is null)
+                        return false;
 
-                if (oldValue == newValue)
-                    return;
+                    var oldValue = token.Value<string>(propertyName);
+                    if (oldValue == newValue)
+                        return false;
 
-                token[propertyName] = newValue;
-                File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+                    token[propertyName] = newValue;
+                    File.WriteAllText(Filepath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+                }
+            }
+            catch (Exception exDebug)
+            {
+                return false;
             }
 
             if (!suppressLogging)
@@ -180,6 +191,8 @@ namespace FileManager
                 }
                 catch { }
             }
+
+            return true;
         }
 
         private static string formatValueForLog(string value)

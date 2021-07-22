@@ -351,7 +351,7 @@ Libation.
 			try
 			{
 				// timed out
-				var latest = getLatestRelease(TimeSpan.FromSeconds(30));
+				var latest = getLatestRelease(TimeSpan.FromSeconds(10));
 				if (latest is null)
 					return;
 
@@ -387,6 +387,11 @@ Libation.
 				if (fileSelector.ShowDialog() != DialogResult.OK)
 					return;
 				selectedPath = fileSelector.FileName;
+			}
+			catch (AggregateException aggEx)
+			{
+				Log.Logger.Error(aggEx, "Checking for new version too often");
+				return;
 			}
 			catch (Exception ex)
 			{

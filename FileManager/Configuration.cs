@@ -48,7 +48,11 @@ namespace FileManager
 
         public object GetObject(string propertyName) => persistentDictionary.GetObject(propertyName);
         public void SetObject(string propertyName, object newValue) => persistentDictionary.SetNonString(propertyName, newValue);
-        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false) => persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue, suppressLogging);
+
+        /// <summary>WILL ONLY set if already present. WILL NOT create new</summary>
+        /// <returns>Value was changed</returns>
+        public bool SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false)
+            => persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue, suppressLogging);
 
         public string SettingsFilePath => Path.Combine(LibationFiles, "Settings.json");
 
@@ -219,7 +223,12 @@ namespace FileManager
             }
             set
             {
-                persistentDictionary.SetWithJsonPath("Serilog", "MinimumLevel", value.ToString());
+                var valueWasChanged = persistentDictionary.SetWithJsonPath("Serilog", "MinimumLevel", value.ToString());
+                if (!valueWasChanged)
+                {
+                    Log.Logger.Information("LogLevel.set attempt. No change");
+                    return;
+                }
 
                 configuration.Reload();
 
@@ -263,8 +272,9 @@ namespace FileManager
                 // Config init in Program.ensureSerilogConfig() only happens when serilog setting is first created (prob on 1st run).
                 // This Set() enforces current LibationFiles every time we restart Libation or redirect LibationFiles
                 var logPath = Path.Combine(LibationFiles, "Log.log");
-                SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath, true);
-                configuration?.Reload();
+                bool settingWasChanged = SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath, true);
+                if (settingWasChanged)
+                    configuration?.Reload();
 
                 return libationFilesPathCache;
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
@@ -33,6 +34,31 @@ namespace LibationWinForms
 
 			beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
             beginPdfBackupsToolStripMenuItem_format = beginPdfBackupsToolStripMenuItem.Text;
+
+            // after backing up formats: can set default/temp visible text
+            backupsCountsLbl.Text = "[Calculating backed up book quantities]";
+            pdfsCountsLbl.Text = "[Calculating backed up PDFs]";
+			setVisibleCount(null, 0);
+
+            if (this.DesignMode)
+                return;
+
+            // independent UI updates
+            this.Load += setBackupCountsAsync;
+            this.Load += (_, __) => RestoreSizeAndLocation();
+            this.Load += (_, __) => RefreshImportMenu();
+
+            // start background service
+            this.Load += (_, __) => startBackgroundImageDownloader();
+        }
+
+        private static void startBackgroundImageDownloader()
+        {
+            // load default/missing cover images. this will also initiate the background image downloader
+            var format = System.Drawing.Imaging.ImageFormat.Jpeg;
+            PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
+            PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
+            PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -40,30 +66,13 @@ namespace LibationWinForms
             if (this.DesignMode)
                 return;
 
-            RestoreSizeAndLocation();
-
-			// load default/missing cover images. this will also initiate the background image downloader
-			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
-			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
-			PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
-			PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
-
-            RefreshImportMenu();
-
-			setVisibleCount(null, 0);
-
-			reloadGrid();
-
+            reloadGrid();
+            
             // also applies filter. ONLY call AFTER loading grid
             loadInitialQuickFilterState();
-
-            // init bottom counts
-            backupsCountsLbl.Text = "[Calculating backed up book quantities]";
-            pdfsCountsLbl.Text = "[Calculating backed up PDFs]";
-            setBackupCounts(null, null);
         }
 
-		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveSizeAndLocation();
         }
@@ -161,14 +170,14 @@ namespace LibationWinForms
                 {
                     gridPanel.Controls.Remove(currProductsGrid);
                     currProductsGrid.VisibleCountChanged -= setVisibleCount;
-                    currProductsGrid.BackupCountsChanged -= setBackupCounts;
+                    currProductsGrid.BackupCountsChanged -= setBackupCountsAsync;
                     currProductsGrid.Dispose();
                 }
 
                 currProductsGrid = new ProductsGrid { Dock = DockStyle.Fill };
                 currProductsGrid.VisibleCountChanged += setVisibleCount;
-                currProductsGrid.BackupCountsChanged += setBackupCounts;
-                gridPanel.Controls.Add(currProductsGrid);
+                currProductsGrid.BackupCountsChanged += setBackupCountsAsync;
+                gridPanel.UIThread(() => gridPanel.Controls.Add(currProductsGrid));
                 currProductsGrid.Display();
             }
             ResumeLayout();
@@ -180,15 +189,17 @@ namespace LibationWinForms
         #endregion
 
         #region bottom: backup counts
-        private void setBackupCounts(object _, object __)
+        private async void setBackupCountsAsync(object _, object __)
         {
-            var books = DbContexts.GetContext()
-                .GetLibrary_Flat_NoTracking()
-                .Select(sp => sp.Book)
-                .ToList();
+            await Task.Run(() => {
+                var books = DbContexts.GetContext()
+                    .GetLibrary_Flat_NoTracking()
+                    .Select(sp => sp.Book)
+                    .ToList();
 
-			setBookBackupCounts(books);
-			setPdfBackupCounts(books);
+                setBookBackupCounts(books);
+                setPdfBackupCounts(books);
+            });
 		}
         enum AudioFileState { full, aax, none }
         private void setBookBackupCounts(IEnumerable<Book> books)
