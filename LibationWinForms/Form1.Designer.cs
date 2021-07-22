@@ -239,14 +239,14 @@
 			// accountsToolStripMenuItem
 			// 
 			this.accountsToolStripMenuItem.Name = "accountsToolStripMenuItem";
-			this.accountsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.accountsToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
 			this.accountsToolStripMenuItem.Text = "&Accounts...";
 			this.accountsToolStripMenuItem.Click += new System.EventHandler(this.accountsToolStripMenuItem_Click);
 			// 
 			// basicSettingsToolStripMenuItem
 			// 
 			this.basicSettingsToolStripMenuItem.Name = "basicSettingsToolStripMenuItem";
-			this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
 			this.basicSettingsToolStripMenuItem.Text = "&Settings...";
 			this.basicSettingsToolStripMenuItem.Click += new System.EventHandler(this.basicSettingsToolStripMenuItem_Click);
 			// 
@@ -316,6 +316,7 @@
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Name = "Form1";
 			this.Text = "Libation: Liberate your Library";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.Load += new System.EventHandler(this.Form1_Load);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();

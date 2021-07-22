@@ -40,6 +40,8 @@ namespace LibationWinForms
             if (this.DesignMode)
                 return;
 
+            RestoreSizeAndLocation();
+
 			// load default/missing cover images. this will also initiate the background image downloader
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
@@ -61,8 +63,83 @@ namespace LibationWinForms
             setBackupCounts(null, null);
         }
 
-		#region reload grid
-		bool isProcessingGridSelect = false;
+		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveSizeAndLocation();
+        }
+
+		private void RestoreSizeAndLocation()
+		{
+            var config = Configuration.Instance;
+
+            var width = config.MainFormWidth;
+            var height = config.MainFormHeight;
+
+            // too small -- something must have gone wrong. use defaults
+            if (width < 25 || height < 25)
+            {
+                width = 1023;
+                height = 578;
+            }
+
+            // Fit to the current screen size in case the screen resolution changed since the size was last persisted
+            if (width > Screen.PrimaryScreen.WorkingArea.Width)
+                width = Screen.PrimaryScreen.WorkingArea.Width;
+            if (height > Screen.PrimaryScreen.WorkingArea.Height)
+                height = Screen.PrimaryScreen.WorkingArea.Height;
+
+            var x = config.MainFormX;
+            var y = config.MainFormY;
+
+            var rect = new System.Drawing.Rectangle(x, y, width, height);
+
+            // is proposed rect on a screen?
+            if (Screen.AllScreens.Any(screen => screen.WorkingArea.Contains(rect)))
+            {
+                this.StartPosition = FormStartPosition.Manual;
+                this.DesktopBounds = rect;
+            }
+            else
+            {
+                this.StartPosition = FormStartPosition.WindowsDefaultLocation;
+                this.Size = rect.Size;
+            }
+
+            // FINAL: for Maximized: start normal state, set size and location, THEN set max state
+            this.WindowState = config.MainFormIsMaximized ? FormWindowState.Maximized : FormWindowState.Normal;
+        }
+
+        private void SaveSizeAndLocation()
+        {
+            System.Drawing.Point location;
+            System.Drawing.Size size;
+
+            // save location and size if the state is normal
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                location = this.Location;
+                size = this.Size;
+            }
+            else
+            {
+                // save the RestoreBounds if the form is minimized or maximized
+                location = this.RestoreBounds.Location;
+                size = this.RestoreBounds.Size;
+            }
+            
+            var config = Configuration.Instance;
+
+            config.MainFormX = location.X;
+            config.MainFormY = location.Y;
+
+            config.MainFormWidth = size.Width;
+            config.MainFormHeight = size.Height;
+
+            config.MainFormIsMaximized = this.WindowState == FormWindowState.Maximized;
+        }
+
+        #region reload grid
+        bool isProcessingGridSelect = false;
         private void reloadGrid()
         {
             // suppressed filter while init'ing UI
@@ -395,6 +472,6 @@ namespace LibationWinForms
         private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog(this).ShowDialog();
 
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
-        #endregion
-    }
+		#endregion
+	}
 }
