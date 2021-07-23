@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DataLayer;
+using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using Dinah.Core.Windows.Forms;
 using FileLiberator;
@@ -440,7 +441,26 @@ namespace LibationWinForms.BookLiberation
 
             LogMe.Error("ERROR. All books have not been processed. Most recent book: processing failed");
 
-            var dialogResult = MessageBox.Show(SkipDialogText, "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question);
+            string details;
+            try
+            {
+                static string trunc(string str)
+                    => string.IsNullOrWhiteSpace(str) ? "[empty]"
+                    : (str.Length > 50) ? $"{str.Truncate(47)}..."
+                    : str;
+
+                details =
+$@"  Title: {libraryBook.Book.Title}
+  ID: {libraryBook.Book.AudibleProductId}
+  Author: {trunc(libraryBook.Book.AuthorNames)}
+  Narr: {trunc(libraryBook.Book.NarratorNames)}";
+            }
+            catch
+            {
+                details = "[Error retrieving details]";
+            }
+
+            var dialogResult = MessageBox.Show(string.Format(SkipDialogText, details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question);
 
             if (dialogResult == DialogResult.Abort)
                 return false;
@@ -464,6 +484,7 @@ Created new 'skip' file
 
         protected override string SkipDialogText => @"
 An error occurred while trying to process this book. Skip this book permanently?
+{0}
 
 - Click YES to skip this book permanently.
 
@@ -487,7 +508,8 @@ An error occurred while trying to process this book. Skip this book permanently?
     class BackupLoop : BackupRunner
     {
         protected override string SkipDialogText => @"
-An error occurred while trying to process this book
+An error occurred while trying to process this book.
+{0}
 
 - ABORT: stop processing books.
 
