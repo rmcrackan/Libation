@@ -2,6 +2,7 @@
 using Dinah.Core;
 using Dinah.Core.Diagnostics;
 using Dinah.Core.IO;
+using Dinah.Core.Logging;
 using Dinah.Core.StepRunner;
 using System;
 using System.IO;
@@ -39,6 +40,7 @@ namespace AaxDecrypter
             ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
             OutputFileName = outFileName;
             var outDir = Path.GetDirectoryName(OutputFileName);
+
             if (!Directory.Exists(outDir))
                 throw new ArgumentNullException(nameof(outDir), "Directory does not exist");
             if (File.Exists(OutputFileName))
@@ -50,6 +52,8 @@ namespace AaxDecrypter
 
             downloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
             OutputFormat = outputFormat;
+
+            Serilog.Log.Logger.Verbose("Download License. {@DebugInfo}", downloadLicense);
 
             steps = new StepSequence
             {
