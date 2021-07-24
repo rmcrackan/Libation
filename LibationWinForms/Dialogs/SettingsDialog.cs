@@ -94,7 +94,16 @@ namespace LibationWinForms.Dialogs
 
 			config.Books = newBooks;
 
-			config.LogLevel = (Serilog.Events.LogEventLevel)loggingLevelCb.SelectedItem;
+			{
+				var logLevelOld = config.LogLevel;
+				var logLevelNew = (Serilog.Events.LogEventLevel)loggingLevelCb.SelectedItem;
+
+				config.LogLevel = logLevelNew;
+
+				// only warn if changed during this time. don't want to warn every time user happens to change settings while level is verbose
+				if (logLevelOld != logLevelNew)
+					MessageBoxVerboseLoggingWarning.ShowIfTrue();
+			}
 
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
 			config.DecryptToLossy = convertLossyRb.Checked;
