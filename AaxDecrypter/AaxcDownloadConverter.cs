@@ -53,9 +53,9 @@ namespace AaxDecrypter
             downloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
             OutputFormat = outputFormat;
 
-            if (Serilog.Log.Logger.IsDebugEnabled())
+            if (Serilog.Log.Logger.IsVerboseEnabled())
             {
-                Serilog.Log.Logger.Debug("Request/Response details. {@DebugInfo}", downloadLicense);
+                Serilog.Log.Logger.Verbose("Download License. {@DebugInfo}", downloadLicense);
             }
 
             steps = new StepSequence
