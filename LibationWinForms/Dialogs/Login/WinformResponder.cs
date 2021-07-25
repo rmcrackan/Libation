@@ -17,7 +17,7 @@ namespace LibationWinForms.Login
 		public string Get2faCode()
 		{
 			using var dialog = new _2faCodeDialog();
-			if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			if (showDialog(dialog))
 				return dialog.Code;
 			return null;
 		}
@@ -25,7 +25,7 @@ namespace LibationWinForms.Login
 		public string GetCaptchaAnswer(byte[] captchaImage)
 		{
 			using var dialog = new CaptchaDialog(captchaImage);
-			if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			if (showDialog(dialog))
 				return dialog.Answer;
 			return null;
 		}
@@ -33,7 +33,7 @@ namespace LibationWinForms.Login
 		public (string name, string value) GetMfaChoice(MfaConfig mfaConfig)
 		{
 			using var dialog = new MfaDialog(mfaConfig);
-			if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			if (showDialog(dialog))
 				return (dialog.SelectedName, dialog.SelectedValue);
 			return (null, null);
 		}
@@ -41,7 +41,7 @@ namespace LibationWinForms.Login
 		public (string email, string password) GetLogin()
 		{
 			using var dialog = new AudibleLoginDialog(_account);
-			if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			if (showDialog(dialog))
 				return (dialog.Email, dialog.Password);
 			return (null, null);
 		}
@@ -49,7 +49,15 @@ namespace LibationWinForms.Login
 		public void ShowApprovalNeeded()
 		{
 			using var dialog = new ApprovalNeededDialog();
-			dialog.ShowDialog();
+			showDialog(dialog);
+		}
+
+		/// <returns>True if ShowDialog's DialogResult == OK</returns>
+		private static bool showDialog(System.Windows.Forms.Form dialog)
+		{
+			var result = dialog.ShowDialog();
+			Serilog.Log.Logger.Debug("{@DebugInfo}", new { DialogResult = result });
+			return result == System.Windows.Forms.DialogResult.OK;
 		}
 	}
 }
