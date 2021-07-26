@@ -88,8 +88,8 @@ namespace DataLayer
 			Category = category;
 
             // simple assigns
-            Title = title;
-            Description = description;
+            Title = title.Trim();
+            Description = description.Trim();
             LengthInMinutes = lengthInMinutes;
 
             // assigns with biz logic
