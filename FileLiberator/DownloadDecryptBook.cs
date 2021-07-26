@@ -67,35 +67,15 @@ namespace FileLiberator
             {
                 validate(libraryBook);
 
-                Serilog.Log.Logger.Debug("Trying to debug mysterious null ref exception {@DebugInfo}", new {
-                    libraryBookIsNull = libraryBook is null,
-                    BookIsNull = libraryBook?.Book is null,
-                    libraryBook?.Book?.Locale,
-                    libraryBook?.Book?.AudibleProductId,
-                    AccountLength = libraryBook?.Account?.Length
-                });
-
                 var api = await InternalUtilities.AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
-
-                Serilog.Log.Logger.Debug("Trying to debug mysterious null ref exception {@DebugInfo}", new { apiIsNull = api is null });
 
                 var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
                 
-                Serilog.Log.Logger.Debug("Trying to debug mysterious null ref exception {@DebugInfo}", new {
-                    contentLicIsNull = contentLic is null,
-                    contentMetadataIsNull = contentLic?.ContentMetadata is null,
-                    voucherIsNull = contentLic?.Voucher is null,
-                    keyIsNull = contentLic?.Voucher?.Key is null,
-                    keyLength = contentLic?.Voucher?.Key?.Length,
-                    ivIsNull = contentLic?.Voucher?.Iv is null,
-                    ivLength = contentLic?.Voucher?.Iv?.Length,
-                });
-
                 var aaxcDecryptDlLic = new DownloadLicense
                     (
-                    contentLic.ContentMetadata?.ContentUrl?.OfflineUrl,
-                    contentLic.Voucher?.Key,
-                    contentLic.Voucher?.Iv,
+                    contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
+                    contentLic?.Voucher?.Key,
+                    contentLic?.Voucher?.Iv,
                     Resources.UserAgent
                     );
 
