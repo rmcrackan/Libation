@@ -95,18 +95,24 @@ namespace FileManager
 
         private void RemovePath(string path)
         {
-            var pathsToRemove = fsCache.Where(p => p.StartsWith(path)).ToArray();
+            lock (fsCache)
+            {
+                var pathsToRemove = fsCache.Where(p => p.StartsWith(path)).ToArray();
 
-            foreach (var p in pathsToRemove)
-                fsCache.Remove(p);
+                foreach (var p in pathsToRemove)
+                    fsCache.Remove(p);
+            }
         }
 
         private void AddPath(string path)
         {
-            if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
-                fsCache.AddRange(Directory.EnumerateFiles(path, SearchPattern, SearchOption));
-            else
-                fsCache.Add(path);
+            lock (fsCache)
+            {
+                if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
+                    fsCache.AddRange(Directory.EnumerateFiles(path, SearchPattern, SearchOption));
+                else
+                    fsCache.Add(path);
+            }
         }
 
         #endregion
