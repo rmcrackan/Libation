@@ -70,7 +70,7 @@ namespace FileLiberator
                 var api = await InternalUtilities.AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
 
                 var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
-                
+
                 var aaxcDecryptDlLic = new DownloadLicense
                     (
                     contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
@@ -97,10 +97,10 @@ namespace FileLiberator
                     _ => throw new NotImplementedException(),
                 };
 
-                 var proposedOutputFile = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{extension}");
+                var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{extension}");
 
 
-                aaxcDownloader = new AaxcDownloadConverter(proposedOutputFile, cacheDir, aaxcDecryptDlLic, format) { AppName = "Libation" };
+                aaxcDownloader = new AaxcDownloadConverter(outFileName, cacheDir, aaxcDecryptDlLic, format) { AppName = "Libation" };
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => UpdateProgress?.Invoke(this, progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => UpdateRemainingTime?.Invoke(this, remaining);
                 aaxcDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
@@ -113,7 +113,7 @@ namespace FileLiberator
                 if (!success)
                     return null;
 
-                return aaxcDownloader.OutputFileName;
+                return outFileName;
             }
             finally
             {
