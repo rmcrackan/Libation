@@ -53,8 +53,6 @@ namespace AaxDecrypter
             downloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
             OutputFormat = outputFormat;
 
-            Serilog.Log.Logger.Verbose("Download License. {@DebugInfo}", downloadLicense);
-
             steps = new StepSequence
             {
                 Name = "Download and Convert Aaxc To " + (outputFormat == OutputFormat.Mp4a ? "M4b" : "Mp3"),
