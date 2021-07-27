@@ -20,9 +20,13 @@ namespace FileManager
         private Task backgroundScanner { get; set; }
         private List<string> fsCache { get; set; }
 
-        public string FindFile(string regexPattern, RegexOptions options) =>
-            fsCache.FirstOrDefault(s => Regex.IsMatch(s, regexPattern, options));
-
+        public string FindFile(string regexPattern, RegexOptions options)
+        {
+            lock (fsCache)
+            {
+                return fsCache.FirstOrDefault(s => Regex.IsMatch(s, regexPattern, options));
+            }
+        }
 
         public void Init(string rootDirectory, string searchPattern, SearchOption searchOptions)
         {
@@ -63,6 +67,13 @@ namespace FileManager
             directoryChangesEvents.Add(e);
         }
 
+        #region Background Thread
+        private void BackgroundScanner()
+        {
+            while (directoryChangesEvents.TryTake(out FileSystemEventArgs change, -1))
+                UpdateLocalCache(change);
+        }
+
         private void UpdateLocalCache(FileSystemEventArgs change) 
         {
             if (change.ChangeType == WatcherChangeTypes.Deleted)
@@ -98,10 +109,6 @@ namespace FileManager
                 fsCache.Add(path);
         }
 
-        private void BackgroundScanner()
-        {
-            while (directoryChangesEvents.TryTake(out FileSystemEventArgs change, -1))
-                UpdateLocalCache(change);
-        }
+        #endregion
     }
 }
