@@ -200,9 +200,8 @@ namespace LibationSearchEngine
         /// <param name="overwrite"></param>
         public void CreateNewIndex(bool overwrite = true)
         {
-            // 300 products
-            // 1st run after app is started: 400ms
-            // subsequent runs: 200ms
+            //  300 titles:  200- 400 ms
+            // 1021 titles: 1777-2250 ms
             var sw = System.Diagnostics.Stopwatch.StartNew();
             var stamps = new List<long>();
             void log() => stamps.Add(sw.ElapsedMilliseconds);
