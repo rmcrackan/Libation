@@ -66,7 +66,7 @@ alternate book id (eg BK_RAND_006061) is called 'sku' , 'sku_lite' , 'prod_id' ,
 do NOT combine jsons for
 - audible-scraped persistence: library, book details
 - libation-generated persistence: FilePaths.json
-- user-defined persistence: BookTags.json
+- user-defined persistence: UserDefinedItems.json
 -- end SOLUTION LAYOUT ---------------------------------------------------------------------------------------------------------------------
 
 -- begin EF CORE ---------------------------------------------------------------------------------------------------------------------

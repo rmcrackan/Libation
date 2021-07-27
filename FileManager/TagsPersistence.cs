@@ -16,7 +16,7 @@ namespace FileManager
     /// </summary>
     public static class TagsPersistence
     {
-		private static string TagsFile => Path.Combine(Configuration.Instance.LibationFiles, "BookTags.json");
+		private static string TagsFile => Path.Combine(Configuration.Instance.LibationFiles, "UserDefinedItems.json");
 
         private static object locker { get; } = new object();
 

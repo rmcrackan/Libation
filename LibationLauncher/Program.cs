@@ -51,6 +51,7 @@ namespace LibationLauncher
 
 			migrate_to_v5_0_0(config);
 			migrate_to_v5_2_0__post_config(config);
+			migrate_to_v5_3_10(config);
 
 			ensureSerilogConfig(config);
 			configureLogging(config);
@@ -141,7 +142,7 @@ namespace LibationLauncher
 			CancelInstallation();
 		}
 
-		#region migrate_to_v5_0_0 re-register device if device info not in settings
+		#region migrate to v5.0.0: re-register device if device info not in settings
 		private static void migrate_to_v5_0_0(Configuration config)
 		{
 			if (!config.Exists(nameof(config.AllowLibationFixup)))
@@ -226,6 +227,19 @@ namespace LibationLauncher
 
 			if (!config.Exists(nameof(config.DecryptToLossy)))
 				config.DecryptToLossy = false;
+		}
+		#endregion
+
+		#region migrate to v5.3.10: rename BookTags.json to UserDefinedItems.json
+		private static void migrate_to_v5_3_10(Configuration config)
+		{
+			var oldPath = Path.Combine(config.LibationFiles, "BookTags.json");
+
+			if (File.Exists(oldPath))
+			{
+				var newPath = Path.Combine(config.LibationFiles, "UserDefinedItems.json");
+				File.Move(oldPath, newPath);
+			}
 		}
 		#endregion
 
