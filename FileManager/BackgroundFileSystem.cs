@@ -76,43 +76,40 @@ namespace FileManager
 
         private void UpdateLocalCache(FileSystemEventArgs change) 
         {
-            if (change.ChangeType == WatcherChangeTypes.Deleted)
+            lock (fsCache)
             {
-                RemovePath(change.FullPath);
-            }
-            else if (change.ChangeType == WatcherChangeTypes.Created)
-            {
-                AddPath(change.FullPath);
-            }
-            else if (change.ChangeType == WatcherChangeTypes.Renamed)
-            {
-                var renameChange = change as RenamedEventArgs;
+                if (change.ChangeType == WatcherChangeTypes.Deleted)
+                {
+                    RemovePath(change.FullPath);
+                }
+                else if (change.ChangeType == WatcherChangeTypes.Created)
+                {
+                    AddPath(change.FullPath);
+                }
+                else if (change.ChangeType == WatcherChangeTypes.Renamed)
+                {
+                    var renameChange = change as RenamedEventArgs;
 
-                RemovePath(renameChange.OldFullPath);
-                AddPath(renameChange.FullPath);
+                    RemovePath(renameChange.OldFullPath);
+                    AddPath(renameChange.FullPath);
+                }
             }
         }
 
         private void RemovePath(string path)
         {
-            lock (fsCache)
-            {
-                var pathsToRemove = fsCache.Where(p => p.StartsWith(path)).ToArray();
+            var pathsToRemove = fsCache.Where(p => p.StartsWith(path)).ToArray();
 
-                foreach (var p in pathsToRemove)
-                    fsCache.Remove(p);
-            }
+            foreach (var p in pathsToRemove)
+                fsCache.Remove(p);
         }
 
         private void AddPath(string path)
         {
-            lock (fsCache)
-            {
-                if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
-                    fsCache.AddRange(Directory.EnumerateFiles(path, SearchPattern, SearchOption));
-                else
-                    fsCache.Add(path);
-            }
+            if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
+                fsCache.AddRange(Directory.EnumerateFiles(path, SearchPattern, SearchOption));
+            else
+                fsCache.Add(path);
         }
 
         #endregion
