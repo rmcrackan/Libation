@@ -21,8 +21,8 @@ namespace AaxDecrypter
         public event EventHandler<int> DecryptProgressUpdate;
         public event EventHandler<TimeSpan> DecryptTimeRemaining;
         public string AppName { get; set; } = nameof(AaxcDownloadConverter);
-        public string OutputFileName { get; private set; }
 
+        private string outputFileName { get; }
         private string cacheDir { get; }
         private DownloadLicense downloadLicense { get; }
         private AaxFile aaxFile;
@@ -32,19 +32,19 @@ namespace AaxDecrypter
         private StepSequence steps { get; }
         private NetworkFileStreamPersister nfsPersister;
         private bool isCanceled { get; set; }
-        private string jsonDownloadState => Path.Combine(cacheDir, Path.GetFileNameWithoutExtension(OutputFileName) + ".json");
+        private string jsonDownloadState => Path.Combine(cacheDir, Path.GetFileNameWithoutExtension(outputFileName) + ".json");
         private string tempFile => PathLib.ReplaceExtension(jsonDownloadState, ".aaxc");
 
         public AaxcDownloadConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic, OutputFormat outputFormat)
         {
             ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
-            OutputFileName = outFileName;
-            var outDir = Path.GetDirectoryName(OutputFileName);
+            outputFileName = outFileName;
 
+            var outDir = Path.GetDirectoryName(outputFileName);
             if (!Directory.Exists(outDir))
                 throw new ArgumentNullException(nameof(outDir), "Directory does not exist");
-            if (File.Exists(OutputFileName))
-                File.Delete(OutputFileName);
+            if (File.Exists(outputFileName))
+                File.Delete(outputFileName);
 
             if (!Directory.Exists(cacheDirectory))
                 throw new ArgumentNullException(nameof(cacheDirectory), "Directory does not exist");
@@ -127,10 +127,12 @@ namespace AaxDecrypter
         }
         private NetworkFileStreamPersister NewNetworkFilePersister()
         {
-            var headers = new System.Net.WebHeaderCollection();
-            headers.Add("User-Agent", downloadLicense.UserAgent);
+			var headers = new System.Net.WebHeaderCollection
+			{
+				{ "User-Agent", downloadLicense.UserAgent }
+			};
 
-            NetworkFileStream networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
+			var networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
             return new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
         }
 
@@ -139,10 +141,10 @@ namespace AaxDecrypter
 
             DecryptProgressUpdate?.Invoke(this, 0);
 
-            if (File.Exists(OutputFileName))
-                FileExt.SafeDelete(OutputFileName);
+            if (File.Exists(outputFileName))
+                FileExt.SafeDelete(outputFileName);
 
-            FileStream outFile = File.OpenWrite(OutputFileName);
+            FileStream outFile = File.OpenWrite(outputFileName);
 
             aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
 
@@ -161,7 +163,7 @@ namespace AaxDecrypter
             {
                 //This handles a special case where the aaxc file doesn't contain cover art and
                 //Libation downloaded it instead (Animal Farm). Currently only works for Mp4a files.
-                using var decryptedBook = new Mp4File(OutputFileName, FileAccess.ReadWrite);
+                using var decryptedBook = new Mp4File(outputFileName, FileAccess.ReadWrite);
                 decryptedBook.AppleTags?.SetCoverArt(coverArt);
                 decryptedBook.Save();
                 decryptedBook.Close();
@@ -193,7 +195,7 @@ namespace AaxDecrypter
             // not a critical step. its failure should not prevent future steps from running
             try
             {
-                File.WriteAllText(PathLib.ReplaceExtension(OutputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(OutputFileName), downloadLicense.ChapterInfo));
+                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), downloadLicense.ChapterInfo));
             }
             catch (Exception ex)
             {
@@ -207,7 +209,7 @@ namespace AaxDecrypter
             // not a critical step. its failure should not prevent future steps from running
             try
             {
-                File.WriteAllText(PathLib.ReplaceExtension(OutputFileName, ".nfo"), NFO.CreateContents(AppName, aaxFile, downloadLicense.ChapterInfo));
+                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxFile, downloadLicense.ChapterInfo));
             }
             catch (Exception ex)
             {
