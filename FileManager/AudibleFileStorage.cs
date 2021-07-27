@@ -41,6 +41,8 @@ namespace FileManager
                 return Directory.CreateDirectory(Configuration.Instance.Books).FullName;
             }
         }
+
+        private static BackgroundFileSystem BookDirectoryFiles { get; } = new BackgroundFileSystem();
         #endregion
 
         #region instance
@@ -53,7 +55,7 @@ namespace FileManager
 		{
 			extensions_noDots = Extensions.Select(ext => ext.Trim('.')).ToList();
 			extAggr = extensions_noDots.Aggregate((a, b) => $"{a}|{b}");
-		}
+        }
 
         /// <summary>
         /// Example for full books:
@@ -63,16 +65,31 @@ namespace FileManager
         /// </summary>
         public bool Exists(string productId) => GetPath(productId) != null;
 
-		public string GetPath(string productId)
+        public string GetPath(string productId)
         {
             var cachedFile = FilePathCache.GetPath(productId, FileType);
             if (cachedFile != null)
                 return cachedFile;
 
-            var firstOrNull =
-				Directory
-				.EnumerateFiles(StorageDirectory, "*.*", SearchOption.AllDirectories)
-				.FirstOrDefault(s => Regex.IsMatch(s, $@"{productId}.*?\.({extAggr})$", RegexOptions.IgnoreCase));
+            string storageDir = StorageDirectory;
+            string regexPattern = $@"{productId}.*?\.({extAggr})$";
+            string firstOrNull;
+
+            if (storageDir == BooksDirectory)
+            {
+                //If user changed the BooksDirectory, reinitialize.
+                if (storageDir != BookDirectoryFiles.RootDirectory)
+                    BookDirectoryFiles.Init(storageDir, "*.*", SearchOption.AllDirectories);
+
+                firstOrNull = BookDirectoryFiles.FindFile(regexPattern, RegexOptions.IgnoreCase);
+            }
+            else
+            {
+                firstOrNull =
+                    Directory
+                    .EnumerateFiles(storageDir, "*.*", SearchOption.AllDirectories)
+                    .FirstOrDefault(s => Regex.IsMatch(s, regexPattern, RegexOptions.IgnoreCase));
+            }
 
 			if (firstOrNull is null)
 				return null;
