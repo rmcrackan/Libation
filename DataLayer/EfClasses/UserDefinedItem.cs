@@ -6,6 +6,17 @@ using Dinah.Core;
 
 namespace DataLayer
 {
+    /// <summary>
+    /// Do not track in-process state. In-process state is determined by the presence of temp file.
+    /// </summary>
+    public enum LiberatedStatus
+    {
+        NotLiberated = 0,
+        Liberated = 1,
+        /// <summary>Error occurred during liberation. Don't retry</summary>
+        Error = 2
+    }
+
     public class UserDefinedItem
     {
         internal int BookId { get; private set; }
@@ -22,6 +33,7 @@ namespace DataLayer
 			Tags = FileManager.TagsPersistence.GetTags(book.AudibleProductId);
 		}
 
+        #region Tags
         private string _tags = "";
         public string Tags
         {
@@ -71,14 +83,23 @@ namespace DataLayer
             return string.Join(" ", unique);
         }
         #endregion
+        #endregion
 
+        #region Rating
         // owned: not an optional one-to-one
         /// <summary>The user's individual book rating</summary>
         public Rating Rating { get; private set; } = new Rating(0, 0, 0);
 
         public void UpdateRating(float overallRating, float performanceRating, float storyRating)
             => Rating.Update(overallRating, performanceRating, storyRating);
+        #endregion
 
-		public override string ToString() => $"{Book} {Rating} {Tags}";
+        #region LiberatedStatuses and book file location
+        public LiberatedStatus BookStatus { get; set; }
+        public string BookLocation { get; set; }
+        public LiberatedStatus? PdfStatus { get; set; }
+        #endregion
+
+        public override string ToString() => $"{Book} {Rating} {Tags}";
 	}
 }

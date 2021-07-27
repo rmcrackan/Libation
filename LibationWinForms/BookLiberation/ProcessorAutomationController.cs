@@ -93,8 +93,8 @@ namespace LibationWinForms.BookLiberation
             //   completedAction is to refresh grid
             // - want to see that book disappear from grid
             // also for this to work, updateIsLiberated can NOT be async
-            backupBook.DecryptBook.Completed += updateIsLiberated;
-            backupBook.DownloadPdf.Completed += updateIsLiberated;
+            backupBook.DecryptBook.Completed += updateLiberatedStatus;
+            backupBook.DownloadPdf.Completed += updateLiberatedStatus;
 
             if (completedAction != null)
             {
@@ -105,7 +105,7 @@ namespace LibationWinForms.BookLiberation
             return backupBook;
         }
 
-        private static void updateIsLiberated(object sender, LibraryBook e) => ApplicationServices.SearchEngineCommands.UpdateIsLiberated(e.Book);
+        private static void updateLiberatedStatus(object sender, LibraryBook e) => ApplicationServices.SearchEngineCommands.UpdateLiberatedStatus(e.Book);
 
         private static (Action unsubscribeEvents, LogMe) attachToBackupsForm(BackupBook backupBook, AutomatedBackupsForm automatedBackupsForm = null)
         {

@@ -21,8 +21,8 @@ namespace ApplicationServices
 			e.UpdateTags(book.AudibleProductId, book.UserDefinedItem.Tags)
 		);
 
-		public static void UpdateIsLiberated(Book book) => performSearchEngineAction_safe(e =>
-			e.UpdateIsLiberated(book.AudibleProductId)
+		public static void UpdateLiberatedStatus(Book book) => performSearchEngineAction_safe(e =>
+			e.UpdateLiberatedStatus(book)
 		);
 
 		private static void performSearchEngineAction_safe(Action<SearchEngine> action)

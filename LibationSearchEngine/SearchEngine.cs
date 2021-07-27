@@ -130,8 +130,9 @@ namespace LibationSearchEngine
                     ["Abridged"] = lb => lb.Book.IsAbridged,
 
                     // this will only be evaluated at time of re-index. ie: state of files moved later will be out of sync until next re-index
-                    ["IsLiberated"] = lb => isLiberated(lb.Book.AudibleProductId),
-                    ["Liberated"] = lb => isLiberated(lb.Book.AudibleProductId),
+                    ["IsLiberated"] = lb => isLiberated(lb.Book),
+                    ["Liberated"] = lb => isLiberated(lb.Book),
+                    ["LiberatedError"] = lb => liberatedError(lb.Book),
                 }
                 );
 
@@ -142,7 +143,8 @@ namespace LibationSearchEngine
             return authors.Intersect(narrators).Any();
         }
 
-        private static bool isLiberated(string id) => AudibleFileStorage.Audio.Exists(id);
+        private static bool isLiberated(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated || AudibleFileStorage.Audio.Exists(book.AudibleProductId);
+        private static bool liberatedError(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Error;
 
         // use these common fields in the "all" default search field
         private static IEnumerable<Func<LibraryBook, string>> allFieldIndexRules { get; }
@@ -300,18 +302,22 @@ namespace LibationSearchEngine
                 });
 
         // update single document entry
-        public void UpdateIsLiberated(string productId)
+        public void UpdateLiberatedStatus(Book book)
             => updateDocument(
-                productId,
+                book.AudibleProductId,
                 d =>
                 {
                     // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
                     // ie: must remove old before adding new else will create unwanted duplicates.
-                    var v = isLiberated(productId);
+                    var v1 = isLiberated(book);
                     d.RemoveField("IsLiberated");
-                    d.AddBool("IsLiberated", v);
+                    d.AddBool("IsLiberated", v1);
                     d.RemoveField("Liberated");
-                    d.AddBool("Liberated", v);
+                    d.AddBool("Liberated", v1);
+
+                    var v2 = liberatedError(book);
+                    d.RemoveField("LiberatedError");
+                    d.AddBool("LiberatedError", v2);
                 });
 
         private static void updateDocument(string productId, Action<Document> action)
