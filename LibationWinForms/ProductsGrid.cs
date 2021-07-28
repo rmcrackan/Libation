@@ -179,7 +179,7 @@ namespace LibationWinForms
             if (FileManager.AudibleFileStorage.Audio.Exists(productId))
             {
                 var filePath = FileManager.AudibleFileStorage.Audio.GetPath(productId);
-                if (Go.To.File(filePath))
+                if (!Go.To.File(filePath))
                     MessageBox.Show($"File not found:\r\n{filePath}");
                 return;
             }
