@@ -57,6 +57,11 @@ namespace FileManager
 			extAggr = extensions_noDots.Aggregate((a, b) => $"{a}|{b}");
         }
 
+        public void Refresh()
+        {
+            BookDirectoryFiles.RefreshFiles();
+        }
+
         /// <summary>
         /// Example for full books:
         /// Search recursively in _books directory. Full book exists if either are true
