@@ -390,6 +390,9 @@ namespace LibationWinForms
         private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
             => await BookLiberation.ProcessorAutomationController.BackupAllPdfsAsync(updateGridRow);
 
+        private async void convertAllM4bToMp3ToolStripMenuItem_Click(object sender, EventArgs e)
+            => await BookLiberation.ProcessorAutomationController.ConvertAllBooksAsync();
+
         private void updateGridRow(object _, LibraryBook libraryBook) => currProductsGrid.RefreshRow(libraryBook.Book.AudibleProductId);
         #endregion
 
@@ -483,6 +486,6 @@ namespace LibationWinForms
         private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog(this).ShowDialog();
 
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
-		#endregion
-	}
+        #endregion
+    }
 }
