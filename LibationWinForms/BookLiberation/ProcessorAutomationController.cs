@@ -176,7 +176,8 @@ namespace LibationWinForms.BookLiberation
             downloadDialog.UpdateFilename(destination);
             downloadDialog.Show();
 
-            new System.Threading.Thread(() => {
+            new System.Threading.Thread(() =>
+            {
                 var downloadFile = new DownloadFile();
 
                 downloadFile.DownloadProgressChanged += (_, progress) => downloadDialog.UIThread(() =>
@@ -190,7 +191,9 @@ namespace LibationWinForms.BookLiberation
                 });
 
                 downloadFile.PerformDownloadFileAsync(url, destination).GetAwaiter().GetResult();
-            }).Start();
+            })
+            { IsBackground = true }
+            .Start();
         }
 
         // subscribed to Begin event because a new form should be created+processed+closed on each iteration

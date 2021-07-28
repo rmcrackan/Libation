@@ -9,13 +9,10 @@ namespace LibationWinForms
 {
 	internal class GridEntry
 	{
-		private LibraryBook libraryBook;
+		private LibraryBook libraryBook { get; }
 		private Book book => libraryBook.Book;
 
 		public Book GetBook() => book;
-
-		// this special case is obvious and ugly
-		public void REPLACE_Library_Book(LibraryBook libraryBook) => this.libraryBook = libraryBook;
 
 		public GridEntry(LibraryBook libraryBook) => this.libraryBook = libraryBook;
 

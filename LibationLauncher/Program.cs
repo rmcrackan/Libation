@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using AudibleApi;
 using AudibleApi.Authorization;
+using DataLayer;
+using Microsoft.EntityFrameworkCore;
 using Dinah.Core.IO;
 using Dinah.Core.Logging;
 using FileManager;
@@ -51,6 +54,7 @@ namespace LibationLauncher
 
 			migrate_to_v5_0_0(config);
 			migrate_to_v5_2_0__post_config(config);
+			migrate_to_v5_4_1(config);
 
 			ensureSerilogConfig(config);
 			configureLogging(config);
@@ -141,7 +145,7 @@ namespace LibationLauncher
 			CancelInstallation();
 		}
 
-		#region migrate_to_v5_0_0 re-register device if device info not in settings
+		#region migrate to v5.0.0 re-register device if device info not in settings
 		private static void migrate_to_v5_0_0(Configuration config)
 		{
 			if (!config.Exists(nameof(config.AllowLibationFixup)))
@@ -226,6 +230,72 @@ namespace LibationLauncher
 
 			if (!config.Exists(nameof(config.DecryptToLossy)))
 				config.DecryptToLossy = false;
+		}
+		#endregion
+
+		#region migrate to v5.4.1 see comment
+		// this 'migration' is a bit different. it intentionally runs each time Libation is started. its job will be fulfilled when I eventually
+		// implement the portion which removes FilePaths.json, at which time this method will be a proper migration
+		//
+		// I'm iterating through safe steps toward getting rid of the live scanner except to track audiobook files as a convenience
+		// such as clicking the stop light to open its location. live scanning will be replaced with state tracking in the database.
+
+		// FilePaths.json => db. long running. fire and forget
+		private static void migrate_to_v5_4_1(Configuration config)
+			=> new System.Threading.Thread(() => migrate_to_v5_4_1_thread(config)) { IsBackground = true }.Start();
+		private static void migrate_to_v5_4_1_thread(Configuration config)
+		{
+			var debugStopwatch = System.Diagnostics.Stopwatch.StartNew();
+			try
+			{
+				var filePaths = Path.Combine(config.LibationFiles, "FilePaths.json");
+				if (!File.Exists(filePaths))
+					return;
+
+				using var context = ApplicationServices.DbContexts.GetContext();
+				context.Books.Load();
+
+				var jArr = JArray.Parse(File.ReadAllText(filePaths));
+
+				foreach (var jToken in jArr)
+				{
+					var asinToken = jToken["Id"];
+					var fileTypeToken = jToken["FileType"];
+					var pathToken = jToken["Path"];
+					if (asinToken is null || fileTypeToken is null || pathToken is null ||
+						asinToken.Type != JTokenType.String || fileTypeToken.Type != JTokenType.Integer || pathToken.Type != JTokenType.String)
+						continue;
+
+					var asin = asinToken.Value<string>();
+					var fileType = (FileType)fileTypeToken.Value<int>();
+					var path = pathToken.Value<string>();
+
+					if (fileType == FileType.Unknown || fileType == FileType.AAXC)
+						continue;
+
+					var book = context.Books.Local.FirstOrDefault(b => b.AudibleProductId == asin);
+					if (book is null)
+						continue;
+
+					// assign these strings and enums/ints unconditionally. EFCore will only update if changed
+					if (fileType == FileType.PDF)
+						book.UserDefinedItem.PdfStatus = LiberatedStatus.Liberated;
+
+					if (fileType == FileType.Audio)
+					{
+						book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
+						book.UserDefinedItem.BookLocation = path;
+					}
+				}
+
+				context.SaveChanges();
+			}
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex, "Error attempting to insert FilePaths into db");
+			}
+			debugStopwatch.Stop();
+			var debugTotal = debugStopwatch.Elapsed;
 		}
 		#endregion
 

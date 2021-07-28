@@ -16,16 +16,16 @@ namespace FileManager
             public string Path { get; set; }
         }
 
-        static Cache<CacheEntry> cache { get; } = new Cache<CacheEntry>();
+		private static Cache<CacheEntry> cache { get; } = new Cache<CacheEntry>();
 
-        public static string JsonFile => Path.Combine(Configuration.Instance.LibationFiles, "FilePaths.json");
+		private static string jsonFile => Path.Combine(Configuration.Instance.LibationFiles, "FilePaths.json");
 
         static FilePathCache()
         {
 			// load json into memory. if file doesn't exist, nothing to do. save() will create if needed
-			if (File.Exists(JsonFile))
+			if (File.Exists(jsonFile))
 			{
-				var list = JsonConvert.DeserializeObject<List<CacheEntry>>(File.ReadAllText(JsonFile));
+				var list = JsonConvert.DeserializeObject<List<CacheEntry>>(File.ReadAllText(jsonFile));
 				cache = new Cache<CacheEntry>(list);
 			}
         }
@@ -74,7 +74,7 @@ namespace FileManager
 		private static void save()
 		{
 			// create json if not exists
-			static void resave() => File.WriteAllText(JsonFile, JsonConvert.SerializeObject(cache.ToList(), Formatting.Indented));
+			static void resave() => File.WriteAllText(jsonFile, JsonConvert.SerializeObject(cache.ToList(), Formatting.Indented));
 
 			lock (locker)
 			{

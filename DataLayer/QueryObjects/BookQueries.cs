@@ -25,6 +25,7 @@ namespace DataLayer
                 .GetBooks()
                 .Where(predicate);
 
+        /// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>
         public static IQueryable<Book> GetBooks(this IQueryable<Book> books)
             => books
                 // owned items are always loaded. eg: book.UserDefinedItem, book.Supplements

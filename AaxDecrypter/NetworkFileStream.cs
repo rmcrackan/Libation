@@ -204,7 +204,7 @@ namespace AaxDecrypter
             _networkStream = response.GetResponseStream();
 
             //Download the file in the background.
-            Thread downloadThread = new Thread(() => DownloadFile());
+            Thread downloadThread = new Thread(() => DownloadFile()) { IsBackground = true };
             downloadThread.Start();
 
             hasBegunDownloading = true;
