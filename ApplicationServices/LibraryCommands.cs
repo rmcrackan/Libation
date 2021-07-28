@@ -6,6 +6,7 @@ using AudibleApi;
 using DataLayer;
 using Dinah.Core;
 using DtoImporterService;
+using FileManager;
 using InternalUtilities;
 using Serilog;
 
@@ -13,6 +14,7 @@ namespace ApplicationServices
 {
 	public static class LibraryCommands
 	{
+		#region FULL LIBRARY scan and import
 		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
 		{
 			if (accounts is null || accounts.Length == 0)
@@ -100,7 +102,9 @@ namespace ApplicationServices
 
 			return newCount;
 		}
+		#endregion
 
+		#region Update book details
 		public static int UpdateTags(Book book, string newTags)
 		{
 			try
@@ -171,6 +175,41 @@ namespace ApplicationServices
 				Log.Logger.Error(ex, "Error updating tags");
 				throw;
 			}
+		}
+		#endregion
+
+		// this is a query, not command so maybe I should make a LibraryQueries. except there's already one of those...
+		private enum AudioFileState { full, aax, none }
+		private static AudioFileState getAudioFileState(string productId)
+			=> AudibleFileStorage.Audio.Exists(productId) ? AudioFileState.full
+			: AudibleFileStorage.AAXC.Exists(productId) ? AudioFileState.aax
+			: AudioFileState.none;
+		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int pdfsDownloaded, int pdfsNotDownloaded) { }
+		public static LibraryStats GetCounts()
+		{
+			var libraryBooks = DbContexts.GetContext().GetLibrary_Flat_NoTracking();
+
+			var results = libraryBooks
+				.AsParallel()
+				.Select(lb => getAudioFileState(lb.Book.AudibleProductId))
+				.ToList();
+			var booksFullyBackedUp = results.Count(r => r == AudioFileState.full);
+			var booksDownloadedOnly = results.Count(r => r == AudioFileState.aax);
+			var booksNoProgress = results.Count(r => r == AudioFileState.none);
+
+			Log.Logger.Information("Book counts. {@DebugInfo}", new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress });
+
+			var boolResults = libraryBooks
+				.AsParallel()
+				.Where(lb => lb.Book.Supplements.Any())
+				.Select(lb => AudibleFileStorage.PDF.Exists(lb.Book.AudibleProductId))
+				.ToList();
+			var pdfsDownloaded = boolResults.Count(r => r);
+			var pdfsNotDownloaded = boolResults.Count(r => !r);
+
+			Log.Logger.Information("PDF counts. {@DebugInfo}", new { total = boolResults.Count, pdfsDownloaded, pdfsNotDownloaded });
+
+			return new(booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, pdfsDownloaded, pdfsNotDownloaded);
 		}
 	}
 }

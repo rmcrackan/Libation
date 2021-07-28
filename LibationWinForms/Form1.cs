@@ -191,45 +191,24 @@ namespace LibationWinForms
         #region bottom: backup counts
         private async void setBackupCountsAsync(object _, object __)
         {
-            await Task.Run(() => {
-                var books = DbContexts.GetContext()
-                    .GetLibrary_Flat_NoTracking()
-                    .Select(sp => sp.Book)
-                    .ToList();
+            LibraryCommands.LibraryStats libraryStats = null;
+            await Task.Run(() => libraryStats = LibraryCommands.GetCounts());
 
-                setBookBackupCounts(books);
-                setPdfBackupCounts(books);
-            });
-		}
-        enum AudioFileState { full, aax, none }
-        private void setBookBackupCounts(IEnumerable<Book> books)
+            setBookBackupCounts(libraryStats.booksFullyBackedUp, libraryStats.booksDownloadedOnly, libraryStats.booksNoProgress);
+            setPdfBackupCounts(libraryStats.pdfsDownloaded, libraryStats.pdfsNotDownloaded);
+        }
+        private void setBookBackupCounts(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress)
         {
-            static AudioFileState getAudioFileState(string productId)
-            {
-                if (AudibleFileStorage.Audio.Exists(productId))
-                    return AudioFileState.full;
-                if (AudibleFileStorage.AAXC.Exists(productId))
-                    return AudioFileState.aax;
-                return AudioFileState.none;
-			}
-
-			var results = books
-				.AsParallel()
-				.Select(b => getAudioFileState(b.AudibleProductId))
-				.ToList();
-			var fullyBackedUp = results.Count(r => r == AudioFileState.full);
-			var downloadedOnly = results.Count(r => r == AudioFileState.aax);
-			var noProgress = results.Count(r => r == AudioFileState.none);
-
             // enable/disable export
-            exportLibraryToolStripMenuItem.Enabled = results.Any();
+            var hasResults = 0 < (booksFullyBackedUp + booksDownloadedOnly + booksNoProgress);
+            exportLibraryToolStripMenuItem.Enabled = hasResults;
 
             // update bottom numbers
-            var pending = noProgress + downloadedOnly;
+            var pending = booksNoProgress + booksDownloadedOnly;
             var statusStripText
-                = !results.Any() ? "No books. Begin by importing your library"
-                : pending > 0 ? string.Format(backupsCountsLbl_Format, noProgress, downloadedOnly, fullyBackedUp)
-                : $"All {"book".PluralizeWithCount(fullyBackedUp)} backed up";
+                = !hasResults ? "No books. Begin by importing your library"
+                : pending > 0 ? string.Format(backupsCountsLbl_Format, booksNoProgress, booksDownloadedOnly, booksFullyBackedUp)
+                : $"All {"book".PluralizeWithCount(booksFullyBackedUp)} backed up";
 
             // update menu item
             var menuItemText
@@ -237,40 +216,29 @@ namespace LibationWinForms
                 ? $"{pending} remaining"
                 : "All books have been liberated";
 
-            Serilog.Log.Logger.Information("Book counts. {@DebugInfo}", new { fullyBackedUp, downloadedOnly, noProgress, pending, statusStripText, menuItemText });
-
             // update UI
             statusStrip1.UIThread(() => backupsCountsLbl.Text = statusStripText);
             menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Enabled = pending > 0);
             menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Text = string.Format(beginBookBackupsToolStripMenuItem_format, menuItemText));
         }
-        private void setPdfBackupCounts(IEnumerable<Book> books)
+        private void setPdfBackupCounts(int pdfsDownloaded, int pdfsNotDownloaded)
         {
-            var boolResults = books
-				.AsParallel()
-				.Where(b => b.Supplements.Any())
-				.Select(b => AudibleFileStorage.PDF.Exists(b.AudibleProductId))
-				.ToList();
-            var downloaded = boolResults.Count(r => r);
-            var notDownloaded = boolResults.Count(r => !r);
-
             // update bottom numbers
+            var hasResults = 0 < (pdfsNotDownloaded + pdfsDownloaded);
             var statusStripText
-                = !boolResults.Any() ? ""
-                : notDownloaded > 0 ? string.Format(pdfsCountsLbl_Format, notDownloaded, downloaded)
-                : $"|  All {downloaded} PDFs downloaded";
+                = !hasResults ? ""
+                : pdfsNotDownloaded > 0 ? string.Format(pdfsCountsLbl_Format, pdfsNotDownloaded, pdfsDownloaded)
+                : $"|  All {pdfsDownloaded} PDFs downloaded";
 
             // update menu item
             var menuItemText
-                = notDownloaded > 0
-                ? $"{notDownloaded} remaining"
+                = pdfsNotDownloaded > 0
+                ? $"{pdfsNotDownloaded} remaining"
                 : "All PDFs have been downloaded";
-
-            Serilog.Log.Logger.Information("PDF counts. {@DebugInfo}", new { downloaded, notDownloaded, statusStripText, menuItemText });
 
             // update UI
             statusStrip1.UIThread(() => pdfsCountsLbl.Text = statusStripText);
-            menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Enabled = notDownloaded > 0);
+            menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Enabled = pdfsNotDownloaded > 0);
             menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Text = string.Format(beginPdfBackupsToolStripMenuItem_format, menuItemText));
         }
         #endregion
