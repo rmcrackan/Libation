@@ -93,17 +93,17 @@ namespace LibationWinForms.BookLiberation
             var logMe = LogMe.RegisterForm(automatedBackupsForm);
 
             void statusUpdate(object _, string str) => logMe.Info("- " + str);
-            void decryptBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Convert Step, Begin: {libraryBook.Book}");
-            void decryptBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Convert Step, Completed: {libraryBook.Book}{Environment.NewLine}");
-            convertBook.Begin += decryptBookBegin;
+            void convertBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Convert Step, Begin: {libraryBook.Book}");
+            void convertBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Convert Step, Completed: {libraryBook.Book}{Environment.NewLine}");
+            convertBook.Begin += convertBookBegin;
             convertBook.StatusUpdate += statusUpdate;
-            convertBook.Completed += decryptBookCompleted;
+            convertBook.Completed += convertBookCompleted;
 
             await new BackupLoop(logMe, convertBook, automatedBackupsForm).RunBackupAsync();
 
-            convertBook.Begin -= decryptBookBegin;
+            convertBook.Begin -= convertBookBegin;
             convertBook.StatusUpdate -= statusUpdate;
-            convertBook.Completed -= decryptBookCompleted;
+            convertBook.Completed -= convertBookCompleted;
             convertBook.Completed -= updateLiberatedStatus;
         }
 
