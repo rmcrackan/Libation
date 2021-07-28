@@ -25,10 +25,7 @@ namespace FileLiberator
         public static LibraryBook GetSingleLibraryBook(string productId)
         {
             using var context = DbContexts.GetContext();
-            var libraryBook = context
-                .Library
-                .GetLibrary()
-                .SingleOrDefault(lb => lb.Book.AudibleProductId == productId);
+            var libraryBook = context.GetLibraryBook_Flat_NoTracking(productId);
             return libraryBook;
         }
 

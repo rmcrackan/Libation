@@ -22,11 +22,6 @@ namespace FileLiberator
 			return verifyDownload(libraryBook);
 		}
 
-		private static StatusHandler verifyDownload(LibraryBook libraryBook)
-			=> !AudibleFileStorage.PDF.Exists(libraryBook.Book.AudibleProductId)
-			? new StatusHandler { "Downloaded PDF cannot be found" }
-			: new StatusHandler();
-
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
 		{
 			// if audio file exists, get it's dir. else return base Book dir
@@ -44,6 +39,9 @@ namespace FileLiberator
 			return full;
 		}
 
+		private static string getdownloadUrl(LibraryBook libraryBook)
+			=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
+
 		private async Task downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
 		{
 			var api = await GetApiAsync(libraryBook);
@@ -55,7 +53,9 @@ namespace FileLiberator
 				(p) => client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, p));
 		}
 
-		private static string getdownloadUrl(LibraryBook libraryBook)
-			=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
+		private static StatusHandler verifyDownload(LibraryBook libraryBook)
+			=> !AudibleFileStorage.PDF.Exists(libraryBook.Book.AudibleProductId)
+			? new StatusHandler { "Downloaded PDF cannot be found" }
+			: new StatusHandler();
 	}
 }

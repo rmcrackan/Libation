@@ -31,6 +31,9 @@ namespace FileManager
 		{
 			ensureCache();
 
+			if (!tagsCollection.Any())
+				return;
+
 			// on initial reload, there's a huge benefit to adding to cache individually then updating the file only once
 			foreach ((string productId, string tags) in tagsCollection)
 				cache[productId] = tags;

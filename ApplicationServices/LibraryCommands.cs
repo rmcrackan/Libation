@@ -104,8 +104,11 @@ namespace ApplicationServices
 		{
 			try
 			{
-				book.UserDefinedItem.Tags = newTags;
+				var udi = book.UserDefinedItem;
 
+				// Attach() NoTracking entities before SaveChanges()
+				udi.Tags = newTags;
+				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
 
 				if (qtyChanges > 0)
