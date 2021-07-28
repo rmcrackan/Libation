@@ -4,19 +4,14 @@ using Dinah.Core.ErrorHandling;
 using Dinah.Core.IO;
 using FileManager;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FileLiberator
 {
     public class ConvertToMp3 : IDecryptable
     {
-
-        private Mp4File m4bBook;
-
         public event EventHandler<string> DecryptBegin;
         public event EventHandler<string> TitleDiscovered;
         public event EventHandler<string> AuthorsDiscovered;
@@ -28,13 +23,17 @@ namespace FileLiberator
         public event EventHandler<LibraryBook> Begin;
         public event EventHandler<LibraryBook> Completed;
 
-
         public event EventHandler<string> StatusUpdate;
         public event EventHandler<Action<byte[]>> RequestCoverArt;
+
+        private Mp4File m4bBook;
 
         private string Mp3FileName(LibraryBook libraryBook)
         {
             string m4bPath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
+
+            if (m4bPath is null) 
+                return string.Empty;
 
             return Path.Combine(Path.GetDirectoryName(m4bPath), Path.GetFileNameWithoutExtension(m4bPath) + ".mp3");
         }
@@ -64,7 +63,6 @@ namespace FileLiberator
                 AuthorsDiscovered?.Invoke(this, m4bBook.AppleTags.FirstAuthor);
                 NarratorsDiscovered?.Invoke(this, m4bBook.AppleTags.Narrator);
                 CoverImageFilepathDiscovered?.Invoke(this, m4bBook.AppleTags.Cover);
-
 
                 var mp3File = File.OpenWrite(Path.GetTempFileName());
 

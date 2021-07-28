@@ -104,6 +104,7 @@ namespace LibationWinForms.BookLiberation
             convertBook.Begin -= decryptBookBegin;
             convertBook.StatusUpdate -= statusUpdate;
             convertBook.Completed -= decryptBookCompleted;
+            convertBook.Completed -= updateLiberatedStatus;
         }
 
         private static BackupBook getWiredUpBackupBook(EventHandler<LibraryBook> completedAction)
