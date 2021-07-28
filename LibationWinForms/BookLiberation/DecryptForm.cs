@@ -13,9 +13,9 @@ namespace LibationWinForms.BookLiberation
         private string authorNames;
         private string narratorNames;
 
-        public void SetTitle(string title)
+        public void SetTitle(string actionName, string title)
         {
-            this.UIThread(() => this.Text = "Decrypting " + title);
+            this.UIThread(() => this.Text = actionName + " " + title);
             this.title = title;
             updateBookInfo();
         }

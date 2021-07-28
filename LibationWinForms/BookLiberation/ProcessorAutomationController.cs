@@ -80,6 +80,33 @@ namespace LibationWinForms.BookLiberation
             unsubscribeEvents();
         }
 
+        public static async Task ConvertAllBooksAsync()
+        {
+            Serilog.Log.Logger.Information("Begin " + nameof(ConvertAllBooksAsync));
+
+            var convertBook = new ConvertToMp3();
+            convertBook.Begin += (_, l) => wireUpEvents(convertBook, l, "Converting");
+            convertBook.Completed += updateLiberatedStatus;
+
+            var automatedBackupsForm = new AutomatedBackupsForm();
+
+            var logMe = LogMe.RegisterForm(automatedBackupsForm);
+
+            void statusUpdate(object _, string str) => logMe.Info("- " + str);
+            void convertBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Convert Step, Begin: {libraryBook.Book}");
+            void convertBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Convert Step, Completed: {libraryBook.Book}{Environment.NewLine}");
+            convertBook.Begin += convertBookBegin;
+            convertBook.StatusUpdate += statusUpdate;
+            convertBook.Completed += convertBookCompleted;
+
+            await new BackupLoop(logMe, convertBook, automatedBackupsForm).RunBackupAsync();
+
+            convertBook.Begin -= convertBookBegin;
+            convertBook.StatusUpdate -= statusUpdate;
+            convertBook.Completed -= convertBookCompleted;
+            convertBook.Completed -= updateLiberatedStatus;
+        }
+
         private static BackupBook getWiredUpBackupBook(EventHandler<LibraryBook> completedAction)
         {
             var backupBook = new BackupBook();
@@ -261,14 +288,14 @@ namespace LibationWinForms.BookLiberation
         }
 
         // subscribed to Begin event because a new form should be created+processed+closed on each iteration
-        private static void wireUpEvents(IDecryptable decryptBook, LibraryBook libraryBook)
+        private static void wireUpEvents(IDecryptable decryptBook, LibraryBook libraryBook, string actionName = "Decrypting")
         {
             #region create form
             var decryptDialog = new DecryptForm();
             #endregion
 
             #region Set initially displayed book properties from library info.
-            decryptDialog.SetTitle(libraryBook.Book.Title);
+            decryptDialog.SetTitle(actionName, libraryBook.Book.Title);
             decryptDialog.SetAuthorNames(string.Join(", ", libraryBook.Book.Authors));
             decryptDialog.SetNarratorNames(string.Join(", ", libraryBook.Book.NarratorNames));
             decryptDialog.SetCoverImage(
@@ -281,7 +308,7 @@ namespace LibationWinForms.BookLiberation
             #region define how model actions will affect form behavior
             void decryptBegin(object _, string __) => decryptDialog.Show();
 
-            void titleDiscovered(object _, string title) => decryptDialog.SetTitle(title);
+            void titleDiscovered(object _, string title) => decryptDialog.SetTitle(actionName, title);
             void authorsDiscovered(object _, string authors) => decryptDialog.SetAuthorNames(authors);
             void narratorsDiscovered(object _, string narrators) => decryptDialog.SetNarratorNames(narrators);
             void coverImageFilepathDiscovered(object _, byte[] coverBytes) => decryptDialog.SetCoverImage(Dinah.Core.Drawing.ImageReader.ToImage(coverBytes));
