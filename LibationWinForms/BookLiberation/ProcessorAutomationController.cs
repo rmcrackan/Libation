@@ -86,7 +86,6 @@ namespace LibationWinForms.BookLiberation
 
             var convertBook = new ConvertToMp3();
             convertBook.Begin += (_, l) => wireUpEvents(convertBook, l, "Converting");
-            convertBook.Completed += updateLiberatedStatus;
 
             var automatedBackupsForm = new AutomatedBackupsForm();
 
@@ -104,35 +103,23 @@ namespace LibationWinForms.BookLiberation
             convertBook.Begin -= convertBookBegin;
             convertBook.StatusUpdate -= statusUpdate;
             convertBook.Completed -= convertBookCompleted;
-            convertBook.Completed -= updateLiberatedStatus;
         }
 
         private static BackupBook getWiredUpBackupBook(EventHandler<LibraryBook> completedAction)
         {
             var backupBook = new BackupBook();
 
-            backupBook.DecryptBook.Begin += (_, l) => wireUpEvents(backupBook.DecryptBook, l);
+            backupBook.DownloadDecryptBook.Begin += (_, l) => wireUpEvents(backupBook.DownloadDecryptBook, l);
             backupBook.DownloadPdf.Begin += (_, __) => wireUpEvents(backupBook.DownloadPdf);
-
-            // must occur before completedAction. A common use case is:
-            // - filter by -liberated
-            // - liberate only that book
-            //   completedAction is to refresh grid
-            // - want to see that book disappear from grid
-            // also for this to work, updateIsLiberated can NOT be async
-            backupBook.DecryptBook.Completed += updateLiberatedStatus;
-            backupBook.DownloadPdf.Completed += updateLiberatedStatus;
 
             if (completedAction != null)
             {
-                backupBook.DecryptBook.Completed += completedAction;
+                backupBook.DownloadDecryptBook.Completed += completedAction;
                 backupBook.DownloadPdf.Completed += completedAction;
             }
 
             return backupBook;
         }
-
-        private static void updateLiberatedStatus(object sender, LibraryBook e) => ApplicationServices.SearchEngineCommands.UpdateLiberatedStatus(e.Book);
 
         private static (Action unsubscribeEvents, LogMe) attachToBackupsForm(BackupBook backupBook, AutomatedBackupsForm automatedBackupsForm = null)
         {
@@ -151,9 +138,9 @@ namespace LibationWinForms.BookLiberation
             #endregion
 
             #region subscribe new form to model's events
-            backupBook.DecryptBook.Begin += decryptBookBegin;
-            backupBook.DecryptBook.StatusUpdate += statusUpdate;
-            backupBook.DecryptBook.Completed += decryptBookCompleted;
+            backupBook.DownloadDecryptBook.Begin += decryptBookBegin;
+            backupBook.DownloadDecryptBook.StatusUpdate += statusUpdate;
+            backupBook.DownloadDecryptBook.Completed += decryptBookCompleted;
             backupBook.DownloadPdf.Begin += downloadPdfBegin;
             backupBook.DownloadPdf.StatusUpdate += statusUpdate;
             backupBook.DownloadPdf.Completed += downloadPdfCompleted;
@@ -163,9 +150,9 @@ namespace LibationWinForms.BookLiberation
             // unsubscribe so disposed forms aren't still trying to receive notifications
             Action unsubscribe = () =>
             {
-                backupBook.DecryptBook.Begin -= decryptBookBegin;
-                backupBook.DecryptBook.StatusUpdate -= statusUpdate;
-                backupBook.DecryptBook.Completed -= decryptBookCompleted;
+                backupBook.DownloadDecryptBook.Begin -= decryptBookBegin;
+                backupBook.DownloadDecryptBook.StatusUpdate -= statusUpdate;
+                backupBook.DownloadDecryptBook.Completed -= decryptBookCompleted;
                 backupBook.DownloadPdf.Begin -= downloadPdfBegin;
                 backupBook.DownloadPdf.StatusUpdate -= statusUpdate;
                 backupBook.DownloadPdf.Completed -= downloadPdfCompleted;
@@ -497,6 +484,7 @@ $@"  Title: {libraryBook.Book.Title}
 
             if (dialogResult == CreateSkipFileResult)
             {
+                ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Error, null);
                 var path = FileManager.AudibleFileStorage.Audio.CreateSkipFile(libraryBook.Book.Title, libraryBook.Book.AudibleProductId, logMessage);
                 LogMe.Info($@"
 Created new 'skip' file

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -19,7 +21,12 @@ namespace FileLiberator
 		{
 			var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
 			await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
-			return verifyDownload(libraryBook);
+			var result = verifyDownload(libraryBook);
+
+			var liberatedStatus = result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated;
+			ApplicationServices.LibraryCommands.UpdatePdf(libraryBook, liberatedStatus);
+
+			return result;
 		}
 
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)

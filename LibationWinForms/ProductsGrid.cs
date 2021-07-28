@@ -36,8 +36,6 @@ namespace LibationWinForms
         // alias
         private DataGridView dataGridView => gridEntryDataGridView;
 
-		private LibationContext context;
-
 		public ProductsGrid()
 		{
 			InitializeComponent();
@@ -45,7 +43,6 @@ namespace LibationWinForms
             addLiberateButtons();
             addEditTagsButtons();
             formatColumns();
-			Disposed += (_, __) => context?.Dispose();
 
 			manageLiveImageUpdateSubscriptions();
 		}
@@ -250,7 +247,7 @@ namespace LibationWinForms
             if (editTagsForm.ShowDialog() != DialogResult.OK)
                 return;
 
-			var qtyChanges = context.UpdateTags(liveGridEntry.GetBook(), editTagsForm.NewTags);
+			var qtyChanges = LibraryCommands.UpdateTags(liveGridEntry.GetBook(), editTagsForm.NewTags);
 			if (qtyChanges == 0)
                 return;
 
@@ -337,7 +334,7 @@ namespace LibationWinForms
             //
             // transform into sorted GridEntry.s BEFORE binding
             //
-            context = DbContexts.GetContext();
+            using var context = DbContexts.GetContext();
             var lib = context.GetLibrary_Flat_NoTracking();
 
             // if no data. hide all columns. return

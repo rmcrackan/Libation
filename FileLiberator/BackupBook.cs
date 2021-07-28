@@ -20,7 +20,7 @@ namespace FileLiberator
         public event EventHandler<string> StatusUpdate;
         public event EventHandler<LibraryBook> Completed;
 
-        public DownloadDecryptBook DecryptBook { get; } = new DownloadDecryptBook();
+        public DownloadDecryptBook DownloadDecryptBook { get; } = new DownloadDecryptBook();
 		public DownloadPdf DownloadPdf { get; } = new DownloadPdf();
 
 		public bool Validate(LibraryBook libraryBook)
@@ -35,7 +35,7 @@ namespace FileLiberator
             try
 			{
 				{
-					var statusHandler = await DecryptBook.TryProcessAsync(libraryBook);
+					var statusHandler = await DownloadDecryptBook.TryProcessAsync(libraryBook);
 					if (statusHandler.HasErrors)
 						return statusHandler;
 				}

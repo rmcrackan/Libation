@@ -1,15 +1,14 @@
-﻿using DataLayer;
-using Dinah.Core;
-using Dinah.Core.ErrorHandling;
-using FileManager;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AaxDecrypter;
 using AudibleApi;
+using DataLayer;
+using Dinah.Core;
+using Dinah.Core.ErrorHandling;
+using FileManager;
 
 namespace FileLiberator
 {
@@ -50,6 +49,11 @@ namespace FileLiberator
                 var finalAudioExists = AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
                 if (!finalAudioExists)
                     return new StatusHandler { "Cannot find final audio file after decryption" };
+
+                // GetPath() is very cheap when file exists
+                var finalAudioPath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
+                // only need to update if success. if failure, it will remain at 0 == NotLiberated
+                ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Liberated, finalAudioPath);
 
                 return new StatusHandler();
             }

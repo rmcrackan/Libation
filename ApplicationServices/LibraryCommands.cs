@@ -41,7 +41,8 @@ namespace ApplicationServices
 				//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
 				//   https://github.com/RehanSaeed/Serilog.Exceptions
 				// work-around: use 3rd param. don't just put exception object in 3rd param -- info overload: stack trace, etc
-				Log.Logger.Error(lfEx, "Error importing library. Login failed. {@DebugInfo}", new {
+				Log.Logger.Error(lfEx, "Error importing library. Login failed. {@DebugInfo}", new
+				{
 					lfEx.RequestUrl,
 					ResponseStatusCodeNumber = (int)lfEx.ResponseStatusCode,
 					ResponseStatusCodeDesc = lfEx.ResponseStatusCode,
@@ -100,10 +101,12 @@ namespace ApplicationServices
 			return newCount;
 		}
 
-		public static int UpdateTags(this LibationContext context, Book book, string newTags)
+		public static int UpdateTags(Book book, string newTags)
 		{
 			try
 			{
+				using var context = DbContexts.GetContext();
+
 				var udi = book.UserDefinedItem;
 
 				// Attach() NoTracking entities before SaveChanges()
@@ -113,6 +116,53 @@ namespace ApplicationServices
 
 				if (qtyChanges > 0)
 					SearchEngineCommands.UpdateBookTags(book);
+
+				return qtyChanges;
+			}
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex, "Error updating tags");
+				throw;
+			}
+		}
+
+		public static int UpdateBook(LibraryBook libraryBook, LiberatedStatus liberatedStatus, string finalAudioPath)
+		{
+			try
+			{
+				using var context = DbContexts.GetContext();
+
+				var udi = libraryBook.Book.UserDefinedItem;
+
+				// Attach() NoTracking entities before SaveChanges()
+				udi.BookStatus = liberatedStatus;
+				udi.BookLocation = finalAudioPath;
+				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				var qtyChanges = context.SaveChanges();
+				if (qtyChanges > 0)
+					SearchEngineCommands.UpdateLiberatedStatus(libraryBook.Book);
+
+				return qtyChanges;
+			}
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex, "Error updating tags");
+				throw;
+			}
+		}
+
+		public static int UpdatePdf(LibraryBook libraryBook, LiberatedStatus liberatedStatus)
+		{
+			try
+			{
+				using var context = DbContexts.GetContext();
+
+				var udi = libraryBook.Book.UserDefinedItem;
+
+				// Attach() NoTracking entities before SaveChanges()
+				udi.PdfStatus = liberatedStatus;
+				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				var qtyChanges = context.SaveChanges();
 
 				return qtyChanges;
 			}

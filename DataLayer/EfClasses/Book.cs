@@ -220,8 +220,11 @@ namespace DataLayer
 
             ArgumentValidator.EnsureNotNullOrWhiteSpace(url, nameof(url));
 
-            if (!_supplements.Any(s => url.EqualsInsensitive(url)))
-                _supplements.Add(new Supplement(this, url));
+            if (_supplements.Any(s => url.EqualsInsensitive(url)))
+                return;
+
+            _supplements.Add(new Supplement(this, url));
+            UserDefinedItem.PdfStatus ??= LiberatedStatus.NotLiberated;
         }
         #endregion
 
