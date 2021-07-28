@@ -54,7 +54,7 @@ namespace LibationLauncher
 
 			migrate_to_v5_0_0(config);
 			migrate_to_v5_2_0__post_config(config);
-			migrate_to_v5_4_1(config);
+			//migrate_to_v5_4_1(config);// comment out until after vacation
 
 			ensureSerilogConfig(config);
 			configureLogging(config);
