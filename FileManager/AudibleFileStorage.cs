@@ -8,19 +8,11 @@ using Dinah.Core.Collections.Generic;
 
 namespace FileManager
 {
-    // could add images here, but for now images are stored in a well-known location
     public enum FileType { Unknown, Audio, AAXC, PDF }
 
-	/// <summary>
-	/// Files are large. File contents are never read by app.
-	/// Paths are varied.
-	/// Files are written during download/decrypt/backup/liberate.
-	/// Paths are read at app launch and during download/decrypt/backup/liberate.
-	/// Many files are often looked up at once
-	/// </summary>
 	public abstract class AudibleFileStorage : Enumeration<AudibleFileStorage>
 	{
-		public abstract string[] Extensions { get; }
+		protected abstract string[] Extensions { get; }
 		public abstract string StorageDirectory { get; }
 
 		#region static
@@ -124,7 +116,7 @@ namespace FileManager
     {
         public const string SKIP_FILE_EXT = "libhack";
 
-		public override string[] Extensions { get; } = new[] { "m4b", "mp3", "aac", "mp4", "m4a", "ogg", "flac", SKIP_FILE_EXT };
+        protected override string[] Extensions { get; } = new[] { "m4b", "mp3", "aac", "mp4", "m4a", "ogg", "flac", SKIP_FILE_EXT };
 
         // we always want to use the latest config value, therefore
         // - DO use 'get' arrow "=>"
@@ -147,7 +139,7 @@ namespace FileManager
 
     public class AaxcFileStorage : AudibleFileStorage
     {
-        public override string[] Extensions { get; } = new[] { "aaxc" };
+        protected override string[] Extensions { get; } = new[] { "aaxc" };
 
         // we always want to use the latest config value, therefore
         // - DO use 'get' arrow "=>"
@@ -159,7 +151,7 @@ namespace FileManager
 
     public class PdfFileStorage : AudibleFileStorage
     {
-		public override string[] Extensions { get; } = new[] { "pdf", "zip" };
+        protected override string[] Extensions { get; } = new[] { "pdf", "zip" };
 
         // we always want to use the latest config value, therefore
         // - DO use 'get' arrow "=>"
