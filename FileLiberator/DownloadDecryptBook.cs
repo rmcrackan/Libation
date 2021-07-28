@@ -170,6 +170,8 @@ namespace FileLiberator
                 File.Move(f.FullName, dest);
             }
 
+            AudibleFileStorage.Audio.Refresh();
+
             return destinationDir;
         }
 

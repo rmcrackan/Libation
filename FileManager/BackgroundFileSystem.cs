@@ -28,6 +28,17 @@ namespace FileManager
             }
         }
 
+        public void RefreshFiles()
+        {
+            if (fsCache is null) return;
+
+            lock (fsCache)
+            {
+                fsCache.Clear();
+                fsCache.AddRange(Directory.EnumerateFiles(RootDirectory, SearchPattern, SearchOption));
+            }
+        }
+
         public void Init(string rootDirectory, string searchPattern, SearchOption searchOptions)
         {
             RootDirectory = rootDirectory;
@@ -55,6 +66,19 @@ namespace FileManager
             backgroundScanner?.Wait();
             backgroundScanner = new Task(BackgroundScanner);
             backgroundScanner.Start();
+        }
+
+        private void AddUniqueFiles(IEnumerable<string> newFiles)
+        {
+            foreach (var file in newFiles)
+            {
+                AddUniqueFile(file);
+            }
+        }
+        private void AddUniqueFile(string newFile)
+        {
+            if (!fsCache.Contains(newFile))
+                fsCache.Add(newFile);
         }
 
         private void FileSystemWatcher_Error(object sender, ErrorEventArgs e)
@@ -107,11 +131,10 @@ namespace FileManager
         private void AddPath(string path)
         {
             if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
-                fsCache.AddRange(Directory.EnumerateFiles(path, SearchPattern, SearchOption));
+                AddUniqueFiles(Directory.EnumerateFiles(path, SearchPattern, SearchOption));
             else
-                fsCache.Add(path);
+                AddUniqueFile(path);
         }
-
         #endregion
     }
 }
