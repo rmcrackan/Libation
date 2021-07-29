@@ -39,15 +39,26 @@ namespace LibationWinForms
 		public ProductsGrid()
 		{
 			InitializeComponent();
-            formatDataGridView();
-            addLiberateButtons();
-            addEditTagsButtons();
-            formatColumns();
+			formatDataGridView();
+			addLiberateButtons();
+			addEditTagsButtons();
+			formatColumns();
 
 			manageLiveImageUpdateSubscriptions();
+
+			enableDoubleBuffering();
 		}
 
-        private void formatDataGridView()
+		private void enableDoubleBuffering()
+		{
+			var propertyInfo = dataGridView.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+			//var before = (bool)propertyInfo.GetValue(dataGridView);
+            propertyInfo.SetValue(dataGridView, true, null);
+			//var after = (bool)propertyInfo.GetValue(dataGridView);
+		}
+
+		private void formatDataGridView()
         {
             dataGridView.Dock = DockStyle.Fill;
             dataGridView.AllowUserToAddRows = false;
