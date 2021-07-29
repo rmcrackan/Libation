@@ -23,13 +23,6 @@ namespace FileLiberator
             .GetLibrary_Flat_NoTracking()
             .Where(libraryBook => processable.Validate(libraryBook));
 
-        public static LibraryBook GetSingleLibraryBook(string productId)
-        {
-            using var context = DbContexts.GetContext();
-            var libraryBook = context.GetLibraryBook_Flat_NoTracking(productId);
-            return libraryBook;
-        }
-
         public static async Task<StatusHandler> ProcessSingleAsync(this IProcessable processable, LibraryBook libraryBook)
         {
             if (!processable.Validate(libraryBook))

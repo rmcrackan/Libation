@@ -51,15 +51,14 @@ namespace LibationWinForms.BookLiberation
 
     public static class ProcessorAutomationController
     {
-        public static async Task BackupSingleBookAsync(string productId, EventHandler<LibraryBook> completedAction = null)
+        public static async Task BackupSingleBookAsync(LibraryBook libraryBook, EventHandler<LibraryBook> completedAction = null)
         {
-            Serilog.Log.Logger.Information("Begin " + nameof(BackupSingleBookAsync) + " {@DebugInfo}", new { productId });
+            Serilog.Log.Logger.Information("Begin backup single {@DebugInfo}", new { libraryBook?.Book?.AudibleProductId });
 
             var backupBook = getWiredUpBackupBook(completedAction);
            
             (Action unsubscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook);
 
-            var libraryBook = IProcessableExt.GetSingleLibraryBook(productId);
             // continue even if libraryBook is null. we'll display even that in the processing box
             await new BackupSingle(logMe, backupBook, libraryBook).RunBackupAsync();
 

@@ -179,9 +179,9 @@ namespace ApplicationServices
 
 		// this is a query, not command so maybe I should make a LibraryQueries. except there's already one of those...
 		private enum AudioFileState { full, aax, none }
-		private static AudioFileState getAudioFileState(string productId)
-			=> TransitionalFileLocator.Audio_Exists(productId) ? AudioFileState.full
-			: TransitionalFileLocator.AAXC_Exists(productId) ? AudioFileState.aax
+		private static AudioFileState getAudioFileState(Book book)
+			=> TransitionalFileLocator.Audio_Exists(book) ? AudioFileState.full
+			: TransitionalFileLocator.AAXC_Exists(book) ? AudioFileState.aax
 			: AudioFileState.none;
 		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int pdfsDownloaded, int pdfsNotDownloaded) { }
 		public static LibraryStats GetCounts()
@@ -190,7 +190,7 @@ namespace ApplicationServices
 
 			var results = libraryBooks
 				.AsParallel()
-				.Select(lb => getAudioFileState(lb.Book.AudibleProductId))
+				.Select(lb => getAudioFileState(lb.Book))
 				.ToList();
 			var booksFullyBackedUp = results.Count(r => r == AudioFileState.full);
 			var booksDownloadedOnly = results.Count(r => r == AudioFileState.aax);
@@ -201,7 +201,7 @@ namespace ApplicationServices
 			var boolResults = libraryBooks
 				.AsParallel()
 				.Where(lb => lb.Book.Supplements.Any())
-				.Select(lb => TransitionalFileLocator.PDF_Exists(lb.Book.AudibleProductId))
+				.Select(lb => TransitionalFileLocator.PDF_Exists(lb.Book))
 				.ToList();
 			var pdfsDownloaded = boolResults.Count(r => r);
 			var pdfsNotDownloaded = boolResults.Count(r => !r);

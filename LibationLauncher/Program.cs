@@ -378,6 +378,11 @@ namespace LibationLauncher
 			Log.Logger.Information("Begin Libation. {@DebugInfo}", new
 			{
 				Version = BuildVersion.ToString(),
+#if DEBUG
+				Mode = "Debug",
+#else
+				Mode = "Release",
+#endif
 
 				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
 				LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),

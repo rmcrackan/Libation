@@ -9,41 +9,38 @@ namespace ApplicationServices
 {
 	public static class TransitionalFileLocator
 	{
-		public static string Audio_GetPath(string productId)
+		public static string Audio_GetPath(Book book)
 		{
-			var book = DbContexts.GetContext().GetBook_Flat_NoTracking(productId);
 			var loc = book?.UserDefinedItem?.BookLocation ?? "";
 			if (File.Exists(loc))
 				return loc;
 
-			return AudibleFileStorage.Audio.GetPath(productId);
+			return AudibleFileStorage.Audio.GetPath(book.AudibleProductId);
 		}
 
-		public static bool PDF_Exists(string productId)
+		public static bool PDF_Exists(Book book)
 		{
-			var book = DbContexts.GetContext().GetBook_Flat_NoTracking(productId);
 			var status = book?.UserDefinedItem?.PdfStatus;
 			if (status.HasValue && status.Value == LiberatedStatus.Liberated)
 				return true;
 
-			return AudibleFileStorage.PDF.Exists(productId);
+			return AudibleFileStorage.PDF.Exists(book.AudibleProductId);
 		}
 
-		public static bool Audio_Exists(string productId)
+		public static bool Audio_Exists(Book book)
 		{
-			var book = DbContexts.GetContext().GetBook_Flat_NoTracking(productId);
 			var status = book?.UserDefinedItem?.BookStatus;
 			// true since Error == libhack
-			if (status != LiberatedStatus.NotLiberated)
+			if (status.HasValue && status.Value != LiberatedStatus.NotLiberated)
 				return true;
 
-			return AudibleFileStorage.Audio.Exists(productId);
+			return AudibleFileStorage.Audio.Exists(book.AudibleProductId);
 		}
 
-		public static bool AAXC_Exists(string productId)
+		public static bool AAXC_Exists(Book book)
 		{
 			// this one will actually stay the same. centralizing helps with organization in the interim though
-			return AudibleFileStorage.AAXC.Exists(productId);
+			return AudibleFileStorage.AAXC.Exists(book.AudibleProductId);
 		}
 	}
 }

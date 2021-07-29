@@ -169,19 +169,19 @@ namespace LibationWinForms
         {
             if (!isColumnValid(e, LIBERATE))
                 return;
-            
-            var productId = getGridEntry(e.RowIndex).GetBook().AudibleProductId;
+
+            var libraryBook = getGridEntry(e.RowIndex).GetLibraryBook();
 
             // liberated: open explorer to file
-            if (TransitionalFileLocator.Audio_Exists(productId))
+            if (TransitionalFileLocator.Audio_Exists(libraryBook.Book))
             {
-                var filePath = TransitionalFileLocator.Audio_GetPath(productId);
+                var filePath = TransitionalFileLocator.Audio_GetPath(libraryBook.Book);
                 if (!Go.To.File(filePath))
                     MessageBox.Show($"File not found:\r\n{filePath}");
                 return;
             }
 
-            await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(productId, (_, __) => RefreshRow(productId));
+            await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook, (_, __) => RefreshRow(libraryBook.Book.AudibleProductId));
         }
         #endregion
 

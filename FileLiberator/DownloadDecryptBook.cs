@@ -34,7 +34,7 @@ namespace FileLiberator
 
             try
             {
-                if (ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book.AudibleProductId))
+                if (ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
                 var outputAudioFilename = await aaxToM4bConverterDecryptAsync(AudibleFileStorage.DownloadsInProgress, AudibleFileStorage.DecryptInProgress, libraryBook);
@@ -46,7 +46,7 @@ namespace FileLiberator
                 // moves files and returns dest dir
                 _ = moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
 
-                var finalAudioExists = ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book.AudibleProductId);
+                var finalAudioExists = ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book);
                 if (!finalAudioExists)
                     return new StatusHandler { "Cannot find final audio file after decryption" };
 
@@ -219,7 +219,7 @@ namespace FileLiberator
 		}
 
         public bool Validate(LibraryBook libraryBook)
-            => !ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book.AudibleProductId);
+            => !ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book);
 
         public void Cancel()
         {

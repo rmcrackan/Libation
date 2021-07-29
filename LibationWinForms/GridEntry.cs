@@ -13,6 +13,7 @@ namespace LibationWinForms
 		private Book book => libraryBook.Book;
 
 		public Book GetBook() => book;
+		public LibraryBook GetLibraryBook() => libraryBook;
 
 		public GridEntry(LibraryBook libraryBook) => this.libraryBook = libraryBook;
 
@@ -26,15 +27,15 @@ namespace LibationWinForms
 		public enum LiberatedState { NotDownloaded, PartialDownload, Liberated }
 		[Browsable(false)]
 		public LiberatedState Liberated_Status
-			=> ApplicationServices.TransitionalFileLocator.Audio_Exists(book.AudibleProductId) ? LiberatedState.Liberated
-			: ApplicationServices.TransitionalFileLocator.AAXC_Exists(book.AudibleProductId) ? LiberatedState.PartialDownload
+			=> ApplicationServices.TransitionalFileLocator.Audio_Exists(book) ? LiberatedState.Liberated
+			: ApplicationServices.TransitionalFileLocator.AAXC_Exists(book) ? LiberatedState.PartialDownload
 			: LiberatedState.NotDownloaded;
 
 		public enum PdfState { NoPdf, Downloaded, NotDownloaded }
 		[Browsable(false)]
 		public PdfState Pdf_Status
 			=> !book.Supplements.Any() ? PdfState.NoPdf
-			: ApplicationServices.TransitionalFileLocator.PDF_Exists(book.AudibleProductId) ? PdfState.Downloaded
+			: ApplicationServices.TransitionalFileLocator.PDF_Exists(book) ? PdfState.Downloaded
 			: PdfState.NotDownloaded;
 
 		// displayValues is what gets displayed
