@@ -88,6 +88,15 @@ namespace ApplicationServices
 
 		[Name("My Libation Tags")]
 		public string MyLibationTags { get; set; }
+
+		[Name("Book Liberation Status")]
+		public string BookStatus { get; set; }
+
+		[Name("Book File Location")]
+		public string BookLocation { get; set; }
+
+		[Name("PDF Liberation Status")]
+		public string PdfStatus { get; set; }
 	}
 	public static class LibToDtos
 	{
@@ -116,7 +125,10 @@ namespace ApplicationServices
 				MyRatingOverall = a.Book.UserDefinedItem.Rating.OverallRating,
 				MyRatingPerformance = a.Book.UserDefinedItem.Rating.PerformanceRating,
 				MyRatingStory = a.Book.UserDefinedItem.Rating.StoryRating,
-				MyLibationTags = a.Book.UserDefinedItem.Tags
+				MyLibationTags = a.Book.UserDefinedItem.Tags,
+				BookStatus = a.Book.UserDefinedItem.BookStatus.ToString(),
+				BookLocation = a.Book.UserDefinedItem.BookLocation,
+				PdfStatus = a.Book.UserDefinedItem.PdfStatus.ToString()
 			}).ToList();
 	}
 	public static class LibraryExporter
@@ -187,7 +199,10 @@ namespace ApplicationServices
 				nameof (ExportDto.MyRatingOverall),
 				nameof (ExportDto.MyRatingPerformance),
 				nameof (ExportDto.MyRatingStory),
-				nameof (ExportDto.MyLibationTags)
+				nameof (ExportDto.MyLibationTags),
+				nameof (ExportDto.BookStatus),
+				nameof (ExportDto.BookLocation),
+				nameof (ExportDto.PdfStatus)
 			};
 			var col = 0;
 			foreach (var c in columns)
@@ -249,6 +264,9 @@ namespace ApplicationServices
 				col = createCell(row, col, dto.MyRatingStory);
 
 				row.CreateCell(col++).SetCellValue(dto.MyLibationTags);
+				row.CreateCell(col++).SetCellValue(dto.BookStatus);
+				row.CreateCell(col++).SetCellValue(dto.BookLocation);
+				row.CreateCell(col++).SetCellValue(dto.PdfStatus);
 
 				rowIndex++;
 			}
