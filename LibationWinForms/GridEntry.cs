@@ -26,15 +26,15 @@ namespace LibationWinForms
 		public enum LiberatedState { NotDownloaded, PartialDownload, Liberated }
 		[Browsable(false)]
 		public LiberatedState Liberated_Status
-			=> FileManager.AudibleFileStorage.Audio.Exists(book.AudibleProductId) ? LiberatedState.Liberated
-			: FileManager.AudibleFileStorage.AAXC.Exists(book.AudibleProductId) ? LiberatedState.PartialDownload
+			=> ApplicationServices.TransitionalFileLocator.Audio_Exists(book.AudibleProductId) ? LiberatedState.Liberated
+			: ApplicationServices.TransitionalFileLocator.AAXC_Exists(book.AudibleProductId) ? LiberatedState.PartialDownload
 			: LiberatedState.NotDownloaded;
 
 		public enum PdfState { NoPdf, Downloaded, NotDownloaded }
 		[Browsable(false)]
 		public PdfState Pdf_Status
 			=> !book.Supplements.Any() ? PdfState.NoPdf
-			: FileManager.AudibleFileStorage.PDF.Exists(book.AudibleProductId) ? PdfState.Downloaded
+			: ApplicationServices.TransitionalFileLocator.PDF_Exists(book.AudibleProductId) ? PdfState.Downloaded
 			: PdfState.NotDownloaded;
 
 		// displayValues is what gets displayed

@@ -1,5 +1,6 @@
 ﻿using AAXClean;
 using DataLayer;
+using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using Dinah.Core.IO;
 using FileManager;
@@ -28,23 +29,15 @@ namespace FileLiberator
 
         private Mp4File m4bBook;
 
-        private string Mp3FileName(LibraryBook libraryBook)
+        private string Mp3FileName(string m4bPath) => m4bPath is null ? string.Empty : PathLib.ReplaceExtension(m4bPath, ".mp3");
+
+        public void Cancel() => m4bBook?.Cancel();
+
+        public bool Validate(LibraryBook libraryBook)
         {
-            string m4bPath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
-
-            if (m4bPath is null) 
-                return string.Empty;
-
-            return Path.Combine(Path.GetDirectoryName(m4bPath), Path.GetFileNameWithoutExtension(m4bPath) + ".mp3");
+            var path = ApplicationServices.TransitionalFileLocator.Audio_GetPath(libraryBook.Book.AudibleProductId);
+            return path?.ToLower()?.EndsWith(".m4b") == true && !File.Exists(Mp3FileName(path));
         }
-        public void Cancel()
-        {
-            m4bBook?.Cancel();
-        }
-
-        public bool Validate(LibraryBook libraryBook) => 
-            AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId)?.ToLower()?.EndsWith(".m4b") == true &&
-            !File.Exists(Mp3FileName(libraryBook));
 
         public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
@@ -54,7 +47,7 @@ namespace FileLiberator
 
             try
             {
-                var m4bPath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
+                var m4bPath = ApplicationServices.TransitionalFileLocator.Audio_GetPath(libraryBook.Book.AudibleProductId);
 
                 m4bBook = new Mp4File(m4bPath, FileAccess.Read);
                 m4bBook.ConversionProgressUpdate += M4bBook_ConversionProgressUpdate;
@@ -64,13 +57,13 @@ namespace FileLiberator
                 NarratorsDiscovered?.Invoke(this, m4bBook.AppleTags.Narrator);
                 CoverImageFilepathDiscovered?.Invoke(this, m4bBook.AppleTags.Cover);
 
-                var mp3File = File.OpenWrite(Path.GetTempFileName());
+                using var mp3File = File.OpenWrite(Path.GetTempFileName());
 
                 var result = await Task.Run(() => m4bBook.ConvertToMp3(mp3File));
                 m4bBook.InputStream.Close();
                 mp3File.Close();
 
-                var mp3Path = Mp3FileName(libraryBook);
+                var mp3Path = Mp3FileName(m4bPath);
 
                 FileExt.SafeMove(mp3File.Name, mp3Path);
 
@@ -101,6 +94,5 @@ namespace FileLiberator
 
             UpdateProgress?.Invoke(this, (int)progressPercent);
         }
-
     }
 }

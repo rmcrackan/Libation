@@ -34,7 +34,7 @@ namespace FileLiberator
 
             try
             {
-                if (AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId))
+                if (ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book.AudibleProductId))
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
                 var outputAudioFilename = await aaxToM4bConverterDecryptAsync(AudibleFileStorage.DownloadsInProgress, AudibleFileStorage.DecryptInProgress, libraryBook);
@@ -46,14 +46,12 @@ namespace FileLiberator
                 // moves files and returns dest dir
                 _ = moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
 
-                var finalAudioExists = AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
+                var finalAudioExists = ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book.AudibleProductId);
                 if (!finalAudioExists)
                     return new StatusHandler { "Cannot find final audio file after decryption" };
 
-                // GetPath() is very cheap when file exists
-                var finalAudioPath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
                 // only need to update if success. if failure, it will remain at 0 == NotLiberated
-                ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Liberated, finalAudioPath);
+                ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Liberated, outputAudioFilename);
 
                 return new StatusHandler();
             }
@@ -221,7 +219,7 @@ namespace FileLiberator
 		}
 
         public bool Validate(LibraryBook libraryBook)
-            => !AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
+            => !ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book.AudibleProductId);
 
         public void Cancel()
         {

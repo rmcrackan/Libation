@@ -15,7 +15,7 @@ namespace FileLiberator
 	{
 		public override bool Validate(LibraryBook libraryBook)
 			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
-			&& !AudibleFileStorage.PDF.Exists(libraryBook.Book.AudibleProductId);
+			&& !ApplicationServices.TransitionalFileLocator.PDF_Exists(libraryBook.Book.AudibleProductId);
 
 		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
@@ -32,7 +32,7 @@ namespace FileLiberator
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
 		{
 			// if audio file exists, get it's dir. else return base Book dir
-			var existingPath = Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId));
+			var existingPath = Path.GetDirectoryName(ApplicationServices.TransitionalFileLocator.Audio_GetPath(libraryBook.Book.AudibleProductId));
 			var file = getdownloadUrl(libraryBook);
 
 			if (existingPath != null)
@@ -61,7 +61,7 @@ namespace FileLiberator
 		}
 
 		private static StatusHandler verifyDownload(LibraryBook libraryBook)
-			=> !AudibleFileStorage.PDF.Exists(libraryBook.Book.AudibleProductId)
+			=> !ApplicationServices.TransitionalFileLocator.PDF_Exists(libraryBook.Book.AudibleProductId)
 			? new StatusHandler { "Downloaded PDF cannot be found" }
 			: new StatusHandler();
 	}

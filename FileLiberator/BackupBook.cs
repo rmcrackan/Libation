@@ -24,7 +24,7 @@ namespace FileLiberator
 		public DownloadPdf DownloadPdf { get; } = new DownloadPdf();
 
 		public bool Validate(LibraryBook libraryBook)
-            => !AudibleFileStorage.Audio.Exists(libraryBook.Book.AudibleProductId);
+            => !ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book.AudibleProductId);
 
 		// do NOT use ConfigureAwait(false) on ProcessAsync()
 		// often calls events which prints to forms in the UI context

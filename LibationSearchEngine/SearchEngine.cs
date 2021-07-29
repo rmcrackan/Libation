@@ -143,7 +143,9 @@ namespace LibationSearchEngine
             return authors.Intersect(narrators).Any();
         }
 
-        private static bool isLiberated(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated || AudibleFileStorage.Audio.Exists(book.AudibleProductId);
+        private static bool isLiberated(Book book)
+            => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated
+            || AudibleFileStorage.Audio.Exists(book.AudibleProductId);
         private static bool liberatedError(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Error;
 
         // use these common fields in the "all" default search field

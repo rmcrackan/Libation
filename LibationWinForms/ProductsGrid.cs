@@ -173,9 +173,9 @@ namespace LibationWinForms
             var productId = getGridEntry(e.RowIndex).GetBook().AudibleProductId;
 
             // liberated: open explorer to file
-            if (FileManager.AudibleFileStorage.Audio.Exists(productId))
+            if (TransitionalFileLocator.Audio_Exists(productId))
             {
-                var filePath = FileManager.AudibleFileStorage.Audio.GetPath(productId);
+                var filePath = TransitionalFileLocator.Audio_GetPath(productId);
                 if (!Go.To.File(filePath))
                     MessageBox.Show($"File not found:\r\n{filePath}");
                 return;

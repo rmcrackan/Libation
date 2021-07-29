@@ -6,7 +6,6 @@ using AudibleApi;
 using DataLayer;
 using Dinah.Core;
 using DtoImporterService;
-using FileManager;
 using InternalUtilities;
 using Serilog;
 
@@ -181,8 +180,8 @@ namespace ApplicationServices
 		// this is a query, not command so maybe I should make a LibraryQueries. except there's already one of those...
 		private enum AudioFileState { full, aax, none }
 		private static AudioFileState getAudioFileState(string productId)
-			=> AudibleFileStorage.Audio.Exists(productId) ? AudioFileState.full
-			: AudibleFileStorage.AAXC.Exists(productId) ? AudioFileState.aax
+			=> TransitionalFileLocator.Audio_Exists(productId) ? AudioFileState.full
+			: TransitionalFileLocator.AAXC_Exists(productId) ? AudioFileState.aax
 			: AudioFileState.none;
 		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int pdfsDownloaded, int pdfsNotDownloaded) { }
 		public static LibraryStats GetCounts()
@@ -202,7 +201,7 @@ namespace ApplicationServices
 			var boolResults = libraryBooks
 				.AsParallel()
 				.Where(lb => lb.Book.Supplements.Any())
-				.Select(lb => AudibleFileStorage.PDF.Exists(lb.Book.AudibleProductId))
+				.Select(lb => TransitionalFileLocator.PDF_Exists(lb.Book.AudibleProductId))
 				.ToList();
 			var pdfsDownloaded = boolResults.Count(r => r);
 			var pdfsNotDownloaded = boolResults.Count(r => !r);
