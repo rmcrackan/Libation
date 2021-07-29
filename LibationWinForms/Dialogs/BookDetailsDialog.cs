@@ -3,15 +3,15 @@ using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs
 {
-    public partial class EditTagsDialog : Form
+    public partial class BookDetailsDialog : Form
     {
         public string NewTags { get; private set; }
 
-        public EditTagsDialog()
+        public BookDetailsDialog()
         {
             InitializeComponent();
         }
-        public EditTagsDialog(string title, string rawTags) : this()
+        public BookDetailsDialog(string title, string rawTags) : this()
         {
             this.Text = $"Edit Tags - {title}";
 

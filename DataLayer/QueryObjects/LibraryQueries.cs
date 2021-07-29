@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataLayer
 {
+    // only library importing should use tracking. All else should be NoTracking.
+    // only library importing should directly query Book. All else should use LibraryBook
     public static class LibraryQueries
 	{
         //// tracking is a bad idea for main grid. it prevents anything else from updating entities unless getting them from the grid

@@ -361,7 +361,7 @@ namespace LibationLauncher
 			config.ConfigureLogging();
 
 			// Fwd Console to serilog.
-			// Serilog also write to Console (should probably change this) so it might be asking for trouble.
+			// Serilog also writes to Console (should probably change this) so it might be asking for trouble.
 			// SerilogTextWriter needs to be more robust and tested. Esp the Write() methods.
 			// Empirical testing so far has shown no issues.
 			Console.SetOut(new MultiTextWriter(origOut, new SerilogTextWriter()));

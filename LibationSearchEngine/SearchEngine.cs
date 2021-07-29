@@ -18,8 +18,6 @@ namespace LibationSearchEngine
     {
         public const Lucene.Net.Util.Version Version = Lucene.Net.Util.Version.LUCENE_30;
 
-        private LibationContext context { get; }
-
         // not customizable. don't move to config
         private static string SearchEngineDirectory { get; }
             = new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectory("SearchEngine").FullName;
@@ -31,8 +29,6 @@ namespace LibationSearchEngine
 
         // the workaround which allows displaying all books when query is empty
         public const string ALL_QUERY = "*:*";
-
-        public SearchEngine(LibationContext context) => this.context = context;
 
 		#region index rules
 		private static ReadOnlyDictionary<string, Func<LibraryBook, string>> idIndexRules { get; }
@@ -202,7 +198,7 @@ namespace LibationSearchEngine
         /// create new. ie: full re-index
         /// </summary>
         /// <param name="overwrite"></param>
-        public void CreateNewIndex(bool overwrite = true)
+        public void CreateNewIndex(LibationContext context, bool overwrite = true)
         {
             //  300 titles:  200- 400 ms
             // 1021 titles: 1777-2250 ms
@@ -235,7 +231,7 @@ namespace LibationSearchEngine
         }
 
 		/// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
-		public void UpdateBook(string productId)
+		public void UpdateBook(LibationContext context, string productId)
         {
             var libraryBook = context.GetLibraryBook_Flat_NoTracking(productId);
             var term = new Term(_ID_, productId);

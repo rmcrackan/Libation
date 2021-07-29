@@ -255,11 +255,11 @@ namespace LibationWinForms
             // EditTagsDialog should display better-formatted title
             liveGridEntry.TryDisplayValue(nameof(liveGridEntry.Title), out string value);
 
-            var editTagsForm = new EditTagsDialog(value, liveGridEntry.Tags);
-            if (editTagsForm.ShowDialog() != DialogResult.OK)
+            var bookDetailsForm = new BookDetailsDialog(value, liveGridEntry.Tags);
+            if (bookDetailsForm.ShowDialog() != DialogResult.OK)
                 return;
 
-			var qtyChanges = LibraryCommands.UpdateTags(liveGridEntry.GetBook(), editTagsForm.NewTags);
+			var qtyChanges = LibraryCommands.UpdateTags(liveGridEntry.GetBook(), bookDetailsForm.NewTags);
 			if (qtyChanges == 0)
                 return;
 

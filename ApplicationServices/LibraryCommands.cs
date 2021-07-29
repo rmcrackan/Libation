@@ -119,6 +119,9 @@ namespace ApplicationServices
 
 				var udi = book.UserDefinedItem;
 
+				if (udi.Tags == newTags)
+					return 0;
+
 				// Attach() NoTracking entities before SaveChanges()
 				udi.Tags = newTags;
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
@@ -144,6 +147,9 @@ namespace ApplicationServices
 
 				var udi = libraryBook.Book.UserDefinedItem;
 
+				if (udi.BookStatus == liberatedStatus && udi.BookLocation == finalAudioPath)
+					return 0;
+
 				// Attach() NoTracking entities before SaveChanges()
 				udi.BookStatus = liberatedStatus;
 				udi.BookLocation = finalAudioPath;
@@ -168,6 +174,9 @@ namespace ApplicationServices
 				using var context = DbContexts.GetContext();
 
 				var udi = libraryBook.Book.UserDefinedItem;
+
+				if (udi.PdfStatus == liberatedStatus)
+					return 0;
 
 				// Attach() NoTracking entities before SaveChanges()
 				udi.PdfStatus = liberatedStatus;

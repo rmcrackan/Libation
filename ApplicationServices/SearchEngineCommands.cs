@@ -7,10 +7,10 @@ namespace ApplicationServices
 {
 	public static class SearchEngineCommands
 	{
-		public static void FullReIndex()
+		public static void FullReIndex(SearchEngine engine = null)
 		{
-			var engine = new SearchEngine(DbContexts.GetContext());
-			engine.CreateNewIndex();
+			engine ??= new SearchEngine();
+			engine.CreateNewIndex(DbContexts.GetContext());
 		}
 
 		public static SearchResultSet Search(string searchString) => performSearchEngineFunc_safe(e =>
@@ -27,28 +27,28 @@ namespace ApplicationServices
 
 		private static void performSearchEngineAction_safe(Action<SearchEngine> action)
 		{
-			var engine = new SearchEngine(DbContexts.GetContext());
+			var engine = new SearchEngine();
 			try
 			{
 				action(engine);
 			}
 			catch (FileNotFoundException)
 			{
-				FullReIndex();
+				FullReIndex(engine);
 				action(engine);
 			}
 		}
 
 		private static T performSearchEngineFunc_safe<T>(Func<SearchEngine, T> action)
 		{
-			var engine = new SearchEngine(DbContexts.GetContext());
+			var engine = new SearchEngine();
 			try
 			{
 				return action(engine);
 			}
 			catch (FileNotFoundException)
 			{
-				FullReIndex();
+				FullReIndex(engine);
 				return action(engine);
 			}
 		}

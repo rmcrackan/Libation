@@ -1,6 +1,6 @@
 ﻿namespace LibationWinForms.Dialogs
 {
-    partial class EditTagsDialog
+    partial class BookDetailsDialog
     {
         /// <summary>
         /// Required designer variable.

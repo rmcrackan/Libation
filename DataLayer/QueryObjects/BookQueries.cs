@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataLayer
 {
+    // only library importing should use tracking. All else should be NoTracking.
+    // only library importing should directly query Book. All else should use LibraryBook
     public static class BookQueries
     {
         public static Book GetBook_Flat_NoTracking(this LibationContext context, string productId)
