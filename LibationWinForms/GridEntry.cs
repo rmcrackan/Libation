@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using ApplicationServices;
 using DataLayer;
 
 namespace LibationWinForms
@@ -20,23 +21,17 @@ namespace LibationWinForms
 		// hide from public fields from Data Source GUI with [Browsable(false)]
 
 		[Browsable(false)]
+		public string AudibleProductId => book.AudibleProductId;
+		[Browsable(false)]
 		public string Tags => book.UserDefinedItem.Tags;
 		[Browsable(false)]
 		public IEnumerable<string> TagsEnumerated => book.UserDefinedItem.TagsEnumerated;
-
-		public enum LiberatedState { NotDownloaded, PartialDownload, Liberated }
 		[Browsable(false)]
-		public LiberatedState Liberated_Status
-			=> ApplicationServices.TransitionalFileLocator.Audio_Exists(book) ? LiberatedState.Liberated
-			: ApplicationServices.TransitionalFileLocator.AAXC_Exists(book) ? LiberatedState.PartialDownload
-			: LiberatedState.NotDownloaded;
-
-		public enum PdfState { NoPdf, Downloaded, NotDownloaded }
+		public string PictureId => book.PictureId;
 		[Browsable(false)]
-		public PdfState Pdf_Status
-			=> !book.Supplements.Any() ? PdfState.NoPdf
-			: ApplicationServices.TransitionalFileLocator.PDF_Exists(book) ? PdfState.Downloaded
-			: PdfState.NotDownloaded;
+		public LiberatedState Liberated_Status => LibraryCommands.Liberated_Status(book);
+		[Browsable(false)]
+		public PdfState Pdf_Status => LibraryCommands.Pdf_Status(book);
 
 		// displayValues is what gets displayed
 		// the value that gets returned from the property is the cell's value

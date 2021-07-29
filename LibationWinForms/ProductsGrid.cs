@@ -134,25 +134,25 @@ namespace LibationWinForms
             {
                 var libState = liberatedStatus switch
                 {
-                    GridEntry.LiberatedState.Liberated => "Liberated",
-                    GridEntry.LiberatedState.PartialDownload => "File has been at least\r\npartially downloaded",
-                    GridEntry.LiberatedState.NotDownloaded => "Book NOT downloaded",
+                    LiberatedState.Liberated => "Liberated",
+                    LiberatedState.PartialDownload => "File has been at least\r\npartially downloaded",
+                    LiberatedState.NotDownloaded => "Book NOT downloaded",
                     _ => throw new Exception("Unexpected liberation state")
                 };
 
                 var pdfState = pdfStatus switch
                 {
-                    GridEntry.PdfState.Downloaded => "\r\nPDF downloaded",
-                    GridEntry.PdfState.NotDownloaded => "\r\nPDF NOT downloaded",
-                    GridEntry.PdfState.NoPdf => "",
+                    PdfState.Downloaded => "\r\nPDF downloaded",
+                    PdfState.NotDownloaded => "\r\nPDF NOT downloaded",
+                    PdfState.NoPdf => "",
                     _ => throw new Exception("Unexpected PDF state")
                 };
 
                 var text = libState + pdfState;
 
-                if (liberatedStatus == GridEntry.LiberatedState.NotDownloaded ||
-                    liberatedStatus == GridEntry.LiberatedState.PartialDownload ||
-                    pdfStatus == GridEntry.PdfState.NotDownloaded)
+                if (liberatedStatus == LiberatedState.NotDownloaded ||
+                    liberatedStatus == LiberatedState.PartialDownload ||
+                    pdfStatus == PdfState.NotDownloaded)
                     text += "\r\nClick to complete";
 
                 //DEBUG//cell.Value = text;
@@ -162,14 +162,14 @@ namespace LibationWinForms
             // draw img
             {
                 var image_lib
-                    = liberatedStatus == GridEntry.LiberatedState.NotDownloaded ? "red"
-                    : liberatedStatus == GridEntry.LiberatedState.PartialDownload ? "yellow"
-                    : liberatedStatus == GridEntry.LiberatedState.Liberated ? "green"
+                    = liberatedStatus == LiberatedState.NotDownloaded ? "red"
+                    : liberatedStatus == LiberatedState.PartialDownload ? "yellow"
+                    : liberatedStatus == LiberatedState.Liberated ? "green"
                     : throw new Exception("Unexpected liberation state");
                 var image_pdf
-                    = pdfStatus == GridEntry.PdfState.NoPdf ? ""
-                    : pdfStatus == GridEntry.PdfState.NotDownloaded ? "_pdf_no"
-                    : pdfStatus == GridEntry.PdfState.Downloaded ? "_pdf_yes"
+                    = pdfStatus == PdfState.NoPdf ? ""
+                    : pdfStatus == PdfState.NotDownloaded ? "_pdf_no"
+                    : pdfStatus == PdfState.Downloaded ? "_pdf_yes"
                     : throw new Exception("Unexpected PDF state");
                 var image = (Bitmap)Properties.Resources.ResourceManager.GetObject($"liberate_{image_lib}{image_pdf}");
                 drawImage(e, image);
@@ -192,13 +192,14 @@ namespace LibationWinForms
                 return;
             }
 
+            // else: liberate
             await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook, (_, __) => RefreshRow(libraryBook.Book.AudibleProductId));
         }
         #endregion
 
         public void RefreshRow(string productId)
         {
-            var rowId = getRowId((ge) => ge.GetBook().AudibleProductId == productId);
+            var rowId = getRowId((ge) => ge.AudibleProductId == productId);
 
             // update cells incl Liberate button text
             dataGridView.InvalidateRow(rowId);
@@ -329,7 +330,7 @@ namespace LibationWinForms
 			=> dataGridView.UIThread(() => updateRowImage(pictureId));
 		private void updateRowImage(string pictureId)
 		{
-			var rowId = getRowId((ge) => ge.GetBook().PictureId == pictureId);
+			var rowId = getRowId((ge) => ge.PictureId == pictureId);
 			if (rowId > -1)
 				dataGridView.InvalidateRow(rowId);
 		}
@@ -397,7 +398,7 @@ namespace LibationWinForms
             currencyManager.SuspendBinding();
             {
                 for (var r = dataGridView.RowCount - 1; r >= 0; r--)
-                    dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).GetBook().AudibleProductId);
+                    dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).AudibleProductId);
             }
             currencyManager.ResumeBinding();
 			VisibleCountChanged?.Invoke(this, dataGridView.AsEnumerable().Count(r => r.Visible));

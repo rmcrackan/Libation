@@ -11,6 +11,13 @@ using Serilog;
 
 namespace ApplicationServices
 {
+	// subtly different from DataLayer.LiberatedStatus
+	// - DataLayer.LiberatedStatus: has no concept of partially downloaded
+	// - ApplicationServices.LiberatedState: has no concept of Error/skipped
+	public enum LiberatedState { NotDownloaded, PartialDownload, Liberated }
+
+	public enum PdfState { NoPdf, Downloaded, NotDownloaded }
+
 	public static class LibraryCommands
 	{
 		#region FULL LIBRARY scan and import
@@ -177,12 +184,18 @@ namespace ApplicationServices
 		}
 		#endregion
 
-		// this is a query, not command so maybe I should make a LibraryQueries. except there's already one of those...
-		private enum AudioFileState { full, aax, none }
-		private static AudioFileState getAudioFileState(Book book)
-			=> TransitionalFileLocator.Audio_Exists(book) ? AudioFileState.full
-			: TransitionalFileLocator.AAXC_Exists(book) ? AudioFileState.aax
-			: AudioFileState.none;
+		// below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
+
+		public static LiberatedState Liberated_Status(Book book)
+			=> TransitionalFileLocator.Audio_Exists(book) ? LiberatedState.Liberated
+			: TransitionalFileLocator.AAXC_Exists(book) ? LiberatedState.PartialDownload
+			: LiberatedState.NotDownloaded;
+
+		public static PdfState Pdf_Status(Book book)
+			=> !book.Supplements.Any() ? PdfState.NoPdf
+			: TransitionalFileLocator.PDF_Exists(book) ? PdfState.Downloaded
+			: PdfState.NotDownloaded;
+
 		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int pdfsDownloaded, int pdfsNotDownloaded) { }
 		public static LibraryStats GetCounts()
 		{
@@ -190,21 +203,21 @@ namespace ApplicationServices
 
 			var results = libraryBooks
 				.AsParallel()
-				.Select(lb => getAudioFileState(lb.Book))
+				.Select(lb => Liberated_Status(lb.Book))
 				.ToList();
-			var booksFullyBackedUp = results.Count(r => r == AudioFileState.full);
-			var booksDownloadedOnly = results.Count(r => r == AudioFileState.aax);
-			var booksNoProgress = results.Count(r => r == AudioFileState.none);
+			var booksFullyBackedUp = results.Count(r => r == LiberatedState.Liberated);
+			var booksDownloadedOnly = results.Count(r => r == LiberatedState.PartialDownload);
+			var booksNoProgress = results.Count(r => r == LiberatedState.NotDownloaded);
 
 			Log.Logger.Information("Book counts. {@DebugInfo}", new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress });
 
 			var boolResults = libraryBooks
 				.AsParallel()
 				.Where(lb => lb.Book.Supplements.Any())
-				.Select(lb => TransitionalFileLocator.PDF_Exists(lb.Book))
+				.Select(lb => Pdf_Status(lb.Book))
 				.ToList();
-			var pdfsDownloaded = boolResults.Count(r => r);
-			var pdfsNotDownloaded = boolResults.Count(r => !r);
+			var pdfsDownloaded = boolResults.Count(r => r == PdfState.Downloaded);
+			var pdfsNotDownloaded = boolResults.Count(r => r == PdfState.NotDownloaded);
 
 			Log.Logger.Information("PDF counts. {@DebugInfo}", new { total = boolResults.Count, pdfsDownloaded, pdfsNotDownloaded });
 
