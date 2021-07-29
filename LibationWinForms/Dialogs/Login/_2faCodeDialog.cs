@@ -15,6 +15,9 @@ namespace LibationWinForms.Dialogs.Login
 		private void submitBtn_Click(object sender, EventArgs e)
 		{
 			Code = this.codeTb.Text;
+
+			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new { Code });
+
 			DialogResult = DialogResult.OK;
 		}
 	}

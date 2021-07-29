@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Dinah.Core;
 using InternalUtilities;
 
 namespace LibationWinForms.Dialogs.Login
@@ -28,6 +29,8 @@ namespace LibationWinForms.Dialogs.Login
 		{
 			Email = accountId;
 			Password = this.passwordTb.Text;
+
+			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new { email = Email?.ToMask(), passwordLength = Password.Length });
 
 			DialogResult = DialogResult.OK;
 			// Close() not needed for AcceptButton

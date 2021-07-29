@@ -63,25 +63,28 @@ namespace LibationWinForms.Dialogs.Login
 		public string SelectedValue { get; private set; }
 		private void submitBtn_Click(object sender, EventArgs e)
 		{
-			Serilog.Log.Logger.Information("RadioButton states: {@DebugInfo}", new {
+			var selected = radioButtons.FirstOrDefault(rb => rb.Checked);
+
+			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new {
 				rb1_visible = radioButton1.Visible,
 				rb1_checked = radioButton1.Checked,
 
-				r21_visible = radioButton2.Visible,
-				r21_checked = radioButton2.Checked,
+				rb2_visible = radioButton2.Visible,
+				rb2_checked = radioButton2.Checked,
 
 				rb3_visible = radioButton3.Visible,
-				rb3_checked = radioButton3.Checked
+				rb3_checked = radioButton3.Checked,
+
+				isSelected = selected is not null,
+				name = selected?.Name,
+				value = selected?.Tag
 			});
 
-			var selected = radioButtons.FirstOrDefault(rb => rb.Checked);
 			if (selected is null)
 			{
 				MessageBox.Show("No MFA option selected", "None selected", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
-
-			Serilog.Log.Logger.Information("Selected: {@DebugInfo}", new { isSelected = selected is not null, name = selected?.Name, value = selected?.Tag });
 
 			SelectedName = selected.Name;
 			SelectedValue = (string)selected.Tag;

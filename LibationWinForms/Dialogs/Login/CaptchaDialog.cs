@@ -26,6 +26,8 @@ namespace LibationWinForms.Dialogs.Login
 		{
 			Answer = this.answerTb.Text;
 
+			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new { Answer });
+
 			DialogResult = DialogResult.OK;
 			// Close() not needed for AcceptButton
 		}

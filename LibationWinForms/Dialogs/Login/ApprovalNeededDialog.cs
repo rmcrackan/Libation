@@ -12,6 +12,8 @@ namespace LibationWinForms.Dialogs.Login
 
 		private void approvedBtn_Click(object sender, EventArgs e)
 		{
+			Serilog.Log.Logger.Information("Submit button clicked");
+
 			DialogResult = DialogResult.OK;
 		}
 	}
