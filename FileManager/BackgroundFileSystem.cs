@@ -22,6 +22,8 @@ namespace FileManager
 
         public string FindFile(string regexPattern, RegexOptions options)
         {
+            if (fsCache is null) return null;
+
             lock (fsCache)
             {
                 return fsCache.FirstOrDefault(s => Regex.IsMatch(s, regexPattern, options));
