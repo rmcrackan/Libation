@@ -78,7 +78,7 @@ namespace FileLiberator
                     contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
                     contentLic?.Voucher?.Key,
                     contentLic?.Voucher?.Iv,
-                    Resources.UserAgent
+                    "Audible/671 CFNetwork/1240.0.4 Darwin/20.6.0"
                     );
 
                 if (Configuration.Instance.AllowLibationFixup)
