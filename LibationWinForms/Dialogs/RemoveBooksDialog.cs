@@ -40,7 +40,7 @@ namespace LibationWinForms.Dialogs
 
 			var orderedGridEntries = _libraryBooks
 				.Select(lb => new RemovableGridEntry(new GridEntry(lb)))
-				.OrderByDescending(ge => ge.GridEntry.Purchase_Date)
+				.OrderByDescending(ge => ge.GridEntry.PurchaseDate)
 				.ToList();
 
 			_removableGridEntries = orderedGridEntries.ToSortableBindingList();
@@ -173,10 +173,10 @@ namespace LibationWinForms.Dialogs
 				NotifyPropertyChanged();
 			}
 		}
-		public string Title => GetDisplayValue(nameof(GridEntry.Title), GridEntry.Title);
-		public string Authors => GetDisplayValue(nameof(GridEntry.Authors), GridEntry.Authors);
-		public string Misc => GetDisplayValue(nameof(GridEntry.Misc), GridEntry.Misc);
-		public string DatePurchased => GetDisplayValue(nameof(GridEntry.Purchase_Date), GridEntry.Purchase_Date);
+		public string Title =>  GridEntry.Title;
+		public string Authors => GridEntry.Authors;
+		public string Misc =>  GridEntry.Misc;
+		public string DatePurchased => GridEntry.PurchaseDate;
 
 		private bool _remove = false;
 		private Image _cover;
@@ -185,7 +185,7 @@ namespace LibationWinForms.Dialogs
 		{
 			GridEntry = gridEntry;
 
-			var picDef = new FileManager.PictureDefinition(GridEntry.GetBook().PictureId, FileManager.PictureSize._80x80);
+			var picDef = new FileManager.PictureDefinition(GridEntry.LibraryBook.Book.PictureId, FileManager.PictureSize._80x80);
 			(bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(picDef);
 
 			if (isDefault)
@@ -196,18 +196,11 @@ namespace LibationWinForms.Dialogs
 
         private void PictureStorage_PictureCached(object sender, string pictureId)
         {
-			if (pictureId == GridEntry.GetBook().PictureId)
+			if (pictureId == GridEntry.LibraryBook.Book.PictureId)
 			{
 				Cover = WindowsDesktopUtilities.WinAudibleImageServer.GetImage(pictureId, FileManager.PictureSize._80x80);
 				FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
-		}
-     
-		private string GetDisplayValue(string propertyName, string defaultValue)
-        {
-			if (GridEntry.TryDisplayValue(propertyName, out string value))
-				return value;
-			return defaultValue;
 		}
 
 		private void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => 
