@@ -455,5 +455,20 @@ namespace LibationWinForms
 
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
         #endregion
+
+        private void removeLibraryBooksToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+            var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
+            scanLibrariesRemovedBooks(firstAccount);
+        }
+        private void scanLibrariesRemovedBooks(params Account[] accounts)
+        {
+            using var dialog = new RemoveBooksDialog(accounts);
+            dialog.ShowDialog();
+
+            if (dialog.BooksRemoved)
+                reloadGrid();
+        }
     }
 }
