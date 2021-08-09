@@ -47,18 +47,18 @@ namespace InternalUtilities
 			// 2 retries == 3 total
 			.RetryAsync(2);
 
-		public static Task<List<Item>> GetLibraryValidatedAsync(Api api)
+		public static Task<List<Item>> GetLibraryValidatedAsync(Api api, LibraryOptions.ResponseGroupOptions responseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS)
 		{
 			// bug on audible's side. the 1st time after a long absence, a query to get library will return without titles or authors. a subsequent identical query will be successful. this is true whether or tokens are refreshed
 			// worse, this 1st dummy call doesn't seem to help:
 			//    var page = await api.GetLibraryAsync(new AudibleApi.LibraryOptions { NumberOfResultPerPage = 1, PageNumber = 1, PurchasedAfter = DateTime.Now.AddYears(-20), ResponseGroups = AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS });
 			// i don't want to incur the cost of making a full dummy call every time because it fails sometimes
-			return policy.ExecuteAsync(() => getItemsAsync(api));
+			return policy.ExecuteAsync(() => getItemsAsync(api, responseGroups));
 		}
 
-		private static async Task<List<Item>> getItemsAsync(Api api)
+		private static async Task<List<Item>> getItemsAsync(Api api, LibraryOptions.ResponseGroupOptions responseGroups)
 		{
-			var items = await api.GetAllLibraryItemsAsync();
+			var items = await api.GetAllLibraryItemsAsync(responseGroups);
 
 			// remove episode parents
 			items.RemoveAll(i => i.IsEpisodes);
