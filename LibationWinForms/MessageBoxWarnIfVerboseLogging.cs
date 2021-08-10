@@ -1,4 +1,6 @@
-﻿using Dinah.Core.Logging;
+﻿using System;
+using System.Linq;
+using Dinah.Core.Logging;
 using Serilog;
 using System.Windows.Forms;
 
