@@ -14,9 +14,6 @@ namespace LibationWinForms
 {
 	internal class GridEntry : INotifyPropertyChanged, IObjectMemberComparable
 	{
-		public const string LIBERATE_COLUMN_NAME = "Liberate";
-		public const string EDIT_TAGS_COLUMN_NAME = "DisplayTags";
-
         #region implementation properties
         // hide from public fields from Data Source GUI with [Browsable(false)]
 
@@ -120,8 +117,8 @@ namespace LibationWinForms
 		private Dictionary<string, Func<object>> _compareValues { get; }
 		private static Dictionary<Type, IComparer> _objectComparers;
 
-		public virtual object GetMemberValue(string propertyName) => _compareValues[propertyName]();
-		public virtual IComparer GetComparer(Type propertyType) => _objectComparers[propertyType];
+		public virtual object GetMemberValue(string memberName) => _compareValues[memberName]();
+		public virtual IComparer GetMemberComparer(Type memberType) => _objectComparers[memberType];
 
 		/// <summary>
 		/// Instantiate comparers for every type needed to sort columns.
@@ -137,6 +134,7 @@ namespace LibationWinForms
 				{ typeof(LiberatedState), new ObjectComparer<LiberatedState>() },
 			};
 		}
+
 		/// <summary>
 		/// Create getters for all member values by name
 		/// </summary>
@@ -277,7 +275,7 @@ namespace LibationWinForms
 		}
 
 		private static string GetStarString(Rating rating)
-			=> (rating?.FirstScore != null && rating?.FirstScore > 0f)
+			=> (rating?.FirstScore > 0f)
 			? rating?.ToStarString()
 			: "";
 

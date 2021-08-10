@@ -23,6 +23,8 @@ namespace LibationWinForms
     // - go to Design view
     // - click on Data Sources > ProductItem. drowdown: DataGridView
     // - drag/drop ProductItem on design surface
+    // AS OF AUGUST 2021 THIS DOES NOT WORK IN VS2019 WITH .NET-5 PROJECTS 
+
     public partial class ProductsGrid : UserControl
     {
         public event EventHandler<int> VisibleCountChanged;
@@ -60,10 +62,10 @@ namespace LibationWinForms
 
             switch (_dataGridView.Columns[e.ColumnIndex].DataPropertyName)
             {
-                case GridEntry.LIBERATE_COLUMN_NAME:
+                case nameof(liveGridEntry.Liberate):
                     await Liberate_Click(liveGridEntry);
                     break;
-                case GridEntry.EDIT_TAGS_COLUMN_NAME:
+                case nameof(liveGridEntry.DisplayTags):
                     EditTags_Click(liveGridEntry);
                     break;
             }
@@ -140,9 +142,7 @@ namespace LibationWinForms
             //
             gridEntryBindingSource.DataSource = new SortableBindingList2<GridEntry>(orderedGridEntries);
 
-            //
             // FILTER
-            //
             Filter();
 
             BackupCountsChanged?.Invoke(this, EventArgs.Empty);

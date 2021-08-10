@@ -13,7 +13,7 @@ namespace LibationWinForms
             var val1 = x.GetMemberValue(PropertyName);
             var val2 = y.GetMemberValue(PropertyName);
 
-            return DirMult * x.GetComparer(val1.GetType()).Compare(val1, val2);
+            return DirMult * x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
         }
 
         private int DirMult => Direction == ListSortDirection.Descending ? -1 : 1;

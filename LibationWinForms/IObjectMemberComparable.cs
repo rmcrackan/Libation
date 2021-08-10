@@ -5,7 +5,7 @@ namespace LibationWinForms
 {
 	interface IObjectMemberComparable
 	{
-		IComparer GetComparer(Type propertyType);
-		object GetMemberValue(string valueName);
+		IComparer GetMemberComparer(Type memberType);
+		object GetMemberValue(string memberName);
 	}
 }
