@@ -293,6 +293,16 @@ namespace LibationWinForms
             scanLibraryToolStripMenuItem.Visible = count == 1;
             scanLibraryOfAllAccountsToolStripMenuItem.Visible = count > 1;
             scanLibraryOfSomeAccountsToolStripMenuItem.Visible = count > 1;
+
+            removeLibraryBooksToolStripMenuItem.Visible = count != 0;
+
+            if (count == 1)
+            {
+                removeLibraryBooksToolStripMenuItem.Click += removeThisAccountToolStripMenuItem_Click;
+            }
+
+            removeSomeAccountsToolStripMenuItem.Visible = count > 1;
+            removeAllAccountsToolStripMenuItem.Visible = count > 1;
         }
 
         private void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, EventArgs e)
@@ -449,11 +459,32 @@ namespace LibationWinForms
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
         #endregion
 
-        private void removeLibraryBooksToolStripMenuItem_Click(object sender, EventArgs e)
+
+        private void removeThisAccountToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
             var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
             scanLibrariesRemovedBooks(firstAccount);
+        }
+
+        private void removeAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+            var allAccounts = persister.AccountsSettings.GetAll();
+            scanLibrariesRemovedBooks(allAccounts.ToArray());
+        }
+
+        private void removeSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using var scanAccountsDialog = new ScanAccountsDialog(this);
+
+            if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            if (!scanAccountsDialog.CheckedAccounts.Any())
+                return;
+
+            scanLibrariesRemovedBooks(scanAccountsDialog.CheckedAccounts.ToArray());
         }
         private void scanLibrariesRemovedBooks(params Account[] accounts)
         {

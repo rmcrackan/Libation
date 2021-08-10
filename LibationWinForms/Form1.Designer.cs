@@ -39,6 +39,9 @@
             this.scanLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scanLibraryOfAllAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scanLibraryOfSomeAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeLibraryBooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeAllAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeSomeAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.liberateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.beginBookBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.beginPdfBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,7 +61,6 @@
             this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.addFilterBtn = new System.Windows.Forms.Button();
-            this.removeLibraryBooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -162,6 +164,29 @@
             this.scanLibraryOfSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
             this.scanLibraryOfSomeAccountsToolStripMenuItem.Text = "Scan Library of &Some Accounts...";
             this.scanLibraryOfSomeAccountsToolStripMenuItem.Click += new System.EventHandler(this.scanLibraryOfSomeAccountsToolStripMenuItem_Click);
+            // 
+            // removeLibraryBooksToolStripMenuItem
+            // 
+            this.removeLibraryBooksToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeAllAccountsToolStripMenuItem,
+            this.removeSomeAccountsToolStripMenuItem});
+            this.removeLibraryBooksToolStripMenuItem.Name = "removeLibraryBooksToolStripMenuItem";
+            this.removeLibraryBooksToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+            this.removeLibraryBooksToolStripMenuItem.Text = "Remove Library Books";
+            // 
+            // removeAllAccountsToolStripMenuItem
+            // 
+            this.removeAllAccountsToolStripMenuItem.Name = "removeAllAccountsToolStripMenuItem";
+            this.removeAllAccountsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeAllAccountsToolStripMenuItem.Text = "All Accounts";
+            this.removeAllAccountsToolStripMenuItem.Click += new System.EventHandler(this.removeAllAccountsToolStripMenuItem_Click);
+            // 
+            // removeSomeAccountsToolStripMenuItem
+            // 
+            this.removeSomeAccountsToolStripMenuItem.Name = "removeSomeAccountsToolStripMenuItem";
+            this.removeSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeSomeAccountsToolStripMenuItem.Text = "Some Accounts";
+            this.removeSomeAccountsToolStripMenuItem.Click += new System.EventHandler(this.removeSomeAccountsToolStripMenuItem_Click);
             // 
             // liberateToolStripMenuItem
             // 
@@ -311,13 +336,6 @@
             this.addFilterBtn.UseVisualStyleBackColor = true;
             this.addFilterBtn.Click += new System.EventHandler(this.AddFilterBtn_Click);
             // 
-            // removeLibraryBooksToolStripMenuItem
-            // 
-            this.removeLibraryBooksToolStripMenuItem.Name = "removeLibraryBooksToolStripMenuItem";
-            this.removeLibraryBooksToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
-            this.removeLibraryBooksToolStripMenuItem.Text = "Remove Library Books";
-            this.removeLibraryBooksToolStripMenuItem.Click += new System.EventHandler(this.removeLibraryBooksToolStripMenuItem_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -378,5 +396,7 @@
 		private System.Windows.Forms.ToolStripMenuItem exportLibraryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem convertAllM4bToMp3ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeLibraryBooksToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem removeAllAccountsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem removeSomeAccountsToolStripMenuItem;
     }
 }
