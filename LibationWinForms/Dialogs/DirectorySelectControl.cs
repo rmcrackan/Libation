@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Dinah.Core;
+using FileManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using Dinah.Core;
-using FileManager;
 
 namespace LibationWinForms.Dialogs
 {
@@ -13,7 +13,7 @@ namespace LibationWinForms.Dialogs
 		{
 			public string Description { get; }
 			public Configuration.KnownDirectories Value { get; }
-			private DirectorySelectControl _parentControl;
+			private readonly DirectorySelectControl _parentControl;
 
 			public string FullPath => _parentControl.AddSubDirectoryToPath(Configuration.GetKnownDirectoryPath(Value));
 

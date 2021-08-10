@@ -1,7 +1,6 @@
-﻿using System;
-using System.Windows.Forms;
-using Dinah.Core.Logging;
+﻿using Dinah.Core.Logging;
 using Serilog;
+using System.Windows.Forms;
 
 namespace LibationWinForms
 {

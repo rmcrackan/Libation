@@ -1,6 +1,6 @@
-﻿using System;
+﻿using FileManager;
+using System;
 using System.Windows.Forms;
-using FileManager;
 
 namespace LibationWinForms.Dialogs
 {

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using ApplicationServices;
+using DataLayer;
+using Dinah.Core.Drawing;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using ApplicationServices;
-using DataLayer;
-using Dinah.Core.Drawing;
 
 namespace LibationWinForms
 {
@@ -106,7 +106,7 @@ namespace LibationWinForms
 		/// <summary>
 		/// Create getters for all member object values by name
 		/// </summary>
-		Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
+		private Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
 		{
 			{ nameof(Title), () => GetSortName(Book.Title) },
 			{ nameof(Series), () => GetSortName(Book.SeriesNames) },

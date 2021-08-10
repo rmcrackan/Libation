@@ -3,19 +3,19 @@ using System.ComponentModel;
 
 namespace LibationWinForms
 {
-    class ObjectMemberComparer<T> : IComparer<T> where T : IObjectMemberComparable
-    {
-        public ListSortDirection Direction { get; set; } = ListSortDirection.Ascending;
-        public string PropertyName { get; set; }
+	internal class ObjectMemberComparer<T> : IComparer<T> where T : IObjectMemberComparable
+	{
+		public ListSortDirection Direction { get; set; } = ListSortDirection.Ascending;
+		public string PropertyName { get; set; }
 
-        public int Compare(T x, T y)
-        {
-            var val1 = x.GetMemberValue(PropertyName);
-            var val2 = y.GetMemberValue(PropertyName);
+		public int Compare(T x, T y)
+		{
+			var val1 = x.GetMemberValue(PropertyName);
+			var val2 = y.GetMemberValue(PropertyName);
 
-            return DirMult * x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
-        }
+			return DirMult * x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
+		}
 
-        private int DirMult => Direction == ListSortDirection.Descending ? -1 : 1;
-    }
+		private int DirMult => Direction == ListSortDirection.Descending ? -1 : 1;
+	}
 }

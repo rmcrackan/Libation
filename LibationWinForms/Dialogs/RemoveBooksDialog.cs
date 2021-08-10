@@ -3,27 +3,27 @@ using DataLayer;
 using InternalUtilities;
 using LibationWinForms.Login;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
-using System.Collections;
 
 namespace LibationWinForms.Dialogs
 {
-    public partial class RemoveBooksDialog : Form
+	public partial class RemoveBooksDialog : Form
 	{
 		public bool BooksRemoved { get; private set; }
 
 		private Account[] _accounts { get; }
-		private List<LibraryBook> _libraryBooks;
-		private SortableBindingList2<RemovableGridEntry> _removableGridEntries;
-		private string _labelFormat;
+		private readonly List<LibraryBook> _libraryBooks;
+		private readonly SortableBindingList2<RemovableGridEntry> _removableGridEntries;
+		private readonly string _labelFormat;
 		private int SelectedCount => SelectedEntries?.Count() ?? 0;
 		private IEnumerable<RemovableGridEntry> SelectedEntries => _removableGridEntries?.Where(b => b.Remove);
 
-        public RemoveBooksDialog(params Account[] accounts)
+		public RemoveBooksDialog(params Account[] accounts)
 		{
 			_libraryBooks = DbContexts.GetContext().GetLibrary_Flat_NoTracking();
 			_accounts = accounts;
@@ -32,8 +32,8 @@ namespace LibationWinForms.Dialogs
 			_labelFormat = label1.Text;
 
 			_dataGridView.CellContentClick += (s, e) => _dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            _dataGridView.CellValueChanged += DataGridView1_CellValueChanged;
-            _dataGridView.BindingContextChanged += (s, e) => UpdateSelection();
+			_dataGridView.CellValueChanged += DataGridView1_CellValueChanged;
+			_dataGridView.BindingContextChanged += (s, e) => UpdateSelection();
 
 			var orderedGridEntries = _libraryBooks
 				.Select(lb => new RemovableGridEntry(lb))
@@ -46,7 +46,7 @@ namespace LibationWinForms.Dialogs
 			_dataGridView.Enabled = false;
 		}
 
-        private void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+		private void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
 		{
 			if (e.ColumnIndex == 0)
 				UpdateSelection();
@@ -78,9 +78,9 @@ namespace LibationWinForms.Dialogs
 					ex);
 			}
 			finally
-            {
+			{
 				_dataGridView.Enabled = true;
-            }
+			}
 		}
 
 		private void btnRemoveBooks_Click(object sender, EventArgs e)
@@ -122,15 +122,15 @@ namespace LibationWinForms.Dialogs
 			}
 		}
 		private void UpdateSelection()
-        {
+		{
 			_dataGridView.Sort(_dataGridView.Columns[0], ListSortDirection.Descending);
 			var selectedCount = SelectedCount;
 			label1.Text = string.Format(_labelFormat, selectedCount, selectedCount != 1 ? "s" : string.Empty);
 			btnRemoveBooks.Enabled = selectedCount > 0;
-		}	
-    }
+		}
+	}
 
-    internal class RemovableGridEntry : GridEntry
+	internal class RemovableGridEntry : GridEntry
 	{
 		private static readonly IComparer BoolComparer = new ObjectComparer<bool>();
 
@@ -153,18 +153,18 @@ namespace LibationWinForms.Dialogs
 			}
 		}
 
-        public override object GetMemberValue(string memberName)
-        {
+		public override object GetMemberValue(string memberName)
+		{
 			if (memberName == nameof(Remove))
 				return Remove;
-            return base.GetMemberValue(memberName);
-        }
+			return base.GetMemberValue(memberName);
+		}
 
-        public override IComparer GetMemberComparer(Type memberType)
+		public override IComparer GetMemberComparer(Type memberType)
 		{
 			if (memberType == typeof(bool))
 				return BoolComparer;
 			return base.GetMemberComparer(memberType);
-        }       
-    }
+		}
+	}
 }

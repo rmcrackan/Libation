@@ -1,5 +1,4 @@
-﻿using System;
-using AudibleApi;
+﻿using AudibleApi;
 using InternalUtilities;
 using LibationWinForms.Dialogs.Login;
 

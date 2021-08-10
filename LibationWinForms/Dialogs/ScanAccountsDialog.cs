@@ -1,10 +1,7 @@
-﻿using System;
+﻿using InternalUtilities;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using InternalUtilities;
 
 namespace LibationWinForms.Dialogs
 {
@@ -12,7 +9,7 @@ namespace LibationWinForms.Dialogs
 	{
 		public List<Account> CheckedAccounts { get; } = new List<Account>();
 
-		Form1 _parent { get; }
+		private Form1 _parent { get; }
 
 		public ScanAccountsDialog(Form1 parent)
 		{
@@ -21,7 +18,7 @@ namespace LibationWinForms.Dialogs
 			InitializeComponent();
 		}
 
-		class listItem
+		private class listItem
 		{
 			public Account Account { get; set; }
 			public string Text { get; set; }

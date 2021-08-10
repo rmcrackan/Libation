@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace LibationWinForms
 {
-	interface IObjectMemberComparable
+	internal interface IObjectMemberComparable
 	{
 		IComparer GetMemberComparer(Type memberType);
 		object GetMemberValue(string memberName);
