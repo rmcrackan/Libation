@@ -58,6 +58,7 @@
             // 
             this.gridEntryDataGridView.AllowUserToAddRows = false;
             this.gridEntryDataGridView.AllowUserToDeleteRows = false;
+            this.gridEntryDataGridView.AllowUserToResizeRows = false;
             this.gridEntryDataGridView.AutoGenerateColumns = false;
             this.gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -227,9 +228,6 @@
 
 		private System.Windows.Forms.BindingSource gridEntryBindingSource;
 		private System.Windows.Forms.DataGridView gridEntryDataGridView;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn9;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn10;
         private LiberateDataGridViewImageButtonColumn dataGridViewImageButtonBoxColumn1;
         private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn1;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
