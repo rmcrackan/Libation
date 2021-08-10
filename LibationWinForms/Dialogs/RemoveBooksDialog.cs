@@ -39,8 +39,8 @@ namespace LibationWinForms.Dialogs
             dataGridView1.BindingContextChanged += (s, e) => UpdateSelection();
 
 			var orderedGridEntries = _libraryBooks
-				.Select(lb => new RemovableGridEntry(new GridEntry(lb)))
-				.OrderByDescending(ge => ge.GridEntry.PurchaseDate)
+				.Select(lb => new RemovableGridEntry(lb))
+				.OrderByDescending(ge => ge.PurchaseDate)
 				.ToList();
 
 			_removableGridEntries = orderedGridEntries.ToSortableBindingList();
@@ -65,7 +65,7 @@ namespace LibationWinForms.Dialogs
 			{
 				var rmovedBooks = await LibraryCommands.FindInactiveBooks((account) => new WinformResponder(account), _libraryBooks, _accounts);
 
-				var removable = _removableGridEntries.Where(rge => rmovedBooks.Count(rb => rb.Book.AudibleProductId == rge.GridEntry.AudibleProductId) == 1);
+				var removable = _removableGridEntries.Where(rge => rmovedBooks.Count(rb => rb.Book.AudibleProductId == rge.AudibleProductId) == 1);
 
 				if (removable.Count() == 0)
 					return;
@@ -110,7 +110,7 @@ namespace LibationWinForms.Dialogs
 
 				var libBooks = context.GetLibrary_Flat_NoTracking();
 
-				var removeLibraryBooks = libBooks.Where(lb => selected.Count(rge => rge.GridEntry.AudibleProductId == lb.Book.AudibleProductId) == 1).ToArray();
+				var removeLibraryBooks = libBooks.Where(lb => selected.Count(rge => rge.AudibleProductId == lb.Book.AudibleProductId) == 1).ToArray();
 				context.Library.RemoveRange(removeLibraryBooks);
 				context.SaveChanges();
 				BooksRemoved = true;
@@ -141,11 +141,8 @@ namespace LibationWinForms.Dialogs
     }
 
 
-    internal class RemovableGridEntry :  INotifyPropertyChanged
+    internal class RemovableGridEntry : GridEntry
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-		public GridEntry GridEntry { get; }
-
 		public bool Remove
         {
             get
@@ -160,51 +157,12 @@ namespace LibationWinForms.Dialogs
 					NotifyPropertyChanged();
 				}
 			}
-		}
-		public Image Cover
-		{
-			get
-			{
-				return _cover;
-			}
-			set
-			{
-				_cover = value;
-				NotifyPropertyChanged();
-			}
-		}
-		public string Title =>  GridEntry.Title;
-		public string Authors => GridEntry.Authors;
-		public string Misc =>  GridEntry.Misc;
-		public string DatePurchased => GridEntry.PurchaseDate;
+		}	
 
 		private bool _remove = false;
-		private Image _cover;
 
-		public RemovableGridEntry(GridEntry gridEntry)
+		public RemovableGridEntry(LibraryBook libraryBook) :base(libraryBook)
 		{
-			GridEntry = gridEntry;
-
-			var picDef = new FileManager.PictureDefinition(GridEntry.LibraryBook.Book.PictureId, FileManager.PictureSize._80x80);
-			(bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(picDef);
-
-			if (isDefault)
-                FileManager.PictureStorage.PictureCached += PictureStorage_PictureCached;
-
-			_cover = ImageReader.ToImage(picture);
 		}
-
-        private void PictureStorage_PictureCached(object sender, string pictureId)
-        {
-			if (pictureId == GridEntry.LibraryBook.Book.PictureId)
-			{
-				Cover = WindowsDesktopUtilities.WinAudibleImageServer.GetImage(pictureId, FileManager.PictureSize._80x80);
-				FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
-			}
-		}
-
-		private void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => 
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
     }
 }

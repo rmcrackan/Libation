@@ -48,13 +48,6 @@ namespace LibationWinForms
             this.Load += (_, __) => RestoreSizeAndLocation();
             this.Load += (_, __) => RefreshImportMenu();
 
-            // start background service
-            this.Load += (_, __) => startBackgroundImageDownloader();
-        }
-
-        private static void startBackgroundImageDownloader()
-        {
-            // load default/missing cover images. this will also initiate the background image downloader
             var format = System.Drawing.Imaging.ImageFormat.Jpeg;
             PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
             PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));

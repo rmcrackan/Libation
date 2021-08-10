@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -38,7 +37,6 @@ namespace LibationWinForms
 
             // sorting breaks filters. must reapply filters after sorting
             _dataGridView.Sorted += (_, __) => Filter();
-            _dataGridView.CellFormatting += HiddenFormatting;
             _dataGridView.CellContentClick += DataGridView_CellContentClick;
 
             EnableDoubleBuffering();
@@ -133,7 +131,7 @@ namespace LibationWinForms
             var orderedGridEntries = lib
                 .Select(lb => new GridEntry(lb)).ToList()
                 // default load order
-                .OrderByDescending(ge => ge.PurchaseDate)
+                .OrderByDescending(ge => (DateTime)ge.GetMemberValue(nameof(ge.PurchaseDate)))
                 //// more advanced example: sort by author, then series, then title
                 //.OrderBy(ge => ge.Authors)
                 //    .ThenBy(ge => ge.Series)
@@ -155,10 +153,10 @@ namespace LibationWinForms
 
         public void RefreshRow(string productId)
         {
-            var rowId = getRowIndex((ge) => ge.AudibleProductId == productId);
+            var rowIndex = getRowIndex((ge) => ge.AudibleProductId == productId);
 
             // update cells incl Liberate button text
-            _dataGridView.InvalidateRow(rowId);
+            _dataGridView.InvalidateRow(rowIndex);
 
             // needed in case filtering by -IsLiberated and it gets changed to Liberated. want to immediately show the change
             Filter();
@@ -166,28 +164,9 @@ namespace LibationWinForms
             BackupCountsChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        #region format text cells. ie: not buttons
-
-        private void HiddenFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            var dgv = (DataGridView)sender;
-            // no action needed for buttons
-            if (e.RowIndex < 0 || dgv.Columns[e.ColumnIndex] is DataGridViewButtonColumn)
-                return;
-
-            var isHidden = getGridEntry(e.RowIndex).TagsEnumerated.Contains("hidden");
-
-            getCell(e).Style
-                = isHidden
-                ? new DataGridViewCellStyle { ForeColor = Color.LightGray }
-                : dgv.DefaultCellStyle;
-        }
-
         #endregion
 
-        #endregion
-
-        #region filter
+        #region Filter
 
         string _filterSearchString;
         private void Filter() => Filter(_filterSearchString);
@@ -220,7 +199,6 @@ namespace LibationWinForms
 
         private int getRowIndex(Func<GridEntry, bool> func) => _dataGridView.GetRowIdOfBoundItem(func);
         private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
-        private DataGridViewCell getCell(DataGridViewCellFormattingEventArgs e) => _dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex];
 
         #endregion
     }

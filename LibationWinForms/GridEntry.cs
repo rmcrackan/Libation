@@ -5,9 +5,11 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using ApplicationServices;
 using DataLayer;
 using Dinah.Core.Drawing;
+using Dinah.Core.Windows.Forms;
 
 namespace LibationWinForms
 {
@@ -32,6 +34,7 @@ namespace LibationWinForms
 
 		public event PropertyChangedEventHandler PropertyChanged;
 		private Book Book => LibraryBook.Book;
+		private SynchronizationContext SyncContext { get; } = SynchronizationContext.Current;
 		private Image _cover;
 
 		public GridEntry(LibraryBook libraryBook)
@@ -72,16 +75,23 @@ namespace LibationWinForms
 		{
 			if (pictureId == Book.PictureId)
 			{
+				//GridEntry SHOULD be UI-ignorant, but PropertyChanged
 				Cover = WindowsDesktopUtilities.WinAudibleImageServer.GetImage(pictureId, FileManager.PictureSize._80x80);
 				FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
 		}
 
-		private void NotifyPropertyChanged([CallerMemberName] string propertyName = "") =>
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+			=> SyncContext.Post(
+				args => OnPropertyChangedAsync(args as AsyncCompletedEventArgs),
+				new AsyncCompletedEventArgs(null, false, new PropertyChangedEventArgs(propertyName))
+				);
 
-        #region Data Source properties
-        public Image Cover
+		private void OnPropertyChangedAsync(AsyncCompletedEventArgs e) =>
+			PropertyChanged?.Invoke(this, e.UserState as PropertyChangedEventArgs);
+
+		#region Data Source properties
+		public Image Cover
 		{
 			get
 			{
