@@ -39,7 +39,7 @@ namespace ApplicationServices
 				var libraryItems = await scanAccountsAsync(loginCallbackFactoryFunc, accounts);
 				Log.Logger.Information($"GetAllLibraryItems: Total count {libraryItems.Count}");
 
-				var missingBookList = existingLibrary.Where(b => libraryItems.Count(i => i.DtoItem.Asin == b.Book.AudibleProductId) == 0).ToList();
+				var missingBookList = existingLibrary.Where(b => !libraryItems.Any(i => i.DtoItem.Asin == b.Book.AudibleProductId)).ToList();
 
 				return missingBookList;
 			}

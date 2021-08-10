@@ -6,12 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Dinah.Core.DataBinding;
-using System.Runtime.CompilerServices;
-using Dinah.Core.Drawing;
 using System.Collections;
 
 namespace LibationWinForms.Dialogs
@@ -22,7 +18,7 @@ namespace LibationWinForms.Dialogs
 
 		private Account[] _accounts { get; }
 		private List<LibraryBook> _libraryBooks;
-		private SortableBindingList<RemovableGridEntry> _removableGridEntries;
+		private SortableBindingList2<RemovableGridEntry> _removableGridEntries;
 		private string _labelFormat;
 		private int SelectedCount => SelectedEntries?.Count() ?? 0;
 		private IEnumerable<RemovableGridEntry> SelectedEntries => _removableGridEntries?.Where(b => b.Remove);
@@ -31,6 +27,7 @@ namespace LibationWinForms.Dialogs
 		{
 			_libraryBooks = DbContexts.GetContext().GetLibrary_Flat_NoTracking();
 			_accounts = accounts;
+
 			InitializeComponent();
 			_labelFormat = label1.Text;
 
@@ -40,10 +37,10 @@ namespace LibationWinForms.Dialogs
 
 			var orderedGridEntries = _libraryBooks
 				.Select(lb => new RemovableGridEntry(lb))
-				.OrderByDescending(ge => ge.PurchaseDate)
+				.OrderByDescending(ge => (DateTime)ge.GetMemberValue(nameof(ge.PurchaseDate)))
 				.ToList();
 
-			_removableGridEntries = orderedGridEntries.ToSortableBindingList();
+			_removableGridEntries = new SortableBindingList2<RemovableGridEntry>(orderedGridEntries);
 			gridEntryBindingSource.DataSource = _removableGridEntries;
 
 			dataGridView1.Enabled = false;
@@ -52,9 +49,7 @@ namespace LibationWinForms.Dialogs
         private void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
 		{
 			if (e.ColumnIndex == 0)
-			{
 				UpdateSelection();
-			}
 		}
 
 		private async void RemoveBooksDialog_Shown(object sender, EventArgs e)
@@ -65,9 +60,9 @@ namespace LibationWinForms.Dialogs
 			{
 				var rmovedBooks = await LibraryCommands.FindInactiveBooks((account) => new WinformResponder(account), _libraryBooks, _accounts);
 
-				var removable = _removableGridEntries.Where(rge => rmovedBooks.Count(rb => rb.Book.AudibleProductId == rge.AudibleProductId) == 1);
+				var removable = _removableGridEntries.Where(rge => rmovedBooks.Any(rb => rb.Book.AudibleProductId == rge.AudibleProductId));
 
-				if (removable.Count() == 0)
+				if (!removable.Any())
 					return;
 
 				foreach (var r in removable)
@@ -90,15 +85,18 @@ namespace LibationWinForms.Dialogs
 
 		private void btnRemoveBooks_Click(object sender, EventArgs e)
 		{
-			var selected = SelectedEntries.ToList();
+			var selectedBooks = SelectedEntries.ToList();
 
-			if (selected.Count == 0) return;
+			if (selectedBooks.Count == 0) return;
 
-			string titles = string.Join("\r\n", selected.Select(rge => "-" + rge.Title));
+			string titles = string.Join("\r\n", selectedBooks.Select(rge => "-" + rge.Title));
+
+			string thisThese = selectedBooks.Count > 1 ? "these" : "this";
+			string bookBooks = selectedBooks.Count > 1 ? "books" : "book";
 
 			var result = MessageBox.Show(
 				this,
-				$"Are you sure you want to remove the following {selected.Count} books from Libation's library?\r\n\r\n{titles}",
+				$"Are you sure you want to remove {thisThese} {selectedBooks.Count} {bookBooks} from Libation's library?\r\n\r\n{titles}",
 				"Remove books from Libation?",
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Question,
@@ -110,13 +108,15 @@ namespace LibationWinForms.Dialogs
 
 				var libBooks = context.GetLibrary_Flat_NoTracking();
 
-				var removeLibraryBooks = libBooks.Where(lb => selected.Count(rge => rge.AudibleProductId == lb.Book.AudibleProductId) == 1).ToArray();
+				var removeLibraryBooks = libBooks.Where(lb => selectedBooks.Any(rge => rge.AudibleProductId == lb.Book.AudibleProductId)).ToArray();
+
 				context.Library.RemoveRange(removeLibraryBooks);
 				context.SaveChanges();
-				BooksRemoved = true;
 
-				foreach (var rEntry in selected)
+				foreach (var rEntry in selectedBooks)
 					_removableGridEntries.Remove(rEntry);
+
+				BooksRemoved = removeLibraryBooks.Length > 0;
 
 				UpdateSelection();
 			}
@@ -125,44 +125,47 @@ namespace LibationWinForms.Dialogs
         {
 			dataGridView1.Sort(dataGridView1.Columns[0], ListSortDirection.Descending);
 			var selectedCount = SelectedCount;
-			label1.Text = string.Format(_labelFormat, selectedCount);
+			label1.Text = string.Format(_labelFormat, selectedCount, selectedCount != 1 ? "s" : string.Empty);
 			btnRemoveBooks.Enabled = selectedCount > 0;
 		}	
     }
-    class CompareBool : IComparer
-    {
-        public int Compare(object x, object y)
-        {
-			var rge1 = x as RemovableGridEntry;
-			var rge2 = y as RemovableGridEntry;
-
-			return rge1.Remove.CompareTo(rge2.Remove);
-        }
-    }
-
 
     internal class RemovableGridEntry : GridEntry
 	{
+		private static readonly IComparer BoolComparer = new ObjectComparer<bool>();
+
+		private bool _remove = false;
+		public RemovableGridEntry(LibraryBook libraryBook) : base(libraryBook) { }
+
 		public bool Remove
-        {
-            get
-            {
+		{
+			get
+			{
 				return _remove;
-            }
-            set
-            {
+			}
+			set
+			{
 				if (_remove != value)
 				{
 					_remove = value;
 					NotifyPropertyChanged();
 				}
 			}
-		}	
-
-		private bool _remove = false;
-
-		public RemovableGridEntry(LibraryBook libraryBook) :base(libraryBook)
-		{
 		}
+
+        public override object GetMemberValue(string propertyName)
+        {
+			if (propertyName == nameof(Remove))
+				return Remove;
+            return base.GetMemberValue(propertyName);
+        }
+
+        public override IComparer GetComparer(Type propertyType)
+        {
+			if (propertyType == typeof(bool))
+				return BoolComparer;
+
+			return base.GetComparer(propertyType);
+        }
     }
 }

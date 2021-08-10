@@ -126,8 +126,8 @@ namespace LibationWinForms
 		private Dictionary<string, Func<object>> _compareValues { get; }
 		private static Dictionary<Type, IComparer> _objectComparers;
 
-		public object GetMemberValue(string propertyName) => _compareValues[propertyName]();
-		public IComparer GetComparer(Type propertyType) => _objectComparers[propertyType];
+		public virtual object GetMemberValue(string propertyName) => _compareValues[propertyName]();
+		public virtual IComparer GetComparer(Type propertyType) => _objectComparers[propertyType];
 
 		/// <summary>
 		/// Instantiate comparers for every type needed to sort columns.

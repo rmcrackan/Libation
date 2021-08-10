@@ -30,17 +30,17 @@ namespace LibationWinForms.Dialogs
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.gridEntryBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.btnRemoveBooks = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
             this.removeDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.coverDataGridViewImageColumn = new System.Windows.Forms.DataGridViewImageColumn();
             this.titleDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.authorsDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.miscDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DatePurchased = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.purchaseDateGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.gridEntryBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.btnRemoveBooks = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -58,48 +58,22 @@ namespace LibationWinForms.Dialogs
             this.titleDataGridViewTextBoxColumn,
             this.authorsDataGridViewTextBoxColumn,
             this.miscDataGridViewTextBoxColumn,
-            this.DatePurchased});
+            this.purchaseDateGridViewTextBoxColumn});
             this.dataGridView1.DataSource = this.gridEntryBindingSource;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.RowTemplate.Height = 82;
             this.dataGridView1.Size = new System.Drawing.Size(800, 409);
             this.dataGridView1.TabIndex = 0;
-            // 
-            // gridEntryBindingSource
-            // 
-            this.gridEntryBindingSource.AllowNew = false;
-            this.gridEntryBindingSource.DataSource = typeof(LibationWinForms.Dialogs.RemovableGridEntry);
-            // 
-            // btnRemoveBooks
-            // 
-            this.btnRemoveBooks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRemoveBooks.Location = new System.Drawing.Point(570, 419);
-            this.btnRemoveBooks.Name = "btnRemoveBooks";
-            this.btnRemoveBooks.Size = new System.Drawing.Size(218, 23);
-            this.btnRemoveBooks.TabIndex = 1;
-            this.btnRemoveBooks.Text = "Remove Selected Books from Libation";
-            this.btnRemoveBooks.UseVisualStyleBackColor = true;
-            this.btnRemoveBooks.Click += new System.EventHandler(this.btnRemoveBooks_Click);
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 423);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(169, 15);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "{0} books selected for removal.";
             // 
             // removeDataGridViewCheckBoxColumn
             // 
@@ -109,6 +83,7 @@ namespace LibationWinForms.Dialogs
             this.removeDataGridViewCheckBoxColumn.HeaderText = "Remove";
             this.removeDataGridViewCheckBoxColumn.MinimumWidth = 60;
             this.removeDataGridViewCheckBoxColumn.Name = "removeDataGridViewCheckBoxColumn";
+            this.removeDataGridViewCheckBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.removeDataGridViewCheckBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             this.removeDataGridViewCheckBoxColumn.TrueValue = "True";
             this.removeDataGridViewCheckBoxColumn.Width = 60;
@@ -146,13 +121,39 @@ namespace LibationWinForms.Dialogs
             this.miscDataGridViewTextBoxColumn.ReadOnly = true;
             this.miscDataGridViewTextBoxColumn.Width = 150;
             // 
-            // DatePurchased
+            // purchaseDateGridViewTextBoxColumn
             // 
-            this.DatePurchased.DataPropertyName = "DatePurchased";
-            this.DatePurchased.HeaderText = "Date Purchased";
-            this.DatePurchased.Name = "DatePurchased";
-            this.DatePurchased.ReadOnly = true;
-            this.DatePurchased.Width = 120;
+            this.purchaseDateGridViewTextBoxColumn.DataPropertyName = "PurchaseDate";
+            this.purchaseDateGridViewTextBoxColumn.HeaderText = "Purchase Date";
+            this.purchaseDateGridViewTextBoxColumn.Name = "purchaseDateGridViewTextBoxColumn";
+            this.purchaseDateGridViewTextBoxColumn.ReadOnly = true;
+            this.purchaseDateGridViewTextBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // gridEntryBindingSource
+            // 
+            this.gridEntryBindingSource.AllowNew = false;
+            this.gridEntryBindingSource.DataSource = typeof(LibationWinForms.Dialogs.RemovableGridEntry);
+            // 
+            // btnRemoveBooks
+            // 
+            this.btnRemoveBooks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemoveBooks.Location = new System.Drawing.Point(570, 419);
+            this.btnRemoveBooks.Name = "btnRemoveBooks";
+            this.btnRemoveBooks.Size = new System.Drawing.Size(218, 23);
+            this.btnRemoveBooks.TabIndex = 1;
+            this.btnRemoveBooks.Text = "Remove Selected Books from Libation";
+            this.btnRemoveBooks.UseVisualStyleBackColor = true;
+            this.btnRemoveBooks.Click += new System.EventHandler(this.btnRemoveBooks_Click);
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 423);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(178, 15);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "{0} book{1} selected for removal.";
             // 
             // RemoveBooksDialog
             // 
@@ -183,6 +184,6 @@ namespace LibationWinForms.Dialogs
         private System.Windows.Forms.DataGridViewTextBoxColumn titleDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn authorsDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn miscDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DatePurchased;
+        private System.Windows.Forms.DataGridViewTextBoxColumn purchaseDateGridViewTextBoxColumn;
     }
 }
