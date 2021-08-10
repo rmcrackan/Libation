@@ -281,14 +281,15 @@ namespace LibationWinForms.BookLiberation
 			#endregion
 
 			#region Set initially displayed book properties from library info.
+
 			decryptDialog.SetTitle(actionName, libraryBook.Book.Title);
 			decryptDialog.SetAuthorNames(string.Join(", ", libraryBook.Book.Authors));
 			decryptDialog.SetNarratorNames(string.Join(", ", libraryBook.Book.NarratorNames));
 			decryptDialog.SetCoverImage(
-				WindowsDesktopUtilities.WinAudibleImageServer.GetImage(
+				WindowsDesktopUtilities.WinAudibleImageServer
+				.GetImage(
 					libraryBook.Book.PictureId,
-					FileManager.PictureSize._80x80
-					));
+					FileManager.PictureSize._80x80));
 			#endregion
 
 			#region define how model actions will affect form behavior
