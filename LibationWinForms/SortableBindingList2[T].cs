@@ -27,8 +27,6 @@ namespace LibationWinForms
 
         protected override ListSortDirection SortDirectionCore => listSortDirection;
 
-        protected override bool SupportsSearchingCore => true;
-
         protected override void ApplySortCore(PropertyDescriptor property, ListSortDirection direction)
         {
             List<T> itemsList = (List<T>)Items;
@@ -56,21 +54,6 @@ namespace LibationWinForms
             listSortDirection = base.SortDirectionCore;
 
             OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
-        }
-
-        protected override int FindCore(PropertyDescriptor property, object key)
-        {
-            int count = Count;
-            for (int i = 0; i < count; ++i)
-            {
-                T element = this[i];
-                if (property.GetValue(element).Equals(key))
-                {
-                    return i;
-                }
-            }
-
-            return -1;
         }
     }
 }

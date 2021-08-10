@@ -181,15 +181,15 @@ namespace LibationWinForms
             var productIds = searchResults.Docs.Select(d => d.ProductId).ToList();
 
             // https://stackoverflow.com/a/18942430
-            var currencyManager = (CurrencyManager)BindingContext[_dataGridView.DataSource];
-            currencyManager.SuspendBinding();
+            var bindingContext = BindingContext[_dataGridView.DataSource];
+            bindingContext.SuspendBinding();
             {
                 for (var r = _dataGridView.RowCount - 1; r >= 0; r--)
                     _dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).AudibleProductId);
             }
 
             //Causes repainting of the DataGridView
-            currencyManager.ResumeBinding();
+            bindingContext.ResumeBinding();
 			VisibleCountChanged?.Invoke(this, _dataGridView.AsEnumerable().Count(r => r.Visible));
         }
 
