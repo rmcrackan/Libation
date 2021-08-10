@@ -38,18 +38,7 @@ namespace LibationWinForms
             // sorting breaks filters. must reapply filters after sorting
             _dataGridView.Sorted += (_, __) => Filter();
             _dataGridView.CellContentClick += DataGridView_CellContentClick;
-
-            EnableDoubleBuffering();
 		}
-
-		private void EnableDoubleBuffering()
-		{
-			var propertyInfo = _dataGridView.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-
-			//var before = (bool)propertyInfo.GetValue(dataGridView);
-            propertyInfo.SetValue(_dataGridView, true, null);
-			//var after = (bool)propertyInfo.GetValue(dataGridView);
-		}        
 
         #region Button controls
 
