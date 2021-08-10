@@ -337,6 +337,7 @@ namespace LibationWinForms
 
             scanLibraries(scanAccountsDialog.CheckedAccounts);
         }
+
         private void removeThisAccountToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
@@ -363,6 +364,7 @@ namespace LibationWinForms
 
             scanLibrariesRemovedBooks(scanAccountsDialog.CheckedAccounts.ToArray());
         }
+
         private void scanLibrariesRemovedBooks(params Account[] accounts)
         {
             using var dialog = new RemoveBooksDialog(accounts);

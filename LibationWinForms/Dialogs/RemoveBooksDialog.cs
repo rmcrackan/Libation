@@ -31,9 +31,9 @@ namespace LibationWinForms.Dialogs
 			InitializeComponent();
 			_labelFormat = label1.Text;
 
-			dataGridView1.CellContentClick += (s, e) => dataGridView1.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            dataGridView1.CellValueChanged += DataGridView1_CellValueChanged;
-            dataGridView1.BindingContextChanged += (s, e) => UpdateSelection();
+			_dataGridView.CellContentClick += (s, e) => _dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            _dataGridView.CellValueChanged += DataGridView1_CellValueChanged;
+            _dataGridView.BindingContextChanged += (s, e) => UpdateSelection();
 
 			var orderedGridEntries = _libraryBooks
 				.Select(lb => new RemovableGridEntry(lb))
@@ -43,7 +43,7 @@ namespace LibationWinForms.Dialogs
 			_removableGridEntries = new SortableBindingList2<RemovableGridEntry>(orderedGridEntries);
 			gridEntryBindingSource.DataSource = _removableGridEntries;
 
-			dataGridView1.Enabled = false;
+			_dataGridView.Enabled = false;
 		}
 
         private void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -79,7 +79,7 @@ namespace LibationWinForms.Dialogs
 			}
 			finally
             {
-				dataGridView1.Enabled = true;
+				_dataGridView.Enabled = true;
             }
 		}
 
@@ -103,12 +103,12 @@ namespace LibationWinForms.Dialogs
 				MessageBoxDefaultButton.Button1);
 
 			if (result == DialogResult.Yes)
-            {
+			{
 				using var context = DbContexts.GetContext();
 
 				var libBooks = context.GetLibrary_Flat_NoTracking();
 
-				var removeLibraryBooks = libBooks.Where(lb => selectedBooks.Any(rge => rge.AudibleProductId == lb.Book.AudibleProductId)).ToArray();
+				var removeLibraryBooks = libBooks.Where(lb => selectedBooks.Any(rge => rge.AudibleProductId == lb.Book.AudibleProductId)).ToList();
 
 				context.Library.RemoveRange(removeLibraryBooks);
 				context.SaveChanges();
@@ -116,14 +116,14 @@ namespace LibationWinForms.Dialogs
 				foreach (var rEntry in selectedBooks)
 					_removableGridEntries.Remove(rEntry);
 
-				BooksRemoved = removeLibraryBooks.Length > 0;
+				BooksRemoved = removeLibraryBooks.Count > 0;
 
 				UpdateSelection();
 			}
 		}
 		private void UpdateSelection()
         {
-			dataGridView1.Sort(dataGridView1.Columns[0], ListSortDirection.Descending);
+			_dataGridView.Sort(_dataGridView.Columns[0], ListSortDirection.Descending);
 			var selectedCount = SelectedCount;
 			label1.Text = string.Format(_labelFormat, selectedCount, selectedCount != 1 ? "s" : string.Empty);
 			btnRemoveBooks.Enabled = selectedCount > 0;
@@ -153,19 +153,18 @@ namespace LibationWinForms.Dialogs
 			}
 		}
 
-        public override object GetMemberValue(string propertyName)
+        public override object GetMemberValue(string memberName)
         {
-			if (propertyName == nameof(Remove))
+			if (memberName == nameof(Remove))
 				return Remove;
-            return base.GetMemberValue(propertyName);
+            return base.GetMemberValue(memberName);
         }
 
-        public override IComparer GetComparer(Type propertyType)
-        {
-			if (propertyType == typeof(bool))
+        public override IComparer GetMemberComparer(Type memberType)
+		{
+			if (memberType == typeof(bool))
 				return BoolComparer;
-
-			return base.GetComparer(propertyType);
-        }
+			return base.GetMemberComparer(memberType);
+        }       
     }
 }

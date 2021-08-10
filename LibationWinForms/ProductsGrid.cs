@@ -137,9 +137,7 @@ namespace LibationWinForms
                 //    .ThenBy(ge => ge.Title)
                 .ToList();
 
-            //
             // BIND
-            //
             gridEntryBindingSource.DataSource = new SortableBindingList2<GridEntry>(orderedGridEntries);
 
             // FILTER
@@ -192,7 +190,7 @@ namespace LibationWinForms
 
         #endregion
 
-        #region DataGridView Macros
+        #region DataGridView Macro
 
         private int getRowIndex(Func<GridEntry, bool> func) => _dataGridView.GetRowIdOfBoundItem(func);
         private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);

@@ -21,7 +21,7 @@ namespace LibationWinForms
 			{
 				(string mouseoverText, Bitmap buttonImage) = GridEntry.GetLiberateDisplay(liberatedState, pdfState);
 
-				DrawImage(graphics, buttonImage, cellBounds);
+				DrawButtonImage(graphics, buttonImage, cellBounds);
 
 				ToolTipText = mouseoverText;
 			}

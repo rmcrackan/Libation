@@ -37,7 +37,7 @@ namespace LibationWinForms
 
 	public class DataGridViewImageButtonCell : DataGridViewButtonCell
 	{
-		protected void DrawImage(Graphics graphics, Bitmap image, Rectangle cellBounds)
+		protected void DrawButtonImage(Graphics graphics, Image image, Rectangle cellBounds)
 		{
 			var w = image.Width;
 			var h = image.Height;

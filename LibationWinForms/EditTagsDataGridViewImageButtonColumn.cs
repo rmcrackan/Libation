@@ -11,19 +11,26 @@ namespace LibationWinForms
 
 	internal class EditTagsDataGridViewImageButtonCell : DataGridViewImageButtonCell
 	{
-		private static readonly Bitmap ButtonImage = Properties.Resources.edit_tags_25x25;
+		private static readonly Image ButtonImage = Properties.Resources.edit_tags_25x25;
 		private static readonly Color HiddenForeColor = Color.LightGray;
 
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
-			var valueString = (string)value;
+			var tagsString = (string)value;
 
-			DataGridView.Rows[RowIndex].DefaultCellStyle.ForeColor = valueString?.Contains("hidden") == true ? HiddenForeColor : DataGridView.DefaultCellStyle.ForeColor;
+			var foreColor = tagsString?.Contains("hidden") == true ? HiddenForeColor : DataGridView.DefaultCellStyle.ForeColor;
 
-			if (valueString.Length == 0)
+			if (DataGridView.Rows[RowIndex].DefaultCellStyle.ForeColor != foreColor)
+			{
+				DataGridView.Rows[RowIndex].DefaultCellStyle.ForeColor = foreColor;
+
+				DataGridView.InvalidateRow(RowIndex);
+			}
+
+			if (tagsString.Length == 0)
 			{
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
-				DrawImage(graphics, ButtonImage, cellBounds);
+				DrawButtonImage(graphics, ButtonImage, cellBounds);
 			}
 			else
 			{

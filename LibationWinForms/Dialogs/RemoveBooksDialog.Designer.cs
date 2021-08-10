@@ -31,7 +31,7 @@ namespace LibationWinForms.Dialogs
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this._dataGridView = new System.Windows.Forms.DataGridView();
             this.removeDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.coverDataGridViewImageColumn = new System.Windows.Forms.DataGridViewImageColumn();
             this.titleDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -41,25 +41,25 @@ namespace LibationWinForms.Dialogs
             this.gridEntryBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.btnRemoveBooks = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._dataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
-            // dataGridView1
+            // _dataGridView
             // 
-            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this._dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridView1.AutoGenerateColumns = false;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this._dataGridView.AutoGenerateColumns = false;
+            this._dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this._dataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.removeDataGridViewCheckBoxColumn,
             this.coverDataGridViewImageColumn,
             this.titleDataGridViewTextBoxColumn,
             this.authorsDataGridViewTextBoxColumn,
             this.miscDataGridViewTextBoxColumn,
             this.purchaseDateGridViewTextBoxColumn});
-            this.dataGridView1.DataSource = this.gridEntryBindingSource;
+            this._dataGridView.DataSource = this.gridEntryBindingSource;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -67,13 +67,13 @@ namespace LibationWinForms.Dialogs
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle2;
-            this.dataGridView1.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.RowTemplate.Height = 82;
-            this.dataGridView1.Size = new System.Drawing.Size(800, 409);
-            this.dataGridView1.TabIndex = 0;
+            this._dataGridView.DefaultCellStyle = dataGridViewCellStyle2;
+            this._dataGridView.Location = new System.Drawing.Point(0, 0);
+            this._dataGridView.Name = "_dataGridView";
+            this._dataGridView.RowHeadersVisible = false;
+            this._dataGridView.RowTemplate.Height = 82;
+            this._dataGridView.Size = new System.Drawing.Size(800, 409);
+            this._dataGridView.TabIndex = 0;
             // 
             // removeDataGridViewCheckBoxColumn
             // 
@@ -162,11 +162,11 @@ namespace LibationWinForms.Dialogs
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnRemoveBooks);
-            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this._dataGridView);
             this.Name = "RemoveBooksDialog";
             this.Text = "RemoveBooksDialog";
             this.Shown += new System.EventHandler(this.RemoveBooksDialog_Shown);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._dataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -175,7 +175,7 @@ namespace LibationWinForms.Dialogs
 
         #endregion
 
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView _dataGridView;
         private System.Windows.Forms.BindingSource gridEntryBindingSource;
         private System.Windows.Forms.Button btnRemoveBooks;
         private System.Windows.Forms.Label label1;
