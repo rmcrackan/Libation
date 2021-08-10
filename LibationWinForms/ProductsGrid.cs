@@ -80,7 +80,7 @@ namespace LibationWinForms
 
         private void EditTags_Click(GridEntry liveGridEntry)
         {
-            var bookDetailsForm = new BookDetailsDialog(liveGridEntry.Title, liveGridEntry.Tags);
+            var bookDetailsForm = new BookDetailsDialog(liveGridEntry.Title, liveGridEntry.LibraryBook.Book.UserDefinedItem.Tags);
             if (bookDetailsForm.ShowDialog() != DialogResult.OK)
                 return;
 

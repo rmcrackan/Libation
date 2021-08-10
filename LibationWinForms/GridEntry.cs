@@ -23,10 +23,6 @@ namespace LibationWinForms
         [Browsable(false)]
 		public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)]
-		public string Tags => Book.UserDefinedItem.Tags;
-		[Browsable(false)]
-		public IEnumerable<string> TagsEnumerated => Book.UserDefinedItem.TagsEnumerated;
-		[Browsable(false)]
 		public LibraryBook LibraryBook { get; }
 
 		#endregion
@@ -114,7 +110,7 @@ namespace LibationWinForms
 		public string Misc { get; }
 		public string Description { get; }
 
-		public string DisplayTags => string.Join("\r\n", TagsEnumerated);
+		public string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 		public (LiberatedState, PdfState) Liberate => (LibraryCommands.Liberated_Status(Book), LibraryCommands.Pdf_Status(Book));
 
 		#endregion
