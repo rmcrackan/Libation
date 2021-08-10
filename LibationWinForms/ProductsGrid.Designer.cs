@@ -91,7 +91,7 @@
             this.gridEntryDataGridView.ReadOnly = true;
             this.gridEntryDataGridView.RowHeadersVisible = false;
             this.gridEntryDataGridView.RowTemplate.Height = 82;
-            this.gridEntryDataGridView.Size = new System.Drawing.Size(1503, 380);
+            this.gridEntryDataGridView.Size = new System.Drawing.Size(1505, 380);
             this.gridEntryDataGridView.TabIndex = 0;
             // 
             // dataGridViewImageButtonBoxColumn1
@@ -216,7 +216,7 @@
             this.Controls.Add(this.gridEntryDataGridView);
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "ProductsGrid";
-            this.Size = new System.Drawing.Size(1503, 380);
+            this.Size = new System.Drawing.Size(1505, 380);
             ((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).EndInit();
             this.ResumeLayout(false);

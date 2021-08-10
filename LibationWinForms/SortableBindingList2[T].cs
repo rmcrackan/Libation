@@ -36,7 +36,11 @@ namespace LibationWinForms
             Comparer.PropertyName = property.Name;
             Comparer.Direction = direction;
 
-            itemsList.Sort(Comparer);
+            //Array.Sort and Liat<T>.Sort are unstable sorts. OrderBy is stable.
+            var sortedItems = itemsList.OrderBy((ge) => ge, Comparer).ToArray();
+
+            itemsList.Clear();
+            itemsList.AddRange(sortedItems);
 
             propertyDescriptor = property;
             listSortDirection = direction;
