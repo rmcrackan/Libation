@@ -208,6 +208,8 @@ namespace LibationWinForms
                 for (var r = _dataGridView.RowCount - 1; r >= 0; r--)
                     _dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).AudibleProductId);
             }
+
+            //Causes repainting of the DataGridView
             currencyManager.ResumeBinding();
 			VisibleCountChanged?.Invoke(this, _dataGridView.AsEnumerable().Count(r => r.Visible));
         }
