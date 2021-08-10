@@ -9,7 +9,6 @@ using System.Threading;
 using ApplicationServices;
 using DataLayer;
 using Dinah.Core.Drawing;
-using Dinah.Core.Windows.Forms;
 
 namespace LibationWinForms
 {
@@ -84,8 +83,7 @@ namespace LibationWinForms
 		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
 			=> SyncContext.Post(
 				args => OnPropertyChangedAsync(args as AsyncCompletedEventArgs),
-				new AsyncCompletedEventArgs(null, false, new PropertyChangedEventArgs(propertyName))
-				);
+				new AsyncCompletedEventArgs(null, false, new PropertyChangedEventArgs(propertyName)));
 
 		private void OnPropertyChangedAsync(AsyncCompletedEventArgs e) =>
 			PropertyChanged?.Invoke(this, e.UserState as PropertyChangedEventArgs);
