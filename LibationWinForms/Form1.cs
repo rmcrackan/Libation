@@ -337,6 +337,40 @@ namespace LibationWinForms
 
             scanLibraries(scanAccountsDialog.CheckedAccounts);
         }
+        private void removeThisAccountToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+            var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
+            scanLibrariesRemovedBooks(firstAccount);
+        }
+
+        private void removeAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+            var allAccounts = persister.AccountsSettings.GetAll();
+            scanLibrariesRemovedBooks(allAccounts.ToArray());
+        }
+
+        private void removeSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using var scanAccountsDialog = new ScanAccountsDialog(this);
+
+            if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            if (!scanAccountsDialog.CheckedAccounts.Any())
+                return;
+
+            scanLibrariesRemovedBooks(scanAccountsDialog.CheckedAccounts.ToArray());
+        }
+        private void scanLibrariesRemovedBooks(params Account[] accounts)
+        {
+            using var dialog = new RemoveBooksDialog(accounts);
+            dialog.ShowDialog();
+
+            if (dialog.BooksRemoved)
+                reloadGrid();
+        }
 
         private void scanLibraries(IEnumerable<Account> accounts) => scanLibraries(accounts.ToArray());
         private void scanLibraries(params Account[] accounts)
@@ -458,41 +492,5 @@ namespace LibationWinForms
 
         private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
         #endregion
-
-
-        private void removeThisAccountToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-            var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
-            scanLibrariesRemovedBooks(firstAccount);
-        }
-
-        private void removeAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-            var allAccounts = persister.AccountsSettings.GetAll();
-            scanLibrariesRemovedBooks(allAccounts.ToArray());
-        }
-
-        private void removeSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using var scanAccountsDialog = new ScanAccountsDialog(this);
-
-            if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            if (!scanAccountsDialog.CheckedAccounts.Any())
-                return;
-
-            scanLibrariesRemovedBooks(scanAccountsDialog.CheckedAccounts.ToArray());
-        }
-        private void scanLibrariesRemovedBooks(params Account[] accounts)
-        {
-            using var dialog = new RemoveBooksDialog(accounts);
-            dialog.ShowDialog();
-
-            if (dialog.BooksRemoved)
-                reloadGrid();
-        }
     }
 }
