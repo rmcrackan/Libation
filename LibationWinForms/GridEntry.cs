@@ -28,18 +28,18 @@ namespace LibationWinForms
 		public GridEntry(LibraryBook libraryBook)
 		{
 			LibraryBook = libraryBook;
-
 			_memberValues = CreateMemberValueDictionary();
 
 			//Get cover art. If it's default, subscribe to PictureCached
-			var picDef = new FileManager.PictureDefinition(Book.PictureId, FileManager.PictureSize._80x80);
-			(bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(picDef);
+			{
+				(bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(new FileManager.PictureDefinition(Book.PictureId, FileManager.PictureSize._80x80));
 
-			if (isDefault)
-				FileManager.PictureStorage.PictureCached += PictureStorage_PictureCached;
+				if (isDefault)
+					FileManager.PictureStorage.PictureCached += PictureStorage_PictureCached;
 
-			//Mutable property. Set the field so PropertyChanged isn't fired.
-			_cover = ImageReader.ToImage(picture);
+				//Mutable property. Set the field so PropertyChanged isn't fired.
+				_cover = ImageReader.ToImage(picture);
+			}
 
 			//Immutable properties
 			{
@@ -59,11 +59,11 @@ namespace LibationWinForms
 			//DisplayTags and Liberate properties are live.
 		}
 
-		private void PictureStorage_PictureCached(object sender, string pictureId)
+		private void PictureStorage_PictureCached(object sender, FileManager.PictureCachedEventArgs e)
 		{
-			if (pictureId == Book.PictureId)
+			if (e.Definition.PictureId == Book.PictureId)
 			{
-				Cover = WindowsDesktopUtilities.WinAudibleImageServer.GetImage(pictureId, FileManager.PictureSize._80x80);
+				Cover = ImageReader.ToImage(e.Picture);
 				FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
 		}

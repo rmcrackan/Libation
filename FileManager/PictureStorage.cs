@@ -7,6 +7,11 @@ using System.Net.Http;
 namespace FileManager
 {
 	public enum PictureSize { _80x80 = 80, _300x300 = 300, _500x500 = 500 }
+	public class PictureCachedEventArgs : EventArgs
+	{
+		public PictureDefinition Definition { get; internal set; }
+		public byte[] Picture { get; internal set; }
+	}
 	public struct PictureDefinition
 	{
 		public string PictureId { get; }
@@ -38,7 +43,7 @@ namespace FileManager
 			timer.Elapsed += (_, __) => timerDownload();
 		}
 
-		public static event EventHandler<string> PictureCached;
+		public static event EventHandler<PictureCachedEventArgs> PictureCached;
 
 		private static Dictionary<PictureDefinition, byte[]> cache { get; } = new Dictionary<PictureDefinition, byte[]>();
 		public static (bool isDefault, byte[] bytes) GetPicture(PictureDefinition def)
@@ -109,7 +114,7 @@ namespace FileManager
 				saveFile(def, bytes);
 				cache[def] = bytes;
 
-				PictureCached?.Invoke(nameof(PictureStorage), def.PictureId);
+				PictureCached?.Invoke(nameof(PictureStorage), new PictureCachedEventArgs { Definition = def, Picture = bytes });
 			}
 			finally
 			{

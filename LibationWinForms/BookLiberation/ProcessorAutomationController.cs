@@ -285,10 +285,11 @@ namespace LibationWinForms.BookLiberation
 			decryptDialog.SetAuthorNames(string.Join(", ", libraryBook.Book.Authors));
 			decryptDialog.SetNarratorNames(string.Join(", ", libraryBook.Book.NarratorNames));
 			decryptDialog.SetCoverImage(
-				WindowsDesktopUtilities.WinAudibleImageServer.GetImage(
-					libraryBook.Book.PictureId,
-					FileManager.PictureSize._80x80
-					));
+				Dinah.Core.Drawing.ImageReader.ToImage(
+					FileManager.PictureStorage.GetPictureSynchronously(
+						new FileManager.PictureDefinition(
+							libraryBook.Book.PictureId,
+							FileManager.PictureSize._80x80))));
 			#endregion
 
 			#region define how model actions will affect form behavior
@@ -300,7 +301,12 @@ namespace LibationWinForms.BookLiberation
 			void updateProgress(object _, int percentage) => decryptDialog.UpdateProgress(percentage);
 			void updateRemainingTime(object _, TimeSpan remaining) => decryptDialog.UpdateRemainingTime(remaining);
 			void decryptCompleted(object _, string __) => decryptDialog.Close();
-			void requestCoverArt(object _, Action<byte[]> setCoverArtDelegate) => setCoverArtDelegate(FileManager.PictureStorage.GetPictureSynchronously(new FileManager.PictureDefinition(libraryBook.Book.PictureId, FileManager.PictureSize._500x500)));
+			void requestCoverArt(object _, Action<byte[]> setCoverArtDelegate) 
+				=> setCoverArtDelegate(
+					FileManager.PictureStorage.GetPictureSynchronously(
+						new FileManager.PictureDefinition(
+							libraryBook.Book.PictureId,
+							FileManager.PictureSize._500x500)));
 			#endregion
 
 			#region subscribe new form to model's events
