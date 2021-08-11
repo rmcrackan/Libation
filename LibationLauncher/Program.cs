@@ -148,7 +148,7 @@ namespace LibationLauncher
 			CancelInstallation();
 		}
 
-#region migrate to v5.0.0 re-register device if device info not in settings
+		#region migrate to v5.0.0 re-register device if device info not in settings
 		private static void migrate_to_v5_0_0(Configuration config)
 		{
 			if (!config.Exists(nameof(config.AllowLibationFixup)))
@@ -190,9 +190,9 @@ namespace LibationLauncher
                 }
 			}
 		}
-#endregion
+		#endregion
 
-#region migrate to v5.2.0
+		#region migrate to v5.2.0
 		// get rid of meta-directories, combine DownloadsInProgressEnum and DecryptInProgressEnum => InProgress
 		private static void migrate_to_v5_2_0__pre_config()
 		{
@@ -234,9 +234,9 @@ namespace LibationLauncher
 			if (!config.Exists(nameof(config.DecryptToLossy)))
 				config.DecryptToLossy = false;
 		}
-#endregion
+		#endregion
 
-#region migrate to v5.4.1 see comment
+		#region migrate to v5.4.1 see comment
 		// this 'migration' is a bit different. it intentionally runs each time Libation is started. its job will be fulfilled when I eventually
 		// implement the portion which removes FilePaths.json, at which time this method will be a proper migration
 		//
@@ -300,7 +300,7 @@ namespace LibationLauncher
 			debugStopwatch.Stop();
 			var debugTotal = debugStopwatch.Elapsed;
 		}
-#endregion
+		#endregion
 
 		private static void ensureSerilogConfig(Configuration config)
 		{
