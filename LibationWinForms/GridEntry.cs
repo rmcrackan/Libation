@@ -1,7 +1,6 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using Dinah.Core.Drawing;
-using FileManager;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,19 +24,19 @@ namespace LibationWinForms
 
 		private Book Book => LibraryBook.Book;
 		private Image _cover;
-		private PictureDefinition PictureDefinition { get; }
 
 		public GridEntry(LibraryBook libraryBook)
 		{
 			LibraryBook = libraryBook;
-			PictureDefinition = new PictureDefinition(Book.PictureId, PictureSize._80x80);
+
 			_memberValues = CreateMemberValueDictionary();
 
 			//Get cover art. If it's default, subscribe to PictureCached
-			(bool isDefault, byte[] picture) = PictureStorage.GetPicture(PictureDefinition);
+			var picDef = new FileManager.PictureDefinition(Book.PictureId, FileManager.PictureSize._80x80);
+			(bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(picDef);
 
 			if (isDefault)
-				PictureStorage.PictureCached += PictureStorage_PictureCached;
+				FileManager.PictureStorage.PictureCached += PictureStorage_PictureCached;
 
 			//Mutable property. Set the field so PropertyChanged isn't fired.
 			_cover = ImageReader.ToImage(picture);
@@ -64,9 +63,8 @@ namespace LibationWinForms
 		{
 			if (pictureId == Book.PictureId)
 			{
-				(_, byte[] picture) = PictureStorage.GetPicture(PictureDefinition);
-				Cover = ImageReader.ToImage(picture);
-				PictureStorage.PictureCached -= PictureStorage_PictureCached;
+				Cover = WindowsDesktopUtilities.WinAudibleImageServer.GetImage(pictureId, FileManager.PictureSize._80x80);
+				FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
 		}
 
