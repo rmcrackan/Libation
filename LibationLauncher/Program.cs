@@ -421,7 +421,6 @@ namespace LibationLauncher
 				if (latest is null)
 					return;
 
-
 				var latestVersionString = latest.TagName.Trim('v');
 				if (!Version.TryParse(latestVersionString, out var latestRelease))
 					return;
