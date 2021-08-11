@@ -1,19 +1,13 @@
 ﻿using AAXClean;
 using Dinah.Core;
-using Dinah.Core.Diagnostics;
 using Dinah.Core.IO;
-using Dinah.Core.Logging;
 using Dinah.Core.StepRunner;
 using System;
 using System.IO;
 
 namespace AaxDecrypter
 {
-    public enum OutputFormat
-    {
-        Mp4a,
-        Mp3
-    }
+    public enum OutputFormat { Mp4a,  Mp3 }
     public class AaxcDownloadConverter
     {
         public event EventHandler<AppleTags> RetrievedTags;
@@ -26,7 +20,6 @@ namespace AaxDecrypter
         private string cacheDir { get; }
         private DownloadLicense downloadLicense { get; }
         private AaxFile aaxFile;
-        private byte[] coverArt;
         private OutputFormat OutputFormat;
 
         private StepSequence steps { get; }
@@ -65,11 +58,15 @@ namespace AaxDecrypter
             };
         }
 
+        /// <summary>
+        /// Setting cover art by this method will insert the art into the audiobook metadata
+        /// </summary>
         public void SetCoverArt(byte[] coverArt)
         {
             if (coverArt is null) return;
 
-            this.coverArt = coverArt;
+            aaxFile?.AppleTags.SetCoverArt(coverArt);
+
             RetrievedCoverArt?.Invoke(this, coverArt);
         }
 
@@ -98,7 +95,7 @@ namespace AaxDecrypter
                 try
                 {
                     nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
-                    //If More thaan ~1 hour has elapsed since getting the download url, it will expire.
+                    //If More than ~1 hour has elapsed since getting the download url, it will expire.
                     //The new url will be to the same file.
                     nfsPersister.NetworkFileStream.SetUriForSameFile(new Uri(downloadLicense.DownloadUrl));
                 }
@@ -116,10 +113,9 @@ namespace AaxDecrypter
             nfsPersister.NetworkFileStream.BeginDownloading();
 
             aaxFile = new AaxFile(nfsPersister.NetworkFileStream);
-            coverArt = aaxFile.AppleTags.Cover;
 
             RetrievedTags?.Invoke(this, aaxFile.AppleTags);
-            RetrievedCoverArt?.Invoke(this, coverArt);
+            RetrievedCoverArt?.Invoke(this, aaxFile.AppleTags.Cover);
 
             return !isCanceled;
         }
@@ -136,7 +132,6 @@ namespace AaxDecrypter
 
         public bool Step2_DownloadAndCombine()
         {
-
             DecryptProgressUpdate?.Invoke(this, 0);
 
             if (File.Exists(outputFileName))
@@ -147,25 +142,12 @@ namespace AaxDecrypter
             aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
 
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-
             var decryptionResult = OutputFormat == OutputFormat.Mp4a ? aaxFile.ConvertToMp4a(outFile, downloadLicense.ChapterInfo) : aaxFile.ConvertToMp3(outFile);
             aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
             aaxFile.Close();
 
             downloadLicense.ChapterInfo = aaxFile.Chapters;
-
-            if (decryptionResult == ConversionResult.NoErrorsDetected
-                && coverArt is not null
-                && OutputFormat == OutputFormat.Mp4a)
-            {
-                //This handles a special case where the aaxc file doesn't contain cover art and
-                //Libation downloaded it instead (Animal Farm). Currently only works for Mp4a files.
-                using var decryptedBook = new Mp4File(outputFileName, FileAccess.ReadWrite);
-                decryptedBook.AppleTags?.SetCoverArt(coverArt);
-                decryptedBook.Save();
-                decryptedBook.Close();
-            }
 
             nfsPersister.Dispose();
 

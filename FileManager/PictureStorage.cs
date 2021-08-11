@@ -6,7 +6,7 @@ using System.Net.Http;
 
 namespace FileManager
 {
-	public enum PictureSize { _80x80, _300x300, _500x500 }
+	public enum PictureSize { _80x80 = 80, _300x300 = 300, _500x500 = 500 }
 	public struct PictureDefinition
 	{
 		public string PictureId { get; }
@@ -52,6 +52,26 @@ namespace FileManager
 					: null;
 			}
 			return (cache[def] == null, cache[def] ?? getDefaultImage(def.Size));
+		}
+
+		public static byte[] GetPictureSynchronously(PictureDefinition def)
+		{
+			if (!cache.ContainsKey(def) || cache[def] == null)
+			{
+				var path = getPath(def);
+				byte[] bytes;
+
+				if (File.Exists(path))
+					bytes = File.ReadAllBytes(path);
+				else
+				{
+					bytes = downloadBytes(def);
+					saveFile(def, bytes);
+				}
+
+				cache[def] = bytes;
+			}
+			return cache[def];
 		}
 
 		private static Dictionary<PictureSize, byte[]> defaultImages { get; } = new Dictionary<PictureSize, byte[]>();
@@ -100,7 +120,7 @@ namespace FileManager
 		private static HttpClient imageDownloadClient { get; } = new HttpClient();
 		private static byte[] downloadBytes(PictureDefinition def)
 		{
-			var sz = def.Size.ToString().Split('x')[1];
+			var sz = ((int)def.Size).ToString();
 			return imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}._SL{sz}_.jpg").Result;
 		}
 

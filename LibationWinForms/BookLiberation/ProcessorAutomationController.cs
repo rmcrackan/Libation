@@ -293,7 +293,6 @@ namespace LibationWinForms.BookLiberation
 
 			#region define how model actions will affect form behavior
 			void decryptBegin(object _, string __) => decryptDialog.Show();
-
 			void titleDiscovered(object _, string title) => decryptDialog.SetTitle(actionName, title);
 			void authorsDiscovered(object _, string authors) => decryptDialog.SetAuthorNames(authors);
 			void narratorsDiscovered(object _, string narrators) => decryptDialog.SetNarratorNames(narrators);
@@ -301,31 +300,7 @@ namespace LibationWinForms.BookLiberation
 			void updateProgress(object _, int percentage) => decryptDialog.UpdateProgress(percentage);
 			void updateRemainingTime(object _, TimeSpan remaining) => decryptDialog.UpdateRemainingTime(remaining);
 			void decryptCompleted(object _, string __) => decryptDialog.Close();
-
-			void requestCoverArt(object _, Action<byte[]> setCoverArtDelegate)
-			{
-				var picDef = new FileManager.PictureDefinition(libraryBook.Book.PictureId, FileManager.PictureSize._500x500);
-				(bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(picDef);
-
-				if (isDefault)
-				{
-					void pictureCached(object _, string pictureId)
-					{
-						if (pictureId == libraryBook.Book.PictureId)
-						{
-							FileManager.PictureStorage.PictureCached -= pictureCached;
-
-							var picDef = new FileManager.PictureDefinition(libraryBook.Book.PictureId, FileManager.PictureSize._500x500);
-							(_, picture) = FileManager.PictureStorage.GetPicture(picDef);
-
-							setCoverArtDelegate(picture);
-						}
-					};
-					FileManager.PictureStorage.PictureCached += pictureCached;
-				}
-				else
-					setCoverArtDelegate(picture);
-			}
+			void requestCoverArt(object _, Action<byte[]> setCoverArtDelegate) => setCoverArtDelegate(FileManager.PictureStorage.GetPictureSynchronously(new FileManager.PictureDefinition(libraryBook.Book.PictureId, FileManager.PictureSize._500x500)));
 			#endregion
 
 			#region subscribe new form to model's events
