@@ -29,10 +29,12 @@ namespace LibationWinForms.BookLiberation
 
 			OnUnsubscribeAll(this, EventArgs.Empty);
 
+			Streamable.StreamingBegin += ShowFormHandler;
 			Streamable.StreamingBegin += OnStreamingBegin;
-			Streamable.StreamingCompleted += OnStreamingCompleted;
 			Streamable.StreamingProgressChanged += OnStreamingProgressChanged;
 			Streamable.StreamingTimeRemaining += OnStreamingTimeRemaining;
+			Streamable.StreamingCompleted += OnStreamingCompleted;
+			Streamable.StreamingCompleted += CloseFormHandler;
 
 			FormClosed += OnUnsubscribeAll;
 		}
@@ -41,14 +43,15 @@ namespace LibationWinForms.BookLiberation
 		{
 			FormClosed -= OnUnsubscribeAll;
 
+			Streamable.StreamingBegin -= ShowFormHandler;
 			Streamable.StreamingBegin -= OnStreamingBegin;
-			Streamable.StreamingCompleted -= OnStreamingCompleted;
 			Streamable.StreamingProgressChanged -= OnStreamingProgressChanged;
 			Streamable.StreamingTimeRemaining -= OnStreamingTimeRemaining;
+			Streamable.StreamingCompleted -= OnStreamingCompleted;
+			Streamable.StreamingCompleted -= CloseFormHandler;
 		}
 
-		#region IStreamable event handlers
-		public virtual void OnStreamingBegin(object sender, string beginString)
+		private void ShowFormHandler(object sender, string beginString)
 		{
 			//If StreamingBegin is fired from a worker thread, the window will be created on
 			//that UI thread. We need to make certain that we show the window on the same
@@ -70,9 +73,18 @@ namespace LibationWinForms.BookLiberation
 			else
 				show();
 		}
+
+		/// <summary>
+		/// If the form was shown using Show (not ShowDialog), Form.Close calls Form.Dispose
+		/// </summary>
+		private void CloseFormHandler(object sender, string completedString) => this.UIThread(() => Close());
+
+
+		#region IStreamable event handlers
+		public virtual void OnStreamingBegin(object sender, string beginString) { }
 		public virtual void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress) { }
 		public virtual void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining) { }
-		public virtual void OnStreamingCompleted(object sender, string completedString) => this.UIThread(() => Close());
+		public virtual void OnStreamingCompleted(object sender, string completedString) { }
 		#endregion
 	}
 }
