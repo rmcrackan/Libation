@@ -8,10 +8,10 @@ namespace LibationWinForms.BookLiberation
 {
 	public class ProcessBaseForm : StreamBaseForm
 	{
-		protected Action<string> InfoLogAction { get; private set; }
-		public virtual void SetProcessable(IStreamable streamable, Action<string> infoLog)
+		protected LogMe LogMe { get; private set; }
+		public virtual void SetProcessable(IStreamable streamable, LogMe logMe)
 		{
-			InfoLogAction = infoLog;
+			LogMe = logMe;
 			SetStreamable(streamable);
 
 			if (Streamable is not null && Streamable is IProcessable processable)
@@ -38,9 +38,9 @@ namespace LibationWinForms.BookLiberation
 		}
 
 		#region IProcessable event handlers
-		public virtual void OnBegin(object sender, LibraryBook libraryBook) => InfoLogAction($"Begin: {libraryBook.Book}");
-		public virtual void OnStatusUpdate(object sender, string statusUpdate) => InfoLogAction("- " + statusUpdate);
-		public virtual void OnCompleted(object sender, LibraryBook libraryBook) => InfoLogAction($"Completed: {libraryBook.Book}{Environment.NewLine}");
+		public virtual void OnBegin(object sender, LibraryBook libraryBook) => LogMe.Info($"Begin: {libraryBook.Book}");
+		public virtual void OnStatusUpdate(object sender, string statusUpdate) => LogMe.Info("- " + statusUpdate);
+		public virtual void OnCompleted(object sender, LibraryBook libraryBook) => LogMe.Info($"Completed: {libraryBook.Book}{Environment.NewLine}");
 		#endregion
 	}
 }

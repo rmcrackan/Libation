@@ -19,9 +19,9 @@ namespace LibationWinForms.BookLiberation
 		private string narratorNames;
 
 		#region ProcessBaseForm overrides
-		public override void SetProcessable(IStreamable streamProcessable, Action<string> infoLog)
+		public override void SetProcessable(IStreamable streamProcessable, LogMe logMe)
 		{
-			base.SetProcessable(streamProcessable, infoLog);
+			base.SetProcessable(streamProcessable, logMe);
 
 			if (Streamable is not null && Streamable is IAudioDecodable audioDecodable)
 			{
@@ -35,7 +35,6 @@ namespace LibationWinForms.BookLiberation
 
 				Disposed += OnUnsubscribeAll;
 			}
-
 		}
 		#endregion
 

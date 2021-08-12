@@ -86,11 +86,20 @@ namespace LibationWinForms.BookLiberation
 			await new BackupLoop(logMe, convertBook, automatedBackupsForm).RunBackupAsync();
 		}
 
-		private static BackupBook CreateBackupBook(EventHandler<LibraryBook> completedAction, LogMe logMe)
+		private static IProcessable CreateBackupBook(EventHandler<LibraryBook> completedAction, LogMe logMe)
 		{
-			var downloadPdf = CreateStreamProcessable<DownloadPdf, DownloadForm>(completedAction, logMe);
-			var downloadDecryptBook = CreateStreamProcessable<DownloadDecryptBook, AudioDecryptForm>(completedAction, logMe);
-			return new BackupBook(downloadDecryptBook, downloadPdf);
+			var downloadPdf = CreateStreamProcessable<DownloadPdf, PdfDownloadForm>(null, logMe);
+
+			//Chain pdf download on DownloadDecryptBook.Completed
+			async void onDownloadDecryptBookCompleted(object sender, LibraryBook e)
+			{
+				await downloadPdf.TryProcessAsync(e);
+
+				completedAction(sender, e);
+			}
+
+			var downloadDecryptBook = CreateStreamProcessable<DownloadDecryptBook, AudioDecryptForm>(onDownloadDecryptBookCompleted, logMe);
+			return downloadDecryptBook;
 		}
 
 		public static async Task BackupAllPdfsAsync(EventHandler<LibraryBook> completedAction = null)
@@ -122,7 +131,7 @@ namespace LibationWinForms.BookLiberation
 		}
 
 		/// <summary>
-		/// Create a new <see cref="IStreamProcessable"/> and which creates a new <see cref="ProcessBaseForm"/> on <see cref="IProcessable.Begin"/>.
+		/// Create a new <see cref="IStreamProcessable"/> and links it to a new <see cref="ProcessBaseForm"/>.
 		/// </summary>
 		/// <typeparam name="TStrProc">The <see cref="IStreamProcessable"/> derrived type to create.</typeparam>
 		/// <typeparam name="TForm">The <see cref="ProcessBaseForm"/> derrived form to create on <see cref="IProcessable.Begin"/> and and be Shown on <see cref="IStreamable.StreamingBegin"/></typeparam>
@@ -138,7 +147,7 @@ namespace LibationWinForms.BookLiberation
 			{
 				var processForm = new TForm();
 				Action<string> logAction = logMe is null ? (s) => { } : logMe.Info;
-				processForm.SetProcessable(strProc, logAction);
+				processForm.SetProcessable(strProc, logMe);
 				processForm.OnBegin(sender, libraryBook);
 			};
 
