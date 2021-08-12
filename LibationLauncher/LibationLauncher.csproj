@@ -13,7 +13,7 @@
     <!-- <PublishSingleFile>true</PublishSingleFile> -->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
 
-    <Version>5.4.9.264</Version>
+    <Version>5.4.9.269</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

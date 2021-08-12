@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using AudibleApi;
 using AudibleApi.Authorization;
 using DataLayer;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +12,6 @@ using FileManager;
 using InternalUtilities;
 using LibationWinForms;
 using LibationWinForms.Dialogs;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 

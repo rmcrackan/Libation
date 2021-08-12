@@ -18,7 +18,7 @@ namespace FileLiberator
 			var client = new HttpClient();
 
 			var progress = new Progress<DownloadProgress>();
-			progress.ProgressChanged += OnProgressChanged;
+			progress.ProgressChanged += (_, e) => StreamingProgressChanged?.Invoke(this, e);
 
 			StreamingBegin?.Invoke(this, proposedDownloadFilePath);
 
@@ -31,10 +31,6 @@ namespace FileLiberator
 			{
 				StreamingCompleted?.Invoke(this, proposedDownloadFilePath);
 			}
-		}
-		private void OnProgressChanged(object sender, DownloadProgress e)
-		{
-			StreamingProgressChanged.Invoke(this, e);
 		}
 	}
 }

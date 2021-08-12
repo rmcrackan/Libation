@@ -23,17 +23,12 @@ namespace FileLiberator
             .GetLibrary_Flat_NoTracking()
             .Where(libraryBook => processable.Validate(libraryBook));
 
-        public static async Task<StatusHandler> ProcessSingleAsync(this IProcessable processable, LibraryBook libraryBook)
+        public static async Task<StatusHandler> ProcessSingleAsync(this IProcessable processable, LibraryBook libraryBook, bool validate)
         {
-            if (!processable.Validate(libraryBook))
+            if (validate && !processable.Validate(libraryBook))
                 return new StatusHandler { "Validation failed" };
 
-            return await processable.ProcessBookAsync_NoValidation(libraryBook);
-        }
-
-        public static async Task<StatusHandler> ProcessBookAsync_NoValidation(this IProcessable processable, LibraryBook libraryBook)
-        {
-            Serilog.Log.Logger.Information("Begin " + nameof(ProcessBookAsync_NoValidation) + " {@DebugInfo}", new
+            Serilog.Log.Logger.Information("Begin " + nameof(ProcessSingleAsync) + " {@DebugInfo}", new
             {
                 libraryBook.Book.Title,
                 libraryBook.Book.AudibleProductId,

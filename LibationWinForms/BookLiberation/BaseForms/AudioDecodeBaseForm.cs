@@ -40,9 +40,9 @@ namespace LibationWinForms.BookLiberation
 
 		private void OnUnsubscribeAll(object sender, EventArgs e)
 		{
-			Disposed -= OnUnsubscribeAll;
 			if (Streamable is IAudioDecodable audioDecodable)
 			{
+				Disposed -= OnUnsubscribeAll;
 				audioDecodable.RequestCoverArt -= OnRequestCoverArt;
 				audioDecodable.TitleDiscovered -= OnTitleDiscovered;
 				audioDecodable.AuthorsDiscovered -= OnAuthorsDiscovered;
@@ -62,10 +62,10 @@ namespace LibationWinForms.BookLiberation
 							FileManager.PictureSize._500x500));
 
 			//Set default values from library
-			OnTitleDiscovered(null, libraryBook.Book.Title);
-			OnAuthorsDiscovered(null, string.Join(", ", libraryBook.Book.Authors));
-			OnNarratorsDiscovered(null, string.Join(", ", libraryBook.Book.NarratorNames));
-			OnCoverImageDiscovered(null,
+			OnTitleDiscovered(sender, libraryBook.Book.Title);
+			OnAuthorsDiscovered(sender, string.Join(", ", libraryBook.Book.Authors));
+			OnNarratorsDiscovered(sender, string.Join(", ", libraryBook.Book.NarratorNames));
+			OnCoverImageDiscovered(sender,
 					FileManager.PictureStorage.GetPicture(
 						new FileManager.PictureDefinition(
 							libraryBook.Book.PictureId,
@@ -74,7 +74,6 @@ namespace LibationWinForms.BookLiberation
 		#endregion
 
 		#region IStreamable event handler overrides
-
 		public override void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress)
 		{
 			if (!downloadProgress.ProgressPercentage.HasValue)
@@ -88,11 +87,9 @@ namespace LibationWinForms.BookLiberation
 
 		public override void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining)
 			=> updateRemainingTime((int)timeRemaining.TotalSeconds);
-
 		#endregion
 
 		#region IAudioDecodable event handlers
-
 		public virtual void OnRequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
 			=> setCoverArtDelegate(GetCoverArtDelegate?.Invoke());
 
@@ -117,9 +114,7 @@ namespace LibationWinForms.BookLiberation
 
 		public virtual void OnCoverImageDiscovered(object sender, byte[] coverArt) 
 			=> pictureBox1.UIThread(() => pictureBox1.Image = Dinah.Core.Drawing.ImageReader.ToImage(coverArt));
-
 		#endregion
-
 
 		// thread-safe UI updates
 		private void updateBookInfo()
@@ -127,6 +122,5 @@ namespace LibationWinForms.BookLiberation
 
 		private void updateRemainingTime(int remaining)
 			=> remainingTimeLbl.UIThread(() => remainingTimeLbl.Text = $"ETA:\r\n{remaining} sec");
-
 	}
 }

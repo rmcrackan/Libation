@@ -79,7 +79,7 @@ namespace LibationWinForms.BookLiberation
 			var automatedBackupsForm = new AutomatedBackupsForm();
 			var logMe = LogMe.RegisterForm(automatedBackupsForm);
 
-			var convertBook = CreateStreamProcessable<ConvertToMp3, AudioConvertForm>(null, logMe);
+			var convertBook = CreateStreamProcessable<ConvertToMp3, AudioConvertForm>(logMe);
 
 			await new BackupLoop(logMe, convertBook, automatedBackupsForm).RunBackupAsync();
 		}
@@ -91,7 +91,7 @@ namespace LibationWinForms.BookLiberation
 			var automatedBackupsForm = new AutomatedBackupsForm();
 			var logMe = LogMe.RegisterForm(automatedBackupsForm);
 
-			var downloadPdf = CreateStreamProcessable<DownloadPdf, PdfDownloadForm>(completedAction, logMe);
+			var downloadPdf = CreateStreamProcessable<DownloadPdf, PdfDownloadForm>(logMe, completedAction);
 
 			await new BackupLoop(logMe, downloadPdf, automatedBackupsForm).RunBackupAsync();
 		}
@@ -107,25 +107,22 @@ namespace LibationWinForms.BookLiberation
 			}
 
 			var downloadFile = CreateStreamable<DownloadFile, DownloadForm>(onDownloadFileStreamingCompleted);
-
-			new System.Threading.Thread(() => downloadFile.PerformDownloadFileAsync(url, destination).GetAwaiter().GetResult())
-			{ IsBackground = true }
-			.Start();
+			async void runDownload() => await downloadFile.PerformDownloadFileAsync(url, destination);
+			new Task(runDownload).Start();
 		}
 
 		private static IProcessable CreateBackupBook(EventHandler<LibraryBook> completedAction, LogMe logMe)
 		{
-			var downloadPdf = CreateStreamProcessable<DownloadPdf, PdfDownloadForm>(null, logMe);
+			var downloadPdf = CreateStreamProcessable<DownloadPdf, PdfDownloadForm>(logMe);
 
 			//Chain pdf download on DownloadDecryptBook.Completed
 			async void onDownloadDecryptBookCompleted(object sender, LibraryBook e)
 			{
 				await downloadPdf.TryProcessAsync(e);
-
 				completedAction(sender, e);
 			}
 
-			var downloadDecryptBook = CreateStreamProcessable<DownloadDecryptBook, AudioDecryptForm>(onDownloadDecryptBookCompleted, logMe);
+			var downloadDecryptBook = CreateStreamProcessable<DownloadDecryptBook, AudioDecryptForm>(logMe, onDownloadDecryptBookCompleted);
 			return downloadDecryptBook;
 		}
 
@@ -134,9 +131,10 @@ namespace LibationWinForms.BookLiberation
 		/// </summary>
 		/// <typeparam name="TStrProc">The <see cref="IStreamProcessable"/> derrived type to create.</typeparam>
 		/// <typeparam name="TForm">The <see cref="ProcessBaseForm"/> derrived Form to create on <see cref="IProcessable.Begin"/>, Show on <see cref="IStreamable.StreamingBegin"/>, and Close & Dispose on <see cref="IStreamable.StreamingCompleted"/></typeparam>
+		/// <param name="logMe">The logger</param>
 		/// <param name="completedAction">An additional event handler to handle <see cref="IProcessable.Completed"/></param>
 		/// <returns>A new <see cref="IStreamProcessable"/> of type <typeparamref name="TStrProc"/></returns>
-		private static TStrProc CreateStreamProcessable<TStrProc, TForm>(EventHandler<LibraryBook> completedAction = null, LogMe logMe = null)
+		private static TStrProc CreateStreamProcessable<TStrProc, TForm>(LogMe logMe, EventHandler<LibraryBook> completedAction = null)
 			where TForm : ProcessBaseForm, new()
 			where TStrProc : IStreamProcessable, new()
 		{
@@ -192,9 +190,9 @@ namespace LibationWinForms.BookLiberation
 		}
 
 		protected abstract Task RunAsync();
-
 		protected abstract string SkipDialogText { get; }
 		protected abstract MessageBoxButtons SkipDialogButtons { get; }
+		protected abstract MessageBoxDefaultButton SkipDialogDefaultButton { get; }
 		protected abstract DialogResult CreateSkipFileResult { get; }
 
 		public async Task RunBackupAsync()
@@ -214,13 +212,13 @@ namespace LibationWinForms.BookLiberation
 			LogMe.Info("DONE");
 		}
 
-		protected async Task<bool> ProcessOneAsync(Func<LibraryBook, Task<StatusHandler>> func, LibraryBook libraryBook)
+		protected async Task<bool> ProcessOneAsync(LibraryBook libraryBook, bool validate)
 		{
 			string logMessage;
 
 			try
 			{
-				var statusHandler = await func(libraryBook);
+				var statusHandler = await Processable.ProcessSingleAsync(libraryBook, validate);
 
 				if (statusHandler.IsSuccess)
 					return true;
@@ -258,7 +256,7 @@ $@"  Title: {libraryBook.Book.Title}
 				details = "[Error retrieving details]";
 			}
 
-			var dialogResult = MessageBox.Show(string.Format(SkipDialogText, details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question);
+			var dialogResult = MessageBox.Show(string.Format(SkipDialogText, details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
 
 			if (dialogResult == DialogResult.Abort)
 				return false;
@@ -291,6 +289,7 @@ An error occurred while trying to process this book. Skip this book permanently?
 - Click NO to skip the book this time only. We'll try again later.
 ".Trim();
 		protected override MessageBoxButtons SkipDialogButtons => MessageBoxButtons.YesNo;
+		protected override MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button2;
 		protected override DialogResult CreateSkipFileResult => DialogResult.Yes;
 
 		public BackupSingle(LogMe logMe, IProcessable processable, LibraryBook libraryBook)
@@ -302,7 +301,7 @@ An error occurred while trying to process this book. Skip this book permanently?
 		protected override async Task RunAsync()
 		{
 			if (_libraryBook is not null)
-				await ProcessOneAsync(Processable.ProcessSingleAsync, _libraryBook);
+				await ProcessOneAsync(_libraryBook, validate: true);
 		}
 	}
 
@@ -319,6 +318,7 @@ An error occurred while trying to process this book.
 - IGNORE: Permanently ignore this book. Continue processing books. (Will not try this book again later.)
 ".Trim();
 		protected override MessageBoxButtons SkipDialogButtons => MessageBoxButtons.AbortRetryIgnore;
+		protected override MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
 		protected override DialogResult CreateSkipFileResult => DialogResult.Ignore;
 
 		public BackupLoop(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm)
@@ -329,7 +329,7 @@ An error occurred while trying to process this book.
 			// support for 'skip this time only' requires state. iterators provide this state for free. therefore: use foreach/iterator here
 			foreach (var libraryBook in Processable.GetValidLibraryBooks())
 			{
-				var keepGoing = await ProcessOneAsync(Processable.ProcessBookAsync_NoValidation, libraryBook);
+				var keepGoing = await ProcessOneAsync(libraryBook, validate: false);
 				if (!keepGoing)
 					return;
 

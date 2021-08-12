@@ -22,7 +22,7 @@ namespace LibationWinForms.BookLiberation
 
 				//Don't unsubscribe from Dispose because it fires on
 				//IStreamable.StreamingCompleted, and the IProcessable
-				//events need to live past that.
+				//events need to live past that event.
 				processable.Completed += OnUnsubscribeAll;
 			}
 		}
@@ -42,7 +42,6 @@ namespace LibationWinForms.BookLiberation
 		public virtual void OnBegin(object sender, LibraryBook libraryBook) => LogMe.Info($"Begin: {libraryBook.Book}");
 		public virtual void OnStatusUpdate(object sender, string statusUpdate) => LogMe.Info("- " + statusUpdate);
 		public virtual void OnCompleted(object sender, LibraryBook libraryBook) => LogMe.Info($"Completed: {libraryBook.Book}{Environment.NewLine}");
-
 		#endregion
 	}
 }
