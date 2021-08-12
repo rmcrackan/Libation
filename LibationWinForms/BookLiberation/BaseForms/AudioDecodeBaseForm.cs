@@ -66,10 +66,10 @@ namespace LibationWinForms.BookLiberation
 			OnAuthorsDiscovered(null, string.Join(", ", libraryBook.Book.Authors));
 			OnNarratorsDiscovered(null, string.Join(", ", libraryBook.Book.NarratorNames));
 			OnCoverImageDiscovered(null,
-					FileManager.PictureStorage.GetPictureSynchronously(
+					FileManager.PictureStorage.GetPicture(
 						new FileManager.PictureDefinition(
 							libraryBook.Book.PictureId,
-							FileManager.PictureSize._80x80)));
+							FileManager.PictureSize._80x80)).bytes);
 		}
 		#endregion
 
