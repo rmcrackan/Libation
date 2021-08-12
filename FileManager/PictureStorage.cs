@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace FileManager
 {
@@ -32,31 +34,34 @@ namespace FileManager
 		private static string getPath(PictureDefinition def)
 			=> Path.Combine(ImagesDirectory, $"{def.PictureId}{def.Size}.jpg");
 
-		private static System.Timers.Timer timer { get; }
+		static Task backgroundDownloader;
+
 		static PictureStorage()
 		{
-			timer = new System.Timers.Timer(700)
-			{
-				AutoReset = true,
-				Enabled = true
-			};
-			timer.Elapsed += (_, __) => timerDownload();
+			backgroundDownloader = new Task(BackgroundDownloader);
+			backgroundDownloader.Start();
 		}
 
 		public static event EventHandler<PictureCachedEventArgs> PictureCached;
 
+		private static BlockingCollection<PictureDefinition> DownloadQueue { get; } = new BlockingCollection<PictureDefinition>();
 		private static Dictionary<PictureDefinition, byte[]> cache { get; } = new Dictionary<PictureDefinition, byte[]>();
+		private static Dictionary<PictureSize, byte[]> defaultImages { get; } = new Dictionary<PictureSize, byte[]>();
 		public static (bool isDefault, byte[] bytes) GetPicture(PictureDefinition def)
 		{
-			if (!cache.ContainsKey(def))
+			if (cache.ContainsKey(def))
+				return (false, cache[def]);
+
+			var path = getPath(def);
+
+			if (File.Exists(path))
 			{
-				var path = getPath(def);
-				cache[def]
-					= File.Exists(path)
-					? File.ReadAllBytes(path)
-					: null;
+				cache[def] = File.ReadAllBytes(path);
+				return (false, cache[def]);
 			}
-			return (cache[def] == null, cache[def] ?? getDefaultImage(def.Size));
+
+			DownloadQueue.Add(def);
+			return (true, getDefaultImage(def.Size));
 		}
 
 		public static byte[] GetPictureSynchronously(PictureDefinition def)
@@ -79,7 +84,6 @@ namespace FileManager
 			return cache[def];
 		}
 
-		private static Dictionary<PictureSize, byte[]> defaultImages { get; } = new Dictionary<PictureSize, byte[]>();
 		public static void SetDefaultImage(PictureSize pictureSize, byte[] bytes)
 			=> defaultImages[pictureSize] = bytes;
 		private static byte[] getDefaultImage(PictureSize size)
@@ -87,38 +91,18 @@ namespace FileManager
 			? defaultImages[size]
 			: new byte[0];
 
-		// necessary to avoid IO errors. ReadAllBytes and WriteAllBytes can conflict in some cases, esp when debugging
-		private static bool isProcessing;
-		private static void timerDownload()
+		static void BackgroundDownloader()
 		{
-			// must live outside try-catch, else 'finally' can reset another thread's lock
-			if (isProcessing)
-				return;
-
-			try
+			while (!DownloadQueue.IsCompleted)
 			{
-				isProcessing = true;
-
-				var def = cache
-					.Where(kvp => kvp.Value is null)
-					.Select(kvp => kvp.Key)
-					// 80x80 should be 1st since it's enum value == 0
-					.OrderBy(d => d.PictureId)
-					.FirstOrDefault();
-
-				// no more null entries. all requsted images are cached
-				if (string.IsNullOrWhiteSpace(def.PictureId))
-					return;
+				if (!DownloadQueue.TryTake(out var def, System.Threading.Timeout.InfiniteTimeSpan))
+					continue;
 
 				var bytes = downloadBytes(def);
 				saveFile(def, bytes);
 				cache[def] = bytes;
 
 				PictureCached?.Invoke(nameof(PictureStorage), new PictureCachedEventArgs { Definition = def, Picture = bytes });
-			}
-			finally
-			{
-				isProcessing = false;
 			}
 		}
 

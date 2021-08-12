@@ -16,7 +16,7 @@ namespace LibationWinForms.BookLiberation
 
 		public StreamBaseForm()
 		{
-			//Will not work if set outside constructor.
+			//Will be null if set outside constructor.
 			SyncContext = SynchronizationContext.Current;
 		}
 
@@ -50,10 +50,11 @@ namespace LibationWinForms.BookLiberation
 		#region IStreamable event handlers
 		public virtual void OnStreamingBegin(object sender, string beginString)
 		{
-			//If StreamingBegin is fired from a worker thread, the form will be created on
-			//that UI thread. Form.BeginInvoke won't work until the form is created (ie. shown),
-			//so we need to make certain that we show the form on the same thread that created
-			//this StreamBaseForm.
+			//If StreamingBegin is fired from a worker thread, the window will be created on
+			//that UI thread. We need to make certain that we show the window on the same
+			//thread that created form, otherwise the form and the window handle will be on
+			//different threads. Form.BeginInvoke won't work until the form is created
+			//(ie. shown) because control doesn't get a window handle until it is Shown.
 
 			static void sendCallback(object asyncArgs)
 			{
@@ -64,16 +65,11 @@ namespace LibationWinForms.BookLiberation
 			Action code = Show;
 
 			if (InvokeRequired)
-			{
-				var args = new AsyncCompletedEventArgs(null, false, code);
 				SyncContext.Send(
 						sendCallback,
-						args);
-			}
+						new AsyncCompletedEventArgs(null, false, code));
 			else
-			{
 				code();
-			}
 		}
 		public virtual void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress) { }
 		public virtual void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining) { }

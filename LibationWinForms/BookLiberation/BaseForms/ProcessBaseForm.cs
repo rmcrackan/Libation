@@ -1,8 +1,6 @@
 ﻿using DataLayer;
-using Dinah.Core.Net.Http;
 using FileLiberator;
 using System;
-using System.Windows.Forms;
 
 namespace LibationWinForms.BookLiberation
 {
@@ -21,6 +19,7 @@ namespace LibationWinForms.BookLiberation
 				processable.Begin += OnBegin;
 				processable.Completed += OnCompleted;
 				processable.StatusUpdate += OnStatusUpdate;
+
 				Disposed += OnUnsubscribeAll;
 			}
 
