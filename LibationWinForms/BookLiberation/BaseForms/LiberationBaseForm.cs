@@ -9,9 +9,9 @@ using System.Windows.Forms;
 
 namespace LibationWinForms.BookLiberation.BaseForms
 {
-	public abstract class LiberationBaseForm  : Form
+	public abstract class LiberationBaseForm : Form
 	{
-		protected IFileLiberator Liberation { get; private set; }
+		protected IFileLiberator FileLiberator { get; private set; }
 		protected LogMe LogMe { get; private set; }
 
 		private int InstanceThreadId { get; } = Thread.CurrentThread.ManagedThreadId;
@@ -24,18 +24,19 @@ namespace LibationWinForms.BookLiberation.BaseForms
 			SyncContext = SynchronizationContext.Current;
 		}
 
-		public void RegisterLiberation(IFileLiberator liberation, LogMe logMe = null)
+		public void RegisterLiberation(IFileLiberator fileLiberator, LogMe logMe = null)
 		{
-			if (liberation is null) return;
+			//IFileLiberator must at least be IStreamable, otherwise the Form won't ever Show()
+			if (fileLiberator is null || fileLiberator is not IStreamable streamable) return;
 
-			Liberation = liberation;
+			FileLiberator = fileLiberator;
 			LogMe = logMe;
 
-			if (Liberation is IStreamable streamable)
-				Subscribe(streamable);
-			if (Liberation is IProcessable processable)
+			Subscribe(streamable);
+
+			if (FileLiberator is IProcessable processable)
 				Subscribe(processable);
-			if (Liberation is IAudioDecodable audioDecodable)
+			if (FileLiberator is IAudioDecodable audioDecodable)
 				Subscribe(audioDecodable);
 		}
 
@@ -44,7 +45,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		{
 			UnsubscribeStreamable(this, EventArgs.Empty);
 
-			streamable.StreamingBegin += ShowFormHandler;
+			streamable.StreamingBegin += OnStreamingBeginShow;
 			streamable.StreamingBegin += OnStreamingBegin;
 			streamable.StreamingProgressChanged += OnStreamingProgressChanged;
 			streamable.StreamingTimeRemaining += OnStreamingTimeRemaining;
@@ -84,12 +85,12 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		}
 		private void UnsubscribeStreamable(object sender, EventArgs e)
 		{
-			if (Liberation is not IStreamable streamable)
+			if (FileLiberator is not IStreamable streamable)
 				return;
 
 			FormClosed -= UnsubscribeStreamable;
 
-			streamable.StreamingBegin -= ShowFormHandler;
+			streamable.StreamingBegin -= OnStreamingBeginShow;
 			streamable.StreamingBegin -= OnStreamingBegin;
 			streamable.StreamingProgressChanged -= OnStreamingProgressChanged;
 			streamable.StreamingTimeRemaining -= OnStreamingTimeRemaining;
@@ -98,7 +99,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		}
 		private void UnsubscribeProcessable(object sender, LibraryBook e)
 		{
-			if (Liberation is not IProcessable processable)
+			if (FileLiberator is not IProcessable processable)
 				return;
 
 			processable.Completed -= UnsubscribeProcessable;
@@ -109,7 +110,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		}
 		private void UnsubscribeAudioDecodable(object sender, EventArgs e)
 		{
-			if (Liberation is not IAudioDecodable audioDecodable)
+			if (FileLiberator is not IAudioDecodable audioDecodable)
 				return;
 
 			Disposed -= UnsubscribeAudioDecodable;
@@ -135,10 +136,11 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		/// If StreamingBegin is fired from a worker thread, the window will be created on
 		/// that UI thread. We need to make certain that we show the window on the same
 		/// thread that created form, otherwise the form and the window handle will be on
-		/// different threads. Form.BeginInvoke won't work until the form is created
-		/// (ie. shown) because control doesn't get a window handle until it is Shown.
+		/// different threads, and the renderer will be on a worker thread which could cause
+		/// it to freeze. Form.BeginInvoke won't work until the form is created (ie. shown)
+		/// because control doesn't get a window handle until it is Shown.
 		/// </summary>
-		private void ShowFormHandler(object sender, string beginString)
+		private void OnStreamingBeginShow(object sender, string beginString)
 		{
 			static void sendCallback(object asyncArgs)
 			{
@@ -159,23 +161,23 @@ namespace LibationWinForms.BookLiberation.BaseForms
 
 		#region IStreamable event handlers
 		public virtual void OnStreamingBegin(object sender, string beginString) { }
-		public virtual void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress){ }
-		public virtual void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining){ }
-		public virtual void OnStreamingCompleted(object sender, string completedString){ }
+		public virtual void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress) { }
+		public virtual void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining) { }
+		public virtual void OnStreamingCompleted(object sender, string completedString) { }
 		#endregion
 
 		#region IProcessable event handlers
-		public virtual void OnBegin(object sender, LibraryBook libraryBook){ }
-		public virtual void OnStatusUpdate(object sender, string statusUpdate){ }
-		public virtual void OnCompleted(object sender, LibraryBook libraryBook){ }
+		public virtual void OnBegin(object sender, LibraryBook libraryBook) { }
+		public virtual void OnStatusUpdate(object sender, string statusUpdate) { }
+		public virtual void OnCompleted(object sender, LibraryBook libraryBook) { }
 		#endregion
 
 		#region IAudioDecodable event handlers
-		public virtual void OnRequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate){ }
-		public virtual void OnTitleDiscovered(object sender, string title){ }
-		public virtual void OnAuthorsDiscovered(object sender, string authors){ }
-		public virtual void OnNarratorsDiscovered(object sender, string narrators){ }
-		public virtual void OnCoverImageDiscovered(object sender, byte[] coverArt){ }
+		public virtual void OnRequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate) { }
+		public virtual void OnTitleDiscovered(object sender, string title) { }
+		public virtual void OnAuthorsDiscovered(object sender, string authors) { }
+		public virtual void OnNarratorsDiscovered(object sender, string narrators) { }
+		public virtual void OnCoverImageDiscovered(object sender, byte[] coverArt) { }
 		#endregion
 	}
 
