@@ -34,12 +34,12 @@ namespace LibationWinForms.BookLiberation
 			Streamable.StreamingProgressChanged += OnStreamingProgressChanged;
 			Streamable.StreamingTimeRemaining += OnStreamingTimeRemaining;
 
-			Disposed += OnUnsubscribeAll;
+			FormClosed += OnUnsubscribeAll;
 		}
 
 		private void OnUnsubscribeAll(object sender, EventArgs e)
 		{
-			Disposed -= OnUnsubscribeAll;
+			FormClosed -= OnUnsubscribeAll;
 
 			Streamable.StreamingBegin -= OnStreamingBegin;
 			Streamable.StreamingCompleted -= OnStreamingCompleted;
@@ -55,30 +55,24 @@ namespace LibationWinForms.BookLiberation
 			//thread that created form, otherwise the form and the window handle will be on
 			//different threads. Form.BeginInvoke won't work until the form is created
 			//(ie. shown) because control doesn't get a window handle until it is Shown.
-
 			static void sendCallback(object asyncArgs)
 			{
 				var e = asyncArgs as AsyncCompletedEventArgs;
 				((Action)e.UserState)();
 			}
 
-			Action code = Show;
+			Action show = Show;
 
 			if (InvokeRequired)
 				SyncContext.Send(
 						sendCallback,
-						new AsyncCompletedEventArgs(null, false, code));
+						new AsyncCompletedEventArgs(null, false, show));
 			else
-				code();
+				show();
 		}
 		public virtual void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress) { }
 		public virtual void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining) { }
-		public virtual void OnStreamingCompleted(object sender, string completedString)
-			=> this.UIThread(() =>
-			{
-				Close();
-				Dispose();
-			});
+		public virtual void OnStreamingCompleted(object sender, string completedString) => this.UIThread(() => Close());
 		#endregion
 	}
 }

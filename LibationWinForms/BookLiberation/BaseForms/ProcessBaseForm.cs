@@ -21,13 +21,13 @@ namespace LibationWinForms.BookLiberation
 				processable.Completed += OnCompleted;
 				processable.StatusUpdate += OnStatusUpdate;
 
-				//If IStreamable.StreamingCompleted is never fired, we still
-				//need to dispose of the form after IProcessable.Completed
+				//The form is created on IProcessable.Begin and we
+				//dispose of it on IProcessable.Completed
 				processable.Completed += OnCompletedDispose;
 
-				//Don't unsubscribe from Dispose because it fires on
-				//IStreamable.StreamingCompleted, and the IProcessable
-				//events need to live past that event.
+				//Don't unsubscribe from Dispose because it fires when
+				//IStreamable.StreamingCompleted closes the form, and
+				//the IProcessable events need to live past that event.
 				processable.Completed += OnUnsubscribeAll;
 			}
 		}
