@@ -63,7 +63,6 @@ namespace LibationLauncher
 #if !DEBUG
 			checkForUpdate(config);
 #endif
-
 			Application.Run(new Form1());
 		}
 
