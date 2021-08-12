@@ -1,11 +1,13 @@
-﻿using Dinah.Core.Windows.Forms;
+﻿using DataLayer;
+using Dinah.Core.Net.Http;
+using Dinah.Core.Windows.Forms;
 using System;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace LibationWinForms.BookLiberation
 {
-	public partial class DownloadForm : Form
+	public partial class DownloadForm : ProcessBaseForm
 	{
 		public DownloadForm()
 		{
@@ -15,23 +17,27 @@ namespace LibationWinForms.BookLiberation
 			filenameLbl.Text = "";
 		}
 
-		// thread-safe UI updates
-		public void UpdateFilename(string title) => filenameLbl.UIThread(() => filenameLbl.Text = title);
-
-		public void DownloadProgressChanged(long BytesReceived, long? TotalBytesToReceive)
+		#region IStreamable event handler overrides
+		public override void OnStreamingBegin(object sender, string beginString)
+		{
+			filenameLbl.UIThread(() => filenameLbl.Text = beginString);
+			base.OnStreamingBegin(sender, beginString);
+		}
+		public override void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress)
 		{
 			// this won't happen with download file. it will happen with download string
-			if (!TotalBytesToReceive.HasValue || TotalBytesToReceive.Value <= 0)
+			if (!downloadProgress.TotalBytesToReceive.HasValue || downloadProgress.TotalBytesToReceive.Value <= 0)
 				return;
 
-			progressLbl.UIThread(() => progressLbl.Text = $"{BytesReceived:#,##0} of {TotalBytesToReceive.Value:#,##0}");
+			progressLbl.UIThread(() => progressLbl.Text = $"{downloadProgress.BytesReceived:#,##0} of {downloadProgress.TotalBytesToReceive.Value:#,##0}");
 
-			var d = double.Parse(BytesReceived.ToString()) / double.Parse(TotalBytesToReceive.Value.ToString()) * 100.0;
+			var d = double.Parse(downloadProgress.BytesReceived.ToString()) / double.Parse(downloadProgress.TotalBytesToReceive.Value.ToString()) * 100.0;
 			var i = int.Parse(Math.Truncate(d).ToString());
 			progressBar1.UIThread(() => progressBar1.Value = i);
 
 			lastDownloadProgress = DateTime.Now;
 		}
+		#endregion
 
 		#region timer
 		private Timer timer { get; } = new Timer { Interval = 1000 };

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
-using FileManager;
 
 namespace FileLiberator
 {
@@ -20,10 +19,16 @@ namespace FileLiberator
         public event EventHandler<string> StatusUpdate;
         public event EventHandler<LibraryBook> Completed;
 
-        public DownloadDecryptBook DownloadDecryptBook { get; } = new DownloadDecryptBook();
-		public DownloadPdf DownloadPdf { get; } = new DownloadPdf();
+        public DownloadDecryptBook DownloadDecryptBook { get; }
+		public DownloadPdf DownloadPdf { get; }
 
-		public bool Validate(LibraryBook libraryBook)
+        public BackupBook(DownloadDecryptBook downloadDecryptBook, DownloadPdf downloadPdf)
+		{
+            DownloadDecryptBook = downloadDecryptBook;
+            DownloadPdf = downloadPdf;
+        }
+
+        public bool Validate(LibraryBook libraryBook)
             => !ApplicationServices.TransitionalFileLocator.Audio_Exists(libraryBook.Book);
 
 		// do NOT use ConfigureAwait(false) on ProcessAsync()
@@ -35,16 +40,16 @@ namespace FileLiberator
             try
 			{
 				{
-					var statusHandler = await DownloadDecryptBook.TryProcessAsync(libraryBook);
-					if (statusHandler.HasErrors)
+                    var statusHandler = await DownloadDecryptBook.TryProcessAsync(libraryBook);
+                    if (statusHandler.HasErrors)
 						return statusHandler;
 				}
 
-				{
-					var statusHandler = await DownloadPdf.TryProcessAsync(libraryBook);
+                {
+                    var statusHandler = await DownloadPdf.TryProcessAsync(libraryBook);
 					if (statusHandler.HasErrors)
 						return statusHandler;
-				}
+                }
 
 				return new StatusHandler();
 			}

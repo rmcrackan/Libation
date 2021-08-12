@@ -55,153 +55,65 @@ namespace LibationWinForms.BookLiberation
 		{
 			Serilog.Log.Logger.Information("Begin backup single {@DebugInfo}", new { libraryBook?.Book?.AudibleProductId });
 
-			var backupBook = getWiredUpBackupBook(completedAction);
-
-			(Action unsubscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook);
+			LogMe logMe = LogMe.RegisterForm();
+			var backupBook = CreateBackupBook(completedAction, logMe);
 
 			// continue even if libraryBook is null. we'll display even that in the processing box
 			await new BackupSingle(logMe, backupBook, libraryBook).RunBackupAsync();
-
-			unsubscribeEvents();
 		}
 
 		public static async Task BackupAllBooksAsync(EventHandler<LibraryBook> completedAction = null)
 		{
 			Serilog.Log.Logger.Information("Begin " + nameof(BackupAllBooksAsync));
 
-			var backupBook = getWiredUpBackupBook(completedAction);
 			var automatedBackupsForm = new AutomatedBackupsForm();
+			LogMe logMe = LogMe.RegisterForm(automatedBackupsForm);
 
-			(Action unsubscribeEvents, LogMe logMe) = attachToBackupsForm(backupBook, automatedBackupsForm);
+			var backupBook = CreateBackupBook(completedAction, logMe);
 
 			await new BackupLoop(logMe, backupBook, automatedBackupsForm).RunBackupAsync();
 
-			unsubscribeEvents();
 		}
 
 		public static async Task ConvertAllBooksAsync()
 		{
 			Serilog.Log.Logger.Information("Begin " + nameof(ConvertAllBooksAsync));
 
-			var convertBook = new ConvertToMp3();
-			convertBook.Begin += (_, l) => wireUpEvents(convertBook, l, "Converting");
-
 			var automatedBackupsForm = new AutomatedBackupsForm();
+			LogMe logMe = LogMe.RegisterForm(automatedBackupsForm);
 
-			var logMe = LogMe.RegisterForm(automatedBackupsForm);
-
-			void statusUpdate(object _, string str) => logMe.Info("- " + str);
-			void convertBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Convert Step, Begin: {libraryBook.Book}");
-			void convertBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Convert Step, Completed: {libraryBook.Book}{Environment.NewLine}");
-			convertBook.Begin += convertBookBegin;
-			convertBook.StatusUpdate += statusUpdate;
-			convertBook.Completed += convertBookCompleted;
+			var convertBook = CreateStreamableProcessable<ConvertToMp3, AudioConvertForm>(null, logMe);
 
 			await new BackupLoop(logMe, convertBook, automatedBackupsForm).RunBackupAsync();
-
-			convertBook.Begin -= convertBookBegin;
-			convertBook.StatusUpdate -= statusUpdate;
-			convertBook.Completed -= convertBookCompleted;
 		}
 
-		private static BackupBook getWiredUpBackupBook(EventHandler<LibraryBook> completedAction)
+		private static BackupBook CreateBackupBook(EventHandler<LibraryBook> completedAction, LogMe logMe)
 		{
-			var backupBook = new BackupBook();
-
-			backupBook.DownloadDecryptBook.Begin += (_, l) => wireUpEvents(backupBook.DownloadDecryptBook, l);
-			backupBook.DownloadPdf.Begin += (_, __) => wireUpEvents(backupBook.DownloadPdf);
-
-			if (completedAction != null)
-			{
-				backupBook.DownloadDecryptBook.Completed += completedAction;
-				backupBook.DownloadPdf.Completed += completedAction;
-			}
-
-			return backupBook;
-		}
-
-		private static (Action unsubscribeEvents, LogMe) attachToBackupsForm(BackupBook backupBook, AutomatedBackupsForm automatedBackupsForm = null)
-		{
-			#region create logger
-			var logMe = LogMe.RegisterForm(automatedBackupsForm);
-			#endregion
-
-			#region define how model actions will affect form behavior
-			void statusUpdate(object _, string str) => logMe.Info("- " + str);
-			void decryptBookBegin(object _, LibraryBook libraryBook) => logMe.Info($"Decrypt Step, Begin: {libraryBook.Book}");
-			// extra line after book is completely finished
-			void decryptBookCompleted(object _, LibraryBook libraryBook) => logMe.Info($"Decrypt Step, Completed: {libraryBook.Book}{Environment.NewLine}");
-			void downloadPdfBegin(object _, LibraryBook libraryBook) => logMe.Info($"PDF Step, Begin: {libraryBook.Book}");
-			// extra line after book is completely finished
-			void downloadPdfCompleted(object _, LibraryBook libraryBook) => logMe.Info($"PDF Step, Completed: {libraryBook.Book}{Environment.NewLine}");
-			#endregion
-
-			#region subscribe new form to model's events
-			backupBook.DownloadDecryptBook.Begin += decryptBookBegin;
-			backupBook.DownloadDecryptBook.StatusUpdate += statusUpdate;
-			backupBook.DownloadDecryptBook.Completed += decryptBookCompleted;
-			backupBook.DownloadPdf.Begin += downloadPdfBegin;
-			backupBook.DownloadPdf.StatusUpdate += statusUpdate;
-			backupBook.DownloadPdf.Completed += downloadPdfCompleted;
-			#endregion
-
-			#region when form closes, unsubscribe from model's events
-			// unsubscribe so disposed forms aren't still trying to receive notifications
-			Action unsubscribe = () =>
-			{
-				backupBook.DownloadDecryptBook.Begin -= decryptBookBegin;
-				backupBook.DownloadDecryptBook.StatusUpdate -= statusUpdate;
-				backupBook.DownloadDecryptBook.Completed -= decryptBookCompleted;
-				backupBook.DownloadPdf.Begin -= downloadPdfBegin;
-				backupBook.DownloadPdf.StatusUpdate -= statusUpdate;
-				backupBook.DownloadPdf.Completed -= downloadPdfCompleted;
-			};
-			#endregion
-
-			return (unsubscribe, logMe);
+			var downloadPdf = CreateStreamableProcessable<DownloadPdf, DownloadForm>(completedAction, logMe);
+			var downloadDecryptBook = CreateStreamableProcessable<DownloadDecryptBook, AudioDecryptForm>(completedAction, logMe);
+			return new BackupBook(downloadDecryptBook, downloadPdf);
 		}
 
 		public static async Task BackupAllPdfsAsync(EventHandler<LibraryBook> completedAction = null)
 		{
 			Serilog.Log.Logger.Information("Begin " + nameof(BackupAllPdfsAsync));
 
-			var downloadPdf = getWiredUpDownloadPdf(completedAction);
+			var automatedBackupsForm = new AutomatedBackupsForm();
+			LogMe logMe = LogMe.RegisterForm(automatedBackupsForm);
 
-			(AutomatedBackupsForm automatedBackupsForm, LogMe logMe) = attachToBackupsForm(downloadPdf);
+			var downloadPdf = CreateStreamableProcessable<DownloadPdf, DownloadForm>(completedAction, logMe);
+
 			await new BackupLoop(logMe, downloadPdf, automatedBackupsForm).RunBackupAsync();
-		}
-
-		private static DownloadPdf getWiredUpDownloadPdf(EventHandler<LibraryBook> completedAction)
-		{
-			var downloadPdf = new DownloadPdf();
-
-			downloadPdf.Begin += (_, __) => wireUpEvents(downloadPdf);
-
-			if (completedAction != null)
-				downloadPdf.Completed += completedAction;
-
-			return downloadPdf;
 		}
 
 		public static void DownloadFile(string url, string destination, bool showDownloadCompletedDialog = false)
 		{
-			var downloadDialog = new DownloadForm();
-			downloadDialog.UpdateFilename(destination);
-			downloadDialog.Show();
-
 			new System.Threading.Thread(() =>
 			{
-				var downloadFile = new DownloadFile();
+				(DownloadFile downloadFile, DownloadForm downloadForm) = CreateStreamable<DownloadFile, DownloadForm>();
 
-				downloadFile.DownloadProgressChanged += (_, progress) => downloadDialog.UIThread(() =>
-					downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive)
-					);
-				downloadFile.DownloadCompleted += (_, __) => downloadDialog.UIThread(() =>
-				{
-					downloadDialog.Close();
-					if (showDownloadCompletedDialog)
-						MessageBox.Show("File downloaded");
-				});
+				if (showDownloadCompletedDialog)
+					downloadFile.StreamingCompleted += (_, __) => MessageBox.Show("File downloaded");
 
 				downloadFile.PerformDownloadFileAsync(url, destination).GetAwaiter().GetResult();
 			})
@@ -209,171 +121,41 @@ namespace LibationWinForms.BookLiberation
 			.Start();
 		}
 
-		// subscribed to Begin event because a new form should be created+processed+closed on each iteration
-		private static void wireUpEvents(IDownloadableProcessable downloadable)
+		/// <summary>
+		/// Create a new <see cref="IStreamProcessable"/> and which creates a new <see cref="ProcessBaseForm"/> on IProcessable.Begin.
+		/// </summary>
+		/// <typeparam name="TStrProc">The <see cref="IStreamProcessable"/> derrived type to create.</typeparam>
+		/// <typeparam name="TForm">The <see cref="ProcessBaseForm"/> derrived form to create on Begin</typeparam>
+		/// <param name="completedAction">An additional event handler to handle <typeparamref name="TStrProc"/>.Completed</param>
+		/// <returns>A new <see cref="IStreamProcessable"/> of type <typeparamref name="TStrProc"/></returns>
+		private static TStrProc CreateStreamableProcessable<TStrProc, TForm>(EventHandler<LibraryBook> completedAction = null, LogMe logMe = null)
+			where TForm : ProcessBaseForm, new()
+			where TStrProc : IStreamProcessable, new()
 		{
-			#region create form
-			var downloadDialog = new DownloadForm();
-			#endregion
+			var strProc = new TStrProc();
 
-			// extra complexity for wiring up download form:
-			// case 1: download is needed
-			//   dialog created. subscribe to events
-			//   downloadable.DownloadBegin fires. shows dialog
-			//   downloadable.DownloadCompleted fires. closes dialog. which fires FormClosing, FormClosed, Disposed
-			//   Disposed unsubscribe from events
-			// case 2: download is not needed
-			//   dialog created. subscribe to events
-			//   dialog is never shown nor closed
-			//   downloadable.Completed fires. disposes dialog and unsubscribes from events
-
-			#region define how model actions will affect form behavior
-			void downloadBegin(object _, string str)
+			strProc.Begin += (sender, libraryBook) =>
 			{
-				downloadDialog.UpdateFilename(str);
-				downloadDialog.Show();
-			}
-
-			// close form on DOWNLOAD completed, not final Completed. Else for BackupBook this form won't close until DECRYPT is also complete
-			void fileDownloadCompleted(object _, string __) => downloadDialog.Close();
-
-			void downloadProgressChanged(object _, Dinah.Core.Net.Http.DownloadProgress progress)
-				=> downloadDialog.DownloadProgressChanged(progress.BytesReceived, progress.TotalBytesToReceive);
-
-			void unsubscribe(object _ = null, EventArgs __ = null)
-			{
-				downloadable.DownloadBegin -= downloadBegin;
-				downloadable.DownloadCompleted -= fileDownloadCompleted;
-				downloadable.DownloadProgressChanged -= downloadProgressChanged;
-				downloadable.Completed -= dialogDispose;
-			}
-
-			// unless we dispose, if the form is created but un-used/never-shown then weird UI stuff can happen
-			// also, since event unsubscribe occurs on FormClosing and an unused form is never closed, then the events will never be unsubscribed
-			void dialogDispose(object _, object __)
-			{
-				if (!downloadDialog.IsDisposed)
-					downloadDialog.Dispose();
-			}
-			#endregion
-
-			#region subscribe new form to model's events
-			downloadable.DownloadBegin += downloadBegin;
-			downloadable.DownloadCompleted += fileDownloadCompleted;
-			downloadable.DownloadProgressChanged += downloadProgressChanged;
-			downloadable.Completed += dialogDispose;
-			#endregion
-
-			#region when form closes, unsubscribe from model's events
-			// unsubscribe so disposed forms aren't still trying to receive notifications
-			// FormClosing is more UI safe but won't fire unless the form is shown and closed
-			//   if form was shown, Disposed will fire for FormClosing, FormClosed, and Disposed
-			//   if not shown, it will still fire for Disposed
-			downloadDialog.Disposed += unsubscribe;
-			#endregion
-		}
-
-		// subscribed to Begin event because a new form should be created+processed+closed on each iteration
-		private static void wireUpEvents(IDecryptable decryptBook, LibraryBook libraryBook, string actionName = "Decrypting")
-		{
-			#region create form
-			var decryptDialog = new DecryptForm();
-			#endregion
-
-			#region Set initially displayed book properties from library info.
-			decryptDialog.SetTitle(actionName, libraryBook.Book.Title);
-			decryptDialog.SetAuthorNames(string.Join(", ", libraryBook.Book.Authors));
-			decryptDialog.SetNarratorNames(string.Join(", ", libraryBook.Book.NarratorNames));
-			decryptDialog.SetCoverImage(
-				Dinah.Core.Drawing.ImageReader.ToImage(
-					FileManager.PictureStorage.GetPictureSynchronously(
-						new FileManager.PictureDefinition(
-							libraryBook.Book.PictureId,
-							FileManager.PictureSize._80x80))));
-			#endregion
-
-			#region define how model actions will affect form behavior
-			void decryptBegin(object _, string __) => decryptDialog.Show();
-			void titleDiscovered(object _, string title) => decryptDialog.SetTitle(actionName, title);
-			void authorsDiscovered(object _, string authors) => decryptDialog.SetAuthorNames(authors);
-			void narratorsDiscovered(object _, string narrators) => decryptDialog.SetNarratorNames(narrators);
-			void coverImageFilepathDiscovered(object _, byte[] coverBytes) => decryptDialog.SetCoverImage(Dinah.Core.Drawing.ImageReader.ToImage(coverBytes));
-			void updateProgress(object _, int percentage) => decryptDialog.UpdateProgress(percentage);
-			void updateRemainingTime(object _, TimeSpan remaining) => decryptDialog.UpdateRemainingTime(remaining);
-			void decryptCompleted(object _, string __) => decryptDialog.Close();
-			void requestCoverArt(object _, Action<byte[]> setCoverArtDelegate) 
-				=> setCoverArtDelegate(
-					FileManager.PictureStorage.GetPictureSynchronously(
-						new FileManager.PictureDefinition(
-							libraryBook.Book.PictureId,
-							FileManager.PictureSize._500x500)));
-			#endregion
-
-			#region subscribe new form to model's events
-			decryptBook.DecryptBegin += decryptBegin;
-
-			decryptBook.TitleDiscovered += titleDiscovered;
-			decryptBook.AuthorsDiscovered += authorsDiscovered;
-			decryptBook.NarratorsDiscovered += narratorsDiscovered;
-			decryptBook.CoverImageFilepathDiscovered += coverImageFilepathDiscovered;
-			decryptBook.UpdateProgress += updateProgress;
-			decryptBook.UpdateRemainingTime += updateRemainingTime;
-			decryptBook.RequestCoverArt += requestCoverArt;
-
-			decryptBook.DecryptCompleted += decryptCompleted;
-			#endregion
-
-			#region when form closes, unsubscribe from model's events
-			// unsubscribe so disposed forms aren't still trying to receive notifications
-			decryptDialog.FormClosing += (_, __) =>
-			{
-				decryptBook.DecryptBegin -= decryptBegin;
-
-				decryptBook.TitleDiscovered -= titleDiscovered;
-				decryptBook.AuthorsDiscovered -= authorsDiscovered;
-				decryptBook.NarratorsDiscovered -= narratorsDiscovered;
-				decryptBook.CoverImageFilepathDiscovered -= coverImageFilepathDiscovered;
-				decryptBook.UpdateProgress -= updateProgress;
-				decryptBook.UpdateRemainingTime -= updateRemainingTime;
-				decryptBook.RequestCoverArt -= requestCoverArt;
-
-				decryptBook.DecryptCompleted -= decryptCompleted;
-				decryptBook.Cancel();
+				var processForm = new TForm();
+				processForm.SetProcessable(strProc, logMe.Info);
+				processForm.OnBegin(sender, libraryBook);
 			};
-			#endregion
+
+			if (completedAction != null)
+				strProc.Completed += completedAction;
+
+			return strProc;
 		}
-
-		private static (AutomatedBackupsForm, LogMe) attachToBackupsForm(IDownloadableProcessable downloadable)
+		private static (TStrProc, TForm) CreateStreamable<TStrProc, TForm>(EventHandler<LibraryBook> completedAction = null)
+			where TForm : StreamBaseForm, new()
+			where TStrProc : IStreamable, new()
 		{
-			#region create form and logger
-			var automatedBackupsForm = new AutomatedBackupsForm();
-			var logMe = LogMe.RegisterForm(automatedBackupsForm);
-			#endregion
+			var strProc = new TStrProc();
 
-			#region define how model actions will affect form behavior
-			void begin(object _, LibraryBook libraryBook) => logMe.Info($"Begin: {libraryBook.Book}");
-			void statusUpdate(object _, string str) => logMe.Info("- " + str);
-			// extra line after book is completely finished
-			void completed(object _, LibraryBook libraryBook) => logMe.Info($"Completed: {libraryBook.Book}{Environment.NewLine}");
-			#endregion
+			var streamForm = new TForm();
+			streamForm.SetStreamable(strProc);
 
-			#region subscribe new form to model's events
-			downloadable.Begin += begin;
-			downloadable.StatusUpdate += statusUpdate;
-			downloadable.Completed += completed;
-			#endregion
-
-			#region when form closes, unsubscribe from model's events
-			// unsubscribe so disposed forms aren't still trying to receive notifications
-			automatedBackupsForm.FormClosing += (_, __) =>
-			{
-				downloadable.Begin -= begin;
-				downloadable.StatusUpdate -= statusUpdate;
-				downloadable.Completed -= completed;
-			};
-			#endregion
-
-			return (automatedBackupsForm, logMe);
+			return (strProc, streamForm);
 		}
 	}
 

@@ -8,27 +8,30 @@ using AudibleApi;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
+using Dinah.Core.Net.Http;
 using FileManager;
 
 namespace FileLiberator
 {
-    public class DownloadDecryptBook : IDecryptable
+    public class DownloadDecryptBook : IAudioDecodable
     {
-        public event EventHandler<Action<byte[]>> RequestCoverArt;
-        public event EventHandler<LibraryBook> Begin;
-        public event EventHandler<string> DecryptBegin;
-        public event EventHandler<string> TitleDiscovered;
-        public event EventHandler<string> AuthorsDiscovered;
-        public event EventHandler<string> NarratorsDiscovered;
-        public event EventHandler<byte[]> CoverImageFilepathDiscovered;
-        public event EventHandler<int> UpdateProgress;
-        public event EventHandler<TimeSpan> UpdateRemainingTime;
-        public event EventHandler<string> DecryptCompleted;
-        public event EventHandler<LibraryBook> Completed;
-        public event EventHandler<string> StatusUpdate;
 
-        private AaxcDownloadConverter aaxcDownloader;
-        public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+		private AaxcDownloadConverter aaxcDownloader;
+
+		public event EventHandler<TimeSpan> StreamingTimeRemaining;
+		public event EventHandler<Action<byte[]>> RequestCoverArt;
+		public event EventHandler<string> TitleDiscovered;
+		public event EventHandler<string> AuthorsDiscovered;
+		public event EventHandler<string> NarratorsDiscovered;
+		public event EventHandler<byte[]> CoverImageFilepathDiscovered;
+		public event EventHandler<string> StreamingBegin;
+		public event EventHandler<DownloadProgress> StreamingProgressChanged;
+		public event EventHandler<string> StreamingCompleted;
+		public event EventHandler<LibraryBook> Begin;
+		public event EventHandler<string> StatusUpdate;
+		public event EventHandler<LibraryBook> Completed;
+
+		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
             Begin?.Invoke(this, libraryBook);
 
@@ -63,7 +66,7 @@ namespace FileLiberator
 
         private async Task<string> aaxToM4bConverterDecryptAsync(string cacheDir, string destinationDir, LibraryBook libraryBook)
         {
-            DecryptBegin?.Invoke(this, $"Begin decrypting {libraryBook}");
+            StreamingBegin?.Invoke(this, $"Begin decrypting {libraryBook}");
 
             try
             {
@@ -103,8 +106,8 @@ namespace FileLiberator
 
 
                 aaxcDownloader = new AaxcDownloadConverter(outFileName, cacheDir, aaxcDecryptDlLic, format) { AppName = "Libation" };
-                aaxcDownloader.DecryptProgressUpdate += (s, progress) => UpdateProgress?.Invoke(this, progress);
-                aaxcDownloader.DecryptTimeRemaining += (s, remaining) => UpdateRemainingTime?.Invoke(this, remaining);
+                aaxcDownloader.DecryptProgressUpdate += (s, progress) => StreamingProgressChanged?.Invoke(this, progress);
+                aaxcDownloader.DecryptTimeRemaining += (s, remaining) => StreamingTimeRemaining?.Invoke(this, remaining);
                 aaxcDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
                 aaxcDownloader.RetrievedTags += aaxcDownloader_RetrievedTags;
 
@@ -119,11 +122,12 @@ namespace FileLiberator
             }
             finally
             {
-                DecryptCompleted?.Invoke(this, $"Completed downloading and decrypting {libraryBook.Book.Title}");
+                StreamingCompleted?.Invoke(this, $"Completed downloading and decrypting {libraryBook.Book.Title}");
             }
         }
 
-        private void AaxcDownloader_RetrievedCoverArt(object sender, byte[] e)
+
+		private void AaxcDownloader_RetrievedCoverArt(object sender, byte[] e)
         {
             if (e is null && Configuration.Instance.AllowLibationFixup)
             {

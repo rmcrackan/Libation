@@ -6,20 +6,21 @@ using Dinah.Core.Net.Http;
 namespace FileLiberator
 {
 	// currently only used to download the .zip flies for upgrade
-	public class DownloadFile : IDownloadable
+	public class DownloadFile : IStreamable
 	{
-		public event EventHandler<string> DownloadBegin;
-		public event EventHandler<DownloadProgress> DownloadProgressChanged;
-		public event EventHandler<string> DownloadCompleted;
+		public event EventHandler<string> StreamingBegin;
+		public event EventHandler<DownloadProgress> StreamingProgressChanged;
+		public event EventHandler<string> StreamingCompleted;
+		public event EventHandler<TimeSpan> StreamingTimeRemaining;
 
 		public async Task<string> PerformDownloadFileAsync(string downloadUrl, string proposedDownloadFilePath)
 		{
 			var client = new HttpClient();
 
 			var progress = new Progress<DownloadProgress>();
-			progress.ProgressChanged += (_, e) => DownloadProgressChanged?.Invoke(this, e);
+			progress.ProgressChanged += OnProgressChanged;
 
-			DownloadBegin?.Invoke(this, proposedDownloadFilePath);
+			StreamingBegin?.Invoke(this, proposedDownloadFilePath);
 
 			try
 			{
@@ -28,8 +29,12 @@ namespace FileLiberator
 			}
 			finally
 			{
-				DownloadCompleted?.Invoke(this, proposedDownloadFilePath);
+				StreamingCompleted?.Invoke(this, proposedDownloadFilePath);
 			}
+		}
+		private void OnProgressChanged(object sender, DownloadProgress e)
+		{
+			StreamingProgressChanged?.Invoke(this, e);
 		}
 	}
 }

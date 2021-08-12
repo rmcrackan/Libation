@@ -125,7 +125,7 @@ namespace FileManager
 		private static HttpClient imageDownloadClient { get; } = new HttpClient();
 		private static byte[] downloadBytes(PictureDefinition def)
 		{
-			var sz = ((int)def.Size).ToString();
+			var sz = (int)def.Size;
 			return imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}._SL{sz}_.jpg").Result;
 		}
 

@@ -1,6 +1,7 @@
 ﻿using AAXClean;
 using Dinah.Core;
 using Dinah.Core.IO;
+using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
 using System;
 using System.IO;
@@ -12,8 +13,9 @@ namespace AaxDecrypter
     {
         public event EventHandler<AppleTags> RetrievedTags;
         public event EventHandler<byte[]> RetrievedCoverArt;
-        public event EventHandler<int> DecryptProgressUpdate;
+        public event EventHandler<DownloadProgress> DecryptProgressUpdate;
         public event EventHandler<TimeSpan> DecryptTimeRemaining;
+
         public string AppName { get; set; } = nameof(AaxcDownloadConverter);
 
         private string outputFileName { get; }
@@ -132,7 +134,14 @@ namespace AaxDecrypter
 
         public bool Step2_DownloadAndCombine()
         {
-            DecryptProgressUpdate?.Invoke(this, 0);
+            var zeroProgress = new DownloadProgress 
+            { 
+                BytesReceived = 0,
+                ProgressPercentage = 0, 
+                TotalBytesToReceive = nfsPersister.NetworkFileStream.Length 
+            };
+
+            DecryptProgressUpdate?.Invoke(this, zeroProgress);
 
             if (File.Exists(outputFileName))
                 FileExt.SafeDelete(outputFileName);
@@ -151,7 +160,7 @@ namespace AaxDecrypter
 
             nfsPersister.Dispose();
 
-            DecryptProgressUpdate?.Invoke(this, 0);
+            DecryptProgressUpdate?.Invoke(this, zeroProgress);
 
             return decryptionResult == ConversionResult.NoErrorsDetected && !isCanceled;
         }
@@ -167,7 +176,13 @@ namespace AaxDecrypter
 
             double progressPercent = 100 * e.ProcessPosition.TotalSeconds / duration.TotalSeconds;
 
-            DecryptProgressUpdate?.Invoke(this, (int)progressPercent);
+            DecryptProgressUpdate?.Invoke(this,
+                new DownloadProgress 
+                {
+                    ProgressPercentage = progressPercent,
+                    BytesReceived = (long)(nfsPersister.NetworkFileStream.Length * progressPercent),
+                    TotalBytesToReceive = nfsPersister.NetworkFileStream.Length
+                });
         }
 
         public bool Step3_CreateCue()
@@ -209,6 +224,7 @@ namespace AaxDecrypter
         {
             isCanceled = true;
             aaxFile?.Cancel();
+            aaxFile?.Dispose();
         }
     }
 }
