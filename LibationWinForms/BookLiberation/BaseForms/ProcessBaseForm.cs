@@ -25,7 +25,6 @@ namespace LibationWinForms.BookLiberation
 				//events need to live past that.
 				processable.Completed += OnUnsubscribeAll;
 			}
-
 		}
 
 		private void OnUnsubscribeAll(object sender, LibraryBook e)
@@ -42,17 +41,8 @@ namespace LibationWinForms.BookLiberation
 		#region IProcessable event handlers
 		public virtual void OnBegin(object sender, LibraryBook libraryBook) => LogMe.Info($"Begin: {libraryBook.Book}");
 		public virtual void OnStatusUpdate(object sender, string statusUpdate) => LogMe.Info("- " + statusUpdate);
-		public virtual void OnCompleted(object sender, LibraryBook libraryBook)
-		{
-			LogMe.Info($"Completed: {libraryBook.Book}{Environment.NewLine}");
+		public virtual void OnCompleted(object sender, LibraryBook libraryBook) => LogMe.Info($"Completed: {libraryBook.Book}{Environment.NewLine}");
 
-			if (Streamable is IProcessable processable)
-			{
-				processable.Begin -= OnBegin;
-				processable.Completed -= OnCompleted;
-				processable.StatusUpdate -= OnStatusUpdate;
-			}
-		}
 		#endregion
 	}
 }
