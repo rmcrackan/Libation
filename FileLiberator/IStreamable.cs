@@ -3,7 +3,7 @@ using Dinah.Core.Net.Http;
 
 namespace FileLiberator
 {
-    public interface IStreamable
+    public interface IStreamable : IFileLiberator
     {
         event EventHandler<string> StreamingBegin;
 		event EventHandler<DownloadProgress> StreamingProgressChanged;

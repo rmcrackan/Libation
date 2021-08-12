@@ -1,13 +1,18 @@
-﻿using DataLayer;
-using Dinah.Core.Net.Http;
+﻿using Dinah.Core.Net.Http;
 using Dinah.Core.Windows.Forms;
+using LibationWinForms.BookLiberation.BaseForms;
 using System;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace LibationWinForms.BookLiberation
 {
-	public partial class DownloadForm : ProcessBaseForm
+	public partial class DownloadForm
+#if DEBUG
+		: DebugIntermediate
+#else
+		: LiberationBaseForm
+#endif
 	{
 		public DownloadForm()
 		{
@@ -17,11 +22,11 @@ namespace LibationWinForms.BookLiberation
 			filenameLbl.Text = "";
 		}
 
+
 		#region IStreamable event handler overrides
 		public override void OnStreamingBegin(object sender, string beginString)
 		{
 			filenameLbl.UIThread(() => filenameLbl.Text = beginString);
-			base.OnStreamingBegin(sender, beginString);
 		}
 		public override void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress)
 		{

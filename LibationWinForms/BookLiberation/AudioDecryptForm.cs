@@ -3,9 +3,9 @@ using System;
 
 namespace LibationWinForms.BookLiberation
 {
-	class AudioDecryptForm : AudioDecodeBaseForm
+	class AudioDecryptForm : AudioDecodeForm
 	{
-		#region AudioDecodeBaseForm overrides
+		#region AudioDecodeForm overrides
 		public override string DecodeActionName => "Decrypting";
 		#endregion
 

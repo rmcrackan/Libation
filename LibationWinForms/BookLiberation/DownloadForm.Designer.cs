@@ -1,4 +1,7 @@
-﻿namespace LibationWinForms.BookLiberation
+﻿using DataLayer;
+using System;
+
+namespace LibationWinForms.BookLiberation
 {
     partial class DownloadForm
     {
@@ -95,9 +98,10 @@
 
         }
 
-        #endregion
 
-        private System.Windows.Forms.Label filenameLbl;
+		#endregion
+
+		private System.Windows.Forms.Label filenameLbl;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label progressLbl;
         private System.Windows.Forms.Label lastUpdateLbl;

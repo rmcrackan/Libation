@@ -1,6 +1,7 @@
 ﻿using DataLayer;
 using Dinah.Core;
 using FileLiberator;
+using LibationWinForms.BookLiberation.BaseForms;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -126,15 +127,15 @@ namespace LibationWinForms.BookLiberation
 		}
 
 		/// <summary>
-		/// Create a new <see cref="IStreamProcessable"/> and links it to a new <see cref="ProcessBaseForm"/>.
+		/// Create a new <see cref="IStreamProcessable"/> and links it to a new <see cref="LiberationBaseForm"/>.
 		/// </summary>
 		/// <typeparam name="TStrProc">The <see cref="IStreamProcessable"/> derrived type to create.</typeparam>
-		/// <typeparam name="TForm">The <see cref="ProcessBaseForm"/> derrived Form to create on <see cref="IProcessable.Begin"/>, Show on <see cref="IStreamable.StreamingBegin"/>, and Close & Dispose on <see cref="IStreamable.StreamingCompleted"/></typeparam>
+		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derrived Form to create on <see cref="IProcessable.Begin"/>, Show on <see cref="IStreamable.StreamingBegin"/>, Close on <see cref="IStreamable.StreamingCompleted"/>, and Dispose on <see cref="IProcessable.Completed"/> </typeparam>
 		/// <param name="logMe">The logger</param>
 		/// <param name="completedAction">An additional event handler to handle <see cref="IProcessable.Completed"/></param>
 		/// <returns>A new <see cref="IStreamProcessable"/> of type <typeparamref name="TStrProc"/></returns>
 		private static TStrProc CreateStreamProcessable<TStrProc, TForm>(LogMe logMe, EventHandler<LibraryBook> completedAction = null)
-			where TForm : ProcessBaseForm, new()
+			where TForm : LiberationBaseForm, new()
 			where TStrProc : IStreamProcessable, new()
 		{
 			var strProc = new TStrProc();
@@ -142,7 +143,7 @@ namespace LibationWinForms.BookLiberation
 			strProc.Begin += (sender, libraryBook) =>
 			{
 				var processForm = new TForm();
-				processForm.SetProcessable(strProc, logMe);
+				processForm.RegisterLiberation(strProc, logMe);
 				processForm.OnBegin(sender, libraryBook);
 			};
 
@@ -153,20 +154,20 @@ namespace LibationWinForms.BookLiberation
 		}
 
 		/// <summary>
-		/// Creates a new <see cref="IStreamable"/> and links it to a new <see cref="StreamBaseForm"/>
+		/// Creates a new <see cref="IStreamable"/> and links it to a new <see cref="LiberationBaseForm"/>
 		/// </summary>
 		/// <typeparam name="TStr">The <see cref="IStreamable"/> derrived type to create.</typeparam>
-		/// <typeparam name="TForm">The <see cref="StreamBaseForm"/> derrived Form to create, which will Show on <see cref="IStreamable.StreamingBegin"/> and Close & Dispose on <see cref="IStreamable.StreamingCompleted"/>.</typeparam>
+		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derrived Form to create, which will Show on <see cref="IStreamable.StreamingBegin"/> and Close, Dispose on <see cref="IStreamable.StreamingCompleted"/>.</typeparam>
 		/// <param name="completedAction">An additional event handler to handle <see cref="IStreamable.StreamingCompleted"/></param>
 		/// <returns>A new <see cref="IStreamable"/> of type <typeparamref name="TStr"/></returns>
 		private static TStr CreateStreamable<TStr, TForm>(EventHandler<string> completedAction = null)
-			where TForm : StreamBaseForm, new()
+			where TForm : LiberationBaseForm, new()
 			where TStr : IStreamable, new()
 		{
 			var streamable = new TStr();
 
 			var streamForm = new TForm();
-			streamForm.SetStreamable(streamable);
+			streamForm.RegisterLiberation(streamable);
 
 			if (completedAction != null)
 				streamable.StreamingCompleted += completedAction;
