@@ -149,8 +149,8 @@ namespace LibationWinForms.BookLiberation
 				processForm.OnBegin(sender, libraryBook);
 			};
 
-			//if (completedAction != null)
-			//	strProc.Completed += completedAction;
+			if (completedAction != null)
+				strProc.Completed += completedAction;
 
 			return strProc;
 		}
