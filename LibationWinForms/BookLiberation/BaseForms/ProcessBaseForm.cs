@@ -1,4 +1,5 @@
 ﻿using DataLayer;
+using Dinah.Core.Windows.Forms;
 using FileLiberator;
 using System;
 
@@ -24,14 +25,17 @@ namespace LibationWinForms.BookLiberation
 				//IStreamable.StreamingCompleted, and the IProcessable
 				//events need to live past that event.
 				processable.Completed += OnUnsubscribeAll;
+				processable.Completed += OnCompleetdDispose;
 			}
 		}
+		private void OnCompleetdDispose(object sender, LibraryBook e) => this.UIThread(() => Dispose());
 
 		private void OnUnsubscribeAll(object sender, LibraryBook e)
 		{
 			if (Streamable is IProcessable processable)
 			{
 				processable.Completed -= OnUnsubscribeAll;
+				processable.Completed -= OnCompleetdDispose;
 				processable.Begin -= OnBegin;
 				processable.Completed -= OnCompleted;
 				processable.StatusUpdate -= OnStatusUpdate;
