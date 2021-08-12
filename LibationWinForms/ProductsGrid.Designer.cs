@@ -41,9 +41,9 @@
             this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ProductRating = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.PurchaseDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyRating = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn8 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn9 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn10 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn11 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewImageButtonBoxColumn2 = new LibationWinForms.EditTagsDataGridViewImageButtonColumn();
             ((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).BeginInit();
@@ -71,9 +71,9 @@
             this.dataGridViewTextBoxColumn5,
             this.dataGridViewTextBoxColumn6,
             this.dataGridViewTextBoxColumn7,
-            this.ProductRating,
-            this.PurchaseDate,
-            this.MyRating,
+            this.dataGridViewTextBoxColumn8,
+            this.dataGridViewTextBoxColumn9,
+            this.dataGridViewTextBoxColumn10,
             this.dataGridViewTextBoxColumn11,
             this.dataGridViewImageButtonBoxColumn2});
             this.gridEntryDataGridView.DataSource = this.gridEntryBindingSource;
@@ -121,7 +121,6 @@
             this.dataGridViewTextBoxColumn1.HeaderText = "Title";
             this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
             this.dataGridViewTextBoxColumn1.ReadOnly = true;
-            this.dataGridViewTextBoxColumn1.ToolTipText = "Book Title";
             this.dataGridViewTextBoxColumn1.Width = 200;
             // 
             // dataGridViewTextBoxColumn2
@@ -130,7 +129,6 @@
             this.dataGridViewTextBoxColumn2.HeaderText = "Authors";
             this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
             this.dataGridViewTextBoxColumn2.ReadOnly = true;
-            this.dataGridViewTextBoxColumn2.ToolTipText = "Book Author(s)";
             // 
             // dataGridViewTextBoxColumn3
             // 
@@ -138,7 +136,6 @@
             this.dataGridViewTextBoxColumn3.HeaderText = "Narrators";
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
             this.dataGridViewTextBoxColumn3.ReadOnly = true;
-            this.dataGridViewTextBoxColumn3.ToolTipText = "Audiobook Narrator(s)";
             // 
             // dataGridViewTextBoxColumn4
             // 
@@ -154,7 +151,6 @@
             this.dataGridViewTextBoxColumn5.HeaderText = "Series";
             this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
             this.dataGridViewTextBoxColumn5.ReadOnly = true;
-            this.dataGridViewTextBoxColumn5.ToolTipText = "Book Series";
             // 
             // dataGridViewTextBoxColumn6
             // 
@@ -172,26 +168,26 @@
             // 
             // ProductRating
             // 
-            this.ProductRating.DataPropertyName = "ProductRating";
-            this.ProductRating.HeaderText = "Product Rating";
-            this.ProductRating.Name = "ProductRating";
-            this.ProductRating.ReadOnly = true;
-            this.ProductRating.Width = 108;
+            this.dataGridViewTextBoxColumn8.DataPropertyName = "ProductRating";
+            this.dataGridViewTextBoxColumn8.HeaderText = "Product Rating";
+            this.dataGridViewTextBoxColumn8.Name = "ProductRating";
+            this.dataGridViewTextBoxColumn8.ReadOnly = true;
+            this.dataGridViewTextBoxColumn8.Width = 108;
             // 
             // PurchaseDate
             // 
-            this.PurchaseDate.DataPropertyName = "PurchaseDate";
-            this.PurchaseDate.HeaderText = "Purchase Date";
-            this.PurchaseDate.Name = "PurchaseDate";
-            this.PurchaseDate.ReadOnly = true;
+            this.dataGridViewTextBoxColumn9.DataPropertyName = "PurchaseDate";
+            this.dataGridViewTextBoxColumn9.HeaderText = "Purchase Date";
+            this.dataGridViewTextBoxColumn9.Name = "PurchaseDate";
+            this.dataGridViewTextBoxColumn9.ReadOnly = true;
             // 
             // MyRating
             // 
-            this.MyRating.DataPropertyName = "MyRating";
-            this.MyRating.HeaderText = "My Rating";
-            this.MyRating.Name = "MyRating";
-            this.MyRating.ReadOnly = true;
-            this.MyRating.Width = 108;
+            this.dataGridViewTextBoxColumn10.DataPropertyName = "MyRating";
+            this.dataGridViewTextBoxColumn10.HeaderText = "My Rating";
+            this.dataGridViewTextBoxColumn10.Name = "MyRating";
+            this.dataGridViewTextBoxColumn10.ReadOnly = true;
+            this.dataGridViewTextBoxColumn10.Width = 108;
             // 
             // dataGridViewTextBoxColumn11
             // 
@@ -237,9 +233,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ProductRating;
-        private System.Windows.Forms.DataGridViewTextBoxColumn PurchaseDate;
-        private System.Windows.Forms.DataGridViewTextBoxColumn MyRating;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn9;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn10;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
         private EditTagsDataGridViewImageButtonColumn dataGridViewImageButtonBoxColumn2;
     }
