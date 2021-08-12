@@ -18,6 +18,7 @@ namespace LibationWinForms.BookLiberation
 		private string authorNames;
 		private string narratorNames;
 
+		#region ProcessBaseForm overrides
 		public override void SetProcessable(IStreamable streamProcessable, Action<string> infoLog)
 		{
 			base.SetProcessable(streamProcessable, infoLog);
@@ -30,21 +31,24 @@ namespace LibationWinForms.BookLiberation
 				audioDecodable.TitleDiscovered += OnTitleDiscovered;
 				audioDecodable.AuthorsDiscovered += OnAuthorsDiscovered;
 				audioDecodable.NarratorsDiscovered += OnNarratorsDiscovered;
-				audioDecodable.CoverImageFilepathDiscovered += OnCoverImageFilepathDiscovered;
+				audioDecodable.CoverImageDiscovered += OnCoverImageDiscovered;
 
 				Disposed += OnUnsubscribeAll;
 			}
+
 		}
+		#endregion
+
 		private void OnUnsubscribeAll(object sender, EventArgs e)
 		{
 			Disposed -= OnUnsubscribeAll;
-			if (Streamable is not null && Streamable is IAudioDecodable audioDecodable)
+			if (Streamable is IAudioDecodable audioDecodable)
 			{
 				audioDecodable.RequestCoverArt -= OnRequestCoverArt;
 				audioDecodable.TitleDiscovered -= OnTitleDiscovered;
 				audioDecodable.AuthorsDiscovered -= OnAuthorsDiscovered;
 				audioDecodable.NarratorsDiscovered -= OnNarratorsDiscovered;
-				audioDecodable.CoverImageFilepathDiscovered -= OnCoverImageFilepathDiscovered;
+				audioDecodable.CoverImageDiscovered -= OnCoverImageDiscovered;
 
 				audioDecodable.Cancel();
 			}
@@ -62,7 +66,7 @@ namespace LibationWinForms.BookLiberation
 			OnTitleDiscovered(null, libraryBook.Book.Title);
 			OnAuthorsDiscovered(null, string.Join(", ", libraryBook.Book.Authors));
 			OnNarratorsDiscovered(null, string.Join(", ", libraryBook.Book.NarratorNames));
-			OnCoverImageFilepathDiscovered(null,
+			OnCoverImageDiscovered(null,
 					FileManager.PictureStorage.GetPictureSynchronously(
 						new FileManager.PictureDefinition(
 							libraryBook.Book.PictureId,
@@ -112,7 +116,7 @@ namespace LibationWinForms.BookLiberation
 			updateBookInfo();
 		}
 
-		public virtual void OnCoverImageFilepathDiscovered(object sender, byte[] coverArt) 
+		public virtual void OnCoverImageDiscovered(object sender, byte[] coverArt) 
 			=> pictureBox1.UIThread(() => pictureBox1.Image = Dinah.Core.Drawing.ImageReader.ToImage(coverArt));
 
 		#endregion

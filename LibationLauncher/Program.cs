@@ -63,9 +63,6 @@ namespace LibationLauncher
 #if !DEBUG
 			checkForUpdate(config);
 #endif
-			LibationWinForms.BookLiberation.ProcessorAutomationController.DownloadFile(
-				"https://github.com/rmcrackan/Libation/releases/download/v5.4.9/Libation.5.4.9.zip",
-				@"C:\Users\mbuca\Downloads\libation test dl.zip");
 
 			Application.Run(new Form1());
 		}

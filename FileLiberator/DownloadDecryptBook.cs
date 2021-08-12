@@ -23,7 +23,7 @@ namespace FileLiberator
 		public event EventHandler<string> TitleDiscovered;
 		public event EventHandler<string> AuthorsDiscovered;
 		public event EventHandler<string> NarratorsDiscovered;
-		public event EventHandler<byte[]> CoverImageFilepathDiscovered;
+		public event EventHandler<byte[]> CoverImageDiscovered;
 		public event EventHandler<string> StreamingBegin;
 		public event EventHandler<DownloadProgress> StreamingProgressChanged;
 		public event EventHandler<string> StreamingCompleted;
@@ -136,7 +136,7 @@ namespace FileLiberator
 
             if (e is not null)
             {
-                CoverImageFilepathDiscovered?.Invoke(this, e);
+                CoverImageDiscovered?.Invoke(this, e);
             }
         }
 

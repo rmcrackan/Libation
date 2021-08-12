@@ -496,12 +496,5 @@ namespace LibationWinForms
 		private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 		#endregion
 
-		private void button1_Click(object sender, EventArgs e)
-		{
-
-			BookLiberation.ProcessorAutomationController.DownloadFile(
-				"https://github.com/rmcrackan/Libation/releases/download/v5.4.9/Libation.5.4.9.zip",
-				@"C:\Users\mbuca\Downloads\libation test dl.zip");
-		}
 	}
 }

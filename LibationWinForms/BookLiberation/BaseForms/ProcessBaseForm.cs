@@ -23,12 +23,13 @@ namespace LibationWinForms.BookLiberation
 				processable.StatusUpdate += OnStatusUpdate;
 				Disposed += OnUnsubscribeAll;
 			}
+
 		}
 
 		private void OnUnsubscribeAll(object sender, EventArgs e)
 		{
 			Disposed -= OnUnsubscribeAll;
-			if (Streamable is not null && Streamable is IProcessable processable)
+			if (Streamable is IProcessable processable)
 			{
 				processable.Begin -= OnBegin;
 				processable.Completed -= OnCompleted;

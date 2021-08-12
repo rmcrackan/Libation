@@ -34,7 +34,7 @@ namespace FileLiberator
 		}
 		private void OnProgressChanged(object sender, DownloadProgress e)
 		{
-			StreamingProgressChanged?.Invoke(this, e);
+			StreamingProgressChanged.Invoke(this, e);
 		}
 	}
 }

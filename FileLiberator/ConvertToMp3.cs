@@ -22,7 +22,7 @@ namespace FileLiberator
 		public event EventHandler<string> TitleDiscovered;
 		public event EventHandler<string> AuthorsDiscovered;
 		public event EventHandler<string> NarratorsDiscovered;
-		public event EventHandler<byte[]> CoverImageFilepathDiscovered;
+		public event EventHandler<byte[]> CoverImageDiscovered;
 		public event EventHandler<string> StreamingBegin;
 		public event EventHandler<DownloadProgress> StreamingProgressChanged;
 		public event EventHandler<string> StreamingCompleted;
@@ -58,7 +58,7 @@ namespace FileLiberator
                 TitleDiscovered?.Invoke(this, m4bBook.AppleTags.Title);
                 AuthorsDiscovered?.Invoke(this, m4bBook.AppleTags.FirstAuthor);
                 NarratorsDiscovered?.Invoke(this, m4bBook.AppleTags.Narrator);
-                CoverImageFilepathDiscovered?.Invoke(this, m4bBook.AppleTags.Cover);
+                CoverImageDiscovered?.Invoke(this, m4bBook.AppleTags.Cover);
 
                 using var mp3File = File.OpenWrite(Path.GetTempFileName());
 

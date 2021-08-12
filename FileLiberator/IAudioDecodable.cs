@@ -10,7 +10,7 @@ namespace FileLiberator
         event EventHandler<string> TitleDiscovered;
         event EventHandler<string> AuthorsDiscovered;
         event EventHandler<string> NarratorsDiscovered;
-        event EventHandler<byte[]> CoverImageFilepathDiscovered;
+        event EventHandler<byte[]> CoverImageDiscovered;
 
         void Cancel();
     }
