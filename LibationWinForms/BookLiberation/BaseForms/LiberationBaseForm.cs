@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace LibationWinForms.BookLiberation.BaseForms
 {
-	public abstract class LiberationBaseForm : Form
+	public class LiberationBaseForm : Form
 	{
 		protected IStreamable Streamable { get; private set; }
 		protected LogMe LogMe { get; private set; }
@@ -177,12 +177,4 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		public virtual void OnCoverImageDiscovered(object sender, byte[] coverArt) { }
 		#endregion
 	}
-
-	#region VS Design View Hack
-	/// <summary>
-	/// This class is a hack so that VS designer will work wif an abstract base class.
-	/// https://stackoverflow.com/questions/1620847/how-can-i-get-visual-studio-2008-windows-forms-designer-to-render-a-form-that-im/2406058#2406058
-	/// </summary>
-	public class DebugIntermediate : LiberationBaseForm { }
-	#endregion
 }

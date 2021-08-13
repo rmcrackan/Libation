@@ -7,12 +7,7 @@ using System.Windows.Forms;
 
 namespace LibationWinForms.BookLiberation
 {
-	public partial class DownloadForm
-#if DEBUG
-		: DebugIntermediate
-#else
-		: LiberationBaseForm
-#endif
+	public partial class DownloadForm : LiberationBaseForm
 	{
 		public DownloadForm()
 		{

@@ -6,12 +6,7 @@ using System;
 
 namespace LibationWinForms.BookLiberation
 {
-	public partial class AudioDecodeForm
-#if DEBUG
-		: DebugIntermediate
-#else
-		: LiberationBaseForm
-#endif
+	public partial class AudioDecodeForm : LiberationBaseForm
 	{
 		public virtual string DecodeActionName { get; } = "Decoding";
 		public AudioDecodeForm() => InitializeComponent();
