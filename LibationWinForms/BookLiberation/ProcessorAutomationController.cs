@@ -52,7 +52,7 @@ namespace LibationWinForms.BookLiberation
 	{
 		public static async Task BackupSingleBookAsync(LibraryBook libraryBook, EventHandler<LibraryBook> completedAction = null)
 		{
-			Serilog.Log.Logger.Information("Begin backup single {@DebugInfo}", new { libraryBook?.Book?.AudibleProductId });
+			Serilog.Log.Logger.Information($"Begin {nameof(BackupSingleBookAsync)} {{@DebugInfo}}", new { libraryBook?.Book?.AudibleProductId });
 
 			var logMe = LogMe.RegisterForm();
 			var backupBook = CreateBackupBook(completedAction, logMe);
@@ -96,21 +96,6 @@ namespace LibationWinForms.BookLiberation
 			await new BackupLoop(logMe, downloadPdf, automatedBackupsForm).RunBackupAsync();
 		}
 
-		public static void DownloadFile(string url, string destination, bool showDownloadCompletedDialog = false)
-		{
-			Serilog.Log.Logger.Information($"Begin {nameof(DownloadFile)} for {url}");
-
-			void onDownloadFileStreamingCompleted(object o, string s)
-			{
-				if (showDownloadCompletedDialog)
-					MessageBox.Show("File downloaded to:\r\n\r\n" + s);
-			}
-
-			var downloadFile = CreateStreamable<DownloadFile, DownloadForm>(onDownloadFileStreamingCompleted);
-			async void runDownload() => await downloadFile.PerformDownloadFileAsync(url, destination);
-			new Task(runDownload).Start();
-		}
-
 		private static IProcessable CreateBackupBook(EventHandler<LibraryBook> completedAction, LogMe logMe)
 		{
 			var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe);
@@ -126,19 +111,40 @@ namespace LibationWinForms.BookLiberation
 			return downloadDecryptBook;
 		}
 
+		public static void DownloadFile(string url, string destination, bool showDownloadCompletedDialog = false)
+		{
+			Serilog.Log.Logger.Information($"Begin {nameof(DownloadFile)} for {url}");
+
+			void onDownloadFileStreamingCompleted(object sender, string savedFile)
+			{
+				Serilog.Log.Logger.Information($"Completed {nameof(DownloadFile)} for {url}. Saved to {savedFile}");
+
+				if (showDownloadCompletedDialog)
+					MessageBox.Show($"File downloaded to:{Environment.NewLine}{Environment.NewLine}{savedFile}");
+			}
+
+			var downloadFile = new DownloadFile();
+			var downloadForm = new DownloadForm();
+			downloadForm.RegisterFileLiberator(downloadFile);
+			downloadFile.StreamingCompleted += onDownloadFileStreamingCompleted;
+
+			async void runDownload() => await downloadFile.PerformDownloadFileAsync(url, destination);
+			new Task(runDownload).Start();
+		}
+
 		/// <summary>
 		/// Create a new <see cref="IProcessable"/> and links it to a new <see cref="LiberationBaseForm"/>.
 		/// </summary>
-		/// <typeparam name="TStrProc">The <see cref="IProcessable"/> derrived type to create.</typeparam>
+		/// <typeparam name="TProcessable">The <see cref="IProcessable"/> derrived type to create.</typeparam>
 		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derrived Form to create on <see cref="IProcessable.Begin"/>, Show on <see cref="IStreamable.StreamingBegin"/>, Close on <see cref="IStreamable.StreamingCompleted"/>, and Dispose on <see cref="IProcessable.Completed"/> </typeparam>
 		/// <param name="logMe">The logger</param>
 		/// <param name="completedAction">An additional event handler to handle <see cref="IProcessable.Completed"/></param>
 		/// <returns>A new <see cref="IProcessable"/> of type <typeparamref name="TStrProc"/></returns>
-		private static TStrProc CreateProcessable<TStrProc, TForm>(LogMe logMe, EventHandler<LibraryBook> completedAction = null)
+		private static TProcessable CreateProcessable<TProcessable, TForm>(LogMe logMe, EventHandler<LibraryBook> completedAction = null)
 			where TForm : LiberationBaseForm, new()
-			where TStrProc : IProcessable, new()
+			where TProcessable : IProcessable, new()
 		{
-			var strProc = new TStrProc();
+			var strProc = new TProcessable();
 
 			strProc.Begin += (sender, libraryBook) =>
 			{
@@ -147,32 +153,9 @@ namespace LibationWinForms.BookLiberation
 				processForm.OnBegin(sender, libraryBook);
 			};
 
-			if (completedAction != null)
-				strProc.Completed += completedAction;
+			strProc.Completed += completedAction;
 
 			return strProc;
-		}
-
-		/// <summary>
-		/// Creates a new <see cref="IStreamable"/> and links it to a new <see cref="LiberationBaseForm"/>
-		/// </summary>
-		/// <typeparam name="TStr">The <see cref="IStreamable"/> derrived type to create.</typeparam>
-		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derrived Form to create, which will Show on <see cref="IStreamable.StreamingBegin"/> and Close, Dispose on <see cref="IStreamable.StreamingCompleted"/>.</typeparam>
-		/// <param name="completedAction">An additional event handler to handle <see cref="IStreamable.StreamingCompleted"/></param>
-		/// <returns>A new <see cref="IStreamable"/> of type <typeparamref name="TStr"/></returns>
-		private static TStr CreateStreamable<TStr, TForm>(EventHandler<string> completedAction = null)
-			where TForm : LiberationBaseForm, new()
-			where TStr : IStreamable, new()
-		{
-			var streamable = new TStr();
-
-			var streamForm = new TForm();
-			streamForm.RegisterFileLiberator(streamable);
-
-			if (completedAction != null)
-				streamable.StreamingCompleted += completedAction;
-
-			return streamable;
 		}
 	}
 

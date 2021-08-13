@@ -3,8 +3,6 @@ using Dinah.Core.Net.Http;
 using Dinah.Core.Windows.Forms;
 using FileLiberator;
 using System;
-using System.ComponentModel;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace LibationWinForms.BookLiberation.BaseForms
@@ -13,15 +11,15 @@ namespace LibationWinForms.BookLiberation.BaseForms
 	{
 		protected IStreamable Streamable { get; private set; }
 		protected LogMe LogMe { get; private set; }
-
-		private int InstanceThreadId { get; } = Thread.CurrentThread.ManagedThreadId;
-		public new bool InvokeRequired => Thread.CurrentThread.ManagedThreadId != InstanceThreadId;
-		private SynchronizationContext SyncContext { get; }
+		private CrossThreadSync<Action> FormSync { get; } = new CrossThreadSync<Action>();
 
 		public LiberationBaseForm()
 		{
-			//Will be null if set outside constructor.
-			SyncContext = SynchronizationContext.Current;
+			//SynchronizationContext.Current will be null until the process contains a Form.
+			//If this is the first form created, it will not exist until after execution
+			//reaches inside the constructor. So need to reset the context here.
+			FormSync.ResetContext();
+			FormSync.ObjectReceived += (_, action) => action();
 		}
 
 		public void RegisterFileLiberator(IStreamable streamable, LogMe logMe = null)
@@ -130,30 +128,14 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		private void OnCompletedDispose(object sender, LibraryBook e) => this.UIThread(() => Dispose());
 
 		/// <summary>
-		/// If StreamingBegin is fired from a worker thread, the window will be created on
-		/// that UI thread. We need to make certain that we show the window on the same
-		/// thread that created form, otherwise the form and the window handle will be on
-		/// different threads, and the renderer will be on a worker thread which could cause
-		/// it to freeze. Form.BeginInvoke won't work until the form is created (ie. shown)
-		/// because control doesn't get a window handle until it is Shown.
+		/// If StreamingBegin is fired from a worker thread, the window will be created on that
+		/// worker thread. We need to make certain that we show the window on the UI thread (same 
+		/// thread that created form), otherwise the renderer will be on a worker thread which 
+		/// could cause it to freeze. Form.BeginInvoke won't work until the form is created 
+		/// (ie. shown) because Control doesn't get a window handle until it is Shown.
 		/// </summary>
-		private void OnStreamingBeginShow(object sender, string beginString)
-		{
-			static void sendCallback(object asyncArgs)
-			{
-				var e = asyncArgs as AsyncCompletedEventArgs;
-				((Action)e.UserState)();
-			}
-
-			Action show = Show;
-
-			if (InvokeRequired)
-				SyncContext.Send(
-						sendCallback,
-						new AsyncCompletedEventArgs(null, false, show));
-			else
-				show();
-		}
+		private void OnStreamingBeginShow(object sender, string beginString) => FormSync.Send(Show);
+		
 		#endregion
 
 		#region IStreamable event handlers
