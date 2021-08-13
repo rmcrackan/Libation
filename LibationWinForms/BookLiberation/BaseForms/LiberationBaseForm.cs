@@ -11,7 +11,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 {
 	public abstract class LiberationBaseForm : Form
 	{
-		protected IFileLiberator FileLiberator { get; private set; }
+		protected IStreamable Streamable { get; private set; }
 		protected LogMe LogMe { get; private set; }
 
 		private int InstanceThreadId { get; } = Thread.CurrentThread.ManagedThreadId;
@@ -24,19 +24,19 @@ namespace LibationWinForms.BookLiberation.BaseForms
 			SyncContext = SynchronizationContext.Current;
 		}
 
-		public void RegisterFileLiberator(IFileLiberator fileLiberator, LogMe logMe = null)
+		public void RegisterFileLiberator(IStreamable streamable, LogMe logMe = null)
 		{
 			//IFileLiberator must at least be IStreamable, otherwise the Form won't ever Show()
-			if (fileLiberator is null || fileLiberator is not IStreamable streamable) return;
+			if (streamable is null) return;
 
-			FileLiberator = fileLiberator;
+			Streamable = streamable;
 			LogMe = logMe;
 
 			Subscribe(streamable);
 
-			if (FileLiberator is IProcessable processable)
+			if (Streamable is IProcessable processable)
 				Subscribe(processable);
-			if (FileLiberator is IAudioDecodable audioDecodable)
+			if (Streamable is IAudioDecodable audioDecodable)
 				Subscribe(audioDecodable);
 		}
 
@@ -85,21 +85,18 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		}
 		private void UnsubscribeStreamable(object sender, EventArgs e)
 		{
-			if (FileLiberator is not IStreamable streamable)
-				return;
-
 			FormClosed -= UnsubscribeStreamable;
 
-			streamable.StreamingBegin -= OnStreamingBeginShow;
-			streamable.StreamingBegin -= OnStreamingBegin;
-			streamable.StreamingProgressChanged -= OnStreamingProgressChanged;
-			streamable.StreamingTimeRemaining -= OnStreamingTimeRemaining;
-			streamable.StreamingCompleted -= OnStreamingCompleted;
-			streamable.StreamingCompleted -= OnStreamingCompletedClose;
+			Streamable.StreamingBegin -= OnStreamingBeginShow;
+			Streamable.StreamingBegin -= OnStreamingBegin;
+			Streamable.StreamingProgressChanged -= OnStreamingProgressChanged;
+			Streamable.StreamingTimeRemaining -= OnStreamingTimeRemaining;
+			Streamable.StreamingCompleted -= OnStreamingCompleted;
+			Streamable.StreamingCompleted -= OnStreamingCompletedClose;
 		}
 		private void UnsubscribeProcessable(object sender, LibraryBook e)
 		{
-			if (FileLiberator is not IProcessable processable)
+			if (Streamable is not IProcessable processable)
 				return;
 
 			processable.Completed -= UnsubscribeProcessable;
@@ -110,7 +107,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		}
 		private void UnsubscribeAudioDecodable(object sender, EventArgs e)
 		{
-			if (FileLiberator is not IAudioDecodable audioDecodable)
+			if (Streamable is not IAudioDecodable audioDecodable)
 				return;
 
 			Disposed -= UnsubscribeAudioDecodable;

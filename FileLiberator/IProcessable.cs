@@ -5,7 +5,7 @@ using Dinah.Core.ErrorHandling;
 
 namespace FileLiberator
 {
-    public interface IProcessable : IFileLiberator
+    public interface IProcessable : IStreamable
     {
         event EventHandler<LibraryBook> Begin;
 

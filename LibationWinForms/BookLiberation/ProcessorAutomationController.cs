@@ -79,7 +79,7 @@ namespace LibationWinForms.BookLiberation
 			var automatedBackupsForm = new AutomatedBackupsForm();
 			var logMe = LogMe.RegisterForm(automatedBackupsForm);
 
-			var convertBook = CreateStreamProcessable<ConvertToMp3, AudioConvertForm>(logMe);
+			var convertBook = CreateProcessable<ConvertToMp3, AudioConvertForm>(logMe);
 
 			await new BackupLoop(logMe, convertBook, automatedBackupsForm).RunBackupAsync();
 		}
@@ -91,7 +91,7 @@ namespace LibationWinForms.BookLiberation
 			var automatedBackupsForm = new AutomatedBackupsForm();
 			var logMe = LogMe.RegisterForm(automatedBackupsForm);
 
-			var downloadPdf = CreateStreamProcessable<DownloadPdf, PdfDownloadForm>(logMe, completedAction);
+			var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe, completedAction);
 
 			await new BackupLoop(logMe, downloadPdf, automatedBackupsForm).RunBackupAsync();
 		}
@@ -113,7 +113,7 @@ namespace LibationWinForms.BookLiberation
 
 		private static IProcessable CreateBackupBook(EventHandler<LibraryBook> completedAction, LogMe logMe)
 		{
-			var downloadPdf = CreateStreamProcessable<DownloadPdf, PdfDownloadForm>(logMe);
+			var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe);
 
 			//Chain pdf download on DownloadDecryptBook.Completed
 			async void onDownloadDecryptBookCompleted(object sender, LibraryBook e)
@@ -122,21 +122,21 @@ namespace LibationWinForms.BookLiberation
 				completedAction(sender, e);
 			}
 
-			var downloadDecryptBook = CreateStreamProcessable<DownloadDecryptBook, AudioDecryptForm>(logMe, onDownloadDecryptBookCompleted);
+			var downloadDecryptBook = CreateProcessable<DownloadDecryptBook, AudioDecryptForm>(logMe, onDownloadDecryptBookCompleted);
 			return downloadDecryptBook;
 		}
 
 		/// <summary>
-		/// Create a new <see cref="IStreamProcessable"/> and links it to a new <see cref="LiberationBaseForm"/>.
+		/// Create a new <see cref="IProcessable"/> and links it to a new <see cref="LiberationBaseForm"/>.
 		/// </summary>
-		/// <typeparam name="TStrProc">The <see cref="IStreamProcessable"/> derrived type to create.</typeparam>
+		/// <typeparam name="TStrProc">The <see cref="IProcessable"/> derrived type to create.</typeparam>
 		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derrived Form to create on <see cref="IProcessable.Begin"/>, Show on <see cref="IStreamable.StreamingBegin"/>, Close on <see cref="IStreamable.StreamingCompleted"/>, and Dispose on <see cref="IProcessable.Completed"/> </typeparam>
 		/// <param name="logMe">The logger</param>
 		/// <param name="completedAction">An additional event handler to handle <see cref="IProcessable.Completed"/></param>
-		/// <returns>A new <see cref="IStreamProcessable"/> of type <typeparamref name="TStrProc"/></returns>
-		private static TStrProc CreateStreamProcessable<TStrProc, TForm>(LogMe logMe, EventHandler<LibraryBook> completedAction = null)
+		/// <returns>A new <see cref="IProcessable"/> of type <typeparamref name="TStrProc"/></returns>
+		private static TStrProc CreateProcessable<TStrProc, TForm>(LogMe logMe, EventHandler<LibraryBook> completedAction = null)
 			where TForm : LiberationBaseForm, new()
-			where TStrProc : IStreamProcessable, new()
+			where TStrProc : IProcessable, new()
 		{
 			var strProc = new TStrProc();
 
