@@ -143,7 +143,7 @@ namespace LibationWinForms.BookLiberation
 			strProc.Begin += (sender, libraryBook) =>
 			{
 				var processForm = new TForm();
-				processForm.RegisterLiberation(strProc, logMe);
+				processForm.RegisterFileLiberator(strProc, logMe);
 				processForm.OnBegin(sender, libraryBook);
 			};
 
@@ -167,7 +167,7 @@ namespace LibationWinForms.BookLiberation
 			var streamable = new TStr();
 
 			var streamForm = new TForm();
-			streamForm.RegisterLiberation(streamable);
+			streamForm.RegisterFileLiberator(streamable);
 
 			if (completedAction != null)
 				streamable.StreamingCompleted += completedAction;

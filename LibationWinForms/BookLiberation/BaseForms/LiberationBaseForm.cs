@@ -24,7 +24,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 			SyncContext = SynchronizationContext.Current;
 		}
 
-		public void RegisterLiberation(IFileLiberator fileLiberator, LogMe logMe = null)
+		public void RegisterFileLiberator(IFileLiberator fileLiberator, LogMe logMe = null)
 		{
 			//IFileLiberator must at least be IStreamable, otherwise the Form won't ever Show()
 			if (fileLiberator is null || fileLiberator is not IStreamable streamable) return;
