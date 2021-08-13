@@ -96,7 +96,6 @@ namespace LibationWinForms
 		public string Description { get; }
 		public string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 		public (LiberatedState, PdfState) Liberate => (LibraryCommands.Liberated_Status(Book), LibraryCommands.Pdf_Status(Book));
-
 		#endregion
 
 		#region Data Sorting

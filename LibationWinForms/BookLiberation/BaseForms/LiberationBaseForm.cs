@@ -11,15 +11,14 @@ namespace LibationWinForms.BookLiberation.BaseForms
 	{
 		protected IStreamable Streamable { get; private set; }
 		protected LogMe LogMe { get; private set; }
-		private CrossThreadSync<Action> FormSync { get; } = new CrossThreadSync<Action>();
+		private SynchronizeInvoker Invoker { get; init; } 
 
 		public LiberationBaseForm()
 		{
 			//SynchronizationContext.Current will be null until the process contains a Form.
 			//If this is the first form created, it will not exist until after execution
 			//reaches inside the constructor. So need to reset the context here.
-			FormSync.ResetContext();
-			FormSync.ObjectReceived += (_, action) => action();
+			Invoker = new SynchronizeInvoker();
 		}
 
 		public void RegisterFileLiberator(IStreamable streamable, LogMe logMe = null)
@@ -134,7 +133,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		/// could cause it to freeze. Form.BeginInvoke won't work until the form is created 
 		/// (ie. shown) because Control doesn't get a window handle until it is Shown.
 		/// </summary>
-		private void OnStreamingBeginShow(object sender, string beginString) => FormSync.Send(Show);
+		private void OnStreamingBeginShow(object sender, string beginString) => Invoker.Invoke(Show);
 		
 		#endregion
 

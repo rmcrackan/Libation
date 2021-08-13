@@ -4,15 +4,13 @@ using System.Threading;
 
 namespace LibationWinForms
 {
-	public abstract class AsyncNotifyPropertyChanged : INotifyPropertyChanged
+	public abstract class AsyncNotifyPropertyChanged : SynchronizeInvoker, INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
-		private CrossThreadSync<PropertyChangedEventArgs> ThreadSync { get; } = new CrossThreadSync<PropertyChangedEventArgs>();
 
-		public AsyncNotifyPropertyChanged()
-			=>ThreadSync.ObjectReceived += (_, args) => PropertyChanged?.Invoke(this, args);		
+		public AsyncNotifyPropertyChanged() { }
 
 		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-			=> ThreadSync.Post(new PropertyChangedEventArgs(propertyName));
+			=>BeginInvoke(PropertyChanged, new object[] { this, new PropertyChangedEventArgs(propertyName) });
 	}
 }
