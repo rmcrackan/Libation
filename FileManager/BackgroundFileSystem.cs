@@ -18,12 +18,19 @@ namespace FileManager
         private FileSystemWatcher fileSystemWatcher { get; set; }
         private BlockingCollection<FileSystemEventArgs> directoryChangesEvents { get; set; }
         private Task backgroundScanner { get; set; }
-        private List<string> fsCache { get; set; }
+        private List<string> fsCache { get; } = new();
+
+        public BackgroundFileSystem(string rootDirectory, string searchPattern, SearchOption searchOptions)
+        {
+            RootDirectory = rootDirectory;
+            SearchPattern = searchPattern;
+            SearchOption = searchOptions;
+
+            Init();
+        }
 
         public string FindFile(string regexPattern, RegexOptions options)
         {
-            if (fsCache is null) return null;
-
             lock (fsCache)
             {
                 return fsCache.FirstOrDefault(s => Regex.IsMatch(s, regexPattern, options));
@@ -32,8 +39,6 @@ namespace FileManager
 
         public void RefreshFiles()
         {
-            if (fsCache is null) return;
-
             lock (fsCache)
             {
                 fsCache.Clear();
@@ -41,19 +46,12 @@ namespace FileManager
             }
         }
 
-        public void Init(string rootDirectory, string searchPattern, SearchOption searchOptions)
+        private void Init()
         {
-            RootDirectory = rootDirectory;
-            SearchPattern = searchPattern;
-            SearchOption = searchOptions;
+            Stop();
 
-            //Calling CompleteAdding() will cause background scanner to terminate.
-            directoryChangesEvents?.CompleteAdding();
-            fsCache?.Clear();
-            directoryChangesEvents?.Dispose();
-            fileSystemWatcher?.Dispose();
-
-            fsCache = Directory.EnumerateFiles(RootDirectory, SearchPattern, SearchOption).ToList();
+            lock (fsCache)
+                fsCache.AddRange(Directory.EnumerateFiles(RootDirectory, SearchPattern, SearchOption));
 
             directoryChangesEvents = new BlockingCollection<FileSystemEventArgs>();
             fileSystemWatcher = new FileSystemWatcher(RootDirectory);
@@ -64,28 +62,31 @@ namespace FileManager
             fileSystemWatcher.IncludeSubdirectories = true;
             fileSystemWatcher.EnableRaisingEvents = true;
 
-            //Wait for background scanner to terminate before reinitializing.
-            backgroundScanner?.Wait();
             backgroundScanner = new Task(BackgroundScanner);
             backgroundScanner.Start();
         }
+        private void Stop()
+        {
+            //Stop raising events
+            fileSystemWatcher?.Dispose();
 
-        private void AddUniqueFiles(IEnumerable<string> newFiles)
-        {
-            foreach (var file in newFiles)
-            {
-                AddUniqueFile(file);
-            }
-        }
-        private void AddUniqueFile(string newFile)
-        {
-            if (!fsCache.Contains(newFile))
-                fsCache.Add(newFile);
+            //Calling CompleteAdding() will cause background scanner to terminate.
+            directoryChangesEvents?.CompleteAdding();
+
+            //Wait for background scanner to terminate before reinitializing.
+            backgroundScanner?.Wait();
+
+            //Dispose of directoryChangesEvents after backgroundScanner exists.
+            directoryChangesEvents?.Dispose();
+
+            lock (fsCache)
+                fsCache.Clear();
         }
 
         private void FileSystemWatcher_Error(object sender, ErrorEventArgs e)
         {
-            Init(RootDirectory, SearchPattern, SearchOption);
+            Stop();
+            Init();
         }
 
         private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
@@ -97,28 +98,26 @@ namespace FileManager
         private void BackgroundScanner()
         {
             while (directoryChangesEvents.TryTake(out FileSystemEventArgs change, -1))
-                UpdateLocalCache(change);
+            {
+                lock (fsCache)
+                    UpdateLocalCache(change);
+            }
         }
 
-        private void UpdateLocalCache(FileSystemEventArgs change) 
+        private void UpdateLocalCache(FileSystemEventArgs change)
         {
-            lock (fsCache)
+            if (change.ChangeType == WatcherChangeTypes.Deleted)
             {
-                if (change.ChangeType == WatcherChangeTypes.Deleted)
-                {
-                    RemovePath(change.FullPath);
-                }
-                else if (change.ChangeType == WatcherChangeTypes.Created)
-                {
-                    AddPath(change.FullPath);
-                }
-                else if (change.ChangeType == WatcherChangeTypes.Renamed)
-                {
-                    var renameChange = change as RenamedEventArgs;
-
-                    RemovePath(renameChange.OldFullPath);
-                    AddPath(renameChange.FullPath);
-                }
+                RemovePath(change.FullPath);
+            }
+            else if (change.ChangeType == WatcherChangeTypes.Created)
+            {
+                AddPath(change.FullPath);
+            }
+            else if (change.ChangeType == WatcherChangeTypes.Renamed && change is RenamedEventArgs renameChange)
+            {
+                RemovePath(renameChange.OldFullPath);
+                AddPath(renameChange.FullPath);
             }
         }
 
@@ -137,6 +136,21 @@ namespace FileManager
             else
                 AddUniqueFile(path);
         }
+        private void AddUniqueFiles(IEnumerable<string> newFiles)
+        {
+            foreach (var file in newFiles)
+            {
+                AddUniqueFile(file);
+            }
+        }
+        private void AddUniqueFile(string newFile)
+        {
+            if (!fsCache.Contains(newFile))
+                fsCache.Add(newFile);
+        }
+
         #endregion
+
+        ~BackgroundFileSystem() => Stop();
     }
 }

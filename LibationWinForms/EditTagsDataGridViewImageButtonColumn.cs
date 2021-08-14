@@ -23,8 +23,6 @@ namespace LibationWinForms
 			if (DataGridView.Rows[RowIndex].DefaultCellStyle.ForeColor != foreColor)
 			{
 				DataGridView.Rows[RowIndex].DefaultCellStyle.ForeColor = foreColor;
-
-				DataGridView.InvalidateRow(RowIndex);
 			}
 
 			if (tagsString.Length == 0)
