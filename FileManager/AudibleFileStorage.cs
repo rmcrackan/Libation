@@ -47,7 +47,7 @@ namespace FileManager
 		{
 			extensions_noDots = Extensions.Select(ext => ext.Trim('.')).ToList();
 			extAggr = extensions_noDots.Aggregate((a, b) => $"{a}|{b}");
-            BookDirectoryFiles ??= new BackgroundFileSystem(BookDirectoryFiles, "*.*", SearchOption.AllDirectories);
+            BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
         }
 
         public void Refresh()
