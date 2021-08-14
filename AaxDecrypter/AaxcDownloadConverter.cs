@@ -112,7 +112,6 @@ namespace AaxDecrypter
             {
                 nfsPersister = NewNetworkFilePersister();
             }
-            nfsPersister.NetworkFileStream.BeginDownloading();
 
             aaxFile = new AaxFile(nfsPersister.NetworkFileStream);
 
