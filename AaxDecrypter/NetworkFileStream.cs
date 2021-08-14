@@ -433,7 +433,12 @@ namespace AaxDecrypter
             _networkStream?.Close();
             Update();
         }
-      
+
         #endregion
+        ~NetworkFileStream()
+        {
+            downloadEnded?.Close();
+            downloadedPiece?.Close();
+        }
     }
 }

@@ -8,11 +8,10 @@ namespace LibationWinForms
 	{
 		public bool InvokeRequired => Thread.CurrentThread.ManagedThreadId != InstanceThreadId;
 		private int InstanceThreadId { get; set; } = Thread.CurrentThread.ManagedThreadId;
-		private SynchronizationContext SyncContext { get; init; } = SynchronizationContext.Current;
+		private SynchronizationContext SyncContext { get; } = SynchronizationContext.Current;
 
 		public SynchronizeInvoker()
 		{
-			SyncContext = SynchronizationContext.Current;
 			if (SyncContext is null)
 				throw new NullReferenceException($"Could not capture a current {nameof(SynchronizationContext)}");
 		}
@@ -25,7 +24,7 @@ namespace LibationWinForms
 
 			if (InvokeRequired)
 			{
-				SyncContext.Post(ThreadMethodEntry.OnSendOrPostCallback, tme);
+				SyncContext.Post(OnSendOrPostCallback, tme);
 			}
 			else
 			{
@@ -38,7 +37,7 @@ namespace LibationWinForms
 		public object EndInvoke(IAsyncResult result)
 		{
 			if (result is not ThreadMethodEntry crossThread)
-				throw new ArgumentException($"{nameof(result)} was not returned by {nameof(BeginInvoke)}");
+				throw new ArgumentException($"{nameof(result)} was not returned by {nameof(SynchronizeInvoker)}.{nameof(BeginInvoke)}");
 
 			if (!crossThread.IsCompleted) 
 				crossThread.AsyncWaitHandle.WaitOne();
@@ -54,7 +53,7 @@ namespace LibationWinForms
 
 			if (InvokeRequired)
 			{
-				SyncContext.Send(ThreadMethodEntry.OnSendOrPostCallback, tme);
+				SyncContext.Send(OnSendOrPostCallback, tme);
 			}
 			else
 			{
@@ -65,49 +64,32 @@ namespace LibationWinForms
 			return tme.ReturnValue;
 		}
 
+		/// <summary>
+		/// This callback executes on the SynchronizationContext thread.
+		/// </summary>
+		private static void OnSendOrPostCallback(object asyncArgs)
+		{
+			var e = asyncArgs as ThreadMethodEntry;
+			e.Complete();
+		}
+
 		private class ThreadMethodEntry : IAsyncResult
 		{
 			public object AsyncState => null;
 			public bool CompletedSynchronously { get; internal set; }
 			public bool IsCompleted { get; private set; }
 			public object ReturnValue { get; private set; }
-			public WaitHandle AsyncWaitHandle
-			{
-				get
-				{
-					if (resetEvent == null)
-					{
-						lock (invokeSyncObject)
-						{
-							if (resetEvent == null)
-							{
-								resetEvent = new ManualResetEvent(initialState: false);
-							}
-						}
-					}
-					return resetEvent;
-				}
-			}
+			public WaitHandle AsyncWaitHandle => completedEvent;
 
-			private object invokeSyncObject = new object();
 			private Delegate method;
 			private object[] args;
-			private ManualResetEvent resetEvent;
+			private ManualResetEvent completedEvent;
 
 			public ThreadMethodEntry(Delegate method, object[] args)
 			{
 				this.method = method;
 				this.args = args;
-				resetEvent = new ManualResetEvent(initialState: false);				
-			}
-			/// <summary>
-			/// This callback executes on the SynchronizationContext thread.
-			/// </summary>
-			public static void OnSendOrPostCallback(object asyncArgs)
-			{
-				var e = asyncArgs as ThreadMethodEntry;
-
-				e.Complete();
+				completedEvent = new ManualResetEvent(initialState: false);				
 			}
 
 			public void Complete()
@@ -127,16 +109,13 @@ namespace LibationWinForms
 				finally
 				{
 					IsCompleted = true;
-					resetEvent.Set();
+					completedEvent.Set();
 				}
 			}
 
 			~ThreadMethodEntry()
 			{
-				if (resetEvent != null)
-				{
-					resetEvent.Close();
-				}
+				completedEvent.Close();
 			}
 		}
 	}
