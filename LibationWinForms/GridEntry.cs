@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace LibationWinForms
 {
-	internal class GridEntry : AsyncNotifyPropertyChanged, IObjectMemberComparable
+	internal class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
 	{
 		#region implementation properties
 		// hide from public fields from Data Source GUI with [Browsable(false)]

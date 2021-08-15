@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace LibationWinForms
 {
-	internal class ObjectMemberComparer<T> : IComparer<T> where T : IObjectMemberComparable
+	internal class MemberComparer<T> : IComparer<T> where T : IMemberComparable
 	{
 		public ListSortDirection Direction { get; set; } = ListSortDirection.Ascending;
 		public string PropertyName { get; set; }

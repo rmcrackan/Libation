@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace LibationWinForms
 {
-	internal class SortableBindingList2<T> : BindingList<T> where T : IObjectMemberComparable
+	internal class SortableBindingList2<T> : BindingList<T> where T : IMemberComparable
 	{
 		private bool isSorted;
 		private ListSortDirection listSortDirection;
@@ -14,7 +14,7 @@ namespace LibationWinForms
 		public SortableBindingList2() : base(new List<T>()) { }
 		public SortableBindingList2(IEnumerable<T> enumeration) : base(new List<T>(enumeration)) { }
 
-		private ObjectMemberComparer<T> Comparer { get; } = new();
+		private MemberComparer<T> Comparer { get; } = new();
 		protected override bool SupportsSortingCore => true;
 		protected override bool SupportsSearchingCore => true;
 		protected override bool IsSortedCore => isSorted;

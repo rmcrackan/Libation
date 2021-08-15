@@ -34,12 +34,10 @@ namespace FileManager
 		private static string getPath(PictureDefinition def)
 			=> Path.Combine(ImagesDirectory, $"{def.PictureId}{def.Size}.jpg");
 
-		static Task backgroundDownloader;
-
 		static PictureStorage()
 		{
-			backgroundDownloader = new Task(BackgroundDownloader);
-			backgroundDownloader.Start();
+			new Task(BackgroundDownloader, TaskCreationOptions.LongRunning)
+			.Start();
 		}
 
 		public static event EventHandler<PictureCachedEventArgs> PictureCached;
@@ -49,39 +47,45 @@ namespace FileManager
 		private static Dictionary<PictureSize, byte[]> defaultImages { get; } = new Dictionary<PictureSize, byte[]>();
 		public static (bool isDefault, byte[] bytes) GetPicture(PictureDefinition def)
 		{
-			if (cache.ContainsKey(def))
-				return (false, cache[def]);
-
-			var path = getPath(def);
-
-			if (File.Exists(path))
+			lock (cache)
 			{
-				cache[def] = File.ReadAllBytes(path);
-				return (false, cache[def]);
-			}
+				if (cache.ContainsKey(def))
+					return (false, cache[def]);
 
-			DownloadQueue.Add(def);
-			return (true, getDefaultImage(def.Size));
+				var path = getPath(def);
+
+				if (File.Exists(path))
+				{
+					cache[def] = File.ReadAllBytes(path);
+					return (false, cache[def]);
+				}
+
+				DownloadQueue.Add(def);
+				return (true, getDefaultImage(def.Size));
+			}
 		}
 
 		public static byte[] GetPictureSynchronously(PictureDefinition def)
 		{
-			if (!cache.ContainsKey(def) || cache[def] == null)
+			lock (cache)
 			{
-				var path = getPath(def);
-				byte[] bytes;
-
-				if (File.Exists(path))
-					bytes = File.ReadAllBytes(path);
-				else
+				if (!cache.ContainsKey(def) || cache[def] == null)
 				{
-					bytes = downloadBytes(def);
-					saveFile(def, bytes);
-				}
+					var path = getPath(def);
+					byte[] bytes;
 
-				cache[def] = bytes;
+					if (File.Exists(path))
+						bytes = File.ReadAllBytes(path);
+					else
+					{
+						bytes = downloadBytes(def);
+						saveFile(def, bytes);
+					}
+
+					cache[def] = bytes;
+				}
+				return cache[def];
 			}
-			return cache[def];
 		}
 
 		public static void SetDefaultImage(PictureSize pictureSize, byte[] bytes)
@@ -100,7 +104,8 @@ namespace FileManager
 
 				var bytes = downloadBytes(def);
 				saveFile(def, bytes);
-				cache[def] = bytes;
+				lock (cache)
+					cache[def] = bytes;
 
 				PictureCached?.Invoke(nameof(PictureStorage), new PictureCachedEventArgs { Definition = def, Picture = bytes });
 			}
