@@ -17,13 +17,12 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		{
 			//SynchronizationContext.Current will be null until the process contains a Form.
 			//If this is the first form created, it will not exist until after execution
-			//reaches inside the constructor. So need to reset the context here.
+			//reaches inside the constructor (after base class has been initialized).
 			Invoker = new SynchronizeInvoker();
 		}
 
 		public void RegisterFileLiberator(IStreamable streamable, LogMe logMe = null)
 		{
-			//IFileLiberator must at least be IStreamable, otherwise the Form won't ever Show()
 			if (streamable is null) return;
 
 			Streamable = streamable;
