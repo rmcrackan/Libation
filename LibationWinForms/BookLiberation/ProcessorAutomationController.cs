@@ -135,11 +135,11 @@ namespace LibationWinForms.BookLiberation
 		/// <summary>
 		/// Create a new <see cref="IProcessable"/> and links it to a new <see cref="LiberationBaseForm"/>.
 		/// </summary>
-		/// <typeparam name="TProcessable">The <see cref="IProcessable"/> derrived type to create.</typeparam>
-		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derrived Form to create on <see cref="IProcessable.Begin"/>, Show on <see cref="IStreamable.StreamingBegin"/>, Close on <see cref="IStreamable.StreamingCompleted"/>, and Dispose on <see cref="IProcessable.Completed"/> </typeparam>
+		/// <typeparam name="TProcessable">The <see cref="IProcessable"/> derived type to create.</typeparam>
+		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derived Form to create on <see cref="IProcessable.Begin"/>, Show on <see cref="IStreamable.StreamingBegin"/>, Close on <see cref="IStreamable.StreamingCompleted"/>, and Dispose on <see cref="IProcessable.Completed"/> </typeparam>
 		/// <param name="logMe">The logger</param>
 		/// <param name="completedAction">An additional event handler to handle <see cref="IProcessable.Completed"/></param>
-		/// <returns>A new <see cref="IProcessable"/> of type <typeparamref name="TStrProc"/></returns>
+		/// <returns>A new <see cref="IProcessable"/> of type <typeparamref name="TProcessable"/></returns>
 		private static TProcessable CreateProcessable<TProcessable, TForm>(LogMe logMe, EventHandler<LibraryBook> completedAction = null)
 			where TForm : LiberationBaseForm, new()
 			where TProcessable : IProcessable, new()

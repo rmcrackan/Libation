@@ -21,7 +21,7 @@ namespace LibationWinForms
 	//     AudibleDTO
 	//       GridEntry
 	// - go to Design view
-	// - click on Data Sources > ProductItem. drowdown: DataGridView
+	// - click on Data Sources > ProductItem. dropdown: DataGridView
 	// - drag/drop ProductItem on design surface
 	// AS OF AUGUST 2021 THIS DOES NOT WORK IN VS2019 WITH .NET-5 PROJECTS 
 

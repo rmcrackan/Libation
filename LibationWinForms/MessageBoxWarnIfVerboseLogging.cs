@@ -17,7 +17,7 @@ Warning: verbose logging is enabled.
 
 This should be used for debugging only. It creates many
 more logs and debug files, neither of which are as
-strictly anonomous.
+strictly anonymous.
 
 When you are finished debugging, it's highly recommended
 to set your debug MinimumLevel to Information and restart
