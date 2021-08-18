@@ -1,6 +1,6 @@
 ﻿namespace LibationWinForms.BookLiberation
 {
-    partial class DecryptForm
+    partial class AudioDecodeForm
     {
         /// <summary>
         /// Required designer variable.

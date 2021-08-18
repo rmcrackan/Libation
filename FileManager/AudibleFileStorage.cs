@@ -34,7 +34,7 @@ namespace FileManager
             }
         }
 
-        private static BackgroundFileSystem BookDirectoryFiles { get; } = new BackgroundFileSystem();
+        private static BackgroundFileSystem BookDirectoryFiles { get; set; }
         #endregion
 
         #region instance
@@ -47,6 +47,7 @@ namespace FileManager
 		{
 			extensions_noDots = Extensions.Select(ext => ext.Trim('.')).ToList();
 			extAggr = extensions_noDots.Aggregate((a, b) => $"{a}|{b}");
+            BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
         }
 
         public void Refresh()
@@ -76,7 +77,15 @@ namespace FileManager
             {
                 //If user changed the BooksDirectory, reinitialize.
                 if (storageDir != BookDirectoryFiles.RootDirectory)
-                    BookDirectoryFiles.Init(storageDir, "*.*", SearchOption.AllDirectories);
+				{
+                    lock (BookDirectoryFiles)
+                    {
+                        if (storageDir != BookDirectoryFiles.RootDirectory)
+                        {
+                            BookDirectoryFiles = new BackgroundFileSystem(storageDir, "*.*", SearchOption.AllDirectories);
+                        }
+                    }
+				}
 
                 firstOrNull = BookDirectoryFiles.FindFile(regexPattern, RegexOptions.IgnoreCase);
             }

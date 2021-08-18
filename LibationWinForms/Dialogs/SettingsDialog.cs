@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Dinah.Core;
+using FileManager;
+using System;
+using System.Linq;
 using System.IO;
 using System.Windows.Forms;
-using Dinah.Core;
-using FileManager;
 
 namespace LibationWinForms.Dialogs
 {
 	public partial class SettingsDialog : Form
 	{
-		Configuration config { get; } = Configuration.Instance;
-		Func<string, string> desc { get; } = Configuration.GetDescription;
+		private Configuration config { get; } = Configuration.Instance;
+		private Func<string, string> desc { get; } = Configuration.GetDescription;
 
 		public SettingsDialog() => InitializeComponent();
 
@@ -57,13 +58,13 @@ namespace LibationWinForms.Dialogs
 			inProgressSelectControl.SelectDirectory(config.InProgress);
 		}
 
-        private void allowLibationFixupCbox_CheckedChanged(object sender, EventArgs e)
-        {
+		private void allowLibationFixupCbox_CheckedChanged(object sender, EventArgs e)
+		{
 			convertLosslessRb.Enabled = allowLibationFixupCbox.Checked;
 			convertLossyRb.Enabled = allowLibationFixupCbox.Checked;
 
 			if (!allowLibationFixupCbox.Checked)
-            {
+			{
 				convertLosslessRb.Checked = true;
 			}
 		}

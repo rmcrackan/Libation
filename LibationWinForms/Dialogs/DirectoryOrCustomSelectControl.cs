@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FileManager;
+using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Windows.Forms;
-using Dinah.Core;
-using FileManager;
 
 namespace LibationWinForms.Dialogs
 {
@@ -58,7 +57,7 @@ namespace LibationWinForms.Dialogs
 				= knownDir != Configuration.KnownDirectories.None
 				// this could be a well known dir which isn't an option in this particular dropdown. This will always be true of LibationFiles
 				&& this.directorySelectControl.SelectDirectory(knownDir);
-			
+
 			customDirectoryRb.Checked = !isKnown;
 			knownDirectoryRb.Checked = isKnown;
 			this.customTb.Text = isKnown ? "" : customDir;

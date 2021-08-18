@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using LibationWinForms.Dialogs;
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {

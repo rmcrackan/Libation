@@ -6,16 +6,18 @@ using Dinah.Core.Net.Http;
 
 namespace FileLiberator
 {
-	public abstract class DownloadableBase : IDownloadableProcessable
+	public abstract class DownloadableBase : IProcessable
 	{
 		public event EventHandler<LibraryBook> Begin;
 		public event EventHandler<LibraryBook> Completed;
 
-		public event EventHandler<string> DownloadBegin;
-		public event EventHandler<DownloadProgress> DownloadProgressChanged;
-		public event EventHandler<string> DownloadCompleted;
+		public event EventHandler<string> StreamingBegin;
+		public event EventHandler<DownloadProgress> StreamingProgressChanged;
+		public event EventHandler<string> StreamingCompleted;
 
 		public event EventHandler<string> StatusUpdate;
+		public event EventHandler<TimeSpan> StreamingTimeRemaining;
+
 		protected void Invoke_StatusUpdate(string message) => StatusUpdate?.Invoke(this, message);
 
         public abstract bool Validate(LibraryBook libraryBook);
@@ -44,9 +46,9 @@ namespace FileLiberator
 		protected async Task<string> PerformDownloadAsync(string proposedDownloadFilePath, Func<Progress<DownloadProgress>, Task<string>> func)
 		{
 			var progress = new Progress<DownloadProgress>();
-			progress.ProgressChanged += (_, e) => DownloadProgressChanged?.Invoke(this, e);
+			progress.ProgressChanged += (_, e) => StreamingProgressChanged?.Invoke(this, e);
 
-			DownloadBegin?.Invoke(this, proposedDownloadFilePath);
+			StreamingBegin?.Invoke(this, proposedDownloadFilePath);
 
 			try
 			{
@@ -57,7 +59,7 @@ namespace FileLiberator
 			}
 			finally
 			{
-				DownloadCompleted?.Invoke(this, proposedDownloadFilePath);
+				StreamingCompleted?.Invoke(this, proposedDownloadFilePath);
 			}
 		}
 	}

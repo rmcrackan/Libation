@@ -1,87 +1,142 @@
-﻿using System;
+﻿using ApplicationServices;
+using DataLayer;
+using Dinah.Core.Drawing;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using ApplicationServices;
-using DataLayer;
 
 namespace LibationWinForms
 {
-	internal class GridEntry
+	internal class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
 	{
-		private LibraryBook libraryBook { get; }
-		private Book book => libraryBook.Book;
-
-		public Book GetBook() => book;
-		public LibraryBook GetLibraryBook() => libraryBook;
-
-		public GridEntry(LibraryBook libraryBook) => this.libraryBook = libraryBook;
-
+		#region implementation properties
 		// hide from public fields from Data Source GUI with [Browsable(false)]
 
 		[Browsable(false)]
-		public string AudibleProductId => book.AudibleProductId;
+		public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)]
-		public string Tags => book.UserDefinedItem.Tags;
-		[Browsable(false)]
-		public IEnumerable<string> TagsEnumerated => book.UserDefinedItem.TagsEnumerated;
-		[Browsable(false)]
-		public string PictureId => book.PictureId;
-		[Browsable(false)]
-		public LiberatedState Liberated_Status => LibraryCommands.Liberated_Status(book);
-		[Browsable(false)]
-		public PdfState Pdf_Status => LibraryCommands.Pdf_Status(book);
+		public LibraryBook LibraryBook { get; }
 
-		// displayValues is what gets displayed
-		// the value that gets returned from the property is the cell's value
-		// this allows for the value to be sorted one way and displayed another
-		// eg:
-		//   orig title: The Computer
-		//   formatReplacement: The Computer
-		//   value for sorting: Computer
-		private Dictionary<string, string> displayValues { get; } = new Dictionary<string, string>();
-		public bool TryDisplayValue(string key, out string value) => displayValues.TryGetValue(key, out value);
+		#endregion
 
-		public Image Cover =>
-			WindowsDesktopUtilities.WinAudibleImageServer.GetImage(book.PictureId, FileManager.PictureSize._80x80);
+		private Book Book => LibraryBook.Book;
+		private Image _cover;
 
-		public string Title
+		public GridEntry(LibraryBook libraryBook)
 		{
-			get
+			LibraryBook = libraryBook;
+			_memberValues = CreateMemberValueDictionary();
+
+			//Get cover art. If it's default, subscribe to PictureCached
 			{
-				displayValues[nameof(Title)] = book.Title;
-				return getSortName(book.Title);
+				(bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(new FileManager.PictureDefinition(Book.PictureId, FileManager.PictureSize._80x80));
+
+				if (isDefault)
+					FileManager.PictureStorage.PictureCached += PictureStorage_PictureCached;
+
+				//Mutable property. Set the field so PropertyChanged isn't fired.
+				_cover = ImageReader.ToImage(picture);
+			}
+
+			//Immutable properties
+			{
+				Title = Book.Title;
+				Series = Book.SeriesNames;
+				Length = Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min";
+				MyRating = ValueOrDefault(Book.UserDefinedItem.Rating?.ToStarString(), "");
+				PurchaseDate = libraryBook.DateAdded.ToString("d");
+				ProductRating = ValueOrDefault(Book.Rating?.ToStarString(), "");
+				Authors = Book.AuthorNames;
+				Narrators = Book.NarratorNames;
+				Category = string.Join(" > ", Book.CategoriesNames);
+				Misc = GetMiscDisplay(libraryBook);
+				Description = GetDescriptionDisplay(Book);
+			}
+
+			//DisplayTags and Liberate properties are live.
+		}
+
+		private void PictureStorage_PictureCached(object sender, FileManager.PictureCachedEventArgs e)
+		{
+			if (e.Definition.PictureId == Book.PictureId)
+			{
+				Cover = ImageReader.ToImage(e.Picture);
+				FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
 		}
 
-		public string Authors => book.AuthorNames;
-		public string Narrators => book.NarratorNames;
+		#region Data Source properties
 
-		public int Length
+		public Image Cover
 		{
 			get
 			{
-				displayValues[nameof(Length)]
-					= book.LengthInMinutes == 0
-					? ""
-					: $"{book.LengthInMinutes / 60} hr {book.LengthInMinutes % 60} min";
-
-				return book.LengthInMinutes;
+				return _cover;
 			}
-		}
-
-		public string Series
-		{
-			get
+			private set
 			{
-				displayValues[nameof(Series)] = book.SeriesNames;
-				return getSortName(book.SeriesNames);
+				_cover = value;
+				NotifyPropertyChanged();
 			}
 		}
 
-		private static string[] sortPrefixIgnores { get; } = new[] { "the", "a", "an" };
-		private static string getSortName(string unformattedName)
+		public string ProductRating { get; }
+		public string PurchaseDate { get; }
+		public string MyRating { get; }
+		public string Series { get; }
+		public string Title { get; }
+		public string Length { get; }
+		public string Authors { get; }
+		public string Narrators { get; }
+		public string Category { get; }
+		public string Misc { get; }
+		public string Description { get; }
+		public string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
+		public (LiberatedState, PdfState) Liberate => (LibraryCommands.Liberated_Status(Book), LibraryCommands.Pdf_Status(Book));
+		#endregion
+
+		#region Data Sorting
+
+		private Dictionary<string, Func<object>> _memberValues { get; }
+
+		/// <summary>
+		/// Create getters for all member object values by name
+		/// </summary>
+		private Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
+		{
+			{ nameof(Title), () => GetSortName(Book.Title) },
+			{ nameof(Series), () => GetSortName(Book.SeriesNames) },
+			{ nameof(Length), () => Book.LengthInMinutes },
+			{ nameof(MyRating), () => Book.UserDefinedItem.Rating.FirstScore },
+			{ nameof(PurchaseDate), () => LibraryBook.DateAdded },
+			{ nameof(ProductRating), () => Book.Rating.FirstScore },
+			{ nameof(Authors), () => Authors },
+			{ nameof(Narrators), () => Narrators },
+			{ nameof(Description), () => Description },
+			{ nameof(Category), () => Category },
+			{ nameof(Misc), () => Misc },
+			{ nameof(DisplayTags), () => DisplayTags },
+			{ nameof(Liberate), () => Liberate.Item1 }
+		};
+
+		// Instantiate comparers for every exposed member object type.
+		private static readonly Dictionary<Type, IComparer> _memberTypeComparers = new()
+		{
+			{ typeof(string), new ObjectComparer<string>() },
+			{ typeof(int), new ObjectComparer<int>() },
+			{ typeof(float), new ObjectComparer<float>() },
+			{ typeof(DateTime), new ObjectComparer<DateTime>() },
+			{ typeof(LiberatedState), new ObjectComparer<LiberatedState>() },
+		};
+
+		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
+		public virtual IComparer GetMemberComparer(Type memberType) => _memberTypeComparers[memberType];
+
+		private static readonly string[] _sortPrefixIgnores = { "the", "a", "an" };
+		private static string GetSortName(string unformattedName)
 		{
 			var sortName = unformattedName
 				.Replace("|", "")
@@ -89,110 +144,93 @@ namespace LibationWinForms
 				.ToLowerInvariant()
 				.Trim();
 
-			if (sortPrefixIgnores.Any(prefix => sortName.StartsWith(prefix + " ")))
+			if (_sortPrefixIgnores.Any(prefix => sortName.StartsWith(prefix + " ")))
 				sortName = sortName.Substring(sortName.IndexOf(" ") + 1).TrimStart();
 
 			return sortName;
 		}
 
-		private string descriptionCache = null;
-		public string Description
-		{
-			get
-			{
-				// HtmlAgilityPack is expensive. cache results
-				if (descriptionCache is null)
-				{
-					if (book.Description is null)
-						descriptionCache = "";
-					else
-					{
-						var doc = new HtmlAgilityPack.HtmlDocument();
-						doc.LoadHtml(book.Description);
-						var noHtml = doc.DocumentNode.InnerText;
-						descriptionCache
-							= noHtml.Length < 63
-							? noHtml
-							: noHtml.Substring(0, 60) + "...";
-					}
-				}
+		#endregion
 
-				return descriptionCache;
-			}
+		#region Static library display functions
+
+		public static (string mouseoverText, Bitmap buttonImage) GetLiberateDisplay(LiberatedState liberatedStatus, PdfState pdfStatus)
+		{
+			(string libState, string image_lib) = liberatedStatus switch
+			{
+				LiberatedState.Liberated => ("Liberated", "green"),
+				LiberatedState.PartialDownload => ("File has been at least\r\npartially downloaded", "yellow"),
+				LiberatedState.NotDownloaded => ("Book NOT downloaded", "red"),
+				_ => throw new Exception("Unexpected liberation state")
+			};
+
+			(string pdfState, string image_pdf) = pdfStatus switch
+			{
+				PdfState.Downloaded => ("\r\nPDF downloaded", "_pdf_yes"),
+				PdfState.NotDownloaded => ("\r\nPDF NOT downloaded", "_pdf_no"),
+				PdfState.NoPdf => ("", ""),
+				_ => throw new Exception("Unexpected PDF state")
+			};
+
+			var mouseoverText = libState + pdfState;
+
+			if (liberatedStatus == LiberatedState.NotDownloaded ||
+				liberatedStatus == LiberatedState.PartialDownload ||
+				pdfStatus == PdfState.NotDownloaded)
+				mouseoverText += "\r\nClick to complete";
+
+			var buttonImage = (Bitmap)Properties.Resources.ResourceManager.GetObject($"liberate_{image_lib}{image_pdf}");
+
+			return (mouseoverText, buttonImage);
 		}
 
-		public string Category => string.Join(" > ", book.CategoriesNames);
-
-		// star ratings retain numeric value but display star text. this is needed because just using star text doesn't sort correctly:
-		// - star
-		// - star star
-		// - star 1/2
-
-		public string Product_Rating
+		/// <summary>
+		/// This information should not change during <see cref="GridEntry"/> lifetime, so call only once.
+		/// </summary>
+		private static string GetDescriptionDisplay(Book book)
 		{
-			get
-			{
-				displayValues[nameof(Product_Rating)] = starString(book.Rating);
-				return firstScore(book.Rating);
-			}
+			var doc = new HtmlAgilityPack.HtmlDocument();
+			doc.LoadHtml(book.Description);
+			var noHtml = doc.DocumentNode.InnerText;
+			return
+				noHtml.Length < 63 ?
+				noHtml :
+				noHtml.Substring(0, 60) + "...";
 		}
 
-		public string Purchase_Date
+		/// <summary>
+		/// This information should not change during <see cref="GridEntry"/> lifetime, so call only once.
+		/// Maximum of 5 text rows will fit in 80-pixel row height.
+		/// </summary>
+		private static string GetMiscDisplay(LibraryBook libraryBook)
 		{
-			get
-			{
-				displayValues[nameof(Purchase_Date)] = libraryBook.DateAdded.ToString("d");
-				return libraryBook.DateAdded.ToString("yyyy-MM-dd HH:mm:ss");
-			}
+			var details = new List<string>();
+
+			var locale = ValueOrDefault(libraryBook.Book.Locale, "[unknown]");
+			var acct = ValueOrDefault(libraryBook.Account, "[unknown]");
+
+			details.Add($"Account: {locale} - {acct}");
+
+			if (libraryBook.Book.HasPdf)
+				details.Add("Has PDF");
+			if (libraryBook.Book.IsAbridged)
+				details.Add("Abridged");
+			if (libraryBook.Book.DatePublished.HasValue)
+				details.Add($"Date pub'd: {libraryBook.Book.DatePublished.Value:MM/dd/yyyy}");
+			// this goes last since it's most likely to have a line-break
+			if (!string.IsNullOrWhiteSpace(libraryBook.Book.Publisher))
+				details.Add($"Pub: {libraryBook.Book.Publisher.Trim()}");
+
+			if (!details.Any())
+				return "[details not imported]";
+
+			return string.Join("\r\n", details);
 		}
 
-        public string My_Rating
-        {
-            get
-            {
-                displayValues[nameof(My_Rating)] = starString(book.UserDefinedItem.Rating);
-                return firstScore(book.UserDefinedItem.Rating);
-            }
-        }
+		//Maybe add to Dinah StringExtensions?
+		private static string ValueOrDefault(string value, string defaultValue)
+			=> string.IsNullOrWhiteSpace(value) ? defaultValue : value;
 
-        private string starString(Rating rating)
-            => (rating?.FirstScore != null && rating?.FirstScore > 0f)
-            ? rating?.ToStarString()
-            : "";
-        private string firstScore(Rating rating) => rating?.FirstScore.ToString("0.0");
-
-        // max 5 text rows
-        public string Misc
-        {
-            get
-            {
-                var details = new List<string>();
-
-				var locale
-					= string.IsNullOrWhiteSpace(book.Locale)
-					? "[unknown]"
-					: book.Locale;
-				var acct
-					= string.IsNullOrWhiteSpace(libraryBook.Account)
-					? "[unknown]"
-					: libraryBook.Account;
-				details.Add($"Account: {locale} - {acct}");
-
-                if (book.HasPdf)
-                    details.Add("Has PDF");
-                if (book.IsAbridged)
-                    details.Add("Abridged");
-                if (book.DatePublished.HasValue)
-                    details.Add($"Date pub'd: {book.DatePublished.Value:MM/dd/yyyy}");
-                // this goes last since it's most likely to have a line-break
-                if (!string.IsNullOrWhiteSpace(book.Publisher))
-                    details.Add($"Pub: {book.Publisher.Trim()}");
-
-				if (!details.Any())
-                    return "[details not imported]";
-
-                return string.Join("\r\n", details);
-            }
-        }
-    }
+		#endregion
+	}
 }

@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs.Login
@@ -14,7 +8,7 @@ namespace LibationWinForms.Dialogs.Login
 	{
 		private RadioButton[] radioButtons { get; }
 
-		AudibleApi.MfaConfig _mfaConfig { get; }
+		private AudibleApi.MfaConfig _mfaConfig { get; }
 
 		public MfaDialog(AudibleApi.MfaConfig mfaConfig)
 		{
@@ -32,7 +26,8 @@ namespace LibationWinForms.Dialogs.Login
 			setRadioButton(1, this.radioButton2);
 			setRadioButton(2, this.radioButton3);
 
-			Serilog.Log.Logger.Information("{@DebugInfo}", new {
+			Serilog.Log.Logger.Information("{@DebugInfo}", new
+			{
 				paramButtonCount = mfaConfig.Buttons.Count,
 				visibleRadioButtonCount = radioButtons.Count(rb => rb.Visible)
 			});
@@ -65,7 +60,8 @@ namespace LibationWinForms.Dialogs.Login
 		{
 			var selected = radioButtons.FirstOrDefault(rb => rb.Checked);
 
-			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new {
+			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new
+			{
 				rb1_visible = radioButton1.Visible,
 				rb1_checked = radioButton1.Checked,
 

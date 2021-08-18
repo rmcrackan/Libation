@@ -1,21 +1,21 @@
-﻿using System;
+﻿using AudibleApi;
+using InternalUtilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using AudibleApi;
-using InternalUtilities;
 
 namespace LibationWinForms.Dialogs
 {
 	public partial class AccountsDialog : Form
 	{
-		const string COL_Delete = nameof(DeleteAccount);
-		const string COL_LibraryScan = nameof(LibraryScan);
-		const string COL_AccountId = nameof(AccountId);
-		const string COL_AccountName = nameof(AccountName);
-		const string COL_Locale = nameof(Locale);
+		private const string COL_Delete = nameof(DeleteAccount);
+		private const string COL_LibraryScan = nameof(LibraryScan);
+		private const string COL_AccountId = nameof(AccountId);
+		private const string COL_AccountName = nameof(AccountName);
+		private const string COL_Locale = nameof(Locale);
 
-		Form1 _parent { get; }
+		private Form1 _parent { get; }
 
 		public AccountsDialog(Form1 parent)
 		{
@@ -100,7 +100,7 @@ namespace LibationWinForms.Dialogs
 			this.Close();
 		}
 
-		class AccountDto
+		private class AccountDto
 		{
 			public string AccountId { get; set; }
 			public string AccountName { get; set; }

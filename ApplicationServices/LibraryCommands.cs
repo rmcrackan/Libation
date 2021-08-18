@@ -20,6 +20,57 @@ namespace ApplicationServices
 
 	public static class LibraryCommands
 	{
+		private static LibraryOptions.ResponseGroupOptions LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
+
+		public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, ILoginCallback> loginCallbackFactoryFunc, List<LibraryBook> existingLibrary, params Account[] accounts)
+        {
+			//These are the minimum response groups required for the
+			//library scanner to pass all validation and filtering.
+			LibraryResponseGroups = 
+				LibraryOptions.ResponseGroupOptions.ProductAttrs |
+				LibraryOptions.ResponseGroupOptions.ProductDesc | 
+				LibraryOptions.ResponseGroupOptions.Relationships;
+
+			if (accounts is null || accounts.Length == 0)
+				return new List<LibraryBook>();
+
+			try
+			{
+				var libraryItems = await scanAccountsAsync(loginCallbackFactoryFunc, accounts);
+				Log.Logger.Information($"GetAllLibraryItems: Total count {libraryItems.Count}");
+
+				var missingBookList = existingLibrary.Where(b => !libraryItems.Any(i => i.DtoItem.Asin == b.Book.AudibleProductId)).ToList();
+
+				return missingBookList;
+			}
+			catch (AudibleApi.Authentication.LoginFailedException lfEx)
+			{
+				lfEx.SaveFiles(FileManager.Configuration.Instance.LibationFiles);
+
+				// nuget Serilog.Exceptions would automatically log custom properties
+				//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
+				//   https://github.com/RehanSaeed/Serilog.Exceptions
+				// work-around: use 3rd param. don't just put exception object in 3rd param -- info overload: stack trace, etc
+				Log.Logger.Error(lfEx, "Error scanning library. Login failed. {@DebugInfo}", new
+				{
+					lfEx.RequestUrl,
+					ResponseStatusCodeNumber = (int)lfEx.ResponseStatusCode,
+					ResponseStatusCodeDesc = lfEx.ResponseStatusCode,
+					lfEx.ResponseInputFields,
+					lfEx.ResponseBodyFilePaths
+				});
+				throw;
+			}
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex, "Error importing library");
+				throw;
+			}
+            finally
+            {
+				LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
+            }
+		}
 		#region FULL LIBRARY scan and import
 		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
 		{
@@ -95,7 +146,7 @@ namespace ApplicationServices
 				Account = account?.MaskedLogEntry ?? "[null]"
 			});
 
-			var dtoItems = await AudibleApiActions.GetLibraryValidatedAsync(api);
+			var dtoItems = await AudibleApiActions.GetLibraryValidatedAsync(api, LibraryResponseGroups);
 			return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = account.Locale?.Name }).ToList();
 		}
 
