@@ -5,7 +5,7 @@ namespace AaxDecrypter
 {
     public static class NFO
     {
-        public static string CreateContents(string ripper, AAXClean.Mp4File aaxcTagLib, ChapterInfo chapters)
+        public static string CreateContents(string ripper, Mp4File aaxcTagLib, ChapterInfo chapters)
         {
             var _hours = (int)aaxcTagLib.Duration.TotalHours;
             var myDuration
@@ -30,7 +30,7 @@ namespace AaxDecrypter
                 + "\r\n"
                 + "Media Information\r\n"
                 + "======================\r\n"
-                + " Source Format:          Audible AAX\r\n"
+                + " Source Format:          Audible AAXC\r\n"
                 + $" Source Sample Rate:     {aaxcTagLib.TimeScale} Hz\r\n"
                 + $" Source Channels:        {aaxcTagLib.AudioChannels}\r\n"
                 + $" Source Bitrate:         {aaxcTagLib.AverageBitrate} Kbps\r\n"
