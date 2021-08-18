@@ -1,12 +1,13 @@
-﻿using ApplicationServices;
-using DataLayer;
-using Dinah.Core;
-using Dinah.Core.Windows.Forms;
-using LibationWinForms.Dialogs;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ApplicationServices;
+using DataLayer;
+using Dinah.Core;
+using Dinah.Core.DataBinding;
+using Dinah.Core.Windows.Forms;
+using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {
@@ -138,7 +139,7 @@ namespace LibationWinForms
 				.ToList();
 
 			// BIND
-			gridEntryBindingSource.DataSource = new SortableBindingList2<GridEntry>(orderedGridEntries);
+			gridEntryBindingSource.DataSource = new SortableBindingList<GridEntry>(orderedGridEntries);
 
 			// FILTER
 			Filter();

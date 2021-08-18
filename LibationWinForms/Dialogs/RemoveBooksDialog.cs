@@ -1,14 +1,15 @@
-﻿using ApplicationServices;
-using DataLayer;
-using InternalUtilities;
-using LibationWinForms.Login;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
+using ApplicationServices;
+using DataLayer;
+using Dinah.Core.DataBinding;
+using InternalUtilities;
+using LibationWinForms.Login;
 
 namespace LibationWinForms.Dialogs
 {
@@ -18,7 +19,7 @@ namespace LibationWinForms.Dialogs
 
 		private Account[] _accounts { get; }
 		private readonly List<LibraryBook> _libraryBooks;
-		private readonly SortableBindingList2<RemovableGridEntry> _removableGridEntries;
+		private readonly SortableBindingList<RemovableGridEntry> _removableGridEntries;
 		private readonly string _labelFormat;
 		private int SelectedCount => SelectedEntries?.Count() ?? 0;
 		private IEnumerable<RemovableGridEntry> SelectedEntries => _removableGridEntries?.Where(b => b.Remove);
@@ -40,7 +41,7 @@ namespace LibationWinForms.Dialogs
 				.OrderByDescending(ge => (DateTime)ge.GetMemberValue(nameof(ge.PurchaseDate)))
 				.ToList();
 
-			_removableGridEntries = new SortableBindingList2<RemovableGridEntry>(orderedGridEntries);
+			_removableGridEntries = new SortableBindingList<RemovableGridEntry>(orderedGridEntries);
 			gridEntryBindingSource.DataSource = _removableGridEntries;
 
 			_dataGridView.Enabled = false;
