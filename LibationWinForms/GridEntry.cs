@@ -7,6 +7,7 @@ using System.Linq;
 using ApplicationServices;
 using DataLayer;
 using Dinah.Core.DataBinding;
+using Dinah.Core;
 using Dinah.Core.Drawing;
 
 namespace LibationWinForms
@@ -47,9 +48,9 @@ namespace LibationWinForms
 				Title = Book.Title;
 				Series = Book.SeriesNames;
 				Length = Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min";
-				MyRating = ValueOrDefault(Book.UserDefinedItem.Rating?.ToStarString(), "");
+				MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 				PurchaseDate = libraryBook.DateAdded.ToString("d");
-				ProductRating = ValueOrDefault(Book.Rating?.ToStarString(), "");
+				ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 				Authors = Book.AuthorNames;
 				Narrators = Book.NarratorNames;
 				Category = string.Join(" > ", Book.CategoriesNames);
@@ -207,8 +208,8 @@ namespace LibationWinForms
 		{
 			var details = new List<string>();
 
-			var locale = ValueOrDefault(libraryBook.Book.Locale, "[unknown]");
-			var acct = ValueOrDefault(libraryBook.Account, "[unknown]");
+			var locale = libraryBook.Book.Locale.DefaultIfNullOrWhiteSpace("[unknown]");
+			var acct = libraryBook.Account.DefaultIfNullOrWhiteSpace("[unknown]");
 
 			details.Add($"Account: {locale} - {acct}");
 
@@ -227,10 +228,6 @@ namespace LibationWinForms
 
 			return string.Join("\r\n", details);
 		}
-
-		//Maybe add to Dinah StringExtensions?
-		private static string ValueOrDefault(string value, string defaultValue)
-			=> string.IsNullOrWhiteSpace(value) ? defaultValue : value;
 
 		#endregion
 	}
