@@ -217,7 +217,7 @@
 			this.convertAllM4bToMp3ToolStripMenuItem.Name = "convertAllM4bToMp3ToolStripMenuItem";
 			this.convertAllM4bToMp3ToolStripMenuItem.Size = new System.Drawing.Size(284, 22);
 			this.convertAllM4bToMp3ToolStripMenuItem.Text = "Convert all M4b to Mp3 [Long-running]";
-			this.convertAllM4bToMp3ToolStripMenuItem.Visible = false;
+			this.convertAllM4bToMp3ToolStripMenuItem.Visible = true;
 			this.convertAllM4bToMp3ToolStripMenuItem.Click += new System.EventHandler(this.convertAllM4bToMp3ToolStripMenuItem_Click);
 			// 
 			// exportToolStripMenuItem
