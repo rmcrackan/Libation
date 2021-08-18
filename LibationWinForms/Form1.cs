@@ -16,10 +16,6 @@ namespace LibationWinForms
 {
 	public partial class Form1 : Form
 	{
-		private string backupsCountsLbl_Format { get; }
-		private string pdfsCountsLbl_Format { get; }
-		private string visibleCountLbl_Format { get; }
-
 		private string beginBookBackupsToolStripMenuItem_format { get; }
 		private string beginPdfBackupsToolStripMenuItem_format { get; }
 
@@ -28,17 +24,8 @@ namespace LibationWinForms
 			InitializeComponent();
 
 			// back up string formats
-			backupsCountsLbl_Format = backupsCountsLbl.Text;
-			pdfsCountsLbl_Format = pdfsCountsLbl.Text;
-			visibleCountLbl_Format = visibleCountLbl.Text;
-
 			beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
 			beginPdfBackupsToolStripMenuItem_format = beginPdfBackupsToolStripMenuItem.Text;
-
-			// after backing up formats: can set default/temp visible text
-			backupsCountsLbl.Text = "[Calculating backed up book quantities]";
-			pdfsCountsLbl.Text = "[Calculating backed up PDFs]";
-			setVisibleCount(null, 0);
 
 			if (this.DesignMode)
 				return;
@@ -179,7 +166,7 @@ namespace LibationWinForms
 		#endregion
 
 		#region bottom: qty books visible
-		private void setVisibleCount(object _, int qty) => visibleCountLbl.Text = string.Format(visibleCountLbl_Format, qty);
+		private void setVisibleCount(object _, int qty) => visibleCountLbl.Text = string.Format("Visible: {0}", qty);
 		#endregion
 
 		#region bottom: backup counts
@@ -193,6 +180,8 @@ namespace LibationWinForms
 		}
 		private void setBookBackupCounts(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress)
 		{
+			var backupsCountsLbl_Format = "BACKUPS: No progress: {0}  Encrypted: {1}  Fully backed up: {2}";
+
 			// enable/disable export
 			var hasResults = 0 < (booksFullyBackedUp + booksDownloadedOnly + booksNoProgress);
 			exportLibraryToolStripMenuItem.Enabled = hasResults;
@@ -217,6 +206,8 @@ namespace LibationWinForms
 		}
 		private void setPdfBackupCounts(int pdfsDownloaded, int pdfsNotDownloaded)
 		{
+			var pdfsCountsLbl_Format = "|  PDFs: NOT d/l\'ed: {0}  Downloaded: {1}";
+
 			// update bottom numbers
 			var hasResults = 0 < (pdfsNotDownloaded + pdfsDownloaded);
 			var statusStripText

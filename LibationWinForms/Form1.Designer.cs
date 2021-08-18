@@ -304,26 +304,26 @@
 			// visibleCountLbl
 			// 
 			this.visibleCountLbl.Name = "visibleCountLbl";
-			this.visibleCountLbl.Size = new System.Drawing.Size(61, 17);
-			this.visibleCountLbl.Text = "Visible: {0}";
+			this.visibleCountLbl.Size = new System.Drawing.Size(53, 17);
+			this.visibleCountLbl.Text = "Visible: 0";
 			// 
 			// springLbl
 			// 
 			this.springLbl.Name = "springLbl";
-			this.springLbl.Size = new System.Drawing.Size(375, 17);
+			this.springLbl.Size = new System.Drawing.Size(517, 17);
 			this.springLbl.Spring = true;
 			// 
 			// backupsCountsLbl
 			// 
 			this.backupsCountsLbl.Name = "backupsCountsLbl";
-			this.backupsCountsLbl.Size = new System.Drawing.Size(336, 17);
-			this.backupsCountsLbl.Text = "BACKUPS: No progress: {0}  Encrypted: {1}  Fully backed up: {2}";
+			this.backupsCountsLbl.Size = new System.Drawing.Size(218, 17);
+			this.backupsCountsLbl.Text = "[Calculating backed up book quantities]";
 			// 
 			// pdfsCountsLbl
 			// 
 			this.pdfsCountsLbl.Name = "pdfsCountsLbl";
-			this.pdfsCountsLbl.Size = new System.Drawing.Size(218, 17);
-			this.pdfsCountsLbl.Text = "|  PDFs: NOT d/l\'ed: {0}  Downloaded: {1}";
+			this.pdfsCountsLbl.Size = new System.Drawing.Size(171, 17);
+			this.pdfsCountsLbl.Text = "|  [Calculating backed up PDFs]";
 			// 
 			// addFilterBtn
 			// 
