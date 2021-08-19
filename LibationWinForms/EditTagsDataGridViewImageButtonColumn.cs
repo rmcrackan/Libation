@@ -3,10 +3,12 @@ using System.Windows.Forms;
 
 namespace LibationWinForms
 {
-	public class EditTagsDataGridViewImageButtonColumn : DataGridViewImageButtonColumn
+	public class EditTagsDataGridViewImageButtonColumn : DataGridViewButtonColumn
 	{
-		protected override DataGridViewImageButtonCell NewCell()
-			=> new EditTagsDataGridViewImageButtonCell();
+		public EditTagsDataGridViewImageButtonColumn()
+		{
+			CellTemplate = new EditTagsDataGridViewImageButtonCell();
+		}
 	}
 
 	internal class EditTagsDataGridViewImageButtonCell : DataGridViewImageButtonCell

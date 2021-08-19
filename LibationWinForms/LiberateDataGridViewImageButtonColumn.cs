@@ -6,10 +6,12 @@ using System.Linq;
 
 namespace LibationWinForms
 {
-	public class LiberateDataGridViewImageButtonColumn : DataGridViewImageButtonColumn
+	public class LiberateDataGridViewImageButtonColumn : DataGridViewButtonColumn
 	{
-		protected override DataGridViewImageButtonCell NewCell()
-			=> new LiberateDataGridViewImageButtonCell();
+		public LiberateDataGridViewImageButtonColumn()
+		{
+			CellTemplate = new LiberateDataGridViewImageButtonCell();
+		}
 	}
 
 	internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell

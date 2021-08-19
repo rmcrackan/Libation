@@ -92,7 +92,7 @@
             this.gridEntryDataGridView.ReadOnly = true;
             this.gridEntryDataGridView.RowHeadersVisible = false;
             this.gridEntryDataGridView.RowTemplate.Height = 82;
-            this.gridEntryDataGridView.Size = new System.Drawing.Size(1505, 380);
+            this.gridEntryDataGridView.Size = new System.Drawing.Size(1510, 380);
             this.gridEntryDataGridView.TabIndex = 0;
             // 
             // dataGridViewImageButtonBoxColumn1
@@ -103,7 +103,7 @@
             this.dataGridViewImageButtonBoxColumn1.ReadOnly = true;
             this.dataGridViewImageButtonBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.dataGridViewImageButtonBoxColumn1.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.dataGridViewImageButtonBoxColumn1.Width = 70;
+            this.dataGridViewImageButtonBoxColumn1.Width = 75;
             // 
             // dataGridViewImageColumn1
             // 
@@ -213,7 +213,7 @@
             this.Controls.Add(this.gridEntryDataGridView);
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "ProductsGrid";
-            this.Size = new System.Drawing.Size(1505, 380);
+            this.Size = new System.Drawing.Size(1510, 380);
             ((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).EndInit();
             this.ResumeLayout(false);

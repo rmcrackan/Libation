@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+﻿using Dinah.Core.Threading;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Threading;
 
 namespace LibationWinForms
 {
@@ -8,9 +8,7 @@ namespace LibationWinForms
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		public AsyncNotifyPropertyChanged() { }
-
 		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-			=>BeginInvoke(PropertyChanged, new object[] { this, new PropertyChangedEventArgs(propertyName) });
+			=> this.UIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
 	}
 }
