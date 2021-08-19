@@ -25,6 +25,8 @@
     - [Filters](#filters)
 4. [Advanced](#advanced)
     - [Files and folders](#files-and-folders)
+    - [Linux and Mac (unofficial)](#linux-and-mac)
+    - [Settings](#settings)
 
 ## Audible audiobook manager
 
@@ -231,6 +233,10 @@ To make upgrades and reinstalls easier, Libation separates all of its responsibi
 * In a separate folder, Libation keeps track of all of the files it creates like settings and downloaded images. After an upgrade, Libation might think that's its being run for the first time. Just click ADVANCED SETUP and point to this folder. Libation will reload your library and settings.
 
 * The last important folder is the "books location." This is where Libation looks for your downloaded and decrypted books. This is how it knows which books still need to be downloaded. The Audible id must be somewhere in the book's file or folder name for Libation to detect your downloaded book.
+
+### Linux and Mac
+
+Although Libation only currently officially supports Windows, [some users](https://github.com/rmcrackan/Libation/issues/28#issuecomment-890594158) have had success with WINE.
 
 ### Settings
 
