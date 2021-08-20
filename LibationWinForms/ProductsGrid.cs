@@ -101,7 +101,9 @@ namespace LibationWinForms
 
 			//Re-apply filters
 			Filter();
-			liveGridEntry.NotifyChanged();
+
+			//Update whole GridEntry row
+			liveGridEntry.NotifyPropertyChanged();
 		}
 
 		#endregion
@@ -150,10 +152,10 @@ namespace LibationWinForms
 
 		public void RefreshRow(string productId)
 		{
-			var rowIndex = getRowIndex((ge) => ge.AudibleProductId == productId);
+			var liveGridEntry = getRowItem((ge) => ge.AudibleProductId == productId);
 
-			// update cells incl Liberate button text
-			_dataGridView.InvalidateRow(rowIndex);
+			// update GridEntry Liberate cell
+			liveGridEntry?.NotifyPropertyChanged(nameof(liveGridEntry.Liberate));
 
 			// needed in case filtering by -IsLiberated and it gets changed to Liberated. want to immediately show the change
 			Filter();
@@ -194,7 +196,9 @@ namespace LibationWinForms
 
 		#region DataGridView Macro
 
-		private int getRowIndex(Func<GridEntry, bool> func) => _dataGridView.GetRowIdOfBoundItem(func);
+		private GridEntry getRowItem(Func<GridEntry, bool> predicate)
+			=> ((SortableBindingList<GridEntry>)gridEntryBindingSource.DataSource).FirstOrDefault(predicate);
+
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
 
 		#endregion
