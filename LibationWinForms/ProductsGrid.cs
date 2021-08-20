@@ -152,7 +152,7 @@ namespace LibationWinForms
 
 		public void RefreshRow(string productId)
 		{
-			var liveGridEntry = getRowItem((ge) => ge.AudibleProductId == productId);
+			var liveGridEntry = getGridEntry((ge) => ge.AudibleProductId == productId);
 
 			// update GridEntry Liberate cell
 			liveGridEntry?.NotifyPropertyChanged(nameof(liveGridEntry.Liberate));
@@ -196,7 +196,7 @@ namespace LibationWinForms
 
 		#region DataGridView Macro
 
-		private GridEntry getRowItem(Func<GridEntry, bool> predicate)
+		private GridEntry getGridEntry(Func<GridEntry, bool> predicate)
 			=> ((SortableBindingList<GridEntry>)gridEntryBindingSource.DataSource).FirstOrDefault(predicate);
 
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
