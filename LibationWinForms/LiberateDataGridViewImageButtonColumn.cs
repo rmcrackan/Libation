@@ -22,12 +22,42 @@ namespace LibationWinForms
 
 			if (value is (LiberatedState liberatedState, PdfState pdfState))
 			{
-				(string mouseoverText, Bitmap buttonImage) = GridEntry.GetLiberateDisplay(liberatedState, pdfState);
+				(string mouseoverText, Bitmap buttonImage) = GetLiberateDisplay(liberatedState, pdfState);
 
 				DrawButtonImage(graphics, buttonImage, cellBounds);
 
 				ToolTipText = mouseoverText;
 			}
+		}
+
+		private static (string mouseoverText, Bitmap buttonImage) GetLiberateDisplay(LiberatedState liberatedStatus, PdfState pdfStatus)
+		{
+			(string libState, string image_lib) = liberatedStatus switch
+			{
+				LiberatedState.Liberated => ("Liberated", "green"),
+				LiberatedState.PartialDownload => ("File has been at least\r\npartially downloaded", "yellow"),
+				LiberatedState.NotDownloaded => ("Book NOT downloaded", "red"),
+				_ => throw new Exception("Unexpected liberation state")
+			};
+
+			(string pdfState, string image_pdf) = pdfStatus switch
+			{
+				PdfState.Downloaded => ("\r\nPDF downloaded", "_pdf_yes"),
+				PdfState.NotDownloaded => ("\r\nPDF NOT downloaded", "_pdf_no"),
+				PdfState.NoPdf => ("", ""),
+				_ => throw new Exception("Unexpected PDF state")
+			};
+
+			var mouseoverText = libState + pdfState;
+
+			if (liberatedStatus == LiberatedState.NotDownloaded ||
+				liberatedStatus == LiberatedState.PartialDownload ||
+				pdfStatus == PdfState.NotDownloaded)
+				mouseoverText += "\r\nClick to complete";
+
+			var buttonImage = (Bitmap)Properties.Resources.ResourceManager.GetObject($"liberate_{image_lib}{image_pdf}");
+
+			return (mouseoverText, buttonImage);
 		}
 	}
 }
