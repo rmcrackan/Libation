@@ -118,6 +118,12 @@ namespace AaxDecrypter
             RetrievedTags?.Invoke(this, aaxFile.AppleTags);
             RetrievedCoverArt?.Invoke(this, aaxFile.AppleTags.Cover);
 
+            if (isCanceled)
+			{
+                aaxFile.Dispose();
+                nfsPersister.Dispose();
+            }
+
             return !isCanceled;
         }
         private NetworkFileStreamPersister NewNetworkFilePersister()
