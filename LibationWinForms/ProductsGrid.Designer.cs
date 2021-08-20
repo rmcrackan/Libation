@@ -200,7 +200,7 @@
             // dataGridViewImageButtonBoxColumn2
             // 
             this.dataGridViewImageButtonBoxColumn2.DataPropertyName = "DisplayTags";
-            this.dataGridViewImageButtonBoxColumn2.HeaderText = "Edit Tags";
+            this.dataGridViewImageButtonBoxColumn2.HeaderText = "Tags and Details";
             this.dataGridViewImageButtonBoxColumn2.Name = "dataGridViewImageButtonBoxColumn2";
             this.dataGridViewImageButtonBoxColumn2.ReadOnly = true;
             this.dataGridViewImageButtonBoxColumn2.Resizable = System.Windows.Forms.DataGridViewTriState.False;

@@ -93,6 +93,26 @@ namespace LibationWinForms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap edit_25x25 {
+            get {
+                object obj = ResourceManager.GetObject("edit_25x25", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap edit_64x64 {
+            get {
+                object obj = ResourceManager.GetObject("edit_64x64", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap edit_tags_25x25 {
             get {
                 object obj = ResourceManager.GetObject("edit_tags_25x25", resourceCulture);

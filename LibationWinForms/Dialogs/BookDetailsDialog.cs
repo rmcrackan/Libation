@@ -14,7 +14,7 @@ namespace LibationWinForms.Dialogs
 		}
 		public BookDetailsDialog(string title, string rawTags) : this()
 		{
-			this.Text = $"Edit Tags - {title}";
+			this.Text = title;
 
 			this.newTagsTb.Text = rawTags;
 		}
