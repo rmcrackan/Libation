@@ -60,6 +60,7 @@ namespace LibationWinForms
 
 			//DisplayTags and Liberate properties are live.
 		}
+		public void NotifyChanged() => NotifyPropertyChanged(nameof(GridEntry));
 
 		private void PictureStorage_PictureCached(object sender, FileManager.PictureCachedEventArgs e)
 		{

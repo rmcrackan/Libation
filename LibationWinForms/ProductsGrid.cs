@@ -67,7 +67,7 @@ namespace LibationWinForms
 					await Liberate_Click(liveGridEntry);
 					break;
 				case nameof(liveGridEntry.DisplayTags):
-					Details_Click(liveGridEntry.LibraryBook);
+					Details_Click(liveGridEntry);
 					break;
 			}
 		}
@@ -89,18 +89,19 @@ namespace LibationWinForms
 			await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook, (_, __) => RefreshRow(libraryBook.Book.AudibleProductId));
 		}
 
-		private void Details_Click(LibraryBook libraryBook)
+		private void Details_Click(GridEntry liveGridEntry)
 		{
-			var bookDetailsForm = new BookDetailsDialog(libraryBook);
+			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
 			if (bookDetailsForm.ShowDialog() != DialogResult.OK)
 				return;
 
-			var qtyChanges = LibraryCommands.UpdateUserDefinedItem(libraryBook.Book, bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+			var qtyChanges = LibraryCommands.UpdateUserDefinedItem(liveGridEntry.LibraryBook.Book, bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 			if (qtyChanges == 0)
 				return;
 
 			//Re-apply filters
 			Filter();
+			liveGridEntry.NotifyChanged();
 		}
 
 		#endregion
