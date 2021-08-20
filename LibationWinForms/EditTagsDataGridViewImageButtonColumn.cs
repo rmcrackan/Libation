@@ -27,7 +27,7 @@ namespace LibationWinForms
 				DataGridView.Rows[rowIndex].DefaultCellStyle.ForeColor = foreColor;
 			}
 
-			if (tagsString.Length == 0)
+			if (tagsString?.Length == 0)
 			{
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 				DrawButtonImage(graphics, ButtonImage, cellBounds);
