@@ -95,7 +95,7 @@ namespace LibationWinForms
 			if (bookDetailsForm.ShowDialog() != DialogResult.OK)
 				return;
 
-			var qtyChanges = LibraryCommands.UpdateTags(libraryBook.Book, bookDetailsForm.NewTags);
+			var qtyChanges = LibraryCommands.UpdateUserDefinedItem(libraryBook.Book, bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 			if (qtyChanges == 0)
 				return;
 

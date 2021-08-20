@@ -162,7 +162,7 @@ namespace ApplicationServices
 		#endregion
 
 		#region Update book details
-		public static int UpdateTags(Book book, string newTags)
+		public static int UpdateUserDefinedItem(Book book, string newTags, LiberatedStatus bookStatus, LiberatedStatus? pdfStatus)
 		{
 			try
 			{
@@ -170,16 +170,28 @@ namespace ApplicationServices
 
 				var udi = book.UserDefinedItem;
 
-				if (udi.Tags == newTags)
+				var tagsChanged = udi.Tags != newTags;
+				var bookStatusChanged = udi.BookStatus != bookStatus;
+				var pdfStatusChanged = udi.PdfStatus != pdfStatus;
+
+				if (!tagsChanged && !bookStatusChanged && !pdfStatusChanged)
 					return 0;
 
-				// Attach() NoTracking entities before SaveChanges()
 				udi.Tags = newTags;
+				udi.BookStatus = bookStatus;
+				udi.PdfStatus = pdfStatus;
+
+				// Attach() NoTracking entities before SaveChanges()
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
 
-				if (qtyChanges > 0)
+				if (qtyChanges == 0)
+					return 0;
+
+				if (tagsChanged)
 					SearchEngineCommands.UpdateBookTags(book);
+				if (bookStatusChanged || pdfStatusChanged)
+					SearchEngineCommands.UpdateLiberatedStatus(book);
 
 				return qtyChanges;
 			}
