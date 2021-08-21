@@ -245,6 +245,10 @@ namespace LibationLauncher
 				if (!File.Exists(filePaths))
 					return;
 
+				var fileLocations = Path.Combine(config.LibationFiles, "FileLocations.json");
+				if (!File.Exists(fileLocations))
+					File.Copy(filePaths, fileLocations);
+
 				// files to be deleted at the end
 				var libhackFilesToDelete = new List<string>();
 				// .libhack files => errors
