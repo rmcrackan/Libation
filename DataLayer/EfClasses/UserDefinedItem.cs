@@ -14,7 +14,11 @@ namespace DataLayer
         NotLiberated = 0,
         Liberated = 1,
         /// <summary>Error occurred during liberation. Don't retry</summary>
-        Error = 2
+        Error = 2,
+
+        /// <summary>Application-state only. Not a valid persistence state.</summary>
+        PartialDownload = 0x1000
+
     }
 
     public class UserDefinedItem

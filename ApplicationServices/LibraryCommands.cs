@@ -11,13 +11,6 @@ using Serilog;
 
 namespace ApplicationServices
 {
-	// subtly different from DataLayer.LiberatedStatus
-	// - DataLayer.LiberatedStatus: has no concept of partially downloaded
-	// - ApplicationServices.LiberatedState: has no concept of Error/skipped
-	public enum LiberatedState { NotDownloaded, PartialDownload, Liberated }
-
-	public enum PdfState { NoPdf, Downloaded, NotDownloaded }
-
 	public static class LibraryCommands
 	{
 		private static LibraryOptions.ResponseGroupOptions LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
@@ -257,15 +250,15 @@ namespace ApplicationServices
 
 		// below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
 
-		public static LiberatedState Liberated_Status(Book book)
-			=> book.Audio_Exists ? LiberatedState.Liberated
-			: FileManager.AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedState.PartialDownload
-			: LiberatedState.NotDownloaded;
+		public static LiberatedStatus Liberated_Status(Book book)
+			=> book.Audio_Exists ? LiberatedStatus.Liberated
+			: FileManager.AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
+			: LiberatedStatus.NotLiberated;
 
-		public static PdfState Pdf_Status(Book book)
-			=> !book.Supplements.Any() ? PdfState.NoPdf
-			: book.PDF_Exists ? PdfState.Downloaded
-			: PdfState.NotDownloaded;
+		public static LiberatedStatus? Pdf_Status(Book book)
+			=> !book.Supplements.Any() ? null
+			: book.PDF_Exists ? LiberatedStatus.Liberated
+			: LiberatedStatus.NotLiberated;
 
 		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int pdfsDownloaded, int pdfsNotDownloaded) { }
 		public static LibraryStats GetCounts()
@@ -276,9 +269,9 @@ namespace ApplicationServices
 				.AsParallel()
 				.Select(lb => Liberated_Status(lb.Book))
 				.ToList();
-			var booksFullyBackedUp = results.Count(r => r == LiberatedState.Liberated);
-			var booksDownloadedOnly = results.Count(r => r == LiberatedState.PartialDownload);
-			var booksNoProgress = results.Count(r => r == LiberatedState.NotDownloaded);
+			var booksFullyBackedUp = results.Count(r => r == LiberatedStatus.Liberated);
+			var booksDownloadedOnly = results.Count(r => r == LiberatedStatus.PartialDownload);
+			var booksNoProgress = results.Count(r => r == LiberatedStatus.NotLiberated);
 
 			Log.Logger.Information("Book counts. {@DebugInfo}", new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress });
 
@@ -287,8 +280,8 @@ namespace ApplicationServices
 				.Where(lb => lb.Book.Supplements.Any())
 				.Select(lb => Pdf_Status(lb.Book))
 				.ToList();
-			var pdfsDownloaded = boolResults.Count(r => r == PdfState.Downloaded);
-			var pdfsNotDownloaded = boolResults.Count(r => r == PdfState.NotDownloaded);
+			var pdfsDownloaded = boolResults.Count(r => r == LiberatedStatus.Liberated);
+			var pdfsNotDownloaded = boolResults.Count(r => r == LiberatedStatus.NotLiberated);
 
 			Log.Logger.Information("PDF counts. {@DebugInfo}", new { total = boolResults.Count, pdfsDownloaded, pdfsNotDownloaded });
 

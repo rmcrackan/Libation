@@ -71,7 +71,6 @@ namespace LibationWinForms
 		}
 
 		#region Data Source properties
-
 		public Image Cover
 		{
 			get
@@ -97,7 +96,7 @@ namespace LibationWinForms
 		public string Misc { get; }
 		public string Description { get; }
 		public string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
-		public (LiberatedState, PdfState) Liberate => (LibraryCommands.Liberated_Status(Book), LibraryCommands.Pdf_Status(Book));
+		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate => (LibraryCommands.Liberated_Status(Book), LibraryCommands.Pdf_Status(Book));
 		#endregion
 
 		#region Data Sorting
@@ -121,7 +120,7 @@ namespace LibationWinForms
 			{ nameof(Category), () => Category },
 			{ nameof(Misc), () => Misc },
 			{ nameof(DisplayTags), () => DisplayTags },
-			{ nameof(Liberate), () => Liberate.Item1 }
+			{ nameof(Liberate), () => Liberate.BookStatus }
 		};
 
 		// Instantiate comparers for every exposed member object type.
@@ -131,7 +130,7 @@ namespace LibationWinForms
 			{ typeof(int), new ObjectComparer<int>() },
 			{ typeof(float), new ObjectComparer<float>() },
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
-			{ typeof(LiberatedState), new ObjectComparer<LiberatedState>() },
+			{ typeof(LiberatedStatus), new ObjectComparer<LiberatedStatus>() },
 		};
 
 		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
