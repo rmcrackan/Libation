@@ -67,7 +67,7 @@ alternate book id (eg BK_RAND_006061) is called 'sku' , 'sku_lite' , 'prod_id' ,
 -- begin SOLUTION LAYOUT ---------------------------------------------------------------------------------------------------------------------
 do NOT combine jsons for
 - audible-scraped persistence: library, book details
-- libation-generated persistence: FilePaths.json
+- libation-generated persistence: FileLocations.json
 - user-defined persistence: BookTags.json
 -- end SOLUTION LAYOUT ---------------------------------------------------------------------------------------------------------------------
 

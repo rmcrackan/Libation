@@ -9,6 +9,7 @@ namespace FileManager
 {
 	public static class FilePathCache
     {
+		private const string FILENAME = "FileLocations.json";
         internal class CacheEntry
         {
             public string Id { get; set; }
@@ -18,7 +19,7 @@ namespace FileManager
 
 		private static Cache<CacheEntry> cache { get; } = new Cache<CacheEntry>();
 
-		private static string jsonFile => Path.Combine(Configuration.Instance.LibationFiles, "FilePaths.json");
+		private static string jsonFile => Path.Combine(Configuration.Instance.LibationFiles, FILENAME);
 
         static FilePathCache()
         {
@@ -84,7 +85,7 @@ namespace FileManager
 					try { resave(); }
 					catch (IOException ex)
 					{
-						Serilog.Log.Logger.Error(ex, "Error saving FilePaths.json");
+						Serilog.Log.Logger.Error(ex, $"Error saving {FILENAME}");
 						throw;
 					}
 				}

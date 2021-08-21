@@ -77,7 +77,7 @@ namespace LibationWinForms
 			var libraryBook = liveGridEntry.LibraryBook;
 
 			// liberated: open explorer to file
-			if (TransitionalFileLocator.Audio_Exists(libraryBook.Book))
+			if (libraryBook.Book.Audio_Exists)
 			{
 				var filePath = TransitionalFileLocator.Audio_GetPath(libraryBook.Book);
 				if (!Go.To.File(filePath))

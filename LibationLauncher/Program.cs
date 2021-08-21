@@ -52,7 +52,7 @@ namespace LibationLauncher
 
 			migrate_to_v5_0_0(config);
 			migrate_to_v5_2_0__post_config(config);
-			//migrate_to_v5_4_1(config);// comment out until after vacation
+			migrate_to_v5_5_0(config);
 
 			ensureSerilogConfig(config);
 			configureLogging(config);
@@ -233,19 +233,11 @@ namespace LibationLauncher
 		}
 		#endregion
 
-		#region migrate to v5.4.1 see comment
-		// this 'migration' is a bit different. it intentionally runs each time Libation is started. its job will be fulfilled when I eventually
-		// implement the portion which removes FilePaths.json, at which time this method will be a proper migration
-		//
-		// I'm iterating through safe steps toward getting rid of the live scanner except to track audiobook files as a convenience
-		// such as clicking the stop light to open its location. live scanning will be replaced with state tracking in the database.
-
-		// FilePaths.json => db. long running. fire and forget
-		private static void migrate_to_v5_4_1(Configuration config)
-			=> new System.Threading.Thread(() => migrate_to_v5_4_1_thread(config)) { IsBackground = true }.Start();
-		private static void migrate_to_v5_4_1_thread(Configuration config)
+		#region migrate to v5.5.0. FilePaths.json => db. long running. fire and forget
+		private static void migrate_to_v5_5_0(Configuration config)
+			=> new System.Threading.Thread(() => migrate_to_v5_5_0_thread(config)) { IsBackground = true }.Start();
+		private static void migrate_to_v5_5_0_thread(Configuration config)
 		{
-			var debugStopwatch = System.Diagnostics.Stopwatch.StartNew();
 			try
 			{
 				var filePaths = Path.Combine(config.LibationFiles, "FilePaths.json");
@@ -289,13 +281,13 @@ namespace LibationLauncher
 				}
 
 				context.SaveChanges();
+
+				File.Delete(filePaths);
 			}
 			catch (Exception ex)
 			{
 				Log.Logger.Error(ex, "Error attempting to insert FilePaths into db");
 			}
-			debugStopwatch.Stop();
-			var debugTotal = debugStopwatch.Elapsed;
 		}
 		#endregion
 

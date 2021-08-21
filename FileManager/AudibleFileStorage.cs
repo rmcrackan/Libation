@@ -15,14 +15,14 @@ namespace FileManager
 		protected abstract string[] Extensions { get; }
 		public abstract string StorageDirectory { get; }
 
+		public static string DownloadsInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
+        public static string DecryptInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
+        public static string PdfStorageDirectory => BooksDirectory;
+        public static bool AaxcExists(string productId) => AAXC.Exists(productId);
+
 		#region static
 		public static AudioFileStorage Audio { get; } = new AudioFileStorage();
-		public static AudibleFileStorage AAXC { get; } = new AaxcFileStorage();
-		public static AudibleFileStorage PDF { get; } = new PdfFileStorage();
-
-		public static string DownloadsInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
-
-        public static string DecryptInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
+		public static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
 
         public static string BooksDirectory
         {
@@ -34,13 +34,13 @@ namespace FileManager
             }
         }
 
-        private static BackgroundFileSystem BookDirectoryFiles { get; set; }
+        internal static BackgroundFileSystem BookDirectoryFiles { get; set; }
         #endregion
 
         #region instance
         public FileType FileType => (FileType)Value;
 
-		private IEnumerable<string> extensions_noDots { get; }
+		protected IEnumerable<string> extensions_noDots { get; }
         private string extAggr { get; }
 
         protected AudibleFileStorage(FileType fileType) : base((int)fileType, fileType.ToString())
@@ -49,19 +49,6 @@ namespace FileManager
 			extAggr = extensions_noDots.Aggregate((a, b) => $"{a}|{b}");
             BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
         }
-
-        public void Refresh()
-        {
-            BookDirectoryFiles.RefreshFiles();
-        }
-
-        /// <summary>
-        /// Example for full books:
-        /// Search recursively in _books directory. Full book exists if either are true
-        /// - a directory name has the product id and an audio file is immediately inside
-        /// - any audio filename contains the product id
-        /// </summary>
-        public bool Exists(string productId) => GetPath(productId) != null;
 
         public string GetPath(string productId)
         {
@@ -103,21 +90,6 @@ namespace FileManager
 			FilePathCache.Upsert(productId, FileType, firstOrNull);
 			return firstOrNull;
         }
-
-        public string GetDestDir(string title, string asin)
-        {
-            // to prevent the paths from getting too long, we don't need after the 1st ":" for the folder
-            var underscoreIndex = title.IndexOf(':');
-            var titleDir
-                = underscoreIndex < 4
-                ? title
-                : title.Substring(0, underscoreIndex);
-            var finalDir = FileUtility.GetValidFilename(StorageDirectory, titleDir, null, asin);
-            return finalDir;
-        }
-
-        public bool IsFileTypeMatch(FileInfo fileInfo)
-            => extensions_noDots.ContainsInsensative(fileInfo.Extension.Trim('.'));
         #endregion
     }
 
@@ -134,6 +106,8 @@ namespace FileManager
 
         public AudioFileStorage() : base(FileType.Audio) { }
 
+        public void Refresh() => BookDirectoryFiles.RefreshFiles();
+
         public string CreateSkipFile(string title, string asin, string contents = null)
         {
             var destinationDir = GetDestDir(title, asin);
@@ -144,6 +118,21 @@ namespace FileManager
 
             return path;
         }
+
+        public string GetDestDir(string title, string asin)
+        {
+            // to prevent the paths from getting too long, we don't need after the 1st ":" for the folder
+            var underscoreIndex = title.IndexOf(':');
+            var titleDir
+                = underscoreIndex < 4
+                ? title
+                : title.Substring(0, underscoreIndex);
+            var finalDir = FileUtility.GetValidFilename(StorageDirectory, titleDir, null, asin);
+            return finalDir;
+        }
+
+        public bool IsFileTypeMatch(FileInfo fileInfo)
+            => extensions_noDots.ContainsInsensative(fileInfo.Extension.Trim('.'));
     }
 
     public class AaxcFileStorage : AudibleFileStorage
@@ -156,17 +145,13 @@ namespace FileManager
         public override string StorageDirectory => DownloadsInProgress;
 
         public AaxcFileStorage() : base(FileType.AAXC) { }
-    }
 
-    public class PdfFileStorage : AudibleFileStorage
-    {
-        protected override string[] Extensions { get; } = new[] { "pdf", "zip" };
-
-        // we always want to use the latest config value, therefore
-        // - DO use 'get' arrow "=>"
-        // - do NOT use assign "="
-        public override string StorageDirectory => BooksDirectory;
-
-        public PdfFileStorage() : base(FileType.PDF) { }
+        /// <summary>
+        /// Example for full books:
+        /// Search recursively in _books directory. Full book exists if either are true
+        /// - a directory name has the product id and an audio file is immediately inside
+        /// - any audio filename contains the product id
+        /// </summary>
+        public bool Exists(string productId) => GetPath(productId) != null;
     }
 }

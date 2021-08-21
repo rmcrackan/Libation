@@ -51,6 +51,25 @@ namespace DataLayer
         // is owned, not optional 1:1
         public UserDefinedItem UserDefinedItem { get; private set; }
 
+        // UserDefinedItem convenience properties
+        public bool Audio_Exists
+        {
+            get
+            {
+                var status = UserDefinedItem?.BookStatus;
+                // true since Error == libhack
+                return status.HasValue && status.Value != LiberatedStatus.NotLiberated;
+            }
+        }
+        public bool PDF_Exists
+        {
+            get
+            {
+                var status = UserDefinedItem?.PdfStatus;
+                return (status.HasValue && status.Value == LiberatedStatus.Liberated);
+            }
+        }
+
         // is owned, not optional 1:1
         /// <summary>The product's aggregate community rating</summary>
         public Rating Rating { get; private set; } = new Rating(0, 0, 0);

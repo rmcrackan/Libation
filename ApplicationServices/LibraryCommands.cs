@@ -259,13 +259,13 @@ namespace ApplicationServices
 		// below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
 
 		public static LiberatedState Liberated_Status(Book book)
-			=> TransitionalFileLocator.Audio_Exists(book) ? LiberatedState.Liberated
-			: TransitionalFileLocator.AAXC_Exists(book) ? LiberatedState.PartialDownload
+			=> book.Audio_Exists ? LiberatedState.Liberated
+			: FileManager.AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedState.PartialDownload
 			: LiberatedState.NotDownloaded;
 
 		public static PdfState Pdf_Status(Book book)
 			=> !book.Supplements.Any() ? PdfState.NoPdf
-			: TransitionalFileLocator.PDF_Exists(book) ? PdfState.Downloaded
+			: book.PDF_Exists ? PdfState.Downloaded
 			: PdfState.NotDownloaded;
 
 		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int pdfsDownloaded, int pdfsNotDownloaded) { }
