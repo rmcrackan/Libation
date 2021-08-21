@@ -22,12 +22,12 @@ namespace LibationWinForms
 
 			var foreColor = tagsString?.Contains("hidden") == true ? HiddenForeColor : DataGridView.DefaultCellStyle.ForeColor;
 
-			if (DataGridView.Rows[RowIndex].DefaultCellStyle.ForeColor != foreColor)
+			if (DataGridView.Rows[rowIndex].DefaultCellStyle.ForeColor != foreColor)
 			{
-				DataGridView.Rows[RowIndex].DefaultCellStyle.ForeColor = foreColor;
+				DataGridView.Rows[rowIndex].DefaultCellStyle.ForeColor = foreColor;
 			}
 
-			if (tagsString.Length == 0)
+			if (tagsString?.Length == 0)
 			{
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 				DrawButtonImage(graphics, ButtonImage, cellBounds);

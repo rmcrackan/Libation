@@ -67,7 +67,7 @@ namespace LibationWinForms
 					await Liberate_Click(liveGridEntry);
 					break;
 				case nameof(liveGridEntry.DisplayTags):
-					Details_Click(liveGridEntry.LibraryBook);
+					Details_Click(liveGridEntry);
 					break;
 			}
 		}
@@ -89,18 +89,21 @@ namespace LibationWinForms
 			await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook, (_, __) => RefreshRow(libraryBook.Book.AudibleProductId));
 		}
 
-		private void Details_Click(LibraryBook libraryBook)
+		private void Details_Click(GridEntry liveGridEntry)
 		{
-			var bookDetailsForm = new BookDetailsDialog(libraryBook);
+			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
 			if (bookDetailsForm.ShowDialog() != DialogResult.OK)
 				return;
 
-			var qtyChanges = LibraryCommands.UpdateUserDefinedItem(libraryBook.Book, bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+			var qtyChanges = LibraryCommands.UpdateUserDefinedItem(liveGridEntry.LibraryBook.Book, bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 			if (qtyChanges == 0)
 				return;
 
 			//Re-apply filters
 			Filter();
+
+			//Update whole GridEntry row
+			liveGridEntry.NotifyPropertyChanged();
 		}
 
 		#endregion
@@ -149,10 +152,10 @@ namespace LibationWinForms
 
 		public void RefreshRow(string productId)
 		{
-			var rowIndex = getRowIndex((ge) => ge.AudibleProductId == productId);
+			var liveGridEntry = getGridEntry((ge) => ge.AudibleProductId == productId);
 
-			// update cells incl Liberate button text
-			_dataGridView.InvalidateRow(rowIndex);
+			// update GridEntry Liberate cell
+			liveGridEntry?.NotifyPropertyChanged(nameof(liveGridEntry.Liberate));
 
 			// needed in case filtering by -IsLiberated and it gets changed to Liberated. want to immediately show the change
 			Filter();
@@ -193,7 +196,9 @@ namespace LibationWinForms
 
 		#region DataGridView Macro
 
-		private int getRowIndex(Func<GridEntry, bool> func) => _dataGridView.GetRowIdOfBoundItem(func);
+		private GridEntry getGridEntry(Func<GridEntry, bool> predicate)
+			=> ((SortableBindingList<GridEntry>)gridEntryBindingSource.DataSource).FirstOrDefault(predicate);
+
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
 
 		#endregion

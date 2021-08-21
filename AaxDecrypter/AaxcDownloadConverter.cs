@@ -224,6 +224,8 @@ namespace AaxDecrypter
             isCanceled = true;
             aaxFile?.Cancel();
             aaxFile?.Dispose();
+            nfsPersister?.NetworkFileStream?.Close();
+            nfsPersister?.Dispose();
         }
     }
 }

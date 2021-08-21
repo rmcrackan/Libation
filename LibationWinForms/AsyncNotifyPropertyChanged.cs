@@ -8,7 +8,7 @@ namespace LibationWinForms
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+		public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
 			=> this.UIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
 	}
 }

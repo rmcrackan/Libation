@@ -241,9 +241,12 @@ namespace AaxDecrypter
             } while (downloadPosition < ContentLength && !isCancelled);
 
             _writeFile.Close();
+            _networkStream.Close();
             WritePosition = downloadPosition;
             Update();
-            _networkStream.Close();
+
+            downloadedPiece.Set();
+            downloadEnded.Set();
 
             if (!isCancelled && WritePosition < ContentLength)
                 throw new WebException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
@@ -251,7 +254,6 @@ namespace AaxDecrypter
             if (WritePosition > ContentLength)
                 throw new WebException($"Downloaded size (0x{WritePosition:X10}) is greater than {nameof(ContentLength)} (0x{ContentLength:X10}).");
 
-            downloadEnded.Set();
         }
 
         #endregion

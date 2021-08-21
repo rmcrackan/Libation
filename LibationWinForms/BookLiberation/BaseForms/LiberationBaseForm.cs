@@ -48,7 +48,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 			streamable.StreamingCompleted += OnStreamingCompleted;
 			streamable.StreamingCompleted += OnStreamingCompletedClose;
 
-			FormClosed += UnsubscribeStreamable;
+			Disposed += UnsubscribeStreamable;
 		}
 		private void Subscribe(IProcessable processable)
 		{
@@ -81,7 +81,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		}
 		private void UnsubscribeStreamable(object sender, EventArgs e)
 		{
-			FormClosed -= UnsubscribeStreamable;
+			Disposed -= UnsubscribeStreamable;
 
 			Streamable.StreamingBegin -= OnStreamingBeginShow;
 			Streamable.StreamingBegin -= OnStreamingBegin;
