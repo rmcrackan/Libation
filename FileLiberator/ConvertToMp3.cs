@@ -37,7 +37,7 @@ namespace FileLiberator
 
         public bool Validate(LibraryBook libraryBook)
         {
-            var path = ApplicationServices.TransitionalFileLocator.Audio_GetPath(libraryBook.Book);
+            var path = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
             return path?.ToLower()?.EndsWith(".m4b") == true && !File.Exists(Mp3FileName(path));
         }
 
@@ -49,7 +49,7 @@ namespace FileLiberator
 
             try
             {
-                var m4bPath = ApplicationServices.TransitionalFileLocator.Audio_GetPath(libraryBook.Book);
+                var m4bPath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
                 m4bBook = new Mp4File(m4bPath, FileAccess.Read);
                 m4bBook.ConversionProgressUpdate += M4bBook_ConversionProgressUpdate;
 

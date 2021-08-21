@@ -32,7 +32,7 @@ namespace FileLiberator
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
 		{
 			// if audio file exists, get it's dir. else return base Book dir
-			var existingPath = Path.GetDirectoryName(ApplicationServices.TransitionalFileLocator.Audio_GetPath(libraryBook.Book));
+			var existingPath = Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId));
 			var file = getdownloadUrl(libraryBook);
 
 			if (existingPath != null)

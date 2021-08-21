@@ -17,12 +17,14 @@ namespace FileManager
 
 		public static string DownloadsInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
         public static string DecryptInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
+
         public static string PdfStorageDirectory => BooksDirectory;
+
+		private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
         public static bool AaxcExists(string productId) => AAXC.Exists(productId);
 
 		#region static
 		public static AudioFileStorage Audio { get; } = new AudioFileStorage();
-		public static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
 
         public static string BooksDirectory
         {
@@ -50,26 +52,25 @@ namespace FileManager
             BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
         }
 
-        public string GetPath(string productId)
+        protected string GetFilePath(string productId)
         {
             var cachedFile = FilePathCache.GetPath(productId, FileType);
             if (cachedFile != null)
                 return cachedFile;
 
-            string storageDir = StorageDirectory;
             string regexPattern = $@"{productId}.*?\.({extAggr})$";
             string firstOrNull;
 
-            if (storageDir == BooksDirectory)
+            if (StorageDirectory == BooksDirectory)
             {
                 //If user changed the BooksDirectory, reinitialize.
-                if (storageDir != BookDirectoryFiles.RootDirectory)
+                if (StorageDirectory != BookDirectoryFiles.RootDirectory)
 				{
                     lock (BookDirectoryFiles)
                     {
-                        if (storageDir != BookDirectoryFiles.RootDirectory)
+                        if (StorageDirectory != BookDirectoryFiles.RootDirectory)
                         {
-                            BookDirectoryFiles = new BackgroundFileSystem(storageDir, "*.*", SearchOption.AllDirectories);
+                            BookDirectoryFiles = new BackgroundFileSystem(StorageDirectory, "*.*", SearchOption.AllDirectories);
                         }
                     }
 				}
@@ -80,7 +81,7 @@ namespace FileManager
             {
                 firstOrNull =
                     Directory
-                    .EnumerateFiles(storageDir, "*.*", SearchOption.AllDirectories)
+                    .EnumerateFiles(StorageDirectory, "*.*", SearchOption.AllDirectories)
                     .FirstOrDefault(s => Regex.IsMatch(s, regexPattern, RegexOptions.IgnoreCase));
             }
 
@@ -133,6 +134,8 @@ namespace FileManager
 
         public bool IsFileTypeMatch(FileInfo fileInfo)
             => extensions_noDots.ContainsInsensative(fileInfo.Extension.Trim('.'));
+
+        public string GetPath(string productId) => GetFilePath(productId);
     }
 
     public class AaxcFileStorage : AudibleFileStorage
@@ -152,6 +155,6 @@ namespace FileManager
         /// - a directory name has the product id and an audio file is immediately inside
         /// - any audio filename contains the product id
         /// </summary>
-        public bool Exists(string productId) => GetPath(productId) != null;
+        public bool Exists(string productId) => GetFilePath(productId) != null;
     }
 }

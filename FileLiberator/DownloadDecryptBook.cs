@@ -53,7 +53,7 @@ namespace FileLiberator
                     return new StatusHandler { "Cannot find final audio file after decryption" };
 
                 // only need to update if success. if failure, it will remain at 0 == NotLiberated
-                ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Liberated, outputAudioFilename);
+                ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Liberated);
 
                 return new StatusHandler();
             }

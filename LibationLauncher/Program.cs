@@ -274,10 +274,7 @@ namespace LibationLauncher
 						book.UserDefinedItem.PdfStatus = LiberatedStatus.Liberated;
 
 					if (fileType == FileType.Audio)
-					{
 						book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
-						book.UserDefinedItem.BookLocation = path;
-					}
 				}
 
 				context.SaveChanges();

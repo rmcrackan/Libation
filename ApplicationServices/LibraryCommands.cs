@@ -202,7 +202,7 @@ namespace ApplicationServices
 			}
 		}
 
-		public static int UpdateBook(LibraryBook libraryBook, LiberatedStatus liberatedStatus, string finalAudioPath)
+		public static int UpdateBook(LibraryBook libraryBook, LiberatedStatus liberatedStatus)
 		{
 			try
 			{
@@ -210,12 +210,11 @@ namespace ApplicationServices
 
 				var udi = libraryBook.Book.UserDefinedItem;
 
-				if (udi.BookStatus == liberatedStatus && udi.BookLocation == finalAudioPath)
+				if (udi.BookStatus == liberatedStatus)
 					return 0;
 
 				// Attach() NoTracking entities before SaveChanges()
 				udi.BookStatus = liberatedStatus;
-				udi.BookLocation = finalAudioPath;
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
 				if (qtyChanges > 0)

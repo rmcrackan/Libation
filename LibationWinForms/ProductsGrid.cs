@@ -79,7 +79,7 @@ namespace LibationWinForms
 			// liberated: open explorer to file
 			if (libraryBook.Book.Audio_Exists)
 			{
-				var filePath = TransitionalFileLocator.Audio_GetPath(libraryBook.Book);
+				var filePath = FileManager.AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
 				if (!Go.To.File(filePath))
 					MessageBox.Show($"File not found:\r\n{filePath}");
 				return;

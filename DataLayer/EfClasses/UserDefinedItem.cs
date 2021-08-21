@@ -94,9 +94,8 @@ namespace DataLayer
             => Rating.Update(overallRating, performanceRating, storyRating);
         #endregion
 
-        #region LiberatedStatuses and book file location
+        #region LiberatedStatuses
         public LiberatedStatus BookStatus { get; set; }
-        public string BookLocation { get; set; }
         public LiberatedStatus? PdfStatus { get; set; }
         #endregion
 

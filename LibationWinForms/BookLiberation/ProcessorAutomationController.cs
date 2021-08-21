@@ -246,7 +246,7 @@ $@"  Title: {libraryBook.Book.Title}
 
 			if (dialogResult == CreateSkipFileResult)
 			{
-				ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Error, null);
+				ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Error);
 				var path = FileManager.AudibleFileStorage.Audio.CreateSkipFile(libraryBook.Book.Title, libraryBook.Book.AudibleProductId, logMessage);
 				LogMe.Info($@"
 Created new 'skip' file

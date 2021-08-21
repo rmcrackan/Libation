@@ -92,9 +92,6 @@ namespace ApplicationServices
 		[Name("Book Liberation Status")]
 		public string BookStatus { get; set; }
 
-		[Name("Book File Location")]
-		public string BookLocation { get; set; }
-
 		[Name("PDF Liberation Status")]
 		public string PdfStatus { get; set; }
 	}
@@ -127,7 +124,6 @@ namespace ApplicationServices
 				MyRatingStory = a.Book.UserDefinedItem.Rating.StoryRating,
 				MyLibationTags = a.Book.UserDefinedItem.Tags,
 				BookStatus = a.Book.UserDefinedItem.BookStatus.ToString(),
-				BookLocation = a.Book.UserDefinedItem.BookLocation,
 				PdfStatus = a.Book.UserDefinedItem.PdfStatus.ToString()
 			}).ToList();
 	}
@@ -201,7 +197,6 @@ namespace ApplicationServices
 				nameof (ExportDto.MyRatingStory),
 				nameof (ExportDto.MyLibationTags),
 				nameof (ExportDto.BookStatus),
-				nameof (ExportDto.BookLocation),
 				nameof (ExportDto.PdfStatus)
 			};
 			var col = 0;
@@ -265,7 +260,6 @@ namespace ApplicationServices
 
 				row.CreateCell(col++).SetCellValue(dto.MyLibationTags);
 				row.CreateCell(col++).SetCellValue(dto.BookStatus);
-				row.CreateCell(col++).SetCellValue(dto.BookLocation);
 				row.CreateCell(col++).SetCellValue(dto.PdfStatus);
 
 				rowIndex++;
