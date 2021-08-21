@@ -98,11 +98,11 @@ namespace LibationWinForms.BookLiberation
 
 		private static IProcessable CreateBackupBook(EventHandler<LibraryBook> completedAction, LogMe logMe)
 		{
+			var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe);
+
 			//Chain pdf download on DownloadDecryptBook.Completed
 			async void onDownloadDecryptBookCompleted(object sender, LibraryBook e)
 			{
-				var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe);
-
 				await downloadPdf.TryProcessAsync(e);
 				completedAction(sender, e);
 			}
