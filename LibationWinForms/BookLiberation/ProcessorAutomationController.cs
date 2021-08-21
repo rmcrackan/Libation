@@ -176,7 +176,7 @@ namespace LibationWinForms.BookLiberation
 		protected abstract string SkipDialogText { get; }
 		protected abstract MessageBoxButtons SkipDialogButtons { get; }
 		protected abstract MessageBoxDefaultButton SkipDialogDefaultButton { get; }
-		protected abstract DialogResult CreateSkipFileResult { get; }
+		protected abstract DialogResult SkipResult { get; }
 
 		public async Task RunBackupAsync()
 		{
@@ -244,15 +244,10 @@ $@"  Title: {libraryBook.Book.Title}
 			if (dialogResult == DialogResult.Abort)
 				return false;
 
-			if (dialogResult == CreateSkipFileResult)
+			if (dialogResult == SkipResult)
 			{
 				ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Error);
-				var path = FileManager.AudibleFileStorage.Audio.CreateSkipFile(libraryBook.Book.Title, libraryBook.Book.AudibleProductId, logMessage);
-				LogMe.Info($@"
-Created new 'skip' file
-  [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}
-  {path}
-".Trim());
+				LogMe.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}");
 			}
 
 			return true;
@@ -273,7 +268,7 @@ An error occurred while trying to process this book. Skip this book permanently?
 ".Trim();
 		protected override MessageBoxButtons SkipDialogButtons => MessageBoxButtons.YesNo;
 		protected override MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button2;
-		protected override DialogResult CreateSkipFileResult => DialogResult.Yes;
+		protected override DialogResult SkipResult => DialogResult.Yes;
 
 		public BackupSingle(LogMe logMe, IProcessable processable, LibraryBook libraryBook)
 			: base(logMe, processable)
@@ -302,7 +297,7 @@ An error occurred while trying to process this book.
 ".Trim();
 		protected override MessageBoxButtons SkipDialogButtons => MessageBoxButtons.AbortRetryIgnore;
 		protected override MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
-		protected override DialogResult CreateSkipFileResult => DialogResult.Ignore;
+		protected override DialogResult SkipResult => DialogResult.Ignore;
 
 		public BackupLoop(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm)
 			: base(logMe, processable, automatedBackupsForm) { }

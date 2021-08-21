@@ -96,9 +96,7 @@ namespace FileManager
 
     public class AudioFileStorage : AudibleFileStorage
     {
-        public const string SKIP_FILE_EXT = "libhack";
-
-        protected override string[] Extensions { get; } = new[] { "m4b", "mp3", "aac", "mp4", "m4a", "ogg", "flac", SKIP_FILE_EXT };
+        protected override string[] Extensions { get; } = new[] { "m4b", "mp3", "aac", "mp4", "m4a", "ogg", "flac" };
 
         // we always want to use the latest config value, therefore
         // - DO use 'get' arrow "=>"
@@ -108,17 +106,6 @@ namespace FileManager
         public AudioFileStorage() : base(FileType.Audio) { }
 
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
-
-        public string CreateSkipFile(string title, string asin, string contents = null)
-        {
-            var destinationDir = GetDestDir(title, asin);
-            Directory.CreateDirectory(destinationDir);
-
-            var path = FileUtility.GetValidFilename(destinationDir, title, SKIP_FILE_EXT, asin);
-            File.WriteAllText(path, contents ?? string.Empty);
-
-            return path;
-        }
 
         public string GetDestDir(string title, string asin)
         {

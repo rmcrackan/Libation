@@ -5,13 +5,14 @@ using System.Linq;
 using System.Windows.Forms;
 using AudibleApi.Authorization;
 using DataLayer;
-using Microsoft.EntityFrameworkCore;
+using Dinah.Core;
 using Dinah.Core.IO;
 using Dinah.Core.Logging;
 using FileManager;
 using InternalUtilities;
 using LibationWinForms;
 using LibationWinForms.Dialogs;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Serilog;
 
@@ -244,6 +245,11 @@ namespace LibationLauncher
 				if (!File.Exists(filePaths))
 					return;
 
+				// files to be deleted at the end
+				var libhackFilesToDelete = new List<string>();
+				// .libhack files => errors
+				var libhackFiles = Directory.EnumerateDirectories(config.Books, "*.libhack", SearchOption.AllDirectories);
+
 				using var context = ApplicationServices.DbContexts.GetContext();
 				context.Books.Load();
 
@@ -274,10 +280,23 @@ namespace LibationLauncher
 						book.UserDefinedItem.PdfStatus = LiberatedStatus.Liberated;
 
 					if (fileType == FileType.Audio)
-						book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
+					{
+						var lhack = libhackFiles.FirstOrDefault(f => f.ContainsInsensitive(asin));
+						if (lhack is null)
+							book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
+						else
+						{
+							book.UserDefinedItem.BookStatus = LiberatedStatus.Error;
+							libhackFilesToDelete.Add(lhack);
+						}
+					}
 				}
 
 				context.SaveChanges();
+
+				// only do this after save changes
+				foreach (var libhackFile in libhackFilesToDelete)
+					File.Delete(libhackFile);
 
 				File.Delete(filePaths);
 			}

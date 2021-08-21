@@ -57,7 +57,6 @@ namespace DataLayer
             get
             {
                 var status = UserDefinedItem?.BookStatus;
-                // true since Error == libhack
                 return status.HasValue && status.Value != LiberatedStatus.NotLiberated;
             }
         }
