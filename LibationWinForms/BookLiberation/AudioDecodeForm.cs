@@ -39,7 +39,6 @@ namespace LibationWinForms.BookLiberation
 		#endregion
 
 		#region IStreamable event handler overrides
-		public override void OnStreamingBegin(object sender, string beginString) { }
 		public override void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress)
 		{
 			if (!downloadProgress.ProgressPercentage.HasValue)
@@ -54,7 +53,6 @@ namespace LibationWinForms.BookLiberation
 		public override void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining)
 			=> updateRemainingTime((int)timeRemaining.TotalSeconds);
 
-		public override void OnStreamingCompleted(object sender, string completedString) { }
 		#endregion
 
 		#region IAudioDecodable event handlers
