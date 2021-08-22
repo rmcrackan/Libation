@@ -95,8 +95,12 @@ namespace LibationWinForms
 			if (bookDetailsForm.ShowDialog() != DialogResult.OK)
 				return;
 
+			liveGridEntry.BeginEdit();
+
 			liveGridEntry.DisplayTags = bookDetailsForm.NewTags;
 			liveGridEntry.Liberate = (bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+
+			liveGridEntry.EndEdit();
 
 			BackupCountsChanged?.Invoke(this, EventArgs.Empty);
 		}

@@ -154,74 +154,25 @@ namespace ApplicationServices
 		}
 		#endregion
 
-		#region Update book details		
-
-		public static int UpdateTags(Book libraryBook, string newTags)
+		#region Update book details
+	
+		public static int UpdateUserDefinedItem(Book book)
 		{
 			try
 			{
 				using var context = DbContexts.GetContext();
 
-				var udi = libraryBook.UserDefinedItem;
-				udi.Tags = newTags;
-
 				// Attach() NoTracking entities before SaveChanges()
-				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
 				if (qtyChanges > 0)
-					SearchEngineCommands.UpdateBookTags(libraryBook);
+					SearchEngineCommands.UpdateLiberatedStatus(book);
 
 				return qtyChanges;
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "Error updating tags");
-				throw;
-			}
-		}
-
-		public static int UpdateBook(Book libraryBook, LiberatedStatus liberatedStatus)
-		{
-			try
-			{
-				using var context = DbContexts.GetContext();
-
-				var udi = libraryBook.UserDefinedItem;
-				udi.BookStatus = liberatedStatus;
-
-				// Attach() NoTracking entities before SaveChanges()
-				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-				var qtyChanges = context.SaveChanges();
-				if (qtyChanges > 0)
-					SearchEngineCommands.UpdateLiberatedStatus(libraryBook);
-
-				return qtyChanges;
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Error(ex, "Error updating audiobook status");
-				throw;
-			}
-		}
-
-		public static int UpdatePdf(Book libraryBook, LiberatedStatus? liberatedStatus)
-		{
-			try
-			{
-				using var context = DbContexts.GetContext();
-
-				var udi = libraryBook.UserDefinedItem;
-				udi.PdfStatus = liberatedStatus;
-
-				// Attach() NoTracking entities before SaveChanges()
-				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-				var qtyChanges = context.SaveChanges();
-
-				return qtyChanges;
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Error(ex, "Error updating pdf status");
+				Log.Logger.Error(ex, $"Error updating {nameof(book.UserDefinedItem)}");
 				throw;
 			}
 		}

@@ -29,12 +29,12 @@ namespace LibationWinForms
 
 		private Book Book => LibraryBook.Book;
 		private Image _cover;
-		private Action _refilter;
+		private Action Refilter { get; }
 
 		public GridEntry(LibraryBook libraryBook, Action refilterOnChanged = null)
 		{
 			LibraryBook = libraryBook;
-			_refilter = refilterOnChanged;
+			Refilter = refilterOnChanged;
 			_memberValues = CreateMemberValueDictionary();
 
 
@@ -76,7 +76,7 @@ namespace LibationWinForms
 			}
 		}
 
-		#region detect changes to the model and update the view
+		#region detect changes to the model, update the view, and save to database.
 
 		/// <summary>
 		/// This event handler receives notifications from the model that it has changed.
@@ -86,33 +86,62 @@ namespace LibationWinForms
 		{
 			var udi = sender as UserDefinedItem;
 
-			if (udi.Book.AudibleProductId != LibraryBook.Book.AudibleProductId)
+			if (udi.Book.AudibleProductId != Book.AudibleProductId)
 				return;
 
 			switch (itemName)
 			{
 				case nameof(udi.Tags):
 					{
-						LibraryCommands.UpdateTags(LibraryBook.Book, udi.Tags);
+						Book.UserDefinedItem.Tags = udi.Tags;
 						NotifyPropertyChanged(nameof(DisplayTags));
 					}
 					break;
 				case nameof(udi.BookStatus):
 					{
-						var status = udi.BookStatus == LiberatedStatus.PartialDownload ? LiberatedStatus.NotLiberated : udi.BookStatus;
-						LibraryCommands.UpdateBook(LibraryBook.Book, status);
+						Book.UserDefinedItem.BookStatus = udi.BookStatus;
 						NotifyPropertyChanged(nameof(Liberate));
 					}
 					break;
 				case nameof(udi.PdfStatus):
 					{
-						LibraryCommands.UpdatePdf(LibraryBook.Book, udi.PdfStatus);
+						Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
 						NotifyPropertyChanged(nameof(Liberate));
 					}
 					break;
 			}
 
-			_refilter?.Invoke();
+			if (!suspendCommit)
+				Commit();
+
+			Refilter?.Invoke();
+		}
+		private bool suspendCommit = false;
+
+		/// <summary>
+		/// Begin editing the model, suspending commits until <see cref="EndEdit"/> is called.
+		/// </summary>
+		public void BeginEdit() => suspendCommit = true;
+
+		/// <summary>
+		/// Save all edits to the database.
+		/// </summary>
+		public void EndEdit()
+		{
+			Commit();
+			suspendCommit = false;
+		}
+
+		private void Commit()
+		{
+			//We don't want LiberatedStatus.PartialDownload to be a persistent  status.
+			var bookStatus = Book.UserDefinedItem.BookStatus;
+			var saveStatus = bookStatus == LiberatedStatus.PartialDownload ? LiberatedStatus.NotLiberated : bookStatus;
+			Book.UserDefinedItem.BookStatus = saveStatus;
+
+			LibraryCommands.UpdateUserDefinedItem(Book);
+
+			Book.UserDefinedItem.BookStatus = bookStatus;
 		}
 
 		#endregion	
@@ -144,7 +173,7 @@ namespace LibationWinForms
 		public string Description { get; }
 		public string DisplayTags
 		{
-			get=> Book.UserDefinedItem.Tags;
+			get => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 			set => Book.UserDefinedItem.Tags = value;
 		}
 		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
@@ -267,5 +296,4 @@ namespace LibationWinForms
 			FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
 		}
 	}
-
 }
