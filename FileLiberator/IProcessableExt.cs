@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
@@ -18,10 +17,8 @@ namespace FileLiberator
 
 
         // when used in foreach: stateful. deferred execution
-        public static IEnumerable<LibraryBook> GetValidLibraryBooks(this IProcessable processable)
-            => DbContexts.GetContext()
-            .GetLibrary_Flat_NoTracking()
-            .Where(libraryBook => processable.Validate(libraryBook));
+        public static IEnumerable<LibraryBook> GetValidLibraryBooks(this IProcessable processable, IEnumerable<LibraryBook> library)
+            => library.Where(libraryBook => processable.Validate(libraryBook));
 
         public static async Task<StatusHandler> ProcessSingleAsync(this IProcessable processable, LibraryBook libraryBook, bool validate)
         {

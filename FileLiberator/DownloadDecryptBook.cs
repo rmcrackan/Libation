@@ -52,10 +52,7 @@ namespace FileLiberator
                 if (!moveResults.movedAudioFile)
                     return new StatusHandler { "Cannot find final audio file after decryption" };
 
-                // need to update before Audio_Exists will return true
-                ApplicationServices.LibraryCommands.UpdateBook(libraryBook.Book, LiberatedStatus.Liberated);
-
-
+                libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
 
                 return new StatusHandler();
             }

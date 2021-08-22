@@ -50,24 +50,24 @@ namespace LibationWinForms.BookLiberation
 
 	public static class ProcessorAutomationController
 	{
-		public static async Task BackupSingleBookAsync(LibraryBook libraryBook, EventHandler<LibraryBook> completedAction = null)
+		public static async Task BackupSingleBookAsync(LibraryBook libraryBook)
 		{
 			Serilog.Log.Logger.Information($"Begin {nameof(BackupSingleBookAsync)} {{@DebugInfo}}", new { libraryBook?.Book?.AudibleProductId });
 
 			var logMe = LogMe.RegisterForm();
-			var backupBook = CreateBackupBook(completedAction, logMe);
+			var backupBook = CreateBackupBook(logMe);
 
 			// continue even if libraryBook is null. we'll display even that in the processing box
 			await new BackupSingle(logMe, backupBook, libraryBook).RunBackupAsync();
 		}
 
-		public static async Task BackupAllBooksAsync(EventHandler<LibraryBook> completedAction = null)
+		public static async Task BackupAllBooksAsync()
 		{
 			Serilog.Log.Logger.Information("Begin " + nameof(BackupAllBooksAsync));
 
 			var automatedBackupsForm = new AutomatedBackupsForm();
 			var logMe = LogMe.RegisterForm(automatedBackupsForm);
-			var backupBook = CreateBackupBook(completedAction, logMe);
+			var backupBook = CreateBackupBook(logMe);
 
 			await new BackupLoop(logMe, backupBook, automatedBackupsForm).RunBackupAsync();
 		}
@@ -84,19 +84,19 @@ namespace LibationWinForms.BookLiberation
 			await new BackupLoop(logMe, convertBook, automatedBackupsForm).RunBackupAsync();
 		}
 
-		public static async Task BackupAllPdfsAsync(EventHandler<LibraryBook> completedAction = null)
+		public static async Task BackupAllPdfsAsync()
 		{
 			Serilog.Log.Logger.Information("Begin " + nameof(BackupAllPdfsAsync));
 
 			var automatedBackupsForm = new AutomatedBackupsForm();
 			var logMe = LogMe.RegisterForm(automatedBackupsForm);
 
-			var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe, completedAction);
+			var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe);
 
 			await new BackupLoop(logMe, downloadPdf, automatedBackupsForm).RunBackupAsync();
 		}
 
-		private static IProcessable CreateBackupBook(EventHandler<LibraryBook> completedAction, LogMe logMe)
+		private static IProcessable CreateBackupBook(LogMe logMe)
 		{
 			var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe);
 
@@ -104,7 +104,6 @@ namespace LibationWinForms.BookLiberation
 			async void onDownloadDecryptBookCompleted(object sender, LibraryBook e)
 			{
 				await downloadPdf.TryProcessAsync(e);
-				completedAction(sender, e);
 			}
 
 			var downloadDecryptBook = CreateProcessable<DownloadDecryptBook, AudioDecryptForm>(logMe, onDownloadDecryptBookCompleted);
@@ -246,7 +245,7 @@ $@"  Title: {libraryBook.Book.Title}
 
 			if (dialogResult == SkipResult)
 			{
-				ApplicationServices.LibraryCommands.UpdateBook(libraryBook.Book, LiberatedStatus.Error);
+				libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Error;
 				LogMe.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}");
 			}
 
@@ -305,7 +304,7 @@ An error occurred while trying to process this book.
 		protected override async Task RunAsync()
 		{
 			// support for 'skip this time only' requires state. iterators provide this state for free. therefore: use foreach/iterator here
-			foreach (var libraryBook in Processable.GetValidLibraryBooks())
+			foreach (var libraryBook in Processable.GetValidLibraryBooks(ApplicationServices.DbContexts.GetContext().GetLibrary_Flat_NoTracking()))
 			{
 				var keepGoing = await ProcessOneAsync(libraryBook, validate: false);
 				if (!keepGoing)
