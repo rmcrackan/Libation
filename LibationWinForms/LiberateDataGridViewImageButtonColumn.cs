@@ -40,6 +40,7 @@ namespace LibationWinForms
 				LiberatedStatus.Liberated => ("Liberated", "green"),
 				LiberatedStatus.PartialDownload => ("File has been at least\r\npartially downloaded", "yellow"),
 				LiberatedStatus.NotLiberated => ("Book NOT downloaded", "red"),
+				LiberatedStatus.Error => ("Book downloaded ERROR", "red"),
 				_ => throw new Exception("Unexpected liberation state")
 			};
 
@@ -47,6 +48,7 @@ namespace LibationWinForms
 			{
 				LiberatedStatus.Liberated => ("\r\nPDF downloaded", "_pdf_yes"),
 				LiberatedStatus.NotLiberated => ("\r\nPDF NOT downloaded", "_pdf_no"),
+				LiberatedStatus.Error => ("\r\nPDF downloaded ERROR", "_pdf_no"),
 				null => ("", ""),
 				_ => throw new Exception("Unexpected PDF state")
 			};
