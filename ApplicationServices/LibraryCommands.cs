@@ -164,11 +164,7 @@ namespace ApplicationServices
 
 				var udi = libraryBook.UserDefinedItem;
 
-				if (udi.Tags == newTags)
-					return 0;
-
 				// Attach() NoTracking entities before SaveChanges()
-				udi.Tags = newTags;
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
 				if (qtyChanges > 0)
@@ -191,11 +187,7 @@ namespace ApplicationServices
 
 				var udi = libraryBook.UserDefinedItem;
 
-				if (udi.BookStatus == liberatedStatus)
-					return 0;
-
 				// Attach() NoTracking entities before SaveChanges()
-				udi.BookStatus = liberatedStatus;
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
 				if (qtyChanges > 0)
@@ -218,11 +210,7 @@ namespace ApplicationServices
 
 				var udi = libraryBook.UserDefinedItem;
 
-				if (udi.PdfStatus == liberatedStatus)
-					return 0;
-
 				// Attach() NoTracking entities before SaveChanges()
-				udi.PdfStatus = liberatedStatus;
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
 
