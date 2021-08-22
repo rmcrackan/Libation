@@ -113,8 +113,6 @@ namespace LibationWinForms
 
 			if (!suspendCommit)
 				Commit();
-
-			Refilter?.Invoke();
 		}
 		private bool suspendCommit = false;
 
@@ -142,6 +140,8 @@ namespace LibationWinForms
 			LibraryCommands.UpdateUserDefinedItem(Book);
 
 			Book.UserDefinedItem.BookStatus = bookStatus;
+
+			Refilter?.Invoke();
 		}
 
 		#endregion	
