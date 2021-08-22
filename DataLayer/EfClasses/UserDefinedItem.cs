@@ -44,8 +44,12 @@ namespace DataLayer
             get => _tags;
             set
             {
-                _tags = sanitize(value);
-                ItemChanged?.Invoke(this, nameof(Tags));
+                var newTags = sanitize(value);
+                if (_tags != newTags)
+                {
+                    _tags = newTags;
+                    ItemChanged?.Invoke(this, nameof(Tags));
+                }
             }
 		}
 

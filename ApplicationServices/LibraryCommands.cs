@@ -163,6 +163,7 @@ namespace ApplicationServices
 				using var context = DbContexts.GetContext();
 
 				var udi = libraryBook.UserDefinedItem;
+				udi.Tags = newTags;
 
 				// Attach() NoTracking entities before SaveChanges()
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
@@ -186,6 +187,7 @@ namespace ApplicationServices
 				using var context = DbContexts.GetContext();
 
 				var udi = libraryBook.UserDefinedItem;
+				udi.BookStatus = liberatedStatus;
 
 				// Attach() NoTracking entities before SaveChanges()
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
@@ -209,6 +211,7 @@ namespace ApplicationServices
 				using var context = DbContexts.GetContext();
 
 				var udi = libraryBook.UserDefinedItem;
+				udi.PdfStatus = liberatedStatus;
 
 				// Attach() NoTracking entities before SaveChanges()
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
