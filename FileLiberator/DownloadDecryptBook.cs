@@ -49,9 +49,6 @@ namespace FileLiberator
                 // moves files and returns dest dir
                 _ = moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
 
-                if (!libraryBook.Book.Audio_Exists)
-                    return new StatusHandler { "Cannot find final audio file after decryption" };
-
                 // only need to update if success. if failure, it will remain at 0 == NotLiberated
                 ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Liberated);
 
