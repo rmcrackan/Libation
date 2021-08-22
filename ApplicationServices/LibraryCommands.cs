@@ -154,37 +154,25 @@ namespace ApplicationServices
 		}
 		#endregion
 
-		#region Update book details
-		public static int UpdateUserDefinedItem(Book book, string newTags, LiberatedStatus bookStatus, LiberatedStatus? pdfStatus)
+		#region Update book details		
+
+		public static int UpdateTags(Book libraryBook, string newTags)
 		{
 			try
 			{
 				using var context = DbContexts.GetContext();
 
-				var udi = book.UserDefinedItem;
+				var udi = libraryBook.UserDefinedItem;
 
-				var tagsChanged = udi.Tags != newTags;
-				var bookStatusChanged = udi.BookStatus != bookStatus;
-				var pdfStatusChanged = udi.PdfStatus != pdfStatus;
-
-				if (!tagsChanged && !bookStatusChanged && !pdfStatusChanged)
+				if (udi.Tags == newTags)
 					return 0;
-
-				udi.Tags = newTags;
-				udi.BookStatus = bookStatus;
-				udi.PdfStatus = pdfStatus;
 
 				// Attach() NoTracking entities before SaveChanges()
+				udi.Tags = newTags;
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
-
-				if (qtyChanges == 0)
-					return 0;
-
-				if (tagsChanged)
-					SearchEngineCommands.UpdateBookTags(book);
-				if (bookStatusChanged || pdfStatusChanged)
-					SearchEngineCommands.UpdateLiberatedStatus(book);
+				if (qtyChanges > 0)
+					SearchEngineCommands.UpdateBookTags(libraryBook);
 
 				return qtyChanges;
 			}
@@ -195,13 +183,13 @@ namespace ApplicationServices
 			}
 		}
 
-		public static int UpdateBook(LibraryBook libraryBook, LiberatedStatus liberatedStatus)
+		public static int UpdateBook(Book libraryBook, LiberatedStatus liberatedStatus)
 		{
 			try
 			{
 				using var context = DbContexts.GetContext();
 
-				var udi = libraryBook.Book.UserDefinedItem;
+				var udi = libraryBook.UserDefinedItem;
 
 				if (udi.BookStatus == liberatedStatus)
 					return 0;
@@ -211,24 +199,24 @@ namespace ApplicationServices
 				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
 				if (qtyChanges > 0)
-					SearchEngineCommands.UpdateLiberatedStatus(libraryBook.Book);
+					SearchEngineCommands.UpdateLiberatedStatus(libraryBook);
 
 				return qtyChanges;
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "Error updating tags");
+				Log.Logger.Error(ex, "Error updating audiobook status");
 				throw;
 			}
 		}
 
-		public static int UpdatePdf(LibraryBook libraryBook, LiberatedStatus liberatedStatus)
+		public static int UpdatePdf(Book libraryBook, LiberatedStatus? liberatedStatus)
 		{
 			try
 			{
 				using var context = DbContexts.GetContext();
 
-				var udi = libraryBook.Book.UserDefinedItem;
+				var udi = libraryBook.UserDefinedItem;
 
 				if (udi.PdfStatus == liberatedStatus)
 					return 0;
@@ -242,7 +230,7 @@ namespace ApplicationServices
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "Error updating tags");
+				Log.Logger.Error(ex, "Error updating pdf status");
 				throw;
 			}
 		}
