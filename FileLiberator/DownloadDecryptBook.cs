@@ -47,10 +47,12 @@ namespace FileLiberator
                     return new StatusHandler { "Decrypt failed" };
 
                 // moves files and returns dest dir
-                _ = moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
+                var moveResults = MoveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
 
-                // only need to update if success. if failure, it will remain at 0 == NotLiberated
-                ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Liberated);
+                if (!moveResults.movedAudioFile)
+                    return new StatusHandler { "Cannot find final audio file after decryption" };
+
+                libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
 
                 return new StatusHandler();
             }
@@ -143,7 +145,7 @@ namespace FileLiberator
             NarratorsDiscovered?.Invoke(this, e.Narrator ?? "[unknown]");
         }
 
-        private static string moveFilesToBooksDir(Book product, string outputAudioFilename)
+        private static (string destinationDir, bool movedAudioFile) MoveFilesToBooksDir(Book product, string outputAudioFilename)
         {
             // create final directory. move each file into it. MOVE AUDIO FILE LAST
             // new dir: safetitle_limit50char + " [" + productId + "]"
@@ -158,6 +160,7 @@ namespace FileLiberator
             // audio filename: safetitle_limit50char + " [" + productId + "]." + audio_ext
             var audioFileName = FileUtility.GetValidFilename(destinationDir, product.Title, musicFileExt, product.AudibleProductId);
 
+            bool movedAudioFile = false;
             foreach (var f in sortedFiles)
             {
                 var dest
@@ -170,11 +173,14 @@ namespace FileLiberator
                     Cue.UpdateFileName(f, audioFileName);
 
                 File.Move(f.FullName, dest);
+
+                movedAudioFile |= AudibleFileStorage.Audio.IsFileTypeMatch(f);
+
             }
 
             AudibleFileStorage.Audio.Refresh();
 
-            return destinationDir;
+            return (destinationDir, movedAudioFile);
         }
 
         private static List<FileInfo> getProductFilesSorted(Book product, string outputAudioFilename)
