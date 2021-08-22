@@ -392,7 +392,7 @@ namespace LibationWinForms
 		private async void convertAllM4bToMp3ToolStripMenuItem_Click(object sender, EventArgs e)
 			=> await BookLiberation.ProcessorAutomationController.ConvertAllBooksAsync();
 
-		private void updateGridRow(object _, LibraryBook libraryBook) => currProductsGrid.RefreshRow(libraryBook.Book.AudibleProductId);
+		private void updateGridRow(object _, LibraryBook libraryBook) => currProductsGrid.RefreshLiberatedStatus(libraryBook);
 		#endregion
 
 		#region Export menu

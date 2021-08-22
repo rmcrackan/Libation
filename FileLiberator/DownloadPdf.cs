@@ -24,7 +24,7 @@ namespace FileLiberator
 			var result = verifyDownload(libraryBook);
 
 			var liberatedStatus = result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated;
-			ApplicationServices.LibraryCommands.UpdatePdf(libraryBook, liberatedStatus);
+			ApplicationServices.LibraryCommands.UpdatePdf(libraryBook.Book, liberatedStatus);
 
 			return result;
 		}
