@@ -186,7 +186,7 @@ namespace ApplicationServices
 			: LiberatedStatus.NotLiberated;
 
 		public static LiberatedStatus? Pdf_Status(Book book)
-			=> !book.Supplements.Any() ? null
+			=> !book.HasPdf ? null
 			: book.PDF_Exists ? LiberatedStatus.Liberated
 			: LiberatedStatus.NotLiberated;
 
@@ -207,7 +207,7 @@ namespace ApplicationServices
 
 			var boolResults = libraryBooks
 				.AsParallel()
-				.Where(lb => lb.Book.Supplements.Any())
+				.Where(lb => lb.Book.HasPdf)
 				.Select(lb => Pdf_Status(lb.Book))
 				.ToList();
 			var pdfsDownloaded = boolResults.Count(r => r == LiberatedStatus.Liberated);

@@ -107,14 +107,14 @@ namespace LibationSearchEngine
             = new ReadOnlyDictionary<string, Func<LibraryBook, bool>>(
                 new Dictionary<string, Func<LibraryBook, bool>>
                 {
-                    ["HasDownloads"] = lb => lb.Book.Supplements.Any(),
-                    ["HasDownload"] = lb => lb.Book.Supplements.Any(),
-                    ["Downloads"] = lb => lb.Book.Supplements.Any(),
-                    ["Download"] = lb => lb.Book.Supplements.Any(),
-                    ["HasPDFs"] = lb => lb.Book.Supplements.Any(),
-                    ["HasPDF"] = lb => lb.Book.Supplements.Any(),
-                    ["PDFs"] = lb => lb.Book.Supplements.Any(),
-                    ["PDF"] = lb => lb.Book.Supplements.Any(),
+                    ["HasDownloads"] = lb => lb.Book.HasPdf,
+                    ["HasDownload"] = lb => lb.Book.HasPdf,
+                    ["Downloads"] = lb => lb.Book.HasPdf,
+                    ["Download"] = lb => lb.Book.HasPdf,
+                    ["HasPDFs"] = lb => lb.Book.HasPdf,
+                    ["HasPDF"] = lb => lb.Book.HasPdf,
+                    ["PDFs"] = lb => lb.Book.HasPdf,
+                    ["PDF"] = lb => lb.Book.HasPdf,
 
                     ["IsRated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,
                     ["Rated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,

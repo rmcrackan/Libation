@@ -47,8 +47,8 @@ namespace ApplicationServices
 		[Name("Publisher")]
 		public string Publisher { get; set; }
 
-		[Name("Pdf url")]
-		public string PdfUrl { get; set; }
+		[Name("Has PDF")]
+		public bool HasPdf { get; set; }
 
 		[Name("Series Names")]
 		public string SeriesNames { get; set; }
@@ -109,7 +109,7 @@ namespace ApplicationServices
 				NarratorNames = a.Book.NarratorNames,
 				LengthInMinutes = a.Book.LengthInMinutes,
 				Publisher = a.Book.Publisher,
-				PdfUrl = a.Book.Supplements?.FirstOrDefault()?.Url,
+				HasPdf = a.Book.HasPdf,
 				SeriesNames = a.Book.SeriesNames,
 				SeriesOrder = a.Book.SeriesLink.Any() ? a.Book.SeriesLink?.Select(sl => $"{sl.Index} : {sl.Series.Name}").Aggregate((a, b) => $"{a}, {b}") : "",
 				CommunityRatingOverall = a.Book.Rating?.OverallRating,
@@ -182,7 +182,7 @@ namespace ApplicationServices
 				nameof (ExportDto.NarratorNames),
 				nameof (ExportDto.LengthInMinutes),
 				nameof (ExportDto.Publisher),
-				nameof (ExportDto.PdfUrl),
+				nameof (ExportDto.HasPdf),
 				nameof (ExportDto.SeriesNames),
 				nameof (ExportDto.SeriesOrder),
 				nameof (ExportDto.CommunityRatingOverall),
@@ -234,7 +234,7 @@ namespace ApplicationServices
 				row.CreateCell(col++).SetCellValue(dto.NarratorNames);
 				row.CreateCell(col++).SetCellValue(dto.LengthInMinutes);
 				row.CreateCell(col++).SetCellValue(dto.Publisher);
-				row.CreateCell(col++).SetCellValue(dto.PdfUrl);
+				row.CreateCell(col++).SetCellValue(dto.HasPdf);
 				row.CreateCell(col++).SetCellValue(dto.SeriesNames);
 				row.CreateCell(col++).SetCellValue(dto.SeriesOrder);
 
