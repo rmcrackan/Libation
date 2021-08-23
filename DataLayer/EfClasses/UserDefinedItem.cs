@@ -14,7 +14,11 @@ namespace DataLayer
         NotLiberated = 0,
         Liberated = 1,
         /// <summary>Error occurred during liberation. Don't retry</summary>
-        Error = 2
+        Error = 2,
+
+        /// <summary>Application-state only. Not a valid persistence state.</summary>
+        PartialDownload = 0x1000
+
     }
 
     public class UserDefinedItem
@@ -38,7 +42,15 @@ namespace DataLayer
         public string Tags
         {
             get => _tags;
-            set => _tags = sanitize(value);
+            set
+            {
+                var newTags = sanitize(value);
+                if (_tags != newTags)
+                {
+                    _tags = newTags;
+                    ItemChanged?.Invoke(this, nameof(Tags));
+                }
+            }
 		}
 
 		public IEnumerable<string> TagsEnumerated => Tags == "" ? new string[0] : Tags.Split(null as char[], StringSplitOptions.RemoveEmptyEntries);
@@ -95,10 +107,38 @@ namespace DataLayer
         #endregion
 
         #region LiberatedStatuses
-        public LiberatedStatus BookStatus { get; set; }
-        public LiberatedStatus? PdfStatus { get; set; }
-        #endregion
 
+        private LiberatedStatus _bookStatus;
+        private LiberatedStatus? _pdfStatus;
+        public LiberatedStatus BookStatus
+        {
+            get => _bookStatus;
+            set
+            {
+                if (_bookStatus != value)
+				{
+                    _bookStatus = value;
+                    ItemChanged?.Invoke(this, nameof(BookStatus));
+                }
+            }
+        }
+        public LiberatedStatus? PdfStatus
+        {
+            get => _pdfStatus;
+            set
+            {
+                if (_pdfStatus != value)
+                {
+                    _pdfStatus = value;
+                    ItemChanged?.Invoke(this, nameof(PdfStatus));
+                }
+            }
+        }
+        #endregion
+        /// <summary>
+        /// Occurs when <see cref="Tags"/>, <see cref="BookStatus"/>, or <see cref="PdfStatus"/> values change.
+        /// </summary>
+        public static event EventHandler<string> ItemChanged;
         public override string ToString() => $"{Book} {Rating} {Tags}";
 	}
 }

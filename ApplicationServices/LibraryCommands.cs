@@ -11,13 +11,6 @@ using Serilog;
 
 namespace ApplicationServices
 {
-	// subtly different from DataLayer.LiberatedStatus
-	// - DataLayer.LiberatedStatus: has no concept of partially downloaded
-	// - ApplicationServices.LiberatedState: has no concept of Error/skipped
-	public enum LiberatedState { NotDownloaded, PartialDownload, Liberated }
-
-	public enum PdfState { NoPdf, Downloaded, NotDownloaded }
-
 	public static class LibraryCommands
 	{
 		private static LibraryOptions.ResponseGroupOptions LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
@@ -162,94 +155,24 @@ namespace ApplicationServices
 		#endregion
 
 		#region Update book details
-		public static int UpdateUserDefinedItem(Book book, string newTags, LiberatedStatus bookStatus, LiberatedStatus? pdfStatus)
+	
+		public static int UpdateUserDefinedItem(Book book)
 		{
 			try
 			{
 				using var context = DbContexts.GetContext();
 
-				var udi = book.UserDefinedItem;
-
-				var tagsChanged = udi.Tags != newTags;
-				var bookStatusChanged = udi.BookStatus != bookStatus;
-				var pdfStatusChanged = udi.PdfStatus != pdfStatus;
-
-				if (!tagsChanged && !bookStatusChanged && !pdfStatusChanged)
-					return 0;
-
-				udi.Tags = newTags;
-				udi.BookStatus = bookStatus;
-				udi.PdfStatus = pdfStatus;
-
 				// Attach() NoTracking entities before SaveChanges()
-				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
-
-				if (qtyChanges == 0)
-					return 0;
-
-				if (tagsChanged)
-					SearchEngineCommands.UpdateBookTags(book);
-				if (bookStatusChanged || pdfStatusChanged)
+				if (qtyChanges > 0)
 					SearchEngineCommands.UpdateLiberatedStatus(book);
 
 				return qtyChanges;
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "Error updating tags");
-				throw;
-			}
-		}
-
-		public static int UpdateBook(LibraryBook libraryBook, LiberatedStatus liberatedStatus)
-		{
-			try
-			{
-				using var context = DbContexts.GetContext();
-
-				var udi = libraryBook.Book.UserDefinedItem;
-
-				if (udi.BookStatus == liberatedStatus)
-					return 0;
-
-				// Attach() NoTracking entities before SaveChanges()
-				udi.BookStatus = liberatedStatus;
-				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-				var qtyChanges = context.SaveChanges();
-				if (qtyChanges > 0)
-					SearchEngineCommands.UpdateLiberatedStatus(libraryBook.Book);
-
-				return qtyChanges;
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Error(ex, "Error updating tags");
-				throw;
-			}
-		}
-
-		public static int UpdatePdf(LibraryBook libraryBook, LiberatedStatus liberatedStatus)
-		{
-			try
-			{
-				using var context = DbContexts.GetContext();
-
-				var udi = libraryBook.Book.UserDefinedItem;
-
-				if (udi.PdfStatus == liberatedStatus)
-					return 0;
-
-				// Attach() NoTracking entities before SaveChanges()
-				udi.PdfStatus = liberatedStatus;
-				context.Attach(udi).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-				var qtyChanges = context.SaveChanges();
-
-				return qtyChanges;
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Error(ex, "Error updating tags");
+				Log.Logger.Error(ex, $"Error updating {nameof(book.UserDefinedItem)}");
 				throw;
 			}
 		}
@@ -257,15 +180,15 @@ namespace ApplicationServices
 
 		// below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
 
-		public static LiberatedState Liberated_Status(Book book)
-			=> book.Audio_Exists ? LiberatedState.Liberated
-			: FileManager.AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedState.PartialDownload
-			: LiberatedState.NotDownloaded;
+		public static LiberatedStatus Liberated_Status(Book book)
+			=> book.Audio_Exists ? LiberatedStatus.Liberated
+			: FileManager.AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
+			: LiberatedStatus.NotLiberated;
 
-		public static PdfState Pdf_Status(Book book)
-			=> !book.Supplements.Any() ? PdfState.NoPdf
-			: book.PDF_Exists ? PdfState.Downloaded
-			: PdfState.NotDownloaded;
+		public static LiberatedStatus? Pdf_Status(Book book)
+			=> !book.Supplements.Any() ? null
+			: book.PDF_Exists ? LiberatedStatus.Liberated
+			: LiberatedStatus.NotLiberated;
 
 		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int pdfsDownloaded, int pdfsNotDownloaded) { }
 		public static LibraryStats GetCounts()
@@ -276,9 +199,9 @@ namespace ApplicationServices
 				.AsParallel()
 				.Select(lb => Liberated_Status(lb.Book))
 				.ToList();
-			var booksFullyBackedUp = results.Count(r => r == LiberatedState.Liberated);
-			var booksDownloadedOnly = results.Count(r => r == LiberatedState.PartialDownload);
-			var booksNoProgress = results.Count(r => r == LiberatedState.NotDownloaded);
+			var booksFullyBackedUp = results.Count(r => r == LiberatedStatus.Liberated);
+			var booksDownloadedOnly = results.Count(r => r == LiberatedStatus.PartialDownload);
+			var booksNoProgress = results.Count(r => r == LiberatedStatus.NotLiberated);
 
 			Log.Logger.Information("Book counts. {@DebugInfo}", new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress });
 
@@ -287,8 +210,8 @@ namespace ApplicationServices
 				.Where(lb => lb.Book.Supplements.Any())
 				.Select(lb => Pdf_Status(lb.Book))
 				.ToList();
-			var pdfsDownloaded = boolResults.Count(r => r == PdfState.Downloaded);
-			var pdfsNotDownloaded = boolResults.Count(r => r == PdfState.NotDownloaded);
+			var pdfsDownloaded = boolResults.Count(r => r == LiberatedStatus.Liberated);
+			var pdfsNotDownloaded = boolResults.Count(r => r == LiberatedStatus.NotLiberated);
 
 			Log.Logger.Information("PDF counts. {@DebugInfo}", new { total = boolResults.Count, pdfsDownloaded, pdfsNotDownloaded });
 

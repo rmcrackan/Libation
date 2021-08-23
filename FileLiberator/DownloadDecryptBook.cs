@@ -16,22 +16,22 @@ namespace FileLiberator
     public class DownloadDecryptBook : IAudioDecodable
     {
 
-		private AaxcDownloadConverter aaxcDownloader;
+        private AaxcDownloadConverter aaxcDownloader;
 
-		public event EventHandler<TimeSpan> StreamingTimeRemaining;
-		public event EventHandler<Action<byte[]>> RequestCoverArt;
-		public event EventHandler<string> TitleDiscovered;
-		public event EventHandler<string> AuthorsDiscovered;
-		public event EventHandler<string> NarratorsDiscovered;
-		public event EventHandler<byte[]> CoverImageDiscovered;
-		public event EventHandler<string> StreamingBegin;
-		public event EventHandler<DownloadProgress> StreamingProgressChanged;
-		public event EventHandler<string> StreamingCompleted;
-		public event EventHandler<LibraryBook> Begin;
-		public event EventHandler<string> StatusUpdate;
-		public event EventHandler<LibraryBook> Completed;
+        public event EventHandler<TimeSpan> StreamingTimeRemaining;
+        public event EventHandler<Action<byte[]>> RequestCoverArt;
+        public event EventHandler<string> TitleDiscovered;
+        public event EventHandler<string> AuthorsDiscovered;
+        public event EventHandler<string> NarratorsDiscovered;
+        public event EventHandler<byte[]> CoverImageDiscovered;
+        public event EventHandler<string> StreamingBegin;
+        public event EventHandler<DownloadProgress> StreamingProgressChanged;
+        public event EventHandler<string> StreamingCompleted;
+        public event EventHandler<LibraryBook> Begin;
+        public event EventHandler<string> StatusUpdate;
+        public event EventHandler<LibraryBook> Completed;
 
-		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+        public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
             Begin?.Invoke(this, libraryBook);
 
@@ -47,10 +47,12 @@ namespace FileLiberator
                     return new StatusHandler { "Decrypt failed" };
 
                 // moves files and returns dest dir
-                _ = moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
+                var moveResults = MoveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
 
-                // only need to update if success. if failure, it will remain at 0 == NotLiberated
-                ApplicationServices.LibraryCommands.UpdateBook(libraryBook, LiberatedStatus.Liberated);
+                if (!moveResults.movedAudioFile)
+                    return new StatusHandler { "Cannot find final audio file after decryption" };
+
+                libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
 
                 return new StatusHandler();
             }
@@ -123,7 +125,7 @@ namespace FileLiberator
         }
 
 
-		private void AaxcDownloader_RetrievedCoverArt(object sender, byte[] e)
+        private void AaxcDownloader_RetrievedCoverArt(object sender, byte[] e)
         {
             if (e is null && Configuration.Instance.AllowLibationFixup)
             {
@@ -140,10 +142,10 @@ namespace FileLiberator
         {
             TitleDiscovered?.Invoke(this, e.TitleSansUnabridged);
             AuthorsDiscovered?.Invoke(this, e.FirstAuthor ?? "[unknown]");
-            NarratorsDiscovered?.Invoke(this, e.Narrator ?? "[unknown]");           
+            NarratorsDiscovered?.Invoke(this, e.Narrator ?? "[unknown]");
         }
 
-        private static string moveFilesToBooksDir(Book product, string outputAudioFilename)
+        private static (string destinationDir, bool movedAudioFile) MoveFilesToBooksDir(Book product, string outputAudioFilename)
         {
             // create final directory. move each file into it. MOVE AUDIO FILE LAST
             // new dir: safetitle_limit50char + " [" + productId + "]"
@@ -158,6 +160,7 @@ namespace FileLiberator
             // audio filename: safetitle_limit50char + " [" + productId + "]." + audio_ext
             var audioFileName = FileUtility.GetValidFilename(destinationDir, product.Title, musicFileExt, product.AudibleProductId);
 
+            bool movedAudioFile = false;
             foreach (var f in sortedFiles)
             {
                 var dest
@@ -170,11 +173,14 @@ namespace FileLiberator
                     Cue.UpdateFileName(f, audioFileName);
 
                 File.Move(f.FullName, dest);
+
+                movedAudioFile |= AudibleFileStorage.Audio.IsFileTypeMatch(f);
+
             }
 
             AudibleFileStorage.Audio.Refresh();
 
-            return destinationDir;
+            return (destinationDir, movedAudioFile);
         }
 
         private static List<FileInfo> getProductFilesSorted(Book product, string outputAudioFilename)
@@ -197,26 +203,26 @@ namespace FileLiberator
         }
 
         private static void validate(LibraryBook libraryBook)
-		{
-			string errorString(string field)
-				=> $"{errorTitle()}\r\nCannot download book. {field} is not known. Try re-importing the account which owns this book.";
+        {
+            string errorString(string field)
+                => $"{errorTitle()}\r\nCannot download book. {field} is not known. Try re-importing the account which owns this book.";
 
-			string errorTitle()
-			{
-				var title
-					= (libraryBook.Book.Title.Length > 53)
-					? $"{libraryBook.Book.Title.Truncate(50)}..."
-					: libraryBook.Book.Title;
-				var errorBookTitle = $"{title} [{libraryBook.Book.AudibleProductId}]";
-				return errorBookTitle;
-			};
+            string errorTitle()
+            {
+                var title
+                    = (libraryBook.Book.Title.Length > 53)
+                    ? $"{libraryBook.Book.Title.Truncate(50)}..."
+                    : libraryBook.Book.Title;
+                var errorBookTitle = $"{title} [{libraryBook.Book.AudibleProductId}]";
+                return errorBookTitle;
+            };
 
-			if (string.IsNullOrWhiteSpace(libraryBook.Account))
-				throw new Exception(errorString("Account"));
+            if (string.IsNullOrWhiteSpace(libraryBook.Account))
+                throw new Exception(errorString("Account"));
 
-			if (string.IsNullOrWhiteSpace(libraryBook.Book.Locale))
-				throw new Exception(errorString("Locale"));
-		}
+            if (string.IsNullOrWhiteSpace(libraryBook.Book.Locale))
+                throw new Exception(errorString("Locale"));
+        }
 
         public bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists;
 

@@ -384,15 +384,14 @@ namespace LibationWinForms
 
 		#region liberate menu
 		private async void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-			=> await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(updateGridRow);
+			=> await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync();
 
 		private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-			=> await BookLiberation.ProcessorAutomationController.BackupAllPdfsAsync(updateGridRow);
+			=> await BookLiberation.ProcessorAutomationController.BackupAllPdfsAsync();
 
 		private async void convertAllM4bToMp3ToolStripMenuItem_Click(object sender, EventArgs e)
 			=> await BookLiberation.ProcessorAutomationController.ConvertAllBooksAsync();
 
-		private void updateGridRow(object _, LibraryBook libraryBook) => currProductsGrid.RefreshRow(libraryBook.Book.AudibleProductId);
 		#endregion
 
 		#region Export menu

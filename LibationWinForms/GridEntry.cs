@@ -12,6 +12,9 @@ using Dinah.Core.Drawing;
 
 namespace LibationWinForms
 {
+	/// <summary>
+	/// The View Model for a LibraryBook
+	/// </summary>
 	internal class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
 	{
 		#region implementation properties
@@ -26,11 +29,14 @@ namespace LibationWinForms
 
 		private Book Book => LibraryBook.Book;
 		private Image _cover;
+		private Action Refilter { get; }
 
-		public GridEntry(LibraryBook libraryBook)
+		public GridEntry(LibraryBook libraryBook, Action refilterOnChanged = null)
 		{
 			LibraryBook = libraryBook;
+			Refilter = refilterOnChanged;
 			_memberValues = CreateMemberValueDictionary();
+
 
 			//Get cover art. If it's default, subscribe to PictureCached
 			{
@@ -58,7 +64,7 @@ namespace LibationWinForms
 				Description = GetDescriptionDisplay(Book);
 			}
 
-			//DisplayTags and Liberate properties are live.
+			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
 		private void PictureStorage_PictureCached(object sender, FileManager.PictureCachedEventArgs e)
@@ -70,8 +76,77 @@ namespace LibationWinForms
 			}
 		}
 
-		#region Data Source properties
+		#region detect changes to the model, update the view, and save to database.
 
+		/// <summary>
+		/// This event handler receives notifications from the model that it has changed.
+		/// Save to the database and notify the view that it's changed.
+		/// </summary>
+		private void UserDefinedItem_ItemChanged(object sender, string itemName)
+		{
+			var udi = sender as UserDefinedItem;
+
+			if (udi.Book.AudibleProductId != Book.AudibleProductId)
+				return;
+
+			switch (itemName)
+			{
+				case nameof(udi.Tags):
+					{
+						Book.UserDefinedItem.Tags = udi.Tags;
+						NotifyPropertyChanged(nameof(DisplayTags));
+					}
+					break;
+				case nameof(udi.BookStatus):
+					{
+						Book.UserDefinedItem.BookStatus = udi.BookStatus;
+						NotifyPropertyChanged(nameof(Liberate));
+					}
+					break;
+				case nameof(udi.PdfStatus):
+					{
+						Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
+						NotifyPropertyChanged(nameof(Liberate));
+					}
+					break;
+			}
+
+			if (!suspendCommit)
+				Commit();
+		}
+		private bool suspendCommit = false;
+
+		/// <summary>
+		/// Begin editing the model, suspending commits until <see cref="EndEdit"/> is called.
+		/// </summary>
+		public void BeginEdit() => suspendCommit = true;
+
+		/// <summary>
+		/// Save all edits to the database.
+		/// </summary>
+		public void EndEdit()
+		{
+			Commit();
+			suspendCommit = false;
+		}
+
+		private void Commit()
+		{
+			//We don't want LiberatedStatus.PartialDownload to be a persistent  status.
+			var bookStatus = Book.UserDefinedItem.BookStatus;
+			var saveStatus = bookStatus == LiberatedStatus.PartialDownload ? LiberatedStatus.NotLiberated : bookStatus;
+			Book.UserDefinedItem.BookStatus = saveStatus;
+
+			LibraryCommands.UpdateUserDefinedItem(Book);
+
+			Book.UserDefinedItem.BookStatus = bookStatus;
+
+			Refilter?.Invoke();
+		}
+
+		#endregion	
+
+		#region Model properties exposed to the view
 		public Image Cover
 		{
 			get
@@ -96,8 +171,22 @@ namespace LibationWinForms
 		public string Category { get; }
 		public string Misc { get; }
 		public string Description { get; }
-		public string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
-		public (LiberatedState, PdfState) Liberate => (LibraryCommands.Liberated_Status(Book), LibraryCommands.Pdf_Status(Book));
+		public string DisplayTags
+		{
+			get => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
+			set => Book.UserDefinedItem.Tags = value;
+		}
+		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
+		{
+			get => (LibraryCommands.Liberated_Status(LibraryBook.Book), LibraryCommands.Pdf_Status(LibraryBook.Book));
+			
+			set
+			{
+				LibraryBook.Book.UserDefinedItem.BookStatus = value.BookStatus;
+				LibraryBook.Book.UserDefinedItem.PdfStatus = value.PdfStatus;
+			}
+		}
+
 		#endregion
 
 		#region Data Sorting
@@ -121,7 +210,7 @@ namespace LibationWinForms
 			{ nameof(Category), () => Category },
 			{ nameof(Misc), () => Misc },
 			{ nameof(DisplayTags), () => DisplayTags },
-			{ nameof(Liberate), () => Liberate.Item1 }
+			{ nameof(Liberate), () => Liberate.BookStatus }
 		};
 
 		// Instantiate comparers for every exposed member object type.
@@ -131,7 +220,7 @@ namespace LibationWinForms
 			{ typeof(int), new ObjectComparer<int>() },
 			{ typeof(float), new ObjectComparer<float>() },
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
-			{ typeof(LiberatedState), new ObjectComparer<LiberatedState>() },
+			{ typeof(LiberatedStatus), new ObjectComparer<LiberatedStatus>() },
 		};
 
 		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
@@ -200,5 +289,11 @@ namespace LibationWinForms
 		}
 
 		#endregion
+
+		~GridEntry()
+		{
+			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
+			FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
+		}
 	}
 }

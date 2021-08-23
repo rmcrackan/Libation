@@ -86,7 +86,7 @@ namespace LibationWinForms
 			}
 
 			// else: liberate
-			await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook, (_, __) => RefreshRow(libraryBook.Book.AudibleProductId));
+			await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook);
 		}
 
 		private void Details_Click(GridEntry liveGridEntry)
@@ -95,15 +95,14 @@ namespace LibationWinForms
 			if (bookDetailsForm.ShowDialog() != DialogResult.OK)
 				return;
 
-			var qtyChanges = LibraryCommands.UpdateUserDefinedItem(liveGridEntry.LibraryBook.Book, bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
-			if (qtyChanges == 0)
-				return;
+			liveGridEntry.BeginEdit();
 
-			//Re-apply filters
-			Filter();
+			liveGridEntry.DisplayTags = bookDetailsForm.NewTags;
+			liveGridEntry.Liberate = (bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 
-			//Update whole GridEntry row
-			liveGridEntry.NotifyPropertyChanged();
+			liveGridEntry.EndEdit();
+
+			BackupCountsChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion
@@ -132,7 +131,7 @@ namespace LibationWinForms
 			}
 
 			var orderedGridEntries = lib
-				.Select(lb => new GridEntry(lb)).ToList()
+				.Select(lb => new GridEntry(lb, Filter)).ToList()
 				// default load order
 				.OrderByDescending(ge => (DateTime)ge.GetMemberValue(nameof(ge.PurchaseDate)))
 				//// more advanced example: sort by author, then series, then title
@@ -145,19 +144,6 @@ namespace LibationWinForms
 			gridEntryBindingSource.DataSource = new SortableBindingList<GridEntry>(orderedGridEntries);
 
 			// FILTER
-			Filter();
-
-			BackupCountsChanged?.Invoke(this, EventArgs.Empty);
-		}
-
-		public void RefreshRow(string productId)
-		{
-			var liveGridEntry = getGridEntry((ge) => ge.AudibleProductId == productId);
-
-			// update GridEntry Liberate cell
-			liveGridEntry?.NotifyPropertyChanged(nameof(liveGridEntry.Liberate));
-
-			// needed in case filtering by -IsLiberated and it gets changed to Liberated. want to immediately show the change
 			Filter();
 
 			BackupCountsChanged?.Invoke(this, EventArgs.Empty);
@@ -195,12 +181,7 @@ namespace LibationWinForms
 		#endregion
 
 		#region DataGridView Macro
-
-		private GridEntry getGridEntry(Func<GridEntry, bool> predicate)
-			=> ((SortableBindingList<GridEntry>)gridEntryBindingSource.DataSource).FirstOrDefault(predicate);
-
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
-
 		#endregion
 	}
 }
