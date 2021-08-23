@@ -120,8 +120,8 @@ namespace DtoImporterService
 
 			book.UpdateBookDetails(item.IsAbridged, item.DatePublished);
 
-			if (!string.IsNullOrWhiteSpace(item.SupplementUrl))
-				book.AddSupplementDownloadUrl(item.SupplementUrl);
+			if (!string.IsNullOrWhiteSpace(item.PdfUrl.ToString()))
+				book.AddSupplementDownloadUrl(item.PdfUrl.ToString());
 
 			return book;
 		}
