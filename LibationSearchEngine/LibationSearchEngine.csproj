@@ -9,7 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\LuceneNet303r2\LuceneNet303r2\LuceneNet303r2.csproj" />
+    <PackageReference Include="LuceneNet303r2" Version="3.0.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
     <ProjectReference Include="..\FileManager\FileManager.csproj" />
   </ItemGroup>
