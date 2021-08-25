@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AudibleApiDTOs;
+using AudibleApi.Common;
 
 namespace InternalUtilities
 {
@@ -76,9 +76,9 @@ namespace InternalUtilities
 
 			var distinct = items.GetSeriesDistinct();
 			if (distinct.Any(s => s.SeriesId is null))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(AudibleApiDTOs.Series.SeriesId)}", nameof(items)));
+				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(AudibleApi.Common.Series.SeriesId)}", nameof(items)));
 			if (distinct.Any(s => s.SeriesName is null))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(AudibleApiDTOs.Series.SeriesName)}", nameof(items)));
+				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(AudibleApi.Common.Series.SeriesName)}", nameof(items)));
 
 			return exceptions;
 		}

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AudibleApiDTOs;
+using AudibleApi.Common;
 using DataLayer;
 using InternalUtilities;
 
@@ -29,7 +29,7 @@ namespace DtoImporterService
 			return qtyNew;
 		}
 
-		private void loadLocal_series(List<AudibleApiDTOs.Series> series)
+		private void loadLocal_series(List<AudibleApi.Common.Series> series)
 		{
 			var seriesIds = series.Select(s => s.SeriesId).ToList();
 			var localIds = DbContext.Series.Local.Select(s => s.AudibleSeriesId).ToList();
@@ -42,7 +42,7 @@ namespace DtoImporterService
 				DbContext.Series.Where(s => remainingSeriesIds.Contains(s.AudibleSeriesId)).ToList();
 		}
 
-		private int upsertSeries(List<AudibleApiDTOs.Series> requestedSeries)
+		private int upsertSeries(List<AudibleApi.Common.Series> requestedSeries)
 		{
 			var qtyNew = 0;
 

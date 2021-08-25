@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\audible api\AudibleApi\_Tests\AudibleApi.Tests\AudibleApi.Tests.csproj" />
     <ProjectReference Include="..\..\..\Dinah.Core\_Tests\TestCommon\TestCommon.csproj" />
     <ProjectReference Include="..\..\InternalUtilities\InternalUtilities.csproj" />
   </ItemGroup>

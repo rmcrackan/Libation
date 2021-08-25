@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\audible api\AudibleApi\AudibleApiDTOs\AudibleApiDTOs.csproj" />
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
     <ProjectReference Include="..\InternalUtilities\InternalUtilities.csproj" />
   </ItemGroup>

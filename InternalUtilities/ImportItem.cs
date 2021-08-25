@@ -1,5 +1,5 @@
 ﻿using System;
-using AudibleApiDTOs;
+using AudibleApi.Common;
 
 namespace InternalUtilities
 {

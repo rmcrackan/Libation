@@ -18,11 +18,7 @@ using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TestAudibleApiCommon;
 using TestCommon;
-using static AuthorizationShared.Shared;
-using static AuthorizationShared.Shared.AccessTokenTemporality;
-using static TestAudibleApiCommon.ComputedTestValues;
 
 namespace AccountsTests
 {

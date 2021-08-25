@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Dinah.Core\Dinah.Core\Dinah.Core.csproj" />
     <ProjectReference Include="..\AaxDecrypter\AaxDecrypter.csproj" />
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
     <ProjectReference Include="..\FileManager\FileManager.csproj" />

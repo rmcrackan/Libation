@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AudibleApi;
-using AudibleApiDTOs;
+using AudibleApi.Common;
 using Dinah.Core;
 using Polly;
 using Polly.Retry;
@@ -68,13 +68,13 @@ namespace InternalUtilities
 			//				var childIds = items
 			//					.Where(i => i.Episodes)
 			//					.SelectMany(ep => ep.Relationships)
-			//					.Where(r => r.RelationshipToProduct == AudibleApiDTOs.RelationshipToProduct.Child && r.RelationshipType == AudibleApiDTOs.RelationshipType.Episode)
+			//					.Where(r => r.RelationshipToProduct == AudibleApi.Common.RelationshipToProduct.Child && r.RelationshipType == AudibleApi.Common.RelationshipType.Episode)
 			//					.Select(c => c.Asin)
 			//					.ToList();
 			//				foreach (var childId in childIds)
 			//				{
 			//					var bookResult = await api.GetLibraryBookAsync(childId, AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS);
-			//					var bookItem = AudibleApiDTOs.LibraryDtoV10.FromJson(bookResult.ToString()).Item;
+			//					var bookItem = AudibleApi.Common.LibraryDtoV10.FromJson(bookResult.ToString()).Item;
 			//					items.Add(bookItem);
 			//				}
 			#endregion
