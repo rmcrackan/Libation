@@ -12,6 +12,7 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="Dinah.EntityFrameworkCore" Version="1.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,7 +25,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\Dinah.Core\Dinah.EntityFrameworkCore\Dinah.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\FileManager\FileManager.csproj" />
   </ItemGroup>
   
