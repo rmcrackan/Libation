@@ -16,7 +16,6 @@ using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TestCommon;
 
 namespace SearchEngineTests
 {

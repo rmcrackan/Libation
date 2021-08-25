@@ -18,7 +18,6 @@ using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TestCommon;
 
 namespace AccountsTests
 {
@@ -425,7 +424,7 @@ namespace AccountsTests
             var exists = accountsSettings.Upsert("cng", "us");
             exists.AccountName.Should().Be("foo");
 
-            orig.Should().IsSameOrEqualTo(exists);
+            orig.Should().BeSameAs(exists);
         }
     }
 
