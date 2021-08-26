@@ -20,8 +20,8 @@ namespace FileLiberator
 		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
 			var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
-			await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
-			var result = verifyDownload(libraryBook);
+			var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
+			var result = verifyDownload(actualDownloadedFilePath);
 
 			libraryBook.Book.UserDefinedItem.PdfStatus = result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated;
 
@@ -48,7 +48,7 @@ namespace FileLiberator
 		private static string getdownloadUrl(LibraryBook libraryBook)
 			=> libraryBook?.Book?.Supplements?.FirstOrDefault()?.Url;
 
-		private async Task downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
+		private async Task<string> downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
 		{
 			var api = await GetApiAsync(libraryBook);
 			var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
@@ -57,10 +57,12 @@ namespace FileLiberator
 			var actualDownloadedFilePath = await PerformDownloadAsync(
 				proposedDownloadFilePath,
 				(p) => client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, p));
+
+			return actualDownloadedFilePath;
 		}
 
-		private static StatusHandler verifyDownload(LibraryBook libraryBook)
-			=> !libraryBook.Book.PDF_Exists
+		private static StatusHandler verifyDownload(string actualDownloadedFilePath)
+			=> !File.Exists(actualDownloadedFilePath)
 			? new StatusHandler { "Downloaded PDF cannot be found" }
 			: new StatusHandler();
 	}

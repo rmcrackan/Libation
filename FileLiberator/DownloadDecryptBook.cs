@@ -175,7 +175,6 @@ namespace FileLiberator
                 File.Move(f.FullName, dest);
 
                 movedAudioFile |= AudibleFileStorage.Audio.IsFileTypeMatch(f);
-
             }
 
             AudibleFileStorage.Audio.Refresh();

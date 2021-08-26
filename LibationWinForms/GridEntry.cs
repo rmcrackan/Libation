@@ -132,14 +132,15 @@ namespace LibationWinForms
 
 		private void Commit()
 		{
-			//We don't want LiberatedStatus.PartialDownload to be a persistent  status.
-			var bookStatus = Book.UserDefinedItem.BookStatus;
-			var saveStatus = bookStatus == LiberatedStatus.PartialDownload ? LiberatedStatus.NotLiberated : bookStatus;
+			// We don't want LiberatedStatus.PartialDownload to be a persistent status.
+			// If display/icon status is PartialDownload then save NotLiberated to db then restore PartialDownload for display
+			var displayStatus = Book.UserDefinedItem.BookStatus;
+			var saveStatus = displayStatus == LiberatedStatus.PartialDownload ? LiberatedStatus.NotLiberated : displayStatus;
 			Book.UserDefinedItem.BookStatus = saveStatus;
 
 			LibraryCommands.UpdateUserDefinedItem(Book);
 
-			Book.UserDefinedItem.BookStatus = bookStatus;
+			Book.UserDefinedItem.BookStatus = displayStatus;
 
 			Refilter?.Invoke();
 		}
