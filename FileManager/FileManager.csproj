@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core" Version="1.0.5" />
+    <PackageReference Include="Dinah.Core" Version="1.0.5.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Octokit" Version="0.50.0" />
     <PackageReference Include="Polly" Version="7.2.2" />
