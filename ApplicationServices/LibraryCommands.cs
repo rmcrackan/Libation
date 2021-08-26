@@ -178,8 +178,6 @@ namespace ApplicationServices
 		}
 		#endregion
 
-		// below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
-
 		public static LiberatedStatus Liberated_Status(Book book)
 			=> book.Audio_Exists ? LiberatedStatus.Liberated
 			: FileManager.AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
@@ -189,6 +187,8 @@ namespace ApplicationServices
 			=> !book.HasPdf ? null
 			: book.PDF_Exists ? LiberatedStatus.Liberated
 			: LiberatedStatus.NotLiberated;
+
+		// below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
 
 		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int pdfsDownloaded, int pdfsNotDownloaded) { }
 		public static LibraryStats GetCounts()

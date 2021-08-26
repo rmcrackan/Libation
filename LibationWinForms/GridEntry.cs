@@ -177,6 +177,7 @@ namespace LibationWinForms
 			get => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 			set => Book.UserDefinedItem.Tags = value;
 		}
+		// these 2 values being in 1 field is the trick behind getting the liberated+pdf 'stoplight' icon to draw. See: LiberateDataGridViewImageButtonCell.Paint
 		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
 		{
 			get => (LibraryCommands.Liberated_Status(LibraryBook.Book), LibraryCommands.Pdf_Status(LibraryBook.Book));
