@@ -77,7 +77,6 @@ Purchase Date: {_libraryBook.DateAdded.ToString("d")}
 				if (status == LiberatedStatus.Error)
 					this.bookLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.Error, Text = "Error" });
 
-
 				setDefaultComboBox(this.bookLiberatedCb, status);
 			}
 

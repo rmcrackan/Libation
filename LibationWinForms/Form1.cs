@@ -50,7 +50,6 @@ namespace LibationWinForms
 
 			// also applies filter. ONLY call AFTER loading grid
 			loadInitialQuickFilterState();
-			
 		}
 
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -172,26 +171,26 @@ namespace LibationWinForms
 		#region bottom: backup counts
 		private async void setBackupCountsAsync(object _, object __)
 		{
-			LibraryCommands.LibraryStats libraryStats = null;
-			await Task.Run(() => libraryStats = LibraryCommands.GetCounts());
+			var libraryStats = await Task.Run(() => LibraryCommands.GetCounts());
 
-			setBookBackupCounts(libraryStats.booksFullyBackedUp, libraryStats.booksDownloadedOnly, libraryStats.booksNoProgress);
-			setPdfBackupCounts(libraryStats.pdfsDownloaded, libraryStats.pdfsNotDownloaded);
+			setBookBackupCounts(libraryStats);
+			setPdfBackupCounts(libraryStats);
 		}
-		private void setBookBackupCounts(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress)
+		private void setBookBackupCounts(LibraryCommands.LibraryStats libraryStats)
 		{
 			var backupsCountsLbl_Format = "BACKUPS: No progress: {0}  Encrypted: {1}  Fully backed up: {2}";
 
 			// enable/disable export
-			var hasResults = 0 < (booksFullyBackedUp + booksDownloadedOnly + booksNoProgress);
+			var hasResults = 0 < (libraryStats.booksFullyBackedUp + libraryStats.booksDownloadedOnly + libraryStats.booksNoProgress + libraryStats.booksError);
 			exportLibraryToolStripMenuItem.Enabled = hasResults;
 
 			// update bottom numbers
-			var pending = booksNoProgress + booksDownloadedOnly;
+			var pending = libraryStats.booksNoProgress + libraryStats.booksDownloadedOnly;
 			var statusStripText
 				= !hasResults ? "No books. Begin by importing your library"
-				: pending > 0 ? string.Format(backupsCountsLbl_Format, booksNoProgress, booksDownloadedOnly, booksFullyBackedUp)
-				: $"All {"book".PluralizeWithCount(booksFullyBackedUp)} backed up";
+				: libraryStats.booksError > 0 ? string.Format(backupsCountsLbl_Format + "  Errors: {3}", libraryStats.booksNoProgress, libraryStats.booksDownloadedOnly, libraryStats.booksFullyBackedUp, libraryStats.booksError)
+				: pending > 0 ? string.Format(backupsCountsLbl_Format, libraryStats.booksNoProgress, libraryStats.booksDownloadedOnly, libraryStats.booksFullyBackedUp)
+				: $"All {"book".PluralizeWithCount(libraryStats.booksFullyBackedUp)} backed up";
 
 			// update menu item
 			var menuItemText
@@ -204,26 +203,26 @@ namespace LibationWinForms
 			menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Enabled = pending > 0);
 			menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Text = string.Format(beginBookBackupsToolStripMenuItem_format, menuItemText));
 		}
-		private void setPdfBackupCounts(int pdfsDownloaded, int pdfsNotDownloaded)
+		private void setPdfBackupCounts(LibraryCommands.LibraryStats libraryStats)
 		{
 			var pdfsCountsLbl_Format = "|  PDFs: NOT d/l\'ed: {0}  Downloaded: {1}";
 
 			// update bottom numbers
-			var hasResults = 0 < (pdfsNotDownloaded + pdfsDownloaded);
+			var hasResults = 0 < (libraryStats.pdfsNotDownloaded + libraryStats.pdfsDownloaded);
 			var statusStripText
 				= !hasResults ? ""
-				: pdfsNotDownloaded > 0 ? string.Format(pdfsCountsLbl_Format, pdfsNotDownloaded, pdfsDownloaded)
-				: $"|  All {pdfsDownloaded} PDFs downloaded";
+				: libraryStats.pdfsNotDownloaded > 0 ? string.Format(pdfsCountsLbl_Format, libraryStats.pdfsNotDownloaded, libraryStats.pdfsDownloaded)
+				: $"|  All {libraryStats.pdfsDownloaded} PDFs downloaded";
 
 			// update menu item
 			var menuItemText
-				= pdfsNotDownloaded > 0
-				? $"{pdfsNotDownloaded} remaining"
+				= libraryStats.pdfsNotDownloaded > 0
+				? $"{libraryStats.pdfsNotDownloaded} remaining"
 				: "All PDFs have been downloaded";
 
 			// update UI
 			statusStrip1.UIThread(() => pdfsCountsLbl.Text = statusStripText);
-			menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Enabled = pdfsNotDownloaded > 0);
+			menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Enabled = libraryStats.pdfsNotDownloaded > 0);
 			menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Text = string.Format(beginPdfBackupsToolStripMenuItem_format, menuItemText));
 		}
 		#endregion

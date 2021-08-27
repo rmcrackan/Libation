@@ -35,12 +35,14 @@ namespace LibationWinForms
 
 		private static (string mouseoverText, Bitmap buttonImage) GetLiberateDisplay(LiberatedStatus liberatedStatus, LiberatedStatus? pdfStatus)
 		{
+			if (liberatedStatus == LiberatedStatus.Error)
+				return ("Book downloaded ERROR", SystemIcons.Error.ToBitmap());
+
 			(string libState, string image_lib) = liberatedStatus switch
 			{
 				LiberatedStatus.Liberated => ("Liberated", "green"),
 				LiberatedStatus.PartialDownload => ("File has been at least\r\npartially downloaded", "yellow"),
 				LiberatedStatus.NotLiberated => ("Book NOT downloaded", "red"),
-				LiberatedStatus.Error => ("Book downloaded ERROR", "red"),
 				_ => throw new Exception("Unexpected liberation state")
 			};
 

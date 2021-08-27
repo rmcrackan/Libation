@@ -190,7 +190,7 @@ namespace ApplicationServices
 
 		// below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
 
-		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int pdfsDownloaded, int pdfsNotDownloaded) { }
+		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int booksError, int pdfsDownloaded, int pdfsNotDownloaded) { }
 		public static LibraryStats GetCounts()
 		{
 			var libraryBooks = DbContexts.GetContext().GetLibrary_Flat_NoTracking();
@@ -202,8 +202,9 @@ namespace ApplicationServices
 			var booksFullyBackedUp = results.Count(r => r == LiberatedStatus.Liberated);
 			var booksDownloadedOnly = results.Count(r => r == LiberatedStatus.PartialDownload);
 			var booksNoProgress = results.Count(r => r == LiberatedStatus.NotLiberated);
+			var booksError = results.Count(r => r == LiberatedStatus.Error);
 
-			Log.Logger.Information("Book counts. {@DebugInfo}", new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress });
+			Log.Logger.Information("Book counts. {@DebugInfo}", new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError });
 
 			var boolResults = libraryBooks
 				.AsParallel()
@@ -215,7 +216,7 @@ namespace ApplicationServices
 
 			Log.Logger.Information("PDF counts. {@DebugInfo}", new { total = boolResults.Count, pdfsDownloaded, pdfsNotDownloaded });
 
-			return new(booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, pdfsDownloaded, pdfsNotDownloaded);
+			return new(booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError, pdfsDownloaded, pdfsNotDownloaded);
 		}
 	}
 }

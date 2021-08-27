@@ -9,24 +9,24 @@ using Lucene.Net.Search;
 namespace LibationSearchEngine
 {
     // field names are case specific and, due to StandardAnalyzer, content is case INspecific
-    public static class LuceneExtensions
+    internal static class LuceneExtensions
     {
-        public static void AddRaw(this Document document, string name, string value)
+        internal static void AddRaw(this Document document, string name, string value)
             => document.Add(new Field(name, value, Field.Store.YES, Field.Index.NOT_ANALYZED));
 
-        public static void AddAnalyzed(this Document document, string name, string value)
+        internal static void AddAnalyzed(this Document document, string name, string value)
         {
             if (value != null)
                 document.Add(new Field(name.ToLowerInvariant(), value, Field.Store.YES, Field.Index.ANALYZED));
         }
 
-        public static void AddNotAnalyzed(this Document document, string name, string value)
+        internal static void AddNotAnalyzed(this Document document, string name, string value)
             => document.Add(new Field(name.ToLowerInvariant(), value, Field.Store.YES, Field.Index.NOT_ANALYZED));
 
-        public static void AddBool(this Document document, string name, bool value)
+        internal static void AddBool(this Document document, string name, bool value)
             => document.Add(new Field(name.ToLowerInvariant(), value.ToString(), Field.Store.YES, Field.Index.ANALYZED_NO_NORMS));
 
-        public static Query GetQuery(this Analyzer analyzer, string defaultField, string searchString)
+        internal static Query GetQuery(this Analyzer analyzer, string defaultField, string searchString)
             => new QueryParser(SearchEngine.Version, defaultField.ToLowerInvariant(), analyzer).Parse(searchString);
 
         // put all numbers, including dates, into this format:
