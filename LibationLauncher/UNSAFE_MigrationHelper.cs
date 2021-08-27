@@ -8,7 +8,15 @@ using Newtonsoft.Json.Linq;
 
 namespace LibationLauncher
 {
-	/// <summary>for migrations only. directly manipulatings settings files without going through domain logic</summary>
+	/// <summary>
+	/// 
+	/// 
+	///      directly manipulates settings files without going through domain logic.
+	///      
+	///      for migrations only. use with caution.
+	/// 
+	/// 
+	/// </summary>
 	internal static class UNSAFE_MigrationHelper
 	{
 		#region appsettings.json
