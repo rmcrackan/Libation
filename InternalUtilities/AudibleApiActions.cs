@@ -60,24 +60,7 @@ namespace InternalUtilities
 		{
 			var items = await api.GetAllLibraryItemsAsync(responseGroups);
 
-			// remove episode parents
-			items.RemoveAll(i => i.IsEpisodes);
-
-			#region // episode handling. doesn't quite work
-			//				// add individual/children episodes
-			//				var childIds = items
-			//					.Where(i => i.Episodes)
-			//					.SelectMany(ep => ep.Relationships)
-			//					.Where(r => r.RelationshipToProduct == AudibleApi.Common.RelationshipToProduct.Child && r.RelationshipType == AudibleApi.Common.RelationshipType.Episode)
-			//					.Select(c => c.Asin)
-			//					.ToList();
-			//				foreach (var childId in childIds)
-			//				{
-			//					var bookResult = await api.GetLibraryBookAsync(childId, AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS);
-			//					var bookItem = AudibleApi.Common.LibraryDtoV10.FromJson(bookResult.ToString()).Item;
-			//					items.Add(bookItem);
-			//				}
-			#endregion
+			await manageEpisodesAsync(api, items);
 
 			var validators = new List<IValidator>();
 			validators.AddRange(getValidators());
@@ -90,6 +73,112 @@ namespace InternalUtilities
 
 			return items;
 		}
+
+		#region episodes and podcasts
+		private static async Task manageEpisodesAsync(Api api, List<Item> items)
+		{
+			// add podcasts and episodes to list. If fail, don't let it de-rail the rest of the import
+			try
+			{
+				// get parents
+				var parents = items.Where(i => i.IsEpisodes).ToList();
+
+				if (!parents.Any())
+					return;
+
+				// remove episode parents. even if the following stuff fails, these will still be removed from the collection
+				items.RemoveAll(i => i.IsEpisodes);
+
+				// add children
+				var children = await getEpisodesAsync(api, parents);
+				items.AddRange(children);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error adding podcasts and episodes");
+			}
+		}
+
+		private static async Task<List<Item>> getEpisodesAsync(Api api, List<Item> parents)
+		{
+			Serilog.Log.Logger.Information($"{parents.Count} series of episodes/podcasts found");
+
+			var results = new List<Item>();
+
+			foreach (var parent in parents)
+			{
+				var children = await getEpisodeChildrenAsync(api, parent);
+
+				// use parent's 'DateAdded'. DateAdded is just a convenience prop for: PurchaseDate.UtcDateTime
+				foreach (var child in children)
+					child.PurchaseDate = parent.PurchaseDate;
+
+				results.AddRange(children);
+			}
+
+			return results;
+		}
+
+		private static async Task<List<Item>> getEpisodeChildrenAsync(Api api, Item parent)
+		{
+			var childrenIds = parent.Relationships
+				.Where(r => r.RelationshipToProduct == RelationshipToProduct.Child && r.RelationshipType == RelationshipType.Episode)
+				.Select(r => r.Asin)
+				.ToList();
+
+			// fetch children in batches
+			const int batchSize = 20;
+
+			var results = new List<Item>();
+
+			for (var i = 1; ; i++)
+			{
+				var idBatch = childrenIds.Skip((i - 1) * batchSize).Take(batchSize).ToList();
+				if (!idBatch.Any())
+					break;
+
+				List<Item> childrenBatch;
+				try
+				{
+					childrenBatch = await api.GetCatalogProductsAsync(idBatch, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, "Error fetching batch of episodes. {@DebugInfo}", new
+					{
+						ParentId = parent.Asin,
+						ParentTitle = parent.Title,
+						BatchNumber = i,
+						ChildIdBatch = idBatch
+					});
+					throw;
+				}
+
+				Serilog.Log.Logger.Debug($"Batch {i}: {childrenBatch.Count} results");
+				// the service returned no results. probably indicates an error. stop running batches
+				if (!childrenBatch.Any())
+					break;
+
+				results.AddRange(childrenBatch);
+			}
+
+			Serilog.Log.Logger.Debug("Parent episodes/podcasts series. Children found. {@DebugInfo}", new
+			{
+				ParentId = parent.Asin,
+				ParentTitle = parent.Title,
+				ChildCount = childrenIds.Count
+			});
+
+			if (childrenIds.Count != results.Count)
+			{
+				var ex = new ApplicationException($"Mis-match: Children defined by parent={childrenIds.Count}. Children returned by batches={results.Count}");
+				Serilog.Log.Logger.Error(ex, "Quantity of series episodes defined by parent does not match quantity returned by batch fetching.");
+				throw ex;
+			}
+
+			return results;
+		}
+		#endregion
 
 		private static List<IValidator> getValidators()
 		{
