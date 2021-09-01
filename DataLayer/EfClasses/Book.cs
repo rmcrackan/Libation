@@ -15,6 +15,10 @@ namespace DataLayer
             Id = id;
         }
     }
+
+    // enum will be easier than bool to extend later
+    public enum ContentType { Unknown = 0, Product = 1, Episode = 2 }
+
     public class Book
     {
         // implementation detail. set by db only. only used by data layer
@@ -25,6 +29,7 @@ namespace DataLayer
         public string Title { get; private set; }
         public string Description { get; private set; }
         public int LengthInMinutes { get; private set; }
+        public ContentType ContentType { get; private set; }
 
         // immutable-ish. should be immutable. mutability is necessary for v3 => v4 upgrades
         public string Locale { get; private set; }
@@ -82,6 +87,7 @@ namespace DataLayer
             string title,
             string description,
             int lengthInMinutes,
+            ContentType contentType,
 			IEnumerable<Contributor> authors,
 			IEnumerable<Contributor> narrators,
 			Category category, string localeName)
@@ -109,6 +115,7 @@ namespace DataLayer
             Title = title.Trim();
             Description = description.Trim();
             LengthInMinutes = lengthInMinutes;
+            ContentType = contentType;
 
             // assigns with biz logic
             ReplaceAuthors(authors);

@@ -59,6 +59,10 @@ namespace InternalUtilities
 		private static async Task<List<Item>> getItemsAsync(Api api, LibraryOptions.ResponseGroupOptions responseGroups)
 		{
 			var items = await api.GetAllLibraryItemsAsync(responseGroups);
+#if DEBUG
+//var itemsDebug = items.Select(i => i.ToJson()).Aggregate((a, b) => $"{a}\r\n\r\n{b}");
+//System.IO.File.WriteAllText("library.json", itemsDebug);
+#endif
 
 			await manageEpisodesAsync(api, items);
 
@@ -82,15 +86,23 @@ namespace InternalUtilities
 			{
 				// get parents
 				var parents = items.Where(i => i.IsEpisodes).ToList();
+#if DEBUG
+//var parentsDebug = parents.Select(i => i.ToJson()).Aggregate((a, b) => $"{a}\r\n\r\n{b}");
+//System.IO.File.WriteAllText("parents.json", parentsDebug);
+#endif
 
 				if (!parents.Any())
 					return;
 
-				// remove episode parents. even if the following stuff fails, these will still be removed from the collection
+				Serilog.Log.Logger.Information($"{parents.Count} series of shows/podcasts found");
+
+				// remove episode parents. even if the following stuff fails, these will still be removed from the collection.
+				// also must happen before processing children because children abuses this flag
 				items.RemoveAll(i => i.IsEpisodes);
 
 				// add children
 				var children = await getEpisodesAsync(api, parents);
+				Serilog.Log.Logger.Information($"{children.Count} episodes of shows/podcasts found");
 				items.AddRange(children);
 			}
 			catch (Exception ex)
@@ -101,17 +113,36 @@ namespace InternalUtilities
 
 		private static async Task<List<Item>> getEpisodesAsync(Api api, List<Item> parents)
 		{
-			Serilog.Log.Logger.Information($"{parents.Count} series of episodes/podcasts found");
-
 			var results = new List<Item>();
 
 			foreach (var parent in parents)
 			{
 				var children = await getEpisodeChildrenAsync(api, parent);
 
-				// use parent's 'DateAdded'. DateAdded is just a convenience prop for: PurchaseDate.UtcDateTime
 				foreach (var child in children)
+				{
+					// use parent's 'DateAdded'. DateAdded is just a convenience prop for: PurchaseDate.UtcDateTime
 					child.PurchaseDate = parent.PurchaseDate;
+					// parent is essentially a series
+					child.Series = new Series[]
+					{
+						new Series
+						{
+							Asin = parent.Asin,
+							Sequence = parent.Relationships.Single(r => r.Asin == child.Asin).Sort.ToString(),
+							Title = parent.TitleWithSubtitle
+						}
+					};
+					// overload (read: abuse) IsEpisodes flag
+					child.Relationships = new Relationship[]
+					{
+						new Relationship
+						{
+							RelationshipToProduct = RelationshipToProduct.Child,
+							RelationshipType = RelationshipType.Episode
+						}
+					};
+				}
 
 				results.AddRange(children);
 			}
@@ -141,6 +172,10 @@ namespace InternalUtilities
 				try
 				{
 					childrenBatch = await api.GetCatalogProductsAsync(idBatch, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+#if DEBUG
+//var childrenBatchDebug = childrenBatch.Select(i => i.ToJson()).Aggregate((a, b) => $"{a}\r\n\r\n{b}");
+//System.IO.File.WriteAllText($"children of {parent.Asin}.json", childrenBatchDebug);
+#endif
 				}
 				catch (Exception ex)
 				{
@@ -178,7 +213,7 @@ namespace InternalUtilities
 
 			return results;
 		}
-		#endregion
+#endregion
 
 		private static List<IValidator> getValidators()
 		{

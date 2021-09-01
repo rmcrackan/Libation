@@ -18,7 +18,6 @@ namespace DataLayer
 
         /// <summary>Application-state only. Not a valid persistence state.</summary>
         PartialDownload = 0x1000
-
     }
 
     public class UserDefinedItem

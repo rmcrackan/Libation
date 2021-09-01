@@ -67,6 +67,8 @@ namespace DtoImporterService
 		{
 			var item = importItem.DtoItem;
 
+			var contentType = item.IsEpisodes ? DataLayer.ContentType.Episode : DataLayer.ContentType.Product;
+
 			// absence of authors is very rare, but possible
 			if (!item.Authors?.Any() ?? true)
 				item.Authors = new[] { new Person { Name = "", Asin = null } };
@@ -105,6 +107,7 @@ namespace DtoImporterService
 				item.TitleWithSubtitle,
 				item.Description,
 				item.LengthInMinutes,
+				contentType,
 				authors,
 				narrators,
 				category,
