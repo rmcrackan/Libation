@@ -129,6 +129,11 @@ namespace LibationSearchEngine
                     ["IsLiberated"] = lb => isLiberated(lb.Book),
                     ["Liberated"] = lb => isLiberated(lb.Book),
                     ["LiberatedError"] = lb => liberatedError(lb.Book),
+
+                    ["Podcast"] = lb => lb.Book.ContentType == ContentType.Episode,
+                    ["IsPodcast"] = lb => lb.Book.ContentType == ContentType.Episode,
+                    ["Episode"] = lb => lb.Book.ContentType == ContentType.Episode,
+                    ["IsEpisode"] = lb => lb.Book.ContentType == ContentType.Episode,
                 }
                 );
 
