@@ -173,18 +173,19 @@
 			this.removeLibraryBooksToolStripMenuItem.Name = "removeLibraryBooksToolStripMenuItem";
 			this.removeLibraryBooksToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
 			this.removeLibraryBooksToolStripMenuItem.Text = "Remove Library Books";
+			this.removeLibraryBooksToolStripMenuItem.Click += new System.EventHandler(this.removeLibraryBooksToolStripMenuItem_Click);
 			// 
 			// removeAllAccountsToolStripMenuItem
 			// 
 			this.removeAllAccountsToolStripMenuItem.Name = "removeAllAccountsToolStripMenuItem";
-			this.removeAllAccountsToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+			this.removeAllAccountsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.removeAllAccountsToolStripMenuItem.Text = "All Accounts";
 			this.removeAllAccountsToolStripMenuItem.Click += new System.EventHandler(this.removeAllAccountsToolStripMenuItem_Click);
 			// 
 			// removeSomeAccountsToolStripMenuItem
 			// 
 			this.removeSomeAccountsToolStripMenuItem.Name = "removeSomeAccountsToolStripMenuItem";
-			this.removeSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+			this.removeSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
 			this.removeSomeAccountsToolStripMenuItem.Text = "Some Accounts";
 			this.removeSomeAccountsToolStripMenuItem.Click += new System.EventHandler(this.removeSomeAccountsToolStripMenuItem_Click);
 			// 
@@ -201,23 +202,22 @@
 			// beginBookBackupsToolStripMenuItem
 			// 
 			this.beginBookBackupsToolStripMenuItem.Name = "beginBookBackupsToolStripMenuItem";
-			this.beginBookBackupsToolStripMenuItem.Size = new System.Drawing.Size(284, 22);
+			this.beginBookBackupsToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
 			this.beginBookBackupsToolStripMenuItem.Text = "Begin &Book and PDF Backups: {0}";
 			this.beginBookBackupsToolStripMenuItem.Click += new System.EventHandler(this.beginBookBackupsToolStripMenuItem_Click);
 			// 
 			// beginPdfBackupsToolStripMenuItem
 			// 
 			this.beginPdfBackupsToolStripMenuItem.Name = "beginPdfBackupsToolStripMenuItem";
-			this.beginPdfBackupsToolStripMenuItem.Size = new System.Drawing.Size(284, 22);
+			this.beginPdfBackupsToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
 			this.beginPdfBackupsToolStripMenuItem.Text = "Begin &PDF Only Backups: {0}";
 			this.beginPdfBackupsToolStripMenuItem.Click += new System.EventHandler(this.beginPdfBackupsToolStripMenuItem_Click);
 			// 
 			// convertAllM4bToMp3ToolStripMenuItem
 			// 
 			this.convertAllM4bToMp3ToolStripMenuItem.Name = "convertAllM4bToMp3ToolStripMenuItem";
-			this.convertAllM4bToMp3ToolStripMenuItem.Size = new System.Drawing.Size(284, 22);
+			this.convertAllM4bToMp3ToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
 			this.convertAllM4bToMp3ToolStripMenuItem.Text = "Convert all M4b to Mp3 [Long-running]...";
-			this.convertAllM4bToMp3ToolStripMenuItem.Visible = true;
 			this.convertAllM4bToMp3ToolStripMenuItem.Click += new System.EventHandler(this.convertAllM4bToMp3ToolStripMenuItem_Click);
 			// 
 			// exportToolStripMenuItem
@@ -310,7 +310,7 @@
 			// springLbl
 			// 
 			this.springLbl.Name = "springLbl";
-			this.springLbl.Size = new System.Drawing.Size(517, 17);
+			this.springLbl.Size = new System.Drawing.Size(548, 17);
 			this.springLbl.Spring = true;
 			// 
 			// backupsCountsLbl

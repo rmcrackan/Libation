@@ -1,4 +1,8 @@
-﻿using ApplicationServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
+using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Drawing;
@@ -6,11 +10,6 @@ using Dinah.Core.Windows.Forms;
 using FileManager;
 using InternalUtilities;
 using LibationWinForms.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace LibationWinForms
 {
@@ -31,9 +30,9 @@ namespace LibationWinForms
 				return;
 
 			// independent UI updates
-			this.Load += setBackupCountsAsync;
 			this.Load += (_, __) => RestoreSizeAndLocation();
 			this.Load += (_, __) => RefreshImportMenu();
+			UserDefinedItem.ItemChanged += setBackupCounts;
 
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
@@ -46,7 +45,7 @@ namespace LibationWinForms
 			if (this.DesignMode)
 				return;
 
-			reloadGrid();
+			reloadGridAndUpdateBottomNumbers();
 
 			// also applies filter. ONLY call AFTER loading grid
 			loadInitialQuickFilterState();
@@ -127,9 +126,7 @@ namespace LibationWinForms
 			config.MainFormIsMaximized = this.WindowState == FormWindowState.Maximized;
 		}
 
-		#region reload grid
-		private bool isProcessingGridSelect = false;
-		private void reloadGrid()
+		private void reloadGridAndUpdateBottomNumbers()
 		{
 			// suppressed filter while init'ing UI
 			var prev_isProcessingGridSelect = isProcessingGridSelect;
@@ -139,8 +136,11 @@ namespace LibationWinForms
 
 			// UI init complete. now we can apply filter
 			doFilter(lastGoodFilter);
+
+			setBackupCounts(null, null);
 		}
 
+		#region reload grid
 		private ProductsGrid currProductsGrid;
 		private void setGrid()
 		{
@@ -150,13 +150,11 @@ namespace LibationWinForms
 				{
 					gridPanel.Controls.Remove(currProductsGrid);
 					currProductsGrid.VisibleCountChanged -= setVisibleCount;
-					currProductsGrid.BackupCountsChanged -= setBackupCountsAsync;
 					currProductsGrid.Dispose();
 				}
 
 				currProductsGrid = new ProductsGrid { Dock = DockStyle.Fill };
 				currProductsGrid.VisibleCountChanged += setVisibleCount;
-				currProductsGrid.BackupCountsChanged += setBackupCountsAsync;
 				gridPanel.UIThread(() => gridPanel.Controls.Add(currProductsGrid));
 				currProductsGrid.Display();
 			}
@@ -169,13 +167,42 @@ namespace LibationWinForms
 		#endregion
 
 		#region bottom: backup counts
-		private async void setBackupCountsAsync(object _, object __)
+		private System.ComponentModel.BackgroundWorker updateCountsBw;
+		private bool runBackupCountsAgain;
+
+		private void setBackupCounts(object _, object __)
 		{
-			var libraryStats = await Task.Run(() => LibraryCommands.GetCounts());
+			runBackupCountsAgain = true;
+
+			if (updateCountsBw is not null)
+				return;
+
+			updateCountsBw = new System.ComponentModel.BackgroundWorker();
+			updateCountsBw.DoWork += UpdateCountsBw_DoWork;
+			updateCountsBw.RunWorkerCompleted += UpdateCountsBw_RunWorkerCompleted;
+			updateCountsBw.RunWorkerAsync();
+		}
+
+		private void UpdateCountsBw_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+		{
+			while (runBackupCountsAgain)
+			{
+				runBackupCountsAgain = false;
+
+				var libraryStats = LibraryCommands.GetCounts();
+				e.Result = libraryStats;
+			}
+			updateCountsBw = null;
+		}
+
+		private void UpdateCountsBw_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+		{
+			var libraryStats = e.Result as LibraryCommands.LibraryStats;
 
 			setBookBackupCounts(libraryStats);
 			setPdfBackupCounts(libraryStats);
 		}
+
 		private void setBookBackupCounts(LibraryCommands.LibraryStats libraryStats)
 		{
 			var backupsCountsLbl_Format = "BACKUPS: No progress: {0}  Encrypted: {1}  Fully backed up: {2}";
@@ -248,6 +275,7 @@ namespace LibationWinForms
 		}
 		private void filterBtn_Click(object sender, EventArgs e) => doFilter();
 
+		private bool isProcessingGridSelect = false;
 		private string lastGoodFilter = "";
 		private void doFilter(string filterString)
 		{
@@ -287,11 +315,6 @@ namespace LibationWinForms
 
 			removeLibraryBooksToolStripMenuItem.Visible = count != 0;
 
-			if (count == 1)
-			{
-				removeLibraryBooksToolStripMenuItem.Click += removeThisAccountToolStripMenuItem_Click;
-			}
-
 			removeSomeAccountsToolStripMenuItem.Visible = count > 1;
 			removeAllAccountsToolStripMenuItem.Visible = count > 1;
 		}
@@ -329,13 +352,22 @@ namespace LibationWinForms
 			scanLibraries(scanAccountsDialog.CheckedAccounts);
 		}
 
-		private void removeThisAccountToolStripMenuItem_Click(object sender, EventArgs e)
+		private void removeLibraryBooksToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			// if 0 accounts, this will not be visible
+			// if 1 account, run scanLibrariesRemovedBooks() on this account
+			// if multiple accounts, another menu set will open. do not run scanLibrariesRemovedBooks()
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
+			var accounts = persister.AccountsSettings.GetAll();
+
+			if (accounts.Count != 1)
+				return;
+
+			var firstAccount = accounts.Single();
 			scanLibrariesRemovedBooks(firstAccount);
 		}
 
+		// selectively remove books from all accounts
 		private void removeAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
@@ -343,6 +375,7 @@ namespace LibationWinForms
 			scanLibrariesRemovedBooks(allAccounts.ToArray());
 		}
 
+		// selectively remove books from some accounts
 		private void removeSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using var scanAccountsDialog = new ScanAccountsDialog(this);
@@ -362,7 +395,7 @@ namespace LibationWinForms
 			dialog.ShowDialog();
 
 			if (dialog.BooksRemoved)
-				reloadGrid();
+				reloadGridAndUpdateBottomNumbers();
 		}
 
 		private void scanLibraries(IEnumerable<Account> accounts) => scanLibraries(accounts.ToArray());
@@ -377,7 +410,7 @@ namespace LibationWinForms
 			MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
 
 			if (totalProcessed > 0)
-				reloadGrid();
+				reloadGridAndUpdateBottomNumbers();
 		}
 		#endregion
 
@@ -495,6 +528,5 @@ namespace LibationWinForms
 
 		private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 		#endregion
-
 	}
 }

@@ -29,7 +29,6 @@ namespace LibationWinForms
 	public partial class ProductsGrid : UserControl
 	{
 		public event EventHandler<int> VisibleCountChanged;
-		public event EventHandler BackupCountsChanged;
 
 		// alias
 		private DataGridView _dataGridView => gridEntryDataGridView;
@@ -101,8 +100,6 @@ namespace LibationWinForms
 			liveGridEntry.Liberate = (bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 
 			liveGridEntry.EndEdit();
-
-			BackupCountsChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion
@@ -145,8 +142,6 @@ namespace LibationWinForms
 
 			// FILTER
 			Filter();
-
-			BackupCountsChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion
