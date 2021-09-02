@@ -26,7 +26,7 @@ namespace LibationWinForms.Dialogs
 
 		public RemoveBooksDialog(params Account[] accounts)
 		{
-			_libraryBooks = DbContexts.GetContext().GetLibrary_Flat_NoTracking();
+			_libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
 			_accounts = accounts;
 
 			InitializeComponent();
@@ -58,9 +58,9 @@ namespace LibationWinForms.Dialogs
 				return;
 			try
 			{
-				var rmovedBooks = await LibraryCommands.FindInactiveBooks((account) => new WinformResponder(account), _libraryBooks, _accounts);
+				var removedBooks = await LibraryCommands.FindInactiveBooks((account) => new WinformResponder(account), _libraryBooks, _accounts);
 
-				var removable = _removableGridEntries.Where(rge => rmovedBooks.Any(rb => rb.Book.AudibleProductId == rge.AudibleProductId));
+				var removable = _removableGridEntries.Where(rge => removedBooks.Any(rb => rb.Book.AudibleProductId == rge.AudibleProductId));
 
 				if (!removable.Any())
 					return;
@@ -104,14 +104,8 @@ namespace LibationWinForms.Dialogs
 
 			if (result == DialogResult.Yes)
 			{
-				using var context = DbContexts.GetContext();
-
-				var libBooks = context.GetLibrary_Flat_NoTracking();
-
-				var removeLibraryBooks = libBooks.Where(lb => selectedBooks.Any(rge => rge.AudibleProductId == lb.Book.AudibleProductId)).ToList();
-
-				context.Library.RemoveRange(removeLibraryBooks);
-				context.SaveChanges();
+				var idsToRemove = selectedBooks.Select(rge => rge.AudibleProductId).ToList();
+				var removeLibraryBooks = LibraryCommands.RemoveBooks(idsToRemove);
 
 				foreach (var rEntry in selectedBooks)
 					_removableGridEntries.Remove(rEntry);
@@ -121,6 +115,7 @@ namespace LibationWinForms.Dialogs
 				UpdateSelection();
 			}
 		}
+
 		private void UpdateSelection()
 		{
 			var selectedCount = SelectedCount;

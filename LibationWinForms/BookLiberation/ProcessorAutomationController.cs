@@ -304,7 +304,7 @@ An error occurred while trying to process this book.
 		protected override async Task RunAsync()
 		{
 			// support for 'skip this time only' requires state. iterators provide this state for free. therefore: use foreach/iterator here
-			foreach (var libraryBook in Processable.GetValidLibraryBooks(ApplicationServices.DbContexts.GetContext().GetLibrary_Flat_NoTracking()))
+			foreach (var libraryBook in Processable.GetValidLibraryBooks(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()))
 			{
 				var keepGoing = await ProcessOneAsync(libraryBook, validate: false);
 				if (!keepGoing)

@@ -10,7 +10,8 @@ namespace ApplicationServices
 		public static void FullReIndex(SearchEngine engine = null)
 		{
 			engine ??= new SearchEngine();
-			engine.CreateNewIndex(DbContexts.GetContext());
+			var library = DbContexts.GetLibrary_Flat_NoTracking();
+			engine.CreateNewIndex(library);
 		}
 
 		public static SearchResultSet Search(string searchString) => performSearchEngineFunc_safe(e =>

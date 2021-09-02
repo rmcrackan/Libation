@@ -64,6 +64,7 @@ namespace ApplicationServices
 				LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
             }
 		}
+
 		#region FULL LIBRARY scan and import
 		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
 		{
@@ -186,6 +187,21 @@ namespace ApplicationServices
 		}
 		#endregion
 
+		#region remove books
+		public static List<LibraryBook> RemoveBooks(List<string> idsToRemove)
+		{
+			using var context = DbContexts.GetContext();
+			var libBooks = context.GetLibrary_Flat_NoTracking();
+
+			var removeLibraryBooks = libBooks.Where(lb => idsToRemove.Contains(lb.Book.AudibleProductId)).ToList();
+			context.Library.RemoveRange(removeLibraryBooks);
+
+			context.SaveChanges();
+
+			return removeLibraryBooks;
+		}
+		#endregion
+
 		public static LiberatedStatus Liberated_Status(Book book)
 			=> book.Audio_Exists ? LiberatedStatus.Liberated
 			: FileManager.AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
@@ -201,7 +217,7 @@ namespace ApplicationServices
 		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int booksError, int pdfsDownloaded, int pdfsNotDownloaded) { }
 		public static LibraryStats GetCounts()
 		{
-			var libraryBooks = DbContexts.GetContext().GetLibrary_Flat_NoTracking();
+			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
 
 			var results = libraryBooks
 				.AsParallel()

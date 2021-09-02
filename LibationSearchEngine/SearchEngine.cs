@@ -197,25 +197,9 @@ namespace LibationSearchEngine
 		#endregion
 
 		#region create and update index
-        /// <summary>
-        /// create new. ie: full re-index
-        /// </summary>
-        /// <param name="overwrite"></param>
-        public void CreateNewIndex(LibationContext context, bool overwrite = true)
+        /// <summary>create new. ie: full re-index</summary>
+        public void CreateNewIndex(IEnumerable<LibraryBook> library, bool overwrite = true)
         {
-            //  300 titles:  200- 400 ms
-            // 1021 titles: 1777-2250 ms
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            var stamps = new List<long>();
-            void log() => stamps.Add(sw.ElapsedMilliseconds);
-
-
-            log();
-
-            var library = context.GetLibrary_Flat_NoTracking();
-
-            log();
-
 			// location of index/create the index
 			using var index = getIndex();
             var exists = IndexReader.IndexExists(index);
@@ -229,8 +213,6 @@ namespace LibationSearchEngine
 				var doc = createBookIndexDocument(libraryBook);
 				ixWriter.AddDocument(doc);
 			}
-
-            log();
         }
 
 		/// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>

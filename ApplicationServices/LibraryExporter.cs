@@ -135,9 +135,7 @@ namespace ApplicationServices
 	{
 		public static void ToCsv(string saveFilePath)
 		{
-			using var context = DbContexts.GetContext();
-			var dtos = context.GetLibrary_Flat_NoTracking().ToDtos();
-
+			var dtos = DbContexts.GetLibrary_Flat_NoTracking().ToDtos();
 			if (!dtos.Any())
 				return;
 
@@ -151,17 +149,14 @@ namespace ApplicationServices
 
 		public static void ToJson(string saveFilePath)
 		{
-			using var context = DbContexts.GetContext();
-			var dtos = context.GetLibrary_Flat_NoTracking().ToDtos();
-
+			var dtos = DbContexts.GetLibrary_Flat_NoTracking().ToDtos();
 			var json = Newtonsoft.Json.JsonConvert.SerializeObject(dtos, Newtonsoft.Json.Formatting.Indented);
 			System.IO.File.WriteAllText(saveFilePath, json);
 		}
 
 		public static void ToXlsx(string saveFilePath)
 		{
-			using var context = DbContexts.GetContext();
-			var dtos = context.GetLibrary_Flat_NoTracking().ToDtos();
+			var dtos = DbContexts.GetLibrary_Flat_NoTracking().ToDtos();
 
 			var workbook = new XSSFWorkbook();
 			var sheet = workbook.CreateSheet("Library");

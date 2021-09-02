@@ -116,8 +116,7 @@ namespace LibationWinForms
 			//
 			// transform into sorted GridEntry.s BEFORE binding
 			//
-			using var context = DbContexts.GetContext();
-			var lib = context.GetLibrary_Flat_NoTracking();
+			var lib = DbContexts.GetLibrary_Flat_NoTracking();
 
 			// if no data. hide all columns. return
 			if (!lib.Any())
