@@ -155,13 +155,30 @@ namespace ApplicationServices
 		}
 		#endregion
 
-		#region Update book details
+		#region remove books
+		public static List<LibraryBook> RemoveBooks(List<string> idsToRemove)
+		{
+			using var context = DbContexts.GetContext();
+			var libBooks = context.GetLibrary_Flat_NoTracking();
+
+			var removeLibraryBooks = libBooks.Where(lb => idsToRemove.Contains(lb.Book.AudibleProductId)).ToList();
+			context.Library.RemoveRange(removeLibraryBooks);
+
+			var qtyChanges = context.SaveChanges();
+			if (qtyChanges > 0)
+				SearchEngineCommands.FullReIndex();
+
+			return removeLibraryBooks;
+		}
+		#endregion
+
 		/// <summary>
 		/// Occurs when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/>
 		/// changed values are successfully persisted.
 		/// </summary>
 		public static event EventHandler<string> BookUserDefinedItemCommitted;
 
+		#region Update book details
 		public static int UpdateUserDefinedItem(Book book)
 		{
 			try
@@ -184,21 +201,6 @@ namespace ApplicationServices
 				Log.Logger.Error(ex, $"Error updating {nameof(book.UserDefinedItem)}");
 				throw;
 			}
-		}
-		#endregion
-
-		#region remove books
-		public static List<LibraryBook> RemoveBooks(List<string> idsToRemove)
-		{
-			using var context = DbContexts.GetContext();
-			var libBooks = context.GetLibrary_Flat_NoTracking();
-
-			var removeLibraryBooks = libBooks.Where(lb => idsToRemove.Contains(lb.Book.AudibleProductId)).ToList();
-			context.Library.RemoveRange(removeLibraryBooks);
-
-			context.SaveChanges();
-
-			return removeLibraryBooks;
 		}
 		#endregion
 

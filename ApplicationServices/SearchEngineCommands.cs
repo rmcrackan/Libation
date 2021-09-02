@@ -40,17 +40,17 @@ namespace ApplicationServices
 			}
 		}
 
-		private static T performSearchEngineFunc_safe<T>(Func<SearchEngine, T> action)
+		private static T performSearchEngineFunc_safe<T>(Func<SearchEngine, T> func)
 		{
 			var engine = new SearchEngine();
 			try
 			{
-				return action(engine);
+				return func(engine);
 			}
 			catch (FileNotFoundException)
 			{
 				FullReIndex(engine);
-				return action(engine);
+				return func(engine);
 			}
 		}
 	}
