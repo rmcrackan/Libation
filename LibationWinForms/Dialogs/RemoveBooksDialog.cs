@@ -1,15 +1,15 @@
-﻿using System;
+﻿using ApplicationServices;
+using DataLayer;
+using Dinah.Core.DataBinding;
+using InternalUtilities;
+using LibationWinForms.Login;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
-using ApplicationServices;
-using DataLayer;
-using Dinah.Core.DataBinding;
-using InternalUtilities;
-using LibationWinForms.Login;
 
 namespace LibationWinForms.Dialogs
 {
@@ -33,8 +33,7 @@ namespace LibationWinForms.Dialogs
 			_labelFormat = label1.Text;
 
 			_dataGridView.CellContentClick += (s, e) => _dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
-			_dataGridView.CellValueChanged += DataGridView1_CellValueChanged;
-			_dataGridView.BindingContextChanged += (s, e) => UpdateSelection();
+			_dataGridView.BindingContextChanged += _dataGridView_BindingContextChanged;
 
 			var orderedGridEntries = _libraryBooks
 				.Select(lb => new RemovableGridEntry(lb))
@@ -47,10 +46,10 @@ namespace LibationWinForms.Dialogs
 			_dataGridView.Enabled = false;
 		}
 
-		private void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+		private void _dataGridView_BindingContextChanged(object sender, EventArgs e)
 		{
-			if (e.ColumnIndex == 0)
-				UpdateSelection();
+			_dataGridView.Sort(_dataGridView.Columns[0], ListSortDirection.Descending);
+			UpdateSelection();
 		}
 
 		private async void RemoveBooksDialog_Shown(object sender, EventArgs e)
@@ -124,7 +123,6 @@ namespace LibationWinForms.Dialogs
 		}
 		private void UpdateSelection()
 		{
-			_dataGridView.Sort(_dataGridView.Columns[0], ListSortDirection.Descending);
 			var selectedCount = SelectedCount;
 			label1.Text = string.Format(_labelFormat, selectedCount, selectedCount != 1 ? "s" : string.Empty);
 			btnRemoveBooks.Enabled = selectedCount > 0;
