@@ -1,16 +1,15 @@
-﻿using System;
+﻿using ApplicationServices;
+using DataLayer;
+using Dinah.Core.DataBinding;
+using InternalUtilities;
+using LibationWinForms.Login;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
-using ApplicationServices;
-using DataLayer;
-using Dinah.Core.Threading;
-using Dinah.Core.DataBinding;
-using InternalUtilities;
-using LibationWinForms.Login;
 
 namespace LibationWinForms.Dialogs
 {
@@ -33,7 +32,7 @@ namespace LibationWinForms.Dialogs
 			InitializeComponent();
 			_labelFormat = label1.Text;
 
-			_dataGridView.CellContentClick +=(s,e) => _dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+			_dataGridView.CellContentClick += (s, e) => _dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
 			_dataGridView.BindingContextChanged += _dataGridView_BindingContextChanged;
 
 			var orderedGridEntries = _libraryBooks
