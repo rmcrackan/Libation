@@ -81,9 +81,6 @@ namespace ApplicationServices
 				var newCount = await importIntoDbAsync(importItems);
 				Log.Logger.Information($"Import: New count {newCount}");
 
-				await Task.Run(() => SearchEngineCommands.FullReIndex());
-				Log.Logger.Information("FullReIndex: success");
-
 				return (totalCount, newCount);
 			}
 			catch (AudibleApi.Authentication.LoginFailedException lfEx)
@@ -149,14 +146,18 @@ namespace ApplicationServices
 			using var context = DbContexts.GetContext();
 			var libraryImporter = new LibraryImporter(context);
 			var newCount = await Task.Run(() => libraryImporter.Import(importItems));
-			context.SaveChanges();
+			var qtyChanges = context.SaveChanges();
+
+			if (qtyChanges > 0)
+				await Task.Run(() => finalizeLibrarySizeChange());
 
 			return newCount;
 		}
 		#endregion
 
 		#region remove books
-		public static List<LibraryBook> RemoveBooks(List<string> idsToRemove)
+		public static Task<List<LibraryBook>> RemoveBooksAsync(List<string> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
+		private static List<LibraryBook> removeBooks(List<string> idsToRemove)
 		{
 			using var context = DbContexts.GetContext();
 			var libBooks = context.GetLibrary_Flat_NoTracking();
@@ -166,11 +167,21 @@ namespace ApplicationServices
 
 			var qtyChanges = context.SaveChanges();
 			if (qtyChanges > 0)
-				SearchEngineCommands.FullReIndex();
+				finalizeLibrarySizeChange();
 
 			return removeLibraryBooks;
 		}
 		#endregion
+
+		// call this whenever books are added or removed from library
+		private static void finalizeLibrarySizeChange()
+		{
+			SearchEngineCommands.FullReIndex();
+			LibrarySizeChanged?.Invoke(null, null);
+		}
+
+		/// <summary>Occurs when books are added or removed from library</summary>
+		public static event EventHandler LibrarySizeChanged;
 
 		/// <summary>
 		/// Occurs when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/>

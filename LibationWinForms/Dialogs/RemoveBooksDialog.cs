@@ -15,8 +15,6 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class RemoveBooksDialog : Form
 	{
-		public bool BooksRemoved { get; private set; }
-
 		private Account[] _accounts { get; }
 		private readonly List<LibraryBook> _libraryBooks;
 		private readonly SortableBindingList<RemovableGridEntry> _removableGridEntries;
@@ -83,7 +81,7 @@ namespace LibationWinForms.Dialogs
 			}
 		}
 
-		private void btnRemoveBooks_Click(object sender, EventArgs e)
+		private async void btnRemoveBooks_Click(object sender, EventArgs e)
 		{
 			var selectedBooks = SelectedEntries.ToList();
 
@@ -105,12 +103,10 @@ namespace LibationWinForms.Dialogs
 			if (result == DialogResult.Yes)
 			{
 				var idsToRemove = selectedBooks.Select(rge => rge.AudibleProductId).ToList();
-				var removeLibraryBooks = LibraryCommands.RemoveBooks(idsToRemove);
+				var removeLibraryBooks = await LibraryCommands.RemoveBooksAsync(idsToRemove);
 
 				foreach (var rEntry in selectedBooks)
 					_removableGridEntries.Remove(rEntry);
-
-				BooksRemoved = removeLibraryBooks.Count > 0;
 
 				UpdateSelection();
 			}

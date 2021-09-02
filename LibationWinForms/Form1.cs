@@ -30,8 +30,9 @@ namespace LibationWinForms
 				return;
 
 			// independent UI updates
-			this.Load += (_, __) => RestoreSizeAndLocation();
-			this.Load += (_, __) => RefreshImportMenu();
+			this.Load += restoreSizeAndLocation;
+			this.Load += RefreshImportMenu;
+			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
 
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
@@ -45,6 +46,8 @@ namespace LibationWinForms
 			if (this.DesignMode)
 				return;
 
+			// can't refactor into "this.Load => reloadGridAndUpdateBottomNumbers"
+			// because loadInitialQuickFilterState must follow it
 			reloadGridAndUpdateBottomNumbers();
 
 			// also applies filter. ONLY call AFTER loading grid
@@ -56,7 +59,7 @@ namespace LibationWinForms
 			SaveSizeAndLocation();
 		}
 
-		private void RestoreSizeAndLocation()
+		private void restoreSizeAndLocation(object _ = null, object __ = null)
 		{
 			var config = Configuration.Instance;
 
@@ -126,7 +129,7 @@ namespace LibationWinForms
 			config.MainFormIsMaximized = this.WindowState == FormWindowState.Maximized;
 		}
 
-		private void reloadGridAndUpdateBottomNumbers()
+		private void reloadGridAndUpdateBottomNumbers(object _ = null, object __ = null)
 		{
 			// suppressed filter while init'ing UI
 			var prev_isProcessingGridSelect = isProcessingGridSelect;
@@ -303,7 +306,7 @@ namespace LibationWinForms
 		#endregion
 
 		#region Import menu
-		public void RefreshImportMenu()
+		public void RefreshImportMenu(object _ = null, EventArgs __ = null)
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var count = persister.AccountsSettings.Accounts.Count;
@@ -393,9 +396,6 @@ namespace LibationWinForms
 		{
 			using var dialog = new RemoveBooksDialog(accounts);
 			dialog.ShowDialog();
-
-			if (dialog.BooksRemoved)
-				reloadGridAndUpdateBottomNumbers();
 		}
 
 		private void scanLibraries(IEnumerable<Account> accounts) => scanLibraries(accounts.ToArray());
@@ -408,9 +408,6 @@ namespace LibationWinForms
 			var newAdded = dialog.NewBooksAdded;
 
 			MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
-
-			if (totalProcessed > 0)
-				reloadGridAndUpdateBottomNumbers();
 		}
 		#endregion
 
