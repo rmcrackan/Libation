@@ -43,7 +43,6 @@ CODING GUIDELINES
 IDIOSYNCRASIES
 
 * Libation has been a labor of love for years. This passion project has also been a 'forever project' and thus a place to test out new technologies, styles, and ideas. Consistency is not guaranteed. Legacy code is a certainty.
-* WinFormsDesigner is not used directly and you will likely have no reason to bother with it. Even though all win forms _functionality_ has been re-implemented in .netcore, last I checked there were still a small number of edge cases not yet implemented in the .netcore based _designer_. WinFormsDesigner is .NET Framework which supports all old designer features.
 
 
 BEING NOTIFIED OF CHANGES
