@@ -155,7 +155,12 @@ namespace ApplicationServices
 		#endregion
 
 		#region Update book details
-	
+		/// <summary>
+		/// Occurs when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/>
+		/// changed values are successfully persisted.
+		/// </summary>
+		public static event EventHandler<string> BookUserDefinedItemCommitted;
+
 		public static int UpdateUserDefinedItem(Book book)
 		{
 			try
@@ -166,7 +171,10 @@ namespace ApplicationServices
 				context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				var qtyChanges = context.SaveChanges();
 				if (qtyChanges > 0)
+				{
 					SearchEngineCommands.UpdateLiberatedStatus(book);
+					BookUserDefinedItemCommitted?.Invoke(null, book.AudibleProductId);
+				}
 
 				return qtyChanges;
 			}

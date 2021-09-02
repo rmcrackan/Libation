@@ -1,25 +1,9 @@
 -- begin VERSIONING ---------------------------------------------------------------------------------------------------------------------
 https://github.com/rmcrackan/Libation/releases
 
-v3.1.8 : Experimental: add Australia to locale options
-v3.1.7 : Improved logging
-v3.1.6 : Bugfix: some series indexes/sequences formats cause library not to import
-v3.1.5 : Bugfix: some series indexes/sequences could cause library not to import
-v3.1.4 : Bugfix: IsAuthorNarrated was returning no books
-v3.1.3 : fix weirdness with build number
-v3.1.2 : minor bug fixes
+pre-github versions:
 v3.1.1 : Check if upgrade available on github
 v3.1.0 : FIRST PUBLIC RELEASE
-v3.1-beta.11 : Improved configuration and settings file management. Configurable logging
-v3.1-beta.10 : New feature: clicking Liberate button on a liberated item navigates to that audio file
-v3.1-beta.9 : New feature: liberate individual book
-v3.1-beta.8 : Bugfix: decrypt file conflict
-v3.1-beta.7 : Bugfix: decrypt book with no author
-v3.1-beta.6 : Improved logging
-v3.1-beta.5 : Improved importing
-v3.1-beta.4 : Added beta-specific logging
-v3.1-beta.3 : fixed known performance issue: Full-screen grid is slow to respond loading when books aren't liberated
-v3.1-beta.2 : fixed known performance issue: Tag add/edit
 v3.1-beta.1 : RELEASE TO BETA
 v3.0.3 : Switch to SQLite. No longer relies on LocalDB, which must be installed separately
 v3.0.2 : Final using LocalDB
@@ -29,29 +13,6 @@ v2 : new library page scraping. still chrome cookies. all decryption is handled 
 v1 : old library ajax scraping. wish list scraping. chrome cookies. directly call local inAudible. .net framework
 -- end VERSIONING ---------------------------------------------------------------------------------------------------------------------
 
--- begin HOW TO PUBLISH ---------------------------------------------------------------------------------------------------------------------
-OPTION 1: UI
-rt-clk project project > Publish...
-click Publish
-
-OPTION 2: cmd line
-change dir to folder containing project
-  cd C:\[full...path]\Libation\LibationWinForms
-this will use the parameters specified in csproj
-dotnet publish -c Release
-
-OPTION 3: cmd line, custom
-open csproj
-remove: PublishTrimmed, PublishReadyToRun, RuntimeIdentifier
-run customized publish. examples:
-publish all platforms
-  dotnet publish -c Release
-publish win64 platform only
-  dotnet publish -r win-x64 -c Release
-publish win64 platform, single-file
-  dotnet publish -r win-x64 -c Release
--- end HOW TO PUBLISH ---------------------------------------------------------------------------------------------------------------------
-
 -- begin IMAGES/ICONS ---------------------------------------------------------------------------------------------------------------------
 edit tags icon images from:
   icons8.com
@@ -60,32 +21,9 @@ edit tags icon images from:
 'edit' icon: https://www.iconfinder.com/icons/383147/edit_icon
 -- end IMAGES/ICONS ---------------------------------------------------------------------------------------------------------------------
 
--- begin AUDIBLE DETAILS ---------------------------------------------------------------------------------------------------------------------
-alternate book id (eg BK_RAND_006061) is called 'sku' , 'sku_lite' , 'prod_id' , 'product_id' in different parts of the site
--- end AUDIBLE DETAILS ---------------------------------------------------------------------------------------------------------------------
-
 -- begin SOLUTION LAYOUT ---------------------------------------------------------------------------------------------------------------------
 do NOT combine jsons for
 - audible-scraped persistence: library, book details
 - libation-generated persistence: FileLocations.json
 - user-defined persistence: BookTags.json
 -- end SOLUTION LAYOUT ---------------------------------------------------------------------------------------------------------------------
-
--- begin EF CORE ---------------------------------------------------------------------------------------------------------------------
-transaction notes
------------------
-// https://msdn.microsoft.com/en-us/data/dn456843.aspx
-// Rollback is called by transaction Dispose(). No need to call it explicitly
-  using var dbContext = new LibationContext();
-  using var dbContextTransaction = dbContext.Database.BeginTransaction();
-  refreshAction(dbContext, productItems);
-  dbContext.SaveChanges();
-  dbContextTransaction.Commit();
-
-aggregate root is transactional boundary
-  // //context.Database.CurrentTransaction
-  //var dbTransaction = Microsoft.EntityFrameworkCore.Storage.DbContextTransactionExtensions.GetDbTransaction(context.Database.CurrentTransaction);
-  // // test with and without : using TransactionScope scope = new TransactionScope();
-  //System.Transactions.Transaction.Current.TransactionCompleted += (sender, e) => { };
-  // also : https://docs.microsoft.com/en-us/dotnet/api/system.transactions.transaction.enlistvolatile
--- end EF CORE ---------------------------------------------------------------------------------------------------------------------

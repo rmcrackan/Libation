@@ -32,7 +32,7 @@ namespace LibationWinForms
 			// independent UI updates
 			this.Load += (_, __) => RestoreSizeAndLocation();
 			this.Load += (_, __) => RefreshImportMenu();
-			UserDefinedItem.ItemChanged += setBackupCounts;
+			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
 
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));

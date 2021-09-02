@@ -1,45 +1,42 @@
-Logging/Debugging (EF CORE)
-===========================
-Once you configure logging on a DbContext instance it will be enabled on all instances of that DbContext type
-    using var context = new MyContext();
-	context.ConfigureLogging(s => System.Diagnostics.Debug.WriteLine(s)); // write to Visual Studio "Output" tab
-    //context.ConfigureLogging(s => Console.WriteLine(s));
-see comments at top of file:
-    Dinah.EntityFrameworkCore\DbContextLoggingExtensions.cs
-
-LocalDb
-=======
-only works if LocalDb is separately installed on host box
-SSMS db connection: (LocalDb)\MSSQLLocalDB
-eg: Server=(localdb)\mssqllocaldb;Database=DataLayer.LibationContext;Integrated Security=true;
-LocalDb database files live at:
-  C:\Users\[user]\DataLayer.LibationContext.mdf
-  C:\Users\[user]\DataLayer.LibationContext_log.ldf
-
-Migrations
-==========
-
-Visual Studio, EF Core
-----------------------
+Migrations, quick
+=================
 View > Other Windows > Package Manager Console
 Default project: DataLayer
 Startup project: DataLayer
 since we have mult contexts, must use -context:
-        Add-Migration MyComment -context LibationContext
-		Update-Database -context LibationContext
+    Add-Migration MyComment -context LibationContext
+    Update-Database -context LibationContext
 Startup project: reset to prev. eg: LibationLauncher
 
 
-ERROR
-=====
-Add-Migration : The term 'Add-Migration' is not recognized as the name of a cmdlet, function, script file, or operable program
-
-SOLUTION
---------
-add nuget pkg: Microsoft.EntityFrameworkCore.Tools
+Migrations, detailed
+====================
+if only 1 context present, can omit -context arg:
+    Add-Migration MyComment
+    Update-Database
 
 
-SQLite
-======
-SQLite does not support all migrations (schema changes) due to limitations in SQLite
-delete db before running Update-Database?
+Migrations, errors
+=================
+if add-migration xyz throws and error, don't take the error msg at face value. try again with add-migration xyz -verbose
+
+ERROR:    Add-Migration : The term 'Add-Migration' is not recognized as the name of a cmdlet, function, script file, or operable program
+SOLUTION: add nuget pkg: Microsoft.EntityFrameworkCore.Tools
+
+
+SqLite config
+=============
+relative:
+    optionsBuilder.UseSqlite("Data Source=blogging.db");
+absolute  (use fwd slashes):
+    optionsBuilder.UseSqlite("Data Source=C:/foo/bar/blogging.db");
+
+
+Logging/Debugging (EF CORE)
+===========================
+Once you configure logging on a DbContext instance it will be enabled on all instances of that DbContext type
+    using var context = new MyContext();
+    context.ConfigureLogging(s => System.Diagnostics.Debug.WriteLine(s)); // write to Visual Studio "Output" tab
+    //context.ConfigureLogging(s => Console.WriteLine(s));
+see comments at top of file:
+    Dinah.EntityFrameworkCore\DbContextLoggingExtensions.cs

@@ -136,6 +136,7 @@ namespace DataLayer
         #endregion
         /// <summary>
         /// Occurs when <see cref="Tags"/>, <see cref="BookStatus"/>, or <see cref="PdfStatus"/> values change.
+        /// This signals the change of the in-memory value; it does not ensure that the new value has been persisted.
         /// </summary>
         public static event EventHandler<string> ItemChanged;
         public override string ToString() => $"{Book} {Rating} {Tags}";
