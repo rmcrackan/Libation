@@ -34,7 +34,7 @@ namespace DtoImporterService
 			//
 			// CURRENT SOLUTION: don't re-insert
 
-			var currentLibraryProductIds = DbContext.Library.Select(l => l.Book.AudibleProductId).ToList();
+			var currentLibraryProductIds = DbContext.LibraryBooks.Select(l => l.Book.AudibleProductId).ToList();
 			var newItems = importItems.Where(dto => !currentLibraryProductIds.Contains(dto.DtoItem.ProductId)).ToList();
 
 			foreach (var newItem in newItems)
@@ -43,11 +43,11 @@ namespace DtoImporterService
 					DbContext.Books.Local.Single(b => b.AudibleProductId == newItem.DtoItem.ProductId),
 					newItem.DtoItem.DateAdded,
 					newItem.AccountId);
-				DbContext.Library.Add(libraryBook);
+				DbContext.LibraryBooks.Add(libraryBook);
 			}
 
 			// needed for v3 => v4 upgrade
-			var toUpdate = DbContext.Library.Where(l => l.Account == null);
+			var toUpdate = DbContext.LibraryBooks.Where(l => l.Account == null);
 			foreach (var u in toUpdate)
 			{
 				var item = importItems.FirstOrDefault(ii => ii.DtoItem.ProductId == u.Book.AudibleProductId);

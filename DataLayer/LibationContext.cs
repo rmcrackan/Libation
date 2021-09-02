@@ -19,7 +19,7 @@ namespace DataLayer
         //     // overwrite collection
         //     Entry(product).Collection(x => x.Narrators).Load();
         //     product.Narrators = narrators;
-        public DbSet<LibraryBook> Library { get; private set; }
+        public DbSet<LibraryBook> LibraryBooks { get; private set; }
         public DbSet<Book> Books { get; private set; }
         public DbSet<Contributor> Contributors { get; private set; }
         public DbSet<Series> Series { get; private set; }

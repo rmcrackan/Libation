@@ -17,14 +17,14 @@ namespace DataLayer
 
 		public static List<LibraryBook> GetLibrary_Flat_NoTracking(this LibationContext context)
             => context
-                .Library
+                .LibraryBooks
                 .AsNoTrackingWithIdentityResolution()
                 .GetLibrary()
                 .ToList();
 
         public static LibraryBook GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId)
             => context
-                .Library
+                .LibraryBooks
                 .AsNoTrackingWithIdentityResolution()
                 .GetLibraryBook(productId);
 
