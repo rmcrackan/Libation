@@ -205,7 +205,7 @@ namespace LibationWinForms
 
 		private void setBookBackupCounts(LibraryCommands.LibraryStats libraryStats)
 		{
-			var backupsCountsLbl_Format = "BACKUPS: No progress: {0}  Encrypted: {1}  Fully backed up: {2}";
+			var backupsCountsLbl_Format = "BACKUPS: Not liberated: {0}  In process: {1}  Fully backed up: {2}";
 
 			// enable/disable export
 			var hasResults = 0 < (libraryStats.booksFullyBackedUp + libraryStats.booksDownloadedOnly + libraryStats.booksNoProgress + libraryStats.booksError);
