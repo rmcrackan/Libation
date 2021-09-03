@@ -67,7 +67,7 @@ namespace ApplicationServices
 
 		static System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 		record timeLogEntry(string msg, long totalElapsed, long delta);
-		static List<timeLogEntry> __log { get; } = new List<timeLogEntry> { new("begin", 0, 0) };
+		static List<timeLogEntry> __log { get; } = new List<timeLogEntry>();
 		static void logTime(string s)
 		{
 			var totalElapsed = sw.ElapsedMilliseconds;
@@ -81,7 +81,9 @@ namespace ApplicationServices
 		#region FULL LIBRARY scan and import
 		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
 		{
-			sw.Start();
+			__log.Clear();
+			__log.Add(new("begin", 0, 0));
+			sw.Restart();
 
 			if (accounts is null || accounts.Length == 0)
 				return (0, 0);

@@ -9,8 +9,6 @@ namespace DataLayer
         public Book Book { get; private set; }
 
         public DateTime DateAdded { get; private set; }
-
-        // immutable-ish. should be immutable. mutability is necessary for v3 => v4 upgrades
         public string Account { get; private set; }
 
         private LibraryBook() { }
@@ -23,10 +21,6 @@ namespace DataLayer
             DateAdded = dateAdded;
             Account = account;
         }
-
-        // needed for v3 => v4 upgrade
-        public void UpdateAccount(string account)
-            => Account ??= account;
 
         public override string ToString() => $"{DateAdded:d} {Book}";
 	}

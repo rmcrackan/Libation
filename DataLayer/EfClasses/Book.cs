@@ -30,8 +30,6 @@ namespace DataLayer
         public string Description { get; private set; }
         public int LengthInMinutes { get; private set; }
         public ContentType ContentType { get; private set; }
-
-        // immutable-ish. should be immutable. mutability is necessary for v3 => v4 upgrades
         public string Locale { get; private set; }
 
         // mutable
@@ -78,7 +76,8 @@ namespace DataLayer
             ContentType contentType,
 			IEnumerable<Contributor> authors,
 			IEnumerable<Contributor> narrators,
-			Category category, string localeName)
+			Category category,
+            string localeName)
         {
             // validate
             ArgumentValidator.EnsureNotNull(audibleProductId, nameof(audibleProductId));
@@ -259,10 +258,6 @@ namespace DataLayer
 
 			Category = category;
         }
-
-        // needed for v3 => v4 upgrade
-        public void UpdateLocale(string localeName)
-            => Locale ??= localeName;
 
         public override string ToString() => $"[{AudibleProductId}] {Title}";
 	}
