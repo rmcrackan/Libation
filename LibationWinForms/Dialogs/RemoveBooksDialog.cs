@@ -30,7 +30,8 @@ namespace LibationWinForms.Dialogs
 			InitializeComponent();
 			_labelFormat = label1.Text;
 
-			_dataGridView.CellContentClick += (s, e) => _dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+			_dataGridView.CellContentClick += (_, _) => _dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+			_dataGridView.CellValueChanged += (_, _) => UpdateSelection();
 			_dataGridView.BindingContextChanged += _dataGridView_BindingContextChanged;
 
 			var orderedGridEntries = _libraryBooks
