@@ -57,22 +57,10 @@ namespace DataLayer
         public UserDefinedItem UserDefinedItem { get; private set; }
 
         // UserDefinedItem convenience properties
-        public bool Audio_Exists
-        {
-            get
-            {
-                var status = UserDefinedItem?.BookStatus;
-                return status.HasValue && status.Value != LiberatedStatus.NotLiberated;
-            }
-        }
-        public bool PDF_Exists
-        {
-            get
-            {
-                var status = UserDefinedItem?.PdfStatus;
-                return (status.HasValue && status.Value == LiberatedStatus.Liberated);
-            }
-        }
+        /// <summary>True if IsLiberated or Error. False if NotLiberated</summary>
+        public bool Audio_Exists => UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated;
+        /// <summary>True if exists and IsLiberated. Else false</summary>
+        public bool PDF_Exists => UserDefinedItem.PdfStatus == LiberatedStatus.Liberated;
 
         // is owned, not optional 1:1
         /// <summary>The product's aggregate community rating</summary>

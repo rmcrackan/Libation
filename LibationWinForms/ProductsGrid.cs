@@ -80,7 +80,10 @@ namespace LibationWinForms
 			{
 				var filePath = FileManager.AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
 				if (!Go.To.File(filePath))
-					MessageBox.Show($"File not found:\r\n{filePath}");
+				{
+					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
+					MessageBox.Show($"File not found" + suffix);
+				}
 				return;
 			}
 

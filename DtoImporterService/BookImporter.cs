@@ -39,6 +39,24 @@ namespace DtoImporterService
 				.Except(localProductIds)
 				.ToList();
 
+			#region // explanation of DbContext.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();
+			/*
+			articles suggest loading to Local with
+			    context.Books.Load();
+			we want Books and associated fields
+			    context.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();
+			this is emulating Load() but with also getting associated fields
+
+			from: Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+			// Summary:
+			//     Enumerates the query. When using Entity Framework, this causes the results of
+			//     the query to be loaded into the associated context. This is equivalent to calling
+			//     ToList and then throwing away the list (without the overhead of actually creating
+			//     the list).
+			public static void Load<TSource>([NotNullAttribute] this IQueryable<TSource> source); 
+			*/
+			#endregion
+
 			// GetBooks() eager loads Series, category, et al
 			if (remainingProductIds.Any())
 				DbContext.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();

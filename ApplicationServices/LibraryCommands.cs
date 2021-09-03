@@ -65,20 +65,39 @@ namespace ApplicationServices
             }
 		}
 
+		static System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+		record timeLogEntry(string msg, long totalElapsed, long delta);
+		static List<timeLogEntry> __log { get; } = new List<timeLogEntry> { new("begin", 0, 0) };
+		static void logTime(string s)
+		{
+			var totalElapsed = sw.ElapsedMilliseconds;
+
+			var prev = __log.Last().totalElapsed;
+			var delta = totalElapsed - prev;
+
+			__log.Add(new(s, totalElapsed, delta));
+		}
+
 		#region FULL LIBRARY scan and import
 		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
 		{
+			sw.Start();
+
 			if (accounts is null || accounts.Length == 0)
 				return (0, 0);
 
 			try
 			{
+				logTime($"pre {nameof(scanAccountsAsync)} all");
 				var importItems = await scanAccountsAsync(loginCallbackFactoryFunc, accounts);
+				logTime($"post {nameof(scanAccountsAsync)} all");
 
 				var totalCount = importItems.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
+				logTime($"pre {nameof(importIntoDbAsync)}");
 				var newCount = await importIntoDbAsync(importItems);
+				logTime($"post {nameof(importIntoDbAsync)}");
 				Log.Logger.Information($"Import: New count {newCount}");
 
 				return (totalCount, newCount);
@@ -105,6 +124,14 @@ namespace ApplicationServices
 			{
 				Log.Logger.Error(ex, "Error importing library");
 				throw;
+			}
+			finally
+			{
+				sw.Stop();
+				var logOutput
+					= $"{nameof(timeLogEntry.msg)}\t{nameof(timeLogEntry.totalElapsed)}\t{nameof(timeLogEntry.delta)}\r\n"
+					+ __log.Select(t => $"{t.msg}\t{t.totalElapsed}\t{t.delta}").Aggregate((a, b) => $"{a}\r\n{b}");
+				var putBreakPointHere = logOutput;
 			}
 		}
 
@@ -137,19 +164,28 @@ namespace ApplicationServices
 				Account = account?.MaskedLogEntry ?? "[null]"
 			});
 
+			logTime($"pre scanAccountAsync {account.AccountName}");
+
 			var dtoItems = await AudibleApiActions.GetLibraryValidatedAsync(api, LibraryResponseGroups);
+
+			logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
+
 			return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = account.Locale?.Name }).ToList();
 		}
 
 		private static async Task<int> importIntoDbAsync(List<ImportItem> importItems)
 		{
+			logTime("importIntoDbAsync -- pre db");
 			using var context = DbContexts.GetContext();
-			var libraryImporter = new LibraryImporter(context);
+			var libraryImporter = new LibraryBookImporter(context);
 			var newCount = await Task.Run(() => libraryImporter.Import(importItems));
+			logTime("importIntoDbAsync -- post Import()");
 			var qtyChanges = context.SaveChanges();
+			logTime("importIntoDbAsync -- post SaveChanges");
 
 			if (qtyChanges > 0)
 				await Task.Run(() => finalizeLibrarySizeChange());
+			logTime("importIntoDbAsync -- post finalizeLibrarySizeChange");
 
 			return newCount;
 		}
@@ -215,15 +251,14 @@ namespace ApplicationServices
 		}
 		#endregion
 
+		// must be here instead of in db layer due to AaxcExists
 		public static LiberatedStatus Liberated_Status(Book book)
-			=> book.Audio_Exists ? LiberatedStatus.Liberated
+			=> book.Audio_Exists ? book.UserDefinedItem.BookStatus
 			: FileManager.AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
 			: LiberatedStatus.NotLiberated;
 
-		public static LiberatedStatus? Pdf_Status(Book book)
-			=> !book.HasPdf ? null
-			: book.PDF_Exists ? LiberatedStatus.Liberated
-			: LiberatedStatus.NotLiberated;
+		// exists here for feature predictability. It makes sense for this to be where Liberated_Status is
+		public static LiberatedStatus? Pdf_Status(Book book) => book.UserDefinedItem.PdfStatus;
 
 		// below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
 

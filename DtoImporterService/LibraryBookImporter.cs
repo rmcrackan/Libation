@@ -7,9 +7,9 @@ using InternalUtilities;
 
 namespace DtoImporterService
 {
-	public class LibraryImporter : ItemsImporterBase
+	public class LibraryBookImporter : ItemsImporterBase
 	{
-		public LibraryImporter(LibationContext context) : base(context) { }
+		public LibraryBookImporter(LibationContext context) : base(context) { }
 
 		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new LibraryValidator().Validate(importItems.Select(i => i.DtoItem));
 

@@ -138,7 +138,7 @@ namespace LibationWinForms
 			isProcessingGridSelect = prev_isProcessingGridSelect;
 
 			// UI init complete. now we can apply filter
-			doFilter(lastGoodFilter);
+			this.UIThread(() => doFilter(lastGoodFilter));
 
 			setBackupCounts(null, null);
 		}
