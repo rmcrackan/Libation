@@ -8,6 +8,7 @@ using Dinah.Core;
 using DtoImporterService;
 using InternalUtilities;
 using Serilog;
+using static DtoImporterService.PerfLogger;
 
 namespace ApplicationServices
 {
@@ -16,12 +17,12 @@ namespace ApplicationServices
 		private static LibraryOptions.ResponseGroupOptions LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
 
 		public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, ILoginCallback> loginCallbackFactoryFunc, List<LibraryBook> existingLibrary, params Account[] accounts)
-        {
+		{
 			//These are the minimum response groups required for the
 			//library scanner to pass all validation and filtering.
-			LibraryResponseGroups = 
+			LibraryResponseGroups =
 				LibraryOptions.ResponseGroupOptions.ProductAttrs |
-				LibraryOptions.ResponseGroupOptions.ProductDesc | 
+				LibraryOptions.ResponseGroupOptions.ProductDesc |
 				LibraryOptions.ResponseGroupOptions.Relationships;
 
 			if (accounts is null || accounts.Length == 0)
@@ -59,31 +60,16 @@ namespace ApplicationServices
 				Log.Logger.Error(ex, "Error importing library");
 				throw;
 			}
-            finally
-            {
+			finally
+			{
 				LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
-            }
-		}
-
-		static System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-		record timeLogEntry(string msg, long totalElapsed, long delta);
-		static List<timeLogEntry> __log { get; } = new List<timeLogEntry>();
-		static void logTime(string s)
-		{
-			var totalElapsed = sw.ElapsedMilliseconds;
-
-			var prev = __log.Last().totalElapsed;
-			var delta = totalElapsed - prev;
-
-			__log.Add(new(s, totalElapsed, delta));
+			}
 		}
 
 		#region FULL LIBRARY scan and import
 		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
 		{
-			__log.Clear();
-			__log.Add(new("begin", 0, 0));
-			sw.Restart();
+			logRestart();
 
 			if (accounts is null || accounts.Length == 0)
 				return (0, 0);
@@ -129,10 +115,7 @@ namespace ApplicationServices
 			}
 			finally
 			{
-				sw.Stop();
-				var logOutput
-					= $"{nameof(timeLogEntry.msg)}\t{nameof(timeLogEntry.totalElapsed)}\t{nameof(timeLogEntry.delta)}\r\n"
-					+ __log.Select(t => $"{t.msg}\t{t.totalElapsed}\t{t.delta}").Aggregate((a, b) => $"{a}\r\n{b}");
+				stop();
 				var putBreakPointHere = logOutput;
 			}
 		}

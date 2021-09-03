@@ -19,13 +19,13 @@ namespace DtoImporterService
 			new ContributorImporter(DbContext).Import(importItems);
 			new SeriesImporter(DbContext).Import(importItems);
 			new CategoryImporter(DbContext).Import(importItems);
-
+			
 			// get distinct
-			var productIds = importItems.Select(i => i.DtoItem.ProductId).ToList();
-
+			var productIds = importItems.Select(i => i.DtoItem.ProductId).Distinct().ToList();
+			
 			// load db existing => .Local
 			loadLocal_books(productIds);
-
+			
 			// upsert
 			var qtyNew = upsertBooks(importItems);
 			return qtyNew;
@@ -33,9 +33,9 @@ namespace DtoImporterService
 
 		private void loadLocal_books(List<string> productIds)
 		{
-			var localProductIds = DbContext.Books.Local.Select(b => b.AudibleProductId);
+			// if this context has already loaded books, don't need to reload them. vestige from when context was long-lived. in practice, we now typically use a fresh context. this is quick though so no harm in leaving it.
+			var localProductIds = DbContext.Books.Local.Select(b => b.AudibleProductId).ToList();
 			var remainingProductIds = productIds
-				.Distinct()
 				.Except(localProductIds)
 				.ToList();
 

@@ -35,7 +35,7 @@ namespace DtoImporterService
 
 		private void loadLocal_categories(List<string> categoryIds)
 		{
-			var localIds = DbContext.Categories.Local.Select(c => c.AudibleCategoryId);
+			var localIds = DbContext.Categories.Local.Select(c => c.AudibleCategoryId).ToList();
 			var remainingCategoryIds = categoryIds
 				.Distinct()
 				.Except(localIds)
