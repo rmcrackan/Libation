@@ -47,57 +47,61 @@ namespace DtoImporterService
 
 		private void loadLocal_contributors(List<string> contributorNames)
 		{
+			// must include default/empty/missing
+			contributorNames.Add(Contributor.GetEmpty().Name);
+
 			//// BAD: very inefficient
 			// var x = context.Contributors.Local.Where(c => !contribNames.Contains(c.Name));
 
 			// GOOD: Except() is efficient. Due to hashing, it's close to O(n)
-			var localNames = DbContext.Contributors.Local.Select(c => c.Name);
+			var localNames = DbContext.Contributors.Local.Select(c => c.Name).ToList();
 			var remainingContribNames = contributorNames
 				.Distinct()
 				.Except(localNames)
 				.ToList();
 
 			// load existing => local
-			// remember to include default/empty/missing
-			var emptyName = Contributor.GetEmpty().Name;
 			if (remainingContribNames.Any())
-				DbContext.Contributors.Where(c => remainingContribNames.Contains(c.Name) || c.Name == emptyName).ToList();
+				DbContext.Contributors.Where(c => remainingContribNames.Contains(c.Name)).ToList();
 		}
 
 		// only use after loading contributors => local
 		private int upsertPeople(List<Person> people)
 		{
-			var qtyNew = 0;
+			var localNames = DbContext.Contributors.Local.Select(c => c.Name).ToList();
+			var newPeople = people
+				.Select(p => p.Name)
+				.Distinct()
+				.Except(localNames)
+				.ToList();
 
-			foreach (var p in people)
+			var groupby = people.GroupBy(
+				p => p.Name,
+				p => p,
+				(key, g) => new { Name = key, People = g.ToList() }
+				);
+			foreach (var name in newPeople)
 			{
-				// Should be 'Single' not 'First'. A user had a duplicate get in somehow though so I'm now using 'First' defensively
-				var person = DbContext.Contributors.Local.FirstOrDefault(c => c.Name == p.Name);
-				if (person == null)
-				{
-					person = DbContext.Contributors.Add(new Contributor(p.Name, p.Asin)).Entity;
-					qtyNew++;
-				}
+				var p = groupby.Single(g => g.Name == name).People.First();
+				DbContext.Contributors.Add(new Contributor(p.Name, p.Asin));
 			}
 
-			return qtyNew;
+			return newPeople.Count;
 		}
 
 		// only use after loading contributors => local
 		private int upsertPublishers(List<string> publishers)
 		{
-			var qtyNew = 0;
+			var localNames = DbContext.Contributors.Local.Select(c => c.Name).ToList();
+			var newPublishers = publishers
+				.Distinct()
+				.Except(localNames)
+				.ToList();
 
-			foreach (var publisherName in publishers)
-			{
-				if (DbContext.Contributors.Local.SingleOrDefault(c => c.Name == publisherName) == null)
-				{
-					DbContext.Contributors.Add(new Contributor(publisherName));
-					qtyNew++;
-				}
-			}
+			foreach (var pub in newPublishers)
+				DbContext.Contributors.Add(new Contributor(pub));
 
-			return qtyNew;
+			return newPublishers.Count;
 		}
 	}
 }
