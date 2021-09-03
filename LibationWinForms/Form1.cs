@@ -151,7 +151,7 @@ namespace LibationWinForms
 			{
 				if (currProductsGrid != null)
 				{
-					gridPanel.Controls.Remove(currProductsGrid);
+					gridPanel.UIThread(() => gridPanel.Controls.Remove(currProductsGrid));
 					currProductsGrid.VisibleCountChanged -= setVisibleCount;
 					currProductsGrid.Dispose();
 				}
