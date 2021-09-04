@@ -1,8 +1,8 @@
-﻿using DataLayer;
+﻿using System;
+using DataLayer;
 using Dinah.Core.Net.Http;
-using Dinah.Core.Windows.Forms;
+using Dinah.Core.Threading;
 using LibationWinForms.BookLiberation.BaseForms;
-using System;
 
 namespace LibationWinForms.BookLiberation
 {
@@ -47,7 +47,7 @@ namespace LibationWinForms.BookLiberation
 			if (downloadProgress.ProgressPercentage == 0)
 				updateRemainingTime(0);
 			else
-				progressBar1.UIThread(() => progressBar1.Value = (int)downloadProgress.ProgressPercentage);
+				progressBar1.UIThreadAsync(() => progressBar1.Value = (int)downloadProgress.ProgressPercentage);
 		}
 
 		public override void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining)
@@ -61,7 +61,7 @@ namespace LibationWinForms.BookLiberation
 
 		public override void OnTitleDiscovered(object sender, string title)
 		{
-			this.UIThread(() => this.Text = DecodeActionName + " " + title);
+			this.UIThreadAsync(() => this.Text = DecodeActionName + " " + title);
 			this.title = title;
 			updateBookInfo();
 		}
@@ -79,14 +79,14 @@ namespace LibationWinForms.BookLiberation
 		}
 
 		public override void OnCoverImageDiscovered(object sender, byte[] coverArt) 
-			=> pictureBox1.UIThread(() => pictureBox1.Image = Dinah.Core.Drawing.ImageReader.ToImage(coverArt));
+			=> pictureBox1.UIThreadAsync(() => pictureBox1.Image = Dinah.Core.Drawing.ImageReader.ToImage(coverArt));
 		#endregion
 
 		// thread-safe UI updates
 		private void updateBookInfo()
-			=> bookInfoLbl.UIThread(() => bookInfoLbl.Text = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}");
+			=> bookInfoLbl.UIThreadAsync(() => bookInfoLbl.Text = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}");
 
 		private void updateRemainingTime(int remaining)
-			=> remainingTimeLbl.UIThread(() => remainingTimeLbl.Text = $"ETA:\r\n{remaining} sec");
+			=> remainingTimeLbl.UIThreadAsync(() => remainingTimeLbl.Text = $"ETA:\r\n{remaining} sec");
 	}
 }

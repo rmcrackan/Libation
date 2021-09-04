@@ -1,7 +1,6 @@
-﻿using Dinah.Core.Windows.Forms;
-using System;
-using System.Linq;
+﻿using System;
 using System.Windows.Forms;
+using Dinah.Core.Threading;
 
 namespace LibationWinForms.BookLiberation
 {
@@ -19,7 +18,7 @@ namespace LibationWinForms.BookLiberation
 		public void WriteLine(string text)
 		{
 			if (!IsDisposed)
-				logTb.UIThread(() => logTb.AppendText($"{DateTime.Now} {text}{Environment.NewLine}"));
+				logTb.UIThreadAsync(() => logTb.AppendText($"{DateTime.Now} {text}{Environment.NewLine}"));
 		}
 
 		public void FinalizeUI()

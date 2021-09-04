@@ -1,9 +1,8 @@
-﻿using Dinah.Core.Net.Http;
-using Dinah.Core.Windows.Forms;
-using LibationWinForms.BookLiberation.BaseForms;
-using System;
-using System.Linq;
+﻿using System;
 using System.Windows.Forms;
+using Dinah.Core.Net.Http;
+using Dinah.Core.Threading;
+using LibationWinForms.BookLiberation.BaseForms;
 
 namespace LibationWinForms.BookLiberation
 {
@@ -21,7 +20,7 @@ namespace LibationWinForms.BookLiberation
 		#region IStreamable event handler overrides
 		public override void OnStreamingBegin(object sender, string beginString)
 		{
-			filenameLbl.UIThread(() => filenameLbl.Text = beginString);
+			filenameLbl.UIThreadAsync(() => filenameLbl.Text = beginString);
 		}
 		public override void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress)
 		{
@@ -29,11 +28,11 @@ namespace LibationWinForms.BookLiberation
 			if (!downloadProgress.TotalBytesToReceive.HasValue || downloadProgress.TotalBytesToReceive.Value <= 0)
 				return;
 
-			progressLbl.UIThread(() => progressLbl.Text = $"{downloadProgress.BytesReceived:#,##0} of {downloadProgress.TotalBytesToReceive.Value:#,##0}");
+			progressLbl.UIThreadAsync(() => progressLbl.Text = $"{downloadProgress.BytesReceived:#,##0} of {downloadProgress.TotalBytesToReceive.Value:#,##0}");
 
 			var d = double.Parse(downloadProgress.BytesReceived.ToString()) / double.Parse(downloadProgress.TotalBytesToReceive.Value.ToString()) * 100.0;
 			var i = int.Parse(Math.Truncate(d).ToString());
-			progressBar1.UIThread(() => progressBar1.Value = i);
+			progressBar1.UIThreadAsync(() => progressBar1.Value = i);
 
 			lastDownloadProgress = DateTime.Now;
 		}
@@ -50,14 +49,14 @@ namespace LibationWinForms.BookLiberation
 		private void timer_Tick(object sender, EventArgs e)
 		{
 			// if no update in the last 30 seconds, display frozen label
-			lastUpdateLbl.UIThread(() => lastUpdateLbl.Visible = lastDownloadProgress.AddSeconds(30) < DateTime.Now);
+			lastUpdateLbl.UIThreadAsync(() => lastUpdateLbl.Visible = lastDownloadProgress.AddSeconds(30) < DateTime.Now);
 			if (lastUpdateLbl.Visible)
 			{
 				var diff = DateTime.Now - lastDownloadProgress;
 				var min = (int)diff.TotalMinutes;
 				var minText = min > 0 ? $"{min}min " : "";
 
-				lastUpdateLbl.UIThread(() => lastUpdateLbl.Text = $"Frozen? Last download activity: {minText}{diff.Seconds}sec ago");
+				lastUpdateLbl.UIThreadAsync(() => lastUpdateLbl.Text = $"Frozen? Last download activity: {minText}{diff.Seconds}sec ago");
 			}
 		}
 		private void DownloadForm_FormClosing(object sender, FormClosingEventArgs e) => timer.Stop();

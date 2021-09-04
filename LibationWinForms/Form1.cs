@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using ApplicationServices;
-using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Drawing;
-using Dinah.Core.Windows.Forms;
+using Dinah.Core.Threading;
 using FileManager;
 using InternalUtilities;
 using LibationWinForms.Dialogs;
@@ -134,11 +133,11 @@ namespace LibationWinForms
 			// suppressed filter while init'ing UI
 			var prev_isProcessingGridSelect = isProcessingGridSelect;
 			isProcessingGridSelect = true;
-			this.UIThread(() => setGrid());
+			this.UIThreadSync(() => setGrid());
 			isProcessingGridSelect = prev_isProcessingGridSelect;
 
 			// UI init complete. now we can apply filter
-			this.UIThread(() => doFilter(lastGoodFilter));
+			this.UIThreadAsync(() => doFilter(lastGoodFilter));
 
 			setBackupCounts(null, null);
 		}
@@ -158,7 +157,7 @@ namespace LibationWinForms
 
 				currProductsGrid = new ProductsGrid { Dock = DockStyle.Fill };
 				currProductsGrid.VisibleCountChanged += setVisibleCount;
-				gridPanel.UIThread(() => gridPanel.Controls.Add(currProductsGrid));
+				gridPanel.UIThreadSync(() => gridPanel.Controls.Add(currProductsGrid));
 				currProductsGrid.Display();
 			}
 			ResumeLayout();
@@ -229,9 +228,9 @@ namespace LibationWinForms
 				: "All books have been liberated";
 
 			// update UI
-			statusStrip1.UIThread(() => backupsCountsLbl.Text = statusStripText);
-			menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Enabled = pending > 0);
-			menuStrip1.UIThread(() => beginBookBackupsToolStripMenuItem.Text = string.Format(beginBookBackupsToolStripMenuItem_format, menuItemText));
+			statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = statusStripText);
+			menuStrip1.UIThreadAsync(() => beginBookBackupsToolStripMenuItem.Enabled = pending > 0);
+			menuStrip1.UIThreadAsync(() => beginBookBackupsToolStripMenuItem.Text = string.Format(beginBookBackupsToolStripMenuItem_format, menuItemText));
 		}
 		private void setPdfBackupCounts(LibraryCommands.LibraryStats libraryStats)
 		{
@@ -251,9 +250,9 @@ namespace LibationWinForms
 				: "All PDFs have been downloaded";
 
 			// update UI
-			statusStrip1.UIThread(() => pdfsCountsLbl.Text = statusStripText);
-			menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Enabled = libraryStats.pdfsNotDownloaded > 0);
-			menuStrip1.UIThread(() => beginPdfBackupsToolStripMenuItem.Text = string.Format(beginPdfBackupsToolStripMenuItem_format, menuItemText));
+			statusStrip1.UIThreadAsync(() => pdfsCountsLbl.Text = statusStripText);
+			menuStrip1.UIThreadAsync(() => beginPdfBackupsToolStripMenuItem.Enabled = libraryStats.pdfsNotDownloaded > 0);
+			menuStrip1.UIThreadAsync(() => beginPdfBackupsToolStripMenuItem.Text = string.Format(beginPdfBackupsToolStripMenuItem_format, menuItemText));
 		}
 		#endregion
 

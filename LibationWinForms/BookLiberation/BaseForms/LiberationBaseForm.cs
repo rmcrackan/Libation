@@ -1,9 +1,9 @@
-﻿using DataLayer;
+﻿using System;
+using System.Windows.Forms;
+using DataLayer;
 using Dinah.Core.Net.Http;
 using Dinah.Core.Threading;
 using FileLiberator;
-using System;
-using System.Windows.Forms;
 
 namespace LibationWinForms.BookLiberation.BaseForms
 {
@@ -122,8 +122,8 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		/// <summary>
 		/// If the form was shown using Show (not ShowDialog), Form.Close calls Form.Dispose
 		/// </summary>
-		private void OnStreamingCompletedClose(object sender, string completedString) => this.UIThread(Close);
-		private void OnCompletedDispose(object sender, LibraryBook e) => this.UIThread(Dispose);
+		private void OnStreamingCompletedClose(object sender, string completedString) => this.UIThreadAsync(Close);
+		private void OnCompletedDispose(object sender, LibraryBook e) => this.UIThreadAsync(Dispose);
 
 		/// <summary>
 		/// If StreamingBegin is fired from a worker thread, the window will be created on that
@@ -132,7 +132,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		/// could cause it to freeze. Form.BeginInvoke won't work until the form is created 
 		/// (ie. shown) because Control doesn't get a window handle until it is Shown.
 		/// </summary>
-		private void OnStreamingBeginShow(object sender, string beginString) => Invoker.UIThread(Show);
+		private void OnStreamingBeginShow(object sender, string beginString) => Invoker.UIThreadAsync(Show);
 		
 		#endregion
 
