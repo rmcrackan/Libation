@@ -29,8 +29,9 @@ namespace LibationWinForms
 				return;
 
 			// independent UI updates
-			this.Load += restoreSizeAndLocation;
+			this.Load += (_, _) => this.RestoreSizeAndLocation(Configuration.Instance);
 			this.Load += RefreshImportMenu;
+			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
 
@@ -51,81 +52,6 @@ namespace LibationWinForms
 
 			// also applies filter. ONLY call AFTER loading grid
 			loadInitialQuickFilterState();
-		}
-
-		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			SaveSizeAndLocation();
-		}
-
-		private void restoreSizeAndLocation(object _ = null, object __ = null)
-		{
-			var config = Configuration.Instance;
-
-			var width = config.MainFormWidth;
-			var height = config.MainFormHeight;
-
-			// too small -- something must have gone wrong. use defaults
-			if (width < 25 || height < 25)
-			{
-				width = 1023;
-				height = 578;
-			}
-
-			// Fit to the current screen size in case the screen resolution changed since the size was last persisted
-			if (width > Screen.PrimaryScreen.WorkingArea.Width)
-				width = Screen.PrimaryScreen.WorkingArea.Width;
-			if (height > Screen.PrimaryScreen.WorkingArea.Height)
-				height = Screen.PrimaryScreen.WorkingArea.Height;
-
-			var x = config.MainFormX;
-			var y = config.MainFormY;
-
-			var rect = new System.Drawing.Rectangle(x, y, width, height);
-
-			// is proposed rect on a screen?
-			if (Screen.AllScreens.Any(screen => screen.WorkingArea.Contains(rect)))
-			{
-				this.StartPosition = FormStartPosition.Manual;
-				this.DesktopBounds = rect;
-			}
-			else
-			{
-				this.StartPosition = FormStartPosition.WindowsDefaultLocation;
-				this.Size = rect.Size;
-			}
-
-			// FINAL: for Maximized: start normal state, set size and location, THEN set max state
-			this.WindowState = config.MainFormIsMaximized ? FormWindowState.Maximized : FormWindowState.Normal;
-		}
-
-		private void SaveSizeAndLocation()
-		{
-			System.Drawing.Point location;
-			System.Drawing.Size size;
-
-			// save location and size if the state is normal
-			if (this.WindowState == FormWindowState.Normal)
-			{
-				location = this.Location;
-				size = this.Size;
-			}
-			else
-			{
-				// save the RestoreBounds if the form is minimized or maximized
-				location = this.RestoreBounds.Location;
-				size = this.RestoreBounds.Size;
-			}
-
-			var config = Configuration.Instance;
-
-			config.MainFormX = location.X;
-			config.MainFormY = location.Y;
-
-			config.MainFormWidth = size.Width;
-			config.MainFormHeight = size.Height;
-
-			config.MainFormIsMaximized = this.WindowState == FormWindowState.Maximized;
 		}
 
 		private void reloadGridAndUpdateBottomNumbers(object _ = null, object __ = null)

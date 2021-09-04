@@ -46,6 +46,7 @@ namespace FileManager
 
         private PersistentDictionary persistentDictionary;
 
+        public T GetNonString<T>(string propertyName) => persistentDictionary.GetNonString<T>(propertyName);
         public object GetObject(string propertyName) => persistentDictionary.GetObject(propertyName);
         public void SetObject(string propertyName, object newValue) => persistentDictionary.SetNonString(propertyName, newValue);
 
@@ -67,39 +68,7 @@ namespace FileManager
             return attribute?.Description;
         }
 
-        public bool Exists(string propertyName) => persistentDictionary.Exists(propertyName);
-
-        #region MainForm: X, Y, Width, Height, MainFormIsMaximized
-        public int MainFormX
-        {
-            get => persistentDictionary.GetNonString<int>(nameof(MainFormX));
-            set => persistentDictionary.SetNonString(nameof(MainFormX), value);
-        }
-
-        public int MainFormY
-        {
-            get => persistentDictionary.GetNonString<int>(nameof(MainFormY));
-            set => persistentDictionary.SetNonString(nameof(MainFormY), value);
-        }
-
-        public int MainFormWidth
-        {
-            get => persistentDictionary.GetNonString<int>(nameof(MainFormWidth));
-            set => persistentDictionary.SetNonString(nameof(MainFormWidth), value);
-        }
-
-        public int MainFormHeight
-        {
-            get => persistentDictionary.GetNonString<int>(nameof(MainFormHeight));
-            set => persistentDictionary.SetNonString(nameof(MainFormHeight), value);
-        }
-
-        public bool MainFormIsMaximized
-        {
-            get => persistentDictionary.GetNonString<bool>(nameof(MainFormIsMaximized));
-            set => persistentDictionary.SetNonString(nameof(MainFormIsMaximized), value);
-        }
-        #endregion
+        public bool Exists(string propertyName) => persistentDictionary.Exists(propertyName);       
 
         [Description("Location for book storage. Includes destination of newly liberated books")]
         public string Books

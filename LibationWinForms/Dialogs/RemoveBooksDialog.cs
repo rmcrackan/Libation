@@ -1,6 +1,7 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using Dinah.Core.DataBinding;
+using FileManager;
 using InternalUtilities;
 using LibationWinForms.Login;
 using System;
@@ -28,6 +29,10 @@ namespace LibationWinForms.Dialogs
 			_accounts = accounts;
 
 			InitializeComponent();
+
+			this.Load += (_, _) => this.RestoreSizeAndLocation(Configuration.Instance);
+			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
+
 			_labelFormat = label1.Text;
 
 			_dataGridView.CellContentClick += (_, _) => _dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);

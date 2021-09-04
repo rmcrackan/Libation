@@ -51,7 +51,8 @@ namespace FileManager
         {
             var obj = GetObject(propertyName);
             if (obj is null) return default;
-            if (obj is JToken jToken) return jToken.Value<T>();
+            if (obj is JValue jValue) return jValue.Value<T>();
+            if (obj is JObject jObject)  return jObject.ToObject<T>();
             return (T)obj;
         }
 
