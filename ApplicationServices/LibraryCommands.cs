@@ -18,6 +18,8 @@ namespace ApplicationServices
 
 		public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, ILoginCallback> loginCallbackFactoryFunc, List<LibraryBook> existingLibrary, params Account[] accounts)
 		{
+			logRestart();
+
 			//These are the minimum response groups required for the
 			//library scanner to pass all validation and filtering.
 			LibraryResponseGroups =
@@ -30,8 +32,12 @@ namespace ApplicationServices
 
 			try
 			{
+				logTime($"pre {nameof(scanAccountsAsync)} all");
 				var libraryItems = await scanAccountsAsync(loginCallbackFactoryFunc, accounts);
-				Log.Logger.Information($"GetAllLibraryItems: Total count {libraryItems.Count}");
+				logTime($"post {nameof(scanAccountsAsync)} all");
+
+				var totalCount = libraryItems.Count;
+				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
 				var missingBookList = existingLibrary.Where(b => !libraryItems.Any(i => i.DtoItem.Asin == b.Book.AudibleProductId)).ToList();
 
@@ -57,12 +63,14 @@ namespace ApplicationServices
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "Error importing library");
+				Log.Logger.Error(ex, "Error scanning library");
 				throw;
 			}
 			finally
 			{
 				LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
+				stop();
+				var putBreakPointHere = logOutput;
 			}
 		}
 
