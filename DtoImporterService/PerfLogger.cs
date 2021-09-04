@@ -9,7 +9,7 @@ namespace DtoImporterService
 	public static class PerfLogger
 	{
 		private static Stopwatch sw = new Stopwatch();
-		private static List<timeLogEntry> __log { get; } = new List<timeLogEntry>();
+		private static List<timeLogEntry> __log { get; } = new List<timeLogEntry> { new("begin", 0, 0) };
 
 		public static void logTime(string s)
 		{
