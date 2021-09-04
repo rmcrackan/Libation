@@ -1,10 +1,17 @@
 ﻿using DataLayer;
+using FileManager;
 using System;
 
 namespace LibationWinForms.BookLiberation
 {
 	class AudioDecryptForm : AudioDecodeForm
 	{
+		public AudioDecryptForm()
+		{
+			this.Load += (_, _) => this.RestoreSizeAndLocation(Configuration.Instance);
+			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
+		}
+
 		#region AudioDecodeForm overrides
 		public override string DecodeActionName => "Decrypting";
 		#endregion
