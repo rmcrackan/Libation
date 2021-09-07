@@ -58,10 +58,19 @@ namespace InternalUtilities
 
 		private static async Task<List<Item>> getItemsAsync(Api api, LibraryOptions.ResponseGroupOptions responseGroups)
 		{
-			var items = await api.GetAllLibraryItemsAsync(responseGroups);
+			var items = new List<Item>();
 #if DEBUG
-//var itemsDebug = items.Select(i => i.ToJson()).Aggregate((a, b) => $"{a}\r\n\r\n{b}");
-//System.IO.File.WriteAllText("library.json", itemsDebug);
+//// this will not work for multi accounts
+//var library_json = "library.json";
+//if (System.IO.File.Exists(library_json))
+//{
+//    items = AudibleApi.Common.Converter.FromJson<List<Item>>(System.IO.File.ReadAllText(library_json));
+//}
+#endif
+			if (!items.Any())
+				items = await api.GetAllLibraryItemsAsync(responseGroups);
+#if DEBUG
+//System.IO.File.WriteAllText("library.json", AudibleApi.Common.Converter.ToJson(items));
 #endif
 
 			await manageEpisodesAsync(api, items);

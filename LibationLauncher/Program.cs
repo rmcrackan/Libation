@@ -115,13 +115,13 @@ namespace LibationLauncher
 					return;
 
 				// path did not result in valid settings
-				MessageBox.Show(
+				var continueResult = MessageBox.Show(
 					$"No valid settings were found at this location.\r\nWould you like to create a new install settings in this folder?\r\n\r\n{libationFilesDialog.SelectedDirectory}",
 					"New install?",
 					MessageBoxButtons.YesNo,
 					MessageBoxIcon.Question);
 
-				if (libationFilesDialog.ShowDialog() != DialogResult.Yes)
+				if (continueResult != DialogResult.Yes)
 				{
 					CancelInstallation();
 					return;
