@@ -14,7 +14,6 @@ namespace FileLiberator
 {
     public class ConvertToMp3 : IAudioDecodable
     {
-
         private Mp4File m4bBook;
 
 		public event EventHandler<TimeSpan> StreamingTimeRemaining;
@@ -30,7 +29,22 @@ namespace FileLiberator
 		public event EventHandler<string> StatusUpdate;
 		public event EventHandler<LibraryBook> Completed;
 
-        private long fileSize;
+        public ConvertToMp3()
+        {
+            RequestCoverArt += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(RequestCoverArt) });
+            TitleDiscovered += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(TitleDiscovered), Title = e });
+            AuthorsDiscovered += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(AuthorsDiscovered), Authors = e });
+            NarratorsDiscovered += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(NarratorsDiscovered), Narrators = e });
+            CoverImageDiscovered += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(CoverImageDiscovered), CoverImageBytes = e?.Length });
+
+            StreamingBegin += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(StreamingBegin), Message = e });
+            StreamingCompleted += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(StreamingCompleted), Message = e });
+
+            Begin += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(Begin), Book = e.LogFriendly() });
+            Completed += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(Completed), Book = e.LogFriendly() });
+        }
+
+		private long fileSize;
 		private string Mp3FileName(string m4bPath) => m4bPath is null ? string.Empty : PathLib.ReplaceExtension(m4bPath, ".mp3");
 
         public void Cancel() => m4bBook?.Cancel();

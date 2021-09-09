@@ -13,6 +13,12 @@ namespace FileLiberator
 		public event EventHandler<string> StreamingCompleted;
 		public event EventHandler<TimeSpan> StreamingTimeRemaining;
 
+		public DownloadFile()
+		{
+			StreamingBegin += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(StreamingBegin), Message = e });
+			StreamingCompleted += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(StreamingCompleted), Message = e });
+		}
+
 		public async Task<string> PerformDownloadFileAsync(string downloadUrl, string proposedDownloadFilePath)
 		{
 			var client = new HttpClient();

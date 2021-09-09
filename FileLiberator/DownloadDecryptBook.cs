@@ -15,7 +15,6 @@ namespace FileLiberator
 {
     public class DownloadDecryptBook : IAudioDecodable
     {
-
         private AaxcDownloadConverter aaxcDownloader;
 
         public event EventHandler<TimeSpan> StreamingTimeRemaining;
@@ -30,6 +29,21 @@ namespace FileLiberator
         public event EventHandler<LibraryBook> Begin;
         public event EventHandler<string> StatusUpdate;
         public event EventHandler<LibraryBook> Completed;
+
+        public DownloadDecryptBook()
+        {
+            RequestCoverArt += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(RequestCoverArt) });
+            TitleDiscovered += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(TitleDiscovered), Title = e });
+            AuthorsDiscovered += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(AuthorsDiscovered), Authors = e });
+            NarratorsDiscovered += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(NarratorsDiscovered), Narrators = e });
+            CoverImageDiscovered += (o, e) => Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(CoverImageDiscovered), CoverImageBytes = e?.Length });
+
+            StreamingBegin += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(StreamingBegin), Message = e });
+            StreamingCompleted += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(StreamingCompleted), Message = e });
+
+            Begin += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(Begin), Book = e.LogFriendly() });
+            Completed += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(Completed), Book = e.LogFriendly() });
+        }
 
         public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
