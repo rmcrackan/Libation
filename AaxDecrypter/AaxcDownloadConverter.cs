@@ -83,8 +83,7 @@ namespace AaxDecrypter
             }
 
             var speedup = (int)(aaxFile.Duration.TotalSeconds / (long)Elapsed.TotalSeconds);
-            Console.WriteLine("Speedup is " + speedup + "x realtime.");
-            Console.WriteLine("Done");
+            Serilog.Log.Logger.Information($"Speedup is {speedup}x realtime.");
             return true;
         }
 
