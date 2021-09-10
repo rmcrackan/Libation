@@ -27,6 +27,7 @@
     - [Files and folders](#files-and-folders)
     - [Linux and Mac (unofficial)](#linux-and-mac)
     - [Settings](#settings)
+    - [Command Line Interface](#command-line-interface)
 
 ## Audible audiobook manager
 
@@ -241,3 +242,49 @@ Although Libation only currently officially supports Windows, [some users](https
 ### Settings
 
 * Allow Libation to fix up audiobook metadata. After decrypting a title, Libation attempts to fix details like chapters and cover art. Some power users and/or control freaks prefer to manage this themselves. By unchecking this setting, Libation will only decrypt the book and will leave metadata as-is, warts and all.
+
+### Command Line Interface
+
+Libationcli.exe allows limited access to Libation's functionalities as a CLI.
+
+Warnings about relying solely on on the CLI:
+* CLI will not perform any upgrades.
+* It will show that there is an upgrade, but that will likely scroll by too fast to notice.
+* It will not perform all post-upgrade migrations. Some migrations are only be possible by launching GUI.
+
+```
+help
+  libationcli --help
+  
+verb-specific help
+  libationcli scan --help
+  
+scan all libraries
+  libationcli scan
+scan only libraries for specific accounts
+  libationcli scan nickname1 nickname2
+  
+convert all m4b files to mp3
+  libationcli convert
+  
+liberate all books and pdfs
+  libationcli liberate
+liberate pdfs only
+  libationcli liberate --pdf
+  libationcli liberate -p
+  
+export library to file
+  libationcli export --path "C:\foo\bar\my.json" --json
+  libationcli export -p "C:\foo\bar\my.json" -j
+```
+
+Currently logs are written to Console and to file. This means they'll be printed in the CLI. To disable, find this in Settings.json and delete the 3 lines after `"WriteTo": [`
+
+```
+  "Serilog": {
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "Console"
+      },
+```
