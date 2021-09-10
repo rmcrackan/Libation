@@ -2,14 +2,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>libation.ico</ApplicationIcon>
+    <AssemblyName>Libation</AssemblyName>
 
     <PublishTrimmed>true</PublishTrimmed>
     <PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <StartupObject />
+
+    <!-- Version is now in AppScaffolding.csproj -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
+    <ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
     <ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
   </ItemGroup>
 

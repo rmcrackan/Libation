@@ -6,7 +6,7 @@ Startup project: DataLayer
 since we have mult contexts, must use -context:
     Add-Migration MyComment -context LibationContext
     Update-Database -context LibationContext
-Startup project: reset to prev. eg: LibationLauncher
+Startup project: reset to prev. eg: LibationWinForms
 
 
 Migrations, detailed

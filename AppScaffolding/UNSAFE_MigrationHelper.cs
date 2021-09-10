@@ -6,7 +6,7 @@ using Dinah.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace LibationLauncher
+namespace AppScaffolding
 {
 	/// <summary>
 	/// 
@@ -20,7 +20,7 @@ namespace LibationLauncher
 	internal static class UNSAFE_MigrationHelper
 	{
 		#region appsettings.json
-		private const string APPSETTINGS_JSON = "appsettings.json";
+		private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "appsettings.json");
 
 		public static bool APPSETTINGS_Json_Exists => File.Exists(APPSETTINGS_JSON);
 

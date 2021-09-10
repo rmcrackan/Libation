@@ -30,7 +30,7 @@ STRUCTURE
 * 5 Domain Utilities (db aware)
   This is often where database, domain-ignorant util.s, and non-database capabilities come together to provide the domain-conscious access points
 * 6 Application
-  UI and application launcher
+  GUI, CLI, and shared scaffolding
 
 
 CODING GUIDELINES

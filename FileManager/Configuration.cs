@@ -51,9 +51,12 @@ namespace FileManager
         public void SetObject(string propertyName, object newValue) => persistentDictionary.SetNonString(propertyName, newValue);
 
         /// <summary>WILL ONLY set if already present. WILL NOT create new</summary>
-        /// <returns>Value was changed</returns>
-        public bool SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false)
-            => persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue, suppressLogging);
+        public void SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false)
+        {
+            var settingWasChanged = persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue, suppressLogging);
+            if (settingWasChanged)
+                configuration?.Reload();
+        }
 
         public string SettingsFilePath => Path.Combine(LibationFiles, "Settings.json");
 
@@ -159,13 +162,9 @@ namespace FileManager
 
         #region logging
         private IConfigurationRoot configuration;
+
         public void ConfigureLogging()
         {
-            //// with code. also persists to Settings.json
-            //SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath, true);
-            //// hack which achieves the same, in memory only
-            //configuration["Serilog:WriteTo:1:Args:path"] = logPath;
-
             configuration = new ConfigurationBuilder()
                 .AddJsonFile(SettingsFilePath, optional: false, reloadOnChange: true)
                 .Build();
@@ -217,11 +216,11 @@ namespace FileManager
 		#region singleton stuff
 		public static Configuration Instance { get; } = new Configuration();
         private Configuration() { }
-		#endregion
+        #endregion
 
-		#region LibationFiles
+        #region LibationFiles
 
-		private const string APPSETTINGS_JSON = "appsettings.json";
+        private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "appsettings.json");
         private const string LIBATION_FILES_KEY = "LibationFiles";
 
         [Description("Location for storage of program-created files")]
@@ -238,12 +237,16 @@ namespace FileManager
                 // SECOND. before setting to json file with SetWithJsonPath, PersistentDictionary must exist
                 persistentDictionary = new PersistentDictionary(SettingsFilePath);
 
-                // Config init in Program.ensureSerilogConfig() only happens when serilog setting is first created (prob on 1st run).
+                // Config init in ensureSerilogConfig() only happens when serilog setting is first created (prob on 1st run).
                 // This Set() enforces current LibationFiles every time we restart Libation or redirect LibationFiles
                 var logPath = Path.Combine(LibationFiles, "Log.log");
-                bool settingWasChanged = SetWithJsonPath("Serilog.WriteTo[1].Args", "path", logPath, true);
-                if (settingWasChanged)
-                    configuration?.Reload();
+
+                // BAD: Serilog.WriteTo[1].Args
+                //      "[1]" assumes ordinal position
+                // GOOD: Serilog.WriteTo[?(@.Name=='File')].Args
+                var jsonpath = "Serilog.WriteTo[?(@.Name=='File')].Args";
+
+                SetWithJsonPath(jsonpath, "path", logPath, true);
 
                 return libationFilesPathCache;
             }
