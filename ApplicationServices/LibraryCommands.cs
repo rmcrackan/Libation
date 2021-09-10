@@ -91,10 +91,11 @@ namespace ApplicationServices
 				var totalCount = importItems.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
+				Log.Logger.Information("Begin long-running import");
 				logTime($"pre {nameof(importIntoDbAsync)}");
 				var newCount = await importIntoDbAsync(importItems);
 				logTime($"post {nameof(importIntoDbAsync)}");
-				Log.Logger.Information($"Import: New count {newCount}");
+				Log.Logger.Information($"Import complete. New count {newCount}");
 
 				return (totalCount, newCount);
 			}
