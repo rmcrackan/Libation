@@ -33,25 +33,25 @@
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.cancelBtn = new System.Windows.Forms.Button();
 			this.advancedSettingsGb = new System.Windows.Forms.GroupBox();
+			this.badBookGb = new System.Windows.Forms.GroupBox();
+			this.badBookIgnoreRb = new System.Windows.Forms.RadioButton();
+			this.badBookRetryRb = new System.Windows.Forms.RadioButton();
+			this.badBookAbortRb = new System.Windows.Forms.RadioButton();
+			this.badBookAskRb = new System.Windows.Forms.RadioButton();
+			this.decryptAndConvertGb = new System.Windows.Forms.GroupBox();
+			this.allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
 			this.convertLossyRb = new System.Windows.Forms.RadioButton();
 			this.convertLosslessRb = new System.Windows.Forms.RadioButton();
 			this.inProgressSelectControl = new LibationWinForms.Dialogs.DirectorySelectControl();
-			this.allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
 			this.logsBtn = new System.Windows.Forms.Button();
 			this.booksSelectControl = new LibationWinForms.Dialogs.DirectoryOrCustomSelectControl();
 			this.booksGb = new System.Windows.Forms.GroupBox();
 			this.loggingLevelLbl = new System.Windows.Forms.Label();
 			this.loggingLevelCb = new System.Windows.Forms.ComboBox();
-			this.decryptAndConvertGb = new System.Windows.Forms.GroupBox();
-			this.badBookGb = new System.Windows.Forms.GroupBox();
-			this.badBookAskRb = new System.Windows.Forms.RadioButton();
-			this.badBookAbortRb = new System.Windows.Forms.RadioButton();
-			this.badBookRetryRb = new System.Windows.Forms.RadioButton();
-			this.badBookIgnoreRb = new System.Windows.Forms.RadioButton();
 			this.advancedSettingsGb.SuspendLayout();
-			this.booksGb.SuspendLayout();
-			this.decryptAndConvertGb.SuspendLayout();
 			this.badBookGb.SuspendLayout();
+			this.decryptAndConvertGb.SuspendLayout();
+			this.booksGb.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// booksLocationDescLbl
@@ -117,6 +117,88 @@
 			this.advancedSettingsGb.TabStop = false;
 			this.advancedSettingsGb.Text = "Advanced settings for control freaks";
 			// 
+			// badBookGb
+			// 
+			this.badBookGb.Controls.Add(this.badBookIgnoreRb);
+			this.badBookGb.Controls.Add(this.badBookRetryRb);
+			this.badBookGb.Controls.Add(this.badBookAbortRb);
+			this.badBookGb.Controls.Add(this.badBookAskRb);
+			this.badBookGb.Location = new System.Drawing.Point(372, 22);
+			this.badBookGb.Name = "badBookGb";
+			this.badBookGb.Size = new System.Drawing.Size(529, 124);
+			this.badBookGb.TabIndex = 11;
+			this.badBookGb.TabStop = false;
+			this.badBookGb.Text = "[bad book desc]";
+			// 
+			// badBookIgnoreRb
+			// 
+			this.badBookIgnoreRb.AutoSize = true;
+			this.badBookIgnoreRb.Location = new System.Drawing.Point(6, 97);
+			this.badBookIgnoreRb.Name = "badBookIgnoreRb";
+			this.badBookIgnoreRb.Size = new System.Drawing.Size(94, 19);
+			this.badBookIgnoreRb.TabIndex = 15;
+			this.badBookIgnoreRb.TabStop = true;
+			this.badBookIgnoreRb.Text = "[ignore desc]";
+			this.badBookIgnoreRb.UseVisualStyleBackColor = true;
+			// 
+			// badBookRetryRb
+			// 
+			this.badBookRetryRb.AutoSize = true;
+			this.badBookRetryRb.Location = new System.Drawing.Point(6, 72);
+			this.badBookRetryRb.Name = "badBookRetryRb";
+			this.badBookRetryRb.Size = new System.Drawing.Size(84, 19);
+			this.badBookRetryRb.TabIndex = 14;
+			this.badBookRetryRb.TabStop = true;
+			this.badBookRetryRb.Text = "[retry desc]";
+			this.badBookRetryRb.UseVisualStyleBackColor = true;
+			// 
+			// badBookAbortRb
+			// 
+			this.badBookAbortRb.AutoSize = true;
+			this.badBookAbortRb.Location = new System.Drawing.Point(6, 47);
+			this.badBookAbortRb.Name = "badBookAbortRb";
+			this.badBookAbortRb.Size = new System.Drawing.Size(88, 19);
+			this.badBookAbortRb.TabIndex = 13;
+			this.badBookAbortRb.TabStop = true;
+			this.badBookAbortRb.Text = "[abort desc]";
+			this.badBookAbortRb.UseVisualStyleBackColor = true;
+			// 
+			// badBookAskRb
+			// 
+			this.badBookAskRb.AutoSize = true;
+			this.badBookAskRb.Location = new System.Drawing.Point(6, 22);
+			this.badBookAskRb.Name = "badBookAskRb";
+			this.badBookAskRb.Size = new System.Drawing.Size(77, 19);
+			this.badBookAskRb.TabIndex = 12;
+			this.badBookAskRb.TabStop = true;
+			this.badBookAskRb.Text = "[ask desc]";
+			this.badBookAskRb.UseVisualStyleBackColor = true;
+			// 
+			// decryptAndConvertGb
+			// 
+			this.decryptAndConvertGb.Controls.Add(this.allowLibationFixupCbox);
+			this.decryptAndConvertGb.Controls.Add(this.convertLossyRb);
+			this.decryptAndConvertGb.Controls.Add(this.convertLosslessRb);
+			this.decryptAndConvertGb.Location = new System.Drawing.Point(7, 22);
+			this.decryptAndConvertGb.Name = "decryptAndConvertGb";
+			this.decryptAndConvertGb.Size = new System.Drawing.Size(359, 124);
+			this.decryptAndConvertGb.TabIndex = 7;
+			this.decryptAndConvertGb.TabStop = false;
+			this.decryptAndConvertGb.Text = "Decrypt and convert";
+			// 
+			// allowLibationFixupCbox
+			// 
+			this.allowLibationFixupCbox.AutoSize = true;
+			this.allowLibationFixupCbox.Checked = true;
+			this.allowLibationFixupCbox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.allowLibationFixupCbox.Location = new System.Drawing.Point(6, 22);
+			this.allowLibationFixupCbox.Name = "allowLibationFixupCbox";
+			this.allowLibationFixupCbox.Size = new System.Drawing.Size(262, 19);
+			this.allowLibationFixupCbox.TabIndex = 8;
+			this.allowLibationFixupCbox.Text = "Allow Libation to fix up audiobook metadata";
+			this.allowLibationFixupCbox.UseVisualStyleBackColor = true;
+			this.allowLibationFixupCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
+			// 
 			// convertLossyRb
 			// 
 			this.convertLossyRb.AutoSize = true;
@@ -147,19 +229,6 @@
 			this.inProgressSelectControl.Name = "inProgressSelectControl";
 			this.inProgressSelectControl.Size = new System.Drawing.Size(552, 52);
 			this.inProgressSelectControl.TabIndex = 16;
-			// 
-			// allowLibationFixupCbox
-			// 
-			this.allowLibationFixupCbox.AutoSize = true;
-			this.allowLibationFixupCbox.Checked = true;
-			this.allowLibationFixupCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.allowLibationFixupCbox.Location = new System.Drawing.Point(6, 22);
-			this.allowLibationFixupCbox.Name = "allowLibationFixupCbox";
-			this.allowLibationFixupCbox.Size = new System.Drawing.Size(262, 19);
-			this.allowLibationFixupCbox.TabIndex = 8;
-			this.allowLibationFixupCbox.Text = "Allow Libation to fix up audiobook metadata";
-			this.allowLibationFixupCbox.UseVisualStyleBackColor = true;
-			this.allowLibationFixupCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
 			// 
 			// logsBtn
 			// 
@@ -211,75 +280,6 @@
 			this.loggingLevelCb.Size = new System.Drawing.Size(129, 23);
 			this.loggingLevelCb.TabIndex = 4;
 			// 
-			// decryptAndConvertGb
-			// 
-			this.decryptAndConvertGb.Controls.Add(this.allowLibationFixupCbox);
-			this.decryptAndConvertGb.Controls.Add(this.convertLossyRb);
-			this.decryptAndConvertGb.Controls.Add(this.convertLosslessRb);
-			this.decryptAndConvertGb.Location = new System.Drawing.Point(7, 22);
-			this.decryptAndConvertGb.Name = "decryptAndConvertGb";
-			this.decryptAndConvertGb.Size = new System.Drawing.Size(359, 124);
-			this.decryptAndConvertGb.TabIndex = 7;
-			this.decryptAndConvertGb.TabStop = false;
-			this.decryptAndConvertGb.Text = "Decrypt and convert";
-			// 
-			// badBookGb
-			// 
-			this.badBookGb.Controls.Add(this.badBookIgnoreRb);
-			this.badBookGb.Controls.Add(this.badBookRetryRb);
-			this.badBookGb.Controls.Add(this.badBookAbortRb);
-			this.badBookGb.Controls.Add(this.badBookAskRb);
-			this.badBookGb.Location = new System.Drawing.Point(372, 22);
-			this.badBookGb.Name = "badBookGb";
-			this.badBookGb.Size = new System.Drawing.Size(529, 124);
-			this.badBookGb.TabIndex = 11;
-			this.badBookGb.TabStop = false;
-			this.badBookGb.Text = "badBookGb";
-			// 
-			// badBookAskRb
-			// 
-			this.badBookAskRb.AutoSize = true;
-			this.badBookAskRb.Location = new System.Drawing.Point(6, 22);
-			this.badBookAskRb.Name = "badBookAskRb";
-			this.badBookAskRb.Size = new System.Drawing.Size(94, 19);
-			this.badBookAskRb.TabIndex = 12;
-			this.badBookAskRb.TabStop = true;
-			this.badBookAskRb.Text = "radioButton1";
-			this.badBookAskRb.UseVisualStyleBackColor = true;
-			// 
-			// badBookAbortRb
-			// 
-			this.badBookAbortRb.AutoSize = true;
-			this.badBookAbortRb.Location = new System.Drawing.Point(6, 47);
-			this.badBookAbortRb.Name = "badBookAbortRb";
-			this.badBookAbortRb.Size = new System.Drawing.Size(94, 19);
-			this.badBookAbortRb.TabIndex = 13;
-			this.badBookAbortRb.TabStop = true;
-			this.badBookAbortRb.Text = "radioButton2";
-			this.badBookAbortRb.UseVisualStyleBackColor = true;
-			// 
-			// badBookRetryRb
-			// 
-			this.badBookRetryRb.AutoSize = true;
-			this.badBookRetryRb.Location = new System.Drawing.Point(6, 72);
-			this.badBookRetryRb.Name = "badBookRetryRb";
-			this.badBookRetryRb.Size = new System.Drawing.Size(94, 19);
-			this.badBookRetryRb.TabIndex = 14;
-			this.badBookRetryRb.TabStop = true;
-			this.badBookRetryRb.Text = "radioButton3";
-			this.badBookRetryRb.UseVisualStyleBackColor = true;
-			// 
-			// badBookIgnoreRb
-			// 
-			this.badBookIgnoreRb.AutoSize = true;
-			this.badBookIgnoreRb.Location = new System.Drawing.Point(6, 97);
-			this.badBookIgnoreRb.Name = "badBookIgnoreRb";
-			this.badBookIgnoreRb.Size = new System.Drawing.Size(94, 19);
-			this.badBookIgnoreRb.TabIndex = 15;
-			this.badBookIgnoreRb.TabStop = true;
-			this.badBookIgnoreRb.Text = "radioButton4";
-			this.badBookIgnoreRb.UseVisualStyleBackColor = true;
-			// 
 			// SettingsDialog
 			// 
 			this.AcceptButton = this.saveBtn;
@@ -302,12 +302,12 @@
 			this.Load += new System.EventHandler(this.SettingsDialog_Load);
 			this.advancedSettingsGb.ResumeLayout(false);
 			this.advancedSettingsGb.PerformLayout();
-			this.booksGb.ResumeLayout(false);
-			this.booksGb.PerformLayout();
-			this.decryptAndConvertGb.ResumeLayout(false);
-			this.decryptAndConvertGb.PerformLayout();
 			this.badBookGb.ResumeLayout(false);
 			this.badBookGb.PerformLayout();
+			this.decryptAndConvertGb.ResumeLayout(false);
+			this.decryptAndConvertGb.PerformLayout();
+			this.booksGb.ResumeLayout(false);
+			this.booksGb.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
