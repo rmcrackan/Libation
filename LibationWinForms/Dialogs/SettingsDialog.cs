@@ -56,6 +56,21 @@ namespace LibationWinForms.Dialogs
 				Configuration.KnownDirectories.LibationFiles
 			}, Configuration.KnownDirectories.WinTemp);
 			inProgressSelectControl.SelectDirectory(config.InProgress);
+
+			badBookGb.Text = desc(nameof(config.BadBook));
+			badBookAskRb.Text = Configuration.BadBookAction.Ask.GetDescription();
+			badBookAbortRb.Text = Configuration.BadBookAction.Abort.GetDescription();
+			badBookRetryRb.Text = Configuration.BadBookAction.Retry.GetDescription();
+			badBookIgnoreRb.Text = Configuration.BadBookAction.Ignore.GetDescription();
+			var rb = config.BadBook switch
+			{
+				Configuration.BadBookAction.Ask => this.badBookAskRb,
+				Configuration.BadBookAction.Abort => this.badBookAbortRb,
+				Configuration.BadBookAction.Retry => this.badBookRetryRb,
+				Configuration.BadBookAction.Ignore => this.badBookIgnoreRb,
+				_ => this.badBookAskRb
+			};
+			rb.Checked = true;
 		}
 
 		private void allowLibationFixupCbox_CheckedChanged(object sender, EventArgs e)
@@ -110,6 +125,13 @@ namespace LibationWinForms.Dialogs
 			config.DecryptToLossy = convertLossyRb.Checked;
 
 			config.InProgress = inProgressSelectControl.SelectedDirectory;
+
+			config.BadBook
+				= badBookAskRb.Checked ? Configuration.BadBookAction.Ask
+				: badBookAbortRb.Checked ? Configuration.BadBookAction.Abort
+				: badBookRetryRb.Checked ? Configuration.BadBookAction.Retry
+				: badBookIgnoreRb.Checked ? Configuration.BadBookAction.Ignore
+				: Configuration.BadBookAction.Ask;
 
 			this.DialogResult = DialogResult.OK;
 			this.Close();

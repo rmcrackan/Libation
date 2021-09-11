@@ -196,8 +196,6 @@ namespace LibationWinForms.BookLiberation
 
 		protected async Task<bool> ProcessOneAsync(LibraryBook libraryBook, bool validate)
 		{
-			string logMessage;
-
 			try
 			{
 				var statusHandler = await Processable.ProcessSingleAsync(libraryBook, validate);
@@ -207,17 +205,27 @@ namespace LibationWinForms.BookLiberation
 
 				foreach (var errorMessage in statusHandler.Errors)
 					LogMe.Error(errorMessage);
-
-				logMessage = statusHandler.Errors.Aggregate((a, b) => $"{a}\r\n{b}");
 			}
 			catch (Exception ex)
 			{
 				LogMe.Error(ex);
-
-				logMessage = ex.Message + "\r\n|\r\n" + ex.StackTrace;
 			}
 
+			return showRetry(libraryBook);
+		}
+
+		private bool showRetry(LibraryBook libraryBook)
+		{
 			LogMe.Error("ERROR. All books have not been processed. Most recent book: processing failed");
+
+			DialogResult? dialogResult = FileManager.Configuration.Instance.BadBook switch
+			{
+				FileManager.Configuration.BadBookAction.Abort => DialogResult.Abort,
+				FileManager.Configuration.BadBookAction.Retry => DialogResult.Retry,
+				FileManager.Configuration.BadBookAction.Ignore => DialogResult.Ignore,
+				FileManager.Configuration.BadBookAction.Ask => null,
+				_ => null
+			};
 
 			string details;
 			try
@@ -238,7 +246,8 @@ $@"  Title: {libraryBook.Book.Title}
 				details = "[Error retrieving details]";
 			}
 
-			var dialogResult = MessageBox.Show(string.Format(SkipDialogText, details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
+			// if null then ask user
+			dialogResult ??= MessageBox.Show(string.Format(SkipDialogText + "\r\n\r\nSee Settings to avoid this box in the future.", details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
 
 			if (dialogResult == DialogResult.Abort)
 				return false;
@@ -288,7 +297,7 @@ An error occurred while trying to process this book. Skip this book permanently?
 An error occurred while trying to process this book.
 {0}
 
-- ABORT: stop processing books.
+- ABORT: Stop processing books.
 
 - RETRY: retry this book later. Just skip it for now. Continue processing books. (Will try this book again later.)
 

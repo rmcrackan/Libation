@@ -57,6 +57,7 @@ namespace AppScaffolding
 			//
 
 			Migrations.migrate_to_v5_2_0__post_config(config);
+			Migrations.migrate_to_v5_7_1(config);
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>
@@ -321,5 +322,12 @@ namespace AppScaffolding
 				config.DecryptToLossy = false;
 		}
 		#endregion
+
+		// add config.BadBook
+		public static void migrate_to_v5_7_1(Configuration config)
+		{
+			if (!config.Exists(nameof(config.BadBook)))
+				config.BadBook = Configuration.BadBookAction.Ask;
+		}
 	}
 }

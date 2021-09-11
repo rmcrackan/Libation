@@ -102,6 +102,29 @@ namespace FileManager
             set => persistentDictionary.SetNonString(nameof(DecryptToLossy), value);
         }
 
+        public enum BadBookAction
+        {
+            [Description("Ask each time what action to take.")]
+            Ask = 0,
+            [Description("Stop processing books.")]
+            Abort = 1,
+            [Description("Retry book later. Skip for now. Continue processing books.")]
+            Retry = 2,
+            [Description("Permanently ignore book. Continue processing books. Do not try book again.")]
+            Ignore = 3
+        }
+
+        [Description("When liberating books and there is an error, Libation should:")]
+        public BadBookAction BadBook
+        {
+            get
+            {
+                var badBookStr = persistentDictionary.GetString(nameof(BadBook));
+				return Enum.TryParse<BadBookAction>(badBookStr, out var badBookEnum) ? badBookEnum : BadBookAction.Ask;
+            }
+            set => persistentDictionary.SetString(nameof(BadBook), value.ToString());
+        }
+
         #endregion
 
         #region known directories
@@ -178,16 +201,8 @@ namespace FileManager
         {
             get
             {
-                try
-                {
-                    var logLevelStr = persistentDictionary.GetStringFromJsonPath("Serilog", "MinimumLevel");
-                    var logLevelEnum = Enum<LogEventLevel>.Parse(logLevelStr);
-                    return logLevelEnum;
-                }
-                catch
-                {
-                    return LogEventLevel.Information;
-                }
+                var logLevelStr = persistentDictionary.GetStringFromJsonPath("Serilog", "MinimumLevel");
+                return Enum.TryParse<LogEventLevel>(logLevelStr, out var logLevelEnum) ? logLevelEnum : LogEventLevel.Information;
             }
             set
             {
@@ -219,7 +234,6 @@ namespace FileManager
         #endregion
 
         #region LibationFiles
-
         private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "appsettings.json");
         private const string LIBATION_FILES_KEY = "LibationFiles";
 
