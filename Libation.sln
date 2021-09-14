@@ -36,6 +36,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationSearchEngine", "LibationSearchEngine\LibationSearchEngine.csproj", "{2E1F5DB4-40CC-4804-A893-5DCE0193E598}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationWinForms", "LibationWinForms\LibationWinForms.csproj", "{635F00E1-AAD1-45F7-BEB7-D909AD33B9F6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{428163C3-D558-4914-B570-A92069521877} = {428163C3-D558-4914-B570-A92069521877}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DtoImporterService", "DtoImporterService\DtoImporterService.csproj", "{401865F5-1942-4713-B230-04544C0A97B0}"
 EndProject

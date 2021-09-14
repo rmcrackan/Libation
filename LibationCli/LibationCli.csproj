@@ -12,6 +12,14 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
+  <!--
+  When LibationWinForms and LibationCli output to the same dir, LibationCli must build before LibationWinForms
+  
+  VS > rt-clik solution > Project Build Order...
+  Dependencies [tab]
+  Projects: LibationWinForms
+  manually check LibationCli
+  -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\LibationWinForms\bin\Debug</OutputPath>
   </PropertyGroup>
