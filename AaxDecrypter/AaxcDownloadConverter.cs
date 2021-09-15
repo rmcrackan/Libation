@@ -83,7 +83,8 @@ namespace AaxDecrypter
             }
 
             var speedup = (int)(aaxFile.Duration.TotalSeconds / (long)Elapsed.TotalSeconds);
-            Serilog.Log.Logger.Information($"Speedup is {speedup}x realtime.");
+            Console.WriteLine("Speedup is " + speedup + "x realtime.");
+            Console.WriteLine("Done");
             return true;
         }
 
@@ -144,7 +145,7 @@ namespace AaxDecrypter
             if (File.Exists(outputFileName))
                 FileExt.SafeDelete(outputFileName);
 
-            FileStream outFile = File.OpenWrite(outputFileName);
+            FileStream outFile = File.Open(outputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
             aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
 
