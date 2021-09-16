@@ -144,7 +144,7 @@ namespace AaxDecrypter
             if (File.Exists(outputFileName))
                 FileExt.SafeDelete(outputFileName);
 
-            FileStream outFile = File.OpenWrite(outputFileName);
+            FileStream outFile = File.Open(outputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
             aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
 
