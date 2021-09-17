@@ -183,7 +183,7 @@ namespace LibationWinForms
 					authorize.DeregisterAsync(identity.ExistingAccessToken, identity.Cookies.ToKeyValuePair()).GetAwaiter().GetResult();
 					identity.Invalidate();
 
-					var api = AudibleApiActions.GetApiAsync(new LibationWinForms.Login.WinformResponder(account), account).GetAwaiter().GetResult();
+					var api = AudibleApiActions.GetApiAsync(new Login.WinformResponder(account), account).GetAwaiter().GetResult();
 				}
                 catch
                 {
