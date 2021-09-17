@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core;
-using Dinah.Core.ErrorHandling;
 
 namespace FileLiberator
 {
-	public static class LoggerUtilities
+	public static class UtilityExtensions
 	{
 		public static (string id, string title, string locale, string account) LogFriendly(this LibraryBook libraryBook)
 			=> (
@@ -19,5 +16,11 @@ namespace FileLiberator
 			locale: libraryBook.Book.Locale,
 			account: libraryBook.Account.ToMask()
 			);
+
+		public static async Task<AudibleApi.Api> GetApiAsync(this LibraryBook libraryBook)
+		{
+			var apiExtended = await InternalUtilities.ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
+			return apiExtended.Api;
+		}
 	}
 }

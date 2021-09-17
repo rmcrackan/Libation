@@ -17,6 +17,57 @@ namespace InternalUtilities
 
 		private ApiExtended(Api api) => Api = api;
 
+		public static async Task<ApiExtended> CreateAsync(ILoginChoice loginChoice, Account account)
+		{
+			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
+			{
+				LoginType = nameof(ILoginChoice),
+				Account = account?.MaskedLogEntry ?? "[null]",
+				LocaleName = account?.Locale?.Name
+			});
+
+			var api = await EzApiCreator.GetApiAsync(
+				account.Locale,
+				AudibleApiStorage.AccountsSettingsFile,
+				loginChoice,
+				account.GetIdentityTokensJsonPath());
+			return new ApiExtended(api);
+		}
+
+		public static async Task<ApiExtended> CreateAsync(ILoginCallback loginCallback, Account account)
+		{
+			Serilog.Log.Logger.Information("GetApiAsync ILoginCallback. {@DebugInfo}", new
+			{
+				LoginType = nameof(ILoginCallback),
+				Account = account?.MaskedLogEntry ?? "[null]",
+				LocaleName = account?.Locale?.Name
+			});
+
+			var api = await EzApiCreator.GetApiAsync(
+				account.Locale,
+				AudibleApiStorage.AccountsSettingsFile,
+				loginCallback,
+				account.GetIdentityTokensJsonPath());
+			return new ApiExtended(api);
+		}
+
+		public static async Task<ApiExtended> CreateAsync(ILoginExternal loginExternal, Account account)
+		{
+			Serilog.Log.Logger.Information("GetApiAsync ILoginExternal. {@DebugInfo}", new
+			{
+				LoginType = nameof(ILoginExternal),
+				Account = account?.MaskedLogEntry ?? "[null]",
+				LocaleName = account?.Locale?.Name
+			});
+
+			var api = await EzApiCreator.GetApiAsync(
+				account.Locale,
+				AudibleApiStorage.AccountsSettingsFile,
+				loginExternal,
+				account.GetIdentityTokensJsonPath());
+			return new ApiExtended(api);
+		}
+
 		public static async Task<ApiExtended> CreateAsync(string username, string localeName)
 		{
 			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
@@ -29,22 +80,6 @@ namespace InternalUtilities
 					Localization.Get(localeName),
 					AudibleApiStorage.AccountsSettingsFile,
 					AudibleApiStorage.GetIdentityTokensJsonPath(username, localeName));
-			return new ApiExtended(api);
-		}
-
-		public static async Task<ApiExtended> CreateAsync(ILoginCallback loginCallback, Account account)
-		{
-			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
-			{
-				Account = account?.MaskedLogEntry ?? "[null]",
-				LocaleName = account?.Locale?.Name
-			});
-
-			var api = await EzApiCreator.GetApiAsync(
-				account.Locale,
-				AudibleApiStorage.AccountsSettingsFile,
-				loginCallback,
-				account.GetIdentityTokensJsonPath());
 			return new ApiExtended(api);
 		}
 

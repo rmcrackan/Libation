@@ -1,7 +1,7 @@
 ﻿using System;
 using AudibleApi.Common;
 
-namespace InternalUtilities
+namespace DtoImporterService
 {
 	public class ImportItem
 	{

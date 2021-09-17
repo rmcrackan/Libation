@@ -84,9 +84,8 @@ namespace FileLiberator
             {
                 validate(libraryBook);
 
-                var apiExtended = await InternalUtilities.ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
-
-                var contentLic = await apiExtended.Api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+                var api = await libraryBook.GetApiAsync();
+                var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
 
                 var aaxcDecryptDlLic = new DownloadLicense
                     (

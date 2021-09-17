@@ -40,9 +40,6 @@ namespace FileLiberator
             }
         }
 
-		protected static Task<InternalUtilities.ApiExtended> GetApiExtendedAsync(LibraryBook libraryBook)
-			=> InternalUtilities.ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
-
 		protected async Task<string> PerformDownloadAsync(string proposedDownloadFilePath, Func<Progress<DownloadProgress>, Task<string>> func)
 		{
 			var progress = new Progress<DownloadProgress>();

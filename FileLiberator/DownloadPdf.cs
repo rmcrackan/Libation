@@ -59,8 +59,8 @@ namespace FileLiberator
 
 		private async Task<string> downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
 		{
-			var apiExtended = await GetApiExtendedAsync(libraryBook);
-			var downloadUrl = await apiExtended.Api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
+			var api = await libraryBook.GetApiAsync();
+			var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
 
 			var client = new HttpClient();
 			var actualDownloadedFilePath = await PerformDownloadAsync(
