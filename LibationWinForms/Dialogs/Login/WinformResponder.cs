@@ -1,8 +1,7 @@
-﻿using AudibleApi;
+﻿using System;
+using AudibleApi;
 using InternalUtilities;
 using LibationWinForms.Dialogs.Login;
-using System;
-using System.Linq;
 
 namespace LibationWinForms.Login
 {

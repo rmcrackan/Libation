@@ -84,16 +84,16 @@ namespace FileLiberator
             {
                 validate(libraryBook);
 
-                var api = await InternalUtilities.AudibleApiActions.GetApiAsync(libraryBook.Account, libraryBook.Book.Locale);
+                var apiExtended = await InternalUtilities.ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
 
-                var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+                var contentLic = await apiExtended.Api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
 
                 var aaxcDecryptDlLic = new DownloadLicense
                     (
                     contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
                     contentLic?.Voucher?.Key,
                     contentLic?.Voucher?.Iv,
-                    Resources.UserAgent
+                    Resources.USER_AGENT
                     );
 
                 if (Configuration.Instance.AllowLibationFixup)

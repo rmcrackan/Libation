@@ -183,7 +183,8 @@ namespace LibationWinForms
 					authorize.DeregisterAsync(identity.ExistingAccessToken, identity.Cookies.ToKeyValuePair()).GetAwaiter().GetResult();
 					identity.Invalidate();
 
-					var api = AudibleApiActions.GetApiAsync(new Login.WinformResponder(account), account).GetAwaiter().GetResult();
+					// re-registers device
+					ApiExtended.CreateAsync(new Login.WinformResponder(account), account).GetAwaiter().GetResult();
 				}
                 catch
                 {

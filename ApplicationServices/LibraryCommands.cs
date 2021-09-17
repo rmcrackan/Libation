@@ -136,11 +136,11 @@ namespace ApplicationServices
 			{
 				var callback = loginCallbackFactoryFunc(account);
 
-				// get APIs in serial, esp b/c of logins
-				var api = await AudibleApiActions.GetApiAsync(callback, account);
+				// get APIs in serial b/c of logins
+				var apiExtended = await ApiExtended.CreateAsync(callback, account);
 
 				// add scanAccountAsync as a TASK: do not await
-				tasks.Add(scanAccountAsync(api, account));
+				tasks.Add(scanAccountAsync(apiExtended, account));
 			}
 
 			// import library in parallel
@@ -149,7 +149,7 @@ namespace ApplicationServices
 			return importItems;
 		}
 
-		private static async Task<List<ImportItem>> scanAccountAsync(Api api, Account account)
+		private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account)
 		{
 			ArgumentValidator.EnsureNotNull(account, nameof(account));
 
@@ -160,7 +160,7 @@ namespace ApplicationServices
 
 			logTime($"pre scanAccountAsync {account.AccountName}");
 
-			var dtoItems = await AudibleApiActions.GetLibraryValidatedAsync(api, LibraryResponseGroups);
+			var dtoItems = await apiExtended.GetLibraryValidatedAsync(LibraryResponseGroups);
 
 			logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
 

@@ -10,36 +10,42 @@ using Polly.Retry;
 
 namespace InternalUtilities
 {
-	public static class AudibleApiActions
+	/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
+	public class ApiExtended
 	{
-		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
-		public static Task<Api> GetApiAsync(string username, string localeName, ILoginCallback loginCallback = null)
+		public Api Api { get; private set; }
+
+		private ApiExtended(Api api) => Api = api;
+
+		public static async Task<ApiExtended> CreateAsync(string username, string localeName)
 		{
 			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
 			{
 				Username = username.ToMask(),
 				LocaleName = localeName,
 			});
-			return EzApiCreator.GetApiAsync(
-				Localization.Get(localeName),
-				AudibleApiStorage.AccountsSettingsFile,
-				AudibleApiStorage.GetIdentityTokensJsonPath(username, localeName),
-				loginCallback);
+
+			var api = await EzApiCreator.GetApiAsync(
+					Localization.Get(localeName),
+					AudibleApiStorage.AccountsSettingsFile,
+					AudibleApiStorage.GetIdentityTokensJsonPath(username, localeName));
+			return new ApiExtended(api);
 		}
 
-		/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
-		public static Task<Api> GetApiAsync(ILoginCallback loginCallback, Account account)
+		public static async Task<ApiExtended> CreateAsync(ILoginCallback loginCallback, Account account)
 		{
 			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
 			{
 				Account = account?.MaskedLogEntry ?? "[null]",
 				LocaleName = account?.Locale?.Name
 			});
-			return EzApiCreator.GetApiAsync(
+
+			var api = await EzApiCreator.GetApiAsync(
 				account.Locale,
 				AudibleApiStorage.AccountsSettingsFile,
-				account.GetIdentityTokensJsonPath(),
-				loginCallback);
+				loginCallback,
+				account.GetIdentityTokensJsonPath());
+			return new ApiExtended(api);
 		}
 
 		private static AsyncRetryPolicy policy { get; }
@@ -47,16 +53,16 @@ namespace InternalUtilities
 			// 2 retries == 3 total
 			.RetryAsync(2);
 
-		public static Task<List<Item>> GetLibraryValidatedAsync(Api api, LibraryOptions.ResponseGroupOptions responseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS)
+		public Task<List<Item>> GetLibraryValidatedAsync(LibraryOptions.ResponseGroupOptions responseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS)
 		{
 			// bug on audible's side. the 1st time after a long absence, a query to get library will return without titles or authors. a subsequent identical query will be successful. this is true whether or tokens are refreshed
 			// worse, this 1st dummy call doesn't seem to help:
 			//    var page = await api.GetLibraryAsync(new AudibleApi.LibraryOptions { NumberOfResultPerPage = 1, PageNumber = 1, PurchasedAfter = DateTime.Now.AddYears(-20), ResponseGroups = AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS });
 			// i don't want to incur the cost of making a full dummy call every time because it fails sometimes
-			return policy.ExecuteAsync(() => getItemsAsync(api, responseGroups));
+			return policy.ExecuteAsync(() => getItemsAsync(responseGroups));
 		}
 
-		private static async Task<List<Item>> getItemsAsync(Api api, LibraryOptions.ResponseGroupOptions responseGroups)
+		private async Task<List<Item>> getItemsAsync(LibraryOptions.ResponseGroupOptions responseGroups)
 		{
 			var items = new List<Item>();
 #if DEBUG
@@ -68,12 +74,12 @@ namespace InternalUtilities
 //}
 #endif
 			if (!items.Any())
-				items = await api.GetAllLibraryItemsAsync(responseGroups);
+				items = await Api.GetAllLibraryItemsAsync(responseGroups);
 #if DEBUG
 //System.IO.File.WriteAllText("library.json", AudibleApi.Common.Converter.ToJson(items));
 #endif
 
-			await manageEpisodesAsync(api, items);
+			await manageEpisodesAsync(items);
 
 			var validators = new List<IValidator>();
 			validators.AddRange(getValidators());
@@ -88,7 +94,7 @@ namespace InternalUtilities
 		}
 
 		#region episodes and podcasts
-		private static async Task manageEpisodesAsync(Api api, List<Item> items)
+		private async Task manageEpisodesAsync(List<Item> items)
 		{
 			// add podcasts and episodes to list. If fail, don't let it de-rail the rest of the import
 			try
@@ -110,7 +116,7 @@ namespace InternalUtilities
 				items.RemoveAll(i => i.IsEpisodes);
 
 				// add children
-				var children = await getEpisodesAsync(api, parents);
+				var children = await getEpisodesAsync(parents);
 				Serilog.Log.Logger.Information($"{children.Count} episodes of shows/podcasts found");
 				items.AddRange(children);
 			}
@@ -120,13 +126,13 @@ namespace InternalUtilities
 			}
 		}
 
-		private static async Task<List<Item>> getEpisodesAsync(Api api, List<Item> parents)
+		private async Task<List<Item>> getEpisodesAsync(List<Item> parents)
 		{
 			var results = new List<Item>();
 
 			foreach (var parent in parents)
 			{
-				var children = await getEpisodeChildrenAsync(api, parent);
+				var children = await getEpisodeChildrenAsync(parent);
 
 				foreach (var child in children)
 				{
@@ -159,7 +165,7 @@ namespace InternalUtilities
 			return results;
 		}
 
-		private static async Task<List<Item>> getEpisodeChildrenAsync(Api api, Item parent)
+		private async Task<List<Item>> getEpisodeChildrenAsync(Item parent)
 		{
 			var childrenIds = parent.Relationships
 				.Where(r => r.RelationshipToProduct == RelationshipToProduct.Child && r.RelationshipType == RelationshipType.Episode)
@@ -180,7 +186,7 @@ namespace InternalUtilities
 				List<Item> childrenBatch;
 				try
 				{
-					childrenBatch = await api.GetCatalogProductsAsync(idBatch, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+					childrenBatch = await Api.GetCatalogProductsAsync(idBatch, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
 #if DEBUG
 //var childrenBatchDebug = childrenBatch.Select(i => i.ToJson()).Aggregate((a, b) => $"{a}\r\n\r\n{b}");
 //System.IO.File.WriteAllText($"children of {parent.Asin}.json", childrenBatchDebug);
@@ -222,7 +228,7 @@ namespace InternalUtilities
 
 			return results;
 		}
-#endregion
+		#endregion
 
 		private static List<IValidator> getValidators()
 		{
