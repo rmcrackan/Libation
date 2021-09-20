@@ -184,7 +184,7 @@ namespace LibationWinForms
 					identity.Invalidate();
 
 					// re-registers device
-					ApiExtended.CreateAsync(new Login.WinformResponder(account), account).GetAwaiter().GetResult();
+					ApiExtended.CreateAsync(account, new Login.WinformLoginChoiceEager(account)).GetAwaiter().GetResult();
 				}
                 catch
                 {

@@ -17,26 +17,28 @@ namespace InternalUtilities
 
 		private ApiExtended(Api api) => Api = api;
 
-		public static async Task<ApiExtended> CreateAsync(ILoginChoice loginChoice, Account account)
+		/// <summary>Get api from existing tokens else login with 'eager' choice. External browser url is provided. Response can be external browser login or continuing with native api callbacks.</summary>
+		public static async Task<ApiExtended> CreateAsync(Account account, ILoginChoiceEager loginChoiceEager)
 		{
-			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
+			Serilog.Log.Logger.Information("{@DebugInfo}", new
 			{
-				LoginType = nameof(ILoginChoice),
+				LoginType = nameof(ILoginChoiceEager),
 				Account = account?.MaskedLogEntry ?? "[null]",
 				LocaleName = account?.Locale?.Name
 			});
 
 			var api = await EzApiCreator.GetApiAsync(
+				loginChoiceEager,
 				account.Locale,
 				AudibleApiStorage.AccountsSettingsFile,
-				loginChoice,
 				account.GetIdentityTokensJsonPath());
 			return new ApiExtended(api);
 		}
 
-		public static async Task<ApiExtended> CreateAsync(ILoginCallback loginCallback, Account account)
+		/// <summary>Get api from existing tokens else login with native api callbacks.</summary>
+		public static async Task<ApiExtended> CreateAsync(Account account, ILoginCallback loginCallback)
 		{
-			Serilog.Log.Logger.Information("GetApiAsync ILoginCallback. {@DebugInfo}", new
+			Serilog.Log.Logger.Information("{@DebugInfo}", new
 			{
 				LoginType = nameof(ILoginCallback),
 				Account = account?.MaskedLogEntry ?? "[null]",
@@ -44,16 +46,17 @@ namespace InternalUtilities
 			});
 
 			var api = await EzApiCreator.GetApiAsync(
+				loginCallback,
 				account.Locale,
 				AudibleApiStorage.AccountsSettingsFile,
-				loginCallback,
 				account.GetIdentityTokensJsonPath());
 			return new ApiExtended(api);
 		}
 
-		public static async Task<ApiExtended> CreateAsync(ILoginExternal loginExternal, Account account)
+		/// <summary>Get api from existing tokens else login with external browser</summary>
+		public static async Task<ApiExtended> CreateAsync(Account account, ILoginExternal loginExternal)
 		{
-			Serilog.Log.Logger.Information("GetApiAsync ILoginExternal. {@DebugInfo}", new
+			Serilog.Log.Logger.Information("{@DebugInfo}", new
 			{
 				LoginType = nameof(ILoginExternal),
 				Account = account?.MaskedLogEntry ?? "[null]",
@@ -61,16 +64,31 @@ namespace InternalUtilities
 			});
 
 			var api = await EzApiCreator.GetApiAsync(
+				loginExternal,
 				account.Locale,
 				AudibleApiStorage.AccountsSettingsFile,
-				loginExternal,
 				account.GetIdentityTokensJsonPath());
 			return new ApiExtended(api);
 		}
 
+		/// <summary>Get api from existing tokens. Assumes you have valid login tokens. Else exception</summary>
+		public static async Task<ApiExtended> CreateAsync(Account account)
+		{
+			ArgumentValidator.EnsureNotNull(account, nameof(account));
+			ArgumentValidator.EnsureNotNull(account.Locale, nameof(account.Locale));
+
+			Serilog.Log.Logger.Information("{@DebugInfo}", new
+			{
+				AccountMaskedLogEntry = account.MaskedLogEntry
+			});
+
+			return await CreateAsync(account.AccountId, account.Locale.Name);
+		}
+
+		/// <summary>Get api from existing tokens. Assumes you have valid login tokens. Else exception</summary>
 		public static async Task<ApiExtended> CreateAsync(string username, string localeName)
 		{
-			Serilog.Log.Logger.Information("GetApiAsync. {@DebugInfo}", new
+			Serilog.Log.Logger.Information("{@DebugInfo}", new
 			{
 				Username = username.ToMask(),
 				LocaleName = localeName,

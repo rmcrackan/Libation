@@ -35,7 +35,7 @@ namespace LibationCli
 			string input = null;
 
 			//input = "  export --help";
-			//input = "  scan  cupidneedsglasses";
+			//input = "  scan  rmcrackan";
 			//input = "  liberate ";
 
 

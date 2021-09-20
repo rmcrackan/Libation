@@ -1,6 +1,6 @@
 ﻿namespace LibationWinForms.Dialogs.Login
 {
-	partial class AudibleLoginDialog
+	partial class LoginCallbackDialog
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -38,25 +38,29 @@
 			// passwordLbl
 			// 
 			this.passwordLbl.AutoSize = true;
-			this.passwordLbl.Location = new System.Drawing.Point(12, 41);
+			this.passwordLbl.Location = new System.Drawing.Point(14, 47);
+			this.passwordLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.passwordLbl.Name = "passwordLbl";
-			this.passwordLbl.Size = new System.Drawing.Size(53, 13);
+			this.passwordLbl.Size = new System.Drawing.Size(57, 15);
 			this.passwordLbl.TabIndex = 2;
 			this.passwordLbl.Text = "Password";
 			// 
 			// passwordTb
 			// 
-			this.passwordTb.Location = new System.Drawing.Point(71, 38);
+			this.passwordTb.Location = new System.Drawing.Point(83, 44);
+			this.passwordTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.passwordTb.Name = "passwordTb";
 			this.passwordTb.PasswordChar = '*';
-			this.passwordTb.Size = new System.Drawing.Size(200, 20);
+			this.passwordTb.Size = new System.Drawing.Size(233, 23);
 			this.passwordTb.TabIndex = 3;
 			// 
 			// submitBtn
 			// 
-			this.submitBtn.Location = new System.Drawing.Point(196, 64);
+			this.submitBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.submitBtn.Location = new System.Drawing.Point(229, 74);
+			this.submitBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.submitBtn.Name = "submitBtn";
-			this.submitBtn.Size = new System.Drawing.Size(75, 23);
+			this.submitBtn.Size = new System.Drawing.Size(88, 27);
 			this.submitBtn.TabIndex = 4;
 			this.submitBtn.Text = "Submit";
 			this.submitBtn.UseVisualStyleBackColor = true;
@@ -65,36 +69,39 @@
 			// localeLbl
 			// 
 			this.localeLbl.AutoSize = true;
-			this.localeLbl.Location = new System.Drawing.Point(12, 9);
+			this.localeLbl.Location = new System.Drawing.Point(14, 10);
+			this.localeLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.localeLbl.Name = "localeLbl";
-			this.localeLbl.Size = new System.Drawing.Size(59, 13);
+			this.localeLbl.Size = new System.Drawing.Size(61, 15);
 			this.localeLbl.TabIndex = 0;
 			this.localeLbl.Text = "Locale: {0}";
 			// 
 			// usernameLbl
 			// 
 			this.usernameLbl.AutoSize = true;
-			this.usernameLbl.Location = new System.Drawing.Point(12, 22);
+			this.usernameLbl.Location = new System.Drawing.Point(14, 25);
+			this.usernameLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.usernameLbl.Name = "usernameLbl";
-			this.usernameLbl.Size = new System.Drawing.Size(75, 13);
+			this.usernameLbl.Size = new System.Drawing.Size(80, 15);
 			this.usernameLbl.TabIndex = 1;
 			this.usernameLbl.Text = "Username: {0}";
 			// 
-			// AudibleLoginDialog
+			// LoginCallbackDialog
 			// 
 			this.AcceptButton = this.submitBtn;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(283, 99);
+			this.ClientSize = new System.Drawing.Size(330, 114);
 			this.Controls.Add(this.usernameLbl);
 			this.Controls.Add(this.localeLbl);
 			this.Controls.Add(this.submitBtn);
 			this.Controls.Add(this.passwordLbl);
 			this.Controls.Add(this.passwordTb);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
-			this.Name = "AudibleLoginDialog";
+			this.Name = "LoginCallbackDialog";
 			this.ShowIcon = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Audible Login";

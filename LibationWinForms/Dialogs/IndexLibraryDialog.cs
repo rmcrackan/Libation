@@ -32,7 +32,7 @@ namespace LibationWinForms.Dialogs
 
 				try
 				{
-					(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync((account) => new WinformResponder(account), _accounts);
+					(TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync((account) => ApiExtended.CreateAsync(account, new WinformLoginChoiceEager(account)), _accounts);
 				}
 				catch (Exception ex)
 				{

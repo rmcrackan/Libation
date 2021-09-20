@@ -16,7 +16,7 @@ namespace ApplicationServices
 	{
 		private static LibraryOptions.ResponseGroupOptions LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
 
-		public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, ILoginCallback> loginCallbackFactoryFunc, List<LibraryBook> existingLibrary, params Account[] accounts)
+		public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, Task<ApiExtended>> apiExtendedfunc, List<LibraryBook> existingLibrary, params Account[] accounts)
 		{
 			logRestart();
 
@@ -33,7 +33,7 @@ namespace ApplicationServices
 			try
 			{
 				logTime($"pre {nameof(scanAccountsAsync)} all");
-				var libraryItems = await scanAccountsAsync(loginCallbackFactoryFunc, accounts);
+				var libraryItems = await scanAccountsAsync(apiExtendedfunc, accounts);
 				logTime($"post {nameof(scanAccountsAsync)} all");
 
 				var totalCount = libraryItems.Count;
@@ -75,7 +75,7 @@ namespace ApplicationServices
 		}
 
 		#region FULL LIBRARY scan and import
-		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, params Account[] accounts)
+		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, params Account[] accounts)
 		{
 			logRestart();
 
@@ -85,7 +85,7 @@ namespace ApplicationServices
 			try
 			{
 				logTime($"pre {nameof(scanAccountsAsync)} all");
-				var importItems = await scanAccountsAsync(loginCallbackFactoryFunc, accounts);
+				var importItems = await scanAccountsAsync(apiExtendedfunc, accounts);
 				logTime($"post {nameof(scanAccountsAsync)} all");
 
 				var totalCount = importItems.Count;
@@ -129,15 +129,13 @@ namespace ApplicationServices
 			}
 		}
 
-		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, ILoginCallback> loginCallbackFactoryFunc, Account[] accounts)
+		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts)
 		{
 			var tasks = new List<Task<List<ImportItem>>>();
 			foreach (var account in accounts)
 			{
-				var callback = loginCallbackFactoryFunc(account);
-
-				// get APIs in serial b/c of logins
-				var apiExtended = await ApiExtended.CreateAsync(callback, account);
+				// get APIs in serial b/c of logins. do NOT move inside of parallel (Task.WhenAll)
+				var apiExtended = await apiExtendedfunc(account);
 
 				// add scanAccountAsync as a TASK: do not await
 				tasks.Add(scanAccountAsync(apiExtended, account));
