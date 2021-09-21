@@ -33,8 +33,10 @@ namespace InternalUtilities
 
 			if (items.Any(i => string.IsNullOrWhiteSpace(i.ProductId)))
 				exceptions.Add(new ArgumentException($"Collection contains item(s) with blank {nameof(Item.ProductId)}", nameof(items)));
-			if (items.Any(i => string.IsNullOrWhiteSpace(i.Title)))
-				exceptions.Add(new ArgumentException($"Collection contains item(s) with blank {nameof(Item.Title)}", nameof(items)));
+
+			// this can happen with podcast episodes
+			foreach (var i in items.Where(i => string.IsNullOrWhiteSpace(i.Title)))
+				i.Title = "[blank title]";
 
 			return exceptions;
 		}
