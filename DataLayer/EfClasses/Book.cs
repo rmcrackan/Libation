@@ -203,7 +203,7 @@ namespace DataLayer
             }
         }
 
-        public void UpsertSeries(Series series, float? index = null, DbContext context = null)
+        public void UpsertSeries(Series series, string order, DbContext context = null)
         {
             ArgumentValidator.EnsureNotNull(series, nameof(series));
 
@@ -214,9 +214,9 @@ namespace DataLayer
 
 			var singleSeriesBook = _seriesLink.SingleOrDefault(sb => sb.Series == series);
             if (singleSeriesBook == null)
-                _seriesLink.Add(new SeriesBook(series, this, index));
+                _seriesLink.Add(new SeriesBook(series, this, order));
             else
-                singleSeriesBook.UpdateIndex(index);
+                singleSeriesBook.UpdateOrder(order);
         }
         #endregion
 

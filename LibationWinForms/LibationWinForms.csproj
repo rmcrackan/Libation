@@ -29,7 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core.WindowsDesktop" Version="1.1.0.2" />
+    <PackageReference Include="Dinah.Core.WindowsDesktop" Version="1.1.1.1" />
   </ItemGroup>
 
   <ItemGroup>

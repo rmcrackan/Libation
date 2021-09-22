@@ -48,25 +48,6 @@ namespace DataLayer
                 Name = name;
         }
 
-        public void AddBook(Book book, float? index = null, DbContext context = null)
-        {
-            ArgumentValidator.EnsureNotNull(book, nameof(book));
-
-            // our add() is conditional upon what's already included in the collection.
-            // therefore if not loaded, a trip is required. might as well just load it
-            if (_booksLink == null)
-            {
-                ArgumentValidator.EnsureNotNull(context, nameof(context));
-                if (!context.Entry(this).IsKeySet)
-                    throw new InvalidOperationException("Could not add series");
-
-                context.Entry(this).Collection(s => s.BooksLink).Load();
-            }
-
-            if (_booksLink.SingleOrDefault(sb => sb.Book == book) == null)
-                _booksLink.Add(new SeriesBook(this, book, index));
-        }
-
 		public override string ToString() => Name;
 	}
 }

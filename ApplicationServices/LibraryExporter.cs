@@ -114,7 +114,7 @@ namespace ApplicationServices
 				Publisher = a.Book.Publisher,
 				HasPdf = a.Book.HasPdf,
 				SeriesNames = a.Book.SeriesNames,
-				SeriesOrder = a.Book.SeriesLink.Any() ? a.Book.SeriesLink?.Select(sl => $"{sl.Index} : {sl.Series.Name}").Aggregate((a, b) => $"{a}, {b}") : "",
+				SeriesOrder = a.Book.SeriesLink.Any() ? a.Book.SeriesLink?.Select(sl => $"{sl.Order} : {sl.Series.Name}").Aggregate((a, b) => $"{a}, {b}") : "",
 				CommunityRatingOverall = a.Book.Rating?.OverallRating,
 				CommunityRatingPerformance = a.Book.Rating?.PerformanceRating,
 				CommunityRatingStory = a.Book.Rating?.StoryRating,
