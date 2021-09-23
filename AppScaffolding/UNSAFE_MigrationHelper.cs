@@ -61,7 +61,16 @@ namespace AppScaffolding
 				return;
 
 			var startingContents = File.ReadAllText(APPSETTINGS_JSON);
-			var jObj = JObject.Parse(startingContents);
+
+			JObject jObj;
+			try
+			{
+				jObj = JObject.Parse(startingContents);
+			}
+			catch
+			{
+				return;
+			}
 
 			action(jObj);
 
@@ -130,7 +139,16 @@ namespace AppScaffolding
 				return;
 
 			var startingContents = File.ReadAllText(SettingsJsonPath);
-			var jObj = JObject.Parse(startingContents);
+
+			JObject jObj;
+			try
+			{
+				jObj = JObject.Parse(startingContents);
+			}
+			catch
+			{
+				return;
+			}
 
 			action(jObj);
 

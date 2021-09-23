@@ -24,35 +24,53 @@ namespace LibationWinForms
 		[STAThread]
 		static void Main()
 		{
-			//// Uncomment to see Console. Must be called before anything writes to Console.
-			//// Only use while debugging. Acts erratically in the wild
-			//AllocConsole();
+			try
+			{
+				//// Uncomment to see Console. Must be called before anything writes to Console.
+				//// Only use while debugging. Acts erratically in the wild
+				//AllocConsole();
 
-			Application.SetHighDpiMode(HighDpiMode.SystemAware);
-			Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
+				Application.SetHighDpiMode(HighDpiMode.SystemAware);
+				Application.EnableVisualStyles();
+				Application.SetCompatibleTextRenderingDefault(false);
 
-			//***********************************************//
-			//                                               //
-			//   do not use Configuration before this line   //
-			//                                               //
-			//***********************************************//
-			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
-			var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
+				//***********************************************//
+				//                                               //
+				//   do not use Configuration before this line   //
+				//                                               //
+				//***********************************************//
+				// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
+				var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
 
-			RunInstaller(config);
+				RunInstaller(config);
 
-			// most migrations go in here
-			AppScaffolding.LibationScaffolding.RunPostConfigMigrations();
+				// most migrations go in here
+				AppScaffolding.LibationScaffolding.RunPostConfigMigrations();
 
-			// migrations which require Forms or are long-running
-			RunWindowsOnlyMigrations(config);
+				// migrations which require Forms or are long-running
+				RunWindowsOnlyMigrations(config);
 
-			MessageBoxVerboseLoggingWarning.ShowIfTrue();
+				MessageBoxVerboseLoggingWarning.ShowIfTrue();
 
 #if !DEBUG
 			checkForUpdate();
 #endif
+
+			}
+			catch (Exception ex)
+			{
+				var title = "Fatal error, pre-logging";
+				var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
+				try
+				{
+					MessageBoxAlertAdmin.Show(body, title, ex);
+				}
+				catch
+				{
+					MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+				return;
+			}
 
 			AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding();
 
@@ -300,14 +318,14 @@ namespace LibationWinForms
 			if (result != DialogResult.Yes)
 				return;
 
-			using var fileSelector = new SaveFileDialog { FileName = zipName, Filter = "Zip Files (*.zip)|*.zip|All files (*.*)|*.*" };
-			if (fileSelector.ShowDialog() != DialogResult.OK)
-				return;
-			var selectedPath = fileSelector.FileName;
-
 			try
 			{
-				LibationWinForms.BookLiberation.ProcessorAutomationController.DownloadFile(zipUrl, selectedPath, true);
+				using var fileSelector = new SaveFileDialog { FileName = zipName, Filter = "Zip Files (*.zip)|*.zip|All files (*.*)|*.*" };
+				if (fileSelector.ShowDialog() != DialogResult.OK)
+					return;
+				var selectedPath = fileSelector.FileName;
+
+				BookLiberation.ProcessorAutomationController.DownloadFile(zipUrl, selectedPath, true);
 			}
 			catch (Exception ex)
 			{

@@ -1,6 +1,5 @@
-﻿using LibationWinForms.Dialogs;
-using System;
-using System.Linq;
+﻿using System;
+using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {
@@ -15,7 +14,11 @@ namespace LibationWinForms
 		/// <returns>One of the System.Windows.Forms.DialogResult values.</returns>
 		public static System.Windows.Forms.DialogResult Show(string text, string caption, Exception exception)
 		{
-			Serilog.Log.Logger.Error(exception, "Alert admin error: {@DebugText}", new { text, caption });
+			try
+			{
+				Serilog.Log.Logger.Error(exception, "Alert admin error: {@DebugText}", new { text, caption });
+			}
+			catch { }
 
 			using var form = new MessageBoxAlertAdminDialog(text, caption, exception);
 			return form.ShowDialog();

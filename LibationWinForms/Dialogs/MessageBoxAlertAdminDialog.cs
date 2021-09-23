@@ -33,10 +33,37 @@ namespace LibationWinForms.Dialogs
 		}
 
 		private void githubLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-			=> Go.To.Url("https://github.com/rmcrackan/Libation/issues");
+		{
+			var url = "https://github.com/rmcrackan/Libation/issues";
+			try
+			{
+				Go.To.Url(url);
+			}
+			catch
+			{
+				MessageBox.Show($"Error opening url\r\n{url}", "Error opening url", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
 
 		private void logsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-			=> Go.To.Folder(FileManager.Configuration.Instance.LibationFiles);
+		{
+			string dir = "";
+			try
+			{
+				dir = FileManager.Configuration.Instance.LibationFiles;
+			}
+			catch { }
+
+			try
+			{
+				Go.To.Folder(dir);
+			}
+			catch
+			{
+				MessageBox.Show($"Error opening folder\r\n{dir}", "Error opening folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
 
 		private void okBtn_Click(object sender, EventArgs e)
 		{
