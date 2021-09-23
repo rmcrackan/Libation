@@ -121,6 +121,7 @@ namespace InternalUtilities
 #if DEBUG
 //// this will not work for multi accounts
 //var library_json = "library.json";
+//library_json = System.IO.Path.GetFullPath(library_json);
 //if (System.IO.File.Exists(library_json))
 //{
 //    items = AudibleApi.Common.Converter.FromJson<List<Item>>(System.IO.File.ReadAllText(library_json));
@@ -128,11 +129,12 @@ namespace InternalUtilities
 #endif
 			if (!items.Any())
 				items = await Api.GetAllLibraryItemsAsync(responseGroups);
-#if DEBUG
-//System.IO.File.WriteAllText("library.json", AudibleApi.Common.Converter.ToJson(items));
-#endif
 
 			await manageEpisodesAsync(items);
+
+#if DEBUG
+//System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
+#endif
 
 			var validators = new List<IValidator>();
 			validators.AddRange(getValidators());
