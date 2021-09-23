@@ -55,8 +55,7 @@ namespace AaxDecrypter
                 ["Step 1: Get Aaxc Metadata"] = Step1_GetMetadata,
                 ["Step 2: Download Decrypted Audiobook"] = Step2_DownloadAndCombine,
                 ["Step 3: Create Cue"] = Step3_CreateCue,
-                ["Step 4: Create Nfo"] = Step4_CreateNfo,
-                ["Step 5: Cleanup"] = Step5_Cleanup,
+                ["Step 4: Cleanup"] = Step4_Cleanup,
             };
         }
 
@@ -197,21 +196,7 @@ namespace AaxDecrypter
             return !isCanceled;
         }
 
-        public bool Step4_CreateNfo()
-        {
-            // not a critical step. its failure should not prevent future steps from running
-            try
-            {
-                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".nfo"), NFO.CreateContents(AppName, aaxFile, downloadLicense.ChapterInfo));
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Logger.Error(ex, $"{nameof(Step4_CreateNfo)}. FAILED");
-            }
-            return !isCanceled;
-        }
-
-        public bool Step5_Cleanup()
+        public bool Step4_Cleanup()
         {
             FileExt.SafeDelete(jsonDownloadState);
             FileExt.SafeDelete(tempFile);

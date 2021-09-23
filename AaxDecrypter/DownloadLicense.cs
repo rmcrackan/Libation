@@ -13,15 +13,12 @@ namespace AaxDecrypter
 
         public DownloadLicense(string downloadUrl, string audibleKey, string audibleIV, string userAgent)
         {
-            ArgumentValidator.EnsureNotNullOrEmpty(downloadUrl, nameof(downloadUrl));
-            ArgumentValidator.EnsureNotNullOrEmpty(audibleKey, nameof(audibleKey));
-            ArgumentValidator.EnsureNotNullOrEmpty(audibleIV, nameof(audibleIV));
-            ArgumentValidator.EnsureNotNullOrEmpty(userAgent, nameof(userAgent));
+            DownloadUrl = ArgumentValidator.EnsureNotNullOrEmpty(downloadUrl, nameof(downloadUrl));
+            UserAgent = ArgumentValidator.EnsureNotNullOrEmpty(userAgent, nameof(userAgent));
 
-            DownloadUrl = downloadUrl;
+            // no null/empty check. unencrypted files do not have these
             AudibleKey = audibleKey;
             AudibleIV = audibleIV;
-            UserAgent = userAgent;
         }
     }
 }
