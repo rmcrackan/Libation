@@ -30,7 +30,7 @@
 		{
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.gridEntryBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.gridEntryBindingSource = new LibationWinForms.SyncBindingSource(this.components);
             this.gridEntryDataGridView = new System.Windows.Forms.DataGridView();
             this.dataGridViewImageButtonBoxColumn1 = new LibationWinForms.LiberateDataGridViewImageButtonColumn();
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
@@ -222,7 +222,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.BindingSource gridEntryBindingSource;
+		private LibationWinForms.SyncBindingSource gridEntryBindingSource;
 		private System.Windows.Forms.DataGridView gridEntryDataGridView;
         private LiberateDataGridViewImageButtonColumn dataGridViewImageButtonBoxColumn1;
         private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn1;
