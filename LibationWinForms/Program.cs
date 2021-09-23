@@ -275,8 +275,9 @@ namespace LibationWinForms
 				}
 
 				// in order: save to db, full reindex from db, refresh ui
-				context.SaveChanges();
-				ApplicationServices.SearchEngineCommands.FullReIndex();
+				var changed = context.SaveChanges();
+				if (changed > 0)
+					ApplicationServices.SearchEngineCommands.FullReIndex();
 				UserDefinedItem.BatchMode_Finalize();
 
 				// only do this after save changes
