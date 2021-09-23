@@ -34,6 +34,8 @@ namespace LibationWinForms
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
+			// used by async migrations to update ui when complete
+			DataLayer.UserDefinedItem.Batch_ItemChanged += reloadGridAndUpdateBottomNumbers;
 
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));

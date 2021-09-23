@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
-using DataLayer;
 using Dinah.Core;
 using Dinah.Core.DataBinding;
+using Dinah.Core.Threading;
 using Dinah.Core.Windows.Forms;
 using LibationWinForms.Dialogs;
 
@@ -130,7 +130,12 @@ namespace LibationWinForms
 			}
 
 			var orderedGridEntries = lib
-				.Select(lb => new GridEntry(lb, Filter)).ToList()
+				.Select(lb =>
+				{
+					var entry = new GridEntry(lb);
+					entry.Committed += (_, __) => Filter();
+					return entry;
+				}).ToList()
 				// default load order
 				.OrderByDescending(ge => (DateTime)ge.GetMemberValue(nameof(ge.PurchaseDate)))
 				//// more advanced example: sort by author, then series, then title
@@ -166,8 +171,11 @@ namespace LibationWinForms
 			var bindingContext = BindingContext[_dataGridView.DataSource];
 			bindingContext.SuspendBinding();
 			{
-				for (var r = _dataGridView.RowCount - 1; r >= 0; r--)
-					_dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).AudibleProductId);
+				this.UIThreadSync(() =>
+				{
+					for (var r = _dataGridView.RowCount - 1; r >= 0; r--)
+						_dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).AudibleProductId);
+				});
 			}
 
 			//Causes repainting of the DataGridView

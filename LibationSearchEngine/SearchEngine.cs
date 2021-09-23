@@ -315,7 +315,7 @@ namespace LibationSearchEngine
             var docs = searcher.Search(query, 1);
             var scoreDoc = docs.ScoreDocs.SingleOrDefault();
             if (scoreDoc == null)
-                throw new Exception("document not found");
+                return;
             var document = searcher.Doc(scoreDoc.Doc);
 
 

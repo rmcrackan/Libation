@@ -27,16 +27,15 @@ namespace LibationWinForms
 
 		#endregion
 
+		public event EventHandler Committed;
+
 		private Book Book => LibraryBook.Book;
 		private Image _cover;
-		private Action Refilter { get; }
 
-		public GridEntry(LibraryBook libraryBook, Action refilterOnChanged = null)
+		public GridEntry(LibraryBook libraryBook)
 		{
 			LibraryBook = libraryBook;
-			Refilter = refilterOnChanged;
 			_memberValues = CreateMemberValueDictionary();
-
 
 			//Get cover art. If it's default, subscribe to PictureCached
 			{
@@ -142,7 +141,7 @@ namespace LibationWinForms
 
 			Book.UserDefinedItem.BookStatus = displayStatus;
 
-			Refilter?.Invoke();
+			Committed?.Invoke(this, null);
 		}
 
 		#endregion	

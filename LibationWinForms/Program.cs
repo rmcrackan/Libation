@@ -259,22 +259,25 @@ namespace LibationWinForms
 
 					// assign these strings and enums/ints unconditionally. EFCore will only update if changed
 					if (fileType == FileType.PDF)
-						book.UserDefinedItem.PdfStatus = LiberatedStatus.Liberated;
+						book.UserDefinedItem.BatchMode_UpdatePdfStatus(LiberatedStatus.Liberated);
 
 					if (fileType == FileType.Audio)
 					{
 						var lhack = libhackFiles.FirstOrDefault(f => f.ContainsInsensitive(asin));
 						if (lhack is null)
-							book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
+							book.UserDefinedItem.BatchMode_UpdateBookStatus(LiberatedStatus.Liberated);
 						else
 						{
-							book.UserDefinedItem.BookStatus = LiberatedStatus.Error;
+							book.UserDefinedItem.BatchMode_UpdateBookStatus(LiberatedStatus.Error);
 							libhackFilesToDelete.Add(lhack);
 						}
 					}
 				}
 
+				// in order: save to db, full reindex from db, refresh ui
 				context.SaveChanges();
+				ApplicationServices.SearchEngineCommands.FullReIndex();
+				UserDefinedItem.BatchMode_Finalize();
 
 				// only do this after save changes
 				foreach (var libhackFile in libhackFilesToDelete)
