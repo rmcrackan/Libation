@@ -24,7 +24,10 @@ namespace LibationWinForms.BookLiberation
 			base.OnBegin(sender, libraryBook);
 		}
 		public override void OnCompleted(object sender, LibraryBook libraryBook)
-			=> LogMe.Info($"Convert Step, Completed: {libraryBook.Book}{Environment.NewLine}");
+		{
+			base.OnCompleted(sender, libraryBook);
+			LogMe.Info($"Convert Step, Completed: {libraryBook.Book}{Environment.NewLine}");
+		}
 
 		#endregion
 	}
