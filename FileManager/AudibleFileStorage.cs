@@ -36,6 +36,7 @@ namespace FileManager
             }
         }
 
+        private static object bookDirectoryFilesLocker { get; } = new();
         internal static BackgroundFileSystem BookDirectoryFiles { get; set; }
         #endregion
 
@@ -66,7 +67,7 @@ namespace FileManager
                 //If user changed the BooksDirectory, reinitialize.
                 if (StorageDirectory != BookDirectoryFiles.RootDirectory)
 				{
-                    lock (BookDirectoryFiles)
+                    lock (bookDirectoryFilesLocker)
                     {
                         if (StorageDirectory != BookDirectoryFiles.RootDirectory)
                         {

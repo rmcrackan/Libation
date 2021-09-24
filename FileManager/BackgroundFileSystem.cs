@@ -25,6 +25,8 @@ namespace FileManager
         private FileSystemWatcher fileSystemWatcher { get; set; }
         private BlockingCollection<FileSystemEventArgs> directoryChangesEvents { get; set; }
         private Task backgroundScanner { get; set; }
+
+        private object fsCacheLocker { get; } = new();
         private List<string> fsCache { get; } = new();
 
         public BackgroundFileSystem(string rootDirectory, string searchPattern, SearchOption searchOptions)
@@ -38,15 +40,13 @@ namespace FileManager
 
         public string FindFile(string regexPattern, RegexOptions options)
         {
-            lock (fsCache)
-            {
+            lock (fsCacheLocker)
                 return fsCache.FirstOrDefault(s => Regex.IsMatch(s, regexPattern, options));
-            }
         }
 
         public void RefreshFiles()
         {
-            lock (fsCache)
+            lock (fsCacheLocker)
             {
                 fsCache.Clear();
                 fsCache.AddRange(Directory.EnumerateFiles(RootDirectory, SearchPattern, SearchOption));
@@ -57,7 +57,7 @@ namespace FileManager
         {
             Stop();
 
-            lock (fsCache)
+            lock (fsCacheLocker)
                 fsCache.AddRange(Directory.EnumerateFiles(RootDirectory, SearchPattern, SearchOption));
 
             directoryChangesEvents = new BlockingCollection<FileSystemEventArgs>();
@@ -86,7 +86,7 @@ namespace FileManager
             //Dispose of directoryChangesEvents after backgroundScanner exists.
             directoryChangesEvents?.Dispose();
 
-            lock (fsCache)
+            lock (fsCacheLocker)
                 fsCache.Clear();
         }
 
@@ -106,7 +106,7 @@ namespace FileManager
         {
             while (directoryChangesEvents.TryTake(out FileSystemEventArgs change, -1))
             {
-                lock (fsCache)
+                lock (fsCacheLocker)
                     UpdateLocalCache(change);
             }
         }
@@ -146,9 +146,7 @@ namespace FileManager
         private void AddUniqueFiles(IEnumerable<string> newFiles)
         {
             foreach (var file in newFiles)
-            {
                 AddUniqueFile(file);
-            }
         }
         private void AddUniqueFile(string newFile)
         {

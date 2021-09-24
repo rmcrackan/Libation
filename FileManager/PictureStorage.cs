@@ -43,11 +43,12 @@ namespace FileManager
 		public static event EventHandler<PictureCachedEventArgs> PictureCached;
 
 		private static BlockingCollection<PictureDefinition> DownloadQueue { get; } = new BlockingCollection<PictureDefinition>();
+		private static object cacheLocker { get; } = new object();
 		private static Dictionary<PictureDefinition, byte[]> cache { get; } = new Dictionary<PictureDefinition, byte[]>();
 		private static Dictionary<PictureSize, byte[]> defaultImages { get; } = new Dictionary<PictureSize, byte[]>();
 		public static (bool isDefault, byte[] bytes) GetPicture(PictureDefinition def)
 		{
-			lock (cache)
+			lock (cacheLocker)
 			{
 				if (cache.ContainsKey(def))
 					return (false, cache[def]);
@@ -67,7 +68,7 @@ namespace FileManager
 
 		public static byte[] GetPictureSynchronously(PictureDefinition def)
 		{
-			lock (cache)
+			lock (cacheLocker)
 			{
 				if (!cache.ContainsKey(def) || cache[def] == null)
 				{
@@ -104,7 +105,7 @@ namespace FileManager
 
 				var bytes = downloadBytes(def);
 				saveFile(def, bytes);
-				lock (cache)
+				lock (cacheLocker)
 					cache[def] = bytes;
 
 				PictureCached?.Invoke(nameof(PictureStorage), new PictureCachedEventArgs { Definition = def, Picture = bytes });
