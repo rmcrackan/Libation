@@ -95,20 +95,20 @@ namespace FileLiberator
                     Resources.USER_AGENT
                     );
 
-                if (Configuration.Instance.AllowLibationFixup)
+                //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
+                //This may be wrong, and only time and bug reports will tell.
+                var outputFormat = 
+                    contentLic.ContentMetadata.ContentReference.ContentFormat == "MPEG" ||
+                    (Configuration.Instance.AllowLibationFixup && Configuration.Instance.DecryptToLossy) ? 
+                    OutputFormat.Mp3 : OutputFormat.M4b;
+
+                if (Configuration.Instance.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
                 {
                     aaxcDecryptDlLic.ChapterInfo = new AAXClean.ChapterInfo();
 
                     foreach (var chap in contentLic.ContentMetadata?.ChapterInfo?.Chapters)
                         aaxcDecryptDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
-
-                //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
-                //This may be wrong, and only time and bug reports will tell.
-                var outputFormat = 
-                    contentLic.ContentMetadata.ContentReference.ContentFormat == "MPEG" ||
-                    Configuration.Instance.DecryptToLossy ? 
-                    OutputFormat.Mp3 : OutputFormat.M4b;
 
                 var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
 
