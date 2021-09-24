@@ -17,15 +17,6 @@ namespace FileLiberator
 			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
 			&& !libraryBook.Book.PDF_Exists;
 
-		public DownloadPdf()
-		{
-			StreamingBegin += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(StreamingBegin), Message = e });
-			StreamingCompleted += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(StreamingCompleted), Message = e });
-
-			Begin += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(Begin), Book = e.LogFriendly() });
-			Completed += (o, e) => Serilog.Log.Logger.Information("Event fired {@DebugInfo}", new { Name = nameof(Completed), Book = e.LogFriendly() });
-		}
-
 		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
 		{
 			var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);

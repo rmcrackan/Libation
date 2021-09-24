@@ -1,5 +1,4 @@
 ﻿using AAXClean;
-using Dinah.Core;
 using Dinah.Core.IO;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
@@ -8,52 +7,25 @@ using System.IO;
 
 namespace AaxDecrypter
 {
-    public enum OutputFormat { Mp4a,  Mp3 }
-    public class AaxcDownloadConverter
+    public class AaxcDownloadConverter : AudiobookDownloadBase
     {
-        public event EventHandler<AppleTags> RetrievedTags;
-        public event EventHandler<byte[]> RetrievedCoverArt;
-        public event EventHandler<DownloadProgress> DecryptProgressUpdate;
-        public event EventHandler<TimeSpan> DecryptTimeRemaining;
+        protected override StepSequence steps { get; }
 
-        public string AppName { get; set; } = nameof(AaxcDownloadConverter);
-
-        private string outputFileName { get; }
-        private string cacheDir { get; }
-        private DownloadLicense downloadLicense { get; }
         private AaxFile aaxFile;
-        private OutputFormat OutputFormat;
 
-        private StepSequence steps { get; }
-        private NetworkFileStreamPersister nfsPersister;
-        private bool isCanceled { get; set; }
-        private string jsonDownloadState => Path.Combine(cacheDir, Path.GetFileNameWithoutExtension(outputFileName) + ".json");
-        private string tempFile => PathLib.ReplaceExtension(jsonDownloadState, ".aaxc");
+        private OutputFormat OutputFormat { get; }
 
         public AaxcDownloadConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic, OutputFormat outputFormat)
+            :base(outFileName, cacheDirectory, dlLic)
         {
-            ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
-            outputFileName = outFileName;
-
-            var outDir = Path.GetDirectoryName(outputFileName);
-            if (!Directory.Exists(outDir))
-                throw new ArgumentNullException(nameof(outDir), "Directory does not exist");
-            if (File.Exists(outputFileName))
-                File.Delete(outputFileName);
-
-            if (!Directory.Exists(cacheDirectory))
-                throw new ArgumentNullException(nameof(cacheDirectory), "Directory does not exist");
-            cacheDir = cacheDirectory;
-
-            downloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
             OutputFormat = outputFormat;
 
             steps = new StepSequence
             {
-                Name = "Download and Convert Aaxc To " + (outputFormat == OutputFormat.Mp4a ? "M4b" : "Mp3"),
+                Name = "Download and Convert Aaxc To " + OutputFormat,
 
                 ["Step 1: Get Aaxc Metadata"] = Step1_GetMetadata,
-                ["Step 2: Download Decrypted Audiobook"] = Step2_DownloadAndCombine,
+                ["Step 2: Download Decrypted Audiobook"] = Step2_DownloadAudiobook,
                 ["Step 3: Create Cue"] = Step3_CreateCue,
                 ["Step 4: Cleanup"] = Step4_Cleanup,
             };
@@ -62,102 +34,56 @@ namespace AaxDecrypter
         /// <summary>
         /// Setting cover art by this method will insert the art into the audiobook metadata
         /// </summary>
-        public void SetCoverArt(byte[] coverArt)
+        public override void SetCoverArt(byte[] coverArt)
         {
-            if (coverArt is null) return;
+            base.SetCoverArt(coverArt);
 
             aaxFile?.AppleTags.SetCoverArt(coverArt);
-
-            RetrievedCoverArt?.Invoke(this, coverArt);
         }
 
-        public bool Run()
-        {
-            var (IsSuccess, Elapsed) = steps.Run();
+        protected override bool Step1_GetMetadata()
+        {    
+            aaxFile = new AaxFile(InputFileStream);
 
-            if (!IsSuccess)
-            {
-                Console.WriteLine("WARNING-Conversion failed");
-                return false;
-            }
-
-            var speedup = (int)(aaxFile.Duration.TotalSeconds / (long)Elapsed.TotalSeconds);
-            Serilog.Log.Logger.Information($"Speedup is {speedup}x realtime.");
-            return true;
-        }
-
-        public bool Step1_GetMetadata()
-        {
-            //Get metadata from the file over http
-                       
-            if (File.Exists(jsonDownloadState))
-            {
-                try
-                {
-                    nfsPersister = new NetworkFileStreamPersister(jsonDownloadState);
-                    //If More than ~1 hour has elapsed since getting the download url, it will expire.
-                    //The new url will be to the same file.
-                    nfsPersister.NetworkFileStream.SetUriForSameFile(new Uri(downloadLicense.DownloadUrl));
-                }
-                catch
-                {
-                    FileExt.SafeDelete(jsonDownloadState);
-                    FileExt.SafeDelete(tempFile);
-                    nfsPersister = NewNetworkFilePersister();
-                }
-            }
-            else
-            {
-                nfsPersister = NewNetworkFilePersister();
-            }
-
-            aaxFile = new AaxFile(nfsPersister.NetworkFileStream);
-
-            RetrievedTags?.Invoke(this, aaxFile.AppleTags);
-            RetrievedCoverArt?.Invoke(this, aaxFile.AppleTags.Cover);
+            OnRetrievedTitle(aaxFile.AppleTags.TitleSansUnabridged);
+            OnRetrievedAuthors(aaxFile.AppleTags.FirstAuthor ?? "[unknown]");
+            OnRetrievedNarrators(aaxFile.AppleTags.Narrator ?? "[unknown]");
+            OnRetrievedCoverArt(aaxFile.AppleTags.Cover);
 
             return !isCanceled;
         }
-        private NetworkFileStreamPersister NewNetworkFilePersister()
-        {
-			var headers = new System.Net.WebHeaderCollection
-			{
-				{ "User-Agent", downloadLicense.UserAgent }
-			};
 
-			var networkFileStream = new NetworkFileStream(tempFile, new Uri(downloadLicense.DownloadUrl), 0, headers);
-            return new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
-        }
-
-        public bool Step2_DownloadAndCombine()
+        protected override bool Step2_DownloadAudiobook()
         {
             var zeroProgress = new DownloadProgress 
             { 
                 BytesReceived = 0,
                 ProgressPercentage = 0, 
-                TotalBytesToReceive = nfsPersister.NetworkFileStream.Length 
+                TotalBytesToReceive = InputFileStream.Length 
             };
 
-            DecryptProgressUpdate?.Invoke(this, zeroProgress);
+            OnDecryptProgressUpdate(zeroProgress);
+
+
+            aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
+
 
             if (File.Exists(outputFileName))
                 FileExt.SafeDelete(outputFileName);
 
-            FileStream outFile = File.Open(outputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-
-            aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
+            var outputFile =  File.Open(outputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-            var decryptionResult = OutputFormat == OutputFormat.Mp4a ? aaxFile.ConvertToMp4a(outFile, downloadLicense.ChapterInfo) : aaxFile.ConvertToMp3(outFile);
+            var decryptionResult = OutputFormat == OutputFormat.M4b ? aaxFile.ConvertToMp4a(outputFile, downloadLicense.ChapterInfo) : aaxFile.ConvertToMp3(outputFile);
             aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
             aaxFile.Close();
 
             downloadLicense.ChapterInfo = aaxFile.Chapters;
 
-            nfsPersister.Dispose();
+            CloseInputFileStream();
 
-            DecryptProgressUpdate?.Invoke(this, zeroProgress);
+            OnDecryptProgressUpdate(zeroProgress);
 
             return decryptionResult == ConversionResult.NoErrorsDetected && !isCanceled;
         }
@@ -169,47 +95,28 @@ namespace AaxDecrypter
             double estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
 
             if (double.IsNormal(estTimeRemaining))
-                DecryptTimeRemaining?.Invoke(this, TimeSpan.FromSeconds(estTimeRemaining));
+                OnDecryptTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
 
-            double progressPercent = 100 * e.ProcessPosition.TotalSeconds / duration.TotalSeconds;
+            double progressPercent = e.ProcessPosition.TotalSeconds / duration.TotalSeconds;
 
-            DecryptProgressUpdate?.Invoke(this,
+            OnDecryptProgressUpdate(
                 new DownloadProgress 
                 {
-                    ProgressPercentage = progressPercent,
-                    BytesReceived = (long)(nfsPersister.NetworkFileStream.Length * progressPercent),
-                    TotalBytesToReceive = nfsPersister.NetworkFileStream.Length
+                    ProgressPercentage = 100 * progressPercent,
+                    BytesReceived = (long)(InputFileStream.Length * progressPercent),
+                    TotalBytesToReceive = InputFileStream.Length
                 });
         }
 
-        public bool Step3_CreateCue()
-        {
-            // not a critical step. its failure should not prevent future steps from running
-            try
-            {
-                File.WriteAllText(PathLib.ReplaceExtension(outputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(outputFileName), downloadLicense.ChapterInfo));
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Logger.Error(ex, $"{nameof(Step3_CreateCue)}. FAILED");
-            }
-            return !isCanceled;
-        }
-
-        public bool Step4_Cleanup()
-        {
-            FileExt.SafeDelete(jsonDownloadState);
-            FileExt.SafeDelete(tempFile);
-            return !isCanceled;
-        }
-
-        public void Cancel()
+        public override void Cancel()
         {
             isCanceled = true;
             aaxFile?.Cancel();
             aaxFile?.Dispose();
-            nfsPersister?.NetworkFileStream?.Close();
-            nfsPersister?.Dispose();
+            CloseInputFileStream();
         }
-    }
+
+		protected override int GetSpeedup(TimeSpan elapsed)
+            => (int)(aaxFile.Duration.TotalSeconds / (long)elapsed.TotalSeconds);
+	}
 }
