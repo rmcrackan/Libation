@@ -15,7 +15,7 @@ namespace FileLiberator
 {
     public class DownloadDecryptBook : IAudioDecodable
     {
-        private AudioDownloadBase aaxcDownloader;
+        private AudiobookDownloadBase aaxcDownloader;
 
         public event EventHandler<TimeSpan> StreamingTimeRemaining;
         public event EventHandler<Action<byte[]>> RequestCoverArt;
@@ -54,7 +54,7 @@ namespace FileLiberator
                 if (libraryBook.Book.Audio_Exists)
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-                var outputAudioFilename = await aaxToM4bConverterDecryptAsync(AudibleFileStorage.DownloadsInProgress, AudibleFileStorage.DecryptInProgress, libraryBook);
+                var outputAudioFilename = await downloadAudiobookAsync(AudibleFileStorage.DownloadsInProgress, AudibleFileStorage.DecryptInProgress, libraryBook);
 
                 // decrypt failed
                 if (outputAudioFilename is null)
@@ -76,7 +76,7 @@ namespace FileLiberator
             }
         }
 
-        private async Task<string> aaxToM4bConverterDecryptAsync(string cacheDir, string destinationDir, LibraryBook libraryBook)
+        private async Task<string> downloadAudiobookAsync(string cacheDir, string destinationDir, LibraryBook libraryBook)
         {
             StreamingBegin?.Invoke(this, $"Begin decrypting {libraryBook}");
 
@@ -112,7 +112,7 @@ namespace FileLiberator
 
                 var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
 
-                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm ? new AaxcDownloadConverter(outFileName, cacheDir, aaxcDecryptDlLic, outputFormat) { AppName = "Libation" } : new Mp3Downloader(outFileName, cacheDir, aaxcDecryptDlLic);
+                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm ? new AaxcDownloadConverter(outFileName, cacheDir, aaxcDecryptDlLic, outputFormat) { AppName = "Libation" } : new Mp3AudiobookDownloader(outFileName, cacheDir, aaxcDecryptDlLic);
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => StreamingProgressChanged?.Invoke(this, progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => StreamingTimeRemaining?.Invoke(this, remaining);
                 aaxcDownloader.RetrievedTitle += (s, title) => TitleDiscovered?.Invoke(this, title);

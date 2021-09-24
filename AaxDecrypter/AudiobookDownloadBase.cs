@@ -13,7 +13,7 @@ namespace AaxDecrypter
 {
 	public enum OutputFormat { M4b, Mp3 }
 
-	public abstract class AudioDownloadBase
+	public abstract class AudiobookDownloadBase
 	{
 		public event EventHandler<string> RetrievedTitle;
 		public event EventHandler<string> RetrievedAuthors;
@@ -37,7 +37,7 @@ namespace AaxDecrypter
 		private string jsonDownloadState => Path.Combine(cacheDir, Path.GetFileNameWithoutExtension(outputFileName) + ".json");
 		private string tempFile => PathLib.ReplaceExtension(jsonDownloadState, ".tmp");
 
-		public AudioDownloadBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+		public AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
 		{
 			AppName = GetType().Name;
 

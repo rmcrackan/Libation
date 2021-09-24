@@ -7,7 +7,7 @@ using System.IO;
 
 namespace AaxDecrypter
 {
-    public class AaxcDownloadConverter : AudioDownloadBase
+    public class AaxcDownloadConverter : AudiobookDownloadBase
     {
         protected override StepSequence steps { get; }
 
