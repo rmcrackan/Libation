@@ -46,11 +46,10 @@ namespace AppScaffolding
 			return Configuration.Instance;
 		}
 
-		public static void RunPostConfigMigrations()
+		/// <summary>most migrations go in here</summary>
+		public static void RunPostConfigMigrations(Configuration config)
 		{
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
-
-			var config = Configuration.Instance;
 
 			//
 			// migrations go below here
@@ -58,13 +57,12 @@ namespace AppScaffolding
 
 			Migrations.migrate_to_v5_2_0__post_config(config);
 			Migrations.migrate_to_v5_7_1(config);
+			Migrations.migrate_to_v6_1_2(config);
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>
-		public static void RunPostMigrationScaffolding()
+		public static void RunPostMigrationScaffolding(Configuration config)
 		{
-			var config = Configuration.Instance;
-
 			ensureSerilogConfig(config);
 			configureLogging(config);
 			logStartupState(config);
@@ -328,6 +326,13 @@ namespace AppScaffolding
 		{
 			if (!config.Exists(nameof(config.BadBook)))
 				config.BadBook = Configuration.BadBookAction.Ask;
+		}
+
+		// add config.DownloadEpisodes
+		public static void migrate_to_v6_1_2(Configuration config)
+		{
+			if (!config.Exists(nameof(config.DownloadEpisodes)))
+				config.DownloadEpisodes = true;
 		}
 	}
 }
