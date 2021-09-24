@@ -192,6 +192,7 @@ namespace ApplicationServices
 
 			var removeLibraryBooks = libBooks.Where(lb => idsToRemove.Contains(lb.Book.AudibleProductId)).ToList();
 			context.LibraryBooks.RemoveRange(removeLibraryBooks);
+			context.Books.RemoveRange(removeLibraryBooks.Select(lb => lb.Book));
 
 			var qtyChanges = context.SaveChanges();
 			if (qtyChanges > 0)

@@ -91,16 +91,22 @@ namespace LibationWinForms.Dialogs
 		{
 			var selectedBooks = SelectedEntries.ToList();
 
-			if (selectedBooks.Count == 0) return;
+			if (selectedBooks.Count == 0)
+				return;
 
-			string titles = string.Join("\r\n", selectedBooks.Select(rge => "-" + rge.Title));
+			var titles = selectedBooks.Select(rge => "- " + rge.Title).ToList();
+			var titlesAgg = titles.Take(5).Aggregate((a, b) => $"{a}\r\n{b}");
+			if (titles.Count == 6)
+				titlesAgg += $"\r\n\r\nand 1 other";
+			else if (titles.Count > 6)
+				titlesAgg += $"\r\n\r\nand {titles.Count - 5} others";
 
 			string thisThese = selectedBooks.Count > 1 ? "these" : "this";
 			string bookBooks = selectedBooks.Count > 1 ? "books" : "book";
 
 			var result = MessageBox.Show(
 				this,
-				$"Are you sure you want to remove {thisThese} {selectedBooks.Count} {bookBooks} from Libation's library?\r\n\r\n{titles}",
+				$"Are you sure you want to remove {thisThese} {selectedBooks.Count} {bookBooks} from Libation's library?\r\n\r\n{titlesAgg}",
 				"Remove books from Libation?",
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Question,
