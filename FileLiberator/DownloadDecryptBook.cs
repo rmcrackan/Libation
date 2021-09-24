@@ -96,7 +96,7 @@ namespace FileLiberator
                     );
 
                 //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
-                //I also assume that if DrmType == Adrm, the file will be an mp3.
+                //I also assume that if DrmType != Adrm, the file will be an mp3.
                 //These assumptions may be wrong, and only time and bug reports will tell.
                 var outputFormat = 
                     contentLic.ContentMetadata.ContentReference.ContentFormat == "MPEG" ||
