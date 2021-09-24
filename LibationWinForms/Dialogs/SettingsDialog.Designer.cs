@@ -48,6 +48,7 @@
 			this.booksGb = new System.Windows.Forms.GroupBox();
 			this.loggingLevelLbl = new System.Windows.Forms.Label();
 			this.loggingLevelCb = new System.Windows.Forms.ComboBox();
+			this.downloadEpisodesCb = new System.Windows.Forms.CheckBox();
 			this.advancedSettingsGb.SuspendLayout();
 			this.badBookGb.SuspendLayout();
 			this.decryptAndConvertGb.SuspendLayout();
@@ -67,7 +68,7 @@
 			// inProgressDescLbl
 			// 
 			this.inProgressDescLbl.AutoSize = true;
-			this.inProgressDescLbl.Location = new System.Drawing.Point(8, 149);
+			this.inProgressDescLbl.Location = new System.Drawing.Point(8, 174);
 			this.inProgressDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.inProgressDescLbl.Name = "inProgressDescLbl";
 			this.inProgressDescLbl.Size = new System.Drawing.Size(43, 45);
@@ -77,7 +78,7 @@
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(714, 445);
+			this.saveBtn.Location = new System.Drawing.Point(714, 470);
 			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(88, 27);
@@ -90,7 +91,7 @@
 			// 
 			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(832, 445);
+			this.cancelBtn.Location = new System.Drawing.Point(832, 470);
 			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
@@ -104,6 +105,7 @@
 			this.advancedSettingsGb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.advancedSettingsGb.Controls.Add(this.downloadEpisodesCb);
 			this.advancedSettingsGb.Controls.Add(this.badBookGb);
 			this.advancedSettingsGb.Controls.Add(this.decryptAndConvertGb);
 			this.advancedSettingsGb.Controls.Add(this.inProgressSelectControl);
@@ -112,7 +114,7 @@
 			this.advancedSettingsGb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.advancedSettingsGb.Name = "advancedSettingsGb";
 			this.advancedSettingsGb.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.advancedSettingsGb.Size = new System.Drawing.Size(908, 258);
+			this.advancedSettingsGb.Size = new System.Drawing.Size(908, 283);
 			this.advancedSettingsGb.TabIndex = 6;
 			this.advancedSettingsGb.TabStop = false;
 			this.advancedSettingsGb.Text = "Advanced settings for control freaks";
@@ -123,7 +125,7 @@
 			this.badBookGb.Controls.Add(this.badBookRetryRb);
 			this.badBookGb.Controls.Add(this.badBookAbortRb);
 			this.badBookGb.Controls.Add(this.badBookAskRb);
-			this.badBookGb.Location = new System.Drawing.Point(372, 22);
+			this.badBookGb.Location = new System.Drawing.Point(372, 47);
 			this.badBookGb.Name = "badBookGb";
 			this.badBookGb.Size = new System.Drawing.Size(529, 124);
 			this.badBookGb.TabIndex = 11;
@@ -179,7 +181,7 @@
 			this.decryptAndConvertGb.Controls.Add(this.allowLibationFixupCbox);
 			this.decryptAndConvertGb.Controls.Add(this.convertLossyRb);
 			this.decryptAndConvertGb.Controls.Add(this.convertLosslessRb);
-			this.decryptAndConvertGb.Location = new System.Drawing.Point(7, 22);
+			this.decryptAndConvertGb.Location = new System.Drawing.Point(8, 47);
 			this.decryptAndConvertGb.Name = "decryptAndConvertGb";
 			this.decryptAndConvertGb.Size = new System.Drawing.Size(359, 124);
 			this.decryptAndConvertGb.TabIndex = 7;
@@ -225,7 +227,7 @@
 			// 
 			this.inProgressSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.inProgressSelectControl.Location = new System.Drawing.Point(7, 197);
+			this.inProgressSelectControl.Location = new System.Drawing.Point(7, 222);
 			this.inProgressSelectControl.Name = "inProgressSelectControl";
 			this.inProgressSelectControl.Size = new System.Drawing.Size(552, 52);
 			this.inProgressSelectControl.TabIndex = 16;
@@ -280,13 +282,23 @@
 			this.loggingLevelCb.Size = new System.Drawing.Size(129, 23);
 			this.loggingLevelCb.TabIndex = 4;
 			// 
+			// downloadEpisodesCb
+			// 
+			this.downloadEpisodesCb.AutoSize = true;
+			this.downloadEpisodesCb.Location = new System.Drawing.Point(8, 22);
+			this.downloadEpisodesCb.Name = "downloadEpisodesCb";
+			this.downloadEpisodesCb.Size = new System.Drawing.Size(163, 19);
+			this.downloadEpisodesCb.TabIndex = 17;
+			this.downloadEpisodesCb.Text = "[download episodes desc]";
+			this.downloadEpisodesCb.UseVisualStyleBackColor = true;
+			// 
 			// SettingsDialog
 			// 
 			this.AcceptButton = this.saveBtn;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(933, 488);
+			this.ClientSize = new System.Drawing.Size(933, 513);
 			this.Controls.Add(this.logsBtn);
 			this.Controls.Add(this.loggingLevelCb);
 			this.Controls.Add(this.loggingLevelLbl);
@@ -334,5 +346,6 @@
 		private System.Windows.Forms.RadioButton badBookAbortRb;
 		private System.Windows.Forms.RadioButton badBookAskRb;
 		private System.Windows.Forms.RadioButton badBookIgnoreRb;
+		private System.Windows.Forms.CheckBox downloadEpisodesCb;
 	}
 }

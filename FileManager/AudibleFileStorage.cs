@@ -48,7 +48,7 @@ namespace FileManager
 
         protected AudibleFileStorage(FileType fileType) : base((int)fileType, fileType.ToString())
 		{
-			extensions_noDots = Extensions.Select(ext => ext.Trim('.')).ToList();
+			extensions_noDots = Extensions.Select(ext => ext.ToLower().Trim('.')).ToList();
 			extAggr = extensions_noDots.Aggregate((a, b) => $"{a}|{b}");
             BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
         }
@@ -59,7 +59,8 @@ namespace FileManager
             if (cachedFile != null)
                 return cachedFile;
 
-            string regexPattern = $@"{productId}.*?\.({extAggr})$";
+            var regex = new Regex($@"{productId}.*?\.({extAggr})$", RegexOptions.IgnoreCase);
+
             string firstOrNull;
 
             if (StorageDirectory == BooksDirectory)
@@ -76,14 +77,14 @@ namespace FileManager
                     }
 				}
 
-                firstOrNull = BookDirectoryFiles.FindFile(regexPattern, RegexOptions.IgnoreCase);
+                firstOrNull = BookDirectoryFiles.FindFile(regex);
             }
             else
             {
                 firstOrNull =
                     Directory
                     .EnumerateFiles(StorageDirectory, "*.*", SearchOption.AllDirectories)
-                    .FirstOrDefault(s => Regex.IsMatch(s, regexPattern, RegexOptions.IgnoreCase));
+                    .FirstOrDefault(s => regex.IsMatch(s));
             }
 
 			if (firstOrNull is null)

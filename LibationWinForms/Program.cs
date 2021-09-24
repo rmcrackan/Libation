@@ -42,10 +42,11 @@ namespace LibationWinForms
 				// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 				var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
 
+				// do this as soon as possible (post-config)
 				RunInstaller(config);
 
 				// most migrations go in here
-				AppScaffolding.LibationScaffolding.RunPostConfigMigrations();
+				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
 
 				// migrations which require Forms or are long-running
 				RunWindowsOnlyMigrations(config);
@@ -53,9 +54,10 @@ namespace LibationWinForms
 				MessageBoxVerboseLoggingWarning.ShowIfTrue();
 
 #if !DEBUG
-			checkForUpdate();
+				checkForUpdate();
 #endif
 
+				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
 			}
 			catch (Exception ex)
 			{
@@ -71,8 +73,6 @@ namespace LibationWinForms
 				}
 				return;
 			}
-
-			AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding();
 
 			Application.Run(new Form1());
 		}
@@ -143,8 +143,6 @@ namespace LibationWinForms
 			// if 'new user' was clicked, or if 'returning user' chose new install: show basic settings dialog
 			config.Books ??= Path.Combine(defaultLibationFilesDir, "Books");
 			config.InProgress ??= Configuration.WinTemp;
-			config.AllowLibationFixup = true;
-			config.DecryptToLossy = false;
 
 			if (new SettingsDialog().ShowDialog() != DialogResult.OK)
 			{
@@ -158,6 +156,7 @@ namespace LibationWinForms
 			CancelInstallation();
 		}
 
+		/// <summary>migrations which require Forms or are long-running</summary>
 		private static void RunWindowsOnlyMigrations(Configuration config)
 		{
 			// only supported in winforms. don't move to app scaffolding
@@ -170,9 +169,6 @@ namespace LibationWinForms
 		#region migrate to v5.0.0 re-register device if device info not in settings
 		private static void migrate_to_v5_0_0(Configuration config)
 		{
-			if (!config.Exists(nameof(config.AllowLibationFixup)))
-				config.AllowLibationFixup = true;
-
 			if (!File.Exists(AudibleApiStorage.AccountsSettingsFile))
 				return;
 

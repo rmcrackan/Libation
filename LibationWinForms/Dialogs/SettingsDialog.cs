@@ -26,6 +26,7 @@ namespace LibationWinForms.Dialogs
 				loggingLevelCb.SelectedItem = config.LogLevel;
 			}
 
+			this.downloadEpisodesCb.Text = desc(nameof(config.DownloadEpisodes));
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
 			this.inProgressDescLbl.Text = desc(nameof(config.InProgress));
 
@@ -41,6 +42,7 @@ namespace LibationWinForms.Dialogs
 				"Books");
 			booksSelectControl.SelectDirectory(config.Books);
 
+			downloadEpisodesCb.Checked = config.DownloadEpisodes;
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
 			convertLosslessRb.Checked = !config.DecryptToLossy;
 			convertLossyRb.Checked = config.DecryptToLossy;
@@ -121,6 +123,7 @@ namespace LibationWinForms.Dialogs
 					MessageBoxVerboseLoggingWarning.ShowIfTrue();
 			}
 
+			config.DownloadEpisodes = downloadEpisodesCb.Checked;
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
 			config.DecryptToLossy = convertLossyRb.Checked;
 

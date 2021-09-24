@@ -11,21 +11,40 @@ using FileManager;
 
 namespace FileLiberator
 {
-	public class DownloadPdf : DownloadableBase
+	public class DownloadPdf : IProcessable
 	{
-		public override bool Validate(LibraryBook libraryBook)
+		public event EventHandler<LibraryBook> Begin;
+		public event EventHandler<LibraryBook> Completed;
+
+		public event EventHandler<string> StreamingBegin;
+		public event EventHandler<DownloadProgress> StreamingProgressChanged;
+		public event EventHandler<string> StreamingCompleted;
+
+		public event EventHandler<string> StatusUpdate;
+		public event EventHandler<TimeSpan> StreamingTimeRemaining;
+
+		public bool Validate(LibraryBook libraryBook)
 			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
 			&& !libraryBook.Book.PDF_Exists;
 
-		public override async Task<StatusHandler> ProcessItemAsync(LibraryBook libraryBook)
+		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
 		{
-			var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
-			var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
-			var result = verifyDownload(actualDownloadedFilePath);
+			Begin?.Invoke(this, libraryBook);
 
-			libraryBook.Book.UserDefinedItem.PdfStatus = result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated;
+			try
+			{
+				var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
+				var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
+				var result = verifyDownload(actualDownloadedFilePath);
 
-			return result;
+				libraryBook.Book.UserDefinedItem.PdfStatus = result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated;
+
+				return result;
+			}
+			finally
+			{
+				Completed?.Invoke(this, libraryBook);
+			}
 		}
 
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
@@ -50,15 +69,26 @@ namespace FileLiberator
 
 		private async Task<string> downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
 		{
-			var api = await libraryBook.GetApiAsync();
-			var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
+			StreamingBegin?.Invoke(this, proposedDownloadFilePath);
 
-			var client = new HttpClient();
-			var actualDownloadedFilePath = await PerformDownloadAsync(
-				proposedDownloadFilePath,
-				(p) => client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, p));
+			try
+			{
+				var api = await libraryBook.GetApiAsync();
+				var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
 
-			return actualDownloadedFilePath;
+				var progress = new Progress<DownloadProgress>();
+				progress.ProgressChanged += (_, e) => StreamingProgressChanged?.Invoke(this, e);
+
+				var client = new HttpClient();
+
+				var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
+				StatusUpdate?.Invoke(this, actualDownloadedFilePath);
+				return actualDownloadedFilePath;
+			}
+			finally
+			{
+				StreamingCompleted?.Invoke(this, proposedDownloadFilePath);
+			}
 		}
 
 		private static StatusHandler verifyDownload(string actualDownloadedFilePath)

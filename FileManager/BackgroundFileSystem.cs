@@ -3,8 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FileManager
@@ -38,10 +36,10 @@ namespace FileManager
             Init();
         }
 
-        public string FindFile(string regexPattern, RegexOptions options)
+        public string FindFile(System.Text.RegularExpressions.Regex regex)
         {
             lock (fsCacheLocker)
-                return fsCache.FirstOrDefault(s => Regex.IsMatch(s, regexPattern, options));
+                return fsCache.FirstOrDefault(s => regex.IsMatch(s));
         }
 
         public void RefreshFiles()
@@ -61,13 +59,15 @@ namespace FileManager
                 fsCache.AddRange(Directory.EnumerateFiles(RootDirectory, SearchPattern, SearchOption));
 
             directoryChangesEvents = new BlockingCollection<FileSystemEventArgs>();
-            fileSystemWatcher = new FileSystemWatcher(RootDirectory);
-            fileSystemWatcher.Created += FileSystemWatcher_Changed;
+			fileSystemWatcher = new FileSystemWatcher(RootDirectory)
+			{
+				IncludeSubdirectories = true,
+				EnableRaisingEvents = true
+			};
+			fileSystemWatcher.Created += FileSystemWatcher_Changed;
             fileSystemWatcher.Deleted += FileSystemWatcher_Changed;
             fileSystemWatcher.Renamed += FileSystemWatcher_Changed;
             fileSystemWatcher.Error += FileSystemWatcher_Error;
-            fileSystemWatcher.IncludeSubdirectories = true;
-            fileSystemWatcher.EnableRaisingEvents = true;
 
             backgroundScanner = new Task(BackgroundScanner);
             backgroundScanner.Start();

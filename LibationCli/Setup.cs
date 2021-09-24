@@ -24,8 +24,8 @@ namespace LibationCli
 			var config = LibationScaffolding.RunPreConfigMigrations();
 
 
-			LibationScaffolding.RunPostConfigMigrations();
-			LibationScaffolding.RunPostMigrationScaffolding();
+			LibationScaffolding.RunPostConfigMigrations(config);
+			LibationScaffolding.RunPostMigrationScaffolding(config);
 
 #if !DEBUG
 			checkForUpdate();

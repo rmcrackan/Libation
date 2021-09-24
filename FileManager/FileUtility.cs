@@ -13,7 +13,7 @@ namespace FileManager
             // file max length = 255. dir max len = 247
 
             // sanitize
-            filename = GetAsciiTag(filename);
+            filename = getAsciiTag(filename);
             // manage length
             if (filename.Length > 50)
                 filename = filename.Substring(0, 50) + "[...]";
@@ -35,7 +35,7 @@ namespace FileManager
             return fullfilename;
         }
 
-        public static string GetAsciiTag(string property)
+        private static string getAsciiTag(string property)
         {
             if (property == null)
                 return "";

@@ -125,6 +125,13 @@ namespace FileManager
             set => persistentDictionary.SetString(nameof(BadBook), value.ToString());
         }
 
+        [Description("Download episodes? (eg: podcasts)")]
+        public bool DownloadEpisodes
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(DownloadEpisodes));
+            set => persistentDictionary.SetNonString(nameof(DownloadEpisodes), value);
+        }
+
         #endregion
 
         #region known directories

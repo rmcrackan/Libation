@@ -155,7 +155,7 @@ namespace FileLiberator
                 var dest
                     = AudibleFileStorage.Audio.IsFileTypeMatch(f)
                     ? audioFileName
-                    // non-audio filename: safetitle_limit50char + " [" + productId + "][" + audio_ext +"]." + non_audio_ext
+                    // non-audio filename: safetitle_limit50char + " [" + productId + "][" + audio_ext + "]." + non_audio_ext
                     : FileUtility.GetValidFilename(destinationDir, product.Title, f.Extension, product.AudibleProductId, musicFileExt);
 
                 if (Path.GetExtension(dest).Trim('.').ToLower() == "cue")
