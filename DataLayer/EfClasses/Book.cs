@@ -99,8 +99,8 @@ namespace DataLayer
 			Category = category;
 
             // simple assigns
-            Title = title.Trim();
-            Description = description?.Trim();
+            Title = title.Trim() ?? "";
+            Description = description?.Trim() ?? "";
             LengthInMinutes = lengthInMinutes;
             ContentType = contentType;
 

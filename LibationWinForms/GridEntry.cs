@@ -252,7 +252,7 @@ namespace LibationWinForms
 		private static string GetDescriptionDisplay(Book book)
 		{
 			var doc = new HtmlAgilityPack.HtmlDocument();
-			doc.LoadHtml(book.Description);
+			doc.LoadHtml(book?.Description ?? "");
 			var noHtml = doc.DocumentNode.InnerText;
 			return
 				noHtml.Length < 63 ?
