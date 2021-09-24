@@ -87,7 +87,7 @@ namespace FileLiberator
                 var api = await libraryBook.GetApiAsync();
                 var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
 
-                var aaxcDecryptDlLic = new DownloadLicense
+                var audiobookDlLic = new DownloadLicense
                     (
                     contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
                     contentLic?.Voucher?.Key,
@@ -96,7 +96,8 @@ namespace FileLiberator
                     );
 
                 //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
-                //This may be wrong, and only time and bug reports will tell.
+                //I also assume that if DrmType == Adrm, the file will be an mp3.
+                //These assumptions may be wrong, and only time and bug reports will tell.
                 var outputFormat = 
                     contentLic.ContentMetadata.ContentReference.ContentFormat == "MPEG" ||
                     (Configuration.Instance.AllowLibationFixup && Configuration.Instance.DecryptToLossy) ? 
@@ -104,15 +105,15 @@ namespace FileLiberator
 
                 if (Configuration.Instance.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
                 {
-                    aaxcDecryptDlLic.ChapterInfo = new AAXClean.ChapterInfo();
+                    audiobookDlLic.ChapterInfo = new AAXClean.ChapterInfo();
 
                     foreach (var chap in contentLic.ContentMetadata?.ChapterInfo?.Chapters)
-                        aaxcDecryptDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
+                        audiobookDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
 
                 var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
 
-                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm ? new AaxcDownloadConverter(outFileName, cacheDir, aaxcDecryptDlLic, outputFormat) { AppName = "Libation" } : new Mp3AudiobookDownloader(outFileName, cacheDir, aaxcDecryptDlLic);
+                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat) { AppName = "Libation" } : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => StreamingProgressChanged?.Invoke(this, progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => StreamingTimeRemaining?.Invoke(this, remaining);
                 aaxcDownloader.RetrievedTitle += (s, title) => TitleDiscovered?.Invoke(this, title);

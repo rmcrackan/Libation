@@ -8,11 +8,11 @@ using System.Threading;
 
 namespace AaxDecrypter
 {
-	public class Mp3AudiobookDownloader : AudiobookDownloadBase
+	public class UnencryptedAudiobookDownloader : AudiobookDownloadBase
 	{
 		protected override StepSequence steps { get; }
 
-		public Mp3AudiobookDownloader(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+		public UnencryptedAudiobookDownloader(string outFileName, string cacheDirectory, DownloadLicense dlLic)
 			: base(outFileName, cacheDirectory, dlLic)
 		{
 
