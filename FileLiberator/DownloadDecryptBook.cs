@@ -15,7 +15,7 @@ namespace FileLiberator
 {
     public class DownloadDecryptBook : IAudioDecodable
     {
-        private AaxcDownloadConverter aaxcDownloader;
+        private AudioDownloadBase aaxcDownloader;
 
         public event EventHandler<TimeSpan> StreamingTimeRemaining;
         public event EventHandler<Action<byte[]>> RequestCoverArt;
@@ -103,24 +103,22 @@ namespace FileLiberator
                         aaxcDecryptDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
 
+                //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
+                //This may be wrong, and only time and bug reports will tell.
+                var outputFormat = 
+                    contentLic.ContentMetadata.ContentReference.ContentFormat == "MPEG" ||
+                    Configuration.Instance.DecryptToLossy ? 
+                    OutputFormat.Mp3 : OutputFormat.M4b;
 
-                var format = Configuration.Instance.DecryptToLossy ? OutputFormat.Mp3 : OutputFormat.Mp4a;
+                var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
 
-                var extension = format switch
-                {
-                    OutputFormat.Mp4a => "m4b",
-                    OutputFormat.Mp3 => "mp3",
-                    _ => throw new NotImplementedException(),
-                };
-
-                var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{extension}");
-
-
-                aaxcDownloader = new AaxcDownloadConverter(outFileName, cacheDir, aaxcDecryptDlLic, format) { AppName = "Libation" };
+                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm ? new AaxcDownloadConverter(outFileName, cacheDir, aaxcDecryptDlLic, outputFormat) { AppName = "Libation" } : new Mp3Downloader(outFileName, cacheDir, aaxcDecryptDlLic);
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => StreamingProgressChanged?.Invoke(this, progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => StreamingTimeRemaining?.Invoke(this, remaining);
+                aaxcDownloader.RetrievedTitle += (s, title) => TitleDiscovered?.Invoke(this, title);
+                aaxcDownloader.RetrievedAuthors += (s, authors) => AuthorsDiscovered?.Invoke(this, authors);
+                aaxcDownloader.RetrievedNarrators += (s, narrators) => NarratorsDiscovered?.Invoke(this, narrators);
                 aaxcDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
-                aaxcDownloader.RetrievedTags += aaxcDownloader_RetrievedTags;
 
                 // REAL WORK DONE HERE
                 var success = await Task.Run(() => aaxcDownloader.Run());
@@ -137,7 +135,6 @@ namespace FileLiberator
             }
         }
 
-
         private void AaxcDownloader_RetrievedCoverArt(object sender, byte[] e)
         {
             if (e is null && Configuration.Instance.AllowLibationFixup)
@@ -149,13 +146,6 @@ namespace FileLiberator
             {
                 CoverImageDiscovered?.Invoke(this, e);
             }
-        }
-
-        private void aaxcDownloader_RetrievedTags(object sender, AAXClean.AppleTags e)
-        {
-            TitleDiscovered?.Invoke(this, e.TitleSansUnabridged);
-            AuthorsDiscovered?.Invoke(this, e.FirstAuthor ?? "[unknown]");
-            NarratorsDiscovered?.Invoke(this, e.Narrator ?? "[unknown]");
         }
 
         private static (string destinationDir, bool movedAudioFile) MoveFilesToBooksDir(Book product, string outputAudioFilename)

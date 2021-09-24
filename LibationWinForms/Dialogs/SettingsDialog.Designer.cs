@@ -204,9 +204,9 @@
 			this.convertLossyRb.AutoSize = true;
 			this.convertLossyRb.Location = new System.Drawing.Point(6, 81);
 			this.convertLossyRb.Name = "convertLossyRb";
-			this.convertLossyRb.Size = new System.Drawing.Size(242, 19);
+			this.convertLossyRb.Size = new System.Drawing.Size(329, 19);
 			this.convertLossyRb.TabIndex = 10;
-			this.convertLossyRb.Text = "Download my books as .MP3 files (Lossy)";
+			this.convertLossyRb.Text = "Download my books as .MP3 files (transcode if necessary)";
 			this.convertLossyRb.UseVisualStyleBackColor = true;
 			// 
 			// convertLosslessRb
@@ -215,10 +215,10 @@
 			this.convertLosslessRb.Checked = true;
 			this.convertLosslessRb.Location = new System.Drawing.Point(6, 56);
 			this.convertLosslessRb.Name = "convertLosslessRb";
-			this.convertLosslessRb.Size = new System.Drawing.Size(327, 19);
+			this.convertLosslessRb.Size = new System.Drawing.Size(335, 19);
 			this.convertLosslessRb.TabIndex = 9;
 			this.convertLosslessRb.TabStop = true;
-			this.convertLosslessRb.Text = "Download my books as .M4B files (Lossless Mp4a format)";
+			this.convertLosslessRb.Text = "Download my books in the original audio format (Lossless)";
 			this.convertLosslessRb.UseVisualStyleBackColor = true;
 			// 
 			// inProgressSelectControl

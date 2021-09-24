@@ -83,7 +83,7 @@ namespace AaxDecrypter
         private FileStream _readFile { get; }
         private Stream _networkStream { get; set; }
         private bool hasBegunDownloading { get; set; }
-        private bool isCancelled { get; set; }
+        public bool IsCancelled { get; private set; }
         private EventWaitHandle downloadEnded { get; set; } 
         private EventWaitHandle downloadedPiece { get; set; } 
 
@@ -238,7 +238,7 @@ namespace AaxDecrypter
                     downloadedPiece.Set();
                 }
 
-            } while (downloadPosition < ContentLength && !isCancelled);
+            } while (downloadPosition < ContentLength && !IsCancelled);
 
             _writeFile.Close();
             _networkStream.Close();
@@ -248,7 +248,7 @@ namespace AaxDecrypter
             downloadedPiece.Set();
             downloadEnded.Set();
 
-            if (!isCancelled && WritePosition < ContentLength)
+            if (!IsCancelled && WritePosition < ContentLength)
                 throw new WebException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
 
             if (WritePosition > ContentLength)
@@ -421,12 +421,12 @@ namespace AaxDecrypter
         /// <param name="requiredPosition">The minimum required flished data length in <see cref="SaveFilePath"/>.</param>
         private void WaitToPosition(long requiredPosition)
 		{
-            while (requiredPosition > WritePosition && !isCancelled && hasBegunDownloading && !downloadedPiece.WaitOne(1000)) ;
+            while (requiredPosition > WritePosition && !IsCancelled && hasBegunDownloading && !downloadedPiece.WaitOne(1000)) ;
         }
 
         public override void Close()
         {
-            isCancelled = true;
+            IsCancelled = true;
 
             while (downloadEnded is not null && !downloadEnded.WaitOne(1000)) ;
 
