@@ -137,24 +137,36 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		#endregion
 
 		#region IStreamable event handlers
-		public virtual void OnStreamingBegin(object sender, string beginString) { }
+		public virtual void OnStreamingBegin(object sender, string beginString)
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IStreamable.StreamingBegin), Message = beginString });		
 		public virtual void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress) { }
 		public virtual void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining) { }
-		public virtual void OnStreamingCompleted(object sender, string completedString) { }
+		public virtual void OnStreamingCompleted(object sender, string completedString)
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IStreamable.StreamingCompleted), Message = completedString });
+		
 		#endregion
 
 		#region IProcessable event handlers
-		public virtual void OnBegin(object sender, LibraryBook libraryBook) { }
-		public virtual void OnStatusUpdate(object sender, string statusUpdate) { }
-		public virtual void OnCompleted(object sender, LibraryBook libraryBook) { }
+		public virtual void OnBegin(object sender, LibraryBook libraryBook)
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IProcessable.Begin), Book = libraryBook.LogFriendly() });		
+		public virtual void OnStatusUpdate(object sender, string statusUpdate)
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IProcessable.StatusUpdate), Status = statusUpdate });		
+		public virtual void OnCompleted(object sender, LibraryBook libraryBook)
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IProcessable.Completed), Book = libraryBook.LogFriendly() });
+		
 		#endregion
 
 		#region IAudioDecodable event handlers
-		public virtual void OnRequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate) { }
-		public virtual void OnTitleDiscovered(object sender, string title) { }
-		public virtual void OnAuthorsDiscovered(object sender, string authors) { }
-		public virtual void OnNarratorsDiscovered(object sender, string narrators) { }
-		public virtual void OnCoverImageDiscovered(object sender, byte[] coverArt) { }
+		public virtual void OnRequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.RequestCoverArt) });		
+		public virtual void OnTitleDiscovered(object sender, string title)
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.TitleDiscovered), Title = title });		
+		public virtual void OnAuthorsDiscovered(object sender, string authors)
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.AuthorsDiscovered), Authors = authors });		
+		public virtual void OnNarratorsDiscovered(object sender, string narrators)
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.NarratorsDiscovered), Narrators = narrators });		
+		public virtual void OnCoverImageDiscovered(object sender, byte[] coverArt)
+			=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.CoverImageDiscovered), CoverImageBytes = coverArt?.Length });
 		#endregion
 	}
 }
