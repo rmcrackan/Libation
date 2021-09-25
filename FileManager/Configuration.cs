@@ -125,7 +125,14 @@ namespace FileManager
             set => persistentDictionary.SetString(nameof(BadBook), value.ToString());
         }
 
-        [Description("Download episodes? (eg: podcasts)")]
+        [Description("Import episodes? (eg: podcasts) When unchecked, episodes will not be imported into Libation.")]
+        public bool ImportEpisodes
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(ImportEpisodes));
+            set => persistentDictionary.SetNonString(nameof(ImportEpisodes), value);
+        }
+
+        [Description("Download episodes? (eg: podcasts). When unchecked, episodes already in Libation will not be downloaded.")]
         public bool DownloadEpisodes
         {
             get => persistentDictionary.GetNonString<bool>(nameof(DownloadEpisodes));

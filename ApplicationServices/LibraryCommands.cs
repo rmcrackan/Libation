@@ -14,15 +14,13 @@ namespace ApplicationServices
 {
 	public static class LibraryCommands
 	{
-		private static LibraryOptions.ResponseGroupOptions LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
-
 		public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, Task<ApiExtended>> apiExtendedfunc, List<LibraryBook> existingLibrary, params Account[] accounts)
 		{
 			logRestart();
 
 			//These are the minimum response groups required for the
 			//library scanner to pass all validation and filtering.
-			LibraryResponseGroups =
+			var libraryResponseGroups =
 				LibraryOptions.ResponseGroupOptions.ProductAttrs |
 				LibraryOptions.ResponseGroupOptions.ProductDesc |
 				LibraryOptions.ResponseGroupOptions.Relationships;
@@ -33,7 +31,7 @@ namespace ApplicationServices
 			try
 			{
 				logTime($"pre {nameof(scanAccountsAsync)} all");
-				var libraryItems = await scanAccountsAsync(apiExtendedfunc, accounts);
+				var libraryItems = await scanAccountsAsync(apiExtendedfunc, accounts, libraryResponseGroups);
 				logTime($"post {nameof(scanAccountsAsync)} all");
 
 				var totalCount = libraryItems.Count;
@@ -68,7 +66,6 @@ namespace ApplicationServices
 			}
 			finally
 			{
-				LibraryResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS;
 				stop();
 				var putBreakPointHere = logOutput;
 			}
@@ -85,7 +82,7 @@ namespace ApplicationServices
 			try
 			{
 				logTime($"pre {nameof(scanAccountsAsync)} all");
-				var importItems = await scanAccountsAsync(apiExtendedfunc, accounts);
+				var importItems = await scanAccountsAsync(apiExtendedfunc, accounts, LibraryOptions.ResponseGroupOptions.ALL_OPTIONS);
 				logTime($"post {nameof(scanAccountsAsync)} all");
 
 				var totalCount = importItems.Count;
@@ -129,7 +126,7 @@ namespace ApplicationServices
 			}
 		}
 
-		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts)
+		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions.ResponseGroupOptions libraryResponseGroups)
 		{
 			var tasks = new List<Task<List<ImportItem>>>();
 			foreach (var account in accounts)
@@ -138,7 +135,7 @@ namespace ApplicationServices
 				var apiExtended = await apiExtendedfunc(account);
 
 				// add scanAccountAsync as a TASK: do not await
-				tasks.Add(scanAccountAsync(apiExtended, account));
+				tasks.Add(scanAccountAsync(apiExtended, account, libraryResponseGroups));
 			}
 
 			// import library in parallel
@@ -147,7 +144,7 @@ namespace ApplicationServices
 			return importItems;
 		}
 
-		private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account)
+		private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions.ResponseGroupOptions libraryResponseGroups)
 		{
 			ArgumentValidator.EnsureNotNull(account, nameof(account));
 
@@ -158,7 +155,7 @@ namespace ApplicationServices
 
 			logTime($"pre scanAccountAsync {account.AccountName}");
 
-			var dtoItems = await apiExtended.GetLibraryValidatedAsync(LibraryResponseGroups);
+			var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryResponseGroups, FileManager.Configuration.Instance.ImportEpisodes);
 
 			logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
 

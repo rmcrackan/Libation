@@ -328,11 +328,14 @@ namespace AppScaffolding
 				config.BadBook = Configuration.BadBookAction.Ask;
 		}
 
-		// add config.DownloadEpisodes
+		// add config.DownloadEpisodes , config.ImportEpisodes
 		public static void migrate_to_v6_1_2(Configuration config)
 		{
 			if (!config.Exists(nameof(config.DownloadEpisodes)))
 				config.DownloadEpisodes = true;
+
+			if (!config.Exists(nameof(config.ImportEpisodes)))
+				config.ImportEpisodes = true;
 		}
 	}
 }
