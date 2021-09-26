@@ -26,7 +26,7 @@ namespace AaxDecrypter
 
                 ["Step 1: Get Aaxc Metadata"] = Step1_GetMetadata,
                 ["Step 2: Download Decrypted Audiobook"] = Step2_DownloadAudiobook,
-                ["Step 3: Create Cue"] = Step3_CreateCue,
+                //["Step 3: Create Cue"] = Step3_CreateCue,
                 ["Step 4: Cleanup"] = Step4_Cleanup,
             };
         }
@@ -67,25 +67,40 @@ namespace AaxDecrypter
 
             aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
 
-
-            if (File.Exists(outputFileName))
-                FileExt.SafeDelete(outputFileName);
-
-            var outputFile =  File.Open(outputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-            var decryptionResult = OutputFormat == OutputFormat.M4b ? aaxFile.ConvertToMp4a(outputFile, downloadLicense.ChapterInfo) : aaxFile.ConvertToMp3(outputFile);
+            //var decryptionResult = OutputFormat == OutputFormat.Mp4a ? aaxFile.ConvertToMp4a(outFile, downloadLicense.ChapterInfo) : aaxFile.ConvertToMp3(outFile);
+
+            var chapterCount = 0;
+            //aaxFile.ConvertToMultiMp4a(downloadLicense.ChapterInfo, newSplitCallback =>
+            aaxFile.ConvertToMultiMp3(downloadLicense.ChapterInfo, newSplitCallback =>
+            {
+                chapterCount++;
+                var fileName = Path.ChangeExtension(outputFileName, $"{chapterCount}.mp3");
+                if (File.Exists(fileName))
+                    FileExt.SafeDelete(fileName);
+                newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
+                newSplitCallback.LameConfig = new NAudio.Lame.LameConfig
+                {
+                    ID3 = new NAudio.Lame.ID3TagData()
+                    {
+                        Track = chapterCount.ToString(),
+                        Artist = aaxFile.AppleTags.AlbumArtists,
+                        Album = aaxFile.AppleTags.Album,
+                        Title = aaxFile.AppleTags.Title,
+                        Genre = aaxFile.AppleTags.Generes
+                    }
+                };
+            });
+
             aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
             aaxFile.Close();
-
-            downloadLicense.ChapterInfo = aaxFile.Chapters;
 
             CloseInputFileStream();
 
             OnDecryptProgressUpdate(zeroProgress);
 
-            return decryptionResult == ConversionResult.NoErrorsDetected && !isCanceled;
+            return true;
         }
 
         private void AaxFile_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)

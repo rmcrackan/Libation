@@ -80,7 +80,7 @@ namespace AaxDecrypter
 				return false;
 			}
 
-			Serilog.Log.Logger.Information($"Speedup is {GetSpeedup(Elapsed)}x realtime.");
+			//Serilog.Log.Logger.Information($"Speedup is {GetSpeedup(Elapsed)}x realtime.");
 			return true;
 		}		
 
