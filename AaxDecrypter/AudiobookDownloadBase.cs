@@ -59,7 +59,7 @@ namespace AaxDecrypter
 
 		public abstract void Cancel();
 		protected abstract int GetSpeedup(TimeSpan elapsed);
-		protected abstract bool Step2_DownloadAudiobook();
+		protected abstract bool Step2_DownloadAudiobookAsSingleFile(); //TODO do I need to change this??
 		protected abstract bool Step1_GetMetadata();
 
 		public virtual void SetCoverArt(byte[] coverArt)

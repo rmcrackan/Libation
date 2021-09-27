@@ -95,10 +95,12 @@ namespace FileLiberator
                     foreach (var chap in contentLic.ContentMetadata?.ChapterInfo?.Chapters)
                         audiobookDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
-
+                
                 var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
 
-                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat) { AppName = "Libation" } : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
+                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm
+                    ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, Configuration.Instance.SplitFilesByChapter) { AppName = "Libation" }
+                    : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => StreamingProgressChanged?.Invoke(this, progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => StreamingTimeRemaining?.Invoke(this, remaining);
                 aaxcDownloader.RetrievedTitle += (s, title) => TitleDiscovered?.Invoke(this, title);

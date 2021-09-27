@@ -101,6 +101,13 @@ namespace FileManager
             get => persistentDictionary.GetNonString<bool>(nameof(DecryptToLossy));
             set => persistentDictionary.SetNonString(nameof(DecryptToLossy), value);
         }
+        
+        [Description("Decrypt to lossy format?")]
+        public bool SplitFilesByChapter
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(SplitFilesByChapter));
+            set => persistentDictionary.SetNonString(nameof(SplitFilesByChapter), value);
+        }
 
         public enum BadBookAction
         {
