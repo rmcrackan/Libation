@@ -48,7 +48,7 @@ namespace DtoImporterService
 
 			foreach (var s in requestedSeries)
 			{
-				var series = DbContext.Series.Local.SingleOrDefault(c => c.AudibleSeriesId == s.SeriesId);
+				var series = DbContext.Series.Local.FirstOrDefault(c => c.AudibleSeriesId == s.SeriesId);
 				if (series is null)
 				{
 					series = DbContext.Series.Add(new DataLayer.Series(new AudibleSeriesId(s.SeriesId))).Entity;
