@@ -102,8 +102,33 @@ namespace AaxDecrypter
             aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
             
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+            if(OutputFormat == OutputFormat.M4b) 
+                ConvertToMultiMp4b();
+            else 
+                ConvertToMultiMp3();
+            aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
+
+            aaxFile.Close();
+
+            return true;
+        }
+
+        private void ConvertToMultiMp4b()
+        {
             var chapterCount = 0;
-            //TODO make this work with m4b files
+            aaxFile.ConvertToMultiMp4a(downloadLicense.ChapterInfo, newSplitCallback =>
+            {
+                chapterCount++;
+                var fileName = Path.ChangeExtension(outputFileName, $"{chapterCount}.m4b");
+                if (File.Exists(fileName))
+                    FileExt.SafeDelete(fileName);
+                newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
+            });
+        }
+        
+        private void ConvertToMultiMp3()
+        {
+            var chapterCount = 0;
             aaxFile.ConvertToMultiMp3(downloadLicense.ChapterInfo, newSplitCallback =>
             {
                 chapterCount++;
@@ -111,24 +136,8 @@ namespace AaxDecrypter
                 if (File.Exists(fileName))
                     FileExt.SafeDelete(fileName);
                 newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
-                //TODO clean up all this junk
-                newSplitCallback.LameConfig = new NAudio.Lame.LameConfig
-                {
-                    ID3 = new NAudio.Lame.ID3TagData()
-                    {
-                        Track = chapterCount.ToString(),
-                        Artist = aaxFile.AppleTags.AlbumArtists,
-                        Album = aaxFile.AppleTags.Album,
-                        Title = aaxFile.AppleTags.Title,
-                        Genre = aaxFile.AppleTags.Generes
-                    }
-                };
+                newSplitCallback.LameConfig.ID3.Track = chapterCount.ToString();
             });
-            aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
-
-            aaxFile.Close();
-
-            return true;
         }
 
         private void AaxFile_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)

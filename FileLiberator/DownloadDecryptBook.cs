@@ -140,7 +140,7 @@ namespace FileLiberator
         {
             // create final directory. move each file into it. MOVE AUDIO FILE LAST
             // new dir: safetitle_limit50char + " [" + productId + "]"
-
+            // TODO make this method handle multiple audio files or a single audio file.
             var destinationDir = AudibleFileStorage.Audio.GetDestDir(product.Title, product.AudibleProductId);
             Directory.CreateDirectory(destinationDir);
 
