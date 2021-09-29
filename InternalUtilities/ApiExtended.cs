@@ -108,7 +108,7 @@ namespace InternalUtilities
 
 		public Task<List<Item>> GetLibraryValidatedAsync(LibraryOptions.ResponseGroupOptions responseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS, bool importEpisodes = true)
 		{
-			// bug on audible's side. the 1st time after a long absence, a query to get library will return without titles or authors. a subsequent identical query will be successful. this is true whether or tokens are refreshed
+			// bug on audible's side. the 1st time after a long absence, a query to get library will return without titles or authors. a subsequent identical query will be successful. this is true whether or not tokens are refreshed
 			// worse, this 1st dummy call doesn't seem to help:
 			//    var page = await api.GetLibraryAsync(new AudibleApi.LibraryOptions { NumberOfResultPerPage = 1, PageNumber = 1, PurchasedAfter = DateTime.Now.AddYears(-20), ResponseGroups = AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS });
 			// i don't want to incur the cost of making a full dummy call every time because it fails sometimes
@@ -130,8 +130,7 @@ namespace InternalUtilities
 			if (!items.Any())
 				items = await Api.GetAllLibraryItemsAsync(responseGroups);
 
-			if (importEpisodes)
-				await manageEpisodesAsync(items);
+			await manageEpisodesAsync(items, importEpisodes);
 
 #if DEBUG
 //System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
@@ -150,7 +149,7 @@ namespace InternalUtilities
 		}
 
 		#region episodes and podcasts
-		private async Task manageEpisodesAsync(List<Item> items)
+		private async Task manageEpisodesAsync(List<Item> items, bool importEpisodes)
 		{
 			// add podcasts and episodes to list. If fail, don't let it de-rail the rest of the import
 			try
@@ -171,10 +170,13 @@ namespace InternalUtilities
 				// also must happen before processing children because children abuses this flag
 				items.RemoveAll(i => i.IsEpisodes);
 
-				// add children
-				var children = await getEpisodesAsync(parents);
-				Serilog.Log.Logger.Information($"{children.Count} episodes of shows/podcasts found");
-				items.AddRange(children);
+				if (importEpisodes)
+				{
+					// add children
+					var children = await getEpisodesAsync(parents);
+					Serilog.Log.Logger.Information($"{children.Count} episodes of shows/podcasts found");
+					items.AddRange(children);
+				}
 			}
 			catch (Exception ex)
 			{
