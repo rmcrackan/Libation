@@ -59,19 +59,8 @@ namespace AaxDecrypter
 
         protected override bool Step2_DownloadAudiobookAsSingleFile()
         {
-            var zeroProgress = new DownloadProgress 
-            { 
-                BytesReceived = 0,
-                ProgressPercentage = 0, 
-                TotalBytesToReceive = InputFileStream.Length 
-            };
-
-            OnDecryptProgressUpdate(zeroProgress);
-
- 
-            aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
-
-
+            var zeroProgress = Step2_Start();
+            
             if (File.Exists(outputFileName))
                 FileExt.SafeDelete(outputFileName);
 
@@ -81,30 +70,17 @@ namespace AaxDecrypter
             var decryptionResult = OutputFormat == OutputFormat.M4b ? aaxFile.ConvertToMp4a(outputFile, downloadLicense.ChapterInfo) : aaxFile.ConvertToMp3(outputFile);
             aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
-            aaxFile.Close();
-
             downloadLicense.ChapterInfo = aaxFile.Chapters;
-
-            CloseInputFileStream();
-
-            OnDecryptProgressUpdate(zeroProgress);
+            
+            Step2_End(zeroProgress);
 
             return decryptionResult == ConversionResult.NoErrorsDetected && !isCanceled;
         }
-        
-        public bool Step2_DownloadAudiobookAsMultipleFilesPerChapter()
+
+        private bool Step2_DownloadAudiobookAsMultipleFilesPerChapter()
         {
-            var zeroProgress = new DownloadProgress 
-            { 
-                BytesReceived = 0,
-                ProgressPercentage = 0, 
-                TotalBytesToReceive = InputFileStream.Length 
-            };
+            var zeroProgress = Step2_Start();
 
-            OnDecryptProgressUpdate(zeroProgress);
-
-            aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
-            
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
             if(OutputFormat == OutputFormat.M4b) 
                 ConvertToMultiMp4b();
@@ -112,9 +88,33 @@ namespace AaxDecrypter
                 ConvertToMultiMp3();
             aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
-            aaxFile.Close();
+            Step2_End(zeroProgress);
 
             return true;
+        }
+
+        private DownloadProgress Step2_Start()
+        {
+            var zeroProgress = new DownloadProgress
+            {
+                BytesReceived = 0,
+                ProgressPercentage = 0,
+                TotalBytesToReceive = InputFileStream.Length
+            };
+
+            OnDecryptProgressUpdate(zeroProgress);
+
+            aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
+            return zeroProgress;
+        }
+        
+        private void Step2_End(DownloadProgress zeroProgress)
+        {
+            aaxFile.Close();
+
+            CloseInputFileStream();
+
+            OnDecryptProgressUpdate(zeroProgress);
         }
 
         private void ConvertToMultiMp4b()
@@ -122,7 +122,6 @@ namespace AaxDecrypter
             var chapterCount = 0;
             aaxFile.ConvertToMultiMp4a(downloadLicense.ChapterInfo, newSplitCallback =>
             {
-                // TODO I need to find a way to inject the track number into the m4b file. It's easier with the MP3.
                 chapterCount++;
                 var fileName = Path.ChangeExtension(outputFileName, $"{chapterCount}.m4b");
                 if (File.Exists(fileName))
