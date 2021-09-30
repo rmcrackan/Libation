@@ -25,8 +25,12 @@ namespace AaxDecrypter
                 Name = "Download and Convert Aaxc To " + OutputFormat,
 
                 ["Step 1: Get Aaxc Metadata"] = Step1_GetMetadata,
-                ["Step 2: Download Decrypted Audiobook"] = splitFileByChapters ? Step2_DownloadAudiobookAsMultipleFilesPerChapter : Step2_DownloadAudiobookAsSingleFile,
-                ["Step 3: Create Cue"] = Step3_CreateCue,
+                ["Step 2: Download Decrypted Audiobook"] = splitFileByChapters
+                    ? Step2_DownloadAudiobookAsMultipleFilesPerChapter
+                    : Step2_DownloadAudiobookAsSingleFile,
+                ["Step 3: Create Cue"] = splitFileByChapters 
+                    ? () => true 
+                    : Step3_CreateCue,
                 ["Step 4: Cleanup"] = Step4_Cleanup,
             };
         }
@@ -64,7 +68,7 @@ namespace AaxDecrypter
 
             OnDecryptProgressUpdate(zeroProgress);
 
-
+ 
             aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
 
 
@@ -118,6 +122,7 @@ namespace AaxDecrypter
             var chapterCount = 0;
             aaxFile.ConvertToMultiMp4a(downloadLicense.ChapterInfo, newSplitCallback =>
             {
+                // TODO I need to find a way to inject the track number into the m4b file. It's easier with the MP3.
                 chapterCount++;
                 var fileName = Path.ChangeExtension(outputFileName, $"{chapterCount}.m4b");
                 if (File.Exists(fileName))
