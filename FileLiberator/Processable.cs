@@ -56,17 +56,17 @@ namespace FileLiberator
         /// <returns>True == success</returns>
         public abstract Task<StatusHandler> ProcessAsync(LibraryBook libraryBook);
 
-        public virtual void OnBegin(LibraryBook libraryBook)
+        public void OnBegin(LibraryBook libraryBook)
         {
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Begin), Book = libraryBook.LogFriendly() });
             Begin?.Invoke(this, libraryBook);
         }
-        public virtual void OnCompleted(LibraryBook libraryBook)
+        public void OnCompleted(LibraryBook libraryBook)
         {
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Completed), Book = libraryBook.LogFriendly() });
             Completed?.Invoke(this, libraryBook);
         }
-        public virtual void OnStatusUpdate(string statusUpdate)
+        public void OnStatusUpdate(string statusUpdate)
         {
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(StatusUpdate), Status = statusUpdate });
             StatusUpdate?.Invoke(this, statusUpdate);
