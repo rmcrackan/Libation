@@ -18,6 +18,8 @@ namespace FileLiberator
         {
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(StreamingCompleted), Message = filePath });
             StreamingCompleted?.Invoke(this, filePath);
+
+            //TODO: Update file cache
         }
         public void OnStreamingProgressChanged(DownloadProgress progress)
         {
