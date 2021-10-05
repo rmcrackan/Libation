@@ -21,7 +21,7 @@ namespace AaxDecrypter
 				Name = "Download Mp3 Audiobook",
 
 				["Step 1: Get Mp3 Metadata"] = Step1_GetMetadata,
-				["Step 2: Download Audiobook"] = Step2_DownloadAudiobook,
+				["Step 2: Download Audiobook"] = Step2_DownloadAudiobookAsSingleFile,
 				["Step 3: Create Cue"] = Step3_CreateCue,
 				["Step 4: Cleanup"] = Step4_Cleanup,
 			};
@@ -46,7 +46,7 @@ namespace AaxDecrypter
 			return !isCanceled;
 		}
 
-		protected override bool Step2_DownloadAudiobook()
+		protected override bool Step2_DownloadAudiobookAsSingleFile()
 		{
 			DateTime startTime = DateTime.Now;
 
