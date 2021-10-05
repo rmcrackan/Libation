@@ -102,7 +102,7 @@ namespace FileManager
             set => persistentDictionary.SetNonString(nameof(DecryptToLossy), value);
         }
         
-        [Description("Decrypt to lossy format?")]
+        [Description("Split my books into multi files by cahpter")]
         public bool SplitFilesByChapter
         {
             get => persistentDictionary.GetNonString<bool>(nameof(SplitFilesByChapter));

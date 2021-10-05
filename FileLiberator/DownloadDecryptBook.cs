@@ -155,7 +155,7 @@ namespace FileLiberator
             foreach (var f in sortedFiles)
             {
                 var dest
-                    = f.Extension.Equals($".{musicFileExt}", StringComparison.OrdinalIgnoreCase)
+                    = AudibleFileStorage.Audio.IsFileTypeMatch(f)//f.Extension.Equals($".{musicFileExt}", StringComparison.OrdinalIgnoreCase)
                     ? Path.Join(destinationDir, f.Name)
                     // non-audio filename: safetitle_limit50char + " [" + productId + "][" + audio_ext + "]." + non_audio_ext
                     : FileUtility.GetValidFilename(destinationDir, product.Title, f.Extension, product.AudibleProductId, musicFileExt);
