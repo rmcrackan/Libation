@@ -2,7 +2,7 @@
 
 namespace FileLiberator
 {
-    public interface IAudioDecodable : IProcessable
+    public interface IAudioDecodable
     {
         event EventHandler<Action<byte[]>> RequestCoverArt;
         event EventHandler<string> TitleDiscovered;

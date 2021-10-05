@@ -30,7 +30,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 
 			Subscribe(streamable);
 
-			if (Streamable is IProcessable processable)
+			if (Streamable is Processable processable)
 				Subscribe(processable);
 			if (Streamable is IAudioDecodable audioDecodable)
 				Subscribe(audioDecodable);
@@ -50,7 +50,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 
 			Disposed += UnsubscribeStreamable;
 		}
-		private void Subscribe(IProcessable processable)
+		private void Subscribe(Processable processable)
 		{
 			UnsubscribeProcessable(this, null);
 
@@ -92,7 +92,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		}
 		private void UnsubscribeProcessable(object sender, LibraryBook e)
 		{
-			if (Streamable is not IProcessable processable)
+			if (Streamable is not Processable processable)
 				return;
 
 			processable.Completed -= UnsubscribeProcessable;
@@ -148,11 +148,11 @@ namespace LibationWinForms.BookLiberation.BaseForms
 
 		#region IProcessable event handlers
 		public virtual void OnBegin(object sender, LibraryBook libraryBook)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IProcessable.Begin), Book = libraryBook.LogFriendly() });		
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Processable.Begin), Book = libraryBook.LogFriendly() });		
 		public virtual void OnStatusUpdate(object sender, string statusUpdate)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IProcessable.StatusUpdate), Status = statusUpdate });		
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Processable.StatusUpdate), Status = statusUpdate });		
 		public virtual void OnCompleted(object sender, LibraryBook libraryBook)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IProcessable.Completed), Book = libraryBook.LogFriendly() });
+		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Processable.Completed), Book = libraryBook.LogFriendly() });
 		
 		#endregion
 

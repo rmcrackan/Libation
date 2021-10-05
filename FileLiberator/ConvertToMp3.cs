@@ -12,39 +12,32 @@ using System.Threading.Tasks;
 
 namespace FileLiberator
 {
-    public class ConvertToMp3 : IAudioDecodable
+    public class ConvertToMp3 : Processable, IAudioDecodable
     {
         private Mp4File m4bBook;
 
-		public event EventHandler<TimeSpan> StreamingTimeRemaining;
 		public event EventHandler<Action<byte[]>> RequestCoverArt;
 		public event EventHandler<string> TitleDiscovered;
 		public event EventHandler<string> AuthorsDiscovered;
 		public event EventHandler<string> NarratorsDiscovered;
 		public event EventHandler<byte[]> CoverImageDiscovered;
-		public event EventHandler<string> StreamingBegin;
-		public event EventHandler<DownloadProgress> StreamingProgressChanged;
-		public event EventHandler<string> StreamingCompleted;
-		public event EventHandler<LibraryBook> Begin;
-		public event EventHandler<string> StatusUpdate;
-		public event EventHandler<LibraryBook> Completed;
 
 		private long fileSize;
 		private string Mp3FileName(string m4bPath) => m4bPath is null ? string.Empty : PathLib.ReplaceExtension(m4bPath, ".mp3");
 
         public void Cancel() => m4bBook?.Cancel();
 
-        public bool Validate(LibraryBook libraryBook)
+        public override bool Validate(LibraryBook libraryBook)
         {
             var path = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
             return path?.ToLower()?.EndsWith(".m4b") == true && !File.Exists(Mp3FileName(path));
         }
 
-        public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+        public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
-            Begin?.Invoke(this, libraryBook);
+            OnBegin(libraryBook);
 
-            StreamingBegin?.Invoke(this, $"Begin converting {libraryBook} to mp3");
+            OnStreamingBegin($"Begin converting {libraryBook} to mp3");
 
             try
             {
@@ -78,8 +71,8 @@ namespace FileLiberator
             }
             finally
             {
-                StreamingCompleted?.Invoke(this, $"Completed converting to mp3: {libraryBook.Book.Title}");
-                Completed?.Invoke(this, libraryBook);
+                OnStreamingCompleted($"Completed converting to mp3: {libraryBook.Book.Title}");
+                OnCompleted(libraryBook);
             }
         }
 
@@ -90,11 +83,11 @@ namespace FileLiberator
             double estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
 
             if (double.IsNormal(estTimeRemaining))
-                StreamingTimeRemaining?.Invoke(this, TimeSpan.FromSeconds(estTimeRemaining));
+                OnStreamingTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
 
             double progressPercent = 100 * e.ProcessPosition.TotalSeconds / duration.TotalSeconds;
 
-            StreamingProgressChanged?.Invoke(this,
+            OnStreamingProgressChanged(
                 new DownloadProgress
                 {
                     ProgressPercentage = progressPercent,
