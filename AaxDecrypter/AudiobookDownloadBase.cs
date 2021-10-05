@@ -59,7 +59,7 @@ namespace AaxDecrypter
 
 		public abstract void Cancel();
 		protected abstract int GetSpeedup(TimeSpan elapsed);
-		protected abstract bool Step2_DownloadAudiobook();
+		protected abstract bool Step2_DownloadAudiobookAsSingleFile();
 		protected abstract bool Step1_GetMetadata();
 
 		public virtual void SetCoverArt(byte[] coverArt)
@@ -80,7 +80,7 @@ namespace AaxDecrypter
 				return false;
 			}
 
-			Serilog.Log.Logger.Information($"Speedup is {GetSpeedup(Elapsed)}x realtime.");
+			//Serilog.Log.Logger.Information($"Speedup is {GetSpeedup(Elapsed)}x realtime.");
 			return true;
 		}		
 

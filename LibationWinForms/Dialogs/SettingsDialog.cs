@@ -48,6 +48,7 @@ namespace LibationWinForms.Dialogs
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
 			convertLosslessRb.Checked = !config.DecryptToLossy;
 			convertLossyRb.Checked = config.DecryptToLossy;
+			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
 
 			allowLibationFixupCbox_CheckedChanged(this, e);
 
@@ -129,6 +130,7 @@ namespace LibationWinForms.Dialogs
 			config.DownloadEpisodes = downloadEpisodesCb.Checked;
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
 			config.DecryptToLossy = convertLossyRb.Checked;
+			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
 
 			config.InProgress = inProgressSelectControl.SelectedDirectory;
 

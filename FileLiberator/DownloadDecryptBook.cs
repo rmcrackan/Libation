@@ -95,10 +95,12 @@ namespace FileLiberator
                     foreach (var chap in contentLic.ContentMetadata?.ChapterInfo?.Chapters)
                         audiobookDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
-
+                
                 var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
 
-                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat) { AppName = "Libation" } : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
+                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm
+                    ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, Configuration.Instance.SplitFilesByChapter) { AppName = "Libation" }
+                    : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => StreamingProgressChanged?.Invoke(this, progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => StreamingTimeRemaining?.Invoke(this, remaining);
                 aaxcDownloader.RetrievedTitle += (s, title) => TitleDiscovered?.Invoke(this, title);
@@ -138,7 +140,7 @@ namespace FileLiberator
         {
             // create final directory. move each file into it. MOVE AUDIO FILE LAST
             // new dir: safetitle_limit50char + " [" + productId + "]"
-
+            // TODO make this method handle multiple audio files or a single audio file.
             var destinationDir = AudibleFileStorage.Audio.GetDestDir(product.Title, product.AudibleProductId);
             Directory.CreateDirectory(destinationDir);
 
@@ -153,8 +155,8 @@ namespace FileLiberator
             foreach (var f in sortedFiles)
             {
                 var dest
-                    = AudibleFileStorage.Audio.IsFileTypeMatch(f)
-                    ? audioFileName
+                    = AudibleFileStorage.Audio.IsFileTypeMatch(f)//f.Extension.Equals($".{musicFileExt}", StringComparison.OrdinalIgnoreCase)
+                    ? Path.Join(destinationDir, f.Name)
                     // non-audio filename: safetitle_limit50char + " [" + productId + "][" + audio_ext + "]." + non_audio_ext
                     : FileUtility.GetValidFilename(destinationDir, product.Title, f.Extension, product.AudibleProductId, musicFileExt);
 
