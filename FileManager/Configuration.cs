@@ -88,7 +88,7 @@ namespace FileManager
             set => persistentDictionary.SetString(nameof(InProgress), value);
         }
 
-        [Description("Allow Libation for fix up audiobook metadata?")]
+        [Description("Allow Libation to fix up audiobook metadata")]
         public bool AllowLibationFixup
         {
             get => persistentDictionary.GetNonString<bool>(nameof(AllowLibationFixup));
@@ -102,7 +102,7 @@ namespace FileManager
             set => persistentDictionary.SetNonString(nameof(DecryptToLossy), value);
         }
         
-        [Description("Split my books into multi files by cahpter")]
+        [Description("Split my books into multiple files by chapter")]
         public bool SplitFilesByChapter
         {
             get => persistentDictionary.GetNonString<bool>(nameof(SplitFilesByChapter));

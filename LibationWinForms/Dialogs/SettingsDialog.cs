@@ -30,6 +30,8 @@ namespace LibationWinForms.Dialogs
 			this.downloadEpisodesCb.Text = desc(nameof(config.DownloadEpisodes));
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
 			this.inProgressDescLbl.Text = desc(nameof(config.InProgress));
+			this.allowLibationFixupCbox.Text = desc(nameof(config.AllowLibationFixup));
+			this.splitFilesByChapterCbox.Text = desc(nameof(config.SplitFilesByChapter));
 
 			booksSelectControl.SetSearchTitle("books location");
 			booksSelectControl.SetDirectoryItems(

@@ -58,6 +58,7 @@ namespace AppScaffolding
 			Migrations.migrate_to_v5_2_0__post_config(config);
 			Migrations.migrate_to_v5_7_1(config);
 			Migrations.migrate_to_v6_1_2(config);
+			Migrations.migrate_to_v6_2_0(config);
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>
@@ -336,6 +337,13 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.ImportEpisodes)))
 				config.ImportEpisodes = true;
+		}
+
+		// add config.SplitFilesByChapter
+		public static void migrate_to_v6_2_0(Configuration config)
+		{
+			if (!config.Exists(nameof(config.SplitFilesByChapter)))
+				config.SplitFilesByChapter = false;
 		}
 	}
 }

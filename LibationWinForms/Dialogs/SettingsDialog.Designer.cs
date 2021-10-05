@@ -217,9 +217,9 @@
 			this.splitFilesByChapterCbox.AutoSize = true;
 			this.splitFilesByChapterCbox.Location = new System.Drawing.Point(6, 46);
 			this.splitFilesByChapterCbox.Name = "splitFilesByChapterCbox";
-			this.splitFilesByChapterCbox.Size = new System.Drawing.Size(258, 19);
+			this.splitFilesByChapterCbox.Size = new System.Drawing.Size(162, 19);
 			this.splitFilesByChapterCbox.TabIndex = 13;
-			this.splitFilesByChapterCbox.Text = "Split my books into multiple files by chapter";
+			this.splitFilesByChapterCbox.Text = "[SplitFilesByChapter desc]";
 			this.splitFilesByChapterCbox.UseVisualStyleBackColor = true;
 			// 
 			// allowLibationFixupCbox
@@ -229,9 +229,9 @@
 			this.allowLibationFixupCbox.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.allowLibationFixupCbox.Location = new System.Drawing.Point(6, 22);
 			this.allowLibationFixupCbox.Name = "allowLibationFixupCbox";
-			this.allowLibationFixupCbox.Size = new System.Drawing.Size(262, 19);
+			this.allowLibationFixupCbox.Size = new System.Drawing.Size(163, 19);
 			this.allowLibationFixupCbox.TabIndex = 10;
-			this.allowLibationFixupCbox.Text = "Allow Libation to fix up audiobook metadata";
+			this.allowLibationFixupCbox.Text = "[AllowLibationFixup desc]";
 			this.allowLibationFixupCbox.UseVisualStyleBackColor = true;
 			this.allowLibationFixupCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
 			// 
