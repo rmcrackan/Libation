@@ -8,20 +8,13 @@ using AudibleApi;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
-using Dinah.Core.Net.Http;
 using FileManager;
 
 namespace FileLiberator
 {
-    public class DownloadDecryptBook : Processable, IAudioDecodable
+    public class DownloadDecryptBook : AudioDecodable
     {
         private AudiobookDownloadBase aaxcDownloader;
-
-        public event EventHandler<Action<byte[]>> RequestCoverArt;
-        public event EventHandler<string> TitleDiscovered;
-        public event EventHandler<string> AuthorsDiscovered;
-        public event EventHandler<string> NarratorsDiscovered;
-        public event EventHandler<byte[]> CoverImageDiscovered;
 
         public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
@@ -96,9 +89,9 @@ namespace FileLiberator
                     : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
                 aaxcDownloader.DecryptProgressUpdate += (s, progress) => OnStreamingProgressChanged(progress);
                 aaxcDownloader.DecryptTimeRemaining += (s, remaining) => OnStreamingTimeRemaining(remaining);
-                aaxcDownloader.RetrievedTitle += (s, title) => TitleDiscovered?.Invoke(this, title);
-                aaxcDownloader.RetrievedAuthors += (s, authors) => AuthorsDiscovered?.Invoke(this, authors);
-                aaxcDownloader.RetrievedNarrators += (s, narrators) => NarratorsDiscovered?.Invoke(this, narrators);
+                aaxcDownloader.RetrievedTitle += (s, title) => OnTitleDiscovered(title);
+                aaxcDownloader.RetrievedAuthors += (s, authors) => OnAuthorsDiscovered(authors);
+                aaxcDownloader.RetrievedNarrators += (s, narrators) => OnNarratorsDiscovered(narrators);
                 aaxcDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
 
                 // REAL WORK DONE HERE
@@ -120,12 +113,12 @@ namespace FileLiberator
         {
             if (e is null && Configuration.Instance.AllowLibationFixup)
             {
-                RequestCoverArt?.Invoke(this, aaxcDownloader.SetCoverArt);
+                OnRequestCoverArt(aaxcDownloader.SetCoverArt);
             }
 
             if (e is not null)
             {
-                CoverImageDiscovered?.Invoke(this, e);
+                OnCoverImageDiscovered(e);
             }
         }
 
@@ -209,7 +202,7 @@ namespace FileLiberator
 
         public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists;
 
-        public void Cancel()
+        public override void Cancel()
         {
             aaxcDownloader?.Cancel();
         }

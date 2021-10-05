@@ -9,7 +9,7 @@ using Dinah.Core.Net.Http;
 
 namespace FileLiberator
 {
-    public abstract class Processable : IStreamable
+    public abstract class Processable : Streamable
     {
         public event EventHandler<LibraryBook> Begin;
 
@@ -17,12 +17,6 @@ namespace FileLiberator
         public event EventHandler<string> StatusUpdate;
 
         public event EventHandler<LibraryBook> Completed;
-		public event EventHandler<string> StreamingBegin;
-		public event EventHandler<DownloadProgress> StreamingProgressChanged;
-		public event EventHandler<TimeSpan> StreamingTimeRemaining;
-		public event EventHandler<string> StreamingCompleted;
-
-
 
         // when used in foreach: stateful. deferred execution
         public IEnumerable<LibraryBook> GetValidLibraryBooks(IEnumerable<LibraryBook> library)
@@ -64,31 +58,18 @@ namespace FileLiberator
 
         public virtual void OnBegin(LibraryBook libraryBook)
         {
+            Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Begin), Book = libraryBook.LogFriendly() });
             Begin?.Invoke(this, libraryBook);
         }
         public virtual void OnCompleted(LibraryBook libraryBook)
         {
+            Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Completed), Book = libraryBook.LogFriendly() });
             Completed?.Invoke(this, libraryBook);
         }
-        public virtual void OnStatusUpdate(string status)
+        public virtual void OnStatusUpdate(string statusUpdate)
         {
-            StatusUpdate?.Invoke(this, status);
-        }
-        public virtual void OnStreamingBegin(string filePath)
-        {
-            StreamingBegin?.Invoke(this, filePath);
-        }
-        public virtual void OnStreamingCompleted(string filePath)
-        {
-            StreamingCompleted?.Invoke(this, filePath);
-        }
-        public virtual void OnStreamingProgressChanged(DownloadProgress progress)
-        {
-            StreamingProgressChanged?.Invoke(this, progress);
-        }
-        public virtual void OnStreamingTimeRemaining(TimeSpan timeRemaining)
-        {
-            StreamingTimeRemaining?.Invoke(this, timeRemaining);
+            Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(StatusUpdate), Status = statusUpdate });
+            StatusUpdate?.Invoke(this, statusUpdate);
         }
     }
 }

@@ -135,7 +135,7 @@ namespace LibationWinForms.BookLiberation
 		/// Create a new <see cref="Processable"/> and links it to a new <see cref="LiberationBaseForm"/>.
 		/// </summary>
 		/// <typeparam name="TProcessable">The <see cref="Processable"/> derived type to create.</typeparam>
-		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derived Form to create on <see cref="Processable.Begin"/>, Show on <see cref="IStreamable.StreamingBegin"/>, Close on <see cref="IStreamable.StreamingCompleted"/>, and Dispose on <see cref="Processable.Completed"/> </typeparam>
+		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derived Form to create on <see cref="Processable.Begin"/>, Show on <see cref="Streamable.StreamingBegin"/>, Close on <see cref="Streamable.StreamingCompleted"/>, and Dispose on <see cref="Processable.Completed"/> </typeparam>
 		/// <param name="logMe">The logger</param>
 		/// <param name="completedAction">An additional event handler to handle <see cref="Processable.Completed"/></param>
 		/// <returns>A new <see cref="Processable"/> of type <typeparamref name="TProcessable"/></returns>
@@ -149,7 +149,7 @@ namespace LibationWinForms.BookLiberation
 			{
 				var processForm = new TForm();
 				processForm.RegisterFileLiberator(strProc, logMe);
-				processForm.OnBegin(sender, libraryBook);
+				processForm.Processable_Begin(sender, libraryBook);
 			};
 
 			strProc.Completed += completedAction;

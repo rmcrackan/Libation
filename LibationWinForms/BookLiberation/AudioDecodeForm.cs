@@ -19,9 +19,9 @@ namespace LibationWinForms.BookLiberation
 		private string narratorNames;
 
 		#region IProcessable event handler overrides
-		public override void OnBegin(object sender, LibraryBook libraryBook)
+		public override void Processable_Begin(object sender, LibraryBook libraryBook)
 		{
-			base.OnBegin(sender, libraryBook);
+			base.Processable_Begin(sender, libraryBook);
 
 			GetCoverArtDelegate = () => FileManager.PictureStorage.GetPictureSynchronously(
 						new FileManager.PictureDefinition(
@@ -29,10 +29,10 @@ namespace LibationWinForms.BookLiberation
 							FileManager.PictureSize._500x500));
 
 			//Set default values from library
-			OnTitleDiscovered(sender, libraryBook.Book.Title);
-			OnAuthorsDiscovered(sender, string.Join(", ", libraryBook.Book.Authors));
-			OnNarratorsDiscovered(sender, string.Join(", ", libraryBook.Book.NarratorNames));
-			OnCoverImageDiscovered(sender,
+			AudioDecodable_TitleDiscovered(sender, libraryBook.Book.Title);
+			AudioDecodable_AuthorsDiscovered(sender, string.Join(", ", libraryBook.Book.Authors));
+			AudioDecodable_NarratorsDiscovered(sender, string.Join(", ", libraryBook.Book.NarratorNames));
+			AudioDecodable_CoverImageDiscovered(sender,
 					FileManager.PictureStorage.GetPicture(
 						new FileManager.PictureDefinition(
 							libraryBook.Book.PictureId,
@@ -41,9 +41,9 @@ namespace LibationWinForms.BookLiberation
 		#endregion
 
 		#region IStreamable event handler overrides
-		public override void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress)
+		public override void Streamable_StreamingProgressChanged(object sender, DownloadProgress downloadProgress)
 		{
-			base.OnStreamingProgressChanged(sender, downloadProgress);
+			base.Streamable_StreamingProgressChanged(sender, downloadProgress);
 			if (!downloadProgress.ProgressPercentage.HasValue)
 				return;
 
@@ -53,46 +53,46 @@ namespace LibationWinForms.BookLiberation
 				progressBar1.UIThreadAsync(() => progressBar1.Value = (int)downloadProgress.ProgressPercentage);
 		}
 
-		public override void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining)
+		public override void Streamable_StreamingTimeRemaining(object sender, TimeSpan timeRemaining)
 		{
-			base.OnStreamingTimeRemaining(sender, timeRemaining);
+			base.Streamable_StreamingTimeRemaining(sender, timeRemaining);
 			updateRemainingTime((int)timeRemaining.TotalSeconds);
 		}
 
 		#endregion
 
 		#region IAudioDecodable event handlers
-		public override void OnRequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
+		public override void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
 		{
-			base.OnRequestCoverArt(sender, setCoverArtDelegate);
+			base.AudioDecodable_RequestCoverArt(sender, setCoverArtDelegate);
 			setCoverArtDelegate(GetCoverArtDelegate?.Invoke());
 		}
 
-		public override void OnTitleDiscovered(object sender, string title)
+		public override void AudioDecodable_TitleDiscovered(object sender, string title)
 		{
-			base.OnTitleDiscovered(sender, title);
+			base.AudioDecodable_TitleDiscovered(sender, title);
 			this.UIThreadAsync(() => this.Text = DecodeActionName + " " + title);
 			this.title = title;
 			updateBookInfo();
 		}
 
-		public override void OnAuthorsDiscovered(object sender, string authors)
+		public override void AudioDecodable_AuthorsDiscovered(object sender, string authors)
 		{
-			base.OnAuthorsDiscovered(sender, authors);
+			base.AudioDecodable_AuthorsDiscovered(sender, authors);
 			authorNames = authors;
 			updateBookInfo();
 		}
 
-		public override void OnNarratorsDiscovered(object sender, string narrators)
+		public override void AudioDecodable_NarratorsDiscovered(object sender, string narrators)
 		{
-			base.OnNarratorsDiscovered(sender, narrators);
+			base.AudioDecodable_NarratorsDiscovered(sender, narrators);
 			narratorNames = narrators;
 			updateBookInfo();
 		}
 
-		public override void OnCoverImageDiscovered(object sender, byte[] coverArt)
+		public override void AudioDecodable_CoverImageDiscovered(object sender, byte[] coverArt)
 		{
-			base.OnCoverImageDiscovered(sender, coverArt);
+			base.AudioDecodable_CoverImageDiscovered(sender, coverArt);
 			pictureBox1.UIThreadAsync(() => pictureBox1.Image = Dinah.Core.Drawing.ImageReader.ToImage(coverArt));
 		}
 		#endregion

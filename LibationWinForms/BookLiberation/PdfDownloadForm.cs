@@ -4,14 +4,14 @@ namespace LibationWinForms.BookLiberation
 {
 	internal class PdfDownloadForm : DownloadForm
 	{
-		public override void OnBegin(object sender, LibraryBook libraryBook)
+		public override void Processable_Begin(object sender, LibraryBook libraryBook)
 		{
-			base.OnBegin(sender, libraryBook);
+			base.Processable_Begin(sender, libraryBook);
 			LogMe.Info($"PDF Step, Begin: {libraryBook.Book}");
 		}
-		public override void OnCompleted(object sender, LibraryBook libraryBook)
+		public override void Processable_Completed(object sender, LibraryBook libraryBook)
 		{
-			base.OnCompleted(sender, libraryBook);
+			base.Processable_Completed(sender, libraryBook);
 			LogMe.Info($"PDF Step, Completed: {libraryBook.Book}");
 		}
 	}

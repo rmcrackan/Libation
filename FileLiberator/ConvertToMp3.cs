@@ -12,20 +12,14 @@ using System.Threading.Tasks;
 
 namespace FileLiberator
 {
-    public class ConvertToMp3 : Processable, IAudioDecodable
+    public class ConvertToMp3 : AudioDecodable
     {
         private Mp4File m4bBook;
-
-		public event EventHandler<Action<byte[]>> RequestCoverArt;
-		public event EventHandler<string> TitleDiscovered;
-		public event EventHandler<string> AuthorsDiscovered;
-		public event EventHandler<string> NarratorsDiscovered;
-		public event EventHandler<byte[]> CoverImageDiscovered;
 
 		private long fileSize;
 		private string Mp3FileName(string m4bPath) => m4bPath is null ? string.Empty : PathLib.ReplaceExtension(m4bPath, ".mp3");
 
-        public void Cancel() => m4bBook?.Cancel();
+        public override void Cancel() => m4bBook?.Cancel();
 
         public override bool Validate(LibraryBook libraryBook)
         {
@@ -47,10 +41,10 @@ namespace FileLiberator
 
                 fileSize = m4bBook.InputStream.Length;
 
-                TitleDiscovered?.Invoke(this, m4bBook.AppleTags.Title);
-                AuthorsDiscovered?.Invoke(this, m4bBook.AppleTags.FirstAuthor);
-                NarratorsDiscovered?.Invoke(this, m4bBook.AppleTags.Narrator);
-                CoverImageDiscovered?.Invoke(this, m4bBook.AppleTags.Cover);
+                OnTitleDiscovered(m4bBook.AppleTags.Title);
+                OnAuthorsDiscovered(m4bBook.AppleTags.FirstAuthor);
+                OnNarratorsDiscovered(m4bBook.AppleTags.Narrator);
+                OnCoverImageDiscovered(m4bBook.AppleTags.Cover);
 
                 using var mp3File = File.OpenWrite(Path.GetTempFileName());
 
