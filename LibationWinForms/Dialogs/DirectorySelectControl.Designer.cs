@@ -41,7 +41,7 @@ namespace LibationWinForms.Dialogs
 			this.directoryComboBox.FormattingEnabled = true;
 			this.directoryComboBox.Location = new System.Drawing.Point(0, 0);
 			this.directoryComboBox.Name = "directoryComboBox";
-			this.directoryComboBox.Size = new System.Drawing.Size(647, 23);
+			this.directoryComboBox.Size = new System.Drawing.Size(407, 23);
 			this.directoryComboBox.TabIndex = 0;
 			this.directoryComboBox.SelectedIndexChanged += new System.EventHandler(this.directoryComboBox_SelectedIndexChanged);
 			// 
@@ -52,7 +52,7 @@ namespace LibationWinForms.Dialogs
 			this.textBox1.Location = new System.Drawing.Point(0, 29);
 			this.textBox1.Name = "textBox1";
 			this.textBox1.ReadOnly = true;
-			this.textBox1.Size = new System.Drawing.Size(647, 23);
+			this.textBox1.Size = new System.Drawing.Size(407, 23);
 			this.textBox1.TabIndex = 1;
 			// 
 			// DirectorySelectControl
@@ -62,7 +62,7 @@ namespace LibationWinForms.Dialogs
 			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.directoryComboBox);
 			this.Name = "DirectorySelectControl";
-			this.Size = new System.Drawing.Size(647, 52);
+			this.Size = new System.Drawing.Size(407, 52);
 			this.Load += new System.EventHandler(this.DirectorySelectControl_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();
