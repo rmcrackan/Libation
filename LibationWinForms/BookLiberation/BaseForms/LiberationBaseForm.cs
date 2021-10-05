@@ -58,13 +58,13 @@ namespace LibationWinForms.BookLiberation.BaseForms
 			processable.StatusUpdate += Processable_StatusUpdate;
 			processable.Completed += Processable_Completed;
 
-			//The form is created on IProcessable.Begin and we
-			//dispose of it on IProcessable.Completed
+			//The form is created on Processable.Begin and we
+			//dispose of it on Processable.Completed
 			processable.Completed += OnCompletedDispose;
 
 			//Don't unsubscribe from Dispose because it fires when
-			//IStreamable.StreamingCompleted closes the form, and
-			//the IProcessable events need to live past that event.
+			//Streamable.StreamingCompleted closes the form, and
+			//the Processable events need to live past that event.
 			processable.Completed += UnsubscribeProcessable;
 		}
 		private void Subscribe(AudioDecodable audioDecodable)

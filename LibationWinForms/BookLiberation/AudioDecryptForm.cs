@@ -16,7 +16,7 @@ namespace LibationWinForms.BookLiberation
 		public override string DecodeActionName => "Decrypting";
 		#endregion
 
-		#region IProcessable event handler overrides
+		#region Processable event handler overrides
 		public override void Processable_Begin(object sender, LibraryBook libraryBook)
 		{
 			LogMe.Info($"Download & Decrypt Step, Begin: {libraryBook.Book}");

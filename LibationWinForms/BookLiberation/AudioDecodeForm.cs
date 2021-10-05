@@ -18,7 +18,7 @@ namespace LibationWinForms.BookLiberation
 		private string authorNames;
 		private string narratorNames;
 
-		#region IProcessable event handler overrides
+		#region Processable event handler overrides
 		public override void Processable_Begin(object sender, LibraryBook libraryBook)
 		{
 			base.Processable_Begin(sender, libraryBook);
@@ -40,7 +40,7 @@ namespace LibationWinForms.BookLiberation
 		}
 		#endregion
 
-		#region IStreamable event handler overrides
+		#region Streamable event handler overrides
 		public override void Streamable_StreamingProgressChanged(object sender, DownloadProgress downloadProgress)
 		{
 			base.Streamable_StreamingProgressChanged(sender, downloadProgress);
@@ -61,7 +61,7 @@ namespace LibationWinForms.BookLiberation
 
 		#endregion
 
-		#region IAudioDecodable event handlers
+		#region AudioDecodable event handlers
 		public override void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
 		{
 			base.AudioDecodable_RequestCoverArt(sender, setCoverArtDelegate);

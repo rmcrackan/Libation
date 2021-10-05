@@ -17,7 +17,7 @@ namespace LibationWinForms.BookLiberation
 		}
 
 
-		#region IStreamable event handler overrides
+		#region Streamable event handler overrides
 		public override void Streamable_StreamingBegin(object sender, string beginString)
 		{
 			base.Streamable_StreamingBegin(sender, beginString);
