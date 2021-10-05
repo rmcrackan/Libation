@@ -66,9 +66,11 @@ namespace DtoImporterService
 
 					Category parentCategory = null;
 					if (i == 1)
-						parentCategory = DbContext.Categories.Local.Single(c => c.AudibleCategoryId == pair[0].CategoryId);
+						// should be "Single()" but user is getting a strange error
+						parentCategory = DbContext.Categories.Local.FirstOrDefault(c => c.AudibleCategoryId == pair[0].CategoryId);
 
-					var category = DbContext.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == id);
+					// should be "SingleOrDefault()" but user is getting a strange error
+					var category = DbContext.Categories.Local.FirstOrDefault(c => c.AudibleCategoryId == id);
 					if (category is null)
 					{
 						category = DbContext.Categories.Add(new Category(new AudibleCategoryId(id), name)).Entity;
