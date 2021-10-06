@@ -1,4 +1,5 @@
 ﻿using AAXClean;
+using Dinah.Core;
 using Dinah.Core.IO;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
@@ -10,11 +11,11 @@ namespace AaxDecrypter
 {
     public class AaxcDownloadConverter : AudiobookDownloadBase
     {
-        private static readonly TimeSpan minChapterLength = TimeSpan.FromSeconds(15);
+        const int MAX_FILENAME_LENGTH = 255;
+        private static readonly TimeSpan minChapterLength = TimeSpan.FromSeconds(3);
         protected override StepSequence steps { get; }
 
         private AaxFile aaxFile;
-
         private OutputFormat OutputFormat { get; }
 
         public AaxcDownloadConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic, OutputFormat outputFormat, bool splitFileByChapters)
@@ -87,19 +88,22 @@ namespace AaxDecrypter
 
             //Ensure split files are at least minChapterLength in duration.
             var splitChapters = new ChapterInfo();
-            splitChapters.AddChapter(chapters[0].Title, chapters[0].Duration);
 
-            var runningTotal = chapters[0].Duration;
+            var runningTotal = TimeSpan.Zero;
+            string title = "";
 
-            for (int i = 1; i < chapters.Count; i++)
-			{
+            for (int i = 0; i < chapters.Count; i++)
+            {
+                if (runningTotal == TimeSpan.Zero)
+                    title = chapters[i].Title;
+
+                runningTotal += chapters[i].Duration;
+
                 if (runningTotal >= minChapterLength)
-				{
-                    splitChapters.AddChapter(chapters[i].Title, chapters[i].Duration);
-                    runningTotal = chapters[i].Duration;
+                {
+                    splitChapters.AddChapter(title, runningTotal);
+                    runningTotal = TimeSpan.Zero;
                 }
-                else
-                    runningTotal += chapters[i].Duration;
             }
 
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
@@ -111,7 +115,7 @@ namespace AaxDecrypter
 
             Step2_End(zeroProgress);
 
-            return true;
+            return !isCanceled;
         }
 
         private DownloadProgress Step2_Start()
@@ -143,8 +147,7 @@ namespace AaxDecrypter
             var chapterCount = 0;
             aaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
             {
-                chapterCount++;
-                var fileName = Path.ChangeExtension(outputFileName, $"{chapterCount}.m4b");
+                var fileName = GetMultipartFileName(outputFileName, ++chapterCount, newSplitCallback.Chapter.Title);
                 if (File.Exists(fileName))
                     FileExt.SafeDelete(fileName);
                 newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
@@ -154,17 +157,39 @@ namespace AaxDecrypter
         private void ConvertToMultiMp3(ChapterInfo splitChapters)
         {
             var chapterCount = 0;
-
             aaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
             {
-                chapterCount++;
-                var fileName = Path.ChangeExtension(outputFileName, $"{chapterCount}.mp3");
+                var fileName = GetMultipartFileName(outputFileName, ++chapterCount, newSplitCallback.Chapter.Title);
                 if (File.Exists(fileName))
                     FileExt.SafeDelete(fileName);
                 newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
                 newSplitCallback.LameConfig.ID3.Track = chapterCount.ToString();
             });
         }
+
+        private static string GetMultipartFileName(string baseFileName, int chapterCount, string chapterTitle)
+        {
+            string extension = Path.GetExtension(baseFileName);
+
+            var fileNameChars = $"{Path.GetFileNameWithoutExtension(baseFileName)} - {chapterCount:D2} - {chapterTitle}".ToCharArray();
+
+            //Replace illegal path characters with spaces.
+            for (int i = 0; i <fileNameChars.Length; i++)
+			{
+                foreach (var illegal in Path.GetInvalidFileNameChars())
+				{
+                    if (fileNameChars[i] == illegal)
+					{
+                        fileNameChars[i] = ' ';
+                        break;
+					}
+				}
+			}
+
+            var fileName = new string(fileNameChars).Truncate(MAX_FILENAME_LENGTH - extension.Length);
+
+            return Path.Combine(Path.GetDirectoryName(baseFileName), fileName + extension);
+		}
 
         private void AaxFile_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
         {
@@ -178,7 +203,7 @@ namespace AaxDecrypter
             double progressPercent = e.ProcessPosition.TotalSeconds / duration.TotalSeconds;
 
             OnDecryptProgressUpdate(
-                new DownloadProgress 
+                new DownloadProgress
                 {
                     ProgressPercentage = 100 * progressPercent,
                     BytesReceived = (long)(InputFileStream.Length * progressPercent),
