@@ -96,7 +96,7 @@ namespace LibationWinForms.BookLiberation
 			await new BackupLoop(logMe, downloadPdf, automatedBackupsForm).RunBackupAsync();
 		}
 
-		private static IProcessable CreateBackupBook(LogMe logMe)
+		private static Processable CreateBackupBook(LogMe logMe)
 		{
 			var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe);
 
@@ -132,16 +132,16 @@ namespace LibationWinForms.BookLiberation
 		}
 
 		/// <summary>
-		/// Create a new <see cref="IProcessable"/> and links it to a new <see cref="LiberationBaseForm"/>.
+		/// Create a new <see cref="Processable"/> and links it to a new <see cref="LiberationBaseForm"/>.
 		/// </summary>
-		/// <typeparam name="TProcessable">The <see cref="IProcessable"/> derived type to create.</typeparam>
-		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derived Form to create on <see cref="IProcessable.Begin"/>, Show on <see cref="IStreamable.StreamingBegin"/>, Close on <see cref="IStreamable.StreamingCompleted"/>, and Dispose on <see cref="IProcessable.Completed"/> </typeparam>
+		/// <typeparam name="TProcessable">The <see cref="Processable"/> derived type to create.</typeparam>
+		/// <typeparam name="TForm">The <see cref="LiberationBaseForm"/> derived Form to create on <see cref="Processable.Begin"/>, Show on <see cref="Streamable.StreamingBegin"/>, Close on <see cref="Streamable.StreamingCompleted"/>, and Dispose on <see cref="Processable.Completed"/> </typeparam>
 		/// <param name="logMe">The logger</param>
-		/// <param name="completedAction">An additional event handler to handle <see cref="IProcessable.Completed"/></param>
-		/// <returns>A new <see cref="IProcessable"/> of type <typeparamref name="TProcessable"/></returns>
+		/// <param name="completedAction">An additional event handler to handle <see cref="Processable.Completed"/></param>
+		/// <returns>A new <see cref="Processable"/> of type <typeparamref name="TProcessable"/></returns>
 		private static TProcessable CreateProcessable<TProcessable, TForm>(LogMe logMe, EventHandler<LibraryBook> completedAction = null)
 			where TForm : LiberationBaseForm, new()
-			where TProcessable : IProcessable, new()
+			where TProcessable : Processable, new()
 		{
 			var strProc = new TProcessable();
 
@@ -149,7 +149,7 @@ namespace LibationWinForms.BookLiberation
 			{
 				var processForm = new TForm();
 				processForm.RegisterFileLiberator(strProc, logMe);
-				processForm.OnBegin(sender, libraryBook);
+				processForm.Processable_Begin(sender, libraryBook);
 			};
 
 			strProc.Completed += completedAction;
@@ -161,10 +161,10 @@ namespace LibationWinForms.BookLiberation
 	internal abstract class BackupRunner
 	{
 		protected LogMe LogMe { get; }
-		protected IProcessable Processable { get; }
+		protected Processable Processable { get; }
 		protected AutomatedBackupsForm AutomatedBackupsForm { get; }
 
-		protected BackupRunner(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm = null)
+		protected BackupRunner(LogMe logMe, Processable processable, AutomatedBackupsForm automatedBackupsForm = null)
 		{
 			LogMe = logMe;
 			Processable = processable;
@@ -278,7 +278,7 @@ An error occurred while trying to process this book. Skip this book permanently?
 		protected override MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button2;
 		protected override DialogResult SkipResult => DialogResult.Yes;
 
-		public BackupSingle(LogMe logMe, IProcessable processable, LibraryBook libraryBook)
+		public BackupSingle(LogMe logMe, Processable processable, LibraryBook libraryBook)
 			: base(logMe, processable)
 		{
 			_libraryBook = libraryBook;
@@ -307,7 +307,7 @@ An error occurred while trying to process this book.
 		protected override MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
 		protected override DialogResult SkipResult => DialogResult.Ignore;
 
-		public BackupLoop(LogMe logMe, IProcessable processable, AutomatedBackupsForm automatedBackupsForm)
+		public BackupLoop(LogMe logMe, Processable processable, AutomatedBackupsForm automatedBackupsForm)
 			: base(logMe, processable, automatedBackupsForm) { }
 
 		protected override async Task RunAsync()

@@ -9,7 +9,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 {
 	public class LiberationBaseForm : Form
 	{
-		protected IStreamable Streamable { get; private set; }
+		protected Streamable Streamable { get; private set; }
 		protected LogMe LogMe { get; private set; }
 		private SynchronizeInvoker Invoker { get; init; } 
 
@@ -21,7 +21,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 			Invoker = new SynchronizeInvoker();
 		}
 
-		public void RegisterFileLiberator(IStreamable streamable, LogMe logMe = null)
+		public void RegisterFileLiberator(Streamable streamable, LogMe logMe = null)
 		{
 			if (streamable is null) return;
 
@@ -30,52 +30,52 @@ namespace LibationWinForms.BookLiberation.BaseForms
 
 			Subscribe(streamable);
 
-			if (Streamable is IProcessable processable)
+			if (Streamable is Processable processable)
 				Subscribe(processable);
-			if (Streamable is IAudioDecodable audioDecodable)
+			if (Streamable is AudioDecodable audioDecodable)
 				Subscribe(audioDecodable);
 		}
 
 		#region Event Subscribers and Unsubscribers
-		private void Subscribe(IStreamable streamable)
+		private void Subscribe(Streamable streamable)
 		{
 			UnsubscribeStreamable(this, EventArgs.Empty);
 
 			streamable.StreamingBegin += OnStreamingBeginShow;
-			streamable.StreamingBegin += OnStreamingBegin;
-			streamable.StreamingProgressChanged += OnStreamingProgressChanged;
-			streamable.StreamingTimeRemaining += OnStreamingTimeRemaining;
-			streamable.StreamingCompleted += OnStreamingCompleted;
+			streamable.StreamingBegin += Streamable_StreamingBegin;
+			streamable.StreamingProgressChanged += Streamable_StreamingProgressChanged;
+			streamable.StreamingTimeRemaining += Streamable_StreamingTimeRemaining;
+			streamable.StreamingCompleted += Streamable_StreamingCompleted;
 			streamable.StreamingCompleted += OnStreamingCompletedClose;
 
 			Disposed += UnsubscribeStreamable;
 		}
-		private void Subscribe(IProcessable processable)
+		private void Subscribe(Processable processable)
 		{
 			UnsubscribeProcessable(this, null);
 
-			processable.Begin += OnBegin;
-			processable.StatusUpdate += OnStatusUpdate;
-			processable.Completed += OnCompleted;
+			processable.Begin += Processable_Begin;
+			processable.StatusUpdate += Processable_StatusUpdate;
+			processable.Completed += Processable_Completed;
 
-			//The form is created on IProcessable.Begin and we
-			//dispose of it on IProcessable.Completed
+			//The form is created on Processable.Begin and we
+			//dispose of it on Processable.Completed
 			processable.Completed += OnCompletedDispose;
 
 			//Don't unsubscribe from Dispose because it fires when
-			//IStreamable.StreamingCompleted closes the form, and
-			//the IProcessable events need to live past that event.
+			//Streamable.StreamingCompleted closes the form, and
+			//the Processable events need to live past that event.
 			processable.Completed += UnsubscribeProcessable;
 		}
-		private void Subscribe(IAudioDecodable audioDecodable)
+		private void Subscribe(AudioDecodable audioDecodable)
 		{
 			UnsubscribeAudioDecodable(this, EventArgs.Empty);
 
-			audioDecodable.RequestCoverArt += OnRequestCoverArt;
-			audioDecodable.TitleDiscovered += OnTitleDiscovered;
-			audioDecodable.AuthorsDiscovered += OnAuthorsDiscovered;
-			audioDecodable.NarratorsDiscovered += OnNarratorsDiscovered;
-			audioDecodable.CoverImageDiscovered += OnCoverImageDiscovered;
+			audioDecodable.RequestCoverArt += AudioDecodable_RequestCoverArt;
+			audioDecodable.TitleDiscovered += AudioDecodable_TitleDiscovered;
+			audioDecodable.AuthorsDiscovered += AudioDecodable_AuthorsDiscovered;
+			audioDecodable.NarratorsDiscovered += AudioDecodable_NarratorsDiscovered;
+			audioDecodable.CoverImageDiscovered += AudioDecodable_CoverImageDiscovered;
 
 			Disposed += UnsubscribeAudioDecodable;
 		}
@@ -84,34 +84,34 @@ namespace LibationWinForms.BookLiberation.BaseForms
 			Disposed -= UnsubscribeStreamable;
 
 			Streamable.StreamingBegin -= OnStreamingBeginShow;
-			Streamable.StreamingBegin -= OnStreamingBegin;
-			Streamable.StreamingProgressChanged -= OnStreamingProgressChanged;
-			Streamable.StreamingTimeRemaining -= OnStreamingTimeRemaining;
-			Streamable.StreamingCompleted -= OnStreamingCompleted;
+			Streamable.StreamingBegin -= Streamable_StreamingBegin;
+			Streamable.StreamingProgressChanged -= Streamable_StreamingProgressChanged;
+			Streamable.StreamingTimeRemaining -= Streamable_StreamingTimeRemaining;
+			Streamable.StreamingCompleted -= Streamable_StreamingCompleted;
 			Streamable.StreamingCompleted -= OnStreamingCompletedClose;
 		}
 		private void UnsubscribeProcessable(object sender, LibraryBook e)
 		{
-			if (Streamable is not IProcessable processable)
+			if (Streamable is not Processable processable)
 				return;
 
 			processable.Completed -= UnsubscribeProcessable;
 			processable.Completed -= OnCompletedDispose;
-			processable.Completed -= OnCompleted;
-			processable.StatusUpdate -= OnStatusUpdate;
-			processable.Begin -= OnBegin;
+			processable.Completed -= Processable_Completed;
+			processable.StatusUpdate -= Processable_StatusUpdate;
+			processable.Begin -= Processable_Begin;
 		}
 		private void UnsubscribeAudioDecodable(object sender, EventArgs e)
 		{
-			if (Streamable is not IAudioDecodable audioDecodable)
+			if (Streamable is not AudioDecodable audioDecodable)
 				return;
 
 			Disposed -= UnsubscribeAudioDecodable;
-			audioDecodable.RequestCoverArt -= OnRequestCoverArt;
-			audioDecodable.TitleDiscovered -= OnTitleDiscovered;
-			audioDecodable.AuthorsDiscovered -= OnAuthorsDiscovered;
-			audioDecodable.NarratorsDiscovered -= OnNarratorsDiscovered;
-			audioDecodable.CoverImageDiscovered -= OnCoverImageDiscovered;
+			audioDecodable.RequestCoverArt -= AudioDecodable_RequestCoverArt;
+			audioDecodable.TitleDiscovered -= AudioDecodable_TitleDiscovered;
+			audioDecodable.AuthorsDiscovered -= AudioDecodable_AuthorsDiscovered;
+			audioDecodable.NarratorsDiscovered -= AudioDecodable_NarratorsDiscovered;
+			audioDecodable.CoverImageDiscovered -= AudioDecodable_CoverImageDiscovered;
 
 			audioDecodable.Cancel();
 		}
@@ -133,40 +133,30 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		/// (ie. shown) because Control doesn't get a window handle until it is Shown.
 		/// </summary>
 		private void OnStreamingBeginShow(object sender, string beginString) => Invoker.UIThreadAsync(Show);
-		
+
 		#endregion
 
-		#region IStreamable event handlers
-		public virtual void OnStreamingBegin(object sender, string beginString)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IStreamable.StreamingBegin), Message = beginString });		
-		public virtual void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress) { }
-		public virtual void OnStreamingTimeRemaining(object sender, TimeSpan timeRemaining) { }
-		public virtual void OnStreamingCompleted(object sender, string completedString)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IStreamable.StreamingCompleted), Message = completedString });
-		
+		#region Streamable event handlers
+		public virtual void Streamable_StreamingBegin(object sender, string beginString) { }
+		public virtual void Streamable_StreamingProgressChanged(object sender, DownloadProgress downloadProgress) { }
+		public virtual void Streamable_StreamingTimeRemaining(object sender, TimeSpan timeRemaining) { }
+		public virtual void Streamable_StreamingCompleted(object sender, string completedString) { }
+
 		#endregion
 
-		#region IProcessable event handlers
-		public virtual void OnBegin(object sender, LibraryBook libraryBook)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IProcessable.Begin), Book = libraryBook.LogFriendly() });		
-		public virtual void OnStatusUpdate(object sender, string statusUpdate)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IProcessable.StatusUpdate), Status = statusUpdate });		
-		public virtual void OnCompleted(object sender, LibraryBook libraryBook)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IProcessable.Completed), Book = libraryBook.LogFriendly() });
-		
+		#region Processable event handlers
+		public virtual void Processable_Begin(object sender, LibraryBook libraryBook) { }
+		public virtual void Processable_StatusUpdate(object sender, string statusUpdate) { }
+		public virtual void Processable_Completed(object sender, LibraryBook libraryBook) { }
+
 		#endregion
 
-		#region IAudioDecodable event handlers
-		public virtual void OnRequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.RequestCoverArt) });		
-		public virtual void OnTitleDiscovered(object sender, string title)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.TitleDiscovered), Title = title });		
-		public virtual void OnAuthorsDiscovered(object sender, string authors)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.AuthorsDiscovered), Authors = authors });		
-		public virtual void OnNarratorsDiscovered(object sender, string narrators)
-		=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.NarratorsDiscovered), Narrators = narrators });		
-		public virtual void OnCoverImageDiscovered(object sender, byte[] coverArt)
-			=> Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(IAudioDecodable.CoverImageDiscovered), CoverImageBytes = coverArt?.Length });
+		#region AudioDecodable event handlers
+		public virtual void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate) { }
+		public virtual void AudioDecodable_TitleDiscovered(object sender, string title) { }
+		public virtual void AudioDecodable_AuthorsDiscovered(object sender, string authors) { }
+		public virtual void AudioDecodable_NarratorsDiscovered(object sender, string narrators) { }
+		public virtual void AudioDecodable_CoverImageDiscovered(object sender, byte[] coverArt) { }
 		#endregion
 	}
 }

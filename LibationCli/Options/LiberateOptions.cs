@@ -20,7 +20,7 @@ namespace LibationCli
 			? RunAsync(CreateProcessable<DownloadPdf>())
 			: RunAsync(CreateBackupBook());
 
-		private static IProcessable CreateBackupBook()
+		private static Processable CreateBackupBook()
 		{
 			var downloadPdf = CreateProcessable<DownloadPdf>();
 

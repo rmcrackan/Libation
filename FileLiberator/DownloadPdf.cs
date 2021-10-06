@@ -11,25 +11,15 @@ using FileManager;
 
 namespace FileLiberator
 {
-	public class DownloadPdf : IProcessable
+	public class DownloadPdf : Processable
 	{
-		public event EventHandler<LibraryBook> Begin;
-		public event EventHandler<LibraryBook> Completed;
-
-		public event EventHandler<string> StreamingBegin;
-		public event EventHandler<DownloadProgress> StreamingProgressChanged;
-		public event EventHandler<string> StreamingCompleted;
-
-		public event EventHandler<string> StatusUpdate;
-		public event EventHandler<TimeSpan> StreamingTimeRemaining;
-
-		public bool Validate(LibraryBook libraryBook)
+		public override bool Validate(LibraryBook libraryBook)
 			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
 			&& !libraryBook.Book.PDF_Exists;
 
-		public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+		public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
 		{
-			Begin?.Invoke(this, libraryBook);
+			OnBegin(libraryBook);
 
 			try
 			{
@@ -43,7 +33,7 @@ namespace FileLiberator
 			}
 			finally
 			{
-				Completed?.Invoke(this, libraryBook);
+				OnCompleted(libraryBook);
 			}
 		}
 
@@ -69,7 +59,7 @@ namespace FileLiberator
 
 		private async Task<string> downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
 		{
-			StreamingBegin?.Invoke(this, proposedDownloadFilePath);
+			OnStreamingBegin(proposedDownloadFilePath);
 
 			try
 			{
@@ -77,17 +67,17 @@ namespace FileLiberator
 				var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
 
 				var progress = new Progress<DownloadProgress>();
-				progress.ProgressChanged += (_, e) => StreamingProgressChanged?.Invoke(this, e);
+				progress.ProgressChanged += (_, e) => OnStreamingProgressChanged(e);
 
 				var client = new HttpClient();
 
 				var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
-				StatusUpdate?.Invoke(this, actualDownloadedFilePath);
+				OnStatusUpdate(actualDownloadedFilePath);
 				return actualDownloadedFilePath;
 			}
 			finally
 			{
-				StreamingCompleted?.Invoke(this, proposedDownloadFilePath);
+				OnStreamingCompleted(proposedDownloadFilePath);
 			}
 		}
 

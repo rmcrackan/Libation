@@ -13,7 +13,7 @@ namespace LibationCli
 	public abstract class ProcessableOptionsBase : OptionsBase
 	{
 		protected static TProcessable CreateProcessable<TProcessable>(EventHandler<LibraryBook> completedAction = null)
-			where TProcessable : IProcessable, new()
+			where TProcessable : Processable, new()
 		{
 			var strProc = new TProcessable();
 
@@ -25,7 +25,7 @@ namespace LibationCli
 			return strProc;
 		}
 
-		protected static async Task RunAsync(IProcessable Processable)
+		protected static async Task RunAsync(Processable Processable)
 		{
 			foreach (var libraryBook in Processable.GetValidLibraryBooks(DbContexts.GetLibrary_Flat_NoTracking()))
 				await ProcessOneAsync(Processable, libraryBook, false);
@@ -35,7 +35,7 @@ namespace LibationCli
 			Serilog.Log.Logger.Information(done);
 		}
 
-		private static async Task ProcessOneAsync(IProcessable Processable, LibraryBook libraryBook, bool validate)
+		private static async Task ProcessOneAsync(Processable Processable, LibraryBook libraryBook, bool validate)
 		{
 			try
 			{

@@ -17,15 +17,15 @@ namespace LibationWinForms.BookLiberation
 		}
 
 
-		#region IStreamable event handler overrides
-		public override void OnStreamingBegin(object sender, string beginString)
+		#region Streamable event handler overrides
+		public override void Streamable_StreamingBegin(object sender, string beginString)
 		{
-			base.OnStreamingBegin(sender, beginString);
+			base.Streamable_StreamingBegin(sender, beginString);
 			filenameLbl.UIThreadAsync(() => filenameLbl.Text = beginString);
 		}
-		public override void OnStreamingProgressChanged(object sender, DownloadProgress downloadProgress)
+		public override void Streamable_StreamingProgressChanged(object sender, DownloadProgress downloadProgress)
 		{
-			base.OnStreamingProgressChanged(sender, downloadProgress);
+			base.Streamable_StreamingProgressChanged(sender, downloadProgress);
 			// this won't happen with download file. it will happen with download string
 			if (!downloadProgress.TotalBytesToReceive.HasValue || downloadProgress.TotalBytesToReceive.Value <= 0)
 				return;

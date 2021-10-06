@@ -8,31 +8,17 @@ using AudibleApi;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
-using Dinah.Core.Net.Http;
 using FileManager;
 
 namespace FileLiberator
 {
-    public class DownloadDecryptBook : IAudioDecodable
+    public class DownloadDecryptBook : AudioDecodable
     {
-        private AudiobookDownloadBase aaxcDownloader;
+        private AudiobookDownloadBase abDownloader;
 
-        public event EventHandler<TimeSpan> StreamingTimeRemaining;
-        public event EventHandler<Action<byte[]>> RequestCoverArt;
-        public event EventHandler<string> TitleDiscovered;
-        public event EventHandler<string> AuthorsDiscovered;
-        public event EventHandler<string> NarratorsDiscovered;
-        public event EventHandler<byte[]> CoverImageDiscovered;
-        public event EventHandler<string> StreamingBegin;
-        public event EventHandler<DownloadProgress> StreamingProgressChanged;
-        public event EventHandler<string> StreamingCompleted;
-        public event EventHandler<LibraryBook> Begin;
-        public event EventHandler<string> StatusUpdate;
-        public event EventHandler<LibraryBook> Completed;
-
-        public async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+        public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
-            Begin?.Invoke(this, libraryBook);
+            OnBegin(libraryBook);
 
             try
             {
@@ -57,13 +43,13 @@ namespace FileLiberator
             }
             finally
             {
-                Completed?.Invoke(this, libraryBook);
+                OnCompleted(libraryBook);
             }
         }
 
         private async Task<string> downloadAudiobookAsync(string cacheDir, string destinationDir, LibraryBook libraryBook)
         {
-            StreamingBegin?.Invoke(this, $"Begin decrypting {libraryBook}");
+            OnStreamingBegin($"Begin decrypting {libraryBook}");
 
             try
             {
@@ -98,18 +84,19 @@ namespace FileLiberator
                 
                 var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
 
-                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm
-                    ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, Configuration.Instance.SplitFilesByChapter) { AppName = "Libation" }
+                abDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm
+                    ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, Configuration.Instance.SplitFilesByChapter)
                     : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
-                aaxcDownloader.DecryptProgressUpdate += (s, progress) => StreamingProgressChanged?.Invoke(this, progress);
-                aaxcDownloader.DecryptTimeRemaining += (s, remaining) => StreamingTimeRemaining?.Invoke(this, remaining);
-                aaxcDownloader.RetrievedTitle += (s, title) => TitleDiscovered?.Invoke(this, title);
-                aaxcDownloader.RetrievedAuthors += (s, authors) => AuthorsDiscovered?.Invoke(this, authors);
-                aaxcDownloader.RetrievedNarrators += (s, narrators) => NarratorsDiscovered?.Invoke(this, narrators);
-                aaxcDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
+                abDownloader.AppName = "Libation";
+                abDownloader.DecryptProgressUpdate += (_, progress) => OnStreamingProgressChanged(progress);
+                abDownloader.DecryptTimeRemaining += (_, remaining) => OnStreamingTimeRemaining(remaining);
+                abDownloader.RetrievedTitle += (_, title) => OnTitleDiscovered(title);
+                abDownloader.RetrievedAuthors += (_, authors) => OnAuthorsDiscovered(authors);
+                abDownloader.RetrievedNarrators += (_, narrators) => OnNarratorsDiscovered(narrators);
+                abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
 
                 // REAL WORK DONE HERE
-                var success = await Task.Run(() => aaxcDownloader.Run());
+                var success = await Task.Run(abDownloader.Run);
 
                 // decrypt failed
                 if (!success)
@@ -119,7 +106,7 @@ namespace FileLiberator
             }
             finally
             {
-                StreamingCompleted?.Invoke(this, $"Completed downloading and decrypting {libraryBook.Book.Title}");
+                OnStreamingCompleted($"Completed downloading and decrypting {libraryBook.Book.Title}");
             }
         }
 
@@ -127,12 +114,12 @@ namespace FileLiberator
         {
             if (e is null && Configuration.Instance.AllowLibationFixup)
             {
-                RequestCoverArt?.Invoke(this, aaxcDownloader.SetCoverArt);
+                OnRequestCoverArt(abDownloader.SetCoverArt);
             }
 
             if (e is not null)
             {
-                CoverImageDiscovered?.Invoke(this, e);
+                OnCoverImageDiscovered(e);
             }
         }
 
@@ -214,11 +201,11 @@ namespace FileLiberator
                 throw new Exception(errorString("Locale"));
         }
 
-        public bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists;
+        public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists;
 
-        public void Cancel()
+        public override void Cancel()
         {
-            aaxcDownloader?.Cancel();
+            abDownloader?.Cancel();
         }
     }
 }

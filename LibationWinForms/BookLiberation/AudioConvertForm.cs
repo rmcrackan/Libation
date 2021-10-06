@@ -16,16 +16,16 @@ namespace LibationWinForms.BookLiberation
 		public override string DecodeActionName => "Converting";
 		#endregion
 
-		#region IProcessable event handler overrides
-		public override void OnBegin(object sender, LibraryBook libraryBook)
+		#region Processable event handler overrides
+		public override void Processable_Begin(object sender, LibraryBook libraryBook)
 		{
 			LogMe.Info($"Convert Step, Begin: {libraryBook.Book}");
 
-			base.OnBegin(sender, libraryBook);
+			base.Processable_Begin(sender, libraryBook);
 		}
-		public override void OnCompleted(object sender, LibraryBook libraryBook)
+		public override void Processable_Completed(object sender, LibraryBook libraryBook)
 		{
-			base.OnCompleted(sender, libraryBook);
+			base.Processable_Completed(sender, libraryBook);
 			LogMe.Info($"Convert Step, Completed: {libraryBook.Book}{Environment.NewLine}");
 		}
 
