@@ -24,13 +24,13 @@ namespace FileLiberator
         public abstract Task<StatusHandler> ProcessAsync(LibraryBook libraryBook);
 
         // when used in foreach: stateful. deferred execution
-        protected IEnumerable<LibraryBook> GetValidLibraryBooks(IEnumerable<LibraryBook> library)
+        public IEnumerable<LibraryBook> GetValidLibraryBooks(IEnumerable<LibraryBook> library)
             => library.Where(libraryBook =>
                 Validate(libraryBook)
                 && (libraryBook.Book.ContentType != ContentType.Episode || FileManager.Configuration.Instance.DownloadEpisodes)
                 );
 
-        protected async Task<StatusHandler> ProcessSingleAsync(LibraryBook libraryBook, bool validate)
+        public async Task<StatusHandler> ProcessSingleAsync(LibraryBook libraryBook, bool validate)
         {
             if (validate && !Validate(libraryBook))
                 return new StatusHandler { "Validation failed" };
@@ -50,7 +50,7 @@ namespace FileLiberator
             return status;
         }
 
-        protected async Task<StatusHandler> TryProcessAsync(LibraryBook libraryBook)
+        public async Task<StatusHandler> TryProcessAsync(LibraryBook libraryBook)
             => Validate(libraryBook)
             ? await ProcessAsync(libraryBook)
             : new StatusHandler();
