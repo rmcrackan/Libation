@@ -14,7 +14,7 @@ namespace FileLiberator
 {
     public class DownloadDecryptBook : AudioDecodable
     {
-        private AudiobookDownloadBase aaxcDownloader;
+        private AudiobookDownloadBase abDownloader;
 
         public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
@@ -84,18 +84,19 @@ namespace FileLiberator
                 
                 var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
 
-                aaxcDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm
-                    ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, Configuration.Instance.SplitFilesByChapter) { AppName = "Libation" }
+                abDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm
+                    ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, Configuration.Instance.SplitFilesByChapter)
                     : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
-                aaxcDownloader.DecryptProgressUpdate += (s, progress) => OnStreamingProgressChanged(progress);
-                aaxcDownloader.DecryptTimeRemaining += (s, remaining) => OnStreamingTimeRemaining(remaining);
-                aaxcDownloader.RetrievedTitle += (s, title) => OnTitleDiscovered(title);
-                aaxcDownloader.RetrievedAuthors += (s, authors) => OnAuthorsDiscovered(authors);
-                aaxcDownloader.RetrievedNarrators += (s, narrators) => OnNarratorsDiscovered(narrators);
-                aaxcDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
+                abDownloader.AppName = "Libation";
+                abDownloader.DecryptProgressUpdate += (s, progress) => OnStreamingProgressChanged(progress);
+                abDownloader.DecryptTimeRemaining += (s, remaining) => OnStreamingTimeRemaining(remaining);
+                abDownloader.RetrievedTitle += (s, title) => OnTitleDiscovered(title);
+                abDownloader.RetrievedAuthors += (s, authors) => OnAuthorsDiscovered(authors);
+                abDownloader.RetrievedNarrators += (s, narrators) => OnNarratorsDiscovered(narrators);
+                abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
 
                 // REAL WORK DONE HERE
-                var success = await Task.Run(() => aaxcDownloader.Run());
+                var success = await Task.Run(abDownloader.Run);
 
                 // decrypt failed
                 if (!success)
@@ -113,7 +114,7 @@ namespace FileLiberator
         {
             if (e is null && Configuration.Instance.AllowLibationFixup)
             {
-                OnRequestCoverArt(aaxcDownloader.SetCoverArt);
+                OnRequestCoverArt(abDownloader.SetCoverArt);
             }
 
             if (e is not null)
@@ -204,7 +205,7 @@ namespace FileLiberator
 
         public override void Cancel()
         {
-            aaxcDownloader?.Cancel();
+            abDownloader?.Cancel();
         }
     }
 }
