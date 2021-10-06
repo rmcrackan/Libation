@@ -88,11 +88,11 @@ namespace FileLiberator
                     ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, Configuration.Instance.SplitFilesByChapter)
                     : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
                 abDownloader.AppName = "Libation";
-                abDownloader.DecryptProgressUpdate += (s, progress) => OnStreamingProgressChanged(progress);
-                abDownloader.DecryptTimeRemaining += (s, remaining) => OnStreamingTimeRemaining(remaining);
-                abDownloader.RetrievedTitle += (s, title) => OnTitleDiscovered(title);
-                abDownloader.RetrievedAuthors += (s, authors) => OnAuthorsDiscovered(authors);
-                abDownloader.RetrievedNarrators += (s, narrators) => OnNarratorsDiscovered(narrators);
+                abDownloader.DecryptProgressUpdate += (_, progress) => OnStreamingProgressChanged(progress);
+                abDownloader.DecryptTimeRemaining += (_, remaining) => OnStreamingTimeRemaining(remaining);
+                abDownloader.RetrievedTitle += (_, title) => OnTitleDiscovered(title);
+                abDownloader.RetrievedAuthors += (_, authors) => OnAuthorsDiscovered(authors);
+                abDownloader.RetrievedNarrators += (_, narrators) => OnNarratorsDiscovered(narrators);
                 abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
 
                 // REAL WORK DONE HERE
