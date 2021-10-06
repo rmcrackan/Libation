@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
-using Dinah.Core.Net.Http;
 
 namespace FileLiberator
 {
@@ -18,14 +17,20 @@ namespace FileLiberator
 
         public event EventHandler<LibraryBook> Completed;
 
+        /// <returns>True == Valid</returns>
+        public abstract bool Validate(LibraryBook libraryBook);
+
+        /// <returns>True == success</returns>
+        public abstract Task<StatusHandler> ProcessAsync(LibraryBook libraryBook);
+
         // when used in foreach: stateful. deferred execution
-        public IEnumerable<LibraryBook> GetValidLibraryBooks(IEnumerable<LibraryBook> library)
+        protected IEnumerable<LibraryBook> GetValidLibraryBooks(IEnumerable<LibraryBook> library)
             => library.Where(libraryBook =>
                 Validate(libraryBook)
                 && (libraryBook.Book.ContentType != ContentType.Episode || FileManager.Configuration.Instance.DownloadEpisodes)
                 );
 
-        public async Task<StatusHandler> ProcessSingleAsync(LibraryBook libraryBook, bool validate)
+        protected async Task<StatusHandler> ProcessSingleAsync(LibraryBook libraryBook, bool validate)
         {
             if (validate && !Validate(libraryBook))
                 return new StatusHandler { "Validation failed" };
@@ -45,31 +50,27 @@ namespace FileLiberator
             return status;
         }
 
-        public async Task<StatusHandler> TryProcessAsync( LibraryBook libraryBook)
+        protected async Task<StatusHandler> TryProcessAsync(LibraryBook libraryBook)
             => Validate(libraryBook)
             ? await ProcessAsync(libraryBook)
             : new StatusHandler();
 
-        /// <returns>True == Valid</returns>
-        public abstract bool Validate(LibraryBook libraryBook);
-
-        /// <returns>True == success</returns>
-        public abstract Task<StatusHandler> ProcessAsync(LibraryBook libraryBook);
-
-        public void OnBegin(LibraryBook libraryBook)
+        protected void OnBegin(LibraryBook libraryBook)
         {
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Begin), Book = libraryBook.LogFriendly() });
             Begin?.Invoke(this, libraryBook);
         }
-        public void OnCompleted(LibraryBook libraryBook)
-        {
-            Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Completed), Book = libraryBook.LogFriendly() });
-            Completed?.Invoke(this, libraryBook);
-        }
-        public void OnStatusUpdate(string statusUpdate)
+
+        protected void OnStatusUpdate(string statusUpdate)
         {
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(StatusUpdate), Status = statusUpdate });
             StatusUpdate?.Invoke(this, statusUpdate);
+        }
+
+        protected void OnCompleted(LibraryBook libraryBook)
+        {
+            Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Completed), Book = libraryBook.LogFriendly() });
+            Completed?.Invoke(this, libraryBook);
         }
     }
 }

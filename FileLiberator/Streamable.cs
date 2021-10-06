@@ -9,25 +9,29 @@ namespace FileLiberator
         public event EventHandler<DownloadProgress> StreamingProgressChanged;
         public event EventHandler<TimeSpan> StreamingTimeRemaining;
         public event EventHandler<string> StreamingCompleted;
-        public void OnStreamingBegin(string filePath)
+
+        protected void OnStreamingBegin(string filePath)
         {
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(StreamingBegin), Message = filePath });
             StreamingBegin?.Invoke(this, filePath);
         }
-        public void OnStreamingCompleted(string filePath)
+
+        protected void OnStreamingProgressChanged(DownloadProgress progress)
+        {
+            StreamingProgressChanged?.Invoke(this, progress);
+        }
+
+        protected void OnStreamingTimeRemaining(TimeSpan timeRemaining)
+        {
+            StreamingTimeRemaining?.Invoke(this, timeRemaining);
+        }
+
+        protected void OnStreamingCompleted(string filePath)
         {
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(StreamingCompleted), Message = filePath });
             StreamingCompleted?.Invoke(this, filePath);
 
             //TODO: Update file cache
-        }
-        public void OnStreamingProgressChanged(DownloadProgress progress)
-        {
-            StreamingProgressChanged?.Invoke(this, progress);
-        }
-        public void OnStreamingTimeRemaining(TimeSpan timeRemaining)
-        {
-            StreamingTimeRemaining?.Invoke(this, timeRemaining);
         }
     }
 }
