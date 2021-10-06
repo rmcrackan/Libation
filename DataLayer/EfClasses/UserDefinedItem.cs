@@ -47,7 +47,7 @@ namespace DataLayer
                 if (_tags != newTags)
                 {
                     _tags = newTags;
-                    ItemChanged?.Invoke(this, nameof(Tags));
+                    OnItemChanged(nameof(Tags));
                 }
             }
 		}
@@ -112,6 +112,28 @@ namespace DataLayer
         /// </summary>
         public static event EventHandler<string> ItemChanged;
 
+        private void OnItemChanged(string e)
+        {
+            // HACK
+            // must not fire during initial import.
+            //
+            // these checks are necessary because current architecture attaches to this instead of attaching to an event *after* fully committed to db. the attached delegate/action sometimes calls commit:
+            //
+            // desired:
+            // - importing new book
+            // - update pdf status
+            // - initial book commit
+            //
+            // actual without these checks [BAD]:
+            // - importing new book
+            // - update pdf status
+            //   - invoke event
+            //   - commit UserDefinedItem
+            // - initial book commit
+            if (BookId > 0 && Book is not null && Book.BookId > 0)
+                ItemChanged?.Invoke(this, e);
+        }
+
         private LiberatedStatus _bookStatus;
         private LiberatedStatus? _pdfStatus;
         public LiberatedStatus BookStatus
@@ -122,7 +144,7 @@ namespace DataLayer
                 if (_bookStatus != value)
 				{
                     _bookStatus = value;
-                    ItemChanged?.Invoke(this, nameof(BookStatus));
+                    OnItemChanged(nameof(BookStatus));
                 }
             }
         }
@@ -134,7 +156,7 @@ namespace DataLayer
                 if (_pdfStatus != value)
                 {
                     _pdfStatus = value;
-                    ItemChanged?.Invoke(this, nameof(PdfStatus));
+                    OnItemChanged(nameof(PdfStatus));
                 }
             }
         }
