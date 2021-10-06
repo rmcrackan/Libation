@@ -4,11 +4,13 @@ using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace AaxDecrypter
 {
     public class AaxcDownloadConverter : AudiobookDownloadBase
     {
+        private static readonly TimeSpan minChapterLength = TimeSpan.FromSeconds(15);
         protected override StepSequence steps { get; }
 
         private AaxFile aaxFile;
@@ -81,11 +83,30 @@ namespace AaxDecrypter
         {
             var zeroProgress = Step2_Start();
 
+            var chapters = downloadLicense.ChapterInfo.Chapters.ToList();
+
+            //Ensure split files are at least minChapterLength in duration.
+            var splitChapters = new ChapterInfo();
+            splitChapters.AddChapter(chapters[0].Title, chapters[0].Duration);
+
+            var runningTotal = chapters[0].Duration;
+
+            for (int i = 1; i < chapters.Count; i++)
+			{
+                if (runningTotal >= minChapterLength)
+				{
+                    splitChapters.AddChapter(chapters[i].Title, chapters[i].Duration);
+                    runningTotal = chapters[i].Duration;
+                }
+                else
+                    runningTotal += chapters[i].Duration;
+            }
+
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
             if(OutputFormat == OutputFormat.M4b) 
-                ConvertToMultiMp4b();
+                ConvertToMultiMp4b(splitChapters);
             else 
-                ConvertToMultiMp3();
+                ConvertToMultiMp3(splitChapters);
             aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
             Step2_End(zeroProgress);
@@ -117,10 +138,10 @@ namespace AaxDecrypter
             OnDecryptProgressUpdate(zeroProgress);
         }
 
-        private void ConvertToMultiMp4b()
+        private void ConvertToMultiMp4b(ChapterInfo splitChapters)
         {
             var chapterCount = 0;
-            aaxFile.ConvertToMultiMp4a(downloadLicense.ChapterInfo, newSplitCallback =>
+            aaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
             {
                 chapterCount++;
                 var fileName = Path.ChangeExtension(outputFileName, $"{chapterCount}.m4b");
@@ -130,10 +151,11 @@ namespace AaxDecrypter
             });
         }
         
-        private void ConvertToMultiMp3()
+        private void ConvertToMultiMp3(ChapterInfo splitChapters)
         {
             var chapterCount = 0;
-            aaxFile.ConvertToMultiMp3(downloadLicense.ChapterInfo, newSplitCallback =>
+
+            aaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
             {
                 chapterCount++;
                 var fileName = Path.ChangeExtension(outputFileName, $"{chapterCount}.mp3");
