@@ -276,6 +276,10 @@ liberate pdfs only
 export library to file
   libationcli export --path "C:\foo\bar\my.json" --json
   libationcli export -p "C:\foo\bar\my.json" -j
+  libationcli export -p "C:\foo\bar\my.csv" --csv
+  libationcli export -p "C:\foo\bar\my.csv" -c
+  libationcli export -p "C:\foo\bar\my.xlsx" --xlsx
+  libationcli export -p "C:\foo\bar\my.xlsx" -x
 ```
 
 Currently logs are written to Console and to file. This means they'll be printed in the CLI. To disable, find this in Settings.json and delete the 3 lines after `"WriteTo": [`
