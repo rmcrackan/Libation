@@ -72,6 +72,8 @@ namespace FileLiberator
 				var client = new HttpClient();
 
 				var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
+				OnFileCreated(libraryBook.Book.AudibleProductId, FileType.PDF, actualDownloadedFilePath);
+
 				OnStatusUpdate(actualDownloadedFilePath);
 				return actualDownloadedFilePath;
 			}

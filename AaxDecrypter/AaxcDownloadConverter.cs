@@ -1,11 +1,12 @@
-﻿using AAXClean;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using AAXClean;
 using Dinah.Core;
 using Dinah.Core.IO;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace AaxDecrypter
 {
@@ -13,17 +14,19 @@ namespace AaxDecrypter
     {
         const int MAX_FILENAME_LENGTH = 255;
         private static readonly TimeSpan minChapterLength = TimeSpan.FromSeconds(3);
-        protected override StepSequence steps { get; }
+        protected override StepSequence Steps { get; }
 
         private AaxFile aaxFile;
         private OutputFormat OutputFormat { get; }
 
+        private List<string> multiPartFilePaths { get; } = new List<string>();
+
         public AaxcDownloadConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic, OutputFormat outputFormat, bool splitFileByChapters)
-            :base(outFileName, cacheDirectory, dlLic)
+            : base(outFileName, cacheDirectory, dlLic)
         {
             OutputFormat = outputFormat;
 
-            steps = new StepSequence
+            Steps = new StepSequence
             {
                 Name = "Download and Convert Aaxc To " + OutputFormat,
 
@@ -31,8 +34,8 @@ namespace AaxDecrypter
                 ["Step 2: Download Decrypted Audiobook"] = splitFileByChapters
                     ? Step2_DownloadAudiobookAsMultipleFilesPerChapter
                     : Step2_DownloadAudiobookAsSingleFile,
-                ["Step 3: Create Cue"] = splitFileByChapters 
-                    ? () => true 
+                ["Step 3: Create Cue"] = splitFileByChapters
+                    ? () => true
                     : Step3_CreateCue,
                 ["Step 4: Cleanup"] = Step4_Cleanup,
             };
@@ -49,7 +52,7 @@ namespace AaxDecrypter
         }
 
         protected override bool Step1_GetMetadata()
-        {    
+        {
             aaxFile = new AaxFile(InputFileStream);
 
             OnRetrievedTitle(aaxFile.AppleTags.TitleSansUnabridged);
@@ -57,34 +60,38 @@ namespace AaxDecrypter
             OnRetrievedNarrators(aaxFile.AppleTags.Narrator ?? "[unknown]");
             OnRetrievedCoverArt(aaxFile.AppleTags.Cover);
 
-            return !isCanceled;
+            return !IsCanceled;
         }
 
         protected override bool Step2_DownloadAudiobookAsSingleFile()
         {
             var zeroProgress = Step2_Start();
-            
-            if (File.Exists(outputFileName))
-                FileExt.SafeDelete(outputFileName);
 
-            var outputFile =  File.Open(outputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            if (File.Exists(OutputFileName))
+                FileExt.SafeDelete(OutputFileName);
+
+            var outputFile = File.Open(OutputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-            var decryptionResult = OutputFormat == OutputFormat.M4b ? aaxFile.ConvertToMp4a(outputFile, downloadLicense.ChapterInfo) : aaxFile.ConvertToMp3(outputFile);
+            var decryptionResult = OutputFormat == OutputFormat.M4b ? aaxFile.ConvertToMp4a(outputFile, DownloadLicense.ChapterInfo) : aaxFile.ConvertToMp3(outputFile);
             aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
-            downloadLicense.ChapterInfo = aaxFile.Chapters;
-            
+            DownloadLicense.ChapterInfo = aaxFile.Chapters;
+
             Step2_End(zeroProgress);
 
-            return decryptionResult == ConversionResult.NoErrorsDetected && !isCanceled;
+            var success = decryptionResult == ConversionResult.NoErrorsDetected && !IsCanceled;
+            if (success)
+                base.OnFileCreated(OutputFileName);
+
+            return success;
         }
 
         private bool Step2_DownloadAudiobookAsMultipleFilesPerChapter()
         {
             var zeroProgress = Step2_Start();
 
-            var chapters = downloadLicense.ChapterInfo.Chapters.ToList();
+            var chapters = DownloadLicense.ChapterInfo.Chapters.ToList();
 
             //Ensure split files are at least minChapterLength in duration.
             var splitChapters = new ChapterInfo();
@@ -106,16 +113,25 @@ namespace AaxDecrypter
                 }
             }
 
+            // reset, just in case
+            multiPartFilePaths.Clear();
+
             aaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-            if(OutputFormat == OutputFormat.M4b) 
+            if (OutputFormat == OutputFormat.M4b)
                 ConvertToMultiMp4b(splitChapters);
-            else 
+            else
                 ConvertToMultiMp3(splitChapters);
             aaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
             Step2_End(zeroProgress);
 
-            return !isCanceled;
+            var success = !IsCanceled;
+
+            if (success)
+                foreach (var path in multiPartFilePaths)
+                    OnFileCreated(path);
+
+            return success;
         }
 
         private DownloadProgress Step2_Start()
@@ -129,10 +145,10 @@ namespace AaxDecrypter
 
             OnDecryptProgressUpdate(zeroProgress);
 
-            aaxFile.SetDecryptionKey(downloadLicense.AudibleKey, downloadLicense.AudibleIV);
+            aaxFile.SetDecryptionKey(DownloadLicense.AudibleKey, DownloadLicense.AudibleIV);
             return zeroProgress;
         }
-        
+
         private void Step2_End(DownloadProgress zeroProgress)
         {
             aaxFile.Close();
@@ -147,19 +163,19 @@ namespace AaxDecrypter
             var chapterCount = 0;
             aaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
             {
-                var fileName = GetMultipartFileName(outputFileName, ++chapterCount, newSplitCallback.Chapter.Title);
+                var fileName = GetMultipartFileName(++chapterCount, newSplitCallback.Chapter.Title);
                 if (File.Exists(fileName))
                     FileExt.SafeDelete(fileName);
                 newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
             });
         }
-        
+
         private void ConvertToMultiMp3(ChapterInfo splitChapters)
         {
             var chapterCount = 0;
             aaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
             {
-                var fileName = GetMultipartFileName(outputFileName, ++chapterCount, newSplitCallback.Chapter.Title);
+                var fileName = GetMultipartFileName(++chapterCount, newSplitCallback.Chapter.Title);
                 if (File.Exists(fileName))
                     FileExt.SafeDelete(fileName);
                 newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
@@ -167,29 +183,21 @@ namespace AaxDecrypter
             });
         }
 
-        private static string GetMultipartFileName(string baseFileName, int chapterCount, string chapterTitle)
+        // return. cache name for event call at end of processing
+        private string GetMultipartFileName(int chapterCount, string chapterTitle)
         {
-            string extension = Path.GetExtension(baseFileName);
+            string extension = Path.GetExtension(OutputFileName);
 
-            var fileNameChars = $"{Path.GetFileNameWithoutExtension(baseFileName)} - {chapterCount:D2} - {chapterTitle}".ToCharArray();
+            var filenameBase = $"{Path.GetFileNameWithoutExtension(OutputFileName)} - {chapterCount:D2} - {chapterTitle}";
+            // Replace illegal path characters with spaces
+            var filenameBaseSafe = string.Join(" ", filenameBase.Split(Path.GetInvalidFileNameChars()));
+            var fileName = filenameBaseSafe.Truncate(MAX_FILENAME_LENGTH - extension.Length);
+            var path = Path.Combine(Path.GetDirectoryName(OutputFileName), fileName + extension);
 
-            //Replace illegal path characters with spaces.
-            for (int i = 0; i <fileNameChars.Length; i++)
-			{
-                foreach (var illegal in Path.GetInvalidFileNameChars())
-				{
-                    if (fileNameChars[i] == illegal)
-					{
-                        fileNameChars[i] = ' ';
-                        break;
-					}
-				}
-			}
+            multiPartFilePaths.Add(path);
 
-            var fileName = new string(fileNameChars).Truncate(MAX_FILENAME_LENGTH - extension.Length);
-
-            return Path.Combine(Path.GetDirectoryName(baseFileName), fileName + extension);
-		}
+            return path;
+        }
 
         private void AaxFile_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
         {
@@ -213,13 +221,10 @@ namespace AaxDecrypter
 
         public override void Cancel()
         {
-            isCanceled = true;
+            IsCanceled = true;
             aaxFile?.Cancel();
             aaxFile?.Dispose();
             CloseInputFileStream();
         }
-
-		protected override int GetSpeedup(TimeSpan elapsed)
-            => (int)(aaxFile.Duration.TotalSeconds / (long)elapsed.TotalSeconds);
-	}
+    }
 }

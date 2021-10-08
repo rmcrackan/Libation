@@ -20,6 +20,7 @@ namespace FileLiberator
 			try
 			{
 				var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
+				OnFileCreated("Upgrade", FileManager.FileType.Zip, actualDownloadedFilePath);
 				return actualDownloadedFilePath;
 			}
 			finally

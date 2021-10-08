@@ -55,6 +55,7 @@ namespace FileLiberator
                 var mp3Path = Mp3FileName(m4bPath);
 
                 FileExt.SafeMove(mp3File.Name, mp3Path);
+                OnFileCreated(libraryBook.Book.AudibleProductId, FileManager.FileType.Audio, mp3Path);
 
                 var statusHandler = new StatusHandler();
 

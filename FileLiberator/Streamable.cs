@@ -9,6 +9,8 @@ namespace FileLiberator
         public event EventHandler<DownloadProgress> StreamingProgressChanged;
         public event EventHandler<TimeSpan> StreamingTimeRemaining;
         public event EventHandler<string> StreamingCompleted;
+        /// <summary>Fired when a file is successfully saved to disk</summary>
+        public event EventHandler<(string id, FileManager.FileType type, string path)> FileCreated;
 
         protected void OnStreamingBegin(string filePath)
         {
@@ -30,8 +32,13 @@ namespace FileLiberator
         {
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(StreamingCompleted), Message = filePath });
             StreamingCompleted?.Invoke(this, filePath);
+        }
 
-            //TODO: Update file cache
+        protected void OnFileCreated(string productId, FileManager.FileType type, string path)
+        {
+            Serilog.Log.Logger.Information("File created {@DebugInfo}", new { Name = nameof(FileCreated), productId, TypeId = (int)type, TypeName = type.ToString(), path });
+            FileManager.FilePathCache.Upsert(productId, type, path);
+            FileCreated?.Invoke(this, (productId, type, path));
         }
     }
 }

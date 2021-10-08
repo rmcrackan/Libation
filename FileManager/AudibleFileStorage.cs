@@ -8,7 +8,7 @@ using Dinah.Core.Collections.Generic;
 
 namespace FileManager
 {
-    public enum FileType { Unknown, Audio, AAXC, PDF }
+    public enum FileType { Unknown, Audio, AAXC, PDF, Zip }
 
 	public abstract class AudibleFileStorage : Enumeration<AudibleFileStorage>
 	{
@@ -66,16 +66,9 @@ namespace FileManager
             if (StorageDirectory == BooksDirectory)
             {
                 //If user changed the BooksDirectory, reinitialize.
-                if (StorageDirectory != BookDirectoryFiles.RootDirectory)
-				{
-                    lock (bookDirectoryFilesLocker)
-                    {
-                        if (StorageDirectory != BookDirectoryFiles.RootDirectory)
-                        {
-                            BookDirectoryFiles = new BackgroundFileSystem(StorageDirectory, "*.*", SearchOption.AllDirectories);
-                        }
-                    }
-				}
+                lock (bookDirectoryFilesLocker)
+                    if (StorageDirectory != BookDirectoryFiles.RootDirectory)
+                        BookDirectoryFiles = new BackgroundFileSystem(StorageDirectory, "*.*", SearchOption.AllDirectories);
 
                 firstOrNull = BookDirectoryFiles.FindFile(regex);
             }
@@ -87,10 +80,9 @@ namespace FileManager
                     .FirstOrDefault(s => regex.IsMatch(s));
             }
 
-			if (firstOrNull is null)
-				return null;
+			if (firstOrNull is not null)
+                FilePathCache.Upsert(productId, FileType, firstOrNull);
 
-			FilePathCache.Upsert(productId, FileType, firstOrNull);
 			return firstOrNull;
         }
         #endregion

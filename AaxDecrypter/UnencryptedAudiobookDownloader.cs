@@ -10,13 +10,12 @@ namespace AaxDecrypter
 {
 	public class UnencryptedAudiobookDownloader : AudiobookDownloadBase
 	{
-		protected override StepSequence steps { get; }
+		protected override StepSequence Steps { get; }
 
 		public UnencryptedAudiobookDownloader(string outFileName, string cacheDirectory, DownloadLicense dlLic)
 			: base(outFileName, cacheDirectory, dlLic)
 		{
-
-			steps = new StepSequence
+			Steps = new StepSequence
 			{
 				Name = "Download Mp3 Audiobook",
 
@@ -29,21 +28,15 @@ namespace AaxDecrypter
 
 		public override void Cancel()
 		{
-			isCanceled = true;
+			IsCanceled = true;
 			CloseInputFileStream();
-		}
-
-		protected override int GetSpeedup(TimeSpan elapsed)
-		{
-			//Not implemented
-			return 0;
 		}
 
 		protected override bool Step1_GetMetadata()
 		{
 			OnRetrievedCoverArt(null);
 
-			return !isCanceled;
+			return !IsCanceled;
 		}
 
 		protected override bool Step2_DownloadAudiobookAsSingleFile()
@@ -75,12 +68,13 @@ namespace AaxDecrypter
 
 			CloseInputFileStream();
 
-			if (File.Exists(outputFileName))
-				FileExt.SafeDelete(outputFileName);
+			if (File.Exists(OutputFileName))
+				FileExt.SafeDelete(OutputFileName);
 
-			FileExt.SafeMove(InputFileStream.SaveFilePath, outputFileName);
+			FileExt.SafeMove(InputFileStream.SaveFilePath, OutputFileName);
+			OnFileCreated(OutputFileName);
 
-			return !isCanceled;
+			return !IsCanceled;
 		}
 	}
 }

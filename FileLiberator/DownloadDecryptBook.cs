@@ -25,16 +25,16 @@ namespace FileLiberator
                 if (libraryBook.Book.Audio_Exists)
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-                var outputAudioFilename = await downloadAudiobookAsync(AudibleFileStorage.DownloadsInProgress, AudibleFileStorage.DecryptInProgress, libraryBook);
+                var outputAudioFilename = await downloadAudiobookAsync(libraryBook);
 
                 // decrypt failed
                 if (outputAudioFilename is null)
                     return new StatusHandler { "Decrypt failed" };
 
-                // moves files and returns dest dir
-                var moveResults = MoveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
+                // moves new files from temp dir to final dest
+                var movedAudioFile = moveFilesToBooksDir(libraryBook.Book, outputAudioFilename);
 
-                if (!moveResults.movedAudioFile)
+                if (!movedAudioFile)
                     return new StatusHandler { "Cannot find final audio file after decryption" };
 
                 libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
@@ -47,7 +47,7 @@ namespace FileLiberator
             }
         }
 
-        private async Task<string> downloadAudiobookAsync(string cacheDir, string destinationDir, LibraryBook libraryBook)
+        private async Task<string> downloadAudiobookAsync(LibraryBook libraryBook)
         {
             OnStreamingBegin($"Begin decrypting {libraryBook}");
 
@@ -82,18 +82,20 @@ namespace FileLiberator
                         audiobookDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
                 
-                var outFileName = Path.Combine(destinationDir, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
+                var outFileName = Path.Combine(AudibleFileStorage.DecryptInProgress, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
+
+                var cacheDir = AudibleFileStorage.DownloadsInProgress;
 
                 abDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm
                     ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, Configuration.Instance.SplitFilesByChapter)
                     : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
-                abDownloader.AppName = "Libation";
                 abDownloader.DecryptProgressUpdate += (_, progress) => OnStreamingProgressChanged(progress);
                 abDownloader.DecryptTimeRemaining += (_, remaining) => OnStreamingTimeRemaining(remaining);
                 abDownloader.RetrievedTitle += (_, title) => OnTitleDiscovered(title);
                 abDownloader.RetrievedAuthors += (_, authors) => OnAuthorsDiscovered(authors);
                 abDownloader.RetrievedNarrators += (_, narrators) => OnNarratorsDiscovered(narrators);
                 abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
+                abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook.Book.AudibleProductId, FileType.Audio, path);
 
                 // REAL WORK DONE HERE
                 var success = await Task.Run(abDownloader.Run);
@@ -123,41 +125,46 @@ namespace FileLiberator
             }
         }
 
-        private static (string destinationDir, bool movedAudioFile) MoveFilesToBooksDir(Book product, string outputAudioFilename)
+        /// <summary>Move new files to 'Books' directory</summary>
+        /// <returns>True if audiobook file(s) were successfully created and can be located on disk. Else false.</returns>
+        private static bool moveFilesToBooksDir(Book book, string outputAudioFilename)
         {
             // create final directory. move each file into it. MOVE AUDIO FILE LAST
             // new dir: safetitle_limit50char + " [" + productId + "]"
             // TODO make this method handle multiple audio files or a single audio file.
-            var destinationDir = AudibleFileStorage.Audio.GetDestDir(product.Title, product.AudibleProductId);
+            var destinationDir = AudibleFileStorage.Audio.GetDestDir(book.Title, book.AudibleProductId);
             Directory.CreateDirectory(destinationDir);
 
-            var sortedFiles = getProductFilesSorted(product, outputAudioFilename);
+            var sortedFiles = getProductFilesSorted(book, outputAudioFilename);
 
             var musicFileExt = Path.GetExtension(outputAudioFilename).Trim('.');
 
             // audio filename: safetitle_limit50char + " [" + productId + "]." + audio_ext
-            var audioFileName = FileUtility.GetValidFilename(destinationDir, product.Title, musicFileExt, product.AudibleProductId);
+            var audioFileName = FileUtility.GetValidFilename(destinationDir, book.Title, musicFileExt, book.AudibleProductId);
 
             bool movedAudioFile = false;
             foreach (var f in sortedFiles)
             {
+                var isAudio = AudibleFileStorage.Audio.IsFileTypeMatch(f);
                 var dest
-                    = AudibleFileStorage.Audio.IsFileTypeMatch(f)//f.Extension.Equals($".{musicFileExt}", StringComparison.OrdinalIgnoreCase)
+                    = isAudio
                     ? Path.Join(destinationDir, f.Name)
                     // non-audio filename: safetitle_limit50char + " [" + productId + "][" + audio_ext + "]." + non_audio_ext
-                    : FileUtility.GetValidFilename(destinationDir, product.Title, f.Extension, product.AudibleProductId, musicFileExt);
+                    : FileUtility.GetValidFilename(destinationDir, book.Title, f.Extension, book.AudibleProductId, musicFileExt);
 
                 if (Path.GetExtension(dest).Trim('.').ToLower() == "cue")
                     Cue.UpdateFileName(f, audioFileName);
 
                 File.Move(f.FullName, dest);
+                if (isAudio)
+                    FilePathCache.Upsert(book.AudibleProductId, FileType.Audio, dest);
 
                 movedAudioFile |= AudibleFileStorage.Audio.IsFileTypeMatch(f);
             }
 
             AudibleFileStorage.Audio.Refresh();
 
-            return (destinationDir, movedAudioFile);
+            return movedAudioFile;
         }
 
         private static List<FileInfo> getProductFilesSorted(Book product, string outputAudioFilename)

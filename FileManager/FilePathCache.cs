@@ -56,9 +56,15 @@ namespace FileManager
 		}
 
         public static void Upsert(string id, FileType type, string path)
-        {
-            if (!File.Exists(path))
-                throw new FileNotFoundException("Cannot add path to cache. File not found");
+		{
+			if (!File.Exists(path))
+			{
+				// file not found can happen after rapid move
+				System.Threading.Thread.Sleep(100);
+
+				if (!File.Exists(path))
+					throw new FileNotFoundException($"Cannot add path to cache. File not found. Id={id} FileType={type}", path);
+			}
 
 			var entry = cache.SingleOrDefault(i => i.Id == id && i.FileType == type);
 
