@@ -187,7 +187,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             var chapterCount = 0;
             aaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
             {
-                var fileName = GetMultipartFileName(++chapterCount, newSplitCallback.Chapter.Title);
+                var fileName = GetMultipartFileName(++chapterCount, splitChapters.Count, newSplitCallback.Chapter.Title);
                 if (File.Exists(fileName))
                     FileExt.SafeDelete(fileName);
                 newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
@@ -199,7 +199,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             var chapterCount = 0;
             aaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
             {
-                var fileName = GetMultipartFileName(++chapterCount, newSplitCallback.Chapter.Title);
+                var fileName = GetMultipartFileName(++chapterCount, splitChapters.Count, newSplitCallback.Chapter.Title);
                 if (File.Exists(fileName))
                     FileExt.SafeDelete(fileName);
                 newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
@@ -208,11 +208,16 @@ That naming may not be desirable for everyone, but it's an easy change to instea
         }
 
         // return. cache name for event call at end of processing
-        private string GetMultipartFileName(int chapterCount, string chapterTitle)
+        private string GetMultipartFileName(int chapterCount, int chaptersTotal, string chapterTitle)
         {
+            // 1-9     => 1-9
+            // 10-99   => 01-99
+            // 100-999 => 001-999
+            var chapterCountLeadingZeros = chapterCount.ToString().PadLeft(chaptersTotal.ToString().Length, '0');
+
             string extension = Path.GetExtension(OutputFileName);
 
-            var filenameBase = $"{Path.GetFileNameWithoutExtension(OutputFileName)} - {chapterCount:D2} - {chapterTitle}";
+            var filenameBase = $"{Path.GetFileNameWithoutExtension(OutputFileName)} - {chapterCountLeadingZeros} - {chapterTitle}";
             // Replace illegal path characters with spaces
             var filenameBaseSafe = string.Join(" ", filenameBase.Split(Path.GetInvalidFileNameChars()));
             var fileName = filenameBaseSafe.Truncate(MAX_FILENAME_LENGTH - extension.Length);
