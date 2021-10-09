@@ -104,7 +104,9 @@ namespace AaxDecrypter
 			// not a critical step. its failure should not prevent future steps from running
 			try
 			{
-				File.WriteAllText(PathLib.ReplaceExtension(OutputFileName, ".cue"), Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadLicense.ChapterInfo));
+				var path = PathLib.ReplaceExtension(OutputFileName, ".cue");
+				File.WriteAllText(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadLicense.ChapterInfo));
+				OnFileCreated(path);
 			}
 			catch (Exception ex)
 			{

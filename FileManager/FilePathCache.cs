@@ -8,14 +8,13 @@ using Newtonsoft.Json;
 namespace FileManager
 {
 	public static class FilePathCache
-    {
+	{
+		public record CacheEntry(string Id, FileType FileType, string Path);
+
 		private const string FILENAME = "FileLocations.json";
-        internal class CacheEntry
-        {
-            public string Id { get; set; }
-            public FileType FileType { get; set; }
-            public string Path { get; set; }
-        }
+
+		public static event EventHandler<CacheEntry> Inserted;
+		public static event EventHandler<CacheEntry> Removed;
 
 		private static Cache<CacheEntry> cache { get; } = new Cache<CacheEntry>();
 
@@ -31,48 +30,51 @@ namespace FileManager
 			}
         }
 
-        public static bool Exists(string id, FileType type) => GetPath(id, type) != null;
+        public static bool Exists(string id, FileType type) => GetFirstPath(id, type) != null;
 
-        public static string GetPath(string id, FileType type)
-        {
-            var entry = cache.SingleOrDefault(i => i.Id == id && i.FileType == type);
+		public static List<(FileType fileType, string path)> GetFiles(string id)
+			=> getEntries(entry => entry.Id == id)
+			.Select(entry => (entry.FileType, entry.Path))
+			.ToList();
 
-            if (entry == null)
-                return null;
+		public static string GetFirstPath(string id, FileType type)
+			=> getEntries(entry => entry.Id == id && entry.FileType == type)
+			.FirstOrDefault()
+			?.Path;
 
-            if (!File.Exists(entry.Path))
-            {
-                remove(entry);
-                return null;
-            }
-
-            return entry.Path;
-        }
-
-        private static void remove(CacheEntry entry)
+		private static List<CacheEntry> getEntries(Func<CacheEntry, bool> predicate)
 		{
-			cache.Remove(entry);
-			save();
+			var entries = cache.Where(predicate).ToList();
+			if (entries is null || !entries.Any())
+				return null;
+
+			remove(entries.Where(e => !File.Exists(e.Path)).ToList());
+
+			return entries;
 		}
 
-        public static void Upsert(string id, FileType type, string path)
+		private static void remove(List<CacheEntry> entries)
 		{
-			if (!File.Exists(path))
+			if (entries is null)
+				return;
+
+			lock (locker)
 			{
-				// file not found can happen after rapid move
-				System.Threading.Thread.Sleep(100);
-
-				if (!File.Exists(path))
-					throw new FileNotFoundException($"Cannot add path to cache. File not found. Id={id} FileType={type}", path);
+				foreach (var entry in entries)
+				{
+					cache.Remove(entry);
+					Removed?.Invoke(null, entry);
+				}
+				save();
 			}
+		}
 
-			var entry = cache.SingleOrDefault(i => i.Id == id && i.FileType == type);
-
-			if (entry is null)
-				cache.Add(new CacheEntry { Id = id, FileType = type, Path = path });
-			else
-				entry.Path = path;
-
+        public static void Insert(string id, string path)
+		{
+			var type = FileTypes.GetFileTypeFromPath(path);
+			var entry = new CacheEntry(id, type, path);
+			cache.Add(entry);
+			Inserted?.Invoke(null, entry);
 			save();
 		}
 

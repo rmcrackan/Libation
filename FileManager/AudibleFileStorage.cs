@@ -3,28 +3,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Dinah.Core;
-using Dinah.Core.Collections.Generic;
 
 namespace FileManager
 {
-    public enum FileType { Unknown, Audio, AAXC, PDF, Zip }
+    public abstract class AudibleFileStorage
+    {
+        protected abstract string GetFilePathCustom(string productId);
 
-	public abstract class AudibleFileStorage : Enumeration<AudibleFileStorage>
-	{
-		protected abstract string[] Extensions { get; }
-		public abstract string StorageDirectory { get; }
+        #region static
+        public static string DownloadsInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
+        public static string DecryptInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
+        public static string PdfDirectory => BooksDirectory;
 
-		public static string DownloadsInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
-        public static string DecryptInProgress => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
-
-        public static string PdfStorageDirectory => BooksDirectory;
-
-		private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
+        private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
         public static bool AaxcExists(string productId) => AAXC.Exists(productId);
 
-		#region static
-		public static AudioFileStorage Audio { get; } = new AudioFileStorage();
+        public static AudioFileStorage Audio { get; } = new AudioFileStorage();
 
         public static string BooksDirectory
         {
@@ -35,69 +29,60 @@ namespace FileManager
                 return Directory.CreateDirectory(Configuration.Instance.Books).FullName;
             }
         }
-
-        private static object bookDirectoryFilesLocker { get; } = new();
-        internal static BackgroundFileSystem BookDirectoryFiles { get; set; }
         #endregion
 
         #region instance
-        public FileType FileType => (FileType)Value;
+        private FileType FileType { get; }
+        private string regexTemplate { get; }
 
-		protected IEnumerable<string> extensions_noDots { get; }
-        private string extAggr { get; }
+        protected AudibleFileStorage(FileType fileType)
+        {
+            FileType = fileType;
 
-        protected AudibleFileStorage(FileType fileType) : base((int)fileType, fileType.ToString())
-		{
-			extensions_noDots = Extensions.Select(ext => ext.ToLower().Trim('.')).ToList();
-			extAggr = extensions_noDots.Aggregate((a, b) => $"{a}|{b}");
-            BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
+            var extAggr = FileTypes.GetExtensions(FileType).Aggregate((a, b) => $"{a}|{b}");
+            regexTemplate = $@"{{0}}.*?\.({extAggr})$";
         }
 
         protected string GetFilePath(string productId)
         {
-            var cachedFile = FilePathCache.GetPath(productId, FileType);
+            // primary lookup
+            var cachedFile = FilePathCache.GetFirstPath(productId, FileType);
             if (cachedFile != null)
                 return cachedFile;
 
-            var regex = new Regex($@"{productId}.*?\.({extAggr})$", RegexOptions.IgnoreCase);
+            // secondary lookup attempt
+            var firstOrNull = GetFilePathCustom(productId);
+            if (firstOrNull is not null)
+                FilePathCache.Insert(productId, firstOrNull);
 
-            string firstOrNull;
+            return firstOrNull;
+        }
 
-            if (StorageDirectory == BooksDirectory)
-            {
-                //If user changed the BooksDirectory, reinitialize.
-                lock (bookDirectoryFilesLocker)
-                    if (StorageDirectory != BookDirectoryFiles.RootDirectory)
-                        BookDirectoryFiles = new BackgroundFileSystem(StorageDirectory, "*.*", SearchOption.AllDirectories);
-
-                firstOrNull = BookDirectoryFiles.FindFile(regex);
-            }
-            else
-            {
-                firstOrNull =
-                    Directory
-                    .EnumerateFiles(StorageDirectory, "*.*", SearchOption.AllDirectories)
-                    .FirstOrDefault(s => regex.IsMatch(s));
-            }
-
-			if (firstOrNull is not null)
-                FilePathCache.Upsert(productId, FileType, firstOrNull);
-
-			return firstOrNull;
+        protected Regex GetBookSearchRegex(string productId)
+        {
+            var pattern = string.Format(regexTemplate, productId);
+            return new Regex(pattern, RegexOptions.IgnoreCase);
         }
         #endregion
     }
 
     public class AudioFileStorage : AudibleFileStorage
     {
-        protected override string[] Extensions { get; } = new[] { "m4b", "mp3", "aac", "mp4", "m4a", "ogg", "flac" };
+        private static BackgroundFileSystem BookDirectoryFiles { get; set; }
+        private static object bookDirectoryFilesLocker { get; } = new();
+        protected override string GetFilePathCustom(string productId)
+        {
+            // If user changed the BooksDirectory: reinitialize
+            lock (bookDirectoryFilesLocker)
+                if (BooksDirectory != BookDirectoryFiles.RootDirectory)
+                    BookDirectoryFiles = new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
 
-        // we always want to use the latest config value, therefore
-        // - DO use 'get' arrow "=>"
-        // - do NOT use assign "="
-        public override string StorageDirectory => BooksDirectory;
+            var regex = GetBookSearchRegex(productId);
+            return BookDirectoryFiles.FindFile(regex);
+        }
 
-        public AudioFileStorage() : base(FileType.Audio) { }
+        internal AudioFileStorage() : base(FileType.Audio)
+            => BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
 
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
 
@@ -109,33 +94,25 @@ namespace FileManager
                 = underscoreIndex < 4
                 ? title
                 : title.Substring(0, underscoreIndex);
-            var finalDir = FileUtility.GetValidFilename(StorageDirectory, titleDir, null, asin);
+            var finalDir = FileUtility.GetValidFilename(BooksDirectory, titleDir, null, asin);
             return finalDir;
         }
-
-        public bool IsFileTypeMatch(FileInfo fileInfo)
-            => extensions_noDots.ContainsInsensative(fileInfo.Extension.Trim('.'));
 
         public string GetPath(string productId) => GetFilePath(productId);
     }
 
-    public class AaxcFileStorage : AudibleFileStorage
+    internal class AaxcFileStorage : AudibleFileStorage
     {
-        protected override string[] Extensions { get; } = new[] { "aaxc" };
+        protected override string GetFilePathCustom(string productId)
+        {
+            var regex = GetBookSearchRegex(productId);
+            return Directory
+                .EnumerateFiles(DownloadsInProgressDirectory, "*.*", SearchOption.AllDirectories)
+                .FirstOrDefault(s => regex.IsMatch(s));
+        }
 
-        // we always want to use the latest config value, therefore
-        // - DO use 'get' arrow "=>"
-        // - do NOT use assign "="
-        public override string StorageDirectory => DownloadsInProgress;
+        internal AaxcFileStorage() : base(FileType.AAXC) { }
 
-        public AaxcFileStorage() : base(FileType.AAXC) { }
-
-        /// <summary>
-        /// Example for full books:
-        /// Search recursively in _books directory. Full book exists if either are true
-        /// - a directory name has the product id and an audio file is immediately inside
-        /// - any audio filename contains the product id
-        /// </summary>
         public bool Exists(string productId) => GetFilePath(productId) != null;
     }
 }

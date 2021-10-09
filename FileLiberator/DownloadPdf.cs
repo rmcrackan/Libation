@@ -47,7 +47,7 @@ namespace FileLiberator
 				return Path.Combine(existingPath, Path.GetFileName(file));
 
 			var full = FileUtility.GetValidFilename(
-				AudibleFileStorage.PdfStorageDirectory,
+				AudibleFileStorage.PdfDirectory,
 				libraryBook.Book.Title,
 				Path.GetExtension(file),
 				libraryBook.Book.AudibleProductId);
@@ -72,7 +72,7 @@ namespace FileLiberator
 				var client = new HttpClient();
 
 				var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
-				OnFileCreated(libraryBook.Book.AudibleProductId, FileType.PDF, actualDownloadedFilePath);
+				OnFileCreated(libraryBook.Book.AudibleProductId, actualDownloadedFilePath);
 
 				OnStatusUpdate(actualDownloadedFilePath);
 				return actualDownloadedFilePath;

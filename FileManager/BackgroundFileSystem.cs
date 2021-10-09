@@ -10,7 +10,7 @@ namespace FileManager
     /// <summary>
     /// Tracks actual locations of files. This is especially useful for clicking button to navigate to the book's files.
     /// 
-    /// Note: this is no longer how Libation manages "Liberated" state. That is not statefully managed in the database.
+    /// Note: this is no longer how Libation manages "Liberated" state. That is now statefully managed in the database.
     /// This paradigm is what allows users to manually choose to not download books. Also allows them to manually toggle
     /// this state and download again.
     /// </summary>
