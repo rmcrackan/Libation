@@ -7,6 +7,7 @@ using DataLayer;
 using Dinah.Core;
 using DtoImporterService;
 using InternalUtilities;
+using LibationFileManager;
 using Serilog;
 using static DtoImporterService.PerfLogger;
 
@@ -43,7 +44,7 @@ namespace ApplicationServices
 			}
 			catch (AudibleApi.Authentication.LoginFailedException lfEx)
 			{
-				lfEx.SaveFiles(FileManager.Configuration.Instance.LibationFiles);
+				lfEx.SaveFiles(Configuration.Instance.LibationFiles);
 
 				// nuget Serilog.Exceptions would automatically log custom properties
 				//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
@@ -98,7 +99,7 @@ namespace ApplicationServices
 			}
 			catch (AudibleApi.Authentication.LoginFailedException lfEx)
 			{
-				lfEx.SaveFiles(FileManager.Configuration.Instance.LibationFiles);
+				lfEx.SaveFiles(Configuration.Instance.LibationFiles);
 
 				// nuget Serilog.Exceptions would automatically log custom properties
 				//   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
@@ -155,7 +156,7 @@ namespace ApplicationServices
 
 			logTime($"pre scanAccountAsync {account.AccountName}");
 
-			var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryResponseGroups, FileManager.Configuration.Instance.ImportEpisodes);
+			var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryResponseGroups, Configuration.Instance.ImportEpisodes);
 
 			logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
 
@@ -244,7 +245,7 @@ namespace ApplicationServices
 		// must be here instead of in db layer due to AaxcExists
 		public static LiberatedStatus Liberated_Status(Book book)
 			=> book.Audio_Exists ? book.UserDefinedItem.BookStatus
-			: FileManager.AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
+			: AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
 			: LiberatedStatus.NotLiberated;
 
 		// exists here for feature predictability. It makes sense for this to be where Liberated_Status is

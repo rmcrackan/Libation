@@ -7,7 +7,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AaxDecrypter\AaxDecrypter.csproj" />
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
-    <ProjectReference Include="..\FileManager\FileManager.csproj" />
     <ProjectReference Include="..\InternalUtilities\InternalUtilities.csproj" />
   </ItemGroup>
 

@@ -9,6 +9,7 @@ using DataLayer;
 using Dinah.Core.DataBinding;
 using Dinah.Core;
 using Dinah.Core.Drawing;
+using LibationFileManager;
 
 namespace LibationWinForms
 {
@@ -39,10 +40,10 @@ namespace LibationWinForms
 
 			//Get cover art. If it's default, subscribe to PictureCached
 			{
-				(bool isDefault, byte[] picture) = FileManager.PictureStorage.GetPicture(new FileManager.PictureDefinition(Book.PictureId, FileManager.PictureSize._80x80));
+				(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
 
 				if (isDefault)
-					FileManager.PictureStorage.PictureCached += PictureStorage_PictureCached;
+					PictureStorage.PictureCached += PictureStorage_PictureCached;
 
 				//Mutable property. Set the field so PropertyChanged isn't fired.
 				_cover = ImageReader.ToImage(picture);
@@ -66,12 +67,12 @@ namespace LibationWinForms
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
-		private void PictureStorage_PictureCached(object sender, FileManager.PictureCachedEventArgs e)
+		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
 		{
 			if (e.Definition.PictureId == Book.PictureId)
 			{
 				Cover = ImageReader.ToImage(e.Picture);
-				FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
+				PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
 		}
 
@@ -294,7 +295,7 @@ namespace LibationWinForms
 		~GridEntry()
 		{
 			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
-			FileManager.PictureStorage.PictureCached -= PictureStorage_PictureCached;
+			PictureStorage.PictureCached -= PictureStorage_PictureCached;
 		}
 	}
 }

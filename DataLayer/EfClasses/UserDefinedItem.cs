@@ -33,7 +33,7 @@ namespace DataLayer
 
 			// import previously saved tags
 			ArgumentValidator.EnsureNotNullOrWhiteSpace(book.AudibleProductId, nameof(book.AudibleProductId));
-			Tags = FileManager.TagsPersistence.GetTags(book.AudibleProductId);
+			Tags = LibationFileManager.TagsPersistence.GetTags(book.AudibleProductId);
 		}
 
         #region Tags

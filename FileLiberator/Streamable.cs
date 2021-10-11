@@ -37,7 +37,7 @@ namespace FileLiberator
         protected void OnFileCreated(string id, string path)
         {
             Serilog.Log.Logger.Information("File created {@DebugInfo}", new { Name = nameof(FileCreated), id, path });
-            FileManager.FilePathCache.Insert(id, path);
+            LibationFileManager.FilePathCache.Insert(id, path);
             FileCreated?.Invoke(this, (id, path));
         }
     }

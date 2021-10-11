@@ -5,13 +5,14 @@ using System.IO;
 using System.Linq;
 using Dinah.Core;
 using Dinah.Core.Logging;
+using FileManager;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using Serilog.Events;
 
-namespace FileManager
+namespace LibationFileManager
 {
     public class Configuration
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace FileManager
+namespace LibationFileManager
 {
 	public enum FileType { Unknown, Audio, AAXC, PDF, Zip, Cue }
 

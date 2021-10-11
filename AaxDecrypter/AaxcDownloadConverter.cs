@@ -12,7 +12,6 @@ namespace AaxDecrypter
 {
     public class AaxcDownloadConverter : AudiobookDownloadBase
     {
-        const int MAX_FILENAME_LENGTH = 255;
         private static readonly TimeSpan minChapterLength = TimeSpan.FromSeconds(3);
         protected override StepSequence Steps { get; }
 
@@ -207,9 +206,10 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             });
         }
 
-        // return. cache name for event call at end of processing
         private string GetMultipartFileName(int chapterCount, int chaptersTotal, string chapterTitle)
         {
+            const int MAX_FILENAME_LENGTH = 255;
+
             // 1-9     => 1-9
             // 10-99   => 01-99
             // 100-999 => 001-999

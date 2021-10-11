@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Polly;
 using Polly.Retry;
 
-namespace FileManager
+namespace LibationFileManager
 {
     /// <summary>
     /// Tags must also be stored in db for search performance. Stored in json file to survive a db reset.

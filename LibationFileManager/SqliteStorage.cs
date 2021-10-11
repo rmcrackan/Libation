@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace FileManager
+namespace LibationFileManager
 {
 	public static class SqliteStorage
 	{

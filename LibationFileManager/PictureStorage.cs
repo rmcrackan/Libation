@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace FileManager
+namespace LibationFileManager
 {
 	public enum PictureSize { _80x80 = 80, _300x300 = 300, _500x500 = 500 }
 	public class PictureCachedEventArgs : EventArgs

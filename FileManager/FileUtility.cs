@@ -10,15 +10,19 @@ namespace FileManager
             if (string.IsNullOrWhiteSpace(dirFullPath))
                 throw new ArgumentException($"{nameof(dirFullPath)} may not be null or whitespace", nameof(dirFullPath));
 
+            filename ??= "";
+
             // file max length = 255. dir max len = 247
 
-            // sanitize
-            filename = getAsciiTag(filename);
+            // sanitize. omit invalid characters. exception: colon => underscore
+            filename = filename.Replace(':', '_');
+            filename = Dinah.Core.PathLib.ToPathSafeString(filename);
+
             // manage length
             if (filename.Length > 50)
                 filename = filename.Substring(0, 50) + "[...]";
 
-            // append id. it is 10 or 14 char in the common cases
+            // append metadata
             if (metadataSuffixes != null && metadataSuffixes.Length > 0)
                 filename += " [" + string.Join("][", metadataSuffixes) + "]";
 
@@ -33,20 +37,6 @@ namespace FileManager
                 fullfilename = Path.Combine(dirFullPath, filename + $" ({++i})" + extension);
 
             return fullfilename;
-        }
-
-        private static string getAsciiTag(string property)
-        {
-            if (property == null)
-                return "";
-
-            // omit characters which are invalid. EXCEPTION: change colon to underscore
-            property = property.Replace(':', '_');
-
-            // GetInvalidFileNameChars contains everything in GetInvalidPathChars plus ':', '*', '?', '\\', '/'
-            foreach (var ch in Path.GetInvalidFileNameChars())
-                property = property.Replace(ch.ToString(), "");
-            return property;
         }
     }
 }

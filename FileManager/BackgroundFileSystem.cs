@@ -8,13 +8,9 @@ using System.Threading.Tasks;
 namespace FileManager
 {
     /// <summary>
-    /// Tracks actual locations of files. This is especially useful for clicking button to navigate to the book's files.
-    /// 
-    /// Note: this is no longer how Libation manages "Liberated" state. That is now statefully managed in the database.
-    /// This paradigm is what allows users to manually choose to not download books. Also allows them to manually toggle
-    /// this state and download again.
+    /// Tracks actual locations of files.
     /// </summary>
-    internal class BackgroundFileSystem
+    public class BackgroundFileSystem
     {
         public string RootDirectory { get; private set; }
         public string SearchPattern { get; private set; }

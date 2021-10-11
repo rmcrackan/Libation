@@ -5,7 +5,7 @@ using System.Linq;
 using Dinah.Core.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace FileManager
+namespace LibationFileManager
 {
     public static class QuickFilters
     {

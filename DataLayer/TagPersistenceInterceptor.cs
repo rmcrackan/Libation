@@ -24,7 +24,7 @@ namespace DataLayer
 				.Select(t => (t.Book.AudibleProductId, t.Tags))
 				.ToList();
 
-			FileManager.TagsPersistence.Save(tagsCollection);
+			LibationFileManager.TagsPersistence.Save(tagsCollection);
 		}
 	}
 }
