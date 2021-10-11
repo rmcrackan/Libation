@@ -58,6 +58,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppScaffolding", "AppScaffo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileManager", "FileManager\FileManager.csproj", "{E86014F9-E4B3-4CD4-A210-2B3DB571DD86}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileManager.Tests", "FileManager.Tests\FileManager.Tests.csproj", "{3B58450C-FBDA-4D48-8418-A3C750596D7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +126,10 @@ Global
 		{E86014F9-E4B3-4CD4-A210-2B3DB571DD86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E86014F9-E4B3-4CD4-A210-2B3DB571DD86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E86014F9-E4B3-4CD4-A210-2B3DB571DD86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B58450C-FBDA-4D48-8418-A3C750596D7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B58450C-FBDA-4D48-8418-A3C750596D7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B58450C-FBDA-4D48-8418-A3C750596D7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B58450C-FBDA-4D48-8418-A3C750596D7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,6 +150,7 @@ Global
 		{428163C3-D558-4914-B570-A92069521877} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
 		{595E7C4D-506D-486D-98B7-5FDDF398D033} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
 		{E86014F9-E4B3-4CD4-A210-2B3DB571DD86} = {43E3ACB3-E0BC-4370-8DBB-E3720C8C8FD1}
+		{3B58450C-FBDA-4D48-8418-A3C750596D7D} = {67E66E82-5532-4440-AFB3-9FB1DF9DEF53}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {615E00ED-BAEF-4E8E-A92A-9B82D87942A9}

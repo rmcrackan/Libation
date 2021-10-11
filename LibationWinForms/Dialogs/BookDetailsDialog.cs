@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using DataLayer;
 using Dinah.Core;
+using LibationFileManager;
 
 namespace LibationWinForms.Dialogs
 {
@@ -39,7 +40,7 @@ namespace LibationWinForms.Dialogs
 		{
 			this.Text = Book.Title;
 
-			(var isDefault, var picture) = FileManager.PictureStorage.GetPicture(new FileManager.PictureDefinition(Book.PictureId, FileManager.PictureSize._80x80));
+			(_, var picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
 			this.coverPb.Image = Dinah.Core.Drawing.ImageReader.ToImage(picture);
 
 			var t = @$"

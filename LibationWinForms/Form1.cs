@@ -6,8 +6,8 @@ using ApplicationServices;
 using Dinah.Core;
 using Dinah.Core.Drawing;
 using Dinah.Core.Threading;
-using FileManager;
 using InternalUtilities;
+using LibationFileManager;
 using LibationWinForms.Dialogs;
 
 namespace LibationWinForms

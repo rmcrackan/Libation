@@ -78,7 +78,7 @@ namespace LibationWinForms
 			// liberated: open explorer to file
 			if (libraryBook.Book.Audio_Exists)
 			{
-				var filePath = FileManager.AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
+				var filePath = LibationFileManager.AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
 				if (!Go.To.File(filePath))
 				{
 					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";

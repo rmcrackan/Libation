@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace FileManager
 {
     public static class FileUtility
     {
+//public static string GetValidFilename(string template, Dictionary<string, object> parameters) { }
         public static string GetValidFilename(string dirFullPath, string filename, string extension, params string[] metadataSuffixes)
         {
             if (string.IsNullOrWhiteSpace(dirFullPath))
@@ -26,7 +29,7 @@ namespace FileManager
             if (metadataSuffixes != null && metadataSuffixes.Length > 0)
                 filename += " [" + string.Join("][", metadataSuffixes) + "]";
 
-            // this method may also be used for directory names, so no guarantee of extension
+            // extension is null when this method is used for directory names
             if (!string.IsNullOrWhiteSpace(extension))
                 extension = '.' + extension.Trim('.');
 

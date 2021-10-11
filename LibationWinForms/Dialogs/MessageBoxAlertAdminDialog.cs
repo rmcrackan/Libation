@@ -50,7 +50,7 @@ namespace LibationWinForms.Dialogs
 			string dir = "";
 			try
 			{
-				dir = FileManager.Configuration.Instance.LibationFiles;
+				dir = LibationFileManager.Configuration.Instance.LibationFiles;
 			}
 			catch { }
 

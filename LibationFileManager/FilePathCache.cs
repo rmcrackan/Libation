@@ -39,7 +39,7 @@ namespace LibationFileManager
 
 		public static string GetFirstPath(string id, FileType type)
 			=> getEntries(entry => entry.Id == id && entry.FileType == type)
-			.FirstOrDefault()
+			?.FirstOrDefault()
 			?.Path;
 
 		private static List<CacheEntry> getEntries(Func<CacheEntry, bool> predicate)

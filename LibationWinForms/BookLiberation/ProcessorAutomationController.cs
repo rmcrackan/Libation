@@ -1,11 +1,11 @@
-﻿using DataLayer;
-using Dinah.Core;
-using FileLiberator;
-using LibationWinForms.BookLiberation.BaseForms;
-using System;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DataLayer;
+using Dinah.Core;
+using FileLiberator;
+using LibationFileManager;
+using LibationWinForms.BookLiberation.BaseForms;
 
 namespace LibationWinForms.BookLiberation
 {
@@ -218,12 +218,12 @@ namespace LibationWinForms.BookLiberation
 		{
 			LogMe.Error("ERROR. All books have not been processed. Most recent book: processing failed");
 
-			DialogResult? dialogResult = FileManager.Configuration.Instance.BadBook switch
+			DialogResult? dialogResult = Configuration.Instance.BadBook switch
 			{
-				FileManager.Configuration.BadBookAction.Abort => DialogResult.Abort,
-				FileManager.Configuration.BadBookAction.Retry => DialogResult.Retry,
-				FileManager.Configuration.BadBookAction.Ignore => DialogResult.Ignore,
-				FileManager.Configuration.BadBookAction.Ask => null,
+				Configuration.BadBookAction.Abort => DialogResult.Abort,
+				Configuration.BadBookAction.Retry => DialogResult.Retry,
+				Configuration.BadBookAction.Ignore => DialogResult.Ignore,
+				Configuration.BadBookAction.Ask => null,
 				_ => null
 			};
 

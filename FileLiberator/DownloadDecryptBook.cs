@@ -45,10 +45,20 @@ namespace FileLiberator
                 if (libraryBook.Book.Audio_Exists)
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-				FilePathCache.Inserted += FilePathCache_Inserted;
-				FilePathCache.Removed += FilePathCache_Removed;
+                bool success = false;
+                try
+                {
+                    FilePathCache.Inserted += FilePathCache_Inserted;
+                    FilePathCache.Removed += FilePathCache_Removed;
 
-                var success = await downloadAudiobookAsync(libraryBook);
+                    success = await downloadAudiobookAsync(libraryBook);
+                }
+                finally
+                {
+                    FilePathCache.Inserted -= FilePathCache_Inserted;
+                    FilePathCache.Removed -= FilePathCache_Removed;
+                }
+
 
                 // decrypt failed
                 if (!success)
@@ -67,9 +77,6 @@ namespace FileLiberator
             }
             finally
             {
-                FilePathCache.Inserted -= FilePathCache_Inserted;
-                FilePathCache.Removed -= FilePathCache_Removed;
-
                 OnCompleted(libraryBook);
             }
         }
@@ -109,7 +116,7 @@ namespace FileLiberator
                         audiobookDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
                 
-                var outFileName = Path.Combine(AudibleFileStorage.DecryptInProgressDirectory, $"{PathLib.ToPathSafeString(libraryBook.Book.Title)} [{libraryBook.Book.AudibleProductId}].{outputFormat.ToString().ToLower()}");
+                var outFileName = FileUtility.GetValidFilename(AudibleFileStorage.DecryptInProgressDirectory, libraryBook.Book.Title, outputFormat.ToString().ToLower(), libraryBook.Book.AudibleProductId);
 
                 var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
@@ -170,10 +177,16 @@ namespace FileLiberator
         /// <returns>True if audiobook file(s) were successfully created and can be located on disk. Else false.</returns>
         private static bool moveFilesToBooksDir(Book book, List<FilePathCache.CacheEntry> entries)
         {
-            // create final directory. move each file into it. MOVE AUDIO FILE LAST
-            // new dir: safetitle_limit50char + " [" + productId + "]"
-            // TODO make this method handle multiple audio files or a single audio file.
-            var destinationDir = AudibleFileStorage.Audio.GetDestDir(book.Title, book.AudibleProductId);
+            // create final directory. move each file into it
+            var title = book.Title;
+            var asin = book.AudibleProductId;
+            // to prevent the paths from getting too long, we don't need after the 1st ":" for the folder
+            var underscoreIndex = title.IndexOf(':');
+            var titleDir
+                = underscoreIndex < 4
+                ? title
+                : title.Substring(0, underscoreIndex);
+            var destinationDir = FileUtility.GetValidFilename(AudibleFileStorage.BooksDirectory, titleDir, null, asin);
             Directory.CreateDirectory(destinationDir);
 
             var music = entries.FirstOrDefault(f => f.FileType == FileType.Audio);
@@ -183,18 +196,15 @@ namespace FileLiberator
 
             var musicFileExt = Path.GetExtension(music.Path).Trim('.');
 
-            // audio filename: safetitle_limit50char + " [" + productId + "]." + audio_ext
             var audioFileName = FileUtility.GetValidFilename(destinationDir, book.Title, musicFileExt, book.AudibleProductId);
 
             foreach (var entry in entries)
             {
                 var fileInfo = new FileInfo(entry.Path);
 
-                var isAudio = entry.FileType == FileType.Audio;
                 var dest
-                    = isAudio
+                    = entry.FileType == FileType.Audio
                     ? Path.Join(destinationDir, fileInfo.Name)
-                    // non-audio filename: safetitle_limit50char + " [" + productId + "][" + audio_ext + "]." + non_audio_ext
                     : FileUtility.GetValidFilename(destinationDir, book.Title, fileInfo.Extension, book.AudibleProductId, musicFileExt);
 
                 if (Path.GetExtension(dest).Trim('.').ToLower() == "cue")

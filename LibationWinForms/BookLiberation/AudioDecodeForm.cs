@@ -2,6 +2,7 @@
 using DataLayer;
 using Dinah.Core.Net.Http;
 using Dinah.Core.Threading;
+using LibationFileManager;
 using LibationWinForms.BookLiberation.BaseForms;
 
 namespace LibationWinForms.BookLiberation
@@ -23,20 +24,20 @@ namespace LibationWinForms.BookLiberation
 		{
 			base.Processable_Begin(sender, libraryBook);
 
-			GetCoverArtDelegate = () => FileManager.PictureStorage.GetPictureSynchronously(
-						new FileManager.PictureDefinition(
+			GetCoverArtDelegate = () => PictureStorage.GetPictureSynchronously(
+						new PictureDefinition(
 							libraryBook.Book.PictureId,
-							FileManager.PictureSize._500x500));
+							PictureSize._500x500));
 
 			//Set default values from library
 			AudioDecodable_TitleDiscovered(sender, libraryBook.Book.Title);
 			AudioDecodable_AuthorsDiscovered(sender, string.Join(", ", libraryBook.Book.Authors));
 			AudioDecodable_NarratorsDiscovered(sender, string.Join(", ", libraryBook.Book.NarratorNames));
 			AudioDecodable_CoverImageDiscovered(sender,
-					FileManager.PictureStorage.GetPicture(
-						new FileManager.PictureDefinition(
+					PictureStorage.GetPicture(
+						new PictureDefinition(
 							libraryBook.Book.PictureId,
-							FileManager.PictureSize._80x80)).bytes);
+							PictureSize._80x80)).bytes);
 		}
 		#endregion
 

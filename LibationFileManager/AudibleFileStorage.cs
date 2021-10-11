@@ -87,18 +87,6 @@ namespace LibationFileManager
 
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
 
-        public string GetDestDir(string title, string asin)
-        {
-            // to prevent the paths from getting too long, we don't need after the 1st ":" for the folder
-            var underscoreIndex = title.IndexOf(':');
-            var titleDir
-                = underscoreIndex < 4
-                ? title
-                : title.Substring(0, underscoreIndex);
-            var finalDir = FileUtility.GetValidFilename(BooksDirectory, titleDir, null, asin);
-            return finalDir;
-        }
-
         public string GetPath(string productId) => GetFilePath(productId);
     }
 
