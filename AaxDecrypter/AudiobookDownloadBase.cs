@@ -1,13 +1,9 @@
-﻿using Dinah.Core;
-using Dinah.Core.IO;
+﻿using System;
+using System.IO;
+using Dinah.Core;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FileManager;
 
 namespace AaxDecrypter
 {
@@ -24,11 +20,13 @@ namespace AaxDecrypter
 		public event EventHandler<string> FileCreated;
 
 		protected bool IsCanceled { get; set; }
-		protected string OutputFileName { get; }
+		protected string OutputFileName { get; private set; }
 		protected string CacheDir { get; }
 		protected DownloadLicense DownloadLicense { get; }
 		protected NetworkFileStream InputFileStream => (nfsPersister ??= OpenNetworkFileStream()).NetworkFileStream;
 
+		// Don't give the property a 'set'. This should have to be an obvious choice; not accidental
+		protected void SetOutputFileName(string newOutputFileName) => OutputFileName = newOutputFileName;
 
 		protected abstract StepSequence Steps { get; }
 		private NetworkFileStreamPersister nfsPersister;
@@ -42,14 +40,14 @@ namespace AaxDecrypter
 
 			var outDir = Path.GetDirectoryName(OutputFileName);
 			if (!Directory.Exists(outDir))
-				throw new ArgumentNullException(nameof(outDir), "Directory does not exist");
-			if (File.Exists(OutputFileName))
-				File.Delete(OutputFileName);
+				throw new DirectoryNotFoundException($"Directory does not exist: {nameof(outDir)}");
 
 			if (!Directory.Exists(cacheDirectory))
-				throw new ArgumentNullException(nameof(cacheDirectory), "Directory does not exist");
+				throw new DirectoryNotFoundException($"Directory does not exist: {nameof(cacheDirectory)}");
 			CacheDir = cacheDirectory;
 
+			// delete file after validation is complete
+			FileUtility.SafeDelete(OutputFileName);
 			DownloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
 		}
 
@@ -105,6 +103,7 @@ namespace AaxDecrypter
 			try
 			{
 				var path = PathLib.ReplaceExtension(OutputFileName, ".cue");
+				path = FileUtility.GetValidFilename(path);
 				File.WriteAllText(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadLicense.ChapterInfo));
 				OnFileCreated(path);
 			}
@@ -117,8 +116,8 @@ namespace AaxDecrypter
 
 		protected bool Step4_Cleanup()
 		{
-			FileExt.SafeDelete(jsonDownloadState);
-			FileExt.SafeDelete(tempFile);
+			FileUtility.SafeDelete(jsonDownloadState);
+			FileUtility.SafeDelete(tempFile);
 			return !IsCanceled;
 		}
 
@@ -137,8 +136,8 @@ namespace AaxDecrypter
 			}
 			catch
 			{
-				FileExt.SafeDelete(jsonDownloadState);
-				FileExt.SafeDelete(tempFile);
+				FileUtility.SafeDelete(jsonDownloadState);
+				FileUtility.SafeDelete(tempFile);
 				return NewNetworkFilePersister();
 			}
 		}

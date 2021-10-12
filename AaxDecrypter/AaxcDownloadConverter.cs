@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AAXClean;
-using Dinah.Core;
-using Dinah.Core.IO;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
+using FileManager;
 
 namespace AaxDecrypter
 {
@@ -66,8 +65,7 @@ namespace AaxDecrypter
         {
             var zeroProgress = Step2_Start();
 
-            if (File.Exists(OutputFileName))
-                FileExt.SafeDelete(OutputFileName);
+            FileUtility.SafeDelete(OutputFileName);
 
             var outputFile = File.Open(OutputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
@@ -185,12 +183,8 @@ That naming may not be desirable for everyone, but it's an easy change to instea
         {
             var chapterCount = 0;
             aaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
-            {
-                var fileName = GetMultipartFileName(++chapterCount, splitChapters.Count, newSplitCallback.Chapter.Title);
-                if (File.Exists(fileName))
-                    FileExt.SafeDelete(fileName);
-                newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
-            });
+                createOutputFileStream(++chapterCount, splitChapters, newSplitCallback)
+            );
         }
 
         private void ConvertToMultiMp3(ChapterInfo splitChapters)
@@ -198,37 +192,22 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             var chapterCount = 0;
             aaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
             {
-                var fileName = GetMultipartFileName(++chapterCount, splitChapters.Count, newSplitCallback.Chapter.Title);
-                if (File.Exists(fileName))
-                    FileExt.SafeDelete(fileName);
-                newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
+                createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
                 newSplitCallback.LameConfig.ID3.Track = chapterCount.ToString();
             });
         }
 
-        private string GetMultipartFileName(int chapterCount, int chaptersTotal, string chapterTitle)
-        {
-            const int MAX_FILENAME_LENGTH = 255;
+        private void createOutputFileStream(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
+		{
+            var fileName = FileUtility.GetMultipartFileName(OutputFileName, currentChapter, splitChapters.Count, newSplitCallback.Chapter.Title);
+			multiPartFilePaths.Add(fileName);
 
-            // 1-9     => 1-9
-            // 10-99   => 01-99
-            // 100-999 => 001-999
-            var chapterCountLeadingZeros = chapterCount.ToString().PadLeft(chaptersTotal.ToString().Length, '0');
+            FileUtility.SafeDelete(fileName);
 
-            string extension = Path.GetExtension(OutputFileName);
+            newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
+		}
 
-            var filenameBase = $"{Path.GetFileNameWithoutExtension(OutputFileName)} - {chapterCountLeadingZeros} - {chapterTitle}";
-            // Replace illegal path characters with spaces
-            var filenameBaseSafe = string.Join(" ", filenameBase.Split(Path.GetInvalidFileNameChars()));
-            var fileName = filenameBaseSafe.Truncate(MAX_FILENAME_LENGTH - extension.Length);
-            var path = Path.Combine(Path.GetDirectoryName(OutputFileName), fileName + extension);
-
-            multiPartFilePaths.Add(path);
-
-            return path;
-        }
-
-        private void AaxFile_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
+		private void AaxFile_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
         {
             var duration = aaxFile.Duration;
             double remainingSecsToProcess = (duration - e.ProcessPosition).TotalSeconds;

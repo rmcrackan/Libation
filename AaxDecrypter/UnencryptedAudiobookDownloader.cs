@@ -1,10 +1,8 @@
-﻿using Dinah.Core.IO;
+﻿using System;
+using System.Threading;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
+using FileManager;
 
 namespace AaxDecrypter
 {
@@ -68,10 +66,8 @@ namespace AaxDecrypter
 
 			CloseInputFileStream();
 
-			if (File.Exists(OutputFileName))
-				FileExt.SafeDelete(OutputFileName);
-
-			FileExt.SafeMove(InputFileStream.SaveFilePath, OutputFileName);
+			var realOutputFileName = FileUtility.Move(InputFileStream.SaveFilePath, OutputFileName);
+			SetOutputFileName(realOutputFileName);
 			OnFileCreated(OutputFileName);
 
 			return !IsCanceled;

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using AAXClean;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
-using Dinah.Core.IO;
 using Dinah.Core.Net.Http;
+using FileManager;
 using LibationFileManager;
 
 namespace FileLiberator
@@ -52,10 +51,9 @@ namespace FileLiberator
                 m4bBook.InputStream.Close();
                 mp3File.Close();
 
-                var mp3Path = Mp3FileName(m4bPath);
-
-                FileExt.SafeMove(mp3File.Name, mp3Path);
-                OnFileCreated(libraryBook.Book.AudibleProductId, mp3Path);
+                var proposedMp3Path = Mp3FileName(m4bPath);
+                var realMp3Path = FileUtility.Move(mp3File.Name, proposedMp3Path);
+                OnFileCreated(libraryBook, realMp3Path);
 
                 var statusHandler = new StatusHandler();
 

@@ -129,7 +129,7 @@ namespace FileLiberator
                 abDownloader.RetrievedAuthors += (_, authors) => OnAuthorsDiscovered(authors);
                 abDownloader.RetrievedNarrators += (_, narrators) => OnNarratorsDiscovered(narrators);
                 abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
-                abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook.Book.AudibleProductId, path);
+                abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
 
                 // REAL WORK DONE HERE
                 var success = await Task.Run(abDownloader.Run);
@@ -189,30 +189,25 @@ namespace FileLiberator
             var destinationDir = FileUtility.GetValidFilename(AudibleFileStorage.BooksDirectory, titleDir, null, asin);
             Directory.CreateDirectory(destinationDir);
 
-            var music = entries.FirstOrDefault(f => f.FileType == FileType.Audio);
+            FilePathCache.CacheEntry getFirstAudio() => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
 
-            if (music == default)
+            if (getFirstAudio() == default)
                 return false;
 
-            var musicFileExt = Path.GetExtension(music.Path).Trim('.');
-
-            var audioFileName = FileUtility.GetValidFilename(destinationDir, book.Title, musicFileExt, book.AudibleProductId);
-
-            foreach (var entry in entries)
+            for (var i = 0; i < entries.Count; i++)
             {
-                var fileInfo = new FileInfo(entry.Path);
+                var entry = entries[i];
 
-                var dest
-                    = entry.FileType == FileType.Audio
-                    ? Path.Join(destinationDir, fileInfo.Name)
-                    : FileUtility.GetValidFilename(destinationDir, book.Title, fileInfo.Extension, book.AudibleProductId, musicFileExt);
+                var realDest = FileUtility.Move(entry.Path, Path.Combine(destinationDir, Path.GetFileName(entry.Path)));
+                FilePathCache.Insert(book.AudibleProductId, realDest);
 
-                if (Path.GetExtension(dest).Trim('.').ToLower() == "cue")
-                    Cue.UpdateFileName(fileInfo, audioFileName);
-
-                File.Move(fileInfo.FullName, dest);
-                FilePathCache.Insert(book.AudibleProductId, dest);
+                // propogate corrected path. Must update cache with corrected path. Also want updated path for cue file (after this for-loop)
+                entries[i] = entry with { Path = realDest };
             }
+
+            var cue = entries.FirstOrDefault(f => f.FileType == FileType.Cue);
+            if (cue != default)
+                Cue.UpdateFileName(cue.Path, getFirstAudio().Path);
 
             AudibleFileStorage.Audio.Refresh();
 

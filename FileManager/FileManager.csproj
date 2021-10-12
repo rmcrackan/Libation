@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core" Version="1.1.1.2" />
+    <PackageReference Include="Dinah.Core" Version="2.0.0.1" />
   </ItemGroup>
 
 </Project>

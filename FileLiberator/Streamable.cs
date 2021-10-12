@@ -34,6 +34,7 @@ namespace FileLiberator
             StreamingCompleted?.Invoke(this, filePath);
         }
 
+        protected void OnFileCreated(DataLayer.LibraryBook libraryBook, string path) => OnFileCreated(libraryBook.Book.AudibleProductId, path);
         protected void OnFileCreated(string id, string path)
         {
             Serilog.Log.Logger.Information("File created {@DebugInfo}", new { Name = nameof(FileCreated), id, path });
