@@ -47,7 +47,7 @@ namespace AaxDecrypter
 			CacheDir = cacheDirectory;
 
 			// delete file after validation is complete
-			FileUtility.SafeDelete(OutputFileName);
+			FileUtility.SaferDelete(OutputFileName);
 			DownloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
 		}
 
@@ -116,8 +116,8 @@ namespace AaxDecrypter
 
 		protected bool Step4_Cleanup()
 		{
-			FileUtility.SafeDelete(jsonDownloadState);
-			FileUtility.SafeDelete(tempFile);
+			FileUtility.SaferDelete(jsonDownloadState);
+			FileUtility.SaferDelete(tempFile);
 			return !IsCanceled;
 		}
 
@@ -136,8 +136,8 @@ namespace AaxDecrypter
 			}
 			catch
 			{
-				FileUtility.SafeDelete(jsonDownloadState);
-				FileUtility.SafeDelete(tempFile);
+				FileUtility.SaferDelete(jsonDownloadState);
+				FileUtility.SaferDelete(tempFile);
 				return NewNetworkFilePersister();
 			}
 		}

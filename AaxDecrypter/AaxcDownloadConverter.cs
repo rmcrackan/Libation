@@ -65,7 +65,7 @@ namespace AaxDecrypter
         {
             var zeroProgress = Step2_Start();
 
-            FileUtility.SafeDelete(OutputFileName);
+            FileUtility.SaferDelete(OutputFileName);
 
             var outputFile = File.Open(OutputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
@@ -202,7 +202,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             var fileName = FileUtility.GetMultipartFileName(OutputFileName, currentChapter, splitChapters.Count, newSplitCallback.Chapter.Title);
 			multiPartFilePaths.Add(fileName);
 
-            FileUtility.SafeDelete(fileName);
+            FileUtility.SaferDelete(fileName);
 
             newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
 		}
