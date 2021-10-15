@@ -229,6 +229,7 @@ namespace ApplicationServices
 				if (qtyChanges > 0)
 				{
 					SearchEngineCommands.UpdateLiberatedStatus(book);
+					SearchEngineCommands.UpdateBookTags(book);
 					BookUserDefinedItemCommitted?.Invoke(null, book.AudibleProductId);
 				}
 
