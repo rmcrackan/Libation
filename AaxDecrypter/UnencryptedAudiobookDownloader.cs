@@ -37,7 +37,7 @@ namespace AaxDecrypter
 			return !IsCanceled;
 		}
 
-		protected override bool Step2_DownloadAudiobookAsSingleFile()
+		private bool Step2_DownloadAudiobookAsSingleFile()
 		{
 			DateTime startTime = DateTime.Now;
 

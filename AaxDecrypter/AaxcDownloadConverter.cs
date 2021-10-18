@@ -61,7 +61,7 @@ namespace AaxDecrypter
             return !IsCanceled;
         }
 
-        protected override bool Step2_DownloadAudiobookAsSingleFile()
+        private bool Step2_DownloadAudiobookAsSingleFile()
         {
             var zeroProgress = Step2_Start();
 

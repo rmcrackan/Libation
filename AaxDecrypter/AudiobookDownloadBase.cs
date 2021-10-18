@@ -21,7 +21,6 @@ namespace AaxDecrypter
 
 		protected bool IsCanceled { get; set; }
 		protected string OutputFileName { get; private set; }
-		protected string CacheDir { get; }
 		protected DownloadLicense DownloadLicense { get; }
 		protected NetworkFileStream InputFileStream => (nfsPersister ??= OpenNetworkFileStream()).NetworkFileStream;
 
@@ -31,7 +30,8 @@ namespace AaxDecrypter
 		protected abstract StepSequence Steps { get; }
 		private NetworkFileStreamPersister nfsPersister;
 
-		private string jsonDownloadState => Path.Combine(CacheDir, Path.GetFileNameWithoutExtension(OutputFileName) + ".json");
+		private string cacheDir { get; }
+		private string jsonDownloadState => Path.Combine(cacheDir, Path.ChangeExtension(OutputFileName, ".json"));
 		private string tempFile => Path.ChangeExtension(jsonDownloadState, ".tmp");
 
 		public AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
@@ -44,7 +44,7 @@ namespace AaxDecrypter
 
 			if (!Directory.Exists(cacheDirectory))
 				throw new DirectoryNotFoundException($"Directory does not exist: {nameof(cacheDirectory)}");
-			CacheDir = cacheDirectory;
+			cacheDir = cacheDirectory;
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
@@ -52,28 +52,24 @@ namespace AaxDecrypter
 		}
 
 		public abstract void Cancel();
-		protected abstract bool Step2_DownloadAudiobookAsSingleFile();
 		protected abstract bool Step1_GetMetadata();
 
 		public virtual void SetCoverArt(byte[] coverArt)
 		{
-			if (coverArt is null) return;
+			if (coverArt is null)
+				return;
 
 			OnRetrievedCoverArt(coverArt);
 		}
-
 
 		public bool Run()
 		{
 			var (IsSuccess, Elapsed) = Steps.Run();
 
 			if (!IsSuccess)
-			{
-				Console.WriteLine("WARNING-Conversion failed");
-				return false;
-			}
+				Serilog.Log.Logger.Error("Conversion failed");
 
-			return true;
+			return IsSuccess;
 		}		
 
 		protected void OnRetrievedTitle(string title) 
