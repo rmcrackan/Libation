@@ -34,7 +34,7 @@ namespace AaxDecrypter
 		private string jsonDownloadState => Path.Combine(cacheDir, Path.ChangeExtension(OutputFileName, ".json"));
 		private string tempFile => Path.ChangeExtension(jsonDownloadState, ".tmp");
 
-		public AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
 		{
 			OutputFileName = ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
 
@@ -52,14 +52,11 @@ namespace AaxDecrypter
 		}
 
 		public abstract void Cancel();
-		protected abstract bool Step1_GetMetadata();
 
 		public virtual void SetCoverArt(byte[] coverArt)
 		{
-			if (coverArt is null)
-				return;
-
-			OnRetrievedCoverArt(coverArt);
+			if (coverArt is not null)
+				OnRetrievedCoverArt(coverArt);
 		}
 
 		public bool Run()
@@ -93,7 +90,7 @@ namespace AaxDecrypter
 			nfsPersister?.Dispose();
 		}
 
-		protected bool Step3_CreateCue()
+		protected bool Step_CreateCue()
 		{
 			// not a critical step. its failure should not prevent future steps from running
 			try
@@ -105,12 +102,12 @@ namespace AaxDecrypter
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, $"{nameof(Step3_CreateCue)}. FAILED");
+				Serilog.Log.Logger.Error(ex, $"{nameof(Step_CreateCue)}. FAILED");
 			}
 			return !IsCanceled;
 		}
 
-		protected bool Step4_Cleanup()
+		protected bool Step_Cleanup()
 		{
 			FileUtility.SaferDelete(jsonDownloadState);
 			FileUtility.SaferDelete(tempFile);

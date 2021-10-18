@@ -120,9 +120,10 @@ namespace FileLiberator
 
                 var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
-                abDownloader = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm
-                    ? new AaxcDownloadConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, Configuration.Instance.SplitFilesByChapter)
-                    : new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
+                abDownloader
+                    = contentLic.DrmType != AudibleApi.Common.DrmType.Adrm ? new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic)
+                    : Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(outFileName, cacheDir, audiobookDlLic, outputFormat)
+                    : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic, outputFormat);
                 abDownloader.DecryptProgressUpdate += (_, progress) => OnStreamingProgressChanged(progress);
                 abDownloader.DecryptTimeRemaining += (_, remaining) => OnStreamingTimeRemaining(remaining);
                 abDownloader.RetrievedTitle += (_, title) => OnTitleDiscovered(title);
@@ -166,11 +167,10 @@ namespace FileLiberator
 
         private void AaxcDownloader_RetrievedCoverArt(object sender, byte[] e)
         {
-            if (e is null && Configuration.Instance.AllowLibationFixup)
-                OnRequestCoverArt(abDownloader.SetCoverArt);
-
             if (e is not null)
                 OnCoverImageDiscovered(e);
+            else if (Configuration.Instance.AllowLibationFixup)
+                OnRequestCoverArt(abDownloader.SetCoverArt);
         }
 
         /// <summary>Move new files to 'Books' directory</summary>
