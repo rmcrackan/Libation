@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="AAXClean" Version="0.1.9" />
-    <PackageReference Include="Dinah.Core" Version="2.0.0.1" />
+    <PackageReference Include="Dinah.Core" Version="2.0.1.1" />
   </ItemGroup>
 
   <ItemGroup>

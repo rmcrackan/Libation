@@ -16,7 +16,7 @@ namespace FileLiberator
         private Mp4File m4bBook;
 
 		private long fileSize;
-		private static string Mp3FileName(string m4bPath) => m4bPath is null ? string.Empty : PathLib.ReplaceExtension(m4bPath, ".mp3");
+        private static string Mp3FileName(string m4bPath) => Path.ChangeExtension(m4bPath ?? "", ".mp3");
 
         public override void Cancel() => m4bBook?.Cancel();
 
@@ -52,7 +52,7 @@ namespace FileLiberator
                 mp3File.Close();
 
                 var proposedMp3Path = Mp3FileName(m4bPath);
-                var realMp3Path = FileUtility.Move(mp3File.Name, proposedMp3Path);
+                var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path);
                 OnFileCreated(libraryBook, realMp3Path);
 
                 var statusHandler = new StatusHandler();

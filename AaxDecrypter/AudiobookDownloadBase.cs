@@ -32,7 +32,7 @@ namespace AaxDecrypter
 		private NetworkFileStreamPersister nfsPersister;
 
 		private string jsonDownloadState => Path.Combine(CacheDir, Path.GetFileNameWithoutExtension(OutputFileName) + ".json");
-		private string tempFile => PathLib.ReplaceExtension(jsonDownloadState, ".tmp");
+		private string tempFile => Path.ChangeExtension(jsonDownloadState, ".tmp");
 
 		public AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
 		{
@@ -102,7 +102,7 @@ namespace AaxDecrypter
 			// not a critical step. its failure should not prevent future steps from running
 			try
 			{
-				var path = PathLib.ReplaceExtension(OutputFileName, ".cue");
+				var path = Path.ChangeExtension(OutputFileName, ".cue");
 				path = FileUtility.GetValidFilename(path);
 				File.WriteAllText(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadLicense.ChapterInfo));
 				OnFileCreated(path);

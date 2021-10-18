@@ -14,7 +14,6 @@ namespace LibationFileManager
         #region static
         public static string DownloadsInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
         public static string DecryptInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
-        public static string PdfDirectory => BooksDirectory;
 
         private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
         public static bool AaxcExists(string productId) => AAXC.Exists(productId);
