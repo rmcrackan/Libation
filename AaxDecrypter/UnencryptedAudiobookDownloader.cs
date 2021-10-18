@@ -19,8 +19,8 @@ namespace AaxDecrypter
 
 				["Step 1: Get Mp3 Metadata"] = Step1_GetMetadata,
 				["Step 2: Download Audiobook"] = Step2_DownloadAudiobookAsSingleFile,
-				["Step 3: Create Cue"] = Step_CreateCue,
-				["Step 4: Cleanup"] = Step_Cleanup,
+				["Step 3: Create Cue"] = Step3_CreateCue,
+				["Step 4: Cleanup"] = Step4_Cleanup,
 			};
 		}
 

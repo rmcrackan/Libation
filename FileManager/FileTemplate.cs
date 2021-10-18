@@ -48,5 +48,4 @@ namespace FileManager
             ? value?.Truncate(ParameterMaxSize.Value)
             : value;
     }
-
 }
