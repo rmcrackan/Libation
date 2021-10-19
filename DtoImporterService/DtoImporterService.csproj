@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AudibleUtilities\AudibleUtilities.csproj" />
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
-    <ProjectReference Include="..\InternalUtilities\InternalUtilities.csproj" />
   </ItemGroup>
 
 </Project>

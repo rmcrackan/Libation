@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\InternalUtilities\InternalUtilities.csproj" />
+    <ProjectReference Include="..\..\AudibleUtilities\AudibleUtilities.csproj" />
   </ItemGroup>
 
 </Project>

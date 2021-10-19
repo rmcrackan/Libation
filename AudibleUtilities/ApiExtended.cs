@@ -8,7 +8,7 @@ using Dinah.Core;
 using Polly;
 using Polly.Retry;
 
-namespace InternalUtilities
+namespace AudibleUtilities
 {
 	/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
 	public class ApiExtended

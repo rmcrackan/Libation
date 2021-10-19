@@ -1,9 +1,9 @@
-﻿using AudibleApi;
-using InternalUtilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using AudibleApi;
+using AudibleUtilities;
 
 namespace LibationWinForms.Dialogs
 {

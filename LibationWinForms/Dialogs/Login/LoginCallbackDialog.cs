@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
+using AudibleUtilities;
 using Dinah.Core;
-using InternalUtilities;
 
 namespace LibationWinForms.Dialogs.Login
 {

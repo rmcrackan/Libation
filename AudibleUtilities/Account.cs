@@ -6,7 +6,7 @@ using AudibleApi.Authorization;
 using Dinah.Core;
 using Newtonsoft.Json;
 
-namespace InternalUtilities
+namespace AudibleUtilities
 {
 	public class Account : IUpdatable
 	{

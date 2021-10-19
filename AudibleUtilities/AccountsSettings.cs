@@ -6,7 +6,7 @@ using AudibleApi.Authorization;
 using Dinah.Core;
 using Newtonsoft.Json;
 
-namespace InternalUtilities
+namespace AudibleUtilities
 {
 	// 'AccountsSettings' is intentionally NOT IEnumerable<> so that properties can be added/extended
 	// from newtonsoft (https://www.newtonsoft.com/json/help/html/SerializationGuide.htm):

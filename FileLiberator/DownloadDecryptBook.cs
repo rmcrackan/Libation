@@ -59,7 +59,6 @@ namespace FileLiberator
                     FilePathCache.Removed -= FilePathCache_Removed;
                 }
 
-
                 // decrypt failed
                 if (!success)
                     return new StatusHandler { "Decrypt failed" };
@@ -134,7 +133,6 @@ namespace FileLiberator
 
                 // REAL WORK DONE HERE
                 var success = await Task.Run(abDownloader.Run);
-
                 return success;
             }
             finally

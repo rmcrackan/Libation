@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AudibleApi.Common;
 
-namespace InternalUtilities
+namespace AudibleUtilities
 {
 	public interface IValidator
 	{

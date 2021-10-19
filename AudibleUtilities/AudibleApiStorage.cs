@@ -3,7 +3,7 @@ using System.IO;
 using LibationFileManager;
 using Newtonsoft.Json;
 
-namespace InternalUtilities
+namespace AudibleUtilities
 {
 	public static class AudibleApiStorage
 	{

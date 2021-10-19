@@ -19,7 +19,7 @@ namespace FileLiberator
 
 		public static async Task<AudibleApi.Api> GetApiAsync(this LibraryBook libraryBook)
 		{
-			var apiExtended = await InternalUtilities.ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
+			var apiExtended = await AudibleUtilities.ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
 			return apiExtended.Api;
 		}
 	}

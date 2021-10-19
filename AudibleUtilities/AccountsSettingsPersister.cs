@@ -3,7 +3,7 @@ using AudibleApi.Authorization;
 using Dinah.Core.IO;
 using Newtonsoft.Json;
 
-namespace InternalUtilities
+namespace AudibleUtilities
 {
 	public class AccountsSettingsPersister : JsonFilePersister<AccountsSettings>
 	{
