@@ -164,7 +164,7 @@ namespace DtoImporterService
 			{
 				foreach (var seriesEntry in item.Series)
 				{
-					var series = DbContext.Series.Local.Single(s => seriesEntry.SeriesId == s.AudibleSeriesId);
+					var series = DbContext.Series.Local.FirstOrDefault(s => seriesEntry.SeriesId == s.AudibleSeriesId);
 					book.UpsertSeries(series, seriesEntry.Sequence);
 				}
 			}
