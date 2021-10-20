@@ -86,45 +86,39 @@ namespace FileUtilityTests
 	}
 
 	[TestClass]
-	public class GetMultipartFileName
+	public class GetSequenceFormatted
 	{
 		[TestMethod]
-		public void null_path() => Assert.ThrowsException<ArgumentNullException>(() => FileUtility.GetMultipartFileName(null, 1, 1, ""));
-
-		[TestMethod]
-		public void null_suffix() => Tests(@"C:\foo\bar\my file.txt", 2, 100, null, @"C:\foo\bar\my file - 002 - .txt");
-
-		[TestMethod]
 		public void negative_partsPosition() => Assert.ThrowsException<ArgumentException>(()
-			=> FileUtility.GetMultipartFileName("foo", -1, 2, "")
+			=> FileUtility.GetSequenceFormatted(-1, 2)
 		);
 		[TestMethod]
 		public void zero_partsPosition() => Assert.ThrowsException<ArgumentException>(()
-			=> FileUtility.GetMultipartFileName("foo", 0, 2, "")
+			=> FileUtility.GetSequenceFormatted(0, 2)
 		);
 
 		[TestMethod]
 		public void negative_partsTotal() => Assert.ThrowsException<ArgumentException>(()
-			=> FileUtility.GetMultipartFileName("foo", 2, -1, "")
+			=> FileUtility.GetSequenceFormatted(2, -1)
 		);
 		[TestMethod]
 		public void zero_partsTotal() => Assert.ThrowsException<ArgumentException>(()
-			=> FileUtility.GetMultipartFileName("foo", 2, 0, "")
+			=> FileUtility.GetSequenceFormatted(2, 0)
 		);
 
 		[TestMethod]
 		public void partsPosition_greater_than_partsTotal() => Assert.ThrowsException<ArgumentException>(()
-			=> FileUtility.GetMultipartFileName("foo", 2, 1, "")
+			=> FileUtility.GetSequenceFormatted(2, 1)
 		);
 
 		[TestMethod]
 		// only part
-		[DataRow(@"C:\foo\bar\my file.txt", 1, 1, "title", @"C:\foo\bar\my file - 1 - title.txt")]
+		[DataRow(1, 1, "1")]
+		// 2 digits
+		[DataRow(2, 90, "02")]
 		// 3 digits
-		[DataRow(@"C:\foo\bar\my file.txt", 2, 100, "title", @"C:\foo\bar\my file - 002 - title.txt")]
-		// no suffix
-		[DataRow(@"C:\foo\bar\my file.txt", 2, 100, "", @"C:\foo\bar\my file - 002 - .txt")]
-		public void Tests(string originalPath, int partsPosition, int partsTotal, string suffix, string expected)
-			=> FileUtility.GetMultipartFileName(originalPath, partsPosition, partsTotal, suffix).Should().Be(expected);
+		[DataRow(2, 900, "002")]
+		public void Tests(int partsPosition, int partsTotal, string expected)
+			=> FileUtility.GetSequenceFormatted(partsPosition, partsTotal).Should().Be(expected);
 	}
 }

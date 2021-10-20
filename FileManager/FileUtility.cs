@@ -35,26 +35,22 @@ namespace FileManager
             return fileTemplate.GetFilename();
         }
 
-        public static string GetMultipartFileName(string originalPath, int partsPosition, int partsTotal, string suffix)
+        /// <summary>
+        /// Return position with correct number of leading zeros.
+        /// <br />- 2 of 9 => "2"
+        /// <br />- 2 of 90 => "02"
+        /// <br />- 2 of 900 => "002"
+        /// </summary>
+        /// <param name="position">position in sequence. The 'x' in 'x of y'</param>
+        /// <param name="total">total qty in sequence. The 'y' in 'x of y'</param>
+        public static string GetSequenceFormatted(int position, int total)
         {
-            ArgumentValidator.EnsureNotNull(originalPath, nameof(originalPath));
-            ArgumentValidator.EnsureGreaterThan(partsPosition, nameof(partsPosition), 0);
-            ArgumentValidator.EnsureGreaterThan(partsTotal, nameof(partsTotal), 0);
-            if (partsPosition > partsTotal)
-                throw new ArgumentException($"{partsPosition} may not be greater than {partsTotal}");
+            ArgumentValidator.EnsureGreaterThan(position, nameof(position), 0);
+            ArgumentValidator.EnsureGreaterThan(total, nameof(total), 0);
+            if (position > total)
+                throw new ArgumentException($"{position} may not be greater than {total}");
 
-            // 1-9     => 1-9
-            // 10-99   => 01-99
-            // 100-999 => 001-999
-            var chapterCountLeadingZeros = partsPosition.ToString().PadLeft(partsTotal.ToString().Length, '0');
-
-            var template = Path.ChangeExtension(originalPath, null) + " - <chapter> - <title>" + Path.GetExtension(originalPath);
-
-            var fileTemplate = new FileTemplate(template) { IllegalCharacterReplacements = " " };
-            fileTemplate.AddParameterReplacement("chapter", chapterCountLeadingZeros);
-            fileTemplate.AddParameterReplacement("title", suffix);
-
-            return fileTemplate.GetFilename();
+            return position.ToString().PadLeft(total.ToString().Length, '0');
         }
 
         private const int MAX_FILENAME_LENGTH = 255;

@@ -46,9 +46,10 @@ namespace AaxDecrypter
 				throw new DirectoryNotFoundException($"Directory does not exist: {nameof(cacheDirectory)}");
 			cacheDir = cacheDirectory;
 
+			DownloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
+
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
-			DownloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
 		}
 
 		public abstract void Cancel();
