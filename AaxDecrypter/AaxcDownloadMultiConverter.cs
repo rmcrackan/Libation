@@ -13,7 +13,7 @@ namespace AaxDecrypter
 		protected override StepSequence Steps { get; }
 
         private Func<string, int, int, NewSplitCallback, string> multipartFileNameCallback { get; }
-        private static string DefaultMultipartFileName(string outputFileName, int partsPosition, int partsTotal, NewSplitCallback newSplitCallback)
+        private static string DefaultMultipartFilename(string outputFileName, int partsPosition, int partsTotal, NewSplitCallback newSplitCallback)
         {
             var template = Path.ChangeExtension(outputFileName, null) + " - <chapter> - <title>" + Path.GetExtension(outputFileName);
 
@@ -21,7 +21,7 @@ namespace AaxDecrypter
             fileTemplate.AddParameterReplacement("chapter", FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
             fileTemplate.AddParameterReplacement("title", newSplitCallback?.Chapter?.Title ?? "");
 
-            return fileTemplate.GetFilename();
+            return fileTemplate.GetFilePath();
         }
 
         private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
@@ -39,7 +39,7 @@ namespace AaxDecrypter
                 ["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsMultipleFilesPerChapter,
                 ["Step 3: Cleanup"] = Step_Cleanup,
             };
-            this.multipartFileNameCallback = multipartFileNameCallback ?? DefaultMultipartFileName;
+            this.multipartFileNameCallback = multipartFileNameCallback ?? DefaultMultipartFilename;
         }
 
         /*

@@ -28,7 +28,7 @@ namespace FileManager
         public string IllegalCharacterReplacements { get; set; }
 
         /// <summary>Generate a valid path for this file or directory</summary>
-        public string GetFilename()
+        public string GetFilePath()
         {
             var filename = Template;
 

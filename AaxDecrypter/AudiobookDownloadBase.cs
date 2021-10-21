@@ -30,8 +30,7 @@ namespace AaxDecrypter
 		protected abstract StepSequence Steps { get; }
 		private NetworkFileStreamPersister nfsPersister;
 
-		private string cacheDir { get; }
-		private string jsonDownloadState => Path.Combine(cacheDir, Path.ChangeExtension(OutputFileName, ".json"));
+		private string jsonDownloadState { get; }
 		private string tempFile => Path.ChangeExtension(jsonDownloadState, ".tmp");
 
 		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
@@ -44,7 +43,7 @@ namespace AaxDecrypter
 
 			if (!Directory.Exists(cacheDirectory))
 				throw new DirectoryNotFoundException($"Directory does not exist: {nameof(cacheDirectory)}");
-			cacheDir = cacheDirectory;
+			jsonDownloadState = Path.Combine(cacheDirectory, Path.ChangeExtension(OutputFileName, ".json"));
 
 			DownloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
 

@@ -20,21 +20,6 @@ namespace FileManager
             ? (extension ?? "")?.Trim()
             : '.' + extension.Trim('.');
 
-        public static string GetValidFilename(string dirFullPath, string filename, string extension, string metadataSuffix)
-        {
-            ArgumentValidator.EnsureNotNullOrWhiteSpace(dirFullPath, nameof(dirFullPath));
-            ArgumentValidator.EnsureNotNullOrWhiteSpace(filename, nameof(filename));
-
-            var template = $"<title> [<id>]";
-
-            var fullfilename = Path.Combine(dirFullPath, template + GetStandardizedExtension(extension));
-
-            var fileTemplate = new FileTemplate(fullfilename) { IllegalCharacterReplacements = "_" };
-            fileTemplate.AddParameterReplacement("title", filename);
-            fileTemplate.AddParameterReplacement("id", metadataSuffix);
-            return fileTemplate.GetFilename();
-        }
-
         /// <summary>
         /// Return position with correct number of leading zeros.
         /// <br />- 2 of 9 => "2"

@@ -55,37 +55,6 @@ namespace FileUtilityTests
 	}
 
 	[TestClass]
-	public class GetValidFilename
-	{
-		[TestMethod]
-		[DataRow(null, "name", "ext", "suffix")]
-		[DataRow(@"C:\", null, "ext", "suffix")]
-		[ExpectedException(typeof(ArgumentNullException))]
-		public void arg_null_exception(string dirFullPath, string filename, string extension, string metadataSuffix)
-			=> FileUtility.GetValidFilename(dirFullPath, filename, extension, metadataSuffix);
-
-		[TestMethod]
-		[DataRow("", "name", "ext", "suffix")]
-		[DataRow("   ", "name", "ext", "suffix")]
-		[DataRow(@"C:\", "", "ext", "suffix")]
-		[DataRow(@"C:\", "   ", "ext", "suffix")]
-		[ExpectedException(typeof(ArgumentException))]
-		public void arg_exception(string dirFullPath, string filename, string extension, string metadataSuffix)
-			=> FileUtility.GetValidFilename(dirFullPath, filename, extension, metadataSuffix);
-
-		[TestMethod]
-		public void null_extension() => Tests(@"C:\foo\bar", "my file", null, "meta", @"C:\foo\bar\my file [meta]");
-		[TestMethod]
-		public void null_metadataSuffix() => Tests(@"C:\foo\bar", "my file", "txt", null, @"C:\foo\bar\my file [].txt");
-
-		[TestMethod]
-		[DataRow(@"C:\foo\bar", "my file", "txt", "my id", @"C:\foo\bar\my file [my id].txt")]
-		[DataRow(@"C:\foo\bar", "my file", "txt", "", @"C:\foo\bar\my file [].txt")]
-		public void Tests(string dirFullPath, string filename, string extension, string metadataSuffix, string expected)
-			=> FileUtility.GetValidFilename(dirFullPath, filename, extension, metadataSuffix).Should().Be(expected);
-	}
-
-	[TestClass]
 	public class GetSequenceFormatted
 	{
 		[TestMethod]

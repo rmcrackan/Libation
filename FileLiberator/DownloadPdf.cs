@@ -47,7 +47,7 @@ namespace FileLiberator
 			if (existingPath != null)
 				return Path.Combine(existingPath, Path.GetFileName(file));
 
-			return FileUtility.GetValidFilename(AudibleFileStorage.BooksDirectory, libraryBook.Book.Title, Path.GetExtension(file), libraryBook.Book.AudibleProductId);
+			return AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, Path.GetExtension(file));
 		}
 
 		private static string getdownloadUrl(LibraryBook libraryBook)

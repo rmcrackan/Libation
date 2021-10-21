@@ -66,8 +66,26 @@ namespace LibationFileManager
         #endregion
     }
 
+    internal class AaxcFileStorage : AudibleFileStorage
+    {
+        internal AaxcFileStorage() : base(FileType.AAXC) { }
+
+        protected override string GetFilePathCustom(string productId)
+        {
+            var regex = GetBookSearchRegex(productId);
+            return Directory
+                .EnumerateFiles(DownloadsInProgressDirectory, "*.*", SearchOption.AllDirectories)
+                .FirstOrDefault(s => regex.IsMatch(s));
+        }
+
+        public bool Exists(string productId) => GetFilePath(productId) != null;
+    }
+
     public class AudioFileStorage : AudibleFileStorage
     {
+        internal AudioFileStorage() : base(FileType.Audio)
+            => BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
+
         private static BackgroundFileSystem BookDirectoryFiles { get; set; }
         private static object bookDirectoryFilesLocker { get; } = new();
         protected override string GetFilePathCustom(string productId)
@@ -81,26 +99,8 @@ namespace LibationFileManager
             return BookDirectoryFiles.FindFile(regex);
         }
 
-        internal AudioFileStorage() : base(FileType.Audio)
-            => BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
-
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
 
         public string GetPath(string productId) => GetFilePath(productId);
-    }
-
-    internal class AaxcFileStorage : AudibleFileStorage
-    {
-        protected override string GetFilePathCustom(string productId)
-        {
-            var regex = GetBookSearchRegex(productId);
-            return Directory
-                .EnumerateFiles(DownloadsInProgressDirectory, "*.*", SearchOption.AllDirectories)
-                .FirstOrDefault(s => regex.IsMatch(s));
-        }
-
-        internal AaxcFileStorage() : base(FileType.AAXC) { }
-
-        public bool Exists(string productId) => GetFilePath(productId) != null;
     }
 }

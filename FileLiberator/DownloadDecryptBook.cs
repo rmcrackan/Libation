@@ -64,7 +64,7 @@ namespace FileLiberator
                     return new StatusHandler { "Decrypt failed" };
 
                 // moves new files from temp dir to final dest
-                var movedAudioFile = moveFilesToBooksDir(libraryBook.Book, entries);
+                var movedAudioFile = moveFilesToBooksDir(libraryBook, entries);
 
                 // decrypt failed
                 if (!movedAudioFile)
@@ -114,14 +114,14 @@ namespace FileLiberator
                     foreach (var chap in contentLic.ContentMetadata?.ChapterInfo?.Chapters)
                         audiobookDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
                 }
-                
-                var outFileName = FileUtility.GetValidFilename(AudibleFileStorage.DecryptInProgressDirectory, libraryBook.Book.Title, outputFormat.ToString().ToLower(), libraryBook.Book.AudibleProductId);
+
+                var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, outputFormat.ToString().ToLower());
 
                 var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
                 abDownloader
                     = contentLic.DrmType != AudibleApi.Common.DrmType.Adrm ? new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic)
-                    : Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(outFileName, cacheDir, audiobookDlLic, outputFormat)
+                    : Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, AudibleFileStorage.Audio.MultipartFilename)
                     : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic, outputFormat);
                 abDownloader.DecryptProgressUpdate += (_, progress) => OnStreamingProgressChanged(progress);
                 abDownloader.DecryptTimeRemaining += (_, remaining) => OnStreamingTimeRemaining(remaining);
@@ -173,43 +173,34 @@ namespace FileLiberator
 
         /// <summary>Move new files to 'Books' directory</summary>
         /// <returns>True if audiobook file(s) were successfully created and can be located on disk. Else false.</returns>
-        private static bool moveFilesToBooksDir(Book book, List<FilePathCache.CacheEntry> entries)
+        private static bool moveFilesToBooksDir(LibraryBook libraryBook, List<FilePathCache.CacheEntry> entries)
         {
             // create final directory. move each file into it
-            var title = book.Title;
-            var asin = book.AudibleProductId;
-            // to prevent the paths from getting too long, we don't need after the 1st ":" for the folder
-            var underscoreIndex = title.IndexOf(':');
-            var titleDir
-                = underscoreIndex < 4
-                ? title
-                : title.Substring(0, underscoreIndex);
-            var destinationDir = FileUtility.GetValidFilename(AudibleFileStorage.BooksDirectory, titleDir, null, asin);
-            Directory.CreateDirectory(destinationDir);
+            var destinationDir = AudibleFileStorage.Audio.CreateDestinationDirectory(libraryBook);
 
-            FilePathCache.CacheEntry getFirstAudio() => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
+			FilePathCache.CacheEntry getFirstAudio() => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
 
-            if (getFirstAudio() == default)
-                return false;
+			if (getFirstAudio() == default)
+				return false;
 
-            for (var i = 0; i < entries.Count; i++)
-            {
-                var entry = entries[i];
+			for (var i = 0; i < entries.Count; i++)
+			{
+				var entry = entries[i];
 
-                var realDest = FileUtility.SaferMoveToValidPath(entry.Path, Path.Combine(destinationDir, Path.GetFileName(entry.Path)));
-                FilePathCache.Insert(book.AudibleProductId, realDest);
+				var realDest = FileUtility.SaferMoveToValidPath(entry.Path, Path.Combine(destinationDir, Path.GetFileName(entry.Path)));
+				FilePathCache.Insert(libraryBook.Book.AudibleProductId, realDest);
 
-                // propogate corrected path. Must update cache with corrected path. Also want updated path for cue file (after this for-loop)
-                entries[i] = entry with { Path = realDest };
-            }
+				// propogate corrected path. Must update cache with corrected path. Also want updated path for cue file (after this for-loop)
+				entries[i] = entry with { Path = realDest };
+			}
 
-            var cue = entries.FirstOrDefault(f => f.FileType == FileType.Cue);
-            if (cue != default)
-                Cue.UpdateFileName(cue.Path, getFirstAudio().Path);
+			var cue = entries.FirstOrDefault(f => f.FileType == FileType.Cue);
+			if (cue != default)
+				Cue.UpdateFileName(cue.Path, getFirstAudio().Path);
 
-            AudibleFileStorage.Audio.Refresh();
+			AudibleFileStorage.Audio.Refresh();
 
-            return true;
-        }
-    }
+			return true;
+		}
+	}
 }

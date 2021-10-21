@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FileTemplateTests
 {
 	[TestClass]
-	public class GetFilename
+	public class GetFilePath
 	{
 		[TestMethod]
 		public void equiv_GetValidFilename()
@@ -58,7 +58,7 @@ namespace FileTemplateTests
 			var fileTemplate = new FileTemplate(fullfilename) { IllegalCharacterReplacements = "_" };
 			fileTemplate.AddParameterReplacement("title", filename);
 			fileTemplate.AddParameterReplacement("id", metadataSuffix);
-			return fileTemplate.GetFilename();
+			return fileTemplate.GetFilePath();
 		}
 
 		[TestMethod]
@@ -102,7 +102,7 @@ namespace FileTemplateTests
 			fileTemplate.AddParameterReplacement("chapter", chapterCountLeadingZeros);
 			fileTemplate.AddParameterReplacement("title", suffix);
 
-			return fileTemplate.GetFilename();
+			return fileTemplate.GetFilePath();
 		}
 	}
 }
