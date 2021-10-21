@@ -68,7 +68,7 @@ namespace DtoImporterService
 
 			foreach (var item in importItems)
 			{
-				var book = DbContext.Books.Local.SingleOrDefault(p => p.AudibleProductId == item.DtoItem.ProductId);
+				var book = DbContext.Books.Local.FirstOrDefault(p => p.AudibleProductId == item.DtoItem.ProductId);
 				if (book is null)
 				{
 					book = createNewBook(item);
