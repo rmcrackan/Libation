@@ -121,7 +121,10 @@ namespace FileLiberator
 
                 abDownloader
                     = contentLic.DrmType != AudibleApi.Common.DrmType.Adrm ? new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic)
-                    : Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(outFileName, cacheDir, audiobookDlLic, outputFormat, AudibleFileStorage.Audio.MultipartFilename)
+                    : Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
+                        outFileName, cacheDir, audiobookDlLic, outputFormat,
+                        AudibleFileStorage.Audio.CreateMultipartRenamer(libraryBook).MultipartFilename
+                        )
                     : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic, outputFormat);
                 abDownloader.DecryptProgressUpdate += (_, progress) => OnStreamingProgressChanged(progress);
                 abDownloader.DecryptTimeRemaining += (_, remaining) => OnStreamingTimeRemaining(remaining);

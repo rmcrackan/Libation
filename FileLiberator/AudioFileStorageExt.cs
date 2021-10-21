@@ -9,11 +9,13 @@ using LibationFileManager;
 
 namespace FileLiberator
 {
-    public static class AudioFileStorageExt
+    public class MultipartRenamer
     {
-        public static string MultipartFilename(this AudioFileStorage _, string outputFileName, int partsPosition, int partsTotal, AAXClean.NewSplitCallback newSplitCallback)
-            => MultipartFilename(outputFileName, partsPosition, partsTotal, newSplitCallback);
-        public static string MultipartFilename(string outputFileName, int partsPosition, int partsTotal, AAXClean.NewSplitCallback newSplitCallback)
+        LibraryBook libraryBook;
+
+        public MultipartRenamer(LibraryBook libraryBook) => this.libraryBook = libraryBook;
+
+        public string MultipartFilename(string outputFileName, int partsPosition, int partsTotal, AAXClean.NewSplitCallback newSplitCallback)
         {
             var template = Path.ChangeExtension(outputFileName, null) + " - <chapter> - <title>" + Path.GetExtension(outputFileName);
 
@@ -23,6 +25,12 @@ namespace FileLiberator
 
             return fileTemplate.GetFilePath();
         }
+    }
+
+	public static class AudioFileStorageExt
+    {
+        public static MultipartRenamer CreateMultipartRenamer(this AudioFileStorage _, LibraryBook libraryBook) => CreateMultipartRenamer(libraryBook);
+        public static MultipartRenamer CreateMultipartRenamer(LibraryBook libraryBook) => new(libraryBook);
 
         public static string GetInProgressFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
             => GetInProgressFilename(libraryBook, extension);
