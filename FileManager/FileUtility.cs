@@ -103,6 +103,11 @@ namespace FileManager
                     builder.Append(c);
             }
             fixedPath = builder.ToString();
+
+            var dblSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
+            while (fixedPath.Contains(dblSeparator))
+                fixedPath = fixedPath.Replace(dblSeparator, $"{Path.DirectorySeparatorChar}");
+
             return fixedPath;
         }
 

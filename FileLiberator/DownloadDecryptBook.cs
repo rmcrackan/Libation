@@ -179,9 +179,10 @@ namespace FileLiberator
         private static bool moveFilesToBooksDir(LibraryBook libraryBook, List<FilePathCache.CacheEntry> entries)
         {
             // create final directory. move each file into it
-            var destinationDir = AudibleFileStorage.Audio.CreateDestinationDirectory(libraryBook);
+            var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
+            Directory.CreateDirectory(destinationDir);
 
-			FilePathCache.CacheEntry getFirstAudio() => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
+            FilePathCache.CacheEntry getFirstAudio() => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
 
 			if (getFirstAudio() == default)
 				return false;

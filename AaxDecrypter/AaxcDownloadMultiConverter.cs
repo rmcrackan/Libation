@@ -15,10 +15,10 @@ namespace AaxDecrypter
         private Func<string, int, int, NewSplitCallback, string> multipartFileNameCallback { get; }
         private static string DefaultMultipartFilename(string outputFileName, int partsPosition, int partsTotal, NewSplitCallback newSplitCallback)
         {
-            var template = Path.ChangeExtension(outputFileName, null) + " - <chapter> - <title>" + Path.GetExtension(outputFileName);
+            var template = Path.ChangeExtension(outputFileName, null) + " - <ch# 0> - <title>" + Path.GetExtension(outputFileName);
 
             var fileTemplate = new FileTemplate(template) { IllegalCharacterReplacements = " " };
-            fileTemplate.AddParameterReplacement("chapter", FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
+            fileTemplate.AddParameterReplacement("ch# 0", FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
             fileTemplate.AddParameterReplacement("title", newSplitCallback?.Chapter?.Title ?? "");
 
             return fileTemplate.GetFilePath();

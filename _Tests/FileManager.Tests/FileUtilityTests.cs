@@ -17,7 +17,7 @@ namespace FileUtilityTests
 
 		// needs separate method. middle null param not running correctly in TestExplorer when used in DataRow()
 		[TestMethod]
-		[DataRow("http://test.com/a/b/c", @"http\\test.com\a\b\c")]
+		[DataRow("http://test.com/a/b/c", @"http\test.com\a\b\c")]
 		public void null_replacement(string inStr, string outStr) => Tests(inStr, null, outStr);
 
 		[TestMethod]
@@ -31,8 +31,10 @@ namespace FileUtilityTests
 		[DataRow("a*?:z.txt", "Z", "aZZZz.txt")]
 		// retain drive letter path colon
 		[DataRow(@"C:\az.txt", "Z", @"C:\az.txt")]
-		// replace all other colongs
+		// replace all other colons
 		[DataRow(@"a\b:c\d.txt", "ZZZ", @"a\bZZZc\d.txt")]
+		// remove empty directories
+		[DataRow(@"C:\a\\\b\c\\\d.txt", "ZZZ", @"C:\a\b\c\d.txt")]
 		public void Tests(string inStr, string replacement, string outStr) => Assert.AreEqual(outStr, FileUtility.GetSafePath(inStr, replacement));
 	}
 

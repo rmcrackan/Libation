@@ -40,14 +40,14 @@ namespace FileLiberator
 
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
 		{
+			var extension = Path.GetExtension(getdownloadUrl(libraryBook));
+
 			// if audio file exists, get it's dir. else return base Book dir
 			var existingPath = Path.GetDirectoryName(AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId));
-			var file = getdownloadUrl(libraryBook);
+			if (existingPath is not null)
+				return AudibleFileStorage.Audio.GetCustomDirFilename(libraryBook, existingPath, extension);
 
-			if (existingPath != null)
-				return Path.Combine(existingPath, Path.GetFileName(file));
-
-			return AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, Path.GetExtension(file));
+			return AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, extension);
 		}
 
 		private static string getdownloadUrl(LibraryBook libraryBook)
