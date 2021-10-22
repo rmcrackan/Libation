@@ -18,7 +18,7 @@ namespace FileManager
         public static string GetStandardizedExtension(string extension)
             => string.IsNullOrWhiteSpace(extension)
             ? (extension ?? "")?.Trim()
-            : '.' + extension.Trim('.');
+            : '.' + extension.Trim().Trim('.');
 
         /// <summary>
         /// Return position with correct number of leading zeros.

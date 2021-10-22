@@ -90,4 +90,24 @@ namespace FileUtilityTests
 		public void Tests(int partsPosition, int partsTotal, string expected)
 			=> FileUtility.GetSequenceFormatted(partsPosition, partsTotal).Should().Be(expected);
 	}
+
+	[TestClass]
+	public class GetStandardizedExtension
+	{
+		[TestMethod]
+		public void is_null() => Tests(null, "");
+
+		[TestMethod]
+		public void is_empty() => Tests("", "");
+
+		[TestMethod]
+		public void is_whitespace() => Tests("   ", "");
+
+		[TestMethod]
+		[DataRow("txt", ".txt")]
+		[DataRow(".txt", ".txt")]
+		[DataRow("   .txt   ", ".txt")]
+		public void Tests(string input, string expected)
+			=> FileUtility.GetStandardizedExtension(input).Should().Be(expected);
+	}
 }

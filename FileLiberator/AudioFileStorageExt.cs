@@ -18,13 +18,13 @@ namespace FileLiberator
             public string MultipartFilename(string outputFileName, int partsPosition, int partsTotal, AAXClean.NewSplitCallback newSplitCallback)
             {
                 var extension = Path.GetExtension(outputFileName);
-                var baseFileName = AudioFileStorageExt.GetValidFilename(AudibleFileStorage.DecryptInProgressDirectory, LibraryBook.Book.Title, extension, LibraryBook);
+                var baseFileName = GetValidFilename(AudibleFileStorage.DecryptInProgressDirectory, LibraryBook.Book.Title, extension, LibraryBook);
 
-                var template = Path.ChangeExtension(baseFileName, null) + " - <chapter> - <title>" + extension;
+                var template = Path.ChangeExtension(baseFileName, null) + " - <chapter number> - <chapter title>" + extension;
 
                 var fileTemplate = new FileTemplate(template) { IllegalCharacterReplacements = " " };
-                fileTemplate.AddParameterReplacement("chapter", FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
-                fileTemplate.AddParameterReplacement("title", newSplitCallback?.Chapter?.Title ?? "");
+                fileTemplate.AddParameterReplacement("chapter number", FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
+                fileTemplate.AddParameterReplacement("chapter title", newSplitCallback?.Chapter?.Title ?? "");
 
                 return fileTemplate.GetFilePath();
             }
