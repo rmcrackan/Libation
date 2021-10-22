@@ -9,42 +9,45 @@ using LibationFileManager;
 
 namespace FileLiberator
 {
-    public class MultipartRenamer
-    {
-        LibraryBook libraryBook;
-
-        public MultipartRenamer(LibraryBook libraryBook) => this.libraryBook = libraryBook;
-
-        public string MultipartFilename(string outputFileName, int partsPosition, int partsTotal, AAXClean.NewSplitCallback newSplitCallback)
-        {
-            var template = Path.ChangeExtension(outputFileName, null) + " - <chapter> - <title>" + Path.GetExtension(outputFileName);
-
-            var fileTemplate = new FileTemplate(template) { IllegalCharacterReplacements = " " };
-            fileTemplate.AddParameterReplacement("chapter", FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
-            fileTemplate.AddParameterReplacement("title", newSplitCallback?.Chapter?.Title ?? "");
-
-            return fileTemplate.GetFilePath();
-        }
-    }
-
 	public static class AudioFileStorageExt
     {
-        public static MultipartRenamer CreateMultipartRenamer(this AudioFileStorage _, LibraryBook libraryBook) => CreateMultipartRenamer(libraryBook);
-        public static MultipartRenamer CreateMultipartRenamer(LibraryBook libraryBook) => new(libraryBook);
+        private class MultipartRenamer
+        {
+            public LibraryBook LibraryBook { get; init; }
+
+            public string MultipartFilename(string outputFileName, int partsPosition, int partsTotal, AAXClean.NewSplitCallback newSplitCallback)
+            {
+                var extension = Path.GetExtension(outputFileName);
+                var baseFileName = AudioFileStorageExt.GetValidFilename(AudibleFileStorage.DecryptInProgressDirectory, LibraryBook.Book.Title, extension, LibraryBook);
+
+                var template = Path.ChangeExtension(baseFileName, null) + " - <chapter> - <title>" + extension;
+
+                var fileTemplate = new FileTemplate(template) { IllegalCharacterReplacements = " " };
+                fileTemplate.AddParameterReplacement("chapter", FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
+                fileTemplate.AddParameterReplacement("title", newSplitCallback?.Chapter?.Title ?? "");
+
+                return fileTemplate.GetFilePath();
+            }
+        }
+
+        public static Func<string, int, int, AAXClean.NewSplitCallback, string> CreateMultipartRenamerFunc(this AudioFileStorage _, LibraryBook libraryBook)
+            => CreateMultipartRenamerFunc(libraryBook);
+        private static Func<string, int, int, AAXClean.NewSplitCallback, string> CreateMultipartRenamerFunc(LibraryBook libraryBook)
+            => new MultipartRenamer { LibraryBook = libraryBook }.MultipartFilename;
 
         public static string GetInProgressFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
             => GetInProgressFilename(libraryBook, extension);
-        public static string GetInProgressFilename(LibraryBook libraryBook, string extension)
+        private static string GetInProgressFilename(LibraryBook libraryBook, string extension)
             => GetValidFilename(AudibleFileStorage.DecryptInProgressDirectory, libraryBook.Book.Title, extension, libraryBook);
 
         public static string GetBooksDirectoryFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
             => GetBooksDirectoryFilename(libraryBook, extension);
-        public static string GetBooksDirectoryFilename(LibraryBook libraryBook, string extension)
+        private static string GetBooksDirectoryFilename(LibraryBook libraryBook, string extension)
             => GetValidFilename(AudibleFileStorage.BooksDirectory, libraryBook.Book.Title, extension, libraryBook);
 
         public static string CreateDestinationDirectory(this AudioFileStorage _, LibraryBook libraryBook)
             => CreateDestinationDirectory(libraryBook);
-        public static string CreateDestinationDirectory(LibraryBook libraryBook)
+        private static string CreateDestinationDirectory(LibraryBook libraryBook)
         {
             var title = libraryBook.Book.Title;
 
@@ -59,7 +62,7 @@ namespace FileLiberator
             return destinationDir;
         }
 
-        public static string GetValidFilename(string dirFullPath, string filename, string extension, LibraryBook libraryBook)
+        internal static string GetValidFilename(string dirFullPath, string filename, string extension, LibraryBook libraryBook)
         {
             ArgumentValidator.EnsureNotNullOrWhiteSpace(dirFullPath, nameof(dirFullPath));
             ArgumentValidator.EnsureNotNullOrWhiteSpace(filename, nameof(filename));
