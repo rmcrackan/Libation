@@ -25,7 +25,7 @@ namespace LibationFileManager
         public static TemplateTags FirstAuthor { get; } = new TemplateTags("first author", "First author");
         public static TemplateTags Narrator { get; } = new TemplateTags("narrator", "Narrator(s)");
         public static TemplateTags FirstNarrator { get; } = new TemplateTags("first narrator", "First narrator");
-        public static TemplateTags SeriesName { get; } = new TemplateTags("series name", "Name of series");
+        public static TemplateTags Series { get; } = new TemplateTags("series", "Name of series");
         // can't also have a leading zeros version. Too many weird edge cases. Eg: "1-4"
         public static TemplateTags SeriesNumber { get; } = new TemplateTags("series#", "Number order in series");
 

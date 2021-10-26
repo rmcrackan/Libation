@@ -50,7 +50,7 @@ namespace FileLiberator
             .GetFilePath();
 
         public static string GetCustomDirFilename(this AudioFileStorage _, LibraryBook libraryBook, string dirFullPath, string extension)
-            => GetFileTemplateSingle(Configuration.Instance.FolderTemplate, libraryBook, dirFullPath, extension)
+            => GetFileTemplateSingle(Configuration.Instance.FileTemplate, libraryBook, dirFullPath, extension)
             .GetFilePath();
 
         internal static FileTemplate GetFileTemplateSingle(string template, LibraryBook libraryBook, string dirFullPath, string extension)
@@ -73,7 +73,7 @@ namespace FileLiberator
             fileTemplate.AddParameterReplacement(TemplateTags.FirstNarrator, libraryBook.Book.Narrators.FirstOrDefault()?.Name);
 
             var seriesLink = libraryBook.Book.SeriesLink.FirstOrDefault();
-            fileTemplate.AddParameterReplacement(TemplateTags.SeriesName, seriesLink?.Series.Name);
+            fileTemplate.AddParameterReplacement(TemplateTags.Series, seriesLink?.Series.Name);
             fileTemplate.AddParameterReplacement(TemplateTags.SeriesNumber, seriesLink?.Order);
 
             return fileTemplate;
