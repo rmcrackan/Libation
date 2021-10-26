@@ -86,10 +86,15 @@ namespace FileManager
         {
             ArgumentValidator.EnsureNotNull(path, nameof(path));
 
+            var invalidChars = Path.GetInvalidPathChars().Union(new[] {
+                '*', '?',
+                // these are weird. If you run Path.GetInvalidPathChars() in C# interactive, these characters are included.
+                // In live code, Path.GetInvalidPathChars() does not include them
+                '"', '<', '>'
+            }).ToArray();
+
             var fixedPath = string
-                .Join(illegalCharacterReplacements ?? "", path.Split(Path.GetInvalidPathChars()))
-                .Replace("*", illegalCharacterReplacements)
-                .Replace("?", illegalCharacterReplacements)
+                .Join(illegalCharacterReplacements ?? "", path.Split(invalidChars))
                 .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
             // replace all colons except within the first 2 chars
