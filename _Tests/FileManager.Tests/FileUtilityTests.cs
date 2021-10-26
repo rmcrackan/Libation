@@ -35,6 +35,7 @@ namespace FileUtilityTests
 		[DataRow(@"a\b:c\d.txt", "ZZZ", @"a\bZZZc\d.txt")]
 		// remove empty directories
 		[DataRow(@"C:\a\\\b\c\\\d.txt", "ZZZ", @"C:\a\b\c\d.txt")]
+		[DataRow(@"C:\""foo\<id>", "ZZZ", @"C:\ZZZfoo\ZZZidZZZ")]
 		public void Tests(string inStr, string replacement, string outStr) => Assert.AreEqual(outStr, FileUtility.GetSafePath(inStr, replacement));
 	}
 

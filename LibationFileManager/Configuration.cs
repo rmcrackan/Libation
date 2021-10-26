@@ -145,8 +145,40 @@ namespace LibationFileManager
         {
             get => persistentDictionary.GetNonString<bool>(nameof(DownloadEpisodes));
             set => persistentDictionary.SetNonString(nameof(DownloadEpisodes), value);
+		}
+
+        [Description("How to format the folders in which files will be saved")]
+		public string FolderTemplate
+        {
+            get => getTemplate(nameof(FolderTemplate), Templates.Folder);
+            set => setTemplate(nameof(FolderTemplate), Templates.Folder, value);
         }
 
+        [Description("How to format the saved pdf and audio files")]
+		public string FileTemplate
+        {
+            get => getTemplate(nameof(FileTemplate), Templates.File);
+            set => setTemplate(nameof(FileTemplate), Templates.File, value);
+        }
+
+        [Description("How to format the saved audio files which are split by chapters")]
+        public string ChapterFileTemplate
+        {
+            get => getTemplate(nameof(ChapterFileTemplate), Templates.ChapterFile);
+            set => setTemplate(nameof(ChapterFileTemplate), Templates.ChapterFile, value);
+        }
+
+        private string getTemplate(string settingName, Templates templ)
+        {
+            var value = persistentDictionary.GetString(settingName).Trim();
+            return templ.IsValid(value) ? value : templ.DefaultTemplate;
+        }
+        private void setTemplate(string settingName, Templates templ, string newValue)
+        {
+            var template = newValue.Trim();
+            if (templ.IsValid(template))
+                persistentDictionary.SetString(settingName, template);
+        }
         #endregion
 
         #region known directories

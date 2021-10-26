@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Dinah.Core;
 
@@ -16,10 +15,12 @@ namespace FileManager
         public FileTemplate(string template) => Template = ArgumentValidator.EnsureNotNullOrWhiteSpace(template, nameof(template));
 
         /// <summary>Optional step 1: Replace html-styled template tags with parameters. Eg {"name", "Bill Gates"} => /&lt;name&gt;/ => /Bill Gates/</summary>
-        public Dictionary<string, string> ParameterReplacements { get; } = new Dictionary<string, string>();
+        public Dictionary<string, object> ParameterReplacements { get; } = new Dictionary<string, object>();
 
         /// <summary>Convenience method</summary>
-        public void AddParameterReplacement(string key ,string value) => ParameterReplacements.Add(key, value);
+        public void AddParameterReplacement(string key, object value)
+            // using .Add() instead of "[key] = value" will make unintended overwriting throw exception
+            => ParameterReplacements.Add(key, value);
 
         /// <summary>If set, truncate each parameter replacement to this many characters. Default 50</summary>
         public int? ParameterMaxSize { get; set; } = 50;
@@ -38,14 +39,14 @@ namespace FileManager
             return FileUtility.GetValidFilename(filename, IllegalCharacterReplacements);
         }
 
-        private string formatKey(string key)
+        private static string formatKey(string key)
             => key
             .Replace("<", "")
             .Replace(">", "");
 
-        private string formatValue(string value)
+        private string formatValue(object value)
             => ParameterMaxSize.HasValue && ParameterMaxSize.Value > 0
-            ? value?.Truncate(ParameterMaxSize.Value)
-            : value;
+            ? value?.ToString().Truncate(ParameterMaxSize.Value)
+            : value?.ToString();
     }
 }

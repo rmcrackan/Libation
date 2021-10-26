@@ -11,9 +11,8 @@ namespace FileLiberator
 {
     public static class AudioFileStorageExt
     {
-        private static string TEMP_SINGLE_TEMPLATE { get; } = "<title> [<id>]";
-        private static string TEMP_DIR_TEMPLATE { get; } = "<title short> [<id>]";
-        private static string TEMP_MULTI_TEMPLATE { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
+        private static void AddParameterReplacement(this FileTemplate fileTemplate, TemplateTags templateTags, object value)
+            => fileTemplate.AddParameterReplacement(templateTags.TagName, value);
 
         internal class MultipartRenamer
         {
@@ -22,16 +21,16 @@ namespace FileLiberator
             public MultipartRenamer(LibraryBook libraryBook) => this.libraryBook = libraryBook;
 
             internal string MultipartFilename(string outputFileName, int partsPosition, int partsTotal, AAXClean.NewSplitCallback newSplitCallback)
-                => MultipartFilename(TEMP_MULTI_TEMPLATE, AudibleFileStorage.DecryptInProgressDirectory, Path.GetExtension(outputFileName), partsPosition, partsTotal, newSplitCallback?.Chapter?.Title ?? "");
+                => MultipartFilename(Configuration.Instance.ChapterFileTemplate, AudibleFileStorage.DecryptInProgressDirectory, Path.GetExtension(outputFileName), partsPosition, partsTotal, newSplitCallback?.Chapter?.Title ?? "");
 
             internal string MultipartFilename(string template, string fullDirPath, string extension, int partsPosition, int partsTotal, string chapterTitle)
             {
                 var fileTemplate = GetFileTemplateSingle(template, libraryBook, fullDirPath, extension);
 
-                fileTemplate.AddParameterReplacement("ch count", partsTotal.ToString());
-                fileTemplate.AddParameterReplacement("ch#", partsPosition.ToString());
-                fileTemplate.AddParameterReplacement("ch# 0", FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
-                fileTemplate.AddParameterReplacement("ch title", chapterTitle);
+                fileTemplate.AddParameterReplacement(TemplateTags.ChCount, partsTotal);
+                fileTemplate.AddParameterReplacement(TemplateTags.ChNumber, partsPosition);
+                fileTemplate.AddParameterReplacement(TemplateTags.ChNumber0, FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
+                fileTemplate.AddParameterReplacement(TemplateTags.ChTitle, chapterTitle);
 
                 return fileTemplate.GetFilePath();
             }
@@ -47,11 +46,11 @@ namespace FileLiberator
             => GetCustomDirFilename(_, libraryBook, AudibleFileStorage.BooksDirectory, extension);
 
         public static string GetDestinationDirectory(this AudioFileStorage _, LibraryBook libraryBook)
-            => GetFileTemplateSingle(TEMP_DIR_TEMPLATE, libraryBook, AudibleFileStorage.BooksDirectory, null)
+            => GetFileTemplateSingle(Configuration.Instance.FolderTemplate, libraryBook, AudibleFileStorage.BooksDirectory, null)
             .GetFilePath();
 
         public static string GetCustomDirFilename(this AudioFileStorage _, LibraryBook libraryBook, string dirFullPath, string extension)
-            => GetFileTemplateSingle(TEMP_SINGLE_TEMPLATE, libraryBook, dirFullPath, extension)
+            => GetFileTemplateSingle(Configuration.Instance.FolderTemplate, libraryBook, dirFullPath, extension)
             .GetFilePath();
 
         internal static FileTemplate GetFileTemplateSingle(string template, LibraryBook libraryBook, string dirFullPath, string extension)
@@ -65,9 +64,17 @@ namespace FileLiberator
 
             var title = libraryBook.Book.Title ?? "";
 
-            fileTemplate.AddParameterReplacement("title", title);
-            fileTemplate.AddParameterReplacement("title short", title.IndexOf(':') < 1 ? title : title.Substring(0, title.IndexOf(':')));
-            fileTemplate.AddParameterReplacement("id", libraryBook.Book.AudibleProductId);
+            fileTemplate.AddParameterReplacement(TemplateTags.Id, libraryBook.Book.AudibleProductId);
+            fileTemplate.AddParameterReplacement(TemplateTags.Title, title);
+            fileTemplate.AddParameterReplacement(TemplateTags.TitleShort, title.IndexOf(':') < 1 ? title : title.Substring(0, title.IndexOf(':')));
+            fileTemplate.AddParameterReplacement(TemplateTags.Author, libraryBook.Book.AuthorNames);
+            fileTemplate.AddParameterReplacement(TemplateTags.FirstAuthor, libraryBook.Book.Authors.FirstOrDefault()?.Name);
+            fileTemplate.AddParameterReplacement(TemplateTags.Narrator, libraryBook.Book.NarratorNames);
+            fileTemplate.AddParameterReplacement(TemplateTags.FirstNarrator, libraryBook.Book.Narrators.FirstOrDefault()?.Name);
+
+            var seriesLink = libraryBook.Book.SeriesLink.FirstOrDefault();
+            fileTemplate.AddParameterReplacement(TemplateTags.SeriesName, seriesLink?.Series.Name);
+            fileTemplate.AddParameterReplacement(TemplateTags.SeriesNumber, seriesLink?.Order);
 
             return fileTemplate;
         }
