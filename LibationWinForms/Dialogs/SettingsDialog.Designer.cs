@@ -32,7 +32,6 @@
 			this.inProgressDescLbl = new System.Windows.Forms.Label();
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.cancelBtn = new System.Windows.Forms.Button();
-			this.advancedSettingsGb = new System.Windows.Forms.GroupBox();
 			this.importEpisodesCb = new System.Windows.Forms.CheckBox();
 			this.downloadEpisodesCb = new System.Windows.Forms.CheckBox();
 			this.badBookGb = new System.Windows.Forms.GroupBox();
@@ -48,13 +47,20 @@
 			this.inProgressSelectControl = new LibationWinForms.Dialogs.DirectorySelectControl();
 			this.logsBtn = new System.Windows.Forms.Button();
 			this.booksSelectControl = new LibationWinForms.Dialogs.DirectoryOrCustomSelectControl();
-			this.booksGb = new System.Windows.Forms.GroupBox();
 			this.loggingLevelLbl = new System.Windows.Forms.Label();
 			this.loggingLevelCb = new System.Windows.Forms.ComboBox();
-			this.advancedSettingsGb.SuspendLayout();
+			this.tabControl = new System.Windows.Forms.TabControl();
+			this.tab1ImportantSettings = new System.Windows.Forms.TabPage();
+			this.tab2ImportLibrary = new System.Windows.Forms.TabPage();
+			this.booksGb = new System.Windows.Forms.GroupBox();
+			this.tab3DownloadDecrypt = new System.Windows.Forms.TabPage();
 			this.badBookGb.SuspendLayout();
 			this.decryptAndConvertGb.SuspendLayout();
+			this.tabControl.SuspendLayout();
+			this.tab1ImportantSettings.SuspendLayout();
+			this.tab2ImportLibrary.SuspendLayout();
 			this.booksGb.SuspendLayout();
+			this.tab3DownloadDecrypt.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// booksLocationDescLbl
@@ -70,7 +76,7 @@
 			// inProgressDescLbl
 			// 
 			this.inProgressDescLbl.AutoSize = true;
-			this.inProgressDescLbl.Location = new System.Drawing.Point(8, 199);
+			this.inProgressDescLbl.Location = new System.Drawing.Point(6, 133);
 			this.inProgressDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.inProgressDescLbl.Name = "inProgressDescLbl";
 			this.inProgressDescLbl.Size = new System.Drawing.Size(43, 45);
@@ -102,30 +108,10 @@
 			this.cancelBtn.UseVisualStyleBackColor = true;
 			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
 			// 
-			// advancedSettingsGb
-			// 
-			this.advancedSettingsGb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.advancedSettingsGb.Controls.Add(this.importEpisodesCb);
-			this.advancedSettingsGb.Controls.Add(this.downloadEpisodesCb);
-			this.advancedSettingsGb.Controls.Add(this.badBookGb);
-			this.advancedSettingsGb.Controls.Add(this.decryptAndConvertGb);
-			this.advancedSettingsGb.Controls.Add(this.inProgressSelectControl);
-			this.advancedSettingsGb.Controls.Add(this.inProgressDescLbl);
-			this.advancedSettingsGb.Location = new System.Drawing.Point(12, 176);
-			this.advancedSettingsGb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.advancedSettingsGb.Name = "advancedSettingsGb";
-			this.advancedSettingsGb.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.advancedSettingsGb.Size = new System.Drawing.Size(908, 309);
-			this.advancedSettingsGb.TabIndex = 6;
-			this.advancedSettingsGb.TabStop = false;
-			this.advancedSettingsGb.Text = "Advanced settings for control freaks";
-			// 
 			// importEpisodesCb
 			// 
 			this.importEpisodesCb.AutoSize = true;
-			this.importEpisodesCb.Location = new System.Drawing.Point(7, 22);
+			this.importEpisodesCb.Location = new System.Drawing.Point(6, 6);
 			this.importEpisodesCb.Name = "importEpisodesCb";
 			this.importEpisodesCb.Size = new System.Drawing.Size(146, 19);
 			this.importEpisodesCb.TabIndex = 7;
@@ -135,7 +121,7 @@
 			// downloadEpisodesCb
 			// 
 			this.downloadEpisodesCb.AutoSize = true;
-			this.downloadEpisodesCb.Location = new System.Drawing.Point(7, 47);
+			this.downloadEpisodesCb.Location = new System.Drawing.Point(6, 31);
 			this.downloadEpisodesCb.Name = "downloadEpisodesCb";
 			this.downloadEpisodesCb.Size = new System.Drawing.Size(163, 19);
 			this.downloadEpisodesCb.TabIndex = 8;
@@ -148,7 +134,7 @@
 			this.badBookGb.Controls.Add(this.badBookRetryRb);
 			this.badBookGb.Controls.Add(this.badBookAbortRb);
 			this.badBookGb.Controls.Add(this.badBookAskRb);
-			this.badBookGb.Location = new System.Drawing.Point(372, 72);
+			this.badBookGb.Location = new System.Drawing.Point(371, 6);
 			this.badBookGb.Name = "badBookGb";
 			this.badBookGb.Size = new System.Drawing.Size(529, 124);
 			this.badBookGb.TabIndex = 13;
@@ -205,7 +191,7 @@
 			this.decryptAndConvertGb.Controls.Add(this.allowLibationFixupCbox);
 			this.decryptAndConvertGb.Controls.Add(this.convertLossyRb);
 			this.decryptAndConvertGb.Controls.Add(this.convertLosslessRb);
-			this.decryptAndConvertGb.Location = new System.Drawing.Point(7, 72);
+			this.decryptAndConvertGb.Location = new System.Drawing.Point(6, 6);
 			this.decryptAndConvertGb.Name = "decryptAndConvertGb";
 			this.decryptAndConvertGb.Size = new System.Drawing.Size(359, 124);
 			this.decryptAndConvertGb.TabIndex = 9;
@@ -261,15 +247,15 @@
 			// 
 			this.inProgressSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.inProgressSelectControl.Location = new System.Drawing.Point(7, 247);
+			this.inProgressSelectControl.Location = new System.Drawing.Point(5, 181);
 			this.inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.inProgressSelectControl.Name = "inProgressSelectControl";
-			this.inProgressSelectControl.Size = new System.Drawing.Size(894, 52);
+			this.inProgressSelectControl.Size = new System.Drawing.Size(890, 52);
 			this.inProgressSelectControl.TabIndex = 19;
 			// 
 			// logsBtn
 			// 
-			this.logsBtn.Location = new System.Drawing.Point(262, 147);
+			this.logsBtn.Location = new System.Drawing.Point(256, 169);
 			this.logsBtn.Name = "logsBtn";
 			this.logsBtn.Size = new System.Drawing.Size(132, 23);
 			this.logsBtn.TabIndex = 5;
@@ -284,26 +270,13 @@
 			this.booksSelectControl.Location = new System.Drawing.Point(7, 37);
 			this.booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.booksSelectControl.Name = "booksSelectControl";
-			this.booksSelectControl.Size = new System.Drawing.Size(895, 87);
+			this.booksSelectControl.Size = new System.Drawing.Size(876, 87);
 			this.booksSelectControl.TabIndex = 2;
-			// 
-			// booksGb
-			// 
-			this.booksGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.booksGb.Controls.Add(this.booksSelectControl);
-			this.booksGb.Controls.Add(this.booksLocationDescLbl);
-			this.booksGb.Location = new System.Drawing.Point(12, 12);
-			this.booksGb.Name = "booksGb";
-			this.booksGb.Size = new System.Drawing.Size(908, 129);
-			this.booksGb.TabIndex = 0;
-			this.booksGb.TabStop = false;
-			this.booksGb.Text = "Books location";
 			// 
 			// loggingLevelLbl
 			// 
 			this.loggingLevelLbl.AutoSize = true;
-			this.loggingLevelLbl.Location = new System.Drawing.Point(12, 150);
+			this.loggingLevelLbl.Location = new System.Drawing.Point(6, 172);
 			this.loggingLevelLbl.Name = "loggingLevelLbl";
 			this.loggingLevelLbl.Size = new System.Drawing.Size(78, 15);
 			this.loggingLevelLbl.TabIndex = 3;
@@ -313,10 +286,77 @@
 			// 
 			this.loggingLevelCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.loggingLevelCb.FormattingEnabled = true;
-			this.loggingLevelCb.Location = new System.Drawing.Point(96, 147);
+			this.loggingLevelCb.Location = new System.Drawing.Point(90, 169);
 			this.loggingLevelCb.Name = "loggingLevelCb";
 			this.loggingLevelCb.Size = new System.Drawing.Size(129, 23);
 			this.loggingLevelCb.TabIndex = 4;
+			// 
+			// tabControl
+			// 
+			this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.tabControl.Controls.Add(this.tab1ImportantSettings);
+			this.tabControl.Controls.Add(this.tab2ImportLibrary);
+			this.tabControl.Controls.Add(this.tab3DownloadDecrypt);
+			this.tabControl.Location = new System.Drawing.Point(12, 12);
+			this.tabControl.Name = "tabControl";
+			this.tabControl.SelectedIndex = 0;
+			this.tabControl.Size = new System.Drawing.Size(909, 478);
+			this.tabControl.TabIndex = 100;
+			// 
+			// tab1ImportantSettings
+			// 
+			this.tab1ImportantSettings.Controls.Add(this.booksGb);
+			this.tab1ImportantSettings.Controls.Add(this.logsBtn);
+			this.tab1ImportantSettings.Controls.Add(this.loggingLevelCb);
+			this.tab1ImportantSettings.Controls.Add(this.loggingLevelLbl);
+			this.tab1ImportantSettings.Location = new System.Drawing.Point(4, 24);
+			this.tab1ImportantSettings.Name = "tab1ImportantSettings";
+			this.tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(3);
+			this.tab1ImportantSettings.Size = new System.Drawing.Size(901, 450);
+			this.tab1ImportantSettings.TabIndex = 0;
+			this.tab1ImportantSettings.Text = "Important settings";
+			this.tab1ImportantSettings.UseVisualStyleBackColor = true;
+			// 
+			// tab2ImportLibrary
+			// 
+			this.tab2ImportLibrary.Controls.Add(this.importEpisodesCb);
+			this.tab2ImportLibrary.Controls.Add(this.downloadEpisodesCb);
+			this.tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
+			this.tab2ImportLibrary.Name = "tab2ImportLibrary";
+			this.tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
+			this.tab2ImportLibrary.Size = new System.Drawing.Size(901, 450);
+			this.tab2ImportLibrary.TabIndex = 1;
+			this.tab2ImportLibrary.Text = "Import library";
+			this.tab2ImportLibrary.UseVisualStyleBackColor = true;
+			// 
+			// booksGb
+			// 
+			this.booksGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.booksGb.Controls.Add(this.booksSelectControl);
+			this.booksGb.Controls.Add(this.booksLocationDescLbl);
+			this.booksGb.Location = new System.Drawing.Point(6, 6);
+			this.booksGb.Name = "booksGb";
+			this.booksGb.Size = new System.Drawing.Size(889, 129);
+			this.booksGb.TabIndex = 0;
+			this.booksGb.TabStop = false;
+			this.booksGb.Text = "Books location";
+			// 
+			// tab3DownloadDecrypt
+			// 
+			this.tab3DownloadDecrypt.Controls.Add(this.inProgressSelectControl);
+			this.tab3DownloadDecrypt.Controls.Add(this.inProgressDescLbl);
+			this.tab3DownloadDecrypt.Controls.Add(this.decryptAndConvertGb);
+			this.tab3DownloadDecrypt.Controls.Add(this.badBookGb);
+			this.tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
+			this.tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
+			this.tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3);
+			this.tab3DownloadDecrypt.Size = new System.Drawing.Size(901, 450);
+			this.tab3DownloadDecrypt.TabIndex = 2;
+			this.tab3DownloadDecrypt.Text = "Download/Decrypt";
+			this.tab3DownloadDecrypt.UseVisualStyleBackColor = true;
 			// 
 			// SettingsDialog
 			// 
@@ -325,11 +365,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
 			this.ClientSize = new System.Drawing.Size(933, 539);
-			this.Controls.Add(this.logsBtn);
-			this.Controls.Add(this.loggingLevelCb);
-			this.Controls.Add(this.loggingLevelLbl);
-			this.Controls.Add(this.booksGb);
-			this.Controls.Add(this.advancedSettingsGb);
+			this.Controls.Add(this.tabControl);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.saveBtn);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
@@ -338,16 +374,20 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Edit Settings";
 			this.Load += new System.EventHandler(this.SettingsDialog_Load);
-			this.advancedSettingsGb.ResumeLayout(false);
-			this.advancedSettingsGb.PerformLayout();
 			this.badBookGb.ResumeLayout(false);
 			this.badBookGb.PerformLayout();
 			this.decryptAndConvertGb.ResumeLayout(false);
 			this.decryptAndConvertGb.PerformLayout();
+			this.tabControl.ResumeLayout(false);
+			this.tab1ImportantSettings.ResumeLayout(false);
+			this.tab1ImportantSettings.PerformLayout();
+			this.tab2ImportLibrary.ResumeLayout(false);
+			this.tab2ImportLibrary.PerformLayout();
 			this.booksGb.ResumeLayout(false);
 			this.booksGb.PerformLayout();
+			this.tab3DownloadDecrypt.ResumeLayout(false);
+			this.tab3DownloadDecrypt.PerformLayout();
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
 		}
 
@@ -356,13 +396,11 @@
 		private System.Windows.Forms.Label inProgressDescLbl;
 		private System.Windows.Forms.Button saveBtn;
 		private System.Windows.Forms.Button cancelBtn;
-		private System.Windows.Forms.GroupBox advancedSettingsGb;
         private System.Windows.Forms.CheckBox allowLibationFixupCbox;
 		private DirectoryOrCustomSelectControl booksSelectControl;
 		private DirectorySelectControl inProgressSelectControl;
         private System.Windows.Forms.RadioButton convertLossyRb;
         private System.Windows.Forms.RadioButton convertLosslessRb;
-		private System.Windows.Forms.GroupBox booksGb;
 		private System.Windows.Forms.Button logsBtn;
 		private System.Windows.Forms.Label loggingLevelLbl;
 		private System.Windows.Forms.ComboBox loggingLevelCb;
@@ -375,5 +413,10 @@
 		private System.Windows.Forms.CheckBox downloadEpisodesCb;
 		private System.Windows.Forms.CheckBox importEpisodesCb;
         private System.Windows.Forms.CheckBox splitFilesByChapterCbox;
-    }
+		private System.Windows.Forms.TabControl tabControl;
+		private System.Windows.Forms.TabPage tab1ImportantSettings;
+		private System.Windows.Forms.GroupBox booksGb;
+		private System.Windows.Forms.TabPage tab2ImportLibrary;
+		private System.Windows.Forms.TabPage tab3DownloadDecrypt;
+	}
 }
