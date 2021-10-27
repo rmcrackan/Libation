@@ -147,6 +147,8 @@ namespace LibationFileManager
             set => persistentDictionary.SetNonString(nameof(DownloadEpisodes), value);
 		}
 
+        #region templates: custom file naming
+
         [Description("How to format the folders in which files will be saved")]
 		public string FolderTemplate
         {
@@ -161,7 +163,7 @@ namespace LibationFileManager
             set => setTemplate(nameof(FileTemplate), Templates.File, value);
         }
 
-        [Description("How to format the saved audio files which are split by chapters")]
+        [Description("How to format the saved audio files when split by chapters")]
         public string ChapterFileTemplate
         {
             get => getTemplate(nameof(ChapterFileTemplate), Templates.ChapterFile);
@@ -179,6 +181,8 @@ namespace LibationFileManager
             if (templ.IsValid(template))
                 persistentDictionary.SetString(settingName, template);
         }
+        #endregion
+
         #endregion
 
         #region known directories

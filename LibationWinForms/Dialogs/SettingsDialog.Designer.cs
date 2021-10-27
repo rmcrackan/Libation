@@ -51,16 +51,29 @@
 			this.loggingLevelCb = new System.Windows.Forms.ComboBox();
 			this.tabControl = new System.Windows.Forms.TabControl();
 			this.tab1ImportantSettings = new System.Windows.Forms.TabPage();
-			this.tab2ImportLibrary = new System.Windows.Forms.TabPage();
 			this.booksGb = new System.Windows.Forms.GroupBox();
+			this.tab2ImportLibrary = new System.Windows.Forms.TabPage();
 			this.tab3DownloadDecrypt = new System.Windows.Forms.TabPage();
+			this.inProgressFilesGb = new System.Windows.Forms.GroupBox();
+			this.customFileNamingGb = new System.Windows.Forms.GroupBox();
+			this.chapterFileTemplateBtn = new System.Windows.Forms.Button();
+			this.chapterFileTemplateTb = new System.Windows.Forms.TextBox();
+			this.chapterFileTemplateLbl = new System.Windows.Forms.Label();
+			this.fileTemplateBtn = new System.Windows.Forms.Button();
+			this.fileTemplateTb = new System.Windows.Forms.TextBox();
+			this.fileTemplateLbl = new System.Windows.Forms.Label();
+			this.folderTemplateBtn = new System.Windows.Forms.Button();
+			this.folderTemplateTb = new System.Windows.Forms.TextBox();
+			this.folderTemplateLbl = new System.Windows.Forms.Label();
 			this.badBookGb.SuspendLayout();
 			this.decryptAndConvertGb.SuspendLayout();
 			this.tabControl.SuspendLayout();
 			this.tab1ImportantSettings.SuspendLayout();
-			this.tab2ImportLibrary.SuspendLayout();
 			this.booksGb.SuspendLayout();
+			this.tab2ImportLibrary.SuspendLayout();
 			this.tab3DownloadDecrypt.SuspendLayout();
+			this.inProgressFilesGb.SuspendLayout();
+			this.customFileNamingGb.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// booksLocationDescLbl
@@ -76,12 +89,12 @@
 			// inProgressDescLbl
 			// 
 			this.inProgressDescLbl.AutoSize = true;
-			this.inProgressDescLbl.Location = new System.Drawing.Point(6, 133);
+			this.inProgressDescLbl.Location = new System.Drawing.Point(7, 19);
 			this.inProgressDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.inProgressDescLbl.Name = "inProgressDescLbl";
-			this.inProgressDescLbl.Size = new System.Drawing.Size(43, 45);
+			this.inProgressDescLbl.Size = new System.Drawing.Size(100, 45);
 			this.inProgressDescLbl.TabIndex = 18;
-			this.inProgressDescLbl.Text = "[desc]\r\n[line 2]\r\n[line 3]";
+			this.inProgressDescLbl.Text = "[in progress desc]\r\n[line 2]\r\n[line 3]";
 			// 
 			// saveBtn
 			// 
@@ -136,7 +149,7 @@
 			this.badBookGb.Controls.Add(this.badBookAskRb);
 			this.badBookGb.Location = new System.Drawing.Point(371, 6);
 			this.badBookGb.Name = "badBookGb";
-			this.badBookGb.Size = new System.Drawing.Size(529, 124);
+			this.badBookGb.Size = new System.Drawing.Size(524, 124);
 			this.badBookGb.TabIndex = 13;
 			this.badBookGb.TabStop = false;
 			this.badBookGb.Text = "[bad book desc]";
@@ -247,10 +260,10 @@
 			// 
 			this.inProgressSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.inProgressSelectControl.Location = new System.Drawing.Point(5, 181);
+			this.inProgressSelectControl.Location = new System.Drawing.Point(7, 68);
 			this.inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.inProgressSelectControl.Name = "inProgressSelectControl";
-			this.inProgressSelectControl.Size = new System.Drawing.Size(890, 52);
+			this.inProgressSelectControl.Size = new System.Drawing.Size(875, 52);
 			this.inProgressSelectControl.TabIndex = 19;
 			// 
 			// logsBtn
@@ -319,18 +332,6 @@
 			this.tab1ImportantSettings.Text = "Important settings";
 			this.tab1ImportantSettings.UseVisualStyleBackColor = true;
 			// 
-			// tab2ImportLibrary
-			// 
-			this.tab2ImportLibrary.Controls.Add(this.importEpisodesCb);
-			this.tab2ImportLibrary.Controls.Add(this.downloadEpisodesCb);
-			this.tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
-			this.tab2ImportLibrary.Name = "tab2ImportLibrary";
-			this.tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
-			this.tab2ImportLibrary.Size = new System.Drawing.Size(901, 450);
-			this.tab2ImportLibrary.TabIndex = 1;
-			this.tab2ImportLibrary.Text = "Import library";
-			this.tab2ImportLibrary.UseVisualStyleBackColor = true;
-			// 
 			// booksGb
 			// 
 			this.booksGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -344,10 +345,22 @@
 			this.booksGb.TabStop = false;
 			this.booksGb.Text = "Books location";
 			// 
+			// tab2ImportLibrary
+			// 
+			this.tab2ImportLibrary.Controls.Add(this.importEpisodesCb);
+			this.tab2ImportLibrary.Controls.Add(this.downloadEpisodesCb);
+			this.tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
+			this.tab2ImportLibrary.Name = "tab2ImportLibrary";
+			this.tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
+			this.tab2ImportLibrary.Size = new System.Drawing.Size(901, 450);
+			this.tab2ImportLibrary.TabIndex = 1;
+			this.tab2ImportLibrary.Text = "Import library";
+			this.tab2ImportLibrary.UseVisualStyleBackColor = true;
+			// 
 			// tab3DownloadDecrypt
 			// 
-			this.tab3DownloadDecrypt.Controls.Add(this.inProgressSelectControl);
-			this.tab3DownloadDecrypt.Controls.Add(this.inProgressDescLbl);
+			this.tab3DownloadDecrypt.Controls.Add(this.inProgressFilesGb);
+			this.tab3DownloadDecrypt.Controls.Add(this.customFileNamingGb);
 			this.tab3DownloadDecrypt.Controls.Add(this.decryptAndConvertGb);
 			this.tab3DownloadDecrypt.Controls.Add(this.badBookGb);
 			this.tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
@@ -357,6 +370,129 @@
 			this.tab3DownloadDecrypt.TabIndex = 2;
 			this.tab3DownloadDecrypt.Text = "Download/Decrypt";
 			this.tab3DownloadDecrypt.UseVisualStyleBackColor = true;
+			// 
+			// inProgressFilesGb
+			// 
+			this.inProgressFilesGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.inProgressFilesGb.Controls.Add(this.inProgressDescLbl);
+			this.inProgressFilesGb.Controls.Add(this.inProgressSelectControl);
+			this.inProgressFilesGb.Location = new System.Drawing.Point(7, 299);
+			this.inProgressFilesGb.Name = "inProgressFilesGb";
+			this.inProgressFilesGb.Size = new System.Drawing.Size(888, 128);
+			this.inProgressFilesGb.TabIndex = 21;
+			this.inProgressFilesGb.TabStop = false;
+			this.inProgressFilesGb.Text = "In progress files";
+			// 
+			// customFileNamingGb
+			// 
+			this.customFileNamingGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateBtn);
+			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateTb);
+			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateLbl);
+			this.customFileNamingGb.Controls.Add(this.fileTemplateBtn);
+			this.customFileNamingGb.Controls.Add(this.fileTemplateTb);
+			this.customFileNamingGb.Controls.Add(this.fileTemplateLbl);
+			this.customFileNamingGb.Controls.Add(this.folderTemplateBtn);
+			this.customFileNamingGb.Controls.Add(this.folderTemplateTb);
+			this.customFileNamingGb.Controls.Add(this.folderTemplateLbl);
+			this.customFileNamingGb.Location = new System.Drawing.Point(7, 136);
+			this.customFileNamingGb.Name = "customFileNamingGb";
+			this.customFileNamingGb.Size = new System.Drawing.Size(888, 157);
+			this.customFileNamingGb.TabIndex = 20;
+			this.customFileNamingGb.TabStop = false;
+			this.customFileNamingGb.Text = "Custom file naming";
+			// 
+			// chapterFileTemplateBtn
+			// 
+			this.chapterFileTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.chapterFileTemplateBtn.Location = new System.Drawing.Point(808, 124);
+			this.chapterFileTemplateBtn.Name = "chapterFileTemplateBtn";
+			this.chapterFileTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			this.chapterFileTemplateBtn.TabIndex = 8;
+			this.chapterFileTemplateBtn.Text = "Edit...";
+			this.chapterFileTemplateBtn.UseVisualStyleBackColor = true;
+			this.chapterFileTemplateBtn.Click += new System.EventHandler(this.chapterFileTemplateBtn_Click);
+			// 
+			// chapterFileTemplateTb
+			// 
+			this.chapterFileTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.chapterFileTemplateTb.Location = new System.Drawing.Point(6, 125);
+			this.chapterFileTemplateTb.Name = "chapterFileTemplateTb";
+			this.chapterFileTemplateTb.ReadOnly = true;
+			this.chapterFileTemplateTb.Size = new System.Drawing.Size(796, 23);
+			this.chapterFileTemplateTb.TabIndex = 7;
+			// 
+			// chapterFileTemplateLbl
+			// 
+			this.chapterFileTemplateLbl.AutoSize = true;
+			this.chapterFileTemplateLbl.Location = new System.Drawing.Point(6, 107);
+			this.chapterFileTemplateLbl.Name = "chapterFileTemplateLbl";
+			this.chapterFileTemplateLbl.Size = new System.Drawing.Size(123, 15);
+			this.chapterFileTemplateLbl.TabIndex = 6;
+			this.chapterFileTemplateLbl.Text = "[folder template desc]";
+			// 
+			// fileTemplateBtn
+			// 
+			this.fileTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.fileTemplateBtn.Location = new System.Drawing.Point(808, 80);
+			this.fileTemplateBtn.Name = "fileTemplateBtn";
+			this.fileTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			this.fileTemplateBtn.TabIndex = 5;
+			this.fileTemplateBtn.Text = "Edit...";
+			this.fileTemplateBtn.UseVisualStyleBackColor = true;
+			this.fileTemplateBtn.Click += new System.EventHandler(this.fileTemplateBtn_Click);
+			// 
+			// fileTemplateTb
+			// 
+			this.fileTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.fileTemplateTb.Location = new System.Drawing.Point(6, 81);
+			this.fileTemplateTb.Name = "fileTemplateTb";
+			this.fileTemplateTb.ReadOnly = true;
+			this.fileTemplateTb.Size = new System.Drawing.Size(796, 23);
+			this.fileTemplateTb.TabIndex = 4;
+			// 
+			// fileTemplateLbl
+			// 
+			this.fileTemplateLbl.AutoSize = true;
+			this.fileTemplateLbl.Location = new System.Drawing.Point(6, 63);
+			this.fileTemplateLbl.Name = "fileTemplateLbl";
+			this.fileTemplateLbl.Size = new System.Drawing.Size(123, 15);
+			this.fileTemplateLbl.TabIndex = 3;
+			this.fileTemplateLbl.Text = "[folder template desc]";
+			// 
+			// folderTemplateBtn
+			// 
+			this.folderTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.folderTemplateBtn.Location = new System.Drawing.Point(807, 36);
+			this.folderTemplateBtn.Name = "folderTemplateBtn";
+			this.folderTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			this.folderTemplateBtn.TabIndex = 2;
+			this.folderTemplateBtn.Text = "Edit...";
+			this.folderTemplateBtn.UseVisualStyleBackColor = true;
+			this.folderTemplateBtn.Click += new System.EventHandler(this.folderTemplateBtn_Click);
+			// 
+			// folderTemplateTb
+			// 
+			this.folderTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.folderTemplateTb.Location = new System.Drawing.Point(5, 37);
+			this.folderTemplateTb.Name = "folderTemplateTb";
+			this.folderTemplateTb.ReadOnly = true;
+			this.folderTemplateTb.Size = new System.Drawing.Size(796, 23);
+			this.folderTemplateTb.TabIndex = 1;
+			// 
+			// folderTemplateLbl
+			// 
+			this.folderTemplateLbl.AutoSize = true;
+			this.folderTemplateLbl.Location = new System.Drawing.Point(5, 19);
+			this.folderTemplateLbl.Name = "folderTemplateLbl";
+			this.folderTemplateLbl.Size = new System.Drawing.Size(123, 15);
+			this.folderTemplateLbl.TabIndex = 0;
+			this.folderTemplateLbl.Text = "[folder template desc]";
 			// 
 			// SettingsDialog
 			// 
@@ -381,12 +517,15 @@
 			this.tabControl.ResumeLayout(false);
 			this.tab1ImportantSettings.ResumeLayout(false);
 			this.tab1ImportantSettings.PerformLayout();
-			this.tab2ImportLibrary.ResumeLayout(false);
-			this.tab2ImportLibrary.PerformLayout();
 			this.booksGb.ResumeLayout(false);
 			this.booksGb.PerformLayout();
+			this.tab2ImportLibrary.ResumeLayout(false);
+			this.tab2ImportLibrary.PerformLayout();
 			this.tab3DownloadDecrypt.ResumeLayout(false);
-			this.tab3DownloadDecrypt.PerformLayout();
+			this.inProgressFilesGb.ResumeLayout(false);
+			this.inProgressFilesGb.PerformLayout();
+			this.customFileNamingGb.ResumeLayout(false);
+			this.customFileNamingGb.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -418,5 +557,16 @@
 		private System.Windows.Forms.GroupBox booksGb;
 		private System.Windows.Forms.TabPage tab2ImportLibrary;
 		private System.Windows.Forms.TabPage tab3DownloadDecrypt;
+		private System.Windows.Forms.GroupBox inProgressFilesGb;
+		private System.Windows.Forms.GroupBox customFileNamingGb;
+		private System.Windows.Forms.Button chapterFileTemplateBtn;
+		private System.Windows.Forms.TextBox chapterFileTemplateTb;
+		private System.Windows.Forms.Label chapterFileTemplateLbl;
+		private System.Windows.Forms.Button fileTemplateBtn;
+		private System.Windows.Forms.TextBox fileTemplateTb;
+		private System.Windows.Forms.Label fileTemplateLbl;
+		private System.Windows.Forms.Button folderTemplateBtn;
+		private System.Windows.Forms.TextBox folderTemplateTb;
+		private System.Windows.Forms.Label folderTemplateLbl;
 	}
 }
