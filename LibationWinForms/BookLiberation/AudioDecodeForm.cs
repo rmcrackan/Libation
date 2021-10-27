@@ -103,6 +103,15 @@ namespace LibationWinForms.BookLiberation
 			=> bookInfoLbl.UIThreadAsync(() => bookInfoLbl.Text = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}");
 
 		private void updateRemainingTime(int remaining)
-			=> remainingTimeLbl.UIThreadAsync(() => remainingTimeLbl.Text = $"ETA:\r\n{remaining} sec");
+			=> remainingTimeLbl.UIThreadAsync(() => remainingTimeLbl.Text = $"ETA:\r\n{formatTime(remaining)}");
+
+		private string formatTime(int seconds)
+		{
+			var timeSpan = new TimeSpan(0, 0, seconds);
+			return
+				timeSpan.TotalHours >= 1 ? $"{timeSpan:%h}h {timeSpan:mm}m {timeSpan:ss}s"
+				: timeSpan.TotalMinutes >= 1 ? $"{timeSpan:%m}m {timeSpan:ss}s"
+				: $"{seconds} sec";
+		}
 	}
 }
