@@ -105,18 +105,24 @@ namespace LibationWinForms.Dialogs
 
 		private void folderTemplateBtn_Click(object sender, EventArgs e)
 		{
+			TEMP_TEMP_TEMP();
 
 		}
 
 		private void fileTemplateBtn_Click(object sender, EventArgs e)
 		{
+			TEMP_TEMP_TEMP();
 
 		}
 
 		private void chapterFileTemplateBtn_Click(object sender, EventArgs e)
 		{
+			TEMP_TEMP_TEMP();
 
 		}
+
+		private void TEMP_TEMP_TEMP()
+			=> MessageBox.Show("Sorry, not yet. Coming soon :)");
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
