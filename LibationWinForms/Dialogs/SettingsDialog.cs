@@ -141,17 +141,17 @@ namespace LibationWinForms.Dialogs
 				return;
 			}
 
-			if (Templates.Folder.IsValid(folderTemplateTb.Text))
+			if (!Templates.Folder.IsValid(folderTemplateTb.Text))
 			{
 				MessageBox.Show($"Not saving change to folder naming template. Invalid format.", "Invalid folder template", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
-			if (Templates.File.IsValid(fileTemplateTb.Text))
+			if (!Templates.File.IsValid(fileTemplateTb.Text))
 			{
 				MessageBox.Show($"Not saving change to file naming template. Invalid format.", "Invalid file template", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
-			if (Templates.ChapterFile.IsValid(chapterFileTemplateTb.Text))
+			if (!Templates.ChapterFile.IsValid(chapterFileTemplateTb.Text))
 			{
 				MessageBox.Show($"Not saving change to chapter file naming template. Invalid format.", "Invalid chapter file template", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
