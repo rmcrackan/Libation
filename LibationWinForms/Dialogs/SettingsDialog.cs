@@ -103,25 +103,20 @@ namespace LibationWinForms.Dialogs
 
 		private void logsBtn_Click(object sender, EventArgs e) => Go.To.Folder(Configuration.Instance.LibationFiles);
 
-		private void folderTemplateBtn_Click(object sender, EventArgs e)
+		private void folderTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.Folder, folderTemplateTb);
+		private void fileTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.File, fileTemplateTb);
+		private void chapterFileTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.ChapterFile, chapterFileTemplateTb);
+		private static void editTemplate(Templates template, TextBox textBox)
 		{
 			TEMP_TEMP_TEMP();
+			return;
 
+			var form = new EditTemplateDialog(template, textBox.Text);
+			if (form.ShowDialog() == DialogResult.OK)
+				textBox.Text = form.TemplateText;
 		}
 
-		private void fileTemplateBtn_Click(object sender, EventArgs e)
-		{
-			TEMP_TEMP_TEMP();
-
-		}
-
-		private void chapterFileTemplateBtn_Click(object sender, EventArgs e)
-		{
-			TEMP_TEMP_TEMP();
-
-		}
-
-		private void TEMP_TEMP_TEMP()
+		private static void TEMP_TEMP_TEMP()
 			=> MessageBox.Show("Sorry, not yet. Coming soon :)");
 
 		private void saveBtn_Click(object sender, EventArgs e)

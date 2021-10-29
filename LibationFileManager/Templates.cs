@@ -10,6 +10,8 @@ namespace LibationFileManager
         public static Templates File { get; } = new FileTemplate();
         public static Templates ChapterFile { get; } = new ChapterFileTemplate();
 
+        public abstract string Name { get; }
+        public abstract string Description { get; }
         public abstract string DefaultTemplate { get; }
 
         public abstract bool IsValid(string template);
@@ -47,6 +49,8 @@ namespace LibationFileManager
 
         private class FolderTemplate : Templates
         {
+			public override string Name => "Folder Template";
+            public override string Description => Configuration.GetDescription(nameof(Configuration.FolderTemplate));
 			public override string DefaultTemplate { get; } = "<title short> [<id>]";
 
 			public override bool IsValid(string template)
@@ -62,7 +66,9 @@ namespace LibationFileManager
 
         private class FileTemplate : Templates
         {
-			public override string DefaultTemplate { get; } = "<title> [<id>]";
+            public override string Name => "File Template";
+            public override string Description => Configuration.GetDescription(nameof(Configuration.FileTemplate));
+            public override string DefaultTemplate { get; } = "<title> [<id>]";
 
             public override bool IsValid(string template) => fileIsValid(template);
 
@@ -73,6 +79,8 @@ namespace LibationFileManager
 
         private class ChapterFileTemplate : Templates
         {
+            public override string Name => "Chapter File Template";
+            public override string Description => Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));
             public override string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
 
             public override bool IsValid(string template) => fileIsValid(template);

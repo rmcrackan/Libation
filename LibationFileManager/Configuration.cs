@@ -172,7 +172,7 @@ namespace LibationFileManager
 
         private string getTemplate(string settingName, Templates templ)
         {
-            var value = persistentDictionary.GetString(settingName).Trim();
+            var value = persistentDictionary.GetString(settingName)?.Trim();
             return templ.IsValid(value) ? value : templ.DefaultTemplate;
         }
         private void setTemplate(string settingName, Templates templ, string newValue)
