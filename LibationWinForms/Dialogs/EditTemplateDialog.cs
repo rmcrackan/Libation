@@ -60,12 +60,35 @@ namespace LibationWinForms.Dialogs
 			while (path.Contains(dbl))
 				path = path.Replace(dbl, $"{Path.DirectorySeparatorChar}");
 
+			var book = new DataLayer.Book(
+				new DataLayer.AudibleProductId("123456789"),
+				"A Study in Scarlet",
+				"Fake description",
+				1234,
+				DataLayer.ContentType.Product,
+				new List<DataLayer.Contributor>
+				{
+					new("Arthur Conan Doyle"),
+					new("Stephen Fry - introductions")
+				},
+				new List<DataLayer.Contributor> { new("Stephen Fry") },
+				new DataLayer.Category(new DataLayer.AudibleCategoryId("cat12345"), "Mystery"),
+				"us"
+				);
+			var libraryBook = new DataLayer.LibraryBook(book, DateTime.Now, "my account");
+
 			outputTb.Text = @$"
 {books}
 {folderTemplate}
 {fileTemplate}
 {ext}
 {path}
+
+{book.AudibleProductId}
+{book.Title}
+{book.AuthorNames}
+{book.NarratorNames}
+series: {"Sherlock Holmes"}
 ";
 		}
 

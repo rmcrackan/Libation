@@ -185,6 +185,9 @@ namespace DataLayer
         {
             get
             {
+                if (_seriesLink is null)
+                    return "";
+
                 // first: alphabetical by name
                 var withNames = _seriesLink
                     .Where(s => !string.IsNullOrWhiteSpace(s.Series.Name))

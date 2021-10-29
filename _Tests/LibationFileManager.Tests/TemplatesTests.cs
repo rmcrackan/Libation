@@ -34,6 +34,38 @@ namespace TemplatesTests
 namespace Templates_Folder_Tests
 {
 	[TestClass]
+	public class GetErrors
+	{
+		[TestMethod]
+		public void null_is_invalid() => Tests(null, new[] { Templates.ERROR_NULL_IS_INVALID });
+
+		[TestMethod]
+		public void empty_is_valid() => valid_tests("");
+
+		[TestMethod]
+		public void whitespace_is_valid() => valid_tests("   ");
+
+		[TestMethod]
+		[DataRow(@"foo")]
+		[DataRow(@"\foo")]
+		[DataRow(@"foo\")]
+		[DataRow(@"\foo\")]
+		[DataRow(@"foo\bar")]
+		[DataRow(@"<id>")]
+		[DataRow(@"<id>\<title>")]
+		public void valid_tests(string template) => Tests(template, Array.Empty<string>());
+
+		[TestMethod]
+		[DataRow(@"C:\", Templates.ERROR_FULL_PATH_IS_INVALID)]
+		public void Tests(string template, params string[] expected)
+		{
+			var result = Templates.Folder.GetErrors(template);
+			result.Count().Should().Be(expected.Length);
+			result.Should().BeEquivalentTo(expected);
+		}
+	}
+
+	[TestClass]
 	public class IsValid
 	{
 		[TestMethod]
@@ -58,36 +90,64 @@ namespace Templates_Folder_Tests
 	}
 
 	[TestClass]
-	public class IsRecommended
+	public class GetWarnings
 	{
 		[TestMethod]
-		public void null_is_not_recommended() => Tests(null, false);
+		public void null_is_invalid() => Tests(null, new[] { Templates.ERROR_NULL_IS_INVALID });
 
 		[TestMethod]
-		public void empty_is_not_recommended() => Tests("", false);
+		public void empty_has_warnings() => Tests("", Templates.WARNING_EMPTY, Templates.WARNING_NO_TAGS);
 
 		[TestMethod]
-		public void whitespace_is_not_recommended() => Tests("   ", false);
+		public void whitespace_has_warnings() => Tests("   ", Templates.WARNING_WHITE_SPACE, Templates.WARNING_NO_TAGS);
 
 		[TestMethod]
-		[DataRow(@"no tags", false)]
-		[DataRow(@"<id>\foo\bar", true)]
-		[DataRow("<ch#> <id>", false)]
-		[DataRow("<ch#> chapter tag", false)]
-		public void Tests(string template, bool expected) => Templates.Folder.IsRecommended(template).Should().Be(expected);
+		[DataRow(@"<id>\foo\bar")]
+		public void valid_tests(string template) => Tests(template, Array.Empty<string>());
+
+		[TestMethod]
+		[DataRow(@"no tags", Templates.WARNING_NO_TAGS)]
+		[DataRow("<ch#> <id>", Templates.WARNING_HAS_CHAPTER_TAGS)]
+		[DataRow("<ch#> chapter tag", Templates.WARNING_NO_TAGS, Templates.WARNING_HAS_CHAPTER_TAGS)]
+		public void Tests(string template, params string[] expected)
+		{
+			var result = Templates.Folder.GetWarnings(template);
+			result.Count().Should().Be(expected.Length);
+			result.Should().BeEquivalentTo(expected);
+		}
+	}
+
+	[TestClass]
+	public class HasWarnings
+	{
+		[TestMethod]
+		public void null_has_warnings() => Tests(null, true);
+
+		[TestMethod]
+		public void empty_has_warnings() => Tests("", true);
+
+		[TestMethod]
+		public void whitespace_has_warnings() => Tests("   ", true);
+
+		[TestMethod]
+		[DataRow(@"no tags", true)]
+		[DataRow(@"<id>\foo\bar", false)]
+		[DataRow("<ch#> <id>", true)]
+		[DataRow("<ch#> chapter tag", true)]
+		public void Tests(string template, bool expected) => Templates.Folder.HasWarnings(template).Should().Be(expected);
 	}
 
 	[TestClass]
 	public class TagCount
 	{
 		[TestMethod]
-		public void null_is_not_recommended() => Assert.ThrowsException<NullReferenceException>(() => Tests(null, -1));
+		public void null_throws() => Assert.ThrowsException<NullReferenceException>(() => Templates.Folder.TagCount(null));
 
 		[TestMethod]
-		public void empty_is_not_recommended() => Tests("", 0);
+		public void empty() => Tests("", 0);
 
 		[TestMethod]
-		public void whitespace_is_not_recommended() => Tests("   ", 0);
+		public void whitespace() => Tests("   ", 0);
 
 		[TestMethod]
 		[DataRow("no tags", 0)]
@@ -105,6 +165,37 @@ namespace Templates_Folder_Tests
 
 namespace Templates_File_Tests
 {
+	[TestClass]
+	public class GetErrors
+	{
+		[TestMethod]
+		public void null_is_invalid() => Tests(null, new[] { Templates.ERROR_NULL_IS_INVALID });
+
+		[TestMethod]
+		public void empty_is_valid() => valid_tests("");
+
+		[TestMethod]
+		public void whitespace_is_valid() => valid_tests("   ");
+
+		[TestMethod]
+		[DataRow(@"foo")]
+		[DataRow(@"<id>")]
+		public void valid_tests(string template) => Tests(template, Array.Empty<string>());
+
+
+		[TestMethod]
+		[DataRow(@"C:\", Templates.ERROR_INVALID_FILE_NAME_CHAR)]
+		[DataRow(@"\foo", Templates.ERROR_INVALID_FILE_NAME_CHAR)]
+		[DataRow(@"/foo", Templates.ERROR_INVALID_FILE_NAME_CHAR)]
+		[DataRow(@"C:\", Templates.ERROR_INVALID_FILE_NAME_CHAR)]
+		public void Tests(string template, params string[] expected)
+		{
+			var result = Templates.File.GetErrors(template);
+			result.Count().Should().Be(expected.Length);
+			result.Should().BeEquivalentTo(expected);
+		}
+	}
+
 	[TestClass]
 	public class IsValid
 	{
@@ -126,9 +217,13 @@ namespace Templates_File_Tests
 		public void Tests(string template, bool expected) => Templates.File.IsValid(template).Should().Be(expected);
 	}
 
-	// same as Templates.Folder.IsRecommended 
+	// same as Templates.Folder.GetWarnings
 	//[TestClass]
-	//public class IsRecommended { }
+	//public class GetWarnings { }
+
+	// same as Templates.Folder.HasWarnings 
+	//[TestClass]
+	//public class HasWarnings { }
 
 	// same as Templates.Folder.TagCount 
 	//[TestClass]
@@ -137,29 +232,62 @@ namespace Templates_File_Tests
 
 namespace Templates_ChapterFile_Tests
 {
+	// same as Templates.File.GetErrors
+	//[TestClass]
+	//public class GetErrors { }
+
 	// same as Templates.File.IsValid
 	//[TestClass]
 	//public class IsValid { }
 
 	[TestClass]
-	public class IsRecommended
+	public class GetWarnings
 	{
 		[TestMethod]
-		public void null_is_not_recommended() => Tests(null, false);
+		public void null_is_invalid() => Tests(null, new[] { Templates.ERROR_NULL_IS_INVALID });
 
 		[TestMethod]
-		public void empty_is_not_recommended() => Tests("", false);
+		public void empty_has_warnings() => Tests("", Templates.WARNING_EMPTY, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
 
 		[TestMethod]
-		public void whitespace_is_not_recommended() => Tests("   ", false);
+		public void whitespace_has_warnings() => Tests("   ", Templates.WARNING_WHITE_SPACE, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
 
 		[TestMethod]
-		[DataRow(@"no tags", false)]
-		[DataRow(@"<id>\foo\bar", false)]
-		[DataRow("<ch#> <id>", true)]
-		[DataRow("<ch#> -- chapter tag", true)]
-		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", false)]
-		public void Tests(string template, bool expected) => Templates.ChapterFile.IsRecommended(template).Should().Be(expected);
+		[DataRow("<ch#>")]
+		[DataRow("<ch#> <id>")]
+		public void valid_tests(string template) => Tests(template, Array.Empty<string>());
+
+		[TestMethod]
+		[DataRow(@"no tags", Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		[DataRow(@"<id>\foo\bar", Templates.ERROR_INVALID_FILE_NAME_CHAR, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		public void Tests(string template, params string[] expected)
+		{
+			var result = Templates.ChapterFile.GetWarnings(template);
+			result.Count().Should().Be(expected.Length);
+			result.Should().BeEquivalentTo(expected);
+		}
+	}
+
+	[TestClass]
+	public class HasWarnings
+	{
+		[TestMethod]
+		public void null_has_warnings() => Tests(null, true);
+
+		[TestMethod]
+		public void empty_has_warnings() => Tests("", true);
+
+		[TestMethod]
+		public void whitespace_has_warnings() => Tests("   ", true);
+
+		[TestMethod]
+		[DataRow(@"no tags", true)]
+		[DataRow(@"<id>\foo\bar", true)]
+		[DataRow("<ch#> <id>", false)]
+		[DataRow("<ch#> -- chapter tag", false)]
+		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", true)]
+		public void Tests(string template, bool expected) => Templates.ChapterFile.HasWarnings(template).Should().Be(expected);
 	}
 
 	[TestClass]

@@ -108,8 +108,10 @@ namespace LibationWinForms.Dialogs
 		private void chapterFileTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.ChapterFile, chapterFileTemplateTb);
 		private static void editTemplate(Templates template, TextBox textBox)
 		{
+#if !DEBUG
 			TEMP_TEMP_TEMP();
 			return;
+#endif
 
 			var form = new EditTemplateDialog(template, textBox.Text);
 			if (form.ShowDialog() == DialogResult.OK)
@@ -124,31 +126,34 @@ namespace LibationWinForms.Dialogs
 			var newBooks = booksSelectControl.SelectedDirectory;
 
 			#region validation
+			static void validationError(string text, string caption)
+				=> MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			if (string.IsNullOrWhiteSpace(newBooks))
 			{
-				MessageBox.Show("Cannot set Books Location to blank", "Location is blank", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				validationError("Cannot set Books Location to blank", "Location is blank");
 				return;
 			}
 
 			if (!Directory.Exists(newBooks) && booksSelectControl.SelectedDirectoryIsCustom)
 			{
-				MessageBox.Show($"Not saving change to Books location. This folder does not exist:\r\n{newBooks}", "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				validationError($"Not saving change to Books location. This folder does not exist:\r\n{newBooks}", "Folder does not exist");
 				return;
 			}
 
+			// these 3 should do nothing. Configuration will only init these with a valid value. EditTemplateDialog ensures valid before returning
 			if (!Templates.Folder.IsValid(folderTemplateTb.Text))
 			{
-				MessageBox.Show($"Not saving change to folder naming template. Invalid format.", "Invalid folder template", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				validationError($"Not saving change to folder naming template. Invalid format.", "Invalid folder template");
 				return;
 			}
 			if (!Templates.File.IsValid(fileTemplateTb.Text))
 			{
-				MessageBox.Show($"Not saving change to file naming template. Invalid format.", "Invalid file template", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				validationError($"Not saving change to file naming template. Invalid format.", "Invalid file template");
 				return;
 			}
 			if (!Templates.ChapterFile.IsValid(chapterFileTemplateTb.Text))
 			{
-				MessageBox.Show($"Not saving change to chapter file naming template. Invalid format.", "Invalid chapter file template", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				validationError($"Not saving change to chapter file naming template. Invalid format.", "Invalid chapter file template");
 				return;
 			}
 			#endregion
