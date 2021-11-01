@@ -104,5 +104,13 @@ namespace FileTemplateTests
 
 			return fileTemplate.GetFilePath();
 		}
+
+		[TestMethod]
+		public void remove_slashes()
+		{
+			var fileTemplate = new FileTemplate(@"\foo\<title>.txt");
+			fileTemplate.AddParameterReplacement("title", @"s\l/a\s/h\e/s");
+			fileTemplate.GetFilePath().Should().Be(@"\foo\slashes.txt");
+		}
 	}
 }

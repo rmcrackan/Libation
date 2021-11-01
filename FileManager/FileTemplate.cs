@@ -45,8 +45,20 @@ namespace FileManager
             .Replace(">", "");
 
         private string formatValue(object value)
-            => ParameterMaxSize.HasValue && ParameterMaxSize.Value > 0
-            ? value?.ToString().Truncate(ParameterMaxSize.Value)
-            : value?.ToString();
+        {
+            if (value is null)
+                return "";
+
+            // Other illegal characters will be taken care of later. Must take care of slashes now so params can't introduce new folders.
+            // Esp important for file templates.
+            var val = value
+                .ToString()
+                .Replace($"{System.IO.Path.DirectorySeparatorChar}", IllegalCharacterReplacements)
+                .Replace($"{System.IO.Path.AltDirectorySeparatorChar}", IllegalCharacterReplacements);
+            return 
+                ParameterMaxSize.HasValue && ParameterMaxSize.Value > 0
+                ? val.Truncate(ParameterMaxSize.Value)
+                : val;
+        }
     }
 }

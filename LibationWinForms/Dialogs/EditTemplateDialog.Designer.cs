@@ -34,6 +34,9 @@
 			this.templateLbl = new System.Windows.Forms.Label();
 			this.resetToDefaultBtn = new System.Windows.Forms.Button();
 			this.outputTb = new System.Windows.Forms.TextBox();
+			this.listView1 = new System.Windows.Forms.ListView();
+			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
 			this.SuspendLayout();
 			// 
 			// saveBtn
@@ -93,12 +96,41 @@
 			// 
 			// outputTb
 			// 
-			this.outputTb.Location = new System.Drawing.Point(12, 153);
+			this.outputTb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.outputTb.Location = new System.Drawing.Point(346, 56);
 			this.outputTb.Multiline = true;
 			this.outputTb.Name = "outputTb";
 			this.outputTb.ReadOnly = true;
-			this.outputTb.Size = new System.Drawing.Size(759, 205);
-			this.outputTb.TabIndex = 100;
+			this.outputTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.outputTb.Size = new System.Drawing.Size(574, 434);
+			this.outputTb.TabIndex = 4;
+			// 
+			// listView1
+			// 
+			this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+			this.listView1.HideSelection = false;
+			this.listView1.Location = new System.Drawing.Point(12, 56);
+			this.listView1.Name = "listView1";
+			this.listView1.Size = new System.Drawing.Size(328, 434);
+			this.listView1.TabIndex = 100;
+			this.listView1.UseCompatibleStateImageBehavior = false;
+			this.listView1.View = System.Windows.Forms.View.Details;
+			// 
+			// columnHeader1
+			// 
+			this.columnHeader1.Text = "Tag";
+			this.columnHeader1.Width = 90;
+			// 
+			// columnHeader2
+			// 
+			this.columnHeader2.Text = "Description";
+			this.columnHeader2.Width = 230;
 			// 
 			// EditTemplateDialog
 			// 
@@ -107,6 +139,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
 			this.ClientSize = new System.Drawing.Size(933, 539);
+			this.Controls.Add(this.listView1);
 			this.Controls.Add(this.outputTb);
 			this.Controls.Add(this.resetToDefaultBtn);
 			this.Controls.Add(this.templateLbl);
@@ -131,5 +164,8 @@
 		private System.Windows.Forms.Label templateLbl;
 		private System.Windows.Forms.Button resetToDefaultBtn;
 		private System.Windows.Forms.TextBox outputTb;
+		private System.Windows.Forms.ListView listView1;
+		private System.Windows.Forms.ColumnHeader columnHeader1;
+		private System.Windows.Forms.ColumnHeader columnHeader2;
 	}
 }

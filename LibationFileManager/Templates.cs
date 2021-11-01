@@ -16,8 +16,6 @@ namespace LibationFileManager
         public const string WARNING_NO_TAGS = "Should use tags. Eg: <title>";
         public const string WARNING_HAS_CHAPTER_TAGS = "Chapter tags should only be used in the template used for naming files which are split by chapter. Eg: <ch title>";
         public const string WARNING_NO_CHAPTER_NUMBER_TAG = "Should include chapter number tag in template used for naming files which are split by chapter. Ie: <ch#> or <ch# 0>";
-        // actual possible to se?
-        public const string WARNING_NO_CHAPTER_TAGS = "Should include chapter tags in template used for naming files which are split by chapter. Eg: <ch title>";
 
         public static Templates Folder { get; } = new FolderTemplate();
         public static Templates File { get; } = new FileTemplate();
@@ -26,6 +24,7 @@ namespace LibationFileManager
         public abstract string Name { get; }
         public abstract string Description { get; }
         public abstract string DefaultTemplate { get; }
+        protected abstract bool IsChapterized { get; }
 
         public abstract IEnumerable<string> GetErrors(string template);
         public bool IsValid(string template) => !GetErrors(template).Any();
@@ -33,7 +32,17 @@ namespace LibationFileManager
         public abstract IEnumerable<string> GetWarnings(string template);
         public bool HasWarnings(string template) => GetWarnings(template).Any();
 
-        public abstract int TagCount(string template);
+        public IEnumerable<TemplateTags> GetTemplateTags()
+            => TemplateTags.GetAll()
+            // yeah, this line is a little funky but it works when you think through it. also: trust the unit tests
+            .Where(t => IsChapterized || !t.IsChapterOnly);
+
+        public int TagCount(string template)
+            => GetTemplateTags()
+            // for <id><id> == 1, use:
+            //   .Count(t => template.Contains($"<{t.TagName}>"))
+            // .Sum() impl: <id><id> == 2
+            .Sum(t => template.Split($"<{t.TagName}>").Length - 1);
 
         public static bool ContainsChapterOnlyTags(string template)
             => TemplateTags.GetAll()
@@ -59,7 +68,7 @@ namespace LibationFileManager
             return Valid;
         }
 
-        protected IEnumerable<string> getWarnings(string template, bool isChapter)
+        protected IEnumerable<string> getWarnings(string template)
         {
             var warnings = GetErrors(template).ToList();
             if (template is null)
@@ -73,28 +82,18 @@ namespace LibationFileManager
             if (TagCount(template) == 0)
                 warnings.Add(WARNING_NO_TAGS);
 
-            var containsChapterOnlyTags = ContainsChapterOnlyTags(template);
-            if (isChapter && !containsChapterOnlyTags)
-                warnings.Add(WARNING_NO_CHAPTER_TAGS);
-            if (!isChapter && containsChapterOnlyTags)
+            if (!IsChapterized && ContainsChapterOnlyTags(template))
                 warnings.Add(WARNING_HAS_CHAPTER_TAGS);
 
             return warnings;
         }
-
-        protected static int tagCount(string template, Func<TemplateTags, bool> func)
-            => TemplateTags.GetAll()
-            .Where(func)
-            // for <id><id> == 1, use:
-            //   .Count(t => template.Contains($"<{t.TagName}>"))
-            // .Sum() impl: <id><id> == 2
-            .Sum(t => template.Split($"<{t.TagName}>").Length - 1);
 
         private class FolderTemplate : Templates
         {
 			public override string Name => "Folder Template";
             public override string Description => Configuration.GetDescription(nameof(Configuration.FolderTemplate));
 			public override string DefaultTemplate { get; } = "<title short> [<id>]";
+            protected override bool IsChapterized { get; } = false;
 
             public override IEnumerable<string> GetErrors(string template)
             {
@@ -109,9 +108,7 @@ namespace LibationFileManager
                 return Valid;
             }
             
-            public override IEnumerable<string> GetWarnings(string template) => getWarnings(template, false);
-
-            public override int TagCount(string template) => tagCount(template, t => !t.IsChapterOnly);
+            public override IEnumerable<string> GetWarnings(string template) => getWarnings(template);
         }
 
         private class FileTemplate : Templates
@@ -119,12 +116,11 @@ namespace LibationFileManager
             public override string Name => "File Template";
             public override string Description => Configuration.GetDescription(nameof(Configuration.FileTemplate));
             public override string DefaultTemplate { get; } = "<title> [<id>]";
+            protected override bool IsChapterized { get; } = false;
 
             public override IEnumerable<string> GetErrors(string template) => getFileErrors(template);
 
-            public override IEnumerable<string> GetWarnings(string template) => getWarnings(template, false);
-
-            public override int TagCount(string template) => tagCount(template, t => !t.IsChapterOnly);
+            public override IEnumerable<string> GetWarnings(string template) => getWarnings(template);
         }
 
         private class ChapterFileTemplate : Templates
@@ -132,26 +128,22 @@ namespace LibationFileManager
             public override string Name => "Chapter File Template";
             public override string Description => Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));
             public override string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
-            
+            protected override bool IsChapterized { get; } = true;
+
             public override IEnumerable<string> GetErrors(string template) => getFileErrors(template);
 
             public override IEnumerable<string> GetWarnings(string template)
             {
-                var warnings = getWarnings(template, true).ToList();
+                var warnings = getWarnings(template).ToList();
                 if (template is null)
                     return warnings;
 
                 // recommended to incl. <ch#> or <ch# 0>
                 if (!ContainsTag(template, TemplateTags.ChNumber.TagName) && !ContainsTag(template, TemplateTags.ChNumber0.TagName))
-                {
-                    warnings.Remove(WARNING_NO_CHAPTER_TAGS);
                     warnings.Add(WARNING_NO_CHAPTER_NUMBER_TAG);
-                }
 
                 return warnings;
 			}
-
-            public override int TagCount(string template) => tagCount(template, t => true);
         }
     }
 }
