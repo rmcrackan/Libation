@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AaxDecrypter\AaxDecrypter.csproj" />
     <ProjectReference Include="..\FileManager\FileManager.csproj" />
   </ItemGroup>
 

@@ -108,18 +108,10 @@ namespace LibationWinForms.Dialogs
 		private void chapterFileTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.ChapterFile, chapterFileTemplateTb);
 		private static void editTemplate(Templates template, TextBox textBox)
 		{
-#if !DEBUG
-			TEMP_TEMP_TEMP();
-			return;
-#endif
-
 			var form = new EditTemplateDialog(template, textBox.Text);
 			if (form.ShowDialog() == DialogResult.OK)
 				textBox.Text = form.TemplateText;
 		}
-
-		private static void TEMP_TEMP_TEMP()
-			=> MessageBox.Show("Sorry, not yet. Coming soon :)");
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{

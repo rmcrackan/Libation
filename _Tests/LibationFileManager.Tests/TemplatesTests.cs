@@ -7,8 +7,26 @@ using FluentAssertions;
 using LibationFileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using static TemplatesTests.Shared;
+
 namespace TemplatesTests
 {
+	public static class Shared
+	{
+		public static LibraryBookDto GetLibraryBook(string asin)
+			=> new()
+			{
+				Account = "my account",
+				AudibleProductId = asin,
+				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
+				Locale = "us",
+				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
+				Narrators = new List<string> { "Stephen Fry" },
+				SeriesName = "Sherlock Holmes",
+				SeriesNumber = "1"
+			};
+	}
+
 	[TestClass]
 	public class ContainsChapterOnlyTags
 	{
@@ -28,6 +46,35 @@ namespace TemplatesTests
 		[DataRow("<id>", "ch#", false)]
 		[DataRow("<id><ch#>", "ch#", true)]
 		public void Tests(string template, string tag, bool expected) => Templates.ContainsTag(template, tag).Should().Be(expected);
+	}
+
+	[TestClass]
+	public class getFileNamingTemplate
+	{
+		[TestMethod]
+		[DataRow(null, "asin", @"C:\", "ext")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void arg_null_exception(string template, string asin, string dirFullPath, string extension)
+			=> Templates.getFileNamingTemplate(GetLibraryBook(asin), template, dirFullPath, extension);
+
+		[TestMethod]
+		[DataRow("", "asin", @"C:\foo\bar", "ext")]
+		[DataRow("   ", "asin", @"C:\foo\bar", "ext")]
+		[ExpectedException(typeof(ArgumentException))]
+		public void arg_exception(string template, string asin, string dirFullPath, string extension)
+			=> Templates.getFileNamingTemplate(GetLibraryBook(asin), template, dirFullPath, extension);
+
+		[TestMethod]
+		public void null_extension() => Tests("f.txt", "asin", @"C:\foo\bar", null, @"C:\foo\bar\f.txt");
+
+		[TestMethod]
+		[DataRow("f.txt", "asin", @"C:\foo\bar", "ext", @"C:\foo\bar\f.txt.ext")]
+		[DataRow("f", "asin", @"C:\foo\bar", "ext", @"C:\foo\bar\f.ext")]
+		[DataRow("<id>", "asin", @"C:\foo\bar", "ext", @"C:\foo\bar\asin.ext")]
+		public void Tests(string template, string asin, string dirFullPath, string extension, string expected)
+			=> Templates.getFileNamingTemplate(GetLibraryBook(asin), template, dirFullPath, extension)
+			.GetFilePath()
+			.Should().Be(expected);
 	}
 }
 
@@ -313,5 +360,16 @@ namespace Templates_ChapterFile_Tests
 		[DataRow("<ch#> non-folder tag", 1)]
 		[DataRow("<ID> case specific", 0)]
 		public void Tests(string template, int expected) => Templates.ChapterFile.TagCount(template).Should().Be(expected);
+	}
+
+	[TestClass]
+	public class GetPortionFilename
+	{
+		[TestMethod]
+		[DataRow("asin", "[<id>] <ch# 0> of <ch count> - <ch title>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\[asin] 06 of 10 - chap.txt")]
+		[DataRow("asin", "<ch#>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\6.txt")]
+		public void Tests(string asin, string template, string dir, string ext, int pos, int total, string chapter, string expected)
+			=> Templates.ChapterFile.GetPortionFilename(GetLibraryBook(asin), template, new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir)
+			.Should().Be(expected);
 	}
 }

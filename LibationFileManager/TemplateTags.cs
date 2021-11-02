@@ -18,7 +18,7 @@ namespace LibationFileManager
             IsChapterOnly = isChapterOnly;
         }
 
-        // putting these first is the incredibly lazy way to make them show up first in the settings dialog
+        // putting these first is the incredibly lazy way to make them show up first in the EditTemplateDialog
         public static TemplateTags ChCount { get; } = new TemplateTags("ch count", "Number of chapters", true);
         public static TemplateTags ChTitle { get; } = new TemplateTags("ch title", "Chapter title", true);
         public static TemplateTags ChNumber { get; } = new TemplateTags("ch#", "Chapter number", true);

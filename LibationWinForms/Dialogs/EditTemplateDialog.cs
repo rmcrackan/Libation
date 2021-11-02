@@ -10,15 +10,15 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class EditTemplateDialog : Form
 	{
-		// final valid value
+		// final value. post-validity check
 		public string TemplateText { get; private set; }
 
-		// work-in-progress. not guaranteed to be valid
+		// hold the work-in-progress value. not guaranteed to be valid
 		private string _workingTemplateText;
 		private string workingTemplateText
 		{
 			get => _workingTemplateText;
-			set => _workingTemplateText = Templates.Sanitize(value);
+			set => _workingTemplateText = template.Sanitize(value);
 		}
 
 		private void resetTextBox(string value) => this.templateTb.Text = workingTemplateText = value;
@@ -82,24 +82,19 @@ namespace LibationWinForms.Dialogs
 			var chaptersTotal = 10;
 
 			var books = config.Books;
-			var folder = FileLiberator.AudioFileStorageExt.GetFileNamingTemplate(
-				isFolder ? workingTemplateText : config.FolderTemplate,
+			var folder = Templates.Folder.GetPortionFilename(
 				libraryBookDto,
-				null,
-				null)
-				.GetFilePath();
+				isFolder ? workingTemplateText : config.FolderTemplate);
 			var file
-				= (template == Templates.ChapterFile)
-				? new FileLiberator.AudioFileStorageExt.MultipartRenamer(libraryBookDto).MultipartFilename(
-					new() { OutputFileName = "", PartsPosition = chapterNumber, PartsTotal = chaptersTotal, Title = chapterName },
-					workingTemplateText,
-					"")
-				: FileLiberator.AudioFileStorageExt.GetFileNamingTemplate(
-					isFolder ? config.FileTemplate : workingTemplateText,
+				= template == Templates.ChapterFile
+				? Templates.ChapterFile.GetPortionFilename(
 					libraryBookDto,
-					null,
-					null)
-					.GetFilePath();
+					workingTemplateText,
+					new() { OutputFileName = "", PartsPosition = chapterNumber, PartsTotal = chaptersTotal, Title = chapterName },
+					"")
+				: Templates.File.GetPortionFilename(
+					libraryBookDto,
+					isFolder ? config.FileTemplate : workingTemplateText);
 			var ext = config.DecryptToLossy ? "mp3" : "m4b";
 
 			const char ZERO_WIDTH_SPACE = '\u200B';
