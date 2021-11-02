@@ -6,13 +6,13 @@ using Dinah.Core;
 namespace FileManager
 {
     /// <summary>Get valid filename. Advanced features incl. parameterized template</summary>
-    public class FileTemplate
+    public class FileNamingTemplate
     {
         /// <summary>Proposed full file path. May contain optional html-styled template tags. Eg: &lt;name&gt;</summary>
         public string Template { get; }
 
         /// <param name="template">Proposed file name with optional html-styled template tags.</param>
-        public FileTemplate(string template) => Template = ArgumentValidator.EnsureNotNullOrWhiteSpace(template, nameof(template));
+        public FileNamingTemplate(string template) => Template = ArgumentValidator.EnsureNotNullOrWhiteSpace(template, nameof(template));
 
         /// <summary>Optional step 1: Replace html-styled template tags with parameters. Eg {"name", "Bill Gates"} => /&lt;name&gt;/ => /Bill Gates/</summary>
         public Dictionary<string, object> ParameterReplacements { get; } = new Dictionary<string, object>();

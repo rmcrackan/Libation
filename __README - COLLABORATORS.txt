@@ -24,7 +24,7 @@ STRUCTURE
 * 2 Utilities (domain ignorant)
   Stand-alone libraries with no knowledge of anything having to do with Libation or other programs. In theory any of these should be able to one day be converted to a nuget pkg
 * 3 Domain Internal Utilities (db ignorant)
-  Can have knowledge of Libation concepts. Cannot access the database.
+  Cannot access the database. Can have knowledge of Libation concepts. Can even have knowledge of some db concepts, but no actual db access.
 * 4 Domain (db)
   All database access
 * 5 Domain Utilities (db aware)

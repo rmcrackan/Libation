@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace LibationFileManager
@@ -8,7 +9,7 @@ namespace LibationFileManager
     {
         protected static string[] Valid => Array.Empty<string>();
         public const string ERROR_NULL_IS_INVALID = "Null template is invalid.";
-        public const string ERROR_FULL_PATH_IS_INVALID = @"No full paths allowed. Eg: should not start with C:\";
+        public const string ERROR_FULL_PATH_IS_INVALID = @"No colons or full paths allowed. Eg: should not start with C:\";
         public const string ERROR_INVALID_FILE_NAME_CHAR = @"Only file name friendly characters allowed. Eg: no colons or slashes";
 
         public const string WARNING_EMPTY = "Template is empty.";
@@ -25,6 +26,40 @@ namespace LibationFileManager
         public abstract string Description { get; }
         public abstract string DefaultTemplate { get; }
         protected abstract bool IsChapterized { get; }
+
+        internal string GetValid(string configValue)
+        {
+            var value = configValue?.Trim();
+            return IsValid(value) ? value : DefaultTemplate;
+        }
+
+        public static string Sanitize(string template)
+        {
+            var value = template ?? "";
+
+            // don't use alt slash
+            value = value.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+            // don't allow double slashes
+            var sing = $"{Path.DirectorySeparatorChar}";
+            var dbl = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
+            while (value.Contains(dbl))
+                value = value.Replace(dbl, sing);
+
+            // trim. don't start or end with slash
+            while (true)
+            {
+                var start = value.Length;
+                value = value
+                    .Trim()
+                    .Trim(Path.DirectorySeparatorChar);
+                var end = value.Length;
+                if (start == end)
+                    break;
+            }
+
+            return value;
+        }
 
         public abstract IEnumerable<string> GetErrors(string template);
         public bool IsValid(string template) => !GetErrors(template).Any();
@@ -51,7 +86,7 @@ namespace LibationFileManager
 
         public static bool ContainsTag(string template, string tag) => template.Contains($"<{tag}>");
 
-        protected static string[] getFileErrors(string template)
+        protected static string[] GetFileErrors(string template)
         {
             // File name only; not path. all other path chars are valid enough to pass this check and will be handled on final save.
 
@@ -60,15 +95,15 @@ namespace LibationFileManager
                 return new[] { ERROR_NULL_IS_INVALID };
 
             if (template.Contains(':')
-                || template.Contains(System.IO.Path.DirectorySeparatorChar)
-                || template.Contains(System.IO.Path.AltDirectorySeparatorChar)
+                || template.Contains(Path.DirectorySeparatorChar)
+                || template.Contains(Path.AltDirectorySeparatorChar)
                 )
                 return new[] { ERROR_INVALID_FILE_NAME_CHAR };
 
             return Valid;
         }
 
-        protected IEnumerable<string> getWarnings(string template)
+        protected IEnumerable<string> GetStandardWarnings(string template)
         {
             var warnings = GetErrors(template).ToList();
             if (template is null)
@@ -108,7 +143,7 @@ namespace LibationFileManager
                 return Valid;
             }
             
-            public override IEnumerable<string> GetWarnings(string template) => getWarnings(template);
+            public override IEnumerable<string> GetWarnings(string template) => GetStandardWarnings(template);
         }
 
         private class FileTemplate : Templates
@@ -118,9 +153,9 @@ namespace LibationFileManager
             public override string DefaultTemplate { get; } = "<title> [<id>]";
             protected override bool IsChapterized { get; } = false;
 
-            public override IEnumerable<string> GetErrors(string template) => getFileErrors(template);
+            public override IEnumerable<string> GetErrors(string template) => GetFileErrors(template);
 
-            public override IEnumerable<string> GetWarnings(string template) => getWarnings(template);
+            public override IEnumerable<string> GetWarnings(string template) => GetStandardWarnings(template);
         }
 
         private class ChapterFileTemplate : Templates
@@ -130,11 +165,11 @@ namespace LibationFileManager
             public override string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
             protected override bool IsChapterized { get; } = true;
 
-            public override IEnumerable<string> GetErrors(string template) => getFileErrors(template);
+            public override IEnumerable<string> GetErrors(string template) => GetFileErrors(template);
 
             public override IEnumerable<string> GetWarnings(string template)
             {
-                var warnings = getWarnings(template).ToList();
+                var warnings = GetStandardWarnings(template).ToList();
                 if (template is null)
                     return warnings;
 

@@ -10,7 +10,18 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class EditTemplateDialog : Form
 	{
+		// final valid value
 		public string TemplateText { get; private set; }
+
+		// work-in-progress. not guaranteed to be valid
+		private string _workingTemplateText;
+		private string workingTemplateText
+		{
+			get => _workingTemplateText;
+			set => _workingTemplateText = Templates.Sanitize(value);
+		}
+
+		private void resetTextBox(string value) => this.templateTb.Text = workingTemplateText = value;
 
 		private Configuration config { get; } = Configuration.Instance;
 
@@ -35,108 +46,124 @@ namespace LibationWinForms.Dialogs
 				return;
 			}
 
+			warningsLbl.Text = "";
+
 			this.Text = $"Edit {template.Name}";
 
 			this.templateLbl.Text = template.Description;
-			this.templateTb.Text = inputTemplateText;
+			resetTextBox(inputTemplateText);
 
 			// populate list view
 			foreach (var tag in template.GetTemplateTags())
 				listView1.Items.Add(new ListViewItem(new[] { $"<{tag.TagName}>", tag.Description }));
 		}
 
-		private void resetToDefaultBtn_Click(object sender, EventArgs e) => templateTb.Text = template.DefaultTemplate;
+		private void resetToDefaultBtn_Click(object sender, EventArgs e) => resetTextBox(template.DefaultTemplate);
 
 		private void templateTb_TextChanged(object sender, EventArgs e)
 		{
-			var t = templateTb.Text;
+			workingTemplateText = templateTb.Text;
 
-			var warnings
-				= !template.HasWarnings(t)
-				? ""
-				: "Warnings:\r\n" +
-					template
-					.GetWarnings(t)
-					.Select(err => $"- {err}")
-					.Aggregate((a, b) => $"{a}\r\n{b}");
+			var isFolder = template == Templates.Folder;
 
+			var libraryBookDto = new LibraryBookDto
+			{
+				Account = "my account",
+				AudibleProductId = "123456789",
+				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
+				Locale = "us",
+				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
+				Narrators = new List<string> { "Stephen Fry" },
+				SeriesName = "Sherlock Holmes",
+				SeriesNumber = "1"
+			};
+			var chapterName = "A Flight for Life";
+			var chapterNumber = 4;
+			var chaptersTotal = 10;
 
 			var books = config.Books;
-			var folderTemplate = template == Templates.Folder ? t : config.FolderTemplate;
-			folderTemplate = folderTemplate.Trim().Trim(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Trim();
-			var fileTemplate = template == Templates.Folder ? config.FileTemplate : t;
-			fileTemplate = fileTemplate.Trim();
+			var folder = FileLiberator.AudioFileStorageExt.GetFileNamingTemplate(
+				isFolder ? workingTemplateText : config.FolderTemplate,
+				libraryBookDto,
+				null,
+				null)
+				.GetFilePath();
+			var file
+				= (template == Templates.ChapterFile)
+				? new FileLiberator.AudioFileStorageExt.MultipartRenamer(libraryBookDto).MultipartFilename(
+					new() { OutputFileName = "", PartsPosition = chapterNumber, PartsTotal = chaptersTotal, Title = chapterName },
+					workingTemplateText,
+					"")
+				: FileLiberator.AudioFileStorageExt.GetFileNamingTemplate(
+					isFolder ? config.FileTemplate : workingTemplateText,
+					libraryBookDto,
+					null,
+					null)
+					.GetFilePath();
 			var ext = config.DecryptToLossy ? "mp3" : "m4b";
 
-			var path = Path.Combine(books, folderTemplate, $"{fileTemplate}.{ext}");
-
-			// this logic should be external
-			path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-			var sing = $"{Path.DirectorySeparatorChar}";
-			var dbl = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
-			while (path.Contains(dbl))
-				path = path.Replace(dbl, sing);
-
-			// once path is finalized
 			const char ZERO_WIDTH_SPACE = '\u200B';
-			path = path.Replace(sing, $"{ZERO_WIDTH_SPACE}{sing}");
+			var sing = $"{Path.DirectorySeparatorChar}";
+
 			// result: can wrap long paths. eg:
 			// |-- LINE WRAP BOUNDARIES --|
 			// \books\author with a very     <= normal line break on space between words
 			// long name\narrator narrator   
 			// \title                        <= line break on the zero-with space we added before slashes
+			string slashWrap(string val) => val.Replace(sing, $"{ZERO_WIDTH_SPACE}{sing}");
 
-			var book = new DataLayer.Book(
-				new DataLayer.AudibleProductId("123456789"),
-				"A Study in Scarlet: A Sherlock Holmes Novel",
-				"Fake description",
-				1234,
-				DataLayer.ContentType.Product,
-				new List<DataLayer.Contributor>
-				{
-					new("Arthur Conan Doyle"),
-					new("Stephen Fry - introductions")
-				},
-				new List<DataLayer.Contributor> { new("Stephen Fry") },
-				new DataLayer.Category(new DataLayer.AudibleCategoryId("cat12345"), "Mystery"),
-				"us"
-				);
-			var libraryBook = new DataLayer.LibraryBook(book, DateTime.Now, "my account");
+			warningsLbl.Text
+				= !template.HasWarnings(workingTemplateText)
+				? ""
+				: "Warning:\r\n" +
+					template
+					.GetWarnings(workingTemplateText)
+					.Select(err => $"- {err}")
+					.Aggregate((a, b) => $"{a}\r\n{b}");
 
-			outputTb.Text = @$"
+			var bold = new System.Drawing.Font(richTextBox1.Font, System.Drawing.FontStyle.Bold);
+			var reg = new System.Drawing.Font(richTextBox1.Font, System.Drawing.FontStyle.Regular);
 
-Example:
+			richTextBox1.Clear();
+			richTextBox1.SelectionFont = reg;
 
-{books}
-{folderTemplate}
-{fileTemplate}
-{ext}
-{path}
+			richTextBox1.AppendText(slashWrap(books));
+			richTextBox1.AppendText(sing);
 
-{book.AudibleProductId}
-{book.Title}
-{book.AuthorNames}
-{book.NarratorNames}
-series: {"Sherlock Holmes"}
+			if (isFolder)
+				richTextBox1.SelectionFont = bold;
 
-{warnings}
+			richTextBox1.AppendText(slashWrap(folder));
 
-".Trim();
+			if (isFolder)
+				richTextBox1.SelectionFont = reg;
+
+			richTextBox1.AppendText(sing);
+
+			if (!isFolder)
+				richTextBox1.SelectionFont = bold;
+
+			richTextBox1.AppendText(file);
+
+			if (!isFolder)
+				richTextBox1.SelectionFont = reg;
+
+			richTextBox1.AppendText($".{ext}");
 		}
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			if (!template.IsValid(templateTb.Text))
+			if (!template.IsValid(workingTemplateText))
 			{
 				var errors = template
-					.GetErrors(templateTb.Text)
+					.GetErrors(workingTemplateText)
 					.Select(err => $"- {err}")
 					.Aggregate((a, b) => $"{a}\r\n{b}");
 				MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 
-			TemplateText = templateTb.Text;
+			TemplateText = workingTemplateText;
 
 			this.DialogResult = DialogResult.OK;
 			this.Close();

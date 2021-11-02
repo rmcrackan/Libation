@@ -11,72 +11,94 @@ namespace FileLiberator
 {
     public static class AudioFileStorageExt
     {
-        private static void AddParameterReplacement(this FileTemplate fileTemplate, TemplateTags templateTags, object value)
-            => fileTemplate.AddParameterReplacement(templateTags.TagName, value);
-
-        internal class MultipartRenamer
+        public class MultipartRenamer
         {
-            public LibraryBook libraryBook { get; }
+            private LibraryBookDto libraryBookDto { get; }
 
-            public MultipartRenamer(LibraryBook libraryBook) => this.libraryBook = libraryBook;
+            public MultipartRenamer(LibraryBook libraryBook) : this(libraryBook.ToDto()) { }
+            public MultipartRenamer(LibraryBookDto libraryBookDto) => this.libraryBookDto = libraryBookDto;
 
-            internal string MultipartFilename(string outputFileName, int partsPosition, int partsTotal, AAXClean.NewSplitCallback newSplitCallback)
-                => MultipartFilename(Configuration.Instance.ChapterFileTemplate, AudibleFileStorage.DecryptInProgressDirectory, Path.GetExtension(outputFileName), partsPosition, partsTotal, newSplitCallback?.Chapter?.Title ?? "");
+            internal string MultipartFilename(AaxDecrypter.MultiConvertFileProperties props)
+                => MultipartFilename(props, Configuration.Instance.ChapterFileTemplate, AudibleFileStorage.DecryptInProgressDirectory);
 
-            internal string MultipartFilename(string template, string fullDirPath, string extension, int partsPosition, int partsTotal, string chapterTitle)
+            public string MultipartFilename(AaxDecrypter.MultiConvertFileProperties props, string template, string fullDirPath)
             {
-                var fileTemplate = GetFileTemplateSingle(template, libraryBook, fullDirPath, extension);
+                var fileNamingTemplate = GetFileNamingTemplate(template, libraryBookDto, fullDirPath, Path.GetExtension(props.OutputFileName));
 
-                fileTemplate.AddParameterReplacement(TemplateTags.ChCount, partsTotal);
-                fileTemplate.AddParameterReplacement(TemplateTags.ChNumber, partsPosition);
-                fileTemplate.AddParameterReplacement(TemplateTags.ChNumber0, FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
-                fileTemplate.AddParameterReplacement(TemplateTags.ChTitle, chapterTitle);
+                fileNamingTemplate.AddParameterReplacement(TemplateTags.ChCount, props.PartsTotal);
+                fileNamingTemplate.AddParameterReplacement(TemplateTags.ChNumber, props.PartsPosition);
+                fileNamingTemplate.AddParameterReplacement(TemplateTags.ChNumber0, FileUtility.GetSequenceFormatted(props.PartsPosition, props.PartsTotal));
+                fileNamingTemplate.AddParameterReplacement(TemplateTags.ChTitle, props.Title ?? "");
 
-                return fileTemplate.GetFilePath();
+                return fileNamingTemplate.GetFilePath();
             }
         }
 
-        public static Func<string, int, int, AAXClean.NewSplitCallback, string> CreateMultipartRenamerFunc(this AudioFileStorage _, LibraryBook libraryBook)
+        public static Func<AaxDecrypter.MultiConvertFileProperties, string> CreateMultipartRenamerFunc(this AudioFileStorage _, LibraryBook libraryBook)
             => new MultipartRenamer(libraryBook).MultipartFilename;
+        public static Func<AaxDecrypter.MultiConvertFileProperties, string> CreateMultipartRenamerFunc(this AudioFileStorage _, LibraryBookDto libraryBookDto)
+            => new MultipartRenamer(libraryBookDto).MultipartFilename;
 
+        /// <summary>
+        /// DownloadDecryptBook:
+        /// Path: in progress directory.
+        /// File name: final file name.
+        /// </summary>
         public static string GetInProgressFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
-            => GetCustomDirFilename(_, libraryBook, AudibleFileStorage.DecryptInProgressDirectory, extension);
+            => GetFileNamingTemplate(Configuration.Instance.FileTemplate, libraryBook.ToDto(), AudibleFileStorage.DecryptInProgressDirectory, extension)
+            .GetFilePath();
 
-        public static string GetBooksDirectoryFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
-            => GetCustomDirFilename(_, libraryBook, AudibleFileStorage.BooksDirectory, extension);
-
+        /// <summary>
+        /// DownloadDecryptBook:
+        /// File path for where to move files into.
+        /// Path: directory nested inside of Books directory
+        /// File name: n/a
+        /// </summary>
         public static string GetDestinationDirectory(this AudioFileStorage _, LibraryBook libraryBook)
-            => GetFileTemplateSingle(Configuration.Instance.FolderTemplate, libraryBook, AudibleFileStorage.BooksDirectory, null)
+            => GetFileNamingTemplate(Configuration.Instance.FolderTemplate, libraryBook.ToDto(), AudibleFileStorage.BooksDirectory, null)
             .GetFilePath();
 
+        /// <summary>
+        /// PDF: audio file does not exist
+        /// </summary>
+        public static string GetBooksDirectoryFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
+            => GetFileNamingTemplate(Configuration.Instance.FileTemplate, libraryBook.ToDto(), AudibleFileStorage.BooksDirectory, extension)
+            .GetFilePath();
+
+        /// <summary>
+        /// PDF: audio file already exists
+        /// </summary>
         public static string GetCustomDirFilename(this AudioFileStorage _, LibraryBook libraryBook, string dirFullPath, string extension)
-            => GetFileTemplateSingle(Configuration.Instance.FileTemplate, libraryBook, dirFullPath, extension)
+            => GetFileNamingTemplate(Configuration.Instance.FileTemplate, libraryBook.ToDto(), dirFullPath, extension)
             .GetFilePath();
 
-        internal static FileTemplate GetFileTemplateSingle(string template, LibraryBook libraryBook, string dirFullPath, string extension)
+        public static FileNamingTemplate GetFileNamingTemplate(string template, LibraryBookDto libraryBookDto, string dirFullPath, string extension)
         {
             ArgumentValidator.EnsureNotNullOrWhiteSpace(template, nameof(template));
-            ArgumentValidator.EnsureNotNull(libraryBook, nameof(libraryBook));
-            ArgumentValidator.EnsureNotNullOrWhiteSpace(dirFullPath, nameof(dirFullPath));
+            ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 
-            var fullfilename = Path.Combine(dirFullPath, template + FileUtility.GetStandardizedExtension(extension));
-            var fileTemplate = new FileTemplate(fullfilename) { IllegalCharacterReplacements = "_" };
+            dirFullPath = dirFullPath?.Trim() ?? "";
+            var t = template + FileUtility.GetStandardizedExtension(extension);
+            var fullfilename = dirFullPath == "" ? t : Path.Combine(dirFullPath, t);
 
-            var title = libraryBook.Book.Title ?? "";
+            var fileNamingTemplate = new FileNamingTemplate(fullfilename) { IllegalCharacterReplacements = "_" };
 
-            fileTemplate.AddParameterReplacement(TemplateTags.Id, libraryBook.Book.AudibleProductId);
-            fileTemplate.AddParameterReplacement(TemplateTags.Title, title);
-            fileTemplate.AddParameterReplacement(TemplateTags.TitleShort, title.IndexOf(':') < 1 ? title : title.Substring(0, title.IndexOf(':')));
-            fileTemplate.AddParameterReplacement(TemplateTags.Author, libraryBook.Book.AuthorNames);
-            fileTemplate.AddParameterReplacement(TemplateTags.FirstAuthor, libraryBook.Book.Authors.FirstOrDefault()?.Name);
-            fileTemplate.AddParameterReplacement(TemplateTags.Narrator, libraryBook.Book.NarratorNames);
-            fileTemplate.AddParameterReplacement(TemplateTags.FirstNarrator, libraryBook.Book.Narrators.FirstOrDefault()?.Name);
+            var title = libraryBookDto.Title ?? "";
+            var titleShort = title.IndexOf(':') < 1 ? title : title.Substring(0, title.IndexOf(':'));
 
-            var seriesLink = libraryBook.Book.SeriesLink.FirstOrDefault();
-            fileTemplate.AddParameterReplacement(TemplateTags.Series, seriesLink?.Series.Name);
-            fileTemplate.AddParameterReplacement(TemplateTags.SeriesNumber, seriesLink?.Order);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.Id, libraryBookDto.AudibleProductId);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.Title, title);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.TitleShort, titleShort);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.Author, libraryBookDto.AuthorNames);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.FirstAuthor, libraryBookDto.FirstAuthor);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.Narrator, libraryBookDto.NarratorNames);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.FirstNarrator, libraryBookDto.FirstNarrator);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.Series, libraryBookDto.SeriesName);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.SeriesNumber, libraryBookDto.SeriesNumber);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.Account, libraryBookDto.Account);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.Locale, libraryBookDto.Locale);
 
-            return fileTemplate;
+            return fileNamingTemplate;
         }
     }
 }

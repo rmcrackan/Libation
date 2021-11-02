@@ -12,23 +12,13 @@ namespace AaxDecrypter
 	{
 		protected override StepSequence Steps { get; }
 
-        private Func<string, int, int, NewSplitCallback, string> multipartFileNameCallback { get; }
-        private static string DefaultMultipartFilename(string outputFileName, int partsPosition, int partsTotal, NewSplitCallback newSplitCallback)
-        {
-            var template = Path.ChangeExtension(outputFileName, null) + " - <ch# 0> - <title>" + Path.GetExtension(outputFileName);
-
-            var fileTemplate = new FileTemplate(template) { IllegalCharacterReplacements = " " };
-            fileTemplate.AddParameterReplacement("ch# 0", FileUtility.GetSequenceFormatted(partsPosition, partsTotal));
-            fileTemplate.AddParameterReplacement("title", newSplitCallback?.Chapter?.Title ?? "");
-
-            return fileTemplate.GetFilePath();
-        }
+        private Func<MultiConvertFileProperties, string> multipartFileNameCallback { get; }
 
         private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
 		private List<string> multiPartFilePaths { get; } = new List<string>();
 
         public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic, OutputFormat outputFormat,
-            Func<string, int, int, NewSplitCallback, string> multipartFileNameCallback = null)
+            Func<MultiConvertFileProperties, string> multipartFileNameCallback = null)
 			: base(outFileName, cacheDirectory, dlLic, outputFormat)
         {
             Steps = new StepSequence
@@ -39,7 +29,7 @@ namespace AaxDecrypter
                 ["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsMultipleFilesPerChapter,
                 ["Step 3: Cleanup"] = Step_Cleanup,
             };
-            this.multipartFileNameCallback = multipartFileNameCallback ?? DefaultMultipartFilename;
+            this.multipartFileNameCallback = multipartFileNameCallback ?? MultiConvertFileProperties.DefaultMultipartFilename;
         }
 
         /*
@@ -133,7 +123,13 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
         private void createOutputFileStream(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
         {
-            var fileName = multipartFileNameCallback(OutputFileName, currentChapter, splitChapters.Count, newSplitCallback);
+            var fileName = multipartFileNameCallback(new()
+            {
+                OutputFileName = OutputFileName,
+                PartsPosition = currentChapter,
+                PartsTotal = splitChapters.Count,
+                Title = newSplitCallback?.Chapter?.Title
+            });
             fileName = FileUtility.GetValidFilename(fileName);
 
             multiPartFilePaths.Add(fileName);

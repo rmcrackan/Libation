@@ -33,16 +33,17 @@
 			this.templateTb = new System.Windows.Forms.TextBox();
 			this.templateLbl = new System.Windows.Forms.Label();
 			this.resetToDefaultBtn = new System.Windows.Forms.Button();
-			this.outputTb = new System.Windows.Forms.TextBox();
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
 			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+			this.warningsLbl = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(714, 496);
+			this.saveBtn.Location = new System.Drawing.Point(714, 345);
 			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(88, 27);
@@ -55,7 +56,7 @@
 			// 
 			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(832, 496);
+			this.cancelBtn.Location = new System.Drawing.Point(832, 345);
 			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
@@ -94,19 +95,6 @@
 			this.resetToDefaultBtn.UseVisualStyleBackColor = true;
 			this.resetToDefaultBtn.Click += new System.EventHandler(this.resetToDefaultBtn_Click);
 			// 
-			// outputTb
-			// 
-			this.outputTb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.outputTb.Location = new System.Drawing.Point(346, 56);
-			this.outputTb.Multiline = true;
-			this.outputTb.Name = "outputTb";
-			this.outputTb.ReadOnly = true;
-			this.outputTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.outputTb.Size = new System.Drawing.Size(574, 434);
-			this.outputTb.TabIndex = 4;
-			// 
 			// listView1
 			// 
 			this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -117,8 +105,8 @@
 			this.listView1.HideSelection = false;
 			this.listView1.Location = new System.Drawing.Point(12, 56);
 			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(328, 434);
-			this.listView1.TabIndex = 100;
+			this.listView1.Size = new System.Drawing.Size(328, 283);
+			this.listView1.TabIndex = 3;
 			this.listView1.UseCompatibleStateImageBehavior = false;
 			this.listView1.View = System.Windows.Forms.View.Details;
 			// 
@@ -132,15 +120,41 @@
 			this.columnHeader2.Text = "Description";
 			this.columnHeader2.Width = 230;
 			// 
+			// richTextBox1
+			// 
+			this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.richTextBox1.Location = new System.Drawing.Point(346, 56);
+			this.richTextBox1.Name = "richTextBox1";
+			this.richTextBox1.ReadOnly = true;
+			this.richTextBox1.Size = new System.Drawing.Size(574, 203);
+			this.richTextBox1.TabIndex = 4;
+			this.richTextBox1.Text = "";
+			// 
+			// warningsLbl
+			// 
+			this.warningsLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.warningsLbl.AutoSize = true;
+			this.warningsLbl.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+			this.warningsLbl.ForeColor = System.Drawing.Color.Firebrick;
+			this.warningsLbl.Location = new System.Drawing.Point(346, 262);
+			this.warningsLbl.Name = "warningsLbl";
+			this.warningsLbl.Size = new System.Drawing.Size(40, 15);
+			this.warningsLbl.TabIndex = 100;
+			this.warningsLbl.Text = "label1";
+			// 
 			// EditTemplateDialog
 			// 
 			this.AcceptButton = this.saveBtn;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(933, 539);
+			this.ClientSize = new System.Drawing.Size(933, 388);
+			this.Controls.Add(this.warningsLbl);
+			this.Controls.Add(this.richTextBox1);
 			this.Controls.Add(this.listView1);
-			this.Controls.Add(this.outputTb);
 			this.Controls.Add(this.resetToDefaultBtn);
 			this.Controls.Add(this.templateLbl);
 			this.Controls.Add(this.templateTb);
@@ -163,9 +177,10 @@
 		private System.Windows.Forms.TextBox templateTb;
 		private System.Windows.Forms.Label templateLbl;
 		private System.Windows.Forms.Button resetToDefaultBtn;
-		private System.Windows.Forms.TextBox outputTb;
 		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
+		private System.Windows.Forms.RichTextBox richTextBox1;
+		private System.Windows.Forms.Label warningsLbl;
 	}
 }

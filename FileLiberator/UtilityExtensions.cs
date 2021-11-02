@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core;
+using LibationFileManager;
 
 namespace FileLiberator
 {
@@ -22,5 +23,21 @@ namespace FileLiberator
 			var apiExtended = await AudibleUtilities.ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
 			return apiExtended.Api;
 		}
+
+		public static LibraryBookDto ToDto(this LibraryBook libraryBook) => new()
+		{
+			Account = libraryBook.Account,
+
+			AudibleProductId = libraryBook.Book.AudibleProductId,
+			Title = libraryBook.Book.Title ?? "",
+			Locale = libraryBook.Book.Locale,
+
+			Authors = libraryBook.Book.Authors.Select(c => c.Name).ToList(),
+
+			Narrators = libraryBook.Book.Narrators.Select(c => c.Name).ToList(),
+
+			SeriesName = libraryBook.Book.SeriesLink.FirstOrDefault()?.Series.Name,
+			SeriesNumber = libraryBook.Book.SeriesLink.FirstOrDefault()?.Order
+		};
 	}
 }

@@ -7,7 +7,7 @@ using FileManager;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FileTemplateTests
+namespace FileNamingTemplateTests
 {
 	[TestClass]
 	public class GetFilePath
@@ -17,7 +17,7 @@ namespace FileTemplateTests
 		{
 			var expected = @"C:\foo\bar\my_ book LONG_1234567890_1234567890_1234567890_123 [ID123456].txt";
 			var f1 = OLD_GetValidFilename(@"C:\foo\bar", "my: book LONG_1234567890_1234567890_1234567890_12345", "txt", "ID123456");
-			var f2 = NEW_GetValidFilename_FileTemplate(@"C:\foo\bar", "my: book LONG_1234567890_1234567890_1234567890_12345", "txt", "ID123456");
+			var f2 = NEW_GetValidFilename_FileNamingTemplate(@"C:\foo\bar", "my: book LONG_1234567890_1234567890_1234567890_12345", "txt", "ID123456");
 
 			f1.Should().Be(expected);
 			f1.Should().Be(f2);
@@ -49,16 +49,16 @@ namespace FileTemplateTests
 
 			return fullfilename;
 		}
-		private static string NEW_GetValidFilename_FileTemplate(string dirFullPath, string filename, string extension, string metadataSuffix)
+		private static string NEW_GetValidFilename_FileNamingTemplate(string dirFullPath, string filename, string extension, string metadataSuffix)
 		{
 			var template = $"<title> [<id>]";
 
 			var fullfilename = Path.Combine(dirFullPath, template + FileUtility.GetStandardizedExtension(extension));
 
-			var fileTemplate = new FileTemplate(fullfilename) { IllegalCharacterReplacements = "_" };
-			fileTemplate.AddParameterReplacement("title", filename);
-			fileTemplate.AddParameterReplacement("id", metadataSuffix);
-			return fileTemplate.GetFilePath();
+			var fileNamingTemplate = new FileNamingTemplate(fullfilename) { IllegalCharacterReplacements = "_" };
+			fileNamingTemplate.AddParameterReplacement("title", filename);
+			fileNamingTemplate.AddParameterReplacement("id", metadataSuffix);
+			return fileNamingTemplate.GetFilePath();
 		}
 
 		[TestMethod]
@@ -66,7 +66,7 @@ namespace FileTemplateTests
 		{
 			var expected = @"C:\foo\bar\my file - 002 - title.txt";
 			var f1 = OLD_GetMultipartFileName(@"C:\foo\bar\my file.txt", 2, 100, "title");
-			var f2 = NEW_GetMultipartFileName_FileTemplate(@"C:\foo\bar\my file.txt", 2, 100, "title");
+			var f2 = NEW_GetMultipartFileName_FileNamingTemplate(@"C:\foo\bar\my file.txt", 2, 100, "title");
 
 			f1.Should().Be(expected);
 			f1.Should().Be(f2);
@@ -89,7 +89,7 @@ namespace FileTemplateTests
 			var path = Path.Combine(Path.GetDirectoryName(originalPath), fileName + extension);
 			return path;
 		}
-		private static string NEW_GetMultipartFileName_FileTemplate(string originalPath, int partsPosition, int partsTotal, string suffix)
+		private static string NEW_GetMultipartFileName_FileNamingTemplate(string originalPath, int partsPosition, int partsTotal, string suffix)
 		{
 			// 1-9     => 1-9
 			// 10-99   => 01-99
@@ -98,19 +98,18 @@ namespace FileTemplateTests
 
 			var t = Path.ChangeExtension(originalPath, null) + " - <chapter> - <title>" + Path.GetExtension(originalPath);
 
-			var fileTemplate = new FileTemplate(t) { IllegalCharacterReplacements = " " };
-			fileTemplate.AddParameterReplacement("chapter", chapterCountLeadingZeros);
-			fileTemplate.AddParameterReplacement("title", suffix);
-
-			return fileTemplate.GetFilePath();
+			var fileNamingTemplate = new FileNamingTemplate(t) { IllegalCharacterReplacements = " " };
+			fileNamingTemplate.AddParameterReplacement("chapter", chapterCountLeadingZeros);
+			fileNamingTemplate.AddParameterReplacement("title", suffix);
+			return fileNamingTemplate.GetFilePath();
 		}
 
 		[TestMethod]
 		public void remove_slashes()
 		{
-			var fileTemplate = new FileTemplate(@"\foo\<title>.txt");
-			fileTemplate.AddParameterReplacement("title", @"s\l/a\s/h\e/s");
-			fileTemplate.GetFilePath().Should().Be(@"\foo\slashes.txt");
+			var fileNamingTemplate = new FileNamingTemplate(@"\foo\<title>.txt");
+			fileNamingTemplate.AddParameterReplacement("title", @"s\l/a\s/h\e/s");
+			fileNamingTemplate.GetFilePath().Should().Be(@"\foo\slashes.txt");
 		}
 	}
 }
