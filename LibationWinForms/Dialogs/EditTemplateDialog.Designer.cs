@@ -38,6 +38,7 @@
 			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
 			this.richTextBox1 = new System.Windows.Forms.RichTextBox();
 			this.warningsLbl = new System.Windows.Forms.Label();
+			this.exampleLbl = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// saveBtn
@@ -126,11 +127,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.richTextBox1.Location = new System.Drawing.Point(346, 56);
+			this.richTextBox1.Location = new System.Drawing.Point(346, 74);
 			this.richTextBox1.Name = "richTextBox1";
 			this.richTextBox1.ReadOnly = true;
-			this.richTextBox1.Size = new System.Drawing.Size(574, 203);
-			this.richTextBox1.TabIndex = 4;
+			this.richTextBox1.Size = new System.Drawing.Size(574, 185);
+			this.richTextBox1.TabIndex = 5;
 			this.richTextBox1.Text = "";
 			// 
 			// warningsLbl
@@ -141,9 +142,18 @@
 			this.warningsLbl.ForeColor = System.Drawing.Color.Firebrick;
 			this.warningsLbl.Location = new System.Drawing.Point(346, 262);
 			this.warningsLbl.Name = "warningsLbl";
-			this.warningsLbl.Size = new System.Drawing.Size(40, 15);
+			this.warningsLbl.Size = new System.Drawing.Size(14, 15);
 			this.warningsLbl.TabIndex = 100;
-			this.warningsLbl.Text = "label1";
+			this.warningsLbl.Text = "6";
+			// 
+			// exampleLbl
+			// 
+			this.exampleLbl.AutoSize = true;
+			this.exampleLbl.Location = new System.Drawing.Point(346, 56);
+			this.exampleLbl.Name = "exampleLbl";
+			this.exampleLbl.Size = new System.Drawing.Size(55, 15);
+			this.exampleLbl.TabIndex = 4;
+			this.exampleLbl.Text = "Example:";
 			// 
 			// EditTemplateDialog
 			// 
@@ -152,6 +162,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
 			this.ClientSize = new System.Drawing.Size(933, 388);
+			this.Controls.Add(this.exampleLbl);
 			this.Controls.Add(this.warningsLbl);
 			this.Controls.Add(this.richTextBox1);
 			this.Controls.Add(this.listView1);
@@ -182,5 +193,6 @@
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.RichTextBox richTextBox1;
 		private System.Windows.Forms.Label warningsLbl;
+		private System.Windows.Forms.Label exampleLbl;
 	}
 }

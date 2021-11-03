@@ -101,7 +101,9 @@ namespace LibationFileManager
         /// EditTemplateDialog: Get template generated filename for portion of path
         /// </summary>
         public string GetPortionFilename(LibraryBookDto libraryBookDto, string template)
-            => getFileNamingTemplate(libraryBookDto, template, null, null)
+            => string.IsNullOrWhiteSpace(template)
+            ? ""
+            : getFileNamingTemplate(libraryBookDto, template, null, null)
             .GetFilePath();
 
         internal static FileNamingTemplate getFileNamingTemplate(LibraryBookDto libraryBookDto, string template, string dirFullPath, string extension)
