@@ -205,8 +205,25 @@ namespace FileManager
 
         private JObject readFile()
         {
+            if (!File.Exists(Filepath))
+            {
+                var msg = "Unrecoverable error. Settings file cannot be found";
+                var ex = new FileNotFoundException(msg, Filepath);
+                Serilog.Log.Logger.Error(msg, ex);
+                throw ex;
+            }
+
             var settingsJsonContents = File.ReadAllText(Filepath);
             var jObject = JsonConvert.DeserializeObject<JObject>(settingsJsonContents);
+
+            if (jObject is null)
+            {
+                var msg = "Unrecoverable error. Unable to read settings from Settings file";
+                var ex = new NullReferenceException(msg);
+                Serilog.Log.Logger.Error(msg, ex);
+                throw ex;
+            }
+
             return jObject;
         }
     }
