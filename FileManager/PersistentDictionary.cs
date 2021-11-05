@@ -30,8 +30,7 @@ namespace FileManager
             if (IsReadOnly)
                 return;
 
-            File.WriteAllText(Filepath, "{}");
-            System.Threading.Thread.Sleep(100);
+            createNewFile();
         }
 
         public string GetString(string propertyName)
@@ -214,6 +213,13 @@ namespace FileManager
             }
 
             var settingsJsonContents = File.ReadAllText(Filepath);
+
+            if (string.IsNullOrWhiteSpace(settingsJsonContents))
+            {
+                createNewFile();
+                settingsJsonContents = File.ReadAllText(Filepath);
+            }
+
             var jObject = JsonConvert.DeserializeObject<JObject>(settingsJsonContents);
 
             if (jObject is null)
@@ -225,6 +231,12 @@ namespace FileManager
             }
 
             return jObject;
+        }
+
+        private void createNewFile()
+        {
+            File.WriteAllText(Filepath, "{}");
+            System.Threading.Thread.Sleep(100);
         }
     }
 }
