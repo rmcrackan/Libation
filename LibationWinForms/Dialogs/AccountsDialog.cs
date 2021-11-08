@@ -112,6 +112,9 @@ namespace LibationWinForms.Dialogs
 		{
 			try
 			{
+				if (!inputIsValid())
+					return;
+
 				// without transaction, accounts persister will write ANY EDIT immediately to file
 				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 
@@ -127,6 +130,28 @@ namespace LibationWinForms.Dialogs
 			{
 				MessageBoxAlertAdmin.Show("Error attempting to save accounts", "Error saving accounts", ex);
 			}
+		}
+
+		private bool inputIsValid()
+		{
+			var dtos = getRowDtos();
+
+			foreach (var dto in dtos)
+			{
+				if (string.IsNullOrWhiteSpace(dto.AccountId))
+				{
+					MessageBox.Show("Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return false;
+				}
+
+				if (string.IsNullOrWhiteSpace(dto.LocaleName))
+				{
+					MessageBox.Show("Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		private void persist(AccountsSettings accountsSettings)
@@ -152,11 +177,6 @@ namespace LibationWinForms.Dialogs
 			// upsert each. validation occurs through Account and AccountsSettings
 			foreach (var dto in dtos)
 			{
-				if (string.IsNullOrWhiteSpace(dto.AccountId))
-					throw new Exception("Please enter an account id for all accounts");
-				if (string.IsNullOrWhiteSpace(dto.LocaleName))
-					throw new Exception("Please select a locale (i.e.: country or region) for all accounts");
-
 				var acct = accountsSettings.Upsert(dto.AccountId, dto.LocaleName);
 				acct.LibraryScan = dto.LibraryScan;
 				acct.AccountName
