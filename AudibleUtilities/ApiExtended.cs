@@ -166,8 +166,7 @@ namespace AudibleUtilities
 
 				Serilog.Log.Logger.Information($"{parents.Count} series of shows/podcasts found");
 
-				// remove episode parents. even if the following stuff fails, these will still be removed from the collection.
-				// also must happen before processing children because children abuses this flag
+				// remove episode parents. even if the following stuff fails, these will still be removed from the collection
 				items.RemoveAll(i => i.IsEpisodes);
 
 				if (importEpisodes)
@@ -191,6 +190,14 @@ namespace AudibleUtilities
 			foreach (var parent in parents)
 			{
 				var children = await getEpisodeChildrenAsync(parent);
+
+				// actual individual episode, not the parent of a series.
+				// for now I'm keeping it inside this method since it fits the work flow, incl. importEpisodes logic
+				if (!children.Any())
+				{
+					results.Add(parent);
+					continue;
+				}
 
 				foreach (var child in children)
 				{
