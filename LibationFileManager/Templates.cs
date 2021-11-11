@@ -1,9 +1,10 @@
-﻿using Dinah.Core;
-using FileManager;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Dinah.Core;
+using FileManager;
 
 namespace LibationFileManager
 {
@@ -106,12 +107,21 @@ namespace LibationFileManager
             : getFileNamingTemplate(libraryBookDto, template, null, null)
             .GetFilePath();
 
+        private static Regex ifSeriesRegex { get; } = new Regex("<if series->(.*?)<-if series>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         internal static FileNamingTemplate getFileNamingTemplate(LibraryBookDto libraryBookDto, string template, string dirFullPath, string extension)
         {
             ArgumentValidator.EnsureNotNullOrWhiteSpace(template, nameof(template));
             ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 
             dirFullPath = dirFullPath?.Trim() ?? "";
+
+            // for non-series, remove <if series-> and <-if series> tags and everything in between
+            // for series, remove <if series-> and <-if series> tags, what's in between will remain
+            template = ifSeriesRegex.Replace(
+                template,
+                string.IsNullOrWhiteSpace(libraryBookDto.SeriesName) ? "" : "$1");
+
             var t = template + FileUtility.GetStandardizedExtension(extension);
             var fullfilename = dirFullPath == "" ? t : Path.Combine(dirFullPath, t);
 

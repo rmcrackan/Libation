@@ -114,12 +114,12 @@
 			// columnHeader1
 			// 
 			this.columnHeader1.Text = "Tag";
-			this.columnHeader1.Width = 90;
+			this.columnHeader1.Width = 137;
 			// 
 			// columnHeader2
 			// 
 			this.columnHeader2.Text = "Description";
-			this.columnHeader2.Width = 230;
+			this.columnHeader2.Width = 170;
 			// 
 			// richTextBox1
 			// 
@@ -137,14 +137,13 @@
 			// warningsLbl
 			// 
 			this.warningsLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.warningsLbl.AutoSize = true;
 			this.warningsLbl.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
 			this.warningsLbl.ForeColor = System.Drawing.Color.Firebrick;
 			this.warningsLbl.Location = new System.Drawing.Point(346, 262);
 			this.warningsLbl.Name = "warningsLbl";
-			this.warningsLbl.Size = new System.Drawing.Size(14, 15);
-			this.warningsLbl.TabIndex = 100;
-			this.warningsLbl.Text = "6";
+			this.warningsLbl.Size = new System.Drawing.Size(574, 77);
+			this.warningsLbl.TabIndex = 6;
+			this.warningsLbl.Text = "[warnings]";
 			// 
 			// exampleLbl
 			// 

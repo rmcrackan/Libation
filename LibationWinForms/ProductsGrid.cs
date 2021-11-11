@@ -71,7 +71,7 @@ namespace LibationWinForms
 			}
 		}
 
-		private async Task Liberate_Click(GridEntry liveGridEntry)
+		private static async Task Liberate_Click(GridEntry liveGridEntry)
 		{
 			var libraryBook = liveGridEntry.LibraryBook;
 
@@ -91,7 +91,7 @@ namespace LibationWinForms
 			await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook);
 		}
 
-		private void Details_Click(GridEntry liveGridEntry)
+		private static void Details_Click(GridEntry liveGridEntry)
 		{
 			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
 			if (bookDetailsForm.ShowDialog() != DialogResult.OK)

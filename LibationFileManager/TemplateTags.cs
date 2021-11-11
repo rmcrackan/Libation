@@ -21,8 +21,8 @@ namespace LibationFileManager
         // putting these first is the incredibly lazy way to make them show up first in the EditTemplateDialog
         public static TemplateTags ChCount { get; } = new TemplateTags("ch count", "Number of chapters", true);
         public static TemplateTags ChTitle { get; } = new TemplateTags("ch title", "Chapter title", true);
-        public static TemplateTags ChNumber { get; } = new TemplateTags("ch#", "Chapter number", true);
-        public static TemplateTags ChNumber0 { get; } = new TemplateTags("ch# 0", "Chapter number with leading zeros", true);
+        public static TemplateTags ChNumber { get; } = new TemplateTags("ch#", "Chapter #", true);
+        public static TemplateTags ChNumber0 { get; } = new TemplateTags("ch# 0", "Chapter # with leading zeros", true);
 
         public static TemplateTags Id { get; } = new TemplateTags("id", "Audible ID");
         public static TemplateTags Title { get; } = new TemplateTags("title", "Full title");
@@ -36,5 +36,9 @@ namespace LibationFileManager
         public static TemplateTags SeriesNumber { get; } = new TemplateTags("series#", "Number order in series");
         public static TemplateTags Account { get; } = new TemplateTags("account", "Audible account of this book");
         public static TemplateTags Locale { get; } = new TemplateTags("locale", "Region/country");
+
+        // Special case. Isn't mapped to a replacement in Templates.cs
+        // Included here for display by EditTemplateDialog
+        public static TemplateTags IfSeries { get; } = new TemplateTags("if series->...<-if series", "Only include if part of a series");
     }
 }

@@ -18,7 +18,7 @@ namespace LibationWinForms
 	/// </summary>
 	internal class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
 	{
-		#region implementation properties
+		#region implementation properties NOT exposed to the view
 		// hide from public fields from Data Source GUI with [Browsable(false)]
 
 		[Browsable(false)]
@@ -28,10 +28,52 @@ namespace LibationWinForms
 
 		#endregion
 
+		#region Model properties exposed to the view
+		private Image _cover;
+		public Image Cover
+		{
+			get => _cover;
+			private set
+			{
+				_cover = value;
+				NotifyPropertyChanged();
+			}
+		}
+
+		public string ProductRating { get; }
+		public string PurchaseDate { get; }
+		public string MyRating { get; }
+		public string Series { get; }
+		public string Title { get; }
+		public string Length { get; }
+		public string Authors { get; }
+		public string Narrators { get; }
+		public string Category { get; }
+		public string Misc { get; }
+		public string Description { get; }
+		public string DisplayTags
+		{
+			get => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
+			set => Book.UserDefinedItem.Tags = value;
+		}
+
+		// these 2 values being in 1 field is the trick behind getting the liberated+pdf 'stoplight' icon to draw. See: LiberateDataGridViewImageButtonCell.Paint
+		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
+		{
+			get => (LibraryCommands.Liberated_Status(LibraryBook.Book), LibraryCommands.Pdf_Status(LibraryBook.Book));
+			
+			set
+			{
+				LibraryBook.Book.UserDefinedItem.BookStatus = value.BookStatus;
+				LibraryBook.Book.UserDefinedItem.PdfStatus = value.PdfStatus;
+			}
+		}
+
+		#endregion
+
 		public event EventHandler Committed;
 
 		private Book Book => LibraryBook.Book;
-		private Image _cover;
 
 		public GridEntry(LibraryBook libraryBook)
 		{
@@ -145,53 +187,13 @@ namespace LibationWinForms
 			Committed?.Invoke(this, null);
 		}
 
-		#endregion	
-
-		#region Model properties exposed to the view
-		public Image Cover
-		{
-			get
-			{
-				return _cover;
-			}
-			private set
-			{
-				_cover = value;
-				NotifyPropertyChanged();
-			}
-		}
-
-		public string ProductRating { get; }
-		public string PurchaseDate { get; }
-		public string MyRating { get; }
-		public string Series { get; }
-		public string Title { get; }
-		public string Length { get; }
-		public string Authors { get; }
-		public string Narrators { get; }
-		public string Category { get; }
-		public string Misc { get; }
-		public string Description { get; }
-		public string DisplayTags
-		{
-			get => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
-			set => Book.UserDefinedItem.Tags = value;
-		}
-		// these 2 values being in 1 field is the trick behind getting the liberated+pdf 'stoplight' icon to draw. See: LiberateDataGridViewImageButtonCell.Paint
-		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
-		{
-			get => (LibraryCommands.Liberated_Status(LibraryBook.Book), LibraryCommands.Pdf_Status(LibraryBook.Book));
-			
-			set
-			{
-				LibraryBook.Book.UserDefinedItem.BookStatus = value.BookStatus;
-				LibraryBook.Book.UserDefinedItem.PdfStatus = value.PdfStatus;
-			}
-		}
-
 		#endregion
 
 		#region Data Sorting
+		// These methods are implementation of Dinah.Core.DataBinding.IMemberComparable
+		// Used by Dinah.Core.DataBinding.SortableBindingList<T> for all sorting
+		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
+		public virtual IComparer GetMemberComparer(Type memberType) => _memberTypeComparers[memberType];
 
 		private Dictionary<string, Func<object>> _memberValues { get; }
 
@@ -224,9 +226,6 @@ namespace LibationWinForms
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
 			{ typeof(LiberatedStatus), new ObjectComparer<LiberatedStatus>() },
 		};
-
-		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
-		public virtual IComparer GetMemberComparer(Type memberType) => _memberTypeComparers[memberType];
 
 		private static readonly string[] _sortPrefixIgnores = { "the", "a", "an" };
 		private static string GetSortName(string unformattedName)

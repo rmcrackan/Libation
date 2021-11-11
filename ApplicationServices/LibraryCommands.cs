@@ -167,8 +167,8 @@ namespace ApplicationServices
 		{
 			logTime("importIntoDbAsync -- pre db");
 			using var context = DbContexts.GetContext();
-			var libraryImporter = new LibraryBookImporter(context);
-			var newCount = await Task.Run(() => libraryImporter.Import(importItems));
+			var libraryBookImporter = new LibraryBookImporter(context);
+			var newCount = await Task.Run(() => libraryBookImporter.Import(importItems));
 			logTime("importIntoDbAsync -- post Import()");
 			var qtyChanges = context.SaveChanges();
 			logTime("importIntoDbAsync -- post SaveChanges");

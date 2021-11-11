@@ -13,7 +13,7 @@ namespace TemplatesTests
 {
 	public static class Shared
 	{
-		public static LibraryBookDto GetLibraryBook(string asin)
+		public static LibraryBookDto GetLibraryBook(string asin, string seriesName = "Sherlock Holmes")
 			=> new()
 			{
 				Account = "my account",
@@ -22,7 +22,7 @@ namespace TemplatesTests
 				Locale = "us",
 				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
 				Narrators = new List<string> { "Stephen Fry" },
-				SeriesName = "Sherlock Holmes",
+				SeriesName = seriesName ?? "",
 				SeriesNumber = "1"
 			};
 	}
@@ -75,6 +75,24 @@ namespace TemplatesTests
 			=> Templates.getFileNamingTemplate(GetLibraryBook(asin), template, dirFullPath, extension)
 			.GetFilePath()
 			.Should().Be(expected);
+
+		[TestMethod]
+		public void IfSeries_empty()
+			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", "Sherlock Holmes"), "foo<if series-><-if series>bar", @"C:\a\b", "ext")
+			.GetFilePath()
+			.Should().Be(@"C:\a\b\foobar.ext");
+
+		[TestMethod]
+		public void IfSeries_no_series()
+			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", ""), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
+			.GetFilePath()
+			.Should().Be(@"C:\a\b\foobar.ext");
+
+		[TestMethod]
+		public void IfSeries_with_series()
+			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", "Sherlock Holmes"), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
+			.GetFilePath()
+			.Should().Be(@"C:\a\b\foo-Sherlock Holmes-asin-bar.ext");
 	}
 }
 
