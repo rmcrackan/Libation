@@ -3,12 +3,11 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>libation.ico</ApplicationIcon>
     <AssemblyName>Libation</AssemblyName>
 
-    <PublishTrimmed>true</PublishTrimmed>
     <PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -29,7 +28,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core.WindowsDesktop" Version="2.1.2.1" />
+    <PackageReference Include="Dinah.Core.WindowsDesktop" Version="4.0.1.1" />
   </ItemGroup>
 
   <ItemGroup>
