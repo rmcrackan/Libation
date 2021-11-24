@@ -86,34 +86,54 @@ namespace FileManager
         {
             ArgumentValidator.EnsureNotNull(path, nameof(path));
 
-            var invalidChars = Path.GetInvalidPathChars().Union(new[] {
+            path = replaceInvalidChars(path, illegalCharacterReplacements);
+            path = standardizeSlashes(path);
+            path = replaceColons(path, illegalCharacterReplacements);
+            path = removeDoubleSlashes(path);
+
+            return path;
+        }
+
+        private static char[] invalidChars { get; } = Path.GetInvalidPathChars().Union(new[] {
                 '*', '?',
-                // these are weird. If you run Path.GetInvalidPathChars() in C# interactive, these characters are included.
+                // these are weird. If you run Path.GetInvalidPathChars() in Visual Studio's "C# Interactive", then these characters are included.
                 // In live code, Path.GetInvalidPathChars() does not include them
                 '"', '<', '>'
             }).ToArray();
+        private static string replaceInvalidChars(string path, string illegalCharacterReplacements)
+            => string.Join(illegalCharacterReplacements ?? "", path.Split(invalidChars));
 
-            var fixedPath = string
-                .Join(illegalCharacterReplacements ?? "", path.Split(invalidChars))
-                .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        private static string standardizeSlashes(string path)
+            => path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
+        private static string replaceColons(string path, string illegalCharacterReplacements)
+        {
             // replace all colons except within the first 2 chars
             var builder = new System.Text.StringBuilder();
-            for (var i = 0; i < fixedPath.Length; i++)
+            for (var i = 0; i < path.Length; i++)
             {
-                var c = fixedPath[i];
+                var c = path[i];
                 if (i >= 2 && c == ':')
                     builder.Append(illegalCharacterReplacements);
                 else
                     builder.Append(c);
             }
-            fixedPath = builder.ToString();
+            return builder.ToString();
+        }
 
+        private static string removeDoubleSlashes(string path)
+        {
+            if (path.Length < 2)
+                return path;
+
+            // exception: don't try to condense the initial dbl bk slashes in a path. eg: \\192.168.0.1
+
+            var remainder = path[1..];
             var dblSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
-            while (fixedPath.Contains(dblSeparator))
-                fixedPath = fixedPath.Replace(dblSeparator, $"{Path.DirectorySeparatorChar}");
+            while (remainder.Contains(dblSeparator))
+                remainder = remainder.Replace(dblSeparator, $"{Path.DirectorySeparatorChar}");
 
-            return fixedPath;
+            return path[0] + remainder;
         }
 
         /// <summary>
