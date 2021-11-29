@@ -66,6 +66,10 @@ I made this for myself and I want to share it with the great programming and aud
 
 #### [Download Libation](https://github.com/rmcrackan/Libation/releases)
 
+#### Installation
+
+To install Libation, extract the zip file to a folder, for example `C:\Libation`, and then run Libation.exe from that folder to begin the configuration process and configure your account(s).
+
 ### Create Accounts
 
 Create your account(s):
