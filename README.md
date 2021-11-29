@@ -12,6 +12,8 @@
     - [The bad](#the-bad)
     - [The ugly](#the-ugly)
 2. [Getting started](#getting-started)
+    - [Download Libation](#download-libation-1)
+    - [Installation](#installation)
     - [Create Accounts](#create-accounts)
     - [Import your library](#import-your-library)
     - [Download your books -- DRM-free!](#download-your-books----drm-free)
@@ -64,9 +66,9 @@ I made this for myself and I want to share it with the great programming and aud
 
 ## Getting started
 
-#### [Download Libation](https://github.com/rmcrackan/Libation/releases)
+### [Download Libation](https://github.com/rmcrackan/Libation/releases)
 
-#### Installation
+### Installation
 
 To install Libation, extract the zip file to a folder, for example `C:\Libation`, and then run Libation.exe from that folder to begin the configuration process and configure your account(s).
 
