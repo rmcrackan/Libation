@@ -27,6 +27,7 @@ namespace LibationWinForms.Dialogs
 				loggingLevelCb.SelectedItem = config.LogLevel;
 			}
 
+			this.showImportedStatsCb.Text = desc(nameof(config.ShowImportedStats));
 			this.importEpisodesCb.Text = desc(nameof(config.ImportEpisodes));
 			this.downloadEpisodesCb.Text = desc(nameof(config.DownloadEpisodes));
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
@@ -46,6 +47,7 @@ namespace LibationWinForms.Dialogs
 				"Books");
 			booksSelectControl.SelectDirectory(config.Books);
 
+			showImportedStatsCb.Checked = config.ShowImportedStats;
 			importEpisodesCb.Checked = config.ImportEpisodes;
 			downloadEpisodesCb.Checked = config.DownloadEpisodes;
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
@@ -166,6 +168,7 @@ namespace LibationWinForms.Dialogs
 					MessageBoxVerboseLoggingWarning.ShowIfTrue();
 			}
 
+			config.ShowImportedStats = showImportedStatsCb.Checked;
 			config.ImportEpisodes = importEpisodesCb.Checked;
 			config.DownloadEpisodes = downloadEpisodesCb.Checked;
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;

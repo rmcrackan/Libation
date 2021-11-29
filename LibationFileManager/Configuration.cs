@@ -133,6 +133,13 @@ namespace LibationFileManager
             set => persistentDictionary.SetString(nameof(BadBook), value.ToString());
         }
 
+        [Description("Show number of newly imported titles? When unchecked, no pop-up will appear after library scan.")]
+        public bool ShowImportedStats
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(ShowImportedStats));
+            set => persistentDictionary.SetNonString(nameof(ShowImportedStats), value);
+        }
+
         [Description("Import episodes? (eg: podcasts) When unchecked, episodes will not be imported into Libation.")]
         public bool ImportEpisodes
         {

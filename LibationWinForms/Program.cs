@@ -30,9 +30,7 @@ namespace LibationWinForms
 				//// Only use while debugging. Acts erratically in the wild
 				//AllocConsole();
 
-				Application.SetHighDpiMode(HighDpiMode.SystemAware);
-				Application.EnableVisualStyles();
-				Application.SetCompatibleTextRenderingDefault(false);
+				ApplicationConfiguration.Initialize();
 
 				//***********************************************//
 				//                                               //

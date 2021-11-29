@@ -334,7 +334,8 @@ namespace LibationWinForms
 			var totalProcessed = dialog.TotalBooksProcessed;
 			var newAdded = dialog.NewBooksAdded;
 
-			MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
+			if (Configuration.Instance.ShowImportedStats)
+				MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
 		}
 		#endregion
 

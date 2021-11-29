@@ -60,6 +60,7 @@ namespace AppScaffolding
 			Migrations.migrate_to_v6_1_2(config);
 			Migrations.migrate_to_v6_2_0(config);
 			Migrations.migrate_to_v6_2_9(config);
+			Migrations.migrate_to_v6_5_2(config);
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>
@@ -358,6 +359,13 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.ChapterFileTemplate)))
 				config.ChapterFileTemplate = Templates.ChapterFile.DefaultTemplate;
+		}
+
+		// add config.ShowImportedStats
+		public static void migrate_to_v6_5_2(Configuration config)
+		{
+			if (!config.Exists(nameof(config.ShowImportedStats)))
+				config.ShowImportedStats = true;
 		}
 	}
 }
