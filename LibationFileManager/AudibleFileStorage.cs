@@ -47,7 +47,7 @@ namespace LibationFileManager
         {
             // primary lookup
             var cachedFile = FilePathCache.GetFirstPath(productId, FileType);
-            if (cachedFile != null)
+            if (cachedFile is not null && File.Exists(cachedFile))
                 return cachedFile;
 
             // secondary lookup attempt
