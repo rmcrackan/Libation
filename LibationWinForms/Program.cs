@@ -138,9 +138,10 @@ namespace LibationWinForms
 				}
 			}
 
+			// INIT DEFAULT SETTINGS
 			// if 'new user' was clicked, or if 'returning user' chose new install: show basic settings dialog
 			config.Books ??= Path.Combine(defaultLibationFilesDir, "Books");
-			config.InProgress ??= Configuration.WinTemp;
+			AppScaffolding.LibationScaffolding.PopulateMissingConfigValues(config);
 
 			if (new SettingsDialog().ShowDialog() != DialogResult.OK)
 			{

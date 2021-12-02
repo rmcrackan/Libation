@@ -50,17 +50,48 @@ namespace AppScaffolding
 		public static void RunPostConfigMigrations(Configuration config)
 		{
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
+			PopulateMissingConfigValues(config);
 
 			//
 			// migrations go below here
 			//
 
-			Migrations.migrate_to_v5_2_0__post_config(config);
-			Migrations.migrate_to_v5_7_1(config);
-			Migrations.migrate_to_v6_1_2(config);
-			Migrations.migrate_to_v6_2_0(config);
-			Migrations.migrate_to_v6_2_9(config);
 			Migrations.migrate_to_v6_5_2(config);
+		}
+
+		public static void PopulateMissingConfigValues(Configuration config)
+		{
+			config.InProgress ??= Configuration.WinTemp;
+
+			if (!config.Exists(nameof(config.AllowLibationFixup)))
+				config.AllowLibationFixup = true;
+
+			if (!config.Exists(nameof(config.DecryptToLossy)))
+				config.DecryptToLossy = false;
+
+			if (!config.Exists(nameof(config.BadBook)))
+				config.BadBook = Configuration.BadBookAction.Ask;
+
+			if (!config.Exists(nameof(config.DownloadEpisodes)))
+				config.DownloadEpisodes = true;
+
+			if (!config.Exists(nameof(config.ImportEpisodes)))
+				config.ImportEpisodes = true;
+
+			if (!config.Exists(nameof(config.SplitFilesByChapter)))
+				config.SplitFilesByChapter = false;
+
+			if (!config.Exists(nameof(config.FolderTemplate)))
+				config.FolderTemplate = Templates.Folder.DefaultTemplate;
+
+			if (!config.Exists(nameof(config.FileTemplate)))
+				config.FileTemplate = Templates.File.DefaultTemplate;
+
+			if (!config.Exists(nameof(config.ChapterFileTemplate)))
+				config.ChapterFileTemplate = Templates.ChapterFile.DefaultTemplate;
+
+			if (!config.Exists(nameof(config.ShowImportedStats)))
+				config.ShowImportedStats = true;
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>
@@ -313,59 +344,11 @@ namespace AppScaffolding
 				"WinTemp" => Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation")),
 				_ => path
 			};
-
-		public static void migrate_to_v5_2_0__post_config(Configuration config)
-		{
-			if (!config.Exists(nameof(config.AllowLibationFixup)))
-				config.AllowLibationFixup = true;
-
-			if (!config.Exists(nameof(config.DecryptToLossy)))
-				config.DecryptToLossy = false;
-		}
 		#endregion
 
-		// add config.BadBook
-		public static void migrate_to_v5_7_1(Configuration config)
-		{
-			if (!config.Exists(nameof(config.BadBook)))
-				config.BadBook = Configuration.BadBookAction.Ask;
-		}
-
-		// add config.DownloadEpisodes , config.ImportEpisodes
-		public static void migrate_to_v6_1_2(Configuration config)
-		{
-			if (!config.Exists(nameof(config.DownloadEpisodes)))
-				config.DownloadEpisodes = true;
-
-			if (!config.Exists(nameof(config.ImportEpisodes)))
-				config.ImportEpisodes = true;
-		}
-
-		// add config.SplitFilesByChapter
-		public static void migrate_to_v6_2_0(Configuration config)
-		{
-			if (!config.Exists(nameof(config.SplitFilesByChapter)))
-				config.SplitFilesByChapter = false;
-		}
-
-		// add file naming templates
-		public static void migrate_to_v6_2_9(Configuration config)
-		{
-			if (!config.Exists(nameof(config.FolderTemplate)))
-				config.FolderTemplate = Templates.Folder.DefaultTemplate;
-
-			if (!config.Exists(nameof(config.FileTemplate)))
-				config.FileTemplate = Templates.File.DefaultTemplate;
-
-			if (!config.Exists(nameof(config.ChapterFileTemplate)))
-				config.ChapterFileTemplate = Templates.ChapterFile.DefaultTemplate;
-		}
-
-		// add config.ShowImportedStats
 		public static void migrate_to_v6_5_2(Configuration config)
 		{
-			if (!config.Exists(nameof(config.ShowImportedStats)))
-				config.ShowImportedStats = true;
+			// example
 		}
 	}
 }
