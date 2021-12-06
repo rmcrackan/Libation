@@ -73,7 +73,15 @@ namespace DtoImporterService
 					var category = DbContext.Categories.Local.FirstOrDefault(c => c.AudibleCategoryId == id);
 					if (category is null)
 					{
-						category = DbContext.Categories.Add(new Category(new AudibleCategoryId(id), name)).Entity;
+						try
+						{
+							category = DbContext.Categories.Add(new Category(new AudibleCategoryId(id), name)).Entity;
+						}
+						catch (Exception ex)
+						{
+							Serilog.Log.Logger.Error(ex, "Error adding category. {@DebugInfo}", new { id, name });
+							throw;
+						}
 						qtyNew++;
 					}
 

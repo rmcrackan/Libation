@@ -51,7 +51,15 @@ namespace DtoImporterService
 				var series = DbContext.Series.Local.FirstOrDefault(c => c.AudibleSeriesId == s.SeriesId);
 				if (series is null)
 				{
-					series = DbContext.Series.Add(new DataLayer.Series(new AudibleSeriesId(s.SeriesId))).Entity;
+					try
+					{
+						series = DbContext.Series.Add(new DataLayer.Series(new AudibleSeriesId(s.SeriesId))).Entity;
+					}
+					catch (Exception ex)
+					{
+						Serilog.Log.Logger.Error(ex, "Error adding series. {@DebugInfo}", new { s?.SeriesId });
+						throw;
+					}
 					qtyNew++;
 				}
 				series.UpdateName(s.SeriesName);

@@ -83,7 +83,16 @@ namespace DtoImporterService
 			foreach (var name in newPeople)
 			{
 				var p = groupby.Single(g => g.Name == name).People.First();
-				DbContext.Contributors.Add(new Contributor(p.Name, p.Asin));
+
+				try
+				{
+					DbContext.Contributors.Add(new Contributor(p.Name, p.Asin));
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, "Error adding person. {@DebugInfo}", new { p?.Name, p?.Asin });
+					throw;
+				}
 			}
 
 			return newPeople.Count;
@@ -99,7 +108,17 @@ namespace DtoImporterService
 				.ToList();
 
 			foreach (var pub in newPublishers)
-				DbContext.Contributors.Add(new Contributor(pub));
+			{
+				try
+				{
+					DbContext.Contributors.Add(new Contributor(pub));
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, "Error adding publisher. {@DebugInfo}", new { pub });
+					throw;
+				}
+			}
 
 			return newPublishers.Count;
 		}

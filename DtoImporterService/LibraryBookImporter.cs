@@ -35,18 +35,38 @@ namespace DtoImporterService
 			// CURRENT SOLUTION: don't re-insert
 
 			var currentLibraryProductIds = DbContext.LibraryBooks.Select(l => l.Book.AudibleProductId).ToList();
-			var newItems = importItems.Where(dto => !currentLibraryProductIds.Contains(dto.DtoItem.ProductId)).ToList();
+			var newItems = importItems
+				.Where(dto => !currentLibraryProductIds
+				.Contains(dto.DtoItem.ProductId))
+				.ToList();
 
-			foreach (var newItem in newItems)
+			// if 2 accounts try to import the same book in the same transaction: error since we're only tracking and pulling by asin.
+			// just use the first
+			var groupby = newItems.GroupBy(
+				i => i.DtoItem.ProductId,
+				i => i,
+				(key, g) => new { ProductId = key, ImportItems = g.ToList() }
+				)
+				.ToList();
+			foreach (var gb in groupby)
 			{
+				var newItem = gb.ImportItems.First();
+
 				var libraryBook = new LibraryBook(
 					DbContext.Books.Local.Single(b => b.AudibleProductId == newItem.DtoItem.ProductId),
 					newItem.DtoItem.DateAdded,
 					newItem.AccountId);
-				DbContext.LibraryBooks.Add(libraryBook);
+				try
+				{
+					DbContext.LibraryBooks.Add(libraryBook);
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, "Error adding library book. {@DebugInfo}", new { libraryBook.Book, libraryBook.Account });
+				}
 			}
 
-			var qtyNew = newItems.Count;
+			var qtyNew = groupby.Count;
 			return qtyNew;
 		}
 	}

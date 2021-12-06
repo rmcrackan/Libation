@@ -120,17 +120,36 @@ namespace DtoImporterService
 
 			var category = DbContext.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == lastCategory);
 
-			var book = DbContext.Books.Add(new Book(
-				new AudibleProductId(item.ProductId),
-				item.TitleWithSubtitle,
-				item.Description,
-				item.LengthInMinutes,
-				contentType,
-				authors,
-				narrators,
-				category,
-				importItem.LocaleName)
-			).Entity;
+			Book book;
+			try
+			{
+				book = DbContext.Books.Add(new Book(
+					new AudibleProductId(item.ProductId),
+					item.TitleWithSubtitle,
+					item.Description,
+					item.LengthInMinutes,
+					contentType,
+					authors,
+					narrators,
+					category,
+					importItem.LocaleName)
+					).Entity;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error adding book. {@DebugInfo}", new {
+					item.ProductId,
+					item.TitleWithSubtitle,
+					item.Description,
+					item.LengthInMinutes,
+					contentType,
+					QtyAuthors = authors?.Count,
+					QtyNarrators = narrators?.Count,
+					Category = category?.Name,
+					importItem.LocaleName
+				});
+				throw;
+			}
 
 			var publisherName = item.Publisher;
 			if (!string.IsNullOrWhiteSpace(publisherName))
