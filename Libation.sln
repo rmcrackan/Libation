@@ -62,7 +62,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileLiberator.Tests", "_Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileManager.Tests", "_Tests\FileManager.Tests\FileManager.Tests.csproj", "{F2E04270-4551-41C4-99FF-E7125BED708C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibationFileManager.Tests", "_Tests\LibationFileManager.Tests\LibationFileManager.Tests.csproj", "{EB781571-8548-477E-82AD-FB9FAB548D2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationFileManager.Tests", "_Tests\LibationFileManager.Tests\LibationFileManager.Tests.csproj", "{EB781571-8548-477E-82AD-FB9FAB548D2F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
