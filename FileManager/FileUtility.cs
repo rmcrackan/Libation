@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Dinah.Core;
 using Polly;
 using Polly.Retry;
@@ -64,6 +65,8 @@ namespace FileManager
             var extension = Path.GetExtension(path);
 
             var fullfilename = fileStem.Truncate(MAX_FILENAME_LENGTH - extension.Length) + extension;
+
+            fullfilename = removeInvalidWhitespace(fullfilename);
 
             var i = 0;
             while (File.Exists(fullfilename))
@@ -134,6 +137,24 @@ namespace FileManager
                 remainder = remainder.Replace(dblSeparator, $"{Path.DirectorySeparatorChar}");
 
             return path[0] + remainder;
+        }
+
+        private static string removeInvalidWhitespace_pattern { get; } = $@"\s*\{Path.DirectorySeparatorChar}\s*";
+        private static Regex removeInvalidWhitespace_regex { get; } = new(removeInvalidWhitespace_pattern, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+
+        /// <summary>no part of the path may begin or end in whitespace</summary>
+        private static string removeInvalidWhitespace(string fullfilename)
+        {
+            // no whitespace at beginning or end
+            // replace whitespace around path slashes
+            //    regex (with space added for clarity)
+            //    \s*  \\  \s*    =>    \
+            fullfilename = fullfilename.Trim();
+            
+            fullfilename = removeInvalidWhitespace_regex.Replace(fullfilename, @"\");
+
+            fullfilename = removeDoubleSlashes(fullfilename);
+            return fullfilename;
         }
 
         /// <summary>
