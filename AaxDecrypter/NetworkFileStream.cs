@@ -193,9 +193,6 @@ namespace AaxDecrypter
             if (response.StatusCode != HttpStatusCode.PartialContent)
                 throw new WebException($"Server at {Uri.Host} responded with unexpected status code: {response.StatusCode}.");
 
-            if (response.Headers.GetValues("Accept-Ranges").FirstOrDefault(r => r.EqualsInsensitive("bytes")) is null)
-                throw new WebException($"Server at {Uri.Host} does not support Http ranges");
-
             //Content length is the length of the range request, and it is only equal
             //to the complete file length if requesting Range: bytes=0-
             if (WritePosition == 0)
