@@ -244,7 +244,7 @@ To make upgrades and reinstalls easier, Libation separates all of its responsibi
 
 ### Linux and Mac
 
-Although Libation only currently officially supports Windows, [some users](https://github.com/rmcrackan/Libation/issues/28#issuecomment-890594158) have had success with WINE.
+Although Libation only currently officially supports Windows, some users have had success with WINE. ([Linux](https://github.com/rmcrackan/Libation/issues/28#issuecomment-890594158), [OSX Crossover and WINE](https://github.com/rmcrackan/Libation/issues/150#issuecomment-1004918592))
 
 ### Settings
 
