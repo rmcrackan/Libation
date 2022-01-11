@@ -53,7 +53,8 @@ namespace DtoImporterService
 				var newItem = gb.ImportItems.First();
 
 				var libraryBook = new LibraryBook(
-					DbContext.Books.Local.Single(b => b.AudibleProductId == newItem.DtoItem.ProductId),
+					// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
+					DbContext.Books.Local.FirstOrDefault(b => b.AudibleProductId == newItem.DtoItem.ProductId),
 					newItem.DtoItem.DateAdded,
 					newItem.AccountId);
 				try

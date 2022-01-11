@@ -82,7 +82,8 @@ namespace DtoImporterService
 				);
 			foreach (var name in newPeople)
 			{
-				var p = groupby.Single(g => g.Name == name).People.First();
+				// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
+				var p = groupby.FirstOrDefault(g => g.Name == name).People.First();
 
 				try
 				{

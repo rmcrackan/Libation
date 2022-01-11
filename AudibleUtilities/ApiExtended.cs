@@ -209,7 +209,8 @@ namespace AudibleUtilities
 						new Series
 						{
 							Asin = parent.Asin,
-							Sequence = parent.Relationships.Single(r => r.Asin == child.Asin).Sort.ToString(),
+							// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive for malformed data from audible
+							Sequence = parent.Relationships.FirstOrDefault(r => r.Asin == child.Asin).Sort.ToString(),
 							Title = parent.TitleWithSubtitle
 						}
 					};

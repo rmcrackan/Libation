@@ -94,7 +94,8 @@ namespace DtoImporterService
 			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
 			var authors = item
 				.Authors
-				.Select(a => DbContext.Contributors.Local.Single(c => a.Name == c.Name))
+				// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
+				.Select(a => DbContext.Contributors.Local.FirstOrDefault(c => a.Name == c.Name))
 				.ToList();
 
 			var narrators
@@ -104,7 +105,8 @@ namespace DtoImporterService
 				// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
 				: item
 					.Narrators
-					.Select(n => DbContext.Contributors.Local.Single(c => n.Name == c.Name))
+					// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
+					.Select(n => DbContext.Contributors.Local.FirstOrDefault(c => n.Name == c.Name))
 					.ToList();
 
 			// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
@@ -154,7 +156,8 @@ namespace DtoImporterService
 			var publisherName = item.Publisher;
 			if (!string.IsNullOrWhiteSpace(publisherName))
 			{
-				var publisher = DbContext.Contributors.Local.Single(c => publisherName == c.Name);
+				// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
+				var publisher = DbContext.Contributors.Local.FirstOrDefault(c => publisherName == c.Name);
 				book.ReplacePublisher(publisher);
 			}
 
