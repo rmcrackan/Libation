@@ -174,7 +174,9 @@ namespace DtoImporterService
 			var item = importItem.DtoItem;
 
 			// set/update book-specific info which may have changed
-			book.PictureId = item.PictureId;
+			if (item.PictureId is not null)
+				book.PictureId = item.PictureId;
+
 			book.UpdateProductRating(item.Product_OverallStars, item.Product_PerformanceStars, item.Product_StoryStars);
 
 			// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import

@@ -73,16 +73,10 @@ namespace LibationFileManager
 				if (!cache.ContainsKey(def) || cache[def] == null)
 				{
 					var path = getPath(def);
-					byte[] bytes;
-
-					if (File.Exists(path))
-						bytes = File.ReadAllBytes(path);
-					else
-					{
-						bytes = downloadBytes(def);
-						saveFile(def, bytes);
-					}
-
+					var bytes
+						= File.Exists(path)
+						? File.ReadAllBytes(path)
+						: downloadBytes(def);
 					cache[def] = bytes;
 				}
 				return cache[def];
@@ -104,7 +98,6 @@ namespace LibationFileManager
 					continue;
 
 				var bytes = downloadBytes(def);
-				saveFile(def, bytes);
 				lock (cacheLocker)
 					cache[def] = bytes;
 
@@ -115,14 +108,24 @@ namespace LibationFileManager
 		private static HttpClient imageDownloadClient { get; } = new HttpClient();
 		private static byte[] downloadBytes(PictureDefinition def)
 		{
-			var sz = (int)def.Size;
-			return imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}._SL{sz}_.jpg").Result;
-		}
+			if (def.PictureId is null)
+				return getDefaultImage(def.Size);
 
-		private static void saveFile(PictureDefinition def, byte[] bytes)
-		{
-			var path = getPath(def);
-			File.WriteAllBytes(path, bytes);
+			try
+			{
+				var sz = (int)def.Size;
+				var bytes = imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}._SL{sz}_.jpg").Result;
+
+				// save image file. make sure to not save default image
+				var path = getPath(def);
+				File.WriteAllBytes(path, bytes);
+
+				return bytes;
+			}
+			catch
+			{
+				return getDefaultImage(def.Size);
+			}
 		}
 	}
 }
