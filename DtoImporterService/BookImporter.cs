@@ -120,7 +120,8 @@ namespace DtoImporterService
 				// 2+
 				: item.Categories[1].CategoryId;
 
-			var category = DbContext.Categories.Local.SingleOrDefault(c => c.AudibleCategoryId == lastCategory);
+			// This should properly be SingleOrDefault() not FirstOrDefault(), but FirstOrDefault is defensive
+			var category = DbContext.Categories.Local.FirstOrDefault(c => c.AudibleCategoryId == lastCategory);
 
 			Book book;
 			try
