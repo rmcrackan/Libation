@@ -44,6 +44,9 @@ namespace ApplicationServices
 		[Name("Length In Minutes")]
 		public int LengthInMinutes { get; set; }
 
+		[Name("Description")]
+		public string Description { get; set; }
+
 		[Name("Publisher")]
 		public string Publisher { get; set; }
 
@@ -111,6 +114,7 @@ namespace ApplicationServices
 				AuthorNames = a.Book.AuthorNames,
 				NarratorNames = a.Book.NarratorNames,
 				LengthInMinutes = a.Book.LengthInMinutes,
+				Description = a.Book.Description,
 				Publisher = a.Book.Publisher,
 				HasPdf = a.Book.HasPdf,
 				SeriesNames = a.Book.SeriesNames,
@@ -180,6 +184,7 @@ namespace ApplicationServices
 				nameof (ExportDto.AuthorNames),
 				nameof (ExportDto.NarratorNames),
 				nameof (ExportDto.LengthInMinutes),
+				nameof (ExportDto.Description),
 				nameof (ExportDto.Publisher),
 				nameof (ExportDto.HasPdf),
 				nameof (ExportDto.SeriesNames),
@@ -233,6 +238,7 @@ namespace ApplicationServices
 				row.CreateCell(col++).SetCellValue(dto.AuthorNames);
 				row.CreateCell(col++).SetCellValue(dto.NarratorNames);
 				row.CreateCell(col++).SetCellValue(dto.LengthInMinutes);
+				row.CreateCell(col++).SetCellValue(dto.Description);
 				row.CreateCell(col++).SetCellValue(dto.Publisher);
 				row.CreateCell(col++).SetCellValue(dto.HasPdf);
 				row.CreateCell(col++).SetCellValue(dto.SeriesNames);
