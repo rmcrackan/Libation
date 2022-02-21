@@ -208,7 +208,7 @@ namespace FileManager
             {
                 var msg = "Unrecoverable error. Settings file cannot be found";
                 var ex = new FileNotFoundException(msg, Filepath);
-                Serilog.Log.Logger.Error(msg, ex);
+                Serilog.Log.Logger.Error(ex, msg);
                 throw ex;
             }
 
@@ -226,7 +226,7 @@ namespace FileManager
             {
                 var msg = "Unrecoverable error. Unable to read settings from Settings file";
                 var ex = new NullReferenceException(msg);
-                Serilog.Log.Logger.Error(msg, ex);
+                Serilog.Log.Logger.Error(ex, msg);
                 throw ex;
             }
 

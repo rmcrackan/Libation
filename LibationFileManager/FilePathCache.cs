@@ -26,6 +26,18 @@ namespace LibationFileManager
 			if (File.Exists(jsonFile))
 			{
 				var list = JsonConvert.DeserializeObject<List<CacheEntry>>(File.ReadAllText(jsonFile));
+
+				// file exists but deser is null. this will never happen when file is healthy
+				if (list is null)
+				{
+					lock (locker)
+					{
+						Serilog.Log.Logger.Error("Error deserializing file. Wrong format. Possibly corrupt. Deleting file. {@DebugInfo}", new { jsonFile });
+						File.Delete(jsonFile);
+						return;
+					}
+				}
+
 				cache = new Cache<CacheEntry>(list);
 			}
         }
