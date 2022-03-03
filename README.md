@@ -293,14 +293,3 @@ export library to file
   libationcli export -p "C:\foo\bar\my.xlsx" --xlsx
   libationcli export -p "C:\foo\bar\my.xlsx" -x
 ```
-
-Currently logs are written to Console and to file. This means they'll be printed in the CLI. To disable, find this in Settings.json and delete the 3 lines after `"WriteTo": [`
-
-```
-  "Serilog": {
-    "MinimumLevel": "Information",
-    "WriteTo": [
-      {
-        "Name": "Console"
-      },
-```
