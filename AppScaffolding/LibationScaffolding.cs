@@ -56,7 +56,7 @@ namespace AppScaffolding
 			// migrations go below here
 			//
 
-			Migrations.migrate_to_v6_5_2(config);
+			Migrations.migrate_to_v6_6_9(config);
 		}
 
 		public static void PopulateMissingConfigValues(Configuration config)
@@ -107,29 +107,12 @@ namespace AppScaffolding
 			if (config.GetObject("Serilog") != null)
 				return;
 
-			// "Serilog": {
-			//   "MinimumLevel": "Information"
-			//   "WriteTo": [
-			//     {
-			//       "Name": "Console"
-			//     },
-			//     {
-			//       "Name": "File",
-			//       "Args": {
-			//         "rollingInterval": "Day",
-			//         "outputTemplate": ...
-			//       }
-			//     }
-			//   ],
-			//   "Using": [ "Dinah.Core" ],
-			//   "Enrich": [ "WithCaller" ]
-			// }
 			var serilogObj = new JObject
 			{
 				{ "MinimumLevel", "Information" },
 				{ "WriteTo", new JArray
 					{
-						new JObject { {"Name", "Console" } },
+						// new JObject { {"Name", "Console" } }, // this has caused more problems than it's solved
 						new JObject
 						{
 							{ "Name", "File" },
@@ -144,14 +127,16 @@ namespace AppScaffolding
 									//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] Begin Libation
 									// - with class and method info: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
 									//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForms.Program.init()) Begin Libation
-									{ "outputTemplate", "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}" }
+									// {Properties:j} needed for expanded exception logging
+									{ "outputTemplate", "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}" }
 								}
 							}
 						}
 					}
 				},
-				{ "Using", new JArray{ "Dinah.Core" } }, // dll's name, NOT namespace
-				{ "Enrich", new JArray{ "WithCaller" } },
+				// better exception logging with: Serilog.Exceptions library -- WithExceptionDetails
+				{ "Using", new JArray{ "Dinah.Core", "Serilog.Exceptions" } }, // dll's name, NOT namespace
+				{ "Enrich", new JArray{ "WithCaller", "WithExceptionDetails" } },
 			};
 			config.SetObject("Serilog", serilogObj);
 		}
@@ -166,9 +151,9 @@ namespace AppScaffolding
 			// capture most Console.WriteLine() and write to serilog. See below tests for details.
 			// Some dependencies print helpful info via Console.WriteLine. We'd like to log it.
 			//
-			// Serilog also writes to Console so this might be asking for trouble. ie: infinite loops.
-			// SerilogTextWriter needs to be more robust and tested. Esp the Write() methods.
-			// Empirical testing so far has shown no issues.
+			// If Serilog also writes to Console, this might be asking for trouble. ie: infinite loops.
+			// To use that way, SerilogTextWriter needs to be more robust and tested. Esp the Write() methods.
+			// However, empirical testing so far has shown no issues.
 			Console.SetOut(new MultiTextWriter(origOut, new SerilogTextWriter()));
 
 			#region Console => Serilog tests
@@ -346,9 +331,51 @@ namespace AppScaffolding
 			};
 		#endregion
 
-		public static void migrate_to_v6_5_2(Configuration config)
+		public static void migrate_to_v6_6_9(Configuration config)
 		{
-			// example
+			var writeToPath = $"Serilog.WriteTo";
+
+			// remove WriteTo[].Name == Console
+			{
+				if (UNSAFE_MigrationHelper.Settings_TryGetArrayLength(writeToPath, out var length1))
+				{
+					for (var i = length1 - 1; i >= 0; i--)
+					{
+						var exists = UNSAFE_MigrationHelper.Settings_TryGetFromJsonPath($"{writeToPath}[{i}].Name", out var value);
+
+						if (exists && value == "Console")
+							UNSAFE_MigrationHelper.Settings_RemoveFromArray(writeToPath, i);
+					}
+				}
+			}
+
+			// add Serilog.Exceptions -- WithExceptionDetails
+			{
+				// outputTemplate should contain "{Properties:j}"
+				{
+					// re-calculate. previous loop may have changed the length
+					if (UNSAFE_MigrationHelper.Settings_TryGetArrayLength(writeToPath, out var length2))
+					{
+						var propertyName = "outputTemplate";
+						for (var i = 0; i < length2; i++)
+						{
+							var jsonPath = $"{writeToPath}[{i}].Args";
+							var exists = UNSAFE_MigrationHelper.Settings_TryGetFromJsonPath($"{jsonPath}.{propertyName}", out var value);
+
+							var newValue = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}";
+
+							if (exists && value != newValue)
+								UNSAFE_MigrationHelper.Settings_SetWithJsonPath(jsonPath, propertyName, newValue);
+						}
+					}
+				}
+
+				// Serilog.Using must include "Serilog.Exceptions"
+				UNSAFE_MigrationHelper.Settings_AddUniqueToArray("Serilog.Using", "Serilog.Exceptions");
+
+				// Serilog.Enrich must include "WithExceptionDetails"
+				UNSAFE_MigrationHelper.Settings_AddUniqueToArray("Serilog.Enrich", "WithExceptionDetails");
+			}
 		}
 	}
 }

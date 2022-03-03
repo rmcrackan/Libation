@@ -113,6 +113,108 @@ namespace AppScaffolding
 			return success;
 		}
 
+		public static bool Settings_JsonPathIsType(string jsonPath, JTokenType jTokenType)
+		{
+			JToken val = null;
+
+			process_SettingsJson(jObj => val = jObj.SelectToken(jsonPath), false);
+
+			return val?.Type == jTokenType;
+		}
+
+		public static bool Settings_TryGetFromJsonPath(string jsonPath, out string value)
+		{
+			JToken val = null;
+
+			process_SettingsJson(jObj => val = jObj.SelectToken(jsonPath), false);
+
+			if (val?.Type == JTokenType.String)
+			{
+				value = val.Value<string>();
+				return true;
+			}
+			else
+			{
+				value = null;
+				return false;
+			}
+		}
+
+		public static void Settings_SetWithJsonPath(string jsonPath, string propertyName, string newValue)
+		{
+			if (!Settings_TryGetFromJsonPath($"{jsonPath}.{propertyName}", out _))
+				return;
+
+			process_SettingsJson(jObj =>
+			{
+				var token = jObj.SelectToken(jsonPath);
+				if (token is null
+				|| token is not JObject o
+				|| o[propertyName] is null)
+					return;
+
+				var oldValue = token.Value<string>(propertyName);
+				if (oldValue != newValue)
+					token[propertyName] = newValue;
+			});
+		}
+
+		public static bool Settings_TryGetArrayLength(string jsonPath, out int length)
+		{
+			length = 0;
+
+			if (!Settings_JsonPathIsType(jsonPath, JTokenType.Array))
+				return false;
+
+			JArray array = null;
+			process_SettingsJson(jObj => array = (JArray)jObj.SelectToken(jsonPath));
+
+			length = array.Count;
+			return true;
+		}
+
+		public static void Settings_AddToArray(string jsonPath, string newValue)
+		{
+			if (!Settings_JsonPathIsType(jsonPath, JTokenType.Array))
+				return;
+
+			process_SettingsJson(jObj =>
+			{
+				var array = (JArray)jObj.SelectToken(jsonPath);
+				array.Add(newValue);
+			});
+		}
+
+		/// <summary>Do not add if already exists</summary>
+		public static void Settings_AddUniqueToArray(string arrayPath, string newValue)
+		{
+			if (!Settings_TryGetArrayLength(arrayPath, out var qty))
+				return;
+
+			for (var i = 0; i < qty; i++)
+			{
+				var exists = Settings_TryGetFromJsonPath($"{arrayPath}[{i}]", out var value);
+				if (exists && value == newValue)
+					return;
+			}
+
+			Settings_AddToArray(arrayPath, newValue);
+		}
+
+		/// <summary>only remove if not exists</summary>
+		public static void Settings_RemoveFromArray(string jsonPath, int position)
+		{
+			if (!Settings_JsonPathIsType(jsonPath, JTokenType.Array))
+				return;
+
+			process_SettingsJson(jObj =>
+			{
+				var array = (JArray)jObj.SelectToken(jsonPath);
+				if (position < array.Count)
+					array.RemoveAt(position);
+			});
+		}
+
 		/// <summary>only insert if not exists</summary>
 		public static void Settings_Insert(string key, string value)
 			=> process_SettingsJson(jObj => jObj.TryAdd(key, value));

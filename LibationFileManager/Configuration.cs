@@ -270,7 +270,7 @@ namespace LibationFileManager
                 var valueWasChanged = persistentDictionary.SetWithJsonPath("Serilog", "MinimumLevel", value.ToString());
                 if (!valueWasChanged)
                 {
-                    Log.Logger.Information("LogLevel.set attempt. No change");
+                    Log.Logger.Debug("LogLevel.set attempt. No change");
                     return;
                 }
 
