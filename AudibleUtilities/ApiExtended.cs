@@ -127,10 +127,17 @@ namespace AudibleUtilities
 //    items = AudibleApi.Common.Converter.FromJson<List<Item>>(System.IO.File.ReadAllText(library_json));
 //}
 #endif
+
+			Serilog.Log.Logger.Debug("Begin initial library scan");
+
 			if (!items.Any())
 				items = await Api.GetAllLibraryItemsAsync(responseGroups);
 
+			Serilog.Log.Logger.Debug("Initial library scan complete. Begin episode scan");
+
 			await manageEpisodesAsync(items, importEpisodes);
+
+			Serilog.Log.Logger.Debug("Episode scan complete");
 
 #if DEBUG
 //System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
