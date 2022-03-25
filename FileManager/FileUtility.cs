@@ -139,7 +139,7 @@ namespace FileManager
             return path[0] + remainder;
         }
 
-        private static string removeInvalidWhitespace_pattern { get; } = $@"\s*\{Path.DirectorySeparatorChar}\s*";
+        private static string removeInvalidWhitespace_pattern { get; } = $@"[\s\.]*\{Path.DirectorySeparatorChar}\s*";
         private static Regex removeInvalidWhitespace_regex { get; } = new(removeInvalidWhitespace_pattern, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
         /// <summary>no part of the path may begin or end in whitespace</summary>
@@ -149,13 +149,19 @@ namespace FileManager
             // replace whitespace around path slashes
             //    regex (with space added for clarity)
             //    \s*  \\  \s*    =>    \
-            fullfilename = fullfilename.Trim();
-            
-            fullfilename = removeInvalidWhitespace_regex.Replace(fullfilename, @"\");
+            // no ending dots. beginning dots are valid
+
+            // regex is easier by ending with separator
+            fullfilename += Path.DirectorySeparatorChar;
+            fullfilename = removeInvalidWhitespace_regex.Replace(fullfilename, Path.DirectorySeparatorChar.ToString());
+            // take seperator back off
+            fullfilename = RemoveLastCharacter(fullfilename);
 
             fullfilename = removeDoubleSlashes(fullfilename);
             return fullfilename;
         }
+
+        public static string RemoveLastCharacter(this string str) => string.IsNullOrEmpty(str) ? str : str[..^1];
 
         /// <summary>
         /// Move file.

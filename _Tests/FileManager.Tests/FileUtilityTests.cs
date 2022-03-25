@@ -113,4 +113,51 @@ namespace FileUtilityTests
 		public void Tests(string input, string expected)
 			=> FileUtility.GetStandardizedExtension(input).Should().Be(expected);
 	}
+
+	[TestClass]
+    public class GetValidFilename
+	{
+		[TestMethod]
+		// dot-files
+		[DataRow(@"C:\a bc\x y z\.f i l e.txt")]
+		// dot-folders
+		[DataRow(@"C:\a bc\.x y z\f i l e.txt")]
+		public void Valid(string input) => Tests(input, input);
+
+		[TestMethod]
+		// folder spaces
+		[DataRow(@"C:\   a bc   \x y z   ", @"C:\a bc\x y z")]
+		// file spaces
+		[DataRow(@"C:\a bc\x y z\   f i l e.txt   ", @"C:\a bc\x y z\f i l e.txt")]
+		// eliminate beginning space and end dots and spaces
+		[DataRow(@"C:\a bc\   . . . x y z . . .   \f i l e.txt", @"C:\a bc\. . . x y z\f i l e.txt")]
+		// file end dots
+		[DataRow(@"C:\a bc\x y z\f i l e.txt . . .", @"C:\a bc\x y z\f i l e.txt")]
+		public void Tests(string input, string expected)
+			=> FileUtility.GetValidFilename(input).Should().Be(expected);
+	}
+
+	[TestClass]
+    public class RemoveLastCharacter
+	{
+		[TestMethod]
+		public void is_null() => Tests(null, null);
+
+		[TestMethod]
+		public void empty() => Tests("", "");
+
+		[TestMethod]
+		public void single_space() => Tests(" ", "");
+
+		[TestMethod]
+		public void multiple_space() => Tests("   ", "  ");
+
+		[TestMethod]
+		[DataRow("1", "")]
+		[DataRow("1 ", "1")]
+		[DataRow("12", "1")]
+		[DataRow("123", "12")]
+		public void Tests(string input, string expected)
+			=> FileUtility.RemoveLastCharacter(input).Should().Be(expected);
+	}
 }
