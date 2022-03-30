@@ -189,15 +189,19 @@ namespace FileManager
             {
                 try
                 {
-                    if (File.Exists(source))
+                    if (!File.Exists(source))
                     {
-                        File.Delete(source);
-                        Serilog.Log.Logger.Information("File successfully deleted", new { source });
+                        Serilog.Log.Logger.Debug("No file to delete: {@DebugText}", new { source });
+                        return;
                     }
+
+                    Serilog.Log.Logger.Debug("Attempt to delete file: {@DebugText}", new { source });
+                    File.Delete(source);
+                    Serilog.Log.Logger.Information("File successfully deleted: {@DebugText}", new { source });
                 }
                 catch (Exception e)
                 {
-                    Serilog.Log.Logger.Error(e, "Failed to delete file", new { source });
+                    Serilog.Log.Logger.Error(e, "Failed to delete file: {@DebugText}", new { source });
                     throw;
                 }
             });
@@ -208,17 +212,25 @@ namespace FileManager
             {
                 try
                 {
-                    if (File.Exists(source))
+                    if (!File.Exists(source))
                     {
-                        SaferDelete(destination);
-                        Directory.CreateDirectory(Path.GetDirectoryName(destination));
-                        File.Move(source, destination);
-                        Serilog.Log.Logger.Information("File successfully moved", new { source, destination });
+                        Serilog.Log.Logger.Debug("No file to move: {@DebugText}", new { source });
+                        return;
                     }
+
+                    SaferDelete(destination);
+
+                    var dir = Path.GetDirectoryName(destination);
+                    Serilog.Log.Logger.Debug("Attempt to create directory: {@DebugText}", new { dir });
+                    Directory.CreateDirectory(dir);
+
+                    Serilog.Log.Logger.Debug("Attempt to move file: {@DebugText}", new { source, destination });
+                    File.Move(source, destination);
+                    Serilog.Log.Logger.Information("File successfully moved: {@DebugText}", new { source, destination });
                 }
                 catch (Exception e)
                 {
-                    Serilog.Log.Logger.Error(e, "Failed to move file", new { source, destination });
+                    Serilog.Log.Logger.Error(e, "Failed to move file: {@DebugText}", new { source, destination });
                     throw;
                 }
             });
