@@ -43,7 +43,7 @@ namespace FileManager
             lock (fsCacheLocker)
             {
                 fsCache.Clear();
-                fsCache.AddRange(Directory.EnumerateFiles(RootDirectory, SearchPattern, SearchOption));
+                fsCache.AddRange(FileUtility.SaferEnumerateFiles(RootDirectory, SearchPattern, SearchOption));
             }
         }
 
@@ -52,7 +52,7 @@ namespace FileManager
             Stop();
 
             lock (fsCacheLocker)
-                fsCache.AddRange(Directory.EnumerateFiles(RootDirectory, SearchPattern, SearchOption));
+                fsCache.AddRange(FileUtility.SaferEnumerateFiles(RootDirectory, SearchPattern, SearchOption));
 
             directoryChangesEvents = new BlockingCollection<FileSystemEventArgs>();
 			fileSystemWatcher = new FileSystemWatcher(RootDirectory)
@@ -135,7 +135,7 @@ namespace FileManager
         private void AddPath(string path)
         {
             if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
-                AddUniqueFiles(Directory.EnumerateFiles(path, SearchPattern, SearchOption));
+                AddUniqueFiles(FileUtility.SaferEnumerateFiles(path, SearchPattern, SearchOption));
             else
                 AddUniqueFile(path);
         }

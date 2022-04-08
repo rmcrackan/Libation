@@ -230,10 +230,10 @@ namespace AppScaffolding
 				config.InProgress,
 
 				AudibleFileStorage.DownloadsInProgressDirectory,
-				DownloadsInProgressFiles = Directory.EnumerateFiles(AudibleFileStorage.DownloadsInProgressDirectory).Count(),
+				DownloadsInProgressFiles = FileManager.FileUtility.SaferEnumerateFiles(AudibleFileStorage.DownloadsInProgressDirectory).Count(),
 
 				AudibleFileStorage.DecryptInProgressDirectory,
-				DecryptInProgressFiles = Directory.EnumerateFiles(AudibleFileStorage.DecryptInProgressDirectory).Count(),
+				DecryptInProgressFiles = FileManager.FileUtility.SaferEnumerateFiles(AudibleFileStorage.DecryptInProgressDirectory).Count(),
 			});
 		}
 

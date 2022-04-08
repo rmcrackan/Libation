@@ -234,5 +234,39 @@ namespace FileManager
                     throw;
                 }
             });
+
+        /// <summary>
+        /// A safer way to get all the files in a directory and sub directory without crashing on UnauthorizedException or PathTooLongException
+        /// </summary>
+        /// <param name="rootPath">Starting directory</param>
+        /// <param name="patternMatch">Filename pattern match</param>
+        /// <param name="searchOption">Search subdirectories or only top level directory for files</param>
+        /// <returns>List of files</returns>
+        public static IEnumerable<string> SaferEnumerateFiles(string path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        {
+            var foundFiles = Enumerable.Empty<string>();
+
+            if (searchOption == SearchOption.AllDirectories)
+            {
+                try
+                {
+                    IEnumerable<string> subDirs = Directory.EnumerateDirectories(path);
+                    // Add files in subdirectories recursively to the list
+                    foreach (string dir in subDirs)
+                        foundFiles = foundFiles.Concat(SaferEnumerateFiles(dir, searchPattern, searchOption));
+                }
+                catch (UnauthorizedAccessException) { }
+                catch (PathTooLongException) { }
+            }
+
+            try
+            {
+                // Add files from the current directory
+                foundFiles = foundFiles.Concat(Directory.EnumerateFiles(path, searchPattern));
+            }
+            catch (UnauthorizedAccessException) { }
+
+            return foundFiles;
+        }
     }
 }

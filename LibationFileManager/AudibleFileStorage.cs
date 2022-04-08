@@ -73,8 +73,8 @@ namespace LibationFileManager
         protected override string GetFilePathCustom(string productId)
         {
             var regex = GetBookSearchRegex(productId);
-            return Directory
-                .EnumerateFiles(DownloadsInProgressDirectory, "*.*", SearchOption.AllDirectories)
+            return FileUtility
+                .SaferEnumerateFiles(DownloadsInProgressDirectory, "*.*", SearchOption.AllDirectories)
                 .FirstOrDefault(s => regex.IsMatch(s));
         }
 
