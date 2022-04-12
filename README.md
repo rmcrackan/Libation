@@ -92,6 +92,26 @@ Or if you have multiple accounts, you'll get to choose whether to scan all accou
 
 ![Import which accounts](images/v40_import.png)
 
+If this is a new installation, or you're scanning an account you haven't scanned before, you'll be prompted to enter your password for the Audible account.
+
+![Login password](images/alt-login1.png)
+
+Enter the password and click Submit. Audible will prompt you with a CAPTCHA image. 
+
+![Login captcha](images/alt-login2.png)
+
+Enter the CAPTCHA answer characters and click Submit. If all has gone well, Libation will start scanning the account. 
+
+In rare instances, the Captcha image/response will fail in an endless loop. If this happens, delete the problem account, and then click Save. Re-add the account and click Save again. Now try to scan the account again. This time, instead of typing your password, click the link that says "Or click here". This will open the Audible External Login dialog shown below.
+
+![Login alternative setup](images/alt-login3.png)
+
+You can either copy the URL shown and paste it into your browser or launch the browser directly by clicking Launch in Browser. Audible will display its standard login page. Login, including answering the CAPTCHA on the next page. In some cases, you might have to approve the login from the email account associated with that login, but once the login is successful, you'll see an error message.
+
+![Login alternative login result](images/alt-login4.png)
+
+This actually means you've successfully logged in. Copy the entire URL shown in your browser and return to Libation. Paste that URL into the text box at the bottom of the Audible External Login window and click Submit.
+
 You'll see this window while it's scanning:
 
 ![Import step 2](images/Import2.png)
