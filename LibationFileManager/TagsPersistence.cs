@@ -54,11 +54,17 @@ namespace LibationFileManager
 
 		private static void ensureCache()
 		{
-			if (cache is null)
-				lock (locker)
-					cache = !File.Exists(TagsFile)
-						? new Dictionary<string, string>()
-						: JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(TagsFile));
+			if (cache is not null)
+				return;
+
+			lock (locker)
+			{
+				if (File.Exists(TagsFile))
+					cache = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(TagsFile));
+
+				// if file doesn't exist. or if file is corrupt and deserialize returns null
+				cache ??= new Dictionary<string, string>();
+			}
 		}
 	}
 }
