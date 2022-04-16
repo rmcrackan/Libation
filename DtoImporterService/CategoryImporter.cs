@@ -35,6 +35,9 @@ namespace DtoImporterService
 
 		private void loadLocal_categories(List<string> categoryIds)
 		{
+			// must include default/empty/missing
+			categoryIds.Add(Category.GetEmpty().AudibleCategoryId);
+
 			var localIds = DbContext.Categories.Local.Select(c => c.AudibleCategoryId).ToList();
 			var remainingCategoryIds = categoryIds
 				.Distinct()
@@ -42,10 +45,8 @@ namespace DtoImporterService
 				.ToList();
 
 			// load existing => local
-			// remember to include default/empty/missing
-			var emptyName = Contributor.GetEmpty().Name;
 			if (remainingCategoryIds.Any())
-				DbContext.Categories.Where(c => remainingCategoryIds.Contains(c.AudibleCategoryId) || c.Name == emptyName).ToList();
+				DbContext.Categories.Where(c => remainingCategoryIds.Contains(c.AudibleCategoryId)).ToList();
 		}
 
 		// only use after loading contributors => local

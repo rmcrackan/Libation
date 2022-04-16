@@ -164,25 +164,46 @@ namespace ApplicationServices
 		}
 
 		private static async Task<int> importIntoDbAsync(List<ImportItem> importItems)
+        {
+            logTime("importIntoDbAsync -- pre db");
+            using var context = DbContexts.GetContext();
+            var libraryBookImporter = new LibraryBookImporter(context);
+            var newCount = await Task.Run(() => libraryBookImporter.Import(importItems));
+            logTime("importIntoDbAsync -- post Import()");
+            int qtyChanges = saveChanges(context);
+            logTime("importIntoDbAsync -- post SaveChanges");
+
+            if (qtyChanges > 0)
+                await Task.Run(() => finalizeLibrarySizeChange());
+            logTime("importIntoDbAsync -- post finalizeLibrarySizeChange");
+
+            return newCount;
+        }
+
+        private static int saveChanges(LibationContext context)
 		{
-			logTime("importIntoDbAsync -- pre db");
-			using var context = DbContexts.GetContext();
-			var libraryBookImporter = new LibraryBookImporter(context);
-			var newCount = await Task.Run(() => libraryBookImporter.Import(importItems));
-			logTime("importIntoDbAsync -- post Import()");
-			var qtyChanges = context.SaveChanges();
-			logTime("importIntoDbAsync -- post SaveChanges");
+			try
+			{
+				return context.SaveChanges();
+			}
+			catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+			{
+				// DbUpdateException exceptions can wreck serilog. Condense it until we can find a better solution. I suspect the culpret is the "WithExceptionDetails" serilog extension
 
-			if (qtyChanges > 0)
-				await Task.Run(() => finalizeLibrarySizeChange());
-			logTime("importIntoDbAsync -- post finalizeLibrarySizeChange");
+				static string format(Exception ex) => $"\r\nMessage: {ex.Message}\r\nStack Trace:\r\n{ex.StackTrace}";
 
-			return newCount;
-		}
-		#endregion
+				var msg = "Microsoft.EntityFrameworkCore.DbUpdateException";
+				if (ex.InnerException is null)
+					throw new Exception($"{msg}{format(ex)}");
+				throw new Exception(
+					$"{msg}{format(ex)}",
+					new Exception($"Inner Exception{format(ex.InnerException)}"));
+			}
+        }
+        #endregion
 
-		#region remove books
-		public static Task<List<LibraryBook>> RemoveBooksAsync(List<string> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
+        #region remove books
+        public static Task<List<LibraryBook>> RemoveBooksAsync(List<string> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
 		private static List<LibraryBook> removeBooks(List<string> idsToRemove)
 		{
 			using var context = DbContexts.GetContext();

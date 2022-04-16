@@ -7,7 +7,7 @@ namespace DataLayer
     public class Contributor
 	{
 		// Empty is a special case. use private ctor w/o validation
-		public static Contributor GetEmpty() => new Contributor { ContributorId = -1, Name = "" };
+		public static Contributor GetEmpty() => new() { ContributorId = -1, Name = "" };
 
 		// contributors search links are just name with url-encoding. space can be + or %20
 		//   author search link:   /search?searchAuthor=Robert+Bevan
