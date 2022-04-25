@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AAXClean" Version="0.1.10" />
+    <PackageReference Include="AAXClean" Version="0.2.5" />
+    <PackageReference Include="AAXClean.Codecs" Version="0.1.2" />
   </ItemGroup>
 
   <ItemGroup>

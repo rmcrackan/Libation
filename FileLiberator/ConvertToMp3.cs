@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using AAXClean;
+using AAXClean.Codecs;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
