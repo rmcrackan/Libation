@@ -24,9 +24,14 @@ namespace AaxDecrypter
 				AaxFile?.AppleTags.SetCoverArt(coverArt);
 		}
 
+		/// <summary>Optional step to run after Metadata is retrieved</summary>
+		public Action<AaxFile> UpdateMetadata { get; set; }
+
 		protected bool Step_GetMetadata()
 		{
 			AaxFile = new AaxFile(InputFileStream);
+
+			UpdateMetadata?.Invoke(AaxFile);
 
 			OnRetrievedTitle(AaxFile.AppleTags.TitleSansUnabridged);
 			OnRetrievedAuthors(AaxFile.AppleTags.FirstAuthor ?? "[unknown]");

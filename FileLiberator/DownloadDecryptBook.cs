@@ -119,9 +119,21 @@ namespace FileLiberator
 
                 var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
+                if (contentLic.DrmType != AudibleApi.Common.DrmType.Adrm)
+                    abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
+                else
+                {
+                    AaxcDownloadConvertBase converter
+                        = Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
+                            outFileName, cacheDir, audiobookDlLic, outputFormat,
+                            AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook))
+                        : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic, outputFormat);
+                    converter.UpdateMetadata = aaxFile => aaxFile.AppleTags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames);
+                    abDownloader = converter;
+                }
+
                 abDownloader
-                    = contentLic.DrmType != AudibleApi.Common.DrmType.Adrm ? new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic)
-                    : Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
+                    = Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
                         outFileName, cacheDir, audiobookDlLic, outputFormat,
                         AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook)
                         )
