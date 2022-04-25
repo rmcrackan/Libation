@@ -2,8 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Version>6.7.8.1</Version>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Version>6.7.8.5</Version>
   </PropertyGroup>
 
   <ItemGroup>

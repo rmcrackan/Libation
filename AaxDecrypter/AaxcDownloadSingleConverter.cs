@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using AAXClean;
+using AAXClean.Codecs;
 using Dinah.Core.StepRunner;
 using FileManager;
 

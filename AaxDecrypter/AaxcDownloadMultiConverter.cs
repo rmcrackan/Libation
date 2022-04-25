@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AAXClean;
+using AAXClean.Codecs;
 using Dinah.Core.StepRunner;
 using FileManager;
 
@@ -117,7 +118,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             AaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
             {
                 createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
-                newSplitCallback.LameConfig.ID3.Track = chapterCount.ToString();
+                ((NAudio.Lame.LameConfig)newSplitCallback.UserState).ID3.Track = chapterCount.ToString();
             });
         }
 
