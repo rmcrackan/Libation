@@ -128,7 +128,10 @@ namespace FileLiberator
                             outFileName, cacheDir, audiobookDlLic, outputFormat,
                             AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook))
                         : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic, outputFormat);
-                    converter.UpdateMetadata = aaxFile => aaxFile.AppleTags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames);
+
+                    if (Configuration.Instance.AllowLibationFixup)
+                        converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames);
+
                     abDownloader = converter;
                 }
 

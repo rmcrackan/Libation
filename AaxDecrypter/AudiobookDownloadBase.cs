@@ -75,6 +75,7 @@ namespace AaxDecrypter
 			=> RetrievedAuthors?.Invoke(this, authors);
 		protected void OnRetrievedNarrators(string narrators)
 			=> RetrievedNarrators?.Invoke(this, narrators);
+
 		protected void OnRetrievedCoverArt(byte[] coverArt)
 			=> RetrievedCoverArt?.Invoke(this, coverArt);
 

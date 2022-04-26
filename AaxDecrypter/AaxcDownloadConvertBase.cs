@@ -6,6 +6,8 @@ namespace AaxDecrypter
 {
 	public abstract class AaxcDownloadConvertBase : AudiobookDownloadBase
 	{
+		public event EventHandler<AppleTags> RetrievedMetadata;
+
 		protected OutputFormat OutputFormat { get; }
 
 		protected AaxFile AaxFile;
@@ -24,19 +26,16 @@ namespace AaxDecrypter
 				AaxFile.AppleTags.Cover = coverArt;
 		}
 
-		/// <summary>Optional step to run after Metadata is retrieved</summary>
-		public Action<AaxFile> UpdateMetadata { get; set; }
-
 		protected bool Step_GetMetadata()
 		{
 			AaxFile = new AaxFile(InputFileStream);
-
-			UpdateMetadata?.Invoke(AaxFile);
 
 			OnRetrievedTitle(AaxFile.AppleTags.TitleSansUnabridged);
 			OnRetrievedAuthors(AaxFile.AppleTags.FirstAuthor ?? "[unknown]");
 			OnRetrievedNarrators(AaxFile.AppleTags.Narrator ?? "[unknown]");
 			OnRetrievedCoverArt(AaxFile.AppleTags.Cover);
+
+			RetrievedMetadata?.Invoke(this, AaxFile.AppleTags);
 
 			return !IsCanceled;
 		}

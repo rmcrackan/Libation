@@ -11,12 +11,6 @@ namespace FileLiberator
         public event EventHandler<byte[]> CoverImageDiscovered;
         public abstract void Cancel();
 
-        protected void OnRequestCoverArt(Action<byte[]> setCoverArtDel)
-		{
-            Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(RequestCoverArt) });
-            RequestCoverArt?.Invoke(this, setCoverArtDel);
-        }
-
         protected void OnTitleDiscovered(string title) => OnTitleDiscovered(null, title);
         protected void OnTitleDiscovered(object _, string title)
 		{
@@ -37,6 +31,12 @@ namespace FileLiberator
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(NarratorsDiscovered), Narrators = narrators });
             NarratorsDiscovered?.Invoke(this, narrators);
 		}
+
+        protected void OnRequestCoverArt(Action<byte[]> setCoverArtDel)
+		{
+            Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(RequestCoverArt) });
+            RequestCoverArt?.Invoke(this, setCoverArtDel);
+        }
 
         protected void OnCoverImageDiscovered(byte[] coverImage)
 		{
