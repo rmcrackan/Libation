@@ -132,12 +132,6 @@ namespace FileLiberator
                     abDownloader = converter;
                 }
 
-                abDownloader
-                    = Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
-                        outFileName, cacheDir, audiobookDlLic, outputFormat,
-                        AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook)
-                        )
-                    : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic, outputFormat);
                 abDownloader.DecryptProgressUpdate += (_, progress) => OnStreamingProgressChanged(progress);
                 abDownloader.DecryptTimeRemaining += (_, remaining) => OnStreamingTimeRemaining(remaining);
                 abDownloader.RetrievedTitle += (_, title) => OnTitleDiscovered(title);
