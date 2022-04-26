@@ -35,7 +35,8 @@ namespace LibationCli
 			var (TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync((a) => ApiExtended.CreateAsync(a), _accounts);
 
 			Console.WriteLine("Scan complete.");
-			Console.WriteLine($"Total processed: {TotalBooksProcessed}\r\nNew: {NewBooksAdded}");
+			Console.WriteLine($"Total processed: {TotalBooksProcessed}");
+			Console.WriteLine($"New: {NewBooksAdded}");
 		}
 
 		private Account[] getAccounts()

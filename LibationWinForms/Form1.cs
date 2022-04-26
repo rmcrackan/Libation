@@ -61,7 +61,7 @@ namespace LibationWinForms
 			// suppressed filter while init'ing UI
 			var prev_isProcessingGridSelect = isProcessingGridSelect;
 			isProcessingGridSelect = true;
-			this.UIThreadSync(() => setGrid());
+			this.UIThreadSync(setGrid);
 			isProcessingGridSelect = prev_isProcessingGridSelect;
 
 			// UI init complete. now we can apply filter
