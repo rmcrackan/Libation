@@ -152,11 +152,12 @@ namespace LibationWinForms.BookLiberation.BaseForms
 		#endregion
 
 		#region AudioDecodable event handlers
-		public virtual void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate) { }
 		public virtual void AudioDecodable_TitleDiscovered(object sender, string title) { }
 		public virtual void AudioDecodable_AuthorsDiscovered(object sender, string authors) { }
 		public virtual void AudioDecodable_NarratorsDiscovered(object sender, string narrators) { }
+
 		public virtual void AudioDecodable_CoverImageDiscovered(object sender, byte[] coverArt) { }
+		public virtual void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate) { }
 		#endregion
 	}
 }

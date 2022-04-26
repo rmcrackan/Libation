@@ -73,12 +73,6 @@ namespace LibationWinForms.BookLiberation
 		private string authorNames;
 		private string narratorNames;
 
-		public override void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
-		{
-			base.AudioDecodable_RequestCoverArt(sender, setCoverArtDelegate);
-			setCoverArtDelegate(GetCoverArtDelegate?.Invoke());
-		}
-
 		public override void AudioDecodable_TitleDiscovered(object sender, string title)
 		{
 			base.AudioDecodable_TitleDiscovered(sender, title);
@@ -103,6 +97,12 @@ namespace LibationWinForms.BookLiberation
 
 		private void updateBookInfo()
 			=> bookInfoLbl.UIThreadAsync(() => bookInfoLbl.Text = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}");
+
+		public override void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
+		{
+			base.AudioDecodable_RequestCoverArt(sender, setCoverArtDelegate);
+			setCoverArtDelegate(GetCoverArtDelegate?.Invoke());
+		}
 
 		public override void AudioDecodable_CoverImageDiscovered(object sender, byte[] coverArt)
 		{
