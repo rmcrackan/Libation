@@ -107,6 +107,11 @@ namespace LibationWinForms
 
 		#endregion
 
+		private SortableBindingList<GridEntry> bindingList;
+
+		/// <summary>Insert ad hoc library books to top of grid</summary>
+		public void AddToTop(DataLayer.LibraryBook libraryBook) => bindingList.Insert(0, new GridEntry(libraryBook));
+
 		#region UI display functions
 
 		private bool hasBeenDisplayed = false;
@@ -145,7 +150,8 @@ namespace LibationWinForms
 				.ToList();
 
 			// BIND
-			gridEntryBindingSource.DataSource = new SortableBindingList<GridEntry>(orderedGridEntries);
+			bindingList = new SortableBindingList<GridEntry>(orderedGridEntries);
+			gridEntryBindingSource.DataSource = bindingList;
 
 			// FILTER
 			Filter();
