@@ -12,8 +12,7 @@ namespace FileLiberator
 		{
 			var client = new HttpClient();
 
-			var progress = new Progress<DownloadProgress>();
-			progress.ProgressChanged += (_, e) => OnStreamingProgressChanged(e);
+			var progress = new Progress<DownloadProgress>(OnStreamingProgressChanged);
 
 			OnStreamingBegin(proposedDownloadFilePath);
 

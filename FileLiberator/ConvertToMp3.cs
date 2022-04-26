@@ -73,8 +73,8 @@ namespace FileLiberator
         private void M4bBook_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
         {
             var duration = m4bBook.Duration;
-            double remainingSecsToProcess = (duration - e.ProcessPosition).TotalSeconds;
-            double estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
+            var remainingSecsToProcess = (duration - e.ProcessPosition).TotalSeconds;
+            var estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
 
             if (double.IsNormal(estTimeRemaining))
                 OnStreamingTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));

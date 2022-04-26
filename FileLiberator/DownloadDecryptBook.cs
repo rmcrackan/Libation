@@ -132,11 +132,12 @@ namespace FileLiberator
                     abDownloader = converter;
                 }
 
-                abDownloader.DecryptProgressUpdate += (_, progress) => OnStreamingProgressChanged(progress);
-                abDownloader.DecryptTimeRemaining += (_, remaining) => OnStreamingTimeRemaining(remaining);
-                abDownloader.RetrievedTitle += (_, title) => OnTitleDiscovered(title);
-                abDownloader.RetrievedAuthors += (_, authors) => OnAuthorsDiscovered(authors);
-                abDownloader.RetrievedNarrators += (_, narrators) => OnNarratorsDiscovered(narrators);
+                abDownloader.DecryptProgressUpdate += OnStreamingProgressChanged;
+                abDownloader.DecryptTimeRemaining += OnStreamingTimeRemaining;
+
+                abDownloader.RetrievedTitle += OnTitleDiscovered;
+                abDownloader.RetrievedAuthors += OnAuthorsDiscovered;
+                abDownloader.RetrievedNarrators += OnNarratorsDiscovered;
                 abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
                 abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
 
@@ -172,7 +173,7 @@ namespace FileLiberator
                 throw new Exception(errorString("Locale"));
         }
 
-        private void AaxcDownloader_RetrievedCoverArt(object sender, byte[] e)
+        private void AaxcDownloader_RetrievedCoverArt(object _, byte[] e)
         {
             if (e is not null)
                 OnCoverImageDiscovered(e);

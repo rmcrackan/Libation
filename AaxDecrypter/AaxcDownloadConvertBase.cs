@@ -20,8 +20,8 @@ namespace AaxDecrypter
 		public override void SetCoverArt(byte[] coverArt)
 		{
 			base.SetCoverArt(coverArt);
-			if (coverArt is not null)
-				AaxFile?.AppleTags.SetCoverArt(coverArt);
+			if (coverArt is not null && AaxFile?.AppleTags is not null)
+				AaxFile.AppleTags.Cover = coverArt;
 		}
 
 		/// <summary>Optional step to run after Metadata is retrieved</summary>

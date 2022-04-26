@@ -18,12 +18,14 @@ namespace FileLiberator
             StreamingBegin?.Invoke(this, filePath);
         }
 
-        protected void OnStreamingProgressChanged(DownloadProgress progress)
+        protected void OnStreamingProgressChanged(DownloadProgress progress) => OnStreamingProgressChanged(null, progress);
+        protected void OnStreamingProgressChanged(object _, DownloadProgress progress)
         {
             StreamingProgressChanged?.Invoke(this, progress);
         }
 
-        protected void OnStreamingTimeRemaining(TimeSpan timeRemaining)
+        protected void OnStreamingTimeRemaining(TimeSpan timeRemaining) => OnStreamingTimeRemaining(null, timeRemaining);
+        protected void OnStreamingTimeRemaining(object _, TimeSpan timeRemaining)
         {
             StreamingTimeRemaining?.Invoke(this, timeRemaining);
         }

@@ -62,8 +62,7 @@ namespace FileLiberator
 				var api = await libraryBook.GetApiAsync();
 				var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
 
-				var progress = new Progress<DownloadProgress>();
-				progress.ProgressChanged += (_, e) => OnStreamingProgressChanged(e);
+				var progress = new Progress<DownloadProgress>(OnStreamingProgressChanged);
 
 				var client = new HttpClient();
 

@@ -67,16 +67,17 @@ namespace AaxDecrypter
 				Serilog.Log.Logger.Error("Conversion failed");
 
 			return IsSuccess;
-		}		
+		}
 
-		protected void OnRetrievedTitle(string title) 
+		protected void OnRetrievedTitle(string title)
 			=> RetrievedTitle?.Invoke(this, title);
-		protected void OnRetrievedAuthors(string authors) 
+		protected void OnRetrievedAuthors(string authors)
 			=> RetrievedAuthors?.Invoke(this, authors);
-		protected void OnRetrievedNarrators(string narrators) 
+		protected void OnRetrievedNarrators(string narrators)
 			=> RetrievedNarrators?.Invoke(this, narrators);
-		protected void OnRetrievedCoverArt(byte[] coverArt) 
+		protected void OnRetrievedCoverArt(byte[] coverArt)
 			=> RetrievedCoverArt?.Invoke(this, coverArt);
+
 		protected void OnDecryptProgressUpdate(DownloadProgress downloadProgress) 
 			=> DecryptProgressUpdate?.Invoke(this, downloadProgress);
 		protected void OnDecryptTimeRemaining(TimeSpan timeRemaining)
