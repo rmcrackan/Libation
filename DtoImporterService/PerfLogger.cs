@@ -8,8 +8,8 @@ namespace DtoImporterService
 	public record timeLogEntry(string msg, long totalElapsed, long delta);
 	public static class PerfLogger
 	{
-		private static Stopwatch sw = new Stopwatch();
-		private static List<timeLogEntry> __log { get; } = new List<timeLogEntry> { new("begin", 0, 0) };
+		private static Stopwatch sw { get; } = new();
+		private static List<timeLogEntry> __log { get; } = new() { new("begin", 0, 0) };
 
 		public static void logTime(string s)
 		{
