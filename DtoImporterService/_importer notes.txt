@@ -1,0 +1,37 @@
+﻿* Local (eg DbContext.Books.Local): indexes/hashes PK and nothing else. Local.Find(PK) is fast. All other searches (eg FirstOrDefault) have awful performance. It deceptively *feels* like we get this partially for free since added/modified entries live here.
+* live db: for all importers, fields used for lookup are indexed
+
+Using BookImporter as an example: since AudibleProductId is indexed, hitting the live db is much faster than using Local. Fastest is putting all in a local hash table
+
+Note: GetBook/GetBooks eager loads Series, category, et al
+
+for 1,200 iterations
+* load to LocalView
+  DbContext.Books.Local.FirstOrDefault(p => p.AudibleProductId == item.DtoItem.ProductId)
+  27,125 ms
+* read from live db
+  DbContext.Books.GetBook(item.DtoItem.ProductId)
+  12,224 ms
+* load to hash table: Dictionary<string, Book>
+  dictionary[item.DtoItem.ProductId];
+  1 ms (yes: ONE)
+
+With hashtable, somehow memory usage was not significantly affected
+
+-----------------------------------
+
+why were we using Local to begin with?
+
+articles suggest loading to Local with
+    context.Books.Load();
+this loads this table but not associated fields
+we want Books and associated fields
+    context.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();
+this is emulating Load() but with also getting associated fields
+			from: Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+			// Summary:
+			//     Enumerates the query. When using Entity Framework, this causes the results of
+			//     the query to be loaded into the associated context. This is equivalent to calling
+			//     ToList and then throwing away the list (without the overhead of actually creating
+			//     the list).
+			public static void Load<TSource>([NotNullAttribute] this IQueryable<TSource> source);

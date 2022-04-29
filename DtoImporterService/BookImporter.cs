@@ -4,62 +4,53 @@ using System.Linq;
 using AudibleApi.Common;
 using AudibleUtilities;
 using DataLayer;
+using Dinah.Core.Collections.Generic;
 
 namespace DtoImporterService
 {
 	public class BookImporter : ItemsImporterBase
 	{
-		public BookImporter(LibationContext context) : base(context) { }
+		protected override IValidator Validator => new BookValidator();
 
-		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new BookValidator().Validate(importItems.Select(i => i.DtoItem));
+		public Dictionary<string, Book> Cache { get; private set; } = new();
+
+		private ContributorImporter contributorImporter { get; }
+		private SeriesImporter seriesImporter { get; }
+		private CategoryImporter categoryImporter { get; }
+
+		public BookImporter(LibationContext context) : base(context)
+		{
+			contributorImporter = new ContributorImporter(DbContext);
+			seriesImporter = new SeriesImporter(DbContext);
+			categoryImporter = new CategoryImporter(DbContext);
+		}
 
 		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
 			// pre-req.s
-			new ContributorImporter(DbContext).Import(importItems);
-			new SeriesImporter(DbContext).Import(importItems);
-			new CategoryImporter(DbContext).Import(importItems);
-			
-			// get distinct
-			var productIds = importItems.Select(i => i.DtoItem.ProductId).Distinct().ToList();
-			
-			// load db existing => .Local
-			loadLocal_books(productIds);
-			
+			contributorImporter.Import(importItems);
+			seriesImporter.Import(importItems);
+			categoryImporter.Import(importItems);
+
+			// load db existing => hash table
+			loadLocal_books(importItems);
+
 			// upsert
 			var qtyNew = upsertBooks(importItems);
 			return qtyNew;
 		}
 
-		private void loadLocal_books(List<string> productIds)
+		private void loadLocal_books(IEnumerable<ImportItem> importItems)
 		{
-			// if this context has already loaded books, don't need to reload them. vestige from when context was long-lived. in practice, we now typically use a fresh context. this is quick though so no harm in leaving it.
-			var localProductIds = DbContext.Books.Local.Select(b => b.AudibleProductId).ToList();
-			var remainingProductIds = productIds
-				.Except(localProductIds)
+			// get distinct
+			var productIds = importItems
+				.Select(i => i.DtoItem.ProductId)
+				.Distinct()
 				.ToList();
 
-			#region // explanation of DbContext.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();
-			/*
-			articles suggest loading to Local with
-			    context.Books.Load();
-			we want Books and associated fields
-			    context.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();
-			this is emulating Load() but with also getting associated fields
-
-			from: Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
-			// Summary:
-			//     Enumerates the query. When using Entity Framework, this causes the results of
-			//     the query to be loaded into the associated context. This is equivalent to calling
-			//     ToList and then throwing away the list (without the overhead of actually creating
-			//     the list).
-			public static void Load<TSource>([NotNullAttribute] this IQueryable<TSource> source); 
-			*/
-			#endregion
-
-			// GetBooks() eager loads Series, category, et al
-			if (remainingProductIds.Any())
-				DbContext.Books.GetBooks(b => remainingProductIds.Contains(b.AudibleProductId)).ToList();
+			Cache = DbContext.Books
+				.GetBooks(b => productIds.Contains(b.AudibleProductId))
+				.ToDictionarySafe(b => b.AudibleProductId);
 		}
 
 		private int upsertBooks(IEnumerable<ImportItem> importItems)
@@ -68,8 +59,7 @@ namespace DtoImporterService
 
 			foreach (var item in importItems)
 			{
-				var book = DbContext.Books.Local.FirstOrDefault(p => p.AudibleProductId == item.DtoItem.ProductId);
-				if (book is null)
+				if (!Cache.TryGetValue(item.DtoItem.ProductId, out var book))
 				{
 					book = createNewBook(item);
 					qtyNew++;
@@ -94,8 +84,7 @@ namespace DtoImporterService
 			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
 			var authors = item
 				.Authors
-				// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
-				.Select(a => DbContext.Contributors.Local.FirstOrDefault(c => a.Name == c.Name))
+				.Select(a => contributorImporter.Cache[a.Name])
 				.ToList();
 
 			var narrators
@@ -105,8 +94,7 @@ namespace DtoImporterService
 				// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
 				: item
 					.Narrators
-					// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
-					.Select(n => DbContext.Contributors.Local.FirstOrDefault(c => n.Name == c.Name))
+					.Select(n => contributorImporter.Cache[n.Name])
 					.ToList();
 
 			// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
@@ -120,8 +108,7 @@ namespace DtoImporterService
 				// 2+
 				: item.Categories[1].CategoryId;
 
-			// This should properly be SingleOrDefault() not FirstOrDefault(), but FirstOrDefault is defensive
-			var category = DbContext.Categories.Local.FirstOrDefault(c => c.AudibleCategoryId == lastCategory);
+			var category = categoryImporter.Cache[lastCategory];
 
 			Book book;
 			try
@@ -137,6 +124,7 @@ namespace DtoImporterService
 					category,
 					importItem.LocaleName)
 					).Entity;
+				Cache.Add(book.AudibleProductId, book);
 			}
 			catch (Exception ex)
 			{
@@ -157,8 +145,7 @@ namespace DtoImporterService
 			var publisherName = item.Publisher;
 			if (!string.IsNullOrWhiteSpace(publisherName))
 			{
-				// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
-				var publisher = DbContext.Contributors.Local.FirstOrDefault(c => publisherName == c.Name);
+				var publisher = contributorImporter.Cache[publisherName];
 				book.ReplacePublisher(publisher);
 			}
 
@@ -189,7 +176,7 @@ namespace DtoImporterService
 			{
 				foreach (var seriesEntry in item.Series)
 				{
-					var series = DbContext.Series.Local.FirstOrDefault(s => seriesEntry.SeriesId == s.AudibleSeriesId);
+					var series = seriesImporter.Cache[seriesEntry.SeriesId];
 					book.UpsertSeries(series, seriesEntry.Sequence);
 				}
 			}

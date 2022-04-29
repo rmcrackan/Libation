@@ -19,7 +19,8 @@ namespace DataLayer
         public static Book GetBook(this IQueryable<Book> books, string productId)
             => books
                 .GetBooks()
-                .SingleOrDefault(b => b.AudibleProductId == productId);
+                // 'Single' is more accurate but 'First' is faster and less error prone
+                .FirstOrDefault(b => b.AudibleProductId == productId);
 
         /// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>
         public static IQueryable<Book> GetBooks(this IQueryable<Book> books, Expression<Func<Book, bool>> predicate)

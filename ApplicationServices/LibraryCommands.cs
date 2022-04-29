@@ -89,6 +89,9 @@ namespace ApplicationServices
 				var totalCount = importItems.Count;
 				Log.Logger.Information($"GetAllLibraryItems: Total count {totalCount}");
 
+				if (totalCount == 0)
+					return default;
+
 				Log.Logger.Information("Begin long-running import");
 				logTime($"pre {nameof(importIntoDbAsync)}");
 				var newCount = await importIntoDbAsync(importItems);

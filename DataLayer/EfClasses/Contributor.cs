@@ -31,16 +31,12 @@ namespace DataLayer
         public string AudibleContributorId { get; private set; }
 
         private Contributor() { }
-        public Contributor(string name)
+        public Contributor(string name, string audibleContributorId = null)
         {
-            ArgumentValidator.EnsureNotNullOrWhiteSpace(name, nameof(name));
+            Name = ArgumentValidator.EnsureNotNullOrWhiteSpace(name, nameof(name));
 
             _booksLink = new HashSet<BookContributor>();
 
-            Name = name;
-        }
-		public Contributor(string name, string audibleContributorId) : this(name)
-		{
 			// don't overwrite with null or whitespace but not an error
 			if (!string.IsNullOrWhiteSpace(audibleContributorId))
 				AudibleContributorId = audibleContributorId;

@@ -7,8 +7,8 @@ namespace DataLayer.Configurations
     {
         public void Configure(EntityTypeBuilder<Series> entity)
         {
-            entity.HasKey(b => b.SeriesId);
-            entity.HasIndex(b => b.AudibleSeriesId);
+            entity.HasKey(s => s.SeriesId);
+            entity.HasIndex(s => s.AudibleSeriesId);
 
             entity
                 .Metadata

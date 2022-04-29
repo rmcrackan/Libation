@@ -228,7 +228,6 @@ namespace LibationWinForms
 				var libhackFiles = Directory.EnumerateDirectories(config.Books, "*.libhack", SearchOption.AllDirectories);
 
 				using var context = ApplicationServices.DbContexts.GetContext();
-				context.Books.Load();
 
 				var jArr = JArray.Parse(File.ReadAllText(filePaths));
 
@@ -248,7 +247,7 @@ namespace LibationWinForms
 					if (fileType == FileType.Unknown || fileType == FileType.AAXC)
 						continue;
 
-					var book = context.Books.Local.FirstOrDefault(b => b.AudibleProductId == asin);
+					var book = context.Books.FirstOrDefault(b => b.AudibleProductId == asin);
 					if (book is null)
 						continue;
 

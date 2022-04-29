@@ -7,10 +7,10 @@ namespace DataLayer.Configurations
     {
         public void Configure(EntityTypeBuilder<SeriesBook> entity)
         {
-            entity.HasKey(bc => new { bc.SeriesId, bc.BookId });
+            entity.HasKey(sb => new { sb.SeriesId, sb.BookId });
 
-            entity.HasIndex(b => b.SeriesId);
-            entity.HasIndex(b => b.BookId);
+            entity.HasIndex(sb => sb.SeriesId);
+            entity.HasIndex(sb => sb.BookId);
 
             entity
                 .HasOne(sb => sb.Series)

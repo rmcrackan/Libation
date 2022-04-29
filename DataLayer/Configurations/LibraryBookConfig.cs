@@ -21,12 +21,12 @@ namespace DataLayer.Configurations
             // - update LibraryBook import code
             // - would likely challenge assumptions throughout Libation which have been true up until now
 
-            entity.HasKey(b => b.BookId);
+            entity.HasKey(lb => lb.BookId);
 
             entity
-                .HasOne(le => le.Book)
+                .HasOne(lb => lb.Book)
                 .WithOne()
-                .HasForeignKey<LibraryBook>(le => le.BookId);
+                .HasForeignKey<LibraryBook>(lb => lb.BookId);
         }
     }
 }

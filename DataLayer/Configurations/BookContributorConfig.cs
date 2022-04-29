@@ -9,8 +9,8 @@ namespace DataLayer.Configurations
         {
             entity.HasKey(bc => new { bc.BookId, bc.ContributorId, bc.Role });
 
-            entity.HasIndex(b => b.BookId);
-            entity.HasIndex(b => b.ContributorId);
+            entity.HasIndex(bc => bc.BookId);
+            entity.HasIndex(bc => bc.ContributorId);
 
             entity
                 .HasOne(bc => bc.Book)

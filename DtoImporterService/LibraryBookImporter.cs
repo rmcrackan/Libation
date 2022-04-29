@@ -3,18 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using AudibleUtilities;
 using DataLayer;
+using Dinah.Core.Collections.Generic;
 
 namespace DtoImporterService
 {
 	public class LibraryBookImporter : ItemsImporterBase
 	{
-		public LibraryBookImporter(LibationContext context) : base(context) { }
+		protected override IValidator Validator => new LibraryValidator();
 
-		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new LibraryValidator().Validate(importItems.Select(i => i.DtoItem));
+		private BookImporter bookImporter { get; }
+
+		public LibraryBookImporter(LibationContext context) : base(context)
+		{
+			bookImporter = new BookImporter(DbContext);
+		}
 
 		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
-			new BookImporter(DbContext).Import(importItems);
+			bookImporter.Import(importItems);
 
 			var qtyNew = upsertLibraryBooks(importItems);
 			return qtyNew;
@@ -36,25 +42,18 @@ namespace DtoImporterService
 
 			var currentLibraryProductIds = DbContext.LibraryBooks.Select(l => l.Book.AudibleProductId).ToList();
 			var newItems = importItems
-				.Where(dto => !currentLibraryProductIds
-				.Contains(dto.DtoItem.ProductId))
+				.Where(dto => !currentLibraryProductIds.Contains(dto.DtoItem.ProductId))
 				.ToList();
 
 			// if 2 accounts try to import the same book in the same transaction: error since we're only tracking and pulling by asin.
 			// just use the first
-			var groupby = newItems.GroupBy(
-				i => i.DtoItem.ProductId,
-				i => i,
-				(key, g) => new { ProductId = key, ImportItems = g.ToList() }
-				)
-				.ToList();
-			foreach (var gb in groupby)
-			{
-				var newItem = gb.ImportItems.First();
+			var hash = newItems.ToDictionarySafe(dto => dto.DtoItem.ProductId);
+			foreach (var kvp in hash)
+            {
+				var newItem = kvp.Value;
 
 				var libraryBook = new LibraryBook(
-					// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
-					DbContext.Books.Local.FirstOrDefault(b => b.AudibleProductId == newItem.DtoItem.ProductId),
+					bookImporter.Cache[newItem.DtoItem.ProductId],
 					newItem.DtoItem.DateAdded,
 					newItem.AccountId);
 				try
@@ -67,7 +66,7 @@ namespace DtoImporterService
 				}
 			}
 
-			var qtyNew = groupby.Count;
+			var qtyNew = hash.Count;
 			return qtyNew;
 		}
 	}

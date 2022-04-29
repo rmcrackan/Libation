@@ -4,14 +4,17 @@ using System.Linq;
 using AudibleApi.Common;
 using AudibleUtilities;
 using DataLayer;
+using Dinah.Core.Collections.Generic;
 
 namespace DtoImporterService
 {
 	public class ContributorImporter : ItemsImporterBase
 	{
-		public ContributorImporter(LibationContext context) : base(context) { }
+		protected override IValidator Validator => new ContributorValidator();
 
-		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new ContributorValidator().Validate(importItems.Select(i => i.DtoItem));
+		public Dictionary<string, Contributor> Cache { get; private set; } = new();
+
+		public ContributorImporter(LibationContext context) : base(context) { }
 
 		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
@@ -50,78 +53,61 @@ namespace DtoImporterService
 			// must include default/empty/missing
 			contributorNames.Add(Contributor.GetEmpty().Name);
 
-			//// BAD: very inefficient
-			// var x = context.Contributors.Local.Where(c => !contribNames.Contains(c.Name));
-
-			// GOOD: Except() is efficient. Due to hashing, it's close to O(n)
-			var localNames = DbContext.Contributors.Local.Select(c => c.Name).ToList();
-			var remainingContribNames = contributorNames
-				.Distinct()
-				.Except(localNames)
-				.ToList();
-
 			// load existing => local
-			if (remainingContribNames.Any())
-				DbContext.Contributors.Where(c => remainingContribNames.Contains(c.Name)).ToList();
+			Cache = DbContext.Contributors
+				.Where(c => contributorNames.Contains(c.Name))
+				.ToDictionarySafe(c => c.Name);
 		}
 
-		// only use after loading contributors => local
 		private int upsertPeople(List<Person> people)
 		{
-			var localNames = DbContext.Contributors.Local.Select(c => c.Name).ToList();
-			var newPeople = people
-				.Select(p => p.Name)
-				.Distinct()
-				.Except(localNames)
-				.ToList();
+			var hash = people
+				// new people only
+				.Where(p => !Cache.ContainsKey(p.Name))
+				// remove duplicates by Name. first in wins
+				.ToDictionarySafe(p => p.Name);
 
-			var groupby = people.GroupBy(
-				p => p.Name,
-				p => p,
-				(key, g) => new { Name = key, People = g.ToList() }
-				);
-			foreach (var name in newPeople)
+			foreach (var kvp in hash)
 			{
-				// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive
-				var p = groupby.FirstOrDefault(g => g.Name == name).People.First();
-
-				try
-				{
-					DbContext.Contributors.Add(new Contributor(p.Name, p.Asin));
-				}
-				catch (Exception ex)
-				{
-					Serilog.Log.Logger.Error(ex, "Error adding person. {@DebugInfo}", new { p?.Name, p?.Asin });
-					throw;
-				}
+				var person = kvp.Value;
+				addContributor(person.Name, person.Asin);
 			}
 
-			return newPeople.Count;
+			return hash.Count;
 		}
 
 		// only use after loading contributors => local
 		private int upsertPublishers(List<string> publishers)
 		{
-			var localNames = DbContext.Contributors.Local.Select(c => c.Name).ToList();
-			var newPublishers = publishers
-				.Distinct()
-				.Except(localNames)
-				.ToList();
+			var hash = publishers
+				// new publishers only
+				.Where(p => !Cache.ContainsKey(p))
+				// remove duplicates
+				.ToHashSet();
 
-			foreach (var pub in newPublishers)
-			{
-				try
-				{
-					DbContext.Contributors.Add(new Contributor(pub));
-				}
-				catch (Exception ex)
-				{
-					Serilog.Log.Logger.Error(ex, "Error adding publisher. {@DebugInfo}", new { pub });
-					throw;
-				}
-			}
+			foreach (var pub in hash)
+				addContributor(pub);
 
-			return newPublishers.Count;
+			return hash.Count;
 		}
-	}
+
+        private Contributor addContributor(string name, string id = null)
+		{
+			try
+			{
+				var newContrib = new Contributor(name);
+
+				var entityEntry = DbContext.Contributors.Add(newContrib);
+				var entity = entityEntry.Entity;
+
+				Cache.Add(entity.Name, entity);
+				return entity;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error adding contributor. {@DebugInfo}", new { name, id });
+				throw;
+			}
+        }
+    }
 }

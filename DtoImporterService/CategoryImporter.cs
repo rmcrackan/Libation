@@ -4,14 +4,17 @@ using System.Linq;
 using AudibleApi.Common;
 using AudibleUtilities;
 using DataLayer;
+using Dinah.Core.Collections.Generic;
 
 namespace DtoImporterService
 {
 	public class CategoryImporter : ItemsImporterBase
 	{
-		public CategoryImporter(LibationContext context) : base(context) { }
+		protected override IValidator Validator => new CategoryValidator();
 
-		public override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems) => new CategoryValidator().Validate(importItems.Select(i => i.DtoItem));
+		public Dictionary<string, Category> Cache { get; private set; } = new();
+
+		public CategoryImporter(LibationContext context) : base(context) { }
 
 		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
@@ -19,7 +22,9 @@ namespace DtoImporterService
 			var categoryIds = importItems
 				.Select(i => i.DtoItem)
 				.GetCategoriesDistinct()
-				.Select(c => c.CategoryId).ToList();
+				.Select(c => c.CategoryId)
+				.Distinct()
+				.ToList();
 
 			// load db existing => .Local
 			loadLocal_categories(categoryIds);
@@ -38,15 +43,10 @@ namespace DtoImporterService
 			// must include default/empty/missing
 			categoryIds.Add(Category.GetEmpty().AudibleCategoryId);
 
-			var localIds = DbContext.Categories.Local.Select(c => c.AudibleCategoryId).ToList();
-			var remainingCategoryIds = categoryIds
-				.Distinct()
-				.Except(localIds)
-				.ToList();
-
 			// load existing => local
-			if (remainingCategoryIds.Any())
-				DbContext.Categories.Where(c => remainingCategoryIds.Contains(c.AudibleCategoryId)).ToList();
+			Cache = DbContext.Categories
+				.Where(c => categoryIds.Contains(c.AudibleCategoryId))
+				.ToDictionarySafe(c => c.AudibleCategoryId);
 		}
 
 		// only use after loading contributors => local
@@ -67,22 +67,11 @@ namespace DtoImporterService
 
 					Category parentCategory = null;
 					if (i == 1)
-						// should be "Single()" but user is getting a strange error
-						parentCategory = DbContext.Categories.Local.FirstOrDefault(c => c.AudibleCategoryId == pair[0].CategoryId);
+						Cache.TryGetValue(pair[0].CategoryId, out parentCategory);
 
-					// should be "SingleOrDefault()" but user is getting a strange error
-					var category = DbContext.Categories.Local.FirstOrDefault(c => c.AudibleCategoryId == id);
-					if (category is null)
+					if (!Cache.TryGetValue(id, out var category))
 					{
-						try
-						{
-							category = DbContext.Categories.Add(new Category(new AudibleCategoryId(id), name)).Entity;
-						}
-						catch (Exception ex)
-						{
-							Serilog.Log.Logger.Error(ex, "Error adding category. {@DebugInfo}", new { id, name });
-							throw;
-						}
+						category = addCategory(id, name);
 						qtyNew++;
 					}
 
@@ -91,6 +80,25 @@ namespace DtoImporterService
 			}
 
 			return qtyNew;
+		}
+
+		private Category addCategory(string id, string name)
+		{
+			try
+			{
+				var category = new Category(new AudibleCategoryId(id), name);
+
+				var entityEntry = DbContext.Categories.Add(category);
+				var entity = entityEntry.Entity;
+
+				Cache.Add(entity.AudibleCategoryId, entity);
+				return entity;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error adding category. {@DebugInfo}", new { id, name });
+				throw;
+			}
 		}
 	}
 }
