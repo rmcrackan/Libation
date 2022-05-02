@@ -452,6 +452,9 @@ namespace LibationWinForms
 		private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog(this).ShowDialog();
 
 		private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+			=> MessageBox.Show($"Running Libation version {AppScaffolding.LibationScaffolding.BuildVersion}", $"Libation v{AppScaffolding.LibationScaffolding.BuildVersion}");
 		#endregion
 	}
 }

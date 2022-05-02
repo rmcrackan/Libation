@@ -13,8 +13,8 @@ namespace LibationWinForms
 
 	internal class EditTagsDataGridViewImageButtonCell : DataGridViewImageButtonCell
 	{
-		private static readonly Image ButtonImage = Properties.Resources.edit_25x25;
-		private static readonly Color HiddenForeColor = Color.LightGray;
+		private static Image ButtonImage { get; } = Properties.Resources.edit_25x25;
+		private static Color HiddenForeColor { get; } = Color.LightGray;
 
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{

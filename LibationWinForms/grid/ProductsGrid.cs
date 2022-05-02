@@ -38,7 +38,7 @@ namespace LibationWinForms
 			InitializeComponent();
 
 			// sorting breaks filters. must reapply filters after sorting
-			_dataGridView.Sorted += (_, __) => Filter();
+			_dataGridView.Sorted += Filter;
 			_dataGridView.CellContentClick += DataGridView_CellContentClick;
 
 			EnableDoubleBuffering();
@@ -110,7 +110,7 @@ namespace LibationWinForms
 		private SortableBindingList<GridEntry> bindingList;
 
 		/// <summary>Insert ad hoc library books to top of grid</summary>
-		public void AddToTop(DataLayer.LibraryBook libraryBook) => bindingList.Insert(0, new GridEntry(libraryBook));
+		public void AddToTop(DataLayer.LibraryBook libraryBook) => bindingList.Insert(0, libraryBookToGridEntry(libraryBook));
 
 		#region UI display functions
 
@@ -135,12 +135,7 @@ namespace LibationWinForms
 			}
 
 			var orderedGridEntries = lib
-				.Select(lb =>
-				{
-					var entry = new GridEntry(lb);
-					entry.Committed += (_, __) => Filter();
-					return entry;
-				}).ToList()
+				.Select(lb => libraryBookToGridEntry(lb))
 				// default load order
 				.OrderByDescending(ge => (DateTime)ge.GetMemberValue(nameof(ge.PurchaseDate)))
 				//// more advanced example: sort by author, then series, then title
@@ -157,12 +152,20 @@ namespace LibationWinForms
 			Filter();
 		}
 
-		#endregion
+		private GridEntry libraryBookToGridEntry(DataLayer.LibraryBook libraryBook)
+		{
+			var entry = new GridEntry(libraryBook);
+			entry.Committed += Filter;
+			entry.LibraryBookUpdated += (sender, productId) => _dataGridView.InvalidateRow(_dataGridView.GetRowIdOfBoundItem((GridEntry)sender));
+			return entry;
+		}
 
-		#region Filter
+        #endregion
 
-		private string _filterSearchString;
-		private void Filter() => Filter(_filterSearchString);
+        #region Filter
+
+        private string _filterSearchString;
+		private void Filter(object _ = null, EventArgs __ = null) => Filter(_filterSearchString);
 		public void Filter(string searchString)
 		{
 			_filterSearchString = searchString;
@@ -184,7 +187,7 @@ namespace LibationWinForms
 				});
 			}
 
-			//Causes repainting of the DataGridView
+			// Causes repainting of the DataGridView
 			bindingContext.ResumeBinding();
 			VisibleCountChanged?.Invoke(this, _dataGridView.AsEnumerable().Count(r => r.Visible));
 		}

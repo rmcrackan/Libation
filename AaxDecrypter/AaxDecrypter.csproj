@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AAXClean" Version="0.3.2" />
-    <PackageReference Include="AAXClean.Codecs" Version="0.1.10" />
+    <PackageReference Include="AAXClean" Version="0.3.5" />
+    <PackageReference Include="AAXClean.Codecs" Version="0.1.12" />
   </ItemGroup>
 
   <ItemGroup>

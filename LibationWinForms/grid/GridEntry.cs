@@ -24,8 +24,7 @@ namespace LibationWinForms
 		[Browsable(false)]
 		public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)]
-		public LibraryBook LibraryBook { get; }
-
+		public LibraryBook LibraryBook { get; private set; }
 		#endregion
 
 		#region Model properties exposed to the view
@@ -40,17 +39,17 @@ namespace LibationWinForms
 			}
 		}
 
-		public string ProductRating { get; }
-		public string PurchaseDate { get; }
-		public string MyRating { get; }
-		public string Series { get; }
-		public string Title { get; }
-		public string Length { get; }
-		public string Authors { get; }
-		public string Narrators { get; }
-		public string Category { get; }
-		public string Misc { get; }
-		public string Description { get; }
+		public string ProductRating { get; private set; }
+		public string PurchaseDate { get; private set; }
+		public string MyRating { get; private set; }
+		public string Series { get; private set; }
+		public string Title { get; private set; }
+		public string Length { get; private set; }
+		public string Authors { get; private set; }
+		public string Narrators { get; private set; }
+		public string Category { get; private set; }
+		public string Misc { get; private set; }
+		public string Description { get; private set; }
 		public string DisplayTags
 		{
 			get => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
@@ -68,30 +67,41 @@ namespace LibationWinForms
 				LibraryBook.Book.UserDefinedItem.PdfStatus = value.PdfStatus;
 			}
 		}
-
 		#endregion
 
+		public event EventHandler<string> LibraryBookUpdated;
 		public event EventHandler Committed;
 
+		// alias
 		private Book Book => LibraryBook.Book;
 
-		public GridEntry(LibraryBook libraryBook)
+		public GridEntry(LibraryBook libraryBook) => setLibraryBook(libraryBook);
+
+		public void UpdateLibraryBook(LibraryBook libraryBook)
+		{
+			if (AudibleProductId != libraryBook.Book.AudibleProductId)
+				throw new Exception("Invalid grid entry update. IDs must match");
+
+			setLibraryBook(libraryBook);
+		}
+
+		private void setLibraryBook(LibraryBook libraryBook)
 		{
 			LibraryBook = libraryBook;
 			_memberValues = CreateMemberValueDictionary();
 
-			//Get cover art. If it's default, subscribe to PictureCached
+			// Get cover art. If it's default, subscribe to PictureCached
 			{
 				(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
 
 				if (isDefault)
 					PictureStorage.PictureCached += PictureStorage_PictureCached;
 
-				//Mutable property. Set the field so PropertyChanged isn't fired.
+				// Mutable property. Set the field so PropertyChanged isn't fired.
 				_cover = ImageReader.ToImage(picture);
 			}
 
-			//Immutable properties
+			// Immutable properties
 			{
 				Title = Book.Title;
 				Series = Book.SeriesNames;
@@ -107,6 +117,9 @@ namespace LibationWinForms
 			}
 
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
+
+			// this will never have a value when triggered by ctor b/c nothing can subscribe to the event until after ctor is complete
+			LibraryBookUpdated?.Invoke(this, AudibleProductId);
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
@@ -134,22 +147,16 @@ namespace LibationWinForms
 			switch (itemName)
 			{
 				case nameof(udi.Tags):
-					{
-						Book.UserDefinedItem.Tags = udi.Tags;
-						NotifyPropertyChanged(nameof(DisplayTags));
-					}
+					Book.UserDefinedItem.Tags = udi.Tags;
+					NotifyPropertyChanged(nameof(DisplayTags));
 					break;
 				case nameof(udi.BookStatus):
-					{
-						Book.UserDefinedItem.BookStatus = udi.BookStatus;
-						NotifyPropertyChanged(nameof(Liberate));
-					}
+					Book.UserDefinedItem.BookStatus = udi.BookStatus;
+					NotifyPropertyChanged(nameof(Liberate));
 					break;
 				case nameof(udi.PdfStatus):
-					{
-						Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
-						NotifyPropertyChanged(nameof(Liberate));
-					}
+					Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
+					NotifyPropertyChanged(nameof(Liberate));
 					break;
 			}
 
@@ -195,7 +202,7 @@ namespace LibationWinForms
 		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
 		public virtual IComparer GetMemberComparer(Type memberType) => _memberTypeComparers[memberType];
 
-		private Dictionary<string, Func<object>> _memberValues { get; }
+		private Dictionary<string, Func<object>> _memberValues { get; set; }
 
 		/// <summary>
 		/// Create getters for all member object values by name
