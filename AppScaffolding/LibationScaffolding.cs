@@ -104,7 +104,7 @@ namespace AppScaffolding
 
 		private static void ensureSerilogConfig(Configuration config)
 		{
-			if (config.GetObject("Serilog") != null)
+			if (config.GetObject("Serilog") is not null)
 				return;
 
 			var serilogObj = new JObject

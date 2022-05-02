@@ -70,7 +70,7 @@ namespace LibationFileManager
 		{
 			lock (cacheLocker)
 			{
-				if (!cache.ContainsKey(def) || cache[def] == null)
+				if (!cache.ContainsKey(def) || cache[def] is null)
 				{
 					var path = getPath(def);
 					var bytes

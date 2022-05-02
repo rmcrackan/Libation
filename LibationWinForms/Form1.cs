@@ -34,8 +34,6 @@ namespace LibationWinForms
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
-			// used by async migrations to update ui when complete
-			DataLayer.UserDefinedItem.Batch_ItemChanged += reloadGridAndUpdateBottomNumbers;
 
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
@@ -71,22 +69,22 @@ namespace LibationWinForms
 		}
 
 		#region reload grid
-		private ProductsGrid currProductsGrid;
+		private ProductsGrid productsGrid;
 		private void setGrid()
 		{
 			SuspendLayout();
 			{
-				if (currProductsGrid != null)
+				if (productsGrid != null)
 				{
-					gridPanel.Controls.Remove(currProductsGrid);
-					currProductsGrid.VisibleCountChanged -= setVisibleCount;
-					currProductsGrid.Dispose();
+					gridPanel.Controls.Remove(productsGrid);
+					productsGrid.VisibleCountChanged -= setVisibleCount;
+					productsGrid.Dispose();
 				}
 
-				currProductsGrid = new ProductsGrid { Dock = DockStyle.Fill };
-				currProductsGrid.VisibleCountChanged += setVisibleCount;
-				gridPanel.UIThreadSync(() => gridPanel.Controls.Add(currProductsGrid));
-				currProductsGrid.Display();
+				productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
+				productsGrid.VisibleCountChanged += setVisibleCount;
+				gridPanel.UIThreadSync(() => gridPanel.Controls.Add(productsGrid));
+				productsGrid.Display();
 			}
 			ResumeLayout();
 		}
@@ -214,12 +212,12 @@ namespace LibationWinForms
 		}
 		private void doFilter()
 		{
-			if (isProcessingGridSelect || currProductsGrid == null)
+			if (isProcessingGridSelect || productsGrid is null)
 				return;
 
 			try
 			{
-				currProductsGrid.Filter(filterSearchTb.Text);
+				productsGrid.Filter(filterSearchTb.Text);
 				lastGoodFilter = filterSearchTb.Text;
 			}
 			catch (Exception ex)

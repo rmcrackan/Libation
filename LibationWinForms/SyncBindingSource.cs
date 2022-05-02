@@ -19,7 +19,7 @@ namespace LibationWinForms
 
         protected override void OnListChanged(ListChangedEventArgs e)
         {
-            if (syncContext != null)
+            if (syncContext is not null)
                 syncContext.Send(_ => base.OnListChanged(e), null);
             else
                 base.OnListChanged(e);

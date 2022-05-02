@@ -25,7 +25,7 @@ namespace DtoImporterService
 			try
 			{
 				var exceptions = Validate(param);
-				if (exceptions != null && exceptions.Any())
+				if (exceptions is not null && exceptions.Any())
 					throw new AggregateException($"Importer validation failed", exceptions);
 			}
 			catch (Exception ex)

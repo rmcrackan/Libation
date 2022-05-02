@@ -70,11 +70,11 @@ namespace LibationSearchEngine
                             .Select(s => s.Series.AudibleSeriesId)),
                     ["SeriesId"] = lb => string.Join(", ", lb.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId)),
 
-                    [nameof(Book.CategoriesNames)] = lb => lb.Book.CategoriesIds == null ? null : string.Join(", ", lb.Book.CategoriesIds),
-                    [nameof(Book.Category)] = lb => lb.Book.CategoriesIds == null ? null : string.Join(", ", lb.Book.CategoriesIds),
-                    ["Categories"] = lb => lb.Book.CategoriesIds == null ? null : string.Join(", ", lb.Book.CategoriesIds),
-                    ["CategoriesId"] = lb => lb.Book.CategoriesIds == null ? null : string.Join(", ", lb.Book.CategoriesIds),
-                    ["CategoryId"] = lb => lb.Book.CategoriesIds == null ? null : string.Join(", ", lb.Book.CategoriesIds),
+                    [nameof(Book.CategoriesNames)] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
+                    [nameof(Book.Category)] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
+                    ["Categories"] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
+                    ["CategoriesId"] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
+                    ["CategoryId"] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
 
                     [TAGS.FirstCharToUpper()] = lb => lb.Book.UserDefinedItem.Tags,
 
@@ -314,7 +314,7 @@ namespace LibationSearchEngine
             var query = new TermQuery(productTerm);
             var docs = searcher.Search(query, 1);
             var scoreDoc = docs.ScoreDocs.SingleOrDefault();
-            if (scoreDoc == null)
+            if (scoreDoc is null)
                 return;
             var document = searcher.Doc(scoreDoc.Doc);
 

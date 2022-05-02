@@ -16,7 +16,7 @@ namespace LibationSearchEngine
 
         internal static void AddAnalyzed(this Document document, string name, string value)
         {
-            if (value != null)
+            if (value is not null)
                 document.Add(new Field(name.ToLowerInvariant(), value, Field.Store.YES, Field.Index.ANALYZED));
         }
 

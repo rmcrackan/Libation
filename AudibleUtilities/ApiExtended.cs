@@ -148,7 +148,7 @@ namespace AudibleUtilities
 			foreach (var v in validators)
 			{
 				var exceptions = v.Validate(items);
-				if (exceptions != null && exceptions.Any())
+				if (exceptions is not null && exceptions.Any())
 					throw new AggregateException(exceptions);
 			}
 

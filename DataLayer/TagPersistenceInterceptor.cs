@@ -19,7 +19,7 @@ namespace DataLayer
 				.Entries()
 				.Where(e => e.State.In(EntityState.Modified, EntityState.Added))
 				.Select(e => e.Entity as UserDefinedItem)
-				.Where(udi => udi != null)
+				.Where(udi => udi is not null)
 				// do NOT filter out entires with blank tags. blank is the valid way to show the absence of tags
 				.Select(t => (t.Book.AudibleProductId, t.Tags))
 				.ToList();

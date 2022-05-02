@@ -78,7 +78,7 @@ namespace LibationFileManager
                 .FirstOrDefault(s => regex.IsMatch(s));
         }
 
-        public bool Exists(string productId) => GetFilePath(productId) != null;
+        public bool Exists(string productId) => GetFilePath(productId) is not null;
     }
 
     public class AudioFileStorage : AudibleFileStorage

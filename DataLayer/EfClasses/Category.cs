@@ -44,7 +44,7 @@ namespace DataLayer
         public void UpdateParentCategory(Category parentCategory)
         {
             // don't overwrite with null but not an error
-            if (parentCategory != null)
+            if (parentCategory is not null)
                 ParentCategory = parentCategory;
         }
 

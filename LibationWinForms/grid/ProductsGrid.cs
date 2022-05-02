@@ -110,7 +110,7 @@ namespace LibationWinForms
 		private SortableBindingList<GridEntry> bindingList;
 
 		/// <summary>Insert ad hoc library books to top of grid</summary>
-		public void AddToTop(DataLayer.LibraryBook libraryBook) => bindingList.Insert(0, libraryBookToGridEntry(libraryBook));
+		public void AddToTop(DataLayer.LibraryBook libraryBook) => bindingList.Insert(0, toGridEntry(libraryBook));
 
 		#region UI display functions
 
@@ -135,7 +135,7 @@ namespace LibationWinForms
 			}
 
 			var orderedGridEntries = lib
-				.Select(lb => libraryBookToGridEntry(lb))
+				.Select(lb => toGridEntry(lb))
 				// default load order
 				.OrderByDescending(ge => (DateTime)ge.GetMemberValue(nameof(ge.PurchaseDate)))
 				//// more advanced example: sort by author, then series, then title
@@ -152,7 +152,7 @@ namespace LibationWinForms
 			Filter();
 		}
 
-		private GridEntry libraryBookToGridEntry(DataLayer.LibraryBook libraryBook)
+		private GridEntry toGridEntry(DataLayer.LibraryBook libraryBook)
 		{
 			var entry = new GridEntry(libraryBook);
 			entry.Committed += Filter;

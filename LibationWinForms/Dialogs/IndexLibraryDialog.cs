@@ -22,7 +22,7 @@ namespace LibationWinForms.Dialogs
 
 		private async void IndexLibraryDialog_Shown(object sender, EventArgs e)
 		{
-			if (_accounts != null && _accounts.Length > 0)
+			if (_accounts is not null && _accounts.Length > 0)
 			{
 				this.label1.Text
 					= (_accounts.Length == 1)

@@ -42,7 +42,7 @@ namespace LibationFileManager
 			}
         }
 
-        public static bool Exists(string id, FileType type) => GetFirstPath(id, type) != null;
+        public static bool Exists(string id, FileType type) => GetFirstPath(id, type) is not null;
 
 		public static List<(FileType fileType, string path)> GetFiles(string id)
 			=> getEntries(entry => entry.Id == id)

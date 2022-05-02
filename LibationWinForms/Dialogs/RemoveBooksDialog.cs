@@ -58,7 +58,7 @@ namespace LibationWinForms.Dialogs
 
 		private async void RemoveBooksDialog_Shown(object sender, EventArgs e)
 		{
-			if (_accounts == null || _accounts.Length == 0)
+			if (_accounts is null || _accounts.Length == 0)
 				return;
 			try
 			{

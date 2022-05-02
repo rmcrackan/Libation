@@ -172,7 +172,7 @@ namespace DtoImporterService
 
 			// update series even for existing books. these are occasionally updated
 			// these will upsert over library-scraped series, but will not leave orphans
-			if (item.Series != null)
+			if (item.Series is not null)
 			{
 				foreach (var seriesEntry in item.Series)
 				{

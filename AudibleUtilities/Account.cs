@@ -73,10 +73,10 @@ namespace AudibleUtilities
 				if (_identity is null && value is null)
 					return;
 
-				if (_identity != null)
+				if (_identity is not null)
 					_identity.Updated -= update;
 
-				if (value != null)
+				if (value is not null)
 					value.Updated += update;
 
 				_identity = value;

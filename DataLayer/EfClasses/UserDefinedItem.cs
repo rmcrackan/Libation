@@ -162,38 +162,6 @@ namespace DataLayer
         }
 		#endregion
 
-		#region batch changes
-		public static event EventHandler<string> Batch_ItemChanged;
-        public void BatchMode_UpdateBookStatus(LiberatedStatus value)
-        {
-            if (_bookStatus != value)
-            {
-                _bookStatus = value;
-                batchFlag = true;
-            }
-        }
-
-        // don't overwrite current with null. Therefore input is "LiberatedStatus" not "LiberatedStatus?"
-        public void BatchMode_UpdatePdfStatus(LiberatedStatus value)
-        {
-            if (_pdfStatus != value)
-            {
-                _pdfStatus = value;
-                batchFlag = true;
-            }
-        }
-
-        private static bool batchFlag = false;
-
-        public static void BatchMode_Finalize()
-        {
-            if (batchFlag)
-                Batch_ItemChanged?.Invoke(null, null);
-
-            batchFlag = false;
-        }
-        #endregion
-
         public override string ToString() => $"{Book} {Rating} {Tags}";
 	}
 }

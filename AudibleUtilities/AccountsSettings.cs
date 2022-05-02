@@ -66,7 +66,7 @@ namespace AudibleUtilities
 		{
 			var acct = GetAccount(accountId, locale);
 
-			if (acct != null)
+			if (acct is not null)
 				return acct;
 
 			var l = Localization.Get(locale);

@@ -43,12 +43,12 @@ namespace DataLayer
         internal int CategoryId { get; private set; }
         public Category Category { get; private set; }
         public string[] CategoriesNames
-            => Category == null ? new string[0]
-            : Category.ParentCategory == null ? new[] { Category.Name }
+            => Category is null ? new string[0]
+            : Category.ParentCategory is null ? new[] { Category.Name }
             : new[] { Category.ParentCategory.Name, Category.Name };
         public string[] CategoriesIds
-            => Category == null ? null
-            : Category.ParentCategory == null ? new[] { Category.AudibleCategoryId }
+            => Category is null ? null
+            : Category.ParentCategory is null ? new[] { Category.AudibleCategoryId }
             : new[] { Category.ParentCategory.AudibleCategoryId, Category.AudibleCategoryId };
 
         // is owned, not optional 1:1
@@ -216,7 +216,7 @@ namespace DataLayer
 				getEntry(context).Collection(s => s.SeriesLink).Load();
 
 			var singleSeriesBook = _seriesLink.SingleOrDefault(sb => sb.Series == series);
-            if (singleSeriesBook == null)
+            if (singleSeriesBook is null)
                 _seriesLink.Add(new SeriesBook(series, this, order));
             else
                 singleSeriesBook.UpdateOrder(order);
