@@ -17,9 +17,9 @@ namespace LibationWinForms.Dialogs
 	public partial class RemoveBooksDialog : Form
 	{
 		private Account[] _accounts { get; }
-		private readonly List<LibraryBook> _libraryBooks;
-		private readonly SortableBindingList<RemovableGridEntry> _removableGridEntries;
-		private readonly string _labelFormat;
+		private List<LibraryBook> _libraryBooks { get; }
+		private SortableBindingList<RemovableGridEntry> _removableGridEntries { get; }
+		private string _labelFormat { get; }
 		private int SelectedCount => SelectedEntries?.Count() ?? 0;
 		private IEnumerable<RemovableGridEntry> SelectedEntries => _removableGridEntries?.Where(b => b.Remove);
 

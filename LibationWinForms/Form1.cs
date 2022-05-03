@@ -34,6 +34,7 @@ namespace LibationWinForms
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
+            QuickFilters.Updated += updateFiltersMenu;
 
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
@@ -41,7 +42,7 @@ namespace LibationWinForms
 			PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
 		}
 
-		private void Form1_Load(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
 		{
 			if (this.DesignMode)
 				return;
@@ -185,11 +186,7 @@ namespace LibationWinForms
 		#region filter
 		private void filterHelpBtn_Click(object sender, EventArgs e) => new SearchSyntaxDialog().ShowDialog();
 
-		private void AddFilterBtn_Click(object sender, EventArgs e)
-		{
-			QuickFilters.Add(this.filterSearchTb.Text);
-			UpdateFilterDropDown();
-		}
+		private void AddFilterBtn_Click(object sender, EventArgs e) => QuickFilters.Add(this.filterSearchTb.Text);
 
 		private void filterSearchTb_KeyPress(object sender, KeyPressEventArgs e)
 		{
@@ -399,6 +396,12 @@ namespace LibationWinForms
 		#endregion
 
 		#region quick filters menu
+		private void FirstFilterIsDefaultToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			firstFilterIsDefaultToolStripMenuItem.Checked = !firstFilterIsDefaultToolStripMenuItem.Checked;
+			QuickFilters.UseDefault = firstFilterIsDefaultToolStripMenuItem.Checked;
+		}
+
 		private void loadInitialQuickFilterState()
 		{
 			// set inital state. do once only
@@ -408,18 +411,11 @@ namespace LibationWinForms
 			if (QuickFilters.UseDefault)
 				doFilter(QuickFilters.Filters.FirstOrDefault());
 
-			// do after every save
-			UpdateFilterDropDown();
-		}
-
-		private void FirstFilterIsDefaultToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			firstFilterIsDefaultToolStripMenuItem.Checked = !firstFilterIsDefaultToolStripMenuItem.Checked;
-			QuickFilters.UseDefault = firstFilterIsDefaultToolStripMenuItem.Checked;
+			updateFiltersMenu();
 		}
 
 		private object quickFilterTag { get; } = new object();
-		public void UpdateFilterDropDown()
+		private void updateFiltersMenu(object _ = null, object __ = null)
 		{
 			// remove old
 			for (var i = quickFiltersToolStripMenuItem.DropDownItems.Count - 1; i >= 0; i--)

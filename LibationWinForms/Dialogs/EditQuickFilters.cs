@@ -53,7 +53,6 @@ namespace LibationWinForms.Dialogs
 				.ToList();
 			QuickFilters.ReplaceAll(list);
 
-			_parent.UpdateFilterDropDown();
 			this.DialogResult = DialogResult.OK;
 			this.Close();
 		}

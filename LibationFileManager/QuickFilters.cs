@@ -9,6 +9,8 @@ namespace LibationFileManager
 {
     public static class QuickFilters
     {
+        public static event EventHandler Updated;
+
         internal class FilterState
         {
             public bool UseDefault { get; set; }
@@ -34,7 +36,7 @@ namespace LibationFileManager
                 lock (locker)
                 {
                     inMemoryState.UseDefault = value;
-                    save();
+                    save(false);
                 }
             }
         }
@@ -97,7 +99,7 @@ namespace LibationFileManager
         private static object locker { get; } = new object();
 
         // ONLY call this within lock()
-        private static void save()
+        private static void save(bool invokeUpdatedEvent = true)
         {
             // create json if not exists
             void resave() => File.WriteAllText(JsonFile, JsonConvert.SerializeObject(inMemoryState, Formatting.Indented));
@@ -111,6 +113,9 @@ namespace LibationFileManager
 					throw;
 				}
 			}
+
+            if (invokeUpdatedEvent)
+                Updated?.Invoke(null, null);
         }
     }
 }
