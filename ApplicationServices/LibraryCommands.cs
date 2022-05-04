@@ -72,6 +72,8 @@ namespace ApplicationServices
 			}
 		}
 
+		public static event EventHandler<int> ScanBegin;
+		public static event EventHandler ScanEnd;
 		#region FULL LIBRARY scan and import
 		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, params Account[] accounts)
 		{
@@ -82,6 +84,8 @@ namespace ApplicationServices
 
 			try
 			{
+				ScanBegin?.Invoke(null, accounts.Length);
+
 				logTime($"pre {nameof(scanAccountsAsync)} all");
 				var importItems = await scanAccountsAsync(apiExtendedfunc, accounts, LibraryOptions.ResponseGroupOptions.ALL_OPTIONS);
 				logTime($"post {nameof(scanAccountsAsync)} all");
@@ -127,6 +131,7 @@ namespace ApplicationServices
 			{
 				stop();
 				var putBreakPointHere = logOutput;
+				ScanEnd?.Invoke(null, null);
 			}
 		}
 

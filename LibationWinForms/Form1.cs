@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using AudibleUtilities;
@@ -35,6 +36,8 @@ namespace LibationWinForms
 			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
             QuickFilters.Updated += updateFiltersMenu;
+            LibraryCommands.ScanBegin += LibraryCommands_ScanBegin;
+            LibraryCommands.ScanEnd += LibraryCommands_ScanEnd;
 
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
@@ -256,21 +259,21 @@ namespace LibationWinForms
 			new AccountsDialog(this).ShowDialog();
 		}
 
-		private void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
-			scanLibraries(firstAccount);
-		}
+		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+            var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
+            await scanLibrariesAsync(firstAccount);
+        }
 
-		private void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+		private async void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var allAccounts = persister.AccountsSettings.GetAll();
-			scanLibraries(allAccounts);
+			await scanLibrariesAsync(allAccounts);
 		}
 
-		private void scanLibraryOfSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+		private async void scanLibraryOfSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using var scanAccountsDialog = new ScanAccountsDialog(this);
 
@@ -280,7 +283,7 @@ namespace LibationWinForms
 			if (!scanAccountsDialog.CheckedAccounts.Any())
 				return;
 
-			scanLibraries(scanAccountsDialog.CheckedAccounts);
+			await scanLibrariesAsync(scanAccountsDialog.CheckedAccounts);
 		}
 
 		private void removeLibraryBooksToolStripMenuItem_Click(object sender, EventArgs e)
@@ -326,21 +329,28 @@ namespace LibationWinForms
 			dialog.ShowDialog();
 		}
 
-		private void scanLibraries(IEnumerable<Account> accounts) => scanLibraries(accounts.ToArray());
-		private void scanLibraries(params Account[] accounts)
+		private async Task scanLibrariesAsync(IEnumerable<Account> accounts) => await scanLibrariesAsync(accounts.ToArray());
+		private async Task scanLibrariesAsync(params Account[] accounts)
 		{
-			using var dialog = new IndexLibraryDialog(accounts);
-			dialog.ShowDialog();
+			try
+			{
+				var (totalProcessed, newAdded) = await LibraryCommands.ImportAccountAsync(account => ApiExtended.CreateAsync(account, new Login.WinformLoginChoiceEager(account)), accounts);
 
-			var totalProcessed = dialog.TotalBooksProcessed;
-			var newAdded = dialog.NewBooksAdded;
-
-			if (Configuration.Instance.ShowImportedStats)
-				MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
+				// this is here instead of ScanEnd so that the following is only possible when it's user-initiated, not automatic loop
+				if (Configuration.Instance.ShowImportedStats && newAdded > 0)
+					MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
+			}
+			catch (Exception ex)
+			{
+				MessageBoxAlertAdmin.Show(
+					"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
+					"Error importing library",
+					ex);
+			}
 		}
 		#endregion
 
-		#region liberate menu
+		#region Liberate menu
 		private async void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
 			=> await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync();
 
@@ -401,7 +411,7 @@ namespace LibationWinForms
 		}
 		#endregion
 
-		#region quick filters menu
+		#region Quick Filters menu
 		private void FirstFilterIsDefaultToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			firstFilterIsDefaultToolStripMenuItem.Checked = !firstFilterIsDefaultToolStripMenuItem.Checked;
@@ -448,13 +458,37 @@ namespace LibationWinForms
 		private void EditQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new EditQuickFilters(this).ShowDialog();
 		#endregion
 
-		#region settings menu
+		#region Settings menu
 		private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog(this).ShowDialog();
 
 		private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
 			=> MessageBox.Show($"Running Libation version {AppScaffolding.LibationScaffolding.BuildVersion}", $"Libation v{AppScaffolding.LibationScaffolding.BuildVersion}");
-		#endregion
-	}
+        #endregion
+
+        #region Scanning label
+		private void LibraryCommands_ScanBegin(object sender, int accountsLength)
+		{
+			scanLibraryToolStripMenuItem.Enabled = false;
+			scanLibraryOfAllAccountsToolStripMenuItem.Enabled = false;
+			scanLibraryOfSomeAccountsToolStripMenuItem.Enabled = false;
+
+			this.scanningToolStripMenuItem.Visible = true;
+			this.scanningToolStripMenuItem.Text
+				= (accountsLength == 1)
+				? "Scanning..."
+				: $"Scanning {accountsLength} accounts...";
+		}
+
+		private void LibraryCommands_ScanEnd(object sender, EventArgs e)
+		{
+			scanLibraryToolStripMenuItem.Enabled = true;
+			scanLibraryOfAllAccountsToolStripMenuItem.Enabled = true;
+			scanLibraryOfSomeAccountsToolStripMenuItem.Enabled = true;
+
+			this.scanningToolStripMenuItem.Visible = false;
+		}
+        #endregion
+    }
 }

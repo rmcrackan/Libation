@@ -55,14 +55,15 @@
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.accountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.basicSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.visibleCountLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.addFilterBtn = new System.Windows.Forms.Button();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.scanningToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -119,7 +120,8 @@
             this.liberateToolStripMenuItem,
             this.exportToolStripMenuItem,
             this.quickFiltersToolStripMenuItem,
-            this.settingsToolStripMenuItem});
+            this.settingsToolStripMenuItem,
+            this.scanningToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
@@ -280,16 +282,28 @@
             // accountsToolStripMenuItem
             // 
             this.accountsToolStripMenuItem.Name = "accountsToolStripMenuItem";
-            this.accountsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.accountsToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.accountsToolStripMenuItem.Text = "&Accounts...";
             this.accountsToolStripMenuItem.Click += new System.EventHandler(this.accountsToolStripMenuItem_Click);
             // 
             // basicSettingsToolStripMenuItem
             // 
             this.basicSettingsToolStripMenuItem.Name = "basicSettingsToolStripMenuItem";
-            this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.basicSettingsToolStripMenuItem.Text = "&Settings...";
             this.basicSettingsToolStripMenuItem.Click += new System.EventHandler(this.basicSettingsToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(130, 6);
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.aboutToolStripMenuItem.Text = "A&bout...";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -340,17 +354,15 @@
             this.addFilterBtn.UseVisualStyleBackColor = true;
             this.addFilterBtn.Click += new System.EventHandler(this.AddFilterBtn_Click);
             // 
-            // toolStripSeparator2
+            // scanningToolStripMenuItem
             // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
-            // 
-            // aboutToolStripMenuItem
-            // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.aboutToolStripMenuItem.Text = "A&bout...";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            this.scanningToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.scanningToolStripMenuItem.Enabled = false;
+            this.scanningToolStripMenuItem.Image = global::LibationWinForms.Properties.Resources.import_16x16;
+            this.scanningToolStripMenuItem.Name = "scanningToolStripMenuItem";
+            this.scanningToolStripMenuItem.Size = new System.Drawing.Size(93, 20);
+            this.scanningToolStripMenuItem.Text = "Scanning...";
+            this.scanningToolStripMenuItem.Visible = false;
             // 
             // Form1
             // 
@@ -415,5 +427,6 @@
         private System.Windows.Forms.ToolStripMenuItem removeSomeAccountsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem scanningToolStripMenuItem;
     }
 }
