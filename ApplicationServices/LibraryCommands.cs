@@ -176,6 +176,7 @@ namespace ApplicationServices
             int qtyChanges = saveChanges(context);
             logTime("importIntoDbAsync -- post SaveChanges");
 
+			// this is any changes at all to the database, not just new books
             if (qtyChanges > 0)
                 await Task.Run(() => finalizeLibrarySizeChange());
             logTime("importIntoDbAsync -- post finalizeLibrarySizeChange");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -107,24 +108,17 @@ namespace LibationWinForms
 
 		#endregion
 
-		private SortableBindingList<GridEntry> bindingList;
-
-		/// <summary>Insert ad hoc library books to top of grid</summary>
-		public void AddToTop(DataLayer.LibraryBook libraryBook) => bindingList.Insert(0, toGridEntry(libraryBook));
-
 		#region UI display functions
 
-		private bool hasBeenDisplayed = false;
+		public int Count { get; private set; }
+
+		private SortableBindingList<GridEntry> bindingList;
+
 		public void Display()
 		{
-			if (hasBeenDisplayed)
-				return;
-			hasBeenDisplayed = true;
-
-			//
-			// transform into sorted GridEntry.s BEFORE binding
-			//
 			var lib = DbContexts.GetLibrary_Flat_NoTracking();
+
+			Count = lib.Count;
 
 			// if no data. hide all columns. return
 			if (!lib.Any())
@@ -134,25 +128,59 @@ namespace LibationWinForms
 				return;
 			}
 
-			var orderedGridEntries = lib
-				.Select(lb => toGridEntry(lb))
+			var orderedBooks = lib
 				// default load order
-				.OrderByDescending(ge => (DateTime)ge.GetMemberValue(nameof(ge.PurchaseDate)))
+				.OrderByDescending(lb => lb.DateAdded)
 				//// more advanced example: sort by author, then series, then title
-				//.OrderBy(ge => ge.Authors)
-				//    .ThenBy(ge => ge.Series)
-				//    .ThenBy(ge => ge.Title)
+				//.OrderBy(lb => lb.Book.AuthorNames)
+				//    .ThenBy(lb => lb.Book.SeriesSortable)
+				//    .ThenBy(lb => lb.Book.TitleSortable)
 				.ToList();
 
 			// BIND
-			bindingList = new SortableBindingList<GridEntry>(orderedGridEntries);
-			gridEntryBindingSource.DataSource = bindingList;
+			if (bindingList is null)
+				bindToGrid(orderedBooks);
+			else
+				updateGrid(orderedBooks);
 
 			// FILTER
 			Filter();
 		}
 
-		private GridEntry toGridEntry(DataLayer.LibraryBook libraryBook)
+        private void bindToGrid(List<DataLayer.LibraryBook> orderedBooks)
+        {
+            bindingList = new SortableBindingList<GridEntry>(orderedBooks.Select(lb => toGridEntry(lb)));
+            gridEntryBindingSource.DataSource = bindingList;
+        }
+
+        private void updateGrid(List<DataLayer.LibraryBook> orderedBooks)
+        {
+            for (var i = orderedBooks.Count - 1; i >= 0; i--)
+            {
+                var libraryBook = orderedBooks[i];
+                var existingItem = bindingList.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
+
+                // add new to top
+                if (existingItem is null)
+                    bindingList.Insert(0, toGridEntry(libraryBook));
+                // update existing
+                else
+                    existingItem.UpdateLibraryBook(libraryBook);
+            }
+
+            // remove deleted from grid. note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
+            var oldIds = bindingList.Select(ge => ge.AudibleProductId).ToList();
+            var newIds = orderedBooks.Select(lb => lb.Book.AudibleProductId).ToList();
+            var remove = oldIds.Except(newIds).ToList();
+            foreach (var id in remove)
+            {
+                var oldItem = bindingList.FirstOrDefault(ge => ge.AudibleProductId == id);
+                if (oldItem is not null)
+                    bindingList.Remove(oldItem);
+            }
+        }
+
+        private GridEntry toGridEntry(DataLayer.LibraryBook libraryBook)
 		{
 			var entry = new GridEntry(libraryBook);
 			entry.Committed += Filter;

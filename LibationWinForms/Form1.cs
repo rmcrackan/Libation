@@ -75,16 +75,22 @@ namespace LibationWinForms
 		{
 			SuspendLayout();
 			{
-				if (productsGrid != null)
+				// previous non-null grid with zero-count removes columns. remove/re-add grid to get columns back
+				if (productsGrid?.Count == 0)
 				{
 					gridPanel.Controls.Remove(productsGrid);
 					productsGrid.VisibleCountChanged -= setVisibleCount;
 					productsGrid.Dispose();
+					productsGrid = null;
 				}
 
-				productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
-				productsGrid.VisibleCountChanged += setVisibleCount;
-				gridPanel.UIThreadSync(() => gridPanel.Controls.Add(productsGrid));
+				if (productsGrid is null)
+				{
+					productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
+					productsGrid.VisibleCountChanged += setVisibleCount;
+					gridPanel.UIThreadSync(() => gridPanel.Controls.Add(productsGrid));
+				}
+
 				productsGrid.Display();
 			}
 			ResumeLayout();
