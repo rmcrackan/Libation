@@ -51,6 +51,9 @@ namespace DataLayer
             : Category.ParentCategory is null ? new[] { Category.AudibleCategoryId }
             : new[] { Category.ParentCategory.AudibleCategoryId, Category.AudibleCategoryId };
 
+        public string TitleSortable => Formatters.GetSortName(Title);
+        public string SeriesSortable => Formatters.GetSortName(SeriesNames);
+
         // is owned, not optional 1:1
         public UserDefinedItem UserDefinedItem { get; private set; }
 

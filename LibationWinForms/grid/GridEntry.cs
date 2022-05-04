@@ -209,8 +209,8 @@ namespace LibationWinForms
 		/// </summary>
 		private Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
 		{
-			{ nameof(Title), () => GetSortName(Book.Title) },
-			{ nameof(Series), () => GetSortName(Book.SeriesNames) },
+			{ nameof(Title), () => Book.TitleSortable },
+			{ nameof(Series), () => Book.SeriesSortable },
 			{ nameof(Length), () => Book.LengthInMinutes },
 			{ nameof(MyRating), () => Book.UserDefinedItem.Rating.FirstScore },
 			{ nameof(PurchaseDate), () => LibraryBook.DateAdded },
@@ -233,21 +233,6 @@ namespace LibationWinForms
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
 			{ typeof(LiberatedStatus), new ObjectComparer<LiberatedStatus>() },
 		};
-
-		private static readonly string[] _sortPrefixIgnores = { "the", "a", "an" };
-		private static string GetSortName(string unformattedName)
-		{
-			var sortName = unformattedName
-				.Replace("|", "")
-				.Replace(":", "")
-				.ToLowerInvariant()
-				.Trim();
-
-			if (_sortPrefixIgnores.Any(prefix => sortName.StartsWith(prefix + " ")))
-				sortName = sortName.Substring(sortName.IndexOf(" ") + 1).TrimStart();
-
-			return sortName;
-		}
 
 		#endregion
 
