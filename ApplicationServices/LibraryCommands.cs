@@ -15,7 +15,19 @@ namespace ApplicationServices
 {
 	public static class LibraryCommands
 	{
-		public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, Task<ApiExtended>> apiExtendedfunc, List<LibraryBook> existingLibrary, params Account[] accounts)
+		public static event EventHandler<int> ScanBegin;
+		public static event EventHandler ScanEnd;
+
+		public static bool Scanning { get; private set; }
+		private static object _lock { get; } = new();
+
+		static LibraryCommands()
+		{
+			ScanBegin += (_, __) => Scanning = true;
+			ScanEnd += (_, __) => Scanning = false;
+		}
+
+        public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, Task<ApiExtended>> apiExtendedfunc, List<LibraryBook> existingLibrary, params Account[] accounts)
 		{
 			logRestart();
 
@@ -72,8 +84,6 @@ namespace ApplicationServices
 			}
 		}
 
-		public static event EventHandler<int> ScanBegin;
-		public static event EventHandler ScanEnd;
 		#region FULL LIBRARY scan and import
 		public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, params Account[] accounts)
 		{
@@ -84,7 +94,12 @@ namespace ApplicationServices
 
 			try
 			{
-				ScanBegin?.Invoke(null, accounts.Length);
+				lock (_lock)
+                {
+					if (Scanning)
+						return (0, 0);
+					ScanBegin?.Invoke(null, accounts.Length);
+				}
 
 				logTime($"pre {nameof(scanAccountsAsync)} all");
 				var importItems = await scanAccountsAsync(apiExtendedfunc, accounts, LibraryOptions.ResponseGroupOptions.ALL_OPTIONS);
