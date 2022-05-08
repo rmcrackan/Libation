@@ -62,7 +62,7 @@ namespace FileLiberator
                 // decrypt failed
                 if (!success)
                 {
-                    foreach (var tmpFile in entries)
+                    foreach (var tmpFile in entries.Where(f => f.FileType != FileType.AAXC))
                         FileUtility.SaferDelete(tmpFile.Path);
 
                     return new StatusHandler { "Decrypt failed" };
