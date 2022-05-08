@@ -10,6 +10,7 @@ using Dinah.Core.DataBinding;
 using Dinah.Core;
 using Dinah.Core.Drawing;
 using LibationFileManager;
+using System.Threading.Tasks;
 
 namespace LibationWinForms
 {
@@ -39,6 +40,7 @@ namespace LibationWinForms
 			}
 		}
 
+		public bool DownloadInProgress { get; private set; }
 		public string ProductRating { get; private set; }
 		public string PurchaseDate { get; private set; }
 		public string MyRating { get; private set; }
@@ -76,6 +78,16 @@ namespace LibationWinForms
 		private Book Book => LibraryBook.Book;
 
 		public GridEntry(LibraryBook libraryBook) => setLibraryBook(libraryBook);
+
+		public async Task DownloadBook()
+		{
+			if (!DownloadInProgress)
+			{
+				DownloadInProgress = true;
+				await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(LibraryBook);
+				DownloadInProgress = false;
+			}
+		}
 
 		public void UpdateLibraryBook(LibraryBook libraryBook)
 		{

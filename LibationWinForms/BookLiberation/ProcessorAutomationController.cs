@@ -50,12 +50,12 @@ namespace LibationWinForms.BookLiberation
 
 	public static class ProcessorAutomationController
 	{
-		public static async Task BackupSingleBookAsync(LibraryBook libraryBook, Action<LibraryBook> onCompleteAction = null)
+		public static async Task BackupSingleBookAsync(LibraryBook libraryBook)
 		{
 			Serilog.Log.Logger.Information($"Begin {nameof(BackupSingleBookAsync)} {{@DebugInfo}}", new { libraryBook?.Book?.AudibleProductId });
 
 			var logMe = LogMe.RegisterForm();
-			var backupBook = CreateBackupBook(logMe, onCompleteAction);
+			var backupBook = CreateBackupBook(logMe);
 
 			// continue even if libraryBook is null. we'll display even that in the processing box
 			await new BackupSingle(logMe, backupBook, libraryBook).RunBackupAsync();
@@ -96,14 +96,13 @@ namespace LibationWinForms.BookLiberation
 			await new BackupLoop(logMe, downloadPdf, automatedBackupsForm).RunBackupAsync();
 		}
 
-		private static Processable CreateBackupBook(LogMe logMe, Action<LibraryBook> onCompleteAction = null)
+		private static Processable CreateBackupBook(LogMe logMe)
 		{
 			var downloadPdf = CreateProcessable<DownloadPdf, PdfDownloadForm>(logMe);
 
 			//Chain pdf download on DownloadDecryptBook.Completed
 			async void onDownloadDecryptBookCompleted(object sender, LibraryBook e)
 			{
-				onCompleteAction?.Invoke(e);
 				await downloadPdf.TryProcessAsync(e);
 			}
 
