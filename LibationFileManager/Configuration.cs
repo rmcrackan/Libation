@@ -116,6 +116,13 @@ namespace LibationFileManager
             get => persistentDictionary.GetNonString<bool>(nameof(SplitFilesByChapter));
             set => persistentDictionary.SetNonString(nameof(SplitFilesByChapter), value);
         }
+        
+        [Description("Retain the Aax file after successfully decrypting")]
+        public bool RetainAaxFile
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(RetainAaxFile));
+            set => persistentDictionary.SetNonString(nameof(RetainAaxFile), value);
+        }
 
         public enum BadBookAction
         {

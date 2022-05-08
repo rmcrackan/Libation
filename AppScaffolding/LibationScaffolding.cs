@@ -83,6 +83,9 @@ namespace AppScaffolding
 			
 			if (!config.Exists(nameof(config.StripAudibleBrandAudio)))
 				config.StripAudibleBrandAudio = false;
+			
+			if (!config.Exists(nameof(config.RetainAaxFile)))
+				config.RetainAaxFile = false;
 
 			if (!config.Exists(nameof(config.FolderTemplate)))
 				config.FolderTemplate = Templates.Folder.DefaultTemplate;

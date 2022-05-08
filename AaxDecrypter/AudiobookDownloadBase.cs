@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Dinah.Core;
 using Dinah.Core.Net.Http;
@@ -20,8 +21,9 @@ namespace AaxDecrypter
 		public event EventHandler<string> FileCreated;
 
 		protected bool IsCanceled { get; set; }
+		
 		protected string OutputFileName { get; private set; }
-		protected DownloadLicense DownloadLicense { get; }
+		protected DownloadOptions DownloadOptions { get; }
 		protected NetworkFileStream InputFileStream => (nfsPersister ??= OpenNetworkFileStream()).NetworkFileStream;
 
 		// Don't give the property a 'set'. This should have to be an obvious choice; not accidental
@@ -31,9 +33,9 @@ namespace AaxDecrypter
 		private NetworkFileStreamPersister nfsPersister;
 
 		private string jsonDownloadState { get; }
-		private string tempFile => Path.ChangeExtension(jsonDownloadState, ".tmp");
+		public string TempFilePath { get; }
 
-		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadOptions dlLic)
 		{
 			OutputFileName = ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
 
@@ -43,9 +45,11 @@ namespace AaxDecrypter
 
 			if (!Directory.Exists(cacheDirectory))
 				throw new DirectoryNotFoundException($"Directory does not exist: {nameof(cacheDirectory)}");
-			jsonDownloadState = Path.Combine(cacheDirectory, Path.ChangeExtension(OutputFileName, ".json"));
 
-			DownloadLicense = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
+			jsonDownloadState = Path.Combine(cacheDirectory, Path.GetFileName(Path.ChangeExtension(OutputFileName, ".json")));
+			TempFilePath = Path.ChangeExtension(jsonDownloadState, ".tmp");
+
+			DownloadOptions = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
@@ -99,7 +103,7 @@ namespace AaxDecrypter
 			{
 				var path = Path.ChangeExtension(OutputFileName, ".cue");
 				path = FileUtility.GetValidFilename(path);
-				File.WriteAllText(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadLicense.ChapterInfo));
+				File.WriteAllText(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadOptions.ChapterInfo));
 				OnFileCreated(path);
 			}
 			catch (Exception ex)
@@ -111,9 +115,27 @@ namespace AaxDecrypter
 
 		protected bool Step_Cleanup()
 		{
-			FileUtility.SaferDelete(jsonDownloadState);
-			FileUtility.SaferDelete(tempFile);
-			return !IsCanceled;
+			bool success = !IsCanceled;
+			if (success)
+			{
+				FileUtility.SaferDelete(jsonDownloadState);
+
+				if (DownloadOptions.RetainEncryptedFile)
+				{
+					string aaxPath = Path.ChangeExtension(TempFilePath, ".aax");
+					FileUtility.SaferMove(TempFilePath, aaxPath);
+					OnFileCreated(aaxPath);
+				}
+				else
+					FileUtility.SaferDelete(TempFilePath);
+			}
+			else
+			{
+				FileUtility.SaferDelete(OutputFileName);
+			}
+
+
+			return success;
 		}
 
 		private NetworkFileStreamPersister OpenNetworkFileStream()
@@ -126,13 +148,13 @@ namespace AaxDecrypter
 				var nfsp = new NetworkFileStreamPersister(jsonDownloadState);
 				// If More than ~1 hour has elapsed since getting the download url, it will expire.
 				// The new url will be to the same file.
-				nfsp.NetworkFileStream.SetUriForSameFile(new Uri(DownloadLicense.DownloadUrl));
+				nfsp.NetworkFileStream.SetUriForSameFile(new Uri(DownloadOptions.DownloadUrl));
 				return nfsp;
 			}
 			catch
 			{
 				FileUtility.SaferDelete(jsonDownloadState);
-				FileUtility.SaferDelete(tempFile);
+				FileUtility.SaferDelete(TempFilePath);
 				return NewNetworkFilePersister();
 			}
 		}
@@ -141,10 +163,10 @@ namespace AaxDecrypter
 		{
 			var headers = new System.Net.WebHeaderCollection
 			{
-				{ "User-Agent", DownloadLicense.UserAgent }
+				{ "User-Agent", DownloadOptions.UserAgent }
 			};
 
-			var networkFileStream = new NetworkFileStream(tempFile, new Uri(DownloadLicense.DownloadUrl), 0, headers);
+			var networkFileStream = new NetworkFileStream(TempFilePath, new Uri(DownloadOptions.DownloadUrl), 0, headers);
 			return new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
 		}
 	}

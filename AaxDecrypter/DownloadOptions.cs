@@ -3,7 +3,7 @@ using Dinah.Core;
 
 namespace AaxDecrypter
 {
-    public class DownloadLicense
+    public class DownloadOptions
     {
         public string DownloadUrl { get; }
         public string UserAgent { get; }
@@ -11,9 +11,10 @@ namespace AaxDecrypter
         public string AudibleIV { get; init; }
         public OutputFormat OutputFormat { get; init; }
         public bool TrimOutputToChapterLength { get; init; }
+        public bool RetainEncryptedFile { get; init; }
         public ChapterInfo ChapterInfo { get; set; }
 
-        public DownloadLicense(string downloadUrl, string userAgent)
+        public DownloadOptions(string downloadUrl, string userAgent)
         {
             DownloadUrl = ArgumentValidator.EnsureNotNullOrEmpty(downloadUrl, nameof(downloadUrl));
             UserAgent = ArgumentValidator.EnsureNotNullOrEmpty(userAgent, nameof(userAgent));

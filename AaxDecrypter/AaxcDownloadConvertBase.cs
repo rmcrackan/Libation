@@ -10,7 +10,7 @@ namespace AaxDecrypter
 
 		protected AaxFile AaxFile;
 
-		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, DownloadOptions dlLic)
 			: base(outFileName, cacheDirectory, dlLic) { }
 
 		/// <summary>Setting cover art by this method will insert the art into the audiobook metadata</summary>
@@ -46,7 +46,7 @@ namespace AaxDecrypter
 
 			OnDecryptProgressUpdate(zeroProgress);
 
-			AaxFile.SetDecryptionKey(DownloadLicense.AudibleKey, DownloadLicense.AudibleIV);
+			AaxFile.SetDecryptionKey(DownloadOptions.AudibleKey, DownloadOptions.AudibleIV);
 			return zeroProgress;
 		}
 
@@ -68,7 +68,7 @@ namespace AaxDecrypter
 			if (double.IsNormal(estTimeRemaining))
 				OnDecryptTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
 
-			var progressPercent = e.ProcessPosition.TotalSeconds / duration.TotalSeconds;
+			var progressPercent = (e.ProcessPosition / e.TotalDuration);
 
 			OnDecryptProgressUpdate(
 				new DownloadProgress
