@@ -29,6 +29,7 @@ namespace LibationWinForms
 
 	public partial class ProductsGrid : UserControl
 	{
+		private static List<string> bookConversionInProgress = new();
 		public event EventHandler<int> VisibleCountChanged;
 
 		// alias
@@ -88,8 +89,14 @@ namespace LibationWinForms
 				return;
 			}
 
+			//don't try to decrypt the same book at the same time.
+			if (bookConversionInProgress.Contains(libraryBook.Book.AudibleProductId))
+				return;
+
+			bookConversionInProgress.Add(libraryBook.Book.AudibleProductId);
+
 			// else: liberate
-			await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook);
+			await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook, b => bookConversionInProgress.Remove(b.Book.AudibleProductId));
 		}
 
 		private static void Details_Click(GridEntry liveGridEntry)
