@@ -47,7 +47,7 @@ namespace AaxDecrypter
 				throw new DirectoryNotFoundException($"Directory does not exist: {nameof(cacheDirectory)}");
 
 			jsonDownloadState = Path.Combine(cacheDirectory, Path.GetFileName(Path.ChangeExtension(OutputFileName, ".json")));
-			TempFilePath = Path.ChangeExtension(jsonDownloadState, ".tmp");
+			TempFilePath = Path.ChangeExtension(jsonDownloadState, ".aaxc");
 
 			DownloadOptions = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
 
