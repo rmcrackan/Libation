@@ -10,6 +10,7 @@ namespace AaxDecrypter
         public string AudibleIV { get; }
         public string UserAgent { get; }
         public ChapterInfo ChapterInfo { get; set; }
+        public bool TrimOutputToChapterLength { get; set; }
 
         public DownloadLicense(string downloadUrl, string audibleKey, string audibleIV, string userAgent)
         {

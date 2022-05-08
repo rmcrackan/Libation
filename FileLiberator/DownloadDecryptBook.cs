@@ -86,6 +86,8 @@ namespace FileLiberator
 
             try
             {
+                var config = Configuration.Instance;
+
                 downloadValidation(libraryBook);
 
                 var api = await libraryBook.GetApiAsync();
@@ -104,15 +106,32 @@ namespace FileLiberator
                 //These assumptions may be wrong, and only time and bug reports will tell.
                 var outputFormat = 
                     contentLic.ContentMetadata.ContentReference.ContentFormat == "MPEG" ||
-                    (Configuration.Instance.AllowLibationFixup && Configuration.Instance.DecryptToLossy) ? 
+                    (config.AllowLibationFixup && config.DecryptToLossy) ? 
                     OutputFormat.Mp3 : OutputFormat.M4b;
 
-                if (Configuration.Instance.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
-                {
-                    audiobookDlLic.ChapterInfo = new AAXClean.ChapterInfo();
+                audiobookDlLic.TrimOutputToChapterLength = config.StripAudibleBrandAudio;
 
-                    foreach (var chap in contentLic.ContentMetadata?.ChapterInfo?.Chapters)
-                        audiobookDlLic.ChapterInfo.AddChapter(chap.Title, TimeSpan.FromMilliseconds(chap.LengthMs));
+                long startMs = config.StripAudibleBrandAudio ? 
+                    contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs :
+                    0;
+
+                if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
+                {
+                    audiobookDlLic.ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(startMs));
+
+                    for (int i = 0; i < contentLic.ContentMetadata.ChapterInfo.Chapters.Length; i++)
+                    {
+                        var chapter = contentLic.ContentMetadata.ChapterInfo.Chapters[i];
+                        long chapLenMs = chapter.LengthMs;
+
+                        if (i == 0)
+                            chapLenMs -= startMs;
+
+                        if (config.StripAudibleBrandAudio && i == contentLic.ContentMetadata.ChapterInfo.Chapters.Length - 1)
+                            chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs + 500; //A little more headroom at the end of the file (500 ms)
+
+                        audiobookDlLic.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
+                    }
                 }
 
                 var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, outputFormat.ToString().ToLower());
@@ -124,12 +143,12 @@ namespace FileLiberator
                 else
                 {
                     AaxcDownloadConvertBase converter
-                        = Configuration.Instance.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
+                        = config.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
                             outFileName, cacheDir, audiobookDlLic, outputFormat,
                             AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook))
                         : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic, outputFormat);
 
-                    if (Configuration.Instance.AllowLibationFixup)
+                    if (config.AllowLibationFixup)
                         converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames);
 
                     abDownloader = converter;

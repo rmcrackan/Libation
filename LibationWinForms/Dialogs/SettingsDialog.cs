@@ -34,6 +34,7 @@ namespace LibationWinForms.Dialogs
 			this.inProgressDescLbl.Text = desc(nameof(config.InProgress));
 			this.allowLibationFixupCbox.Text = desc(nameof(config.AllowLibationFixup));
 			this.splitFilesByChapterCbox.Text = desc(nameof(config.SplitFilesByChapter));
+			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 
 			booksSelectControl.SetSearchTitle("books location");
 			booksSelectControl.SetDirectoryItems(
@@ -54,6 +55,7 @@ namespace LibationWinForms.Dialogs
 			convertLosslessRb.Checked = !config.DecryptToLossy;
 			convertLossyRb.Checked = config.DecryptToLossy;
 			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
+			stripAudibleBrandingCbox.Checked = config.StripAudibleBrandAudio;
 
 			allowLibationFixupCbox_CheckedChanged(this, e);
 
@@ -174,6 +176,7 @@ namespace LibationWinForms.Dialogs
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
 			config.DecryptToLossy = convertLossyRb.Checked;
 			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
+			config.StripAudibleBrandAudio = stripAudibleBrandingCbox.Checked;
 
 			config.InProgress = inProgressSelectControl.SelectedDirectory;
 
