@@ -97,11 +97,13 @@ namespace LibationWinForms.Dialogs
 			convertLosslessRb.Enabled = allowLibationFixupCbox.Checked;
 			convertLossyRb.Enabled = allowLibationFixupCbox.Checked;
 			splitFilesByChapterCbox.Enabled = allowLibationFixupCbox.Checked;
+			stripAudibleBrandingCbox.Enabled =allowLibationFixupCbox.Checked;
 
 			if (!allowLibationFixupCbox.Checked)
 			{
 				convertLosslessRb.Checked = true;
 				splitFilesByChapterCbox.Checked = false;
+				stripAudibleBrandingCbox.Checked = false;
 			}
 		}
 
