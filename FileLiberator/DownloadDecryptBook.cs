@@ -112,8 +112,7 @@ namespace FileLiberator
                 audiobookDlLic.TrimOutputToChapterLength = config.StripAudibleBrandAudio;
 
                 long startMs = config.StripAudibleBrandAudio ? 
-                    contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs :
-                    0;
+                    contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs : 0;
 
                 if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
                 {
@@ -128,7 +127,7 @@ namespace FileLiberator
                             chapLenMs -= startMs;
 
                         if (config.StripAudibleBrandAudio && i == contentLic.ContentMetadata.ChapterInfo.Chapters.Length - 1)
-                            chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs + 500; //A little more headroom at the end of the file (500 ms)
+                            chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
 
                         audiobookDlLic.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
                     }
