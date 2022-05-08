@@ -120,7 +120,6 @@ namespace FileLiberator
 
                 abDownloader.DecryptProgressUpdate += OnStreamingProgressChanged;
                 abDownloader.DecryptTimeRemaining += OnStreamingTimeRemaining;
-
                 abDownloader.RetrievedTitle += OnTitleDiscovered;
                 abDownloader.RetrievedAuthors += OnAuthorsDiscovered;
                 abDownloader.RetrievedNarrators += OnNarratorsDiscovered;
@@ -157,8 +156,11 @@ namespace FileLiberator
                 AudibleKey = contentLic?.Voucher?.Key,
                 AudibleIV = contentLic?.Voucher?.Iv,
                 OutputFormat = outputFormat,
-                TrimOutputToChapterLength = config.StripAudibleBrandAudio,
-                RetainEncryptedFile = config.RetainAaxFile && encrypted
+                TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
+                RetainEncryptedFile = config.RetainAaxFile && encrypted,
+                StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
+                Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
+                MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
             };
 
             if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
@@ -183,6 +185,31 @@ namespace FileLiberator
                     audiobookDlLic.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
                 }
             }
+
+            NAudio.Lame.LameConfig lameConfig = new();
+
+
+            lameConfig.Mode = NAudio.Lame.MPEGMode.Mono;
+
+            if (config.LameTargetBitrate)
+			{
+                if (config.LameConstantBitrate)
+                    lameConfig.BitRate = config.LameBitrate;
+                else
+                {
+                    lameConfig.ABRRateKbps = config.LameBitrate;
+                    lameConfig.VBR = NAudio.Lame.VBRMode.ABR;
+                    lameConfig.WriteVBRTag = true;
+                }
+			}
+			else
+			{
+                lameConfig.VBR = NAudio.Lame.VBRMode.Default;
+                lameConfig.VBRQuality = config.LameVBRQuality;
+                lameConfig.WriteVBRTag = true;
+            }
+
+            audiobookDlLic.LameConfig = lameConfig;
 
             return audiobookDlLic;
         }

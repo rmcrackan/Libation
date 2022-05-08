@@ -38,7 +38,7 @@ namespace AaxDecrypter
             var decryptionResult
                 = DownloadOptions.OutputFormat == OutputFormat.M4b
                 ? AaxFile.ConvertToMp4a(outputFile, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength)
-                : AaxFile.ConvertToMp3(outputFile, null, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
+                : AaxFile.ConvertToMp3(outputFile, DownloadOptions.LameConfig, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
             AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
             DownloadOptions.ChapterInfo = AaxFile.Chapters;

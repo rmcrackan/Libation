@@ -81,11 +81,34 @@ namespace AppScaffolding
 			if (!config.Exists(nameof(config.SplitFilesByChapter)))
 				config.SplitFilesByChapter = false;
 			
+			if (!config.Exists(nameof(config.StripUnabridged)))
+				config.StripUnabridged = false;
+			
 			if (!config.Exists(nameof(config.StripAudibleBrandAudio)))
 				config.StripAudibleBrandAudio = false;
 			
 			if (!config.Exists(nameof(config.RetainAaxFile)))
 				config.RetainAaxFile = false;
+
+
+			if (!config.Exists(nameof(config.LameTargetBitrate)))
+				config.LameTargetBitrate = false;			
+			
+			if (!config.Exists(nameof(config.LameDownsampleMono)))
+				config.LameDownsampleMono = true;
+			
+			if (!config.Exists(nameof(config.LameBitrate)))
+				config.LameBitrate = 64;
+			
+			if (!config.Exists(nameof(config.LameConstantBitrate)))
+				config.LameConstantBitrate = false;
+			
+			if (!config.Exists(nameof(config.LameMatchSourceBR)))
+				config.LameMatchSourceBR = true;
+			
+			if (!config.Exists(nameof(config.LameVBRQuality)))
+				config.LameVBRQuality = 2;
+
 
 			if (!config.Exists(nameof(config.FolderTemplate)))
 				config.FolderTemplate = Templates.Folder.DefaultTemplate;

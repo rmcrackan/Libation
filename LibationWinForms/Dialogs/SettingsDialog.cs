@@ -35,6 +35,8 @@ namespace LibationWinForms.Dialogs
 			this.allowLibationFixupCbox.Text = desc(nameof(config.AllowLibationFixup));
 			this.splitFilesByChapterCbox.Text = desc(nameof(config.SplitFilesByChapter));
 			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
+			this.retainAaxFileCbox.Text = desc(nameof(config.RetainAaxFile));
+			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
 
 			booksSelectControl.SetSearchTitle("books location");
 			booksSelectControl.SetDirectoryItems(
@@ -52,11 +54,24 @@ namespace LibationWinForms.Dialogs
 			importEpisodesCb.Checked = config.ImportEpisodes;
 			downloadEpisodesCb.Checked = config.DownloadEpisodes;
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
+			retainAaxFileCbox.Checked = config.RetainAaxFile;
 			convertLosslessRb.Checked = !config.DecryptToLossy;
 			convertLossyRb.Checked = config.DecryptToLossy;
-			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
+			stripUnabridgedCbox.Checked = config.StripUnabridged;
 			stripAudibleBrandingCbox.Checked = config.StripAudibleBrandAudio;
+			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
 
+			lameTargetBitrateRb.Checked = config.LameTargetBitrate;
+			lameTargetQualityRb.Checked = !config.LameTargetBitrate;
+			lameDownsampleMonoCbox.Checked = config.LameDownsampleMono;
+			lameBitrateTb.Value = config.LameBitrate;
+			lameConstantBitrateCbox.Checked = config.LameConstantBitrate;
+			LameMatchSourceBRCbox.Checked = config.LameMatchSourceBR;
+			lameVBRQualityTb.Value = config.LameVBRQuality;
+
+			lameTargetRb_CheckedChanged(this, e);
+			LameMatchSourceBRCbox_CheckedChanged(this, e);
+			convertFormatRb_CheckedChanged(this, e);
 			allowLibationFixupCbox_CheckedChanged(this, e);
 
 			inProgressSelectControl.SetDirectoryItems(new()
@@ -90,21 +105,6 @@ namespace LibationWinForms.Dialogs
 			folderTemplateTb.Text = config.FolderTemplate;
 			fileTemplateTb.Text = config.FileTemplate;
 			chapterFileTemplateTb.Text = config.ChapterFileTemplate;
-		}
-
-		private void allowLibationFixupCbox_CheckedChanged(object sender, EventArgs e)
-		{
-			convertLosslessRb.Enabled = allowLibationFixupCbox.Checked;
-			convertLossyRb.Enabled = allowLibationFixupCbox.Checked;
-			splitFilesByChapterCbox.Enabled = allowLibationFixupCbox.Checked;
-			stripAudibleBrandingCbox.Enabled =allowLibationFixupCbox.Checked;
-
-			if (!allowLibationFixupCbox.Checked)
-			{
-				convertLosslessRb.Checked = true;
-				splitFilesByChapterCbox.Checked = false;
-				stripAudibleBrandingCbox.Checked = false;
-			}
 		}
 
 		private void logsBtn_Click(object sender, EventArgs e) => Go.To.Folder(Configuration.Instance.LibationFiles);
@@ -176,9 +176,18 @@ namespace LibationWinForms.Dialogs
 			config.ImportEpisodes = importEpisodesCb.Checked;
 			config.DownloadEpisodes = downloadEpisodesCb.Checked;
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
+			config.RetainAaxFile = retainAaxFileCbox.Checked;
 			config.DecryptToLossy = convertLossyRb.Checked;
-			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
+			config.StripUnabridged = stripUnabridgedCbox.Checked;
 			config.StripAudibleBrandAudio = stripAudibleBrandingCbox.Checked;
+			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
+
+			config.LameTargetBitrate = lameTargetBitrateRb.Checked;
+			config.LameDownsampleMono = lameDownsampleMonoCbox.Checked;
+			config.LameBitrate = lameBitrateTb.Value;
+			config.LameConstantBitrate = lameConstantBitrateCbox.Checked;
+			config.LameMatchSourceBR = LameMatchSourceBRCbox.Checked;
+			config.LameVBRQuality = lameVBRQualityTb.Value;
 
 			config.InProgress = inProgressSelectControl.SelectedDirectory;
 
@@ -202,5 +211,6 @@ namespace LibationWinForms.Dialogs
 			this.DialogResult = DialogResult.Cancel;
 			this.Close();
 		}
+
 	}
 }

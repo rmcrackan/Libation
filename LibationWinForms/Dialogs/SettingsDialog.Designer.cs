@@ -39,7 +39,6 @@
 			this.badBookRetryRb = new System.Windows.Forms.RadioButton();
 			this.badBookAbortRb = new System.Windows.Forms.RadioButton();
 			this.badBookAskRb = new System.Windows.Forms.RadioButton();
-			this.decryptAndConvertGb = new System.Windows.Forms.GroupBox();
 			this.stripAudibleBrandingCbox = new System.Windows.Forms.CheckBox();
 			this.splitFilesByChapterCbox = new System.Windows.Forms.CheckBox();
 			this.allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
@@ -67,8 +66,40 @@
 			this.folderTemplateBtn = new System.Windows.Forms.Button();
 			this.folderTemplateTb = new System.Windows.Forms.TextBox();
 			this.folderTemplateLbl = new System.Windows.Forms.Label();
+			this.tab4AudioFileOptions = new System.Windows.Forms.TabPage();
+			this.lameOptionsGb = new System.Windows.Forms.GroupBox();
+			this.lameDownsampleMonoCbox = new System.Windows.Forms.CheckBox();
+			this.lameBitrateGb = new System.Windows.Forms.GroupBox();
+			this.LameMatchSourceBRCbox = new System.Windows.Forms.CheckBox();
+			this.lameConstantBitrateCbox = new System.Windows.Forms.CheckBox();
+			this.label7 = new System.Windows.Forms.Label();
+			this.label6 = new System.Windows.Forms.Label();
+			this.label5 = new System.Windows.Forms.Label();
+			this.label4 = new System.Windows.Forms.Label();
+			this.label11 = new System.Windows.Forms.Label();
+			this.label3 = new System.Windows.Forms.Label();
+			this.lameBitrateTb = new System.Windows.Forms.TrackBar();
+			this.label1 = new System.Windows.Forms.Label();
+			this.lameQualityGb = new System.Windows.Forms.GroupBox();
+			this.label19 = new System.Windows.Forms.Label();
+			this.label18 = new System.Windows.Forms.Label();
+			this.label17 = new System.Windows.Forms.Label();
+			this.label16 = new System.Windows.Forms.Label();
+			this.label12 = new System.Windows.Forms.Label();
+			this.label15 = new System.Windows.Forms.Label();
+			this.label9 = new System.Windows.Forms.Label();
+			this.label8 = new System.Windows.Forms.Label();
+			this.label13 = new System.Windows.Forms.Label();
+			this.label10 = new System.Windows.Forms.Label();
+			this.label14 = new System.Windows.Forms.Label();
+			this.label2 = new System.Windows.Forms.Label();
+			this.lameVBRQualityTb = new System.Windows.Forms.TrackBar();
+			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.lameTargetQualityRb = new System.Windows.Forms.RadioButton();
+			this.lameTargetBitrateRb = new System.Windows.Forms.RadioButton();
+			this.stripUnabridgedCbox = new System.Windows.Forms.CheckBox();
+			this.retainAaxFileCbox = new System.Windows.Forms.CheckBox();
 			this.badBookGb.SuspendLayout();
-			this.decryptAndConvertGb.SuspendLayout();
 			this.tabControl.SuspendLayout();
 			this.tab1ImportantSettings.SuspendLayout();
 			this.booksGb.SuspendLayout();
@@ -76,6 +107,13 @@
 			this.tab3DownloadDecrypt.SuspendLayout();
 			this.inProgressFilesGb.SuspendLayout();
 			this.customFileNamingGb.SuspendLayout();
+			this.tab4AudioFileOptions.SuspendLayout();
+			this.lameOptionsGb.SuspendLayout();
+			this.lameBitrateGb.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.lameBitrateTb)).BeginInit();
+			this.lameQualityGb.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.lameVBRQualityTb)).BeginInit();
+			this.groupBox2.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// booksLocationDescLbl
@@ -101,7 +139,7 @@
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(714, 523);
+			this.saveBtn.Location = new System.Drawing.Point(667, 441);
 			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(88, 27);
@@ -114,7 +152,7 @@
 			// 
 			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(832, 523);
+			this.cancelBtn.Location = new System.Drawing.Point(785, 441);
 			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
@@ -149,9 +187,9 @@
 			this.badBookGb.Controls.Add(this.badBookRetryRb);
 			this.badBookGb.Controls.Add(this.badBookAbortRb);
 			this.badBookGb.Controls.Add(this.badBookAskRb);
-			this.badBookGb.Location = new System.Drawing.Point(371, 6);
+			this.badBookGb.Location = new System.Drawing.Point(7, 6);
 			this.badBookGb.Name = "badBookGb";
-			this.badBookGb.Size = new System.Drawing.Size(524, 168);
+			this.badBookGb.Size = new System.Drawing.Size(888, 76);
 			this.badBookGb.TabIndex = 13;
 			this.badBookGb.TabStop = false;
 			this.badBookGb.Text = "[bad book desc]";
@@ -159,7 +197,7 @@
 			// badBookIgnoreRb
 			// 
 			this.badBookIgnoreRb.AutoSize = true;
-			this.badBookIgnoreRb.Location = new System.Drawing.Point(6, 124);
+			this.badBookIgnoreRb.Location = new System.Drawing.Point(384, 47);
 			this.badBookIgnoreRb.Name = "badBookIgnoreRb";
 			this.badBookIgnoreRb.Size = new System.Drawing.Size(94, 19);
 			this.badBookIgnoreRb.TabIndex = 17;
@@ -170,7 +208,7 @@
 			// badBookRetryRb
 			// 
 			this.badBookRetryRb.AutoSize = true;
-			this.badBookRetryRb.Location = new System.Drawing.Point(6, 90);
+			this.badBookRetryRb.Location = new System.Drawing.Point(5, 47);
 			this.badBookRetryRb.Name = "badBookRetryRb";
 			this.badBookRetryRb.Size = new System.Drawing.Size(84, 19);
 			this.badBookRetryRb.TabIndex = 16;
@@ -181,7 +219,7 @@
 			// badBookAbortRb
 			// 
 			this.badBookAbortRb.AutoSize = true;
-			this.badBookAbortRb.Location = new System.Drawing.Point(6, 56);
+			this.badBookAbortRb.Location = new System.Drawing.Point(384, 22);
 			this.badBookAbortRb.Name = "badBookAbortRb";
 			this.badBookAbortRb.Size = new System.Drawing.Size(88, 19);
 			this.badBookAbortRb.TabIndex = 15;
@@ -200,34 +238,20 @@
 			this.badBookAskRb.Text = "[ask desc]";
 			this.badBookAskRb.UseVisualStyleBackColor = true;
 			// 
-			// decryptAndConvertGb
-			// 
-			this.decryptAndConvertGb.Controls.Add(this.stripAudibleBrandingCbox);
-			this.decryptAndConvertGb.Controls.Add(this.splitFilesByChapterCbox);
-			this.decryptAndConvertGb.Controls.Add(this.allowLibationFixupCbox);
-			this.decryptAndConvertGb.Controls.Add(this.convertLossyRb);
-			this.decryptAndConvertGb.Controls.Add(this.convertLosslessRb);
-			this.decryptAndConvertGb.Location = new System.Drawing.Point(6, 6);
-			this.decryptAndConvertGb.Name = "decryptAndConvertGb";
-			this.decryptAndConvertGb.Size = new System.Drawing.Size(359, 168);
-			this.decryptAndConvertGb.TabIndex = 9;
-			this.decryptAndConvertGb.TabStop = false;
-			this.decryptAndConvertGb.Text = "Decrypt and convert";
-			// 
 			// stripAudibleBrandingCbox
 			// 
 			this.stripAudibleBrandingCbox.AutoSize = true;
-			this.stripAudibleBrandingCbox.Location = new System.Drawing.Point(6, 72);
+			this.stripAudibleBrandingCbox.Location = new System.Drawing.Point(19, 118);
 			this.stripAudibleBrandingCbox.Name = "stripAudibleBrandingCbox";
-			this.stripAudibleBrandingCbox.Size = new System.Drawing.Size(174, 19);
+			this.stripAudibleBrandingCbox.Size = new System.Drawing.Size(143, 34);
 			this.stripAudibleBrandingCbox.TabIndex = 13;
-			this.stripAudibleBrandingCbox.Text = "[StripAudibleBranding desc]";
+			this.stripAudibleBrandingCbox.Text = "[StripAudibleBranding\r\ndesc]";
 			this.stripAudibleBrandingCbox.UseVisualStyleBackColor = true;
 			// 
 			// splitFilesByChapterCbox
 			// 
 			this.splitFilesByChapterCbox.AutoSize = true;
-			this.splitFilesByChapterCbox.Location = new System.Drawing.Point(6, 48);
+			this.splitFilesByChapterCbox.Location = new System.Drawing.Point(19, 68);
 			this.splitFilesByChapterCbox.Name = "splitFilesByChapterCbox";
 			this.splitFilesByChapterCbox.Size = new System.Drawing.Size(162, 19);
 			this.splitFilesByChapterCbox.TabIndex = 13;
@@ -239,7 +263,7 @@
 			this.allowLibationFixupCbox.AutoSize = true;
 			this.allowLibationFixupCbox.Checked = true;
 			this.allowLibationFixupCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.allowLibationFixupCbox.Location = new System.Drawing.Point(6, 23);
+			this.allowLibationFixupCbox.Location = new System.Drawing.Point(19, 18);
 			this.allowLibationFixupCbox.Name = "allowLibationFixupCbox";
 			this.allowLibationFixupCbox.Size = new System.Drawing.Size(163, 19);
 			this.allowLibationFixupCbox.TabIndex = 10;
@@ -250,24 +274,26 @@
 			// convertLossyRb
 			// 
 			this.convertLossyRb.AutoSize = true;
-			this.convertLossyRb.Location = new System.Drawing.Point(6, 143);
+			this.convertLossyRb.Location = new System.Drawing.Point(19, 182);
 			this.convertLossyRb.Name = "convertLossyRb";
 			this.convertLossyRb.Size = new System.Drawing.Size(329, 19);
 			this.convertLossyRb.TabIndex = 12;
 			this.convertLossyRb.Text = "Download my books as .MP3 files (transcode if necessary)";
 			this.convertLossyRb.UseVisualStyleBackColor = true;
+			this.convertLossyRb.CheckedChanged += new System.EventHandler(this.convertFormatRb_CheckedChanged);
 			// 
 			// convertLosslessRb
 			// 
 			this.convertLosslessRb.AutoSize = true;
 			this.convertLosslessRb.Checked = true;
-			this.convertLosslessRb.Location = new System.Drawing.Point(6, 118);
+			this.convertLosslessRb.Location = new System.Drawing.Point(19, 157);
 			this.convertLosslessRb.Name = "convertLosslessRb";
 			this.convertLosslessRb.Size = new System.Drawing.Size(335, 19);
 			this.convertLosslessRb.TabIndex = 11;
 			this.convertLosslessRb.TabStop = true;
 			this.convertLosslessRb.Text = "Download my books in the original audio format (Lossless)";
 			this.convertLosslessRb.UseVisualStyleBackColor = true;
+			this.convertLosslessRb.CheckedChanged += new System.EventHandler(this.convertFormatRb_CheckedChanged);
 			// 
 			// inProgressSelectControl
 			// 
@@ -276,7 +302,7 @@
 			this.inProgressSelectControl.Location = new System.Drawing.Point(7, 68);
 			this.inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.inProgressSelectControl.Name = "inProgressSelectControl";
-			this.inProgressSelectControl.Size = new System.Drawing.Size(875, 52);
+			this.inProgressSelectControl.Size = new System.Drawing.Size(828, 52);
 			this.inProgressSelectControl.TabIndex = 19;
 			// 
 			// logsBtn
@@ -296,7 +322,7 @@
 			this.booksSelectControl.Location = new System.Drawing.Point(7, 37);
 			this.booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.booksSelectControl.Name = "booksSelectControl";
-			this.booksSelectControl.Size = new System.Drawing.Size(876, 87);
+			this.booksSelectControl.Size = new System.Drawing.Size(829, 87);
 			this.booksSelectControl.TabIndex = 2;
 			// 
 			// loggingLevelLbl
@@ -325,10 +351,11 @@
 			this.tabControl.Controls.Add(this.tab1ImportantSettings);
 			this.tabControl.Controls.Add(this.tab2ImportLibrary);
 			this.tabControl.Controls.Add(this.tab3DownloadDecrypt);
+			this.tabControl.Controls.Add(this.tab4AudioFileOptions);
 			this.tabControl.Location = new System.Drawing.Point(12, 12);
 			this.tabControl.Name = "tabControl";
 			this.tabControl.SelectedIndex = 0;
-			this.tabControl.Size = new System.Drawing.Size(909, 505);
+			this.tabControl.Size = new System.Drawing.Size(862, 423);
 			this.tabControl.TabIndex = 100;
 			// 
 			// tab1ImportantSettings
@@ -340,7 +367,7 @@
 			this.tab1ImportantSettings.Location = new System.Drawing.Point(4, 24);
 			this.tab1ImportantSettings.Name = "tab1ImportantSettings";
 			this.tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(3);
-			this.tab1ImportantSettings.Size = new System.Drawing.Size(901, 459);
+			this.tab1ImportantSettings.Size = new System.Drawing.Size(854, 395);
 			this.tab1ImportantSettings.TabIndex = 0;
 			this.tab1ImportantSettings.Text = "Important settings";
 			this.tab1ImportantSettings.UseVisualStyleBackColor = true;
@@ -353,7 +380,7 @@
 			this.booksGb.Controls.Add(this.booksLocationDescLbl);
 			this.booksGb.Location = new System.Drawing.Point(6, 6);
 			this.booksGb.Name = "booksGb";
-			this.booksGb.Size = new System.Drawing.Size(889, 129);
+			this.booksGb.Size = new System.Drawing.Size(842, 129);
 			this.booksGb.TabIndex = 0;
 			this.booksGb.TabStop = false;
 			this.booksGb.Text = "Books location";
@@ -366,7 +393,7 @@
 			this.tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
 			this.tab2ImportLibrary.Name = "tab2ImportLibrary";
 			this.tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
-			this.tab2ImportLibrary.Size = new System.Drawing.Size(901, 459);
+			this.tab2ImportLibrary.Size = new System.Drawing.Size(854, 395);
 			this.tab2ImportLibrary.TabIndex = 1;
 			this.tab2ImportLibrary.Text = "Import library";
 			this.tab2ImportLibrary.UseVisualStyleBackColor = true;
@@ -385,12 +412,11 @@
 			// 
 			this.tab3DownloadDecrypt.Controls.Add(this.inProgressFilesGb);
 			this.tab3DownloadDecrypt.Controls.Add(this.customFileNamingGb);
-			this.tab3DownloadDecrypt.Controls.Add(this.decryptAndConvertGb);
 			this.tab3DownloadDecrypt.Controls.Add(this.badBookGb);
 			this.tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
 			this.tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
 			this.tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3);
-			this.tab3DownloadDecrypt.Size = new System.Drawing.Size(901, 477);
+			this.tab3DownloadDecrypt.Size = new System.Drawing.Size(854, 395);
 			this.tab3DownloadDecrypt.TabIndex = 2;
 			this.tab3DownloadDecrypt.Text = "Download/Decrypt";
 			this.tab3DownloadDecrypt.UseVisualStyleBackColor = true;
@@ -401,9 +427,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.inProgressFilesGb.Controls.Add(this.inProgressDescLbl);
 			this.inProgressFilesGb.Controls.Add(this.inProgressSelectControl);
-			this.inProgressFilesGb.Location = new System.Drawing.Point(7, 343);
+			this.inProgressFilesGb.Location = new System.Drawing.Point(7, 251);
 			this.inProgressFilesGb.Name = "inProgressFilesGb";
-			this.inProgressFilesGb.Size = new System.Drawing.Size(888, 128);
+			this.inProgressFilesGb.Size = new System.Drawing.Size(841, 128);
 			this.inProgressFilesGb.TabIndex = 21;
 			this.inProgressFilesGb.TabStop = false;
 			this.inProgressFilesGb.Text = "In progress files";
@@ -421,9 +447,9 @@
 			this.customFileNamingGb.Controls.Add(this.folderTemplateBtn);
 			this.customFileNamingGb.Controls.Add(this.folderTemplateTb);
 			this.customFileNamingGb.Controls.Add(this.folderTemplateLbl);
-			this.customFileNamingGb.Location = new System.Drawing.Point(7, 180);
+			this.customFileNamingGb.Location = new System.Drawing.Point(7, 88);
 			this.customFileNamingGb.Name = "customFileNamingGb";
-			this.customFileNamingGb.Size = new System.Drawing.Size(888, 157);
+			this.customFileNamingGb.Size = new System.Drawing.Size(841, 157);
 			this.customFileNamingGb.TabIndex = 20;
 			this.customFileNamingGb.TabStop = false;
 			this.customFileNamingGb.Text = "Custom file naming";
@@ -431,7 +457,7 @@
 			// chapterFileTemplateBtn
 			// 
 			this.chapterFileTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.chapterFileTemplateBtn.Location = new System.Drawing.Point(808, 124);
+			this.chapterFileTemplateBtn.Location = new System.Drawing.Point(761, 124);
 			this.chapterFileTemplateBtn.Name = "chapterFileTemplateBtn";
 			this.chapterFileTemplateBtn.Size = new System.Drawing.Size(75, 23);
 			this.chapterFileTemplateBtn.TabIndex = 8;
@@ -446,7 +472,7 @@
 			this.chapterFileTemplateTb.Location = new System.Drawing.Point(6, 125);
 			this.chapterFileTemplateTb.Name = "chapterFileTemplateTb";
 			this.chapterFileTemplateTb.ReadOnly = true;
-			this.chapterFileTemplateTb.Size = new System.Drawing.Size(796, 23);
+			this.chapterFileTemplateTb.Size = new System.Drawing.Size(749, 23);
 			this.chapterFileTemplateTb.TabIndex = 7;
 			// 
 			// chapterFileTemplateLbl
@@ -461,7 +487,7 @@
 			// fileTemplateBtn
 			// 
 			this.fileTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.fileTemplateBtn.Location = new System.Drawing.Point(808, 80);
+			this.fileTemplateBtn.Location = new System.Drawing.Point(761, 80);
 			this.fileTemplateBtn.Name = "fileTemplateBtn";
 			this.fileTemplateBtn.Size = new System.Drawing.Size(75, 23);
 			this.fileTemplateBtn.TabIndex = 5;
@@ -476,7 +502,7 @@
 			this.fileTemplateTb.Location = new System.Drawing.Point(6, 81);
 			this.fileTemplateTb.Name = "fileTemplateTb";
 			this.fileTemplateTb.ReadOnly = true;
-			this.fileTemplateTb.Size = new System.Drawing.Size(796, 23);
+			this.fileTemplateTb.Size = new System.Drawing.Size(749, 23);
 			this.fileTemplateTb.TabIndex = 4;
 			// 
 			// fileTemplateLbl
@@ -491,7 +517,7 @@
 			// folderTemplateBtn
 			// 
 			this.folderTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.folderTemplateBtn.Location = new System.Drawing.Point(807, 36);
+			this.folderTemplateBtn.Location = new System.Drawing.Point(760, 36);
 			this.folderTemplateBtn.Name = "folderTemplateBtn";
 			this.folderTemplateBtn.Size = new System.Drawing.Size(75, 23);
 			this.folderTemplateBtn.TabIndex = 2;
@@ -506,7 +532,7 @@
 			this.folderTemplateTb.Location = new System.Drawing.Point(5, 37);
 			this.folderTemplateTb.Name = "folderTemplateTb";
 			this.folderTemplateTb.ReadOnly = true;
-			this.folderTemplateTb.Size = new System.Drawing.Size(796, 23);
+			this.folderTemplateTb.Size = new System.Drawing.Size(749, 23);
 			this.folderTemplateTb.TabIndex = 1;
 			// 
 			// folderTemplateLbl
@@ -518,13 +544,374 @@
 			this.folderTemplateLbl.TabIndex = 0;
 			this.folderTemplateLbl.Text = "[folder template desc]";
 			// 
+			// tab4AudioFileOptions
+			// 
+			this.tab4AudioFileOptions.Controls.Add(this.lameOptionsGb);
+			this.tab4AudioFileOptions.Controls.Add(this.convertLossyRb);
+			this.tab4AudioFileOptions.Controls.Add(this.stripAudibleBrandingCbox);
+			this.tab4AudioFileOptions.Controls.Add(this.convertLosslessRb);
+			this.tab4AudioFileOptions.Controls.Add(this.stripUnabridgedCbox);
+			this.tab4AudioFileOptions.Controls.Add(this.splitFilesByChapterCbox);
+			this.tab4AudioFileOptions.Controls.Add(this.retainAaxFileCbox);
+			this.tab4AudioFileOptions.Controls.Add(this.allowLibationFixupCbox);
+			this.tab4AudioFileOptions.Location = new System.Drawing.Point(4, 24);
+			this.tab4AudioFileOptions.Name = "tab4AudioFileOptions";
+			this.tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(3);
+			this.tab4AudioFileOptions.Size = new System.Drawing.Size(854, 395);
+			this.tab4AudioFileOptions.TabIndex = 3;
+			this.tab4AudioFileOptions.Text = "Audio File Options";
+			this.tab4AudioFileOptions.UseVisualStyleBackColor = true;
+			// 
+			// lameOptionsGb
+			// 
+			this.lameOptionsGb.Controls.Add(this.lameDownsampleMonoCbox);
+			this.lameOptionsGb.Controls.Add(this.lameBitrateGb);
+			this.lameOptionsGb.Controls.Add(this.label1);
+			this.lameOptionsGb.Controls.Add(this.lameQualityGb);
+			this.lameOptionsGb.Controls.Add(this.groupBox2);
+			this.lameOptionsGb.Location = new System.Drawing.Point(415, 18);
+			this.lameOptionsGb.Name = "lameOptionsGb";
+			this.lameOptionsGb.Size = new System.Drawing.Size(433, 371);
+			this.lameOptionsGb.TabIndex = 14;
+			this.lameOptionsGb.TabStop = false;
+			this.lameOptionsGb.Text = "Mp3 Encoding Options";
+			// 
+			// lameDownsampleMonoCbox
+			// 
+			this.lameDownsampleMonoCbox.AutoSize = true;
+			this.lameDownsampleMonoCbox.Location = new System.Drawing.Point(234, 35);
+			this.lameDownsampleMonoCbox.Name = "lameDownsampleMonoCbox";
+			this.lameDownsampleMonoCbox.Size = new System.Drawing.Size(184, 34);
+			this.lameDownsampleMonoCbox.TabIndex = 1;
+			this.lameDownsampleMonoCbox.Text = "Downsample stereo to mono?\r\n(Recommended)\r\n";
+			this.lameDownsampleMonoCbox.UseVisualStyleBackColor = true;
+			// 
+			// lameBitrateGb
+			// 
+			this.lameBitrateGb.Controls.Add(this.LameMatchSourceBRCbox);
+			this.lameBitrateGb.Controls.Add(this.lameConstantBitrateCbox);
+			this.lameBitrateGb.Controls.Add(this.label7);
+			this.lameBitrateGb.Controls.Add(this.label6);
+			this.lameBitrateGb.Controls.Add(this.label5);
+			this.lameBitrateGb.Controls.Add(this.label4);
+			this.lameBitrateGb.Controls.Add(this.label11);
+			this.lameBitrateGb.Controls.Add(this.label3);
+			this.lameBitrateGb.Controls.Add(this.lameBitrateTb);
+			this.lameBitrateGb.Location = new System.Drawing.Point(6, 84);
+			this.lameBitrateGb.Name = "lameBitrateGb";
+			this.lameBitrateGb.Size = new System.Drawing.Size(421, 112);
+			this.lameBitrateGb.TabIndex = 0;
+			this.lameBitrateGb.TabStop = false;
+			this.lameBitrateGb.Text = "Bitrate";
+			// 
+			// LameMatchSourceBRCbox
+			// 
+			this.LameMatchSourceBRCbox.AutoSize = true;
+			this.LameMatchSourceBRCbox.Location = new System.Drawing.Point(260, 87);
+			this.LameMatchSourceBRCbox.Name = "LameMatchSourceBRCbox";
+			this.LameMatchSourceBRCbox.Size = new System.Drawing.Size(140, 19);
+			this.LameMatchSourceBRCbox.TabIndex = 3;
+			this.LameMatchSourceBRCbox.Text = "Match source bitrate?";
+			this.LameMatchSourceBRCbox.UseVisualStyleBackColor = true;
+			this.LameMatchSourceBRCbox.CheckedChanged += new System.EventHandler(this.LameMatchSourceBRCbox_CheckedChanged);
+			// 
+			// lameConstantBitrateCbox
+			// 
+			this.lameConstantBitrateCbox.AutoSize = true;
+			this.lameConstantBitrateCbox.Location = new System.Drawing.Point(6, 87);
+			this.lameConstantBitrateCbox.Name = "lameConstantBitrateCbox";
+			this.lameConstantBitrateCbox.Size = new System.Drawing.Size(216, 19);
+			this.lameConstantBitrateCbox.TabIndex = 2;
+			this.lameConstantBitrateCbox.Text = "Restrict encoder to constant bitrate?";
+			this.lameConstantBitrateCbox.UseVisualStyleBackColor = true;
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.label7.Location = new System.Drawing.Point(390, 52);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(25, 15);
+			this.label7.TabIndex = 1;
+			this.label7.Text = "320";
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.label6.Location = new System.Drawing.Point(309, 52);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(25, 15);
+			this.label6.TabIndex = 1;
+			this.label6.Text = "256";
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.label5.Location = new System.Drawing.Point(228, 52);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(25, 15);
+			this.label5.TabIndex = 1;
+			this.label5.Text = "192";
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.label4.Location = new System.Drawing.Point(147, 52);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(25, 15);
+			this.label4.TabIndex = 1;
+			this.label4.Text = "128";
+			// 
+			// label11
+			// 
+			this.label11.AutoSize = true;
+			this.label11.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.label11.Location = new System.Drawing.Point(10, 52);
+			this.label11.Name = "label11";
+			this.label11.Size = new System.Drawing.Size(19, 15);
+			this.label11.TabIndex = 1;
+			this.label11.Text = "16";
+			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.label3.Location = new System.Drawing.Point(71, 52);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(19, 15);
+			this.label3.TabIndex = 1;
+			this.label3.Text = "64";
+			// 
+			// lameBitrateTb
+			// 
+			this.lameBitrateTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.lameBitrateTb.LargeChange = 2;
+			this.lameBitrateTb.Location = new System.Drawing.Point(6, 22);
+			this.lameBitrateTb.Maximum = 320;
+			this.lameBitrateTb.Minimum = 16;
+			this.lameBitrateTb.Name = "lameBitrateTb";
+			this.lameBitrateTb.Size = new System.Drawing.Size(409, 45);
+			this.lameBitrateTb.TabIndex = 0;
+			this.lameBitrateTb.TickFrequency = 16;
+			this.lameBitrateTb.Value = 64;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Enabled = false;
+			this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
+			this.label1.Location = new System.Drawing.Point(6, 353);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(172, 15);
+			this.label1.TabIndex = 1;
+			this.label1.Text = "Using L.A.M.E. encoding engine";
+			// 
+			// lameQualityGb
+			// 
+			this.lameQualityGb.Controls.Add(this.label19);
+			this.lameQualityGb.Controls.Add(this.label18);
+			this.lameQualityGb.Controls.Add(this.label17);
+			this.lameQualityGb.Controls.Add(this.label16);
+			this.lameQualityGb.Controls.Add(this.label12);
+			this.lameQualityGb.Controls.Add(this.label15);
+			this.lameQualityGb.Controls.Add(this.label9);
+			this.lameQualityGb.Controls.Add(this.label8);
+			this.lameQualityGb.Controls.Add(this.label13);
+			this.lameQualityGb.Controls.Add(this.label10);
+			this.lameQualityGb.Controls.Add(this.label14);
+			this.lameQualityGb.Controls.Add(this.label2);
+			this.lameQualityGb.Controls.Add(this.lameVBRQualityTb);
+			this.lameQualityGb.Location = new System.Drawing.Point(6, 202);
+			this.lameQualityGb.Name = "lameQualityGb";
+			this.lameQualityGb.Size = new System.Drawing.Size(421, 109);
+			this.lameQualityGb.TabIndex = 0;
+			this.lameQualityGb.TabStop = false;
+			this.lameQualityGb.Text = "Quality";
+			// 
+			// label19
+			// 
+			this.label19.AutoSize = true;
+			this.label19.Location = new System.Drawing.Point(349, 52);
+			this.label19.Name = "label19";
+			this.label19.Size = new System.Drawing.Size(20, 15);
+			this.label19.TabIndex = 1;
+			this.label19.Text = "V8";
+			// 
+			// label18
+			// 
+			this.label18.AutoSize = true;
+			this.label18.Location = new System.Drawing.Point(307, 52);
+			this.label18.Name = "label18";
+			this.label18.Size = new System.Drawing.Size(20, 15);
+			this.label18.TabIndex = 1;
+			this.label18.Text = "V7";
+			// 
+			// label17
+			// 
+			this.label17.AutoSize = true;
+			this.label17.Location = new System.Drawing.Point(265, 52);
+			this.label17.Name = "label17";
+			this.label17.Size = new System.Drawing.Size(20, 15);
+			this.label17.TabIndex = 1;
+			this.label17.Text = "V6";
+			// 
+			// label16
+			// 
+			this.label16.AutoSize = true;
+			this.label16.Location = new System.Drawing.Point(223, 52);
+			this.label16.Name = "label16";
+			this.label16.Size = new System.Drawing.Size(20, 15);
+			this.label16.TabIndex = 1;
+			this.label16.Text = "V5";
+			// 
+			// label12
+			// 
+			this.label12.AutoSize = true;
+			this.label12.Location = new System.Drawing.Point(182, 52);
+			this.label12.Name = "label12";
+			this.label12.Size = new System.Drawing.Size(20, 15);
+			this.label12.TabIndex = 1;
+			this.label12.Text = "V4";
+			// 
+			// label15
+			// 
+			this.label15.AutoSize = true;
+			this.label15.Location = new System.Drawing.Point(140, 52);
+			this.label15.Name = "label15";
+			this.label15.Size = new System.Drawing.Size(20, 15);
+			this.label15.TabIndex = 1;
+			this.label15.Text = "V3";
+			// 
+			// label9
+			// 
+			this.label9.AutoSize = true;
+			this.label9.Location = new System.Drawing.Point(97, 52);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(20, 15);
+			this.label9.TabIndex = 1;
+			this.label9.Text = "V2";
+			// 
+			// label8
+			// 
+			this.label8.AutoSize = true;
+			this.label8.Location = new System.Drawing.Point(391, 52);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(20, 15);
+			this.label8.TabIndex = 1;
+			this.label8.Text = "V9";
+			// 
+			// label13
+			// 
+			this.label13.AutoSize = true;
+			this.label13.Location = new System.Drawing.Point(376, 81);
+			this.label13.Name = "label13";
+			this.label13.Size = new System.Drawing.Size(39, 15);
+			this.label13.TabIndex = 1;
+			this.label13.Text = "Lower";
+			// 
+			// label10
+			// 
+			this.label10.AutoSize = true;
+			this.label10.Location = new System.Drawing.Point(6, 81);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(43, 15);
+			this.label10.TabIndex = 1;
+			this.label10.Text = "Higher";
+			// 
+			// label14
+			// 
+			this.label14.AutoSize = true;
+			this.label14.Location = new System.Drawing.Point(56, 52);
+			this.label14.Name = "label14";
+			this.label14.Size = new System.Drawing.Size(20, 15);
+			this.label14.TabIndex = 1;
+			this.label14.Text = "V1";
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(14, 52);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(20, 15);
+			this.label2.TabIndex = 1;
+			this.label2.Text = "V0";
+			// 
+			// lameVBRQualityTb
+			// 
+			this.lameVBRQualityTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.lameVBRQualityTb.Location = new System.Drawing.Point(10, 22);
+			this.lameVBRQualityTb.Maximum = 9;
+			this.lameVBRQualityTb.Name = "lameVBRQualityTb";
+			this.lameVBRQualityTb.Size = new System.Drawing.Size(405, 45);
+			this.lameVBRQualityTb.TabIndex = 0;
+			this.lameVBRQualityTb.Value = 9;
+			// 
+			// groupBox2
+			// 
+			this.groupBox2.Controls.Add(this.lameTargetQualityRb);
+			this.groupBox2.Controls.Add(this.lameTargetBitrateRb);
+			this.groupBox2.Location = new System.Drawing.Point(6, 22);
+			this.groupBox2.Name = "groupBox2";
+			this.groupBox2.Size = new System.Drawing.Size(222, 56);
+			this.groupBox2.TabIndex = 0;
+			this.groupBox2.TabStop = false;
+			this.groupBox2.Text = "Target";
+			// 
+			// lameTargetQualityRb
+			// 
+			this.lameTargetQualityRb.AutoSize = true;
+			this.lameTargetQualityRb.Location = new System.Drawing.Point(138, 23);
+			this.lameTargetQualityRb.Name = "lameTargetQualityRb";
+			this.lameTargetQualityRb.Size = new System.Drawing.Size(63, 19);
+			this.lameTargetQualityRb.TabIndex = 0;
+			this.lameTargetQualityRb.TabStop = true;
+			this.lameTargetQualityRb.Text = "Quality";
+			this.lameTargetQualityRb.UseVisualStyleBackColor = true;
+			this.lameTargetQualityRb.CheckedChanged += new System.EventHandler(this.lameTargetRb_CheckedChanged);
+			// 
+			// lameTargetBitrateRb
+			// 
+			this.lameTargetBitrateRb.AutoSize = true;
+			this.lameTargetBitrateRb.Location = new System.Drawing.Point(6, 23);
+			this.lameTargetBitrateRb.Name = "lameTargetBitrateRb";
+			this.lameTargetBitrateRb.Size = new System.Drawing.Size(59, 19);
+			this.lameTargetBitrateRb.TabIndex = 0;
+			this.lameTargetBitrateRb.TabStop = true;
+			this.lameTargetBitrateRb.Text = "Bitrate";
+			this.lameTargetBitrateRb.UseVisualStyleBackColor = true;
+			this.lameTargetBitrateRb.CheckedChanged += new System.EventHandler(this.lameTargetRb_CheckedChanged);
+			// 
+			// stripUnabridgedCbox
+			// 
+			this.stripUnabridgedCbox.AutoSize = true;
+			this.stripUnabridgedCbox.Location = new System.Drawing.Point(19, 93);
+			this.stripUnabridgedCbox.Name = "stripUnabridgedCbox";
+			this.stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
+			this.stripUnabridgedCbox.TabIndex = 13;
+			this.stripUnabridgedCbox.Text = "[StripUnabridged desc]";
+			this.stripUnabridgedCbox.UseVisualStyleBackColor = true;
+			// 
+			// retainAaxFileCbox
+			// 
+			this.retainAaxFileCbox.AutoSize = true;
+			this.retainAaxFileCbox.Location = new System.Drawing.Point(19, 43);
+			this.retainAaxFileCbox.Name = "retainAaxFileCbox";
+			this.retainAaxFileCbox.Size = new System.Drawing.Size(132, 19);
+			this.retainAaxFileCbox.TabIndex = 10;
+			this.retainAaxFileCbox.Text = "[RetainAaxFile desc]";
+			this.retainAaxFileCbox.UseVisualStyleBackColor = true;
+			this.retainAaxFileCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
+			// 
 			// SettingsDialog
 			// 
 			this.AcceptButton = this.saveBtn;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(933, 566);
+			this.ClientSize = new System.Drawing.Size(886, 484);
 			this.Controls.Add(this.tabControl);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.saveBtn);
@@ -536,8 +923,6 @@
 			this.Load += new System.EventHandler(this.SettingsDialog_Load);
 			this.badBookGb.ResumeLayout(false);
 			this.badBookGb.PerformLayout();
-			this.decryptAndConvertGb.ResumeLayout(false);
-			this.decryptAndConvertGb.PerformLayout();
 			this.tabControl.ResumeLayout(false);
 			this.tab1ImportantSettings.ResumeLayout(false);
 			this.tab1ImportantSettings.PerformLayout();
@@ -550,6 +935,18 @@
 			this.inProgressFilesGb.PerformLayout();
 			this.customFileNamingGb.ResumeLayout(false);
 			this.customFileNamingGb.PerformLayout();
+			this.tab4AudioFileOptions.ResumeLayout(false);
+			this.tab4AudioFileOptions.PerformLayout();
+			this.lameOptionsGb.ResumeLayout(false);
+			this.lameOptionsGb.PerformLayout();
+			this.lameBitrateGb.ResumeLayout(false);
+			this.lameBitrateGb.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.lameBitrateTb)).EndInit();
+			this.lameQualityGb.ResumeLayout(false);
+			this.lameQualityGb.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.lameVBRQualityTb)).EndInit();
+			this.groupBox2.ResumeLayout(false);
+			this.groupBox2.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -567,7 +964,6 @@
 		private System.Windows.Forms.Button logsBtn;
 		private System.Windows.Forms.Label loggingLevelLbl;
 		private System.Windows.Forms.ComboBox loggingLevelCb;
-		private System.Windows.Forms.GroupBox decryptAndConvertGb;
 		private System.Windows.Forms.GroupBox badBookGb;
 		private System.Windows.Forms.RadioButton badBookRetryRb;
 		private System.Windows.Forms.RadioButton badBookAbortRb;
@@ -594,5 +990,38 @@
 		private System.Windows.Forms.Label folderTemplateLbl;
         private System.Windows.Forms.CheckBox showImportedStatsCb;
 		private System.Windows.Forms.CheckBox stripAudibleBrandingCbox;
+		private System.Windows.Forms.TabPage tab4AudioFileOptions;
+		private System.Windows.Forms.CheckBox retainAaxFileCbox;
+		private System.Windows.Forms.CheckBox stripUnabridgedCbox;
+		private System.Windows.Forms.GroupBox lameOptionsGb;
+		private System.Windows.Forms.CheckBox lameDownsampleMonoCbox;
+		private System.Windows.Forms.GroupBox lameBitrateGb;
+		private System.Windows.Forms.TrackBar lameBitrateTb;
+		private System.Windows.Forms.GroupBox lameQualityGb;
+		private System.Windows.Forms.GroupBox groupBox2;
+		private System.Windows.Forms.RadioButton lameTargetQualityRb;
+		private System.Windows.Forms.RadioButton lameTargetBitrateRb;
+		private System.Windows.Forms.CheckBox lameConstantBitrateCbox;
+		private System.Windows.Forms.Label label7;
+		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.Label label3;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.Label label9;
+		private System.Windows.Forms.Label label8;
+		private System.Windows.Forms.TrackBar lameVBRQualityTb;
+		private System.Windows.Forms.Label label11;
+		private System.Windows.Forms.CheckBox LameMatchSourceBRCbox;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Label label12;
+		private System.Windows.Forms.Label label10;
+		private System.Windows.Forms.Label label15;
+		private System.Windows.Forms.Label label13;
+		private System.Windows.Forms.Label label14;
+		private System.Windows.Forms.Label label19;
+		private System.Windows.Forms.Label label18;
+		private System.Windows.Forms.Label label17;
+		private System.Windows.Forms.Label label16;
 	}
 }

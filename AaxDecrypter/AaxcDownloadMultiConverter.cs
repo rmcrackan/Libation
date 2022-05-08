@@ -115,7 +115,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             {
                 createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
                 ((NAudio.Lame.LameConfig)newSplitCallback.UserState).ID3.Track = chapterCount.ToString();
-            }, null, DownloadOptions.TrimOutputToChapterLength);
+            }, DownloadOptions.LameConfig, DownloadOptions.TrimOutputToChapterLength);
         }
 
         private void createOutputFileStream(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
