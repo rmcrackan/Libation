@@ -8,15 +8,10 @@ namespace AaxDecrypter
 	{
 		public event EventHandler<AppleTags> RetrievedMetadata;
 
-		protected OutputFormat OutputFormat { get; }
-
 		protected AaxFile AaxFile;
 
-		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, DownloadLicense dlLic, OutputFormat outputFormat)
-			: base(outFileName, cacheDirectory, dlLic)
-		{
-			OutputFormat = outputFormat;
-		}
+		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+			: base(outFileName, cacheDirectory, dlLic) { }
 
 		/// <summary>Setting cover art by this method will insert the art into the audiobook metadata</summary>
 		public override void SetCoverArt(byte[] coverArt)

@@ -18,13 +18,13 @@ namespace AaxDecrypter
         private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
 		private List<string> multiPartFilePaths { get; } = new List<string>();
 
-        public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic, OutputFormat outputFormat,
+        public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic,
             Func<MultiConvertFileProperties, string> multipartFileNameCallback = null)
-			: base(outFileName, cacheDirectory, dlLic, outputFormat)
+			: base(outFileName, cacheDirectory, dlLic)
         {
             Steps = new StepSequence
             {
-                Name = "Download and Convert Aaxc To " + OutputFormat,
+                Name = "Download and Convert Aaxc To " + DownloadLicense.OutputFormat,
 
                 ["Step 1: Get Aaxc Metadata"] = Step_GetMetadata,
                 ["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsMultipleFilesPerChapter,
@@ -89,7 +89,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             ConversionResult result;
 
             AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-            if (OutputFormat == OutputFormat.M4b)
+            if (DownloadLicense.OutputFormat == OutputFormat.M4b)
                 result = ConvertToMultiMp4a(splitChapters);
             else
                 result = ConvertToMultiMp3(splitChapters);

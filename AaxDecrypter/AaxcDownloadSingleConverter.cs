@@ -11,12 +11,12 @@ namespace AaxDecrypter
 	{
 		protected override StepSequence Steps { get; }
 
-        public AaxcDownloadSingleConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic, OutputFormat outputFormat)
-			: base(outFileName, cacheDirectory, dlLic, outputFormat)
+        public AaxcDownloadSingleConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+			: base(outFileName, cacheDirectory, dlLic)
         {
             Steps = new StepSequence
             {
-                Name = "Download and Convert Aaxc To " + OutputFormat,
+                Name = "Download and Convert Aaxc To " + DownloadLicense.OutputFormat,
 
                 ["Step 1: Get Aaxc Metadata"] = Step_GetMetadata,
                 ["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsSingleFile,
@@ -35,7 +35,7 @@ namespace AaxDecrypter
 
             AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
             var decryptionResult
-                = OutputFormat == OutputFormat.M4b
+                = DownloadLicense.OutputFormat == OutputFormat.M4b
                 ? AaxFile.ConvertToMp4a(outputFile, DownloadLicense.ChapterInfo, DownloadLicense.TrimOutputToChapterLength)
                 : AaxFile.ConvertToMp3(outputFile, null, DownloadLicense.ChapterInfo, DownloadLicense.TrimOutputToChapterLength);
             AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
