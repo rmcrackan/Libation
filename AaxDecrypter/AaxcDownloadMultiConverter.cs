@@ -64,7 +64,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             var chapters = DownloadLicense.ChapterInfo.Chapters.ToList();
 
             // Ensure split files are at least minChapterLength in duration.
-            var splitChapters = new ChapterInfo();
+            var splitChapters = new ChapterInfo(DownloadLicense.ChapterInfo.StartOffset);
 
             var runningTotal = TimeSpan.Zero;
             string title = "";
@@ -86,16 +86,18 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             // reset, just in case
             multiPartFilePaths.Clear();
 
+            ConversionResult result;
+
             AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
             if (OutputFormat == OutputFormat.M4b)
-                ConvertToMultiMp4a(splitChapters);
+                result = ConvertToMultiMp4a(splitChapters);
             else
-                ConvertToMultiMp3(splitChapters);
+                result = ConvertToMultiMp3(splitChapters);
             AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
             Step_DownloadAudiobook_End(zeroProgress);
 
-            var success = !IsCanceled;
+            var success = result == ConversionResult.NoErrorsDetected;
 
             if (success)
                 foreach (var path in multiPartFilePaths)
@@ -104,22 +106,22 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             return success;
         }
 
-        private void ConvertToMultiMp4a(ChapterInfo splitChapters)
+        private ConversionResult ConvertToMultiMp4a(ChapterInfo splitChapters)
         {
             var chapterCount = 0;
-            AaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
-                createOutputFileStream(++chapterCount, splitChapters, newSplitCallback)
-            );
+            return AaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
+                createOutputFileStream(++chapterCount, splitChapters, newSplitCallback),
+            DownloadLicense.TrimOutputToChapterLength);
         }
 
-        private void ConvertToMultiMp3(ChapterInfo splitChapters)
+        private ConversionResult ConvertToMultiMp3(ChapterInfo splitChapters)
         {
             var chapterCount = 0;
-            AaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
+            return AaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
             {
                 createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
                 ((NAudio.Lame.LameConfig)newSplitCallback.UserState).ID3.Track = chapterCount.ToString();
-            });
+            }, null, DownloadLicense.TrimOutputToChapterLength);
         }
 
         private void createOutputFileStream(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
