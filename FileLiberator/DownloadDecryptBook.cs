@@ -92,49 +92,9 @@ namespace FileLiberator
 
                 var api = await libraryBook.GetApiAsync();
                 var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+                var audiobookDlLic = BuildDownloadLicense(config, contentLic);
 
-                var audiobookDlLic = new DownloadLicense
-                    (
-                    contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
-                    contentLic?.Voucher?.Key,
-                    contentLic?.Voucher?.Iv,
-                    Resources.USER_AGENT
-                    );
-
-                //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
-                //I also assume that if DrmType != Adrm, the file will be an mp3.
-                //These assumptions may be wrong, and only time and bug reports will tell.
-                var outputFormat = 
-                    contentLic.ContentMetadata.ContentReference.ContentFormat == "MPEG" ||
-                    (config.AllowLibationFixup && config.DecryptToLossy) ? 
-                    OutputFormat.Mp3 : OutputFormat.M4b;
-
-                audiobookDlLic.TrimOutputToChapterLength = config.StripAudibleBrandAudio;
-
-                long startMs = config.StripAudibleBrandAudio ? 
-                    contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs : 0;
-
-                if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
-                {
-                    audiobookDlLic.ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(startMs));
-
-                    for (int i = 0; i < contentLic.ContentMetadata.ChapterInfo.Chapters.Length; i++)
-                    {
-                        var chapter = contentLic.ContentMetadata.ChapterInfo.Chapters[i];
-                        long chapLenMs = chapter.LengthMs;
-
-                        if (i == 0)
-                            chapLenMs -= startMs;
-
-                        if (config.StripAudibleBrandAudio && i == contentLic.ContentMetadata.ChapterInfo.Chapters.Length - 1)
-                            chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
-
-                        audiobookDlLic.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
-                    }
-                }
-
-                var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, outputFormat.ToString().ToLower());
-
+                var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, audiobookDlLic.OutputFormat.ToString().ToLower());
                 var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
                 if (contentLic.DrmType != AudibleApi.Common.DrmType.Adrm)
@@ -143,9 +103,9 @@ namespace FileLiberator
                 {
                     AaxcDownloadConvertBase converter
                         = config.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
-                            outFileName, cacheDir, audiobookDlLic, outputFormat,
+                            outFileName, cacheDir, audiobookDlLic,
                             AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook))
-                        : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic, outputFormat);
+                        : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic);
 
                     if (config.AllowLibationFixup)
                         converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames);
@@ -170,6 +130,56 @@ namespace FileLiberator
             {
                 OnStreamingCompleted($"Completed downloading and decrypting {libraryBook.Book.Title}");
             }
+        }
+
+        private static DownloadLicense BuildDownloadLicense(Configuration config, AudibleApi.Common.ContentLicense contentLic)
+        {
+            //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
+            //I also assume that if DrmType != Adrm, the file will be an mp3.
+            //These assumptions may be wrong, and only time and bug reports will tell.
+            var outputFormat =
+                     contentLic?.ContentMetadata?.ContentReference?.ContentFormat == "MPEG" ||
+                     (config.AllowLibationFixup && config.DecryptToLossy) ?
+                     OutputFormat.Mp3 : OutputFormat.M4b;
+
+            var audiobookDlLic = new DownloadLicense
+                 (
+                 contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
+                 Resources.USER_AGENT
+
+                 )
+            {
+
+                AudibleKey = contentLic?.Voucher?.Key,
+                AudibleIV = contentLic?.Voucher?.Iv,
+                OutputFormat = outputFormat,
+                TrimOutputToChapterLength = config.StripAudibleBrandAudio
+            };
+
+            if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
+            {
+
+                long startMs = audiobookDlLic.TrimOutputToChapterLength ?
+                    contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs : 0;
+
+                audiobookDlLic.ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(startMs));
+
+                for (int i = 0; i < contentLic.ContentMetadata.ChapterInfo.Chapters.Length; i++)
+                {
+                    var chapter = contentLic.ContentMetadata.ChapterInfo.Chapters[i];
+                    long chapLenMs = chapter.LengthMs;
+
+                    if (i == 0)
+                        chapLenMs -= startMs;
+
+                    if (config.StripAudibleBrandAudio && i == contentLic.ContentMetadata.ChapterInfo.Chapters.Length - 1)
+                        chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
+
+                    audiobookDlLic.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
+                }
+            }
+
+            return audiobookDlLic;
         }
 
         private static void downloadValidation(LibraryBook libraryBook)
