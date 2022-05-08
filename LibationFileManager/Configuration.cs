@@ -96,6 +96,13 @@ namespace LibationFileManager
             set => persistentDictionary.SetNonString(nameof(AllowLibationFixup), value);
         }
 
+        [Description("Allow Libation to remove audible branding from the start\r\nand end of audiobooks. (e.g. \"This is Audible\")")]
+        public bool StripAudibleBrandAudio
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(StripAudibleBrandAudio));
+            set => persistentDictionary.SetNonString(nameof(StripAudibleBrandAudio), value);
+        }
+
         [Description("Decrypt to lossy format?")]
         public bool DecryptToLossy
         {
