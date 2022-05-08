@@ -80,6 +80,9 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.SplitFilesByChapter)))
 				config.SplitFilesByChapter = false;
+			
+			if (!config.Exists(nameof(config.StripAudibleBrandAudio)))
+				config.StripAudibleBrandAudio = false;
 
 			if (!config.Exists(nameof(config.FolderTemplate)))
 				config.FolderTemplate = Templates.Folder.DefaultTemplate;
