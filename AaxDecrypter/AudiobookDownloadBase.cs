@@ -98,6 +98,8 @@ namespace AaxDecrypter
 
 		protected bool Step_CreateCue()
 		{
+			if (!DownloadOptions.CreateCueSheet) return true;
+
 			// not a critical step. its failure should not prevent future steps from running
 			try
 			{

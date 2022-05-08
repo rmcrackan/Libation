@@ -37,6 +37,7 @@ namespace LibationWinForms.Dialogs
 			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 			this.retainAaxFileCbox.Text = desc(nameof(config.RetainAaxFile));
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
+			this.createCueSheetCbox.Text = desc(nameof(config.CreateCueSheet));
 
 			booksSelectControl.SetSearchTitle("books location");
 			booksSelectControl.SetDirectoryItems(
@@ -50,16 +51,14 @@ namespace LibationWinForms.Dialogs
 				"Books");
 			booksSelectControl.SelectDirectory(config.Books);
 
-			showImportedStatsCb.Checked = config.ShowImportedStats;
-			importEpisodesCb.Checked = config.ImportEpisodes;
-			downloadEpisodesCb.Checked = config.DownloadEpisodes;
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
+			createCueSheetCbox.Checked = config.CreateCueSheet;
 			retainAaxFileCbox.Checked = config.RetainAaxFile;
-			convertLosslessRb.Checked = !config.DecryptToLossy;
-			convertLossyRb.Checked = config.DecryptToLossy;
+			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
 			stripUnabridgedCbox.Checked = config.StripUnabridged;
 			stripAudibleBrandingCbox.Checked = config.StripAudibleBrandAudio;
-			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
+			convertLosslessRb.Checked = !config.DecryptToLossy;
+			convertLossyRb.Checked = config.DecryptToLossy;
 
 			lameTargetBitrateRb.Checked = config.LameTargetBitrate;
 			lameTargetQualityRb.Checked = !config.LameTargetBitrate;
@@ -68,6 +67,10 @@ namespace LibationWinForms.Dialogs
 			lameConstantBitrateCbox.Checked = config.LameConstantBitrate;
 			LameMatchSourceBRCbox.Checked = config.LameMatchSourceBR;
 			lameVBRQualityTb.Value = config.LameVBRQuality;
+
+			showImportedStatsCb.Checked = config.ShowImportedStats;
+			importEpisodesCb.Checked = config.ImportEpisodes;
+			downloadEpisodesCb.Checked = config.DownloadEpisodes;
 
 			lameTargetRb_CheckedChanged(this, e);
 			LameMatchSourceBRCbox_CheckedChanged(this, e);
@@ -172,15 +175,13 @@ namespace LibationWinForms.Dialogs
 					MessageBoxVerboseLoggingWarning.ShowIfTrue();
 			}
 
-			config.ShowImportedStats = showImportedStatsCb.Checked;
-			config.ImportEpisodes = importEpisodesCb.Checked;
-			config.DownloadEpisodes = downloadEpisodesCb.Checked;
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
+			config.CreateCueSheet = createCueSheetCbox.Checked;
 			config.RetainAaxFile = retainAaxFileCbox.Checked;
-			config.DecryptToLossy = convertLossyRb.Checked;
+			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
 			config.StripUnabridged = stripUnabridgedCbox.Checked;
 			config.StripAudibleBrandAudio = stripAudibleBrandingCbox.Checked;
-			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
+			config.DecryptToLossy = convertLossyRb.Checked;
 
 			config.LameTargetBitrate = lameTargetBitrateRb.Checked;
 			config.LameDownsampleMono = lameDownsampleMonoCbox.Checked;
@@ -188,6 +189,10 @@ namespace LibationWinForms.Dialogs
 			config.LameConstantBitrate = lameConstantBitrateCbox.Checked;
 			config.LameMatchSourceBR = LameMatchSourceBRCbox.Checked;
 			config.LameVBRQuality = lameVBRQualityTb.Value;
+
+			config.ShowImportedStats = showImportedStatsCb.Checked;
+			config.ImportEpisodes = importEpisodesCb.Checked;
+			config.DownloadEpisodes = downloadEpisodesCb.Checked;
 
 			config.InProgress = inProgressSelectControl.SelectedDirectory;
 

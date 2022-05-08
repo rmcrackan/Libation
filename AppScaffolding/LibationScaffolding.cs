@@ -66,30 +66,23 @@ namespace AppScaffolding
 			if (!config.Exists(nameof(config.AllowLibationFixup)))
 				config.AllowLibationFixup = true;
 
-			if (!config.Exists(nameof(config.DecryptToLossy)))
-				config.DecryptToLossy = false;
+			if (!config.Exists(nameof(config.CreateCueSheet)))
+				config.CreateCueSheet = true;
 
-			if (!config.Exists(nameof(config.BadBook)))
-				config.BadBook = Configuration.BadBookAction.Ask;
-
-			if (!config.Exists(nameof(config.DownloadEpisodes)))
-				config.DownloadEpisodes = true;
-
-			if (!config.Exists(nameof(config.ImportEpisodes)))
-				config.ImportEpisodes = true;
-
-			if (!config.Exists(nameof(config.SplitFilesByChapter)))
-				config.SplitFilesByChapter = false;
-			
-			if (!config.Exists(nameof(config.StripUnabridged)))
-				config.StripUnabridged = false;
-			
-			if (!config.Exists(nameof(config.StripAudibleBrandAudio)))
-				config.StripAudibleBrandAudio = false;
-			
 			if (!config.Exists(nameof(config.RetainAaxFile)))
 				config.RetainAaxFile = false;
 
+			if (!config.Exists(nameof(config.SplitFilesByChapter)))
+				config.SplitFilesByChapter = false;
+
+			if (!config.Exists(nameof(config.StripUnabridged)))
+				config.StripUnabridged = false;
+
+			if (!config.Exists(nameof(config.StripAudibleBrandAudio)))
+				config.StripAudibleBrandAudio = false;
+
+			if (!config.Exists(nameof(config.DecryptToLossy)))
+				config.DecryptToLossy = false;
 
 			if (!config.Exists(nameof(config.LameTargetBitrate)))
 				config.LameTargetBitrate = false;			
@@ -109,6 +102,17 @@ namespace AppScaffolding
 			if (!config.Exists(nameof(config.LameVBRQuality)))
 				config.LameVBRQuality = 2;
 
+			if (!config.Exists(nameof(config.BadBook)))
+				config.BadBook = Configuration.BadBookAction.Ask;
+
+			if (!config.Exists(nameof(config.ShowImportedStats)))
+				config.ShowImportedStats = true;
+
+			if (!config.Exists(nameof(config.ImportEpisodes)))
+				config.ImportEpisodes = true;
+
+			if (!config.Exists(nameof(config.DownloadEpisodes)))
+				config.DownloadEpisodes = true;
 
 			if (!config.Exists(nameof(config.FolderTemplate)))
 				config.FolderTemplate = Templates.Folder.DefaultTemplate;
@@ -118,9 +122,6 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.ChapterFileTemplate)))
 				config.ChapterFileTemplate = Templates.ChapterFile.DefaultTemplate;
-
-			if (!config.Exists(nameof(config.ShowImportedStats)))
-				config.ShowImportedStats = true;
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>

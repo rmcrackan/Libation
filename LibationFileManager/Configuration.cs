@@ -96,6 +96,27 @@ namespace LibationFileManager
             set => persistentDictionary.SetNonString(nameof(AllowLibationFixup), value);
         }
 
+        [Description("Create a cue sheet (.cue)")]
+        public bool CreateCueSheet
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(CreateCueSheet));
+            set => persistentDictionary.SetNonString(nameof(CreateCueSheet), value);
+        }
+
+        [Description("Retain the Aax file after successfully decrypting")]
+        public bool RetainAaxFile
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(RetainAaxFile));
+            set => persistentDictionary.SetNonString(nameof(RetainAaxFile), value);
+        }
+
+        [Description("Split my books into multiple files by chapter")]
+        public bool SplitFilesByChapter
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(SplitFilesByChapter));
+            set => persistentDictionary.SetNonString(nameof(SplitFilesByChapter), value);
+        }
+
         [Description("Strip \"(Unabridged)\" from audiobook metadata tags")]
         public bool StripUnabridged
         {
@@ -115,20 +136,6 @@ namespace LibationFileManager
         {
             get => persistentDictionary.GetNonString<bool>(nameof(DecryptToLossy));
             set => persistentDictionary.SetNonString(nameof(DecryptToLossy), value);
-        }
-        
-        [Description("Split my books into multiple files by chapter")]
-        public bool SplitFilesByChapter
-        {
-            get => persistentDictionary.GetNonString<bool>(nameof(SplitFilesByChapter));
-            set => persistentDictionary.SetNonString(nameof(SplitFilesByChapter), value);
-        }
-        
-        [Description("Retain the Aax file after successfully decrypting")]
-        public bool RetainAaxFile
-        {
-            get => persistentDictionary.GetNonString<bool>(nameof(RetainAaxFile));
-            set => persistentDictionary.SetNonString(nameof(RetainAaxFile), value);
         }
 
         [Description("Lame encoder target. true = Bitrate, false = Quality")]

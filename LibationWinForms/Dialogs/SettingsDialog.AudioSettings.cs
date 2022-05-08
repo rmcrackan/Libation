@@ -31,7 +31,7 @@ namespace LibationWinForms.Dialogs
 			convertLosslessRb.Enabled = allowLibationFixupCbox.Checked;
 			convertLossyRb.Enabled = allowLibationFixupCbox.Checked;
 			splitFilesByChapterCbox.Enabled = allowLibationFixupCbox.Checked;
-			stripUnabridgedCbox.Enabled = allowLibationFixupCbox.Enabled;
+			stripUnabridgedCbox.Enabled = allowLibationFixupCbox.Checked;
 			stripAudibleBrandingCbox.Enabled = allowLibationFixupCbox.Checked;
 
 			if (!allowLibationFixupCbox.Checked)
@@ -42,6 +42,5 @@ namespace LibationWinForms.Dialogs
 				stripAudibleBrandingCbox.Checked = false;
 			}
 		}
-
 	}
 }

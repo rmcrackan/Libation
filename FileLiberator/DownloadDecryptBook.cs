@@ -161,6 +161,7 @@ namespace FileLiberator
                 StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
                 Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
                 MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
+                CreateCueSheet = config.CreateCueSheet
             };
 
             if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)

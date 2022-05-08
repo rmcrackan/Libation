@@ -99,6 +99,7 @@
 			this.lameTargetBitrateRb = new System.Windows.Forms.RadioButton();
 			this.stripUnabridgedCbox = new System.Windows.Forms.CheckBox();
 			this.retainAaxFileCbox = new System.Windows.Forms.CheckBox();
+			this.createCueSheetCbox = new System.Windows.Forms.CheckBox();
 			this.badBookGb.SuspendLayout();
 			this.tabControl.SuspendLayout();
 			this.tab1ImportantSettings.SuspendLayout();
@@ -241,7 +242,7 @@
 			// stripAudibleBrandingCbox
 			// 
 			this.stripAudibleBrandingCbox.AutoSize = true;
-			this.stripAudibleBrandingCbox.Location = new System.Drawing.Point(19, 118);
+			this.stripAudibleBrandingCbox.Location = new System.Drawing.Point(19, 143);
 			this.stripAudibleBrandingCbox.Name = "stripAudibleBrandingCbox";
 			this.stripAudibleBrandingCbox.Size = new System.Drawing.Size(143, 34);
 			this.stripAudibleBrandingCbox.TabIndex = 13;
@@ -251,7 +252,7 @@
 			// splitFilesByChapterCbox
 			// 
 			this.splitFilesByChapterCbox.AutoSize = true;
-			this.splitFilesByChapterCbox.Location = new System.Drawing.Point(19, 68);
+			this.splitFilesByChapterCbox.Location = new System.Drawing.Point(19, 93);
 			this.splitFilesByChapterCbox.Name = "splitFilesByChapterCbox";
 			this.splitFilesByChapterCbox.Size = new System.Drawing.Size(162, 19);
 			this.splitFilesByChapterCbox.TabIndex = 13;
@@ -274,7 +275,7 @@
 			// convertLossyRb
 			// 
 			this.convertLossyRb.AutoSize = true;
-			this.convertLossyRb.Location = new System.Drawing.Point(19, 182);
+			this.convertLossyRb.Location = new System.Drawing.Point(19, 207);
 			this.convertLossyRb.Name = "convertLossyRb";
 			this.convertLossyRb.Size = new System.Drawing.Size(329, 19);
 			this.convertLossyRb.TabIndex = 12;
@@ -286,7 +287,7 @@
 			// 
 			this.convertLosslessRb.AutoSize = true;
 			this.convertLosslessRb.Checked = true;
-			this.convertLosslessRb.Location = new System.Drawing.Point(19, 157);
+			this.convertLosslessRb.Location = new System.Drawing.Point(19, 182);
 			this.convertLosslessRb.Name = "convertLosslessRb";
 			this.convertLosslessRb.Size = new System.Drawing.Size(335, 19);
 			this.convertLosslessRb.TabIndex = 11;
@@ -553,6 +554,7 @@
 			this.tab4AudioFileOptions.Controls.Add(this.stripUnabridgedCbox);
 			this.tab4AudioFileOptions.Controls.Add(this.splitFilesByChapterCbox);
 			this.tab4AudioFileOptions.Controls.Add(this.retainAaxFileCbox);
+			this.tab4AudioFileOptions.Controls.Add(this.createCueSheetCbox);
 			this.tab4AudioFileOptions.Controls.Add(this.allowLibationFixupCbox);
 			this.tab4AudioFileOptions.Location = new System.Drawing.Point(4, 24);
 			this.tab4AudioFileOptions.Name = "tab4AudioFileOptions";
@@ -688,12 +690,13 @@
 			// lameBitrateTb
 			// 
 			this.lameBitrateTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.lameBitrateTb.LargeChange = 2;
+			this.lameBitrateTb.LargeChange = 32;
 			this.lameBitrateTb.Location = new System.Drawing.Point(6, 22);
 			this.lameBitrateTb.Maximum = 320;
 			this.lameBitrateTb.Minimum = 16;
 			this.lameBitrateTb.Name = "lameBitrateTb";
 			this.lameBitrateTb.Size = new System.Drawing.Size(409, 45);
+			this.lameBitrateTb.SmallChange = 8;
 			this.lameBitrateTb.TabIndex = 0;
 			this.lameBitrateTb.TickFrequency = 16;
 			this.lameBitrateTb.Value = 64;
@@ -842,6 +845,7 @@
 			// lameVBRQualityTb
 			// 
 			this.lameVBRQualityTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			this.lameVBRQualityTb.LargeChange = 1;
 			this.lameVBRQualityTb.Location = new System.Drawing.Point(10, 22);
 			this.lameVBRQualityTb.Maximum = 9;
 			this.lameVBRQualityTb.Name = "lameVBRQualityTb";
@@ -887,7 +891,7 @@
 			// stripUnabridgedCbox
 			// 
 			this.stripUnabridgedCbox.AutoSize = true;
-			this.stripUnabridgedCbox.Location = new System.Drawing.Point(19, 93);
+			this.stripUnabridgedCbox.Location = new System.Drawing.Point(19, 118);
 			this.stripUnabridgedCbox.Name = "stripUnabridgedCbox";
 			this.stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
 			this.stripUnabridgedCbox.TabIndex = 13;
@@ -897,13 +901,26 @@
 			// retainAaxFileCbox
 			// 
 			this.retainAaxFileCbox.AutoSize = true;
-			this.retainAaxFileCbox.Location = new System.Drawing.Point(19, 43);
+			this.retainAaxFileCbox.Location = new System.Drawing.Point(19, 68);
 			this.retainAaxFileCbox.Name = "retainAaxFileCbox";
 			this.retainAaxFileCbox.Size = new System.Drawing.Size(132, 19);
 			this.retainAaxFileCbox.TabIndex = 10;
 			this.retainAaxFileCbox.Text = "[RetainAaxFile desc]";
 			this.retainAaxFileCbox.UseVisualStyleBackColor = true;
 			this.retainAaxFileCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
+			// 
+			// createCueSheetCbox
+			// 
+			this.createCueSheetCbox.AutoSize = true;
+			this.createCueSheetCbox.Checked = true;
+			this.createCueSheetCbox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.createCueSheetCbox.Location = new System.Drawing.Point(19, 43);
+			this.createCueSheetCbox.Name = "createCueSheetCbox";
+			this.createCueSheetCbox.Size = new System.Drawing.Size(145, 19);
+			this.createCueSheetCbox.TabIndex = 10;
+			this.createCueSheetCbox.Text = "[CreateCueSheet desc]";
+			this.createCueSheetCbox.UseVisualStyleBackColor = true;
+			this.createCueSheetCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
 			// 
 			// SettingsDialog
 			// 
@@ -1023,5 +1040,6 @@
 		private System.Windows.Forms.Label label18;
 		private System.Windows.Forms.Label label17;
 		private System.Windows.Forms.Label label16;
+		private System.Windows.Forms.CheckBox createCueSheetCbox;
 	}
 }

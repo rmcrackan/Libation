@@ -13,10 +13,11 @@ namespace AaxDecrypter
         public bool TrimOutputToChapterLength { get; init; }
         public bool RetainEncryptedFile { get; init; }
         public bool StripUnabridged { get; init; }
+        public bool CreateCueSheet { get; init; }
         public ChapterInfo ChapterInfo { get; set; }
         public NAudio.Lame.LameConfig LameConfig { get; set; }
         public bool Downsample { get; set; }
-        public bool MatchSourceBitrate { get; set; }
+        public bool MatchSourceBitrate { get; set; }       
 
         public DownloadOptions(string downloadUrl, string userAgent)
         {
