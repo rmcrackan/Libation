@@ -76,49 +76,49 @@ To install Libation, extract the zip file to a folder, for example `C:\Libation`
 
 Create your account(s):
 
-![Create your accounts, menu](Documentation/imagesv40_accounts.png)
+![Create your accounts, menu](Documentation/images/v40_accounts.png)
 
 New locale options include many more regions including old audible accounts which pre-date the amazon acquisition
 
-![Choose your account locales](Documentation/imagesv40_locales.png)
+![Choose your account locales](Documentation/images/v40_locales.png)
 
 ### Import your library
 
 Select Import > Scan Library:
 
-![Import step 1](Documentation/imagesImport1.png)
+![Import step 1](Documentation/images/Import1.png)
 
 Or if you have multiple accounts, you'll get to choose whether to scan all accounts or just the ones you select:
 
-![Import which accounts](Documentation/imagesv40_import.png)
+![Import which accounts](Documentation/images/v40_import.png)
 
 If this is a new installation, or you're scanning an account you haven't scanned before, you'll be prompted to enter your password for the Audible account.
 
-![Login password](Documentation/imagesalt-login1.png)
+![Login password](Documentation/images/alt-login1.png)
 
 Enter the password and click Submit. Audible will prompt you with a CAPTCHA image. 
 
-![Login captcha](Documentation/imagesalt-login2.png)
+![Login captcha](Documentation/images/alt-login2.png)
 
 Enter the CAPTCHA answer characters and click Submit. If all has gone well, Libation will start scanning the account. 
 
 In rare instances, the Captcha image/response will fail in an endless loop. If this happens, delete the problem account, and then click Save. Re-add the account and click Save again. Now try to scan the account again. This time, instead of typing your password, click the link that says "Or click here". This will open the Audible External Login dialog shown below.
 
-![Login alternative setup](Documentation/imagesalt-login3.png)
+![Login alternative setup](Documentation/images/alt-login3.png)
 
 You can either copy the URL shown and paste it into your browser or launch the browser directly by clicking Launch in Browser. Audible will display its standard login page. Login, including answering the CAPTCHA on the next page. In some cases, you might have to approve the login from the email account associated with that login, but once the login is successful, you'll see an error message.
 
-![Login alternative login result](Documentation/imagesalt-login4.png)
+![Login alternative login result](Documentation/images/alt-login4.png)
 
 This actually means you've successfully logged in. Copy the entire URL shown in your browser and return to Libation. Paste that URL into the text box at the bottom of the Audible External Login window and click Submit.
 
 You'll see this window while it's scanning:
 
-![Import step 2](Documentation/imagesImport2.png)
+![Import step 2](Documentation/images/Import2.png)
 
 Success! We see how many new titles are imported:
 
-![Import step 3](Documentation/imagesImport3.png)
+![Import step 3](Documentation/images/Import3.png)
 
 ### Download your books -- DRM-free!
 
@@ -134,25 +134,25 @@ The stoplights will tell you a title's status:
 
 Or hover over the button to see the status.
 
-![Liberate book step 1](Documentation/imagesLiberateBook1.png)
+![Liberate book step 1](Documentation/images/LiberateBook1.png)
 
 Select Liberate > Begin Book Backups
 
 You can also click on the stop light to download only that title and its PDF
 
-![Liberate book step 2](Documentation/imagesLiberateBook2.png)
+![Liberate book step 2](Documentation/images/LiberateBook2.png)
 
 First the original book with DRM is downloaded
 
-![Liberate book step 3](Documentation/imagesLiberateBook3.png)
+![Liberate book step 3](Documentation/images/LiberateBook3.png)
 
 Then it's decrypted so you can use it on any device you choose. The very first time you decrypt a book, this step will take a while. Every other book will go much faster. The first time, Libation has to figure out the special decryption key which allows your personal books to be unlocked.
 
-![Liberate book step 4](Documentation/imagesLiberateBook4.png)
+![Liberate book step 4](Documentation/images/LiberateBook4.png)
 
 And voila! If you have multiple books not yet liberated, Libation will automatically move on to the next.
 
-![Liberate book step 5](Documentation/imagesLiberateBook5.png)
+![Liberate book step 5](Documentation/images/LiberateBook5.png)
 
 The Audible id must be somewhere in the book's file or folder name for Libation to detect your downloaded book.
 
@@ -162,15 +162,15 @@ For books which include PDF downloads, Libation can download these for you as we
 
 Select Liberate > Begin PDF Backups
 
-![PDF download step 2](Documentation/imagesPdfDownload2.png)
+![PDF download step 2](Documentation/images/PdfDownload2.png)
 
 The downloads work just like with books, only with no additional decryption needed.
 
-![PDF download step 3](Documentation/imagesPdfDownload3.png)
+![PDF download step 3](Documentation/images/PdfDownload3.png)
 
 ### Details of downloaded files
 
-![Post download](Documentation/imagesPostDownload.png)
+![Post download](Documentation/images/PostDownload.png)
 
 When you set up Libation, you'll specify a Books directory. Libation looks inside that directory and all subdirectories to look for files or folders with each library book's audible id. This way, organization is completely up to you. When you download + decrypt a book, you get several files
 
@@ -179,7 +179,7 @@ When you set up Libation, you'll specify a Books directory. Libation looks insid
 
 ### Export your library
 
-![Export](Documentation/imagesExport.png)
+![Export](Documentation/images/Export.png)
 
 Export your library to Excel, CSV, or JSON
 
@@ -189,15 +189,15 @@ Export your library to Excel, CSV, or JSON
 
 To add tags to a title, click the tags button
 
-![Tags step 1](Documentation/imagesTags1.png)
+![Tags step 1](Documentation/images/Tags1.png)
 
 Add as many tags as you'd like. Tags are separated by a space. Each tag can contain letters, numbers, and underscores
 
-![Tags step 2](Documentation/imagesTags2.png)
+![Tags step 2](Documentation/images/Tags2.png)
 
 Tags are saved non-case specific for easy search. There is one special tag "hidden" which will also grey-out the book
 
-![Tags step 3](Documentation/imagesTags3.png)
+![Tags step 3](Documentation/images/Tags3.png)
 
 To edit tags, just click the button again.
 
@@ -211,7 +211,7 @@ Libation's advanced searching is built on the powerful Lucene search engine. Sim
     * Full official guide: https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
 * Tons of search fields, specific to audiobooks
 * Synonyms so you don't have to memorize magic words. Eg: author and author**s** will both work
-* Click [?] button for a full list of search fields and synonyms ![Filter options](Documentation/imagesFilterOptions.png)
+* Click [?] button for a full list of search fields and synonyms ![Filter options](Documentation/images/FilterOptions.png)
 * Search by tag like \[this\]
 * When tags have an underscore you can use part of the tag. This is useful for quick categories. The below examples make this more clear.
 
@@ -219,25 +219,25 @@ Libation's advanced searching is built on the powerful Lucene search engine. Sim
 
 Search for anything with the word potter
 
-![Search example: potter](Documentation/imagesSearchExamplePotter.png)
+![Search example: potter](Documentation/images/SearchExamplePotter.png)
 
 If you only want to see Harry Potter
 
-![Search example: "harry potter"](Documentation/imagesSearchExampleHarryPotter.png)
+![Search example: "harry potter"](Documentation/images/SearchExampleHarryPotter.png)
 
 If you only want to see potter except for Harry Potter. You can also use "-" instead of "NOT"
 
-![Search example: "potter NOT harry"](Documentation/imagesSearchExamplePotterNotHarry.png)
-![Search example: "potter -harry"](Documentation/imagesSearchExamplePotterNotHarry2.png)
+![Search example: "potter NOT harry"](Documentation/images/SearchExamplePotterNotHarry.png)
+![Search example: "potter -harry"](Documentation/images/SearchExamplePotterNotHarry2.png)
 
 To see only books written by Neil Gaiman where he also narrates his own book. (If you don't include AND, you'll see everything written by Neil Gaiman and also all books in your library which are self-narrated.)
 
-![Search example: author:gaiman AND authornarrated](Documentation/imagesSearchExampleGaimanAuthorNarrated.png)
+![Search example: author:gaiman AND authornarrated](Documentation/images/SearchExampleGaimanAuthorNarrated.png)
 
 I tagged autobiographies as auto_bio and biographies written by someone else as bio. I can get only autobiographies with \[auto_bio\] or get both by searching \[bio\]
 
-![Search example: \[bio\]](Documentation/imagesSearchExampleBio.png)
-![Search example: \[auto_bio\]](Documentation/imagesSearchExampleAutoBio.png)
+![Search example: \[bio\]](Documentation/images/SearchExampleBio.png)
+![Search example: \[auto_bio\]](Documentation/images/SearchExampleAutoBio.png)
 
 ### Filters
 
@@ -247,7 +247,7 @@ To edit this list go to Quick Filters > Edit quick filters. Here you can re-orde
 
 Check "Quick Filters > Start Libation with 1st filter Default" to have your top filter automatically applied when Libation starts. In this top example, I want to always start without these: at books I've tagged hidden, books I've tagged as free_audible_originals, and books which I have rated.
 
-![default filters](Documentation/imagesFiltersDefault.png)
+![default filters](Documentation/images/FiltersDefault.png)
 
 ## Advanced
 
