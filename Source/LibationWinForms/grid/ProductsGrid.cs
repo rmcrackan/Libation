@@ -59,20 +59,27 @@ namespace LibationWinForms
 		private async void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
 		{
 			// handle grid button click: https://stackoverflow.com/a/13687844
-			if (e.RowIndex < 0 || _dataGridView.Columns[e.ColumnIndex] is not DataGridViewButtonColumn)
+			if (e.RowIndex < 0)
 				return;
 
-			var liveGridEntry = getGridEntry(e.RowIndex);
+			var propertyName = _dataGridView.Columns[e.ColumnIndex].DataPropertyName;
 
-			switch (_dataGridView.Columns[e.ColumnIndex].DataPropertyName)
-			{
-				case nameof(liveGridEntry.Liberate):
-					await Liberate_Click(liveGridEntry);
-					break;
-				case nameof(liveGridEntry.DisplayTags):
-					Details_Click(liveGridEntry);
-					break;
-			}
+			if (propertyName == liberateGVColumn.DataPropertyName)
+				await Liberate_Click(getGridEntry(e.RowIndex));
+			else if (propertyName == tagAndDetailsGVColumn.DataPropertyName)
+				Details_Click(getGridEntry(e.RowIndex));
+			else if (propertyName == descriptionGVColumn.DataPropertyName)
+				DescriptionClick(getGridEntry(e.RowIndex));
+		}
+
+		private void DescriptionClick(GridEntry liveGridEntry)
+		{
+			var displayWindow = new DescriptionDisplay();
+			displayWindow.Text = $"{liveGridEntry.Title} description";
+			displayWindow.Load += (_, _) => displayWindow.RestoreSizeAndLocation(Configuration.Instance);
+			displayWindow.FormClosing += (_, _) => displayWindow.SaveSizeAndLocation(Configuration.Instance);
+			displayWindow.textBox1.Text = liveGridEntry.LongDescription;
+			displayWindow.Show(this);
 		}
 
 		private static async Task Liberate_Click(GridEntry liveGridEntry)
@@ -82,7 +89,7 @@ namespace LibationWinForms
 			// liberated: open explorer to file
 			if (libraryBook.Book.Audio_Exists)
 			{
-				var filePath = LibationFileManager.AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
+				var filePath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
 				if (!Go.To.File(filePath))
 				{
 					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";

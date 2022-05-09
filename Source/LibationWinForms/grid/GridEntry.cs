@@ -26,6 +26,8 @@ namespace LibationWinForms
 		public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)]
 		public LibraryBook LibraryBook { get; private set; }
+		[Browsable(false)]
+		public string LongDescription { get; private set; }
 		#endregion
 
 		#region Model properties exposed to the view
@@ -131,7 +133,8 @@ namespace LibationWinForms
 				Narrators = Book.NarratorNames;
 				Category = string.Join(" > ", Book.CategoriesNames);
 				Misc = GetMiscDisplay(libraryBook);
-				Description = GetDescriptionDisplay(Book);
+				LongDescription = GetDescriptionDisplay(Book);
+				Description = TrimTextToWord(LongDescription, 62);
 			}
 
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
@@ -264,6 +267,14 @@ namespace LibationWinForms
 			var doc = new HtmlAgilityPack.HtmlDocument();
 			doc.LoadHtml(book?.Description ?? "");
 			return doc.DocumentNode.InnerText;
+		}
+
+		private static string TrimTextToWord(string text, int maxLength)
+		{
+			return
+				text.Length <= maxLength ?
+				text :
+				text.Substring(0, maxLength - 3) + "...";
 		}
 
 		/// <summary>
