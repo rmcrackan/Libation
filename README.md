@@ -7,11 +7,11 @@
 
 # Table of Contents
 
-1. [Audible audiobook manager](#audible-audiobook-manager)
+- [Audible audiobook manager](#audible-audiobook-manager)
     - [The good](#the-good)
     - [The bad](#the-bad)
     - [The ugly](#the-ugly)
-2. [Getting started](#getting-started)
+- [Getting started](#getting-started)
     - [Download Libation](#download-libation-1)
     - [Installation](#installation)
     - [Create Accounts](#create-accounts)
@@ -20,12 +20,12 @@
     - [Download PDF attachments](#download-pdf-attachments)
     - [Details of downloaded files](#details-of-downloaded-files)
     - [Export your library](#export-your-library)
-3. [Searching and filtering](#searching-and-filtering)
+- [Searching and filtering](#searching-and-filtering)
     - [Tags](#tags)
     - [Searches](#searches)
     - [Search examples](#search-examples)
     - [Filters](#filters)
-4. [Advanced](/Documentation/Advanced.md)
+- [Advanced](/Documentation/Advanced.md)
     - [Files and folders](/Documentation/Advanced.md#files-and-folders)
     - [Linux and Mac (unofficial)](/Documentation/Advanced.md#linux-and-mac)
     - [Settings](/Documentation/Advanced.md#settings)
