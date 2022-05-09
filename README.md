@@ -32,6 +32,11 @@
     - [Custom File Naming](Documentation/Advanced.md#custom-file-naming)
     - [Command Line Interface](Documentation/Advanced.md#command-line-interface)
 
+## Getting started
+
+* [Download](https://github.com/rmcrackan/Libation/releases/latest)
+* [Step-by-step walk-through](Documentation/GettingStarted.md)
+
 ## Audible audiobook manager
 
 ### The good
@@ -50,7 +55,6 @@
 ### The bad
 
 * Windows only
-* Several known speed/performance issues
 * Large file size
 * Made by a programmer, not a designer so the goals are function rather than beauty. And it shows
 
@@ -63,5 +67,3 @@
 Disclaimer: I've made every good-faith effort to include nothing insecure, malicious, anti-privacy, or destructive. That said: use at your own risk.
 
 I made this for myself and I want to share it with the great programming and audible/audiobook communiites which have been so generous with their time and help.
-
-## [Getting started walk-through](Documentation/GettingStarted.md)
