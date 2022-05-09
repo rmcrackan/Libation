@@ -7,7 +7,7 @@
 
 
 
-# Table of Contents: Advanced
+# Advanced: Table of Contents
 
 - [Files and folders](#files-and-folders)
 - [Linux and Mac (unofficial)](#linux-and-mac)
