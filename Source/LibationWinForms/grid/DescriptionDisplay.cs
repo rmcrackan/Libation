@@ -13,17 +13,16 @@ namespace LibationWinForms
 {
 	public partial class DescriptionDisplay : Form
 	{
+		public Point SpawnLocation { get; init; }
+		public string DescriptionText { get => textBox1.Text; set => textBox1.Text = value; }
 		public DescriptionDisplay()
 		{
 			InitializeComponent();
 			textBox1.LostFocus += (_, _) => Close();
-			this.Shown += DescriptionDisplay_Shown;
+			Shown += DescriptionDisplay_Shown;
 
 			var textHeight = TextRenderer.MeasureText("\n", textBox1.Font).Height;
 		}
-
-		[DllImport("user32.dll")]
-		static extern bool HideCaret(IntPtr hWnd);
 
 		private void DescriptionDisplay_Shown(object sender, EventArgs e)
 		{
@@ -37,6 +36,12 @@ namespace LibationWinForms
 			int lineCount = textBox1.GetLineFromCharIndex(int.MaxValue) + 2;
 			Height = Height - textBox1.Height + lineCount * TextRenderer.MeasureText(textBox1.Text, textBox1.Font).Height;
 
+			int screenHeight = Screen.PrimaryScreen.WorkingArea.Height;
+
+			Location = new Point(SpawnLocation.X + 10, Math.Min(SpawnLocation.Y, screenHeight - Height));
 		}
+
+		[DllImport("user32.dll")]
+		static extern bool HideCaret(IntPtr hWnd);
 	}
 }

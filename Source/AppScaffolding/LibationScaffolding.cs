@@ -126,8 +126,8 @@ namespace AppScaffolding
 			if (!config.Exists(nameof(config.AutoScan)))
 				config.AutoScan = true;
 
-			if (!config.Exists(nameof(config.HiddenGridColumns)))
-				config.HiddenGridColumns = new Dictionary<string, bool>();
+			if (!config.Exists(nameof(config.GridColumnsVisibilities)))
+				config.GridColumnsVisibilities = new Dictionary<string, bool>();
 
 			if (!config.Exists(nameof(config.GridColumnsDisplayIndices)))
 				config.GridColumnsDisplayIndices = new Dictionary<string, int>();

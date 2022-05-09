@@ -181,10 +181,10 @@ namespace LibationFileManager
         }
         
         [Description("A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid")]
-        public Dictionary<string, bool> HiddenGridColumns
+        public Dictionary<string, bool> GridColumnsVisibilities
         {
-            get => persistentDictionary.GetNonString<Dictionary<string, bool>>(nameof(HiddenGridColumns));
-            set => persistentDictionary.SetNonString(nameof(HiddenGridColumns), value);
+            get => persistentDictionary.GetNonString<Dictionary<string, bool>>(nameof(GridColumnsVisibilities));
+            set => persistentDictionary.SetNonString(nameof(GridColumnsVisibilities), value);
         }
 
         [Description("A Dictionary of GridView data property names and int indicating its column's display index in ProductsGrid")]

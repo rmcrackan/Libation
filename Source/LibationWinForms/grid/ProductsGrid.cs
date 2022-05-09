@@ -69,16 +69,17 @@ namespace LibationWinForms
 			else if (propertyName == tagAndDetailsGVColumn.DataPropertyName)
 				Details_Click(getGridEntry(e.RowIndex));
 			else if (propertyName == descriptionGVColumn.DataPropertyName)
-				DescriptionClick(getGridEntry(e.RowIndex));
+				DescriptionClick(getGridEntry(e.RowIndex), _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex,false));
 		}
 
-		private void DescriptionClick(GridEntry liveGridEntry)
+		private void DescriptionClick(GridEntry liveGridEntry, Rectangle cell)
 		{
-			var displayWindow = new DescriptionDisplay();
-			displayWindow.Text = $"{liveGridEntry.Title} description";
-			displayWindow.Load += (_, _) => displayWindow.RestoreSizeAndLocation(Configuration.Instance);
-			displayWindow.FormClosing += (_, _) => displayWindow.SaveSizeAndLocation(Configuration.Instance);
-			displayWindow.textBox1.Text = liveGridEntry.LongDescription;
+			var displayWindow = new DescriptionDisplay
+			{
+				Text = $"{liveGridEntry.Title} description",
+				SpawnLocation = cell.Location + cell.Size,
+				DescriptionText = liveGridEntry.LongDescription
+			};
 			displayWindow.Show(this);
 		}
 
@@ -245,7 +246,7 @@ namespace LibationWinForms
 
 			//Restore Grid Display Settings
 			var config = Configuration.Instance;
-			var hiddenGridColumns = config.HiddenGridColumns;
+			var gridColumnsVisibilities = config.GridColumnsVisibilities;
 			var displayIndices = config.GridColumnsDisplayIndices;
 			var gridColumnsWidths = config.GridColumnsWidths;
 
@@ -254,7 +255,7 @@ namespace LibationWinForms
 			foreach (DataGridViewColumn column in _dataGridView.Columns)
 			{
 				var itemName = column.DataPropertyName;
-				var visible = !hiddenGridColumns.GetValueOrDefault(itemName, false);
+				var visible = gridColumnsVisibilities.GetValueOrDefault(itemName, true);
 
 				var menuItem = new ToolStripMenuItem()
 				{
@@ -316,9 +317,9 @@ namespace LibationWinForms
 
 				var config = Configuration.Instance;
 
-				var dictionary = config.HiddenGridColumns;
-				dictionary[propertyName] = visible;
-				config.HiddenGridColumns = dictionary;
+				var dictionary = config.GridColumnsVisibilities;
+				dictionary[propertyName] = column.Visible;
+				config.GridColumnsVisibilities = dictionary;
 			}
 		}
 
