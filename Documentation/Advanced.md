@@ -1,5 +1,3 @@
-# Libation: Liberate your Library
-
 ## [Download Libation](https://github.com/rmcrackan/Libation/releases/latest)
 
 ### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PalPal.me](https://paypal.me/mcrackan?locale.x=en_us)
