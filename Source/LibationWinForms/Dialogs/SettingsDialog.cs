@@ -27,9 +27,11 @@ namespace LibationWinForms.Dialogs
 				loggingLevelCb.SelectedItem = config.LogLevel;
 			}
 
+			this.autoScanCb.Text = desc(nameof(config.AutoScan));
 			this.showImportedStatsCb.Text = desc(nameof(config.ShowImportedStats));
 			this.importEpisodesCb.Text = desc(nameof(config.ImportEpisodes));
 			this.downloadEpisodesCb.Text = desc(nameof(config.DownloadEpisodes));
+
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
 			this.inProgressDescLbl.Text = desc(nameof(config.InProgress));
 			this.allowLibationFixupCbox.Text = desc(nameof(config.AllowLibationFixup));
@@ -68,6 +70,7 @@ namespace LibationWinForms.Dialogs
 			LameMatchSourceBRCbox.Checked = config.LameMatchSourceBR;
 			lameVBRQualityTb.Value = config.LameVBRQuality;
 
+			autoScanCb.Checked = config.AutoScan;
 			showImportedStatsCb.Checked = config.ShowImportedStats;
 			importEpisodesCb.Checked = config.ImportEpisodes;
 			downloadEpisodesCb.Checked = config.DownloadEpisodes;
@@ -190,6 +193,7 @@ namespace LibationWinForms.Dialogs
 			config.LameMatchSourceBR = LameMatchSourceBRCbox.Checked;
 			config.LameVBRQuality = lameVBRQualityTb.Value;
 
+			config.AutoScan = autoScanCb.Checked;
 			config.ShowImportedStats = showImportedStatsCb.Checked;
 			config.ImportEpisodes = importEpisodesCb.Checked;
 			config.DownloadEpisodes = downloadEpisodesCb.Checked;

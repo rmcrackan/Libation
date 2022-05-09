@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AudibleApi;
 using AudibleUtilities;
 using LibationWinForms.Dialogs.Login;
@@ -7,6 +8,9 @@ namespace LibationWinForms.Login
 {
 	public class WinformLoginChoiceEager : WinformLoginBase, ILoginChoiceEager
 	{
+		/// <summary>Convenience method. Recommended when wiring up Winforms to <see cref="ApplicationServices.LibraryCommands.ImportAccountAsync"/></summary>
+		public static async Task<ApiExtended> ApiExtendedFunc(Account account) => await ApiExtended.CreateAsync(account, new WinformLoginChoiceEager(account));
+
 		public ILoginCallback LoginCallback { get; private set; }
 
 		private Account _account { get; }
