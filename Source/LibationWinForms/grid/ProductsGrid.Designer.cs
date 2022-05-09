@@ -59,6 +59,7 @@
 			// 
 			this.gridEntryDataGridView.AllowUserToAddRows = false;
 			this.gridEntryDataGridView.AllowUserToDeleteRows = false;
+			this.gridEntryDataGridView.AllowUserToOrderColumns = true;
 			this.gridEntryDataGridView.AllowUserToResizeRows = false;
 			this.gridEntryDataGridView.AutoGenerateColumns = false;
 			this.gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -96,6 +97,7 @@
 			this.gridEntryDataGridView.RowTemplate.Height = 82;
 			this.gridEntryDataGridView.Size = new System.Drawing.Size(1510, 380);
 			this.gridEntryDataGridView.TabIndex = 0;
+			this.gridEntryDataGridView.ColumnDisplayIndexChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.gridEntryDataGridView_ColumnDisplayIndexChanged);
 			// 
 			// dataGridViewImageButtonBoxColumn1
 			// 
@@ -211,7 +213,7 @@
 			// contextMenuStrip1
 			// 
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(181, 26);
+			this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
 			// 
 			// ProductsGrid
 			// 

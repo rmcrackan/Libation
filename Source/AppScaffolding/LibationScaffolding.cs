@@ -128,6 +128,12 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.HiddenGridColumns)))
 				config.HiddenGridColumns = Array.Empty<string>();
+
+			if (!config.Exists(nameof(config.GridColumnsDisplayIndices)))
+			{
+				int startIndex = 0;
+				config.GridColumnsDisplayIndices = new int[30].Select(_ => startIndex++).ToArray();
+			}
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>

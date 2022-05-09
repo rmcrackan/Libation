@@ -187,6 +187,13 @@ namespace LibationFileManager
             set => persistentDictionary.SetNonString(nameof(HiddenGridColumns), value);
         }
 
+        [Description("A DisplayIndex list of columns in ProductsGrid")]
+        public int[] GridColumnsDisplayIndices
+        {
+            get => persistentDictionary.GetNonString<int[]>(nameof(GridColumnsDisplayIndices));
+            set => persistentDictionary.SetNonString(nameof(GridColumnsDisplayIndices), value);
+        }
+
         public enum BadBookAction
         {
             [Description("Ask each time what action to take.")]

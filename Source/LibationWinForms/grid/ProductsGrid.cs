@@ -39,15 +39,17 @@ namespace LibationWinForms
 		{
 			InitializeComponent();
 
-			var hiddenGridEntries = Configuration.Instance.HiddenGridColumns;
+			//Restore Grid Display Settings
+			var config = Configuration.Instance;
+			var displayIndices = config.GridColumnsDisplayIndices;
 
 			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
 			contextMenuStrip1.Items.Add(new ToolStripSeparator());
 
+			var columnIndex = 0;
 			foreach (DataGridViewColumn column in _dataGridView.Columns)
 			{ 
-				var visible = !hiddenGridEntries.Contains(column.DataPropertyName);
-
+				var visible = !config.HiddenGridColumns.Contains(column.DataPropertyName);
 				var itemName = column.DataPropertyName;
 
 				var menuItem = new ToolStripMenuItem()
@@ -60,6 +62,7 @@ namespace LibationWinForms
 				contextMenuStrip1.Items.Add(menuItem);
 
 				column.Visible = visible;
+				column.DisplayIndex = displayIndices[columnIndex++];
 			}
 
 			// sorting breaks filters. must reapply filters after sorting
@@ -74,7 +77,9 @@ namespace LibationWinForms
 			var menuItem = sender as ToolStripMenuItem;
 			var propertyName = menuItem.Tag as string;
 
-			var column = _dataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(c => c.DataPropertyName == propertyName);
+			var column = _dataGridView.Columns
+				.Cast<DataGridViewColumn>()
+				.FirstOrDefault(c => c.DataPropertyName == propertyName);
 
 			if (column != null)
 			{
@@ -82,16 +87,12 @@ namespace LibationWinForms
 				menuItem.Checked = !visible;
 				column.Visible = !visible;
 
-				var config = Configuration.Instance;
-
-				var hiddenColumns = new List<string>(config.HiddenGridColumns);
-
-				if (column.Visible && hiddenColumns.Contains(propertyName))
-					hiddenColumns.Remove(propertyName);
-				else if (!hiddenColumns.Contains(propertyName))
-					hiddenColumns.Add(propertyName);
-
-				config.HiddenGridColumns = hiddenColumns.ToArray();
+				Configuration.Instance.HiddenGridColumns =
+					_dataGridView.Columns
+					.Cast<DataGridViewColumn>()
+					.Where(c=>!c.Visible)
+					.Select(c => c.DataPropertyName)
+					.ToArray();
 			}
 		}
 		private void EnableDoubleBuffering()
@@ -276,5 +277,13 @@ namespace LibationWinForms
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
 		#endregion
 
+		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)
+		{
+			Configuration.Instance.GridColumnsDisplayIndices 
+				= _dataGridView.Columns
+				.Cast<DataGridViewColumn>()
+				.Select(c => c.DisplayIndex)
+				.ToArray();
+		}
 	}
 }
