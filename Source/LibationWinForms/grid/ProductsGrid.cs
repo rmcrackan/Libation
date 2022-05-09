@@ -35,21 +35,20 @@ namespace LibationWinForms
 		// alias
 		private DataGridView _dataGridView => gridEntryDataGridView;
 
-		public ProductsGrid()
+		protected override void OnVisibleChanged(EventArgs e)
 		{
-			InitializeComponent();
+			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
+			contextMenuStrip1.Items.Add(new ToolStripSeparator());
 
 			//Restore Grid Display Settings
 			var config = Configuration.Instance;
 			var displayIndices = config.GridColumnsDisplayIndices;
+			var hiddenGridColumns = config.HiddenGridColumns;
 
-			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
-			contextMenuStrip1.Items.Add(new ToolStripSeparator());
-
-			var columnIndex = 0;
+			int columnIndex = 0, numVisible = 0;
 			foreach (DataGridViewColumn column in _dataGridView.Columns)
-			{ 
-				var visible = !config.HiddenGridColumns.Contains(column.DataPropertyName);
+			{
+				var visible = !hiddenGridColumns.Contains(column.DataPropertyName);
 				var itemName = column.DataPropertyName;
 
 				var menuItem = new ToolStripMenuItem()
@@ -63,7 +62,22 @@ namespace LibationWinForms
 
 				column.Visible = visible;
 				column.DisplayIndex = displayIndices[columnIndex++];
+				column.HeaderCell.ContextMenuStrip = contextMenuStrip1;
+
+				if (visible) numVisible++;
 			}
+
+			if (numVisible == 0)
+			{
+				_dataGridView.ContextMenuStrip = contextMenuStrip1;
+			}
+
+			base.OnVisibleChanged(e);
+		}
+
+		public ProductsGrid()
+		{
+			InitializeComponent();			
 
 			// sorting breaks filters. must reapply filters after sorting
 			_dataGridView.Sorted += Filter;
@@ -93,6 +107,12 @@ namespace LibationWinForms
 					.Where(c=>!c.Visible)
 					.Select(c => c.DataPropertyName)
 					.ToArray();
+
+				_dataGridView.ContextMenuStrip = 
+					_dataGridView.Columns
+					.Cast<DataGridViewColumn>()
+					.Where(c => c.Visible).Any() ?
+					default(ContextMenuStrip) : contextMenuStrip1;
 			}
 		}
 		private void EnableDoubleBuffering()
