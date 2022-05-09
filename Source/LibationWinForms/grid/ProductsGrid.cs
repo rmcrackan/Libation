@@ -69,7 +69,7 @@ namespace LibationWinForms
 			else if (propertyName == tagAndDetailsGVColumn.DataPropertyName)
 				Details_Click(getGridEntry(e.RowIndex));
 			else if (propertyName == descriptionGVColumn.DataPropertyName)
-				DescriptionClick(getGridEntry(e.RowIndex), _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex,false));
+				DescriptionClick(getGridEntry(e.RowIndex), _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
 		}
 
 		private void DescriptionClick(GridEntry liveGridEntry, Rectangle cell)
@@ -77,10 +77,12 @@ namespace LibationWinForms
 			var displayWindow = new DescriptionDisplay
 			{
 				Text = $"{liveGridEntry.Title} description",
-				SpawnLocation = cell.Location + cell.Size,
+				SpawnLocation = PointToScreen(cell.Location + new Size(cell.Width, 0)),
 				DescriptionText = liveGridEntry.LongDescription
 			};
+			displayWindow.RestoreSizeAndLocation(Configuration.Instance);
 			displayWindow.Show(this);
+			displayWindow.FormClosing += (_, _) => displayWindow.SaveSizeAndLocation(Configuration.Instance);
 		}
 
 		private static async Task Liberate_Click(GridEntry liveGridEntry)
