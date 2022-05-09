@@ -62,7 +62,7 @@ namespace LibationWinForms.Dialogs
 				return;
 			try
 			{
-				var removedBooks = await LibraryCommands.FindInactiveBooks((account) => ApiExtended.CreateAsync(account, new WinformLoginChoiceEager(account)), _libraryBooks, _accounts);
+				var removedBooks = await LibraryCommands.FindInactiveBooks(WinformLoginChoiceEager.ApiExtendedFunc, _libraryBooks, _accounts);
 
 				var removable = _removableGridEntries.Where(rge => removedBooks.Any(rb => rb.Book.AudibleProductId == rge.AudibleProductId)).ToList();
 

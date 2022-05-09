@@ -36,6 +36,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.noAccountsYetAddAccountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.autoScanLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scanLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scanLibraryOfAllAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scanLibraryOfSomeAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,13 +58,13 @@
             this.basicSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.scanningToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.visibleCountLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.addFilterBtn = new System.Windows.Forms.Button();
-            this.scanningToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -132,6 +133,7 @@
             // importToolStripMenuItem
             // 
             this.importToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.autoScanLibraryToolStripMenuItem,
             this.noAccountsYetAddAccountToolStripMenuItem,
             this.scanLibraryToolStripMenuItem,
             this.scanLibraryOfAllAccountsToolStripMenuItem,
@@ -147,6 +149,13 @@
             this.noAccountsYetAddAccountToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
             this.noAccountsYetAddAccountToolStripMenuItem.Text = "No accounts yet. A&dd Account...";
             this.noAccountsYetAddAccountToolStripMenuItem.Click += new System.EventHandler(this.noAccountsYetAddAccountToolStripMenuItem_Click);
+            // 
+            // autoScanLibraryToolStripMenuItem
+            // 
+            this.autoScanLibraryToolStripMenuItem.Name = "autoScanLibraryToolStripMenuItem";
+            this.autoScanLibraryToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+            this.autoScanLibraryToolStripMenuItem.Text = "A&uto Scan Library";
+            this.autoScanLibraryToolStripMenuItem.Click += new System.EventHandler(this.autoScanLibraryToolStripMenuItem_Click);
             // 
             // scanLibraryToolStripMenuItem
             // 
@@ -305,6 +314,16 @@
             this.aboutToolStripMenuItem.Text = "A&bout...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
+            // scanningToolStripMenuItem
+            // 
+            this.scanningToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.scanningToolStripMenuItem.Enabled = false;
+            this.scanningToolStripMenuItem.Image = global::LibationWinForms.Properties.Resources.import_16x16;
+            this.scanningToolStripMenuItem.Name = "scanningToolStripMenuItem";
+            this.scanningToolStripMenuItem.Size = new System.Drawing.Size(93, 20);
+            this.scanningToolStripMenuItem.Text = "Scanning...";
+            this.scanningToolStripMenuItem.Visible = false;
+            // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -353,16 +372,6 @@
             this.addFilterBtn.Text = "Add To Quick Filters";
             this.addFilterBtn.UseVisualStyleBackColor = true;
             this.addFilterBtn.Click += new System.EventHandler(this.AddFilterBtn_Click);
-            // 
-            // scanningToolStripMenuItem
-            // 
-            this.scanningToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.scanningToolStripMenuItem.Enabled = false;
-            this.scanningToolStripMenuItem.Image = global::LibationWinForms.Properties.Resources.import_16x16;
-            this.scanningToolStripMenuItem.Name = "scanningToolStripMenuItem";
-            this.scanningToolStripMenuItem.Size = new System.Drawing.Size(93, 20);
-            this.scanningToolStripMenuItem.Text = "Scanning...";
-            this.scanningToolStripMenuItem.Visible = false;
             // 
             // Form1
             // 
@@ -428,5 +437,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem scanningToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem autoScanLibraryToolStripMenuItem;
     }
 }

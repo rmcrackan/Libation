@@ -36,6 +36,8 @@ New locale options include many more regions including old audible accounts whic
 
 ### Import your library
 
+Be default, Libation will periodically scan the accounts you added above with a checkbox next to them. Nothing for you to do. You can also scan manually.
+
 Select Import > Scan Library:
 
 ![Import step 1](images/Import1.png)

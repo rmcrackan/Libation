@@ -42,46 +42,13 @@ namespace LibationWinForms
 			this.Load += refreshImportMenu;
 			AccountsSettingsPersister.Saved += refreshImportMenu;
 
-			// start autoscanner
-			this.Load += startAutoScan;
-			AccountsSettingsPersister.Saving += accountsPreSave;
-			AccountsSettingsPersister.Saved += accountsPostSave;
-			Configuration.Instance.AutoScanChanged += startAutoScan;
+			configAndInitAutoScan();
 
 			// init default/placeholder cover art
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
 			PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
 			PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
-		}
-
-		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
-		private List<(string AccountId, string LocaleName)> getDefaultAccounts()
-		{
-			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			return persister.AccountsSettings
-				.GetAll()
-				.Where(a => a.LibraryScan)
-				.Select(a => (a.AccountId, a.Locale.Name))
-				.ToList();
-		}
-		private void accountsPreSave(object sender = null, EventArgs e = null)
-			=> preSaveDefaultAccounts = getDefaultAccounts();
-		private void accountsPostSave(object sender = null, EventArgs e = null)
-		{
-			var postSaveDefaultAccounts = getDefaultAccounts();
-			var newDefaultAccounts = postSaveDefaultAccounts.Except(preSaveDefaultAccounts).ToList();
-
-			if (newDefaultAccounts.Any())
-				startAutoScan();
-		}
-
-		private void startAutoScan(object sender = null, EventArgs e = null)
-		{
-			if (Configuration.Instance.AutoScan)
-				Console.WriteLine("autoScanner.StartScan();");
-			else
-				Console.WriteLine("autoScanner.StopScan();");
 		}
 
 		private void Form1_Load(object sender, EventArgs e)
@@ -275,22 +242,95 @@ namespace LibationWinForms
 		}
 		#endregion
 
+		#region Auto-scanner
+		private InterruptableTimer autoScanTimer;
+
+		private void configAndInitAutoScan()
+		{
+			var hours = 0;
+			var minutes = 5;
+			var seconds = 0;
+			var _5_minutes = new TimeSpan(hours, minutes, seconds);
+			autoScanTimer = new InterruptableTimer(_5_minutes);
+
+			// subscribe as async/non-blocking. I'd actually rather prefer blocking but real-world testing found that caused a deadlock in the AudibleAPI
+			autoScanTimer.Elapsed += async (_, __) =>
+			{
+				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+				var accounts = persister.AccountsSettings
+					.GetAll()
+					.Where(a => a.LibraryScan)
+					.ToArray();
+
+					// in autoScan, new books SHALL NOT show dialog
+					await LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.ApiExtendedFunc, accounts);
+			};
+
+			// load init state to menu checkbox
+			this.Load += updateAutoScanLibraryToolStripMenuItem;
+			// if enabled: begin on load
+			this.Load += startAutoScan;
+
+			// if new 'default' account is added, run autoscan
+			AccountsSettingsPersister.Saving += accountsPreSave;
+			AccountsSettingsPersister.Saved += accountsPostSave;
+
+			// when autoscan setting is changed, update menu checkbox and run autoscan
+			Configuration.Instance.AutoScanChanged += updateAutoScanLibraryToolStripMenuItem;
+			Configuration.Instance.AutoScanChanged += startAutoScan;
+		}
+
+        private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
+		private List<(string AccountId, string LocaleName)> getDefaultAccounts()
+		{
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			return persister.AccountsSettings
+				.GetAll()
+				.Where(a => a.LibraryScan)
+				.Select(a => (a.AccountId, a.Locale.Name))
+				.ToList();
+		}
+		private void accountsPreSave(object sender = null, EventArgs e = null)
+			=> preSaveDefaultAccounts = getDefaultAccounts();
+		private void accountsPostSave(object sender = null, EventArgs e = null)
+		{
+			var postSaveDefaultAccounts = getDefaultAccounts();
+			var newDefaultAccounts = postSaveDefaultAccounts.Except(preSaveDefaultAccounts).ToList();
+
+			if (newDefaultAccounts.Any())
+				startAutoScan();
+		}
+
+		private void startAutoScan(object sender = null, EventArgs e = null)
+		{
+			if (Configuration.Instance.AutoScan)
+				autoScanTimer.PerformNow();
+			else
+				autoScanTimer.Stop();
+		}
+
+		private void updateAutoScanLibraryToolStripMenuItem(object sender, EventArgs e) => autoScanLibraryToolStripMenuItem.Checked = Configuration.Instance.AutoScan;
+		#endregion
+
 		#region Import menu
 		private void refreshImportMenu(object _ = null, EventArgs __ = null)
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var count = persister.AccountsSettings.Accounts.Count;
 
+			autoScanLibraryToolStripMenuItem.Visible = count > 0;
+
 			noAccountsYetAddAccountToolStripMenuItem.Visible = count == 0;
 			scanLibraryToolStripMenuItem.Visible = count == 1;
 			scanLibraryOfAllAccountsToolStripMenuItem.Visible = count > 1;
 			scanLibraryOfSomeAccountsToolStripMenuItem.Visible = count > 1;
 
-			removeLibraryBooksToolStripMenuItem.Visible = count != 0;
-
+			removeLibraryBooksToolStripMenuItem.Visible = count > 0;
 			removeSomeAccountsToolStripMenuItem.Visible = count > 1;
 			removeAllAccountsToolStripMenuItem.Visible = count > 1;
 		}
+
+		private void autoScanLibraryToolStripMenuItem_Click(object sender, EventArgs e) => Configuration.Instance.AutoScan = !autoScanLibraryToolStripMenuItem.Checked;
 
 		private void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -373,7 +413,7 @@ namespace LibationWinForms
 		{
 			try
 			{
-				var (totalProcessed, newAdded) = await LibraryCommands.ImportAccountAsync(account => ApiExtended.CreateAsync(account, new Login.WinformLoginChoiceEager(account)), accounts);
+				var (totalProcessed, newAdded) = await LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.ApiExtendedFunc, accounts);
 
 				// this is here instead of ScanEnd so that the following is only possible when it's user-initiated, not automatic loop
 				if (Configuration.Instance.ShowImportedStats && newAdded > 0)
@@ -528,6 +568,6 @@ namespace LibationWinForms
 
 			this.scanningToolStripMenuItem.Visible = false;
 		}
-		#endregion
-	}
+        #endregion
+    }
 }
