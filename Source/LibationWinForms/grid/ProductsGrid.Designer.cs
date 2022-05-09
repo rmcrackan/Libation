@@ -78,6 +78,7 @@
             this.dataGridViewTextBoxColumn10,
             this.dataGridViewTextBoxColumn11,
             this.dataGridViewImageButtonBoxColumn2});
+			this.gridEntryDataGridView.ContextMenuStrip = this.contextMenuStrip1;
 			this.gridEntryDataGridView.DataSource = this.gridEntryBindingSource;
 			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
 			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;

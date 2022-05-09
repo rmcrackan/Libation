@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -33,51 +34,11 @@ namespace LibationWinForms
 		public event EventHandler<int> VisibleCountChanged;
 
 		// alias
-		private DataGridView _dataGridView => gridEntryDataGridView;
-
-		protected override void OnVisibleChanged(EventArgs e)
-		{
-			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
-			contextMenuStrip1.Items.Add(new ToolStripSeparator());
-
-			//Restore Grid Display Settings
-			var config = Configuration.Instance;
-			var displayIndices = config.GridColumnsDisplayIndices;
-			var hiddenGridColumns = config.HiddenGridColumns;
-
-			int columnIndex = 0, numVisible = 0;
-			foreach (DataGridViewColumn column in _dataGridView.Columns)
-			{
-				var visible = !hiddenGridColumns.Contains(column.DataPropertyName);
-				var itemName = column.DataPropertyName;
-
-				var menuItem = new ToolStripMenuItem()
-				{
-					Text = itemName,
-					Checked = visible,
-					Tag = itemName
-				};
-				menuItem.Click += HideMenuItem_Click;
-				contextMenuStrip1.Items.Add(menuItem);
-
-				column.Visible = visible;
-				column.DisplayIndex = displayIndices[columnIndex++];
-				column.HeaderCell.ContextMenuStrip = contextMenuStrip1;
-
-				if (visible) numVisible++;
-			}
-
-			if (numVisible == 0)
-			{
-				_dataGridView.ContextMenuStrip = contextMenuStrip1;
-			}
-
-			base.OnVisibleChanged(e);
-		}
+		private DataGridView _dataGridView => gridEntryDataGridView;		
 
 		public ProductsGrid()
 		{
-			InitializeComponent();			
+			InitializeComponent();
 
 			// sorting breaks filters. must reapply filters after sorting
 			_dataGridView.Sorted += Filter;
@@ -86,35 +47,6 @@ namespace LibationWinForms
 			EnableDoubleBuffering();
 		}
 
-		private void HideMenuItem_Click(object sender, EventArgs e)
-		{
-			var menuItem = sender as ToolStripMenuItem;
-			var propertyName = menuItem.Tag as string;
-
-			var column = _dataGridView.Columns
-				.Cast<DataGridViewColumn>()
-				.FirstOrDefault(c => c.DataPropertyName == propertyName);
-
-			if (column != null)
-			{
-				var visible = menuItem.Checked;
-				menuItem.Checked = !visible;
-				column.Visible = !visible;
-
-				Configuration.Instance.HiddenGridColumns =
-					_dataGridView.Columns
-					.Cast<DataGridViewColumn>()
-					.Where(c=>!c.Visible)
-					.Select(c => c.DataPropertyName)
-					.ToArray();
-
-				_dataGridView.ContextMenuStrip = 
-					_dataGridView.Columns
-					.Cast<DataGridViewColumn>()
-					.Where(c => c.Visible).Any() ?
-					default(ContextMenuStrip) : contextMenuStrip1;
-			}
-		}
 		private void EnableDoubleBuffering()
 		{
 			var propertyInfo = _dataGridView.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
@@ -297,6 +229,73 @@ namespace LibationWinForms
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
 		#endregion
 
+		#region Column Customizations
+
+		protected override void OnVisibleChanged(EventArgs e)
+		{
+			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
+			contextMenuStrip1.Items.Add(new ToolStripSeparator());
+
+			//Restore Grid Display Settings
+			var config = Configuration.Instance;
+			var displayIndices = config.GridColumnsDisplayIndices;
+			var hiddenGridColumns = config.HiddenGridColumns;
+
+			var cmsKiller = new ContextMenuStrip();
+
+			int columnIndex = 0;
+			foreach (DataGridViewColumn column in _dataGridView.Columns)
+			{
+				var visible = !hiddenGridColumns.Contains(column.DataPropertyName);
+				var itemName = column.DataPropertyName;
+
+				var menuItem = new ToolStripMenuItem()
+				{
+					Text = itemName,
+					Checked = visible,
+					Tag = itemName
+				};
+				menuItem.Click += HideMenuItem_Click;
+				contextMenuStrip1.Items.Add(menuItem);
+
+				column.Visible = visible;
+				column.DisplayIndex = displayIndices[columnIndex++];
+				column.HeaderCell.ContextMenuStrip = contextMenuStrip1;
+
+				//Setting a default ContextMenuStrip will allow the columns to handle the
+				//Show() event so it is not passed up to the _dataGridView.ContextMenuStrip.
+				//This allows the ContextMenuStrip to be shown if right-clicking in the gray
+				//background of _dataGridView but not shown if right-clicking inside cells.
+				column.ContextMenuStrip = cmsKiller;
+			}
+
+			base.OnVisibleChanged(e);
+		}
+
+		private void HideMenuItem_Click(object sender, EventArgs e)
+		{
+			var menuItem = sender as ToolStripMenuItem;
+			var propertyName = menuItem.Tag as string;
+
+			var column = _dataGridView.Columns
+				.Cast<DataGridViewColumn>()
+				.FirstOrDefault(c => c.DataPropertyName == propertyName);
+
+			if (column != null)
+			{
+				var visible = menuItem.Checked;
+				menuItem.Checked = !visible;
+				column.Visible = !visible;
+
+				Configuration.Instance.HiddenGridColumns =
+					_dataGridView.Columns
+					.Cast<DataGridViewColumn>()
+					.Where(c => !c.Visible)
+					.Select(c => c.DataPropertyName)
+					.ToArray();
+			}
+		}
+
 		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)
 		{
 			Configuration.Instance.GridColumnsDisplayIndices 
@@ -304,6 +303,16 @@ namespace LibationWinForms
 				.Cast<DataGridViewColumn>()
 				.Select(c => c.DisplayIndex)
 				.ToArray();
+		}
+
+		#endregion
+	}
+
+	class ContextMenuStripEx : ContextMenuStrip
+	{
+		protected override ToolStripItem CreateDefaultItem(string text, Image image, EventHandler onClick)
+		{
+			return base.CreateDefaultItem(text, image, onClick);
 		}
 	}
 }
