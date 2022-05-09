@@ -127,13 +127,13 @@ namespace AppScaffolding
 				config.AutoScan = true;
 
 			if (!config.Exists(nameof(config.HiddenGridColumns)))
-				config.HiddenGridColumns = Array.Empty<string>();
+				config.HiddenGridColumns = new Dictionary<string, bool>();
 
 			if (!config.Exists(nameof(config.GridColumnsDisplayIndices)))
-			{
-				int startIndex = 0;
-				config.GridColumnsDisplayIndices = new int[30].Select(_ => startIndex++).ToArray();
-			}
+				config.GridColumnsDisplayIndices = new Dictionary<string, int>();
+
+			if (!config.Exists(nameof(config.GridColumnsWidths)))
+				config.GridColumnsWidths = new Dictionary<string, int>();
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>

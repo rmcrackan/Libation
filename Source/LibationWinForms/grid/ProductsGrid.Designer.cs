@@ -98,6 +98,7 @@
 			this.gridEntryDataGridView.Size = new System.Drawing.Size(1510, 380);
 			this.gridEntryDataGridView.TabIndex = 0;
 			this.gridEntryDataGridView.ColumnDisplayIndexChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.gridEntryDataGridView_ColumnDisplayIndexChanged);
+			this.gridEntryDataGridView.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.gridEntryDataGridView_ColumnWidthChanged);
 			// 
 			// dataGridViewImageButtonBoxColumn1
 			// 

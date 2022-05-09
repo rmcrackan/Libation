@@ -34,7 +34,7 @@ namespace LibationWinForms
 		public event EventHandler<int> VisibleCountChanged;
 
 		// alias
-		private DataGridView _dataGridView => gridEntryDataGridView;		
+		private DataGridView _dataGridView => gridEntryDataGridView;
 
 		public ProductsGrid()
 		{
@@ -238,16 +238,16 @@ namespace LibationWinForms
 
 			//Restore Grid Display Settings
 			var config = Configuration.Instance;
-			var displayIndices = config.GridColumnsDisplayIndices;
 			var hiddenGridColumns = config.HiddenGridColumns;
+			var displayIndices = config.GridColumnsDisplayIndices;
+			var gridColumnsWidths = config.GridColumnsWidths;
 
 			var cmsKiller = new ContextMenuStrip();
 
-			int columnIndex = 0;
 			foreach (DataGridViewColumn column in _dataGridView.Columns)
 			{
-				var visible = !hiddenGridColumns.Contains(column.DataPropertyName);
 				var itemName = column.DataPropertyName;
+				var visible = !hiddenGridColumns.GetValueOrDefault(itemName, false);
 
 				var menuItem = new ToolStripMenuItem()
 				{
@@ -259,7 +259,9 @@ namespace LibationWinForms
 				contextMenuStrip1.Items.Add(menuItem);
 
 				column.Visible = visible;
-				column.DisplayIndex = displayIndices[columnIndex++];
+				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
+				column.Width = gridColumnsWidths.GetValueOrDefault(itemName, column.Width);
+				column.MinimumWidth = 10;
 				column.HeaderCell.ContextMenuStrip = contextMenuStrip1;
 
 				//Setting a default ContextMenuStrip will allow the columns to handle the
@@ -270,6 +272,24 @@ namespace LibationWinForms
 			}
 
 			base.OnVisibleChanged(e);
+		}
+
+		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)
+		{
+			var config = Configuration.Instance;
+
+			var dictionary = config.GridColumnsDisplayIndices;
+			dictionary[e.Column.DataPropertyName] = e.Column.DisplayIndex;
+			config.GridColumnsDisplayIndices = dictionary;
+		}
+
+		private void gridEntryDataGridView_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
+		{
+			var config = Configuration.Instance;
+
+			var dictionary = config.GridColumnsWidths;
+			dictionary[e.Column.DataPropertyName] = e.Column.Width;
+			config.GridColumnsWidths = dictionary;
 		}
 
 		private void HideMenuItem_Click(object sender, EventArgs e)
@@ -287,32 +307,14 @@ namespace LibationWinForms
 				menuItem.Checked = !visible;
 				column.Visible = !visible;
 
-				Configuration.Instance.HiddenGridColumns =
-					_dataGridView.Columns
-					.Cast<DataGridViewColumn>()
-					.Where(c => !c.Visible)
-					.Select(c => c.DataPropertyName)
-					.ToArray();
+				var config = Configuration.Instance;
+
+				var dictionary = config.HiddenGridColumns;
+				dictionary[propertyName] = visible;
+				config.HiddenGridColumns = dictionary;
 			}
 		}
 
-		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)
-		{
-			Configuration.Instance.GridColumnsDisplayIndices 
-				= _dataGridView.Columns
-				.Cast<DataGridViewColumn>()
-				.Select(c => c.DisplayIndex)
-				.ToArray();
-		}
-
 		#endregion
-	}
-
-	class ContextMenuStripEx : ContextMenuStrip
-	{
-		protected override ToolStripItem CreateDefaultItem(string text, Image image, EventHandler onClick)
-		{
-			return base.CreateDefaultItem(text, image, onClick);
-		}
 	}
 }

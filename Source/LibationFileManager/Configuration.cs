@@ -180,18 +180,25 @@ namespace LibationFileManager
             set => persistentDictionary.SetNonString(nameof(LameVBRQuality), value);
         }
         
-        [Description("A list of GridView data property names whose columns should be hidden in ProductsGrid")]
-        public string[] HiddenGridColumns
+        [Description("A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid")]
+        public Dictionary<string, bool> HiddenGridColumns
         {
-            get => persistentDictionary.GetNonString<string[]>(nameof(HiddenGridColumns));
+            get => persistentDictionary.GetNonString<Dictionary<string, bool>>(nameof(HiddenGridColumns));
             set => persistentDictionary.SetNonString(nameof(HiddenGridColumns), value);
         }
 
-        [Description("A DisplayIndex list of columns in ProductsGrid")]
-        public int[] GridColumnsDisplayIndices
+        [Description("A Dictionary of GridView data property names and int indicating its column's display index in ProductsGrid")]
+        public Dictionary<string, int> GridColumnsDisplayIndices
         {
-            get => persistentDictionary.GetNonString<int[]>(nameof(GridColumnsDisplayIndices));
+            get => persistentDictionary.GetNonString<Dictionary<string,int>>(nameof(GridColumnsDisplayIndices));
             set => persistentDictionary.SetNonString(nameof(GridColumnsDisplayIndices), value);
+        }
+
+        [Description("A Dictionary of GridView data property names and int indicating its column's width in ProductsGrid")]
+        public Dictionary<string, int> GridColumnsWidths
+        {
+            get => persistentDictionary.GetNonString<Dictionary<string,int>>(nameof(GridColumnsWidths));
+            set => persistentDictionary.SetNonString(nameof(GridColumnsWidths), value);
         }
 
         public enum BadBookAction
