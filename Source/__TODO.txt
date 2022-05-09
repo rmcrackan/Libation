@@ -1,0 +1,26 @@
+﻿-- begin PERSISTENCE ---------------------------------------------------------------------------------------------------------------------
+user defined item persistence:
+static events feel klugey. what's the right way to do them?
+see also HACK note in UserDefinedItem.OnItemChanged()
+would it be any better to use Interception of database operations in LibationContextFactory.cs?
+  https://devblogs.microsoft.com/dotnet/announcing-ef-core-3-0-and-ef-6-3-general-availability/#interception-of-database-operations
+
+db originally was only things which came from audible. all else was stored in json files. user def'd tags stored in both. json is canonical, db is for search engine access
+this allows easy db delete for testing, when migrations went bad, and when certain migrations weren't possible w/sqlite, pre .net5. This was also an easy way to remove returned books -- just delete db file and re-scan.
+
+starting with stateful liberation status, the db is not as disposible
+-- end PERSISTENCE ---------------------------------------------------------------------------------------------------------------------
+
+-- begin CATEGORIES ---------------------------------------------------------------------------------------------------------------------
+fully support multiple categories
+learn about the different CategoryLadder.Root enums. probably only need Root.Genres
+
+2020-05-26 -- audible started using categories nested more than 2 deep. to compensate, libation was changed in this hack way:
+search for comments: "// CATEGORY HACK: "
+CategoryImporter.upsertCategories // CATEGORY HACK: not yet supported: depth beyond 0 and 1
+BookInporter.createNewBook // CATEGORY HACK: only use the 1st 2 categories
+result: only at most 1st 2 categories (parent and child) will be captured
+similar legacy knowledge exists elsewhere. eg:
+  Book.Category stuff
+  public partial class Item.Categories
+-- end CATEGORIES ---------------------------------------------------------------------------------------------------------------------

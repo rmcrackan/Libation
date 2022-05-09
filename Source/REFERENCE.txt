@@ -13,14 +13,6 @@ v2 : new library page scraping. still chrome cookies. all decryption is handled 
 v1 : old library ajax scraping. wish list scraping. chrome cookies. directly call local inAudible. .net framework
 -- end VERSIONING ---------------------------------------------------------------------------------------------------------------------
 
--- begin IMAGES/ICONS ---------------------------------------------------------------------------------------------------------------------
-edit tags icon images from:
-  icons8.com
-  search: tags
-
-'edit' icon: https://www.iconfinder.com/icons/383147/edit_icon
--- end IMAGES/ICONS ---------------------------------------------------------------------------------------------------------------------
-
 -- begin SOLUTION LAYOUT ---------------------------------------------------------------------------------------------------------------------
 do NOT combine jsons for
 - audible-scraped persistence: library, book details
