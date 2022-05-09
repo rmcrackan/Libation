@@ -122,11 +122,20 @@ namespace AaxDecrypter
 			{
 				FileUtility.SaferDelete(jsonDownloadState);
 
-				if (DownloadOptions.RetainEncryptedFile)
+				if (DownloadOptions.AudibleKey is not null && 
+					DownloadOptions.AudibleIV is not null && 
+					DownloadOptions.RetainEncryptedFile)
 				{
 					string aaxPath = Path.ChangeExtension(TempFilePath, ".aax");
 					FileUtility.SaferMove(TempFilePath, aaxPath);
+
+					//Write aax decryption key
+					string keyPath = Path.ChangeExtension(aaxPath, ".key");
+					FileUtility.SaferDelete(keyPath);
+					File.WriteAllText(keyPath, $"Key={DownloadOptions.AudibleKey}\r\nIV={DownloadOptions.AudibleIV}");
+
 					OnFileCreated(aaxPath);
+					OnFileCreated(keyPath);
 				}
 				else
 					FileUtility.SaferDelete(TempFilePath);
