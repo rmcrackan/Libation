@@ -10,7 +10,7 @@ namespace AaxDecrypter
 	{
 		protected override StepSequence Steps { get; }
 
-		public UnencryptedAudiobookDownloader(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+		public UnencryptedAudiobookDownloader(string outFileName, string cacheDirectory, DownloadOptions dlLic)
 			: base(outFileName, cacheDirectory, dlLic)
 		{
 			Steps = new StepSequence

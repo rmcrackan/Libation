@@ -11,12 +11,12 @@ namespace AaxDecrypter
 	{
 		protected override StepSequence Steps { get; }
 
-        public AaxcDownloadSingleConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+        public AaxcDownloadSingleConverter(string outFileName, string cacheDirectory, DownloadOptions dlLic)
 			: base(outFileName, cacheDirectory, dlLic)
         {
             Steps = new StepSequence
             {
-                Name = "Download and Convert Aaxc To " + DownloadLicense.OutputFormat,
+                Name = "Download and Convert Aaxc To " + DownloadOptions.OutputFormat,
 
                 ["Step 1: Get Aaxc Metadata"] = Step_GetMetadata,
                 ["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsSingleFile,
@@ -32,15 +32,16 @@ namespace AaxDecrypter
             FileUtility.SaferDelete(OutputFileName);
 
             var outputFile = File.Open(OutputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            OnFileCreated(OutputFileName);
 
             AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
             var decryptionResult
-                = DownloadLicense.OutputFormat == OutputFormat.M4b
-                ? AaxFile.ConvertToMp4a(outputFile, DownloadLicense.ChapterInfo, DownloadLicense.TrimOutputToChapterLength)
-                : AaxFile.ConvertToMp3(outputFile, null, DownloadLicense.ChapterInfo, DownloadLicense.TrimOutputToChapterLength);
+                = DownloadOptions.OutputFormat == OutputFormat.M4b
+                ? AaxFile.ConvertToMp4a(outputFile, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength)
+                : AaxFile.ConvertToMp3(outputFile, DownloadOptions.LameConfig, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
             AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
-            DownloadLicense.ChapterInfo = AaxFile.Chapters;
+            DownloadOptions.ChapterInfo = AaxFile.Chapters;
 
             Step_DownloadAudiobook_End(zeroProgress);
 

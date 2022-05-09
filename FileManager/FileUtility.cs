@@ -48,7 +48,7 @@ namespace FileManager
         /// <br/>- ensure uniqueness
         /// <br/>- enforce max file length
         /// </summary>
-        public static string GetValidFilename(string path, string illegalCharacterReplacements = "")
+        public static string GetValidFilename(string path, string illegalCharacterReplacements = "", bool returnFirstExisting = false)
         {
             ArgumentValidator.EnsureNotNull(path, nameof(path));
 
@@ -69,7 +69,7 @@ namespace FileManager
             fullfilename = removeInvalidWhitespace(fullfilename);
 
             var i = 0;
-            while (File.Exists(fullfilename))
+            while (File.Exists(fullfilename) && !returnFirstExisting)
             {
                 var increm = $" ({++i})";
                 fullfilename = fileStem.Truncate(MAX_FILENAME_LENGTH - increm.Length - extension.Length) + increm + extension;

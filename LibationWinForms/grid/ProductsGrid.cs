@@ -89,7 +89,7 @@ namespace LibationWinForms
 			}
 
 			// else: liberate
-			await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(libraryBook);
+			await liveGridEntry.DownloadBook();
 		}
 
 		private static void Details_Click(GridEntry liveGridEntry)

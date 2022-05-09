@@ -39,7 +39,7 @@ namespace FileLiberator
         /// File name: final file name.
         /// </summary>
         public static string GetInProgressFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
-            => Templates.File.GetFilename(libraryBook.ToDto(), AudibleFileStorage.DecryptInProgressDirectory, extension);
+            => Templates.File.GetFilename(libraryBook.ToDto(), AudibleFileStorage.DecryptInProgressDirectory, extension, returnFirstExisting: true);
 
         /// <summary>
         /// PDF: audio file does not exist

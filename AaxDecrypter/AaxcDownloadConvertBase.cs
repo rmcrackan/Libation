@@ -10,7 +10,7 @@ namespace AaxDecrypter
 
 		protected AaxFile AaxFile;
 
-		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, DownloadLicense dlLic)
+		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, DownloadOptions dlLic)
 			: base(outFileName, cacheDirectory, dlLic) { }
 
 		/// <summary>Setting cover art by this method will insert the art into the audiobook metadata</summary>
@@ -24,6 +24,36 @@ namespace AaxDecrypter
 		protected bool Step_GetMetadata()
 		{
 			AaxFile = new AaxFile(InputFileStream);
+
+			if (DownloadOptions.StripUnabridged)
+			{
+				AaxFile.AppleTags.Title = AaxFile.AppleTags.TitleSansUnabridged;
+				AaxFile.AppleTags.Album = AaxFile.AppleTags.Album?.Replace(" (Unabridged)", "");
+			}
+
+			//Finishing configuring lame encoder.
+			if (DownloadOptions.OutputFormat == OutputFormat.Mp3)
+			{
+				double bitrateMultiple = 1;
+
+				if (AaxFile.AudioChannels == 2)
+				{
+					if (DownloadOptions.Downsample)
+						bitrateMultiple = 0.5;
+					else
+						DownloadOptions.LameConfig.Mode = NAudio.Lame.MPEGMode.Stereo;
+				}
+
+				if (DownloadOptions.MatchSourceBitrate)
+				{
+					int kbps = (int)(AaxFile.AverageBitrate * bitrateMultiple / 1024);
+
+					if (DownloadOptions.LameConfig.VBR is null)
+						DownloadOptions.LameConfig.BitRate = kbps;
+					else if (DownloadOptions.LameConfig.VBR == NAudio.Lame.VBRMode.ABR)
+						DownloadOptions.LameConfig.ABRRateKbps = kbps;
+				}
+			}
 
 			OnRetrievedTitle(AaxFile.AppleTags.TitleSansUnabridged);
 			OnRetrievedAuthors(AaxFile.AppleTags.FirstAuthor ?? "[unknown]");
@@ -46,7 +76,7 @@ namespace AaxDecrypter
 
 			OnDecryptProgressUpdate(zeroProgress);
 
-			AaxFile.SetDecryptionKey(DownloadLicense.AudibleKey, DownloadLicense.AudibleIV);
+			AaxFile.SetDecryptionKey(DownloadOptions.AudibleKey, DownloadOptions.AudibleIV);
 			return zeroProgress;
 		}
 
@@ -68,7 +98,7 @@ namespace AaxDecrypter
 			if (double.IsNormal(estTimeRemaining))
 				OnDecryptTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
 
-			var progressPercent = e.ProcessPosition.TotalSeconds / duration.TotalSeconds;
+			var progressPercent = (e.ProcessPosition / e.TotalDuration);
 
 			OnDecryptProgressUpdate(
 				new DownloadProgress
