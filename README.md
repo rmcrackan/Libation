@@ -25,12 +25,12 @@
     - [Searches](#searches)
     - [Search examples](#search-examples)
     - [Filters](#filters)
-4. [Advanced](#advanced)
-    - [Files and folders](#files-and-folders)
-    - [Linux and Mac (unofficial)](#linux-and-mac)
-    - [Settings](#settings)
-    - [Custom File Naming](#custom-file-naming)
-    - [Command Line Interface](#command-line-interface)
+4. [Advanced](/Documentation/Advanced.md)
+    - [Files and folders](/Documentation/Advanced.md#files-and-folders)
+    - [Linux and Mac (unofficial)](/Documentation/Advanced.md#linux-and-mac)
+    - [Settings](/Documentation/Advanced.md#settings)
+    - [Custom File Naming](/Documentation/Advanced.md#custom-file-naming)
+    - [Command Line Interface](/Documentation/Advanced.md#command-line-interface)
 
 ## Audible audiobook manager
 
