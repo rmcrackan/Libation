@@ -83,9 +83,15 @@ namespace LibationWinForms
 		{
 			if (!DownloadInProgress)
 			{
-				DownloadInProgress = true;
-				await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(LibraryBook);
-				DownloadInProgress = false;
+				try
+				{
+					DownloadInProgress = true;
+					await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(LibraryBook);
+				}
+				finally
+				{
+					DownloadInProgress = false;
+				}
 			}
 		}
 
