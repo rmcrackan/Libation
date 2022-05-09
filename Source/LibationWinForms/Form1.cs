@@ -31,7 +31,6 @@ namespace LibationWinForms
 
 			// independent UI updates
 			this.Load += (_, _) => this.RestoreSizeAndLocation(Configuration.Instance);
-			this.Load += RefreshImportMenu;
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
@@ -39,13 +38,53 @@ namespace LibationWinForms
             LibraryCommands.ScanBegin += LibraryCommands_ScanBegin;
             LibraryCommands.ScanEnd += LibraryCommands_ScanEnd;
 
+			// accounts updated
+			this.Load += refreshImportMenu;
+			AccountsSettingsPersister.Saved += refreshImportMenu;
+
+			// start autoscanner
+			this.Load += startAutoScan;
+			AccountsSettingsPersister.Saving += accountsPreSave;
+			AccountsSettingsPersister.Saved += accountsPostSave;
+			Configuration.Instance.AutoScanChanged += startAutoScan;
+
+			// init default/placeholder cover art
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
 			PictureStorage.SetDefaultImage(PictureSize._80x80, Properties.Resources.default_cover_80x80.ToBytes(format));
 			PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
 			PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
 		}
 
-        private void Form1_Load(object sender, EventArgs e)
+		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
+		private List<(string AccountId, string LocaleName)> getDefaultAccounts()
+		{
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			return persister.AccountsSettings
+				.GetAll()
+				.Where(a => a.LibraryScan)
+				.Select(a => (a.AccountId, a.Locale.Name))
+				.ToList();
+		}
+		private void accountsPreSave(object sender = null, EventArgs e = null)
+			=> preSaveDefaultAccounts = getDefaultAccounts();
+		private void accountsPostSave(object sender = null, EventArgs e = null)
+		{
+			var postSaveDefaultAccounts = getDefaultAccounts();
+			var newDefaultAccounts = postSaveDefaultAccounts.Except(preSaveDefaultAccounts).ToList();
+
+			if (newDefaultAccounts.Any())
+				startAutoScan();
+		}
+
+		private void startAutoScan(object sender = null, EventArgs e = null)
+		{
+			if (Configuration.Instance.AutoScan)
+				Console.WriteLine("autoScanner.StartScan();");
+			else
+				Console.WriteLine("autoScanner.StopScan();");
+		}
+
+		private void Form1_Load(object sender, EventArgs e)
 		{
 			if (this.DesignMode)
 				return;
@@ -237,7 +276,7 @@ namespace LibationWinForms
 		#endregion
 
 		#region Import menu
-		public void RefreshImportMenu(object _ = null, EventArgs __ = null)
+		private void refreshImportMenu(object _ = null, EventArgs __ = null)
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var count = persister.AccountsSettings.Accounts.Count;
@@ -489,6 +528,6 @@ namespace LibationWinForms
 
 			this.scanningToolStripMenuItem.Visible = false;
 		}
-        #endregion
-    }
+		#endregion
+	}
 }

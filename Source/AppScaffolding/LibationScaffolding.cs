@@ -122,6 +122,9 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.ChapterFileTemplate)))
 				config.ChapterFileTemplate = Templates.ChapterFile.DefaultTemplate;
+
+			if (!config.Exists(nameof(config.AutoScan)))
+				config.AutoScan = true;
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>

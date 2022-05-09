@@ -224,6 +224,22 @@ namespace LibationFileManager
             set => persistentDictionary.SetNonString(nameof(DownloadEpisodes), value);
 		}
 
+        public event EventHandler AutoScanChanged;
+
+        [Description("Automatically run periodic scans in the background?")]
+        public bool AutoScan
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(AutoScan));
+            set
+            {
+                if (AutoScan != value)
+                {
+                    persistentDictionary.SetNonString(nameof(AutoScan), value);
+                    AutoScanChanged?.Invoke(null, null);
+                }
+            }
+        }
+
         #region templates: custom file naming
 
         [Description("How to format the folders in which files will be saved")]

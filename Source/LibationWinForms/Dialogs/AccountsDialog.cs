@@ -122,7 +122,6 @@ namespace LibationWinForms.Dialogs
 				persist(persister.AccountsSettings);
 				persister.CommitTransation();
 
-				_parent.RefreshImportMenu();
 				this.DialogResult = DialogResult.OK;
 				this.Close();
 			}

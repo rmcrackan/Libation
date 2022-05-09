@@ -7,6 +7,12 @@ namespace AudibleUtilities
 {
 	public class AccountsSettingsPersister : JsonFilePersister<AccountsSettings>
 	{
+		public static event EventHandler Saving;
+		public static event EventHandler Saved;
+
+		protected override void OnSaving() => Saving?.Invoke(null, null);
+		protected override void OnSaved() => Saved?.Invoke(null, null);
+
 		/// <summary>Alias for Target </summary>
 		public AccountsSettings AccountsSettings => Target;
 
