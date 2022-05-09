@@ -8,6 +8,7 @@ using Dinah.Core;
 using Dinah.Core.DataBinding;
 using Dinah.Core.Threading;
 using Dinah.Core.Windows.Forms;
+using LibationFileManager;
 using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
@@ -38,11 +39,60 @@ namespace LibationWinForms
 		{
 			InitializeComponent();
 
+			var hiddenGridEntries = Configuration.Instance.HiddenGridColumns;
+
+			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
+			contextMenuStrip1.Items.Add(new ToolStripSeparator());
+
+			foreach (DataGridViewColumn column in _dataGridView.Columns)
+			{ 
+				var visible = !hiddenGridEntries.Contains(column.DataPropertyName);
+
+				var itemName = column.DataPropertyName;
+
+				var menuItem = new ToolStripMenuItem()
+				{
+					Text = itemName,
+					Checked = visible,
+					Tag = itemName
+				};
+				menuItem.Click += HideMenuItem_Click;
+				contextMenuStrip1.Items.Add(menuItem);
+
+				column.Visible = visible;
+			}
+
 			// sorting breaks filters. must reapply filters after sorting
 			_dataGridView.Sorted += Filter;
 			_dataGridView.CellContentClick += DataGridView_CellContentClick;
 
 			EnableDoubleBuffering();
+		}
+
+		private void HideMenuItem_Click(object sender, EventArgs e)
+		{
+			var menuItem = sender as ToolStripMenuItem;
+			var propertyName = menuItem.Tag as string;
+
+			var column = _dataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(c => c.DataPropertyName == propertyName);
+
+			if (column != null)
+			{
+				var visible = menuItem.Checked;
+				menuItem.Checked = !visible;
+				column.Visible = !visible;
+
+				var config = Configuration.Instance;
+
+				var hiddenColumns = new List<string>(config.HiddenGridColumns);
+
+				if (column.Visible && hiddenColumns.Contains(propertyName))
+					hiddenColumns.Remove(propertyName);
+				else if (!hiddenColumns.Contains(propertyName))
+					hiddenColumns.Add(propertyName);
+
+				config.HiddenGridColumns = hiddenColumns.ToArray();
+			}
 		}
 		private void EnableDoubleBuffering()
 		{
@@ -225,5 +275,6 @@ namespace LibationWinForms
 		#region DataGridView Macro
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
 		#endregion
+
 	}
 }

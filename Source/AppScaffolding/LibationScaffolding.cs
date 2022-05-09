@@ -125,6 +125,9 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.AutoScan)))
 				config.AutoScan = true;
+
+			if (!config.Exists(nameof(config.HiddenGridColumns)))
+				config.HiddenGridColumns = Array.Empty<string>();
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>

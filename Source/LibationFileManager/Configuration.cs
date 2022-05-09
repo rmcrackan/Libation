@@ -179,6 +179,13 @@ namespace LibationFileManager
             get => persistentDictionary.GetNonString<int>(nameof(LameVBRQuality));
             set => persistentDictionary.SetNonString(nameof(LameVBRQuality), value);
         }
+        
+        [Description("A list of GridView data property names whose columns should be hidden in ProductsGrid")]
+        public string[] HiddenGridColumns
+        {
+            get => persistentDictionary.GetNonString<string[]>(nameof(HiddenGridColumns));
+            set => persistentDictionary.SetNonString(nameof(HiddenGridColumns), value);
+        }
 
         public enum BadBookAction
         {
