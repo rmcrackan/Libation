@@ -7,18 +7,15 @@
 
 
 
-# Table of Contents
+# Table of Contents: Advanced
 
-- [Advanced](#advanced)
-    - [Files and folders](#files-and-folders)
-    - [Linux and Mac (unofficial)](#linux-and-mac)
-    - [Settings](#settings)
-    - [Custom File Naming](#custom-file-naming)
-    - [Command Line Interface](#command-line-interface)
-
+- [Files and folders](#files-and-folders)
+- [Linux and Mac (unofficial)](#linux-and-mac)
+- [Settings](#settings)
+- [Custom File Naming](#custom-file-naming)
+- [Command Line Interface](#command-line-interface)
 
 
-## Advanced
 
 ### Files and folders
 
