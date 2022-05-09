@@ -263,11 +263,7 @@ namespace LibationWinForms
 		{
 			var doc = new HtmlAgilityPack.HtmlDocument();
 			doc.LoadHtml(book?.Description ?? "");
-			var noHtml = doc.DocumentNode.InnerText;
-			return
-				noHtml.Length < 63 ?
-				noHtml :
-				noHtml.Substring(0, 60) + "...";
+			return doc.DocumentNode.InnerText;
 		}
 
 		/// <summary>
