@@ -96,6 +96,34 @@ namespace LibationFileManager
             set => persistentDictionary.SetNonString(nameof(AllowLibationFixup), value);
         }
 
+        [Description("Create a cue sheet (.cue)")]
+        public bool CreateCueSheet
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(CreateCueSheet));
+            set => persistentDictionary.SetNonString(nameof(CreateCueSheet), value);
+        }
+
+        [Description("Retain the Aax file after successfully decrypting")]
+        public bool RetainAaxFile
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(RetainAaxFile));
+            set => persistentDictionary.SetNonString(nameof(RetainAaxFile), value);
+        }
+
+        [Description("Split my books into multiple files by chapter")]
+        public bool SplitFilesByChapter
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(SplitFilesByChapter));
+            set => persistentDictionary.SetNonString(nameof(SplitFilesByChapter), value);
+        }
+
+        [Description("Strip \"(Unabridged)\" from audiobook metadata tags")]
+        public bool StripUnabridged
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(StripUnabridged));
+            set => persistentDictionary.SetNonString(nameof(StripUnabridged), value);
+        }
+
         [Description("Allow Libation to remove audible branding from the start\r\nand end of audiobooks. (e.g. \"This is Audible\")")]
         public bool StripAudibleBrandAudio
         {
@@ -109,12 +137,47 @@ namespace LibationFileManager
             get => persistentDictionary.GetNonString<bool>(nameof(DecryptToLossy));
             set => persistentDictionary.SetNonString(nameof(DecryptToLossy), value);
         }
-        
-        [Description("Split my books into multiple files by chapter")]
-        public bool SplitFilesByChapter
+
+        [Description("Lame encoder target. true = Bitrate, false = Quality")]
+        public bool LameTargetBitrate
         {
-            get => persistentDictionary.GetNonString<bool>(nameof(SplitFilesByChapter));
-            set => persistentDictionary.SetNonString(nameof(SplitFilesByChapter), value);
+            get => persistentDictionary.GetNonString<bool>(nameof(LameTargetBitrate));
+            set => persistentDictionary.SetNonString(nameof(LameTargetBitrate), value);
+        }
+
+        [Description("Lame encoder downsamples to mono")]
+        public bool LameDownsampleMono
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(LameDownsampleMono));
+            set => persistentDictionary.SetNonString(nameof(LameDownsampleMono), value);
+        }
+
+        [Description("Lame target bitrate [16,320]")]
+        public int LameBitrate
+        {
+            get => persistentDictionary.GetNonString<int>(nameof(LameBitrate));
+            set => persistentDictionary.SetNonString(nameof(LameBitrate), value);
+        }
+
+        [Description("Restrict encoder to constant bitrate?")]
+        public bool LameConstantBitrate
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(LameConstantBitrate));
+            set => persistentDictionary.SetNonString(nameof(LameConstantBitrate), value);
+        }
+
+        [Description("Match the source bitrate?")]
+        public bool LameMatchSourceBR
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(LameMatchSourceBR));
+            set => persistentDictionary.SetNonString(nameof(LameMatchSourceBR), value);
+        }
+
+        [Description("Lame target VBR quality [10,100]")]
+        public int LameVBRQuality
+        {
+            get => persistentDictionary.GetNonString<int>(nameof(LameVBRQuality));
+            set => persistentDictionary.SetNonString(nameof(LameVBRQuality), value);
         }
 
         public enum BadBookAction

@@ -29,14 +29,14 @@ namespace FileManager
         public string IllegalCharacterReplacements { get; set; }
 
         /// <summary>Generate a valid path for this file or directory</summary>
-        public string GetFilePath()
+        public string GetFilePath(bool returnFirstExisting = false)
         {
             var filename = Template;
 
             foreach (var r in ParameterReplacements)
                 filename = filename.Replace($"<{formatKey(r.Key)}>", formatValue(r.Value));
 
-            return FileUtility.GetValidFilename(filename, IllegalCharacterReplacements);
+            return FileUtility.GetValidFilename(filename, IllegalCharacterReplacements, returnFirstExisting);
         }
 
         private static string formatKey(string key)

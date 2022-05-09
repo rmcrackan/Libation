@@ -61,7 +61,12 @@ namespace FileLiberator
 
                 // decrypt failed
                 if (!success)
+                {
+                    foreach (var tmpFile in entries.Where(f => f.FileType != FileType.AAXC))
+                        FileUtility.SaferDelete(tmpFile.Path);
+
                     return new StatusHandler { "Decrypt failed" };
+                }
 
                 // moves new files from temp dir to final dest
                 var movedAudioFile = moveFilesToBooksDir(libraryBook, entries);
@@ -92,7 +97,7 @@ namespace FileLiberator
 
                 var api = await libraryBook.GetApiAsync();
                 var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
-                var audiobookDlLic = BuildDownloadLicense(config, contentLic);
+                var audiobookDlLic = BuildDownloadOptions(config, contentLic);
 
                 var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, audiobookDlLic.OutputFormat.ToString().ToLower());
                 var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
@@ -115,7 +120,6 @@ namespace FileLiberator
 
                 abDownloader.DecryptProgressUpdate += OnStreamingProgressChanged;
                 abDownloader.DecryptTimeRemaining += OnStreamingTimeRemaining;
-
                 abDownloader.RetrievedTitle += OnTitleDiscovered;
                 abDownloader.RetrievedAuthors += OnAuthorsDiscovered;
                 abDownloader.RetrievedNarrators += OnNarratorsDiscovered;
@@ -132,28 +136,32 @@ namespace FileLiberator
             }
         }
 
-        private static DownloadLicense BuildDownloadLicense(Configuration config, AudibleApi.Common.ContentLicense contentLic)
+        private static DownloadOptions BuildDownloadOptions(Configuration config, AudibleApi.Common.ContentLicense contentLic)
         {
             //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
             //I also assume that if DrmType != Adrm, the file will be an mp3.
             //These assumptions may be wrong, and only time and bug reports will tell.
-            var outputFormat =
-                     contentLic?.ContentMetadata?.ContentReference?.ContentFormat == "MPEG" ||
-                     (config.AllowLibationFixup && config.DecryptToLossy) ?
+
+            bool encrypted = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm;
+
+            var outputFormat = !encrypted || (config.AllowLibationFixup && config.DecryptToLossy) ?
                      OutputFormat.Mp3 : OutputFormat.M4b;
 
-            var audiobookDlLic = new DownloadLicense
+            var audiobookDlLic = new DownloadOptions
                  (
                  contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
                  Resources.USER_AGENT
-
                  )
             {
-
                 AudibleKey = contentLic?.Voucher?.Key,
                 AudibleIV = contentLic?.Voucher?.Iv,
                 OutputFormat = outputFormat,
-                TrimOutputToChapterLength = config.StripAudibleBrandAudio
+                TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
+                RetainEncryptedFile = config.RetainAaxFile && encrypted,
+                StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
+                Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
+                MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
+                CreateCueSheet = config.CreateCueSheet
             };
 
             if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
@@ -178,6 +186,31 @@ namespace FileLiberator
                     audiobookDlLic.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
                 }
             }
+
+            NAudio.Lame.LameConfig lameConfig = new();
+
+
+            lameConfig.Mode = NAudio.Lame.MPEGMode.Mono;
+
+            if (config.LameTargetBitrate)
+			{
+                if (config.LameConstantBitrate)
+                    lameConfig.BitRate = config.LameBitrate;
+                else
+                {
+                    lameConfig.ABRRateKbps = config.LameBitrate;
+                    lameConfig.VBR = NAudio.Lame.VBRMode.ABR;
+                    lameConfig.WriteVBRTag = true;
+                }
+			}
+			else
+			{
+                lameConfig.VBR = NAudio.Lame.VBRMode.Default;
+                lameConfig.VBRQuality = config.LameVBRQuality;
+                lameConfig.WriteVBRTag = true;
+            }
+
+            audiobookDlLic.LameConfig = lameConfig;
 
             return audiobookDlLic;
         }

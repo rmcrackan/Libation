@@ -18,13 +18,13 @@ namespace AaxDecrypter
         private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
 		private List<string> multiPartFilePaths { get; } = new List<string>();
 
-        public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, DownloadLicense dlLic,
+        public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, DownloadOptions dlLic,
             Func<MultiConvertFileProperties, string> multipartFileNameCallback = null)
 			: base(outFileName, cacheDirectory, dlLic)
         {
             Steps = new StepSequence
             {
-                Name = "Download and Convert Aaxc To " + DownloadLicense.OutputFormat,
+                Name = "Download and Convert Aaxc To " + DownloadOptions.OutputFormat,
 
                 ["Step 1: Get Aaxc Metadata"] = Step_GetMetadata,
                 ["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsMultipleFilesPerChapter,
@@ -61,10 +61,10 @@ That naming may not be desirable for everyone, but it's an easy change to instea
         {
             var zeroProgress = Step_DownloadAudiobook_Start();
 
-            var chapters = DownloadLicense.ChapterInfo.Chapters.ToList();
+            var chapters = DownloadOptions.ChapterInfo.Chapters.ToList();
 
             // Ensure split files are at least minChapterLength in duration.
-            var splitChapters = new ChapterInfo(DownloadLicense.ChapterInfo.StartOffset);
+            var splitChapters = new ChapterInfo(DownloadOptions.ChapterInfo.StartOffset);
 
             var runningTotal = TimeSpan.Zero;
             string title = "";
@@ -89,7 +89,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             ConversionResult result;
 
             AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-            if (DownloadLicense.OutputFormat == OutputFormat.M4b)
+            if (DownloadOptions.OutputFormat == OutputFormat.M4b)
                 result = ConvertToMultiMp4a(splitChapters);
             else
                 result = ConvertToMultiMp3(splitChapters);
@@ -97,13 +97,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
             Step_DownloadAudiobook_End(zeroProgress);
 
-            var success = result == ConversionResult.NoErrorsDetected;
-
-            if (success)
-                foreach (var path in multiPartFilePaths)
-                    OnFileCreated(path);
-
-            return success;
+            return result == ConversionResult.NoErrorsDetected;
         }
 
         private ConversionResult ConvertToMultiMp4a(ChapterInfo splitChapters)
@@ -111,7 +105,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             var chapterCount = 0;
             return AaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
                 createOutputFileStream(++chapterCount, splitChapters, newSplitCallback),
-            DownloadLicense.TrimOutputToChapterLength);
+            DownloadOptions.TrimOutputToChapterLength);
         }
 
         private ConversionResult ConvertToMultiMp3(ChapterInfo splitChapters)
@@ -121,7 +115,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             {
                 createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
                 ((NAudio.Lame.LameConfig)newSplitCallback.UserState).ID3.Track = chapterCount.ToString();
-            }, null, DownloadLicense.TrimOutputToChapterLength);
+            }, DownloadOptions.LameConfig, DownloadOptions.TrimOutputToChapterLength);
         }
 
         private void createOutputFileStream(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
@@ -140,6 +134,8 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             FileUtility.SaferDelete(fileName);
 
             newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
+
+            OnFileCreated(fileName);
         }
     }
 }

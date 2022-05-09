@@ -230,9 +230,9 @@ namespace LibationFileManager
 
             #region to file name
             /// <summary>USES LIVE CONFIGURATION VALUES</summary>
-            public string GetFilename(LibraryBookDto libraryBookDto, string dirFullPath, string extension)
+            public string GetFilename(LibraryBookDto libraryBookDto, string dirFullPath, string extension, bool returnFirstExisting = false)
                 => getFileNamingTemplate(libraryBookDto, Configuration.Instance.FileTemplate, dirFullPath, extension)
-                .GetFilePath();
+                .GetFilePath(returnFirstExisting);
             #endregion
         }
 
