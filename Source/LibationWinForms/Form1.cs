@@ -262,8 +262,8 @@ namespace LibationWinForms
 					.Where(a => a.LibraryScan)
 					.ToArray();
 
-					// in autoScan, new books SHALL NOT show dialog
-					await LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.ApiExtendedFunc, accounts);
+				// in autoScan, new books SHALL NOT show dialog
+				await Invoke(async () => await LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.ApiExtendedFunc, accounts));
 			};
 
 			// load init state to menu checkbox
