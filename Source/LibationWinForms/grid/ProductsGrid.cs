@@ -82,10 +82,7 @@ namespace LibationWinForms
 
 			var windowTitle = $"{liveGridEntry.Title} - Cover";
 
-			var picDlTask = Task.Run(() =>
-			{
-				return PictureStorage.GetPictureSynchronously(picDefinition);
-			});
+			var picDlTask = Task.Run(() => PictureStorage.GetPictureSynchronously(picDefinition));
 
 			if (imageDisplay is null || imageDisplay.IsDisposed || !imageDisplay.Visible)
 			{
