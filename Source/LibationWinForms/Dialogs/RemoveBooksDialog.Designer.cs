@@ -164,7 +164,7 @@ namespace LibationWinForms.Dialogs
 			this.Controls.Add(this.btnRemoveBooks);
 			this.Controls.Add(this._dataGridView);
 			this.Name = "RemoveBooksDialog";
-			this.Text = "RemoveBooksDialog";
+			this.Text = "Remove Books from Libation's Database";
 			this.Shown += new System.EventHandler(this.RemoveBooksDialog_Shown);
 			((System.ComponentModel.ISupportInitialize)(this._dataGridView)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).EndInit();

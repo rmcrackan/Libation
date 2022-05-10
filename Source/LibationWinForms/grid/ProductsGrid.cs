@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -8,6 +9,7 @@ using Dinah.Core;
 using Dinah.Core.DataBinding;
 using Dinah.Core.Threading;
 using Dinah.Core.Windows.Forms;
+using LibationFileManager;
 using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
@@ -44,6 +46,7 @@ namespace LibationWinForms
 
 			EnableDoubleBuffering();
 		}
+
 		private void EnableDoubleBuffering()
 		{
 			var propertyInfo = _dataGridView.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
@@ -56,20 +59,36 @@ namespace LibationWinForms
 		private async void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
 		{
 			// handle grid button click: https://stackoverflow.com/a/13687844
-			if (e.RowIndex < 0 || _dataGridView.Columns[e.ColumnIndex] is not DataGridViewButtonColumn)
+			if (e.RowIndex < 0)
 				return;
 
-			var liveGridEntry = getGridEntry(e.RowIndex);
+			var clickedColumn = _dataGridView.Columns[e.ColumnIndex];
 
-			switch (_dataGridView.Columns[e.ColumnIndex].DataPropertyName)
+			if (clickedColumn == liberateGVColumn)
+				await Liberate_Click(getGridEntry(e.RowIndex));
+			else if (clickedColumn == tagAndDetailsGVColumn)
+				Details_Click(getGridEntry(e.RowIndex));
+			else if (clickedColumn == descriptionGVColumn)
+				Description_Click(getGridEntry(e.RowIndex), _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
+		}
+
+		private void Description_Click(GridEntry liveGridEntry, Rectangle cellDisplay)
+		{
+			var displayWindow = new DescriptionDisplay
 			{
-				case nameof(liveGridEntry.Liberate):
-					await Liberate_Click(liveGridEntry);
-					break;
-				case nameof(liveGridEntry.DisplayTags):
-					Details_Click(liveGridEntry);
-					break;
+				SpawnLocation = PointToScreen(cellDisplay.Location + new Size(cellDisplay.Width, 0)),
+				DescriptionText = liveGridEntry.LongDescription,
+				BorderThickness = 2,
+			};
+
+			void CloseWindow (object o, EventArgs e)
+			{
+				displayWindow.Close();
 			}
+
+			_dataGridView.Scroll += CloseWindow;
+			displayWindow.FormClosed += (_,_) => _dataGridView.Scroll -= CloseWindow;
+			displayWindow.Show(this);
 		}
 
 		private static async Task Liberate_Click(GridEntry liveGridEntry)
@@ -79,7 +98,7 @@ namespace LibationWinForms
 			// liberated: open explorer to file
 			if (libraryBook.Book.Audio_Exists)
 			{
-				var filePath = LibationFileManager.AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
+				var filePath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
 				if (!Go.To.File(filePath))
 				{
 					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
@@ -224,6 +243,109 @@ namespace LibationWinForms
 
 		#region DataGridView Macro
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
+		#endregion
+
+		#region Column Customizations
+
+		protected override void OnVisibleChanged(EventArgs e)
+		{
+			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
+			contextMenuStrip1.Items.Add(new ToolStripSeparator());
+
+			//Restore Grid Display Settings
+			var config = Configuration.Instance;
+			var gridColumnsVisibilities = config.GridColumnsVisibilities;
+			var gridColumnsWidths = config.GridColumnsWidths;
+			var displayIndices = config.GridColumnsDisplayIndices;
+
+			var cmsKiller = new ContextMenuStrip();
+
+			foreach (DataGridViewColumn column in _dataGridView.Columns)
+			{
+				var itemName = column.DataPropertyName;
+				var visible = gridColumnsVisibilities.GetValueOrDefault(itemName, true);
+
+				var menuItem = new ToolStripMenuItem()
+				{
+					Text = column.HeaderText,
+					Checked = visible,
+					Tag = itemName
+				};
+				menuItem.Click += HideMenuItem_Click;
+				contextMenuStrip1.Items.Add(menuItem);
+
+				column.Width = gridColumnsWidths.GetValueOrDefault(itemName, column.Width);
+				column.MinimumWidth = 10;
+				column.HeaderCell.ContextMenuStrip = contextMenuStrip1;
+				column.Visible = visible;
+
+				//Setting a default ContextMenuStrip will allow the columns to handle the
+				//Show() event so it is not passed up to the _dataGridView.ContextMenuStrip.
+				//This allows the ContextMenuStrip to be shown if right-clicking in the gray
+				//background of _dataGridView but not shown if right-clicking inside cells.
+				column.ContextMenuStrip = cmsKiller;
+			}
+
+			//We must set DisplayIndex properties in ascending order
+			foreach (var itemName in displayIndices.OrderBy(i => i.Value).Select(i => i.Key))
+			{
+				var column = _dataGridView.Columns
+					.Cast<DataGridViewColumn>()
+					.Single(c => c.DataPropertyName == itemName);
+
+				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
+			}
+
+			base.OnVisibleChanged(e);
+		}
+
+		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)
+		{
+			var config = Configuration.Instance;
+
+			var dictionary = config.GridColumnsDisplayIndices;
+			dictionary[e.Column.DataPropertyName] = e.Column.DisplayIndex;
+			config.GridColumnsDisplayIndices = dictionary;
+		}
+
+		private void gridEntryDataGridView_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
+		{
+			var config = Configuration.Instance;
+
+			var dictionary = config.GridColumnsWidths;
+			dictionary[e.Column.DataPropertyName] = e.Column.Width;
+			config.GridColumnsWidths = dictionary;
+		}
+
+		private void HideMenuItem_Click(object sender, EventArgs e)
+		{
+			var menuItem = sender as ToolStripMenuItem;
+			var propertyName = menuItem.Tag as string;
+
+			var column = _dataGridView.Columns
+				.Cast<DataGridViewColumn>()
+				.FirstOrDefault(c => c.DataPropertyName == propertyName);
+
+			if (column != null)
+			{
+				var visible = menuItem.Checked;
+				menuItem.Checked = !visible;
+				column.Visible = !visible;
+
+				var config = Configuration.Instance;
+
+				var dictionary = config.GridColumnsVisibilities;
+				dictionary[propertyName] = column.Visible;
+				config.GridColumnsVisibilities = dictionary;
+			}
+		}
+
+		private void gridEntryDataGridView_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
+		{
+			if (e.ColumnIndex == descriptionGVColumn.Index)
+				e.ToolTipText = "Click to see full description";
+		}
+
 		#endregion
 	}
 }

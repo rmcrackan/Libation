@@ -164,6 +164,9 @@ namespace DtoImporterService
 			// set/update book-specific info which may have changed
 			if (item.PictureId is not null)
 				book.PictureId = item.PictureId;
+			
+			if (item.PictureLarge is not null)
+				book.PictureLarge = item.PictureLarge;
 
 			book.UpdateProductRating(item.Product_OverallStars, item.Product_PerformanceStars, item.Product_StoryStars);
 

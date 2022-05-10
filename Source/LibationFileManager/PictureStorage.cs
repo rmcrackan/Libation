@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace LibationFileManager
 {
-	public enum PictureSize { _80x80 = 80, _300x300 = 300, _500x500 = 500 }
+	public enum PictureSize { Native, _80x80 = 80, _300x300 = 300, _500x500 = 500 }
 	public class PictureCachedEventArgs : EventArgs
 	{
 		public PictureDefinition Definition { get; internal set; }
 		public byte[] Picture { get; internal set; }
 	}
-	public struct PictureDefinition
+	public struct PictureDefinition : IEquatable<PictureDefinition>
 	{
 		public string PictureId { get; }
 		public PictureSize Size { get; }
@@ -23,6 +23,11 @@ namespace LibationFileManager
 		{
 			PictureId = pictureId;
 			Size = pictureSize;
+		}
+
+		public bool Equals(PictureDefinition other)
+		{
+			return PictureId == other.PictureId && Size == other.Size;
 		}
 	}
     public static class PictureStorage
@@ -113,8 +118,8 @@ namespace LibationFileManager
 
 			try
 			{
-				var sz = (int)def.Size;
-				var bytes = imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}._SL{sz}_.jpg").Result;
+				var sizeStr = def.Size == PictureSize.Native ? "" : $"._SL{(int)def.Size}_";
+				var bytes = imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}{sizeStr}.jpg").Result;
 
 				// save image file. make sure to not save default image
 				var path = getPath(def);

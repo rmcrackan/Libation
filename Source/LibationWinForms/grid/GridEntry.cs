@@ -26,10 +26,16 @@ namespace LibationWinForms
 		public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)]
 		public LibraryBook LibraryBook { get; private set; }
+		[Browsable(false)]
+		public string LongDescription { get; private set; }
 		#endregion
 
 		#region Model properties exposed to the view
 		private Image _cover;
+
+		private DateTime lastStatusUpdate = default;
+		private LiberatedStatus _bookStatus;
+		private LiberatedStatus? _pdfStatus;
 		public Image Cover
 		{
 			get => _cover;
@@ -61,10 +67,21 @@ namespace LibationWinForms
 		// these 2 values being in 1 field is the trick behind getting the liberated+pdf 'stoplight' icon to draw. See: LiberateDataGridViewImageButtonCell.Paint
 		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
 		{
-			get => (LibraryCommands.Liberated_Status(LibraryBook.Book), LibraryCommands.Pdf_Status(LibraryBook.Book));
+			get
+			{
+				//Cache these statuses for faster sorting.
+				if ((DateTime.Now - lastStatusUpdate).TotalSeconds > 2)
+				{
+					UpdateLiberatedStatus(notify: false);
+					lastStatusUpdate = DateTime.Now;
+				}
+				return (_bookStatus, _pdfStatus);
+			}
 			
 			set
 			{
+				_bookStatus = value.BookStatus;
+				_pdfStatus = value.PdfStatus;
 				LibraryBook.Book.UserDefinedItem.BookStatus = value.BookStatus;
 				LibraryBook.Book.UserDefinedItem.PdfStatus = value.PdfStatus;
 			}
@@ -87,6 +104,7 @@ namespace LibationWinForms
 				{
 					DownloadInProgress = true;
 					await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(LibraryBook);
+					UpdateLiberatedStatus();
 				}
 				finally
 				{
@@ -131,7 +149,8 @@ namespace LibationWinForms
 				Narrators = Book.NarratorNames;
 				Category = string.Join(" > ", Book.CategoriesNames);
 				Misc = GetMiscDisplay(libraryBook);
-				Description = GetDescriptionDisplay(Book);
+				LongDescription = GetDescriptionDisplay(Book);
+				Description = TrimTextToWord(LongDescription, 62);
 			}
 
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
@@ -212,6 +231,14 @@ namespace LibationWinForms
 			Committed?.Invoke(this, null);
 		}
 
+		private void UpdateLiberatedStatus(bool notify = true)
+		{
+			_bookStatus = LibraryCommands.Liberated_Status(LibraryBook.Book);
+			_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
+			if (notify)
+				NotifyPropertyChanged(nameof(Liberate));
+		}
+
 		#endregion
 
 		#region Data Sorting
@@ -262,12 +289,16 @@ namespace LibationWinForms
 		private static string GetDescriptionDisplay(Book book)
 		{
 			var doc = new HtmlAgilityPack.HtmlDocument();
-			doc.LoadHtml(book?.Description ?? "");
-			var noHtml = doc.DocumentNode.InnerText;
+			doc.LoadHtml(book?.Description?.Replace("</p> ", "\r\n\r\n</p>") ?? "");
+			return doc.DocumentNode.InnerText.Trim();
+		}
+
+		private static string TrimTextToWord(string text, int maxLength)
+		{
 			return
-				noHtml.Length < 63 ?
-				noHtml :
-				noHtml.Substring(0, 60) + "...";
+				text.Length <= maxLength ?
+				text :
+				text.Substring(0, maxLength - 3) + "...";
 		}
 
 		/// <summary>

@@ -48,6 +48,7 @@ namespace LibationWinForms.Dialogs
 			gridEntryBindingSource.DataSource = _removableGridEntries;
 
 			_dataGridView.Enabled = false;
+			this.SetLibationIcon();
 		}
 
 		private void _dataGridView_BindingContextChanged(object sender, EventArgs e)

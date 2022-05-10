@@ -179,6 +179,27 @@ namespace LibationFileManager
             get => persistentDictionary.GetNonString<int>(nameof(LameVBRQuality));
             set => persistentDictionary.SetNonString(nameof(LameVBRQuality), value);
         }
+        
+        [Description("A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid")]
+        public Dictionary<string, bool> GridColumnsVisibilities
+        {
+            get => persistentDictionary.GetNonString<Dictionary<string, bool>>(nameof(GridColumnsVisibilities));
+            set => persistentDictionary.SetNonString(nameof(GridColumnsVisibilities), value);
+        }
+
+        [Description("A Dictionary of GridView data property names and int indicating its column's display index in ProductsGrid")]
+        public Dictionary<string, int> GridColumnsDisplayIndices
+        {
+            get => persistentDictionary.GetNonString<Dictionary<string,int>>(nameof(GridColumnsDisplayIndices));
+            set => persistentDictionary.SetNonString(nameof(GridColumnsDisplayIndices), value);
+        }
+
+        [Description("A Dictionary of GridView data property names and int indicating its column's width in ProductsGrid")]
+        public Dictionary<string, int> GridColumnsWidths
+        {
+            get => persistentDictionary.GetNonString<Dictionary<string,int>>(nameof(GridColumnsWidths));
+            set => persistentDictionary.SetNonString(nameof(GridColumnsWidths), value);
+        }
 
         public enum BadBookAction
         {

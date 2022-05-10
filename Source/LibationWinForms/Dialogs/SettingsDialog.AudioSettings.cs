@@ -17,7 +17,6 @@ namespace LibationWinForms.Dialogs
 		private void LameMatchSourceBRCbox_CheckedChanged(object sender, EventArgs e)
 		{
 			lameBitrateTb.Enabled = !LameMatchSourceBRCbox.Checked;
-			lameConstantBitrateCbox.Enabled = !LameMatchSourceBRCbox.Checked;
 		}
 
 		private void convertFormatRb_CheckedChanged(object sender, EventArgs e)

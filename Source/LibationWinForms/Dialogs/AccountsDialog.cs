@@ -28,6 +28,7 @@ namespace LibationWinForms.Dialogs
 			populateDropDown();
 
 			populateGridValues();
+			this.SetLibationIcon();
 		}
 
 		private void populateDropDown()

@@ -140,11 +140,6 @@ namespace AaxDecrypter
 				else
 					FileUtility.SaferDelete(TempFilePath);
 			}
-			else
-			{
-				FileUtility.SaferDelete(OutputFileName);
-			}
-
 
 			return success;
 		}

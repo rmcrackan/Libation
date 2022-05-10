@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
+using LibationFileManager;
 
 namespace FileLiberator
 {
@@ -47,7 +48,36 @@ namespace FileLiberator
                 = (await ProcessAsync(libraryBook))
                 ?? new StatusHandler { "Processable should never return a null status" };
 
+            if (status.IsSuccess)
+                DownloadCoverArt(libraryBook);
+
             return status;
+        }
+
+        private void DownloadCoverArt(LibraryBook libraryBook)
+		{
+            var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
+            var coverPath = FileManager.FileUtility.GetValidFilename(System.IO.Path.Combine(destinationDir, "Cover.jpg"), "", true);
+
+            if (System.IO.File.Exists(coverPath)) return;
+
+            try
+            {
+                (string picId, PictureSize size) = libraryBook.Book.PictureLarge is null ?
+                    (libraryBook.Book.PictureId, PictureSize.Native) :
+                    (libraryBook.Book.PictureLarge, PictureSize.Native);
+
+                var picBytes = PictureStorage.GetPictureSynchronously(new PictureDefinition(picId, size));
+
+                if (picBytes.Length > 0)
+                    System.IO.File.WriteAllBytes(coverPath, picBytes);
+            }
+            catch (Exception ex)
+            {
+                //Failure to download cover art should not be
+                //considered a failure to download the book
+                Serilog.Log.Logger.Error(ex.Message);
+            }
         }
 
         public async Task<StatusHandler> TryProcessAsync(LibraryBook libraryBook)

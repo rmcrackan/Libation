@@ -27,6 +27,7 @@ namespace LibationWinForms.Dialogs
 		public BookDetailsDialog()
 		{
 			InitializeComponent();
+			this.SetLibationIcon();
 		}
 		public BookDetailsDialog(LibraryBook libraryBook) : this()
 		{

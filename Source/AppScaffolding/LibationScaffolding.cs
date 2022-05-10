@@ -125,6 +125,15 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.AutoScan)))
 				config.AutoScan = true;
+
+			if (!config.Exists(nameof(config.GridColumnsVisibilities)))
+				config.GridColumnsVisibilities = new Dictionary<string, bool>();
+
+			if (!config.Exists(nameof(config.GridColumnsDisplayIndices)))
+				config.GridColumnsDisplayIndices = new Dictionary<string, int>();
+
+			if (!config.Exists(nameof(config.GridColumnsWidths)))
+				config.GridColumnsWidths = new Dictionary<string, int>();
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>

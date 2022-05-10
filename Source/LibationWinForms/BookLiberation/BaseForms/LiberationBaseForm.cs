@@ -19,6 +19,7 @@ namespace LibationWinForms.BookLiberation.BaseForms
 			//If this is the first form created, it will not exist until after execution
 			//reaches inside the constructor (after base class has been initialized).
 			Invoker = new SynchronizeInvoker();
+			this.SetLibationIcon();
 		}
 
 		public void RegisterFileLiberator(Streamable streamable, LogMe logMe = null)
