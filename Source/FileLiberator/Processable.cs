@@ -63,9 +63,9 @@ namespace FileLiberator
 
             try
             {
-                (string picId, PictureSize size) = libraryBook.Book.PictureId_1215 is null ?
-                    (libraryBook.Book.PictureId, PictureSize._500x500) :
-                    (libraryBook.Book.PictureId_1215, PictureSize._1215x1215);
+                (string picId, PictureSize size) = libraryBook.Book.PictureLarge is null ?
+                    (libraryBook.Book.PictureId, PictureSize.Native) :
+                    (libraryBook.Book.PictureLarge, PictureSize.Native);
 
                 var picBytes = PictureStorage.GetPictureSynchronously(new PictureDefinition(picId, size));
 
