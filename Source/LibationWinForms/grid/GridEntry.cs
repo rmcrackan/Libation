@@ -58,11 +58,7 @@ namespace LibationWinForms
 		public string Category { get; private set; }
 		public string Misc { get; private set; }
 		public string Description { get; private set; }
-		public string DisplayTags
-		{
-			get => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
-			set => Book.UserDefinedItem.Tags = value;
-		}
+		public string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 
 		// these 2 values being in 1 field is the trick behind getting the liberated+pdf 'stoplight' icon to draw. See: LiberateDataGridViewImageButtonCell.Paint
 		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
@@ -77,18 +73,10 @@ namespace LibationWinForms
 				}
 				return (_bookStatus, _pdfStatus);
 			}
-			
-			set
-			{
-				_bookStatus = value.BookStatus;
-				_pdfStatus = value.PdfStatus;
-				LibraryBook.Book.UserDefinedItem.BookStatus = value.BookStatus;
-				LibraryBook.Book.UserDefinedItem.PdfStatus = value.PdfStatus;
-			}
 		}
 		#endregion
 
-		public event EventHandler<string> LibraryBookUpdated;
+		public event EventHandler LibraryBookUpdated;
 		public event EventHandler Committed;
 
 		// alias
@@ -156,7 +144,7 @@ namespace LibationWinForms
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 
 			// this will never have a value when triggered by ctor b/c nothing can subscribe to the event until after ctor is complete
-			LibraryBookUpdated?.Invoke(this, AudibleProductId);
+			LibraryBookUpdated?.Invoke(this, null);
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
@@ -196,38 +184,30 @@ namespace LibationWinForms
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
 			}
-
-			if (!suspendCommit)
-				Commit();
-		}
-		private bool suspendCommit = false;
-
-		/// <summary>
-		/// Begin editing the model, suspending commits until <see cref="EndEdit"/> is called.
-		/// </summary>
-		public void BeginEdit() => suspendCommit = true;
-
-		/// <summary>
-		/// Save all edits to the database.
-		/// </summary>
-		public void EndEdit()
-		{
-			Commit();
-			suspendCommit = false;
 		}
 
-		private void Commit()
+		/// <summary>Save edits to the database</summary>
+		public void Commit(string newTags, LiberatedStatus bookStatus, LiberatedStatus? pdfStatus)
 		{
-			// We don't want LiberatedStatus.PartialDownload to be a persistent status.
-			// If display/icon status is PartialDownload then save NotLiberated to db then restore PartialDownload for display
-			var displayStatus = Book.UserDefinedItem.BookStatus;
-			var saveStatus = displayStatus == LiberatedStatus.PartialDownload ? LiberatedStatus.NotLiberated : displayStatus;
-			Book.UserDefinedItem.BookStatus = saveStatus;
+			// validate
+			if (DisplayTags.EqualsInsensitive(newTags) &&
+				Liberate.BookStatus == bookStatus &&
+				Liberate.PdfStatus == pdfStatus)
+				return;
 
+			// set
+			Book.UserDefinedItem.Tags = newTags;
+
+			_bookStatus = bookStatus;
+			_pdfStatus = pdfStatus;
+
+			Book.UserDefinedItem.BookStatus = bookStatus;
+			Book.UserDefinedItem.PdfStatus = pdfStatus;
+
+			// save 
 			LibraryCommands.UpdateUserDefinedItem(Book);
 
-			Book.UserDefinedItem.BookStatus = displayStatus;
-
+			// notify
 			Committed?.Invoke(this, null);
 		}
 
