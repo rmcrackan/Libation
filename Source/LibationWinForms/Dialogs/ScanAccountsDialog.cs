@@ -17,6 +17,7 @@ namespace LibationWinForms.Dialogs
 			_parent = parent;
 
 			InitializeComponent();
+			this.SetLibationIcon();
 		}
 
 		private class listItem

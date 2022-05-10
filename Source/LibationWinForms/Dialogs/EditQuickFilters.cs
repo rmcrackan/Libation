@@ -26,6 +26,7 @@ namespace LibationWinForms.Dialogs
 			dataGridView1.Columns[COL_Filter].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
 			populateGridValues();
+			this.SetLibationIcon();
 		}
 
 		private void populateGridValues()

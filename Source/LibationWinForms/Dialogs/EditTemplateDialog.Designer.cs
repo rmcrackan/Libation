@@ -170,8 +170,10 @@
 			this.Controls.Add(this.templateTb);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.saveBtn);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MaximizeBox = false;
+			this.MinimizeBox = false;
 			this.Name = "EditTemplateDialog";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Edit Template";

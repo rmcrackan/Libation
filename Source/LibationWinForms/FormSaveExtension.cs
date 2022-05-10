@@ -7,6 +7,18 @@ namespace LibationWinForms
 {
 	public static class FormSaveExtension
 	{
+		static readonly Icon libationIcon;
+		static FormSaveExtension()
+		{
+			var resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+			libationIcon = (Icon)resources.GetObject("$this.Icon");
+		}
+
+		public static void SetLibationIcon(this Form form)
+		{
+			form.Icon = libationIcon;
+		}
+
 		public static void RestoreSizeAndLocation(this Form form, Configuration config)
 		{
 			FormSizeAndPosition savedState = config.GetNonString<FormSizeAndPosition>(form.Name);
@@ -77,6 +89,7 @@ namespace LibationWinForms
 
 			config.SetObject(form.Name, saveState);
 		}
+
 	}
 	class FormSizeAndPosition
 	{

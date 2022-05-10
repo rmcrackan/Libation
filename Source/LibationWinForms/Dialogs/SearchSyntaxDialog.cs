@@ -14,6 +14,7 @@ namespace LibationWinForms.Dialogs
 			label3.Text += "\r\n\r\n" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchNumberFields());
 			label4.Text += "\r\n\r\n" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchBoolFields());
 			label5.Text += "\r\n\r\n" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchIdFields());
+			this.SetLibationIcon();
 		}
 
 		private void CloseBtn_Click(object sender, EventArgs e) => this.Close();

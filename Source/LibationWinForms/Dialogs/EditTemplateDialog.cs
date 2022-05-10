@@ -28,7 +28,11 @@ namespace LibationWinForms.Dialogs
 		private Templates template { get; }
 		private string inputTemplateText { get; }
 
-		public EditTemplateDialog() => InitializeComponent();
+		public EditTemplateDialog()
+		{
+			InitializeComponent();
+			this.SetLibationIcon();
+		}
 		public EditTemplateDialog(Templates template, string inputTemplateText) : this()
 		{
 			this.template = ArgumentValidator.EnsureNotNull(template, nameof(template));

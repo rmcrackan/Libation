@@ -13,7 +13,11 @@ namespace LibationWinForms.Dialogs
 		private Configuration config { get; } = Configuration.Instance;
 		private Func<string, string> desc { get; } = Configuration.GetDescription;
 
-		public SettingsDialog() => InitializeComponent();
+		public SettingsDialog()
+		{
+			InitializeComponent();
+			this.SetLibationIcon();
+		}
 
 		private void SettingsDialog_Load(object sender, EventArgs e)
 		{
