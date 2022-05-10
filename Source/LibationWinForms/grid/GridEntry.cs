@@ -86,18 +86,18 @@ namespace LibationWinForms
 
 		public async Task DownloadBook()
 		{
-			if (!DownloadInProgress)
+			if (DownloadInProgress)
+				return;
+
+			try
 			{
-				try
-				{
-					DownloadInProgress = true;
-					await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(LibraryBook);
-					UpdateLiberatedStatus();
-				}
-				finally
-				{
-					DownloadInProgress = false;
-				}
+				DownloadInProgress = true;
+				await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(LibraryBook);
+				UpdateLiberatedStatus();
+			}
+			finally
+			{
+				DownloadInProgress = false;
 			}
 		}
 
@@ -195,16 +195,14 @@ namespace LibationWinForms
 				Liberate.PdfStatus == pdfStatus)
 				return;
 
-			// set
-			Book.UserDefinedItem.Tags = newTags;
-
+			// update cache
 			_bookStatus = bookStatus;
 			_pdfStatus = pdfStatus;
 
+			// set + save
+			Book.UserDefinedItem.Tags = newTags;
 			Book.UserDefinedItem.BookStatus = bookStatus;
 			Book.UserDefinedItem.PdfStatus = pdfStatus;
-
-			// save 
 			LibraryCommands.UpdateUserDefinedItem(Book);
 
 			// notify

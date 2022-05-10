@@ -76,6 +76,7 @@ namespace FileLiberator
                     return new StatusHandler { "Cannot find final audio file after decryption" };
 
                 libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
+                ApplicationServices.LibraryCommands.UpdateUserDefinedItem(libraryBook.Book);
 
                 return new StatusHandler();
             }

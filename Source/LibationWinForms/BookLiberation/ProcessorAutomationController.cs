@@ -257,6 +257,8 @@ $@"  Title: {libraryBook.Book.Title}
 			if (dialogResult == SkipResult)
 			{
 				libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Error;
+                ApplicationServices.LibraryCommands.UpdateUserDefinedItem(libraryBook.Book);
+
 				LogMe.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}");
 			}
 
