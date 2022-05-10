@@ -55,6 +55,7 @@
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "DescriptionDisplay";
+			this.ShowInTaskbar = false;
 			this.Text = "DescriptionDisplay";
 			this.ResumeLayout(false);
 			this.PerformLayout();
