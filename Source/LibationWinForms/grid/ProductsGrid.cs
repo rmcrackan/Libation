@@ -9,6 +9,7 @@ using Dinah.Core;
 using Dinah.Core.DataBinding;
 using Dinah.Core.Threading;
 using Dinah.Core.Windows.Forms;
+using FileLiberator;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
 
@@ -31,6 +32,8 @@ namespace LibationWinForms
 
 	public partial class ProductsGrid : UserControl
 	{
+
+		ImageDisplay imageDisplay;
 		public event EventHandler<int> VisibleCountChanged;
 
 		// alias
@@ -62,14 +65,43 @@ namespace LibationWinForms
 			if (e.RowIndex < 0)
 				return;
 
-			var clickedColumn = _dataGridView.Columns[e.ColumnIndex];
-
-			if (clickedColumn == liberateGVColumn)
+			if (e.ColumnIndex == liberateGVColumn.Index)
 				await Liberate_Click(getGridEntry(e.RowIndex));
-			else if (clickedColumn == tagAndDetailsGVColumn)
+			else if (e.ColumnIndex == tagAndDetailsGVColumn.Index)
 				Details_Click(getGridEntry(e.RowIndex));
-			else if (clickedColumn == descriptionGVColumn)
+			else if (e.ColumnIndex == descriptionGVColumn.Index)
 				Description_Click(getGridEntry(e.RowIndex), _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
+			else if (e.ColumnIndex == coverGVColumn.Index)
+				await Cover_Click(getGridEntry(e.RowIndex));
+		}
+
+		private async Task Cover_Click(GridEntry liveGridEntry)
+		{
+			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge, PictureSize.Native);
+			(_, byte[] initialImageBts) = PictureStorage.GetPicture(new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureId, PictureSize._80x80));
+
+			var windowTitle = $"{liveGridEntry.Title} - Cover";
+
+			var picDlTask = Task.Run(() =>
+			{
+				return PictureStorage.GetPictureSynchronously(picDefinition);
+			});
+
+			if (imageDisplay is null || imageDisplay.IsDisposed || !imageDisplay.Visible)
+			{
+				imageDisplay = new ImageDisplay();
+				imageDisplay.RestoreSizeAndLocation(Configuration.Instance);
+				imageDisplay.FormClosed += (_, _) => imageDisplay.SaveSizeAndLocation(Configuration.Instance);
+				imageDisplay.Show(this);
+			}
+
+			imageDisplay.BookSaveDirectory = AudibleFileStorage.Audio.GetDestinationDirectory(liveGridEntry.LibraryBook);
+			imageDisplay.PictureFileName = System.IO.Path.GetFileName(AudibleFileStorage.Audio.GetBooksDirectoryFilename(liveGridEntry.LibraryBook, ".jpg"));
+			imageDisplay.Text = windowTitle;
+			imageDisplay.CoverPicture = initialImageBts;
+			imageDisplay.CoverPicture = await picDlTask;
+
+
 		}
 
 		private void Description_Click(GridEntry liveGridEntry, Rectangle cellDisplay)
@@ -81,13 +113,13 @@ namespace LibationWinForms
 				BorderThickness = 2,
 			};
 
-			void CloseWindow (object o, EventArgs e)
+			void CloseWindow(object o, EventArgs e)
 			{
 				displayWindow.Close();
 			}
 
 			_dataGridView.Scroll += CloseWindow;
-			displayWindow.FormClosed += (_,_) => _dataGridView.Scroll -= CloseWindow;
+			displayWindow.FormClosed += (_, _) => _dataGridView.Scroll -= CloseWindow;
 			displayWindow.Show(this);
 		}
 
@@ -166,40 +198,40 @@ namespace LibationWinForms
 			Filter();
 		}
 
-        private void bindToGrid(List<DataLayer.LibraryBook> orderedBooks)
-        {
-            bindingList = new SortableBindingList<GridEntry>(orderedBooks.Select(lb => toGridEntry(lb)));
-            gridEntryBindingSource.DataSource = bindingList;
-        }
+		private void bindToGrid(List<DataLayer.LibraryBook> orderedBooks)
+		{
+			bindingList = new SortableBindingList<GridEntry>(orderedBooks.Select(lb => toGridEntry(lb)));
+			gridEntryBindingSource.DataSource = bindingList;
+		}
 
-        private void updateGrid(List<DataLayer.LibraryBook> orderedBooks)
-        {
-            for (var i = orderedBooks.Count - 1; i >= 0; i--)
-            {
-                var libraryBook = orderedBooks[i];
-                var existingItem = bindingList.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
+		private void updateGrid(List<DataLayer.LibraryBook> orderedBooks)
+		{
+			for (var i = orderedBooks.Count - 1; i >= 0; i--)
+			{
+				var libraryBook = orderedBooks[i];
+				var existingItem = bindingList.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
 
-                // add new to top
-                if (existingItem is null)
-                    bindingList.Insert(0, toGridEntry(libraryBook));
-                // update existing
-                else
-                    existingItem.UpdateLibraryBook(libraryBook);
-            }
+				// add new to top
+				if (existingItem is null)
+					bindingList.Insert(0, toGridEntry(libraryBook));
+				// update existing
+				else
+					existingItem.UpdateLibraryBook(libraryBook);
+			}
 
-            // remove deleted from grid. note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
-            var oldIds = bindingList.Select(ge => ge.AudibleProductId).ToList();
-            var newIds = orderedBooks.Select(lb => lb.Book.AudibleProductId).ToList();
-            var remove = oldIds.Except(newIds).ToList();
-            foreach (var id in remove)
-            {
-                var oldItem = bindingList.FirstOrDefault(ge => ge.AudibleProductId == id);
-                if (oldItem is not null)
-                    bindingList.Remove(oldItem);
-            }
-        }
+			// remove deleted from grid. note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
+			var oldIds = bindingList.Select(ge => ge.AudibleProductId).ToList();
+			var newIds = orderedBooks.Select(lb => lb.Book.AudibleProductId).ToList();
+			var remove = oldIds.Except(newIds).ToList();
+			foreach (var id in remove)
+			{
+				var oldItem = bindingList.FirstOrDefault(ge => ge.AudibleProductId == id);
+				if (oldItem is not null)
+					bindingList.Remove(oldItem);
+			}
+		}
 
-        private GridEntry toGridEntry(DataLayer.LibraryBook libraryBook)
+		private GridEntry toGridEntry(DataLayer.LibraryBook libraryBook)
 		{
 			var entry = new GridEntry(libraryBook);
 			entry.Committed += Filter;
@@ -207,11 +239,11 @@ namespace LibationWinForms
 			return entry;
 		}
 
-        #endregion
+		#endregion
 
-        #region Filter
+		#region Filter
 
-        private string _filterSearchString;
+		private string _filterSearchString;
 		private void Filter(object _ = null, EventArgs __ = null) => Filter(_filterSearchString);
 		public void Filter(string searchString)
 		{
@@ -344,6 +376,8 @@ namespace LibationWinForms
 		{
 			if (e.ColumnIndex == descriptionGVColumn.Index)
 				e.ToolTipText = "Click to see full description";
+			else if (e.ColumnIndex == coverGVColumn.Index)
+				e.ToolTipText = "Click to see full size";
 		}
 
 		#endregion
