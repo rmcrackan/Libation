@@ -32,6 +32,8 @@ namespace LibationWinForms
 
 		#region Model properties exposed to the view
 		private Image _cover;
+		private LiberatedStatus _bookStatus;
+		private LiberatedStatus? _pdfStatus;
 		public Image Cover
 		{
 			get => _cover;
@@ -63,10 +65,12 @@ namespace LibationWinForms
 		// these 2 values being in 1 field is the trick behind getting the liberated+pdf 'stoplight' icon to draw. See: LiberateDataGridViewImageButtonCell.Paint
 		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
 		{
-			get => (LibraryCommands.Liberated_Status(LibraryBook.Book), LibraryCommands.Pdf_Status(LibraryBook.Book));
+			get => (_bookStatus, _pdfStatus);
 			
 			set
 			{
+				_bookStatus = value.BookStatus;
+				_pdfStatus = value.PdfStatus;
 				LibraryBook.Book.UserDefinedItem.BookStatus = value.BookStatus;
 				LibraryBook.Book.UserDefinedItem.PdfStatus = value.PdfStatus;
 			}
@@ -109,6 +113,10 @@ namespace LibationWinForms
 		{
 			LibraryBook = libraryBook;
 			_memberValues = CreateMemberValueDictionary();
+
+			//Cache these statuses for faster sorting.
+			_bookStatus = LibraryCommands.Liberated_Status(LibraryBook.Book);
+			_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
 
 			// Get cover art. If it's default, subscribe to PictureCached
 			{
