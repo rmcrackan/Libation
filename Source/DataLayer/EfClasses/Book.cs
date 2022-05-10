@@ -34,7 +34,7 @@ namespace DataLayer
 
         // mutable
         public string PictureId { get; set; }
-        public string PictureId_1215 { get; set; }
+        public string PictureLarge { get; set; }
 
         // book details
         public bool IsAbridged { get; private set; }

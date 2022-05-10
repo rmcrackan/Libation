@@ -50,7 +50,7 @@ namespace DataLayer.Migrations
                     b.Property<string>("PictureId")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PictureId_1215")
+                    b.Property<string>("PictureLarge")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")

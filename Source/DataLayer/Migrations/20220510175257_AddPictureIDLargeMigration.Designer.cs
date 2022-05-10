@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(LibationContext))]
-    [Migration("20220510051435_Add PictureId_1215")]
-    partial class AddPictureId_1215
+    [Migration("20220510175257_AddPictureIDLargeMigration")]
+    partial class AddPictureIDLargeMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -52,7 +52,7 @@ namespace DataLayer.Migrations
                     b.Property<string>("PictureId")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PictureId_1215")
+                    b.Property<string>("PictureLarge")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")

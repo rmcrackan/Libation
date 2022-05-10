@@ -4,12 +4,12 @@
 
 namespace DataLayer.Migrations
 {
-    public partial class AddPictureId_1215 : Migration
+    public partial class AddPictureIDLargeMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "PictureId_1215",
+                name: "PictureLarge",
                 table: "Books",
                 type: "TEXT",
                 nullable: true);
@@ -18,7 +18,7 @@ namespace DataLayer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "PictureId_1215",
+                name: "PictureLarge",
                 table: "Books");
         }
     }
