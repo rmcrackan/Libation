@@ -1,4 +1,6 @@
 ﻿﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DataLayer;
@@ -61,7 +63,7 @@ namespace LibationWinForms.BookLiberation
 			await new BackupSingle(logMe, backupBook, libraryBook).RunBackupAsync();
 		}
 
-		public static async Task BackupAllBooksAsync()
+		public static async Task BackupAllBooksAsync(List<LibraryBook> libraryBooks = null)
 		{
 			Serilog.Log.Logger.Information("Begin " + nameof(BackupAllBooksAsync));
 
@@ -69,7 +71,7 @@ namespace LibationWinForms.BookLiberation
 			var logMe = LogMe.RegisterForm(automatedBackupsForm);
 			var backupBook = CreateBackupBook(logMe);
 
-			await new BackupLoop(logMe, backupBook, automatedBackupsForm).RunBackupAsync();
+			await new BackupLoop(logMe, backupBook, automatedBackupsForm, libraryBooks).RunBackupAsync();
 		}
 
 		public static async Task ConvertAllBooksAsync()
@@ -255,6 +257,8 @@ $@"  Title: {libraryBook.Book.Title}
 			if (dialogResult == SkipResult)
 			{
 				libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Error;
+                ApplicationServices.LibraryCommands.UpdateUserDefinedItem(libraryBook.Book);
+
 				LogMe.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}");
 			}
 
@@ -307,13 +311,16 @@ An error occurred while trying to process this book.
 		protected override MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
 		protected override DialogResult SkipResult => DialogResult.Ignore;
 
-		public BackupLoop(LogMe logMe, Processable processable, AutomatedBackupsForm automatedBackupsForm)
-			: base(logMe, processable, automatedBackupsForm) { }
+		private List<LibraryBook> libraryBooks { get; }
+
+		public BackupLoop(LogMe logMe, Processable processable, AutomatedBackupsForm automatedBackupsForm, List<LibraryBook> libraryBooks = null)
+			: base(logMe, processable, automatedBackupsForm)
+			=> this.libraryBooks = libraryBooks ?? ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking();
 
 		protected override async Task RunAsync()
 		{
 			// support for 'skip this time only' requires state. iterators provide this state for free. therefore: use foreach/iterator here
-			foreach (var libraryBook in Processable.GetValidLibraryBooks(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()))
+			foreach (var libraryBook in Processable.GetValidLibraryBooks(libraryBooks))
 			{
 				var keepGoing = await ProcessOneAsync(libraryBook, validate: false);
 				if (!keepGoing)

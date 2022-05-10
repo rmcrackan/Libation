@@ -146,15 +146,8 @@ namespace LibationWinForms
 		private static void Details_Click(GridEntry liveGridEntry)
 		{
 			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
-			if (bookDetailsForm.ShowDialog() != DialogResult.OK)
-				return;
-
-			liveGridEntry.BeginEdit();
-
-			liveGridEntry.DisplayTags = bookDetailsForm.NewTags;
-			liveGridEntry.Liberate = (bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
-
-			liveGridEntry.EndEdit();
+			if (bookDetailsForm.ShowDialog() == DialogResult.OK)
+				liveGridEntry.Commit(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 		}
 
 		#endregion
@@ -235,7 +228,7 @@ namespace LibationWinForms
 		{
 			var entry = new GridEntry(libraryBook);
 			entry.Committed += Filter;
-			entry.LibraryBookUpdated += (sender, productId) => _dataGridView.InvalidateRow(_dataGridView.GetRowIdOfBoundItem((GridEntry)sender));
+			entry.LibraryBookUpdated += (sender, _) => _dataGridView.InvalidateRow(_dataGridView.GetRowIdOfBoundItem((GridEntry)sender));
 			return entry;
 		}
 
@@ -268,14 +261,19 @@ namespace LibationWinForms
 
 			// Causes repainting of the DataGridView
 			bindingContext.ResumeBinding();
-			VisibleCountChanged?.Invoke(this, _dataGridView.AsEnumerable().Count(r => r.Visible));
+			VisibleCountChanged?.Invoke(this, GetVisible().Count());
 		}
 
 		#endregion
 
-		#region DataGridView Macro
+		internal IEnumerable<DataLayer.LibraryBook> GetVisible()
+			=> _dataGridView
+			.AsEnumerable()
+			.Where(row => row.Visible)
+			.Select(row => ((GridEntry)row.DataBoundItem).LibraryBook)
+			.ToList();
+
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
-		#endregion
 
 		#region Column Customizations
 

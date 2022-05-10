@@ -33,18 +33,20 @@ namespace ApplicationServices
 
 			//These are the minimum response groups required for the
 			//library scanner to pass all validation and filtering.
-			var libraryResponseGroups =
-				LibraryOptions.ResponseGroupOptions.ProductAttrs |
-				LibraryOptions.ResponseGroupOptions.ProductDesc |
-				LibraryOptions.ResponseGroupOptions.Relationships;
-
-			if (accounts is null || accounts.Length == 0)
+			var libraryOptions = new LibraryOptions
+            {
+				 ResponseGroups
+				 = LibraryOptions.ResponseGroupOptions.ProductAttrs
+				 | LibraryOptions.ResponseGroupOptions.ProductDesc
+				 | LibraryOptions.ResponseGroupOptions.Relationships
+			};
+            if (accounts is null || accounts.Length == 0)
 				return new List<LibraryBook>();
 
 			try
 			{
 				logTime($"pre {nameof(scanAccountsAsync)} all");
-				var libraryItems = await scanAccountsAsync(apiExtendedfunc, accounts, libraryResponseGroups);
+				var libraryItems = await scanAccountsAsync(apiExtendedfunc, accounts, libraryOptions);
 				logTime($"post {nameof(scanAccountsAsync)} all");
 
 				var totalCount = libraryItems.Count;
@@ -102,7 +104,12 @@ namespace ApplicationServices
 				}
 
 				logTime($"pre {nameof(scanAccountsAsync)} all");
-				var importItems = await scanAccountsAsync(apiExtendedfunc, accounts, LibraryOptions.ResponseGroupOptions.ALL_OPTIONS);
+				var libraryOptions = new LibraryOptions
+				{
+					ResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS,
+					ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
+				};
+                var importItems = await scanAccountsAsync(apiExtendedfunc, accounts, libraryOptions);
 				logTime($"post {nameof(scanAccountsAsync)} all");
 
 				var totalCount = importItems.Count;
@@ -150,7 +157,7 @@ namespace ApplicationServices
 			}
 		}
 
-		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions.ResponseGroupOptions libraryResponseGroups)
+		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions libraryOptions)
 		{
 			var tasks = new List<Task<List<ImportItem>>>();
 			foreach (var account in accounts)
@@ -159,7 +166,7 @@ namespace ApplicationServices
 				var apiExtended = await apiExtendedfunc(account);
 
 				// add scanAccountAsync as a TASK: do not await
-				tasks.Add(scanAccountAsync(apiExtended, account, libraryResponseGroups));
+				tasks.Add(scanAccountAsync(apiExtended, account, libraryOptions));
 			}
 
 			// import library in parallel
@@ -168,7 +175,7 @@ namespace ApplicationServices
 			return importItems;
 		}
 
-		private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions.ResponseGroupOptions libraryResponseGroups)
+		private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions libraryOptions)
 		{
 			ArgumentValidator.EnsureNotNull(account, nameof(account));
 
@@ -179,7 +186,7 @@ namespace ApplicationServices
 
 			logTime($"pre scanAccountAsync {account.AccountName}");
 
-			var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryResponseGroups, Configuration.Instance.ImportEpisodes);
+			var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions, Configuration.Instance.ImportEpisodes);
 
 			logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
 
@@ -259,30 +266,47 @@ namespace ApplicationServices
 		/// Occurs when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/>
 		/// changed values are successfully persisted.
 		/// </summary>
-		public static event EventHandler<string> BookUserDefinedItemCommitted;
+		public static event EventHandler BookUserDefinedItemCommitted;
 
 		#region Update book details
-		public static int UpdateUserDefinedItem(Book book)
+		public static int UpdateUserDefinedItem(params Book[] books) => UpdateUserDefinedItem(books.ToList());
+		public static int UpdateUserDefinedItem(IEnumerable<Book> books)
 		{
 			try
 			{
+				if (books is null || !books.Any())
+					return 0;
+
 				using var context = DbContexts.GetContext();
 
 				// Attach() NoTracking entities before SaveChanges()
-				context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				foreach (var book in books)
+					context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+
 				var qtyChanges = context.SaveChanges();
-				if (qtyChanges > 0)
+				if (qtyChanges == 0)
+					return 0;
+
+				// semi-arbitrary. At some point it's more worth it to do a full re-index than to do one offs.
+				// I did not benchmark before choosing the number here
+				if (qtyChanges > 15)
+					SearchEngineCommands.FullReIndex();
+				else
 				{
-					SearchEngineCommands.UpdateLiberatedStatus(book);
-					SearchEngineCommands.UpdateBookTags(book);
-					BookUserDefinedItemCommitted?.Invoke(null, book.AudibleProductId);
+					foreach (var book in books)
+					{
+						SearchEngineCommands.UpdateLiberatedStatus(book);
+						SearchEngineCommands.UpdateBookTags(book);
+					}
 				}
+
+				BookUserDefinedItemCommitted?.Invoke(null, null);
 
 				return qtyChanges;
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, $"Error updating {nameof(book.UserDefinedItem)}");
+				Log.Logger.Error(ex, $"Error updating {nameof(Book.UserDefinedItem)}");
 				throw;
 			}
 		}

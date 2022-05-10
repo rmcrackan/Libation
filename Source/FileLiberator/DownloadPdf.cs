@@ -29,6 +29,7 @@ namespace FileLiberator
 				var result = verifyDownload(actualDownloadedFilePath);
 
 				libraryBook.Book.UserDefinedItem.PdfStatus = result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated;
+				ApplicationServices.LibraryCommands.UpdateUserDefinedItem(libraryBook.Book);
 
 				return result;
 			}

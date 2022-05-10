@@ -141,9 +141,11 @@ namespace DataLayer
             get => _bookStatus;
             set
             {
-                if (_bookStatus != value)
-				{
-                    _bookStatus = value;
+                // PartialDownload is a live/ephemeral status, not a persistent one. Do not store
+                var displayStatus = value == LiberatedStatus.PartialDownload ? LiberatedStatus.NotLiberated : value;
+                if (_bookStatus != displayStatus)
+                {
+                    _bookStatus = displayStatus;
                     OnItemChanged(nameof(BookStatus));
                 }
             }
