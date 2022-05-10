@@ -69,10 +69,10 @@ namespace LibationWinForms
 			else if (clickedColumn == tagAndDetailsGVColumn)
 				Details_Click(getGridEntry(e.RowIndex));
 			else if (clickedColumn == descriptionGVColumn)
-				DescriptionClick(getGridEntry(e.RowIndex), _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
+				Description_Click(getGridEntry(e.RowIndex), _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
 		}
 
-		private void DescriptionClick(GridEntry liveGridEntry, Rectangle cellDisplay)
+		private void Description_Click(GridEntry liveGridEntry, Rectangle cellDisplay)
 		{
 			var displayWindow = new DescriptionDisplay
 			{
