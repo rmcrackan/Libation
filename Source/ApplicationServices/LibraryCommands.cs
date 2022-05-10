@@ -266,30 +266,47 @@ namespace ApplicationServices
 		/// Occurs when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/>
 		/// changed values are successfully persisted.
 		/// </summary>
-		public static event EventHandler<string> BookUserDefinedItemCommitted;
+		public static event EventHandler BookUserDefinedItemCommitted;
 
 		#region Update book details
-		public static int UpdateUserDefinedItem(Book book)
+		public static int UpdateUserDefinedItem(params Book[] books) => UpdateUserDefinedItem(books.ToList());
+		public static int UpdateUserDefinedItem(IEnumerable<Book> books)
 		{
 			try
 			{
+				if (books is null || !books.Any())
+					return 0;
+
 				using var context = DbContexts.GetContext();
 
 				// Attach() NoTracking entities before SaveChanges()
-				context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				foreach (var book in books)
+					context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+
 				var qtyChanges = context.SaveChanges();
-				if (qtyChanges > 0)
+				if (qtyChanges == 0)
+					return 0;
+
+				// semi-arbitrary. At some point it's more worth it to do a full re-index than to do one offs.
+				// I did not benchmark before choosing the number here
+				if (qtyChanges > 15)
+					SearchEngineCommands.FullReIndex();
+				else
 				{
-					SearchEngineCommands.UpdateLiberatedStatus(book);
-					SearchEngineCommands.UpdateBookTags(book);
-					BookUserDefinedItemCommitted?.Invoke(null, book.AudibleProductId);
+					foreach (var book in books)
+					{
+						SearchEngineCommands.UpdateLiberatedStatus(book);
+						SearchEngineCommands.UpdateBookTags(book);
+					}
 				}
+
+				BookUserDefinedItemCommitted?.Invoke(null, null);
 
 				return qtyChanges;
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, $"Error updating {nameof(book.UserDefinedItem)}");
+				Log.Logger.Error(ex, $"Error updating {nameof(Book.UserDefinedItem)}");
 				throw;
 			}
 		}
