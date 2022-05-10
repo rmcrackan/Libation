@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DataLayer;
@@ -201,23 +201,7 @@ namespace LibationWinForms.BookLiberation
 				var statusHandler = await Processable.ProcessSingleAsync(libraryBook, validate);
 
 				if (statusHandler.IsSuccess)
-				{
-					var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
-					var coverPath = FileManager.FileUtility.GetValidFilename(System.IO.Path.Combine(destinationDir, "Cover.jpg"), "", true);
-
-					try
-					{
-						var picBytes = PictureStorage.GetPictureSynchronously(new PictureDefinition(libraryBook.Book.PictureId_1215, PictureSize._1215x1215));
-						System.IO.File.WriteAllBytes(coverPath, picBytes);
-					}
-					catch(Exception ex)
-					{
-						LogMe.Error(ex.Message);
-					}
-					//Failure to download cover art should not be
-					//considered a failure to download the book
 					return true;
-				}
 
 				foreach (var errorMessage in statusHandler.Errors)
 					LogMe.Error(errorMessage);
