@@ -9,7 +9,7 @@ namespace LibationWinForms
 {
 	public partial class DescriptionDisplay : Form
 	{
-		private int borderThickness = 0;
+		private int borderThickness = 5;
 
 		public int BorderThickness 
 		{
