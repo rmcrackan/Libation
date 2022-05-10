@@ -78,11 +78,10 @@ namespace LibationWinForms
 		private async Task Cover_Click(GridEntry liveGridEntry)
 		{
 			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge, PictureSize.Native);
-			(_, byte[] initialImageBts) = PictureStorage.GetPicture(new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureId, PictureSize._80x80));
-
-			var windowTitle = $"{liveGridEntry.Title} - Cover";
-
 			var picDlTask = Task.Run(() => PictureStorage.GetPictureSynchronously(picDefinition));
+
+			(_, byte[] initialImageBts) = PictureStorage.GetPicture(new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureId, PictureSize._80x80));
+			var windowTitle = $"{liveGridEntry.Title} - Cover";
 
 			if (imageDisplay is null || imageDisplay.IsDisposed || !imageDisplay.Visible)
 			{
@@ -97,8 +96,6 @@ namespace LibationWinForms
 			imageDisplay.Text = windowTitle;
 			imageDisplay.CoverPicture = initialImageBts;
 			imageDisplay.CoverPicture = await picDlTask;
-
-
 		}
 
 		private void Description_Click(GridEntry liveGridEntry, Rectangle cellDisplay)
