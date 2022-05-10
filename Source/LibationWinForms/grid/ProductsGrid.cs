@@ -340,6 +340,12 @@ namespace LibationWinForms
 			}
 		}
 
+		private void gridEntryDataGridView_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
+		{
+			if (e.ColumnIndex == descriptionGVColumn.Index)
+				e.ToolTipText = "Click to see full description";
+		}
+
 		#endregion
 	}
 }

@@ -32,7 +32,6 @@
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.gridEntryBindingSource = new LibationWinForms.SyncBindingSource(this.components);
 			this.gridEntryDataGridView = new System.Windows.Forms.DataGridView();
-			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.liberateGVColumn = new LibationWinForms.LiberateDataGridViewImageButtonColumn();
 			this.coverGVColumn = new System.Windows.Forms.DataGridViewImageColumn();
 			this.titleGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -47,6 +46,7 @@
 			this.myRatingGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.tagAndDetailsGVColumn = new LibationWinForms.EditTagsDataGridViewImageButtonColumn();
+			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).BeginInit();
 			this.SuspendLayout();
@@ -97,13 +97,9 @@
 			this.gridEntryDataGridView.RowTemplate.Height = 82;
 			this.gridEntryDataGridView.Size = new System.Drawing.Size(1510, 380);
 			this.gridEntryDataGridView.TabIndex = 0;
+			this.gridEntryDataGridView.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.gridEntryDataGridView_CellToolTipTextNeeded);
 			this.gridEntryDataGridView.ColumnDisplayIndexChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.gridEntryDataGridView_ColumnDisplayIndexChanged);
 			this.gridEntryDataGridView.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.gridEntryDataGridView_ColumnWidthChanged);
-			// 
-			// contextMenuStrip1
-			// 
-			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
 			// 
 			// liberateGVColumn
 			// 
@@ -216,6 +212,11 @@
 			this.tagAndDetailsGVColumn.ReadOnly = true;
 			this.tagAndDetailsGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
 			this.tagAndDetailsGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			// 
+			// contextMenuStrip1
+			// 
+			this.contextMenuStrip1.Name = "contextMenuStrip1";
+			this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
 			// 
 			// ProductsGrid
 			// 
