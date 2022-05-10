@@ -79,6 +79,7 @@ namespace FileLiberator
                     DownloadCoverArt(libraryBook);
 
                 libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
+                ApplicationServices.LibraryCommands.UpdateUserDefinedItem(libraryBook.Book);
 
                 return new StatusHandler();
             }
