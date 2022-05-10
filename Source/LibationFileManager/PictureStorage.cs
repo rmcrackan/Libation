@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LibationFileManager
 {
-	public enum PictureSize { _80x80 = 80, _300x300 = 300, _500x500 = 500 }
+	public enum PictureSize { _80x80 = 80, _300x300 = 300, _500x500 = 500 , _1215x1215 = 1215 }
 	public class PictureCachedEventArgs : EventArgs
 	{
 		public PictureDefinition Definition { get; internal set; }
