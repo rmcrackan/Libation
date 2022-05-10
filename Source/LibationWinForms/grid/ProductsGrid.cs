@@ -62,27 +62,33 @@ namespace LibationWinForms
 			if (e.RowIndex < 0)
 				return;
 
-			var propertyName = _dataGridView.Columns[e.ColumnIndex].DataPropertyName;
+			var clickedColumn = _dataGridView.Columns[e.ColumnIndex];
 
-			if (propertyName == liberateGVColumn.DataPropertyName)
+			if (clickedColumn == liberateGVColumn)
 				await Liberate_Click(getGridEntry(e.RowIndex));
-			else if (propertyName == tagAndDetailsGVColumn.DataPropertyName)
+			else if (clickedColumn == tagAndDetailsGVColumn)
 				Details_Click(getGridEntry(e.RowIndex));
-			else if (propertyName == descriptionGVColumn.DataPropertyName)
+			else if (clickedColumn == descriptionGVColumn)
 				DescriptionClick(getGridEntry(e.RowIndex), _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
 		}
 
-		private void DescriptionClick(GridEntry liveGridEntry, Rectangle cell)
+		private void DescriptionClick(GridEntry liveGridEntry, Rectangle cellDisplay)
 		{
 			var displayWindow = new DescriptionDisplay
 			{
-				Text = $"{liveGridEntry.Title} description",
-				SpawnLocation = PointToScreen(cell.Location + new Size(cell.Width, 0)),
-				DescriptionText = liveGridEntry.LongDescription
+				SpawnLocation = PointToScreen(cellDisplay.Location + new Size(cellDisplay.Width, 0)),
+				DescriptionText = liveGridEntry.LongDescription,
+				BorderThickness = 2,
 			};
-			displayWindow.RestoreSizeAndLocation(Configuration.Instance);
+
+			void CloseWindow (object o, EventArgs e)
+			{
+				displayWindow.Close();
+			}
+
+			_dataGridView.Scroll += CloseWindow;
+			displayWindow.FormClosed += (_,_) => _dataGridView.Scroll -= CloseWindow;
 			displayWindow.Show(this);
-			displayWindow.FormClosing += (_, _) => displayWindow.SaveSizeAndLocation(Configuration.Instance);
 		}
 
 		private static async Task Liberate_Click(GridEntry liveGridEntry)
@@ -249,8 +255,8 @@ namespace LibationWinForms
 			//Restore Grid Display Settings
 			var config = Configuration.Instance;
 			var gridColumnsVisibilities = config.GridColumnsVisibilities;
-			var displayIndices = config.GridColumnsDisplayIndices;
 			var gridColumnsWidths = config.GridColumnsWidths;
+			var displayIndices = config.GridColumnsDisplayIndices;
 
 			var cmsKiller = new ContextMenuStrip();
 
@@ -261,24 +267,33 @@ namespace LibationWinForms
 
 				var menuItem = new ToolStripMenuItem()
 				{
-					Text = itemName,
+					Text = column.HeaderText,
 					Checked = visible,
 					Tag = itemName
 				};
 				menuItem.Click += HideMenuItem_Click;
 				contextMenuStrip1.Items.Add(menuItem);
 
-				column.Visible = visible;
-				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
 				column.Width = gridColumnsWidths.GetValueOrDefault(itemName, column.Width);
 				column.MinimumWidth = 10;
 				column.HeaderCell.ContextMenuStrip = contextMenuStrip1;
+				column.Visible = visible;
 
 				//Setting a default ContextMenuStrip will allow the columns to handle the
 				//Show() event so it is not passed up to the _dataGridView.ContextMenuStrip.
 				//This allows the ContextMenuStrip to be shown if right-clicking in the gray
 				//background of _dataGridView but not shown if right-clicking inside cells.
 				column.ContextMenuStrip = cmsKiller;
+			}
+
+			//We must set DisplayIndex properties in ascending order
+			foreach (var itemName in displayIndices.OrderBy(i => i.Value).Select(i => i.Key))
+			{
+				var column = _dataGridView.Columns
+					.Cast<DataGridViewColumn>()
+					.Single(c => c.DataPropertyName == itemName);
+
+				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
 			}
 
 			base.OnVisibleChanged(e);

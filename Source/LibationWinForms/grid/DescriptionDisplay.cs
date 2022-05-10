@@ -1,18 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms
 {
 	public partial class DescriptionDisplay : Form
 	{
+		private int borderThickness = 0;
+
+		public int BorderThickness 
+		{
+			get => borderThickness;
+			set
+			{
+				borderThickness = value;
+				textBox1.Location = new Point(borderThickness, borderThickness);
+				textBox1.Size = new Size(Width - 2 * borderThickness, Height - 2 * borderThickness);
+			}
+		}
 		public string DescriptionText { get => textBox1.Text; set => textBox1.Text = value; }
 		public Point SpawnLocation { get; set; }
 		public DescriptionDisplay()
@@ -34,13 +42,7 @@ namespace LibationWinForms
 			int lineCount = textBox1.GetLineFromCharIndex(int.MaxValue) + 2;
 			Height = Height - textBox1.Height + lineCount * TextRenderer.MeasureText("X", textBox1.Font).Height;
 
-			int screenHeight = Screen.PrimaryScreen.WorkingArea.Height;
-
-
-			var tboxLocation = PointToScreen(textBox1.Location);
-			var tboxOffset = new Size(tboxLocation.X - Location.X, tboxLocation.Y - Location.Y);
-
-			Location = new Point(SpawnLocation.X - tboxOffset.Width, Math.Min(SpawnLocation.Y - tboxOffset.Height, screenHeight - Height));
+			Location = new Point(SpawnLocation.X, Math.Min(SpawnLocation.Y, Screen.PrimaryScreen.WorkingArea.Height - Height));
 		}
 
 		[DllImport("user32.dll")]

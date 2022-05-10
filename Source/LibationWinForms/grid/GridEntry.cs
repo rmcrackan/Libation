@@ -266,7 +266,7 @@ namespace LibationWinForms
 		{
 			var doc = new HtmlAgilityPack.HtmlDocument();
 			doc.LoadHtml(book?.Description?.Replace("</p> ", "\r\n\r\n</p>") ?? "");
-			return doc.DocumentNode.InnerText;
+			return doc.DocumentNode.InnerText.Trim();
 		}
 
 		private static string TrimTextToWord(string text, int maxLength)
