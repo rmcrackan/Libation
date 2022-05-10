@@ -32,6 +32,8 @@ namespace LibationWinForms
 
 		#region Model properties exposed to the view
 		private Image _cover;
+
+		private DateTime lastStatusUpdate = default;
 		private LiberatedStatus _bookStatus;
 		private LiberatedStatus? _pdfStatus;
 		public Image Cover
@@ -65,7 +67,16 @@ namespace LibationWinForms
 		// these 2 values being in 1 field is the trick behind getting the liberated+pdf 'stoplight' icon to draw. See: LiberateDataGridViewImageButtonCell.Paint
 		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
 		{
-			get => (_bookStatus, _pdfStatus);
+			get
+			{
+				//Cache these statuses for faster sorting.
+				if ((DateTime.Now - lastStatusUpdate).TotalSeconds > 2)
+				{
+					UpdateLiberatedStatus(notify: false);
+					lastStatusUpdate = DateTime.Now;
+				}
+				return (_bookStatus, _pdfStatus);
+			}
 			
 			set
 			{
@@ -93,6 +104,7 @@ namespace LibationWinForms
 				{
 					DownloadInProgress = true;
 					await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(LibraryBook);
+					UpdateLiberatedStatus();
 				}
 				finally
 				{
@@ -113,10 +125,6 @@ namespace LibationWinForms
 		{
 			LibraryBook = libraryBook;
 			_memberValues = CreateMemberValueDictionary();
-
-			//Cache these statuses for faster sorting.
-			_bookStatus = LibraryCommands.Liberated_Status(LibraryBook.Book);
-			_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
 
 			// Get cover art. If it's default, subscribe to PictureCached
 			{
@@ -221,6 +229,14 @@ namespace LibationWinForms
 			Book.UserDefinedItem.BookStatus = displayStatus;
 
 			Committed?.Invoke(this, null);
+		}
+
+		private void UpdateLiberatedStatus(bool notify = true)
+		{
+			_bookStatus = LibraryCommands.Liberated_Status(LibraryBook.Book);
+			_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
+			if (notify)
+				NotifyPropertyChanged(nameof(Liberate));
 		}
 
 		#endregion
