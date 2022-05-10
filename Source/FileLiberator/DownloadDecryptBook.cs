@@ -71,11 +71,12 @@ namespace FileLiberator
                 // moves new files from temp dir to final dest
                 var movedAudioFile = moveFilesToBooksDir(libraryBook, entries);
 
-                DownloadCoverArt(libraryBook);
-
                 // decrypt failed
                 if (!movedAudioFile)
                     return new StatusHandler { "Cannot find final audio file after decryption" };
+
+                if (Configuration.Instance.DownloadCoverArt)
+                    DownloadCoverArt(libraryBook);
 
                 libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
 
@@ -130,6 +131,7 @@ namespace FileLiberator
 
                 // REAL WORK DONE HERE
                 var success = await Task.Run(abDownloader.Run);
+
                 return success;
             }
             finally

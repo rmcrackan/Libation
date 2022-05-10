@@ -44,6 +44,7 @@ namespace LibationWinForms.Dialogs
 			this.retainAaxFileCbox.Text = desc(nameof(config.RetainAaxFile));
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
 			this.createCueSheetCbox.Text = desc(nameof(config.CreateCueSheet));
+			this.downloadCoverArtCbox.Text = desc(nameof(config.DownloadCoverArt));
 
 			booksSelectControl.SetSearchTitle("books location");
 			booksSelectControl.SetDirectoryItems(
@@ -73,6 +74,7 @@ namespace LibationWinForms.Dialogs
 			lameConstantBitrateCbox.Checked = config.LameConstantBitrate;
 			LameMatchSourceBRCbox.Checked = config.LameMatchSourceBR;
 			lameVBRQualityTb.Value = config.LameVBRQuality;
+			downloadCoverArtCbox.Checked = config.DownloadCoverArt;
 
 			autoScanCb.Checked = config.AutoScan;
 			showImportedStatsCb.Checked = config.ShowImportedStats;
@@ -196,6 +198,7 @@ namespace LibationWinForms.Dialogs
 			config.LameConstantBitrate = lameConstantBitrateCbox.Checked;
 			config.LameMatchSourceBR = LameMatchSourceBRCbox.Checked;
 			config.LameVBRQuality = lameVBRQualityTb.Value;
+			config.DownloadCoverArt = downloadCoverArtCbox.Checked;
 
 			config.AutoScan = autoScanCb.Checked;
 			config.ShowImportedStats = showImportedStatsCb.Checked;
