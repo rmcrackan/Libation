@@ -35,7 +35,6 @@ namespace LibationWinForms
 
 	public partial class ProductsGrid : UserControl
 	{
-		/// <summary>Visible rows have changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 
 		// alias
