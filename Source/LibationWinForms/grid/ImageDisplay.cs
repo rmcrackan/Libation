@@ -13,9 +13,17 @@ namespace LibationWinForms
 		public string BookSaveDirectory { get; set; }
 		public byte[] CoverPicture { get => _coverBytes; set => pictureBox1.Image = Dinah.Core.Drawing.ImageReader.ToImage(_coverBytes = value); }
 
-
-
 		private byte[] _coverBytes;
+
+
+		public ImageDisplay()
+		{
+			InitializeComponent();
+			lastWidth = Width;
+			lastHeight = Height;
+		}
+
+		#region Make the form's aspect ratio always match the picture's aspect ratio.
 
 		private bool detectedResizeDirection = false;
 		private bool resizingWidth = false;
@@ -27,14 +35,6 @@ namespace LibationWinForms
 		private int formExtraHeight;
 
 		private double pictureAR = 1;
-
-		public ImageDisplay()
-		{
-			InitializeComponent();
-			lastWidth = Width;
-			lastHeight = Height;
-		}
-
 		protected override void OnResizeBegin(EventArgs e)
 		{
 			detectedResizeDirection = false;
@@ -87,6 +87,8 @@ namespace LibationWinForms
 			return (int)((height - formExtraHeight) * pictureAR) + formExtraWidth;
 		}
 
+		#endregion
+
 		private void ImageDisplay_Shown(object sender, EventArgs e)
 		{
 			formExtraWidth = Width - pictureBox1.Width;
@@ -110,8 +112,8 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex.Message);
-				MessageBox.Show(this, $"An error was encountered while trying to save the picture\r\n\r\n{ex.Message}", "Sailed to save picture", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+				Serilog.Log.Logger.Error(ex, $"Failed to save picture to {saveFileDialog.FileName}");
+				MessageBox.Show(this, $"An error was encountered while trying to save the picture\r\n\r\n{ex.Message}", "Failed to save picture", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 			}
 		}
 	}

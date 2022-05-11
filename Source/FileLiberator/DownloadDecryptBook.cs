@@ -295,7 +295,7 @@ namespace FileLiberator
                     (libraryBook.Book.PictureLarge, PictureSize.Native);
 
                 var picBytes = PictureStorage.GetPictureSynchronously(new PictureDefinition(picId, size));
-
+                
                 if (picBytes.Length > 0)
                     File.WriteAllBytes(coverPath, picBytes);
             }
@@ -303,7 +303,7 @@ namespace FileLiberator
             {
                 //Failure to download cover art should not be
                 //considered a failure to download the book
-                Serilog.Log.Logger.Error(ex.Message);
+                Serilog.Log.Logger.Error(ex, $"Error downloading cover art of {libraryBook.Book.AudibleProductId} to {coverPath} catalog product.");
             }
         }
 
