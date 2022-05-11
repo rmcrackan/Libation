@@ -18,9 +18,15 @@ namespace LibationWinForms
 		private string beginBookBackupsToolStripMenuItem_format { get; }
 		private string beginPdfBackupsToolStripMenuItem_format { get; }
 
+		private ProductsGrid productsGrid { get; }
+
 		public Form1()
 		{
 			InitializeComponent();
+
+			productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
+			gridPanel.Controls.Add(productsGrid);
+			productsGrid.VisibleCountChanged += setVisibleCount;
 
 			// back up string formats
 			beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
@@ -43,6 +49,8 @@ namespace LibationWinForms
 			AccountsSettingsPersister.Saved += refreshImportMenu;
 
 			configAndInitAutoScan();
+
+			configVisibleBooksMenu();
 
 			// init default/placeholder cover art
 			var format = System.Drawing.Imaging.ImageFormat.Jpeg;
@@ -69,42 +77,14 @@ namespace LibationWinForms
 			// suppressed filter while init'ing UI
 			var prev_isProcessingGridSelect = isProcessingGridSelect;
 			isProcessingGridSelect = true;
-			this.UIThreadSync(setGrid);
+			this.UIThreadSync(() => productsGrid.Display());
 			isProcessingGridSelect = prev_isProcessingGridSelect;
 
 			// UI init complete. now we can apply filter
 			this.UIThreadAsync(() => doFilter(lastGoodFilter));
 
-			setBackupCounts(null, null);
-		}
-
-		#region reload grid
-		private ProductsGrid productsGrid;
-		private void setGrid()
-		{
-			SuspendLayout();
-			{
-				// previous non-null grid with zero-count removes columns. remove/re-add grid to get columns back
-				if (productsGrid?.Count == 0)
-				{
-					gridPanel.Controls.Remove(productsGrid);
-					productsGrid.VisibleCountChanged -= setVisibleCount;
-					productsGrid.Dispose();
-					productsGrid = null;
-				}
-
-				if (productsGrid is null)
-				{
-					productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
-					productsGrid.VisibleCountChanged += setVisibleCount;
-					gridPanel.UIThreadSync(() => gridPanel.Controls.Add(productsGrid));
-				}
-
-				productsGrid.Display();
-			}
-			ResumeLayout();
-		}
-		#endregion
+			setBackupCounts();
+        }
 
 		#region bottom: qty books visible
 		private void setVisibleCount(object _, int qty) => visibleCountLbl.Text = string.Format("Visible: {0}", qty);
@@ -114,7 +94,7 @@ namespace LibationWinForms
 		private System.ComponentModel.BackgroundWorker updateCountsBw;
 		private bool runBackupCountsAgain;
 
-		private void setBackupCounts(object _, object __)
+		private void setBackupCounts(object _ = null, object __ = null)
 		{
 			runBackupCountsAgain = true;
 
@@ -535,6 +515,41 @@ namespace LibationWinForms
 		}
 
 		private void EditQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new EditQuickFilters(this).ShowDialog();
+		#endregion
+
+		#region Visible Books menu
+		private void configVisibleBooksMenu()
+        {
+
+        }
+
+		private async void liberateToolStripMenuItem1_Click(object sender, EventArgs e)
+		{
+			var visibleBooks = productsGrid.GetVisible().ToList();
+			await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(visibleBooks);
+		}
+
+		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			var visibleLibraryBooks = productsGrid.GetVisible().ToList();
+			foreach (var libraryBook in visibleLibraryBooks)
+				libraryBook.Book.UserDefinedItem.Tags = "ggggg";
+			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
+		}
+
+		private void setDownloadedToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			var visibleLibraryBooks = productsGrid.GetVisible().ToList();
+			foreach (var libraryBook in visibleLibraryBooks)
+				libraryBook.Book.UserDefinedItem.BookStatus = DataLayer.LiberatedStatus.NotLiberated;
+			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
+		}
+
+		private async void removeToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			var visibleIds = productsGrid.GetVisible().Select(lb => lb.Book.AudibleProductId).ToList();
+			await LibraryCommands.RemoveBooksAsync(visibleIds);
+		}
 		#endregion
 
 		#region Settings menu

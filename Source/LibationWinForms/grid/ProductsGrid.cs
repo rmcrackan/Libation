@@ -14,6 +14,7 @@ using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {
+	#region // legacy instructions to update data_grid_view
 	// INSTRUCTIONS TO UPDATE DATA_GRID_VIEW
 	// - delete current DataGridView
 	// - view > other windows > data sources
@@ -27,7 +28,10 @@ namespace LibationWinForms
 	// - go to Design view
 	// - click on Data Sources > ProductItem. dropdown: DataGridView
 	// - drag/drop ProductItem on design surface
-	// AS OF AUGUST 2021 THIS DOES NOT WORK IN VS2019 WITH .NET-5 PROJECTS 
+	//
+	// as of august 2021 this does not work in vs2019 with .net5 projects
+	// VS has improved since then with .net6+ but I haven't checked again
+	#endregion
 
 	public partial class ProductsGrid : UserControl
 	{
@@ -44,10 +48,12 @@ namespace LibationWinForms
 			_dataGridView.Sorted += Filter;
 			_dataGridView.CellContentClick += DataGridView_CellContentClick;
 
+            this.Load += ProductsGrid_Load;
+
 			EnableDoubleBuffering();
 		}
 
-		private void EnableDoubleBuffering()
+        private void EnableDoubleBuffering()
 		{
 			var propertyInfo = _dataGridView.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
@@ -122,23 +128,12 @@ namespace LibationWinForms
 
 		#region UI display functions
 
-		public int Count { get; private set; }
-
 		private SortableBindingList<GridEntry> bindingList;
 
 		public void Display()
 		{
+			// don't return early if lib size == 0. this will not update correctly if all books are removed
 			var lib = DbContexts.GetLibrary_Flat_NoTracking();
-
-			Count = lib.Count;
-
-			// if no data. hide all columns. return
-			if (!lib.Any())
-			{
-				for (var i = _dataGridView.ColumnCount - 1; i >= 0; i--)
-					_dataGridView.Columns.RemoveAt(i);
-				return;
-			}
 
 			var orderedBooks = lib
 				// default load order
@@ -150,10 +145,10 @@ namespace LibationWinForms
 				.ToList();
 
 			// BIND
-			if (bindingList is null)
-				bindToGrid(orderedBooks);
-			else
+			if (bindingList?.Count > 0)
 				updateGrid(orderedBooks);
+			else
+				bindToGrid(orderedBooks);
 
 			// FILTER
 			Filter();
@@ -245,7 +240,8 @@ namespace LibationWinForms
 
 		#region Column Customizations
 
-		protected override void OnVisibleChanged(EventArgs e)
+		// to ensure this is only ever called once: Load instead of 'override OnVisibleChanged'
+		private void ProductsGrid_Load(object sender, EventArgs e)
 		{
 			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
 			contextMenuStrip1.Items.Add(new ToolStripSeparator());

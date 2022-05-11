@@ -259,12 +259,11 @@ namespace ApplicationServices
 			LibrarySizeChanged?.Invoke(null, null);
 		}
 
-		/// <summary>Occurs when books are added or removed from library</summary>
+		/// <summary>Occurs when the size of the library changes. ie: books are added or removed</summary>
 		public static event EventHandler LibrarySizeChanged;
 
 		/// <summary>
-		/// Occurs when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/>
-		/// changed values are successfully persisted.
+		/// Occurs when the size of the library does not change but book(s) details do. Especially when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/> changed values are successfully persisted.
 		/// </summary>
 		public static event EventHandler BookUserDefinedItemCommitted;
 
