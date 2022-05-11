@@ -134,6 +134,7 @@ namespace FileManager
 
         private void AddPath(string path)
         {
+            if (!File.Exists(path)) return;
             if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
                 AddUniqueFiles(FileUtility.SaferEnumerateFiles(path, SearchPattern, SearchOption));
             else

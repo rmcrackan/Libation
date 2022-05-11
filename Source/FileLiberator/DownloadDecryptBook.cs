@@ -75,6 +75,9 @@ namespace FileLiberator
                 if (!movedAudioFile)
                     return new StatusHandler { "Cannot find final audio file after decryption" };
 
+                if (Configuration.Instance.DownloadCoverArt)
+                    DownloadCoverArt(libraryBook);
+
                 libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
                 ApplicationServices.LibraryCommands.UpdateUserDefinedItem(libraryBook.Book);
 
@@ -129,6 +132,7 @@ namespace FileLiberator
 
                 // REAL WORK DONE HERE
                 var success = await Task.Run(abDownloader.Run);
+
                 return success;
             }
             finally
@@ -188,30 +192,26 @@ namespace FileLiberator
                 }
             }
 
-            NAudio.Lame.LameConfig lameConfig = new();
-
-
-            lameConfig.Mode = NAudio.Lame.MPEGMode.Mono;
+            audiobookDlLic.LameConfig = new();
+            audiobookDlLic.LameConfig.Mode = NAudio.Lame.MPEGMode.Mono;
 
             if (config.LameTargetBitrate)
 			{
                 if (config.LameConstantBitrate)
-                    lameConfig.BitRate = config.LameBitrate;
+                    audiobookDlLic.LameConfig.BitRate = config.LameBitrate;
                 else
                 {
-                    lameConfig.ABRRateKbps = config.LameBitrate;
-                    lameConfig.VBR = NAudio.Lame.VBRMode.ABR;
-                    lameConfig.WriteVBRTag = true;
+                    audiobookDlLic.LameConfig.ABRRateKbps = config.LameBitrate;
+                    audiobookDlLic.LameConfig.VBR = NAudio.Lame.VBRMode.ABR;
+                    audiobookDlLic.LameConfig.WriteVBRTag = true;
                 }
 			}
 			else
 			{
-                lameConfig.VBR = NAudio.Lame.VBRMode.Default;
-                lameConfig.VBRQuality = config.LameVBRQuality;
-                lameConfig.WriteVBRTag = true;
+                audiobookDlLic.LameConfig.VBR = NAudio.Lame.VBRMode.Default;
+                audiobookDlLic.LameConfig.VBRQuality = config.LameVBRQuality;
+                audiobookDlLic.LameConfig.WriteVBRTag = true;
             }
-
-            audiobookDlLic.LameConfig = lameConfig;
 
             return audiobookDlLic;
         }
@@ -278,5 +278,34 @@ namespace FileLiberator
 
 			return true;
 		}
+
+        private void DownloadCoverArt(LibraryBook libraryBook)
+		{
+            var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
+            var coverPath = AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, ".jpg");
+            coverPath = Path.Combine(destinationDir, Path.GetFileName(coverPath));
+
+            try
+            {
+                if (File.Exists(coverPath)) 
+                    FileUtility.SaferDelete(coverPath);
+
+                (string picId, PictureSize size) = libraryBook.Book.PictureLarge is null ?
+                    (libraryBook.Book.PictureId, PictureSize.Native) :
+                    (libraryBook.Book.PictureLarge, PictureSize.Native);
+
+                var picBytes = PictureStorage.GetPictureSynchronously(new PictureDefinition(picId, size));
+                
+                if (picBytes.Length > 0)
+                    File.WriteAllBytes(coverPath, picBytes);
+            }
+            catch (Exception ex)
+            {
+                //Failure to download cover art should not be
+                //considered a failure to download the book
+                Serilog.Log.Logger.Error(ex, $"Error downloading cover art of {libraryBook.Book.AudibleProductId} to {coverPath} catalog product.");
+            }
+        }
+
 	}
 }

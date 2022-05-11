@@ -200,6 +200,13 @@ namespace LibationFileManager
             get => persistentDictionary.GetNonString<Dictionary<string,int>>(nameof(GridColumnsWidths));
             set => persistentDictionary.SetNonString(nameof(GridColumnsWidths), value);
         }
+        
+        [Description("Save cover image alongside audiobook?")]
+        public bool DownloadCoverArt
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(DownloadCoverArt));
+            set => persistentDictionary.SetNonString(nameof(DownloadCoverArt), value);
+        }
 
         public enum BadBookAction
         {

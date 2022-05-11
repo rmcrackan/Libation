@@ -134,6 +134,9 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.GridColumnsWidths)))
 				config.GridColumnsWidths = new Dictionary<string, int>();
+
+			if (!config.Exists(nameof(config.DownloadCoverArt)))
+				config.DownloadCoverArt = true;
 		}
 
 		/// <summary>Initialize logging. Run after migration</summary>
