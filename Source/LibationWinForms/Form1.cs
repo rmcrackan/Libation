@@ -25,8 +25,8 @@ namespace LibationWinForms
 			InitializeComponent();
 
 			productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
+			productsGrid.VisibleCountChanged += (_, qty) => visibleCountLbl.Text = string.Format("Visible: {0}", qty);
 			gridPanel.Controls.Add(productsGrid);
-			productsGrid.VisibleCountChanged += setVisibleCount;
 
 			// back up string formats
 			beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
@@ -85,10 +85,6 @@ namespace LibationWinForms
 
 			setBackupCounts();
         }
-
-		#region bottom: qty books visible
-		private void setVisibleCount(object _, int qty) => visibleCountLbl.Text = string.Format("Visible: {0}", qty);
-		#endregion
 
 		#region bottom: backup counts
 		private System.ComponentModel.BackgroundWorker updateCountsBw;
@@ -519,19 +515,20 @@ namespace LibationWinForms
 
 		#region Visible Books menu
 		private void configVisibleBooksMenu()
-        {
+		{
+//productsGrid.VisibleCountChanged += ;
 
-        }
+		}
 
 		private async void liberateToolStripMenuItem1_Click(object sender, EventArgs e)
 		{
-			var visibleBooks = productsGrid.GetVisible().ToList();
+			var visibleBooks = productsGrid.GetVisible();
 			await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(visibleBooks);
 		}
 
 		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var visibleLibraryBooks = productsGrid.GetVisible().ToList();
+			var visibleLibraryBooks = productsGrid.GetVisible();
 			foreach (var libraryBook in visibleLibraryBooks)
 				libraryBook.Book.UserDefinedItem.Tags = "ggggg";
 			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
@@ -539,7 +536,7 @@ namespace LibationWinForms
 
 		private void setDownloadedToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var visibleLibraryBooks = productsGrid.GetVisible().ToList();
+			var visibleLibraryBooks = productsGrid.GetVisible();
 			foreach (var libraryBook in visibleLibraryBooks)
 				libraryBook.Book.UserDefinedItem.BookStatus = DataLayer.LiberatedStatus.NotLiberated;
 			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
