@@ -35,6 +35,7 @@ namespace LibationWinForms
 
 	public partial class ProductsGrid : UserControl
 	{
+		/// <summary>Visible rows have changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 
 		// alias
@@ -208,6 +209,8 @@ namespace LibationWinForms
 			if (_dataGridView.Rows.Count == 0)
 				return;
 
+			var initVisible = getVisible().Count();
+
 			var searchResults = SearchEngineCommands.Search(searchString);
 			var productIds = searchResults.Docs.Select(d => d.ProductId).ToList();
 
@@ -224,15 +227,21 @@ namespace LibationWinForms
 
 			// Causes repainting of the DataGridView
 			bindingContext.ResumeBinding();
-			VisibleCountChanged?.Invoke(this, GetVisible().Count());
+
+			var endVisible = getVisible().Count();
+			if (initVisible != endVisible)
+				VisibleCountChanged?.Invoke(this, endVisible);
 		}
 
 		#endregion
 
-		internal IEnumerable<DataLayer.LibraryBook> GetVisible()
+		private IEnumerable<DataGridViewRow> getVisible()
 			=> _dataGridView
 			.AsEnumerable()
-			.Where(row => row.Visible)
+			.Where(row => row.Visible);
+
+		internal List<DataLayer.LibraryBook> GetVisible()
+			=> getVisible()
 			.Select(row => ((GridEntry)row.DataBoundItem).LibraryBook)
 			.ToList();
 
