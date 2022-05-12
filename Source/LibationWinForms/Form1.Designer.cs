@@ -1,33 +1,33 @@
 ﻿namespace LibationWinForms
 {
-	partial class Form1
-	{
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.IContainer components = null;
+    partial class Form1
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing && (components != null))
-			{
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
-		#region Windows Form Designer generated code
+        #region Windows Form Designer generated code
 
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.gridPanel = new System.Windows.Forms.Panel();
             this.filterHelpBtn = new System.Windows.Forms.Button();
@@ -76,8 +76,8 @@
             // 
             // gridPanel
             // 
-            this.gridPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.gridPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gridPanel.Location = new System.Drawing.Point(34, 178);
             this.gridPanel.Margin = new System.Windows.Forms.Padding(10, 8, 10, 8);
@@ -110,7 +110,7 @@
             // 
             // filterSearchTb
             // 
-            this.filterSearchTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.filterSearchTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.filterSearchTb.Location = new System.Drawing.Point(527, 90);
             this.filterSearchTb.Margin = new System.Windows.Forms.Padding(10, 8, 10, 8);
@@ -445,38 +445,38 @@
             this.ResumeLayout(false);
             this.PerformLayout();
 
-		}
+        }
 
-		#endregion
+        #endregion
 
-		private System.Windows.Forms.Panel gridPanel;
-		private System.Windows.Forms.MenuStrip menuStrip1;
-		private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
-		private System.Windows.Forms.StatusStrip statusStrip1;
-		private System.Windows.Forms.ToolStripStatusLabel springLbl;
-		private System.Windows.Forms.ToolStripStatusLabel visibleCountLbl;
-		private System.Windows.Forms.ToolStripMenuItem liberateToolStripMenuItem;
-		private System.Windows.Forms.ToolStripStatusLabel backupsCountsLbl;
-		private System.Windows.Forms.ToolStripMenuItem beginBookBackupsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripStatusLabel pdfsCountsLbl;
-		private System.Windows.Forms.ToolStripMenuItem beginPdfBackupsToolStripMenuItem;
-		private System.Windows.Forms.TextBox filterSearchTb;
-		private System.Windows.Forms.Button filterBtn;
-		private System.Windows.Forms.Button filterHelpBtn;
-		private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem scanLibraryToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem quickFiltersToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem firstFilterIsDefaultToolStripMenuItem;
-		private System.Windows.Forms.Button addFilterBtn;
-		private System.Windows.Forms.ToolStripMenuItem editQuickFiltersToolStripMenuItem;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-		private System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfSomeAccountsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem noAccountsYetAddAccountToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem exportLibraryToolStripMenuItem;
+        private System.Windows.Forms.Panel gridPanel;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel springLbl;
+        private System.Windows.Forms.ToolStripStatusLabel visibleCountLbl;
+        private System.Windows.Forms.ToolStripMenuItem liberateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel backupsCountsLbl;
+        private System.Windows.Forms.ToolStripMenuItem beginBookBackupsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel pdfsCountsLbl;
+        private System.Windows.Forms.ToolStripMenuItem beginPdfBackupsToolStripMenuItem;
+        private System.Windows.Forms.TextBox filterSearchTb;
+        private System.Windows.Forms.Button filterBtn;
+        private System.Windows.Forms.Button filterHelpBtn;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem scanLibraryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem quickFiltersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem firstFilterIsDefaultToolStripMenuItem;
+        private System.Windows.Forms.Button addFilterBtn;
+        private System.Windows.Forms.ToolStripMenuItem editQuickFiltersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem scanLibraryOfSomeAccountsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem noAccountsYetAddAccountToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportLibraryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem convertAllM4bToMp3ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeLibraryBooksToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeAllAccountsToolStripMenuItem;

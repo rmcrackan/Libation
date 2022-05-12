@@ -42,9 +42,9 @@ namespace LibationWinForms
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
-            QuickFilters.Updated += updateFiltersMenu;
-            LibraryCommands.ScanBegin += LibraryCommands_ScanBegin;
-            LibraryCommands.ScanEnd += LibraryCommands_ScanEnd;
+			QuickFilters.Updated += updateFiltersMenu;
+			LibraryCommands.ScanBegin += LibraryCommands_ScanBegin;
+			LibraryCommands.ScanEnd += LibraryCommands_ScanEnd;
 
 			// accounts updated
 			this.Load += refreshImportMenu;
@@ -86,7 +86,7 @@ namespace LibationWinForms
 			this.UIThreadAsync(() => doFilter(lastGoodFilter));
 
 			setBackupCounts();
-        }
+		}
 
 		#region bottom: backup counts
 		private System.ComponentModel.BackgroundWorker updateCountsBw;
@@ -258,7 +258,7 @@ namespace LibationWinForms
 			Configuration.Instance.AutoScanChanged += startAutoScan;
 		}
 
-        private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
+		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
 		private List<(string AccountId, string LocaleName)> getDefaultAccounts()
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
@@ -317,11 +317,11 @@ namespace LibationWinForms
 		}
 
 		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-            var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
-            await scanLibrariesAsync(firstAccount);
-        }
+		{
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
+			await scanLibrariesAsync(firstAccount);
+		}
 
 		private async void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -518,7 +518,8 @@ namespace LibationWinForms
 		#region Visible Books menu
 		private void configVisibleBooksMenu()
 		{
-			productsGrid.VisibleCountChanged += (_, qty) => {
+			productsGrid.VisibleCountChanged += (_, qty) =>
+			{
 				visibleBooksToolStripMenuItem.Text = string.Format(visibleBooksToolStripMenuItem_format, qty);
 				visibleBooksToolStripMenuItem.Enabled = qty > 0;
 
@@ -572,11 +573,11 @@ namespace LibationWinForms
 
 		private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
 			=> MessageBox.Show($"Running Libation version {AppScaffolding.LibationScaffolding.BuildVersion}", $"Libation v{AppScaffolding.LibationScaffolding.BuildVersion}");
-        #endregion
+		#endregion
 
-        #region Scanning label
+		#region Scanning label
 		private void LibraryCommands_ScanBegin(object sender, int accountsLength)
 		{
 			scanLibraryToolStripMenuItem.Enabled = false;
@@ -598,6 +599,6 @@ namespace LibationWinForms
 
 			this.scanningToolStripMenuItem.Visible = false;
 		}
-        #endregion
-    }
+		#endregion
+	}
 }
