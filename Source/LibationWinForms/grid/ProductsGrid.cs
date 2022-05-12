@@ -36,6 +36,7 @@ namespace LibationWinForms
 
 	public partial class ProductsGrid : UserControl
 	{
+		internal event EventHandler<GridEntry> LiberateClicked;
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 
@@ -123,7 +124,7 @@ namespace LibationWinForms
 			displayWindow.Show(this);
 		}
 
-		private static async Task Liberate_Click(GridEntry liveGridEntry)
+		private async Task Liberate_Click(GridEntry liveGridEntry)
 		{
 			var libraryBook = liveGridEntry.LibraryBook;
 
@@ -269,6 +270,9 @@ namespace LibationWinForms
 			=> getVisible()
 			.Select(row => ((GridEntry)row.DataBoundItem).LibraryBook)
 			.ToList();
+
+		internal IEnumerable<GridEntry> AllEntries
+		=> bindingList;
 
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
 
