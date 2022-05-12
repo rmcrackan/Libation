@@ -20,7 +20,7 @@ namespace AaxDecrypter
 		public event EventHandler<TimeSpan> DecryptTimeRemaining;
 		public event EventHandler<string> FileCreated;
 
-		protected bool IsCanceled { get; set; }
+		public bool IsCanceled { get; set; }
 		
 		protected string OutputFileName { get; private set; }
 		protected DownloadOptions DownloadOptions { get; }

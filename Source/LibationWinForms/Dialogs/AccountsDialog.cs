@@ -15,9 +15,9 @@ namespace LibationWinForms.Dialogs
 		private const string COL_AccountName = nameof(AccountName);
 		private const string COL_Locale = nameof(Locale);
 
-		private Form1 _parent { get; }
+		private Form _parent { get; }
 
-		public AccountsDialog(Form1 parent)
+		public AccountsDialog(Form parent)
 		{
 			_parent = parent;
 

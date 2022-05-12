@@ -14,6 +14,7 @@ namespace FileLiberator
 {
 	public class DownloadPdf : Processable
 	{
+		public override string Name => "Download Pdf";
 		public override bool Validate(LibraryBook libraryBook)
 			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
 			&& !libraryBook.Book.PDF_Exists;

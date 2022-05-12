@@ -14,6 +14,7 @@ namespace FileLiberator
 {
     public class ConvertToMp3 : AudioDecodable
     {
+        public override string Name => "Convert to Mp3";
         private Mp4File m4bBook;
 
 		private long fileSize;

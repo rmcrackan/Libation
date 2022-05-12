@@ -10,9 +10,9 @@ namespace LibationWinForms.Dialogs
 	{
 		public List<Account> CheckedAccounts { get; } = new List<Account>();
 
-		private Form1 _parent { get; }
+		private Form _parent { get; }
 
-		public ScanAccountsDialog(Form1 parent)
+		public ScanAccountsDialog(Form parent)
 		{
 			_parent = parent;
 
