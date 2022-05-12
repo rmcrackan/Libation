@@ -38,7 +38,6 @@ namespace LibationWinForms
 	{
 
 		internal event EventHandler<GridEntry> LiberateClicked;
-		ImageDisplay imageDisplay;
 		public event EventHandler<int> VisibleCountChanged;
 
 		// alias
@@ -82,6 +81,7 @@ namespace LibationWinForms
 				await Cover_Click(getGridEntry(e.RowIndex));
 		}
 
+		private ImageDisplay imageDisplay;
 		private async Task Cover_Click(GridEntry liveGridEntry)
 		{
 			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge, PictureSize.Native);
