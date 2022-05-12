@@ -38,6 +38,8 @@ namespace LibationWinForms
 	{
 
 		internal event EventHandler<GridEntry> LiberateClicked;
+
+		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 
 		// alias
