@@ -26,8 +26,8 @@ namespace LibationWinForms
 		{
 			InitializeComponent();
 
-			splitContainer1.Panel2Collapsed = true;
-			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
+			if (this.DesignMode)
+				return;
 
 			productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
 			productsGrid.VisibleCountChanged += (_, qty) => visibleCountLbl.Text = string.Format("Visible: {0}", qty);
@@ -70,27 +70,9 @@ namespace LibationWinForms
 			if (this.DesignMode)
 				return;
 
-			// can't refactor into "this.Load => reloadGridAndUpdateBottomNumbers"
-			// because loadInitialQuickFilterState must follow it
-			reloadGridAndUpdateBottomNumbers();
-
-			// also applies filter. ONLY call AFTER loading grid
-			loadInitialQuickFilterState();
+			// I'm leaving this empty call here as a reminder that if we use this, it should probably be after DesignMode check
 		}
 
-		private void reloadGridAndUpdateBottomNumbers(object _ = null, object __ = null)
-		{
-			// suppressed filter while init'ing UI
-			var prev_isProcessingGridSelect = isProcessingGridSelect;
-			isProcessingGridSelect = true;
-			this.UIThreadSync(() => productsGrid.Display());
-			isProcessingGridSelect = prev_isProcessingGridSelect;
-
-			// UI init complete. now we can apply filter
-			this.UIThreadAsync(() => doFilter(lastGoodFilter));
-
-			setBackupCounts();
-		}
 
 		#region bottom: backup counts
 		private System.ComponentModel.BackgroundWorker updateCountsBw;
