@@ -36,8 +36,7 @@ namespace LibationWinForms
 
 	public partial class ProductsGrid : UserControl
 	{
-
-		ImageDisplay imageDisplay;
+		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 
 		// alias
@@ -81,6 +80,7 @@ namespace LibationWinForms
 				await Cover_Click(getGridEntry(e.RowIndex));
 		}
 
+		private ImageDisplay imageDisplay;
 		private async Task Cover_Click(GridEntry liveGridEntry)
 		{
 			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge, PictureSize.Native);
