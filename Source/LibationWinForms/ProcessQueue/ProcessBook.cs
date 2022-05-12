@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LibationWinForms.NewUI
+namespace LibationWinForms.ProcessQueue
 {
 	public enum ProcessBookResult
 	{

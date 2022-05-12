@@ -1,7 +1,6 @@
 ﻿using DataLayer;
 using Dinah.Core.Threading;
 using LibationWinForms.BookLiberation;
-using LibationWinForms.NewUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LibationWinForms
+namespace LibationWinForms.ProcessQueue
 {	
 	internal partial class ProcessBookQueue : UserControl, ILogForm
 	{

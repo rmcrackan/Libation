@@ -72,7 +72,7 @@
 			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.addFilterBtn = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-			this.processBookQueue1 = new LibationWinForms.ProcessBookQueue();
+			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessBookQueue();
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -538,6 +538,6 @@
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem liberateVisible2ToolStripMenuItem;
 		private System.Windows.Forms.SplitContainer splitContainer1;
-		private ProcessBookQueue processBookQueue1;
+		private LibationWinForms.ProcessQueue.ProcessBookQueue processBookQueue1;
 	}
 }

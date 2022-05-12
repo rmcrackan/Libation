@@ -7,9 +7,9 @@ using Dinah.Core.Threading;
 using FileLiberator;
 using LibationFileManager;
 using LibationWinForms.BookLiberation;
-using LibationWinForms.NewUI;
+using LibationWinForms.ProcessQueue;
 
-namespace LibationWinForms
+namespace LibationWinForms.ProcessQueue
 {
 	internal interface ILiberationBaseForm
 	{

@@ -1,4 +1,4 @@
-﻿namespace LibationWinForms
+﻿namespace LibationWinForms.ProcessQueue
 {
 	partial class ProcessBookQueue
 	{

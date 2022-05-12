@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace LibationWinForms
+namespace LibationWinForms.ProcessQueue
 {
 	public partial class ProcessBookForm : Form
 	{
