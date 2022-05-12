@@ -47,6 +47,7 @@
             this.beginBookBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.beginPdfBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.convertAllM4bToMp3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.liberateVisible2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,7 +56,7 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.scanningToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.visibleBooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.liberateToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.liberateVisibleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceTagsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setDownloadedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -214,7 +215,8 @@
             this.liberateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.beginBookBackupsToolStripMenuItem,
             this.beginPdfBackupsToolStripMenuItem,
-            this.convertAllM4bToMp3ToolStripMenuItem});
+            this.convertAllM4bToMp3ToolStripMenuItem,
+            this.liberateVisible2ToolStripMenuItem});
             this.liberateToolStripMenuItem.Name = "liberateToolStripMenuItem";
             this.liberateToolStripMenuItem.Size = new System.Drawing.Size(148, 48);
             this.liberateToolStripMenuItem.Text = "&Liberate";
@@ -239,6 +241,13 @@
             this.convertAllM4bToMp3ToolStripMenuItem.Size = new System.Drawing.Size(728, 54);
             this.convertAllM4bToMp3ToolStripMenuItem.Text = "Convert all &M4b to Mp3 [Long-running]...";
             this.convertAllM4bToMp3ToolStripMenuItem.Click += new System.EventHandler(this.convertAllM4bToMp3ToolStripMenuItem_Click);
+            // 
+            // liberateVisible2ToolStripMenuItem
+            // 
+            this.liberateVisible2ToolStripMenuItem.Name = "liberateVisible2ToolStripMenuItem";
+            this.liberateVisible2ToolStripMenuItem.Size = new System.Drawing.Size(728, 54);
+            this.liberateVisible2ToolStripMenuItem.Text = "Liberate &Visible Books: {0}";
+            this.liberateVisible2ToolStripMenuItem.Click += new System.EventHandler(this.liberateVisible);
             // 
             // exportToolStripMenuItem
             // 
@@ -297,7 +306,7 @@
             // visibleBooksToolStripMenuItem
             // 
             this.visibleBooksToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.liberateToolStripMenuItem1,
+            this.liberateVisibleToolStripMenuItem,
             this.replaceTagsToolStripMenuItem,
             this.setDownloadedToolStripMenuItem,
             this.removeToolStripMenuItem});
@@ -305,12 +314,12 @@
             this.visibleBooksToolStripMenuItem.Size = new System.Drawing.Size(267, 48);
             this.visibleBooksToolStripMenuItem.Text = "&Visible Books: {0}";
             // 
-            // liberateToolStripMenuItem1
+            // liberateVisibleToolStripMenuItem
             // 
-            this.liberateToolStripMenuItem1.Name = "liberateToolStripMenuItem1";
-            this.liberateToolStripMenuItem1.Size = new System.Drawing.Size(525, 54);
-            this.liberateToolStripMenuItem1.Text = "&Liberate";
-            this.liberateToolStripMenuItem1.Click += new System.EventHandler(this.liberateToolStripMenuItem1_Click);
+            this.liberateVisibleToolStripMenuItem.Name = "liberateVisibleToolStripMenuItem";
+            this.liberateVisibleToolStripMenuItem.Size = new System.Drawing.Size(525, 54);
+            this.liberateVisibleToolStripMenuItem.Text = "&Liberate: {0}";
+            this.liberateVisibleToolStripMenuItem.Click += new System.EventHandler(this.liberateVisible);
             // 
             // replaceTagsToolStripMenuItem
             // 
@@ -486,9 +495,10 @@
         private System.Windows.Forms.ToolStripMenuItem scanningToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem autoScanLibraryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem visibleBooksToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem liberateToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem liberateVisibleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem replaceTagsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setDownloadedToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem liberateVisible2ToolStripMenuItem;
     }
 }

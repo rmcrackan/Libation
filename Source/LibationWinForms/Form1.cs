@@ -15,9 +15,12 @@ namespace LibationWinForms
 {
 	public partial class Form1 : Form
 	{
-		private string visibleBooksToolStripMenuItem_format { get; }
 		private string beginBookBackupsToolStripMenuItem_format { get; }
 		private string beginPdfBackupsToolStripMenuItem_format { get; }
+
+		private string visibleBooksToolStripMenuItem_format { get; }
+		private string liberateVisibleToolStripMenuItem_format { get; }
+		private string liberateVisible2ToolStripMenuItem_format { get; }
 
 		private ProductsGrid productsGrid { get; }
 
@@ -30,9 +33,11 @@ namespace LibationWinForms
 			gridPanel.Controls.Add(productsGrid);
 
 			// back up string formats
-			visibleBooksToolStripMenuItem_format = visibleBooksToolStripMenuItem.Text;
 			beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
 			beginPdfBackupsToolStripMenuItem_format = beginPdfBackupsToolStripMenuItem.Text;
+			visibleBooksToolStripMenuItem_format = visibleBooksToolStripMenuItem.Text;
+			liberateVisibleToolStripMenuItem_format = liberateVisibleToolStripMenuItem.Text;
+			liberateVisible2ToolStripMenuItem_format = liberateVisible2ToolStripMenuItem.Text;
 
 			if (this.DesignMode)
 				return;
@@ -534,11 +539,29 @@ namespace LibationWinForms
 			=> await Task.Run(setLiberatedVisibleMenuItem);
 		void setLiberatedVisibleMenuItem()
 		{
-			var notLiberated = productsGrid.GetVisible().Any(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
-			this.UIThreadSync(() => liberateToolStripMenuItem1.Enabled = notLiberated);
+			var notLiberated = productsGrid.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			this.UIThreadSync(() =>
+            {
+				if (notLiberated > 0)
+				{
+					liberateVisibleToolStripMenuItem.Text = string.Format(liberateVisibleToolStripMenuItem_format, notLiberated);
+					liberateVisibleToolStripMenuItem.Enabled = true;
+
+					liberateVisible2ToolStripMenuItem.Text = string.Format(liberateVisible2ToolStripMenuItem_format, notLiberated);
+					liberateVisible2ToolStripMenuItem.Enabled = true;
+				}
+				else
+				{
+					liberateVisibleToolStripMenuItem.Text = "All visible books are liberated";
+					liberateVisibleToolStripMenuItem.Enabled = false;
+
+					liberateVisible2ToolStripMenuItem.Text = "All visible books are liberated";
+					liberateVisible2ToolStripMenuItem.Enabled = false;
+				}
+			});
 		}
 
-		private async void liberateToolStripMenuItem1_Click(object sender, EventArgs e)
+		private async void liberateVisible(object sender, EventArgs e)
 		{
 			var visibleBooks = productsGrid.GetVisible();
 			await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(visibleBooks);
