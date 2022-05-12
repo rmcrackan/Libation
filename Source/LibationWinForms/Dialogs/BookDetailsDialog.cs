@@ -46,15 +46,16 @@ namespace LibationWinForms.Dialogs
 
 			var t = @$"
 Title: {Book.Title}
-Author(s): {Book.AuthorNames}
-Narrator(s): {Book.NarratorNames}
+Author(s): {Book.AuthorNames()}
+Narrator(s): {Book.NarratorNames()}
 Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
-Category: {string.Join(" > ", Book.CategoriesNames)}
+Category: {string.Join(" > ", Book.CategoriesNames())}
 Purchase Date: {_libraryBook.DateAdded.ToString("d")}
 ".Trim();
 
-			if (!string.IsNullOrWhiteSpace(Book.SeriesNames))
-				t += $"\r\nSeries: {Book.SeriesNames}";
+			var seriesNames = Book.SeriesNames();
+			if (!string.IsNullOrWhiteSpace(seriesNames))
+				t += $"\r\nSeries: {seriesNames}";
 
 			var bookRating = Book.Rating?.ToStarString();
 			if (!string.IsNullOrWhiteSpace(bookRating))

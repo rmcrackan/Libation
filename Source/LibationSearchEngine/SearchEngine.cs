@@ -30,8 +30,14 @@ namespace LibationSearchEngine
         // the workaround which allows displaying all books when query is empty
         public const string ALL_QUERY = "*:*";
 
-		#region index rules
-		private static ReadOnlyDictionary<string, Func<LibraryBook, string>> idIndexRules { get; }
+        #region index rules
+        // common fields used in the "all" default search field
+        public const string ALL_AUDIBLE_PRODUCT_ID = nameof(Book.AudibleProductId);
+        public const string ALL_TITLE = nameof(Book.Title);
+        public const string ALL_AUTHOR_NAMES = "AuthorNames";
+        public const string ALL_NARRATOR_NAMES = "NarratorNames";
+
+        private static ReadOnlyDictionary<string, Func<LibraryBook, string>> idIndexRules { get; }
             = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
                 new Dictionary<string, Func<LibraryBook, string>>
                 {
@@ -50,15 +56,15 @@ namespace LibationSearchEngine
                     [nameof(Book.DatePublished)] = lb => lb.Book.DatePublished?.ToLuceneString(),
 
                     [nameof(Book.Title)] = lb => lb.Book.Title,
-                    [nameof(Book.AuthorNames)] = lb => lb.Book.AuthorNames,
-                    ["Author"] = lb => lb.Book.AuthorNames,
-                    ["Authors"] = lb => lb.Book.AuthorNames,
-                    [nameof(Book.NarratorNames)] = lb => lb.Book.NarratorNames,
-                    ["Narrator"] = lb => lb.Book.NarratorNames,
-                    ["Narrators"] = lb => lb.Book.NarratorNames,
+                    [ALL_AUTHOR_NAMES] = lb => lb.Book.AuthorNames(),
+                    ["Author"] = lb => lb.Book.AuthorNames(),
+                    ["Authors"] = lb => lb.Book.AuthorNames(),
+                    [ALL_NARRATOR_NAMES] = lb => lb.Book.NarratorNames(),
+                    ["Narrator"] = lb => lb.Book.NarratorNames(),
+                    ["Narrators"] = lb => lb.Book.NarratorNames(),
                     [nameof(Book.Publisher)] = lb => lb.Book.Publisher,
 
-                    [nameof(Book.SeriesNames)] = lb => string.Join(
+                    ["SeriesNames"] = lb => string.Join(
                         ", ",
                         lb.Book.SeriesLink
                             .Where(s => !string.IsNullOrWhiteSpace(s.Series.Name))
@@ -70,11 +76,11 @@ namespace LibationSearchEngine
                             .Select(s => s.Series.AudibleSeriesId)),
                     ["SeriesId"] = lb => string.Join(", ", lb.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId)),
 
-                    [nameof(Book.CategoriesNames)] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
-                    [nameof(Book.Category)] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
-                    ["Categories"] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
-                    ["CategoriesId"] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
-                    ["CategoryId"] = lb => lb.Book.CategoriesIds is null ? null : string.Join(", ", lb.Book.CategoriesIds),
+                    ["CategoriesNames"] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
+                    [nameof(Book.Category)] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
+                    ["Categories"] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
+                    ["CategoriesId"] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
+                    ["CategoryId"] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
 
                     [TAGS.FirstCharToUpper()] = lb => lb.Book.UserDefinedItem.Tags,
 
@@ -107,14 +113,14 @@ namespace LibationSearchEngine
             = new ReadOnlyDictionary<string, Func<LibraryBook, bool>>(
                 new Dictionary<string, Func<LibraryBook, bool>>
                 {
-                    ["HasDownloads"] = lb => lb.Book.HasPdf,
-                    ["HasDownload"] = lb => lb.Book.HasPdf,
-                    ["Downloads"] = lb => lb.Book.HasPdf,
-                    ["Download"] = lb => lb.Book.HasPdf,
-                    ["HasPDFs"] = lb => lb.Book.HasPdf,
-                    ["HasPDF"] = lb => lb.Book.HasPdf,
-                    ["PDFs"] = lb => lb.Book.HasPdf,
-                    ["PDF"] = lb => lb.Book.HasPdf,
+                    ["HasDownloads"] = lb => lb.Book.HasPdf(),
+                    ["HasDownload"] = lb => lb.Book.HasPdf(),
+                    ["Downloads"] = lb => lb.Book.HasPdf(),
+                    ["Download"] = lb => lb.Book.HasPdf(),
+                    ["HasPDFs"] = lb => lb.Book.HasPdf(),
+                    ["HasPDF"] = lb => lb.Book.HasPdf(),
+                    ["PDFs"] = lb => lb.Book.HasPdf(),
+                    ["PDF"] = lb => lb.Book.HasPdf(),
 
                     ["IsRated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,
                     ["Rated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,
@@ -151,10 +157,10 @@ namespace LibationSearchEngine
         private static IEnumerable<Func<LibraryBook, string>> allFieldIndexRules { get; }
             = new List<Func<LibraryBook, string>>
             {
-                idIndexRules[nameof(Book.AudibleProductId)],
-                stringIndexRules[nameof(Book.Title)],
-                stringIndexRules[nameof(Book.AuthorNames)],
-                stringIndexRules[nameof(Book.NarratorNames)]
+                idIndexRules[ALL_AUDIBLE_PRODUCT_ID],
+                stringIndexRules[ALL_TITLE],
+                stringIndexRules[ALL_AUTHOR_NAMES],
+                stringIndexRules[ALL_NARRATOR_NAMES]
             };
 		#endregion
 

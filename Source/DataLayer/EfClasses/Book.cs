@@ -43,26 +43,9 @@ namespace DataLayer
         // non-null. use "empty pattern"
         internal int CategoryId { get; private set; }
         public Category Category { get; private set; }
-        public string[] CategoriesNames
-            => Category is null ? new string[0]
-            : Category.ParentCategory is null ? new[] { Category.Name }
-            : new[] { Category.ParentCategory.Name, Category.Name };
-        public string[] CategoriesIds
-            => Category is null ? null
-            : Category.ParentCategory is null ? new[] { Category.AudibleCategoryId }
-            : new[] { Category.ParentCategory.AudibleCategoryId, Category.AudibleCategoryId };
-
-        public string TitleSortable => Formatters.GetSortName(Title);
-        public string SeriesSortable => Formatters.GetSortName(SeriesNames);
 
         // is owned, not optional 1:1
         public UserDefinedItem UserDefinedItem { get; private set; }
-
-        // UserDefinedItem convenience properties
-        /// <summary>True if IsLiberated or Error. False if NotLiberated</summary>
-        public bool Audio_Exists => UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated;
-        /// <summary>True if exists and IsLiberated. Else false</summary>
-        public bool PDF_Exists => UserDefinedItem.PdfStatus == LiberatedStatus.Liberated;
 
         // is owned, not optional 1:1
         /// <summary>The product's aggregate community rating</summary>
@@ -125,11 +108,7 @@ namespace DataLayer
                 .ToList();
 
         public IEnumerable<Contributor> Authors => getContributions(Role.Author).Select(bc => bc.Contributor).ToList();
-        public string AuthorNames => string.Join(", ", Authors.Select(a => a.Name));
-
         public IEnumerable<Contributor> Narrators => getContributions(Role.Narrator).Select(bc => bc.Contributor).ToList();
-        public string NarratorNames => string.Join(", ", Narrators.Select(n => n.Name));
-
         public string Publisher => getContributions(Role.Publisher).SingleOrDefault()?.Contributor.Name;
 
         public void ReplaceAuthors(IEnumerable<Contributor> authors, DbContext context = null)
@@ -185,30 +164,6 @@ namespace DataLayer
         #region series
         private HashSet<SeriesBook> _seriesLink;
         public IEnumerable<SeriesBook> SeriesLink => _seriesLink?.ToList();
-        public string SeriesNames
-        {
-            get
-            {
-                if (_seriesLink is null)
-                    return "";
-
-                // first: alphabetical by name
-                var withNames = _seriesLink
-                    .Where(s => !string.IsNullOrWhiteSpace(s.Series.Name))
-                    .Select(s => s.Series.Name)
-                    .OrderBy(a => a)
-                    .ToList();
-                // then un-named are alpha by series id
-                var nullNames = _seriesLink
-                    .Where(s => string.IsNullOrWhiteSpace(s.Series.Name))
-                    .Select(s => s.Series.AudibleSeriesId)
-                    .OrderBy(a => a)
-                    .ToList();
-
-                var all = withNames.Union(nullNames).ToList();
-                return string.Join(", ", all);
-            }
-        }
 
         public void UpsertSeries(Series series, string order, DbContext context = null)
         {
@@ -230,7 +185,6 @@ namespace DataLayer
         #region supplements
         private HashSet<Supplement> _supplements;
         public IEnumerable<Supplement> Supplements => _supplements?.ToList();
-        public bool HasPdf => Supplements.Any();
 
         public void AddSupplementDownloadUrl(string url)
         {

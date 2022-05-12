@@ -181,7 +181,7 @@ namespace LibationWinForms.Dialogs
 
 				// only warn if changed during this time. don't want to warn every time user happens to change settings while level is verbose
 				if (logLevelOld != logLevelNew)
-					MessageBoxVerboseLoggingWarning.ShowIfTrue();
+					MessageBoxLib.VerboseLoggingWarning_ShowIfTrue();
 			}
 
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;

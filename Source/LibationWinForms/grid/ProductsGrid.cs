@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
+using DataLayer;
 using Dinah.Core;
 using Dinah.Core.DataBinding;
 using Dinah.Core.Threading;
@@ -130,7 +131,7 @@ namespace LibationWinForms
 			var libraryBook = liveGridEntry.LibraryBook;
 
 			// liberated: open explorer to file
-			if (libraryBook.Book.Audio_Exists)
+			if (libraryBook.Book.Audio_Exists())
 			{
 				var filePath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
 				if (!Go.To.File(filePath))

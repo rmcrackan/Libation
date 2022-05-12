@@ -241,8 +241,8 @@ namespace LibationWinForms.BookLiberation
 				details =
 $@"  Title: {libraryBook.Book.Title}
   ID: {libraryBook.Book.AudibleProductId}
-  Author: {trunc(libraryBook.Book.AuthorNames)}
-  Narr: {trunc(libraryBook.Book.NarratorNames)}";
+  Author: {trunc(libraryBook.Book.AuthorNames())}
+  Narr: {trunc(libraryBook.Book.NarratorNames())}";
 			}
 			catch
 			{

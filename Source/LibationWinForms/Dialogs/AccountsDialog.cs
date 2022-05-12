@@ -128,7 +128,7 @@ namespace LibationWinForms.Dialogs
 			}
 			catch (Exception ex)
 			{
-				MessageBoxAlertAdmin.Show("Error attempting to save accounts", "Error saving accounts", ex);
+				MessageBoxLib.ShowAdminAlert("Error attempting to save accounts", "Error saving accounts", ex);
 			}
 		}
 
