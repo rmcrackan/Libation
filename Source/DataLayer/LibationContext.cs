@@ -10,7 +10,7 @@ namespace DataLayer
         // ========================
         // these run against the db. linq queries against these MUST be translatable to sql. primatives only. no POCOs or this error occurs:
         //     Unable to create a constant value of type 'DataLayer.Contributor'. Only primitive types or enumeration types are supported in this context.
-        // to use full object-linq, load and use local
+        // to use full object-linq, load and use Local. HOWEVER, Local is only hashed/indexed on PK. All other searches are very slow
         // load full table:
         //     List<Contributor> contributors = ...;
         //     Contributors.Load();

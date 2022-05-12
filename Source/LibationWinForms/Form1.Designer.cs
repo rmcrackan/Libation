@@ -53,23 +53,23 @@
             this.firstFilterIsDefaultToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editQuickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.scanningToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.visibleBooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.liberateToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.replaceTagsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setDownloadedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.accountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.basicSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.scanningToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.visibleCountLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.addFilterBtn = new System.Windows.Forms.Button();
-            this.visibleBooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.liberateToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.replaceTagsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setDownloadedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -198,14 +198,14 @@
             // removeAllAccountsToolStripMenuItem
             // 
             this.removeAllAccountsToolStripMenuItem.Name = "removeAllAccountsToolStripMenuItem";
-            this.removeAllAccountsToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.removeAllAccountsToolStripMenuItem.Size = new System.Drawing.Size(390, 54);
             this.removeAllAccountsToolStripMenuItem.Text = "All Accounts";
             this.removeAllAccountsToolStripMenuItem.Click += new System.EventHandler(this.removeAllAccountsToolStripMenuItem_Click);
             // 
             // removeSomeAccountsToolStripMenuItem
             // 
             this.removeSomeAccountsToolStripMenuItem.Name = "removeSomeAccountsToolStripMenuItem";
-            this.removeSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.removeSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(390, 54);
             this.removeSomeAccountsToolStripMenuItem.Text = "Some Accounts";
             this.removeSomeAccountsToolStripMenuItem.Click += new System.EventHandler(this.removeSomeAccountsToolStripMenuItem_Click);
             // 
@@ -251,7 +251,7 @@
             // exportLibraryToolStripMenuItem
             // 
             this.exportLibraryToolStripMenuItem.Name = "exportLibraryToolStripMenuItem";
-            this.exportLibraryToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.exportLibraryToolStripMenuItem.Size = new System.Drawing.Size(387, 54);
             this.exportLibraryToolStripMenuItem.Text = "E&xport Library...";
             this.exportLibraryToolStripMenuItem.Click += new System.EventHandler(this.exportLibraryToolStripMenuItem_Click);
             // 
@@ -284,6 +284,55 @@
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(636, 6);
             // 
+            // scanningToolStripMenuItem
+            // 
+            this.scanningToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.scanningToolStripMenuItem.Enabled = false;
+            this.scanningToolStripMenuItem.Image = global::LibationWinForms.Properties.Resources.import_16x16;
+            this.scanningToolStripMenuItem.Name = "scanningToolStripMenuItem";
+            this.scanningToolStripMenuItem.Size = new System.Drawing.Size(224, 48);
+            this.scanningToolStripMenuItem.Text = "Scanning...";
+            this.scanningToolStripMenuItem.Visible = false;
+            // 
+            // visibleBooksToolStripMenuItem
+            // 
+            this.visibleBooksToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.liberateToolStripMenuItem1,
+            this.replaceTagsToolStripMenuItem,
+            this.setDownloadedToolStripMenuItem,
+            this.removeToolStripMenuItem});
+            this.visibleBooksToolStripMenuItem.Name = "visibleBooksToolStripMenuItem";
+            this.visibleBooksToolStripMenuItem.Size = new System.Drawing.Size(267, 48);
+            this.visibleBooksToolStripMenuItem.Text = "&Visible Books: {0}";
+            // 
+            // liberateToolStripMenuItem1
+            // 
+            this.liberateToolStripMenuItem1.Name = "liberateToolStripMenuItem1";
+            this.liberateToolStripMenuItem1.Size = new System.Drawing.Size(525, 54);
+            this.liberateToolStripMenuItem1.Text = "&Liberate";
+            this.liberateToolStripMenuItem1.Click += new System.EventHandler(this.liberateToolStripMenuItem1_Click);
+            // 
+            // replaceTagsToolStripMenuItem
+            // 
+            this.replaceTagsToolStripMenuItem.Name = "replaceTagsToolStripMenuItem";
+            this.replaceTagsToolStripMenuItem.Size = new System.Drawing.Size(525, 54);
+            this.replaceTagsToolStripMenuItem.Text = "Replace &Tags...";
+            this.replaceTagsToolStripMenuItem.Click += new System.EventHandler(this.replaceTagsToolStripMenuItem_Click);
+            // 
+            // setDownloadedToolStripMenuItem
+            // 
+            this.setDownloadedToolStripMenuItem.Name = "setDownloadedToolStripMenuItem";
+            this.setDownloadedToolStripMenuItem.Size = new System.Drawing.Size(525, 54);
+            this.setDownloadedToolStripMenuItem.Text = "Set \'&Downloaded\' status...";
+            this.setDownloadedToolStripMenuItem.Click += new System.EventHandler(this.setDownloadedToolStripMenuItem_Click);
+            // 
+            // removeToolStripMenuItem
+            // 
+            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(525, 54);
+            this.removeToolStripMenuItem.Text = "&Remove from library...";
+            this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
+            // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -298,38 +347,28 @@
             // accountsToolStripMenuItem
             // 
             this.accountsToolStripMenuItem.Name = "accountsToolStripMenuItem";
-            this.accountsToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.accountsToolStripMenuItem.Size = new System.Drawing.Size(327, 54);
             this.accountsToolStripMenuItem.Text = "&Accounts...";
             this.accountsToolStripMenuItem.Click += new System.EventHandler(this.accountsToolStripMenuItem_Click);
             // 
             // basicSettingsToolStripMenuItem
             // 
             this.basicSettingsToolStripMenuItem.Name = "basicSettingsToolStripMenuItem";
-            this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.basicSettingsToolStripMenuItem.Size = new System.Drawing.Size(327, 54);
             this.basicSettingsToolStripMenuItem.Text = "&Settings...";
             this.basicSettingsToolStripMenuItem.Click += new System.EventHandler(this.basicSettingsToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(445, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(324, 6);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(327, 54);
             this.aboutToolStripMenuItem.Text = "A&bout...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
-            // 
-            // scanningToolStripMenuItem
-            // 
-            this.scanningToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.scanningToolStripMenuItem.Enabled = false;
-            this.scanningToolStripMenuItem.Image = global::LibationWinForms.Properties.Resources.import_16x16;
-            this.scanningToolStripMenuItem.Name = "scanningToolStripMenuItem";
-            this.scanningToolStripMenuItem.Size = new System.Drawing.Size(224, 48);
-            this.scanningToolStripMenuItem.Text = "Scanning...";
-            this.scanningToolStripMenuItem.Visible = false;
             // 
             // statusStrip1
             // 
@@ -380,45 +419,6 @@
             this.addFilterBtn.Text = "Add To Quick Filters";
             this.addFilterBtn.UseVisualStyleBackColor = true;
             this.addFilterBtn.Click += new System.EventHandler(this.AddFilterBtn_Click);
-            // 
-            // visibleBooksToolStripMenuItem
-            // 
-            this.visibleBooksToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.liberateToolStripMenuItem1,
-            this.replaceTagsToolStripMenuItem,
-            this.setDownloadedToolStripMenuItem,
-            this.removeToolStripMenuItem});
-            this.visibleBooksToolStripMenuItem.Name = "visibleBooksToolStripMenuItem";
-            this.visibleBooksToolStripMenuItem.Size = new System.Drawing.Size(218, 48);
-            this.visibleBooksToolStripMenuItem.Text = "&Visible Books";
-            // 
-            // liberateToolStripMenuItem1
-            // 
-            this.liberateToolStripMenuItem1.Name = "liberateToolStripMenuItem1";
-            this.liberateToolStripMenuItem1.Size = new System.Drawing.Size(525, 54);
-            this.liberateToolStripMenuItem1.Text = "&Liberate";
-            this.liberateToolStripMenuItem1.Click += new System.EventHandler(this.liberateToolStripMenuItem1_Click);
-            // 
-            // replaceTagsToolStripMenuItem
-            // 
-            this.replaceTagsToolStripMenuItem.Name = "replaceTagsToolStripMenuItem";
-            this.replaceTagsToolStripMenuItem.Size = new System.Drawing.Size(525, 54);
-            this.replaceTagsToolStripMenuItem.Text = "Replace &Tags...";
-            this.replaceTagsToolStripMenuItem.Click += new System.EventHandler(this.replaceTagsToolStripMenuItem_Click);
-            // 
-            // setDownloadedToolStripMenuItem
-            // 
-            this.setDownloadedToolStripMenuItem.Name = "setDownloadedToolStripMenuItem";
-            this.setDownloadedToolStripMenuItem.Size = new System.Drawing.Size(525, 54);
-            this.setDownloadedToolStripMenuItem.Text = "Set \'&Downloaded\' status...";
-            this.setDownloadedToolStripMenuItem.Click += new System.EventHandler(this.setDownloadedToolStripMenuItem_Click);
-            // 
-            // removeToolStripMenuItem
-            // 
-            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(525, 54);
-            this.removeToolStripMenuItem.Text = "&Remove from library...";
-            this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
             // 
             // Form1
             // 

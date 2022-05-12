@@ -15,6 +15,7 @@ namespace LibationWinForms
 {
 	public partial class Form1 : Form
 	{
+		private string visibleBooksToolStripMenuItem_format { get; }
 		private string beginBookBackupsToolStripMenuItem_format { get; }
 		private string beginPdfBackupsToolStripMenuItem_format { get; }
 
@@ -29,6 +30,7 @@ namespace LibationWinForms
 			gridPanel.Controls.Add(productsGrid);
 
 			// back up string formats
+			visibleBooksToolStripMenuItem_format = visibleBooksToolStripMenuItem.Text;
 			beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
 			beginPdfBackupsToolStripMenuItem_format = beginPdfBackupsToolStripMenuItem.Text;
 
@@ -516,8 +518,24 @@ namespace LibationWinForms
 		#region Visible Books menu
 		private void configVisibleBooksMenu()
 		{
-//productsGrid.VisibleCountChanged += ;
+			productsGrid.VisibleCountChanged += (_, qty) => {
+				visibleBooksToolStripMenuItem.Text = string.Format(visibleBooksToolStripMenuItem_format, qty);
+				visibleBooksToolStripMenuItem.Enabled = qty > 0;
 
+				var notLiberatedCount = productsGrid.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			};
+
+			productsGrid.VisibleCountChanged += setLiberatedVisibleMenuItemAsync;
+			LibraryCommands.BookUserDefinedItemCommitted += setLiberatedVisibleMenuItemAsync;
+		}
+		private async void setLiberatedVisibleMenuItemAsync(object _, int __)
+			=> await Task.Run(setLiberatedVisibleMenuItem);
+		private async void setLiberatedVisibleMenuItemAsync(object _, EventArgs __)
+			=> await Task.Run(setLiberatedVisibleMenuItem);
+		void setLiberatedVisibleMenuItem()
+		{
+			var notLiberated = productsGrid.GetVisible().Any(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			this.UIThreadSync(() => liberateToolStripMenuItem1.Enabled = notLiberated);
 		}
 
 		private async void liberateToolStripMenuItem1_Click(object sender, EventArgs e)
