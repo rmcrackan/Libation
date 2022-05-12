@@ -28,9 +28,19 @@ namespace LibationWinForms
 		{
 			InitializeComponent();
 
+			if (this.DesignMode)
+				return;
+
 			productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
 			productsGrid.VisibleCountChanged += (_, qty) => visibleCountLbl.Text = string.Format("Visible: {0}", qty);
 			gridPanel.Controls.Add(productsGrid);
+			this.Load += (_, __) =>
+			{
+				productsGrid.Display();
+
+				// also applies filter. ONLY call AFTER loading grid
+				loadInitialQuickFilterState();
+			};
 
 			// back up string formats
 			beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
@@ -39,13 +49,11 @@ namespace LibationWinForms
 			liberateVisibleToolStripMenuItem_format = liberateVisibleToolStripMenuItem.Text;
 			liberateVisible2ToolStripMenuItem_format = liberateVisible2ToolStripMenuItem.Text;
 
-			if (this.DesignMode)
-				return;
-
 			// independent UI updates
 			this.Load += (_, _) => this.RestoreSizeAndLocation(Configuration.Instance);
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
+			this.Load += setBackupCounts;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
             QuickFilters.Updated += updateFiltersMenu;
             LibraryCommands.ScanBegin += LibraryCommands_ScanBegin;
@@ -71,21 +79,12 @@ namespace LibationWinForms
 			if (this.DesignMode)
 				return;
 
-			// can't refactor into "this.Load => reloadGridAndUpdateBottomNumbers"
-			// because loadInitialQuickFilterState must follow it
-			reloadGridAndUpdateBottomNumbers();
-
-			// also applies filter. ONLY call AFTER loading grid
-			loadInitialQuickFilterState();
+			// I'm leaving this empty call here as a reminder that if we use this, it should probably be after DesignMode check
 		}
 
-		private void reloadGridAndUpdateBottomNumbers(object _ = null, object __ = null)
+		private void reloadGridAndUpdateBottomNumbers(object _, object __)
 		{
-			// suppressed filter while init'ing UI
-			var prev_isProcessingGridSelect = isProcessingGridSelect;
-			isProcessingGridSelect = true;
 			this.UIThreadSync(() => productsGrid.Display());
-			isProcessingGridSelect = prev_isProcessingGridSelect;
 
 			// UI init complete. now we can apply filter
 			this.UIThreadAsync(() => doFilter(lastGoodFilter));
@@ -198,7 +197,6 @@ namespace LibationWinForms
 		}
 		private void filterBtn_Click(object sender, EventArgs e) => doFilter();
 
-		private bool isProcessingGridSelect = false;
 		private string lastGoodFilter = "";
 		private void doFilter(string filterString)
 		{
@@ -207,9 +205,6 @@ namespace LibationWinForms
 		}
 		private void doFilter()
 		{
-			if (isProcessingGridSelect || productsGrid is null)
-				return;
-
 			try
 			{
 				productsGrid.Filter(filterSearchTb.Text);
