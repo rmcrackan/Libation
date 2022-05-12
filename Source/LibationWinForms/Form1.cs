@@ -52,7 +52,12 @@ namespace LibationWinForms
 			// independent UI updates
 			this.Load += (_, _) => this.RestoreSizeAndLocation(Configuration.Instance);
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
-			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
+			LibraryCommands.LibrarySizeChanged += (_, __) =>
+			{
+				this.UIThreadSync(() => productsGrid.Display());
+				this.UIThreadAsync(() => doFilter(lastGoodFilter));
+			};
+			LibraryCommands.LibrarySizeChanged += setBackupCounts;
 			this.Load += setBackupCounts;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
             QuickFilters.Updated += updateFiltersMenu;
@@ -82,21 +87,11 @@ namespace LibationWinForms
 			// I'm leaving this empty call here as a reminder that if we use this, it should probably be after DesignMode check
 		}
 
-		private void reloadGridAndUpdateBottomNumbers(object _, object __)
-		{
-			this.UIThreadSync(() => productsGrid.Display());
-
-			// UI init complete. now we can apply filter
-			this.UIThreadAsync(() => doFilter(lastGoodFilter));
-
-			setBackupCounts();
-        }
-
 		#region bottom: backup counts
 		private System.ComponentModel.BackgroundWorker updateCountsBw;
 		private bool runBackupCountsAgain;
 
-		private void setBackupCounts(object _ = null, object __ = null)
+		private void setBackupCounts(object _, object __)
 		{
 			runBackupCountsAgain = true;
 
@@ -561,33 +556,61 @@ namespace LibationWinForms
 
 		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			var dialog = new TagsBatchDialog();
+			var result = dialog.ShowDialog();
+			if (result != DialogResult.OK)
+				return;
+
 			var visibleLibraryBooks = productsGrid.GetVisible();
+
+			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+				visibleLibraryBooks,
+				$"Are you sure you want to replace tags in {0}?",
+				"Replace tags?");
+
+			if (confirmationResult != DialogResult.Yes)
+				return;
+
 			foreach (var libraryBook in visibleLibraryBooks)
-				libraryBook.Book.UserDefinedItem.Tags = "ggggg";
+				libraryBook.Book.UserDefinedItem.Tags = dialog.NewTags;
 			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
 		}
 
 		private void setDownloadedToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			var dialog = new LiberatedStatusBatchDialog();
+			var result = dialog.ShowDialog();
+			if (result != DialogResult.OK)
+				return;
+
 			var visibleLibraryBooks = productsGrid.GetVisible();
+
+			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+				visibleLibraryBooks,
+				$"Are you sure you want to replace downloaded status in {0}?",
+				"Replace downloaded status?");
+
+			if (confirmationResult != DialogResult.Yes)
+				return;
+
 			foreach (var libraryBook in visibleLibraryBooks)
-				libraryBook.Book.UserDefinedItem.BookStatus = DataLayer.LiberatedStatus.NotLiberated;
+				libraryBook.Book.UserDefinedItem.BookStatus = dialog.BookLiberatedStatus;
 			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
 		}
 
 		private async void removeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var libraryBooks = productsGrid.GetVisible();
+			var visibleLibraryBooks = productsGrid.GetVisible();
 
-			var result = MessageBoxLib.ShowConfirmationDialog(
-				libraryBooks,
+			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+				visibleLibraryBooks,
 				$"Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?");
 
-			if (result != DialogResult.Yes)
+			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			var visibleIds = libraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
+			var visibleIds = visibleLibraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
 			await LibraryCommands.RemoveBooksAsync(visibleIds);
 		}
 		#endregion
