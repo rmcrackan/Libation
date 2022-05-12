@@ -15,40 +15,54 @@ namespace LibationWinForms
 {
 	public partial class Form1 : Form
 	{
-		private string visibleBooksToolStripMenuItem_format { get; }
 		private string beginBookBackupsToolStripMenuItem_format { get; }
 		private string beginPdfBackupsToolStripMenuItem_format { get; }
 
-		private ProductsGrid productsGrid { get; }
+		private string visibleBooksToolStripMenuItem_format { get; }
+		private string liberateVisibleToolStripMenuItem_format { get; }
+		private string liberateVisible2ToolStripMenuItem_format { get; }
 
+		private ProductsGrid productsGrid { get; }
 
 		public Form1()
 		{
 			InitializeComponent();
 
-			splitContainer1.Panel2Collapsed = true;
-			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
+			if (this.DesignMode)
+				return;
 
 			productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
 			productsGrid.VisibleCountChanged += (_, qty) => visibleCountLbl.Text = string.Format("Visible: {0}", qty);
 			gridPanel.Controls.Add(productsGrid);
+			this.Load += (_, __) =>
+			{
+				productsGrid.Display();
+
+				// also applies filter. ONLY call AFTER loading grid
+				loadInitialQuickFilterState();
+			};
 
 			// back up string formats
-			visibleBooksToolStripMenuItem_format = visibleBooksToolStripMenuItem.Text;
 			beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
 			beginPdfBackupsToolStripMenuItem_format = beginPdfBackupsToolStripMenuItem.Text;
-
-			if (this.DesignMode)
-				return;
+			visibleBooksToolStripMenuItem_format = visibleBooksToolStripMenuItem.Text;
+			liberateVisibleToolStripMenuItem_format = liberateVisibleToolStripMenuItem.Text;
+			liberateVisible2ToolStripMenuItem_format = liberateVisible2ToolStripMenuItem.Text;
 
 			// independent UI updates
 			this.Load += (_, _) => this.RestoreSizeAndLocation(Configuration.Instance);
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
-			LibraryCommands.LibrarySizeChanged += reloadGridAndUpdateBottomNumbers;
+			LibraryCommands.LibrarySizeChanged += (_, __) =>
+			{
+				this.UIThreadSync(() => productsGrid.Display());
+				this.UIThreadAsync(() => doFilter(lastGoodFilter));
+			};
+			LibraryCommands.LibrarySizeChanged += setBackupCounts;
+			this.Load += setBackupCounts;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
-			QuickFilters.Updated += updateFiltersMenu;
-			LibraryCommands.ScanBegin += LibraryCommands_ScanBegin;
-			LibraryCommands.ScanEnd += LibraryCommands_ScanEnd;
+            QuickFilters.Updated += updateFiltersMenu;
+            LibraryCommands.ScanBegin += LibraryCommands_ScanBegin;
+            LibraryCommands.ScanEnd += LibraryCommands_ScanEnd;
 
 			// accounts updated
 			this.Load += refreshImportMenu;
@@ -70,33 +84,14 @@ namespace LibationWinForms
 			if (this.DesignMode)
 				return;
 
-			// can't refactor into "this.Load => reloadGridAndUpdateBottomNumbers"
-			// because loadInitialQuickFilterState must follow it
-			reloadGridAndUpdateBottomNumbers();
-
-			// also applies filter. ONLY call AFTER loading grid
-			loadInitialQuickFilterState();
-		}
-
-		private void reloadGridAndUpdateBottomNumbers(object _ = null, object __ = null)
-		{
-			// suppressed filter while init'ing UI
-			var prev_isProcessingGridSelect = isProcessingGridSelect;
-			isProcessingGridSelect = true;
-			this.UIThreadSync(() => productsGrid.Display());
-			isProcessingGridSelect = prev_isProcessingGridSelect;
-
-			// UI init complete. now we can apply filter
-			this.UIThreadAsync(() => doFilter(lastGoodFilter));
-
-			setBackupCounts();
+			// I'm leaving this empty call here as a reminder that if we use this, it should probably be after DesignMode check
 		}
 
 		#region bottom: backup counts
 		private System.ComponentModel.BackgroundWorker updateCountsBw;
 		private bool runBackupCountsAgain;
 
-		private void setBackupCounts(object _ = null, object __ = null)
+		private void setBackupCounts(object _, object __)
 		{
 			runBackupCountsAgain = true;
 
@@ -197,7 +192,6 @@ namespace LibationWinForms
 		}
 		private void filterBtn_Click(object sender, EventArgs e) => doFilter();
 
-		private bool isProcessingGridSelect = false;
 		private string lastGoodFilter = "";
 		private void doFilter(string filterString)
 		{
@@ -206,9 +200,6 @@ namespace LibationWinForms
 		}
 		private void doFilter()
 		{
-			if (isProcessingGridSelect || productsGrid is null)
-				return;
-
 			try
 			{
 				productsGrid.Filter(filterSearchTb.Text);
@@ -262,7 +253,7 @@ namespace LibationWinForms
 			Configuration.Instance.AutoScanChanged += startAutoScan;
 		}
 
-		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
+        private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
 		private List<(string AccountId, string LocaleName)> getDefaultAccounts()
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
@@ -321,11 +312,11 @@ namespace LibationWinForms
 		}
 
 		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
-			await scanLibrariesAsync(firstAccount);
-		}
+        {
+            using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+            var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
+            await scanLibrariesAsync(firstAccount);
+        }
 
 		private async void scanLibraryOfAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -403,7 +394,7 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				MessageBoxAlertAdmin.Show(
+				MessageBoxLib.ShowAdminAlert(
 					"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
 					"Error importing library",
 					ex);
@@ -467,7 +458,7 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				MessageBoxAlertAdmin.Show("Error attempting to export your library.", "Error exporting", ex);
+				MessageBoxLib.ShowAdminAlert("Error attempting to export your library.", "Error exporting", ex);
 			}
 		}
 		#endregion
@@ -522,8 +513,7 @@ namespace LibationWinForms
 		#region Visible Books menu
 		private void configVisibleBooksMenu()
 		{
-			productsGrid.VisibleCountChanged += (_, qty) =>
-			{
+			productsGrid.VisibleCountChanged += (_, qty) => {
 				visibleBooksToolStripMenuItem.Text = string.Format(visibleBooksToolStripMenuItem_format, qty);
 				visibleBooksToolStripMenuItem.Enabled = qty > 0;
 
@@ -539,35 +529,88 @@ namespace LibationWinForms
 			=> await Task.Run(setLiberatedVisibleMenuItem);
 		void setLiberatedVisibleMenuItem()
 		{
-			var notLiberated = productsGrid.GetVisible().Any(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
-			this.UIThreadSync(() => liberateToolStripMenuItem1.Enabled = notLiberated);
+			var notLiberated = productsGrid.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			this.UIThreadSync(() =>
+            {
+				if (notLiberated > 0)
+				{
+					liberateVisibleToolStripMenuItem.Text = string.Format(liberateVisibleToolStripMenuItem_format, notLiberated);
+					liberateVisibleToolStripMenuItem.Enabled = true;
+
+					liberateVisible2ToolStripMenuItem.Text = string.Format(liberateVisible2ToolStripMenuItem_format, notLiberated);
+					liberateVisible2ToolStripMenuItem.Enabled = true;
+				}
+				else
+				{
+					liberateVisibleToolStripMenuItem.Text = "All visible books are liberated";
+					liberateVisibleToolStripMenuItem.Enabled = false;
+
+					liberateVisible2ToolStripMenuItem.Text = "All visible books are liberated";
+					liberateVisible2ToolStripMenuItem.Enabled = false;
+				}
+			});
 		}
 
-		private async void liberateToolStripMenuItem1_Click(object sender, EventArgs e)
-		{
-			var visibleBooks = productsGrid.GetVisible();
-			await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(visibleBooks);
-		}
+		private async void liberateVisible(object sender, EventArgs e)
+			=> await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(productsGrid.GetVisible());
 
 		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			var dialog = new TagsBatchDialog();
+			var result = dialog.ShowDialog();
+			if (result != DialogResult.OK)
+				return;
+
 			var visibleLibraryBooks = productsGrid.GetVisible();
+
+			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+				visibleLibraryBooks,
+				$"Are you sure you want to replace tags in {0}?",
+				"Replace tags?");
+
+			if (confirmationResult != DialogResult.Yes)
+				return;
+
 			foreach (var libraryBook in visibleLibraryBooks)
-				libraryBook.Book.UserDefinedItem.Tags = "ggggg";
+				libraryBook.Book.UserDefinedItem.Tags = dialog.NewTags;
 			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
 		}
 
 		private void setDownloadedToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			var dialog = new LiberatedStatusBatchDialog();
+			var result = dialog.ShowDialog();
+			if (result != DialogResult.OK)
+				return;
+
 			var visibleLibraryBooks = productsGrid.GetVisible();
+
+			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+				visibleLibraryBooks,
+				$"Are you sure you want to replace downloaded status in {0}?",
+				"Replace downloaded status?");
+
+			if (confirmationResult != DialogResult.Yes)
+				return;
+
 			foreach (var libraryBook in visibleLibraryBooks)
-				libraryBook.Book.UserDefinedItem.BookStatus = DataLayer.LiberatedStatus.NotLiberated;
+				libraryBook.Book.UserDefinedItem.BookStatus = dialog.BookLiberatedStatus;
 			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
 		}
 
 		private async void removeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var visibleIds = productsGrid.GetVisible().Select(lb => lb.Book.AudibleProductId).ToList();
+			var visibleLibraryBooks = productsGrid.GetVisible();
+
+			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+				visibleLibraryBooks,
+				$"Are you sure you want to remove {0} from Libation's library?",
+				"Remove books from Libation?");
+
+			if (confirmationResult != DialogResult.Yes)
+				return;
+
+			var visibleIds = visibleLibraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
 			await LibraryCommands.RemoveBooksAsync(visibleIds);
 		}
 		#endregion
@@ -577,11 +620,11 @@ namespace LibationWinForms
 
 		private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 
-		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
 			=> MessageBox.Show($"Running Libation version {AppScaffolding.LibationScaffolding.BuildVersion}", $"Libation v{AppScaffolding.LibationScaffolding.BuildVersion}");
-		#endregion
+        #endregion
 
-		#region Scanning label
+        #region Scanning label
 		private void LibraryCommands_ScanBegin(object sender, int accountsLength)
 		{
 			scanLibraryToolStripMenuItem.Enabled = false;
@@ -603,36 +646,6 @@ namespace LibationWinForms
 
 			this.scanningToolStripMenuItem.Visible = false;
 		}
-		#endregion
-
-		#region Process Queue
-
-		private void ProcessBookQueue1_PopOut(object sender, EventArgs e)
-		{
-			ProcessBookForm dockForm = new();
-			dockForm.WidthChange = splitContainer1.Panel2.Width + Width - splitContainer1.Width - splitContainer1.SplitterWidth;
-			dockForm.RestoreSizeAndLocation(Configuration.Instance);
-			dockForm.FormClosing += DockForm_FormClosing;
-			splitContainer1.Panel2.Controls.Remove(processBookQueue1);
-			splitContainer1.Panel2Collapsed = true;
-			processBookQueue1.popoutBtn.Visible = false;
-			dockForm.PassControl(processBookQueue1);
-			dockForm.Show();
-			this.Width -= dockForm.WidthChange;
-		}
-
-		private void DockForm_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			if (sender is ProcessBookForm dockForm)
-			{
-				this.Width += dockForm.WidthChange;
-				splitContainer1.Panel2.Controls.Add(dockForm.RegainControl());
-				splitContainer1.Panel2Collapsed = false;
-				processBookQueue1.popoutBtn.Visible = true;
-				dockForm.SaveSizeAndLocation(Configuration.Instance);
-				this.Focus();
-			}
-		}
-		#endregion
-	}
+        #endregion
+    }
 }
