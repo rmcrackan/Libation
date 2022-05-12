@@ -10,12 +10,8 @@ namespace LibationWinForms.Dialogs
 	{
 		public List<Account> CheckedAccounts { get; } = new List<Account>();
 
-		private Form _parent { get; }
-
-		public ScanAccountsDialog(Form parent)
+		public ScanAccountsDialog()
 		{
-			_parent = parent;
-
 			InitializeComponent();
 			this.SetLibationIcon();
 		}
@@ -44,7 +40,7 @@ namespace LibationWinForms.Dialogs
 
 		private void editBtn_Click(object sender, EventArgs e)
 		{
-			if (new AccountsDialog(_parent).ShowDialog() == DialogResult.OK)
+			if (new AccountsDialog().ShowDialog() == DialogResult.OK)
 			{
 				// clear grid
 				this.accountsClb.Items.Clear();

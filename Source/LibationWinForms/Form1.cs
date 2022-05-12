@@ -312,7 +312,7 @@ namespace LibationWinForms
 		private void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			MessageBox.Show("To load your Audible library, come back here to the Import menu after adding your account");
-			new AccountsDialog(this).ShowDialog();
+			new AccountsDialog().ShowDialog();
 		}
 
 		private async void scanLibraryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -331,7 +331,7 @@ namespace LibationWinForms
 
 		private async void scanLibraryOfSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using var scanAccountsDialog = new ScanAccountsDialog(this);
+			using var scanAccountsDialog = new ScanAccountsDialog();
 
 			if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
 				return;
@@ -368,7 +368,7 @@ namespace LibationWinForms
 		// selectively remove books from some accounts
 		private void removeSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using var scanAccountsDialog = new ScanAccountsDialog(this);
+			using var scanAccountsDialog = new ScanAccountsDialog();
 
 			if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
 				return;
@@ -511,7 +511,7 @@ namespace LibationWinForms
 			}
 		}
 
-		private void EditQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new EditQuickFilters(this).ShowDialog();
+		private void EditQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new EditQuickFilters().ShowDialog();
 		#endregion
 
 		#region Visible Books menu
@@ -620,7 +620,7 @@ namespace LibationWinForms
 		#endregion
 
 		#region Settings menu
-		private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog(this).ShowDialog();
+		private void accountsToolStripMenuItem_Click(object sender, EventArgs e) => new AccountsDialog().ShowDialog();
 
 		private void basicSettingsToolStripMenuItem_Click(object sender, EventArgs e) => new SettingsDialog().ShowDialog();
 

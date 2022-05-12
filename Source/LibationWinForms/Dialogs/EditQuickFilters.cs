@@ -15,12 +15,8 @@ namespace LibationWinForms.Dialogs
 		private const string COL_MoveUp = nameof(MoveUp);
 		private const string COL_MoveDown = nameof(MoveDown);
 
-		private Form _parent { get; }
-
-		public EditQuickFilters(Form parent)
+		public EditQuickFilters()
 		{
-			_parent = parent;
-
 			InitializeComponent();
 
 			dataGridView1.Columns[COL_Filter].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
