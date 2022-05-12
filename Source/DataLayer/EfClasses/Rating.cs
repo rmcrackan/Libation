@@ -38,41 +38,6 @@ namespace DataLayer
             yield return StoryRating;
         }
 
-        public float FirstScore
-            => OverallRating > 0 ? OverallRating
-            : PerformanceRating > 0 ? PerformanceRating
-            : StoryRating;
-
-        /// <summary>character: ★</summary>
-        const char STAR = '\u2605';
-        /// <summary>character: ½</summary>
-        const char HALF = '\u00BD';
-        string getStars(float score)
-        {
-            var fullStars = (int)Math.Floor(score);
-
-            var starString = "".PadLeft(fullStars, STAR);
-
-            if (score - fullStars == 0.5f)
-                starString += HALF;
-
-            return starString;
-        }
-
-        public string ToStarString()
-        {
-            var items = new List<string>();
-
-            if (OverallRating > 0)
-                items.Add($"Overall:   {getStars(OverallRating)}");
-            if (PerformanceRating > 0)
-                items.Add($"Perform: {getStars(PerformanceRating)}");
-            if (StoryRating > 0)
-                items.Add($"Story:      {getStars(StoryRating)}");
-
-            return string.Join("\r\n", items);
-        }
-
 		public override string ToString() => $"Overall={OverallRating} Perf={PerformanceRating} Story={StoryRating}";
 	}
 }

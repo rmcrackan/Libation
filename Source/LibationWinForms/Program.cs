@@ -49,7 +49,7 @@ namespace LibationWinForms
 				// migrations which require Forms or are long-running
 				RunWindowsOnlyMigrations(config);
 
-				MessageBoxVerboseLoggingWarning.ShowIfTrue();
+				MessageBoxLib.VerboseLoggingWarning_ShowIfTrue();
 
 #if !DEBUG
 				checkForUpdate();
@@ -63,7 +63,7 @@ namespace LibationWinForms
 				var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
 				try
 				{
-					MessageBoxAlertAdmin.Show(body, title, ex);
+					MessageBoxLib.ShowAdminAlert(body, title, ex);
 				}
 				catch
 				{
@@ -178,7 +178,7 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				MessageBoxAlertAdmin.Show("Error checking for update", "Error checking for update", ex);
+				MessageBoxLib.ShowAdminAlert("Error checking for update", "Error checking for update", ex);
 				return;
 			}
 
@@ -203,7 +203,7 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				MessageBoxAlertAdmin.Show("Error downloading update", "Error downloading update", ex);
+				MessageBoxLib.ShowAdminAlert("Error downloading update", "Error downloading update", ex);
 			}
 		}
 	}

@@ -17,7 +17,7 @@ namespace FileLiberator
     {
         private AudiobookDownloadBase abDownloader;
 
-        public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists;
+        public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists();
 
         public override void Cancel() => abDownloader?.Cancel();
 
@@ -42,7 +42,7 @@ namespace FileLiberator
 
             try
             {
-                if (libraryBook.Book.Audio_Exists)
+                if (libraryBook.Book.Audio_Exists())
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
                 bool success = false;
@@ -117,7 +117,7 @@ namespace FileLiberator
                         : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic);
 
                     if (config.AllowLibationFixup)
-                        converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames);
+                        converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames());
 
                     abDownloader = converter;
                 }

@@ -313,7 +313,7 @@ namespace ApplicationServices
 
 		// must be here instead of in db layer due to AaxcExists
 		public static LiberatedStatus Liberated_Status(Book book)
-			=> book.Audio_Exists ? book.UserDefinedItem.BookStatus
+			=> book.Audio_Exists() ? book.UserDefinedItem.BookStatus
 			: AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
 			: LiberatedStatus.NotLiberated;
 
@@ -340,7 +340,7 @@ namespace ApplicationServices
 
 			var boolResults = libraryBooks
 				.AsParallel()
-				.Where(lb => lb.Book.HasPdf)
+				.Where(lb => lb.Book.HasPdf())
 				.Select(lb => Pdf_Status(lb.Book))
 				.ToList();
 			var pdfsDownloaded = boolResults.Count(r => r == LiberatedStatus.Liberated);

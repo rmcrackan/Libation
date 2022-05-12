@@ -77,7 +77,7 @@ namespace LibationWinForms.Dialogs
 			}
 			catch (Exception ex)
 			{
-				MessageBoxAlertAdmin.Show(
+				MessageBoxLib.ShowAdminAlert(
 					"Error scanning library. You may still manually select books to remove from Libation's library.",
 					"Error scanning library",
 					ex);
@@ -95,34 +95,22 @@ namespace LibationWinForms.Dialogs
 			if (selectedBooks.Count == 0)
 				return;
 
-			var titles = selectedBooks.Select(rge => "- " + rge.Title).ToList();
-			var titlesAgg = titles.Take(5).Aggregate((a, b) => $"{a}\r\n{b}");
-			if (titles.Count == 6)
-				titlesAgg += $"\r\n\r\nand 1 other";
-			else if (titles.Count > 6)
-				titlesAgg += $"\r\n\r\nand {titles.Count - 5} others";
+			var libraryBooks = selectedBooks.Select(rge => rge.LibraryBook).ToList();
+			var result = MessageBoxLib.ShowConfirmationDialog(
+				libraryBooks,
+				$"Are you sure you want to remove {0} from Libation's library?",
+				"Remove books from Libation?");
 
-			string thisThese = selectedBooks.Count > 1 ? "these" : "this";
-			string bookBooks = selectedBooks.Count > 1 ? "books" : "book";
+			if (result != DialogResult.Yes)
+				return;
 
-			var result = MessageBox.Show(
-				this,
-				$"Are you sure you want to remove {thisThese} {selectedBooks.Count} {bookBooks} from Libation's library?\r\n\r\n{titlesAgg}",
-				"Remove books from Libation?",
-				MessageBoxButtons.YesNo,
-				MessageBoxIcon.Question,
-				MessageBoxDefaultButton.Button1);
+			var idsToRemove = libraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
+			var removeLibraryBooks = await LibraryCommands.RemoveBooksAsync(idsToRemove);
 
-			if (result == DialogResult.Yes)
-			{
-				var idsToRemove = selectedBooks.Select(rge => rge.AudibleProductId).ToList();
-				var removeLibraryBooks = await LibraryCommands.RemoveBooksAsync(idsToRemove);
+			foreach (var rEntry in selectedBooks)
+				_removableGridEntries.Remove(rEntry);
 
-				foreach (var rEntry in selectedBooks)
-					_removableGridEntries.Remove(rEntry);
-
-				UpdateSelection();
-			}
+			UpdateSelection();
 		}
 
 		private void UpdateSelection()

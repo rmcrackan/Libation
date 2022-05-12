@@ -404,7 +404,7 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				MessageBoxAlertAdmin.Show(
+				MessageBoxLib.ShowAdminAlert(
 					"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
 					"Error importing library",
 					ex);
@@ -468,7 +468,7 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				MessageBoxAlertAdmin.Show("Error attempting to export your library.", "Error exporting", ex);
+				MessageBoxLib.ShowAdminAlert("Error attempting to export your library.", "Error exporting", ex);
 			}
 		}
 		#endregion
@@ -562,10 +562,7 @@ namespace LibationWinForms
 		}
 
 		private async void liberateVisible(object sender, EventArgs e)
-		{
-			var visibleBooks = productsGrid.GetVisible();
-			await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(visibleBooks);
-		}
+			=> await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(productsGrid.GetVisible());
 
 		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -585,7 +582,17 @@ namespace LibationWinForms
 
 		private async void removeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var visibleIds = productsGrid.GetVisible().Select(lb => lb.Book.AudibleProductId).ToList();
+			var libraryBooks = productsGrid.GetVisible();
+
+			var result = MessageBoxLib.ShowConfirmationDialog(
+				libraryBooks,
+				$"Are you sure you want to remove {0} from Libation's library?",
+				"Remove books from Libation?");
+
+			if (result != DialogResult.Yes)
+				return;
+
+			var visibleIds = libraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
 			await LibraryCommands.RemoveBooksAsync(visibleIds);
 		}
 		#endregion

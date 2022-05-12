@@ -128,14 +128,14 @@ namespace LibationWinForms
 			// Immutable properties
 			{
 				Title = Book.Title;
-				Series = Book.SeriesNames;
+				Series = Book.SeriesNames();
 				Length = Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min";
 				MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 				PurchaseDate = libraryBook.DateAdded.ToString("d");
 				ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
-				Authors = Book.AuthorNames;
-				Narrators = Book.NarratorNames;
-				Category = string.Join(" > ", Book.CategoriesNames);
+				Authors = Book.AuthorNames();
+				Narrators = Book.NarratorNames();
+				Category = string.Join(" > ", Book.CategoriesNames());
 				Misc = GetMiscDisplay(libraryBook);
 				LongDescription = GetDescriptionDisplay(Book);
 				Description = TrimTextToWord(LongDescription, 62);
@@ -232,12 +232,12 @@ namespace LibationWinForms
 		/// </summary>
 		private Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
 		{
-			{ nameof(Title), () => Book.TitleSortable },
-			{ nameof(Series), () => Book.SeriesSortable },
+			{ nameof(Title), () => Book.TitleSortable() },
+			{ nameof(Series), () => Book.SeriesSortable() },
 			{ nameof(Length), () => Book.LengthInMinutes },
-			{ nameof(MyRating), () => Book.UserDefinedItem.Rating.FirstScore },
+			{ nameof(MyRating), () => Book.UserDefinedItem.Rating.FirstScore() },
 			{ nameof(PurchaseDate), () => LibraryBook.DateAdded },
-			{ nameof(ProductRating), () => Book.Rating.FirstScore },
+			{ nameof(ProductRating), () => Book.Rating.FirstScore() },
 			{ nameof(Authors), () => Authors },
 			{ nameof(Narrators), () => Narrators },
 			{ nameof(Description), () => Description },
@@ -292,7 +292,7 @@ namespace LibationWinForms
 
 			details.Add($"Account: {locale} - {acct}");
 
-			if (libraryBook.Book.HasPdf)
+			if (libraryBook.Book.HasPdf())
 				details.Add("Has PDF");
 			if (libraryBook.Book.IsAbridged)
 				details.Add("Abridged");
