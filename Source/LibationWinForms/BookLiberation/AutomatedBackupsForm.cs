@@ -4,7 +4,11 @@ using Dinah.Core.Threading;
 
 namespace LibationWinForms.BookLiberation
 {
-	public partial class AutomatedBackupsForm : Form
+	public interface ILogForm
+	{
+		void WriteLine(string text);
+	}
+	public partial class AutomatedBackupsForm : Form, ILogForm
 	{
 		public bool KeepGoingChecked => keepGoingCb.Checked;
 

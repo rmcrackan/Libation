@@ -15,6 +15,7 @@ namespace FileLiberator
 {
     public class DownloadDecryptBook : AudioDecodable
     {
+        public override string Name => "Download & Decrypt";
         private AudiobookDownloadBase abDownloader;
 
         public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists();
@@ -65,7 +66,9 @@ namespace FileLiberator
                     foreach (var tmpFile in entries.Where(f => f.FileType != FileType.AAXC))
                         FileUtility.SaferDelete(tmpFile.Path);
 
-                    return new StatusHandler { "Decrypt failed" };
+                    return abDownloader?.IsCanceled == true ?
+                        new StatusHandler { "Cancelled" } : 
+                        new StatusHandler { "Decrypt failed" };
                 }
 
                 // moves new files from temp dir to final dest

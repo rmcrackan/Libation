@@ -25,7 +25,8 @@ namespace LibationWinForms.BookLiberation
 			LogError += (_, tuple) => Serilog.Log.Logger.Error(tuple.Item1, tuple.Item2 ?? "Automated backup: error");
 		}
 
-		public static LogMe RegisterForm(AutomatedBackupsForm form = null)
+		public static LogMe RegisterForm() => RegisterForm<ILogForm>(null);
+		public static LogMe RegisterForm<T>(T form) where T : ILogForm
 		{
 			var logMe = new LogMe();
 

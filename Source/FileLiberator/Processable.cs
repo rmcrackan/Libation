@@ -11,6 +11,7 @@ namespace FileLiberator
 {
     public abstract class Processable : Streamable
     {
+        public abstract string Name { get; }
         public event EventHandler<LibraryBook> Begin;
 
         /// <summary>General string message to display. DON'T rely on this for success, failure, or control logic</summary>

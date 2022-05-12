@@ -15,9 +15,9 @@ namespace LibationWinForms.Dialogs
 		private const string COL_MoveUp = nameof(MoveUp);
 		private const string COL_MoveDown = nameof(MoveDown);
 
-		private Form1 _parent { get; }
+		private Form _parent { get; }
 
-		public EditQuickFilters(Form1 parent)
+		public EditQuickFilters(Form parent)
 		{
 			_parent = parent;
 

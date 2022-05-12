@@ -16,6 +16,7 @@ using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {
+
 	#region // legacy instructions to update data_grid_view
 	// INSTRUCTIONS TO UPDATE DATA_GRID_VIEW
 	// - delete current DataGridView
@@ -51,12 +52,12 @@ namespace LibationWinForms
 			_dataGridView.Sorted += Filter;
 			_dataGridView.CellContentClick += DataGridView_CellContentClick;
 
-            this.Load += ProductsGrid_Load;
+			this.Load += ProductsGrid_Load;
 
 			EnableDoubleBuffering();
 		}
 
-        private void EnableDoubleBuffering()
+		private void EnableDoubleBuffering()
 		{
 			var propertyInfo = _dataGridView.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
