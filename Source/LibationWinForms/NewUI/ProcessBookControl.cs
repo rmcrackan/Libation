@@ -206,8 +206,8 @@ namespace LibationWinForms
 
 			//Set default values from library
 			AudioDecodable_TitleDiscovered(sender, libraryBook.Book.Title);
-			AudioDecodable_AuthorsDiscovered(sender, libraryBook.Book.AuthorNames);
-			AudioDecodable_NarratorsDiscovered(sender, libraryBook.Book.NarratorNames);
+			AudioDecodable_AuthorsDiscovered(sender, libraryBook.Book.AuthorNames());
+			AudioDecodable_NarratorsDiscovered(sender, libraryBook.Book.NarratorNames());
 			AudioDecodable_CoverImageDiscovered(sender,
 					PictureStorage.GetPicture(
 						new PictureDefinition(

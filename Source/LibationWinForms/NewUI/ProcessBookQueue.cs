@@ -19,12 +19,11 @@ namespace LibationWinForms
 		private readonly LogMe Logger;
 		private readonly object lockObject = new();
 
-		public event EventHandler PopOut;
 
 		public Task QueueRunner { get; private set; }
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
 
-		public ToolStripButton popoutBtn = new ToolStripButton();
+		public ToolStripButton popoutBtn = new();
 
 		public ProcessBookQueue()
 		{
@@ -37,11 +36,10 @@ namespace LibationWinForms
 			this.popoutBtn.Text = "Pop Out";
 			this.popoutBtn.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.popoutBtn.Alignment = ToolStripItemAlignment.Right;
-			popoutBtn.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+			this.popoutBtn.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 
 			statusStrip1.Items.Add(popoutBtn);
 		}
-
 		public async Task AddDownloadDecrypt(IEnumerable<GridEntry> entries)
 		{
 			foreach (var entry in entries)
