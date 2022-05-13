@@ -28,16 +28,22 @@ namespace LibationFileManager
                 inMemoryState = JsonConvert.DeserializeObject<FilterState>(File.ReadAllText(JsonFile));
         }
 
+        public static event EventHandler UseDefaultChanged;
         public static bool UseDefault
         {
             get => inMemoryState.UseDefault;
             set
             {
+                if (UseDefault == value)
+                    return;
+
                 lock (locker)
                 {
                     inMemoryState.UseDefault = value;
                     save(false);
                 }
+
+                UseDefaultChanged?.Invoke(null, null);
             }
         }
 

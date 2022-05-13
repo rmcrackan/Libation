@@ -48,13 +48,16 @@ namespace LibationWinForms
 		{
 			InitializeComponent();
 
+			if (this.DesignMode)
+				return;
+
+			EnableDoubleBuffering();
+
 			// sorting breaks filters. must reapply filters after sorting
-			_dataGridView.Sorted += Filter;
+			_dataGridView.Sorted += reapplyFilter;
 			_dataGridView.CellContentClick += DataGridView_CellContentClick;
 
 			this.Load += ProductsGrid_Load;
-
-			EnableDoubleBuffering();
 		}
 
 		private void EnableDoubleBuffering()
@@ -158,6 +161,8 @@ namespace LibationWinForms
 
 		private SortableBindingList<GridEntry> bindingList;
 
+		private bool hasBeenDisplayed;
+		public event EventHandler InitialLoaded;
 		public void Display()
 		{
 			// don't return early if lib size == 0. this will not update correctly if all books are removed
@@ -172,14 +177,20 @@ namespace LibationWinForms
 				//    .ThenBy(lb => lb.Book.TitleSortable)
 				.ToList();
 
-			// BIND
+			// bind
 			if (bindingList?.Count > 0)
 				updateGrid(orderedBooks);
 			else
 				bindToGrid(orderedBooks);
 
-			// FILTER
-			Filter();
+			// re-apply previous filter
+			reapplyFilter();
+
+			if (!hasBeenDisplayed)
+			{
+				hasBeenDisplayed = true;
+				InitialLoaded?.Invoke(this, new());
+			}
 		}
 
 		private void bindToGrid(List<DataLayer.LibraryBook> orderedBooks)
@@ -218,7 +229,7 @@ namespace LibationWinForms
 		private GridEntry toGridEntry(DataLayer.LibraryBook libraryBook)
 		{
 			var entry = new GridEntry(libraryBook);
-			entry.Committed += Filter;
+			entry.Committed += reapplyFilter;
 			entry.LibraryBookUpdated += (sender, _) => _dataGridView.InvalidateRow(_dataGridView.GetRowIdOfBoundItem((GridEntry)sender));
 			return entry;
 		}
@@ -228,9 +239,13 @@ namespace LibationWinForms
 		#region Filter
 
 		private string _filterSearchString;
-		private void Filter(object _ = null, EventArgs __ = null) => Filter(_filterSearchString);
+		private void reapplyFilter(object _ = null, EventArgs __ = null) => Filter(_filterSearchString);
 		public void Filter(string searchString)
 		{
+			// empty string is valid. null is not
+			if (searchString is null)
+				return;
+
 			_filterSearchString = searchString;
 
 			if (_dataGridView.Rows.Count == 0)
@@ -279,6 +294,9 @@ namespace LibationWinForms
 		// to ensure this is only ever called once: Load instead of 'override OnVisibleChanged'
 		private void ProductsGrid_Load(object sender, EventArgs e)
 		{
+			if (this.DesignMode)
+				return;
+
 			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
 			contextMenuStrip1.Items.Add(new ToolStripSeparator());
 
