@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Windows.Forms.Layout;
 using DataLayer;
 using Dinah.Core.Net.Http;
 using Dinah.Core.Threading;
@@ -11,7 +12,7 @@ using LibationWinForms.ProcessQueue;
 
 namespace LibationWinForms.ProcessQueue
 {
-	internal interface ILiberationBaseForm
+	internal interface ILiberatiofffnBaseForm
 	{
 		Action CancelAction { get; set; }
 		Func<QueuePosition?> MoveUpAction { get; set; }
@@ -25,11 +26,11 @@ namespace LibationWinForms.ProcessQueue
 		Padding Margin { get; set; }
 	}
 
-	internal partial class ProcessBookControl : UserControl, ILiberationBaseForm
+	internal partial class ProcessBookControl : UserControl
 	{
+		public ProcessBookStatus Status { get; private set; } = ProcessBookStatus.Queued;
 		public Action CancelAction { get; set; }
-		public Func<QueuePosition?> MoveUpAction { get; set; }
-		public Func<QueuePosition?> MoveDownAction { get; set; }
+		public Func<QueuePositionRequest, QueuePosition?> RequestMoveAction { get; set; }
 		public string DecodeActionName { get; } = "Decoding";
 		private Func<byte[]> GetCoverArtDelegate;
 		protected Processable Processable { get; private set; }
@@ -37,47 +38,118 @@ namespace LibationWinForms.ProcessQueue
 		public ProcessBookControl()
 		{
 			InitializeComponent();
-			label1.Text = "Queued";
+			statusLbl.Text = "Queued";
 			remainingTimeLbl.Visible = false;
 			progressBar1.Visible = false;
+			etaLbl.Visible = false;
 		}
 
-		public void SetResult(ProcessBookResult status)
+		public void SetCover(Image cover)
 		{
-			var statusTxt = status switch
-			{
-				ProcessBookResult.Success => "Finished",
-				ProcessBookResult.Cancelled => "Cancelled",
-				ProcessBookResult.FailedRetry => "Error, Retry",
-				ProcessBookResult.FailedSkip => "Error, Skip",
-				ProcessBookResult.FailedAbort => "Error, Abort",
-				_ => throw new NotImplementedException(),
-			};
+			pictureBox1.Image = cover;
+		}
+		public void SetTitle(string title)
+		{
+			bookInfoLbl.Text = title;
+		}
 
-			Color backColor = status switch
+		public void SetResult(ProcessBookResult result)
+		{
+			string statusText = default;
+			switch (result)
 			{
-				ProcessBookResult.Success => Color.PaleGreen,
-				ProcessBookResult.Cancelled => Color.Khaki,
-				ProcessBookResult.FailedRetry => Color.LightCoral,
-				ProcessBookResult.FailedSkip => Color.LightCoral,
-				ProcessBookResult.FailedAbort => Color.Firebrick,
-				_ => throw new NotImplementedException(),
-			};
+				case ProcessBookResult.Success:
+					statusText = "Finished";
+					Status = ProcessBookStatus.Completed;
+					break;
+				case ProcessBookResult.Cancelled:
+					statusText = "Cancelled";
+					Status = ProcessBookStatus.Cancelled;
+					break;
+				case ProcessBookResult.FailedRetry:
+					statusText = "Queued";
+					Status = ProcessBookStatus.Queued;
+					break;
+				case ProcessBookResult.FailedSkip:
+					statusText = "Error, Skip";
+					Status = ProcessBookStatus.Failed;
+					break;
+				case ProcessBookResult.FailedAbort:
+					statusText = "Error, Abort";
+					Status = ProcessBookStatus.Failed;
+					break;
+				case ProcessBookResult.ValidationFail:
+					statusText = "Validate fail";
+					Status = ProcessBookStatus.Failed;
+					break;
+				case ProcessBookResult.None:
+					statusText = "UNKNOWN";
+					Status = ProcessBookStatus.Failed;
+					break;
+			}
+
+			SetStatus(Status, statusText);
+		}
+
+		public void SetStatus(ProcessBookStatus status, string statusText)
+		{
+			Color backColor = default;
+			switch (status)
+			{
+				case ProcessBookStatus.Completed:
+					backColor = Color.PaleGreen;
+					Status = ProcessBookStatus.Completed;
+					break;
+				case ProcessBookStatus.Cancelled:
+					backColor = Color.Khaki;
+					Status = ProcessBookStatus.Cancelled;
+					break;
+				case ProcessBookStatus.Queued:
+					backColor = SystemColors.Control;
+					Status = ProcessBookStatus.Queued;
+					break;
+				case ProcessBookStatus.Working:
+					backColor = SystemColors.Control;
+					Status = ProcessBookStatus.Working;
+					break;
+				case ProcessBookStatus.Failed:
+					backColor = Color.LightCoral;
+					Status = ProcessBookStatus.Failed;
+					break;
+			}
 
 			this.UIThreadAsync(() =>
 			{
-				cancelBtn.Visible = false;
-				moveDownBtn.Visible = false;
-				moveUpBtn.Visible = false;
-				remainingTimeLbl.Visible = false;
-				progressBar1.Visible = false;
-				label1.Text = statusTxt;
+				SuspendLayout();
+
+				cancelBtn.Visible = Status is ProcessBookStatus.Queued or ProcessBookStatus.Working;
+				moveLastBtn.Visible = Status == ProcessBookStatus.Queued;
+				moveDownBtn.Visible = Status == ProcessBookStatus.Queued;
+				moveUpBtn.Visible = Status == ProcessBookStatus.Queued;
+				moveFirstBtn.Visible = Status == ProcessBookStatus.Queued;
+				remainingTimeLbl.Visible = Status == ProcessBookStatus.Working;
+				progressBar1.Visible = Status == ProcessBookStatus.Working;
+				etaLbl.Visible = Status == ProcessBookStatus.Working;
+				statusLbl.Visible = Status != ProcessBookStatus.Working;
+				statusLbl.Text = statusText;
 				BackColor = backColor;
+
+				if (status == ProcessBookStatus.Working)
+				{
+					bookInfoLbl.Width += moveLastBtn.Width + moveLastBtn.Padding.Left + moveLastBtn.Padding.Right;
+				}
+				else
+				{
+					bookInfoLbl.Width -= moveLastBtn.Width + moveLastBtn.Padding.Left + moveLastBtn.Padding.Right;
+
+				}
+				ResumeLayout();
 			});
 		}
 
 		public ProcessBookControl(string title, Image cover) : this()
 		{
+			this.title = title;
 			pictureBox1.Image = cover;
 			bookInfoLbl.Text = title;
 		}
@@ -190,14 +262,11 @@ namespace LibationWinForms.ProcessQueue
 		#region Processable event handlers
 		public void Processable_Begin(object sender, LibraryBook libraryBook)
 		{
+			Status = ProcessBookStatus.Working;
+
 			LogMe.Info($"{Environment.NewLine}{Processable.Name} Step, Begin: {libraryBook.Book}");
 
-			this.UIThreadAsync(() =>
-			{
-				label1.Text = "ETA:";
-				remainingTimeLbl.Visible = true;
-				progressBar1.Visible = true;
-			});
+			SetStatus(ProcessBookStatus.Working, "");
 
 			GetCoverArtDelegate = () => PictureStorage.GetPictureSynchronously(
 						new PictureDefinition(
@@ -265,38 +334,29 @@ namespace LibationWinForms.ProcessQueue
 			CancelAction?.Invoke();
 		}
 
-		private void moveUpBtn_Click(object sender, EventArgs e)
+		private void moveLastBtn_Click(object sender, EventArgs e)
 		{
-			HandleMovePositionResult(MoveUpAction?.Invoke());
+			RequestMoveAction?.Invoke(QueuePositionRequest.Last);
 		}
 
+		private void moveFirstBtn_Click(object sender, EventArgs e)
+		{
+			RequestMoveAction?.Invoke(QueuePositionRequest.Fisrt);
+		}
+
+		private void moveUpBtn_Click_1(object sender, EventArgs e)
+		{
+			RequestMoveAction?.Invoke(QueuePositionRequest.OneUp);
+		}
 
 		private void moveDownBtn_Click(object sender, EventArgs e)
 		{
-			HandleMovePositionResult(MoveDownAction?.Invoke());
+			RequestMoveAction?.Invoke(QueuePositionRequest.OneDown);
 		}
 
-		private void HandleMovePositionResult(QueuePosition? result)
+		public override string ToString()
 		{
-			if (result.HasValue)
-				SetQueuePosition(result.Value);
-			else
-				SetQueuePosition(QueuePosition.Absent);
-		}
-
-		public void SetQueuePosition(QueuePosition status)
-		{
-			if (status is QueuePosition.Absent or QueuePosition.Current)
-			{
-				moveUpBtn.Visible = false;
-				moveDownBtn.Visible = false;
-			}
-
-			if (status == QueuePosition.Absent)
-				cancelBtn.Enabled = false;
-
-			moveUpBtn.Enabled = status != QueuePosition.Fisrt;
-			moveDownBtn.Enabled = status != QueuePosition.Last;
+			return title ?? "NO TITLE";
 		}
 	}
 }

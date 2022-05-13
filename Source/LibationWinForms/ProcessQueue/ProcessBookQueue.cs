@@ -12,11 +12,8 @@ namespace LibationWinForms.ProcessQueue
 {	
 	internal partial class ProcessBookQueue : UserControl, ILogForm
 	{
-		private ProcessBook CurrentBook;
-		private readonly LinkedList<ProcessBook> BookQueue = new();
-		private readonly List<ProcessBook> CompletedBooks = new();
+		TrackedQueue<ProcessBook> Queue = new();
 		private readonly LogMe Logger;
-		private readonly object lockObject = new();
 
 
 		public Task QueueRunner { get; private set; }
@@ -29,7 +26,6 @@ namespace LibationWinForms.ProcessQueue
 			InitializeComponent();
 			Logger = LogMe.RegisterForm(this);
 
-
 			this.popoutBtn.DisplayStyle = ToolStripItemDisplayStyle.Text;
 			this.popoutBtn.Name = "popoutBtn";
 			this.popoutBtn.Text = "Pop Out";
@@ -38,17 +34,35 @@ namespace LibationWinForms.ProcessQueue
 			this.popoutBtn.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 
 			statusStrip1.Items.Add(popoutBtn);
-		}
-		public async Task AddDownloadDecrypt(IEnumerable<GridEntry> entries)
-		{
-			foreach (var entry in entries)
-				await AddDownloadDecryptAsync(entry);
+
+			virtualFlowControl2.RequestData += VirtualFlowControl1_RequestData;
+
 		}
 
+		private void VirtualFlowControl1_RequestData(int firstIndex, int numVisible, IReadOnlyList<ProcessBookControl> panelsToFill)
+		{
+			int numToShow = Math.Min(numVisible, Queue.Count - firstIndex);
+			for (int i = 0; i < numToShow; i++)
+			{
+				var proc = Queue[firstIndex + i];
+
+				panelsToFill[i].SetCover(proc.Entry.Cover);
+				panelsToFill[i].SetTitle(proc.Entry.Title);
+			}
+		}
+
+		public async Task AddDownloadDecrypt(IEnumerable<GridEntry> entries)
+		{
+			SuspendLayout();
+			foreach (var entry in entries)
+				await AddDownloadDecryptAsync(entry);
+			ResumeLayout();
+		}
+		int count = 0;
 		public async Task AddDownloadDecryptAsync(GridEntry gridEntry)
 		{
-			if (BookExists(gridEntry.LibraryBook))
-				return;
+			//if (Queue.Any(b=> b?.Entry?.AudibleProductId == gridEntry.AudibleProductId))
+				//return;
 
 			ProcessBook pbook = new ProcessBook(gridEntry, Logger);
 			pbook.Completed += Pbook_Completed;
@@ -63,24 +77,24 @@ namespace LibationWinForms.ProcessQueue
 			if (libStatus.PdfStatus != LiberatedStatus.Liberated)
 				pbook.AddPdfProcessable();
 
-			EnqueueBook(pbook);
+			Queue.EnqueueBook(pbook);
 
-			await AddBookControlAsync(pbook.BookControl);
+			//await AddBookControlAsync(pbook.BookControl);
+			count++;
+
+			virtualFlowControl2.VirtualControlCount = count;
 
 			if (!Running)
 			{
-				QueueRunner = QueueLoop();
+				//QueueRunner = QueueLoop();
 			}
+			toolStripStatusLabel1.Text = count.ToString();
 		}
 
 		private async void Pbook_Cancelled(ProcessBook sender, EventArgs e)
 		{
-			lock (lockObject)
-			{
-				if (BookQueue.Contains(sender))
-					BookQueue.Remove(sender);
-			}
-			await RemoveBookControlAsync(sender.BookControl);
+			Queue.Remove(sender);
+			//await RemoveBookControlAsync(sender.BookControl);
 		}
 
 		/// <summary>
@@ -89,76 +103,54 @@ namespace LibationWinForms.ProcessQueue
 		/// <param name="sender">The requesting <see cref="ProcessBook"/></param>
 		/// <param name="direction">The requested position</param>
 		/// <returns>The resultant position</returns>
-		private QueuePosition RequestMove(ProcessBook sender, QueuePosition direction)
+		private QueuePosition RequestMove(ProcessBook sender, QueuePositionRequest requested)
 		{
-			var node = BookQueue.Find(sender);
 
-			if (node == null || direction == QueuePosition.Absent)
-				return QueuePosition.Absent;
-			if (CurrentBook != null && CurrentBook == sender)
-				return QueuePosition.Current;
-			if ((direction == QueuePosition.Fisrt || direction == QueuePosition.OneUp) && BookQueue.First.Value == sender)
-				return QueuePosition.Fisrt;
-			if ((direction == QueuePosition.Last || direction == QueuePosition.OneDown) && BookQueue.Last.Value == sender)
-				return QueuePosition.Last;
+			var direction = Queue.MoveQueuePosition(sender, requested);
 
-			if (direction == QueuePosition.OneUp)
-			{
-				var oneUp = node.Previous;
-				BookQueue.Remove(node);
-				BookQueue.AddBefore(oneUp, node.Value);
-			}
-			else if (direction == QueuePosition.OneDown)
-			{
-				var oneDown = node.Next;
-				BookQueue.Remove(node);
-				BookQueue.AddAfter(oneDown, node.Value);
-			}
-			else if (direction == QueuePosition.Fisrt)
-			{
-				BookQueue.Remove(node);
-				BookQueue.AddFirst(node);
-			}
-			else
-			{
-				BookQueue.Remove(node);
-				BookQueue.AddLast(node);
-			}
+			if (direction is QueuePosition.Absent or QueuePosition.Current or QueuePosition.Completed)
+				return direction;
+				return direction;
 
-			var index = flowLayoutPanel1.Controls.IndexOf((Control)sender.BookControl);
+			/*
 
-			index = direction switch
+			var firstQueue = autosizeFlowLayout1.Controls.Cast<ProcessBookControl>().FirstOrDefault(c => c.Status == ProcessBookStatus.Queued);
+
+			if (firstQueue is null) return QueuePosition.Current;
+
+			int firstQueueIndex = autosizeFlowLayout1.Controls.IndexOf(firstQueue);
+
+			var index = autosizeFlowLayout1.Controls.IndexOf(sender.BookControl);
+
+			int newIndex = direction switch
 			{
-				QueuePosition.Fisrt => 0,
+				QueuePosition.Fisrt => firstQueueIndex,
 				QueuePosition.OneUp => index - 1,
 				QueuePosition.OneDown => index + 1,
-				QueuePosition.Last => flowLayoutPanel1.Controls.Count - 1,
-				_ => throw new NotImplementedException(),
+				QueuePosition.Last => autosizeFlowLayout1.Controls.Count - 1,
+				_ => -1,
 			};
 
-			flowLayoutPanel1.Controls.SetChildIndex((Control)sender.BookControl, index);
+			if (newIndex < 0) return direction;
 
-			if (index == 0) return QueuePosition.Fisrt;
-			if (index == flowLayoutPanel1.Controls.Count - 1) return QueuePosition.Last;
+			autosizeFlowLayout1.Controls.SetChildIndex(sender.BookControl, newIndex);
+
 			return direction;
+			*/
 		}
 
 		private async Task QueueLoop()
 		{
-			while (MoreInQueue())
+			while (Queue.MoveNext())
 			{
-				var nextBook = NextBook();
-				nextBook.BookControl.SetQueuePosition(QueuePosition.Current);
-				PeekBook()?.BookControl.SetQueuePosition(QueuePosition.Fisrt);
+				var nextBook = Queue.Current;
 
 				var result = await nextBook.ProcessOneAsync();
-
-				AddCompletedBook(nextBook);
 
 				switch (result)
 				{
 					case ProcessBookResult.FailedRetry:
-						EnqueueBook(nextBook);
+						Queue.EnqueueBook(nextBook);
 						break;
 					case ProcessBookResult.FailedAbort:
 						return;
@@ -166,108 +158,62 @@ namespace LibationWinForms.ProcessQueue
 			}
 		}
 
-		private bool BookExists(LibraryBook libraryBook)
-		{
-			lock (lockObject)
-			{
-				return CurrentBook?.Entry?.AudibleProductId == libraryBook.Book.AudibleProductId ||
-					CompletedBooks.Union(BookQueue).Any(p => p.Entry.AudibleProductId == libraryBook.Book.AudibleProductId);
-			}
-		}
-
-		private ProcessBook NextBook()
-		{
-			lock (lockObject)
-			{
-				CurrentBook = BookQueue.First.Value;
-				BookQueue.RemoveFirst();
-				return CurrentBook;
-			}
-		}
-		private ProcessBook PeekBook()
-		{
-			lock (lockObject)
-				return BookQueue.Count > 0 ? BookQueue.First.Value : default;
-		}
-
-		private void EnqueueBook(ProcessBook pbook)
-		{
-			lock (lockObject)
-				BookQueue.AddLast(pbook);
-		}
-		
-		private void AddCompletedBook(ProcessBook pbook)
-		{
-			lock (lockObject)
-				CompletedBooks.Add(pbook);
-		}
-
-		private bool MoreInQueue()
-		{
-			lock (lockObject)
-				return BookQueue.Count > 0;
-		}
 
 
 		private void Pbook_Completed(object sender, EventArgs e)
 		{
-			if (CurrentBook == sender)
-				CurrentBook = default;
+
 		}
 
 		private async void cancelAllBtn_Click(object sender, EventArgs e)
 		{
-			List<ProcessBook> l1 = new();
-			lock (lockObject)
-			{
-				l1.AddRange(BookQueue);
-				BookQueue.Clear();
-			}
-			CurrentBook?.Cancel();
-			CurrentBook = default;
+			List<ProcessBook> l1 = Queue.QueuedItems();
 
-			await RemoveBookControlsAsync(l1.Select(l => l.BookControl));
+			Queue.ClearQueue();
+			Queue.Current?.Cancel();
+
+			//await RemoveBookControlsAsync(l1.Select(l => l.BookControl));
 		}
 
 		private async void btnCleanFinished_Click(object sender, EventArgs e)
 		{
-			List<ProcessBook> l1 = new();
-			lock (lockObject)
-			{
-				l1.AddRange(CompletedBooks);
-				CompletedBooks.Clear();
-			}
-
-			await RemoveBookControlsAsync(l1.Select(l => l.BookControl));
+			List<ProcessBook> l1 = Queue.CompletedItems();
+			Queue.ClearCompleted();
+			//await RemoveBookControlsAsync(l1.Select(l => l.BookControl));
 		}
 
-		private async Task AddBookControlAsync(ILiberationBaseForm control)
+		private async Task AddBookControlAsync(ProcessBookControl control)
 		{
 			await Task.Run(() => Invoke(() =>
 			{
-				SetBookControlWidth((Control)control);
-				flowLayoutPanel1.Controls.Add((Control)control);
-				flowLayoutPanel1.SetFlowBreak((Control)control, true);
-				Refresh();
+				/*
+				control.Width = autosizeFlowLayout1.DesiredBookControlWidth;
+				autosizeFlowLayout1.Controls.Add(control);
+				autosizeFlowLayout1.SetFlowBreak(control, true);
+				*/
+				//Refresh();
+				//System.Threading.Thread.Sleep(1000);
 			}));
 		}
 		
-		private async Task RemoveBookControlAsync(ILiberationBaseForm control)
+		private async Task RemoveBookControlAsync(ProcessBookControl control)
 		{
 			await Task.Run(() => Invoke(() =>
 			{
-				flowLayoutPanel1.Controls.Remove((Control)control);
+				//autosizeFlowLayout1.Controls.Remove(control);
 			}));
 		}
 
-		private async Task RemoveBookControlsAsync(IEnumerable<ILiberationBaseForm> control)
+		private async Task RemoveBookControlsAsync(IEnumerable<ProcessBookControl> control)
 		{
 			await Task.Run(() => Invoke(() =>
 			{
+				/*
 				SuspendLayout();
 				foreach (var l in control)
-					flowLayoutPanel1.Controls.Remove((Control)l);
+					autosizeFlowLayout1.Controls.Remove(l);
 				ResumeLayout();
+				*/
 			}));
 		}
 
@@ -282,62 +228,5 @@ namespace LibationWinForms.ProcessQueue
 			logMeTbox.Clear();
 		}
 
-		[DllImport("user32.dll", EntryPoint = "GetWindowLong")]
-		private static extern long GetWindowLongPtr(IntPtr hWnd, int nIndex);
-
-		[DllImport("user32.dll")]
-		private static extern bool ShowScrollBar(IntPtr hWnd, SBOrientation bar, bool show);
-
-		public const int WS_VSCROLL = 0x200000;
-		public const int WS_HSCROLL  = 0x100000;
-		enum SBOrientation : int
-		{
-			SB_HORZ = 0,
-			SB_VERT = 1,
-			SB_CTL = 2,
-			SB_BOTH = 3
-		}
-
-		private void flowLayoutPanel1_ClientSizeChanged(object sender, EventArgs e)
-		{
-			ReorderControls();
-		}
-
-		private void flowLayoutPanel1_Layout(object sender, LayoutEventArgs e)
-		{
-			ReorderControls();
-		}
-
-		bool V_SHOWN = false;
-
-		private void  ReorderControls()
-		{
-			bool hShown = (GetWindowLongPtr(flowLayoutPanel1.Handle, -16) & WS_HSCROLL) != 0;
-			bool vShown = (GetWindowLongPtr(flowLayoutPanel1.Handle, -16) & WS_VSCROLL) != 0;
-
-			if (hShown)
-				ShowScrollBar(flowLayoutPanel1.Handle, SBOrientation.SB_HORZ, false);
-
-			if (vShown != V_SHOWN)
-			{
-				flowLayoutPanel1.SuspendLayout();
-
-				foreach (Control c in flowLayoutPanel1.Controls)
-					SetBookControlWidth(c);
-
-				flowLayoutPanel1.ResumeLayout();
-				V_SHOWN = vShown;
-			}
-		}
-
-		private void SetBookControlWidth(Control book)
-		{
-			book.Width = flowLayoutPanel1.ClientRectangle.Width - book.Margin.Left - book.Margin.Right;
-		}
-
-		private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
-		{
-
-		}
 	}
 }

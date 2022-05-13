@@ -16,22 +16,39 @@ namespace LibationWinForms.ProcessQueue
 		None,
 		Success,
 		Cancelled,
+		ValidationFail,
 		FailedRetry,
 		FailedSkip,
 		FailedAbort
+	}
+	public enum ProcessBookStatus
+	{
+		Queued,
+		Cancelled,
+		Working,
+		Completed,
+		Failed
 	}
 
 	internal enum QueuePosition
 	{
 		Absent,
+		Completed,
 		Current,
 		Fisrt,
 		OneUp,
 		OneDown,
 		Last
 	}
+	internal enum QueuePositionRequest
+	{
+		Fisrt,
+		OneUp,
+		OneDown,
+		Last
+	}
 
-	internal delegate QueuePosition ProcessControlReorderHandler(ProcessBook sender, QueuePosition arg);
+	internal delegate QueuePosition ProcessControlReorderHandler(ProcessBook sender, QueuePositionRequest arg);
 	internal delegate void ProcessControlEventArgs<T>(ProcessBook sender, T arg);
 	internal delegate void ProcessControlEventArgs(ProcessBook sender, EventArgs arg);
 
@@ -41,7 +58,7 @@ namespace LibationWinForms.ProcessQueue
 		public event ProcessControlEventArgs Cancelled;
 		public event ProcessControlReorderHandler RequestMove;
 		public GridEntry Entry { get; }
-		public ILiberationBaseForm BookControl { get; }
+		//public ProcessBookControl BookControl { get; }
 
 		private Func<Processable> _makeFirstProc;
 		private Processable _firstProcessable;
@@ -55,20 +72,15 @@ namespace LibationWinForms.ProcessQueue
 		public ProcessBook(GridEntry entry, LogMe logme)
 		{
 			Entry = entry;
-			BookControl = new ProcessBookControl(Entry.Title, Entry.Cover);
-			BookControl.CancelAction = Cancel;
-			BookControl.MoveUpAction = MoveUp;
-			BookControl.MoveDownAction = MoveDown;
+			//BookControl = new ProcessBookControl(Entry.Title, Entry.Cover);
+			//BookControl.CancelAction = Cancel;
+			//BookControl.RequestMoveAction = MoveRequested;
 			Logger = logme;
 		}
 
-		public QueuePosition? MoveUp()
+		public QueuePosition? MoveRequested(QueuePositionRequest requestedPosition)
 		{
-			return RequestMove?.Invoke(this, QueuePosition.OneUp);
-		}
-		public QueuePosition? MoveDown()
-		{
-			return RequestMove?.Invoke(this, QueuePosition.OneDown);
+			return RequestMove?.Invoke(this, requestedPosition);
 		}
 
 		public void Cancel()
@@ -94,11 +106,9 @@ namespace LibationWinForms.ProcessQueue
 			ProcessBookResult result = ProcessBookResult.None;
 			try
 			{
-				var firstProc = FirstProcessable;
+				LinkProcessable(FirstProcessable);
 
-				LinkProcessable(firstProc);
-
-				var statusHandler = await firstProc.ProcessSingleAsync(Entry.LibraryBook, validate: true);
+				var statusHandler = await FirstProcessable.ProcessSingleAsync(Entry.LibraryBook, validate: true);
 
 
 				if (statusHandler.IsSuccess)
@@ -107,6 +117,11 @@ namespace LibationWinForms.ProcessQueue
 				{
 					Logger.Info($"Process was cancelled {Entry.LibraryBook.Book}");
 					return result = ProcessBookResult.Cancelled;
+				}
+				else if (statusHandler.Errors.Contains("Validation failed"))
+				{
+					Logger.Info($"Validation failed {Entry.LibraryBook.Book}");
+					return result = ProcessBookResult.ValidationFail;
 				}
 
 				foreach (var errorMessage in statusHandler.Errors)
@@ -121,7 +136,7 @@ namespace LibationWinForms.ProcessQueue
 				if (result == ProcessBookResult.None)
 					result = showRetry(Entry.LibraryBook);
 
-				BookControl.SetResult(result);
+				//BookControl.SetResult(result);
 			}
 
 			return result;
@@ -149,8 +164,8 @@ namespace LibationWinForms.ProcessQueue
 
 		private void Processable_Begin(object sender, LibraryBook libraryBook)
 		{
-			BookControl.RegisterFileLiberator((Processable)sender, Logger);
-			BookControl.Processable_Begin(sender, libraryBook);
+			//BookControl.RegisterFileLiberator((Processable)sender, Logger);
+			//BookControl.Processable_Begin(sender, libraryBook);
 		}
 
 		private async void Processable_Completed(object sender, LibraryBook e)
