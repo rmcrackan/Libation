@@ -41,8 +41,11 @@ namespace LibationWinForms
 			get => _cover;
 			private set
 			{
-				_cover = value;
-				NotifyPropertyChanged();
+				if (_cover != value)
+				{
+					_cover = value;
+					NotifyPropertyChanged();
+				}
 			}
 		}
 
@@ -172,16 +175,25 @@ namespace LibationWinForms
 			switch (itemName)
 			{
 				case nameof(udi.Tags):
-					Book.UserDefinedItem.Tags = udi.Tags;
-					NotifyPropertyChanged(nameof(DisplayTags));
+					if (Book.UserDefinedItem.Tags != udi.Tags)
+                    {
+                        Book.UserDefinedItem.Tags = udi.Tags;
+						NotifyPropertyChanged(nameof(DisplayTags));
+					}
 					break;
 				case nameof(udi.BookStatus):
-					Book.UserDefinedItem.BookStatus = udi.BookStatus;
-					NotifyPropertyChanged(nameof(Liberate));
+					if (Book.UserDefinedItem.BookStatus != udi.BookStatus)
+                    {
+                        Book.UserDefinedItem.BookStatus = udi.BookStatus;
+						NotifyPropertyChanged(nameof(Liberate));
+					}
 					break;
 				case nameof(udi.PdfStatus):
-					Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
-					NotifyPropertyChanged(nameof(Liberate));
+					if (Book.UserDefinedItem.PdfStatus != udi.PdfStatus)
+                    {
+                        Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
+						NotifyPropertyChanged(nameof(Liberate));
+					}
 					break;
 			}
 		}
@@ -211,9 +223,23 @@ namespace LibationWinForms
 
 		private void UpdateLiberatedStatus(bool notify = true)
 		{
-			_bookStatus = LibraryCommands.Liberated_Status(LibraryBook.Book);
-			_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
-			if (notify)
+			var changed = false;
+
+			var newBookStatus = LibraryCommands.Liberated_Status(LibraryBook.Book);
+			if (_bookStatus != newBookStatus)
+			{
+				_bookStatus = newBookStatus;
+				changed = true;
+			}
+
+			var newPdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
+			if (_pdfStatus != newPdfStatus)
+			{
+				_pdfStatus = newPdfStatus;
+				changed = true;
+			}
+
+			if (changed && notify)
 				NotifyPropertyChanged(nameof(Liberate));
 		}
 
