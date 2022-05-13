@@ -36,6 +36,7 @@ namespace LibationSearchEngine
         public const string ALL_TITLE = nameof(Book.Title);
         public const string ALL_AUTHOR_NAMES = "AuthorNames";
         public const string ALL_NARRATOR_NAMES = "NarratorNames";
+        public const string ALL_SERIES_NAMES = "SeriesNames";
 
         private static ReadOnlyDictionary<string, Func<LibraryBook, string>> idIndexRules { get; }
             = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
@@ -64,16 +65,8 @@ namespace LibationSearchEngine
                     ["Narrators"] = lb => lb.Book.NarratorNames(),
                     [nameof(Book.Publisher)] = lb => lb.Book.Publisher,
 
-                    ["SeriesNames"] = lb => string.Join(
-                        ", ",
-                        lb.Book.SeriesLink
-                            .Where(s => !string.IsNullOrWhiteSpace(s.Series.Name))
-                            .Select(s => s.Series.AudibleSeriesId)),
-                    ["Series"] = lb => string.Join(
-                        ", ",
-                        lb.Book.SeriesLink
-                            .Where(s => !string.IsNullOrWhiteSpace(s.Series.Name))
-                            .Select(s => s.Series.AudibleSeriesId)),
+                    [ALL_SERIES_NAMES] = lb => lb.Book.SeriesNames(),
+                    ["Series"] = lb => lb.Book.SeriesNames(),
                     ["SeriesId"] = lb => string.Join(", ", lb.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId)),
 
                     ["CategoriesNames"] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
@@ -160,7 +153,8 @@ namespace LibationSearchEngine
                 idIndexRules[ALL_AUDIBLE_PRODUCT_ID],
                 stringIndexRules[ALL_TITLE],
                 stringIndexRules[ALL_AUTHOR_NAMES],
-                stringIndexRules[ALL_NARRATOR_NAMES]
+                stringIndexRules[ALL_NARRATOR_NAMES],
+                stringIndexRules[ALL_SERIES_NAMES]
             };
 		#endregion
 

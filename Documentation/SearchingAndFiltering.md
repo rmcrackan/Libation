@@ -40,7 +40,7 @@ Libation's advanced searching is built on the powerful Lucene search engine. Sim
     * Full official guide: https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
 * Tons of search fields, specific to audiobooks
 * Synonyms so you don't have to memorize magic words. Eg: author and author**s** will both work
-* Click [?] button for a full list of search fields and synonyms ![Filter options](images/FilterOptions.png)
+* Click [?] button for a full list of search fields and synonyms ![Filter options](images/FilterOptionsButton.png)
 * Search by tag like \[this\]
 * When tags have an underscore you can use part of the tag. This is useful for quick categories. The below examples make this more clear.
 
