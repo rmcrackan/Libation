@@ -70,7 +70,7 @@
 			this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
-			this.addFilterBtn = new System.Windows.Forms.Button();
+			this.addQuickFilterBtn = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessBookQueue();
 			this.menuStrip1.SuspendLayout();
@@ -285,14 +285,14 @@
 			this.firstFilterIsDefaultToolStripMenuItem.Name = "firstFilterIsDefaultToolStripMenuItem";
 			this.firstFilterIsDefaultToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
 			this.firstFilterIsDefaultToolStripMenuItem.Text = "Start Libation with 1st filter &Default";
-			this.firstFilterIsDefaultToolStripMenuItem.Click += new System.EventHandler(this.FirstFilterIsDefaultToolStripMenuItem_Click);
+			this.firstFilterIsDefaultToolStripMenuItem.Click += new System.EventHandler(this.firstFilterIsDefaultToolStripMenuItem_Click);
 			// 
 			// editQuickFiltersToolStripMenuItem
 			// 
 			this.editQuickFiltersToolStripMenuItem.Name = "editQuickFiltersToolStripMenuItem";
 			this.editQuickFiltersToolStripMenuItem.Size = new System.Drawing.Size(256, 22);
 			this.editQuickFiltersToolStripMenuItem.Text = "&Edit quick filters...";
-			this.editQuickFiltersToolStripMenuItem.Click += new System.EventHandler(this.EditQuickFiltersToolStripMenuItem_Click);
+			this.editQuickFiltersToolStripMenuItem.Click += new System.EventHandler(this.editQuickFiltersToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
@@ -424,16 +424,16 @@
 			this.pdfsCountsLbl.Size = new System.Drawing.Size(171, 17);
 			this.pdfsCountsLbl.Text = "|  [Calculating backed up PDFs]";
 			// 
-			// addFilterBtn
+			// addQuickFilterBtn
 			// 
-			this.addFilterBtn.Location = new System.Drawing.Point(49, 27);
-			this.addFilterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.addFilterBtn.Name = "addFilterBtn";
-			this.addFilterBtn.Size = new System.Drawing.Size(163, 27);
-			this.addFilterBtn.TabIndex = 4;
-			this.addFilterBtn.Text = "Add To Quick Filters";
-			this.addFilterBtn.UseVisualStyleBackColor = true;
-			this.addFilterBtn.Click += new System.EventHandler(this.AddFilterBtn_Click);
+			this.addQuickFilterBtn.Location = new System.Drawing.Point(49, 27);
+			this.addQuickFilterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.addQuickFilterBtn.Name = "addQuickFilterBtn";
+			this.addQuickFilterBtn.Size = new System.Drawing.Size(163, 27);
+			this.addQuickFilterBtn.TabIndex = 4;
+			this.addQuickFilterBtn.Text = "Add To Quick Filters";
+			this.addQuickFilterBtn.UseVisualStyleBackColor = true;
+			this.addQuickFilterBtn.Click += new System.EventHandler(this.addQuickFilterBtn_Click);
 			// 
 			// splitContainer1
 			// 
@@ -446,7 +446,7 @@
 			this.splitContainer1.Panel1.Controls.Add(this.menuStrip1);
 			this.splitContainer1.Panel1.Controls.Add(this.gridPanel);
 			this.splitContainer1.Panel1.Controls.Add(this.filterSearchTb);
-			this.splitContainer1.Panel1.Controls.Add(this.addFilterBtn);
+			this.splitContainer1.Panel1.Controls.Add(this.addQuickFilterBtn);
 			this.splitContainer1.Panel1.Controls.Add(this.filterBtn);
 			this.splitContainer1.Panel1.Controls.Add(this.statusStrip1);
 			this.splitContainer1.Panel1.Controls.Add(this.filterHelpBtn);
@@ -513,7 +513,7 @@
 		private System.Windows.Forms.ToolStripMenuItem scanLibraryToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem quickFiltersToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem firstFilterIsDefaultToolStripMenuItem;
-		private System.Windows.Forms.Button addFilterBtn;
+		private System.Windows.Forms.Button addQuickFilterBtn;
 		private System.Windows.Forms.ToolStripMenuItem editQuickFiltersToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
