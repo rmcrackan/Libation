@@ -5,8 +5,10 @@ using LibationFileManager;
 using LibationWinForms.BookLiberation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -32,35 +34,66 @@ namespace LibationWinForms.ProcessQueue
 		Failed
 	}
 
-	public class ProcessBook
+	/// <summary>
+	/// This is the viewmodel for queued processables
+	/// </summary>
+	public class ProcessBook : INotifyPropertyChanged
 	{
 		public event EventHandler Completed;
-		public event EventHandler DataAvailable;
+		public event PropertyChangedEventHandler PropertyChanged;
 
-		public Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
-		public ProcessBookResult Result { get; private set; } = ProcessBookResult.None;
-		public ProcessBookStatus Status { get; private set; } = ProcessBookStatus.Queued;
-		public string BookText { get; private set; }
-		public Image Cover { get; private set; }
-		public int Progress { get; private set; }
-		public TimeSpan TimeRemaining { get; private set; }
-		public LibraryBook LibraryBook { get; }
+		private ProcessBookResult _result = ProcessBookResult.None;
+		private ProcessBookStatus _status = ProcessBookStatus.Queued;
+		private string _bookText;
+		private int _progress;
+		private TimeSpan _timeRemaining;
+		private LibraryBook _libraryBook;
+		private Image _cover;
 
+		public ProcessBookResult Result { get => _result; private set { _result = value; NotifyPropertyChanged(); } } 
+		public ProcessBookStatus Status { get => _status; private set { _status = value; NotifyPropertyChanged(); } } 
+		public string BookText { get => _bookText; private set { _bookText = value; NotifyPropertyChanged(); } }
+		public int Progress { get => _progress; private set { _progress = value; NotifyPropertyChanged(); } }
+		public TimeSpan TimeRemaining { get => _timeRemaining; private set { _timeRemaining = value; NotifyPropertyChanged(); } }
+		public LibraryBook LibraryBook { get => _libraryBook; private set { _libraryBook = value; NotifyPropertyChanged(); } }
+		public Image Cover { get => _cover; private set { _cover = value; NotifyPropertyChanged(); } }
+
+
+		private Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
+		private Processable NextProcessable() => _currentProcessable = null;
 		private Processable _currentProcessable;
 		private Func<byte[]> GetCoverArtDelegate;
 		private readonly Queue<Func<Processable>> Processes = new();
 		private readonly LogMe Logger;
 
-		public ProcessBook(LibraryBook libraryBook, Image coverImage, LogMe logme)
+		public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+		public ProcessBook(LibraryBook libraryBook, LogMe logme)
 		{
 			LibraryBook = libraryBook;
-			Cover = coverImage;
 			Logger = logme;
 
 			title = LibraryBook.Book.Title;
 			authorNames = LibraryBook.Book.AuthorNames();
 			narratorNames = LibraryBook.Book.NarratorNames();
-			BookText = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}";
+			_bookText = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}";
+
+			(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._80x80));
+
+			if (isDefault)
+				PictureStorage.PictureCached += PictureStorage_PictureCached;
+			_cover = Dinah.Core.Drawing.ImageReader.ToImage(picture);
+
+		}
+
+		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
+		{
+			if (e.Definition.PictureId == LibraryBook.Book.PictureId)
+			{
+				Cover = Dinah.Core.Drawing.ImageReader.ToImage(e.Picture);
+				PictureStorage.PictureCached -= PictureStorage_PictureCached;
+			}
 		}
 
 		public async Task<ProcessBookResult> ProcessOneAsync()
@@ -103,8 +136,6 @@ namespace LibationWinForms.ProcessQueue
 					ProcessBookResult.FailedRetry => ProcessBookStatus.Queued,
 					_ => ProcessBookStatus.Failed,
 				};
-
-				DataAvailable?.Invoke(this, EventArgs.Empty);
 			}
 
 			return Result;
@@ -118,7 +149,7 @@ namespace LibationWinForms.ProcessQueue
 				{
 					//There's some threadding bug that causes this to hang if executed synchronously.
 					Task.Run(audioDecodable.Cancel);
-					DataAvailable?.Invoke(this, EventArgs.Empty);
+
 				}
 			}
 			catch (Exception ex)
@@ -135,18 +166,19 @@ namespace LibationWinForms.ProcessQueue
 		{
 			Processes.Enqueue(() => new T());
 		}
+
 		public override string ToString() => LibraryBook.ToString();
 
 		#region Subscribers and Unsubscribers
 
-		private void LinkProcessable(Processable strProc)
+		private void LinkProcessable(Processable processable)
 		{
-			strProc.Begin += Processable_Begin;
-			strProc.Completed += Processable_Completed;
-			strProc.StreamingProgressChanged += Streamable_StreamingProgressChanged;
-			strProc.StreamingTimeRemaining += Streamable_StreamingTimeRemaining;
+			processable.Begin += Processable_Begin;
+			processable.Completed += Processable_Completed;
+			processable.StreamingProgressChanged += Streamable_StreamingProgressChanged;
+			processable.StreamingTimeRemaining += Streamable_StreamingTimeRemaining;
 
-			if (strProc is AudioDecodable audioDecodable)
+			if (processable is AudioDecodable audioDecodable)
 			{
 				audioDecodable.RequestCoverArt += AudioDecodable_RequestCoverArt;
 				audioDecodable.TitleDiscovered += AudioDecodable_TitleDiscovered;
@@ -156,14 +188,14 @@ namespace LibationWinForms.ProcessQueue
 			}
 		}
 
-		private void UnlinkProcessable(Processable strProc)
+		private void UnlinkProcessable(Processable processable)
 		{
-			strProc.Begin -= Processable_Begin;
-			strProc.Completed -= Processable_Completed;
-			strProc.StreamingProgressChanged -= Streamable_StreamingProgressChanged;
-			strProc.StreamingTimeRemaining -= Streamable_StreamingTimeRemaining;
+			processable.Begin -= Processable_Begin;
+			processable.Completed -= Processable_Completed;
+			processable.StreamingProgressChanged -= Streamable_StreamingProgressChanged;
+			processable.StreamingTimeRemaining -= Streamable_StreamingTimeRemaining;
 
-			if (strProc is AudioDecodable audioDecodable)
+			if (processable is AudioDecodable audioDecodable)
 			{
 				audioDecodable.RequestCoverArt -= AudioDecodable_RequestCoverArt;
 				audioDecodable.TitleDiscovered -= AudioDecodable_TitleDiscovered;
@@ -201,7 +233,6 @@ namespace LibationWinForms.ProcessQueue
 		private void updateBookInfo()
 		{
 			BookText = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}";
-			DataAvailable?.Invoke(this, EventArgs.Empty);
 		}
 
 		public void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
@@ -214,7 +245,6 @@ namespace LibationWinForms.ProcessQueue
 		private void AudioDecodable_CoverImageDiscovered(object sender, byte[] coverArt)
 		{
 			Cover = Dinah.Core.Drawing.ImageReader.ToImage(coverArt);
-			DataAvailable?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion
@@ -223,7 +253,6 @@ namespace LibationWinForms.ProcessQueue
 		private void Streamable_StreamingTimeRemaining(object sender, TimeSpan timeRemaining)
 		{
 			TimeRemaining = timeRemaining;
-			DataAvailable?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void Streamable_StreamingProgressChanged(object sender, Dinah.Core.Net.Http.DownloadProgress downloadProgress)
@@ -235,8 +264,6 @@ namespace LibationWinForms.ProcessQueue
 				TimeRemaining = TimeSpan.Zero;
 			else
 				Progress = (int)downloadProgress.ProgressPercentage;
-
-			DataAvailable?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion
@@ -273,7 +300,7 @@ namespace LibationWinForms.ProcessQueue
 
 			if (Processes.Count > 0)
 			{
-				_currentProcessable = null;
+				NextProcessable();
 				LinkProcessable(CurrentProcessable);
 				var result = await CurrentProcessable.ProcessSingleAsync(libraryBook, validate: true);
 
