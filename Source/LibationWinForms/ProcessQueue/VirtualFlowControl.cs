@@ -38,28 +38,31 @@ namespace LibationWinForms.ProcessQueue
 
 		private int _virtualControlCount;
 
-		//https://stackoverflow.com/a/2882878/3335599
-		int ScrollValue => Math.Max(Math.Min(VirtualHeight, vScrollBar1.Value), 0);
+		int ScrollValue => Math.Max(vScrollBar1.Value, 0);
 
 		/// <summary>
-		/// The virtual height of all virtual controls within this <see cref="VirtualFlowControl"/>
+		/// Virtual height of all virtual controls within this <see cref="VirtualFlowControl"/>
 		/// </summary>
-		private int VirtualHeight => _virtualControlCount * VirtualControlHeight - vScrollBar1.Height + 2 * TopMargin;
-
+		private int VirtualHeight => (VirtualControlCount + 1 /*Allow extra blank space after last control*/) * VirtualControlHeight - DisplayHeight + 2 * TopMargin;
 		/// <summary>
-		/// Item index of the first virtual <see cref="ProcessBookControl"/>
+		/// Index of the first virtual <see cref="ProcessBookControl"/>
 		/// </summary>
 		private int FirstVisibleVirtualIndex => ScrollValue / VirtualControlHeight;
-
 		/// <summary>
 		/// The display height of this <see cref="VirtualFlowControl"/>
 		/// </summary>
 		private int DisplayHeight => DisplayRectangle.Height;
-
 		/// <summary>
 		/// The total height, inclusing margins, of the repeated <see cref="ProcessBookControl"/>
 		/// </summary>
-		private readonly int VirtualControlHeight; //90
+		private readonly int VirtualControlHeight;
+		/// <summary>
+		/// Amount the control moves with a small scroll change
+		/// </summary>
+		private int SmallChangeValue => VirtualControlHeight * SMALL_SCROLL_CHANGE_MULTIPLE;
+		/// <summary>
+		/// Margin between the top <see cref="ProcessBookControl"/> and the top of the Panle and the bottom <see cref="ProcessBookControl"/> and the bottom of the panel
+		/// </summary>
 		private readonly int TopMargin;
 
 		private const int WM_MOUSEWHEEL = 522;
@@ -67,23 +70,22 @@ namespace LibationWinForms.ProcessQueue
 		/// Total number of actual controls added to the panel. 23 is sufficient up to a 4k monitor height.
 		/// </summary>
 		private const int NUM_ACTUAL_CONTROLS = 23;
-		private const int SCROLL_SMALL_CHANGE = 120;
-		private const int SCROLL_LARGE_CHANGE = 3 * SCROLL_SMALL_CHANGE;
+		/// <summary>
+		/// Multiple of <see cref="VirtualControlHeight"/> that is moved for each small scroll change
+		/// </summary>
+		private const int SMALL_SCROLL_CHANGE_MULTIPLE = 1;
 
 		private readonly VScrollBar vScrollBar1;
 		private readonly List<ProcessBookControl> BookControls = new();
 
 		public VirtualFlowControl()
 		{
-
 			InitializeComponent();
 
 			vScrollBar1 = new VScrollBar
 			{
 				Minimum = 0,
 				Value = 0,
-				SmallChange = SCROLL_SMALL_CHANGE,
-				LargeChange = SCROLL_LARGE_CHANGE,
 				Dock = DockStyle.Right
 			};
 			panel1.Width -= vScrollBar1.Width + panel1.Margin.Right;
@@ -99,10 +101,11 @@ namespace LibationWinForms.ProcessQueue
 			vScrollBar1.Scroll += (_, s) => SetScrollPosition(s.NewValue);
 
 			var control = InitControl(0);
-			BookControls.Add(control);
-			panel1.Controls.Add(control);
 			VirtualControlHeight = control.Height + control.Margin.Top + control.Margin.Bottom;
 			TopMargin = control.Margin.Top;
+
+			BookControls.Add(control);
+			panel1.Controls.Add(control);
 
 			if (DesignMode)
 				return;
@@ -114,8 +117,7 @@ namespace LibationWinForms.ProcessQueue
 				panel1.Controls.Add(control);
 			}
 
-			vScrollBar1.SmallChange = VirtualControlHeight;
-			vScrollBar1.LargeChange = 3 * VirtualControlHeight;
+			vScrollBar1.SmallChange = SMALL_SCROLL_CHANGE_MULTIPLE * VirtualControlHeight;
 
 			panel1.Height += 2 * VirtualControlHeight;
 		}
@@ -167,13 +169,18 @@ namespace LibationWinForms.ProcessQueue
 			else
 			{
 				vScrollBar1.Enabled = true;
+
+				//Large scroll change is almost one full window height
+				vScrollBar1.LargeChange = Math.Max(DisplayHeight / VirtualControlHeight - 2, SMALL_SCROLL_CHANGE_MULTIPLE) * VirtualControlHeight;
+
 				//https://stackoverflow.com/a/2882878/3335599
 				vScrollBar1.Maximum = VirtualHeight + vScrollBar1.LargeChange - 1;
 			}
 		}
 
 		/// <summary>
-		/// Calculated the virtual controls that are in view at the currrent scroll position and windows size, then fires <see cref="RequestData"/> for the visible controls
+		/// Calculated the virtual controls that are in view at the currrent scroll position and windows size,
+		/// positions <see cref="panel1"/> to simulate scroll activity, then fires <see cref="RequestData"/> for the visible controls
 		/// </summary>
 		private void DoVirtualScroll()
 		{
@@ -182,19 +189,18 @@ namespace LibationWinForms.ProcessQueue
 			int position = ScrollValue % VirtualControlHeight;
 			panel1.Location = new Point(0, -position);
 
-			int visibleHeight = ScrollValue - firstVisible * VirtualControlHeight + DisplayHeight;
+			int numVisible = DisplayHeight / VirtualControlHeight;
 
-			int count = visibleHeight / VirtualControlHeight;
+			if (DisplayHeight % VirtualControlHeight != 0)
+				numVisible++;
 
-			if (visibleHeight % VirtualControlHeight != 0)
-				count++;
+			numVisible = Math.Min(numVisible, VirtualControlCount);
+			numVisible = Math.Min(numVisible, VirtualControlCount - firstVisible);
 
-			count = Math.Min(count, VirtualControlCount);
-
-			RequestData?.Invoke(firstVisible, count, BookControls);
+			RequestData?.Invoke(firstVisible, numVisible, BookControls);
 
 			for (int i = 0; i < BookControls.Count; i++)
-				BookControls[i].Visible = i < count;
+				BookControls[i].Visible = i < numVisible;
 		}
 
 		/// <summary>
@@ -202,10 +208,11 @@ namespace LibationWinForms.ProcessQueue
 		/// </summary>
 		private void SetScrollPosition(int value)
 		{
-			int newPos = (int)Math.Round((double)value / VirtualControlHeight) * VirtualControlHeight;
+			int newPos = (int)Math.Round((double)value / SmallChangeValue) * SmallChangeValue;
 			if (vScrollBar1.Value != newPos)
 			{
-				vScrollBar1.Value = Math.Min(newPos, vScrollBar1.Maximum);
+				//https://stackoverflow.com/a/2882878/3335599
+				vScrollBar1.Value = Math.Min(newPos, vScrollBar1.Maximum - vScrollBar1.LargeChange +1);
 				DoVirtualScroll();
 			}
 		}
@@ -218,12 +225,16 @@ namespace LibationWinForms.ProcessQueue
 				//https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-mousewheel
 				int wheelDelta = -(short)(((ulong)m.WParam) >> 16 & ushort.MaxValue);
 
+				int numSmallPositionMoves = Math.Abs(wheelDelta) / 120;
+
+				int scrollDelta = Math.Sign(wheelDelta) * numSmallPositionMoves * SmallChangeValue;
+
 				int newScrollPosition;
 
-				if (wheelDelta > 0)
-					newScrollPosition = Math.Min(vScrollBar1.Value + wheelDelta, vScrollBar1.Maximum);
+				if (scrollDelta > 0)
+					newScrollPosition = Math.Min(vScrollBar1.Value + scrollDelta, vScrollBar1.Maximum);
 				else
-					newScrollPosition = Math.Max(vScrollBar1.Value + wheelDelta, vScrollBar1.Minimum);
+					newScrollPosition = Math.Max(vScrollBar1.Value + scrollDelta, vScrollBar1.Minimum);
 
 				SetScrollPosition(newScrollPosition);
 			}
