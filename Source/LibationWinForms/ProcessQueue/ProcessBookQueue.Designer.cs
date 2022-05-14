@@ -28,20 +28,25 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProcessBookQueue));
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
+			this.queueNumberLbl = new System.Windows.Forms.ToolStripStatusLabel();
+			this.completedNumberLbl = new System.Windows.Forms.ToolStripStatusLabel();
+			this.errorNumberLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.panel3 = new System.Windows.Forms.Panel();
 			this.virtualFlowControl2 = new LibationWinForms.ProcessQueue.VirtualFlowControl();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.btnCleanFinished = new System.Windows.Forms.Button();
 			this.cancelAllBtn = new System.Windows.Forms.Button();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.panel4 = new System.Windows.Forms.Panel();
 			this.panel2 = new System.Windows.Forms.Panel();
 			this.clearLogBtn = new System.Windows.Forms.Button();
 			this.logMeTbox = new System.Windows.Forms.TextBox();
-			this.tabPage3 = new System.Windows.Forms.TabPage();
 			this.statusStrip1.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
@@ -52,78 +57,111 @@
 			// 
 			// statusStrip1
 			// 
+			this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripProgressBar1,
+            this.queueNumberLbl,
+            this.completedNumberLbl,
+            this.errorNumberLbl,
             this.toolStripStatusLabel1});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 486);
+			this.statusStrip1.Location = new System.Drawing.Point(0, 483);
 			this.statusStrip1.Name = "statusStrip1";
-			this.statusStrip1.Size = new System.Drawing.Size(404, 22);
+			this.statusStrip1.Size = new System.Drawing.Size(404, 25);
 			this.statusStrip1.TabIndex = 1;
 			this.statusStrip1.Text = "statusStrip1";
 			// 
 			// toolStripProgressBar1
 			// 
 			this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-			this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
+			this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 19);
+			// 
+			// queueNumberLbl
+			// 
+			this.queueNumberLbl.Image = ((System.Drawing.Image)(resources.GetObject("queueNumberLbl.Image")));
+			this.queueNumberLbl.Name = "queueNumberLbl";
+			this.queueNumberLbl.Size = new System.Drawing.Size(51, 20);
+			this.queueNumberLbl.Text = "[Q#]";
+			// 
+			// completedNumberLbl
+			// 
+			this.completedNumberLbl.Image = ((System.Drawing.Image)(resources.GetObject("completedNumberLbl.Image")));
+			this.completedNumberLbl.Name = "completedNumberLbl";
+			this.completedNumberLbl.Size = new System.Drawing.Size(56, 20);
+			this.completedNumberLbl.Text = "[DL#]";
+			// 
+			// errorNumberLbl
+			// 
+			this.errorNumberLbl.Image = ((System.Drawing.Image)(resources.GetObject("errorNumberLbl.Image")));
+			this.errorNumberLbl.Name = "errorNumberLbl";
+			this.errorNumberLbl.Size = new System.Drawing.Size(62, 20);
+			this.errorNumberLbl.Text = "[ERR#]";
 			// 
 			// toolStripStatusLabel1
 			// 
 			this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-			this.toolStripStatusLabel1.Size = new System.Drawing.Size(287, 17);
+			this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 20);
 			this.toolStripStatusLabel1.Spring = true;
 			// 
 			// tabControl1
 			// 
-			this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabControl1.Controls.Add(this.tabPage1);
 			this.tabControl1.Controls.Add(this.tabPage2);
-			this.tabControl1.Controls.Add(this.tabPage3);
+			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl1.Location = new System.Drawing.Point(0, 0);
 			this.tabControl1.Margin = new System.Windows.Forms.Padding(0);
 			this.tabControl1.Name = "tabControl1";
 			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(405, 486);
+			this.tabControl1.Size = new System.Drawing.Size(404, 483);
 			this.tabControl1.TabIndex = 3;
 			// 
 			// tabPage1
 			// 
+			this.tabPage1.Controls.Add(this.panel3);
 			this.tabPage1.Controls.Add(this.virtualFlowControl2);
 			this.tabPage1.Controls.Add(this.panel1);
 			this.tabPage1.Location = new System.Drawing.Point(4, 24);
 			this.tabPage1.Name = "tabPage1";
 			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(397, 458);
+			this.tabPage1.Size = new System.Drawing.Size(396, 455);
 			this.tabPage1.TabIndex = 0;
 			this.tabPage1.Text = "Process Queue";
 			this.tabPage1.UseVisualStyleBackColor = true;
 			// 
+			// panel3
+			// 
+			this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.panel3.Location = new System.Drawing.Point(3, 422);
+			this.panel3.Name = "panel3";
+			this.panel3.Size = new System.Drawing.Size(390, 5);
+			this.panel3.TabIndex = 4;
+			// 
 			// virtualFlowControl2
 			// 
+			this.virtualFlowControl2.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
+			this.virtualFlowControl2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.virtualFlowControl2.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.virtualFlowControl2.Location = new System.Drawing.Point(3, 3);
 			this.virtualFlowControl2.Name = "virtualFlowControl2";
-			this.virtualFlowControl2.Size = new System.Drawing.Size(391, 422);
+			this.virtualFlowControl2.Size = new System.Drawing.Size(390, 424);
 			this.virtualFlowControl2.TabIndex = 3;
 			this.virtualFlowControl2.VirtualControlCount = 0;
 			// 
 			// panel1
 			// 
-			this.panel1.BackColor = System.Drawing.SystemColors.ControlDark;
+			this.panel1.BackColor = System.Drawing.SystemColors.Control;
+			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.panel1.Controls.Add(this.btnCleanFinished);
 			this.panel1.Controls.Add(this.cancelAllBtn);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.panel1.Location = new System.Drawing.Point(3, 425);
+			this.panel1.Location = new System.Drawing.Point(3, 427);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(391, 30);
+			this.panel1.Size = new System.Drawing.Size(390, 25);
 			this.panel1.TabIndex = 2;
 			// 
 			// btnCleanFinished
 			// 
-			this.btnCleanFinished.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnCleanFinished.Location = new System.Drawing.Point(298, 3);
+			this.btnCleanFinished.Dock = System.Windows.Forms.DockStyle.Right;
+			this.btnCleanFinished.Location = new System.Drawing.Point(298, 0);
 			this.btnCleanFinished.Name = "btnCleanFinished";
 			this.btnCleanFinished.Size = new System.Drawing.Size(90, 23);
 			this.btnCleanFinished.TabIndex = 3;
@@ -133,9 +171,8 @@
 			// 
 			// cancelAllBtn
 			// 
-			this.cancelAllBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-			this.cancelAllBtn.Location = new System.Drawing.Point(3, 3);
+			this.cancelAllBtn.Dock = System.Windows.Forms.DockStyle.Left;
+			this.cancelAllBtn.Location = new System.Drawing.Point(0, 0);
 			this.cancelAllBtn.Name = "cancelAllBtn";
 			this.cancelAllBtn.Size = new System.Drawing.Size(75, 23);
 			this.cancelAllBtn.TabIndex = 2;
@@ -145,31 +182,40 @@
 			// 
 			// tabPage2
 			// 
+			this.tabPage2.Controls.Add(this.panel4);
 			this.tabPage2.Controls.Add(this.panel2);
 			this.tabPage2.Controls.Add(this.logMeTbox);
 			this.tabPage2.Location = new System.Drawing.Point(4, 24);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage2.Size = new System.Drawing.Size(397, 458);
+			this.tabPage2.Size = new System.Drawing.Size(396, 455);
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "Log";
 			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
+			// panel4
+			// 
+			this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.panel4.Location = new System.Drawing.Point(3, 422);
+			this.panel4.Name = "panel4";
+			this.panel4.Size = new System.Drawing.Size(390, 5);
+			this.panel4.TabIndex = 2;
+			// 
 			// panel2
 			// 
-			this.panel2.BackColor = System.Drawing.SystemColors.ControlDark;
+			this.panel2.BackColor = System.Drawing.SystemColors.Control;
+			this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.panel2.Controls.Add(this.clearLogBtn);
 			this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.panel2.Location = new System.Drawing.Point(3, 425);
+			this.panel2.Location = new System.Drawing.Point(3, 427);
 			this.panel2.Name = "panel2";
-			this.panel2.Size = new System.Drawing.Size(391, 30);
+			this.panel2.Size = new System.Drawing.Size(390, 25);
 			this.panel2.TabIndex = 1;
 			// 
 			// clearLogBtn
 			// 
-			this.clearLogBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-			this.clearLogBtn.Location = new System.Drawing.Point(3, 3);
+			this.clearLogBtn.Dock = System.Windows.Forms.DockStyle.Left;
+			this.clearLogBtn.Location = new System.Drawing.Point(0, 0);
 			this.clearLogBtn.Name = "clearLogBtn";
 			this.clearLogBtn.Size = new System.Drawing.Size(75, 23);
 			this.clearLogBtn.TabIndex = 0;
@@ -179,9 +225,7 @@
 			// 
 			// logMeTbox
 			// 
-			this.logMeTbox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.logMeTbox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.logMeTbox.Location = new System.Drawing.Point(3, 3);
 			this.logMeTbox.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
 			this.logMeTbox.MaxLength = 10000000;
@@ -189,18 +233,8 @@
 			this.logMeTbox.Name = "logMeTbox";
 			this.logMeTbox.ReadOnly = true;
 			this.logMeTbox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.logMeTbox.Size = new System.Drawing.Size(346, 419);
+			this.logMeTbox.Size = new System.Drawing.Size(390, 449);
 			this.logMeTbox.TabIndex = 0;
-			// 
-			// tabPage3
-			// 
-			this.tabPage3.Location = new System.Drawing.Point(4, 24);
-			this.tabPage3.Name = "tabPage3";
-			this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage3.Size = new System.Drawing.Size(397, 458);
-			this.tabPage3.TabIndex = 2;
-			this.tabPage3.Text = "tabPage3";
-			this.tabPage3.UseVisualStyleBackColor = true;
 			// 
 			// ProcessBookQueue
 			// 
@@ -237,7 +271,11 @@
 		private System.Windows.Forms.Panel panel2;
 		private System.Windows.Forms.Button clearLogBtn;
 		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-		private System.Windows.Forms.TabPage tabPage3;
 		private VirtualFlowControl virtualFlowControl2;
+		private System.Windows.Forms.ToolStripStatusLabel queueNumberLbl;
+		private System.Windows.Forms.ToolStripStatusLabel completedNumberLbl;
+		private System.Windows.Forms.ToolStripStatusLabel errorNumberLbl;
+		private System.Windows.Forms.Panel panel3;
+		private System.Windows.Forms.Panel panel4;
 	}
 }

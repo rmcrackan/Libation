@@ -117,7 +117,7 @@ namespace LibationWinForms.ProcessQueue
 			vScrollBar1.SmallChange = VirtualControlHeight;
 			vScrollBar1.LargeChange = 3 * VirtualControlHeight;
 
-			panel1.Height += 2*VirtualControlHeight;
+			panel1.Height += 2 * VirtualControlHeight;
 		}
 
 		private ProcessBookControl InitControl(int locationY)

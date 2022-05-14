@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using LibationFileManager;
+﻿using LibationFileManager;
 using LibationWinForms.ProcessQueue;
+using System;
+using System.Windows.Forms;
 
 namespace LibationWinForms
 {
-    public partial class Form1
-    {
-        private void Configure_ProcessQueue()
-        {
-            //splitContainer1.Panel2Collapsed = true;
-            processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
+	public partial class Form1
+	{
+		private void Configure_ProcessQueue()
+		{
+			//splitContainer1.Panel2Collapsed = true;
+			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
 		}
 
 		private void ProcessBookQueue1_PopOut(object sender, EventArgs e)
@@ -41,6 +38,11 @@ namespace LibationWinForms
 				dockForm.SaveSizeAndLocation(Configuration.Instance);
 				this.Focus();
 			}
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			processBookQueue1.AddDownloadDecrypt(productsGrid.List);
 		}
 	}
 }
