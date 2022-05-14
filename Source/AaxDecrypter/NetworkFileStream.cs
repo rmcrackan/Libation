@@ -221,7 +221,6 @@ namespace AaxDecrypter
 			var buff = new byte[DOWNLOAD_BUFF_SZ];
 			do
 			{
-				Thread.Sleep(10);
 				var bytesRead = _networkStream.Read(buff, 0, DOWNLOAD_BUFF_SZ);
 				_writeFile.Write(buff, 0, bytesRead);
 
