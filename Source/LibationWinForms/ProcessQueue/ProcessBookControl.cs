@@ -15,6 +15,12 @@ namespace LibationWinForms.ProcessQueue
 		private ProcessBookStatus Status { get; set; } = ProcessBookStatus.Queued;
 		private readonly int CancelBtnDistanceFromEdge;
 		private readonly int ProgressBarDistanceFromEdge;
+
+		public static Color FailedColor = Color.LightCoral;
+		public static Color CancelledColor = Color.Khaki;
+		public static Color QueuedColor = SystemColors.Control;
+		public static Color SuccessColor = Color.PaleGreen;
+
 		public ProcessBookControl()
 		{
 			InitializeComponent();
@@ -32,10 +38,12 @@ namespace LibationWinForms.ProcessQueue
 		{
 			pictureBox1.Image = cover;
 		}
+
 		public void SetBookInfo(string title)
 		{
 			bookInfoLbl.Text = title;
 		}
+
 		public void SetProgrss(int progress)
 		{
 			//Disabvle slow fill
@@ -44,10 +52,12 @@ namespace LibationWinForms.ProcessQueue
 				progressBar1.Value = progress + 1;
 			progressBar1.Value = progress;
 		}
+
 		public void SetRemainingTime(TimeSpan remaining)
 		{
 			remainingTimeLbl.Text = $"{remaining:mm\\:ss}";
 		}
+
 		public void SetResult(ProcessBookResult result)
 		{
 			string statusText = default;
@@ -85,29 +95,30 @@ namespace LibationWinForms.ProcessQueue
 
 			SetStatus(Status, statusText);
 		}
+
 		public void SetStatus(ProcessBookStatus status, string statusText = null)
 		{
 			Color backColor = default;
 			switch (status)
 			{
 				case ProcessBookStatus.Completed:
-					backColor = Color.PaleGreen;
+					backColor = SuccessColor;
 					Status = ProcessBookStatus.Completed;
 					break;
 				case ProcessBookStatus.Cancelled:
-					backColor = Color.Khaki;
+					backColor = CancelledColor;
 					Status = ProcessBookStatus.Cancelled;
 					break;
 				case ProcessBookStatus.Queued:
-					backColor = SystemColors.Control;
+					backColor = QueuedColor;
 					Status = ProcessBookStatus.Queued;
 					break;
 				case ProcessBookStatus.Working:
-					backColor = SystemColors.Control;
+					backColor = QueuedColor;
 					Status = ProcessBookStatus.Working;
 					break;
 				case ProcessBookStatus.Failed:
-					backColor = Color.LightCoral;
+					backColor = FailedColor;
 					Status = ProcessBookStatus.Failed;
 					break;
 			}
