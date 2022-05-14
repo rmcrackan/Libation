@@ -174,10 +174,10 @@ namespace LibationWinForms.ProcessQueue
 		public void AddDownloadDecrypt(IEnumerable<GridEntry> entries)
 		{
 			foreach (var entry in entries)
-				AddDownloadDecryptAsync(entry);
+				AddDownloadDecrypt(entry);
 		}
 
-		public void AddDownloadDecryptAsync(GridEntry gridEntry)
+		public void AddDownloadDecrypt(GridEntry gridEntry)
 		{
 			if (Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == gridEntry.AudibleProductId))
 				return;

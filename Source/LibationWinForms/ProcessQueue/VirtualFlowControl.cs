@@ -86,7 +86,7 @@ namespace LibationWinForms.ProcessQueue
 				LargeChange = SCROLL_LARGE_CHANGE,
 				Dock = DockStyle.Right
 			};
-			panel1.Width -= vScrollBar1.Width;
+			panel1.Width -= vScrollBar1.Width + panel1.Margin.Right;
 
 			Controls.Add(vScrollBar1);
 

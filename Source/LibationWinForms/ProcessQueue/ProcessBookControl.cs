@@ -14,6 +14,7 @@ namespace LibationWinForms.ProcessQueue
 		public int ControlNumber { get; }
 		private ProcessBookStatus Status { get; set; } = ProcessBookStatus.Queued;
 		private readonly int CancelBtnDistanceFromEdge;
+		private readonly int ProgressBarDistanceFromEdge;
 		public ProcessBookControl()
 		{
 			InitializeComponent();
@@ -23,6 +24,7 @@ namespace LibationWinForms.ProcessQueue
 			etaLbl.Visible = false;
 
 			CancelBtnDistanceFromEdge = Width - cancelBtn.Location.X;
+			ProgressBarDistanceFromEdge = Width - progressBar1.Location.X - progressBar1.Width;
 			ControlNumber = ControlNumberCounter++;
 		}
 
@@ -60,7 +62,7 @@ namespace LibationWinForms.ProcessQueue
 					Status = ProcessBookStatus.Queued;
 					break;
 				case ProcessBookResult.FailedSkip:
-					statusText = "Error, Skip";
+					statusText = "Error, Skippping";
 					Status = ProcessBookStatus.Failed;
 					break;
 				case ProcessBookResult.FailedAbort:
@@ -68,7 +70,7 @@ namespace LibationWinForms.ProcessQueue
 					Status = ProcessBookStatus.Failed;
 					break;
 				case ProcessBookResult.ValidationFail:
-					statusText = "Validate fail";
+					statusText = "Validion fail";
 					Status = ProcessBookStatus.Failed;
 					break;
 				case ProcessBookResult.None:
@@ -124,14 +126,18 @@ namespace LibationWinForms.ProcessQueue
 
 			if (Status is ProcessBookStatus.Queued or ProcessBookStatus.Working && deltaX != 0)
 			{
-				//If the last book to occupy this control before resizing was not queued,
-				//the buttons were not Visible so the Anchor property was ignored.
+				//If the last book to occupy this control before resizing was not
+				//queued, the buttons were not Visible so the Anchor property was
+				//ignored. Manually resize and reposition everyhting
 
 				cancelBtn.Location = new Point(cancelBtn.Location.X + deltaX, cancelBtn.Location.Y);
 				moveFirstBtn.Location = new Point(moveFirstBtn.Location.X + deltaX, moveFirstBtn.Location.Y);
 				moveUpBtn.Location = new Point(moveUpBtn.Location.X + deltaX, moveUpBtn.Location.Y);
 				moveDownBtn.Location = new Point(moveDownBtn.Location.X + deltaX, moveDownBtn.Location.Y);
 				moveLastBtn.Location = new Point(moveLastBtn.Location.X + deltaX, moveLastBtn.Location.Y);
+				etaLbl.Location = new Point(etaLbl.Location.X + deltaX, etaLbl.Location.Y);
+				remainingTimeLbl.Location = new Point(remainingTimeLbl.Location.X + deltaX, remainingTimeLbl.Location.Y);
+				progressBar1.Width = Width - ProgressBarDistanceFromEdge - progressBar1.Location.X;
 			}
 
 			if (status == ProcessBookStatus.Working)
