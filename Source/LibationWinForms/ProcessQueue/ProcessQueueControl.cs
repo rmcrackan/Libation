@@ -1,7 +1,7 @@
-﻿using Dinah.Core.Threading;
-using LibationWinForms.BookLiberation;
+﻿using LibationWinForms.BookLiberation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -42,7 +42,6 @@ namespace LibationWinForms.ProcessQueue
 
 		public Task QueueRunner { get; private set; }
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
-
 		public ToolStripButton popoutBtn = new();
 
 		public ProcessQueueControl()
@@ -71,47 +70,43 @@ namespace LibationWinForms.ProcessQueue
 			CompletedCount = 0;
 		}
 
-		public void AddDownloadDecrypt(IEnumerable<GridEntry> entries)
+		public void AddDownloadDecrypt(IEnumerable<DataLayer.LibraryBook> entries)
 		{
 			foreach (var entry in entries)
 				AddDownloadDecrypt(entry);
 		}
 		
-		public void AddConvertMp3(IEnumerable<GridEntry> entries)
+		public void AddConvertMp3(IEnumerable<DataLayer.LibraryBook> entries)
 		{
 			foreach (var entry in entries)
 				AddConvertMp3(entry);
 		}
 
-		public void AddDownloadDecrypt(GridEntry gridEntry)
+		public void AddDownloadDecrypt(DataLayer.LibraryBook libraryBook)
 		{
-			if (Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == gridEntry.AudibleProductId))
+			if (Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId))
 				return;
 
-			ProcessBook pbook = new(gridEntry.LibraryBook, gridEntry.Cover, Logger);
-			pbook.DataAvailable += Pbook_DataAvailable;
-
+			ProcessBook pbook = new(libraryBook, Logger);
+			pbook.PropertyChanged += Pbook_DataAvailable;
 			pbook.AddDownloadDecryptBook();
 			pbook.AddDownloadPdf();
-
-			Queue.Enqueue(pbook);
-
-			if (!Running)
-			{
-				QueueRunner = QueueLoop();
-			}
+			AddToQueue(pbook);
 		}
 
-		public void AddConvertMp3(GridEntry gridEntry)
+		public void AddConvertMp3(DataLayer.LibraryBook libraryBook)
 		{
-			if (Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == gridEntry.AudibleProductId))
+			if (Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId))
 				return;
 
-			ProcessBook pbook = new(gridEntry.LibraryBook, gridEntry.Cover, Logger);
-			pbook.DataAvailable += Pbook_DataAvailable;
-
+			ProcessBook pbook = new(libraryBook, Logger);
+			pbook.PropertyChanged += Pbook_DataAvailable;
 			pbook.AddConvertToMp3();
+			AddToQueue(pbook);
+		}
 
+		private void AddToQueue(ProcessBook pbook)
+		{
 			Queue.Enqueue(pbook);
 
 			if (!Running)
@@ -144,8 +139,10 @@ namespace LibationWinForms.ProcessQueue
 
 		public void WriteLine(string text)
 		{
-			if (!IsDisposed)
-				logMeTbox.UIThreadAsync(() => logMeTbox.AppendText($"{DateTime.Now} {text}{Environment.NewLine}"));
+			if (IsDisposed) return;
+
+			var timeStamp = DateTime.Now;
+			logDGV.Rows.Add(timeStamp, text.Trim());
 		}
 
 		#region Control event handlers
@@ -205,7 +202,18 @@ namespace LibationWinForms.ProcessQueue
 
 		private void clearLogBtn_Click(object sender, EventArgs e)
 		{
-			logMeTbox.Clear();
+			logDGV.Rows.Clear();
+		}
+
+		private void LogCopyBtn_Click(object sender, EventArgs e)
+		{
+			string logText = string.Join("\r\n", logDGV.Rows.Cast<DataGridViewRow>().Select(r => $"{r.Cells[0].Value}\t{r.Cells[1].Value}"));
+			Clipboard.SetDataObject(logText, false, 5, 150);
+		}
+
+		private void LogDGV_Resize(object sender, EventArgs e)
+		{
+			logDGV.Columns[1].Width = logDGV.Width - logDGV.Columns[0].Width;
 		}
 
 		#endregion
@@ -229,7 +237,7 @@ namespace LibationWinForms.ProcessQueue
 		/// Updates the display of a single <see cref="ProcessBookControl"/> at <paramref name="queueIndex"/> within <see cref="Queue"/>
 		/// </summary>
 		/// <param name="queueIndex">index of the <see cref="ProcessBook"/> within the <see cref="Queue"/></param>
-		private void UpdateControl(int queueIndex)
+		private void UpdateControl(int queueIndex, string propertyName = null)
 		{
 			int i = queueIndex - FirstVisible;
 
@@ -240,8 +248,10 @@ namespace LibationWinForms.ProcessQueue
 			Panels[i].Invoke(() =>
 			{
 				Panels[i].SuspendLayout();
-				Panels[i].SetCover(proc.Cover);
-				Panels[i].SetBookInfo(proc.BookText);
+				if (propertyName is null || propertyName == nameof(proc.Cover))
+					Panels[i].SetCover(proc.Cover);
+				if (propertyName is null || propertyName == nameof(proc.BookText))
+					Panels[i].SetBookInfo(proc.BookText);
 
 				if (proc.Result != ProcessBookResult.None)
 				{
@@ -249,9 +259,12 @@ namespace LibationWinForms.ProcessQueue
 					return;
 				}
 
-				Panels[i].SetStatus(proc.Status);
-				Panels[i].SetProgrss(proc.Progress);
-				Panels[i].SetRemainingTime(proc.TimeRemaining);
+				if (propertyName is null || propertyName == nameof(proc.Status))
+					Panels[i].SetStatus(proc.Status);
+				if (propertyName is null || propertyName == nameof(proc.Progress))
+					Panels[i].SetProgrss(proc.Progress);
+				if (propertyName is null || propertyName == nameof(proc.TimeRemaining))
+					Panels[i].SetRemainingTime(proc.TimeRemaining);
 				Panels[i].ResumeLayout();
 			});
 		}
@@ -273,31 +286,31 @@ namespace LibationWinForms.ProcessQueue
 		private void VirtualFlowControl2_ButtonClicked(int queueIndex, string buttonName, ProcessBookControl panelClicked)
 		{
 			ProcessBook item = Queue[queueIndex];
-			if (buttonName == "cancelBtn")
+			if (buttonName == nameof(panelClicked.cancelBtn))
 			{
 				item.Cancel();
 				Queue.RemoveQueued(item);
 				virtualFlowControl2.VirtualControlCount = Queue.Count;
 				UpdateControl(queueIndex);
 			}
-			else if (buttonName == "moveFirstBtn")
+			else if (buttonName == nameof(panelClicked.moveFirstBtn))
 			{
 				Queue.MoveQueuePosition(item, QueuePosition.Fisrt);
 				UpdateAllControls();
 			}
-			else if (buttonName == "moveUpBtn")
+			else if (buttonName == nameof(panelClicked.moveUpBtn))
 			{
 				Queue.MoveQueuePosition(item, QueuePosition.OneUp);
 				UpdateControl(queueIndex - 1);
 				UpdateControl(queueIndex);
 			}
-			else if (buttonName == "moveDownBtn")
+			else if (buttonName == nameof(panelClicked.moveDownBtn))
 			{
 				Queue.MoveQueuePosition(item, QueuePosition.OneDown);
 				UpdateControl(queueIndex + 1);
 				UpdateControl(queueIndex);
 			}
-			else if (buttonName == "moveLastBtn")
+			else if (buttonName == nameof(panelClicked.moveLastBtn))
 			{
 				Queue.MoveQueuePosition(item, QueuePosition.Last);
 				UpdateAllControls();
@@ -318,10 +331,10 @@ namespace LibationWinForms.ProcessQueue
 		/// <summary>
 		/// Model updates the view
 		/// </summary>
-		private void Pbook_DataAvailable(object sender, EventArgs e)
+		private void Pbook_DataAvailable(object sender, PropertyChangedEventArgs e)
 		{
 			int index = Queue.IndexOf((ProcessBook)sender);
-			UpdateControl(index);
+			UpdateControl(index, e.PropertyName);
 		}
 
 		#endregion

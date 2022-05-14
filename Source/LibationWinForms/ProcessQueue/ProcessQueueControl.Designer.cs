@@ -30,6 +30,7 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProcessQueueControl));
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
 			this.queueNumberLbl = new System.Windows.Forms.ToolStripStatusLabel();
@@ -45,16 +46,20 @@
 			this.btnCleanFinished = new System.Windows.Forms.Button();
 			this.cancelAllBtn = new System.Windows.Forms.Button();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
+			this.logDGV = new System.Windows.Forms.DataGridView();
+			this.timestampColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.logEntryColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.panel4 = new System.Windows.Forms.Panel();
 			this.panel2 = new System.Windows.Forms.Panel();
 			this.clearLogBtn = new System.Windows.Forms.Button();
-			this.logMeTbox = new System.Windows.Forms.TextBox();
 			this.counterTimer = new System.Windows.Forms.Timer(this.components);
+			this.logCopyBtn = new System.Windows.Forms.Button();
 			this.statusStrip1.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.panel1.SuspendLayout();
 			this.tabPage2.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.logDGV)).BeginInit();
 			this.panel2.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -193,9 +198,9 @@
 			// 
 			// tabPage2
 			// 
+			this.tabPage2.Controls.Add(this.logDGV);
 			this.tabPage2.Controls.Add(this.panel4);
 			this.tabPage2.Controls.Add(this.panel2);
-			this.tabPage2.Controls.Add(this.logMeTbox);
 			this.tabPage2.Location = new System.Drawing.Point(4, 24);
 			this.tabPage2.Name = "tabPage2";
 			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -203,6 +208,41 @@
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "Log";
 			this.tabPage2.UseVisualStyleBackColor = true;
+			// 
+			// logDGV
+			// 
+			this.logDGV.AllowUserToAddRows = false;
+			this.logDGV.AllowUserToDeleteRows = false;
+			this.logDGV.AllowUserToOrderColumns = true;
+			this.logDGV.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+			this.logDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.logDGV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.timestampColumn,
+            this.logEntryColumn});
+			this.logDGV.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.logDGV.Location = new System.Drawing.Point(3, 3);
+			this.logDGV.Name = "logDGV";
+			this.logDGV.RowHeadersVisible = false;
+			this.logDGV.RowTemplate.Height = 40;
+			this.logDGV.Size = new System.Drawing.Size(390, 419);
+			this.logDGV.TabIndex = 3;
+			this.logDGV.Resize += new System.EventHandler(this.LogDGV_Resize);
+			// 
+			// timestampColumn
+			// 
+			this.timestampColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+			this.timestampColumn.HeaderText = "Timestamp";
+			this.timestampColumn.Name = "timestampColumn";
+			this.timestampColumn.ReadOnly = true;
+			this.timestampColumn.Width = 91;
+			// 
+			// logEntryColumn
+			// 
+			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.logEntryColumn.DefaultCellStyle = dataGridViewCellStyle1;
+			this.logEntryColumn.HeaderText = "Log";
+			this.logEntryColumn.Name = "logEntryColumn";
+			this.logEntryColumn.ReadOnly = true;
 			// 
 			// panel4
 			// 
@@ -216,6 +256,7 @@
 			// 
 			this.panel2.BackColor = System.Drawing.SystemColors.Control;
 			this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.panel2.Controls.Add(this.logCopyBtn);
 			this.panel2.Controls.Add(this.clearLogBtn);
 			this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.panel2.Location = new System.Drawing.Point(3, 427);
@@ -228,38 +269,36 @@
 			this.clearLogBtn.Dock = System.Windows.Forms.DockStyle.Left;
 			this.clearLogBtn.Location = new System.Drawing.Point(0, 0);
 			this.clearLogBtn.Name = "clearLogBtn";
-			this.clearLogBtn.Size = new System.Drawing.Size(75, 23);
+			this.clearLogBtn.Size = new System.Drawing.Size(60, 23);
 			this.clearLogBtn.TabIndex = 0;
-			this.clearLogBtn.Text = "Clear Log";
+			this.clearLogBtn.Text = "Clear";
 			this.clearLogBtn.UseVisualStyleBackColor = true;
 			this.clearLogBtn.Click += new System.EventHandler(this.clearLogBtn_Click);
-			// 
-			// logMeTbox
-			// 
-			this.logMeTbox.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.logMeTbox.Location = new System.Drawing.Point(3, 3);
-			this.logMeTbox.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
-			this.logMeTbox.MaxLength = 10000000;
-			this.logMeTbox.Multiline = true;
-			this.logMeTbox.Name = "logMeTbox";
-			this.logMeTbox.ReadOnly = true;
-			this.logMeTbox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.logMeTbox.Size = new System.Drawing.Size(390, 449);
-			this.logMeTbox.TabIndex = 0;
 			// 
 			// counterTimer
 			// 
 			this.counterTimer.Interval = 950;
 			this.counterTimer.Tick += new System.EventHandler(this.CounterTimer_Tick);
 			// 
-			// ProcessBookQueue
+			// logCopyBtn
+			// 
+			this.logCopyBtn.Dock = System.Windows.Forms.DockStyle.Right;
+			this.logCopyBtn.Location = new System.Drawing.Point(331, 0);
+			this.logCopyBtn.Name = "logCopyBtn";
+			this.logCopyBtn.Size = new System.Drawing.Size(57, 23);
+			this.logCopyBtn.TabIndex = 1;
+			this.logCopyBtn.Text = "Copy";
+			this.logCopyBtn.UseVisualStyleBackColor = true;
+			this.logCopyBtn.Click += new System.EventHandler(this.LogCopyBtn_Click);
+			// 
+			// ProcessQueueControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.Controls.Add(this.tabControl1);
 			this.Controls.Add(this.statusStrip1);
-			this.Name = "ProcessBookQueue";
+			this.Name = "ProcessQueueControl";
 			this.Size = new System.Drawing.Size(404, 508);
 			this.statusStrip1.ResumeLayout(false);
 			this.statusStrip1.PerformLayout();
@@ -267,7 +306,7 @@
 			this.tabPage1.ResumeLayout(false);
 			this.panel1.ResumeLayout(false);
 			this.tabPage2.ResumeLayout(false);
-			this.tabPage2.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.logDGV)).EndInit();
 			this.panel2.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -281,7 +320,6 @@
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.TabPage tabPage2;
-		private System.Windows.Forms.TextBox logMeTbox;
 		private System.Windows.Forms.Button btnCleanFinished;
 		private System.Windows.Forms.Button cancelAllBtn;
 		private System.Windows.Forms.Panel panel2;
@@ -295,5 +333,9 @@
 		private System.Windows.Forms.Panel panel4;
 		private System.Windows.Forms.ToolStripStatusLabel runningTimeLbl;
 		private System.Windows.Forms.Timer counterTimer;
+		private System.Windows.Forms.DataGridView logDGV;
+		private System.Windows.Forms.DataGridViewTextBoxColumn timestampColumn;
+		private System.Windows.Forms.DataGridViewTextBoxColumn logEntryColumn;
+		private System.Windows.Forms.Button logCopyBtn;
 	}
 }
