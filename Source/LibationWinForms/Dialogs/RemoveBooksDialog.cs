@@ -136,11 +136,8 @@ namespace LibationWinForms.Dialogs
 			}
 			set
 			{
-				if (_remove != value)
-				{
-					_remove = value;
-					NotifyPropertyChanged();
-				}
+				_remove = value;
+				NotifyPropertyChanged();
 			}
 		}
 
