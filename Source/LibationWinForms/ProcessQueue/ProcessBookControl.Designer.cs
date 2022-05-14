@@ -98,7 +98,6 @@
 			this.cancelBtn.Size = new System.Drawing.Size(20, 20);
 			this.cancelBtn.TabIndex = 4;
 			this.cancelBtn.UseVisualStyleBackColor = false;
-			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
 			// 
 			// statusLbl
 			// 
@@ -128,53 +127,61 @@
 			// 
 			this.moveUpBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.moveUpBtn.BackColor = System.Drawing.Color.Transparent;
 			this.moveUpBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("moveUpBtn.BackgroundImage")));
 			this.moveUpBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.moveUpBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.moveUpBtn.ForeColor = System.Drawing.SystemColors.Control;
 			this.moveUpBtn.Location = new System.Drawing.Point(314, 24);
 			this.moveUpBtn.Name = "moveUpBtn";
 			this.moveUpBtn.Size = new System.Drawing.Size(30, 17);
 			this.moveUpBtn.TabIndex = 5;
-			this.moveUpBtn.UseVisualStyleBackColor = true;
-			this.moveUpBtn.Click += new System.EventHandler(this.moveUpBtn_Click_1);
+			this.moveUpBtn.UseVisualStyleBackColor = false;
 			// 
 			// moveDownBtn
 			// 
 			this.moveDownBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.moveDownBtn.BackColor = System.Drawing.Color.Transparent;
 			this.moveDownBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("moveDownBtn.BackgroundImage")));
 			this.moveDownBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.moveDownBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.moveDownBtn.ForeColor = System.Drawing.SystemColors.Control;
 			this.moveDownBtn.Location = new System.Drawing.Point(314, 40);
 			this.moveDownBtn.Name = "moveDownBtn";
 			this.moveDownBtn.Size = new System.Drawing.Size(30, 17);
 			this.moveDownBtn.TabIndex = 5;
-			this.moveDownBtn.UseVisualStyleBackColor = true;
-			this.moveDownBtn.Click += new System.EventHandler(this.moveDownBtn_Click);
+			this.moveDownBtn.UseVisualStyleBackColor = false;
 			// 
 			// moveFirstBtn
 			// 
 			this.moveFirstBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.moveFirstBtn.BackColor = System.Drawing.Color.Transparent;
 			this.moveFirstBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("moveFirstBtn.BackgroundImage")));
 			this.moveFirstBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.moveFirstBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.moveFirstBtn.ForeColor = System.Drawing.SystemColors.Control;
 			this.moveFirstBtn.Location = new System.Drawing.Point(314, 3);
 			this.moveFirstBtn.Name = "moveFirstBtn";
 			this.moveFirstBtn.Size = new System.Drawing.Size(30, 17);
 			this.moveFirstBtn.TabIndex = 5;
-			this.moveFirstBtn.UseVisualStyleBackColor = true;
-			this.moveFirstBtn.Click += new System.EventHandler(this.moveFirstBtn_Click);
+			this.moveFirstBtn.UseVisualStyleBackColor = false;
 			// 
 			// moveLastBtn
 			// 
 			this.moveLastBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.moveLastBtn.BackColor = System.Drawing.Color.Transparent;
 			this.moveLastBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("moveLastBtn.BackgroundImage")));
 			this.moveLastBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.moveLastBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.moveLastBtn.ForeColor = System.Drawing.SystemColors.Control;
 			this.moveLastBtn.Location = new System.Drawing.Point(314, 63);
 			this.moveLastBtn.Name = "moveLastBtn";
 			this.moveLastBtn.Size = new System.Drawing.Size(30, 17);
 			this.moveLastBtn.TabIndex = 5;
-			this.moveLastBtn.UseVisualStyleBackColor = true;
-			this.moveLastBtn.Click += new System.EventHandler(this.moveLastBtn_Click);
+			this.moveLastBtn.UseVisualStyleBackColor = false;
 			// 
 			// ProcessBookControl
 			// 
@@ -193,7 +200,7 @@
 			this.Controls.Add(this.progressBar1);
 			this.Controls.Add(this.bookInfoLbl);
 			this.Controls.Add(this.pictureBox1);
-			this.Margin = new System.Windows.Forms.Padding(2);
+			this.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
 			this.Name = "ProcessBookControl";
 			this.Size = new System.Drawing.Size(375, 86);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -208,12 +215,12 @@
 		private System.Windows.Forms.ProgressBar progressBar1;
 		private System.Windows.Forms.Label remainingTimeLbl;
 		private System.Windows.Forms.Label etaLbl;
-		private System.Windows.Forms.Button cancelBtn;
 		private System.Windows.Forms.Label statusLbl;
 		private System.Windows.Forms.Label bookInfoLbl;
-		private System.Windows.Forms.Button moveUpBtn;
-		private System.Windows.Forms.Button moveDownBtn;
-		private System.Windows.Forms.Button moveFirstBtn;
-		private System.Windows.Forms.Button moveLastBtn;
+		public System.Windows.Forms.Button cancelBtn;
+		public System.Windows.Forms.Button moveUpBtn;
+		public System.Windows.Forms.Button moveDownBtn;
+		public System.Windows.Forms.Button moveFirstBtn;
+		public System.Windows.Forms.Button moveLastBtn;
 	}
 }
