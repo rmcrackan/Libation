@@ -1,20 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace LibationWinForms.ProcessQueue
 {
 
-	internal delegate void RequestDataDelegate(int firstIndex, int numVisible, ProcessBookControl[] panelsToFill);
+	internal delegate void RequestDataDelegate(int firstIndex, int numVisible, IReadOnlyList<ProcessBookControl> panelsToFill);
+	internal delegate void ControlButtonClickedDelegate(int itemIndex, string buttonName, ProcessBookControl panelClicked);
 	internal partial class VirtualFlowControl : UserControl
 	{
+		/// <summary>
+		/// Triggered when the <see cref="VirtualFlowControl"/> needs to update the displayed <see cref="ProcessBookControl"/>s
+		/// </summary>
 		public event RequestDataDelegate RequestData;
+		/// <summary>
+		/// Triggered when one of the <see cref="ProcessBookControl"/>'s buttons has been clicked
+		/// </summary>
+		public event ControlButtonClickedDelegate ButtonClicked;
+
+		/// <summary>
+		/// The number of virtual <see cref="ProcessBookControl"/>s in the <see cref="VirtualFlowControl"/>
+		/// </summary>
 		public int VirtualControlCount
 		{
 			get => _virtualControlCount;
 			set
 			{
-				if (_virtualControlCount == 0) 
+				if (_virtualControlCount == 0)
 					vScrollBar1.Value = 0;
 
 				_virtualControlCount = value;
@@ -24,19 +37,41 @@ namespace LibationWinForms.ProcessQueue
 		}
 
 		private int _virtualControlCount;
-		private int VirtualHeight => _virtualControlCount * CONTROL_HEIGHT - vScrollBar1.Height;
 
-		private readonly int PROCESSBOOKCONTROL_MARGIN;
-		private readonly int CONTROL_HEIGHT;
+		//https://stackoverflow.com/a/2882878/3335599
+		int ScrollValue => Math.Max(Math.Min(VirtualHeight, vScrollBar1.Value), 0);
+
+		/// <summary>
+		/// The virtual height of all virtual controls within this <see cref="VirtualFlowControl"/>
+		/// </summary>
+		private int VirtualHeight => _virtualControlCount * VirtualControlHeight - vScrollBar1.Height + 2 * TopMargin;
+
+		/// <summary>
+		/// Item index of the first virtual <see cref="ProcessBookControl"/>
+		/// </summary>
+		private int FirstVisibleVirtualIndex => ScrollValue / VirtualControlHeight;
+
+		/// <summary>
+		/// The display height of this <see cref="VirtualFlowControl"/>
+		/// </summary>
+		private int DisplayHeight => DisplayRectangle.Height;
+
+		/// <summary>
+		/// The total height, inclusing margins, of the repeated <see cref="ProcessBookControl"/>
+		/// </summary>
+		private readonly int VirtualControlHeight; //90
+		private readonly int TopMargin;
 
 		private const int WM_MOUSEWHEEL = 522;
-		private const int NUM_ACTUAL_CONTROLS = 20;
+		/// <summary>
+		/// Total number of actual controls added to the panel. 23 is sufficient up to a 4k monitor height.
+		/// </summary>
+		private const int NUM_ACTUAL_CONTROLS = 23;
 		private const int SCROLL_SMALL_CHANGE = 120;
 		private const int SCROLL_LARGE_CHANGE = 3 * SCROLL_SMALL_CHANGE;
 
-
 		private readonly VScrollBar vScrollBar1;
-		private readonly ProcessBookControl[] BookControls = new ProcessBookControl[NUM_ACTUAL_CONTROLS];
+		private readonly List<ProcessBookControl> BookControls = new();
 
 		public VirtualFlowControl()
 		{
@@ -51,39 +86,76 @@ namespace LibationWinForms.ProcessQueue
 				LargeChange = SCROLL_LARGE_CHANGE,
 				Dock = DockStyle.Right
 			};
+			panel1.Width -= vScrollBar1.Width;
 
 			Controls.Add(vScrollBar1);
 
-			panel1.Resize += (_, _) => AdjustScrollBar();
+			panel1.Resize += (_, _) =>
+			{
+				AdjustScrollBar();
+				DoVirtualScroll();
+			};
 
-			if (this.DesignMode)
+			vScrollBar1.Scroll += (_, s) => SetScrollPosition(s.NewValue);
+
+			var control = InitControl(0);
+			BookControls.Add(control);
+			panel1.Controls.Add(control);
+			VirtualControlHeight = control.Height + control.Margin.Top + control.Margin.Bottom;
+			TopMargin = control.Margin.Top;
+
+			if (DesignMode)
 				return;
 
-			vScrollBar1.Scroll += (_, _) => DoVirtualScroll();
-
-			for (int i = 0; i < NUM_ACTUAL_CONTROLS; i++)
+			for (int i = 1; i < NUM_ACTUAL_CONTROLS; i++)
 			{
-				BookControls[i] = new ProcessBookControl();
-
-				if (i == 0)
-				{
-					PROCESSBOOKCONTROL_MARGIN = BookControls[i].Margin.Left + BookControls[i].Margin.Right;
-					CONTROL_HEIGHT = BookControls[i].Height + BookControls[i].Margin.Top + BookControls[i].Margin.Bottom;
-				}
-
-				BookControls[i].Location = new Point(2, CONTROL_HEIGHT * i);
-				BookControls[i].Width = panel1.ClientRectangle.Width - PROCESSBOOKCONTROL_MARGIN;
-				BookControls[i].Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-				panel1.Controls.Add(BookControls[i]);
+				control = InitControl(VirtualControlHeight * i);
+				BookControls.Add(control);
+				panel1.Controls.Add(control);
 			}
 
-			panel1.Height += SCROLL_SMALL_CHANGE;
+			vScrollBar1.SmallChange = VirtualControlHeight;
+			vScrollBar1.LargeChange = 3 * VirtualControlHeight;
+
+			panel1.Height += 2*VirtualControlHeight;
 		}
 
+		private ProcessBookControl InitControl(int locationY)
+		{
+			var control = new ProcessBookControl();
+			control.Location = new Point(control.Margin.Left, locationY + control.Margin.Top);
+			control.Width = panel1.ClientRectangle.Width - control.Margin.Left - control.Margin.Right;
+			control.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 
+			control.cancelBtn.Click += ControlButton_Click;
+			control.moveFirstBtn.Click += ControlButton_Click;
+			control.moveUpBtn.Click += ControlButton_Click;
+			control.moveDownBtn.Click += ControlButton_Click;
+			control.moveLastBtn.Click += ControlButton_Click;
+			return control;
+		}
+
+		/// <summary>
+		/// Handles all button clicks from all <see cref="ProcessBookControl"/>, detects which one sent the click, and fires <see cref="ButtonClicked"/>
+		/// </summary>
+		private void ControlButton_Click(object sender, EventArgs e)
+		{
+			Control button = sender as Control;
+			Control form = button.Parent;
+			while (form is not ProcessBookControl)
+				form = form.Parent;
+
+			int clickedIndex = BookControls.IndexOf((ProcessBookControl)form);
+
+			ButtonClicked?.Invoke(FirstVisibleVirtualIndex + clickedIndex, button.Name, BookControls[clickedIndex]);
+		}
+
+		/// <summary>
+		/// Adjusts the <see cref="vScrollBar1"/> max width and enabled status based on the <see cref="VirtualControlCount"/> and the <see cref="DisplayHeight"/>
+		/// </summary>
 		private void AdjustScrollBar()
 		{
-			int maxFullVisible = DisplayRectangle.Height / CONTROL_HEIGHT;
+			int maxFullVisible = DisplayHeight / VirtualControlHeight;
 
 			if (VirtualControlCount <= maxFullVisible)
 			{
@@ -100,44 +172,60 @@ namespace LibationWinForms.ProcessQueue
 			}
 		}
 
+		/// <summary>
+		/// Calculated the virtual controls that are in view at the currrent scroll position and windows size, then fires <see cref="RequestData"/> for the visible controls
+		/// </summary>
 		private void DoVirtualScroll()
 		{
-			//https://stackoverflow.com/a/2882878/3335599
-			int scrollValue = Math.Max(Math.Min(VirtualHeight, vScrollBar1.Value), 0);
+			int firstVisible = FirstVisibleVirtualIndex;
 
-			int position = scrollValue % CONTROL_HEIGHT;
+			int position = ScrollValue % VirtualControlHeight;
 			panel1.Location = new Point(0, -position);
 
-			int firstVisible = scrollValue / CONTROL_HEIGHT;
+			int visibleHeight = ScrollValue - firstVisible * VirtualControlHeight + DisplayHeight;
 
-			int window = DisplayRectangle.Height;
+			int count = visibleHeight / VirtualControlHeight;
 
-			int count = window / CONTROL_HEIGHT;
-
-			if (window % CONTROL_HEIGHT != 0)
+			if (visibleHeight % VirtualControlHeight != 0)
 				count++;
+
 			count = Math.Min(count, VirtualControlCount);
 
 			RequestData?.Invoke(firstVisible, count, BookControls);
 
-			for (int i = 0; i < BookControls.Length; i++)
-				BookControls[i].Visible = i <= count && VirtualControlCount > 0;
+			for (int i = 0; i < BookControls.Count; i++)
+				BookControls[i].Visible = i < count;
 		}
 
+		/// <summary>
+		/// Set scroll value to an integral multiple of VirtualControlHeight
+		/// </summary>
+		private void SetScrollPosition(int value)
+		{
+			int newPos = (int)Math.Round((double)value / VirtualControlHeight) * VirtualControlHeight;
+			if (vScrollBar1.Value != newPos)
+			{
+				vScrollBar1.Value = Math.Min(newPos, vScrollBar1.Maximum);
+				DoVirtualScroll();
+			}
+		}
 
 		protected override void WndProc(ref Message m)
 		{
+			//Capture mouse wheel movement and interpret it as a scroll event
 			if (m.Msg == WM_MOUSEWHEEL)
 			{
 				//https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-mousewheel
-				int wheelDelta = -(short)(((ulong)m.WParam) >> 16 & 0xffff);
+				int wheelDelta = -(short)(((ulong)m.WParam) >> 16 & ushort.MaxValue);
+
+				int newScrollPosition;
 
 				if (wheelDelta > 0)
-					vScrollBar1.Value = Math.Min(vScrollBar1.Value + wheelDelta, vScrollBar1.Maximum);
+					newScrollPosition = Math.Min(vScrollBar1.Value + wheelDelta, vScrollBar1.Maximum);
 				else
-					vScrollBar1.Value = Math.Max(vScrollBar1.Value + wheelDelta, vScrollBar1.Minimum);
+					newScrollPosition = Math.Max(vScrollBar1.Value + wheelDelta, vScrollBar1.Minimum);
 
-				DoVirtualScroll();
+				SetScrollPosition(newScrollPosition);
 			}
 
 			base.WndProc(ref m);
