@@ -14,10 +14,14 @@ namespace LibationWinForms.ProcessQueue
 
 	/*
 	 * This data structure is like lifting a metal chain one link at a time.
-	 * Each time you grab and lift a new link, the remaining chain shortens
-	 * by 1 link and the pile of chain at yuor feet grows by one link. The
-	 * index is the link position from the first link you lifted to the last
-	 * one in the chain.
+	 * Each time you grab and lift a new link (MoveNext call):
+	 * 
+	 *   1) you're holding a new link in your hand (Current)
+	 *   2) the remaining chain to be lifted shortens by 1 link (Queued)
+	 *   3) the pile of chain at your feet grows by 1 link (Completed)
+	 *   
+	 * The index is the link position from the first link you lifted to the
+	 * last one in the chain.
 	 */
 	public class TrackedQueue<T> where T : class
 	{
