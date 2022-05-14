@@ -47,7 +47,6 @@ namespace LibationWinForms.ProcessQueue
 		private string _bookText;
 		private int _progress;
 		private TimeSpan _timeRemaining;
-		private LibraryBook _libraryBook;
 		private Image _cover;
 
 		public ProcessBookResult Result { get => _result; private set { _result = value; NotifyPropertyChanged(); } } 
@@ -55,10 +54,9 @@ namespace LibationWinForms.ProcessQueue
 		public string BookText { get => _bookText; private set { _bookText = value; NotifyPropertyChanged(); } }
 		public int Progress { get => _progress; private set { _progress = value; NotifyPropertyChanged(); } }
 		public TimeSpan TimeRemaining { get => _timeRemaining; private set { _timeRemaining = value; NotifyPropertyChanged(); } }
-		public LibraryBook LibraryBook { get => _libraryBook; private set { _libraryBook = value; NotifyPropertyChanged(); } }
 		public Image Cover { get => _cover; private set { _cover = value; NotifyPropertyChanged(); } }
 
-
+		public LibraryBook LibraryBook { get; private set; }
 		private Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
 		private Processable NextProcessable() => _currentProcessable = null;
 		private Processable _currentProcessable;
@@ -284,11 +282,6 @@ namespace LibationWinForms.ProcessQueue
 			title = libraryBook.Book.Title;
 			authorNames = libraryBook.Book.AuthorNames();
 			narratorNames = libraryBook.Book.NarratorNames();
-			Cover = Dinah.Core.Drawing.ImageReader.ToImage(PictureStorage.GetPicture(
-						new PictureDefinition(
-							libraryBook.Book.PictureId,
-							PictureSize._80x80)).bytes);
-
 			updateBookInfo();
 		}
 

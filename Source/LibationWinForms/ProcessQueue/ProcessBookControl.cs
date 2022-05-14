@@ -46,7 +46,7 @@ namespace LibationWinForms.ProcessQueue
 
 		public void SetProgrss(int progress)
 		{
-			//Disabvle slow fill
+			//Disable slow fill
 			//https://stackoverflow.com/a/5332770/3335599
 			if (progress < progressBar1.Maximum)
 				progressBar1.Value = progress + 1;
