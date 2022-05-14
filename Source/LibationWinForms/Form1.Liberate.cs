@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -10,10 +11,12 @@ namespace LibationWinForms
 
 		//GetLibrary_Flat_NoTracking() may take a long time on a hugh library. so run in new thread 
 		private void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-			=> Task.Run(()=>processBookQueue1.AddDownloadDecrypt(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()));
+			=> Task.Run(() => processBookQueue1.AddDownloadDecrypt(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
+				.Where(lb => lb.Book.UserDefinedItem.PdfStatus is DataLayer.LiberatedStatus.NotLiberated || lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.NotLiberated)));
 
 		private void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-			=> Task.Run(() => processBookQueue1.AddDownloadPdf(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()));
+			=> Task.Run(() => processBookQueue1.AddDownloadPdf(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
+				.Where(lb => lb.Book.UserDefinedItem.PdfStatus is DataLayer.LiberatedStatus.NotLiberated)));
 
 		private async void convertAllM4bToMp3ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
