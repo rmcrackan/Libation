@@ -36,8 +36,10 @@ namespace LibationWinForms
 	// VS has improved since then with .net6+ but I haven't checked again
 	#endregion
 
+
 	public partial class ProductsGrid : UserControl
 	{
+		public event EventHandler<LibraryBook> LiberateClicked;
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 
@@ -76,7 +78,7 @@ namespace LibationWinForms
 				return;
 
 			if (e.ColumnIndex == liberateGVColumn.Index)
-				await Liberate_Click(getGridEntry(e.RowIndex));
+				Liberate_Click(getGridEntry(e.RowIndex));
 			else if (e.ColumnIndex == tagAndDetailsGVColumn.Index)
 				Details_Click(getGridEntry(e.RowIndex));
 			else if (e.ColumnIndex == descriptionGVColumn.Index)
@@ -128,7 +130,7 @@ namespace LibationWinForms
 			displayWindow.Show(this);
 		}
 
-		private static async Task Liberate_Click(GridEntry liveGridEntry)
+		private void Liberate_Click(GridEntry liveGridEntry)
 		{
 			var libraryBook = liveGridEntry.LibraryBook;
 
@@ -144,8 +146,7 @@ namespace LibationWinForms
 				return;
 			}
 
-			// else: liberate
-			await liveGridEntry.DownloadBook();
+			LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 
 		private static void Details_Click(GridEntry liveGridEntry)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms
@@ -7,11 +8,12 @@ namespace LibationWinForms
 	{
 		private void Configure_Liberate() { }
 
-		private async void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-			=> await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync();
+		//GetLibrary_Flat_NoTracking() may take a long time on a hugh library. so run in new thread 
+		private void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
+			=> Task.Run(()=>processBookQueue1.AddDownloadDecrypt(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()));
 
-		private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-			=> await BookLiberation.ProcessorAutomationController.BackupAllPdfsAsync();
+		private void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
+			=> Task.Run(() => processBookQueue1.AddDownloadPdf(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()));
 
 		private async void convertAllM4bToMp3ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -24,7 +26,7 @@ namespace LibationWinForms
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Warning);
 			if (result == DialogResult.Yes)
-				await BookLiberation.ProcessorAutomationController.ConvertAllBooksAsync();
+				await Task.Run(() => processBookQueue1.AddConvertMp3(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()));
 		}
 	}
 }

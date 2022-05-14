@@ -74,7 +74,7 @@
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.button1 = new System.Windows.Forms.Button();
 			this.panel1 = new System.Windows.Forms.Panel();
-			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessBookQueue();
+			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessQueueControl();
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -470,7 +470,6 @@
 			this.button1.TabIndex = 8;
 			this.button1.Text = "button1";
 			this.button1.UseVisualStyleBackColor = true;
-			this.button1.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// panel1
 			// 
@@ -565,7 +564,7 @@
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem liberateVisible2ToolStripMenuItem;
 		private System.Windows.Forms.SplitContainer splitContainer1;
-		private LibationWinForms.ProcessQueue.ProcessBookQueue processBookQueue1;
+		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Button button1;
 	}

@@ -1,4 +1,5 @@
-﻿using LibationFileManager;
+﻿using ApplicationServices;
+using LibationFileManager;
 using LibationWinForms.ProcessQueue;
 using System;
 using System.Windows.Forms;
@@ -9,7 +10,7 @@ namespace LibationWinForms
 	{
 		private void Configure_ProcessQueue()
 		{
-			//splitContainer1.Panel2Collapsed = true;
+			productsGrid.LiberateClicked += (_, lb) => processBookQueue1.AddDownloadDecrypt(lb);
 			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
 		}
 
@@ -38,11 +39,6 @@ namespace LibationWinForms
 				dockForm.SaveSizeAndLocation(Configuration.Instance);
 				this.Focus();
 			}
-		}
-
-		private void button1_Click(object sender, EventArgs e)
-		{
-			processBookQueue1.AddDownloadDecrypt(productsGrid.List);
 		}
 	}
 }
