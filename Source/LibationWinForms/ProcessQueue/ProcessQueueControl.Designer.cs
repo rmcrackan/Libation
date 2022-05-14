@@ -1,6 +1,6 @@
 ﻿namespace LibationWinForms.ProcessQueue
 {
-	partial class ProcessBookQueue
+	partial class ProcessQueueControl
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -28,13 +28,15 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProcessBookQueue));
+			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProcessQueueControl));
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
 			this.queueNumberLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.completedNumberLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.errorNumberLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+			this.runningTimeLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.panel3 = new System.Windows.Forms.Panel();
@@ -47,6 +49,7 @@
 			this.panel2 = new System.Windows.Forms.Panel();
 			this.clearLogBtn = new System.Windows.Forms.Button();
 			this.logMeTbox = new System.Windows.Forms.TextBox();
+			this.counterTimer = new System.Windows.Forms.Timer(this.components);
 			this.statusStrip1.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
@@ -63,12 +66,13 @@
             this.queueNumberLbl,
             this.completedNumberLbl,
             this.errorNumberLbl,
-            this.toolStripStatusLabel1});
+            this.toolStripStatusLabel1,
+            this.runningTimeLbl});
 			this.statusStrip1.Location = new System.Drawing.Point(0, 483);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(404, 25);
 			this.statusStrip1.TabIndex = 1;
-			this.statusStrip1.Text = "statusStrip1";
+			this.statusStrip1.Text = "baseStatusStrip";
 			// 
 			// toolStripProgressBar1
 			// 
@@ -99,8 +103,15 @@
 			// toolStripStatusLabel1
 			// 
 			this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-			this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 20);
+			this.toolStripStatusLabel1.Size = new System.Drawing.Size(77, 20);
 			this.toolStripStatusLabel1.Spring = true;
+			// 
+			// runningTimeLbl
+			// 
+			this.runningTimeLbl.AutoSize = false;
+			this.runningTimeLbl.Name = "runningTimeLbl";
+			this.runningTimeLbl.Size = new System.Drawing.Size(41, 20);
+			this.runningTimeLbl.Text = "[TIME]";
 			// 
 			// tabControl1
 			// 
@@ -167,7 +178,7 @@
 			this.btnCleanFinished.TabIndex = 3;
 			this.btnCleanFinished.Text = "Clear Finished";
 			this.btnCleanFinished.UseVisualStyleBackColor = true;
-			this.btnCleanFinished.Click += new System.EventHandler(this.btnCleanFinished_Click);
+			this.btnCleanFinished.Click += new System.EventHandler(this.btnClearFinished_Click);
 			// 
 			// cancelAllBtn
 			// 
@@ -236,6 +247,11 @@
 			this.logMeTbox.Size = new System.Drawing.Size(390, 449);
 			this.logMeTbox.TabIndex = 0;
 			// 
+			// counterTimer
+			// 
+			this.counterTimer.Interval = 950;
+			this.counterTimer.Tick += new System.EventHandler(this.CounterTimer_Tick);
+			// 
 			// ProcessBookQueue
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -277,5 +293,7 @@
 		private System.Windows.Forms.ToolStripStatusLabel errorNumberLbl;
 		private System.Windows.Forms.Panel panel3;
 		private System.Windows.Forms.Panel panel4;
+		private System.Windows.Forms.ToolStripStatusLabel runningTimeLbl;
+		private System.Windows.Forms.Timer counterTimer;
 	}
 }
