@@ -72,7 +72,6 @@
 			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.addQuickFilterBtn = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-			this.button1 = new System.Windows.Forms.Button();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessQueueControl();
 			this.menuStrip1.SuspendLayout();
@@ -120,10 +119,10 @@
 			// 
 			this.filterSearchTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.filterSearchTb.Location = new System.Drawing.Point(220, 30);
+			this.filterSearchTb.Location = new System.Drawing.Point(194, 30);
 			this.filterSearchTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterSearchTb.Name = "filterSearchTb";
-			this.filterSearchTb.Size = new System.Drawing.Size(563, 23);
+			this.filterSearchTb.Size = new System.Drawing.Size(589, 23);
 			this.filterSearchTb.TabIndex = 1;
 			this.filterSearchTb.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.filterSearchTb_KeyPress);
 			// 
@@ -430,7 +429,7 @@
 			this.addQuickFilterBtn.Location = new System.Drawing.Point(49, 27);
 			this.addQuickFilterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.addQuickFilterBtn.Name = "addQuickFilterBtn";
-			this.addQuickFilterBtn.Size = new System.Drawing.Size(99, 27);
+			this.addQuickFilterBtn.Size = new System.Drawing.Size(137, 27);
 			this.addQuickFilterBtn.TabIndex = 4;
 			this.addQuickFilterBtn.Text = "Add To Quick Filters";
 			this.addQuickFilterBtn.UseVisualStyleBackColor = true;
@@ -444,7 +443,6 @@
 			// 
 			// splitContainer1.Panel1
 			// 
-			this.splitContainer1.Panel1.Controls.Add(this.button1);
 			this.splitContainer1.Panel1.Controls.Add(this.panel1);
 			this.splitContainer1.Panel1.Controls.Add(this.menuStrip1);
 			this.splitContainer1.Panel1.Controls.Add(this.filterSearchTb);
@@ -460,16 +458,6 @@
 			this.splitContainer1.SplitterDistance = 894;
 			this.splitContainer1.SplitterWidth = 8;
 			this.splitContainer1.TabIndex = 7;
-			// 
-			// button1
-			// 
-			this.button1.Location = new System.Drawing.Point(155, 27);
-			this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(58, 22);
-			this.button1.TabIndex = 8;
-			this.button1.Text = "button1";
-			this.button1.UseVisualStyleBackColor = true;
 			// 
 			// panel1
 			// 
@@ -566,6 +554,5 @@
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
-		private System.Windows.Forms.Button button1;
 	}
 }
