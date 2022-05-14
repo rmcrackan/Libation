@@ -38,6 +38,10 @@ namespace LibationWinForms.ProcessQueue
 		}
 		public void SetProgrss(int progress)
 		{
+			//Disabvle slow fill
+			//https://stackoverflow.com/a/5332770/3335599
+			if (progress < progressBar1.Maximum)
+				progressBar1.Value = progress + 1;
 			progressBar1.Value = progress;
 		}
 		public void SetRemainingTime(TimeSpan remaining)
