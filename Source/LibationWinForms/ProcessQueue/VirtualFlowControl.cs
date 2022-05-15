@@ -190,10 +190,7 @@ namespace LibationWinForms.ProcessQueue
 				vScrollBar1.LargeChange = LargeScrollChange;
 
 				//https://stackoverflow.com/a/2882878/3335599
-				int newMaximum = VirtualHeight + vScrollBar1.LargeChange - 1;
-				if (newMaximum < vScrollBar1.Maximum)
-					vScrollBar1.Value = Math.Max(vScrollBar1.Value - (vScrollBar1.Maximum - newMaximum), 0);
-				vScrollBar1.Maximum = newMaximum;
+				vScrollBar1.Maximum = VirtualHeight + vScrollBar1.LargeChange - 1;
 			}
 		}
 
