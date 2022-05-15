@@ -72,24 +72,25 @@
 			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.addQuickFilterBtn = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessBookQueue();
+			this.hideQueueBtn = new System.Windows.Forms.Button();
+			this.panel1 = new System.Windows.Forms.Panel();
+			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessQueueControl();
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
+			this.panel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// gridPanel
 			// 
-			this.gridPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.gridPanel.Location = new System.Drawing.Point(15, 60);
+			this.gridPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gridPanel.Location = new System.Drawing.Point(0, 0);
 			this.gridPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.gridPanel.Name = "gridPanel";
-			this.gridPanel.Size = new System.Drawing.Size(865, 556);
+			this.gridPanel.Size = new System.Drawing.Size(864, 560);
 			this.gridPanel.TabIndex = 5;
 			// 
 			// filterHelpBtn
@@ -106,8 +107,8 @@
 			// filterBtn
 			// 
 			this.filterBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.filterBtn.Location = new System.Drawing.Point(792, 27);
-			this.filterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 15, 3);
+			this.filterBtn.Location = new System.Drawing.Point(750, 27);
+			this.filterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterBtn.Name = "filterBtn";
 			this.filterBtn.Size = new System.Drawing.Size(88, 27);
 			this.filterBtn.TabIndex = 2;
@@ -119,10 +120,10 @@
 			// 
 			this.filterSearchTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.filterSearchTb.Location = new System.Drawing.Point(220, 30);
+			this.filterSearchTb.Location = new System.Drawing.Point(194, 30);
 			this.filterSearchTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterSearchTb.Name = "filterSearchTb";
-			this.filterSearchTb.Size = new System.Drawing.Size(564, 23);
+			this.filterSearchTb.Size = new System.Drawing.Size(548, 23);
 			this.filterSearchTb.TabIndex = 1;
 			this.filterSearchTb.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.filterSearchTb_KeyPress);
 			// 
@@ -140,7 +141,7 @@
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
-			this.menuStrip1.Size = new System.Drawing.Size(895, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(894, 24);
 			this.menuStrip1.TabIndex = 0;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -396,7 +397,7 @@
 			this.statusStrip1.Location = new System.Drawing.Point(0, 619);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
-			this.statusStrip1.Size = new System.Drawing.Size(895, 22);
+			this.statusStrip1.Size = new System.Drawing.Size(894, 22);
 			this.statusStrip1.TabIndex = 6;
 			this.statusStrip1.Text = "statusStrip1";
 			// 
@@ -409,7 +410,7 @@
 			// springLbl
 			// 
 			this.springLbl.Name = "springLbl";
-			this.springLbl.Size = new System.Drawing.Size(436, 17);
+			this.springLbl.Size = new System.Drawing.Size(435, 17);
 			this.springLbl.Spring = true;
 			// 
 			// backupsCountsLbl
@@ -429,7 +430,7 @@
 			this.addQuickFilterBtn.Location = new System.Drawing.Point(49, 27);
 			this.addQuickFilterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.addQuickFilterBtn.Name = "addQuickFilterBtn";
-			this.addQuickFilterBtn.Size = new System.Drawing.Size(163, 27);
+			this.addQuickFilterBtn.Size = new System.Drawing.Size(137, 27);
 			this.addQuickFilterBtn.TabIndex = 4;
 			this.addQuickFilterBtn.Text = "Add To Quick Filters";
 			this.addQuickFilterBtn.UseVisualStyleBackColor = true;
@@ -443,8 +444,9 @@
 			// 
 			// splitContainer1.Panel1
 			// 
+			this.splitContainer1.Panel1.Controls.Add(this.hideQueueBtn);
+			this.splitContainer1.Panel1.Controls.Add(this.panel1);
 			this.splitContainer1.Panel1.Controls.Add(this.menuStrip1);
-			this.splitContainer1.Panel1.Controls.Add(this.gridPanel);
 			this.splitContainer1.Panel1.Controls.Add(this.filterSearchTb);
 			this.splitContainer1.Panel1.Controls.Add(this.addQuickFilterBtn);
 			this.splitContainer1.Panel1.Controls.Add(this.filterBtn);
@@ -455,17 +457,42 @@
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.processBookQueue1);
 			this.splitContainer1.Size = new System.Drawing.Size(1231, 641);
-			this.splitContainer1.SplitterDistance = 895;
+			this.splitContainer1.SplitterDistance = 894;
 			this.splitContainer1.SplitterWidth = 8;
 			this.splitContainer1.TabIndex = 7;
+			// 
+			// hideQueueBtn
+			// 
+			this.hideQueueBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.hideQueueBtn.Location = new System.Drawing.Point(846, 27);
+			this.hideQueueBtn.Margin = new System.Windows.Forms.Padding(4, 3, 15, 3);
+			this.hideQueueBtn.Name = "hideQueueBtn";
+			this.hideQueueBtn.Size = new System.Drawing.Size(33, 27);
+			this.hideQueueBtn.TabIndex = 8;
+			this.hideQueueBtn.Text = "❰❰❰";
+			this.hideQueueBtn.UseVisualStyleBackColor = true;
+			this.hideQueueBtn.Click += new System.EventHandler(this.HideQueueBtn_Click);
+			// 
+			// panel1
+			// 
+			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.panel1.Controls.Add(this.gridPanel);
+			this.panel1.Location = new System.Drawing.Point(15, 59);
+			this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(864, 560);
+			this.panel1.TabIndex = 7;
 			// 
 			// processBookQueue1
 			// 
 			this.processBookQueue1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.processBookQueue1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.processBookQueue1.Location = new System.Drawing.Point(0, 0);
+			this.processBookQueue1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.processBookQueue1.Name = "processBookQueue1";
-			this.processBookQueue1.Size = new System.Drawing.Size(328, 641);
+			this.processBookQueue1.Size = new System.Drawing.Size(329, 641);
 			this.processBookQueue1.TabIndex = 0;
 			// 
 			// Form1
@@ -489,6 +516,7 @@
 			this.splitContainer1.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
+			this.panel1.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
@@ -538,6 +566,8 @@
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem liberateVisible2ToolStripMenuItem;
 		private System.Windows.Forms.SplitContainer splitContainer1;
-		private LibationWinForms.ProcessQueue.ProcessBookQueue processBookQueue1;
+		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
+		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.Button hideQueueBtn;
 	}
 }

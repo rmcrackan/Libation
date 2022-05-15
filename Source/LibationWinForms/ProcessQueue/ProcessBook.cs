@@ -5,7 +5,10 @@ using LibationFileManager;
 using LibationWinForms.BookLiberation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -16,153 +19,283 @@ namespace LibationWinForms.ProcessQueue
 		None,
 		Success,
 		Cancelled,
+		ValidationFail,
 		FailedRetry,
 		FailedSkip,
 		FailedAbort
 	}
 
-	internal enum QueuePosition
+	public enum ProcessBookStatus
 	{
-		Absent,
-		Current,
-		Fisrt,
-		OneUp,
-		OneDown,
-		Last
+		Queued,
+		Cancelled,
+		Working,
+		Completed,
+		Failed
 	}
 
-	internal delegate QueuePosition ProcessControlReorderHandler(ProcessBook sender, QueuePosition arg);
-	internal delegate void ProcessControlEventArgs<T>(ProcessBook sender, T arg);
-	internal delegate void ProcessControlEventArgs(ProcessBook sender, EventArgs arg);
-
-	internal class ProcessBook
+	/// <summary>
+	/// This is the viewmodel for queued processables
+	/// </summary>
+	public class ProcessBook : INotifyPropertyChanged
 	{
 		public event EventHandler Completed;
-		public event ProcessControlEventArgs Cancelled;
-		public event ProcessControlReorderHandler RequestMove;
-		public GridEntry Entry { get; }
-		public ILiberationBaseForm BookControl { get; }
+		public event PropertyChangedEventHandler PropertyChanged;
 
-		private Func<Processable> _makeFirstProc;
-		private Processable _firstProcessable;
-		private bool cancelled = false;
-		private bool running = false;
-		public Processable FirstProcessable => _firstProcessable ??= _makeFirstProc?.Invoke();
+		private ProcessBookResult _result = ProcessBookResult.None;
+		private ProcessBookStatus _status = ProcessBookStatus.Queued;
+		private string _bookText;
+		private int _progress;
+		private TimeSpan _timeRemaining;
+		private Image _cover;
+
+		public ProcessBookResult Result { get => _result; private set { _result = value; NotifyPropertyChanged(); } }
+		public ProcessBookStatus Status { get => _status; private set { _status = value; NotifyPropertyChanged(); } }
+		public string BookText { get => _bookText; private set { _bookText = value; NotifyPropertyChanged(); } }
+		public int Progress { get => _progress; private set { _progress = value; NotifyPropertyChanged(); } }
+		public TimeSpan TimeRemaining { get => _timeRemaining; private set { _timeRemaining = value; NotifyPropertyChanged(); } }
+		public Image Cover { get => _cover; private set { _cover = value; NotifyPropertyChanged(); } }
+
+		public LibraryBook LibraryBook { get; private set; }
+		private Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
+		private Processable NextProcessable() => _currentProcessable = null;
+		private Processable _currentProcessable;
+		private Func<byte[]> GetCoverArtDelegate;
 		private readonly Queue<Func<Processable>> Processes = new();
+		private readonly LogMe Logger;
 
-		LogMe Logger;
+		public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-		public ProcessBook(GridEntry entry, LogMe logme)
+		public ProcessBook(LibraryBook libraryBook, LogMe logme)
 		{
-			Entry = entry;
-			BookControl = new ProcessBookControl(Entry.Title, Entry.Cover);
-			BookControl.CancelAction = Cancel;
-			BookControl.MoveUpAction = MoveUp;
-			BookControl.MoveDownAction = MoveDown;
+			LibraryBook = libraryBook;
 			Logger = logme;
+
+			title = LibraryBook.Book.Title;
+			authorNames = LibraryBook.Book.AuthorNames();
+			narratorNames = LibraryBook.Book.NarratorNames();
+			_bookText = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}";
+
+			(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._80x80));
+
+			if (isDefault)
+				PictureStorage.PictureCached += PictureStorage_PictureCached;
+			_cover = Dinah.Core.Drawing.ImageReader.ToImage(picture);
+
 		}
 
-		public QueuePosition? MoveUp()
+		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
 		{
-			return RequestMove?.Invoke(this, QueuePosition.OneUp);
-		}
-		public QueuePosition? MoveDown()
-		{
-			return RequestMove?.Invoke(this, QueuePosition.OneDown);
-		}
-
-		public void Cancel()
-		{
-			cancelled = true;
-			try
+			if (e.Definition.PictureId == LibraryBook.Book.PictureId)
 			{
-				if (FirstProcessable is AudioDecodable audioDecodable)
-					audioDecodable.Cancel();
+				Cover = Dinah.Core.Drawing.ImageReader.ToImage(e.Picture);
+				PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
-			catch(Exception ex)
-			{
-				Logger.Error(ex, "Error while cancelling");
-			}
-
-			if (!running)
-				Cancelled?.Invoke(this, EventArgs.Empty);
 		}
 
 		public async Task<ProcessBookResult> ProcessOneAsync()
 		{
-			running = true;
-			ProcessBookResult result = ProcessBookResult.None;
+			string procName = CurrentProcessable.Name;
 			try
 			{
-				var firstProc = FirstProcessable;
+				LinkProcessable(CurrentProcessable);
 
-				LinkProcessable(firstProc);
-
-				var statusHandler = await firstProc.ProcessSingleAsync(Entry.LibraryBook, validate: true);
-
+				var statusHandler = await CurrentProcessable.ProcessSingleAsync(LibraryBook, validate: true);
 
 				if (statusHandler.IsSuccess)
-					return result = ProcessBookResult.Success;
-				else if (cancelled)
+					return Result = ProcessBookResult.Success;
+				else if (statusHandler.Errors.Contains("Cancelled"))
 				{
-					Logger.Info($"Process was cancelled {Entry.LibraryBook.Book}");
-					return result = ProcessBookResult.Cancelled;
+					Logger.Info($"{procName}:  Process was cancelled {LibraryBook.Book}");
+					return Result = ProcessBookResult.Cancelled;
+				}
+				else if (statusHandler.Errors.Contains("Validation failed"))
+				{
+					Logger.Info($"{procName}:  Validation failed {LibraryBook.Book}");
+					return Result = ProcessBookResult.ValidationFail;
 				}
 
 				foreach (var errorMessage in statusHandler.Errors)
-					Logger.Error(errorMessage);
+					Logger.Error($"{procName}:  {errorMessage}");
 			}
 			catch (Exception ex)
 			{
-				Logger.Error(ex);
+				Logger.Error(ex, procName);
 			}
 			finally
 			{
-				if (result == ProcessBookResult.None)
-					result = showRetry(Entry.LibraryBook);
+				if (Result == ProcessBookResult.None)
+					Result = showRetry(LibraryBook);
 
-				BookControl.SetResult(result);
+				Status = Result switch
+				{
+					ProcessBookResult.Success => ProcessBookStatus.Completed,
+					ProcessBookResult.Cancelled => ProcessBookStatus.Cancelled,
+					ProcessBookResult.FailedRetry => ProcessBookStatus.Queued,
+					_ => ProcessBookStatus.Failed,
+				};
 			}
 
-			return result;
+			return Result;
 		}
 
-		public void AddPdfProcessable() => AddProcessable<DownloadPdf>();
-		public void AddDownloadDecryptProcessable() => AddProcessable<DownloadDecryptBook>();
-		public void AddConvertMp3Processable() => AddProcessable<ConvertToMp3>();
+		public async Task Cancel()
+		{
+			try
+			{
+				if (CurrentProcessable is AudioDecodable audioDecodable)
+				{
+					//There's some threadding bug that causes this to hang if executed synchronously.
+					await Task.Run(audioDecodable.Cancel);
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Error(ex, $"{CurrentProcessable.Name}:  Error while cancelling");
+			}
+		}
+
+		public void AddDownloadPdf() => AddProcessable<DownloadPdf>();
+		public void AddDownloadDecryptBook() => AddProcessable<DownloadDecryptBook>();
+		public void AddConvertToMp3() => AddProcessable<ConvertToMp3>();
 
 		private void AddProcessable<T>() where T : Processable, new()
 		{
-			if (FirstProcessable == null)
-			{
-				_makeFirstProc = () => new T();
-			}
-			else
-				Processes.Enqueue(() => new T());
+			Processes.Enqueue(() => new T());
 		}
 
-		private void LinkProcessable(Processable strProc)
+		public override string ToString() => LibraryBook.ToString();
+
+		#region Subscribers and Unsubscribers
+
+		private void LinkProcessable(Processable processable)
 		{
-			strProc.Begin += Processable_Begin;
-			strProc.Completed += Processable_Completed;
+			processable.Begin += Processable_Begin;
+			processable.Completed += Processable_Completed;
+			processable.StreamingProgressChanged += Streamable_StreamingProgressChanged;
+			processable.StreamingTimeRemaining += Streamable_StreamingTimeRemaining;
+
+			if (processable is AudioDecodable audioDecodable)
+			{
+				audioDecodable.RequestCoverArt += AudioDecodable_RequestCoverArt;
+				audioDecodable.TitleDiscovered += AudioDecodable_TitleDiscovered;
+				audioDecodable.AuthorsDiscovered += AudioDecodable_AuthorsDiscovered;
+				audioDecodable.NarratorsDiscovered += AudioDecodable_NarratorsDiscovered;
+				audioDecodable.CoverImageDiscovered += AudioDecodable_CoverImageDiscovered;
+			}
 		}
+
+		private void UnlinkProcessable(Processable processable)
+		{
+			processable.Begin -= Processable_Begin;
+			processable.Completed -= Processable_Completed;
+			processable.StreamingProgressChanged -= Streamable_StreamingProgressChanged;
+			processable.StreamingTimeRemaining -= Streamable_StreamingTimeRemaining;
+
+			if (processable is AudioDecodable audioDecodable)
+			{
+				audioDecodable.RequestCoverArt -= AudioDecodable_RequestCoverArt;
+				audioDecodable.TitleDiscovered -= AudioDecodable_TitleDiscovered;
+				audioDecodable.AuthorsDiscovered -= AudioDecodable_AuthorsDiscovered;
+				audioDecodable.NarratorsDiscovered -= AudioDecodable_NarratorsDiscovered;
+				audioDecodable.CoverImageDiscovered -= AudioDecodable_CoverImageDiscovered;
+			}
+		}
+
+		#endregion
+
+		#region AudioDecodable event handlers
+
+		private string title;
+		private string authorNames;
+		private string narratorNames;
+		private void AudioDecodable_TitleDiscovered(object sender, string title)
+		{
+			this.title = title;
+			updateBookInfo();
+		}
+
+		private void AudioDecodable_AuthorsDiscovered(object sender, string authors)
+		{
+			authorNames = authors;
+			updateBookInfo();
+		}
+
+		private void AudioDecodable_NarratorsDiscovered(object sender, string narrators)
+		{
+			narratorNames = narrators;
+			updateBookInfo();
+		}
+
+		private void updateBookInfo()
+		{
+			BookText = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}";
+		}
+
+		public void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
+		{
+			byte[] coverData = GetCoverArtDelegate();
+			setCoverArtDelegate(coverData);
+			AudioDecodable_CoverImageDiscovered(this, coverData);
+		}
+
+		private void AudioDecodable_CoverImageDiscovered(object sender, byte[] coverArt)
+		{
+			Cover = Dinah.Core.Drawing.ImageReader.ToImage(coverArt);
+		}
+
+		#endregion
+
+		#region Streamable event handlers
+		private void Streamable_StreamingTimeRemaining(object sender, TimeSpan timeRemaining)
+		{
+			TimeRemaining = timeRemaining;
+		}
+
+		private void Streamable_StreamingProgressChanged(object sender, Dinah.Core.Net.Http.DownloadProgress downloadProgress)
+		{
+			if (!downloadProgress.ProgressPercentage.HasValue)
+				return;
+
+			if (downloadProgress.ProgressPercentage == 0)
+				TimeRemaining = TimeSpan.Zero;
+			else
+				Progress = (int)downloadProgress.ProgressPercentage;
+		}
+
+		#endregion
+
+		#region Processable event handlers
 
 		private void Processable_Begin(object sender, LibraryBook libraryBook)
 		{
-			BookControl.RegisterFileLiberator((Processable)sender, Logger);
-			BookControl.Processable_Begin(sender, libraryBook);
+			Status = ProcessBookStatus.Working;
+
+			Logger.Info($"{Environment.NewLine}{((Processable)sender).Name} Step, Begin: {libraryBook.Book}");
+
+			GetCoverArtDelegate = () => PictureStorage.GetPictureSynchronously(
+						new PictureDefinition(
+							libraryBook.Book.PictureId,
+							PictureSize._500x500));
+
+			title = libraryBook.Book.Title;
+			authorNames = libraryBook.Book.AuthorNames();
+			narratorNames = libraryBook.Book.NarratorNames();
+			updateBookInfo();
 		}
 
-		private async void Processable_Completed(object sender, LibraryBook e)
+		private async void Processable_Completed(object sender, LibraryBook libraryBook)
 		{
-			((Processable)sender).Begin -= Processable_Begin;
+
+			Logger.Info($"{((Processable)sender).Name} Step, Completed: {libraryBook.Book}");
+			UnlinkProcessable((Processable)sender);
 
 			if (Processes.Count > 0)
 			{
-				var nextProcessFunc = Processes.Dequeue();
-				var nextProcess = nextProcessFunc();
-				LinkProcessable(nextProcess);
-				var result = await nextProcess.ProcessSingleAsync(e, true);
+				NextProcessable();
+				LinkProcessable(CurrentProcessable);
+				var result = await CurrentProcessable.ProcessSingleAsync(libraryBook, validate: true);
 
 				if (result.HasErrors)
 				{
@@ -170,15 +303,17 @@ namespace LibationWinForms.ProcessQueue
 						Logger.Error(errorMessage);
 
 					Completed?.Invoke(this, EventArgs.Empty);
-					running = false;
 				}
 			}
 			else
 			{
 				Completed?.Invoke(this, EventArgs.Empty);
-				running = false;
 			}
 		}
+
+		#endregion
+
+		#region Failure Handler
 
 		private ProcessBookResult showRetry(LibraryBook libraryBook)
 		{
@@ -232,7 +367,7 @@ $@"  Title: {libraryBook.Book.Title}
 		}
 
 
-		protected string SkipDialogText => @"
+		private string SkipDialogText => @"
 An error occurred while trying to process this book.
 {0}
 
@@ -242,8 +377,10 @@ An error occurred while trying to process this book.
 
 - IGNORE: Permanently ignore this book. Continue processing books. (Will not try this book again later.)
 ".Trim();
-		protected MessageBoxButtons SkipDialogButtons => MessageBoxButtons.AbortRetryIgnore;
-		protected MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
-		protected DialogResult SkipResult => DialogResult.Ignore;
+		private MessageBoxButtons SkipDialogButtons => MessageBoxButtons.AbortRetryIgnore;
+		private MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
+		private DialogResult SkipResult => DialogResult.Ignore;
 	}
+
+	#endregion
 }

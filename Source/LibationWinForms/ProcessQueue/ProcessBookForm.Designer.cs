@@ -37,7 +37,7 @@
 			this.ClientSize = new System.Drawing.Size(522, 638);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
 			this.Name = "ProcessBookForm";
-			this.Text = "ProcessBookForm";
+			this.Text = "Book Processing Queue";
 			this.ResumeLayout(false);
 
 		}
