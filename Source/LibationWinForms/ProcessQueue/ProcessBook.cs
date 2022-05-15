@@ -96,6 +96,7 @@ namespace LibationWinForms.ProcessQueue
 
 		public async Task<ProcessBookResult> ProcessOneAsync()
 		{
+			string procName = CurrentProcessable.Name;
 			try
 			{
 				LinkProcessable(CurrentProcessable);
@@ -106,21 +107,21 @@ namespace LibationWinForms.ProcessQueue
 					return Result = ProcessBookResult.Success;
 				else if (statusHandler.Errors.Contains("Cancelled"))
 				{
-					Logger.Info($"{CurrentProcessable.Name}:  Process was cancelled {LibraryBook.Book}");
+					Logger.Info($"{procName}:  Process was cancelled {LibraryBook.Book}");
 					return Result = ProcessBookResult.Cancelled;
 				}
 				else if (statusHandler.Errors.Contains("Validation failed"))
 				{
-					Logger.Info($"{CurrentProcessable.Name}:  Validation failed {LibraryBook.Book}");
+					Logger.Info($"{procName}:  Validation failed {LibraryBook.Book}");
 					return Result = ProcessBookResult.ValidationFail;
 				}
 
 				foreach (var errorMessage in statusHandler.Errors)
-					Logger.Error($"{CurrentProcessable.Name}:  {errorMessage}");
+					Logger.Error($"{procName}:  {errorMessage}");
 			}
 			catch (Exception ex)
 			{
-				Logger.Error(ex, CurrentProcessable.Name);
+				Logger.Error(ex, procName);
 			}
 			finally
 			{
