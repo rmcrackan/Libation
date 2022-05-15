@@ -29,7 +29,9 @@ namespace LibationWinForms
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Warning);
 			if (result == DialogResult.Yes)
-				await Task.Run(() => processBookQueue1.AddConvertMp3(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()));
+				await Task.Run(() => processBookQueue1.AddConvertMp3(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
+					.Where(lb=>lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.Liberated)));
+			//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.
 		}
 	}
 }

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,7 +12,6 @@ namespace LibationWinForms.ProcessQueue
 	{
 		private TrackedQueue<ProcessBook> Queue = new();
 		private readonly LogMe Logger;
-		private SynchronizationContext SyncContext { get; } = SynchronizationContext.Current;
 		private int QueuedCount
 		{
 			set
@@ -39,7 +37,6 @@ namespace LibationWinForms.ProcessQueue
 				completedNumberLbl.Visible = value > 0;
 			}
 		}
-
 
 		public Task QueueRunner { get; private set; }
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
@@ -73,35 +70,20 @@ namespace LibationWinForms.ProcessQueue
 
 		public void AddDownloadPdf(IEnumerable<DataLayer.LibraryBook> entries)
 		{
-			Action<IEnumerable<DataLayer.LibraryBook>> makeAll = (lb) =>
-			{
-				foreach (var entry in entries)
-					AddDownloadPdf(entry);
-			};
-			//IEnumerable<DataLayer.LibraryBook> are run on non-ui thread, so send collection to UI first
-			PassToUIThread(entries, makeAll);
+			foreach (var entry in entries)
+				AddDownloadPdf(entry);
 		}
 
 		public void AddDownloadDecrypt(IEnumerable<DataLayer.LibraryBook> entries)
 		{
-			Action<IEnumerable<DataLayer.LibraryBook>> makeAll = (lb) =>
-			{
-				foreach (var entry in entries)
-					AddDownloadDecrypt(entry);
-			};
-			//IEnumerable<DataLayer.LibraryBook> are run on non-ui thread, so send collection to UI first
-			PassToUIThread(entries, makeAll);
+			foreach (var entry in entries)
+				AddDownloadDecrypt(entry);
 		}
 		
 		public void AddConvertMp3(IEnumerable<DataLayer.LibraryBook> entries)
 		{
-			Action<IEnumerable<DataLayer.LibraryBook>> makeAll = (lb) =>
-			{
-				foreach (var entry in entries)
-					AddConvertMp3(entry);
-			};
-			//IEnumerable<DataLayer.LibraryBook> are run on non-ui thread, so send collection to UI first
-			PassToUIThread(entries, makeAll);
+			foreach (var entry in entries)
+				AddConvertMp3(entry);
 		}
 
 		public void AddDownloadPdf(DataLayer.LibraryBook libraryBook)
@@ -138,23 +120,14 @@ namespace LibationWinForms.ProcessQueue
 			AddToQueue(pbook);
 		}
 
-		private void PassToUIThread(IEnumerable<DataLayer.LibraryBook> libraryBooks, Action<IEnumerable<DataLayer.LibraryBook>> onComplete)
-		{
-			void OnSendOrPostCallback(object asyncArgs)
-			{
-				onComplete((IEnumerable<DataLayer.LibraryBook>)asyncArgs);
-			}
-			SyncContext.Send(OnSendOrPostCallback, libraryBooks);
-		}
-
 		private void AddToQueue(ProcessBook pbook)
 		{
-			Queue.Enqueue(pbook);
-
-			if (!Running)
+			BeginInvoke(() =>
 			{
-				QueueRunner = QueueLoop();
-			}
+				Queue.Enqueue(pbook);
+				if (!Running)
+					QueueRunner = QueueLoop();
+			});
 		}
 
 		DateTime StartintTime;
@@ -176,7 +149,6 @@ namespace LibationWinForms.ProcessQueue
 				else if (result == ProcessBookResult.FailedAbort)
 					return;
 			}
-
 			Queue_CompletedCountChanged(this, 0);
 			counterTimer.Stop();
 			virtualFlowControl2.VirtualControlCount = Queue.Count;
@@ -210,8 +182,8 @@ namespace LibationWinForms.ProcessQueue
 		}
 		private void UpdateProgressBar()
 		{
-				toolStripProgressBar1.Maximum = Queue.Count;
-				toolStripProgressBar1.Value = Queue.Completed.Count;
+			toolStripProgressBar1.Maximum = Queue.Count;
+			toolStripProgressBar1.Value = Queue.Completed.Count;
 		}
 
 		private void cancelAllBtn_Click(object sender, EventArgs e)
