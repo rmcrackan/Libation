@@ -171,12 +171,16 @@ namespace LibationWinForms.ProcessQueue
 
 				if (result == ProcessBookResult.FailedRetry)
 					Queue.Enqueue(nextBook);
+				else if (result == ProcessBookResult.ValidationFail)
+					Queue.ClearCurrent();
 				else if (result == ProcessBookResult.FailedAbort)
 					return;
 			}
 
 			Queue_CompletedCountChanged(this, 0);
 			counterTimer.Stop();
+			virtualFlowControl2.VirtualControlCount = Queue.Count;
+			UpdateAllControls();
 		}
 
 		public void WriteLine(string text)

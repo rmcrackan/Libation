@@ -94,6 +94,23 @@ namespace LibationWinForms.ProcessQueue
 			}
 		}
 
+		public void ClearCurrent()
+		{
+			lock(lockObject)
+				Current = null;
+		}
+		
+		public bool RemoveCompleted(T item)
+		{
+			lock (lockObject)
+			{
+				bool removed = _completed.Remove(item);
+				if (removed)
+					CompletedCountChanged?.Invoke(this, _completed.Count);
+				return removed;
+			}
+		}
+
 		public void ClearQueue()
 		{
 			lock (lockObject)
