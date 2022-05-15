@@ -90,7 +90,7 @@ namespace LibationWinForms
 		private ImageDisplay imageDisplay;
 		private async Task Cover_Click(GridEntry liveGridEntry)
 		{
-			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge, PictureSize.Native);
+			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge ?? liveGridEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 			var picDlTask = Task.Run(() => PictureStorage.GetPictureSynchronously(picDefinition));
 
 			(_, byte[] initialImageBts) = PictureStorage.GetPicture(new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureId, PictureSize._80x80));
