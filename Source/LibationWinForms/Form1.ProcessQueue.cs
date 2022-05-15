@@ -14,6 +14,20 @@ namespace LibationWinForms
 		{
 			productsGrid.LiberateClicked += (_, lb) => processBookQueue1.AddDownloadDecrypt(lb);
 			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
+
+			Task.Run(() =>
+			{
+				Task.Delay(3000).Wait();
+				var lb = ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking().Select(lb => lb.Book).ToList();
+
+				foreach (var b in lb)
+				{
+					b.UserDefinedItem.BookStatus = DataLayer.LiberatedStatus.NotLiberated;
+				}
+				LibraryCommands.UpdateUserDefinedItem(lb);
+
+			});
+			
 		}
 
 		int WidthChange = 0;

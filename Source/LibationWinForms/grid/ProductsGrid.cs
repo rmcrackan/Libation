@@ -130,7 +130,7 @@ namespace LibationWinForms
 			displayWindow.Show(this);
 		}
 
-		private void Liberate_Click(GridEntry liveGridEntry)
+		private async void Liberate_Click(GridEntry liveGridEntry)
 		{
 			var libraryBook = liveGridEntry.LibraryBook;
 

@@ -106,21 +106,21 @@ namespace LibationWinForms.ProcessQueue
 					return Result = ProcessBookResult.Success;
 				else if (statusHandler.Errors.Contains("Cancelled"))
 				{
-					Logger.Info($"Process was cancelled {LibraryBook.Book}");
+					Logger.Info($"{CurrentProcessable.Name}:  Process was cancelled {LibraryBook.Book}");
 					return Result = ProcessBookResult.Cancelled;
 				}
 				else if (statusHandler.Errors.Contains("Validation failed"))
 				{
-					Logger.Info($"Validation failed {LibraryBook.Book}");
+					Logger.Info($"{CurrentProcessable.Name}:  Validation failed {LibraryBook.Book}");
 					return Result = ProcessBookResult.ValidationFail;
 				}
 
 				foreach (var errorMessage in statusHandler.Errors)
-					Logger.Error(errorMessage);
+					Logger.Error($"{CurrentProcessable.Name}:  {errorMessage}");
 			}
 			catch (Exception ex)
 			{
-				Logger.Error(ex);
+				Logger.Error(ex, CurrentProcessable.Name);
 			}
 			finally
 			{
@@ -151,7 +151,7 @@ namespace LibationWinForms.ProcessQueue
 			}
 			catch (Exception ex)
 			{
-				Logger.Error(ex, "Error while cancelling");
+				Logger.Error(ex, $"{CurrentProcessable.Name}:  Error while cancelling");
 			}
 		}
 
