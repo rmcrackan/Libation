@@ -17,16 +17,23 @@ namespace FileLiberator
         public override string Name => "Convert to Mp3";
         private Mp4File m4bBook;
 
-		private long fileSize;
+        private long fileSize;
         private static string Mp3FileName(string m4bPath) => Path.ChangeExtension(m4bPath ?? "", ".mp3");
 
-        public override void Cancel() => m4bBook?.Cancel();
+        private bool cancelled = false;
+        public override void Cancel()
+        {            
+            m4bBook?.Cancel();
+            cancelled = true;
+        }
 
-        public override bool Validate(LibraryBook libraryBook)
-        {
+        public static bool ValidateMp3(LibraryBook libraryBook)
+		{
             var path = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
             return path?.ToLower()?.EndsWith(".m4b") == true && !File.Exists(Mp3FileName(path));
         }
+
+        public override bool Validate(LibraryBook libraryBook) => ValidateMp3(libraryBook);
 
         public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
@@ -57,12 +64,12 @@ namespace FileLiberator
                 var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path);
                 OnFileCreated(libraryBook, realMp3Path);
 
-                var statusHandler = new StatusHandler();
-
                 if (result == ConversionResult.Failed)
-                    statusHandler.AddError("Conversion failed");
-
-                return statusHandler;
+                    return new StatusHandler { "Conversion failed" };
+                else if (result == ConversionResult.Cancelled)
+                    return new StatusHandler { "Cancelled" };
+                else
+                    return new StatusHandler();
             }
             finally
             {
