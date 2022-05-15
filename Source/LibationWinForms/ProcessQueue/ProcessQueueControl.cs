@@ -318,14 +318,16 @@ namespace LibationWinForms.ProcessQueue
 			else if (buttonName == nameof(panelClicked.moveUpBtn))
 			{
 				Queue.MoveQueuePosition(item, QueuePosition.OneUp);
-				UpdateControl(queueIndex - 1);
 				UpdateControl(queueIndex);
+				if (queueIndex > 0)
+					UpdateControl(queueIndex - 1);
 			}
 			else if (buttonName == nameof(panelClicked.moveDownBtn))
 			{
 				Queue.MoveQueuePosition(item, QueuePosition.OneDown);
-				UpdateControl(queueIndex + 1);
 				UpdateControl(queueIndex);
+				if (queueIndex + 1 < Queue.Count) 
+					UpdateControl(queueIndex + 1);
 			}
 			else if (buttonName == nameof(panelClicked.moveLastBtn))
 			{
