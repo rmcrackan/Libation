@@ -309,7 +309,6 @@ namespace LibationWinForms.ProcessQueue
 				item.Cancel();
 				Queue.RemoveQueued(item);
 				virtualFlowControl2.VirtualControlCount = Queue.Count;
-				UpdateControl(queueIndex);
 			}
 			else if (buttonName == nameof(panelClicked.moveFirstBtn))
 			{

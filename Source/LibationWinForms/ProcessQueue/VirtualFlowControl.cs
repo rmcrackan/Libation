@@ -179,6 +179,7 @@ namespace LibationWinForms.ProcessQueue
 			if (VirtualControlCount <= maxFullVisible)
 			{
 				vScrollBar1.Enabled = false;
+				vScrollBar1.Value = 0;
 
 				for (int i = VirtualControlCount; i < NUM_ACTUAL_CONTROLS; i++)
 					BookControls[i].Visible = false;
