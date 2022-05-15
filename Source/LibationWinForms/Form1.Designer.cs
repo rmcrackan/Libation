@@ -72,6 +72,7 @@
 			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.addQuickFilterBtn = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.hideQueueBtn = new System.Windows.Forms.Button();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessQueueControl();
 			this.menuStrip1.SuspendLayout();
@@ -106,8 +107,8 @@
 			// filterBtn
 			// 
 			this.filterBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.filterBtn.Location = new System.Drawing.Point(791, 27);
-			this.filterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 15, 3);
+			this.filterBtn.Location = new System.Drawing.Point(750, 27);
+			this.filterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterBtn.Name = "filterBtn";
 			this.filterBtn.Size = new System.Drawing.Size(88, 27);
 			this.filterBtn.TabIndex = 2;
@@ -122,7 +123,7 @@
 			this.filterSearchTb.Location = new System.Drawing.Point(194, 30);
 			this.filterSearchTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterSearchTb.Name = "filterSearchTb";
-			this.filterSearchTb.Size = new System.Drawing.Size(589, 23);
+			this.filterSearchTb.Size = new System.Drawing.Size(548, 23);
 			this.filterSearchTb.TabIndex = 1;
 			this.filterSearchTb.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.filterSearchTb_KeyPress);
 			// 
@@ -443,6 +444,7 @@
 			// 
 			// splitContainer1.Panel1
 			// 
+			this.splitContainer1.Panel1.Controls.Add(this.hideQueueBtn);
 			this.splitContainer1.Panel1.Controls.Add(this.panel1);
 			this.splitContainer1.Panel1.Controls.Add(this.menuStrip1);
 			this.splitContainer1.Panel1.Controls.Add(this.filterSearchTb);
@@ -458,6 +460,18 @@
 			this.splitContainer1.SplitterDistance = 894;
 			this.splitContainer1.SplitterWidth = 8;
 			this.splitContainer1.TabIndex = 7;
+			// 
+			// hideQueueBtn
+			// 
+			this.hideQueueBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.hideQueueBtn.Location = new System.Drawing.Point(846, 27);
+			this.hideQueueBtn.Margin = new System.Windows.Forms.Padding(4, 3, 15, 3);
+			this.hideQueueBtn.Name = "hideQueueBtn";
+			this.hideQueueBtn.Size = new System.Drawing.Size(33, 27);
+			this.hideQueueBtn.TabIndex = 8;
+			this.hideQueueBtn.Text = "❰❰❰";
+			this.hideQueueBtn.UseVisualStyleBackColor = true;
+			this.hideQueueBtn.Click += new System.EventHandler(this.HideQueueBtn_Click);
 			// 
 			// panel1
 			// 
@@ -554,5 +568,6 @@
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.Button hideQueueBtn;
 	}
 }
