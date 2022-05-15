@@ -139,15 +139,14 @@ namespace LibationWinForms.ProcessQueue
 			return Result;
 		}
 
-		public void Cancel()
+		public async Task Cancel()
 		{
 			try
 			{
 				if (CurrentProcessable is AudioDecodable audioDecodable)
 				{
 					//There's some threadding bug that causes this to hang if executed synchronously.
-					Task.Run(audioDecodable.Cancel);
-
+					await Task.Run(audioDecodable.Cancel);
 				}
 			}
 			catch (Exception ex)

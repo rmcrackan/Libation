@@ -301,12 +301,12 @@ namespace LibationWinForms.ProcessQueue
 		/// </summary>
 		/// <param name="queueIndex">index of the <see cref="ProcessBook"/> within <see cref="Queue"/></param>
 		/// <param name="panelClicked">The clicked control to update</param>
-		private void VirtualFlowControl2_ButtonClicked(int queueIndex, string buttonName, ProcessBookControl panelClicked)
+		private async void VirtualFlowControl2_ButtonClicked(int queueIndex, string buttonName, ProcessBookControl panelClicked)
 		{
 			ProcessBook item = Queue[queueIndex];
 			if (buttonName == nameof(panelClicked.cancelBtn))
 			{
-				item.Cancel();
+				await item.Cancel();
 				Queue.RemoveQueued(item);
 				virtualFlowControl2.VirtualControlCount = Queue.Count;
 			}
