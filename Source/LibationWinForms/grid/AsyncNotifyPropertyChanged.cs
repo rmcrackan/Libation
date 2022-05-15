@@ -6,6 +6,7 @@ namespace LibationWinForms
 {
 	public abstract class AsyncNotifyPropertyChanged : SynchronizeInvoker, INotifyPropertyChanged
 	{
+		// see also notes in Libation/Source/__ARCHITECTURE NOTES.txt :: MVVM
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		// per standard INotifyPropertyChanged pattern:

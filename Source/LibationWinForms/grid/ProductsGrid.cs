@@ -231,6 +231,7 @@ namespace LibationWinForms
 		{
 			var entry = new GridEntry(libraryBook);
 			entry.Committed += reapplyFilter;
+			// see also notes in Libation/Source/__ARCHITECTURE NOTES.txt :: MVVM
 			entry.LibraryBookUpdated += (sender, _) => _dataGridView.InvalidateRow(_dataGridView.GetRowIdOfBoundItem((GridEntry)sender));
 			return entry;
 		}
