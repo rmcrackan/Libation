@@ -49,8 +49,8 @@ namespace LibationWinForms.ProcessQueue
 		private TimeSpan _timeRemaining;
 		private Image _cover;
 
-		public ProcessBookResult Result { get => _result; private set { _result = value; NotifyPropertyChanged(); } } 
-		public ProcessBookStatus Status { get => _status; private set { _status = value; NotifyPropertyChanged(); } } 
+		public ProcessBookResult Result { get => _result; private set { _result = value; NotifyPropertyChanged(); } }
+		public ProcessBookStatus Status { get => _status; private set { _status = value; NotifyPropertyChanged(); } }
 		public string BookText { get => _bookText; private set { _bookText = value; NotifyPropertyChanged(); } }
 		public int Progress { get => _progress; private set { _progress = value; NotifyPropertyChanged(); } }
 		public TimeSpan TimeRemaining { get => _timeRemaining; private set { _timeRemaining = value; NotifyPropertyChanged(); } }
@@ -106,21 +106,21 @@ namespace LibationWinForms.ProcessQueue
 					return Result = ProcessBookResult.Success;
 				else if (statusHandler.Errors.Contains("Cancelled"))
 				{
-					Logger.Info($"Process was cancelled {LibraryBook.Book}");
+					Logger.Info($"{CurrentProcessable.Name}:  Process was cancelled {LibraryBook.Book}");
 					return Result = ProcessBookResult.Cancelled;
 				}
 				else if (statusHandler.Errors.Contains("Validation failed"))
 				{
-					Logger.Info($"Validation failed {LibraryBook.Book}");
+					Logger.Info($"{CurrentProcessable.Name}:  Validation failed {LibraryBook.Book}");
 					return Result = ProcessBookResult.ValidationFail;
 				}
 
 				foreach (var errorMessage in statusHandler.Errors)
-					Logger.Error(errorMessage);
+					Logger.Error($"{CurrentProcessable.Name}:  {errorMessage}");
 			}
 			catch (Exception ex)
 			{
-				Logger.Error(ex);
+				Logger.Error(ex, CurrentProcessable.Name);
 			}
 			finally
 			{
@@ -151,7 +151,7 @@ namespace LibationWinForms.ProcessQueue
 			}
 			catch (Exception ex)
 			{
-				Logger.Error(ex, "Error while cancelling");
+				Logger.Error(ex, $"{CurrentProcessable.Name}:  Error while cancelling");
 			}
 		}
 
