@@ -46,7 +46,6 @@ namespace LibationWinForms
 			}
 		}
 
-		public bool DownloadInProgress { get; private set; }
 		public string ProductRating { get; private set; }
 		public string PurchaseDate { get; private set; }
 		public string MyRating { get; private set; }
@@ -68,7 +67,8 @@ namespace LibationWinForms
 				//Cache these statuses for faster sorting.
 				if ((DateTime.Now - lastStatusUpdate).TotalSeconds > 2)
 				{
-					UpdateLiberatedStatus(notify: false);
+					_bookStatus = LibraryCommands.Liberated_Status(LibraryBook.Book);
+					_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
 					lastStatusUpdate = DateTime.Now;
 				}
 				return (_bookStatus, _pdfStatus);
@@ -83,23 +83,6 @@ namespace LibationWinForms
 		private Book Book => LibraryBook.Book;
 
 		public GridEntry(LibraryBook libraryBook) => setLibraryBook(libraryBook);
-
-		public async Task DownloadBook()
-		{
-			if (DownloadInProgress)
-				return;
-
-			try
-			{
-				DownloadInProgress = true;
-				await BookLiberation.ProcessorAutomationController.BackupSingleBookAsync(LibraryBook);
-				UpdateLiberatedStatus();
-			}
-			finally
-			{
-				DownloadInProgress = false;
-			}
-		}
 
 		public void UpdateLibraryBook(LibraryBook libraryBook)
 		{
@@ -207,14 +190,6 @@ namespace LibationWinForms
 
 			// notify
 			Committed?.Invoke(this, null);
-		}
-
-		private void UpdateLiberatedStatus(bool notify = true)
-		{
-			_bookStatus = LibraryCommands.Liberated_Status(LibraryBook.Book);
-			_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
-			if (notify)
-				NotifyPropertyChanged(nameof(Liberate));
 		}
 
 		#endregion
