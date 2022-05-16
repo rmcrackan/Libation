@@ -63,7 +63,8 @@ namespace LibationWinForms
 		}
 
 		private async void liberateVisible(object sender, EventArgs e)
-			=> await Task.Run(() => processBookQueue1.AddDownloadDecrypt(productsGrid.GetVisible()));
+			=> await BookLiberation.ProcessorAutomationController.BackupAllBooksAsync(productsGrid.GetVisible());
+
 		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			var dialog = new TagsBatchDialog();
