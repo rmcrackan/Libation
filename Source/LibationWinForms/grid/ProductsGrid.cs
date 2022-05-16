@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,8 +7,6 @@ using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
-using Dinah.Core.DataBinding;
-using Dinah.Core.Threading;
 using Dinah.Core.Windows.Forms;
 using FileLiberator;
 using LibationFileManager;
@@ -181,15 +178,16 @@ namespace LibationWinForms
 
 		}
 
-		private void bindToGrid(List<LibraryBook> orderedBooks)
+		private void bindToGrid(List<LibraryBook> dbBooks)
 		{
-			bindingList = new SortableFilterableBindingList(orderedBooks.OrderByDescending(lb => lb.DateAdded).Select(lb => new GridEntry(lb)));
+			bindingList = new SortableFilterableBindingList(dbBooks.OrderByDescending(lb => lb.DateAdded).Select(lb => new GridEntry(lb)));
 			gridEntryBindingSource.DataSource = bindingList;
 		}
 
 		private void updateGrid(List<LibraryBook> dbBooks)
 		{
 			int visibleCount = bindingList.Count;
+			string existingFilter = gridEntryBindingSource.Filter;
 
 			//Add absent books to grid, or update current books
 			for (var i = dbBooks.Count - 1; i >= 0; i--)
@@ -204,11 +202,13 @@ namespace LibationWinForms
 				else
 					existingItem.UpdateLibraryBook(libraryBook);
 			}
-			
-			//refilter for newly added items
-			string existingFilter = gridEntryBindingSource.Filter;
-			Filter(null);
-			Filter(existingFilter);
+
+			if (bindingList.Count != visibleCount)
+			{
+				//refilter for newly added items
+				Filter(null);
+				Filter(existingFilter);
+			}
 
 			// remove deleted from grid.
 			// note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
@@ -219,6 +219,7 @@ namespace LibationWinForms
 				.ToList();
 
 			foreach (var removed in removedBooks)
+				//no need to re-filter for removed books
 				bindingList.Remove(removed);
 
 			if (bindingList.Count != visibleCount)
