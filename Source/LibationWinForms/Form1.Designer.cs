@@ -44,10 +44,10 @@
 			this.removeAllAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.removeSomeAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.liberateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.beginBookBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.beginPdfBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.beginBookBackupsToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
+			this.beginPdfBackupsToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
 			this.convertAllM4bToMp3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.liberateVisible2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.liberateVisible2ToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
 			this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.quickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,8 +55,8 @@
 			this.editQuickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.scanningToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.visibleBooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.liberateVisibleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.visibleBooksToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
+			this.liberateVisibleToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
 			this.replaceTagsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.setDownloadedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,10 +66,10 @@
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-			this.visibleCountLbl = new System.Windows.Forms.ToolStripStatusLabel();
+			this.visibleCountLbl = new LibationWinForms.FormattableToolStripStatusLabel();
 			this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
-			this.pdfsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
+			this.pdfsCountsLbl = new LibationWinForms.FormattableToolStripStatusLabel();
 			this.addQuickFilterBtn = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.panel1 = new System.Windows.Forms.Panel();
@@ -407,7 +407,7 @@
 			// 
 			this.visibleCountLbl.Name = "visibleCountLbl";
 			this.visibleCountLbl.Size = new System.Drawing.Size(68, 20);
-			this.visibleCountLbl.Text = "Visible: 0";
+			this.visibleCountLbl.Text = "Visible: {0}";
 			// 
 			// springLbl
 			// 
@@ -425,7 +425,7 @@
 			// 
 			this.pdfsCountsLbl.Name = "pdfsCountsLbl";
 			this.pdfsCountsLbl.Size = new System.Drawing.Size(214, 20);
-			this.pdfsCountsLbl.Text = "|  [Calculating backed up PDFs]";
+			this.pdfsCountsLbl.Text = "|  PDFs: NOT d/l\'ed: {0}  Downloaded: {1}";
 			// 
 			// addQuickFilterBtn
 			// 
@@ -531,12 +531,12 @@
 		private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
 		private System.Windows.Forms.StatusStrip statusStrip1;
 		private System.Windows.Forms.ToolStripStatusLabel springLbl;
-		private System.Windows.Forms.ToolStripStatusLabel visibleCountLbl;
+		private LibationWinForms.FormattableToolStripStatusLabel visibleCountLbl;
 		private System.Windows.Forms.ToolStripMenuItem liberateToolStripMenuItem;
 		private System.Windows.Forms.ToolStripStatusLabel backupsCountsLbl;
-		private System.Windows.Forms.ToolStripMenuItem beginBookBackupsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripStatusLabel pdfsCountsLbl;
-		private System.Windows.Forms.ToolStripMenuItem beginPdfBackupsToolStripMenuItem;
+		private LibationWinForms.FormattableToolStripMenuItem beginBookBackupsToolStripMenuItem;
+		private LibationWinForms.FormattableToolStripStatusLabel pdfsCountsLbl;
+		private LibationWinForms.FormattableToolStripMenuItem beginPdfBackupsToolStripMenuItem;
 		private System.Windows.Forms.TextBox filterSearchTb;
 		private System.Windows.Forms.Button filterBtn;
 		private System.Windows.Forms.Button filterHelpBtn;
@@ -562,12 +562,12 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem scanningToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem autoScanLibraryToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem visibleBooksToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem liberateVisibleToolStripMenuItem;
+        private LibationWinForms.FormattableToolStripMenuItem visibleBooksToolStripMenuItem;
+        private LibationWinForms.FormattableToolStripMenuItem liberateVisibleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem replaceTagsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setDownloadedToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem liberateVisible2ToolStripMenuItem;
+        private LibationWinForms.FormattableToolStripMenuItem liberateVisible2ToolStripMenuItem;
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;

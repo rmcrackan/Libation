@@ -6,16 +6,14 @@ namespace LibationWinForms
 {
 	public partial class Form1
 	{
-		private string beginBookBackupsToolStripMenuItem_format;
-		private string beginPdfBackupsToolStripMenuItem_format;
-
 		protected void Configure_BackupCounts()
-        {
-            // back up string formats
-            beginBookBackupsToolStripMenuItem_format = beginBookBackupsToolStripMenuItem.Text;
-            beginPdfBackupsToolStripMenuItem_format = beginPdfBackupsToolStripMenuItem.Text;
+		{
+			// init formattable
+			beginBookBackupsToolStripMenuItem.Format(0);
+			beginPdfBackupsToolStripMenuItem.Format(0);
+			pdfsCountsLbl.Text = "|  [Calculating backed up PDFs]";
 
-            Load += setBackupCounts;
+			Load += setBackupCounts;
             LibraryCommands.LibrarySizeChanged += setBackupCounts;
             LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
         }
@@ -56,54 +54,72 @@ namespace LibationWinForms
 			setPdfBackupCounts(libraryStats);
 		}
 
+		// this cannot be cleanly be FormattableToolStripMenuItem because of the optional "Errors" text
+		private const string backupsCountsLbl_Format = "BACKUPS: No progress: {0}  In process: {1}  Fully backed up: {2}";
+
 		private void setBookBackupCounts(LibraryCommands.LibraryStats libraryStats)
 		{
-			var backupsCountsLbl_Format = "BACKUPS: No progress: {0}  In process: {1}  Fully backed up: {2}";
+			var pending = libraryStats.booksNoProgress + libraryStats.booksDownloadedOnly;
+			var hasResults = 0 < (libraryStats.booksFullyBackedUp + libraryStats.booksDownloadedOnly + libraryStats.booksNoProgress + libraryStats.booksError);
 
 			// enable/disable export
-			var hasResults = 0 < (libraryStats.booksFullyBackedUp + libraryStats.booksDownloadedOnly + libraryStats.booksNoProgress + libraryStats.booksError);
-			exportLibraryToolStripMenuItem.Enabled = hasResults;
+			{
+				exportLibraryToolStripMenuItem.Enabled = hasResults;
+			}
 
 			// update bottom numbers
-			var pending = libraryStats.booksNoProgress + libraryStats.booksDownloadedOnly;
-			var statusStripText
-				= !hasResults ? "No books. Begin by importing your library"
-				: libraryStats.booksError > 0 ? string.Format(backupsCountsLbl_Format + "  Errors: {3}", libraryStats.booksNoProgress, libraryStats.booksDownloadedOnly, libraryStats.booksFullyBackedUp, libraryStats.booksError)
-				: pending > 0 ? string.Format(backupsCountsLbl_Format, libraryStats.booksNoProgress, libraryStats.booksDownloadedOnly, libraryStats.booksFullyBackedUp)
-				: $"All {"book".PluralizeWithCount(libraryStats.booksFullyBackedUp)} backed up";
+			{
+				var formatString
+					= !hasResults ? "No books. Begin by importing your library"
+					: libraryStats.booksError > 0 ? backupsCountsLbl_Format + "  Errors: {3}"
+					: pending > 0 ? backupsCountsLbl_Format
+					: $"All {"book".PluralizeWithCount(libraryStats.booksFullyBackedUp)} backed up";
+				var statusStripText = string.Format(formatString,
+					libraryStats.booksNoProgress,
+					libraryStats.booksDownloadedOnly,
+					libraryStats.booksFullyBackedUp,
+					libraryStats.booksError);
+				statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = statusStripText);
+			}
 
-			// update menu item
-			var menuItemText
-				= pending > 0
-				? $"{pending} remaining"
-				: "All books have been liberated";
-
-			// update UI
-			statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = statusStripText);
-			menuStrip1.UIThreadAsync(() => beginBookBackupsToolStripMenuItem.Enabled = pending > 0);
-			menuStrip1.UIThreadAsync(() => beginBookBackupsToolStripMenuItem.Text = string.Format(beginBookBackupsToolStripMenuItem_format, menuItemText));
+			// update 'begin book backups' menu item
+			{
+				var menuItemText
+					= pending > 0
+					? $"{pending} remaining"
+					: "All books have been liberated";
+				menuStrip1.UIThreadAsync(() =>
+				{
+					beginBookBackupsToolStripMenuItem.Format(menuItemText);
+					beginBookBackupsToolStripMenuItem.Enabled = pending > 0;
+				});
+			}
 		}
 		private void setPdfBackupCounts(LibraryCommands.LibraryStats libraryStats)
 		{
-			var pdfsCountsLbl_Format = "|  PDFs: NOT d/l\'ed: {0}  Downloaded: {1}";
-
 			// update bottom numbers
-			var hasResults = 0 < (libraryStats.pdfsNotDownloaded + libraryStats.pdfsDownloaded);
-			var statusStripText
-				= !hasResults ? ""
-				: libraryStats.pdfsNotDownloaded > 0 ? string.Format(pdfsCountsLbl_Format, libraryStats.pdfsNotDownloaded, libraryStats.pdfsDownloaded)
-				: $"|  All {libraryStats.pdfsDownloaded} PDFs downloaded";
+			{
+				var hasResults = 0 < (libraryStats.pdfsNotDownloaded + libraryStats.pdfsDownloaded);
+				// don't need to assign the output of Format(). It just makes this logic cleaner
+				var statusStripText
+					= !hasResults ? ""
+					: libraryStats.pdfsNotDownloaded > 0 ? pdfsCountsLbl.Format(libraryStats.pdfsNotDownloaded, libraryStats.pdfsDownloaded)
+					: $"|  All {libraryStats.pdfsDownloaded} PDFs downloaded";
+				statusStrip1.UIThreadAsync(() => pdfsCountsLbl.Text = statusStripText);
+			}
 
-			// update menu item
-			var menuItemText
-				= libraryStats.pdfsNotDownloaded > 0
-				? $"{libraryStats.pdfsNotDownloaded} remaining"
-				: "All PDFs have been downloaded";
-
-			// update UI
-			statusStrip1.UIThreadAsync(() => pdfsCountsLbl.Text = statusStripText);
-			menuStrip1.UIThreadAsync(() => beginPdfBackupsToolStripMenuItem.Enabled = libraryStats.pdfsNotDownloaded > 0);
-			menuStrip1.UIThreadAsync(() => beginPdfBackupsToolStripMenuItem.Text = string.Format(beginPdfBackupsToolStripMenuItem_format, menuItemText));
+			// update 'begin pdf only backups' menu item
+			{
+				var menuItemText
+					= libraryStats.pdfsNotDownloaded > 0
+					? $"{libraryStats.pdfsNotDownloaded} remaining"
+					: "All PDFs have been downloaded";
+				menuStrip1.UIThreadAsync(() =>
+				{
+					beginPdfBackupsToolStripMenuItem.Format(menuItemText);
+					beginPdfBackupsToolStripMenuItem.Enabled = libraryStats.pdfsNotDownloaded > 0;
+				});
+			}
 		}
     }
 }
