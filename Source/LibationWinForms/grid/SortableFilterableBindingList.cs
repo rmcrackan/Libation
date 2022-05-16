@@ -9,7 +9,7 @@ namespace LibationWinForms
 {
 	/*
      * Allows filtering of the underlying SortableBindingList<GridEntry>
-     * by implementing IBindingListView aud using SearchEngineCommands 
+     * by implementing IBindingListView and using SearchEngineCommands 
      * 
      * When filtering is applied, the filtered-out items are removed
      * from the base list and added to the private FilterRemoved list.
@@ -93,12 +93,9 @@ namespace LibationWinForms
 		public void RemoveFilter()
 		{
 			if (FilterString is null) return;
-
+			
 			for (int i = 0; i < FilterRemoved.Count; i++)
-			{
-				Items.Insert(i, FilterRemoved[i]);
-				base.OnListChanged(new ListChangedEventArgs(ListChangedType.ItemAdded, i));
-			}
+				Insert(i, FilterRemoved[i]);
 
 			FilterRemoved.Clear();
 
