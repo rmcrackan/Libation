@@ -1,8 +1,5 @@
-﻿using ApplicationServices;
-using Dinah.Core.DataBinding;
-using System;
+﻿using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
