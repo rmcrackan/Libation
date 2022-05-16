@@ -10,22 +10,20 @@ namespace LibationWinForms
 {
 	public partial class Form1
 	{
-		private string visibleBooksToolStripMenuItem_format;
-		private string liberateVisibleToolStripMenuItem_format;
-		private string liberateVisible2ToolStripMenuItem_format;
-
 		protected void Configure_VisibleBooks()
 		{
+			// init formattable
+			visibleCountLbl.Format(0);
+			liberateVisibleToolStripMenuItem.Format(0);
+			liberateVisible2ToolStripMenuItem.Format(0);
+
 			// bottom-left visible count
-			productsGrid.VisibleCountChanged += (_, qty) => visibleCountLbl.Text = string.Format("Visible: {0}", qty);
+			productsGrid.VisibleCountChanged += (_, qty) => visibleCountLbl.Format(qty);
 
-			// back up string formats
-			visibleBooksToolStripMenuItem_format = visibleBooksToolStripMenuItem.Text;
-			liberateVisibleToolStripMenuItem_format = liberateVisibleToolStripMenuItem.Text;
-			liberateVisible2ToolStripMenuItem_format = liberateVisible2ToolStripMenuItem.Text;
-
+			// top menu strip
+			visibleBooksToolStripMenuItem.Format(0);
 			productsGrid.VisibleCountChanged += (_, qty) => {
-				visibleBooksToolStripMenuItem.Text = string.Format(visibleBooksToolStripMenuItem_format, qty);
+				visibleBooksToolStripMenuItem.Format(qty);
 				visibleBooksToolStripMenuItem.Enabled = qty > 0;
 
 				var notLiberatedCount = productsGrid.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
@@ -45,10 +43,10 @@ namespace LibationWinForms
 			{
 				if (notLiberated > 0)
 				{
-					liberateVisibleToolStripMenuItem.Text = string.Format(liberateVisibleToolStripMenuItem_format, notLiberated);
+					liberateVisibleToolStripMenuItem.Format(notLiberated);
 					liberateVisibleToolStripMenuItem.Enabled = true;
 
-					liberateVisible2ToolStripMenuItem.Text = string.Format(liberateVisible2ToolStripMenuItem_format, notLiberated);
+					liberateVisible2ToolStripMenuItem.Format(notLiberated);
 					liberateVisible2ToolStripMenuItem.Enabled = true;
 				}
 				else
