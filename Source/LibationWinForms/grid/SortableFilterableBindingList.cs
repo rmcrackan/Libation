@@ -17,8 +17,8 @@ namespace LibationWinForms
      * list. When filtering is removed, items in the FilterRemoved list
      * are added back to the base list.
      * 
-     * Remove and InsertItem are overridden to ensure that the current
-     * filter remains applied when items are removed/added to the list.
+     * Remove and InsertItem are overridden to ensure that the base
+     * list remains synchronized with the AllItems list.
      */
 	internal class SortableFilterableBindingList : SortableBindingList<GridEntry>, IBindingListView
 	{
