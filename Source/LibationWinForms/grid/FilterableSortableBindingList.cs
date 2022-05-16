@@ -26,14 +26,7 @@ namespace LibationWinForms
 		/// </summary>
 		private readonly List<GridEntry> FilterRemoved = new();
 		private string FilterString;
-		private Action Sort;
-		public FilterableSortableBindingList(IEnumerable<GridEntry> enumeration) : base(enumeration)
-		{
-			//This is only necessary because SortableBindingList doesn't expose Sort()
-			//You should make SortableBindingList.Sort protected and remove reflection
-			var method = typeof(SortableBindingList<GridEntry>).GetMethod("Sort", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-			Sort = method.CreateDelegate<Action>(this);
-		}
+		public FilterableSortableBindingList(IEnumerable<GridEntry> enumeration) : base(enumeration) { }
 
 		public bool SupportsFiltering => true;
 		public string Filter { get => FilterString; set => ApplyFilter(value); }
