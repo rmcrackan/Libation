@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,8 +56,6 @@ namespace LibationWinForms
 
 			EnableDoubleBuffering();
 
-			// sorting breaks filters. must reapply filters after sorting
-			_dataGridView.Sorted += reapplyFilter;
 			_dataGridView.CellContentClick += DataGridView_CellContentClick;
 
 			this.Load += ProductsGrid_Load;
@@ -184,14 +183,13 @@ namespace LibationWinForms
 			else
 				bindToGrid(orderedBooks);
 
-			// re-apply previous filter
-			reapplyFilter();
 
 			if (!hasBeenDisplayed)
 			{
 				hasBeenDisplayed = true;
 				InitialLoaded?.Invoke(this, new());
 			}
+
 		}
 
 		private void bindToGrid(List<DataLayer.LibraryBook> orderedBooks)
@@ -230,7 +228,6 @@ namespace LibationWinForms
 		private GridEntry toGridEntry(DataLayer.LibraryBook libraryBook)
 		{
 			var entry = new GridEntry(libraryBook);
-			entry.Committed += reapplyFilter;
 			// see also notes in Libation/Source/__ARCHITECTURE NOTES.txt :: MVVM
 			entry.LibraryBookUpdated += (sender, _) => _dataGridView.InvalidateRow(_dataGridView.GetRowIdOfBoundItem((GridEntry)sender));
 			return entry;
@@ -240,53 +237,26 @@ namespace LibationWinForms
 
 		#region Filter
 
-		private string _filterSearchString;
-		private void reapplyFilter(object _ = null, EventArgs __ = null) => Filter(_filterSearchString);
 		public void Filter(string searchString)
 		{
-			// empty string is valid. null is not
-			if (searchString is null)
-				return;
-
-			_filterSearchString = searchString;
-
 			if (_dataGridView.Rows.Count == 0)
 				return;
 
-			var initVisible = getVisible().Count();
+			if (string.IsNullOrEmpty(searchString))
+				gridEntryBindingSource.RemoveFilter();
+			else
+				gridEntryBindingSource.Filter = searchString;
 
-			var searchResults = SearchEngineCommands.Search(searchString);
-			var productIds = searchResults.Docs.Select(d => d.ProductId).ToList();
 
-			// https://stackoverflow.com/a/18942430
-			var bindingContext = BindingContext[_dataGridView.DataSource];
-			bindingContext.SuspendBinding();
-			{
-				this.UIThreadSync(() =>
-				{
-					for (var r = _dataGridView.RowCount - 1; r >= 0; r--)
-						_dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).AudibleProductId);
-				});
-			}
-
-			// Causes repainting of the DataGridView
-			bindingContext.ResumeBinding();
-
-			var endVisible = getVisible().Count();
-			if (initVisible != endVisible)
-				VisibleCountChanged?.Invoke(this, endVisible);
+			VisibleCountChanged?.Invoke(this, bindingList.Count);
 		}
 
 		#endregion
 
-		private IEnumerable<DataGridViewRow> getVisible()
-			=> _dataGridView
-			.AsEnumerable()
-			.Where(row => row.Visible);
-
-		internal List<DataLayer.LibraryBook> GetVisible()
-			=> getVisible()
-			.Select(row => ((GridEntry)row.DataBoundItem).LibraryBook)
+		internal List<LibraryBook> GetVisible()
+			=> bindingList
+			.InnerList
+			.Select(row => row.LibraryBook)
 			.ToList();
 
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);

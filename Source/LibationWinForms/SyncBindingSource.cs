@@ -1,5 +1,8 @@
-﻿using System;
+﻿using ApplicationServices;
+using Dinah.Core.DataBinding;
+using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -17,7 +20,34 @@ namespace LibationWinForms
         public SyncBindingSource(object dataSource, string dataMember) : base(dataSource, dataMember)
             => syncContext = SynchronizationContext.Current;
 
-        protected override void OnListChanged(ListChangedEventArgs e)
+        public override bool SupportsFiltering => true;
+        public override string Filter { get => filterString; set => SetFilter(value); }
+
+        private string filterString;
+
+        private void SetFilter(string searchString)
+		{
+            if (searchString != filterString)
+                RemoveFilter();
+
+            filterString = searchString;
+
+            var searchResults = SearchEngineCommands.Search(searchString);
+            var productIds = searchResults.Docs.Select(d => d.ProductId).ToList();
+
+
+            var allItems = ((SortableBindingList<GridEntry>)DataSource).InnerList;
+            var filterList = productIds.Join(allItems, s => s, ge => ge.AudibleProductId, (pid, ge) => ge).ToList();
+
+            ((SortableBindingList<GridEntry>)DataSource).SetFilteredItems(filterList);
+        }
+
+		public override void RemoveFilter()
+        {
+            ((SortableBindingList<GridEntry>)DataSource).RemoveFilter();
+            base.RemoveFilter();
+		}
+		protected override void OnListChanged(ListChangedEventArgs e)
         {
             if (syncContext is not null)
                 syncContext.Send(_ => base.OnListChanged(e), null);
