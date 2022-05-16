@@ -191,7 +191,7 @@ namespace LibationWinForms
 
 			//Add absent books to grid, or update current books
 
-			var allItmes = bindingList.AllItems;
+			var allItmes = bindingList.AllItems();
 			for (var i = dbBooks.Count - 1; i >= 0; i--)
 			{
 				var libraryBook = dbBooks[i];
@@ -216,7 +216,7 @@ namespace LibationWinForms
 			// note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
 			var removedBooks = 
 				bindingList
-				.AllItems
+				.AllItems()
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId)
 				.ToList();
 

@@ -58,7 +58,7 @@ namespace LibationWinForms
 			base.Remove(entry);
 		}
 
-		public List<GridEntry> AllItems => Items.Concat(FilterRemoved).ToList();
+		public List<GridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
 
 		private void ApplyFilter(string filterString)
 		{
