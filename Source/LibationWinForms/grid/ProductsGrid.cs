@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
-using Dinah.Core;
 using Dinah.Core.Windows.Forms;
 using FileLiberator;
 using LibationFileManager;
@@ -128,20 +127,6 @@ namespace LibationWinForms
 
 		private void Liberate_Click(GridEntry liveGridEntry)
 		{
-			var libraryBook = liveGridEntry.LibraryBook;
-
-			// liberated: open explorer to file
-			if (libraryBook.Book.Audio_Exists())
-			{
-				var filePath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
-				if (!Go.To.File(filePath))
-				{
-					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-					MessageBox.Show($"File not found" + suffix);
-				}
-				return;
-			}
-
 			LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 
@@ -207,7 +192,7 @@ namespace LibationWinForms
 
 			if (bindingList.Count != visibleCount)
 			{
-				//refilter for newly added items
+				//re-filter for newly added items
 				Filter(null);
 				Filter(existingFilter);
 			}

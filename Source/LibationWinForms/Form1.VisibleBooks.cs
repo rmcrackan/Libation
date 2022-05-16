@@ -61,7 +61,10 @@ namespace LibationWinForms
 		}
 
 		private async void liberateVisible(object sender, EventArgs e)
-			=> await Task.Run(() => processBookQueue1.AddDownloadDecrypt(productsGrid.GetVisible()));
+		{
+			SetQueueCollapseState(false);
+			await Task.Run(() => processBookQueue1.AddDownloadDecrypt(productsGrid.GetVisible()));
+		}
 
 		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
 		{

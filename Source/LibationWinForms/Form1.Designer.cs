@@ -73,7 +73,7 @@
 			this.addQuickFilterBtn = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.panel1 = new System.Windows.Forms.Panel();
-			this.hideQueueBtn = new System.Windows.Forms.Button();
+			this.toggleQueueHideBtn = new System.Windows.Forms.Button();
 			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessQueueControl();
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
@@ -462,7 +462,7 @@
 			// panel1
 			// 
 			this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.panel1.Controls.Add(this.hideQueueBtn);
+			this.panel1.Controls.Add(this.toggleQueueHideBtn);
 			this.panel1.Controls.Add(this.gridPanel);
 			this.panel1.Controls.Add(this.addQuickFilterBtn);
 			this.panel1.Controls.Add(this.filterHelpBtn);
@@ -477,15 +477,15 @@
 			// 
 			// hideQueueBtn
 			// 
-			this.hideQueueBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.hideQueueBtn.Location = new System.Drawing.Point(966, 4);
-			this.hideQueueBtn.Margin = new System.Windows.Forms.Padding(5, 4, 17, 4);
-			this.hideQueueBtn.Name = "hideQueueBtn";
-			this.hideQueueBtn.Size = new System.Drawing.Size(38, 36);
-			this.hideQueueBtn.TabIndex = 8;
-			this.hideQueueBtn.Text = "❰❰❰";
-			this.hideQueueBtn.UseVisualStyleBackColor = true;
-			this.hideQueueBtn.Click += new System.EventHandler(this.HideQueueBtn_Click);
+			this.toggleQueueHideBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.toggleQueueHideBtn.Location = new System.Drawing.Point(966, 4);
+			this.toggleQueueHideBtn.Margin = new System.Windows.Forms.Padding(5, 4, 17, 4);
+			this.toggleQueueHideBtn.Name = "hideQueueBtn";
+			this.toggleQueueHideBtn.Size = new System.Drawing.Size(38, 36);
+			this.toggleQueueHideBtn.TabIndex = 8;
+			this.toggleQueueHideBtn.Text = "❱❱❱";
+			this.toggleQueueHideBtn.UseVisualStyleBackColor = true;
+			this.toggleQueueHideBtn.Click += new System.EventHandler(this.ToggleQueueHideBtn_Click);
 			// 
 			// processBookQueue1
 			// 
@@ -571,6 +571,6 @@
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
-		private System.Windows.Forms.Button hideQueueBtn;
+		private System.Windows.Forms.Button toggleQueueHideBtn;
 	}
 }

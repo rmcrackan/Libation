@@ -42,6 +42,8 @@ namespace LibationWinForms.ProcessQueue
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
 		public ToolStripButton popoutBtn = new();
 
+		private System.Threading.SynchronizationContext syncContext { get; } = System.Threading.SynchronizationContext.Current;
+
 		public ProcessQueueControl()
 		{
 			InitializeComponent();
@@ -122,12 +124,13 @@ namespace LibationWinForms.ProcessQueue
 
 		private void AddToQueue(ProcessBook pbook)
 		{
-			BeginInvoke(() =>
+			syncContext.Post(_ =>
 			{
 				Queue.Enqueue(pbook);
 				if (!Running)
 					QueueRunner = QueueLoop();
-			});
+			}, 
+			null);			
 		}
 
 		DateTime StartintTime;
@@ -264,7 +267,7 @@ namespace LibationWinForms.ProcessQueue
 
 			var proc = Queue[queueIndex];
 
-			Panels[i].Invoke(() =>
+			syncContext.Send(_ =>
 			{
 				Panels[i].SuspendLayout();
 				if (propertyName is null || propertyName == nameof(proc.Cover))
@@ -285,7 +288,7 @@ namespace LibationWinForms.ProcessQueue
 				if (propertyName is null || propertyName == nameof(proc.TimeRemaining))
 					Panels[i].SetRemainingTime(proc.TimeRemaining);
 				Panels[i].ResumeLayout();
-			});
+			}, null);
 		}
 
 		private void UpdateAllControls()
