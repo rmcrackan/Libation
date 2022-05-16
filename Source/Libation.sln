@@ -5,9 +5,9 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{03C8835F-936C-4AF7-87AE-FF92BDBE8B9B}"
 	ProjectSection(SolutionItems) = preProject
-		__ARCHITECTURE NOTES.txt = __ARCHITECTURE NOTES.txt
 		__README - COLLABORATORS.txt = __README - COLLABORATORS.txt
 		__TODO.txt = __TODO.txt
+		_ARCHITECTURE NOTES.txt = _ARCHITECTURE NOTES.txt
 		_DB_NOTES.txt = _DB_NOTES.txt
 		REFERENCE.txt = REFERENCE.txt
 	EndProjectSection
