@@ -270,9 +270,9 @@ namespace LibationWinForms.ProcessQueue
 			syncContext.Send(_ =>
 			{
 				Panels[i].SuspendLayout();
-				if (propertyName is null || propertyName == nameof(proc.Cover))
+				if (propertyName is null or nameof(proc.Cover))
 					Panels[i].SetCover(proc.Cover);
-				if (propertyName is null || propertyName == nameof(proc.BookText))
+				if (propertyName is null or nameof(proc.BookText))
 					Panels[i].SetBookInfo(proc.BookText);
 
 				if (proc.Result != ProcessBookResult.None)
@@ -281,14 +281,15 @@ namespace LibationWinForms.ProcessQueue
 					return;
 				}
 
-				if (propertyName is null || propertyName == nameof(proc.Status))
+				if (propertyName is null or nameof(proc.Status))
 					Panels[i].SetStatus(proc.Status);
-				if (propertyName is null || propertyName == nameof(proc.Progress))
+				if (propertyName is null or nameof(proc.Progress))
 					Panels[i].SetProgrss(proc.Progress);
-				if (propertyName is null || propertyName == nameof(proc.TimeRemaining))
+				if (propertyName is null or nameof(proc.TimeRemaining))
 					Panels[i].SetRemainingTime(proc.TimeRemaining);
 				Panels[i].ResumeLayout();
-			}, null);
+			},
+			null);
 		}
 
 		private void UpdateAllControls()
