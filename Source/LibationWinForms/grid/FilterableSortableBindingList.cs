@@ -19,7 +19,7 @@ namespace LibationWinForms
      * Remove is overridden to ensure that removed items are removed from
      * the base list (visible items) as well as the FilterRemoved list.
      */
-	internal class SortableFilterableBindingList : SortableBindingList<GridEntry>, IBindingListView
+	internal class FilterableSortableBindingList : SortableBindingList<GridEntry>, IBindingListView
 	{
 		/// <summary>
 		/// Items that were removed from the list due to filtering
@@ -30,7 +30,7 @@ namespace LibationWinForms
 		/// </summary>
 		private string FilterString;
 		private Action Sort;
-		public SortableFilterableBindingList(IEnumerable<GridEntry> enumeration) : base(enumeration)
+		public FilterableSortableBindingList(IEnumerable<GridEntry> enumeration) : base(enumeration)
 		{
 			//This is only necessary because SortableBindingList doesn't expose Sort()
 			//You should make SortableBindingList.Sort protected and remove reflection

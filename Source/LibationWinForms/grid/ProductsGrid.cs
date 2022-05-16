@@ -156,7 +156,7 @@ namespace LibationWinForms
 
 		#region UI display functions
 
-		private SortableFilterableBindingList bindingList;
+		private FilterableSortableBindingList bindingList;
 
 		private bool hasBeenDisplayed;
 		public event EventHandler InitialLoaded;
@@ -180,7 +180,7 @@ namespace LibationWinForms
 
 		private void bindToGrid(List<LibraryBook> dbBooks)
 		{
-			bindingList = new SortableFilterableBindingList(dbBooks.OrderByDescending(lb => lb.DateAdded).Select(lb => new GridEntry(lb)));
+			bindingList = new FilterableSortableBindingList(dbBooks.OrderByDescending(lb => lb.DateAdded).Select(lb => new GridEntry(lb)));
 			gridEntryBindingSource.DataSource = bindingList;
 		}
 
