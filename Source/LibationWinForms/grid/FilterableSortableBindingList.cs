@@ -41,7 +41,7 @@ namespace LibationWinForms
 		#region Unused - Advanced Filtering
 		public bool SupportsAdvancedSorting => false;
 
-		//This ApplySort overload if only called is SupportsAdvancedSorting is true.
+		//This ApplySort overload is only called if SupportsAdvancedSorting is true.
 		//Otherwise BindingList.ApplySort() is used
 		public void ApplySort(ListSortDescriptionCollection sorts) => throw new NotImplementedException();
 
