@@ -66,19 +66,7 @@ namespace LibationWinForms
 		protected override void InsertItem(int index, GridEntry item)
 		{
 			AllItems.Insert(index, item);
-
-			if (FilterString is not null)
-			{
-				var searchResults = SearchEngineCommands.Search(FilterString);
-				//Decide if the new item matches the filter, and either insert it in the
-				//displayed items or the filtered out items list
-				if (searchResults.Docs.Any(d => d.ProductId == item.AudibleProductId))
-					base.InsertItem(index, item);
-				else
-					FilterRemoved.Add(item);
-			}
-			else
-				base.InsertItem(index, item);
+			base.InsertItem(index, item);
 		}
 
 		private void ApplyFilter(string filterString)
@@ -89,11 +77,11 @@ namespace LibationWinForms
 			FilterString = filterString;
 
 			var searchResults = SearchEngineCommands.Search(filterString);
-			var productIds = searchResults.Docs.Select(d => d.ProductId).ToList();
+			var filteredOut = Items.ExceptBy(searchResults.Docs.Select(d=>d.ProductId), ge=>ge.AudibleProductId);
 
 			for (int i = Items.Count - 1; i >= 0; i--)
 			{
-				if (!productIds.Contains(Items[i].AudibleProductId))
+				if (filteredOut.Contains(Items[i]))
 				{
 					FilterRemoved.Add(Items[i]);
 					Items.RemoveAt(i);

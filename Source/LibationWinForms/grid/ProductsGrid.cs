@@ -204,6 +204,11 @@ namespace LibationWinForms
 				else
 					existingItem.UpdateLibraryBook(libraryBook);
 			}
+			
+			//refilter for newly added items
+			string existingFilter = gridEntryBindingSource.Filter;
+			Filter(null);
+			Filter(existingFilter);
 
 			// remove deleted from grid.
 			// note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
