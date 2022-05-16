@@ -159,7 +159,7 @@ namespace LibationWinForms
 
 		#region UI display functions
 
-		private SortableBindingList<GridEntry> bindingList;
+		private SortableFilterableBindingList bindingList;
 
 		private bool hasBeenDisplayed;
 		public event EventHandler InitialLoaded;
@@ -168,69 +168,56 @@ namespace LibationWinForms
 			// don't return early if lib size == 0. this will not update correctly if all books are removed
 			var lib = DbContexts.GetLibrary_Flat_NoTracking();
 
-			var orderedBooks = lib
-				// default load order
-				.OrderByDescending(lb => lb.DateAdded)
-				//// more advanced example: sort by author, then series, then title
-				//.OrderBy(lb => lb.Book.AuthorNames)
-				//    .ThenBy(lb => lb.Book.SeriesSortable)
-				//    .ThenBy(lb => lb.Book.TitleSortable)
-				.ToList();
-
-			// bind
-			if (bindingList?.Count > 0)
-				updateGrid(orderedBooks);
-			else
-				bindToGrid(orderedBooks);
-
-
 			if (!hasBeenDisplayed)
 			{
+				// bind
+				bindToGrid(lib);
 				hasBeenDisplayed = true;
 				InitialLoaded?.Invoke(this, new());
+				VisibleCountChanged?.Invoke(this, bindingList.Count);
 			}
+			else
+				updateGrid(lib);
 
 		}
 
-		private void bindToGrid(List<DataLayer.LibraryBook> orderedBooks)
+		private void bindToGrid(List<LibraryBook> orderedBooks)
 		{
-			bindingList = new SortableBindingList<GridEntry>(orderedBooks.Select(lb => toGridEntry(lb)));
+			bindingList = new SortableFilterableBindingList(orderedBooks.OrderByDescending(lb => lb.DateAdded).Select(lb => new GridEntry(lb)));
 			gridEntryBindingSource.DataSource = bindingList;
 		}
 
-		private void updateGrid(List<DataLayer.LibraryBook> orderedBooks)
+		private void updateGrid(List<LibraryBook> dbBooks)
 		{
-			for (var i = orderedBooks.Count - 1; i >= 0; i--)
+			int visibleCount = bindingList.Count;
+
+			//Add absent books to grid, or update current books
+			for (var i = dbBooks.Count - 1; i >= 0; i--)
 			{
-				var libraryBook = orderedBooks[i];
-				var existingItem = bindingList.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
+				var libraryBook = dbBooks[i];
+				var existingItem = bindingList.AllItems.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
 
 				// add new to top
 				if (existingItem is null)
-					bindingList.Insert(0, toGridEntry(libraryBook));
+					bindingList.Insert(0, new GridEntry(libraryBook));
 				// update existing
 				else
 					existingItem.UpdateLibraryBook(libraryBook);
 			}
 
-			// remove deleted from grid. note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
-			var oldIds = bindingList.Select(ge => ge.AudibleProductId).ToList();
-			var newIds = orderedBooks.Select(lb => lb.Book.AudibleProductId).ToList();
-			var remove = oldIds.Except(newIds).ToList();
-			foreach (var id in remove)
-			{
-				var oldItem = bindingList.FirstOrDefault(ge => ge.AudibleProductId == id);
-				if (oldItem is not null)
-					bindingList.Remove(oldItem);
-			}
-		}
+			// remove deleted from grid.
+			// note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
+			var removedBooks = 
+				bindingList
+				.AllItems
+				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId)
+				.ToList();
 
-		private GridEntry toGridEntry(DataLayer.LibraryBook libraryBook)
-		{
-			var entry = new GridEntry(libraryBook);
-			// see also notes in Libation/Source/__ARCHITECTURE NOTES.txt :: MVVM
-			entry.LibraryBookUpdated += (sender, _) => _dataGridView.InvalidateRow(_dataGridView.GetRowIdOfBoundItem((GridEntry)sender));
-			return entry;
+			foreach (var removed in removedBooks)
+				bindingList.Remove(removed);
+
+			if (bindingList.Count != visibleCount)
+				VisibleCountChanged?.Invoke(this, bindingList.Count);
 		}
 
 		#endregion
@@ -239,23 +226,21 @@ namespace LibationWinForms
 
 		public void Filter(string searchString)
 		{
-			if (_dataGridView.Rows.Count == 0)
-				return;
+			int visibleCount = bindingList.Count;
 
 			if (string.IsNullOrEmpty(searchString))
 				gridEntryBindingSource.RemoveFilter();
 			else
 				gridEntryBindingSource.Filter = searchString;
 
-
-			VisibleCountChanged?.Invoke(this, bindingList.Count);
+			if (visibleCount != bindingList.Count)
+				VisibleCountChanged?.Invoke(this, bindingList.Count);
 		}
 
 		#endregion
 
 		internal List<LibraryBook> GetVisible()
 			=> bindingList
-			.InnerList
 			.Select(row => row.LibraryBook)
 			.ToList();
 
