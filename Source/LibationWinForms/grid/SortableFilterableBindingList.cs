@@ -13,12 +13,11 @@ namespace LibationWinForms
      * 
      * When filtering is applied, the filtered-out items are removed
      * from the base list and added to the private FilterRemoved list.
-     * All items, filtered or not, are stored in the private AllItems
-     * list. When filtering is removed, items in the FilterRemoved list
-     * are added back to the base list.
+     * When filtering is removed, items in the FilterRemoved list are
+     * added back to the base list.
      * 
-     * Remove and InsertItem are overridden to ensure that the base
-     * list remains synchronized with the AllItems list.
+     * Remove is overridden to ensure that removed items are removed from
+     * the base list (visible items) as well as the FilterRemoved list.
      */
 	internal class SortableFilterableBindingList : SortableBindingList<GridEntry>, IBindingListView
 	{
@@ -29,13 +28,10 @@ namespace LibationWinForms
 		/// <summary>
 		/// Tracks all items in the list, both filtered and not.
 		/// </summary>
-		public readonly List<GridEntry> AllItems;
 		private string FilterString;
 		private Action Sort;
 		public SortableFilterableBindingList(IEnumerable<GridEntry> enumeration) : base(enumeration)
 		{
-			AllItems = new List<GridEntry>(Items);
-
 			//This is only necessary because SortableBindingList doesn't expose Sort()
 			//You should make SortableBindingList.Sort protected and remove reflection
 			var method = typeof(SortableBindingList<GridEntry>).GetMethod("Sort", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -58,16 +54,11 @@ namespace LibationWinForms
 
 		public new void Remove(GridEntry entry)
 		{
-			AllItems.Remove(entry);
 			FilterRemoved.Remove(entry);
 			base.Remove(entry);
 		}
 
-		protected override void InsertItem(int index, GridEntry item)
-		{
-			AllItems.Insert(index, item);
-			base.InsertItem(index, item);
-		}
+		public List<GridEntry> AllItems => Items.Concat(FilterRemoved).ToList();
 
 		private void ApplyFilter(string filterString)
 		{
@@ -95,7 +86,7 @@ namespace LibationWinForms
 			if (FilterString is null) return;
 			
 			for (int i = 0; i < FilterRemoved.Count; i++)
-				Insert(i, FilterRemoved[i]);
+				base.InsertItem(i, FilterRemoved[i]);
 
 			FilterRemoved.Clear();
 
