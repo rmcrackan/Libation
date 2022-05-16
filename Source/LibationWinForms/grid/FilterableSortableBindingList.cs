@@ -22,12 +22,9 @@ namespace LibationWinForms
 	internal class FilterableSortableBindingList : SortableBindingList<GridEntry>, IBindingListView
 	{
 		/// <summary>
-		/// Items that were removed from the list due to filtering
+		/// Items that were removed from the base list due to filtering
 		/// </summary>
 		private readonly List<GridEntry> FilterRemoved = new();
-		/// <summary>
-		/// Tracks all items in the list, both filtered and not.
-		/// </summary>
 		private string FilterString;
 		private Action Sort;
 		public FilterableSortableBindingList(IEnumerable<GridEntry> enumeration) : base(enumeration)
@@ -44,8 +41,7 @@ namespace LibationWinForms
 		#region Unused - Advanced Filtering
 		public bool SupportsAdvancedSorting => false;
 
-
-		//This ApplySort overload is only called is SupportsAdvancedSorting is true.
+		//This ApplySort overload if only called is SupportsAdvancedSorting is true.
 		//Otherwise BindingList.ApplySort() is used
 		public void ApplySort(ListSortDescriptionCollection sorts) => throw new NotImplementedException();
 
@@ -58,6 +54,7 @@ namespace LibationWinForms
 			base.Remove(entry);
 		}
 
+		/// <returns>All items in the list, including those filtered out.</returns>
 		public List<GridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
 
 		private void ApplyFilter(string filterString)
@@ -68,7 +65,7 @@ namespace LibationWinForms
 			FilterString = filterString;
 
 			var searchResults = SearchEngineCommands.Search(filterString);
-			var filteredOut = Items.ExceptBy(searchResults.Docs.Select(d=>d.ProductId), ge=>ge.AudibleProductId);
+			var filteredOut = Items.ExceptBy(searchResults.Docs.Select(d => d.ProductId), ge => ge.AudibleProductId);
 
 			for (int i = Items.Count - 1; i >= 0; i--)
 			{
@@ -84,7 +81,7 @@ namespace LibationWinForms
 		public void RemoveFilter()
 		{
 			if (FilterString is null) return;
-			
+
 			for (int i = 0; i < FilterRemoved.Count; i++)
 				base.InsertItem(i, FilterRemoved[i]);
 
@@ -94,7 +91,7 @@ namespace LibationWinForms
 				Sort();
 			else
 				//No user-defined sort is applied, so do default sorting by date added, descending
-				((List<GridEntry>)Items).Sort((i1,i2) =>i2.LibraryBook.DateAdded.CompareTo(i1.LibraryBook.DateAdded));
+				((List<GridEntry>)Items).Sort((i1, i2) => i2.LibraryBook.DateAdded.CompareTo(i1.LibraryBook.DateAdded));
 
 			FilterString = null;
 		}
