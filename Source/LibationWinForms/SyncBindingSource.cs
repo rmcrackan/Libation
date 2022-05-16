@@ -21,20 +21,19 @@ namespace LibationWinForms
             => syncContext = SynchronizationContext.Current;
 
         public override bool SupportsFiltering => true;
-        public override string Filter { get => filterString; set => SetFilter(value); }
+        public override string Filter { get => FilterString; set => SetFilter(value); }
 
-        private string filterString;
+        private string FilterString;
 
-        private void SetFilter(string searchString)
+        private void SetFilter(string filterString)
 		{
-            if (searchString != filterString)
+            if (filterString != FilterString)
                 RemoveFilter();
 
-            filterString = searchString;
+            FilterString = filterString;
 
-            var searchResults = SearchEngineCommands.Search(searchString);
+            var searchResults = SearchEngineCommands.Search(filterString);
             var productIds = searchResults.Docs.Select(d => d.ProductId).ToList();
-
 
             var allItems = ((SortableBindingList<GridEntry>)DataSource).InnerList;
             var filterList = productIds.Join(allItems, s => s, ge => ge.AudibleProductId, (pid, ge) => ge).ToList();
