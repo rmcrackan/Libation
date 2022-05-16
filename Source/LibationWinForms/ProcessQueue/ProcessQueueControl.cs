@@ -255,6 +255,7 @@ namespace LibationWinForms.ProcessQueue
 		/// Updates the display of a single <see cref="ProcessBookControl"/> at <paramref name="queueIndex"/> within <see cref="Queue"/>
 		/// </summary>
 		/// <param name="queueIndex">index of the <see cref="ProcessBook"/> within the <see cref="Queue"/></param>
+		/// <param name="propertyName">The nme of the property that needs updating. If null, all properties are updated.</param>
 		private void UpdateControl(int queueIndex, string propertyName = null)
 		{
 			int i = queueIndex - FirstVisible;
