@@ -190,10 +190,12 @@ namespace LibationWinForms
 			string existingFilter = gridEntryBindingSource.Filter;
 
 			//Add absent books to grid, or update current books
+
+			var allItmes = bindingList.AllItems;
 			for (var i = dbBooks.Count - 1; i >= 0; i--)
 			{
 				var libraryBook = dbBooks[i];
-				var existingItem = bindingList.AllItems.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
+				var existingItem = allItmes.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
 
 				// add new to top
 				if (existingItem is null)
