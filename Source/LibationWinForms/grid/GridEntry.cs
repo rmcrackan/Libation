@@ -76,9 +76,6 @@ namespace LibationWinForms
 		}
 		#endregion
 
-		public event EventHandler LibraryBookUpdated;
-		public event EventHandler Committed;
-
 		// alias
 		private Book Book => LibraryBook.Book;
 
@@ -90,6 +87,8 @@ namespace LibationWinForms
 				throw new Exception("Invalid grid entry update. IDs must match");
 
 			setLibraryBook(libraryBook);
+
+			NotifyPropertyChanged();
 		}
 
 		private void setLibraryBook(LibraryBook libraryBook)
@@ -125,9 +124,6 @@ namespace LibationWinForms
 			}
 
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
-
-			// this will never have a value when triggered by ctor b/c nothing can subscribe to the event until after ctor is complete
-			LibraryBookUpdated?.Invoke(this, null);
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
@@ -189,9 +185,6 @@ namespace LibationWinForms
 			Book.UserDefinedItem.BookStatus = bookStatus;
 			Book.UserDefinedItem.PdfStatus = pdfStatus;
 			LibraryCommands.UpdateUserDefinedItem(Book);
-
-			// notify
-			Committed?.Invoke(this, null);
 		}
 
 		#endregion
