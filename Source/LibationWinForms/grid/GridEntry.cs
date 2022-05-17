@@ -160,10 +160,12 @@ namespace LibationWinForms
 					break;
 				case nameof(udi.BookStatus):
 					Book.UserDefinedItem.BookStatus = udi.BookStatus;
+					_bookStatus = udi.BookStatus;
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
 				case nameof(udi.PdfStatus):
 					Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
+					_pdfStatus = udi.PdfStatus;
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
 			}

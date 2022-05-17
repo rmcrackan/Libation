@@ -42,6 +42,8 @@ namespace LibationWinForms.ProcessQueue
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
 		public ToolStripButton popoutBtn = new();
 
+		private System.Threading.SynchronizationContext syncContext { get; } = System.Threading.SynchronizationContext.Current;
+
 		public ProcessQueueControl()
 		{
 			InitializeComponent();
@@ -122,12 +124,13 @@ namespace LibationWinForms.ProcessQueue
 
 		private void AddToQueue(ProcessBook pbook)
 		{
-			BeginInvoke(() =>
+			syncContext.Post(_ =>
 			{
 				Queue.Enqueue(pbook);
 				if (!Running)
 					QueueRunner = QueueLoop();
-			});
+			}, 
+			null);			
 		}
 
 		DateTime StartintTime;
@@ -255,6 +258,7 @@ namespace LibationWinForms.ProcessQueue
 		/// Updates the display of a single <see cref="ProcessBookControl"/> at <paramref name="queueIndex"/> within <see cref="Queue"/>
 		/// </summary>
 		/// <param name="queueIndex">index of the <see cref="ProcessBook"/> within the <see cref="Queue"/></param>
+		/// <param name="propertyName">The nme of the property that needs updating. If null, all properties are updated.</param>
 		private void UpdateControl(int queueIndex, string propertyName = null)
 		{
 			int i = queueIndex - FirstVisible;
@@ -263,12 +267,12 @@ namespace LibationWinForms.ProcessQueue
 
 			var proc = Queue[queueIndex];
 
-			Panels[i].Invoke(() =>
+			syncContext.Send(_ =>
 			{
 				Panels[i].SuspendLayout();
-				if (propertyName is null || propertyName == nameof(proc.Cover))
+				if (propertyName is null or nameof(proc.Cover))
 					Panels[i].SetCover(proc.Cover);
-				if (propertyName is null || propertyName == nameof(proc.BookText))
+				if (propertyName is null or nameof(proc.BookText))
 					Panels[i].SetBookInfo(proc.BookText);
 
 				if (proc.Result != ProcessBookResult.None)
@@ -277,14 +281,15 @@ namespace LibationWinForms.ProcessQueue
 					return;
 				}
 
-				if (propertyName is null || propertyName == nameof(proc.Status))
+				if (propertyName is null or nameof(proc.Status))
 					Panels[i].SetStatus(proc.Status);
-				if (propertyName is null || propertyName == nameof(proc.Progress))
+				if (propertyName is null or nameof(proc.Progress))
 					Panels[i].SetProgrss(proc.Progress);
-				if (propertyName is null || propertyName == nameof(proc.TimeRemaining))
+				if (propertyName is null or nameof(proc.TimeRemaining))
 					Panels[i].SetRemainingTime(proc.TimeRemaining);
 				Panels[i].ResumeLayout();
-			});
+			},
+			null);
 		}
 
 		private void UpdateAllControls()

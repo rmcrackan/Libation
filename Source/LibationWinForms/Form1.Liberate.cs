@@ -11,12 +11,18 @@ namespace LibationWinForms
 
 		//GetLibrary_Flat_NoTracking() may take a long time on a hugh library. so run in new thread 
 		private async void beginBookBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-			=> await Task.Run(() => processBookQueue1.AddDownloadDecrypt(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
+		{
+			SetQueueCollapseState(false);
+			await Task.Run(() => processBookQueue1.AddDownloadDecrypt(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
 				.Where(lb => lb.Book.UserDefinedItem.PdfStatus is DataLayer.LiberatedStatus.NotLiberated || lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.NotLiberated)));
+		}
 
 		private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-			=> await Task.Run(() => processBookQueue1.AddDownloadPdf(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
-				.Where(lb => lb.Book.UserDefinedItem.PdfStatus is DataLayer.LiberatedStatus.NotLiberated)));
+		{
+			SetQueueCollapseState(false);
+			await Task.Run(() => processBookQueue1.AddDownloadPdf(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
+				  .Where(lb => lb.Book.UserDefinedItem.PdfStatus is DataLayer.LiberatedStatus.NotLiberated)));
+		}
 
 		private async void convertAllM4bToMp3ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -29,8 +35,11 @@ namespace LibationWinForms
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Warning);
 			if (result == DialogResult.Yes)
+			{
+				SetQueueCollapseState(false);
 				await Task.Run(() => processBookQueue1.AddConvertMp3(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
-					.Where(lb=>lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.Liberated)));
+					.Where(lb => lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.Liberated)));
+			}
 			//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.
 		}
 	}

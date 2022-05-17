@@ -2,30 +2,48 @@
 using System.Windows.Forms;
 using Dinah.Core.Net.Http;
 using Dinah.Core.Threading;
-using LibationWinForms.BookLiberation.BaseForms;
+using FileLiberator;
 
 namespace LibationWinForms.BookLiberation
 {
-	public partial class DownloadForm : LiberationBaseForm
+	public partial class DownloadForm : Form
 	{
+		protected Streamable Streamable { get; private set; }
+		protected LogMe LogMe { get; private set; }
+		private SynchronizeInvoker Invoker { get; init; }
+
 		public DownloadForm()
 		{
+			//SynchronizationContext.Current will be null until the process contains a Form.
+			//If this is the first form created, it will not exist until after execution
+			//reaches inside the constructor (after base class has been initialized).
+			Invoker = new SynchronizeInvoker();
 			InitializeComponent();
 
+			this.SetLibationIcon();
 			progressLbl.Text = "";
 			filenameLbl.Text = "";
 		}
 
+		public void RegisterFileLiberator(Streamable streamable, LogMe logMe = null)
+		{
+			if (streamable is null) return;
+			streamable.StreamingBegin += Streamable_StreamingBegin;
+			streamable.StreamingProgressChanged += Streamable_StreamingProgressChanged;
+			streamable.StreamingCompleted += (_, _) => this.UIThreadAsync(Close);
+			Streamable = streamable;
+			LogMe = logMe;
+		}
+
 
 		#region Streamable event handler overrides
-		public override void Streamable_StreamingBegin(object sender, string beginString)
+		public void Streamable_StreamingBegin(object sender, string beginString)
 		{
-			base.Streamable_StreamingBegin(sender, beginString);
+			Invoker.UIThreadAsync(Show);
 			filenameLbl.UIThreadAsync(() => filenameLbl.Text = beginString);
 		}
-		public override void Streamable_StreamingProgressChanged(object sender, DownloadProgress downloadProgress)
+		public void Streamable_StreamingProgressChanged(object sender, DownloadProgress downloadProgress)
 		{
-			base.Streamable_StreamingProgressChanged(sender, downloadProgress);
 			// this won't happen with download file. it will happen with download string
 			if (!downloadProgress.TotalBytesToReceive.HasValue || downloadProgress.TotalBytesToReceive.Value <= 0)
 				return;

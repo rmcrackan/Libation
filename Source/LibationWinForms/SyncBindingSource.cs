@@ -17,7 +17,9 @@ namespace LibationWinForms
         public SyncBindingSource(object dataSource, string dataMember) : base(dataSource, dataMember)
             => syncContext = SynchronizationContext.Current;
 
-        protected override void OnListChanged(ListChangedEventArgs e)
+        public override bool SupportsFiltering => true;
+
+		protected override void OnListChanged(ListChangedEventArgs e)
         {
             if (syncContext is not null)
                 syncContext.Send(_ => base.OnListChanged(e), null);

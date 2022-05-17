@@ -6,9 +6,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
-using Dinah.Core;
-using Dinah.Core.DataBinding;
-using Dinah.Core.Threading;
 using Dinah.Core.Windows.Forms;
 using FileLiberator;
 using LibationFileManager;
@@ -55,8 +52,6 @@ namespace LibationWinForms
 
 			EnableDoubleBuffering();
 
-			// sorting breaks filters. must reapply filters after sorting
-			_dataGridView.Sorted += reapplyFilter;
 			_dataGridView.CellContentClick += DataGridView_CellContentClick;
 
 			this.Load += ProductsGrid_Load;
@@ -132,20 +127,6 @@ namespace LibationWinForms
 
 		private void Liberate_Click(GridEntry liveGridEntry)
 		{
-			var libraryBook = liveGridEntry.LibraryBook;
-
-			// liberated: open explorer to file
-			if (libraryBook.Book.Audio_Exists())
-			{
-				var filePath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
-				if (!Go.To.File(filePath))
-				{
-					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-					MessageBox.Show($"File not found" + suffix);
-				}
-				return;
-			}
-
 			LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 
@@ -160,7 +141,7 @@ namespace LibationWinForms
 
 		#region UI display functions
 
-		private SortableBindingList<GridEntry> bindingList;
+		private FilterableSortableBindingList bindingList;
 
 		private bool hasBeenDisplayed;
 		public event EventHandler InitialLoaded;
@@ -169,124 +150,91 @@ namespace LibationWinForms
 			// don't return early if lib size == 0. this will not update correctly if all books are removed
 			var lib = DbContexts.GetLibrary_Flat_NoTracking();
 
-			var orderedBooks = lib
-				// default load order
-				.OrderByDescending(lb => lb.DateAdded)
-				//// more advanced example: sort by author, then series, then title
-				//.OrderBy(lb => lb.Book.AuthorNames)
-				//    .ThenBy(lb => lb.Book.SeriesSortable)
-				//    .ThenBy(lb => lb.Book.TitleSortable)
-				.ToList();
-
-			// bind
-			if (bindingList?.Count > 0)
-				updateGrid(orderedBooks);
-			else
-				bindToGrid(orderedBooks);
-
-			// re-apply previous filter
-			reapplyFilter();
-
 			if (!hasBeenDisplayed)
 			{
+				// bind
+				bindToGrid(lib);
 				hasBeenDisplayed = true;
 				InitialLoaded?.Invoke(this, new());
+				VisibleCountChanged?.Invoke(this, bindingList.Count);
 			}
+			else
+				updateGrid(lib);
+
 		}
 
-		private void bindToGrid(List<DataLayer.LibraryBook> orderedBooks)
+		private void bindToGrid(List<LibraryBook> dbBooks)
 		{
-			bindingList = new SortableBindingList<GridEntry>(orderedBooks.Select(lb => toGridEntry(lb)));
+			bindingList = new FilterableSortableBindingList(dbBooks.OrderByDescending(lb => lb.DateAdded).Select(lb => new GridEntry(lb)));
 			gridEntryBindingSource.DataSource = bindingList;
 		}
 
-		private void updateGrid(List<DataLayer.LibraryBook> orderedBooks)
+		private void updateGrid(List<LibraryBook> dbBooks)
 		{
-			for (var i = orderedBooks.Count - 1; i >= 0; i--)
+			int visibleCount = bindingList.Count;
+			string existingFilter = gridEntryBindingSource.Filter;
+
+			//Add absent books to grid, or update current books
+
+			var allItmes = bindingList.AllItems();
+			for (var i = dbBooks.Count - 1; i >= 0; i--)
 			{
-				var libraryBook = orderedBooks[i];
-				var existingItem = bindingList.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
+				var libraryBook = dbBooks[i];
+				var existingItem = allItmes.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
 
 				// add new to top
 				if (existingItem is null)
-					bindingList.Insert(0, toGridEntry(libraryBook));
+					bindingList.Insert(0, new GridEntry(libraryBook));
 				// update existing
 				else
 					existingItem.UpdateLibraryBook(libraryBook);
 			}
 
-			// remove deleted from grid. note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
-			var oldIds = bindingList.Select(ge => ge.AudibleProductId).ToList();
-			var newIds = orderedBooks.Select(lb => lb.Book.AudibleProductId).ToList();
-			var remove = oldIds.Except(newIds).ToList();
-			foreach (var id in remove)
+			if (bindingList.Count != visibleCount)
 			{
-				var oldItem = bindingList.FirstOrDefault(ge => ge.AudibleProductId == id);
-				if (oldItem is not null)
-					bindingList.Remove(oldItem);
+				//re-filter for newly added items
+				Filter(null);
+				Filter(existingFilter);
 			}
-		}
 
-		private GridEntry toGridEntry(DataLayer.LibraryBook libraryBook)
-		{
-			var entry = new GridEntry(libraryBook);
-			entry.Committed += reapplyFilter;
-			// see also notes in Libation/Source/__ARCHITECTURE NOTES.txt :: MVVM
-			entry.LibraryBookUpdated += (sender, _) => _dataGridView.InvalidateRow(_dataGridView.GetRowIdOfBoundItem((GridEntry)sender));
-			return entry;
+			// remove deleted from grid.
+			// note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
+			var removedBooks = 
+				bindingList
+				.AllItems()
+				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId)
+				.ToList();
+
+			foreach (var removed in removedBooks)
+				//no need to re-filter for removed books
+				bindingList.Remove(removed);
+
+			if (bindingList.Count != visibleCount)
+				VisibleCountChanged?.Invoke(this, bindingList.Count);
 		}
 
 		#endregion
 
 		#region Filter
 
-		private string _filterSearchString;
-		private void reapplyFilter(object _ = null, EventArgs __ = null) => Filter(_filterSearchString);
 		public void Filter(string searchString)
 		{
-			// empty string is valid. null is not
-			if (searchString is null)
-				return;
+			int visibleCount = bindingList.Count;
 
-			_filterSearchString = searchString;
+			if (string.IsNullOrEmpty(searchString))
+				gridEntryBindingSource.RemoveFilter();
+			else
+				gridEntryBindingSource.Filter = searchString;
 
-			if (_dataGridView.Rows.Count == 0)
-				return;
-
-			var initVisible = getVisible().Count();
-
-			var searchResults = SearchEngineCommands.Search(searchString);
-			var productIds = searchResults.Docs.Select(d => d.ProductId).ToList();
-
-			// https://stackoverflow.com/a/18942430
-			var bindingContext = BindingContext[_dataGridView.DataSource];
-			bindingContext.SuspendBinding();
-			{
-				this.UIThreadSync(() =>
-				{
-					for (var r = _dataGridView.RowCount - 1; r >= 0; r--)
-						_dataGridView.Rows[r].Visible = productIds.Contains(getGridEntry(r).AudibleProductId);
-				});
-			}
-
-			// Causes repainting of the DataGridView
-			bindingContext.ResumeBinding();
-
-			var endVisible = getVisible().Count();
-			if (initVisible != endVisible)
-				VisibleCountChanged?.Invoke(this, endVisible);
+			if (visibleCount != bindingList.Count)
+				VisibleCountChanged?.Invoke(this, bindingList.Count);
 		}
 
 		#endregion
 
-		private IEnumerable<DataGridViewRow> getVisible()
-			=> _dataGridView
-			.AsEnumerable()
-			.Where(row => row.Visible);
-
-		internal List<DataLayer.LibraryBook> GetVisible()
-			=> getVisible()
-			.Select(row => ((GridEntry)row.DataBoundItem).LibraryBook)
+		internal List<LibraryBook> GetVisible()
+			=> bindingList
+			.Select(row => row.LibraryBook)
 			.ToList();
 
 		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
