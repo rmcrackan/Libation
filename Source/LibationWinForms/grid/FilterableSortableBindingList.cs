@@ -75,8 +75,10 @@ namespace LibationWinForms
 		{
 			if (FilterString is null) return;
 
+			int visibleCount = Items.Count;
 			for (int i = 0; i < FilterRemoved.Count; i++)
-				base.InsertItem(i, FilterRemoved[i]);
+				base.InsertItem(i + visibleCount, FilterRemoved[i]);
+			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
 
 			FilterRemoved.Clear();
 
