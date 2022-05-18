@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Version>7.6.1.1</Version>
+    <Version>7.6.2.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
