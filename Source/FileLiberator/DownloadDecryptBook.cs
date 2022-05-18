@@ -72,7 +72,7 @@ namespace FileLiberator
                 }
 
                 // moves new files from temp dir to final dest.
-                // This could take a few seconds i moving hundreds of files.
+                // This could take a few seconds if moving hundreds of files.
                 var movedAudioFile = await Task.Run(() => moveFilesToBooksDir(libraryBook, entries));
 
                 // decrypt failed
