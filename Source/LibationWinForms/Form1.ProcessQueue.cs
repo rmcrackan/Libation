@@ -23,18 +23,7 @@ namespace LibationWinForms
 
 		private void ProductsGrid_LiberateClicked(object sender, LibraryBook e)
 		{
-			if (e.Book.Audio_Exists())
-			{
-				// liberated: open explorer to file
-				var filePath = AudibleFileStorage.Audio.GetPath(e.Book.AudibleProductId);
-				if (!Go.To.File(filePath))
-				{
-					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-					MessageBox.Show($"File not found" + suffix);
-				}
-				return;
-			}
-			else if (e.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated)
+			if (e.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated)
 			{
 				SetQueueCollapseState(false);
 				processBookQueue1.AddDownloadDecrypt(e);
@@ -44,7 +33,16 @@ namespace LibationWinForms
 				SetQueueCollapseState(false);
 				processBookQueue1.AddDownloadPdf(e);
 			}
-			
+			else if (e.Book.Audio_Exists())
+			{
+				// liberated: open explorer to file
+				var filePath = AudibleFileStorage.Audio.GetPath(e.Book.AudibleProductId);
+				if (!Go.To.File(filePath))
+				{
+					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
+					MessageBox.Show($"File not found" + suffix);
+				}
+			}
 		}
 
 		private void SetQueueCollapseState(bool collapsed)
