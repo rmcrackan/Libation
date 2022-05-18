@@ -21,7 +21,6 @@ namespace LibationWinForms.Dialogs
 
 		private void convertFormatRb_CheckedChanged(object sender, EventArgs e)
 		{
-			lameOptionsGb.Enabled = convertLossyRb.Checked;
 			lameTargetRb_CheckedChanged(sender, e);
 			LameMatchSourceBRCbox_CheckedChanged(sender, e);
 		}
