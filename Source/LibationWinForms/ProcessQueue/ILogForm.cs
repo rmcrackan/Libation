@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LibationWinForms.BookLiberation
+namespace LibationWinForms.ProcessQueue
 {
 	public interface ILogForm
 	{

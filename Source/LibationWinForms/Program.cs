@@ -188,18 +188,25 @@ namespace LibationWinForms
 				return;
 			}
 
-			var result = MessageBox.Show($"New version available @ {htmlUrl}\r\nDownload the zip file?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+			var result = MessageBox.Show($"New version available @ {htmlUrl}\r\n\r\nWould you like to upgrade?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 			if (result != DialogResult.Yes)
 				return;
 
 			try
 			{
-				using var fileSelector = new SaveFileDialog { FileName = zipName, Filter = "Zip Files (*.zip)|*.zip|All files (*.*)|*.*" };
-				if (fileSelector.ShowDialog() != DialogResult.OK)
-					return;
-				var selectedPath = fileSelector.FileName;
+				//Download the upgrader app from github
+				string fileName = "ht" + "tps://github.com/Mbucari/Upgrader/raw/master/Upgrader/win-x86/Upgrader.exe";
+				var cli = new System.Net.Http.HttpClient();
+				var upgrader = cli.GetByteArrayAsync(fileName).GetAwaiter().GetResult();
 
-				BookLiberation.ProcessorAutomationController.DownloadFile(zipUrl, selectedPath, true);
+
+				string upgraderPath = Path.Combine(Path.GetTempPath(), "Upgrader.exe");
+				File.WriteAllBytes(upgraderPath, upgrader);
+				var thisExe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+
+				//usage is Upgrader.exe [zip url] [extract directory] [exe to launch]
+				System.Diagnostics.Process.Start(upgraderPath, new string[] { zipUrl, Path.GetDirectoryName(thisExe), "Libation.exe" });
+				Environment.Exit(0);
 			}
 			catch (Exception ex)
 			{
