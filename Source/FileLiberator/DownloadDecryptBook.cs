@@ -71,8 +71,9 @@ namespace FileLiberator
                         new StatusHandler { "Decrypt failed" };
                 }
 
-                // moves new files from temp dir to final dest
-                var movedAudioFile = moveFilesToBooksDir(libraryBook, entries);
+                // moves new files from temp dir to final dest.
+                // This could take a few seconds if moving hundreds of files.
+                var movedAudioFile = await Task.Run(() => moveFilesToBooksDir(libraryBook, entries));
 
                 // decrypt failed
                 if (!movedAudioFile)
