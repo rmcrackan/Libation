@@ -2,7 +2,6 @@
 using Dinah.Core;
 using FileLiberator;
 using LibationFileManager;
-using LibationWinForms.BookLiberation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
