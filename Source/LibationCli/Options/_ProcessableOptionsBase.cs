@@ -9,7 +9,6 @@ using FileLiberator;
 
 namespace LibationCli
 {
-	// streamlined, non-Forms copy of ProcessorAutomationController
 	public abstract class ProcessableOptionsBase : OptionsBase
 	{
 		protected static TProcessable CreateProcessable<TProcessable>(EventHandler<LibraryBook> completedAction = null)

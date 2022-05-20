@@ -282,22 +282,20 @@ namespace AppScaffolding
 			});
 		}
 
-		public static (bool hasUpgrade, string zipUrl, string htmlUrl, string zipName) GetLatestRelease()
+		public static UpgradeProperties GetLatestRelease()
 		{
-			(bool, string, string, string) isFalse = (false, null, null, null);
-
 			// timed out
 			var latest = getLatestRelease(TimeSpan.FromSeconds(10));
 			if (latest is null)
-				return isFalse;
+				return null;
 
 			var latestVersionString = latest.TagName.Trim('v');
 			if (!Version.TryParse(latestVersionString, out var latestRelease))
-				return isFalse;
+				return null;
 
 			// we're up to date
 			if (latestRelease <= BuildVersion)
-				return isFalse;
+				return null;
 
 			// we have an update
 			var zip = latest.Assets.FirstOrDefault(a => a.BrowserDownloadUrl.EndsWith(".zip"));
@@ -310,7 +308,7 @@ namespace AppScaffolding
 				zipUrl
 			});
 
-			return (true, zipUrl, latest.HtmlUrl, zip.Name);
+			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease);
 		}
 		private static Octokit.Release getLatestRelease(TimeSpan timeout)
 		{

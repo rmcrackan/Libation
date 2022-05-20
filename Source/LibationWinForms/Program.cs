@@ -3,14 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using AudibleApi.Authorization;
-using AudibleUtilities;
-using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using Serilog;
 
 namespace LibationWinForms
@@ -165,15 +160,12 @@ namespace LibationWinForms
 
 		private static void checkForUpdate()
 		{
-			string zipUrl;
-			string htmlUrl;
-			string zipName;
+			AppScaffolding.UpgradeProperties upgradeProperties;
+
 			try
 			{
-				bool hasUpgrade;
-				(hasUpgrade, zipUrl, htmlUrl, zipName) = AppScaffolding.LibationScaffolding.GetLatestRelease();
-
-				if (!hasUpgrade)
+                upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease();
+				if (upgradeProperties is null)
 					return;
 			}
 			catch (Exception ex)
@@ -182,36 +174,13 @@ namespace LibationWinForms
 				return;
 			}
 
-			if (zipUrl is null)
+			if (upgradeProperties.ZipUrl is null)
 			{
-				MessageBox.Show(htmlUrl, "New version available");
+				MessageBox.Show(upgradeProperties.HtmlUrl, "New version available");
 				return;
 			}
 
-			var result = MessageBox.Show($"New version available @ {htmlUrl}\r\n\r\nWould you like to upgrade?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-			if (result != DialogResult.Yes)
-				return;
-
-			try
-			{
-				//Download the upgrader app from github
-				string fileName = "ht" + "tps://github.com/Mbucari/Upgrader/raw/master/Upgrader/win-x86/Upgrader.exe";
-				var cli = new System.Net.Http.HttpClient();
-				var upgrader = cli.GetByteArrayAsync(fileName).GetAwaiter().GetResult();
-
-
-				string upgraderPath = Path.Combine(Path.GetTempPath(), "Upgrader.exe");
-				File.WriteAllBytes(upgraderPath, upgrader);
-				var thisExe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-
-				//usage is Upgrader.exe [zip url] [extract directory] [exe to launch]
-				System.Diagnostics.Process.Start(upgraderPath, new string[] { zipUrl, Path.GetDirectoryName(thisExe), "Libation.exe" });
-				Environment.Exit(0);
-			}
-			catch (Exception ex)
-			{
-				MessageBoxLib.ShowAdminAlert("Error downloading update", "Error downloading update", ex);
-			}
+			Updater.Run(upgradeProperties.LatestRelease, upgradeProperties.ZipUrl);
 		}
 	}
 }

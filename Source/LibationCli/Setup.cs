@@ -34,15 +34,15 @@ namespace LibationCli
 
 		private static void checkForUpdate()
 		{
-			var (hasUpgrade, zipUrl, htmlUrl, zipName) = LibationScaffolding.GetLatestRelease();
-			if (!hasUpgrade)
+			var upgradeProperties = LibationScaffolding.GetLatestRelease();
+			if (upgradeProperties is null)
 				return;
 
 			var origColor = Console.ForegroundColor;
 			try
 			{
 				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine($"UPDATE AVAILABLE @ {zipUrl}");
+				Console.WriteLine($"UPDATE AVAILABLE @ {upgradeProperties.ZipUrl}");
 			}
 			finally
 			{

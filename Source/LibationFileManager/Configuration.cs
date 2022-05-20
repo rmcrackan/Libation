@@ -421,7 +421,7 @@ namespace LibationFileManager
                     return libationFilesPathCache;
 
                 // FIRST: must write here before SettingsFilePath in next step reads cache
-                libationFilesPathCache = getLiberationFilesSettingFromJson();
+                libationFilesPathCache = getLibationFilesSettingFromJson();
 
                 // SECOND. before setting to json file with SetWithJsonPath, PersistentDictionary must exist
                 persistentDictionary = new PersistentDictionary(SettingsFilePath);
@@ -443,7 +443,7 @@ namespace LibationFileManager
 
         private static string libationFilesPathCache;
 
-        private string getLiberationFilesSettingFromJson()
+        private string getLibationFilesSettingFromJson()
         {
             string startingContents = null;
             try
@@ -481,6 +481,14 @@ namespace LibationFileManager
         public void SetLibationFiles(string directory)
         {
             libationFilesPathCache = null;
+
+            // ensure exists
+            if (!File.Exists(APPSETTINGS_JSON))
+            {
+                // getter creates new file, loads PersistentDictionary
+                var _ = LibationFiles;
+                System.Threading.Thread.Sleep(100);
+            }
 
             var startingContents = File.ReadAllText(APPSETTINGS_JSON);
             var jObj = JObject.Parse(startingContents);
