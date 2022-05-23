@@ -15,6 +15,7 @@ namespace LibationWinForms
 		public SortableBindingList1() : base(new List<T>()) { }
 		public SortableBindingList1(IEnumerable<T> enumeration) : base(new List<T>(enumeration)) { }
 
+		protected bool SuspendSorting { get; set; }
 		protected MemberComparer<T> Comparer { get; } = new();
 		protected override bool SupportsSortingCore => true;
 		protected override bool SupportsSearchingCore => true;
@@ -60,7 +61,7 @@ namespace LibationWinForms
 
 		protected override void OnListChanged(ListChangedEventArgs e)
 		{
-			if (isSorted &&
+			if (isSorted && !SuspendSorting &&
 				((e.ListChangedType == ListChangedType.ItemChanged && e.PropertyDescriptor == SortPropertyCore) || 
 				e.ListChangedType == ListChangedType.ItemAdded))
 			{

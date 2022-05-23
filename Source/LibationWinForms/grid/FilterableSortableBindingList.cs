@@ -120,6 +120,8 @@ namespace LibationWinForms
 
 			int visibleCount = Items.Count;
 
+			SuspendSorting = true;
+
 			foreach (var item in FilterRemoved.ToList())
 			{
 				if (item.Parent is null || item.Parent.Liberate.Expanded)
@@ -128,6 +130,8 @@ namespace LibationWinForms
 					base.InsertItem(visibleCount++, item);
 				}
 			}
+
+			SuspendSorting = false;
 
 			if (IsSortedCore)
 				Sort();
