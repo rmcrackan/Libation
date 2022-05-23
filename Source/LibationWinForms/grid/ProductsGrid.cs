@@ -110,8 +110,8 @@ namespace LibationWinForms.grid
 
 		internal void UpdateGrid(List<LibraryBook> dbBooks)
 		{
-			int visibleCount = bindingList.Count;
 			string existingFilter = syncBindingSource.Filter;
+			Filter(null);
 
 			//Add absent books to grid, or update current books
 
@@ -150,6 +150,11 @@ namespace LibationWinForms.grid
 						int seriesIndex = bindingList.IndexOf(series);
 						bindingList.Insert(seriesIndex + 1, lb);
 
+						if (series.Liberate.Expanded)
+							bindingList.ExpandItem(series);
+						else
+							bindingList.CollapseItem(series);
+
 						series.NotifyPropertyChanged();
 					}
 					else
@@ -161,13 +166,6 @@ namespace LibationWinForms.grid
 				{
 					existingItem.UpdateLibraryBook(libraryBook);
 				}
-			}
-
-			if (bindingList.Count != visibleCount)
-			{
-				//re-filter for newly added items
-				Filter(null);
-				Filter(existingFilter);
 			}
 
 			// remove deleted from grid.
@@ -196,8 +194,9 @@ namespace LibationWinForms.grid
 				//no need to re-filter for removed books
 				bindingList.Remove(removed);
 
-			if (bindingList.Count != visibleCount)
-				VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
+			Filter(existingFilter);
+
+			VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
 		}
 
 		#endregion
