@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibationWinForms
 {
@@ -42,22 +40,20 @@ namespace LibationWinForms
 		{
 			List<T> itemsList = (List<T>)Items;
 
-			//Array.Sort() and List<T>.Sort() are unstable sorts. OrderBy is stable.
-			var sortedItems = itemsList.OrderBy((ge) => ge, Comparer).ToList();
+			var sortedItems = Items.OrderBy(ge => ge, Comparer).ToList();
 
 			var children = sortedItems.Where(i => i.Parent is not null).ToList();
-			var parents = sortedItems.Where(i => i.Children is not null).ToList();
-
-			//Top Level items
-			var topLevelItems = sortedItems.Except(children);
 
 			itemsList.Clear();
-			itemsList.AddRange(topLevelItems);
 
-			foreach (var p in parents)
+			//Only add parentless items at this stage. After these items are added in the
+			//correct sorting order, go back and add the children beneath their parents.
+			itemsList.AddRange(sortedItems.Except(children));
+
+			foreach (var parent in children.Select(c => c.Parent).Distinct())
 			{
-				var pIndex = itemsList.IndexOf(p);
-				foreach (var c in children.Where(c=> c.Parent == p))
+				var pIndex = itemsList.IndexOf(parent);
+				foreach (var c in children.Where(c=> c.Parent == parent))
 					itemsList.Insert(++pIndex, c);
 			}
 		}
@@ -85,27 +81,6 @@ namespace LibationWinForms
 			listSortDirection = base.SortDirectionCore;
 
 			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
-		}
-
-		protected override int FindCore(PropertyDescriptor property, object key)
-		{
-			int count = Count;
-
-			System.Collections.IComparer valueComparer = null;
-
-			for (int i = 0; i < count; ++i)
-			{
-				var element = this[i];
-				var elemValue = element.GetMemberValue(property.Name);
-				valueComparer ??= element.GetMemberComparer(elemValue.GetType());
-
-				if (valueComparer.Compare(elemValue, key) == 0)
-				{
-					return i;
-				}
-			}
-
-			return -1;
 		}
 	}
 }

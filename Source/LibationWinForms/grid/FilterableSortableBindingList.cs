@@ -8,17 +8,17 @@ using System.Linq;
 namespace LibationWinForms
 {
 	/*
-     * Allows filtering of the underlying SortableBindingList<GridEntry>
-     * by implementing IBindingListView and using SearchEngineCommands 
-     * 
-     * When filtering is applied, the filtered-out items are removed
-     * from the base list and added to the private FilterRemoved list.
-     * When filtering is removed, items in the FilterRemoved list are
-     * added back to the base list.
-     * 
-     * Remove is overridden to ensure that removed items are removed from
-     * the base list (visible items) as well as the FilterRemoved list.
-     */
+	 * Allows filtering of the underlying SortableBindingList<GridEntry>
+	 * by implementing IBindingListView and using SearchEngineCommands 
+	 * 
+	 * When filtering is applied, the filtered-out items are removed
+	 * from the base list and added to the private FilterRemoved list.
+	 * When filtering is removed, items in the FilterRemoved list are
+	 * added back to the base list.
+	 * 
+	 * Remove is overridden to ensure that removed items are removed from
+	 * the base list (visible items) as well as the FilterRemoved list.
+	 */
 	internal class FilterableSortableBindingList : SortableBindingList1<GridEntry>, IBindingListView
 	{
 		/// <summary>
@@ -50,14 +50,7 @@ namespace LibationWinForms
 		}
 
 		/// <returns>All items in the list, including those filtered out.</returns>
-		public List<GridEntry> AllItems()
-		{
-			var allItems = Items.Concat(FilterRemoved);
-
-			var series = allItems.Where(i => i is SeriesEntry).Cast<SeriesEntry>().SelectMany(s => s.Children);
-
-			return series.Concat(allItems).ToList();
-		}
+		public List<GridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
 
 		private void ApplyFilter(string filterString)
 		{
@@ -65,32 +58,41 @@ namespace LibationWinForms
 				RemoveFilter();
 
 			FilterString = filterString;
-
 			SearchResults = SearchEngineCommands.Search(filterString);
-			var filteredOut = Items.Where(i => i is LibraryBookEntry).Cast<LibraryBookEntry>().ExceptBy(SearchResults.Docs.Select(d => d.ProductId), ge => ge.AudibleProductId).Cast<GridEntry>().ToList();
 
-			var parents = Items.Where(i => i is SeriesEntry).Cast<SeriesEntry>();
+			var booksFilteredIn = Items.LibraryBooks().Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry)lbe);
 
-			foreach (var p in parents)
+			//Find all series containing children that match the search criteria
+			var seriesFilteredIn = Items.Series().Where(s => s.Children.Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
+
+			var filteredOut = Items.Except(booksFilteredIn.Concat(seriesFilteredIn)).ToList();
+
+			foreach (var item in filteredOut)
 			{
-				if (p.Children.Cast<LibraryBookEntry>().ExceptBy(SearchResults.Docs.Select(d => d.ProductId), ge => ge.AudibleProductId).Count() == p.Children.Count)
-				{
-					//Don't show series whose episodes have all been filtered out
-					filteredOut.Add(p);
-				}
+				FilterRemoved.Add(item);
+				base.Remove(item);
 			}
+		}
 
-			for (int i = 0; i < filteredOut.Count; i++)
-			{
-				FilterRemoved.Add(filteredOut[i]);
-				base.Remove(filteredOut[i]);
-			}
+		public void CollapseAll()
+		{
+			foreach (var series in Items.Series().ToList())
+				CollapseItem(series);
+		}
+
+		public void ExpandAll()
+		{
+			foreach (var series in Items.Series().ToList())
+				ExpandItem(series);
 		}
 
 		public void CollapseItem(SeriesEntry sEntry)
 		{
-			foreach (var item in Items.Where(b => b is LibraryBookEntry).Cast<LibraryBookEntry>().Where(b => b.Parent == sEntry).ToList())
-				base.Remove(item);
+			foreach (var episode in Items.Where(b => b.Parent == sEntry).Cast<LibraryBookEntry>().ToList())
+			{
+				FilterRemoved.Add(episode);
+				base.Remove(episode);
+			}
 
 			sEntry.Liberate.Expanded = false;
 		}
@@ -98,16 +100,17 @@ namespace LibationWinForms
 		public void ExpandItem(SeriesEntry sEntry)
 		{
 			var sindex = Items.IndexOf(sEntry);
-			var children = sEntry.Children.Cast<LibraryBookEntry>().ToList();
-			for (int i = 0; i < children.Count; i++)
+
+			foreach (var episode in FilterRemoved.Where(b => b.Parent == sEntry).Cast<LibraryBookEntry>().ToList())
 			{
-				if (SearchResults is null || SearchResults.Docs.Any(d=> d.ProductId == children[i].AudibleProductId))
-					Insert(++sindex, children[i]);
-				else
+				if (SearchResults is null || SearchResults.Docs.Any(d => d.ProductId == episode.AudibleProductId))
 				{
-					FilterRemoved.Add(children[i]);
+					FilterRemoved.Remove(episode);
+					Items.Insert(++sindex, episode);
 				}
 			}
+
+			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
 			sEntry.Liberate.Expanded = true;
 		}
 
@@ -116,13 +119,15 @@ namespace LibationWinForms
 			if (FilterString is null) return;
 
 			int visibleCount = Items.Count;
-			for (int i = 0; i < FilterRemoved.Count; i++)
-			{
-				if (FilterRemoved[i].Parent is null || FilterRemoved[i].Parent.Liberate.Expanded)
-					base.InsertItem(i + visibleCount, FilterRemoved[i]);
-			}
 
-			FilterRemoved.Clear();
+			foreach (var item in FilterRemoved.ToList())
+			{
+				if (item.Parent is null || item.Parent.Liberate.Expanded)
+				{
+					FilterRemoved.Remove(item);
+					base.InsertItem(visibleCount++, item);
+				}
+			}
 
 			if (IsSortedCore)
 				Sort();

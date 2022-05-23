@@ -12,23 +12,9 @@ namespace LibationWinForms
 {
 	public partial class Form1 : Form
 	{
-		private ProductsDisplay productsGrid { get; }
-
 		public Form1()
 		{
 			InitializeComponent();
-
-			if (this.DesignMode)
-				return;
-
-			{
-				// I'd actually like these lines to be handled in the designer, but I'm currently getting this error when I try:
-				//   Failed to create component 'ProductsGrid'.  The error message follows:
-				//   'Microsoft.DotNet.DesignTools.Client.DesignToolsServerException: Object reference not set to an instance of an object.
-				// Since the designer's choking on it, I'm keeping it below the DesignMode check to be safe
-				productsGrid = new ProductsDisplay { Dock = DockStyle.Fill };
-				gridPanel.Controls.Add(productsGrid);
-			}
 
 			// Pre-requisite:
 			// Before calling anything else, including subscribing to events, ensure database exists. If we wait and let it happen lazily, race conditions and errors are likely during new installs
@@ -67,8 +53,8 @@ namespace LibationWinForms
 
 			// Configure_Grid(); // since it's just this, can keep here. If it needs more, then give grid it's own 'partial class Form1'
 			{
-				this.Load += (_, __) => productsGrid.Display();
-				LibraryCommands.LibrarySizeChanged += (_, __) => this.UIThreadAsync(() => productsGrid.Display());
+				this.Load += (_, __) => productsDisplay.Display();
+				LibraryCommands.LibrarySizeChanged += (_, __) => this.UIThreadAsync(() => productsDisplay.Display());
 			}
 		}
 

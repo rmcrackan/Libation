@@ -14,14 +14,13 @@ namespace LibationWinForms
 		int WidthChange = 0;
 		private void Configure_ProcessQueue()
 		{
-			productsGrid.LiberateClicked += ProductsGrid_LiberateClicked;
 			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
 			var coppalseState = Configuration.Instance.GetNonString<bool>(nameof(splitContainer1.Panel2Collapsed));
 			WidthChange = splitContainer1.Panel2.Width + splitContainer1.SplitterWidth;
 			SetQueueCollapseState(coppalseState);
 		}
 
-		private void ProductsGrid_LiberateClicked(object sender, LibraryBook e)
+		private void ProductsDisplay_LiberateClicked(object sender, LibraryBook e)
 		{
 			if (e.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated)
 			{

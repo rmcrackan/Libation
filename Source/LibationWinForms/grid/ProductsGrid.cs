@@ -1,103 +1,70 @@
-﻿using System;
+﻿using DataLayer;
+using Dinah.Core.Windows.Forms;
+using LibationFileManager;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using ApplicationServices;
-using DataLayer;
-using Dinah.Core.Windows.Forms;
-using LibationFileManager;
 
-namespace LibationWinForms
+namespace LibationWinForms.grid
 {
-
-	#region // legacy instructions to update data_grid_view
-	// INSTRUCTIONS TO UPDATE DATA_GRID_VIEW
-	// - delete current DataGridView
-	// - view > other windows > data sources
-	// - refresh
-	// OR
-	// - Add New Data Source
-	//   Object. Next
-	//   LibationWinForms
-	//     AudibleDTO
-	//       GridEntry
-	// - go to Design view
-	// - click on Data Sources > ProductItem. dropdown: DataGridView
-	// - drag/drop ProductItem on design surface
-	//
-	// as of august 2021 this does not work in vs2019 with .net5 projects
-	// VS has improved since then with .net6+ but I haven't checked again
-	#endregion
-
-
 	public partial class ProductsGrid : UserControl
 	{
-
-		internal delegate void LibraryBookEntryClickedEventHandler(DataGridViewCellEventArgs e, LibraryBookEntry liveGridEntry);
-		internal delegate void LibraryBookEntryRectangleClickedEventHandler(DataGridViewCellEventArgs e, LibraryBookEntry liveGridEntry, Rectangle cellRectangle);
-		internal event LibraryBookEntryClickedEventHandler LiberateClicked;
-		internal event LibraryBookEntryClickedEventHandler CoverClicked;
-		internal event LibraryBookEntryClickedEventHandler DetailsClicked;
-		internal event LibraryBookEntryRectangleClickedEventHandler DescriptionClicked;
-		public new event EventHandler<ScrollEventArgs> Scroll;
-
-		private FilterableSortableBindingList bindingList;
+		public delegate void LibraryBookEntryClickedEventHandler(LibraryBookEntry liveGridEntry);
+		public delegate void LibraryBookEntryRectangleClickedEventHandler(LibraryBookEntry liveGridEntry, Rectangle cellRectangle);
 
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
+		public event LibraryBookEntryClickedEventHandler LiberateClicked;
+		public event LibraryBookEntryClickedEventHandler CoverClicked;
+		public event LibraryBookEntryClickedEventHandler DetailsClicked;
+		public event LibraryBookEntryRectangleClickedEventHandler DescriptionClicked;
+		public new event EventHandler<ScrollEventArgs> Scroll;
 
-		// alias
-		private DataGridView _dataGridView => gridEntryDataGridView;
+		private FilterableSortableBindingList bindingList;
+		private SyncBindingSource gridEntryBindingSource;
 
 		public ProductsGrid()
 		{
 			InitializeComponent();
-
-			if (this.DesignMode)
-				return;
-
 			EnableDoubleBuffering();
-
-			_dataGridView.CellContentClick += DataGridView_CellContentClick;
-			_dataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
-
-			Load += ProductsGrid_Load;
-		}
-
-		private void ProductsGrid_Scroll(object sender, ScrollEventArgs e)
-		{
-			throw new NotImplementedException();
+			//There a bug in designer that causes errors if you add BindingSource to the DataGridView at design time. 
+			gridEntryBindingSource = new SyncBindingSource();
+			gridEntryDataGridView.DataSource = gridEntryBindingSource;
+			gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
 		}
 
 		private void EnableDoubleBuffering()
 		{
-			var propertyInfo = _dataGridView.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+			var propertyInfo = gridEntryDataGridView.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
-			propertyInfo.SetValue(_dataGridView, true, null);
+			propertyInfo.SetValue(gridEntryDataGridView, true, null);
 		}
 
 		#region Button controls
-
 		private void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
 		{
 			// handle grid button click: https://stackoverflow.com/a/13687844
-			if (e.RowIndex < 0)
+			if ( e.RowIndex < 0)
 				return;
+
+			var column = gridEntryDataGridView.Columns[e.ColumnIndex];
 
 			var entry = getGridEntry(e.RowIndex);
 			if (entry is LibraryBookEntry lbEntry)
 			{
-				if (e.ColumnIndex == liberateGVColumn.Index)
-					LiberateClicked?.Invoke(e, lbEntry);
-				else if (e.ColumnIndex == tagAndDetailsGVColumn.Index && entry is LibraryBookEntry)
-					DetailsClicked?.Invoke(e, lbEntry);
-				else if (e.ColumnIndex == descriptionGVColumn.Index)
-					DescriptionClicked?.Invoke(e, lbEntry, _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
-				else if (e.ColumnIndex == coverGVColumn.Index)
-					CoverClicked?.Invoke(e, lbEntry);
+				if (gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == liberateGVColumn.DataPropertyName)
+					LiberateClicked?.Invoke(lbEntry);
+				else if (gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == tagAndDetailsGVColumn.DataPropertyName && entry is LibraryBookEntry)
+					DetailsClicked?.Invoke(lbEntry);
+				else if (gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == descriptionGVColumn.DataPropertyName)
+					DescriptionClicked?.Invoke(lbEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
+				else if (gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == coverGVColumn.DataPropertyName)
+					CoverClicked?.Invoke(lbEntry);
 			}
-			else if (entry is SeriesEntry sEntry && e.ColumnIndex == liberateGVColumn.Index)
+			else if (entry is SeriesEntry sEntry && gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == liberateGVColumn.DataPropertyName)
 			{
 				if (sEntry.Liberate.Expanded)
 					bindingList.CollapseItem(sEntry);
@@ -105,16 +72,19 @@ namespace LibationWinForms
 					bindingList.ExpandItem(sEntry);
 
 				sEntry.NotifyPropertyChanged(nameof(sEntry.Liberate));
+
+				VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
 			}
 		}
 
-		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
+		private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
 
 		#endregion
 
+
 		#region UI display functions
 
-		internal void bindToGrid(List<LibraryBook> dbBooks)
+		internal void BindToGrid(List<LibraryBook> dbBooks)
 		{
 			var geList = dbBooks.Where(b => b.Book.ContentType is not ContentType.Episode).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
 
@@ -125,24 +95,28 @@ namespace LibationWinForms
 			foreach (var s in series)
 			{
 				var seriesEntry = new SeriesEntry();
-				seriesEntry.Children = episodes.Where(lb => lb.Book.SeriesLink.First().Series == s.Book.SeriesLink.First().Series).Select(lb => new LibraryBookEntry(lb) { Parent = seriesEntry }).Cast<GridEntry>().ToList();
+				seriesEntry.Children = episodes.Where(lb => lb.Book.SeriesLink.First().Series == s.Book.SeriesLink.First().Series).Select(lb => new LibraryBookEntry(lb) { Parent = seriesEntry }).ToList();
 
 				seriesEntry.setSeriesBook(s);
+
 				geList.Add(seriesEntry);
+				geList.AddRange(seriesEntry.Children);
 			}
 
-			bindingList = new FilterableSortableBindingList(geList.OrderByDescending(ge => ge.DateAdded));
+			bindingList = new FilterableSortableBindingList(geList.OrderByDescending(e => e.DateAdded));
+			bindingList.CollapseAll();
 			gridEntryBindingSource.DataSource = bindingList;
+			VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
 		}
 
-		internal void updateGrid(List<LibraryBook> dbBooks)
+		internal void UpdateGrid(List<LibraryBook> dbBooks)
 		{
 			int visibleCount = bindingList.Count;
 			string existingFilter = gridEntryBindingSource.Filter;
 
 			//Add absent books to grid, or update current books
 
-			var allItmes = bindingList.AllItems().Where(i => i is LibraryBookEntry).Cast<LibraryBookEntry>();
+			var allItmes = bindingList.AllItems().LibraryBooks();
 			for (var i = dbBooks.Count - 1; i >= 0; i--)
 			{
 				var libraryBook = dbBooks[i];
@@ -155,26 +129,31 @@ namespace LibationWinForms
 
 					if (libraryBook.Book.ContentType is ContentType.Episode)
 					{
-						//Find the series that libraryBook, if it exists
-						var series = bindingList.AllItems().Where(i => i is SeriesEntry).Cast<SeriesEntry>().FirstOrDefault(i => libraryBook.Book.SeriesLink.Any(s => s.Series.Name == i.Series));
+						//Find the series that libraryBook belongs to, if it exists
+						var series = bindingList.AllItems().Series().FirstOrDefault(i => libraryBook.Book.SeriesLink.Any(s => s.Series.Name == i.Series));
 
 						if (series is null)
 						{
 							//Series doesn't exist yet, so create and add it
-							var newSeries = new SeriesEntry { Children = new List<GridEntry> { lb } };
+							var newSeries = new SeriesEntry { Children = new List<LibraryBookEntry> { lb } };
 							newSeries.setSeriesBook(libraryBook.Book.SeriesLink.First());
 							lb.Parent = newSeries;
 							newSeries.Liberate.Expanded = true;
 							bindingList.Insert(0, newSeries);
+							series = newSeries;
 						}
 						else
 						{
 							lb.Parent = series;
 							series.Children.Add(lb);
 						}
+						//Add episode beneath the parent
+						int seriesIndex = bindingList.IndexOf(series);
+						bindingList.Insert(seriesIndex + 1, lb);
 					}
-					//Add the new product
-					bindingList.Insert(0, lb);
+					else
+						//Add the new product
+						bindingList.Insert(0, lb);
 				}
 				// update existing
 				else
@@ -195,24 +174,27 @@ namespace LibationWinForms
 			var removedBooks =
 				bindingList
 				.AllItems()
-				.Where(i => i is LibraryBookEntry)
-				.Cast<LibraryBookEntry>()
+				.LibraryBooks()
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
+
+			foreach (var removed in removedBooks.Where(b => b.Parent is not null))
+			{
+				((SeriesEntry)removed.Parent).Children.Remove(removed);
+			}
 
 			//Remove series that have no children
 			var removedSeries =
 				bindingList
 				.AllItems()
-				.Where(i => i is SeriesEntry)
-				.Cast<SeriesEntry>()
-				.Where(i => removedBooks.Count(r => r.Series == i.Series) == i.Children.Count);
+				.Series()
+				.Where(i => i.Children.Count == 0);
 
 			foreach (var removed in removedBooks.Cast<GridEntry>().Concat(removedSeries))
 				//no need to re-filter for removed books
 				bindingList.Remove(removed);
 
 			if (bindingList.Count != visibleCount)
-				VisibleCountChanged?.Invoke(this, bindingList.Count);
+				VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
 		}
 
 		#endregion
@@ -229,24 +211,19 @@ namespace LibationWinForms
 				gridEntryBindingSource.Filter = searchString;
 
 			if (visibleCount != bindingList.Count)
-				VisibleCountChanged?.Invoke(this, bindingList.Count);
+				VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
+
 		}
 
 		#endregion
 
-		internal IEnumerable<LibraryBook> GetVisible()
+		internal IEnumerable<LibraryBookEntry> GetVisible()
 			=> bindingList
-			.Where(row => row is LibraryBookEntry)
-			.Cast<LibraryBookEntry>()
-			.Select(row => row.LibraryBook);
+			.LibraryBooks();
 
-		#region Column Customizations
-
-		// to ensure this is only ever called once: Load instead of 'override OnVisibleChanged'
 		private void ProductsGrid_Load(object sender, EventArgs e)
 		{
-			if (this.DesignMode)
-				return;
+			gridEntryDataGridView.ColumnWidthChanged += gridEntryDataGridView_ColumnWidthChanged;
 
 			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
 			contextMenuStrip1.Items.Add(new ToolStripSeparator());
@@ -259,7 +236,7 @@ namespace LibationWinForms
 
 			var cmsKiller = new ContextMenuStrip();
 
-			foreach (DataGridViewColumn column in _dataGridView.Columns)
+			foreach (DataGridViewColumn column in gridEntryDataGridView.Columns)
 			{
 				var itemName = column.DataPropertyName;
 				var visible = gridColumnsVisibilities.GetValueOrDefault(itemName, true);
@@ -288,38 +265,19 @@ namespace LibationWinForms
 			//We must set DisplayIndex properties in ascending order
 			foreach (var itemName in displayIndices.OrderBy(i => i.Value).Select(i => i.Key))
 			{
-				var column = _dataGridView.Columns
+				var column = gridEntryDataGridView.Columns
 					.Cast<DataGridViewColumn>()
 					.Single(c => c.DataPropertyName == itemName);
 
 				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
 			}
 		}
-
-		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)
-		{
-			var config = Configuration.Instance;
-
-			var dictionary = config.GridColumnsDisplayIndices;
-			dictionary[e.Column.DataPropertyName] = e.Column.DisplayIndex;
-			config.GridColumnsDisplayIndices = dictionary;
-		}
-
-		private void gridEntryDataGridView_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
-		{
-			var config = Configuration.Instance;
-
-			var dictionary = config.GridColumnsWidths;
-			dictionary[e.Column.DataPropertyName] = e.Column.Width;
-			config.GridColumnsWidths = dictionary;
-		}
-
 		private void HideMenuItem_Click(object sender, EventArgs e)
 		{
 			var menuItem = sender as ToolStripMenuItem;
 			var propertyName = menuItem.Tag as string;
 
-			var column = _dataGridView.Columns
+			var column = gridEntryDataGridView.Columns
 				.Cast<DataGridViewColumn>()
 				.FirstOrDefault(c => c.DataPropertyName == propertyName);
 
@@ -337,6 +295,15 @@ namespace LibationWinForms
 			}
 		}
 
+		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)
+		{
+			var config = Configuration.Instance;
+
+			var dictionary = config.GridColumnsDisplayIndices;
+			dictionary[e.Column.DataPropertyName] = e.Column.DisplayIndex;
+			config.GridColumnsDisplayIndices = dictionary;
+		}
+
 		private void gridEntryDataGridView_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
 		{
 			if (e.ColumnIndex == descriptionGVColumn.Index)
@@ -345,6 +312,12 @@ namespace LibationWinForms
 				e.ToolTipText = "Click to see full size";
 		}
 
-		#endregion
+		private void gridEntryDataGridView_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
+		{
+			var config = Configuration.Instance;
+
+			var dictionary = config.GridColumnsWidths;
+			dictionary[e.Column.DataPropertyName] = e.Column.Width;
+		}
 	}
 }

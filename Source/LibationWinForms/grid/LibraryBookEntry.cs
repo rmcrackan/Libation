@@ -17,7 +17,7 @@ namespace LibationWinForms
 	/// <summary>
 	/// The View Model for a LibraryBook
 	/// </summary>
-	internal class LibraryBookEntry : GridEntry
+	public class LibraryBookEntry : GridEntry
 	{
 		#region implementation properties NOT exposed to the view
 		// hide from public fields from Data Source GUI with [Browsable(false)]
@@ -187,7 +187,7 @@ namespace LibationWinForms
 			{ nameof(Category), () => Category },
 			{ nameof(Misc), () => Misc },
 			{ nameof(DisplayTags), () => DisplayTags },
-			{ nameof(Liberate), () => Liberate.BookStatus },
+			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },
 		};
 		

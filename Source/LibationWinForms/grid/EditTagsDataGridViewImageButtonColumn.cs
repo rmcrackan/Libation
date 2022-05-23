@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using Dinah.Core.Windows.Forms;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace LibationWinForms
@@ -18,6 +19,12 @@ namespace LibationWinForms
 
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
+			if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is SeriesEntry)
+			{
+				base.Paint(graphics, clipBounds, cellBounds, rowIndex, DataGridViewElementStates.None, null, null, null, cellStyle, advancedBorderStyle, DataGridViewPaintParts.Background | DataGridViewPaintParts.Border);
+				return;
+			}
+
 			var tagsString = (string)value;
 
 			var foreColor = tagsString?.Contains("hidden") == true ? HiddenForeColor : DataGridView.DefaultCellStyle.ForeColor;

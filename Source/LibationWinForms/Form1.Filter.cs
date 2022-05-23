@@ -30,7 +30,7 @@ namespace LibationWinForms
 
 			try
 			{
-				productsGrid.Filter(filterString);
+				productsDisplay.Filter(filterString);
 				lastGoodFilter = filterString;
 			}
 			catch (Exception ex)

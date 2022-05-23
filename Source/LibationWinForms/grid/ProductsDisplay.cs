@@ -6,65 +6,35 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
-using Dinah.Core.Windows.Forms;
 using FileLiberator;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {
-
-	#region // legacy instructions to update data_grid_view
-	// INSTRUCTIONS TO UPDATE DATA_GRID_VIEW
-	// - delete current DataGridView
-	// - view > other windows > data sources
-	// - refresh
-	// OR
-	// - Add New Data Source
-	//   Object. Next
-	//   LibationWinForms
-	//     AudibleDTO
-	//       GridEntry
-	// - go to Design view
-	// - click on Data Sources > ProductItem. dropdown: DataGridView
-	// - drag/drop ProductItem on design surface
-	//
-	// as of august 2021 this does not work in vs2019 with .net5 projects
-	// VS has improved since then with .net6+ but I haven't checked again
-	#endregion
-
-
 	public partial class ProductsDisplay : UserControl
 	{
 		public event EventHandler<LibraryBook> LiberateClicked;
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 
-		// alias
-
-		private ProductsGrid grid;
-
 		public ProductsDisplay()
 		{
 			InitializeComponent();
+		}
 
-			grid = new ProductsGrid();
-			grid.Dock = DockStyle.Fill;
-			Controls.Add(grid);
-
-			if (this.DesignMode)
+		private void ProductsDisplay_Load(object sender, EventArgs e)
+		{
+			if (DesignMode)
 				return;
 
-			grid.LiberateClicked += (_, book) => LiberateClicked?.Invoke(this, book.LibraryBook);
-			grid.DetailsClicked += Grid_DetailsClicked;
-			grid.CoverClicked += Grid_CoverClicked;
-			grid.DescriptionClicked += Grid_DescriptionClicked1;
 		}
+
 
 		#region Button controls		
 
 		private ImageDisplay imageDisplay;
-		private async void Grid_CoverClicked(DataGridViewCellEventArgs e, LibraryBookEntry liveGridEntry)
+		private async void productsGrid_CoverClicked(LibraryBookEntry liveGridEntry)
 		{
 			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge ?? liveGridEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 			var picDlTask = Task.Run(() => PictureStorage.GetPictureSynchronously(picDefinition));
@@ -87,7 +57,7 @@ namespace LibationWinForms
 			imageDisplay.CoverPicture = await picDlTask;
 		}
 
-		private void Grid_DescriptionClicked1(DataGridViewCellEventArgs e, LibraryBookEntry liveGridEntry, Rectangle cellRectangle)
+		private void productsGrid_DescriptionClicked(LibraryBookEntry liveGridEntry, Rectangle cellRectangle)
 		{
 			var displayWindow = new DescriptionDisplay
 			{
@@ -101,13 +71,13 @@ namespace LibationWinForms
 				displayWindow.Close();
 			}
 
-			grid.Scroll += CloseWindow;
-			displayWindow.FormClosed += (_, _) => grid.Scroll -= CloseWindow;
+			productsGrid.Scroll += CloseWindow;
+			displayWindow.FormClosed += (_, _) => productsGrid.Scroll -= CloseWindow;
 			displayWindow.Show(this);
 		}
 
 
-		private void Grid_DetailsClicked(DataGridViewCellEventArgs e, LibraryBookEntry liveGridEntry)
+		private void productsGrid_DetailsClicked(LibraryBookEntry liveGridEntry)
 		{
 			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
 			if (bookDetailsForm.ShowDialog() == DialogResult.OK)
@@ -128,13 +98,12 @@ namespace LibationWinForms
 			if (!hasBeenDisplayed)
 			{
 				// bind
-				grid.bindToGrid(lib);
+				productsGrid.BindToGrid(lib);
 				hasBeenDisplayed = true;
 				InitialLoaded?.Invoke(this, new());
-				VisibleCountChanged?.Invoke(this, grid.GetVisible().Count());
 			}
 			else
-				grid.updateGrid(lib);
+				productsGrid.UpdateGrid(lib);
 
 		}
 
@@ -143,10 +112,20 @@ namespace LibationWinForms
 		#region Filter
 
 		public void Filter(string searchString)
-			=> grid.Filter(searchString);
+			=> productsGrid.Filter(searchString);
 
 		#endregion
 
-		internal List<LibraryBook> GetVisible() => grid.GetVisible().ToList();
+		internal List<LibraryBook> GetVisible() => productsGrid.GetVisible().Select(v => v.LibraryBook).ToList();
+
+		private void productsGrid_VisibleCountChanged(object sender, int count)
+		{
+			VisibleCountChanged?.Invoke(this, count);
+		}
+
+		private void productsGrid_LiberateClicked(LibraryBookEntry liveGridEntry)
+		{
+			LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
+		}
 	}
 }

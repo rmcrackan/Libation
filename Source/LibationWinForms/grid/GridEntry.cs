@@ -5,25 +5,37 @@ using LibationFileManager;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
+using System.ComponentModel;using System.Drawing;
+using System.Linq;
 
 namespace LibationWinForms
 {
 	public interface IHierarchical<T> where T : class
 	{
 		T Parent { get; }
-		List<T> Children { get; }
 	}
-	internal class LiberateStatus
+
+	public class LiberateStatus : IComparable
 	{
 		public LiberatedStatus BookStatus;
 		public LiberatedStatus? PdfStatus;
 		public bool IsSeries;
 		public bool Expanded;
+
+		public int CompareTo(object obj)
+		{
+			if (obj is not LiberateStatus second) return -1;
+
+			if (IsSeries && !second.IsSeries) return -1;
+			else if (!IsSeries && second.IsSeries) return 1;
+			else if (IsSeries && second.IsSeries) return 0;
+			else if (BookStatus == LiberatedStatus.Liberated && second.BookStatus != LiberatedStatus.Liberated) return -1;
+			else if (BookStatus != LiberatedStatus.Liberated && second.BookStatus == LiberatedStatus.Liberated) return 1;
+			else return BookStatus.CompareTo(second.BookStatus);
+		}
 	}
 
-	internal abstract class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable, IHierarchical<GridEntry>
+	public abstract class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable, IHierarchical<GridEntry>
 	{
 		protected abstract Book Book { get; }
 
@@ -38,11 +50,15 @@ namespace LibationWinForms
 				NotifyPropertyChanged();
 			}
 		}
+
+		[Browsable(false)]
+		public new bool InvokeRequired => base.InvokeRequired;
+		[Browsable(false)]
 		public GridEntry Parent { get; set; }
-		public List<GridEntry> Children { get; set; }
+		[Browsable(false)]
+		public abstract DateTime DateAdded { get; }
 		public abstract string ProductRating { get; protected set; }
 		public abstract string PurchaseDate { get; protected set; }
-		public abstract DateTime DateAdded { get; }
 		public abstract string MyRating { get; protected set; }
 		public abstract string Series { get; protected set; }
 		public abstract string Title { get; protected set; }
@@ -89,12 +105,20 @@ namespace LibationWinForms
 			{ typeof(float), new ObjectComparer<float>() },
 			{ typeof(bool), new ObjectComparer<bool>() },
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
-			{ typeof(LiberatedStatus), new ObjectComparer<LiberatedStatus>() },
+			{ typeof(LiberateStatus), new ObjectComparer<LiberateStatus>() },
 		};
 
 		~GridEntry()
 		{
 			PictureStorage.PictureCached -= PictureStorage_PictureCached;
-		}
+		}		
+	}
+
+	internal static class GridEntryExtensions
+	{
+		public static IEnumerable<SeriesEntry> Series(this IEnumerable<GridEntry> gridEntries) 
+			=> gridEntries.Where(i => i is SeriesEntry).Cast<SeriesEntry>();
+		public static IEnumerable<LibraryBookEntry> LibraryBooks(this IEnumerable<GridEntry> gridEntries) 
+			=> gridEntries.Where(i => i is LibraryBookEntry).Cast<LibraryBookEntry>();
 	}
 }

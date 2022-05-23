@@ -1,4 +1,4 @@
-﻿namespace LibationWinForms
+﻿namespace LibationWinForms.grid
 {
 	partial class ProductsGrid
 	{
@@ -30,7 +30,6 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-			this.gridEntryBindingSource = new LibationWinForms.SyncBindingSource(this.components);
 			this.gridEntryDataGridView = new System.Windows.Forms.DataGridView();
 			this.liberateGVColumn = new LibationWinForms.LiberateDataGridViewImageButtonColumn();
 			this.coverGVColumn = new System.Windows.Forms.DataGridViewImageColumn();
@@ -47,13 +46,8 @@
 			this.miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.tagAndDetailsGVColumn = new LibationWinForms.EditTagsDataGridViewImageButtonColumn();
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-			((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).BeginInit();
 			this.SuspendLayout();
-			// 
-			// gridEntryBindingSource
-			// 
-			this.gridEntryBindingSource.DataSource = typeof(LibationWinForms.GridEntry);
 			// 
 			// gridEntryDataGridView
 			// 
@@ -61,25 +55,23 @@
 			this.gridEntryDataGridView.AllowUserToDeleteRows = false;
 			this.gridEntryDataGridView.AllowUserToOrderColumns = true;
 			this.gridEntryDataGridView.AllowUserToResizeRows = false;
-			this.gridEntryDataGridView.AutoGenerateColumns = false;
 			this.gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-			this.liberateGVColumn,
-			this.coverGVColumn,
-			this.titleGVColumn,
-			this.authorsGVColumn,
-			this.narratorsGVColumn,
-			this.lengthGVColumn,
-			this.seriesGVColumn,
-			this.descriptionGVColumn,
-			this.categoryGVColumn,
-			this.productRatingGVColumn,
-			this.purchaseDateGVColumn,
-			this.myRatingGVColumn,
-			this.miscGVColumn,
-			this.tagAndDetailsGVColumn});
+            this.liberateGVColumn,
+            this.coverGVColumn,
+            this.titleGVColumn,
+            this.authorsGVColumn,
+            this.narratorsGVColumn,
+            this.lengthGVColumn,
+            this.seriesGVColumn,
+            this.descriptionGVColumn,
+            this.categoryGVColumn,
+            this.productRatingGVColumn,
+            this.purchaseDateGVColumn,
+            this.myRatingGVColumn,
+            this.miscGVColumn,
+            this.tagAndDetailsGVColumn});
 			this.gridEntryDataGridView.ContextMenuStrip = this.contextMenuStrip1;
-			this.gridEntryDataGridView.DataSource = this.gridEntryBindingSource;
 			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
 			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
 			dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -90,16 +82,15 @@
 			this.gridEntryDataGridView.DefaultCellStyle = dataGridViewCellStyle1;
 			this.gridEntryDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gridEntryDataGridView.Location = new System.Drawing.Point(0, 0);
-			this.gridEntryDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.gridEntryDataGridView.Name = "gridEntryDataGridView";
 			this.gridEntryDataGridView.ReadOnly = true;
 			this.gridEntryDataGridView.RowHeadersVisible = false;
 			this.gridEntryDataGridView.RowTemplate.Height = 82;
 			this.gridEntryDataGridView.Size = new System.Drawing.Size(1510, 380);
 			this.gridEntryDataGridView.TabIndex = 0;
+			this.gridEntryDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentClick);
 			this.gridEntryDataGridView.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.gridEntryDataGridView_CellToolTipTextNeeded);
 			this.gridEntryDataGridView.ColumnDisplayIndexChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.gridEntryDataGridView_ColumnDisplayIndexChanged);
-			this.gridEntryDataGridView.ColumnWidthChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.gridEntryDataGridView_ColumnWidthChanged);
 			// 
 			// liberateGVColumn
 			// 
@@ -222,19 +213,18 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScroll = true;
 			this.Controls.Add(this.gridEntryDataGridView);
-			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Name = "ProductsGrid";
 			this.Size = new System.Drawing.Size(1510, 380);
-			((System.ComponentModel.ISupportInitialize)(this.gridEntryBindingSource)).EndInit();
+			this.Load += new System.EventHandler(this.ProductsGrid_Load);
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).EndInit();
 			this.ResumeLayout(false);
 
 		}
 
-		#endregion
 
-		private LibationWinForms.SyncBindingSource gridEntryBindingSource;
+		#endregion
 		private System.Windows.Forms.DataGridView gridEntryDataGridView;
 		private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
 		private LiberateDataGridViewImageButtonColumn liberateGVColumn;

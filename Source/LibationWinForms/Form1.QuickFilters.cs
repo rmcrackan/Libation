@@ -14,12 +14,6 @@ namespace LibationWinForms
 			Load += updateFiltersMenu;
 			QuickFilters.UseDefaultChanged += updateFirstFilterIsDefaultToolStripMenuItem;
 			QuickFilters.Updated += updateFiltersMenu;
-
-			productsGrid.InitialLoaded += (_, __) =>
-			{
-				if (QuickFilters.UseDefault)
-					performFilter(QuickFilters.Filters.FirstOrDefault());
-			};
 		}
 
 		private object quickFilterTag { get; } = new();
@@ -56,5 +50,11 @@ namespace LibationWinForms
 		private void addQuickFilterBtn_Click(object sender, EventArgs e) => QuickFilters.Add(this.filterSearchTb.Text);
 
 		private void editQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new EditQuickFilters().ShowDialog();
+
+		private void productsDisplay_InitialLoaded(object sender, EventArgs e)
+		{
+			if (QuickFilters.UseDefault)
+				performFilter(QuickFilters.Filters.FirstOrDefault());
+		}
 	}
 }
