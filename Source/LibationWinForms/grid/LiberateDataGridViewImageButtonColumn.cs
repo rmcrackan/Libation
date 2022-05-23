@@ -20,7 +20,7 @@ namespace LibationWinForms
 		{
 			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
-			if (value is LiberateStatus status)
+			if (value is LiberateButtonStatus status)
 			{
 				if (status.IsSeries)
 				{

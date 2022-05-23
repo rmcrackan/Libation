@@ -1,12 +1,8 @@
 ﻿using DataLayer;
 using Dinah.Core;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibationWinForms
 {
@@ -51,13 +47,13 @@ namespace LibationWinForms
 		public override string Description { get; protected set; } = string.Empty;
 		public override string DisplayTags { get; } = string.Empty;
 
-		public override LiberateStatus Liberate => _liberate;
+		public override LiberateButtonStatus Liberate => _liberate;
 
 		protected override Book Book => SeriesBook.Book;
 
 		private SeriesBook SeriesBook { get; set; }
 
-		private LiberateStatus _liberate = new LiberateStatus { IsSeries = true };
+		private LiberateButtonStatus _liberate = new LiberateButtonStatus { IsSeries = true };
 
 		public void setSeriesBook(SeriesBook seriesBook)
 		{

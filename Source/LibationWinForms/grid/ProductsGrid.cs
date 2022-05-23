@@ -149,6 +149,8 @@ namespace LibationWinForms.grid
 						//Add episode beneath the parent
 						int seriesIndex = bindingList.IndexOf(series);
 						bindingList.Insert(seriesIndex + 1, lb);
+
+						series.NotifyPropertyChanged();
 					}
 					else
 						//Add the new product
@@ -178,7 +180,9 @@ namespace LibationWinForms.grid
 
 			foreach (var removed in removedBooks.Where(b => b.Parent is not null))
 			{
-				((SeriesEntry)removed.Parent).Children.Remove(removed);
+				var series = removed.Parent as SeriesEntry;
+				series.Children.Remove(removed);
+				series.NotifyPropertyChanged();
 			}
 
 			//Remove series that have no children

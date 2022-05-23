@@ -15,7 +15,7 @@ namespace LibationWinForms
 		T Parent { get; }
 	}
 
-	public class LiberateStatus : IComparable
+	public class LiberateButtonStatus : IComparable
 	{
 		public LiberatedStatus BookStatus;
 		public LiberatedStatus? PdfStatus;
@@ -24,7 +24,7 @@ namespace LibationWinForms
 
 		public int CompareTo(object obj)
 		{
-			if (obj is not LiberateStatus second) return -1;
+			if (obj is not LiberateButtonStatus second) return -1;
 
 			if (IsSeries && !second.IsSeries) return -1;
 			else if (!IsSeries && second.IsSeries) return 1;
@@ -69,7 +69,7 @@ namespace LibationWinForms
 		public abstract string Misc { get; protected set; }
 		public abstract string Description { get; protected set; }
 		public abstract string DisplayTags { get; }
-		public abstract LiberateStatus Liberate { get; }
+		public abstract LiberateButtonStatus Liberate { get; }
 		public abstract object GetMemberValue(string memberName);
 		#endregion
 		public IComparer GetMemberComparer(Type memberType) => _memberTypeComparers[memberType];
@@ -105,7 +105,7 @@ namespace LibationWinForms
 			{ typeof(float), new ObjectComparer<float>() },
 			{ typeof(bool), new ObjectComparer<bool>() },
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
-			{ typeof(LiberateStatus), new ObjectComparer<LiberateStatus>() },
+			{ typeof(LiberateButtonStatus), new ObjectComparer<LiberateButtonStatus>() },
 		};
 
 		~GridEntry()
