@@ -12,7 +12,7 @@ namespace DataLayer
         public float StoryRating { get; private set; }
 
         private Rating() { }
-        internal Rating(float overallRating, float performanceRating, float storyRating)
+        public Rating(float overallRating, float performanceRating, float storyRating)
         {
             OverallRating = overallRating;
             PerformanceRating = performanceRating;

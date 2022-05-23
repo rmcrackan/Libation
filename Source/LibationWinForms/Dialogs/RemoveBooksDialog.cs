@@ -121,10 +121,8 @@ namespace LibationWinForms.Dialogs
 		}
 	}
 
-	internal class RemovableGridEntry : GridEntry
+	internal class RemovableGridEntry : LibraryBookEntry
 	{
-		private static readonly IComparer BoolComparer = new ObjectComparer<bool>();
-
 		private bool _remove = false;
 		public RemovableGridEntry(LibraryBook libraryBook) : base(libraryBook) { }
 
@@ -146,13 +144,6 @@ namespace LibationWinForms.Dialogs
 			if (memberName == nameof(Remove))
 				return Remove;
 			return base.GetMemberValue(memberName);
-		}
-
-		public override IComparer GetMemberComparer(Type memberType)
-		{
-			if (memberType == typeof(bool))
-				return BoolComparer;
-			return base.GetMemberComparer(memberType);
 		}
 	}
 }

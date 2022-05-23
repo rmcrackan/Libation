@@ -64,20 +64,20 @@
 			this.gridEntryDataGridView.AutoGenerateColumns = false;
 			this.gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.liberateGVColumn,
-            this.coverGVColumn,
-            this.titleGVColumn,
-            this.authorsGVColumn,
-            this.narratorsGVColumn,
-            this.lengthGVColumn,
-            this.seriesGVColumn,
-            this.descriptionGVColumn,
-            this.categoryGVColumn,
-            this.productRatingGVColumn,
-            this.purchaseDateGVColumn,
-            this.myRatingGVColumn,
-            this.miscGVColumn,
-            this.tagAndDetailsGVColumn});
+			this.liberateGVColumn,
+			this.coverGVColumn,
+			this.titleGVColumn,
+			this.authorsGVColumn,
+			this.narratorsGVColumn,
+			this.lengthGVColumn,
+			this.seriesGVColumn,
+			this.descriptionGVColumn,
+			this.categoryGVColumn,
+			this.productRatingGVColumn,
+			this.purchaseDateGVColumn,
+			this.myRatingGVColumn,
+			this.miscGVColumn,
+			this.tagAndDetailsGVColumn});
 			this.gridEntryDataGridView.ContextMenuStrip = this.contextMenuStrip1;
 			this.gridEntryDataGridView.DataSource = this.gridEntryBindingSource;
 			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;

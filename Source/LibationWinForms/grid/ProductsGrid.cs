@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
 using Dinah.Core.Windows.Forms;
-using FileLiberator;
 using LibationFileManager;
-using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {
@@ -36,7 +33,17 @@ namespace LibationWinForms
 
 	public partial class ProductsGrid : UserControl
 	{
-		public event EventHandler<LibraryBook> LiberateClicked;
+
+		internal delegate void LibraryBookEntryClickedEventHandler(DataGridViewCellEventArgs e, LibraryBookEntry liveGridEntry);
+		internal delegate void LibraryBookEntryRectangleClickedEventHandler(DataGridViewCellEventArgs e, LibraryBookEntry liveGridEntry, Rectangle cellRectangle);
+		internal event LibraryBookEntryClickedEventHandler LiberateClicked;
+		internal event LibraryBookEntryClickedEventHandler CoverClicked;
+		internal event LibraryBookEntryClickedEventHandler DetailsClicked;
+		internal event LibraryBookEntryRectangleClickedEventHandler DescriptionClicked;
+		public new event EventHandler<ScrollEventArgs> Scroll;
+
+		private FilterableSortableBindingList bindingList;
+
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 
@@ -53,8 +60,14 @@ namespace LibationWinForms
 			EnableDoubleBuffering();
 
 			_dataGridView.CellContentClick += DataGridView_CellContentClick;
+			_dataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
 
-			this.Load += ProductsGrid_Load;
+			Load += ProductsGrid_Load;
+		}
+
+		private void ProductsGrid_Scroll(object sender, ScrollEventArgs e)
+		{
+			throw new NotImplementedException();
 		}
 
 		private void EnableDoubleBuffering()
@@ -66,117 +79,70 @@ namespace LibationWinForms
 
 		#region Button controls
 
-		private async void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+		private void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
 		{
 			// handle grid button click: https://stackoverflow.com/a/13687844
 			if (e.RowIndex < 0)
 				return;
 
-			if (e.ColumnIndex == liberateGVColumn.Index)
-				Liberate_Click(getGridEntry(e.RowIndex));
-			else if (e.ColumnIndex == tagAndDetailsGVColumn.Index)
-				Details_Click(getGridEntry(e.RowIndex));
-			else if (e.ColumnIndex == descriptionGVColumn.Index)
-				Description_Click(getGridEntry(e.RowIndex), _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
-			else if (e.ColumnIndex == coverGVColumn.Index)
-				await Cover_Click(getGridEntry(e.RowIndex));
-		}
-
-		private ImageDisplay imageDisplay;
-		private async Task Cover_Click(GridEntry liveGridEntry)
-		{
-			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge ?? liveGridEntry.LibraryBook.Book.PictureId, PictureSize.Native);
-			var picDlTask = Task.Run(() => PictureStorage.GetPictureSynchronously(picDefinition));
-
-			(_, byte[] initialImageBts) = PictureStorage.GetPicture(new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureId, PictureSize._80x80));
-			var windowTitle = $"{liveGridEntry.Title} - Cover";
-
-			if (imageDisplay is null || imageDisplay.IsDisposed || !imageDisplay.Visible)
+			var entry = getGridEntry(e.RowIndex);
+			if (entry is LibraryBookEntry lbEntry)
 			{
-				imageDisplay = new ImageDisplay();
-				imageDisplay.RestoreSizeAndLocation(Configuration.Instance);
-				imageDisplay.FormClosed += (_, _) => imageDisplay.SaveSizeAndLocation(Configuration.Instance);
-				imageDisplay.Show(this);
+				if (e.ColumnIndex == liberateGVColumn.Index)
+					LiberateClicked?.Invoke(e, lbEntry);
+				else if (e.ColumnIndex == tagAndDetailsGVColumn.Index && entry is LibraryBookEntry)
+					DetailsClicked?.Invoke(e, lbEntry);
+				else if (e.ColumnIndex == descriptionGVColumn.Index)
+					DescriptionClicked?.Invoke(e, lbEntry, _dataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
+				else if (e.ColumnIndex == coverGVColumn.Index)
+					CoverClicked?.Invoke(e, lbEntry);
 			}
-
-			imageDisplay.BookSaveDirectory = AudibleFileStorage.Audio.GetDestinationDirectory(liveGridEntry.LibraryBook);
-			imageDisplay.PictureFileName = System.IO.Path.GetFileName(AudibleFileStorage.Audio.GetBooksDirectoryFilename(liveGridEntry.LibraryBook, ".jpg"));
-			imageDisplay.Text = windowTitle;
-			imageDisplay.CoverPicture = initialImageBts;
-			imageDisplay.CoverPicture = await picDlTask;
-		}
-
-		private void Description_Click(GridEntry liveGridEntry, Rectangle cellDisplay)
-		{
-			var displayWindow = new DescriptionDisplay
+			else if (entry is SeriesEntry sEntry && e.ColumnIndex == liberateGVColumn.Index)
 			{
-				SpawnLocation = PointToScreen(cellDisplay.Location + new Size(cellDisplay.Width, 0)),
-				DescriptionText = liveGridEntry.LongDescription,
-				BorderThickness = 2,
-			};
+				if (sEntry.Liberate.Expanded)
+					bindingList.CollapseItem(sEntry);
+				else
+					bindingList.ExpandItem(sEntry);
 
-			void CloseWindow(object o, EventArgs e)
-			{
-				displayWindow.Close();
+				sEntry.NotifyPropertyChanged(nameof(sEntry.Liberate));
 			}
-
-			_dataGridView.Scroll += CloseWindow;
-			displayWindow.FormClosed += (_, _) => _dataGridView.Scroll -= CloseWindow;
-			displayWindow.Show(this);
 		}
 
-		private void Liberate_Click(GridEntry liveGridEntry)
-		{
-			LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
-		}
-
-		private static void Details_Click(GridEntry liveGridEntry)
-		{
-			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
-			if (bookDetailsForm.ShowDialog() == DialogResult.OK)
-				liveGridEntry.Commit(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
-		}
+		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
 
 		#endregion
 
 		#region UI display functions
 
-		private FilterableSortableBindingList bindingList;
-
-		private bool hasBeenDisplayed;
-		public event EventHandler InitialLoaded;
-		public void Display()
+		internal void bindToGrid(List<LibraryBook> dbBooks)
 		{
-			// don't return early if lib size == 0. this will not update correctly if all books are removed
-			var lib = DbContexts.GetLibrary_Flat_NoTracking();
+			var geList = dbBooks.Where(b => b.Book.ContentType is not ContentType.Episode).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
 
-			if (!hasBeenDisplayed)
+			var episodes = dbBooks.Where(b => b.Book.ContentType is ContentType.Episode).ToList();
+
+			var series = episodes.Select(lb => lb.Book.SeriesLink.First()).DistinctBy(s => s.Series).ToList();
+
+			foreach (var s in series)
 			{
-				// bind
-				bindToGrid(lib);
-				hasBeenDisplayed = true;
-				InitialLoaded?.Invoke(this, new());
-				VisibleCountChanged?.Invoke(this, bindingList.Count);
+				var seriesEntry = new SeriesEntry();
+				seriesEntry.Children = episodes.Where(lb => lb.Book.SeriesLink.First().Series == s.Book.SeriesLink.First().Series).Select(lb => new LibraryBookEntry(lb) { Parent = seriesEntry }).Cast<GridEntry>().ToList();
+
+				seriesEntry.setSeriesBook(s);
+				geList.Add(seriesEntry);
 			}
-			else
-				updateGrid(lib);
 
-		}
-
-		private void bindToGrid(List<LibraryBook> dbBooks)
-		{
-			bindingList = new FilterableSortableBindingList(dbBooks.OrderByDescending(lb => lb.DateAdded).Select(lb => new GridEntry(lb)));
+			bindingList = new FilterableSortableBindingList(geList.OrderByDescending(ge => ge.DateAdded));
 			gridEntryBindingSource.DataSource = bindingList;
 		}
 
-		private void updateGrid(List<LibraryBook> dbBooks)
+		internal void updateGrid(List<LibraryBook> dbBooks)
 		{
 			int visibleCount = bindingList.Count;
 			string existingFilter = gridEntryBindingSource.Filter;
 
 			//Add absent books to grid, or update current books
 
-			var allItmes = bindingList.AllItems();
+			var allItmes = bindingList.AllItems().Where(i => i is LibraryBookEntry).Cast<LibraryBookEntry>();
 			for (var i = dbBooks.Count - 1; i >= 0; i--)
 			{
 				var libraryBook = dbBooks[i];
@@ -184,10 +150,37 @@ namespace LibationWinForms
 
 				// add new to top
 				if (existingItem is null)
-					bindingList.Insert(0, new GridEntry(libraryBook));
+				{
+					var lb = new LibraryBookEntry(libraryBook);
+
+					if (libraryBook.Book.ContentType is ContentType.Episode)
+					{
+						//Find the series that libraryBook, if it exists
+						var series = bindingList.AllItems().Where(i => i is SeriesEntry).Cast<SeriesEntry>().FirstOrDefault(i => libraryBook.Book.SeriesLink.Any(s => s.Series.Name == i.Series));
+
+						if (series is null)
+						{
+							//Series doesn't exist yet, so create and add it
+							var newSeries = new SeriesEntry { Children = new List<GridEntry> { lb } };
+							newSeries.setSeriesBook(libraryBook.Book.SeriesLink.First());
+							lb.Parent = newSeries;
+							newSeries.Liberate.Expanded = true;
+							bindingList.Insert(0, newSeries);
+						}
+						else
+						{
+							lb.Parent = series;
+							series.Children.Add(lb);
+						}
+					}
+					//Add the new product
+					bindingList.Insert(0, lb);
+				}
 				// update existing
 				else
+				{
 					existingItem.UpdateLibraryBook(libraryBook);
+				}
 			}
 
 			if (bindingList.Count != visibleCount)
@@ -199,13 +192,22 @@ namespace LibationWinForms
 
 			// remove deleted from grid.
 			// note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
-			var removedBooks = 
+			var removedBooks =
 				bindingList
 				.AllItems()
-				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId)
-				.ToList();
+				.Where(i => i is LibraryBookEntry)
+				.Cast<LibraryBookEntry>()
+				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
 
-			foreach (var removed in removedBooks)
+			//Remove series that have no children
+			var removedSeries =
+				bindingList
+				.AllItems()
+				.Where(i => i is SeriesEntry)
+				.Cast<SeriesEntry>()
+				.Where(i => removedBooks.Count(r => r.Series == i.Series) == i.Children.Count);
+
+			foreach (var removed in removedBooks.Cast<GridEntry>().Concat(removedSeries))
 				//no need to re-filter for removed books
 				bindingList.Remove(removed);
 
@@ -232,12 +234,11 @@ namespace LibationWinForms
 
 		#endregion
 
-		internal List<LibraryBook> GetVisible()
+		internal IEnumerable<LibraryBook> GetVisible()
 			=> bindingList
-			.Select(row => row.LibraryBook)
-			.ToList();
-
-		private GridEntry getGridEntry(int rowIndex) => _dataGridView.GetBoundItem<GridEntry>(rowIndex);
+			.Where(row => row is LibraryBookEntry)
+			.Cast<LibraryBookEntry>()
+			.Select(row => row.LibraryBook);
 
 		#region Column Customizations
 
@@ -293,8 +294,6 @@ namespace LibationWinForms
 
 				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
 			}
-
-			base.OnVisibleChanged(e);
 		}
 
 		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)

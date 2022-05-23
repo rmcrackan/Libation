@@ -12,7 +12,7 @@ namespace LibationWinForms
 {
 	public partial class Form1 : Form
 	{
-		private ProductsGrid productsGrid { get; }
+		private ProductsDisplay productsGrid { get; }
 
 		public Form1()
 		{
@@ -26,7 +26,7 @@ namespace LibationWinForms
 				//   Failed to create component 'ProductsGrid'.  The error message follows:
 				//   'Microsoft.DotNet.DesignTools.Client.DesignToolsServerException: Object reference not set to an instance of an object.
 				// Since the designer's choking on it, I'm keeping it below the DesignMode check to be safe
-				productsGrid = new ProductsGrid { Dock = DockStyle.Fill };
+				productsGrid = new ProductsDisplay { Dock = DockStyle.Fill };
 				gridPanel.Controls.Add(productsGrid);
 			}
 

@@ -20,15 +20,27 @@ namespace LibationWinForms
 		{
 			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
-			if (value is (LiberatedStatus, LiberatedStatus) or (LiberatedStatus, null))
+			if (value is LiberateStatus status)
 			{
-				var (bookState, pdfState) = ((LiberatedStatus bookState, LiberatedStatus? pdfState))value;
+				if (status.IsSeries)
+				{
+					var imageName = status.Expanded ? "minus" : "plus";
+					var text = status.Expanded ? "Click to Collpase" : "Click to Expand";
 
-				(string mouseoverText, Bitmap buttonImage) = GetLiberateDisplay(bookState, pdfState);
+					var bmp = (Bitmap)Properties.Resources.ResourceManager.GetObject(imageName);
+					DrawButtonImage(graphics, bmp, cellBounds);
 
-				DrawButtonImage(graphics, buttonImage, cellBounds);
+					ToolTipText = text;
 
-				ToolTipText = mouseoverText;
+				}
+				else
+				{
+					(string mouseoverText, Bitmap buttonImage) = GetLiberateDisplay(status.BookStatus, status.PdfStatus);
+
+					DrawButtonImage(graphics, buttonImage, cellBounds);
+
+					ToolTipText = mouseoverText;
+				}
 			}
 		}
 

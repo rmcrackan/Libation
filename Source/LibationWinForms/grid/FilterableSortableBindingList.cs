@@ -19,14 +19,16 @@ namespace LibationWinForms
      * Remove is overridden to ensure that removed items are removed from
      * the base list (visible items) as well as the FilterRemoved list.
      */
-	internal class FilterableSortableBindingList : SortableBindingList<GridEntry>, IBindingListView
+	internal class FilterableSortableBindingList : SortableBindingList1<GridEntry>, IBindingListView
 	{
 		/// <summary>
 		/// Items that were removed from the base list due to filtering
 		/// </summary>
 		private readonly List<GridEntry> FilterRemoved = new();
 		private string FilterString;
+		private LibationSearchEngine.SearchResultSet SearchResults;
 		public FilterableSortableBindingList(IEnumerable<GridEntry> enumeration) : base(enumeration) { }
+		public FilterableSortableBindingList() : base(new List<GridEntry>()) { }
 
 		public bool SupportsFiltering => true;
 		public string Filter { get => FilterString; set => ApplyFilter(value); }
@@ -48,7 +50,14 @@ namespace LibationWinForms
 		}
 
 		/// <returns>All items in the list, including those filtered out.</returns>
-		public List<GridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
+		public List<GridEntry> AllItems()
+		{
+			var allItems = Items.Concat(FilterRemoved);
+
+			var series = allItems.Where(i => i is SeriesEntry).Cast<SeriesEntry>().SelectMany(s => s.Children);
+
+			return series.Concat(allItems).ToList();
+		}
 
 		private void ApplyFilter(string filterString)
 		{
@@ -57,18 +66,49 @@ namespace LibationWinForms
 
 			FilterString = filterString;
 
-			var searchResults = SearchEngineCommands.Search(filterString);
-			var filteredOut = Items.ExceptBy(searchResults.Docs.Select(d => d.ProductId), ge => ge.AudibleProductId);
+			SearchResults = SearchEngineCommands.Search(filterString);
+			var filteredOut = Items.Where(i => i is LibraryBookEntry).Cast<LibraryBookEntry>().ExceptBy(SearchResults.Docs.Select(d => d.ProductId), ge => ge.AudibleProductId).Cast<GridEntry>().ToList();
 
-			for (int i = Items.Count - 1; i >= 0; i--)
+			var parents = Items.Where(i => i is SeriesEntry).Cast<SeriesEntry>();
+
+			foreach (var p in parents)
 			{
-				if (filteredOut.Contains(Items[i]))
+				if (p.Children.Cast<LibraryBookEntry>().ExceptBy(SearchResults.Docs.Select(d => d.ProductId), ge => ge.AudibleProductId).Count() == p.Children.Count)
 				{
-					FilterRemoved.Add(Items[i]);
-					Items.RemoveAt(i);
-					base.OnListChanged(new ListChangedEventArgs(ListChangedType.ItemDeleted, i));
+					//Don't show series whose episodes have all been filtered out
+					filteredOut.Add(p);
 				}
 			}
+
+			for (int i = 0; i < filteredOut.Count; i++)
+			{
+				FilterRemoved.Add(filteredOut[i]);
+				base.Remove(filteredOut[i]);
+			}
+		}
+
+		public void CollapseItem(SeriesEntry sEntry)
+		{
+			foreach (var item in Items.Where(b => b is LibraryBookEntry).Cast<LibraryBookEntry>().Where(b => b.Parent == sEntry).ToList())
+				base.Remove(item);
+
+			sEntry.Liberate.Expanded = false;
+		}
+
+		public void ExpandItem(SeriesEntry sEntry)
+		{
+			var sindex = Items.IndexOf(sEntry);
+			var children = sEntry.Children.Cast<LibraryBookEntry>().ToList();
+			for (int i = 0; i < children.Count; i++)
+			{
+				if (SearchResults is null || SearchResults.Docs.Any(d=> d.ProductId == children[i].AudibleProductId))
+					Insert(++sindex, children[i]);
+				else
+				{
+					FilterRemoved.Add(children[i]);
+				}
+			}
+			sEntry.Liberate.Expanded = true;
 		}
 
 		public void RemoveFilter()
@@ -77,18 +117,27 @@ namespace LibationWinForms
 
 			int visibleCount = Items.Count;
 			for (int i = 0; i < FilterRemoved.Count; i++)
-				base.InsertItem(i + visibleCount, FilterRemoved[i]);
-			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
+			{
+				if (FilterRemoved[i].Parent is null || FilterRemoved[i].Parent.Liberate.Expanded)
+					base.InsertItem(i + visibleCount, FilterRemoved[i]);
+			}
 
 			FilterRemoved.Clear();
 
 			if (IsSortedCore)
 				Sort();
 			else
-				//No user-defined sort is applied, so do default sorting by date added, descending
-				((List<GridEntry>)Items).Sort((i1, i2) => i2.LibraryBook.DateAdded.CompareTo(i1.LibraryBook.DateAdded));
+			//No user sort is applied, so do default sorting by PurchaseDate, descending
+			{
+				Comparer.PropertyName = nameof(GridEntry.DateAdded);
+				Comparer.Direction = ListSortDirection.Descending;
+				Sort();
+			}
+
+			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
 
 			FilterString = null;
+			SearchResults = null;
 		}
 	}
 }
