@@ -14,22 +14,17 @@ namespace LibationWinForms
 {
 	public partial class ProductsDisplay : UserControl
 	{
-		public event EventHandler<LibraryBook> LiberateClicked;
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
+		public event EventHandler<LibraryBook> LiberateClicked;
+		public event EventHandler InitialLoaded;
+
+		private bool hasBeenDisplayed;
 
 		public ProductsDisplay()
 		{
 			InitializeComponent();
 		}
-
-		private void ProductsDisplay_Load(object sender, EventArgs e)
-		{
-			if (DesignMode)
-				return;
-
-		}
-
 
 		#region Button controls		
 
@@ -76,7 +71,6 @@ namespace LibationWinForms
 			displayWindow.Show(this);
 		}
 
-
 		private void productsGrid_DetailsClicked(LibraryBookEntry liveGridEntry)
 		{
 			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
@@ -88,8 +82,6 @@ namespace LibationWinForms
 
 		#region UI display functions
 
-		private bool hasBeenDisplayed;
-		public event EventHandler InitialLoaded;
 		public void Display()
 		{
 			// don't return early if lib size == 0. this will not update correctly if all books are removed

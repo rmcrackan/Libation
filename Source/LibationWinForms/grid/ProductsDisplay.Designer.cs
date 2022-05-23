@@ -53,7 +53,6 @@
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Name = "ProductsDisplay";
 			this.Size = new System.Drawing.Size(1510, 380);
-			this.Load += new System.EventHandler(this.ProductsDisplay_Load);
 			this.ResumeLayout(false);
 
 		}

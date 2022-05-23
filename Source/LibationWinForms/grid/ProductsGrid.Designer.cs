@@ -29,7 +29,7 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.gridEntryDataGridView = new System.Windows.Forms.DataGridView();
 			this.liberateGVColumn = new LibationWinForms.LiberateDataGridViewImageButtonColumn();
 			this.coverGVColumn = new System.Windows.Forms.DataGridViewImageColumn();
@@ -46,7 +46,11 @@
 			this.miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.tagAndDetailsGVColumn = new LibationWinForms.EditTagsDataGridViewImageButtonColumn();
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.syncBindingSource = new LibationWinForms.SyncBindingSource(this.components);
+			this.bindingSource = new System.Windows.Forms.BindingSource(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.bindingSource)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// gridEntryDataGridView
@@ -55,6 +59,7 @@
 			this.gridEntryDataGridView.AllowUserToDeleteRows = false;
 			this.gridEntryDataGridView.AllowUserToOrderColumns = true;
 			this.gridEntryDataGridView.AllowUserToResizeRows = false;
+			this.gridEntryDataGridView.AutoGenerateColumns = false;
 			this.gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.liberateGVColumn,
@@ -72,14 +77,15 @@
             this.miscGVColumn,
             this.tagAndDetailsGVColumn});
 			this.gridEntryDataGridView.ContextMenuStrip = this.contextMenuStrip1;
-			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-			dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-			this.gridEntryDataGridView.DefaultCellStyle = dataGridViewCellStyle1;
+			this.gridEntryDataGridView.DataSource = this.syncBindingSource;
+			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+			dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+			dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.gridEntryDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
 			this.gridEntryDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gridEntryDataGridView.Location = new System.Drawing.Point(0, 0);
 			this.gridEntryDataGridView.Name = "gridEntryDataGridView";
@@ -90,7 +96,6 @@
 			this.gridEntryDataGridView.TabIndex = 0;
 			this.gridEntryDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentClick);
 			this.gridEntryDataGridView.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.gridEntryDataGridView_CellToolTipTextNeeded);
-			this.gridEntryDataGridView.ColumnDisplayIndexChanged += new System.Windows.Forms.DataGridViewColumnEventHandler(this.gridEntryDataGridView_ColumnDisplayIndexChanged);
 			// 
 			// liberateGVColumn
 			// 
@@ -209,6 +214,14 @@
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
 			this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
 			// 
+			// syncBindingSource
+			// 
+			this.syncBindingSource.DataSource = this.bindingSource;
+			// 
+			// bindingSource
+			// 
+			this.bindingSource.DataSource = typeof(LibationWinForms.GridEntry);
+			// 
 			// ProductsGrid
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -219,6 +232,8 @@
 			this.Size = new System.Drawing.Size(1510, 380);
 			this.Load += new System.EventHandler(this.ProductsGrid_Load);
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.bindingSource)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -241,5 +256,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn myRatingGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn miscGVColumn;
 		private EditTagsDataGridViewImageButtonColumn tagAndDetailsGVColumn;
+		private SyncBindingSource syncBindingSource;
+		private System.Windows.Forms.BindingSource bindingSource;
 	}
 }

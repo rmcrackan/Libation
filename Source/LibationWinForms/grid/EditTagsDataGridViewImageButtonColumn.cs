@@ -21,7 +21,7 @@ namespace LibationWinForms
 		{
 			if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is SeriesEntry)
 			{
-				base.Paint(graphics, clipBounds, cellBounds, rowIndex, DataGridViewElementStates.None, null, null, null, cellStyle, advancedBorderStyle, DataGridViewPaintParts.Background | DataGridViewPaintParts.Border);
+				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, DataGridViewPaintParts.Background | DataGridViewPaintParts.Border);
 				return;
 			}
 

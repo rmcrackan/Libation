@@ -25,13 +25,11 @@ namespace LibationWinForms
 				if (status.IsSeries)
 				{
 					var imageName = status.Expanded ? "minus" : "plus";
-					var text = status.Expanded ? "Click to Collpase" : "Click to Expand";
 
 					var bmp = (Bitmap)Properties.Resources.ResourceManager.GetObject(imageName);
 					DrawButtonImage(graphics, bmp, cellBounds);
 
-					ToolTipText = text;
-
+					ToolTipText = status.Expanded ? "Click to Collpase" : "Click to Expand";
 				}
 				else
 				{

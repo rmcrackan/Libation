@@ -24,15 +24,14 @@ namespace LibationWinForms.grid
 		public new event EventHandler<ScrollEventArgs> Scroll;
 
 		private FilterableSortableBindingList bindingList;
-		private SyncBindingSource gridEntryBindingSource;
+		internal IEnumerable<LibraryBookEntry> GetVisible()
+			=> bindingList
+			.LibraryBooks();
 
 		public ProductsGrid()
 		{
 			InitializeComponent();
 			EnableDoubleBuffering();
-			//There a bug in designer that causes errors if you add BindingSource to the DataGridView at design time. 
-			gridEntryBindingSource = new SyncBindingSource();
-			gridEntryDataGridView.DataSource = gridEntryBindingSource;
 			gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
 		}
 
@@ -105,14 +104,14 @@ namespace LibationWinForms.grid
 
 			bindingList = new FilterableSortableBindingList(geList.OrderByDescending(e => e.DateAdded));
 			bindingList.CollapseAll();
-			gridEntryBindingSource.DataSource = bindingList;
+			syncBindingSource.DataSource = bindingList;
 			VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
 		}
 
 		internal void UpdateGrid(List<LibraryBook> dbBooks)
 		{
 			int visibleCount = bindingList.Count;
-			string existingFilter = gridEntryBindingSource.Filter;
+			string existingFilter = syncBindingSource.Filter;
 
 			//Add absent books to grid, or update current books
 
@@ -206,9 +205,9 @@ namespace LibationWinForms.grid
 			int visibleCount = bindingList.Count;
 
 			if (string.IsNullOrEmpty(searchString))
-				gridEntryBindingSource.RemoveFilter();
+				syncBindingSource.RemoveFilter();
 			else
-				gridEntryBindingSource.Filter = searchString;
+				syncBindingSource.Filter = searchString;
 
 			if (visibleCount != bindingList.Count)
 				VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
@@ -217,13 +216,15 @@ namespace LibationWinForms.grid
 
 		#endregion
 
-		internal IEnumerable<LibraryBookEntry> GetVisible()
-			=> bindingList
-			.LibraryBooks();
+		#region Column Customizations
 
 		private void ProductsGrid_Load(object sender, EventArgs e)
 		{
+			//https://stackoverflow.com/a/4498512/3335599
+			if (System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime) return;
+
 			gridEntryDataGridView.ColumnWidthChanged += gridEntryDataGridView_ColumnWidthChanged;
+			gridEntryDataGridView.ColumnDisplayIndexChanged += gridEntryDataGridView_ColumnDisplayIndexChanged;
 
 			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
 			contextMenuStrip1.Items.Add(new ToolStripSeparator());
@@ -272,6 +273,7 @@ namespace LibationWinForms.grid
 				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
 			}
 		}
+
 		private void HideMenuItem_Click(object sender, EventArgs e)
 		{
 			var menuItem = sender as ToolStripMenuItem;
@@ -319,5 +321,7 @@ namespace LibationWinForms.grid
 			var dictionary = config.GridColumnsWidths;
 			dictionary[e.Column.DataPropertyName] = e.Column.Width;
 		}
+
+		#endregion
 	}
 }

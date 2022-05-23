@@ -14,17 +14,41 @@ namespace LibationWinForms
 	{
 		public List<LibraryBookEntry> Children { get; set; }
 		public override DateTime DateAdded => Children.Max(c => c.DateAdded);
-		public override string ProductRating { get; protected set; }
+		public override string ProductRating
+		{
+			get
+			{
+				var productAverageRating = new Rating(Children.Average(c => c.LibraryBook.Book.Rating.OverallRating), Children.Average(c => c.LibraryBook.Book.Rating.PerformanceRating), Children.Average(c => c.LibraryBook.Book.Rating.StoryRating));
+				return productAverageRating.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			}
+			protected set => throw new NotImplementedException();
+		}
 		public override string PurchaseDate { get; protected set; }
-		public override string MyRating { get; protected set; }
+		public override string MyRating
+		{
+			get
+			{
+				var myAverageRating = new Rating(Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.OverallRating), Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.PerformanceRating), Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.StoryRating));
+				return myAverageRating.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			}
+			protected set => throw new NotImplementedException();
+		}
 		public override string Series { get; protected set; }
 		public override string Title { get; protected set; }
-		public override string Length { get; protected set; }
+		public override string Length 
+		{ 
+			get
+			{
+				int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
+				return bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
+			} 
+			protected set => throw new NotImplementedException(); 
+		}
 		public override string Authors { get; protected set; }
 		public override string Narrators { get; protected set; }
 		public override string Category { get; protected set; }
-		public override string Misc { get; protected set; }
-		public override string Description { get; protected set; }
+		public override string Misc { get; protected set; } = string.Empty;
+		public override string Description { get; protected set; } = string.Empty;
 		public override string DisplayTags { get; } = string.Empty;
 
 		public override LiberateStatus Liberate => _liberate;
@@ -34,6 +58,7 @@ namespace LibationWinForms
 		private SeriesBook SeriesBook { get; set; }
 
 		private LiberateStatus _liberate = new LiberateStatus { IsSeries = true };
+
 		public void setSeriesBook(SeriesBook seriesBook)
 		{
 			SeriesBook = seriesBook;
@@ -42,18 +67,9 @@ namespace LibationWinForms
 
 			// Immutable properties
 			{
-				int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
-
-				var myAverageRating = new Rating(Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.OverallRating), Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.PerformanceRating), Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.StoryRating));
-				var productAverageRating = new Rating(Children.Average(c => c.LibraryBook.Book.Rating.OverallRating), Children.Average(c => c.LibraryBook.Book.Rating.PerformanceRating), Children.Average(c => c.LibraryBook.Book.Rating.StoryRating));
-
-
 				Title = SeriesBook.Series.Name;
 				Series = SeriesBook.Series.Name;
-				Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
-				MyRating = myAverageRating.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 				PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
-				ProductRating = productAverageRating.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 				Authors = Book.AuthorNames();
 				Narrators = Book.NarratorNames();
 				Category = string.Join(" > ", Book.CategoriesNames());
