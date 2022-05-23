@@ -75,7 +75,6 @@ namespace LibationWinForms.ProcessQueue
 		/// </summary>
 		private readonly int TopMargin;
 
-		private readonly VScrollBar vScrollBar1;
 		private readonly List<ProcessBookControl> BookControls = new();
 
 		#endregion
@@ -101,16 +100,6 @@ namespace LibationWinForms.ProcessQueue
 		{
 			InitializeComponent();
 
-			vScrollBar1 = new VScrollBar
-			{
-				Minimum = 0,
-				Value = 0,
-				Dock = DockStyle.Right
-			};
-			Controls.Add(vScrollBar1);
-
-			vScrollBar1.Scroll += (_, s) => SetScrollPosition(s.NewValue);
-			panel1.Width -= vScrollBar1.Width + panel1.Margin.Right;
 			panel1.Resize += (_, _) =>
 			{
 				AdjustScrollBar();
@@ -135,6 +124,7 @@ namespace LibationWinForms.ProcessQueue
 				panel1.Controls.Add(control);
 			}
 
+			vScrollBar1.Scroll += (_, s) => SetScrollPosition(s.NewValue);
 			vScrollBar1.SmallChange = SmallScrollChange;
 			panel1.Height += NUM_BLANK_SPACES_AT_BOTTOM * VirtualControlHeight;
 		}
@@ -227,6 +217,8 @@ namespace LibationWinForms.ProcessQueue
 		/// </summary>
 		private void SetScrollPosition(int value)
 		{
+			if (!vScrollBar1.Enabled) return;
+
 			int newPos = (int)Math.Round((double)value / SmallScrollChange) * SmallScrollChange;
 			if (vScrollBar1.Value != newPos)
 			{
