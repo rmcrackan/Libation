@@ -169,7 +169,7 @@ namespace LibationWinForms.ProcessQueue
 			if (IsDisposed) return;
 
 			var timeStamp = DateTime.Now;
-			logDGV.Rows.Add(timeStamp, text.Trim());
+			Invoke(() => logDGV.Rows.Add(timeStamp, text.Trim()));
 		}
 
 		#region Control event handlers

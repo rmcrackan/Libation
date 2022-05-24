@@ -19,7 +19,7 @@ namespace LibationWinForms.ProcessQueue
 			LogErrorString += (_, text) => Serilog.Log.Logger.Error(text);
 			LogError += (_, tuple) => Serilog.Log.Logger.Error(tuple.Item1, tuple.Item2 ?? "Automated backup: error");
 		}
-
+		private static ILogForm LogForm;
 		public static LogMe RegisterForm<T>(T form) where T : ILogForm
 		{
 			var logMe = new LogMe();
@@ -27,17 +27,29 @@ namespace LibationWinForms.ProcessQueue
 			if (form is null)
 				return logMe;
 
-			logMe.LogInfo += (_, text) => form?.WriteLine(text);
+			LogForm = form;
 
-			logMe.LogErrorString += (_, text) => form?.WriteLine(text);
-
-			logMe.LogError += (_, tuple) =>
-			{
-				form?.WriteLine(tuple.Item2 ?? "Automated backup: error");
-				form?.WriteLine("ERROR: " + tuple.Item1.Message);
-			};
+			logMe.LogInfo += LogMe_LogInfo;
+			logMe.LogErrorString += LogMe_LogErrorString;
+			logMe.LogError += LogMe_LogError;
 
 			return logMe;
+		}
+
+		private static async void LogMe_LogError(object sender, (Exception, string) tuple)
+		{
+			await Task.Run(() => LogForm?.WriteLine(tuple.Item2 ?? "Automated backup: error"));
+			await Task.Run(() => LogForm?.WriteLine("ERROR: " + tuple.Item1.Message));
+		}
+
+		private static async void LogMe_LogErrorString(object sender, string text)
+		{
+			await Task.Run(() => LogForm?.WriteLine(text));
+		}
+
+		private static async void LogMe_LogInfo(object sender, string text)
+		{
+			await Task.Run(() => LogForm?.WriteLine(text));
 		}
 
 		public void Info(string text) => LogInfo?.Invoke(this, text);
