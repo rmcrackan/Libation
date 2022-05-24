@@ -63,7 +63,11 @@ namespace LibationWinForms.GridView
 		}
 		#endregion
 
-		public LibraryBookEntry(LibraryBook libraryBook) => setLibraryBook(libraryBook);
+		public LibraryBookEntry(LibraryBook libraryBook)
+		{
+			setLibraryBook(libraryBook);
+			LoadCover();
+		}
 
 		public SeriesEntry Parent { get; init; }
 		public void UpdateLibraryBook(LibraryBook libraryBook)
@@ -78,9 +82,9 @@ namespace LibationWinForms.GridView
 
 		private void setLibraryBook(LibraryBook libraryBook)
 		{
-			LibraryBook = libraryBook;			
+			LibraryBook = libraryBook;
 
-			LoadCover();
+			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
 
 			// Immutable properties
 			{
