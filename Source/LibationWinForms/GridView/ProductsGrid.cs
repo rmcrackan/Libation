@@ -105,6 +105,8 @@ namespace LibationWinForms.GridView
 			string existingFilter = syncBindingSource.Filter;
 			Filter(null);
 
+			bindingList.SuspendFilteringOnUpdate = true;
+
 			//Add absent books to grid, or update current books
 
 			var allItmes = bindingList.AllItems().LibraryBooks();
@@ -156,6 +158,8 @@ namespace LibationWinForms.GridView
 					existingItem.UpdateLibraryBook(libraryBook);
 				}
 			}
+
+			bindingList.SuspendFilteringOnUpdate = false;
 
 			//Re-filter after updating existing / adding new books to capture any changes
 			Filter(existingFilter);

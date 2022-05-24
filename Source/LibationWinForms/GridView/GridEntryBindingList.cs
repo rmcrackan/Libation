@@ -30,6 +30,9 @@ namespace LibationWinForms.GridView
 		public bool SupportsFiltering => true;
 		public string Filter { get => FilterString; set => ApplyFilter(value); }
 
+		/// <summary>When true, itms will not be checked filtered by search criteria on item changed<summary>
+		public bool SuspendFilteringOnUpdate { get; set; }
+
 		protected MemberComparer<GridEntry> Comparer { get; } = new();
 		protected override bool SupportsSortingCore => true;
 		protected override bool SupportsSearchingCore => true;
@@ -195,7 +198,7 @@ namespace LibationWinForms.GridView
 		{
 			if (e.ListChangedType == ListChangedType.ItemChanged)
 			{
-				if (Items[e.NewIndex] is LibraryBookEntry lbItem)
+				if (FilterString is not null && !SuspendFilteringOnUpdate && Items[e.NewIndex] is LibraryBookEntry lbItem)
 				{
 					SearchResults = SearchEngineCommands.Search(FilterString);
 					if (!SearchResults.Docs.Any(d => d.ProductId == lbItem.AudibleProductId))
