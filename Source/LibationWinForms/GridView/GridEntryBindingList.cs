@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using Dinah.Core.DataBinding;
+using LibationSearchEngine;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,15 +22,13 @@ namespace LibationWinForms.GridView
 	 */
 	internal class GridEntryBindingList : BindingList<GridEntry>, IBindingListView
 	{
-		private bool isSorted;
-		private ListSortDirection listSortDirection;
-		private PropertyDescriptor propertyDescriptor;
-
 		public GridEntryBindingList() : base(new List<GridEntry>()) { }
 		public GridEntryBindingList(IEnumerable<GridEntry> enumeration) : base(new List<GridEntry>(enumeration)) { }
 
 		/// <returns>All items in the list, including those filtered out.</returns>
 		public List<GridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
+		public bool SupportsFiltering => true;
+		public string Filter { get => FilterString; set => ApplyFilter(value); }
 
 		protected MemberComparer<GridEntry> Comparer { get; } = new();
 		protected override bool SupportsSortingCore => true;
@@ -37,15 +36,14 @@ namespace LibationWinForms.GridView
 		protected override bool IsSortedCore => isSorted;
 		protected override PropertyDescriptor SortPropertyCore => propertyDescriptor;
 		protected override ListSortDirection SortDirectionCore => listSortDirection;
-		public bool SupportsFiltering => true;
-		public string Filter { get => FilterString; set => ApplyFilter(value); }
 
-		/// <summary>
-		/// Items that were removed from the base list due to filtering
-		/// </summary>
+		/// <summary> Items that were removed from the base list due to filtering </summary>
 		private readonly List<GridEntry> FilterRemoved = new();
 		private string FilterString;
-		private LibationSearchEngine.SearchResultSet SearchResults;
+		private SearchResultSet SearchResults;
+		private bool isSorted;
+		private ListSortDirection listSortDirection;
+		private PropertyDescriptor propertyDescriptor;
 
 
 		#region Unused - Advanced Filtering
@@ -118,11 +116,9 @@ namespace LibationWinForms.GridView
 				if (SearchResults is null || SearchResults.Docs.Any(d => d.ProductId == episode.AudibleProductId))
 				{
 					FilterRemoved.Remove(episode);
-					Items.Insert(++sindex, episode);
+					InsertItem(++sindex, episode);
 				}
 			}
-
-			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
 			sEntry.Liberate.Expanded = true;
 		}
 
@@ -137,7 +133,7 @@ namespace LibationWinForms.GridView
 				if (item is SeriesEntry || (item is LibraryBookEntry lbe && (lbe.Parent is null || lbe.Parent.Liberate.Expanded)))
 				{
 					FilterRemoved.Remove(item);
-					base.InsertItem(visibleCount++, item);
+					InsertItem(visibleCount++, item);
 				}
 			}
 
@@ -175,36 +171,52 @@ namespace LibationWinForms.GridView
 		{
 			var itemsList = (List<GridEntry>)Items;
 
-			var sortedItems = Items.OrderBy(ge => ge, Comparer).ToList();
+			var children = itemsList.LibraryBooks().Where(i => i.Parent is not null).ToList();
 
-			var children = sortedItems.LibraryBooks().Where(i => i.Parent is not null).ToList();
+			var sortedItems = itemsList.Except(children).OrderBy(ge => ge, Comparer).ToList();
 
 			itemsList.Clear();
 
 			//Only add parentless items at this stage. After these items are added in the
 			//correct sorting order, go back and add the children beneath their parents.
-			itemsList.AddRange(sortedItems.Except(children));
+			itemsList.AddRange(sortedItems);
 
 			foreach (var parent in children.Select(c => c.Parent).Distinct())
 			{
 				var pIndex = itemsList.IndexOf(parent);
-				foreach (var c in children.Where(c => c.Parent == parent))
+
+				//children should always be sorted by series index.
+				foreach (var c in children.Where(c => c.Parent == parent).OrderBy(c => c.SeriesIndex))
 					itemsList.Insert(++pIndex, c);
 			}
 		}
 
 		protected override void OnListChanged(ListChangedEventArgs e)
 		{
-			if (isSorted && e.ListChangedType == ListChangedType.ItemChanged && e.PropertyDescriptor == SortPropertyCore)
+			if (e.ListChangedType == ListChangedType.ItemChanged)
 			{
-				var item = Items[e.NewIndex];
-				Sort();
-				var newIndex = Items.IndexOf(item);
+				if (Items[e.NewIndex] is LibraryBookEntry lbItem)
+				{
+					SearchResults = SearchEngineCommands.Search(FilterString);
+					if (!SearchResults.Docs.Any(d => d.ProductId == lbItem.AudibleProductId))
+					{
+						FilterRemoved.Add(lbItem);
+						base.Remove(lbItem);
+						return;
+					}
+				}
 
-				base.OnListChanged(new ListChangedEventArgs(ListChangedType.ItemMoved, newIndex, e.NewIndex));
+				if (isSorted && e.PropertyDescriptor == SortPropertyCore)
+				{
+					var item = Items[e.NewIndex];
+					Sort();
+					var newIndex = Items.IndexOf(item);
+
+					base.OnListChanged(new ListChangedEventArgs(ListChangedType.ItemMoved, newIndex, e.NewIndex));
+					return;
+				}
 			}
-			else
-				base.OnListChanged(e);
+			base.OnListChanged(e);
 		}
 
 		protected override void RemoveSortCore()

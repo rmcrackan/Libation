@@ -1,4 +1,5 @@
 ﻿using DataLayer;
+using Dinah.Core.Windows.Forms;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -15,12 +16,18 @@ namespace LibationWinForms.GridView
 
 	internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell
 	{
+		private static readonly Color SERIES_BG_COLOR = Color.LightSkyBlue;
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
 			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
 			if (value is LiberateButtonStatus status)
 			{
+				if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is LibraryBookEntry lbEntry && lbEntry.Parent is not null)
+				{
+					DataGridView.Rows[rowIndex].DefaultCellStyle.BackColor = SERIES_BG_COLOR;
+				}
+
 				if (status.IsSeries)
 				{
 					var imageName = status.Expanded ? "minus" : "plus";

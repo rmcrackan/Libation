@@ -32,6 +32,7 @@ namespace LibationWinForms.GridView
 		private LiberatedStatus? _pdfStatus;
 
 		public override DateTime DateAdded => LibraryBook.DateAdded;
+		public override float SeriesIndex => Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 		public override string ProductRating { get; protected set; }
 		public override string PurchaseDate { get; protected set; }
 		public override string MyRating { get; protected set; }
@@ -77,8 +78,7 @@ namespace LibationWinForms.GridView
 
 		private void setLibraryBook(LibraryBook libraryBook)
 		{
-			LibraryBook = libraryBook;
-			_memberValues = CreateMemberValueDictionary();
+			LibraryBook = libraryBook;			
 
 			LoadCover();
 
@@ -119,16 +119,19 @@ namespace LibationWinForms.GridView
 			{
 				case nameof(udi.Tags):
 					Book.UserDefinedItem.Tags = udi.Tags;
+					SearchEngineCommands.UpdateBookTags(Book);
 					NotifyPropertyChanged(nameof(DisplayTags));
 					break;
 				case nameof(udi.BookStatus):
 					Book.UserDefinedItem.BookStatus = udi.BookStatus;
 					_bookStatus = udi.BookStatus;
+					SearchEngineCommands.UpdateLiberatedStatus(Book);
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
 				case nameof(udi.PdfStatus):
 					Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
 					_pdfStatus = udi.PdfStatus;
+					SearchEngineCommands.UpdateLiberatedStatus(Book);
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
 			}
@@ -157,16 +160,9 @@ namespace LibationWinForms.GridView
 		#endregion
 
 		#region Data Sorting
-		// These methods are implementation of Dinah.Core.DataBinding.IMemberComparable
-		// Used by Dinah.Core.DataBinding.SortableBindingList<T> for all sorting
-		public override object GetMemberValue(string memberName) => _memberValues[memberName]();
 
-		private Dictionary<string, Func<object>> _memberValues { get; set; }
-
-		/// <summary>
-		/// Create getters for all member object values by name
-		/// </summary>
-		private Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
+		/// <summary>Create getters for all member object values by name </summary>
+		protected override Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
 		{
 			{ nameof(Title), () => Book.TitleSortable() },
 			{ nameof(Series), () => Book.SeriesSortable() },

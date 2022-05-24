@@ -27,6 +27,7 @@ namespace LibationWinForms.GridView
 		}
 		public new bool InvokeRequired => base.InvokeRequired;
 		public abstract DateTime DateAdded { get; }
+		public abstract float SeriesIndex { get; }
 		public abstract string ProductRating { get; protected set; }
 		public abstract string PurchaseDate { get; protected set; }
 		public abstract string MyRating { get; protected set; }
@@ -40,9 +41,20 @@ namespace LibationWinForms.GridView
 		public abstract string Description { get; protected set; }
 		public abstract string DisplayTags { get; }
 		public abstract LiberateButtonStatus Liberate { get; }
-		public abstract object GetMemberValue(string memberName);
 		#endregion
+
+		#region Sorting
+
+		public GridEntry() => _memberValues = CreateMemberValueDictionary();
+		private Dictionary<string, Func<object>> _memberValues { get; set; }
+		protected abstract Dictionary<string, Func<object>> CreateMemberValueDictionary();
+
+		// These methods are implementation of Dinah.Core.DataBinding.IMemberComparable
+		// Used by GridEntryBindingList for all sorting
+		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
 		public IComparer GetMemberComparer(Type memberType) => _memberTypeComparers[memberType];
+
+		#endregion
 
 		protected void LoadCover()
 		{

@@ -10,6 +10,7 @@ namespace LibationWinForms.GridView
 	{
 		public List<LibraryBookEntry> Children { get; init; }
 		public override DateTime DateAdded => Children.Max(c => c.DateAdded);
+		public override float SeriesIndex { get; }
 		public override string ProductRating
 		{
 			get
@@ -47,20 +48,23 @@ namespace LibationWinForms.GridView
 		public override string Description { get; protected set; } = string.Empty;
 		public override string DisplayTags { get; } = string.Empty;
 
-		public override LiberateButtonStatus Liberate => _liberate;
+		public override LiberateButtonStatus Liberate { get; }
 
 		protected override Book Book => SeriesBook.Book;
 
 		private SeriesBook SeriesBook { get; set; }
 
-		private LiberateButtonStatus _liberate = new LiberateButtonStatus { IsSeries = true };
-
-		public SeriesEntry(SeriesBook seriesBook, IEnumerable<LibraryBook> children)
+		private SeriesEntry(SeriesBook seriesBook)
 		{
-			Children = children.Select(c => new LibraryBookEntry(c) { Parent = this }).ToList();
+			Liberate = new LiberateButtonStatus { IsSeries = true };
+			SeriesIndex = seriesBook.Index;
+		}
+		public SeriesEntry(SeriesBook seriesBook, IEnumerable<LibraryBook> children) : this(seriesBook)
+		{
+			Children = children.Select(c => new LibraryBookEntry(c) { Parent = this }).OrderBy(c => c.SeriesIndex).ToList();
 			SetSeriesBook(seriesBook);
 		}
-		public SeriesEntry(SeriesBook seriesBook, LibraryBook child)
+		public SeriesEntry(SeriesBook seriesBook, LibraryBook child) : this(seriesBook)
 		{
 			Children = new() { new LibraryBookEntry(child) { Parent = this } };
 			SetSeriesBook(seriesBook);
@@ -69,7 +73,6 @@ namespace LibationWinForms.GridView
 		private void SetSeriesBook(SeriesBook seriesBook)
 		{
 			SeriesBook = seriesBook;
-			_memberValues = CreateMemberValueDictionary();
 			LoadCover();
 
 			// Immutable properties
@@ -83,16 +86,9 @@ namespace LibationWinForms.GridView
 			}
 		}
 
-		// These methods are implementation of Dinah.Core.DataBinding.IMemberComparable
-		// Used by Dinah.Core.DataBinding.SortableBindingList<T> for all sorting
-		public override object GetMemberValue(string memberName) => _memberValues[memberName]();
 
-		private Dictionary<string, Func<object>> _memberValues { get; set; }
-
-		/// <summary>
-		/// Create getters for all member object values by name
-		/// </summary>
-		private Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
+		/// <summary>Create getters for all member object values by name</summary>
+		protected override Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
 		{
 			{ nameof(Title), () => Book.SeriesSortable() },
 			{ nameof(Series), () => Book.SeriesSortable() },

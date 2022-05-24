@@ -7,8 +7,8 @@ namespace LibationWinForms.GridView
 	{
 		public LiberatedStatus BookStatus { get; set; }
 		public LiberatedStatus? PdfStatus { get; set; }
-		public bool IsSeries { get; init; }
 		public bool Expanded { get; set; }
+		public bool IsSeries { get; init; }
 
 		/// <summary>
 		/// Defines the Liberate column's sorting behavior
