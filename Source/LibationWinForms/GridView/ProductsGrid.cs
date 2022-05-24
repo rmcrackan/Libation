@@ -54,16 +54,16 @@ namespace LibationWinForms.GridView
 			var entry = getGridEntry(e.RowIndex);
 			if (entry is LibraryBookEntry lbEntry)
 			{
-				if (gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == liberateGVColumn.DataPropertyName)
+				if (e.ColumnIndex == liberateGVColumn.Index)
 					LiberateClicked?.Invoke(lbEntry);
-				else if (gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == tagAndDetailsGVColumn.DataPropertyName && entry is LibraryBookEntry)
+				else if (e.ColumnIndex == tagAndDetailsGVColumn.Index && entry is LibraryBookEntry)
 					DetailsClicked?.Invoke(lbEntry);
-				else if (gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == descriptionGVColumn.DataPropertyName)
+				else if (e.ColumnIndex == descriptionGVColumn.Index)
 					DescriptionClicked?.Invoke(lbEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
-				else if (gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == coverGVColumn.DataPropertyName)
+				else if (e.ColumnIndex == coverGVColumn.Index)
 					CoverClicked?.Invoke(lbEntry);
 			}
-			else if (entry is SeriesEntry sEntry && gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName == liberateGVColumn.DataPropertyName)
+			else if (entry is SeriesEntry sEntry && e.ColumnIndex == liberateGVColumn.Index)
 			{
 				if (sEntry.Liberate.Expanded)
 					bindingList.CollapseItem(sEntry);
@@ -79,7 +79,6 @@ namespace LibationWinForms.GridView
 		private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
 
 		#endregion
-
 
 		#region UI display functions
 
