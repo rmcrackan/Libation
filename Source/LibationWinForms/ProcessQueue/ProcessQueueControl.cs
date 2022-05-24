@@ -151,12 +151,15 @@ namespace LibationWinForms.ProcessQueue
 
 				var result = await nextBook.ProcessOneAsync();
 
-				if (result == ProcessBookResult.FailedRetry)
-					Queue.Enqueue(nextBook);
-				else if (result == ProcessBookResult.ValidationFail)
+				if (result == ProcessBookResult.ValidationFail)
 					Queue.ClearCurrent();
 				else if (result == ProcessBookResult.FailedAbort)
-					return;
+					Queue.ClearQueue();
+				else if (result == ProcessBookResult.FailedSkip)
+				{
+					nextBook.LibraryBook.Book.UserDefinedItem.BookStatus = DataLayer.LiberatedStatus.Error;
+					ApplicationServices.LibraryCommands.UpdateUserDefinedItem(nextBook.LibraryBook.Book);
+				}
 			}
 			Queue_CompletedCountChanged(this, 0);
 			counterTimer.Stop();
@@ -176,7 +179,7 @@ namespace LibationWinForms.ProcessQueue
 
 		private void Queue_CompletedCountChanged(object sender, int e)
 		{
-			int errCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.FailedAbort or ProcessBookResult.FailedSkip or ProcessBookResult.ValidationFail);
+			int errCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.FailedAbort or ProcessBookResult.FailedSkip or ProcessBookResult.FailedRetry or ProcessBookResult.ValidationFail);
 			int completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
 
 			ErrorCount = errCount;

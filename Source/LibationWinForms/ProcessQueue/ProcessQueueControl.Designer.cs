@@ -51,9 +51,9 @@
 			this.logEntryColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.panel4 = new System.Windows.Forms.Panel();
 			this.panel2 = new System.Windows.Forms.Panel();
+			this.logCopyBtn = new System.Windows.Forms.Button();
 			this.clearLogBtn = new System.Windows.Forms.Button();
 			this.counterTimer = new System.Windows.Forms.Timer(this.components);
-			this.logCopyBtn = new System.Windows.Forms.Button();
 			this.statusStrip1.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
@@ -264,10 +264,21 @@
 			this.panel2.Size = new System.Drawing.Size(390, 25);
 			this.panel2.TabIndex = 1;
 			// 
+			// logCopyBtn
+			// 
+			this.logCopyBtn.Dock = System.Windows.Forms.DockStyle.Left;
+			this.logCopyBtn.Location = new System.Drawing.Point(0, 0);
+			this.logCopyBtn.Name = "logCopyBtn";
+			this.logCopyBtn.Size = new System.Drawing.Size(57, 23);
+			this.logCopyBtn.TabIndex = 1;
+			this.logCopyBtn.Text = "Copy";
+			this.logCopyBtn.UseVisualStyleBackColor = true;
+			this.logCopyBtn.Click += new System.EventHandler(this.LogCopyBtn_Click);
+			// 
 			// clearLogBtn
 			// 
-			this.clearLogBtn.Dock = System.Windows.Forms.DockStyle.Left;
-			this.clearLogBtn.Location = new System.Drawing.Point(0, 0);
+			this.clearLogBtn.Dock = System.Windows.Forms.DockStyle.Right;
+			this.clearLogBtn.Location = new System.Drawing.Point(328, 0);
 			this.clearLogBtn.Name = "clearLogBtn";
 			this.clearLogBtn.Size = new System.Drawing.Size(60, 23);
 			this.clearLogBtn.TabIndex = 0;
@@ -279,17 +290,6 @@
 			// 
 			this.counterTimer.Interval = 950;
 			this.counterTimer.Tick += new System.EventHandler(this.CounterTimer_Tick);
-			// 
-			// logCopyBtn
-			// 
-			this.logCopyBtn.Dock = System.Windows.Forms.DockStyle.Right;
-			this.logCopyBtn.Location = new System.Drawing.Point(331, 0);
-			this.logCopyBtn.Name = "logCopyBtn";
-			this.logCopyBtn.Size = new System.Drawing.Size(57, 23);
-			this.logCopyBtn.TabIndex = 1;
-			this.logCopyBtn.Text = "Copy";
-			this.logCopyBtn.UseVisualStyleBackColor = true;
-			this.logCopyBtn.Click += new System.EventHandler(this.LogCopyBtn_Click);
 			// 
 			// ProcessQueueControl
 			// 

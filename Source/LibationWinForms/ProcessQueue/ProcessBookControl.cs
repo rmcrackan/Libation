@@ -72,8 +72,8 @@ namespace LibationWinForms.ProcessQueue
 					Status = ProcessBookStatus.Cancelled;
 					break;
 				case ProcessBookResult.FailedRetry:
-					statusText = "Queued";
-					Status = ProcessBookStatus.Queued;
+					statusText = "Error, will retry later";
+					Status = ProcessBookStatus.Failed;
 					break;
 				case ProcessBookResult.FailedSkip:
 					statusText = "Error, Skippping";
