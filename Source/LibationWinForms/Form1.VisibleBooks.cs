@@ -14,8 +14,8 @@ namespace LibationWinForms
 		{
 			// init formattable
 			visibleCountLbl.Format(0);
-			liberateVisibleToolStripMenuItem.Format(0);
-			liberateVisible2ToolStripMenuItem.Format(0);
+			liberateVisibleToolStripMenuItem_VisibleBooksMenu.Format(0);
+			liberateVisibleToolStripMenuItem_LiberateMenu.Format(0);
 
 			// top menu strip
 			visibleBooksToolStripMenuItem.Format(0);
@@ -31,19 +31,19 @@ namespace LibationWinForms
 			{
 				if (notLiberated > 0)
 				{
-					liberateVisibleToolStripMenuItem.Format(notLiberated);
-					liberateVisibleToolStripMenuItem.Enabled = true;
+					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Format(notLiberated);
+					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Enabled = true;
 
-					liberateVisible2ToolStripMenuItem.Format(notLiberated);
-					liberateVisible2ToolStripMenuItem.Enabled = true;
+					liberateVisibleToolStripMenuItem_LiberateMenu.Format(notLiberated);
+					liberateVisibleToolStripMenuItem_LiberateMenu.Enabled = true;
 				}
 				else
 				{
-					liberateVisibleToolStripMenuItem.Text = "All visible books are liberated";
-					liberateVisibleToolStripMenuItem.Enabled = false;
+					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Text = "All visible books are liberated";
+					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Enabled = false;
 
-					liberateVisible2ToolStripMenuItem.Text = "All visible books are liberated";
-					liberateVisible2ToolStripMenuItem.Enabled = false;
+					liberateVisibleToolStripMenuItem_LiberateMenu.Text = "All visible books are liberated";
+					liberateVisibleToolStripMenuItem_LiberateMenu.Enabled = false;
 				}
 			});
 		}

@@ -46,7 +46,7 @@
 			this.beginBookBackupsToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
 			this.beginPdfBackupsToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
 			this.convertAllM4bToMp3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.liberateVisible2ToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
+			this.liberateVisibleToolStripMenuItem_LiberateMenu = new LibationWinForms.FormattableToolStripMenuItem();
 			this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.quickFiltersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,7 +55,7 @@
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.scanningToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.visibleBooksToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
-			this.liberateVisibleToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
+			this.liberateVisibleToolStripMenuItem_VisibleBooksMenu = new LibationWinForms.FormattableToolStripMenuItem();
 			this.replaceTagsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.setDownloadedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -215,7 +215,7 @@
             this.beginBookBackupsToolStripMenuItem,
             this.beginPdfBackupsToolStripMenuItem,
             this.convertAllM4bToMp3ToolStripMenuItem,
-            this.liberateVisible2ToolStripMenuItem});
+            this.liberateVisibleToolStripMenuItem_LiberateMenu});
 			this.liberateToolStripMenuItem.Name = "liberateToolStripMenuItem";
 			this.liberateToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.liberateToolStripMenuItem.Text = "&Liberate";
@@ -243,13 +243,13 @@
 			this.convertAllM4bToMp3ToolStripMenuItem.Text = "Convert all &M4b to Mp3 [Long-running]...";
 			this.convertAllM4bToMp3ToolStripMenuItem.Click += new System.EventHandler(this.convertAllM4bToMp3ToolStripMenuItem_Click);
 			// 
-			// liberateVisible2ToolStripMenuItem
+			// liberateVisibleToolStripMenuItem_LiberateMenu
 			// 
-			this.liberateVisible2ToolStripMenuItem.FormatText = "Liberate &Visible Books: {0}";
-			this.liberateVisible2ToolStripMenuItem.Name = "liberateVisible2ToolStripMenuItem";
-			this.liberateVisible2ToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
-			this.liberateVisible2ToolStripMenuItem.Text = "Liberate &Visible Books: {0}";
-			this.liberateVisible2ToolStripMenuItem.Click += new System.EventHandler(this.liberateVisible);
+			this.liberateVisibleToolStripMenuItem_LiberateMenu.FormatText = "Liberate &Visible Books: {0}";
+			this.liberateVisibleToolStripMenuItem_LiberateMenu.Name = "liberateVisibleToolStripMenuItem_LiberateMenu";
+			this.liberateVisibleToolStripMenuItem_LiberateMenu.Size = new System.Drawing.Size(293, 22);
+			this.liberateVisibleToolStripMenuItem_LiberateMenu.Text = "Liberate &Visible Books: {0}";
+			this.liberateVisibleToolStripMenuItem_LiberateMenu.Click += new System.EventHandler(this.liberateVisible);
 			// 
 			// exportToolStripMenuItem
 			// 
@@ -310,7 +310,7 @@
 			// visibleBooksToolStripMenuItem
 			// 
 			this.visibleBooksToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.liberateVisibleToolStripMenuItem,
+            this.liberateVisibleToolStripMenuItem_VisibleBooksMenu,
             this.replaceTagsToolStripMenuItem,
             this.setDownloadedToolStripMenuItem,
             this.removeToolStripMenuItem});
@@ -319,13 +319,13 @@
 			this.visibleBooksToolStripMenuItem.Size = new System.Drawing.Size(108, 20);
 			this.visibleBooksToolStripMenuItem.Text = "&Visible Books: {0}";
 			// 
-			// liberateVisibleToolStripMenuItem
+			// liberateVisibleToolStripMenuItem_VisibleBooksMenu
 			// 
-			this.liberateVisibleToolStripMenuItem.FormatText = "&Liberate: {0}";
-			this.liberateVisibleToolStripMenuItem.Name = "liberateVisibleToolStripMenuItem";
-			this.liberateVisibleToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
-			this.liberateVisibleToolStripMenuItem.Text = "&Liberate: {0}";
-			this.liberateVisibleToolStripMenuItem.Click += new System.EventHandler(this.liberateVisible);
+			this.liberateVisibleToolStripMenuItem_VisibleBooksMenu.FormatText = "&Liberate: {0}";
+			this.liberateVisibleToolStripMenuItem_VisibleBooksMenu.Name = "liberateVisibleToolStripMenuItem_VisibleBooksMenu";
+			this.liberateVisibleToolStripMenuItem_VisibleBooksMenu.Size = new System.Drawing.Size(209, 22);
+			this.liberateVisibleToolStripMenuItem_VisibleBooksMenu.Text = "&Liberate: {0}";
+			this.liberateVisibleToolStripMenuItem_VisibleBooksMenu.Click += new System.EventHandler(this.liberateVisible);
 			// 
 			// replaceTagsToolStripMenuItem
 			// 
@@ -574,11 +574,11 @@
         private System.Windows.Forms.ToolStripMenuItem scanningToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem autoScanLibraryToolStripMenuItem;
         private LibationWinForms.FormattableToolStripMenuItem visibleBooksToolStripMenuItem;
-        private LibationWinForms.FormattableToolStripMenuItem liberateVisibleToolStripMenuItem;
+        private LibationWinForms.FormattableToolStripMenuItem liberateVisibleToolStripMenuItem_VisibleBooksMenu;
         private System.Windows.Forms.ToolStripMenuItem replaceTagsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setDownloadedToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
-        private LibationWinForms.FormattableToolStripMenuItem liberateVisible2ToolStripMenuItem;
+        private LibationWinForms.FormattableToolStripMenuItem liberateVisibleToolStripMenuItem_LiberateMenu;
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
