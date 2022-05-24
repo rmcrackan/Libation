@@ -33,17 +33,11 @@ namespace LibationWinForms
 				{
 					liberateVisibleToolStripMenuItem.Format(notLiberated);
 					liberateVisibleToolStripMenuItem.Enabled = true;
-
-					liberateVisible2ToolStripMenuItem.Format(notLiberated);
-					liberateVisible2ToolStripMenuItem.Enabled = true;
 				}
 				else
 				{
 					liberateVisibleToolStripMenuItem.Text = "All visible books are liberated";
 					liberateVisibleToolStripMenuItem.Enabled = false;
-
-					liberateVisible2ToolStripMenuItem.Text = "All visible books are liberated";
-					liberateVisible2ToolStripMenuItem.Enabled = false;
 				}
 			});
 		}
