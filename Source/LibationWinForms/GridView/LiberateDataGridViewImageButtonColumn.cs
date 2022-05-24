@@ -16,7 +16,7 @@ namespace LibationWinForms.GridView
 
 	internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell
 	{
-		private static readonly Color SERIES_BG_COLOR = Color.LightSkyBlue;
+		private static readonly Color SERIES_BG_COLOR = Color.FromArgb(230, 255, 230);
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
 			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
