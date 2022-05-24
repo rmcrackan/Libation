@@ -81,21 +81,21 @@ namespace LibationWinForms.GridView
 		~GridEntry()
 		{
 			PictureStorage.PictureCached -= PictureStorage_PictureCached;
-		}		
+		}
 	}
 
 	internal static class GridEntryExtensions
 	{
-		#nullable enable
-		public static IEnumerable<SeriesEntry> Series(this IEnumerable<GridEntry> gridEntries) 
+#nullable enable
+		public static IEnumerable<SeriesEntry> Series(this IEnumerable<GridEntry> gridEntries)
 			=> gridEntries.Where(i => i is SeriesEntry).Cast<SeriesEntry>();
-		public static IEnumerable<LibraryBookEntry> LibraryBooks(this IEnumerable<GridEntry> gridEntries) 
+		public static IEnumerable<LibraryBookEntry> LibraryBooks(this IEnumerable<GridEntry> gridEntries)
 			=> gridEntries.Where(i => i is LibraryBookEntry).Cast<LibraryBookEntry>();
-		public static LibraryBookEntry? FindBookByAsin(this IEnumerable<LibraryBookEntry> gridEntries, string audibleProductID) 
+		public static LibraryBookEntry? FindBookByAsin(this IEnumerable<LibraryBookEntry> gridEntries, string audibleProductID)
 			=> gridEntries.FirstOrDefault(i => i.AudibleProductId == audibleProductID);
-		public static SeriesEntry? FindBookSeriesEntry(this IEnumerable<GridEntry> gridEntries, IEnumerable<SeriesBook> matchSeries) 
+		public static SeriesEntry? FindBookSeriesEntry(this IEnumerable<GridEntry> gridEntries, IEnumerable<SeriesBook> matchSeries)
 			=> gridEntries.Series().FirstOrDefault(i => matchSeries.Any(s => s.Series.Name == i.Series));
-		public static IEnumerable<SeriesEntry> EmptySeries(this IEnumerable<GridEntry> gridEntries) 
+		public static IEnumerable<SeriesEntry> EmptySeries(this IEnumerable<GridEntry> gridEntries)
 			=> gridEntries.Series().Where(i => i.Children.Count == 0);
 	}
 }

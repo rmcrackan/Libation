@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ApplicationServices;
+using DataLayer;
+using FileLiberator;
+using LibationFileManager;
+using LibationWinForms.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ApplicationServices;
-using DataLayer;
-using FileLiberator;
-using LibationFileManager;
-using LibationWinForms.Dialogs;
 
 namespace LibationWinForms.GridView
 {

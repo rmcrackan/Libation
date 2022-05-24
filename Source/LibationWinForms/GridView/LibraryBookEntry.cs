@@ -1,10 +1,10 @@
-﻿using System;
+﻿using ApplicationServices;
+using DataLayer;
+using Dinah.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using ApplicationServices;
-using DataLayer;
-using Dinah.Core;
 
 namespace LibationWinForms.GridView
 {
@@ -183,7 +183,7 @@ namespace LibationWinForms.GridView
 			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },
 		};
-		
+
 
 		#endregion
 

@@ -31,14 +31,14 @@ namespace LibationWinForms.GridView
 		}
 		public override string Series { get; protected set; }
 		public override string Title { get; protected set; }
-		public override string Length 
-		{ 
+		public override string Length
+		{
 			get
 			{
 				int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 				return bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
-			} 
-			protected set => throw new NotImplementedException(); 
+			}
+			protected set => throw new NotImplementedException();
 		}
 		public override string Authors { get; protected set; }
 		public override string Narrators { get; protected set; }
@@ -57,7 +57,7 @@ namespace LibationWinForms.GridView
 
 		public SeriesEntry(SeriesBook seriesBook, IEnumerable<LibraryBook> children)
 		{
-			Children = children.Select(c=>new LibraryBookEntry(c) { Parent = this }).ToList();
+			Children = children.Select(c => new LibraryBookEntry(c) { Parent = this }).ToList();
 			SetSeriesBook(seriesBook);
 		}
 		public SeriesEntry(SeriesBook seriesBook, LibraryBook child)
@@ -96,9 +96,9 @@ namespace LibationWinForms.GridView
 		{
 			{ nameof(Title), () => Book.SeriesSortable() },
 			{ nameof(Series), () => Book.SeriesSortable() },
-			{ nameof(Length), () => Children.Sum(c=>c.LibraryBook.Book.LengthInMinutes) },
-			{ nameof(MyRating), () => Children.Average(c=>c.LibraryBook.Book.UserDefinedItem.Rating.FirstScore()) },
-			{ nameof(PurchaseDate), () => Children.Min(c=>c.LibraryBook.DateAdded) },
+			{ nameof(Length), () => Children.Sum(c => c.LibraryBook.Book.LengthInMinutes) },
+			{ nameof(MyRating), () => Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.FirstScore()) },
+			{ nameof(PurchaseDate), () => Children.Min(c => c.LibraryBook.DateAdded) },
 			{ nameof(ProductRating), () => Children.Average(c => c.LibraryBook.Book.Rating.FirstScore()) },
 			{ nameof(Authors), () => string.Empty },
 			{ nameof(Narrators), () => string.Empty },

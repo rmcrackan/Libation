@@ -1,8 +1,7 @@
-﻿using System;
+﻿using DataLayer;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Linq;
-using DataLayer;
 
 namespace LibationWinForms.GridView
 {

@@ -46,17 +46,15 @@ namespace LibationWinForms.GridView
 		private void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
 		{
 			// handle grid button click: https://stackoverflow.com/a/13687844
-			if ( e.RowIndex < 0)
+			if (e.RowIndex < 0)
 				return;
-
-			var column = gridEntryDataGridView.Columns[e.ColumnIndex];
 
 			var entry = getGridEntry(e.RowIndex);
 			if (entry is LibraryBookEntry lbEntry)
 			{
 				if (e.ColumnIndex == liberateGVColumn.Index)
 					LiberateClicked?.Invoke(lbEntry);
-				else if (e.ColumnIndex == tagAndDetailsGVColumn.Index && entry is LibraryBookEntry)
+				else if (e.ColumnIndex == tagAndDetailsGVColumn.Index)
 					DetailsClicked?.Invoke(lbEntry);
 				else if (e.ColumnIndex == descriptionGVColumn.Index)
 					DescriptionClicked?.Invoke(lbEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
