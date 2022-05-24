@@ -100,9 +100,9 @@ namespace LibationWinForms.GridView
 	{
 #nullable enable
 		public static IEnumerable<SeriesEntry> Series(this IEnumerable<GridEntry> gridEntries)
-			=> gridEntries.Where(i => i is SeriesEntry).Cast<SeriesEntry>();
+			=> gridEntries.OfType<SeriesEntry>();
 		public static IEnumerable<LibraryBookEntry> LibraryBooks(this IEnumerable<GridEntry> gridEntries)
-			=> gridEntries.Where(i => i is LibraryBookEntry).Cast<LibraryBookEntry>();
+			=> gridEntries.OfType<LibraryBookEntry>();
 		public static LibraryBookEntry? FindBookByAsin(this IEnumerable<LibraryBookEntry> gridEntries, string audibleProductID)
 			=> gridEntries.FirstOrDefault(i => i.AudibleProductId == audibleProductID);
 		public static SeriesEntry? FindBookSeriesEntry(this IEnumerable<GridEntry> gridEntries, IEnumerable<SeriesBook> matchSeries)

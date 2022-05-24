@@ -217,40 +217,47 @@ namespace AaxDecrypter
 		{
 			var downloadPosition = WritePosition;
 			var nextFlush = downloadPosition + DATA_FLUSH_SZ;
-
 			var buff = new byte[DOWNLOAD_BUFF_SZ];
-			do
+
+			try
 			{
-				var bytesRead = _networkStream.Read(buff, 0, DOWNLOAD_BUFF_SZ);
-				_writeFile.Write(buff, 0, bytesRead);
-
-				downloadPosition += bytesRead;
-
-				if (downloadPosition > nextFlush)
+				do
 				{
-					_writeFile.Flush();
-					WritePosition = downloadPosition;
-					Update();
-					nextFlush = downloadPosition + DATA_FLUSH_SZ;
-					downloadedPiece.Set();
-				}
+					var bytesRead = _networkStream.Read(buff, 0, DOWNLOAD_BUFF_SZ);
+					_writeFile.Write(buff, 0, bytesRead);
 
-			} while (downloadPosition < ContentLength && !IsCancelled);
+					downloadPosition += bytesRead;
 
-			_writeFile.Close();
-			_networkStream.Close();
-			WritePosition = downloadPosition;
-			Update();
+					if (downloadPosition > nextFlush)
+					{
+						_writeFile.Flush();
+						WritePosition = downloadPosition;
+						Update();
+						nextFlush = downloadPosition + DATA_FLUSH_SZ;
+						downloadedPiece.Set();
+					}
 
-			downloadedPiece.Set();
-			downloadEnded.Set();
+				} while (downloadPosition < ContentLength && !IsCancelled);
 
-			if (!IsCancelled && WritePosition < ContentLength)
-				throw new WebException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
+				_writeFile.Close();
+				_networkStream.Close();
+				WritePosition = downloadPosition;
+				Update();
 
-			if (WritePosition > ContentLength)
-				throw new WebException($"Downloaded size (0x{WritePosition:X10}) is greater than {nameof(ContentLength)} (0x{ContentLength:X10}).");
+				downloadedPiece.Set();
+				downloadEnded.Set();
 
+				if (!IsCancelled && WritePosition < ContentLength)
+					throw new WebException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
+
+				if (WritePosition > ContentLength)
+					throw new WebException($"Downloaded size (0x{WritePosition:X10}) is greater than {nameof(ContentLength)} (0x{ContentLength:X10}).");
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "An error was encountered while downloading {Uri}", Uri);
+				IsCancelled = true;
+			}
 		}
 
 		#endregion
