@@ -17,28 +17,16 @@ namespace LibationWinForms
 			liberateVisibleToolStripMenuItem.Format(0);
 			liberateVisible2ToolStripMenuItem.Format(0);
 
-			// bottom-left visible count
-			productsGrid.VisibleCountChanged += (_, qty) => visibleCountLbl.Format(qty);
-
 			// top menu strip
 			visibleBooksToolStripMenuItem.Format(0);
-			productsGrid.VisibleCountChanged += (_, qty) => {
-				visibleBooksToolStripMenuItem.Format(qty);
-				visibleBooksToolStripMenuItem.Enabled = qty > 0;
 
-				var notLiberatedCount = productsGrid.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
-			};
-
-			productsGrid.VisibleCountChanged += setLiberatedVisibleMenuItemAsync;
 			LibraryCommands.BookUserDefinedItemCommitted += setLiberatedVisibleMenuItemAsync;
 		}
-		private async void setLiberatedVisibleMenuItemAsync(object _, int __)
-			=> await Task.Run(setLiberatedVisibleMenuItem);
 		private async void setLiberatedVisibleMenuItemAsync(object _, EventArgs __)
 			=> await Task.Run(setLiberatedVisibleMenuItem);
 		void setLiberatedVisibleMenuItem()
 		{
-			var notLiberated = productsGrid.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			var notLiberated = productsDisplay.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
 			this.UIThreadSync(() =>
 			{
 				if (notLiberated > 0)
@@ -63,7 +51,7 @@ namespace LibationWinForms
 		private async void liberateVisible(object sender, EventArgs e)
 		{
 			SetQueueCollapseState(false);
-			await Task.Run(() => processBookQueue1.AddDownloadDecrypt(productsGrid.GetVisible()));
+			await Task.Run(() => processBookQueue1.AddDownloadDecrypt(productsDisplay.GetVisible()));
 		}
 
 		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -73,7 +61,7 @@ namespace LibationWinForms
 			if (result != DialogResult.OK)
 				return;
 
-			var visibleLibraryBooks = productsGrid.GetVisible();
+			var visibleLibraryBooks = productsDisplay.GetVisible();
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
@@ -95,7 +83,7 @@ namespace LibationWinForms
 			if (result != DialogResult.OK)
 				return;
 
-			var visibleLibraryBooks = productsGrid.GetVisible();
+			var visibleLibraryBooks = productsDisplay.GetVisible();
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
@@ -112,7 +100,7 @@ namespace LibationWinForms
 
 		private async void removeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var visibleLibraryBooks = productsGrid.GetVisible();
+			var visibleLibraryBooks = productsDisplay.GetVisible();
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
@@ -124,6 +112,21 @@ namespace LibationWinForms
 
 			var visibleIds = visibleLibraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
 			await LibraryCommands.RemoveBooksAsync(visibleIds);
+		}
+
+		private async void productsDisplay_VisibleCountChanged(object sender, int qty)
+		{
+			// bottom-left visible count
+			visibleCountLbl.Format(qty);
+
+			// top menu strip
+			visibleBooksToolStripMenuItem.Format(qty);
+			visibleBooksToolStripMenuItem.Enabled = qty > 0;
+
+			//Not used for anything?
+			var notLiberatedCount = productsDisplay.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			
+			await Task.Run(setLiberatedVisibleMenuItem);
 		}
 	}
 }

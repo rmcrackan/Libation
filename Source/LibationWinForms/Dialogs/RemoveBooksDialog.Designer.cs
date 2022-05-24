@@ -38,7 +38,7 @@ namespace LibationWinForms.Dialogs
 			this.authorsDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.miscDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.purchaseDateGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.gridEntryBindingSource = new LibationWinForms.SyncBindingSource(this.components);
+			this.gridEntryBindingSource = new LibationWinForms.GridView.SyncBindingSource(this.components);
 			this.btnRemoveBooks = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this._dataGridView)).BeginInit();
@@ -176,7 +176,7 @@ namespace LibationWinForms.Dialogs
         #endregion
 
         private System.Windows.Forms.DataGridView _dataGridView;
-        private LibationWinForms.SyncBindingSource gridEntryBindingSource;
+        private LibationWinForms.GridView.SyncBindingSource gridEntryBindingSource;
         private System.Windows.Forms.Button btnRemoveBooks;
         private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn removeDataGridViewCheckBoxColumn;

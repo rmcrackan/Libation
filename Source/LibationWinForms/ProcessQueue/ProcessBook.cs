@@ -131,7 +131,6 @@ namespace LibationWinForms.ProcessQueue
 				{
 					ProcessBookResult.Success => ProcessBookStatus.Completed,
 					ProcessBookResult.Cancelled => ProcessBookStatus.Cancelled,
-					ProcessBookResult.FailedRetry => ProcessBookStatus.Queued,
 					_ => ProcessBookStatus.Failed,
 				};
 			}

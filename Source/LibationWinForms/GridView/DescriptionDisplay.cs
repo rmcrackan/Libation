@@ -1,17 +1,15 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	public partial class DescriptionDisplay : Form
 	{
 		private int borderThickness = 5;
 
-		public int BorderThickness 
+		public int BorderThickness
 		{
 			get => borderThickness;
 			set

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using DataLayer;
+using Dinah.Core.Windows.Forms;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Linq;
-using DataLayer;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	public class LiberateDataGridViewImageButtonColumn : DataGridViewButtonColumn
 	{
@@ -16,19 +16,35 @@ namespace LibationWinForms
 
 	internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell
 	{
+		private static readonly Color SERIES_BG_COLOR = Color.FromArgb(230, 255, 230);
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
 			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
-			if (value is (LiberatedStatus, LiberatedStatus) or (LiberatedStatus, null))
+			if (value is LiberateButtonStatus status)
 			{
-				var (bookState, pdfState) = ((LiberatedStatus bookState, LiberatedStatus? pdfState))value;
+				if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is LibraryBookEntry lbEntry && lbEntry.Parent is not null)
+				{
+					DataGridView.Rows[rowIndex].DefaultCellStyle.BackColor = SERIES_BG_COLOR;
+				}
 
-				(string mouseoverText, Bitmap buttonImage) = GetLiberateDisplay(bookState, pdfState);
+				if (status.IsSeries)
+				{
+					var imageName = status.Expanded ? "minus" : "plus";
 
-				DrawButtonImage(graphics, buttonImage, cellBounds);
+					var bmp = (Bitmap)Properties.Resources.ResourceManager.GetObject(imageName);
+					DrawButtonImage(graphics, bmp, cellBounds);
 
-				ToolTipText = mouseoverText;
+					ToolTipText = status.Expanded ? "Click to Collpase" : "Click to Expand";
+				}
+				else
+				{
+					(string mouseoverText, Bitmap buttonImage) = GetLiberateDisplay(status.BookStatus, status.PdfStatus);
+
+					DrawButtonImage(graphics, buttonImage, cellBounds);
+
+					ToolTipText = mouseoverText;
+				}
 			}
 		}
 

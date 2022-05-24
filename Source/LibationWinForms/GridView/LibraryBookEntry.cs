@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections;
+﻿using ApplicationServices;
+using DataLayer;
+using Dinah.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
-using ApplicationServices;
-using DataLayer;
-using Dinah.Core.DataBinding;
-using Dinah.Core;
-using Dinah.Core.Drawing;
-using LibationFileManager;
-using System.Threading.Tasks;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	/// <summary>
 	/// The View Model for a LibraryBook
 	/// </summary>
-	internal class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
+	public class LibraryBookEntry : GridEntry
 	{
 		#region implementation properties NOT exposed to the view
 		// hide from public fields from Data Source GUI with [Browsable(false)]
@@ -30,37 +24,30 @@ namespace LibationWinForms
 		public string LongDescription { get; private set; }
 		#endregion
 
+		protected override Book Book => LibraryBook.Book;
 		#region Model properties exposed to the view
-		private Image _cover;
 
 		private DateTime lastStatusUpdate = default;
 		private LiberatedStatus _bookStatus;
 		private LiberatedStatus? _pdfStatus;
-		public Image Cover
-		{
-			get => _cover;
-			private set
-			{
-				_cover = value;
-				NotifyPropertyChanged();
-			}
-		}
 
-		public string ProductRating { get; private set; }
-		public string PurchaseDate { get; private set; }
-		public string MyRating { get; private set; }
-		public string Series { get; private set; }
-		public string Title { get; private set; }
-		public string Length { get; private set; }
-		public string Authors { get; private set; }
-		public string Narrators { get; private set; }
-		public string Category { get; private set; }
-		public string Misc { get; private set; }
-		public string Description { get; private set; }
-		public string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
+		public override DateTime DateAdded => LibraryBook.DateAdded;
+		public override float SeriesIndex => Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
+		public override string ProductRating { get; protected set; }
+		public override string PurchaseDate { get; protected set; }
+		public override string MyRating { get; protected set; }
+		public override string Series { get; protected set; }
+		public override string Title { get; protected set; }
+		public override string Length { get; protected set; }
+		public override string Authors { get; protected set; }
+		public override string Narrators { get; protected set; }
+		public override string Category { get; protected set; }
+		public override string Misc { get; protected set; }
+		public override string Description { get; protected set; }
+		public override string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 
 		// these 2 values being in 1 field is the trick behind getting the liberated+pdf 'stoplight' icon to draw. See: LiberateDataGridViewImageButtonCell.Paint
-		public (LiberatedStatus BookStatus, LiberatedStatus? PdfStatus) Liberate
+		public override LiberateButtonStatus Liberate
 		{
 			get
 			{
@@ -71,16 +58,14 @@ namespace LibationWinForms
 					_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
 					lastStatusUpdate = DateTime.Now;
 				}
-				return (_bookStatus, _pdfStatus);
+				return new LiberateButtonStatus { BookStatus = _bookStatus, PdfStatus = _pdfStatus, IsSeries = false };
 			}
 		}
 		#endregion
 
-		// alias
-		private Book Book => LibraryBook.Book;
+		public LibraryBookEntry(LibraryBook libraryBook) => setLibraryBook(libraryBook);
 
-		public GridEntry(LibraryBook libraryBook) => setLibraryBook(libraryBook);
-
+		public SeriesEntry Parent { get; init; }
 		public void UpdateLibraryBook(LibraryBook libraryBook)
 		{
 			if (AudibleProductId != libraryBook.Book.AudibleProductId)
@@ -93,19 +78,9 @@ namespace LibationWinForms
 
 		private void setLibraryBook(LibraryBook libraryBook)
 		{
-			LibraryBook = libraryBook;
-			_memberValues = CreateMemberValueDictionary();
+			LibraryBook = libraryBook;			
 
-			// Get cover art. If it's default, subscribe to PictureCached
-			{
-				(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
-
-				if (isDefault)
-					PictureStorage.PictureCached += PictureStorage_PictureCached;
-
-				// Mutable property. Set the field so PropertyChanged isn't fired.
-				_cover = ImageReader.ToImage(picture);
-			}
+			LoadCover();
 
 			// Immutable properties
 			{
@@ -126,14 +101,6 @@ namespace LibationWinForms
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
-		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
-		{
-			if (e.Definition.PictureId == Book.PictureId)
-			{
-				Cover = ImageReader.ToImage(e.Picture);
-				PictureStorage.PictureCached -= PictureStorage_PictureCached;
-			}
-		}
 
 		#region detect changes to the model, update the view, and save to database.
 
@@ -152,16 +119,19 @@ namespace LibationWinForms
 			{
 				case nameof(udi.Tags):
 					Book.UserDefinedItem.Tags = udi.Tags;
+					SearchEngineCommands.UpdateBookTags(Book);
 					NotifyPropertyChanged(nameof(DisplayTags));
 					break;
 				case nameof(udi.BookStatus):
 					Book.UserDefinedItem.BookStatus = udi.BookStatus;
 					_bookStatus = udi.BookStatus;
+					SearchEngineCommands.UpdateLiberatedStatus(Book);
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
 				case nameof(udi.PdfStatus):
 					Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
 					_pdfStatus = udi.PdfStatus;
+					SearchEngineCommands.UpdateLiberatedStatus(Book);
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
 			}
@@ -190,17 +160,9 @@ namespace LibationWinForms
 		#endregion
 
 		#region Data Sorting
-		// These methods are implementation of Dinah.Core.DataBinding.IMemberComparable
-		// Used by Dinah.Core.DataBinding.SortableBindingList<T> for all sorting
-		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
-		public virtual IComparer GetMemberComparer(Type memberType) => _memberTypeComparers[memberType];
 
-		private Dictionary<string, Func<object>> _memberValues { get; set; }
-
-		/// <summary>
-		/// Create getters for all member object values by name
-		/// </summary>
-		private Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
+		/// <summary>Create getters for all member object values by name </summary>
+		protected override Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
 		{
 			{ nameof(Title), () => Book.TitleSortable() },
 			{ nameof(Series), () => Book.SeriesSortable() },
@@ -214,25 +176,17 @@ namespace LibationWinForms
 			{ nameof(Category), () => Category },
 			{ nameof(Misc), () => Misc },
 			{ nameof(DisplayTags), () => DisplayTags },
-			{ nameof(Liberate), () => Liberate.BookStatus }
+			{ nameof(Liberate), () => Liberate },
+			{ nameof(DateAdded), () => DateAdded },
 		};
 
-		// Instantiate comparers for every exposed member object type.
-		private static readonly Dictionary<Type, IComparer> _memberTypeComparers = new()
-		{
-			{ typeof(string), new ObjectComparer<string>() },
-			{ typeof(int), new ObjectComparer<int>() },
-			{ typeof(float), new ObjectComparer<float>() },
-			{ typeof(DateTime), new ObjectComparer<DateTime>() },
-			{ typeof(LiberatedStatus), new ObjectComparer<LiberatedStatus>() },
-		};
 
 		#endregion
 
 		#region Static library display functions
 
 		/// <summary>
-		/// This information should not change during <see cref="GridEntry"/> lifetime, so call only once.
+		/// This information should not change during <see cref="LibraryBookEntry"/> lifetime, so call only once.
 		/// </summary>
 		private static string GetDescriptionDisplay(Book book)
 		{
@@ -250,7 +204,7 @@ namespace LibationWinForms
 		}
 
 		/// <summary>
-		/// This information should not change during <see cref="GridEntry"/> lifetime, so call only once.
+		/// This information should not change during <see cref="LibraryBookEntry"/> lifetime, so call only once.
 		/// Maximum of 5 text rows will fit in 80-pixel row height.
 		/// </summary>
 		private static string GetMiscDisplay(LibraryBook libraryBook)
@@ -280,10 +234,9 @@ namespace LibationWinForms
 
 		#endregion
 
-		~GridEntry()
+		~LibraryBookEntry()
 		{
 			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
-			PictureStorage.PictureCached -= PictureStorage_PictureCached;
 		}
 	}
 }

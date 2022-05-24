@@ -1,11 +1,9 @@
-﻿using FileLiberator;
-using LibationFileManager;
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	public partial class ImageDisplay : Form
 	{

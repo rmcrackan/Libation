@@ -46,17 +46,16 @@ namespace LibationWinForms.ProcessQueue
 		public ProcessQueueControl()
 		{
 			InitializeComponent();
-			Logger = LogMe.RegisterForm(this);
 
-			runningTimeLbl.Text = string.Empty;
 			popoutBtn.DisplayStyle = ToolStripItemDisplayStyle.Text;
 			popoutBtn.Name = "popoutBtn";
 			popoutBtn.Text = "Pop Out";
 			popoutBtn.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			popoutBtn.Alignment = ToolStripItemAlignment.Right;
 			popoutBtn.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-
 			statusStrip1.Items.Add(popoutBtn);
+
+			Logger = LogMe.RegisterForm(this);
 
 			virtualFlowControl2.RequestData += VirtualFlowControl1_RequestData;
 			virtualFlowControl2.ButtonClicked += VirtualFlowControl2_ButtonClicked;
@@ -64,6 +63,14 @@ namespace LibationWinForms.ProcessQueue
 			Queue.QueuededCountChanged += Queue_QueuededCountChanged;
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 
+			Load += ProcessQueueControl_Load;
+		}
+
+		private void ProcessQueueControl_Load(object sender, EventArgs e)
+		{
+			if (DesignMode) return;
+
+			runningTimeLbl.Text = string.Empty;
 			QueuedCount = 0;
 			ErrorCount = 0;
 			CompletedCount = 0;
@@ -144,12 +151,15 @@ namespace LibationWinForms.ProcessQueue
 
 				var result = await nextBook.ProcessOneAsync();
 
-				if (result == ProcessBookResult.FailedRetry)
-					Queue.Enqueue(nextBook);
-				else if (result == ProcessBookResult.ValidationFail)
+				if (result == ProcessBookResult.ValidationFail)
 					Queue.ClearCurrent();
 				else if (result == ProcessBookResult.FailedAbort)
-					return;
+					Queue.ClearQueue();
+				else if (result == ProcessBookResult.FailedSkip)
+				{
+					nextBook.LibraryBook.Book.UserDefinedItem.BookStatus = DataLayer.LiberatedStatus.Error;
+					ApplicationServices.LibraryCommands.UpdateUserDefinedItem(nextBook.LibraryBook.Book);
+				}
 			}
 			Queue_CompletedCountChanged(this, 0);
 			counterTimer.Stop();
@@ -162,14 +172,14 @@ namespace LibationWinForms.ProcessQueue
 			if (IsDisposed) return;
 
 			var timeStamp = DateTime.Now;
-			logDGV.Rows.Add(timeStamp, text.Trim());
+			Invoke(() => logDGV.Rows.Add(timeStamp, text.Trim()));
 		}
 
 		#region Control event handlers
 
 		private void Queue_CompletedCountChanged(object sender, int e)
 		{
-			int errCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.FailedAbort or ProcessBookResult.FailedSkip or ProcessBookResult.ValidationFail);
+			int errCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.FailedAbort or ProcessBookResult.FailedSkip or ProcessBookResult.FailedRetry or ProcessBookResult.ValidationFail);
 			int completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
 
 			ErrorCount = errCount;
