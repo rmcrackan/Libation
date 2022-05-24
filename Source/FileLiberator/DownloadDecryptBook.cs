@@ -247,7 +247,7 @@ namespace FileLiberator
             if (e is not null)
                 OnCoverImageDiscovered(e);
             else if (Configuration.Instance.AllowLibationFixup)
-                OnRequestCoverArt(abDownloader.SetCoverArt);
+                abDownloader.SetCoverArt(OnRequestCoverArt());
         }
 
         /// <summary>Move new files to 'Books' directory</summary>
