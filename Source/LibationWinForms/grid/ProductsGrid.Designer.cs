@@ -47,10 +47,8 @@
 			this.tagAndDetailsGVColumn = new LibationWinForms.EditTagsDataGridViewImageButtonColumn();
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.syncBindingSource = new LibationWinForms.SyncBindingSource(this.components);
-			this.bindingSource = new System.Windows.Forms.BindingSource(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.bindingSource)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// gridEntryDataGridView
@@ -216,11 +214,7 @@
 			// 
 			// syncBindingSource
 			// 
-			this.syncBindingSource.DataSource = this.bindingSource;
-			// 
-			// bindingSource
-			// 
-			this.bindingSource.DataSource = typeof(LibationWinForms.GridEntry);
+			this.syncBindingSource.DataSource = typeof(LibationWinForms.GridEntry);
 			// 
 			// ProductsGrid
 			// 
@@ -233,7 +227,6 @@
 			this.Load += new System.EventHandler(this.ProductsGrid_Load);
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.bindingSource)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -257,6 +250,5 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn miscGVColumn;
 		private EditTagsDataGridViewImageButtonColumn tagAndDetailsGVColumn;
 		private SyncBindingSource syncBindingSource;
-		private System.Windows.Forms.BindingSource bindingSource;
 	}
 }

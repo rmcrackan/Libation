@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace LibationWinForms
 {
-	internal class SeriesEntry : GridEntry
+	public class SeriesEntry : GridEntry
 	{
-		public List<LibraryBookEntry> Children { get; set; }
+		public List<LibraryBookEntry> Children { get; init; }
 		public override DateTime DateAdded => Children.Max(c => c.DateAdded);
 		public override string ProductRating
 		{
@@ -55,7 +55,18 @@ namespace LibationWinForms
 
 		private LiberateButtonStatus _liberate = new LiberateButtonStatus { IsSeries = true };
 
-		public void setSeriesBook(SeriesBook seriesBook)
+		public SeriesEntry(SeriesBook seriesBook, IEnumerable<LibraryBook> children)
+		{
+			Children = children.Select(c=>new LibraryBookEntry(c) { Parent = this }).ToList();
+			SetSeriesBook(seriesBook);
+		}
+		public SeriesEntry(SeriesBook seriesBook, LibraryBook child)
+		{
+			Children = new() { new LibraryBookEntry(child) { Parent = this } };
+			SetSeriesBook(seriesBook);
+		}
+
+		private void SetSeriesBook(SeriesBook seriesBook)
 		{
 			SeriesBook = seriesBook;
 			_memberValues = CreateMemberValueDictionary();

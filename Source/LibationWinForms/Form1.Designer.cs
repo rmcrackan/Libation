@@ -98,7 +98,7 @@
 			// filterBtn
 			// 
 			this.filterBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.filterBtn.Location = new System.Drawing.Point(748, 3);
+			this.filterBtn.Location = new System.Drawing.Point(916, 3);
 			this.filterBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterBtn.Name = "filterBtn";
 			this.filterBtn.Size = new System.Drawing.Size(88, 27);
@@ -114,7 +114,7 @@
 			this.filterSearchTb.Location = new System.Drawing.Point(196, 7);
 			this.filterSearchTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.filterSearchTb.Name = "filterSearchTb";
-			this.filterSearchTb.Size = new System.Drawing.Size(544, 23);
+			this.filterSearchTb.Size = new System.Drawing.Size(712, 23);
 			this.filterSearchTb.TabIndex = 1;
 			this.filterSearchTb.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.filterSearchTb_KeyPress);
 			// 
@@ -132,7 +132,7 @@
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
-			this.menuStrip1.Size = new System.Drawing.Size(893, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(1061, 24);
 			this.menuStrip1.TabIndex = 0;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -396,7 +396,7 @@
 			this.statusStrip1.Location = new System.Drawing.Point(0, 618);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
-			this.statusStrip1.Size = new System.Drawing.Size(893, 22);
+			this.statusStrip1.Size = new System.Drawing.Size(1061, 22);
 			this.statusStrip1.TabIndex = 6;
 			this.statusStrip1.Text = "statusStrip1";
 			// 
@@ -410,7 +410,7 @@
 			// springLbl
 			// 
 			this.springLbl.Name = "springLbl";
-			this.springLbl.Size = new System.Drawing.Size(379, 17);
+			this.springLbl.Size = new System.Drawing.Size(547, 17);
 			this.springLbl.Spring = true;
 			// 
 			// backupsCountsLbl
@@ -452,8 +452,8 @@
 			// splitContainer1.Panel2
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.processBookQueue1);
-			this.splitContainer1.Size = new System.Drawing.Size(1231, 640);
-			this.splitContainer1.SplitterDistance = 893;
+			this.splitContainer1.Size = new System.Drawing.Size(1463, 640);
+			this.splitContainer1.SplitterDistance = 1061;
 			this.splitContainer1.SplitterWidth = 8;
 			this.splitContainer1.TabIndex = 7;
 			// 
@@ -470,7 +470,7 @@
 			this.panel1.Location = new System.Drawing.Point(0, 24);
 			this.panel1.Margin = new System.Windows.Forms.Padding(0);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(893, 594);
+			this.panel1.Size = new System.Drawing.Size(1061, 594);
 			this.panel1.TabIndex = 7;
 			// 
 			// productsDisplay
@@ -482,16 +482,16 @@
 			this.productsDisplay.Location = new System.Drawing.Point(15, 36);
 			this.productsDisplay.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.productsDisplay.Name = "productsDisplay";
-			this.productsDisplay.Size = new System.Drawing.Size(863, 555);
+			this.productsDisplay.Size = new System.Drawing.Size(1031, 555);
 			this.productsDisplay.TabIndex = 9;
-			this.productsDisplay.LiberateClicked += new System.EventHandler<DataLayer.LibraryBook>(this.ProductsDisplay_LiberateClicked);
 			this.productsDisplay.VisibleCountChanged += new System.EventHandler<int>(this.productsDisplay_VisibleCountChanged);
+			this.productsDisplay.LiberateClicked += new System.EventHandler<DataLayer.LibraryBook>(this.ProductsDisplay_LiberateClicked);
 			this.productsDisplay.InitialLoaded += new System.EventHandler(this.productsDisplay_InitialLoaded);
 			// 
 			// toggleQueueHideBtn
 			// 
 			this.toggleQueueHideBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.toggleQueueHideBtn.Location = new System.Drawing.Point(845, 3);
+			this.toggleQueueHideBtn.Location = new System.Drawing.Point(1013, 3);
 			this.toggleQueueHideBtn.Margin = new System.Windows.Forms.Padding(4, 3, 15, 3);
 			this.toggleQueueHideBtn.Name = "toggleQueueHideBtn";
 			this.toggleQueueHideBtn.Size = new System.Drawing.Size(33, 27);
@@ -507,14 +507,14 @@
 			this.processBookQueue1.Location = new System.Drawing.Point(0, 0);
 			this.processBookQueue1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.processBookQueue1.Name = "processBookQueue1";
-			this.processBookQueue1.Size = new System.Drawing.Size(330, 640);
+			this.processBookQueue1.Size = new System.Drawing.Size(394, 640);
 			this.processBookQueue1.TabIndex = 0;
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1231, 640);
+			this.ClientSize = new System.Drawing.Size(1463, 640);
 			this.Controls.Add(this.splitContainer1);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStrip1;

@@ -114,9 +114,6 @@ namespace LibationWinForms.ProcessQueue
 			BookControls.Add(control);
 			panel1.Controls.Add(control);
 
-			if (DesignMode)
-				return;
-
 			for (int i = 1; i < NUM_ACTUAL_CONTROLS; i++)
 			{
 				control = InitControl(VirtualControlHeight * i);

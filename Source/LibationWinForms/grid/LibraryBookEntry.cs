@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using ApplicationServices;
 using DataLayer;
-using Dinah.Core.DataBinding;
 using Dinah.Core;
-using Dinah.Core.Drawing;
-using LibationFileManager;
-using System.Threading.Tasks;
 
 namespace LibationWinForms
 {
@@ -30,7 +24,6 @@ namespace LibationWinForms
 		public string LongDescription { get; private set; }
 		#endregion
 
-		// alias
 		protected override Book Book => LibraryBook.Book;
 		#region Model properties exposed to the view
 
@@ -69,9 +62,9 @@ namespace LibationWinForms
 		}
 		#endregion
 
-
 		public LibraryBookEntry(LibraryBook libraryBook) => setLibraryBook(libraryBook);
 
+		public SeriesEntry Parent { get; init; }
 		public void UpdateLibraryBook(LibraryBook libraryBook)
 		{
 			if (AudibleProductId != libraryBook.Book.AudibleProductId)

@@ -46,17 +46,16 @@ namespace LibationWinForms.ProcessQueue
 		public ProcessQueueControl()
 		{
 			InitializeComponent();
-			Logger = LogMe.RegisterForm(this);
 
-			runningTimeLbl.Text = string.Empty;
 			popoutBtn.DisplayStyle = ToolStripItemDisplayStyle.Text;
 			popoutBtn.Name = "popoutBtn";
 			popoutBtn.Text = "Pop Out";
 			popoutBtn.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			popoutBtn.Alignment = ToolStripItemAlignment.Right;
 			popoutBtn.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-
 			statusStrip1.Items.Add(popoutBtn);
+
+			Logger = LogMe.RegisterForm(this);
 
 			virtualFlowControl2.RequestData += VirtualFlowControl1_RequestData;
 			virtualFlowControl2.ButtonClicked += VirtualFlowControl2_ButtonClicked;
@@ -64,6 +63,14 @@ namespace LibationWinForms.ProcessQueue
 			Queue.QueuededCountChanged += Queue_QueuededCountChanged;
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 
+			Load += ProcessQueueControl_Load;
+		}
+
+		private void ProcessQueueControl_Load(object sender, EventArgs e)
+		{
+			if (DesignMode) return;
+
+			runningTimeLbl.Text = string.Empty;
 			QueuedCount = 0;
 			ErrorCount = 0;
 			CompletedCount = 0;

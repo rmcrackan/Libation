@@ -5,37 +5,12 @@ using LibationFileManager;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;using System.Drawing;
+using System.Drawing;
 using System.Linq;
 
 namespace LibationWinForms
 {
-	public interface IHierarchical<T> where T : class
-	{
-		T Parent { get; }
-	}
-
-	public class LiberateButtonStatus : IComparable
-	{
-		public LiberatedStatus BookStatus;
-		public LiberatedStatus? PdfStatus;
-		public bool IsSeries;
-		public bool Expanded;
-
-		public int CompareTo(object obj)
-		{
-			if (obj is not LiberateButtonStatus second) return -1;
-
-			if (IsSeries && !second.IsSeries) return -1;
-			else if (!IsSeries && second.IsSeries) return 1;
-			else if (IsSeries && second.IsSeries) return 0;
-			else if (BookStatus == LiberatedStatus.Liberated && second.BookStatus != LiberatedStatus.Liberated) return -1;
-			else if (BookStatus != LiberatedStatus.Liberated && second.BookStatus == LiberatedStatus.Liberated) return 1;
-			else return BookStatus.CompareTo(second.BookStatus);
-		}
-	}
-
-	public abstract class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable, IHierarchical<GridEntry>
+	public abstract class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
 	{
 		protected abstract Book Book { get; }
 
@@ -50,12 +25,7 @@ namespace LibationWinForms
 				NotifyPropertyChanged();
 			}
 		}
-
-		[Browsable(false)]
 		public new bool InvokeRequired => base.InvokeRequired;
-		[Browsable(false)]
-		public GridEntry Parent { get; set; }
-		[Browsable(false)]
 		public abstract DateTime DateAdded { get; }
 		public abstract string ProductRating { get; protected set; }
 		public abstract string PurchaseDate { get; protected set; }
@@ -116,9 +86,16 @@ namespace LibationWinForms
 
 	internal static class GridEntryExtensions
 	{
+		#nullable enable
 		public static IEnumerable<SeriesEntry> Series(this IEnumerable<GridEntry> gridEntries) 
 			=> gridEntries.Where(i => i is SeriesEntry).Cast<SeriesEntry>();
 		public static IEnumerable<LibraryBookEntry> LibraryBooks(this IEnumerable<GridEntry> gridEntries) 
 			=> gridEntries.Where(i => i is LibraryBookEntry).Cast<LibraryBookEntry>();
+		public static LibraryBookEntry? FindBookByAsin(this IEnumerable<LibraryBookEntry> gridEntries, string audibleProductID) 
+			=> gridEntries.FirstOrDefault(i => i.AudibleProductId == audibleProductID);
+		public static SeriesEntry? FindBookSeriesEntry(this IEnumerable<GridEntry> gridEntries, IEnumerable<SeriesBook> matchSeries) 
+			=> gridEntries.Series().FirstOrDefault(i => matchSeries.Any(s => s.Series.Name == i.Series));
+		public static IEnumerable<SeriesEntry> EmptySeries(this IEnumerable<GridEntry> gridEntries) 
+			=> gridEntries.Series().Where(i => i.Children.Count == 0);
 	}
 }

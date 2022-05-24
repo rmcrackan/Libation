@@ -23,7 +23,7 @@ namespace LibationWinForms.grid
 		public event LibraryBookEntryRectangleClickedEventHandler DescriptionClicked;
 		public new event EventHandler<ScrollEventArgs> Scroll;
 
-		private FilterableSortableBindingList bindingList;
+		private GridEntryBindingList bindingList;
 		internal IEnumerable<LibraryBookEntry> GetVisible()
 			=> bindingList
 			.LibraryBooks();
@@ -89,20 +89,15 @@ namespace LibationWinForms.grid
 
 			var episodes = dbBooks.Where(b => b.Book.ContentType is ContentType.Episode).ToList();
 
-			var series = episodes.Select(lb => lb.Book.SeriesLink.First()).DistinctBy(s => s.Series).ToList();
-
-			foreach (var s in series)
+			foreach (var series in episodes.Select(lb => lb.Book.SeriesLink.First()).DistinctBy(s => s.Series))
 			{
-				var seriesEntry = new SeriesEntry();
-				seriesEntry.Children = episodes.Where(lb => lb.Book.SeriesLink.First().Series == s.Book.SeriesLink.First().Series).Select(lb => new LibraryBookEntry(lb) { Parent = seriesEntry }).ToList();
-
-				seriesEntry.setSeriesBook(s);
+				var seriesEntry = new SeriesEntry(series, episodes.Where(lb => lb.Book.SeriesLink.First().Series == series.Book.SeriesLink.First().Series));
 
 				geList.Add(seriesEntry);
 				geList.AddRange(seriesEntry.Children);
 			}
 
-			bindingList = new FilterableSortableBindingList(geList.OrderByDescending(e => e.DateAdded));
+			bindingList = new GridEntryBindingList(geList.OrderByDescending(e => e.DateAdded));
 			bindingList.CollapseAll();
 			syncBindingSource.DataSource = bindingList;
 			VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
@@ -116,39 +111,36 @@ namespace LibationWinForms.grid
 			//Add absent books to grid, or update current books
 
 			var allItmes = bindingList.AllItems().LibraryBooks();
-			for (var i = dbBooks.Count - 1; i >= 0; i--)
+			foreach (var libraryBook in dbBooks)
 			{
-				var libraryBook = dbBooks[i];
-				var existingItem = allItmes.FirstOrDefault(i => i.AudibleProductId == libraryBook.Book.AudibleProductId);
+				var existingItem = allItmes.FindBookByAsin(libraryBook.Book.AudibleProductId);
 
 				// add new to top
 				if (existingItem is null)
 				{
-					var lb = new LibraryBookEntry(libraryBook);
-
 					if (libraryBook.Book.ContentType is ContentType.Episode)
 					{
+						LibraryBookEntry lbe;
 						//Find the series that libraryBook belongs to, if it exists
-						var series = bindingList.AllItems().Series().FirstOrDefault(i => libraryBook.Book.SeriesLink.Any(s => s.Series.Name == i.Series));
+						var series = bindingList.AllItems().FindBookSeriesEntry(libraryBook.Book.SeriesLink);
 
 						if (series is null)
 						{
 							//Series doesn't exist yet, so create and add it
-							var newSeries = new SeriesEntry { Children = new List<LibraryBookEntry> { lb } };
-							newSeries.setSeriesBook(libraryBook.Book.SeriesLink.First());
-							lb.Parent = newSeries;
+							var newSeries = new SeriesEntry(libraryBook.Book.SeriesLink.First(), libraryBook);
+							lbe = newSeries.Children[0];
 							newSeries.Liberate.Expanded = true;
 							bindingList.Insert(0, newSeries);
 							series = newSeries;
 						}
 						else
 						{
-							lb.Parent = series;
-							series.Children.Add(lb);
+							lbe = new(libraryBook) { Parent = series };
+							series.Children.Add(lbe);
 						}
 						//Add episode beneath the parent
 						int seriesIndex = bindingList.IndexOf(series);
-						bindingList.Insert(seriesIndex + 1, lb);
+						bindingList.Insert(seriesIndex + 1, lbe);
 
 						if (series.Liberate.Expanded)
 							bindingList.ExpandItem(series);
@@ -159,7 +151,7 @@ namespace LibationWinForms.grid
 					}
 					else
 						//Add the new product
-						bindingList.Insert(0, lb);
+						bindingList.Insert(0, new LibraryBookEntry(libraryBook));
 				}
 				// update existing
 				else
@@ -167,6 +159,9 @@ namespace LibationWinForms.grid
 					existingItem.UpdateLibraryBook(libraryBook);
 				}
 			}
+
+			//Re-filter after updating existing / adding new books to capture any changes
+			Filter(existingFilter);
 
 			// remove deleted from grid.
 			// note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
@@ -176,25 +171,22 @@ namespace LibationWinForms.grid
 				.LibraryBooks()
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
 
+			//Remove books in series from their parents' Children list
 			foreach (var removed in removedBooks.Where(b => b.Parent is not null))
 			{
-				var series = removed.Parent as SeriesEntry;
-				series.Children.Remove(removed);
-				series.NotifyPropertyChanged();
+				removed.Parent.Children.Remove(removed);
+				removed.Parent.NotifyPropertyChanged();
 			}
 
 			//Remove series that have no children
 			var removedSeries =
 				bindingList
 				.AllItems()
-				.Series()
-				.Where(i => i.Children.Count == 0);
+				.EmptySeries();
 
 			foreach (var removed in removedBooks.Cast<GridEntry>().Concat(removedSeries))
 				//no need to re-filter for removed books
 				bindingList.Remove(removed);
-
-			Filter(existingFilter);
 
 			VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
 		}
