@@ -130,8 +130,10 @@ namespace LibationSearchEngine
                     ["LiberatedError"] = lb => liberatedError(lb.Book),
 
                     ["Podcast"] = lb => lb.Book.ContentType == ContentType.Episode,
+                    ["Podcasts"] = lb => lb.Book.ContentType == ContentType.Episode,
                     ["IsPodcast"] = lb => lb.Book.ContentType == ContentType.Episode,
                     ["Episode"] = lb => lb.Book.ContentType == ContentType.Episode,
+                    ["Episodes"] = lb => lb.Book.ContentType == ContentType.Episode,
                     ["IsEpisode"] = lb => lb.Book.ContentType == ContentType.Episode,
                 }
                 );
