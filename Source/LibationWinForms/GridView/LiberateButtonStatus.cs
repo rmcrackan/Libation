@@ -1,7 +1,7 @@
 ﻿using DataLayer;
 using System;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	public class LiberateButtonStatus : IComparable
 	{

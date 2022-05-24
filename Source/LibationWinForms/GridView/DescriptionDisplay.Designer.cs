@@ -1,4 +1,4 @@
-﻿namespace LibationWinForms
+﻿namespace LibationWinForms.GridView
 {
 	partial class DescriptionDisplay
 	{

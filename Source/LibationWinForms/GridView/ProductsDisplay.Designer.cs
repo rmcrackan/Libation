@@ -1,4 +1,4 @@
-﻿namespace LibationWinForms
+﻿namespace LibationWinForms.GridView
 {
 	partial class ProductsDisplay
 	{
@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.productsGrid = new LibationWinForms.grid.ProductsGrid();
+			this.productsGrid = new LibationWinForms.GridView.ProductsGrid();
 			this.SuspendLayout();
 			// 
 			// productsGrid
@@ -39,10 +39,10 @@
 			this.productsGrid.Name = "productsGrid";
 			this.productsGrid.Size = new System.Drawing.Size(1510, 380);
 			this.productsGrid.TabIndex = 0;
-			this.productsGrid.LiberateClicked += new LibationWinForms.grid.ProductsGrid.LibraryBookEntryClickedEventHandler(this.productsGrid_LiberateClicked);
-			this.productsGrid.CoverClicked += new LibationWinForms.grid.ProductsGrid.LibraryBookEntryClickedEventHandler(this.productsGrid_CoverClicked);
-			this.productsGrid.DetailsClicked += new LibationWinForms.grid.ProductsGrid.LibraryBookEntryClickedEventHandler(this.productsGrid_DetailsClicked);
-			this.productsGrid.DescriptionClicked += new LibationWinForms.grid.ProductsGrid.LibraryBookEntryRectangleClickedEventHandler(this.productsGrid_DescriptionClicked);
+			this.productsGrid.LiberateClicked += new LibationWinForms.GridView.ProductsGrid.LibraryBookEntryClickedEventHandler(this.productsGrid_LiberateClicked);
+			this.productsGrid.CoverClicked += new LibationWinForms.GridView.ProductsGrid.LibraryBookEntryClickedEventHandler(this.productsGrid_CoverClicked);
+			this.productsGrid.DetailsClicked += new LibationWinForms.GridView.ProductsGrid.LibraryBookEntryClickedEventHandler(this.productsGrid_DetailsClicked);
+			this.productsGrid.DescriptionClicked += new LibationWinForms.GridView.ProductsGrid.LibraryBookEntryRectangleClickedEventHandler(this.productsGrid_DescriptionClicked);
 			this.productsGrid.VisibleCountChanged += new System.EventHandler<int>(this.productsGrid_VisibleCountChanged);
 			// 
 			// ProductsDisplay
@@ -59,6 +59,6 @@
 
 		#endregion
 
-		private grid.ProductsGrid productsGrid;
+		private GridView.ProductsGrid productsGrid;
 	}
 }

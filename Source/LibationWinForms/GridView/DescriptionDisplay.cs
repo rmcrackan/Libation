@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	public partial class DescriptionDisplay : Form
 	{

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 // https://stackoverflow.com/a/32886415
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
     public class SyncBindingSource : BindingSource
     {

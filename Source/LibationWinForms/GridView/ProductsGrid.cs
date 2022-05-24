@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace LibationWinForms.grid
+namespace LibationWinForms.GridView
 {
 	public partial class ProductsGrid : UserControl
 	{

@@ -72,7 +72,7 @@
 			this.addQuickFilterBtn = new System.Windows.Forms.Button();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.panel1 = new System.Windows.Forms.Panel();
-			this.productsDisplay = new LibationWinForms.ProductsDisplay();
+			this.productsDisplay = new LibationWinForms.GridView.ProductsDisplay();
 			this.toggleQueueHideBtn = new System.Windows.Forms.Button();
 			this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessQueueControl();
 			this.menuStrip1.SuspendLayout();
@@ -583,6 +583,6 @@
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Button toggleQueueHideBtn;
-		private ProductsDisplay productsDisplay;
+		private LibationWinForms.GridView.ProductsDisplay productsDisplay;
 	}
 }

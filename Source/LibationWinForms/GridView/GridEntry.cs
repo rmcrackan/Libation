@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	public abstract class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
 	{

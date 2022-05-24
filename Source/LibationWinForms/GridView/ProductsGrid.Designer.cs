@@ -1,4 +1,4 @@
-﻿namespace LibationWinForms.grid
+﻿namespace LibationWinForms.GridView
 {
 	partial class ProductsGrid
 	{
@@ -31,7 +31,7 @@
 			this.components = new System.ComponentModel.Container();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.gridEntryDataGridView = new System.Windows.Forms.DataGridView();
-			this.liberateGVColumn = new LibationWinForms.LiberateDataGridViewImageButtonColumn();
+			this.liberateGVColumn = new LibationWinForms.GridView.LiberateDataGridViewImageButtonColumn();
 			this.coverGVColumn = new System.Windows.Forms.DataGridViewImageColumn();
 			this.titleGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.authorsGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -44,9 +44,9 @@
 			this.purchaseDateGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.myRatingGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.tagAndDetailsGVColumn = new LibationWinForms.EditTagsDataGridViewImageButtonColumn();
+			this.tagAndDetailsGVColumn = new LibationWinForms.GridView.EditTagsDataGridViewImageButtonColumn();
 			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.syncBindingSource = new LibationWinForms.SyncBindingSource(this.components);
+			this.syncBindingSource = new LibationWinForms.GridView.SyncBindingSource(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).BeginInit();
 			this.SuspendLayout();
@@ -60,20 +60,20 @@
 			this.gridEntryDataGridView.AutoGenerateColumns = false;
 			this.gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.liberateGVColumn,
-            this.coverGVColumn,
-            this.titleGVColumn,
-            this.authorsGVColumn,
-            this.narratorsGVColumn,
-            this.lengthGVColumn,
-            this.seriesGVColumn,
-            this.descriptionGVColumn,
-            this.categoryGVColumn,
-            this.productRatingGVColumn,
-            this.purchaseDateGVColumn,
-            this.myRatingGVColumn,
-            this.miscGVColumn,
-            this.tagAndDetailsGVColumn});
+			this.liberateGVColumn,
+			this.coverGVColumn,
+			this.titleGVColumn,
+			this.authorsGVColumn,
+			this.narratorsGVColumn,
+			this.lengthGVColumn,
+			this.seriesGVColumn,
+			this.descriptionGVColumn,
+			this.categoryGVColumn,
+			this.productRatingGVColumn,
+			this.purchaseDateGVColumn,
+			this.myRatingGVColumn,
+			this.miscGVColumn,
+			this.tagAndDetailsGVColumn});
 			this.gridEntryDataGridView.ContextMenuStrip = this.contextMenuStrip1;
 			this.gridEntryDataGridView.DataSource = this.syncBindingSource;
 			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -214,7 +214,7 @@
 			// 
 			// syncBindingSource
 			// 
-			this.syncBindingSource.DataSource = typeof(LibationWinForms.GridEntry);
+			this.syncBindingSource.DataSource = typeof(LibationWinForms.GridView.GridEntry);
 			// 
 			// ProductsGrid
 			// 

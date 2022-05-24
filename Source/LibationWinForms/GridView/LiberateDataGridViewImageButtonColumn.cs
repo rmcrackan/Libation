@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using System.Linq;
 using DataLayer;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	public class LiberateDataGridViewImageButtonColumn : DataGridViewButtonColumn
 	{

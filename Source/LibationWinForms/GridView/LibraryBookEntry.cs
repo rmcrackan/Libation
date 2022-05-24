@@ -6,7 +6,7 @@ using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	/// <summary>
 	/// The View Model for a LibraryBook

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -121,7 +120,7 @@ namespace LibationWinForms.Dialogs
 		}
 	}
 
-	internal class RemovableGridEntry : LibraryBookEntry
+	internal class RemovableGridEntry : GridView.LibraryBookEntry
 	{
 		private bool _remove = false;
 		public RemovableGridEntry(LibraryBook libraryBook) : base(libraryBook) { }

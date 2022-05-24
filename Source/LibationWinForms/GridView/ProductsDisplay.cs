@@ -10,7 +10,7 @@ using FileLiberator;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	public partial class ProductsDisplay : UserControl
 	{

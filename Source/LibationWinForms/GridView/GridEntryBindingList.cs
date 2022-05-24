@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	/*
 	 * Allows filtering and sorting of the underlying BindingList<GridEntry>

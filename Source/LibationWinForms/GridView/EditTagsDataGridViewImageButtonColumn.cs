@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace LibationWinForms
+namespace LibationWinForms.GridView
 {
 	public class EditTagsDataGridViewImageButtonColumn : DataGridViewButtonColumn
 	{
