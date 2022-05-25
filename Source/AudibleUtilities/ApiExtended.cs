@@ -119,7 +119,7 @@ namespace AudibleUtilities
 		{
 			var items = new List<Item>();
 
-			Serilog.Log.Logger.Debug("Begin initial library scan");
+			Serilog.Log.Logger.Debug("Begin library scan");
 
 			List<Task<List<Item>>> getChildEpisodesTasks = new();
 
@@ -134,7 +134,9 @@ namespace AudibleUtilities
 					items.Add(item);
 			}
 
-			//asait and all all episides from all parents
+			Serilog.Log.Logger.Debug("Library scan complete. Waiting on episode scans to complete");
+
+			//await and add all episides from all parents
 			foreach (var epList in await Task.WhenAll(getChildEpisodesTasks))
 				items.AddRange(epList);
 
@@ -160,6 +162,8 @@ namespace AudibleUtilities
 		
 		private async Task<List<Item>> getChildEpisodesAsync(Item parent)
 		{
+			Serilog.Log.Logger.Debug("Beginning episode scan for {parent}", parent);
+
 			var children = await getEpisodeChildrenAsync(parent);
 
 			// actual individual episode, not the parent of a series.
@@ -234,7 +238,7 @@ namespace AudibleUtilities
 					throw;
 				}
 
-				Serilog.Log.Logger.Debug($"Batch {i}: {childrenBatch.Count} results");
+				Serilog.Log.Logger.Debug($"Batch {i}: {childrenBatch.Count} results\t({{parent}})", parent);
 				// the service returned no results. probably indicates an error. stop running batches
 				if (!childrenBatch.Any())
 					break;
@@ -252,7 +256,7 @@ namespace AudibleUtilities
 			if (childrenIds.Count != results.Count)
 			{
 				var ex = new ApplicationException($"Mis-match: Children defined by parent={childrenIds.Count}. Children returned by batches={results.Count}");
-				Serilog.Log.Logger.Error(ex, "Quantity of series episodes defined by parent does not match quantity returned by batch fetching.");
+				Serilog.Log.Logger.Error(ex, "{parent} - Quantity of series episodes defined by parent does not match quantity returned by batch fetching.", parent);
 				throw ex;
 			}
 
