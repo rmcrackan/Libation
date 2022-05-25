@@ -18,17 +18,10 @@ namespace LibationSearchEngine
     {
         public const Lucene.Net.Util.Version Version = Lucene.Net.Util.Version.LUCENE_30;
 
-        // not customizable. don't move to config
-        private static string SearchEngineDirectory { get; }
-            = new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectory("SearchEngine").FullName;
-
         public const string _ID_ = "_ID_";
         public const string TAGS = "tags";
         // special field for each book which includes all major parts of the book's metadata. enables non-targetting searching
         public const string ALL = "all";
-
-        // the workaround which allows displaying all books when query is empty
-        public const string ALL_QUERY = "*:*";
 
         #region index rules
         // common fields used in the "all" default search field
@@ -124,7 +117,6 @@ namespace LibationSearchEngine
                     [nameof(Book.IsAbridged)] = lb => lb.Book.IsAbridged,
                     ["Abridged"] = lb => lb.Book.IsAbridged,
 
-                    // this will only be evaluated at time of re-index. ie: state of files moved later will be out of sync until next re-index
                     ["IsLiberated"] = lb => isLiberated(lb.Book),
                     ["Liberated"] = lb => isLiberated(lb.Book),
                     ["LiberatedError"] = lb => liberatedError(lb.Book),
@@ -181,18 +173,6 @@ namespace LibationSearchEngine
 
         public static IEnumerable<string> GetSearchNumberFields()
         {
-            foreach (var key in numberIndexRules.Keys)
-                yield return key;
-        }
-
-        public static IEnumerable<string> GetSearchFields()
-        {
-            foreach (var key in idIndexRules.Keys)
-                yield return key;
-            foreach (var key in stringIndexRules.Keys)
-                yield return key;
-            foreach (var key in boolIndexRules.Keys)
-                yield return key;
             foreach (var key in numberIndexRules.Keys)
                 yield return key;
         }
@@ -333,6 +313,9 @@ namespace LibationSearchEngine
         }
 		#endregion
 
+        // the workaround which allows displaying all books when query is empty
+        public const string ALL_QUERY = "*:*";
+
 		#region search
         public SearchResultSet Search(string searchString)
         {
@@ -347,7 +330,7 @@ namespace LibationSearchEngine
             return results;
         }
 
-        public static string FormatSearchQuery(string searchString)
+        internal static string FormatSearchQuery(string searchString)
         {
             if (string.IsNullOrWhiteSpace(searchString))
                 return ALL_QUERY;
@@ -493,5 +476,9 @@ namespace LibationSearchEngine
 		#endregion
 
 		private static Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
+
+        // not customizable. don't move to config
+        private static string SearchEngineDirectory { get; }
+            = new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectory("SearchEngine").FullName;
     }
 }
