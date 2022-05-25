@@ -22,7 +22,7 @@ namespace LibationWinForms
 
 			LibraryCommands.BookUserDefinedItemCommitted += setLiberatedVisibleMenuItemAsync;
 		}
-		private async void setLiberatedVisibleMenuItemAsync(object _, EventArgs __)
+		private async void setLiberatedVisibleMenuItemAsync(object _, object __)
 			=> await Task.Run(setLiberatedVisibleMenuItem);
 		void setLiberatedVisibleMenuItem()
 		{

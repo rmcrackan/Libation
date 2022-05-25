@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ApplicationServices;
 
 namespace LibationWinForms.ProcessQueue
 {
@@ -156,10 +157,7 @@ namespace LibationWinForms.ProcessQueue
 				else if (result == ProcessBookResult.FailedAbort)
 					Queue.ClearQueue();
 				else if (result == ProcessBookResult.FailedSkip)
-				{
-					nextBook.LibraryBook.Book.UserDefinedItem.BookStatus = DataLayer.LiberatedStatus.Error;
-					ApplicationServices.LibraryCommands.UpdateUserDefinedItem(nextBook.LibraryBook.Book);
-				}
+					nextBook.LibraryBook.Book.UpdateBookStatus(DataLayer.LiberatedStatus.Error);
 			}
 			Queue_CompletedCountChanged(this, 0);
 			counterTimer.Stop();

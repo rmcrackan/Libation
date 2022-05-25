@@ -25,6 +25,7 @@ namespace LibationWinForms.GridView
 		#endregion
 
 		protected override Book Book => LibraryBook.Book;
+
 		#region Model properties exposed to the view
 
 		private DateTime lastStatusUpdate = default;
@@ -75,6 +76,7 @@ namespace LibationWinForms.GridView
 			if (AudibleProductId != libraryBook.Book.AudibleProductId)
 				throw new Exception("Invalid grid entry update. IDs must match");
 
+			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
 			setLibraryBook(libraryBook);
 
 			NotifyPropertyChanged();
@@ -83,8 +85,6 @@ namespace LibationWinForms.GridView
 		private void setLibraryBook(LibraryBook libraryBook)
 		{
 			LibraryBook = libraryBook;
-
-			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
 
 			// Immutable properties
 			{
@@ -110,7 +110,7 @@ namespace LibationWinForms.GridView
 
 		/// <summary>
 		/// This event handler receives notifications from the model that it has changed.
-		/// Save to the database and notify the view that it's changed.
+		/// Notify the view that it's changed.
 		/// </summary>
 		private void UserDefinedItem_ItemChanged(object sender, string itemName)
 		{
@@ -119,23 +119,23 @@ namespace LibationWinForms.GridView
 			if (udi.Book.AudibleProductId != Book.AudibleProductId)
 				return;
 
+			// UDI changed, possibly in a different context/view. Update this viewmodel. Call NotifyPropertyChanged to notify view.
+			// - This method responds to tons of incidental changes. Do not persist to db from here. Committing to db must be a volitional action by the caller, not incidental. Otherwise batch changes would be impossible; we would only have slow one-offs
+			// - Don't restrict notifying view to 'only if property changed'. This same book instance can get passed to a different view, then changed there. When the chain of events makes its way back here, the property is unchanged (because it's the same instance), but this view is out of sync. NotifyPropertyChanged will then update this view.
 			switch (itemName)
 			{
 				case nameof(udi.Tags):
 					Book.UserDefinedItem.Tags = udi.Tags;
-					SearchEngineCommands.UpdateBookTags(Book);
 					NotifyPropertyChanged(nameof(DisplayTags));
 					break;
 				case nameof(udi.BookStatus):
 					Book.UserDefinedItem.BookStatus = udi.BookStatus;
 					_bookStatus = udi.BookStatus;
-					SearchEngineCommands.UpdateLiberatedStatus(Book);
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
 				case nameof(udi.PdfStatus):
 					Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
 					_pdfStatus = udi.PdfStatus;
-					SearchEngineCommands.UpdateLiberatedStatus(Book);
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
 			}
@@ -143,23 +143,8 @@ namespace LibationWinForms.GridView
 
 		/// <summary>Save edits to the database</summary>
 		public void Commit(string newTags, LiberatedStatus bookStatus, LiberatedStatus? pdfStatus)
-		{
-			// validate
-			if (DisplayTags.EqualsInsensitive(newTags) &&
-				Liberate.BookStatus == bookStatus &&
-				Liberate.PdfStatus == pdfStatus)
-				return;
-
-			// update cache
-			_bookStatus = bookStatus;
-			_pdfStatus = pdfStatus;
-
-			// set + save
-			Book.UserDefinedItem.Tags = newTags;
-			Book.UserDefinedItem.BookStatus = bookStatus;
-			Book.UserDefinedItem.PdfStatus = pdfStatus;
-			LibraryCommands.UpdateUserDefinedItem(Book);
-		}
+			// MVVM pass-through
+			=> Book.UpdateBook(newTags, bookStatus: bookStatus, pdfStatus: pdfStatus);
 
 		#endregion
 

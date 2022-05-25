@@ -27,7 +27,6 @@ namespace LibationCli
 			//                                               //
 			//***********************************************//
 			Setup.Initialize();
-			Setup.SubscribeToDatabaseEvents();
 
 			var types = Setup.LoadVerbs();
 

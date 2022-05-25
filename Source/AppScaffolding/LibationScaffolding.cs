@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using ApplicationServices;
 using AudibleUtilities;
 using Dinah.Core;
 using Dinah.Core.IO;
@@ -139,12 +140,14 @@ namespace AppScaffolding
 				config.DownloadCoverArt = true;
 		}
 
-		/// <summary>Initialize logging. Run after migration</summary>
+		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>
 		public static void RunPostMigrationScaffolding(Configuration config)
 		{
 			ensureSerilogConfig(config);
 			configureLogging(config);
 			logStartupState(config);
+
+			wireUpSystemEvents(config);
 		}
 
 		private static void ensureSerilogConfig(Configuration config)
@@ -280,6 +283,12 @@ namespace AppScaffolding
 				AudibleFileStorage.DecryptInProgressDirectory,
 				DecryptInProgressFiles = FileManager.FileUtility.SaferEnumerateFiles(AudibleFileStorage.DecryptInProgressDirectory).Count(),
 			});
+		}
+
+		private static void wireUpSystemEvents(Configuration configuration)
+		{
+			LibraryCommands.LibrarySizeChanged += (_, __) => SearchEngineCommands.FullReIndex();
+			LibraryCommands.BookUserDefinedItemCommitted += (_, books) => SearchEngineCommands.UpdateBooks(books);
 		}
 
 		public static UpgradeProperties GetLatestRelease()

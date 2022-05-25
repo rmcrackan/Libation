@@ -253,11 +253,7 @@ namespace ApplicationServices
 		#endregion
 
 		// call this whenever books are added or removed from library
-		private static void finalizeLibrarySizeChange()
-		{
-			SearchEngineCommands.FullReIndex();
-			LibrarySizeChanged?.Invoke(null, null);
-		}
+		private static void finalizeLibrarySizeChange() => LibrarySizeChanged?.Invoke(null, null);
 
 		/// <summary>Occurs when the size of the library changes. ie: books are added or removed</summary>
 		public static event EventHandler LibrarySizeChanged;
@@ -265,9 +261,47 @@ namespace ApplicationServices
 		/// <summary>
 		/// Occurs when the size of the library does not change but book(s) details do. Especially when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/> changed values are successfully persisted.
 		/// </summary>
-		public static event EventHandler BookUserDefinedItemCommitted;
+		public static event EventHandler<IEnumerable<Book>> BookUserDefinedItemCommitted;
 
 		#region Update book details
+		public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus)
+		{
+			book.UserDefinedItem.BookStatus = bookStatus;
+			return UpdateUserDefinedItem(book);
+		}
+		public static int UpdatePdfStatus(this Book book, LiberatedStatus pdfStatus)
+		{
+			book.UserDefinedItem.PdfStatus = pdfStatus;
+			return UpdateUserDefinedItem(book);
+		}
+		public static int UpdateBook(
+			this Book book,
+			string tags = null,
+			LiberatedStatus? bookStatus = null,
+			LiberatedStatus? pdfStatus = null)
+			=> UpdateBooks(tags, bookStatus, pdfStatus, book);
+		public static int UpdateBooks(
+			string tags = null,
+			LiberatedStatus? bookStatus = null,
+			LiberatedStatus? pdfStatus = null,
+			params Book[] books)
+        {
+			foreach (var book in books)
+			{
+				// blank tags are expected. null tags are not
+				if (tags is not null && book.UserDefinedItem.Tags != tags)
+					book.UserDefinedItem.Tags = tags;
+
+				if (bookStatus is not null && book.UserDefinedItem.BookStatus != bookStatus.Value)
+					book.UserDefinedItem.BookStatus = bookStatus.Value;
+
+				// even though PdfStatus is nullable, there's no case where we'd actually overwrite with null
+				if (pdfStatus is not null && book.UserDefinedItem.PdfStatus != pdfStatus.Value)
+					book.UserDefinedItem.PdfStatus = pdfStatus.Value;
+			}
+
+			return UpdateUserDefinedItem(books);
+		}
 		public static int UpdateUserDefinedItem(params Book[] books) => UpdateUserDefinedItem(books.ToList());
 		public static int UpdateUserDefinedItem(IEnumerable<Book> books)
 		{
@@ -283,23 +317,8 @@ namespace ApplicationServices
 					context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 
 				var qtyChanges = context.SaveChanges();
-				if (qtyChanges == 0)
-					return 0;
-
-				// semi-arbitrary. At some point it's more worth it to do a full re-index than to do one offs.
-				// I did not benchmark before choosing the number here
-				if (qtyChanges > 15)
-					SearchEngineCommands.FullReIndex();
-				else
-				{
-					foreach (var book in books)
-					{
-						SearchEngineCommands.UpdateLiberatedStatus(book);
-						SearchEngineCommands.UpdateBookTags(book);
-					}
-				}
-
-				BookUserDefinedItemCommitted?.Invoke(null, null);
+				if (qtyChanges > 0)
+					BookUserDefinedItemCommitted?.Invoke(null, books);
 
 				return qtyChanges;
 			}
