@@ -268,6 +268,13 @@ namespace LibationFileManager
             }
         }
 
+        [Description("Auto download episodes? Efter scan, download new books in 'checked' accounts.")]
+        public bool AutoDownloadEpisodes
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(AutoDownloadEpisodes));
+            set => persistentDictionary.SetNonString(nameof(AutoDownloadEpisodes), value);
+        }
+
         #region templates: custom file naming
 
         [Description("How to format the folders in which files will be saved")]

@@ -38,7 +38,6 @@ namespace LibationWinForms
 			// these should do nothing interesting yet (storing simple var, subscribe to events) and should never rely on each other for order.
 			// otherwise, order could be an issue.
 			// eg: if one of these init'd productsGrid, then another can't reliably subscribe to it
-			Configure_PictureStorage();
 			Configure_BackupCounts();
 			Configure_ScanAuto();
 			Configure_ScanNotification();
@@ -50,6 +49,8 @@ namespace LibationWinForms
 			Configure_Settings();
 			Configure_ProcessQueue();
 			Configure_Filter();
+			// misc which belongs in winforms app but doesn't have a UI element
+			Configure_NonUI();
 
 			// Configure_Grid(); // since it's just this, can keep here. If it needs more, then give grid it's own 'partial class Form1'
 			{

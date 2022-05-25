@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ApplicationServices;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
 using Dinah.Core.Net.Http;
@@ -29,8 +30,7 @@ namespace FileLiberator
 				var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
 				var result = verifyDownload(actualDownloadedFilePath);
 
-				libraryBook.Book.UserDefinedItem.PdfStatus = result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated;
-				ApplicationServices.LibraryCommands.UpdateUserDefinedItem(libraryBook.Book);
+				libraryBook.Book.UpdatePdfStatus(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
 
 				return result;
 			}

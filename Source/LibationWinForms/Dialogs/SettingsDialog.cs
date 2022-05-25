@@ -35,6 +35,7 @@ namespace LibationWinForms.Dialogs
 			this.showImportedStatsCb.Text = desc(nameof(config.ShowImportedStats));
 			this.importEpisodesCb.Text = desc(nameof(config.ImportEpisodes));
 			this.downloadEpisodesCb.Text = desc(nameof(config.DownloadEpisodes));
+			this.autoDownloadEpisodesCb.Text = desc(nameof(config.AutoDownloadEpisodes));
 
 			this.booksLocationDescLbl.Text = desc(nameof(config.Books));
 			this.inProgressDescLbl.Text = desc(nameof(config.InProgress));
@@ -80,6 +81,7 @@ namespace LibationWinForms.Dialogs
 			showImportedStatsCb.Checked = config.ShowImportedStats;
 			importEpisodesCb.Checked = config.ImportEpisodes;
 			downloadEpisodesCb.Checked = config.DownloadEpisodes;
+			autoDownloadEpisodesCb.Checked = config.AutoDownloadEpisodes;
 
 			lameTargetRb_CheckedChanged(this, e);
 			LameMatchSourceBRCbox_CheckedChanged(this, e);
@@ -204,6 +206,7 @@ namespace LibationWinForms.Dialogs
 			config.ShowImportedStats = showImportedStatsCb.Checked;
 			config.ImportEpisodes = importEpisodesCb.Checked;
 			config.DownloadEpisodes = downloadEpisodesCb.Checked;
+			config.AutoDownloadEpisodes = autoDownloadEpisodesCb.Checked;
 
 			config.InProgress = inProgressSelectControl.SelectedDirectory;
 

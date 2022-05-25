@@ -50,11 +50,6 @@ namespace LibationCli
 			}
 		}
 
-		public static void SubscribeToDatabaseEvents()
-		{
-			DataLayer.UserDefinedItem.ItemChanged += (sender, e) => ApplicationServices.LibraryCommands.UpdateUserDefinedItem(((DataLayer.UserDefinedItem)sender).Book);
-		}
-
 		public static Type[] LoadVerbs() => Assembly.GetExecutingAssembly()
 			.GetTypes()
 			.Where(t => t.GetCustomAttribute<VerbAttribute>() is not null)
