@@ -282,7 +282,6 @@ namespace LibationWinForms.ProcessQueue
 
 		private async void Processable_Completed(object sender, LibraryBook libraryBook)
 		{
-
 			Logger.Info($"{((Processable)sender).Name} Step, Completed: {libraryBook.Book}");
 			UnlinkProcessable((Processable)sender);
 
