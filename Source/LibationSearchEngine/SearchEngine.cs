@@ -272,6 +272,10 @@ namespace LibationSearchEngine
                 book.AudibleProductId,
                 d =>
                 {
+                    //
+                    // TODO: better synonym handling. This is too easy to mess up
+                    //
+
                     // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
                     // ie: must remove old before adding new else will create unwanted duplicates.
                     var v1 = isLiberated(book);
