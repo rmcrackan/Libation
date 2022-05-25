@@ -118,6 +118,75 @@ namespace AudibleUtilities
 		private async Task<List<Item>> getItemsAsync(LibraryOptions libraryOptions, bool importEpisodes)
 		{
 			var items = new List<Item>();
+
+			Serilog.Log.Logger.Debug("Begin initial library scan");
+
+			await foreach (var item in Api.GetLibraryItemAsyncEnumerable(libraryOptions))
+			{
+				if (item.IsEpisodes && importEpisodes)
+				{
+					var children = await getEpisodeChildrenAsync(item);
+
+					// actual individual episode, not the parent of a series.
+					// for now I'm keeping it inside this method since it fits the work flow, incl. importEpisodes logic
+					if (!children.Any())
+					{
+						items.Add(item);
+						continue;
+					}
+
+					foreach (var child in children)
+					{
+						// use parent's 'DateAdded'. DateAdded is just a convenience prop for: PurchaseDate.UtcDateTime
+						child.PurchaseDate = item.PurchaseDate;
+						// parent is essentially a series
+						child.Series = new Series[]
+						{
+							new Series
+							{
+								Asin = item.Asin,
+								// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive for malformed data from audible
+								Sequence = item.Relationships.FirstOrDefault(r => r.Asin == child.Asin).Sort.ToString(),
+								Title = item.TitleWithSubtitle
+							}
+						};
+						// overload (read: abuse) IsEpisodes flag
+						child.Relationships = new Relationship[]
+						{
+							new Relationship
+							{
+								RelationshipToProduct = RelationshipToProduct.Child,
+								RelationshipType = RelationshipType.Episode
+							}
+						};
+					}
+					items.AddRange(children);
+				}
+				else
+					items.Add(item);
+			}
+
+			Serilog.Log.Logger.Debug("Scan complete");
+
+#if DEBUG
+//System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
+#endif
+
+			var validators = new List<IValidator>();
+			validators.AddRange(getValidators());
+			foreach (var v in validators)
+			{
+				var exceptions = v.Validate(items);
+				if (exceptions is not null && exceptions.Any())
+					throw new AggregateException(exceptions);
+			}
+
+			return items;
+		}
+
+		private async Task<List<Item>> getItemsAsync_old(LibraryOptions libraryOptions, bool importEpisodes)
+		{
+			var items = new List<Item>();
 #if DEBUG
 //// this will not work for multi accounts
 //var library_json = "library.json";
