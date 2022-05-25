@@ -125,7 +125,7 @@ namespace AudibleUtilities
 
 			int count = 0;
 
-			await foreach (var item in Api.GetLibraryItemAsyncEnumerable(libraryOptions, 5, 4))
+			await foreach (var item in Api.GetLibraryItemAsyncEnumerable(libraryOptions))
 			{
 				if (item.IsEpisodes && importEpisodes)
 				{
