@@ -123,6 +123,8 @@ namespace AudibleUtilities
 
 			List<Task<List<Item>>> getChildEpisodesTasks = new();
 
+			int count = 0;
+
 			await foreach (var item in Api.GetLibraryItemAsyncEnumerable(libraryOptions))
 			{
 				if (item.IsEpisodes && importEpisodes)
@@ -132,9 +134,11 @@ namespace AudibleUtilities
 				}
 				else if (!item.IsEpisodes)
 					items.Add(item);
+
+				count++;
 			}
 
-			Serilog.Log.Logger.Debug("Library scan complete. Waiting on episode scans to complete");
+			Serilog.Log.Logger.Debug("Library scan complete. Found {count} books. Waiting on episode scans to complete", count);
 
 			//await and add all episides from all parents
 			foreach (var epList in await Task.WhenAll(getChildEpisodesTasks))
@@ -145,7 +149,6 @@ namespace AudibleUtilities
 #if DEBUG
 //System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
 #endif
-
 			var validators = new List<IValidator>();
 			validators.AddRange(getValidators());
 			foreach (var v in validators)
