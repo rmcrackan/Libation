@@ -162,7 +162,7 @@ namespace AudibleUtilities
 					}
 					items.AddRange(children);
 				}
-				else
+				else if (!item.IsEpisodes)
 					items.Add(item);
 			}
 
@@ -184,17 +184,17 @@ namespace AudibleUtilities
 			return items;
 		}
 
-		private async Task<List<Item>> getItemsAsync_old(LibraryOptions libraryOptions, bool importEpisodes)
+		private async Task<List<Item>> getItemsAsync2(LibraryOptions libraryOptions, bool importEpisodes)
 		{
 			var items = new List<Item>();
 #if DEBUG
-//// this will not work for multi accounts
-//var library_json = "library.json";
-//library_json = System.IO.Path.GetFullPath(library_json);
-//if (System.IO.File.Exists(library_json))
-//{
-//    items = AudibleApi.Common.Converter.FromJson<List<Item>>(System.IO.File.ReadAllText(library_json));
-//}
+	//// this will not work for multi accounts
+	//var library_json = "library.json";
+	//library_json = System.IO.Path.GetFullPath(library_json);
+	//if (System.IO.File.Exists(library_json))
+	//{
+	//    items = AudibleApi.Common.Converter.FromJson<List<Item>>(System.IO.File.ReadAllText(library_json));
+	//}
 #endif
 
 			Serilog.Log.Logger.Debug("Begin initial library scan");
