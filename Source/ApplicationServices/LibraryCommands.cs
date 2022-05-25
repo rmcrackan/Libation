@@ -341,7 +341,14 @@ namespace ApplicationServices
 
 		// below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
 
-		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int booksError, int pdfsDownloaded, int pdfsNotDownloaded) { }
+		public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int booksError, int pdfsDownloaded, int pdfsNotDownloaded)
+		{
+			public int PendingBooks => booksNoProgress + booksDownloadedOnly;
+			public bool HasPendingBooks => PendingBooks > 0;
+
+			public bool HasBookResults => 0 < (booksFullyBackedUp + booksDownloadedOnly + booksNoProgress + booksError);
+			public bool HasPdfResults => 0 < (pdfsNotDownloaded + pdfsDownloaded);
+		}
 		public static LibraryStats GetCounts()
 		{
 			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();

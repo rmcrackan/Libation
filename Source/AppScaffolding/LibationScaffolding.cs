@@ -138,6 +138,9 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.DownloadCoverArt)))
 				config.DownloadCoverArt = true;
+
+			if (!config.Exists(nameof(config.AutoDownloadEpisodes)))
+				config.AutoDownloadEpisodes = false;
 		}
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>
