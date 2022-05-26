@@ -84,18 +84,25 @@ namespace LibationWinForms.GridView
 
 		public void Display()
 		{
-			// don't return early if lib size == 0. this will not update correctly if all books are removed
-			var lib = DbContexts.GetLibrary_Flat_NoTracking();
-
-			if (!hasBeenDisplayed)
+			try
 			{
-				// bind
-				productsGrid.BindToGrid(lib);
-				hasBeenDisplayed = true;
-				InitialLoaded?.Invoke(this, new());
+				// don't return early if lib size == 0. this will not update correctly if all books are removed
+				var lib = DbContexts.GetLibrary_Flat_NoTracking();
+
+				if (!hasBeenDisplayed)
+				{
+					// bind
+					productsGrid.BindToGrid(lib);
+					hasBeenDisplayed = true;
+					InitialLoaded?.Invoke(this, new());
+				}
+				else
+					productsGrid.UpdateGrid(lib);
 			}
-			else
-				productsGrid.UpdateGrid(lib);
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "Error displaying library in {0}", nameof(ProductsDisplay));
+			}
 
 		}
 
