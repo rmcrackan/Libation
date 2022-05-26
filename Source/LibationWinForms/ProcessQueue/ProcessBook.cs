@@ -1,8 +1,4 @@
-﻿using DataLayer;
-using Dinah.Core;
-using FileLiberator;
-using LibationFileManager;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -10,6 +6,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ApplicationServices;
+using DataLayer;
+using Dinah.Core;
+using FileLiberator;
+using LibationFileManager;
 
 namespace LibationWinForms.ProcessQueue
 {
@@ -349,8 +350,7 @@ $@"  Title: {libraryBook.Book.Title}
 
 			if (dialogResult == SkipResult)
 			{
-				libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Error;
-				ApplicationServices.LibraryCommands.UpdateUserDefinedItem(libraryBook.Book);
+				libraryBook.Book.UpdateBookStatus(LiberatedStatus.Error);
 
 				Logger.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}");
 

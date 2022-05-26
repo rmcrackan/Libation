@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AaxDecrypter;
+using ApplicationServices;
 using AudibleApi;
 using DataLayer;
 using Dinah.Core;
@@ -82,8 +83,7 @@ namespace FileLiberator
                 if (Configuration.Instance.DownloadCoverArt)
                     DownloadCoverArt(libraryBook);
 
-                libraryBook.Book.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
-                ApplicationServices.LibraryCommands.UpdateUserDefinedItem(libraryBook.Book);
+                libraryBook.Book.UpdateBookStatus(LiberatedStatus.Liberated);
 
                 return new StatusHandler();
             }
