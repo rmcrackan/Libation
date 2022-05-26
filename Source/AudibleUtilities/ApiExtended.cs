@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AudibleApi;
 using AudibleApi.Common;
@@ -123,14 +124,15 @@ namespace AudibleUtilities
 
 			List<Task<List<Item>>> getChildEpisodesTasks = new();
 
-			int count = 0;
+			int count = 0, maxConcurrentEpisodeScans = 10;
+			using SemaphoreSlim concurrencySemaphore = new(maxConcurrentEpisodeScans);
 
 			await foreach (var item in Api.GetLibraryItemAsyncEnumerable(libraryOptions))
 			{
 				if (item.IsEpisodes && importEpisodes)
 				{
 					//Get child episodes asynchronously and await all at the end
-					getChildEpisodesTasks.Add(getChildEpisodesAsync(item));
+					getChildEpisodesTasks.Add(getChildEpisodesAsync(concurrencySemaphore, item));
 				}
 				else if (!item.IsEpisodes)
 					items.Add(item);
@@ -138,7 +140,7 @@ namespace AudibleUtilities
 				count++;
 			}
 
-			Serilog.Log.Logger.Debug("Library scan complete. Found {count} books. Waiting on episode scans to complete", count);
+			Serilog.Log.Logger.Debug("Library scan complete. Found {count} books and series. Waiting on {getChildEpisodesTasksCount} series episode scans to complete", count, getChildEpisodesTasks.Count);
 
 			//await and add all episides from all parents
 			foreach (var epList in await Task.WhenAll(getChildEpisodesTasks))
@@ -163,24 +165,28 @@ namespace AudibleUtilities
 
 		#region episodes and podcasts
 		
-		private async Task<List<Item>> getChildEpisodesAsync(Item parent)
+		private async Task<List<Item>> getChildEpisodesAsync(SemaphoreSlim concurrencySemaphore, Item parent)
 		{
-			Serilog.Log.Logger.Debug("Beginning episode scan for {parent}", parent);
+			await concurrencySemaphore.WaitAsync();
 
-			var children = await getEpisodeChildrenAsync(parent);
-
-			// actual individual episode, not the parent of a series.
-			// for now I'm keeping it inside this method since it fits the work flow, incl. importEpisodes logic
-			if (!children.Any())
-				return new List<Item>() { parent };
-
-			foreach (var child in children)
+			try
 			{
-				// use parent's 'DateAdded'. DateAdded is just a convenience prop for: PurchaseDate.UtcDateTime
-				child.PurchaseDate = parent.PurchaseDate;
-				// parent is essentially a series
-				child.Series = new Series[]
+				Serilog.Log.Logger.Debug("Beginning episode scan for {parent}", parent);
+
+				var children = await getEpisodeChildrenAsync(parent);
+
+				// actual individual episode, not the parent of a series.
+				// for now I'm keeping it inside this method since it fits the work flow, incl. importEpisodes logic
+				if (!children.Any())
+					return new List<Item>() { parent };
+
+				foreach (var child in children)
 				{
+					// use parent's 'DateAdded'. DateAdded is just a convenience prop for: PurchaseDate.UtcDateTime
+					child.PurchaseDate = parent.PurchaseDate;
+					// parent is essentially a series
+					child.Series = new Series[]
+					{
 						new Series
 						{
 							Asin = parent.Asin,
@@ -188,18 +194,23 @@ namespace AudibleUtilities
 							Sequence = parent.Relationships.FirstOrDefault(r => r.Asin == child.Asin).Sort.ToString(),
 							Title = parent.TitleWithSubtitle
 						}
-				};
-				// overload (read: abuse) IsEpisodes flag
-				child.Relationships = new Relationship[]
-				{
+					};
+					// overload (read: abuse) IsEpisodes flag
+					child.Relationships = new Relationship[]
+					{
 						new Relationship
 						{
 							RelationshipToProduct = RelationshipToProduct.Child,
 							RelationshipType = RelationshipType.Episode
 						}
-				};
+					};
+				}
+				return children;
 			}
-			return children;
+			finally
+			{
+				concurrencySemaphore.Release();
+			}
 		}
 
 		private async Task<List<Item>> getEpisodeChildrenAsync(Item parent)
