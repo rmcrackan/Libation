@@ -124,7 +124,7 @@ namespace AudibleUtilities
 
 			List<Task<List<Item>>> getChildEpisodesTasks = new();
 
-			int count = 0, maxConcurrentEpisodeScans = 10;
+			int count = 0, maxConcurrentEpisodeScans = 5;
 			using SemaphoreSlim concurrencySemaphore = new(maxConcurrentEpisodeScans);
 
 			await foreach (var item in Api.GetLibraryItemAsyncEnumerable(libraryOptions))
