@@ -109,5 +109,6 @@ namespace LibationWinForms.GridView
 			=> gridEntries.Series().FirstOrDefault(i => matchSeries.Any(s => s.Series.Name == i.Series));
 		public static IEnumerable<SeriesEntry> EmptySeries(this IEnumerable<GridEntry> gridEntries)
 			=> gridEntries.Series().Where(i => i.Children.Count == 0);
+		public static bool IsEpisodeWithSeries(this LibraryBook lb) => lb.Book.ContentType == ContentType.Episode && lb.Book.SeriesLink is not null && lb.Book.SeriesLink.Any();
 	}
 }

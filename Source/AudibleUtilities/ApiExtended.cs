@@ -133,6 +133,11 @@ namespace AudibleUtilities
 				{
 					//Get child episodes asynchronously and await all at the end
 					getChildEpisodesTasks.Add(getChildEpisodesAsync(concurrencySemaphore, item));
+
+					//Add the parent to the library because it contains the series
+					//description, series rating, and series cover art which differ
+					//from the individual episodes' values.
+					items.Add(item);
 				}
 				else if (!item.IsEpisodes)
 					items.Add(item);
@@ -178,7 +183,7 @@ namespace AudibleUtilities
 				// actual individual episode, not the parent of a series.
 				// for now I'm keeping it inside this method since it fits the work flow, incl. importEpisodes logic
 				if (!children.Any())
-					return new List<Item>() { parent };
+					return new();
 
 				foreach (var child in children)
 				{

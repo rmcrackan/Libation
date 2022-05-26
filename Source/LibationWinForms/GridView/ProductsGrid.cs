@@ -84,7 +84,7 @@ namespace LibationWinForms.GridView
 		{
 			var geList = dbBooks.Where(b => b.Book.ContentType is not ContentType.Episode).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
 
-			var episodes = dbBooks.Where(b => b.Book.ContentType is ContentType.Episode).ToList();
+			var episodes = dbBooks.Where(b => b.IsEpisodeWithSeries()).ToList();
 
 			foreach (var series in episodes.Select(lb => lb.Book.SeriesLink.First()).DistinctBy(s => s.Series))
 			{
@@ -117,7 +117,7 @@ namespace LibationWinForms.GridView
 				// add new to top
 				if (existingItem is null)
 				{
-					if (libraryBook.Book.ContentType is ContentType.Episode)
+					if (libraryBook.IsEpisodeWithSeries())
 					{
 						LibraryBookEntry lbe;
 						//Find the series that libraryBook belongs to, if it exists
@@ -148,7 +148,7 @@ namespace LibationWinForms.GridView
 
 						series.NotifyPropertyChanged();
 					}
-					else
+					else if (libraryBook.Book.ContentType is not ContentType.Episode)
 						//Add the new product
 						bindingList.Insert(0, new LibraryBookEntry(libraryBook));
 				}
