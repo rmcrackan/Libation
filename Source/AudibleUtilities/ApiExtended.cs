@@ -137,6 +137,7 @@ namespace AudibleUtilities
 					//Add the parent to the library because it contains the series
 					//description, series rating, and series cover art which differ
 					//from the individual episodes' values.
+					item.Series = new Series[]{ new Series { Asin = item.Asin, Title = item.TitleWithSubtitle } };
 					items.Add(item);
 				}
 				else if (!item.IsEpisodes)

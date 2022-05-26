@@ -84,7 +84,7 @@ namespace LibationWinForms.GridView
 		{
 			var geList = dbBooks.Where(b => b.Book.ContentType is not ContentType.Episode).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
 
-			var episodes = dbBooks.Where(b => b.IsEpisodeWithSeries()).ToList();
+			var episodes = dbBooks.Where(b => b.IsEpisodeChild()).ToList();
 
 			foreach (var series in episodes.Select(lb => lb.Book.SeriesLink.First()).DistinctBy(s => s.Series))
 			{
@@ -117,7 +117,7 @@ namespace LibationWinForms.GridView
 				// add new to top
 				if (existingItem is null)
 				{
-					if (libraryBook.IsEpisodeWithSeries())
+					if (libraryBook.IsEpisodeChild())
 					{
 						LibraryBookEntry lbe;
 						//Find the series that libraryBook belongs to, if it exists
