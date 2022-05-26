@@ -30,10 +30,7 @@ namespace LibationWinForms.GridView
 
 				if (status.IsSeries)
 				{
-					var imageName = status.Expanded ? "minus" : "plus";
-
-					var bmp = (Bitmap)Properties.Resources.ResourceManager.GetObject(imageName);
-					DrawButtonImage(graphics, bmp, cellBounds);
+					DrawButtonImage(graphics, status.Expanded ? Properties.Resources.minus: Properties.Resources.plus, cellBounds);
 
 					ToolTipText = status.Expanded ? "Click to Collpase" : "Click to Expand";
 				}

@@ -60,7 +60,6 @@ namespace LibationWinForms.ProcessQueue
 		private Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
 		private Processable NextProcessable() => _currentProcessable = null;
 		private Processable _currentProcessable;
-		private Func<byte[]> GetCoverArtDelegate;
 		private readonly Queue<Func<Processable>> Processes = new();
 		private readonly LogMe Logger;
 
@@ -232,11 +231,14 @@ namespace LibationWinForms.ProcessQueue
 			BookText = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}";
 		}
 
-		public void AudioDecodable_RequestCoverArt(object sender, Action<byte[]> setCoverArtDelegate)
+		private byte[] AudioDecodable_RequestCoverArt(object sender, EventArgs e)
 		{
-			byte[] coverData = GetCoverArtDelegate();
-			setCoverArtDelegate(coverData);
+			byte[] coverData = PictureStorage
+				.GetPictureSynchronously(
+				new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._500x500));
+
 			AudioDecodable_CoverImageDiscovered(this, coverData);
+			return coverData;
 		}
 
 		private void AudioDecodable_CoverImageDiscovered(object sender, byte[] coverArt)
@@ -273,11 +275,6 @@ namespace LibationWinForms.ProcessQueue
 
 			Logger.Info($"{Environment.NewLine}{((Processable)sender).Name} Step, Begin: {libraryBook.Book}");
 
-			GetCoverArtDelegate = () => PictureStorage.GetPictureSynchronously(
-						new PictureDefinition(
-							libraryBook.Book.PictureId,
-							PictureSize._500x500));
-
 			title = libraryBook.Book.Title;
 			authorNames = libraryBook.Book.AuthorNames();
 			narratorNames = libraryBook.Book.NarratorNames();
@@ -286,7 +283,6 @@ namespace LibationWinForms.ProcessQueue
 
 		private async void Processable_Completed(object sender, LibraryBook libraryBook)
 		{
-
 			Logger.Info($"{((Processable)sender).Name} Step, Completed: {libraryBook.Book}");
 			UnlinkProcessable((Processable)sender);
 

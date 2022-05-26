@@ -4,7 +4,8 @@ namespace FileLiberator
 {
     public abstract class AudioDecodable : Processable
     {
-        public event EventHandler<Action<byte[]>> RequestCoverArt;
+        public delegate byte[] RequestCoverArtHandler(object sender, EventArgs eventArgs);
+        public event RequestCoverArtHandler RequestCoverArt;
         public event EventHandler<string> TitleDiscovered;
         public event EventHandler<string> AuthorsDiscovered;
         public event EventHandler<string> NarratorsDiscovered;
@@ -32,10 +33,10 @@ namespace FileLiberator
             NarratorsDiscovered?.Invoke(this, narrators);
 		}
 
-        protected void OnRequestCoverArt(Action<byte[]> setCoverArtDel)
+        protected byte[] OnRequestCoverArt()
 		{
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(RequestCoverArt) });
-            RequestCoverArt?.Invoke(this, setCoverArtDel);
+            return RequestCoverArt?.Invoke(this, new());
         }
 
         protected void OnCoverImageDiscovered(byte[] coverImage)

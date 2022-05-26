@@ -118,31 +118,37 @@ namespace AudibleUtilities
 		private async Task<List<Item>> getItemsAsync(LibraryOptions libraryOptions, bool importEpisodes)
 		{
 			var items = new List<Item>();
-#if DEBUG
-//// this will not work for multi accounts
-//var library_json = "library.json";
-//library_json = System.IO.Path.GetFullPath(library_json);
-//if (System.IO.File.Exists(library_json))
-//{
-//    items = AudibleApi.Common.Converter.FromJson<List<Item>>(System.IO.File.ReadAllText(library_json));
-//}
-#endif
 
-			Serilog.Log.Logger.Debug("Begin initial library scan");
+			Serilog.Log.Logger.Debug("Begin library scan");
 
-			if (!items.Any())
-				items = await Api.GetAllLibraryItemsAsync(libraryOptions);
+			List<Task<List<Item>>> getChildEpisodesTasks = new();
 
-			Serilog.Log.Logger.Debug("Initial library scan complete. Begin episode scan");
+			int count = 0;
 
-			await manageEpisodesAsync(items, importEpisodes);
+			await foreach (var item in Api.GetLibraryItemAsyncEnumerable(libraryOptions))
+			{
+				if (item.IsEpisodes && importEpisodes)
+				{
+					//Get child episodes asynchronously and await all at the end
+					getChildEpisodesTasks.Add(getChildEpisodesAsync(item));
+				}
+				else if (!item.IsEpisodes)
+					items.Add(item);
 
-			Serilog.Log.Logger.Debug("Episode scan complete");
+				count++;
+			}
+
+			Serilog.Log.Logger.Debug("Library scan complete. Found {count} books. Waiting on episode scans to complete", count);
+
+			//await and add all episides from all parents
+			foreach (var epList in await Task.WhenAll(getChildEpisodesTasks))
+				items.AddRange(epList);
+
+			Serilog.Log.Logger.Debug("Scan complete");
 
 #if DEBUG
 //System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
 #endif
-
 			var validators = new List<IValidator>();
 			validators.AddRange(getValidators());
 			foreach (var v in validators)
@@ -156,63 +162,25 @@ namespace AudibleUtilities
 		}
 
 		#region episodes and podcasts
-		private async Task manageEpisodesAsync(List<Item> items, bool importEpisodes)
+		
+		private async Task<List<Item>> getChildEpisodesAsync(Item parent)
 		{
-			// add podcasts and episodes to list. If fail, don't let it de-rail the rest of the import
-			try
+			Serilog.Log.Logger.Debug("Beginning episode scan for {parent}", parent);
+
+			var children = await getEpisodeChildrenAsync(parent);
+
+			// actual individual episode, not the parent of a series.
+			// for now I'm keeping it inside this method since it fits the work flow, incl. importEpisodes logic
+			if (!children.Any())
+				return new List<Item>() { parent };
+
+			foreach (var child in children)
 			{
-				// get parents
-				var parents = items.Where(i => i.IsEpisodes).ToList();
-#if DEBUG
-//var parentsDebug = parents.Select(i => i.ToJson()).Aggregate((a, b) => $"{a}\r\n\r\n{b}");
-//System.IO.File.WriteAllText("parents.json", parentsDebug);
-#endif
-
-				if (!parents.Any())
-					return;
-
-				Serilog.Log.Logger.Information($"{parents.Count} series of shows/podcasts found");
-
-				// remove episode parents. even if the following stuff fails, these will still be removed from the collection
-				items.RemoveAll(i => i.IsEpisodes);
-
-				if (importEpisodes)
+				// use parent's 'DateAdded'. DateAdded is just a convenience prop for: PurchaseDate.UtcDateTime
+				child.PurchaseDate = parent.PurchaseDate;
+				// parent is essentially a series
+				child.Series = new Series[]
 				{
-					// add children
-					var children = await getEpisodesAsync(parents);
-					Serilog.Log.Logger.Information($"{children.Count} episodes of shows/podcasts found");
-					items.AddRange(children);
-				}
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Error adding podcasts and episodes");
-			}
-		}
-
-		private async Task<List<Item>> getEpisodesAsync(List<Item> parents)
-		{
-			var results = new List<Item>();
-
-			foreach (var parent in parents)
-			{
-				var children = await getEpisodeChildrenAsync(parent);
-
-				// actual individual episode, not the parent of a series.
-				// for now I'm keeping it inside this method since it fits the work flow, incl. importEpisodes logic
-				if (!children.Any())
-				{
-					results.Add(parent);
-					continue;
-				}
-
-				foreach (var child in children)
-				{
-					// use parent's 'DateAdded'. DateAdded is just a convenience prop for: PurchaseDate.UtcDateTime
-					child.PurchaseDate = parent.PurchaseDate;
-					// parent is essentially a series
-					child.Series = new Series[]
-					{
 						new Series
 						{
 							Asin = parent.Asin,
@@ -220,22 +188,18 @@ namespace AudibleUtilities
 							Sequence = parent.Relationships.FirstOrDefault(r => r.Asin == child.Asin).Sort.ToString(),
 							Title = parent.TitleWithSubtitle
 						}
-					};
-					// overload (read: abuse) IsEpisodes flag
-					child.Relationships = new Relationship[]
-					{
+				};
+				// overload (read: abuse) IsEpisodes flag
+				child.Relationships = new Relationship[]
+				{
 						new Relationship
 						{
 							RelationshipToProduct = RelationshipToProduct.Child,
 							RelationshipType = RelationshipType.Episode
 						}
-					};
-				}
-
-				results.AddRange(children);
+				};
 			}
-
-			return results;
+			return children;
 		}
 
 		private async Task<List<Item>> getEpisodeChildrenAsync(Item parent)
@@ -277,7 +241,7 @@ namespace AudibleUtilities
 					throw;
 				}
 
-				Serilog.Log.Logger.Debug($"Batch {i}: {childrenBatch.Count} results");
+				Serilog.Log.Logger.Debug($"Batch {i}: {childrenBatch.Count} results\t({{parent}})", parent);
 				// the service returned no results. probably indicates an error. stop running batches
 				if (!childrenBatch.Any())
 					break;
@@ -295,7 +259,7 @@ namespace AudibleUtilities
 			if (childrenIds.Count != results.Count)
 			{
 				var ex = new ApplicationException($"Mis-match: Children defined by parent={childrenIds.Count}. Children returned by batches={results.Count}");
-				Serilog.Log.Logger.Error(ex, "Quantity of series episodes defined by parent does not match quantity returned by batch fetching.");
+				Serilog.Log.Logger.Error(ex, "{parent} - Quantity of series episodes defined by parent does not match quantity returned by batch fetching.", parent);
 				throw ex;
 			}
 
