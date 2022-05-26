@@ -181,10 +181,8 @@ namespace AudibleUtilities
 
 				var children = await getEpisodeChildrenAsync(parent);
 
-				// actual individual episode, not the parent of a series.
-				// for now I'm keeping it inside this method since it fits the work flow, incl. importEpisodes logic
 				if (!children.Any())
-					return new();
+					return children;
 
 				foreach (var child in children)
 				{
