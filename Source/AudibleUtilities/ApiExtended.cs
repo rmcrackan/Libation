@@ -138,6 +138,9 @@ namespace AudibleUtilities
 					//description, series rating, and series cover art which differ
 					//from the individual episodes' values.
 					item.Series = new Series[]{ new Series { Asin = item.Asin, Sequence = RelationshipToProduct.Parent, Title = item.TitleWithSubtitle } };
+					//Helps to distinguish product parrents which have no content
+					//from children which do have content.
+					item.Asin = $"PARENT_{item.Asin}";
 					items.Add(item);
 				}
 				else if (!item.IsEpisodes)
@@ -155,7 +158,7 @@ namespace AudibleUtilities
 			Serilog.Log.Logger.Debug("Completed library scan.");
 
 #if DEBUG
-//System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
+			//System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
 #endif
 			var validators = new List<IValidator>();
 			validators.AddRange(getValidators());
@@ -182,7 +185,13 @@ namespace AudibleUtilities
 				var children = await getEpisodeChildrenAsync(parent);
 
 				if (!children.Any())
-					return children;
+				{
+					//The parent is the only episode in the podcase series,
+					//so the parent is its own child.
+					var parentJson = parent.ToJson(parent).ToString();
+					var child = Item.FromJson(parentJson);
+					children.Add(child);
+				}
 
 				foreach (var child in children)
 				{
@@ -195,7 +204,7 @@ namespace AudibleUtilities
 						{
 							Asin = parent.Asin,
 							// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive for malformed data from audible
-							Sequence = parent.Relationships.FirstOrDefault(r => r.Asin == child.Asin).Sort.ToString(),
+							Sequence = parent.Relationships.FirstOrDefault(r => r.Asin == child.Asin)?.Sort?.ToString() ?? "0",
 							Title = parent.TitleWithSubtitle
 						}
 					};
