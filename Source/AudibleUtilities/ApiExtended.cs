@@ -120,7 +120,7 @@ namespace AudibleUtilities
 		{
 			var items = new List<Item>();
 
-			Serilog.Log.Logger.Debug("Begin library scan");
+			Serilog.Log.Logger.Debug("Beginning library scan.");
 
 			List<Task<List<Item>>> getChildEpisodesTasks = new();
 
@@ -140,13 +140,13 @@ namespace AudibleUtilities
 				count++;
 			}
 
-			Serilog.Log.Logger.Debug("Library scan complete. Found {count} books and series. Waiting on {getChildEpisodesTasksCount} series episode scans to complete", count, getChildEpisodesTasks.Count);
+			Serilog.Log.Logger.Debug("Library scan complete. Found {count} books and series. Waiting on {getChildEpisodesTasksCount} series episode scans to complete.", count, getChildEpisodesTasks.Count);
 
 			//await and add all episides from all parents
 			foreach (var epList in await Task.WhenAll(getChildEpisodesTasks))
 				items.AddRange(epList);
 
-			Serilog.Log.Logger.Debug("Scan complete");
+			Serilog.Log.Logger.Debug("Completed library scan.");
 
 #if DEBUG
 //System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
@@ -205,6 +205,9 @@ namespace AudibleUtilities
 						}
 					};
 				}
+
+				Serilog.Log.Logger.Debug("Completed episode scan for {parent}", parent);
+
 				return children;
 			}
 			finally
