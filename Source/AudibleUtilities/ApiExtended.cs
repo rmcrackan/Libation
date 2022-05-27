@@ -131,18 +131,8 @@ namespace AudibleUtilities
 			{
 				if (item.IsEpisodes && importEpisodes)
 				{
-					//Helps to distinguish product parrents which have no content
-					//from children which do have content.
-					item.Asin = $"SERIES_{item.Asin}";
-					//Add the parent to the library because it contains the series
-					//description, series rating, and series cover art which differ
-					//from the individual episodes' values.
-					item.Series = new Series[] { new Series { Asin = item.Asin, Sequence = RelationshipToProduct.Parent, Title = item.TitleWithSubtitle } };
-
 					//Get child episodes asynchronously and await all at the end
 					getChildEpisodesTasks.Add(getChildEpisodesAsync(concurrencySemaphore, item));
-
-					items.Add(item);
 				}
 				else if (!item.IsEpisodes)
 					items.Add(item);
@@ -174,7 +164,7 @@ namespace AudibleUtilities
 		}
 
 		#region episodes and podcasts
-		
+
 		private async Task<List<Item>> getChildEpisodesAsync(SemaphoreSlim concurrencySemaphore, Item parent)
 		{
 			await concurrencySemaphore.WaitAsync();
@@ -189,10 +179,9 @@ namespace AudibleUtilities
 				{
 					//The parent is the only episode in the podcase series,
 					//so the parent is its own child.
-					var parentJson = parent.ToJson(parent).ToString();
-					var child = Item.FromJson(parentJson);
-					child.Asin = child.Asin.Replace("SERIES_", "");
-					children.Add(child);
+					parent.Series = new Series[] { new Series { Asin = parent.Asin, Sequence = RelationshipToProduct.Parent, Title = parent.TitleWithSubtitle } };
+					children.Add(parent);
+					return children;
 				}
 
 				foreach (var child in children)
@@ -254,8 +243,8 @@ namespace AudibleUtilities
 				{
 					childrenBatch = await Api.GetCatalogProductsAsync(idBatch, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
 #if DEBUG
-//var childrenBatchDebug = childrenBatch.Select(i => i.ToJson()).Aggregate((a, b) => $"{a}\r\n\r\n{b}");
-//System.IO.File.WriteAllText($"children of {parent.Asin}.json", childrenBatchDebug);
+					//var childrenBatchDebug = childrenBatch.Select(i => i.ToJson()).Aggregate((a, b) => $"{a}\r\n\r\n{b}");
+					//System.IO.File.WriteAllText($"children of {parent.Asin}.json", childrenBatchDebug);
 #endif
 				}
 				catch (Exception ex)
