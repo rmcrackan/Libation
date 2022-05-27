@@ -86,9 +86,9 @@ namespace LibationWinForms.GridView
 
 			var episodes = dbBooks.Where(b => b.IsEpisodeChild()).ToList();
 
-			foreach (var series in episodes.Select(lb => lb.Book.SeriesLink.First()).DistinctBy(s => s.Series))
+			foreach (var series in episodes.SelectMany(lb => lb.Book.SeriesLink).DistinctBy(s => s.Series))
 			{
-				var seriesEntry = new SeriesEntry(series, episodes.Where(lb => lb.Book.SeriesLink.First().Series == series.Book.SeriesLink.First().Series));
+				var seriesEntry = new SeriesEntry(series, episodes.Where(lb => lb.Book.SeriesLink.Any(s => s.Series == series.Series)));
 
 				geList.Add(seriesEntry);
 				geList.AddRange(seriesEntry.Children);

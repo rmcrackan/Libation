@@ -131,16 +131,17 @@ namespace AudibleUtilities
 			{
 				if (item.IsEpisodes && importEpisodes)
 				{
-					//Get child episodes asynchronously and await all at the end
-					getChildEpisodesTasks.Add(getChildEpisodesAsync(concurrencySemaphore, item));
-
+					//Helps to distinguish product parrents which have no content
+					//from children which do have content.
+					item.Asin = $"SERIES_{item.Asin}";
 					//Add the parent to the library because it contains the series
 					//description, series rating, and series cover art which differ
 					//from the individual episodes' values.
-					item.Series = new Series[]{ new Series { Asin = item.Asin, Sequence = RelationshipToProduct.Parent, Title = item.TitleWithSubtitle } };
-					//Helps to distinguish product parrents which have no content
-					//from children which do have content.
-					item.Asin = $"PARENT_{item.Asin}";
+					item.Series = new Series[] { new Series { Asin = item.Asin, Sequence = RelationshipToProduct.Parent, Title = item.TitleWithSubtitle } };
+
+					//Get child episodes asynchronously and await all at the end
+					getChildEpisodesTasks.Add(getChildEpisodesAsync(concurrencySemaphore, item));
+
 					items.Add(item);
 				}
 				else if (!item.IsEpisodes)
@@ -190,6 +191,7 @@ namespace AudibleUtilities
 					//so the parent is its own child.
 					var parentJson = parent.ToJson(parent).ToString();
 					var child = Item.FromJson(parentJson);
+					child.Asin = child.Asin.Replace("SERIES_", "");
 					children.Add(child);
 				}
 
