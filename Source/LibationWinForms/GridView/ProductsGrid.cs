@@ -86,7 +86,8 @@ namespace LibationWinForms.GridView
 
 			var episodes = dbBooks.Where(b => b.IsEpisodeChild()).ToList();
 
-			foreach (var series in episodes.SelectMany(lb => lb.Book.SeriesLink).DistinctBy(s => s.Series))
+			var allSeries = episodes.SelectMany(lb => lb.Book.SeriesLink.Where(s => !s.Series.AudibleSeriesId.StartsWith("SERIES_"))).DistinctBy(s => s.Series).ToList();
+			foreach (var series in allSeries)
 			{
 				var seriesEntry = new SeriesEntry(series, episodes.Where(lb => lb.Book.SeriesLink.Any(s => s.Series == series.Series)));
 
