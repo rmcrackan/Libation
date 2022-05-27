@@ -46,7 +46,7 @@ namespace LibationWinForms.Dialogs
 
 			if (template is null)
 			{
-				MessageBoxLib.ShowAdminAlert($"Programming error. {nameof(EditTemplateDialog)} was not created correctly", "Edit template error", new NullReferenceException($"{nameof(template)} is null"));
+				MessageBoxLib.ShowAdminAlert(this, $"Programming error. {nameof(EditTemplateDialog)} was not created correctly", "Edit template error", new NullReferenceException($"{nameof(template)} is null"));
 				return;
 			}
 

@@ -77,6 +77,7 @@ namespace LibationWinForms.Dialogs
 			catch (Exception ex)
 			{
 				MessageBoxLib.ShowAdminAlert(
+					this,
 					"Error scanning library. You may still manually select books to remove from Libation's library.",
 					"Error scanning library",
 					ex);

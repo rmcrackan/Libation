@@ -256,18 +256,21 @@ namespace AppScaffolding
 
 		private static void logStartupState(Configuration config)
 		{
+#if DEBUG
+			var mode = "Debug";
+#else
+			var mode = "Release";
+#endif
+			if (System.Diagnostics.Debugger.IsAttached)
+				mode += " (Debugger attached)";
+
 			// begin logging session with a form feed
 			Log.Logger.Information("\r\n\f");
 			Log.Logger.Information("Begin. {@DebugInfo}", new
 			{
 				AppName = EntryAssembly.GetName().Name,
 				Version = BuildVersion.ToString(),
-#if DEBUG
-				Mode = "Debug",
-#else
-				Mode = "Release",
-#endif
-
+				Mode = mode,
 				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
 				LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
 				LogLevel_Information_Enabled = Log.Logger.IsInformationEnabled(),

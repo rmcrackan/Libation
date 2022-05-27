@@ -43,7 +43,7 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				MessageBoxLib.ShowAdminAlert("Error downloading update", "Error downloading update", ex);
+				MessageBoxLib.ShowAdminAlert(null, "Error downloading update", "Error downloading update", ex);
 			}
 		}
 	}

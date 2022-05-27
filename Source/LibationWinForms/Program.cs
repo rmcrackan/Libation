@@ -49,7 +49,7 @@ namespace LibationWinForms
 #if !DEBUG
 				checkForUpdate();
 #endif
-
+				// logging is init'd here
 				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
 			}
 			catch (Exception ex)
@@ -58,14 +58,17 @@ namespace LibationWinForms
 				var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
 				try
 				{
-					MessageBoxLib.ShowAdminAlert(body, title, ex);
+					MessageBoxLib.ShowAdminAlert(null, body, title, ex);
 				}
 				catch
 				{
 					MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 				return;
-			}
+            }
+
+			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
+			postLoggingGlobalExceptionHandling();
 
 			Application.Run(new Form1());
 		}
@@ -170,7 +173,7 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				MessageBoxLib.ShowAdminAlert("Error checking for update", "Error checking for update", ex);
+				MessageBoxLib.ShowAdminAlert(null, "Error checking for update", "Error checking for update", ex);
 				return;
 			}
 
@@ -181,6 +184,17 @@ namespace LibationWinForms
 			}
 
 			Updater.Run(upgradeProperties.LatestRelease, upgradeProperties.ZipUrl);
+		}
+
+		private static void postLoggingGlobalExceptionHandling()
+		{
+			// this line is all that's needed for strict handling
+			AppDomain.CurrentDomain.UnhandledException += (_, e) => MessageBoxLib.ShowAdminAlert(null, "Libation has crashed due to an unhandled error.", "Application crash!", (Exception)e.ExceptionObject);
+
+			// these 2 lines makes it graceful. sync (eg in main form's ctor) and thread exceptions will still crash us, but event (sync, void async, Task async) will not
+			Application.ThreadException += (_, e) => MessageBoxLib.ShowAdminAlert(null, "Libation has encountered an unexpected error.", "Unexpected error", e.Exception);
+			// I never found a case where including made a difference. I think this enum is default and including it will override app user config file
+			Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 		}
 	}
 }

@@ -40,7 +40,7 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
-				MessageBoxLib.ShowAdminAlert("Error attempting to export your library.", "Error exporting", ex);
+				MessageBoxLib.ShowAdminAlert(this, "Error attempting to export your library.", "Error exporting", ex);
 			}
 		}
 	}

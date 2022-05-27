@@ -4,22 +4,27 @@ using System.Linq;
 using System.Windows.Forms;
 using DataLayer;
 using Dinah.Core.Logging;
+using Dinah.Core.Threading;
 using LibationWinForms.Dialogs;
 using Serilog;
 
 namespace LibationWinForms
 {
-    public static class MessageBoxLib
+	public static class MessageBoxLib
 	{
 		/// <summary>
 		/// Logs error. Displays a message box dialog with specified text and caption.
 		/// </summary>
+		/// <param name="synchronizeInvoke">Form calling this method.</param>
 		/// <param name="text">The text to display in the message box.</param>
 		/// <param name="caption">The text to display in the title bar of the message box.</param>
-		/// <param name="exception">Exception to log</param>
-		/// <returns>One of the System.Windows.Forms.DialogResult values.</returns>
-		public static DialogResult ShowAdminAlert(string text, string caption, Exception exception)
+		/// <param name="exception">Exception to log.</param>
+		public static void ShowAdminAlert(System.ComponentModel.ISynchronizeInvoke owner, string text, string caption, Exception exception)
 		{
+			// for development and debugging, show me what broke!
+			if (System.Diagnostics.Debugger.IsAttached)
+				throw exception;
+
 			try
 			{
 				Serilog.Log.Logger.Error(exception, "Alert admin error: {@DebugText}", new { text, caption });
@@ -27,10 +32,22 @@ namespace LibationWinForms
 			catch { }
 
 			using var form = new MessageBoxAlertAdminDialog(text, caption, exception);
-			return form.ShowDialog();
+
+			if (owner is not null)
+			{
+				try
+				{
+					owner.UIThreadSync(() => form.ShowDialog());
+					return;
+				}
+				catch { }
+			}
+
+			// synchronizeInvoke is null or previous attempt failed. final try
+			form.ShowDialog();
 		}
 
-		public static void VerboseLoggingWarning_ShowIfTrue()
+        public static void VerboseLoggingWarning_ShowIfTrue()
 		{
 			// when turning on debug (and especially Verbose) to share logs, some privacy settings may not be obscured
 			if (Log.Logger.IsVerboseEnabled())

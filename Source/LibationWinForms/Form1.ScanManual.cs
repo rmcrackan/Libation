@@ -126,6 +126,7 @@ namespace LibationWinForms
 			catch (Exception ex)
 			{
 				MessageBoxLib.ShowAdminAlert(
+					this,
 					"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
 					"Error importing library",
 					ex);
