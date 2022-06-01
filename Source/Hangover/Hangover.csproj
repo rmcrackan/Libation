@@ -1,11 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>hangover.ico</ApplicationIcon>
+    <ImplicitUsings>enable</ImplicitUsings>
 
-    <PublishTrimmed>true</PublishTrimmed>
     <PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -13,12 +14,12 @@
   </PropertyGroup>
 
   <!--
-  When LibationWinForms and LibationCli output to the same dir, LibationCli must build before LibationWinForms
+  When LibationWinForms and Hangover output to the same dir, Hangover must build before LibationWinForms
 
   VS > rt-clk solution > Properties
   left: Project Dependencies
   top: Projects: LibationWinForms
-  bottom: manually check LibationCli
+  bottom: manually check Hangover
 
   edit debug and release output paths
   -->
@@ -31,12 +32,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
+    <ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
+    <ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
-    <ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
+    <Compile Update="Form1.*.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

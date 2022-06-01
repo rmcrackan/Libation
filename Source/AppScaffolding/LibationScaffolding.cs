@@ -37,7 +37,8 @@ namespace AppScaffolding
 		public static Configuration RunPreConfigMigrations()
 		{
 			// must occur before access to Configuration instance
-			Migrations.migrate_to_v5_2_0__pre_config();
+			// // outdated. kept here as an example of what belongs in this area
+			// // Migrations.migrate_to_v5_2_0__pre_config();
 
 			//***********************************************//
 			//                                               //
@@ -354,41 +355,6 @@ namespace AppScaffolding
 
 	internal static class Migrations
 	{
-		#region migrate to v5.2.0
-		// get rid of meta-directories, combine DownloadsInProgressEnum and DecryptInProgressEnum => InProgress
-		public static void migrate_to_v5_2_0__pre_config()
-		{
-			{
-				var settingsKey = "DownloadsInProgressEnum";
-				if (UNSAFE_MigrationHelper.Settings_TryGet(settingsKey, out var value))
-				{
-					UNSAFE_MigrationHelper.Settings_Delete(settingsKey);
-					UNSAFE_MigrationHelper.Settings_Insert("InProgress", translatePath(value));
-				}
-			}
-
-			{
-				UNSAFE_MigrationHelper.Settings_Delete("DecryptInProgressEnum");
-			}
-
-			{ // appsettings.json
-				var appSettingsKey = UNSAFE_MigrationHelper.LIBATION_FILES_KEY;
-				if (UNSAFE_MigrationHelper.APPSETTINGS_TryGet(appSettingsKey, out var value))
-					UNSAFE_MigrationHelper.APPSETTINGS_Update(appSettingsKey, translatePath(value));
-			}
-		}
-
-		private static string translatePath(string path)
-			=> path switch
-			{
-				"AppDir" => @".\LibationFiles",
-				"MyDocs" => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "LibationFiles")),
-				"UserProfile" => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Libation")),
-				"WinTemp" => Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation")),
-				_ => path
-			};
-		#endregion
-
 		public static void migrate_to_v6_6_9(Configuration config)
 		{
 			var writeToPath = $"Serilog.WriteTo";

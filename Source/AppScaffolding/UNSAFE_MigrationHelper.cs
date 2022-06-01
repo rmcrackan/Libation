@@ -17,8 +17,13 @@ namespace AppScaffolding
 	/// 
 	/// 
 	/// </summary>
-	internal static class UNSAFE_MigrationHelper
+	public static class UNSAFE_MigrationHelper
 	{
+		public static string SettingsDirectory
+			=> !APPSETTINGS_TryGet(LIBATION_FILES_KEY, out var value) || value is null
+			? null
+			: value;
+
 		#region appsettings.json
 		private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "appsettings.json");
 
@@ -87,19 +92,11 @@ namespace AppScaffolding
 			System.Threading.Thread.Sleep(100);
 		}
 		#endregion
-
 		#region Settings.json
 		public const string LIBATION_FILES_KEY = "LibationFiles";
 		private const string SETTINGS_JSON = "Settings.json";
 
-		public static string SettingsJsonPath
-		{
-			get
-			{
-				var success = APPSETTINGS_TryGet(LIBATION_FILES_KEY, out var value);
-				return !success || value is null ? null : Path.Combine(value, SETTINGS_JSON);
-			}
-		}
+		public static string SettingsJsonPath => SettingsDirectory is null ? null : Path.Combine(SettingsDirectory, SETTINGS_JSON);
 		public static bool SettingsJson_Exists => SettingsJsonPath is not null && File.Exists(SettingsJsonPath);
 
 		public static bool Settings_TryGet(string key, out string value)
@@ -266,6 +263,11 @@ namespace AppScaffolding
 			File.WriteAllText(SettingsJsonPath, endingContents_indented);
 			System.Threading.Thread.Sleep(100);
 		}
+		#endregion
+		#region LibationContext.db
+		public const string LIBATION_CONTEXT = "LibationContext.db";
+		public static string DatabaseFile => SettingsDirectory is null ? null : Path.Combine(SettingsDirectory, LIBATION_CONTEXT);
+		public static bool DatabaseFile_Exists => DatabaseFile is not null && File.Exists(DatabaseFile);
 		#endregion
 	}
 }
