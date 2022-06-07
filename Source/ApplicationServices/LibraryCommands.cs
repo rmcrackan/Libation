@@ -200,7 +200,7 @@ namespace ApplicationServices
             var libraryBookImporter = new LibraryBookImporter(context);
             var newCount = await Task.Run(() => libraryBookImporter.Import(importItems));
             logTime("importIntoDbAsync -- post Import()");
-            int qtyChanges = saveChanges(context);
+            int qtyChanges = SaveContext(context);
             logTime("importIntoDbAsync -- post SaveChanges");
 
 			// this is any changes at all to the database, not just new books
@@ -211,7 +211,7 @@ namespace ApplicationServices
             return newCount;
         }
 
-        private static int saveChanges(LibationContext context)
+        public static int SaveContext(LibationContext context)
 		{
 			try
 			{
