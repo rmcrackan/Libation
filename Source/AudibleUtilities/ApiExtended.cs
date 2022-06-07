@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AudibleApi;
 using AudibleApi.Common;
 using Dinah.Core;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Polly;
 using Polly.Retry;
 
@@ -129,7 +132,7 @@ namespace AudibleUtilities
 
 			await foreach (var item in Api.GetLibraryItemAsyncEnumerable(libraryOptions))
 			{
-				if (item.IsEpisodes && importEpisodes)
+				if ((item.IsEpisodes || item.IsSeriesParent) && importEpisodes)
 				{
 					//Get child episodes asynchronously and await all at the end
 					getChildEpisodesTasks.Add(getChildEpisodesAsync(concurrencySemaphore, item));
@@ -173,16 +176,65 @@ namespace AudibleUtilities
 			{
 				Serilog.Log.Logger.Debug("Beginning episode scan for {parent}", parent);
 
-				var children = await getEpisodeChildrenAsync(parent);
+				List<Item> children;
 
-				if (!children.Any())
+				if (parent.IsEpisodes)
 				{
-					//The parent is the only episode in the podcase series,
-					//so the parent is its own child.
-					parent.Series = new Series[] { new Series { Asin = parent.Asin, Sequence = RelationshipToProduct.Parent, Title = parent.TitleWithSubtitle } };
-					children.Add(parent);
-					return children;
+					//The 'parent' is a single episode that was added to the library.
+					//Get the episode's parent and add it to the database.
+
+					Serilog.Log.Logger.Debug("Supplied Parent is an episode. Beginning parent scan for {parent}", parent);
+
+					children = new() { parent };
+
+					var parentAsins = parent.Relationships
+						.Where(r => r.RelationshipToProduct == RelationshipToProduct.Parent)
+						.Select(p => p.Asin);
+
+					var seriesParents = await Api.GetCatalogProductsAsync(parentAsins, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+
+					int numSeriesParents = seriesParents.Count(p => p.IsSeriesParent);
+					if (numSeriesParents != 1)
+					{
+						//There should only ever be 1 top-level parent per episode. If not, log
+						//and throw so we can figure out what to do about those special cases.
+						JsonSerializerSettings Settings = new()
+						{
+							MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
+							DateParseHandling = DateParseHandling.None,
+							Converters =
+							{
+								new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
+							},
+						};
+						var ex = new ApplicationException($"Found {numSeriesParents} parents for {parent.Asin}");
+						Serilog.Log.Logger.Error(ex, $"Episode Product:\r\n{JsonConvert.SerializeObject(parent, Formatting.None, Settings)}");
+						throw ex;
+					}
+
+					var realParent = seriesParents.Single(p => p.IsSeriesParent);
+					realParent.PurchaseDate = parent.PurchaseDate;
+
+					Serilog.Log.Logger.Debug("Completed parent scan for {parent}", parent); 
+					parent = realParent;
 				}
+				else
+				{
+					children = await getEpisodeChildrenAsync(parent);
+					if (!children.Any())
+						return new();
+				}
+
+				//A series parent will always have exactly 1 Series
+				parent.Series = new Series[]
+				{
+					new Series
+					{
+						Asin = parent.Asin,
+						Sequence = "-1",
+						Title = parent.TitleWithSubtitle
+					}
+				};
 
 				foreach (var child in children)
 				{
@@ -199,16 +251,9 @@ namespace AudibleUtilities
 							Title = parent.TitleWithSubtitle
 						}
 					};
-					// overload (read: abuse) IsEpisodes flag
-					child.Relationships = new Relationship[]
-					{
-						new Relationship
-						{
-							RelationshipToProduct = RelationshipToProduct.Child,
-							RelationshipType = RelationshipType.Episode
-						}
-					};
 				}
+
+				children.Add(parent);
 
 				Serilog.Log.Logger.Debug("Completed episode scan for {parent}", parent);
 

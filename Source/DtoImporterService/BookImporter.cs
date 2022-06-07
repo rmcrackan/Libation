@@ -75,7 +75,7 @@ namespace DtoImporterService
 		{
 			var item = importItem.DtoItem;
 
-			var contentType = item.IsEpisodes ? DataLayer.ContentType.Episode : DataLayer.ContentType.Product;
+			var contentType = GetContentType(item);
 
 			// absence of authors is very rare, but possible
 			if (!item.Authors?.Any() ?? true)
@@ -183,6 +183,16 @@ namespace DtoImporterService
 					book.UpsertSeries(series, seriesEntry.Sequence);
 				}
 			}
+		}
+
+		private static DataLayer.ContentType GetContentType(Item item)
+		{
+			if (item.IsEpisodes)
+				return DataLayer.ContentType.Episode;
+			else if (item.IsSeriesParent)
+				return DataLayer.ContentType.Parent;
+			else 
+				return DataLayer.ContentType.Product;			
 		}
 	}
 }
