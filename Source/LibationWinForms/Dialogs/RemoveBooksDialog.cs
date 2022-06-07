@@ -39,6 +39,7 @@ namespace LibationWinForms.Dialogs
 			_dataGridView.BindingContextChanged += _dataGridView_BindingContextChanged;
 
 			var orderedGridEntries = _libraryBooks
+				.Where(lb => lb.Book.ContentType is not ContentType.Parent)
 				.Select(lb => new RemovableGridEntry(lb))
 				.OrderByDescending(ge => (DateTime)ge.GetMemberValue(nameof(ge.PurchaseDate)))
 				.ToList();
