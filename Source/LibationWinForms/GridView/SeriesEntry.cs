@@ -6,101 +6,79 @@ using System.Linq;
 
 namespace LibationWinForms.GridView
 {
+	/// <summary>The View Model for a LibraryBook that is ContentType.Parent</summary>
 	public class SeriesEntry : GridEntry
 	{
-		public List<LibraryBookEntry> Children { get; init; }
+		public List<LibraryBookEntry> Children { get; } = new();
 		public override DateTime DateAdded => Children.Max(c => c.DateAdded);
-		public override float SeriesIndex { get; }
-		public override string ProductRating
-		{
-			get
-			{
-				var productAverageRating = new Rating(Children.Average(c => c.LibraryBook.Book.Rating.OverallRating), Children.Average(c => c.LibraryBook.Book.Rating.PerformanceRating), Children.Average(c => c.LibraryBook.Book.Rating.StoryRating));
-				return productAverageRating.ToStarString()?.DefaultIfNullOrWhiteSpace("");
-			}
-			protected set => throw new NotImplementedException();
-		}
-		public override string PurchaseDate { get; protected set; }
-		public override string MyRating
-		{
-			get
-			{
-				var myAverageRating = new Rating(Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.OverallRating), Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.PerformanceRating), Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.StoryRating));
-				return myAverageRating.ToStarString()?.DefaultIfNullOrWhiteSpace("");
-			}
-			protected set => throw new NotImplementedException();
-		}
-		public override string Series { get; protected set; }
-		public override string Title { get; protected set; }
-		public override string Length
-		{
-			get
-			{
-				int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
-				return bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
-			}
-			protected set => throw new NotImplementedException();
-		}
-		public override string Authors { get; protected set; }
-		public override string Narrators { get; protected set; }
-		public override string Category { get; protected set; }
-		public override string Misc { get; protected set; } = string.Empty;
-		public override string Description { get; protected set; } = string.Empty;
 		public override string DisplayTags { get; } = string.Empty;
-
 		public override LiberateButtonStatus Liberate { get; }
 
-		protected override Book Book => SeriesBook.Book;
-
-		private SeriesBook SeriesBook { get; set; }
-
-		private SeriesEntry(SeriesBook seriesBook)
+		private SeriesEntry(LibraryBook parent)
 		{
+			LibraryBook = parent;
 			Liberate = new LiberateButtonStatus { IsSeries = true };
-			SeriesIndex = seriesBook.Index;
+			SeriesIndex = -1;
 		}
-		public SeriesEntry(SeriesBook seriesBook, IEnumerable<LibraryBook> children) : this(seriesBook)
+
+		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children) : this(parent)
 		{
-			Children = children.Select(c => new LibraryBookEntry(c) { Parent = this }).OrderBy(c => c.SeriesIndex).ToList();
-			SetSeriesBook(seriesBook);
+			Children = children
+				.Select(c => new LibraryBookEntry(c) { Parent = this })
+				.OrderBy(c => c.SeriesIndex)
+				.ToList();
+
+			UpdateSeries(parent);
+			LoadCover();
 		}
-		public SeriesEntry(SeriesBook seriesBook, LibraryBook child) : this(seriesBook)
+
+		public SeriesEntry(LibraryBook parent, LibraryBook child) : this(parent)
 		{
 			Children = new() { new LibraryBookEntry(child) { Parent = this } };
-			SetSeriesBook(seriesBook);
+
+			UpdateSeries(parent);
+			LoadCover();
 		}
 
-		private void SetSeriesBook(SeriesBook seriesBook)
+		public void UpdateSeries(LibraryBook libraryBook)
 		{
-			SeriesBook = seriesBook;
-			LoadCover();
+			LibraryBook = libraryBook;
 
 			// Immutable properties
 			{
-				Title = SeriesBook.Series.Name;
-				Series = SeriesBook.Series.Name;
+				Title = Book.Title;
+				Series = Book.SeriesNames();
+				MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 				PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
+				ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 				Authors = Book.AuthorNames();
 				Narrators = Book.NarratorNames();
 				Category = string.Join(" > ", Book.CategoriesNames());
-			}
-		}
+				Misc = GetMiscDisplay(libraryBook);
+				LongDescription = GetDescriptionDisplay(Book);
+				Description = TrimTextToWord(LongDescription, 62);
 
+				int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
+				Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
+			}
+
+			NotifyPropertyChanged();
+		}
 
 		/// <summary>Create getters for all member object values by name</summary>
 		protected override Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
 		{
-			{ nameof(Title), () => Book.SeriesSortable() },
+			{ nameof(Title), () => Book.TitleSortable() },
 			{ nameof(Series), () => Book.SeriesSortable() },
 			{ nameof(Length), () => Children.Sum(c => c.LibraryBook.Book.LengthInMinutes) },
-			{ nameof(MyRating), () => Children.Average(c => c.LibraryBook.Book.UserDefinedItem.Rating.FirstScore()) },
+			{ nameof(MyRating), () => Book.UserDefinedItem.Rating.FirstScore() },
 			{ nameof(PurchaseDate), () => Children.Min(c => c.LibraryBook.DateAdded) },
-			{ nameof(ProductRating), () => Children.Average(c => c.LibraryBook.Book.Rating.FirstScore()) },
-			{ nameof(Authors), () => string.Empty },
-			{ nameof(Narrators), () => string.Empty },
-			{ nameof(Description), () => string.Empty },
-			{ nameof(Category), () => string.Empty },
-			{ nameof(Misc), () => string.Empty },
+			{ nameof(ProductRating), () => Book.Rating.FirstScore() },
+			{ nameof(Authors), () => Authors },
+			{ nameof(Narrators), () => Narrators },
+			{ nameof(Description), () => Description },
+			{ nameof(Category), () => Category },
+			{ nameof(Misc), () => Misc },
 			{ nameof(DisplayTags), () => string.Empty },
 			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },

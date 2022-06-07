@@ -1,4 +1,5 @@
 ﻿using DataLayer;
+using Dinah.Core;
 using Dinah.Core.DataBinding;
 using Dinah.Core.Drawing;
 using LibationFileManager;
@@ -10,11 +11,14 @@ using System.Linq;
 
 namespace LibationWinForms.GridView
 {
+	/// <summary>The View Model base for the DataGridView</summary>
 	public abstract class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
 	{
-		protected abstract Book Book { get; }
-
+		public string AudibleProductId => Book.AudibleProductId;
+		public LibraryBook LibraryBook { get; protected set; }
+		protected Book Book => LibraryBook.Book;
 		private Image _cover;
+
 		#region Model properties exposed to the view
 		public Image Cover
 		{
@@ -25,20 +29,20 @@ namespace LibationWinForms.GridView
 				NotifyPropertyChanged();
 			}
 		}
-		public new bool InvokeRequired => base.InvokeRequired;
+		public float SeriesIndex { get; protected set; }
+		public string ProductRating { get; protected set; }
+		public string PurchaseDate { get; protected set; }
+		public string MyRating { get; protected set; }
+		public string Series { get; protected set; }
+		public string Title { get; protected set; }
+		public string Length { get; protected set; }
+		public string Authors { get; protected set; }
+		public string Narrators { get; protected set; }
+		public string Category { get; protected set; }
+		public string Misc { get; protected set; }
+		public string Description { get; protected set; }
+		public string LongDescription { get; protected set; }
 		public abstract DateTime DateAdded { get; }
-		public abstract float SeriesIndex { get; }
-		public abstract string ProductRating { get; protected set; }
-		public abstract string PurchaseDate { get; protected set; }
-		public abstract string MyRating { get; protected set; }
-		public abstract string Series { get; protected set; }
-		public abstract string Title { get; protected set; }
-		public abstract string Length { get; protected set; }
-		public abstract string Authors { get; protected set; }
-		public abstract string Narrators { get; protected set; }
-		public abstract string Category { get; protected set; }
-		public abstract string Misc { get; protected set; }
-		public abstract string Description { get; protected set; }
 		public abstract string DisplayTags { get; }
 		public abstract LiberateButtonStatus Liberate { get; }
 		#endregion
@@ -53,6 +57,17 @@ namespace LibationWinForms.GridView
 		// Used by GridEntryBindingList for all sorting
 		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
 		public IComparer GetMemberComparer(Type memberType) => _memberTypeComparers[memberType];
+
+		// Instantiate comparers for every exposed member object type.
+		private static readonly Dictionary<Type, IComparer> _memberTypeComparers = new()
+		{
+			{ typeof(string), new ObjectComparer<string>() },
+			{ typeof(int), new ObjectComparer<int>() },
+			{ typeof(float), new ObjectComparer<float>() },
+			{ typeof(bool), new ObjectComparer<bool>() },
+			{ typeof(DateTime), new ObjectComparer<DateTime>() },
+			{ typeof(LiberateButtonStatus), new ObjectComparer<LiberateButtonStatus>() },
+		};
 
 		#endregion
 
@@ -79,36 +94,61 @@ namespace LibationWinForms.GridView
 			}
 		}
 
-		// Instantiate comparers for every exposed member object type.
-		private static readonly Dictionary<Type, IComparer> _memberTypeComparers = new()
+		#region Static library display functions		
+
+		/// <summary>
+		/// This information should not change during <see cref="LibraryBookEntry"/> lifetime, so call only once.
+		/// </summary>
+		protected static string GetDescriptionDisplay(Book book)
 		{
-			{ typeof(string), new ObjectComparer<string>() },
-			{ typeof(int), new ObjectComparer<int>() },
-			{ typeof(float), new ObjectComparer<float>() },
-			{ typeof(bool), new ObjectComparer<bool>() },
-			{ typeof(DateTime), new ObjectComparer<DateTime>() },
-			{ typeof(LiberateButtonStatus), new ObjectComparer<LiberateButtonStatus>() },
-		};
+			var doc = new HtmlAgilityPack.HtmlDocument();
+			doc.LoadHtml(book?.Description?.Replace("</p> ", "\r\n\r\n</p>") ?? "");
+			return doc.DocumentNode.InnerText.Trim();
+		}
+
+		protected static string TrimTextToWord(string text, int maxLength)
+		{
+			return
+				text.Length <= maxLength ?
+				text :
+				text.Substring(0, maxLength - 3) + "...";
+		}
+
+
+		/// <summary>
+		/// This information should not change during <see cref="LibraryBookEntry"/> lifetime, so call only once.
+		/// Maximum of 5 text rows will fit in 80-pixel row height.
+		/// </summary>
+		protected static string GetMiscDisplay(LibraryBook libraryBook)
+		{
+			var details = new List<string>();
+
+			var locale = libraryBook.Book.Locale.DefaultIfNullOrWhiteSpace("[unknown]");
+			var acct = libraryBook.Account.DefaultIfNullOrWhiteSpace("[unknown]");
+
+			details.Add($"Account: {locale} - {acct}");
+
+			if (libraryBook.Book.HasPdf())
+				details.Add("Has PDF");
+			if (libraryBook.Book.IsAbridged)
+				details.Add("Abridged");
+			if (libraryBook.Book.DatePublished.HasValue)
+				details.Add($"Date pub'd: {libraryBook.Book.DatePublished.Value:MM/dd/yyyy}");
+			// this goes last since it's most likely to have a line-break
+			if (!string.IsNullOrWhiteSpace(libraryBook.Book.Publisher))
+				details.Add($"Pub: {libraryBook.Book.Publisher.Trim()}");
+
+			if (!details.Any())
+				return "[details not imported]";
+
+			return string.Join("\r\n", details);
+		}
+
+		#endregion
 
 		~GridEntry()
 		{
 			PictureStorage.PictureCached -= PictureStorage_PictureCached;
 		}
-	}
-
-	internal static class GridEntryExtensions
-	{
-#nullable enable
-		public static IEnumerable<SeriesEntry> Series(this IEnumerable<GridEntry> gridEntries)
-			=> gridEntries.OfType<SeriesEntry>();
-		public static IEnumerable<LibraryBookEntry> LibraryBooks(this IEnumerable<GridEntry> gridEntries)
-			=> gridEntries.OfType<LibraryBookEntry>();
-		public static LibraryBookEntry? FindBookByAsin(this IEnumerable<LibraryBookEntry> gridEntries, string audibleProductID)
-			=> gridEntries.FirstOrDefault(i => i.AudibleProductId == audibleProductID);
-		public static SeriesEntry? FindBookSeriesEntry(this IEnumerable<GridEntry> gridEntries, IEnumerable<SeriesBook> matchSeries)
-			=> gridEntries.Series().FirstOrDefault(i => matchSeries.Any(s => s.Series.Name == i.Series));
-		public static IEnumerable<SeriesEntry> EmptySeries(this IEnumerable<GridEntry> gridEntries)
-			=> gridEntries.Series().Where(i => i.Children.Count == 0);
-		public static bool IsEpisodeChild(this LibraryBook lb) => lb.Book.ContentType == ContentType.Episode;
 	}
 }

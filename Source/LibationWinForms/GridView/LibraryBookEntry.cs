@@ -3,29 +3,13 @@ using DataLayer;
 using Dinah.Core;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 
 namespace LibationWinForms.GridView
 {
-	/// <summary>
-	/// The View Model for a LibraryBook
-	/// </summary>
+	/// <summary>The View Model for a LibraryBook that is ContentType.Product or ContentType.Episode</summary>
 	public class LibraryBookEntry : GridEntry
 	{
-		#region implementation properties NOT exposed to the view
-		// hide from public fields from Data Source GUI with [Browsable(false)]
-
-		[Browsable(false)]
-		public string AudibleProductId => Book.AudibleProductId;
-		[Browsable(false)]
-		public LibraryBook LibraryBook { get; private set; }
-		[Browsable(false)]
-		public string LongDescription { get; private set; }
-		#endregion
-
-		protected override Book Book => LibraryBook.Book;
-
 		#region Model properties exposed to the view
 
 		private DateTime lastStatusUpdate = default;
@@ -33,21 +17,8 @@ namespace LibationWinForms.GridView
 		private LiberatedStatus? _pdfStatus;
 
 		public override DateTime DateAdded => LibraryBook.DateAdded;
-		public override float SeriesIndex => Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
-		public override string ProductRating { get; protected set; }
-		public override string PurchaseDate { get; protected set; }
-		public override string MyRating { get; protected set; }
-		public override string Series { get; protected set; }
-		public override string Title { get; protected set; }
-		public override string Length { get; protected set; }
-		public override string Authors { get; protected set; }
-		public override string Narrators { get; protected set; }
-		public override string Category { get; protected set; }
-		public override string Misc { get; protected set; }
-		public override string Description { get; protected set; }
 		public override string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 
-		// these 2 values being in 1 field is the trick behind getting the liberated+pdf 'stoplight' icon to draw. See: LiberateDataGridViewImageButtonCell.Paint
 		public override LiberateButtonStatus Liberate
 		{
 			get
@@ -62,7 +33,10 @@ namespace LibationWinForms.GridView
 				return new LiberateButtonStatus { BookStatus = _bookStatus, PdfStatus = _pdfStatus, IsSeries = false };
 			}
 		}
+
 		#endregion
+
+		public SeriesEntry Parent { get; init; }
 
 		public LibraryBookEntry(LibraryBook libraryBook)
 		{
@@ -70,7 +44,6 @@ namespace LibationWinForms.GridView
 			LoadCover();
 		}
 
-		public SeriesEntry Parent { get; init; }
 		public void UpdateLibraryBook(LibraryBook libraryBook)
 		{
 			if (AudibleProductId != libraryBook.Book.AudibleProductId)
@@ -100,11 +73,11 @@ namespace LibationWinForms.GridView
 				Misc = GetMiscDisplay(libraryBook);
 				LongDescription = GetDescriptionDisplay(Book);
 				Description = TrimTextToWord(LongDescription, 62);
+				SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 			}
 
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
-
 
 		#region detect changes to the model, update the view, and save to database.
 
@@ -168,58 +141,6 @@ namespace LibationWinForms.GridView
 			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },
 		};
-
-
-		#endregion
-
-		#region Static library display functions
-
-		/// <summary>
-		/// This information should not change during <see cref="LibraryBookEntry"/> lifetime, so call only once.
-		/// </summary>
-		private static string GetDescriptionDisplay(Book book)
-		{
-			var doc = new HtmlAgilityPack.HtmlDocument();
-			doc.LoadHtml(book?.Description?.Replace("</p> ", "\r\n\r\n</p>") ?? "");
-			return doc.DocumentNode.InnerText.Trim();
-		}
-
-		private static string TrimTextToWord(string text, int maxLength)
-		{
-			return
-				text.Length <= maxLength ?
-				text :
-				text.Substring(0, maxLength - 3) + "...";
-		}
-
-		/// <summary>
-		/// This information should not change during <see cref="LibraryBookEntry"/> lifetime, so call only once.
-		/// Maximum of 5 text rows will fit in 80-pixel row height.
-		/// </summary>
-		private static string GetMiscDisplay(LibraryBook libraryBook)
-		{
-			var details = new List<string>();
-
-			var locale = libraryBook.Book.Locale.DefaultIfNullOrWhiteSpace("[unknown]");
-			var acct = libraryBook.Account.DefaultIfNullOrWhiteSpace("[unknown]");
-
-			details.Add($"Account: {locale} - {acct}");
-
-			if (libraryBook.Book.HasPdf())
-				details.Add("Has PDF");
-			if (libraryBook.Book.IsAbridged)
-				details.Add("Abridged");
-			if (libraryBook.Book.DatePublished.HasValue)
-				details.Add($"Date pub'd: {libraryBook.Book.DatePublished.Value:MM/dd/yyyy}");
-			// this goes last since it's most likely to have a line-break
-			if (!string.IsNullOrWhiteSpace(libraryBook.Book.Publisher))
-				details.Add($"Pub: {libraryBook.Book.Publisher.Trim()}");
-
-			if (!details.Any())
-				return "[details not imported]";
-
-			return string.Join("\r\n", details);
-		}
 
 		#endregion
 
