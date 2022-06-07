@@ -9,19 +9,18 @@ namespace LibationWinForms.GridView
 	/// <summary>The View Model for a LibraryBook that is ContentType.Parent</summary>
 	public class SeriesEntry : GridEntry
 	{
-		public List<LibraryBookEntry> Children { get; } = new();
+		public List<LibraryBookEntry> Children { get; }
 		public override DateTime DateAdded => Children.Max(c => c.DateAdded);
 		public override string DisplayTags { get; } = string.Empty;
 		public override LiberateButtonStatus Liberate { get; }
 
-		private SeriesEntry(LibraryBook parent)
+		private SeriesEntry()
 		{
-			LibraryBook = parent;
 			Liberate = new LiberateButtonStatus { IsSeries = true };
 			SeriesIndex = -1;
 		}
 
-		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children) : this(parent)
+		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children) : this()
 		{
 			Children = children
 				.Select(c => new LibraryBookEntry(c) { Parent = this })
@@ -32,7 +31,7 @@ namespace LibationWinForms.GridView
 			LoadCover();
 		}
 
-		public SeriesEntry(LibraryBook parent, LibraryBook child) : this(parent)
+		public SeriesEntry(LibraryBook parent, LibraryBook child) : this()
 		{
 			Children = new() { new LibraryBookEntry(child) { Parent = this } };
 
