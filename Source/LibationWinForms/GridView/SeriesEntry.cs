@@ -65,6 +65,8 @@ namespace LibationWinForms.GridView
 			NotifyPropertyChanged();
 		}
 
+		#region Data Sorting
+
 		/// <summary>Create getters for all member object values by name</summary>
 		protected override Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
 		{
@@ -83,5 +85,7 @@ namespace LibationWinForms.GridView
 			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },
 		};
+
+		#endregion
 	}
 }

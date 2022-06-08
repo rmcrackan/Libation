@@ -11,7 +11,6 @@ namespace LibationWinForms.GridView
 	/// <summary>The View Model for a LibraryBook that is ContentType.Product or ContentType.Episode</summary>
 	public class LibraryBookEntry : GridEntry
 	{
-
 		[Browsable(false)] public override DateTime DateAdded => LibraryBook.DateAdded;
 		[Browsable(false)] public SeriesEntry Parent { get; init; }
 
@@ -60,22 +59,19 @@ namespace LibationWinForms.GridView
 		{
 			LibraryBook = libraryBook;
 
-			// Immutable properties
-			{
-				Title = Book.Title;
-				Series = Book.SeriesNames();
-				Length = Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min";
-				MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
-				PurchaseDate = libraryBook.DateAdded.ToString("d");
-				ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
-				Authors = Book.AuthorNames();
-				Narrators = Book.NarratorNames();
-				Category = string.Join(" > ", Book.CategoriesNames());
-				Misc = GetMiscDisplay(libraryBook);
-				LongDescription = GetDescriptionDisplay(Book);
-				Description = TrimTextToWord(LongDescription, 62);
-				SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
-			}
+			Title = Book.Title;
+			Series = Book.SeriesNames();
+			Length = Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min";
+			MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			PurchaseDate = libraryBook.DateAdded.ToString("d");
+			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			Authors = Book.AuthorNames();
+			Narrators = Book.NarratorNames();
+			Category = string.Join(" > ", Book.CategoriesNames());
+			Misc = GetMiscDisplay(libraryBook);
+			LongDescription = GetDescriptionDisplay(Book);
+			Description = TrimTextToWord(LongDescription, 62);
+			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
