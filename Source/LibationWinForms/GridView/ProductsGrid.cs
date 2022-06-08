@@ -93,12 +93,11 @@ namespace LibationWinForms.GridView
 		{
 			var geList = dbBooks.Where(lb => lb.IsProduct()).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
 
-			var parents = dbBooks.Where(lb => lb.IsEpisodeParent());
 			var episodes = dbBooks.Where(lb => lb.IsEpisodeChild());
 						
-			foreach (var parent in parents)
+			foreach (var parent in dbBooks.Where(lb => lb.IsEpisodeParent()))
 			{
-				var seriesEpisodes = episodes.Where(lb => lb.Book.SeriesLink?.Any(s => s.Series.AudibleSeriesId == parent.Book.AudibleProductId) == true).ToList();
+				var seriesEpisodes = episodes.FindChildren(parent).ToList();
 
 				if (!seriesEpisodes.Any()) continue;
 
@@ -112,7 +111,7 @@ namespace LibationWinForms.GridView
 			bindingList.CollapseAll();
 			syncBindingSource.DataSource = bindingList;
 			VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
-		}	
+		}
 
 		internal void UpdateGrid(List<LibraryBook> dbBooks)
 		{
@@ -133,10 +132,10 @@ namespace LibationWinForms.GridView
 			{
 				var existingEntry = allEntries.FindByAsin(libraryBook.Book.AudibleProductId);
 
-				if (libraryBook.IsEpisodeChild()) 
-					AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);
-				else if (libraryBook.IsProduct())
+				if (libraryBook.IsProduct())
 					AddOrUpdateBook(libraryBook, existingEntry);
+				else if(libraryBook.IsEpisodeChild()) 
+					AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);				 
 			}	
 
 			bindingList.SuspendFilteringOnUpdate = false;
@@ -198,6 +197,7 @@ namespace LibationWinForms.GridView
 
 					if (seriesBook is null)
 					{
+						//This should be impossible because the importer ensures every episode has a parent.
 						var ex = new ApplicationException($"Episode's series parent not found in database.");
 						var seriesLinks = string.Join("\r\n", episodeBook.Book.SeriesLink?.Select(sb => $"{nameof(sb.Series.Name)}={sb.Series.Name}, {nameof(sb.Series.AudibleSeriesId)}={sb.Series.AudibleSeriesId}"));
 						Serilog.Log.Logger.Error(ex, "Episode={episodeBook}, Series: {seriesLinks}", episodeBook, seriesLinks);

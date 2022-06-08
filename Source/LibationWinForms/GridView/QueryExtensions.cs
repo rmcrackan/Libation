@@ -8,6 +8,9 @@ namespace LibationWinForms.GridView
 #nullable enable
 	internal static class QueryExtensions
 	{
+		public static IEnumerable<LibraryBook> FindChildren(this IEnumerable<LibraryBook> bookList, LibraryBook parent)
+			=> bookList.Where(lb => lb.Book.SeriesLink?.Any(s => s.Series.AudibleSeriesId == parent.Book.AudibleProductId) == true);
+
 		public static IEnumerable<LibraryBookEntry> BookEntries(this IEnumerable<GridEntry> gridEntries)
 			=> gridEntries.OfType<LibraryBookEntry>();
 

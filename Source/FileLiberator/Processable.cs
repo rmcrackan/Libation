@@ -29,8 +29,7 @@ namespace FileLiberator
         public IEnumerable<LibraryBook> GetValidLibraryBooks(IEnumerable<LibraryBook> library)
             => library.Where(libraryBook =>
                 Validate(libraryBook)
-                && libraryBook.Book.ContentType != ContentType.Parent 
-                && (libraryBook.Book.ContentType != ContentType.Episode || Configuration.Instance.DownloadEpisodes)
+                && (libraryBook.Book.ContentType != ContentType.Episode || LibationFileManager.Configuration.Instance.DownloadEpisodes)
                 );
 
         public async Task<StatusHandler> ProcessSingleAsync(LibraryBook libraryBook, bool validate)
