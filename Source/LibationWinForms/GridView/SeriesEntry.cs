@@ -2,6 +2,7 @@
 using Dinah.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace LibationWinForms.GridView
@@ -9,10 +10,15 @@ namespace LibationWinForms.GridView
 	/// <summary>The View Model for a LibraryBook that is ContentType.Parent</summary>
 	public class SeriesEntry : GridEntry
 	{
-		public List<LibraryBookEntry> Children { get; }
-		public override DateTime DateAdded => Children.Max(c => c.DateAdded);
-		public override string DisplayTags { get; } = string.Empty;
+		[Browsable(false)] public List<LibraryBookEntry> Children { get; }
+		[Browsable(false)] public override DateTime DateAdded => Children.Max(c => c.DateAdded);
+
+		#region Model properties exposed to the view
+
 		public override LiberateButtonStatus Liberate { get; }
+		public override string DisplayTags { get; } = string.Empty;
+
+		#endregion
 
 		private SeriesEntry(LibraryBook parent)
 		{

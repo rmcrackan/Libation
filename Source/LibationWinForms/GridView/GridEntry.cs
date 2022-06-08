@@ -6,6 +6,7 @@ using LibationFileManager;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 
@@ -14,11 +15,16 @@ namespace LibationWinForms.GridView
 	/// <summary>The View Model base for the DataGridView</summary>
 	public abstract class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
 	{
-		public string AudibleProductId => Book.AudibleProductId;
-		public LibraryBook LibraryBook { get; protected set; }
-		protected Book Book => LibraryBook.Book;
+		[Browsable(false)] public string AudibleProductId => Book.AudibleProductId;
+		[Browsable(false)] public LibraryBook LibraryBook { get; protected set; }
+		[Browsable(false)] public float SeriesIndex { get; protected set; }
+		[Browsable(false)] public string LongDescription { get; protected set; }
+		[Browsable(false)] public abstract DateTime DateAdded { get; }
+		[Browsable(false)] protected Book Book => LibraryBook.Book;
 
 		#region Model properties exposed to the view
+
+		public abstract LiberateButtonStatus Liberate { get; }
 		public Image Cover
 		{
 			get => _cover;
@@ -28,10 +34,7 @@ namespace LibationWinForms.GridView
 				NotifyPropertyChanged();
 			}
 		}
-		public float SeriesIndex { get; protected set; }
-		public string ProductRating { get; protected set; }
 		public string PurchaseDate { get; protected set; }
-		public string MyRating { get; protected set; }
 		public string Series { get; protected set; }
 		public string Title { get; protected set; }
 		public string Length { get; protected set; }
@@ -40,10 +43,10 @@ namespace LibationWinForms.GridView
 		public string Category { get; protected set; }
 		public string Misc { get; protected set; }
 		public string Description { get; protected set; }
-		public string LongDescription { get; protected set; }
-		public abstract DateTime DateAdded { get; }
+		public string ProductRating { get; protected set; }
+		public string MyRating { get; protected set; }
 		public abstract string DisplayTags { get; }
-		public abstract LiberateButtonStatus Liberate { get; }
+
 		#endregion
 
 		#region Sorting
@@ -98,9 +101,7 @@ namespace LibationWinForms.GridView
 
 		#region Static library display functions		
 
-		/// <summary>
-		/// This information should not change during <see cref="GridEntry"/> lifetime, so call only once.
-		/// </summary>
+		/// <summary>This information should not change during <see cref="GridEntry"/> lifetime, so call only once.</summary>
 		protected static string GetDescriptionDisplay(Book book)
 		{
 			var doc = new HtmlAgilityPack.HtmlDocument();

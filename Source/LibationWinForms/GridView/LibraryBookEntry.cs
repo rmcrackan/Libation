@@ -3,6 +3,7 @@ using DataLayer;
 using Dinah.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace LibationWinForms.GridView
@@ -10,14 +11,15 @@ namespace LibationWinForms.GridView
 	/// <summary>The View Model for a LibraryBook that is ContentType.Product or ContentType.Episode</summary>
 	public class LibraryBookEntry : GridEntry
 	{
+
+		[Browsable(false)] public override DateTime DateAdded => LibraryBook.DateAdded;
+		[Browsable(false)] public SeriesEntry Parent { get; init; }
+
 		#region Model properties exposed to the view
 
 		private DateTime lastStatusUpdate = default;
 		private LiberatedStatus _bookStatus;
 		private LiberatedStatus? _pdfStatus;
-
-		public override DateTime DateAdded => LibraryBook.DateAdded;
-		public override string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 
 		public override LiberateButtonStatus Liberate
 		{
@@ -33,10 +35,9 @@ namespace LibationWinForms.GridView
 				return new LiberateButtonStatus { BookStatus = _bookStatus, PdfStatus = _pdfStatus, IsSeries = false };
 			}
 		}
+		public override string DisplayTags => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 
 		#endregion
-
-		public SeriesEntry Parent { get; init; }
 
 		public LibraryBookEntry(LibraryBook libraryBook)
 		{

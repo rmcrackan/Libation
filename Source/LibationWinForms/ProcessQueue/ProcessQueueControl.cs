@@ -80,6 +80,15 @@ namespace LibationWinForms.ProcessQueue
 		private bool isBookInQueue(DataLayer.LibraryBook libraryBook)
 			=> Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
 
+		public void AddDownloadPdf(DataLayer.LibraryBook libraryBook)
+			=> AddDownloadPdf(new List<DataLayer.LibraryBook>() { libraryBook });
+
+		public void AddDownloadDecrypt(DataLayer.LibraryBook libraryBook)
+			=> AddDownloadDecrypt(new List<DataLayer.LibraryBook>() { libraryBook });
+
+		public void AddConvertMp3(DataLayer.LibraryBook libraryBook)
+			=> AddConvertMp3(new List<DataLayer.LibraryBook>() { libraryBook });
+
 		public void AddDownloadPdf(IEnumerable<DataLayer.LibraryBook> entries)
 		{
 			List<ProcessBook> procs = new();
@@ -132,40 +141,6 @@ namespace LibationWinForms.ProcessQueue
 			AddToQueue(procs);
 		}
 
-		public void AddDownloadPdf(DataLayer.LibraryBook libraryBook)
-		{
-			if (isBookInQueue(libraryBook))
-				return;
-
-			ProcessBook pbook = new(libraryBook, Logger);
-			pbook.PropertyChanged += Pbook_DataAvailable;
-			pbook.AddDownloadPdf();
-			AddToQueue(pbook);
-		}
-
-		public void AddDownloadDecrypt(DataLayer.LibraryBook libraryBook)
-		{
-			if (isBookInQueue(libraryBook))
-				return;
-
-			ProcessBook pbook = new(libraryBook, Logger);
-			pbook.PropertyChanged += Pbook_DataAvailable;
-			pbook.AddDownloadDecryptBook();
-			pbook.AddDownloadPdf();
-			AddToQueue(pbook);
-		}
-
-		public void AddConvertMp3(DataLayer.LibraryBook libraryBook)
-		{
-			if (isBookInQueue(libraryBook))
-				return;
-
-			ProcessBook pbook = new(libraryBook, Logger);
-			pbook.PropertyChanged += Pbook_DataAvailable;
-			pbook.AddConvertToMp3();
-			AddToQueue(pbook);
-		}
-
 		private void AddToQueue(IEnumerable<ProcessBook> pbook)
 		{
 			syncContext.Post(_ =>
@@ -177,21 +152,11 @@ namespace LibationWinForms.ProcessQueue
 			null);
 		}
 
-		private void AddToQueue(ProcessBook pbook)
-		{
-			syncContext.Post(_ =>
-			{
-				Queue.Enqueue(pbook);
-				if (!Running)
-					QueueRunner = QueueLoop();
-			}, 
-			null);			
-		}
 
-		DateTime StartintTime;
+		DateTime StartingTime;
 		private async Task QueueLoop()
 		{
-			StartintTime = DateTime.Now;
+			StartingTime = DateTime.Now;
 			counterTimer.Start();
 
 			while (Queue.MoveNext())
@@ -273,7 +238,7 @@ namespace LibationWinForms.ProcessQueue
 			}
 
 			if (Running)
-				runningTimeLbl.Text = timeToStr(DateTime.Now - StartintTime);
+				runningTimeLbl.Text = timeToStr(DateTime.Now - StartingTime);
 		}
 
 		private void clearLogBtn_Click(object sender, EventArgs e)
