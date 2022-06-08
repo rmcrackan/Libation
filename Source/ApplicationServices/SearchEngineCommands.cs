@@ -29,7 +29,7 @@ namespace ApplicationServices
 		}
 		#endregion
 
-		public static EventHandler SearchEngineUpdated;
+		public static event EventHandler SearchEngineUpdated;
 
 		#region Update
 		private static bool isUpdating;
