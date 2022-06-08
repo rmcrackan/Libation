@@ -181,7 +181,7 @@ namespace LibationWinForms.ProcessQueue
 
 		public bool MoveNext()
 		{
-			int queuedCount, completedCount = 0;
+			int completedCount = 0, queuedCount = 0;
 			bool completedChanged = false;
 			try
 			{
@@ -208,8 +208,8 @@ namespace LibationWinForms.ProcessQueue
 			finally
 			{
 				if (completedChanged)
-					CompletedCountChanged?.Invoke(this, _completed.Count);
-				QueuededCountChanged?.Invoke(this, _queued.Count);
+					CompletedCountChanged?.Invoke(this, completedCount);
+				QueuededCountChanged?.Invoke(this, queuedCount);
 			}
 		}
 
