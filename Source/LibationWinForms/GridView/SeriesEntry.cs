@@ -14,52 +14,47 @@ namespace LibationWinForms.GridView
 		public override string DisplayTags { get; } = string.Empty;
 		public override LiberateButtonStatus Liberate { get; }
 
-		private SeriesEntry()
+		private SeriesEntry(LibraryBook parent)
 		{
 			Liberate = new LiberateButtonStatus { IsSeries = true };
 			SeriesIndex = -1;
+			LibraryBook = parent;
+			LoadCover();
 		}
 
-		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children) : this()
+		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children) : this(parent)
 		{
 			Children = children
 				.Select(c => new LibraryBookEntry(c) { Parent = this })
 				.OrderBy(c => c.SeriesIndex)
 				.ToList();
-
 			UpdateSeries(parent);
-			LoadCover();
 		}
 
-		public SeriesEntry(LibraryBook parent, LibraryBook child) : this()
+		public SeriesEntry(LibraryBook parent, LibraryBook child) : this(parent)
 		{
 			Children = new() { new LibraryBookEntry(child) { Parent = this } };
-
 			UpdateSeries(parent);
-			LoadCover();
 		}
 
-		public void UpdateSeries(LibraryBook libraryBook)
+		public void UpdateSeries(LibraryBook parent)
 		{
-			LibraryBook = libraryBook;
+			LibraryBook = parent;
 
-			// Immutable properties
-			{
-				Title = Book.Title;
-				Series = Book.SeriesNames();
-				MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
-				PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
-				ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
-				Authors = Book.AuthorNames();
-				Narrators = Book.NarratorNames();
-				Category = string.Join(" > ", Book.CategoriesNames());
-				Misc = GetMiscDisplay(libraryBook);
-				LongDescription = GetDescriptionDisplay(Book);
-				Description = TrimTextToWord(LongDescription, 62);
+			Title = Book.Title;
+			Series = Book.SeriesNames();
+			MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
+			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			Authors = Book.AuthorNames();
+			Narrators = Book.NarratorNames();
+			Category = string.Join(" > ", Book.CategoriesNames());
+			Misc = GetMiscDisplay(LibraryBook);
+			LongDescription = GetDescriptionDisplay(Book);
+			Description = TrimTextToWord(LongDescription, 62);
 
-				int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
-				Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
-			}
+			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
+			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
 
 			NotifyPropertyChanged();
 		}

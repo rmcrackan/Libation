@@ -25,9 +25,10 @@ namespace LibationWinForms.GridView
 		public new event EventHandler<ScrollEventArgs> Scroll;
 
 		private GridEntryBindingList bindingList;
-		internal IEnumerable<LibraryBookEntry> GetVisible()
+		internal IEnumerable<LibraryBook> GetVisibleBooks()
 			=> bindingList
-			.BookEntries();
+			.BookEntries()
+			.Select(lbe => lbe.LibraryBook);
 
 		public ProductsGrid()
 		{

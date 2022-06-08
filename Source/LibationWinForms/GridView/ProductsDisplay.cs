@@ -87,7 +87,7 @@ namespace LibationWinForms.GridView
 			try
 			{
 				// don't return early if lib size == 0. this will not update correctly if all books are removed
-				var lib = DbContexts.GetLibrary_Flat_NoTracking();
+				var lib = DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
 
 				if (!hasBeenDisplayed)
 				{
@@ -114,7 +114,7 @@ namespace LibationWinForms.GridView
 
 		#endregion
 
-		internal List<LibraryBook> GetVisible() => productsGrid.GetVisible().Select(v => v.LibraryBook).ToList();
+		internal List<LibraryBook> GetVisible() => productsGrid.GetVisibleBooks().ToList();
 
 		private void productsGrid_VisibleCountChanged(object sender, int count)
 		{

@@ -17,7 +17,6 @@ namespace LibationWinForms.GridView
 		public string AudibleProductId => Book.AudibleProductId;
 		public LibraryBook LibraryBook { get; protected set; }
 		protected Book Book => LibraryBook.Book;
-		private Image _cover;
 
 		#region Model properties exposed to the view
 		public Image Cover
@@ -50,13 +49,13 @@ namespace LibationWinForms.GridView
 		#region Sorting
 
 		public GridEntry() => _memberValues = CreateMemberValueDictionary();
-		private Dictionary<string, Func<object>> _memberValues { get; set; }
-		protected abstract Dictionary<string, Func<object>> CreateMemberValueDictionary();
 
 		// These methods are implementation of Dinah.Core.DataBinding.IMemberComparable
 		// Used by GridEntryBindingList for all sorting
 		public virtual object GetMemberValue(string memberName) => _memberValues[memberName]();
 		public IComparer GetMemberComparer(Type memberType) => _memberTypeComparers[memberType];
+		protected abstract Dictionary<string, Func<object>> CreateMemberValueDictionary();
+		private Dictionary<string, Func<object>> _memberValues { get; set; }
 
 		// Instantiate comparers for every exposed member object type.
 		private static readonly Dictionary<Type, IComparer> _memberTypeComparers = new()
@@ -71,18 +70,19 @@ namespace LibationWinForms.GridView
 
 		#endregion
 
+		#region Cover Art
+
+		private Image _cover;
 		protected void LoadCover()
 		{
 			// Get cover art. If it's default, subscribe to PictureCached
-			{
-				(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
+			(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
 
-				if (isDefault)
-					PictureStorage.PictureCached += PictureStorage_PictureCached;
+			if (isDefault)
+				PictureStorage.PictureCached += PictureStorage_PictureCached;
 
-				// Mutable property. Set the field so PropertyChanged isn't fired.
-				_cover = ImageReader.ToImage(picture);
-			}
+			// Mutable property. Set the field so PropertyChanged isn't fired.
+			_cover = ImageReader.ToImage(picture);
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
@@ -94,10 +94,12 @@ namespace LibationWinForms.GridView
 			}
 		}
 
+		#endregion
+
 		#region Static library display functions		
 
 		/// <summary>
-		/// This information should not change during <see cref="LibraryBookEntry"/> lifetime, so call only once.
+		/// This information should not change during <see cref="GridEntry"/> lifetime, so call only once.
 		/// </summary>
 		protected static string GetDescriptionDisplay(Book book)
 		{
@@ -116,7 +118,7 @@ namespace LibationWinForms.GridView
 
 
 		/// <summary>
-		/// This information should not change during <see cref="LibraryBookEntry"/> lifetime, so call only once.
+		/// This information should not change during <see cref="GridEntry"/> lifetime, so call only once.
 		/// Maximum of 5 text rows will fit in 80-pixel row height.
 		/// </summary>
 		protected static string GetMiscDisplay(LibraryBook libraryBook)
