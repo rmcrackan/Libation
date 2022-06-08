@@ -35,5 +35,15 @@ namespace DataLayer
                 .Include(b => b.SeriesLink).ThenInclude(sb => sb.Series)
                 .Include(b => b.ContributorsLink).ThenInclude(c => c.Contributor)
                 .Include(b => b.Category).ThenInclude(c => c.ParentCategory);
+
+        public static bool IsProduct(this Book book)
+            => book.ContentType is not ContentType.Episode and not ContentType.Parent;
+
+        public static bool IsEpisodeChild(this Book book)
+            => book.ContentType is ContentType.Episode;
+
+        public static bool IsEpisodeParent(this Book book)
+            => book.ContentType is ContentType.Parent;
+
     }
 }

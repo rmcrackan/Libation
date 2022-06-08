@@ -91,13 +91,13 @@ namespace LibationWinForms.GridView
 
 		internal void BindToGrid(List<LibraryBook> dbBooks)
 		{
-			var geList = dbBooks.Where(lb => lb.IsProduct()).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
+			var geList = dbBooks.Where(lb => lb.Book.IsProduct()).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
 
-			var episodes = dbBooks.Where(lb => lb.IsEpisodeChild());
+			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild());
 						
-			foreach (var parent in dbBooks.Where(lb => lb.IsEpisodeParent()))
+			foreach (var parent in dbBooks.Where(lb => lb.Book.IsEpisodeParent()))
 			{
-				var seriesEpisodes = episodes.FindChildren(parent).ToList();
+				var seriesEpisodes = episodes.FindChildren(parent);
 
 				if (!seriesEpisodes.Any()) continue;
 
@@ -132,9 +132,9 @@ namespace LibationWinForms.GridView
 			{
 				var existingEntry = allEntries.FindByAsin(libraryBook.Book.AudibleProductId);
 
-				if (libraryBook.IsProduct())
+				if (libraryBook.Book.IsProduct())
 					AddOrUpdateBook(libraryBook, existingEntry);
-				else if(libraryBook.IsEpisodeChild()) 
+				else if(libraryBook.Book.IsEpisodeChild()) 
 					AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);				 
 			}	
 
