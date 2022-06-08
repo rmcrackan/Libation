@@ -77,27 +77,64 @@ namespace LibationWinForms.ProcessQueue
 			CompletedCount = 0;
 		}
 
+		private bool isBookInQueue(DataLayer.LibraryBook libraryBook)
+			=> Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
+
 		public void AddDownloadPdf(IEnumerable<DataLayer.LibraryBook> entries)
 		{
+			List<ProcessBook> procs = new();
 			foreach (var entry in entries)
-				AddDownloadPdf(entry);
+			{
+				if (isBookInQueue(entry))
+					continue;
+
+				ProcessBook pbook = new(entry, Logger);
+				pbook.PropertyChanged += Pbook_DataAvailable;
+				pbook.AddDownloadPdf();
+				procs.Add(pbook);
+			}
+
+			AddToQueue(procs);
 		}
 
 		public void AddDownloadDecrypt(IEnumerable<DataLayer.LibraryBook> entries)
 		{
+			List<ProcessBook> procs = new();
 			foreach (var entry in entries)
-				AddDownloadDecrypt(entry);
+			{
+				if (isBookInQueue(entry))
+					continue;
+
+				ProcessBook pbook = new(entry, Logger);
+				pbook.PropertyChanged += Pbook_DataAvailable;
+				pbook.AddDownloadDecryptBook();
+				pbook.AddDownloadPdf();
+				procs.Add(pbook);
+			}
+
+			AddToQueue(procs);
 		}
 		
 		public void AddConvertMp3(IEnumerable<DataLayer.LibraryBook> entries)
 		{
+			List<ProcessBook> procs = new();
 			foreach (var entry in entries)
-				AddConvertMp3(entry);
+			{
+				if (isBookInQueue(entry))
+					continue;
+
+				ProcessBook pbook = new(entry, Logger);
+				pbook.PropertyChanged += Pbook_DataAvailable;
+				pbook.AddConvertToMp3();
+				procs.Add(pbook);
+			}
+
+			AddToQueue(procs);
 		}
 
 		public void AddDownloadPdf(DataLayer.LibraryBook libraryBook)
 		{
-			if (Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId))
+			if (isBookInQueue(libraryBook))
 				return;
 
 			ProcessBook pbook = new(libraryBook, Logger);
@@ -108,7 +145,7 @@ namespace LibationWinForms.ProcessQueue
 
 		public void AddDownloadDecrypt(DataLayer.LibraryBook libraryBook)
 		{
-			if (Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId))
+			if (isBookInQueue(libraryBook))
 				return;
 
 			ProcessBook pbook = new(libraryBook, Logger);
@@ -120,13 +157,24 @@ namespace LibationWinForms.ProcessQueue
 
 		public void AddConvertMp3(DataLayer.LibraryBook libraryBook)
 		{
-			if (Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId))
+			if (isBookInQueue(libraryBook))
 				return;
 
 			ProcessBook pbook = new(libraryBook, Logger);
 			pbook.PropertyChanged += Pbook_DataAvailable;
 			pbook.AddConvertToMp3();
 			AddToQueue(pbook);
+		}
+
+		private void AddToQueue(IEnumerable<ProcessBook> pbook)
+		{
+			syncContext.Post(_ =>
+			{
+				Queue.Enqueue(pbook);
+				if (!Running)
+					QueueRunner = QueueLoop();
+			},
+			null);
 		}
 
 		private void AddToQueue(ProcessBook pbook)

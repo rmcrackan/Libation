@@ -226,5 +226,14 @@ namespace LibationWinForms.ProcessQueue
 				QueuededCountChanged?.Invoke(this, _queued.Count);
 			}
 		}
+
+		public void Enqueue(IEnumerable<T> item)
+		{
+			lock (lockObject)
+			{
+				_queued.AddRange(item);
+				QueuededCountChanged?.Invoke(this, _queued.Count);
+			}
+		}
 	}
 }
