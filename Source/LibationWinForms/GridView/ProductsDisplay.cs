@@ -29,7 +29,7 @@ namespace LibationWinForms.GridView
 		#region Button controls		
 
 		private ImageDisplay imageDisplay;
-		private async void productsGrid_CoverClicked(LibraryBookEntry liveGridEntry)
+		private async void productsGrid_CoverClicked(GridEntry liveGridEntry)
 		{
 			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge ?? liveGridEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 			var picDlTask = Task.Run(() => PictureStorage.GetPictureSynchronously(picDefinition));
@@ -52,7 +52,7 @@ namespace LibationWinForms.GridView
 			imageDisplay.CoverPicture = await picDlTask;
 		}
 
-		private void productsGrid_DescriptionClicked(LibraryBookEntry liveGridEntry, Rectangle cellRectangle)
+		private void productsGrid_DescriptionClicked(GridEntry liveGridEntry, Rectangle cellRectangle)
 		{
 			var displayWindow = new DescriptionDisplay
 			{
@@ -87,7 +87,7 @@ namespace LibationWinForms.GridView
 			try
 			{
 				// don't return early if lib size == 0. this will not update correctly if all books are removed
-				var lib = DbContexts.GetLibrary_Flat_NoTracking();
+				var lib = DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
 
 				if (!hasBeenDisplayed)
 				{
@@ -103,7 +103,6 @@ namespace LibationWinForms.GridView
 			{
 				Serilog.Log.Error(ex, "Error displaying library in {0}", nameof(ProductsDisplay));
 			}
-
 		}
 
 		#endregion
@@ -115,7 +114,7 @@ namespace LibationWinForms.GridView
 
 		#endregion
 
-		internal List<LibraryBook> GetVisible() => productsGrid.GetVisible().Select(v => v.LibraryBook).ToList();
+		internal List<LibraryBook> GetVisible() => productsGrid.GetVisibleBooks().ToList();
 
 		private void productsGrid_VisibleCountChanged(object sender, int count)
 		{

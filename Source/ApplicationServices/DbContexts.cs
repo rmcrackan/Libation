@@ -12,10 +12,10 @@ namespace ApplicationServices
 			=> LibationContext.Create(SqliteStorage.ConnectionString);
 
 		/// <summary>Use for full library querying. No lazy loading</summary>
-		public static List<LibraryBook> GetLibrary_Flat_NoTracking()
+		public static List<LibraryBook> GetLibrary_Flat_NoTracking(bool includeParents = false)
 		{
 			using var context = GetContext();
-			return context.GetLibrary_Flat_NoTracking();
+			return context.GetLibrary_Flat_NoTracking(includeParents);
 		}
 	}
 }

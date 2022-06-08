@@ -15,11 +15,13 @@ namespace DataLayer
 		//		.GetLibrary()
 		//		.ToList();
 
-		public static List<LibraryBook> GetLibrary_Flat_NoTracking(this LibationContext context)
+		public static List<LibraryBook> GetLibrary_Flat_NoTracking(this LibationContext context, bool includeParents = false)
             => context
                 .LibraryBooks
                 .AsNoTrackingWithIdentityResolution()
                 .GetLibrary()
+                .AsEnumerable()
+                .Where(lb => !lb.Book.IsEpisodeParent() || includeParents)
                 .ToList();
 
         public static LibraryBook GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId)
@@ -40,5 +42,32 @@ namespace DataLayer
                 .Include(le => le.Book).ThenInclude(b => b.SeriesLink).ThenInclude(sb => sb.Series)
                 .Include(le => le.Book).ThenInclude(b => b.ContributorsLink).ThenInclude(c => c.Contributor)
                 .Include(le => le.Book).ThenInclude(b => b.Category).ThenInclude(c => c.ParentCategory);
+
+#nullable enable
+        public static LibraryBook? FindSeriesParent(this IEnumerable<LibraryBook> libraryBooks, LibraryBook seriesEpisode)
+        {
+            if (seriesEpisode.Book.SeriesLink is null) return null;
+
+            //Parent books will always have exactly 1 SeriesBook due to how
+            //they are imported in ApiExtended.getChildEpisodesAsync()
+            return libraryBooks.FirstOrDefault(
+                lb =>
+                lb.Book.IsEpisodeParent() &&
+                seriesEpisode.Book.SeriesLink.Any(
+                    s => s.Series.AudibleSeriesId == lb.Book.SeriesLink.Single().Series.AudibleSeriesId));
+        }
+#nullable disable
+
+        public static IEnumerable<LibraryBook> FindChildren(this IEnumerable<LibraryBook> bookList, LibraryBook parent)
+            => bookList
+            .Where(
+                lb => 
+                lb.Book.IsEpisodeChild() && 
+                lb.Book.SeriesLink?
+                    .Any(
+                        s => 
+                        s.Series.AudibleSeriesId == parent.Book.AudibleProductId
+                        ) == true
+                    ).ToList();
     }
 }

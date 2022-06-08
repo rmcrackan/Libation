@@ -59,6 +59,7 @@ namespace AppScaffolding
 			//
 
 			Migrations.migrate_to_v6_6_9(config);
+			Migrations.migrate_from_7_10_1(config);
 		}
 
 		public static void PopulateMissingConfigValues(Configuration config)
@@ -400,6 +401,29 @@ namespace AppScaffolding
 				// Serilog.Enrich must include "WithExceptionDetails"
 				UNSAFE_MigrationHelper.Settings_AddUniqueToArray("Serilog.Enrich", "WithExceptionDetails");
 			}
+		}
+
+		public static void migrate_from_7_10_1(Configuration config)
+		{
+			//This migration removes books and series with SERIES_ prefix that were created
+			//as a hack workaround in 7.10.1. Said workaround was removed in 7.10.2
+
+			var migrated = config.GetNonString<bool>(nameof(migrate_from_7_10_1));
+
+			if (migrated) return;
+
+			using var context = DbContexts.GetContext();
+
+			var booksToRemove = context.Books.Where(b => b.AudibleProductId.StartsWith("SERIES_")).ToArray();
+			var seriesToRemove = context.Series.Where(s => s.AudibleSeriesId.StartsWith("SERIES_")).ToArray();
+			var lbToRemove = context.LibraryBooks.Where(lb => booksToRemove.Any(b => b == lb.Book)).ToArray();
+
+			context.LibraryBooks.RemoveRange(lbToRemove);
+			context.Books.RemoveRange(booksToRemove);
+			context.Series.RemoveRange(seriesToRemove);
+
+			LibraryCommands.SaveContext(context);
+			config.SetObject(nameof(migrate_from_7_10_1), true);
 		}
 	}
 }

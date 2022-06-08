@@ -85,13 +85,18 @@ namespace LibationWinForms.ProcessQueue
 
 		public bool RemoveQueued(T item)
 		{
+			bool itemsRemoved;
+			int queuedCount;
+
 			lock (lockObject)
 			{
-				bool removed = _queued.Remove(item);
-				if (removed)
-					QueuededCountChanged?.Invoke(this, _queued.Count);
-				return removed;
+				itemsRemoved = _queued.Remove(item);
+				queuedCount = _queued.Count;
 			}
+
+			if (itemsRemoved)
+				QueuededCountChanged?.Invoke(this, queuedCount);
+			return itemsRemoved;
 		}
 
 		public void ClearCurrent()
@@ -102,31 +107,32 @@ namespace LibationWinForms.ProcessQueue
 		
 		public bool RemoveCompleted(T item)
 		{
+			bool itemsRemoved;
+			int completedCount;
+
 			lock (lockObject)
 			{
-				bool removed = _completed.Remove(item);
-				if (removed)
-					CompletedCountChanged?.Invoke(this, _completed.Count);
-				return removed;
+				itemsRemoved = _completed.Remove(item);
+				completedCount = _completed.Count;
 			}
+
+			if (itemsRemoved)
+				CompletedCountChanged?.Invoke(this, completedCount);
+			return itemsRemoved;
 		}
 
 		public void ClearQueue()
 		{
 			lock (lockObject)
-			{
 				_queued.Clear();
-				QueuededCountChanged?.Invoke(this, 0);
-			}
+			QueuededCountChanged?.Invoke(this, 0);
 		}
 
 		public void ClearCompleted()
 		{
 			lock (lockObject)
-			{
 				_completed.Clear();
-				CompletedCountChanged?.Invoke(this, 0);
-			}
+			CompletedCountChanged?.Invoke(this, 0);
 		}
 
 		public bool Any(Func<T, bool> predicate)
@@ -175,23 +181,35 @@ namespace LibationWinForms.ProcessQueue
 
 		public bool MoveNext()
 		{
-			lock (lockObject)
+			int completedCount = 0, queuedCount = 0;
+			bool completedChanged = false;
+			try
 			{
-				if (Current != null)
+				lock (lockObject)
 				{
-					_completed.Add(Current);
-					CompletedCountChanged?.Invoke(this, _completed.Count);
-				}
-				if (_queued.Count == 0)
-				{
-					Current = null;
-					return false;
-				}
-				Current = _queued[0];
-				_queued.RemoveAt(0);
+					if (Current != null)
+					{
+						_completed.Add(Current);
+						completedCount = _completed.Count;
+						completedChanged = true;
+					}
+					if (_queued.Count == 0)
+					{
+						Current = null;
+						return false;
+					}
+					Current = _queued[0];
+					_queued.RemoveAt(0);
 
-				QueuededCountChanged?.Invoke(this, _queued.Count);
-				return true;
+					queuedCount = _queued.Count;
+					return true;
+				}
+			}
+			finally
+			{
+				if (completedChanged)
+					CompletedCountChanged?.Invoke(this, completedCount);
+				QueuededCountChanged?.Invoke(this, queuedCount);
 			}
 		}
 
@@ -218,13 +236,15 @@ namespace LibationWinForms.ProcessQueue
 			}
 		}
 
-		public void Enqueue(T item)
+		public void Enqueue(IEnumerable<T> item)
 		{
+			int queueCount;
 			lock (lockObject)
 			{
-				_queued.Add(item);
-				QueuededCountChanged?.Invoke(this, _queued.Count);
+				_queued.AddRange(item);
+				queueCount = _queued.Count;
 			}
+			QueuededCountChanged?.Invoke(this, queueCount);
 		}
 	}
 }

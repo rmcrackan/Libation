@@ -39,10 +39,10 @@
 			this.productsGrid.Name = "productsGrid";
 			this.productsGrid.Size = new System.Drawing.Size(1510, 380);
 			this.productsGrid.TabIndex = 0;
-			this.productsGrid.LiberateClicked += new LibationWinForms.GridView.ProductsGrid.LibraryBookEntryClickedEventHandler(this.productsGrid_LiberateClicked);
-			this.productsGrid.CoverClicked += new LibationWinForms.GridView.ProductsGrid.LibraryBookEntryClickedEventHandler(this.productsGrid_CoverClicked);
-			this.productsGrid.DetailsClicked += new LibationWinForms.GridView.ProductsGrid.LibraryBookEntryClickedEventHandler(this.productsGrid_DetailsClicked);
-			this.productsGrid.DescriptionClicked += new LibationWinForms.GridView.ProductsGrid.LibraryBookEntryRectangleClickedEventHandler(this.productsGrid_DescriptionClicked);
+			this.productsGrid.LiberateClicked += new LibationWinForms.GridView.LibraryBookEntryClickedEventHandler(this.productsGrid_LiberateClicked);
+			this.productsGrid.CoverClicked += new LibationWinForms.GridView.GridEntryClickedEventHandler(this.productsGrid_CoverClicked);
+			this.productsGrid.DetailsClicked += new LibationWinForms.GridView.LibraryBookEntryClickedEventHandler(this.productsGrid_DetailsClicked);
+			this.productsGrid.DescriptionClicked += new LibationWinForms.GridView.GridEntryRectangleClickedEventHandler(this.productsGrid_DescriptionClicked);
 			this.productsGrid.VisibleCountChanged += new System.EventHandler<int>(this.productsGrid_VisibleCountChanged);
 			// 
 			// ProductsDisplay

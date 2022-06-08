@@ -16,8 +16,14 @@ namespace DataLayer
         }
     }
 
-    // enum will be easier than bool to extend later
-    public enum ContentType { Unknown = 0, Product = 1, Episode = 2 }
+    // enum will be easier than bool to extend later. 
+    public enum ContentType 
+    { 
+        Unknown = 0,
+        Product = 1,
+        Episode = 2,
+        Parent = 4,
+    }
 
     public class Book
     {

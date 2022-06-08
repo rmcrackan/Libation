@@ -73,10 +73,10 @@ namespace LibationWinForms.GridView
 			FilterString = filterString;
 			SearchResults = SearchEngineCommands.Search(filterString);
 
-			var booksFilteredIn = Items.LibraryBooks().Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry)lbe);
+			var booksFilteredIn = Items.BookEntries().Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry)lbe);
 
 			//Find all series containing children that match the search criteria
-			var seriesFilteredIn = Items.Series().Where(s => s.Children.Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
+			var seriesFilteredIn = Items.SeriesEntries().Where(s => s.Children.Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
 
 			var filteredOut = Items.Except(booksFilteredIn.Concat(seriesFilteredIn)).ToList();
 
@@ -89,19 +89,19 @@ namespace LibationWinForms.GridView
 
 		public void CollapseAll()
 		{
-			foreach (var series in Items.Series().ToList())
+			foreach (var series in Items.SeriesEntries().ToList())
 				CollapseItem(series);
 		}
 
 		public void ExpandAll()
 		{
-			foreach (var series in Items.Series().ToList())
+			foreach (var series in Items.SeriesEntries().ToList())
 				ExpandItem(series);
 		}
 
 		public void CollapseItem(SeriesEntry sEntry)
 		{
-			foreach (var episode in Items.LibraryBooks().Where(b => b.Parent == sEntry).ToList())
+			foreach (var episode in Items.BookEntries().Where(b => b.Parent == sEntry).ToList())
 			{
 				FilterRemoved.Add(episode);
 				base.Remove(episode);
@@ -114,7 +114,7 @@ namespace LibationWinForms.GridView
 		{
 			var sindex = Items.IndexOf(sEntry);
 
-			foreach (var episode in FilterRemoved.LibraryBooks().Where(b => b.Parent == sEntry).ToList())
+			foreach (var episode in FilterRemoved.BookEntries().Where(b => b.Parent == sEntry).ToList())
 			{
 				if (SearchResults is null || SearchResults.Docs.Any(d => d.ProductId == episode.AudibleProductId))
 				{
@@ -174,7 +174,7 @@ namespace LibationWinForms.GridView
 		{
 			var itemsList = (List<GridEntry>)Items;
 
-			var children = itemsList.LibraryBooks().Where(i => i.Parent is not null).ToList();
+			var children = itemsList.BookEntries().Where(i => i.Parent is not null).ToList();
 
 			var sortedItems = itemsList.Except(children).OrderBy(ge => ge, Comparer).ToList();
 

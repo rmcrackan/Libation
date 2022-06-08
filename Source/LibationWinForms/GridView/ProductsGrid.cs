@@ -10,23 +10,25 @@ using System.Windows.Forms;
 
 namespace LibationWinForms.GridView
 {
+	public delegate void GridEntryClickedEventHandler(GridEntry liveGridEntry);
+	public delegate void LibraryBookEntryClickedEventHandler(LibraryBookEntry liveGridEntry);
+	public delegate void GridEntryRectangleClickedEventHandler(GridEntry liveGridEntry, Rectangle cellRectangle);
+
 	public partial class ProductsGrid : UserControl
 	{
-		public delegate void LibraryBookEntryClickedEventHandler(LibraryBookEntry liveGridEntry);
-		public delegate void LibraryBookEntryRectangleClickedEventHandler(LibraryBookEntry liveGridEntry, Rectangle cellRectangle);
-
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 		public event LibraryBookEntryClickedEventHandler LiberateClicked;
-		public event LibraryBookEntryClickedEventHandler CoverClicked;
+		public event GridEntryClickedEventHandler CoverClicked;
 		public event LibraryBookEntryClickedEventHandler DetailsClicked;
-		public event LibraryBookEntryRectangleClickedEventHandler DescriptionClicked;
+		public event GridEntryRectangleClickedEventHandler DescriptionClicked;
 		public new event EventHandler<ScrollEventArgs> Scroll;
 
 		private GridEntryBindingList bindingList;
-		internal IEnumerable<LibraryBookEntry> GetVisible()
+		internal IEnumerable<LibraryBook> GetVisibleBooks()
 			=> bindingList
-			.LibraryBooks();
+			.BookEntries()
+			.Select(lbe => lbe.LibraryBook);
 
 		public ProductsGrid()
 		{
@@ -61,16 +63,23 @@ namespace LibationWinForms.GridView
 				else if (e.ColumnIndex == coverGVColumn.Index)
 					CoverClicked?.Invoke(lbEntry);
 			}
-			else if (entry is SeriesEntry sEntry && e.ColumnIndex == liberateGVColumn.Index)
+			else if (entry is SeriesEntry sEntry)
 			{
-				if (sEntry.Liberate.Expanded)
-					bindingList.CollapseItem(sEntry);
-				else
-					bindingList.ExpandItem(sEntry);
+				if (e.ColumnIndex == liberateGVColumn.Index)
+				{
+					if (sEntry.Liberate.Expanded)
+						bindingList.CollapseItem(sEntry);
+					else
+						bindingList.ExpandItem(sEntry);
 
-				sEntry.NotifyPropertyChanged(nameof(sEntry.Liberate));
+					sEntry.NotifyPropertyChanged(nameof(sEntry.Liberate));
 
-				VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
+					VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+				}
+				else if (e.ColumnIndex == descriptionGVColumn.Index)
+					DescriptionClicked?.Invoke(sEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
+				else if (e.ColumnIndex == coverGVColumn.Index)
+					CoverClicked?.Invoke(sEntry);
 			}
 		}
 
@@ -82,14 +91,17 @@ namespace LibationWinForms.GridView
 
 		internal void BindToGrid(List<LibraryBook> dbBooks)
 		{
-			var geList = dbBooks.Where(b => b.Book.ContentType is not ContentType.Episode).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
+			var geList = dbBooks.Where(lb => lb.Book.IsProduct()).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
 
-			var episodes = dbBooks.Where(b => b.IsEpisodeChild()).ToList();
-
-			var allSeries = episodes.SelectMany(lb => lb.Book.SeriesLink.Where(s => !s.Series.AudibleSeriesId.StartsWith("SERIES_"))).DistinctBy(s => s.Series).ToList();
-			foreach (var series in allSeries)
+			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild());
+						
+			foreach (var parent in dbBooks.Where(lb => lb.Book.IsEpisodeParent()))
 			{
-				var seriesEntry = new SeriesEntry(series, episodes.Where(lb => lb.Book.SeriesLink.Any(s => s.Series == series.Series)));
+				var seriesEpisodes = episodes.FindChildren(parent);
+
+				if (!seriesEpisodes.Any()) continue;
+
+				var seriesEntry = new SeriesEntry(parent, seriesEpisodes);
 
 				geList.Add(seriesEntry);
 				geList.AddRange(seriesEntry.Children);
@@ -98,79 +110,47 @@ namespace LibationWinForms.GridView
 			bindingList = new GridEntryBindingList(geList.OrderByDescending(e => e.DateAdded));
 			bindingList.CollapseAll();
 			syncBindingSource.DataSource = bindingList;
-			VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
+			VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
 		}
 
 		internal void UpdateGrid(List<LibraryBook> dbBooks)
 		{
+			#region Add new or update existing grid entries
+
+			//Remove filter prior to adding/updating boooks
 			string existingFilter = syncBindingSource.Filter;
 			Filter(null);
 
 			bindingList.SuspendFilteringOnUpdate = true;
 
-			//Add absent books to grid, or update current books
+			//Add absent entries to grid, or update existing entry
 
-			var allItmes = bindingList.AllItems().LibraryBooks();
-			foreach (var libraryBook in dbBooks)
+			var allEntries = bindingList.AllItems().BookEntries();
+			var seriesEntries = bindingList.AllItems().SeriesEntries().ToList();
+
+			foreach (var libraryBook in dbBooks.OrderBy(e => e.DateAdded))
 			{
-				var existingItem = allItmes.FindBookByAsin(libraryBook.Book.AudibleProductId);
+				var existingEntry = allEntries.FindByAsin(libraryBook.Book.AudibleProductId);
 
-				// add new to top
-				if (existingItem is null)
-				{
-					if (libraryBook.IsEpisodeChild())
-					{
-						LibraryBookEntry lbe;
-						//Find the series that libraryBook belongs to, if it exists
-						var series = bindingList.AllItems().FindBookSeriesEntry(libraryBook.Book.SeriesLink);
-
-						if (series is null)
-						{
-							//Series doesn't exist yet, so create and add it
-							var newSeries = new SeriesEntry(libraryBook.Book.SeriesLink.First(), libraryBook);
-							lbe = newSeries.Children[0];
-							newSeries.Liberate.Expanded = true;
-							bindingList.Insert(0, newSeries);
-							series = newSeries;
-						}
-						else
-						{
-							lbe = new(libraryBook) { Parent = series };
-							series.Children.Add(lbe);
-						}
-						//Add episode beneath the parent
-						int seriesIndex = bindingList.IndexOf(series);
-						bindingList.Insert(seriesIndex + 1, lbe);
-
-						if (series.Liberate.Expanded)
-							bindingList.ExpandItem(series);
-						else
-							bindingList.CollapseItem(series);
-
-						series.NotifyPropertyChanged();
-					}
-					else if (libraryBook.Book.ContentType is not ContentType.Episode)
-						//Add the new product
-						bindingList.Insert(0, new LibraryBookEntry(libraryBook));
-				}
-				// update existing
-				else
-				{
-					existingItem.UpdateLibraryBook(libraryBook);
-				}
-			}
+				if (libraryBook.Book.IsProduct())
+					AddOrUpdateBook(libraryBook, existingEntry);
+				else if(libraryBook.Book.IsEpisodeChild()) 
+					AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);				 
+			}	
 
 			bindingList.SuspendFilteringOnUpdate = false;
 
-			//Re-filter after updating existing / adding new books to capture any changes
+			//Re-apply filter after adding new/updating existing books to capture any changes
 			Filter(existingFilter);
+
+			#endregion
 
 			// remove deleted from grid.
 			// note: actual deletion from db must still occur via the RemoveBook feature. deleting from audible will not trigger this
 			var removedBooks =
 				bindingList
 				.AllItems()
-				.LibraryBooks()
+				.BookEntries()
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
 
 			//Remove books in series from their parents' Children list
@@ -190,7 +170,70 @@ namespace LibationWinForms.GridView
 				//no need to re-filter for removed books
 				bindingList.Remove(removed);
 
-			VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
+			VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+		}
+
+		private void AddOrUpdateBook(LibraryBook book, LibraryBookEntry existingBookEntry)
+		{
+			if (existingBookEntry is null)
+				// Add the new product to top
+				bindingList.Insert(0, new LibraryBookEntry(book));
+			else
+				// update existing
+				existingBookEntry.UpdateLibraryBook(book);
+		}
+
+		private void AddOrUpdateEpisode(LibraryBook episodeBook, LibraryBookEntry existingEpisodeEntry, List<SeriesEntry> seriesEntries, IEnumerable<LibraryBook> dbBooks)
+		{
+			if (existingEpisodeEntry is null)
+			{
+				LibraryBookEntry episodeEntry;
+				var seriesEntry = seriesEntries.FindSeriesParent(episodeBook);
+
+				if (seriesEntry is null)
+				{
+					//Series doesn't exist yet, so create and add it
+					var seriesBook = dbBooks.FindSeriesParent(episodeBook);
+
+					if (seriesBook is null)
+					{
+						//This should be impossible because the importer ensures every episode has a parent.
+						var ex = new ApplicationException($"Episode's series parent not found in database.");
+						var seriesLinks = string.Join("\r\n", episodeBook.Book.SeriesLink?.Select(sb => $"{nameof(sb.Series.Name)}={sb.Series.Name}, {nameof(sb.Series.AudibleSeriesId)}={sb.Series.AudibleSeriesId}"));
+						Serilog.Log.Logger.Error(ex, "Episode={episodeBook}, Series: {seriesLinks}", episodeBook, seriesLinks);
+						throw ex;
+					}
+
+					seriesEntry = new SeriesEntry(seriesBook, episodeBook);
+					seriesEntries.Add(seriesEntry);
+
+					episodeEntry = seriesEntry.Children[0];
+					seriesEntry.Liberate.Expanded = true;
+					bindingList.Insert(0, seriesEntry);
+				}
+				else
+				{
+					//Series exists. Create and add episode child then update the SeriesEntry
+					episodeEntry = new(episodeBook) { Parent = seriesEntry };
+					seriesEntry.Children.Add(episodeEntry);
+					var seriesBook = dbBooks.Single(lb => lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId);
+					seriesEntry.UpdateSeries(seriesBook);
+				}
+
+				//Add episode to the grid beneath the parent
+				int seriesIndex = bindingList.IndexOf(seriesEntry);
+				bindingList.Insert(seriesIndex + 1, episodeEntry);
+
+				if (seriesEntry.Liberate.Expanded)
+					bindingList.ExpandItem(seriesEntry);
+				else
+					bindingList.CollapseItem(seriesEntry);
+
+				seriesEntry.NotifyPropertyChanged();
+
+			}
+			else
+				existingEpisodeEntry.UpdateLibraryBook(episodeBook);
 		}
 
 		#endregion
@@ -207,7 +250,7 @@ namespace LibationWinForms.GridView
 				syncBindingSource.Filter = searchString;
 
 			if (visibleCount != bindingList.Count)
-				VisibleCountChanged?.Invoke(this, bindingList.LibraryBooks().Count());
+				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
 
 		}
 

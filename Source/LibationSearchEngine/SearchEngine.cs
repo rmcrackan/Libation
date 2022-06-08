@@ -121,12 +121,12 @@ namespace LibationSearchEngine
                     ["Liberated"] = lb => isLiberated(lb.Book),
                     ["LiberatedError"] = lb => liberatedError(lb.Book),
 
-                    ["Podcast"] = lb => lb.Book.ContentType == ContentType.Episode,
-                    ["Podcasts"] = lb => lb.Book.ContentType == ContentType.Episode,
-                    ["IsPodcast"] = lb => lb.Book.ContentType == ContentType.Episode,
-                    ["Episode"] = lb => lb.Book.ContentType == ContentType.Episode,
-                    ["Episodes"] = lb => lb.Book.ContentType == ContentType.Episode,
-                    ["IsEpisode"] = lb => lb.Book.ContentType == ContentType.Episode,
+                    ["Podcast"] = lb => lb.Book.IsEpisodeChild(),
+                    ["Podcasts"] = lb => lb.Book.IsEpisodeChild(),
+                    ["IsPodcast"] = lb => lb.Book.IsEpisodeChild(),
+                    ["Episode"] = lb => lb.Book.IsEpisodeChild(),
+                    ["Episodes"] = lb => lb.Book.IsEpisodeChild(),
+                    ["IsEpisode"] = lb => lb.Book.IsEpisodeChild(),
                 }
                 );
 
