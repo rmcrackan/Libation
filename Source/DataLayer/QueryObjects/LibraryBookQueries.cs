@@ -20,7 +20,8 @@ namespace DataLayer
                 .LibraryBooks
                 .AsNoTrackingWithIdentityResolution()
                 .GetLibrary()
-                .Where(lb => lb.Book.ContentType != ContentType.Parent || includeParents)
+                .AsEnumerable()
+                .Where(lb => !lb.Book.IsEpisodeParent() || includeParents)
                 .ToList();
 
         public static LibraryBook GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId)
