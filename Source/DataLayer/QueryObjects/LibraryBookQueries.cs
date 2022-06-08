@@ -15,11 +15,12 @@ namespace DataLayer
 		//		.GetLibrary()
 		//		.ToList();
 
-		public static List<LibraryBook> GetLibrary_Flat_NoTracking(this LibationContext context)
+		public static List<LibraryBook> GetLibrary_Flat_NoTracking(this LibationContext context, bool includeParents = false)
             => context
                 .LibraryBooks
                 .AsNoTrackingWithIdentityResolution()
                 .GetLibrary()
+                .Where(lb => lb.Book.ContentType != ContentType.Parent || includeParents)
                 .ToList();
 
         public static LibraryBook GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId)
