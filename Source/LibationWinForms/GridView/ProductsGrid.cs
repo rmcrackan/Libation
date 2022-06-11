@@ -156,6 +156,7 @@ namespace LibationWinForms.GridView
 
 			var allEntries = bindingList.AllItems().BookEntries();
 			var seriesEntries = bindingList.AllItems().SeriesEntries().ToList();
+			var parentedEpisodes = dbBooks.ParentedEpisodes();
 
 			foreach (var libraryBook in dbBooks.OrderBy(e => e.DateAdded))
 			{
@@ -163,7 +164,8 @@ namespace LibationWinForms.GridView
 
 				if (libraryBook.Book.IsProduct())
 					AddOrUpdateBook(libraryBook, existingEntry);
-				else if(libraryBook.Book.IsEpisodeChild()) 
+				else if(parentedEpisodes.Any(lb => lb == libraryBook))
+					//Only try to add or update is this LibraryBook is a know child of a parent
 					AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);				 
 			}	
 

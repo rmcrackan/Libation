@@ -43,20 +43,16 @@ namespace DataLayer
                 .Include(le => le.Book).ThenInclude(b => b.ContributorsLink).ThenInclude(c => c.Contributor)
                 .Include(le => le.Book).ThenInclude(b => b.Category).ThenInclude(c => c.ParentCategory);
 
-        public static IEnumerable<LibraryBook> FindOrphanedEpisodes(this IEnumerable<LibraryBook> libraryBooks)
-		{
-            var parentedEpisodes = 
-                libraryBooks
-                .Where(lb => lb.Book.IsEpisodeParent())
-                .SelectMany(s => libraryBooks.FindChildren(s));
+        public static IEnumerable<LibraryBook> ParentedEpisodes(this IEnumerable<LibraryBook> libraryBooks)
+            => libraryBooks.Where(lb => lb.Book.IsEpisodeParent()).SelectMany(s => libraryBooks.FindChildren(s));
 
-            return
-                libraryBooks
+        public static IEnumerable<LibraryBook> FindOrphanedEpisodes(this IEnumerable<LibraryBook> libraryBooks)
+		    => libraryBooks
                 .Where(lb => lb.Book.IsEpisodeChild())
                 .ExceptBy(
-                    parentedEpisodes
+                    libraryBooks
+                    .ParentedEpisodes()
                     .Select(ge => ge.Book.AudibleProductId), ge => ge.Book.AudibleProductId);
-        }
 
 #nullable enable
         public static LibraryBook? FindSeriesParent(this IEnumerable<LibraryBook> libraryBooks, LibraryBook seriesEpisode)
