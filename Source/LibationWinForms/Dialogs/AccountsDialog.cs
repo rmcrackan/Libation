@@ -151,13 +151,13 @@ namespace LibationWinForms.Dialogs
 			{
 				if (string.IsNullOrWhiteSpace(dto.AccountId))
 				{
-					MessageBox.Show("Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show(this, "Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return false;
 				}
 
 				if (string.IsNullOrWhiteSpace(dto.LocaleName))
 				{
-					MessageBox.Show("Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show(this, "Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return false;
 				}
 			}
@@ -222,7 +222,7 @@ namespace LibationWinForms.Dialogs
 
 			if (account.IdentityTokens?.IsValid != true)
 			{
-				MessageBox.Show("This account hasn't been authenticated yet. First scan your library to log into your account, then try exporting again.", "Account Not Authenticated");
+				MessageBox.Show(this, "This account hasn't been authenticated yet. First scan your library to log into your account, then try exporting again.", "Account Not Authenticated");
 				return;
 			}
 
@@ -238,12 +238,15 @@ namespace LibationWinForms.Dialogs
 
 				File.WriteAllText(sfd.FileName, jsonText);
 
-				MessageBox.Show($"Successfully exported {account.AccountName} to\r\n\r\n{sfd.FileName}", "Success!");
+				MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{sfd.FileName}", "Success!");
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "Unable to export account: {0}", account);
-				MessageBox.Show($"An error occured while exporting account:\r\n{account.AccountName}", "Error Exporting Account");
+				MessageBoxLib.ShowAdminAlert(
+					this,
+					$"An error occured while exporting account:\r\n{account.AccountName}",
+					"Error Exporting Account",
+					ex);
 			}
 		}
 		private async void importBtn_Click(object sender, EventArgs e)
@@ -264,7 +267,7 @@ namespace LibationWinForms.Dialogs
 
 				if (persister.AccountsSettings.Accounts.Any(a => a.AccountId == account.AccountId && a.IdentityTokens.Locale.Name == account.Locale.Name))
 				{
-					MessageBox.Show($"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale.Name}", "Cannot Add Duplicate Account");
+					MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale.Name}", "Cannot Add Duplicate Account");
 					return;
 				}
 
@@ -274,8 +277,11 @@ namespace LibationWinForms.Dialogs
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "Unable to import audible-cli auth file: {0}", ofd.FileName);
-				MessageBox.Show($"An error occured while importing an account from:\r\n{ofd.FileName}\r\n\r\nIs the file encrypted?", "Error Importing Account");
+				MessageBoxLib.ShowAdminAlert(
+						this,
+						$"An error occured while importing an account from:\r\n{ofd.FileName}\r\n\r\nIs the file encrypted?",
+						"Error Importing Account",
+						ex);
 			}
 		}
 	}

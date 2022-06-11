@@ -27,7 +27,7 @@ namespace ApplicationServices
 			ScanEnd += (_, __) => Scanning = false;
 		}
 
-        public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, Task<ApiExtended>> apiExtendedfunc, List<LibraryBook> existingLibrary, params Account[] accounts)
+        public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, Task<ApiExtended>> apiExtendedfunc, IEnumerable<LibraryBook> existingLibrary, params Account[] accounts)
 		{
 			logRestart();
 

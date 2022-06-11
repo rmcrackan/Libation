@@ -29,8 +29,9 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.gridEntryDataGridView = new System.Windows.Forms.DataGridView();
+			this.removeGVColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			this.liberateGVColumn = new LibationWinForms.GridView.LiberateDataGridViewImageButtonColumn();
 			this.coverGVColumn = new System.Windows.Forms.DataGridViewImageColumn();
 			this.titleGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -60,40 +61,55 @@
 			this.gridEntryDataGridView.AutoGenerateColumns = false;
 			this.gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 			this.gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-			this.liberateGVColumn,
-			this.coverGVColumn,
-			this.titleGVColumn,
-			this.authorsGVColumn,
-			this.narratorsGVColumn,
-			this.lengthGVColumn,
-			this.seriesGVColumn,
-			this.descriptionGVColumn,
-			this.categoryGVColumn,
-			this.productRatingGVColumn,
-			this.purchaseDateGVColumn,
-			this.myRatingGVColumn,
-			this.miscGVColumn,
-			this.tagAndDetailsGVColumn});
+            this.removeGVColumn,
+            this.liberateGVColumn,
+            this.coverGVColumn,
+            this.titleGVColumn,
+            this.authorsGVColumn,
+            this.narratorsGVColumn,
+            this.lengthGVColumn,
+            this.seriesGVColumn,
+            this.descriptionGVColumn,
+            this.categoryGVColumn,
+            this.productRatingGVColumn,
+            this.purchaseDateGVColumn,
+            this.myRatingGVColumn,
+            this.miscGVColumn,
+            this.tagAndDetailsGVColumn});
 			this.gridEntryDataGridView.ContextMenuStrip = this.contextMenuStrip1;
 			this.gridEntryDataGridView.DataSource = this.syncBindingSource;
-			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-			dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-			dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-			dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-			dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-			this.gridEntryDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+			dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			this.gridEntryDataGridView.DefaultCellStyle = dataGridViewCellStyle1;
 			this.gridEntryDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.gridEntryDataGridView.Location = new System.Drawing.Point(0, 0);
 			this.gridEntryDataGridView.Name = "gridEntryDataGridView";
-			this.gridEntryDataGridView.ReadOnly = true;
 			this.gridEntryDataGridView.RowHeadersVisible = false;
 			this.gridEntryDataGridView.RowTemplate.Height = 82;
-			this.gridEntryDataGridView.Size = new System.Drawing.Size(1510, 380);
+			this.gridEntryDataGridView.Size = new System.Drawing.Size(1570, 380);
 			this.gridEntryDataGridView.TabIndex = 0;
 			this.gridEntryDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentClick);
 			this.gridEntryDataGridView.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.gridEntryDataGridView_CellToolTipTextNeeded);
+			// 
+			// removeGVColumn
+			// 
+			this.removeGVColumn.DataPropertyName = "Remove";
+			this.removeGVColumn.FalseValue = "";
+			this.removeGVColumn.Frozen = true;
+			this.removeGVColumn.HeaderText = "Remove";
+			this.removeGVColumn.IndeterminateValue = "";
+			this.removeGVColumn.MinimumWidth = 60;
+			this.removeGVColumn.Name = "removeGVColumn";
+			this.removeGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+			this.removeGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			this.removeGVColumn.ThreeState = true;
+			this.removeGVColumn.TrueValue = "";
+			this.removeGVColumn.Width = 60;
 			// 
 			// liberateGVColumn
 			// 
@@ -223,7 +239,7 @@
 			this.AutoScroll = true;
 			this.Controls.Add(this.gridEntryDataGridView);
 			this.Name = "ProductsGrid";
-			this.Size = new System.Drawing.Size(1510, 380);
+			this.Size = new System.Drawing.Size(1570, 380);
 			this.Load += new System.EventHandler(this.ProductsGrid_Load);
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).EndInit();
@@ -235,6 +251,8 @@
 		#endregion
 		private System.Windows.Forms.DataGridView gridEntryDataGridView;
 		private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+		private SyncBindingSource syncBindingSource;
+		private System.Windows.Forms.DataGridViewCheckBoxColumn removeGVColumn;
 		private LiberateDataGridViewImageButtonColumn liberateGVColumn;
 		private System.Windows.Forms.DataGridViewImageColumn coverGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn titleGVColumn;
@@ -249,6 +267,5 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn myRatingGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn miscGVColumn;
 		private EditTagsDataGridViewImageButtonColumn tagAndDetailsGVColumn;
-		private SyncBindingSource syncBindingSource;
 	}
 }

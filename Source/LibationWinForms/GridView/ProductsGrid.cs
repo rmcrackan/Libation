@@ -23,12 +23,15 @@ namespace LibationWinForms.GridView
 		public event LibraryBookEntryClickedEventHandler DetailsClicked;
 		public event GridEntryRectangleClickedEventHandler DescriptionClicked;
 		public new event EventHandler<ScrollEventArgs> Scroll;
+		public event GridEntryClickedEventHandler RemovableCountChanged;
 
 		private GridEntryBindingList bindingList;
 		internal IEnumerable<LibraryBook> GetVisibleBooks()
 			=> bindingList
 			.BookEntries()
 			.Select(lbe => lbe.LibraryBook);
+		internal IEnumerable<LibraryBookEntry> GetAllBookEntries()
+			=> bindingList.AllItems().BookEntries();
 
 		public ProductsGrid()
 		{
@@ -81,6 +84,12 @@ namespace LibationWinForms.GridView
 				else if (e.ColumnIndex == coverGVColumn.Index)
 					CoverClicked?.Invoke(sEntry);
 			}
+
+			if (e.ColumnIndex == removeGVColumn.Index)
+			{
+				gridEntryDataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+				RemovableCountChanged?.Invoke(entry);
+			}
 		}
 
 		private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
@@ -88,6 +97,20 @@ namespace LibationWinForms.GridView
 		#endregion
 
 		#region UI display functions
+
+		internal bool RemoveColumnVisible
+		{
+			get => removeGVColumn.Visible;
+			set
+			{
+				if (value)
+				{
+					foreach (var book in bindingList.AllItems())
+						book.Remove = RemoveStatus.NotRemoved;
+				}
+				removeGVColumn.Visible = value;
+			}
+		}
 
 		internal void BindToGrid(List<LibraryBook> dbBooks)
 		{
@@ -153,6 +176,11 @@ namespace LibationWinForms.GridView
 				.BookEntries()
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
 
+			RemoveBooks(removedBooks);
+		}
+
+		public void RemoveBooks(IEnumerable<LibraryBookEntry> removedBooks)
+		{
 			//Remove books in series from their parents' Children list
 			foreach (var removed in removedBooks.Where(b => b.Parent is not null))
 			{
@@ -312,6 +340,14 @@ namespace LibationWinForms.GridView
 
 				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
 			}
+
+			//Remove column is always first;
+			removeGVColumn.DisplayIndex = 0;
+			removeGVColumn.Visible = false;
+			removeGVColumn.ValueType = typeof(RemoveStatus);
+			removeGVColumn.FalseValue = RemoveStatus.NotRemoved;
+			removeGVColumn.TrueValue = RemoveStatus.Removed;
+			removeGVColumn.IndeterminateValue = RemoveStatus.SomeRemoved;
 		}
 
 		private void HideMenuItem_Click(object sender, EventArgs e)

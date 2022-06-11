@@ -20,6 +20,20 @@ namespace LibationWinForms.GridView
 		private LiberatedStatus _bookStatus;
 		private LiberatedStatus? _pdfStatus;
 
+		public override RemoveStatus Remove
+		{
+			get
+			{
+				return _remove;
+			}
+			set
+			{
+				_remove = value is RemoveStatus.SomeRemoved ? RemoveStatus.NotRemoved : value;
+				Parent?.ChildRemoveUpdate();
+				NotifyPropertyChanged();
+			}
+		}
+
 		public override LiberateButtonStatus Liberate
 		{
 			get

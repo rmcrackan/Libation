@@ -13,7 +13,43 @@ namespace LibationWinForms.GridView
 		[Browsable(false)] public List<LibraryBookEntry> Children { get; }
 		[Browsable(false)] public override DateTime DateAdded => Children.Max(c => c.DateAdded);
 
+		private bool suspendCounting = false;
+		public void ChildRemoveUpdate()
+		{
+			if (suspendCounting) return;
+
+			var removeCount = Children.Count(c => c.Remove is RemoveStatus.Removed);
+
+			if (removeCount == 0)
+				_remove = RemoveStatus.NotRemoved;
+			else if (removeCount == Children.Count)
+				_remove = RemoveStatus.Removed;
+			else
+				_remove = RemoveStatus.SomeRemoved;
+			NotifyPropertyChanged(nameof(Remove));
+		}
+
 		#region Model properties exposed to the view
+		public override RemoveStatus Remove
+		{
+			get
+			{
+				return _remove;
+			}
+			set
+			{
+				_remove = value is RemoveStatus.SomeRemoved ? RemoveStatus.NotRemoved : value;
+
+				suspendCounting = true;
+
+				foreach (var item in Children)
+					item.Remove = value;
+
+				suspendCounting = false;
+
+				NotifyPropertyChanged();
+			}
+		}
 
 		public override LiberateButtonStatus Liberate { get; }
 		public override string DisplayTags { get; } = string.Empty;

@@ -42,6 +42,7 @@
 			this.removeLibraryBooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.removeAllAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.removeSomeAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.closeRemoveBooksColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.liberateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.beginBookBackupsToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
 			this.beginPdfBackupsToolStripMenuItem = new LibationWinForms.FormattableToolStripMenuItem();
@@ -144,7 +145,8 @@
             this.scanLibraryToolStripMenuItem,
             this.scanLibraryOfAllAccountsToolStripMenuItem,
             this.scanLibraryOfSomeAccountsToolStripMenuItem,
-            this.removeLibraryBooksToolStripMenuItem});
+            this.removeLibraryBooksToolStripMenuItem,
+            this.closeRemoveBooksColumnToolStripMenuItem});
 			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
 			this.importToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
 			this.importToolStripMenuItem.Text = "&Import";
@@ -208,6 +210,14 @@
 			this.removeSomeAccountsToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
 			this.removeSomeAccountsToolStripMenuItem.Text = "Some Accounts";
 			this.removeSomeAccountsToolStripMenuItem.Click += new System.EventHandler(this.removeSomeAccountsToolStripMenuItem_Click);
+			// 
+			// closeRemoveBooksColumnToolStripMenuItem
+			// 
+			this.closeRemoveBooksColumnToolStripMenuItem.Name = "closeRemoveBooksColumnToolStripMenuItem";
+			this.closeRemoveBooksColumnToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.closeRemoveBooksColumnToolStripMenuItem.Text = "&Done Removing Books";
+			this.closeRemoveBooksColumnToolStripMenuItem.Visible = false;
+			this.closeRemoveBooksColumnToolStripMenuItem.Click += new System.EventHandler(this.closeRemoveBooksColumnToolStripMenuItem_Click);
 			// 
 			// liberateToolStripMenuItem
 			// 
@@ -396,6 +406,7 @@
 			this.statusStrip1.Location = new System.Drawing.Point(0, 618);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
+			this.statusStrip1.ShowItemToolTips = true;
 			this.statusStrip1.Size = new System.Drawing.Size(1061, 22);
 			this.statusStrip1.TabIndex = 6;
 			this.statusStrip1.Text = "statusStrip1";
@@ -485,6 +496,7 @@
 			this.productsDisplay.Size = new System.Drawing.Size(1031, 555);
 			this.productsDisplay.TabIndex = 9;
 			this.productsDisplay.VisibleCountChanged += new System.EventHandler<int>(this.productsDisplay_VisibleCountChanged);
+			this.productsDisplay.RemovableCountChanged += new System.EventHandler<int>(this.productsDisplay_RemovableCountChanged);
 			this.productsDisplay.LiberateClicked += new System.EventHandler<DataLayer.LibraryBook>(this.ProductsDisplay_LiberateClicked);
 			this.productsDisplay.InitialLoaded += new System.EventHandler(this.productsDisplay_InitialLoaded);
 			// 
@@ -584,5 +596,6 @@
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Button toggleQueueHideBtn;
 		private LibationWinForms.GridView.ProductsDisplay productsDisplay;
+		private System.Windows.Forms.ToolStripMenuItem closeRemoveBooksColumnToolStripMenuItem;
 	}
 }
