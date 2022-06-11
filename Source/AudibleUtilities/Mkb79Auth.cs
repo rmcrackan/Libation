@@ -122,16 +122,17 @@ namespace AudibleUtilities
 
 		public async Task<Account> ToAccountAsync()
 		{
-			var privateKey = await GetPrivateKeyAsync();
-			var adpToken = await GetAdpTokenAsync();
-			var accessToken = await GetAccessTokenAsync();
 			var refreshToken = new RefreshToken(RefreshToken);
-			var cookies = WebsiteCookies.Select(c => new KeyValuePair<string, string>(c.Key, c.Value));
 
 			var authorize = new Authorize(Locale);
 			var newToken = await authorize.RefreshAccessTokenAsync(refreshToken);
 			AccessToken = newToken.TokenValue;
 			AccessTokenExpires = newToken.Expires;
+
+			var privateKey = await GetPrivateKeyAsync();
+			var adpToken = await GetAdpTokenAsync();
+			var accessToken = await GetAccessTokenAsync();
+			var cookies = WebsiteCookies.Select(c => new KeyValuePair<string, string>(c.Key, c.Value));
 
 			var api = new Api(this);
 			var email = await api.GetEmailAsync();
