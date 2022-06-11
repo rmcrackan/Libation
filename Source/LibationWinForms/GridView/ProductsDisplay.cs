@@ -119,7 +119,10 @@ namespace LibationWinForms.GridView
 					return;
 
 				var allBooks = productsGrid.GetAllBookEntries();
-				var lib = allBooks.Select(lbe => lbe.LibraryBook);
+				var lib = allBooks
+					.Select(lbe => lbe.LibraryBook)
+					.Where(lb => !lb.Book.HasLiberated());
+
 				var removedBooks = await LibraryCommands.FindInactiveBooks(Login.WinformLoginChoiceEager.ApiExtendedFunc, lib, accounts);
 
 				var removable = allBooks.Where(lbe => removedBooks.Any(rb => rb.Book.AudibleProductId == lbe.AudibleProductId)).ToList();
