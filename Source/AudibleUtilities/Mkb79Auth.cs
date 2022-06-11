@@ -45,7 +45,6 @@ namespace AudibleUtilities
 		[JsonProperty("activation_bytes")]
 		public string ActivationBytes { get; private set; }
 
-
 		[JsonIgnore]
 		public Dictionary<string, string> WebsiteCookies
 		{
@@ -67,7 +66,6 @@ namespace AudibleUtilities
 			private set => _expires = new DateTimeOffset(value).ToUnixTimeMilliseconds() / 1000d;
 		}
 
-
 		[JsonIgnore] public ISystemDateTime SystemDateTime { get; } = new SystemDateTime();
 		[JsonIgnore] public Locale Locale => Localization.Get(LocaleCode);
 		[JsonIgnore] public string DeviceSerialNumber => DeviceInfo.DeviceSerialNumber;
@@ -82,11 +80,6 @@ namespace AudibleUtilities
 
 		public Task<PrivateKey> GetPrivateKeyAsync() 
 			=> Task.FromResult(new PrivateKey(DevicePrivateKey));
-	}
-	public partial class StoreAuthenticationCookie
-	{
-		[JsonProperty("cookie")]
-		public string Cookie { get; set; }
 	}
 
 	public partial class CustomerInfo
@@ -124,40 +117,42 @@ namespace AudibleUtilities
 		public static Mkb79Auth FromJson(string json)
 			=> JsonConvert.DeserializeObject<Mkb79Auth>(json, Converter.Settings);
 
+		public string ToJson()
+			=> JObject.Parse(JsonConvert.SerializeObject(this, Converter.Settings)).ToString(Formatting.Indented);
+
 		public async Task<Account> ToAccountAsync()
 		{
-			var api = new Api(this);
-
-			if ((DateTime.Now - AccessTokenExpires).TotalMinutes >= 59)
-			{
-				var authorize = new Authorize(Locale);
-				var newToken = await authorize.RefreshAccessTokenAsync(new RefreshToken(RefreshToken));
-				AccessToken = newToken.TokenValue;
-				AccessTokenExpires = newToken.Expires;
-			}
-
-			var email = await api.GetEmailAsync();
-			var account = new Account(email);
-
 			var privateKey = await GetPrivateKeyAsync();
 			var adpToken = await GetAdpTokenAsync();
 			var accessToken = await GetAccessTokenAsync();
+			var refreshToken = new RefreshToken(RefreshToken);
 			var cookies = WebsiteCookies.Select(c => new KeyValuePair<string, string>(c.Key, c.Value));
 
-			account.IdentityTokens = new Identity(Locale);
+			var authorize = new Authorize(Locale);
+			var newToken = await authorize.RefreshAccessTokenAsync(refreshToken);
+			AccessToken = newToken.TokenValue;
+			AccessTokenExpires = newToken.Expires;
+
+			var api = new Api(this);
+			var email = await api.GetEmailAsync();
+			var account = new Account(email)
+			{
+				DecryptKey = ActivationBytes,
+				AccountName = $"{email} - {Locale.Name}",
+				IdentityTokens = new Identity(Locale)
+			};
+
 			account.IdentityTokens.Update(
 				privateKey,
-				adpToken, accessToken,
-				new RefreshToken(RefreshToken),
+				adpToken,
+				accessToken,
+				refreshToken,
 				cookies,
 				DeviceSerialNumber,
 				DeviceType,
 				AmazonAccountId,
 				DeviceInfo.DeviceName,
 				StoreAuthenticationCookie);
-
-			account.DecryptKey = ActivationBytes;
-			account.AccountName = $"{email} - {Locale.Name}";
 
 			return account;
 		}
@@ -185,7 +180,7 @@ namespace AudibleUtilities
 				DevicePrivateKey = account.IdentityTokens.PrivateKey,
 				AccessTokenExpires = account.IdentityTokens.ExistingAccessToken.Expires,
 				LocaleCode = account.Locale.CountryCode,
-				RefreshToken = account.IdentityTokens.RefreshToken.Value,
+				RefreshToken = account.IdentityTokens.RefreshToken.Value,				
 				StoreAuthenticationCookie = account.IdentityTokens.StoreAuthenticationCookie,
 				WebsiteCookies = new(account.IdentityTokens.Cookies.ToKeyValuePair()),
 			};
