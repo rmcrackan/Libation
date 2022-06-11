@@ -129,11 +129,6 @@ namespace AudibleUtilities
 			AccessToken = newToken.TokenValue;
 			AccessTokenExpires = newToken.Expires;
 
-			var privateKey = await GetPrivateKeyAsync();
-			var adpToken = await GetAdpTokenAsync();
-			var accessToken = await GetAccessTokenAsync();
-			var cookies = WebsiteCookies.Select(c => new KeyValuePair<string, string>(c.Key, c.Value));
-
 			var api = new Api(this);
 			var email = await api.GetEmailAsync();
 			var account = new Account(email)
@@ -144,11 +139,11 @@ namespace AudibleUtilities
 			};
 
 			account.IdentityTokens.Update(
-				privateKey,
-				adpToken,
-				accessToken,
+				await GetPrivateKeyAsync(),
+				await GetAdpTokenAsync(),
+				await GetAccessTokenAsync(),
 				refreshToken,
-				cookies,
+				WebsiteCookies.Select(c => new KeyValuePair<string, string>(c.Key, c.Value)),
 				DeviceSerialNumber,
 				DeviceType,
 				AmazonAccountId,
