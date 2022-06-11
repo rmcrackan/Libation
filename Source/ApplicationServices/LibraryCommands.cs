@@ -31,6 +31,13 @@ namespace ApplicationServices
 		{
 			logRestart();
 
+			lock (_lock)
+			{
+				if (Scanning)
+					return new();
+				ScanBegin?.Invoke(null, accounts.Length);
+			}
+
 			//These are the minimum response groups required for the
 			//library scanner to pass all validation and filtering.
 			var libraryOptions = new LibraryOptions
@@ -83,6 +90,7 @@ namespace ApplicationServices
 			{
 				stop();
 				var putBreakPointHere = logOutput;
+				ScanEnd?.Invoke(null, null);
 			}
 		}
 
