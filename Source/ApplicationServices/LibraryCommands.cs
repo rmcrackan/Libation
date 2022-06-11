@@ -126,6 +126,22 @@ namespace ApplicationServices
 				if (totalCount == 0)
 					return default;
 
+
+				Log.Logger.Information("Begin scan for orphaned episode parents");
+				var newParents = await findAndAddMissingParents(apiExtendedfunc, accounts);
+				Log.Logger.Information($"Orphan episode scan complete. New parents count {newParents}");
+
+				if (newParents >= 0)
+				{
+					//If any episodes are still orphaned, their series have been
+					//removed from the catalog and wel'll never be able to find them.
+
+					//only do this if findAndAddMissingParents returned >= 0. If it
+					//returned < 0, an error happened and there's still a chance that
+					//a future successful run will find missing parents.
+					removedOrphanedEpisodes();
+				}
+
 				Log.Logger.Information("Begin long-running import");
 				logTime($"pre {nameof(importIntoDbAsync)}");
 				var newCount = await importIntoDbAsync(importItems);
@@ -207,7 +223,7 @@ namespace ApplicationServices
             using var context = DbContexts.GetContext();
             var libraryBookImporter = new LibraryBookImporter(context);
             var newCount = await Task.Run(() => libraryBookImporter.Import(importItems));
-            logTime("importIntoDbAsync -- post Import()");
+			logTime("importIntoDbAsync -- post Import()");
             int qtyChanges = SaveContext(context);
             logTime("importIntoDbAsync -- post SaveChanges");
 
@@ -219,7 +235,84 @@ namespace ApplicationServices
             return newCount;
         }
 
-        public static int SaveContext(LibationContext context)
+		static void removedOrphanedEpisodes()
+		{
+			using var context = DbContexts.GetContext();
+			try
+			{
+				var orphanedEpisodes =
+					context
+					.GetLibrary_Flat_NoTracking(includeParents: true)
+					.FindOrphanedEpisodes();
+
+				context.LibraryBooks.RemoveRange(orphanedEpisodes);
+				context.Books.RemoveRange(orphanedEpisodes.Select(lb => lb.Book));
+
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error occured while trying to remove orphaned episodes from the database");
+			}
+		}
+
+		static async Task<int> findAndAddMissingParents(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts)
+		{
+			using var context = DbContexts.GetContext();
+
+			var library = context.GetLibrary_Flat_NoTracking(includeParents: true);
+
+			try
+			{
+				var orphanedEpisodes = library.FindOrphanedEpisodes().ToList();
+
+				if (!orphanedEpisodes.Any())
+					return -1;
+
+				var orphanedSeries =
+					orphanedEpisodes
+					.SelectMany(lb => lb.Book.SeriesLink)
+					.DistinctBy(s => s.Series.AudibleSeriesId)
+					.ToList();
+
+				// We're only calling the Catalog endpoint, so it doesn't matter which account we use.
+				var apiExtended = await apiExtendedfunc(accounts[0]);
+
+				var seriesParents = orphanedSeries.Select(o => o.Series.AudibleSeriesId).ToList();
+				var items = await apiExtended.Api.GetCatalogProductsAsync(seriesParents, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+
+				List<ImportItem> newParentsImportItems = new();
+				foreach (var sp in orphanedSeries)
+				{
+					var serie = items.First(i => i.Asin == sp.Series.AudibleSeriesId);
+					var lb = orphanedEpisodes.First(l => l.Book.AudibleProductId == sp.Book.AudibleProductId);
+
+					if (serie.Relationships is null)
+						continue;
+
+					serie.PurchaseDate = new DateTimeOffset(lb.DateAdded);
+					serie.Series = new AudibleApi.Common.Series[]
+					{
+					new AudibleApi.Common.Series{ Asin = serie.Asin, Title = serie.TitleWithSubtitle, Sequence = "-1"}
+					};
+
+					newParentsImportItems.Add(new ImportItem { DtoItem = serie, AccountId = lb.Account, LocaleName = lb.Book.Locale });
+				}
+
+				var newCoutn = new LibraryBookImporter(context)
+					.Import(newParentsImportItems);
+
+				await context.SaveChangesAsync();
+
+				return newCoutn;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error occured while trying to scan for orphaned episode parents.");
+				return -1;
+			}
+		}
+
+		public static int SaveContext(LibationContext context)
 		{
 			try
 			{

@@ -44,6 +44,8 @@ namespace DataLayer
 
         public static bool IsEpisodeParent(this Book book)
             => book.ContentType is ContentType.Parent;
-
+        public static bool HasLiberated(this Book book)
+            => book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated ||
+            book.UserDefinedItem.PdfStatus is not null and LiberatedStatus.Liberated;
     }
 }

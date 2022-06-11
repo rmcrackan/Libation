@@ -114,11 +114,17 @@ namespace LibationWinForms.GridView
 
 		internal void BindToGrid(List<LibraryBook> dbBooks)
 		{
-			var geList = dbBooks.Where(lb => lb.Book.IsProduct()).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
+			var geList = dbBooks
+				.Where(lb => lb.Book.IsProduct())
+				.Select(b => new LibraryBookEntry(b))
+				.Cast<GridEntry>()
+				.ToList();
 
 			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild());
-						
-			foreach (var parent in dbBooks.Where(lb => lb.Book.IsEpisodeParent()))
+
+			var seriesBooks = dbBooks.Where(lb => lb.Book.IsEpisodeParent()).ToList();
+
+			foreach (var parent in seriesBooks)
 			{
 				var seriesEpisodes = episodes.FindChildren(parent);
 
@@ -216,6 +222,7 @@ namespace LibationWinForms.GridView
 			if (existingEpisodeEntry is null)
 			{
 				LibraryBookEntry episodeEntry;
+
 				var seriesEntry = seriesEntries.FindSeriesParent(episodeBook);
 
 				if (seriesEntry is null)
@@ -225,12 +232,13 @@ namespace LibationWinForms.GridView
 
 					if (seriesBook is null)
 					{
-						//This should be impossible because the importer ensures every episode has a parent.
-						var ex = new ApplicationException($"Episode's series parent not found in database.");
-						var seriesLinks = string.Join("\r\n", episodeBook.Book.SeriesLink?.Select(sb => $"{nameof(sb.Series.Name)}={sb.Series.Name}, {nameof(sb.Series.AudibleSeriesId)}={sb.Series.AudibleSeriesId}"));
-						Serilog.Log.Logger.Error(ex, "Episode={episodeBook}, Series: {seriesLinks}", episodeBook, seriesLinks);
-						throw ex;
+						//This is only possible if the user's db  has some malformed
+						//entries from earlier Libation releases that could not be
+						//automatically fixed. Log, but don't throw.
+						Serilog.Log.Logger.Error("Episode={0}, Episode Series: {1}", episodeBook, episodeBook.Book.SeriesNames());
+						return;
 					}
+
 
 					seriesEntry = new SeriesEntry(seriesBook, episodeBook);
 					seriesEntries.Add(seriesEntry);
