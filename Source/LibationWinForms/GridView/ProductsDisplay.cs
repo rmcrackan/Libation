@@ -82,7 +82,7 @@ namespace LibationWinForms.GridView
 
 		#endregion
 
-		#region UI display functions
+		#region Scan and Remove Books
 
 		public void CloseRemoveBooksColumn()
 			=> productsGrid.RemoveColumnVisible = false;
@@ -127,7 +127,7 @@ namespace LibationWinForms.GridView
 				foreach (var r in removable)
 					r.Remove = RemoveStatus.Removed;
 
-				productsGrid_RemovableCountChanged(null);
+				productsGrid_RemovableCountChanged(this, null);
 			}
 			catch (Exception ex)
 			{
@@ -138,6 +138,10 @@ namespace LibationWinForms.GridView
 					ex);
 			}
 		}
+
+		#endregion
+
+		#region UI display functions		
 
 		public void Display()
 		{
@@ -183,9 +187,9 @@ namespace LibationWinForms.GridView
 			LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 
-		private void productsGrid_RemovableCountChanged(GridEntry liveGridEntry)
+		private void productsGrid_RemovableCountChanged(object sender, EventArgs e)
 		{
-			RemovableCountChanged?.Invoke(this, productsGrid.GetAllBookEntries().Count(lbe => lbe.Remove is RemoveStatus.Removed));
+			RemovableCountChanged?.Invoke(sender, productsGrid.GetAllBookEntries().Count(lbe => lbe.Remove is RemoveStatus.Removed));
 		}
 	}
 }

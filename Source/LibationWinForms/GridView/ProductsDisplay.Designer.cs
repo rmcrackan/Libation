@@ -44,7 +44,7 @@
 			this.productsGrid.CoverClicked += new LibationWinForms.GridView.GridEntryClickedEventHandler(this.productsGrid_CoverClicked);
 			this.productsGrid.DetailsClicked += new LibationWinForms.GridView.LibraryBookEntryClickedEventHandler(this.productsGrid_DetailsClicked);
 			this.productsGrid.DescriptionClicked += new LibationWinForms.GridView.GridEntryRectangleClickedEventHandler(this.productsGrid_DescriptionClicked);
-			this.productsGrid.RemovableCountChanged += new LibationWinForms.GridView.GridEntryClickedEventHandler(this.productsGrid_RemovableCountChanged);
+			this.productsGrid.RemovableCountChanged += new System.EventHandler(this.productsGrid_RemovableCountChanged);
 			// 
 			// ProductsDisplay
 			// 

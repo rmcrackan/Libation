@@ -23,7 +23,7 @@ namespace LibationWinForms.GridView
 		public event LibraryBookEntryClickedEventHandler DetailsClicked;
 		public event GridEntryRectangleClickedEventHandler DescriptionClicked;
 		public new event EventHandler<ScrollEventArgs> Scroll;
-		public event GridEntryClickedEventHandler RemovableCountChanged;
+		public event EventHandler RemovableCountChanged;
 
 		private GridEntryBindingList bindingList;
 		internal IEnumerable<LibraryBook> GetVisibleBooks()
@@ -88,7 +88,7 @@ namespace LibationWinForms.GridView
 			if (e.ColumnIndex == removeGVColumn.Index)
 			{
 				gridEntryDataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
-				RemovableCountChanged?.Invoke(entry);
+				RemovableCountChanged?.Invoke(this, EventArgs.Empty);
 			}
 		}
 

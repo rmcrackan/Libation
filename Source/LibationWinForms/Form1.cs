@@ -44,6 +44,7 @@ namespace LibationWinForms
 			Configure_VisibleBooks();
 			Configure_QuickFilters();
 			Configure_ScanManual();
+			Configure_RemoveBooks();
 			Configure_Liberate();
 			Configure_Export();
 			Configure_Settings();
