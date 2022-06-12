@@ -20,7 +20,7 @@ namespace LibationWinForms
 			// Before calling anything else, including subscribing to events, ensure database exists. If we wait and let it happen lazily, race conditions and errors are likely during new installs
 			using var _ = DbContexts.GetContext();
 
-			this.Load += (_, _) => this.RestoreSizeAndLocation(Configuration.Instance);
+			this.RestoreSizeAndLocation(Configuration.Instance);
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 
 			// this looks like a perfect opportunity to refactor per below.
