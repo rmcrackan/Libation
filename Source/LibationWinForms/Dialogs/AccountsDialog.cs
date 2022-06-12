@@ -210,6 +210,9 @@ namespace LibationWinForms.Dialogs
 				})
 				.ToList();
 
+		private string GetAudibleCliAppDataPath()
+			=> Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Audible");
+
 		private void Export(string accountId, string locale)
 		{
 			// without transaction, accounts persister will write ANY EDIT immediately to file
@@ -228,6 +231,11 @@ namespace LibationWinForms.Dialogs
 
 			SaveFileDialog sfd = new();
 			sfd.Filter = "JSON File|*.json";
+
+			string audibleAppDataDir = GetAudibleCliAppDataPath();
+
+			if (Directory.Exists(audibleAppDataDir))
+				sfd.InitialDirectory = audibleAppDataDir;
 
 			if (sfd.ShowDialog() != DialogResult.OK) return;
 
@@ -249,10 +257,17 @@ namespace LibationWinForms.Dialogs
 					ex);
 			}
 		}
+
 		private async void importBtn_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog ofd = new();
 			ofd.Filter = "JSON File|*.json";
+			ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+			string audibleAppDataDir = GetAudibleCliAppDataPath();
+
+			if (Directory.Exists(audibleAppDataDir))
+				ofd.InitialDirectory = audibleAppDataDir;
 
 			if (ofd.ShowDialog() != DialogResult.OK) return;
 

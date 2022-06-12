@@ -429,7 +429,7 @@ namespace AppScaffolding
 			string updateContentType =
 				"UPDATE books " +
 				"SET contenttype = 4 " +
-				"WHERE audibleproductid IN(SELECT books.audibleproductid " +
+				"WHERE audibleproductid IN (SELECT books.audibleproductid " +
 											"FROM books " +
 												"INNER JOIN series " +
 													"ON ( books.audibleproductid = " +
@@ -445,7 +445,7 @@ namespace AppScaffolding
 						"'- 1' " +
 				"FROM books " +
 					"LEFT OUTER JOIN seriesbook " +
-									"ON books.bookid = seriesbook.bookid " +
+								"ON books.bookid = seriesbook.bookid " +
 					"INNER JOIN series " +
 								"ON books.audibleproductid = series.audibleseriesid " +
 				"WHERE books.contenttype = 4 " +
