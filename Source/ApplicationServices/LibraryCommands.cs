@@ -35,8 +35,8 @@ namespace ApplicationServices
 			{
 				if (Scanning)
 					return new();
-				ScanBegin?.Invoke(null, accounts.Length);
 			}
+			ScanBegin?.Invoke(null, accounts.Length);
 
 			//These are the minimum response groups required for the
 			//library scanner to pass all validation and filtering.
@@ -108,8 +108,8 @@ namespace ApplicationServices
                 {
 					if (Scanning)
 						return (0, 0);
-					ScanBegin?.Invoke(null, accounts.Length);
 				}
+				ScanBegin?.Invoke(null, accounts.Length);
 
 				logTime($"pre {nameof(scanAccountsAsync)} all");
 				var libraryOptions = new LibraryOptions
