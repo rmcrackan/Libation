@@ -283,19 +283,20 @@ namespace ApplicationServices
 				List<ImportItem> newParentsImportItems = new();
 				foreach (var sp in orphanedSeries)
 				{
-					var serie = items.First(i => i.Asin == sp.Series.AudibleSeriesId);
-					var lb = orphanedEpisodes.First(l => l.Book.AudibleProductId == sp.Book.AudibleProductId);
+					var seriesItem = items.First(i => i.Asin == sp.Series.AudibleSeriesId);
 
-					if (serie.Relationships is null)
+					if (seriesItem.Relationships is null)
 						continue;
 
-					serie.PurchaseDate = new DateTimeOffset(lb.DateAdded);
-					serie.Series = new AudibleApi.Common.Series[]
+					var episode = orphanedEpisodes.First(l => l.Book.AudibleProductId == sp.Book.AudibleProductId);
+
+					seriesItem.PurchaseDate = new DateTimeOffset(episode.DateAdded);
+					seriesItem.Series = new AudibleApi.Common.Series[]
 					{
-					new AudibleApi.Common.Series{ Asin = serie.Asin, Title = serie.TitleWithSubtitle, Sequence = "-1"}
+						new AudibleApi.Common.Series{ Asin = seriesItem.Asin, Title = seriesItem.TitleWithSubtitle, Sequence = "-1"}
 					};
 
-					newParentsImportItems.Add(new ImportItem { DtoItem = serie, AccountId = lb.Account, LocaleName = lb.Book.Locale });
+					newParentsImportItems.Add(new ImportItem { DtoItem = seriesItem, AccountId = episode.Account, LocaleName = episode.Book.Locale });
 				}
 
 				var newCoutn = new LibraryBookImporter(context)
