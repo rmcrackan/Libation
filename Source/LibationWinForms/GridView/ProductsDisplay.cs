@@ -87,7 +87,7 @@ namespace LibationWinForms.GridView
 		public void CloseRemoveBooksColumn()
 			=> productsGrid.RemoveColumnVisible = false;
 
-		public async void RemoveCheckedBooksAsync()
+		public async Task RemoveCheckedBooksAsync()
 		{
 			var selectedBooks = productsGrid.GetAllBookEntries().Where(lbe => lbe.Remove is RemoveStatus.Removed).ToList();
 

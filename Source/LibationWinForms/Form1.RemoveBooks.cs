@@ -11,24 +11,22 @@ namespace LibationWinForms
 {
 	public partial class Form1
 	{
-		private ToolStripButton removeCheckedBtn = new();
-		public void Configure_RemoveBooks()
-		{
+		public void Configure_RemoveBooks() { }
 
-			#region Create and Add Tool Strip Button
-			removeCheckedBtn.DisplayStyle = ToolStripItemDisplayStyle.Text;
-			removeCheckedBtn.Name = "removeSelectedBtn";
-			removeCheckedBtn.Text = "Remove 0 Books";
-			removeCheckedBtn.AutoToolTip = false;
-			removeCheckedBtn.ToolTipText = "Remove checked books and series\r\nfrom Libation's database.\r\n\r\nThey will remain in your Audible account.";
-			removeCheckedBtn.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			removeCheckedBtn.Alignment = ToolStripItemAlignment.Left;
-			removeCheckedBtn.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-			removeCheckedBtn.Font = new System.Drawing.Font(removeCheckedBtn.Font, System.Drawing.FontStyle.Bold);
-			removeCheckedBtn.Click += (_, _) => productsDisplay.RemoveCheckedBooksAsync();
-			removeCheckedBtn.Visible = false;
-			statusStrip1.Items.Insert(1, removeCheckedBtn);
-			#endregion
+		private async void removeBooksBtn_Click(object sender, EventArgs e)
+			=> await productsDisplay.RemoveCheckedBooksAsync();
+
+		private void doneRemovingBtn_Click(object sender, EventArgs e)
+		{
+			removeBooksBtn.Visible = false;
+			doneRemovingBtn.Visible = false;
+
+			productsDisplay.CloseRemoveBooksColumn();
+
+			//Restore the filter
+			filterSearchTb.Enabled = true;
+			filterSearchTb.Visible = true;
+			performFilter(filterSearchTb.Text);
 		}
 
 		private void removeLibraryBooksToolStripMenuItem_Click(object sender, EventArgs e)
@@ -74,30 +72,20 @@ namespace LibationWinForms
 			//For removing books within a filter set, use
 			//Visible Books > Remove from library
 			filterSearchTb.Enabled = false;
+			filterSearchTb.Visible = false;
 			productsDisplay.Filter(null);
 
-			removeCheckedBtn.Visible = true;
-			closeRemoveBooksColumnToolStripMenuItem.Visible = true;
+			removeBooksBtn.Visible = true;
+			doneRemovingBtn.Visible = true;
 			await productsDisplay.ScanAndRemoveBooksAsync(accounts);
-		}
-
-		private void closeRemoveBooksColumnToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			removeCheckedBtn.Visible = false;
-			closeRemoveBooksColumnToolStripMenuItem.Visible = false;
-			productsDisplay.CloseRemoveBooksColumn();
-
-			//Restore the filter
-			filterSearchTb.Enabled = true;
-			performFilter(filterSearchTb.Text);
 		}
 
 		private void productsDisplay_RemovableCountChanged(object sender, int removeCount)
 		{
-			removeCheckedBtn.Text = removeCount switch
+			removeBooksBtn.Text = removeCount switch
 			{
-				1 => "Remove 1 Book",
-				_ => $"Remove {removeCount} Books"
+				1 => "Remove 1 Book from Libation",
+				_ => $"Remove {removeCount} Books from Libation"
 			};
 		}
 	}
