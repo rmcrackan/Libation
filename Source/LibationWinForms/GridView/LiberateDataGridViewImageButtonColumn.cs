@@ -19,18 +19,19 @@ namespace LibationWinForms.GridView
 		private static readonly Color SERIES_BG_COLOR = Color.FromArgb(230, 255, 230);
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
-			base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
-
 			if (value is LiberateButtonStatus status)
 			{
+				if (status.BookStatus is LiberatedStatus.Error)
+					paintParts ^= DataGridViewPaintParts.ContentBackground | DataGridViewPaintParts.ContentForeground | DataGridViewPaintParts.SelectionBackground;
+
 				if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is LibraryBookEntry lbEntry && lbEntry.Parent is not null)
-				{
 					DataGridView.Rows[rowIndex].DefaultCellStyle.BackColor = SERIES_BG_COLOR;
-				}
+
+				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
 				if (status.IsSeries)
 				{
-					DrawButtonImage(graphics, status.Expanded ? Properties.Resources.minus: Properties.Resources.plus, cellBounds);
+					DrawButtonImage(graphics, status.Expanded ? Properties.Resources.minus : Properties.Resources.plus, cellBounds);
 
 					ToolTipText = status.Expanded ? "Click to Collpase" : "Click to Expand";
 				}
@@ -48,7 +49,7 @@ namespace LibationWinForms.GridView
 		private static (string mouseoverText, Bitmap buttonImage) GetLiberateDisplay(LiberatedStatus liberatedStatus, LiberatedStatus? pdfStatus)
 		{
 			if (liberatedStatus == LiberatedStatus.Error)
-				return ("Book downloaded ERROR", SystemIcons.Error.ToBitmap());
+				return ("Book downloaded ERROR", Properties.Resources.error);
 
 			(string libState, string image_lib) = liberatedStatus switch
 			{
