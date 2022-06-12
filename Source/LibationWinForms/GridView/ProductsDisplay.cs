@@ -187,7 +187,8 @@ namespace LibationWinForms.GridView
 
 		private void productsGrid_LiberateClicked(LibraryBookEntry liveGridEntry)
 		{
-			LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
+			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error)
+				LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 
 		private void productsGrid_RemovableCountChanged(object sender, EventArgs e)
