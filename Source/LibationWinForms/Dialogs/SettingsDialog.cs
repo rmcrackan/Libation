@@ -46,6 +46,7 @@ namespace LibationWinForms.Dialogs
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
 			this.createCueSheetCbox.Text = desc(nameof(config.CreateCueSheet));
 			this.downloadCoverArtCbox.Text = desc(nameof(config.DownloadCoverArt));
+			this.saveEpisodesToSeriesFolderCbox.Text = desc(nameof(config.SavePodcastsToParentFolder));
 
 			booksSelectControl.SetSearchTitle("books location");
 			booksSelectControl.SetDirectoryItems(
@@ -58,6 +59,8 @@ namespace LibationWinForms.Dialogs
 				Configuration.KnownDirectories.UserProfile,
 				"Books");
 			booksSelectControl.SelectDirectory(config.Books);
+
+			saveEpisodesToSeriesFolderCbox.Checked = config.SavePodcastsToParentFolder;
 
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
 			createCueSheetCbox.Checked = config.CreateCueSheet;
@@ -185,6 +188,8 @@ namespace LibationWinForms.Dialogs
 				if (logLevelOld != logLevelNew)
 					MessageBoxLib.VerboseLoggingWarning_ShowIfTrue();
 			}
+
+			config.SavePodcastsToParentFolder = saveEpisodesToSeriesFolderCbox.Checked;
 
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
 			config.CreateCueSheet = createCueSheetCbox.Checked;

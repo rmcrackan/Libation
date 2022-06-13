@@ -207,8 +207,8 @@ namespace LibationFileManager
 
             #region to file name
             /// <summary>USES LIVE CONFIGURATION VALUES</summary>
-            public string GetFilename(LibraryBookDto libraryBookDto)
-                => getFileNamingTemplate(libraryBookDto, Configuration.Instance.FolderTemplate, AudibleFileStorage.BooksDirectory, null)
+            public string GetFilename(LibraryBookDto libraryBookDto, string baseDir = null)
+                => getFileNamingTemplate(libraryBookDto, Configuration.Instance.FolderTemplate, baseDir ?? AudibleFileStorage.BooksDirectory, null)
                 .GetFilePath();
             #endregion
         }

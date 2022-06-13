@@ -275,6 +275,13 @@ namespace LibationFileManager
             set => persistentDictionary.SetNonString(nameof(AutoDownloadEpisodes), value);
         }
 
+        [Description("Save all podcast episodes in a series to the series parent folder?")]
+        public bool SavePodcastsToParentFolder
+        {
+            get => persistentDictionary.GetNonString<bool>(nameof(SavePodcastsToParentFolder));
+            set => persistentDictionary.SetNonString(nameof(SavePodcastsToParentFolder), value);
+        }
+
         #region templates: custom file naming
 
         [Description("How to format the folders in which files will be saved")]
