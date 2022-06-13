@@ -137,6 +137,7 @@ namespace LibationWinForms.GridView
 		/// <summary>Create getters for all member object values by name </summary>
 		protected override Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
 		{
+			{ nameof(Remove), () => Remove },
 			{ nameof(Title), () => Book.TitleSortable() },
 			{ nameof(Series), () => Book.SeriesSortable() },
 			{ nameof(Length), () => Book.LengthInMinutes },

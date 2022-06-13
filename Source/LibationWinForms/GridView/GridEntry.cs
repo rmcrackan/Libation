@@ -72,6 +72,7 @@ namespace LibationWinForms.GridView
 		// Instantiate comparers for every exposed member object type.
 		private static readonly Dictionary<Type, IComparer> _memberTypeComparers = new()
 		{
+			{ typeof(RemoveStatus), new ObjectComparer<RemoveStatus>() },
 			{ typeof(string), new ObjectComparer<string>() },
 			{ typeof(int), new ObjectComparer<int>() },
 			{ typeof(float), new ObjectComparer<float>() },
