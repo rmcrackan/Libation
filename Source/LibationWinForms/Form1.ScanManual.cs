@@ -67,50 +67,7 @@ namespace LibationWinForms
 				return;
 
 			await scanLibrariesAsync(scanAccountsDialog.CheckedAccounts);
-		}
-
-		private void removeLibraryBooksToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			// if 0 accounts, this will not be visible
-			// if 1 account, run scanLibrariesRemovedBooks() on this account
-			// if multiple accounts, another menu set will open. do not run scanLibrariesRemovedBooks()
-			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var accounts = persister.AccountsSettings.GetAll();
-
-			if (accounts.Count != 1)
-				return;
-
-			var firstAccount = accounts.Single();
-			scanLibrariesRemovedBooks(firstAccount);
-		}
-
-		// selectively remove books from all accounts
-		private void removeAllAccountsToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var allAccounts = persister.AccountsSettings.GetAll();
-			scanLibrariesRemovedBooks(allAccounts.ToArray());
-		}
-
-		// selectively remove books from some accounts
-		private void removeSomeAccountsToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			using var scanAccountsDialog = new ScanAccountsDialog();
-
-			if (scanAccountsDialog.ShowDialog() != DialogResult.OK)
-				return;
-
-			if (!scanAccountsDialog.CheckedAccounts.Any())
-				return;
-
-			scanLibrariesRemovedBooks(scanAccountsDialog.CheckedAccounts.ToArray());
-		}
-
-		private void scanLibrariesRemovedBooks(params Account[] accounts)
-		{
-			using var dialog = new RemoveBooksDialog(accounts);
-			dialog.ShowDialog();
-		}
+		}		
 
 		private async Task scanLibrariesAsync(IEnumerable<Account> accounts) => await scanLibrariesAsync(accounts.ToArray());
 		private async Task scanLibrariesAsync(params Account[] accounts)

@@ -43,18 +43,37 @@ namespace DataLayer
                 .Include(le => le.Book).ThenInclude(b => b.ContributorsLink).ThenInclude(c => c.Contributor)
                 .Include(le => le.Book).ThenInclude(b => b.Category).ThenInclude(c => c.ParentCategory);
 
+        public static IEnumerable<LibraryBook> ParentedEpisodes(this IEnumerable<LibraryBook> libraryBooks)
+            => libraryBooks.Where(lb => lb.Book.IsEpisodeParent()).SelectMany(s => libraryBooks.FindChildren(s));
+
+        public static IEnumerable<LibraryBook> FindOrphanedEpisodes(this IEnumerable<LibraryBook> libraryBooks)
+		    => libraryBooks
+                .Where(lb => lb.Book.IsEpisodeChild())
+                .ExceptBy(
+                    libraryBooks
+                    .ParentedEpisodes()
+                    .Select(ge => ge.Book.AudibleProductId), ge => ge.Book.AudibleProductId);
+
 #nullable enable
         public static LibraryBook? FindSeriesParent(this IEnumerable<LibraryBook> libraryBooks, LibraryBook seriesEpisode)
         {
             if (seriesEpisode.Book.SeriesLink is null) return null;
 
-            //Parent books will always have exactly 1 SeriesBook due to how
-            //they are imported in ApiExtended.getChildEpisodesAsync()
-            return libraryBooks.FirstOrDefault(
-                lb =>
-                lb.Book.IsEpisodeParent() &&
-                seriesEpisode.Book.SeriesLink.Any(
-                    s => s.Series.AudibleSeriesId == lb.Book.SeriesLink.Single().Series.AudibleSeriesId));
+            try
+            {
+                //Parent books will always have exactly 1 SeriesBook due to how
+                //they are imported in ApiExtended.getChildEpisodesAsync()
+                return libraryBooks.FirstOrDefault(
+                    lb =>
+                    lb.Book.IsEpisodeParent() &&
+                    seriesEpisode.Book.SeriesLink.Any(
+                        s => s.Series.AudibleSeriesId == lb.Book.SeriesLink.Single().Series.AudibleSeriesId));
+            }
+            catch (System.Exception ex)
+            {
+                Serilog.Log.Error(ex, "Query error in {0}", nameof(FindSeriesParent));
+                return null;
+            }
         }
 #nullable disable
 

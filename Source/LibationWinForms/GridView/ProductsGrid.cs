@@ -23,12 +23,15 @@ namespace LibationWinForms.GridView
 		public event LibraryBookEntryClickedEventHandler DetailsClicked;
 		public event GridEntryRectangleClickedEventHandler DescriptionClicked;
 		public new event EventHandler<ScrollEventArgs> Scroll;
+		public event EventHandler RemovableCountChanged;
 
 		private GridEntryBindingList bindingList;
 		internal IEnumerable<LibraryBook> GetVisibleBooks()
 			=> bindingList
 			.BookEntries()
 			.Select(lbe => lbe.LibraryBook);
+		internal IEnumerable<LibraryBookEntry> GetAllBookEntries()
+			=> bindingList.AllItems().BookEntries();
 
 		public ProductsGrid()
 		{
@@ -81,6 +84,12 @@ namespace LibationWinForms.GridView
 				else if (e.ColumnIndex == coverGVColumn.Index)
 					CoverClicked?.Invoke(sEntry);
 			}
+
+			if (e.ColumnIndex == removeGVColumn.Index)
+			{
+				gridEntryDataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+				RemovableCountChanged?.Invoke(this, EventArgs.Empty);
+			}
 		}
 
 		private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
@@ -89,13 +98,33 @@ namespace LibationWinForms.GridView
 
 		#region UI display functions
 
+		internal bool RemoveColumnVisible
+		{
+			get => removeGVColumn.Visible;
+			set
+			{
+				if (value)
+				{
+					foreach (var book in bindingList.AllItems())
+						book.Remove = RemoveStatus.NotRemoved;
+				}
+				removeGVColumn.Visible = value;
+			}
+		}
+
 		internal void BindToGrid(List<LibraryBook> dbBooks)
 		{
-			var geList = dbBooks.Where(lb => lb.Book.IsProduct()).Select(b => new LibraryBookEntry(b)).Cast<GridEntry>().ToList();
+			var geList = dbBooks
+				.Where(lb => lb.Book.IsProduct())
+				.Select(b => new LibraryBookEntry(b))
+				.Cast<GridEntry>()
+				.ToList();
 
 			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild());
-						
-			foreach (var parent in dbBooks.Where(lb => lb.Book.IsEpisodeParent()))
+
+			var seriesBooks = dbBooks.Where(lb => lb.Book.IsEpisodeParent()).ToList();
+
+			foreach (var parent in seriesBooks)
 			{
 				var seriesEpisodes = episodes.FindChildren(parent);
 
@@ -127,6 +156,7 @@ namespace LibationWinForms.GridView
 
 			var allEntries = bindingList.AllItems().BookEntries();
 			var seriesEntries = bindingList.AllItems().SeriesEntries().ToList();
+			var parentedEpisodes = dbBooks.ParentedEpisodes();
 
 			foreach (var libraryBook in dbBooks.OrderBy(e => e.DateAdded))
 			{
@@ -134,7 +164,8 @@ namespace LibationWinForms.GridView
 
 				if (libraryBook.Book.IsProduct())
 					AddOrUpdateBook(libraryBook, existingEntry);
-				else if(libraryBook.Book.IsEpisodeChild()) 
+				else if(parentedEpisodes.Any(lb => lb == libraryBook))
+					//Only try to add or update is this LibraryBook is a know child of a parent
 					AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);				 
 			}	
 
@@ -153,6 +184,11 @@ namespace LibationWinForms.GridView
 				.BookEntries()
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
 
+			RemoveBooks(removedBooks);
+		}
+
+		public void RemoveBooks(IEnumerable<LibraryBookEntry> removedBooks)
+		{
 			//Remove books in series from their parents' Children list
 			foreach (var removed in removedBooks.Where(b => b.Parent is not null))
 			{
@@ -188,6 +224,7 @@ namespace LibationWinForms.GridView
 			if (existingEpisodeEntry is null)
 			{
 				LibraryBookEntry episodeEntry;
+
 				var seriesEntry = seriesEntries.FindSeriesParent(episodeBook);
 
 				if (seriesEntry is null)
@@ -197,12 +234,13 @@ namespace LibationWinForms.GridView
 
 					if (seriesBook is null)
 					{
-						//This should be impossible because the importer ensures every episode has a parent.
-						var ex = new ApplicationException($"Episode's series parent not found in database.");
-						var seriesLinks = string.Join("\r\n", episodeBook.Book.SeriesLink?.Select(sb => $"{nameof(sb.Series.Name)}={sb.Series.Name}, {nameof(sb.Series.AudibleSeriesId)}={sb.Series.AudibleSeriesId}"));
-						Serilog.Log.Logger.Error(ex, "Episode={episodeBook}, Series: {seriesLinks}", episodeBook, seriesLinks);
-						throw ex;
+						//This is only possible if the user's db  has some malformed
+						//entries from earlier Libation releases that could not be
+						//automatically fixed. Log, but don't throw.
+						Serilog.Log.Logger.Error("Episode={0}, Episode Series: {1}", episodeBook, episodeBook.Book.SeriesNames());
+						return;
 					}
+
 
 					seriesEntry = new SeriesEntry(seriesBook, episodeBook);
 					seriesEntries.Add(seriesEntry);
@@ -312,6 +350,14 @@ namespace LibationWinForms.GridView
 
 				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
 			}
+
+			//Remove column is always first;
+			removeGVColumn.DisplayIndex = 0;
+			removeGVColumn.Visible = false;
+			removeGVColumn.ValueType = typeof(RemoveStatus);
+			removeGVColumn.FalseValue = RemoveStatus.NotRemoved;
+			removeGVColumn.TrueValue = RemoveStatus.Removed;
+			removeGVColumn.IndeterminateValue = RemoveStatus.SomeRemoved;
 		}
 
 		private void HideMenuItem_Click(object sender, EventArgs e)

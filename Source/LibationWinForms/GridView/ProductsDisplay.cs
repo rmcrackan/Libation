@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using AudibleUtilities;
 using DataLayer;
 using FileLiberator;
 using LibationFileManager;
@@ -16,6 +17,7 @@ namespace LibationWinForms.GridView
 	{
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
+		public event EventHandler<int> RemovableCountChanged;
 		public event EventHandler<LibraryBook> LiberateClicked;
 		public event EventHandler InitialLoaded;
 
@@ -80,7 +82,69 @@ namespace LibationWinForms.GridView
 
 		#endregion
 
-		#region UI display functions
+		#region Scan and Remove Books
+
+		public void CloseRemoveBooksColumn()
+			=> productsGrid.RemoveColumnVisible = false;
+
+		public async Task RemoveCheckedBooksAsync()
+		{
+			var selectedBooks = productsGrid.GetAllBookEntries().Where(lbe => lbe.Remove is RemoveStatus.Removed).ToList();
+
+			if (selectedBooks.Count == 0)
+				return;
+
+			var libraryBooks = selectedBooks.Select(rge => rge.LibraryBook).ToList();
+			var result = MessageBoxLib.ShowConfirmationDialog(
+				libraryBooks,
+				$"Are you sure you want to remove {selectedBooks.Count} books from Libation's library?",
+				"Remove books from Libation?");
+
+			if (result != DialogResult.Yes)
+				return;
+
+			productsGrid.RemoveBooks(selectedBooks);
+			var idsToRemove = libraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
+			var removeLibraryBooks = await LibraryCommands.RemoveBooksAsync(idsToRemove);
+		}
+
+		public async Task ScanAndRemoveBooksAsync(params Account[] accounts)
+		{
+			RemovableCountChanged?.Invoke(this, 0);
+			productsGrid.RemoveColumnVisible = true;
+
+			try
+			{
+				if (accounts is null || accounts.Length == 0)
+					return;
+
+				var allBooks = productsGrid.GetAllBookEntries();
+				var lib = allBooks
+					.Select(lbe => lbe.LibraryBook)
+					.Where(lb => !lb.Book.HasLiberated());
+
+				var removedBooks = await LibraryCommands.FindInactiveBooks(Login.WinformLoginChoiceEager.ApiExtendedFunc, lib, accounts);
+
+				var removable = allBooks.Where(lbe => removedBooks.Any(rb => rb.Book.AudibleProductId == lbe.AudibleProductId)).ToList();
+
+				foreach (var r in removable)
+					r.Remove = RemoveStatus.Removed;
+
+				productsGrid_RemovableCountChanged(this, null);
+			}
+			catch (Exception ex)
+			{
+				MessageBoxLib.ShowAdminAlert(
+					this,
+					"Error scanning library. You may still manually select books to remove from Libation's library.",
+					"Error scanning library",
+					ex);
+			}
+		}
+
+		#endregion
+
+		#region UI display functions		
 
 		public void Display()
 		{
@@ -123,7 +187,13 @@ namespace LibationWinForms.GridView
 
 		private void productsGrid_LiberateClicked(LibraryBookEntry liveGridEntry)
 		{
-			LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
+			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error)
+				LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
+		}
+
+		private void productsGrid_RemovableCountChanged(object sender, EventArgs e)
+		{
+			RemovableCountChanged?.Invoke(sender, productsGrid.GetAllBookEntries().Count(lbe => lbe.Remove is RemoveStatus.Removed));
 		}
 	}
 }

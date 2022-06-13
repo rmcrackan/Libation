@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using AudibleApi;
@@ -10,6 +11,7 @@ namespace LibationWinForms.Dialogs
 	public partial class AccountsDialog : Form
 	{
 		private const string COL_Delete = nameof(DeleteAccount);
+		private const string COL_Export = nameof(ExportAccount);
 		private const string COL_LibraryScan = nameof(LibraryScan);
 		private const string COL_AccountId = nameof(AccountId);
 		private const string COL_AccountName = nameof(AccountName);
@@ -44,12 +46,20 @@ namespace LibationWinForms.Dialogs
 				return;
 
 			foreach (var account in accounts)
-				dataGridView1.Rows.Add(
+				AddAccountToGrid(account);
+		}
+
+		private void AddAccountToGrid(Account account)
+		{
+			int row = dataGridView1.Rows.Add(
 					"X",
+					"Export",
 					account.LibraryScan,
 					account.AccountId,
 					account.Locale.Name,
 					account.AccountName);
+
+			dataGridView1[COL_Export, row].ToolTipText = "Export account authorization to audible-cli";
 		}
 
 		private void dataGridView1_DefaultValuesNeeded(object sender, DataGridViewRowEventArgs e)
@@ -72,6 +82,11 @@ namespace LibationWinForms.Dialogs
 						// if final/edit row: do nothing
 						if (e.RowIndex < dgv.RowCount - 1)
 							dgv.Rows.Remove(row);
+						break;
+					case COL_Export:
+						// if final/edit row: do nothing
+						if (e.RowIndex < dgv.RowCount - 1)
+							Export((string)row.Cells[COL_AccountId].Value, (string)row.Cells[COL_Locale].Value);
 						break;
 						//case COL_MoveUp:
 						//	// if top: do nothing
@@ -136,13 +151,13 @@ namespace LibationWinForms.Dialogs
 			{
 				if (string.IsNullOrWhiteSpace(dto.AccountId))
 				{
-					MessageBox.Show("Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show(this, "Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return false;
 				}
 
 				if (string.IsNullOrWhiteSpace(dto.LocaleName))
 				{
-					MessageBox.Show("Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show(this, "Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return false;
 				}
 			}
@@ -194,5 +209,95 @@ namespace LibationWinForms.Dialogs
 					LibraryScan = (bool)r.Cells[COL_LibraryScan].Value
 				})
 				.ToList();
+
+		private string GetAudibleCliAppDataPath()
+			=> Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Audible");
+
+		private void Export(string accountId, string locale)
+		{
+			// without transaction, accounts persister will write ANY EDIT immediately to file
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+
+			var account = persister.AccountsSettings.Accounts.FirstOrDefault(a => a.AccountId == accountId && a.Locale.Name == locale);
+
+			if (account is null)
+				return;
+
+			if (account.IdentityTokens?.IsValid != true)
+			{
+				MessageBox.Show(this, "This account hasn't been authenticated yet. First scan your library to log into your account, then try exporting again.", "Account Not Authenticated");
+				return;
+			}
+
+			SaveFileDialog sfd = new();
+			sfd.Filter = "JSON File|*.json";
+
+			string audibleAppDataDir = GetAudibleCliAppDataPath();
+
+			if (Directory.Exists(audibleAppDataDir))
+				sfd.InitialDirectory = audibleAppDataDir;
+
+			if (sfd.ShowDialog() != DialogResult.OK) return;
+
+			try
+			{
+				var mkbAuth = Mkb79Auth.FromAccount(account);
+				var jsonText = mkbAuth.ToJson();
+
+				File.WriteAllText(sfd.FileName, jsonText);
+
+				MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{sfd.FileName}", "Success!");
+			}
+			catch (Exception ex)
+			{
+				MessageBoxLib.ShowAdminAlert(
+					this,
+					$"An error occured while exporting account:\r\n{account.AccountName}",
+					"Error Exporting Account",
+					ex);
+			}
+		}
+
+		private async void importBtn_Click(object sender, EventArgs e)
+		{
+			OpenFileDialog ofd = new();
+			ofd.Filter = "JSON File|*.json";
+			ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+			string audibleAppDataDir = GetAudibleCliAppDataPath();
+
+			if (Directory.Exists(audibleAppDataDir))
+				ofd.InitialDirectory = audibleAppDataDir;
+
+			if (ofd.ShowDialog() != DialogResult.OK) return;
+
+			try
+			{
+				var jsonText = File.ReadAllText(ofd.FileName);
+				var mkbAuth = Mkb79Auth.FromJson(jsonText);
+				var account = await mkbAuth.ToAccountAsync();
+
+				// without transaction, accounts persister will write ANY EDIT immediately to file
+				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+
+				if (persister.AccountsSettings.Accounts.Any(a => a.AccountId == account.AccountId && a.IdentityTokens.Locale.Name == account.Locale.Name))
+				{
+					MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale.Name}", "Cannot Add Duplicate Account");
+					return;
+				}
+
+				persister.AccountsSettings.Add(account);
+
+				AddAccountToGrid(account);
+			}
+			catch (Exception ex)
+			{
+				MessageBoxLib.ShowAdminAlert(
+						this,
+						$"An error occured while importing an account from:\r\n{ofd.FileName}\r\n\r\nIs the file encrypted?",
+						"Error Importing Account",
+						ex);
+			}
+		}
 	}
 }

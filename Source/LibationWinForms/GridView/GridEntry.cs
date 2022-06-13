@@ -12,6 +12,12 @@ using System.Linq;
 
 namespace LibationWinForms.GridView
 {
+	public enum RemoveStatus
+	{
+		NotRemoved,
+		Removed,
+		SomeRemoved
+	}
 	/// <summary>The View Model base for the DataGridView</summary>
 	public abstract class GridEntry : AsyncNotifyPropertyChanged, IMemberComparable
 	{
@@ -23,6 +29,9 @@ namespace LibationWinForms.GridView
 		[Browsable(false)] protected Book Book => LibraryBook.Book;
 
 		#region Model properties exposed to the view
+
+		protected RemoveStatus _remove = RemoveStatus.NotRemoved;
+		public abstract RemoveStatus Remove { get; set; }
 
 		public abstract LiberateButtonStatus Liberate { get; }
 		public Image Cover

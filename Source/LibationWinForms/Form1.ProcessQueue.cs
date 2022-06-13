@@ -17,7 +17,9 @@ namespace LibationWinForms
 			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
 			var coppalseState = Configuration.Instance.GetNonString<bool>(nameof(splitContainer1.Panel2Collapsed));
 			WidthChange = splitContainer1.Panel2.Width + splitContainer1.SplitterWidth;
+			int width = this.Width;
 			SetQueueCollapseState(coppalseState);
+			this.Width = width;
 		}
 
 		private void ProductsDisplay_LiberateClicked(object sender, LibraryBook e)

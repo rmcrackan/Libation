@@ -5,10 +5,10 @@ using System.Linq;
 using System.Reflection;
 using ApplicationServices;
 using AudibleUtilities;
-using Dinah.Core;
 using Dinah.Core.IO;
 using Dinah.Core.Logging;
 using LibationFileManager;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Serilog;
 
@@ -405,25 +405,71 @@ namespace AppScaffolding
 
 		public static void migrate_from_7_10_1(Configuration config)
 		{
-			//This migration removes books and series with SERIES_ prefix that were created
-			//as a hack workaround in 7.10.1. Said workaround was removed in 7.10.2
+			var lastNigrationThres = config.GetNonString<bool>($"{nameof(migrate_from_7_10_1)}_ThrewError");
 
-			var migrated = config.GetNonString<bool>(nameof(migrate_from_7_10_1));
+			if (lastNigrationThres) return;
 
-			if (migrated) return;
+			try
+			{
 
-			using var context = DbContexts.GetContext();
+				//https://github.com/rmcrackan/Libation/issues/270#issuecomment-1152863629
+				//This migration helps fix databases contaminated with the 7.10.1 hack workaround
+				//and those with improperly identified or missing series. This does not solve cases
+				//where individual episodes are in the db with a valid series link, but said series'
+				//parents have not been imported into the database.  For those cases, Libation will
+				//attempt fixup by retrieving parents from the catalog endpoint
 
-			var booksToRemove = context.Books.Where(b => b.AudibleProductId.StartsWith("SERIES_")).ToArray();
-			var seriesToRemove = context.Series.Where(s => s.AudibleSeriesId.StartsWith("SERIES_")).ToArray();
-			var lbToRemove = context.LibraryBooks.Where(lb => booksToRemove.Any(b => b == lb.Book)).ToArray();
+				using var context = DbContexts.GetContext();
 
-			context.LibraryBooks.RemoveRange(lbToRemove);
-			context.Books.RemoveRange(booksToRemove);
-			context.Series.RemoveRange(seriesToRemove);
+				//This migration removes books and series with SERIES_ prefix that were created
+				//as a hack workaround in 7.10.1. Said workaround was removed in 7.10.2
+				string removeHackSeries = "delete " +
+										  "from series " +
+										  "where AudibleSeriesId like 'SERIES%'";
 
-			LibraryCommands.SaveContext(context);
-			config.SetObject(nameof(migrate_from_7_10_1), true);
+				string removeHackBooks = "delete " +
+										 "from books " +
+										 "where AudibleProductId like 'SERIES%'";
+
+				//Detect series parents that were added to the database as books with ContentType.Episode,
+				//and change them to ContentType.Parent
+				string updateContentType =
+					"UPDATE books " +
+					"SET contenttype = 4 " +
+					"WHERE audibleproductid IN (SELECT books.audibleproductid " +
+												"FROM books " +
+													"INNER JOIN series " +
+														"ON ( books.audibleproductid = " +
+															"series.audibleseriesid) " +
+												"WHERE books.contenttype = 2)";
+
+				//Then detect series parents that were added to the database as books with ContentType.Parent
+				//but are missing a series link, and add the link (don't know how this happened)
+				string addMissingSeriesLink =
+					"INSERT INTO seriesbook " +
+					"SELECT series.seriesid, " +
+							"books.bookid, " +
+							"'- 1' " +
+					"FROM books " +
+						"LEFT OUTER JOIN seriesbook " +
+									"ON books.bookid = seriesbook.bookid " +
+						"INNER JOIN series " +
+									"ON books.audibleproductid = series.audibleseriesid " +
+					"WHERE books.contenttype = 4 " +
+							"AND seriesbook.seriesid IS NULL";
+
+				context.Database.ExecuteSqlRaw(removeHackSeries);
+				context.Database.ExecuteSqlRaw(removeHackBooks);
+				context.Database.ExecuteSqlRaw(updateContentType);
+				context.Database.ExecuteSqlRaw(addMissingSeriesLink);
+
+				LibraryCommands.SaveContext(context);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error occured while running database migrations in {0}", nameof(migrate_from_7_10_1));
+				config.SetObject($"{nameof(migrate_from_7_10_1)}_ThrewError", true);
+			}
 		}
 	}
 }

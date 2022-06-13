@@ -14,6 +14,9 @@ namespace LibationWinForms
 
 		private void LibraryCommands_ScanBegin(object sender, int accountsLength)
 		{
+			removeLibraryBooksToolStripMenuItem.Enabled = false;
+			removeAllAccountsToolStripMenuItem.Enabled = false;
+			removeSomeAccountsToolStripMenuItem.Enabled = false;
 			scanLibraryToolStripMenuItem.Enabled = false;
 			scanLibraryOfAllAccountsToolStripMenuItem.Enabled = false;
 			scanLibraryOfSomeAccountsToolStripMenuItem.Enabled = false;
@@ -27,6 +30,9 @@ namespace LibationWinForms
 
 		private void LibraryCommands_ScanEnd(object sender, EventArgs e)
 		{
+			removeLibraryBooksToolStripMenuItem.Enabled = true;
+			removeAllAccountsToolStripMenuItem.Enabled = true;
+			removeSomeAccountsToolStripMenuItem.Enabled = true;
 			scanLibraryToolStripMenuItem.Enabled = true;
 			scanLibraryOfAllAccountsToolStripMenuItem.Enabled = true;
 			scanLibraryOfSomeAccountsToolStripMenuItem.Enabled = true;

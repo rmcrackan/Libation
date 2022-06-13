@@ -221,9 +221,10 @@ namespace AaxDecrypter
 
 			try
 			{
+				int bytesRead;
 				do
 				{
-					var bytesRead = _networkStream.Read(buff, 0, DOWNLOAD_BUFF_SZ);
+					bytesRead = _networkStream.Read(buff, 0, DOWNLOAD_BUFF_SZ);
 					_writeFile.Write(buff, 0, bytesRead);
 
 					downloadPosition += bytesRead;
@@ -237,7 +238,7 @@ namespace AaxDecrypter
 						downloadedPiece.Set();
 					}
 
-				} while (downloadPosition < ContentLength && !IsCancelled);
+				} while (downloadPosition < ContentLength && !IsCancelled && bytesRead > 0);
 
 				_writeFile.Close();
 				_networkStream.Close();
