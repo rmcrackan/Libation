@@ -43,6 +43,7 @@ namespace FileLiberator
 					}
 				}
 			}
+
 			return Templates.Folder.GetFilename(libraryBook.ToDto());
 		}
 
