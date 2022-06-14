@@ -21,7 +21,8 @@ namespace AaxDecrypter
 		public event EventHandler<string> FileCreated;
 
 		public bool IsCanceled { get; set; }
-		
+		public string TempFilePath { get; }
+
 		protected string OutputFileName { get; private set; }
 		protected DownloadOptions DownloadOptions { get; }
 		protected NetworkFileStream InputFileStream => (nfsPersister ??= OpenNetworkFileStream()).NetworkFileStream;
@@ -33,7 +34,6 @@ namespace AaxDecrypter
 		private NetworkFileStreamPersister nfsPersister;
 
 		private string jsonDownloadState { get; }
-		public string TempFilePath { get; }
 
 		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadOptions dlLic)
 		{
@@ -53,7 +53,7 @@ namespace AaxDecrypter
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
-		}
+		}		
 
 		public abstract void Cancel();
 
@@ -65,7 +65,7 @@ namespace AaxDecrypter
 
 		public bool Run()
 		{
-			var (IsSuccess, Elapsed) = Steps.Run();
+			var (IsSuccess, _) = Steps.Run();
 
 			if (!IsSuccess)
 				Serilog.Log.Logger.Error("Conversion failed");
@@ -79,10 +79,8 @@ namespace AaxDecrypter
 			=> RetrievedAuthors?.Invoke(this, authors);
 		protected void OnRetrievedNarrators(string narrators)
 			=> RetrievedNarrators?.Invoke(this, narrators);
-
 		protected void OnRetrievedCoverArt(byte[] coverArt)
 			=> RetrievedCoverArt?.Invoke(this, coverArt);
-
 		protected void OnDecryptProgressUpdate(DownloadProgress downloadProgress) 
 			=> DecryptProgressUpdate?.Invoke(this, downloadProgress);
 		protected void OnDecryptTimeRemaining(TimeSpan timeRemaining)
