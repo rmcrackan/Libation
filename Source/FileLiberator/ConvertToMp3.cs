@@ -20,11 +20,9 @@ namespace FileLiberator
         private long fileSize;
         private static string Mp3FileName(string m4bPath) => Path.ChangeExtension(m4bPath ?? "", ".mp3");
 
-        private bool cancelled = false;
         public override void Cancel()
         {            
             m4bBook?.Cancel();
-            cancelled = true;
         }
 
         public static bool ValidateMp3(LibraryBook libraryBook)
@@ -38,8 +36,6 @@ namespace FileLiberator
         public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
             OnBegin(libraryBook);
-
-            OnStreamingBegin($"Begin converting {libraryBook} to mp3");
 
             try
             {
@@ -73,7 +69,6 @@ namespace FileLiberator
             }
             finally
             {
-                OnStreamingCompleted($"Completed converting to mp3: {libraryBook.Book.Title}");
                 OnCompleted(libraryBook);
             }
         }

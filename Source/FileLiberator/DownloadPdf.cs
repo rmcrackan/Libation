@@ -57,27 +57,18 @@ namespace FileLiberator
 
 		private async Task<string> downloadPdfAsync(LibraryBook libraryBook, string proposedDownloadFilePath)
 		{
-			OnStreamingBegin(proposedDownloadFilePath);
+			var api = await libraryBook.GetApiAsync();
+			var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
 
-			try
-			{
-				var api = await libraryBook.GetApiAsync();
-				var downloadUrl = await api.GetPdfDownloadLinkAsync(libraryBook.Book.AudibleProductId);
+			var progress = new Progress<DownloadProgress>(OnStreamingProgressChanged);
 
-				var progress = new Progress<DownloadProgress>(OnStreamingProgressChanged);
+			var client = new HttpClient();
 
-				var client = new HttpClient();
+			var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
+			OnFileCreated(libraryBook, actualDownloadedFilePath);
 
-				var actualDownloadedFilePath = await client.DownloadFileAsync(downloadUrl, proposedDownloadFilePath, progress);
-				OnFileCreated(libraryBook, actualDownloadedFilePath);
-
-				OnStatusUpdate(actualDownloadedFilePath);
-				return actualDownloadedFilePath;
-			}
-			finally
-			{
-				OnStreamingCompleted(proposedDownloadFilePath);
-			}
+			OnStatusUpdate(actualDownloadedFilePath);
+			return actualDownloadedFilePath;
 		}
 
 		private static StatusHandler verifyDownload(string actualDownloadedFilePath)

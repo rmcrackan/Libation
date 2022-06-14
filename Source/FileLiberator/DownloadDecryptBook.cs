@@ -95,54 +95,45 @@ namespace FileLiberator
 
         private async Task<bool> downloadAudiobookAsync(LibraryBook libraryBook)
         {
-            OnStreamingBegin($"Begin decrypting {libraryBook}");
+            var config = Configuration.Instance;
 
-            try
+            downloadValidation(libraryBook);
+
+            var api = await libraryBook.GetApiAsync();
+            var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+            var audiobookDlLic = BuildDownloadOptions(config, contentLic);
+
+            var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, audiobookDlLic.OutputFormat.ToString().ToLower());
+            var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
+
+            if (contentLic.DrmType != AudibleApi.Common.DrmType.Adrm)
+                abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
+            else
             {
-                var config = Configuration.Instance;
+                AaxcDownloadConvertBase converter
+                    = config.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
+                        outFileName, cacheDir, audiobookDlLic,
+                        AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook))
+                    : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic);
 
-                downloadValidation(libraryBook);
+                if (config.AllowLibationFixup)
+                    converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames());
 
-                var api = await libraryBook.GetApiAsync();
-                var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
-                var audiobookDlLic = BuildDownloadOptions(config, contentLic);
-
-                var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, audiobookDlLic.OutputFormat.ToString().ToLower());
-                var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
-
-                if (contentLic.DrmType != AudibleApi.Common.DrmType.Adrm)
-                    abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
-                else
-                {
-                    AaxcDownloadConvertBase converter
-                        = config.SplitFilesByChapter ? new AaxcDownloadMultiConverter(
-                            outFileName, cacheDir, audiobookDlLic,
-                            AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook))
-                        : new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic);
-
-                    if (config.AllowLibationFixup)
-                        converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames());
-
-                    abDownloader = converter;
-                }
-
-                abDownloader.DecryptProgressUpdate += OnStreamingProgressChanged;
-                abDownloader.DecryptTimeRemaining += OnStreamingTimeRemaining;
-                abDownloader.RetrievedTitle += OnTitleDiscovered;
-                abDownloader.RetrievedAuthors += OnAuthorsDiscovered;
-                abDownloader.RetrievedNarrators += OnNarratorsDiscovered;
-                abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
-                abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
-
-                // REAL WORK DONE HERE
-                var success = await Task.Run(abDownloader.Run);
-
-                return success;
+                abDownloader = converter;
             }
-            finally
-            {
-                OnStreamingCompleted($"Completed downloading and decrypting {libraryBook.Book.Title}");
-            }
+
+            abDownloader.DecryptProgressUpdate += OnStreamingProgressChanged;
+            abDownloader.DecryptTimeRemaining += OnStreamingTimeRemaining;
+            abDownloader.RetrievedTitle += OnTitleDiscovered;
+            abDownloader.RetrievedAuthors += OnAuthorsDiscovered;
+            abDownloader.RetrievedNarrators += OnNarratorsDiscovered;
+            abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
+            abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
+
+            // REAL WORK DONE HERE
+            var success = await Task.Run(abDownloader.Run);
+
+            return success;
         }
 
         private static DownloadOptions BuildDownloadOptions(Configuration config, AudibleApi.Common.ContentLicense contentLic)
@@ -175,7 +166,6 @@ namespace FileLiberator
 
             if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
             {
-
                 long startMs = audiobookDlLic.TrimOutputToChapterLength ?
                     contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs : 0;
 

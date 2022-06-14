@@ -5,17 +5,22 @@ using System.Threading.Tasks;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
+using Dinah.Core.Net.Http;
 using LibationFileManager;
 
 namespace FileLiberator
 {
-    public abstract class Processable : Streamable
+    public abstract class Processable
     {
         public abstract string Name { get; }
         public event EventHandler<LibraryBook> Begin;
 
         /// <summary>General string message to display. DON'T rely on this for success, failure, or control logic</summary>
         public event EventHandler<string> StatusUpdate;
+        /// <summary>Fired when a file is successfully saved to disk</summary>
+        public event EventHandler<(string id, string path)> FileCreated;
+        public event EventHandler<DownloadProgress> StreamingProgressChanged;
+        public event EventHandler<TimeSpan> StreamingTimeRemaining;
 
         public event EventHandler<LibraryBook> Completed;
 
@@ -68,6 +73,23 @@ namespace FileLiberator
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(StatusUpdate), Status = statusUpdate });
             StatusUpdate?.Invoke(this, statusUpdate);
         }
+
+        protected void OnFileCreated(LibraryBook libraryBook, string path)
+        {
+            Serilog.Log.Logger.Information("File created {@DebugInfo}", new { Name = nameof(FileCreated), libraryBook.Book.AudibleProductId, path });
+            FilePathCache.Insert(libraryBook.Book.AudibleProductId, path);
+            FileCreated?.Invoke(this, (libraryBook.Book.AudibleProductId, path));
+        }
+
+        protected void OnStreamingProgressChanged(DownloadProgress progress)
+            => OnStreamingProgressChanged(null, progress);
+        protected void OnStreamingProgressChanged(object _, DownloadProgress progress)
+            => StreamingProgressChanged?.Invoke(this, progress);
+
+        protected void OnStreamingTimeRemaining(TimeSpan timeRemaining)
+            => OnStreamingTimeRemaining(null, timeRemaining);
+        protected void OnStreamingTimeRemaining(object _, TimeSpan timeRemaining)
+            => StreamingTimeRemaining?.Invoke(this, timeRemaining);
 
         protected void OnCompleted(LibraryBook libraryBook)
         {
