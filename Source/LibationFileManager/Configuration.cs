@@ -268,7 +268,7 @@ namespace LibationFileManager
             }
         }
 
-        [Description("Auto download episodes? Efter scan, download new books in 'checked' accounts.")]
+        [Description("Auto download episodes? After scan, download new books in 'checked' accounts.")]
         public bool AutoDownloadEpisodes
         {
             get => persistentDictionary.GetNonString<bool>(nameof(AutoDownloadEpisodes));
