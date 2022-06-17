@@ -25,6 +25,9 @@ namespace LibationWinForms
 				//// Only use while debugging. Acts erratically in the wild
 				//AllocConsole();
 
+				// run as early as possible. see notes in postLoggingGlobalExceptionHandling
+				Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+
 				ApplicationConfiguration.Initialize();
 
 				//***********************************************//
@@ -193,8 +196,9 @@ namespace LibationWinForms
 
 			// these 2 lines makes it graceful. sync (eg in main form's ctor) and thread exceptions will still crash us, but event (sync, void async, Task async) will not
 			Application.ThreadException += (_, e) => MessageBoxLib.ShowAdminAlert(null, "Libation has encountered an unexpected error.", "Unexpected error", e.Exception);
-			// I never found a case where including made a difference. I think this enum is default and including it will override app user config file
-			Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+			// move to beginning of execution. crashes app if this is called post-RunInstaller: System.InvalidOperationException: 'Thread exception mode cannot be changed once any Controls are created on the thread.'
+			//// I never found a case where including made a difference. I think this enum is default and including it will override app user config file
+			//Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 		}
 	}
 }
