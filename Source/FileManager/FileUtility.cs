@@ -39,8 +39,6 @@ namespace FileManager
             return position.ToString().PadLeft(total.ToString().Length, '0');
         }
 
-        private const int MAX_FILENAME_LENGTH = 255;
-        private const int MAX_DIRECTORY_LENGTH = 247;
 
         /// <summary>
         /// Ensure valid file name path: 
@@ -48,7 +46,7 @@ namespace FileManager
         /// <br/>- ensure uniqueness
         /// <br/>- enforce max file length
         /// </summary>
-        public static string GetValidFilename(string path, string illegalCharacterReplacements = "", bool returnFirstExisting = false)
+        public static LongPath GetValidFilename(LongPath path, string illegalCharacterReplacements = "", bool returnFirstExisting = false)
         {
             ArgumentValidator.EnsureNotNull(path, nameof(path));
 
@@ -57,14 +55,15 @@ namespace FileManager
 
             // ensure uniqueness and check lengths
             var dir = Path.GetDirectoryName(path);
-            dir = dir.Truncate(MAX_DIRECTORY_LENGTH);
-
-            var filename = Path.GetFileNameWithoutExtension(path);
-            var fileStem = Path.Combine(dir, filename);
+            dir = dir?.Truncate(LongPath.MaxDirectoryLength) ?? string.Empty;
 
             var extension = Path.GetExtension(path);
 
-            var fullfilename = fileStem.Truncate(MAX_FILENAME_LENGTH - extension.Length) + extension;
+            var filename = Path.GetFileNameWithoutExtension(path).Truncate(LongPath.MaxFilenameLength - extension.Length);
+            var fileStem = Path.Combine(dir, filename);
+
+
+            var fullfilename = fileStem.Truncate(LongPath.MaxPathLength - extension.Length) + extension;
 
             fullfilename = removeInvalidWhitespace(fullfilename);
 
@@ -72,7 +71,7 @@ namespace FileManager
             while (File.Exists(fullfilename) && !returnFirstExisting)
             {
                 var increm = $" ({++i})";
-                fullfilename = fileStem.Truncate(MAX_FILENAME_LENGTH - increm.Length - extension.Length) + increm + extension;
+                fullfilename = fileStem.Truncate(LongPath.MaxPathLength - increm.Length - extension.Length) + increm + extension;
             }
 
             return fullfilename;
@@ -85,16 +84,18 @@ namespace FileManager
             => string.Join(illegalCharacterReplacements ?? "", str.Split(Path.GetInvalidFileNameChars()));
 
         /// <summary>Use with full path, not file name. Valid path charaters which are invalid file name characters will be retained: '\\', '/'</summary>
-        public static string GetSafePath(string path, string illegalCharacterReplacements = "")
+        public static LongPath GetSafePath(LongPath path, string illegalCharacterReplacements = "")
         {
             ArgumentValidator.EnsureNotNull(path, nameof(path));
 
-            path = replaceInvalidChars(path, illegalCharacterReplacements);
-            path = standardizeSlashes(path);
-            path = replaceColons(path, illegalCharacterReplacements);
-            path = removeDoubleSlashes(path);
+            var pathNoPrefix = path.PathWithoutPrefix;
 
-            return path;
+            pathNoPrefix = replaceInvalidChars(pathNoPrefix, illegalCharacterReplacements);
+            pathNoPrefix = standardizeSlashes(pathNoPrefix);
+            pathNoPrefix = replaceColons(pathNoPrefix, illegalCharacterReplacements);
+            pathNoPrefix = removeDoubleSlashes(pathNoPrefix);
+
+            return pathNoPrefix;
         }
 
         private static char[] invalidChars { get; } = Path.GetInvalidPathChars().Union(new[] {
@@ -169,7 +170,7 @@ namespace FileManager
         /// <br/>- Perform <see cref="SaferMove"/>
         /// <br/>- Return valid path
         /// </summary>
-        public static string SaferMoveToValidPath(string source, string destination)
+        public static string SaferMoveToValidPath(LongPath source, LongPath destination)
         {
             destination = GetValidFilename(destination);
             SaferMove(source, destination);
@@ -184,7 +185,7 @@ namespace FileManager
             .WaitAndRetry(maxRetryAttempts, i => pauseBetweenFailures);
 
         /// <summary>Delete file. No error when source does not exist. Retry up to 3 times before throwing exception.</summary>
-        public static void SaferDelete(string source)
+        public static void SaferDelete(LongPath source)
             => retryPolicy.Execute(() =>
             {
                 try
@@ -207,7 +208,7 @@ namespace FileManager
             });
 
         /// <summary>Move file. No error when source does not exist. Retry up to 3 times before throwing exception.</summary>
-		public static void SaferMove(string source, string destination)
+		public static void SaferMove(LongPath source, LongPath destination)
             => retryPolicy.Execute(() =>
             {
                 try
@@ -242,27 +243,32 @@ namespace FileManager
         /// <param name="patternMatch">Filename pattern match</param>
         /// <param name="searchOption">Search subdirectories or only top level directory for files</param>
         /// <returns>List of files</returns>
-        public static IEnumerable<string> SaferEnumerateFiles(string path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        public static IEnumerable<LongPath> SaferEnumerateFiles(LongPath path, string searchPattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            var foundFiles = Enumerable.Empty<string>();
+            var foundFiles = Enumerable.Empty<LongPath>();
 
             if (searchOption == SearchOption.AllDirectories)
             {
                 try
                 {
-                    IEnumerable<string> subDirs = Directory.EnumerateDirectories(path);
+                    var list = Directory.EnumerateDirectories(path).ToList();
+                    IEnumerable <LongPath> subDirs = Directory.EnumerateDirectories(path).Select(p => (LongPath)p);
                     // Add files in subdirectories recursively to the list
                     foreach (string dir in subDirs)
                         foundFiles = foundFiles.Concat(SaferEnumerateFiles(dir, searchPattern, searchOption));
                 }
                 catch (UnauthorizedAccessException) { }
                 catch (PathTooLongException) { }
+                catch(Exception ex)
+				{
+
+				}
             }
 
             try
             {
                 // Add files from the current directory
-                foundFiles = foundFiles.Concat(Directory.EnumerateFiles(path, searchPattern));
+                foundFiles = foundFiles.Concat(Directory.EnumerateFiles(path, searchPattern).Select(f => (LongPath)f));
             }
             catch (UnauthorizedAccessException) { }
 

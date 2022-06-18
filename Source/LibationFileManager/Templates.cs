@@ -105,7 +105,7 @@ namespace LibationFileManager
             => string.IsNullOrWhiteSpace(template)
             ? ""
             : getFileNamingTemplate(libraryBookDto, template, null, null)
-            .GetFilePath();
+            .GetFilePath().PathWithoutPrefix;
 
         private static Regex ifSeriesRegex { get; } = new Regex("<if series->(.*?)<-if series>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -276,7 +276,7 @@ namespace LibationFileManager
                 fileNamingTemplate.AddParameterReplacement(TemplateTags.ChNumber0, FileUtility.GetSequenceFormatted(props.PartsPosition, props.PartsTotal));
                 fileNamingTemplate.AddParameterReplacement(TemplateTags.ChTitle, props.Title ?? "");
 
-                return fileNamingTemplate.GetFilePath();
+                return fileNamingTemplate.GetFilePath().PathWithoutPrefix;
             }
             #endregion
         }

@@ -23,16 +23,16 @@ namespace FileManager
             => ParameterReplacements.Add(key, value);
 
         /// <summary>If set, truncate each parameter replacement to this many characters. Default 50</summary>
-        public int? ParameterMaxSize { get; set; } = 50;
+        public int? ParameterMaxSize { get; set; } = null;
 
         /// <summary>Optional step 2: Replace all illegal characters with this. Default=<see cref="string.Empty"/></summary>
         public string IllegalCharacterReplacements { get; set; }
 
         /// <summary>Generate a valid path for this file or directory</summary>
-        public string GetFilePath(bool returnFirstExisting = false)
+        public LongPath GetFilePath(bool returnFirstExisting = false)
         {
             var filename = Template;
-
+            
             foreach (var r in ParameterReplacements)
                 filename = filename.Replace($"<{formatKey(r.Key)}>", formatValue(r.Value));
 

@@ -27,7 +27,7 @@ namespace FileLiberator
 		public static bool ValidateMp3(LibraryBook libraryBook)
 		{
 			var path = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
-			return path?.ToLower()?.EndsWith(".m4b") == true && !File.Exists(Mp3FileName(path));
+			return path?.ToString()?.ToLower()?.EndsWith(".m4b") == true && !File.Exists(Mp3FileName(path));
 		}
 
 		public override bool Validate(LibraryBook libraryBook) => ValidateMp3(libraryBook);

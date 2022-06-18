@@ -455,7 +455,7 @@ namespace LibationFileManager
             }
         }
 
-        private static string libationFilesPathCache;
+        private static string libationFilesPathCache { get; set; }
 
         private string getLibationFilesSettingFromJson()
         {
@@ -478,7 +478,7 @@ namespace LibationFileManager
             catch { }
 
             // not found. write to file. read from file
-            var endingContents = new JObject { { LIBATION_FILES_KEY, UserProfile } }.ToString(Formatting.Indented);
+            var endingContents = new JObject { { LIBATION_FILES_KEY, UserProfile.ToString() } }.ToString(Formatting.Indented);
             if (startingContents != endingContents)
             {
                 File.WriteAllText(APPSETTINGS_JSON, endingContents);

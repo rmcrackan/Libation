@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dinah.Core.Collections.Immutable;
+using FileManager;
 using Newtonsoft.Json;
 
 namespace LibationFileManager
 {
 	public static class FilePathCache
 	{
-		public record CacheEntry(string Id, FileType FileType, string Path);
+		public record CacheEntry(string Id, FileType FileType, LongPath Path);
 
 		private const string FILENAME = "FileLocations.json";
 
@@ -18,7 +19,7 @@ namespace LibationFileManager
 
 		private static Cache<CacheEntry> cache { get; } = new Cache<CacheEntry>();
 
-		private static string jsonFile => Path.Combine(Configuration.Instance.LibationFiles, FILENAME);
+		private static LongPath jsonFile => Path.Combine(Configuration.Instance.LibationFiles, FILENAME);
 
         static FilePathCache()
         {
@@ -44,12 +45,12 @@ namespace LibationFileManager
 
         public static bool Exists(string id, FileType type) => GetFirstPath(id, type) is not null;
 
-		public static List<(FileType fileType, string path)> GetFiles(string id)
+		public static List<(FileType fileType, LongPath path)> GetFiles(string id)
 			=> getEntries(entry => entry.Id == id)
 			.Select(entry => (entry.FileType, entry.Path))
 			.ToList();
 
-		public static string GetFirstPath(string id, FileType type)
+		public static LongPath GetFirstPath(string id, FileType type)
 			=> getEntries(entry => entry.Id == id && entry.FileType == type)
 			?.FirstOrDefault()
 			?.Path;
@@ -62,7 +63,7 @@ namespace LibationFileManager
 
 			remove(entries.Where(e => !File.Exists(e.Path)).ToList());
 
-			return entries;
+			return cache.Where(predicate).ToList();
 		}
 
 		private static void remove(List<CacheEntry> entries)

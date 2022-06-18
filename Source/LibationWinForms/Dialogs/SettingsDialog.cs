@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Windows.Forms;
 using Dinah.Core;
 using LibationFileManager;
+using FileManager;
 
 namespace LibationWinForms.Dialogs
 {
@@ -124,7 +124,7 @@ namespace LibationWinForms.Dialogs
 			chapterFileTemplateTb.Text = config.ChapterFileTemplate;
 		}
 
-		private void logsBtn_Click(object sender, EventArgs e) => Go.To.Folder(Configuration.Instance.LibationFiles);
+		private void logsBtn_Click(object sender, EventArgs e) => Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
 
 		private void folderTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.Folder, folderTemplateTb);
 		private void fileTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.File, fileTemplateTb);

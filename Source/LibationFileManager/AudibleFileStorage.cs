@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,18 +8,18 @@ namespace LibationFileManager
 {
     public abstract class AudibleFileStorage
     {
-        protected abstract string GetFilePathCustom(string productId);
+        protected abstract LongPath GetFilePathCustom(string productId);
 
         #region static
-        public static string DownloadsInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
-        public static string DecryptInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
+        public static LongPath DownloadsInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
+        public static LongPath DecryptInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
 
         private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
         public static bool AaxcExists(string productId) => AAXC.Exists(productId);
 
         public static AudioFileStorage Audio { get; } = new AudioFileStorage();
 
-        public static string BooksDirectory
+        public static LongPath BooksDirectory
         {
             get
             {
@@ -43,7 +42,7 @@ namespace LibationFileManager
             regexTemplate = $@"{{0}}.*?\.({extAggr})$";
         }
 
-        protected string GetFilePath(string productId)
+        protected LongPath GetFilePath(string productId)
         {
             // primary lookup
             var cachedFile = FilePathCache.GetFirstPath(productId, FileType);
@@ -70,7 +69,7 @@ namespace LibationFileManager
     {
         internal AaxcFileStorage() : base(FileType.AAXC) { }
 
-        protected override string GetFilePathCustom(string productId)
+        protected override LongPath GetFilePathCustom(string productId)
         {
             var regex = GetBookSearchRegex(productId);
             return FileUtility
@@ -88,7 +87,7 @@ namespace LibationFileManager
 
         private static BackgroundFileSystem BookDirectoryFiles { get; set; }
         private static object bookDirectoryFilesLocker { get; } = new();
-        protected override string GetFilePathCustom(string productId)
+        protected override LongPath GetFilePathCustom(string productId)
         {
             // If user changed the BooksDirectory: reinitialize
             lock (bookDirectoryFilesLocker)
@@ -101,6 +100,6 @@ namespace LibationFileManager
 
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
 
-        public string GetPath(string productId) => GetFilePath(productId);
+        public LongPath GetPath(string productId) => GetFilePath(productId);
     }
 }
