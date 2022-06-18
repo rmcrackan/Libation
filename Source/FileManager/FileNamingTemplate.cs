@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Dinah.Core;
 
 namespace FileManager
@@ -22,21 +23,65 @@ namespace FileManager
             // using .Add() instead of "[key] = value" will make unintended overwriting throw exception
             => ParameterReplacements.Add(key, value);
 
-        /// <summary>If set, truncate each parameter replacement to this many characters. Default 50</summary>
-        public int? ParameterMaxSize { get; set; } = null;
-
         /// <summary>Optional step 2: Replace all illegal characters with this. Default=<see cref="string.Empty"/></summary>
         public string IllegalCharacterReplacements { get; set; }
 
         /// <summary>Generate a valid path for this file or directory</summary>
         public LongPath GetFilePath(bool returnFirstExisting = false)
         {
-            var filename = Template;
-            
-            foreach (var r in ParameterReplacements)
-                filename = filename.Replace($"<{formatKey(r.Key)}>", formatValue(r.Value));
+            int lastSlash = Template.LastIndexOf('\\');
 
-            return FileUtility.GetValidFilename(filename, IllegalCharacterReplacements, returnFirstExisting);
+            var directoryName = lastSlash >= 0 ? Template[..(lastSlash + 1)] : string.Empty;
+            var filename = lastSlash >= 0 ? Template[(lastSlash + 1)..] : Template;
+
+            List<StringBuilder> filenameParts = new();
+
+            var paramReplacements = ParameterReplacements.ToDictionary(r => $"<{formatKey(r.Key)}>", r => formatValue(r.Value));
+
+            //Build the filename in parts, replacing replacement parameters with
+            //their values, and storing the parts in a list.
+            while(!string.IsNullOrEmpty(filename))
+			{
+                int openIndex = filename.IndexOf('<');
+                int closeIndex = filename.IndexOf('>');
+
+                if (openIndex == 0 && closeIndex > 0)
+				{
+                    var key = filename[..(closeIndex + 1)];
+
+                    if (paramReplacements.ContainsKey(key))
+                        filenameParts.Add(new StringBuilder(paramReplacements[key]));
+                    else
+                        filenameParts.Add(new StringBuilder(key));
+
+                    filename = filename[(closeIndex + 1)..];
+                }
+                else if (openIndex > 0 && closeIndex > openIndex)
+				{
+                    var other = filename[..openIndex];
+                    filenameParts.Add(new StringBuilder(other));
+                    filename = filename[openIndex..];
+                }
+                else
+				{
+                    filenameParts.Add(new StringBuilder(filename));
+                    filename = string.Empty;
+                }
+			}
+
+            //Remove 1 character from the end of the longest filename part until
+            //the total filename is less than max filename length
+            while(filenameParts.Sum(p => p.Length) > LongPath.MaxFilenameLength)
+			{
+                int maxLength = filenameParts.Max(p => p.Length);
+                var maxEntry = filenameParts.First(p => p.Length == maxLength);
+
+                maxEntry.Remove(maxLength - 1, 1);
+            }
+
+            filename = string.Join("", filenameParts);
+
+            return FileUtility.GetValidFilename(directoryName + filename, IllegalCharacterReplacements, returnFirstExisting);
         }
 
         private static string formatKey(string key)
@@ -51,14 +96,10 @@ namespace FileManager
 
             // Other illegal characters will be taken care of later. Must take care of slashes now so params can't introduce new folders.
             // Esp important for file templates.
-            var val = value
+            return value
                 .ToString()
                 .Replace($"{System.IO.Path.DirectorySeparatorChar}", IllegalCharacterReplacements)
                 .Replace($"{System.IO.Path.AltDirectorySeparatorChar}", IllegalCharacterReplacements);
-            return 
-                ParameterMaxSize.HasValue && ParameterMaxSize.Value > 0
-                ? val.Truncate(ParameterMaxSize.Value)
-                : val;
         }
     }
 }
