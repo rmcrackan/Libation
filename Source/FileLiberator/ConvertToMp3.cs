@@ -19,10 +19,7 @@ namespace FileLiberator
 		private long fileSize;
 		private static string Mp3FileName(string m4bPath) => Path.ChangeExtension(m4bPath ?? "", ".mp3");
 
-		public override void Cancel()
-		{            
-			m4bBook?.Cancel();
-		}
+		public override Task CancelAsync() => m4bBook?.CancelAsync();
 
 		public static bool ValidateMp3(LibraryBook libraryBook)
 		{

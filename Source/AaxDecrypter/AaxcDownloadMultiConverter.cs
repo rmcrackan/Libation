@@ -61,7 +61,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
         {
             var zeroProgress = Step_DownloadAudiobook_Start();
 
-            var chapters = DownloadOptions.ChapterInfo.Chapters.ToList();
+            var chapters = DownloadOptions.ChapterInfo.Chapters;
 
             // Ensure split files are at least minChapterLength in duration.
             var splitChapters = new ChapterInfo(DownloadOptions.ChapterInfo.StartOffset);
@@ -104,8 +104,13 @@ That naming may not be desirable for everyone, but it's an easy change to instea
         {
             var chapterCount = 0;
             return AaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
-                createOutputFileStream(++chapterCount, splitChapters, newSplitCallback),
-            DownloadOptions.TrimOutputToChapterLength);
+            {
+                createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
+
+                newSplitCallback.TrackNumber = chapterCount;
+                newSplitCallback.TrackCount = splitChapters.Count;
+
+            }, DownloadOptions.TrimOutputToChapterLength);
         }
 
         private ConversionResult ConvertToMultiMp3(ChapterInfo splitChapters)
@@ -114,7 +119,10 @@ That naming may not be desirable for everyone, but it's an easy change to instea
             return AaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
             {
                 createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
-                ((NAudio.Lame.LameConfig)newSplitCallback.UserState).ID3.Track = chapterCount.ToString();
+
+                newSplitCallback.TrackNumber = chapterCount;
+                newSplitCallback.TrackCount = splitChapters.Count;
+
             }, DownloadOptions.LameConfig, DownloadOptions.TrimOutputToChapterLength);
         }
 
@@ -125,7 +133,8 @@ That naming may not be desirable for everyone, but it's an easy change to instea
                 OutputFileName = OutputFileName,
                 PartsPosition = currentChapter,
                 PartsTotal = splitChapters.Count,
-                Title = newSplitCallback?.Chapter?.Title
+                Title = newSplitCallback?.Chapter?.Title,
+
             });
             fileName = FileUtility.GetValidFilename(fileName);
 

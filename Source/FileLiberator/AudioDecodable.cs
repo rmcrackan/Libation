@@ -1,6 +1,7 @@
 ﻿using LibationFileManager;
 using NAudio.Lame;
 using System;
+using System.Threading.Tasks;
 
 namespace FileLiberator
 {
@@ -12,7 +13,7 @@ namespace FileLiberator
         public event EventHandler<string> AuthorsDiscovered;
         public event EventHandler<string> NarratorsDiscovered;
         public event EventHandler<byte[]> CoverImageDiscovered;
-        public abstract void Cancel();
+        public abstract Task CancelAsync();
 
         protected LameConfig GetLameOptions(Configuration config)
         {

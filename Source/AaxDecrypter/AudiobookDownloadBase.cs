@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Dinah.Core;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
@@ -55,7 +56,7 @@ namespace AaxDecrypter
 			FileUtility.SaferDelete(OutputFileName);
 		}		
 
-		public abstract void Cancel();
+		public abstract Task CancelAsync();
 
 		public virtual void SetCoverArt(byte[] coverArt)
 		{

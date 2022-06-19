@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
 using FileManager;
@@ -24,10 +25,11 @@ namespace AaxDecrypter
 			};
 		}
 
-		public override void Cancel()
+		public override Task CancelAsync()
 		{
 			IsCanceled = true;
 			CloseInputFileStream();
+			return Task.CompletedTask;
 		}
 
 		protected bool Step_GetMetadata()

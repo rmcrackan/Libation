@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AAXClean;
 using Dinah.Core.Net.Http;
 
@@ -109,10 +110,11 @@ namespace AaxDecrypter
 				});
 		}
 
-		public override void Cancel()
+		public override async Task CancelAsync()
 		{
 			IsCanceled = true;
-			AaxFile?.Cancel();
+			if (AaxFile != null)
+				await AaxFile.CancelAsync();
 			AaxFile?.Dispose();
 			CloseInputFileStream();
 		}
