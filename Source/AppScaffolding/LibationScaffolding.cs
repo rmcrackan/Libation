@@ -126,6 +126,9 @@ namespace AppScaffolding
 			if (!config.Exists(nameof(config.ChapterFileTemplate)))
 				config.ChapterFileTemplate = Templates.ChapterFile.DefaultTemplate;
 
+			if (!config.Exists(nameof(config.ChapterTitleTemplate)))
+				config.ChapterTitleTemplate = Templates.ChapterTitle.DefaultTemplate;
+
 			if (!config.Exists(nameof(config.AutoScan)))
 				config.AutoScan = true;
 

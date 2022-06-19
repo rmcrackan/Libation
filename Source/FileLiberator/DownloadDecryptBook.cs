@@ -112,9 +112,12 @@ namespace FileLiberator
 			{
 				AaxcDownloadConvertBase converter
 					= config.SplitFilesByChapter ? 
-					new AaxcDownloadMultiConverter(
+					new AaxcDownloadMultiConverter
+					(
 						outFileName, cacheDir, audiobookDlLic,
-						AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook)) :
+						AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook),
+						AudibleFileStorage.Audio.CreateMultipartTitleNamer(libraryBook)
+					) :
 					new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic);
 
 				if (config.AllowLibationFixup)

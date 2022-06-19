@@ -18,8 +18,21 @@ namespace FileLiberator
 				=> Templates.ChapterFile.GetFilename(libraryBook.ToDto(), props);
 		}
 
+		private class MultipartTitleNamer
+		{
+			private LibraryBook libraryBook { get; }
+
+			internal MultipartTitleNamer(LibraryBook libraryBook) => this.libraryBook = libraryBook;
+
+			internal string MultipartTitle(AaxDecrypter.MultiConvertFileProperties props)
+				=> Templates.ChapterTitle.GetTitle(libraryBook.ToDto(), props);
+		}
+
 		public static Func<AaxDecrypter.MultiConvertFileProperties, string> CreateMultipartRenamerFunc(this AudioFileStorage _, LibraryBook libraryBook)
 			=> new MultipartRenamer(libraryBook).MultipartFilename;
+
+		public static Func<AaxDecrypter.MultiConvertFileProperties, string> CreateMultipartTitleNamer(this AudioFileStorage _, LibraryBook libraryBook)
+			=> new MultipartTitleNamer(libraryBook).MultipartTitle;
 
 		/// <summary>
 		/// DownloadDecryptBook:

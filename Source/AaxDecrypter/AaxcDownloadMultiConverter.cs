@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using AAXClean;
 using AAXClean.Codecs;
+using Dinah.Core;
 using Dinah.Core.StepRunner;
 using FileManager;
 
@@ -14,14 +15,22 @@ namespace AaxDecrypter
 		protected override StepSequence Steps { get; }
 
 		private Func<MultiConvertFileProperties, string> multipartFileNameCallback { get; }
+		private Func<MultiConvertFileProperties, string> multipartTitleNameCallback { get; }
 
 		private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
 		private List<string> multiPartFilePaths { get; } = new List<string>();
 
-		public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, DownloadOptions dlLic,
-			Func<MultiConvertFileProperties, string> multipartFileNameCallback = null)
+		public AaxcDownloadMultiConverter(
+			string outFileName,
+			string cacheDirectory,
+			DownloadOptions dlLic,
+			Func<MultiConvertFileProperties, string> multipartFileNameCallback,
+			Func<MultiConvertFileProperties, string> multipartTitleNameCallback
+			)
 			: base(outFileName, cacheDirectory, dlLic)
 		{
+			ArgumentValidator.EnsureNotNull(multipartFileNameCallback, nameof(multipartFileNameCallback));
+			ArgumentValidator.EnsureNotNull(multipartTitleNameCallback, nameof(multipartTitleNameCallback));
 			Steps = new StepSequence
 			{
 				Name = "Download and Convert Aaxc To " + DownloadOptions.OutputFormat,
@@ -30,7 +39,8 @@ namespace AaxDecrypter
 				["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsMultipleFilesPerChapter,
 				["Step 3: Cleanup"] = Step_Cleanup,
 			};
-			this.multipartFileNameCallback = multipartFileNameCallback ?? MultiConvertFileProperties.DefaultMultipartFilename;
+			this.multipartFileNameCallback = multipartFileNameCallback;
+			this.multipartTitleNameCallback = multipartTitleNameCallback;
 		}
 
 		/*
@@ -103,48 +113,57 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 		private ConversionResult ConvertToMultiMp4a(ChapterInfo splitChapters)
 		{
 			var chapterCount = 0;
-			return AaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
-			{
-				createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
-
-				newSplitCallback.TrackNumber = chapterCount;
-				newSplitCallback.TrackCount = splitChapters.Count;
-
-			}, DownloadOptions.TrimOutputToChapterLength);
+			return AaxFile.ConvertToMultiMp4a
+				(
+					splitChapters,
+					newSplitCallback => Callback(++chapterCount, splitChapters, newSplitCallback),
+					DownloadOptions.TrimOutputToChapterLength
+				);
 		}
 
 		private ConversionResult ConvertToMultiMp3(ChapterInfo splitChapters)
 		{
 			var chapterCount = 0;
-			return AaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
-			{
-				createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
-
-				newSplitCallback.TrackNumber = chapterCount;
-				newSplitCallback.TrackCount = splitChapters.Count;
-
-			}, DownloadOptions.LameConfig, DownloadOptions.TrimOutputToChapterLength);
+			return AaxFile.ConvertToMultiMp3
+				(
+					splitChapters,
+					newSplitCallback => Callback(++chapterCount, splitChapters, newSplitCallback),
+					DownloadOptions.LameConfig,
+					DownloadOptions.TrimOutputToChapterLength
+				);
 		}
 
-		private void createOutputFileStream(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
+
+		private void Callback(int currentChapter, ChapterInfo splitChapters, NewMP3SplitCallback newSplitCallback)
+			=> Callback(currentChapter, splitChapters, newSplitCallback);
+
+		private void Callback(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
 		{
-			var fileName = multipartFileNameCallback(new()
+			MultiConvertFileProperties props = new()
 			{
 				OutputFileName = OutputFileName,
 				PartsPosition = currentChapter,
 				PartsTotal = splitChapters.Count,
 				Title = newSplitCallback?.Chapter?.Title,
+			};
+			newSplitCallback.OutputFile = createOutputFileStream(props);
+			newSplitCallback.TrackTitle = multipartTitleNameCallback(props);
+			newSplitCallback.TrackNumber = currentChapter;
+			newSplitCallback.TrackCount = splitChapters.Count;
+		}
 
-			});
+		private FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
+		{
+			var fileName = multipartFileNameCallback(multiConvertFileProperties);
 			fileName = FileUtility.GetValidFilename(fileName);
 
 			multiPartFilePaths.Add(fileName);
 
 			FileUtility.SaferDelete(fileName);
 
-			newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
-
+			var file = File.Open(fileName, FileMode.OpenOrCreate);
 			OnFileCreated(fileName);
+			return file;
 		}
 	}
 }
