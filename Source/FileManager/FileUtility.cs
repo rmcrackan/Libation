@@ -90,9 +90,9 @@ namespace FileManager
 
 			var pathNoPrefix = path.PathWithoutPrefix;
 
+			pathNoPrefix = pathNoPrefix?.Replace(':', '꞉')?.Replace('?', '︖')?.Replace('*', '⁎');
+
 			pathNoPrefix = replaceInvalidChars(pathNoPrefix, illegalCharacterReplacements);
-			pathNoPrefix = standardizeSlashes(pathNoPrefix);
-			pathNoPrefix = replaceColons(pathNoPrefix, illegalCharacterReplacements);
 			pathNoPrefix = removeDoubleSlashes(pathNoPrefix);
 
 			return pathNoPrefix;
@@ -106,24 +106,6 @@ namespace FileManager
 			}).ToArray();
 		private static string replaceInvalidChars(string path, string illegalCharacterReplacements)
 			=> string.Join(illegalCharacterReplacements ?? "", path.Split(invalidChars));
-
-		private static string standardizeSlashes(string path)
-			=> path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-
-		private static string replaceColons(string path, string illegalCharacterReplacements)
-		{
-			// replace all colons except within the first 2 chars
-			var builder = new System.Text.StringBuilder();
-			for (var i = 0; i < path.Length; i++)
-			{
-				var c = path[i];
-				if (i >= 2 && c == ':')
-					builder.Append(illegalCharacterReplacements);
-				else
-					builder.Append(c);
-			}
-			return builder.ToString();
-		}
 
 		private static string removeDoubleSlashes(string path)
 		{

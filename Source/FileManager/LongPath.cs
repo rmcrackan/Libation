@@ -27,7 +27,7 @@ namespace FileManager
 
 			//File I/O functions in the Windows API convert "/" to "\" as part of converting
 			//the name to an NT-style name, except when using the "\\?\" prefix 
-			path = path.Replace('/', '\\');
+			path = path.Replace(System.IO.Path.AltDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
 
 			if (path.StartsWith(LONG_PATH_PREFIX))
 				return new LongPath { Path = path };

@@ -32,10 +32,16 @@ namespace FileManager
             Init();
         }
 
-        public string FindFile(System.Text.RegularExpressions.Regex regex)
+        public LongPath FindFile(System.Text.RegularExpressions.Regex regex)
         {
             lock (fsCacheLocker)
                 return fsCache.FirstOrDefault(s => regex.IsMatch(s));
+        }
+
+        public List<LongPath> FindFiles(System.Text.RegularExpressions.Regex regex)
+        {
+            lock (fsCacheLocker)
+                return fsCache.Where(s => regex.IsMatch(s)).ToList();
         }
 
         public void RefreshFiles()

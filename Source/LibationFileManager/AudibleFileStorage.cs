@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,6 +10,7 @@ namespace LibationFileManager
     public abstract class AudibleFileStorage
     {
         protected abstract LongPath GetFilePathCustom(string productId);
+        protected abstract List<LongPath> GetFilePathsCustom(string productId);
 
         #region static
         public static LongPath DownloadsInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
@@ -57,6 +59,9 @@ namespace LibationFileManager
             return firstOrNull;
         }
 
+        public List<LongPath> GetPaths(string productId)
+            => GetFilePathsCustom(productId);
+
         protected Regex GetBookSearchRegex(string productId)
         {
             var pattern = string.Format(regexTemplate, productId);
@@ -70,11 +75,14 @@ namespace LibationFileManager
         internal AaxcFileStorage() : base(FileType.AAXC) { }
 
         protected override LongPath GetFilePathCustom(string productId)
+            => GetFilePathsCustom(productId).FirstOrDefault();
+
+        protected override List<LongPath> GetFilePathsCustom(string productId)
         {
             var regex = GetBookSearchRegex(productId);
             return FileUtility
                 .SaferEnumerateFiles(DownloadsInProgressDirectory, "*.*", SearchOption.AllDirectories)
-                .FirstOrDefault(s => regex.IsMatch(s));
+                .Where(s => regex.IsMatch(s)).ToList();
         }
 
         public bool Exists(string productId) => GetFilePath(productId) is not null;
@@ -87,7 +95,11 @@ namespace LibationFileManager
 
         private static BackgroundFileSystem BookDirectoryFiles { get; set; }
         private static object bookDirectoryFilesLocker { get; } = new();
+
         protected override LongPath GetFilePathCustom(string productId)
+            => GetFilePathsCustom(productId).FirstOrDefault();
+
+        protected override List<LongPath> GetFilePathsCustom(string productId)
         {
             // If user changed the BooksDirectory: reinitialize
             lock (bookDirectoryFilesLocker)
@@ -95,11 +107,12 @@ namespace LibationFileManager
                     BookDirectoryFiles = new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
 
             var regex = GetBookSearchRegex(productId);
-            return BookDirectoryFiles.FindFile(regex);
+            return BookDirectoryFiles.FindFiles(regex);
         }
 
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
 
         public LongPath GetPath(string productId) => GetFilePath(productId);
-    }
+
+	}
 }

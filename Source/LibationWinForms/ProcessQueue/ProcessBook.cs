@@ -138,7 +138,7 @@ namespace LibationWinForms.ProcessQueue
 			return Result;
 		}
 
-		public async Task Cancel()
+		public async Task CancelAsync()
 		{
 			try
 			{

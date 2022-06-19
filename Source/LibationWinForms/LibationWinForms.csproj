@@ -43,6 +43,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
   </ItemGroup>
+	
+    <ItemGroup>
+	    <Compile Update="Dialogs\SettingsDialog.*.cs">
+		    <DependentUpon>Dialogs\SettingsDialog.cs</DependentUpon>
+	    </Compile>
+    </ItemGroup>
 
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

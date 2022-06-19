@@ -21,7 +21,7 @@ namespace FileLiberator
 
 		public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists();
 
-		public override Task CancelAsync() => abDownloader?.CancelAsync();
+		public override Task CancelAsync() => abDownloader?.CancelAsync() ?? Task.CompletedTask;
 
 		public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
 		{
