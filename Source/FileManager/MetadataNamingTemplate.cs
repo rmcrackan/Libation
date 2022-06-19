@@ -12,7 +12,7 @@ namespace FileManager
 			var tagValue = Template;
 
 			foreach (var r in ParameterReplacements)
-				tagValue = tagValue.Replace($"<{formatKey(r.Key)}>", r.Value.ToString());
+				tagValue = tagValue.Replace($"<{formatKey(r.Key)}>", r.Value?.ToString() ?? "");
 
 			return tagValue;
 		}

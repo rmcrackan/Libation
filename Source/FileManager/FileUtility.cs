@@ -90,8 +90,8 @@ namespace FileManager
 
 			var pathNoPrefix = path.PathWithoutPrefix;
 
-			pathNoPrefix = pathNoPrefix?.Replace(':', '꞉')?.Replace('?', '︖')?.Replace('*', '⁎');
-
+			pathNoPrefix = replaceColons(pathNoPrefix, "꞉");
+			pathNoPrefix = replaceIllegalWithUnicodeAnalog(pathNoPrefix);
 			pathNoPrefix = replaceInvalidChars(pathNoPrefix, illegalCharacterReplacements);
 			pathNoPrefix = removeDoubleSlashes(pathNoPrefix);
 
@@ -122,6 +122,60 @@ namespace FileManager
 			return path[0] + remainder;
 		}
 
+		private static string replaceIllegalWithUnicodeAnalog(string path)
+		{
+			char[] replaced = path.ToCharArray();
+
+			char GetQuote(int position)
+			{
+				if (
+					position == 0
+					|| (position > 0
+						&& position < replaced.Length
+						&& !char.IsLetter(replaced[position - 1])
+						&& !char.IsNumber(replaced[position - 1])
+						)
+					) return '“';
+				else if (
+						position == replaced.Length - 1
+						|| (position >= 0
+							&& position < replaced.Length - 1
+							&& !char.IsLetter(replaced[position + 1])
+							&& !char.IsNumber(replaced[position + 1])
+							)
+						) return '”';
+				else return '＂';
+			}
+
+			for (int i = 0; i < replaced.Length; i++)
+			{
+				replaced[i] = replaced[i] switch
+				{
+					'?' => '？',
+					'*' => '⁎',
+					'<' => '＜',
+					'>' => '＞',
+					'"' => GetQuote(i),
+					_ => replaced[i]
+				};
+			}
+			return new string(replaced);
+		}
+
+		private static string replaceColons(string path, string illegalCharacterReplacements)
+		{
+			// replace all colons except within the first 2 chars
+			var builder = new System.Text.StringBuilder();
+			for (var i = 0; i < path.Length; i++)
+			{
+				var c = path[i];
+				if (i >= 2 && c == ':')
+					builder.Append(illegalCharacterReplacements);
+				else
+					builder.Append(c);
+			}
+			return builder.ToString();
+		}
 		private static string removeInvalidWhitespace_pattern { get; } = $@"[\s\.]*\{Path.DirectorySeparatorChar}\s*";
 		private static Regex removeInvalidWhitespace_regex { get; } = new(removeInvalidWhitespace_pattern, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
