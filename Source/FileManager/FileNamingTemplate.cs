@@ -41,12 +41,12 @@ namespace FileManager
             //Build the filename in parts, replacing replacement parameters with
             //their values, and storing the parts in a list.
             while(!string.IsNullOrEmpty(filename))
-			{
+            {
                 int openIndex = filename.IndexOf('<');
                 int closeIndex = filename.IndexOf('>');
 
                 if (openIndex == 0 && closeIndex > 0)
-				{
+                {
                     var key = filename[..(closeIndex + 1)];
 
                     if (paramReplacements.ContainsKey(key))
@@ -57,22 +57,22 @@ namespace FileManager
                     filename = filename[(closeIndex + 1)..];
                 }
                 else if (openIndex > 0 && closeIndex > openIndex)
-				{
+                {
                     var other = filename[..openIndex];
                     filenameParts.Add(new StringBuilder(other));
                     filename = filename[openIndex..];
                 }
                 else
-				{
+                {
                     filenameParts.Add(new StringBuilder(filename));
                     filename = string.Empty;
                 }
-			}
+            }
 
             //Remove 1 character from the end of the longest filename part until
             //the total filename is less than max filename length
             while(filenameParts.Sum(p => p.Length) > LongPath.MaxFilenameLength)
-			{
+            {
                 int maxLength = filenameParts.Max(p => p.Length);
                 var maxEntry = filenameParts.First(p => p.Length == maxLength);
 

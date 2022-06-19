@@ -208,7 +208,7 @@ namespace FileManager
             });
 
         /// <summary>Move file. No error when source does not exist. Retry up to 3 times before throwing exception.</summary>
-		public static void SaferMove(LongPath source, LongPath destination)
+        public static void SaferMove(LongPath source, LongPath destination)
             => retryPolicy.Execute(() =>
             {
                 try
@@ -260,9 +260,9 @@ namespace FileManager
                 catch (UnauthorizedAccessException) { }
                 catch (PathTooLongException) { }
                 catch(Exception ex)
-				{
+                {
 
-				}
+                }
             }
 
             try

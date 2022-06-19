@@ -13,27 +13,27 @@ namespace AaxDecrypter
 	{
 		protected override StepSequence Steps { get; }
 
-        private Func<MultiConvertFileProperties, string> multipartFileNameCallback { get; }
+		private Func<MultiConvertFileProperties, string> multipartFileNameCallback { get; }
 
-        private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
+		private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
 		private List<string> multiPartFilePaths { get; } = new List<string>();
 
-        public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, DownloadOptions dlLic,
-            Func<MultiConvertFileProperties, string> multipartFileNameCallback = null)
+		public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, DownloadOptions dlLic,
+			Func<MultiConvertFileProperties, string> multipartFileNameCallback = null)
 			: base(outFileName, cacheDirectory, dlLic)
-        {
-            Steps = new StepSequence
-            {
-                Name = "Download and Convert Aaxc To " + DownloadOptions.OutputFormat,
+		{
+			Steps = new StepSequence
+			{
+				Name = "Download and Convert Aaxc To " + DownloadOptions.OutputFormat,
 
-                ["Step 1: Get Aaxc Metadata"] = Step_GetMetadata,
-                ["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsMultipleFilesPerChapter,
-                ["Step 3: Cleanup"] = Step_Cleanup,
-            };
-            this.multipartFileNameCallback = multipartFileNameCallback ?? MultiConvertFileProperties.DefaultMultipartFilename;
-        }
+				["Step 1: Get Aaxc Metadata"] = Step_GetMetadata,
+				["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsMultipleFilesPerChapter,
+				["Step 3: Cleanup"] = Step_Cleanup,
+			};
+			this.multipartFileNameCallback = multipartFileNameCallback ?? MultiConvertFileProperties.DefaultMultipartFilename;
+		}
 
-        /*
+		/*
 https://github.com/rmcrackan/Libation/pull/127#issuecomment-939088489
 
 If the chapter truly is empty, that is, 0 audio frames in length, then yes it is ignored.
@@ -56,95 +56,95 @@ The book will be split into the following files:
 01:41:00 - 02:05:00 | Book - 04 - Chapter 4.m4b
 
 That naming may not be desirable for everyone, but it's an easy change to instead use the last of the combined chapter's title in the file name.
-         */
-        private bool Step_DownloadAudiobookAsMultipleFilesPerChapter()
-        {
-            var zeroProgress = Step_DownloadAudiobook_Start();
+		 */
+		private bool Step_DownloadAudiobookAsMultipleFilesPerChapter()
+		{
+			var zeroProgress = Step_DownloadAudiobook_Start();
 
-            var chapters = DownloadOptions.ChapterInfo.Chapters;
+			var chapters = DownloadOptions.ChapterInfo.Chapters;
 
-            // Ensure split files are at least minChapterLength in duration.
-            var splitChapters = new ChapterInfo(DownloadOptions.ChapterInfo.StartOffset);
+			// Ensure split files are at least minChapterLength in duration.
+			var splitChapters = new ChapterInfo(DownloadOptions.ChapterInfo.StartOffset);
 
-            var runningTotal = TimeSpan.Zero;
-            string title = "";
+			var runningTotal = TimeSpan.Zero;
+			string title = "";
 
-            for (int i = 0; i < chapters.Count; i++)
-            {
-                if (runningTotal == TimeSpan.Zero)
-                    title = chapters[i].Title;
+			for (int i = 0; i < chapters.Count; i++)
+			{
+				if (runningTotal == TimeSpan.Zero)
+					title = chapters[i].Title;
 
-                runningTotal += chapters[i].Duration;
+				runningTotal += chapters[i].Duration;
 
-                if (runningTotal >= minChapterLength)
-                {
-                    splitChapters.AddChapter(title, runningTotal);
-                    runningTotal = TimeSpan.Zero;
-                }
-            }
+				if (runningTotal >= minChapterLength)
+				{
+					splitChapters.AddChapter(title, runningTotal);
+					runningTotal = TimeSpan.Zero;
+				}
+			}
 
-            // reset, just in case
-            multiPartFilePaths.Clear();
+			// reset, just in case
+			multiPartFilePaths.Clear();
 
-            ConversionResult result;
+			ConversionResult result;
 
-            AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-            if (DownloadOptions.OutputFormat == OutputFormat.M4b)
-                result = ConvertToMultiMp4a(splitChapters);
-            else
-                result = ConvertToMultiMp3(splitChapters);
-            AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
+			AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+			if (DownloadOptions.OutputFormat == OutputFormat.M4b)
+				result = ConvertToMultiMp4a(splitChapters);
+			else
+				result = ConvertToMultiMp3(splitChapters);
+			AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
-            Step_DownloadAudiobook_End(zeroProgress);
+			Step_DownloadAudiobook_End(zeroProgress);
 
-            return result == ConversionResult.NoErrorsDetected;
-        }
+			return result == ConversionResult.NoErrorsDetected;
+		}
 
-        private ConversionResult ConvertToMultiMp4a(ChapterInfo splitChapters)
-        {
-            var chapterCount = 0;
-            return AaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
-            {
-                createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
+		private ConversionResult ConvertToMultiMp4a(ChapterInfo splitChapters)
+		{
+			var chapterCount = 0;
+			return AaxFile.ConvertToMultiMp4a(splitChapters, newSplitCallback =>
+			{
+				createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
 
-                newSplitCallback.TrackNumber = chapterCount;
-                newSplitCallback.TrackCount = splitChapters.Count;
+				newSplitCallback.TrackNumber = chapterCount;
+				newSplitCallback.TrackCount = splitChapters.Count;
 
-            }, DownloadOptions.TrimOutputToChapterLength);
-        }
+			}, DownloadOptions.TrimOutputToChapterLength);
+		}
 
-        private ConversionResult ConvertToMultiMp3(ChapterInfo splitChapters)
-        {
-            var chapterCount = 0;
-            return AaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
-            {
-                createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
+		private ConversionResult ConvertToMultiMp3(ChapterInfo splitChapters)
+		{
+			var chapterCount = 0;
+			return AaxFile.ConvertToMultiMp3(splitChapters, newSplitCallback =>
+			{
+				createOutputFileStream(++chapterCount, splitChapters, newSplitCallback);
 
-                newSplitCallback.TrackNumber = chapterCount;
-                newSplitCallback.TrackCount = splitChapters.Count;
+				newSplitCallback.TrackNumber = chapterCount;
+				newSplitCallback.TrackCount = splitChapters.Count;
 
-            }, DownloadOptions.LameConfig, DownloadOptions.TrimOutputToChapterLength);
-        }
+			}, DownloadOptions.LameConfig, DownloadOptions.TrimOutputToChapterLength);
+		}
 
-        private void createOutputFileStream(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
-        {
-            var fileName = multipartFileNameCallback(new()
-            {
-                OutputFileName = OutputFileName,
-                PartsPosition = currentChapter,
-                PartsTotal = splitChapters.Count,
-                Title = newSplitCallback?.Chapter?.Title,
+		private void createOutputFileStream(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
+		{
+			var fileName = multipartFileNameCallback(new()
+			{
+				OutputFileName = OutputFileName,
+				PartsPosition = currentChapter,
+				PartsTotal = splitChapters.Count,
+				Title = newSplitCallback?.Chapter?.Title,
 
-            });
-            fileName = FileUtility.GetValidFilename(fileName);
+			});
+			fileName = FileUtility.GetValidFilename(fileName);
 
-            multiPartFilePaths.Add(fileName);
+			multiPartFilePaths.Add(fileName);
 
-            FileUtility.SaferDelete(fileName);
+			FileUtility.SaferDelete(fileName);
 
-            newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
+			newSplitCallback.OutputFile = File.Open(fileName, FileMode.OpenOrCreate);
 
-            OnFileCreated(fileName);
-        }
-    }
+			OnFileCreated(fileName);
+		}
+	}
 }
