@@ -36,7 +36,7 @@ namespace FileUtilityTests
 		// remove empty directories
 		[DataRow(@"C:\a\\\b\c\\\d.txt", "ZZZ", @"C:\a\b\c\d.txt")]
 		[DataRow(@"C:\""foo\<id>", "ZZZ", @"C:\ZZZfoo\ZZZidZZZ")]
-		public void Tests(string inStr, string replacement, string outStr) => Assert.AreEqual(outStr, FileUtility.GetSafePath(inStr, replacement));
+		public void Tests(string inStr, string replacement, string outStr) => Assert.AreEqual(outStr, FileUtility.GetSafePath(inStr, replacement).PathWithoutPrefix);
 	}
 
 	[TestClass]
@@ -134,7 +134,7 @@ namespace FileUtilityTests
 		// file end dots
 		[DataRow(@"C:\a bc\x y z\f i l e.txt . . .", @"C:\a bc\x y z\f i l e.txt")]
 		public void Tests(string input, string expected)
-			=> FileUtility.GetValidFilename(input).Should().Be(expected);
+			=> FileUtility.GetValidFilename(input).PathWithoutPrefix.Should().Be(expected);
 	}
 
 	[TestClass]

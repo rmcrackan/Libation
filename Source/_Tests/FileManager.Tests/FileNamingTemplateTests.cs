@@ -15,12 +15,17 @@ namespace FileNamingTemplateTests
 		[TestMethod]
 		public void equiv_GetValidFilename()
 		{
-			var expected = @"C:\foo\bar\my_ book LONG_1234567890_1234567890_1234567890_123 [ID123456].txt";
-			var f1 = OLD_GetValidFilename(@"C:\foo\bar", "my: book LONG_1234567890_1234567890_1234567890_12345", "txt", "ID123456");
-			var f2 = NEW_GetValidFilename_FileNamingTemplate(@"C:\foo\bar", "my: book LONG_1234567890_1234567890_1234567890_12345", "txt", "ID123456");
+			var sb = new System.Text.StringBuilder();
+			sb.Append('0', 300);
+			var longText = sb.ToString();
 
-			f1.Should().Be(expected);
-			f1.Should().Be(f2);
+			var expectedOld = "C:\\foo\\bar\\my_ book 00000000000000000000000000000000000000000 [ID123456].txt";
+			var expectedNew = "C:\\foo\\bar\\my_ book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt";
+			var f1 = OLD_GetValidFilename(@"C:\foo\bar", "my: book " + longText, "txt", "ID123456");
+			var f2 = NEW_GetValidFilename_FileNamingTemplate(@"C:\foo\bar", "my: book " + longText, "txt", "ID123456");
+
+			f1.Should().Be(expectedOld);
+			f2.Should().Be(expectedNew);
 		}
 		private static string OLD_GetValidFilename(string dirFullPath, string filename, string extension, string metadataSuffix)
 		{
@@ -58,7 +63,7 @@ namespace FileNamingTemplateTests
 			var fileNamingTemplate = new FileNamingTemplate(fullfilename) { IllegalCharacterReplacements = "_" };
 			fileNamingTemplate.AddParameterReplacement("title", filename);
 			fileNamingTemplate.AddParameterReplacement("id", metadataSuffix);
-			return fileNamingTemplate.GetFilePath();
+			return fileNamingTemplate.GetFilePath().PathWithoutPrefix;
 		}
 
 		[TestMethod]
@@ -101,7 +106,7 @@ namespace FileNamingTemplateTests
 			var fileNamingTemplate = new FileNamingTemplate(t) { IllegalCharacterReplacements = " " };
 			fileNamingTemplate.AddParameterReplacement("chapter", chapterCountLeadingZeros);
 			fileNamingTemplate.AddParameterReplacement("title", suffix);
-			return fileNamingTemplate.GetFilePath();
+			return fileNamingTemplate.GetFilePath().PathWithoutPrefix;
 		}
 
 		[TestMethod]
@@ -109,7 +114,7 @@ namespace FileNamingTemplateTests
 		{
 			var fileNamingTemplate = new FileNamingTemplate(@"\foo\<title>.txt");
 			fileNamingTemplate.AddParameterReplacement("title", @"s\l/a\s/h\e/s");
-			fileNamingTemplate.GetFilePath().Should().Be(@"\foo\slashes.txt");
+			fileNamingTemplate.GetFilePath().PathWithoutPrefix.Should().Be(@"\foo\slashes.txt");
 		}
 	}
 }
