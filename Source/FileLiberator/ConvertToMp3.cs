@@ -59,13 +59,19 @@ namespace FileLiberator
 					m4bBook.InputStream.Close();
 					mp3File.Close();
 
+					if (result == ConversionResult.Failed)
+					{
+						FileUtility.SaferDelete(mp3File.Name);
+						return new StatusHandler { "Conversion failed" };
+					}
+					else if (result == ConversionResult.Cancelled)
+					{
+						FileUtility.SaferDelete(mp3File.Name);
+						return new StatusHandler { "Cancelled" };
+					}
+
 					var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path);
 					OnFileCreated(libraryBook, realMp3Path);
-
-					if (result == ConversionResult.Failed)
-						return new StatusHandler { "Conversion failed" };
-					else if (result == ConversionResult.Cancelled)
-						return new StatusHandler { "Cancelled" };
 				}
 				return new StatusHandler();
 			}
