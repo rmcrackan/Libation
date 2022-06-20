@@ -165,6 +165,8 @@ namespace FileLiberator
 					LameConfig = GetLameOptions(config)
 				};
 
+			var chapters = getChapters(contentLic.ContentMetadata.ChapterInfo.Chapters).OrderBy(c => c.StartOffsetMs).ToList();
+
 			if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
 			{
 				long startMs = dlOptions.TrimOutputToChapterLength ?
@@ -172,15 +174,15 @@ namespace FileLiberator
 
 				dlOptions.ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(startMs));
 
-				for (int i = 0; i < contentLic.ContentMetadata.ChapterInfo.Chapters.Length; i++)
+				for (int i = 0; i < chapters.Count; i++)
 				{
-					var chapter = contentLic.ContentMetadata.ChapterInfo.Chapters[i];
+					var chapter = chapters[i];
 					long chapLenMs = chapter.LengthMs;
 
 					if (i == 0)
 						chapLenMs -= startMs;
 
-					if (config.StripAudibleBrandAudio && i == contentLic.ContentMetadata.ChapterInfo.Chapters.Length - 1)
+					if (config.StripAudibleBrandAudio && i == chapters.Count - 1)
 						chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
 
 					dlOptions.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
@@ -188,6 +190,25 @@ namespace FileLiberator
 			}
 
 			return dlOptions;
+		}
+
+		private List<AudibleApi.Common.Chapter> getChapters(IEnumerable<AudibleApi.Common.Chapter> chapters)
+		{
+			List<AudibleApi.Common.Chapter> chaps = chapters.ToList();
+
+			foreach (var c in chapters)
+			{
+				if (c.Chapters is not null)
+				{
+					var children = getChapters(c.Chapters);
+
+					foreach (var child in children)
+						child.Title = string.IsNullOrEmpty(c.Title) ? child.Title : $"{c.Title}: {child.Title}";
+
+					chaps.AddRange(children);
+				}
+			}
+			return chaps;
 		}
 
 		private static void downloadValidation(LibraryBook libraryBook)
