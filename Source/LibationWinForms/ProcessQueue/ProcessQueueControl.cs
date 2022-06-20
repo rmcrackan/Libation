@@ -212,7 +212,8 @@ namespace LibationWinForms.ProcessQueue
 		private async void cancelAllBtn_Click(object sender, EventArgs e)
 		{
 			Queue.ClearQueue();
-			await Queue.Current?.CancelAsync();
+			if (Queue.Current is not null)
+				await Queue.Current.CancelAsync();
 			virtualFlowControl2.VirtualControlCount = Queue.Count;
 			UpdateAllControls();
 		}
@@ -331,7 +332,8 @@ namespace LibationWinForms.ProcessQueue
 			ProcessBook item = Queue[queueIndex];
 			if (buttonName == nameof(panelClicked.cancelBtn))
 			{
-				await item.CancelAsync();
+				if (item is not null)
+					await item.CancelAsync();
 				Queue.RemoveQueued(item);
 				virtualFlowControl2.VirtualControlCount = Queue.Count;
 			}
