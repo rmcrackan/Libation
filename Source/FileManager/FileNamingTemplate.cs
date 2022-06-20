@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -17,18 +18,39 @@ namespace FileManager
 		/// <summary>Generate a valid path for this file or directory</summary>
 		public LongPath GetFilePath(bool returnFirstExisting = false)
 		{
-			int lastSlash = Template.LastIndexOf('\\');
-
-			var directoryName = lastSlash >= 0 ? Template[..(lastSlash + 1)] : string.Empty;
-			var filename = lastSlash >= 0 ? Template[(lastSlash + 1)..] : Template;
-
-			List<StringBuilder> filenameParts = new();
+			string fileName = Template;
+			List<string> pathParts = new();
 
 			var paramReplacements = ParameterReplacements.ToDictionary(r => $"<{formatKey(r.Key)}>", r => formatValue(r.Value));
 
+			while (!string.IsNullOrEmpty(fileName))
+			{
+				var file = Path.GetFileName(fileName);
+
+				if (Path.IsPathRooted(Template) && file == string.Empty)
+				{
+					pathParts.Add(fileName);
+					break;
+				}
+				else
+				{
+					file = replaceFileName(file, paramReplacements);
+					fileName = Path.GetDirectoryName(fileName);
+					pathParts.Add(file);
+				}
+			}
+
+			pathParts.Reverse();
+
+			return FileUtility.GetValidFilename(string.Join(Path.DirectorySeparatorChar, pathParts), IllegalCharacterReplacements, returnFirstExisting);
+		}
+
+		private string replaceFileName(string filename, Dictionary<string,string> paramReplacements)
+		{
+			List<StringBuilder> filenameParts = new();
 			//Build the filename in parts, replacing replacement parameters with
 			//their values, and storing the parts in a list.
-			while(!string.IsNullOrEmpty(filename))
+			while (!string.IsNullOrEmpty(filename))
 			{
 				int openIndex = filename.IndexOf('<');
 				int closeIndex = filename.IndexOf('>');
@@ -59,17 +81,14 @@ namespace FileManager
 
 			//Remove 1 character from the end of the longest filename part until
 			//the total filename is less than max filename length
-			while(filenameParts.Sum(p => p.Length) > LongPath.MaxFilenameLength)
+			while (filenameParts.Sum(p => p.Length) > LongPath.MaxFilenameLength)
 			{
 				int maxLength = filenameParts.Max(p => p.Length);
 				var maxEntry = filenameParts.First(p => p.Length == maxLength);
 
 				maxEntry.Remove(maxLength - 1, 1);
 			}
-
-			filename = string.Join("", filenameParts);
-
-			return FileUtility.GetValidFilename(directoryName + filename, IllegalCharacterReplacements, returnFirstExisting);
+			return string.Join("", filenameParts);
 		}
 
 		private string formatValue(object value)
