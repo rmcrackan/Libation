@@ -52,15 +52,36 @@ namespace FileManager
 			}
 		}
 
-		public static implicit operator string(LongPath path) => path?.Path ?? null;
+		public static implicit operator string(LongPath path) => path?.Path;
 
 		[JsonIgnore]
 		public string ShortPathName
 		{
 			get
 			{
+				//Short Path names are useful for navigating to the file in windows explorer,
+				//which will not recognize paths longer than MAX_PATH. Short path names are not
+				//always enabled on every volume. So to check if a volume enables short path
+				//names (aka 8dot3 names), run the following command from an elevated command
+				//prompt:
+				//
+				//	fsutil 8dot3name query c:
+				//
+				//It will say:
+				//
+				//	"Based on the above settings, 8dot3 name creation is [enabled/disabled] on c:"
+				//
+				//To enable short names on all volumes on the system, run the following command
+				//from an elevated command prompt:
+				//
+				//	fsutil 8dot3name set c: 0
+				//
+				//Note that after enabling 8dot3 names on a volume, they will only be available
+				//for newly-created entries in ther file system. Existing entries made while
+				//8dot3 names were disabled will not be reachable by short paths.
+
 				if (Path is null) return null;
-				GetShortPathName(Path, longPathBuffer, MAX_PATH);
+				GetShortPathName(Path, longPathBuffer, MaxPathLength);
 				return longPathBuffer.ToString();
 			}
 		}
@@ -84,9 +105,9 @@ namespace FileManager
 
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-		private static extern int GetShortPathName(string path, StringBuilder shortPath, int shortPathLength);
+		private static extern int GetShortPathName([MarshalAs(UnmanagedType.LPWStr)] string path, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder shortPath, int shortPathLength);
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-		private static extern int GetLongPathName(string lpszShortPath, StringBuilder lpszLongPath, int cchBuffer);
+		private static extern int GetLongPathName([MarshalAs(UnmanagedType.LPWStr)] string lpszShortPath, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder lpszLongPath, int cchBuffer);
 	}
 }

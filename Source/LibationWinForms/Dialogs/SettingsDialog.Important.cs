@@ -52,12 +52,6 @@ namespace LibationWinForms.Dialogs
 				return;
 			}
 
-			if (!Directory.Exists(newBooks) && booksSelectControl.SelectedDirectoryIsCustom)
-			{
-				validationError($"Not saving change to Books location. This folder does not exist:\r\n{newBooks}", "Folder does not exist");
-				return;
-			}
-
 			// these 3 should do nothing. Configuration will only init these with a valid value. EditTemplateDialog ensures valid before returning
 			if (!Templates.Folder.IsValid(folderTemplateTb.Text))
 			{
@@ -76,8 +70,9 @@ namespace LibationWinForms.Dialogs
 			}
 			#endregion
 
-			if (!Directory.Exists(newBooks) && booksSelectControl.SelectedDirectoryIsKnown)
-				Directory.CreateDirectory(newBooks);
+			LongPath lonNewBooks = newBooks;
+			if (!Directory.Exists(lonNewBooks))
+				Directory.CreateDirectory(lonNewBooks);
 
 			config.Books = newBooks;
 
