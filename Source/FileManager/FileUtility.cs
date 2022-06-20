@@ -152,7 +152,7 @@ namespace FileManager
 				replaced[i] = replaced[i] switch
 				{
 					'?' => '？',
-					'*' => '⁎',
+					'*' => '✱',
 					'<' => '＜',
 					'>' => '＞',
 					'"' => GetQuote(i),

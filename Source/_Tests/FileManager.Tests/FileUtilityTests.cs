@@ -22,13 +22,13 @@ namespace FileUtilityTests
 
 		[TestMethod]
 		// empty replacement
-		[DataRow("abc*abc.txt", "", "abc⁎abc.txt")]
+		[DataRow("abc*abc.txt", "", "abc✱abc.txt")]
 		// non-empty replacement
-		[DataRow("abc*abc.txt", "ZZZ", "abc⁎abc.txt")]
+		[DataRow("abc*abc.txt", "ZZZ", "abc✱abc.txt")]
 		// standardize slashes
 		[DataRow(@"a/b\c/d", "Z", @"a\b\c\d")]
 		// remove illegal chars
-		[DataRow("a*?:z.txt", "Z", "a⁎？꞉z.txt")]
+		[DataRow("a*?:z.txt", "Z", "a✱？꞉z.txt")]
 		// retain drive letter path colon
 		[DataRow(@"C:\az.txt", "Z", @"C:\az.txt")]
 		// replace all other colons
