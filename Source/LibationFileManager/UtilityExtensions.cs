@@ -7,7 +7,7 @@ namespace LibationFileManager
 {
 	public static class UtilityExtensions
 	{
-		public static void AddParameterReplacement(this FileNamingTemplate fileNamingTemplate, TemplateTags templateTags, object value)
+		public static void AddParameterReplacement(this NamingTemplate fileNamingTemplate, TemplateTags templateTags, object value)
 			=> fileNamingTemplate.AddParameterReplacement(templateTags.TagName, value);
 	}
 }

@@ -74,24 +74,28 @@ namespace TemplatesTests
 		public void Tests(string template, string asin, string dirFullPath, string extension, string expected)
 			=> Templates.getFileNamingTemplate(GetLibraryBook(asin), template, dirFullPath, extension)
 			.GetFilePath()
+			.PathWithoutPrefix
 			.Should().Be(expected);
 
 		[TestMethod]
 		public void IfSeries_empty()
 			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", "Sherlock Holmes"), "foo<if series-><-if series>bar", @"C:\a\b", "ext")
 			.GetFilePath()
+			.PathWithoutPrefix
 			.Should().Be(@"C:\a\b\foobar.ext");
 
 		[TestMethod]
 		public void IfSeries_no_series()
 			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", ""), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
 			.GetFilePath()
+			.PathWithoutPrefix
 			.Should().Be(@"C:\a\b\foobar.ext");
 
 		[TestMethod]
 		public void IfSeries_with_series()
 			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", "Sherlock Holmes"), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
 			.GetFilePath()
+			.PathWithoutPrefix
 			.Should().Be(@"C:\a\b\foo-Sherlock Holmes-asin-bar.ext");
 	}
 }

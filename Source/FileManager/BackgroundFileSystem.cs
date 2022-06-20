@@ -12,7 +12,7 @@ namespace FileManager
     /// </summary>
     public class BackgroundFileSystem
     {
-        public string RootDirectory { get; private set; }
+        public LongPath RootDirectory { get; private set; }
         public string SearchPattern { get; private set; }
         public SearchOption SearchOption { get; private set; }
 
@@ -21,9 +21,9 @@ namespace FileManager
         private Task backgroundScanner { get; set; }
 
         private object fsCacheLocker { get; } = new();
-        private List<string> fsCache { get; } = new();
+        private List<LongPath> fsCache { get; } = new();
 
-        public BackgroundFileSystem(string rootDirectory, string searchPattern, SearchOption searchOptions)
+        public BackgroundFileSystem(LongPath rootDirectory, string searchPattern, SearchOption searchOptions)
         {
             RootDirectory = rootDirectory;
             SearchPattern = searchPattern;
@@ -32,10 +32,16 @@ namespace FileManager
             Init();
         }
 
-        public string FindFile(System.Text.RegularExpressions.Regex regex)
+        public LongPath FindFile(System.Text.RegularExpressions.Regex regex)
         {
             lock (fsCacheLocker)
                 return fsCache.FirstOrDefault(s => regex.IsMatch(s));
+        }
+
+        public List<LongPath> FindFiles(System.Text.RegularExpressions.Regex regex)
+        {
+            lock (fsCacheLocker)
+                return fsCache.Where(s => regex.IsMatch(s)).ToList();
         }
 
         public void RefreshFiles()
@@ -124,16 +130,18 @@ namespace FileManager
             }
         }
 
-        private void RemovePath(string path)
+        private void RemovePath(LongPath path)
         {
-            var pathsToRemove = fsCache.Where(p => p.StartsWith(path)).ToArray();
+            path = path.LongPathName;
+            var pathsToRemove = fsCache.Where(p => ((string)p).StartsWith(path)).ToArray();
 
             foreach (var p in pathsToRemove)
                 fsCache.Remove(p);
         }
 
-        private void AddPath(string path)
+        private void AddPath(LongPath path)
         {
+            path = path.LongPathName;
             if (!File.Exists(path) && !Directory.Exists(path))
                 return;
             if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
@@ -141,12 +149,14 @@ namespace FileManager
             else
                 AddUniqueFile(path);
         }
-        private void AddUniqueFiles(IEnumerable<string> newFiles)
+
+        private void AddUniqueFiles(IEnumerable<LongPath> newFiles)
         {
             foreach (var file in newFiles)
                 AddUniqueFile(file);
         }
-        private void AddUniqueFile(string newFile)
+
+        private void AddUniqueFile(LongPath newFile)
         {
             if (!fsCache.Contains(newFile))
                 fsCache.Add(newFile);

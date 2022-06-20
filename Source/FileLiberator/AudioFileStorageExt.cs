@@ -8,19 +8,6 @@ namespace FileLiberator
 {
 	public static class AudioFileStorageExt
 	{
-		private class MultipartRenamer
-		{
-			private LibraryBook libraryBook { get; }
-
-			internal MultipartRenamer(LibraryBook libraryBook) => this.libraryBook = libraryBook;
-
-			internal string MultipartFilename(AaxDecrypter.MultiConvertFileProperties props)
-				=> Templates.ChapterFile.GetFilename(libraryBook.ToDto(), props);
-		}
-
-		public static Func<AaxDecrypter.MultiConvertFileProperties, string> CreateMultipartRenamerFunc(this AudioFileStorage _, LibraryBook libraryBook)
-			=> new MultipartRenamer(libraryBook).MultipartFilename;
-
 		/// <summary>
 		/// DownloadDecryptBook:
 		/// File path for where to move files into.

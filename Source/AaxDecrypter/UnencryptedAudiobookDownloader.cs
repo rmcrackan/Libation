@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
 using FileManager;
@@ -10,7 +11,7 @@ namespace AaxDecrypter
 	{
 		protected override StepSequence Steps { get; }
 
-		public UnencryptedAudiobookDownloader(string outFileName, string cacheDirectory, DownloadOptions dlLic)
+		public UnencryptedAudiobookDownloader(string outFileName, string cacheDirectory, IDownloadOptions dlLic)
 			: base(outFileName, cacheDirectory, dlLic)
 		{
 			Steps = new StepSequence
@@ -24,10 +25,11 @@ namespace AaxDecrypter
 			};
 		}
 
-		public override void Cancel()
+		public override Task CancelAsync()
 		{
 			IsCanceled = true;
 			CloseInputFileStream();
+			return Task.CompletedTask;
 		}
 
 		protected bool Step_GetMetadata()

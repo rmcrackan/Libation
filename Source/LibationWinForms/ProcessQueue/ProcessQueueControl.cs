@@ -209,10 +209,10 @@ namespace LibationWinForms.ProcessQueue
 			toolStripProgressBar1.Value = Queue.Completed.Count;
 		}
 
-		private void cancelAllBtn_Click(object sender, EventArgs e)
+		private async void cancelAllBtn_Click(object sender, EventArgs e)
 		{
 			Queue.ClearQueue();
-			Queue.Current?.Cancel();
+			await Queue.Current?.CancelAsync();
 			virtualFlowControl2.VirtualControlCount = Queue.Count;
 			UpdateAllControls();
 		}
@@ -331,7 +331,7 @@ namespace LibationWinForms.ProcessQueue
 			ProcessBook item = Queue[queueIndex];
 			if (buttonName == nameof(panelClicked.cancelBtn))
 			{
-				await item.Cancel();
+				await item.CancelAsync();
 				Queue.RemoveQueued(item);
 				virtualFlowControl2.VirtualControlCount = Queue.Count;
 			}

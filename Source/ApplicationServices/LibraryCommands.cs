@@ -128,7 +128,7 @@ namespace ApplicationServices
 
 
 				Log.Logger.Information("Begin scan for orphaned episode parents");
-				var newParents = await findAndAddMissingParents(apiExtendedfunc, accounts);
+				var newParents = await findAndAddMissingParents(accounts);
 				Log.Logger.Information($"Orphan episode scan complete. New parents count {newParents}");
 
 				if (newParents >= 0)
@@ -255,7 +255,7 @@ namespace ApplicationServices
 			}
 		}
 
-		static async Task<int> findAndAddMissingParents(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts)
+		static async Task<int> findAndAddMissingParents(Account[] accounts)
 		{
 			using var context = DbContexts.GetContext();
 
@@ -274,11 +274,11 @@ namespace ApplicationServices
 					.DistinctBy(s => s.Series.AudibleSeriesId)
 					.ToList();
 
-				// We're only calling the Catalog endpoint, so it doesn't matter which account we use.
-				var apiExtended = await apiExtendedfunc(accounts[0]);
+				// The Catalog endpointdoes not require authentication.
+				var api = new ApiUnauthenticated(accounts[0].Locale);
 
 				var seriesParents = orphanedSeries.Select(o => o.Series.AudibleSeriesId).ToList();
-				var items = await apiExtended.Api.GetCatalogProductsAsync(seriesParents, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+				var items = await api.GetCatalogProductsAsync(seriesParents, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
 
 				List<ImportItem> newParentsImportItems = new();
 				foreach (var sp in orphanedSeries)

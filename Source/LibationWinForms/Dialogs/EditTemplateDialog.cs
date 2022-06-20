@@ -67,7 +67,7 @@ namespace LibationWinForms.Dialogs
 		private void templateTb_TextChanged(object sender, EventArgs e)
 		{
 			workingTemplateText = templateTb.Text;
-
+			var isChapterTitle = template == Templates.ChapterTitle;
 			var isFolder = template == Templates.Folder;
 
 			var libraryBookDto = new LibraryBookDto
@@ -85,21 +85,34 @@ namespace LibationWinForms.Dialogs
 			var chapterNumber = 4;
 			var chaptersTotal = 10;
 
+			var partFileProperties = new AaxDecrypter.MultiConvertFileProperties() 
+			{ 
+				OutputFileName = "", 
+				PartsPosition = chapterNumber, 
+				PartsTotal = chaptersTotal, 
+				Title = chapterName 
+			};
+
+
 			var books = config.Books;
 			var folder = Templates.Folder.GetPortionFilename(
 				libraryBookDto,
 				isFolder ? workingTemplateText : config.FolderTemplate);
+
+
 			var file
 				= template == Templates.ChapterFile
 				? Templates.ChapterFile.GetPortionFilename(
 					libraryBookDto,
 					workingTemplateText,
-					new() { OutputFileName = "", PartsPosition = chapterNumber, PartsTotal = chaptersTotal, Title = chapterName },
+					partFileProperties,
 					"")
 				: Templates.File.GetPortionFilename(
 					libraryBookDto,
 					isFolder ? config.FileTemplate : workingTemplateText);
 			var ext = config.DecryptToLossy ? "mp3" : "m4b";
+
+			var chapterTitle = Templates.ChapterTitle.GetPortionTitle(libraryBookDto, workingTemplateText, partFileProperties);
 
 			const char ZERO_WIDTH_SPACE = '\u200B';
 			var sing = $"{Path.DirectorySeparatorChar}";
@@ -125,6 +138,14 @@ namespace LibationWinForms.Dialogs
 
 			richTextBox1.Clear();
 			richTextBox1.SelectionFont = reg;
+
+			if (isChapterTitle)
+				richTextBox1.SelectionFont = bold;
+
+			richTextBox1.AppendText(chapterTitle);
+
+			if (isChapterTitle)
+				return;
 
 			richTextBox1.AppendText(slashWrap(books));
 			richTextBox1.AppendText(sing);

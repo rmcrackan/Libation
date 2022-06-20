@@ -1,4 +1,7 @@
-﻿using System;
+﻿using LibationFileManager;
+using NAudio.Lame;
+using System;
+using System.Threading.Tasks;
 
 namespace FileLiberator
 {
@@ -10,8 +13,32 @@ namespace FileLiberator
         public event EventHandler<string> AuthorsDiscovered;
         public event EventHandler<string> NarratorsDiscovered;
         public event EventHandler<byte[]> CoverImageDiscovered;
-        public abstract void Cancel();
+        public abstract Task CancelAsync();
 
+        protected LameConfig GetLameOptions(Configuration config)
+        {
+            LameConfig lameConfig = new();
+            lameConfig.Mode = MPEGMode.Mono;
+
+            if (config.LameTargetBitrate)
+            {
+                if (config.LameConstantBitrate)
+                    lameConfig.BitRate = config.LameBitrate;
+                else
+                {
+                    lameConfig.ABRRateKbps = config.LameBitrate;
+                    lameConfig.VBR = VBRMode.ABR;
+                    lameConfig.WriteVBRTag = true;
+                }
+            }
+            else
+            {
+                lameConfig.VBR = VBRMode.Default;
+                lameConfig.VBRQuality = config.LameVBRQuality;
+                lameConfig.WriteVBRTag = true;
+            }
+            return lameConfig;
+        }
         protected void OnTitleDiscovered(string title) => OnTitleDiscovered(null, title);
         protected void OnTitleDiscovered(object _, string title)
 		{

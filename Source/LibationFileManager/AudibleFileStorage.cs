@@ -9,18 +9,19 @@ namespace LibationFileManager
 {
     public abstract class AudibleFileStorage
     {
-        protected abstract string GetFilePathCustom(string productId);
+        protected abstract LongPath GetFilePathCustom(string productId);
+        protected abstract List<LongPath> GetFilePathsCustom(string productId);
 
         #region static
-        public static string DownloadsInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
-        public static string DecryptInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
+        public static LongPath DownloadsInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
+        public static LongPath DecryptInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
 
         private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
         public static bool AaxcExists(string productId) => AAXC.Exists(productId);
 
         public static AudioFileStorage Audio { get; } = new AudioFileStorage();
 
-        public static string BooksDirectory
+        public static LongPath BooksDirectory
         {
             get
             {
@@ -43,7 +44,7 @@ namespace LibationFileManager
             regexTemplate = $@"{{0}}.*?\.({extAggr})$";
         }
 
-        protected string GetFilePath(string productId)
+        protected LongPath GetFilePath(string productId)
         {
             // primary lookup
             var cachedFile = FilePathCache.GetFirstPath(productId, FileType);
@@ -58,6 +59,9 @@ namespace LibationFileManager
             return firstOrNull;
         }
 
+        public List<LongPath> GetPaths(string productId)
+            => GetFilePathsCustom(productId);
+
         protected Regex GetBookSearchRegex(string productId)
         {
             var pattern = string.Format(regexTemplate, productId);
@@ -70,12 +74,15 @@ namespace LibationFileManager
     {
         internal AaxcFileStorage() : base(FileType.AAXC) { }
 
-        protected override string GetFilePathCustom(string productId)
+        protected override LongPath GetFilePathCustom(string productId)
+            => GetFilePathsCustom(productId).FirstOrDefault();
+
+        protected override List<LongPath> GetFilePathsCustom(string productId)
         {
             var regex = GetBookSearchRegex(productId);
             return FileUtility
                 .SaferEnumerateFiles(DownloadsInProgressDirectory, "*.*", SearchOption.AllDirectories)
-                .FirstOrDefault(s => regex.IsMatch(s));
+                .Where(s => regex.IsMatch(s)).ToList();
         }
 
         public bool Exists(string productId) => GetFilePath(productId) is not null;
@@ -88,7 +95,11 @@ namespace LibationFileManager
 
         private static BackgroundFileSystem BookDirectoryFiles { get; set; }
         private static object bookDirectoryFilesLocker { get; } = new();
-        protected override string GetFilePathCustom(string productId)
+
+        protected override LongPath GetFilePathCustom(string productId)
+            => GetFilePathsCustom(productId).FirstOrDefault();
+
+        protected override List<LongPath> GetFilePathsCustom(string productId)
         {
             // If user changed the BooksDirectory: reinitialize
             lock (bookDirectoryFilesLocker)
@@ -96,11 +107,12 @@ namespace LibationFileManager
                     BookDirectoryFiles = new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
 
             var regex = GetBookSearchRegex(productId);
-            return BookDirectoryFiles.FindFile(regex);
+            return BookDirectoryFiles.FindFiles(regex);
         }
 
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
 
-        public string GetPath(string productId) => GetFilePath(productId);
-    }
+        public LongPath GetPath(string productId) => GetFilePath(productId);
+
+	}
 }

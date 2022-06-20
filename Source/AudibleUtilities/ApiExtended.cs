@@ -137,7 +137,7 @@ namespace AudibleUtilities
 					//Get child episodes asynchronously and await all at the end
 					getChildEpisodesTasks.Add(getChildEpisodesAsync(concurrencySemaphore, item));
 				}
-				else if (!item.IsEpisodes)
+				else if (!item.IsEpisodes && !item.IsSeriesParent)
 					items.Add(item);
 
 				count++;

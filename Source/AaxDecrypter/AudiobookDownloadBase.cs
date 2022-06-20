@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Dinah.Core;
 using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
@@ -21,9 +22,10 @@ namespace AaxDecrypter
 		public event EventHandler<string> FileCreated;
 
 		public bool IsCanceled { get; set; }
-		
+		public string TempFilePath { get; }
+
 		protected string OutputFileName { get; private set; }
-		protected DownloadOptions DownloadOptions { get; }
+		protected IDownloadOptions DownloadOptions { get; }
 		protected NetworkFileStream InputFileStream => (nfsPersister ??= OpenNetworkFileStream()).NetworkFileStream;
 
 		// Don't give the property a 'set'. This should have to be an obvious choice; not accidental
@@ -33,29 +35,28 @@ namespace AaxDecrypter
 		private NetworkFileStreamPersister nfsPersister;
 
 		private string jsonDownloadState { get; }
-		public string TempFilePath { get; }
 
-		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadOptions dlLic)
+		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
 		{
 			OutputFileName = ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
 
 			var outDir = Path.GetDirectoryName(OutputFileName);
 			if (!Directory.Exists(outDir))
-				throw new DirectoryNotFoundException($"Directory does not exist: {nameof(outDir)}");
+				Directory.CreateDirectory(outDir);
 
 			if (!Directory.Exists(cacheDirectory))
-				throw new DirectoryNotFoundException($"Directory does not exist: {nameof(cacheDirectory)}");
+				Directory.CreateDirectory(cacheDirectory);
 
 			jsonDownloadState = Path.Combine(cacheDirectory, Path.GetFileName(Path.ChangeExtension(OutputFileName, ".json")));
 			TempFilePath = Path.ChangeExtension(jsonDownloadState, ".aaxc");
 
-			DownloadOptions = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
+			DownloadOptions = ArgumentValidator.EnsureNotNull(dlOptions, nameof(dlOptions));
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
-		}
+		}		
 
-		public abstract void Cancel();
+		public abstract Task CancelAsync();
 
 		public virtual void SetCoverArt(byte[] coverArt)
 		{
@@ -65,7 +66,7 @@ namespace AaxDecrypter
 
 		public bool Run()
 		{
-			var (IsSuccess, Elapsed) = Steps.Run();
+			var (IsSuccess, _) = Steps.Run();
 
 			if (!IsSuccess)
 				Serilog.Log.Logger.Error("Conversion failed");
@@ -79,10 +80,8 @@ namespace AaxDecrypter
 			=> RetrievedAuthors?.Invoke(this, authors);
 		protected void OnRetrievedNarrators(string narrators)
 			=> RetrievedNarrators?.Invoke(this, narrators);
-
 		protected void OnRetrievedCoverArt(byte[] coverArt)
 			=> RetrievedCoverArt?.Invoke(this, coverArt);
-
 		protected void OnDecryptProgressUpdate(DownloadProgress downloadProgress) 
 			=> DecryptProgressUpdate?.Invoke(this, downloadProgress);
 		protected void OnDecryptTimeRemaining(TimeSpan timeRemaining)

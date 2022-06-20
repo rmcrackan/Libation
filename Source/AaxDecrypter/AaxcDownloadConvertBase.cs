@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AAXClean;
 using Dinah.Core.Net.Http;
 
@@ -10,8 +11,8 @@ namespace AaxDecrypter
 
 		protected AaxFile AaxFile;
 
-		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, DownloadOptions dlLic)
-			: base(outFileName, cacheDirectory, dlLic) { }
+		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
+			: base(outFileName, cacheDirectory, dlOptions) { }
 
 		/// <summary>Setting cover art by this method will insert the art into the audiobook metadata</summary>
 		public override void SetCoverArt(byte[] coverArt)
@@ -109,10 +110,11 @@ namespace AaxDecrypter
 				});
 		}
 
-		public override void Cancel()
+		public override async Task CancelAsync()
 		{
 			IsCanceled = true;
-			AaxFile?.Cancel();
+			if (AaxFile != null)
+				await AaxFile.CancelAsync();
 			AaxFile?.Dispose();
 			CloseInputFileStream();
 		}

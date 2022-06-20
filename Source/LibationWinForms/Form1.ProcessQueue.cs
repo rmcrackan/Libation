@@ -38,7 +38,7 @@ namespace LibationWinForms
 			{
 				// liberated: open explorer to file
 				var filePath = AudibleFileStorage.Audio.GetPath(e.Book.AudibleProductId);
-				if (!Go.To.File(filePath))
+				if (!Go.To.File(filePath?.ShortPathName))
 				{
 					var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
 					MessageBox.Show($"File not found" + suffix);

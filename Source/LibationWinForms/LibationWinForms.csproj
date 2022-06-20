@@ -37,10 +37,15 @@
     <ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
     <ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="Form1.*.cs">
       <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Compile Update="Dialogs\SettingsDialog.*.cs">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
     </Compile>
   </ItemGroup>
 

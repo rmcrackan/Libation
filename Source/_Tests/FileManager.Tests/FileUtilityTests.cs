@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,26 +17,26 @@ namespace FileUtilityTests
 
 		// needs separate method. middle null param not running correctly in TestExplorer when used in DataRow()
 		[TestMethod]
-		[DataRow("http://test.com/a/b/c", @"http\test.com\a\b\c")]
+		[DataRow("http://test.com/a/b/c", @"http꞉\test.com\a\b\c")]
 		public void null_replacement(string inStr, string outStr) => Tests(inStr, null, outStr);
 
 		[TestMethod]
 		// empty replacement
-		[DataRow("abc*abc.txt", "", "abcabc.txt")]
+		[DataRow("abc*abc.txt", "", "abc✱abc.txt")]
 		// non-empty replacement
-		[DataRow("abc*abc.txt", "ZZZ", "abcZZZabc.txt")]
+		[DataRow("abc*abc.txt", "ZZZ", "abc✱abc.txt")]
 		// standardize slashes
 		[DataRow(@"a/b\c/d", "Z", @"a\b\c\d")]
 		// remove illegal chars
-		[DataRow("a*?:z.txt", "Z", "aZZZz.txt")]
+		[DataRow("a*?:z.txt", "Z", "a✱？꞉z.txt")]
 		// retain drive letter path colon
 		[DataRow(@"C:\az.txt", "Z", @"C:\az.txt")]
 		// replace all other colons
-		[DataRow(@"a\b:c\d.txt", "ZZZ", @"a\bZZZc\d.txt")]
+		[DataRow(@"a\b:c\d.txt", "ZZZ", @"a\b꞉c\d.txt")]
 		// remove empty directories
 		[DataRow(@"C:\a\\\b\c\\\d.txt", "ZZZ", @"C:\a\b\c\d.txt")]
-		[DataRow(@"C:\""foo\<id>", "ZZZ", @"C:\ZZZfoo\ZZZidZZZ")]
-		public void Tests(string inStr, string replacement, string outStr) => Assert.AreEqual(outStr, FileUtility.GetSafePath(inStr, replacement));
+		[DataRow(@"C:\""foo\<id>", "ZZZ", @"C:\“foo\＜id＞")]
+		public void Tests(string inStr, string replacement, string outStr) => Assert.AreEqual(outStr, FileUtility.GetSafePath(inStr, replacement).PathWithoutPrefix);
 	}
 
 	[TestClass]
@@ -134,7 +134,7 @@ namespace FileUtilityTests
 		// file end dots
 		[DataRow(@"C:\a bc\x y z\f i l e.txt . . .", @"C:\a bc\x y z\f i l e.txt")]
 		public void Tests(string input, string expected)
-			=> FileUtility.GetValidFilename(input).Should().Be(expected);
+			=> FileUtility.GetValidFilename(input).PathWithoutPrefix.Should().Be(expected);
 	}
 
 	[TestClass]

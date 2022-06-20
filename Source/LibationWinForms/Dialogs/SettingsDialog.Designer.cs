@@ -52,6 +52,7 @@
 			this.tabControl = new System.Windows.Forms.TabControl();
 			this.tab1ImportantSettings = new System.Windows.Forms.TabPage();
 			this.booksGb = new System.Windows.Forms.GroupBox();
+			this.saveEpisodesToSeriesFolderCbox = new System.Windows.Forms.CheckBox();
 			this.tab2ImportLibrary = new System.Windows.Forms.TabPage();
 			this.autoDownloadEpisodesCb = new System.Windows.Forms.CheckBox();
 			this.autoScanCb = new System.Windows.Forms.CheckBox();
@@ -69,6 +70,9 @@
 			this.folderTemplateTb = new System.Windows.Forms.TextBox();
 			this.folderTemplateLbl = new System.Windows.Forms.Label();
 			this.tab4AudioFileOptions = new System.Windows.Forms.TabPage();
+			this.chapterTitleTemplateGb = new System.Windows.Forms.GroupBox();
+			this.chapterTitleTemplateBtn = new System.Windows.Forms.Button();
+			this.chapterTitleTemplateTb = new System.Windows.Forms.TextBox();
 			this.lameOptionsGb = new System.Windows.Forms.GroupBox();
 			this.lameDownsampleMonoCbox = new System.Windows.Forms.CheckBox();
 			this.lameBitrateGb = new System.Windows.Forms.GroupBox();
@@ -103,7 +107,6 @@
 			this.retainAaxFileCbox = new System.Windows.Forms.CheckBox();
 			this.downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
 			this.createCueSheetCbox = new System.Windows.Forms.CheckBox();
-			this.saveEpisodesToSeriesFolderCbox = new System.Windows.Forms.CheckBox();
 			this.badBookGb.SuspendLayout();
 			this.tabControl.SuspendLayout();
 			this.tab1ImportantSettings.SuspendLayout();
@@ -113,6 +116,7 @@
 			this.inProgressFilesGb.SuspendLayout();
 			this.customFileNamingGb.SuspendLayout();
 			this.tab4AudioFileOptions.SuspendLayout();
+			this.chapterTitleTemplateGb.SuspendLayout();
 			this.lameOptionsGb.SuspendLayout();
 			this.lameBitrateGb.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.lameBitrateTb)).BeginInit();
@@ -262,6 +266,7 @@
 			this.splitFilesByChapterCbox.TabIndex = 13;
 			this.splitFilesByChapterCbox.Text = "[SplitFilesByChapter desc]";
 			this.splitFilesByChapterCbox.UseVisualStyleBackColor = true;
+			this.splitFilesByChapterCbox.CheckedChanged += new System.EventHandler(this.splitFilesByChapterCbox_CheckedChanged);
 			// 
 			// allowLibationFixupCbox
 			// 
@@ -303,7 +308,7 @@
 			// inProgressSelectControl
 			// 
 			this.inProgressSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.inProgressSelectControl.Location = new System.Drawing.Point(7, 68);
 			this.inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.inProgressSelectControl.Name = "inProgressSelectControl";
@@ -323,7 +328,7 @@
 			// booksSelectControl
 			// 
 			this.booksSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.booksSelectControl.Location = new System.Drawing.Point(7, 37);
 			this.booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.booksSelectControl.Name = "booksSelectControl";
@@ -351,8 +356,8 @@
 			// tabControl
 			// 
 			this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.tabControl.Controls.Add(this.tab1ImportantSettings);
 			this.tabControl.Controls.Add(this.tab2ImportLibrary);
 			this.tabControl.Controls.Add(this.tab3DownloadDecrypt);
@@ -380,7 +385,7 @@
 			// booksGb
 			// 
 			this.booksGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.booksGb.Controls.Add(this.saveEpisodesToSeriesFolderCbox);
 			this.booksGb.Controls.Add(this.booksSelectControl);
 			this.booksGb.Controls.Add(this.booksLocationDescLbl);
@@ -390,6 +395,16 @@
 			this.booksGb.TabIndex = 0;
 			this.booksGb.TabStop = false;
 			this.booksGb.Text = "Books location";
+			// 
+			// saveEpisodesToSeriesFolderCbox
+			// 
+			this.saveEpisodesToSeriesFolderCbox.AutoSize = true;
+			this.saveEpisodesToSeriesFolderCbox.Location = new System.Drawing.Point(7, 131);
+			this.saveEpisodesToSeriesFolderCbox.Name = "saveEpisodesToSeriesFolderCbox";
+			this.saveEpisodesToSeriesFolderCbox.Size = new System.Drawing.Size(191, 19);
+			this.saveEpisodesToSeriesFolderCbox.TabIndex = 3;
+			this.saveEpisodesToSeriesFolderCbox.Text = "[Save Episodes To Series Folder]";
+			this.saveEpisodesToSeriesFolderCbox.UseVisualStyleBackColor = true;
 			// 
 			// tab2ImportLibrary
 			// 
@@ -452,7 +467,7 @@
 			// inProgressFilesGb
 			// 
 			this.inProgressFilesGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.inProgressFilesGb.Controls.Add(this.inProgressDescLbl);
 			this.inProgressFilesGb.Controls.Add(this.inProgressSelectControl);
 			this.inProgressFilesGb.Location = new System.Drawing.Point(7, 251);
@@ -465,7 +480,7 @@
 			// customFileNamingGb
 			// 
 			this.customFileNamingGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateBtn);
 			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateTb);
 			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateLbl);
@@ -496,7 +511,7 @@
 			// chapterFileTemplateTb
 			// 
 			this.chapterFileTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.chapterFileTemplateTb.Location = new System.Drawing.Point(6, 125);
 			this.chapterFileTemplateTb.Name = "chapterFileTemplateTb";
 			this.chapterFileTemplateTb.ReadOnly = true;
@@ -508,9 +523,9 @@
 			this.chapterFileTemplateLbl.AutoSize = true;
 			this.chapterFileTemplateLbl.Location = new System.Drawing.Point(6, 107);
 			this.chapterFileTemplateLbl.Name = "chapterFileTemplateLbl";
-			this.chapterFileTemplateLbl.Size = new System.Drawing.Size(123, 15);
+			this.chapterFileTemplateLbl.Size = new System.Drawing.Size(132, 15);
 			this.chapterFileTemplateLbl.TabIndex = 6;
-			this.chapterFileTemplateLbl.Text = "[folder template desc]";
+			this.chapterFileTemplateLbl.Text = "[chapter template desc]";
 			// 
 			// fileTemplateBtn
 			// 
@@ -526,7 +541,7 @@
 			// fileTemplateTb
 			// 
 			this.fileTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.fileTemplateTb.Location = new System.Drawing.Point(6, 81);
 			this.fileTemplateTb.Name = "fileTemplateTb";
 			this.fileTemplateTb.ReadOnly = true;
@@ -538,9 +553,9 @@
 			this.fileTemplateLbl.AutoSize = true;
 			this.fileTemplateLbl.Location = new System.Drawing.Point(6, 63);
 			this.fileTemplateLbl.Name = "fileTemplateLbl";
-			this.fileTemplateLbl.Size = new System.Drawing.Size(123, 15);
+			this.fileTemplateLbl.Size = new System.Drawing.Size(108, 15);
 			this.fileTemplateLbl.TabIndex = 3;
-			this.fileTemplateLbl.Text = "[folder template desc]";
+			this.fileTemplateLbl.Text = "[file template desc]";
 			// 
 			// folderTemplateBtn
 			// 
@@ -556,7 +571,7 @@
 			// folderTemplateTb
 			// 
 			this.folderTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.folderTemplateTb.Location = new System.Drawing.Point(5, 37);
 			this.folderTemplateTb.Name = "folderTemplateTb";
 			this.folderTemplateTb.ReadOnly = true;
@@ -574,6 +589,7 @@
 			// 
 			// tab4AudioFileOptions
 			// 
+			this.tab4AudioFileOptions.Controls.Add(this.chapterTitleTemplateGb);
 			this.tab4AudioFileOptions.Controls.Add(this.lameOptionsGb);
 			this.tab4AudioFileOptions.Controls.Add(this.convertLossyRb);
 			this.tab4AudioFileOptions.Controls.Add(this.stripAudibleBrandingCbox);
@@ -592,6 +608,38 @@
 			this.tab4AudioFileOptions.Text = "Audio File Options";
 			this.tab4AudioFileOptions.UseVisualStyleBackColor = true;
 			// 
+			// chapterTitleTemplateGb
+			// 
+			this.chapterTitleTemplateGb.Controls.Add(this.chapterTitleTemplateBtn);
+			this.chapterTitleTemplateGb.Controls.Add(this.chapterTitleTemplateTb);
+			this.chapterTitleTemplateGb.Location = new System.Drawing.Point(6, 335);
+			this.chapterTitleTemplateGb.Name = "chapterTitleTemplateGb";
+			this.chapterTitleTemplateGb.Size = new System.Drawing.Size(842, 54);
+			this.chapterTitleTemplateGb.TabIndex = 18;
+			this.chapterTitleTemplateGb.TabStop = false;
+			this.chapterTitleTemplateGb.Text = "[chapter title template desc]";
+			// 
+			// chapterTitleTemplateBtn
+			// 
+			this.chapterTitleTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.chapterTitleTemplateBtn.Location = new System.Drawing.Point(764, 22);
+			this.chapterTitleTemplateBtn.Name = "chapterTitleTemplateBtn";
+			this.chapterTitleTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			this.chapterTitleTemplateBtn.TabIndex = 17;
+			this.chapterTitleTemplateBtn.Text = "Edit...";
+			this.chapterTitleTemplateBtn.UseVisualStyleBackColor = true;
+			this.chapterTitleTemplateBtn.Click += new System.EventHandler(this.chapterTitleTemplateBtn_Click);
+			// 
+			// chapterTitleTemplateTb
+			// 
+			this.chapterTitleTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
+			this.chapterTitleTemplateTb.Location = new System.Drawing.Point(6, 22);
+			this.chapterTitleTemplateTb.Name = "chapterTitleTemplateTb";
+			this.chapterTitleTemplateTb.ReadOnly = true;
+			this.chapterTitleTemplateTb.Size = new System.Drawing.Size(752, 23);
+			this.chapterTitleTemplateTb.TabIndex = 16;
+			// 
 			// lameOptionsGb
 			// 
 			this.lameOptionsGb.Controls.Add(this.lameDownsampleMonoCbox);
@@ -599,9 +647,9 @@
 			this.lameOptionsGb.Controls.Add(this.label1);
 			this.lameOptionsGb.Controls.Add(this.lameQualityGb);
 			this.lameOptionsGb.Controls.Add(this.groupBox2);
-			this.lameOptionsGb.Location = new System.Drawing.Point(415, 18);
+			this.lameOptionsGb.Location = new System.Drawing.Point(415, 6);
 			this.lameOptionsGb.Name = "lameOptionsGb";
-			this.lameOptionsGb.Size = new System.Drawing.Size(433, 371);
+			this.lameOptionsGb.Size = new System.Drawing.Size(433, 323);
 			this.lameOptionsGb.TabIndex = 14;
 			this.lameOptionsGb.TabStop = false;
 			this.lameOptionsGb.Text = "Mp3 Encoding Options";
@@ -629,7 +677,7 @@
 			this.lameBitrateGb.Controls.Add(this.lameBitrateTb);
 			this.lameBitrateGb.Location = new System.Drawing.Point(6, 84);
 			this.lameBitrateGb.Name = "lameBitrateGb";
-			this.lameBitrateGb.Size = new System.Drawing.Size(421, 112);
+			this.lameBitrateGb.Size = new System.Drawing.Size(421, 101);
 			this.lameBitrateGb.TabIndex = 0;
 			this.lameBitrateGb.TabStop = false;
 			this.lameBitrateGb.Text = "Bitrate";
@@ -637,7 +685,7 @@
 			// LameMatchSourceBRCbox
 			// 
 			this.LameMatchSourceBRCbox.AutoSize = true;
-			this.LameMatchSourceBRCbox.Location = new System.Drawing.Point(260, 87);
+			this.LameMatchSourceBRCbox.Location = new System.Drawing.Point(260, 77);
 			this.LameMatchSourceBRCbox.Name = "LameMatchSourceBRCbox";
 			this.LameMatchSourceBRCbox.Size = new System.Drawing.Size(140, 19);
 			this.LameMatchSourceBRCbox.TabIndex = 3;
@@ -648,7 +696,7 @@
 			// lameConstantBitrateCbox
 			// 
 			this.lameConstantBitrateCbox.AutoSize = true;
-			this.lameConstantBitrateCbox.Location = new System.Drawing.Point(6, 87);
+			this.lameConstantBitrateCbox.Location = new System.Drawing.Point(6, 77);
 			this.lameConstantBitrateCbox.Name = "lameConstantBitrateCbox";
 			this.lameConstantBitrateCbox.Size = new System.Drawing.Size(216, 19);
 			this.lameConstantBitrateCbox.TabIndex = 2;
@@ -734,7 +782,7 @@
 			this.label1.AutoSize = true;
 			this.label1.Enabled = false;
 			this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(6, 353);
+			this.label1.Location = new System.Drawing.Point(6, 298);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(172, 15);
 			this.label1.TabIndex = 1;
@@ -755,7 +803,7 @@
 			this.lameQualityGb.Controls.Add(this.label14);
 			this.lameQualityGb.Controls.Add(this.label2);
 			this.lameQualityGb.Controls.Add(this.lameVBRQualityTb);
-			this.lameQualityGb.Location = new System.Drawing.Point(6, 202);
+			this.lameQualityGb.Location = new System.Drawing.Point(6, 186);
 			this.lameQualityGb.Name = "lameQualityGb";
 			this.lameQualityGb.Size = new System.Drawing.Size(421, 109);
 			this.lameQualityGb.TabIndex = 0;
@@ -963,16 +1011,6 @@
 			this.createCueSheetCbox.UseVisualStyleBackColor = true;
 			this.createCueSheetCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
 			// 
-			// saveEpisodesToSeriesFolderCbox
-			// 
-			this.saveEpisodesToSeriesFolderCbox.AutoSize = true;
-			this.saveEpisodesToSeriesFolderCbox.Location = new System.Drawing.Point(7, 131);
-			this.saveEpisodesToSeriesFolderCbox.Name = "saveEpisodesToSeriesFolderCbox";
-			this.saveEpisodesToSeriesFolderCbox.Size = new System.Drawing.Size(191, 19);
-			this.saveEpisodesToSeriesFolderCbox.TabIndex = 3;
-			this.saveEpisodesToSeriesFolderCbox.Text = "[Save Episodes To Series Folder]";
-			this.saveEpisodesToSeriesFolderCbox.UseVisualStyleBackColor = true;
-			// 
 			// SettingsDialog
 			// 
 			this.AcceptButton = this.saveBtn;
@@ -1007,6 +1045,8 @@
 			this.customFileNamingGb.PerformLayout();
 			this.tab4AudioFileOptions.ResumeLayout(false);
 			this.tab4AudioFileOptions.PerformLayout();
+			this.chapterTitleTemplateGb.ResumeLayout(false);
+			this.chapterTitleTemplateGb.PerformLayout();
 			this.lameOptionsGb.ResumeLayout(false);
 			this.lameOptionsGb.PerformLayout();
 			this.lameBitrateGb.ResumeLayout(false);
@@ -1026,11 +1066,11 @@
 		private System.Windows.Forms.Label inProgressDescLbl;
 		private System.Windows.Forms.Button saveBtn;
 		private System.Windows.Forms.Button cancelBtn;
-        private System.Windows.Forms.CheckBox allowLibationFixupCbox;
+		private System.Windows.Forms.CheckBox allowLibationFixupCbox;
 		private DirectoryOrCustomSelectControl booksSelectControl;
 		private DirectorySelectControl inProgressSelectControl;
-        private System.Windows.Forms.RadioButton convertLossyRb;
-        private System.Windows.Forms.RadioButton convertLosslessRb;
+		private System.Windows.Forms.RadioButton convertLossyRb;
+		private System.Windows.Forms.RadioButton convertLosslessRb;
 		private System.Windows.Forms.Button logsBtn;
 		private System.Windows.Forms.Label loggingLevelLbl;
 		private System.Windows.Forms.ComboBox loggingLevelCb;
@@ -1041,7 +1081,7 @@
 		private System.Windows.Forms.RadioButton badBookIgnoreRb;
 		private System.Windows.Forms.CheckBox downloadEpisodesCb;
 		private System.Windows.Forms.CheckBox importEpisodesCb;
-        private System.Windows.Forms.CheckBox splitFilesByChapterCbox;
+		private System.Windows.Forms.CheckBox splitFilesByChapterCbox;
 		private System.Windows.Forms.TabControl tabControl;
 		private System.Windows.Forms.TabPage tab1ImportantSettings;
 		private System.Windows.Forms.GroupBox booksGb;
@@ -1058,7 +1098,7 @@
 		private System.Windows.Forms.Button folderTemplateBtn;
 		private System.Windows.Forms.TextBox folderTemplateTb;
 		private System.Windows.Forms.Label folderTemplateLbl;
-        private System.Windows.Forms.CheckBox showImportedStatsCb;
+		private System.Windows.Forms.CheckBox showImportedStatsCb;
 		private System.Windows.Forms.CheckBox stripAudibleBrandingCbox;
 		private System.Windows.Forms.TabPage tab4AudioFileOptions;
 		private System.Windows.Forms.CheckBox retainAaxFileCbox;
@@ -1094,9 +1134,12 @@
 		private System.Windows.Forms.Label label17;
 		private System.Windows.Forms.Label label16;
 		private System.Windows.Forms.CheckBox createCueSheetCbox;
-        private System.Windows.Forms.CheckBox autoScanCb;
+		private System.Windows.Forms.CheckBox autoScanCb;
 		private System.Windows.Forms.CheckBox downloadCoverArtCbox;
-        private System.Windows.Forms.CheckBox autoDownloadEpisodesCb;
+		private System.Windows.Forms.CheckBox autoDownloadEpisodesCb;
 		private System.Windows.Forms.CheckBox saveEpisodesToSeriesFolderCbox;
+		private System.Windows.Forms.GroupBox chapterTitleTemplateGb;
+		private System.Windows.Forms.Button chapterTitleTemplateBtn;
+		private System.Windows.Forms.TextBox chapterTitleTemplateTb;
 	}
 }

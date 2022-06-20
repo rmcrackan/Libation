@@ -38,7 +38,7 @@ namespace LibationWinForms
 			{
 				SetQueueCollapseState(false);
 				await Task.Run(() => processBookQueue1.AddConvertMp3(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
-					.Where(lb => lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.Liberated)));
+					.Where(lb => lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.Liberated && lb.Book.ContentType is DataLayer.ContentType.Product)));
 			}
 			//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.
 		}

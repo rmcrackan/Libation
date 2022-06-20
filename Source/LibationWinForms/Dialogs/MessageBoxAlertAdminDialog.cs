@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Drawing;
 using System.Windows.Forms;
+using FileManager;
 
 namespace LibationWinForms.Dialogs
 {
@@ -47,7 +48,7 @@ namespace LibationWinForms.Dialogs
 
 		private void logsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			string dir = "";
+			LongPath dir = "";
 			try
 			{
 				dir = LibationFileManager.Configuration.Instance.LibationFiles;
@@ -56,7 +57,7 @@ namespace LibationWinForms.Dialogs
 
 			try
 			{
-				Go.To.Folder(dir);
+				Go.To.Folder(dir.ShortPathName);
 			}
 			catch
 			{
