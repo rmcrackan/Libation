@@ -11,8 +11,8 @@ namespace AaxDecrypter
 
 		protected AaxFile AaxFile;
 
-		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, DownloadOptions dlLic)
-			: base(outFileName, cacheDirectory, dlLic) { }
+		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
+			: base(outFileName, cacheDirectory, dlOptions) { }
 
 		/// <summary>Setting cover art by this method will insert the art into the audiobook metadata</summary>
 		public override void SetCoverArt(byte[] coverArt)

@@ -11,8 +11,8 @@ namespace AaxDecrypter
 	{
 		protected override StepSequence Steps { get; }
 
-		public AaxcDownloadSingleConverter(string outFileName, string cacheDirectory, DownloadOptions dlLic)
-			: base(outFileName, cacheDirectory, dlLic)
+		public AaxcDownloadSingleConverter(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
+			: base(outFileName, cacheDirectory, dlOptions)
 		{
 			Steps = new StepSequence
 			{

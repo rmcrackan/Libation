@@ -13,24 +13,12 @@ namespace AaxDecrypter
 	public class AaxcDownloadMultiConverter : AaxcDownloadConvertBase
 	{
 		protected override StepSequence Steps { get; }
-
-		private Func<MultiConvertFileProperties, string> multipartFileNameCallback { get; }
-		private Func<MultiConvertFileProperties, string> multipartTitleNameCallback { get; }
-
 		private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
 		private List<string> multiPartFilePaths { get; } = new List<string>();
 
-		public AaxcDownloadMultiConverter(
-			string outFileName,
-			string cacheDirectory,
-			DownloadOptions dlLic,
-			Func<MultiConvertFileProperties, string> multipartFileNameCallback,
-			Func<MultiConvertFileProperties, string> multipartTitleNameCallback
-			)
-			: base(outFileName, cacheDirectory, dlLic)
+		public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
+			: base(outFileName, cacheDirectory, dlOptions)
 		{
-			ArgumentValidator.EnsureNotNull(multipartFileNameCallback, nameof(multipartFileNameCallback));
-			ArgumentValidator.EnsureNotNull(multipartTitleNameCallback, nameof(multipartTitleNameCallback));
 			Steps = new StepSequence
 			{
 				Name = "Download and Convert Aaxc To " + DownloadOptions.OutputFormat,
@@ -39,8 +27,6 @@ namespace AaxDecrypter
 				["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsMultipleFilesPerChapter,
 				["Step 3: Cleanup"] = Step_Cleanup,
 			};
-			this.multipartFileNameCallback = multipartFileNameCallback;
-			this.multipartTitleNameCallback = multipartTitleNameCallback;
 		}
 
 		/*
@@ -147,14 +133,14 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 				Title = newSplitCallback?.Chapter?.Title,
 			};
 			newSplitCallback.OutputFile = createOutputFileStream(props);
-			newSplitCallback.TrackTitle = multipartTitleNameCallback(props);
+			newSplitCallback.TrackTitle = DownloadOptions.GetMultipartTitleName(props);
 			newSplitCallback.TrackNumber = currentChapter;
 			newSplitCallback.TrackCount = splitChapters.Count;
 		}
 
 		private FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
 		{
-			var fileName = multipartFileNameCallback(multiConvertFileProperties);
+			var fileName = DownloadOptions.GetMultipartFileName(multiConvertFileProperties);
 			fileName = FileUtility.GetValidFilename(fileName);
 
 			multiPartFilePaths.Add(fileName);

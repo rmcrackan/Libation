@@ -25,7 +25,7 @@ namespace AaxDecrypter
 		public string TempFilePath { get; }
 
 		protected string OutputFileName { get; private set; }
-		protected DownloadOptions DownloadOptions { get; }
+		protected IDownloadOptions DownloadOptions { get; }
 		protected NetworkFileStream InputFileStream => (nfsPersister ??= OpenNetworkFileStream()).NetworkFileStream;
 
 		// Don't give the property a 'set'. This should have to be an obvious choice; not accidental
@@ -36,7 +36,7 @@ namespace AaxDecrypter
 
 		private string jsonDownloadState { get; }
 
-		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, DownloadOptions dlLic)
+		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
 		{
 			OutputFileName = ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
 
@@ -50,7 +50,7 @@ namespace AaxDecrypter
 			jsonDownloadState = Path.Combine(cacheDirectory, Path.GetFileName(Path.ChangeExtension(OutputFileName, ".json")));
 			TempFilePath = Path.ChangeExtension(jsonDownloadState, ".aaxc");
 
-			DownloadOptions = ArgumentValidator.EnsureNotNull(dlLic, nameof(dlLic));
+			DownloadOptions = ArgumentValidator.EnsureNotNull(dlOptions, nameof(dlOptions));
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);

@@ -101,24 +101,19 @@ namespace FileLiberator
 
 			var api = await libraryBook.GetApiAsync();
 			var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
-			var audiobookDlLic = BuildDownloadOptions(config, contentLic);
+			var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
 
-			var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, audiobookDlLic.OutputFormat.ToString().ToLower());
+			var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, dlOptions.OutputFormat.ToString().ToLower());
 			var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
 			if (contentLic.DrmType != AudibleApi.Common.DrmType.Adrm)
-				abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, audiobookDlLic);
+				abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, dlOptions);
 			else
 			{
 				AaxcDownloadConvertBase converter
 					= config.SplitFilesByChapter ? 
-					new AaxcDownloadMultiConverter
-					(
-						outFileName, cacheDir, audiobookDlLic,
-						AudibleFileStorage.Audio.CreateMultipartRenamerFunc(libraryBook),
-						AudibleFileStorage.Audio.CreateMultipartTitleNamer(libraryBook)
-					) :
-					new AaxcDownloadSingleConverter(outFileName, cacheDir, audiobookDlLic);
+					new AaxcDownloadMultiConverter(outFileName, cacheDir, dlOptions) :
+					new AaxcDownloadSingleConverter(outFileName, cacheDir, dlOptions);
 
 				if (config.AllowLibationFixup)
 					converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames());
@@ -140,7 +135,7 @@ namespace FileLiberator
 			return success;
 		}
 
-		private DownloadOptions BuildDownloadOptions(Configuration config, AudibleApi.Common.ContentLicense contentLic)
+		private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, AudibleApi.Common.ContentLicense contentLic)
 		{
 			//I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
 			//I also assume that if DrmType != Adrm, the file will be an mp3.
@@ -153,21 +148,22 @@ namespace FileLiberator
 
 			var dlOptions = new DownloadOptions
 				 (
-				 contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
-				 Resources.USER_AGENT
+					libraryBook,
+					contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
+					Resources.USER_AGENT
 				 )
-			{
-				AudibleKey = contentLic?.Voucher?.Key,
-				AudibleIV = contentLic?.Voucher?.Iv,
-				OutputFormat = outputFormat,
-				TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
-				RetainEncryptedFile = config.RetainAaxFile && encrypted,
-				StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
-				Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
-				MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
-				CreateCueSheet = config.CreateCueSheet,
-				LameConfig = GetLameOptions(config)
-			};
+				{
+					AudibleKey = contentLic?.Voucher?.Key,
+					AudibleIV = contentLic?.Voucher?.Iv,
+					OutputFormat = outputFormat,
+					TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
+					RetainEncryptedFile = config.RetainAaxFile && encrypted,
+					StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
+					Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
+					MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
+					CreateCueSheet = config.CreateCueSheet,
+					LameConfig = GetLameOptions(config)
+				};
 
 			if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
 			{
