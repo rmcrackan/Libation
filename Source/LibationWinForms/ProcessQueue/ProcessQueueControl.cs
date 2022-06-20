@@ -209,10 +209,10 @@ namespace LibationWinForms.ProcessQueue
 			toolStripProgressBar1.Value = Queue.Completed.Count;
 		}
 
-		private void cancelAllBtn_Click(object sender, EventArgs e)
+		private async void cancelAllBtn_Click(object sender, EventArgs e)
 		{
 			Queue.ClearQueue();
-			Queue.Current?.CancelAsync();
+			await Queue.Current?.CancelAsync();
 			virtualFlowControl2.VirtualControlCount = Queue.Count;
 			UpdateAllControls();
 		}
