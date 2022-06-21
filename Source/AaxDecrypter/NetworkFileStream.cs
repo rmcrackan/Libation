@@ -145,7 +145,14 @@ namespace AaxDecrypter
 		private void Update()
 		{
 			RequestHeaders = HttpRequest.Headers;
-			Updated?.Invoke(this, EventArgs.Empty);
+			try
+			{
+				Updated?.Invoke(this, EventArgs.Empty);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "An error was encountered while saving the download progress to JSON");
+			}
 		}
 
 		/// <summary>
@@ -245,9 +252,6 @@ namespace AaxDecrypter
 				WritePosition = downloadPosition;
 				Update();
 
-				downloadedPiece.Set();
-				downloadEnded.Set();
-
 				if (!IsCancelled && WritePosition < ContentLength)
 					throw new WebException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
 
@@ -258,6 +262,11 @@ namespace AaxDecrypter
 			{
 				Serilog.Log.Error(ex, "An error was encountered while downloading {Uri}", Uri);
 				IsCancelled = true;
+			}
+			finally
+			{
+				downloadedPiece.Set();
+				downloadEnded.Set();
 			}
 		}
 
@@ -401,10 +410,11 @@ namespace AaxDecrypter
 		{
 			if (!hasBegunDownloading)
 				BeginDownloading();
-
+			
 			var toRead = Math.Min(count, Length - Position);
 			WaitToPosition(Position + toRead);
-			return _readFile.Read(buffer, offset, count);
+
+			return IsCancelled ? 0 : _readFile.Read(buffer, offset, count);
 		}
 
 		public override long Seek(long offset, SeekOrigin origin)
