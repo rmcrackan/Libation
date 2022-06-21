@@ -18,7 +18,8 @@ namespace FileManager
 		/// <summary>Generate a valid path for this file or directory</summary>
 		public LongPath GetFilePath(bool returnFirstExisting = false)
 		{
-			string fileName = Template;
+
+			string fileName = Template.EndsWith(Path.DirectorySeparatorChar) ? Template[..^1] : Template;
 			List<string> pathParts = new();
 
 			var paramReplacements = ParameterReplacements.ToDictionary(r => $"<{formatKey(r.Key)}>", r => formatValue(r.Value));
