@@ -16,7 +16,6 @@ namespace FileManager
 
 		private const int MAX_PATH = 260;
 		private const string LONG_PATH_PREFIX = "\\\\?\\";
-		private static readonly StringBuilder longPathBuffer = new(MaxPathLength);
 
 		public string Path { get; init; }
 		public override string ToString() => Path;
@@ -71,18 +70,24 @@ namespace FileManager
 				//
 				//	"Based on the above settings, 8dot3 name creation is [enabled/disabled] on c:"
 				//
-				//To enable short names on all volumes on the system, run the following command
+				//To enable short names on a volume on the system, run the following command
 				//from an elevated command prompt:
 				//
 				//	fsutil 8dot3name set c: 0
+				//
+				//or for all volumes on the system:
+				//
+				//	fsutil 8dot3name set 0
 				//
 				//Note that after enabling 8dot3 names on a volume, they will only be available
 				//for newly-created entries in ther file system. Existing entries made while
 				//8dot3 names were disabled will not be reachable by short paths.
 
 				if (Path is null) return null;
-				GetShortPathName(Path, longPathBuffer, MaxPathLength);
-				return longPathBuffer.ToString();
+
+				StringBuilder shortPathBuffer = new(MaxPathLength);
+				GetShortPathName(Path, shortPathBuffer, MaxPathLength);
+				return shortPathBuffer.ToString();
 			}
 		}
 
@@ -92,6 +97,8 @@ namespace FileManager
 			get
 			{
 				if (Path is null) return null;
+
+				StringBuilder longPathBuffer = new(MaxPathLength);
 				GetLongPathName(Path, longPathBuffer, MaxPathLength);
 				return longPathBuffer.ToString();
 			}
