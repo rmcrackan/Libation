@@ -42,7 +42,7 @@ namespace FileManager
 
 			pathParts.Reverse();
 
-			return FileUtility.GetValidFilename(string.Join(Path.DirectorySeparatorChar, pathParts), IllegalCharacterReplacements, returnFirstExisting);
+			return FileUtility.GetValidFilename(Path.Join(pathParts.ToArray()), IllegalCharacterReplacements, returnFirstExisting);
 		}
 
 		private string replaceFileName(string filename, Dictionary<string,string> paramReplacements)
