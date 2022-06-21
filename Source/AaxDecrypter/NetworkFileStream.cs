@@ -412,7 +412,6 @@ namespace AaxDecrypter
 			
 			var toRead = Math.Min(count, Length - Position);
 			WaitToPosition(Position + toRead);
-
 			return _readFile.Read(buffer, offset, count);
 		}
 
@@ -435,11 +434,13 @@ namespace AaxDecrypter
 		/// <param name="requiredPosition">The minimum required flished data length in <see cref="SaveFilePath"/>.</param>
 		private void WaitToPosition(long requiredPosition)
 		{
-			while (requiredPosition > WritePosition
+			while (WritePosition < requiredPosition
 				&& hasBegunDownloading
 				&& !IsCancelled
-				&& !downloadEnded.WaitOne(0)
-				&& !downloadedPiece.WaitOne(100)) ;
+				&& !downloadEnded.WaitOne(0))
+			{
+				downloadedPiece.WaitOne(100);
+			}
 		}
 
 		public override void Close()
