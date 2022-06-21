@@ -140,12 +140,11 @@ namespace LibationWinForms.Dialogs
 			richTextBox1.SelectionFont = reg;
 
 			if (isChapterTitle)
+			{
 				richTextBox1.SelectionFont = bold;
-
-			richTextBox1.AppendText(chapterTitle);
-
-			if (isChapterTitle)
+				richTextBox1.AppendText(chapterTitle);
 				return;
+			}
 
 			richTextBox1.AppendText(slashWrap(books));
 			richTextBox1.AppendText(sing);
