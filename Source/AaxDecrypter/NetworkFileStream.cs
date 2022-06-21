@@ -145,7 +145,14 @@ namespace AaxDecrypter
 		private void Update()
 		{
 			RequestHeaders = HttpRequest.Headers;
-			Updated?.Invoke(this, EventArgs.Empty);
+			try
+			{
+				Updated?.Invoke(this, EventArgs.Empty);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "An error was encountered while saving the download progress to JSON");
+			}
 		}
 
 		/// <summary>
@@ -245,9 +252,6 @@ namespace AaxDecrypter
 				WritePosition = downloadPosition;
 				Update();
 
-				downloadedPiece.Set();
-				downloadEnded.Set();
-
 				if (!IsCancelled && WritePosition < ContentLength)
 					throw new WebException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
 
@@ -257,7 +261,11 @@ namespace AaxDecrypter
 			catch (Exception ex)
 			{
 				Serilog.Log.Error(ex, "An error was encountered while downloading {Uri}", Uri);
-				IsCancelled = true;
+			}
+			finally
+			{
+				downloadedPiece.Set();
+				downloadEnded.Set();
 			}
 		}
 
@@ -401,7 +409,7 @@ namespace AaxDecrypter
 		{
 			if (!hasBegunDownloading)
 				BeginDownloading();
-
+			
 			var toRead = Math.Min(count, Length - Position);
 			WaitToPosition(Position + toRead);
 			return _readFile.Read(buffer, offset, count);
@@ -426,14 +434,20 @@ namespace AaxDecrypter
 		/// <param name="requiredPosition">The minimum required flished data length in <see cref="SaveFilePath"/>.</param>
 		private void WaitToPosition(long requiredPosition)
 		{
-			while (requiredPosition > WritePosition && !IsCancelled && hasBegunDownloading && !downloadedPiece.WaitOne(1000)) ;
+			while (WritePosition < requiredPosition
+				&& hasBegunDownloading
+				&& !IsCancelled
+				&& !downloadEnded.WaitOne(0))
+			{
+				downloadedPiece.WaitOne(100);
+			}
 		}
 
 		public override void Close()
 		{
 			IsCancelled = true;
 
-			while (downloadEnded is not null && !downloadEnded.WaitOne(1000)) ;
+			while (downloadEnded is not null && !downloadEnded.WaitOne(100)) ;
 
 			_readFile.Close();
 			_writeFile.Close();
