@@ -4,6 +4,7 @@ namespace AaxDecrypter
 {
     public interface IDownloadOptions
 	{
+        FileManager.ReplacementCharacters ReplacementCharacters { get; }
         string DownloadUrl { get; }
         string UserAgent { get; }
         string AudibleKey { get; }

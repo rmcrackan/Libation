@@ -106,7 +106,7 @@ namespace LibationFileManager
 			=> string.IsNullOrWhiteSpace(template)
 			? ""
 			: getFileNamingTemplate(libraryBookDto, template, null, null)
-			.GetFilePath().PathWithoutPrefix;
+			.GetFilePath(Configuration.Instance.ReplacementCharacters).PathWithoutPrefix;
 
 		private static Regex ifSeriesRegex { get; } = new Regex("<if series->(.*?)<-if series>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -210,7 +210,7 @@ namespace LibationFileManager
 			/// <summary>USES LIVE CONFIGURATION VALUES</summary>
 			public string GetFilename(LibraryBookDto libraryBookDto, string baseDir = null)
 				=> getFileNamingTemplate(libraryBookDto, Configuration.Instance.FolderTemplate, baseDir ?? AudibleFileStorage.BooksDirectory, null)
-				.GetFilePath();
+				.GetFilePath(Configuration.Instance.ReplacementCharacters);
 			#endregion
 		}
 
@@ -233,7 +233,7 @@ namespace LibationFileManager
 			/// <summary>USES LIVE CONFIGURATION VALUES</summary>
 			public string GetFilename(LibraryBookDto libraryBookDto, string dirFullPath, string extension, bool returnFirstExisting = false)
 				=> getFileNamingTemplate(libraryBookDto, Configuration.Instance.FileTemplate, dirFullPath, extension)
-				.GetFilePath(returnFirstExisting);
+				.GetFilePath(Configuration.Instance.ReplacementCharacters, returnFirstExisting);
 			#endregion
 		}
 
@@ -277,7 +277,7 @@ namespace LibationFileManager
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChNumber0, FileUtility.GetSequenceFormatted(props.PartsPosition, props.PartsTotal));
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChTitle, props.Title ?? "");
 
-				return fileNamingTemplate.GetFilePath().PathWithoutPrefix;
+				return fileNamingTemplate.GetFilePath(Configuration.Instance.ReplacementCharacters).PathWithoutPrefix;
 			}
 			#endregion
 		}

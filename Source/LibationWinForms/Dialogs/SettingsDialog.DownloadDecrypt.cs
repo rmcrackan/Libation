@@ -11,9 +11,18 @@ namespace LibationWinForms.Dialogs
 		private void fileTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.File, fileTemplateTb);
 		private void chapterFileTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.ChapterFile, chapterFileTemplateTb);
 
+
+		private void editCharreplacementBtn_Click(object sender, EventArgs e)
+		{
+			var form = new EditReplacementChars(config);
+			form.ShowDialog();
+		}
+
 		private void Load_DownloadDecrypt(Configuration config)
 		{
 			inProgressDescLbl.Text = desc(nameof(config.InProgress));
+			editCharreplacementBtn.Text = desc(nameof(config.ReplacementCharacters));
+
 			badBookGb.Text = desc(nameof(config.BadBook));
 			badBookAskRb.Text = Configuration.BadBookAction.Ask.GetDescription();
 			badBookAbortRb.Text = Configuration.BadBookAction.Abort.GetDescription();
