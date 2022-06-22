@@ -79,8 +79,13 @@ namespace FileManager
             //Stop raising events
             fileSystemWatcher?.Dispose();
 
-            //Calling CompleteAdding() will cause background scanner to terminate.
-            directoryChangesEvents?.CompleteAdding();
+            try
+            {
+                //Calling CompleteAdding() will cause background scanner to terminate.
+                directoryChangesEvents?.CompleteAdding();
+            }
+            // if directoryChangesEvents is non-null and isDisposed, this exception is thrown. there's no other way to check >:(
+            catch (ObjectDisposedException) { }
 
             //Wait for background scanner to terminate before reinitializing.
             backgroundScanner?.Wait();
