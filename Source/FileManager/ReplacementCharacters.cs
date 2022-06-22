@@ -182,7 +182,7 @@ namespace FileManager
 		{
 			var jObj = JObject.Load(reader);
 			var replaceArr = jObj[nameof(Replacement)];
-			var dict = replaceArr
+			IReadOnlyList<Replacement> dict = replaceArr
 				.ToObject<Replacement[]>().ToList();
 
 			//Ensure that the first 4 replacements are for the expected chars and that all replacement strings are valid.
