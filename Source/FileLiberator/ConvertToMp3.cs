@@ -70,7 +70,7 @@ namespace FileLiberator
 						return new StatusHandler { "Cancelled" };
 					}
 
-					var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path);
+					var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path, Configuration.Instance.ReplacementCharacters);
 					OnFileCreated(libraryBook, realMp3Path);
 				}
 				return new StatusHandler();

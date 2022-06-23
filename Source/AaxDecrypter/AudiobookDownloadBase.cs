@@ -103,7 +103,7 @@ namespace AaxDecrypter
 			try
 			{
 				var path = Path.ChangeExtension(OutputFileName, ".cue");
-				path = FileUtility.GetValidFilename(path);
+				path = FileUtility.GetValidFilename(path, DownloadOptions.ReplacementCharacters);
 				File.WriteAllText(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadOptions.ChapterInfo));
 				OnFileCreated(path);
 			}
