@@ -79,11 +79,11 @@ namespace FileManager
 
 		// GetInvalidFileNameChars contains everything in GetInvalidPathChars plus ':', '*', '?', '\\', '/'
 
-		/// <summary>Use with file name, not full path. Valid path charaters which are invalid file name characters will be replaced: ':', '\\', '/'</summary>
+		/// <summary>Use with file name, not full path. Valid path characters which are invalid file name characters will be replaced: ':', '\\', '/'</summary>
 		public static string GetSafeFileName(string str, string illegalCharacterReplacements = "")
 			=> string.Join(illegalCharacterReplacements ?? "", str.Split(Path.GetInvalidFileNameChars()));
 
-		/// <summary>Use with full path, not file name. Valid path charaters which are invalid file name characters will be retained: '\\', '/'</summary>
+		/// <summary>Use with full path, not file name. Valid path characters which are invalid file name characters will be retained: '\\', '/'</summary>
 		public static LongPath GetSafePath(LongPath path, string illegalCharacterReplacements = "")
 		{
 			ArgumentValidator.EnsureNotNull(path, nameof(path));
@@ -191,7 +191,7 @@ namespace FileManager
 			// regex is easier by ending with separator
 			fullfilename += Path.DirectorySeparatorChar;
 			fullfilename = removeInvalidWhitespace_regex.Replace(fullfilename, Path.DirectorySeparatorChar.ToString());
-			// take seperator back off
+			// take separator back off
 			fullfilename = RemoveLastCharacter(fullfilename);
 
 			fullfilename = removeDoubleSlashes(fullfilename);
