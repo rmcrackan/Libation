@@ -87,7 +87,7 @@ namespace LibationWinForms
 
 			var defaultLibationFilesDir = Configuration.UserProfile;
 
-			// check for existing settigns in default location
+			// check for existing settings in default location
 			var defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
 			if (Configuration.SettingsFileIsValid(defaultSettingsFile))
 				config.SetLibationFiles(defaultLibationFilesDir);
