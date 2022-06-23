@@ -66,4 +66,4 @@
 
 Disclaimer: I've made every good-faith effort to include nothing insecure, malicious, anti-privacy, or destructive. That said: use at your own risk.
 
-I made this for myself and I want to share it with the great programming and audible/audiobook communiites which have been so generous with their time and help.
+I made this for myself and I want to share it with the great programming and audible/audiobook communities which have been so generous with their time and help.

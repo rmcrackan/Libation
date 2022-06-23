@@ -20,7 +20,7 @@ STRUCTURE
 * Folders in the solution are numbered. Eg: "4 Domain (db)"
 * All projects should only refer to other projects in the same folder or to projects in folders with smaller numbers.
 * 1 Core Libraries
-  This is code which has roughly equivilent priority and knowledge as the BCL. In practice, if code is this universal then it doesn't live here long and is instead moved into Dinah.Core.
+  This is code which has roughly equivalent priority and knowledge as the BCL. In practice, if code is this universal then it doesn't live here long and is instead moved into Dinah.Core.
 * 2 Utilities (domain ignorant)
   Stand-alone libraries with no knowledge of anything having to do with Libation or other programs. In theory any of these should be able to one day be converted to a nuget pkg
 * 3 Domain Internal Utilities (db ignorant)

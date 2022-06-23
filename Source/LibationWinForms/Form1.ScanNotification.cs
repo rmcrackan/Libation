@@ -3,7 +3,7 @@ using ApplicationServices;
 
 namespace LibationWinForms
 {
-	// This is for the Scanning notificationin the upper right. This shown for manual scanning and auto-scan
+	// This is for the Scanning notification in the upper right. This shown for manual scanning and auto-scan
     public partial class Form1
     {
         private void Configure_ScanNotification()
