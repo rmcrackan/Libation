@@ -195,7 +195,7 @@ namespace FileManager
 			{
 				var c = pathStr[i];
 
-				if (!invalidChars.Contains(c) || (i <= 2 && Path.IsPathRooted(pathStr)))
+				if (!invalidChars.Contains(c) || (c == ':' && i == 1 && Path.IsPathRooted(pathStr)))
 					builder.Append(c);
 				else
 				{
