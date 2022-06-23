@@ -134,7 +134,7 @@ namespace ApplicationServices
 				if (newParents >= 0)
 				{
 					//If any episodes are still orphaned, their series have been
-					//removed from the catalog and we'll never be able to find them.
+					//removed from the catalog and wel'll never be able to find them.
 
 					//only do this if findAndAddMissingParents returned >= 0. If it
 					//returned < 0, an error happened and there's still a chance that
@@ -251,7 +251,7 @@ namespace ApplicationServices
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "An error occurred while trying to remove orphaned episodes from the database");
+				Serilog.Log.Logger.Error(ex, "An error occured while trying to remove orphaned episodes from the database");
 			}
 		}
 
@@ -274,7 +274,7 @@ namespace ApplicationServices
 					.DistinctBy(s => s.Series.AudibleSeriesId)
 					.ToList();
 
-				// The Catalog endpoint does not require authentication.
+				// The Catalog endpointdoes not require authentication.
 				var api = new ApiUnauthenticated(accounts[0].Locale);
 
 				var seriesParents = orphanedSeries.Select(o => o.Series.AudibleSeriesId).ToList();
@@ -308,7 +308,7 @@ namespace ApplicationServices
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "An error occurred while trying to scan for orphaned episode parents.");
+				Serilog.Log.Logger.Error(ex, "An error occured while trying to scan for orphaned episode parents.");
 				return -1;
 			}
 		}
@@ -321,7 +321,7 @@ namespace ApplicationServices
 			}
 			catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
 			{
-				// DbUpdateException exceptions can wreck serilog. Condense it until we can find a better solution. I suspect the culprit is the "WithExceptionDetails" serilog extension
+				// DbUpdateException exceptions can wreck serilog. Condense it until we can find a better solution. I suspect the culpret is the "WithExceptionDetails" serilog extension
 
 				static string format(Exception ex) => $"\r\nMessage: {ex.Message}\r\nStack Trace:\r\n{ex.StackTrace}";
 

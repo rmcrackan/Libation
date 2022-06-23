@@ -218,7 +218,7 @@ namespace AaxDecrypter
 		}
 
 		/// <summary>
-		/// Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.
+		/// Downlod <see cref="Uri"/> to <see cref="SaveFilePath"/>.
 		/// </summary>
 		private void DownloadFile()
 		{

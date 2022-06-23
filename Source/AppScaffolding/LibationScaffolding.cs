@@ -473,7 +473,7 @@ namespace AppScaffolding
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "An error occurred while running database migrations in {0}", nameof(migrate_from_7_10_1));
+				Serilog.Log.Logger.Error(ex, "An error occured while running database migrations in {0}", nameof(migrate_from_7_10_1));
 				config.SetObject($"{nameof(migrate_from_7_10_1)}_ThrewError", true);
 			}
 		}

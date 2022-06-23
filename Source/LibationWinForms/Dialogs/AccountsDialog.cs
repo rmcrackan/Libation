@@ -252,7 +252,7 @@ namespace LibationWinForms.Dialogs
 			{
 				MessageBoxLib.ShowAdminAlert(
 					this,
-					$"An error occurred while exporting account:\r\n{account.AccountName}",
+					$"An error occured while exporting account:\r\n{account.AccountName}",
 					"Error Exporting Account",
 					ex);
 			}
@@ -294,7 +294,7 @@ namespace LibationWinForms.Dialogs
 			{
 				MessageBoxLib.ShowAdminAlert(
 						this,
-						$"An error occurred while importing an account from:\r\n{ofd.FileName}\r\n\r\nIs the file encrypted?",
+						$"An error occured while importing an account from:\r\n{ofd.FileName}\r\n\r\nIs the file encrypted?",
 						"Error Importing Account",
 						ex);
 			}
