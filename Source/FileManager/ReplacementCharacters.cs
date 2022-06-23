@@ -185,7 +185,7 @@ namespace FileManager
 			return builder.ToString();
 		}
 
-		public string ReplaceInvalidChars(string pathStr)
+		public string ReplaceInvalidPathChars(string pathStr)
 		{
 			if (string.IsNullOrEmpty(pathStr)) return string.Empty;
 

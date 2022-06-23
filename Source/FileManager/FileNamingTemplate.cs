@@ -15,7 +15,11 @@ namespace FileManager
 		/// <summary>Generate a valid path for this file or directory</summary>
 		public LongPath GetFilePath(ReplacementCharacters replacements, bool returnFirstExisting = false)
 		{
-			string fileName = Template.EndsWith(Path.DirectorySeparatorChar) ? Template[..^1] : Template;
+			string fileName = 
+				Template.EndsWith(Path.DirectorySeparatorChar) || Template.EndsWith(Path.AltDirectorySeparatorChar) ?
+					FileUtility.RemoveLastCharacter(Template) : 
+					Template;
+
 			List<string> pathParts = new();
 
 			var paramReplacements = ParameterReplacements.ToDictionary(r => $"<{formatKey(r.Key)}>", r => formatValue(r.Value, replacements));
