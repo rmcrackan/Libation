@@ -56,7 +56,7 @@ namespace LibationWinForms.Dialogs
 			=> LoadTable(ReplacementCharacters.Default.Replacements);
 
 		private void minDefaultBtn_Click(object sender, EventArgs e)
-			=> LoadTable(ReplacementCharacters.Minimum.Replacements);
+			=> LoadTable(ReplacementCharacters.Barebones.Replacements);
 
 
 		private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)

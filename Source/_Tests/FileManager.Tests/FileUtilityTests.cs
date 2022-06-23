@@ -14,7 +14,7 @@ namespace FileUtilityTests
 	{
 		static readonly ReplacementCharacters Default = ReplacementCharacters.Default;
 		static readonly ReplacementCharacters LoFiDefault = ReplacementCharacters.LoFiDefault;
-		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Minimum;
+		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Barebones;
 
 		[TestMethod]
 		public void null_path_throws() => Assert.ThrowsException<ArgumentNullException>(() => FileUtility.GetSafePath(null, Default));
@@ -73,7 +73,7 @@ namespace FileUtilityTests
 	{
 		static readonly ReplacementCharacters Default = ReplacementCharacters.Default;
 		static readonly ReplacementCharacters LoFiDefault = ReplacementCharacters.LoFiDefault;
-		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Minimum;
+		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Barebones;
 
 		// needs separate method. middle null param not running correctly in TestExplorer when used in DataRow()
 		[TestMethod]

@@ -93,7 +93,7 @@ namespace FileManager
 			}
 		};
 
-		public static readonly ReplacementCharacters Minimum = new()
+		public static readonly ReplacementCharacters Barebones = new()
 		{
 			Replacements = new List<Replacement>()
 			{
