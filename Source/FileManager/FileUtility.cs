@@ -84,10 +84,37 @@ namespace FileManager
 
 			var pathNoPrefix = path.PathWithoutPrefix;
 
-			pathNoPrefix = replacements.ReplaceInvalidChars(pathNoPrefix);
+			pathNoPrefix = replaceInvalidChars(pathNoPrefix, replacements);
 			pathNoPrefix = removeDoubleSlashes(pathNoPrefix);
 
 			return pathNoPrefix;
+		}
+
+		public static char[] invalidChars { get; } = Path.GetInvalidPathChars().Union(new[] {
+				'*', '?', ':',
+				// these are weird. If you run Path.GetInvalidPathChars() in Visual Studio's "C# Interactive", then these characters are included.
+				// In live code, Path.GetInvalidPathChars() does not include them
+				'"', '<', '>'
+			}).ToArray();
+		private static string replaceInvalidChars(string path, ReplacementCharacters replacements)
+		{
+			// replace all colons except within the first 2 chars
+			var builder = new System.Text.StringBuilder();
+			for (var i = 0; i < path.Length; i++)
+			{
+				var c = path[i];
+
+				if (!invalidChars.Contains(c) || (i <= 2 && Path.IsPathRooted(path)))
+					builder.Append(c);
+				else
+				{
+					char preceding = i > 0 ? path[i - 1] : default;
+					char succeeding = i < path.Length - 1 ? path[i + 1] : default;
+					builder.Append(replacements.GetReplacement(c, preceding, succeeding));
+				}
+
+			}
+			return builder.ToString();
 		}
 
 		private static string removeDoubleSlashes(string path)
