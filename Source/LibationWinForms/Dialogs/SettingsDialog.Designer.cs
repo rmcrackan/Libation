@@ -60,7 +60,6 @@
 			this.tab3DownloadDecrypt = new System.Windows.Forms.TabPage();
 			this.inProgressFilesGb = new System.Windows.Forms.GroupBox();
 			this.customFileNamingGb = new System.Windows.Forms.GroupBox();
-			this.editCharreplacementBtn = new System.Windows.Forms.Button();
 			this.chapterFileTemplateBtn = new System.Windows.Forms.Button();
 			this.chapterFileTemplateTb = new System.Windows.Forms.TextBox();
 			this.chapterFileTemplateLbl = new System.Windows.Forms.Label();
@@ -149,7 +148,7 @@
 			// saveBtn
 			// 
 			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(667, 461);
+			this.saveBtn.Location = new System.Drawing.Point(667, 441);
 			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(88, 27);
@@ -162,7 +161,7 @@
 			// 
 			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(785, 461);
+			this.cancelBtn.Location = new System.Drawing.Point(785, 441);
 			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.cancelBtn.Name = "cancelBtn";
 			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
@@ -309,7 +308,7 @@
 			// inProgressSelectControl
 			// 
 			this.inProgressSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.inProgressSelectControl.Location = new System.Drawing.Point(7, 68);
 			this.inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.inProgressSelectControl.Name = "inProgressSelectControl";
@@ -329,7 +328,7 @@
 			// booksSelectControl
 			// 
 			this.booksSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.booksSelectControl.Location = new System.Drawing.Point(7, 37);
 			this.booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.booksSelectControl.Name = "booksSelectControl";
@@ -357,8 +356,8 @@
 			// tabControl
 			// 
 			this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.tabControl.Controls.Add(this.tab1ImportantSettings);
 			this.tabControl.Controls.Add(this.tab2ImportLibrary);
 			this.tabControl.Controls.Add(this.tab3DownloadDecrypt);
@@ -366,7 +365,7 @@
 			this.tabControl.Location = new System.Drawing.Point(12, 12);
 			this.tabControl.Name = "tabControl";
 			this.tabControl.SelectedIndex = 0;
-			this.tabControl.Size = new System.Drawing.Size(862, 443);
+			this.tabControl.Size = new System.Drawing.Size(862, 423);
 			this.tabControl.TabIndex = 100;
 			// 
 			// tab1ImportantSettings
@@ -378,7 +377,7 @@
 			this.tab1ImportantSettings.Location = new System.Drawing.Point(4, 24);
 			this.tab1ImportantSettings.Name = "tab1ImportantSettings";
 			this.tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(3);
-			this.tab1ImportantSettings.Size = new System.Drawing.Size(854, 415);
+			this.tab1ImportantSettings.Size = new System.Drawing.Size(854, 395);
 			this.tab1ImportantSettings.TabIndex = 0;
 			this.tab1ImportantSettings.Text = "Important settings";
 			this.tab1ImportantSettings.UseVisualStyleBackColor = true;
@@ -386,7 +385,7 @@
 			// booksGb
 			// 
 			this.booksGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.booksGb.Controls.Add(this.saveEpisodesToSeriesFolderCbox);
 			this.booksGb.Controls.Add(this.booksSelectControl);
 			this.booksGb.Controls.Add(this.booksLocationDescLbl);
@@ -417,7 +416,7 @@
 			this.tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
 			this.tab2ImportLibrary.Name = "tab2ImportLibrary";
 			this.tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
-			this.tab2ImportLibrary.Size = new System.Drawing.Size(854, 415);
+			this.tab2ImportLibrary.Size = new System.Drawing.Size(854, 395);
 			this.tab2ImportLibrary.TabIndex = 1;
 			this.tab2ImportLibrary.Text = "Import library";
 			this.tab2ImportLibrary.UseVisualStyleBackColor = true;
@@ -460,7 +459,7 @@
 			this.tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
 			this.tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
 			this.tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3);
-			this.tab3DownloadDecrypt.Size = new System.Drawing.Size(854, 415);
+			this.tab3DownloadDecrypt.Size = new System.Drawing.Size(854, 395);
 			this.tab3DownloadDecrypt.TabIndex = 2;
 			this.tab3DownloadDecrypt.Text = "Download/Decrypt";
 			this.tab3DownloadDecrypt.UseVisualStyleBackColor = true;
@@ -468,10 +467,10 @@
 			// inProgressFilesGb
 			// 
 			this.inProgressFilesGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.inProgressFilesGb.Controls.Add(this.inProgressDescLbl);
 			this.inProgressFilesGb.Controls.Add(this.inProgressSelectControl);
-			this.inProgressFilesGb.Location = new System.Drawing.Point(6, 281);
+			this.inProgressFilesGb.Location = new System.Drawing.Point(7, 251);
 			this.inProgressFilesGb.Name = "inProgressFilesGb";
 			this.inProgressFilesGb.Size = new System.Drawing.Size(841, 128);
 			this.inProgressFilesGb.TabIndex = 21;
@@ -481,8 +480,7 @@
 			// customFileNamingGb
 			// 
 			this.customFileNamingGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.customFileNamingGb.Controls.Add(this.editCharreplacementBtn);
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateBtn);
 			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateTb);
 			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateLbl);
@@ -494,21 +492,10 @@
 			this.customFileNamingGb.Controls.Add(this.folderTemplateLbl);
 			this.customFileNamingGb.Location = new System.Drawing.Point(7, 88);
 			this.customFileNamingGb.Name = "customFileNamingGb";
-			this.customFileNamingGb.Size = new System.Drawing.Size(841, 187);
+			this.customFileNamingGb.Size = new System.Drawing.Size(841, 157);
 			this.customFileNamingGb.TabIndex = 20;
 			this.customFileNamingGb.TabStop = false;
 			this.customFileNamingGb.Text = "Custom file naming";
-			// 
-			// editCharreplacementBtn
-			// 
-			this.editCharreplacementBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.editCharreplacementBtn.Location = new System.Drawing.Point(5, 158);
-			this.editCharreplacementBtn.Name = "editCharreplacementBtn";
-			this.editCharreplacementBtn.Size = new System.Drawing.Size(387, 23);
-			this.editCharreplacementBtn.TabIndex = 8;
-			this.editCharreplacementBtn.Text = "[edit char replacement desc]";
-			this.editCharreplacementBtn.UseVisualStyleBackColor = true;
-			this.editCharreplacementBtn.Click += new System.EventHandler(this.editCharreplacementBtn_Click);
 			// 
 			// chapterFileTemplateBtn
 			// 
@@ -524,7 +511,7 @@
 			// chapterFileTemplateTb
 			// 
 			this.chapterFileTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.chapterFileTemplateTb.Location = new System.Drawing.Point(6, 125);
 			this.chapterFileTemplateTb.Name = "chapterFileTemplateTb";
 			this.chapterFileTemplateTb.ReadOnly = true;
@@ -554,7 +541,7 @@
 			// fileTemplateTb
 			// 
 			this.fileTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.fileTemplateTb.Location = new System.Drawing.Point(6, 81);
 			this.fileTemplateTb.Name = "fileTemplateTb";
 			this.fileTemplateTb.ReadOnly = true;
@@ -584,7 +571,7 @@
 			// folderTemplateTb
 			// 
 			this.folderTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.folderTemplateTb.Location = new System.Drawing.Point(5, 37);
 			this.folderTemplateTb.Name = "folderTemplateTb";
 			this.folderTemplateTb.ReadOnly = true;
@@ -616,7 +603,7 @@
 			this.tab4AudioFileOptions.Location = new System.Drawing.Point(4, 24);
 			this.tab4AudioFileOptions.Name = "tab4AudioFileOptions";
 			this.tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(3);
-			this.tab4AudioFileOptions.Size = new System.Drawing.Size(854, 415);
+			this.tab4AudioFileOptions.Size = new System.Drawing.Size(854, 395);
 			this.tab4AudioFileOptions.TabIndex = 3;
 			this.tab4AudioFileOptions.Text = "Audio File Options";
 			this.tab4AudioFileOptions.UseVisualStyleBackColor = true;
@@ -646,7 +633,7 @@
 			// chapterTitleTemplateTb
 			// 
 			this.chapterTitleTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.chapterTitleTemplateTb.Location = new System.Drawing.Point(6, 22);
 			this.chapterTitleTemplateTb.Name = "chapterTitleTemplateTb";
 			this.chapterTitleTemplateTb.ReadOnly = true;
@@ -1030,7 +1017,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(886, 504);
+			this.ClientSize = new System.Drawing.Size(886, 484);
 			this.Controls.Add(this.tabControl);
 			this.Controls.Add(this.cancelBtn);
 			this.Controls.Add(this.saveBtn);
@@ -1154,6 +1141,5 @@
 		private System.Windows.Forms.GroupBox chapterTitleTemplateGb;
 		private System.Windows.Forms.Button chapterTitleTemplateBtn;
 		private System.Windows.Forms.TextBox chapterTitleTemplateTb;
-		private System.Windows.Forms.Button editCharreplacementBtn;
 	}
 }

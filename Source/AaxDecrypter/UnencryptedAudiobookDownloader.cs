@@ -67,8 +67,8 @@ namespace AaxDecrypter
 			}
 
 			CloseInputFileStream();
-			
-			var realOutputFileName = FileUtility.SaferMoveToValidPath(InputFileStream.SaveFilePath, OutputFileName, DownloadOptions.ReplacementCharacters);
+
+			var realOutputFileName = FileUtility.SaferMoveToValidPath(InputFileStream.SaveFilePath, OutputFileName);
 			SetOutputFileName(realOutputFileName);
 			OnFileCreated(realOutputFileName);
 

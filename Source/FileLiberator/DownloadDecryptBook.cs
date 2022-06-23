@@ -258,7 +258,7 @@ namespace FileLiberator
 			{
 				var entry = entries[i];
 
-				var realDest = FileUtility.SaferMoveToValidPath(entry.Path, Path.Combine(destinationDir, Path.GetFileName(entry.Path)), Configuration.Instance.ReplacementCharacters);
+				var realDest = FileUtility.SaferMoveToValidPath(entry.Path, Path.Combine(destinationDir, Path.GetFileName(entry.Path)));
 				FilePathCache.Insert(libraryBook.Book.AudibleProductId, realDest);
 
 				// propogate corrected path. Must update cache with corrected path. Also want updated path for cue file (after this for-loop)

@@ -16,7 +16,7 @@ namespace FileManager
 		public string IllegalCharacterReplacements { get; set; }
 
 		/// <summary>Generate a valid path for this file or directory</summary>
-		public LongPath GetFilePath(ReplacementCharacters replacements, bool returnFirstExisting = false)
+		public LongPath GetFilePath(bool returnFirstExisting = false)
 		{
 
 			string fileName = Template.EndsWith(Path.DirectorySeparatorChar) ? Template[..^1] : Template;
@@ -43,7 +43,7 @@ namespace FileManager
 
 			pathParts.Reverse();
 
-			return FileUtility.GetValidFilename(Path.Join(pathParts.ToArray()), replacements, returnFirstExisting);
+			return FileUtility.GetValidFilename(Path.Join(pathParts.ToArray()), IllegalCharacterReplacements, returnFirstExisting);
 		}
 
 		private string replaceFileName(string filename, Dictionary<string,string> paramReplacements)

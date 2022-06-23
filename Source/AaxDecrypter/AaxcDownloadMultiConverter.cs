@@ -141,7 +141,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 		private FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
 		{
 			var fileName = DownloadOptions.GetMultipartFileName(multiConvertFileProperties);
-			fileName = FileUtility.GetValidFilename(fileName, DownloadOptions.ReplacementCharacters);
+			fileName = FileUtility.GetValidFilename(fileName);
 
 			multiPartFilePaths.Add(fileName);
 

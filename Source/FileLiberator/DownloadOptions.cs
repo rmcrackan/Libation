@@ -3,7 +3,6 @@ using AAXClean;
 using Dinah.Core;
 using DataLayer;
 using LibationFileManager;
-using FileManager;
 
 namespace FileLiberator
 {
@@ -24,7 +23,6 @@ namespace FileLiberator
         public NAudio.Lame.LameConfig LameConfig { get; set; }
         public bool Downsample { get; set; }
         public bool MatchSourceBitrate { get; set; }
-        public ReplacementCharacters ReplacementCharacters => Configuration.Instance.ReplacementCharacters;
 
         public string GetMultipartFileName(MultiConvertFileProperties props)
             => Templates.ChapterFile.GetFilename(LibraryBookDto, props);

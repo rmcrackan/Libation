@@ -46,12 +46,12 @@ namespace FileManager
 		/// <br/>- ensure uniqueness
 		/// <br/>- enforce max file length
 		/// </summary>
-		public static LongPath GetValidFilename(LongPath path, ReplacementCharacters replacements, bool returnFirstExisting = false)
+		public static LongPath GetValidFilename(LongPath path, string illegalCharacterReplacements = "", bool returnFirstExisting = false)
 		{
 			ArgumentValidator.EnsureNotNull(path, nameof(path));
 
 			// remove invalid chars
-			path = GetSafePath(path, replacements);
+			path = GetSafePath(path, illegalCharacterReplacements);
 
 			// ensure uniqueness and check lengths
 			var dir = Path.GetDirectoryName(path);
@@ -77,45 +77,35 @@ namespace FileManager
 			return fullfilename;
 		}
 
+		// GetInvalidFileNameChars contains everything in GetInvalidPathChars plus ':', '*', '?', '\\', '/'
+
+		/// <summary>Use with file name, not full path. Valid path charaters which are invalid file name characters will be replaced: ':', '\\', '/'</summary>
+		public static string GetSafeFileName(string str, string illegalCharacterReplacements = "")
+			=> string.Join(illegalCharacterReplacements ?? "", str.Split(Path.GetInvalidFileNameChars()));
+
 		/// <summary>Use with full path, not file name. Valid path charaters which are invalid file name characters will be retained: '\\', '/'</summary>
-		public static LongPath GetSafePath(LongPath path, ReplacementCharacters replacements)
+		public static LongPath GetSafePath(LongPath path, string illegalCharacterReplacements = "")
 		{
 			ArgumentValidator.EnsureNotNull(path, nameof(path));
 
 			var pathNoPrefix = path.PathWithoutPrefix;
 
-			pathNoPrefix = replaceInvalidChars(pathNoPrefix, replacements);
+			pathNoPrefix = replaceColons(pathNoPrefix, "꞉");
+			pathNoPrefix = replaceIllegalWithUnicodeAnalog(pathNoPrefix);
+			pathNoPrefix = replaceInvalidChars(pathNoPrefix, illegalCharacterReplacements);
 			pathNoPrefix = removeDoubleSlashes(pathNoPrefix);
 
 			return pathNoPrefix;
 		}
 
-		public static char[] invalidChars { get; } = Path.GetInvalidPathChars().Union(new[] {
-				'*', '?', ':',
+		private static char[] invalidChars { get; } = Path.GetInvalidPathChars().Union(new[] {
+				'*', '?',
 				// these are weird. If you run Path.GetInvalidPathChars() in Visual Studio's "C# Interactive", then these characters are included.
 				// In live code, Path.GetInvalidPathChars() does not include them
 				'"', '<', '>'
 			}).ToArray();
-		private static string replaceInvalidChars(string path, ReplacementCharacters replacements)
-		{
-			// replace all colons except within the first 2 chars
-			var builder = new System.Text.StringBuilder();
-			for (var i = 0; i < path.Length; i++)
-			{
-				var c = path[i];
-
-				if (!invalidChars.Contains(c) || (i <= 2 && Path.IsPathRooted(path)))
-					builder.Append(c);
-				else
-				{
-					char preceding = i > 0 ? path[i - 1] : default;
-					char succeeding = i < path.Length - 1 ? path[i + 1] : default;
-					builder.Append(replacements.GetReplacement(c, preceding, succeeding));
-				}
-
-			}
-			return builder.ToString();
-		}
+		private static string replaceInvalidChars(string path, string illegalCharacterReplacements)
+			=> string.Join(illegalCharacterReplacements ?? "", path.Split(invalidChars));
 
 		private static string removeDoubleSlashes(string path)
 		{
@@ -132,6 +122,60 @@ namespace FileManager
 			return path[0] + remainder;
 		}
 
+		private static string replaceIllegalWithUnicodeAnalog(string path)
+		{
+			char[] replaced = path.ToCharArray();
+
+			char GetQuote(int position)
+			{
+				if (
+					position == 0
+					|| (position > 0
+						&& position < replaced.Length
+						&& !char.IsLetter(replaced[position - 1])
+						&& !char.IsNumber(replaced[position - 1])
+						)
+					) return '“';
+				else if (
+						position == replaced.Length - 1
+						|| (position >= 0
+							&& position < replaced.Length - 1
+							&& !char.IsLetter(replaced[position + 1])
+							&& !char.IsNumber(replaced[position + 1])
+							)
+						) return '”';
+				else return '＂';
+			}
+
+			for (int i = 0; i < replaced.Length; i++)
+			{
+				replaced[i] = replaced[i] switch
+				{
+					'?' => '？',
+					'*' => '✱',
+					'<' => '＜',
+					'>' => '＞',
+					'"' => GetQuote(i),
+					_ => replaced[i]
+				};
+			}
+			return new string(replaced);
+		}
+
+		private static string replaceColons(string path, string illegalCharacterReplacements)
+		{
+			// replace all colons except within the first 2 chars
+			var builder = new System.Text.StringBuilder();
+			for (var i = 0; i < path.Length; i++)
+			{
+				var c = path[i];
+				if (i >= 2 && c == ':')
+					builder.Append(illegalCharacterReplacements);
+				else
+					builder.Append(c);
+			}
+			return builder.ToString();
+		}
 		private static string removeInvalidWhitespace_pattern { get; } = $@"[\s\.]*\{Path.DirectorySeparatorChar}\s*";
 		private static Regex removeInvalidWhitespace_regex { get; } = new(removeInvalidWhitespace_pattern, RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
@@ -162,9 +206,9 @@ namespace FileManager
 		/// <br/>- Perform <see cref="SaferMove"/>
 		/// <br/>- Return valid path
 		/// </summary>
-		public static string SaferMoveToValidPath(LongPath source, LongPath destination, ReplacementCharacters replacements)
+		public static string SaferMoveToValidPath(LongPath source, LongPath destination)
 		{
-			destination = GetValidFilename(destination, replacements);
+			destination = GetValidFilename(destination);
 			SaferMove(source, destination);
 			return destination;
 		}
