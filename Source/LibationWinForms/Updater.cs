@@ -29,7 +29,7 @@ namespace LibationWinForms
 				return;
 
 			var dialogResult = MessageBox.Show(string.Format(
-				$"There is a new version avilable. Would you like to update?\r\n\r\nAfter you close Libation, the upgrade will start automatically."),
+				$"There is a new version available. Would you like to update?\r\n\r\nAfter you close Libation, the upgrade will start automatically."),
 				"Update Available",
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Information);

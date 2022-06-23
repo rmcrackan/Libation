@@ -145,7 +145,7 @@ namespace AudibleUtilities
 
 			Serilog.Log.Logger.Debug("Library scan complete. Found {count} books and series. Waiting on {getChildEpisodesTasksCount} series episode scans to complete.", count, getChildEpisodesTasks.Count);
 
-			//await and add all episides from all parents
+			//await and add all episodes from all parents
 			foreach (var epList in await Task.WhenAll(getChildEpisodesTasks))
 				items.AddRange(epList);
 
