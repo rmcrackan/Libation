@@ -33,7 +33,18 @@ namespace LibationWinForms
 					.ToArray();
 
 				// in autoScan, new books SHALL NOT show dialog
-				await Invoke(async () => await LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.ApiExtendedFunc, accounts));
+				try
+				{
+					Task importAsync() => LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.ApiExtendedFunc, accounts);
+					if (InvokeRequired)
+						await Invoke(importAsync);
+					else
+						await importAsync();
+				}
+                catch (Exception ex)
+                {
+					Serilog.Log.Logger.Error(ex, "Error invoking auto-scan");
+                }
 			};
 
 			// load init state to menu checkbox

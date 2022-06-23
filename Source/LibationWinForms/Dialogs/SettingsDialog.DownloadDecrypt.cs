@@ -15,7 +15,8 @@ namespace LibationWinForms.Dialogs
 		private void editCharreplacementBtn_Click(object sender, EventArgs e)
 		{
 			var form = new EditReplacementChars(config);
-			form.ShowDialog();
+			form.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			form.ShowDialog(this);
 		}
 
 		private void Load_DownloadDecrypt(Configuration config)
