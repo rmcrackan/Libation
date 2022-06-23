@@ -43,7 +43,7 @@ namespace FileLiberator
 					var proposedMp3Path = Mp3FileName(m4bPath);
 					if (File.Exists(proposedMp3Path) || !File.Exists(m4bPath)) continue;
 
-					m4bBook = new Mp4File(m4bPath, FileAccess.Read);
+					m4bBook = await Task.Run(() => new Mp4File(m4bPath, FileAccess.Read));
 					m4bBook.ConversionProgressUpdate += M4bBook_ConversionProgressUpdate;
 
 					fileSize = m4bBook.InputStream.Length;
@@ -55,7 +55,7 @@ namespace FileLiberator
 
 					using var mp3File = File.OpenWrite(Path.GetTempFileName());
 					var lameConfig = GetLameOptions(Configuration.Instance);
-					var result = await Task.Run(() => m4bBook.ConvertToMp3(mp3File, lameConfig));
+					var result = await m4bBook.ConvertToMp3Async(mp3File, lameConfig);
 					m4bBook.InputStream.Close();
 					mp3File.Close();
 

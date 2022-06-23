@@ -2,28 +2,62 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Dinah.Core.Net.Http;
-using Dinah.Core.StepRunner;
 using FileManager;
 
 namespace AaxDecrypter
 {
 	public class UnencryptedAudiobookDownloader : AudiobookDownloadBase
 	{
-		protected override StepSequence Steps { get; }
 
 		public UnencryptedAudiobookDownloader(string outFileName, string cacheDirectory, IDownloadOptions dlLic)
-			: base(outFileName, cacheDirectory, dlLic)
-		{
-			Steps = new StepSequence
-			{
-				Name = "Download Mp3 Audiobook",
+			: base(outFileName, cacheDirectory, dlLic) { }
 
-				["Step 1: Get Mp3 Metadata"] = Step_GetMetadata,
-				["Step 2: Download Audiobook"] = Step_DownloadAudiobookAsSingleFile,
-				["Step 3: Create Cue"] = Step_CreateCue,
-				["Step 4: Cleanup"] = Step_Cleanup,
-			};
+		public override async Task<bool> RunAsync()
+		{
+			try
+			{
+				Serilog.Log.Information("Begin download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+
+				//Step 1
+				Serilog.Log.Information("Begin Step 1: Get Mp3 Metadata");
+				if (await Task.Run(Step_GetMetadata))
+					Serilog.Log.Information("Completed Step 1: Get Mp3 Metadata");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Step 1: Get Mp3 Metadata");
+					return false;
+				}
+
+				//Step 2
+				Serilog.Log.Information("Begin Step 2: Download Audiobook");
+				if (await Task.Run(Step_DownloadAudiobookAsSingleFile))
+					Serilog.Log.Information("Completed Step 2: Download Audiobook");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Step 2: Download Audiobook");
+					return false;
+				}
+
+				//Step 3
+				Serilog.Log.Information("Begin Step 3: Cleanup");
+				if (await Task.Run(Step_Cleanup))
+					Serilog.Log.Information("Completed Step 3: Cleanup");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Step 3: Cleanup");
+					return false;
+				}
+
+				Serilog.Log.Information("Completed download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "Error encountered in download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+				return false;
+			}
 		}
+
 
 		public override Task CancelAsync()
 		{

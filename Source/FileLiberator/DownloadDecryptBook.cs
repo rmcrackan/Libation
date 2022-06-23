@@ -130,7 +130,7 @@ namespace FileLiberator
 			abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
 
 			// REAL WORK DONE HERE
-			var success = await Task.Run(abDownloader.Run);
+			var success = await abDownloader.RunAsync();
 
 			return success;
 		}

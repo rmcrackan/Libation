@@ -1,31 +1,74 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using AAXClean;
 using AAXClean.Codecs;
-using Dinah.Core.StepRunner;
 using FileManager;
 
 namespace AaxDecrypter
 {
 	public class AaxcDownloadSingleConverter : AaxcDownloadConvertBase
 	{
-		protected override StepSequence Steps { get; }
-
 		public AaxcDownloadSingleConverter(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
-			: base(outFileName, cacheDirectory, dlOptions)
-		{
-			Steps = new StepSequence
-			{
-				Name = "Download and Convert Aaxc To " + DownloadOptions.OutputFormat,
+			: base(outFileName, cacheDirectory, dlOptions) { }
 
-				["Step 1: Get Aaxc Metadata"] = Step_GetMetadata,
-				["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsSingleFile,
-				["Step 3: Create Cue"] = Step_CreateCue,
-				["Step 4: Cleanup"] = Step_Cleanup,
-			};
+		public override async Task<bool> RunAsync()
+		{
+			try
+			{
+				Serilog.Log.Information("Begin download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+
+				//Step 1
+				Serilog.Log.Information("Begin Step 1: Get Aaxc Metadata");
+				if (await Task.Run(Step_GetMetadata))
+					Serilog.Log.Information("Completed Step 1: Get Aaxc Metadata");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Step 1: Get Aaxc Metadata");
+					return false;
+				}
+
+				//Step 2
+				Serilog.Log.Information("Begin Step 2: Download Decrypted Audiobook");
+				if (await Step_DownloadAudiobookAsSingleFile())
+					Serilog.Log.Information("Completed Step 2: Download Decrypted Audiobook");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Step 2: Download Decrypted Audiobook");
+					return false;
+				}
+
+				//Step 3
+				Serilog.Log.Information("Begin Step 3: Create Cue");
+				if (await Task.Run(Step_CreateCue))
+					Serilog.Log.Information("Completed Step 3: Create Cue");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Step 3: Create Cue");
+					return false;
+				}
+
+				//Step 4
+				Serilog.Log.Information("Begin Step 4: Cleanup");
+				if (await Task.Run(Step_Cleanup))
+					Serilog.Log.Information("Completed Step 4: Cleanup");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Step 4: Cleanup");
+					return false;
+				}
+
+				Serilog.Log.Information("Completed download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "Error encountered in download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+				return false;
+			}
 		}
 
-		private bool Step_DownloadAudiobookAsSingleFile()
+		private async Task<bool> Step_DownloadAudiobookAsSingleFile()
 		{
 			var zeroProgress = Step_DownloadAudiobook_Start();
 
@@ -37,8 +80,8 @@ namespace AaxDecrypter
 			AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 			var decryptionResult
 				= DownloadOptions.OutputFormat == OutputFormat.M4b
-				? AaxFile.ConvertToMp4a(outputFile, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength)
-				: AaxFile.ConvertToMp3(outputFile, DownloadOptions.LameConfig, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
+				? await AaxFile.ConvertToMp4aAsync(outputFile, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength)
+				: await AaxFile.ConvertToMp3Async(outputFile, DownloadOptions.LameConfig, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
 			AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
 			DownloadOptions.ChapterInfo = AaxFile.Chapters;
