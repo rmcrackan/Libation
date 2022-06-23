@@ -101,7 +101,8 @@ namespace DtoImporterService
 			// absence of categories is also possible
 
 			// CATEGORY HACK: only use the 1st 2 categories
-			// (real impl: var lastCategory = item.Categories.LastOrDefault()?.CategoryId ?? "";)
+			// after we support full arbitrary-depth category trees and multiple categories per book, the real impl will be something like this
+			//   var lastCategory = item.Categories.LastOrDefault()?.CategoryId ?? "";
 			var lastCategory
 				= item.Categories.Length == 0 ? ""
 				: item.Categories.Length == 1 ? item.Categories[0].CategoryId
