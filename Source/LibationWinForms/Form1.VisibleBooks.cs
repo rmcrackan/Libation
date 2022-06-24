@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
+using DataLayer;
 using Dinah.Core.Threading;
 using LibationWinForms.Dialogs;
 
@@ -48,10 +49,24 @@ namespace LibationWinForms
 			});
 		}
 
-		private async void liberateVisible(object sender, EventArgs e)
+		private void liberateVisible(object sender, EventArgs e)
 		{
-			SetQueueCollapseState(false);
-			await Task.Run(() => processBookQueue1.AddDownloadDecrypt(productsDisplay.GetVisible()));
+			try
+			{
+				SetQueueCollapseState(false);
+
+				Serilog.Log.Logger.Information("Begin backing up visible library books");
+
+				processBookQueue1.AddDownloadDecrypt(
+					productsDisplay
+					.GetVisible()
+					.UnLiberated()
+					);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error occurred while backing up visible library books");
+			}
 		}
 
 		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)

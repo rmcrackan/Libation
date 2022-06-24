@@ -88,5 +88,13 @@ namespace DataLayer
                         s.Series.AudibleSeriesId == parent.Book.AudibleProductId
                         ) == true
                     ).ToList();
+
+        public static IEnumerable<LibraryBook> UnLiberated(this IEnumerable<LibraryBook> bookList)
+            => bookList
+                .Where(
+                    lb =>
+                        lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload
+                        || lb.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload
+                    );
     }
 }
