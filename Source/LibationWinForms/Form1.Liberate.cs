@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataLayer;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,11 +11,24 @@ namespace LibationWinForms
 		private void Configure_Liberate() { }
 
 		//GetLibrary_Flat_NoTracking() may take a long time on a hugh library. so run in new thread 
-		private async void beginBookBackupsToolStripMenuItem_Click(object _ = null, EventArgs __ = null)
+		private void beginBookBackupsToolStripMenuItem_Click(object _ = null, EventArgs __ = null)
 		{
-			SetQueueCollapseState(false);
-			await Task.Run(() => processBookQueue1.AddDownloadDecrypt(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
-				.Where(lb => lb.Book.UserDefinedItem.PdfStatus is DataLayer.LiberatedStatus.NotLiberated || lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.NotLiberated)));
+			try
+			{
+				SetQueueCollapseState(false);
+
+				Serilog.Log.Logger.Information("Begin backing up all library books");
+
+				processBookQueue1.AddDownloadDecrypt(
+					ApplicationServices.DbContexts
+					.GetLibrary_Flat_NoTracking()
+					.UnLiberated()
+					);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error occurred while backing up all library books");
+			}
 		}
 
 		private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)

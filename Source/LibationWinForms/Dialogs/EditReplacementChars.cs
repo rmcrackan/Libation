@@ -29,8 +29,8 @@ namespace LibationWinForms.Dialogs
 			{
 				var r = replacements[i];
 
-				int row = dataGridView1.Rows.Add(r.CharacterToReplace, r.ReplacementString, r.Description);
-				dataGridView1.Rows[row].Tag = r;
+				int row = dataGridView1.Rows.Add(r.CharacterToReplace.ToString(), r.ReplacementString, r.Description);
+				dataGridView1.Rows[row].Tag = r.Clone();
 
 
 				if (r.Mandatory)
@@ -90,7 +90,7 @@ namespace LibationWinForms.Dialogs
 			{
 				dataGridView1.Rows[e.RowIndex].ErrorText = $"Only 1 {charToReplaceCol.HeaderText} per entry";
 			}
-			else if (e.RowIndex >= Replacement.FIXED_COUNT &&
+			else if (dataGridView1.Rows[e.RowIndex].Tag is Replacement repl && !repl.Mandatory &&
 				   dataGridView1.Rows
 				   .Cast<DataGridViewRow>()
 				   .Where(r => r.Index != e.RowIndex)

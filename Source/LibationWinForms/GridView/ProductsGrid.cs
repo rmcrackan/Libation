@@ -50,45 +50,52 @@ namespace LibationWinForms.GridView
 		#region Button controls
 		private void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
 		{
-			// handle grid button click: https://stackoverflow.com/a/13687844
-			if (e.RowIndex < 0)
-				return;
+			try
+			{
+				// handle grid button click: https://stackoverflow.com/a/13687844
+				if (e.RowIndex < 0)
+					return;
 
-			var entry = getGridEntry(e.RowIndex);
-			if (entry is LibraryBookEntry lbEntry)
-			{
-				if (e.ColumnIndex == liberateGVColumn.Index)
-					LiberateClicked?.Invoke(lbEntry);
-				else if (e.ColumnIndex == tagAndDetailsGVColumn.Index)
-					DetailsClicked?.Invoke(lbEntry);
-				else if (e.ColumnIndex == descriptionGVColumn.Index)
-					DescriptionClicked?.Invoke(lbEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
-				else if (e.ColumnIndex == coverGVColumn.Index)
-					CoverClicked?.Invoke(lbEntry);
-			}
-			else if (entry is SeriesEntry sEntry)
-			{
-				if (e.ColumnIndex == liberateGVColumn.Index)
+				var entry = getGridEntry(e.RowIndex);
+				if (entry is LibraryBookEntry lbEntry)
 				{
-					if (sEntry.Liberate.Expanded)
-						bindingList.CollapseItem(sEntry);
-					else
-						bindingList.ExpandItem(sEntry);
-
-					sEntry.NotifyPropertyChanged(nameof(sEntry.Liberate));
-
-					VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+					if (e.ColumnIndex == liberateGVColumn.Index)
+						LiberateClicked?.Invoke(lbEntry);
+					else if (e.ColumnIndex == tagAndDetailsGVColumn.Index)
+						DetailsClicked?.Invoke(lbEntry);
+					else if (e.ColumnIndex == descriptionGVColumn.Index)
+						DescriptionClicked?.Invoke(lbEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
+					else if (e.ColumnIndex == coverGVColumn.Index)
+						CoverClicked?.Invoke(lbEntry);
 				}
-				else if (e.ColumnIndex == descriptionGVColumn.Index)
-					DescriptionClicked?.Invoke(sEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
-				else if (e.ColumnIndex == coverGVColumn.Index)
-					CoverClicked?.Invoke(sEntry);
-			}
+				else if (entry is SeriesEntry sEntry)
+				{
+					if (e.ColumnIndex == liberateGVColumn.Index)
+					{
+						if (sEntry.Liberate.Expanded)
+							bindingList.CollapseItem(sEntry);
+						else
+							bindingList.ExpandItem(sEntry);
 
-			if (e.ColumnIndex == removeGVColumn.Index)
+						sEntry.NotifyPropertyChanged(nameof(sEntry.Liberate));
+
+						VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+					}
+					else if (e.ColumnIndex == descriptionGVColumn.Index)
+						DescriptionClicked?.Invoke(sEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
+					else if (e.ColumnIndex == coverGVColumn.Index)
+						CoverClicked?.Invoke(sEntry);
+				}
+
+				if (e.ColumnIndex == removeGVColumn.Index)
+				{
+					gridEntryDataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+					RemovableCountChanged?.Invoke(this, EventArgs.Empty);
+				}
+			}
+			catch(Exception ex)
 			{
-				gridEntryDataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
-				RemovableCountChanged?.Invoke(this, EventArgs.Empty);
+				Serilog.Log.Logger.Error(ex, $"An error was encountered while processing a user click in the {nameof(ProductsGrid)}");
 			}
 		}
 

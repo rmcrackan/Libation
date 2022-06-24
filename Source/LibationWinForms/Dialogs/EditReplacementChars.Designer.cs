@@ -29,14 +29,14 @@
 		private void InitializeComponent()
 		{
 			this.dataGridView1 = new System.Windows.Forms.DataGridView();
+			this.charToReplaceCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.replacementStringCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.descriptionCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.defaultsBtn = new System.Windows.Forms.Button();
 			this.loFiDefaultsBtn = new System.Windows.Forms.Button();
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.cancelBtn = new System.Windows.Forms.Button();
 			this.minDefaultBtn = new System.Windows.Forms.Button();
-			this.charToReplaceCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.replacementStringCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.descriptionCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -54,12 +54,38 @@
             this.descriptionCol});
 			this.dataGridView1.Location = new System.Drawing.Point(12, 12);
 			this.dataGridView1.Name = "dataGridView1";
+			this.dataGridView1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
 			this.dataGridView1.RowTemplate.Height = 25;
 			this.dataGridView1.Size = new System.Drawing.Size(498, 393);
 			this.dataGridView1.TabIndex = 0;
 			this.dataGridView1.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellEndEdit);
 			this.dataGridView1.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dataGridView1_UserDeletingRow);
 			this.dataGridView1.Resize += new System.EventHandler(this.dataGridView1_Resize);
+			// 
+			// charToReplaceCol
+			// 
+			this.charToReplaceCol.HeaderText = "Char to Replace";
+			this.charToReplaceCol.MinimumWidth = 70;
+			this.charToReplaceCol.Name = "charToReplaceCol";
+			this.charToReplaceCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+			this.charToReplaceCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+			this.charToReplaceCol.Width = 70;
+			// 
+			// replacementStringCol
+			// 
+			this.replacementStringCol.HeaderText = "Replacement Text";
+			this.replacementStringCol.MinimumWidth = 85;
+			this.replacementStringCol.Name = "replacementStringCol";
+			this.replacementStringCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+			this.replacementStringCol.Width = 85;
+			// 
+			// descriptionCol
+			// 
+			this.descriptionCol.HeaderText = "Description";
+			this.descriptionCol.MinimumWidth = 100;
+			this.descriptionCol.Name = "descriptionCol";
+			this.descriptionCol.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+			this.descriptionCol.Width = 200;
 			// 
 			// defaultsBtn
 			// 
@@ -115,28 +141,6 @@
 			this.minDefaultBtn.Text = "Barebones";
 			this.minDefaultBtn.UseVisualStyleBackColor = true;
 			this.minDefaultBtn.Click += new System.EventHandler(this.minDefaultBtn_Click);
-			// 
-			// charToReplaceCol
-			// 
-			this.charToReplaceCol.HeaderText = "Char to Replace";
-			this.charToReplaceCol.MinimumWidth = 70;
-			this.charToReplaceCol.Name = "charToReplaceCol";
-			this.charToReplaceCol.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-			this.charToReplaceCol.Width = 70;
-			// 
-			// replacementStringCol
-			// 
-			this.replacementStringCol.HeaderText = "Replacement Text";
-			this.replacementStringCol.MinimumWidth = 85;
-			this.replacementStringCol.Name = "replacementStringCol";
-			this.replacementStringCol.Width = 85;
-			// 
-			// descriptionCol
-			// 
-			this.descriptionCol.HeaderText = "Description";
-			this.descriptionCol.MinimumWidth = 100;
-			this.descriptionCol.Name = "descriptionCol";
-			this.descriptionCol.Width = 200;
 			// 
 			// EditReplacementChars
 			// 
