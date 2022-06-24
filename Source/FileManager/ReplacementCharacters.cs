@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace FileManager
 {
-	public class Replacement
+	public class Replacement : ICloneable
 	{
 		public const int FIXED_COUNT = 6;
 
@@ -29,6 +29,8 @@ namespace FileManager
 		{
 			Mandatory = mandatory;
 		}
+
+		public object Clone() => new Replacement(CharacterToReplace, ReplacementString, Description, Mandatory);
 
 		public void Update(char charToReplace, string replacementString, string description)
 		{
@@ -53,6 +55,7 @@ namespace FileManager
 		public static Replacement OpenAngleBracket(string replacement) => new('<', replacement, "Open Angle Bracket");
 		public static Replacement CloseAngleBracket(string replacement) => new('>', replacement, "Close Angle Bracket");
 		public static Replacement Pipe(string replacement) => new('|', replacement, "Vertical Line");
+
 	}
 
 	[JsonConverter(typeof(ReplacementCharactersConverter))]
