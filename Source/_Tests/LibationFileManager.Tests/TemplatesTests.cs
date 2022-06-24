@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dinah.Core;
+using FileManager;
 using FluentAssertions;
 using LibationFileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,6 +52,9 @@ namespace TemplatesTests
 	[TestClass]
 	public class getFileNamingTemplate
 	{
+		static ReplacementCharacters Replacements = ReplacementCharacters.Default;
+
+
 		[TestMethod]
 		[DataRow(null, "asin", @"C:\", "ext")]
 		[ExpectedException(typeof(ArgumentNullException))]
@@ -73,28 +77,28 @@ namespace TemplatesTests
 		[DataRow("<id>", "asin", @"C:\foo\bar", "ext", @"C:\foo\bar\asin.ext")]
 		public void Tests(string template, string asin, string dirFullPath, string extension, string expected)
 			=> Templates.getFileNamingTemplate(GetLibraryBook(asin), template, dirFullPath, extension)
-			.GetFilePath()
+			.GetFilePath(Replacements)
 			.PathWithoutPrefix
 			.Should().Be(expected);
 
 		[TestMethod]
 		public void IfSeries_empty()
 			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", "Sherlock Holmes"), "foo<if series-><-if series>bar", @"C:\a\b", "ext")
-			.GetFilePath()
+			.GetFilePath(Replacements)
 			.PathWithoutPrefix
 			.Should().Be(@"C:\a\b\foobar.ext");
 
 		[TestMethod]
 		public void IfSeries_no_series()
 			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", ""), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
-			.GetFilePath()
+			.GetFilePath(Replacements)
 			.PathWithoutPrefix
 			.Should().Be(@"C:\a\b\foobar.ext");
 
 		[TestMethod]
 		public void IfSeries_with_series()
 			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", "Sherlock Holmes"), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
-			.GetFilePath()
+			.GetFilePath(Replacements)
 			.PathWithoutPrefix
 			.Should().Be(@"C:\a\b\foo-Sherlock Holmes-asin-bar.ext");
 	}
@@ -387,11 +391,13 @@ namespace Templates_ChapterFile_Tests
 	[TestClass]
 	public class GetPortionFilename
 	{
+		static readonly ReplacementCharacters Default = ReplacementCharacters.Default;
+
 		[TestMethod]
 		[DataRow("asin", "[<id>] <ch# 0> of <ch count> - <ch title>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\[asin] 06 of 10 - chap.txt")]
 		[DataRow("asin", "<ch#>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\6.txt")]
 		public void Tests(string asin, string template, string dir, string ext, int pos, int total, string chapter, string expected)
-			=> Templates.ChapterFile.GetPortionFilename(GetLibraryBook(asin), template, new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir)
+			=> Templates.ChapterFile.GetPortionFilename(GetLibraryBook(asin), template, new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, Default)
 			.Should().Be(expected);
 	}
 }

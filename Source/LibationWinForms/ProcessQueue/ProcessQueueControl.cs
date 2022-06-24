@@ -42,8 +42,6 @@ namespace LibationWinForms.ProcessQueue
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
 		public ToolStripButton popoutBtn = new();
 
-		private System.Threading.SynchronizationContext syncContext { get; } = System.Threading.SynchronizationContext.Current;
-
 		public ProcessQueueControl()
 		{
 			InitializeComponent();
@@ -103,6 +101,7 @@ namespace LibationWinForms.ProcessQueue
 				procs.Add(pbook);
 			}
 
+			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
 			AddToQueue(procs);
 		}
 
@@ -121,6 +120,7 @@ namespace LibationWinForms.ProcessQueue
 				procs.Add(pbook);
 			}
 
+			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
 			AddToQueue(procs);
 		}
 		
@@ -138,44 +138,57 @@ namespace LibationWinForms.ProcessQueue
 				procs.Add(pbook);
 			}
 
+			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
 			AddToQueue(procs);
 		}
-
 		private void AddToQueue(IEnumerable<ProcessBook> pbook)
 		{
-			syncContext.Post(_ =>
+			BeginInvoke(() =>
 			{
 				Queue.Enqueue(pbook);
 				if (!Running)
 					QueueRunner = QueueLoop();
-			},
-			null);
+			});
 		}
-
 
 		DateTime StartingTime;
 		private async Task QueueLoop()
 		{
-			StartingTime = DateTime.Now;
-			counterTimer.Start();
-
-			while (Queue.MoveNext())
+			try
 			{
-				var nextBook = Queue.Current;
+				Serilog.Log.Logger.Information("Begin processing queue");
 
-				var result = await nextBook.ProcessOneAsync();
+				StartingTime = DateTime.Now;
+				counterTimer.Start();
 
-				if (result == ProcessBookResult.ValidationFail)
-					Queue.ClearCurrent();
-				else if (result == ProcessBookResult.FailedAbort)
-					Queue.ClearQueue();
-				else if (result == ProcessBookResult.FailedSkip)
-					nextBook.LibraryBook.Book.UpdateBookStatus(DataLayer.LiberatedStatus.Error);
+				while (Queue.MoveNext())
+				{
+					var nextBook = Queue.Current;
+
+					Serilog.Log.Logger.Information("Begin processing queued item. {item_LibraryBook}", nextBook?.LibraryBook);
+
+					var result = await nextBook.ProcessOneAsync();
+
+					Serilog.Log.Logger.Information("Completed processing queued item: {item_LibraryBook}\r\nResult: {result}", nextBook?.LibraryBook, result);
+
+					if (result == ProcessBookResult.ValidationFail)
+						Queue.ClearCurrent();
+					else if (result == ProcessBookResult.FailedAbort)
+						Queue.ClearQueue();
+					else if (result == ProcessBookResult.FailedSkip)
+						nextBook.LibraryBook.Book.UpdateBookStatus(DataLayer.LiberatedStatus.Error);
+				}
+				Serilog.Log.Logger.Information("Completed processing queue");
+
+				Queue_CompletedCountChanged(this, 0);
+				counterTimer.Stop();
+				virtualFlowControl2.VirtualControlCount = Queue.Count;
+				UpdateAllControls();
 			}
-			Queue_CompletedCountChanged(this, 0);
-			counterTimer.Stop();
-			virtualFlowControl2.VirtualControlCount = Queue.Count;
-			UpdateAllControls();
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error was encountered while processing queued items");
+			}
 		}
 
 		public void WriteLine(string text)
@@ -282,35 +295,41 @@ namespace LibationWinForms.ProcessQueue
 		/// <param name="propertyName">The nme of the property that needs updating. If null, all properties are updated.</param>
 		private void UpdateControl(int queueIndex, string propertyName = null)
 		{
-			int i = queueIndex - FirstVisible;
-
-			if (i > NumVisible || i < 0) return;
-
-			var proc = Queue[queueIndex];
-
-			syncContext.Send(_ =>
+			try
 			{
-				Panels[i].SuspendLayout();
-				if (propertyName is null or nameof(proc.Cover))
-					Panels[i].SetCover(proc.Cover);
-				if (propertyName is null or nameof(proc.BookText))
-					Panels[i].SetBookInfo(proc.BookText);
+				int i = queueIndex - FirstVisible;
 
-				if (proc.Result != ProcessBookResult.None)
+				if (i > NumVisible || i < 0) return;
+
+				var proc = Queue[queueIndex];
+
+				Invoke(() =>
 				{
-					Panels[i].SetResult(proc.Result);
-					return;
-				}
+					Panels[i].SuspendLayout();
+					if (propertyName is null or nameof(proc.Cover))
+						Panels[i].SetCover(proc.Cover);
+					if (propertyName is null or nameof(proc.BookText))
+						Panels[i].SetBookInfo(proc.BookText);
 
-				if (propertyName is null or nameof(proc.Status))
-					Panels[i].SetStatus(proc.Status);
-				if (propertyName is null or nameof(proc.Progress))
-					Panels[i].SetProgrss(proc.Progress);
-				if (propertyName is null or nameof(proc.TimeRemaining))
-					Panels[i].SetRemainingTime(proc.TimeRemaining);
-				Panels[i].ResumeLayout();
-			},
-			null);
+					if (proc.Result != ProcessBookResult.None)
+					{
+						Panels[i].SetResult(proc.Result);
+						return;
+					}
+
+					if (propertyName is null or nameof(proc.Status))
+						Panels[i].SetStatus(proc.Status);
+					if (propertyName is null or nameof(proc.Progress))
+						Panels[i].SetProgrss(proc.Progress);
+					if (propertyName is null or nameof(proc.TimeRemaining))
+						Panels[i].SetRemainingTime(proc.TimeRemaining);
+					Panels[i].ResumeLayout();
+				});
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error updating the queued item's display.");
+			}
 		}
 
 		private void UpdateAllControls()
@@ -329,37 +348,44 @@ namespace LibationWinForms.ProcessQueue
 		/// <param name="panelClicked">The clicked control to update</param>
 		private async void VirtualFlowControl2_ButtonClicked(int queueIndex, string buttonName, ProcessBookControl panelClicked)
 		{
-			ProcessBook item = Queue[queueIndex];
-			if (buttonName == nameof(panelClicked.cancelBtn))
+			try
 			{
-				if (item is not null)
-					await item.CancelAsync();
-				Queue.RemoveQueued(item);
-				virtualFlowControl2.VirtualControlCount = Queue.Count;
+				ProcessBook item = Queue[queueIndex];
+				if (buttonName == nameof(panelClicked.cancelBtn))
+				{
+					if (item is not null)
+						await item.CancelAsync();
+					Queue.RemoveQueued(item);
+					virtualFlowControl2.VirtualControlCount = Queue.Count;
+				}
+				else if (buttonName == nameof(panelClicked.moveFirstBtn))
+				{
+					Queue.MoveQueuePosition(item, QueuePosition.Fisrt);
+					UpdateAllControls();
+				}
+				else if (buttonName == nameof(panelClicked.moveUpBtn))
+				{
+					Queue.MoveQueuePosition(item, QueuePosition.OneUp);
+					UpdateControl(queueIndex);
+					if (queueIndex > 0)
+						UpdateControl(queueIndex - 1);
+				}
+				else if (buttonName == nameof(panelClicked.moveDownBtn))
+				{
+					Queue.MoveQueuePosition(item, QueuePosition.OneDown);
+					UpdateControl(queueIndex);
+					if (queueIndex + 1 < Queue.Count)
+						UpdateControl(queueIndex + 1);
+				}
+				else if (buttonName == nameof(panelClicked.moveLastBtn))
+				{
+					Queue.MoveQueuePosition(item, QueuePosition.Last);
+					UpdateAllControls();
+				}
 			}
-			else if (buttonName == nameof(panelClicked.moveFirstBtn))
+			catch(Exception ex)
 			{
-				Queue.MoveQueuePosition(item, QueuePosition.Fisrt);
-				UpdateAllControls();
-			}
-			else if (buttonName == nameof(panelClicked.moveUpBtn))
-			{
-				Queue.MoveQueuePosition(item, QueuePosition.OneUp);
-				UpdateControl(queueIndex);
-				if (queueIndex > 0)
-					UpdateControl(queueIndex - 1);
-			}
-			else if (buttonName == nameof(panelClicked.moveDownBtn))
-			{
-				Queue.MoveQueuePosition(item, QueuePosition.OneDown);
-				UpdateControl(queueIndex);
-				if (queueIndex + 1 < Queue.Count) 
-					UpdateControl(queueIndex + 1);
-			}
-			else if (buttonName == nameof(panelClicked.moveLastBtn))
-			{
-				Queue.MoveQueuePosition(item, QueuePosition.Last);
-				UpdateAllControls();
+				Serilog.Log.Logger.Error(ex, "Error handling button click from queued item");
 			}
 		}
 

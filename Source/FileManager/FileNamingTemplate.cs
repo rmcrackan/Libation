@@ -12,17 +12,17 @@ namespace FileManager
 		/// <param name="template">Proposed file name with optional html-styled template tags.</param>
 		public FileNamingTemplate(string template) : base(template) { }
 
-		/// <summary>Optional step 2: Replace all illegal characters with this. Default=<see cref="string.Empty"/></summary>
-		public string IllegalCharacterReplacements { get; set; }
-
 		/// <summary>Generate a valid path for this file or directory</summary>
-		public LongPath GetFilePath(bool returnFirstExisting = false)
+		public LongPath GetFilePath(ReplacementCharacters replacements, bool returnFirstExisting = false)
 		{
+			string fileName = 
+				Template.EndsWith(Path.DirectorySeparatorChar) || Template.EndsWith(Path.AltDirectorySeparatorChar) ?
+					FileUtility.RemoveLastCharacter(Template) : 
+					Template;
 
-			string fileName = Template.EndsWith(Path.DirectorySeparatorChar) ? Template[..^1] : Template;
 			List<string> pathParts = new();
 
-			var paramReplacements = ParameterReplacements.ToDictionary(r => $"<{formatKey(r.Key)}>", r => formatValue(r.Value));
+			var paramReplacements = ParameterReplacements.ToDictionary(r => $"<{formatKey(r.Key)}>", r => formatValue(r.Value, replacements));
 
 			while (!string.IsNullOrEmpty(fileName))
 			{
@@ -43,7 +43,7 @@ namespace FileManager
 
 			pathParts.Reverse();
 
-			return FileUtility.GetValidFilename(Path.Join(pathParts.ToArray()), IllegalCharacterReplacements, returnFirstExisting);
+			return FileUtility.GetValidFilename(Path.Join(pathParts.ToArray()), replacements, returnFirstExisting);
 		}
 
 		private string replaceFileName(string filename, Dictionary<string,string> paramReplacements)
@@ -92,17 +92,14 @@ namespace FileManager
 			return string.Join("", filenameParts);
 		}
 
-		private string formatValue(object value)
+		private string formatValue(object value, ReplacementCharacters replacements)
 		{
 			if (value is null)
 				return "";
 
 			// Other illegal characters will be taken care of later. Must take care of slashes now so params can't introduce new folders.
 			// Esp important for file templates.
-			return value
-				.ToString()
-				.Replace($"{System.IO.Path.DirectorySeparatorChar}", IllegalCharacterReplacements)
-				.Replace($"{System.IO.Path.AltDirectorySeparatorChar}", IllegalCharacterReplacements);
+			return replacements.ReplaceInvalidFilenameChars(value.ToString());
 		}
 	}
 }

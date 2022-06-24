@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Dinah.Core;
 using Dinah.Core.Net.Http;
-using Dinah.Core.StepRunner;
 using FileManager;
 
 namespace AaxDecrypter
@@ -31,7 +30,6 @@ namespace AaxDecrypter
 		// Don't give the property a 'set'. This should have to be an obvious choice; not accidental
 		protected void SetOutputFileName(string newOutputFileName) => OutputFileName = newOutputFileName;
 
-		protected abstract StepSequence Steps { get; }
 		private NetworkFileStreamPersister nfsPersister;
 
 		private string jsonDownloadState { get; }
@@ -64,15 +62,7 @@ namespace AaxDecrypter
 				OnRetrievedCoverArt(coverArt);
 		}
 
-		public bool Run()
-		{
-			var (IsSuccess, _) = Steps.Run();
-
-			if (!IsSuccess)
-				Serilog.Log.Logger.Error("Conversion failed");
-
-			return IsSuccess;
-		}
+		public abstract Task<bool> RunAsync();
 
 		protected void OnRetrievedTitle(string title)
 			=> RetrievedTitle?.Invoke(this, title);
@@ -103,7 +93,7 @@ namespace AaxDecrypter
 			try
 			{
 				var path = Path.ChangeExtension(OutputFileName, ".cue");
-				path = FileUtility.GetValidFilename(path);
+				path = FileUtility.GetValidFilename(path, DownloadOptions.ReplacementCharacters);
 				File.WriteAllText(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadOptions.ChapterInfo));
 				OnFileCreated(path);
 			}

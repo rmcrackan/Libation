@@ -117,6 +117,9 @@ namespace AppScaffolding
 			if (!config.Exists(nameof(config.DownloadEpisodes)))
 				config.DownloadEpisodes = true;
 
+			if (!config.Exists(nameof(config.ReplacementCharacters)))
+				config.ReplacementCharacters = FileManager.ReplacementCharacters.Default;
+
 			if (!config.Exists(nameof(config.FolderTemplate)))
 				config.FolderTemplate = Templates.Folder.DefaultTemplate;
 

@@ -2,31 +2,65 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using AAXClean;
 using AAXClean.Codecs;
-using Dinah.Core;
-using Dinah.Core.StepRunner;
 using FileManager;
 
 namespace AaxDecrypter
 {
 	public class AaxcDownloadMultiConverter : AaxcDownloadConvertBase
 	{
-		protected override StepSequence Steps { get; }
 		private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
 		private List<string> multiPartFilePaths { get; } = new List<string>();
 
 		public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
-			: base(outFileName, cacheDirectory, dlOptions)
-		{
-			Steps = new StepSequence
-			{
-				Name = "Download and Convert Aaxc To " + DownloadOptions.OutputFormat,
+			: base(outFileName, cacheDirectory, dlOptions) { }
 
-				["Step 1: Get Aaxc Metadata"] = Step_GetMetadata,
-				["Step 2: Download Decrypted Audiobook"] = Step_DownloadAudiobookAsMultipleFilesPerChapter,
-				["Step 3: Cleanup"] = Step_Cleanup,
-			};
+		public override async Task<bool> RunAsync()
+		{
+			try
+			{
+				Serilog.Log.Information("Begin download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+
+				//Step 1
+				Serilog.Log.Information("Begin Get Aaxc Metadata");
+				if (await Task.Run(Step_GetMetadata))
+					Serilog.Log.Information("Completed Get Aaxc Metadata");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Get Aaxc Metadata");
+					return false;
+				}
+
+				//Step 2
+				Serilog.Log.Information("Begin Download Decrypted Audiobook");
+				if (await Step_DownloadAudiobookAsMultipleFilesPerChapter())
+					Serilog.Log.Information("Completed Download Decrypted Audiobook");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Download Decrypted Audiobook");
+					return false;
+				}
+
+				//Step 3
+				Serilog.Log.Information("Begin Cleanup");
+				if (await Task.Run(Step_Cleanup))
+					Serilog.Log.Information("Completed Cleanup");
+				else
+				{
+					Serilog.Log.Information("Failed to Complete Cleanup");
+					return false;
+				}
+
+				Serilog.Log.Information("Completed download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "Error encountered in download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+				return false;
+			}
 		}
 
 		/*
@@ -53,7 +87,7 @@ The book will be split into the following files:
 
 That naming may not be desirable for everyone, but it's an easy change to instead use the last of the combined chapter's title in the file name.
 		 */
-		private bool Step_DownloadAudiobookAsMultipleFilesPerChapter()
+		private async Task<bool> Step_DownloadAudiobookAsMultipleFilesPerChapter()
 		{
 			var zeroProgress = Step_DownloadAudiobook_Start();
 
@@ -86,9 +120,9 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
 			AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 			if (DownloadOptions.OutputFormat == OutputFormat.M4b)
-				result = ConvertToMultiMp4a(splitChapters);
+				result = await ConvertToMultiMp4a(splitChapters);
 			else
-				result = ConvertToMultiMp3(splitChapters);
+				result = await ConvertToMultiMp3(splitChapters);
 			AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
 			Step_DownloadAudiobook_End(zeroProgress);
@@ -96,10 +130,10 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 			return result == ConversionResult.NoErrorsDetected;
 		}
 
-		private ConversionResult ConvertToMultiMp4a(ChapterInfo splitChapters)
+		private Task<ConversionResult> ConvertToMultiMp4a(ChapterInfo splitChapters)
 		{
 			var chapterCount = 0;
-			return AaxFile.ConvertToMultiMp4a
+			return AaxFile.ConvertToMultiMp4aAsync
 				(
 					splitChapters,
 					newSplitCallback => Callback(++chapterCount, splitChapters, newSplitCallback),
@@ -107,10 +141,10 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 				);
 		}
 
-		private ConversionResult ConvertToMultiMp3(ChapterInfo splitChapters)
+		private Task<ConversionResult> ConvertToMultiMp3(ChapterInfo splitChapters)
 		{
 			var chapterCount = 0;
-			return AaxFile.ConvertToMultiMp3
+			return AaxFile.ConvertToMultiMp3Async
 				(
 					splitChapters,
 					newSplitCallback => Callback(++chapterCount, splitChapters, newSplitCallback),
@@ -141,7 +175,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 		private FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
 		{
 			var fileName = DownloadOptions.GetMultipartFileName(multiConvertFileProperties);
-			fileName = FileUtility.GetValidFilename(fileName);
+			fileName = FileUtility.GetValidFilename(fileName, DownloadOptions.ReplacementCharacters);
 
 			multiPartFilePaths.Add(fileName);
 
