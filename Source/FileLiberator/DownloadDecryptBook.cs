@@ -165,7 +165,7 @@ namespace FileLiberator
 					LameConfig = GetLameOptions(config)
 				};
 
-			var chapters = getChapters(contentLic.ContentMetadata.ChapterInfo.Chapters).OrderBy(c => c.StartOffsetMs).ToList();
+			var chapters = flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters).OrderBy(c => c.StartOffsetMs).ToList();
 
 			if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
 			{
@@ -192,7 +192,7 @@ namespace FileLiberator
 			return dlOptions;
 		}
 
-		public static List<AudibleApi.Common.Chapter> getChapters(IEnumerable<AudibleApi.Common.Chapter> chapters)
+		public static List<AudibleApi.Common.Chapter> flattenChapters(IEnumerable<AudibleApi.Common.Chapter> chapters, string titleConcat = ": ")
 		{
 			List<AudibleApi.Common.Chapter> chaps = new();
 
@@ -200,19 +200,14 @@ namespace FileLiberator
 			{
 				if (c.Chapters is not null)
 				{
-					c.Chapters[0] = new AudibleApi.Common.Chapter
-					{
-						Title = c.Chapters[0].Title,
-						StartOffsetMs = c.StartOffsetMs,
-						StartOffsetSec = c.StartOffsetSec,
-						LengthMs = c.LengthMs + c.Chapters[0].LengthMs,
-						Chapters = c.Chapters[0].Chapters
-					};
+					c.Chapters[0].StartOffsetMs = c.StartOffsetMs;
+					c.Chapters[0].StartOffsetSec = c.StartOffsetSec;
+					c.Chapters[0].LengthMs += c.LengthMs;
 
-					var children = getChapters(c.Chapters);
+					var children = flattenChapters(c.Chapters);
 
 					foreach (var child in children)
-						child.Title = string.IsNullOrEmpty(c.Title) ? child.Title : $"{c.Title}: {child.Title}";
+						child.Title = $"{c.Title}{titleConcat}{child.Title}";
 
 					chaps.AddRange(children);
 				}

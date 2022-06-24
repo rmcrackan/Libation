@@ -185,11 +185,11 @@ namespace FileLiberator.Tests
 					}
 				};
 
-			var flatChapters = DownloadDecryptBook.getChapters(hierarchicalChapters).OrderBy(c => c.StartOffsetMs).ToArray();
+			var flatChapters = DownloadDecryptBook.flattenChapters(hierarchicalChapters);
 
-			flatChapters.Length.Should().Be(flatChapters.Length);
+			flatChapters.Count.Should().Be(expected.Length);
 
-			for (int i = 0; i < flatChapters.Length; i++)
+			for (int i = 0; i < flatChapters.Count; i++)
 			{
 				flatChapters[i].Title.Should().Be(expected[i].Title);
 				flatChapters[i].StartOffsetMs.Should().Be(expected[i].StartOffsetMs);
