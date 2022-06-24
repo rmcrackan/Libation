@@ -192,7 +192,7 @@ namespace FileLiberator
 			return dlOptions;
 		}
 
-		private List<AudibleApi.Common.Chapter> getChapters(IEnumerable<AudibleApi.Common.Chapter> chapters)
+		public static List<AudibleApi.Common.Chapter> getChapters(IEnumerable<AudibleApi.Common.Chapter> chapters)
 		{
 			List<AudibleApi.Common.Chapter> chaps = new();
 
@@ -200,17 +200,16 @@ namespace FileLiberator
 			{
 				if (c.Chapters is not null)
 				{
-					var firstSub = new AudibleApi.Common.Chapter
+					c.Chapters[0] = new AudibleApi.Common.Chapter
 					{
-						Title = $"{c.Title}: {c.Chapters[0].Title}",
+						Title = c.Chapters[0].Title,
 						StartOffsetMs = c.StartOffsetMs,
 						StartOffsetSec = c.StartOffsetSec,
-						LengthMs = c.LengthMs + c.Chapters[0].LengthMs
+						LengthMs = c.LengthMs + c.Chapters[0].LengthMs,
+						Chapters = c.Chapters[0].Chapters
 					};
 
-					chaps.Add(firstSub);
-
-					var children = getChapters(c.Chapters[1..]);
+					var children = getChapters(c.Chapters);
 
 					foreach (var child in children)
 						child.Title = string.IsNullOrEmpty(c.Title) ? child.Title : $"{c.Title}: {child.Title}";
