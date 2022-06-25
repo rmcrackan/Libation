@@ -155,7 +155,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
 
 		private void Callback(int currentChapter, ChapterInfo splitChapters, NewMP3SplitCallback newSplitCallback)
-			=> Callback(currentChapter, splitChapters, newSplitCallback);
+			=> Callback(currentChapter, splitChapters, newSplitCallback as NewSplitCallback);
 
 		private void Callback(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
 		{
