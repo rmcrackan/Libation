@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
     <EnablePreviewFeatures>True</EnablePreviewFeatures>
-    <Version>8.1.4.16</Version>
+    <Version>8.1.4.30</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Octokit" Version="0.51.0" />
@@ -19,6 +19,6 @@
     <DebugType>embedded</DebugType>
   </PropertyGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="dotnet bump-version revision AppScaffolding.csproj" />
+    <Exec Command="if $(Configuration) == Debug (&#xD;&#xA;dotnet bump-version revision AppScaffolding.csproj&#xD;&#xA;)" />
   </Target>
 </Project>
