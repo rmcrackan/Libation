@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
+	  <EnablePreviewFeatures>True</EnablePreviewFeatures>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

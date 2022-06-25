@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "frogvall.dotnetbumpversion": {
+      "version": "3.0.1",
+      "commands": [
+        "bump-version"
+      ]
+    }
+  }
+}

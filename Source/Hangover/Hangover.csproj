@@ -6,7 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>hangover.ico</ApplicationIcon>
     <ImplicitUsings>enable</ImplicitUsings>
-
+	  <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

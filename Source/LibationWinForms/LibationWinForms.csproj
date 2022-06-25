@@ -6,6 +6,7 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>libation.ico</ApplicationIcon>
+	  <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <AssemblyName>Libation</AssemblyName>
 	  
     <PublishReadyToRun>true</PublishReadyToRun>

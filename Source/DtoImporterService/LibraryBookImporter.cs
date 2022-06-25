@@ -7,10 +7,8 @@ using Dinah.Core.Collections.Generic;
 
 namespace DtoImporterService
 {
-	public class LibraryBookImporter : ItemsImporterBase
+	public class LibraryBookImporter : ImporterBase<LibraryValidator>
 	{
-		protected override IValidator Validator => new LibraryValidator();
-
 		private BookImporter bookImporter { get; }
 
 		public LibraryBookImporter(LibationContext context) : base(context)

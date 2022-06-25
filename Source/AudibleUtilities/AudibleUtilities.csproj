@@ -2,12 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
+	  <EnablePreviewFeatures>True</EnablePreviewFeatures>
   </PropertyGroup>
 
   <ItemGroup>
-   <!-- <PackageReference Include="AudibleApi" Version="4.2.2.1" /> -->
-	  <ProjectReference Include="..\..\..\audible api\AudibleApi\AudibleApi\AudibleApi.csproj" />
-
+   <PackageReference Include="AudibleApi" Version="4.2.2.1" />
   </ItemGroup>
 
 
