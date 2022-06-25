@@ -155,7 +155,7 @@ namespace AudibleUtilities
 			//System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
 #endif
 			var validators = new List<IValidator>();
-			validators.AddRange(getValidators());
+			validators.AddRange(Validators.GetValidators());
 			foreach (var v in validators)
 			{
 				var exceptions = v.Validate(items);
@@ -329,15 +329,5 @@ namespace AudibleUtilities
 			return results;
 		}
 		#endregion
-
-		private static List<IValidator> getValidators()
-		{
-			var type = typeof(IValidator);
-			var types = AppDomain.CurrentDomain.GetAssemblies()
-				.SelectMany(s => s.GetTypes())
-				.Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
-
-			return types.Select(t => Activator.CreateInstance(t) as IValidator).ToList();
-		}
 	}
 }

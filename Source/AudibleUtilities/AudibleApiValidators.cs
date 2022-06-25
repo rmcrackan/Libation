@@ -5,6 +5,18 @@ using AudibleApi.Common;
 
 namespace AudibleUtilities
 {
+	public static class Validators
+	{
+		public static IValidator[] GetValidators()
+			=> new IValidator[] 
+			{
+				new LibraryValidator(),
+				new BookValidator(),
+				new CategoryValidator(),
+				new ContributorValidator(),
+				new SeriesValidator(),
+			};
+	}
 	public interface IValidator
 	{
 		IEnumerable<Exception> Validate(IEnumerable<Item> items);

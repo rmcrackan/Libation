@@ -5,10 +5,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AudibleApi" Version="4.2.2.1" />
+   <!-- <PackageReference Include="AudibleApi" Version="4.2.2.1" /> -->
+	  <ProjectReference Include="..\..\..\audible api\AudibleApi\AudibleApi\AudibleApi.csproj" />
+
   </ItemGroup>
 
-  <ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+
+	<ItemGroup>
     <ProjectReference Include="..\LibationFileManager\LibationFileManager.csproj" />
   </ItemGroup>
 

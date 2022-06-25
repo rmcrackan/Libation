@@ -2,13 +2,23 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
+	  <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AAXClean.Codecs" Version="0.2.10" />
   </ItemGroup>
 
-  <ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+
+	<ItemGroup>
     <ProjectReference Include="..\FileManager\FileManager.csproj" />
   </ItemGroup>
 
