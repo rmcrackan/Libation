@@ -25,6 +25,7 @@ namespace DataLayer
         Parent = 4,
     }
 
+
     public class Book
     {
         // implementation detail. set by db only. only used by data layer
@@ -37,6 +38,10 @@ namespace DataLayer
         public int LengthInMinutes { get; private set; }
         public ContentType ContentType { get; private set; }
         public string Locale { get; private set; }
+
+        internal AudioFormatEnum _audioFormat;
+
+        public AudioFormat AudioFormat { get => AudioFormat.FromEnum(_audioFormat); set => _audioFormat = value.ToEnum(); }
 
         // mutable
         public string PictureId { get; set; }
