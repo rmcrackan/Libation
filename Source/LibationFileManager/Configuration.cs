@@ -117,6 +117,13 @@ namespace LibationFileManager
 			set => persistentDictionary.SetNonString(nameof(SplitFilesByChapter), value);
 		}
 
+		[Description("Merge Opening/End Credits into the following/preceding chapters")]
+		public bool MergeOpeningAndEndCredits
+		{
+			get => persistentDictionary.GetNonString<bool>(nameof(MergeOpeningAndEndCredits));
+			set => persistentDictionary.SetNonString(nameof(MergeOpeningAndEndCredits), value);
+		}
+
 		[Description("Strip \"(Unabridged)\" from audiobook metadata tags")]
 		public bool StripUnabridged
 		{
