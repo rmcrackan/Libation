@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
     <EnablePreviewFeatures>True</EnablePreviewFeatures>
-    <Version>8.1.4.30</Version>
+    <Version>8.1.4.31</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Octokit" Version="0.51.0" />
