@@ -136,19 +136,21 @@ namespace FileManager
 		{
 			if (toReplace == Replacement.QUOTE_MARK)
 			{
-				if (preceding == default ||
-						(preceding != default
-						&& !char.IsLetter(preceding)
-						&& !char.IsNumber(preceding)
-						&& (char.IsLetter(succeding) || char.IsNumber(succeding))
+				if (
+					preceding == default ||
+						(
+							!char.IsLetter(preceding) &&
+							!char.IsNumber(preceding) &&
+							(char.IsLetter(succeding) || char.IsNumber(succeding))
 						)
 					)
 					return OpenQuote;
-				else if (succeding == default ||
-							(succeding != default
-							&& !char.IsLetter(succeding)
-							&& !char.IsNumber(succeding)
-							&& (char.IsLetter(preceding) || char.IsNumber(preceding))
+				else if (
+						succeding == default ||
+							(
+								!char.IsLetter(succeding) &&
+								!char.IsNumber(succeding) &&
+								(char.IsLetter(preceding) || char.IsNumber(preceding))
 							)
 						)
 					return CloseQuote;

@@ -7,7 +7,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>libation.ico</ApplicationIcon>
     <AssemblyName>Libation</AssemblyName>
-
+	  
     <PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -25,6 +25,16 @@
     - Specifying only 'en' should load no language packs: broken, still loads all
     -->
     <SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <OutputPath>..\bin\Debug</OutputPath>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <OutputPath>..\bin\Release</OutputPath>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>

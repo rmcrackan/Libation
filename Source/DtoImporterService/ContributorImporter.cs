@@ -91,7 +91,7 @@ namespace DtoImporterService
 			return hash.Count;
 		}
 
-        private Contributor addContributor(string name, string id = null)
+		private Contributor addContributor(string name, string id = null)
 		{
 			try
 			{
@@ -108,6 +108,6 @@ namespace DtoImporterService
 				Serilog.Log.Logger.Error(ex, "Error adding contributor. {@DebugInfo}", new { name, id });
 				throw;
 			}
-        }
-    }
+		}
+	}
 }

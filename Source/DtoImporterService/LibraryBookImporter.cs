@@ -49,7 +49,7 @@ namespace DtoImporterService
 			// just use the first
 			var hash = newItems.ToDictionarySafe(dto => dto.DtoItem.ProductId);
 			foreach (var kvp in hash)
-            {
+			{
 				var newItem = kvp.Value;
 
 				var libraryBook = new LibraryBook(

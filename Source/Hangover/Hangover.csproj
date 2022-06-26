@@ -6,7 +6,6 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>hangover.ico</ApplicationIcon>
     <ImplicitUsings>enable</ImplicitUsings>
-
     <PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -24,11 +23,13 @@
   edit debug and release output paths
   -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\LibationWinForms\bin\Debug</OutputPath>
+    <OutputPath>..\bin\Debug</OutputPath>
+	  <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\LibationWinForms\bin\Release</OutputPath>
+    <OutputPath>..\bin\Release</OutputPath>
+	  <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,7 +38,7 @@
     <ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <Compile Update="Form1.*.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>

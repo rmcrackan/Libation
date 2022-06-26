@@ -13,6 +13,7 @@ namespace LibationWinForms.Dialogs
 			this.downloadCoverArtCbox.Text = desc(nameof(config.DownloadCoverArt));
 			this.retainAaxFileCbox.Text = desc(nameof(config.RetainAaxFile));
 			this.splitFilesByChapterCbox.Text = desc(nameof(config.SplitFilesByChapter));
+			this.mergeOpeningEndCreditsCbox.Text = desc(nameof(config.MergeOpeningAndEndCredits));
 			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
 
@@ -21,6 +22,7 @@ namespace LibationWinForms.Dialogs
 			downloadCoverArtCbox.Checked = config.DownloadCoverArt;
 			retainAaxFileCbox.Checked = config.RetainAaxFile;
 			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
+			mergeOpeningEndCreditsCbox.Checked = config.MergeOpeningAndEndCredits;
 			stripUnabridgedCbox.Checked = config.StripUnabridged;
 			stripAudibleBrandingCbox.Checked = config.StripAudibleBrandAudio;
 			convertLosslessRb.Checked = !config.DecryptToLossy;
@@ -50,6 +52,7 @@ namespace LibationWinForms.Dialogs
 			config.DownloadCoverArt = downloadCoverArtCbox.Checked;
 			config.RetainAaxFile = retainAaxFileCbox.Checked;
 			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
+			config.MergeOpeningAndEndCredits = mergeOpeningEndCreditsCbox.Checked;
 			config.StripUnabridged = stripUnabridgedCbox.Checked;
 			config.StripAudibleBrandAudio = stripAudibleBrandingCbox.Checked;
 			config.DecryptToLossy = convertLossyRb.Checked;

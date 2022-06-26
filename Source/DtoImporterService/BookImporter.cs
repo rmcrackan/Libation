@@ -162,6 +162,9 @@ namespace DtoImporterService
 		{
 			var item = importItem.DtoItem;
 
+			var codec = item.AvailableCodecs?.Max(f => AudioFormat.FromString(f.EnhancedCodec)) ?? new AudioFormat();
+			book.AudioFormat = codec;
+
 			// set/update book-specific info which may have changed
 			if (item.PictureId is not null)
 				book.PictureId = item.PictureId;

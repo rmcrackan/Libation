@@ -12,11 +12,13 @@ namespace DataLayer.Configurations
 
             entity.OwnsOne(b => b.Rating);
 
+            entity.Property(nameof(Book._audioFormat));
             //
             // CRUCIAL: ignore unmapped collections, even get-only
             //
             entity.Ignore(nameof(Book.Authors));
             entity.Ignore(nameof(Book.Narrators));
+            entity.Ignore(nameof(Book.AudioFormat));
 			//// these don't seem to matter
 			//entity.Ignore(nameof(Book.AuthorNames));
 			//entity.Ignore(nameof(Book.NarratorNames));

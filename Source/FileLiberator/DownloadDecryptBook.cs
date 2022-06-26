@@ -166,6 +166,9 @@ namespace FileLiberator
 				};
 
 			var chapters = flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters).OrderBy(c => c.StartOffsetMs).ToList();
+			
+			if (config.MergeOpeningAndEndCredits)
+				combineCredits(chapters);
 
 			if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
 			{
@@ -192,7 +195,7 @@ namespace FileLiberator
 			return dlOptions;
 		}
 
-		public static List<AudibleApi.Common.Chapter> flattenChapters(IEnumerable<AudibleApi.Common.Chapter> chapters, string titleConcat = ": ")
+		public static List<AudibleApi.Common.Chapter> flattenChapters(IList<AudibleApi.Common.Chapter> chapters, string titleConcat = ": ")
 		{
 			List<AudibleApi.Common.Chapter> chaps = new();
 
@@ -216,6 +219,22 @@ namespace FileLiberator
 			}
 			return chaps;
 		}
+
+		public static void combineCredits(IList<AudibleApi.Common.Chapter> chapters)
+		{
+			if (chapters.Count > 1 && chapters[0].Title == "Opening Credits")
+			{
+				chapters[1].StartOffsetMs = chapters[0].StartOffsetMs;
+				chapters[1].StartOffsetSec = chapters[0].StartOffsetSec;
+				chapters[1].LengthMs += chapters[0].LengthMs;
+				chapters.RemoveAt(0);
+			}
+			if (chapters.Count > 1 && chapters[^1].Title == "End Credits")
+			{
+				chapters[^2].LengthMs += chapters[^1].LengthMs;
+				chapters.Remove(chapters[^1]);
+			}
+		}		
 
 		private static void downloadValidation(LibraryBook libraryBook)
 		{

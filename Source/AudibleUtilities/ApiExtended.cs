@@ -162,8 +162,17 @@ namespace AudibleUtilities
 				if (exceptions is not null && exceptions.Any())
 					throw new AggregateException(exceptions);
 			}
-
 			return items;
+		}
+
+		private static List<IValidator> getValidators()
+		{
+			var type = typeof(IValidator);
+			var types = AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(s => s.GetTypes())
+				.Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+
+			return types.Select(t => Activator.CreateInstance(t) as IValidator).ToList();
 		}
 
 		#region episodes and podcasts
@@ -197,7 +206,8 @@ namespace AudibleUtilities
 					if (numSeriesParents != 1)
 					{
 						//There should only ever be 1 top-level parent per episode. If not, log
-						//and throw so we can figure out what to do about those special cases.
+						//so we can figure out what to do about those special cases, and don't
+						//import the episode.
 						JsonSerializerSettings Settings = new()
 						{
 							MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
@@ -207,9 +217,8 @@ namespace AudibleUtilities
 								new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
 							},
 						};
-						var ex = new ApplicationException($"Found {numSeriesParents} parents for {parent.Asin}");
-						Serilog.Log.Logger.Error(ex, $"Episode Product:\r\n{JsonConvert.SerializeObject(parent, Formatting.None, Settings)}");
-						throw ex;
+						Serilog.Log.Logger.Error($"Found {numSeriesParents} parents for {parent.Asin}\r\nEpisode Product:\r\n{JsonConvert.SerializeObject(parent, Formatting.None, Settings)}");
+						return new List<Item>();
 					}
 
 					var realParent = seriesParents.Single(p => p.IsSeriesParent);
@@ -329,15 +338,5 @@ namespace AudibleUtilities
 			return results;
 		}
 		#endregion
-
-		private static List<IValidator> getValidators()
-		{
-			var type = typeof(IValidator);
-			var types = AppDomain.CurrentDomain.GetAssemblies()
-				.SelectMany(s => s.GetTypes())
-				.Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
-
-			return types.Select(t => Activator.CreateInstance(t) as IValidator).ToList();
-		}
 	}
 }

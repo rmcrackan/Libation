@@ -6,9 +6,7 @@
 
   <PropertyGroup>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <ApplicationIcon />
     <OutputType>Library</OutputType>
-    <StartupObject />
   </PropertyGroup>
   
   <ItemGroup>
@@ -23,8 +21,16 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  
-  <ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\LibationFileManager\LibationFileManager.csproj" />
   </ItemGroup>
   

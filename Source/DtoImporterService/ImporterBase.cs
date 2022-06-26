@@ -55,7 +55,7 @@ namespace DtoImporterService
 		protected ItemsImporterBase(LibationContext context) : base(context) { }
 
 		protected abstract IValidator Validator { get; }
-        public sealed override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems)
+		public sealed override IEnumerable<Exception> Validate(IEnumerable<ImportItem> importItems)
 			=> Validator.Validate(importItems.Select(i => i.DtoItem));
 	}
 }

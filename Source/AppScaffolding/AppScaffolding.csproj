@@ -1,22 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Version>8.1.4.1</Version>
+    <Version>8.1.4.31</Version>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="MSBump" Version="2.3.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Octokit" Version="0.51.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
     <ProjectReference Include="..\AudibleUtilities\AudibleUtilities.csproj" />
   </ItemGroup>
-
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="if $(Configuration) == Debug (&#xD;&#xA;dotnet bump-version revision AppScaffolding.csproj&#xD;&#xA;)" />
+  </Target>
 </Project>

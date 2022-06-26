@@ -117,6 +117,13 @@ namespace LibationFileManager
 			set => persistentDictionary.SetNonString(nameof(SplitFilesByChapter), value);
 		}
 
+		[Description("Merge Opening/End Credits into the following/preceding chapters")]
+		public bool MergeOpeningAndEndCredits
+		{
+			get => persistentDictionary.GetNonString<bool>(nameof(MergeOpeningAndEndCredits));
+			set => persistentDictionary.SetNonString(nameof(MergeOpeningAndEndCredits), value);
+		}
+
 		[Description("Strip \"(Unabridged)\" from audiobook metadata tags")]
 		public bool StripUnabridged
 		{
@@ -437,7 +444,7 @@ namespace LibationFileManager
 		#endregion
 
 		#region LibationFiles
-		private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "appsettings.json");
+		private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "appsettings.json");
 		private const string LIBATION_FILES_KEY = "LibationFiles";
 
 		[Description("Location for storage of program-created files")]
