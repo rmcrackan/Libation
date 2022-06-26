@@ -206,7 +206,8 @@ namespace AudibleUtilities
 					if (numSeriesParents != 1)
 					{
 						//There should only ever be 1 top-level parent per episode. If not, log
-						//and throw so we can figure out what to do about those special cases.
+						//so we can figure out what to do about those special cases, and don't
+						//import the episode.
 						JsonSerializerSettings Settings = new()
 						{
 							MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
@@ -216,9 +217,8 @@ namespace AudibleUtilities
 								new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
 							},
 						};
-						var ex = new ApplicationException($"Found {numSeriesParents} parents for {parent.Asin}");
-						Serilog.Log.Logger.Error(ex, $"Episode Product:\r\n{JsonConvert.SerializeObject(parent, Formatting.None, Settings)}");
-						throw ex;
+						Serilog.Log.Logger.Error($"Found {numSeriesParents} parents for {parent.Asin}\r\nEpisode Product:\r\n{JsonConvert.SerializeObject(parent, Formatting.None, Settings)}");
+						return new List<Item>();
 					}
 
 					var realParent = seriesParents.Single(p => p.IsSeriesParent);
