@@ -8,8 +8,10 @@ using Dinah.Core.Collections.Generic;
 
 namespace DtoImporterService
 {
-	public class BookImporter : ImporterBase<BookValidator>
+	public class BookImporter : ItemsImporterBase
 	{
+		protected override IValidator Validator => new BookValidator();
+
 		public Dictionary<string, Book> Cache { get; private set; } = new();
 
 		private ContributorImporter contributorImporter { get; }

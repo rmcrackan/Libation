@@ -7,14 +7,11 @@ namespace AudibleUtilities
 {
 	public interface IValidator
 	{
-		public static abstract IEnumerable<Exception> Validate(IEnumerable<Item> items);
-		public static IEnumerable<Exception> Validate<T>(IEnumerable<Item> items)
-			where T : IValidator
-			=> T.Validate(items);
+		IEnumerable<Exception> Validate(IEnumerable<Item> items);
 	}
 	public class LibraryValidator : IValidator
 	{
-		public static IEnumerable<Exception> Validate(IEnumerable<Item> items)
+		public IEnumerable<Exception> Validate(IEnumerable<Item> items)
 		{
 			var exceptions = new List<Exception>();
 
@@ -28,7 +25,7 @@ namespace AudibleUtilities
 	}
 	public class BookValidator : IValidator
 	{
-		public static IEnumerable<Exception> Validate(IEnumerable<Item> items)
+		public IEnumerable<Exception> Validate(IEnumerable<Item> items)
 		{
 			var exceptions = new List<Exception>();
 
@@ -46,7 +43,7 @@ namespace AudibleUtilities
 	}
 	public class CategoryValidator : IValidator
 	{
-		public static IEnumerable<Exception> Validate(IEnumerable<Item> items)
+		public IEnumerable<Exception> Validate(IEnumerable<Item> items)
 		{
 			var exceptions = new List<Exception>();
 
@@ -61,7 +58,7 @@ namespace AudibleUtilities
 	}
 	public class ContributorValidator : IValidator
 	{
-		public static IEnumerable<Exception> Validate(IEnumerable<Item> items)
+		public IEnumerable<Exception> Validate(IEnumerable<Item> items)
 		{
 			var exceptions = new List<Exception>();
 
@@ -75,7 +72,7 @@ namespace AudibleUtilities
 	}
 	public class SeriesValidator : IValidator
 	{
-		public static IEnumerable<Exception> Validate(IEnumerable<Item> items)
+		public IEnumerable<Exception> Validate(IEnumerable<Item> items)
 		{
 			var exceptions = new List<Exception>();
 

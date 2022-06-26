@@ -8,8 +8,10 @@ using Dinah.Core.Collections.Generic;
 
 namespace DtoImporterService
 {
-	public class ContributorImporter : ImporterBase<ContributorValidator>
+	public class ContributorImporter : ItemsImporterBase
 	{
+		protected override IValidator Validator => new ContributorValidator();
+
 		public Dictionary<string, Contributor> Cache { get; private set; } = new();
 
 		public ContributorImporter(LibationContext context) : base(context) { }
@@ -89,7 +91,7 @@ namespace DtoImporterService
 			return hash.Count;
 		}
 
-        private Contributor addContributor(string name, string id = null)
+		private Contributor addContributor(string name, string id = null)
 		{
 			try
 			{
@@ -106,6 +108,6 @@ namespace DtoImporterService
 				Serilog.Log.Logger.Error(ex, "Error adding contributor. {@DebugInfo}", new { name, id });
 				throw;
 			}
-        }
-    }
+		}
+	}
 }

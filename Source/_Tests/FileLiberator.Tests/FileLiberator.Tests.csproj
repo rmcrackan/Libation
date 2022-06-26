@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-	  <EnablePreviewFeatures>True</EnablePreviewFeatures>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

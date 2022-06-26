@@ -8,8 +8,10 @@ using Dinah.Core.Collections.Generic;
 
 namespace DtoImporterService
 {
-	public class SeriesImporter : ImporterBase<SeriesValidator>
+	public class SeriesImporter : ItemsImporterBase
 	{
+		protected override IValidator Validator => new SeriesValidator();
+
 		public Dictionary<string, DataLayer.Series> Cache { get; private set; } = new();
 
 		public SeriesImporter(LibationContext context) : base(context) { }

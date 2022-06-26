@@ -154,17 +154,25 @@ namespace AudibleUtilities
 #if DEBUG
 			//System.IO.File.WriteAllText(library_json, AudibleApi.Common.Converter.ToJson(items));
 #endif
-			var exceptions = new List<Exception>();
-
-			exceptions.AddRange(IValidator.Validate<LibraryValidator>(items));
-			exceptions.AddRange(IValidator.Validate<BookValidator>(items));
-			exceptions.AddRange(IValidator.Validate<CategoryValidator>(items));
-			exceptions.AddRange(IValidator.Validate<ContributorValidator>(items));
-			exceptions.AddRange(IValidator.Validate<SeriesValidator>(items));
-
-			if (exceptions.Any())
-				throw new AggregateException(exceptions);
+			var validators = new List<IValidator>();
+			validators.AddRange(getValidators());
+			foreach (var v in validators)
+			{
+				var exceptions = v.Validate(items);
+				if (exceptions is not null && exceptions.Any())
+					throw new AggregateException(exceptions);
+			}
 			return items;
+		}
+
+		private static List<IValidator> getValidators()
+		{
+			var type = typeof(IValidator);
+			var types = AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(s => s.GetTypes())
+				.Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+
+			return types.Select(t => Activator.CreateInstance(t) as IValidator).ToList();
 		}
 
 		#region episodes and podcasts
