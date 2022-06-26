@@ -12,4 +12,5 @@ dotnet publish -c Release Hangover\Hangover.csproj -p:PublishProfile=Hangover\Pr
 
 $verMatch = Select-String -Path 'AppScaffolding\AppScaffolding.csproj' -Pattern '<Version>(\d{0,3}\.\d{0,3}\.\d{0,3})\.\d{0,3}</Version>'
 $archiveName = "bin\Libation."+$verMatch.Matches.Groups[1].Value+".zip"
-Compress-Archive -Path $pubDir -DestinationPath $archiveName -Force
+Get-ChildItem -Path $pubDir -Recurse |
+	Compress-Archive -DestinationPath $archiveName -Force
