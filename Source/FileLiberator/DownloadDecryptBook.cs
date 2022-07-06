@@ -146,54 +146,126 @@ namespace FileLiberator
 			var outputFormat = !encrypted || (config.AllowLibationFixup && config.DecryptToLossy) ?
 					 OutputFormat.Mp3 : OutputFormat.M4b;
 
+			long chapterStartMs = config.StripAudibleBrandAudio ?
+				contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs : 0;
+
 			var dlOptions = new DownloadOptions
 				 (
 					libraryBook,
 					contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
 					Resources.USER_AGENT
 				 )
-				{
-					AudibleKey = contentLic?.Voucher?.Key,
-					AudibleIV = contentLic?.Voucher?.Iv,
-					OutputFormat = outputFormat,
-					TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
-					RetainEncryptedFile = config.RetainAaxFile && encrypted,
-					StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
-					Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
-					MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
-					CreateCueSheet = config.CreateCueSheet,
-					LameConfig = GetLameOptions(config)
-				};
+			{
+				AudibleKey = contentLic?.Voucher?.Key,
+				AudibleIV = contentLic?.Voucher?.Iv,
+				OutputFormat = outputFormat,
+				TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
+				RetainEncryptedFile = config.RetainAaxFile && encrypted,
+				StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
+				Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
+				MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
+				CreateCueSheet = config.CreateCueSheet,
+				LameConfig = GetLameOptions(config),
+				ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
+				FixupFile = config.AllowLibationFixup
+			};
 
 			var chapters = flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters).OrderBy(c => c.StartOffsetMs).ToList();
-			
+
 			if (config.MergeOpeningAndEndCredits)
 				combineCredits(chapters);
 
-			if (config.AllowLibationFixup || outputFormat == OutputFormat.Mp3)
+			for (int i = 0; i < chapters.Count; i++)
 			{
-				long startMs = dlOptions.TrimOutputToChapterLength ?
-					contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs : 0;
+				var chapter = chapters[i];
+				long chapLenMs = chapter.LengthMs;
 
-				dlOptions.ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(startMs));
+				if (i == 0)
+					chapLenMs -= chapterStartMs;
 
-				for (int i = 0; i < chapters.Count; i++)
-				{
-					var chapter = chapters[i];
-					long chapLenMs = chapter.LengthMs;
+				if (config.StripAudibleBrandAudio && i == chapters.Count - 1)
+					chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
 
-					if (i == 0)
-						chapLenMs -= startMs;
-
-					if (config.StripAudibleBrandAudio && i == chapters.Count - 1)
-						chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
-
-					dlOptions.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
-				}
+				dlOptions.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
 			}
 
 			return dlOptions;
 		}
+
+		/*
+
+		Flatten Audible's new hierarchical chapters, combining children into parents.
+
+		Audible may deliver chapters like this:
+
+		00:00 - 00:10	Opening Credits
+		00:10 - 00:12	Book 1
+		00:12 - 00:14	|	Part 1
+		00:14 - 01:40	|	|	Chapter 1
+		01:40 - 03:20	|	|	Chapter 2
+		03:20 - 03:22	|	Part 2
+		03:22 - 05:00	|	|	Chapter 3
+		05:00 - 06:40	|	|	Chapter 4
+		06:40 - 06:42	Book 2
+		06:42 - 06:44	|	Part 3
+		06:44 - 08:20	|	|	Chapter 5
+		08:20 - 10:00	|	|	Chapter 6
+		10:00 - 10:02	|	Part 4
+		10:02 - 11:40	|	|	Chapter 7
+		11:40 - 13:20	|	|	Chapter 8
+		13:20 - 13:30	End Credits
+
+		And flattenChapters will combine them into this:
+
+		00:00 - 00:10	Opening Credits
+		00:10 - 01:40	Book 1: Part 1: Chapter 1
+		01:40 - 03:20	Book 1: Part 1: Chapter 2
+		03:20 - 05:00	Book 1: Part 2: Chapter 3
+		05:00 - 06:40	Book 1: Part 2: Chapter 4
+		06:40 - 08:20	Book 2: Part 3: Chapter 5
+		08:20 - 10:00	Book 2: Part 3: Chapter 6
+		10:00 - 11:40	Book 2: Part 4: Chapter 7
+		11:40 - 13:20	Book 2: Part 4: Chapter 8
+		13:20 - 13:40	End Credits
+
+		However, if one of the parent chapters is longer than 10000 milliseconds, it's kept as its own
+		chapter. A duration longer than a few seconds implies that the chapter contains more than just
+		the narrator saying the chapter title, so it should probably be preserved as a separate chapter.
+		Using the example above, if "Book 1" was 15 seconds long and "Part 3" was 20 seconds long:
+
+		00:00 - 00:10	Opening Credits
+		00:10 - 00:25	Book 1
+		00:25 - 00:27	|	Part 1
+		00:27 - 01:40	|	|	Chapter 1
+		01:40 - 03:20	|	|	Chapter 2
+		03:20 - 03:22	|	Part 2
+		03:22 - 05:00	|	|	Chapter 3
+		05:00 - 06:40	|	|	Chapter 4
+		06:40 - 06:42	Book 2
+		06:42 - 07:02	|	Part 3
+		07:02 - 08:20	|	|	Chapter 5
+		08:20 - 10:00	|	|	Chapter 6
+		10:00 - 10:02	|	Part 4
+		10:02 - 11:40	|	|	Chapter 7
+		11:40 - 13:20	|	|	Chapter 8
+		13:20 - 13:30	End Credits
+
+		then flattenChapters will combine them into this:
+
+		00:00 - 00:10	Opening Credits
+		00:10 - 00:25	Book 1
+		00:25 - 01:40	Book 1: Part 1: Chapter 1
+		01:40 - 03:20	Book 1: Part 1: Chapter 2
+		03:20 - 05:00	Book 1: Part 2: Chapter 3
+		05:00 - 06:40	Book 1: Part 2: Chapter 4
+		06:40 - 07:02	Book 2: Part 3
+		07:02 - 08:20	Book 2: Part 3: Chapter 5
+		08:20 - 10:00	Book 2: Part 3: Chapter 6
+		10:00 - 11:40	Book 2: Part 4: Chapter 7
+		11:40 - 13:20	Book 2: Part 4: Chapter 8
+		13:20 - 13:40	End Credits
+
+		*/
 
 		public static List<AudibleApi.Common.Chapter> flattenChapters(IList<AudibleApi.Common.Chapter> chapters, string titleConcat = ": ")
 		{
@@ -203,9 +275,14 @@ namespace FileLiberator
 			{
 				if (c.Chapters is not null)
 				{
-					c.Chapters[0].StartOffsetMs = c.StartOffsetMs;
-					c.Chapters[0].StartOffsetSec = c.StartOffsetSec;
-					c.Chapters[0].LengthMs += c.LengthMs;
+					if (c.LengthMs < 10000)
+					{
+						c.Chapters[0].StartOffsetMs = c.StartOffsetMs;
+						c.Chapters[0].StartOffsetSec = c.StartOffsetSec;
+						c.Chapters[0].LengthMs += c.LengthMs;
+					}
+					else
+						chaps.Add(c);
 
 					var children = flattenChapters(c.Chapters);
 
@@ -213,6 +290,7 @@ namespace FileLiberator
 						child.Title = $"{c.Title}{titleConcat}{child.Title}";
 
 					chaps.AddRange(children);
+					c.Chapters = null;
 				}
 				else
 					chaps.Add(c);

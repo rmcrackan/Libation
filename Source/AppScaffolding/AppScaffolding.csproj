@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Version>8.1.5.1</Version>
+    <Version>8.1.5.23</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Octokit" Version="0.51.0" />
@@ -18,6 +18,6 @@
     <DebugType>embedded</DebugType>
   </PropertyGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if $(Configuration) == Debug (&#xD;&#xA;dotnet bump-version revision AppScaffolding.csproj&#xD;&#xA;)" />
+    <Exec Command="if $(Configuration) == Debug (&#xD;&#xA;dotnet tool restore&#xD;&#xA;dotnet bump-version revision AppScaffolding.csproj&#xD;&#xA;)" />
   </Target>
 </Project>

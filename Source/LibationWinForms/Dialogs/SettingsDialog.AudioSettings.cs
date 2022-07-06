@@ -43,6 +43,7 @@ namespace LibationWinForms.Dialogs
 			LameMatchSourceBRCbox_CheckedChanged(this, EventArgs.Empty);
 			convertFormatRb_CheckedChanged(this, EventArgs.Empty);
 			allowLibationFixupCbox_CheckedChanged(this, EventArgs.Empty);
+			splitFilesByChapterCbox_CheckedChanged(this, EventArgs.Empty);
 		}
 
 		private void Save_AudioSettings(Configuration config)
@@ -92,6 +93,7 @@ namespace LibationWinForms.Dialogs
 		}
 		private void allowLibationFixupCbox_CheckedChanged(object sender, EventArgs e)
 		{
+			audiobookFixupsGb.Enabled = allowLibationFixupCbox.Checked;
 			convertLosslessRb.Enabled = allowLibationFixupCbox.Checked;
 			convertLossyRb.Enabled = allowLibationFixupCbox.Checked;
 			splitFilesByChapterCbox.Enabled = allowLibationFixupCbox.Checked;

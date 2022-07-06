@@ -20,10 +20,11 @@ namespace FileLiberator
         public bool RetainEncryptedFile { get; init; }
         public bool StripUnabridged { get; init; }
         public bool CreateCueSheet { get; init; }
-        public ChapterInfo ChapterInfo { get; set; }
-        public NAudio.Lame.LameConfig LameConfig { get; set; }
-        public bool Downsample { get; set; }
-        public bool MatchSourceBitrate { get; set; }
+        public ChapterInfo ChapterInfo { get; init; }
+        public bool FixupFile { get; init; }
+        public NAudio.Lame.LameConfig LameConfig { get; init; }
+        public bool Downsample { get; init; }
+        public bool MatchSourceBitrate { get; init; }
         public ReplacementCharacters ReplacementCharacters => Configuration.Instance.ReplacementCharacters;
 
         public string GetMultipartFileName(MultiConvertFileProperties props)
