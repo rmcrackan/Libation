@@ -53,8 +53,17 @@ namespace FileLiberator
 					OnNarratorsDiscovered(m4bBook.AppleTags.Narrator);
 					OnCoverImageDiscovered(m4bBook.AppleTags.Cover);
 
+					var config = Configuration.Instance;
+					var lameConfig = GetLameOptions(config);
+
+					//Finishing configuring lame encoder.
+					AaxDecrypter.MpegUtil.ConfigureLameOptions(
+						m4bBook,
+						lameConfig,
+						config.LameDownsampleMono,
+						config.LameMatchSourceBR);
+
 					using var mp3File = File.OpenWrite(Path.GetTempFileName());
-					var lameConfig = GetLameOptions(Configuration.Instance);
 					var result = await m4bBook.ConvertToMp3Async(mp3File, lameConfig);
 					m4bBook.InputStream.Close();
 					mp3File.Close();

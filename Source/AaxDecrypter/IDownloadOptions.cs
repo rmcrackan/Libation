@@ -14,10 +14,11 @@ namespace AaxDecrypter
         bool RetainEncryptedFile { get; }
         bool StripUnabridged { get; }
         bool CreateCueSheet { get; }
-        ChapterInfo ChapterInfo { get; set; }
-        NAudio.Lame.LameConfig LameConfig { get; set; }
-        bool Downsample { get; set; }
-        bool MatchSourceBitrate { get; set; }
+        ChapterInfo ChapterInfo { get; }
+        bool FixupFile { get; }
+        NAudio.Lame.LameConfig LameConfig { get; }
+        bool Downsample { get; }
+        bool MatchSourceBitrate { get; }
         string GetMultipartFileName(MultiConvertFileProperties props);
         string GetMultipartTitleName(MultiConvertFileProperties props);
     }    

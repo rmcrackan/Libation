@@ -78,13 +78,20 @@ namespace AaxDecrypter
 			OnFileCreated(OutputFileName);
 
 			AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-			var decryptionResult
-				= DownloadOptions.OutputFormat == OutputFormat.M4b
-				? await AaxFile.ConvertToMp4aAsync(outputFile, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength)
-				: await AaxFile.ConvertToMp3Async(outputFile, DownloadOptions.LameConfig, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
-			AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
-			DownloadOptions.ChapterInfo = AaxFile.Chapters;
+			ConversionResult decryptionResult;
+
+			if (DownloadOptions.OutputFormat == OutputFormat.M4b)
+			{
+				if (DownloadOptions.FixupFile)
+					decryptionResult = await AaxFile.ConvertToMp4aAsync(outputFile, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
+				else
+					decryptionResult = await AaxFile.ConvertToMp4aAsync(outputFile);
+			}
+			else
+				decryptionResult = await AaxFile.ConvertToMp3Async(outputFile, DownloadOptions.LameConfig, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
+
+			AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
 			Step_DownloadAudiobook_End(zeroProgress);
 
