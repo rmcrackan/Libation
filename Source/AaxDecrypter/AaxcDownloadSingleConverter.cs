@@ -79,17 +79,7 @@ namespace AaxDecrypter
 
 			AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 
-			ConversionResult decryptionResult;
-
-			if (DownloadOptions.OutputFormat == OutputFormat.M4b)
-			{
-				if (DownloadOptions.FixupFile)
-					decryptionResult = await AaxFile.ConvertToMp4aAsync(outputFile, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
-				else
-					decryptionResult = await AaxFile.ConvertToMp4aAsync(outputFile);
-			}
-			else
-				decryptionResult = await AaxFile.ConvertToMp3Async(outputFile, DownloadOptions.LameConfig, DownloadOptions.ChapterInfo, DownloadOptions.TrimOutputToChapterLength);
+			ConversionResult decryptionResult = await decryptAsync(outputFile);
 
 			AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
@@ -101,5 +91,23 @@ namespace AaxDecrypter
 
 			return success;
 		}
+
+		private Task<ConversionResult> decryptAsync(Stream outputFile)
+			=> DownloadOptions.OutputFormat == OutputFormat.Mp3 ? 
+			AaxFile.ConvertToMp3Async
+			(
+				outputFile,
+				DownloadOptions.LameConfig,
+				DownloadOptions.ChapterInfo,
+				DownloadOptions.TrimOutputToChapterLength
+			)
+			: DownloadOptions.FixupFile ?
+				AaxFile.ConvertToMp4aAsync
+				(
+					outputFile,
+					DownloadOptions.ChapterInfo,
+					DownloadOptions.TrimOutputToChapterLength
+				)
+				: AaxFile.ConvertToMp4aAsync(outputFile);
 	}
 }
