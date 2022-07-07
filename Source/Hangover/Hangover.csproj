@@ -12,6 +12,16 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!--
+    HACK FOR COMPILER BUG  2021-09-14. Hopefully will be fixed in future versions
+    - Not using SatelliteResourceLanguages will load all language packs: works
+    - Specifying 'en' semicolon 1 more should load 1 language pack: works
+    - Specifying only 'en' should load no language packs: broken, still loads all
+    -->
+    <SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
+  </PropertyGroup>
+
   <!--
   When LibationWinForms and Hangover output to the same dir, Hangover must build before LibationWinForms
 

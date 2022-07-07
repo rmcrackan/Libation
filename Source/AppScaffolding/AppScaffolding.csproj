@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Version>8.1.6.1</Version>
+    <Version>8.1.7.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Octokit" Version="0.51.0" />
@@ -11,13 +11,4 @@
     <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
     <ProjectReference Include="..\AudibleUtilities\AudibleUtilities.csproj" />
   </ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if $(Configuration) == Debug (&#xD;&#xA;dotnet tool restore&#xD;&#xA;dotnet bump-version revision AppScaffolding.csproj&#xD;&#xA;)" />
-  </Target>
 </Project>
