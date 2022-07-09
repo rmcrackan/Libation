@@ -24,3 +24,5 @@ similar legacy knowledge exists elsewhere. eg:
   Book.Category stuff
   public partial class Item.Categories
 -- end CATEGORIES ---------------------------------------------------------------------------------------------------------------------
+
+delete me
