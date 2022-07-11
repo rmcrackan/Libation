@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Avalonia;
+using Avalonia.ReactiveUI;
 using Dinah.Core;
 using LibationFileManager;
+using LibationWinForms.AvaloniaUI;
 using LibationWinForms.Dialogs;
 using Serilog;
 
@@ -26,7 +29,7 @@ namespace LibationWinForms
 				//AllocConsole();
 
 				// run as early as possible. see notes in postLoggingGlobalExceptionHandling
-				Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+				System.Windows.Forms.Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
 				ApplicationConfiguration.Initialize();
 
@@ -73,8 +76,16 @@ namespace LibationWinForms
 			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
 			postLoggingGlobalExceptionHandling();
 
-			Application.Run(new Form1());
+
+			BuildAvaloniaApp().StartWithClassicDesktopLifetime(null);
+			//System.Windows.Forms.Application.Run(new Form1());
 		}
+		public static AppBuilder BuildAvaloniaApp()
+=> AppBuilder.Configure<App>()
+.UsePlatformDetect()
+.LogToTrace()
+.UseReactiveUI();
+
 
 		private static void RunInstaller(Configuration config)
 		{
@@ -98,7 +109,7 @@ namespace LibationWinForms
 			static void CancelInstallation()
 			{
 				MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				Application.Exit();
+				System.Windows.Forms.Application.Exit();
 				Environment.Exit(0);
 			}
 
@@ -195,7 +206,7 @@ namespace LibationWinForms
 			AppDomain.CurrentDomain.UnhandledException += (_, e) => MessageBoxLib.ShowAdminAlert(null, "Libation has crashed due to an unhandled error.", "Application crash!", (Exception)e.ExceptionObject);
 
 			// these 2 lines makes it graceful. sync (eg in main form's ctor) and thread exceptions will still crash us, but event (sync, void async, Task async) will not
-			Application.ThreadException += (_, e) => MessageBoxLib.ShowAdminAlert(null, "Libation has encountered an unexpected error.", "Unexpected error", e.Exception);
+			System.Windows.Forms.Application.ThreadException += (_, e) => MessageBoxLib.ShowAdminAlert(null, "Libation has encountered an unexpected error.", "Unexpected error", e.Exception);
 			// move to beginning of execution. crashes app if this is called post-RunInstaller: System.InvalidOperationException: 'Thread exception mode cannot be changed once any Controls are created on the thread.'
 			//// I never found a case where including made a difference. I think this enum is default and including it will override app user config file
 			//Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);

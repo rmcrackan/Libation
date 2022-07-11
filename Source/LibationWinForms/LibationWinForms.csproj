@@ -36,10 +36,30 @@
 	  <OutputPath>..\bin\Release</OutputPath>
     <DebugType>embedded</DebugType>
   </PropertyGroup>
+	
+<ItemGroup>
+    <AvaloniaResource Include="AvaloniaUI\Assets\**" />
+    <None Remove=".gitignore" />
+    <None Remove="AvaloniaUI\Assets\cancel.png" />
+    <None Remove="AvaloniaUI\Assets\completed.png" />
+    <None Remove="AvaloniaUI\Assets\down.png" />
+    <None Remove="AvaloniaUI\Assets\errored.png" />
+    <None Remove="AvaloniaUI\Assets\first.png" />
+    <None Remove="AvaloniaUI\Assets\import_16x16.png" />
+    <None Remove="AvaloniaUI\Assets\last.png" />
+    <None Remove="AvaloniaUI\Assets\queued.png" />
+    <None Remove="AvaloniaUI\Assets\up.png" />
+  </ItemGroup>
+	
 
   <ItemGroup>
     <PackageReference Include="Autoupdater.NET.Official" Version="1.7.3" />
+    <PackageReference Include="Avalonia" Version="0.10.16" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.16" />
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.16" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.16" />
     <PackageReference Include="Dinah.Core.WindowsDesktop" Version="4.2.3.1" />
+    <PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,7 +71,7 @@
     <Compile Update="Form1.*.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-  </ItemGroup>
+  </ItemGroup>	
 	
   <ItemGroup>
     <Compile Update="Dialogs\SettingsDialog.*.cs">
@@ -59,7 +79,19 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup>   
+    <Compile Update="AvaloniaUI\Controls\FormattableTextBlock.axaml.cs">
+      <DependentUpon>FormattableTextBlock.axaml</DependentUpon>
+    </Compile>   
+    <Compile Update="AvaloniaUI\Controls\FormattableMenuItem.axaml.cs">
+      <DependentUpon>FormattableMenuItem.axaml</DependentUpon>
+    </Compile>   
+    <Compile Update="AvaloniaUI\Views\ProcessQueueControl2.axaml.cs">
+      <DependentUpon>ProcessQueueControl2.axaml</DependentUpon>
+    </Compile>   
+    <Compile Update="AvaloniaUI\Views\ProcessBookControl2.axaml.cs">
+      <DependentUpon>ProcessBookControl2.axaml</DependentUpon>
+    </Compile>   
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

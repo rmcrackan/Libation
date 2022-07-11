@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:vm="clr-namespace:LibationWinForms.AvaloniaUI.ViewModels"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:views="clr-namespace:LibationWinForms.AvaloniaUI.Views"
+		xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
+		mc:Ignorable="d" d:DesignWidth="2000" d:DesignHeight="700"
+		x:Class="LibationWinForms.AvaloniaUI.Views.MainWindow" Title="MainWindow">
+
+	<Border BorderBrush="Gray" BorderThickness="2" Padding="15">
+		<Grid RowDefinitions="30,40,1*,30">
+			<Grid Grid.Row="0" ColumnDefinitions="1*, 200">
+
+				<!-- Menu Strip -->
+				<Menu Grid.Column="0">
+					<MenuItem Name="importToolStripMenuItem" Header="_Import">
+						<MenuItem Name="autoScanLibraryToolStripMenuItem" Click="autoScanLibraryToolStripMenuItem_Click" Header="A_uto Scan Library">
+							<MenuItem.Icon>
+								<CheckBox Name="autoScanLibraryToolStripMenuItemCheckbox" BorderThickness="0" IsHitTestVisible="False">Toggle _Me0</CheckBox>
+							</MenuItem.Icon>
+						</MenuItem>
+						<MenuItem Name="noAccountsYetAddAccountToolStripMenuItem" Click="noAccountsYetAddAccountToolStripMenuItem_Click" Header="No accounts yet. A_dd Account..." />
+						<MenuItem Name="scanLibraryToolStripMenuItem" Click="scanLibraryToolStripMenuItem_Click" Header="Scan _Library" />
+						<MenuItem Name="scanLibraryOfAllAccountsToolStripMenuItem" Click="scanLibraryOfAllAccountsToolStripMenuItem_Click" Header="Scan Library of _All Accounts" />
+						<MenuItem Name="scanLibraryOfSomeAccountsToolStripMenuItem" Click="scanLibraryOfSomeAccountsToolStripMenuItem_Click" Header="Scan Library of _Some Accounts" />
+						<MenuItem Name="removeLibraryBooksToolStripMenuItem" Click="removeLibraryBooksToolStripMenuItem_Click" Header="_Remove Library Books">
+							<MenuItem Name="removeAllAccountsToolStripMenuItem" Click="removeAllAccountsToolStripMenuItem_Click" Header="All Accounts" />
+							<MenuItem Name="removeSomeAccountsToolStripMenuItem" Click="removeSomeAccountsToolStripMenuItem_Click" Header="Some Accounts" />
+						</MenuItem>
+					</MenuItem>
+					<MenuItem Name="liberateToolStripMenuItem" Header="_Liberate">
+						<controls:FormattableMenuItem Name="beginBookBackupsToolStripMenuItem" Click="beginBookBackupsToolStripMenuItem_Click" FormatText="Begin _Book and PDF Backups: {0}" />
+						<controls:FormattableMenuItem Name="beginPdfBackupsToolStripMenuItem" Click="beginPdfBackupsToolStripMenuItem_Click" FormatText="Begin _PDF Only Backups: {0}" />
+						<MenuItem Name="convertAllM4bToMp3ToolStripMenuItem" Click="convertAllM4bToMp3ToolStripMenuItem_Click" Header="Convert all _M4b to Mp3 [Long-running]..." />
+						<controls:FormattableMenuItem Name="liberateVisibleToolStripMenuItem_LiberateMenu" Click="liberateVisible" FormatText="Liberate _Visible Books: {0}" />
+					</MenuItem>
+					<MenuItem Name="exportToolStripMenuItem" Header="E_xport">
+						<MenuItem Name="exportLibraryToolStripMenuItem" Click="exportLibraryToolStripMenuItem_Click" Header="E_xport Library" />
+					</MenuItem>
+					<MenuItem Name="quickFiltersToolStripMenuItem" Header="Quick _Filters">
+						<MenuItem Name="firstFilterIsDefaultToolStripMenuItem" Click="firstFilterIsDefaultToolStripMenuItem_Click" Header="Start Libation with 1st filter _Default">
+							<MenuItem.Icon>
+								<CheckBox Name="firstFilterIsDefaultToolStripMenuItem_Checkbox" BorderThickness="0" IsHitTestVisible="False">Toggle _Me0</CheckBox>
+							</MenuItem.Icon>
+						</MenuItem>
+						<MenuItem Name="editQuickFiltersToolStripMenuItem" Click="editQuickFiltersToolStripMenuItem_Click" Header="_Edit quick filters..." />
+						<Separator />
+					</MenuItem>
+					<controls:FormattableMenuItem Name="visibleBooksToolStripMenuItem" FormatText="_Visible Books: {0}" >
+						<controls:FormattableMenuItem Name="liberateVisibleToolStripMenuItem_VisibleBooksMenu" Click="liberateVisible" FormatText="_Liberate: {0}" />
+						<MenuItem Name="replaceTagsToolStripMenuItem" Click="replaceTagsToolStripMenuItem_Click" Header="Replace _Tags..." />
+						<MenuItem Name="setDownloadedToolStripMenuItem" Click="setDownloadedToolStripMenuItem_Click" Header="Set '_Downloaded' status..." />
+						<MenuItem Name="removeToolStripMenuItem" Click="removeToolStripMenuItem_Click" Header="_Remove from library..." />
+					</controls:FormattableMenuItem>
+					<MenuItem Name="settingsToolStripMenuItem" Header="_Settings">
+						<MenuItem Name="accountsToolStripMenuItem" Click="accountsToolStripMenuItem_Click" Header="_Accounts..." />
+						<MenuItem Name="basicSettingsToolStripMenuItem" Click="basicSettingsToolStripMenuItem_Click" Header="_Settings..." />
+						<Separator />
+						<MenuItem Name="aboutToolStripMenuItem" Click="aboutToolStripMenuItem_Click" Header="A_bout..." />
+					</MenuItem>
+				</Menu>
+				<StackPanel Name="scanningToolStripMenuItem" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+					<Image Width="16" Height="16" Source="/AvaloniaUI/Assets/import_16x16.png" />
+					<TextBlock Name="scanningToolStripMenuItem_Text" Margin="5,0,5,0" VerticalAlignment="Center" Text="Scanning..."/>
+				</StackPanel>
+			</Grid>
+
+			<!-- Buttons and Search Box -->
+			<Grid Grid.Row="1" ColumnDefinitions="30,170,1*,100,30">
+				<Button Name="filterHelpBtn" Click="filterHelpBtn_Click" Grid.Column="0" Height="30" Width="30" Content="?"/>
+				<Button Name="addQuickFilterBtn" Click="addQuickFilterBtn_Click" Grid.Column="1" Height="30" Width="150" Margin="10,0,10,0" Content="Add To Quick Filters"/>
+				<TextBox Name="filterSearchTb" KeyDown="filterSearchTb_KeyPress" Grid.Column="2" Height="30" />
+				<Button Name="filterBtn" Click="filterBtn_Click" Grid.Column="3" Height="30" Width="80" Margin="10,0,10,0" Content="Filter"/>
+				<Button Name="toggleQueueHideBtn" Click="ToggleQueueHideBtn_Click" Grid.Column="4" Height="30" Width="30" Content="❱❱❱"/>
+
+				<StackPanel Grid.Column="2" Orientation="Horizontal">
+					<Button Name="removeBooksBtn" Click="removeBooksBtn_Click" Height="30" Width="220" Content="Remove # Books from Libation"/>
+					<Button Name="doneRemovingBtn" Click="doneRemovingBtn_Click" Height="30" Width="160" Margin="10,0,0,0" Content="Done Removing Books"/>
+				</StackPanel>
+			</Grid>
+			
+			<SplitView Name="splitContainer1" Grid.Row="2" IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="375" PanePlacement="Right">
+
+				<!-- Process Queue -->
+				<SplitView.Pane>
+					<views:ProcessQueueControl2 Name="processBookQueue1"/>
+				</SplitView.Pane>
+
+				<!-- Product Display Grid -->
+				<views:ProductsDisplay2
+					Initialized="productsDisplay_Initialized"
+					LiberateClicked="ProductsDisplay_LiberateClicked"
+					RemovableCountChanged="productsDisplay_RemovableCountChanged"
+					VisibleCountChanged="productsDisplay_VisibleCountChanged"					
+					Name="productsDisplay" />				
+			</SplitView>
+
+			<!-- Bottom Status Strip -->
+			<Grid Grid.Row="3" ColumnDefinitions="80,1*,100*">
+				<controls:FormattableTextBlock Name="visibleCountLbl" Grid.Column="0" FormatText="Visible {0}" VerticalAlignment="Center" />
+				<StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+					<TextBlock Name="backupsCountsLbl" Text="[Calculating backed up book quantities]" VerticalAlignment="Center" />
+					<controls:FormattableTextBlock Name="pdfsCountsLbl" FormatText="  |  PDFs: NOT d/l'ed: {0}  Downloaded: {1}" VerticalAlignment="Center" />
+				</StackPanel>				
+			</Grid>
+		</Grid>
+	</Border>
+</Window>

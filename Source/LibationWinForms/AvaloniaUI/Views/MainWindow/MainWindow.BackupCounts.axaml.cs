@@ -1,34 +1,37 @@
 ﻿using ApplicationServices;
+using Avalonia.Controls;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using Dinah.Core;
-using Dinah.Core.Threading;
 
-namespace LibationWinForms
+namespace LibationWinForms.AvaloniaUI.Views
 {
-	public partial class Form1
+	public partial class MainWindow
 	{
 		private System.ComponentModel.BackgroundWorker updateCountsBw = new();
-
-		protected void Configure_BackupCounts()
+		private void Configure_BackupCounts()
 		{
 			// init formattable
 			beginBookBackupsToolStripMenuItem.Format(0);
 			beginPdfBackupsToolStripMenuItem.Format(0);
 			pdfsCountsLbl.Text = "|  [Calculating backed up PDFs]";
 
-			Load += setBackupCounts;
-            LibraryCommands.LibrarySizeChanged += setBackupCounts;
-            LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
+			Opened += setBackupCounts;
+			LibraryCommands.LibrarySizeChanged += setBackupCounts;
+			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
 
 			updateCountsBw.DoWork += UpdateCountsBw_DoWork;
 			updateCountsBw.RunWorkerCompleted += exportMenuEnable;
 			updateCountsBw.RunWorkerCompleted += updateBottomBookNumbers;
 			updateCountsBw.RunWorkerCompleted += update_BeginBookBackups_menuItem;
-			updateCountsBw.RunWorkerCompleted += updateBottomPdfNumbers;
+			updateCountsBw.RunWorkerCompleted += updateBottomPdfNumbersAsync;
 			updateCountsBw.RunWorkerCompleted += udpate_BeginPdfOnlyBackups_menuItem;
 		}
-
 		private bool runBackupCountsAgain;
-
 		private void setBackupCounts(object _, object __)
 		{
 			runBackupCountsAgain = true;
@@ -36,7 +39,6 @@ namespace LibationWinForms
 			if (!updateCountsBw.IsBusy)
 				updateCountsBw.RunWorkerAsync();
 		}
-
 		private void UpdateCountsBw_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
 		{
 			while (runBackupCountsAgain)
@@ -49,7 +51,7 @@ namespace LibationWinForms
 		private void exportMenuEnable(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 		{
 			var libraryStats = e.Result as LibraryCommands.LibraryStats;
-			Invoke(() => exportLibraryToolStripMenuItem.Enabled = libraryStats.HasBookResults);
+			Dispatcher.UIThread.Post(() => exportLibraryToolStripMenuItem.IsEnabled = libraryStats.HasBookResults);
 		}
 
 		// this cannot be cleanly be FormattableToolStripMenuItem because of the optional "Errors" text
@@ -69,7 +71,7 @@ namespace LibationWinForms
 				libraryStats.booksDownloadedOnly,
 				libraryStats.booksFullyBackedUp,
 				libraryStats.booksError);
-			statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = statusStripText);
+			Dispatcher.UIThread.InvokeAsync(() => backupsCountsLbl.Text = statusStripText);
 		}
 
 		// update 'begin book backups' menu item
@@ -81,23 +83,23 @@ namespace LibationWinForms
 				= libraryStats.HasPendingBooks
 				? $"{libraryStats.PendingBooks} remaining"
 				: "All books have been liberated";
-			menuStrip1.UIThreadAsync(() =>
+			Dispatcher.UIThread.InvokeAsync(() =>
 			{
 				beginBookBackupsToolStripMenuItem.Format(menuItemText);
-				beginBookBackupsToolStripMenuItem.Enabled = libraryStats.HasPendingBooks;
+				beginBookBackupsToolStripMenuItem.IsEnabled = libraryStats.HasPendingBooks;
 			});
 		}
 
-		private void updateBottomPdfNumbers(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
+		private async void updateBottomPdfNumbersAsync(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 		{
 			var libraryStats = e.Result as LibraryCommands.LibraryStats;
 
 			// don't need to assign the output of Format(). It just makes this logic cleaner
 			var statusStripText
 				= !libraryStats.HasPdfResults ? ""
-				: libraryStats.pdfsNotDownloaded > 0 ? pdfsCountsLbl.Format(libraryStats.pdfsNotDownloaded, libraryStats.pdfsDownloaded)
-				: $"|  All {libraryStats.pdfsDownloaded} PDFs downloaded";
-			statusStrip1.UIThreadAsync(() => pdfsCountsLbl.Text = statusStripText);
+				: libraryStats.pdfsNotDownloaded > 0 ? await Dispatcher.UIThread.InvokeAsync(()=> pdfsCountsLbl.Format(libraryStats.pdfsNotDownloaded, libraryStats.pdfsDownloaded))
+				: $"  |  All {libraryStats.pdfsDownloaded} PDFs downloaded";
+			await Dispatcher.UIThread.InvokeAsync(() => pdfsCountsLbl.Text = statusStripText);
 		}
 
 		// update 'begin pdf only backups' menu item
@@ -109,11 +111,11 @@ namespace LibationWinForms
 				= libraryStats.pdfsNotDownloaded > 0
 				? $"{libraryStats.pdfsNotDownloaded} remaining"
 				: "All PDFs have been downloaded";
-			menuStrip1.UIThreadAsync(() =>
+			Dispatcher.UIThread.InvokeAsync(() =>
 			{
 				beginPdfBackupsToolStripMenuItem.Format(menuItemText);
-				beginPdfBackupsToolStripMenuItem.Enabled = libraryStats.pdfsNotDownloaded > 0;
+				beginPdfBackupsToolStripMenuItem.IsEnabled = libraryStats.pdfsNotDownloaded > 0;
 			});
 		}
-    }
+	}
 }

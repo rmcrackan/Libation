@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UserControl 
+	xmlns="https://github.com/avaloniaui"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:views="clr-namespace:LibationWinForms.AvaloniaUI.Views"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="700"
+	x:Class="LibationWinForms.AvaloniaUI.Views.ProcessQueueControl2">
+	
+	<UserControl.Resources>
+		<RecyclePool x:Key="RecyclePool" />
+		<DataTemplate x:Key="odd">
+			<views:ProcessBookControl2 />
+		</DataTemplate>
+		<RecyclingElementFactory x:Key="elementFactory" RecyclePool="{StaticResource RecyclePool}">
+			<RecyclingElementFactory.Templates>
+				<StaticResource x:Key="odd" ResourceKey="odd" />
+			</RecyclingElementFactory.Templates>
+		</RecyclingElementFactory>
+	</UserControl.Resources>
+	
+	<Grid RowDefinitions="1*,30">
+		<TabControl Grid.Row="0">
+			<!-- Queue Tab -->
+			<TabItem>
+				<TabItem.Header>
+					<TextBlock FontSize="14" Height="15" VerticalAlignment="Center">Process Queue</TextBlock>
+				</TabItem.Header>
+				<Grid ColumnDefinitions="1*" RowDefinitions="1*,40">
+					<ScrollViewer Grid.Column="0" Grid.Row="0" Name="scroller" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" >
+						<ItemsRepeater Name="repeater" VerticalCacheLength="1.2" HorizontalCacheLength="1" Background="Transparent" Items="{Binding Items}" ItemTemplate="{StaticResource elementFactory}" />
+					</ScrollViewer>
+					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="2*,1*,2*">
+						<Button Grid.Column="0" FontSize="13" HorizontalAlignment="Left" Click="CancelAllBtn_Click">Cancel All</Button>
+						<Button Grid.Column="2" FontSize="13" HorizontalAlignment="Right" Click="ClearFinishedBtn_Click">Clear Finished</Button>
+					</Grid>
+				</Grid>
+			</TabItem>
+		</TabControl>
+		<!-- Queue Status -->
+		<Grid Grid.Row="1" Margin="5,0,0,0" ColumnDefinitions="120,1*,65">
+			<Panel Grid.Column="0">
+				<Panel.Styles>
+					<Style Selector="ProgressBar:horizontal">
+						<Setter Property="MinWidth" Value="20" />
+					</Style>
+				</Panel.Styles>
+				<ProgressBar Name="toolStripProgressBar1" ShowProgressText="True" />
+			</Panel>
+			<StackPanel Orientation="Horizontal" Grid.Column="1">
+				<StackPanel Margin="5,0,0,0" Orientation="Horizontal">
+					<Image Name="queueNumberLbl_Icon" Width="20" Height="20" Source="/AvaloniaUI/Assets/queued.png" />
+					<TextBlock Name="queueNumberLbl_Text" VerticalAlignment="Center" Text="[Q#]" />
+				</StackPanel>
+				<StackPanel Margin="5,0,0,0" Orientation="Horizontal">
+					<Image Name="completedNumberLbl_Icon" Width="20" Height="20" Source="/AvaloniaUI/Assets/completed.png" />
+					<TextBlock Name="completedNumberLbl_Text" VerticalAlignment="Center" Text="[DL#]" />
+				</StackPanel>
+				<StackPanel Margin="5,0,0,0" Orientation="Horizontal">
+					<Image Name="errorNumberLbl_Icon" Width="20" Height="20" Source="/AvaloniaUI/Assets/errored.png" />
+					<TextBlock Name="errorNumberLbl_Text" VerticalAlignment="Center" Text="[ERR#]" />
+				</StackPanel>
+			</StackPanel>
+			<Panel Grid.Column="2" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+				<TextBlock Name="runningTimeLbl">00:00:25</TextBlock>
+			</Panel>
+		</Grid>
+	</Grid>
+</UserControl>

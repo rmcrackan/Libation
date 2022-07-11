@@ -1,0 +1,141 @@
+﻿using DataLayer;
+using Dinah.Core;
+using LibationWinForms.GridView;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+
+namespace LibationWinForms.AvaloniaUI.ViewModels
+{
+	/// <summary>The View Model for a LibraryBook that is ContentType.Parent</summary>
+	public class SeriesEntrys2 : GridEntry2
+	{
+		[Browsable(false)] public List<LibraryBookEntry2> Children { get; }
+		[Browsable(false)] public override DateTime DateAdded => Children.Max(c => c.DateAdded);
+
+		private bool suspendCounting = false;
+		public void ChildRemoveUpdate()
+		{
+			if (suspendCounting) return;
+
+			var removeCount = Children.Count(c => c.Remove == true);
+
+			if (removeCount == 0)
+				_remove = false;
+			else if (removeCount == Children.Count)
+				_remove = true;
+			else
+				_remove = null;
+			NotifyPropertyChanged(nameof(Remove));
+		}
+
+		#region Model properties exposed to the view
+		public override bool? Remove
+		{
+			get => _remove;
+			set
+			{
+				_remove = value.HasValue ? value : false;
+
+				suspendCounting = true;
+
+				foreach (var item in Children)
+					item.Remove = value;
+
+				suspendCounting = false;
+
+				NotifyPropertyChanged();
+			}
+		}
+
+		public override LiberateButtonStatus2 Liberate { get; }
+		public override BookTags BookTags { get; } = new() { IsSeries = true };
+
+		#endregion
+
+		private SeriesEntrys2(LibraryBook parent)
+		{
+			Liberate = new LiberateButtonStatus2 { IsSeries = true };
+			SeriesIndex = -1;
+			LibraryBook = parent;
+			LoadCover();
+		}
+
+		public SeriesEntrys2(LibraryBook parent, IEnumerable<LibraryBook> children) : this(parent)
+		{
+			Children = children
+				.Select(c => new LibraryBookEntry2(c) { Parent = this })
+				.OrderBy(c => c.SeriesIndex)
+				.ToList();
+			UpdateSeries(parent);
+		}
+
+		public SeriesEntrys2(LibraryBook parent, LibraryBook child) : this(parent)
+		{
+			Children = new() { new LibraryBookEntry2(child) { Parent = this } };
+			UpdateSeries(parent);
+		}
+
+		public void UpdateSeries(LibraryBook parent)
+		{
+			LibraryBook = parent;
+
+			Title = Book.Title;
+			Series = Book.SeriesNames();
+			MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
+			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			Authors = Book.AuthorNames();
+			Narrators = Book.NarratorNames();
+			Category = string.Join(" > ", Book.CategoriesNames());
+			Misc = GetMiscDisplay(LibraryBook);
+			LongDescription = GetDescriptionDisplay(Book);
+			Description = TrimTextToWord(LongDescription, 62);
+
+			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
+			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
+
+
+
+			NotifyPropertyChanged(nameof(Title));
+			NotifyPropertyChanged(nameof(Series));
+			NotifyPropertyChanged(nameof(Length));
+			NotifyPropertyChanged(nameof(MyRating));
+			NotifyPropertyChanged(nameof(PurchaseDate));
+			NotifyPropertyChanged(nameof(ProductRating));
+			NotifyPropertyChanged(nameof(Authors));
+			NotifyPropertyChanged(nameof(Narrators));
+			NotifyPropertyChanged(nameof(Category));
+			NotifyPropertyChanged(nameof(Misc));
+			NotifyPropertyChanged(nameof(LongDescription));
+			NotifyPropertyChanged(nameof(Description));
+
+			NotifyPropertyChanged();
+		}
+
+		#region Data Sorting
+
+		/// <summary>Create getters for all member object values by name</summary>
+		protected override Dictionary<string, Func<object>> CreateMemberValueDictionary() => new()
+		{
+			{ nameof(Remove), () => Remove.HasValue ? Remove.Value ? RemoveStatus.Removed : RemoveStatus.NotRemoved : RemoveStatus.SomeRemoved },
+			{ nameof(Title), () => Book.TitleSortable() },
+			{ nameof(Series), () => Book.SeriesSortable() },
+			{ nameof(Length), () => Children.Sum(c => c.LibraryBook.Book.LengthInMinutes) },
+			{ nameof(MyRating), () => Book.UserDefinedItem.Rating.FirstScore() },
+			{ nameof(PurchaseDate), () => Children.Min(c => c.LibraryBook.DateAdded) },
+			{ nameof(ProductRating), () => Book.Rating.FirstScore() },
+			{ nameof(Authors), () => Authors },
+			{ nameof(Narrators), () => Narrators },
+			{ nameof(Description), () => Description },
+			{ nameof(Category), () => Category },
+			{ nameof(Misc), () => Misc },
+			{ nameof(BookTags), () => BookTags?.Tags ?? string.Empty },
+			{ nameof(Liberate), () => Liberate },
+			{ nameof(DateAdded), () => DateAdded },
+		};
+
+		#endregion
+	}
+}
