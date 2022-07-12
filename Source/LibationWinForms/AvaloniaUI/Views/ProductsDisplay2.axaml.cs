@@ -4,11 +4,14 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using DataLayer;
+using Dinah.Core.DataBinding;
 using FileLiberator;
 using LibationFileManager;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,6 +23,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		public event EventHandler<int> VisibleCountChanged;
 		public event EventHandler<int> RemovableCountChanged;
 		public event EventHandler<LibraryBook> LiberateClicked;
+		public event EventHandler InitialLoaded;
 
 		private ProductsDisplayViewModel _viewModel;
 		private GridEntryBindingList2 bindingList => productsGrid.Items as GridEntryBindingList2;
@@ -42,11 +46,10 @@ namespace LibationWinForms.AvaloniaUI.Views
 			productsGrid.CanUserSortColumns = true;
 
 			removeGVColumn = productsGrid.Columns[0];
-
-			var dbBooks = DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
-			productsGrid.DataContext = _viewModel = new ProductsDisplayViewModel(dbBooks);
-
-			this.AttachedToVisualTree +=(_, _) => VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+		}
+		public override void EndInit()
+		{
+			base.EndInit();
 		}
 
 		private void InitializeComponent()
@@ -54,19 +57,105 @@ namespace LibationWinForms.AvaloniaUI.Views
 			AvaloniaXamlLoader.Load(this);
 		}
 
+		private class RowComparer : IComparer
+		{
+			private static readonly System.Reflection.PropertyInfo HeaderCellPi = typeof(DataGridColumn).GetProperty("HeaderCell", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+			private static readonly System.Reflection.PropertyInfo CurrentSortingStatePi = typeof(DataGridColumnHeader).GetProperty("CurrentSortingState", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+			public DataGridColumn Column { get; init; }
+			public string PropertyName { get; init; }
+			public ListSortDirection? SortDirection { get; set; }
+
+			/// <summary>
+			/// This compare method ensures that all top-level grid entries (standalone books or series parents)
+			/// are sorted by PropertyName while all episodes remain immediately beneath their parents and remain
+			/// sorted by series index, ascending.
+			/// </summary>
+			public int Compare(object x, object y)
+			{
+				if (x is null) return -1;
+				if (y is null) return 1;
+				if (x is null && y is null) return 0;
+
+				var geA = (GridEntry2)x;
+				var geB = (GridEntry2)y;
+
+				SortDirection ??= GetSortOrder(Column);
+
+				SeriesEntrys2 parentA = null;
+				SeriesEntrys2 parentB = null;
+
+				if (geA is LibraryBookEntry2 lbA && lbA.Parent is SeriesEntrys2 seA)
+					parentA = seA;
+				if (geB is LibraryBookEntry2 lbB && lbB.Parent is SeriesEntrys2 seB)
+					parentB = seB;
+
+				//both a and b are standalone
+				if (parentA is null && parentB is null)
+					return Compare(geA, geB);
+
+				//a is a standalone, b is a child
+				if (parentA is null && parentB is not null)
+				{
+					// b is a child of a, parent is always first
+					if (parentB == geA)
+						return SortDirection is ListSortDirection.Ascending ? -1 : 1;
+					else
+						return Compare(geA, parentB);
+				}
+
+				//a is a child, b is a standalone
+				if (parentA is not null && parentB is null)
+				{
+					// a is a child of b, parent is always first
+					if (parentA == geB)
+						return SortDirection is ListSortDirection.Ascending ? 1 : -1;
+					else
+						return Compare(parentA, geB);
+				}
+
+				//both are children of the same series, always present in order of series index, ascending
+				if (parentA == parentB)
+					return geA.SeriesIndex.CompareTo(geB.SeriesIndex) * (SortDirection is ListSortDirection.Ascending ? 1 : -1);
+
+				//a and b are children of different series.
+				return Compare(parentA, parentB);
+			}
+
+			private static ListSortDirection? GetSortOrder(DataGridColumn column)
+				=> CurrentSortingStatePi.GetValue(HeaderCellPi.GetValue(column)) as ListSortDirection?;
+
+			private int Compare(GridEntry2 x, GridEntry2 y)
+			{
+				var val1 = x.GetMemberValue(PropertyName);
+				var val2 = y.GetMemberValue(PropertyName);
+
+				return x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
+			}
+		}
+
+		Dictionary<DataGridColumn, RowComparer> ColumnComparers = new();
+		DataGridColumn CurrentSortColumn;
+
 		private void Dg1_Sorting(object sender, DataGridColumnEventArgs e)
 		{
-			bindingList.DoSortCore(e.Column.SortMemberPath);
-			e.Handled = true;
+			if (!ColumnComparers.ContainsKey(e.Column))
+				ColumnComparers[e.Column] = new RowComparer
+				{
+					Column = e.Column,
+					PropertyName = e.Column.SortMemberPath
+				};
+
+			//Force the comparer to get the current sort order. We can't
+			//retrieve it from inside this event handler because Avalonia
+			//doesn't set the property until after this event.
+			ColumnComparers[e.Column].SortDirection = null;
+
+			e.Column.CustomSortComparer = ColumnComparers[e.Column];
+			CurrentSortColumn = e.Column;
 		}
 
 		#region Button controls
-
-		public void Remove_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
-		{
-			productsGrid.CommitEdit(DataGridEditingUnit.Cell, true);
-			RemovableCountChanged?.Invoke(this, GetAllBookEntries().Count(lbe => lbe.Remove is true));
-		}
 
 		public void LiberateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
@@ -228,6 +317,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 			{
 				// don't return early if lib size == 0. this will not update correctly if all books are removed
 				var dbBooks = DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
+				if (productsGrid.DataContext is null)
+				{
+					productsGrid.DataContext = _viewModel = new ProductsDisplayViewModel(dbBooks);
+					InitialLoaded?.Invoke(this, EventArgs.Empty);
+					VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+				}
 				UpdateGrid(dbBooks);
 			}
 			catch (Exception ex)
@@ -387,6 +482,14 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 			if (visibleCount != bindingList.Count)
 				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+
+			//Re-sort after filtering 
+			if (CurrentSortColumn is null)
+				bindingList.InternalList.Sort((i1, i2) => i2.DateAdded.CompareTo(i1.DateAdded));
+			else
+				CurrentSortColumn?.Sort(ColumnComparers[CurrentSortColumn].SortDirection.Value);
+
+			bindingList.ResetCollection();
 		}
 
 		#endregion

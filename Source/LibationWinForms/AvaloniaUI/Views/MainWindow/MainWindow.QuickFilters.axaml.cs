@@ -14,8 +14,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		private void Configure_QuickFilters()
 		{
-			Opened += updateFirstFilterIsDefaultToolStripMenuItem;
-			Opened += updateFiltersMenu;
+			Load += updateFirstFilterIsDefaultToolStripMenuItem;
+			Load += updateFiltersMenu;
 			QuickFilters.UseDefaultChanged += updateFirstFilterIsDefaultToolStripMenuItem;
 			QuickFilters.Updated += updateFiltersMenu;
 		}

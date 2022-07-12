@@ -20,7 +20,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			beginPdfBackupsToolStripMenuItem.Format(0);
 			pdfsCountsLbl.Text = "|  [Calculating backed up PDFs]";
 
-			Opened += setBackupCounts;
+			Load += setBackupCounts;
 			LibraryCommands.LibrarySizeChanged += setBackupCounts;
 			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
 

@@ -90,11 +90,11 @@
 
 				<!-- Product Display Grid -->
 				<views:ProductsDisplay2
-					Initialized="productsDisplay_Initialized"
+					InitialLoaded="productsDisplay_Initialized"
 					LiberateClicked="ProductsDisplay_LiberateClicked"
 					RemovableCountChanged="productsDisplay_RemovableCountChanged"
 					VisibleCountChanged="productsDisplay_VisibleCountChanged"					
-					Name="productsDisplay" />				
+					Name="productsDisplay"  />				
 			</SplitView>
 
 			<!-- Bottom Status Strip -->

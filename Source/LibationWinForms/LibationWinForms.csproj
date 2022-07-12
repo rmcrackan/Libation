@@ -55,6 +55,7 @@
   <ItemGroup>
     <PackageReference Include="Autoupdater.NET.Official" Version="1.7.3" />
     <PackageReference Include="Avalonia" Version="0.10.16" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.10.16" />
     <PackageReference Include="Avalonia.Desktop" Version="0.10.16" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.16" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.16" />

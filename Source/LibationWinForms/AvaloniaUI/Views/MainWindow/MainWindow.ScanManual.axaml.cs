@@ -16,7 +16,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		private void Configure_ScanManual()
 		{
-			Opened += refreshImportMenu;
+			Load += refreshImportMenu;
 			AccountsSettingsPersister.Saved += refreshImportMenu;
 		}
 
@@ -33,8 +33,21 @@ namespace LibationWinForms.AvaloniaUI.Views
 			scanLibraryOfSomeAccountsToolStripMenuItem.IsVisible = count > 1;
 
 			removeLibraryBooksToolStripMenuItem.IsVisible = count > 0;
-			removeSomeAccountsToolStripMenuItem.IsVisible = count > 1;
-			removeAllAccountsToolStripMenuItem.IsVisible = count > 1;
+
+			//Avalonia will not fire the Click event for a MenuItem with children,
+			//so if only 1 account, remove the children. Otherwise add children
+			//for multiple accounts.
+			removeLibraryBooksToolStripMenuItem.Items = null;
+
+			if (count > 1)
+			{
+				removeLibraryBooksToolStripMenuItem.Items = 
+					new List<Control> 
+					{
+						removeSomeAccountsToolStripMenuItem,
+						removeAllAccountsToolStripMenuItem 
+					};
+			}
 		}
 
 		public void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

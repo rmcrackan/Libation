@@ -16,10 +16,9 @@ namespace LibationWinForms.AvaloniaUI
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow
-                {
-
-                };
+                var mainWindow = new MainWindow();
+                desktop.MainWindow = mainWindow;
+                mainWindow.OnLoad();
             }
 
             base.OnFrameworkInitializationCompleted();

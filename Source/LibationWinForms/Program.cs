@@ -19,6 +19,8 @@ namespace LibationWinForms
 		[return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
 		static extern bool AllocConsole();
 
+		static bool UseAvaloniaUI = true;
+
 		[STAThread]
 		static void Main()
 		{
@@ -76,9 +78,10 @@ namespace LibationWinForms
 			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
 			postLoggingGlobalExceptionHandling();
 
-
-			BuildAvaloniaApp().StartWithClassicDesktopLifetime(null);
-			//System.Windows.Forms.Application.Run(new Form1());
+			if (UseAvaloniaUI)
+				BuildAvaloniaApp().StartWithClassicDesktopLifetime(null);
+			else
+				System.Windows.Forms.Application.Run(new Form1());
 		}
 		public static AppBuilder BuildAvaloniaApp()
 => AppBuilder.Configure<App>()

@@ -46,9 +46,9 @@ namespace LibationWinForms.AvaloniaUI.Views
 			};
 
 			// load init state to menu checkbox
-			Opened += updateAutoScanLibraryToolStripMenuItem;
+			Load += updateAutoScanLibraryToolStripMenuItem;
 			// if enabled: begin on load
-			Opened += startAutoScan;
+			Load += startAutoScan;
 
 			// if new 'default' account is added, run autoscan
 			AccountsSettingsPersister.Saving += accountsPreSave;

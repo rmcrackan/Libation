@@ -43,58 +43,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 			Configure_NonUI();
 
 			{
+				this.Load += (_, _) => productsDisplay.Display();
 				LibraryCommands.LibrarySizeChanged += (_, __) => Dispatcher.UIThread.Post(() => productsDisplay.Display());
 			}
 		}
-		/*
-		MenuItem importToolStripMenuItem;
-		MenuItem autoScanLibraryToolStripMenuItem;
-		CheckBox autoScanLibraryToolStripMenuItemCheckbox;
-		MenuItem noAccountsYetAddAccountToolStripMenuItem;
-		MenuItem scanLibraryToolStripMenuItem;
-		MenuItem scanLibraryOfAllAccountsToolStripMenuItem;
-		MenuItem scanLibraryOfSomeAccountsToolStripMenuItem;
-		MenuItem removeLibraryBooksToolStripMenuItem;
-		MenuItem removeAllAccountsToolStripMenuItem;
-		MenuItem removeSomeAccountsToolStripMenuItem;
-		MenuItem liberateToolStripMenuItem;
-		MenuItem beginBookBackupsToolStripMenuItem;
-		MenuItem beginPdfBackupsToolStripMenuItem;
-		MenuItem convertAllM4bToMp3ToolStripMenuItem;
-		MenuItem liberateVisibleToolStripMenuItem_LiberateMenu;
-		MenuItem exportToolStripMenuItem;
-		MenuItem exportLibraryToolStripMenuItem;
-		MenuItem quickFiltersToolStripMenuItem;
-		MenuItem firstFilterIsDefaultToolStripMenuItem;
-		CheckBox firstFilterIsDefaultToolStripMenuItem_Checkbox;
-		MenuItem editQuickFiltersToolStripMenuItem;
-		MenuItem visibleBooksToolStripMenuItem;
-		MenuItem liberateVisibleToolStripMenuItem_VisibleBooksMenu;
-		MenuItem replaceTagsToolStripMenuItem;
-		MenuItem setDownloadedToolStripMenuItem;
-		MenuItem removeToolStripMenuItem;
-		MenuItem settingsToolStripMenuItem;
-		MenuItem accountsToolStripMenuItem;
-		MenuItem basicSettingsToolStripMenuItem;
-		MenuItem aboutToolStripMenuItem;
+		public event EventHandler Load;
 
-
-		StackPanel scanningToolStripMenuItem;
-		TextBlock scanningToolStripMenuItem_Text;
-
-		Button filterHelpBtn;
-		Button addQuickFilterBtn;
-		TextBox filterSearchTb;
-		Button filterBtn;
-		Button toggleQueueHideBtn;
-
-		StackPanel removeBooksButtonsPanel;
-		Button removeBooksBtn;
-
-		SplitView splitContainer1;
-		ProductsDisplay2 productsDisplay;
-		ProcessQueueControl2 processBookQueue1;
-		*/
+		public void OnLoad() => Load?.Invoke(this, EventArgs.Empty);
 
 		private void FindAllControls()
 		{

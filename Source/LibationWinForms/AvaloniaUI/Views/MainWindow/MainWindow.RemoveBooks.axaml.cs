@@ -1,11 +1,7 @@
 ﻿using AudibleUtilities;
-using Avalonia.Controls;
 using LibationWinForms.Dialogs;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
@@ -16,6 +12,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		{
 			removeBooksBtn.IsVisible = false;
 			doneRemovingBtn.IsVisible = false;
+			removeLibraryBooksToolStripMenuItem.Click += removeLibraryBooksToolStripMenuItem_Click;
 		}
 
 		public async void removeBooksBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

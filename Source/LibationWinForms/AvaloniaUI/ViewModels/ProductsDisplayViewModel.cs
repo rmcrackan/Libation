@@ -12,8 +12,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 {
 	public class ProductsDisplayViewModel : ViewModelBase
 	{
-		public string Greeting => "Welcome to Avalonia!";
-		public GridEntryBindingList2 People { get; set; }
+		public GridEntryBindingList2 GridEntries { get; set; }
 		public ProductsDisplayViewModel(IEnumerable<LibraryBook> dbBooks)
 		{
 			var geList = dbBooks
@@ -38,9 +37,8 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				geList.AddRange(seriesEntry.Children);
 			}
 
-			People = new GridEntryBindingList2(geList.OrderByDescending(e => e.DateAdded));
-			People.CollapseAll();
+			GridEntries = new GridEntryBindingList2(geList.OrderByDescending(e => e.DateAdded));
+			GridEntries.CollapseAll();
 		}
 	}
-
 }
