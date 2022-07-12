@@ -267,6 +267,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 			RemoveBooks(selectedBooks);
 			var idsToRemove = libraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
 			var removeLibraryBooks = await LibraryCommands.RemoveBooksAsync(idsToRemove);
+
+			RemovableCountChanged?.Invoke(this, GetAllBookEntries().Count(lbe => lbe.Remove is true));
 		}
 		public async Task ScanAndRemoveBooksAsync(params Account[] accounts)
 		{

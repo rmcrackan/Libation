@@ -86,7 +86,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="100" Header="Description" CanUserSort="True" SortMemberPath="Description">
+				<DataGridTemplateColumn MinWidth="100" Width="1*" Header="Description" CanUserSort="True" SortMemberPath="Description">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">
@@ -106,7 +106,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="125" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating">
+				<DataGridTemplateColumn Width="120" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">
@@ -116,7 +116,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="100" Header="Purchase&#xA;Date" CanUserSort="True" SortMemberPath="PurchaseDate">
+				<DataGridTemplateColumn Width="90" Header="Purchase&#xA;Date" CanUserSort="True" SortMemberPath="PurchaseDate">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">
@@ -126,7 +126,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="125" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating">
+				<DataGridTemplateColumn Width="120" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">

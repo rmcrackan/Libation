@@ -91,7 +91,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			Category = string.Join(" > ", Book.CategoriesNames());
 			Misc = GetMiscDisplay(LibraryBook);
 			LongDescription = GetDescriptionDisplay(Book);
-			Description = TrimTextToWord(LongDescription, 62);
+			Description = LongDescription;
 
 			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
