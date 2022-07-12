@@ -10,7 +10,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		Fisrt,
 		OneUp,
 		OneDown,
-		Last
+		Last,
 	}
 
 	/*

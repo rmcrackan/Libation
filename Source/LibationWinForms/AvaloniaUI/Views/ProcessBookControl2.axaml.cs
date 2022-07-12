@@ -1,22 +1,17 @@
 using Avalonia;
+using System;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using LibationWinForms.AvaloniaUI.ViewModels;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
-	public enum QueueButton
-	{
-		Cancel,
-		MoveFirst,
-		MoveUp,
-		MoveDown,
-		MoveLast
-	}
-	public delegate void QueueItemButtonClicked(ProcessBook2 item, QueueButton queueButton);
+	public delegate void QueueItemPositionButtonClicked(ProcessBook2 item, QueuePosition queueButton);
+	public delegate void QueueItemCancelButtonClicked(ProcessBook2 item);
 	public partial class ProcessBookControl2 : UserControl
 	{
-		public static event QueueItemButtonClicked ButtonClicked;
+		public static event QueueItemPositionButtonClicked PositionButtonClicked;
+		public static event QueueItemCancelButtonClicked CancelButtonClicked;
 		public ProcessBookControl2()
 		{
 			InitializeComponent();
@@ -25,15 +20,15 @@ namespace LibationWinForms.AvaloniaUI.Views
 		private ProcessBook2 DataItem => DataContext is null ? null : DataContext as ProcessBook2;
 
 		public void Cancel_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> ButtonClicked?.Invoke(DataItem, QueueButton.Cancel);
+			=> CancelButtonClicked?.Invoke(DataItem);
 		public void MoveFirst_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> ButtonClicked?.Invoke(DataItem, QueueButton.MoveFirst);
+			=> PositionButtonClicked?.Invoke(DataItem, QueuePosition.Fisrt);
 		public void MoveUp_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> ButtonClicked?.Invoke(DataItem, QueueButton.MoveUp);
+			=> PositionButtonClicked?.Invoke(DataItem, QueuePosition.OneUp);
 		public void MoveDown_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> ButtonClicked?.Invoke(DataItem, QueueButton.MoveDown);
+			=> PositionButtonClicked?.Invoke(DataItem, QueuePosition.OneDown);
 		public void MoveLast_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> ButtonClicked?.Invoke(DataItem, QueueButton.MoveLast);
+			=> PositionButtonClicked?.Invoke(DataItem, QueuePosition.Last);
 
 		private void InitializeComponent()
 		{

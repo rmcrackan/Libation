@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<UserControl 
+<UserControl
 	xmlns="https://github.com/avaloniaui"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,7 +7,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="700"
 	x:Class="LibationWinForms.AvaloniaUI.Views.ProcessQueueControl2">
-	
+
 	<UserControl.Resources>
 		<RecyclePool x:Key="RecyclePool" />
 		<DataTemplate x:Key="odd">
@@ -19,21 +19,66 @@
 			</RecyclingElementFactory.Templates>
 		</RecyclingElementFactory>
 	</UserControl.Resources>
-	
+
+	<UserControl.Styles>
+		<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+			<Setter Property="Height" Value="20"/>
+		</Style>
+	</UserControl.Styles>
+
 	<Grid RowDefinitions="1*,30">
 		<TabControl Grid.Row="0">
 			<!-- Queue Tab -->
 			<TabItem>
 				<TabItem.Header>
-					<TextBlock FontSize="14" Height="15" VerticalAlignment="Center">Process Queue</TextBlock>
+					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
 				</TabItem.Header>
-				<Grid ColumnDefinitions="1*" RowDefinitions="1*,40">
-					<ScrollViewer Grid.Column="0" Grid.Row="0" Name="scroller" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible" >
-						<ItemsRepeater Name="repeater" VerticalCacheLength="1.2" HorizontalCacheLength="1" Background="Transparent" Items="{Binding Items}" ItemTemplate="{StaticResource elementFactory}" />
-					</ScrollViewer>
-					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="2*,1*,2*">
-						<Button Grid.Column="0" FontSize="13" HorizontalAlignment="Left" Click="CancelAllBtn_Click">Cancel All</Button>
-						<Button Grid.Column="2" FontSize="13" HorizontalAlignment="Right" Click="ClearFinishedBtn_Click">Clear Finished</Button>
+				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="Black" Background="WhiteSmoke">
+						<ScrollViewer
+							Name="scroller"
+							HorizontalScrollBarVisibility="Disabled"
+							VerticalScrollBarVisibility="Auto">
+								<ItemsRepeater IsVisible="True"
+									Grid.Column="0"
+									Name="repeater"
+									VerticalCacheLength="1.2"
+									HorizontalCacheLength="1"
+									Background="Transparent"
+									Items="{Binding Items}"
+									ItemTemplate="{StaticResource elementFactory}" />
+						</ScrollViewer>
+					</Border>
+					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto" Margin="6,0,6,0">
+						<Button Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="CancelAllBtn_Click">Cancel All</Button>
+						<Button Grid.Column="1" FontSize="12" HorizontalAlignment="Right" Click="ClearFinishedBtn_Click">Clear Finished</Button>
+					</Grid>
+				</Grid>
+			</TabItem>
+			<TabItem>
+				<TabItem.Header>
+					<TextBlock FontSize="14" VerticalAlignment="Center">Queue Log</TextBlock>
+				</TabItem.Header>
+				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="Black" Background="WhiteSmoke">
+						<DataGrid AutoGenerateColumns="False" Items="{Binding LogEntries}">
+							<DataGrid.Columns>
+								<DataGridTextColumn SortMemberPath="LogDate" Header="Timestamp" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>
+								<DataGridTemplateColumn SortMemberPath="LogMessage"  Width="*" Header="Message" CanUserSort="True">
+									<DataGridTemplateColumn.CellTemplate>
+										<DataTemplate>
+											<Border BorderThickness="3">
+												<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding LogMessage}" />
+											</Border>
+										</DataTemplate>
+									</DataGridTemplateColumn.CellTemplate>
+								</DataGridTemplateColumn>
+							</DataGrid.Columns>
+						</DataGrid>
+					</Border>
+					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto" Margin="6,0,6,0">
+						<Button Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="LogCopyBtn_Click">Copy Log Entries to Clipboard</Button>
+						<Button Grid.Column="1" FontSize="12" HorizontalAlignment="Right" Click="ClearLogBtn_Click">Clear Log</Button>
 					</Grid>
 				</Grid>
 			</TabItem>

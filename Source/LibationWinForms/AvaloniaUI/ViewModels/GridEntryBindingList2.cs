@@ -1,12 +1,9 @@
 ﻿using ApplicationServices;
-using Dinah.Core.DataBinding;
 using LibationSearchEngine;
-using LibationWinForms.GridView;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels

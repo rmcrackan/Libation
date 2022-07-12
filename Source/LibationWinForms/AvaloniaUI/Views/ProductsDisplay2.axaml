@@ -13,7 +13,7 @@
 
 			<DataGrid.Columns>
 
-				<controls:DataGridCheckBoxColumnExt IsVisible="True" Header="Remove" IsThreeState="True" IsReadOnly="False" CanUserSort="True" Binding="{Binding Remove, Mode=TwoWay}" Width="70" SortMemberPath="Remove"/>
+				<controls:DataGridCheckBoxColumnExt IsVisible="False" Header="Remove" IsThreeState="True" IsReadOnly="False" CanUserSort="True" Binding="{Binding Remove, Mode=TwoWay}" Width="70" SortMemberPath="Remove"/>
 
 				<DataGridTemplateColumn CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate">
 					<DataGridTemplateColumn.CellTemplate>

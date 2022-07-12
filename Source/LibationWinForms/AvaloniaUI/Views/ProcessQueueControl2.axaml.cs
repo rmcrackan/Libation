@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -65,7 +66,8 @@ namespace LibationWinForms.AvaloniaUI.Views
             _repeater.KeyDown += RepeaterOnKeyDown;
             DataContext = _viewModel = new ProcessQueueViewModel();
 
-			ProcessBookControl2.ButtonClicked += ProcessBookControl2_ButtonClicked;
+			ProcessBookControl2.PositionButtonClicked += ProcessBookControl2_ButtonClicked;
+			ProcessBookControl2.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;
 
             queueNumberLbl_Icon = this.FindControl<Image>(nameof(queueNumberLbl_Icon));
 			errorNumberLbl_Icon = this.FindControl<Image>(nameof(errorNumberLbl_Icon));
@@ -99,29 +101,17 @@ namespace LibationWinForms.AvaloniaUI.Views
 			AvaloniaXamlLoader.Load(this);
 		}
 
-        private async void ProcessBookControl2_ButtonClicked(ProcessBook2 item, QueueButton queueButton)
+		private async void ProcessBookControl2_CancelButtonClicked(ProcessBook2 item)
+		{
+			if (item is not null)
+				await item.CancelAsync();
+			Queue.RemoveQueued(item);
+		}
+
+		private void ProcessBookControl2_ButtonClicked(ProcessBook2 item, QueuePosition queueButton)
         {
-            switch (queueButton)
-            {
-                case QueueButton.MoveFirst:
-					Queue.MoveQueuePosition(item, QueuePosition.Fisrt);
-					break;
-                case QueueButton.MoveUp:
-					Queue.MoveQueuePosition(item, QueuePosition.OneUp);
-					break;
-                case QueueButton.MoveDown:
-					Queue.MoveQueuePosition(item, QueuePosition.OneDown);
-					break;
-                case QueueButton.MoveLast:
-					Queue.MoveQueuePosition(item, QueuePosition.Last);
-					break;
-                case QueueButton.Cancel:
-					if (item is not null)
-						await item.CancelAsync();
-					Queue.RemoveQueued(item);
-					break;
-            }
-        }
+			Queue.MoveQueuePosition(item, queueButton);
+		}
 
         private void RepeaterClick(object sender, PointerPressedEventArgs e)
         {
@@ -153,6 +143,18 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (!Running)
 				runningTimeLbl.Text = string.Empty;
 		}
+
+		public void ClearLogBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			_viewModel.LogEntries.Clear();
+		}
+
+		private void LogCopyBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			string logText = string.Join("\r\n", _viewModel.LogEntries.Select(r => $"{r.LogDate.ToShortDateString()} {r.LogDate.ToShortTimeString()}\t{r.LogMessage}"));
+			System.Windows.Forms.Clipboard.SetDataObject(logText, false, 5, 150);
+		}
+
 
 		private bool isBookInQueue(DataLayer.LibraryBook libraryBook)
 			=> Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
@@ -267,7 +269,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public void WriteLine(string text)
 		{
-			
+			Dispatcher.UIThread.Post(() =>
+			_viewModel.LogEntries.Add(new()
+			{
+				LogDate = DateTime.Now,
+				LogMessage = text.Trim()
+			}));
 		}
 
 		#region Control event handlers

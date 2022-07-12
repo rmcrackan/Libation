@@ -70,7 +70,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			ProcessBookStatus.Cancelled => "Khaki",
 			ProcessBookStatus.Completed => "PaleGreen",
 			ProcessBookStatus.Failed => "LightCoral",
-			_ => string.Empty,
+			_ => "White",
 		};
 		public string StatusText => Result switch
 		{
