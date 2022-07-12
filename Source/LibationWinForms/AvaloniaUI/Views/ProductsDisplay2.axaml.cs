@@ -3,6 +3,7 @@ using AudibleUtilities;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using DataLayer;
 using Dinah.Core.DataBinding;
 using FileLiberator;
@@ -26,7 +27,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		public event EventHandler InitialLoaded;
 
 		private ProductsDisplayViewModel _viewModel;
-		private GridEntryBindingList2 bindingList => productsGrid.Items as GridEntryBindingList2;
+		private GridEntryBindingList2 bindingList => _viewModel.GridEntries;
 		private IEnumerable<LibraryBookEntry2> GetAllBookEntries()
 			=> bindingList.AllItems().BookEntries();
 
@@ -46,12 +47,14 @@ namespace LibationWinForms.AvaloniaUI.Views
 			productsGrid.CanUserSortColumns = true;
 
 			removeGVColumn = productsGrid.Columns[0];
-		}
-		public override void EndInit()
-		{
-			base.EndInit();
-		}
 
+			if (Design.IsDesignMode)
+			{
+				using var context = DbContexts.GetContext();
+				var book = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
+				productsGrid.DataContext = _viewModel = new ProductsDisplayViewModel(new List<LibraryBook> { book });
+			}
+		}
 		private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
@@ -325,7 +328,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 					InitialLoaded?.Invoke(this, EventArgs.Empty);
 					VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
 				}
-				UpdateGrid(dbBooks);
+				else
+					UpdateGrid(dbBooks);
 			}
 			catch (Exception ex)
 			{

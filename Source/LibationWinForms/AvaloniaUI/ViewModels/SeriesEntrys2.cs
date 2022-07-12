@@ -91,12 +91,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			Category = string.Join(" > ", Book.CategoriesNames());
 			Misc = GetMiscDisplay(LibraryBook);
 			LongDescription = GetDescriptionDisplay(Book);
-			Description = LongDescription;
+			Description = TrimTextToWord(LongDescription, 62);
 
 			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
-
-
 
 			NotifyPropertyChanged(nameof(Title));
 			NotifyPropertyChanged(nameof(Series));
@@ -110,8 +108,6 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			NotifyPropertyChanged(nameof(Misc));
 			NotifyPropertyChanged(nameof(LongDescription));
 			NotifyPropertyChanged(nameof(Description));
-
-			NotifyPropertyChanged();
 		}
 
 		#region Data Sorting

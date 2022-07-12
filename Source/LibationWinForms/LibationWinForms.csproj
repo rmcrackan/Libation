@@ -43,6 +43,7 @@
     <None Remove="AvaloniaUI\Assets\cancel.png" />
     <None Remove="AvaloniaUI\Assets\completed.png" />
     <None Remove="AvaloniaUI\Assets\down.png" />
+    <None Remove="AvaloniaUI\Assets\edit_25x25.png" />
     <None Remove="AvaloniaUI\Assets\errored.png" />
     <None Remove="AvaloniaUI\Assets\first.png" />
     <None Remove="AvaloniaUI\Assets\import_16x16.png" />

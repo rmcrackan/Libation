@@ -1,14 +1,11 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Threading;
+using ReactiveUI;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels
 {
-	public class ProcessQueueViewModel : ViewModelBase
+	public class ProcessQueueViewModel : ViewModelBase, ProcessQueue.ILogForm
 	{
 
 		public string QueueHeader => "this is a header!";
@@ -24,6 +21,17 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public ObservableCollection<LogEntry> LogEntries { get; } = new();
 
 		public ProcessBook2 SelectedItem { get; set; }
+
+		public void WriteLine(string text)
+		{
+			Dispatcher.UIThread.Post(() =>
+			LogEntries.Add(new()
+			{
+				LogDate = DateTime.Now,
+				LogMessage = text.Trim()
+			}));
+		}
+
 	}
 
 	public class LogEntry

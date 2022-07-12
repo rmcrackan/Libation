@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using DataLayer;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
-	public partial class ProcessQueueControl2 : UserControl, ProcessQueue.ILogForm
+	public partial class ProcessQueueControl2 : UserControl
     {
         private readonly ProcessQueueViewModel _viewModel;
         private ItemsRepeater _repeater;
@@ -65,6 +66,7 @@ namespace LibationWinForms.AvaloniaUI.Views
             _repeater.PointerPressed += RepeaterClick;
             _repeater.KeyDown += RepeaterOnKeyDown;
             DataContext = _viewModel = new ProcessQueueViewModel();
+			Logger = ProcessQueue.LogMe.RegisterForm(_viewModel);
 
 			ProcessBookControl2.PositionButtonClicked += ProcessBookControl2_ButtonClicked;
 			ProcessBookControl2.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;
@@ -81,19 +83,68 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 			toolStripProgressBar1 = this.FindControl<ProgressBar>(nameof(toolStripProgressBar1));
 
-			Logger = ProcessQueue.LogMe.RegisterForm(this);
 
 			Queue.QueuededCountChanged += Queue_QueuededCountChanged;
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 
+			#region Design Mode Testing
 			if (Design.IsDesignMode)
-                return;
+			{
+				using var context = DbContexts.GetContext();
+				var book = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
+				List<ProcessBook2> testList = new()
+				{
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.FailedAbort,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.FailedSkip,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.FailedRetry,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.ValidationFail,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.Cancelled,
+						Status = ProcessBookStatus.Cancelled,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.Success,
+						Status = ProcessBookStatus.Completed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.None,
+						Status = ProcessBookStatus.Working,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.None,
+						Status = ProcessBookStatus.Queued,
+					},
+				};
 
-            runningTimeLbl.Text = string.Empty;
-            QueuedCount = 0;
-            ErrorCount = 0;
-            CompletedCount = 0;
+				_viewModel.Items.Enqueue(testList);
+				return;
+			}
+			#endregion
 
+			runningTimeLbl.Text = string.Empty;
+			QueuedCount = 0;
+			ErrorCount = 0;
+			CompletedCount = 0;
 		}
 
 		private void InitializeComponent()
@@ -156,19 +207,19 @@ namespace LibationWinForms.AvaloniaUI.Views
 		}
 
 
-		private bool isBookInQueue(DataLayer.LibraryBook libraryBook)
+		private bool isBookInQueue(LibraryBook libraryBook)
 			=> Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
 
-		public void AddDownloadPdf(DataLayer.LibraryBook libraryBook)
-			=> AddDownloadPdf(new List<DataLayer.LibraryBook>() { libraryBook });
+		public void AddDownloadPdf(LibraryBook libraryBook)
+			=> AddDownloadPdf(new List<LibraryBook>() { libraryBook });
 
-		public void AddDownloadDecrypt(DataLayer.LibraryBook libraryBook)
-			=> AddDownloadDecrypt(new List<DataLayer.LibraryBook>() { libraryBook });
+		public void AddDownloadDecrypt(LibraryBook libraryBook)
+			=> AddDownloadDecrypt(new List<LibraryBook>() { libraryBook });
 
-		public void AddConvertMp3(DataLayer.LibraryBook libraryBook)
-			=> AddConvertMp3(new List<DataLayer.LibraryBook>() { libraryBook });
+		public void AddConvertMp3(LibraryBook libraryBook)
+			=> AddConvertMp3(new List<LibraryBook>() { libraryBook });
 
-		public void AddDownloadPdf(IEnumerable<DataLayer.LibraryBook> entries)
+		public void AddDownloadPdf(IEnumerable<LibraryBook> entries)
 		{
 			List<ProcessBook2> procs = new();
 			foreach (var entry in entries)
@@ -185,7 +236,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			AddToQueue(procs);
 		}
 
-		public void AddDownloadDecrypt(IEnumerable<DataLayer.LibraryBook> entries)
+		public void AddDownloadDecrypt(IEnumerable<LibraryBook> entries)
 		{
 			List<ProcessBook2> procs = new();
 			foreach (var entry in entries)
@@ -203,7 +254,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			AddToQueue(procs);
 		}
 
-		public void AddConvertMp3(IEnumerable<DataLayer.LibraryBook> entries)
+		public void AddConvertMp3(IEnumerable<LibraryBook> entries)
 		{
 			List<ProcessBook2> procs = new();
 			foreach (var entry in entries)
@@ -266,17 +317,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 				Serilog.Log.Logger.Error(ex, "An error was encountered while processing queued items");
 			}
 		}
-
-		public void WriteLine(string text)
-		{
-			Dispatcher.UIThread.Post(() =>
-			_viewModel.LogEntries.Add(new()
-			{
-				LogDate = DateTime.Now,
-				LogMessage = text.Trim()
-			}));
-		}
-
 		#region Control event handlers
 
 		private void Queue_CompletedCountChanged(object sender, int e)

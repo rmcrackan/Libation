@@ -53,8 +53,8 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		private Bitmap _cover;
 
 		#region Properties exposed to the view
-		public ProcessBookResult Result { get => _result; private set { _result = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(StatusText)); } }
-		public ProcessBookStatus Status { get => _status; private set { _status = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(BackgroundColor));  NotifyPropertyChanged(nameof(IsFinished));  NotifyPropertyChanged(nameof(IsDownloading));  NotifyPropertyChanged(nameof(Queued)); } }
+		public ProcessBookResult Result { get => _result; set { _result = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(StatusText)); } }
+		public ProcessBookStatus Status { get => _status; set { _status = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(BackgroundColor));  NotifyPropertyChanged(nameof(IsFinished));  NotifyPropertyChanged(nameof(IsDownloading));  NotifyPropertyChanged(nameof(Queued)); } }
 		public string Narrator { get => _narrator; set { _narrator = value; NotifyPropertyChanged(); } }
 		public string Author { get => _author; set { _author = value; NotifyPropertyChanged(); } }
 		public string Title { get => _title; set { _title = value; NotifyPropertyChanged(); } }

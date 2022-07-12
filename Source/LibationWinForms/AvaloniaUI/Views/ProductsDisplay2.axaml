@@ -6,13 +6,11 @@
 			 xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
              mc:Ignorable="d" d:DesignWidth="1560" d:DesignHeight="400"
              x:Class="LibationWinForms.AvaloniaUI.Views.ProductsDisplay2">
-	
-	
+
 	<Grid>
 		<DataGrid Name="productsGrid" AutoGenerateColumns="False" Items="{Binding GridEntries}">
-
 			<DataGrid.Columns>
-
+				
 				<controls:DataGridCheckBoxColumnExt IsVisible="False" Header="Remove" IsThreeState="True" IsReadOnly="False" CanUserSort="True" Binding="{Binding Remove, Mode=TwoWay}" Width="70" SortMemberPath="Remove"/>
 
 				<DataGridTemplateColumn CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate">
@@ -25,8 +23,7 @@
 							</StackPanel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
-				
+				</DataGridTemplateColumn>				
 
 				<DataGridTemplateColumn Width="80" Header="Cover">					
 					<DataGridTemplateColumn.CellTemplate>
@@ -36,7 +33,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="200" Header="Title" CanUserSort="True" SortMemberPath="Title">
+				<DataGridTemplateColumn MinWidth="150" Width="2*" Header="Title" CanUserSort="True" SortMemberPath="Title">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">
@@ -46,7 +43,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="100" Header="Authors" CanUserSort="True" SortMemberPath="Authors">
+				<DataGridTemplateColumn MinWidth="80" Width="1*" Header="Authors" CanUserSort="True" SortMemberPath="Authors">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">
@@ -56,7 +53,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="100" Header="Narrators" CanUserSort="True" SortMemberPath="Narrators">
+				<DataGridTemplateColumn MinWidth="80" Width="1*"  Header="Narrators" CanUserSort="True" SortMemberPath="Narrators">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">
@@ -66,7 +63,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="100" Header="Length" CanUserSort="True" SortMemberPath="Length">
+				<DataGridTemplateColumn MinWidth="80" Width="1*"  Header="Length" CanUserSort="True" SortMemberPath="Length">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">
@@ -76,7 +73,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="100" Header="Series" CanUserSort="True" SortMemberPath="Series">
+				<DataGridTemplateColumn MinWidth="80" Width="1*" Header="Series" CanUserSort="True" SortMemberPath="Series">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">
@@ -150,7 +147,12 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
-								<Button Width="100" Height="80" Click="OnTagsButtonClick" ToolTip.Tip="Click to edit tags" Content="{Binding BookTags.Control}" />
+								<Button IsVisible="{Binding !BookTags.IsSeries}" Width="100" Height="80" Click="OnTagsButtonClick" ToolTip.Tip="Click to edit tags" >
+									<Panel>
+										<Image IsVisible="{Binding !BookTags.HasTags}" Stretch="None" Source="/AvaloniaUI/Assets/edit_25x25.png" />
+										<TextBlock IsVisible="{Binding BookTags.HasTags}" FontSize="12" TextWrapping="WrapWithOverflow" Text="{Binding BookTags.Tags}"/>
+									</Panel>
+								</Button>
 							</StackPanel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

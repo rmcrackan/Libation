@@ -81,7 +81,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			Category = string.Join(" > ", Book.CategoriesNames());
 			Misc = GetMiscDisplay(libraryBook);
 			LongDescription = GetDescriptionDisplay(Book);
-			Description = LongDescription;
+			Description = TrimTextToWord(LongDescription, 62);
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 
 			NotifyPropertyChanged(nameof(Title));
