@@ -5,6 +5,7 @@
 		xmlns:vm="clr-namespace:LibationWinForms.AvaloniaUI.ViewModels"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:views="clr-namespace:LibationWinForms.AvaloniaUI.Views"
+		xmlns:prgid="clr-namespace:LibationWinForms.AvaloniaUI.Views.ProductsGrid"
 		xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
 		mc:Ignorable="d" d:DesignWidth="2000" d:DesignHeight="700"
 		x:Class="LibationWinForms.AvaloniaUI.Views.MainWindow" Title="MainWindow">
@@ -145,7 +146,7 @@
 					</SplitView.Pane>
 
 					<!-- Product Display Grid -->
-					<views:ProductsDisplay2
+					<prgid:ProductsDisplay2
 						InitialLoaded="productsDisplay_Initialized"
 						LiberateClicked="ProductsDisplay_LiberateClicked"
 						RemovableCountChanged="productsDisplay_RemovableCountChanged"

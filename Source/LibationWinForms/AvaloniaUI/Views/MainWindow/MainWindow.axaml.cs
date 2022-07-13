@@ -12,6 +12,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
+using LibationWinForms.AvaloniaUI.Views.ProductsGrid;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {

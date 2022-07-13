@@ -1,4 +1,5 @@
-﻿using DataLayer;
+﻿using Avalonia.Media;
+using DataLayer;
 using Dinah.Core;
 using ReactiveUI;
 using System;
@@ -31,7 +32,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			get => _remove;
 			set
 			{
-				_remove = value.HasValue ? value.Value : false;
+				_remove = value ?? false;
 
 				suspendCounting = true;
 
@@ -46,39 +47,28 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public override LiberateButtonStatus2 Liberate { get; }
 		public override BookTags BookTags { get; } = new();
 
+		public override bool IsSeries => true;
+		public override bool IsEpisode => false;
+		public override bool IsBook => false;
+
 		#endregion
 
-		private SeriesEntrys2(LibraryBook parent)
+		public SeriesEntrys2(LibraryBook parent, IEnumerable<LibraryBook> children)
 		{
-			Liberate = new LiberateButtonStatus2 { IsSeries = true };
+			Liberate = new LiberateButtonStatus2(IsSeries);
 			SeriesIndex = -1;
 			LibraryBook = parent;
-			LoadCover();
-		}
 
-		public SeriesEntrys2(LibraryBook parent, IEnumerable<LibraryBook> children) : this(parent)
-		{
+			LoadCover();
+
 			Children = children
 				.Select(c => new LibraryBookEntry2(c) { Parent = this })
 				.OrderBy(c => c.SeriesIndex)
 				.ToList();
-			UpdateSeries(parent);
-		}
-
-		public SeriesEntrys2(LibraryBook parent, LibraryBook child) : this(parent)
-		{
-			Children = new() { new LibraryBookEntry2(child) { Parent = this } };
-			UpdateSeries(parent);
-		}
-
-		public void UpdateSeries(LibraryBook parent)
-		{
-			LibraryBook = parent;
 
 			Title = Book.Title;
 			Series = Book.SeriesNames();
 			MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
-			PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
 			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 			Authors = Book.AuthorNames();
 			Narrators = Book.NarratorNames();
@@ -87,9 +77,11 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			LongDescription = GetDescriptionDisplay(Book);
 			Description = TrimTextToWord(LongDescription, 62);
 
+			PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
 			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
 		}
+
 
 		#region Data Sorting
 

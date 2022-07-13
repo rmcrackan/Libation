@@ -8,6 +8,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 {
 	public class LiberateButtonStatus2 : ViewModelBase, IComparable
 	{
+		public LiberateButtonStatus2(bool isSeries)
+		{
+			IsSeries = isSeries;
+		}
 		public LiberatedStatus BookStatus { get; set; }
 		public LiberatedStatus? PdfStatus { get; set; }
 
@@ -22,11 +26,11 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				this.RaisePropertyChanged(nameof(ToolTip));
 			}
 		}
-		public bool IsSeries { get; init; }
+		private bool IsSeries { get; }
 		public Bitmap Image => GetLiberateIcon();
 		public string ToolTip => GetTooltip();
 
-		static Dictionary<string, Bitmap> images = new();
+		static Dictionary<string, Bitmap> iconCache = new();
 
 		/// <summary> Defines the Liberate column's sorting behavior </summary>
 		public int CompareTo(object obj)
@@ -106,14 +110,14 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		private static Bitmap GetFromResources(string rescName)
 		{
-			if (images.ContainsKey(rescName)) return images[rescName];
+			if (iconCache.ContainsKey(rescName)) return iconCache[rescName];
 
 			var memoryStream = new System.IO.MemoryStream();
 
 			((System.Drawing.Bitmap)Properties.Resources.ResourceManager.GetObject(rescName)).Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
 			memoryStream.Position = 0;
-			images[rescName] = new Bitmap(memoryStream);
-			return images[rescName];
+			iconCache[rescName] = new Bitmap(memoryStream);
+			return iconCache[rescName];
 		}
 	}
 }

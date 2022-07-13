@@ -1,7 +1,6 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
-using LibationWinForms.GridView;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -27,7 +26,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			get => _remove;
 			set
 			{
-				_remove = value.HasValue ? value.Value : false;
+				_remove = value ?? false;
 
 				Parent?.ChildRemoveUpdate();
 				this.RaisePropertyChanged(nameof(Remove));
@@ -45,32 +44,22 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 					_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
 					lastStatusUpdate = DateTime.Now;
 				}
-				return new LiberateButtonStatus2 { BookStatus = _bookStatus, PdfStatus = _pdfStatus, IsSeries = false };
+				return new LiberateButtonStatus2(IsSeries) { BookStatus = _bookStatus, PdfStatus = _pdfStatus };
 			}
 		}
 
 		public override BookTags BookTags => new() { Tags = string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated) };
 
+		public override bool IsSeries => false;
+		public override bool IsEpisode => Parent is not null;
+		public override bool IsBook => Parent is null;
+
 		#endregion
 
 		public LibraryBookEntry2(LibraryBook libraryBook)
 		{
-			setLibraryBook(libraryBook);
-			LoadCover();
-		}
-
-		public void UpdateLibraryBook(LibraryBook libraryBook)
-		{
-			if (AudibleProductId != libraryBook.Book.AudibleProductId)
-				throw new Exception("Invalid grid entry update. IDs must match");
-
-			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
-			setLibraryBook(libraryBook);
-		}
-
-		private void setLibraryBook(LibraryBook libraryBook)
-		{
 			LibraryBook = libraryBook;
+			LoadCover();
 
 			Title = Book.Title;
 			Series = Book.SeriesNames();

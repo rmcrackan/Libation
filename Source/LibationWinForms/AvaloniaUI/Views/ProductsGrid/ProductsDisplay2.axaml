@@ -5,11 +5,12 @@
 			 xmlns:views="clr-namespace:LibationWinForms.AvaloniaUI.Views"
 			 xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
              mc:Ignorable="d" d:DesignWidth="1560" d:DesignHeight="400"
-             x:Class="LibationWinForms.AvaloniaUI.Views.ProductsDisplay2">
+             x:Class="LibationWinForms.AvaloniaUI.Views.ProductsGrid.ProductsDisplay2">
 
-	<Grid>
-		<DataGrid Name="productsGrid" AutoGenerateColumns="False" Items="{Binding GridEntries}">
-			<DataGrid.Columns>
+	<Grid>		
+		<DataGrid Name="productsGrid" AutoGenerateColumns="False" Items="{Binding GridEntries}"  >
+
+			<DataGrid.Columns>				
 				
 				<controls:DataGridCheckBoxColumnExt IsVisible="False" Header="Remove" IsThreeState="True" IsReadOnly="False" CanUserSort="True" Binding="{Binding Remove, Mode=TwoWay}" Width="70" SortMemberPath="Remove"/>
 
@@ -147,7 +148,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
-								<Button IsVisible="{Binding !Liberate.IsSeries}" Width="100" Height="80" Click="OnTagsButtonClick" ToolTip.Tip="Click to edit tags" >
+								<Button IsVisible="{Binding !IsSeries}" Width="100" Height="80" Click="OnTagsButtonClick" ToolTip.Tip="Click to edit tags" >
 									<Panel>
 										<Image IsVisible="{Binding !BookTags.HasTags}" Stretch="None" Source="/AvaloniaUI/Assets/edit_25x25.png" />
 										<TextBlock IsVisible="{Binding BookTags.HasTags}" FontSize="12" TextWrapping="WrapWithOverflow" Text="{Binding BookTags.Tags}"/>
@@ -160,5 +161,6 @@
 
 			</DataGrid.Columns>
 		</DataGrid>
+	
 	</Grid>
 </UserControl>

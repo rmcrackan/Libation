@@ -48,6 +48,13 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			base.Remove(entry);
 		}
 
+		public void ReplaceList(IEnumerable<GridEntry2> newItems)
+		{
+			Items.Clear();
+			((List<GridEntry2>)Items).AddRange(newItems);
+			ResetCollection();
+		}
+
 		protected override void InsertItem(int index, GridEntry2 item)
 		{
 			FilterRemoved.Remove(item);
@@ -120,10 +127,22 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		{
 			foreach (var episode in Items.BookEntries().Where(b => b.Parent == sEntry).OrderByDescending(lbe => lbe.SeriesIndex).ToList())
 			{
-				Remove(episode);
+				/*
+				 * Bypass ObservationCollection's InsertItem methos so that CollectionChanged isn't
+				 * fired. When adding many items at once, Avalonia's CollectionChanged event handler
+				 * causes serious performance problems. And unfotrunately, Avalonia doesn't respect
+				 * the NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, IList? changedItems)
+				 * overload that would fire only once for all changed items.
+				 * 
+				 * Doing this requires resetting the list so the view knows it needs to rebuild its display.
+				 */
+
+				FilterRemoved.Add(episode);
+				Items.Remove(episode);
 			}
 
 			sEntry.Liberate.Expanded = false;
+			ResetCollection();
 		}
 
 		public void ExpandItem(SeriesEntrys2 sEntry)
@@ -134,10 +153,23 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			{
 				if (SearchResults is null || SearchResults.Docs.Any(d => d.ProductId == episode.AudibleProductId))
 				{
-					InsertItem(++sindex, episode);
+					/*
+					 * Bypass ObservationCollection's InsertItem methos so that CollectionChanged isn't
+					 * fired. When adding many items at once, Avalonia's CollectionChanged event handler
+					 * causes serious performance problems. And unfotrunately, Avalonia doesn't respect
+					 * the NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, IList? changedItems)
+					 * overload that would fire only once for all changed items.
+					 * 
+					 * Doing this requires resetting the list so the view knows it needs to rebuild its display.
+					 */
+
+					FilterRemoved.Remove(episode);
+					Items.Insert(++sindex, episode);
 				}
 			}
+
 			sEntry.Liberate.Expanded = true;
+			ResetCollection();
 		}
 
 		#endregion

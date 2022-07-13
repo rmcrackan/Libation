@@ -40,7 +40,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 				processBookQueue1.AddDownloadDecrypt(
 					productsDisplay
-					.GetVisible()
+					.GetVisibleBookEntries()
 					.UnLiberated()
 					);
 			}
@@ -56,7 +56,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (result != System.Windows.Forms.DialogResult.OK)
 				return;
 
-			var visibleLibraryBooks = productsDisplay.GetVisible();
+			var visibleLibraryBooks = productsDisplay.GetVisibleBookEntries();
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
@@ -78,7 +78,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (result != System.Windows.Forms.DialogResult.OK)
 				return;
 
-			var visibleLibraryBooks = productsDisplay.GetVisible();
+			var visibleLibraryBooks = productsDisplay.GetVisibleBookEntries();
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
@@ -95,7 +95,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public async void removeToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
-			var visibleLibraryBooks = productsDisplay.GetVisible();
+			var visibleLibraryBooks = productsDisplay.GetVisibleBookEntries();
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
@@ -121,13 +121,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 			});
 
 			//Not used for anything?
-			var notLiberatedCount = productsDisplay.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			var notLiberatedCount = productsDisplay.GetVisibleBookEntries().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
 
 			await Task.Run(setLiberatedVisibleMenuItem);
 		}
 		void setLiberatedVisibleMenuItem()
 		{
-			var notLiberated = productsDisplay.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			var notLiberated = productsDisplay.GetVisibleBookEntries().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
 
 			Dispatcher.UIThread.Post(() =>
 			{
