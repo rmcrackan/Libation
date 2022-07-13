@@ -118,7 +118,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		public void CollapseItem(SeriesEntrys2 sEntry)
 		{
-			foreach (var episode in Items.BookEntries().Where(b => b.Parent == sEntry).ToList())
+			foreach (var episode in Items.BookEntries().Where(b => b.Parent == sEntry).OrderByDescending(lbe => lbe.SeriesIndex).ToList())
 			{
 				Remove(episode);
 			}
@@ -128,11 +128,13 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		public void ExpandItem(SeriesEntrys2 sEntry)
 		{
-			foreach (var episode in FilterRemoved.BookEntries().Where(b => b.Parent == sEntry).ToList())
+			var sindex = Items.IndexOf(sEntry);
+
+			foreach (var episode in FilterRemoved.BookEntries().Where(b => b.Parent == sEntry).OrderByDescending(lbe => lbe.SeriesIndex).ToList())
 			{
 				if (SearchResults is null || SearchResults.Docs.Any(d => d.ProductId == episode.AudibleProductId))
 				{
-					Add(episode);
+					InsertItem(++sindex, episode);
 				}
 			}
 			sEntry.Liberate.Expanded = true;

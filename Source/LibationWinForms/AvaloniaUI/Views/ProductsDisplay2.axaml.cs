@@ -171,7 +171,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		{
 			if (CurrentSortColumn is null)
 			{
-				bindingList.InternalList.Sort((i1, i2) => i2.DateAdded.CompareTo(i1.DateAdded));
+				bindingList.InternalList.Sort(new RowComparer(ListSortDirection.Descending, nameof(GridEntry2.DateAdded)));
 				bindingList.ResetCollection();
 			}
 			else
