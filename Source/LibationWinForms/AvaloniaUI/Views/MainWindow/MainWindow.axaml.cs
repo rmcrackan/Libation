@@ -53,7 +53,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		private void FindAllControls()
 		{
-			importToolStripMenuItem = this.FindControl<MenuItem>(nameof(importToolStripMenuItem));
 			{
 				autoScanLibraryToolStripMenuItem = this.FindControl<MenuItem>(nameof(autoScanLibraryToolStripMenuItem));
 				autoScanLibraryToolStripMenuItemCheckbox = this.FindControl<CheckBox>(nameof(autoScanLibraryToolStripMenuItemCheckbox));
@@ -68,16 +67,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 				}
 			}
 
-
-			liberateToolStripMenuItem = this.FindControl<MenuItem>(nameof(liberateToolStripMenuItem));
 			{
 				beginBookBackupsToolStripMenuItem = this.FindControl<FormattableMenuItem>(nameof(beginBookBackupsToolStripMenuItem));
 				beginPdfBackupsToolStripMenuItem = this.FindControl<FormattableMenuItem>(nameof(beginPdfBackupsToolStripMenuItem));
-				convertAllM4bToMp3ToolStripMenuItem = this.FindControl<MenuItem>(nameof(convertAllM4bToMp3ToolStripMenuItem));
 				liberateVisibleToolStripMenuItem_LiberateMenu = this.FindControl<FormattableMenuItem>(nameof(liberateVisibleToolStripMenuItem_LiberateMenu));
 			}
 
-			exportToolStripMenuItem = this.FindControl<MenuItem>(nameof(exportToolStripMenuItem));
 			{
 				exportLibraryToolStripMenuItem = this.FindControl<MenuItem>(nameof(exportLibraryToolStripMenuItem));
 			}
@@ -92,17 +87,10 @@ namespace LibationWinForms.AvaloniaUI.Views
 			visibleBooksToolStripMenuItem = this.FindControl<FormattableMenuItem>(nameof(visibleBooksToolStripMenuItem));
 			{
 				liberateVisibleToolStripMenuItem_VisibleBooksMenu = this.FindControl<FormattableMenuItem>(nameof(liberateVisibleToolStripMenuItem_VisibleBooksMenu));
-				replaceTagsToolStripMenuItem = this.FindControl<MenuItem>(nameof(replaceTagsToolStripMenuItem));
 				setDownloadedToolStripMenuItem = this.FindControl<MenuItem>(nameof(setDownloadedToolStripMenuItem));
 				removeToolStripMenuItem = this.FindControl<MenuItem>(nameof(removeToolStripMenuItem));
 			}
 
-			settingsToolStripMenuItem = this.FindControl<MenuItem>(nameof(settingsToolStripMenuItem));
-			{
-				accountsToolStripMenuItem = this.FindControl<MenuItem>(nameof(accountsToolStripMenuItem));
-				basicSettingsToolStripMenuItem = this.FindControl<MenuItem>(nameof(basicSettingsToolStripMenuItem));
-				aboutToolStripMenuItem = this.FindControl<MenuItem>(nameof(aboutToolStripMenuItem));
-			}
 			scanningToolStripMenuItem = this.FindControl<StackPanel>(nameof(scanningToolStripMenuItem));
 			scanningToolStripMenuItem_Text = this.FindControl<TextBlock>(nameof(scanningToolStripMenuItem_Text));
 

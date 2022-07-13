@@ -48,6 +48,7 @@
     <None Remove="AvaloniaUI\Assets\first.png" />
     <None Remove="AvaloniaUI\Assets\import_16x16.png" />
     <None Remove="AvaloniaUI\Assets\last.png" />
+    <None Remove="AvaloniaUI\Assets\LibationStyles.xaml" />
     <None Remove="AvaloniaUI\Assets\queued.png" />
     <None Remove="AvaloniaUI\Assets\up.png" />
   </ItemGroup>
@@ -79,6 +80,12 @@
     <Compile Update="Dialogs\SettingsDialog.*.cs">
       <DependentUpon>SettingsDialog.cs</DependentUpon>
     </Compile>
+  </ItemGroup>	
+	
+  <ItemGroup>
+    <AvaloniaResource Update="AvaloniaUI\Assets\LibationStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
   </ItemGroup>
 
   <ItemGroup>   

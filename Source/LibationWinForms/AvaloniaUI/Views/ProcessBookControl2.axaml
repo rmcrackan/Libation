@@ -5,12 +5,13 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="90" MaxHeight="90" MinHeight="90" MinWidth="300"
              x:Class="LibationWinForms.AvaloniaUI.Views.ProcessBookControl2" Background="{Binding BackgroundColor}">
 	
-	<Border BorderBrush="Gray" BorderThickness="2">
-		<Grid ColumnDefinitions="86,1*,58">
-			<Panel Grid.Column="0" Margin="3,0,0,0" Width="80" Height="80" HorizontalAlignment="Left">
+	<Border BorderBrush="{DynamicResource ProcessQueueBookBorderBrush}" BorderThickness="2">
+		<Grid ColumnDefinitions="Auto,*,Auto">
+			
+			<Panel Grid.Column="0" Margin="3" Background="LightGray" Width="80" Height="80" HorizontalAlignment="Left">
 				<Image Width="80" Height="80" Source="{Binding Cover}" Stretch="Uniform" />
 			</Panel>
-			<Grid Margin="0,3,0,3" Grid.Column="1" ColumnDefinitions="1*" RowDefinitions="1*,14">
+			<Grid Margin="0,3,0,3" Grid.Column="1" ColumnDefinitions="1*" RowDefinitions="1*,16">
 				<StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
 					<TextBlock ClipToBounds="True" TextWrapping="Wrap" FontSize="11" Text="{Binding Title}" />
 					<TextBlock FontSize="10" TextWrapping="NoWrap" Text="{Binding Author}" />
@@ -26,8 +27,8 @@
 					<TextBlock IsVisible="{Binding !IsDownloading}" Text="{Binding StatusText}"/>
 				</Panel>
 			</Grid>
-			<Grid Margin="3" Grid.Column="2" ColumnDefinitions="30,26">
-				<StackPanel IsVisible="{Binding Queued }" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Vertical">
+			<Grid Margin="3" Grid.Column="2" HorizontalAlignment="Right" ColumnDefinitions="Auto,Auto">
+				<StackPanel IsVisible="{Binding Queued}" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Vertical">
 					<Button Height="20" Width="30" Click="MoveFirst_Click">
 						<Image Height="20" Width="30" Source="/AvaloniaUI/Assets/first.png" Stretch="Uniform" VerticalAlignment="Bottom"/>
 					</Button>
@@ -47,9 +48,10 @@
 					</Button>
 				</Panel>
 			</Grid>
-			<Panel Grid.Column="2" Margin="3">
-				<TextPresenter FontSize="9" VerticalAlignment="Bottom" HorizontalAlignment="Center" IsVisible="{Binding IsDownloading}" Text="{Binding ETA}" />
+			<Panel Margin="3" Width="50" Grid.Column="2">
+				<TextPresenter FontSize="9" VerticalAlignment="Bottom" HorizontalAlignment="Right" IsVisible="{Binding IsDownloading}" Text="{Binding ETA}" />
 			</Panel>
+			
 		</Grid>
 	</Border>
 </UserControl>

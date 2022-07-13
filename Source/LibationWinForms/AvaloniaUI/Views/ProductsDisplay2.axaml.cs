@@ -38,6 +38,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			.Select(lbe => lbe.LibraryBook)
 			.ToList();
 
+
 		DataGridColumn removeGVColumn;
 		DataGridColumn liberateGVColumn;
 		DataGridColumn coverGVColumn;
@@ -53,12 +54,28 @@ namespace LibationWinForms.AvaloniaUI.Views
 		DataGridColumn myRatingGVColumn;
 		DataGridColumn miscGVColumn;
 		DataGridColumn tagAndDetailsGVColumn;
+
+		#region Init
+
 		public ProductsDisplay2()
 		{
 			InitializeComponent();
+			
+
+			if (Design.IsDesignMode)
+			{
+				using var context = DbContexts.GetContext();
+				var book = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
+				productsGrid.DataContext = _viewModel = new ProductsDisplayViewModel(new List<LibraryBook> { book });
+				return;
+			}
+		}
+		private void InitializeComponent()
+		{
+			AvaloniaXamlLoader.Load(this);
 
 			productsGrid = this.FindControl<DataGrid>(nameof(productsGrid));
-			productsGrid.Sorting += Dg1_Sorting;
+			productsGrid.Sorting += ProductsGrid_Sorting;
 			productsGrid.CanUserSortColumns = true;
 			productsGrid.LoadingRow += ProductsGrid_LoadingRow;
 
@@ -78,6 +95,42 @@ namespace LibationWinForms.AvaloniaUI.Views
 			miscGVColumn = productsGrid.Columns[13];
 			tagAndDetailsGVColumn = productsGrid.Columns[14];
 
+			RegisterCustomColumnComparers();
+		}
+
+		#endregion
+
+		#region Apply Background Brush Style to Series Books Rows
+
+		private static object tagObj = new();
+		private void ProductsGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+		{
+			if (e.Row.Tag == tagObj)
+				return;
+			e.Row.Tag = tagObj;
+
+			static IBrush GetRowColor(DataGridRow row)
+				=> row.DataContext is GridEntry2 gEntry
+				&& gEntry is LibraryBookEntry2 lbEntry
+				&& lbEntry.Parent is not null
+				? App.SeriesEntryGridBackgroundBrush
+				: null;
+
+			e.Row.Background = GetRowColor(e.Row);
+			e.Row.DataContextChanged += (sender, e) =>
+			{
+				var row = sender as DataGridRow;
+				row.Background = GetRowColor(row);
+			};
+		}
+
+		#endregion		
+
+		#region Sorting
+
+		private void RegisterCustomColumnComparers()
+		{
+
 			removeGVColumn.CustomSortComparer = new RowComparer(removeGVColumn);
 			liberateGVColumn.CustomSortComparer = new RowComparer(liberateGVColumn);
 			titleGVColumn.CustomSortComparer = new RowComparer(titleGVColumn);
@@ -92,50 +145,27 @@ namespace LibationWinForms.AvaloniaUI.Views
 			myRatingGVColumn.CustomSortComparer = new RowComparer(myRatingGVColumn);
 			miscGVColumn.CustomSortComparer = new RowComparer(miscGVColumn);
 			tagAndDetailsGVColumn.CustomSortComparer = new RowComparer(tagAndDetailsGVColumn);
-
-			removeGVColumn.PropertyChanged += RemoveGVColumn_PropertyChanged;
-
-			if (Design.IsDesignMode)
-			{
-				using var context = DbContexts.GetContext();
-				var book = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
-				productsGrid.DataContext = _viewModel = new ProductsDisplayViewModel(new List<LibraryBook> { book });
-				return;
-			}
 		}
 
-		private void RemoveGVColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+		private void ReSort()
 		{
-
+			if (CurrentSortColumn is null)
+				bindingList.InternalList.Sort((i1, i2) => i2.DateAdded.CompareTo(i1.DateAdded));
+			else
+				CurrentSortColumn.Sort(((RowComparer)CurrentSortColumn.CustomSortComparer).SortDirection ?? ListSortDirection.Ascending);
 		}
 
-		private static object tagObj = new();
-		private static readonly IBrush SeriesBgColor = Brush.Parse("#ffe6ffe6");
 
-		private void ProductsGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+		private DataGridColumn CurrentSortColumn;
+
+		private void ProductsGrid_Sorting(object sender, DataGridColumnEventArgs e)
 		{
-			if (e.Row.Tag == tagObj)
-				return;
-			e.Row.Tag = tagObj;
-
-			static IBrush GetRowColor(DataGridRow row)
-				=> row.DataContext is GridEntry2 gEntry
-				&& gEntry is LibraryBookEntry2 lbEntry
-				&& lbEntry.Parent is not null
-				? SeriesBgColor
-				: null;
-
-			e.Row.Background = GetRowColor(e.Row);
-			e.Row.DataContextChanged += (sender, e) =>
-			{
-				var row = sender as DataGridRow;
-				row.Background = GetRowColor(row);
-			};
-		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
+			var comparer = e.Column.CustomSortComparer as RowComparer;
+			//Force the comparer to get the current sort order. We can't
+			//retrieve it from inside this event handler because Avalonia
+			//doesn't set the property until after this event.
+			comparer.SortDirection = null;
+			CurrentSortColumn = e.Column;
 		}
 
 		private class RowComparer : IComparer
@@ -167,7 +197,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 				var geA = (GridEntry2)x;
 				var geB = (GridEntry2)y;
 
-				SortDirection ??= GetSortOrder(Column);
+				SortDirection ??= GetSortOrder();
 
 				SeriesEntrys2 parentA = null;
 				SeriesEntrys2 parentB = null;
@@ -209,8 +239,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 				return Compare(parentA, parentB);
 			}
 
-			private static ListSortDirection? GetSortOrder(DataGridColumn column)
-				=> CurrentSortingStatePi.GetValue(HeaderCellPi.GetValue(column)) as ListSortDirection?;
+			private ListSortDirection? GetSortOrder()
+				=> CurrentSortingStatePi.GetValue(HeaderCellPi.GetValue(Column)) as ListSortDirection?;
 
 			private int Compare(GridEntry2 x, GridEntry2 y)
 			{
@@ -221,17 +251,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 		}
 
-		DataGridColumn CurrentSortColumn;
-
-		private void Dg1_Sorting(object sender, DataGridColumnEventArgs e)
-		{
-			var comparer = e.Column.CustomSortComparer as RowComparer;
-			//Force the comparer to get the current sort order. We can't
-			//retrieve it from inside this event handler because Avalonia
-			//doesn't set the property until after this event.
-			comparer.SortDirection = null;
-			CurrentSortColumn = e.Column;
-		}
+		#endregion
 
 		#region Button controls
 
@@ -244,7 +264,10 @@ namespace LibationWinForms.AvaloniaUI.Views
 				if (sEntry.Liberate.Expanded)
 					bindingList.CollapseItem(sEntry);
 				else
+				{
 					bindingList.ExpandItem(sEntry);
+					ReSort();
+				}
 
 				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
 			}
@@ -565,14 +588,9 @@ namespace LibationWinForms.AvaloniaUI.Views
 				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
 
 			//Re-sort after filtering 
-			if (CurrentSortColumn is null)
-				bindingList.InternalList.Sort((i1, i2) => i2.DateAdded.CompareTo(i1.DateAdded));
-			else
-			{
-				CurrentSortColumn.Sort(((RowComparer)CurrentSortColumn.CustomSortComparer).SortDirection ?? ListSortDirection.Ascending);
-			}
-
+			
 			bindingList.ResetCollection();
+			ReSort();
 		}
 
 		#endregion

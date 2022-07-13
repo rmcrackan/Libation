@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApplicationServices;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using DataLayer;
 using Dinah.Core;
@@ -63,12 +64,12 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public bool IsDownloading => Status is ProcessBookStatus.Working;
 		public bool Queued => Status is ProcessBookStatus.Queued;
 
-		public string BackgroundColor => Status switch
+		public IBrush BackgroundColor => Status switch
 		{
-			ProcessBookStatus.Cancelled => "Khaki",
-			ProcessBookStatus.Completed => "PaleGreen",
-			ProcessBookStatus.Failed => "LightCoral",
-			_ => "White",
+			ProcessBookStatus.Cancelled => App.ProcessQueueBookCancelledBrush,
+			ProcessBookStatus.Completed => App.ProcessQueueBookCompletedBrush,
+			ProcessBookStatus.Failed => App.ProcessQueueBookFailedBrush,
+			_ => App.ProcessQueueBookDefaultBrush,
 		};
 		public string StatusText => Result switch
 		{
@@ -82,6 +83,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		};
 
 		#endregion
+
 
 		private TimeSpan TimeRemaining { set { ETA = $"ETA: {value:mm\\:ss}"; } }
 		private Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
@@ -107,6 +109,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			// Mutable property. Set the field so PropertyChanged isn't fired.
 			using var ms = new System.IO.MemoryStream(picture);
 			_cover = new Bitmap(ms);
+
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)

@@ -10,31 +10,30 @@
 
 	<UserControl.Resources>
 		<RecyclePool x:Key="RecyclePool" />
-		<DataTemplate x:Key="odd">
+		<DataTemplate x:Key="queuedBook">
 			<views:ProcessBookControl2 />
 		</DataTemplate>
 		<RecyclingElementFactory x:Key="elementFactory" RecyclePool="{StaticResource RecyclePool}">
 			<RecyclingElementFactory.Templates>
-				<StaticResource x:Key="odd" ResourceKey="odd" />
+				<StaticResource x:Key="queuedBook" ResourceKey="queuedBook" />
 			</RecyclingElementFactory.Templates>
 		</RecyclingElementFactory>
 	</UserControl.Resources>
 
-	<UserControl.Styles>
-		<Style Selector="ItemsPresenter#PART_ItemsPresenter">
-			<Setter Property="Height" Value="20"/>
-		</Style>
-	</UserControl.Styles>
-
-	<Grid RowDefinitions="1*,30">
+	<Grid RowDefinitions="*,Auto">
 		<TabControl Grid.Row="0">
+			<TabControl.Styles>
+				<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+					<Setter Property="Height" Value="33"/>
+				</Style>
+			</TabControl.Styles>
 			<!-- Queue Tab -->
 			<TabItem>
 				<TabItem.Header>
 					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="Black" Background="WhiteSmoke">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource DataGridGridLinesBrush}" Background="WhiteSmoke">
 						<ScrollViewer
 							Name="scroller"
 							HorizontalScrollBarVisibility="Disabled"
@@ -55,12 +54,13 @@
 					</Grid>
 				</Grid>
 			</TabItem>
+			<!-- Log Tab -->
 			<TabItem>
 				<TabItem.Header>
 					<TextBlock FontSize="14" VerticalAlignment="Center">Queue Log</TextBlock>
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="Black" Background="WhiteSmoke">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource DataGridGridLinesBrush}" Background="WhiteSmoke">
 						<DataGrid AutoGenerateColumns="False" Items="{Binding LogEntries}">
 							<DataGrid.Columns>
 								<DataGridTextColumn SortMemberPath="LogDate" Header="Timestamp" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>
@@ -84,11 +84,11 @@
 			</TabItem>
 		</TabControl>
 		<!-- Queue Status -->
-		<Grid Grid.Row="1" Margin="5,0,0,0" ColumnDefinitions="120,1*,65">
+		<Grid Grid.Row="1" Margin="5,0,0,0" ColumnDefinitions="Auto,*,Auto">
 			<Panel Grid.Column="0">
 				<Panel.Styles>
 					<Style Selector="ProgressBar:horizontal">
-						<Setter Property="MinWidth" Value="20" />
+						<Setter Property="MinWidth" Value="100" />
 					</Style>
 				</Panel.Styles>
 				<ProgressBar Name="toolStripProgressBar1" ShowProgressText="True" />
