@@ -128,13 +128,11 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		public void ExpandItem(SeriesEntrys2 sEntry)
 		{
-			var sindex = Items.IndexOf(sEntry);
-
 			foreach (var episode in FilterRemoved.BookEntries().Where(b => b.Parent == sEntry).ToList())
 			{
 				if (SearchResults is null || SearchResults.Docs.Any(d => d.ProductId == episode.AudibleProductId))
 				{
-					InsertItem(++sindex, episode);
+					Add(episode);
 				}
 			}
 			sEntry.Liberate.Expanded = true;

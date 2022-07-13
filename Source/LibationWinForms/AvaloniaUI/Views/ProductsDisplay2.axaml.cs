@@ -124,7 +124,27 @@ namespace LibationWinForms.AvaloniaUI.Views
 			};
 		}
 
-		#endregion		
+		#endregion
+
+		#region Filter
+
+		public void Filter(string searchString)
+		{
+			int visibleCount = bindingList.Count;
+
+			if (string.IsNullOrEmpty(searchString))
+				bindingList.RemoveFilter();
+			else
+				bindingList.Filter = searchString;
+
+			if (visibleCount != bindingList.Count)
+				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+
+			//Re-sort after filtering
+			ReSort();
+		}
+
+		#endregion
 
 		#region Sorting
 
@@ -150,7 +170,10 @@ namespace LibationWinForms.AvaloniaUI.Views
 		private void ReSort()
 		{
 			if (CurrentSortColumn is null)
+			{
 				bindingList.InternalList.Sort((i1, i2) => i2.DateAdded.CompareTo(i1.DateAdded));
+				bindingList.ResetCollection();
+			}
 			else
 				CurrentSortColumn.Sort(((RowComparer)CurrentSortColumn.CustomSortComparer).SortDirection ?? ListSortDirection.Ascending);
 		}
@@ -168,88 +191,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 			CurrentSortColumn = e.Column;
 		}
 
-		private class RowComparer : IComparer
-		{
-			private static readonly System.Reflection.PropertyInfo HeaderCellPi = typeof(DataGridColumn).GetProperty("HeaderCell", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-			private static readonly System.Reflection.PropertyInfo CurrentSortingStatePi = typeof(DataGridColumnHeader).GetProperty("CurrentSortingState", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-			public DataGridColumn Column { get; init; }
-			public string PropertyName { get; init; }
-			public ListSortDirection? SortDirection { get; set; }
-
-			public RowComparer(DataGridColumn column)
-			{
-				Column = column;
-				PropertyName = column.SortMemberPath;
-			}
-
-			/// <summary>
-			/// This compare method ensures that all top-level grid entries (standalone books or series parents)
-			/// are sorted by PropertyName while all episodes remain immediately beneath their parents and remain
-			/// sorted by series index, ascending.
-			/// </summary>
-			public int Compare(object x, object y)
-			{
-				if (x is null) return -1;
-				if (y is null) return 1;
-				if (x is null && y is null) return 0;
-
-				var geA = (GridEntry2)x;
-				var geB = (GridEntry2)y;
-
-				SortDirection ??= GetSortOrder();
-
-				SeriesEntrys2 parentA = null;
-				SeriesEntrys2 parentB = null;
-
-				if (geA is LibraryBookEntry2 lbA && lbA.Parent is SeriesEntrys2 seA)
-					parentA = seA;
-				if (geB is LibraryBookEntry2 lbB && lbB.Parent is SeriesEntrys2 seB)
-					parentB = seB;
-
-				//both a and b are standalone
-				if (parentA is null && parentB is null)
-					return Compare(geA, geB);
-
-				//a is a standalone, b is a child
-				if (parentA is null && parentB is not null)
-				{
-					// b is a child of a, parent is always first
-					if (parentB == geA)
-						return SortDirection is ListSortDirection.Ascending ? -1 : 1;
-					else
-						return Compare(geA, parentB);
-				}
-
-				//a is a child, b is a standalone
-				if (parentA is not null && parentB is null)
-				{
-					// a is a child of b, parent is always first
-					if (parentA == geB)
-						return SortDirection is ListSortDirection.Ascending ? 1 : -1;
-					else
-						return Compare(parentA, geB);
-				}
-
-				//both are children of the same series, always present in order of series index, ascending
-				if (parentA == parentB)
-					return geA.SeriesIndex.CompareTo(geB.SeriesIndex) * (SortDirection is ListSortDirection.Ascending ? 1 : -1);
-
-				//a and b are children of different series.
-				return Compare(parentA, parentB);
-			}
-
-			private ListSortDirection? GetSortOrder()
-				=> CurrentSortingStatePi.GetValue(HeaderCellPi.GetValue(Column)) as ListSortDirection?;
-
-			private int Compare(GridEntry2 x, GridEntry2 y)
-			{
-				var val1 = x.GetMemberValue(PropertyName);
-				var val2 = y.GetMemberValue(PropertyName);
-
-				return x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
-			}
-		}
 
 		#endregion
 
@@ -571,29 +512,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 				existingEpisodeEntry.UpdateLibraryBook(episodeBook);
 		}
 
-		#endregion
-
-		#region Filter
-
-		public void Filter(string searchString)
-		{
-			int visibleCount = bindingList.Count;
-
-			if (string.IsNullOrEmpty(searchString))
-				bindingList.RemoveFilter();
-			else
-				bindingList.Filter = searchString;
-
-			if (visibleCount != bindingList.Count)
-				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
-
-			//Re-sort after filtering 
-			
-			bindingList.ResetCollection();
-			ReSort();
-		}
-
-		#endregion
+		#endregion		
 
 		#region Column Customizations
 

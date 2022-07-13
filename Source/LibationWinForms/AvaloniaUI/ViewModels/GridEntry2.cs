@@ -57,7 +57,6 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public string ProductRating { get => _productRating; protected set { this.RaiseAndSetIfChanged(ref _productRating, value); } }
 		public string MyRating { get => _myRating; protected set { this.RaiseAndSetIfChanged(ref _myRating, value); } }
 
-
 		protected bool? _remove = false;
 		public abstract bool? Remove { get; set; }
 		public abstract LiberateButtonStatus2 Liberate { get; }
