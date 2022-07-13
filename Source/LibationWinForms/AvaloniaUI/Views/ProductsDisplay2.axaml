@@ -11,7 +11,7 @@
 		<DataGrid Name="productsGrid" AutoGenerateColumns="False" Items="{Binding GridEntries}">
 			<DataGrid.Columns>
 				
-				<controls:DataGridCheckBoxColumnExt IsVisible="False" Header="Remove" IsThreeState="True" IsReadOnly="False" CanUserSort="True" Binding="{Binding Remove, Mode=TwoWay}" Width="70" SortMemberPath="Remove"/>
+				<controls:DataGridCheckBoxColumnExt IsVisible="True" Header="Remove" IsThreeState="True" IsReadOnly="False" CanUserSort="True" Binding="{Binding Remove, Mode=TwoWay}" Width="70" SortMemberPath="Remove"/>
 
 				<DataGridTemplateColumn CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate">
 					<DataGridTemplateColumn.CellTemplate>
@@ -147,7 +147,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">
-								<Button IsVisible="{Binding !BookTags.IsSeries}" Width="100" Height="80" Click="OnTagsButtonClick" ToolTip.Tip="Click to edit tags" >
+								<Button IsVisible="{Binding !Liberate.IsSeries}" Width="100" Height="80" Click="OnTagsButtonClick" ToolTip.Tip="Click to edit tags" >
 									<Panel>
 										<Image IsVisible="{Binding !BookTags.HasTags}" Stretch="None" Source="/AvaloniaUI/Assets/edit_25x25.png" />
 										<TextBlock IsVisible="{Binding BookTags.HasTags}" FontSize="12" TextWrapping="WrapWithOverflow" Text="{Binding BookTags.Tags}"/>

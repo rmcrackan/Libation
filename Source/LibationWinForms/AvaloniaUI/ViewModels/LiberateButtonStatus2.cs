@@ -1,13 +1,12 @@
 ﻿using Avalonia.Media.Imaging;
 using DataLayer;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels
 {
-	public class LiberateButtonStatus2 : IComparable, INotifyPropertyChanged
+	public class LiberateButtonStatus2 : ViewModelBase, IComparable
 	{
 		public LiberatedStatus BookStatus { get; set; }
 		public LiberatedStatus? PdfStatus { get; set; }
@@ -18,10 +17,9 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			get => _expanded;
 			set
 			{
-				_expanded = value;
-				NotifyPropertyChanged();
-				NotifyPropertyChanged(nameof(Image));
-				NotifyPropertyChanged(nameof(ToolTip));
+				this.RaiseAndSetIfChanged(ref _expanded, value);
+				this.RaisePropertyChanged(nameof(Image));
+				this.RaisePropertyChanged(nameof(ToolTip));
 			}
 		}
 		public bool IsSeries { get; init; }
@@ -30,13 +28,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		static Dictionary<string, Bitmap> images = new();
 
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		public void NotifyPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-		/// <summary>
-		/// Defines the Liberate column's sorting behavior
-		/// </summary>
+		/// <summary> Defines the Liberate column's sorting behavior </summary>
 		public int CompareTo(object obj)
 		{
 			if (obj is not LiberateButtonStatus2 second) return -1;
@@ -49,14 +41,13 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			else return BookStatus.CompareTo(second.BookStatus);
 		}
 
-
 		private Bitmap GetLiberateIcon()
 		{
 			if (IsSeries)
-				return Expanded ? GetFromresc("minus") : GetFromresc("plus");
+				return Expanded ? GetFromResources("minus") : GetFromResources("plus");
 
 			if (BookStatus == LiberatedStatus.Error)
-				return GetFromresc("error");
+				return GetFromResources("error");
 
 			string image_lib = BookStatus switch
 			{
@@ -75,7 +66,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				_ => throw new Exception("Unexpected PDF state")
 			};
 
-			return GetFromresc($"liberate_{image_lib}{image_pdf}");
+			return GetFromResources($"liberate_{image_lib}{image_pdf}");
 		}
 		private string GetTooltip()
 		{
@@ -113,7 +104,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			return mouseoverText;
 		}
 
-		private static Bitmap GetFromresc(string rescName)
+		private static Bitmap GetFromResources(string rescName)
 		{
 			if (images.ContainsKey(rescName)) return images[rescName];
 

@@ -2,6 +2,7 @@
 using DataLayer;
 using Dinah.Core;
 using LibationWinForms.GridView;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,8 +28,9 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			set
 			{
 				_remove = value.HasValue ? value.Value : false;
+
 				Parent?.ChildRemoveUpdate();
-				NotifyPropertyChanged();
+				this.RaisePropertyChanged(nameof(Remove));
 			}
 		}
 
@@ -84,20 +86,6 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			Description = TrimTextToWord(LongDescription, 62);
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 
-			NotifyPropertyChanged(nameof(Title));
-			NotifyPropertyChanged(nameof(Series));
-			NotifyPropertyChanged(nameof(Length));
-			NotifyPropertyChanged(nameof(MyRating));
-			NotifyPropertyChanged(nameof(PurchaseDate));
-			NotifyPropertyChanged(nameof(ProductRating));
-			NotifyPropertyChanged(nameof(Authors));
-			NotifyPropertyChanged(nameof(Narrators));
-			NotifyPropertyChanged(nameof(Category));
-			NotifyPropertyChanged(nameof(Misc));
-			NotifyPropertyChanged(nameof(LongDescription));
-			NotifyPropertyChanged(nameof(Description));
-			NotifyPropertyChanged(nameof(SeriesIndex));
-
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
@@ -120,18 +108,18 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			switch (itemName)
 			{
 				case nameof(udi.Tags):
-					Book.UserDefinedItem.Tags = udi.Tags;
-					NotifyPropertyChanged(nameof(BookTags));
+					Book.UserDefinedItem.Tags = udi.Tags; 
+					this.RaisePropertyChanged(nameof(BookTags));
 					break;
 				case nameof(udi.BookStatus):
 					Book.UserDefinedItem.BookStatus = udi.BookStatus;
 					_bookStatus = udi.BookStatus;
-					NotifyPropertyChanged(nameof(Liberate));
+					this.RaisePropertyChanged(nameof(Liberate));
 					break;
 				case nameof(udi.PdfStatus):
 					Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
 					_pdfStatus = udi.PdfStatus;
-					NotifyPropertyChanged(nameof(Liberate));
+					this.RaisePropertyChanged(nameof(Liberate));
 					break;
 			}
 		}

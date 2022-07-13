@@ -1,6 +1,6 @@
 ﻿using DataLayer;
 using Dinah.Core;
-using LibationWinForms.GridView;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,13 +21,8 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 			var removeCount = Children.Count(c => c.Remove == true);
 
-			if (removeCount == 0)
-				_remove = false;
-			else if (removeCount == Children.Count)
-				_remove = true;
-			else
-				_remove = null;
-			NotifyPropertyChanged(nameof(Remove));
+			_remove = removeCount == 0 ? false : (removeCount == Children.Count ? true : null);
+			this.RaisePropertyChanged(nameof(Remove));
 		}
 
 		#region Model properties exposed to the view
@@ -36,7 +31,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			get => _remove;
 			set
 			{
-				_remove = value.HasValue ? value : false;
+				_remove = value.HasValue ? value.Value : false;
 
 				suspendCounting = true;
 
@@ -44,13 +39,12 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 					item.Remove = value;
 
 				suspendCounting = false;
-
-				NotifyPropertyChanged();
+				this.RaisePropertyChanged(nameof(Remove));
 			}
 		}
 
 		public override LiberateButtonStatus2 Liberate { get; }
-		public override BookTags BookTags { get; } = new() { IsSeries = true };
+		public override BookTags BookTags { get; } = new();
 
 		#endregion
 
@@ -95,19 +89,6 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
-
-			NotifyPropertyChanged(nameof(Title));
-			NotifyPropertyChanged(nameof(Series));
-			NotifyPropertyChanged(nameof(Length));
-			NotifyPropertyChanged(nameof(MyRating));
-			NotifyPropertyChanged(nameof(PurchaseDate));
-			NotifyPropertyChanged(nameof(ProductRating));
-			NotifyPropertyChanged(nameof(Authors));
-			NotifyPropertyChanged(nameof(Narrators));
-			NotifyPropertyChanged(nameof(Category));
-			NotifyPropertyChanged(nameof(Misc));
-			NotifyPropertyChanged(nameof(LongDescription));
-			NotifyPropertyChanged(nameof(Description));
 		}
 
 		#region Data Sorting

@@ -7,31 +7,25 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 {
 	public class ProcessQueueViewModel : ViewModelBase, ProcessQueue.ILogForm
 	{
-
-		public string QueueHeader => "this is a header!";
+		public ObservableCollection<LogEntry> LogEntries { get; } = new();
 		private TrackedQueue2<ProcessBook2> _items = new();
-		public ProcessQueueViewModel() { }
 		public TrackedQueue2<ProcessBook2> Items
 		{
 			get => _items;
 			set => this.RaiseAndSetIfChanged(ref _items, value);
 		}
 
-
-		public ObservableCollection<LogEntry> LogEntries { get; } = new();
-
 		public ProcessBook2 SelectedItem { get; set; }
 
 		public void WriteLine(string text)
 		{
 			Dispatcher.UIThread.Post(() =>
-			LogEntries.Add(new()
-			{
-				LogDate = DateTime.Now,
-				LogMessage = text.Trim()
-			}));
+				LogEntries.Add(new()
+				{
+					LogDate = DateTime.Now,
+					LogMessage = text.Trim()
+				}));
 		}
-
 	}
 
 	public class LogEntry
@@ -40,5 +34,4 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public string LogDateString => LogDate.ToShortTimeString();
 		public string LogMessage { get; init; }
 	}
-
 }

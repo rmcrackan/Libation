@@ -21,7 +21,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		SomeRemoved
 	}
 	/// <summary>The View Model base for the DataGridView</summary>
-	public abstract class GridEntry2 : AsyncNotifyPropertyChanged2, IMemberComparable
+	public abstract class GridEntry2 : ViewModelBase
 	{
 		[Browsable(false)] public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)] public LibraryBook LibraryBook { get; protected set; }
@@ -32,30 +32,35 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#region Model properties exposed to the view
 
+		private Avalonia.Media.Imaging.Bitmap _cover;
+		private string _purchaseDate;
+		private string _series;
+		private string _title;
+		private string _length;
+		private string _authors;
+		private string _narrators;
+		private string _category;
+		private string _misc;
+		private string _description;
+		private string _productRating;
+		private string _myRating;
+		public Avalonia.Media.Imaging.Bitmap Cover { get => _cover; protected set { this.RaiseAndSetIfChanged(ref _cover, value); } }
+		public string PurchaseDate { get => _purchaseDate; protected set { this.RaiseAndSetIfChanged(ref _purchaseDate, value); } }
+		public string Series { get => _series; protected set { this.RaiseAndSetIfChanged(ref _series, value); } }
+		public string Title { get => _title; protected set { this.RaiseAndSetIfChanged(ref _title, value); } }
+		public string Length { get => _length; protected set { this.RaiseAndSetIfChanged(ref _length, value); } }
+		public string Authors { get => _authors; protected set { this.RaiseAndSetIfChanged(ref _authors, value); } }
+		public string Narrators { get => _narrators; protected set { this.RaiseAndSetIfChanged(ref _narrators, value); } }
+		public string Category { get => _category; protected set { this.RaiseAndSetIfChanged(ref _category, value); } }
+		public string Misc { get => _misc; protected set { this.RaiseAndSetIfChanged(ref _misc, value); } }
+		public string Description { get => _description; protected set { this.RaiseAndSetIfChanged(ref _description, value); } }
+		public string ProductRating { get => _productRating; protected set { this.RaiseAndSetIfChanged(ref _productRating, value); } }
+		public string MyRating { get => _myRating; protected set { this.RaiseAndSetIfChanged(ref _myRating, value); } }
+
+
 		protected bool? _remove = false;
 		public abstract bool? Remove { get; set; }
-
 		public abstract LiberateButtonStatus2 Liberate { get; }
-		public Avalonia.Media.Imaging.Bitmap Cover
-		{
-			get => _cover;
-			protected set
-			{
-				_cover = value;
-				NotifyPropertyChanged();
-			}
-		}
-		public string PurchaseDate { get; protected set; }
-		public string Series { get; protected set; }
-		public string Title { get; protected set; }
-		public string Length { get; protected set; }
-		public string Authors { get; set; }
-		public string Narrators { get; protected set; }
-		public string Category { get; protected set; }
-		public string Misc { get; protected set; }
-		public string Description { get; protected set; }
-		public string ProductRating { get; protected set; }
-		public string MyRating { get; protected set; }
 		public abstract BookTags BookTags { get; }
 
 		#endregion
@@ -87,7 +92,6 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#region Cover Art
 
-		private Avalonia.Media.Imaging.Bitmap _cover;
 		protected void LoadCover()
 		{
 			// Get cover art. If it's default, subscribe to PictureCached

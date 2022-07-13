@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using ApplicationServices;
 using Avalonia.Media.Imaging;
@@ -10,6 +8,7 @@ using DataLayer;
 using Dinah.Core;
 using FileLiberator;
 using LibationFileManager;
+using ReactiveUI;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels
 {
@@ -36,10 +35,9 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 	/// <summary>
 	/// This is the viewmodel for queued processables
 	/// </summary>
-	public class ProcessBook2 : INotifyPropertyChanged
+	public class ProcessBook2 : ViewModelBase
 	{
 		public event EventHandler Completed;
-		public event PropertyChangedEventHandler PropertyChanged;
 
 		public LibraryBook LibraryBook { get; private set; }
 
@@ -53,14 +51,14 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		private Bitmap _cover;
 
 		#region Properties exposed to the view
-		public ProcessBookResult Result { get => _result; set { _result = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(StatusText)); } }
-		public ProcessBookStatus Status { get => _status; set { _status = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(BackgroundColor));  NotifyPropertyChanged(nameof(IsFinished));  NotifyPropertyChanged(nameof(IsDownloading));  NotifyPropertyChanged(nameof(Queued)); } }
-		public string Narrator { get => _narrator; set { _narrator = value; NotifyPropertyChanged(); } }
-		public string Author { get => _author; set { _author = value; NotifyPropertyChanged(); } }
-		public string Title { get => _title; set { _title = value; NotifyPropertyChanged(); } }
-		public int Progress { get => _progress; private set { _progress = value; NotifyPropertyChanged(); } }
-		public string ETA { get => _eta; private set { _eta = value; NotifyPropertyChanged(); } }
-		public Bitmap Cover { get => _cover; private set { _cover = value; NotifyPropertyChanged(); } }
+		public ProcessBookResult Result { get => _result; set { this.RaiseAndSetIfChanged(ref _result, value); this.RaisePropertyChanged(nameof(StatusText)); } }
+		public ProcessBookStatus Status { get => _status; set { this.RaiseAndSetIfChanged(ref _status, value); this.RaisePropertyChanged(nameof(BackgroundColor)); this.RaisePropertyChanged(nameof(IsFinished)); this.RaisePropertyChanged(nameof(IsDownloading)); this.RaisePropertyChanged(nameof(Queued)); } }
+		public string Narrator { get => _narrator; set { this.RaiseAndSetIfChanged(ref _narrator, value); } }
+		public string Author { get => _author; set { this.RaiseAndSetIfChanged(ref _author, value); } }
+		public string Title { get => _title; set { this.RaiseAndSetIfChanged(ref _title, value); } }
+		public int Progress { get => _progress; private set { this.RaiseAndSetIfChanged(ref _progress, value); } }
+		public string ETA { get => _eta; private set { this.RaiseAndSetIfChanged(ref _eta, value); } }
+		public Bitmap Cover { get => _cover; private set { this.RaiseAndSetIfChanged(ref _cover, value); } }
 		public bool IsFinished => Status is not ProcessBookStatus.Queued and not ProcessBookStatus.Working;
 		public bool IsDownloading => Status is ProcessBookStatus.Working;
 		public bool Queued => Status is ProcessBookStatus.Queued;
@@ -91,8 +89,6 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		private Processable _currentProcessable;
 		private readonly Queue<Func<Processable>> Processes = new();
 		private readonly ProcessQueue.LogMe Logger;
-		public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
 		public ProcessBook2(LibraryBook libraryBook, ProcessQueue.LogMe logme)
 		{

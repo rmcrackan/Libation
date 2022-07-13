@@ -9,6 +9,7 @@ using Dinah.Core.DataBinding;
 using FileLiberator;
 using LibationFileManager;
 using LibationWinForms.AvaloniaUI.ViewModels;
+using ReactiveUI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,6 +39,20 @@ namespace LibationWinForms.AvaloniaUI.Views
 			.ToList();
 
 		DataGridColumn removeGVColumn;
+		DataGridColumn liberateGVColumn;
+		DataGridColumn coverGVColumn;
+		DataGridColumn titleGVColumn;
+		DataGridColumn authorsGVColumn;
+		DataGridColumn narratorsGVColumn;
+		DataGridColumn lengthGVColumn;
+		DataGridColumn seriesGVColumn;
+		DataGridColumn descriptionGVColumn;
+		DataGridColumn categoryGVColumn;
+		DataGridColumn productRatingGVColumn;
+		DataGridColumn purchaseDateGVColumn;
+		DataGridColumn myRatingGVColumn;
+		DataGridColumn miscGVColumn;
+		DataGridColumn tagAndDetailsGVColumn;
 		public ProductsDisplay2()
 		{
 			InitializeComponent();
@@ -45,16 +60,79 @@ namespace LibationWinForms.AvaloniaUI.Views
 			productsGrid = this.FindControl<DataGrid>(nameof(productsGrid));
 			productsGrid.Sorting += Dg1_Sorting;
 			productsGrid.CanUserSortColumns = true;
+			productsGrid.LoadingRow += ProductsGrid_LoadingRow;
 
 			removeGVColumn = productsGrid.Columns[0];
+			liberateGVColumn = productsGrid.Columns[1];
+			coverGVColumn = productsGrid.Columns[2];
+			titleGVColumn = productsGrid.Columns[3];
+			authorsGVColumn = productsGrid.Columns[4];
+			narratorsGVColumn = productsGrid.Columns[5];
+			lengthGVColumn = productsGrid.Columns[6];
+			seriesGVColumn = productsGrid.Columns[7];
+			descriptionGVColumn = productsGrid.Columns[8];
+			categoryGVColumn = productsGrid.Columns[9];
+			productRatingGVColumn = productsGrid.Columns[10];
+			purchaseDateGVColumn = productsGrid.Columns[11];
+			myRatingGVColumn = productsGrid.Columns[12];
+			miscGVColumn = productsGrid.Columns[13];
+			tagAndDetailsGVColumn = productsGrid.Columns[14];
+
+			removeGVColumn.CustomSortComparer = new RowComparer(removeGVColumn);
+			liberateGVColumn.CustomSortComparer = new RowComparer(liberateGVColumn);
+			titleGVColumn.CustomSortComparer = new RowComparer(titleGVColumn);
+			authorsGVColumn.CustomSortComparer = new RowComparer(authorsGVColumn);
+			narratorsGVColumn.CustomSortComparer = new RowComparer(narratorsGVColumn);
+			lengthGVColumn.CustomSortComparer = new RowComparer(lengthGVColumn);
+			seriesGVColumn.CustomSortComparer = new RowComparer(seriesGVColumn);
+			descriptionGVColumn.CustomSortComparer = new RowComparer(descriptionGVColumn);
+			categoryGVColumn.CustomSortComparer = new RowComparer(categoryGVColumn);
+			productRatingGVColumn.CustomSortComparer = new RowComparer(productRatingGVColumn);
+			purchaseDateGVColumn.CustomSortComparer = new RowComparer(purchaseDateGVColumn);
+			myRatingGVColumn.CustomSortComparer = new RowComparer(myRatingGVColumn);
+			miscGVColumn.CustomSortComparer = new RowComparer(miscGVColumn);
+			tagAndDetailsGVColumn.CustomSortComparer = new RowComparer(tagAndDetailsGVColumn);
+
+			removeGVColumn.PropertyChanged += RemoveGVColumn_PropertyChanged;
 
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
 				var book = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
 				productsGrid.DataContext = _viewModel = new ProductsDisplayViewModel(new List<LibraryBook> { book });
+				return;
 			}
 		}
+
+		private void RemoveGVColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+		{
+
+		}
+
+		private static object tagObj = new();
+		private static readonly IBrush SeriesBgColor = Brush.Parse("#ffe6ffe6");
+
+		private void ProductsGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+		{
+			if (e.Row.Tag == tagObj)
+				return;
+			e.Row.Tag = tagObj;
+
+			static IBrush GetRowColor(DataGridRow row)
+				=> row.DataContext is GridEntry2 gEntry
+				&& gEntry is LibraryBookEntry2 lbEntry
+				&& lbEntry.Parent is not null
+				? SeriesBgColor
+				: null;
+
+			e.Row.Background = GetRowColor(e.Row);
+			e.Row.DataContextChanged += (sender, e) =>
+			{
+				var row = sender as DataGridRow;
+				row.Background = GetRowColor(row);
+			};
+		}
+
 		private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
@@ -68,6 +146,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 			public DataGridColumn Column { get; init; }
 			public string PropertyName { get; init; }
 			public ListSortDirection? SortDirection { get; set; }
+
+			public RowComparer(DataGridColumn column)
+			{
+				Column = column;
+				PropertyName = column.SortMemberPath;
+			}
 
 			/// <summary>
 			/// This compare method ensures that all top-level grid entries (standalone books or series parents)
@@ -137,24 +221,15 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 		}
 
-		Dictionary<DataGridColumn, RowComparer> ColumnComparers = new();
 		DataGridColumn CurrentSortColumn;
 
 		private void Dg1_Sorting(object sender, DataGridColumnEventArgs e)
 		{
-			if (!ColumnComparers.ContainsKey(e.Column))
-				ColumnComparers[e.Column] = new RowComparer
-				{
-					Column = e.Column,
-					PropertyName = e.Column.SortMemberPath
-				};
-
+			var comparer = e.Column.CustomSortComparer as RowComparer;
 			//Force the comparer to get the current sort order. We can't
 			//retrieve it from inside this event handler because Avalonia
 			//doesn't set the property until after this event.
-			ColumnComparers[e.Column].SortDirection = null;
-
-			e.Column.CustomSortComparer = ColumnComparers[e.Column];
+			comparer.SortDirection = null;
 			CurrentSortColumn = e.Column;
 		}
 
@@ -391,8 +466,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 				//In Avalonia, if you fire PropertyChanged with an empty or invalid property name, nothing is updated.
 				//So we must notify for specific properties that we believed changed.
-				removed.Parent.NotifyPropertyChanged(nameof(SeriesEntrys2.Length));
-				removed.Parent.NotifyPropertyChanged(nameof(SeriesEntrys2.PurchaseDate));
+				removed.Parent.RaisePropertyChanged(nameof(SeriesEntrys2.Length));
+				removed.Parent.RaisePropertyChanged(nameof(SeriesEntrys2.PurchaseDate));
 			}
 
 			//Remove series that have no children
@@ -466,8 +541,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 				else
 					bindingList.CollapseItem(seriesEntry);
 
-				seriesEntry.NotifyPropertyChanged(nameof(SeriesEntrys2.Length));
-				seriesEntry.NotifyPropertyChanged(nameof(SeriesEntrys2.PurchaseDate));
+				seriesEntry.RaisePropertyChanged(nameof(SeriesEntrys2.Length));
+				seriesEntry.RaisePropertyChanged(nameof(SeriesEntrys2.PurchaseDate));
 			}
 			else
 				existingEpisodeEntry.UpdateLibraryBook(episodeBook);
@@ -493,7 +568,9 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (CurrentSortColumn is null)
 				bindingList.InternalList.Sort((i1, i2) => i2.DateAdded.CompareTo(i1.DateAdded));
 			else
-				CurrentSortColumn?.Sort(ColumnComparers[CurrentSortColumn].SortDirection.Value);
+			{
+				CurrentSortColumn.Sort(((RowComparer)CurrentSortColumn.CustomSortComparer).SortDirection ?? ListSortDirection.Ascending);
+			}
 
 			bindingList.ResetCollection();
 		}
