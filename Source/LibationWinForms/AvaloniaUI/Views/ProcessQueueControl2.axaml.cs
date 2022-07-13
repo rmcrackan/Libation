@@ -26,37 +26,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		private TrackedQueue2<ProcessBook2> Queue => _viewModel.Items;
 
 		private readonly ProcessQueue.LogMe Logger;
-        private int QueuedCount
-        {
-            set
-            {
-                queueNumberLbl_Text.Text = value.ToString();
-				queueNumberLbl_Text.IsVisible = value > 0;
-				queueNumberLbl_Icon.IsVisible = value > 0;
-            }
-        }
-        private int ErrorCount
-        {
-            set
-            {
-                errorNumberLbl_Text.Text = value.ToString();
-				errorNumberLbl_Text.IsVisible = value > 0;
-				errorNumberLbl_Icon.IsVisible = value > 0;
-            }
-        }
-
-        private int CompletedCount
-        {
-            set
-            {
-                completedNumberLbl_Text.Text = value.ToString();
-				completedNumberLbl_Text.IsVisible = value > 0;
-                completedNumberLbl_Icon.IsVisible = value > 0;
-            }
-        }
-
-        public Task QueueRunner { get; private set; }
-        public bool Running => !QueueRunner?.IsCompleted ?? false;
+    
 
 		public ProcessQueueControl2()
 		{
@@ -70,22 +40,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 			ProcessBookControl2.PositionButtonClicked += ProcessBookControl2_ButtonClicked;
 			ProcessBookControl2.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;
-
-            queueNumberLbl_Icon = this.FindControl<Image>(nameof(queueNumberLbl_Icon));
-			errorNumberLbl_Icon = this.FindControl<Image>(nameof(errorNumberLbl_Icon));
-			completedNumberLbl_Icon = this.FindControl<Image>(nameof(completedNumberLbl_Icon));
-
-            queueNumberLbl_Text = this.FindControl<TextBlock>(nameof(queueNumberLbl_Text));
-            errorNumberLbl_Text = this.FindControl<TextBlock>(nameof(errorNumberLbl_Text));
-            completedNumberLbl_Text = this.FindControl<TextBlock>(nameof(completedNumberLbl_Text));
-
-            runningTimeLbl = this.FindControl<TextBlock>(nameof(runningTimeLbl));
-
-			toolStripProgressBar1 = this.FindControl<ProgressBar>(nameof(toolStripProgressBar1));
-
-
-			Queue.QueuededCountChanged += Queue_QueuededCountChanged;
-			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 
 			#region Design Mode Testing
 			if (Design.IsDesignMode)
@@ -140,72 +94,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 				return;
 			}
 			#endregion
-
-			runningTimeLbl.Text = string.Empty;
-			QueuedCount = 0;
-			ErrorCount = 0;
-			CompletedCount = 0;
 		}
 
 		private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
 		}
-
-		private async void ProcessBookControl2_CancelButtonClicked(ProcessBook2 item)
-		{
-			if (item is not null)
-				await item.CancelAsync();
-			Queue.RemoveQueued(item);
-		}
-
-		private void ProcessBookControl2_ButtonClicked(ProcessBook2 item, QueuePosition queueButton)
-        {
-			Queue.MoveQueuePosition(item, queueButton);
-		}
-
-        private void RepeaterClick(object sender, PointerPressedEventArgs e)
-        {
-            if ((e.Source as TextBlock)?.DataContext is ProcessBook2 item)
-            {
-                _viewModel.SelectedItem = item;
-                _selectedIndex = _viewModel.Items.IndexOf(item);
-            }
-        }
-
-        private void RepeaterOnKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.F5)
-            {
-                //_viewModel.ResetItems();
-            }
-        }
-		public async void CancelAllBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			Queue.ClearQueue();
-			if (Queue.Current is not null)
-				await Queue.Current.CancelAsync();
-		}
-
-		public void ClearFinishedBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			Queue.ClearCompleted();
-
-			if (!Running)
-				runningTimeLbl.Text = string.Empty;
-		}
-
-		public void ClearLogBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			_viewModel.LogEntries.Clear();
-		}
-
-		private void LogCopyBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			string logText = string.Join("\r\n", _viewModel.LogEntries.Select(r => $"{r.LogDate.ToShortDateString()} {r.LogDate.ToShortTimeString()}\t{r.LogMessage}"));
-			System.Windows.Forms.Clipboard.SetDataObject(logText, false, 5, 150);
-		}
-
 
 		private bool isBookInQueue(LibraryBook libraryBook)
 			=> Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
@@ -233,7 +127,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 
 			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
-			AddToQueue(procs);
+			_viewModel.AddToQueue(procs);
 		}
 
 		public void AddDownloadDecrypt(IEnumerable<LibraryBook> entries)
@@ -251,7 +145,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 
 			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
-			AddToQueue(procs);
+			_viewModel.AddToQueue(procs);
 		}
 
 		public void AddConvertMp3(IEnumerable<LibraryBook> entries)
@@ -268,75 +162,63 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 
 			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
-			AddToQueue(procs);
-		}
-		private void AddToQueue(IEnumerable<ProcessBook2> pbook)
-		{
-			Dispatcher.UIThread.Post(() =>
-			{
-				Queue.Enqueue(pbook);
-				if (!Running)
-					QueueRunner = QueueLoop();
-			});
+			_viewModel.AddToQueue(procs);
 		}
 
-		DateTime StartingTime;
-		private async Task QueueLoop()
-		{
-			try
-			{
-				Serilog.Log.Logger.Information("Begin processing queue");
-
-				StartingTime = DateTime.Now;
-
-				using var counterTimer = new System.Threading.Timer(CounterTimer_Tick, null, 0, 500);
-
-				while (Queue.MoveNext())
-				{
-					var nextBook = Queue.Current;
-
-					Serilog.Log.Logger.Information("Begin processing queued item. {item_LibraryBook}", nextBook?.LibraryBook);
-
-					var result = await nextBook.ProcessOneAsync();
-
-					Serilog.Log.Logger.Information("Completed processing queued item: {item_LibraryBook}\r\nResult: {result}", nextBook?.LibraryBook, result);
-
-					if (result == ProcessBookResult.ValidationFail)
-						Queue.ClearCurrent();
-					else if (result == ProcessBookResult.FailedAbort)
-						Queue.ClearQueue();
-					else if (result == ProcessBookResult.FailedSkip)
-						nextBook.LibraryBook.Book.UpdateBookStatus(DataLayer.LiberatedStatus.Error);
-				}
-				Serilog.Log.Logger.Information("Completed processing queue");
-
-				Queue_CompletedCountChanged(this, 0);
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "An error was encountered while processing queued items");
-			}
-		}
 		#region Control event handlers
 
-		private void Queue_CompletedCountChanged(object sender, int e)
+		private async void ProcessBookControl2_CancelButtonClicked(ProcessBook2 item)
 		{
-			int errCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.FailedAbort or ProcessBookResult.FailedSkip or ProcessBookResult.FailedRetry or ProcessBookResult.ValidationFail);
-			int completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
+			if (item is not null)
+				await item.CancelAsync();
+			Queue.RemoveQueued(item);
+		}
 
-			ErrorCount = errCount;
-			CompletedCount = completeCount;
-			UpdateProgressBar();
-		}
-		private void Queue_QueuededCountChanged(object sender, int cueCount)
+		private void ProcessBookControl2_ButtonClicked(ProcessBook2 item, QueuePosition queueButton)
 		{
-			QueuedCount = cueCount;
-			UpdateProgressBar();
+			Queue.MoveQueuePosition(item, queueButton);
 		}
-		private void UpdateProgressBar()
+
+		private void RepeaterClick(object sender, PointerPressedEventArgs e)
 		{
-			double percent = 100d * Queue.Completed.Count / Queue.Count;
-			toolStripProgressBar1.Value = percent;
+			if ((e.Source as TextBlock)?.DataContext is ProcessBook2 item)
+			{
+				_viewModel.SelectedItem = item;
+				_selectedIndex = _viewModel.Items.IndexOf(item);
+			}
+		}
+
+		private void RepeaterOnKeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Key == Key.F5)
+			{
+				//_viewModel.ResetItems();
+			}
+		}
+		public async void CancelAllBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			Queue.ClearQueue();
+			if (Queue.Current is not null)
+				await Queue.Current.CancelAsync();
+		}
+
+		public void ClearFinishedBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			Queue.ClearCompleted();
+
+			if (!_viewModel.Running)
+				_viewModel.RunningTime = string.Empty;
+		}
+
+		public void ClearLogBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			_viewModel.LogEntries.Clear();
+		}
+
+		private void LogCopyBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			string logText = string.Join("\r\n", _viewModel.LogEntries.Select(r => $"{r.LogDate.ToShortDateString()} {r.LogDate.ToShortTimeString()}\t{r.LogMessage}"));
+			System.Windows.Forms.Clipboard.SetDataObject(logText, false, 5, 150);
 		}
 
 		private async void cancelAllBtn_Click(object sender, EventArgs e)
@@ -350,22 +232,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 		{
 			Queue.ClearCompleted();
 
-			if (!Running)
-				runningTimeLbl.Text = string.Empty;
-		}
-
-		private void CounterTimer_Tick(object? state)
-		{
-			string timeToStr(TimeSpan time)
-			{
-				string minsSecs = $"{time:mm\\:ss}";
-				if (time.TotalHours >= 1)
-					return $"{time.TotalHours:F0}:{minsSecs}";
-				return minsSecs;
-			}
-
-			if (Running)
-				Dispatcher.UIThread.Post(() => runningTimeLbl.Text = timeToStr(DateTime.Now - StartingTime));
+			if (!_viewModel.Running)
+				_viewModel.RunningTime = string.Empty;
 		}
 
 		#endregion

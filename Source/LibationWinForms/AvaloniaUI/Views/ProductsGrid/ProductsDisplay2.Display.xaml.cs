@@ -46,6 +46,7 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 				}
 				else
 				{
+					//List is already displayed. Replace all items with new ones, refilter, and re-sort
 					string existingFilter = _viewModel?.GridEntries?.Filter;
 					bindingList.ReplaceList(ProductsDisplayViewModel.CreateGridEntries(dbBooks));
 					bindingList.Filter = existingFilter;

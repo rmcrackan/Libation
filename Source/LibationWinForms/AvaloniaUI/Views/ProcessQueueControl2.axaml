@@ -91,24 +91,24 @@
 						<Setter Property="MinWidth" Value="100" />
 					</Style>
 				</Panel.Styles>
-				<ProgressBar Name="toolStripProgressBar1" ShowProgressText="True" />
+				<ProgressBar IsVisible="{Binding ProgressBarVisible}" Value="{Binding Progress}" ShowProgressText="True" />
 			</Panel>
 			<StackPanel Orientation="Horizontal" Grid.Column="1">
 				<StackPanel Margin="5,0,0,0" Orientation="Horizontal">
-					<Image Name="queueNumberLbl_Icon" Width="20" Height="20" Source="/AvaloniaUI/Assets/queued.png" />
-					<TextBlock Name="queueNumberLbl_Text" VerticalAlignment="Center" Text="[Q#]" />
+					<Image IsVisible="{Binding AnyQueued}" Width="20" Height="20" Source="/AvaloniaUI/Assets/queued.png" />
+					<TextBlock IsVisible="{Binding AnyQueued}" VerticalAlignment="Center" Text="{Binding QueuedCount}" />
 				</StackPanel>
 				<StackPanel Margin="5,0,0,0" Orientation="Horizontal">
-					<Image Name="completedNumberLbl_Icon" Width="20" Height="20" Source="/AvaloniaUI/Assets/completed.png" />
-					<TextBlock Name="completedNumberLbl_Text" VerticalAlignment="Center" Text="[DL#]" />
+					<Image IsVisible="{Binding AnyCompleted}" Width="20" Height="20" Source="/AvaloniaUI/Assets/completed.png" />
+					<TextBlock IsVisible="{Binding AnyCompleted}" VerticalAlignment="Center" Text="{Binding CompletedCount}" />
 				</StackPanel>
 				<StackPanel Margin="5,0,0,0" Orientation="Horizontal">
-					<Image Name="errorNumberLbl_Icon" Width="20" Height="20" Source="/AvaloniaUI/Assets/errored.png" />
-					<TextBlock Name="errorNumberLbl_Text" VerticalAlignment="Center" Text="[ERR#]" />
+					<Image IsVisible="{Binding AnyErrors}" Width="20" Height="20" Source="/AvaloniaUI/Assets/errored.png" />
+					<TextBlock IsVisible="{Binding AnyErrors}" VerticalAlignment="Center" Text="{Binding ErrorCount}" />
 				</StackPanel>
 			</StackPanel>
 			<Panel Grid.Column="2" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Center">
-				<TextBlock Name="runningTimeLbl">00:00:25</TextBlock>
+				<TextBlock Text="{Binding RunningTime}" />
 			</Panel>
 		</Grid>
 	</Grid>

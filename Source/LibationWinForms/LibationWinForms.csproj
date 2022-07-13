@@ -46,6 +46,7 @@
     <None Remove="AvaloniaUI\Assets\edit_25x25.png" />
     <None Remove="AvaloniaUI\Assets\errored.png" />
     <None Remove="AvaloniaUI\Assets\first.png" />
+    <None Remove="AvaloniaUI\Assets\glass-with-glow_16.png" />
     <None Remove="AvaloniaUI\Assets\import_16x16.png" />
     <None Remove="AvaloniaUI\Assets\last.png" />
     <None Remove="AvaloniaUI\Assets\LibationStyles.xaml" />
