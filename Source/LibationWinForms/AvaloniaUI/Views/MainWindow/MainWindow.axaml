@@ -7,9 +7,10 @@
 		xmlns:views="clr-namespace:LibationWinForms.AvaloniaUI.Views"
 		xmlns:prgid="clr-namespace:LibationWinForms.AvaloniaUI.Views.ProductsGrid"
 		xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
-		mc:Ignorable="d" d:DesignWidth="2000" d:DesignHeight="700"
+		mc:Ignorable="d" d:DesignWidth="1850" d:DesignHeight="700"
 		x:Class="LibationWinForms.AvaloniaUI.Views.MainWindow"
 		Title="MainWindow"
+		Name="Form1"
 		Icon="/AvaloniaUI/Assets/glass-with-glow_16.png">
 
 	<Border BorderBrush="{DynamicResource DataGridGridLinesBrush}" BorderThickness="2" Padding="15">

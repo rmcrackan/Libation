@@ -4,11 +4,10 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using LibationWinForms.AvaloniaUI.Controls;
 using System;
-using Avalonia.Threading;
 using LibationWinForms.AvaloniaUI.Views.ProductsGrid;
 using Avalonia.ReactiveUI;
 using LibationWinForms.AvaloniaUI.ViewModels;
-using System.Threading.Tasks;
+using LibationFileManager;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
@@ -45,6 +44,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			{
 				this.Load += DoDisplay;
 				LibraryCommands.LibrarySizeChanged += DoDisplay;
+				this.Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
 		}
 

@@ -2,6 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using LibationFileManager;
 using LibationWinForms.AvaloniaUI.Views;
 
 namespace LibationWinForms.AvaloniaUI
@@ -27,6 +28,7 @@ namespace LibationWinForms.AvaloniaUI
 			{
 				var mainWindow = new MainWindow();
 				desktop.MainWindow = mainWindow;
+				mainWindow.RestoreSizeAndLocation(Configuration.Instance);
 				mainWindow.OnLoad();
 			}
 
