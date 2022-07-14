@@ -25,26 +25,34 @@ namespace LibationWinForms
 		[STAThread]
 		static async Task Main()
 		{
+			//Start as much work in parallel as possible.
 			var startupTask = Task.Run(RunStartupStuff);
+			var appBuilderTask = Task.Run(BuildAvaloniaApp);
+			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 
-			if (UseAvaloniaUI)
+			List<Task> tasks = new() { startupTask, appBuilderTask, classicLifetimeTask };
+
+			while ((await Task.WhenAny(tasks)) is Task t && t != startupTask)
+				tasks.Remove(t);
+
+			//When RunStartupStuff completes, check success and return if fail
+			if (!startupTask.Result.success)
+				return;
+
+
+			//When RunStartupStuff completes, check if user has opted into beta and run Avalonia UI if they did.
+			//Otherwise we just ignore all the Avalonia app build stuff and continue with winforms.
+
+			//For debug purposes, always run AvaloniaUI.
+			if (true) // (startupTask.Result.useBeta)
 			{
-				var appBuilderTask = Task.Run(BuildAvaloniaApp);
-				var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
-
 				await Task.WhenAll(appBuilderTask, classicLifetimeTask, startupTask);
-
-				if (!startupTask.Result)
-					return;
 
 				appBuilderTask.Result.SetupWithLifetime(classicLifetimeTask.Result);
 				classicLifetimeTask.Result.Start(null);
 			}
 			else
 			{
-				if (!await startupTask)
-					return;
-
 				System.Windows.Forms.Application.Run(new Form1());
 			}
 		}
@@ -55,8 +63,9 @@ namespace LibationWinForms
 			.LogToTrace()
 			.UseReactiveUI();
 
-		private static bool RunStartupStuff()
+		private static (bool success, bool useBeta) RunStartupStuff()
 		{
+			bool useBeta = false;
 			try
 			{
 				//// Uncomment to see Console. Must be called before anything writes to Console.
@@ -92,6 +101,8 @@ namespace LibationWinForms
 #endif
 				// logging is init'd here
 				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
+
+				useBeta = config.GetNonString<bool>("BetaOptIn");
 			}
 			catch (Exception ex)
 			{
@@ -105,12 +116,12 @@ namespace LibationWinForms
 				{
 					MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
-				return false;
+				return (false, false);
 			}
 			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
 			postLoggingGlobalExceptionHandling();
 
-			return true;
+			return (true, !useBeta);
 		}
 
 		private static void RunInstaller(Configuration config)
