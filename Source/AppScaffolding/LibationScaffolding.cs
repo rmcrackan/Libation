@@ -411,9 +411,9 @@ namespace AppScaffolding
 
 		public static void migrate_from_7_10_1(Configuration config)
 		{
-			var lastNigrationThres = config.GetNonString<bool>($"{nameof(migrate_from_7_10_1)}_ThrewError");
+			var lastMigrationThrew = config.GetNonString<bool>($"{nameof(migrate_from_7_10_1)}_ThrewError");
 
-			if (lastNigrationThres) return;
+			if (lastMigrationThrew) return;
 
 			try
 			{

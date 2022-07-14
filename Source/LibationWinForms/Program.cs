@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
 using Dinah.Core;
 using LibationFileManager;
@@ -21,7 +23,39 @@ namespace LibationWinForms
 		static bool UseAvaloniaUI = true;
 
 		[STAThread]
-		static void Main()
+		static async Task Main()
+		{
+			var startupTask = Task.Run(RunStartupStuff);
+
+			if (UseAvaloniaUI)
+			{
+				var appBuilderTask = Task.Run(BuildAvaloniaApp);
+				var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
+
+				await Task.WhenAll(appBuilderTask, classicLifetimeTask, startupTask);
+
+				if (!startupTask.Result)
+					return;
+
+				appBuilderTask.Result.SetupWithLifetime(classicLifetimeTask.Result);
+				classicLifetimeTask.Result.Start(null);
+			}
+			else
+			{
+				if (!await startupTask)
+					return;
+
+				System.Windows.Forms.Application.Run(new Form1());
+			}
+		}
+
+		public static AppBuilder BuildAvaloniaApp()
+			=> AppBuilder.Configure<AvaloniaUI.App>()
+			.UsePlatformDetect()
+			.LogToTrace()
+			.UseReactiveUI();
+
+		private static bool RunStartupStuff()
 		{
 			try
 			{
@@ -71,23 +105,13 @@ namespace LibationWinForms
 				{
 					MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
-				return;
-            }
-
+				return false;
+			}
 			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
 			postLoggingGlobalExceptionHandling();
 
-			if (UseAvaloniaUI)
-				BuildAvaloniaApp().StartWithClassicDesktopLifetime(null);
-			else
-				System.Windows.Forms.Application.Run(new Form1());
+			return true;
 		}
-		public static AppBuilder BuildAvaloniaApp()
-=> AppBuilder.Configure<AvaloniaUI.App>()
-.UsePlatformDetect()
-.LogToTrace()
-.UseReactiveUI();
-
 
 		private static void RunInstaller(Configuration config)
 		{
