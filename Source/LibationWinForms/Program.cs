@@ -1,16 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
-using Dinah.Core;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
-using Serilog;
 
 namespace LibationWinForms
 {
@@ -23,33 +21,70 @@ namespace LibationWinForms
 		[STAThread]
 		static async Task Main()
 		{
-			//Start as much work in parallel as possible.
-			var startupTask = Task.Run(RunStartupStuff);
-			var appBuilderTask = Task.Run(BuildAvaloniaApp);
-			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
+			var config = LoadLibationConfig();
 
-			List<Task> tasks = new() { startupTask, appBuilderTask, classicLifetimeTask };
+			if (config is null) return;
 
-			while ((await Task.WhenAny(tasks)) is Task t && t != startupTask)
-				tasks.Remove(t);
+			/*
+			Results below compare startup times when parallelizing startup tasks vs when
+			running everything sequentially, from the entry point until after the call to
+			OnLoadedLibrary() returns. Tests were run on a ReadyToRun enables release build.
 
-			//When RunStartupStuff completes, check success and return if fail
-			if (!startupTask.Result.success)
-				return;
+			The first run is substantially slower than all subsequent runs for both serial
+			and parallel. This is most likely due to file system caching speeding up
+			subsequent runs, and it's significant because in the wild, most runs are "cold"
+			and will not benefit from caching.
 
-			//When RunStartupStuff completes, check if user has opted into beta and run Avalonia UI if they did.
-			//Otherwise we just ignore all the Avalonia app build stuff and continue with winforms.
+			All times are in milliseconds.
+
+			Run		Parallel	Serial
+			1		2837		5835
+			2		1566		2774
+			3		1562		2316
+			4		1642		2388
+			5		1596		2391
+			6		1591		2358
+			7		1492		2363
+			8		1542		2335
+			9		1600		2418
+			10		1564		2359
+			11		1567		2379
+		
+			Min		1492		2316
+			Q1		1562		2358
+			Med		1567		2379
+			Q2		1567		2379
+			Max		2837		5835
+			*/
 
 			//For debug purposes, always run AvaloniaUI.
-			if (true) //(startupTask.Result.useBeta)
+			if (true) //(config.GetNonString<bool>("BetaOptIn"))
 			{
-				await Task.WhenAll(appBuilderTask, classicLifetimeTask, startupTask);
+				//Start as much work in parallel as possible.
+				var runPreStartTasksTask = Task.Run(() => RunDbMigrations(config));
+				var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
+				var appBuilderTask = Task.Run(BuildAvaloniaApp);
 
-				appBuilderTask.Result.SetupWithLifetime(classicLifetimeTask.Result);
+				if (!await runPreStartTasksTask)
+					return;
+
+				var runOtherMigrationsTask = Task.Run(() => RunOtherMigrations(config));
+				var dbLibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));				
+
+				(await appBuilderTask).SetupWithLifetime(await classicLifetimeTask);
+
+				if (!await runOtherMigrationsTask)
+					return;
+
+				((AvaloniaUI.Views.MainWindow)classicLifetimeTask.Result.MainWindow).OnLibraryLoaded(await dbLibraryTask);
+
 				classicLifetimeTask.Result.Start(null);
 			}
 			else
 			{
+				if (!RunDbMigrations(config) || !RunOtherMigrations(config))
+					return;
+
 				System.Windows.Forms.Application.Run(new Form1());
 			}
 		}
@@ -60,9 +95,8 @@ namespace LibationWinForms
 			.LogToTrace()
 			.UseReactiveUI();
 
-		private static (bool success, bool useBeta) RunStartupStuff()
+		private static Configuration LoadLibationConfig()
 		{
-			bool useBeta = false;
 			try
 			{
 				//// Uncomment to see Console. Must be called before anything writes to Console.
@@ -81,13 +115,40 @@ namespace LibationWinForms
 				//***********************************************//
 				// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 				var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
+				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+				return config;
+			}
+			catch (Exception ex)
+			{
+				DisplayStartupErrorMessage(ex);
 
+				return null;
+			}
+		}
+
+		private static bool RunDbMigrations(Configuration config)
+		{
+			try
+			{
 				// do this as soon as possible (post-config)
 				RunInstaller(config);
 
 				// most migrations go in here
-				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
+				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);			
 
+				return true;
+			}
+			catch (Exception ex)
+			{
+				DisplayStartupErrorMessage(ex);
+				return false;
+			}
+		}
+
+		private static bool RunOtherMigrations(Configuration config)
+		{
+			try
+			{
 				// migrations which require Forms or are long-running
 				RunWindowsOnlyMigrations(config);
 
@@ -99,26 +160,31 @@ namespace LibationWinForms
 				// logging is init'd here
 				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
 
-				useBeta = config.GetNonString<bool>("BetaOptIn");
+				// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
+				postLoggingGlobalExceptionHandling();
+
+				return true;
 			}
 			catch (Exception ex)
 			{
-				var title = "Fatal error, pre-logging";
-				var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
-				try
-				{
-					MessageBoxLib.ShowAdminAlert(null, body, title, ex);
-				}
-				catch
-				{
-					MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
-				return (false, false);
+				DisplayStartupErrorMessage(ex);
+				return false;
 			}
-			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
-			postLoggingGlobalExceptionHandling();
+		}
 
-			return (true, useBeta);
+
+		private static void DisplayStartupErrorMessage(Exception ex)
+		{
+			var title = "Fatal error, pre-logging";
+			var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
+			try
+			{
+				MessageBoxLib.ShowAdminAlert(null, body, title, ex);
+			}
+			catch
+			{
+				MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 
 		private static void RunInstaller(Configuration config)

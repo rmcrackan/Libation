@@ -8,11 +8,16 @@ using LibationWinForms.AvaloniaUI.Views.ProductsGrid;
 using Avalonia.ReactiveUI;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using LibationFileManager;
+using DataLayer;
+using System.Collections.Generic;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
 	public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
 	{
+		public event EventHandler Load;
+		public event EventHandler<List<LibraryBook>> LibraryLoaded;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -37,13 +42,9 @@ namespace LibationWinForms.AvaloniaUI.Views
 			// misc which belongs in winforms app but doesn't have a UI element
 			Configure_NonUI();
 
-			async void DoDisplay(object _, EventArgs __)
 			{
-				await productsDisplay.Display();
-			}
-			{
-				this.Load += DoDisplay;
-				LibraryCommands.LibrarySizeChanged += DoDisplay;
+				this.LibraryLoaded += (_, dbBooks) => productsDisplay.Display(dbBooks);
+				LibraryCommands.LibrarySizeChanged += (_, _) => productsDisplay.Display(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				this.Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
 		}
@@ -53,9 +54,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 			AvaloniaXamlLoader.Load(this);
 		}
 
-		public event EventHandler Load;
-
 		public void OnLoad() => Load?.Invoke(this, EventArgs.Empty);
+		public void OnLibraryLoaded(List<LibraryBook> initialLibrary) => LibraryLoaded?.Invoke(this, initialLibrary);
 
 		private void FindAllControls()
 		{
