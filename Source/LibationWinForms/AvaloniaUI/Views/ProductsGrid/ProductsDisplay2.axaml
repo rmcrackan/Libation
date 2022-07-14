@@ -7,8 +7,13 @@
              mc:Ignorable="d" d:DesignWidth="1560" d:DesignHeight="400"
              x:Class="LibationWinForms.AvaloniaUI.Views.ProductsGrid.ProductsDisplay2">
 
-	<Grid>		
-		<DataGrid Name="productsGrid" AutoGenerateColumns="False" Items="{Binding GridEntries}"  >
+	<Grid>
+		
+		<DataGrid
+			Name="productsGrid"
+			AutoGenerateColumns="False"
+			Items="{Binding GridEntries}"
+			CanUserReorderColumns="True">
 
 			<DataGrid.Columns>				
 				
@@ -26,10 +31,10 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>				
 
-				<DataGridTemplateColumn Width="80" Header="Cover">					
+				<DataGridTemplateColumn CanUserSort="False" Width="80" Header="Cover" SortMemberPath="Cover">					
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Image Tapped="Cover_Click" Height="80" Source="{Binding Cover}" />
+							<Image Tapped="Cover_Click" Height="80" Source="{Binding Cover}" ToolTip.Tip="Click to see full size" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
@@ -88,7 +93,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">
-								<TextBlock Tapped="Description_Click" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Description}" />
+								<TextBlock Tapped="Description_Click" VerticalAlignment="Center" TextWrapping="Wrap" ToolTip.Tip="Click to see full description" Text="{Binding Description}" />
 							</Border>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

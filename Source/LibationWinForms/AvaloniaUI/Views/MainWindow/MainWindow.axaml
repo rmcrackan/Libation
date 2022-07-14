@@ -33,7 +33,7 @@
 						</MenuItem.Styles>
 						<MenuItem Name="autoScanLibraryToolStripMenuItem" Click="autoScanLibraryToolStripMenuItem_Click" Header="A_uto Scan Library">
 							<MenuItem.Icon>
-								<CheckBox Name="autoScanLibraryToolStripMenuItemCheckbox" BorderThickness="0" IsHitTestVisible="False">Toggle _Me0</CheckBox>
+								<CheckBox Name="autoScanLibraryToolStripMenuItemCheckbox" BorderThickness="0" IsHitTestVisible="False" />
 							</MenuItem.Icon>
 						</MenuItem>
 						<MenuItem Name="noAccountsYetAddAccountToolStripMenuItem" Click="noAccountsYetAddAccountToolStripMenuItem_Click" Header="No accounts yet. A_dd Account..." />

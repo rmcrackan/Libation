@@ -25,8 +25,8 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 					VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
 
 					//Avalonia displays items in the DataConncetion from an internal copy of
-					//the bound list, not the actual bound list. so we need to reflect to get
-					//the current display order and set the GridEntry.ListIndex correctly.
+					//the bound list, not the actual bound list. So we need to reflect to get
+					//the current display order and set each GridEntry.ListIndex correctly.
 					var DataConnection_PI = typeof(DataGrid).GetProperty("DataConnection", BindingFlags.NonPublic | BindingFlags.Instance);
 					var DataSource_PI = DataConnection_PI.PropertyType.GetProperty("DataSource", BindingFlags.Public | BindingFlags.Instance);
 
@@ -41,7 +41,7 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 					};
 
 					//Assign the viewmodel after we subscribe to CollectionChanged
-					//to ensure that out handler executes first.
+					//so that out handler executes first.
 					productsGrid.DataContext = _viewModel;
 				}
 				else
@@ -52,7 +52,6 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 					bindingList.Filter = existingFilter;
 					ReSort();
 				}
-
 			}
 			catch (Exception ex)
 			{

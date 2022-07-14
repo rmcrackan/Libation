@@ -14,8 +14,24 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 	{
 		private void Configure_ScanAndRemove() { }
 
+		private bool RemoveColumnVisible
+		{
+			get => removeGVColumn.IsVisible;
+			set
+			{
+				if (value)
+				{
+					foreach (var book in bindingList.AllItems())
+						book.Remove = false;
+				}
+
+				removeGVColumn.DisplayIndex = 0;
+				removeGVColumn.CanUserReorder = value;
+				removeGVColumn.IsVisible = value;
+			}
+		}
 		public void CloseRemoveBooksColumn()
-			=> removeGVColumn.IsVisible = false;
+			=> RemoveColumnVisible = false;
 
 		public async Task RemoveCheckedBooksAsync()
 		{
@@ -39,6 +55,7 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 
 			RemovableCountChanged?.Invoke(this, GetAllBookEntries().Count(lbe => lbe.Remove is true));
 		}
+
 		public async Task ScanAndRemoveBooksAsync(params Account[] accounts)
 		{
 			RemovableCountChanged?.Invoke(this, 0);

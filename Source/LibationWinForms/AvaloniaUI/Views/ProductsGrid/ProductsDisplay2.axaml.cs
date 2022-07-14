@@ -33,20 +33,6 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 		private GridEntryBindingList2 bindingList => _viewModel.GridEntries;
 
 		DataGridColumn removeGVColumn;
-		DataGridColumn liberateGVColumn;
-		DataGridColumn coverGVColumn;
-		DataGridColumn titleGVColumn;
-		DataGridColumn authorsGVColumn;
-		DataGridColumn narratorsGVColumn;
-		DataGridColumn lengthGVColumn;
-		DataGridColumn seriesGVColumn;
-		DataGridColumn descriptionGVColumn;
-		DataGridColumn categoryGVColumn;
-		DataGridColumn productRatingGVColumn;
-		DataGridColumn purchaseDateGVColumn;
-		DataGridColumn myRatingGVColumn;
-		DataGridColumn miscGVColumn;
-		DataGridColumn tagAndDetailsGVColumn;		 
 
 		public ProductsDisplay2()
 		{
@@ -58,6 +44,11 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 			Configure_Filtering();
 			Configure_ScanAndRemove();
 			Configure_Sorting();
+
+			foreach ( var column in productsGrid.Columns)
+			{
+				column.CustomSortComparer = new RowComparer(column);
+			}
 
 			if (Design.IsDesignMode)
 			{
@@ -78,22 +69,6 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 			productsGrid.LoadingRow += ProductsGrid_LoadingRow;
 
 			removeGVColumn = productsGrid.Columns[0];
-			liberateGVColumn = productsGrid.Columns[1];
-			coverGVColumn = productsGrid.Columns[2];
-			titleGVColumn = productsGrid.Columns[3];
-			authorsGVColumn = productsGrid.Columns[4];
-			narratorsGVColumn = productsGrid.Columns[5];
-			lengthGVColumn = productsGrid.Columns[6];
-			seriesGVColumn = productsGrid.Columns[7];
-			descriptionGVColumn = productsGrid.Columns[8];
-			categoryGVColumn = productsGrid.Columns[9];
-			productRatingGVColumn = productsGrid.Columns[10];
-			purchaseDateGVColumn = productsGrid.Columns[11];
-			myRatingGVColumn = productsGrid.Columns[12];
-			miscGVColumn = productsGrid.Columns[13];
-			tagAndDetailsGVColumn = productsGrid.Columns[14];
-
-			RegisterCustomColumnComparers();
 		}
 
 		private static object tagObj = new();

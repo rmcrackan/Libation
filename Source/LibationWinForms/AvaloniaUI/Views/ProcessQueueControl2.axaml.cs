@@ -1,16 +1,12 @@
 using ApplicationServices;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
 using DataLayer;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
@@ -20,7 +16,6 @@ namespace LibationWinForms.AvaloniaUI.Views
         private ItemsRepeater _repeater;
         private ScrollViewer _scroller;
         private int _selectedIndex;
-        private Random _random = new Random(0);
 
 
 		private TrackedQueue2<ProcessBook2> Queue => _viewModel.Items;
@@ -101,6 +96,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 			AvaloniaXamlLoader.Load(this);
 		}
 
+		#region Add Books to Queue
+
 		private bool isBookInQueue(LibraryBook libraryBook)
 			=> Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
 
@@ -164,6 +161,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
 			_viewModel.AddToQueue(procs);
 		}
+
+		#endregion
 
 		#region Control event handlers
 
