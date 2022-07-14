@@ -1,15 +1,9 @@
 using ApplicationServices;
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Markup.Xaml;
-using DataLayer;
 using LibationWinForms.AvaloniaUI.Controls;
-using LibationWinForms.AvaloniaUI.ViewModels;
-using ReactiveUI;
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
 using LibationWinForms.AvaloniaUI.Views.ProductsGrid;

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
-	//WORKING
+	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_RemoveBooks() 

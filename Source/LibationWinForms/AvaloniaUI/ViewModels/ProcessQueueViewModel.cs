@@ -12,15 +12,9 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 	public class ProcessQueueViewModel : ViewModelBase, ProcessQueue.ILogForm
 	{
 		public ObservableCollection<LogEntry> LogEntries { get; } = new();
-		private TrackedQueue2<ProcessBook2> _items = new();
-		public TrackedQueue2<ProcessBook2> Items
-		{
-			get => _items;
-			set => this.RaiseAndSetIfChanged(ref _items, value);
-		}
+		public TrackedQueue2<ProcessBook2> Items { get; } = new();
 
 		private TrackedQueue2<ProcessBook2> Queue => Items;
-
 		public ProcessBook2 SelectedItem { get; set; }
 		public Task QueueRunner { get; private set; }
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
@@ -42,14 +36,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public int ErrorCount { get => _errorCount; private set { this.RaiseAndSetIfChanged(ref _errorCount, value); this.RaisePropertyChanged(nameof(AnyErrors)); } }
 		public string RunningTime { get => _runningTime; set { this.RaiseAndSetIfChanged(ref _runningTime, value); } }
 		public bool ProgressBarVisible { get => _progressBarVisible; set { this.RaiseAndSetIfChanged(ref _progressBarVisible, value); } }
-
 		public bool AnyCompleted => CompletedCount > 0;
 		public bool AnyQueued => QueuedCount > 0;
 		public bool AnyErrors => ErrorCount > 0;
-
 		public double Progress => 100d * Queue.Completed.Count / Queue.Count;
-
-
 
 		private void Queue_CompletedCountChanged(object sender, int e)
 		{

@@ -11,7 +11,6 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 {
 	public partial class ProductsDisplay2
 	{
-
 		private GridView.ImageDisplay imageDisplay;
 		private void Configure_Buttons() { }
 

@@ -12,24 +12,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 {
 	public partial class ProcessQueueControl2 : UserControl
     {
-        private readonly ProcessQueueViewModel _viewModel;
-        private ItemsRepeater _repeater;
-        private ScrollViewer _scroller;
-        private int _selectedIndex;
-
-
 		private TrackedQueue2<ProcessBook2> Queue => _viewModel.Items;
-
-		private readonly ProcessQueue.LogMe Logger;
-    
+		private readonly ProcessQueueViewModel _viewModel;
+		private readonly ProcessQueue.LogMe Logger;    
 
 		public ProcessQueueControl2()
 		{
 			InitializeComponent();
-            _repeater = this.Get<ItemsRepeater>("repeater");
-            _scroller = this.Get<ScrollViewer>("scroller");
-            _repeater.PointerPressed += RepeaterClick;
-            _repeater.KeyDown += RepeaterOnKeyDown;
             DataContext = _viewModel = new ProcessQueueViewModel();
 			Logger = ProcessQueue.LogMe.RegisterForm(_viewModel);
 
@@ -178,22 +167,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 			Queue.MoveQueuePosition(item, queueButton);
 		}
 
-		private void RepeaterClick(object sender, PointerPressedEventArgs e)
-		{
-			if ((e.Source as TextBlock)?.DataContext is ProcessBook2 item)
-			{
-				_viewModel.SelectedItem = item;
-				_selectedIndex = _viewModel.Items.IndexOf(item);
-			}
-		}
-
-		private void RepeaterOnKeyDown(object sender, KeyEventArgs e)
-		{
-			if (e.Key == Key.F5)
-			{
-				//_viewModel.ResetItems();
-			}
-		}
 		public async void CancelAllBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			Queue.ClearQueue();

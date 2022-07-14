@@ -14,7 +14,6 @@ namespace LibationWinForms.AvaloniaUI
         public static IBrush ProcessQueueBookDefaultBrush { get; private set; }
         public static IBrush SeriesEntryGridBackgroundBrush { get; private set; }
 
-
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);

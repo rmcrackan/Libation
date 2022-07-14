@@ -84,7 +84,6 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#endregion
 
-
 		private TimeSpan TimeRemaining { set { ETA = $"ETA: {value:mm\\:ss}"; } }
 		private Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
 		private Processable NextProcessable() => _currentProcessable = null;
@@ -109,7 +108,6 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			// Mutable property. Set the field so PropertyChanged isn't fired.
 			using var ms = new System.IO.MemoryStream(picture);
 			_cover = new Bitmap(ms);
-
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)

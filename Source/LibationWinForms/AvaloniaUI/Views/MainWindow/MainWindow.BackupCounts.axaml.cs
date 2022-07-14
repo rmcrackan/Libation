@@ -1,15 +1,12 @@
 ﻿using ApplicationServices;
-using Avalonia.Controls;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Avalonia.Threading;
 using Dinah.Core;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
+	//DONE
 	public partial class MainWindow
 	{
 		private System.ComponentModel.BackgroundWorker updateCountsBw = new();

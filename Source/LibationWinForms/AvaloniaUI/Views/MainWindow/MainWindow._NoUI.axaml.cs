@@ -1,11 +1,7 @@
-﻿using Avalonia.Controls;
-using Dinah.Core.Drawing;
+﻿using Dinah.Core.Drawing;
 using LibationFileManager;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
