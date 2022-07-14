@@ -41,7 +41,7 @@ namespace LibationWinForms
 			//Otherwise we just ignore all the Avalonia app build stuff and continue with winforms.
 
 			//For debug purposes, always run AvaloniaUI.
-			if (true)// (startupTask.Result.useBeta)
+			if (true) //(startupTask.Result.useBeta)
 			{
 				await Task.WhenAll(appBuilderTask, classicLifetimeTask, startupTask);
 

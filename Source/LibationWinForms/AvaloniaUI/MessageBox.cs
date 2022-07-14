@@ -214,42 +214,28 @@ namespace LibationWinForms.AvaloniaUI
 			var vm = new MessageBoxViewModel(message, caption, buttons, icon, defaultButton);
 			dialog.DataContext = vm;
 			dialog.CanResize = false;
-
-			var thisScreen = (owner ?? dialog).Screens.ScreenFromVisual(owner ?? dialog);
 			var tbx = dialog.FindControl<TextBlock>("messageTextBlock");
+
+			tbx.MinWidth = vm.TextBlockMinWidth;
 			tbx.Text = message;
 
-			var maxSize = new Size(0.6 * thisScreen.Bounds.Width - 72, 0.9 * thisScreen.Bounds.Height);
+			var thisScreen = (owner ?? dialog).Screens.ScreenFromVisual(owner ?? dialog);
 
-			var desiredMax = maxSize;
+			var maxSize = new Size(0.20 * thisScreen.Bounds.Width, 0.9 * thisScreen.Bounds.Height - 55);
 
-			//Try to minimize the TextBlock area.
-			List<(double, Size)> areas = new();
-			for (int i = 0; i < 20; i++)
-			{
-				tbx.Measure(desiredMax);
+			var desiredMax = new Size(maxSize.Width, maxSize.Height);
 
-				var area = tbx.DesiredSize.Width * tbx.DesiredSize.Height;
-				areas.Add((area, new Size(tbx.DesiredSize.Width, tbx.DesiredSize.Height)));
+			tbx.Measure(desiredMax);
 
-				if (tbx.DesiredSize.Height < maxSize.Height - 20)
-				{
-					if (desiredMax.Width / 2 < tbx.MinWidth)
-						desiredMax = new Size(desiredMax.Width * 1.5 + 1, desiredMax.Height);
-					else
-						desiredMax = new Size(desiredMax.Width / 2, desiredMax.Height);
-				}
-			}
+			tbx.Height = tbx.DesiredSize.Height;
+			tbx.Width = tbx.DesiredSize.Width;
+			dialog.MinHeight = vm.FormHeightFromTboxHeight((int)tbx.DesiredSize.Height);
+			dialog.MinWidth = vm.FormWidthFromTboxWidth((int)tbx.DesiredSize.Width);
+			dialog.MaxHeight = dialog.MinHeight;
+			dialog.MaxWidth = dialog.MinWidth;
+			dialog.Height = dialog.MinHeight;
+			dialog.Width = dialog.MinWidth;
 
-			var min = areas.Min(a => a.Item1);
-			var mindim = areas.First(a => a.Item1 == min);
-
-			var desiredSize = new Size(dialog.MinWidth - tbx.MinWidth + mindim.Item2.Width, dialog.MinHeight - tbx.MinHeight + mindim.Item2.Height);
-
-			dialog.Width = desiredSize.Width;
-			dialog.Height = desiredSize.Height;
-			tbx.Width = mindim.Item2.Width;
-			tbx.Height = mindim.Item2.Height;
 
 			if (owner is null)
 			{

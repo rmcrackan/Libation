@@ -5,6 +5,8 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using Avalonia.Threading;
+using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 {
@@ -12,7 +14,7 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 	{
 		private void Configure_Display() { }
 
-		public void Display()
+		public async Task Display()
 		{
 			try
 			{ 
@@ -21,8 +23,10 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 				if (_viewModel is null)
 				{
 					_viewModel = new ProductsDisplayViewModel(dbBooks);
-					InitialLoaded?.Invoke(this, EventArgs.Empty);
-					VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+					await Dispatcher.UIThread.InvokeAsync(() => InitialLoaded?.Invoke(this, EventArgs.Empty));
+
+					int bookEntryCount = bindingList.BookEntries().Count();
+					await Dispatcher.UIThread.InvokeAsync(() => VisibleCountChanged?.Invoke(this, bookEntryCount));
 
 					//Avalonia displays items in the DataConncetion from an internal copy of
 					//the bound list, not the actual bound list. So we need to reflect to get
@@ -48,9 +52,13 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 				{
 					//List is already displayed. Replace all items with new ones, refilter, and re-sort
 					string existingFilter = _viewModel?.GridEntries?.Filter;
-					bindingList.ReplaceList(ProductsDisplayViewModel.CreateGridEntries(dbBooks));
-					bindingList.Filter = existingFilter;
-					ReSort();
+					var newEntries = ProductsDisplayViewModel.CreateGridEntries(dbBooks);
+					await Dispatcher.UIThread.InvokeAsync(() =>
+					{
+						bindingList.ReplaceList(newEntries);
+						bindingList.Filter = existingFilter;
+						ReSort();
+					});
 				}
 			}
 			catch (Exception ex)

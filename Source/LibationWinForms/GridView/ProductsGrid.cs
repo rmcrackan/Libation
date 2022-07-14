@@ -357,7 +357,9 @@ namespace LibationWinForms.GridView
 			{
 				var column = gridEntryDataGridView.Columns
 					.Cast<DataGridViewColumn>()
-					.Single(c => c.DataPropertyName == itemName);
+					.SingleOrDefault(c => c.DataPropertyName == itemName);
+
+				if (column is null) continue;
 
 				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
 			}

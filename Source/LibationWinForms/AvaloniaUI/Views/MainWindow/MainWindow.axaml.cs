@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using LibationWinForms.AvaloniaUI.Views.ProductsGrid;
 using Avalonia.ReactiveUI;
 using LibationWinForms.AvaloniaUI.ViewModels;
+using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
@@ -20,7 +21,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 			this.AttachDevTools();
 #endif
 			this.FindAllControls();
-
 
 			// eg: if one of these init'd productsGrid, then another can't reliably subscribe to it
 			Configure_BackupCounts();
@@ -38,11 +38,21 @@ namespace LibationWinForms.AvaloniaUI.Views
 			// misc which belongs in winforms app but doesn't have a UI element
 			Configure_NonUI();
 
+			async void DoDisplay(object _, EventArgs __)
 			{
-				this.Load += (_, _) => productsDisplay.Display();
-				LibraryCommands.LibrarySizeChanged += (_, __) => Dispatcher.UIThread.Post(() => productsDisplay.Display());
+				await productsDisplay.Display();
+			}
+			{
+				this.Load += DoDisplay;
+				LibraryCommands.LibrarySizeChanged += DoDisplay;
 			}
 		}
+
+		private void InitializeComponent()
+		{
+			AvaloniaXamlLoader.Load(this);
+		}
+
 		public event EventHandler Load;
 
 		public void OnLoad() => Load?.Invoke(this, EventArgs.Empty);
@@ -113,11 +123,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 		protected override void OnDataContextChanged(EventArgs e)
 		{
 			base.OnDataContextChanged(e);
-		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
 		}
 	}
 }

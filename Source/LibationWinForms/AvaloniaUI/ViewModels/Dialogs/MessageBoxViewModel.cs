@@ -63,6 +63,15 @@ namespace LibationWinForms.AvaloniaUI.ViewModels.Dialogs
 			_ => string.Empty,
 		};
 
+		public int TextBlockMinWidth { get; }
+
+		public double FormHeightFromTboxHeight(double tboxHeight) => tboxHeight + 65;
+		public double FormWidthFromTboxWidth(double tboxWidth)
+		{
+			int iconWidth = _icon is MessageBoxIcon.None ? 0 : 42;
+			return tboxWidth + 20 + iconWidth;
+		}
+
 		public MessageBoxViewModel() { }
 		public MessageBoxViewModel(string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultBtn)
 		{
@@ -72,6 +81,11 @@ namespace LibationWinForms.AvaloniaUI.ViewModels.Dialogs
 			_button = buttons;
 			_icon = icon;
 			_defaultButton = defaultBtn;
+
+			int numBtns = HasButton3 ? 3 : HasButton2 ? 2 : 1;
+			int iconWidth = icon is MessageBoxIcon.None ? 0 : 42;
+			int formMinWidth = Math.Max(85 * numBtns + 10, 71 + iconWidth + 20);
+			TextBlockMinWidth = formMinWidth - 20 - iconWidth;
 		}
 	}
 }
