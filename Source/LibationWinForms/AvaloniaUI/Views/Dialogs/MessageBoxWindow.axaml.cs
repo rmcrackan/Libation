@@ -7,50 +7,6 @@ using LibationWinForms.AvaloniaUI.ViewModels.Dialogs;
 namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 {
 
-	public enum DialogResult
-	{
-		None = 0,
-		OK = 1,
-		Cancel = 2,
-		Abort = 3,
-		Retry = 4,
-		Ignore = 5,
-		Yes = 6,
-		No = 7,
-		TryAgain = 10,
-		Continue = 11
-	}
-
-
-	public enum MessageBoxIcon
-	{
-		None = 0,
-		Error = 16,
-		Hand = 16,
-		Stop = 16,
-		Question = 32,
-		Exclamation = 48,
-		Warning = 48,
-		Asterisk = 64,
-		Information = 64
-	}
-	public enum MessageBoxButtons
-	{
-		OK,
-		OKCancel,
-		AbortRetryIgnore,
-		YesNoCancel,
-		YesNo,
-		RetryCancel,
-		CancelTryContinue
-	}
-
-	public enum MessageBoxDefaultButton
-	{
-		Button1,
-		Button2 = 256,
-		Button3 = 512,
-	}
 	public partial class MessageBoxWindow : ReactiveWindow<MessageBoxViewModel>
 	{
 		public MessageBoxWindow()

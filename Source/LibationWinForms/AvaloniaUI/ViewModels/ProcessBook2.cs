@@ -9,7 +9,6 @@ using DataLayer;
 using Dinah.Core;
 using FileLiberator;
 using LibationFileManager;
-using LibationWinForms.AvaloniaUI.Views.Dialogs;
 using ReactiveUI;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels

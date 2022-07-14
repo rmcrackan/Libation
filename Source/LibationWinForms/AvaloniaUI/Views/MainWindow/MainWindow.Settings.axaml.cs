@@ -1,5 +1,4 @@
-﻿using LibationWinForms.AvaloniaUI.Views.Dialogs;
-using LibationWinForms.Dialogs;
+﻿using LibationWinForms.Dialogs;
 using System;
 using System.Linq;
 

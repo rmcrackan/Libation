@@ -106,9 +106,7 @@
 						<MenuItem Click="aboutToolStripMenuItem_Click" Header="A_bout..." />
 					</MenuItem>
 				</Menu>
-				<Button Grid.Column="1" Content="Show Message Box" Click="ShowMessageBoxButton_Click" />
 				<StackPanel Name="scanningToolStripMenuItem" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-					<Button Content="Show Message Box" Click="ShowMessageBoxButton_Click" />
 					<Image Width="16" Height="16" Source="/AvaloniaUI/Assets/import_16x16.png" />
 					<TextBlock Name="scanningToolStripMenuItem_Text" Margin="5,0,5,0" VerticalAlignment="Center" Text="Scanning..."/>
 				</StackPanel>

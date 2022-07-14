@@ -69,7 +69,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn MinWidth="80" Width="1*"  Header="Length" CanUserSort="True" SortMemberPath="Length">
+				<DataGridTemplateColumn Width="90"  Header="Length" CanUserSort="True" SortMemberPath="Length">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Border BorderThickness="3" Height="80">

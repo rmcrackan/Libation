@@ -4,17 +4,10 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using LibationWinForms.AvaloniaUI.Controls;
 using System;
-using System.Linq;
 using Avalonia.Threading;
 using LibationWinForms.AvaloniaUI.Views.ProductsGrid;
 using Avalonia.ReactiveUI;
 using LibationWinForms.AvaloniaUI.ViewModels;
-using System.Threading.Tasks;
-using ReactiveUI;
-using LibationWinForms.AvaloniaUI.ViewModels.Dialogs;
-using LibationWinForms.AvaloniaUI.Views.Dialogs;
-using Avalonia.Media;
-using System.Collections.Generic;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
@@ -53,30 +46,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 		public event EventHandler Load;
 
 		public void OnLoad() => Load?.Invoke(this, EventArgs.Empty);
-
-		public async void ShowMessageBoxButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			await Task.Run(() => DoShowDialogAsync());
-		}
-
-		private async Task DoShowDialogAsync()
-		{
-
-			string caption = "this is a dialog message";
-			string message =
-@"The Collatz conjecture is: This process will eventually reach the number 1, regardless of which positive integer is chosen initially.
-
-If the conjecture is false, it can only be because there is some starting number which gives rise to a sequence that does not contain 1. Such a sequence would either enter a repeating cycle that excludes 1, or increase without bound. No such sequence has been found.
-
-The smallest i such that ai < a0 is called the stopping time of n. Similarly, the smallest k such that ak = 1 is called the total stopping time of n.[3] If one of the indexes i or k doesn't exist, we say that the stopping time or the total stopping time, respectively, is infinite.
-
-The Collatz conjecture asserts that the total stopping time of every n is finite. It is also equivalent to saying that every n >= 2 has a finite stopping time.
-
-Since 3n + 1 is even whenever n is odd, one may instead use the shortcut form of the Collatz function:";
-
-
-			var result = await MessageBox.Show(message, caption);
-		}
 
 		private void FindAllControls()
 		{
@@ -141,12 +110,10 @@ Since 3n + 1 is even whenever n is odd, one may instead use the shortcut form of
 
 		}
 
-
 		protected override void OnDataContextChanged(EventArgs e)
 		{
 			base.OnDataContextChanged(e);
 		}
-
 
 		private void InitializeComponent()
 		{

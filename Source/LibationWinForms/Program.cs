@@ -7,7 +7,6 @@ using Avalonia;
 using Avalonia.ReactiveUI;
 using Dinah.Core;
 using LibationFileManager;
-using LibationWinForms.AvaloniaUI;
 using LibationWinForms.Dialogs;
 using Serilog;
 
@@ -84,7 +83,7 @@ namespace LibationWinForms
 				System.Windows.Forms.Application.Run(new Form1());
 		}
 		public static AppBuilder BuildAvaloniaApp()
-=> AppBuilder.Configure<App>()
+=> AppBuilder.Configure<AvaloniaUI.App>()
 .UsePlatformDetect()
 .LogToTrace()
 .UseReactiveUI();
