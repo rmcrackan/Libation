@@ -20,8 +20,6 @@ namespace LibationWinForms
 		[return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
 		static extern bool AllocConsole();
 
-		static bool UseAvaloniaUI = true;
-
 		[STAThread]
 		static async Task Main()
 		{
@@ -39,12 +37,11 @@ namespace LibationWinForms
 			if (!startupTask.Result.success)
 				return;
 
-
 			//When RunStartupStuff completes, check if user has opted into beta and run Avalonia UI if they did.
 			//Otherwise we just ignore all the Avalonia app build stuff and continue with winforms.
 
 			//For debug purposes, always run AvaloniaUI.
-			if (true) // (startupTask.Result.useBeta)
+			if (true)// (startupTask.Result.useBeta)
 			{
 				await Task.WhenAll(appBuilderTask, classicLifetimeTask, startupTask);
 
@@ -121,7 +118,7 @@ namespace LibationWinForms
 			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
 			postLoggingGlobalExceptionHandling();
 
-			return (true, !useBeta);
+			return (true, useBeta);
 		}
 
 		private static void RunInstaller(Configuration config)

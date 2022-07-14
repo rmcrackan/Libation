@@ -43,7 +43,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 					Tag = quickFilterTag,
 					Header = $"_{++index}: {filter}"
 				};
-				quickFilterMenuItem.Click += (_, __) => performFilter(filter);
+				quickFilterMenuItem.Click += async (_, __) => await performFilter(filter);
 				allItems.Add(quickFilterMenuItem);
 			}
 			quickFiltersToolStripMenuItem.Items = allItems;
@@ -60,10 +60,10 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public void editQuickFiltersToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e) => new EditQuickFilters().ShowDialog();
 
-		public void productsDisplay_Initialized(object sender, EventArgs e)
+		public async void productsDisplay_Initialized(object sender, EventArgs e)
 		{
 			if (QuickFilters.UseDefault)
-				performFilter(QuickFilters.Filters.FirstOrDefault());
+				await performFilter(QuickFilters.Filters.FirstOrDefault());
 		}
 	}
 }

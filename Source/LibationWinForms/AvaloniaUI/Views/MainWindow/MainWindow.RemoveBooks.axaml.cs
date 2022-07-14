@@ -20,7 +20,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			await productsDisplay.RemoveCheckedBooksAsync();
 		}
 
-		public void doneRemovingBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void doneRemovingBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			removeBooksBtn.IsVisible = false;
 			doneRemovingBtn.IsVisible = false;
@@ -30,7 +30,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			//Restore the filter
 			filterSearchTb.IsEnabled = true;
 			filterSearchTb.IsVisible = true;
-			performFilter(filterSearchTb.Text);
+			await performFilter(filterSearchTb.Text);
 		}
 
 		public void removeLibraryBooksToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
