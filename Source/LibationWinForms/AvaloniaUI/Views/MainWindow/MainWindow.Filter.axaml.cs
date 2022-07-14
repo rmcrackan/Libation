@@ -1,7 +1,9 @@
 ﻿using Avalonia.Input;
+using LibationWinForms.AvaloniaUI.Views.Dialogs;
 using LibationWinForms.Dialogs;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
@@ -13,22 +15,22 @@ namespace LibationWinForms.AvaloniaUI.Views
 		public void filterHelpBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> new SearchSyntaxDialog().ShowDialog();
 		
-		public void filterSearchTb_KeyPress(object sender, KeyEventArgs e)
+		public async void filterSearchTb_KeyPress(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Return)
 			{
-				performFilter(this.filterSearchTb.Text);
+				await performFilter(this.filterSearchTb.Text);
 
 				// silence the 'ding'
 				e.Handled = true;
 			}
 		}
 
-		public void filterBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> performFilter(this.filterSearchTb.Text);
+		public async void filterBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+			=> await performFilter(this.filterSearchTb.Text);
 
 		private string lastGoodFilter = "";
-		private void performFilter(string filterString)
+		private async Task performFilter(string filterString)
 		{
 			this.filterSearchTb.Text = filterString;
 
@@ -39,10 +41,10 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 			catch (Exception ex)
 			{
-				System.Windows.Forms.MessageBox.Show($"Bad filter string:\r\n\r\n{ex.Message}", "Bad filter string", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+				await MessageBox.Show($"Bad filter string:\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
 				// re-apply last good filter
-				performFilter(lastGoodFilter);
+				await performFilter(lastGoodFilter);
 			}
 		}
 	}

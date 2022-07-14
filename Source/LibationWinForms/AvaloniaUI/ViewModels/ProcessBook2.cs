@@ -9,6 +9,7 @@ using DataLayer;
 using Dinah.Core;
 using FileLiberator;
 using LibationFileManager;
+using LibationWinForms.AvaloniaUI.Views.Dialogs;
 using ReactiveUI;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels
@@ -152,7 +153,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			finally
 			{
 				if (Result == ProcessBookResult.None)
-					Result = showRetry(LibraryBook);
+					Result = await showRetry(LibraryBook);
 
 				Status = Result switch
 				{
@@ -313,15 +314,15 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#region Failure Handler
 
-		private ProcessBookResult showRetry(LibraryBook libraryBook)
+		private async Task<ProcessBookResult> showRetry(LibraryBook libraryBook)
 		{
 			Logger.Error("ERROR. All books have not been processed. Most recent book: processing failed");
 
-			System.Windows.Forms.DialogResult? dialogResult = Configuration.Instance.BadBook switch
+			DialogResult? dialogResult = Configuration.Instance.BadBook switch
 			{
-				Configuration.BadBookAction.Abort => System.Windows.Forms.DialogResult.Abort,
-				Configuration.BadBookAction.Retry => System.Windows.Forms.DialogResult.Retry,
-				Configuration.BadBookAction.Ignore => System.Windows.Forms.DialogResult.Ignore,
+				Configuration.BadBookAction.Abort => DialogResult.Abort,
+				Configuration.BadBookAction.Retry => DialogResult.Retry,
+				Configuration.BadBookAction.Ignore => DialogResult.Ignore,
 				Configuration.BadBookAction.Ask => null,
 				_ => null
 			};
@@ -346,9 +347,9 @@ $@"  Title: {libraryBook.Book.Title}
 			}
 
 			// if null then ask user
-			dialogResult ??= System.Windows.Forms.MessageBox.Show(string.Format(SkipDialogText + "\r\n\r\nSee Settings to avoid this box in the future.", details), "Skip importing this book?", SkipDialogButtons, System.Windows.Forms.MessageBoxIcon.Question, SkipDialogDefaultButton);
+			dialogResult ??= await MessageBox.Show(string.Format(SkipDialogText + "\r\n\r\nSee Settings to avoid this box in the future.", details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
 
-			if (dialogResult == System.Windows.Forms.DialogResult.Abort)
+			if (dialogResult == DialogResult.Abort)
 				return ProcessBookResult.FailedAbort;
 
 			if (dialogResult == SkipResult)
@@ -373,9 +374,9 @@ An error occurred while trying to process this book.
 
 - IGNORE: Permanently ignore this book. Continue processing books. (Will not try this book again later.)
 ".Trim();
-		private System.Windows.Forms.MessageBoxButtons SkipDialogButtons => System.Windows.Forms.MessageBoxButtons.AbortRetryIgnore;
-		private System.Windows.Forms.MessageBoxDefaultButton SkipDialogDefaultButton => System.Windows.Forms.MessageBoxDefaultButton.Button1;
-		private System.Windows.Forms.DialogResult SkipResult => System.Windows.Forms.DialogResult.Ignore;
+		private MessageBoxButtons SkipDialogButtons => MessageBoxButtons.AbortRetryIgnore;
+		private MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
+		private DialogResult SkipResult => DialogResult.Ignore;
 	}
 
 	#endregion

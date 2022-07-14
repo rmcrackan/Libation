@@ -1,6 +1,7 @@
 ﻿using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
+using LibationWinForms.AvaloniaUI.Views.Dialogs;
 using System;
 using System.Linq;
 
@@ -15,7 +16,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			SetQueueCollapseState(collapseState);
 		}
 
-		public void ProductsDisplay_LiberateClicked(object sender, LibraryBook libraryBook)
+		public async void ProductsDisplay_LiberateClicked(object sender, LibraryBook libraryBook)
 		{
 			try
 			{
@@ -38,7 +39,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 					if (!Go.To.File(filePath?.ShortPathName))
 					{
 						var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-						System.Windows.Forms.MessageBox.Show($"File not found" + suffix);
+						await MessageBox.Show($"File not found" + suffix);
 					}
 				}
 			}

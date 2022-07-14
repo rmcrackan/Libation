@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using LibationWinForms.AvaloniaUI.Views.Dialogs;
 using System;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		private void Configure_Export() { }
 
-		public void exportLibraryToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void exportLibraryToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			try
 			{
@@ -37,7 +38,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 						break;
 				}
 
-				System.Windows.Forms.MessageBox.Show("Library exported to:\r\n" + saveFileDialog.FileName);
+				await MessageBox.Show("Library exported to:\r\n" + saveFileDialog.FileName);
 			}
 			catch (Exception ex)
 			{

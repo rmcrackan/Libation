@@ -2,6 +2,7 @@
 using AudibleUtilities;
 using Avalonia.Controls;
 using LibationFileManager;
+using LibationWinForms.AvaloniaUI.Views.Dialogs;
 using LibationWinForms.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -49,9 +50,9 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 		}
 
-		public void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			System.Windows.Forms.MessageBox.Show("To load your Audible library, come back here to the Import menu after adding your account");
+			await MessageBox.Show("To load your Audible library, come back here to the Import menu after adding your account");
 			new AccountsDialog().ShowDialog();
 		}
 
@@ -91,7 +92,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 				// this is here instead of ScanEnd so that the following is only possible when it's user-initiated, not automatic loop
 				if (Configuration.Instance.ShowImportedStats && newAdded > 0)
-					System.Windows.Forms.MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
+					await MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
 			}
 			catch (Exception ex)
 			{

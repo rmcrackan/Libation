@@ -14,7 +14,7 @@
 
 	<Border BorderBrush="{DynamicResource DataGridGridLinesBrush}" BorderThickness="2" Padding="15">
 		<Grid RowDefinitions="Auto,Auto,*,Auto">
-			<Grid Grid.Row="0" ColumnDefinitions="1*, Auto">
+			<Grid Grid.Row="0" ColumnDefinitions="1*,Auto">
 
 				<!-- Menu Strip -->
 				<Menu Grid.Column="0" VerticalAlignment="Top">
@@ -106,7 +106,9 @@
 						<MenuItem Click="aboutToolStripMenuItem_Click" Header="A_bout..." />
 					</MenuItem>
 				</Menu>
+				<Button Grid.Column="1" Content="Show Message Box" Click="ShowMessageBoxButton_Click" />
 				<StackPanel Name="scanningToolStripMenuItem" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+					<Button Content="Show Message Box" Click="ShowMessageBoxButton_Click" />
 					<Image Width="16" Height="16" Source="/AvaloniaUI/Assets/import_16x16.png" />
 					<TextBlock Name="scanningToolStripMenuItem_Text" Margin="5,0,5,0" VerticalAlignment="Center" Text="Scanning..."/>
 				</StackPanel>

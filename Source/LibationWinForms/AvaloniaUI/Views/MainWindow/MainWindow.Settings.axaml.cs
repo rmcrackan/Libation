@@ -1,4 +1,5 @@
-﻿using LibationWinForms.Dialogs;
+﻿using LibationWinForms.AvaloniaUI.Views.Dialogs;
+using LibationWinForms.Dialogs;
 using System;
 using System.Linq;
 
@@ -13,7 +14,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public void basicSettingsToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e) => new SettingsDialog().ShowDialog();
 
-		public void aboutToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> System.Windows.Forms.MessageBox.Show($"Running Libation version {AppScaffolding.LibationScaffolding.BuildVersion}", $"Libation v{AppScaffolding.LibationScaffolding.BuildVersion}");
+		public async void aboutToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+			=> await MessageBox.Show($"Running Libation version {AppScaffolding.LibationScaffolding.BuildVersion}", $"Libation v{AppScaffolding.LibationScaffolding.BuildVersion}");
 	}
 }

@@ -99,7 +99,7 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 
 			if (button.DataContext is LibraryBookEntry2 lbEntry)
 			{
-				var bookDetailsForm = new Dialogs.BookDetailsDialog(lbEntry.LibraryBook);
+				var bookDetailsForm = new LibationWinForms.Dialogs.BookDetailsDialog(lbEntry.LibraryBook);
 				if (bookDetailsForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 					lbEntry.Commit(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 			}
