@@ -27,6 +27,11 @@
 		</DockPanel>
 
 		<DockPanel Height="45" Grid.Row="1" Background="LightGray">
+			<DockPanel.Styles>
+				<Style Selector="Button:focus">
+					<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+				</Style>
+			</DockPanel.Styles>
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5" DockPanel.Dock="Bottom">
 				<Button Grid.Column="0" MinWidth="75" MinHeight="25" Name="Button1" Click="Button1_Click" Margin="5">
 					<TextBlock VerticalAlignment="Center" Text="{Binding Button1Text}"/>

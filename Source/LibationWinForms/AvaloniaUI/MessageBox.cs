@@ -211,6 +211,11 @@ namespace LibationWinForms.AvaloniaUI
 		private static async Task<DialogResult> ShowCore2(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 		{
 			var dialog = new MessageBoxWindow();
+
+#if WINDOWS7_0
+			HideMinMaxBtns(dialog.PlatformImpl.Handle.Handle);
+#endif
+
 			var vm = new MessageBoxViewModel(message, caption, buttons, icon, defaultButton);
 			dialog.DataContext = vm;
 			dialog.CanResize = false;
@@ -236,6 +241,22 @@ namespace LibationWinForms.AvaloniaUI
 			dialog.Height = dialog.MinHeight;
 			dialog.Width = dialog.MinWidth;
 
+			dialog.Opened += (_, _) =>
+			{
+				switch (defaultButton)
+				{
+					case MessageBoxDefaultButton.Button1:
+						dialog.FindControl<Button>("Button1").Focus();
+						break;
+					case MessageBoxDefaultButton.Button2:
+						dialog.FindControl<Button>("Button2").Focus();
+						break;
+					case MessageBoxDefaultButton.Button3:
+						dialog.FindControl<Button>("Button3").Focus();
+						break;
+
+				}
+			};
 
 			if (owner is null)
 			{
@@ -266,5 +287,22 @@ namespace LibationWinForms.AvaloniaUI
 				return await dialog.ShowDialog<DialogResult>(owner);
 			}
 		}
+
+#if WINDOWS7_0
+
+		private static void HideMinMaxBtns(IntPtr handle)
+		{
+			var currentStyle = GetWindowLong(handle, GWL_STYLE);
+
+			SetWindowLong(handle, GWL_STYLE, currentStyle & ~WS_MAXIMIZEBOX & ~WS_MINIMIZEBOX);
+		}
+		const long WS_MINIMIZEBOX = 0x00020000L;
+		const long WS_MAXIMIZEBOX = 0x10000L;
+		const int GWL_STYLE = -16;
+		[System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+		static extern long GetWindowLong(IntPtr hWnd, int nIndex);
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		static extern int SetWindowLong(IntPtr hWnd, int nIndex, long dwNewLong);
+#endif
 	}
 }
