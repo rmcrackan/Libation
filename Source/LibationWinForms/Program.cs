@@ -21,6 +21,7 @@ namespace LibationWinForms
 		[STAThread]
 		static void Main()
 		{
+			var sw = System.Diagnostics.Stopwatch.StartNew();
 			var config = LoadLibationConfig();
 
 			if (config is null) return;
@@ -57,6 +58,12 @@ namespace LibationWinForms
 			Max		2837		5835
 			*/
 
+			void Form1_Load(object sender, EventArgs e)
+			{
+				sw.Stop();
+				//MessageBox.Show(sw.ElapsedMilliseconds.ToString());
+			}
+
 			//For debug purposes, always run AvaloniaUI.
 			if (true) //(config.GetNonString<bool>("BetaOptIn"))
 			{
@@ -76,7 +83,10 @@ namespace LibationWinForms
 				if (!runOtherMigrationsTask.GetAwaiter().GetResult())
 					return;
 
-				((AvaloniaUI.Views.MainWindow)classicLifetimeTask.Result.MainWindow).OnLibraryLoaded(dbLibraryTask.GetAwaiter().GetResult());
+				var form1 = (AvaloniaUI.Views.MainWindow)classicLifetimeTask.Result.MainWindow;
+				form1.Opened += Form1_Load;
+
+				form1.OnLibraryLoaded(dbLibraryTask.GetAwaiter().GetResult());
 
 				classicLifetimeTask.Result.Start(null);
 			}
@@ -85,7 +95,10 @@ namespace LibationWinForms
 				if (!RunDbMigrations(config) || !RunOtherMigrations(config))
 					return;
 
-				System.Windows.Forms.Application.Run(new Form1());
+				var form1 = new Form1();
+				form1.Shown += Form1_Load;
+
+				System.Windows.Forms.Application.Run(form1);
 			}
 		}
 

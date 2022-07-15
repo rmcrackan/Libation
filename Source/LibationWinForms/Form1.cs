@@ -64,28 +64,6 @@ namespace LibationWinForms
 		{
 			if (this.DesignMode)
 				return;
-
-			string message =
-@"What’s funny is how the alt-right completely misses the point with Rome.
-
-What’s funny though is that Rome was actually quite diverse. Sure the power came from Italy but without Egypt, Spain, North Africa, and Gaul it's unlikely Rome would have been the power they are.
-
-Rome’s great strength was its diversity. The fact they could work with countless cultures without prejudice allowed them to maintain such a massive Empire in the first place. They would adopt foreign gods and foreign cultures with ease and it allowed them to distill the best pieces of the Mediterranean world for themselves.
-
-In the final years of the Western Roman Empire, there was this sudden focus on ethnic make up. Where Rome had once accepted all cultures and assimilated them they refused to do so with the new Germanic migrants like the Goths, Vandals, Burgundians, and Franks.
-
-The Goths in particular just wanted a seat at the table. They were willing to fight for Rome and defend the borders. The 2 greatest generals of the final decades- Stilicho and Aetius- were both half barbarian themselves.
-
-In previous periods of collapse, Rome would find ethnically new emperors to help turn the tide. In the third century crisis, the Illyrian Empires (Aurelian, Probus, Diocletian) rose to the challenge and restored the Empire fully. In the tumultuous collapse of the Flavian dynasty, the Spanish Emporers (Trajan, Hadrian) would lead Rome to its peak of power.
-
-Had Rome accepted the Goths, assimilated them and treated them fairly, and brought them into the Empire they may have survived. Great men like Stilicho would have become Emperor and maybe they could have restored the Empire.
-
-Instead, Rome chose to keep them at arm's length and forced them into desperation within turn led to the Goths sacking Rome.
-
-Put simply the Rome that accepted all peoples regardless of race was the Rome of Trajan and glory- the Rome that demanded ethnic purity was the Rome of Honorius and collapse.";
-
-			System.Windows.Forms.MessageBox.Show("funny", "Caption", MessageBoxButtons.CancelTryContinue, MessageBoxIcon.Warning);
-
 			// I'm leaving this empty call here as a reminder that if we use this, it should probably be after DesignMode check
 		}
 	}
