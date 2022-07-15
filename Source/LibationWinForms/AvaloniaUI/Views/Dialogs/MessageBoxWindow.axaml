@@ -10,7 +10,7 @@
 		Icon="/AvaloniaUI/Assets/1x1.png">
 	<Grid ColumnDefinitions="*" RowDefinitions="*,Auto">
 		
-		<DockPanel Margin="5,10,10,10" Grid.Row="0" Background="White">
+		<DockPanel Margin="5,10,10,20" Grid.Row="0" Background="White">
 			<StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
 				VerticalAlignment="Top">
 			
@@ -21,15 +21,16 @@
 					<Image IsVisible="{Binding IsExclamation}" Stretch="None" Source="/AvaloniaUI/Assets/MBIcons/Exclamation.png"/>
 				</Panel>
 			
-				<TextBlock Margin="5,0,0,0" Name="messageTextBlock" MinHeight="45" MinWidth="203" TextWrapping="WrapWithOverflow" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="12" Text="{Binding Message}" />
+				<TextBlock Margin="5,0,0,0" Name="messageTextBlock" MinHeight="45" MinWidth="193" TextWrapping="WrapWithOverflow" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="12" Text="{Binding Message}" />
 
 			</StackPanel>
 		</DockPanel>
 
-		<DockPanel Height="45" Grid.Row="1" Background="LightGray">
+		<DockPanel Height="45" Grid.Row="1" Background="WhiteSmoke">
 			<DockPanel.Styles>
 				<Style Selector="Button:focus">
-					<Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+					<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+					<Setter Property="BorderThickness" Value="2" />
 				</Style>
 			</DockPanel.Styles>
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5" DockPanel.Dock="Bottom">

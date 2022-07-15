@@ -47,12 +47,13 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 				return;
 
 			var libraryBooks = selectedBooks.Select(rge => rge.LibraryBook).ToList();
-			var result = MessageBoxLib.ShowConfirmationDialog(
+			var result = await MessageBox.ShowConfirmationDialog(
+				null,
 				libraryBooks,
 				$"Are you sure you want to remove {selectedBooks.Count} books from Libation's library?",
 				"Remove books from Libation?");
 
-			if (result != System.Windows.Forms.DialogResult.Yes)
+			if (result != DialogResult.Yes)
 				return;
 
 			foreach (var book in selectedBooks)

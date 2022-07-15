@@ -20,6 +20,24 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
+			this.Opened += MessageBoxWindow_Opened;
+		}
+
+		private void MessageBoxWindow_Opened(object sender, System.EventArgs e)
+		{
+			var vm = this.DataContext as MessageBoxViewModel;
+			switch (vm.DefaultButton)
+			{
+				case MessageBoxDefaultButton.Button1:
+					this.FindControl<Button>("Button1").Focus();
+					break;
+				case MessageBoxDefaultButton.Button2:
+					this.FindControl<Button>("Button2").Focus();
+					break;
+				case MessageBoxDefaultButton.Button3:
+					this.FindControl<Button>("Button3").Focus();
+					break;
+			}
 		}
 
 		public DialogResult DialogResult { get; private set; }

@@ -38,7 +38,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 				Serilog.Log.Logger.Error(ex, "An error occurred while backing up visible library books");
 			}
 		}
-		public void replaceTagsToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public async void replaceTagsToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var dialog = new TagsBatchDialog();
 			var result = dialog.ShowDialog();
@@ -47,12 +47,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 			var visibleLibraryBooks = productsDisplay.GetVisibleBookEntries();
 
-			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+			var confirmationResult = await MessageBox.ShowConfirmationDialog(
+				this,
 				visibleLibraryBooks,
-				$"Are you sure you want to replace tags in {0}?",
+				"Are you sure you want to replace tags in {0}?",
 				"Replace tags?");
 
-			if (confirmationResult != System.Windows.Forms.DialogResult.Yes)
+			if (confirmationResult != DialogResult.Yes)
 				return;
 
 			foreach (var libraryBook in visibleLibraryBooks)
@@ -60,7 +61,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
 		}
 
-		public void setDownloadedToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public async void setDownloadedToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var dialog = new LiberatedStatusBatchDialog();
 			var result = dialog.ShowDialog();
@@ -69,12 +70,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 			var visibleLibraryBooks = productsDisplay.GetVisibleBookEntries();
 
-			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+			var confirmationResult = await MessageBox.ShowConfirmationDialog(
+				this,
 				visibleLibraryBooks,
-				$"Are you sure you want to replace downloaded status in {0}?",
+				"Are you sure you want to replace downloaded status in {0}?",
 				"Replace downloaded status?");
 
-			if (confirmationResult != System.Windows.Forms.DialogResult.Yes)
+			if (confirmationResult != DialogResult.Yes)
 				return;
 
 			foreach (var libraryBook in visibleLibraryBooks)
@@ -86,12 +88,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 		{
 			var visibleLibraryBooks = productsDisplay.GetVisibleBookEntries();
 
-			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+			var confirmationResult = await MessageBox.ShowConfirmationDialog(
+				this,
 				visibleLibraryBooks,
-				$"Are you sure you want to remove {0} from Libation's library?",
+				"Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?");
 
-			if (confirmationResult != System.Windows.Forms.DialogResult.Yes)
+			if (confirmationResult != DialogResult.Yes)
 				return;
 
 			var visibleIds = visibleLibraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();

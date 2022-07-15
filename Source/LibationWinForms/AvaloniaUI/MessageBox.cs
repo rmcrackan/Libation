@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using DataLayer;
 using LibationWinForms.AvaloniaUI.ViewModels.Dialogs;
 using LibationWinForms.AvaloniaUI.Views.Dialogs;
 using System;
@@ -200,13 +201,35 @@ namespace LibationWinForms.AvaloniaUI
 			return await ShowCore(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		}
 
+		public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title)
+		{
+			if (libraryBooks is null || !libraryBooks.Any())
+				return DialogResult.Cancel;
+
+			var count = libraryBooks.Count();
+
+			string thisThese = count > 1 ? "these" : "this";
+			string bookBooks = count > 1 ? "books" : "book";
+			string titlesAgg = libraryBooks.AggregateTitles();
+
+			var message
+				= string.Format(format, $"{thisThese} {count} {bookBooks}")
+				+ $"\r\n\r\n{titlesAgg}";
+
+			return await ShowCore(owner, 
+				message,
+				title,
+				MessageBoxButtons.YesNo,
+				MessageBoxIcon.Question,
+				MessageBoxDefaultButton.Button1);
+		}
+
 		private static async Task<DialogResult> ShowCore(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 		{
 			if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
 				return await ShowCore2(owner, message, caption, buttons, icon, defaultButton);
 			else
 				return await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => ShowCore2(owner, message, caption, buttons, icon, defaultButton));
-
 		}
 		private static async Task<DialogResult> ShowCore2(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 		{
@@ -241,23 +264,6 @@ namespace LibationWinForms.AvaloniaUI
 			dialog.MaxWidth = dialog.MinWidth;
 			dialog.Height = dialog.MinHeight;
 			dialog.Width = dialog.MinWidth;
-
-			dialog.Opened += (_, _) =>
-			{
-				switch (defaultButton)
-				{
-					case MessageBoxDefaultButton.Button1:
-						dialog.FindControl<Button>("Button1").Focus();
-						break;
-					case MessageBoxDefaultButton.Button2:
-						dialog.FindControl<Button>("Button2").Focus();
-						break;
-					case MessageBoxDefaultButton.Button3:
-						dialog.FindControl<Button>("Button3").Focus();
-						break;
-
-				}
-			};
 
 			if (owner is null)
 			{

@@ -1,12 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Media;
-using LibationWinForms.AvaloniaUI.Views.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels.Dialogs
 {
@@ -19,6 +11,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels.Dialogs
 		private MessageBoxIcon _icon;
 		private MessageBoxDefaultButton _defaultButton;
 
+		public MessageBoxDefaultButton DefaultButton => _defaultButton;
 		public MessageBoxButtons Buttons => _button;
 
 		public bool IsAsterisk => _icon == MessageBoxIcon.Asterisk;
@@ -69,7 +62,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels.Dialogs
 		public double FormWidthFromTboxWidth(double tboxWidth)
 		{
 			int iconWidth = _icon is MessageBoxIcon.None ? 0 : 42;
-			return tboxWidth + 20 + iconWidth;
+			return tboxWidth + 30 + iconWidth;
 		}
 
 		public MessageBoxViewModel() { }
@@ -85,7 +78,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels.Dialogs
 			int numBtns = HasButton3 ? 3 : HasButton2 ? 2 : 1;
 			int iconWidth = icon is MessageBoxIcon.None ? 0 : 42;
 			int formMinWidth = Math.Max(85 * numBtns + 10, 71 + iconWidth + 20);
-			TextBlockMinWidth = formMinWidth - 20 - iconWidth;
+			TextBlockMinWidth = formMinWidth - 30 - iconWidth;
 		}
 	}
 }

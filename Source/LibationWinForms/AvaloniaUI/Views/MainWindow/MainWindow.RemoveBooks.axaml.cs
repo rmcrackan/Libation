@@ -16,21 +16,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 			_viewModel.RemoveButtonsVisible = false;
 		}
 
-		public async void removeBooksBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			await productsDisplay.RemoveCheckedBooksAsync();
-		}
-
-		public async void doneRemovingBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			_viewModel.RemoveButtonsVisible = false;
-
-			productsDisplay.CloseRemoveBooksColumn();
-
-			//Restore the filter
-			await performFilter(_viewModel.FilterString);
-		}
-
 		public void removeLibraryBooksToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			// if 0 accounts, this will not be visible
@@ -79,6 +64,21 @@ namespace LibationWinForms.AvaloniaUI.Views
 			_viewModel.RemoveButtonsVisible = true;
 
 			await productsDisplay.ScanAndRemoveBooksAsync(accounts);
+		}
+
+		public async void removeBooksBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			await productsDisplay.RemoveCheckedBooksAsync();
+		}
+
+		public async void doneRemovingBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			_viewModel.RemoveButtonsVisible = false;
+
+			productsDisplay.CloseRemoveBooksColumn();
+
+			//Restore the filter
+			await performFilter(lastGoodFilter);
 		}
 
 		public void productsDisplay_RemovableCountChanged(object sender, int removeCount)
