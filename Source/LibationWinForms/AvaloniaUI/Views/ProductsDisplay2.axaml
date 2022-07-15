@@ -5,7 +5,7 @@
 			 xmlns:views="clr-namespace:LibationWinForms.AvaloniaUI.Views"
 			 xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
              mc:Ignorable="d" d:DesignWidth="1560" d:DesignHeight="400"
-             x:Class="LibationWinForms.AvaloniaUI.Views.ProductsGrid.ProductsDisplay2">
+             x:Class="LibationWinForms.AvaloniaUI.Views.ProductsDisplay2">
 
 	<Grid>
 

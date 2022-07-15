@@ -54,7 +54,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			}
 		}
 
-		public void InitialDisplay(List<LibraryBook> dbBooks, Views.ProductsGrid.ProductsDisplay2 productsGrid)
+		public void InitialDisplay(List<LibraryBook> dbBooks, Views.ProductsDisplay2 productsGrid)
 		{
 
 			try

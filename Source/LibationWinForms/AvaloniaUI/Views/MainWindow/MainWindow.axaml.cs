@@ -3,7 +3,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using System;
-using LibationWinForms.AvaloniaUI.Views.ProductsGrid;
 using Avalonia.ReactiveUI;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using LibationFileManager;
