@@ -32,30 +32,42 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 			}
 		}
 
-		public async void Cover_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public void Cover_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			if (sender is not Image tblock || tblock.DataContext is not GridEntry2 gEntry)
 				return;
 
-			var picDefinition = new PictureDefinition(gEntry.LibraryBook.Book.PictureLarge ?? gEntry.LibraryBook.Book.PictureId, PictureSize.Native);
-			var picDlTask = Task.Run(() => PictureStorage.GetPictureSynchronously(picDefinition));
+			var picDef = new PictureDefinition(gEntry.LibraryBook.Book.PictureLarge ?? gEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 
-			(_, byte[] initialImageBts) = PictureStorage.GetPicture(new PictureDefinition(gEntry.LibraryBook.Book.PictureId, PictureSize._80x80));
+			void PictureCached(object sender, PictureCachedEventArgs e)
+			{
+				if (e.Definition.PictureId == picDef.PictureId)
+					imageDisplay.CoverPicture = e.Picture;
+
+				PictureStorage.PictureCached -= PictureCached;
+			}
+
+			PictureStorage.PictureCached += PictureCached;
+			(bool isDefault, byte[] initialImageBts) = PictureStorage.GetPicture(picDef);
+
 			var windowTitle = $"{gEntry.Title} - Cover";
 
 			if (imageDisplay is null || imageDisplay.IsDisposed || !imageDisplay.Visible)
 			{
 				imageDisplay = new GridView.ImageDisplay();
 				imageDisplay.RestoreSizeAndLocation(Configuration.Instance);
-				imageDisplay.FormClosed += (_, _) => imageDisplay.SaveSizeAndLocation(Configuration.Instance);
-				imageDisplay.Show(null);
+				imageDisplay.FormClosed += (_, _) => imageDisplay.SaveSizeAndLocation(Configuration.Instance);				
 			}
 
 			imageDisplay.BookSaveDirectory = AudibleFileStorage.Audio.GetDestinationDirectory(gEntry.LibraryBook);
 			imageDisplay.PictureFileName = System.IO.Path.GetFileName(AudibleFileStorage.Audio.GetBooksDirectoryFilename(gEntry.LibraryBook, ".jpg"));
 			imageDisplay.Text = windowTitle;
 			imageDisplay.CoverPicture = initialImageBts;
-			imageDisplay.CoverPicture = await picDlTask;
+			if (!isDefault)
+				PictureStorage.PictureCached -= PictureCached;
+
+			if (!imageDisplay.Visible)
+				imageDisplay.Show(null);
 		}
 
 		public void Description_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
