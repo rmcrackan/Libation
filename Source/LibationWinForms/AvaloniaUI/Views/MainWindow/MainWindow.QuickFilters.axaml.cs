@@ -61,7 +61,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public void editQuickFiltersToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e) => new EditQuickFilters().ShowDialog();
 
-		public async void productsDisplay_Initialized(object sender, EventArgs e)
+		public async void ProductsDisplay_Initialized(object sender, EventArgs e)
 		{
 			if (QuickFilters.UseDefault)
 				await performFilter(QuickFilters.Filters.FirstOrDefault());

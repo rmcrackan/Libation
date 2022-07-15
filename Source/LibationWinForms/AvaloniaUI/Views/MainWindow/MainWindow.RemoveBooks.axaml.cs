@@ -59,18 +59,18 @@ namespace LibationWinForms.AvaloniaUI.Views
 			//For removing books within a filter set, use
 			//Visible Books > Remove from library
 
-			productsDisplay.Filter(null);
+			await _viewModel.ProductsDisplay.Filter(null);
 
 			_viewModel.RemoveBooksButtonEnabled = true;
 			_viewModel.RemoveButtonsVisible = true;
 
-			await productsDisplay.ScanAndRemoveBooksAsync(accounts);
+			await _viewModel.ProductsDisplay.ScanAndRemoveBooksAsync(accounts);
 		}
 
 		public async void removeBooksBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			_viewModel.RemoveBooksButtonEnabled = false;
-			await productsDisplay.RemoveCheckedBooksAsync();
+			await _viewModel.ProductsDisplay.RemoveCheckedBooksAsync();
 			_viewModel.RemoveBooksButtonEnabled = true;
 		}
 
@@ -78,13 +78,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 		{
 			_viewModel.RemoveButtonsVisible = false;
 
-			productsDisplay.CloseRemoveBooksColumn();
+			_viewModel.ProductsDisplay.DoneRemovingBooks();
 
 			//Restore the filter
 			await performFilter(lastGoodFilter);
 		}
 
-		public void productsDisplay_RemovableCountChanged(object sender, int removeCount)
+		public void ProductsDisplay_RemovableCountChanged(object sender, int removeCount)
 		{
 			_viewModel.RemoveBooksButtonText = removeCount switch
 			{

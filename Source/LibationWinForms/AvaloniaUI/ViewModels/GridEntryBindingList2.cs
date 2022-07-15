@@ -9,16 +9,19 @@ using System.Linq;
 namespace LibationWinForms.AvaloniaUI.ViewModels
 {
 	/*
-	 * Allows filtering and sorting of the underlying BindingList<GridEntry>
-	 * by implementing IBindingListView and using SearchEngineCommands 
+	 * Allows filtering of the underlying ObservableCollection<GridEntry>
 	 * 
 	 * When filtering is applied, the filtered-out items are removed
 	 * from the base list and added to the private FilterRemoved list.
 	 * When filtering is removed, items in the FilterRemoved list are
 	 * added back to the base list.
 	 * 
-	 * Remove is overridden to ensure that removed items are removed from
-	 * the base list (visible items) as well as the FilterRemoved list.
+	 * Items are added and removed to/from the ObservableCollection's
+	 * internal list instead of the ObservableCollection itself to
+	 * avoid ObservableCollection firing CollectionChanged for every
+	 * item. Editing the list this way improve's display performance,
+	 * but requires ResetCollection() to be called after all changes
+	 * have been made.
 	 */
 	public class GridEntryBindingList2 : ObservableCollection<GridEntry2>
 	{
@@ -42,31 +45,19 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#region Items Management
 
-		public new void Remove(GridEntry2 entry)
-		{
-			FilterRemoved.Add(entry);
-			base.Remove(entry);
-		}
-
 		public void ReplaceList(IEnumerable<GridEntry2> newItems)
 		{
 			Items.Clear();
 			((List<GridEntry2>)Items).AddRange(newItems);
 			ResetCollection();
 		}
-
-		protected override void InsertItem(int index, GridEntry2 item)
-		{
-			FilterRemoved.Remove(item);
-			base.InsertItem(index, item);
-		}
+		public void ResetCollection()
+			=> OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
 		#endregion
 
 		#region Filtering
 
-		public void ResetCollection()
-			=> OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
 		private void ApplyFilter(string filterString)
 		{
@@ -85,8 +76,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 			foreach (var item in filteredOut)
 			{
-				Remove(item);
+				FilterRemoved.Add(item);
+				Items.Remove(item);
 			}
+			ResetCollection();
 		}
 
 		public void RemoveFilter()
@@ -99,12 +92,15 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			{
 				if (item is SeriesEntrys2 || item is LibraryBookEntry2 lbe && (lbe.Parent is null || lbe.Parent.Liberate.Expanded))
 				{
-					InsertItem(visibleCount++, item);
+
+					FilterRemoved.Remove(item);
+					Items.Insert(visibleCount++, item);
 				}
 			}
 
 			FilterString = null;
 			SearchResults = null;
+			ResetCollection();
 		}
 
 		#endregion
@@ -128,10 +124,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			foreach (var episode in Items.BookEntries().Where(b => b.Parent == sEntry).OrderByDescending(lbe => lbe.SeriesIndex).ToList())
 			{
 				/*
-				 * Bypass ObservationCollection's InsertItem methos so that CollectionChanged isn't
-				 * fired. When adding many items at once, Avalonia's CollectionChanged event handler
-				 * causes serious performance problems. And unfotrunately, Avalonia doesn't respect
-				 * the NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, IList? changedItems)
+				 * Bypass ObservationCollection's InsertItem method so that CollectionChanged isn't
+				 * fired. When adding or removing many items at once, Avalonia's CollectionChanged
+				 * event handler causes serious performance problems. And unfotrunately, Avalonia
+				 * doesn't respect the NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, IList? changedItems)
 				 * overload that would fire only once for all changed items.
 				 * 
 				 * Doing this requires resetting the list so the view knows it needs to rebuild its display.
@@ -154,10 +150,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				if (SearchResults is null || SearchResults.Docs.Any(d => d.ProductId == episode.AudibleProductId))
 				{
 					/*
-					 * Bypass ObservationCollection's InsertItem methos so that CollectionChanged isn't
-					 * fired. When adding many items at once, Avalonia's CollectionChanged event handler
-					 * causes serious performance problems. And unfotrunately, Avalonia doesn't respect
-					 * the NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, IList? changedItems)
+					 * Bypass ObservationCollection's InsertItem method so that CollectionChanged isn't
+					 * fired. When adding or removing many items at once, Avalonia's CollectionChanged
+					 * event handler causes serious performance problems. And unfotrunately, Avalonia
+					 * doesn't respect the NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction action, IList? changedItems)
 					 * overload that would fire only once for all changed items.
 					 * 
 					 * Doing this requires resetting the list so the view knows it needs to rebuild its display.

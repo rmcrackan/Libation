@@ -52,6 +52,7 @@
     <None Remove="AvaloniaUI\Assets\glass-with-glow_16.png" />
     <None Remove="AvaloniaUI\Assets\import_16x16.png" />
     <None Remove="AvaloniaUI\Assets\last.png" />
+    <None Remove="AvaloniaUI\Assets\libation.ico" />
     <None Remove="AvaloniaUI\Assets\LibationStyles.xaml" />
     <None Remove="AvaloniaUI\Assets\MBIcons\Asterisk.png" />
     <None Remove="AvaloniaUI\Assets\MBIcons\error.png" />

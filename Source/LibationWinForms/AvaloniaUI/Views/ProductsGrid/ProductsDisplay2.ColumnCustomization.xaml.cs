@@ -8,7 +8,7 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 {
 	public partial class ProductsDisplay2
 	{
-		ContextMenu contextMenuStrip1 = new ContextMenu();
+		private ContextMenu contextMenuStrip1 = new ContextMenu();
 		private void Configure_ColumnCustomization()
 		{
 			if (Design.IsDesignMode) return;
@@ -68,10 +68,6 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 
 				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, productsGrid.Columns.IndexOf(column));
 			}
-
-			//Remove column is always first;
-			removeGVColumn.DisplayIndex = 0;
-			removeGVColumn.CanUserReorder = false;
 		}
 
 		private void ContextMenu_ContextMenuOpening(object sender, System.ComponentModel.CancelEventArgs e)

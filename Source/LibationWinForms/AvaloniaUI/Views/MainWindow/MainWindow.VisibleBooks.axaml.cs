@@ -28,7 +28,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 				Serilog.Log.Logger.Information("Begin backing up visible library books");
 
 				_viewModel.ProcessQueueViewModel.AddDownloadDecrypt(
-					productsDisplay
+					_viewModel
+					.ProductsDisplay
 					.GetVisibleBookEntries()
 					.UnLiberated()
 					);
@@ -45,7 +46,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (result != System.Windows.Forms.DialogResult.OK)
 				return;
 
-			var visibleLibraryBooks = productsDisplay.GetVisibleBookEntries();
+			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
 
 			var confirmationResult = await MessageBox.ShowConfirmationDialog(
 				this,
@@ -68,7 +69,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (result != System.Windows.Forms.DialogResult.OK)
 				return;
 
-			var visibleLibraryBooks = productsDisplay.GetVisibleBookEntries();
+			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
 
 			var confirmationResult = await MessageBox.ShowConfirmationDialog(
 				this,
@@ -86,7 +87,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public async void removeToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
-			var visibleLibraryBooks = productsDisplay.GetVisibleBookEntries();
+			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
 
 			var confirmationResult = await MessageBox.ShowConfirmationDialog(
 				this,
@@ -100,7 +101,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			var visibleIds = visibleLibraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
 			await LibraryCommands.RemoveBooksAsync(visibleIds);
 		}
-		public async void productsDisplay_VisibleCountChanged(object sender, int qty)
+		public async void ProductsDisplay_VisibleCountChanged(object sender, int qty)
 		{
 			_viewModel.VisibleCount = qty;
 
@@ -108,7 +109,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		}
 		void setLiberatedVisibleMenuItem()
 			=> _viewModel.VisibleNotLiberated
-				= productsDisplay
+				= _viewModel.ProductsDisplay
 				.GetVisibleBookEntries()
 				.Count(lb => lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.NotLiberated);
 	}

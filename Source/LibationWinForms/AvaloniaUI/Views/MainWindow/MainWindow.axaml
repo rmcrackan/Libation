@@ -11,7 +11,7 @@
 		x:Class="LibationWinForms.AvaloniaUI.Views.MainWindow"
 		Title="Libation"
 		Name="Form1"
-		Icon="/AvaloniaUI/Assets/glass-with-glow_16.png">
+		Icon="/AvaloniaUI/Assets/libation.ico">
 
 	<Border BorderBrush="{DynamicResource DataGridGridLinesBrush}" BorderThickness="2" Padding="15">
 		<Grid RowDefinitions="Auto,Auto,*,Auto">
@@ -173,10 +173,8 @@
 
 					<!-- Product Display Grid -->
 					<prgid:ProductsDisplay2
-						InitialLoaded="productsDisplay_Initialized"
+						DataContext="{Binding ProductsDisplay}"						
 						LiberateClicked="ProductsDisplay_LiberateClicked"
-						RemovableCountChanged="productsDisplay_RemovableCountChanged"
-						VisibleCountChanged="productsDisplay_VisibleCountChanged"					
 						Name="productsDisplay"  />				
 				</SplitView>
 			</Border>

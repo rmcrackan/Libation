@@ -20,16 +20,7 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 
 			if (button.DataContext is SeriesEntrys2 sEntry)
 			{
-				if (sEntry.Liberate.Expanded)
-				{
-					bindingList.CollapseItem(sEntry);
-				}
-				else
-				{
-					bindingList.ExpandItem(sEntry);
-				}
-
-				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+				_viewModel.ToggleSeriesExpanded(sEntry);
 
 				//Expanding and collapsing reset the list, which will cause focus to shift
 				//to the topright cell. Reset focus onto the clicked button's cell.

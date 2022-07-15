@@ -35,7 +35,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 			try
 			{
-				productsDisplay.Filter(filterString);
+				await _viewModel.ProductsDisplay.Filter(filterString);
 				lastGoodFilter = filterString;
 			}
 			catch (Exception ex)

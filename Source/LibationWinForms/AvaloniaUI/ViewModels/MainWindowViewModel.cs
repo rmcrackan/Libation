@@ -22,6 +22,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		/// <summary> The Process Queue's viewmodel </summary>
 		public ProcessQueueViewModel ProcessQueueViewModel { get; } = new ProcessQueueViewModel();
+		public ProductsDisplayViewModel ProductsDisplay { get; } = new ProductsDisplayViewModel();
 
 
 		/// <summary> Library filterting query </summary>

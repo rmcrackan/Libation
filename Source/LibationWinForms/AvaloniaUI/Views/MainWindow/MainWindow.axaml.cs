@@ -2,7 +2,6 @@ using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using LibationWinForms.AvaloniaUI.Controls;
 using System;
 using LibationWinForms.AvaloniaUI.Views.ProductsGrid;
 using Avalonia.ReactiveUI;
@@ -10,6 +9,7 @@ using LibationWinForms.AvaloniaUI.ViewModels;
 using LibationFileManager;
 using DataLayer;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
@@ -45,11 +45,24 @@ namespace LibationWinForms.AvaloniaUI.Views
 			// misc which belongs in winforms app but doesn't have a UI element
 			Configure_NonUI();
 
+			_viewModel.ProductsDisplay.InitialLoaded += ProductsDisplay_Initialized;
+			_viewModel.ProductsDisplay.RemovableCountChanged += ProductsDisplay_RemovableCountChanged;
+			_viewModel.ProductsDisplay.VisibleCountChanged += ProductsDisplay_VisibleCountChanged;
+
 			{
-				this.LibraryLoaded += async (_, dbBooks) => await productsDisplay.Display(dbBooks);
-				LibraryCommands.LibrarySizeChanged += async (_, _) => await productsDisplay.Display(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+				this.LibraryLoaded += MainWindow_LibraryLoaded;
+
+				LibraryCommands.LibrarySizeChanged += async (_, _) => await _viewModel.ProductsDisplay.DisplayBooks(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				this.Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
+		}
+
+		private void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
+		{
+			if (Design.IsDesignMode)
+				return;
+
+			_viewModel.ProductsDisplay.InitialDisplay(dbBooks, productsDisplay);
 		}
 
 		private void InitializeComponent()
