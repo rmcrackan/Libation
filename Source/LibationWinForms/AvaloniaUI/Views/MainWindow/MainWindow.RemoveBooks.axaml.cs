@@ -10,8 +10,10 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		private void Configure_RemoveBooks() 
 		{
-			removeBooksBtn.IsVisible = false;
-			doneRemovingBtn.IsVisible = false;
+			if (Avalonia.Controls.Design.IsDesignMode)
+				return;
+
+			_viewModel.RemoveButtonsVisible = false;
 			removeLibraryBooksToolStripMenuItem.Click += removeLibraryBooksToolStripMenuItem_Click;
 		}
 
@@ -22,8 +24,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public async void doneRemovingBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			removeBooksBtn.IsVisible = false;
-			doneRemovingBtn.IsVisible = false;
+			_viewModel.RemoveButtonsVisible = false;
 
 			productsDisplay.CloseRemoveBooksColumn();
 
@@ -80,15 +81,14 @@ namespace LibationWinForms.AvaloniaUI.Views
 			filterSearchTb.IsVisible = false;
 			productsDisplay.Filter(null);
 
-			removeBooksBtn.IsVisible = true;
-			doneRemovingBtn.IsVisible = true;
+			_viewModel.RemoveButtonsVisible = true;
 
 			await productsDisplay.ScanAndRemoveBooksAsync(accounts);
 		}
 
 		public void productsDisplay_RemovableCountChanged(object sender, int removeCount)
 		{
-			removeBooksBtn.Content = removeCount switch
+			_viewModel.RemoveBooksButtonText = removeCount switch
 			{
 				1 => "Remove 1 Book from Libation",
 				_ => $"Remove {removeCount} Books from Libation"

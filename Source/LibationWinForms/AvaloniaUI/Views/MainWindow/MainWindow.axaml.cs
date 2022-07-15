@@ -17,6 +17,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		public event EventHandler Load;
 		public event EventHandler<List<LibraryBook>> LibraryLoaded;
+		private MainWindowViewModel _viewModel;
 
 		public MainWindow()
 		{
@@ -25,6 +26,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 			this.AttachDevTools();
 #endif
 			this.FindAllControls();
+
+			this.DataContext = _viewModel = new MainWindowViewModel();
 
 			// eg: if one of these init'd productsGrid, then another can't reliably subscribe to it
 			Configure_BackupCounts();
@@ -43,8 +46,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 			Configure_NonUI();
 
 			{
-				this.LibraryLoaded += (_, dbBooks) => productsDisplay.Display(dbBooks);
-				LibraryCommands.LibrarySizeChanged += (_, _) => productsDisplay.Display(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+				this.LibraryLoaded += async (_, dbBooks) => await productsDisplay.Display(dbBooks);
+				LibraryCommands.LibrarySizeChanged += async (_, _) => await productsDisplay.Display(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				this.Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
 		}
@@ -106,9 +109,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 			filterSearchTb = this.FindControl<TextBox>(nameof(filterSearchTb));
 			filterBtn = this.FindControl<Button>(nameof(filterBtn));
 			toggleQueueHideBtn = this.FindControl<Button>(nameof(toggleQueueHideBtn));
-
-			removeBooksBtn = this.FindControl<Button>(nameof(removeBooksBtn));
-			doneRemovingBtn = this.FindControl<Button>(nameof(doneRemovingBtn));
 
 			splitContainer1 = this.FindControl<SplitView>(nameof(splitContainer1));
 			productsDisplay = this.FindControl<ProductsDisplay2>(nameof(productsDisplay));

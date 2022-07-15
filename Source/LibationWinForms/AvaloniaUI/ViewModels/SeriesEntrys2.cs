@@ -55,7 +55,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		public SeriesEntrys2(LibraryBook parent, IEnumerable<LibraryBook> children)
 		{
-			Liberate = new LiberateButtonStatus2(IsSeries);
+			Liberate = new LiberateButtonStatus2(IsSeries) { Expanded = true };
 			SeriesIndex = -1;
 			LibraryBook = parent;
 

@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Threading;
 using DataLayer;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using System;
@@ -6,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 {
@@ -13,7 +15,7 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 	{
 		private void Configure_Display() { }
 
-		public void Display(List<LibraryBook> dbBooks)
+		public async Task Display(List<LibraryBook> dbBooks)
 		{
 			try
 			{
@@ -50,7 +52,20 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 					//List is already displayed. Replace all items with new ones, refilter, and re-sort
 					string existingFilter = _viewModel?.GridEntries?.Filter;
 					var newEntries = ProductsDisplayViewModel.CreateGridEntries(dbBooks);
-					bindingList.ReplaceList(newEntries);
+					
+					var existingSeriesEntries = bindingList.InternalList.SeriesEntries().ToList();
+
+					await Dispatcher.UIThread.InvokeAsync(() => bindingList.ReplaceList(newEntries));
+
+					//We're replacing the list, so preserve usere's existing collapse/expand
+					//state. When resetting a list, default state is open.
+					foreach (var series in existingSeriesEntries)
+					{
+						var sEntry = bindingList.InternalList.FirstOrDefault(ge => ge.AudibleProductId == series.AudibleProductId);
+						if (sEntry is SeriesEntrys2 se && !series.Liberate.Expanded)
+							await Dispatcher.UIThread.InvokeAsync(() => bindingList.CollapseItem(se));
+					}
+
 					bindingList.Filter = existingFilter;
 					ReSort();
 				}

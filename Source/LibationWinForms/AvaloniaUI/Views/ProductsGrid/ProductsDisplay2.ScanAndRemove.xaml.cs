@@ -30,8 +30,14 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 				removeGVColumn.IsVisible = value;
 			}
 		}
+
 		public void CloseRemoveBooksColumn()
-			=> RemoveColumnVisible = false;
+		{
+			RemoveColumnVisible = false;
+
+			foreach (var item in bindingList.AllItems())
+				item.PropertyChanged -= Item_PropertyChanged;
+		}
 
 		public async Task RemoveCheckedBooksAsync()
 		{
@@ -49,11 +55,34 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 			if (result != System.Windows.Forms.DialogResult.Yes)
 				return;
 
-			RemoveBooks(selectedBooks);
+			foreach (var book in selectedBooks)
+				book.PropertyChanged -= Item_PropertyChanged;
+
 			var idsToRemove = libraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
+			bindingList.CollectionChanged += BindingList_CollectionChanged;
+
+			//The RemoveBooksAsync will fire LibrarySizeChanged, which calls ProductsDisplay2.Display(),
+			//so there's no need to remove books from the grid display here.
 			var removeLibraryBooks = await LibraryCommands.RemoveBooksAsync(idsToRemove);
 
-			RemovableCountChanged?.Invoke(this, GetAllBookEntries().Count(lbe => lbe.Remove is true));
+			foreach (var b in GetAllBookEntries())
+				b.Remove = false;
+
+			RemovableCountChanged?.Invoke(this, 0);
+		}
+
+		void BindingList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+				return;
+
+			//After ProductsDisplay2.Display() re-creates the list,
+			//re-subscribe to all items' PropertyChanged events.
+
+			foreach (var b in GetAllBookEntries())
+				b.PropertyChanged += Item_PropertyChanged;
+
+			bindingList.CollectionChanged -= BindingList_CollectionChanged;
 		}
 
 		public async Task ScanAndRemoveBooksAsync(params Account[] accounts)
@@ -83,6 +112,9 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 					r.Remove = true;
 
 				RemovableCountChanged?.Invoke(this, GetAllBookEntries().Count(lbe => lbe.Remove is true));
+
+				foreach (var item in bindingList.AllItems())
+					item.PropertyChanged += Item_PropertyChanged;
 			}
 			catch (Exception ex)
 			{
@@ -94,30 +126,13 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 			}
 		}
 
-		private void RemoveBooks(IEnumerable<LibraryBookEntry2> removedBooks)
+		private void Item_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			//Remove books in series from their parents' Children list
-			foreach (var removed in removedBooks.Where(b => b.Parent is not null))
+			if (e.PropertyName == nameof(GridEntry2.Remove) && sender is LibraryBookEntry2 lbEntry)
 			{
-				removed.Parent.Children.Remove(removed);
-
-				//In Avalonia, if you fire PropertyChanged with an empty or invalid property name, nothing is updated.
-				//So we must notify for specific properties that we believed changed.
-				removed.Parent.RaisePropertyChanged(nameof(SeriesEntrys2.Length));
-				removed.Parent.RaisePropertyChanged(nameof(SeriesEntrys2.PurchaseDate));
+				int removeCount = GetAllBookEntries().Count(lbe => lbe.Remove is true);
+				RemovableCountChanged?.Invoke(this, removeCount);
 			}
-
-			//Remove series that have no children
-			var removedSeries =
-				bindingList
-				.AllItems()
-				.EmptySeries();
-
-			foreach (var removed in removedBooks.Cast<GridEntry2>().Concat(removedSeries))
-				//no need to re-filter for removed books
-				bindingList.Remove(removed);
-
-			VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
 		}
 	}
 }

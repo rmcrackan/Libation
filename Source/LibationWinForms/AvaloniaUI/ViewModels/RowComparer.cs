@@ -13,7 +13,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 	/// sorted by series index, ascending. Stable sorting is achieved by comparing the GridEntry.ListIndex
 	/// properties when 2 items compare equal.
 	/// </summary>
-	internal class RowComparer : IComparer
+	internal class RowComparer : IComparer, IComparer<GridEntry2>
 	{
 		private static readonly PropertyInfo HeaderCellPi = typeof(DataGridColumn).GetProperty("HeaderCell", BindingFlags.NonPublic | BindingFlags.Instance);
 		private static readonly PropertyInfo CurrentSortingStatePi = typeof(DataGridColumnHeader).GetProperty("CurrentSortingState", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -81,7 +81,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				return geA.SeriesIndex.CompareTo(geB.SeriesIndex) * (SortDirection is ListSortDirection.Ascending ? 1 : -1);
 
 			//a and b are children of different series.
-			return Compare(parentA, parentB);
+			return InternalCompare(parentA, parentB);
 		}
 
 		//Avalonia doesn't expose the column's CurrentSortingState, so we must get it through reflection
@@ -101,6 +101,11 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				return x.ListIndex.CompareTo(y.ListIndex);
 			else
 				return compareResult;
+		}
+
+		public int Compare(GridEntry2 x, GridEntry2 y)
+		{
+			return Compare((object)x, y);
 		}
 	}
 }

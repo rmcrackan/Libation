@@ -9,7 +9,7 @@
 		xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
 		mc:Ignorable="d" d:DesignWidth="1850" d:DesignHeight="700"
 		x:Class="LibationWinForms.AvaloniaUI.Views.MainWindow"
-		Title="MainWindow"
+		Title="Libation"
 		Name="Form1"
 		Icon="/AvaloniaUI/Assets/glass-with-glow_16.png">
 
@@ -128,8 +128,8 @@
 				</StackPanel>
 
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
-					<Button Name="removeBooksBtn" Click="removeBooksBtn_Click" Height="30" Width="220" Content="Remove # Books from Libation"/>
-					<Button Name="doneRemovingBtn" Click="doneRemovingBtn_Click" Height="30" Width="160" Margin="10,0,0,0" Content="Done Removing Books"/>
+					<Button IsVisible="{Binding RemoveButtonsVisible}" Click="removeBooksBtn_Click" Height="30" Width="220" Content="{Binding RemoveBooksButtonText}"/>
+					<Button IsVisible="{Binding RemoveButtonsVisible}" Click="doneRemovingBtn_Click" Width="160" Margin="10,0,0,0" Content="Done Removing Books"/>
 				</StackPanel>
 				
 				<TextBox Grid.Column="1" Name="filterSearchTb" KeyDown="filterSearchTb_KeyPress" />

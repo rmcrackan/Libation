@@ -15,7 +15,10 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 		{
 			if (CurrentSortColumn is null)
 			{
-				bindingList.InternalList.Sort((i1, i2) => i2.DateAdded.CompareTo(i1.DateAdded));
+				//Sort ascending and reverse. That's how the comparer is designed to work to be compatible with Avalonia.
+				var defaultComparer = new RowComparer(ListSortDirection.Descending, nameof(GridEntry2.DateAdded));
+				bindingList.InternalList.Sort(defaultComparer);
+				bindingList.InternalList.Reverse();
 				bindingList.ResetCollection();
 			}
 			else
