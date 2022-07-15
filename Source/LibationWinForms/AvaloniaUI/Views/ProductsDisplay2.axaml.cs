@@ -34,7 +34,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			_viewModel.Sort(e.Column);
 		}
 
-		private void RemoveColumn_PropertyChanged(object sender, Avalonia.AvaloniaPropertyChangedEventArgs e)
+		private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
 		{
 			if (sender is DataGridColumn col && e.Property.Name == nameof(DataGridColumn.IsVisible))
 			{
@@ -86,7 +86,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 						{
 							Header = ((string)column.Header).Replace((char)0xa, ' '),
 							Tag = column,
-							Margin = new Avalonia.Thickness(6, 0),
+							Margin = new Thickness(6, 0),
 							Icon = new CheckBox
 							{
 								Width = 50,
@@ -151,7 +151,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			config.GridColumnsVisibilities = dictionary;
 		}
 
-		private void ProductsGrid_ColumnDisplayIndexChanged(object sender, Avalonia.Controls.DataGridColumnEventArgs e)
+		private void ProductsGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
 		{
 			var config = Configuration.Instance;
 

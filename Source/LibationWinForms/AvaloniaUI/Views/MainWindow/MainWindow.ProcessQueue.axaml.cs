@@ -23,13 +23,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 				{
 					Serilog.Log.Logger.Information("Begin single book backup of {libraryBook}", libraryBook);
 					SetQueueCollapseState(false);
-					_viewModel.ProcessQueueViewModel.AddDownloadDecrypt(libraryBook);
+					_viewModel.ProcessQueue.AddDownloadDecrypt(libraryBook);
 				}
 				else if (libraryBook.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
 				{
 					Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", libraryBook);
 					SetQueueCollapseState(false);
-					_viewModel.ProcessQueueViewModel.AddDownloadPdf(libraryBook);
+					_viewModel.ProcessQueue.AddDownloadPdf(libraryBook);
 				}
 				else if (libraryBook.Book.Audio_Exists())
 				{

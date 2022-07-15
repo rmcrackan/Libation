@@ -109,18 +109,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="AvaloniaUI\Views\ProcessQueueControl2.axaml.cs">
-      <DependentUpon>ProcessQueueControl2.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="AvaloniaUI\Views\MainWindow\MainWindow.axaml.cs">
-      <DependentUpon>ProcessQueueControl2.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="AvaloniaUI\Views\MainWindow\MainWindow.*.axaml.cs">
-      <DependentUpon>ProcessQueueControl2.axaml.cs</DependentUpon>
-    </Compile>
-    <Compile Update="AvaloniaUI\Views\ProcessBookControl2.axaml.cs">
-      <DependentUpon>ProcessBookControl2.axaml</DependentUpon>
-    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

@@ -1,12 +1,9 @@
-using Avalonia.Collections;
 using Avalonia.Controls;
 using DataLayer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ReactiveUI;
 using System.Reflection;
@@ -14,24 +11,24 @@ using System.Collections;
 using Avalonia.Threading;
 using ApplicationServices;
 using AudibleUtilities;
+using LibationWinForms.AvaloniaUI.Views;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels
 {
 	public class ProductsDisplayViewModel : ViewModelBase
 	{
-
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 		public event EventHandler<int> RemovableCountChanged;
 		public event EventHandler InitialLoaded;
 
 		private DataGridColumn _currentSortColumn;
+		private DataGrid productsDataGrid;
 
 		private GridEntryBindingList2 _gridEntries;
 		private bool _removeColumnVisivle;
 		public GridEntryBindingList2 GridEntries { get => _gridEntries; private set => this.RaiseAndSetIfChanged(ref _gridEntries, value); }
 		public bool RemoveColumnVisivle { get => _removeColumnVisivle; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisivle, value); }
-
 
 		public List<LibraryBook> GetVisibleBookEntries()
 			=> GridEntries
@@ -49,14 +46,47 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			{
 				using var context = DbContexts.GetContext();
 				var book = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
-				_gridEntries = new GridEntryBindingList2(CreateGridEntries(new List<LibraryBook> { book }));
+				GridEntries = new GridEntryBindingList2(CreateGridEntries(new List<LibraryBook> { book }));
 				return;
 			}
 		}
 
-		public void InitialDisplay(List<LibraryBook> dbBooks, Views.ProductsDisplay2 productsGrid)
-		{
+		#region Display Functions
 
+		/// <summary>
+		/// Call once on load so we can modify access a private member with reflection
+		/// </summary>
+		public void RegisterCollectionChanged(ProductsDisplay2 productsDisplay = null)
+		{
+			productsDataGrid ??= productsDisplay?.productsGrid;
+
+			if (GridEntries is null)
+				return;
+
+			//Avalonia displays items in the DataConncetion from an internal copy of
+			//the bound list, not the actual bound list. So we need to reflect to get
+			//the current display order and set each GridEntry.ListIndex correctly.
+			var DataConnection_PI = typeof(DataGrid).GetProperty("DataConnection", BindingFlags.NonPublic | BindingFlags.Instance);
+			var DataSource_PI = DataConnection_PI.PropertyType.GetProperty("DataSource", BindingFlags.Public | BindingFlags.Instance);
+
+			GridEntries.CollectionChanged += (s, e) =>
+			{
+				if (s != GridEntries) return;
+
+				var displayListGE = ((IEnumerable)DataSource_PI.GetValue(DataConnection_PI.GetValue(productsDataGrid))).Cast<GridEntry2>();
+				int index = 0;
+				foreach (var di in displayListGE)
+				{
+					di.ListIndex = index++;
+				}
+			};
+		}
+
+		/// <summary>
+		/// Only call once per lifetime
+		/// </summary>
+		public void InitialDisplay(List<LibraryBook> dbBooks)
+		{
 			try
 			{
 				GridEntries = new GridEntryBindingList2(CreateGridEntries(dbBooks));
@@ -67,21 +97,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				InitialLoaded?.Invoke(this, EventArgs.Empty);
 				VisibleCountChanged?.Invoke(this, bookEntryCount);
 
-				//Avalonia displays items in the DataConncetion from an internal copy of
-				//the bound list, not the actual bound list. So we need to reflect to get
-				//the current display order and set each GridEntry.ListIndex correctly.
-				var DataConnection_PI = typeof(DataGrid).GetProperty("DataConnection", BindingFlags.NonPublic | BindingFlags.Instance);
-				var DataSource_PI = DataConnection_PI.PropertyType.GetProperty("DataSource", BindingFlags.Public | BindingFlags.Instance);
-
-				GridEntries.CollectionChanged += (s, e) =>
-				{
-					var displayListGE = ((IEnumerable)DataSource_PI.GetValue(DataConnection_PI.GetValue(productsGrid.productsGrid))).Cast<GridEntry2>();
-					int index = 0;
-					foreach (var di in displayListGE)
-					{
-						di.ListIndex = index++;
-					}
-				};
+				RegisterCollectionChanged();
 			}
 			catch (Exception ex)
 			{
@@ -89,9 +105,11 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			}
 		}
 
+		/// <summary>
+		/// Call when there's been a change to the library
+		/// </summary>
 		public async Task DisplayBooks(List<LibraryBook> dbBooks)
 		{
-
 			try
 			{
 				//List is already displayed. Replace all items with new ones, refilter, and re-sort
@@ -148,7 +166,19 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			return geList.OrderByDescending(e => e.DateAdded);
 		}
 
+		public void ToggleSeriesExpanded(SeriesEntrys2 seriesEntry)
+		{
+			if (seriesEntry.Liberate.Expanded)
+				GridEntries.CollapseItem(seriesEntry);
+			else
+				GridEntries.ExpandItem(seriesEntry);
 
+			VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count());
+		}
+
+		#endregion
+
+		#region Filtering
 		public async Task Filter(string searchString)
 		{
 			await Dispatcher.UIThread.InvokeAsync(() =>
@@ -168,16 +198,9 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			});
 		}
 
-		public void ToggleSeriesExpanded(SeriesEntrys2 seriesEntry)
-		{
-			if (seriesEntry.Liberate.Expanded)
-				GridEntries.CollapseItem(seriesEntry);
-			else
-				GridEntries.ExpandItem(seriesEntry);
+		#endregion
 
-			VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count());
-		}
-
+		#region Sorting
 
 		public void Sort(DataGridColumn sortColumn)
 		{
@@ -206,6 +229,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				_currentSortColumn.Sort(((RowComparer)_currentSortColumn.CustomSortComparer).SortDirection ?? ListSortDirection.Ascending);
 			}
 		}
+
+		#endregion
+
+		#region Scan and Remove Books
 
 		public void DoneRemovingBooks()
 		{
@@ -311,5 +338,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				RemovableCountChanged?.Invoke(this, removeCount);
 			}
 		}
+
+		#endregion
 	}
 }

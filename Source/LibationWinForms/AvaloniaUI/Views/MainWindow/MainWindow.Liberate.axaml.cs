@@ -19,7 +19,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 				Serilog.Log.Logger.Information("Begin backing up all library books");
 
-				_viewModel.ProcessQueueViewModel.AddDownloadDecrypt(
+				_viewModel.ProcessQueue.AddDownloadDecrypt(
 					ApplicationServices.DbContexts
 					.GetLibrary_Flat_NoTracking()
 					.UnLiberated()
@@ -34,7 +34,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		public async void beginPdfBackupsToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			SetQueueCollapseState(false);
-			await Task.Run(() => _viewModel.ProcessQueueViewModel.AddDownloadPdf(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
+			await Task.Run(() => _viewModel.ProcessQueue.AddDownloadPdf(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
 				  .Where(lb => lb.Book.UserDefinedItem.PdfStatus is DataLayer.LiberatedStatus.NotLiberated)));
 		}
 
@@ -51,7 +51,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (result == DialogResult.Yes)
 			{
 				SetQueueCollapseState(false);
-				await Task.Run(() => _viewModel.ProcessQueueViewModel.AddConvertMp3(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
+				await Task.Run(() => _viewModel.ProcessQueue.AddConvertMp3(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
 					.Where(lb => lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.Liberated && lb.Book.ContentType is DataLayer.ContentType.Product)));
 			}
 			//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.

@@ -21,7 +21,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		private int _visibleNotLiberated = 1;
 
 		/// <summary> The Process Queue's viewmodel </summary>
-		public ProcessQueueViewModel ProcessQueueViewModel { get; } = new ProcessQueueViewModel();
+		public ProcessQueueViewModel ProcessQueue { get; } = new ProcessQueueViewModel();
 		public ProductsDisplayViewModel ProductsDisplay { get; } = new ProductsDisplayViewModel();
 
 

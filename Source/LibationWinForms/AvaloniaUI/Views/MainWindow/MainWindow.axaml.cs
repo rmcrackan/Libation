@@ -20,13 +20,14 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public MainWindow()
 		{
+			this.DataContext = _viewModel = new MainWindowViewModel();
+
 			InitializeComponent();
 #if DEBUG
 			this.AttachDevTools();
 #endif
 			this.FindAllControls();
 
-			this.DataContext = _viewModel = new MainWindowViewModel();
 
 			// eg: if one of these init'd productsGrid, then another can't reliably subscribe to it
 			Configure_BackupCounts();
@@ -52,16 +53,19 @@ namespace LibationWinForms.AvaloniaUI.Views
 				this.LibraryLoaded += MainWindow_LibraryLoaded;
 
 				LibraryCommands.LibrarySizeChanged += async (_, _) => await _viewModel.ProductsDisplay.DisplayBooks(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-				this.Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
+				Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
+		}
+
+		public void ProductsDisplay_Initialized1(object sender, EventArgs e)
+		{
+			if (sender is ProductsDisplay2 products)
+				_viewModel.ProductsDisplay.RegisterCollectionChanged(products);
 		}
 
 		private void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
 		{
-			if (Design.IsDesignMode)
-				return;
-
-			_viewModel.ProductsDisplay.InitialDisplay(dbBooks, productsDisplay);
+			_viewModel.ProductsDisplay.InitialDisplay(dbBooks);
 		}
 
 		private void InitializeComponent()
@@ -75,7 +79,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 		private void FindAllControls()
 		{
 			quickFiltersToolStripMenuItem = this.FindControl<MenuItem>(nameof(quickFiltersToolStripMenuItem));
-			productsDisplay = this.FindControl<ProductsDisplay2>(nameof(productsDisplay));
 		}
 
 		protected override void OnDataContextChanged(EventArgs e)

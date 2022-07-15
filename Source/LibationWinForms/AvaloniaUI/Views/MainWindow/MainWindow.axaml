@@ -167,14 +167,14 @@
 
 					<!-- Process Queue -->
 					<SplitView.Pane>
-						<views:ProcessQueueControl2 DataContext="{Binding ProcessQueueViewModel}"/>
+						<views:ProcessQueueControl2 DataContext="{Binding ProcessQueue}"/>
 					</SplitView.Pane>
 
 					<!-- Product Display Grid -->
 					<views:ProductsDisplay2
+						Initialized="ProductsDisplay_Initialized1"
 						DataContext="{Binding ProductsDisplay}"						
-						LiberateClicked="ProductsDisplay_LiberateClicked"
-						Name="productsDisplay"  />				
+						LiberateClicked="ProductsDisplay_LiberateClicked"/>				
 				</SplitView>
 			</Border>
 
