@@ -61,6 +61,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 			productsDisplay.Filter(null);
 
+			_viewModel.RemoveBooksButtonEnabled = true;
 			_viewModel.RemoveButtonsVisible = true;
 
 			await productsDisplay.ScanAndRemoveBooksAsync(accounts);
@@ -68,7 +69,9 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public async void removeBooksBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
+			_viewModel.RemoveBooksButtonEnabled = false;
 			await productsDisplay.RemoveCheckedBooksAsync();
+			_viewModel.RemoveBooksButtonEnabled = true;
 		}
 
 		public async void doneRemovingBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

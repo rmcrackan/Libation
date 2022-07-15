@@ -55,6 +55,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public abstract bool IsSeries { get; }
 		public abstract bool IsEpisode { get; }
 		public abstract bool IsBook { get; }
+		public IBrush BackgroundBrush => IsEpisode ? App.SeriesEntryGridBackgroundBrush : null;
 
 		#endregion
 

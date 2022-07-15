@@ -9,6 +9,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 	{
 		private string _filterString;
 		private string _removeBooksButtonText = "Remove # Books from Libation";
+		private bool _removeBooksButtonEnabled = true;
 		private bool _autoScanChecked = true;
 		private bool _firstFilterIsDefault = true;
 		private bool _removeButtonsVisible = true;
@@ -31,6 +32,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public string RemoveBooksButtonText { get => _removeBooksButtonText; set => this.RaiseAndSetIfChanged(ref _removeBooksButtonText, value); }
 
 
+		/// <summary> Indicates if the "Remove # Books from Libation" button is enabled </summary>
+		public bool RemoveBooksButtonEnabled { get => _removeBooksButtonEnabled; set { this.RaiseAndSetIfChanged(ref _removeBooksButtonEnabled, value); } }
+
+
 		/// <summary> Auto scanning accounts is enables </summary>
 		public bool AutoScanChecked 
 		{ 
@@ -44,7 +49,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		}
 
 
-		/// <summary> Indicates that the first quick filter is the default filter </summary>
+		/// <summary> Indicates if the first quick filter is the default filter </summary>
 		public bool FirstFilterIsDefault
 		{ 
 			get => _firstFilterIsDefault; 
@@ -57,7 +62,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		}
 
 
-		/// <summary> Indicates if the "Remove # Books from Libation" and "Done Removing" buttons shouls be visible </summary>
+		/// <summary> Indicates if the "Remove # Books from Libation" and "Done Removing" buttons should be visible </summary>
 		public bool RemoveButtonsVisible
 		{
 			get => _removeButtonsVisible;
@@ -67,6 +72,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				this.RaisePropertyChanged(nameof(RemoveMenuItemsEnabled));
 			}
 		}
+
 
 
 
@@ -83,7 +89,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			}
 		}
 
-		/// <summary> Indicates that Libation is currently scanning account(s) </summary>
+		/// <summary> Indicates if Libation is currently scanning account(s) </summary>
 		public bool ActivelyScanning => _numAccountsScanning > 0;
 		/// <summary> Indicates if the "Remove Books" menu items are enabled</summary>
 		public bool RemoveMenuItemsEnabled => !RemoveButtonsVisible && !ActivelyScanning;
@@ -183,16 +189,12 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 					? $"Begin _PDF Only Backups: {LibraryStats.pdfsNotDownloaded} remaining"
 					: "All PDFs have been downloaded";
 
-
-				this.RaisePropertyChanged(nameof(HasBookResults));
 				this.RaisePropertyChanged(nameof(StatusCountText));
 				this.RaisePropertyChanged(nameof(BookBackupsToolStripText));
 				this.RaisePropertyChanged(nameof(PdfBackupsToolStripText));
 			}
 		}
 
-		/// <summary> Indicates whether the library contains any books </summary>
-		public bool HasBookResults => LibraryStats?.HasBookResults ?? false;
 		/// <summary> Bottom-left library statistics display text </summary>
 		public string StatusCountText { get; private set; } = "[Calculating backed up book quantities]  |  [Calculating backed up PDFs]";
 		/// <summary> The "Begin Book and PDF Backup" menu item header text </summary>

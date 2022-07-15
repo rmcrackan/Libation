@@ -91,6 +91,9 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 			RemovableCountChanged?.Invoke(this, 0);
 			removeGVColumn.IsVisible = true;
 
+			foreach (var item in bindingList.AllItems())
+				item.PropertyChanged += Item_PropertyChanged;
+
 			try
 			{
 				if (accounts is null || accounts.Length == 0)
@@ -111,11 +114,6 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 
 				foreach (var r in removable)
 					r.Remove = true;
-
-				RemovableCountChanged?.Invoke(this, GetAllBookEntries().Count(lbe => lbe.Remove is true));
-
-				foreach (var item in bindingList.AllItems())
-					item.PropertyChanged += Item_PropertyChanged;
 			}
 			catch (Exception ex)
 			{

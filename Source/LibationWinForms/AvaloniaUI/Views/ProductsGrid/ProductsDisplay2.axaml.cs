@@ -66,31 +66,8 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 			productsGrid = this.FindControl<DataGrid>(nameof(productsGrid));
 			productsGrid.Sorting += ProductsGrid_Sorting;
 			productsGrid.CanUserSortColumns = true;
-			productsGrid.LoadingRow += ProductsGrid_LoadingRow;
 
 			removeGVColumn = productsGrid.Columns[0];
-		}
-
-		private static object tagObj = new();
-		private void ProductsGrid_LoadingRow(object sender, DataGridRowEventArgs e)
-		{
-			if (e.Row.Tag == tagObj)
-				return;
-			e.Row.Tag = tagObj;
-
-			static IBrush GetRowColor(DataGridRow row)
-				=> row.DataContext is GridEntry2 gEntry
-				&& gEntry is LibraryBookEntry2 lbEntry
-				&& lbEntry.Parent is not null
-				? App.SeriesEntryGridBackgroundBrush
-				: null;
-
-			e.Row.Background = GetRowColor(e.Row);
-			e.Row.DataContextChanged += (sender, e) =>
-			{
-				var row = sender as DataGridRow;
-				row.Background = GetRowColor(row);
-			};
 		}
 	}
 }

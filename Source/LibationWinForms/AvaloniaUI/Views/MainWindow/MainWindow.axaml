@@ -41,11 +41,13 @@
 							</MenuItem.Icon>
 						</MenuItem>
 						<MenuItem IsVisible="{Binding !AnyAccounts}" Click="noAccountsYetAddAccountToolStripMenuItem_Click" Header="No accounts yet. A_dd Account..." />
+						
 						<!-- Scan Library -->
 						<MenuItem IsVisible="{Binding OneAccount}" IsEnabled="{Binding !ActivelyScanning}" Click="scanLibraryToolStripMenuItem_Click" Header="Scan _Library" />
 						<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding !ActivelyScanning}" Click="scanLibraryOfAllAccountsToolStripMenuItem_Click" Header="Scan Library of _All Accounts" />
 						<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding !ActivelyScanning}" Click="scanLibraryOfSomeAccountsToolStripMenuItem_Click" Header="Scan Library of _Some Accounts" />
 						<Separator />
+						
 						<!-- Remove Books -->
 						<MenuItem IsVisible="{Binding OneAccount}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Click="removeLibraryBooksToolStripMenuItem_Click" Header="_Remove Library Books" />
 						<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Click="removeAllAccountsToolStripMenuItem_Click" Header="_Remove Books from All Accounts" />
@@ -77,7 +79,7 @@
 								<Setter Property="Height" Value="NaN"/>
 							</Style>
 						</MenuItem.Styles>
-						<MenuItem IsEnabled="{Binding HasBookResults}" Click="exportLibraryToolStripMenuItem_Click" Header="E_xport Library" />
+						<MenuItem IsEnabled="{Binding LibraryStats.HasBookResults}" Click="exportLibraryToolStripMenuItem_Click" Header="E_xport Library" />
 					</MenuItem>
 
 					<!-- Quick Filters Menu -->
@@ -149,7 +151,7 @@
 				</StackPanel>
 
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
-					<Button IsVisible="{Binding RemoveButtonsVisible}" Click="removeBooksBtn_Click" Height="30" Width="220" Content="{Binding RemoveBooksButtonText}"/>
+					<Button IsVisible="{Binding RemoveButtonsVisible}" IsEnabled="{Binding RemoveBooksButtonEnabled}" Click="removeBooksBtn_Click" Height="30" Width="220" Content="{Binding RemoveBooksButtonText}"/>
 					<Button IsVisible="{Binding RemoveButtonsVisible}" Click="doneRemovingBtn_Click" Height="30" Width="160" Margin="10,0,0,0" Content="Done Removing Books"/>
 				</StackPanel>
 				

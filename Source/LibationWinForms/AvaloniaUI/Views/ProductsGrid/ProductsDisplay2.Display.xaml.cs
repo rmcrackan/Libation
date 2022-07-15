@@ -53,7 +53,7 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 					string existingFilter = _viewModel?.GridEntries?.Filter;
 					var newEntries = ProductsDisplayViewModel.CreateGridEntries(dbBooks);
 					
-					var existingSeriesEntries = bindingList.InternalList.SeriesEntries().ToList();
+					var existingSeriesEntries = bindingList.AllItems().SeriesEntries().ToList();
 
 					await Dispatcher.UIThread.InvokeAsync(() => bindingList.ReplaceList(newEntries));
 
@@ -65,9 +65,11 @@ namespace LibationWinForms.AvaloniaUI.Views.ProductsGrid
 						if (sEntry is SeriesEntrys2 se && !series.Liberate.Expanded)
 							await Dispatcher.UIThread.InvokeAsync(() => bindingList.CollapseItem(se));
 					}
-
-					bindingList.Filter = existingFilter;
-					ReSort();
+					await Dispatcher.UIThread.InvokeAsync(() =>
+					{
+						bindingList.Filter = existingFilter;
+						ReSort();
+					});
 				}
 			}
 			catch (Exception ex)

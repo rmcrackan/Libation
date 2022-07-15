@@ -53,7 +53,7 @@ namespace LibationWinForms
 			Min		1492		2316
 			Q1		1562		2358
 			Med		1567		2379
-			Q2		1567		2379
+			Q2		1600		2418
 			Max		2837		5835
 			*/
 
