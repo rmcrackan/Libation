@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using AudibleUtilities;
+using Avalonia.Controls;
 using Dinah.Core;
 using LibationFileManager;
 using System;
@@ -42,8 +43,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 				}
 			};
 
-			// load init state to menu checkbox
-			Load += updateAutoScanLibraryToolStripMenuItem;
+			_viewModel.AutoScanChecked = Configuration.Instance.AutoScan;
+
 			// if enabled: begin on load
 			Load += startAutoScan;
 
@@ -52,7 +53,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 			AccountsSettingsPersister.Saved += accountsPostSave;
 
 			// when autoscan setting is changed, update menu checkbox and run autoscan
-			Configuration.Instance.AutoScanChanged += updateAutoScanLibraryToolStripMenuItem;
 			Configuration.Instance.AutoScanChanged += startAutoScan;
 		}
 
@@ -84,7 +84,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 			else
 				autoScanTimer.Stop();
 		}
-		private void updateAutoScanLibraryToolStripMenuItem(object sender, EventArgs e) => autoScanLibraryToolStripMenuItemCheckbox.IsChecked = Configuration.Instance.AutoScan;
-		private void autoScanLibraryToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args) => Configuration.Instance.AutoScan = autoScanLibraryToolStripMenuItemCheckbox.IsChecked != true;
+		public void autoScanLibraryToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			if (sender is MenuItem mi && mi.Icon is CheckBox checkBox)
+			{
+				checkBox.IsChecked = !(checkBox.IsChecked ?? false);
+			}
+		}
 	}
 }

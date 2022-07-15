@@ -14,7 +14,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 				return;
 
 			_viewModel.RemoveButtonsVisible = false;
-			removeLibraryBooksToolStripMenuItem.Click += removeLibraryBooksToolStripMenuItem_Click;
 		}
 
 		public async void removeBooksBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -29,9 +28,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			productsDisplay.CloseRemoveBooksColumn();
 
 			//Restore the filter
-			filterSearchTb.IsEnabled = true;
-			filterSearchTb.IsVisible = true;
-			await performFilter(filterSearchTb.Text);
+			await performFilter(_viewModel.FilterString);
 		}
 
 		public void removeLibraryBooksToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -77,8 +74,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 			//For removing books within a filter set, use
 			//Visible Books > Remove from library
 
-			filterSearchTb.IsEnabled = false;
-			filterSearchTb.IsVisible = false;
 			productsDisplay.Filter(null);
 
 			_viewModel.RemoveButtonsVisible = true;

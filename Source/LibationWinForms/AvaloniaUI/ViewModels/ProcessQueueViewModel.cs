@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using Avalonia.Threading;
+using DataLayer;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -19,10 +20,13 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public Task QueueRunner { get; private set; }
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
 
+		private readonly ProcessQueue.LogMe Logger;
+
 		public ProcessQueueViewModel()
 		{
 			Queue.QueuededCountChanged += Queue_QueuededCountChanged;
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
+			Logger = ProcessQueue.LogMe.RegisterForm(this);
 		}
 
 		private int _completedCount;
@@ -66,6 +70,73 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				}));
 		}
 
+
+		#region Add Books to Queue
+
+		private bool isBookInQueue(LibraryBook libraryBook)
+			=> Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
+
+		public void AddDownloadPdf(LibraryBook libraryBook)
+			=> AddDownloadPdf(new List<LibraryBook>() { libraryBook });
+
+		public void AddDownloadDecrypt(LibraryBook libraryBook)
+			=> AddDownloadDecrypt(new List<LibraryBook>() { libraryBook });
+
+		public void AddConvertMp3(LibraryBook libraryBook)
+			=> AddConvertMp3(new List<LibraryBook>() { libraryBook });
+
+		public void AddDownloadPdf(IEnumerable<LibraryBook> entries)
+		{
+			List<ProcessBook2> procs = new();
+			foreach (var entry in entries)
+			{
+				if (isBookInQueue(entry))
+					continue;
+
+				ProcessBook2 pbook = new(entry, Logger);
+				pbook.AddDownloadPdf();
+				procs.Add(pbook);
+			}
+
+			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
+			AddToQueue(procs);
+		}
+
+		public void AddDownloadDecrypt(IEnumerable<LibraryBook> entries)
+		{
+			List<ProcessBook2> procs = new();
+			foreach (var entry in entries)
+			{
+				if (isBookInQueue(entry))
+					continue;
+
+				ProcessBook2 pbook = new(entry, Logger);
+				pbook.AddDownloadDecryptBook();
+				pbook.AddDownloadPdf();
+				procs.Add(pbook);
+			}
+
+			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
+			AddToQueue(procs);
+		}
+
+		public void AddConvertMp3(IEnumerable<LibraryBook> entries)
+		{
+			List<ProcessBook2> procs = new();
+			foreach (var entry in entries)
+			{
+				if (isBookInQueue(entry))
+					continue;
+
+				ProcessBook2 pbook = new(entry, Logger);
+				pbook.AddConvertToMp3();
+				procs.Add(pbook);
+			}
+
+			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
+			AddToQueue(procs);
+		}
+
 		public void AddToQueue(IEnumerable<ProcessBook2> pbook)
 		{
 			Dispatcher.UIThread.Post(() =>
@@ -75,6 +146,8 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 					QueueRunner = QueueLoop();
 			});
 		}
+
+		#endregion
 
 		DateTime StartingTime;
 		private async Task QueueLoop()

@@ -11,9 +11,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		private void Configure_QuickFilters()
 		{
-			Load += updateFirstFilterIsDefaultToolStripMenuItem;
+			_viewModel.FirstFilterIsDefault = QuickFilters.UseDefault;
 			Load += updateFiltersMenu;
-			QuickFilters.UseDefaultChanged += updateFirstFilterIsDefaultToolStripMenuItem;
 			QuickFilters.Updated += updateFiltersMenu;
 		}
 
@@ -49,14 +48,16 @@ namespace LibationWinForms.AvaloniaUI.Views
 			quickFiltersToolStripMenuItem.Items = allItems;
 		}
 
-		private void updateFirstFilterIsDefaultToolStripMenuItem(object sender, EventArgs e)
-			=> firstFilterIsDefaultToolStripMenuItem_Checkbox.IsChecked = QuickFilters.UseDefault;
-
 		public void firstFilterIsDefaultToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> QuickFilters.UseDefault = firstFilterIsDefaultToolStripMenuItem_Checkbox.IsChecked != true;
+		{
+			if (sender is MenuItem mi && mi.Icon is CheckBox checkBox)
+			{
+				checkBox.IsChecked = !(checkBox.IsChecked ?? false);
+			}
+		}
 
 		public void addQuickFilterBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> QuickFilters.Add(this.filterSearchTb.Text);
+			=> QuickFilters.Add(_viewModel.FilterString);
 
 		public void editQuickFiltersToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e) => new EditQuickFilters().ShowDialog();
 

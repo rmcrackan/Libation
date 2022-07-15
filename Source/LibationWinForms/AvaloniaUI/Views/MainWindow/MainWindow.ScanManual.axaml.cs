@@ -22,31 +22,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		private void refreshImportMenu(object _, EventArgs __)
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var count = persister.AccountsSettings.Accounts.Count;
-
-			autoScanLibraryToolStripMenuItem.IsVisible = count > 0;
-
-			noAccountsYetAddAccountToolStripMenuItem.IsVisible = count == 0;
-			scanLibraryToolStripMenuItem.IsVisible = count == 1;
-			scanLibraryOfAllAccountsToolStripMenuItem.IsVisible = count > 1;
-			scanLibraryOfSomeAccountsToolStripMenuItem.IsVisible = count > 1;
-
-			removeLibraryBooksToolStripMenuItem.IsVisible = count > 0;
-
-			//Avalonia will not fire the Click event for a MenuItem with children,
-			//so if only 1 account, remove the children. Otherwise add children
-			//for multiple accounts.
-			removeLibraryBooksToolStripMenuItem.Items = null;
-
-			if (count > 1)
-			{
-				removeLibraryBooksToolStripMenuItem.Items = 
-					new List<Control> 
-					{
-						removeSomeAccountsToolStripMenuItem,
-						removeAllAccountsToolStripMenuItem 
-					};
-			}
+			_viewModel.AccountsCount = persister.AccountsSettings.Accounts.Count;
 		}
 
 		public async void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

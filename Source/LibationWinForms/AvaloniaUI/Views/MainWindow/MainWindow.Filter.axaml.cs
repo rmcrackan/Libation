@@ -18,7 +18,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		{
 			if (e.Key == Key.Return)
 			{
-				await performFilter(this.filterSearchTb.Text);
+				await performFilter(_viewModel.FilterString);
 
 				// silence the 'ding'
 				e.Handled = true;
@@ -26,12 +26,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 		}
 
 		public async void filterBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> await performFilter(this.filterSearchTb.Text);
+			=> await performFilter(_viewModel.FilterString);
 
 		private string lastGoodFilter = "";
 		private async Task performFilter(string filterString)
 		{
-			this.filterSearchTb.Text = filterString;
+			_viewModel.FilterString = filterString;
 
 			try
 			{

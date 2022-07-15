@@ -13,19 +13,17 @@ namespace LibationWinForms.AvaloniaUI.Views
 	public partial class ProcessQueueControl2 : UserControl
     {
 		private TrackedQueue2<ProcessBook2> Queue => _viewModel.Items;
-		private readonly ProcessQueueViewModel _viewModel;
-		private readonly ProcessQueue.LogMe Logger;    
+		private ProcessQueueViewModel _viewModel => DataContext as ProcessQueueViewModel;
 
 		public ProcessQueueControl2()
 		{
 			InitializeComponent();
-            DataContext = _viewModel = new ProcessQueueViewModel();
-			Logger = ProcessQueue.LogMe.RegisterForm(_viewModel);
 
 			ProcessBookControl2.PositionButtonClicked += ProcessBookControl2_ButtonClicked;
 			ProcessBookControl2.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;
 
 			#region Design Mode Testing
+			/*
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
@@ -77,6 +75,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 				_viewModel.Items.Enqueue(testList);
 				return;
 			}
+			*/
 			#endregion
 		}
 
@@ -84,74 +83,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 		{
 			AvaloniaXamlLoader.Load(this);
 		}
-
-		#region Add Books to Queue
-
-		private bool isBookInQueue(LibraryBook libraryBook)
-			=> Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
-
-		public void AddDownloadPdf(LibraryBook libraryBook)
-			=> AddDownloadPdf(new List<LibraryBook>() { libraryBook });
-
-		public void AddDownloadDecrypt(LibraryBook libraryBook)
-			=> AddDownloadDecrypt(new List<LibraryBook>() { libraryBook });
-
-		public void AddConvertMp3(LibraryBook libraryBook)
-			=> AddConvertMp3(new List<LibraryBook>() { libraryBook });
-
-		public void AddDownloadPdf(IEnumerable<LibraryBook> entries)
-		{
-			List<ProcessBook2> procs = new();
-			foreach (var entry in entries)
-			{
-				if (isBookInQueue(entry))
-					continue;
-
-				ProcessBook2 pbook = new(entry, Logger);
-				pbook.AddDownloadPdf();
-				procs.Add(pbook);
-			}
-
-			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
-			_viewModel.AddToQueue(procs);
-		}
-
-		public void AddDownloadDecrypt(IEnumerable<LibraryBook> entries)
-		{
-			List<ProcessBook2> procs = new();
-			foreach (var entry in entries)
-			{
-				if (isBookInQueue(entry))
-					continue;
-
-				ProcessBook2 pbook = new(entry, Logger);
-				pbook.AddDownloadDecryptBook();
-				pbook.AddDownloadPdf();
-				procs.Add(pbook);
-			}
-
-			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
-			_viewModel.AddToQueue(procs);
-		}
-
-		public void AddConvertMp3(IEnumerable<LibraryBook> entries)
-		{
-			List<ProcessBook2> procs = new();
-			foreach (var entry in entries)
-			{
-				if (isBookInQueue(entry))
-					continue;
-
-				ProcessBook2 pbook = new(entry, Logger);
-				pbook.AddConvertToMp3();
-				procs.Add(pbook);
-			}
-
-			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
-			_viewModel.AddToQueue(procs);
-		}
-
-		#endregion
 
 		#region Control event handlers
 

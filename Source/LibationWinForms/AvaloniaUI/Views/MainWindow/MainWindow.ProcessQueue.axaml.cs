@@ -11,7 +11,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		private void Configure_ProcessQueue()
 		{
-			var collapseState = !Configuration.Instance.GetNonString<bool>(nameof(splitContainer1.IsPaneOpen));
+			var collapseState = !Configuration.Instance.GetNonString<bool>(nameof(_viewModel.QueueOpen));
 			SetQueueCollapseState(collapseState);
 		}
 
@@ -23,13 +23,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 				{
 					Serilog.Log.Logger.Information("Begin single book backup of {libraryBook}", libraryBook);
 					SetQueueCollapseState(false);
-					processBookQueue1.AddDownloadDecrypt(libraryBook);
+					_viewModel.ProcessQueueViewModel.AddDownloadDecrypt(libraryBook);
 				}
 				else if (libraryBook.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
 				{
 					Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", libraryBook);
 					SetQueueCollapseState(false);
-					processBookQueue1.AddDownloadPdf(libraryBook);
+					_viewModel.ProcessQueueViewModel.AddDownloadPdf(libraryBook);
 				}
 				else if (libraryBook.Book.Audio_Exists())
 				{
@@ -49,14 +49,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 		}
 		private void SetQueueCollapseState(bool collapsed)
 		{
-			splitContainer1.IsPaneOpen = !collapsed;
-			toggleQueueHideBtn.Content = splitContainer1.IsPaneOpen ? "❱❱❱" : "❰❰❰";
+			_viewModel.QueueOpen = !collapsed;
 		}
 
 		public void ToggleQueueHideBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			SetQueueCollapseState(splitContainer1.IsPaneOpen);
-			Configuration.Instance.SetObject(nameof(splitContainer1.IsPaneOpen), splitContainer1.IsPaneOpen);
+			SetQueueCollapseState(_viewModel.QueueOpen);
+			Configuration.Instance.SetObject(nameof(_viewModel.QueueOpen), _viewModel.QueueOpen);
 		}
 	}
 }

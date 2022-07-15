@@ -62,62 +62,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		private void FindAllControls()
 		{
-			{
-				autoScanLibraryToolStripMenuItem = this.FindControl<MenuItem>(nameof(autoScanLibraryToolStripMenuItem));
-				autoScanLibraryToolStripMenuItemCheckbox = this.FindControl<CheckBox>(nameof(autoScanLibraryToolStripMenuItemCheckbox));
-				noAccountsYetAddAccountToolStripMenuItem = this.FindControl<MenuItem>(nameof(noAccountsYetAddAccountToolStripMenuItem));
-				scanLibraryToolStripMenuItem = this.FindControl<MenuItem>(nameof(scanLibraryToolStripMenuItem));
-				scanLibraryOfAllAccountsToolStripMenuItem = this.FindControl<MenuItem>(nameof(scanLibraryOfAllAccountsToolStripMenuItem));
-				scanLibraryOfSomeAccountsToolStripMenuItem = this.FindControl<MenuItem>(nameof(scanLibraryOfSomeAccountsToolStripMenuItem));
-				removeLibraryBooksToolStripMenuItem = this.FindControl<MenuItem>(nameof(removeLibraryBooksToolStripMenuItem));
-				{
-					removeAllAccountsToolStripMenuItem = this.FindControl<MenuItem>(nameof(removeAllAccountsToolStripMenuItem));
-					removeSomeAccountsToolStripMenuItem = this.FindControl<MenuItem>(nameof(removeSomeAccountsToolStripMenuItem));
-				}
-			}
-
-			{
-				beginBookBackupsToolStripMenuItem = this.FindControl<FormattableMenuItem>(nameof(beginBookBackupsToolStripMenuItem));
-				beginPdfBackupsToolStripMenuItem = this.FindControl<FormattableMenuItem>(nameof(beginPdfBackupsToolStripMenuItem));
-				liberateVisibleToolStripMenuItem_LiberateMenu = this.FindControl<FormattableMenuItem>(nameof(liberateVisibleToolStripMenuItem_LiberateMenu));
-			}
-
-			{
-				exportLibraryToolStripMenuItem = this.FindControl<MenuItem>(nameof(exportLibraryToolStripMenuItem));
-			}
-
 			quickFiltersToolStripMenuItem = this.FindControl<MenuItem>(nameof(quickFiltersToolStripMenuItem));
-			{
-				firstFilterIsDefaultToolStripMenuItem = this.FindControl<MenuItem>(nameof(firstFilterIsDefaultToolStripMenuItem));
-				firstFilterIsDefaultToolStripMenuItem_Checkbox = this.FindControl<CheckBox>(nameof(firstFilterIsDefaultToolStripMenuItem_Checkbox));
-				editQuickFiltersToolStripMenuItem = this.FindControl<MenuItem>(nameof(editQuickFiltersToolStripMenuItem));
-			}
-
-			visibleBooksToolStripMenuItem = this.FindControl<FormattableMenuItem>(nameof(visibleBooksToolStripMenuItem));
-			{
-				liberateVisibleToolStripMenuItem_VisibleBooksMenu = this.FindControl<FormattableMenuItem>(nameof(liberateVisibleToolStripMenuItem_VisibleBooksMenu));
-				setDownloadedToolStripMenuItem = this.FindControl<MenuItem>(nameof(setDownloadedToolStripMenuItem));
-				removeToolStripMenuItem = this.FindControl<MenuItem>(nameof(removeToolStripMenuItem));
-			}
-
-			scanningToolStripMenuItem = this.FindControl<StackPanel>(nameof(scanningToolStripMenuItem));
-			scanningToolStripMenuItem_Text = this.FindControl<TextBlock>(nameof(scanningToolStripMenuItem_Text));
-
-
-			filterHelpBtn = this.FindControl<Button>(nameof(filterHelpBtn));
-			addQuickFilterBtn = this.FindControl<Button>(nameof(addQuickFilterBtn));
-			filterSearchTb = this.FindControl<TextBox>(nameof(filterSearchTb));
-			filterBtn = this.FindControl<Button>(nameof(filterBtn));
-			toggleQueueHideBtn = this.FindControl<Button>(nameof(toggleQueueHideBtn));
-
-			splitContainer1 = this.FindControl<SplitView>(nameof(splitContainer1));
 			productsDisplay = this.FindControl<ProductsDisplay2>(nameof(productsDisplay));
-			processBookQueue1 = this.FindControl<ProcessQueueControl2>(nameof(processBookQueue1));
-
-			visibleCountLbl = this.FindControl<FormattableTextBlock>(nameof(visibleCountLbl));
-			backupsCountsLbl = this.FindControl<TextBlock>(nameof(backupsCountsLbl));
-			pdfsCountsLbl = this.FindControl<FormattableTextBlock>(nameof(pdfsCountsLbl));
-
 		}
 
 		protected override void OnDataContextChanged(EventArgs e)

@@ -13,14 +13,6 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		private void Configure_VisibleBooks()
 		{
-			// init formattable
-			visibleCountLbl.Format(0);
-			liberateVisibleToolStripMenuItem_VisibleBooksMenu.Format(0);
-			liberateVisibleToolStripMenuItem_LiberateMenu.Format(0);
-
-			// top menu strip
-			visibleBooksToolStripMenuItem.Format(0);
-
 			LibraryCommands.BookUserDefinedItemCommitted += setLiberatedVisibleMenuItemAsync;
 		}
 
@@ -35,7 +27,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 				Serilog.Log.Logger.Information("Begin backing up visible library books");
 
-				processBookQueue1.AddDownloadDecrypt(
+				_viewModel.ProcessQueueViewModel.AddDownloadDecrypt(
 					productsDisplay
 					.GetVisibleBookEntries()
 					.UnLiberated()
@@ -107,44 +99,14 @@ namespace LibationWinForms.AvaloniaUI.Views
 		}
 		public async void productsDisplay_VisibleCountChanged(object sender, int qty)
 		{
-			Dispatcher.UIThread.Post(() =>
-			{
-				// bottom-left visible count
-				visibleCountLbl.Format(qty);
-
-				// top menu strip
-				visibleBooksToolStripMenuItem.Format(qty);
-				visibleBooksToolStripMenuItem.IsEnabled = qty > 0;
-			});
-
-			//Not used for anything?
-			var notLiberatedCount = productsDisplay.GetVisibleBookEntries().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			_viewModel.VisibleCount = qty;
 
 			await Task.Run(setLiberatedVisibleMenuItem);
 		}
 		void setLiberatedVisibleMenuItem()
-		{
-			var notLiberated = productsDisplay.GetVisibleBookEntries().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
-
-			Dispatcher.UIThread.Post(() =>
-			{
-				if (notLiberated > 0)
-				{
-					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Format(notLiberated);
-					liberateVisibleToolStripMenuItem_VisibleBooksMenu.IsEnabled = true;
-
-					liberateVisibleToolStripMenuItem_LiberateMenu.Format(notLiberated);
-					liberateVisibleToolStripMenuItem_LiberateMenu.IsEnabled = true;
-				}
-				else
-				{
-					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Header = "All visible books are liberated";
-					liberateVisibleToolStripMenuItem_VisibleBooksMenu.IsEnabled = false;
-
-					liberateVisibleToolStripMenuItem_LiberateMenu.Header = "All visible books are liberated";
-					liberateVisibleToolStripMenuItem_LiberateMenu.IsEnabled = false;
-				}
-			});
-		}
+			=> _viewModel.VisibleNotLiberated
+				= productsDisplay
+				.GetVisibleBookEntries()
+				.Count(lb => lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.NotLiberated);
 	}
 }
