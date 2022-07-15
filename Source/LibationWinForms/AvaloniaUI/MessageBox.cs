@@ -219,6 +219,7 @@ namespace LibationWinForms.AvaloniaUI
 			var vm = new MessageBoxViewModel(message, caption, buttons, icon, defaultButton);
 			dialog.DataContext = vm;
 			dialog.CanResize = false;
+			dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 			var tbx = dialog.FindControl<TextBlock>("messageTextBlock");
 
 			tbx.MinWidth = vm.TextBlockMinWidth;

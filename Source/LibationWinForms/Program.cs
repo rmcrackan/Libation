@@ -19,7 +19,7 @@ namespace LibationWinForms
 		static extern bool AllocConsole();
 
 		[STAThread]
-		static async Task Main()
+		static void Main()
 		{
 			var config = LoadLibationConfig();
 
@@ -61,22 +61,22 @@ namespace LibationWinForms
 			if (true) //(config.GetNonString<bool>("BetaOptIn"))
 			{
 				//Start as much work in parallel as possible.
-				var runPreStartTasksTask = Task.Run(() => RunDbMigrations(config));
+				var runDbMigrationsTask = Task.Run(() => RunDbMigrations(config));
 				var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 				var appBuilderTask = Task.Run(BuildAvaloniaApp);
 
-				if (!await runPreStartTasksTask)
+				if (!runDbMigrationsTask.GetAwaiter().GetResult())
 					return;
 
 				var runOtherMigrationsTask = Task.Run(() => RunOtherMigrations(config));
 				var dbLibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));				
 
-				(await appBuilderTask).SetupWithLifetime(await classicLifetimeTask);
+				appBuilderTask.GetAwaiter().GetResult().SetupWithLifetime(classicLifetimeTask.GetAwaiter().GetResult());
 
-				if (!await runOtherMigrationsTask)
+				if (!runOtherMigrationsTask.GetAwaiter().GetResult())
 					return;
 
-				((AvaloniaUI.Views.MainWindow)classicLifetimeTask.Result.MainWindow).OnLibraryLoaded(await dbLibraryTask);
+				((AvaloniaUI.Views.MainWindow)classicLifetimeTask.Result.MainWindow).OnLibraryLoaded(dbLibraryTask.GetAwaiter().GetResult());
 
 				classicLifetimeTask.Result.Start(null);
 			}
