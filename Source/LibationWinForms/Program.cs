@@ -29,7 +29,7 @@ namespace LibationWinForms
 			/*
 			Results below compare startup times when parallelizing startup tasks vs when
 			running everything sequentially, from the entry point until after the call to
-			OnLoadedLibrary() returns. Tests were run on a ReadyToRun enables release build.
+			OnLoadedLibrary() returns. Tests were run on a ReadyToRun enabled release build.
 
 			The first run is substantially slower than all subsequent runs for both serial
 			and parallel. This is most likely due to file system caching speeding up
@@ -54,7 +54,7 @@ namespace LibationWinForms
 			Min		1492		2316
 			Q1		1562		2358
 			Med		1567		2379
-			Q2		1600		2418
+			Q3		1600		2418
 			Max		2837		5835
 			*/
 
@@ -65,7 +65,7 @@ namespace LibationWinForms
 			}
 
 			//For debug purposes, always run AvaloniaUI.
-			if (true) //(config.GetNonString<bool>("BetaOptIn"))
+			if (config.GetNonString<bool>("BetaOptIn"))
 			{
 				//Start as much work in parallel as possible.
 				var runDbMigrationsTask = Task.Run(() => RunDbMigrations(config));

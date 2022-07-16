@@ -9,6 +9,7 @@ using LibationFileManager;
 using DataLayer;
 using System.Collections.Generic;
 using System.Linq;
+using LibationWinForms.AvaloniaUI.Views.Dialogs;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
@@ -55,6 +56,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 				LibraryCommands.LibrarySizeChanged += async (_, _) => await _viewModel.ProductsDisplay.DisplayBooks(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
+			Opened += MainWindow_Opened;
+		}
+
+		private async void MainWindow_Opened(object sender, EventArgs e)
+		{
+
 		}
 
 		public void ProductsDisplay_Initialized1(object sender, EventArgs e)

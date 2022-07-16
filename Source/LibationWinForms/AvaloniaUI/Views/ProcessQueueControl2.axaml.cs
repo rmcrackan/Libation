@@ -2,6 +2,7 @@ using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using DataLayer;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,70 @@ namespace LibationWinForms.AvaloniaUI.Views
 			InitializeComponent();
 
 			ProcessBookControl2.PositionButtonClicked += ProcessBookControl2_ButtonClicked;
-			ProcessBookControl2.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;			
+			ProcessBookControl2.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;
+
+			#region Design Mode Testing
+			if (Design.IsDesignMode)
+			{
+				var vm = new ProcessQueueViewModel();
+				var Logger = ProcessQueue.LogMe.RegisterForm(vm);
+				DataContext = vm;
+				using var context = DbContexts.GetContext();
+				List<ProcessBook2> testList = new()
+				{
+					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"), Logger)
+					{
+						Result = ProcessBookResult.FailedAbort,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"), Logger)
+					{
+						Result = ProcessBookResult.FailedSkip,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"), Logger)
+					{
+						Result = ProcessBookResult.FailedRetry,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"), Logger)
+					{
+						Result = ProcessBookResult.ValidationFail,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"), Logger)
+					{
+						Result = ProcessBookResult.Cancelled,
+						Status = ProcessBookStatus.Cancelled,
+					},
+					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"), Logger)
+					{
+						Result = ProcessBookResult.Success,
+						Status = ProcessBookStatus.Completed,
+					},
+					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"), Logger)
+					{
+						Result = ProcessBookResult.None,
+						Status = ProcessBookStatus.Working,
+					},
+					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"), Logger)
+					{
+						Result = ProcessBookResult.None,
+						Status = ProcessBookStatus.Queued,
+					},
+				};
+
+				vm.Items.Enqueue(testList);
+				vm.Items.MoveNext();
+				vm.Items.MoveNext();
+				vm.Items.MoveNext();
+				vm.Items.MoveNext();
+				vm.Items.MoveNext();
+				vm.Items.MoveNext();
+				vm.Items.MoveNext();
+				return;
+			}
+			#endregion
 		}
 
 		private void InitializeComponent()

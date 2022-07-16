@@ -1,3 +1,4 @@
+using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -5,6 +6,7 @@ using DataLayer;
 using FileLiberator;
 using LibationFileManager;
 using LibationWinForms.AvaloniaUI.ViewModels;
+using LibationWinForms.AvaloniaUI.Views.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,8 +23,25 @@ namespace LibationWinForms.AvaloniaUI.Views
 		public ProductsDisplay2()
 		{
 			InitializeComponent();
-			Configure_ColumnCustomization();
 
+			if (Design.IsDesignMode)
+			{
+				using var context = DbContexts.GetContext();
+				List<GridEntry2> sampleEntries = new()
+				{
+					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G")),
+					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG")),
+					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q")),
+					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO")),
+					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4")),
+					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0")),
+					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")),
+				};
+				DataContext = new ProductsDisplayViewModel(sampleEntries);
+				return;
+			}
+
+			Configure_ColumnCustomization();
 			foreach (var column in productsGrid.Columns)
 			{
 				column.CustomSortComparer = new RowComparer(column);
@@ -251,15 +270,23 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 		}
 
+		BookDetailsDialog2 bookDetailsForm;
+
 		public void OnTagsButtonClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var button = args.Source as Button;
 
-			if (button.DataContext is LibraryBookEntry2 lbEntry)
+			if (button.DataContext is LibraryBookEntry2 lbEntry && VisualRoot is Window window)
 			{
-				var bookDetailsForm = new LibationWinForms.Dialogs.BookDetailsDialog(lbEntry.LibraryBook);
-				if (bookDetailsForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-					lbEntry.Commit(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+				if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
+				{
+					bookDetailsForm = new BookDetailsDialog2(lbEntry.LibraryBook);
+					bookDetailsForm.RestoreSizeAndLocation(Configuration.Instance);
+					bookDetailsForm.Closing += (_,_) => bookDetailsForm.SaveSizeAndLocation(Configuration.Instance);
+					bookDetailsForm.Show(window);
+				}
+				else
+					bookDetailsForm.LibraryBook = lbEntry.LibraryBook;
 			}
 		}
 

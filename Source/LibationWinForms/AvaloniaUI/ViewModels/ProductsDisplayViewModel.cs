@@ -39,25 +39,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			=> GridEntries
 			.AllItems()
 			.BookEntries();
-
-		public ProductsDisplayViewModel()
+		public ProductsDisplayViewModel() { }
+		public ProductsDisplayViewModel(List<GridEntry2> items)
 		{
-			if (Design.IsDesignMode)
-			{
-				using var context = DbContexts.GetContext();
-				List<LibraryBook> sampleEntries = new()
-				{
-					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"),
-					context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"),
-				};
-				GridEntries = new GridEntryBindingList2(CreateGridEntries(sampleEntries));
-				return;
-			}
+			GridEntries = new GridEntryBindingList2(items);
 		}
 
 		#region Display Functions

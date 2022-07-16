@@ -109,6 +109,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="AvaloniaUI\Views\Dialogs\BookDetailsDialog2.axaml.cs">
+      <DependentUpon>BookDetailsDialog2.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -121,6 +124,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="AvaloniaUI\Controls\GroupBox.axaml" />
   </ItemGroup>
 
 </Project>

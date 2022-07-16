@@ -3,6 +3,8 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using LibationWinForms.AvaloniaUI.ViewModels;
+using ApplicationServices;
+using DataLayer;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
@@ -15,6 +17,16 @@ namespace LibationWinForms.AvaloniaUI.Views
 		public ProcessBookControl2()
 		{
 			InitializeComponent();
+
+			if (Design.IsDesignMode)
+			{
+				using var context = DbContexts.GetContext();
+				DataContext = new ProcessBook2(
+					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
+					ProcessQueue.LogMe.RegisterForm(default(ProcessQueue.ILogForm))
+					);
+				return;
+			}
 		}
 
 		private ProcessBook2 DataItem => DataContext is null ? null : DataContext as ProcessBook2;

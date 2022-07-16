@@ -24,7 +24,7 @@ namespace LibationWinForms.AvaloniaUI
 
 		public static void RestoreSizeAndLocation(this Window form, Configuration config)
 		{
-			FormSizeAndPosition savedState = config.GetNonString<FormSizeAndPosition>(form.Name);
+			FormSizeAndPosition savedState = config.GetNonString<FormSizeAndPosition>(form.GetType().Name);
 
 			if (savedState is null)
 				return;
@@ -79,7 +79,7 @@ namespace LibationWinForms.AvaloniaUI
 			saveState.Width = (int)form.Bounds.Size.Width;
 			saveState.Height = (int)form.Bounds.Size.Height;
 
-			config.SetObject(form.Name, saveState);
+			config.SetObject(form.GetType().Name, saveState);
 		}
 
 		class FormSizeAndPosition

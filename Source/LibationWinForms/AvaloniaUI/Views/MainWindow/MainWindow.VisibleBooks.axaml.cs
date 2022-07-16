@@ -93,7 +93,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 				this,
 				visibleLibraryBooks,
 				"Are you sure you want to remove {0} from Libation's library?",
-				"Remove books from Libation?");
+				"Remove books from Libation?",
+				MessageBoxDefaultButton.Button2);
 
 			if (confirmationResult != DialogResult.Yes)
 				return;

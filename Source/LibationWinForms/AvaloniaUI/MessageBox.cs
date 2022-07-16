@@ -201,7 +201,7 @@ namespace LibationWinForms.AvaloniaUI
 			return await ShowCore(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		}
 
-		public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title)
+		public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
 		{
 			if (libraryBooks is null || !libraryBooks.Any())
 				return DialogResult.Cancel;
@@ -221,7 +221,7 @@ namespace LibationWinForms.AvaloniaUI
 				title,
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Question,
-				MessageBoxDefaultButton.Button1);
+				defaultButton);
 		}
 
 		private static async Task<DialogResult> ShowCore(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
