@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -90,5 +91,29 @@ namespace LibationWinForms.AvaloniaUI
 			public int Width;
 			public bool IsMaximized;
 		}
+
+
+		public static void HideMinMaxBtns(this Window form)
+		{
+
+			if (Design.IsDesignMode)
+				return;
+#if WINDOWS7_0
+				var handle = form.PlatformImpl.Handle.Handle;
+			var currentStyle = GetWindowLong(handle, GWL_STYLE);
+
+			SetWindowLong(handle, GWL_STYLE, currentStyle & ~WS_MAXIMIZEBOX & ~WS_MINIMIZEBOX);
+#endif
+		}
+
+#if WINDOWS7_0
+		const long WS_MINIMIZEBOX = 0x00020000L;
+		const long WS_MAXIMIZEBOX = 0x10000L;
+		const int GWL_STYLE = -16;
+		[System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+		static extern long GetWindowLong(IntPtr hWnd, int nIndex);
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		static extern int SetWindowLong(IntPtr hWnd, int nIndex, long dwNewLong);
+#endif
 	}
 }

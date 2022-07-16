@@ -1,44 +1,26 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.ReactiveUI;
 using LibationWinForms.AvaloniaUI.ViewModels.Dialogs;
 
 namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 {
 
-	public partial class MessageBoxWindow : ReactiveWindow<MessageBoxViewModel>
+	public partial class MessageBoxWindow : DialogWindow
 	{
 		public MessageBoxWindow()
 		{
 			InitializeComponent();
-#if DEBUG
-			this.AttachDevTools();
-#endif
 		}
 
 		private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
-			this.Opened += MessageBoxWindow_Opened;
 		}
 
-		private void MessageBoxWindow_Opened(object sender, System.EventArgs e)
-		{
-			var vm = this.DataContext as MessageBoxViewModel;
-			switch (vm.DefaultButton)
-			{
-				case MessageBoxDefaultButton.Button1:
-					this.FindControl<Button>("Button1").Focus();
-					break;
-				case MessageBoxDefaultButton.Button2:
-					this.FindControl<Button>("Button2").Focus();
-					break;
-				case MessageBoxDefaultButton.Button3:
-					this.FindControl<Button>("Button3").Focus();
-					break;
-			}
-		}
+		protected override void CancelAndClose() => Close(DialogResult.None);
+
+		protected override void SaveAndClose() { }
 
 		public DialogResult DialogResult { get; private set; }
 

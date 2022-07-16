@@ -40,11 +40,11 @@ namespace LibationWinForms.AvaloniaUI.Views
 		}
 
 		// selectively remove books from some accounts
-		public void removeSomeAccountsToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void removeSomeAccountsToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			using var scanAccountsDialog = new ScanAccountsDialog();
+			var scanAccountsDialog = new Dialogs.ScanAccountsDialog();
 
-			if (scanAccountsDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+			if (await scanAccountsDialog.ShowDialog<DialogResult>(this) != DialogResult.OK)
 				return;
 
 			if (!scanAccountsDialog.CheckedAccounts.Any())

@@ -11,8 +11,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		protected void Configure_Filter() { }
 
-		public void filterHelpBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> new SearchSyntaxDialog().ShowDialog();
+		public async void filterHelpBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+			=> await (new LibationWinForms.AvaloniaUI.Views.Dialogs.SearchSyntaxDialog()).ShowDialog(this);
 		
 		public async void filterSearchTb_KeyPress(object sender, KeyEventArgs e)
 		{

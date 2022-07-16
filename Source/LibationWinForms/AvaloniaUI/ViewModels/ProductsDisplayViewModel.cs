@@ -31,7 +31,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public bool RemoveColumnVisivle { get => _removeColumnVisivle; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisivle, value); }
 
 		public List<LibraryBook> GetVisibleBookEntries()
-			=> GridEntries
+			=> GridEntries.InternalList
 			.BookEntries()
 			.Select(lbe => lbe.LibraryBook)
 			.ToList();

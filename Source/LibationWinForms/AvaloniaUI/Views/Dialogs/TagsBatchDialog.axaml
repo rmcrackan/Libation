@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="630" d:DesignHeight="110"		
+        x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.TagsBatchDialog"
+		MinWidth="630" MinHeight="110"
+		MaxWidth="630" MaxHeight="110"
+        Title="Replace Tags"
+		WindowStartupLocation="CenterOwner"
+		Icon="/AvaloniaUI/Assets/libation.ico">
+
+	<Grid RowDefinitions="Auto,Auto,Auto">
+		<TextBlock
+			Grid.Row="0"
+			Margin="10,10,10,0"
+			Text="Tags are separated by a space. Each tag can contain letters, numbers, and underscores"/>
+		<TextBox
+			Grid.Row="1"
+			Margin="10"
+			MinHeight="25"
+			Name="EditTagsTb"
+			Text="{Binding NewTags, Mode=TwoWay}" />
+		<Button
+			Grid.Row="2"
+			Padding="30,0,30,0"
+			Margin="10,0,10,10"
+			HorizontalAlignment="Right"
+			Height="25"
+			Content="Save"
+			Click="SaveButton_Clicked"/>
+	</Grid>
+</Window>

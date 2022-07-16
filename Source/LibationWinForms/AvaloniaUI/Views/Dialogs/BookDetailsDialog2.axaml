@@ -11,6 +11,12 @@
 		Icon="/AvaloniaUI/Assets/libation.ico">
 
 	<Grid RowDefinitions="*,Auto,Auto,Auto">
+		<Grid.Styles>
+			<Style Selector="Button:focus">
+				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderThickness" Value="2" />
+			</Style>
+		</Grid.Styles>
 		<Grid ColumnDefinitions="Auto,*" Margin="10,10,10,0">
 			<Panel VerticalAlignment="Top" Margin="5" Background="LightGray" Width="80" Height="80" >
 				<Image Grid.Column="0" Width="80" Height="80" Source="{Binding Cover}" />

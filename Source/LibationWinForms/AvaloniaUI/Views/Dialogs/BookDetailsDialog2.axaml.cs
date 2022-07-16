@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 {
-	public partial class BookDetailsDialog2 : Window
+	public partial class BookDetailsDialog2 : DialogWindow
 	{
 		private LibraryBook _libraryBook;
 		private BookDetailsDialogViewModel _viewModel;
@@ -34,9 +34,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		public BookDetailsDialog2()
 		{
 			InitializeComponent();
-#if DEBUG
-			this.AttachDevTools();
-#endif
+
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
@@ -47,6 +45,14 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		{
 			LibraryBook = libraryBook;
 		}
+
+
+		protected override void SaveAndClose()
+		{
+			SaveButton_Clicked(null, null);
+			base.SaveAndClose();
+		}
+
 
 		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{

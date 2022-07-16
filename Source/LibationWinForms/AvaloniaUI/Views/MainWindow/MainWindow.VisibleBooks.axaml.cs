@@ -41,9 +41,9 @@ namespace LibationWinForms.AvaloniaUI.Views
 		}
 		public async void replaceTagsToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
-			var dialog = new TagsBatchDialog();
-			var result = dialog.ShowDialog();
-			if (result != System.Windows.Forms.DialogResult.OK)
+			var dialog = new Dialogs.TagsBatchDialog();
+			var result = await dialog.ShowDialog<DialogResult>(this);
+			if (result != DialogResult.OK)
 				return;
 
 			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
@@ -64,9 +64,9 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public async void setDownloadedToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
-			var dialog = new LiberatedStatusBatchDialog();
-			var result = dialog.ShowDialog();
-			if (result != System.Windows.Forms.DialogResult.OK)
+			var dialog = new Dialogs.LiberatedStatusBatchDialog();
+			var result = await dialog.ShowDialog<DialogResult>(this);
+			if (result != DialogResult.OK)
 				return;
 
 			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
