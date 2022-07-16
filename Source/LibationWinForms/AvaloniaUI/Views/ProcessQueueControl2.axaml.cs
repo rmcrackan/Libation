@@ -1,8 +1,7 @@
 using ApplicationServices;
+using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Markup.Xaml;
-using DataLayer;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -20,63 +19,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			InitializeComponent();
 
 			ProcessBookControl2.PositionButtonClicked += ProcessBookControl2_ButtonClicked;
-			ProcessBookControl2.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;
-
-			#region Design Mode Testing
-			/*
-			if (Design.IsDesignMode)
-			{
-				using var context = DbContexts.GetContext();
-				var book = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
-				List<ProcessBook2> testList = new()
-				{
-					new ProcessBook2(book, Logger)
-					{
-						Result = ProcessBookResult.FailedAbort,
-						Status = ProcessBookStatus.Failed,
-					},
-					new ProcessBook2(book, Logger)
-					{
-						Result = ProcessBookResult.FailedSkip,
-						Status = ProcessBookStatus.Failed,
-					},
-					new ProcessBook2(book, Logger)
-					{
-						Result = ProcessBookResult.FailedRetry,
-						Status = ProcessBookStatus.Failed,
-					},
-					new ProcessBook2(book, Logger)
-					{
-						Result = ProcessBookResult.ValidationFail,
-						Status = ProcessBookStatus.Failed,
-					},
-					new ProcessBook2(book, Logger)
-					{
-						Result = ProcessBookResult.Cancelled,
-						Status = ProcessBookStatus.Cancelled,
-					},
-					new ProcessBook2(book, Logger)
-					{
-						Result = ProcessBookResult.Success,
-						Status = ProcessBookStatus.Completed,
-					},
-					new ProcessBook2(book, Logger)
-					{
-						Result = ProcessBookResult.None,
-						Status = ProcessBookStatus.Working,
-					},
-					new ProcessBook2(book, Logger)
-					{
-						Result = ProcessBookResult.None,
-						Status = ProcessBookStatus.Queued,
-					},
-				};
-
-				_viewModel.Items.Enqueue(testList);
-				return;
-			}
-			*/
-			#endregion
+			ProcessBookControl2.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;			
 		}
 
 		private void InitializeComponent()
@@ -118,10 +61,10 @@ namespace LibationWinForms.AvaloniaUI.Views
 			_viewModel.LogEntries.Clear();
 		}
 
-		private void LogCopyBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private async void LogCopyBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			string logText = string.Join("\r\n", _viewModel.LogEntries.Select(r => $"{r.LogDate.ToShortDateString()} {r.LogDate.ToShortTimeString()}\t{r.LogMessage}"));
-			System.Windows.Forms.Clipboard.SetDataObject(logText, false, 5, 150);
+			await Application.Current.Clipboard.SetTextAsync(logText);
 		}
 
 		private async void cancelAllBtn_Click(object sender, EventArgs e)

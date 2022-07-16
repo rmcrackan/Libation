@@ -43,6 +43,11 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 		}
 
+		public void DataGrid_CopyToClipboard(object sender, DataGridRowClipboardEventArgs  e)
+		{
+		
+		}
+
 		private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);

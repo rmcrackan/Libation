@@ -45,8 +45,17 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
-				var book = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
-				GridEntries = new GridEntryBindingList2(CreateGridEntries(new List<LibraryBook> { book }));
+				List<LibraryBook> sampleEntries = new()
+				{
+					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"),
+					context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"),
+				};
+				GridEntries = new GridEntryBindingList2(CreateGridEntries(sampleEntries));
 				return;
 			}
 		}

@@ -10,6 +10,7 @@
 	<Grid>
 
 		<DataGrid
+			CopyingRowClipboardContent="DataGrid_CopyToClipboard"
 			Name="productsGrid"
 			AutoGenerateColumns="False"
 			Items="{Binding GridEntries}"

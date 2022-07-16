@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using DataLayer;
 using ReactiveUI;
@@ -27,6 +28,60 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			Queue.QueuededCountChanged += Queue_QueuededCountChanged;
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 			Logger = ProcessQueue.LogMe.RegisterForm(this);
+
+			#region Design Mode Testing
+			if (Design.IsDesignMode)
+			{
+				using var context = DbContexts.GetContext();
+				var book = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
+				List<ProcessBook2> testList = new()
+				{
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.FailedAbort,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.FailedSkip,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.FailedRetry,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.ValidationFail,
+						Status = ProcessBookStatus.Failed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.Cancelled,
+						Status = ProcessBookStatus.Cancelled,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.Success,
+						Status = ProcessBookStatus.Completed,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.None,
+						Status = ProcessBookStatus.Working,
+					},
+					new ProcessBook2(book, Logger)
+					{
+						Result = ProcessBookResult.None,
+						Status = ProcessBookStatus.Queued,
+					},
+				};
+
+				Items.Enqueue(testList);
+				return;
+			}
+			#endregion
 		}
 
 		private int _completedCount;

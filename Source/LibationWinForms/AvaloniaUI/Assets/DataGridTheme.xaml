@@ -84,14 +84,21 @@
                          IsHitTestVisible="False"
                          Stroke="{DynamicResource DataGridCellFocusVisualSecondaryBrush}"
                          StrokeThickness="1" />
+				
             </Grid>
+
+
+			<Rectangle Name="VerticalSeparator"
+                    Grid.Column="1"
+                    Width="1"
+                    VerticalAlignment="Stretch"
+                    Fill="{DynamicResource DataGridGridLinesBrush}" />
 
             <ContentPresenter Margin="{TemplateBinding Padding}"
                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                               Content="{TemplateBinding Content}"
-                              ContentTemplate="{TemplateBinding ContentTemplate}"
-                              />
+                              ContentTemplate="{TemplateBinding ContentTemplate}"/>
 
             <Rectangle x:Name="InvalidVisualElement"
                        HorizontalAlignment="Stretch"
@@ -256,8 +263,8 @@
       <ControlTemplate>
         <Border x:Name="RowBorder"
                 Background="{TemplateBinding Background}"
-                BorderBrush="{TemplateBinding BorderBrush}"
-                BorderThickness="{TemplateBinding BorderThickness}"
+                BorderBrush="{DynamicResource DataGridGridLinesBrush}"
+                BorderThickness="0.5"
                 CornerRadius="{TemplateBinding CornerRadius}">
           <DataGridFrozenGrid Name="PART_Root"
                               ColumnDefinitions="Auto,*"
