@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="120"
+		xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
         x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.LiberatedStatusBatchDialog"
         Title="Liberated status: Whether the book has been downloaded"
 		MinWidth="400" MinHeight="120"
@@ -27,8 +28,8 @@
 				Margin="0,0,10,0"
 				VerticalAlignment="Center"
 				Text="Book" />
-			
-			<ComboBox
+
+			<controls:WheelComboBox
 				Width="130"
 				MinHeight="25"
 				Height="25"
@@ -45,7 +46,7 @@
 
 					</DataTemplate>
 				</ComboBox.ItemTemplate>
-			</ComboBox>
+			</controls:WheelComboBox>
 		</StackPanel>
 		
 		<Button

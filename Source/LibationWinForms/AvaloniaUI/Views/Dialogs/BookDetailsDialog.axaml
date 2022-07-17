@@ -10,7 +10,7 @@
         Title="Book Details" Name="BookDetails"
 		Icon="/AvaloniaUI/Assets/libation.ico">
 
-	<Grid RowDefinitions="*,Auto,Auto,Auto">
+	<Grid RowDefinitions="*,Auto,Auto,40">
 		<Grid.Styles>
 			<Style Selector="Button:focus">
 				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
@@ -75,8 +75,8 @@
 						Margin="0,0,10,0"
 						VerticalAlignment="Center"
 						Text="PDF" />
-					
-					<ComboBox
+
+					<controls:WheelComboBox
 						Grid.Column="1"
 						Width="150"
 						MinHeight="25"
@@ -95,16 +95,16 @@
 							</DataTemplate>
 						</ComboBox.ItemTemplate>
 						
-					</ComboBox>
+					</controls:WheelComboBox>
 					
-					<ComboBox
+					<controls:WheelComboBox
 						IsEnabled="{Binding HasPDF}"
 						Grid.Column="4"
 						MinHeight="25"
 						Height="25"
 						Width="150"
 						VerticalAlignment="Center"
-						SelectedItem="{Binding PdfLiberatedSelectedItem, Mode=TwoWay}"
+						SelectedItem="{Binding PdfLiberatedSelectedItem, Mode=TwoWay}"						
 						Items="{Binding PdfLiberatedItems}">
 						
 						<ComboBox.ItemTemplate>
@@ -117,7 +117,7 @@
 							</DataTemplate>
 						</ComboBox.ItemTemplate>
 						
-					</ComboBox>
+					</controls:WheelComboBox>
 					
 				</Grid>				
 			</StackPanel>			
