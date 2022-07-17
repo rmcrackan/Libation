@@ -78,7 +78,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
-		#region detect changes to the model, update the view, and save to database.
+		#region detect changes to the model, update the view.
 
 		/// <summary>
 		/// This event handler receives notifications from the model that it has changed.
@@ -112,11 +112,6 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 					break;
 			}
 		}
-
-		/// <summary>Save edits to the database</summary>
-		public void Commit(string newTags, LiberatedStatus bookStatus, LiberatedStatus? pdfStatus)
-			// MVVM pass-through
-			=> Book.UpdateBook(newTags, bookStatus: bookStatus, pdfStatus: pdfStatus);
 
 		#endregion
 
