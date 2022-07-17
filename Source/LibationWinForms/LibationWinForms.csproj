@@ -109,6 +109,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="AvaloniaUI\Views\Dialogs\EditQuickFilters.axaml.cs">
+      <DependentUpon>EditQuickFilters.axaml</DependentUpon>
+    </Compile>
     <Compile Update="AvaloniaUI\Views\Dialogs\BookDetailsDialog.axaml.cs">
       <DependentUpon>BookDetailsDialog.axaml</DependentUpon>
     </Compile>
