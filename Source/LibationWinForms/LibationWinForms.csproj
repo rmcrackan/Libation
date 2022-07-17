@@ -124,6 +124,15 @@
     <Compile Update="AvaloniaUI\Views\Dialogs\ImageDisplayDialog.axaml.cs">
       <DependentUpon>ImageDisplayDialog.axaml</DependentUpon>
     </Compile>
+    <Compile Update="AvaloniaUI\Views\ProcessBookControl.axaml.cs">
+      <DependentUpon>ProcessBookControl.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="AvaloniaUI\Views\ProcessQueueControl.axaml.cs">
+      <DependentUpon>ProcessQueueControl.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="AvaloniaUI\Views\ProductsDisplay.axaml.cs">
+      <DependentUpon>ProductsDisplay.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

@@ -19,8 +19,8 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 				get => _filterString;
 				set
 				{
+					IsDefault = string.IsNullOrEmpty(value);
 					this.RaiseAndSetIfChanged(ref _filterString, value);
-					IsDefault = string.IsNullOrEmpty(_filterString);
 					this.RaisePropertyChanged(nameof(IsDefault));
 				}
 			}
@@ -54,7 +54,9 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		{
 			if (Filters.Any(f => f.IsDefault))
 				return;
-			Filters.Insert(Filters.Count, new Filter());
+			var newBlank = new Filter();
+			newBlank.PropertyChanged += Filter_PropertyChanged;
+			Filters.Insert(Filters.Count, newBlank);
 		}
 
 		protected override void SaveAndClose()

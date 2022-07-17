@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels
 {
-	public class LiberateButtonStatus2 : ViewModelBase, IComparable
+	public class LiberateButtonStatus : ViewModelBase, IComparable
 	{
-		public LiberateButtonStatus2(bool isSeries)
+		public LiberateButtonStatus(bool isSeries)
 		{
 			IsSeries = isSeries;
 		}
@@ -35,7 +35,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		/// <summary> Defines the Liberate column's sorting behavior </summary>
 		public int CompareTo(object obj)
 		{
-			if (obj is not LiberateButtonStatus2 second) return -1;
+			if (obj is not LiberateButtonStatus second) return -1;
 
 			if (IsSeries && !second.IsSeries) return -1;
 			else if (!IsSeries && second.IsSeries) return 1;

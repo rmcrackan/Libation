@@ -33,7 +33,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 	 * and is stored in ObservableCollection.Items.  When the primary list changes, the
 	 * secondary list is cleared and reset to match the primary. 
 	 */
-	public class TrackedQueue2<T> : ObservableCollection<T> where T : class
+	public class TrackedQueue<T> : ObservableCollection<T> where T : class
 	{
 		public event EventHandler<int> CompletedCountChanged;
 		public event EventHandler<int> QueuededCountChanged;

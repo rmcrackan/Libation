@@ -36,7 +36,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 	/// <summary>
 	/// This is the viewmodel for queued processables
 	/// </summary>
-	public class ProcessBook2 : ViewModelBase
+	public class ProcessBookViewModel : ViewModelBase
 	{
 		public event EventHandler Completed;
 
@@ -91,7 +91,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		private readonly Queue<Func<Processable>> Processes = new();
 		private readonly ProcessQueue.LogMe Logger;
 
-		public ProcessBook2(LibraryBook libraryBook, ProcessQueue.LogMe logme)
+		public ProcessBookViewModel(LibraryBook libraryBook, ProcessQueue.LogMe logme)
 		{
 			LibraryBook = libraryBook;
 			Logger = logme;

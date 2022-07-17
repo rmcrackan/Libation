@@ -25,9 +25,9 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		private DataGridColumn _currentSortColumn;
 		private DataGrid productsDataGrid;
 
-		private GridEntryBindingList2 _gridEntries;
+		private GridEntryCollection _gridEntries;
 		private bool _removeColumnVisivle;
-		public GridEntryBindingList2 GridEntries { get => _gridEntries; private set => this.RaiseAndSetIfChanged(ref _gridEntries, value); }
+		public GridEntryCollection GridEntries { get => _gridEntries; private set => this.RaiseAndSetIfChanged(ref _gridEntries, value); }
 		public bool RemoveColumnVisivle { get => _removeColumnVisivle; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisivle, value); }
 
 		public List<LibraryBook> GetVisibleBookEntries()
@@ -35,14 +35,14 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			.BookEntries()
 			.Select(lbe => lbe.LibraryBook)
 			.ToList();
-		public IEnumerable<LibraryBookEntry2> GetAllBookEntries()
+		public IEnumerable<LibraryBookEntry> GetAllBookEntries()
 			=> GridEntries
 			.AllItems()
 			.BookEntries();
 		public ProductsDisplayViewModel() { }
-		public ProductsDisplayViewModel(List<GridEntry2> items)
+		public ProductsDisplayViewModel(List<GridEntry> items)
 		{
-			GridEntries = new GridEntryBindingList2(items);
+			GridEntries = new GridEntryCollection(items);
 		}
 
 		#region Display Functions
@@ -50,7 +50,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		/// <summary>
 		/// Call once on load so we can modify access a private member with reflection
 		/// </summary>
-		public void RegisterCollectionChanged(ProductsDisplay2 productsDisplay = null)
+		public void RegisterCollectionChanged(ProductsDisplay productsDisplay = null)
 		{
 			productsDataGrid ??= productsDisplay?.productsGrid;
 
@@ -67,7 +67,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			{
 				if (s != GridEntries) return;
 
-				var displayListGE = ((IEnumerable)DataSource_PI.GetValue(DataConnection_PI.GetValue(productsDataGrid))).Cast<GridEntry2>();
+				var displayListGE = ((IEnumerable)DataSource_PI.GetValue(DataConnection_PI.GetValue(productsDataGrid))).Cast<GridEntry>();
 				int index = 0;
 				foreach (var di in displayListGE)
 				{
@@ -83,7 +83,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		{
 			try
 			{
-				GridEntries = new GridEntryBindingList2(CreateGridEntries(dbBooks));
+				GridEntries = new GridEntryCollection(CreateGridEntries(dbBooks));
 				GridEntries.CollapseAll();
 
 				int bookEntryCount = GridEntries.BookEntries().Count();
@@ -119,7 +119,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				foreach (var series in existingSeriesEntries)
 				{
 					var sEntry = GridEntries.InternalList.FirstOrDefault(ge => ge.AudibleProductId == series.AudibleProductId);
-					if (sEntry is SeriesEntrys2 se && !series.Liberate.Expanded)
+					if (sEntry is SeriesEntry se && !series.Liberate.Expanded)
 						await Dispatcher.UIThread.InvokeAsync(() => GridEntries.CollapseItem(se));
 				}
 				await Dispatcher.UIThread.InvokeAsync(() =>
@@ -134,12 +134,12 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			}
 		}
 
-		private static IEnumerable<GridEntry2> CreateGridEntries(IEnumerable<LibraryBook> dbBooks)
+		private static IEnumerable<GridEntry> CreateGridEntries(IEnumerable<LibraryBook> dbBooks)
 		{
 			var geList = dbBooks
 				.Where(lb => lb.Book.IsProduct())
-				.Select(b => new LibraryBookEntry2(b))
-				.Cast<GridEntry2>()
+				.Select(b => new LibraryBookEntry(b))
+				.Cast<GridEntry>()
 				.ToList();
 
 			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild());
@@ -152,7 +152,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 				if (!seriesEpisodes.Any()) continue;
 
-				var seriesEntry = new SeriesEntrys2(parent, seriesEpisodes);
+				var seriesEntry = new SeriesEntry(parent, seriesEpisodes);
 
 				geList.Add(seriesEntry);
 				geList.AddRange(seriesEntry.Children);
@@ -160,7 +160,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			return geList.OrderByDescending(e => e.DateAdded);
 		}
 
-		public void ToggleSeriesExpanded(SeriesEntrys2 seriesEntry)
+		public void ToggleSeriesExpanded(SeriesEntry seriesEntry)
 		{
 			if (seriesEntry.Liberate.Expanded)
 				GridEntries.CollapseItem(seriesEntry);
@@ -213,7 +213,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			if (_currentSortColumn is null)
 			{
 				//Sort ascending and reverse. That's how the comparer is designed to work to be compatible with Avalonia.
-				var defaultComparer = new RowComparer(ListSortDirection.Descending, nameof(GridEntry2.DateAdded));
+				var defaultComparer = new RowComparer(ListSortDirection.Descending, nameof(GridEntry.DateAdded));
 				GridEntries.InternalList.Sort(defaultComparer);
 				GridEntries.InternalList.Reverse();
 				GridEntries.ResetCollection();
@@ -326,7 +326,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == nameof(GridEntry2.Remove) && sender is LibraryBookEntry2 lbEntry)
+			if (e.PropertyName == nameof(GridEntry.Remove) && sender is LibraryBookEntry lbEntry)
 			{
 				int removeCount = GetAllBookEntries().Count(lbe => lbe.Remove is true);
 				RemovableCountChanged?.Invoke(this, removeCount);

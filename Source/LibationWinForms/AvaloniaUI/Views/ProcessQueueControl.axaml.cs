@@ -10,17 +10,17 @@ using System.Linq;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
-	public partial class ProcessQueueControl2 : UserControl
+	public partial class ProcessQueueControl : UserControl
     {
-		private TrackedQueue2<ProcessBook2> Queue => _viewModel.Items;
+		private TrackedQueue<ProcessBookViewModel> Queue => _viewModel.Items;
 		private ProcessQueueViewModel _viewModel => DataContext as ProcessQueueViewModel;
 
-		public ProcessQueueControl2()
+		public ProcessQueueControl()
 		{
 			InitializeComponent();
 
-			ProcessBookControl2.PositionButtonClicked += ProcessBookControl2_ButtonClicked;
-			ProcessBookControl2.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;
+			ProcessBookControl.PositionButtonClicked += ProcessBookControl2_ButtonClicked;
+			ProcessBookControl.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;
 
 			#region Design Mode Testing
 			if (Design.IsDesignMode)
@@ -29,44 +29,44 @@ namespace LibationWinForms.AvaloniaUI.Views
 				var Logger = ProcessQueue.LogMe.RegisterForm(vm);
 				DataContext = vm;
 				using var context = DbContexts.GetContext();
-				List<ProcessBook2> testList = new()
+				List<ProcessBookViewModel> testList = new()
 				{
-					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"), Logger)
 					{
 						Result = ProcessBookResult.FailedAbort,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"), Logger)
 					{
 						Result = ProcessBookResult.FailedSkip,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"), Logger)
 					{
 						Result = ProcessBookResult.FailedRetry,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"), Logger)
 					{
 						Result = ProcessBookResult.ValidationFail,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"), Logger)
 					{
 						Result = ProcessBookResult.Cancelled,
 						Status = ProcessBookStatus.Cancelled,
 					},
-					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"), Logger)
 					{
 						Result = ProcessBookResult.Success,
 						Status = ProcessBookStatus.Completed,
 					},
-					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"), Logger)
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Working,
 					},
-					new ProcessBook2(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"), Logger)
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Queued,
@@ -93,14 +93,14 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		#region Control event handlers
 
-		private async void ProcessBookControl2_CancelButtonClicked(ProcessBook2 item)
+		private async void ProcessBookControl2_CancelButtonClicked(ProcessBookViewModel item)
 		{
 			if (item is not null)
 				await item.CancelAsync();
 			Queue.RemoveQueued(item);
 		}
 
-		private void ProcessBookControl2_ButtonClicked(ProcessBook2 item, QueuePosition queueButton)
+		private void ProcessBookControl2_ButtonClicked(ProcessBookViewModel item, QueuePosition queueButton)
 		{
 			Queue.MoveQueuePosition(item, queueButton);
 		}

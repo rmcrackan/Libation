@@ -10,10 +10,10 @@ using System.Linq;
 namespace LibationWinForms.AvaloniaUI.ViewModels
 {
 	/// <summary>The View Model for a LibraryBook that is ContentType.Product or ContentType.Episode</summary>
-	public class LibraryBookEntry2 : GridEntry2
+	public class LibraryBookEntry : GridEntry
 	{
 		[Browsable(false)] public override DateTime DateAdded => LibraryBook.DateAdded;
-		[Browsable(false)] public SeriesEntrys2 Parent { get; init; }
+		[Browsable(false)] public SeriesEntry Parent { get; init; }
 
 		#region Model properties exposed to the view
 
@@ -33,7 +33,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			}
 		}
 
-		public override LiberateButtonStatus2 Liberate
+		public override LiberateButtonStatus Liberate
 		{
 			get
 			{
@@ -44,7 +44,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 					_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
 					lastStatusUpdate = DateTime.Now;
 				}
-				return new LiberateButtonStatus2(IsSeries) { BookStatus = _bookStatus, PdfStatus = _pdfStatus };
+				return new LiberateButtonStatus(IsSeries) { BookStatus = _bookStatus, PdfStatus = _pdfStatus };
 			}
 		}
 
@@ -56,7 +56,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#endregion
 
-		public LibraryBookEntry2(LibraryBook libraryBook)
+		public LibraryBookEntry(LibraryBook libraryBook)
 		{
 			LibraryBook = libraryBook;
 			LoadCover();
@@ -144,7 +144,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#endregion
 
-		~LibraryBookEntry2()
+		~LibraryBookEntry()
 		{
 			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
 		}

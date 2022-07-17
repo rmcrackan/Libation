@@ -13,29 +13,29 @@ using System.Linq;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
-	public partial class ProductsDisplay2 : UserControl
+	public partial class ProductsDisplay : UserControl
 	{
 		public event EventHandler<LibraryBook> LiberateClicked;
 
 		private ProductsDisplayViewModel _viewModel => DataContext as ProductsDisplayViewModel;
 		ImageDisplayDialog imageDisplayDialog;
 
-		public ProductsDisplay2()
+		public ProductsDisplay()
 		{
 			InitializeComponent();
 
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
-				List<GridEntry2> sampleEntries = new()
+				List<GridEntry> sampleEntries = new()
 				{
-					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G")),
-					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG")),
-					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q")),
-					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO")),
-					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4")),
-					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0")),
-					new LibraryBookEntry2(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")),
+					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G")),
+					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG")),
+					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q")),
+					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO")),
+					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4")),
+					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0")),
+					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")),
 				};
 				DataContext = new ProductsDisplayViewModel(sampleEntries);
 				return;
@@ -101,7 +101,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			{
 				var itemName = column.SortMemberPath;
 
-				if (itemName == nameof(GridEntry2.Remove))
+				if (itemName == nameof(GridEntry.Remove))
 					continue;
 
 				menuItems.Add
@@ -192,7 +192,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		{
 			var button = args.Source as Button;
 
-			if (button.DataContext is SeriesEntrys2 sEntry)
+			if (button.DataContext is SeriesEntry sEntry)
 			{
 				_viewModel.ToggleSeriesExpanded(sEntry);
 
@@ -200,7 +200,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 				//to the topright cell. Reset focus onto the clicked button's cell.
 				((sender as Control).Parent.Parent as DataGridCell)?.Focus();
 			}
-			else if (button.DataContext is LibraryBookEntry2 lbEntry)
+			else if (button.DataContext is LibraryBookEntry lbEntry)
 			{
 				LiberateClicked?.Invoke(this, lbEntry.LibraryBook);
 			}
@@ -214,7 +214,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public void Cover_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
-			if (sender is not Image tblock || tblock.DataContext is not GridEntry2 gEntry)
+			if (sender is not Image tblock || tblock.DataContext is not GridEntry gEntry)
 				return;
 
 
@@ -254,7 +254,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public void Description_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
-			if (sender is TextBlock tblock && tblock.DataContext is GridEntry2 gEntry)
+			if (sender is TextBlock tblock && tblock.DataContext is GridEntry gEntry)
 			{
 				var pt = tblock.Parent.PointToScreen(tblock.Parent.Bounds.TopRight);
 				var displayWindow = new DescriptionDisplayDialog
@@ -283,7 +283,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		{
 			var button = args.Source as Button;
 
-			if (button.DataContext is LibraryBookEntry2 lbEntry && VisualRoot is Window window)
+			if (button.DataContext is LibraryBookEntry lbEntry && VisualRoot is Window window)
 			{
 				if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
 				{

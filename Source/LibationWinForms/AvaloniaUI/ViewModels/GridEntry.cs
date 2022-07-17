@@ -22,7 +22,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		SomeRemoved
 	}
 	/// <summary>The View Model base for the DataGridView</summary>
-	public abstract class GridEntry2 : ViewModelBase
+	public abstract class GridEntry : ViewModelBase
 	{
 		[Browsable(false)] public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)] public LibraryBook LibraryBook { get; protected set; }
@@ -50,7 +50,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		protected bool? _remove = false;
 		public abstract bool? Remove { get; set; }
-		public abstract LiberateButtonStatus2 Liberate { get; }
+		public abstract LiberateButtonStatus Liberate { get; }
 		public abstract BookTags BookTags { get; }
 		public abstract bool IsSeries { get; }
 		public abstract bool IsEpisode { get; }
@@ -61,7 +61,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#region Sorting
 
-		public GridEntry2() => _memberValues = CreateMemberValueDictionary();
+		public GridEntry() => _memberValues = CreateMemberValueDictionary();
 
 		// These methods are implementation of Dinah.Core.DataBinding.IMemberComparable
 		// Used by GridEntryBindingList for all sorting
@@ -79,7 +79,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			{ typeof(float), new ObjectComparer<float>() },
 			{ typeof(bool), new ObjectComparer<bool>() },
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
-			{ typeof(LiberateButtonStatus2), new ObjectComparer<LiberateButtonStatus2>() },
+			{ typeof(LiberateButtonStatus), new ObjectComparer<LiberateButtonStatus>() },
 		};
 
 		#endregion
@@ -113,7 +113,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#region Static library display functions		
 
-		/// <summary>This information should not change during <see cref="GridEntry2"/> lifetime, so call only once.</summary>
+		/// <summary>This information should not change during <see cref="GridEntry"/> lifetime, so call only once.</summary>
 		protected static string GetDescriptionDisplay(Book book)
 		{
 			var doc = new HtmlAgilityPack.HtmlDocument();
@@ -131,7 +131,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 
 		/// <summary>
-		/// This information should not change during <see cref="GridEntry2"/> lifetime, so call only once.
+		/// This information should not change during <see cref="GridEntry"/> lifetime, so call only once.
 		/// Maximum of 5 text rows will fit in 80-pixel row height.
 		/// </summary>
 		protected static string GetMiscDisplay(LibraryBook libraryBook)
@@ -161,7 +161,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#endregion
 
-		~GridEntry2()
+		~GridEntry()
 		{
 			PictureStorage.PictureCached -= PictureStorage_PictureCached;
 		}

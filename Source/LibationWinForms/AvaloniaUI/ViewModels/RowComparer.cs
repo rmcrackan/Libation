@@ -13,7 +13,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 	/// sorted by series index, ascending. Stable sorting is achieved by comparing the GridEntry.ListIndex
 	/// properties when 2 items compare equal.
 	/// </summary>
-	internal class RowComparer : IComparer, IComparer<GridEntry2>
+	internal class RowComparer : IComparer, IComparer<GridEntry>
 	{
 		private static readonly PropertyInfo HeaderCellPi = typeof(DataGridColumn).GetProperty("HeaderCell", BindingFlags.NonPublic | BindingFlags.Instance);
 		private static readonly PropertyInfo CurrentSortingStatePi = typeof(DataGridColumnHeader).GetProperty("CurrentSortingState", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -39,17 +39,17 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			if (x is not null && y is null) return 1;
 			if (x is null && y is null) return 0;
 
-			var geA = (GridEntry2)x;
-			var geB = (GridEntry2)y;
+			var geA = (GridEntry)x;
+			var geB = (GridEntry)y;
 
 			SortDirection ??= GetSortOrder();
 
-			SeriesEntrys2 parentA = null;
-			SeriesEntrys2 parentB = null;
+			SeriesEntry parentA = null;
+			SeriesEntry parentB = null;
 
-			if (geA is LibraryBookEntry2 lbA && lbA.Parent is SeriesEntrys2 seA)
+			if (geA is LibraryBookEntry lbA && lbA.Parent is SeriesEntry seA)
 				parentA = seA;
-			if (geB is LibraryBookEntry2 lbB && lbB.Parent is SeriesEntrys2 seB)
+			if (geB is LibraryBookEntry lbB && lbB.Parent is SeriesEntry seB)
 				parentB = seB;
 
 			//both a and b are top-level grid entries
@@ -88,7 +88,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		private ListSortDirection? GetSortOrder()
 			=> CurrentSortingStatePi.GetValue(HeaderCellPi.GetValue(Column)) as ListSortDirection?;
 
-		private int InternalCompare(GridEntry2 x, GridEntry2 y)
+		private int InternalCompare(GridEntry x, GridEntry y)
 		{
 			var val1 = x.GetMemberValue(PropertyName);
 			var val2 = y.GetMemberValue(PropertyName);
@@ -103,7 +103,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				return compareResult;
 		}
 
-		public int Compare(GridEntry2 x, GridEntry2 y)
+		public int Compare(GridEntry x, GridEntry y)
 		{
 			return Compare((object)x, y);
 		}

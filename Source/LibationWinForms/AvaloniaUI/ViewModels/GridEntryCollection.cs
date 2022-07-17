@@ -23,32 +23,32 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 	 * but requires ResetCollection() to be called after all changes
 	 * have been made.
 	 */
-	public class GridEntryBindingList2 : ObservableCollection<GridEntry2>
+	public class GridEntryCollection : ObservableCollection<GridEntry>
 	{
-		public GridEntryBindingList2(IEnumerable<GridEntry2> enumeration)
-			: base(new List<GridEntry2>(enumeration)) { }
-		public GridEntryBindingList2(List<GridEntry2> list)
+		public GridEntryCollection(IEnumerable<GridEntry> enumeration)
+			: base(new List<GridEntry>(enumeration)) { }
+		public GridEntryCollection(List<GridEntry> list)
 			: base(list) { }
 
-		public List<GridEntry2> InternalList => Items as List<GridEntry2>;
+		public List<GridEntry> InternalList => Items as List<GridEntry>;
 		/// <returns>All items in the list, including those filtered out.</returns>
-		public List<GridEntry2> AllItems() => Items.Concat(FilterRemoved).ToList();
+		public List<GridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
 
 		/// <summary>When true, itms will not be checked filtered by search criteria on item changed<summary>
 		public bool SuspendFilteringOnUpdate { get; set; }
 		public string Filter { get => FilterString; set => ApplyFilter(value); }
 
 		/// <summary> Items that were removed from the base list due to filtering </summary>
-		private readonly List<GridEntry2> FilterRemoved = new();
+		private readonly List<GridEntry> FilterRemoved = new();
 		private string FilterString;
 		private SearchResultSet SearchResults;
 
 		#region Items Management
 
-		public void ReplaceList(IEnumerable<GridEntry2> newItems)
+		public void ReplaceList(IEnumerable<GridEntry> newItems)
 		{
 			Items.Clear();
-			((List<GridEntry2>)Items).AddRange(newItems);
+			((List<GridEntry>)Items).AddRange(newItems);
 			ResetCollection();
 		}
 		public void ResetCollection()
@@ -67,7 +67,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			FilterString = filterString;
 			SearchResults = SearchEngineCommands.Search(filterString);
 
-			var booksFilteredIn = Items.BookEntries().Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry2)lbe);
+			var booksFilteredIn = Items.BookEntries().Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry)lbe);
 
 			//Find all series containing children that match the search criteria
 			var seriesFilteredIn = Items.SeriesEntries().Where(s => s.Children.Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
@@ -90,7 +90,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 			foreach (var item in FilterRemoved.ToList())
 			{
-				if (item is SeriesEntrys2 || item is LibraryBookEntry2 lbe && (lbe.Parent is null || lbe.Parent.Liberate.Expanded))
+				if (item is SeriesEntry || item is LibraryBookEntry lbe && (lbe.Parent is null || lbe.Parent.Liberate.Expanded))
 				{
 
 					FilterRemoved.Remove(item);
@@ -119,7 +119,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				ExpandItem(series);
 		}
 
-		public void CollapseItem(SeriesEntrys2 sEntry)
+		public void CollapseItem(SeriesEntry sEntry)
 		{
 			foreach (var episode in Items.BookEntries().Where(b => b.Parent == sEntry).OrderByDescending(lbe => lbe.SeriesIndex).ToList())
 			{
@@ -141,7 +141,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			ResetCollection();
 		}
 
-		public void ExpandItem(SeriesEntrys2 sEntry)
+		public void ExpandItem(SeriesEntry sEntry)
 		{
 			var sindex = Items.IndexOf(sEntry);
 

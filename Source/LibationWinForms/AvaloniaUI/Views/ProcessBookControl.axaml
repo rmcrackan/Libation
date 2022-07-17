@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="90" MaxHeight="90" MinHeight="90" MinWidth="300"
-             x:Class="LibationWinForms.AvaloniaUI.Views.ProcessBookControl2" Background="{Binding BackgroundColor}">
+             x:Class="LibationWinForms.AvaloniaUI.Views.ProcessBookControl" Background="{Binding BackgroundColor}">
 	
 	<Border BorderBrush="{DynamicResource ProcessQueueBookBorderBrush}" BorderThickness="2">
 		<Grid ColumnDefinitions="Auto,*,Auto">

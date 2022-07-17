@@ -14,10 +14,10 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 	public class ProcessQueueViewModel : ViewModelBase, ProcessQueue.ILogForm
 	{
 		public ObservableCollection<LogEntry> LogEntries { get; } = new();
-		public TrackedQueue2<ProcessBook2> Items { get; } = new();
+		public TrackedQueue<ProcessBookViewModel> Items { get; } = new();
 
-		private TrackedQueue2<ProcessBook2> Queue => Items;
-		public ProcessBook2 SelectedItem { get; set; }
+		private TrackedQueue<ProcessBookViewModel> Queue => Items;
+		public ProcessBookViewModel SelectedItem { get; set; }
 		public Task QueueRunner { get; private set; }
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
 
@@ -88,13 +88,13 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		public void AddDownloadPdf(IEnumerable<LibraryBook> entries)
 		{
-			List<ProcessBook2> procs = new();
+			List<ProcessBookViewModel> procs = new();
 			foreach (var entry in entries)
 			{
 				if (isBookInQueue(entry))
 					continue;
 
-				ProcessBook2 pbook = new(entry, Logger);
+				ProcessBookViewModel pbook = new(entry, Logger);
 				pbook.AddDownloadPdf();
 				procs.Add(pbook);
 			}
@@ -105,13 +105,13 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		public void AddDownloadDecrypt(IEnumerable<LibraryBook> entries)
 		{
-			List<ProcessBook2> procs = new();
+			List<ProcessBookViewModel> procs = new();
 			foreach (var entry in entries)
 			{
 				if (isBookInQueue(entry))
 					continue;
 
-				ProcessBook2 pbook = new(entry, Logger);
+				ProcessBookViewModel pbook = new(entry, Logger);
 				pbook.AddDownloadDecryptBook();
 				pbook.AddDownloadPdf();
 				procs.Add(pbook);
@@ -123,13 +123,13 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		public void AddConvertMp3(IEnumerable<LibraryBook> entries)
 		{
-			List<ProcessBook2> procs = new();
+			List<ProcessBookViewModel> procs = new();
 			foreach (var entry in entries)
 			{
 				if (isBookInQueue(entry))
 					continue;
 
-				ProcessBook2 pbook = new(entry, Logger);
+				ProcessBookViewModel pbook = new(entry, Logger);
 				pbook.AddConvertToMp3();
 				procs.Add(pbook);
 			}
@@ -138,7 +138,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			AddToQueue(procs);
 		}
 
-		public void AddToQueue(IEnumerable<ProcessBook2> pbook)
+		public void AddToQueue(IEnumerable<ProcessBookViewModel> pbook)
 		{
 			Dispatcher.UIThread.Post(() =>
 			{

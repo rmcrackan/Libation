@@ -10,9 +10,9 @@ using System.Linq;
 namespace LibationWinForms.AvaloniaUI.ViewModels
 {
 	/// <summary>The View Model for a LibraryBook that is ContentType.Parent</summary>
-	public class SeriesEntrys2 : GridEntry2
+	public class SeriesEntry : GridEntry
 	{
-		[Browsable(false)] public List<LibraryBookEntry2> Children { get; }
+		[Browsable(false)] public List<LibraryBookEntry> Children { get; }
 		[Browsable(false)] public override DateTime DateAdded => Children.Max(c => c.DateAdded);
 
 		private bool suspendCounting = false;
@@ -44,7 +44,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			}
 		}
 
-		public override LiberateButtonStatus2 Liberate { get; }
+		public override LiberateButtonStatus Liberate { get; }
 		public override BookTags BookTags { get; } = new();
 
 		public override bool IsSeries => true;
@@ -53,16 +53,16 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#endregion
 
-		public SeriesEntrys2(LibraryBook parent, IEnumerable<LibraryBook> children)
+		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children)
 		{
-			Liberate = new LiberateButtonStatus2(IsSeries) { Expanded = true };
+			Liberate = new LiberateButtonStatus(IsSeries) { Expanded = true };
 			SeriesIndex = -1;
 			LibraryBook = parent;
 
 			LoadCover();
 
 			Children = children
-				.Select(c => new LibraryBookEntry2(c) { Parent = this })
+				.Select(c => new LibraryBookEntry(c) { Parent = this })
 				.OrderBy(c => c.SeriesIndex)
 				.ToList();
 

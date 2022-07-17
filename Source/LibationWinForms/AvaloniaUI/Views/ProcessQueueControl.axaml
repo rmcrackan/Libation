@@ -6,12 +6,12 @@
 	xmlns:views="clr-namespace:LibationWinForms.AvaloniaUI.Views"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="850"
-	x:Class="LibationWinForms.AvaloniaUI.Views.ProcessQueueControl2">
+	x:Class="LibationWinForms.AvaloniaUI.Views.ProcessQueueControl">
 
 	<UserControl.Resources>
 		<RecyclePool x:Key="RecyclePool" />
 		<DataTemplate x:Key="queuedBook">
-			<views:ProcessBookControl2 />
+			<views:ProcessBookControl />
 		</DataTemplate>
 		<RecyclingElementFactory x:Key="elementFactory" RecyclePool="{StaticResource RecyclePool}">
 			<RecyclingElementFactory.Templates>

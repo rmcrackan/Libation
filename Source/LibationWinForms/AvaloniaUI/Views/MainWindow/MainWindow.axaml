@@ -167,11 +167,11 @@
 
 					<!-- Process Queue -->
 					<SplitView.Pane>
-						<views:ProcessQueueControl2 DataContext="{Binding ProcessQueue}"/>
+						<views:ProcessQueueControl DataContext="{Binding ProcessQueue}"/>
 					</SplitView.Pane>
 
 					<!-- Product Display Grid -->
-					<views:ProductsDisplay2
+					<views:ProductsDisplay
 						Name="productsDisplay"
 						Initialized="ProductsDisplay_Initialized1"
 						DataContext="{Binding ProductsDisplay}"						

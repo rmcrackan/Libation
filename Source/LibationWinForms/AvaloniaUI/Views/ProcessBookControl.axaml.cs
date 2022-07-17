@@ -8,20 +8,20 @@ using DataLayer;
 
 namespace LibationWinForms.AvaloniaUI.Views
 {
-	public delegate void QueueItemPositionButtonClicked(ProcessBook2 item, QueuePosition queueButton);
-	public delegate void QueueItemCancelButtonClicked(ProcessBook2 item);
-	public partial class ProcessBookControl2 : UserControl
+	public delegate void QueueItemPositionButtonClicked(ProcessBookViewModel item, QueuePosition queueButton);
+	public delegate void QueueItemCancelButtonClicked(ProcessBookViewModel item);
+	public partial class ProcessBookControl : UserControl
 	{
 		public static event QueueItemPositionButtonClicked PositionButtonClicked;
 		public static event QueueItemCancelButtonClicked CancelButtonClicked;
-		public ProcessBookControl2()
+		public ProcessBookControl()
 		{
 			InitializeComponent();
 
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
-				DataContext = new ProcessBook2(
+				DataContext = new ProcessBookViewModel(
 					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
 					ProcessQueue.LogMe.RegisterForm(default(ProcessQueue.ILogForm))
 					);
@@ -29,7 +29,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 		}
 
-		private ProcessBook2 DataItem => DataContext is null ? null : DataContext as ProcessBook2;
+		private ProcessBookViewModel DataItem => DataContext is null ? null : DataContext as ProcessBookViewModel;
 
 		public void Cancel_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> CancelButtonClicked?.Invoke(DataItem);

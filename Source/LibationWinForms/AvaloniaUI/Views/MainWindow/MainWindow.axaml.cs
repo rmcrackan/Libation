@@ -72,7 +72,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		public void ProductsDisplay_Initialized1(object sender, EventArgs e)
 		{
-			if (sender is ProductsDisplay2 products)
+			if (sender is ProductsDisplay products)
 				_viewModel.ProductsDisplay.RegisterCollectionChanged(products);
 		}
 
@@ -92,7 +92,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		private void FindAllControls()
 		{
 			quickFiltersToolStripMenuItem = this.FindControl<MenuItem>(nameof(quickFiltersToolStripMenuItem));
-			productsDisplay = this.FindControl<ProductsDisplay2>(nameof(productsDisplay));
+			productsDisplay = this.FindControl<ProductsDisplay>(nameof(productsDisplay));
 		}
 
 		protected override void OnDataContextChanged(EventArgs e)
