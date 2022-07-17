@@ -109,8 +109,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="AvaloniaUI\Views\Dialogs\BookDetailsDialog2.axaml.cs">
-      <DependentUpon>BookDetailsDialog2.axaml</DependentUpon>
+    <Compile Update="AvaloniaUI\Views\Dialogs\BookDetailsDialog.axaml.cs">
+      <DependentUpon>BookDetailsDialog.axaml</DependentUpon>
     </Compile>
     <Compile Update="AvaloniaUI\Views\Dialogs\SearchSyntaxDialog.axaml.cs">
       <DependentUpon>SearchSyntaxDialog.axaml</DependentUpon>

@@ -5,7 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="450"
 		MinWidth="550" MinHeight="450"
 		Width="650" Height="500"
-        x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.BookDetailsDialog2"
+        x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.BookDetailsDialog"
 		xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
         Title="Book Details" Name="BookDetails"
 		Icon="/AvaloniaUI/Assets/libation.ico">

@@ -28,7 +28,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		public async void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			await MessageBox.Show("To load your Audible library, come back here to the Import menu after adding your account");
-			new AccountsDialog().ShowDialog();
+			await new Dialogs.AccountsDialog().ShowDialog(this);
 		}
 
 		public async void scanLibraryToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

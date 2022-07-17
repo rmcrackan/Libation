@@ -270,7 +270,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 		}
 
-		BookDetailsDialog2 bookDetailsForm;
+		BookDetailsDialog bookDetailsForm;
 
 		public void OnTagsButtonClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
@@ -280,9 +280,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			{
 				if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
 				{
-					bookDetailsForm = new BookDetailsDialog2(lbEntry.LibraryBook);
-					bookDetailsForm.RestoreSizeAndLocation(Configuration.Instance);
-					bookDetailsForm.Closing += (_,_) => bookDetailsForm.SaveSizeAndLocation(Configuration.Instance);
+					bookDetailsForm = new BookDetailsDialog(lbEntry.LibraryBook);
 					bookDetailsForm.Show(window);
 				}
 				else

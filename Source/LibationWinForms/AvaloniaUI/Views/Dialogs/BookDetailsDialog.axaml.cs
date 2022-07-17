@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 {
-	public partial class BookDetailsDialog2 : DialogWindow
+	public partial class BookDetailsDialog : DialogWindow
 	{
 		private LibraryBook _libraryBook;
 		private BookDetailsDialogViewModel _viewModel;
@@ -31,7 +31,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		public LiberatedStatus BookLiberatedStatus => _viewModel.BookLiberatedSelectedItem.Status;
 		public LiberatedStatus? PdfLiberatedStatus => _viewModel.PdfLiberatedSelectedItem?.Status;
 
-		public BookDetailsDialog2()
+		public BookDetailsDialog()
 		{
 			InitializeComponent();
 
@@ -41,7 +41,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 				LibraryBook = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
 			}
 		}
-		public BookDetailsDialog2(LibraryBook libraryBook) :this()
+		public BookDetailsDialog(LibraryBook libraryBook) :this()
 		{
 			LibraryBook = libraryBook;
 		}

@@ -25,6 +25,8 @@ namespace LibationWinForms.AvaloniaUI
 
 		public static void RestoreSizeAndLocation(this Window form, Configuration config)
 		{
+			if (Design.IsDesignMode) return;
+
 			FormSizeAndPosition savedState = config.GetNonString<FormSizeAndPosition>(form.GetType().Name);
 
 			if (savedState is null)
@@ -64,6 +66,8 @@ namespace LibationWinForms.AvaloniaUI
 		}
 		public static void SaveSizeAndLocation(this Window form, Configuration config)
 		{
+			if (Design.IsDesignMode) return;
+
 			var saveState = new FormSizeAndPosition();
 
 			saveState.IsMaximized = form.WindowState == WindowState.Maximized;

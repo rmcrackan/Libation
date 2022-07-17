@@ -12,6 +12,7 @@
 		<DataGrid
 			CopyingRowClipboardContent="DataGrid_CopyToClipboard"
 			Name="productsGrid"
+			GridLinesVisibility="All"
 			AutoGenerateColumns="False"
 			Items="{Binding GridEntries}"
 			Sorting="ProductsGrid_Sorting"

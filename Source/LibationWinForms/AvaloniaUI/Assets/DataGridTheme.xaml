@@ -87,13 +87,6 @@
 				
             </Grid>
 
-
-			<Rectangle Name="VerticalSeparator"
-                    Grid.Column="1"
-                    Width="1"
-                    VerticalAlignment="Stretch"
-                    Fill="{DynamicResource DataGridGridLinesBrush}" />
-
             <ContentPresenter Margin="{TemplateBinding Padding}"
                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -263,8 +256,8 @@
       <ControlTemplate>
         <Border x:Name="RowBorder"
                 Background="{TemplateBinding Background}"
-                BorderBrush="{DynamicResource DataGridGridLinesBrush}"
-                BorderThickness="0.5"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
                 CornerRadius="{TemplateBinding CornerRadius}">
           <DataGridFrozenGrid Name="PART_Root"
                               ColumnDefinitions="Auto,*"

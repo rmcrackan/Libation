@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 {
@@ -56,9 +57,9 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			this.FindControl<Button>(nameof(ImportButton)).Focus();
 		}
 
-		public void EditAccountsButton_Clicked(object sender, RoutedEventArgs e)
+		public async void EditAccountsButton_Clicked(object sender, RoutedEventArgs e)
 		{
-			if (new LibationWinForms.Dialogs.AccountsDialog().ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			if (await new AccountsDialog().ShowDialog<DialogResult>(this) == DialogResult.OK)
 			{
 				// reload grid and default checkboxes
 				LoadAccounts();

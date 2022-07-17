@@ -31,13 +31,13 @@
 			this.cancelBtn = new System.Windows.Forms.Button();
 			this.saveBtn = new System.Windows.Forms.Button();
 			this.dataGridView1 = new System.Windows.Forms.DataGridView();
-			this.importBtn = new System.Windows.Forms.Button();
 			this.DeleteAccount = new System.Windows.Forms.DataGridViewButtonColumn();
 			this.ExportAccount = new System.Windows.Forms.DataGridViewButtonColumn();
 			this.LibraryScan = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			this.AccountId = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.Locale = new System.Windows.Forms.DataGridViewComboBoxColumn();
 			this.AccountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.importBtn = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -62,7 +62,7 @@
 			this.saveBtn.Name = "saveBtn";
 			this.saveBtn.Size = new System.Drawing.Size(88, 27);
 			this.saveBtn.TabIndex = 1;
-			this.saveBtn.Text = "Save";
+			this.saveBtn.Text = "pub ";
 			this.saveBtn.UseVisualStyleBackColor = true;
 			this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
 			// 
@@ -88,18 +88,6 @@
 			this.dataGridView1.TabIndex = 0;
 			this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView1_CellContentClick);
 			this.dataGridView1.DefaultValuesNeeded += new System.Windows.Forms.DataGridViewRowEventHandler(this.dataGridView1_DefaultValuesNeeded);
-			// 
-			// importBtn
-			// 
-			this.importBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.importBtn.Location = new System.Drawing.Point(14, 480);
-			this.importBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.importBtn.Name = "importBtn";
-			this.importBtn.Size = new System.Drawing.Size(156, 27);
-			this.importBtn.TabIndex = 1;
-			this.importBtn.Text = "Import from audible-cli";
-			this.importBtn.UseVisualStyleBackColor = true;
-			this.importBtn.Click += new System.EventHandler(this.importBtn_Click);
 			// 
 			// DeleteAccount
 			// 
@@ -139,6 +127,18 @@
 			this.AccountName.HeaderText = "Account nickname (optional)";
 			this.AccountName.Name = "AccountName";
 			this.AccountName.Width = 170;
+			// 
+			// importBtn
+			// 
+			this.importBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.importBtn.Location = new System.Drawing.Point(14, 480);
+			this.importBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.importBtn.Name = "importBtn";
+			this.importBtn.Size = new System.Drawing.Size(156, 27);
+			this.importBtn.TabIndex = 1;
+			this.importBtn.Text = "Import from audible-cli";
+			this.importBtn.UseVisualStyleBackColor = true;
+			this.importBtn.Click += new System.EventHandler(this.importBtn_Click);
 			// 
 			// AccountsDialog
 			// 
