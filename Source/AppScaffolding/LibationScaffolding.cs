@@ -66,6 +66,9 @@ namespace AppScaffolding
 		{
 			config.InProgress ??= Configuration.WinTemp;
 
+			if (!config.Exists(nameof(config.BetaOptIn)))
+				config.BetaOptIn = false;
+
 			if (!config.Exists(nameof(config.AllowLibationFixup)))
 				config.AllowLibationFixup = true;
 

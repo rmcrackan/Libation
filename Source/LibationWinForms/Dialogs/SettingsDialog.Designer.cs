@@ -51,6 +51,7 @@
 			this.loggingLevelCb = new System.Windows.Forms.ComboBox();
 			this.tabControl = new System.Windows.Forms.TabControl();
 			this.tab1ImportantSettings = new System.Windows.Forms.TabPage();
+			this.betaOptInCbox = new System.Windows.Forms.CheckBox();
 			this.booksGb = new System.Windows.Forms.GroupBox();
 			this.saveEpisodesToSeriesFolderCbox = new System.Windows.Forms.CheckBox();
 			this.tab2ImportLibrary = new System.Windows.Forms.TabPage();
@@ -71,6 +72,8 @@
 			this.folderTemplateTb = new System.Windows.Forms.TextBox();
 			this.folderTemplateLbl = new System.Windows.Forms.Label();
 			this.tab4AudioFileOptions = new System.Windows.Forms.TabPage();
+			this.audiobookFixupsGb = new System.Windows.Forms.GroupBox();
+			this.stripUnabridgedCbox = new System.Windows.Forms.CheckBox();
 			this.chapterTitleTemplateGb = new System.Windows.Forms.GroupBox();
 			this.chapterTitleTemplateBtn = new System.Windows.Forms.Button();
 			this.chapterTitleTemplateTb = new System.Windows.Forms.TextBox();
@@ -104,12 +107,10 @@
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.lameTargetQualityRb = new System.Windows.Forms.RadioButton();
 			this.lameTargetBitrateRb = new System.Windows.Forms.RadioButton();
-			this.stripUnabridgedCbox = new System.Windows.Forms.CheckBox();
 			this.mergeOpeningEndCreditsCbox = new System.Windows.Forms.CheckBox();
 			this.retainAaxFileCbox = new System.Windows.Forms.CheckBox();
 			this.downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
 			this.createCueSheetCbox = new System.Windows.Forms.CheckBox();
-			this.audiobookFixupsGb = new System.Windows.Forms.GroupBox();
 			this.badBookGb.SuspendLayout();
 			this.tabControl.SuspendLayout();
 			this.tab1ImportantSettings.SuspendLayout();
@@ -119,6 +120,7 @@
 			this.inProgressFilesGb.SuspendLayout();
 			this.customFileNamingGb.SuspendLayout();
 			this.tab4AudioFileOptions.SuspendLayout();
+			this.audiobookFixupsGb.SuspendLayout();
 			this.chapterTitleTemplateGb.SuspendLayout();
 			this.lameOptionsGb.SuspendLayout();
 			this.lameBitrateGb.SuspendLayout();
@@ -126,7 +128,6 @@
 			this.lameQualityGb.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.lameVBRQualityTb)).BeginInit();
 			this.groupBox2.SuspendLayout();
-			this.audiobookFixupsGb.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// booksLocationDescLbl
@@ -374,6 +375,7 @@
 			// 
 			// tab1ImportantSettings
 			// 
+			this.tab1ImportantSettings.Controls.Add(this.betaOptInCbox);
 			this.tab1ImportantSettings.Controls.Add(this.booksGb);
 			this.tab1ImportantSettings.Controls.Add(this.logsBtn);
 			this.tab1ImportantSettings.Controls.Add(this.loggingLevelCb);
@@ -385,6 +387,16 @@
 			this.tab1ImportantSettings.TabIndex = 0;
 			this.tab1ImportantSettings.Text = "Important settings";
 			this.tab1ImportantSettings.UseVisualStyleBackColor = true;
+			// 
+			// betaOptInCbox
+			// 
+			this.betaOptInCbox.AutoSize = true;
+			this.betaOptInCbox.Location = new System.Drawing.Point(13, 358);
+			this.betaOptInCbox.Name = "betaOptInCbox";
+			this.betaOptInCbox.Size = new System.Drawing.Size(107, 19);
+			this.betaOptInCbox.TabIndex = 6;
+			this.betaOptInCbox.Text = "[Opt in to Beta]";
+			this.betaOptInCbox.UseVisualStyleBackColor = true;
 			// 
 			// booksGb
 			// 
@@ -620,6 +632,30 @@
 			this.tab4AudioFileOptions.TabIndex = 3;
 			this.tab4AudioFileOptions.Text = "Audio File Options";
 			this.tab4AudioFileOptions.UseVisualStyleBackColor = true;
+			// 
+			// audiobookFixupsGb
+			// 
+			this.audiobookFixupsGb.Controls.Add(this.splitFilesByChapterCbox);
+			this.audiobookFixupsGb.Controls.Add(this.stripUnabridgedCbox);
+			this.audiobookFixupsGb.Controls.Add(this.convertLosslessRb);
+			this.audiobookFixupsGb.Controls.Add(this.convertLossyRb);
+			this.audiobookFixupsGb.Controls.Add(this.stripAudibleBrandingCbox);
+			this.audiobookFixupsGb.Location = new System.Drawing.Point(6, 143);
+			this.audiobookFixupsGb.Name = "audiobookFixupsGb";
+			this.audiobookFixupsGb.Size = new System.Drawing.Size(403, 160);
+			this.audiobookFixupsGb.TabIndex = 19;
+			this.audiobookFixupsGb.TabStop = false;
+			this.audiobookFixupsGb.Text = "Audiobook Fix-ups";
+			// 
+			// stripUnabridgedCbox
+			// 
+			this.stripUnabridgedCbox.AutoSize = true;
+			this.stripUnabridgedCbox.Location = new System.Drawing.Point(13, 47);
+			this.stripUnabridgedCbox.Name = "stripUnabridgedCbox";
+			this.stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
+			this.stripUnabridgedCbox.TabIndex = 13;
+			this.stripUnabridgedCbox.Text = "[StripUnabridged desc]";
+			this.stripUnabridgedCbox.UseVisualStyleBackColor = true;
 			// 
 			// chapterTitleTemplateGb
 			// 
@@ -977,16 +1013,6 @@
 			this.lameTargetBitrateRb.UseVisualStyleBackColor = true;
 			this.lameTargetBitrateRb.CheckedChanged += new System.EventHandler(this.lameTargetRb_CheckedChanged);
 			// 
-			// stripUnabridgedCbox
-			// 
-			this.stripUnabridgedCbox.AutoSize = true;
-			this.stripUnabridgedCbox.Location = new System.Drawing.Point(13, 47);
-			this.stripUnabridgedCbox.Name = "stripUnabridgedCbox";
-			this.stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
-			this.stripUnabridgedCbox.TabIndex = 13;
-			this.stripUnabridgedCbox.Text = "[StripUnabridged desc]";
-			this.stripUnabridgedCbox.UseVisualStyleBackColor = true;
-			// 
 			// mergeOpeningEndCreditsCbox
 			// 
 			this.mergeOpeningEndCreditsCbox.AutoSize = true;
@@ -1034,20 +1060,6 @@
 			this.createCueSheetCbox.UseVisualStyleBackColor = true;
 			this.createCueSheetCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
 			// 
-			// audiobookFixupsGb
-			// 
-			this.audiobookFixupsGb.Controls.Add(this.splitFilesByChapterCbox);
-			this.audiobookFixupsGb.Controls.Add(this.stripUnabridgedCbox);
-			this.audiobookFixupsGb.Controls.Add(this.convertLosslessRb);
-			this.audiobookFixupsGb.Controls.Add(this.convertLossyRb);
-			this.audiobookFixupsGb.Controls.Add(this.stripAudibleBrandingCbox);
-			this.audiobookFixupsGb.Location = new System.Drawing.Point(6, 143);
-			this.audiobookFixupsGb.Name = "audiobookFixupsGb";
-			this.audiobookFixupsGb.Size = new System.Drawing.Size(403, 160);
-			this.audiobookFixupsGb.TabIndex = 19;
-			this.audiobookFixupsGb.TabStop = false;
-			this.audiobookFixupsGb.Text = "Audiobook Fix-ups";
-			// 
 			// SettingsDialog
 			// 
 			this.AcceptButton = this.saveBtn;
@@ -1082,6 +1094,8 @@
 			this.customFileNamingGb.PerformLayout();
 			this.tab4AudioFileOptions.ResumeLayout(false);
 			this.tab4AudioFileOptions.PerformLayout();
+			this.audiobookFixupsGb.ResumeLayout(false);
+			this.audiobookFixupsGb.PerformLayout();
 			this.chapterTitleTemplateGb.ResumeLayout(false);
 			this.chapterTitleTemplateGb.PerformLayout();
 			this.lameOptionsGb.ResumeLayout(false);
@@ -1094,8 +1108,6 @@
 			((System.ComponentModel.ISupportInitialize)(this.lameVBRQualityTb)).EndInit();
 			this.groupBox2.ResumeLayout(false);
 			this.groupBox2.PerformLayout();
-			this.audiobookFixupsGb.ResumeLayout(false);
-			this.audiobookFixupsGb.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -1183,5 +1195,6 @@
 		private System.Windows.Forms.Button editCharreplacementBtn;
 		private System.Windows.Forms.CheckBox mergeOpeningEndCreditsCbox;
 		private System.Windows.Forms.GroupBox audiobookFixupsGb;
+		private System.Windows.Forms.CheckBox betaOptInCbox;
 	}
 }

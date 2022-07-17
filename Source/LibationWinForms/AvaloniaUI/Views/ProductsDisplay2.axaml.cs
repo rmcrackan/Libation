@@ -206,6 +206,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 		}
 
+		public void CloseImageDisplay()
+		{
+			if (imageDisplayDialog is not null && imageDisplayDialog.IsVisible)
+				imageDisplayDialog.Close();
+		}
+
 		public void Cover_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			if (sender is not Image tblock || tblock.DataContext is not GridEntry2 gEntry)

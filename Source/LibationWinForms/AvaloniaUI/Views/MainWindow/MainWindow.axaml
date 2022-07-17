@@ -172,6 +172,7 @@
 
 					<!-- Product Display Grid -->
 					<views:ProductsDisplay2
+						Name="productsDisplay"
 						Initialized="ProductsDisplay_Initialized1"
 						DataContext="{Binding ProductsDisplay}"						
 						LiberateClicked="ProductsDisplay_LiberateClicked"/>				

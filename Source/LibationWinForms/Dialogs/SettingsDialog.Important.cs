@@ -22,6 +22,7 @@ namespace LibationWinForms.Dialogs
 			}
 
 			booksLocationDescLbl.Text = desc(nameof(config.Books));
+			betaOptInCbox.Text = desc(nameof(config.BetaOptIn));
 			this.saveEpisodesToSeriesFolderCbox.Text = desc(nameof(config.SavePodcastsToParentFolder));
 
 			booksSelectControl.SetSearchTitle("books location");
@@ -37,6 +38,10 @@ namespace LibationWinForms.Dialogs
 			booksSelectControl.SelectDirectory(config.Books);
 
 			saveEpisodesToSeriesFolderCbox.Checked = config.SavePodcastsToParentFolder;
+			betaOptInCbox.Checked = config.BetaOptIn;
+
+			if (!betaOptInCbox.Checked)
+				betaOptInCbox.CheckedChanged += betaOptInCbox_CheckedChanged;
 		}
 
 		private void Save_Important(Configuration config)
@@ -88,6 +93,35 @@ namespace LibationWinForms.Dialogs
 			}
 
 			config.SavePodcastsToParentFolder = saveEpisodesToSeriesFolderCbox.Checked;
+
+			config.BetaOptIn = betaOptInCbox.Checked;
+		}
+
+
+		private void betaOptInCbox_CheckedChanged(object sender, EventArgs e)
+		{
+			if (!betaOptInCbox.Checked)
+				return;
+
+			var result = MessageBox.Show(this, @"
+
+
+You've chosen to opt-in to Libation's beta releases. Thank you! We need all the testers we can get.
+
+These features are works in progress and potentially very buggy. Libation may crash unexpectedly, and your library database may even be corruted.  We suggest you back up your LibationContext.db file before proceding.
+
+If bad/weird things happen, please report them at getlibation.com.
+
+".Trim(), "A word of warning...", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+
+			if (result == DialogResult.Yes)
+			{
+				betaOptInCbox.CheckedChanged -= betaOptInCbox_CheckedChanged;
+			}
+			else
+			{
+				betaOptInCbox.Checked = false;
+			}
 		}
 	}
 }

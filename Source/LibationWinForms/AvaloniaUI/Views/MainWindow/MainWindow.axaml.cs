@@ -57,6 +57,12 @@ namespace LibationWinForms.AvaloniaUI.Views
 				Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
 			Opened += MainWindow_Opened;
+			Closing += MainWindow_Closing;
+		}
+
+		private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		{
+			productsDisplay?.CloseImageDisplay();
 		}
 
 		private async void MainWindow_Opened(object sender, EventArgs e)
@@ -86,6 +92,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		private void FindAllControls()
 		{
 			quickFiltersToolStripMenuItem = this.FindControl<MenuItem>(nameof(quickFiltersToolStripMenuItem));
+			productsDisplay = this.FindControl<ProductsDisplay2>(nameof(productsDisplay));
 		}
 
 		protected override void OnDataContextChanged(EventArgs e)
