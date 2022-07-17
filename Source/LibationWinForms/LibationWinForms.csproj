@@ -109,6 +109,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="AvaloniaUI\Views\Dialogs\DescriptionDisplayDialog.axaml.cs">
+      <DependentUpon>DescriptionDisplayDialog.axaml</DependentUpon>
+    </Compile>
     <Compile Update="AvaloniaUI\Views\Dialogs\EditQuickFilters.axaml.cs">
       <DependentUpon>EditQuickFilters.axaml</DependentUpon>
     </Compile>
@@ -117,6 +120,9 @@
     </Compile>
     <Compile Update="AvaloniaUI\Views\Dialogs\SearchSyntaxDialog.axaml.cs">
       <DependentUpon>SearchSyntaxDialog.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="AvaloniaUI\Views\Dialogs\ImageDisplayDialog.axaml.cs">
+      <DependentUpon>ImageDisplayDialog.axaml</DependentUpon>
     </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>

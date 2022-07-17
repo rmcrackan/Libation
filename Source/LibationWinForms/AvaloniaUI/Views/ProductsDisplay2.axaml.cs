@@ -18,7 +18,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 		public event EventHandler<LibraryBook> LiberateClicked;
 
 		private ProductsDisplayViewModel _viewModel => DataContext as ProductsDisplayViewModel;
-		private GridView.ImageDisplay imageDisplay;
+		ImageDisplayDialog imageDisplayDialog;
 
 		public ProductsDisplay2()
 		{
@@ -211,12 +211,18 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (sender is not Image tblock || tblock.DataContext is not GridEntry2 gEntry)
 				return;
 
+
+			if (imageDisplayDialog is null || !imageDisplayDialog.IsVisible)
+			{
+				imageDisplayDialog = new ImageDisplayDialog();
+			}
+
 			var picDef = new PictureDefinition(gEntry.LibraryBook.Book.PictureLarge ?? gEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 
 			void PictureCached(object sender, PictureCachedEventArgs e)
 			{
 				if (e.Definition.PictureId == picDef.PictureId)
-					imageDisplay.CoverPicture = e.Picture;
+					imageDisplayDialog.CoverBytes = e.Picture;
 
 				PictureStorage.PictureCached -= PictureCached;
 			}
@@ -224,24 +230,20 @@ namespace LibationWinForms.AvaloniaUI.Views
 			PictureStorage.PictureCached += PictureCached;
 			(bool isDefault, byte[] initialImageBts) = PictureStorage.GetPicture(picDef);
 
+
 			var windowTitle = $"{gEntry.Title} - Cover";
 
-			if (imageDisplay is null || imageDisplay.IsDisposed || !imageDisplay.Visible)
-			{
-				imageDisplay = new GridView.ImageDisplay();
-				imageDisplay.RestoreSizeAndLocation(Configuration.Instance);
-				imageDisplay.FormClosed += (_, _) => imageDisplay.SaveSizeAndLocation(Configuration.Instance);
-			}
 
-			imageDisplay.BookSaveDirectory = AudibleFileStorage.Audio.GetDestinationDirectory(gEntry.LibraryBook);
-			imageDisplay.PictureFileName = System.IO.Path.GetFileName(AudibleFileStorage.Audio.GetBooksDirectoryFilename(gEntry.LibraryBook, ".jpg"));
-			imageDisplay.Text = windowTitle;
-			imageDisplay.CoverPicture = initialImageBts;
+			imageDisplayDialog.BookSaveDirectory = AudibleFileStorage.Audio.GetDestinationDirectory(gEntry.LibraryBook);
+			imageDisplayDialog.PictureFileName = System.IO.Path.GetFileName(AudibleFileStorage.Audio.GetBooksDirectoryFilename(gEntry.LibraryBook, ".jpg"));
+			imageDisplayDialog.Title = windowTitle;
+			imageDisplayDialog.CoverBytes = initialImageBts;
+
 			if (!isDefault)
 				PictureStorage.PictureCached -= PictureCached;
 
-			if (!imageDisplay.Visible)
-				imageDisplay.Show(null);
+			if (!imageDisplayDialog.IsVisible)
+				imageDisplayDialog.Show();
 		}
 
 		public void Description_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
@@ -249,11 +251,10 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (sender is TextBlock tblock && tblock.DataContext is GridEntry2 gEntry)
 			{
 				var pt = tblock.Parent.PointToScreen(tblock.Parent.Bounds.TopRight);
-				var displayWindow = new GridView.DescriptionDisplay
+				var displayWindow = new DescriptionDisplayDialog
 				{
-					SpawnLocation = new System.Drawing.Point(pt.X, pt.Y),
+					SpawnLocation = new Point(pt.X, pt.Y),
 					DescriptionText = gEntry.LongDescription,
-					BorderThickness = 2,
 				};
 
 				void CloseWindow(object o, DataGridRowEventArgs e)
@@ -261,7 +262,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 					displayWindow.Close();
 				}
 				productsGrid.LoadingRow += CloseWindow;
-				displayWindow.FormClosed += (_, _) =>
+				displayWindow.Closing += (_, _) =>
 				{
 					productsGrid.LoadingRow -= CloseWindow;
 				};
