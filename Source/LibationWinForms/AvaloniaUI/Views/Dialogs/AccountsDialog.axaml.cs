@@ -101,8 +101,8 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			}
 			catch (Exception ex)
 			{
-				MessageBoxLib.ShowAdminAlert(
-						null,
+				await MessageBox.ShowAdminAlert(
+						this,
 						$"An error occurred while importing an account from:\r\n{filePath[0]}\r\n\r\nIs the file encrypted?",
 						"Error Importing Account",
 						ex);
@@ -149,7 +149,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			}
 			catch (Exception ex)
 			{
-				MessageBoxLib.ShowAdminAlert(null, "Error attempting to save accounts", "Error saving accounts", ex);
+				await MessageBox.ShowAdminAlert(this, "Error attempting to save accounts", "Error saving accounts", ex);
 			}
 		}
 
@@ -259,8 +259,8 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			}
 			catch (Exception ex)
 			{
-				MessageBoxLib.ShowAdminAlert(
-					null,
+				await MessageBox.ShowAdminAlert(
+					this,
 					$"An error occurred while exporting account:\r\n{account.AccountName}",
 					"Error Exporting Account",
 					ex);

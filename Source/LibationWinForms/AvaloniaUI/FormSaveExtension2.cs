@@ -102,15 +102,15 @@ namespace LibationWinForms.AvaloniaUI
 
 			if (Design.IsDesignMode)
 				return;
-#if WINDOWS7_0
-				var handle = form.PlatformImpl.Handle.Handle;
+#if WINDOWS7_0_OR_GREATER
+			var handle = form.PlatformImpl.Handle.Handle;
 			var currentStyle = GetWindowLong(handle, GWL_STYLE);
 
 			SetWindowLong(handle, GWL_STYLE, currentStyle & ~WS_MAXIMIZEBOX & ~WS_MINIMIZEBOX);
 #endif
 		}
 
-#if WINDOWS7_0
+#if WINDOWS7_0_OR_GREATER
 		const long WS_MINIMIZEBOX = 0x00020000L;
 		const long WS_MAXIMIZEBOX = 0x10000L;
 		const int GWL_STYLE = -16;

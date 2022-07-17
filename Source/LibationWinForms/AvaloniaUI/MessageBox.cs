@@ -224,6 +224,31 @@ namespace LibationWinForms.AvaloniaUI
 				defaultButton);
 		}
 
+		/// <summary>
+		/// Logs error. Displays a message box dialog with specified text and caption.
+		/// </summary>
+		/// <param name="synchronizeInvoke">Form calling this method.</param>
+		/// <param name="text">The text to display in the message box.</param>
+		/// <param name="caption">The text to display in the title bar of the message box.</param>
+		/// <param name="exception">Exception to log.</param>
+		public static async Task ShowAdminAlert(Window owner, string text, string caption, Exception exception)
+		{
+			// for development and debugging, show me what broke!
+			if (System.Diagnostics.Debugger.IsAttached)
+				throw exception;
+
+			try
+			{
+				Serilog.Log.Logger.Error(exception, "Alert admin error: {@DebugText}", new { text, caption });
+			}
+			catch { }
+
+			var form = new MessageBoxAlertAdminDialog(text, caption, exception);
+
+			await DisplayWindow(form, owner);
+		}
+
+
 		private static async Task<DialogResult> ShowCore(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 		{
 			if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
@@ -264,11 +289,15 @@ namespace LibationWinForms.AvaloniaUI
 			dialog.Height = dialog.MinHeight;
 			dialog.Width = dialog.MinWidth;
 
+			return await DisplayWindow(dialog, owner);
+		}
+		private static async Task<DialogResult> DisplayWindow(Window toDisplay, Window owner)
+		{
 			if (owner is null)
 			{
 				if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 				{
-					return await dialog.ShowDialog<DialogResult>(desktop.MainWindow);
+					return await toDisplay.ShowDialog<DialogResult>(desktop.MainWindow);
 				}
 				else
 				{
@@ -282,7 +311,7 @@ namespace LibationWinForms.AvaloniaUI
 					};
 
 					window.Show();
-					var result = await dialog.ShowDialog<DialogResult>(window);
+					var result = await toDisplay.ShowDialog<DialogResult>(window);
 					window.Close();
 					return result;
 				}
@@ -290,7 +319,7 @@ namespace LibationWinForms.AvaloniaUI
 			}
 			else
 			{
-				return await dialog.ShowDialog<DialogResult>(owner);
+				return await toDisplay.ShowDialog<DialogResult>(owner);
 			}
 		}
 

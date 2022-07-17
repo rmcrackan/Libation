@@ -41,7 +41,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 			catch (Exception ex)
 			{
-				MessageBoxLib.ShowAdminAlert(null, "Error attempting to export your library.", "Error exporting", ex);
+				await MessageBox.ShowAdminAlert(this, "Error attempting to export your library.", "Error exporting", ex);
 			}
 		}
 	}

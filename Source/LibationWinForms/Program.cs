@@ -26,6 +26,9 @@ namespace LibationWinForms
 
 			if (config is null) return;
 
+
+			var bmp  = System.Drawing.SystemIcons.Error.ToBitmap();
+
 			/*
 			Results below compare startup times when parallelizing startup tasks vs when
 			running everything sequentially, from the entry point until after the call to
@@ -174,7 +177,9 @@ namespace LibationWinForms
 				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
 
 				// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
+#if WINDOWS7_0_OR_GREATER
 				postLoggingGlobalExceptionHandling();
+#endif
 
 				return true;
 			}
@@ -190,6 +195,7 @@ namespace LibationWinForms
 		{
 			var title = "Fatal error, pre-logging";
 			var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
+#if WINDOWS7_0_OR_GREATER
 			try
 			{
 				MessageBoxLib.ShowAdminAlert(null, body, title, ex);
@@ -198,6 +204,7 @@ namespace LibationWinForms
 			{
 				MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
+#endif
 		}
 
 		private static void RunInstaller(Configuration config)
@@ -300,13 +307,17 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
+#if WINDOWS7_0_OR_GREATER
 				MessageBoxLib.ShowAdminAlert(null, "Error checking for update", "Error checking for update", ex);
+#endif
 				return;
 			}
 
 			if (upgradeProperties.ZipUrl is null)
 			{
+#if WINDOWS7_0_OR_GREATER
 				MessageBox.Show(upgradeProperties.HtmlUrl, "New version available");
+#endif
 				return;
 			}
 
