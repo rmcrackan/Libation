@@ -113,20 +113,20 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				await Dispatcher.UIThread.InvokeAsync(() =>
 				{
 					GridEntries.ReplaceList(newEntries);
+
+					//We're replacing the list, so preserve usere's existing collapse/expand
+					//state. When resetting a list, default state is open.
+					foreach (var series in existingSeriesEntries)
+					{
+						var sEntry = GridEntries.InternalList.FirstOrDefault(ge => ge.AudibleProductId == series.AudibleProductId);
+						if (sEntry is SeriesEntry se && !series.Liberate.Expanded)
+							GridEntries.CollapseItem(se);
+					}
+
 					GridEntries.Filter = existingFilter;
 					ReSort();
+					VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count());
 				});
-
-				//We're replacing the list, so preserve usere's existing collapse/expand
-				//state. When resetting a list, default state is open.
-				foreach (var series in existingSeriesEntries)
-				{
-					var sEntry = GridEntries.InternalList.FirstOrDefault(ge => ge.AudibleProductId == series.AudibleProductId);
-					if (sEntry is SeriesEntry se && !series.Liberate.Expanded)
-						await Dispatcher.UIThread.InvokeAsync(() => GridEntries.CollapseItem(se));
-				}
-
-				await Dispatcher.UIThread.InvokeAsync(() => VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count()));
 			}
 			catch (Exception ex)
 			{

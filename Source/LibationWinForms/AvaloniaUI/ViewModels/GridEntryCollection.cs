@@ -45,9 +45,13 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#region Items Management
 
+		/// <summary>
+		/// Removes all items from the collection, both visible and hidden, adds new items to the visible collection.
+		/// </summary>
 		public void ReplaceList(IEnumerable<GridEntry> newItems)
 		{
 			Items.Clear();
+			FilterRemoved.Clear();
 			((List<GridEntry>)Items).AddRange(newItems);
 			ResetCollection();
 		}
