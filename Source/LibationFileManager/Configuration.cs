@@ -74,6 +74,13 @@ namespace LibationFileManager
 
 		public bool Exists(string propertyName) => persistentDictionary.Exists(propertyName);       
 
+		[Description("Use the beta version of Libation\r\nNew and experimental features, but probably buggy.\r\n(requires restart to take effect)")]
+		public bool BetaOptIn
+		{
+			get => persistentDictionary.GetNonString<bool>(nameof(BetaOptIn));
+			set => persistentDictionary.SetNonString(nameof(BetaOptIn), value);
+		}
+
 		[Description("Location for book storage. Includes destination of newly liberated books")]
 		public string Books
 		{

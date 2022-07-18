@@ -66,6 +66,9 @@ namespace AppScaffolding
 		{
 			config.InProgress ??= Configuration.WinTemp;
 
+			if (!config.Exists(nameof(config.BetaOptIn)))
+				config.BetaOptIn = false;
+
 			if (!config.Exists(nameof(config.AllowLibationFixup)))
 				config.AllowLibationFixup = true;
 
@@ -411,9 +414,9 @@ namespace AppScaffolding
 
 		public static void migrate_from_7_10_1(Configuration config)
 		{
-			var lastNigrationThres = config.GetNonString<bool>($"{nameof(migrate_from_7_10_1)}_ThrewError");
+			var lastMigrationThrew = config.GetNonString<bool>($"{nameof(migrate_from_7_10_1)}_ThrewError");
 
-			if (lastNigrationThres) return;
+			if (lastMigrationThrew) return;
 
 			try
 			{

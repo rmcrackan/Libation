@@ -31,27 +31,39 @@ namespace LibationWinForms.GridView
 		#region Button controls		
 
 		private ImageDisplay imageDisplay;
-		private async void productsGrid_CoverClicked(GridEntry liveGridEntry)
+		private void productsGrid_CoverClicked(GridEntry liveGridEntry)
 		{
-			var picDefinition = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge ?? liveGridEntry.LibraryBook.Book.PictureId, PictureSize.Native);
-			var picDlTask = Task.Run(() => PictureStorage.GetPictureSynchronously(picDefinition));
+			var picDef = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge ?? liveGridEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 
-			(_, byte[] initialImageBts) = PictureStorage.GetPicture(new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureId, PictureSize._80x80));
+			void PictureCached(object sender, PictureCachedEventArgs e)
+			{
+				if (e.Definition.PictureId == picDef.PictureId)
+					imageDisplay.CoverPicture = e.Picture;
+
+				PictureStorage.PictureCached -= PictureCached;
+			}
+
+			PictureStorage.PictureCached += PictureCached;
+			(bool isDefault, byte[] initialImageBts) = PictureStorage.GetPicture(picDef);
+
 			var windowTitle = $"{liveGridEntry.Title} - Cover";
 
 			if (imageDisplay is null || imageDisplay.IsDisposed || !imageDisplay.Visible)
 			{
-				imageDisplay = new ImageDisplay();
+				imageDisplay = new GridView.ImageDisplay();
 				imageDisplay.RestoreSizeAndLocation(Configuration.Instance);
 				imageDisplay.FormClosed += (_, _) => imageDisplay.SaveSizeAndLocation(Configuration.Instance);
-				imageDisplay.Show(this);
 			}
 
 			imageDisplay.BookSaveDirectory = AudibleFileStorage.Audio.GetDestinationDirectory(liveGridEntry.LibraryBook);
 			imageDisplay.PictureFileName = System.IO.Path.GetFileName(AudibleFileStorage.Audio.GetBooksDirectoryFilename(liveGridEntry.LibraryBook, ".jpg"));
 			imageDisplay.Text = windowTitle;
 			imageDisplay.CoverPicture = initialImageBts;
-			imageDisplay.CoverPicture = await picDlTask;
+			if (!isDefault)
+				PictureStorage.PictureCached -= PictureCached;
+
+			if (!imageDisplay.Visible)
+				imageDisplay.Show(null);
 		}
 
 		private void productsGrid_DescriptionClicked(GridEntry liveGridEntry, Rectangle cellRectangle)

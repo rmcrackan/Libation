@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:vm="clr-namespace:LibationWinForms.AvaloniaUI.ViewModels"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:views="clr-namespace:LibationWinForms.AvaloniaUI.Views"
+		xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
+		mc:Ignorable="d" d:DesignWidth="1850" d:DesignHeight="700"
+		x:Class="LibationWinForms.AvaloniaUI.Views.MainWindow"
+		Title="Libation"
+		Name="Form1"
+		Icon="/AvaloniaUI/Assets/libation.ico">
+
+	<Border BorderBrush="{DynamicResource DataGridGridLinesBrush}" BorderThickness="2" Padding="15">
+		<Grid RowDefinitions="Auto,Auto,*,Auto">
+			<Grid Grid.Row="0" ColumnDefinitions="1*,Auto">
+
+				<!-- Menu Strip -->
+				<Menu Grid.Column="0" VerticalAlignment="Top">
+					<!-- Decrease height of menu strop -->
+					<Menu.Styles>
+						<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+							<Setter Property="Height" Value="25"/>
+						</Style>
+					</Menu.Styles>
+
+					<!-- Import Menu -->
+					
+					<MenuItem Header="_Import">
+						<!-- Remove height style property for menu item -->
+						<MenuItem.Styles>
+							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+								<Setter Property="Height" Value="NaN"/>
+							</Style>
+						</MenuItem.Styles>
+						<MenuItem IsVisible="{Binding AnyAccounts}" Click="autoScanLibraryToolStripMenuItem_Click" Header="A_uto Scan Library">
+							<MenuItem.Icon>
+								<CheckBox BorderThickness="0" IsChecked="{Binding AutoScanChecked, Mode=TwoWay}" IsHitTestVisible="False" />
+							</MenuItem.Icon>
+						</MenuItem>
+						<MenuItem IsVisible="{Binding !AnyAccounts}" Click="noAccountsYetAddAccountToolStripMenuItem_Click" Header="No accounts yet. A_dd Account..." />
+						
+						<!-- Scan Library -->
+						<MenuItem IsVisible="{Binding OneAccount}" IsEnabled="{Binding !ActivelyScanning}" Click="scanLibraryToolStripMenuItem_Click" Header="Scan _Library" />
+						<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding !ActivelyScanning}" Click="scanLibraryOfAllAccountsToolStripMenuItem_Click" Header="Scan Library of _All Accounts" />
+						<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding !ActivelyScanning}" Click="scanLibraryOfSomeAccountsToolStripMenuItem_Click" Header="Scan Library of _Some Accounts" />
+						<Separator />
+						
+						<!-- Remove Books -->
+						<MenuItem IsVisible="{Binding OneAccount}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Click="removeLibraryBooksToolStripMenuItem_Click" Header="_Remove Library Books" />
+						<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Click="removeAllAccountsToolStripMenuItem_Click" Header="_Remove Books from All Accounts" />
+						<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Click="removeSomeAccountsToolStripMenuItem_Click" Header="_Remove Books from Some Accounts" />
+
+					</MenuItem>
+					
+					<!-- Liberate Menu -->
+
+					<MenuItem Header="_Liberate">
+						<!-- Remove height style property for menu item -->
+						<MenuItem.Styles>
+							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+								<Setter Property="Height" Value="NaN"/>
+							</Style>
+						</MenuItem.Styles>
+						<MenuItem Click="beginBookBackupsToolStripMenuItem_Click" Header="{Binding BookBackupsToolStripText}" />
+						<MenuItem Click="beginPdfBackupsToolStripMenuItem_Click" Header="{Binding PdfBackupsToolStripText}" />
+						<MenuItem Click="convertAllM4bToMp3ToolStripMenuItem_Click" Header="Convert all _M4b to Mp3 [Long-running]..." />
+						<MenuItem Click="liberateVisible" Header="{Binding LiberateVisibleToolStripText}" IsEnabled="{Binding AnyVisibleNotLiberated}" />
+					</MenuItem>
+
+					<!-- Export Menu -->
+
+					<MenuItem Header="E_xport">
+						<!-- Remove height style property for menu item -->
+						<MenuItem.Styles>
+							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+								<Setter Property="Height" Value="NaN"/>
+							</Style>
+						</MenuItem.Styles>
+						<MenuItem IsEnabled="{Binding LibraryStats.HasBookResults}" Click="exportLibraryToolStripMenuItem_Click" Header="E_xport Library" />
+					</MenuItem>
+
+					<!-- Quick Filters Menu -->
+
+					<MenuItem Name="quickFiltersToolStripMenuItem" Header="Quick _Filters">
+						<!-- Remove height style property for menu item -->
+						<MenuItem.Styles>
+							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+								<Setter Property="Height" Value="NaN"/>
+							</Style>
+						</MenuItem.Styles>
+						<MenuItem Click="firstFilterIsDefaultToolStripMenuItem_Click" Header="Start Libation with 1st filter _Default">
+							<MenuItem.Icon>
+								<CheckBox  BorderThickness="0" IsChecked="{Binding FirstFilterIsDefault, Mode=TwoWay}" IsHitTestVisible="False"  />
+							</MenuItem.Icon>
+						</MenuItem>
+						<MenuItem Click="editQuickFiltersToolStripMenuItem_Click" Header="_Edit quick filters..." />
+						<Separator />
+					</MenuItem>
+
+					<!-- Visible Books Menu -->
+
+					<MenuItem Header="{Binding VisibleCountMenuItemText}" >
+						<!-- Remove height style property for menu item -->
+						<MenuItem.Styles>
+							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+								<Setter Property="Height" Value="NaN"/>
+							</Style>
+						</MenuItem.Styles>
+						<MenuItem Click="liberateVisible" Header="{Binding LiberateVisibleToolStripText_2}" IsEnabled="{Binding AnyVisibleNotLiberated}" />
+						<MenuItem Click="replaceTagsToolStripMenuItem_Click" Header="Replace _Tags..." />
+						<MenuItem Click="setDownloadedToolStripMenuItem_Click" Header="Set '_Downloaded' status..." />
+						<MenuItem Click="removeToolStripMenuItem_Click" Header="_Remove from library..." />
+					</MenuItem>
+
+					<!-- Settings Menu -->
+
+					<MenuItem Header="_Settings">
+						<!-- Remove height style property for menu item -->
+						<MenuItem.Styles>
+							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+								<Setter Property="Height" Value="NaN"/>
+							</Style>
+						</MenuItem.Styles>
+						<MenuItem Click="accountsToolStripMenuItem_Click" Header="_Accounts..." />
+						<MenuItem Click="basicSettingsToolStripMenuItem_Click" Header="_Settings..." />
+						<Separator />
+						<MenuItem Click="aboutToolStripMenuItem_Click" Header="A_bout..." />
+					</MenuItem>
+				</Menu>
+				<StackPanel IsVisible="{Binding ActivelyScanning}" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+					<Image Width="16" Height="16" Source="/AvaloniaUI/Assets/import_16x16.png" />
+					<TextBlock Margin="5,0,5,0" VerticalAlignment="Center" Text="{Binding ScanningText}"/>
+				</StackPanel>
+			</Grid>
+
+			<!-- Buttons and Search Box -->
+			<Grid Grid.Row="1" Margin="0,10,0,10" Height="30" ColumnDefinitions="Auto,*,Auto">
+
+				<Grid.Styles>
+					<Style Selector="TextBox">
+						<Setter Property="MinHeight" Value="10" />
+					</Style>
+				</Grid.Styles>
+				
+				<StackPanel Grid.Column="0" Orientation="Horizontal">
+					<Button Click="filterHelpBtn_Click" Height="30" Width="30" Content="?"/>
+					<Button Click="addQuickFilterBtn_Click" Height="30" Width="150" Margin="10,0,10,0" Content="Add To Quick Filters"/>
+				</StackPanel>
+
+				<StackPanel Grid.Column="1" Orientation="Horizontal">
+					<Button IsVisible="{Binding RemoveButtonsVisible}" IsEnabled="{Binding RemoveBooksButtonEnabled}" Click="removeBooksBtn_Click" Height="30" Width="220" Content="{Binding RemoveBooksButtonText}"/>
+					<Button IsVisible="{Binding RemoveButtonsVisible}" Click="doneRemovingBtn_Click" Height="30" Width="160" Margin="10,0,0,0" Content="Done Removing Books"/>
+				</StackPanel>
+				
+				<TextBox Grid.Column="1" IsVisible="{Binding !RemoveButtonsVisible}" Text="{Binding FilterString, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
+
+				<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
+					<Button Click="filterBtn_Click" Height="30" Width="80" Margin="10,0,10,0" Content="Filter"/>
+					<Button Click="ToggleQueueHideBtn_Click" Height="30" Width="30" Content="{Binding QueueHideButtonText}"/>
+				</StackPanel>
+
+			</Grid>
+			<Border Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource DataGridGridLinesBrush}">
+				<SplitView IsPaneOpen="{Binding QueueOpen}" DisplayMode="Inline" OpenPaneLength="375" PanePlacement="Right">
+
+					<!-- Process Queue -->
+					<SplitView.Pane>
+						<views:ProcessQueueControl DataContext="{Binding ProcessQueue}"/>
+					</SplitView.Pane>
+
+					<!-- Product Display Grid -->
+					<views:ProductsDisplay
+						Name="productsDisplay"
+						Initialized="ProductsDisplay_Initialized1"
+						DataContext="{Binding ProductsDisplay}"						
+						LiberateClicked="ProductsDisplay_LiberateClicked"/>				
+				</SplitView>
+			</Border>
+
+			<!-- Bottom Status Strip -->
+			<Grid Grid.Row="3" Margin="0,10,0,0" VerticalAlignment="Bottom" ColumnDefinitions="*,Auto">
+				<TextBlock FontSize="14" Grid.Column="0" Text="{Binding VisibleCountText}" VerticalAlignment="Center" />
+				<TextBlock FontSize="14" Grid.Column="1" Text="{Binding StatusCountText}" VerticalAlignment="Center" HorizontalAlignment="Right" />		
+			</Grid>
+		</Grid>
+	</Border>
+</Window>

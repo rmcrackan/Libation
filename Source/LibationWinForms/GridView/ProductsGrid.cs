@@ -38,6 +38,7 @@ namespace LibationWinForms.GridView
 			InitializeComponent();
 			EnableDoubleBuffering();
 			gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
+			removeGVColumn.Frozen = false;
 		}
 
 		private void EnableDoubleBuffering()
@@ -115,6 +116,9 @@ namespace LibationWinForms.GridView
 					foreach (var book in bindingList.AllItems())
 						book.Remove = RemoveStatus.NotRemoved;
 				}
+
+				removeGVColumn.DisplayIndex = 0;
+				removeGVColumn.Frozen = value;
 				removeGVColumn.Visible = value;
 			}
 		}
@@ -353,7 +357,9 @@ namespace LibationWinForms.GridView
 			{
 				var column = gridEntryDataGridView.Columns
 					.Cast<DataGridViewColumn>()
-					.Single(c => c.DataPropertyName == itemName);
+					.SingleOrDefault(c => c.DataPropertyName == itemName);
+
+				if (column is null) continue;
 
 				column.DisplayIndex = displayIndices.GetValueOrDefault(itemName, column.Index);
 			}

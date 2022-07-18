@@ -49,7 +49,7 @@ namespace LibationWinForms
 		private void exportMenuEnable(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 		{
 			var libraryStats = e.Result as LibraryCommands.LibraryStats;
-			exportLibraryToolStripMenuItem.Enabled = libraryStats.HasBookResults;
+			Invoke(() => exportLibraryToolStripMenuItem.Enabled = libraryStats.HasBookResults);
 		}
 
 		// this cannot be cleanly be FormattableToolStripMenuItem because of the optional "Errors" text

@@ -64,7 +64,6 @@ namespace LibationWinForms
 		{
 			if (this.DesignMode)
 				return;
-
 			// I'm leaving this empty call here as a reminder that if we use this, it should probably be after DesignMode check
 		}
 	}

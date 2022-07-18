@@ -1,12 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dinah.Core;
+using ApplicationServices;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.ReactiveUI;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
-using Serilog;
 
 namespace LibationWinForms
 {
@@ -19,6 +21,98 @@ namespace LibationWinForms
 		[STAThread]
 		static void Main()
 		{
+			var sw = System.Diagnostics.Stopwatch.StartNew();
+			var config = LoadLibationConfig();
+
+			if (config is null) return;
+
+
+			var bmp  = System.Drawing.SystemIcons.Error.ToBitmap();
+
+			/*
+			Results below compare startup times when parallelizing startup tasks vs when
+			running everything sequentially, from the entry point until after the call to
+			OnLoadedLibrary() returns. Tests were run on a ReadyToRun enabled release build.
+
+			The first run is substantially slower than all subsequent runs for both serial
+			and parallel. This is most likely due to file system caching speeding up
+			subsequent runs, and it's significant because in the wild, most runs are "cold"
+			and will not benefit from caching.
+
+			All times are in milliseconds.
+
+			Run		Parallel	Serial
+			1		2837		5835
+			2		1566		2774
+			3		1562		2316
+			4		1642		2388
+			5		1596		2391
+			6		1591		2358
+			7		1492		2363
+			8		1542		2335
+			9		1600		2418
+			10		1564		2359
+			11		1567		2379
+		
+			Min		1492		2316
+			Q1		1562		2358
+			Med		1567		2379
+			Q3		1600		2418
+			Max		2837		5835
+			*/
+
+			void Form1_Load(object sender, EventArgs e)
+			{
+				sw.Stop();
+				//MessageBox.Show(sw.ElapsedMilliseconds.ToString());
+			}
+
+			//For debug purposes, always run AvaloniaUI.
+			if (config.GetNonString<bool>("BetaOptIn"))
+			{
+				//Start as much work in parallel as possible.
+				var runDbMigrationsTask = Task.Run(() => RunDbMigrations(config));
+				var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
+				var appBuilderTask = Task.Run(BuildAvaloniaApp);
+
+				if (!runDbMigrationsTask.GetAwaiter().GetResult())
+					return;
+
+				var runOtherMigrationsTask = Task.Run(() => RunOtherMigrations(config));
+				var dbLibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));				
+
+				appBuilderTask.GetAwaiter().GetResult().SetupWithLifetime(classicLifetimeTask.GetAwaiter().GetResult());
+
+				if (!runOtherMigrationsTask.GetAwaiter().GetResult())
+					return;
+
+				var form1 = (AvaloniaUI.Views.MainWindow)classicLifetimeTask.Result.MainWindow;
+				form1.Opened += Form1_Load;
+
+				form1.OnLibraryLoaded(dbLibraryTask.GetAwaiter().GetResult());
+
+				classicLifetimeTask.Result.Start(null);
+			}
+			else
+			{
+				if (!RunDbMigrations(config) || !RunOtherMigrations(config))
+					return;
+
+				var form1 = new Form1();
+				form1.Shown += Form1_Load;
+
+				System.Windows.Forms.Application.Run(form1);
+			}
+		}
+
+		public static AppBuilder BuildAvaloniaApp()
+			=> AppBuilder.Configure<AvaloniaUI.App>()
+			.UsePlatformDetect()
+			.LogToTrace()
+			.UseReactiveUI();
+
+		private static Configuration LoadLibationConfig()
+		{
 			try
 			{
 				//// Uncomment to see Console. Must be called before anything writes to Console.
@@ -26,7 +120,7 @@ namespace LibationWinForms
 				//AllocConsole();
 
 				// run as early as possible. see notes in postLoggingGlobalExceptionHandling
-				Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+				System.Windows.Forms.Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
 				ApplicationConfiguration.Initialize();
 
@@ -37,13 +131,40 @@ namespace LibationWinForms
 				//***********************************************//
 				// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 				var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
+				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+				return config;
+			}
+			catch (Exception ex)
+			{
+				DisplayStartupErrorMessage(ex);
 
+				return null;
+			}
+		}
+
+		private static bool RunDbMigrations(Configuration config)
+		{
+			try
+			{
 				// do this as soon as possible (post-config)
 				RunInstaller(config);
 
 				// most migrations go in here
-				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
+				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);			
 
+				return true;
+			}
+			catch (Exception ex)
+			{
+				DisplayStartupErrorMessage(ex);
+				return false;
+			}
+		}
+
+		private static bool RunOtherMigrations(Configuration config)
+		{
+			try
+			{
 				// migrations which require Forms or are long-running
 				RunWindowsOnlyMigrations(config);
 
@@ -54,26 +175,36 @@ namespace LibationWinForms
 #endif
 				// logging is init'd here
 				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
+
+				// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
+#if WINDOWS7_0_OR_GREATER
+				postLoggingGlobalExceptionHandling();
+#endif
+
+				return true;
 			}
 			catch (Exception ex)
 			{
-				var title = "Fatal error, pre-logging";
-				var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
-				try
-				{
-					MessageBoxLib.ShowAdminAlert(null, body, title, ex);
-				}
-				catch
-				{
-					MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
-				return;
-            }
+				DisplayStartupErrorMessage(ex);
+				return false;
+			}
+		}
 
-			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
-			postLoggingGlobalExceptionHandling();
 
-			Application.Run(new Form1());
+		private static void DisplayStartupErrorMessage(Exception ex)
+		{
+			var title = "Fatal error, pre-logging";
+			var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
+#if WINDOWS7_0_OR_GREATER
+			try
+			{
+				MessageBoxLib.ShowAdminAlert(null, body, title, ex);
+			}
+			catch
+			{
+				MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+#endif
 		}
 
 		private static void RunInstaller(Configuration config)
@@ -98,7 +229,7 @@ namespace LibationWinForms
 			static void CancelInstallation()
 			{
 				MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				Application.Exit();
+				System.Windows.Forms.Application.Exit();
 				Environment.Exit(0);
 			}
 
@@ -176,13 +307,17 @@ namespace LibationWinForms
 			}
 			catch (Exception ex)
 			{
+#if WINDOWS7_0_OR_GREATER
 				MessageBoxLib.ShowAdminAlert(null, "Error checking for update", "Error checking for update", ex);
+#endif
 				return;
 			}
 
 			if (upgradeProperties.ZipUrl is null)
 			{
+#if WINDOWS7_0_OR_GREATER
 				MessageBox.Show(upgradeProperties.HtmlUrl, "New version available");
+#endif
 				return;
 			}
 
@@ -195,7 +330,7 @@ namespace LibationWinForms
 			AppDomain.CurrentDomain.UnhandledException += (_, e) => MessageBoxLib.ShowAdminAlert(null, "Libation has crashed due to an unhandled error.", "Application crash!", (Exception)e.ExceptionObject);
 
 			// these 2 lines makes it graceful. sync (eg in main form's ctor) and thread exceptions will still crash us, but event (sync, void async, Task async) will not
-			Application.ThreadException += (_, e) => MessageBoxLib.ShowAdminAlert(null, "Libation has encountered an unexpected error.", "Unexpected error", e.Exception);
+			System.Windows.Forms.Application.ThreadException += (_, e) => MessageBoxLib.ShowAdminAlert(null, "Libation has encountered an unexpected error.", "Unexpected error", e.Exception);
 			// move to beginning of execution. crashes app if this is called post-RunInstaller: System.InvalidOperationException: 'Thread exception mode cannot be changed once any Controls are created on the thread.'
 			//// I never found a case where including made a difference. I think this enum is default and including it will override app user config file
 			//Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
