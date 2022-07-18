@@ -36,6 +36,7 @@
 								Width="60"
 								Height="30"
 								Content="X"
+								IsEnabled="{Binding !IsDefault}"
 								Click="DeleteButton_Clicked" />
 
 						</DataTemplate>
@@ -50,6 +51,7 @@
 								Width="60"
 								Height="30"
 								Content="Export"
+								IsEnabled="{Binding !IsDefault}"
 								ToolTip.Tip="Export account authorization to audible-cli"
 								Click="ExportButton_Clicked" />
 
@@ -71,13 +73,13 @@
 						<DataTemplate>
 							<ComboBox
 							  MinHeight="30"
-							  HorizontalAlignment="Center"
+							  HorizontalContentAlignment = "Stretch"
+							  HorizontalAlignment = "Stretch"
 							  SelectedItem="{Binding SelectedLocale, Mode=TwoWay}"
 							  Items="{Binding Locales}">
 
 								<ComboBox.ItemTemplate>
 									<DataTemplate>
-
 										<TextBlock ZIndex="2"
 											FontSize="12"
 											Text="{Binding Name}" />
@@ -101,25 +103,11 @@
 			Margin="10"
 			ColumnDefinitions="*,Auto" >
 
-			<StackPanel
+			<Button
 				Grid.Column="0"
-				Orientation="Horizontal">
-				
-				<Button
-					Grid.Column="0"
-					Height="30"
-					Content="Add an Account"
-					Name="AddAccountButton"
-					Click="AddAccountButton_Clicked" />
-				
-				<Button
-					Grid.Column="0"
-					Height="30"
-					Margin="20,0,0,0"
-					Content="Import from audible-cli"
-					Click="ImportButton_Clicked" />
-				
-			</StackPanel>
+				Height="30"
+				Content="Import from audible-cli"
+				Click="ImportButton_Clicked" />
 
 			<Button
 				Grid.Column="1"

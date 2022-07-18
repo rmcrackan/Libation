@@ -1,34 +1,52 @@
 using AudibleUtilities;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ReactiveUI;
+using AudibleApi;
 
 namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 {
 	public partial class AccountsDialog : DialogWindow
 	{
 		public ObservableCollection<AccountDto> Accounts { get; } = new();
-		public class AccountDto 
+		public class AccountDto : ViewModels.ViewModelBase
 		{
-			public IList<AudibleApi.Locale> Locales { get; init; }
+			private string _accountId;
+			private Locale _selectedLocale;
+			public IReadOnlyList<Locale> Locales => AccountsDialog.Locales;
 			public bool LibraryScan { get; set; } = true;
-			public string AccountId { get; set; }
-			public AudibleApi.Locale SelectedLocale { get; set; }
+			public string AccountId
+			{
+				get => _accountId;
+				set
+				{
+					this.RaiseAndSetIfChanged(ref _accountId, value);
+					this.RaisePropertyChanged(nameof(IsDefault));
+				} 
+			}
+			public Locale SelectedLocale
+			{
+				get => _selectedLocale;
+				set
+				{
+					this.RaiseAndSetIfChanged(ref _selectedLocale, value);
+					this.RaisePropertyChanged(nameof(IsDefault));
+				}
+			}
 			public string AccountName { get; set; }
-			public bool IsDefault => AccountId is null && SelectedLocale is null && AccountName is null;
+			public bool IsDefault => string.IsNullOrEmpty(AccountId) && SelectedLocale is null;
 		}
 
 		private static string GetAudibleCliAppDataPath()
 			=> Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Audible");
 
-		private List<AudibleApi.Locale> Locales => AudibleApi.Localization.Locales.OrderBy(l => l.Name).ToList();
+		private static IReadOnlyList<Locale> Locales => Localization.Locales.OrderBy(l => l.Name).ToList();
 		public AccountsDialog()
 		{
 			InitializeComponent();
@@ -41,26 +59,51 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			if (!accounts.Any())
 				return;
 
-
-			ControlToFocusOnShow = this.FindControl<Button>(nameof(AddAccountButton));
-
 			DataContext = this;
 
 			foreach (var account in accounts)
 				AddAccountToGrid(account);
+
+			var newBlank = new AccountDto();
+			newBlank.PropertyChanged += AccountDto_PropertyChanged;
+			Accounts.Insert(Accounts.Count, newBlank);
 		}
 
 		private void AddAccountToGrid(Account account)
 		{
-			//ObservableCollection doesn't fire CollectionChanged on Add, so use Insert instead
-			Accounts.Insert(Accounts.Count, new()
+			AccountDto accountDto = new()
 			{
 				LibraryScan = account.LibraryScan,
 				AccountId = account.AccountId,
 				SelectedLocale = Locales.Single(l => l.Name == account.Locale.Name),
 				AccountName = account.AccountName,
-				Locales = Locales
-			});
+			};
+			accountDto.PropertyChanged += AccountDto_PropertyChanged;
+
+			//ObservableCollection doesn't fire CollectionChanged on Add, so use Insert instead
+			Accounts.Insert(Accounts.Count, accountDto);
+		}
+
+		private void AccountDto_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (Accounts.Any(a => a.IsDefault))
+				return;
+
+			var newBlank = new AccountDto();
+			newBlank.PropertyChanged += AccountDto_PropertyChanged;
+			Accounts.Insert(Accounts.Count, newBlank);
+		}
+
+		public void DeleteButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			if (e.Source is Button expBtn && expBtn.DataContext is AccountDto acc)
+			{
+				var index = Accounts.IndexOf(acc);
+				if (index < 0) return;
+
+				acc.PropertyChanged -= AccountDto_PropertyChanged;
+				Accounts.Remove(acc);
+			}
 		}
 
 		public async void ImportButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -107,21 +150,6 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 						"Error Importing Account",
 						ex);
 			}
-		}
-
-		public void AddAccountButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			if (Accounts.Any(a => a.IsDefault))
-				return;
-
-			//ObservableCollection doesn't fire CollectionChanged on Add, so use Insert instead
-			Accounts.Insert(Accounts.Count, new() { Locales = Locales });
-		}
-
-		public void DeleteButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			if (e.Source is Button expBtn && expBtn.DataContext is AccountDto acc)
-				Accounts.Remove(acc);
 		}
 
 		public void ExportButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -177,7 +205,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 				var existing = existingAccounts[i];
 				if (!Accounts.Any(dto =>
 					dto.AccountId?.ToLower().Trim() == existing.AccountId.ToLower()
-					&& dto.SelectedLocale.Name == existing.Locale?.Name))
+					&& dto.SelectedLocale?.Name == existing.Locale?.Name))
 				{
 					accountsSettings.Delete(existing);
 				}
@@ -186,11 +214,11 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			// upsert each. validation occurs through Account and AccountsSettings
 			foreach (var dto in Accounts)
 			{
-				var acct = accountsSettings.Upsert(dto.AccountId, dto.SelectedLocale.Name);
+				var acct = accountsSettings.Upsert(dto.AccountId, dto.SelectedLocale?.Name);
 				acct.LibraryScan = dto.LibraryScan;
 				acct.AccountName
 					= string.IsNullOrWhiteSpace(dto.AccountName)
-					? $"{dto.AccountId} - {dto.SelectedLocale.Name}"
+					? $"{dto.AccountId} - {dto.SelectedLocale?.Name}"
 					: dto.AccountName.Trim();
 			}
 		}
@@ -210,7 +238,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 					return false;
 				}
 
-				if (string.IsNullOrWhiteSpace(dto.SelectedLocale.Name))
+				if (string.IsNullOrWhiteSpace(dto.SelectedLocale?.Name))
 				{
 					await MessageBox.Show(this, "Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return false;
@@ -225,7 +253,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			// without transaction, accounts persister will write ANY EDIT immediately to file
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 
-			var account = persister.AccountsSettings.Accounts.FirstOrDefault(a => a.AccountId == acc.AccountId && a.Locale.Name == acc.SelectedLocale.Name);
+			var account = persister.AccountsSettings.Accounts.FirstOrDefault(a => a.AccountId == acc.AccountId && a.Locale.Name == acc.SelectedLocale?.Name);
 
 			if (account is null)
 				return;

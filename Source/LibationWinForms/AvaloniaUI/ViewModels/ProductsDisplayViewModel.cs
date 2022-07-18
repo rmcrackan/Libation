@@ -86,10 +86,8 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				GridEntries = new GridEntryCollection(CreateGridEntries(dbBooks));
 				GridEntries.CollapseAll();
 
-				int bookEntryCount = GridEntries.BookEntries().Count();
-
 				InitialLoaded?.Invoke(this, EventArgs.Empty);
-				VisibleCountChanged?.Invoke(this, bookEntryCount);
+				VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count());
 
 				RegisterCollectionChanged();
 			}
@@ -112,7 +110,12 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 				var existingSeriesEntries = GridEntries.AllItems().SeriesEntries().ToList();
 
-				await Dispatcher.UIThread.InvokeAsync(() => GridEntries.ReplaceList(newEntries));
+				await Dispatcher.UIThread.InvokeAsync(() =>
+				{
+					GridEntries.ReplaceList(newEntries);
+					GridEntries.Filter = existingFilter;
+					ReSort();
+				});
 
 				//We're replacing the list, so preserve usere's existing collapse/expand
 				//state. When resetting a list, default state is open.
@@ -122,11 +125,8 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 					if (sEntry is SeriesEntry se && !series.Liberate.Expanded)
 						await Dispatcher.UIThread.InvokeAsync(() => GridEntries.CollapseItem(se));
 				}
-				await Dispatcher.UIThread.InvokeAsync(() =>
-				{
-					GridEntries.Filter = existingFilter;
-					ReSort();
-				});
+
+				await Dispatcher.UIThread.InvokeAsync(() => VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count()));
 			}
 			catch (Exception ex)
 			{
