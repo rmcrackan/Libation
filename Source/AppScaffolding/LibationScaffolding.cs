@@ -289,6 +289,7 @@ namespace AppScaffolding
 				LogLevel_Error_Enabled = Log.Logger.IsErrorEnabled(),
 				LogLevel_Fatal_Enabled = Log.Logger.IsFatalEnabled(),
 
+				config.BetaOptIn,
 				config.LibationFiles,
 				AudibleFileStorage.BooksDirectory,
 
