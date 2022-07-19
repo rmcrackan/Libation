@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using DataLayer;
+using Dinah.Core.Logging;
 using LibationWinForms.AvaloniaUI.ViewModels.Dialogs;
 using LibationWinForms.AvaloniaUI.Views.Dialogs;
 using System;
@@ -199,6 +200,23 @@ namespace LibationWinForms.AvaloniaUI
 		public static async Task<DialogResult> Show(Window owner, string text)
 		{
 			return await ShowCore(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+		}
+
+		public static async Task VerboseLoggingWarning_ShowIfTrue()
+		{
+			// when turning on debug (and especially Verbose) to share logs, some privacy settings may not be obscured
+			if (Serilog.Log.Logger.IsVerboseEnabled())
+				await Show(@"
+Warning: verbose logging is enabled.
+
+This should be used for debugging only. It creates many
+more logs and debug files, neither of which are as
+strictly anonymous.
+
+When you are finished debugging, it's highly recommended
+to set your debug MinimumLevel to Information and restart
+Libation.
+".Trim(), "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
 		public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)

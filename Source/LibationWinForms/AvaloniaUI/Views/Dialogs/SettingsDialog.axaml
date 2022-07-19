@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="620"
         x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.SettingsDialog"
         xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
         Title="Edit Settings"
@@ -19,15 +19,138 @@
 			Content="Save"
 			Click="SaveButton_Clicked" />
 
-		<TabControl Grid.Column="0">
+		<TabControl  Grid.Column="0">
 			<TabControl.Styles>
 				<Style Selector="ItemsPresenter#PART_ItemsPresenter">
-					<Setter Property="Height" Value="33"/>
+					<Setter Property="Height" Value="18"/>
 				</Style>
-				<Style Selector="TextBlock">
-					<Setter Property="FontSize" Value="12"/>
+				<Style Selector="TabItem">
+					<Setter Property="MinHeight" Value="30"/>
+					<Setter Property="Height" Value="30"/>
+					<Setter Property="Padding" Value="8,2,8,0"/>
+				</Style>
+				<Style Selector="TabItem#Header TextBlock">
+					<Setter Property="MinHeight" Value="5"/>
 				</Style>
 			</TabControl.Styles>
+
+
+			<TabItem  Margin="0" Name="tabItem1">
+
+				<TabItem.Header>
+
+					<TextBlock
+						FontSize="14"
+						VerticalAlignment="Center"
+						Text="Important Settings"/>
+
+				</TabItem.Header>
+				<Border
+					Grid.Column="0"
+					Grid.Row="0"
+					BorderThickness="2"
+					BorderBrush="{DynamicResource DataGridGridLinesBrush}">
+					<Grid RowDefinitions="Auto,Auto,*">
+
+						<controls:GroupBox
+							Grid.Row="0"
+							Margin="5"
+							BorderWidth="1"
+							Label="Books Location">
+
+							<StackPanel>
+								<TextBlock
+									Margin="5"
+									Text="{Binding ImportantSettings.BooksText}" />
+
+								<controls:DirectoryOrCustomSelectControl Margin="0,10,0,10"
+									SubDirectory="Books"
+									Directory="{Binding ImportantSettings.BooksDirectory, Mode=TwoWay}"
+									KnownDirectories="{Binding ImportantSettings.KnownDirectories}" />
+
+
+								<CheckBox IsChecked="{Binding ImportantSettings.SavePodcastsToParentFolder, Mode=TwoWay}">
+									<TextBlock Text="{Binding ImportantSettings.SavePodcastsToParentFolderText}" />
+								</CheckBox>
+
+							</StackPanel>
+
+						</controls:GroupBox>
+
+						<StackPanel
+							Grid.Row="1" Margin="5"
+							Orientation="Horizontal">
+
+							<TextBlock Margin="0,0,10,0" VerticalAlignment="Center" Text="Logging level" />
+							
+							<controls:WheelComboBox
+								Width="150"
+								Height="25"
+								HorizontalContentAlignment="Stretch"
+								SelectedItem="{Binding ImportantSettings.LoggingLevel, Mode=TwoWay}"
+								Items="{Binding ImportantSettings.LoggingLevels}" />
+							
+							<Button
+								Margin="50,0,0,0"
+								Padding="20,3,20,3"
+								Content="Open Log Folder"
+								Click="OpenLogFolderButton_Click" />
+
+						</StackPanel>
+
+						<CheckBox
+							Grid.Row="2"
+							Margin="5"
+							VerticalAlignment="Bottom"
+							IsChecked="{Binding ImportantSettings.BetaOptIn, Mode=TwoWay}">
+							
+							<TextBlock Text="{Binding ImportantSettings.BetaOptInText}" />
+						
+						</CheckBox>
+					</Grid>
+
+				</Border>
+
+			</TabItem>
+
+
+			<TabItem>
+
+				<TabItem.Header>
+
+					<TextBlock
+						FontSize="14"
+						VerticalAlignment="Center"
+						Text="Import Library"/>
+
+				</TabItem.Header>
+				<Border
+					Grid.Column="0"
+					Grid.Row="0"
+					BorderThickness="2"
+					BorderBrush="{DynamicResource DataGridGridLinesBrush}">
+
+					<StackPanel Margin="5">
+						<CheckBox Margin="0,0,0,10" IsChecked="{Binding ImportSettings.AutoScan, Mode=TwoWay}">
+							<TextBlock TextWrapping="Wrap" Text="{Binding ImportSettings.AutoScanText}" />
+						</CheckBox>
+						<CheckBox Margin="0,0,0,10" IsChecked="{Binding ImportSettings.ShowImportedStats, Mode=TwoWay}">
+							<TextBlock TextWrapping="Wrap" Text="{Binding ImportSettings.ShowImportedStatsText}" />
+						</CheckBox>
+						<CheckBox Margin="0,0,0,10" IsChecked="{Binding ImportSettings.ImportEpisodes, Mode=TwoWay}">
+							<TextBlock TextWrapping="Wrap" Text="{Binding ImportSettings.ImportEpisodesText}" />
+						</CheckBox>
+						<CheckBox Margin="0,0,0,10" IsChecked="{Binding ImportSettings.DownloadEpisodes, Mode=TwoWay}">
+							<TextBlock TextWrapping="Wrap" Text="{Binding ImportSettings.DownloadEpisodesText}" />
+						</CheckBox>
+						<CheckBox Margin="0,0,0,10" IsChecked="{Binding ImportSettings.AutoDownloadEpisodes, Mode=TwoWay}">
+							<TextBlock TextWrapping="Wrap" Text="{Binding ImportSettings.AutoDownloadEpisodesText}" />
+						</CheckBox>
+					</StackPanel>
+
+				</Border>
+
+			</TabItem>
 
 			<TabItem>
 
@@ -43,11 +166,14 @@
 					Grid.Column="0"
 					Grid.Row="0"
 					BorderThickness="2"
-					Background="WhiteSmoke"
 					BorderBrush="{DynamicResource DataGridGridLinesBrush}">
 
 					<Grid RowDefinitions="Auto,Auto,*">
-						<controls:GroupBox Grid.Row="0" BorderWidth="1" Label="{Binding DownloadDecryptSettings.BadBookGroupboxText}">
+						<controls:GroupBox
+							Grid.Row="0"
+							Margin="5"
+							BorderWidth="1"
+							Label="{Binding DownloadDecryptSettings.BadBookGroupboxText}">
 
 							<Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
 
@@ -56,37 +182,41 @@
 									Grid.Row="0"
 									Margin="0,5,0,5"
 									IsChecked="{Binding DownloadDecryptSettings.BadBookAsk, Mode=TwoWay}">
-									<TextBlock Text="{Binding DownloadDecryptSettings.BadBookAskText}" />
+									<TextBlock TextWrapping="Wrap" Text="{Binding DownloadDecryptSettings.BadBookAskText}" />
 								</RadioButton>
 								<RadioButton
 									Grid.Column="1"
 									Grid.Row="0"
 									Margin="0,5,0,5"
 									IsChecked="{Binding DownloadDecryptSettings.BadBookAbort, Mode=TwoWay}">
-									<TextBlock Text="{Binding DownloadDecryptSettings.BadBookAbortText}" />
+									<TextBlock TextWrapping="Wrap" Text="{Binding DownloadDecryptSettings.BadBookAbortText}" />
 								</RadioButton>
 								<RadioButton
 									Grid.Column="0"
 									Grid.Row="1"
 									Margin="0,5,0,5"
 									IsChecked="{Binding DownloadDecryptSettings.BadBookRetry, Mode=TwoWay}">
-									<TextBlock Text="{Binding DownloadDecryptSettings.BadBookRetryText}" />
+									<TextBlock TextWrapping="Wrap" Text="{Binding DownloadDecryptSettings.BadBookRetryText}" />
 								</RadioButton>
 								<RadioButton
 									Grid.Column="1"
 									Grid.Row="1"
 									Margin="0,5,0,5"
 									IsChecked="{Binding DownloadDecryptSettings.BadBookIgnore, Mode=TwoWay}">
-									<TextBlock Text="{Binding DownloadDecryptSettings.BadBookIgnoreText}" />
+									<TextBlock TextWrapping="Wrap" Text="{Binding DownloadDecryptSettings.BadBookIgnoreText}" />
 								</RadioButton>
-								
-							</Grid>							
+
+							</Grid>
 						</controls:GroupBox>
-						
-						<controls:GroupBox Grid.Row="1" BorderWidth="1" Label="Custom File Naming">
-							
+
+						<controls:GroupBox
+							Margin="5"
+							Grid.Row="1"
+							BorderWidth="1"
+							Label="Custom File Naming">
+
 							<Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto">
-								
+
 								<TextBox
 									Grid.Row="0"
 									Grid.Column="0"
@@ -102,7 +232,7 @@
 									Height="30"
 									Padding="30,3,30,3"
 									Click="EditFolderTemplateButton_Click" />
-								
+
 								<TextBox
 									Grid.Row="1"
 									Grid.Column="0"
@@ -118,7 +248,7 @@
 									Height="30"
 									Padding="30,3,30,3"
 									Click="EditFileTemplateButton_Click" />
-								
+
 								<TextBox
 									Grid.Row="2"
 									Grid.Column="0"
@@ -141,18 +271,23 @@
 									Content="{Binding DownloadDecryptSettings.EditCharReplacementText}"
 									Height="30"
 									Padding="30,3,30,3"
-									Click="EditChapterTitleTemplateButton_Click" />
-								
-							</Grid>
-							
-						</controls:GroupBox>
-	
-						<controls:DirectorySelectControl
-							Grid.Row="2"
-							Subdirectory="{Binding DownloadDecryptSettings.EditCharReplacementText}"
-							KnownDirectories="{Binding DownloadDecryptSettings.KnownDirectories}"
-							Selectedirectory="{Binding DownloadDecryptSettings.SelectedDirectory, Mode=TwoWay}"  />
+									Click="EditCharReplacementButton_Click" />
 
+							</Grid>
+
+						</controls:GroupBox>
+
+						<StackPanel
+							Grid.Row="2"
+							Margin="5" >
+							<TextBlock Margin="0,0,0,10" Text="{Binding DownloadDecryptSettings.InProgressDescriptionText}" />
+
+							<controls:DirectorySelectControl
+								SubDirectory="Libation\DecryptInProgress"
+								SelectedDirectory="{Binding DownloadDecryptSettings.InProgressDirectory, Mode=TwoWay}" />
+
+
+						</StackPanel>
 					</Grid>
 
 				</Border>
@@ -173,7 +308,6 @@
 					Grid.Column="0"
 					Grid.Row="0"
 					BorderThickness="2"
-					Background="WhiteSmoke"
 					BorderBrush="{DynamicResource DataGridGridLinesBrush}">
 
 					<Grid
@@ -184,42 +318,42 @@
 							Grid.Row="0"
 							Grid.Column="0">
 
-							<CheckBox IsChecked="{Binding AudioSettings.CreateCueSheet, Mode=TwoWay}">
-								<TextBlock Text="{Binding AudioSettings.CreateCueSheetText}" />
+							<CheckBox Margin="0,0,0,5" IsChecked="{Binding AudioSettings.CreateCueSheet, Mode=TwoWay}">
+								<TextBlock TextWrapping="Wrap" Text="{Binding AudioSettings.CreateCueSheetText}" />
 							</CheckBox>
-							<CheckBox IsChecked="{Binding AudioSettings.DownloadCoverArt, Mode=TwoWay}">
-								<TextBlock Text="{Binding AudioSettings.DownloadCoverArtText}" />
+							<CheckBox Margin="0,0,0,5" IsChecked="{Binding AudioSettings.DownloadCoverArt, Mode=TwoWay}">
+								<TextBlock TextWrapping="Wrap" Text="{Binding AudioSettings.DownloadCoverArtText}" />
 							</CheckBox>
-							<CheckBox IsChecked="{Binding AudioSettings.RetainAaxFile, Mode=TwoWay}">
-								<TextBlock Text="{Binding AudioSettings.RetainAaxFileText}" />
+							<CheckBox Margin="0,0,0,5" IsChecked="{Binding AudioSettings.RetainAaxFile, Mode=TwoWay}">
+								<TextBlock TextWrapping="Wrap" Text="{Binding AudioSettings.RetainAaxFileText}" />
 							</CheckBox>
-							<CheckBox IsChecked="{Binding AudioSettings.MergeOpeningAndEndCredits, Mode=TwoWay}">
-								<TextBlock Text="{Binding AudioSettings.MergeOpeningEndCreditsText}" />
+							<CheckBox Margin="0,0,0,5" IsChecked="{Binding AudioSettings.MergeOpeningAndEndCredits, Mode=TwoWay}">
+								<TextBlock TextWrapping="Wrap" Text="{Binding AudioSettings.MergeOpeningEndCreditsText}" />
 							</CheckBox>
-							<CheckBox IsChecked="{Binding AudioSettings.AllowLibationFixup, Mode=TwoWay}">
-								<TextBlock Text="{Binding AudioSettings.AllowLibationFixupText}" />
+							<CheckBox Margin="0,0,0,5" IsChecked="{Binding AudioSettings.AllowLibationFixup, Mode=TwoWay}">
+								<TextBlock TextWrapping="Wrap" Text="{Binding AudioSettings.AllowLibationFixupText}" />
 							</CheckBox>
 
 							<controls:GroupBox BorderWidth="1" Label="Audiobook Fix-ups" IsEnabled="{Binding AudioSettings.AllowLibationFixup}">
 								<StackPanel Orientation="Vertical">
-									<CheckBox IsChecked="{Binding AudioSettings.SplitFilesByChapter, Mode=TwoWay}">
-										<TextBlock Text="{Binding AudioSettings.SplitFilesByChapterText}" />
+									<CheckBox Margin="0,0,0,5" IsChecked="{Binding AudioSettings.SplitFilesByChapter, Mode=TwoWay}">
+										<TextBlock TextWrapping="Wrap" Text="{Binding AudioSettings.SplitFilesByChapterText}" />
 									</CheckBox>
 
-									<CheckBox IsChecked="{Binding AudioSettings.StripAudibleBrandAudio, Mode=TwoWay}">
-										<TextBlock Text="{Binding AudioSettings.StripAudibleBrandingText}" />
+									<CheckBox Margin="0,0,0,5" IsChecked="{Binding AudioSettings.StripAudibleBrandAudio, Mode=TwoWay}">
+										<TextBlock TextWrapping="Wrap" Text="{Binding AudioSettings.StripAudibleBrandingText}" />
 									</CheckBox>
 
-									<CheckBox IsChecked="{Binding AudioSettings.StripUnabridged, Mode=TwoWay}">
-										<TextBlock Text="{Binding AudioSettings.StripUnabridgedText}" />
+									<CheckBox Margin="0,0,0,5" IsChecked="{Binding AudioSettings.StripUnabridged, Mode=TwoWay}">
+										<TextBlock TextWrapping="Wrap" Text="{Binding AudioSettings.StripUnabridgedText}" />
 									</CheckBox>
 
 									<RadioButton Margin="0,5,0,5" IsChecked="{Binding !AudioSettings.DecryptToLossy, Mode=TwoWay}">
-										<TextBlock Text="Download my books in the original audio format (Lossless)" />
+										<TextBlock TextWrapping="Wrap" Text="Download my books in the original audio format (Lossless)" />
 									</RadioButton>
 
 									<RadioButton Margin="0,5,0,5" IsChecked="{Binding AudioSettings.DecryptToLossy, Mode=TwoWay}">
-										<TextBlock Text="Download my books as .MP3 files (transcode if necessary)" />
+										<TextBlock TextWrapping="Wrap" Text="Download my books as .MP3 files (transcode if necessary)" />
 									</RadioButton>
 
 								</StackPanel>
@@ -253,7 +387,7 @@
 										</controls:GroupBox>
 
 										<CheckBox HorizontalAlignment="Right" Grid.Column="1" IsChecked="{Binding AudioSettings.LameDownsampleMono, Mode=TwoWay}">
-											<TextBlock Text="Downsample to mono?&#xa;(Recommended)" />
+											<TextBlock TextWrapping="Wrap" Text="Downsample to mono? (Recommended)" />
 										</CheckBox>
 									</Grid>
 									<controls:GroupBox Margin="5,5,5,0" BorderWidth="1" Label="Bitrate" IsEnabled="{Binding AudioSettings.LameTargetBitrate}" >
@@ -280,18 +414,18 @@
 												<TextBlock Grid.Column="1" HorizontalAlignment="Right" Text="{Binding AudioSettings.LameBitrate}" />
 												<TextBlock Grid.Column="2"  Text=" Kbps" />
 											</Grid>
-											<Grid ColumnDefinitions="Auto,*">
+											<Grid ColumnDefinitions="*,*">
 
 												<CheckBox Grid.Column="0" IsChecked="{Binding AudioSettings.LameConstantBitrate, Mode=TwoWay}">
-													<TextBlock Text="Restrict Encoder to Constant Bitrate?" />
+													<TextBlock TextWrapping="Wrap" Text="Restrict Encoder to Constant Bitrate?" />
 												</CheckBox>
 												<CheckBox Grid.Column="1" IsChecked="{Binding AudioSettings.LameMatchSource, Mode=TwoWay}" HorizontalAlignment="Right">
-													<TextBlock Text="Match Source Bitrate?" />
+													<TextBlock TextWrapping="Wrap" Text="Match Source Bitrate?" />
 												</CheckBox>
 											</Grid>
 										</StackPanel>
 									</controls:GroupBox>
-									
+
 									<controls:GroupBox Margin="5,5,5,0" BorderWidth="1" Label="Quality" IsEnabled="{Binding !AudioSettings.LameTargetBitrate}" >
 										<Grid ColumnDefinitions="*,*,25" RowDefinitions="*,Auto">
 											<Slider
@@ -343,7 +477,7 @@
 									FontSize="14"
 									IsReadOnly="True"
 									Text="{Binding AudioSettings.ChapterTitleTemplate}" />
-								
+
 								<Button
 									Grid.Column="1"
 									Content="Edit"
@@ -353,48 +487,6 @@
 							</Grid>
 						</controls:GroupBox>
 					</Grid>
-
-				</Border>
-
-			</TabItem>
-
-			<TabItem>
-
-				<TabItem.Header>
-
-					<TextBlock
-						FontSize="14"
-						VerticalAlignment="Center"
-						Text="Important Settings"/>
-
-				</TabItem.Header>
-				<Border
-					Grid.Column="0"
-					Grid.Row="0"
-					BorderThickness="2"
-					Background="WhiteSmoke"
-					BorderBrush="{DynamicResource DataGridGridLinesBrush}">
-
-				</Border>
-
-			</TabItem>
-
-			<TabItem>
-
-				<TabItem.Header>
-
-					<TextBlock
-						FontSize="14"
-						VerticalAlignment="Center"
-						Text="Import Library"/>
-
-				</TabItem.Header>
-				<Border
-					Grid.Column="0"
-					Grid.Row="0"
-					BorderThickness="2"
-					Background="WhiteSmoke"
-					BorderBrush="{DynamicResource DataGridGridLinesBrush}">
 
 				</Border>
 

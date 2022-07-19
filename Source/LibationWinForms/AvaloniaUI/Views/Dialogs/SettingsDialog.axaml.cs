@@ -7,19 +7,31 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Dinah.Core;
+using System.Linq;
+using FileManager;
 
 namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 {
 	public partial class SettingsDialog : DialogWindow
 	{
 		private SettingsPages settingsDisp;
+
+		private readonly Configuration config = Configuration.Instance;
 		public SettingsDialog()
 		{
 			if (Design.IsDesignMode)
 				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
 			InitializeComponent();
 
-			DataContext = settingsDisp = new(Configuration.Instance);
+			DataContext = settingsDisp = new(config);
+
+			tabItem1 = this.Find<TabItem>("tabItem1");
+			tabItem1.GotFocus += TabItem1_GotFocus;
+		}
+
+		private void TabItem1_GotFocus(object sender, Avalonia.Input.GotFocusEventArgs e)
+		{
+
 		}
 
 		private void InitializeComponent()
@@ -28,8 +40,8 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		}
 		protected override async Task SaveAndCloseAsync()
 		{
-
-
+			settingsDisp.SaveSettings(config);
+			await MessageBox.VerboseLoggingWarning_ShowIfTrue();
 			await base.SaveAndCloseAsync();
 		}
 		public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -37,29 +49,42 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 
 
 
+		public void OpenLogFolderButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
+		}
+		
+
 		public void EditFolderTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.AudioSettings.ChapterTitleTemplate);
+			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.DownloadDecryptSettings.FolderTemplate);
 			if (newTemplate is not null)
-				settingsDisp.AudioSettings.ChapterTitleTemplate = newTemplate;
+				settingsDisp.DownloadDecryptSettings.FolderTemplate = newTemplate;
 		}
 		
 
 		public void EditFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.AudioSettings.ChapterTitleTemplate);
+			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.DownloadDecryptSettings.FileTemplate);
 			if (newTemplate is not null)
-				settingsDisp.AudioSettings.ChapterTitleTemplate = newTemplate;
+				settingsDisp.DownloadDecryptSettings.FileTemplate = newTemplate;
 		}
 		
 
 		public void EditChapterFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.AudioSettings.ChapterTitleTemplate);
+			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.DownloadDecryptSettings.ChapterFileTemplate);
 			if (newTemplate is not null)
-				settingsDisp.AudioSettings.ChapterTitleTemplate = newTemplate;
+				settingsDisp.DownloadDecryptSettings.ChapterFileTemplate = newTemplate;
 		}
-		
+
+
+		public void EditCharReplacementButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			var form = new LibationWinForms.Dialogs.EditReplacementChars(config);
+			form.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			form.ShowDialog();
+		}
 
 		public void EditChapterTitleTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
@@ -84,19 +109,120 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		void SaveSettings(Configuration config);
 	}
 
-	public class SettingsPages
+	public class SettingsPages : ISettingsTab
 	{
-		public Configuration config { get; }
 		public SettingsPages(Configuration config)
 		{
-			this.config = config;
-			AudioSettings = new(config);
-			DownloadDecryptSettings = new(config);
+			LoadSettings(config);
 		}
-		public AudioSettings AudioSettings { get;}
-		public DownloadDecryptSettings DownloadDecryptSettings { get;}
+
+		public ImportantSettings ImportantSettings { get; private set; }
+		public ImportSettings ImportSettings { get; private set; }
+		public DownloadDecryptSettings DownloadDecryptSettings { get; private set; }
+		public AudioSettings AudioSettings { get; private set; }
+
+		public void LoadSettings(Configuration config)
+		{
+			ImportantSettings = new(config);
+			ImportSettings = new(config);
+			DownloadDecryptSettings = new(config);
+			AudioSettings = new(config);
+		}
+
+		public void SaveSettings(Configuration config)
+		{
+			ImportantSettings.SaveSettings(config);
+			ImportSettings.SaveSettings(config);
+			DownloadDecryptSettings.SaveSettings(config);
+			AudioSettings.SaveSettings(config);
+		}
 	}
 
+	public class ImportantSettings : ISettingsTab
+	{
+		private static Func<string, string> desc { get; } = Configuration.GetDescription;
+
+		public ImportantSettings(Configuration config)
+		{
+			LoadSettings(config);
+		}
+
+		public void LoadSettings(Configuration config)
+		{
+			BooksDirectory = config.Books;
+			SavePodcastsToParentFolder = config.SavePodcastsToParentFolder;
+			LoggingLevel = config.LogLevel;
+			BetaOptIn = config.BetaOptIn;
+		}
+
+		public void SaveSettings(Configuration config)
+		{
+			config.Books = BooksDirectory;
+			config.SavePodcastsToParentFolder = SavePodcastsToParentFolder;
+			config.LogLevel = LoggingLevel;
+			config.BetaOptIn = BetaOptIn;
+		}
+
+
+		public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
+		{
+			Configuration.KnownDirectories.UserProfile,
+			Configuration.KnownDirectories.AppDir,
+			Configuration.KnownDirectories.MyDocs
+		};
+
+		public string BooksText => desc(nameof(Configuration.Books));
+		public string SavePodcastsToParentFolderText => desc(nameof(Configuration.SavePodcastsToParentFolder));
+		public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
+		public string BetaOptInText => desc(nameof(Configuration.BetaOptIn));
+
+		public string BooksDirectory { get; set; }
+		public bool SavePodcastsToParentFolder { get; set; }
+		public Serilog.Events.LogEventLevel LoggingLevel { get; set; }
+		public bool BetaOptIn { get; set; }
+	}
+
+
+	public class ImportSettings : ISettingsTab
+	{
+		private static Func<string, string> desc { get; } = Configuration.GetDescription;
+
+		public ImportSettings(Configuration config)
+		{
+			LoadSettings(config);
+		}
+
+		public void LoadSettings(Configuration config)
+		{
+			AutoScan = config.AutoScan;
+			ShowImportedStats = config.ShowImportedStats;
+			ImportEpisodes = config.ImportEpisodes;
+			DownloadEpisodes = config.DownloadEpisodes;
+			AutoDownloadEpisodes = config.AutoDownloadEpisodes;
+		}
+
+		public void SaveSettings(Configuration config)
+		{
+			config.AutoScan = AutoScan;
+			config.ShowImportedStats = ShowImportedStats;
+			config.ImportEpisodes = ImportEpisodes;
+			config.DownloadEpisodes = DownloadEpisodes;
+			config.AutoDownloadEpisodes = AutoDownloadEpisodes;
+		}
+
+		public string AutoScanText => desc(nameof(Configuration.AutoScan));
+		public string ShowImportedStatsText => desc(nameof(Configuration.ShowImportedStats));
+		public string ImportEpisodesText => desc(nameof(Configuration.ImportEpisodes));
+		public string DownloadEpisodesText => desc(nameof(Configuration.DownloadEpisodes));
+		public string AutoDownloadEpisodesText => desc(nameof(Configuration.AutoDownloadEpisodes));
+
+		public bool AutoScan { get; set; }
+		public bool ShowImportedStats { get; set; }
+		public bool ImportEpisodes { get; set; }
+		public bool DownloadEpisodes { get; set; }
+		public bool AutoDownloadEpisodes { get; set; }
+	}
+	
 	public class DownloadDecryptSettings : ViewModels.ViewModelBase, ISettingsTab
 	{
 		private static Func<string, string> desc { get; } = Configuration.GetDescription;
@@ -115,6 +241,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			LoadSettings(config);
 		}
 
+		public Configuration.KnownDirectories InProgressDirectory { get; set; }
 		public void LoadSettings(Configuration config)
 		{
 			BadBookAsk = config.BadBook is Configuration.BadBookAction.Ask;
@@ -124,6 +251,9 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			FolderTemplate = config.FolderTemplate;
 			FileTemplate = config.FileTemplate;
 			ChapterFileTemplate = config.ChapterFileTemplate;
+			InProgressDirectory
+				= config.InProgress == Configuration.AppDir_Absolute ? Configuration.KnownDirectories.AppDir
+				: Configuration.GetKnownDirectory(config.InProgress);
 		}
 
 		public void SaveSettings(Configuration config)
@@ -137,6 +267,9 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			config.FolderTemplate = FolderTemplate;
 			config.FileTemplate = FileTemplate;
 			config.ChapterFileTemplate = ChapterFileTemplate;
+			config.InProgress
+				= InProgressDirectory is Configuration.KnownDirectories.AppDir ? Configuration.AppDir_Absolute
+				: Configuration.GetKnownDirectoryPath(InProgressDirectory);
 		}
 
 		public string BadBookGroupboxText => desc(nameof(Configuration.BadBook));
@@ -144,11 +277,11 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		public string BadBookAbortText { get; } = Configuration.BadBookAction.Abort.GetDescription();
 		public string BadBookRetryText { get; } = Configuration.BadBookAction.Retry.GetDescription();
 		public string BadBookIgnoreText { get; } = Configuration.BadBookAction.Ignore.GetDescription();
-
 		public string FolderTemplateText => desc(nameof(Configuration.FolderTemplate));
 		public string FileTemplateText => desc(nameof(Configuration.FileTemplate));
 		public string ChapterFileTemplateText => desc(nameof(Configuration.ChapterFileTemplate));
-		public string? EditCharReplacementText => desc(nameof(Configuration.ReplacementCharacters));
+		public string EditCharReplacementText => desc(nameof(Configuration.ReplacementCharacters));
+		public string InProgressDescriptionText => desc(nameof(Configuration.InProgress));
 
 		public string FolderTemplate { get => _folderTemplate; set { this.RaiseAndSetIfChanged(ref _folderTemplate, value); } }
 		public string FileTemplate { get => _fileTemplate; set { this.RaiseAndSetIfChanged(ref _fileTemplate, value); } }

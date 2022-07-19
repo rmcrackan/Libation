@@ -1,53 +1,40 @@
-<TemplatedControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LibationWinForms.AvaloniaUI.Controls.DirectorySelectControl">
-
-	<Design.DataContext>
-	</Design.DataContext>
-
-
-	<TemplatedControl.Styles>
-		<Style Selector="controls|DirectorySelectControl Border">
-			<Setter Property="BorderBrush" Value="DarkGray" />
-		</Style>
-		<Style Selector="controls|DirectorySelectControl">
-			<Setter Property="Template">
-				<ControlTemplate>
-					
-
-					<StackPanel Orientation="Vertical">
-						<StackPanel.Styles>
-							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
-								<Setter Property="Height" Value="NaN"/>
-							</Style>
-						</StackPanel.Styles>
-						<ComboBox
-									HorizontalContentAlignment = "Stretch"
-									HorizontalAlignment = "Stretch"
-									VerticalAlignment="Stretch"
-									VerticalContentAlignment="Stretch"
-									SelectedItem="{Binding SelectedComboBoxItem, Mode=TwoWay}"
-									Items="{Binding ComboBoxItems}">
-							<ComboBox.ItemTemplate>
-								<DataTemplate>
-
-									<TextBlock
-										FontSize="12"
-										Text="{Binding Description}" />
-
-								</DataTemplate>
-							</ComboBox.ItemTemplate>
-						</ComboBox>
-						<TextBox Margin="0,10,0,10" Text="{Binding SelectedComboBoxItem.UiDisplayPath}" />
-					</StackPanel>
-					
-				</ControlTemplate>
-			</Setter>
-		</Style>
-	</TemplatedControl.Styles>
 	
-</TemplatedControl>
+	<UserControl.Resources>
+		<controls:KnownDirectoryConverter x:Key="KnownDirectoryConverter" />
+	</UserControl.Resources>
+
+
+	<StackPanel Orientation="Vertical">
+		<StackPanel.Styles>
+			<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+				<Setter Property="Height" Value="NaN"/>
+			</Style>
+		</StackPanel.Styles>
+		<controls:WheelComboBox
+					HorizontalContentAlignment = "Stretch"
+					HorizontalAlignment = "Stretch"
+					VerticalAlignment="Stretch"
+					VerticalContentAlignment="Stretch"
+					SelectedItem="{Binding $parent[1].SelectedDirectory, Mode=TwoWay}"
+					Items="{Binding $parent[1].KnownDirectories}">
+			<ComboBox.ItemTemplate>
+				<DataTemplate>
+
+					<TextBlock
+						FontSize="12"
+						Text="{Binding, Converter={StaticResource KnownDirectoryConverter}}" />
+
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</controls:WheelComboBox>
+		<TextBox Margin="0,10,0,10" IsReadOnly="True" Name="displayPathTbox" />
+	</StackPanel>
+	
+</UserControl>

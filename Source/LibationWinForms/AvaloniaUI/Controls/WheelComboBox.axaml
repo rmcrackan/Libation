@@ -1,5 +1,9 @@
 <ComboBox xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="LibationWinForms.AvaloniaUI.Controls.WheelComboBox">
-
+	<ComboBox.Styles>
+		<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+			<Setter Property="Height" Value="NaN"/>
+		</Style>
+	</ComboBox.Styles>
 </ComboBox>

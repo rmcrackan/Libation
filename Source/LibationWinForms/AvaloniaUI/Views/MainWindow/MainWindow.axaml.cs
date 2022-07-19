@@ -67,8 +67,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
-			//var settings = new SettingsDialog();
-			//settings.Show();
+
 		}
 
 		public void ProductsDisplay_Initialized1(object sender, EventArgs e)
