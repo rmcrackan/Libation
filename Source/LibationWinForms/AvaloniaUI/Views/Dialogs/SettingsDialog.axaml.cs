@@ -24,14 +24,6 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			InitializeComponent();
 
 			DataContext = settingsDisp = new(config);
-
-			tabItem1 = this.Find<TabItem>("tabItem1");
-			tabItem1.GotFocus += TabItem1_GotFocus;
-		}
-
-		private void TabItem1_GotFocus(object sender, Avalonia.Input.GotFocusEventArgs e)
-		{
-
 		}
 
 		private void InitializeComponent()
@@ -47,69 +39,67 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await SaveAndCloseAsync();
 
-
-
 		public void OpenLogFolderButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
 		}
-		
 
-		public void EditFolderTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+
+		public async void EditFolderTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.DownloadDecryptSettings.FolderTemplate);
+			var newTemplate = await editTemplate(Templates.Folder, settingsDisp.DownloadDecryptSettings.FolderTemplate);
 			if (newTemplate is not null)
 				settingsDisp.DownloadDecryptSettings.FolderTemplate = newTemplate;
 		}
-		
 
-		public void EditFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+
+		public async void EditFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.DownloadDecryptSettings.FileTemplate);
+			var newTemplate = await editTemplate(Templates.File, settingsDisp.DownloadDecryptSettings.FileTemplate);
 			if (newTemplate is not null)
 				settingsDisp.DownloadDecryptSettings.FileTemplate = newTemplate;
 		}
-		
 
-		public void EditChapterFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+
+		public async void EditChapterFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.DownloadDecryptSettings.ChapterFileTemplate);
+			var newTemplate = await editTemplate(Templates.ChapterFile, settingsDisp.DownloadDecryptSettings.ChapterFileTemplate);
 			if (newTemplate is not null)
 				settingsDisp.DownloadDecryptSettings.ChapterFileTemplate = newTemplate;
 		}
 
 
-		public void EditCharReplacementButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void EditCharReplacementButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			var form = new LibationWinForms.Dialogs.EditReplacementChars(config);
 			form.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			form.ShowDialog();
 		}
 
-		public void EditChapterTitleTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void EditChapterTitleTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = editTemplate(Templates.ChapterTitle, settingsDisp.AudioSettings.ChapterTitleTemplate);
+			var newTemplate = await editTemplate(Templates.ChapterTitle, settingsDisp.AudioSettings.ChapterTitleTemplate);
 			if (newTemplate is not null)
 				settingsDisp.AudioSettings.ChapterTitleTemplate = newTemplate;
 		}
 
 
-		private static string editTemplate(Templates template, string existingTemplate)
+		private async Task<string> editTemplate(Templates template, string existingTemplate)
 		{
-			var form = new LibationWinForms.Dialogs.EditTemplateDialog(template, existingTemplate);
-			if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			var form = new EditTemplateDialog(template, existingTemplate);
+			if (await form.ShowDialog<DialogResult>(this) == DialogResult.OK)
 				return form.TemplateText;
 			else return null;
 		}
-
 	}
-	internal interface ISettingsTab
+
+	internal interface ISettingsDisplay
 	{
 		void LoadSettings(Configuration config);
 		void SaveSettings(Configuration config);
 	}
 
-	public class SettingsPages : ISettingsTab
+	public class SettingsPages : ISettingsDisplay
 	{
 		public SettingsPages(Configuration config)
 		{
@@ -138,7 +128,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		}
 	}
 
-	public class ImportantSettings : ISettingsTab
+	public class ImportantSettings : ISettingsDisplay
 	{
 		private static Func<string, string> desc { get; } = Configuration.GetDescription;
 
@@ -183,7 +173,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 	}
 
 
-	public class ImportSettings : ISettingsTab
+	public class ImportSettings : ISettingsDisplay
 	{
 		private static Func<string, string> desc { get; } = Configuration.GetDescription;
 
@@ -223,7 +213,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		public bool AutoDownloadEpisodes { get; set; }
 	}
 	
-	public class DownloadDecryptSettings : ViewModels.ViewModelBase, ISettingsTab
+	public class DownloadDecryptSettings : ViewModels.ViewModelBase, ISettingsDisplay
 	{
 		private static Func<string, string> desc { get; } = Configuration.GetDescription;
 
@@ -346,7 +336,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		}
 	}
 
-	public class AudioSettings : ViewModels.ViewModelBase, ISettingsTab
+	public class AudioSettings : ViewModels.ViewModelBase, ISettingsDisplay
 	{
 
 		private bool _splitFilesByChapter;

@@ -1,0 +1,29 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="165"
+		MinHeight="165" MaxHeight="165"
+		MinWidth="800" MaxWidth="800"
+        x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.LibationFilesDialog"
+        xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
+        Title="Book Details"
+		Icon="/AvaloniaUI/Assets/libation.ico">
+	
+	<Grid
+		RowDefinitions="Auto,Auto">
+
+		<controls:DirectoryOrCustomSelectControl
+			Grid.Row="0"
+			Margin="5"
+			Directory="{Binding Directory, Mode=TwoWay}"
+			KnownDirectories="{Binding KnownDirectories}" />
+		
+		<Button
+			Grid.Row="1"
+			HorizontalAlignment="Right"
+			Margin="5"
+			Padding="30,3,30,3"
+			Content="Save" />
+	</Grid>
+</Window>

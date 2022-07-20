@@ -20,15 +20,13 @@
 		<controls:WheelComboBox
 					HorizontalContentAlignment = "Stretch"
 					HorizontalAlignment = "Stretch"
-					VerticalAlignment="Stretch"
-					VerticalContentAlignment="Stretch"
+					MinHeight="{Binding #displayPathTbox.MinHeight}"
 					SelectedItem="{Binding $parent[1].SelectedDirectory, Mode=TwoWay}"
 					Items="{Binding $parent[1].KnownDirectories}">
 			<ComboBox.ItemTemplate>
 				<DataTemplate>
 
 					<TextBlock
-						FontSize="12"
 						Text="{Binding, Converter={StaticResource KnownDirectoryConverter}}" />
 
 				</DataTemplate>
