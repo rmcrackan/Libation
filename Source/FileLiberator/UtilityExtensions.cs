@@ -37,7 +37,11 @@ namespace FileLiberator
 			Narrators = libraryBook.Book.Narrators.Select(c => c.Name).ToList(),
 
 			SeriesName = libraryBook.Book.SeriesLink.FirstOrDefault()?.Series.Name,
-			SeriesNumber = libraryBook.Book.SeriesLink.FirstOrDefault()?.Order
+			SeriesNumber = libraryBook.Book.SeriesLink.FirstOrDefault()?.Order,
+
+			BitRate = libraryBook.Book.AudioFormat.Bitrate,
+			SampleRate = libraryBook.Book.AudioFormat.SampleRate,
+			Channels = libraryBook.Book.AudioFormat.Channels,
 		};
 	}
 }

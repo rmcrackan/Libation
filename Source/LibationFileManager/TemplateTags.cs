@@ -34,6 +34,9 @@ namespace LibationFileManager
         public static TemplateTags Series { get; } = new TemplateTags("series", "Name of series");
         // can't also have a leading zeros version. Too many weird edge cases. Eg: "1-4"
         public static TemplateTags SeriesNumber { get; } = new TemplateTags("series#", "Number order in series");
+        public static TemplateTags Bitrate { get; } = new TemplateTags("bitrate", "File's orig. bitrate");
+        public static TemplateTags SampleRate { get; } = new TemplateTags("samplerate", "File's orig. sample rate");
+        public static TemplateTags Channels { get; } = new TemplateTags("channels", "Number of audio channels");
         public static TemplateTags Account { get; } = new TemplateTags("account", "Audible account of this book");
         public static TemplateTags Locale { get; } = new TemplateTags("locale", "Region/country");
 

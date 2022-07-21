@@ -137,6 +137,9 @@ namespace LibationFileManager
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.FirstNarrator, libraryBookDto.FirstNarrator);
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.Series, libraryBookDto.SeriesName);
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.SeriesNumber, libraryBookDto.SeriesNumber);
+			fileNamingTemplate.AddParameterReplacement(TemplateTags.Bitrate, libraryBookDto.BitRate);
+			fileNamingTemplate.AddParameterReplacement(TemplateTags.SampleRate, libraryBookDto.SampleRate);
+			fileNamingTemplate.AddParameterReplacement(TemplateTags.Channels, libraryBookDto.Channels);
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.Account, libraryBookDto.Account);
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.Locale, libraryBookDto.Locale);
 

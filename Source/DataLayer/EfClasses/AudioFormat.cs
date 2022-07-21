@@ -17,7 +17,6 @@ namespace DataLayer
 
     public class AudioFormat : IComparable<AudioFormat>, IComparable
     {
-
         internal int AudioFormatID { get; private set; }
         public int Bitrate { get; private init; }
         public int SampleRate { get; private init; }
