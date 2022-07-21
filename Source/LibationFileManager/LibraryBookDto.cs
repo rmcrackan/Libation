@@ -20,6 +20,10 @@ namespace LibationFileManager
 
         public string SeriesName { get; set; }
         public string SeriesNumber { get; set; }
+
+        public int BitRate { get; set; }
+        public int SampleRate { get; set; }
+        public int Channels { get; set; }
     }
 
     public class LibraryBookDto : BookDto

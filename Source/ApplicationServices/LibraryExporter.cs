@@ -100,6 +100,9 @@ namespace ApplicationServices
 
 		[Name("Content Type")]
 		public string ContentType { get; set; }
+
+        [Name("Audio Format")]
+		public string AudioFormat { get; set; }
 	}
 	public static class LibToDtos
 	{
@@ -132,7 +135,8 @@ namespace ApplicationServices
 				MyLibationTags = a.Book.UserDefinedItem.Tags,
 				BookStatus = a.Book.UserDefinedItem.BookStatus.ToString(),
 				PdfStatus = a.Book.UserDefinedItem.PdfStatus.ToString(),
-				ContentType = a.Book.ContentType.ToString()
+				ContentType = a.Book.ContentType.ToString(),
+				AudioFormat = a.Book.AudioFormat.ToString()
 			}).ToList();
 	}
 	public static class LibraryExporter
@@ -176,33 +180,34 @@ namespace ApplicationServices
 			var row = sheet.CreateRow(rowIndex);
 
 			var columns = new[] {
-				nameof (ExportDto.Account),
-				nameof (ExportDto.DateAdded),
-				nameof (ExportDto.AudibleProductId),
-				nameof (ExportDto.Locale),
-				nameof (ExportDto.Title),
-				nameof (ExportDto.AuthorNames),
-				nameof (ExportDto.NarratorNames),
-				nameof (ExportDto.LengthInMinutes),
-				nameof (ExportDto.Description),
-				nameof (ExportDto.Publisher),
-				nameof (ExportDto.HasPdf),
-				nameof (ExportDto.SeriesNames),
-				nameof (ExportDto.SeriesOrder),
-				nameof (ExportDto.CommunityRatingOverall),
-				nameof (ExportDto.CommunityRatingPerformance),
-				nameof (ExportDto.CommunityRatingStory),
-				nameof (ExportDto.PictureId),
-				nameof (ExportDto.IsAbridged),
-				nameof (ExportDto.DatePublished),
-				nameof (ExportDto.CategoriesNames),
-				nameof (ExportDto.MyRatingOverall),
-				nameof (ExportDto.MyRatingPerformance),
-				nameof (ExportDto.MyRatingStory),
-				nameof (ExportDto.MyLibationTags),
-				nameof (ExportDto.BookStatus),
-				nameof (ExportDto.PdfStatus),
-				nameof (ExportDto.ContentType)
+				nameof(ExportDto.Account),
+				nameof(ExportDto.DateAdded),
+				nameof(ExportDto.AudibleProductId),
+				nameof(ExportDto.Locale),
+				nameof(ExportDto.Title),
+				nameof(ExportDto.AuthorNames),
+				nameof(ExportDto.NarratorNames),
+				nameof(ExportDto.LengthInMinutes),
+				nameof(ExportDto.Description),
+				nameof(ExportDto.Publisher),
+				nameof(ExportDto.HasPdf),
+				nameof(ExportDto.SeriesNames),
+				nameof(ExportDto.SeriesOrder),
+				nameof(ExportDto.CommunityRatingOverall),
+				nameof(ExportDto.CommunityRatingPerformance),
+				nameof(ExportDto.CommunityRatingStory),
+				nameof(ExportDto.PictureId),
+				nameof(ExportDto.IsAbridged),
+				nameof(ExportDto.DatePublished),
+				nameof(ExportDto.CategoriesNames),
+				nameof(ExportDto.MyRatingOverall),
+				nameof(ExportDto.MyRatingPerformance),
+				nameof(ExportDto.MyRatingStory),
+				nameof(ExportDto.MyLibationTags),
+				nameof(ExportDto.BookStatus),
+				nameof(ExportDto.PdfStatus),
+				nameof(ExportDto.ContentType),
+				nameof(ExportDto.AudioFormat)
 			};
 			var col = 0;
 			foreach (var c in columns)
@@ -268,6 +273,7 @@ namespace ApplicationServices
 				row.CreateCell(col++).SetCellValue(dto.BookStatus);
 				row.CreateCell(col++).SetCellValue(dto.PdfStatus);
 				row.CreateCell(col++).SetCellValue(dto.ContentType);
+				row.CreateCell(col++).SetCellValue(dto.AudioFormat);
 
 				rowIndex++;
 			}

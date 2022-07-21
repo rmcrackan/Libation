@@ -12,19 +12,30 @@ using static TemplatesTests.Shared;
 
 namespace TemplatesTests
 {
+	/////////////////////////////////////////////////
+	//                                             //
+	//    add general tag replacement tests to:    //
+	//                                             //
+	//    getFileNamingTemplate.Tests              //
+	//                                             //
+	/////////////////////////////////////////////////
+
 	public static class Shared
 	{
-		public static LibraryBookDto GetLibraryBook(string asin, string seriesName = "Sherlock Holmes")
+		public static LibraryBookDto GetLibraryBook(string seriesName = "Sherlock Holmes")
 			=> new()
 			{
 				Account = "my account",
-				AudibleProductId = asin,
+				AudibleProductId = "asin",
 				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
 				Locale = "us",
 				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
 				Narrators = new List<string> { "Stephen Fry" },
 				SeriesName = seriesName ?? "",
-				SeriesNumber = "1"
+				SeriesNumber = "1",
+				BitRate = 128,
+				SampleRate = 44100,
+				Channels = 2
 			};
 	}
 
@@ -56,48 +67,49 @@ namespace TemplatesTests
 
 
 		[TestMethod]
-		[DataRow(null, "asin", @"C:\", "ext")]
+		[DataRow(null, @"C:\", "ext")]
 		[ExpectedException(typeof(ArgumentNullException))]
-		public void arg_null_exception(string template, string asin, string dirFullPath, string extension)
-			=> Templates.getFileNamingTemplate(GetLibraryBook(asin), template, dirFullPath, extension);
+		public void arg_null_exception(string template, string dirFullPath, string extension)
+			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension);
 
 		[TestMethod]
-		[DataRow("", "asin", @"C:\foo\bar", "ext")]
-		[DataRow("   ", "asin", @"C:\foo\bar", "ext")]
+		[DataRow("", @"C:\foo\bar", "ext")]
+		[DataRow("   ", @"C:\foo\bar", "ext")]
 		[ExpectedException(typeof(ArgumentException))]
-		public void arg_exception(string template, string asin, string dirFullPath, string extension)
-			=> Templates.getFileNamingTemplate(GetLibraryBook(asin), template, dirFullPath, extension);
+		public void arg_exception(string template, string dirFullPath, string extension)
+			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension);
 
 		[TestMethod]
-		public void null_extension() => Tests("f.txt", "asin", @"C:\foo\bar", null, @"C:\foo\bar\f.txt");
+		public void null_extension() => Tests("f.txt", @"C:\foo\bar", null, @"C:\foo\bar\f.txt");
 
 		[TestMethod]
-		[DataRow("f.txt", "asin", @"C:\foo\bar", "ext", @"C:\foo\bar\f.txt.ext")]
-		[DataRow("f", "asin", @"C:\foo\bar", "ext", @"C:\foo\bar\f.ext")]
-		[DataRow("<id>", "asin", @"C:\foo\bar", "ext", @"C:\foo\bar\asin.ext")]
-		public void Tests(string template, string asin, string dirFullPath, string extension, string expected)
-			=> Templates.getFileNamingTemplate(GetLibraryBook(asin), template, dirFullPath, extension)
+		[DataRow("f.txt", @"C:\foo\bar", "ext", @"C:\foo\bar\f.txt.ext")]
+		[DataRow("f", @"C:\foo\bar", "ext", @"C:\foo\bar\f.ext")]
+		[DataRow("<id>", @"C:\foo\bar", "ext", @"C:\foo\bar\asin.ext")]
+        [DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\128 - 44100 - 2.ext")]
+		public void Tests(string template, string dirFullPath, string extension, string expected)
+			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension)
 			.GetFilePath(Replacements)
 			.PathWithoutPrefix
 			.Should().Be(expected);
 
 		[TestMethod]
 		public void IfSeries_empty()
-			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", "Sherlock Holmes"), "foo<if series-><-if series>bar", @"C:\a\b", "ext")
+			=> Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series-><-if series>bar", @"C:\a\b", "ext")
 			.GetFilePath(Replacements)
 			.PathWithoutPrefix
 			.Should().Be(@"C:\a\b\foobar.ext");
 
 		[TestMethod]
 		public void IfSeries_no_series()
-			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", ""), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
+			=> Templates.getFileNamingTemplate(GetLibraryBook(null), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
 			.GetFilePath(Replacements)
 			.PathWithoutPrefix
 			.Should().Be(@"C:\a\b\foobar.ext");
 
 		[TestMethod]
 		public void IfSeries_with_series()
-			=> Templates.getFileNamingTemplate(GetLibraryBook("asin", "Sherlock Holmes"), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
+			=> Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
 			.GetFilePath(Replacements)
 			.PathWithoutPrefix
 			.Should().Be(@"C:\a\b\foo-Sherlock Holmes-asin-bar.ext");
@@ -394,10 +406,10 @@ namespace Templates_ChapterFile_Tests
 		static readonly ReplacementCharacters Default = ReplacementCharacters.Default;
 
 		[TestMethod]
-		[DataRow("asin", "[<id>] <ch# 0> of <ch count> - <ch title>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\[asin] 06 of 10 - chap.txt")]
-		[DataRow("asin", "<ch#>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\6.txt")]
-		public void Tests(string asin, string template, string dir, string ext, int pos, int total, string chapter, string expected)
-			=> Templates.ChapterFile.GetPortionFilename(GetLibraryBook(asin), template, new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, Default)
+		[DataRow("[<id>] <ch# 0> of <ch count> - <ch title>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\[asin] 06 of 10 - chap.txt")]
+		[DataRow("<ch#>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\6.txt")]
+		public void Tests(string template, string dir, string ext, int pos, int total, string chapter, string expected)
+			=> Templates.ChapterFile.GetPortionFilename(GetLibraryBook(), template, new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, Default)
 			.Should().Be(expected);
 	}
 }
