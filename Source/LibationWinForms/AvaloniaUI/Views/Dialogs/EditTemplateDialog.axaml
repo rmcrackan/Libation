@@ -65,7 +65,10 @@
 						<DataGridTemplateColumn Width="*" Header="Description">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<TextPresenter Height="18" Margin="10,0,10,0" VerticalAlignment="Center" Text="{Binding Description}" />
+									<TextPresenter
+										Height="18"
+										Margin="10,0,10,0"
+										VerticalAlignment="Center" Text="{Binding Description}" />
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>

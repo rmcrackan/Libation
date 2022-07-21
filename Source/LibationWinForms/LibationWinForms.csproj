@@ -39,6 +39,7 @@
 	
 <ItemGroup>
     <AvaloniaResource Include="AvaloniaUI\Assets\**" />
+    <AvaloniaResource Remove="AvaloniaUI\Assets\SEGOEUI.TTF" />
     <None Remove=".gitignore" />
     <None Remove="AvaloniaUI\Assets\Asterisk.png" />
     <None Remove="AvaloniaUI\Assets\cancel.png" />
@@ -60,7 +61,9 @@
     <None Remove="AvaloniaUI\Assets\MBIcons\Question.png" />
     <None Remove="AvaloniaUI\Assets\Question.png" />
     <None Remove="AvaloniaUI\Assets\queued.png" />
+    <None Remove="AvaloniaUI\Assets\SEGOEUI.TTF" />
     <None Remove="AvaloniaUI\Assets\up.png" />
+    <None Remove="AvaloniaUI\Assets\WINGDING.TTF" />
   </ItemGroup>
 	
 
@@ -149,6 +152,10 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="AvaloniaUI\Controls\GroupBox.axaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="AvaloniaUI\Assets\SEGOEUI.TTF" />
   </ItemGroup>
 
 </Project>

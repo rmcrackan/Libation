@@ -67,8 +67,8 @@ namespace LibationWinForms.AvaloniaUI.Views
 
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
-			var dialog = new EditTemplateDialog(Templates.ChapterFile, "<title>");
-			await dialog.ShowDialog(this);
+			//var dialog = new EditReplacementChars();
+			//await dialog.ShowDialog(this);
 		}
 
 		public void ProductsDisplay_Initialized1(object sender, EventArgs e)

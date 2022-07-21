@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.EditReplacementChars"
+        Title="EditReplacementChars">
+
+	<DataGrid
+		GridLinesVisibility="All"
+		AutoGenerateColumns="False"
+		Items="{Binding replacements}">
+		
+		<DataGrid.Columns>
+			
+			<DataGridTemplateColumn Width="Auto" Header="Char to&#xa;Replace">
+				<DataGridTemplateColumn.CellTemplate>
+					<DataTemplate>
+						<TextPresenter
+							Height="18"
+							Margin="10,0,10,0"
+							VerticalAlignment="Center"
+							FontFamily="avares://Libation/AvaloniaUI/Assets/SEGOEUI.TTF"
+							FontStyle="Normal"
+							FontWeight="Normal"
+							Text="{Binding CharacterToReplace}" />
+					</DataTemplate>
+				</DataGridTemplateColumn.CellTemplate>
+			</DataGridTemplateColumn>
+			
+			<DataGridTemplateColumn IsReadOnly="False" Width="Auto" Header="Replacement Text">
+				<DataGridTemplateColumn.CellTemplate>
+					<DataTemplate>
+						<TextBox
+							GotFocus="Tb_GotFocus"
+							Height="18"
+							Margin="10,0,10,0"
+							VerticalAlignment="Center"
+							FontFamily="Arial"
+							FontStyle="Normal"
+							FontWeight="Normal"
+							Text="{Binding ReplacementString}" />
+					</DataTemplate>
+				</DataGridTemplateColumn.CellTemplate>
+			</DataGridTemplateColumn>
+			
+		</DataGrid.Columns>
+	</DataGrid>
+	
+</Window>

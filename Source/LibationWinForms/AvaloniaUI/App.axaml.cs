@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using LibationFileManager;
 using LibationWinForms.AvaloniaUI.Views;
+using System;
 
 namespace LibationWinForms.AvaloniaUI
 {
@@ -23,6 +24,10 @@ namespace LibationWinForms.AvaloniaUI
 		public override void OnFrameworkInitializationCompleted()
 		{
 			LoadStyles();
+
+			var SEGOEUI = new Typeface(new FontFamily(new Uri("avares://Libation/AvaloniaUI/Assets/WINGDING.TTF"), "SEGOEUI_Local"));
+			var gtf = FontManager.Current.GetOrAddGlyphTypeface(SEGOEUI);
+
 
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 			{
