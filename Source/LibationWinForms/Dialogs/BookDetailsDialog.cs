@@ -131,5 +131,12 @@ Audible ID: {Book.AudibleProductId}
 			this.DialogResult = DialogResult.Cancel;
 			this.Close();
 		}
-	}
+
+        private void audibleLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+			var locale = AudibleApi.Localization.Get(_libraryBook.Book.Locale);
+			var link = $"https://www.audible.{locale.TopDomain}/pd/{Book.AudibleProductId}";
+			Go.To.Url(link);
+		}
+    }
 }
