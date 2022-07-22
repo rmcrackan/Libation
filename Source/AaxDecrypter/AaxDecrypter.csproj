@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AAXClean.Codecs" Version="0.2.10" />
+    <PackageReference Include="AAXClean.Codecs" Version="0.2.11" />
   </ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
