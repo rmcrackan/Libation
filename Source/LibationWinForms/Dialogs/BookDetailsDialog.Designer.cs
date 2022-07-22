@@ -100,7 +100,7 @@
             this.detailsTb.ReadOnly = true;
             this.detailsTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.detailsTb.Size = new System.Drawing.Size(484, 202);
-            this.detailsTb.TabIndex = 1;
+            this.detailsTb.TabIndex = 3;
             // 
             // tagsGb
             // 
@@ -111,7 +111,7 @@
             this.tagsGb.Location = new System.Drawing.Point(12, 220);
             this.tagsGb.Name = "tagsGb";
             this.tagsGb.Size = new System.Drawing.Size(570, 73);
-            this.tagsGb.TabIndex = 2;
+            this.tagsGb.TabIndex = 0;
             this.tagsGb.TabStop = false;
             this.tagsGb.Text = "Edit Tags";
             // 
@@ -138,7 +138,7 @@
             this.liberatedGb.Location = new System.Drawing.Point(12, 299);
             this.liberatedGb.Name = "liberatedGb";
             this.liberatedGb.Size = new System.Drawing.Size(570, 122);
-            this.liberatedGb.TabIndex = 3;
+            this.liberatedGb.TabIndex = 1;
             this.liberatedGb.TabStop = false;
             this.liberatedGb.Text = "Liberated status: Whether the book/pdf has been downloaded";
             // 
@@ -194,7 +194,7 @@
             this.audibleLink.Location = new System.Drawing.Point(12, 169);
             this.audibleLink.Name = "audibleLink";
             this.audibleLink.Size = new System.Drawing.Size(57, 45);
-            this.audibleLink.TabIndex = 0;
+            this.audibleLink.TabIndex = 2;
             this.audibleLink.TabStop = true;
             this.audibleLink.Text = "Open in\r\nAudible\r\n(browser)";
             this.audibleLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.audibleLink_LinkClicked);
