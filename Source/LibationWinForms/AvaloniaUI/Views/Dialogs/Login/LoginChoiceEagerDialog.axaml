@@ -6,6 +6,7 @@
 		MinWidth="350" MinHeight="200"
 		Width="350" Height="200"
 		WindowStartupLocation="CenterOwner"
+		xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
         x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.Login.LoginChoiceEagerDialog"
         Title="Audible Login"
 		Icon="/AvaloniaUI/Assets/libation.ico" >
@@ -51,9 +52,7 @@
 			Grid.Row="3"
 			VerticalAlignment="Bottom">
 
-			<TextBlock
-				Foreground="Blue"
-				TextDecorations="Underline"
+			<controls:LinkLabel
 				Tapped="ExternalLoginLink_Tapped"
 				Text="Or click here to log in with your browser." />
 			

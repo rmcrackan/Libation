@@ -23,18 +23,13 @@
 			</Panel>
 
 			<Panel Grid.Column="0" Grid.Row="1">
-			<Panel.Styles>
-				<Style Selector="TextBlock">
-					<Setter Property="Foreground" Value="Blue"/>
-					<Setter Property="FontSize" Value="14"/>
-					<Setter Property="TextDecorations" Value="Underline"/>
-				</Style>
-			</Panel.Styles>
 
-			<TextBlock
-				Margin="10" TextWrapping="Wrap" TextAlignment="Center"
-				Tapped="GoToAudible_Tapped"
-				Text="Open in&#xa;Audible&#xa;(Browser)" />
+				<controls:LinkLabel
+					Margin="10"
+					TextWrapping="Wrap"
+					TextAlignment="Center"
+					Tapped="GoToAudible_Tapped"
+					Text="Open in&#xa;Audible&#xa;(Browser)" />
 			</Panel>
 			
 			<TextBox

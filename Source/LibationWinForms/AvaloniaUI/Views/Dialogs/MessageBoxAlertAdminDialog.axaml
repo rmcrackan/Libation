@@ -6,6 +6,7 @@
 		MinWidth="600" MinHeight="450"
 		MaxWidth="600" MaxHeight="450"
         x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.MessageBoxAlertAdminDialog"
+		xmlns:controls="clr-namespace:LibationWinForms.AvaloniaUI.Controls"
         Title="MessageBoxAlertAdminDialog"
 		WindowStartupLocation="CenterOwner"
 		Icon="/AvaloniaUI/Assets/libation.ico">
@@ -47,16 +48,8 @@
 				HorizontalAlignment="Center"
 				VerticalAlignment="Center"
 				Orientation="Vertical">
-
-				<StackPanel.Styles>
-					<Style Selector="TextBlock">
-						<Setter Property="Foreground" Value="Blue"/>
-						<Setter Property="FontSize" Value="14"/>
-						<Setter Property="TextDecorations" Value="Underline"/>
-					</Style>
-				</StackPanel.Styles>
 				
-				<TextBlock
+				<controls:LinkLabel
 					Margin="10"
 					Tapped="GoToGithub_Tapped"
 					Text="Click to go to github" />
