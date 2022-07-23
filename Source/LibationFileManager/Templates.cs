@@ -54,7 +54,7 @@ namespace LibationFileManager
 			if (template is null)
 				return new[] { ERROR_NULL_IS_INVALID };
 
-			if (ReplacementCharacters.ContainsInvalid(template.Replace("<","").Replace(">","")))
+			if (ReplacementCharacters.ContainsInvalidFilenameChar(template.Replace("<","").Replace(">","")))
 				return new[] { ERROR_INVALID_FILE_NAME_CHAR };
 
 			return Valid;
@@ -201,7 +201,7 @@ namespace LibationFileManager
 					return new[] { ERROR_FULL_PATH_IS_INVALID };
 
 				// must be relative. no colons. all other path chars are valid enough to pass this check and will be handled on final save.
-				if (ReplacementCharacters.ContainsInvalid(template.Replace("<", "").Replace(">", "")))
+				if (ReplacementCharacters.ContainsInvalidPathChar(template.Replace("<", "").Replace(">", "")))
 						return new[] { ERROR_INVALID_FILE_NAME_CHAR };
 
 				return Valid;
