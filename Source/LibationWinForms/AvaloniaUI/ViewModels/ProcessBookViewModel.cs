@@ -89,9 +89,9 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		private Processable NextProcessable() => _currentProcessable = null;
 		private Processable _currentProcessable;
 		private readonly Queue<Func<Processable>> Processes = new();
-		private readonly ProcessQueue.LogMe Logger;
+		private readonly LogMe Logger;
 
-		public ProcessBookViewModel(LibraryBook libraryBook, ProcessQueue.LogMe logme)
+		public ProcessBookViewModel(LibraryBook libraryBook, LogMe logme)
 		{
 			LibraryBook = libraryBook;
 			Logger = logme;

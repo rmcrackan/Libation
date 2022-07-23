@@ -26,7 +26,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			if (Design.IsDesignMode)
 			{
 				var vm = new ProcessQueueViewModel();
-				var Logger = ProcessQueue.LogMe.RegisterForm(vm);
+				var Logger = LogMe.RegisterForm(vm);
 				DataContext = vm;
 				using var context = DbContexts.GetContext();
 				List<ProcessBookViewModel> testList = new()

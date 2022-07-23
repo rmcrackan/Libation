@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace LibationWinForms.AvaloniaUI.ViewModels
 {
-	public class ProcessQueueViewModel : ViewModelBase, ProcessQueue.ILogForm
+	public class ProcessQueueViewModel : ViewModelBase, ILogForm
 	{
 		public ObservableCollection<LogEntry> LogEntries { get; } = new();
 		public TrackedQueue<ProcessBookViewModel> Items { get; } = new();
@@ -21,13 +21,13 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 		public Task QueueRunner { get; private set; }
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
 
-		private readonly ProcessQueue.LogMe Logger;
+		private readonly LogMe Logger;
 
 		public ProcessQueueViewModel()
 		{
 			Queue.QueuededCountChanged += Queue_QueuededCountChanged;
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
-			Logger = ProcessQueue.LogMe.RegisterForm(this);
+			Logger = LogMe.RegisterForm(this);
 		}
 
 		private int _completedCount;

@@ -23,7 +23,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 				using var context = DbContexts.GetContext();
 				DataContext = new ProcessBookViewModel(
 					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
-					ProcessQueue.LogMe.RegisterForm(default(ProcessQueue.ILogForm))
+					LogMe.RegisterForm(default(ILogForm))
 					);
 				return;
 			}
