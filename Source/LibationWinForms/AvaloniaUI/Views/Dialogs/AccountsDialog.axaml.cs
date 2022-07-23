@@ -56,13 +56,17 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			// only persist in 'save' step
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var accounts = persister.AccountsSettings.Accounts;
-			if (!accounts.Any())
-				return;
+			if (accounts.Any())
+			{
+				foreach (var account in accounts)
+					AddAccountToGrid(account);
+			}
 
 			DataContext = this;
-
-			foreach (var account in accounts)
-				AddAccountToGrid(account);
+			addBlankAccount();
+		}
+		private void addBlankAccount()
+		{
 
 			var newBlank = new AccountDto();
 			newBlank.PropertyChanged += AccountDto_PropertyChanged;
@@ -89,9 +93,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			if (Accounts.Any(a => a.IsDefault))
 				return;
 
-			var newBlank = new AccountDto();
-			newBlank.PropertyChanged += AccountDto_PropertyChanged;
-			Accounts.Insert(Accounts.Count, newBlank);
+			addBlankAccount();
 		}
 
 		public void DeleteButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -134,7 +136,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 
 				if (persister.AccountsSettings.Accounts.Any(a => a.AccountId == account.AccountId && a.IdentityTokens.Locale.Name == account.Locale.Name))
 				{
-					await MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale.Name}", "Cannot Add Duplicate Account");
+					MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale.Name}", "Cannot Add Duplicate Account");
 					return;
 				}
 
@@ -144,7 +146,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			}
 			catch (Exception ex)
 			{
-				await MessageBox.ShowAdminAlert(
+				MessageBox.ShowAdminAlert(
 						this,
 						$"An error occurred while importing an account from:\r\n{filePath[0]}\r\n\r\nIs the file encrypted?",
 						"Error Importing Account",
@@ -163,7 +165,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 
 			try
 			{
-				if (!await inputIsValid())
+				if (!inputIsValid())
 					return;
 
 				// without transaction, accounts persister will write ANY EDIT immediately to file
@@ -189,8 +191,6 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		{
 			AvaloniaXamlLoader.Load(this);
 		}
-
-
 
 		private void persist(AccountsSettings accountsSettings)
 		{
@@ -222,7 +222,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 					: dto.AccountName.Trim();
 			}
 		}
-		private async Task<bool> inputIsValid()
+		private bool inputIsValid()
 		{
 			foreach (var dto in Accounts.ToList())
 			{
@@ -234,13 +234,13 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 
 				if (string.IsNullOrWhiteSpace(dto.AccountId))
 				{
-					await MessageBox.Show(this, "Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show(this, "Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return false;
 				}
 
 				if (string.IsNullOrWhiteSpace(dto.SelectedLocale?.Name))
 				{
-					await MessageBox.Show(this, "Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show(this, "Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return false;
 				}
 			}
@@ -260,7 +260,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 
 			if (account.IdentityTokens?.IsValid != true)
 			{
-				await MessageBox.Show(this, "This account hasn't been authenticated yet. First scan your library to log into your account, then try exporting again.", "Account Not Authenticated");
+				MessageBox.Show(this, "This account hasn't been authenticated yet. First scan your library to log into your account, then try exporting again.", "Account Not Authenticated");
 				return;
 			}
 
@@ -283,11 +283,11 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 
 				File.WriteAllText(fileName, jsonText);
 
-				await MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{fileName}", "Success!");
+				MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{fileName}", "Success!");
 			}
 			catch (Exception ex)
 			{
-				await MessageBox.ShowAdminAlert(
+				MessageBox.ShowAdminAlert(
 					this,
 					$"An error occurred while exporting account:\r\n{account.AccountName}",
 					"Error Exporting Account",

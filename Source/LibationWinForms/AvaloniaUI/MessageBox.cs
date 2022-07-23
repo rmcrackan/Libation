@@ -26,7 +26,6 @@ namespace LibationWinForms.AvaloniaUI
 		Continue = 11
 	}
 
-
 	public enum MessageBoxIcon
 	{
 		None = 0,
@@ -39,6 +38,7 @@ namespace LibationWinForms.AvaloniaUI
 		Asterisk = 64,
 		Information = 64
 	}
+
 	public enum MessageBoxButtons
 	{
 		OK,
@@ -74,10 +74,8 @@ namespace LibationWinForms.AvaloniaUI
 		/// -or-  
 		/// <paramref name="defaultButton" /> is not a member of <see cref="T:System.Windows.Forms.MessageBoxDefaultButton" />.</exception>
 		/// <exception cref="T:System.InvalidOperationException">An attempt was made to display the <see cref="T:System.Windows.Forms.MessageBox" /> in a process that is not running in User Interactive mode. This is specified by the <see cref="P:System.Windows.Forms.SystemInformation.UserInteractive" /> property.</exception>
-		public static async Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
-		{
-			return await ShowCore(null, text, caption, buttons, icon, defaultButton);
-		}
+		public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
+			=> ShowCoreAsync(null, text, caption, buttons, icon, defaultButton);
 
 
 		/// <summary>Displays a message box with specified text, caption, buttons, and icon.</summary>
@@ -90,10 +88,8 @@ namespace LibationWinForms.AvaloniaUI
 		///  -or-  
 		///  The <paramref name="icon" /> parameter specified is not a member of <see cref="T:System.Windows.Forms.MessageBoxIcon" />.</exception>
 		/// <exception cref="T:System.InvalidOperationException">An attempt was made to display the <see cref="T:System.Windows.Forms.MessageBox" /> in a process that is not running in User Interactive mode. This is specified by the <see cref="P:System.Windows.Forms.SystemInformation.UserInteractive" /> property.</exception>
-		public static async Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
-		{
-			return await ShowCore(null, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
-		}
+		public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
+			=> ShowCoreAsync(null, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
 
 
 		/// <summary>Displays a message box with specified text, caption, and buttons.</summary>
@@ -103,28 +99,22 @@ namespace LibationWinForms.AvaloniaUI
 		/// <returns>One of the <see cref="T:System.Windows.Forms.DialogResult" /> values.</returns>
 		/// <exception cref="T:System.ComponentModel.InvalidEnumArgumentException">The <paramref name="buttons" /> parameter specified is not a member of <see cref="T:System.Windows.Forms.MessageBoxButtons" />.</exception>
 		/// <exception cref="T:System.InvalidOperationException">An attempt was made to display the <see cref="T:System.Windows.Forms.MessageBox" /> in a process that is not running in User Interactive mode. This is specified by the <see cref="P:System.Windows.Forms.SystemInformation.UserInteractive" /> property.</exception>
-		public static async Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons)
-		{
-			return await ShowCore(null, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		}
+		public static DialogResult Show(string text, string caption, MessageBoxButtons buttons)
+			=> ShowCoreAsync(null, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
 
 		/// <summary>Displays a message box with specified text and caption.</summary>
 		/// <param name="text">The text to display in the message box.</param>
 		/// <param name="caption">The text to display in the title bar of the message box.</param>
 		/// <returns>One of the <see cref="T:System.Windows.Forms.DialogResult" /> values.</returns>
-		public static async Task<DialogResult> Show(string text, string caption)
-		{
-			return await ShowCore(null, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		}
+		public static DialogResult Show(string text, string caption)
+			=> ShowCoreAsync(null, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
 		/// <summary>Displays a message box with specified text.</summary>
 		/// <param name="text">The text to display in the message box.</param>
 		/// <returns>One of the <see cref="T:System.Windows.Forms.DialogResult" /> values.</returns>
-		public static async Task<DialogResult> Show(string text)
-		{
-			return await ShowCore(null, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		}
+		public static DialogResult Show(string text)
+			=> ShowCoreAsync(null, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
 
 		/// <summary>Displays a message box in front of the specified object and with the specified text, caption, buttons, icon, default button, and options.</summary>
@@ -146,10 +136,9 @@ namespace LibationWinForms.AvaloniaUI
 		/// <exception cref="T:System.ArgumentException">		
 		/// -or-  
 		/// <paramref name="buttons" /> specified an invalid combination of <see cref="T:System.Windows.Forms.MessageBoxButtons" />.</exception>
-		public static async Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
-		{
-			return await ShowCore(owner, text, caption, buttons, icon, defaultButton);
-		}
+		public static DialogResult Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
+			=> ShowCoreAsync(owner, text, caption, buttons, icon, defaultButton);
+
 
 
 		/// <summary>Displays a message box in front of the specified object and with the specified text, caption, buttons, and icon.</summary>
@@ -164,10 +153,8 @@ namespace LibationWinForms.AvaloniaUI
 		/// -or-  
 		/// <paramref name="icon" /> is not a member of <see cref="T:System.Windows.Forms.MessageBoxIcon" />.</exception>
 		/// <exception cref="T:System.InvalidOperationException">An attempt was made to display the <see cref="T:System.Windows.Forms.MessageBox" /> in a process that is not running in User Interactive mode. This is specified by the <see cref="P:System.Windows.Forms.SystemInformation.UserInteractive" /> property.</exception>
-		public static async Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
-		{
-			return await ShowCore(owner, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
-		}
+		public static DialogResult Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
+			=> ShowCoreAsync(owner, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
 
 		/// <summary>Displays a message box in front of the specified object and with the specified text, caption, and buttons.</summary>
 		/// <param name="owner">An implementation of <see cref="T:System.Windows.Forms.IWin32Window" /> that will own the modal dialog box.</param>
@@ -178,35 +165,29 @@ namespace LibationWinForms.AvaloniaUI
 		/// <exception cref="T:System.ComponentModel.InvalidEnumArgumentException">
 		///   <paramref name="buttons" /> is not a member of <see cref="T:System.Windows.Forms.MessageBoxButtons" />.</exception>
 		/// <exception cref="T:System.InvalidOperationException">An attempt was made to display the <see cref="T:System.Windows.Forms.MessageBox" /> in a process that is not running in User Interactive mode. This is specified by the <see cref="P:System.Windows.Forms.SystemInformation.UserInteractive" /> property.</exception>
-		public static async Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons)
-		{
-			return await ShowCore(owner, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		}
+		public static DialogResult Show(Window owner, string text, string caption, MessageBoxButtons buttons)
+			=> ShowCoreAsync(owner, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
 		/// <summary>Displays a message box in front of the specified object and with the specified text and caption.</summary>
 		/// <param name="owner">An implementation of <see cref="T:System.Windows.Forms.IWin32Window" /> that will own the modal dialog box.</param>
 		/// <param name="text">The text to display in the message box.</param>
 		/// <param name="caption">The text to display in the title bar of the message box.</param>
 		/// <returns>One of the <see cref="T:System.Windows.Forms.DialogResult" /> values.</returns>
-		public static async Task<DialogResult> Show(Window owner, string text, string caption)
-		{
-			return await ShowCore(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		}
-
+		public static DialogResult Show(Window owner, string text, string caption)
+			=> ShowCoreAsync(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		/// <summary>Displays a message box in front of the specified object and with the specified text.</summary>
 		/// <param name="owner">An implementation of <see cref="T:System.Windows.Forms.IWin32Window" /> that will own the modal dialog box.</param>
 		/// <param name="text">The text to display in the message box.</param>
 		/// <returns>One of the <see cref="T:System.Windows.Forms.DialogResult" /> values.</returns>
-		public static async Task<DialogResult> Show(Window owner, string text)
-		{
-			return await ShowCore(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		}
+		public static DialogResult Show(Window owner, string text)
+			=> ShowCoreAsync(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+
 
 		public static async Task VerboseLoggingWarning_ShowIfTrue()
 		{
 			// when turning on debug (and especially Verbose) to share logs, some privacy settings may not be obscured
 			if (Serilog.Log.Logger.IsVerboseEnabled())
-				await Show(@"
+				Show(@"
 Warning: verbose logging is enabled.
 
 This should be used for debugging only. It creates many
@@ -219,7 +200,7 @@ Libation.
 ".Trim(), "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
-		public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
+		public static DialogResult ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
 		{
 			if (libraryBooks is null || !libraryBooks.Any())
 				return DialogResult.Cancel;
@@ -234,7 +215,7 @@ Libation.
 				= string.Format(format, $"{thisThese} {count} {bookBooks}")
 				+ $"\r\n\r\n{titlesAgg}";
 
-			return await ShowCore(owner, 
+			return ShowCoreAsync(owner, 
 				message,
 				title,
 				MessageBoxButtons.YesNo,
@@ -263,18 +244,11 @@ Libation.
 
 			var form = new MessageBoxAlertAdminDialog(text, caption, exception);
 
-			await DisplayWindow(form, owner);
+			DisplayWindow(form, owner);
 		}
 
 
-		private static async Task<DialogResult> ShowCore(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
-		{
-			if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
-				return await ShowCore2(owner, message, caption, buttons, icon, defaultButton);
-			else
-				return await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => ShowCore2(owner, message, caption, buttons, icon, defaultButton));
-		}
-		private static async Task<DialogResult> ShowCore2(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
+		private static DialogResult ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 		{
 			var dialog = new MessageBoxWindow();
 
@@ -307,15 +281,15 @@ Libation.
 			dialog.Height = dialog.MinHeight;
 			dialog.Width = dialog.MinWidth;
 
-			return await DisplayWindow(dialog, owner);
+			return DisplayWindow(dialog, owner);
 		}
-		private static async Task<DialogResult> DisplayWindow(Window toDisplay, Window owner)
+		private static DialogResult DisplayWindow(Window toDisplay, Window owner)
 		{
 			if (owner is null)
 			{
 				if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 				{
-					return await toDisplay.ShowDialog<DialogResult>(desktop.MainWindow);
+					return toDisplay.ShowDialogSynchronously<DialogResult>(desktop.MainWindow);
 				}
 				else
 				{
@@ -329,7 +303,7 @@ Libation.
 					};
 
 					window.Show();
-					var result = await toDisplay.ShowDialog<DialogResult>(window);
+					var result = toDisplay.ShowDialogSynchronously<DialogResult>(window);
 					window.Close();
 					return result;
 				}
@@ -337,7 +311,7 @@ Libation.
 			}
 			else
 			{
-				return await toDisplay.ShowDialog<DialogResult>(owner);
+				return toDisplay.ShowDialogSynchronously<DialogResult>(owner);
 			}
 		}
 

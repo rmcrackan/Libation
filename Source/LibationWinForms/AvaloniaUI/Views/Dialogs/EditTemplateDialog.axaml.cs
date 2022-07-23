@@ -19,7 +19,6 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 {
 	class BracketEscapeConverter : IValueConverter
 	{
-
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			if (value is string str && str[0] != '<' && str[^1] != '>')
@@ -68,7 +67,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		}
 		protected override async Task SaveAndCloseAsync()
 		{
-			if (!await _viewModel.Validate())
+			if (!_viewModel.Validate())
 				return;
 
 			TemplateText = _viewModel.workingTemplateText;
@@ -119,7 +118,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 
 			public void resetTextBox(string value) => workingTemplateText = value;
 
-			public async Task<bool> Validate()
+			public bool Validate()
 			{
 				if (template.IsValid(workingTemplateText))
 					return true;
@@ -127,7 +126,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 					.GetErrors(workingTemplateText)
 					.Select(err => $"- {err}")
 					.Aggregate((a, b) => $"{a}\r\n{b}");
-				await MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return false;
 			}
 
@@ -232,11 +231,13 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 
 					for(int i = 0; i < wordsSplit.Length; i++)
 					{
-						var tb = new TextBlock();
-						tb.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Bottom;
-
-						tb.Text = wordsSplit[i] + (i == wordsSplit.Length - 1 ? "" : " ");
-						tb.FontWeight = item.Item2;
+						var tb = new TextBlock
+						{
+							VerticalAlignment = Avalonia.Layout.VerticalAlignment.Bottom,
+							TextWrapping = TextWrapping.Wrap,
+							Text = wordsSplit[i] + (i == wordsSplit.Length - 1 ? "" : " "),
+							FontWeight = item.Item2
+						};
 
 						WrapPanel.Children.Add(tb);
 					}

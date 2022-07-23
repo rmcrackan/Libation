@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="160"
+		MinWidth="400" MinHeight="160"
+		MaxWidth="400" MaxHeight="160"
+        x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.Login.MfaDialog"
+        Title="Two-Step Verification"
+		Icon="/AvaloniaUI/Assets/libation.ico">
+
+	<Grid RowDefinitions="*,Auto">
+
+		<StackPanel Grid.Row="0" Margin="10,0,10,10" Name="rbStackPanel" Orientation="Vertical"/>
+		<Button Grid.Row="1" Content="Submit" Margin="10" Padding="30,5,30,5" Click="Submit_Click" />
+		
+	</Grid>
+</Window>

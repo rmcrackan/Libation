@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using DataLayer;
+using Dinah.Core;
 using LibationFileManager;
 using LibationWinForms.AvaloniaUI.ViewModels;
 using System.Collections.Generic;
@@ -34,6 +35,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		public BookDetailsDialog()
 		{
 			InitializeComponent();
+			ControlToFocusOnShow = this.Find<TextBox>(nameof(tagsTbox));
 
 			if (Design.IsDesignMode)
 			{
@@ -46,13 +48,18 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			LibraryBook = libraryBook;
 		}
 
-
 		protected override void SaveAndClose()
 		{
 			SaveButton_Clicked(null, null);
 			base.SaveAndClose();
 		}
 
+		public void GoToAudible_Tapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			var locale = AudibleApi.Localization.Get(_libraryBook.Book.Locale);
+			var link = $"https://www.audible.{locale.TopDomain}/pd/{_libraryBook.Book.AudibleProductId}";
+			Go.To.Url(link);
+		}
 
 		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{

@@ -17,13 +17,30 @@
 				<Setter Property="BorderThickness" Value="2" />
 			</Style>
 		</Grid.Styles>
-		<Grid ColumnDefinitions="Auto,*" Margin="10,10,10,0">
+		<Grid ColumnDefinitions="Auto,*" RowDefinitions="*,Auto" Margin="10,10,10,0">
 			<Panel VerticalAlignment="Top" Margin="5" Background="LightGray" Width="80" Height="80" >
 				<Image Grid.Column="0" Width="80" Height="80" Source="{Binding Cover}" />
+			</Panel>
+
+			<Panel Grid.Column="0" Grid.Row="1">
+			<Panel.Styles>
+				<Style Selector="TextBlock">
+					<Setter Property="Foreground" Value="Blue"/>
+					<Setter Property="FontSize" Value="14"/>
+					<Setter Property="TextDecorations" Value="Underline"/>
+				</Style>
+			</Panel.Styles>
+
+			<TextBlock
+				Margin="10" TextWrapping="Wrap" TextAlignment="Center"
+				Tapped="GoToAudible_Tapped"
+				Text="Open in&#xa;Audible&#xa;(Browser)" />
 			</Panel>
 			
 			<TextBox
 				Grid.Column="1"
+				Grid.Row="0"
+				Grid.RowSpan="2"
 				TextWrapping="Wrap"
 				Margin="5"
 				FontSize="12"
@@ -43,7 +60,7 @@
 
 				<TextBox Margin="0,5,0,5"
 					MinHeight="25"
-					FontSize="12"
+					FontSize="12" Name="tagsTbox"
 					Text="{Binding Tags, Mode=TwoWay}"/>
 			</StackPanel>
 		</controls:GroupBox>

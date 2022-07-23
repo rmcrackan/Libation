@@ -243,7 +243,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 				return;
 
 			var libraryBooks = selectedBooks.Select(rge => rge.LibraryBook).ToList();
-			var result = await MessageBox.ShowConfirmationDialog(
+			var result = MessageBox.ShowConfirmationDialog(
 				null,
 				libraryBooks,
 				$"Are you sure you want to remove {selectedBooks.Count} books from Libation's library?",
@@ -307,7 +307,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 					.Select(lbe => lbe.LibraryBook)
 					.Where(lb => !lb.Book.HasLiberated());
 
-				var removedBooks = await LibraryCommands.FindInactiveBooks(Login.WinformLoginChoiceEager.ApiExtendedFunc, lib, accounts);
+				var removedBooks = await LibraryCommands.FindInactiveBooks(Views.Dialogs.Login.AvaloniaLoginChoiceEager.ApiExtendedFunc, lib, accounts);
 
 				var removable = allBooks.Where(lbe => removedBooks.Any(rb => rb.Book.AudibleProductId == lbe.AudibleProductId)).ToList();
 

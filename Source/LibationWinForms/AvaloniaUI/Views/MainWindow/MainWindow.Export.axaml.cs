@@ -9,7 +9,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 	{
 		private void Configure_Export() { }
 
-		public async void exportLibraryToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void exportLibraryToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			try
 			{
@@ -37,11 +37,11 @@ namespace LibationWinForms.AvaloniaUI.Views
 						break;
 				}
 
-				await MessageBox.Show("Library exported to:\r\n" + saveFileDialog.FileName);
+				MessageBox.Show("Library exported to:\r\n" + saveFileDialog.FileName);
 			}
 			catch (Exception ex)
 			{
-				await MessageBox.ShowAdminAlert(this, "Error attempting to export your library.", "Error exporting", ex);
+				MessageBox.ShowAdminAlert(this, "Error attempting to export your library.", "Error exporting", ex);
 			}
 		}
 	}

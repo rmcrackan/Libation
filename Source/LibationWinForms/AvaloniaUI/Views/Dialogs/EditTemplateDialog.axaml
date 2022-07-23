@@ -38,7 +38,7 @@
 				Content="Reset to Default"
 				Click="ResetButton_Click" />
 		</Grid>
-		<Grid Grid.Row="1" ColumnDefinitions="*,*">
+		<Grid Grid.Row="1" ColumnDefinitions="Auto,*">
 
 			<Border
 					Grid.Row="0"
@@ -62,7 +62,7 @@
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
 
-						<DataGridTemplateColumn Width="*" Header="Description">
+						<DataGridTemplateColumn Width="Auto" Header="Description">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
 									<TextPresenter
@@ -80,10 +80,9 @@
 
 
 			<Grid
-			Grid.Row="1"
 			Grid.Column="1"
 			Margin="5"
-			RowDefinitions="Auto,*,80">
+			RowDefinitions="Auto,*,80" HorizontalAlignment="Stretch">
 
 				<TextBlock
 					Margin="5,5,5,10"

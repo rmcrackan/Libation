@@ -346,7 +346,7 @@ $@"  Title: {libraryBook.Book.Title}
 			}
 
 			// if null then ask user
-			dialogResult ??= await MessageBox.Show(string.Format(SkipDialogText + "\r\n\r\nSee Settings to avoid this box in the future.", details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
+			dialogResult ??= MessageBox.Show(string.Format(SkipDialogText + "\r\n\r\nSee Settings to avoid this box in the future.", details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
 
 			if (dialogResult == DialogResult.Abort)
 				return ProcessBookResult.FailedAbort;

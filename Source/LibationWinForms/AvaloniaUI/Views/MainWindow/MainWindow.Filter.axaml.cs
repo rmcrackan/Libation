@@ -40,7 +40,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			}
 			catch (Exception ex)
 			{
-				await MessageBox.Show($"Bad filter string:\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"Bad filter string:\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
 				// re-apply last good filter
 				await performFilter(lastGoodFilter);

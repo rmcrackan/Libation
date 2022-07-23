@@ -116,10 +116,12 @@ namespace LibationWinForms.AvaloniaUI.Controls
 
 		private void setDirectory()
 		{
-			Directory
-					= customStates.CustomChecked ? customStates.CustomDir
+			var path1
+				= customStates.CustomChecked ? customStates.CustomDir
 					: directorySelectControl.SelectedDirectory is Configuration.KnownDirectories.AppDir ? Configuration.AppDir_Absolute
 					: Configuration.GetKnownDirectoryPath(directorySelectControl.SelectedDirectory);
+			Directory
+					= System.IO.Path.Combine(path1 ?? string.Empty, SubDirectory);
 		}
 
 

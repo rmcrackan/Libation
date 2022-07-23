@@ -28,7 +28,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			DataContext = this;
 		}
 
-		private async void GoToGithub_Tapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private void GoToGithub_Tapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			var url = "https://github.com/rmcrackan/Libation/issues";
 			try
@@ -37,7 +37,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			}
 			catch
 			{
-				await MessageBox.Show($"Error opening url\r\n{url}", "Error opening url", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"Error opening url\r\n{url}", "Error opening url", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 
@@ -56,7 +56,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			}
 			catch
 			{
-				await MessageBox.Show($"Error opening folder\r\n{dir}", "Error opening folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"Error opening folder\r\n{dir}", "Error opening folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 

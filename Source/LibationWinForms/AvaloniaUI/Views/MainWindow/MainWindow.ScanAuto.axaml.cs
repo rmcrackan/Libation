@@ -35,7 +35,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 				// in autoScan, new books SHALL NOT show dialog
 				try
 				{
-					await LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.ApiExtendedFunc, accounts);
+					await LibraryCommands.ImportAccountAsync(Dialogs.Login.AvaloniaLoginChoiceEager.ApiExtendedFunc, accounts);
 				}
 				catch (Exception ex)
 				{

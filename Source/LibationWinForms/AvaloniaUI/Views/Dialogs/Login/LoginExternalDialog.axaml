@@ -1,0 +1,111 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="500"
+		Width="650" Height="500"
+		WindowStartupLocation="CenterOwner"
+        x:Class="LibationWinForms.AvaloniaUI.Views.Dialogs.Login.LoginExternalDialog"
+        Title="Audible Login External"
+		Icon="/AvaloniaUI/Assets/libation.ico">
+
+	<Grid RowDefinitions="Auto,Auto,*,Auto,*" ColumnDefinitions="*" Margin="5">
+
+		<StackPanel
+			Grid.Row="0"
+			Orientation="Horizontal">
+			
+			<TextBlock Text="Locale: " />
+			<TextBlock Text="{Binding Account.Locale.Name}" />
+			
+		</StackPanel>
+
+		<StackPanel
+			Grid.Row="1"
+			Orientation="Horizontal">
+			
+			<TextBlock Text="Username: " />
+			<TextBlock Text="{Binding Account.AccountId}" />
+			
+		</StackPanel>
+
+		<Grid
+			Margin="0,5,0,5"
+			Grid.Row="2"
+			Grid.Column="0"
+			RowDefinitions="Auto,*,Auto"
+			ColumnDefinitions="*,Auto">
+			
+			<TextBlock
+				Grid.Row="0"
+				Grid.Column="0"
+				VerticalAlignment="Center"
+				Text="Paste this URL into your browser:" />
+			
+			<TextBox
+				Grid.Row="1"
+				Grid.Column="0"
+				Grid.ColumnSpan="2"
+				IsReadOnly="True"
+				TextWrapping="Wrap"
+				Text="{Binding ExternalLoginUrl}" />
+
+			<Button
+				Grid.Row="2"
+				Grid.Column="0"
+				Margin="0,5,0,0"
+				Content="Copy URL to Clipboard"
+				Click="CopyUrlToClipboard_Click" />
+			
+			<Button
+				Grid.Row="2"
+				Grid.Column="1"
+				Margin="0,5,0,0"
+				Content="Launch in Browser"
+				Click="LaunchInBrowser_Click" />
+			
+		</Grid>
+
+		<StackPanel
+			Grid.Row="3"
+			Orientation="Vertical"
+			VerticalAlignment="Bottom">
+
+			<TextBlock
+				TextWrapping="Wrap"
+				FontWeight="Bold"
+				Text="tl;dr : an ERROR on Amazon is GOOD. Sorry, I can't control their weird login" />
+			
+			<TextBlock
+				TextWrapping="Wrap"
+				Text="Login with your Amazon/Audible credentials.
+&#xa;After login is complete, your browser will show you an error page similar to:
+&#xa;     Looking for Something?
+&#xa;     We're sorry. The Web address you entered is not a functioning page on our site
+&#xa;Don't worry -- this is ACTUALLY A SUCCESSFUL LOGIN.
+&#xa;Copy the current url from your browser's address bar and paste it here:
+" />
+		</StackPanel>
+
+		<Grid
+			Grid.Row="4"
+			Grid.Column="0"
+			Margin="0,5,0,5"
+			RowDefinitions="*,Auto">
+			
+			<TextBox
+				Grid.Row="0"
+				Grid.Column="0"
+				Grid.ColumnSpan="2"
+				TextWrapping="Wrap"
+				Text="{Binding ResponseUrl, Mode=TwoWay}" />
+			
+			<Button
+				Grid.Row="1"
+				Margin="0,5,0,0"
+				Padding="30,3,30,3" HorizontalAlignment="Right"
+				Content="Submit"
+				Click="Submit_Click" />
+		</Grid>
+	</Grid>
+</Window>
