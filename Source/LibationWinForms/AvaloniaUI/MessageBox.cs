@@ -183,7 +183,7 @@ namespace LibationWinForms.AvaloniaUI
 			=> ShowCoreAsync(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
 
-		public static async Task VerboseLoggingWarning_ShowIfTrue()
+		public static void VerboseLoggingWarning_ShowIfTrue()
 		{
 			// when turning on debug (and especially Verbose) to share logs, some privacy settings may not be obscured
 			if (Serilog.Log.Logger.IsVerboseEnabled())
@@ -230,7 +230,7 @@ Libation.
 		/// <param name="text">The text to display in the message box.</param>
 		/// <param name="caption">The text to display in the title bar of the message box.</param>
 		/// <param name="exception">Exception to log.</param>
-		public static async Task ShowAdminAlert(Window owner, string text, string caption, Exception exception)
+		public static void ShowAdminAlert(Window owner, string text, string caption, Exception exception)
 		{
 			// for development and debugging, show me what broke!
 			if (System.Diagnostics.Debugger.IsAttached)

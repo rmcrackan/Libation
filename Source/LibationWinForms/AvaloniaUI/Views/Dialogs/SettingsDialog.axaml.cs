@@ -36,7 +36,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			if (!settingsDisp.SaveSettings(config))
 				return;
 
-			await MessageBox.VerboseLoggingWarning_ShowIfTrue();
+			MessageBox.VerboseLoggingWarning_ShowIfTrue();
 			await base.SaveAndCloseAsync();
 		}
 
@@ -69,7 +69,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 				settingsDisp.DownloadDecryptSettings.ChapterFileTemplate = newTemplate;
 		}
 
-		public async void EditCharReplacementButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void EditCharReplacementButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			var form = new LibationWinForms.Dialogs.EditReplacementChars(config);
 			form.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

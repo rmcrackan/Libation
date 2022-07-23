@@ -41,7 +41,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			}
 		}
 
-		private async void GoToLogs_Tapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private void GoToLogs_Tapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			LongPath dir = "";
 			try

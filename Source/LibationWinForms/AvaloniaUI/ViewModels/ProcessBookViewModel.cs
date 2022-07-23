@@ -152,7 +152,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			finally
 			{
 				if (Result == ProcessBookResult.None)
-					Result = await showRetry(LibraryBook);
+					Result = showRetry(LibraryBook);
 
 				Status = Result switch
 				{
@@ -313,7 +313,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 
 		#region Failure Handler
 
-		private async Task<ProcessBookResult> showRetry(LibraryBook libraryBook)
+		private ProcessBookResult showRetry(LibraryBook libraryBook)
 		{
 			Logger.Error("ERROR. All books have not been processed. Most recent book: processing failed");
 

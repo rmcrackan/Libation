@@ -65,7 +65,7 @@ namespace LibationWinForms.AvaloniaUI.Views
 			productsDisplay?.CloseImageDisplay();
 		}
 
-		private async void MainWindow_Opened(object sender, EventArgs e)
+		private void MainWindow_Opened(object sender, EventArgs e)
 		{
 
 		}

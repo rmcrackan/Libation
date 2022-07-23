@@ -316,7 +316,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			}
 			catch (Exception ex)
 			{
-				await MessageBox.ShowAdminAlert(
+				MessageBox.ShowAdminAlert(
 					null,
 					"Error scanning library. You may still manually select books to remove from Libation's library.",
 					"Error scanning library",

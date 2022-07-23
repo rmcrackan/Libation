@@ -160,9 +160,8 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 				Export(acc);
 		}
 
-		protected override async Task SaveAndCloseAsync()
+		protected override void SaveAndClose()
 		{
-
 			try
 			{
 				if (!inputIsValid())
@@ -179,7 +178,7 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			}
 			catch (Exception ex)
 			{
-				await MessageBox.ShowAdminAlert(this, "Error attempting to save accounts", "Error saving accounts", ex);
+				MessageBox.ShowAdminAlert(this, "Error attempting to save accounts", "Error saving accounts", ex);
 			}
 		}
 

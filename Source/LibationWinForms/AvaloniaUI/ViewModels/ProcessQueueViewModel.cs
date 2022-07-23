@@ -191,7 +191,7 @@ namespace LibationWinForms.AvaloniaUI.ViewModels
 			}
 		}
 
-		private void CounterTimer_Tick(object? state)
+		private void CounterTimer_Tick(object state)
 		{
 			string timeToStr(TimeSpan time)
 			{

@@ -29,6 +29,7 @@
 			Grid.Row="1"
 			Margin="10,10,10,0"
 			IsReadOnly="True"
+			TextWrapping="Wrap"
 			Text="{Binding ExceptionMessage}" />
 		
 		<Grid
