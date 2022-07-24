@@ -343,6 +343,7 @@
 								<Button
 									Grid.Row="6"
 									Grid.Column="0"
+									IsEnabled="False"
 									Content="{Binding DownloadDecryptSettings.EditCharReplacementText}"
 									Height="30"
 									Padding="30,3,30,3"

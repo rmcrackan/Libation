@@ -67,9 +67,11 @@ namespace LibationAvalonia.Views
 
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
+			/*
 			var charReplace = new EditReplacementChars();
 
 			await charReplace.ShowDialog(this);
+			*/
 		}
 
 		public void ProductsDisplay_Initialized1(object sender, EventArgs e)
