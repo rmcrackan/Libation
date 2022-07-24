@@ -17,6 +17,7 @@
 			Grid.Row="0"
 			Margin="5"
 			Directory="{Binding Directory, Mode=TwoWay}"
+			SubDirectory=""
 			KnownDirectories="{Binding KnownDirectories}" />
 		
 		<Button
@@ -24,6 +25,7 @@
 			HorizontalAlignment="Right"
 			Margin="5"
 			Padding="30,3,30,3"
-			Content="Save" />
+			Content="Save"
+			Click="SaveButton_Click" />
 	</Grid>
 </Window>

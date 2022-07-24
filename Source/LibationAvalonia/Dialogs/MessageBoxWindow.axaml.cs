@@ -12,6 +12,10 @@ namespace LibationAvalonia.Dialogs
 		{
 			InitializeComponent();
 		}
+		public MessageBoxWindow(bool saveAndRestorePosition):base(saveAndRestorePosition)
+		{
+			InitializeComponent();
+		}
 
 		private void InitializeComponent()
 		{

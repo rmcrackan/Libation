@@ -62,8 +62,8 @@ namespace LibationAvalonia
 
 		public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 			=> ShowCoreAsync(null, text, caption, buttons, icon, defaultButton);
-public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
-			=> ShowCoreAsync(null, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
+public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, bool saveAndRestorePosition = true)
+			=> ShowCoreAsync(null, text, caption, buttons, icon, MessageBoxDefaultButton.Button1, saveAndRestorePosition);
 public static DialogResult Show(string text, string caption, MessageBoxButtons buttons)
 			=> ShowCoreAsync(null, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 	public static DialogResult Show(string text, string caption)
@@ -148,9 +148,9 @@ Libation.
 		}
 
 
-		private static DialogResult ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
+		private static DialogResult ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{
-			var dialog = new MessageBoxWindow();
+			var dialog = new MessageBoxWindow(saveAndRestorePosition);
 
 			dialog.HideMinMaxBtns();
 

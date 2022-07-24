@@ -80,6 +80,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="AppBasic.axaml.cs">
+      <DependentUpon>AppBasic.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\ProcessBookControl.axaml.cs">
       <DependentUpon>ProcessBookControl.axaml</DependentUpon>
     </Compile>

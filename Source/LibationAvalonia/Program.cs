@@ -18,23 +18,32 @@ namespace LibationAvalonia
 
 		static async Task Main()
 		{
+			//***********************************************//
+			//                                               //
+			//   do not use Configuration before this line   //
+			//                                               //
+			//***********************************************//
+			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
+			var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
+
+			App.SetupRequired = !config.LibationSettingsAreValid;
+
 			//Start as much work in parallel as possible.
-			var runDbMigrationsTask = Task.Run(() => RunDbMigrations());
 			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 			var appBuilderTask = Task.Run(BuildAvaloniaApp);
 
-			if (!await runDbMigrationsTask)
-				return;
 
-			var dbLibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+			if (!App.SetupRequired)
+			{
+				if (!RunDbMigrations(config))
+					return;
+
+				App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+			}
+
+
 
 			(await appBuilderTask).SetupWithLifetime(await classicLifetimeTask);
-
-			var form1 = (Views.MainWindow)classicLifetimeTask.Result.MainWindow;
-
-			form1.OnLibraryLoaded(await dbLibraryTask);
-
-			var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
 
 			classicLifetimeTask.Result.Start(null);
 		}
@@ -44,20 +53,15 @@ namespace LibationAvalonia
 			.UsePlatformDetect()
 			.LogToTrace()
 			.UseReactiveUI();
+		public static AppBuilder BuildAvaloniaAppBasic()
+			=> AppBuilder.Configure<AppBasic>()
+			.UsePlatformDetect()
+			.LogToTrace();
 
-		private static bool RunDbMigrations()
+		public static bool RunDbMigrations(Configuration config)
 		{
 			try
 			{
-				//***********************************************//
-				//                                               //
-				//   do not use Configuration before this line   //
-				//                                               //
-				//***********************************************//
-				// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
-				var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
-				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
-
 				// most migrations go in here
 				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
 				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);

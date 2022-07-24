@@ -12,7 +12,7 @@ namespace LibationAvalonia
 		static readonly WindowIcon WindowIcon;
 		static FormSaveExtension()
 		{
-			if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+			if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is not null)
 				WindowIcon = desktop.MainWindow.Icon;
 			else
 				WindowIcon = null;

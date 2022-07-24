@@ -8,6 +8,7 @@ namespace LibationAvalonia.Dialogs
 {
 	public abstract class DialogWindow : Window
 	{
+		public bool SaveAndRestorePosition { get; set; } = true;
 		public Control ControlToFocusOnShow { get; set; }
 		public DialogWindow()
 		{
@@ -21,16 +22,22 @@ namespace LibationAvalonia.Dialogs
 			this.AttachDevTools();
 #endif
 		}
+		public DialogWindow(bool saveAndRestorePosition) : this()
+		{
+			SaveAndRestorePosition = saveAndRestorePosition;
+		}
 
 		private void DialogWindow_Initialized(object sender, EventArgs e)
 		{
 			this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-			this.RestoreSizeAndLocation(Configuration.Instance);
+			if (SaveAndRestorePosition)
+				this.RestoreSizeAndLocation(Configuration.Instance);
 		}
 
 		private void DialogWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			this.SaveSizeAndLocation(Configuration.Instance);
+			if (SaveAndRestorePosition)
+				this.SaveSizeAndLocation(Configuration.Instance);
 		}
 
 		private void DialogWindow_Opened(object sender, EventArgs e)

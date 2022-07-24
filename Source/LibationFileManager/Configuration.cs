@@ -345,7 +345,7 @@ namespace LibationFileManager
 		#endregion
 
 		#region known directories
-		public static string AppDir_Relative => $@".\{LIBATION_FILES_KEY}";
+		public static string AppDir_Relative => $@".{Path.PathSeparator}{LIBATION_FILES_KEY}";
 		public static string AppDir_Absolute => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Exe.FileLocationOnDisk), LIBATION_FILES_KEY));
 		public static string MyDocs => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Libation"));
 		public static string WinTemp => Path.GetFullPath(Path.Combine(Path.GetTempPath(), "Libation"));
@@ -522,8 +522,6 @@ namespace LibationFileManager
 
 		public void SetLibationFiles(string directory)
 		{
-			libationFilesPathCache = null;
-
 			// ensure exists
 			if (!File.Exists(APPSETTINGS_JSON))
 			{
@@ -531,6 +529,8 @@ namespace LibationFileManager
 				var _ = LibationFiles;
 				System.Threading.Thread.Sleep(100);
 			}
+
+			libationFilesPathCache = null;
 
 			var startingContents = File.ReadAllText(APPSETTINGS_JSON);
 			var jObj = JObject.Parse(startingContents);
