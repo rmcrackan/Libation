@@ -150,6 +150,8 @@ Libation.
 
 		private static DialogResult ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{
+			owner ??= (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow;
+
 			var dialog = new MessageBoxWindow(saveAndRestorePosition);
 
 			dialog.HideMinMaxBtns();
@@ -164,7 +166,7 @@ Libation.
 			tbx.MinWidth = vm.TextBlockMinWidth;
 			tbx.Text = message;
 
-			var thisScreen = (owner ?? dialog).Screens.ScreenFromVisual(owner ?? dialog);
+			var thisScreen = owner.Screens.ScreenFromVisual(owner);
 
 			var maxSize = new Size(0.20 * thisScreen.Bounds.Width, 0.9 * thisScreen.Bounds.Height - 55);
 

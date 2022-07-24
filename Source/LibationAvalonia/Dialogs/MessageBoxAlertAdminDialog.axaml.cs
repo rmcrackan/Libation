@@ -52,7 +52,7 @@ namespace LibationAvalonia.Dialogs
 
 			try
 			{
-				Go.To.Folder(dir.ShortPathName);
+				App.GoToFolder(dir.ShortPathName);
 			}
 			catch
 			{

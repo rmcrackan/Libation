@@ -35,7 +35,8 @@ namespace LibationAvalonia.Views
 				{
 					// liberated: open explorer to file
 					var filePath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
-					if (!Go.To.File(filePath?.ShortPathName))
+
+					if (!App.GoToFile(filePath?.ShortPathName))
 					{
 						var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
 						MessageBox.Show($"File not found" + suffix);

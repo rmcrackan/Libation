@@ -11,11 +11,15 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using ApplicationServices;
+using Dinah.Core;
 
 namespace LibationAvalonia
 {
 	public class App : Application
 	{
+		public static bool IsWindows => PlatformID is PlatformID.Win32NT;
+		public static bool IsUnix => PlatformID is PlatformID.Unix;
+
 		public static readonly PlatformID PlatformID = Environment.OSVersion.Platform;
 		public static IBrush ProcessQueueBookFailedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCompletedBrush { get; private set; }
@@ -29,6 +33,30 @@ namespace LibationAvalonia
 		public static System.IO.Stream OpenAsset(string assetRelativePath)
 			=> AssetLoader.Open(new Uri(AssetUriBase, assetRelativePath));
 
+
+		public static bool GoToFile(string path)
+			=> PlatformID is PlatformID.Win32NT ? Go.To.File(path)
+			: GoToFolder(path is null ? string.Empty : Path.GetDirectoryName(path));
+
+		public static bool GoToFolder(string path)
+		{
+			if (PlatformID is PlatformID.Win32NT)
+				return Go.To.Folder(path);
+			else
+			{
+				var startInfo = new System.Diagnostics.ProcessStartInfo()
+				{
+					FileName = "/bin/xdg-open",
+					Arguments = path is null ? string.Empty : $"\"{System.IO.Path.GetDirectoryName(path)}\"",
+					UseShellExecute = false, //Import in Linux environments
+					CreateNoWindow = false,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true
+				};
+				System.Diagnostics.Process.Start(startInfo);
+				return true;
+			}
+		}
 
 		public override void Initialize()
 		{
@@ -162,6 +190,7 @@ namespace LibationAvalonia
 			// if 'new user' was clicked, or if 'returning user' chose new install: show basic settings dialog
 			config.Books ??= Path.Combine(Configuration.UserProfile, "Books");
 
+			AppScaffolding.LibationScaffolding.PopulateMissingConfigValues(config);
 			return new SettingsDialog().ShowDialogSynchronously<DialogResult>(setupDialog) == DialogResult.OK
 				&& config.LibationSettingsAreValid;
 		}
