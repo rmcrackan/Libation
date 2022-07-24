@@ -30,7 +30,7 @@ namespace LibationAvalonia
 		public static IAssetLoader AssetLoader { get; private set; }
 
 		public static readonly Uri AssetUriBase = new Uri("avares://Libation/Assets/");
-		public static System.IO.Stream OpenAsset(string assetRelativePath)
+		public static Stream OpenAsset(string assetRelativePath)
 			=> AssetLoader.Open(new Uri(AssetUriBase, assetRelativePath));
 
 
@@ -47,7 +47,7 @@ namespace LibationAvalonia
 				var startInfo = new System.Diagnostics.ProcessStartInfo()
 				{
 					FileName = "/bin/xdg-open",
-					Arguments = path is null ? string.Empty : $"\"{System.IO.Path.GetDirectoryName(path)}\"",
+					Arguments = path is null ? string.Empty : $"\"{path}\"",
 					UseShellExecute = false, //Import in Linux environments
 					CreateNoWindow = false,
 					RedirectStandardOutput = true,
@@ -89,12 +89,16 @@ namespace LibationAvalonia
 						config.SetLibationFiles(defaultLibationFilesDir);
 
 					if (config.LibationSettingsAreValid)
-						return;
-
-					var setupDialog = new SetupDialog { Config = config };
-					setupDialog.Closing += Setup_Closing;
-
-					desktop.MainWindow = setupDialog;
+					{
+						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+						ShowMainWindow(desktop);
+					}
+					else
+					{
+						var setupDialog = new SetupDialog { Config = config };
+						setupDialog.Closing += Setup_Closing;
+						desktop.MainWindow = setupDialog;
+					}
 				}
 				else
 					ShowMainWindow(desktop);
@@ -129,7 +133,8 @@ namespace LibationAvalonia
 				MessageBox.VerboseLoggingWarning_ShowIfTrue();
 
 #if !DEBUG
-				checkForUpdate();
+				//AutoUpdater.NET only works for WinForms or WPF application projects.
+				//checkForUpdate();
 #endif
 				// logging is init'd here
 				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(setupDialog.Config);
