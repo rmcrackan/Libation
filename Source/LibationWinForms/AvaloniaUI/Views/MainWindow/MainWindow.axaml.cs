@@ -65,9 +65,13 @@ namespace LibationWinForms.AvaloniaUI.Views
 			productsDisplay?.CloseImageDisplay();
 		}
 
-		private void MainWindow_Opened(object sender, EventArgs e)
+		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
+			/*
+			var charReplace = new EditReplacementChars();
 
+			await charReplace.ShowDialog(this);
+			*/
 		}
 
 		public void ProductsDisplay_Initialized1(object sender, EventArgs e)

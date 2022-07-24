@@ -1,0 +1,82 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="185"
+        x:Class="LibationAvalonia.AvaloniaUI.Views.Dialogs.ScanAccountsDialog"
+		MinWidth="500" MinHeight="160"
+		MaxWidth="500" MaxHeight="185"
+        Title="Which Accounts?"
+		WindowStartupLocation="CenterOwner"
+		Icon="/AvaloniaUI/Assets/libation.ico">
+
+	<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+		
+		<Grid.Styles>
+			<Style Selector="Button:focus">
+				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderThickness" Value="2" />
+			</Style>
+		</Grid.Styles>
+		
+		<TextBlock
+			Grid.Row="0"
+			Grid.Column="0"
+			Grid.ColumnSpan="2"
+			Margin="10,10,10,0"
+			Text="Check the accounts to scan and import.&#xa;To change default selections, go to: Settings > Accounts"/>
+
+		<ScrollViewer
+			Grid.Row="1"
+			Grid.Column="0"
+			Grid.ColumnSpan="2"
+			HorizontalScrollBarVisibility="Disabled"
+			VerticalScrollBarVisibility="Auto"
+			Margin="10"
+			MinHeight="90"
+			MaxHeight="90">
+
+			<ListBox Items="{Binding Accounts}">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+
+						<StackPanel Height="20" Orientation="Horizontal">
+	
+							<CheckBox
+								Margin="0,0,10,0" 
+								IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+							<TextBlock
+								FontSize="12"
+								VerticalAlignment="Center"
+								Text="{Binding Text}" />
+							
+						</StackPanel>
+
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+				
+			</ListBox>
+			
+		</ScrollViewer>
+		
+		<Button
+			Grid.Row="2"
+			Grid.Column="0"
+			Padding="20,0,20,0"
+			Margin="10,0,10,10"
+			Height="25"
+			Content="Edit Accounts"
+			Click="EditAccountsButton_Clicked"/>
+		
+		<Button
+			Grid.Row="2"
+			Grid.Column="1"
+			Padding="30,0,30,0"
+			Margin="10,0,10,10"
+			HorizontalAlignment="Right"
+			Height="25"
+			Content="Import"
+			Name="ImportButton"
+			Click="ImportButton_Clicked"/>
+	</Grid>
+</Window>

@@ -5,13 +5,15 @@ using FileManager;
 using LibationFileManager;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using ReactiveUI;
+using System.Linq;
 
 namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 {
 	public partial class EditReplacementChars : DialogWindow
 	{
 		Configuration config = Configuration.Instance;
-		public ObservableCollection<Replacement> replacements { get; }
+		public ObservableCollection<ReplacementsExt> replacements { get; }
 		public EditReplacementChars()
 		{
 			InitializeComponent();
@@ -19,13 +21,23 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 			if (Design.IsDesignMode)
 				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
 
-			replacements = new(config.ReplacementCharacters.Replacements);
+			replacements = new(config.ReplacementCharacters.Replacements.Select(r => new ReplacementsExt { Replacement = r }));
 			DataContext = this;
 		}
 
-		public void Tb_GotFocus(object sender, Avalonia.Input.GotFocusEventArgs e)
-		{
 
+		public class ReplacementsExt : ViewModels.ViewModelBase
+		{
+			public Replacement Replacement { get; init; }
+			public string ReplacementText
+			{
+				get => Replacement.ReplacementString;
+				set
+				{
+					Replacement.ReplacementString = value;
+					this.RaisePropertyChanged(nameof(ReplacementText));
+				}
+			}
 		}
 
 		private void InitializeComponent()

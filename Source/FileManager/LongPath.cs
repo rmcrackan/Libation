@@ -20,8 +20,13 @@ namespace FileManager
 		public string Path { get; init; }
 		public override string ToString() => Path;
 
+		private static readonly PlatformID PlatformID = Environment.OSVersion.Platform;
+
+	
 		public static implicit operator LongPath(string path)
 		{
+			if (PlatformID is PlatformID.Unix) return new LongPath { Path = path };
+
 			if (path is null) return null;
 
 			//File I/O functions in the Windows API convert "/" to "\" as part of converting
@@ -58,6 +63,8 @@ namespace FileManager
 		{
 			get
 			{
+				if (PlatformID is PlatformID.Unix) return Path;
+
 				//Short Path names are useful for navigating to the file in windows explorer,
 				//which will not recognize paths longer than MAX_PATH. Short path names are not
 				//always enabled on every volume. So to check if a volume enables short path
@@ -96,6 +103,7 @@ namespace FileManager
 		{
 			get
 			{
+				if (PlatformID is PlatformID.Unix) return Path;
 				if (Path is null) return null;
 
 				StringBuilder longPathBuffer = new(MaxPathLength);
@@ -106,15 +114,21 @@ namespace FileManager
 
 		[JsonIgnore]
 		public string PathWithoutPrefix
-			=> Path?.StartsWith(LONG_PATH_PREFIX) == true ?
-			Path.Remove(0, LONG_PATH_PREFIX.Length) :
-			Path;
-
+		{
+			get
+			{
+				if (PlatformID is PlatformID.Unix) return Path;
+				return
+					Path?.StartsWith(LONG_PATH_PREFIX) == true ? Path.Remove(0, LONG_PATH_PREFIX.Length)
+					:Path;
+			}
+		}
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
 		private static extern int GetShortPathName([MarshalAs(UnmanagedType.LPWStr)] string path, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder shortPath, int shortPathLength);
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
 		private static extern int GetLongPathName([MarshalAs(UnmanagedType.LPWStr)] string lpszShortPath, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder lpszLongPath, int cchBuffer);
+
 	}
 }

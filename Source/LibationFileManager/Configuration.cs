@@ -451,7 +451,7 @@ namespace LibationFileManager
 		#endregion
 
 		#region LibationFiles
-		private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "appsettings.json");
+		private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "appsettings.json");
 		private const string LIBATION_FILES_KEY = "LibationFiles";
 
 		[Description("Location for storage of program-created files")]

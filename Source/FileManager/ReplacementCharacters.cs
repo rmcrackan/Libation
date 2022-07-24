@@ -14,7 +14,7 @@ namespace FileManager
 		internal const char QUOTE_MARK = '"';
 		[JsonIgnore] public bool Mandatory { get; internal set; }
 		[JsonProperty] public char CharacterToReplace { get; private set; }
-		[JsonProperty] public string ReplacementString { get; private set; }
+		[JsonProperty] public string ReplacementString { get; set; }
 		[JsonProperty] public string Description { get; private set; }
 		public override string ToString() => $"{CharacterToReplace} → {ReplacementString} ({Description})";
 

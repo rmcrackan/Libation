@@ -20,10 +20,8 @@
 							Height="18"
 							Margin="10,0,10,0"
 							VerticalAlignment="Center"
-							FontFamily="avares://Libation/AvaloniaUI/Assets/SEGOEUI.TTF"
-							FontStyle="Normal"
-							FontWeight="Normal"
-							Text="{Binding CharacterToReplace}" />
+							FontFamily="SEGOEUI_Local"
+							Text="{Binding Replacement.CharacterToReplace}" />
 					</DataTemplate>
 				</DataGridTemplateColumn.CellTemplate>
 			</DataGridTemplateColumn>
@@ -31,15 +29,28 @@
 			<DataGridTemplateColumn IsReadOnly="False" Width="Auto" Header="Replacement Text">
 				<DataGridTemplateColumn.CellTemplate>
 					<DataTemplate>
-						<TextBox
-							GotFocus="Tb_GotFocus"
-							Height="18"
-							Margin="10,0,10,0"
-							VerticalAlignment="Center"
-							FontFamily="Arial"
-							FontStyle="Normal"
-							FontWeight="Normal"
-							Text="{Binding ReplacementString}" />
+						<Grid RowDefinitions="*" ColumnDefinitions="*">
+
+							<TextBox
+								Grid.Column="0"
+								Grid.Row="0"
+								VerticalAlignment="Stretch"
+								HorizontalAlignment="Stretch"
+								FontSize="14"
+								FontFamily="SEGOEUI_Local"
+								Foreground="{StaticResource SystemControlTransparentBrush}"
+								SelectionBrush="{StaticResource SystemControlTransparentBrush}"
+								BorderBrush="{StaticResource SystemControlTransparentBrush}"
+								Text="{Binding ReplacementText, Mode=TwoWay}" />
+							<TextBlock
+								Grid.Column="0"
+								Grid.Row="0"
+								HorizontalAlignment="Stretch"
+								VerticalAlignment="Stretch"
+								FontSize="14"
+								FontFamily="SEGOEUI_Local"
+								Text="{Binding ReplacementText}" />
+						</Grid>
 					</DataTemplate>
 				</DataGridTemplateColumn.CellTemplate>
 			</DataGridTemplateColumn>

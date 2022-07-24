@@ -112,21 +112,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="AvaloniaUI\Views\Dialogs\DescriptionDisplayDialog.axaml.cs">
-      <DependentUpon>DescriptionDisplayDialog.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="AvaloniaUI\Views\Dialogs\EditQuickFilters.axaml.cs">
-      <DependentUpon>EditQuickFilters.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="AvaloniaUI\Views\Dialogs\BookDetailsDialog.axaml.cs">
-      <DependentUpon>BookDetailsDialog.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="AvaloniaUI\Views\Dialogs\SearchSyntaxDialog.axaml.cs">
-      <DependentUpon>SearchSyntaxDialog.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="AvaloniaUI\Views\Dialogs\ImageDisplayDialog.axaml.cs">
-      <DependentUpon>ImageDisplayDialog.axaml</DependentUpon>
-    </Compile>
     <Compile Update="AvaloniaUI\Views\ProcessBookControl.axaml.cs">
       <DependentUpon>ProcessBookControl.axaml</DependentUpon>
     </Compile>

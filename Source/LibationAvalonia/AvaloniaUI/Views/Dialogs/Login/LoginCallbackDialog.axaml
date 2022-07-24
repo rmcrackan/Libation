@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="120"
+		MinWidth="300" MinHeight="120"
+		Width="300" Height="120"
+        x:Class="LibationAvalonia.AvaloniaUI.Views.Dialogs.Login.LoginCallbackDialog"
+        Title="Audible Login" 
+		Icon="/AvaloniaUI/Assets/libation.ico">
+
+
+	<Grid RowDefinitions="Auto,Auto,Auto,*" ColumnDefinitions="*" Margin="5">
+
+		<StackPanel Grid.Row="0" Orientation="Horizontal">
+			<TextBlock Text="Locale: " />
+			<TextBlock Text="{Binding Account.Locale.Name}" />
+		</StackPanel>
+
+		<StackPanel Grid.Row="1" Orientation="Horizontal">
+			<TextBlock Text="Username: " />
+			<TextBlock Text="{Binding Account.AccountId}" />
+		</StackPanel>
+
+		<Grid Margin="0,5,0,5" Grid.Row="2" Grid.Column="0" ColumnDefinitions="Auto,*">
+			<TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Password: " />
+			<TextBox Grid.Column="1" PasswordChar="*" Text="{Binding Password, Mode=TwoWay}" />
+		</Grid>
+		
+		<Button
+			Grid.Row="3"
+			HorizontalAlignment="Right"
+			VerticalAlignment="Bottom"
+			Padding="30,5,30,5"
+			Content="Submit"
+			Click="Submit_Click"/>
+	</Grid>
+</Window>

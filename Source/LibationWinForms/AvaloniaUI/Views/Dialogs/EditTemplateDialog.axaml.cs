@@ -43,9 +43,6 @@ namespace LibationWinForms.AvaloniaUI.Views.Dialogs
 		public EditTemplateDialog()
 		{
 			InitializeComponent();
-#if DEBUG
-			this.AttachDevTools();
-#endif
 			_viewModel = new(Configuration.Instance, this.Find<WrapPanel>(nameof(wrapPanel)));
 		}
 
