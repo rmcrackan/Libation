@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using Avalonia.ReactiveUI;
 using LibationFileManager;
 
@@ -53,10 +51,6 @@ namespace LibationAvalonia
 			.UsePlatformDetect()
 			.LogToTrace()
 			.UseReactiveUI();
-		public static AppBuilder BuildAvaloniaAppBasic()
-			=> AppBuilder.Configure<AppBasic>()
-			.UsePlatformDetect()
-			.LogToTrace();
 
 		public static bool RunDbMigrations(Configuration config)
 		{

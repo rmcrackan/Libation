@@ -102,7 +102,7 @@
 								Click="OpenLogFolderButton_Click" />
 
 						</StackPanel>
-
+<!--
 						<CheckBox
 							Grid.Row="2"
 							Margin="5"
@@ -112,6 +112,7 @@
 							<TextBlock Text="{Binding ImportantSettings.BetaOptInText}" />
 
 						</CheckBox>
+-->
 					</Grid>
 				</Border>
 			</TabItem>
