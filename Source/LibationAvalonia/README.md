@@ -1,4 +1,9 @@
 # Run Libation on Ubuntu
+This walkthrough should get you up and running with Libation on your Ubuntu machine.
+
+Some limitations of the linux release are:
+- Cannot customize how illegial filename characters are replaced.
+- The Auto-update function is unavailable
 
 ## Dependencies
 ### Dotnet Runtime
@@ -35,6 +40,8 @@ First, add the Microsoft package signing key to your list of trusted keys and ad
   rm packages-microsoft-prod.deb
   ```
 </details>
+
+For other distributions, see [Microsoft's instructions for installing .NET on Linux](https://docs.microsoft.com/en-us/dotnet/core/install/linux).
 
 Then install the dotnet 6.0 runtime
 
