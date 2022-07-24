@@ -16,7 +16,6 @@
 	  <PackageReference Include="AAXClean.Codecs" Version="0.2.12" />
 	</ItemGroup>
 
-
 	<ItemGroup>
     <ProjectReference Include="..\FileManager\FileManager.csproj" />
   </ItemGroup>

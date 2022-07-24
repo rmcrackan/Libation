@@ -14,28 +14,25 @@ namespace LibationAvalonia
 {
 	static class Program
 	{
-		static void Main()
+		private static string EXE_DIR = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+		static async Task Main()
 		{
-			var sw = System.Diagnostics.Stopwatch.StartNew();
-			var config = LoadLibationConfig();
-
-			if (config is null) return;
-
 			//Start as much work in parallel as possible.
-			var runDbMigrationsTask = Task.Run(() => RunDbMigrations(config));
+			var runDbMigrationsTask = Task.Run(() => RunDbMigrations());
 			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 			var appBuilderTask = Task.Run(BuildAvaloniaApp);
 
-			if (!runDbMigrationsTask.GetAwaiter().GetResult())
+			if (!await runDbMigrationsTask)
 				return;
 
 			var dbLibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 
-			appBuilderTask.GetAwaiter().GetResult().SetupWithLifetime(classicLifetimeTask.GetAwaiter().GetResult());
+			(await appBuilderTask).SetupWithLifetime(await classicLifetimeTask);
 
-			var form1 = (AvaloniaUI.Views.MainWindow)classicLifetimeTask.Result.MainWindow;
+			var form1 = (Views.MainWindow)classicLifetimeTask.Result.MainWindow;
 
-			form1.OnLibraryLoaded(dbLibraryTask.GetAwaiter().GetResult());
+			form1.OnLibraryLoaded(await dbLibraryTask);
 
 			var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
 
@@ -43,12 +40,12 @@ namespace LibationAvalonia
 		}
 
 		public static AppBuilder BuildAvaloniaApp()
-			=> AppBuilder.Configure<AvaloniaUI.App>()
+			=> AppBuilder.Configure<App>()
 			.UsePlatformDetect()
 			.LogToTrace()
 			.UseReactiveUI();
 
-		private static Configuration LoadLibationConfig()
+		private static bool RunDbMigrations()
 		{
 			try
 			{
@@ -60,19 +57,7 @@ namespace LibationAvalonia
 				// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 				var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
 				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
-				return config;
-			}
-			catch (Exception ex)
-			{
 
-				return null;
-			}
-		}
-
-		private static bool RunDbMigrations(Configuration config)
-		{
-			try
-			{
 				// most migrations go in here
 				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
 				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);

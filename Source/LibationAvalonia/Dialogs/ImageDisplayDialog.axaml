@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="500"		
+        x:Class="LibationAvalonia.Dialogs.ImageDisplayDialog"
+		MinWidth="500" MinHeight="500"
+        Title="Cover"
+		WindowStartupLocation="CenterOwner"
+		Icon="/Assets/libation.ico">
+
+	<Image Stretch="Uniform" Source="{Binding CoverImage}">
+		<Image.ContextMenu>
+			<ContextMenu>
+				<MenuItem
+					Click="SaveImage_Clicked"
+					Header="Save Picture to File"/>
+			</ContextMenu>
+		</Image.ContextMenu>
+	</Image>
+</Window>

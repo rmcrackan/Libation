@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="540" d:DesignHeight="140"
+        x:Class="LibationAvalonia.Dialogs.DescriptionDisplayDialog"
+		SystemDecorations="None"
+        Title="DescriptionDisplay">	
+		
+	<TextBox
+		Text="{Binding DescriptionText}"
+		IsReadOnly="True"
+		MinWidth="540"
+		TextWrapping="Wrap"
+		Name="DescriptionTextBox"
+		CaretBrush="{StaticResource SystemControlTransparentBrush}"
+		LostFocus="DescriptionTextBox_LostFocus" />
+	
+</Window>
