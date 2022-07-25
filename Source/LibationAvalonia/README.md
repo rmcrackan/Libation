@@ -6,53 +6,8 @@ Some limitations of the linux release are:
 - The Auto-update function is unavailable
 - The "Hangover" app for debugging is not yet available.
 
-## Dependencies
-### Dotnet Runtime
-You must install the dotnet 6.0 runtime on your machine.
+## Install FFMpeg (Optional)
 
-First, add the Microsoft package signing key to your list of trusted keys and add the package repository.
-
-<details>
-  <summary>Ubuntu 22.04</summary>
-  
-  ```console
-  wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-  sudo dpkg -i packages-microsoft-prod.deb
-  rm packages-microsoft-prod.deb
-  ```
-</details>
-
-<details>
-  <summary>Ubuntu 21.10</summary>
-  
-  ```console
-  wget https://packages.microsoft.com/config/ubuntu/21.10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-  sudo dpkg -i packages-microsoft-prod.deb
-  rm packages-microsoft-prod.deb
-  ```
-</details>
-
-<details>
-  <summary>Ubuntu 20.04</summary>
-  
-  ```console
-  wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-  sudo dpkg -i packages-microsoft-prod.deb
-  rm packages-microsoft-prod.deb
-  ```
-</details>
-
-For other distributions, see [Microsoft's instructions for installing .NET on Linux](https://docs.microsoft.com/en-us/dotnet/core/install/linux).
-
-Then install the dotnet 6.0 runtime
-
-```console
-sudo apt-get update; \
-  sudo apt-get install -y apt-transport-https && \
-  sudo apt-get update && \
-  sudo apt-get install -y dotnet-runtime-6.0
-```
-### FFMpeg (Optional)
 If you want to convert your audiobooks to mp3, install FFMpeg using the following command:
 
 ```console
