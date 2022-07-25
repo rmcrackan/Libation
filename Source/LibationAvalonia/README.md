@@ -125,7 +125,9 @@ chmod +700 install-libation.sh
 ```
 Then run the script with the libation binaries zipfile as an argument.
 ```console
-./install-libation.sh libation-linux-bin.zip
+sudo ./install-libation.sh libation-linux-bin.zip
 ```
+
+You should now see Libation among your applications.
 
 Report bugs to https://github.com/rmcrackan/Libation/issues
