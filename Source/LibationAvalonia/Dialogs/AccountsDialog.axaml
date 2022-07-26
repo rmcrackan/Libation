@@ -1,0 +1,120 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        Width="800" Height="450"
+        x:Class="LibationAvalonia.Dialogs.AccountsDialog"
+        Title="Audible Accounts"
+		Icon="/Assets/libation.ico">
+	<Grid RowDefinitions="*,Auto">
+
+		<Grid.Styles>
+			<Style Selector="Button:focus">
+				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderThickness" Value="2" />
+			</Style>
+		</Grid.Styles>
+
+		<DataGrid
+			Grid.Row="0"
+			CanUserReorderColumns="False"
+			CanUserResizeColumns="False"
+			CanUserSortColumns="False"
+			AutoGenerateColumns="False"
+			IsReadOnly="False"
+			Items="{Binding Accounts}"
+			GridLinesVisibility="All">
+
+			<DataGrid.Columns>
+
+				<DataGridTemplateColumn Header="Delete">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+
+							<Button
+								Width="60"
+								Height="30"
+								Content="X"
+								IsEnabled="{Binding !IsDefault}"
+								Click="DeleteButton_Clicked" />
+
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+
+				<DataGridTemplateColumn Header="Export">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+
+							<Button
+								Width="60"
+								Height="30"
+								Content="Export"
+								IsEnabled="{Binding !IsDefault}"
+								ToolTip.Tip="Export account authorization to audible-cli"
+								Click="ExportButton_Clicked" />
+
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+
+				<DataGridCheckBoxColumn
+					Binding="{Binding LibraryScan, Mode=TwoWay}"
+					Header="Include in&#xa;library scan?"/>
+
+				<DataGridTextColumn
+					Width="2*"
+					Binding="{Binding AccountId, Mode=TwoWay}"
+					Header="Autible&#xa;email/login"/>
+
+				<DataGridTemplateColumn Width="Auto" Header="Locale">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<ComboBox
+							  MinHeight="30"
+							  HorizontalContentAlignment = "Stretch"
+							  HorizontalAlignment = "Stretch"
+							  SelectedItem="{Binding SelectedLocale, Mode=TwoWay}"
+							  Items="{Binding Locales}">
+
+								<ComboBox.ItemTemplate>
+									<DataTemplate>
+										<TextBlock ZIndex="2"
+											FontSize="12"
+											Text="{Binding Name}" />
+
+									</DataTemplate>
+								</ComboBox.ItemTemplate>
+							</ComboBox>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+
+				<DataGridTextColumn
+					Width="3*"
+					Binding="{Binding AccountName, Mode=TwoWay}"
+					Header="Account Nickname&#xa;(optional)"/>
+
+			</DataGrid.Columns>
+		</DataGrid>
+		<Grid
+			Grid.Row="1"
+			Margin="10"
+			ColumnDefinitions="*,Auto" >
+
+			<Button
+				Grid.Column="0"
+				Height="30"
+				Content="Import from audible-cli"
+				Click="ImportButton_Clicked" />
+
+			<Button
+				Grid.Column="1"
+				Height="30"
+				Padding="30,3,30,3"
+				Content="Save"
+				Click="SaveButton_Clicked" />
+		</Grid>
+	</Grid>
+</Window>

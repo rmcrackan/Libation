@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
+		<TrimMode>copyused</TrimMode>
+		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+		<ApplicationIcon>libation.ico</ApplicationIcon>
+		<AssemblyName>Libation</AssemblyName>
+
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+		<StartupObject />
+	</PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <OutputPath>..\bin-Avalonia\Debug</OutputPath>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <OutputPath>..\bin-Avalonia\Release</OutputPath>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+	
+<ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Remove="Assets\SEGOEUI.TTF" />
+    <None Remove=".gitignore" />
+    <None Remove="Assets\Asterisk.png" />
+    <None Remove="Assets\cancel.png" />
+    <None Remove="Assets\completed.png" />
+    <None Remove="Assets\down.png" />
+    <None Remove="Assets\download-arrow.png" />
+    <None Remove="Assets\edit-tags-25x25.png" />
+    <None Remove="Assets\edit-tags-50x50.png" />
+    <None Remove="Assets\edit_25x25.png" />
+    <None Remove="Assets\edit_64x64.png" />
+    <None Remove="Assets\error.png" />
+    <None Remove="Assets\errored.png" />
+    <None Remove="Assets\Exclamation.png" />
+    <None Remove="Assets\first.png" />
+    <None Remove="Assets\glass-with-glow_16.png" />
+    <None Remove="Assets\img-coverart-prod-unavailable_300x300.jpg" />
+    <None Remove="Assets\img-coverart-prod-unavailable_500x500.jpg" />
+    <None Remove="Assets\img-coverart-prod-unavailable_80x80.jpg" />
+    <None Remove="Assets\import_16x16.png" />
+    <None Remove="Assets\last.png" />
+    <None Remove="Assets\libation.ico" />
+    <None Remove="Assets\LibationStyles.xaml" />
+    <None Remove="Assets\liberate_green.png" />
+    <None Remove="Assets\liberate_green_pdf_no.png" />
+    <None Remove="Assets\liberate_green_pdf_yes.png" />
+    <None Remove="Assets\liberate_red.png" />
+    <None Remove="Assets\liberate_red_pdf_no.png" />
+    <None Remove="Assets\liberate_red_pdf_yes.png" />
+    <None Remove="Assets\liberate_yellow.png" />
+    <None Remove="Assets\liberate_yellow_pdf_no.png" />
+    <None Remove="Assets\liberate_yellow_pdf_yes.png" />
+    <None Remove="Assets\MBIcons\Asterisk.png" />
+    <None Remove="Assets\MBIcons\error.png" />
+    <None Remove="Assets\MBIcons\Exclamation.png" />
+    <None Remove="Assets\MBIcons\Question.png" />
+    <None Remove="Assets\minus.png" />
+    <None Remove="Assets\plus.png" />
+    <None Remove="Assets\Question.png" />
+    <None Remove="Assets\queued.png" />
+    <None Remove="Assets\SEGOEUI.TTF" />
+    <None Remove="Assets\up.png" />
+    <None Remove="Assets\WINGDING.TTF" />
+    <None Remove="MessageBox.cs~RF105afb8d.TMP" />
+    <None Remove="Views\MainWindow\MainWindow.Export.axaml.cs~RF10732d95.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
+    <ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
+    <ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\ProcessBookControl.axaml.cs">
+      <DependentUpon>ProcessBookControl.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\ProcessQueueControl.axaml.cs">
+      <DependentUpon>ProcessQueueControl.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\ProductsDisplay.axaml.cs">
+      <DependentUpon>ProductsDisplay.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Controls\GroupBox.axaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\SEGOEUI.TTF" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.17" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.10.17" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.17" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.17" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.17" />
+	  <PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="glass-with-glow_256.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Libation.desktop">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

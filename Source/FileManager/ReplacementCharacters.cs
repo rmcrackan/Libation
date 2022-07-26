@@ -14,7 +14,7 @@ namespace FileManager
 		internal const char QUOTE_MARK = '"';
 		[JsonIgnore] public bool Mandatory { get; internal set; }
 		[JsonProperty] public char CharacterToReplace { get; private set; }
-		[JsonProperty] public string ReplacementString { get; private set; }
+		[JsonProperty] public string ReplacementString { get; set; }
 		[JsonProperty] public string Description { get; private set; }
 		public override string ToString() => $"{CharacterToReplace} → {ReplacementString} ({Description})";
 
@@ -168,8 +168,10 @@ namespace FileManager
 		}
 
 
-		public static bool ContainsInvalid(string path)
+		public static bool ContainsInvalidPathChar(string path)
 			=> path.Any(c => invalidChars.Contains(c));
+		public static bool ContainsInvalidFilenameChar(string path)
+			=> path.Any(c => invalidChars.Concat(new char[] { '\\', '/' }).Contains(c));
 
 		public string ReplaceInvalidFilenameChars(string fileName)
 		{
@@ -246,7 +248,7 @@ namespace FileManager
 				dict[3].CharacterToReplace != default3.CharacterToReplace || dict[3].Description != default3.Description ||
 				dict[4].CharacterToReplace != default4.CharacterToReplace || dict[4].Description != default4.Description ||
 				dict[5].CharacterToReplace != default5.CharacterToReplace || dict[5].Description != default5.Description ||
-				dict.Any(r => ReplacementCharacters.ContainsInvalid(r.ReplacementString))
+				dict.Any(r => ReplacementCharacters.ContainsInvalidPathChar(r.ReplacementString))
 				)
 			{
 				dict = ReplacementCharacters.Default.Replacements;

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Libation
+Exec=Libation
+Icon=libation
+Comment=Liberate your Audiobooks
+Terminal=false
+Type=Application
+MimeType=x-content/unix-software;

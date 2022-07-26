@@ -51,7 +51,6 @@
 			this.loggingLevelCb = new System.Windows.Forms.ComboBox();
 			this.tabControl = new System.Windows.Forms.TabControl();
 			this.tab1ImportantSettings = new System.Windows.Forms.TabPage();
-			this.betaOptInCbox = new System.Windows.Forms.CheckBox();
 			this.booksGb = new System.Windows.Forms.GroupBox();
 			this.saveEpisodesToSeriesFolderCbox = new System.Windows.Forms.CheckBox();
 			this.tab2ImportLibrary = new System.Windows.Forms.TabPage();
@@ -111,6 +110,7 @@
 			this.retainAaxFileCbox = new System.Windows.Forms.CheckBox();
 			this.downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
 			this.createCueSheetCbox = new System.Windows.Forms.CheckBox();
+			this.betaOptInCbox = new System.Windows.Forms.CheckBox();
 			this.badBookGb.SuspendLayout();
 			this.tabControl.SuspendLayout();
 			this.tab1ImportantSettings.SuspendLayout();
@@ -387,16 +387,6 @@
 			this.tab1ImportantSettings.TabIndex = 0;
 			this.tab1ImportantSettings.Text = "Important settings";
 			this.tab1ImportantSettings.UseVisualStyleBackColor = true;
-			// 
-			// betaOptInCbox
-			// 
-			this.betaOptInCbox.AutoSize = true;
-			this.betaOptInCbox.Location = new System.Drawing.Point(13, 358);
-			this.betaOptInCbox.Name = "betaOptInCbox";
-			this.betaOptInCbox.Size = new System.Drawing.Size(107, 19);
-			this.betaOptInCbox.TabIndex = 6;
-			this.betaOptInCbox.Text = "[Opt in to Beta]";
-			this.betaOptInCbox.UseVisualStyleBackColor = true;
 			// 
 			// booksGb
 			// 
@@ -1059,6 +1049,17 @@
 			this.createCueSheetCbox.Text = "[CreateCueSheet desc]";
 			this.createCueSheetCbox.UseVisualStyleBackColor = true;
 			this.createCueSheetCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
+			// 
+			// betaOptInCbox
+			// 
+			this.betaOptInCbox.AutoSize = true;
+			this.betaOptInCbox.Enabled = false;
+			this.betaOptInCbox.Location = new System.Drawing.Point(13, 358);
+			this.betaOptInCbox.Name = "betaOptInCbox";
+			this.betaOptInCbox.Size = new System.Drawing.Size(107, 19);
+			this.betaOptInCbox.TabIndex = 6;
+			this.betaOptInCbox.Text = "[Opt in to Beta]";
+			this.betaOptInCbox.UseVisualStyleBackColor = true;
 			// 
 			// SettingsDialog
 			// 

@@ -66,6 +66,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationFileManager.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hangover", "Hangover\Hangover.csproj", "{40C67036-C1A7-4FDF-AA83-8EC902E257F3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationAvalonia", "LibationAvalonia\LibationAvalonia.csproj", "{F612D06F-3134-4B9B-95CD-EB3FC798AE60}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -144,6 +146,10 @@ Global
 		{40C67036-C1A7-4FDF-AA83-8EC902E257F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40C67036-C1A7-4FDF-AA83-8EC902E257F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40C67036-C1A7-4FDF-AA83-8EC902E257F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F612D06F-3134-4B9B-95CD-EB3FC798AE60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F612D06F-3134-4B9B-95CD-EB3FC798AE60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F612D06F-3134-4B9B-95CD-EB3FC798AE60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F612D06F-3134-4B9B-95CD-EB3FC798AE60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -167,6 +173,7 @@ Global
 		{F2E04270-4551-41C4-99FF-E7125BED708C} = {67E66E82-5532-4440-AFB3-9FB1DF9DEF53}
 		{EB781571-8548-477E-82AD-FB9FAB548D2F} = {67E66E82-5532-4440-AFB3-9FB1DF9DEF53}
 		{40C67036-C1A7-4FDF-AA83-8EC902E257F3} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
+		{F612D06F-3134-4B9B-95CD-EB3FC798AE60} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {615E00ED-BAEF-4E8E-A92A-9B82D87942A9}

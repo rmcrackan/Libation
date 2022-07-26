@@ -1,0 +1,148 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="450"
+		MinWidth="550" MinHeight="450"
+		Width="650" Height="500"
+        x:Class="LibationAvalonia.Dialogs.BookDetailsDialog"
+		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+        Title="Book Details" Name="BookDetails"
+		Icon="/Assets/libation.ico">
+
+	<Grid RowDefinitions="*,Auto,Auto,40">
+		<Grid.Styles>
+			<Style Selector="Button:focus">
+				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderThickness" Value="2" />
+			</Style>
+		</Grid.Styles>
+		<Grid ColumnDefinitions="Auto,*" RowDefinitions="*,Auto" Margin="10,10,10,0">
+			<Panel VerticalAlignment="Top" Margin="5" Background="LightGray" Width="80" Height="80" >
+				<Image Grid.Column="0" Width="80" Height="80" Source="{Binding Cover}" />
+			</Panel>
+
+			<Panel Grid.Column="0" Grid.Row="1">
+
+				<controls:LinkLabel
+					Margin="10"
+					TextWrapping="Wrap"
+					TextAlignment="Center"
+					Tapped="GoToAudible_Tapped"
+					Text="Open in&#xa;Audible&#xa;(Browser)" />
+			</Panel>
+			
+			<TextBox
+				Grid.Column="1"
+				Grid.Row="0"
+				Grid.RowSpan="2"
+				TextWrapping="Wrap"
+				Margin="5"
+				FontSize="12"
+				Text="{Binding DetailsText}" />
+		</Grid>
+		
+		<controls:GroupBox
+			Label="Edit Tags"
+			Grid.Row="1"
+			BorderWidth="1"
+			Margin="10,0,10,0">
+			
+			<StackPanel Orientation="Vertical">
+				<TextBlock FontSize="12" VerticalAlignment="Top">
+					Tags are separated by a space. Each tag can contain letters, numbers, and underscores
+				</TextBlock>
+
+				<TextBox Margin="0,5,0,5"
+					MinHeight="25"
+					FontSize="12" Name="tagsTbox"
+					Text="{Binding Tags, Mode=TwoWay}"/>
+			</StackPanel>
+		</controls:GroupBox>
+		
+		<controls:GroupBox
+			Label="Liberated status: Whether the book/pdf has been downloaded"
+			Grid.Row="2"
+			BorderWidth="1"
+			Margin="10,10,10,10">
+			
+			<StackPanel Orientation="Vertical">
+				
+				<TextBlock
+					FontSize="12"
+					VerticalAlignment="Top"
+					Margin="10,10,0,0"
+					Text="To download again next time: change to Not Downloaded&#xA;To not download: change to Downloaded" />
+
+				<Grid Margin="0,10,0,5" ColumnDefinitions="Auto,Auto,50,Auto,Auto,*">
+					
+					<TextBlock
+						Grid.Column="0"
+						Margin="0,0,10,0"
+						VerticalAlignment="Center"
+						Text="Book" />
+					
+					<TextBlock
+						Grid.Column="3"
+						Margin="0,0,10,0"
+						VerticalAlignment="Center"
+						Text="PDF" />
+
+					<controls:WheelComboBox
+						Grid.Column="1"
+						Width="150"
+						MinHeight="25"
+						Height="25"
+						VerticalAlignment="Center"
+						SelectedItem="{Binding BookLiberatedSelectedItem, Mode=TwoWay}"
+						Items="{Binding BookLiberatedItems}">
+						
+						<ComboBox.ItemTemplate>
+							<DataTemplate>
+								
+								<TextBlock
+									FontSize="12"
+									Text="{Binding Text}" />
+								
+							</DataTemplate>
+						</ComboBox.ItemTemplate>
+						
+					</controls:WheelComboBox>
+					
+					<controls:WheelComboBox
+						IsEnabled="{Binding HasPDF}"
+						Grid.Column="4"
+						MinHeight="25"
+						Height="25"
+						Width="150"
+						VerticalAlignment="Center"
+						SelectedItem="{Binding PdfLiberatedSelectedItem, Mode=TwoWay}"						
+						Items="{Binding PdfLiberatedItems}">
+						
+						<ComboBox.ItemTemplate>
+							<DataTemplate>
+								
+								<TextBlock
+									FontSize="12"
+									Text="{Binding Text}" />
+								
+							</DataTemplate>
+						</ComboBox.ItemTemplate>
+						
+					</controls:WheelComboBox>
+					
+				</Grid>				
+			</StackPanel>			
+		</controls:GroupBox>
+
+		<Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="10,0,10,10">
+			
+			<Button
+				Grid.Column="1"
+				Content="Save"
+				Padding="30,3,30,3"
+				Click="SaveButton_Clicked" />
+		</Grid>
+		
+	</Grid>
+</Window>

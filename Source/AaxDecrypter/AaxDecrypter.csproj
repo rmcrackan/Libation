@@ -1,12 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AAXClean.Codecs" Version="0.2.11" />
-  </ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DebugType>embedded</DebugType>
@@ -16,6 +12,9 @@
 		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="AAXClean.Codecs" Version="0.2.12" />
+	</ItemGroup>
 
 	<ItemGroup>
     <ProjectReference Include="..\FileManager\FileManager.csproj" />

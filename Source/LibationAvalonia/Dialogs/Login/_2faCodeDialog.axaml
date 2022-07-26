@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="140" d:DesignHeight="100"
+		MinWidth="140" MinHeight="100"
+		MaxWidth="140" MaxHeight="100"
+        x:Class="LibationAvalonia.Dialogs.Login._2faCodeDialog"
+        Title="2FA Code"
+		Icon="/Assets/libation.ico">
+	
+	<Grid RowDefinitions="Auto,Auto,*">
+		
+		<TextBlock
+			Margin="5"
+			TextAlignment="Center"
+			Text="Enter 2FA Code" />
+		
+		<TextBox
+			Margin="5,0,5,0"
+			Grid.Row="1"
+			Text="{Binding Code, Mode=TwoWay}" />
+		
+		<Button
+			Margin="5"
+			Grid.Row="2"
+			VerticalAlignment="Bottom"
+			HorizontalAlignment="Stretch"
+			Content="Submit"
+			Click="Submit_Click" />
+	</Grid>
+</Window>
