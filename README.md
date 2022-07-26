@@ -14,6 +14,7 @@
 - [Getting started](Documentation/GettingStarted.md)
     - [Download Libation](Documentation/GettingStarted.md#download-libation-1)
     - [Installation](Documentation/GettingStarted.md#installation)
+    - [Installation on Ubuntu](Source/LibationAvalonia/README.md)
     - [Create Accounts](Documentation/GettingStarted.md#create-accounts)
     - [Import your library](Documentation/GettingStarted.md#import-your-library)
     - [Download your books -- DRM-free!](Documentation/GettingStarted.md#download-your-books----drm-free)
