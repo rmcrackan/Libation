@@ -101,9 +101,12 @@ fi
 
 
   sudo -u $SUDO_USER chmod +700 ${FOLDER}/Libation
+  sudo -u $SUDO_USER chmod +700 ${FOLDER}/LibationCli
 
   #Remove previous installation program files and sym link
   rm /usr/bin/Libation
+  rm /usr/bin/LibationCli
+  rm /usr/bin/libationcli
   rm /usr/lib/libation -r
 
   #Copy install files, icon and desktop file
@@ -114,6 +117,8 @@ fi
   chmod +666 /usr/share/icons/hicolor/scalable/apps/libation.svg
   gtk-update-icon-cache -f /usr/share/icons/hicolor/
   ln -s /usr/lib/libation/Libation /usr/bin/Libation
+  ln -s /usr/lib/libation/LibationCli /usr/bin/LibationCli
+  ln -s /usr/lib/libation/LibationCli /usr/bin/libationcli
 
   echo "Done!"
 
