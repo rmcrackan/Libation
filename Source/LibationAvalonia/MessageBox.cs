@@ -149,7 +149,11 @@ Libation.
 
 
 		private static DialogResult ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
+			=> Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => ShowCoreAsync2(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition)).GetAwaiter().GetResult();
+
+		private static DialogResult ShowCoreAsync2(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{
+
 			owner ??= (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow;
 
 			var dialog = new MessageBoxWindow(saveAndRestorePosition);
