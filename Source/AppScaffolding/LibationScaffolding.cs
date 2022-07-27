@@ -309,10 +309,10 @@ namespace AppScaffolding
 			LibraryCommands.BookUserDefinedItemCommitted += (_, books) => SearchEngineCommands.UpdateBooks(books);
 		}
 
-		public static UpgradeProperties GetLatestRelease()
+		public static UpgradeProperties GetLatestRelease(string regexpattern = ".*")
 		{
 			// timed out
-			var latest = getLatestRelease(TimeSpan.FromSeconds(10));
+			var latest = getLatestRelease(TimeSpan.FromSeconds(10), regexpattern);
 			if (latest is null)
 				return null;
 
@@ -337,11 +337,11 @@ namespace AppScaffolding
 
 			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease);
 		}
-		private static Octokit.Release getLatestRelease(TimeSpan timeout)
+		private static Octokit.Release getLatestRelease(TimeSpan timeout, string regexpattern)
 		{
 			try
 			{
-				var task = System.Threading.Tasks.Task.Run(() => getLatestRelease());
+				var task = System.Threading.Tasks.Task.Run(() => getLatestRelease(regexpattern));
 				if (task.Wait(timeout))
 					return task.Result;
 
@@ -353,13 +353,15 @@ namespace AppScaffolding
 			}
 			return null;
 		}
-		private static Octokit.Release getLatestRelease()
+		private static Octokit.Release getLatestRelease(string regexpattern)
 		{
 			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("Libation"));
 
 			// https://octokitnet.readthedocs.io/en/latest/releases/
 			var releases = gitHubClient.Repository.Release.GetAll("rmcrackan", "Libation").GetAwaiter().GetResult();
-			var latest = releases.First(r => !r.Draft && !r.Prerelease);
+
+			var regex = new System.Text.RegularExpressions.Regex(regexpattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+			var latest = releases.FirstOrDefault(r => !r.Draft && !r.Prerelease && r.Assets.Any(a => regex.IsMatch(a.Name)));
 			return latest;
 		}
 	}
