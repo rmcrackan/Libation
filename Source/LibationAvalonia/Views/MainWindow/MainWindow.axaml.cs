@@ -8,8 +8,7 @@ using LibationAvalonia.ViewModels;
 using LibationFileManager;
 using DataLayer;
 using System.Collections.Generic;
-using System.Linq;
-using LibationAvalonia.Dialogs;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
 {
@@ -67,11 +66,88 @@ namespace LibationAvalonia.Views
 
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
-			/*
-			var charReplace = new EditReplacementChars();
+#if !DEBUG
+			if (App.IsWindows)
+			{
+				try
+				{
+					await Task.Run(checkForAndDownloadUpdate);
+				}
+				catch(Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, "An error occured while checking for app updates.");
+					return;
+				}
+			}
+#endif
+		}
 
-			await charReplace.ShowDialog(this);
-			*/
+		private async Task checkForAndDownloadUpdate()
+		{
+			AppScaffolding.UpgradeProperties upgradeProperties;
+			try
+			{
+				upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease(@"Libation\.\d+\.\d+\.\d+-win-avalonia.zip");
+
+				if (upgradeProperties is null)
+					return;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Failed to check for update");
+				return;
+			}
+
+			if (upgradeProperties.ZipUrl is null)
+			{
+				Serilog.Log.Logger.Information("Download link for new version not found");
+				return;
+			}
+
+			//Silently download the update in the background, ave it to a temp file.
+
+			var zipPath = System.IO.Path.GetTempFileName();
+			try
+			{
+				System.Net.Http.HttpClient cli = new();
+				using (var fs = System.IO.File.OpenWrite(zipPath))
+				{
+					using (var dlStream = await cli.GetStreamAsync(new Uri(upgradeProperties.ZipUrl)))
+						await dlStream.CopyToAsync(fs);
+				}
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Failed to download the update: {pdate}", upgradeProperties.ZipUrl);
+				return;
+			}
+
+			var result = MessageBox.Show($"{upgradeProperties.HtmlUrl}\r\n\r\nWould you like to upgrade now?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+
+			if (result != DialogResult.Yes)
+				return;
+
+			var thisExe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+			var thisDir = System.IO.Path.GetDirectoryName(thisExe);
+
+			var args = $"--input {zipPath} --output {thisDir} --executable {thisExe}";
+
+			var zipExtractor = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ZipExtractor.exe");
+
+			System.IO.File.Copy("ZipExtractor.exe", zipExtractor, overwrite: true);
+
+			var psi = new System.Diagnostics.ProcessStartInfo()
+			{
+				FileName = zipExtractor,
+				UseShellExecute = true,
+				Verb = "runas",
+				WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal,
+				Arguments = args,
+				CreateNoWindow = true
+			};
+
+			System.Diagnostics.Process.Start(psi);
+			Environment.Exit(0);		
 		}
 
 		public void ProductsDisplay_Initialized1(object sender, EventArgs e)
