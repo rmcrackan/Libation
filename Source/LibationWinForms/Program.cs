@@ -170,7 +170,7 @@ namespace LibationWinForms
 
 			try
 			{
-				upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease();
+				upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease(AppScaffolding.LibationScaffolding.ReleaseIdentifier.WindowsClassic);
 				if (upgradeProperties is null)
 					return;
 			}
