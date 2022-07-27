@@ -309,10 +309,17 @@ namespace AppScaffolding
 			LibraryCommands.BookUserDefinedItemCommitted += (_, books) => SearchEngineCommands.UpdateBooks(books);
 		}
 
-		public static UpgradeProperties GetLatestRelease(string regexpattern = ".*")
+		public enum ReleaseIdentifier
+		{
+			WindowsClassic,
+			WindowsAvalonia,
+			Linux
+		}
+
+		public static UpgradeProperties GetLatestRelease(ReleaseIdentifier releaseID = ReleaseIdentifier.WindowsClassic)
 		{
 			// timed out
-			var latest = getLatestRelease(TimeSpan.FromSeconds(10), regexpattern);
+			var latest = getLatestRelease(TimeSpan.FromSeconds(100), releaseID);
 			if (latest is null)
 				return null;
 
@@ -337,11 +344,11 @@ namespace AppScaffolding
 
 			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease);
 		}
-		private static Octokit.Release getLatestRelease(TimeSpan timeout, string regexpattern)
+		private static Octokit.Release getLatestRelease(TimeSpan timeout, ReleaseIdentifier releaseID)
 		{
 			try
 			{
-				var task = System.Threading.Tasks.Task.Run(() => getLatestRelease(regexpattern));
+				var task = getLatestRelease(releaseID);
 				if (task.Wait(timeout))
 					return task.Result;
 
@@ -353,14 +360,19 @@ namespace AppScaffolding
 			}
 			return null;
 		}
-		private static Octokit.Release getLatestRelease(string regexpattern)
+		private static async System.Threading.Tasks.Task<Octokit.Release> getLatestRelease(ReleaseIdentifier releaseID)
 		{
 			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("Libation"));
 
-			// https://octokitnet.readthedocs.io/en/latest/releases/
-			var releases = gitHubClient.Repository.Release.GetAll("rmcrackan", "Libation").GetAwaiter().GetResult();
+			//Download the release index
+			var bts = await gitHubClient.Repository.Content.GetRawContent("Mbucari", "Libation", ".releaseindex.json");
+			var releaseIndex = JObject.Parse(System.Text.Encoding.ASCII.GetString(bts));
+			var regexPattern = releaseIndex.Value<string>(releaseID.ToString());
 
-			var regex = new System.Text.RegularExpressions.Regex(regexpattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+			// https://octokitnet.readthedocs.io/en/latest/releases/
+			var releases = await gitHubClient.Repository.Release.GetAll("rmcrackan", "Libation");
+
+			var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 			var latest = releases.FirstOrDefault(r => !r.Draft && !r.Prerelease && r.Assets.Any(a => regex.IsMatch(a.Name)));
 			return latest;
 		}

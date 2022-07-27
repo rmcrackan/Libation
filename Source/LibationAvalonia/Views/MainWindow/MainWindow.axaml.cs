@@ -87,7 +87,7 @@ namespace LibationAvalonia.Views
 			AppScaffolding.UpgradeProperties upgradeProperties;
 			try
 			{
-				upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease(@"Libation\.\d+\.\d+\.\d+-win-avalonia.zip");
+				upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease(AppScaffolding.LibationScaffolding.ReleaseIdentifier.WindowsAvalonia);
 
 				if (upgradeProperties is null)
 					return;
@@ -104,7 +104,7 @@ namespace LibationAvalonia.Views
 				return;
 			}
 
-			//Silently download the update in the background, ave it to a temp file.
+			//Silently download the update in the background, save it to a temp file.
 
 			var zipPath = System.IO.Path.GetTempFileName();
 			try
