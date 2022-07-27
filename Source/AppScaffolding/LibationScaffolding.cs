@@ -319,7 +319,7 @@ namespace AppScaffolding
 		public static UpgradeProperties GetLatestRelease(ReleaseIdentifier releaseID = ReleaseIdentifier.WindowsClassic)
 		{
 			// timed out
-			var latest = getLatestRelease(TimeSpan.FromSeconds(100), releaseID);
+			var latest = getLatestRelease(TimeSpan.FromSeconds(10), releaseID);
 			if (latest is null)
 				return null;
 
