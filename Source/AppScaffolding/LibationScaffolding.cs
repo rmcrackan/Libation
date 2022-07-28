@@ -313,7 +313,8 @@ namespace AppScaffolding
 		{
 			WindowsClassic,
 			WindowsAvalonia,
-			Linux
+			LinuxAvalonia,
+			MacOSAvalonia
 		}
 
 		public static UpgradeProperties GetLatestRelease(ReleaseIdentifier releaseID = ReleaseIdentifier.WindowsClassic)
@@ -362,15 +363,18 @@ namespace AppScaffolding
 		}
 		private static async System.Threading.Tasks.Task<Octokit.Release> getLatestRelease(ReleaseIdentifier releaseID)
 		{
-			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("Libation"));
+			var ownerAccount = "rmcrackan";
+			var repoName = "Libation";
+
+			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(repoName));
 
 			//Download the release index
-			var bts = await gitHubClient.Repository.Content.GetRawContent("Mbucari", "Libation", ".releaseindex.json");
+			var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
 			var releaseIndex = JObject.Parse(System.Text.Encoding.ASCII.GetString(bts));
 			var regexPattern = releaseIndex.Value<string>(releaseID.ToString());
 
 			// https://octokitnet.readthedocs.io/en/latest/releases/
-			var releases = await gitHubClient.Repository.Release.GetAll("rmcrackan", "Libation");
+			var releases = await gitHubClient.Repository.Release.GetAll(ownerAccount, repoName);
 
 			var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 			var latest = releases.FirstOrDefault(r => !r.Draft && !r.Prerelease && r.Assets.Any(a => regex.IsMatch(a.Name)));
