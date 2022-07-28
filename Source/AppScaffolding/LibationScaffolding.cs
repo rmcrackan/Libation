@@ -313,7 +313,8 @@ namespace AppScaffolding
 		{
 			WindowsClassic,
 			WindowsAvalonia,
-			LinuxAvalonia
+			LinuxAvalonia,
+			MacOSAvalonia
 		}
 
 		public static UpgradeProperties GetLatestRelease(ReleaseIdentifier releaseID = ReleaseIdentifier.WindowsClassic)

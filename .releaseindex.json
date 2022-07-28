@@ -1,5 +1,6 @@
 {
    "WindowsClassic": "Libation\\.\\d+\\.\\d+\\.\\d+-win-classic\\.zip",
    "WindowsAvalonia":"Libation\\.\\d+\\.\\d+\\.\\d+-win-chardonnay\\.zip",
-   "LinuxAvalonia":  "Libation\\.\\d+\\.\\d+\\.\\d+-linux-chardonnay"
+   "LinuxAvalonia":  "Libation\\.\\d+\\.\\d+\\.\\d+-linux-chardonnay",
+   "MacOSAvalonia":  "Libation\\.\\d+\\.\\d+\\.\\d+-macos-chardonnay"
 }
