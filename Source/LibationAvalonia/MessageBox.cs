@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using Avalonia.Threading;
 
 namespace LibationAvalonia
 {
@@ -150,12 +151,9 @@ Libation.
 
 		private static DialogResult ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{
-			using var source = new CancellationTokenSource();
-			var dialogTask = Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition));
-			dialogTask.ContinueWith(t => source.Cancel(), TaskScheduler.FromCurrentSynchronizationContext());
-			Avalonia.Threading.Dispatcher.UIThread.MainLoop(source.Token);
+			var dialogTask = Dispatcher.UIThread.Invoke(() => CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition));
 
-			return DisplayWindow(dialogTask.Result, owner);
+			return DisplayWindow(dialogTask, owner);
 		}
 
 		private static MessageBoxWindow CreateMessageBox(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)

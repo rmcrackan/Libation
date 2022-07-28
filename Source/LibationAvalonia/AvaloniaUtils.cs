@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media;
+using Avalonia.Threading;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,11 +19,7 @@ namespace LibationAvalonia
 
 		public static T ShowDialogSynchronously<T>(this Avalonia.Controls.Window window, Avalonia.Controls.Window owner)
 		{
-			using var source = new CancellationTokenSource();
-			var dialogTask = window.ShowDialog<T>(owner);
-			dialogTask.ContinueWith(t => source.Cancel(), TaskScheduler.FromCurrentSynchronizationContext());
-			Avalonia.Threading.Dispatcher.UIThread.MainLoop(source.Token);
-			return dialogTask.Result;
+			return window.ShowDialog<T>(owner).WaitOnUIAndGetResult();
 		}
 	}
 }
