@@ -151,9 +151,9 @@ Libation.
 
 		private static DialogResult ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{
-			var dialogTask = Dispatcher.UIThread.Invoke(() => CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition));
+			var dialog = Dispatcher.UIThread.Invoke(() => CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition));
 
-			return DisplayWindow(dialogTask, owner);
+			return DisplayWindow(dialog, owner);
 		}
 
 		private static MessageBoxWindow CreateMessageBox(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)

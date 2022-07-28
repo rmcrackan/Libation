@@ -12,12 +12,6 @@ namespace Avalonia.Threading
 		public static void Invoke(this Dispatcher dispatcher, Action action, DispatcherPriority dispatcherPriority = DispatcherPriority.Normal)
 			=> WaitOnDispatcher(dispatcher.InvokeAsync(action, dispatcherPriority), dispatcher);
 
-		public static TResult WaitOnUIAndGetResult<TResult>(this Task<TResult> task)
-			=> WaitOnDispatcherAndGetResult(task, Dispatcher.UIThread);
-
-		public static void WaitOnUI(this Task task)
-			=> WaitOnDispatcher(task, Dispatcher.UIThread);
-
 		public static TResult WaitOnDispatcherAndGetResult<TResult>(this Task<TResult> task, Dispatcher dispatcher)
 		{
 			using var source = new CancellationTokenSource();

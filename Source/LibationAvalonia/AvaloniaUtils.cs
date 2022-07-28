@@ -19,7 +19,7 @@ namespace LibationAvalonia
 
 		public static T ShowDialogSynchronously<T>(this Avalonia.Controls.Window window, Avalonia.Controls.Window owner)
 		{
-			return window.ShowDialog<T>(owner).WaitOnUIAndGetResult();
+			return window.ShowDialog<T>(owner).WaitOnDispatcherAndGetResult(Dispatcher.UIThread);
 		}
 	}
 }
