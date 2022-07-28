@@ -27,12 +27,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <OutputPath>..\bin-Avalonia\Debug</OutputPath>
+	  <OutputPath>..\bin\Avalonia\Debug</OutputPath>
     <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <OutputPath>..\bin-Avalonia\Release</OutputPath>
+	  <OutputPath>..\bin\Avalonia\Release</OutputPath>
     <DebugType>embedded</DebugType>
   </PropertyGroup>
 	
