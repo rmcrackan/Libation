@@ -91,20 +91,20 @@ namespace AppScaffolding
 				config.DecryptToLossy = false;
 
 			if (!config.Exists(nameof(config.LameTargetBitrate)))
-				config.LameTargetBitrate = false;			
-			
+				config.LameTargetBitrate = false;
+
 			if (!config.Exists(nameof(config.LameDownsampleMono)))
 				config.LameDownsampleMono = true;
-			
+
 			if (!config.Exists(nameof(config.LameBitrate)))
 				config.LameBitrate = 64;
-			
+
 			if (!config.Exists(nameof(config.LameConstantBitrate)))
 				config.LameConstantBitrate = false;
-			
+
 			if (!config.Exists(nameof(config.LameMatchSourceBR)))
 				config.LameMatchSourceBR = true;
-			
+
 			if (!config.Exists(nameof(config.LameVBRQuality)))
 				config.LameVBRQuality = 2;
 
@@ -320,8 +320,9 @@ namespace AppScaffolding
 		public static UpgradeProperties GetLatestRelease(ReleaseIdentifier releaseID = ReleaseIdentifier.WindowsClassic)
 		{
 			// timed out
-			var latest = getLatestRelease(TimeSpan.FromSeconds(10), releaseID);
-			if (latest is null)
+			(var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10), releaseID);
+
+			if (latest is null || zip is null)
 				return null;
 
 			var latestVersionString = latest.TagName.Trim('v');
@@ -333,7 +334,7 @@ namespace AppScaffolding
 				return null;
 
 			// we have an update
-			var zip = latest.Assets.FirstOrDefault(a => a.BrowserDownloadUrl.EndsWith(".zip"));
+
 			var zipUrl = zip?.BrowserDownloadUrl;
 
 			Log.Logger.Information("Update available: {@DebugInfo}", new
@@ -345,7 +346,7 @@ namespace AppScaffolding
 
 			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease);
 		}
-		private static Octokit.Release getLatestRelease(TimeSpan timeout, ReleaseIdentifier releaseID)
+		private static (Octokit.Release, Octokit.ReleaseAsset) getLatestRelease(TimeSpan timeout, ReleaseIdentifier releaseID)
 		{
 			try
 			{
@@ -359,9 +360,9 @@ namespace AppScaffolding
 			{
 				Log.Logger.Error(aggEx, "Checking for new version too often");
 			}
-			return null;
+			return (null, null);
 		}
-		private static async System.Threading.Tasks.Task<Octokit.Release> getLatestRelease(ReleaseIdentifier releaseID)
+		private static async System.Threading.Tasks.Task<(Octokit.Release, Octokit.ReleaseAsset)> getLatestRelease(ReleaseIdentifier releaseID)
 		{
 			var ownerAccount = "rmcrackan";
 			var repoName = "Libation";
@@ -377,8 +378,8 @@ namespace AppScaffolding
 			var releases = await gitHubClient.Repository.Release.GetAll(ownerAccount, repoName);
 
 			var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-			var latest = releases.FirstOrDefault(r => !r.Draft && !r.Prerelease && r.Assets.Any(a => regex.IsMatch(a.Name)));
-			return latest;
+			var latestRelease = releases.FirstOrDefault(r => !r.Draft && !r.Prerelease && r.Assets.Any(a => regex.IsMatch(a.Name)));
+			return (latestRelease, latestRelease?.Assets?.FirstOrDefault(a => regex.IsMatch(a.Name)));
 		}
 	}
 
