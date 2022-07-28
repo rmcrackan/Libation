@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace LibationAvalonia
 {
@@ -147,13 +148,18 @@ Libation.
 			DisplayWindow(form, owner);
 		}
 
-
 		private static DialogResult ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
-			=> Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => ShowCoreAsync2(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition)).GetAwaiter().GetResult();
-
-		private static DialogResult ShowCoreAsync2(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{
+			using var source = new CancellationTokenSource();
+			var dialogTask = Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition));
+			dialogTask.ContinueWith(t => source.Cancel(), TaskScheduler.FromCurrentSynchronizationContext());
+			Avalonia.Threading.Dispatcher.UIThread.MainLoop(source.Token);
 
+			return DisplayWindow(dialogTask.Result, owner);
+		}
+
+		private static MessageBoxWindow CreateMessageBox(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
+		{
 			owner ??= (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow;
 
 			var dialog = new MessageBoxWindow(saveAndRestorePosition);
@@ -186,8 +192,7 @@ Libation.
 			dialog.MaxWidth = dialog.MinWidth;
 			dialog.Height = dialog.MinHeight;
 			dialog.Width = dialog.MinWidth;
-
-			return DisplayWindow(dialog, owner);
+			return dialog;
 		}
 		private static DialogResult DisplayWindow(Window toDisplay, Window owner)
 		{
