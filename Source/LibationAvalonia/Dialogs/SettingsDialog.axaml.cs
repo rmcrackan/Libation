@@ -33,10 +33,10 @@ namespace LibationAvalonia.Dialogs
 
 		protected override async Task SaveAndCloseAsync()
 		{
-			if (!settingsDisp.SaveSettings(config))
+			if (!await settingsDisp.SaveSettingsAsync(config))
 				return;
 
-			MessageBox.VerboseLoggingWarning_ShowIfTrue();
+			await MessageBox.VerboseLoggingWarning_ShowIfTrue();
 			await base.SaveAndCloseAsync();
 		}
 
@@ -97,7 +97,7 @@ namespace LibationAvalonia.Dialogs
 	internal interface ISettingsDisplay
 	{
 		void LoadSettings(Configuration config);
-		bool SaveSettings(Configuration config);
+		Task<bool> SaveSettingsAsync(Configuration config);
 	}
 
 	public class SettingsPages : ISettingsDisplay
@@ -120,12 +120,12 @@ namespace LibationAvalonia.Dialogs
 			AudioSettings = new(config);
 		}
 
-		public bool SaveSettings(Configuration config)
+		public async Task<bool> SaveSettingsAsync(Configuration config)
 		{
-			var result = ImportantSettings.SaveSettings(config);
-			result &= ImportSettings.SaveSettings(config);
-			result &= DownloadDecryptSettings.SaveSettings(config);
-			result &= AudioSettings.SaveSettings(config);
+			var result = await ImportantSettings.SaveSettingsAsync(config);
+			result &= await ImportSettings.SaveSettingsAsync(config);
+			result &= await DownloadDecryptSettings.SaveSettingsAsync(config);
+			result &= await AudioSettings.SaveSettingsAsync(config);
 
 			return result;
 		}
@@ -146,13 +146,13 @@ namespace LibationAvalonia.Dialogs
 			BetaOptIn = config.BetaOptIn;
 		}
 
-		public bool SaveSettings(Configuration config)
+		public async Task<bool> SaveSettingsAsync(Configuration config)
 		{
 			#region validation
 
 			if (string.IsNullOrWhiteSpace(BooksDirectory))
 			{
-				MessageBox.Show("Cannot set Books Location to blank", "Location is blank", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show("Cannot set Books Location to blank", "Location is blank", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return false;
 			}
 
@@ -204,14 +204,14 @@ namespace LibationAvalonia.Dialogs
 			AutoDownloadEpisodes = config.AutoDownloadEpisodes;
 		}
 
-		public bool SaveSettings(Configuration config)
+		public Task<bool> SaveSettingsAsync(Configuration config)
 		{
 			config.AutoScan = AutoScan;
 			config.ShowImportedStats = ShowImportedStats;
 			config.ImportEpisodes = ImportEpisodes;
 			config.DownloadEpisodes = DownloadEpisodes;
 			config.AutoDownloadEpisodes = AutoDownloadEpisodes;
-			return true;
+			return Task.FromResult(true);
 		}
 
 		public string AutoScanText { get; } = Configuration.GetDescription(nameof(Configuration.AutoScan));
@@ -259,25 +259,25 @@ namespace LibationAvalonia.Dialogs
 				: Configuration.GetKnownDirectory(config.InProgress);
 		}
 
-		public bool SaveSettings(Configuration config)
+		public async Task<bool> SaveSettingsAsync(Configuration config)
 		{
-			static void validationError(string text, string caption)
+			static Task validationError(string text, string caption)
 				=> MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
 			// these 3 should do nothing. Configuration will only init these with a valid value. EditTemplateDialog ensures valid before returning
 			if (!Templates.Folder.IsValid(FolderTemplate))
 			{
-				validationError($"Not saving change to folder naming template. Invalid format.", "Invalid folder template");
+				await validationError($"Not saving change to folder naming template. Invalid format.", "Invalid folder template");
 				return false;
 			}
 			if (!Templates.File.IsValid(FileTemplate))
 			{
-				validationError($"Not saving change to file naming template. Invalid format.", "Invalid file template");
+				await validationError($"Not saving change to file naming template. Invalid format.", "Invalid file template");
 				return false;
 			}
 			if (!Templates.ChapterFile.IsValid(ChapterFileTemplate))
 			{
-				validationError($"Not saving change to chapter file naming template. Invalid format.", "Invalid chapter file template");
+				await validationError($"Not saving change to chapter file naming template. Invalid format.", "Invalid chapter file template");
 				return false;
 			}
 
@@ -405,7 +405,7 @@ namespace LibationAvalonia.Dialogs
 			LameVBRQuality = config.LameVBRQuality;
 		}
 
-		public bool SaveSettings(Configuration config)
+		public Task<bool> SaveSettingsAsync(Configuration config)
 		{
 			config.CreateCueSheet = CreateCueSheet;
 			config.AllowLibationFixup = AllowLibationFixup;
@@ -424,7 +424,7 @@ namespace LibationAvalonia.Dialogs
 			config.LameBitrate = LameBitrate;
 			config.LameVBRQuality = LameVBRQuality;
 
-			return true;
+			return Task.FromResult(true);
 		}
 
 		public string CreateCueSheetText { get; } = Configuration.GetDescription(nameof(Configuration.CreateCueSheet));

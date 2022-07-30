@@ -5,10 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AudibleApi" Version="4.5.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\..\audible api\AudibleApi\AudibleApi\AudibleApi.csproj" />
     <ProjectReference Include="..\LibationFileManager\LibationFileManager.csproj" />
   </ItemGroup>
 	

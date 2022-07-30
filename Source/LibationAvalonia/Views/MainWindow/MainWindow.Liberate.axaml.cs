@@ -40,7 +40,7 @@ namespace LibationAvalonia.Views
 
 		public async void convertAllM4bToMp3ToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
-			var result = MessageBox.Show(
+			var result = await MessageBox.Show(
 				"This converts all m4b titles in your library to mp3 files. Original files are not deleted."
 				+ "\r\nFor large libraries this will take a long time and will take up more disk space."
 				+ "\r\n\r\nContinue?"

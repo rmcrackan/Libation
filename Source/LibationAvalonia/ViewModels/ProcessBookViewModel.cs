@@ -152,7 +152,7 @@ namespace LibationAvalonia.ViewModels
 			finally
 			{
 				if (Result == ProcessBookResult.None)
-					Result = showRetry(LibraryBook);
+					Result = await showRetry(LibraryBook);
 
 				Status = Result switch
 				{
@@ -313,7 +313,7 @@ namespace LibationAvalonia.ViewModels
 
 		#region Failure Handler
 
-		private ProcessBookResult showRetry(LibraryBook libraryBook)
+		private async Task<ProcessBookResult> showRetry(LibraryBook libraryBook)
 		{
 			Logger.Error("ERROR. All books have not been processed. Most recent book: processing failed");
 
@@ -346,7 +346,7 @@ $@"  Title: {libraryBook.Book.Title}
 			}
 
 			// if null then ask user
-			dialogResult ??= MessageBox.Show(string.Format(SkipDialogText + "\r\n\r\nSee Settings to avoid this box in the future.", details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
+			dialogResult ??= await MessageBox.Show(string.Format(SkipDialogText + "\r\n\r\nSee Settings to avoid this box in the future.", details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
 
 			if (dialogResult == DialogResult.Abort)
 				return ProcessBookResult.FailedAbort;

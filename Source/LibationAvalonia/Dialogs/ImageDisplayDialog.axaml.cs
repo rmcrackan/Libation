@@ -67,7 +67,7 @@ namespace LibationAvalonia.Dialogs
 			catch (Exception ex)
 			{
 				Serilog.Log.Logger.Error(ex, $"Failed to save picture to {fileName}");
-				MessageBox.Show(this, $"An error was encountered while trying to save the picture\r\n\r\n{ex.Message}", "Failed to save picture", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+				await MessageBox.Show(this, $"An error was encountered while trying to save the picture\r\n\r\n{ex.Message}", "Failed to save picture", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 			}
 		}
 

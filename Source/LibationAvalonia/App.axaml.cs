@@ -115,7 +115,7 @@ namespace LibationAvalonia
 			base.OnFrameworkInitializationCompleted();
 		}
 
-		private void Setup_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		private async void Setup_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			var setupDialog = sender as SetupDialog;
 			var desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
@@ -128,9 +128,9 @@ namespace LibationAvalonia
 
 				if ((!setupDialog.IsNewUser
 					&& !setupDialog.IsReturningUser) ||
-					!RunInstall(setupDialog))
+					!await RunInstall(setupDialog))
 				{
-					CancelInstallation();
+					await CancelInstallation();
 					return;
 				}
 
@@ -138,7 +138,7 @@ namespace LibationAvalonia
 				// most migrations go in here
 				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(setupDialog.Config);
 
-				MessageBox.VerboseLoggingWarning_ShowIfTrue();
+				await MessageBox.VerboseLoggingWarning_ShowIfTrue();
 
 #if !DEBUG
 				//AutoUpdater.NET only works for WinForms or WPF application projects.
@@ -154,11 +154,11 @@ namespace LibationAvalonia
 				var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
 				try
 				{
-					MessageBox.ShowAdminAlert(null, body, title, ex);
+					await MessageBox.ShowAdminAlert(null, body, title, ex);
 				}
 				catch
 				{
-					MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					await MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 				return;
 			}
@@ -168,7 +168,7 @@ namespace LibationAvalonia
 			ShowMainWindow(desktop);
 		}
 
-		private static bool RunInstall(SetupDialog setupDialog)
+		private static async Task<bool> RunInstall(SetupDialog setupDialog)
 		{
 			var config = setupDialog.Config;
 
@@ -181,7 +181,7 @@ namespace LibationAvalonia
 
 				var libationFilesDialog = new LibationFilesDialog();
 
-				if (libationFilesDialog.ShowDialogSynchronously<DialogResult>(setupDialog) != DialogResult.OK)
+				if (await libationFilesDialog.ShowDialog<DialogResult>(setupDialog) != DialogResult.OK)
 					return false;
 
 				config.SetLibationFiles(libationFilesDialog.SelectedDirectory);
@@ -189,7 +189,7 @@ namespace LibationAvalonia
 					return true;
 
 				// path did not result in valid settings
-				var continueResult = MessageBox.Show(
+				var continueResult = await MessageBox.Show(
 					$"No valid settings were found at this location.\r\nWould you like to create a new install settings in this folder?\r\n\r\n{libationFilesDialog.SelectedDirectory}",
 					"New install?",
 					MessageBoxButtons.YesNo,
@@ -204,13 +204,13 @@ namespace LibationAvalonia
 			config.Books ??= Path.Combine(Configuration.UserProfile, "Books");
 
 			AppScaffolding.LibationScaffolding.PopulateMissingConfigValues(config);
-			return new SettingsDialog().ShowDialogSynchronously<DialogResult>(setupDialog) == DialogResult.OK
+			return await new SettingsDialog().ShowDialog<DialogResult>(setupDialog) == DialogResult.OK
 				&& config.LibationSettingsAreValid;
 		}
 
-		static void CancelInstallation()
+		static async Task CancelInstallation()
 		{
-			MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			await MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			Environment.Exit(0);
 		}
 

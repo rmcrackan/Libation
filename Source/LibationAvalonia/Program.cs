@@ -14,7 +14,7 @@ namespace LibationAvalonia
 	{
 		private static string EXE_DIR = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-		static async Task Main()
+		static void Main()
 		{
 			//***********************************************//
 			//                                               //
@@ -47,9 +47,7 @@ namespace LibationAvalonia
 				App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 			}
 
-
-
-			(await appBuilderTask).SetupWithLifetime(await classicLifetimeTask);
+			(appBuilderTask.GetAwaiter().GetResult()).SetupWithLifetime(classicLifetimeTask.GetAwaiter().GetResult());
 
 			classicLifetimeTask.Result.Start(null);
 		}

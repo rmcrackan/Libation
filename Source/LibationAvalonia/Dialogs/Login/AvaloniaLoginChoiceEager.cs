@@ -20,11 +20,11 @@ namespace LibationAvalonia.Dialogs.Login
 			LoginCallback = new AvaloniaLoginCallback(_account);
 		}
 
-		public ChoiceOut Start(ChoiceIn choiceIn)
+		public async Task<ChoiceOut> StartAsync(ChoiceIn choiceIn)
 		{
 			var dialog = new LoginChoiceEagerDialog(_account);
 
-			if (!ShowDialog(dialog))
+			if (!await ShowDialog(dialog))
 				return null;
 
 
@@ -33,15 +33,16 @@ namespace LibationAvalonia.Dialogs.Login
 				case LoginMethod.Api:
 					return ChoiceOut.WithApi(dialog.Account.AccountId, dialog.Password);
 				case LoginMethod.External:
-				{
-					var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
-					return ShowDialog(externalDialog)
-						? ChoiceOut.External(externalDialog.ResponseUrl)
-						: null;
-				}
+					{
+						var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
+						return await ShowDialog(externalDialog)
+							? ChoiceOut.External(externalDialog.ResponseUrl)
+							: null;
+					}
 				default:
 					throw new Exception($"Unknown {nameof(LoginMethod)} value");
 			}
 		}
+
 	}
 }

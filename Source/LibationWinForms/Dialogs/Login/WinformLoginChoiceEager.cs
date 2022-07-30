@@ -21,7 +21,7 @@ namespace LibationWinForms.Login
 			LoginCallback = new WinformLoginCallback(_account);
 		}
 
-		public ChoiceOut Start(ChoiceIn choiceIn)
+		public Task<ChoiceOut> StartAsync(ChoiceIn choiceIn)
 		{
 			using var dialog = new LoginChoiceEagerDialog(_account);
 
@@ -31,13 +31,14 @@ namespace LibationWinForms.Login
 			switch (dialog.LoginMethod)
 			{
 				case LoginMethod.Api:
-					return ChoiceOut.WithApi(dialog.Email, dialog.Password);
+					return Task.FromResult(ChoiceOut.WithApi(dialog.Email, dialog.Password));
 				case LoginMethod.External:
 				{
 					using var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
-					return ShowDialog(externalDialog)
-						? ChoiceOut.External(externalDialog.ResponseUrl)
-						: null;
+						return Task.FromResult(
+							ShowDialog(externalDialog)
+							? ChoiceOut.External(externalDialog.ResponseUrl)
+							: null);
 				}
 				default:
 					throw new Exception($"Unknown {nameof(LoginMethod)} value");

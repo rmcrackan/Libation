@@ -80,7 +80,7 @@ namespace LibationAvalonia.Views
 				if (string.IsNullOrEmpty(zipFile) || !System.IO.File.Exists(zipFile))
 					return;
 
-				var result = MessageBox.Show($"{upgradeProperties.HtmlUrl}\r\n\r\nWould you like to upgrade now?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+				var result = await MessageBox.Show($"{upgradeProperties.HtmlUrl}\r\n\r\nWould you like to upgrade now?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 
 				if (result != DialogResult.Yes)
 					return;

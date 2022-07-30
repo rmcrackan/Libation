@@ -82,7 +82,7 @@ namespace LibationAvalonia.Dialogs.Login
 			});
 			if (selected is null)
 			{
-				MessageBox.Show("No MFA option selected", "None selected", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show("No MFA option selected", "None selected", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 

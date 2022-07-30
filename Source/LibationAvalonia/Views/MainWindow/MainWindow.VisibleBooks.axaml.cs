@@ -47,7 +47,7 @@ namespace LibationAvalonia.Views
 
 			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
 
-			var confirmationResult = MessageBox.ShowConfirmationDialog(
+			var confirmationResult = await MessageBox.ShowConfirmationDialog(
 				this,
 				visibleLibraryBooks,
 				"Are you sure you want to replace tags in {0}?",
@@ -70,7 +70,7 @@ namespace LibationAvalonia.Views
 
 			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
 
-			var confirmationResult = MessageBox.ShowConfirmationDialog(
+			var confirmationResult = await MessageBox.ShowConfirmationDialog(
 				this,
 				visibleLibraryBooks,
 				"Are you sure you want to replace downloaded status in {0}?",
@@ -88,7 +88,7 @@ namespace LibationAvalonia.Views
 		{
 			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
 
-			var confirmationResult = MessageBox.ShowConfirmationDialog(
+			var confirmationResult = await MessageBox.ShowConfirmationDialog(
 				this,
 				visibleLibraryBooks,
 				"Are you sure you want to remove {0} from Libation's library?",

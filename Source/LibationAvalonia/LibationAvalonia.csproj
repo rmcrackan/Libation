@@ -81,8 +81,6 @@
     <None Remove="Assets\SEGOEUI.TTF" />
     <None Remove="Assets\up.png" />
     <None Remove="Assets\WINGDING.TTF" />
-    <None Remove="MessageBox.cs~RF105afb8d.TMP" />
-    <None Remove="Views\MainWindow\MainWindow.Export.axaml.cs~RF10732d95.TMP" />
   </ItemGroup>
 
   <ItemGroup>

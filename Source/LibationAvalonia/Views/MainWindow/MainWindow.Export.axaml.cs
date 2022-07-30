@@ -41,11 +41,11 @@ namespace LibationAvalonia.Views
 						break;
 				}
 
-				MessageBox.Show("Library exported to:\r\n" + fileName, "Library Exported");
+				await MessageBox.Show("Library exported to:\r\n" + fileName, "Library Exported");
 			}
 			catch (Exception ex)
 			{
-				MessageBox.ShowAdminAlert(this, "Error attempting to export your library.", "Error exporting", ex);
+				await MessageBox.ShowAdminAlert(this, "Error attempting to export your library.", "Error exporting", ex);
 			}
 		}
 	}
