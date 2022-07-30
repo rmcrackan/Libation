@@ -70,7 +70,7 @@ namespace LibationAvalonia.Views
 #if !DEBUG
 			//This is temporaty until we have a solution for linux/mac so that
 			//Libation doesn't download a zip every time it runs.
-			if (App.IsUnix)
+			if (!App.IsWindows)
 				return;
 
 			try
@@ -89,7 +89,11 @@ namespace LibationAvalonia.Views
 				{ 
 					runWindowsUpgrader(zipFile);
 				}
-				else if (App.IsUnix)
+				else if (App.IsLinux)
+				{
+
+				}
+				else if (App.IsMacOs)
 				{
 
 				}

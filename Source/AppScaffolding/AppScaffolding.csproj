@@ -11,6 +11,13 @@
     <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
     <ProjectReference Include="..\AudibleUtilities\AudibleUtilities.csproj" />
   </ItemGroup>
+
+	<PropertyGroup>
+		<DefineConstants Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' ">$(DefineConstants);WINDOWS</DefineConstants>
+		<DefineConstants Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">$(DefineConstants);LINUX</DefineConstants>
+		<DefineConstants Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' ">$(DefineConstants);MACOS</DefineConstants>
+	</PropertyGroup>
+	
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>

@@ -17,6 +17,7 @@ namespace AppScaffolding
 
 	public enum ReleaseIdentifier
 	{
+		None,
 		WindowsClassic,
 		WindowsAvalonia,
 		LinuxAvalonia,
@@ -289,13 +290,23 @@ namespace AppScaffolding
 			if (System.Diagnostics.Debugger.IsAttached)
 				mode += " (Debugger attached)";
 
+#if MACOS
+			var os = "MacOS";
+#elif LINUX
+			var os = "Linux";
+#else
+			var os = "Windows";
+#endif
+
+
 			// begin logging session with a form feed
 			Log.Logger.Information("\r\n\f");
 			Log.Logger.Information("Begin. {@DebugInfo}", new
 			{
 				AppName = EntryAssembly.GetName().Name,
-				ReleaseIdentifier = ReleaseIdentifier,
 				Version = BuildVersion.ToString(),
+				ReleaseIdentifier = ReleaseIdentifier,
+				OS = os,
 				Mode = mode,
 				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
 				LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
