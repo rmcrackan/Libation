@@ -68,9 +68,14 @@ namespace LibationAvalonia.Views
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
 #if !DEBUG
+			//This is temporaty until we have a solution for linux/mac so that
+			//Libation doesn't download a zip every time it runs.
+			if (App.IsUnix)
+				return;
+
 			try
 			{
-				(string zipFile, UpgradeProperties upgradeProperties) = await Task.Run(() => downloadUpdate(App.IsWindows ? LibationScaffolding.ReleaseIdentifier.WindowsAvalonia : LibationScaffolding.ReleaseIdentifier.LinuxAvalonia));
+				(string zipFile, UpgradeProperties upgradeProperties) = await Task.Run(() => downloadUpdate());
 
 				if (string.IsNullOrEmpty(zipFile) || !System.IO.File.Exists(zipFile))
 					return;
@@ -97,12 +102,12 @@ namespace LibationAvalonia.Views
 #endif
 		}
 
-		private async Task<(string zipFile, UpgradeProperties release)> downloadUpdate(LibationScaffolding.ReleaseIdentifier releaseID)
+		private async Task<(string zipFile, UpgradeProperties release)> downloadUpdate()
 		{
 			UpgradeProperties upgradeProperties;
 			try
 			{
-				upgradeProperties = LibationScaffolding.GetLatestRelease(releaseID);
+				upgradeProperties = LibationScaffolding.GetLatestRelease();
 				if (upgradeProperties is null)
 					return (null,null);
 			}
