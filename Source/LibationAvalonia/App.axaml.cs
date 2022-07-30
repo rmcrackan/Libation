@@ -17,16 +17,12 @@ namespace LibationAvalonia
 {
 	public class App : Application
 	{
-		public static readonly bool IsWindows;
-		public static readonly bool IsLinux;
-		public static readonly bool IsMacOs;
-		static App()
-		{
-			IsWindows = OperatingSystem.IsWindows();
-			IsLinux = OperatingSystem.IsLinux();
-			IsMacOs = OperatingSystem.IsMacOS();
-		}
+		public static bool IsWindows => PlatformID is PlatformID.Win32NT;
 
+		//This is true for both linux and mac. We'll need a way to distinguish between those two after we get mac to actually run.
+		public static bool IsUnix => PlatformID is PlatformID.Unix;
+
+		public static readonly PlatformID PlatformID = Environment.OSVersion.Platform;
 		public static IBrush ProcessQueueBookFailedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCompletedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
@@ -35,20 +31,20 @@ namespace LibationAvalonia
 
 		public static IAssetLoader AssetLoader { get; private set; }
 
-		public static readonly Uri AssetUriBase = new("avares://Libation/Assets/");
+		public static readonly Uri AssetUriBase = new Uri("avares://Libation/Assets/");
 		public static Stream OpenAsset(string assetRelativePath)
 			=> AssetLoader.Open(new Uri(AssetUriBase, assetRelativePath));
 
 
 		public static bool GoToFile(string path)
-			=> IsWindows ? Go.To.File(path)
+			=> PlatformID is PlatformID.Win32NT ? Go.To.File(path)
 			: GoToFolder(path is null ? string.Empty : Path.GetDirectoryName(path));
 
 		public static bool GoToFolder(string path)
 		{
-			if (IsWindows)
+			if (PlatformID is PlatformID.Win32NT)
 				return Go.To.Folder(path);
-			else if (IsLinux)
+			else
 			{
 				var startInfo = new System.Diagnostics.ProcessStartInfo()
 				{
@@ -62,8 +58,6 @@ namespace LibationAvalonia
 				System.Diagnostics.Process.Start(startInfo);
 				return true;
 			}
-			//Don't know how to do this for mac yet
-			else return true;
 		}
 
 		public override void Initialize()
