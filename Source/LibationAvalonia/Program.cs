@@ -32,8 +32,11 @@ namespace LibationAvalonia
 
 			if (App.IsWindows)
 				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.WindowsAvalonia);
-			else if (App.IsUnix)
+			else if (App.IsLinux)
 				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.LinuxAvalonia);
+			else if (App.IsMacOs)
+				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.MacOSAvalonia);
+			else return;
 
 
 			if (!App.SetupRequired)
