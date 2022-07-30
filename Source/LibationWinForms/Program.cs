@@ -30,6 +30,8 @@ namespace LibationWinForms
 
 				ApplicationConfiguration.Initialize();
 
+				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.WindowsClassic);
+
 				//***********************************************//
 				//                                               //
 				//   do not use Configuration before this line   //
@@ -170,7 +172,7 @@ namespace LibationWinForms
 
 			try
 			{
-				upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease(AppScaffolding.LibationScaffolding.ReleaseIdentifier.WindowsClassic);
+				upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease();
 				if (upgradeProperties is null)
 					return;
 			}

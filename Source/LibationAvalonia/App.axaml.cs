@@ -18,6 +18,8 @@ namespace LibationAvalonia
 	public class App : Application
 	{
 		public static bool IsWindows => PlatformID is PlatformID.Win32NT;
+
+		//This is trye for both linux and mac. We'll need a way to dintinguis between those two after we get mac to actually run.
 		public static bool IsUnix => PlatformID is PlatformID.Unix;
 
 		public static readonly PlatformID PlatformID = Environment.OSVersion.Platform;
