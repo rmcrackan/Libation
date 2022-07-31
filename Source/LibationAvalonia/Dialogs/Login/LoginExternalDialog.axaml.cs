@@ -51,7 +51,7 @@ namespace LibationAvalonia.Dialogs.Login
 			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new { ResponseUrl });
 			if (!Uri.TryCreate(ResponseUrl, UriKind.Absolute, out var result))
 			{
-				MessageBox.Show("Invalid response URL");
+				await MessageBox.Show("Invalid response URL");
 				return;
 			}
 			await base.SaveAndCloseAsync();

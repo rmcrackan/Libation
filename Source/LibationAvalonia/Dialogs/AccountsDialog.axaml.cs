@@ -136,7 +136,7 @@ namespace LibationAvalonia.Dialogs
 
 				if (persister.AccountsSettings.Accounts.Any(a => a.AccountId == account.AccountId && a.IdentityTokens.Locale.Name == account.Locale.Name))
 				{
-					MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale.Name}", "Cannot Add Duplicate Account");
+					await MessageBox.Show(this, $"An account with that account id and country already exists.\r\n\r\nAccount ID: {account.AccountId}\r\nCountry: {account.Locale.Name}", "Cannot Add Duplicate Account");
 					return;
 				}
 
@@ -146,7 +146,7 @@ namespace LibationAvalonia.Dialogs
 			}
 			catch (Exception ex)
 			{
-				MessageBox.ShowAdminAlert(
+				await MessageBox.ShowAdminAlert(
 						this,
 						$"An error occurred while importing an account from:\r\n{filePath[0]}\r\n\r\nIs the file encrypted?",
 						"Error Importing Account",
@@ -160,11 +160,11 @@ namespace LibationAvalonia.Dialogs
 				Export(acc);
 		}
 
-		protected override void SaveAndClose()
+		protected override async Task SaveAndCloseAsync()
 		{
 			try
 			{
-				if (!inputIsValid())
+				if (!await inputIsValid())
 					return;
 
 				// without transaction, accounts persister will write ANY EDIT immediately to file
@@ -178,7 +178,7 @@ namespace LibationAvalonia.Dialogs
 			}
 			catch (Exception ex)
 			{
-				MessageBox.ShowAdminAlert(this, "Error attempting to save accounts", "Error saving accounts", ex);
+				await MessageBox.ShowAdminAlert(this, "Error attempting to save accounts", "Error saving accounts", ex);
 			}
 		}
 
@@ -221,7 +221,7 @@ namespace LibationAvalonia.Dialogs
 					: dto.AccountName.Trim();
 			}
 		}
-		private bool inputIsValid()
+		private async Task<bool> inputIsValid()
 		{
 			foreach (var dto in Accounts.ToList())
 			{
@@ -233,13 +233,13 @@ namespace LibationAvalonia.Dialogs
 
 				if (string.IsNullOrWhiteSpace(dto.AccountId))
 				{
-					MessageBox.Show(this, "Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					await MessageBox.Show(this, "Account id cannot be blank. Please enter an account id for all accounts.", "Blank account", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return false;
 				}
 
 				if (string.IsNullOrWhiteSpace(dto.SelectedLocale?.Name))
 				{
-					MessageBox.Show(this, "Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					await MessageBox.Show(this, "Please select a locale (i.e.: country or region) for all accounts.", "Blank region", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return false;
 				}
 			}
@@ -259,7 +259,7 @@ namespace LibationAvalonia.Dialogs
 
 			if (account.IdentityTokens?.IsValid != true)
 			{
-				MessageBox.Show(this, "This account hasn't been authenticated yet. First scan your library to log into your account, then try exporting again.", "Account Not Authenticated");
+				await MessageBox.Show(this, "This account hasn't been authenticated yet. First scan your library to log into your account, then try exporting again.", "Account Not Authenticated");
 				return;
 			}
 
@@ -282,11 +282,11 @@ namespace LibationAvalonia.Dialogs
 
 				File.WriteAllText(fileName, jsonText);
 
-				MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{fileName}", "Success!");
+				await MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{fileName}", "Success!");
 			}
 			catch (Exception ex)
 			{
-				MessageBox.ShowAdminAlert(
+				await MessageBox.ShowAdminAlert(
 					this,
 					$"An error occurred while exporting account:\r\n{account.AccountName}",
 					"Error Exporting Account",

@@ -26,7 +26,7 @@ namespace LibationAvalonia.Views
 
 		public async void noAccountsYetAddAccountToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			MessageBox.Show("To load your Audible library, come back here to the Import menu after adding your account");
+			await MessageBox.Show("To load your Audible library, come back here to the Import menu after adding your account");
 			await new Dialogs.AccountsDialog().ShowDialog(this);
 		}
 
@@ -66,11 +66,11 @@ namespace LibationAvalonia.Views
 
 				// this is here instead of ScanEnd so that the following is only possible when it's user-initiated, not automatic loop
 				if (Configuration.Instance.ShowImportedStats && newAdded > 0)
-					MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
+					await MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
 			}
 			catch (Exception ex)
 			{
-				MessageBox.ShowAdminAlert(
+				await MessageBox.ShowAdminAlert(
 					this,
 					"Error importing library. Please try again. If this still happens after 2 or 3 tries, stop and contact administrator",
 					"Error importing library",

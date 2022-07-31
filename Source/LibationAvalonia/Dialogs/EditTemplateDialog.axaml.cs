@@ -64,7 +64,7 @@ namespace LibationAvalonia.Dialogs
 		}
 		protected override async Task SaveAndCloseAsync()
 		{
-			if (!_viewModel.Validate())
+			if (!await _viewModel.Validate())
 				return;
 
 			TemplateText = _viewModel.workingTemplateText;
@@ -115,7 +115,7 @@ namespace LibationAvalonia.Dialogs
 
 			public void resetTextBox(string value) => workingTemplateText = value;
 
-			public bool Validate()
+			public async Task<bool> Validate()
 			{
 				if (template.IsValid(workingTemplateText))
 					return true;
@@ -123,7 +123,7 @@ namespace LibationAvalonia.Dialogs
 					.GetErrors(workingTemplateText)
 					.Select(err => $"- {err}")
 					.Aggregate((a, b) => $"{a}\r\n{b}");
-				MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return false;
 			}
 

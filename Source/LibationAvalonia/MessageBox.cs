@@ -62,34 +62,34 @@ namespace LibationAvalonia
 	public class MessageBox
 	{
 
-		public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
+		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 			=> ShowCoreAsync(null, text, caption, buttons, icon, defaultButton);
-public static DialogResult Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, bool saveAndRestorePosition = true)
+public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, bool saveAndRestorePosition = true)
 			=> ShowCoreAsync(null, text, caption, buttons, icon, MessageBoxDefaultButton.Button1, saveAndRestorePosition);
-public static DialogResult Show(string text, string caption, MessageBoxButtons buttons)
+public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons)
 			=> ShowCoreAsync(null, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-	public static DialogResult Show(string text, string caption)
+	public static Task<DialogResult> Show(string text, string caption)
 			=> ShowCoreAsync(null, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-	public static DialogResult Show(string text)
+	public static Task<DialogResult> Show(string text)
 			=> ShowCoreAsync(null, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-public static DialogResult Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
+public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 			=> ShowCoreAsync(owner, text, caption, buttons, icon, defaultButton);
 
-public static DialogResult Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
+public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
 			=> ShowCoreAsync(owner, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
-	public static DialogResult Show(Window owner, string text, string caption, MessageBoxButtons buttons)
+	public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons)
 			=> ShowCoreAsync(owner, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-	public static DialogResult Show(Window owner, string text, string caption)
+	public static Task<DialogResult> Show(Window owner, string text, string caption)
 			=> ShowCoreAsync(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		public static DialogResult Show(Window owner, string text)
+		public static Task<DialogResult> Show(Window owner, string text)
 			=> ShowCoreAsync(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
 
-		public static void VerboseLoggingWarning_ShowIfTrue()
+		public static async Task VerboseLoggingWarning_ShowIfTrue()
 		{
 			// when turning on debug (and especially Verbose) to share logs, some privacy settings may not be obscured
 			if (Serilog.Log.Logger.IsVerboseEnabled())
-				Show(@"
+				await Show(@"
 Warning: verbose logging is enabled.
 
 This should be used for debugging only. It creates many
@@ -102,7 +102,7 @@ Libation.
 ".Trim(), "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
-		public static DialogResult ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
+		public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
 		{
 			if (libraryBooks is null || !libraryBooks.Any())
 				return DialogResult.Cancel;
@@ -117,7 +117,7 @@ Libation.
 				= string.Format(format, $"{thisThese} {count} {bookBooks}")
 				+ $"\r\n\r\n{titlesAgg}";
 
-			return ShowCoreAsync(owner, 
+			return await ShowCoreAsync(owner, 
 				message,
 				title,
 				MessageBoxButtons.YesNo,
@@ -132,7 +132,7 @@ Libation.
 		/// <param name="text">The text to display in the message box.</param>
 		/// <param name="caption">The text to display in the title bar of the message box.</param>
 		/// <param name="exception">Exception to log.</param>
-		public static void ShowAdminAlert(Window owner, string text, string caption, Exception exception)
+		public static async Task ShowAdminAlert(Window owner, string text, string caption, Exception exception)
 		{
 			// for development and debugging, show me what broke!
 			if (System.Diagnostics.Debugger.IsAttached)
@@ -146,14 +146,14 @@ Libation.
 
 			var form = new MessageBoxAlertAdminDialog(text, caption, exception);
 
-			DisplayWindow(form, owner);
+			await DisplayWindow(form, owner);
 		}
 
-		private static DialogResult ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
+		private static async Task<DialogResult> ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{
-			var dialog = Dispatcher.UIThread.Invoke(() => CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition));
+			var dialog = await Dispatcher.UIThread.InvokeAsync(() => CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition));
 
-			return DisplayWindow(dialog, owner);
+			return await DisplayWindow(dialog, owner);
 		}
 
 		private static MessageBoxWindow CreateMessageBox(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
@@ -192,13 +192,13 @@ Libation.
 			dialog.Width = dialog.MinWidth;
 			return dialog;
 		}
-		private static DialogResult DisplayWindow(Window toDisplay, Window owner)
+		private static async Task<DialogResult> DisplayWindow(Window toDisplay, Window owner)
 		{
 			if (owner is null)
 			{
 				if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 				{
-					return toDisplay.ShowDialogSynchronously<DialogResult>(desktop.MainWindow);
+					return await toDisplay.ShowDialog<DialogResult>(desktop.MainWindow);
 				}
 				else
 				{
@@ -212,7 +212,7 @@ Libation.
 					};
 
 					window.Show();
-					var result = toDisplay.ShowDialogSynchronously<DialogResult>(window);
+					var result = await toDisplay.ShowDialog<DialogResult>(window);
 					window.Close();
 					return result;
 				}
@@ -220,7 +220,7 @@ Libation.
 			}
 			else
 			{
-				return toDisplay.ShowDialogSynchronously<DialogResult>(owner);
+				return await toDisplay.ShowDialog<DialogResult>(owner);
 			}
 		}
 

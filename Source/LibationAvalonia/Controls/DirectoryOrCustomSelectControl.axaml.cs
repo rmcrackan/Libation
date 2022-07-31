@@ -38,6 +38,7 @@ namespace LibationAvalonia.Controls
 			set => SetValue(SubDirectoryProperty, value);
 		}
 		CustomState customStates = new();
+
 		public DirectoryOrCustomSelectControl()
 		{
 			InitializeComponent();
@@ -53,9 +54,8 @@ namespace LibationAvalonia.Controls
 			customDirBrowseBtn.Click += CustomDirBrowseBtn_Click;
 			PropertyChanged += DirectoryOrCustomSelectControl_PropertyChanged;
 			directorySelectControl.PropertyChanged += DirectorySelectControl_PropertyChanged;
-			
-
 		}
+
 		private class CustomState: ViewModels.ViewModelBase
 		{
 			private string _customDir;
@@ -116,12 +116,13 @@ namespace LibationAvalonia.Controls
 
 		private void setDirectory()
 		{
-			var path1
+			var selectedDir
 				= customStates.CustomChecked ? customStates.CustomDir
 					: directorySelectControl.SelectedDirectory is Configuration.KnownDirectories.AppDir ? Configuration.AppDir_Absolute
 					: Configuration.GetKnownDirectoryPath(directorySelectControl.SelectedDirectory);
-			Directory
-					= System.IO.Path.Combine(path1 ?? string.Empty, SubDirectory);
+			selectedDir ??= string.Empty;
+
+			Directory = customStates.CustomChecked ? selectedDir : System.IO.Path.Combine(selectedDir, SubDirectory);
 		}
 
 
@@ -140,7 +141,7 @@ namespace LibationAvalonia.Controls
 				if (known is Configuration.KnownDirectories.None)
 				{
 					customStates.CustomChecked = true;
-					customStates.CustomDir = noSubDir;
+					customStates.CustomDir = directory;
 				}
 				else
 				{

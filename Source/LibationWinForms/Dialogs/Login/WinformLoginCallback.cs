@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AudibleApi;
 using AudibleUtilities;
 using LibationWinForms.Dialogs.Login;
@@ -14,42 +15,43 @@ namespace LibationWinForms.Login
 			_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
 		}
 
-		public string Get2faCode()
+		public Task<string> Get2faCodeAsync()
 		{
 			using var dialog = new _2faCodeDialog();
 			if (ShowDialog(dialog))
-				return dialog.Code;
-			return null;
+				return Task.FromResult(dialog.Code);
+			return Task.FromResult<string>(null);
 		}
 
-		public string GetCaptchaAnswer(byte[] captchaImage)
+		public Task<string> GetCaptchaAnswerAsync(byte[] captchaImage)
 		{
 			using var dialog = new CaptchaDialog(captchaImage);
 			if (ShowDialog(dialog))
-				return dialog.Answer;
-			return null;
+				return Task.FromResult(dialog.Answer);
+			return Task.FromResult<string>(null);
 		}
 
-		public (string name, string value) GetMfaChoice(MfaConfig mfaConfig)
+		public Task<(string name, string value)> GetMfaChoiceAsync(MfaConfig mfaConfig)
 		{
 			using var dialog = new MfaDialog(mfaConfig);
 			if (ShowDialog(dialog))
-				return (dialog.SelectedName, dialog.SelectedValue);
-			return (null, null);
+				return Task.FromResult((dialog.SelectedName, dialog.SelectedValue));
+			return Task.FromResult<(string, string)>((null, null));
 		}
 
-		public (string email, string password) GetLogin()
+		public Task<(string email, string password)> GetLoginAsync()
 		{
 			using var dialog = new LoginCallbackDialog(_account);
 			if (ShowDialog(dialog))
-				return (dialog.Email, dialog.Password);
-			return (null, null);
+				return Task.FromResult((dialog.Email, dialog.Password));
+			return Task.FromResult<(string, string)>((null, null));
 		}
 
-		public void ShowApprovalNeeded()
+		public Task ShowApprovalNeededAsync()
 		{
 			using var dialog = new ApprovalNeededDialog();
 			ShowDialog(dialog);
+			return Task.CompletedTask;
 		}
 	}
 }

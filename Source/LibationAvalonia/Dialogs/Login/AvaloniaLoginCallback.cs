@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AudibleApi;
 using AudibleUtilities;
 
@@ -13,43 +14,43 @@ namespace LibationAvalonia.Dialogs.Login
 			_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
 		}
 
-		public string Get2faCode()
+		public async Task<string> Get2faCodeAsync()
 		{
 			var dialog = new _2faCodeDialog();
-			if (ShowDialog(dialog))
+			if (await ShowDialog(dialog))
 				return dialog.Code;
 
 			return null;
 		}
 
-		public string GetCaptchaAnswer(byte[] captchaImage)
+		public async Task<string> GetCaptchaAnswerAsync(byte[] captchaImage)
 		{
 			var dialog = new CaptchaDialog(captchaImage);
-			if (ShowDialog(dialog))
+			if (await ShowDialog(dialog))
 				return dialog.Answer;
 			return null;
 		}
 
-		public (string name, string value) GetMfaChoice(MfaConfig mfaConfig)
+		public async Task<(string name, string value)> GetMfaChoiceAsync(MfaConfig mfaConfig)
 		{
 			var dialog = new MfaDialog(mfaConfig);
-			if (ShowDialog(dialog))
+			if (await ShowDialog(dialog))
 				return (dialog.SelectedName, dialog.SelectedValue);
 			return (null, null);
 		}
 
-		public (string email, string password) GetLogin()
+		public async Task<(string email, string password)> GetLoginAsync()
 		{
 			var dialog = new LoginCallbackDialog(_account);
-			if (ShowDialog(dialog))
+			if (await ShowDialog(dialog))
 				return (_account.AccountId, dialog.Password);
 			return (null, null);
 		}
 
-		public void ShowApprovalNeeded()
+		public async Task ShowApprovalNeededAsync()
 		{
 			var dialog = new ApprovalNeededDialog();
-			ShowDialog(dialog);
+			await ShowDialog(dialog);
 		}
 	}
 }

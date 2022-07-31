@@ -9,6 +9,7 @@ using LibationFileManager;
 using DataLayer;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AppScaffolding;
 
 namespace LibationAvalonia.Views
 {
@@ -53,7 +54,7 @@ namespace LibationAvalonia.Views
 				this.LibraryLoaded += MainWindow_LibraryLoaded;
 
 				LibraryCommands.LibrarySizeChanged += async (_, _) => await _viewModel.ProductsDisplay.DisplayBooks(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-				Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
+				Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
 			Opened += MainWindow_Opened;
 			Closing += MainWindow_Closing;
@@ -67,50 +68,72 @@ namespace LibationAvalonia.Views
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
 #if !DEBUG
-			if (App.IsWindows)
+			//This is temporaty until we have a solution for linux/mac so that
+			//Libation doesn't download a zip every time it runs.
+			if (!App.IsWindows)
+				return;
+
+			try
 			{
-				try
-				{
-					await Task.Run(checkForAndDownloadUpdate);
-				}
-				catch(Exception ex)
-				{
-					Serilog.Log.Logger.Error(ex, "An error occured while checking for app updates.");
+				(string zipFile, UpgradeProperties upgradeProperties) = await Task.Run(() => downloadUpdate());
+
+				if (string.IsNullOrEmpty(zipFile) || !System.IO.File.Exists(zipFile))
 					return;
+
+				var result = await MessageBox.Show($"{upgradeProperties.HtmlUrl}\r\n\r\nWould you like to upgrade now?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+
+				if (result != DialogResult.Yes)
+					return;
+
+				if (App.IsWindows)
+				{ 
+					runWindowsUpgrader(zipFile);
 				}
+				else if (App.IsLinux)
+				{
+
+				}
+				else if (App.IsMacOs)
+				{
+
+				}
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error occured while checking for app updates.");
+				return;
 			}
 #endif
 		}
 
-		private async Task checkForAndDownloadUpdate()
+		private async Task<(string zipFile, UpgradeProperties release)> downloadUpdate()
 		{
-			AppScaffolding.UpgradeProperties upgradeProperties;
+			UpgradeProperties upgradeProperties;
 			try
 			{
-				upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease(AppScaffolding.LibationScaffolding.ReleaseIdentifier.WindowsAvalonia);
-
+				upgradeProperties = LibationScaffolding.GetLatestRelease();
 				if (upgradeProperties is null)
-					return;
+					return (null,null);
 			}
 			catch (Exception ex)
 			{
 				Serilog.Log.Logger.Error(ex, "Failed to check for update");
-				return;
+				return (null, null);
 			}
 
 			if (upgradeProperties.ZipUrl is null)
 			{
 				Serilog.Log.Logger.Information("Download link for new version not found");
-				return;
+				return (null, null);
 			}
 
 			//Silently download the update in the background, save it to a temp file.
 
-			var zipPath = System.IO.Path.GetTempFileName();
+			var zipFile = System.IO.Path.GetTempFileName();
 			try
 			{
 				System.Net.Http.HttpClient cli = new();
-				using (var fs = System.IO.File.OpenWrite(zipPath))
+				using (var fs = System.IO.File.OpenWrite(zipFile))
 				{
 					using (var dlStream = await cli.GetStreamAsync(new Uri(upgradeProperties.ZipUrl)))
 						await dlStream.CopyToAsync(fs);
@@ -119,18 +142,18 @@ namespace LibationAvalonia.Views
 			catch (Exception ex)
 			{
 				Serilog.Log.Logger.Error(ex, "Failed to download the update: {pdate}", upgradeProperties.ZipUrl);
-				return;
+				return (null, null);
 			}
+			return (zipFile, upgradeProperties);
+		}
 
-			var result = MessageBox.Show($"{upgradeProperties.HtmlUrl}\r\n\r\nWould you like to upgrade now?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-
-			if (result != DialogResult.Yes)
-				return;
+		private void runWindowsUpgrader(string zipFile)
+		{
 
 			var thisExe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
 			var thisDir = System.IO.Path.GetDirectoryName(thisExe);
 
-			var args = $"--input {zipPath} --output {thisDir} --executable {thisExe}";
+			var args = $"--input {zipFile} --output {thisDir} --executable {thisExe}";
 
 			var zipExtractor = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ZipExtractor.exe");
 
@@ -147,7 +170,7 @@ namespace LibationAvalonia.Views
 			};
 
 			System.Diagnostics.Process.Start(psi);
-			Environment.Exit(0);		
+			Environment.Exit(0);
 		}
 
 		public void ProductsDisplay_Initialized1(object sender, EventArgs e)

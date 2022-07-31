@@ -14,8 +14,23 @@ using Serilog;
 
 namespace AppScaffolding
 {
+
+	public enum ReleaseIdentifier
+	{
+		None,
+		WindowsClassic,
+		WindowsAvalonia,
+		LinuxAvalonia,
+		MacOSAvalonia
+	}
+
 	public static class LibationScaffolding
 	{
+		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
+
+		public static void SetReleaseIdentifier(ReleaseIdentifier releaseID)
+			=> ReleaseIdentifier = releaseID;
+
 		// AppScaffolding
 		private static Assembly _executingAssembly;
 		private static Assembly ExecutingAssembly
@@ -275,12 +290,23 @@ namespace AppScaffolding
 			if (System.Diagnostics.Debugger.IsAttached)
 				mode += " (Debugger attached)";
 
+#if MACOS
+			var os = "MacOS";
+#elif LINUX
+			var os = "Linux";
+#else
+			var os = "Windows";
+#endif
+
+
 			// begin logging session with a form feed
 			Log.Logger.Information("\r\n\f");
 			Log.Logger.Information("Begin. {@DebugInfo}", new
 			{
 				AppName = EntryAssembly.GetName().Name,
 				Version = BuildVersion.ToString(),
+				ReleaseIdentifier = ReleaseIdentifier,
+				OS = os,
 				Mode = mode,
 				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
 				LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
@@ -309,18 +335,10 @@ namespace AppScaffolding
 			LibraryCommands.BookUserDefinedItemCommitted += (_, books) => SearchEngineCommands.UpdateBooks(books);
 		}
 
-		public enum ReleaseIdentifier
-		{
-			WindowsClassic,
-			WindowsAvalonia,
-			LinuxAvalonia,
-			MacOSAvalonia
-		}
-
-		public static UpgradeProperties GetLatestRelease(ReleaseIdentifier releaseID = ReleaseIdentifier.WindowsClassic)
+		public static UpgradeProperties GetLatestRelease()
 		{
 			// timed out
-			(var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10), releaseID);
+			(var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10));
 
 			if (latest is null || zip is null)
 				return null;
@@ -346,11 +364,11 @@ namespace AppScaffolding
 
 			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease);
 		}
-		private static (Octokit.Release, Octokit.ReleaseAsset) getLatestRelease(TimeSpan timeout, ReleaseIdentifier releaseID)
+		private static (Octokit.Release, Octokit.ReleaseAsset) getLatestRelease(TimeSpan timeout)
 		{
 			try
 			{
-				var task = getLatestRelease(releaseID);
+				var task = getLatestRelease();
 				if (task.Wait(timeout))
 					return task.Result;
 
@@ -362,7 +380,7 @@ namespace AppScaffolding
 			}
 			return (null, null);
 		}
-		private static async System.Threading.Tasks.Task<(Octokit.Release, Octokit.ReleaseAsset)> getLatestRelease(ReleaseIdentifier releaseID)
+		private static async System.Threading.Tasks.Task<(Octokit.Release, Octokit.ReleaseAsset)> getLatestRelease()
 		{
 			var ownerAccount = "rmcrackan";
 			var repoName = "Libation";
@@ -372,7 +390,7 @@ namespace AppScaffolding
 			//Download the release index
 			var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
 			var releaseIndex = JObject.Parse(System.Text.Encoding.ASCII.GetString(bts));
-			var regexPattern = releaseIndex.Value<string>(releaseID.ToString());
+			var regexPattern = releaseIndex.Value<string>(ReleaseIdentifier.ToString());
 
 			// https://octokitnet.readthedocs.io/en/latest/releases/
 			var releases = await gitHubClient.Repository.Release.GetAll(ownerAccount, repoName);

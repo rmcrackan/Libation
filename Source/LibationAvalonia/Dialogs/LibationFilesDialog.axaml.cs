@@ -33,14 +33,14 @@ namespace LibationAvalonia.Dialogs
 			DataContext = dirSelectOptions = new();
 		}
 
-		public void SaveButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void SaveButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 
 			var libationDir = dirSelectOptions.Directory;
 
 			if (!System.IO.Directory.Exists(libationDir))
 			{
-				MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationDir, "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error, saveAndRestorePosition: false);
+				await MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationDir, "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error, saveAndRestorePosition: false);
 				return;
 			}
 

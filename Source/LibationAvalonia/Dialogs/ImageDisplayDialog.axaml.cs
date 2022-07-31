@@ -51,7 +51,7 @@ namespace LibationAvalonia.Dialogs
 			saveFileDialog.Filters.Add(new FileDialogFilter { Name = "Jpeg", Extensions = new System.Collections.Generic.List<string>() { "jpg" } });
 			saveFileDialog.InitialFileName = PictureFileName;
 			saveFileDialog.Directory
-				= App.IsUnix ? null
+				= !App.IsWindows ? null
 				: Directory.Exists(BookSaveDirectory) ? BookSaveDirectory
 				: Path.GetDirectoryName(BookSaveDirectory);
 
@@ -67,7 +67,7 @@ namespace LibationAvalonia.Dialogs
 			catch (Exception ex)
 			{
 				Serilog.Log.Logger.Error(ex, $"Failed to save picture to {fileName}");
-				MessageBox.Show(this, $"An error was encountered while trying to save the picture\r\n\r\n{ex.Message}", "Failed to save picture", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+				await MessageBox.Show(this, $"An error was encountered while trying to save the picture\r\n\r\n{ex.Message}", "Failed to save picture", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 			}
 		}
 

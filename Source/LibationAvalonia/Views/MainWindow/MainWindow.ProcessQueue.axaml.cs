@@ -15,7 +15,7 @@ namespace LibationAvalonia.Views
 			SetQueueCollapseState(collapseState);
 		}
 
-		public void ProductsDisplay_LiberateClicked(object sender, LibraryBook libraryBook)
+		public async void ProductsDisplay_LiberateClicked(object sender, LibraryBook libraryBook)
 		{
 			try
 			{
@@ -39,7 +39,7 @@ namespace LibationAvalonia.Views
 					if (!App.GoToFile(filePath?.ShortPathName))
 					{
 						var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-						MessageBox.Show($"File not found" + suffix);
+						await MessageBox.Show($"File not found" + suffix);
 					}
 				}
 			}

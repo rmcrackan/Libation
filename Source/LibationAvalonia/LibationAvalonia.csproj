@@ -10,6 +10,8 @@
 		<ApplicationIcon>libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
 
+		<IsPublishable>true</IsPublishable>
+
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
@@ -81,8 +83,6 @@
     <None Remove="Assets\SEGOEUI.TTF" />
     <None Remove="Assets\up.png" />
     <None Remove="Assets\WINGDING.TTF" />
-    <None Remove="MessageBox.cs~RF105afb8d.TMP" />
-    <None Remove="Views\MainWindow\MainWindow.Export.axaml.cs~RF10732d95.TMP" />
   </ItemGroup>
 
   <ItemGroup>
@@ -143,5 +143,13 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+
+	<Target Name="SpicNSpan"  AfterTargets="Clean">
+		<!-- Remove obj folder -->
+		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+		<!-- Remove bin folder -->
+		<RemoveDir Directories="$(BaseOutputPath)" />
+	</Target>
 
 </Project>

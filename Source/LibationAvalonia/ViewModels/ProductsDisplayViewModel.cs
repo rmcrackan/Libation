@@ -244,7 +244,7 @@ namespace LibationAvalonia.ViewModels
 				return;
 
 			var libraryBooks = selectedBooks.Select(rge => rge.LibraryBook).ToList();
-			var result = MessageBox.ShowConfirmationDialog(
+			var result = await MessageBox.ShowConfirmationDialog(
 				null,
 				libraryBooks,
 				$"Are you sure you want to remove {selectedBooks.Count} books from Libation's library?",
@@ -317,7 +317,7 @@ namespace LibationAvalonia.ViewModels
 			}
 			catch (Exception ex)
 			{
-				MessageBox.ShowAdminAlert(
+				await MessageBox.ShowAdminAlert(
 					null,
 					"Error scanning library. You may still manually select books to remove from Libation's library.",
 					"Error scanning library",
