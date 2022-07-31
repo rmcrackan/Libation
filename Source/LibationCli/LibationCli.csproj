@@ -1,26 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <IsPublishable>True</IsPublishable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+		<IsPublishable>True</IsPublishable>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <!--
+	<PropertyGroup>
+		<!--
     HACK FOR COMPILER BUG  2021-09-14. Hopefully will be fixed in future versions
     - Not using SatelliteResourceLanguages will load all language packs: works
     - Specifying 'en' semicolon 1 more should load 1 language pack: works
     - Specifying only 'en' should load no language packs: broken, still loads all
     -->
-    <SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
-  </PropertyGroup>
+		<SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
+	</PropertyGroup>
 
-  <!--
+	<!--
   When LibationWinForms and LibationCli output to the same dir, LibationCli must build before LibationWinForms
 
   VS > rt-clk solution > Properties
@@ -29,25 +29,32 @@
   bottom: manually check LibationCli
 
   edit debug and release output paths
-  -->	
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <OutputPath>..\bin\Debug</OutputPath>
-	  <DebugType>embedded</DebugType>
-  </PropertyGroup>
+  -->
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath>..\bin\Debug</OutputPath>
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <OutputPath>..\bin\Release</OutputPath>
-	  <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\bin\Release</OutputPath>
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommandLineParser" Version="2.9.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-	  <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
-    <ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
-    <ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
-  </ItemGroup>
+	<Target Name="SpicNSpan"  AfterTargets="Clean">
+		<!-- Remove obj folder -->
+		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+		<!-- Remove bin folder -->
+		<RemoveDir Directories="$(BaseOutputPath)" />
+	</Target>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
+		<ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
+		<ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
+	</ItemGroup>
 
 </Project>

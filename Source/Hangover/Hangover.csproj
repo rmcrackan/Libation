@@ -6,6 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>hangover.ico</ApplicationIcon>
     <ImplicitUsings>enable</ImplicitUsings>
+	<IsPublishable>true</IsPublishable>
     <PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -53,5 +54,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
   </ItemGroup>
+
+	<Target Name="SpicNSpan"  AfterTargets="Clean">
+		<!-- Remove obj folder -->
+		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+		<!-- Remove bin folder -->
+		<RemoveDir Directories="$(BaseOutputPath)" />
+	</Target>
 
 </Project>

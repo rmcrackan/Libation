@@ -1,91 +1,99 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>libation.ico</ApplicationIcon>
-    <AssemblyName>Libation</AssemblyName>
-	  
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <StartupObject />
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ApplicationIcon>libation.ico</ApplicationIcon>
+		<AssemblyName>Libation</AssemblyName>
 
-    <!-- Version is now in AppScaffolding.csproj -->
-  </PropertyGroup>
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+		<StartupObject />
+		<IsPublishable>true</IsPublishable>
+		<!-- Version is now in AppScaffolding.csproj -->
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <!--
+	<PropertyGroup>
+		<!--
     HACK FOR COMPILER BUG  2021-09-14. Hopefully will be fixed in future versions
     - Not using SatelliteResourceLanguages will load all language packs: works
     - Specifying 'en' semicolon 1 more should load 1 language pack: works
     - Specifying only 'en' should load no language packs: broken, still loads all
     -->
-    <SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
-  </PropertyGroup>
+		<SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <OutputPath>..\bin\Debug</OutputPath>
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath>..\bin\Debug</OutputPath>
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <OutputPath>..\bin\Release</OutputPath>
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
-	
-<ItemGroup>
-    <None Remove=".gitignore" />
-  </ItemGroup>
-	
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\bin\Release</OutputPath>
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Autoupdater.NET.Official" Version="1.7.4" />
-    <PackageReference Include="Dinah.Core.WindowsDesktop" Version="4.2.3.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove=".gitignore" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
-    <ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
-    <ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Form1.*.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>	
-	
-  <ItemGroup>
-    <Compile Update="Dialogs\SettingsDialog.*.cs">
-      <DependentUpon>SettingsDialog.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
-	  <ItemGroup>
-    <Compile Update="Form1.*.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>		<ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autoupdater.NET.Official" Version="1.7.4" />
+		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="4.2.3.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
+		<ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
+		<ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
+	</ItemGroup>
+	<ItemGroup>
 		<Compile Update="Form1.*.cs">
 			<DependentUpon>Form1.cs</DependentUpon>
 		</Compile>
 	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="Dialogs\SettingsDialog.*.cs">
+			<DependentUpon>SettingsDialog.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Form1.*.cs">
+			<DependentUpon>Form1.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Form1.*.cs">
+			<DependentUpon>Form1.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<Target Name="SpicNSpan"  AfterTargets="Clean">
+		<!-- Remove obj folder -->
+		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+		<!-- Remove bin folder -->
+		<RemoveDir Directories="$(BaseOutputPath)" />
+	</Target>
 
 </Project>

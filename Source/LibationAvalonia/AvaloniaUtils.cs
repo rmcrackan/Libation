@@ -16,6 +16,5 @@ namespace LibationAvalonia
 				return brush;
 			return defaultBrush;
 		}
-
 	}
 }
