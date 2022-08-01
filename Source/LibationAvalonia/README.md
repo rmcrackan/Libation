@@ -4,7 +4,6 @@ This walkthrough should get you up and running with Libation on your Ubuntu mach
 Some limitations of the linux release are:
 - Cannot customize how illegial filename characters are replaced.
 - The Auto-update function is unavailable
-- The "Hangover" app for debugging is not yet available.
 
 ## Dependencies
 
