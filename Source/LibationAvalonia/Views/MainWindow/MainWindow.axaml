@@ -65,7 +65,7 @@
 						</MenuItem.Styles>
 						<MenuItem Click="beginBookBackupsToolStripMenuItem_Click" Header="{Binding BookBackupsToolStripText}" />
 						<MenuItem Click="beginPdfBackupsToolStripMenuItem_Click" Header="{Binding PdfBackupsToolStripText}" />
-						<MenuItem Click="convertAllM4bToMp3ToolStripMenuItem_Click" Header="Convert all _M4b to Mp3 [Long-running]..." />
+						<MenuItem Click="convertAllM4bToMp3ToolStripMenuItem_Click" Header="Convert all _M4b to Mp3 [Long-running]..." IsVisible="{Binding IsMp3Supported}" />
 						<MenuItem Click="liberateVisible" Header="{Binding LiberateVisibleToolStripText}" IsEnabled="{Binding AnyVisibleNotLiberated}" />
 					</MenuItem>
 

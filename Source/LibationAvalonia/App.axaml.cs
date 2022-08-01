@@ -17,16 +17,6 @@ namespace LibationAvalonia
 {
 	public class App : Application
 	{
-		public static readonly bool IsWindows;
-		public static readonly bool IsLinux;
-		public static readonly bool IsMacOs;
-		static App()
-		{
-			IsWindows = OperatingSystem.IsWindows();
-			IsLinux = OperatingSystem.IsLinux();
-			IsMacOs = OperatingSystem.IsMacOS();
-		}
-
 		public static IBrush ProcessQueueBookFailedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCompletedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
@@ -41,14 +31,14 @@ namespace LibationAvalonia
 
 
 		public static bool GoToFile(string path)
-			=> IsWindows ? Go.To.File(path)
+			=> AppScaffolding.LibationScaffolding.IsWindows ? Go.To.File(path)
 			: GoToFolder(path is null ? string.Empty : Path.GetDirectoryName(path));
 
 		public static bool GoToFolder(string path)
 		{
-			if (IsWindows)
+			if (AppScaffolding.LibationScaffolding.IsWindows)
 				return Go.To.Folder(path);
-			else if (IsLinux)
+			else if (AppScaffolding.LibationScaffolding.IsLinux)
 			{
 				var startInfo = new System.Diagnostics.ProcessStartInfo()
 				{

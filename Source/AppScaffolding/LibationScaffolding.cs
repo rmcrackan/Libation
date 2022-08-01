@@ -14,7 +14,6 @@ using Serilog;
 
 namespace AppScaffolding
 {
-
 	public enum ReleaseIdentifier
 	{
 		None,
@@ -26,6 +25,16 @@ namespace AppScaffolding
 
 	public static class LibationScaffolding
 	{
+		public static readonly bool IsWindows;
+		public static readonly bool IsLinux;
+		public static readonly bool IsMacOs;
+		static LibationScaffolding()
+		{
+			IsWindows = OperatingSystem.IsWindows();
+			IsLinux = OperatingSystem.IsLinux();
+			IsMacOs = OperatingSystem.IsMacOS();
+		}
+
 		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
 
 		public static void SetReleaseIdentifier(ReleaseIdentifier releaseID)
@@ -290,14 +299,11 @@ namespace AppScaffolding
 			if (System.Diagnostics.Debugger.IsAttached)
 				mode += " (Debugger attached)";
 
-#if MACOS
-			var os = "MacOS";
-#elif LINUX
-			var os = "Linux";
-#else
-			var os = "Windows";
-#endif
-
+			string OS
+				= IsLinux ? "Linux"
+				: IsMacOs ? "MacOS"
+				: IsWindows ? "Windows"
+				: "UNKNOWN_OS";
 
 			// begin logging session with a form feed
 			Log.Logger.Information("\r\n\f");
@@ -306,7 +312,7 @@ namespace AppScaffolding
 				AppName = EntryAssembly.GetName().Name,
 				Version = BuildVersion.ToString(),
 				ReleaseIdentifier = ReleaseIdentifier,
-				OS = os,
+				OS = OS,
 				Mode = mode,
 				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
 				LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),

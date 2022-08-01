@@ -1,0 +1,74 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
+		<TrimMode>copyused</TrimMode>
+		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+		<IsPublishable>true</IsPublishable>
+
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+		<StartupObject />
+		<IsPublishable>true</IsPublishable>
+
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+		<ApplicationIcon>hangover.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath>..\bin\Avalonia\Debug</OutputPath>
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\bin\Avalonia\Release</OutputPath>
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Folder Include="Models\" />
+		<AvaloniaResource Include="Assets\**" />
+		<None Remove=".gitignore" />
+		<None Remove="Assets\hangover.ico" />
+		<None Remove="hangover.ico" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<AvaloniaResource Include="hangover.ico" />
+	</ItemGroup>
+	<ItemGroup>
+		<!--This helps with theme dll-s trimming.
+	If you will publish your application in self-contained mode with p:PublishTrimmed=true and it will use Fluent theme Default theme will be trimmed from the output and vice versa.
+	https://github.com/AvaloniaUI/Avalonia/issues/5593 -->
+		<TrimmableAssembly Include="Avalonia.Themes.Fluent" />
+		<TrimmableAssembly Include="Avalonia.Themes.Default" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="0.10.17" />
+		<PackageReference Include="Avalonia.Desktop" Version="0.10.17" />
+		<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.17" />
+		<PackageReference Include="Avalonia.ReactiveUI" Version="0.10.17" />
+		<PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
+		<ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
+		<ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
+	</ItemGroup>
+
+
+	<Target Name="SpicNSpan" AfterTargets="Clean">
+		<!-- Remove obj folder -->
+		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+		<!-- Remove bin folder -->
+		<RemoveDir Directories="$(BaseOutputPath)" />
+	</Target>
+
+</Project>
