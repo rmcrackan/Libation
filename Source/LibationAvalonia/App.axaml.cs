@@ -17,16 +17,6 @@ namespace LibationAvalonia
 {
 	public class App : Application
 	{
-		public static readonly bool IsWindows;
-		public static readonly bool IsLinux;
-		public static readonly bool IsMacOs;
-		static App()
-		{
-			IsWindows = OperatingSystem.IsWindows();
-			IsLinux = OperatingSystem.IsLinux();
-			IsMacOs = OperatingSystem.IsMacOS();
-		}
-
 		public static IBrush ProcessQueueBookFailedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCompletedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
@@ -41,14 +31,14 @@ namespace LibationAvalonia
 
 
 		public static bool GoToFile(string path)
-			=> IsWindows ? Go.To.File(path)
+			=> AppScaffolding.LibationScaffolding.IsWindows ? Go.To.File(path)
 			: GoToFolder(path is null ? string.Empty : Path.GetDirectoryName(path));
 
 		public static bool GoToFolder(string path)
 		{
-			if (IsWindows)
+			if (AppScaffolding.LibationScaffolding.IsWindows)
 				return Go.To.Folder(path);
-			else if (IsLinux)
+			else if (AppScaffolding.LibationScaffolding.IsLinux)
 			{
 				var startInfo = new System.Diagnostics.ProcessStartInfo()
 				{
@@ -81,7 +71,6 @@ namespace LibationAvalonia
 
 			var SEGOEUI = new Typeface(new FontFamily(new Uri("avares://Libation/Assets/WINGDING.TTF"), "SEGOEUI_Local"));
 			var gtf = FontManager.Current.GetOrAddGlyphTypeface(SEGOEUI);
-
 
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 			{
@@ -125,27 +114,20 @@ namespace LibationAvalonia
 				// all returns should be preceded by either:
 				// - if config.LibationSettingsAreValid
 				// - error message, Exit()
-
-				if ((!setupDialog.IsNewUser
-					&& !setupDialog.IsReturningUser) ||
-					!await RunInstall(setupDialog))
+				if (setupDialog.IsNewUser)
+				{
+					setupDialog.Config.SetLibationFiles(Configuration.UserProfile);
+					ShowSettingsWindow(desktop, setupDialog.Config, OnSettingsCompleted);
+				}
+				else if (setupDialog.IsReturningUser)
+				{
+					ShowLibationFilesDialog(desktop, setupDialog.Config, OnLibationFilesCompleted);
+				}
+				else
 				{
 					await CancelInstallation();
 					return;
 				}
-
-
-				// most migrations go in here
-				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(setupDialog.Config);
-
-				await MessageBox.VerboseLoggingWarning_ShowIfTrue();
-
-#if !DEBUG
-				//AutoUpdater.NET only works for WinForms or WPF application projects.
-				//checkForUpdate();
-#endif
-				// logging is init'd here
-				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(setupDialog.Config);
 
 			}
 			catch (Exception ex)
@@ -162,32 +144,83 @@ namespace LibationAvalonia
 				}
 				return;
 			}
-
-			LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-			AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
-			ShowMainWindow(desktop);
 		}
 
-		private static async Task<bool> RunInstall(SetupDialog setupDialog)
+		private async Task RunMigrationsAsync(Configuration config)
 		{
-			var config = setupDialog.Config;
+			// most migrations go in here
+			AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
 
-			if (setupDialog.IsNewUser)
+			await MessageBox.VerboseLoggingWarning_ShowIfTrue();
+
+			// logging is init'd here
+			AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
+		}
+
+		private void ShowSettingsWindow(IClassicDesktopStyleApplicationLifetime desktop, Configuration config, Action<IClassicDesktopStyleApplicationLifetime, SettingsDialog, Configuration> OnClose)
+		{
+			config.Books ??= Path.Combine(Configuration.UserProfile, "Books");
+
+			AppScaffolding.LibationScaffolding.PopulateMissingConfigValues(config);
+
+			var settingsDialog = new SettingsDialog();
+			desktop.MainWindow = settingsDialog;
+			settingsDialog.RestoreSizeAndLocation(Configuration.Instance);
+			settingsDialog.Show();
+
+			void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
 			{
-				config.SetLibationFiles(Configuration.UserProfile);
+				settingsDialog.Closing -= WindowClosing;
+				e.Cancel = true;
+				OnClose?.Invoke(desktop, settingsDialog, config);
 			}
-			else if (setupDialog.IsReturningUser)
+			settingsDialog.Closing += WindowClosing;
+		}
+
+		private async void OnSettingsCompleted(IClassicDesktopStyleApplicationLifetime desktop, SettingsDialog settingsDialog, Configuration config)
+		{
+			if (config.LibationSettingsAreValid)
 			{
+				await RunMigrationsAsync(config);
+				LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+				ShowMainWindow(desktop);
+			}
+			else
+				await CancelInstallation();
 
-				var libationFilesDialog = new LibationFilesDialog();
+			settingsDialog.Close();
+		}
 
-				if (await libationFilesDialog.ShowDialog<DialogResult>(setupDialog) != DialogResult.OK)
-					return false;
 
-				config.SetLibationFiles(libationFilesDialog.SelectedDirectory);
-				if (config.LibationSettingsAreValid)
-					return true;
+		private void ShowLibationFilesDialog(IClassicDesktopStyleApplicationLifetime desktop, Configuration config, Action<IClassicDesktopStyleApplicationLifetime, LibationFilesDialog, Configuration> OnClose)
+		{
+			var libationFilesDialog = new LibationFilesDialog();
+			desktop.MainWindow = libationFilesDialog;
+			libationFilesDialog.Show();
 
+			void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+			{
+				libationFilesDialog.Closing -= WindowClosing;
+				e.Cancel = true;
+				OnClose?.Invoke(desktop, libationFilesDialog, config);
+			}
+			libationFilesDialog.Closing += WindowClosing;
+		}
+
+		private async void OnLibationFilesCompleted(IClassicDesktopStyleApplicationLifetime desktop, LibationFilesDialog libationFilesDialog, Configuration config)
+		{
+			config.SetLibationFiles(libationFilesDialog.SelectedDirectory);
+			if (config.LibationSettingsAreValid)
+			{
+				await RunMigrationsAsync(config);
+
+				LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+				ShowMainWindow(desktop);
+			}
+			else
+			{
 				// path did not result in valid settings
 				var continueResult = await MessageBox.Show(
 					$"No valid settings were found at this location.\r\nWould you like to create a new install settings in this folder?\r\n\r\n{libationFilesDialog.SelectedDirectory}",
@@ -195,17 +228,13 @@ namespace LibationAvalonia
 					MessageBoxButtons.YesNo,
 					MessageBoxIcon.Question);
 
-				if (continueResult != DialogResult.Yes)
-					return false;
+				if (continueResult == DialogResult.Yes)
+					ShowSettingsWindow(desktop, config, OnSettingsCompleted);
+				else
+					await CancelInstallation();
+
 			}
-
-			// INIT DEFAULT SETTINGS
-			// if 'new user' was clicked, or if 'returning user' chose new install: show basic settings dialog
-			config.Books ??= Path.Combine(Configuration.UserProfile, "Books");
-
-			AppScaffolding.LibationScaffolding.PopulateMissingConfigValues(config);
-			return await new SettingsDialog().ShowDialog<DialogResult>(setupDialog) == DialogResult.OK
-				&& config.LibationSettingsAreValid;
+			libationFilesDialog.Close();
 		}
 
 		static async Task CancelInstallation()

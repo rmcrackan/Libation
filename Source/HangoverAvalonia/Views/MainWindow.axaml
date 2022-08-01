@@ -1,0 +1,75 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:HangoverAvalonia.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+		Width="800" Height="500"
+        x:Class="HangoverAvalonia.Views.MainWindow"
+        Icon="/Assets/hangover.ico "
+        Title="Hangover: Libation debug and recovery tool">
+
+	<Design.DataContext>
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+	
+	<TabControl Grid.Row="0">
+		<TabControl.Styles>
+			<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+				<Setter Property="Height" Value="18"/>
+			</Style>
+			<Style Selector="TabItem">
+				<Setter Property="MinHeight" Value="30"/>
+				<Setter Property="Height" Value="30"/>
+				<Setter Property="Padding" Value="8,2,8,0"/>
+			</Style>
+			<Style Selector="TabItem#Header TextBlock">
+				<Setter Property="MinHeight" Value="5"/>
+			</Style>
+		</TabControl.Styles>
+		
+		<!-- Database Tab -->
+		<TabItem>
+			<TabItem.Header>
+				<TextBlock FontSize="14" VerticalAlignment="Center">Database</TextBlock>
+			</TabItem.Header>
+
+			<Grid RowDefinitions="Auto,Auto,*,Auto,2*">
+				
+				<TextBlock
+					Margin="0,10,0,5"
+					Grid.Row="0"
+					Text="{Binding DatabaseFileText}" />
+				
+				<TextBlock
+					Margin="0,5,0,5"
+					Grid.Row="1"
+					Text="SQL (database command)" />
+				
+				<TextBox
+					Margin="0,5,0,5"
+					Grid.Row="2" Text="{Binding SqlQuery, Mode=OneWayToSource}" />
+				
+				<Button
+					Grid.Row="3"
+					Padding="20,5,20,5"
+					Content="Execute"
+					IsEnabled="{Binding DatabaseFound}"
+					Click="Execute_Click" />
+				
+				<TextBox
+					Margin="0,5,0,10"
+					IsReadOnly="True"
+					Grid.Row="4"
+					Text="{Binding SqlResults}" />
+			</Grid>
+			
+		</TabItem>
+		<!-- Command Line Interface Tab -->
+		<TabItem>
+			<TabItem.Header>
+				<TextBlock FontSize="14" VerticalAlignment="Center">Command Line Interface</TextBlock>
+			</TabItem.Header>			
+		</TabItem>
+	</TabControl>
+</Window>

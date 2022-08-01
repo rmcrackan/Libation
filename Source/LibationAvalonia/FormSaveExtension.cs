@@ -113,7 +113,7 @@ namespace LibationAvalonia
 
 		public static void HideMinMaxBtns(this Window form)
 		{
-			if (Design.IsDesignMode || !App.IsWindows)
+			if (Design.IsDesignMode || !AppScaffolding.LibationScaffolding.IsWindows)
 				return;
 			var handle = form.PlatformImpl.Handle.Handle;
 			var currentStyle = GetWindowLong(handle, GWL_STYLE);

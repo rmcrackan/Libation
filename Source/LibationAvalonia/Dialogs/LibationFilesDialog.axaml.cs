@@ -23,6 +23,7 @@ namespace LibationAvalonia.Dialogs
 		}
 		private DirSelectOptions dirSelectOptions;
 		public string SelectedDirectory => dirSelectOptions.Directory;
+		public DialogResult DialogResult { get; private set; }
 		public LibationFilesDialog()
 		{
 			InitializeComponent();
@@ -44,7 +45,8 @@ namespace LibationAvalonia.Dialogs
 				return;
 			}
 
-			Close(DialogResult.OK);
+			DialogResult = DialogResult.OK;
+			Close(DialogResult);
 		}
 
 		private void InitializeComponent()
