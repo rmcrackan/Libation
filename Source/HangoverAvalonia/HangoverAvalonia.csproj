@@ -6,7 +6,7 @@
 		<TrimMode>copyused</TrimMode>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<IsPublishable>true</IsPublishable>
-
+		<AssemblyName>Hangover</AssemblyName>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>

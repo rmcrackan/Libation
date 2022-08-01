@@ -7,6 +7,7 @@
 		MinWidth="800" MaxWidth="800"
         x:Class="LibationAvalonia.Dialogs.LibationFilesDialog"
         xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+		WindowStartupLocation="CenterScreen"
         Title="Book Details"
 		Icon="/Assets/libation.ico">
 	
