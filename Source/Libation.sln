@@ -64,11 +64,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileManager.Tests", "_Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationFileManager.Tests", "_Tests\LibationFileManager.Tests\LibationFileManager.Tests.csproj", "{EB781571-8548-477E-82AD-FB9FAB548D2F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hangover", "Hangover\Hangover.csproj", "{40C67036-C1A7-4FDF-AA83-8EC902E257F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HangoverWinForms", "HangoverWinForms\HangoverWinForms.csproj", "{40C67036-C1A7-4FDF-AA83-8EC902E257F3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibationAvalonia", "LibationAvalonia\LibationAvalonia.csproj", "{F612D06F-3134-4B9B-95CD-EB3FC798AE60}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HangoverAvalonia", "HangoverAvalonia\HangoverAvalonia.csproj", "{8A7B01D3-9830-44FD-91A1-D8D010996BEB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HangoverBase", "HangoverBase\HangoverBase.csproj", "{5C7005BA-7D83-4E99-8073-D970943A7D61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -156,6 +158,10 @@ Global
 		{8A7B01D3-9830-44FD-91A1-D8D010996BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A7B01D3-9830-44FD-91A1-D8D010996BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A7B01D3-9830-44FD-91A1-D8D010996BEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C7005BA-7D83-4E99-8073-D970943A7D61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C7005BA-7D83-4E99-8073-D970943A7D61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C7005BA-7D83-4E99-8073-D970943A7D61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C7005BA-7D83-4E99-8073-D970943A7D61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -181,6 +187,7 @@ Global
 		{40C67036-C1A7-4FDF-AA83-8EC902E257F3} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
 		{F612D06F-3134-4B9B-95CD-EB3FC798AE60} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
 		{8A7B01D3-9830-44FD-91A1-D8D010996BEB} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
+		{5C7005BA-7D83-4E99-8073-D970943A7D61} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {615E00ED-BAEF-4E8E-A92A-9B82D87942A9}

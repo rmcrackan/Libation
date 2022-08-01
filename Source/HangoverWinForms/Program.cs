@@ -1,4 +1,4 @@
-namespace Hangover
+namespace HangoverWinForms
 {
     internal static class Program
     {

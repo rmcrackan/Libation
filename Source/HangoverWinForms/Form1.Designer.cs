@@ -1,4 +1,4 @@
-﻿namespace Hangover
+﻿namespace HangoverWinForms
 {
     partial class Form1
     {

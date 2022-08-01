@@ -44,9 +44,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
-    <ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
-    <ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
+    <ProjectReference Include="..\HangoverBase\HangoverBase.csproj" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -55,7 +53,7 @@
     </Compile>
   </ItemGroup>
 
-	<Target Name="SpicNSpan"  AfterTargets="Clean">
+	<Target Name="SpicNSpan" AfterTargets="Clean">
 		<!-- Remove obj folder -->
 		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
 		<!-- Remove bin folder -->
