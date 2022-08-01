@@ -7,51 +7,7 @@ Some limitations of the linux release are:
 - The "Hangover" app for debugging is not yet available.
 
 ## Dependencies
-### Dotnet Runtime
-You must install the dotnet 6.0 runtime on your machine.
 
-First, add the Microsoft package signing key to your list of trusted keys and add the package repository.
-
-<details>
-  <summary>Ubuntu 22.04</summary>
-  
-  ```console
-  wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-  sudo dpkg -i packages-microsoft-prod.deb
-  rm packages-microsoft-prod.deb
-  ```
-</details>
-
-<details>
-  <summary>Ubuntu 21.10</summary>
-  
-  ```console
-  wget https://packages.microsoft.com/config/ubuntu/21.10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-  sudo dpkg -i packages-microsoft-prod.deb
-  rm packages-microsoft-prod.deb
-  ```
-</details>
-
-<details>
-  <summary>Ubuntu 20.04</summary>
-  
-  ```console
-  wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-  sudo dpkg -i packages-microsoft-prod.deb
-  rm packages-microsoft-prod.deb
-  ```
-</details>
-
-For other distributions, see [Microsoft's instructions for installing .NET on Linux](https://docs.microsoft.com/en-us/dotnet/core/install/linux).
-
-Then install the dotnet 6.0 runtime
-
-```console
-sudo apt-get update; \
-  sudo apt-get install -y apt-transport-https && \
-  sudo apt-get update && \
-  sudo apt-get install -y dotnet-runtime-6.0
-```
 ### FFMpeg (Optional)
 If you want to convert your audiobooks to mp3, install FFMpeg using the following command:
 
@@ -67,8 +23,7 @@ Download the most recent linux-64 binaries zip file and save it as `libation-lin
   <summary>install-libation.sh</summary>
   
   ```BASH
-   #!/bin/bash
-
+  #!/bin/bash
 
   FILE=$1
 
@@ -77,10 +32,10 @@ Download the most recent linux-64 binaries zip file and save it as `libation-lin
    exit
   fi
 
-if [ "$EUID" -ne 0 ]
- then echo "Please run as root"
- exit
-fi
+  if [[ "$EUID" -ne 0 ]]
+    then echo "Please run as root"
+    exit
+  fi
 
   if [ ! -f "$FILE" ]
    then echo "The file \"$FILE\" does not exist."
@@ -99,12 +54,13 @@ fi
    exit
   fi
 
-
   sudo -u $SUDO_USER chmod +700 ${FOLDER}/Libation
+  sudo -u $SUDO_USER chmod +700 ${FOLDER}/Hangover
   sudo -u $SUDO_USER chmod +700 ${FOLDER}/LibationCli
 
   #Remove previous installation program files and sym link
   rm /usr/bin/Libation
+  rm /usr/bin/Hangover
   rm /usr/bin/LibationCli
   rm /usr/bin/libationcli
   rm /usr/lib/libation -r
@@ -117,11 +73,11 @@ fi
   chmod +666 /usr/share/icons/hicolor/scalable/apps/libation.svg
   gtk-update-icon-cache -f /usr/share/icons/hicolor/
   ln -s /usr/lib/libation/Libation /usr/bin/Libation
+  ln -s /usr/lib/libation/Hangover /usr/bin/Hangover
   ln -s /usr/lib/libation/LibationCli /usr/bin/LibationCli
   ln -s /usr/lib/libation/LibationCli /usr/bin/libationcli
 
   echo "Done!"
-
   ```
 </details>
 
