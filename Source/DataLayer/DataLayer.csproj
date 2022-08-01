@@ -10,7 +10,8 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dinah.EntityFrameworkCore" Version="4.1.1.1" />
+    <PackageReference Include="Dinah.Core" Version="4.4.1.1" />
+    <PackageReference Include="Dinah.EntityFrameworkCore" Version="5.0.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,10 +30,6 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>embedded</DebugType>
 	</PropertyGroup>
-
-	<ItemGroup>
-    <ProjectReference Include="..\LibationFileManager\LibationFileManager.csproj" />
-  </ItemGroup>
   
   <ItemGroup>
     <None Update="migrate.json">
