@@ -30,10 +30,6 @@ namespace DataLayer
 		{
 			ArgumentValidator.EnsureNotNull(book, nameof(book));
             Book = book;
-
-			// import previously saved tags
-			ArgumentValidator.EnsureNotNullOrWhiteSpace(book.AudibleProductId, nameof(book.AudibleProductId));
-			Tags = LibationFileManager.TagsPersistence.GetTags(book.AudibleProductId);
 		}
 
         #region Tags

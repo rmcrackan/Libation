@@ -1,10 +1,9 @@
 ﻿using DataLayer.Configurations;
-using Dinah.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataLayer
 {
-    public class LibationContext : InterceptableDbContext
+    public class LibationContext : DbContext
     {
         // IMPORTANT: USING DbSet<>
         // ========================
@@ -34,14 +33,6 @@ namespace DataLayer
 
         // see DesignTimeDbContextFactoryBase for info about ctors and connection strings/OnConfiguring()
         internal LibationContext(DbContextOptions options) : base(options) { }
-
-        // called on each instantiation
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            AddInterceptor(new TagPersistenceInterceptor());
-
-            base.OnConfiguring(optionsBuilder);
-        }
 
         // typically only called once per execution; NOT once per instantiation
         protected override void OnModelCreating(ModelBuilder modelBuilder)
