@@ -45,7 +45,7 @@ namespace LibationAvalonia.Dialogs
 
 		public void OpenLogFolderButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			App.GoToFolder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
+			Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
 		}
 
 		public async void EditFolderTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

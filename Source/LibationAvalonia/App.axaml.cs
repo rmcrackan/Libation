@@ -29,33 +29,6 @@ namespace LibationAvalonia
 		public static Stream OpenAsset(string assetRelativePath)
 			=> AssetLoader.Open(new Uri(AssetUriBase, assetRelativePath));
 
-
-		public static bool GoToFile(string path)
-			=> AppScaffolding.LibationScaffolding.IsWindows ? Go.To.File(path)
-			: GoToFolder(path is null ? string.Empty : Path.GetDirectoryName(path));
-
-		public static bool GoToFolder(string path)
-		{
-			if (AppScaffolding.LibationScaffolding.IsWindows)
-				return Go.To.Folder(path);
-			else if (AppScaffolding.LibationScaffolding.IsLinux)
-			{
-				var startInfo = new System.Diagnostics.ProcessStartInfo()
-				{
-					FileName = "/bin/xdg-open",
-					Arguments = path is null ? string.Empty : $"\"{path}\"",
-					UseShellExecute = false, //Import in Linux environments
-					CreateNoWindow = false,
-					RedirectStandardOutput = true,
-					RedirectStandardError = true
-				};
-				System.Diagnostics.Process.Start(startInfo);
-				return true;
-			}
-			//Don't know how to do this for mac yet
-			else return true;
-		}
-
 		public override void Initialize()
 		{
 			AvaloniaXamlLoader.Load(this);
