@@ -25,15 +25,9 @@ namespace AppScaffolding
 
 	public static class LibationScaffolding
 	{
-		public static readonly bool IsWindows;
-		public static readonly bool IsLinux;
-		public static readonly bool IsMacOs;
-		static LibationScaffolding()
-		{
-			IsWindows = OperatingSystem.IsWindows();
-			IsLinux = OperatingSystem.IsLinux();
-			IsMacOs = OperatingSystem.IsMacOS();
-		}
+		public static bool IsWindows { get; } = OperatingSystem.IsWindows();
+		public static bool IsLinux { get; } = OperatingSystem.IsLinux();
+		public static bool IsMacOs { get; } = OperatingSystem.IsMacOS();
 
 		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
 
@@ -311,8 +305,8 @@ namespace AppScaffolding
 			{
 				AppName = EntryAssembly.GetName().Name,
 				Version = BuildVersion.ToString(),
-				ReleaseIdentifier = ReleaseIdentifier,
-				OS = OS,
+				ReleaseIdentifier,
+				OS,
 				Mode = mode,
 				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
 				LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),

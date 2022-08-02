@@ -44,7 +44,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Autoupdater.NET.Official" Version="1.7.4" />
-		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="4.2.3.1" />
+		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="5.0.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -89,7 +89,7 @@
 		</EmbeddedResource>
 	</ItemGroup>
 
-	<Target Name="SpicNSpan"  AfterTargets="Clean">
+	<Target Name="SpicNSpan" AfterTargets="Clean">
 		<!-- Remove obj folder -->
 		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
 		<!-- Remove bin folder -->
