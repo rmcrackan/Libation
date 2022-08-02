@@ -149,8 +149,7 @@ namespace LibationAvalonia.Views
 
 		private void runWindowsUpgrader(string zipFile)
 		{
-
-			var thisExe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+			var thisExe = Environment.ProcessPath;
 			var thisDir = System.IO.Path.GetDirectoryName(thisExe);
 
 			var args = $"--input {zipFile} --output {thisDir} --executable {thisExe}";

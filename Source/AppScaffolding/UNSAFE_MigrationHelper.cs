@@ -25,7 +25,7 @@ namespace AppScaffolding
 			: value;
 
 		#region appsettings.json
-		private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName), "appsettings.json");
+		private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "appsettings.json");
 
 		public static bool APPSETTINGS_Json_Exists => File.Exists(APPSETTINGS_JSON);
 
