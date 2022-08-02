@@ -1,0 +1,104 @@
+﻿I don't expect you'll fully understand everything I said in this writeup on your first read, but I think they'll make much more sense after you've poked around LibationAvalonia and started reading code and wonder 'WTF?'. These are the brief explanations I wish I had while I was learning.
+
+- Mbucari
+
+===================================
+
+Controls Basics
+===============
+Avalonia uses a xml layout with code-behind like WPF.  It's actually a port of WPF, thus most of the Avalonia controls are also WPF controls. There are lots of built-in controls that you can browse in the documentation, but more important than understanding every specific control is understanding the few base controls.
+
+*TemplatedControl - This base control allows you to define a layout template. The TemplatedControl.Template property is used to define the control's appearance. 
+
+*ContentControl - This base control is what allows other controls to be nested inside of it, like so:
+
+<ContentControl>
+	<Control />
+</ContentControl>
+
+Doing that in XML sets the ContentControl.Content property to the <Control />
+
+Common ContentContols:
+- Button
+- Label
+- UserControl
+
+*ItemsControl - This base control allows you to supply IEnumerable for content, and will display the items in the IEnumerable in some way, such as items in a ComboBox or ListBox, by setting the ItemsControl.Items property.
+
+Common ItemsControls:
+- DataGrid
+- ListBox
+- ComboBox
+
+Extending Controls
+==================
+
+If you want to customize an Avalonia control by extending it and adding custom functionality.  If you do this you MUST make your extended control inherit IStyleable.
+
+See LibationAvalonia.Controls.LinkLabel for an example.
+
+Data Binding
+============
+
+Every control implements IDataContextProvider. IDataContextProvider.DataContext is how you bind data to controls. It's null by default, but you need to set it for MVVM to work.
+
+The simplest way to use data binding is to set the window/controls' DataContext to it's own instance. Just add the following line to the window/controls' constructor
+
+	this.DataContext = this;
+
+Then, every public 'this' property is accessible in XML with data binding. For a simple example of that working, look at LibationAvalonia.Dialogs.Login.CaptchaDialog.
+
+CaptchaDialog.axaml.cs has 2 public properties:
+
+	public string Answer { get; set; }
+	public Bitmap CaptchaImage { get; }
+	
+Inside CaptchaDialog.axaml, I bound the Image control to CaptchaImage like so:
+
+	<Image Source="{Binding CaptchaImage}" />
+	
+and I bound the TextBox control to Answer like so:
+
+	<TextBox Text="{Binding Answer}" />
+	
+Because Answer has public getter and setter, the binding mode is TwoWay. That means that changes to the binding source (the CaptchaDialog.Answer property) go to the binding target (the TextBox Control), and changes to the binding target (caused by the user typing text into the textbox) get pushed back to the binding source.
+
+this example is lacking any change notifications, so the view will only get the Answer and CaptchaImage values on load. So those values MUST be set before the window is shown. If you change those properties' values while the window is shown, the view won't know they changed so it will not update to display the new values.
+	
+
+Data Binding to an INotifyPropertyChanged.
+=========================================
+
+One of the limitations of binding to 'this' is that you won't be able to notify the view that the value has changed.  Change notification works using the INotifyPropertyChanged interface that you're already familiar with. For your DataContext to be able to notify the view that a value has changed it must be INotifyPropertyChanged. Avalonia uses ReactiveUI for this, but it's the same interface. For a (somewhat) simple example of this, see LibationAvalonia.Dialogs.EditQuickFilters.
+
+In EditQuickFilters I set this.DataContext = _viewModel = new EditTemplateViewModel();
+
+EditTemplateViewModel inherits ViewModelBase, which inherits ReactiveObject. Because it inherits ReactiveObject, I can call the ReactiveUI extension methods for notifying the view that a property has changed:
+
+- this.RaiseAndSetIfChanged()
+- this.RaisePropertyChanged()
+
+Doing this will notify the view that the property has changed, and the view will update itself by getting the new value.
+
+NOTE: unlike winforms, calling RaisePropertyChanged() with an empty or incorrect property name will  not cause the whole view to update.  In Avalonia you MUST call RaisePropertyChanged() for every property you want updated, and everything must be spelled correctly.
+
+Binding to ItemsControl.Items
+=============================
+
+As I said above, the ItemsControl.Items property accepts an IEnumerable. You can bind a list to that property, and the ItemsControl will generate a new item for each list entry. Each generated item will be bound to its corresponding list entry.
+
+An example of this can be found in LibationAvalonia.Dialogs.EditTemplateDialog. I set EditTemplateDialog's DataContext = EditTemplateViewModel. EditTemplateViewModel.ListItems is a list of TemplateTags. In EditTemplateDialog.axaml, I bound EditTemplateViewModel.ListItems to DataGrid.Items like so:
+
+	<DataGrid Items="{Binding ListItems}" >
+	
+By doing that, the DataGrid generates a new row for every TemplateTags item in ListItems, and the rows's DataContext is set to the TemplateTags that generated it.
+
+That DataGrid has two column templates: Tag and Description.  The Tag column is bound to TemplateTags.TagName, and the Description column is bound to TagName.Description. Binding the DataGrid to a List<TemplateTags> and binding column templates to TemplateTags properties is all you need to do for all your data to be displayed in the grid. This works the same for all ItemsControl controls. For another example using the ListBox control, see LibationAvalonia.Dialogs.ScanAccountsDialog.
+
+Binding to ItemsControl.Items with notifications that the Items list has changed
+================================================================================
+
+Binding ItemsControl to a List is fine for a static display, but if you want changes to the list update the control (e.g. removing an Account from the accounts list or a Filter from the filters list in EditQuickFilters), you need to use an IEnumerable type that implements INotifyCollectionChanged. INotifyCollectionChanged is just like INotifyPropertyChanged but is for items in a collection.  C#'s built-in tracking collection is System.Collections.ObjectModel.ObservableCollection<T>. If you put all items in an ObservableCollection<T> and bind that collection to a ItemsControl.Items property, then adding or removing items from that collection will cause the view to add or remove items. This is similar to BindingList<T>, with one very important difference: The ObservableCollection<T> is not aware of changes made to any of its items, only changes made to the collection.
+
+For an example of binding ItemsControl.Items to an ObservableCollection<T>, see LibationAvalonia.Dialogs.EditQuickFilters.
+
