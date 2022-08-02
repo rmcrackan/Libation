@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using ApplicationServices;
 using AudibleUtilities;
+using Dinah.Core.Collections.Generic;
 using Dinah.Core.IO;
 using Dinah.Core.Logging;
 using LibationFileManager;
@@ -23,6 +24,9 @@ namespace AppScaffolding
 		MacOSAvalonia
 	}
 
+	// I know I'm taking the wine metaphor a bit far by naming this "Variety", but I don't know what else to call it
+	public enum VarietyType { None, Classic, Chardonnay }
+
 	public static class LibationScaffolding
 	{
 		public static bool IsWindows { get; } = OperatingSystem.IsWindows();
@@ -30,6 +34,10 @@ namespace AppScaffolding
 		public static bool IsMacOs { get; } = OperatingSystem.IsMacOS();
 
 		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
+		public static VarietyType Variety
+			=> ReleaseIdentifier == ReleaseIdentifier.WindowsClassic ? VarietyType.Classic
+			: ReleaseIdentifier.In(ReleaseIdentifier.WindowsAvalonia, ReleaseIdentifier.LinuxAvalonia, ReleaseIdentifier.MacOSAvalonia) ? VarietyType.Chardonnay
+			: VarietyType.None;
 
 		public static void SetReleaseIdentifier(ReleaseIdentifier releaseID)
 			=> ReleaseIdentifier = releaseID;
