@@ -1,7 +1,7 @@
 ﻿using DataLayer;
 using Dinah.Core;
 using Dinah.Core.DataBinding;
-using Dinah.Core.Drawing;
+using Dinah.Core.WindowsDesktop.Drawing;
 using LibationFileManager;
 using System;
 using System.Collections;

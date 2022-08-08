@@ -52,7 +52,7 @@ namespace FileManager
 			return FileUtility.GetValidFilename(Path.Join(directory, replaceFileName(fileNamePart, paramReplacements, LongPath.MaxFilenameLength - 5)), replacements, returnFirstExisting);
 		}
 
-		private string replaceFileName(string filename, Dictionary<string,string> paramReplacements, int maxFilenameLength)
+		private static string replaceFileName(string filename, Dictionary<string,string> paramReplacements, int maxFilenameLength)
 		{
 			List<StringBuilder> filenameParts = new();
 			//Build the filename in parts, replacing replacement parameters with
@@ -98,7 +98,7 @@ namespace FileManager
 			return string.Join("", filenameParts);
 		}
 
-		private string formatValue(object value, ReplacementCharacters replacements)
+		private static string formatValue(object value, ReplacementCharacters replacements)
 		{
 			if (value is null)
 				return "";

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ApplicationServices;
-using Dinah.Core.Drawing;
+using Dinah.Core.WindowsDesktop.Drawing;
 using LibationFileManager;
 
 namespace LibationWinForms

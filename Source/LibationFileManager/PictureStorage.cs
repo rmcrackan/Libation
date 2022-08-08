@@ -71,6 +71,12 @@ namespace LibationFileManager
 			}
 		}
 
+		public static string GetPicturePathSynchronously(PictureDefinition def)
+        {
+			GetPictureSynchronously(def);
+			return getPath(def);
+		}
+
 		public static byte[] GetPictureSynchronously(PictureDefinition def)
 		{
 			lock (cacheLocker)

@@ -122,7 +122,7 @@ Narrator(s): {libraryBook.Book.NarratorNames()}
 Length: {(libraryBook.Book.LengthInMinutes == 0 ? "" : $"{libraryBook.Book.LengthInMinutes / 60} hr {libraryBook.Book.LengthInMinutes % 60} min")}
 Audio Bitrate: {libraryBook.Book.AudioFormat}
 Category: {string.Join(" > ", libraryBook.Book.CategoriesNames())}
-Purchase Date: {libraryBook.DateAdded.ToString("d")}
+Purchase Date: {libraryBook.DateAdded:d}
 Audible ID: {libraryBook.Book.AudibleProductId}
 ".Trim();
 

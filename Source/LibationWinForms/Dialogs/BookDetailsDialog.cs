@@ -42,7 +42,7 @@ namespace LibationWinForms.Dialogs
 			this.Text = Book.Title;
 
 			(_, var picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
-			this.coverPb.Image = Dinah.Core.Drawing.ImageReader.ToImage(picture);
+			this.coverPb.Image = Dinah.Core.WindowsDesktop.Drawing.ImageReader.ToImage(picture);
 
 			var t = @$"
 Title: {Book.Title}
@@ -51,7 +51,7 @@ Narrator(s): {Book.NarratorNames()}
 Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
 Audio Bitrate: {Book.AudioFormat}
 Category: {string.Join(" > ", Book.CategoriesNames())}
-Purchase Date: {_libraryBook.DateAdded.ToString("d")}
+Purchase Date: {_libraryBook.DateAdded:d}
 Audible ID: {Book.AudibleProductId}
 ".Trim();
 

@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
+using Dinah.Core.WindowsDesktop.Drawing;
 using FileLiberator;
 using LibationFileManager;
 
@@ -80,7 +81,7 @@ namespace LibationWinForms.ProcessQueue
 
 			if (isDefault)
 				PictureStorage.PictureCached += PictureStorage_PictureCached;
-			_cover = Dinah.Core.Drawing.ImageReader.ToImage(picture);
+			_cover = ImageReader.ToImage(picture);
 
 		}
 
@@ -88,7 +89,7 @@ namespace LibationWinForms.ProcessQueue
 		{
 			if (e.Definition.PictureId == LibraryBook.Book.PictureId)
 			{
-				Cover = Dinah.Core.Drawing.ImageReader.ToImage(e.Picture);
+				Cover = ImageReader.ToImage(e.Picture);
 				PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
 		}
@@ -240,7 +241,7 @@ namespace LibationWinForms.ProcessQueue
 
 		private void AudioDecodable_CoverImageDiscovered(object sender, byte[] coverArt)
 		{
-			Cover = Dinah.Core.Drawing.ImageReader.ToImage(coverArt);
+			Cover = ImageReader.ToImage(coverArt);
 		}
 
 		#endregion

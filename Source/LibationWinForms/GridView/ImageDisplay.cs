@@ -9,7 +9,7 @@ namespace LibationWinForms.GridView
 	{
 		public string PictureFileName { get; set; }
 		public string BookSaveDirectory { get; set; }
-		public byte[] CoverPicture { get => _coverBytes; set => pictureBox1.Image = Dinah.Core.Drawing.ImageReader.ToImage(_coverBytes = value); }
+		public byte[] CoverPicture { get => _coverBytes; set => pictureBox1.Image = Dinah.Core.WindowsDesktop.Drawing.ImageReader.ToImage(_coverBytes = value); }
 
 		private byte[] _coverBytes;
 
