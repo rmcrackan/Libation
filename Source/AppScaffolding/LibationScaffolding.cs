@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using ApplicationServices;
+using AppScaffolding.OSInterop;
 using AudibleUtilities;
 using Dinah.Core.Collections.Generic;
 using Dinah.Core.IO;
@@ -59,8 +60,10 @@ namespace AppScaffolding
 			??= new[] { ExecutingAssembly.GetName(), EntryAssembly.GetName() }
 			.Max(a => a.Version);
 
-		/// <summary>Run migrations before loading Configuration for the first time. Then load and return Configuration</summary>
-		public static Configuration RunPreConfigMigrations()
+		public static OSInteropProxy InteropInstance { get; private set; }
+
+        /// <summary>Run migrations before loading Configuration for the first time. Then load and return Configuration</summary>
+        public static Configuration RunPreConfigMigrations()
 		{
 			// must occur before access to Configuration instance
 			// // outdated. kept here as an example of what belongs in this area
@@ -187,6 +190,9 @@ namespace AppScaffolding
 			configureLogging(config);
 			logStartupState(config);
 
+			// all else should occur after logging
+
+			loadOSInterop(config);
 			wireUpSystemEvents(config);
 		}
 
@@ -244,8 +250,8 @@ namespace AppScaffolding
 			// However, empirical testing so far has shown no issues.
 			Console.SetOut(new MultiTextWriter(origOut, new SerilogTextWriter()));
 
-			#region Console => Serilog tests
-			/*
+            #region Console => Serilog tests
+            /*
 			// all below apply to "Console." and "Console.Out."
 
 			// captured
@@ -284,12 +290,12 @@ namespace AppScaffolding
 			Console.Write("{0}{1}{2}", "zero|", "one|", "two");
 			Console.Write("{0}", new object[] { "arr" });
 			*/
-			#endregion
+            #endregion
 
-			// .Here() captures debug info via System.Runtime.CompilerServices attributes. Warning: expensive
-			//var withLineNumbers_outputTemplate = "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}in method {MemberName} at {FilePath}:{LineNumber}{NewLine}{Exception}{NewLine}";
-			//Log.Logger.Here().Debug("Begin Libation. Debug with line numbers");
-		}
+            // .Here() captures debug info via System.Runtime.CompilerServices attributes. Warning: expensive
+            //var withLineNumbers_outputTemplate = "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}in method {MemberName} at {FilePath}:{LineNumber}{NewLine}{Exception}{NewLine}";
+            //Log.Logger.Here().Debug("Begin Libation. Debug with line numbers");
+        }
 
 		private static void logStartupState(Configuration config)
 		{
@@ -315,7 +321,7 @@ namespace AppScaffolding
 				Version = BuildVersion.ToString(),
 				ReleaseIdentifier,
 				OS,
-				Mode = mode,
+                Mode = mode,
 				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
 				LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
 				LogLevel_Information_Enabled = Log.Logger.IsInformationEnabled(),
@@ -335,9 +341,22 @@ namespace AppScaffolding
 				AudibleFileStorage.DecryptInProgressDirectory,
 				DecryptInProgressFiles = FileManager.FileUtility.SaferEnumerateFiles(AudibleFileStorage.DecryptInProgressDirectory).Count(),
 			});
-		}
+        }
 
-		private static void wireUpSystemEvents(Configuration configuration)
+        private static void loadOSInterop(Configuration configuration)
+        {
+            InteropInstance = new OSInteropProxy();
+            Serilog.Log.Logger.Information("InteropInstance:{@DebugInfo}", new
+			{
+				type = OSInteropProxy.InteropFunctionsType,
+				instance = InteropInstance.InteropFunctions
+			});
+
+			if (OSInteropProxy.InteropFunctionsType is null)
+				Serilog.Log.Logger.Warning("WARNING: OSInteropProxy.InteropFunctionsType is null");
+        }
+
+        private static void wireUpSystemEvents(Configuration configuration)
 		{
 			LibraryCommands.LibrarySizeChanged += (_, __) => SearchEngineCommands.FullReIndex();
 			LibraryCommands.BookUserDefinedItemCommitted += (_, books) => SearchEngineCommands.UpdateBooks(books);
