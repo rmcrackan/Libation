@@ -74,16 +74,19 @@ namespace FileLiberator
 
 				// moves new files from temp dir to final dest.
 				// This could take a few seconds if moving hundreds of files.
-				var movedAudioFile = await Task.Run(() => moveFilesToBooksDir(libraryBook, entries));
+				var finalStorageDir = await Task.Run(() => moveFilesToBooksDir(libraryBook, entries));
 
 				// decrypt failed
-				if (!movedAudioFile)
+				if (finalStorageDir is null)
 					return new StatusHandler { "Cannot find final audio file after decryption" };
 
 				if (Configuration.Instance.DownloadCoverArt)
-					DownloadCoverArt(libraryBook);
+					downloadCoverArt(libraryBook);
 
-				libraryBook.Book.UpdateBookStatus(LiberatedStatus.Liberated);
+				// contains logic to check for config setting and OS
+				WindowsDirectory.SetCoverAsFolderIcon(pictureId: libraryBook.Book.PictureId, directory: finalStorageDir);
+
+                libraryBook.Book.UpdateBookStatus(LiberatedStatus.Liberated);
 
 				return new StatusHandler();
 			}
@@ -345,8 +348,8 @@ namespace FileLiberator
 		}
 
 		/// <summary>Move new files to 'Books' directory</summary>
-		/// <returns>True if audiobook file(s) were successfully created and can be located on disk. Else false.</returns>
-		private static bool moveFilesToBooksDir(LibraryBook libraryBook, List<FilePathCache.CacheEntry> entries)
+		/// <returns>Return directory if audiobook file(s) were successfully created and can be located on disk. Else null.</returns>
+		private static string moveFilesToBooksDir(LibraryBook libraryBook, List<FilePathCache.CacheEntry> entries)
 		{
 			// create final directory. move each file into it
 			var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
@@ -355,7 +358,7 @@ namespace FileLiberator
 			FilePathCache.CacheEntry getFirstAudio() => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
 
 			if (getFirstAudio() == default)
-				return false;
+				return null;
 
 			for (var i = 0; i < entries.Count; i++)
 			{
@@ -374,36 +377,31 @@ namespace FileLiberator
 
 			AudibleFileStorage.Audio.Refresh();
 
-			return true;
+			return destinationDir;
 		}
 
-		private void DownloadCoverArt(LibraryBook libraryBook)
+		private static void downloadCoverArt(LibraryBook libraryBook)
 		{
-			var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
-			var coverPath = AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, ".jpg");
-			coverPath = Path.Combine(destinationDir, Path.GetFileName(coverPath));
+			var coverPath = "[null]";
 
 			try
 			{
+				var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
+				coverPath = AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, ".jpg");
+				coverPath = Path.Combine(destinationDir, Path.GetFileName(coverPath));
+
 				if (File.Exists(coverPath)) 
 					FileUtility.SaferDelete(coverPath);
 
-				(string picId, PictureSize size) = libraryBook.Book.PictureLarge is null ?
-					(libraryBook.Book.PictureId, PictureSize.Native) :
-					(libraryBook.Book.PictureLarge, PictureSize.Native);
-
-				var picBytes = PictureStorage.GetPictureSynchronously(new PictureDefinition(picId, size));
-				
+				var picBytes = PictureStorage.GetPictureSynchronously(new(libraryBook.Book.PictureLarge ?? libraryBook.Book.PictureId, PictureSize.Native));
 				if (picBytes.Length > 0)
 					File.WriteAllBytes(coverPath, picBytes);
 			}
 			catch (Exception ex)
 			{
-				//Failure to download cover art should not be
-				//considered a failure to download the book
+				//Failure to download cover art should not be considered a failure to download the book
 				Serilog.Log.Logger.Error(ex, $"Error downloading cover art of {libraryBook.Book.AudibleProductId} to {coverPath} catalog product.");
 			}
-		}
-
+        }
 	}
 }

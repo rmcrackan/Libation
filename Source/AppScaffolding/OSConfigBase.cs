@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AppScaffolding.OSInterop
+namespace AppScaffolding
 {
     public abstract class OSConfigBase
     {

@@ -1,4 +1,11 @@
-﻿using AppScaffolding.OSInterop;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Dinah.Core.WindowsDesktop;
+using Dinah.Core.WindowsDesktop.Drawing;
+using LibationFileManager;
 
 namespace WindowsConfigApp
 {
@@ -7,27 +14,26 @@ namespace WindowsConfigApp
         public WinInterop() { }
         public WinInterop(params object[] values) { }
 
-
-        // examples until the real interface is filled out
-        private string InitValue1 { get; }
-        private int InitValue2 { get; }
-
-        public WinInterop(string initValue1, int initValue2)
+        public void SetFolderIcon(string image, string directory)
         {
-            InitValue1 = initValue1;
-            InitValue2 = initValue2;
+            string iconPath = null;
+
+            try
+            {
+                var icon = ImageReader.ToIcon(image);
+                iconPath = Path.Combine(directory, $"{Guid.NewGuid()}.ico");
+                icon.Save(iconPath);
+
+                new DirectoryInfo(directory).SetIcon(iconPath, Directories.FolderTypes.Music);
+            }
+            finally
+            {
+                if (File.Exists(iconPath))
+                    File.Delete(iconPath);
+            }
         }
 
-        public void CopyTextToClipboard(string text) => Clipboard.SetDataObject(text, true, 5, 150);
-
-        public void ShowForm()
-        {
-            ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
-        }
-
-        public string TransformInit1() => InitValue1.ToUpper();
-
-        public int TransformInit2() => InitValue2 * InitValue2;
+        public void DeleteFolderIcon(string directory)
+            => new DirectoryInfo(directory)?.DeleteIcon();
     }
 }

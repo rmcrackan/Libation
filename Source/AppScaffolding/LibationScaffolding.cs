@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using ApplicationServices;
-using AppScaffolding.OSInterop;
 using AudibleUtilities;
 using Dinah.Core.Collections.Generic;
 using Dinah.Core.IO;
@@ -30,10 +29,6 @@ namespace AppScaffolding
 
 	public static class LibationScaffolding
 	{
-		public static bool IsWindows { get; } = OperatingSystem.IsWindows();
-		public static bool IsLinux { get; } = OperatingSystem.IsLinux();
-		public static bool IsMacOs { get; } = OperatingSystem.IsMacOS();
-
 		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
 		public static VarietyType Variety
 			=> ReleaseIdentifier == ReleaseIdentifier.WindowsClassic ? VarietyType.Classic
@@ -59,8 +54,6 @@ namespace AppScaffolding
 			=> _buildVersion
 			??= new[] { ExecutingAssembly.GetName(), EntryAssembly.GetName() }
 			.Max(a => a.Version);
-
-		public static OSInteropProxy InteropInstance { get; private set; }
 
         /// <summary>Run migrations before loading Configuration for the first time. Then load and return Configuration</summary>
         public static Configuration RunPreConfigMigrations()
@@ -95,10 +88,13 @@ namespace AppScaffolding
 		{
 			config.InProgress ??= Configuration.WinTemp;
 
-			if (!config.Exists(nameof(config.BetaOptIn)))
-				config.BetaOptIn = false;
+            if (!config.Exists(nameof(config.UseCoverAsFolderIcon)))
+                config.UseCoverAsFolderIcon = false;
 
-			if (!config.Exists(nameof(config.AllowLibationFixup)))
+            if (!config.Exists(nameof(config.BetaOptIn)))
+                config.BetaOptIn = false;
+
+            if (!config.Exists(nameof(config.AllowLibationFixup)))
 				config.AllowLibationFixup = true;
 
 			if (!config.Exists(nameof(config.CreateCueSheet)))
@@ -192,7 +188,6 @@ namespace AppScaffolding
 
 			// all else should occur after logging
 
-			loadOSInterop(config);
 			wireUpSystemEvents(config);
 		}
 
@@ -307,12 +302,6 @@ namespace AppScaffolding
 			if (System.Diagnostics.Debugger.IsAttached)
 				mode += " (Debugger attached)";
 
-			string OS
-				= IsLinux ? "Linux"
-				: IsMacOs ? "MacOS"
-				: IsWindows ? "Windows"
-				: "UNKNOWN_OS";
-
 			// begin logging session with a form feed
 			Log.Logger.Information("\r\n\f");
 			Log.Logger.Information("Begin. {@DebugInfo}", new
@@ -320,7 +309,8 @@ namespace AppScaffolding
 				AppName = EntryAssembly.GetName().Name,
 				Version = BuildVersion.ToString(),
 				ReleaseIdentifier,
-				OS,
+				Configuration.OS,
+                InteropFactory.InteropFunctionsType,
                 Mode = mode,
 				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
 				LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),
@@ -329,8 +319,9 @@ namespace AppScaffolding
 				LogLevel_Error_Enabled = Log.Logger.IsErrorEnabled(),
 				LogLevel_Fatal_Enabled = Log.Logger.IsFatalEnabled(),
 
-				config.BetaOptIn,
-				config.LibationFiles,
+                config.BetaOptIn,
+                config.UseCoverAsFolderIcon,
+                config.LibationFiles,
 				AudibleFileStorage.BooksDirectory,
 
 				config.InProgress,
@@ -341,19 +332,9 @@ namespace AppScaffolding
 				AudibleFileStorage.DecryptInProgressDirectory,
 				DecryptInProgressFiles = FileManager.FileUtility.SaferEnumerateFiles(AudibleFileStorage.DecryptInProgressDirectory).Count(),
 			});
-        }
 
-        private static void loadOSInterop(Configuration configuration)
-        {
-            InteropInstance = new OSInteropProxy();
-            Serilog.Log.Logger.Information("InteropInstance:{@DebugInfo}", new
-			{
-				type = OSInteropProxy.InteropFunctionsType,
-				instance = InteropInstance.InteropFunctions
-			});
-
-			if (OSInteropProxy.InteropFunctionsType is null)
-				Serilog.Log.Logger.Warning("WARNING: OSInteropProxy.InteropFunctionsType is null");
+            if (InteropFactory.InteropFunctionsType is null)
+                Serilog.Log.Logger.Warning("WARNING: OSInteropProxy.InteropFunctionsType is null");
         }
 
         private static void wireUpSystemEvents(Configuration configuration)

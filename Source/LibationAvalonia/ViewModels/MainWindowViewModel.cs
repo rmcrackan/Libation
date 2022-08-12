@@ -19,7 +19,7 @@ namespace LibationAvalonia.ViewModels
 		private int _visibleCount = 1;
 		private LibraryCommands.LibraryStats _libraryStats;
 		private int _visibleNotLiberated = 1;
-		public bool IsMp3Supported => AppScaffolding.LibationScaffolding.IsLinux || AppScaffolding.LibationScaffolding.IsWindows;
+		public bool IsMp3Supported => Configuration.IsLinux || Configuration.IsWindows;
 
 		/// <summary> The Process Queue's viewmodel </summary>
 		public ProcessQueueViewModel ProcessQueue { get; } = new ProcessQueueViewModel();

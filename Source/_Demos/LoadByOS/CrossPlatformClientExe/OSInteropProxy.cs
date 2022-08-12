@@ -18,7 +18,7 @@ namespace CrossPlatformClientExe
         public static Func<string, bool> MatchesOS { get; }
             = IsWindows ? a => Path.GetFileName(a).StartsWithInsensitive("win")
             : IsLinux ? a => Path.GetFileName(a).StartsWithInsensitive("linux")
-            : IsMacOs ? a => Path.GetFileName(a).StartsWithInsensitive("mac") || a.StartsWithInsensitive("osx")
+            : IsMacOs ? a => Path.GetFileName(a).StartsWithInsensitive("mac") || Path.GetFileName(a).StartsWithInsensitive("osx")
             : _ => false;
 
         private IInteropFunctions InteropFunctions { get; } = new NullInteropFunctions();

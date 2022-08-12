@@ -51,7 +51,7 @@ namespace LibationAvalonia.Dialogs
 			saveFileDialog.Filters.Add(new FileDialogFilter { Name = "Jpeg", Extensions = new System.Collections.Generic.List<string>() { "jpg" } });
 			saveFileDialog.InitialFileName = PictureFileName;
 			saveFileDialog.Directory
-				= !AppScaffolding.LibationScaffolding.IsWindows ? null
+				= !LibationFileManager.Configuration.IsWindows ? null
 				: Directory.Exists(BookSaveDirectory) ? BookSaveDirectory
 				: Path.GetDirectoryName(BookSaveDirectory);
 

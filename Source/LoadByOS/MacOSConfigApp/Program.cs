@@ -1,4 +1,4 @@
-﻿using AppScaffolding.OSInterop;
+﻿using AppScaffolding;
 
 namespace MacOSConfigApp
 {

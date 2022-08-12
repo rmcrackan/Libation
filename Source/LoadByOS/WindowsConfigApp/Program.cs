@@ -1,4 +1,4 @@
-using AppScaffolding.OSInterop;
+using AppScaffolding;
 
 namespace WindowsConfigApp
 {
@@ -9,6 +9,7 @@ namespace WindowsConfigApp
         {
             typeof(Form1),
             typeof(Bitmap),
+            typeof(Icon),
             typeof(Accessibility.IAccIdentity),
             typeof(Microsoft.Win32.SystemEvents)
         };

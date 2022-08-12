@@ -381,7 +381,7 @@ namespace LibationAvalonia.Dialogs
 		private int _lameVBRQuality;
 		private string _chapterTitleTemplate;
 
-		public bool IsMp3Supported => AppScaffolding.LibationScaffolding.IsLinux || AppScaffolding.LibationScaffolding.IsWindows;
+		public bool IsMp3Supported => Configuration.IsLinux || Configuration.IsWindows;
 
 		public AudioSettings(Configuration config)
 		{

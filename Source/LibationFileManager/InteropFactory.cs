@@ -7,28 +7,34 @@ using System.Reflection;
 using System.Threading;
 using Dinah.Core;
 
-namespace AppScaffolding.OSInterop
+namespace LibationFileManager
 {
-    public class OSInteropProxy : IInteropFunctions
+    public static class InteropFactory
     {
-        public static bool IsWindows { get; } = OperatingSystem.IsWindows();
-        public static bool IsLinux { get; } = OperatingSystem.IsLinux();
-        public static bool IsMacOs { get; } = OperatingSystem.IsMacOS();
+        public static Type InteropFunctionsType { get; }
+
+        public static IInteropFunctions Create() => _create();
+
+        //// examples of the pattern which could be useful later
+        //public static IInteropFunctions Create(string str, int i) => _create(str, i);
+        //public static IInteropFunctions Create(params object[] values) => _create(values);
+
+        private static IInteropFunctions _create(params object[] values)
+            => InteropFunctionsType is null ? new NullInteropFunctions()
+//: values is null || values.Length == 0 ? Activator.CreateInstance(InteropFunctionsType) as IInteropFunctions
+            : Activator.CreateInstance(InteropFunctionsType, values) as IInteropFunctions;
+
+        #region load types
 
         public static Func<string, bool> MatchesOS { get; }
-            = IsWindows ? a => Path.GetFileName(a).StartsWithInsensitive("win")
-            : IsLinux ? a => Path.GetFileName(a).StartsWithInsensitive("linux")
-            : IsMacOs ? a => Path.GetFileName(a).StartsWithInsensitive("mac") || a.StartsWithInsensitive("osx")
+            = Configuration.IsWindows ? a => Path.GetFileName(a).StartsWithInsensitive("win")
+            : Configuration.IsLinux ? a => Path.GetFileName(a).StartsWithInsensitive("linux")
+            : Configuration.IsMacOs ? a => Path.GetFileName(a).StartsWithInsensitive("mac") || Path.GetFileName(a).StartsWithInsensitive("osx")
             : _ => false;
-
-        public IInteropFunctions InteropFunctions { get; } = new NullInteropFunctions();
-
-        #region Singleton Stuff
 
         private const string CONFIG_APP_ENDING = "ConfigApp.exe";
         private static List<ProcessModule> ModuleList { get; } = new();
-        public static Type InteropFunctionsType { get; }
-        static OSInteropProxy()
+        static InteropFactory()
         {
             // searches file names for potential matches; doesn't run anything
             var configApp = getOSConfigApp();
@@ -118,30 +124,5 @@ namespace AppScaffolding.OSInterop
         }
 
         #endregion
-
-        public OSInteropProxy() : this(new object[0]) { }
-
-        //// example of the pattern which could be useful later
-        //public OSInteropProxy(string str, int i) : this(new object[] { str, i }) { }
-
-        private OSInteropProxy(params object[] values)
-        {
-            if (InteropFunctionsType is null)
-                return;
-
-            InteropFunctions =
-                values is null || values.Length == 0
-                ? Activator.CreateInstance(InteropFunctionsType) as IInteropFunctions
-                : Activator.CreateInstance(InteropFunctionsType, values) as IInteropFunctions;
-        }
-
-        // Interface Members
-        /*
-        // examples until the real interface is filled out
-        public void CopyTextToClipboard(string text) => InteropFunctions.CopyTextToClipboard(text);
-        public void ShowForm() => InteropFunctions.ShowForm();
-        public string TransformInit1() => InteropFunctions.TransformInit1();
-        public int TransformInit2() => InteropFunctions.TransformInit2();
-        */
     }
 }

@@ -30,11 +30,11 @@ namespace LibationAvalonia
 			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 			var appBuilderTask = Task.Run(BuildAvaloniaApp);
 
-			if (AppScaffolding.LibationScaffolding.IsWindows)
+			if (Configuration.IsWindows)
 				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.WindowsAvalonia);
-			else if (AppScaffolding.LibationScaffolding.IsLinux)
+			else if (Configuration.IsLinux)
 				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.LinuxAvalonia);
-			else if (AppScaffolding.LibationScaffolding.IsMacOs)
+			else if (Configuration.IsMacOs)
 				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.MacOSAvalonia);
 			else return;
 
