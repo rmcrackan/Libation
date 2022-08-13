@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
-		MinWidth="800" MinHeight="600"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="620"
+		MinWidth="800" MinHeight="620"
         x:Class="LibationAvalonia.Dialogs.SettingsDialog"
         xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         Title="Edit Settings"
@@ -206,7 +206,7 @@
 					BorderThickness="2"
 					BorderBrush="{DynamicResource DataGridGridLinesBrush}">
 
-					<Grid RowDefinitions="Auto,Auto,*">
+					<Grid RowDefinitions="Auto,Auto,Auto,*">
 						<controls:GroupBox
 							Grid.Row="0"
 							Margin="5"
@@ -367,6 +367,20 @@
 
 
 						</StackPanel>
+
+						<CheckBox
+							Grid.Row="3"
+							Margin="5"
+							VerticalAlignment="Top"
+							IsVisible="{Binding IsWindows}"
+							IsChecked="{Binding DownloadDecryptSettings.UseCoverAsFolderIcon, Mode=TwoWay}">
+
+							<TextBlock
+								TextWrapping="Wrap"
+								Text="{Binding DownloadDecryptSettings.UseCoverAsFolderIconText}" />
+
+						</CheckBox>
+
 					</Grid>
 				</Border>
 			</TabItem>
