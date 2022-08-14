@@ -102,3 +102,13 @@ Binding ItemsControl to a List is fine for a static display, but if you want cha
 
 For an example of binding ItemsControl.Items to an ObservableCollection<T>, see LibationAvalonia.Dialogs.EditQuickFilters.
 
+
+Putting the above into practice
+===============================
+
+See [ https://github.com/rmcrackan/Libation/pull/356 ] which added a new setting. This setting is a bool which required:
+
+* checkbox
+* description
+* OS-specific visibility
+* form height increase
