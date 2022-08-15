@@ -49,8 +49,9 @@ namespace LibationAvalonia.Dialogs
 		}
 
 		protected override void SaveAndClose()
-		{
-			SaveButton_Clicked(null, null);
+        {
+            LibraryBook.Book.UpdateBook(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
+            SaveButton_Clicked(null, null);
 			base.SaveAndClose();
 		}
 
@@ -62,11 +63,9 @@ namespace LibationAvalonia.Dialogs
 		}
 
 		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			LibraryBook.Book.UpdateBook(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
-		}
+            => SaveAndClose();
 
-		private void InitializeComponent()
+        private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
 		}
