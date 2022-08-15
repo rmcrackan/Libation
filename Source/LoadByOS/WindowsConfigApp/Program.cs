@@ -9,7 +9,7 @@ namespace WindowsConfigApp
         {
             typeof(Form1),
             typeof(Bitmap),
-            typeof(Icon),
+            typeof(Dinah.Core.WindowsDesktop.GitClient),
             typeof(Accessibility.IAccIdentity),
             typeof(Microsoft.Win32.SystemEvents)
         };
