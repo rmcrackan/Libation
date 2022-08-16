@@ -6,241 +6,196 @@ using System.Threading.Tasks;
 using AaxDecrypter;
 using ApplicationServices;
 using AudibleApi;
-using AudibleApi.Common;
 using DataLayer;
 using Dinah.Core;
-using Dinah.Core.Collections.Generic;
 using Dinah.Core.ErrorHandling;
 using FileManager;
 using LibationFileManager;
 
 namespace FileLiberator
 {
-	public class DownloadDecryptBook : AudioDecodable
-	{
-		public override string Name => "Download & Decrypt";
-		private AudiobookDownloadBase abDownloader;
+    public class DownloadDecryptBook : AudioDecodable
+    {
+        public override string Name => "Download & Decrypt";
+        private AudiobookDownloadBase abDownloader;
 
-		public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists();
+        public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists();
 
-		public override Task CancelAsync() => abDownloader?.CancelAsync() ?? Task.CompletedTask;
+        public override Task CancelAsync() => abDownloader?.CancelAsync() ?? Task.CompletedTask;
 
-		public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
-		{
-			var entries = new List<FilePathCache.CacheEntry>();
-			// these only work so minimally b/c CacheEntry is a record.
-			// in case of parallel decrypts, only capture the ones for this book id.
-			// if user somehow starts multiple decrypts of the same book in parallel: on their own head be it
-			void FilePathCache_Inserted(object sender, FilePathCache.CacheEntry e)
-			{
-				if (e.Id.EqualsInsensitive(libraryBook.Book.AudibleProductId))
-					entries.Add(e);
-			}
-			void FilePathCache_Removed(object sender, FilePathCache.CacheEntry e)
-			{
-				if (e.Id.EqualsInsensitive(libraryBook.Book.AudibleProductId))
-					entries.Remove(e);
-			}
+        public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
+        {
+            var entries = new List<FilePathCache.CacheEntry>();
+            // these only work so minimally b/c CacheEntry is a record.
+            // in case of parallel decrypts, only capture the ones for this book id.
+            // if user somehow starts multiple decrypts of the same book in parallel: on their own head be it
+            void FilePathCache_Inserted(object sender, FilePathCache.CacheEntry e)
+            {
+                if (e.Id.EqualsInsensitive(libraryBook.Book.AudibleProductId))
+                    entries.Add(e);
+            }
+            void FilePathCache_Removed(object sender, FilePathCache.CacheEntry e)
+            {
+                if (e.Id.EqualsInsensitive(libraryBook.Book.AudibleProductId))
+                    entries.Remove(e);
+            }
 
-			OnBegin(libraryBook);
+            OnBegin(libraryBook);
 
-			try
-			{
-				if (libraryBook.Book.Audio_Exists())
-					return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
+            try
+            {
+                if (libraryBook.Book.Audio_Exists())
+                    return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
-				bool success = false;
-				try
-				{
-					FilePathCache.Inserted += FilePathCache_Inserted;
-					FilePathCache.Removed += FilePathCache_Removed;
+                bool success = false;
+                try
+                {
+                    FilePathCache.Inserted += FilePathCache_Inserted;
+                    FilePathCache.Removed += FilePathCache_Removed;
 
-					success = await downloadAudiobookAsync(libraryBook);
-				}
-				finally
-				{
-					FilePathCache.Inserted -= FilePathCache_Inserted;
-					FilePathCache.Removed -= FilePathCache_Removed;
-				}
+                    success = await downloadAudiobookAsync(libraryBook);
+                }
+                finally
+                {
+                    FilePathCache.Inserted -= FilePathCache_Inserted;
+                    FilePathCache.Removed -= FilePathCache_Removed;
+                }
 
-				// decrypt failed
-				if (!success)
-				{
-					foreach (var tmpFile in entries.Where(f => f.FileType != FileType.AAXC))
-						FileUtility.SaferDelete(tmpFile.Path);
+                // decrypt failed
+                if (!success)
+                {
+                    foreach (var tmpFile in entries.Where(f => f.FileType != FileType.AAXC))
+                        FileUtility.SaferDelete(tmpFile.Path);
 
-					return abDownloader?.IsCanceled == true ?
-						new StatusHandler { "Cancelled" } : 
-						new StatusHandler { "Decrypt failed" };
-				}
+                    return abDownloader?.IsCanceled == true ?
+                        new StatusHandler { "Cancelled" } :
+                        new StatusHandler { "Decrypt failed" };
+                }
 
-				// moves new files from temp dir to final dest.
-				// This could take a few seconds if moving hundreds of files.
-				var finalStorageDir = await Task.Run(() => moveFilesToBooksDir(libraryBook, entries));
+                // moves new files from temp dir to final dest.
+                // This could take a few seconds if moving hundreds of files.
+                var finalStorageDir = await Task.Run(() => moveFilesToBooksDir(libraryBook, entries));
 
-				// decrypt failed
-				if (finalStorageDir is null)
-					return new StatusHandler { "Cannot find final audio file after decryption" };
+                // decrypt failed
+                if (finalStorageDir is null)
+                    return new StatusHandler { "Cannot find final audio file after decryption" };
 
-				if (Configuration.Instance.DownloadCoverArt)
-					downloadCoverArt(libraryBook);
+                if (Configuration.Instance.DownloadCoverArt)
+                    downloadCoverArt(libraryBook);
 
-				// contains logic to check for config setting and OS
-				WindowsDirectory.SetCoverAsFolderIcon(pictureId: libraryBook.Book.PictureId, directory: finalStorageDir);
+                // contains logic to check for config setting and OS
+                WindowsDirectory.SetCoverAsFolderIcon(pictureId: libraryBook.Book.PictureId, directory: finalStorageDir);
 
                 libraryBook.Book.UpdateBookStatus(LiberatedStatus.Liberated);
 
-				return new StatusHandler();
-			}
-			finally
-			{
-				OnCompleted(libraryBook);
-			}
-		}
-
-        private async Task<bool> downloadAudiobookAsync(LibraryBook libraryBook)
-		{
-			downloadValidation(libraryBook);
-
-			var api = await libraryBook.GetApiAsync();
-
-			var catalogProduct = await api.GetCatalogProductAsync(libraryBook.Book.AudibleProductId, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
-
-            // normal non-MultiPart
-            if (!catalogProduct.ContentDeliveryType.In(ContentDeliveryType.MultiPartIssue, ContentDeliveryType.MultiPartBook))
-            {
-                var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
-                return await downloadAudiobookPartAsync(contentLic, libraryBook);
+                return new StatusHandler();
             }
-
-            #region // notes on multi-part
-            // Frankly, decoupling asin and LibraryBook can be potentially dicey depending on how LibraryBook is used down the line.
-            // I checked and it passes cursory inspection. **No promises though.** If you find something that looks wrong, it probably is.
-
-            // the only multi-part title we've found in the wild so far is B002V1PM18
-            // run this un-authenticated call to see its Relationship values
-            //   GetCatalogProductAsync("B002V1PM18", ALL_OPTIONS)
-
-            // there's a bit of guess-work in the code below. In B002V1PM18:
-            // there's some single part we don't need
-            //   RelationshipToProduct: "child"
-            //   RelationshipType: "merchant_title_authority"
-            // and the multiple Relationship parts we do want to download
-            //   RelationshipToProduct: "child"
-            //   RelationshipType:      "component"
-            #endregion
-            // multi-part: handle each part separately
-            var asins = catalogProduct.Relationships
-				.Where(r => r.RelationshipType.In(RelationshipType.Component, RelationshipType.Episode))
-				.OrderBy(r => r.Sort)
-				.Select(r => r.Asin)
-				.ToList();
-			var result = true;
-            foreach (var asin in asins)
+            finally
             {
-                var contentLic = await api.GetDownloadLicenseAsync(asin);
-                var success = await downloadAudiobookPartAsync(contentLic, libraryBook);
-				result &= success;
+                OnCompleted(libraryBook);
             }
-			return result;
         }
 
-        private async Task<bool> downloadAudiobookPartAsync(ContentLicense contentLic, LibraryBook libraryBook)
-		{
-			var config = Configuration.Instance;
+        private async Task<bool> downloadAudiobookAsync(LibraryBook libraryBook)
+        {
+            var config = Configuration.Instance;
 
-			var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
+            downloadValidation(libraryBook);
 
-			var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, dlOptions.OutputFormat.ToString().ToLower());
-			var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
+            var api = await libraryBook.GetApiAsync();
+            var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+            var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
 
-			if (contentLic.DrmType != DrmType.Adrm)
-				abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, dlOptions);
-			else
-			{
-				AaxcDownloadConvertBase converter
-					= config.SplitFilesByChapter ? 
-					new AaxcDownloadMultiConverter(outFileName, cacheDir, dlOptions) :
-					new AaxcDownloadSingleConverter(outFileName, cacheDir, dlOptions);
+            var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, dlOptions.OutputFormat.ToString().ToLower());
+            var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
-				if (config.AllowLibationFixup)
-					converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames());
+            if (contentLic.DrmType != AudibleApi.Common.DrmType.Adrm)
+                abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, dlOptions);
+            else
+            {
+                AaxcDownloadConvertBase converter
+                    = config.SplitFilesByChapter ?
+                    new AaxcDownloadMultiConverter(outFileName, cacheDir, dlOptions) :
+                    new AaxcDownloadSingleConverter(outFileName, cacheDir, dlOptions);
 
-				abDownloader = converter;
-			}
+                if (config.AllowLibationFixup)
+                    converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames());
 
-			abDownloader.DecryptProgressUpdate += OnStreamingProgressChanged;
-			abDownloader.DecryptTimeRemaining += OnStreamingTimeRemaining;
-			abDownloader.RetrievedTitle += OnTitleDiscovered;
-			abDownloader.RetrievedAuthors += OnAuthorsDiscovered;
-			abDownloader.RetrievedNarrators += OnNarratorsDiscovered;
-			abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
-			abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
+                abDownloader = converter;
+            }
 
-			// REAL WORK DONE HERE
-			var success = await abDownloader.RunAsync();
+            abDownloader.DecryptProgressUpdate += OnStreamingProgressChanged;
+            abDownloader.DecryptTimeRemaining += OnStreamingTimeRemaining;
+            abDownloader.RetrievedTitle += OnTitleDiscovered;
+            abDownloader.RetrievedAuthors += OnAuthorsDiscovered;
+            abDownloader.RetrievedNarrators += OnNarratorsDiscovered;
+            abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
+            abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
 
-			return success;
-		}
+            // REAL WORK DONE HERE
+            var success = await abDownloader.RunAsync();
 
-		private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, ContentLicense contentLic)
-		{
-			//I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
-			//I also assume that if DrmType != Adrm, the file will be an mp3.
-			//These assumptions may be wrong, and only time and bug reports will tell.
+            return success;
+        }
 
-			var isEncrypted = contentLic.DrmType == DrmType.Adrm;
+        private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, AudibleApi.Common.ContentLicense contentLic)
+        {
+            //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
+            //I also assume that if DrmType != Adrm, the file will be an mp3.
+            //These assumptions may be wrong, and only time and bug reports will tell.
 
-			var outputFormat = !isEncrypted || (config.AllowLibationFixup && config.DecryptToLossy) ?
-					 OutputFormat.Mp3 : OutputFormat.M4b;
+            bool encrypted = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm;
 
-			long chapterStartMs = config.StripAudibleBrandAudio ?
-				contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs : 0;
+            var outputFormat = !encrypted || (config.AllowLibationFixup && config.DecryptToLossy) ?
+                     OutputFormat.Mp3 : OutputFormat.M4b;
 
-			var dlOptions = new DownloadOptions
-				 (
-					libraryBook,
-					contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
-					Resources.USER_AGENT
-				 )
-			{
-				AudibleKey = contentLic?.Voucher?.Key,
-				AudibleIV = contentLic?.Voucher?.Iv,
-				OutputFormat = outputFormat,
-				TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
-				RetainEncryptedFile = config.RetainAaxFile && isEncrypted,
-				StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
-				Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
-				MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
-				CreateCueSheet = config.CreateCueSheet,
-				LameConfig = GetLameOptions(config),
-				ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
-				FixupFile = config.AllowLibationFixup
-			};
+            long chapterStartMs = config.StripAudibleBrandAudio ?
+                contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs : 0;
 
-			var chapters = flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters).OrderBy(c => c.StartOffsetMs).ToList();
+            var dlOptions = new DownloadOptions
+                 (
+                    libraryBook,
+                    contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
+                    Resources.USER_AGENT
+                 )
+            {
+                AudibleKey = contentLic?.Voucher?.Key,
+                AudibleIV = contentLic?.Voucher?.Iv,
+                OutputFormat = outputFormat,
+                TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
+                RetainEncryptedFile = config.RetainAaxFile && encrypted,
+                StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
+                Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
+                MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
+                CreateCueSheet = config.CreateCueSheet,
+                LameConfig = GetLameOptions(config),
+                ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
+                FixupFile = config.AllowLibationFixup
+            };
 
-			if (config.MergeOpeningAndEndCredits)
-				combineCredits(chapters);
+            var chapters = flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters).OrderBy(c => c.StartOffsetMs).ToList();
 
-			for (int i = 0; i < chapters.Count; i++)
-			{
-				var chapter = chapters[i];
-				long chapLenMs = chapter.LengthMs;
+            if (config.MergeOpeningAndEndCredits)
+                combineCredits(chapters);
 
-				if (i == 0)
-					chapLenMs -= chapterStartMs;
+            for (int i = 0; i < chapters.Count; i++)
+            {
+                var chapter = chapters[i];
+                long chapLenMs = chapter.LengthMs;
 
-				if (config.StripAudibleBrandAudio && i == chapters.Count - 1)
-					chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
+                if (i == 0)
+                    chapLenMs -= chapterStartMs;
 
-				dlOptions.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
-			}
+                if (config.StripAudibleBrandAudio && i == chapters.Count - 1)
+                    chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
 
-			return dlOptions;
-		}
+                dlOptions.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
+            }
 
-		/*
+            return dlOptions;
+        }
+
+        /*
 
 		Flatten Audible's new hierarchical chapters, combining children into parents.
 
@@ -315,138 +270,138 @@ namespace FileLiberator
 
 		*/
 
-		public static List<Chapter> flattenChapters(IList<Chapter> chapters, string titleConcat = ": ")
-		{
-			List<Chapter> chaps = new();
+        public static List<AudibleApi.Common.Chapter> flattenChapters(IList<AudibleApi.Common.Chapter> chapters, string titleConcat = ": ")
+        {
+            List<AudibleApi.Common.Chapter> chaps = new();
 
-			foreach (var c in chapters)
-			{
-				if (c.Chapters is not null)
-				{
-					if (c.LengthMs < 10000)
-					{
-						c.Chapters[0].StartOffsetMs = c.StartOffsetMs;
-						c.Chapters[0].StartOffsetSec = c.StartOffsetSec;
-						c.Chapters[0].LengthMs += c.LengthMs;
-					}
-					else
-						chaps.Add(c);
+            foreach (var c in chapters)
+            {
+                if (c.Chapters is not null)
+                {
+                    if (c.LengthMs < 10000)
+                    {
+                        c.Chapters[0].StartOffsetMs = c.StartOffsetMs;
+                        c.Chapters[0].StartOffsetSec = c.StartOffsetSec;
+                        c.Chapters[0].LengthMs += c.LengthMs;
+                    }
+                    else
+                        chaps.Add(c);
 
-					var children = flattenChapters(c.Chapters);
+                    var children = flattenChapters(c.Chapters);
 
-					foreach (var child in children)
-						child.Title = $"{c.Title}{titleConcat}{child.Title}";
+                    foreach (var child in children)
+                        child.Title = $"{c.Title}{titleConcat}{child.Title}";
 
-					chaps.AddRange(children);
-					c.Chapters = null;
-				}
-				else
-					chaps.Add(c);
-			}
-			return chaps;
-		}
-
-		public static void combineCredits(IList<Chapter> chapters)
-		{
-			if (chapters.Count > 1 && chapters[0].Title == "Opening Credits")
-			{
-				chapters[1].StartOffsetMs = chapters[0].StartOffsetMs;
-				chapters[1].StartOffsetSec = chapters[0].StartOffsetSec;
-				chapters[1].LengthMs += chapters[0].LengthMs;
-				chapters.RemoveAt(0);
-			}
-			if (chapters.Count > 1 && chapters[^1].Title == "End Credits")
-			{
-				chapters[^2].LengthMs += chapters[^1].LengthMs;
-				chapters.Remove(chapters[^1]);
-			}
-		}		
-
-		private static void downloadValidation(LibraryBook libraryBook)
-		{
-			string errorString(string field)
-				=> $"{errorTitle()}\r\nCannot download book. {field} is not known. Try re-importing the account which owns this book.";
-
-			string errorTitle()
-			{
-				var title
-					= (libraryBook.Book.Title.Length > 53)
-					? $"{libraryBook.Book.Title.Truncate(50)}..."
-					: libraryBook.Book.Title;
-				var errorBookTitle = $"{title} [{libraryBook.Book.AudibleProductId}]";
-				return errorBookTitle;
-			};
-
-			if (string.IsNullOrWhiteSpace(libraryBook.Account))
-				throw new Exception(errorString("Account"));
-
-			if (string.IsNullOrWhiteSpace(libraryBook.Book.Locale))
-				throw new Exception(errorString("Locale"));
-		}
-
-		private void AaxcDownloader_RetrievedCoverArt(object _, byte[] e)
-		{
-			if (e is not null)
-				OnCoverImageDiscovered(e);
-			else if (Configuration.Instance.AllowLibationFixup)
-				abDownloader.SetCoverArt(OnRequestCoverArt());
-		}
-
-		/// <summary>Move new files to 'Books' directory</summary>
-		/// <returns>Return directory if audiobook file(s) were successfully created and can be located on disk. Else null.</returns>
-		private static string moveFilesToBooksDir(LibraryBook libraryBook, List<FilePathCache.CacheEntry> entries)
-		{
-			// create final directory. move each file into it
-			var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
-			Directory.CreateDirectory(destinationDir);
-
-			FilePathCache.CacheEntry getFirstAudio() => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
-
-			if (getFirstAudio() == default)
-				return null;
-
-			for (var i = 0; i < entries.Count; i++)
-			{
-				var entry = entries[i];
-
-				var realDest = FileUtility.SaferMoveToValidPath(entry.Path, Path.Combine(destinationDir, Path.GetFileName(entry.Path)), Configuration.Instance.ReplacementCharacters);
-				FilePathCache.Insert(libraryBook.Book.AudibleProductId, realDest);
-
-				// propagate corrected path. Must update cache with corrected path. Also want updated path for cue file (after this for-loop)
-				entries[i] = entry with { Path = realDest };
-			}
-
-			var cue = entries.FirstOrDefault(f => f.FileType == FileType.Cue);
-			if (cue != default)
-				Cue.UpdateFileName(cue.Path, getFirstAudio().Path);
-
-			AudibleFileStorage.Audio.Refresh();
-
-			return destinationDir;
-		}
-
-		private static void downloadCoverArt(LibraryBook libraryBook)
-		{
-			var coverPath = "[null]";
-
-			try
-			{
-				var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
-				coverPath = AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, ".jpg");
-				coverPath = Path.Combine(destinationDir, Path.GetFileName(coverPath));
-
-				if (File.Exists(coverPath)) 
-					FileUtility.SaferDelete(coverPath);
-
-				var picBytes = PictureStorage.GetPictureSynchronously(new(libraryBook.Book.PictureLarge ?? libraryBook.Book.PictureId, PictureSize.Native));
-				if (picBytes.Length > 0)
-					File.WriteAllBytes(coverPath, picBytes);
-			}
-			catch (Exception ex)
-			{
-				//Failure to download cover art should not be considered a failure to download the book
-				Serilog.Log.Logger.Error(ex, $"Error downloading cover art of {libraryBook.Book.AudibleProductId} to {coverPath} catalog product.");
-			}
+                    chaps.AddRange(children);
+                    c.Chapters = null;
+                }
+                else
+                    chaps.Add(c);
+            }
+            return chaps;
         }
-	}
+
+        public static void combineCredits(IList<AudibleApi.Common.Chapter> chapters)
+        {
+            if (chapters.Count > 1 && chapters[0].Title == "Opening Credits")
+            {
+                chapters[1].StartOffsetMs = chapters[0].StartOffsetMs;
+                chapters[1].StartOffsetSec = chapters[0].StartOffsetSec;
+                chapters[1].LengthMs += chapters[0].LengthMs;
+                chapters.RemoveAt(0);
+            }
+            if (chapters.Count > 1 && chapters[^1].Title == "End Credits")
+            {
+                chapters[^2].LengthMs += chapters[^1].LengthMs;
+                chapters.Remove(chapters[^1]);
+            }
+        }
+
+        private static void downloadValidation(LibraryBook libraryBook)
+        {
+            string errorString(string field)
+                => $"{errorTitle()}\r\nCannot download book. {field} is not known. Try re-importing the account which owns this book.";
+
+            string errorTitle()
+            {
+                var title
+                    = (libraryBook.Book.Title.Length > 53)
+                    ? $"{libraryBook.Book.Title.Truncate(50)}..."
+                    : libraryBook.Book.Title;
+                var errorBookTitle = $"{title} [{libraryBook.Book.AudibleProductId}]";
+                return errorBookTitle;
+            };
+
+            if (string.IsNullOrWhiteSpace(libraryBook.Account))
+                throw new Exception(errorString("Account"));
+
+            if (string.IsNullOrWhiteSpace(libraryBook.Book.Locale))
+                throw new Exception(errorString("Locale"));
+        }
+
+        private void AaxcDownloader_RetrievedCoverArt(object _, byte[] e)
+        {
+            if (e is not null)
+                OnCoverImageDiscovered(e);
+            else if (Configuration.Instance.AllowLibationFixup)
+                abDownloader.SetCoverArt(OnRequestCoverArt());
+        }
+
+        /// <summary>Move new files to 'Books' directory</summary>
+        /// <returns>Return directory if audiobook file(s) were successfully created and can be located on disk. Else null.</returns>
+        private static string moveFilesToBooksDir(LibraryBook libraryBook, List<FilePathCache.CacheEntry> entries)
+        {
+            // create final directory. move each file into it
+            var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
+            Directory.CreateDirectory(destinationDir);
+
+            FilePathCache.CacheEntry getFirstAudio() => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
+
+            if (getFirstAudio() == default)
+                return null;
+
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+
+                var realDest = FileUtility.SaferMoveToValidPath(entry.Path, Path.Combine(destinationDir, Path.GetFileName(entry.Path)), Configuration.Instance.ReplacementCharacters);
+                FilePathCache.Insert(libraryBook.Book.AudibleProductId, realDest);
+
+                // propagate corrected path. Must update cache with corrected path. Also want updated path for cue file (after this for-loop)
+                entries[i] = entry with { Path = realDest };
+            }
+
+            var cue = entries.FirstOrDefault(f => f.FileType == FileType.Cue);
+            if (cue != default)
+                Cue.UpdateFileName(cue.Path, getFirstAudio().Path);
+
+            AudibleFileStorage.Audio.Refresh();
+
+            return destinationDir;
+        }
+
+        private static void downloadCoverArt(LibraryBook libraryBook)
+        {
+            var coverPath = "[null]";
+
+            try
+            {
+                var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
+                coverPath = AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, ".jpg");
+                coverPath = Path.Combine(destinationDir, Path.GetFileName(coverPath));
+
+                if (File.Exists(coverPath))
+                    FileUtility.SaferDelete(coverPath);
+
+                var picBytes = PictureStorage.GetPictureSynchronously(new(libraryBook.Book.PictureLarge ?? libraryBook.Book.PictureId, PictureSize.Native));
+                if (picBytes.Length > 0)
+                    File.WriteAllBytes(coverPath, picBytes);
+            }
+            catch (Exception ex)
+            {
+                //Failure to download cover art should not be considered a failure to download the book
+                Serilog.Log.Logger.Error(ex, $"Error downloading cover art of {libraryBook.Book.AudibleProductId} to {coverPath} catalog product.");
+            }
+        }
+    }
 }
