@@ -19,7 +19,17 @@ namespace LibationCli
 			strProc.Begin += (o, e) => Console.WriteLine($"{typeof(TProcessable).Name} Begin: {e}");
 			strProc.Completed += (o, e) => Console.WriteLine($"{typeof(TProcessable).Name} Completed: {e}");
 
-			strProc.Completed += completedAction;
+			strProc.Completed += (s, e) =>
+			{
+				try
+				{
+					completedAction?.Invoke(s, e);
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, "CLI error");
+				}
+			};
 
 			return strProc;
 		}

@@ -25,9 +25,10 @@ namespace LibationCli
 			var downloadPdf = CreateProcessable<DownloadPdf>();
 
 			//Chain pdf download on DownloadDecryptBook.Completed
-			async void onDownloadDecryptBookCompleted(object sender, LibraryBook e)
+			void onDownloadDecryptBookCompleted(object sender, LibraryBook e)
 			{
-				await downloadPdf.TryProcessAsync(e);
+				// this is fast anyway. run as sync for easy exception catching
+				downloadPdf.TryProcessAsync(e).GetAwaiter().GetResult();
 			}
 
 			var downloadDecryptBook = CreateProcessable<DownloadDecryptBook>(onDownloadDecryptBookCompleted);
