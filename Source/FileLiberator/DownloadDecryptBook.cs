@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using AaxDecrypter;
 using ApplicationServices;
 using AudibleApi;
+using AudibleApi.Common;
 using DataLayer;
 using Dinah.Core;
+using Dinah.Core.Collections.Generic;
 using Dinah.Core.ErrorHandling;
 using FileManager;
 using LibationFileManager;
@@ -96,20 +98,63 @@ namespace FileLiberator
 			}
 		}
 
-		private async Task<bool> downloadAudiobookAsync(LibraryBook libraryBook)
+        private async Task<bool> downloadAudiobookAsync(LibraryBook libraryBook)
 		{
-			var config = Configuration.Instance;
-
 			downloadValidation(libraryBook);
 
 			var api = await libraryBook.GetApiAsync();
-			var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+
+			var catalogProduct = await api.GetCatalogProductAsync(libraryBook.Book.AudibleProductId, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+
+            // normal non-MultiPart
+            if (!catalogProduct.ContentDeliveryType.In(ContentDeliveryType.MultiPartIssue, ContentDeliveryType.MultiPartBook))
+            {
+                var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+                return await downloadAudiobookPartAsync(contentLic, libraryBook);
+            }
+
+            #region // notes on multi-part
+            // Frankly, decoupling asin and LibraryBook can be potentially dicey depending on how LibraryBook is used down the line.
+            // I checked and it passes cursory inspection. **No promises though.** If you find something that looks wrong, it probably is.
+
+            // the only multi-part title we've found in the wild so far is B002V1PM18
+            // run this un-authenticated call to see its Relationship values
+            //   GetCatalogProductAsync("B002V1PM18", ALL_OPTIONS)
+
+            // there's a bit of guess-work in the code below. In B002V1PM18:
+            // there's some single part we don't need
+            //   RelationshipToProduct: "child"
+            //   RelationshipType: "merchant_title_authority"
+            // and the multiple Relationship parts we do want to download
+            //   RelationshipToProduct: "child"
+            //   RelationshipType:      "component"
+            #endregion
+            // multi-part: handle each part separately
+            var asins = catalogProduct.Relationships
+				.Where(r => r.RelationshipType.In(RelationshipType.Component, RelationshipType.Episode))
+				.OrderBy(r => r.Sort)
+				.Select(r => r.Asin)
+				.ToList();
+			var result = true;
+            foreach (var asin in asins)
+            {
+                var contentLic = await api.GetDownloadLicenseAsync(asin);
+                var success = await downloadAudiobookPartAsync(contentLic, libraryBook);
+				result &= success;
+            }
+			return result;
+        }
+
+        private async Task<bool> downloadAudiobookPartAsync(ContentLicense contentLic, LibraryBook libraryBook)
+		{
+			var config = Configuration.Instance;
+
 			var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
 
 			var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, dlOptions.OutputFormat.ToString().ToLower());
 			var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
-			if (contentLic.DrmType != AudibleApi.Common.DrmType.Adrm)
+			if (contentLic.DrmType != DrmType.Adrm)
 				abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, dlOptions);
 			else
 			{
@@ -138,15 +183,15 @@ namespace FileLiberator
 			return success;
 		}
 
-		private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, AudibleApi.Common.ContentLicense contentLic)
+		private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, ContentLicense contentLic)
 		{
 			//I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
 			//I also assume that if DrmType != Adrm, the file will be an mp3.
 			//These assumptions may be wrong, and only time and bug reports will tell.
 
-			bool encrypted = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm;
+			var isEncrypted = contentLic.DrmType == DrmType.Adrm;
 
-			var outputFormat = !encrypted || (config.AllowLibationFixup && config.DecryptToLossy) ?
+			var outputFormat = !isEncrypted || (config.AllowLibationFixup && config.DecryptToLossy) ?
 					 OutputFormat.Mp3 : OutputFormat.M4b;
 
 			long chapterStartMs = config.StripAudibleBrandAudio ?
@@ -163,7 +208,7 @@ namespace FileLiberator
 				AudibleIV = contentLic?.Voucher?.Iv,
 				OutputFormat = outputFormat,
 				TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
-				RetainEncryptedFile = config.RetainAaxFile && encrypted,
+				RetainEncryptedFile = config.RetainAaxFile && isEncrypted,
 				StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
 				Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
 				MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
@@ -270,9 +315,9 @@ namespace FileLiberator
 
 		*/
 
-		public static List<AudibleApi.Common.Chapter> flattenChapters(IList<AudibleApi.Common.Chapter> chapters, string titleConcat = ": ")
+		public static List<Chapter> flattenChapters(IList<Chapter> chapters, string titleConcat = ": ")
 		{
-			List<AudibleApi.Common.Chapter> chaps = new();
+			List<Chapter> chaps = new();
 
 			foreach (var c in chapters)
 			{
@@ -301,7 +346,7 @@ namespace FileLiberator
 			return chaps;
 		}
 
-		public static void combineCredits(IList<AudibleApi.Common.Chapter> chapters)
+		public static void combineCredits(IList<Chapter> chapters)
 		{
 			if (chapters.Count > 1 && chapters[0].Title == "Opening Credits")
 			{

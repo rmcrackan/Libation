@@ -9,7 +9,6 @@ namespace FileLiberator
 {
     public class DownloadOptions : IDownloadOptions
     {
-        public LibraryBook LibraryBook { get; }
         public LibraryBookDto LibraryBookDto { get; }
         public string DownloadUrl { get; }
         public string UserAgent { get; }
@@ -35,11 +34,11 @@ namespace FileLiberator
 
         public DownloadOptions(LibraryBook libraryBook, string downloadUrl, string userAgent)
         {
-            LibraryBook = ArgumentValidator.EnsureNotNull(libraryBook, nameof(libraryBook));
+            LibraryBookDto = ArgumentValidator
+                .EnsureNotNull(libraryBook, nameof(libraryBook))
+                .ToDto();
             DownloadUrl = ArgumentValidator.EnsureNotNullOrEmpty(downloadUrl, nameof(downloadUrl));
             UserAgent = ArgumentValidator.EnsureNotNullOrEmpty(userAgent, nameof(userAgent));
-
-            LibraryBookDto = LibraryBook.ToDto();
 
             // no null/empty check for key/iv. unencrypted files do not have them
         }
