@@ -46,13 +46,17 @@ namespace LibationFileManager
                 return;
             }
 
+            /*
+            * Commented code used to locate assemblies from the *ConfigApp.exe's module list.
+            * Use this method to locate dependencies when they are not in Libation's program files directory.
 #if DEBUG
 
-            // runs the exe and gets the exe's loaded modules
-            ModuleList = LoadModuleList(Path.GetFileNameWithoutExtension(configApp))
-                .OrderBy(x => x.ModuleName)
-                .ToList();
+           // runs the exe and gets the exe's loaded modules
+           ModuleList = LoadModuleList(Path.GetFileNameWithoutExtension(configApp))
+               .OrderBy(x => x.ModuleName)
+               .ToList();
 #endif
+            */
 
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
@@ -76,6 +80,9 @@ namespace LibationFileManager
             return appName;
         }
 
+       /*
+        * Use this method to locate dependencies when they are not in Libation's program files directory.
+        * 
         private static List<ProcessModule> LoadModuleList(string exeName)
         {
             var proc = new Process
@@ -112,24 +119,30 @@ namespace LibationFileManager
 
             return modules;
         }
+        */
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             // e.g. "System.Windows.Forms, Version=6.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
             var asmName = args.Name.Split(',')[0] + ".dll";
 
-#if DEBUG
+
+            /*
+             * Commented code used to locate assemblies from the *ConfigApp.exe's module list.
+             * Use this method to locate dependencies when they are not in Libation's program files directory.
+ #if DEBUG
 
             var modulePath = ModuleList.SingleOrDefault(m => m.ModuleName.EqualsInsensitive(asmName))?.FileName;
-#else
+ #else
+            */
             var here = Path.GetDirectoryName(Environment.ProcessPath);
 
-            // find '*ConfigApp.dll' files
+            // find the requested assembly in the program files directory
             var modulePath =
                 Directory.EnumerateFiles(here, asmName, SearchOption.TopDirectoryOnly)
                 .SingleOrDefault();
 
-#endif
+            //#endif
             if (modulePath is null)
             {
                 //Let the runtime handle any dll not found exceptions.
