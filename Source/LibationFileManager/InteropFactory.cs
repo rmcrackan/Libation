@@ -66,7 +66,7 @@ namespace LibationFileManager
         {
             var here = Path.GetDirectoryName(Environment.ProcessPath);
 
-            // find '*ConfigApp.exe' files
+            // find '*ConfigApp.dll' files
             var appName =
                 Directory.EnumerateFiles(here, $"*{CONFIG_APP_ENDING}", SearchOption.TopDirectoryOnly)
                 // sanity check. shouldn't ever be true
