@@ -121,7 +121,6 @@ namespace LibationFileManager
 
 #if DEBUG
 
-            // `First` instead of `FirstOrDefault`. If it's not present we're going to fail anyway. May as well be here
             var modulePath = ModuleList.SingleOrDefault(m => m.ModuleName.EqualsInsensitive(asmName))?.FileName;
 #else
             var here = Path.GetDirectoryName(Environment.ProcessPath);
@@ -134,6 +133,7 @@ namespace LibationFileManager
 #endif
             if (modulePath is null)
             {
+                //Let the runtime handle any dll not found exceptions.
                 Serilog.Log.Logger.Error($"Unable to load module {args.Name}");
                 return null;
             }
