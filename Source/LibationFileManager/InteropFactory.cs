@@ -48,7 +48,6 @@ namespace LibationFileManager
 
 #if DEBUG
 
-
             // runs the exe and gets the exe's loaded modules
             ModuleList = LoadModuleList(Path.GetFileNameWithoutExtension(configApp))
                 .OrderBy(x => x.ModuleName)
@@ -69,7 +68,7 @@ namespace LibationFileManager
 
             // find '*ConfigApp.exe' files
             var appName =
-                Directory.EnumerateFiles(here, $"*{CONFIG_APP_ENDING}*", SearchOption.TopDirectoryOnly)
+                Directory.EnumerateFiles(here, $"*{CONFIG_APP_ENDING}", SearchOption.TopDirectoryOnly)
                 // sanity check. shouldn't ever be true
                 .Except(new[] { Environment.ProcessPath })
                 .FirstOrDefault(exe => MatchesOS(exe));
