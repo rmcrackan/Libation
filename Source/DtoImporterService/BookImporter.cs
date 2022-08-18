@@ -84,7 +84,8 @@ namespace DtoImporterService
 			// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
 			var authors = item
 				.Authors
-				.Select(a => contributorImporter.Cache[a.Name])
+                .DistinctBy(a => a.Name)
+                .Select(a => contributorImporter.Cache[a.Name])
 				.ToList();
 
 			var narrators
@@ -94,7 +95,8 @@ namespace DtoImporterService
 				// nested logic is required so order of names is retained. else, contributors may appear in the order they were inserted into the db
 				: item
 					.Narrators
-					.Select(n => contributorImporter.Cache[n.Name])
+					.DistinctBy(a => a.Name)
+                    .Select(n => contributorImporter.Cache[n.Name])
 					.ToList();
 
 			// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
