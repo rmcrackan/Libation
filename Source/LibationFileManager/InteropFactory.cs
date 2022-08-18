@@ -39,14 +39,15 @@ namespace LibationFileManager
             // searches file names for potential matches; doesn't run anything
             var configApp = getOSConfigApp();
 
-#if DEBUG
-
             // nothing to load
             if (configApp is null)
             {
                 Serilog.Log.Logger.Error($"Unable to locate *{CONFIG_APP_ENDING}");
                 return;
             }
+
+#if DEBUG
+
 
             // runs the exe and gets the exe's loaded modules
             ModuleList = LoadModuleList(Path.GetFileNameWithoutExtension(configApp))
@@ -56,7 +57,7 @@ namespace LibationFileManager
 
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
-            var configAppAssembly = Assembly.LoadFrom(Path.ChangeExtension(configApp, "dll"));
+            var configAppAssembly = Assembly.LoadFrom(configApp);
             var type = typeof(IInteropFunctions);
             InteropFunctionsType = configAppAssembly
                 .GetTypes()
@@ -121,7 +122,7 @@ namespace LibationFileManager
 #if DEBUG
 
             // `First` instead of `FirstOrDefault`. If it's not present we're going to fail anyway. May as well be here
-            var modulePath = ModuleList.SingleOrDefault(m => m.ModuleName.EqualsInsensitive(asmName)).FileName;
+            var modulePath = ModuleList.SingleOrDefault(m => m.ModuleName.EqualsInsensitive(asmName))?.FileName;
 #else
             var here = Path.GetDirectoryName(Environment.ProcessPath);
 
