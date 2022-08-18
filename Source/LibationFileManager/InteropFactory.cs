@@ -21,7 +21,7 @@ namespace LibationFileManager
 
         private static IInteropFunctions _create(params object[] values)
             => InteropFunctionsType is null ? new NullInteropFunctions()
-//: values is null || values.Length == 0 ? Activator.CreateInstance(InteropFunctionsType) as IInteropFunctions
+            //: values is null || values.Length == 0 ? Activator.CreateInstance(InteropFunctionsType) as IInteropFunctions
             : Activator.CreateInstance(InteropFunctionsType, values) as IInteropFunctions;
 
         #region load types
@@ -32,21 +32,27 @@ namespace LibationFileManager
             : Configuration.IsMacOs ? a => Path.GetFileName(a).StartsWithInsensitive("mac") || Path.GetFileName(a).StartsWithInsensitive("osx")
             : _ => false;
 
-        private const string CONFIG_APP_ENDING = "ConfigApp.exe";
+        private const string CONFIG_APP_ENDING = "ConfigApp.dll";
         private static List<ProcessModule> ModuleList { get; } = new();
         static InteropFactory()
         {
             // searches file names for potential matches; doesn't run anything
             var configApp = getOSConfigApp();
 
+#if DEBUG
+
             // nothing to load
             if (configApp is null)
+            {
+                Serilog.Log.Logger.Error($"Unable to locate *{CONFIG_APP_ENDING}");
                 return;
+            }
 
             // runs the exe and gets the exe's loaded modules
             ModuleList = LoadModuleList(Path.GetFileNameWithoutExtension(configApp))
                 .OrderBy(x => x.ModuleName)
                 .ToList();
+#endif
 
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
@@ -61,18 +67,13 @@ namespace LibationFileManager
             var here = Path.GetDirectoryName(Environment.ProcessPath);
 
             // find '*ConfigApp.exe' files
-            var exes =
-                Directory.EnumerateFiles(here, $"*{CONFIG_APP_ENDING}", SearchOption.TopDirectoryOnly)
+            var appName =
+                Directory.EnumerateFiles(here, $"*{CONFIG_APP_ENDING}*", SearchOption.TopDirectoryOnly)
                 // sanity check. shouldn't ever be true
                 .Except(new[] { Environment.ProcessPath })
-                .Where(exe =>
-                    // has a corresponding dll
-                    File.Exists(Path.ChangeExtension(exe, "dll"))
-                    && MatchesOS(exe)
-                )
-                .ToList();
-            var exeName = exes.FirstOrDefault();
-            return exeName;
+                .FirstOrDefault(exe => MatchesOS(exe));
+
+            return appName;
         }
 
         private static List<ProcessModule> LoadModuleList(string exeName)
@@ -115,12 +116,28 @@ namespace LibationFileManager
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             // e.g. "System.Windows.Forms, Version=6.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
-            var asmName = args.Name.Split(',')[0];
+            var asmName = args.Name.Split(',')[0] + ".dll";
+
+#if DEBUG
 
             // `First` instead of `FirstOrDefault`. If it's not present we're going to fail anyway. May as well be here
-            var module = ModuleList.First(m => m.ModuleName.StartsWith(asmName));
+            var modulePath = ModuleList.SingleOrDefault(m => m.ModuleName.EqualsInsensitive(asmName)).FileName;
+#else
+            var here = Path.GetDirectoryName(Environment.ProcessPath);
 
-            return Assembly.LoadFrom(module.FileName);
+            // find '*ConfigApp.dll' files
+            var modulePath =
+                Directory.EnumerateFiles(here, asmName, SearchOption.TopDirectoryOnly)
+                .SingleOrDefault();
+
+#endif
+            if (modulePath is null)
+            {
+                Serilog.Log.Logger.Error($"Unable to load module {args.Name}");
+                return null;
+            }
+
+            return Assembly.LoadFrom(modulePath);
         }
 
         #endregion
