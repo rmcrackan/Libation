@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
+using Dinah.Core.ErrorHandling;
 using Dinah.Core.WindowsDesktop.Drawing;
 using FileLiberator;
 using LibationFileManager;
@@ -279,36 +280,47 @@ namespace LibationWinForms.ProcessQueue
 			updateBookInfo();
 		}
 
-		private async void Processable_Completed(object sender, LibraryBook libraryBook)
-		{
-			Logger.Info($"{((Processable)sender).Name} Step, Completed: {libraryBook.Book}");
-			UnlinkProcessable((Processable)sender);
+        private async void Processable_Completed(object sender, LibraryBook libraryBook)
+        {
+            Logger.Info($"{((Processable)sender).Name} Step, Completed: {libraryBook.Book}");
+            UnlinkProcessable((Processable)sender);
 
-			if (Processes.Count > 0)
-			{
-				NextProcessable();
-				LinkProcessable(CurrentProcessable);
-				var result = await CurrentProcessable.ProcessSingleAsync(libraryBook, validate: true);
+            if (Processes.Count == 0)
+            {
+                Completed?.Invoke(this, EventArgs.Empty);
+                return;
+            }
 
-				if (result.HasErrors)
-				{
-					foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
-						Logger.Error(errorMessage);
+            NextProcessable();
+            LinkProcessable(CurrentProcessable);
 
-					Completed?.Invoke(this, EventArgs.Empty);
-				}
-			}
-			else
-			{
-				Completed?.Invoke(this, EventArgs.Empty);
-			}
-		}
+            StatusHandler result;
+            try
+            {
+                result = await CurrentProcessable.ProcessSingleAsync(libraryBook, validate: true);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Logger.Error(ex, $"{nameof(Processable_Completed)} error");
 
-		#endregion
+                result = new StatusHandler();
+                result.AddError($"{nameof(Processable_Completed)} error. See log for details. Error summary: {ex.Message}");
+            }
 
-		#region Failure Handler
+            if (result.HasErrors)
+            {
+                foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
+                    Logger.Error(errorMessage);
 
-		private ProcessBookResult showRetry(LibraryBook libraryBook)
+                Completed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        #endregion
+
+        #region Failure Handler
+
+        private ProcessBookResult showRetry(LibraryBook libraryBook)
 		{
 			Logger.Error("ERROR. All books have not been processed. Most recent book: processing failed");
 

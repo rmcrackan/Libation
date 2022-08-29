@@ -7,6 +7,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using DataLayer;
 using Dinah.Core;
+using Dinah.Core.ErrorHandling;
 using FileLiberator;
 using LibationFileManager;
 using ReactiveUI;
@@ -289,25 +290,36 @@ namespace LibationAvalonia.ViewModels
 			Logger.Info($"{((Processable)sender).Name} Step, Completed: {libraryBook.Book}");
 			UnlinkProcessable((Processable)sender);
 
-			if (Processes.Count > 0)
-			{
-				NextProcessable();
-				LinkProcessable(CurrentProcessable);
-				var result = await CurrentProcessable.ProcessSingleAsync(libraryBook, validate: true);
+            if (Processes.Count == 0)
+            {
+                Completed?.Invoke(this, EventArgs.Empty);
+				return;
+            }
 
-				if (result.HasErrors)
-				{
-					foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
-						Logger.Error(errorMessage);
+            NextProcessable();
+            LinkProcessable(CurrentProcessable);
 
-					Completed?.Invoke(this, EventArgs.Empty);
-				}
-			}
-			else
+			StatusHandler result;
+            try
 			{
-				Completed?.Invoke(this, EventArgs.Empty);
-			}
-		}
+				result = await CurrentProcessable.ProcessSingleAsync(libraryBook, validate: true);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Logger.Error(ex, $"{nameof(Processable_Completed)} error");
+
+                result = new StatusHandler();
+                result.AddError($"{nameof(Processable_Completed)} error. See log for details. Error summary: {ex.Message}");
+            }
+
+            if (result.HasErrors)
+            {
+                foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
+                    Logger.Error(errorMessage);
+
+                Completed?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
 		#endregion
 

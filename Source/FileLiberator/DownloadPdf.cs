@@ -24,7 +24,7 @@ namespace FileLiberator
 		{
 			OnBegin(libraryBook);
 
-			try
+            try
 			{
 				var proposedDownloadFilePath = getProposedDownloadFilePath(libraryBook);
 				var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
@@ -32,13 +32,22 @@ namespace FileLiberator
 
 				libraryBook.Book.UpdatePdfStatus(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
 
-				return result;
-			}
+                return result;
+            }
+			catch (Exception ex)
+            {
+                Serilog.Log.Logger.Error(ex, "Error downloading PDF");
+
+                var result = new StatusHandler();
+                result.AddError($"Error downloading PDF. See log for details. Error summary: {ex.Message}");
+
+                return result;
+            }
 			finally
 			{
 				OnCompleted(libraryBook);
-			}
-		}
+            }
+        }
 
 		private static string getProposedDownloadFilePath(LibraryBook libraryBook)
 		{
