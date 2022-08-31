@@ -1,4 +1,11 @@
-# Run Libation on Ubuntu
+## [Download Libation](https://github.com/rmcrackan/Libation/releases/latest)
+
+### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PalPal.me](https://paypal.me/mcrackan?locale.x=en_us)
+...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
+
+
+
+# Run Libation on Ubuntu (Beta)
 This walkthrough should get you up and running with Libation on your Ubuntu machine.
 
 Some limitations of the linux release are:
