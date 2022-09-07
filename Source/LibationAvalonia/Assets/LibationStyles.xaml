@@ -9,4 +9,8 @@
 		<SolidColorBrush x:Key="ProcessQueueBookDefaultBrush" Color="{StaticResource SystemAltHighColor}" />
 		<SolidColorBrush x:Key="ProcessQueueBookBorderBrush" Color="Gray" />
 	</Styles.Resources>
+	<Style Selector="TextBox[IsReadOnly=true]">
+		<Setter Property="Background" Value="LightGray" />
+		<Setter Property="CaretBrush" Value="#00000000" />
+	</Style>
 </Styles>
