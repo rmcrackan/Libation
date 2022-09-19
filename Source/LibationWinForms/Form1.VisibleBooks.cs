@@ -80,7 +80,7 @@ namespace LibationWinForms
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
-				$"Are you sure you want to replace tags in {0}?",
+				"Are you sure you want to replace tags in {0}?",
 				"Replace tags?");
 
 			if (confirmationResult != DialogResult.Yes)
