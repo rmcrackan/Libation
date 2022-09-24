@@ -53,7 +53,7 @@
 
 ### The bad
 
-* Windows only
+* Only fully supported in Windows. (Mac and Linux are in beta)
 * Large file size
 * Made by a programmer, not a designer so the goals are function rather than beauty. And it shows
 
