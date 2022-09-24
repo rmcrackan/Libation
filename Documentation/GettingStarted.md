@@ -26,7 +26,7 @@
 
 Extract the zip file to a folder and then run `Libation.exe` from inside of that folder.
 
-* [Ubuntu (beta)](InstallOnLinux.md)
+* [Ubuntu Linux (beta)](InstallOnLinux.md)
 * [MacOS (beta)](InstallOnMac.md)
 
 ### Create Accounts
