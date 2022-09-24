@@ -27,7 +27,6 @@
     - [Filters](Documentation/SearchingAndFiltering.md#filters)
 - [Advanced](Documentation/Advanced.md)
     - [Files and folders](Documentation/Advanced.md#files-and-folders)
-    - [Linux and Mac (unofficial)](Documentation/Advanced.md#linux-and-mac)
     - [Settings](Documentation/Advanced.md#settings)
     - [Custom File Naming](Documentation/Advanced.md#custom-file-naming)
     - [Command Line Interface](Documentation/Advanced.md#command-line-interface)
