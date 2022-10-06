@@ -21,4 +21,20 @@ sudo spctl --add --label "Libation" ./Libation
 ./Libation
 ```
 
+## Trouble with Gatekeeper?
+
+If Gatekeeper is giving you trouble with Libation:
+
+Disable the block
+
+`sudo spctl --master-disable`
+
+Launch Libation and login, etc. and allow the rules to update then re-enable the block.
+
+`sudo spctl --master-enable`
+
+Once Gatekeeper reenabled, you can open Libation again without it being blocked.
+
+Thanks [joseph-holland](https://github.com/rmcrackan/Libation/issues/327#issuecomment-1268993349)!
+
 Report bugs to https://github.com/rmcrackan/Libation/issues
