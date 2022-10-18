@@ -44,7 +44,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Autoupdater.NET.Official" Version="1.7.5" />
-		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="5.2.2.1" />
+		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="5.2.3.1" />
 	</ItemGroup>
 
 	<ItemGroup>
