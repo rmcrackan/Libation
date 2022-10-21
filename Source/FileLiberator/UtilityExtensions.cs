@@ -31,6 +31,7 @@ namespace FileLiberator
 			AudibleProductId = libraryBook.Book.AudibleProductId,
 			Title = libraryBook.Book.Title ?? "",
 			Locale = libraryBook.Book.Locale,
+			YearPublished = libraryBook.Book.DatePublished?.Year,
 
 			Authors = libraryBook.Book.Authors.Select(c => c.Name).ToList(),
 

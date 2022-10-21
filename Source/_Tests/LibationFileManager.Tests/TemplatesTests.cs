@@ -29,7 +29,8 @@ namespace TemplatesTests
 				AudibleProductId = "asin",
 				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
 				Locale = "us",
-				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
+                YearPublished = 2017,
+                Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
 				Narrators = new List<string> { "Stephen Fry" },
 				SeriesName = seriesName ?? "",
 				SeriesNumber = "1",
@@ -87,7 +88,8 @@ namespace TemplatesTests
 		[DataRow("f", @"C:\foo\bar", "ext", @"C:\foo\bar\f.ext")]
 		[DataRow("<id>", @"C:\foo\bar", "ext", @"C:\foo\bar\asin.ext")]
         [DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\128 - 44100 - 2.ext")]
-		public void Tests(string template, string dirFullPath, string extension, string expected)
+        [DataRow("<year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\2017 - 2.ext")]
+        public void Tests(string template, string dirFullPath, string extension, string expected)
 			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension)
 			.GetFilePath(Replacements)
 			.PathWithoutPrefix

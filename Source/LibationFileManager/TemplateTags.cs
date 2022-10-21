@@ -39,6 +39,7 @@ namespace LibationFileManager
         public static TemplateTags Channels { get; } = new TemplateTags("channels", "Number of audio channels");
         public static TemplateTags Account { get; } = new TemplateTags("account", "Audible account of this book");
         public static TemplateTags Locale { get; } = new TemplateTags("locale", "Region/country");
+        public static TemplateTags YearPublished { get; } = new TemplateTags("year", "Year published");
 
         // Special case. Isn't mapped to a replacement in Templates.cs
         // Included here for display by EditTemplateDialog

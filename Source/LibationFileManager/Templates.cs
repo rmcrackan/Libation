@@ -142,8 +142,9 @@ namespace LibationFileManager
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.Channels, libraryBookDto.Channels);
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.Account, libraryBookDto.Account);
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.Locale, libraryBookDto.Locale);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.YearPublished, libraryBookDto.YearPublished?.ToString() ?? "1900");
 
-			return fileNamingTemplate;
+            return fileNamingTemplate;
 		}
 		#endregion
 

@@ -138,6 +138,7 @@ namespace LibationAvalonia.Dialogs
 					AudibleProductId = "123456789",
 					Title = "A Study in Scarlet: A Sherlock Holmes Novel",
 					Locale = "us",
+					YearPublished = 2017,
 					Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
 					Narrators = new List<string> { "Stephen Fry" },
 					SeriesName = "Sherlock Holmes",
