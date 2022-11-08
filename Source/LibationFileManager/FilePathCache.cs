@@ -24,23 +24,24 @@ namespace LibationFileManager
         static FilePathCache()
         {
 			// load json into memory. if file doesn't exist, nothing to do. save() will create if needed
-			if (File.Exists(jsonFile))
-			{
-				var list = JsonConvert.DeserializeObject<List<CacheEntry>>(File.ReadAllText(jsonFile));
+			if (!File.Exists(jsonFile))
+				return;
 
-				// file exists but deser is null. this will never happen when file is healthy
-				if (list is null)
-				{
-					lock (locker)
-					{
-						Serilog.Log.Logger.Error("Error deserializing file. Wrong format. Possibly corrupt. Deleting file. {@DebugInfo}", new { jsonFile });
-						File.Delete(jsonFile);
-						return;
-					}
-				}
+            try
+            {
+                var list = JsonConvert.DeserializeObject<List<CacheEntry>>(File.ReadAllText(jsonFile));
+                if (list is null)
+                    throw new NullReferenceException("File exists but deserialize is null. This will never happen when file is healthy.");
 
-				cache = new Cache<CacheEntry>(list);
-			}
+                cache = new Cache<CacheEntry>(list);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Logger.Error(ex, "Error deserializing file. Wrong format. Possibly corrupt. Deleting file. {@DebugInfo}", new { jsonFile });
+                lock (locker)
+                    File.Delete(jsonFile);
+                return;
+            }
         }
 
         public static bool Exists(string id, FileType type) => GetFirstPath(id, type) is not null;
