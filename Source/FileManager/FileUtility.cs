@@ -212,25 +212,23 @@ namespace FileManager
 		{
 			var foundFiles = Enumerable.Empty<LongPath>();
 
-			if (searchOption == SearchOption.AllDirectories)
+			try
 			{
-				try
+				if (searchOption == SearchOption.AllDirectories)
 				{
-					IEnumerable <LongPath> subDirs = Directory.EnumerateDirectories(path).Select(p => (LongPath)p);
+					IEnumerable<LongPath> subDirs = Directory.EnumerateDirectories(path).Select(p => (LongPath)p);
 					// Add files in subdirectories recursively to the list
 					foreach (string dir in subDirs)
 						foundFiles = foundFiles.Concat(SaferEnumerateFiles(dir, searchPattern, searchOption));
 				}
-				catch (UnauthorizedAccessException) { }
-				catch (PathTooLongException) { }
-			}
 
-			try
-			{
 				// Add files from the current directory
 				foundFiles = foundFiles.Concat(Directory.EnumerateFiles(path, searchPattern).Select(f => (LongPath)f));
 			}
 			catch (UnauthorizedAccessException) { }
+			catch (PathTooLongException) { }
+            // Symbolic links will result in DirectoryNotFoundException. Ohter logical directories might also. Just skip them. Don't want to risk (or have to handle) infinite recursion
+            catch (DirectoryNotFoundException) { }
 
 			return foundFiles;
 		}
