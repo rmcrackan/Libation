@@ -102,7 +102,10 @@ Libation.
 ".Trim(), "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
-		public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
+        /// <summary>
+        /// Note: the format field should use {0} and NOT use the `$` string interpolation. Formatting is done inside this method.
+        /// </summary>
+        public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
 		{
 			if (libraryBooks is null || !libraryBooks.Any())
 				return DialogResult.Cancel;

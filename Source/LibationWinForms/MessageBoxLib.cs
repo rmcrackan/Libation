@@ -64,6 +64,9 @@ Libation.
 ".Trim(), "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
+		/// <summary>
+		/// Note: the format field should use {0} and NOT use the `$` string interpolation. Formatting is done inside this method.
+		/// </summary>
 		public static DialogResult ShowConfirmationDialog(IEnumerable<LibraryBook> libraryBooks, string format, string title)
 		{
 			if (libraryBooks is null || !libraryBooks.Any())

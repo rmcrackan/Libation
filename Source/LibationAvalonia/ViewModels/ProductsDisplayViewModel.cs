@@ -247,7 +247,8 @@ namespace LibationAvalonia.ViewModels
 			var result = await MessageBox.ShowConfirmationDialog(
 				null,
 				libraryBooks,
-				$"Are you sure you want to remove {selectedBooks.Count} books from Libation's library?",
+                // do not use `$` string interpolation. See impl.
+                "Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?");
 
 			if (result != DialogResult.Yes)

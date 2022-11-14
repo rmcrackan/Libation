@@ -80,6 +80,7 @@ namespace LibationWinForms
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
+				// do not use `$` string interpolation. See impl.
 				"Are you sure you want to replace tags in {0}?",
 				"Replace tags?");
 
@@ -102,7 +103,8 @@ namespace LibationWinForms
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
-				$"Are you sure you want to replace downloaded status in {0}?",
+                // do not use `$` string interpolation. See impl.
+                "Are you sure you want to replace downloaded status in {0}?",
 				"Replace downloaded status?");
 
 			if (confirmationResult != DialogResult.Yes)
@@ -119,7 +121,8 @@ namespace LibationWinForms
 
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
-				$"Are you sure you want to remove {0} from Libation's library?",
+                // do not use `$` string interpolation. See impl.
+                "Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?");
 
 			if (confirmationResult != DialogResult.Yes)
