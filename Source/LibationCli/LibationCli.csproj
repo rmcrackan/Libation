@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
@@ -44,7 +44,7 @@
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
 	</ItemGroup>
 
-	<Target Name="SpicNSpan"  AfterTargets="Clean">
+	<Target Name="SpicNSpan" AfterTargets="Clean">
 		<!-- Remove obj folder -->
 		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
 		<!-- Remove bin folder -->
