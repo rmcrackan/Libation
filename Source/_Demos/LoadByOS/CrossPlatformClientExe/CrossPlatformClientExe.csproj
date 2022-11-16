@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core" Version="5.3.0.1" />
+    <PackageReference Include="Dinah.Core" Version="7.0.0.1" />
   </ItemGroup>
 
 </Project>
