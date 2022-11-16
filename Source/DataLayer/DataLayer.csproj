@@ -12,12 +12,12 @@
   <ItemGroup>
     <PackageReference Include="Dinah.Core" Version="5.3.0.1" />
     <PackageReference Include="Dinah.EntityFrameworkCore" Version="5.0.2.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.10">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.10">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
