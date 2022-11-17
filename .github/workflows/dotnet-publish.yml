@@ -9,7 +9,7 @@ on:
       - 'v*'
 
 env:
-  DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
+  DOTNET_VERSION: '7' # The .NET SDK version to use
   DOTNET_SLN: './Source/Libation.sln'
   DOTNET_CONFIGURATION: 'Release'
 
