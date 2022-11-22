@@ -1,0 +1,58 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: build
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        description: 'Libation version'
+        required: true
+
+env:
+  DOTNET_VERSION: '7' # The .NET SDK version to use
+  DOTNET_CONFIGURATION: 'Release'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [Linux, MacOS, Windows]
+        ui: [Avalonia]
+        release_name: [chardonnay]
+        include:
+          - os: Windows
+            ui: WinForms
+            release_name: classic
+    steps:
+    - name: Lowercase os
+      run: |
+        echo "REPO=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build
+      working-directory: ./Source
+      run: |
+        dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin\Publish\${{ matrix.os }}-${{ matrix.release_name }} Libation${{ matrix.ui }}\Libation${{ matrix.ui }}.csproj -p:PublishProfile=Libation${{ matrix.ui }}\Properties\PublishProfiles\${{ matrix.os }}Profile.pubxml
+        dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin\Publish\${{ matrix.os }}-${{ matrix.release_name }} LoadByOS\${{ matrix.os }}ConfigApp\${{ matrix.os }}ConfigApp.csproj -p:PublishProfile=LoadByOS\${{ matrix.os }}ConfigApp\PublishProfiles\${{ matrix.os }}Profile.pubxml
+        dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin\Publish\${{ matrix.os }}-${{ matrix.release_name }} LibationCli\LibationCli.csproj -p:PublishProfile=LibationCli\Properties\PublishProfiles\${{ matrix.os }}Profile.pubxml
+        dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin\Publish\${{ matrix.os }}-${{ matrix.release_name }} Hangover${{ matrix.ui }}\Hangover${{ matrix.ui }}.csproj -p:PublishProfile=Hangover${{ matrix.ui }}\Properties\PublishProfiles\${{ matrix.os }}Profile.pubxml
+    - name: Rename release folder
+      working-directory: ./Source
+      run: ren ./bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} Libation.${{ inputs.version }}-${{ matrix.os }}-${{ matrix.release_name }}
+    - name: Zip artifact
+      run:  Compress-Archive ./Source/bin/Publish/Libation.${{ inputs.version }}-${{ matrix.os }}-${{ matrix.release_name }} Libation.${{ inputs.version }}-${{ matrix.os }}-${{ matrix.release_name }}.zip
+    - name: Publish artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Libation.${{ inputs.version }}-${{ matrix.os }}-${{ matrix.release_name }}
+        path: Libation.${{ inputs.version }}-${{ matrix.os }}-${{ matrix.release_name }}.zip
+        if-no-files-found: error

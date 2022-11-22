@@ -10,28 +10,12 @@ on:
     branches: [ "master" ]
 
 env:
-  DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
+  DOTNET_VERSION: '7' # The .NET SDK version to use
   DOTNET_SLN: './Source/Libation.sln'
   DOTNET_CONFIGURATION: 'Release'
 
 jobs:
   build:
-
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Restore dependencies
-      run: dotnet restore ${{ env.DOTNET_SLN }}
-
-    - name: Build
-      run: dotnet build --configuration ${{ env.DOTNET_CONFIGURATION }} --no-restore ${{ env.DOTNET_SLN }}
-
-    - name: Test
-      run: dotnet test --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity normal ${{ env.DOTNET_SLN }}
-      
+    uses: ./.github/workflows/dotnet-build.yml
+    with:
+      version: ${{ github.sha }}
