@@ -17,5 +17,3 @@ env:
 jobs:
   build:
     uses: ./.github/workflows/dotnet-build.yml
-    with:
-      version: ${{ github.sha }}

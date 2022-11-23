@@ -16,17 +16,34 @@ env:
 jobs:
   build:
     uses: ./.github/workflows/dotnet-build.yml
-    with:
-      version: ${{ github.ref_name }}
 
-  publish:
+  release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifact
+      - name: Calculate version
+        id: version
+        run: |
+          export TAG=${{ github.ref_name }}
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
           path: artifacts
+
+      - name: Rename artifacts
+        id: rename
+        working-directory: ./artifacts
+        run: for FILENAME in *; do mv ${FILENAME} Libation.${{ steps.version.outputs.version }}-${FILENAME,,}; done
+
+      - name: Zip assets
+        working-directory: ./artifacts
+        run:  |
+          for FILENAME in *; do zip -r ${FILENAME}.zip ${FILENAME}; done
+          mkdir ./assets
+          mv *.zip ./assets
+
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
@@ -34,15 +51,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
           tag_name: ${{ github.ref }}
-          release_name: Libation ${{ github.ref }}
+          release_name: Libation ${{ steps.version.outputs.version }}
           body: <Put a body here>
           draft: true
           prerelease: false
-      - name: Upload Release Assets
-        id: upload-release-assets
+
+      - name: Upload release assets
         uses: dwenegar/upload-release-assets@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           release_id: ${{ steps.create_release.outputs.id }}
-          assets_path: ./artifacts
+          assets_path: ./artifacts/assets

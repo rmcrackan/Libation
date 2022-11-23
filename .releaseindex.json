@@ -1,6 +1,6 @@
 {
-   "WindowsClassic": "Libation\\.v\\d+\\.\\d+\\.\\d+-Windows-chardonnay\\.zip",
-   "WindowsAvalonia":"Libation\\.v\\d+\\.\\d+\\.\\d+-Windows-chardonnay\\.zip",
-   "LinuxAvalonia":  "Libation\\.v\\d+\\.\\d+\\.\\d+-Linux-chardonnay",
-   "MacOSAvalonia":  "Libation\\.v\\d+\\.\\d+\\.\\d+-MacOS-chardonnay"
+   "WindowsClassic": "Libation\\.\\d+\\.\\d+\\.\\d+-Windows-classic\\.zip",
+   "WindowsAvalonia":"Libation\\.\\d+\\.\\d+\\.\\d+-Windows-chardonnay\\.zip",
+   "LinuxAvalonia":  "Libation\\.\\d+\\.\\d+\\.\\d+-Linux-chardonnay",
+   "MacOSAvalonia":  "Libation\\.\\d+\\.\\d+\\.\\d+-MacOS-chardonnay"
 }
