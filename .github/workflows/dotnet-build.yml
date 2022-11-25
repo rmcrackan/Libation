@@ -7,7 +7,6 @@ on:
   workflow_call:
 
 env:
-  DOTNET_VERSION: '7' # The .NET SDK version to use
   DOTNET_CONFIGURATION: 'Release'
 
 jobs:
@@ -27,14 +26,14 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-version: '7.x'
       env:
         NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build
       working-directory: ./Source
       run: |
         dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin\Publish\${{ matrix.os }}-${{ matrix.release_name }} Libation${{ matrix.ui }}\Libation${{ matrix.ui }}.csproj -p:PublishProfile=Libation${{ matrix.ui }}\Properties\PublishProfiles\${{ matrix.os }}Profile.pubxml
-        dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin\Publish\${{ matrix.os }}-${{ matrix.release_name }} LoadByOS\${{ matrix.os }}ConfigApp\${{ matrix.os }}ConfigApp.csproj -p:PublishProfile=LoadByOS\${{ matrix.os }}ConfigApp\PublishProfiles\${{ matrix.os }}Profile.pubxml
+        dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin\Publish\${{ matrix.os }}-${{ matrix.release_name }} LoadByOS\${{ matrix.os }}ConfigApp\${{ matrix.os }}ConfigApp.csproj -p:PublishProfile=LoadByOS\Properties\${{ matrix.os }}ConfigApp\PublishProfiles\${{ matrix.os }}Profile.pubxml
         dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin\Publish\${{ matrix.os }}-${{ matrix.release_name }} LibationCli\LibationCli.csproj -p:PublishProfile=LibationCli\Properties\PublishProfiles\${{ matrix.os }}Profile.pubxml
         dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin\Publish\${{ matrix.os }}-${{ matrix.release_name }} Hangover${{ matrix.ui }}\Hangover${{ matrix.ui }}.csproj -p:PublishProfile=Hangover${{ matrix.ui }}\Properties\PublishProfiles\${{ matrix.os }}Profile.pubxml
     - name: Publish artifact

@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net6.0-windows</TargetFramework>
+		<TargetFramework>net7.0-windows</TargetFramework>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ApplicationIcon>libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
@@ -44,7 +44,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Autoupdater.NET.Official" Version="1.7.6" />
-		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="5.2.4.1" />
+		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="7.0.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
