@@ -36,7 +36,7 @@ jobs:
         working-directory: ./artifacts
         run: |
           for FILENAME in *; do mv ${FILENAME} Libation.${{ steps.version.outputs.version }}-${FILENAME,,}; done
-          mv Libation.${{ steps.version.outputs.version }}-windows-classic.zip Classic-Libation.${{ steps.version.outputs.version }}-windows-classic.zip
+          mv Libation.${{ steps.version.outputs.version }}-windows-classic Classic-Libation.${{ steps.version.outputs.version }}-windows-classic
 
       - name: Zip assets
         working-directory: ./artifacts
