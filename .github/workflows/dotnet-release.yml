@@ -34,7 +34,9 @@ jobs:
       - name: Rename artifacts
         id: rename
         working-directory: ./artifacts
-        run: for FILENAME in *; do mv ${FILENAME} Libation.${{ steps.version.outputs.version }}-${FILENAME,,}; done
+        run: |
+          for FILENAME in *; do mv ${FILENAME} Libation.${{ steps.version.outputs.version }}-${FILENAME,,}; done
+          mv Libation.${{ steps.version.outputs.version }}-windows-classic.zip Classic-Libation.${{ steps.version.outputs.version }}-windows-classic.zip
 
       - name: Zip assets
         working-directory: ./artifacts
