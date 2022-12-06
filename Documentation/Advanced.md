@@ -71,4 +71,15 @@ export library to file
   libationcli export -p "C:\foo\bar\my.csv" -c
   libationcli export -p "C:\foo\bar\my.xlsx" --xlsx
   libationcli export -p "C:\foo\bar\my.xlsx" -x
+
+Set download statuses throughout library based on whether each book's audio file can be found.   
+Must include at least one flag: --downloaded , --not-downloaded.  
+Downloaded: If the audio file can be found, set download status to 'Downloaded'.  
+Not Downloaded: If the audio file cannot be found, set download status to 'Not Downloaded'  
+UI: Visible Books \> Set 'Downloaded' status automatically. Visible books. Prompts before saving changes  
+CLI: Full library. No prompt
+
+  libationcli set-status -d
+  libationcli set-status -n
+  libationcli set-status -d -n
 ```
