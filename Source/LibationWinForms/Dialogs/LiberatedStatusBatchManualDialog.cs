@@ -8,7 +8,7 @@ using LibationFileManager;
 
 namespace LibationWinForms.Dialogs
 {
-    public partial class LiberatedStatusBatchDialog : Form
+    public partial class LiberatedStatusBatchManualDialog : Form
     {
         public LiberatedStatus BookLiberatedStatus { get; private set; }
 
@@ -19,7 +19,7 @@ namespace LibationWinForms.Dialogs
             public override string ToString() => Text;
         }
 
-        public LiberatedStatusBatchDialog()
+        public LiberatedStatusBatchManualDialog()
         {
             InitializeComponent();
             this.SetLibationIcon();
@@ -34,12 +34,6 @@ namespace LibationWinForms.Dialogs
         {
             BookLiberatedStatus = ((liberatedComboBoxItem)this.bookLiberatedCb.SelectedItem).Status;
             this.DialogResult = DialogResult.OK;
-        }
-
-        private void cancelBtn_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
         }
     }
 }

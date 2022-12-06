@@ -110,7 +110,8 @@
 						</MenuItem.Styles>
 						<MenuItem Click="liberateVisible" Header="{Binding LiberateVisibleToolStripText_2}" IsEnabled="{Binding AnyVisibleNotLiberated}" />
 						<MenuItem Click="replaceTagsToolStripMenuItem_Click" Header="Replace _Tags..." />
-						<MenuItem Click="setDownloadedToolStripMenuItem_Click" Header="Set '_Downloaded' status..." />
+						<MenuItem Click="setDownloadedManualToolStripMenuItem_Click" Header="Set '_Downloaded' status manually..." />
+						<MenuItem Click="setDownloadedAutoToolStripMenuItem_Click" Header="Set '_Downloaded' status automatically..." />
 						<MenuItem Click="removeToolStripMenuItem_Click" Header="_Remove from library..." />
 					</MenuItem>
 

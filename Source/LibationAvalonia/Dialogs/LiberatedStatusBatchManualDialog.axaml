@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="120"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
-        x:Class="LibationAvalonia.Dialogs.LiberatedStatusBatchDialog"
+        x:Class="LibationAvalonia.Dialogs.LiberatedStatusBatchManualDialog"
         Title="Liberated status: Whether the book has been downloaded"
 		MinWidth="400" MinHeight="120"
 		MaxWidth="400" MaxHeight="120"

@@ -128,7 +128,7 @@ namespace LibationWinForms.GridView
 		/// <summary>Save edits to the database</summary>
 		public void Commit(string newTags, LiberatedStatus bookStatus, LiberatedStatus? pdfStatus)
 			// MVVM pass-through
-			=> Book.UpdateBook(newTags, bookStatus: bookStatus, pdfStatus: pdfStatus);
+			=> Book.UpdateUserDefinedItem(newTags, bookStatus: bookStatus, pdfStatus: pdfStatus);
 
 		#endregion
 

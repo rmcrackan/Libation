@@ -50,7 +50,7 @@ namespace LibationAvalonia.Dialogs
 
 		protected override void SaveAndClose()
         {
-            LibraryBook.Book.UpdateBook(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
+            LibraryBook.Book.UpdateUserDefinedItem(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
 			base.SaveAndClose();
 		}
 

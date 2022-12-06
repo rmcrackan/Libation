@@ -8,7 +8,7 @@ using CommandLine;
 
 namespace LibationCli
 {
-	[Verb("export", HelpText = "Must include path and flag for export file type: --xlsx , --csv , --json]")]
+	[Verb("export", HelpText = "Must include path and flag for export file type: --xlsx , --csv , --json")]
 	public class ExportOptions : OptionsBase
 	{
 		[Option(shortName: 'p', longName: "path", Required = true, HelpText = "Path to save file to.")]

@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="120"
+		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+        x:Class="LibationAvalonia.Dialogs.LiberatedStatusBatchAutoDialog"
+        Title="Liberated status: Whether the book has been downloaded"
+		MinHeight="100" MaxHeight="165"
+		MinWidth="600" MaxWidth="800"
+		WindowStartupLocation="CenterOwner"
+		Icon="/Assets/libation.ico">
+
+	<Grid RowDefinitions="Auto,Auto,Auto">
+		
+		<StackPanel
+			Grid.Row="0"
+			Orientation="Horizontal">
+
+			<CheckBox
+				Margin="0,0,0,10"
+				IsChecked="{Binding SetDownloaded, Mode=TwoWay}">
+
+				<TextBlock
+					TextWrapping="Wrap"
+					Text="If the audio file can be found, set download status to 'Downloaded'" />
+			</CheckBox>
+		</StackPanel>
+
+		<StackPanel
+			Grid.Row="1"
+			Orientation="Horizontal">
+
+			<CheckBox
+				Margin="0,0,0,10"
+				IsChecked="{Binding SetNotDownloaded, Mode=TwoWay}">
+
+				<TextBlock
+					TextWrapping="Wrap"
+					Text="If the audio file cannot be found, set download status to 'Not Downloaded'" />
+			</CheckBox>
+		</StackPanel>
+		
+		<Button
+			Grid.Row="2"
+			Padding="30,0,30,0"
+			Margin="10,0,10,10"
+			HorizontalAlignment="Right"
+			Height="25"
+			Content="Save"
+			Click="SaveButton_Clicked"/>
+	</Grid>
+</Window>

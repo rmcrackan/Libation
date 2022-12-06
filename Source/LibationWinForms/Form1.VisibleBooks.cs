@@ -87,14 +87,12 @@ namespace LibationWinForms
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			foreach (var libraryBook in visibleLibraryBooks)
-				libraryBook.Book.UserDefinedItem.Tags = dialog.NewTags;
-			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
-		}
+            visibleLibraryBooks.UpdateTags(dialog.NewTags);
+        }
 
-		private void setDownloadedToolStripMenuItem_Click(object sender, EventArgs e)
+		private void setDownloadedManualToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var dialog = new LiberatedStatusBatchDialog();
+			var dialog = new LiberatedStatusBatchManualDialog();
 			var result = dialog.ShowDialog();
 			if (result != DialogResult.OK)
 				return;
@@ -110,12 +108,36 @@ namespace LibationWinForms
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			foreach (var libraryBook in visibleLibraryBooks)
-				libraryBook.Book.UserDefinedItem.BookStatus = dialog.BookLiberatedStatus;
-			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
-		}
+			visibleLibraryBooks.UpdateBookStatus(dialog.BookLiberatedStatus);
+        }
 
-		private async void removeToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void setDownloadedAutoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dialog = new LiberatedStatusBatchAutoDialog();
+            var result = dialog.ShowDialog();
+            if (result != DialogResult.OK)
+                return;
+
+            var bulkSetStatus = new BulkSetDownloadStatus(productsDisplay.GetVisible(), dialog.SetDownloaded, dialog.SetNotDownloaded);
+            var count = await Task.Run(() => bulkSetStatus.Discover());
+
+			if (count == 0)
+				return;
+
+            var confirmationResult = MessageBox.Show(
+                bulkSetStatus.AggregateMessage,
+                "Replace downloaded status?",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button1);
+
+            if (confirmationResult != DialogResult.Yes)
+                return;
+
+            bulkSetStatus.Execute();
+        }
+
+        private async void removeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			var visibleLibraryBooks = productsDisplay.GetVisible();
 

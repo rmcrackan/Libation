@@ -1,6 +1,6 @@
 ﻿namespace LibationWinForms.Dialogs
 {
-    partial class LiberatedStatusBatchDialog
+    partial class LiberatedStatusBatchManualDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -72,7 +72,6 @@
             this.cancelBtn.TabIndex = 9;
             this.cancelBtn.Text = "Cancel";
             this.cancelBtn.UseVisualStyleBackColor = true;
-            this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
             // 
             // saveBtn
             // 
@@ -86,7 +85,7 @@
             this.saveBtn.UseVisualStyleBackColor = true;
             this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
             // 
-            // LiberatedStatusBatchDialog
+            // LiberatedStatusBatchManualDialog
             // 
             this.AcceptButton = this.saveBtn;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -101,7 +100,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "LiberatedStatusBatchDialog";
+            this.Name = "LiberatedStatusBatchManualDialog";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Liberated status: Whether the book has been downloaded";

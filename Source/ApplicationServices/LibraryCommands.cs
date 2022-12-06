@@ -9,6 +9,7 @@ using Dinah.Core;
 using DtoImporterService;
 using LibationFileManager;
 using Serilog;
+using static System.Reflection.Metadata.BlobBuilder;
 using static DtoImporterService.PerfLogger;
 
 namespace ApplicationServices
@@ -366,74 +367,101 @@ namespace ApplicationServices
 		public static event EventHandler<IEnumerable<Book>> BookUserDefinedItemCommitted;
 
 		#region Update book details
-		public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus)
-		{
-			book.UserDefinedItem.BookStatus = bookStatus;
-			return UpdateUserDefinedItem(book);
-		}
-		public static int UpdatePdfStatus(this Book book, LiberatedStatus pdfStatus)
-		{
-			book.UserDefinedItem.PdfStatus = pdfStatus;
-			return UpdateUserDefinedItem(book);
-		}
-		public static int UpdateBook(
+		public static int UpdateUserDefinedItem(
 			this Book book,
 			string tags = null,
 			LiberatedStatus? bookStatus = null,
 			LiberatedStatus? pdfStatus = null)
-			=> UpdateBooks(tags, bookStatus, pdfStatus, book);
-		public static int UpdateBooks(
+			=> new[] { book }.UpdateUserDefinedItem(tags, bookStatus, pdfStatus);
+
+		public static int UpdateUserDefinedItem(
+			this IEnumerable<Book> books,
 			string tags = null,
 			LiberatedStatus? bookStatus = null,
-			LiberatedStatus? pdfStatus = null,
-			params Book[] books)
+			LiberatedStatus? pdfStatus = null)
+            => updateUserDefinedItem(
+				books,
+                udi => {
+                    // blank tags are expected. null tags are not
+                    if (tags is not null && udi.Tags != tags)
+                        udi.Tags = tags;
+
+                    if (bookStatus is not null && udi.BookStatus != bookStatus.Value)
+                        udi.BookStatus = bookStatus.Value;
+
+                    // even though PdfStatus is nullable, there's no case where we'd actually overwrite with null
+                    if (pdfStatus is not null && udi.PdfStatus != pdfStatus.Value)
+                        udi.PdfStatus = pdfStatus.Value;
+                });
+
+        public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus)
+			=> book.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
+        public static int UpdateBookStatus(this IEnumerable<Book> books, LiberatedStatus bookStatus)
+			=> books.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
+        public static int UpdateBookStatus(this LibraryBook libraryBook, LiberatedStatus bookStatus)
+			=> libraryBook.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
+        public static int UpdateBookStatus(this IEnumerable<LibraryBook> libraryBooks, LiberatedStatus bookStatus)
+			=> libraryBooks.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
+
+        public static int UpdatePdfStatus(this Book book, LiberatedStatus pdfStatus)
+			=> book.UpdateUserDefinedItem(udi => udi.PdfStatus = pdfStatus);
+        public static int UpdatePdfStatus(this IEnumerable<Book> books, LiberatedStatus pdfStatus)
+			=> books.UpdateUserDefinedItem(udi => udi.PdfStatus = pdfStatus);
+        public static int UpdatePdfStatus(this LibraryBook libraryBook, LiberatedStatus pdfStatus)
+			=> libraryBook.UpdateUserDefinedItem(udi => udi.PdfStatus = pdfStatus);
+        public static int UpdatePdfStatus(this IEnumerable<LibraryBook> libraryBooks, LiberatedStatus pdfStatus)
+			=> libraryBooks.UpdateUserDefinedItem(udi => udi.PdfStatus = pdfStatus);
+
+        public static int UpdateTags(this Book book, string tags)
+            => book.UpdateUserDefinedItem(udi => udi.Tags = tags);
+        public static int UpdateTags(this IEnumerable<Book> books, string tags)
+            => books.UpdateUserDefinedItem(udi => udi.Tags = tags);
+        public static int UpdateTags(this LibraryBook libraryBook, string tags)
+            => libraryBook.UpdateUserDefinedItem(udi => udi.Tags = tags);
+        public static int UpdateTags(this IEnumerable<LibraryBook> libraryBooks, string tags)
+            => libraryBooks.UpdateUserDefinedItem(udi => udi.Tags = tags);
+
+        public static int UpdateUserDefinedItem(this LibraryBook libraryBook, Action<UserDefinedItem> action)
+			=> libraryBook.Book.updateUserDefinedItem(action);
+        public static int UpdateUserDefinedItem(this IEnumerable<LibraryBook> libraryBooks, Action<UserDefinedItem> action)
+			=> libraryBooks.Select(lb => lb.Book).updateUserDefinedItem(action);
+
+        public static int UpdateUserDefinedItem(this Book book, Action<UserDefinedItem> action) => book.updateUserDefinedItem(action);
+        public static int UpdateUserDefinedItem(this IEnumerable<Book> books, Action<UserDefinedItem> action) => books.updateUserDefinedItem(action);
+
+        private static int updateUserDefinedItem(this Book book, Action<UserDefinedItem> action) => new[] { book }.updateUserDefinedItem(action);
+        private static int updateUserDefinedItem(this IEnumerable<Book> books, Action<UserDefinedItem> action)
         {
-			foreach (var book in books)
-			{
-				// blank tags are expected. null tags are not
-				if (tags is not null && book.UserDefinedItem.Tags != tags)
-					book.UserDefinedItem.Tags = tags;
+            try
+            {
+                if (books is null || !books.Any())
+                    return 0;
 
-				if (bookStatus is not null && book.UserDefinedItem.BookStatus != bookStatus.Value)
-					book.UserDefinedItem.BookStatus = bookStatus.Value;
-
-				// even though PdfStatus is nullable, there's no case where we'd actually overwrite with null
-				if (pdfStatus is not null && book.UserDefinedItem.PdfStatus != pdfStatus.Value)
-					book.UserDefinedItem.PdfStatus = pdfStatus.Value;
-			}
-
-			return UpdateUserDefinedItem(books);
-		}
-		public static int UpdateUserDefinedItem(params Book[] books) => UpdateUserDefinedItem(books.ToList());
-		public static int UpdateUserDefinedItem(IEnumerable<Book> books)
-		{
-			try
-			{
-				if (books is null || !books.Any())
-					return 0;
-
-				using var context = DbContexts.GetContext();
-
-				// Attach() NoTracking entities before SaveChanges()
 				foreach (var book in books)
-					context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                    action?.Invoke(book.UserDefinedItem);
 
-				var qtyChanges = context.SaveChanges();
-				if (qtyChanges > 0)
-					BookUserDefinedItemCommitted?.Invoke(null, books);
+                using var context = DbContexts.GetContext();
 
-				return qtyChanges;
-			}
-			catch (Exception ex)
-			{
-				Log.Logger.Error(ex, $"Error updating {nameof(Book.UserDefinedItem)}");
-				throw;
-			}
-		}
-		#endregion
+                // Attach() NoTracking entities before SaveChanges()
+                foreach (var book in books)
+                    context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 
-		// must be here instead of in db layer due to AaxcExists
-		public static LiberatedStatus Liberated_Status(Book book)
+                var qtyChanges = context.SaveChanges();
+                if (qtyChanges > 0)
+                    BookUserDefinedItemCommitted?.Invoke(null, books);
+
+                return qtyChanges;
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, $"Error updating {nameof(Book.UserDefinedItem)}");
+                throw;
+            }
+        }
+        #endregion
+
+        // must be here instead of in db layer due to AaxcExists
+        public static LiberatedStatus Liberated_Status(Book book)
 			=> book.Audio_Exists() ? book.UserDefinedItem.BookStatus
 			: AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
 			: LiberatedStatus.NotLiberated;

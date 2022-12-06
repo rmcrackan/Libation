@@ -1,6 +1,8 @@
 ﻿using ApplicationServices;
 using Avalonia.Threading;
 using DataLayer;
+using Dinah.Core;
+using LibationFileManager;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,14 +59,12 @@ namespace LibationAvalonia.Views
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			foreach (var libraryBook in visibleLibraryBooks)
-				libraryBook.Book.UserDefinedItem.Tags = dialog.NewTags;
-			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
-		}
+			visibleLibraryBooks.UpdateTags(dialog.NewTags);
+        }
 
-		public async void setDownloadedToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public async void setDownloadedManualToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
-			var dialog = new Dialogs.LiberatedStatusBatchDialog();
+			var dialog = new Dialogs.LiberatedStatusBatchManualDialog();
 			var result = await dialog.ShowDialog<DialogResult>(this);
 			if (result != DialogResult.OK)
 				return;
@@ -81,12 +81,36 @@ namespace LibationAvalonia.Views
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			foreach (var libraryBook in visibleLibraryBooks)
-				libraryBook.Book.UserDefinedItem.BookStatus = dialog.BookLiberatedStatus;
-			LibraryCommands.UpdateUserDefinedItem(visibleLibraryBooks.Select(lb => lb.Book));
-		}
+            visibleLibraryBooks.UpdateBookStatus(dialog.BookLiberatedStatus);
+        }
 
-		public async void removeToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public async void setDownloadedAutoToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+        {
+            var dialog = new Dialogs.LiberatedStatusBatchAutoDialog();
+            var result = await dialog.ShowDialog<DialogResult>(this);
+            if (result != DialogResult.OK)
+                return;
+
+            var bulkSetStatus = new BulkSetDownloadStatus(_viewModel.ProductsDisplay.GetVisibleBookEntries(), dialog.SetDownloaded, dialog.SetNotDownloaded);
+            var count = await Task.Run(() => bulkSetStatus.Discover());
+
+            if (count == 0)
+                return;
+
+            var confirmationResult = await MessageBox.Show(
+                bulkSetStatus.AggregateMessage,
+                "Replace downloaded status?",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button1);
+
+            if (confirmationResult != DialogResult.Yes)
+                return;
+
+            bulkSetStatus.Execute();
+        }
+
+        public async void removeToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
 

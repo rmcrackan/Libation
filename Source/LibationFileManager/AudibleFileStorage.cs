@@ -113,6 +113,5 @@ namespace LibationFileManager
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
 
         public LongPath GetPath(string productId) => GetFilePath(productId);
-
 	}
 }

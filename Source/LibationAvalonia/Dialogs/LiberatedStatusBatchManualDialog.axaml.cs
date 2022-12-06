@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace LibationAvalonia.Dialogs
 {
-	public partial class LiberatedStatusBatchDialog : DialogWindow
+	public partial class LiberatedStatusBatchManualDialog : DialogWindow
 	{
 		private class liberatedComboBoxItem
 		{
@@ -34,7 +34,7 @@ namespace LibationAvalonia.Dialogs
 			new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" },
 		};
 
-		public LiberatedStatusBatchDialog()
+		public LiberatedStatusBatchManualDialog()
 		{
 			InitializeComponent();
 			SelectedItem = BookStatuses[0] as liberatedComboBoxItem;
