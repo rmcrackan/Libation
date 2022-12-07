@@ -2,10 +2,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <Version>8.6.1.1</Version>
+    <Version>8.6.2.1</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Octokit" Version="4.0.1" />
+    <PackageReference Include="Octokit" Version="4.0.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
