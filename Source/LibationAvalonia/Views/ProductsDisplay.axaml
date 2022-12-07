@@ -34,11 +34,9 @@
 				<DataGridTemplateColumn CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<StackPanel Orientation="Horizontal">
-								<Button Width="75" Height="80" Click="LiberateButton_Click" ToolTip.Tip="{Binding Liberate.ToolTip}">
-									<Image Stretch="None" Height="80" Source="{Binding Liberate.Image}" />
-								</Button>
-							</StackPanel>
+							<Button Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="LiberateButton_Click" ToolTip.Tip="{Binding Liberate.ToolTip}">
+								<Image Stretch="None" Source="{Binding Liberate.Image}" />
+							</Button>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>

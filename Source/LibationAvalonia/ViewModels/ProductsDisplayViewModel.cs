@@ -13,6 +13,7 @@ using ApplicationServices;
 using AudibleUtilities;
 using LibationAvalonia.Views;
 using LibationAvalonia.Dialogs.Login;
+using Avalonia.Collections;
 
 namespace LibationAvalonia.ViewModels
 {

@@ -12,7 +12,7 @@
 		Name="Form1"
 		Icon="/Assets/libation.ico">
 
-	<Border BorderBrush="{DynamicResource DataGridGridLinesBrush}" BorderThickness="2" Padding="15">
+	<Border BorderBrush="{DynamicResource DataGridGridLinesBrush}" BorderThickness="2" Padding="10,0,10,10">
 		<Grid RowDefinitions="Auto,Auto,*,Auto">
 			<Grid Grid.Row="0" ColumnDefinitions="1*,Auto">
 
@@ -143,23 +143,30 @@
 					<Style Selector="TextBox">
 						<Setter Property="MinHeight" Value="10" />
 					</Style>
+					<Style Selector="Button">
+						<Setter Property="Padding" Value="15,0,15,0" />
+						<Setter Property="Margin" Value="10,0,0,0" />
+						<Setter Property="Height" Value="30" />
+						<Setter Property="HorizontalContentAlignment" Value="Center" />
+						<Setter Property="VerticalContentAlignment" Value="Center" />
+					</Style>
 				</Grid.Styles>
 				
 				<StackPanel Grid.Column="0" Orientation="Horizontal">
-					<Button Click="filterHelpBtn_Click" Height="30" Width="30" Content="?"/>
-					<Button Click="addQuickFilterBtn_Click" Height="30" Width="150" Margin="10,0,10,0" Content="Add To Quick Filters"/>
+					<Button Margin="0" Click="filterHelpBtn_Click" Content="?"/>
+					<Button Click="addQuickFilterBtn_Click" Content="Add To Quick Filters"/>
 				</StackPanel>
 
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
-					<Button IsVisible="{Binding RemoveButtonsVisible}" IsEnabled="{Binding RemoveBooksButtonEnabled}" Click="removeBooksBtn_Click" Height="30" Width="220" Content="{Binding RemoveBooksButtonText}"/>
-					<Button IsVisible="{Binding RemoveButtonsVisible}" Click="doneRemovingBtn_Click" Height="30" Width="160" Margin="10,0,0,0" Content="Done Removing Books"/>
+					<Button IsVisible="{Binding RemoveButtonsVisible}" IsEnabled="{Binding RemoveBooksButtonEnabled}" Click="removeBooksBtn_Click" Content="{Binding RemoveBooksButtonText}"/>
+					<Button IsVisible="{Binding RemoveButtonsVisible}" Click="doneRemovingBtn_Click" Content="Done Removing Books"/>
 				</StackPanel>
 				
-				<TextBox Grid.Column="1" IsVisible="{Binding !RemoveButtonsVisible}" Text="{Binding FilterString, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
+				<TextBox Grid.Column="1" Margin="10,0,0,0" IsVisible="{Binding !RemoveButtonsVisible}" Text="{Binding FilterString, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
 
 				<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
-					<Button Click="filterBtn_Click" Height="30" Width="80" Margin="10,0,10,0" Content="Filter"/>
-					<Button Click="ToggleQueueHideBtn_Click" Height="30" Width="30" Content="{Binding QueueHideButtonText}"/>
+					<Button Click="filterBtn_Click" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
+					<Button Padding="5,0,5,0" Click="ToggleQueueHideBtn_Click" Content="{Binding QueueHideButtonText}"/>
 				</StackPanel>
 
 			</Grid>

@@ -29,6 +29,7 @@ namespace LibationAvalonia.Views
 				using var context = DbContexts.GetContext();
 				List<GridEntry> sampleEntries = new()
 				{
+					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B00DCD0OXU")),
 					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G")),
 					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG")),
 					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q")),
@@ -40,8 +41,8 @@ namespace LibationAvalonia.Views
 				DataContext = new ProductsDisplayViewModel(sampleEntries);
 				return;
 			}
-
 			Configure_ColumnCustomization();
+
 			foreach (var column in productsGrid.Columns)
 			{
 				column.CustomSortComparer = new RowComparer(column);
@@ -198,7 +199,7 @@ namespace LibationAvalonia.Views
 
 				//Expanding and collapsing reset the list, which will cause focus to shift
 				//to the topright cell. Reset focus onto the clicked button's cell.
-				((sender as Control).Parent.Parent as DataGridCell)?.Focus();
+				(sender as Button).Parent?.Focus();
 			}
 			else if (button.DataContext is LibraryBookEntry lbEntry)
 			{
@@ -212,7 +213,7 @@ namespace LibationAvalonia.Views
 				imageDisplayDialog.Close();
 		}
 
-		public void Cover_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
 			if (sender is not Image tblock || tblock.DataContext is not GridEntry gEntry)
 				return;
@@ -252,7 +253,7 @@ namespace LibationAvalonia.Views
 				imageDisplayDialog.Show();
 		}
 
-		public void Description_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public void Description_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
 			if (sender is TextBlock tblock && tblock.DataContext is GridEntry gEntry)
 			{
