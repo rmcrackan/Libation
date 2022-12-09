@@ -136,7 +136,8 @@
 		<PackageReference Include="Avalonia.Diagnostics" Version="11.0.0-preview4 " />
 		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview4" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview4" />
-		<PackageReference Include="XamlNameReferenceGenerator" Version="1.4.2" />
+		<PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.0-preview4" />
+		<PackageReference Include="XamlNameReferenceGenerator" Version="1.5.1" />
 	</ItemGroup>
 
 

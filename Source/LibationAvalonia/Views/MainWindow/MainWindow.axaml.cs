@@ -174,13 +174,12 @@ namespace LibationAvalonia.Views
 
 		public void ProductsDisplay_Initialized1(object sender, EventArgs e)
 		{
-			if (sender is ProductsDisplay products)
-				_viewModel.ProductsDisplay.RegisterCollectionChanged(products);
+
 		}
 
-		private void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
+		private async void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
 		{
-			_viewModel.ProductsDisplay.InitialDisplay(dbBooks);
+			await _viewModel.ProductsDisplay.DisplayBooks(dbBooks);
 		}
 
 		private void InitializeComponent()

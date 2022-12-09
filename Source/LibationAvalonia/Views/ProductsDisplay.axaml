@@ -20,16 +20,25 @@
 			CanUserReorderColumns="True">
 
 			<DataGrid.Columns>
-
-				<controls:DataGridCheckBoxColumnExt
-					PropertyChanged="RemoveColumn_PropertyChanged"
-					IsVisible="{Binding RemoveColumnVisivle}"
-					Header="Remove"
-					IsThreeState="True"
-					IsReadOnly="False"
+			
+				<DataGridTemplateColumn
 					CanUserSort="True"
-					Binding="{Binding Remove, Mode=TwoWay}"
-					Width="70" SortMemberPath="Remove" />
+					IsVisible="{Binding RemoveColumnVisivle}"
+					PropertyChanged="RemoveColumn_PropertyChanged"
+					Header="Remove"
+					IsReadOnly="False"
+					SortMemberPath="Remove"
+					Width="75">
+					
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<CheckBox
+								HorizontalAlignment="Center"
+								IsThreeState="True"
+								IsChecked="{Binding Remove, Mode=TwoWay}" />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
 
 				<DataGridTemplateColumn CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate">
 					<DataGridTemplateColumn.CellTemplate>

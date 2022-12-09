@@ -27,20 +27,25 @@ namespace LibationAvalonia.Views
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
-				List<GridEntry> sampleEntries = new()
+				List<LibraryBook> sampleEntries = new()
 				{
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B00DCD0OXU")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")),
+					//context.GetLibraryBook_Flat_NoTracking("B00DCD0OXU"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"),
+					context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")
 				};
-				DataContext = new ProductsDisplayViewModel(sampleEntries);
+
+				var pdvm = new ProductsDisplayViewModel();
+				pdvm.DisplayBooks(sampleEntries);
+				DataContext = pdvm;
+
 				return;
 			}
+
 			Configure_ColumnCustomization();
 
 			foreach (var column in productsGrid.Columns)
@@ -51,7 +56,7 @@ namespace LibationAvalonia.Views
 
 		private void ProductsGrid_Sorting(object sender, DataGridColumnEventArgs e)
 		{
-			_viewModel.Sort(e.Column);
+
 		}
 
 		private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
