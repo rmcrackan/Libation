@@ -18,7 +18,6 @@ namespace LibationAvalonia.ViewModels
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 		public event EventHandler<int> RemovableCountChanged;
-		public event EventHandler InitialLoaded;
 
 		/// <summary>Backing list of all grid entries</summary>
 		private readonly List<GridEntry> SOURCE = new();
@@ -45,6 +44,9 @@ namespace LibationAvalonia.ViewModels
 		{
 			GridEntries = new(SOURCE);
 			GridEntries.Filter = CollectionFilter;
+
+			GridEntries.CollectionChanged += (s, e)
+				=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<LibraryBookEntry>().Count());
 		}
 
 		#region Display Functions
@@ -131,9 +133,12 @@ namespace LibationAvalonia.ViewModels
 			if (searchString == FilterString)
 				return;
 
-			FilteredInGridEntries = QueryResults(SOURCE, searchString);
-
 			FilterString = searchString;
+
+			if (SOURCE.Count == 0)
+				return;
+
+			FilteredInGridEntries = QueryResults(SOURCE, searchString);
 
 			await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
 		}
@@ -165,7 +170,6 @@ namespace LibationAvalonia.ViewModels
 		}		
 
 		#endregion
-
 
 		#region Scan and Remove Books
 

@@ -23,12 +23,12 @@
 		<TabControl  Grid.Column="0">
 			<TabControl.Styles>
 				<Style Selector="ItemsPresenter#PART_ItemsPresenter">
-					<Setter Property="Height" Value="18"/>
+					<Setter Property="Height" Value="28"/>
 				</Style>
 				<Style Selector="TabItem">
-					<Setter Property="MinHeight" Value="30"/>
-					<Setter Property="Height" Value="30"/>
-					<Setter Property="Padding" Value="8,2,8,0"/>
+					<Setter Property="MinHeight" Value="40"/>
+					<Setter Property="Height" Value="40"/>
+					<Setter Property="Padding" Value="8,2,8,10"/>
 				</Style>
 				<Style Selector="TabItem#Header TextBlock">
 					<Setter Property="MinHeight" Value="5"/>
@@ -344,7 +344,6 @@
 								<Button
 									Grid.Row="6"
 									Grid.Column="0"
-									IsEnabled="False"
 									Content="{Binding DownloadDecryptSettings.EditCharReplacementText}"
 									Height="30"
 									Padding="30,3,30,3"

@@ -223,7 +223,6 @@ namespace LibationAvalonia.Views
 			if (sender is not Image tblock || tblock.DataContext is not GridEntry gEntry)
 				return;
 
-
 			if (imageDisplayDialog is null || !imageDisplayDialog.IsVisible)
 			{
 				imageDisplayDialog = new ImageDisplayDialog();

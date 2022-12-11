@@ -15,7 +15,7 @@ namespace FileManager
 		[JsonIgnore] public bool Mandatory { get; internal set; }
 		[JsonProperty] public char CharacterToReplace { get; private set; }
 		[JsonProperty] public string ReplacementString { get; set; }
-		[JsonProperty] public string Description { get; private set; }
+		[JsonProperty] public string Description { get; set; }
 		public override string ToString() => $"{CharacterToReplace} → {ReplacementString} ({Description})";
 
 		public Replacement(char charToReplace, string replacementString, string description)
@@ -24,7 +24,7 @@ namespace FileManager
 			ReplacementString = replacementString;
 			Description = description;
 		}
-		private Replacement(char charToReplace, string replacementString, string description, bool mandatory)
+		private Replacement(char charToReplace, string replacementString, string description, bool mandatory = false)
 			: this(charToReplace, replacementString, description)
 		{
 			Mandatory = mandatory;
@@ -169,9 +169,9 @@ namespace FileManager
 
 
 		public static bool ContainsInvalidPathChar(string path)
-			=> path.Any(c => invalidChars.Contains(c));
+			=> path.Any(c => invalidChars?.Contains(c) == true);
 		public static bool ContainsInvalidFilenameChar(string path)
-			=> path.Any(c => invalidChars.Concat(new char[] { '\\', '/' }).Contains(c));
+			=> path.Any(c => invalidChars?.Concat(new char[] { '\\', '/' })?.Contains(c) == true);
 
 		public string ReplaceInvalidFilenameChars(string fileName)
 		{

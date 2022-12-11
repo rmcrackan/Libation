@@ -10,6 +10,8 @@ using DataLayer;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppScaffolding;
+using System.Linq;
+using LibationAvalonia.Dialogs;
 
 namespace LibationAvalonia.Views
 {
@@ -46,7 +48,6 @@ namespace LibationAvalonia.Views
 			// misc which belongs in winforms app but doesn't have a UI element
 			Configure_NonUI();
 
-			_viewModel.ProductsDisplay.InitialLoaded += ProductsDisplay_Initialized;
 			_viewModel.ProductsDisplay.RemovableCountChanged += ProductsDisplay_RemovableCountChanged;
 			_viewModel.ProductsDisplay.VisibleCountChanged += ProductsDisplay_VisibleCountChanged;
 
@@ -67,6 +68,8 @@ namespace LibationAvalonia.Views
 
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
+			var dialog = new EditReplacementChars();
+			await dialog.ShowDialog(this);
 #if !DEBUG
 			//This is temporaty until we have a solution for linux/mac so that
 			//Libation doesn't download a zip every time it runs.
@@ -172,13 +175,11 @@ namespace LibationAvalonia.Views
 			Environment.Exit(0);
 		}
 
-		public void ProductsDisplay_Initialized1(object sender, EventArgs e)
-		{
-
-		}
-
 		private async void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
 		{
+			if (QuickFilters.UseDefault)
+				await performFilter(QuickFilters.Filters.FirstOrDefault());
+
 			await _viewModel.ProductsDisplay.DisplayBooks(dbBooks);
 		}
 

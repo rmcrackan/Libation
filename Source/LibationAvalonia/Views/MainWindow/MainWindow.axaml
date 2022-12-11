@@ -181,7 +181,6 @@
 					<!-- Product Display Grid -->
 					<views:ProductsDisplay
 						Name="productsDisplay"
-						Initialized="ProductsDisplay_Initialized1"
 						DataContext="{Binding ProductsDisplay}"						
 						LiberateClicked="ProductsDisplay_LiberateClicked"/>				
 				</SplitView>

@@ -83,6 +83,7 @@
     <None Remove="Assets\SEGOEUI.TTF" />
     <None Remove="Assets\up.png" />
     <None Remove="Assets\WINGDING.TTF" />
+    <None Remove="Dialogs\SettingsDialog.axaml.cs~RF142224ff.TMP" />
   </ItemGroup>
 
   <ItemGroup>
@@ -92,21 +93,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Dialogs\LiberatedStatusBatchAutoDialog.axaml.cs">
-      <DependentUpon>LiberatedStatusBatchAutoDialog.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Dialogs\LiberatedStatusBatchManualDialog.axaml.cs">
-      <DependentUpon>LiberatedStatusBatchManualDialog.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\ProcessBookControl.axaml.cs">
-      <DependentUpon>ProcessBookControl.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\ProcessQueueControl.axaml.cs">
-      <DependentUpon>ProcessQueueControl.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\ProductsDisplay.axaml.cs">
-      <DependentUpon>ProductsDisplay.axaml</DependentUpon>
-    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
