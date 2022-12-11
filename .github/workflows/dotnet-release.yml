@@ -31,17 +31,16 @@ jobs:
         with:
           path: artifacts
 
-      - name: Rename artifacts
-        id: rename
-        working-directory: ./artifacts
-        run: |
-          for FILENAME in *; do mv ${FILENAME} Libation.${{ steps.version.outputs.version }}-${FILENAME,,}; done
-          mv Libation.${{ steps.version.outputs.version }}-windows-classic Classic-Libation.${{ steps.version.outputs.version }}-windows-classic
-
       - name: Zip assets
         working-directory: ./artifacts
         run:  |
-          for FILENAME in *; do zip -r ${FILENAME}.zip ${FILENAME}; done
+          for FILENAME in *
+          do 
+            pushd "${FILENAME}"
+            zip -r "../Libation.${{ steps.version.outputs.version }}-${FILENAME,,}.zip" .
+            popd
+          done
+          mv Libation.${{ steps.version.outputs.version }}-windows-classic.zip Classic-Libation.${{ steps.version.outputs.version }}-windows-classic.zip
           mkdir ./assets
           mv *.zip ./assets
 
