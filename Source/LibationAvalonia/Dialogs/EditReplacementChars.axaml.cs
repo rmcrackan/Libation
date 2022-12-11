@@ -20,7 +20,6 @@ namespace LibationAvalonia.Dialogs
 		{
 			InitializeComponent();
 
-
 			replacements = new(SOURCE);
 
 			if (Design.IsDesignMode)
@@ -29,12 +28,6 @@ namespace LibationAvalonia.Dialogs
 			}
 
 			DataContext = this;
-
-			replacementGrid = this.FindControl<DataGrid>(nameof(replacementGrid));
-			replacementGrid.BeginningEdit += ReplacementGrid_BeginningEdit;
-			replacementGrid.CellEditEnding += ReplacementGrid_CellEditEnding;
-			replacementGrid.KeyDown += ReplacementGrid_KeyDown;
-
 		}
 
 		public EditReplacementChars(Configuration config) : this()
@@ -49,11 +42,11 @@ namespace LibationAvalonia.Dialogs
 			=> LoadTable(ReplacementCharacters.LoFiDefault.Replacements);
 		public void Barebones_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> LoadTable(ReplacementCharacters.Barebones.Replacements);
-
 		public void Save_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> SaveAndClose();
 		public void Cancel_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> Close();
+
 		protected override void SaveAndClose()
 		{
 			var replacements = SOURCE
@@ -65,6 +58,7 @@ namespace LibationAvalonia.Dialogs
 				config.ReplacementCharacters = new ReplacementCharacters { Replacements = replacements };
 			base.SaveAndClose();
 		}
+
 		private void LoadTable(IReadOnlyList<Replacement> replacements)
 		{
 			SOURCE.Clear();
@@ -73,7 +67,7 @@ namespace LibationAvalonia.Dialogs
 			this.replacements.Refresh();
 		}
 
-		private void ReplacementGrid_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
+		public void ReplacementGrid_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
 		{
 			if (e.Key == Avalonia.Input.Key.Delete
 				&& replacementGrid.SelectedItem is ReplacementsExt repl
@@ -84,7 +78,7 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		private void ReplacementGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+		public void ReplacementGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
 		{
 			var replacement = e.Row.DataContext as ReplacementsExt;
 			var colBinding = columnBindingPath(e.Column);
@@ -111,7 +105,7 @@ namespace LibationAvalonia.Dialogs
 			replacement.PropertyChanged += Replacement_PropertyChanged;
 		}
 
-		private void ReplacementGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+		public void ReplacementGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
 		{
 			var replacement = e.Row.DataContext as ReplacementsExt;
 

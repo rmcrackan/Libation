@@ -37,10 +37,13 @@ Find books that you haven't rated:
 " + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchBoolFields());
 
 			IdFields = @"
-Alice's Adventures in Wonderland (ID: B015D78L0U)
+Alice's Adventures in
+  Wonderland (ID: B015D78L0U)
+
      id:B015D78L0U
 
-All of these are synonyms for the ID field
+All of these are synonyms
+for the ID field
 
 
 " + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchIdFields());

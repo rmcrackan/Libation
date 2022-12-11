@@ -31,8 +31,7 @@ namespace LibationAvalonia.ViewModels
 
 		public List<LibraryBook> GetVisibleBookEntries()
 			=> GridEntries
-			.Cast<GridEntry>()
-			.BookEntries()
+			.OfType<LibraryBookEntry>()
 			.Select(lbe => lbe.LibraryBook)
 			.ToList();
 
@@ -94,9 +93,7 @@ namespace LibationAvalonia.ViewModels
 
 			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild());
 
-			var seriesBooks = dbBooks.Where(lb => lb.Book.IsEpisodeParent()).ToList();
-
-			foreach (var parent in seriesBooks)
+			foreach (var parent in dbBooks.Where(lb => lb.Book.IsEpisodeParent()))
 			{
 				var seriesEpisodes = episodes.FindChildren(parent);
 

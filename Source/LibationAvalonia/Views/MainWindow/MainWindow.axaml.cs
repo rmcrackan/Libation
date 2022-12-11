@@ -68,8 +68,6 @@ namespace LibationAvalonia.Views
 
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
-			var dialog = new EditReplacementChars();
-			await dialog.ShowDialog(this);
 #if !DEBUG
 			//This is temporaty until we have a solution for linux/mac so that
 			//Libation doesn't download a zip every time it runs.

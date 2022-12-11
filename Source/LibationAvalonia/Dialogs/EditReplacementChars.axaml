@@ -20,6 +20,9 @@
 			Name="replacementGrid"
 			AutoGenerateColumns="False"
 			IsReadOnly="False"
+			BeginningEdit="ReplacementGrid_BeginningEdit"
+			CellEditEnding="ReplacementGrid_CellEditEnding"
+			KeyDown="ReplacementGrid_KeyDown"			 
 			Items="{Binding replacements}">
 
 			<DataGrid.Columns>
