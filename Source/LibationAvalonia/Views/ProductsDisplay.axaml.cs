@@ -10,6 +10,7 @@ using LibationAvalonia.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Interactivity;
 
 namespace LibationAvalonia.Views
 {
@@ -27,30 +28,31 @@ namespace LibationAvalonia.Views
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
-				List<GridEntry> sampleEntries = new()
+				List<LibraryBook> sampleEntries = new()
 				{
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0")),
-					new LibraryBookEntry(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")),
+					//context.GetLibraryBook_Flat_NoTracking("B00DCD0OXU"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"),
+					context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"),
+					context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")
 				};
-				DataContext = new ProductsDisplayViewModel(sampleEntries);
+
+				var pdvm = new ProductsDisplayViewModel();
+				pdvm.DisplayBooks(sampleEntries);
+				DataContext = pdvm;
+
 				return;
 			}
 
 			Configure_ColumnCustomization();
+
 			foreach (var column in productsGrid.Columns)
 			{
 				column.CustomSortComparer = new RowComparer(column);
 			}
-		}
-
-		private void ProductsGrid_Sorting(object sender, DataGridColumnEventArgs e)
-		{
-			_viewModel.Sort(e.Column);
 		}
 
 		private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
@@ -60,11 +62,6 @@ namespace LibationAvalonia.Views
 				col.DisplayIndex = 0;
 				col.CanUserReorder = false;
 			}
-		}
-
-		public void DataGrid_CopyToClipboard(object sender, DataGridRowClipboardEventArgs  e)
-		{
-		
 		}
 
 		private void InitializeComponent()
@@ -188,6 +185,22 @@ namespace LibationAvalonia.Views
 
 		#region Button Click Handlers
 
+		public void ContextMenuItem1_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		{
+			var lbe = getBoundEntry(args.Source);
+		}
+		public void ContextMenuItem2_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		{
+			var lbe = getBoundEntry(args.Source);
+		}
+		public void ContextMenuItem3_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		{
+			var lbe = getBoundEntry(args.Source);
+		}
+
+		private static LibraryBookEntry getBoundEntry(IInteractive source)
+			=> (source is IStyledElement se && se.DataContext is LibraryBookEntry lbe ? lbe : null);
+
 		public void LiberateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var button = args.Source as Button;
@@ -198,7 +211,7 @@ namespace LibationAvalonia.Views
 
 				//Expanding and collapsing reset the list, which will cause focus to shift
 				//to the topright cell. Reset focus onto the clicked button's cell.
-				((sender as Control).Parent.Parent as DataGridCell)?.Focus();
+				(sender as Button).Parent?.Focus();
 			}
 			else if (button.DataContext is LibraryBookEntry lbEntry)
 			{
@@ -212,11 +225,10 @@ namespace LibationAvalonia.Views
 				imageDisplayDialog.Close();
 		}
 
-		public void Cover_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
 			if (sender is not Image tblock || tblock.DataContext is not GridEntry gEntry)
 				return;
-
 
 			if (imageDisplayDialog is null || !imageDisplayDialog.IsVisible)
 			{
@@ -252,7 +264,7 @@ namespace LibationAvalonia.Views
 				imageDisplayDialog.Show();
 		}
 
-		public void Description_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public void Description_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
 			if (sender is TextBlock tblock && tblock.DataContext is GridEntry gEntry)
 			{

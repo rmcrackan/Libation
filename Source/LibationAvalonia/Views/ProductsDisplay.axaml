@@ -10,40 +10,53 @@
 	<Grid>
 
 		<DataGrid
-			CopyingRowClipboardContent="DataGrid_CopyToClipboard"
 			Name="productsGrid"
+			ClipboardCopyMode="IncludeHeader"
 			GridLinesVisibility="All"
 			AutoGenerateColumns="False"
 			Items="{Binding GridEntries}"
-			Sorting="ProductsGrid_Sorting"
-			CanUserSortColumns="True"			
+			CanUserSortColumns="True"
 			CanUserReorderColumns="True">
 
 			<DataGrid.Columns>
-
-				<controls:DataGridCheckBoxColumnExt
-					PropertyChanged="RemoveColumn_PropertyChanged"
-					IsVisible="{Binding RemoveColumnVisivle}"
-					Header="Remove"
-					IsThreeState="True"
-					IsReadOnly="False"
+			
+				<DataGridTemplateColumn
 					CanUserSort="True"
-					Binding="{Binding Remove, Mode=TwoWay}"
-					Width="70" SortMemberPath="Remove" />
-
-				<DataGridTemplateColumn CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate">
+					IsVisible="{Binding RemoveColumnVisivle}"
+					PropertyChanged="RemoveColumn_PropertyChanged"
+					Header="Remove"
+					IsReadOnly="False"
+					SortMemberPath="Remove"
+					Width="75">
+					
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<StackPanel Orientation="Horizontal">
-								<Button Width="75" Height="80" Click="LiberateButton_Click" ToolTip.Tip="{Binding Liberate.ToolTip}">
-									<Image Stretch="None" Height="80" Source="{Binding Liberate.Image}" />
-								</Button>
-							</StackPanel>
+							<CheckBox
+								HorizontalAlignment="Center"
+								IsThreeState="True"
+								IsChecked="{Binding Remove, Mode=TwoWay}" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn CanUserSort="False" Width="80" Header="Cover" SortMemberPath="Cover">
+				<DataGridTemplateColumn CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate" ClipboardContentBinding="{Binding Liberate.ToolTip}">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<Button Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="LiberateButton_Click" ToolTip.Tip="{Binding Liberate.ToolTip}">
+								<Image Stretch="None" Source="{Binding Liberate.Image}" />
+								<Button.ContextMenu>
+									<ContextMenu IsVisible="{Binding !Liberate.IsSeries}">
+										<MenuItem Header="Item 1" Click="ContextMenuItem1_Click" />
+										<MenuItem Header="Item 2" Click="ContextMenuItem2_Click" />
+										<MenuItem Header="Item 3" Click="ContextMenuItem3_Click" />
+									</ContextMenu>
+								</Button.ContextMenu>
+							</Button>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+
+				<DataGridTemplateColumn CanUserSort="False" Width="80" Header="Cover" SortMemberPath="Cover" ClipboardContentBinding="{Binding LibraryBook.Book.PictureLarge}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Image Tapped="Cover_Click" Height="80" Source="{Binding Cover}" ToolTip.Tip="Click to see full size" />
@@ -51,7 +64,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn MinWidth="150" Width="2*" Header="Title" CanUserSort="True" SortMemberPath="Title">
+				<DataGridTemplateColumn MinWidth="150" Width="2*" Header="Title" CanUserSort="True" SortMemberPath="Title" ClipboardContentBinding="{Binding Title}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -63,7 +76,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn MinWidth="80" Width="1*" Header="Authors" CanUserSort="True" SortMemberPath="Authors">
+				<DataGridTemplateColumn MinWidth="80" Width="1*" Header="Authors" CanUserSort="True" SortMemberPath="Authors" ClipboardContentBinding="{Binding Authors}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -75,7 +88,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn MinWidth="80" Width="1*"  Header="Narrators" CanUserSort="True" SortMemberPath="Narrators">
+				<DataGridTemplateColumn MinWidth="80" Width="1*"  Header="Narrators" CanUserSort="True" SortMemberPath="Narrators" ClipboardContentBinding="{Binding Narrators}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -87,7 +100,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn Width="90"  Header="Length" CanUserSort="True" SortMemberPath="Length">
+				<DataGridTemplateColumn Width="90"  Header="Length" CanUserSort="True" SortMemberPath="Length" ClipboardContentBinding="{Binding Length}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -99,7 +112,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn MinWidth="80" Width="1*" Header="Series" CanUserSort="True" SortMemberPath="Series">
+				<DataGridTemplateColumn MinWidth="80" Width="1*" Header="Series" CanUserSort="True" SortMemberPath="Series" ClipboardContentBinding="{Binding Series}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -111,7 +124,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn MinWidth="100" Width="1*" Header="Description" CanUserSort="True" SortMemberPath="Description">
+				<DataGridTemplateColumn MinWidth="100" Width="1*" Header="Description" CanUserSort="True" SortMemberPath="Description" ClipboardContentBinding="{Binding LongDescription}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -123,7 +136,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn Width="100" Header="Category" CanUserSort="True" SortMemberPath="Category">
+				<DataGridTemplateColumn Width="100" Header="Category" CanUserSort="True" SortMemberPath="Category" ClipboardContentBinding="{Binding Category}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -135,7 +148,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn Width="120" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating">
+				<DataGridTemplateColumn Width="120" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating" ClipboardContentBinding="{Binding ProductRating}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -147,7 +160,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn Width="90" Header="Purchase&#xA;Date" CanUserSort="True" SortMemberPath="PurchaseDate">
+				<DataGridTemplateColumn Width="90" Header="Purchase&#xA;Date" CanUserSort="True" SortMemberPath="PurchaseDate" ClipboardContentBinding="{Binding PurchaseDate}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -159,7 +172,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn Width="120" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating">
+				<DataGridTemplateColumn Width="120" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRating}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -171,7 +184,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn Width="135" Header="Misc" CanUserSort="True" SortMemberPath="Misc">
+				<DataGridTemplateColumn Width="135" Header="Misc" CanUserSort="True" SortMemberPath="Misc" ClipboardContentBinding="{Binding Misc}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}">
@@ -183,7 +196,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTemplateColumn CanUserSort="True" Width="100" Header="Tags" SortMemberPath="BookTags">
+				<DataGridTemplateColumn CanUserSort="True" Width="100" Header="Tags" SortMemberPath="BookTags" ClipboardContentBinding="{Binding BookTags.Tags}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<StackPanel Orientation="Horizontal">

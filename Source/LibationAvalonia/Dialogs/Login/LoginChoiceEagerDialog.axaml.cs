@@ -31,7 +31,7 @@ namespace LibationAvalonia.Dialogs.Login
 			DataContext = this;
 		}
 
-		public async void ExternalLoginLink_Tapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void ExternalLoginLink_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 		{
 			LoginMethod = LoginMethod.External;
 			await SaveAndCloseAsync();

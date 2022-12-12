@@ -12,10 +12,10 @@ namespace FileManager
 		public const int FIXED_COUNT = 6;
 
 		internal const char QUOTE_MARK = '"';
-		[JsonIgnore] public bool Mandatory { get; internal set; }
+		[JsonIgnore] public bool Mandatory { get; set; }
 		[JsonProperty] public char CharacterToReplace { get; private set; }
-		[JsonProperty] public string ReplacementString { get; set; }
-		[JsonProperty] public string Description { get; private set; }
+		[JsonProperty] public string ReplacementString { get; private set; }
+		[JsonProperty] public string Description { get; set; }
 		public override string ToString() => $"{CharacterToReplace} → {ReplacementString} ({Description})";
 
 		public Replacement(char charToReplace, string replacementString, string description)
@@ -169,9 +169,9 @@ namespace FileManager
 
 
 		public static bool ContainsInvalidPathChar(string path)
-			=> path.Any(c => invalidChars.Contains(c));
+			=> path.Any(c => invalidChars?.Contains(c) == true);
 		public static bool ContainsInvalidFilenameChar(string path)
-			=> path.Any(c => invalidChars.Concat(new char[] { '\\', '/' }).Contains(c));
+			=> path.Any(c => invalidChars?.Concat(new char[] { '\\', '/' })?.Contains(c) == true);
 
 		public string ReplaceInvalidFilenameChars(string fileName)
 		{

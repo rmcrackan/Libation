@@ -10,6 +10,7 @@ using LibationAvalonia.ViewModels;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -54,7 +55,7 @@ namespace LibationAvalonia.Dialogs
 			base.SaveAndClose();
 		}
 
-		public void GoToAudible_Tapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void GoToAudible_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 		{
 			var locale = AudibleApi.Localization.Get(_libraryBook.Book.Locale);
 			var link = $"https://www.audible.{locale.TopDomain}/pd/{_libraryBook.Book.AudibleProductId}";

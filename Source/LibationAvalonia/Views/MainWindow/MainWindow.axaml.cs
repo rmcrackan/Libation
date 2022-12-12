@@ -10,6 +10,8 @@ using DataLayer;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AppScaffolding;
+using System.Linq;
+using LibationAvalonia.Dialogs;
 
 namespace LibationAvalonia.Views
 {
@@ -46,7 +48,6 @@ namespace LibationAvalonia.Views
 			// misc which belongs in winforms app but doesn't have a UI element
 			Configure_NonUI();
 
-			_viewModel.ProductsDisplay.InitialLoaded += ProductsDisplay_Initialized;
 			_viewModel.ProductsDisplay.RemovableCountChanged += ProductsDisplay_RemovableCountChanged;
 			_viewModel.ProductsDisplay.VisibleCountChanged += ProductsDisplay_VisibleCountChanged;
 
@@ -172,15 +173,12 @@ namespace LibationAvalonia.Views
 			Environment.Exit(0);
 		}
 
-		public void ProductsDisplay_Initialized1(object sender, EventArgs e)
+		private async void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
 		{
-			if (sender is ProductsDisplay products)
-				_viewModel.ProductsDisplay.RegisterCollectionChanged(products);
-		}
+			if (QuickFilters.UseDefault)
+				await performFilter(QuickFilters.Filters.FirstOrDefault());
 
-		private void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
-		{
-			_viewModel.ProductsDisplay.InitialDisplay(dbBooks);
+			await _viewModel.ProductsDisplay.DisplayBooks(dbBooks);
 		}
 
 		private void InitializeComponent()
@@ -195,11 +193,6 @@ namespace LibationAvalonia.Views
 		{
 			quickFiltersToolStripMenuItem = this.FindControl<MenuItem>(nameof(quickFiltersToolStripMenuItem));
 			productsDisplay = this.FindControl<ProductsDisplay>(nameof(productsDisplay));
-		}
-
-		protected override void OnDataContextChanged(EventArgs e)
-		{
-			base.OnDataContextChanged(e);
 		}
 	}
 }

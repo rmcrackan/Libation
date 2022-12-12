@@ -2,60 +2,71 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
+		MinWidth="500" MinHeight="450"
         x:Class="LibationAvalonia.Dialogs.EditReplacementChars"
-        Title="EditReplacementChars">
+        Title="Illegal Character Replacement"		
+		Icon="/Assets/libation.ico">
 
-	<DataGrid
-		GridLinesVisibility="All"
-		AutoGenerateColumns="False"
-		Items="{Binding replacements}">
+	<Grid
+		RowDefinitions="*,Auto"
+		ColumnDefinitions="*,Auto">
+
+		<DataGrid
+			Grid.Row="0"
+			Grid.ColumnSpan="2"
+			GridLinesVisibility="All"
+			Margin="5"
+			Name="replacementGrid"
+			AutoGenerateColumns="False"
+			IsReadOnly="False"
+			BeginningEdit="ReplacementGrid_BeginningEdit"
+			CellEditEnding="ReplacementGrid_CellEditEnding"
+			KeyDown="ReplacementGrid_KeyDown"			 
+			Items="{Binding replacements}">
+
+			<DataGrid.Columns>
+				
+				<DataGridTextColumn
+					IsReadOnly="False"
+					Binding="{Binding CharacterToReplace, Mode=TwoWay}"
+					Header="Char to&#xa;Replace"/>
+
+				<DataGridTextColumn
+					IsReadOnly="False"
+					Binding="{Binding ReplacementText, Mode=TwoWay}"
+					Header="Replacement&#xa;Text"/>
+
+				<DataGridTextColumn Width="*"
+					IsReadOnly="False"
+					Binding="{Binding Description, Mode=TwoWay}"
+					Header="Description"/>
+
+			</DataGrid.Columns>
+		</DataGrid>
+
+		<StackPanel
+			Grid.Row="1"
+			Grid.Column="0"
+			Margin="5"
+			Orientation="Horizontal">
+			
+			<Button Margin="0,0,10,0" Click="Defaults_Click" Content="Defaults" />
+			<Button Margin="0,0,10,0" Click="LoFiDefaults_Click" Content="LoFi Defaults" />
+			<Button Click="Barebones_Click" Content="Barebones" />
+		</StackPanel>
+
+		<StackPanel
+			Grid.Row="1"
+			Grid.Column="1"
+			Margin="5"
+			Orientation="Horizontal">
+
+			<Button Margin="0,0,10,0" Click="Cancel_Click" Content="Cancel" />
+			<Button Padding="20,5,20,6" Click="Save_Click" Content="Save" />
+		</StackPanel>
 		
-		<DataGrid.Columns>
-			
-			<DataGridTemplateColumn Width="Auto" Header="Char to&#xa;Replace">
-				<DataGridTemplateColumn.CellTemplate>
-					<DataTemplate>
-						<TextPresenter
-							Height="18"
-							Margin="10,0,10,0"
-							VerticalAlignment="Center"
-							FontFamily="SEGOEUI_Local"
-							Text="{Binding Replacement.CharacterToReplace}" />
-					</DataTemplate>
-				</DataGridTemplateColumn.CellTemplate>
-			</DataGridTemplateColumn>
-			
-			<DataGridTemplateColumn IsReadOnly="False" Width="Auto" Header="Replacement Text">
-				<DataGridTemplateColumn.CellTemplate>
-					<DataTemplate>
-						<Grid RowDefinitions="*" ColumnDefinitions="*">
-
-							<TextBox
-								Grid.Column="0"
-								Grid.Row="0"
-								VerticalAlignment="Stretch"
-								HorizontalAlignment="Stretch"
-								FontSize="14"
-								FontFamily="SEGOEUI_Local"
-								Foreground="{StaticResource SystemControlTransparentBrush}"
-								SelectionBrush="{StaticResource SystemControlTransparentBrush}"
-								BorderBrush="{StaticResource SystemControlTransparentBrush}"
-								Text="{Binding ReplacementText, Mode=TwoWay}" />
-							<TextBlock
-								Grid.Column="0"
-								Grid.Row="0"
-								HorizontalAlignment="Stretch"
-								VerticalAlignment="Stretch"
-								FontSize="14"
-								FontFamily="SEGOEUI_Local"
-								Text="{Binding ReplacementText}" />
-						</Grid>
-					</DataTemplate>
-				</DataGridTemplateColumn.CellTemplate>
-			</DataGridTemplateColumn>
-			
-		</DataGrid.Columns>
-	</DataGrid>
+	</Grid>
+	
 	
 </Window>

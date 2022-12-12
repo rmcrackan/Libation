@@ -55,7 +55,7 @@ namespace LibationAvalonia.ViewModels
 
 		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children)
 		{
-			Liberate = new LiberateButtonStatus(IsSeries) { Expanded = true };
+			Liberate = new LiberateButtonStatus(IsSeries);
 			SeriesIndex = -1;
 			LibraryBook = parent;
 

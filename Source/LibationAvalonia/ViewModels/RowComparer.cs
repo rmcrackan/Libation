@@ -13,24 +13,18 @@ namespace LibationAvalonia.ViewModels
 	/// sorted by series index, ascending. Stable sorting is achieved by comparing the GridEntry.ListIndex
 	/// properties when 2 items compare equal.
 	/// </summary>
-	internal class RowComparer : IComparer, IComparer<GridEntry>
+	internal class RowComparer : IComparer, IComparer<GridEntry>, IComparer<object>
 	{
 		private static readonly PropertyInfo HeaderCellPi = typeof(DataGridColumn).GetProperty("HeaderCell", BindingFlags.NonPublic | BindingFlags.Instance);
 		private static readonly PropertyInfo CurrentSortingStatePi = typeof(DataGridColumnHeader).GetProperty("CurrentSortingState", BindingFlags.NonPublic | BindingFlags.Instance);
 
 		public DataGridColumn Column { get; init; }
 		public string PropertyName { get; private set; }
-		public ListSortDirection? SortDirection { get; set; }
 
 		public RowComparer(DataGridColumn column)
 		{
 			Column = column;
 			PropertyName = Column.SortMemberPath;
-		}
-		public RowComparer(ListSortDirection direction, string propertyName)
-		{
-			SortDirection = direction;
-			PropertyName = propertyName;
 		}
 
 		public int Compare(object x, object y)
@@ -42,7 +36,7 @@ namespace LibationAvalonia.ViewModels
 			var geA = (GridEntry)x;
 			var geB = (GridEntry)y;
 
-			SortDirection ??= GetSortOrder();
+			var sortDirection = GetSortOrder();
 
 			SeriesEntry parentA = null;
 			SeriesEntry parentB = null;
@@ -54,16 +48,16 @@ namespace LibationAvalonia.ViewModels
 
 			//both a and b are top-level grid entries
 			if (parentA is null && parentB is null)
-				return InternalCompare(geA, geB);
+				return InternalCompare(geA, geB, sortDirection);
 
 			//a is top-level, b is a child
 			if (parentA is null && parentB is not null)
 			{
 				// b is a child of a, parent is always first
 				if (parentB == geA)
-					return SortDirection is ListSortDirection.Ascending ? -1 : 1;
+					return sortDirection is ListSortDirection.Ascending ? -1 : 1;
 				else
-					return InternalCompare(geA, parentB);
+					return InternalCompare(geA, parentB, sortDirection);
 			}
 
 			//a is a child, b is a top-level
@@ -71,24 +65,24 @@ namespace LibationAvalonia.ViewModels
 			{
 				// a is a child of b, parent is always first
 				if (parentA == geB)
-					return SortDirection is ListSortDirection.Ascending ? 1 : -1;
+					return sortDirection is ListSortDirection.Ascending ? 1 : -1;
 				else
-					return InternalCompare(parentA, geB);
+					return InternalCompare(parentA, geB, sortDirection);
 			}
 
 			//both are children of the same series, always present in order of series index, ascending
 			if (parentA == parentB)
-				return geA.SeriesIndex.CompareTo(geB.SeriesIndex) * (SortDirection is ListSortDirection.Ascending ? 1 : -1);
+				return geA.SeriesIndex.CompareTo(geB.SeriesIndex) * (sortDirection is ListSortDirection.Ascending ? 1 : -1);
 
 			//a and b are children of different series.
-			return InternalCompare(parentA, parentB);
+			return InternalCompare(parentA, parentB, sortDirection);
 		}
 
 		//Avalonia doesn't expose the column's CurrentSortingState, so we must get it through reflection
 		private ListSortDirection? GetSortOrder()
 			=> CurrentSortingStatePi.GetValue(HeaderCellPi.GetValue(Column)) as ListSortDirection?;
 
-		private int InternalCompare(GridEntry x, GridEntry y)
+		private int InternalCompare(GridEntry x, GridEntry y, ListSortDirection? sortDirection)
 		{
 			var val1 = x.GetMemberValue(PropertyName);
 			var val2 = y.GetMemberValue(PropertyName);
@@ -98,7 +92,7 @@ namespace LibationAvalonia.ViewModels
 			//If items compare equal, compare them by their positions in the the list.
 			//This is how you achieve a stable sort.
 			if (compareResult == 0)
-				return x.ListIndex.CompareTo(y.ListIndex);
+				return x.ListIndex.CompareTo(y.ListIndex) * (sortDirection is ListSortDirection.Ascending ? 1 : -1);
 			else
 				return compareResult;
 		}

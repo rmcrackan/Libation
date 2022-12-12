@@ -1,4 +1,3 @@
-using Avalonia.Controls;
 using DataLayer;
 using System;
 using System.Collections.Generic;
@@ -6,13 +5,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
-using System.Reflection;
-using System.Collections;
 using Avalonia.Threading;
 using ApplicationServices;
 using AudibleUtilities;
-using LibationAvalonia.Views;
 using LibationAvalonia.Dialogs.Login;
+using Avalonia.Collections;
 
 namespace LibationAvalonia.ViewModels
 {
@@ -21,82 +18,37 @@ namespace LibationAvalonia.ViewModels
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 		public event EventHandler<int> RemovableCountChanged;
-		public event EventHandler InitialLoaded;
 
-		private DataGridColumn _currentSortColumn;
-		private DataGrid productsDataGrid;
+		/// <summary>Backing list of all grid entries</summary>
+		private readonly List<GridEntry> SOURCE = new();
+		/// <summary>Grid entries included in the filter set. If null, all grid entries are shown</summary>
+		private List<GridEntry> FilteredInGridEntries;
+		public string FilterString { get; private set; }
+		public DataGridCollectionView GridEntries { get; }
 
-		private GridEntryCollection _gridEntries;
 		private bool _removeColumnVisivle;
-		public GridEntryCollection GridEntries { get => _gridEntries; private set => this.RaiseAndSetIfChanged(ref _gridEntries, value); }
 		public bool RemoveColumnVisivle { get => _removeColumnVisivle; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisivle, value); }
 
 		public List<LibraryBook> GetVisibleBookEntries()
-			=> GridEntries.InternalList
-			.BookEntries()
+			=> GridEntries
+			.OfType<LibraryBookEntry>()
 			.Select(lbe => lbe.LibraryBook)
 			.ToList();
-		public IEnumerable<LibraryBookEntry> GetAllBookEntries()
-			=> GridEntries
-			.AllItems()
+
+		private IEnumerable<LibraryBookEntry> GetAllBookEntries()
+			=> SOURCE
 			.BookEntries();
-		public ProductsDisplayViewModel() { }
-		public ProductsDisplayViewModel(List<GridEntry> items)
+
+		public ProductsDisplayViewModel()
 		{
-			GridEntries = new GridEntryCollection(items);
+			GridEntries = new(SOURCE);
+			GridEntries.Filter = CollectionFilter;
+
+			GridEntries.CollectionChanged += (s, e)
+				=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<LibraryBookEntry>().Count());
 		}
 
 		#region Display Functions
-
-		/// <summary>
-		/// Call once on load so we can modify access a private member with reflection
-		/// </summary>
-		public void RegisterCollectionChanged(ProductsDisplay productsDisplay = null)
-		{
-			productsDataGrid ??= productsDisplay?.productsGrid;
-
-			if (GridEntries is null)
-				return;
-
-			//Avalonia displays items in the DataConncetion from an internal copy of
-			//the bound list, not the actual bound list. So we need to reflect to get
-			//the current display order and set each GridEntry.ListIndex correctly.
-			var DataConnection_PI = typeof(DataGrid).GetProperty("DataConnection", BindingFlags.NonPublic | BindingFlags.Instance);
-			var DataSource_PI = DataConnection_PI.PropertyType.GetProperty("DataSource", BindingFlags.Public | BindingFlags.Instance);
-
-			GridEntries.CollectionChanged += (s, e) =>
-			{
-				if (s != GridEntries) return;
-
-				var displayListGE = ((IEnumerable)DataSource_PI.GetValue(DataConnection_PI.GetValue(productsDataGrid))).Cast<GridEntry>();
-				int index = 0;
-				foreach (var di in displayListGE)
-				{
-					di.ListIndex = index++;
-				}
-			};
-		}
-
-		/// <summary>
-		/// Only call once per lifetime
-		/// </summary>
-		public void InitialDisplay(List<LibraryBook> dbBooks)
-		{
-			try
-			{
-				GridEntries = new GridEntryCollection(CreateGridEntries(dbBooks));
-				GridEntries.CollapseAll();
-
-				InitialLoaded?.Invoke(this, EventArgs.Empty);
-				VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count());
-
-				RegisterCollectionChanged();
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Error(ex, "Error displaying library in {0}", nameof(ProductsDisplayViewModel));
-			}
-		}
 
 		/// <summary>
 		/// Call when there's been a change to the library
@@ -105,29 +57,25 @@ namespace LibationAvalonia.ViewModels
 		{
 			try
 			{
-				//List is already displayed. Replace all items with new ones, refilter, and re-sort
-				string existingFilter = GridEntries?.Filter;
-				var newEntries = CreateGridEntries(dbBooks);
+				var existingSeriesEntries = SOURCE.SeriesEntries().ToList();
 
-				var existingSeriesEntries = GridEntries.AllItems().SeriesEntries().ToList();
+				SOURCE.Clear();
+				SOURCE.AddRange(CreateGridEntries(dbBooks));
 
-				await Dispatcher.UIThread.InvokeAsync(() =>
+				//If replacing the list, preserve user's existing collapse/expand
+				//state. When resetting a list, default state is cosed.
+				foreach (var series in existingSeriesEntries)
 				{
-					GridEntries.ReplaceList(newEntries);
+					var sEntry = SOURCE.FirstOrDefault(ge => ge.AudibleProductId == series.AudibleProductId);
+					if (sEntry is SeriesEntry se)
+						se.Liberate.Expanded = series.Liberate.Expanded;
+				}
 
-					//We're replacing the list, so preserve usere's existing collapse/expand
-					//state. When resetting a list, default state is open.
-					foreach (var series in existingSeriesEntries)
-					{
-						var sEntry = GridEntries.InternalList.FirstOrDefault(ge => ge.AudibleProductId == series.AudibleProductId);
-						if (sEntry is SeriesEntry se && !series.Liberate.Expanded)
-							GridEntries.CollapseItem(se);
-					}
+				//Run query on new list
+				FilteredInGridEntries = QueryResults(SOURCE, FilterString);
 
-					GridEntries.Filter = existingFilter;
-					ReSort();
-					VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count());
-				});
+				await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
+
 			}
 			catch (Exception ex)
 			{
@@ -135,7 +83,7 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		private static IEnumerable<GridEntry> CreateGridEntries(IEnumerable<LibraryBook> dbBooks)
+		private static List<GridEntry> CreateGridEntries(IEnumerable<LibraryBook> dbBooks)
 		{
 			var geList = dbBooks
 				.Where(lb => lb.Book.IsProduct())
@@ -145,9 +93,7 @@ namespace LibationAvalonia.ViewModels
 
 			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild());
 
-			var seriesBooks = dbBooks.Where(lb => lb.Book.IsEpisodeParent()).ToList();
-
-			foreach (var parent in seriesBooks)
+			foreach (var parent in dbBooks.Where(lb => lb.Book.IsEpisodeParent()))
 			{
 				var seriesEpisodes = episodes.FindChildren(parent);
 
@@ -158,72 +104,67 @@ namespace LibationAvalonia.ViewModels
 				geList.Add(seriesEntry);
 				geList.AddRange(seriesEntry.Children);
 			}
-			return geList.OrderByDescending(e => e.DateAdded);
+
+			var bookList =  geList.OrderByDescending(e => e.DateAdded).ToList();
+
+			//ListIndex is used by RowComparer to make column sort stable
+			int index = 0;
+			foreach (GridEntry di in bookList)
+				di.ListIndex = index++;
+
+			return bookList;
 		}
 
 		public void ToggleSeriesExpanded(SeriesEntry seriesEntry)
 		{
-			if (seriesEntry.Liberate.Expanded)
-				GridEntries.CollapseItem(seriesEntry);
-			else
-				GridEntries.ExpandItem(seriesEntry);
-
-			VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count());
+			seriesEntry.Liberate.Expanded = !seriesEntry.Liberate.Expanded;
+			GridEntries.Refresh();
 		}
 
 		#endregion
 
 		#region Filtering
+
 		public async Task Filter(string searchString)
 		{
-			await Dispatcher.UIThread.InvokeAsync(() =>
-			{
-				int visibleCount = GridEntries.Count;
+			if (searchString == FilterString)
+				return;
 
-				if (string.IsNullOrEmpty(searchString))
-					GridEntries.RemoveFilter();
-				else
-					GridEntries.Filter = searchString;
+			FilterString = searchString;
 
-				if (visibleCount != GridEntries.Count)
-					VisibleCountChanged?.Invoke(this, GridEntries.BookEntries().Count());
+			if (SOURCE.Count == 0)
+				return;
 
-				//Re-sort after filtering
-				ReSort();
-			});
+			FilteredInGridEntries = QueryResults(SOURCE, searchString);
+
+			await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
 		}
 
-		#endregion
-
-		#region Sorting
-
-		public void Sort(DataGridColumn sortColumn)
+		private bool CollectionFilter(object item)
 		{
-			//Force the comparer to get the current sort order. We can't
-			//retrieve it from inside this event handler because Avalonia
-			//doesn't set the property until after this event.
-			var comparer = sortColumn.CustomSortComparer as RowComparer;
-			comparer.SortDirection = null;
+			if (item is LibraryBookEntry lbe
+				&& lbe.IsEpisode
+				&& lbe.Parent?.Liberate?.Expanded != true)
+				return false;
 
-			_currentSortColumn = sortColumn;
+			if (FilteredInGridEntries is null) return true;
+
+			return FilteredInGridEntries.Contains(item);
 		}
 
-		//Must be invoked on UI thread
-		private void ReSort()
+		private static List<GridEntry> QueryResults(List<GridEntry> entries, string searchString)
 		{
-			if (_currentSortColumn is null)
-			{
-				//Sort ascending and reverse. That's how the comparer is designed to work to be compatible with Avalonia.
-				var defaultComparer = new RowComparer(ListSortDirection.Descending, nameof(GridEntry.DateAdded));
-				GridEntries.InternalList.Sort(defaultComparer);
-				GridEntries.InternalList.Reverse();
-				GridEntries.ResetCollection();
-			}
-			else
-			{
-				_currentSortColumn.Sort(((RowComparer)_currentSortColumn.CustomSortComparer).SortDirection ?? ListSortDirection.Ascending);
-			}
-		}
+			if (string.IsNullOrEmpty(searchString)) return null;
+
+			var SearchResults = SearchEngineCommands.Search(searchString);
+
+			var booksFilteredIn = entries.BookEntries().Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry)lbe);
+
+			//Find all series containing children that match the search criteria
+			var seriesFilteredIn = entries.SeriesEntries().Where(s => s.Children.Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
+
+			return booksFilteredIn.Concat(seriesFilteredIn).ToList();
+		}		
 
 		#endregion
 
@@ -231,8 +172,8 @@ namespace LibationAvalonia.ViewModels
 
 		public void DoneRemovingBooks()
 		{
-			foreach (var item in GridEntries.AllItems())
-				item.PropertyChanged -= Item_PropertyChanged;
+			foreach (var item in SOURCE)
+				item.PropertyChanged -= GridEntry_PropertyChanged;
 			RemoveColumnVisivle = false;
 		}
 
@@ -247,49 +188,47 @@ namespace LibationAvalonia.ViewModels
 			var result = await MessageBox.ShowConfirmationDialog(
 				null,
 				libraryBooks,
-                // do not use `$` string interpolation. See impl.
-                "Are you sure you want to remove {0} from Libation's library?",
+				// do not use `$` string interpolation. See impl.
+				"Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?");
 
 			if (result != DialogResult.Yes)
 				return;
 
 			foreach (var book in selectedBooks)
-				book.PropertyChanged -= Item_PropertyChanged;
+				book.PropertyChanged -= GridEntry_PropertyChanged;
 
 			var idsToRemove = libraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
+
+			void BindingList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+			{
+				if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+					return;
+
+				//After DisplayBooks() re-creates the list,
+				//re-subscribe to all items' PropertyChanged events.
+
+				foreach (var b in GetAllBookEntries())
+					b.PropertyChanged += GridEntry_PropertyChanged;
+
+				GridEntries.CollectionChanged -= BindingList_CollectionChanged;
+			}
+
 			GridEntries.CollectionChanged += BindingList_CollectionChanged;
 
 			//The RemoveBooksAsync will fire LibrarySizeChanged, which calls ProductsDisplay2.Display(),
 			//so there's no need to remove books from the grid display here.
 			var removeLibraryBooks = await LibraryCommands.RemoveBooksAsync(idsToRemove);
 
-			foreach (var b in GetAllBookEntries())
-				b.Remove = false;
-
 			RemovableCountChanged?.Invoke(this, 0);
-		}
-
-		void BindingList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
-				return;
-
-			//After ProductsDisplay2.Display() re-creates the list,
-			//re-subscribe to all items' PropertyChanged events.
-
-			foreach (var b in GetAllBookEntries())
-				b.PropertyChanged += Item_PropertyChanged;
-
-			GridEntries.CollectionChanged -= BindingList_CollectionChanged;
 		}
 
 		public async Task ScanAndRemoveBooksAsync(params Account[] accounts)
 		{
-			foreach (var item in GridEntries.AllItems())
+			foreach (var item in SOURCE)
 			{
 				item.Remove = false;
-				item.PropertyChanged += Item_PropertyChanged;
+				item.PropertyChanged += GridEntry_PropertyChanged;
 			}
 
 			RemoveColumnVisivle = true;
@@ -301,9 +240,6 @@ namespace LibationAvalonia.ViewModels
 					return;
 
 				var allBooks = GetAllBookEntries();
-
-				foreach (var b in allBooks)
-					b.Remove = false;
 
 				var lib = allBooks
 					.Select(lbe => lbe.LibraryBook)
@@ -326,7 +262,7 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		private void GridEntry_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == nameof(GridEntry.Remove) && sender is LibraryBookEntry lbEntry)
 			{

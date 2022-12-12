@@ -69,13 +69,10 @@ namespace LibationAvalonia.Dialogs
 				settingsDisp.DownloadDecryptSettings.ChapterFileTemplate = newTemplate;
 		}
 
-		public void EditCharReplacementButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void EditCharReplacementButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			/*
-			var form = new LibationAvalonia.Dialogs.EditReplacementChars(config);
-			form.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			form.ShowDialog();
-			*/
+			var form = new EditReplacementChars(config);
+			await form.ShowDialog<DialogResult>(this);
 		}
 
 		public async void EditChapterTitleTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

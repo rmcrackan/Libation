@@ -15,15 +15,15 @@ namespace LibationAvalonia.Controls
 		{
 			InitializeComponent();
 		}
-		protected override void OnPointerEnter(PointerEventArgs e)
+		protected override void OnPointerEntered(PointerEventArgs e)
 		{
 			this.Cursor = HandCursor;
-			base.OnPointerEnter(e);
+			base.OnPointerEntered(e);
 		}
-		protected override void OnPointerLeave(PointerEventArgs e)
+		protected override void OnPointerExited(PointerEventArgs e)
 		{
 			this.Cursor = Cursor.Default;
-			base.OnPointerLeave(e);
+			base.OnPointerExited(e);
 		}
 
 		private void InitializeComponent()

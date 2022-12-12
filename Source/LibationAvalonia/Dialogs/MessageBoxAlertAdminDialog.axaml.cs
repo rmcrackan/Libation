@@ -28,7 +28,7 @@ namespace LibationAvalonia.Dialogs
 			DataContext = this;
 		}
 
-		private async void GoToGithub_Tapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private async void GoToGithub_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 		{
 			var url = "https://github.com/rmcrackan/Libation/issues";
 			try
@@ -41,7 +41,7 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		private async void GoToLogs_Tapped(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private async void GoToLogs_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 		{
 			LongPath dir = "";
 			try
