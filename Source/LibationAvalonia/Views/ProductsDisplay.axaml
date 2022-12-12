@@ -44,6 +44,13 @@
 						<DataTemplate>
 							<Button Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="LiberateButton_Click" ToolTip.Tip="{Binding Liberate.ToolTip}">
 								<Image Stretch="None" Source="{Binding Liberate.Image}" />
+								<Button.ContextMenu>
+									<ContextMenu IsVisible="{Binding !Liberate.IsSeries}">
+										<MenuItem Header="Item 1" Click="ContextMenuItem1_Click" />
+										<MenuItem Header="Item 2" Click="ContextMenuItem2_Click" />
+										<MenuItem Header="Item 3" Click="ContextMenuItem3_Click" />
+									</ContextMenu>
+								</Button.ContextMenu>
 							</Button>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

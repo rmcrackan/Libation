@@ -10,6 +10,7 @@ using LibationAvalonia.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Interactivity;
 
 namespace LibationAvalonia.Views
 {
@@ -183,6 +184,22 @@ namespace LibationAvalonia.Views
 		#endregion
 
 		#region Button Click Handlers
+
+		public void ContextMenuItem1_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		{
+			var lbe = getBoundEntry(args.Source);
+		}
+		public void ContextMenuItem2_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		{
+			var lbe = getBoundEntry(args.Source);
+		}
+		public void ContextMenuItem3_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		{
+			var lbe = getBoundEntry(args.Source);
+		}
+
+		private static LibraryBookEntry getBoundEntry(IInteractive source)
+			=> (source is IStyledElement se && se.DataContext is LibraryBookEntry lbe ? lbe : null);
 
 		public void LiberateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
