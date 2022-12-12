@@ -14,9 +14,13 @@ namespace LibationWinForms.GridView
 		[Browsable(false)] public override DateTime DateAdded => LibraryBook.DateAdded;
 		[Browsable(false)] public SeriesEntry Parent { get; init; }
 
-		#region Model properties exposed to the view
+		[Browsable(false)] public override bool IsSeries => false;
+        [Browsable(false)] public override bool IsEpisode => Parent is not null;
+        [Browsable(false)] public override bool IsBook => Parent is null;
 
-		private DateTime lastStatusUpdate = default;
+        #region Model properties exposed to the view
+
+        private DateTime lastStatusUpdate = default;
 		private LiberatedStatus _bookStatus;
 		private LiberatedStatus? _pdfStatus;
 

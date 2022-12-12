@@ -13,7 +13,11 @@ namespace LibationWinForms.GridView
 		[Browsable(false)] public List<LibraryBookEntry> Children { get; }
 		[Browsable(false)] public override DateTime DateAdded => Children.Max(c => c.DateAdded);
 
-		private bool suspendCounting = false;
+        [Browsable(false)] public override bool IsSeries => true;
+        [Browsable(false)] public override bool IsEpisode => false;
+        [Browsable(false)] public override bool IsBook => false;
+
+        private bool suspendCounting = false;
 		public void ChildRemoveUpdate()
 		{
 			if (suspendCounting) return;

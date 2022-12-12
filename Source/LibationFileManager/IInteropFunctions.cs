@@ -6,5 +6,6 @@ namespace LibationFileManager
     {
         void SetFolderIcon(string image, string directory);
         void DeleteFolderIcon(string directory);
+        void CopyTextToClipboard(string text);
     }
 }

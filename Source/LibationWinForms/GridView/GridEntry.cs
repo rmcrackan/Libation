@@ -28,9 +28,13 @@ namespace LibationWinForms.GridView
 		[Browsable(false)] public abstract DateTime DateAdded { get; }
 		[Browsable(false)] protected Book Book => LibraryBook.Book;
 
-		#region Model properties exposed to the view
+        [Browsable(false)] public abstract bool IsSeries { get; }
+        [Browsable(false)] public abstract bool IsEpisode { get; }
+        [Browsable(false)] public abstract bool IsBook { get; }
 
-		protected RemoveStatus _remove = RemoveStatus.NotRemoved;
+        #region Model properties exposed to the view
+
+        protected RemoveStatus _remove = RemoveStatus.NotRemoved;
 		public abstract RemoveStatus Remove { get; set; }
 
 		public abstract LiberateButtonStatus Liberate { get; }
@@ -56,11 +60,11 @@ namespace LibationWinForms.GridView
 		public string MyRating { get; protected set; }
 		public abstract string DisplayTags { get; }
 
-		#endregion
+        #endregion
 
-		#region Sorting
+        #region Sorting
 
-		public GridEntry() => _memberValues = CreateMemberValueDictionary();
+        public GridEntry() => _memberValues = CreateMemberValueDictionary();
 
 		// These methods are implementation of Dinah.Core.DataBinding.IMemberComparable
 		// Used by GridEntryBindingList for all sorting
