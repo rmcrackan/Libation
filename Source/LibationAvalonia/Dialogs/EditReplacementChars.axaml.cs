@@ -51,7 +51,7 @@ namespace LibationAvalonia.Dialogs
 		{
 			var replacements = SOURCE
 				.Where(r=> !r.IsDefault)
-				.Select(r => new Replacement(r.Character, r.ReplacementText, r.Description))
+				.Select(r => new Replacement(r.Character, r.ReplacementText, r.Description) { Mandatory = r.Mandatory })
 				.ToList();
 
 			if (config is not null)

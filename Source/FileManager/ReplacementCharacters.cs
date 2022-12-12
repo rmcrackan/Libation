@@ -12,9 +12,9 @@ namespace FileManager
 		public const int FIXED_COUNT = 6;
 
 		internal const char QUOTE_MARK = '"';
-		[JsonIgnore] public bool Mandatory { get; internal set; }
+		[JsonIgnore] public bool Mandatory { get; set; }
 		[JsonProperty] public char CharacterToReplace { get; private set; }
-		[JsonProperty] public string ReplacementString { get; set; }
+		[JsonProperty] public string ReplacementString { get; private set; }
 		[JsonProperty] public string Description { get; set; }
 		public override string ToString() => $"{CharacterToReplace} → {ReplacementString} ({Description})";
 
@@ -24,7 +24,7 @@ namespace FileManager
 			ReplacementString = replacementString;
 			Description = description;
 		}
-		private Replacement(char charToReplace, string replacementString, string description, bool mandatory = false)
+		private Replacement(char charToReplace, string replacementString, string description, bool mandatory)
 			: this(charToReplace, replacementString, description)
 		{
 			Mandatory = mandatory;
