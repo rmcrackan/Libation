@@ -40,8 +40,7 @@
 	
 <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
-    <AvaloniaResource Remove="Assets\SEGOEUI.TTF" />
-    <None Remove=".gitignore" />
+	<None Remove=".gitignore" />
     <None Remove="Assets\Asterisk.png" />
     <None Remove="Assets\cancel.png" />
     <None Remove="Assets\completed.png" />
@@ -80,10 +79,7 @@
     <None Remove="Assets\plus.png" />
     <None Remove="Assets\Question.png" />
     <None Remove="Assets\queued.png" />
-    <None Remove="Assets\SEGOEUI.TTF" />
     <None Remove="Assets\up.png" />
-    <None Remove="Assets\WINGDING.TTF" />
-    <None Remove="Dialogs\SettingsDialog.axaml.cs~RF142224ff.TMP" />
   </ItemGroup>
 
   <ItemGroup>
@@ -109,10 +105,6 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Controls\GroupBox.axaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Assets\SEGOEUI.TTF" />
   </ItemGroup>
 	
 	<ItemGroup>

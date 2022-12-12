@@ -42,9 +42,6 @@ namespace LibationAvalonia
 		{
 			LoadStyles();
 
-			var SEGOEUI = new Typeface(new FontFamily(new Uri("avares://Libation/Assets/WINGDING.TTF"), "SEGOEUI_Local"));
-			var gtf = FontManager.Current.GetOrAddGlyphTypeface(SEGOEUI);
-
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 			{
 				if (SetupRequired)
