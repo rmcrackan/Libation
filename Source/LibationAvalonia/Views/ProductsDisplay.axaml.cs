@@ -10,7 +10,7 @@ using LibationAvalonia.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Avalonia.Interactivity;
+using LibationAvalonia.Controls;
 
 namespace LibationAvalonia.Views
 {
@@ -53,7 +53,7 @@ namespace LibationAvalonia.Views
 			{
 				column.CustomSortComparer = new RowComparer(column);
 			}
-		}
+		}		
 
 		private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
 		{
@@ -70,6 +70,29 @@ namespace LibationAvalonia.Views
 
 			productsGrid = this.FindControl<DataGrid>(nameof(productsGrid));
 		}
+
+		#region Cell Context Menu
+
+		public void ProductsGrid_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs args)
+		{
+			if (args.Column.SortMemberPath == "Liberate")
+			{
+
+			}
+			else
+			{
+				// any non-stop light column
+				// (except for the Cover column which does not have a context menu)
+				var menuItem = new MenuItem { Header = "_Copy Cell Contents" };
+
+				menuItem.Click += async (s, e)
+					=> await Application.Current.Clipboard.SetTextAsync(args.CellClipboardContents);
+
+				args.ContextMenuItems.Add(menuItem);
+			}
+		}
+
+		#endregion
 
 		#region Column Customizations
 
@@ -96,6 +119,10 @@ namespace LibationAvalonia.Views
 
 			foreach (var column in productsGrid.Columns)
 			{
+				//Wire up column context menu
+				if (column is DataGridTemplateColumnExt tc)
+					tc.CellContextMenuStripNeeded += ProductsGrid_CellContextMenuStripNeeded;
+
 				var itemName = column.SortMemberPath;
 
 				if (itemName == nameof(GridEntry.Remove))
@@ -184,22 +211,6 @@ namespace LibationAvalonia.Views
 		#endregion
 
 		#region Button Click Handlers
-
-		public void ContextMenuItem1_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
-		{
-			var lbe = getBoundEntry(args.Source);
-		}
-		public void ContextMenuItem2_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
-		{
-			var lbe = getBoundEntry(args.Source);
-		}
-		public void ContextMenuItem3_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
-		{
-			var lbe = getBoundEntry(args.Source);
-		}
-
-		private static LibraryBookEntry getBoundEntry(IInteractive source)
-			=> (source is IStyledElement se && se.DataContext is LibraryBookEntry lbe ? lbe : null);
 
 		public void LiberateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
