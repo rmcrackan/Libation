@@ -194,10 +194,5 @@ namespace LibationAvalonia.Views
 			quickFiltersToolStripMenuItem = this.FindControl<MenuItem>(nameof(quickFiltersToolStripMenuItem));
 			productsDisplay = this.FindControl<ProductsDisplay>(nameof(productsDisplay));
 		}
-
-		protected override void OnDataContextChanged(EventArgs e)
-		{
-			base.OnDataContextChanged(e);
-		}
 	}
 }

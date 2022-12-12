@@ -54,11 +54,6 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private void ProductsGrid_Sorting(object sender, DataGridColumnEventArgs e)
-		{
-
-		}
-
 		private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
 		{
 			if (sender is DataGridColumn col && e.Property.Name == nameof(DataGridColumn.IsVisible))
@@ -66,11 +61,6 @@ namespace LibationAvalonia.Views
 				col.DisplayIndex = 0;
 				col.CanUserReorder = false;
 			}
-		}
-
-		public void DataGrid_CopyToClipboard(object sender, DataGridRowClipboardEventArgs  e)
-		{
-		
 		}
 
 		private void InitializeComponent()
