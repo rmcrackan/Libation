@@ -70,7 +70,7 @@ namespace LibationAvalonia.Dialogs
 		public void ReplacementGrid_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
 		{
 			if (e.Key == Avalonia.Input.Key.Delete
-				&& replacementGrid.SelectedItem is ReplacementsExt repl
+				&& ((DataGrid)sender).SelectedItem is ReplacementsExt repl
 				&& !repl.Mandatory
 				&& !repl.IsDefault)
 			{
