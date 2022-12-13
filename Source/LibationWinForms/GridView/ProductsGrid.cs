@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using ApplicationServices;
 using DataLayer;
 using Dinah.Core.WindowsDesktop.Forms;
 using LibationFileManager;
@@ -102,9 +103,11 @@ namespace LibationWinForms.GridView
 
         private void gridEntryDataGridView_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs e)
         {
-			var dgv = (DataGridView)sender;
+			// header
+            if (e.RowIndex < 0)
+                return;
 
-			// cover
+            // cover
             if (e.ColumnIndex == coverGVColumn.Index)
                 return;
 
@@ -116,6 +119,7 @@ namespace LibationWinForms.GridView
 				{
 					try
                     {
+                        var dgv = (DataGridView)sender;
                         var text = dgv[e.ColumnIndex, e.RowIndex].Value.ToString();
                         InteropFactory.Create().CopyTextToClipboard(text);
                     }
@@ -130,24 +134,59 @@ namespace LibationWinForms.GridView
 
             var entry = getGridEntry(e.RowIndex);
             if (entry.IsSeries)
-                return;
+				return;
 
-            // \Visual Studio 2022\Libation\Source\LibationAvalonia\Views\ProductsDisplay.axaml
-            /*
-			<ContextMenu IsVisible="{Binding !Liberate.IsSeries}">
-			    <MenuItem Header="Item 1" Click="ContextMenuItem1_Click" />
-			    <MenuItem Header="Item 2" Click="ContextMenuItem2_Click" />
-			    <MenuItem Header="Item 3" Click="ContextMenuItem3_Click" />
-			</ContextMenu>
-			 */
-            //var contextMenu = new ContextMenuStrip();
-            //contextMenu.Items.Add("Item 1");
-            //contextMenu.Items.Add("Item 2");
-            //contextMenu.Items.Add("Item 3");
-            //e.ContextMenuStrip = contextMenu;
-        }
+			var stopLightContextMenu = new ContextMenuStrip();
+            e.ContextMenuStrip = stopLightContextMenu;
+            {
+				var menuItem = new ToolStripMenuItem()
+				{
+					Text = "Set Download status to 'Downloaded'",
+					Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated
+                };
+                menuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
+                stopLightContextMenu.Items.Add(menuItem);
+            }
+            {
+                var menuItem = new ToolStripMenuItem()
+                {
+                    Text = "Set Download status to 'Not Downloaded'",
+                    Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
+				};
+				menuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
+                stopLightContextMenu.Items.Add(menuItem);
+			}
+			{
+				var menuItem = new ToolStripMenuItem() { Text = "Remove from library" };
+				menuItem.Click += (_, __) => LibraryCommands.RemoveBook(entry.AudibleProductId);
+				stopLightContextMenu.Items.Add(menuItem);
+			}
+			{
+				var menuItem = new ToolStripMenuItem() { Text = "Locate file..." };
+				menuItem.Click += (_, __) =>
+				{
+					try
+					{
+                        var openFileDialog = new OpenFileDialog
+                        {
+                            Title = $"Locate the audiofile for '{entry.Book.Title}'",
+                            Filter = "All files (*.*)|*.*",
+                            FilterIndex = 1
+                        };
+                        if (openFileDialog.ShowDialog() == DialogResult.OK)
+                            FilePathCache.Insert(entry.AudibleProductId, openFileDialog.FileName);
+                    }
+					catch (Exception ex)
+					{
+						var msg = "Error saving book's location";
+                        MessageBoxLib.ShowAdminAlert(this, msg, msg, ex);
+                    }
+				};
+                stopLightContextMenu.Items.Add(menuItem);
+            }
+		}
 
-        private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
+		private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
 
 		#endregion
 
@@ -362,8 +401,8 @@ namespace LibationWinForms.GridView
 			gridEntryDataGridView.ColumnWidthChanged += gridEntryDataGridView_ColumnWidthChanged;
 			gridEntryDataGridView.ColumnDisplayIndexChanged += gridEntryDataGridView_ColumnDisplayIndexChanged;
 
-			contextMenuStrip1.Items.Add(new ToolStripLabel("Show / Hide Columns"));
-			contextMenuStrip1.Items.Add(new ToolStripSeparator());
+			showHideColumnsContextMenuStrip.Items.Add(new ToolStripLabel("Show / Hide Columns"));
+			showHideColumnsContextMenuStrip.Items.Add(new ToolStripSeparator());
 
 			//Restore Grid Display Settings
 			var config = Configuration.Instance;
@@ -385,11 +424,11 @@ namespace LibationWinForms.GridView
 					Tag = itemName
 				};
 				menuItem.Click += HideMenuItem_Click;
-				contextMenuStrip1.Items.Add(menuItem);
+				showHideColumnsContextMenuStrip.Items.Add(menuItem);
 
 				column.Width = gridColumnsWidths.GetValueOrDefault(itemName, column.Width);
 				column.MinimumWidth = 10;
-				column.HeaderCell.ContextMenuStrip = contextMenuStrip1;
+				column.HeaderCell.ContextMenuStrip = showHideColumnsContextMenuStrip;
 				column.Visible = visible;
 
 				//Setting a default ContextMenuStrip will allow the columns to handle the

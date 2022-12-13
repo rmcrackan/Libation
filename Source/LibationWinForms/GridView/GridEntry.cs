@@ -26,7 +26,7 @@ namespace LibationWinForms.GridView
 		[Browsable(false)] public float SeriesIndex { get; protected set; }
 		[Browsable(false)] public string LongDescription { get; protected set; }
 		[Browsable(false)] public abstract DateTime DateAdded { get; }
-		[Browsable(false)] protected Book Book => LibraryBook.Book;
+		[Browsable(false)] public Book Book => LibraryBook.Book;
 
         [Browsable(false)] public abstract bool IsSeries { get; }
         [Browsable(false)] public abstract bool IsEpisode { get; }

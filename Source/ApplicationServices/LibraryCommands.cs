@@ -338,7 +338,8 @@ namespace ApplicationServices
 
         #region remove books
         public static Task<List<LibraryBook>> RemoveBooksAsync(List<string> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
-		private static List<LibraryBook> removeBooks(List<string> idsToRemove)
+		public static List<LibraryBook> RemoveBook(string idToRemove) => removeBooks(new() { idToRemove });
+        private static List<LibraryBook> removeBooks(List<string> idsToRemove)
 		{
 			using var context = DbContexts.GetContext();
 			var libBooks = context.GetLibrary_Flat_NoTracking();
