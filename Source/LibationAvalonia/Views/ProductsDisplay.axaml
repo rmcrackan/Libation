@@ -16,7 +16,6 @@
 			AutoGenerateColumns="False"
 			Items="{Binding GridEntries}"
 			CanUserSortColumns="True"
-			SelectionMode="Single"
 			CanUserReorderColumns="True">
 
 			<DataGrid.Columns>
