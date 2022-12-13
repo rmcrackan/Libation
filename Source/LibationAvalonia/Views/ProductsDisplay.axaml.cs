@@ -106,11 +106,11 @@ namespace LibationAvalonia.Views
                 {
                     try
                     {
-						var openFileDialog = new OpenFileDialog()
+						var openFileDialog = new OpenFileDialog
 						{
 							Title = $"Locate the audio file for '{entry.Book.Title}'",
-							Filters = new() { new() { Name = "All files (*.*)", Extensions = new() { "|*.*" } } },
-							AllowMultiple= false
+							Filters = new() { new() { Name = "All files (*.*)", Extensions = new() { "*" } } },
+							AllowMultiple = false
 						};
 						var filePaths = await openFileDialog.ShowAsync(this.GetParentWindow());
 						var filePath = filePaths.SingleOrDefault();
