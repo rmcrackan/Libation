@@ -30,8 +30,8 @@ namespace LibationAvalonia.Controls
 	{
 		public event EventHandler<DataGridViewCellContextMenuStripNeededEventArgs> CellContextMenuStripNeeded;
 
-		private readonly ContextMenu ContextMenu = new();
-		private readonly AvaloniaList<MenuItem> MenuItems  = new();
+		private static readonly ContextMenu ContextMenu = new();
+		private static readonly AvaloniaList<MenuItem> MenuItems  = new();
 
 		public DataGridTemplateColumnExt()
 		{
