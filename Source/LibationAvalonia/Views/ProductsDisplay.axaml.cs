@@ -1,16 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ApplicationServices;
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using DataLayer;
 using FileLiberator;
-using LibationFileManager;
-using LibationAvalonia.ViewModels;
-using LibationAvalonia.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using LibationAvalonia.Controls;
+using LibationAvalonia.Dialogs;
+using LibationAvalonia.ViewModels;
+using LibationFileManager;
 
 namespace LibationAvalonia.Views
 {
@@ -41,7 +42,7 @@ namespace LibationAvalonia.Views
 				};
 
 				var pdvm = new ProductsDisplayViewModel();
-				pdvm.DisplayBooks(sampleEntries);
+				pdvm.DisplayBooksAsync(sampleEntries);
 				DataContext = pdvm;
 
 				return;
@@ -74,11 +75,64 @@ namespace LibationAvalonia.Views
 		#region Cell Context Menu
 
 		public void ProductsGrid_CellContextMenuStripNeeded(object sender, DataGridCellContextMenuStripNeededEventArgs args)
-		{
-			if (args.Column.SortMemberPath == "Liberate")
+        {
+            // stop light
+            if (args.Column.SortMemberPath == "Liberate")
 			{
+				var entry = args.GridEntry;
 
-			}
+                if (entry.IsSeries)
+					return;
+
+                var setDownloadMenuItem = new MenuItem()
+                {
+                    Header = "_Set Download status to 'Downloaded'",
+                    IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated
+                };
+                setDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
+
+                var setNotDownloadMenuItem = new MenuItem()
+                {
+                    Header = "_Set Download status to 'Not Downloaded'",
+                    IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
+                };
+                setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
+
+                var removeMenuItem = new MenuItem() { Header = "_Remove from library" };
+                removeMenuItem.Click += (_, __) => LibraryCommands.RemoveBook(entry.AudibleProductId);
+
+                var locateFileMenuItem = new MenuItem() { Header = "_Locate file..." };
+                locateFileMenuItem.Click += async (_, __) =>
+                {
+                    try
+                    {
+						var openFileDialog = new OpenFileDialog()
+						{
+							Title = $"Locate the audio file for '{entry.Book.Title}'",
+							Filters = new() { new() { Name = "All files (*.*)", Extensions = new() { "|*.*" } } },
+							AllowMultiple= false
+						};
+						var filePaths = await openFileDialog.ShowAsync(this.GetParentWindow());
+						var filePath = filePaths.SingleOrDefault();
+
+                        if (!string.IsNullOrWhiteSpace(filePath))
+                            FilePathCache.Insert(entry.AudibleProductId, filePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        var msg = "Error saving book's location";
+                        await MessageBox.ShowAdminAlert(null, msg, msg, ex);
+                    }
+                };
+
+				args.ContextMenuItems.AddRange(new[]
+				{
+					setDownloadMenuItem,
+					setNotDownloadMenuItem,
+					removeMenuItem,
+					locateFileMenuItem
+				});
+            }
 			else
 			{
 				// any non-stop light column

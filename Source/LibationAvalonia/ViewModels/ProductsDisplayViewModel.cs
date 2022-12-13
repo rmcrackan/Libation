@@ -53,7 +53,7 @@ namespace LibationAvalonia.ViewModels
 		/// <summary>
 		/// Call when there's been a change to the library
 		/// </summary>
-		public async Task DisplayBooks(List<LibraryBook> dbBooks)
+		public async Task DisplayBooksAsync(List<LibraryBook> dbBooks)
 		{
 			try
 			{

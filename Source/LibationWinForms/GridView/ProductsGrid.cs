@@ -136,55 +136,52 @@ namespace LibationWinForms.GridView
             if (entry.IsSeries)
 				return;
 
-			var stopLightContextMenu = new ContextMenuStrip();
-            e.ContextMenuStrip = stopLightContextMenu;
+			var setDownloadMenuItem = new ToolStripMenuItem()
             {
-				var menuItem = new ToolStripMenuItem()
-				{
-					Text = "Set Download status to 'Downloaded'",
-					Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated
-                };
-                menuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
-                stopLightContextMenu.Items.Add(menuItem);
-            }
+                Text = "Set Download status to 'Downloaded'",
+                Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated
+			};
+            setDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
+
+            var setNotDownloadMenuItem = new ToolStripMenuItem()
             {
-                var menuItem = new ToolStripMenuItem()
+                Text = "Set Download status to 'Not Downloaded'",
+                Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
+            };
+            setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
+
+            var removeMenuItem = new ToolStripMenuItem() { Text = "Remove from library" };
+            removeMenuItem.Click += (_, __) => LibraryCommands.RemoveBook(entry.AudibleProductId);
+
+            var locateFileMenuItem = new ToolStripMenuItem() { Text = "Locate file..." };
+            locateFileMenuItem.Click += (_, __) =>
+            {
+                try
                 {
-                    Text = "Set Download status to 'Not Downloaded'",
-                    Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
-				};
-				menuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
-                stopLightContextMenu.Items.Add(menuItem);
-			}
-			{
-				var menuItem = new ToolStripMenuItem() { Text = "Remove from library" };
-				menuItem.Click += (_, __) => LibraryCommands.RemoveBook(entry.AudibleProductId);
-				stopLightContextMenu.Items.Add(menuItem);
-			}
-			{
-				var menuItem = new ToolStripMenuItem() { Text = "Locate file..." };
-				menuItem.Click += (_, __) =>
-				{
-					try
-					{
-                        var openFileDialog = new OpenFileDialog
-                        {
-                            Title = $"Locate the audiofile for '{entry.Book.Title}'",
-                            Filter = "All files (*.*)|*.*",
-                            FilterIndex = 1
-                        };
-                        if (openFileDialog.ShowDialog() == DialogResult.OK)
-                            FilePathCache.Insert(entry.AudibleProductId, openFileDialog.FileName);
-                    }
-					catch (Exception ex)
-					{
-						var msg = "Error saving book's location";
-                        MessageBoxLib.ShowAdminAlert(this, msg, msg, ex);
-                    }
-				};
-                stopLightContextMenu.Items.Add(menuItem);
-            }
-		}
+                    var openFileDialog = new OpenFileDialog
+                    {
+                        Title = $"Locate the audio file for '{entry.Book.Title}'",
+                        Filter = "All files (*.*)|*.*",
+                        FilterIndex = 1
+                    };
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                        FilePathCache.Insert(entry.AudibleProductId, openFileDialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    var msg = "Error saving book's location";
+                    MessageBoxLib.ShowAdminAlert(this, msg, msg, ex);
+                }
+            };
+
+            var stopLightContextMenu = new ContextMenuStrip();
+            stopLightContextMenu.Items.Add(setDownloadMenuItem);
+            stopLightContextMenu.Items.Add(setNotDownloadMenuItem);
+            stopLightContextMenu.Items.Add(removeMenuItem);
+            stopLightContextMenu.Items.Add(locateFileMenuItem);
+
+            e.ContextMenuStrip = stopLightContextMenu;
+        }
 
 		private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
 

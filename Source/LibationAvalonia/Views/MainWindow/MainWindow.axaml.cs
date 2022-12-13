@@ -54,7 +54,7 @@ namespace LibationAvalonia.Views
 			{
 				this.LibraryLoaded += MainWindow_LibraryLoaded;
 
-				LibraryCommands.LibrarySizeChanged += async (_, _) => await _viewModel.ProductsDisplay.DisplayBooks(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+				LibraryCommands.LibrarySizeChanged += async (_, _) => await _viewModel.ProductsDisplay.DisplayBooksAsync(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
 			Opened += MainWindow_Opened;
@@ -178,7 +178,7 @@ namespace LibationAvalonia.Views
 			if (QuickFilters.UseDefault)
 				await performFilter(QuickFilters.Filters.FirstOrDefault());
 
-			await _viewModel.ProductsDisplay.DisplayBooks(dbBooks);
+			await _viewModel.ProductsDisplay.DisplayBooksAsync(dbBooks);
 		}
 
 		private void InitializeComponent()

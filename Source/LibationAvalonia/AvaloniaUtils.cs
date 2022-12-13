@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using Avalonia.Controls;
+using Avalonia.Media;
 using Avalonia.Threading;
 using System;
 using System.Threading;
@@ -16,5 +17,23 @@ namespace LibationAvalonia
 				return brush;
 			return defaultBrush;
 		}
+
+		public static Window GetParentWindow(this IControl control)
+		{
+            Window window = null;
+
+            var p = control.Parent;
+            while (p != null)
+            {
+                if (p is Window)
+                {
+                    window = (Window)p;
+                    break;
+                }
+                p = p.Parent;
+            }
+
+			return window;
+        }
 	}
 }

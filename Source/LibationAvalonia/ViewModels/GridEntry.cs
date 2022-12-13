@@ -26,7 +26,7 @@ namespace LibationAvalonia.ViewModels
 		[Browsable(false)] public string LongDescription { get; protected set; }
 		[Browsable(false)] public abstract DateTime DateAdded { get; }
 		[Browsable(false)] public int ListIndex { get; set; }
-		[Browsable(false)] protected Book Book => LibraryBook.Book;
+		[Browsable(false)] public Book Book => LibraryBook.Book;
 
 		#region Model properties exposed to the view
 
