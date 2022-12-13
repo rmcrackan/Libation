@@ -86,14 +86,14 @@ namespace LibationAvalonia.Views
 
                 var setDownloadMenuItem = new MenuItem()
                 {
-                    Header = "_Set Download status to 'Downloaded'",
+                    Header = "Set Download status to '_Downloaded'",
                     IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated
                 };
                 setDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
 
                 var setNotDownloadMenuItem = new MenuItem()
                 {
-                    Header = "_Set Download status to 'Not Downloaded'",
+                    Header = "Set Download status to '_Not Downloaded'",
                     IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
                 };
                 setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
