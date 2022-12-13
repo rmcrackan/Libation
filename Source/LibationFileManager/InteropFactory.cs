@@ -19,10 +19,16 @@ namespace LibationFileManager
         //public static IInteropFunctions Create(string str, int i) => _create(str, i);
         //public static IInteropFunctions Create(params object[] values) => _create(values);
 
+        private static IInteropFunctions instance { get; set; }
         private static IInteropFunctions _create(params object[] values)
-            => InteropFunctionsType is null ? new NullInteropFunctions()
-            //: values is null || values.Length == 0 ? Activator.CreateInstance(InteropFunctionsType) as IInteropFunctions
-            : Activator.CreateInstance(InteropFunctionsType, values) as IInteropFunctions;
+        {
+            instance ??=
+                InteropFunctionsType is null
+                ? new NullInteropFunctions()
+                //: values is null || values.Length == 0 ? Activator.CreateInstance(InteropFunctionsType) as IInteropFunctions
+                : Activator.CreateInstance(InteropFunctionsType, values) as IInteropFunctions;
+            return instance;
+        }
 
         #region load types
 

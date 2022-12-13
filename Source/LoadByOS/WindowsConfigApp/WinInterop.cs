@@ -35,5 +35,8 @@ namespace WindowsConfigApp
 
         public void DeleteFolderIcon(string directory)
             => new DirectoryInfo(directory)?.DeleteIcon();
+
+        public void CopyTextToClipboard(string text)
+            => Clipboard.SetText(text);
     }
 }

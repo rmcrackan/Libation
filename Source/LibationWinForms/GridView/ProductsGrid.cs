@@ -100,7 +100,54 @@ namespace LibationWinForms.GridView
 			}
 		}
 
-		private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
+        private void gridEntryDataGridView_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs e)
+        {
+			var dgv = (DataGridView)sender;
+
+			// cover
+            if (e.ColumnIndex == coverGVColumn.Index)
+                return;
+
+            // any non-stop light
+            if (e.ColumnIndex != liberateGVColumn.Index)
+			{
+                var copyContextMenu = new ContextMenuStrip();
+                copyContextMenu.Items.Add("Copy", null, (_, __) =>
+				{
+					try
+                    {
+                        var text = dgv[e.ColumnIndex, e.RowIndex].Value.ToString();
+                        InteropFactory.Create().CopyTextToClipboard(text);
+                    }
+					catch { }
+                });
+
+                e.ContextMenuStrip = copyContextMenu;
+                return;
+            }
+
+			// else: stop light
+
+            var entry = getGridEntry(e.RowIndex);
+            if (entry.IsSeries)
+                return;
+
+            // \Visual Studio 2022\Libation\Source\LibationAvalonia\Views\ProductsDisplay.axaml
+            /*
+			<ContextMenu IsVisible="{Binding !Liberate.IsSeries}">
+			    <MenuItem Header="Item 1" Click="ContextMenuItem1_Click" />
+			    <MenuItem Header="Item 2" Click="ContextMenuItem2_Click" />
+			    <MenuItem Header="Item 3" Click="ContextMenuItem3_Click" />
+			</ContextMenu>
+			 */
+            //var contextMenu = new ContextMenuStrip();
+            //contextMenu.Items.Add("Item 1");
+            //contextMenu.Items.Add("Item 2");
+            //contextMenu.Items.Add("Item 3");
+            //e.ContextMenuStrip = contextMenu;
+        }
+
+        private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
 
 		#endregion
 
