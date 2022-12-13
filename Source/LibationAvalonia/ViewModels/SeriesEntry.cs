@@ -50,6 +50,7 @@ namespace LibationAvalonia.ViewModels
 		public override bool IsSeries => true;
 		public override bool IsEpisode => false;
 		public override bool IsBook => false;
+		public override double Opacity => 1;
 
 		#endregion
 

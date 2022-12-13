@@ -7,10 +7,10 @@ using System.Reflection;
 
 namespace LibationAvalonia.Controls
 {	
-	public class DataGridViewCellContextMenuStripNeededEventArgs
+	public class DataGridCellContextMenuStripNeededEventArgs
 	{
 		private static readonly MethodInfo GetCellValueMethod;
-		static DataGridViewCellContextMenuStripNeededEventArgs()
+		static DataGridCellContextMenuStripNeededEventArgs()
 		{
 			GetCellValueMethod = typeof(DataGridColumn).GetMethod("GetCellValue", BindingFlags.NonPublic | BindingFlags.Instance);
 		}
@@ -28,7 +28,7 @@ namespace LibationAvalonia.Controls
 
 	public partial class DataGridTemplateColumnExt : DataGridTemplateColumn
 	{
-		public event EventHandler<DataGridViewCellContextMenuStripNeededEventArgs> CellContextMenuStripNeeded;
+		public event EventHandler<DataGridCellContextMenuStripNeededEventArgs> CellContextMenuStripNeeded;
 
 		private static readonly ContextMenu ContextMenu = new();
 		private static readonly AvaloniaList<MenuItem> MenuItems  = new();
@@ -43,7 +43,7 @@ namespace LibationAvalonia.Controls
 		{
 			if (sender is DataGridCell cell && cell.DataContext is GridEntry entry)
 			{
-				var args = new DataGridViewCellContextMenuStripNeededEventArgs
+				var args = new DataGridCellContextMenuStripNeededEventArgs
 				{
 					Column = this,
 					GridEntry = entry,

@@ -53,6 +53,7 @@ namespace LibationAvalonia.ViewModels
 		public override bool IsSeries => false;
 		public override bool IsEpisode => Parent is not null;
 		public override bool IsBook => Parent is null;
+		public override double Opacity => Book.UserDefinedItem.Tags.ToLower().Contains("hidden") ? 0.4 : 1;
 
 		#endregion
 
@@ -99,6 +100,7 @@ namespace LibationAvalonia.ViewModels
 				case nameof(udi.Tags):
 					Book.UserDefinedItem.Tags = udi.Tags; 
 					this.RaisePropertyChanged(nameof(BookTags));
+					this.RaisePropertyChanged(nameof(Opacity));
 					break;
 				case nameof(udi.BookStatus):
 					Book.UserDefinedItem.BookStatus = udi.BookStatus;

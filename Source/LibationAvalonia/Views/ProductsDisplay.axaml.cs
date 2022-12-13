@@ -73,7 +73,7 @@ namespace LibationAvalonia.Views
 
 		#region Cell Context Menu
 
-		public void ProductsGrid_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs args)
+		public void ProductsGrid_CellContextMenuStripNeeded(object sender, DataGridCellContextMenuStripNeededEventArgs args)
 		{
 			if (args.Column.SortMemberPath == "Liberate")
 			{
@@ -277,9 +277,9 @@ namespace LibationAvalonia.Views
 
 		public void Description_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
-			if (sender is TextBlock tblock && tblock.DataContext is GridEntry gEntry)
+			if (sender is Control tblock && tblock.DataContext is GridEntry gEntry)
 			{
-				var pt = tblock.Parent.PointToScreen(tblock.Parent.Bounds.TopRight);
+				var pt = tblock.PointToScreen(tblock.Bounds.TopRight);
 				var displayWindow = new DescriptionDisplayDialog
 				{
 					SpawnLocation = new Point(pt.X, pt.Y),

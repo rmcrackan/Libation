@@ -15,8 +15,21 @@
 			GridLinesVisibility="All"
 			AutoGenerateColumns="False"
 			Items="{Binding GridEntries}"
-			CanUserSortColumns="True"
+			CanUserSortColumns="True" BorderThickness="3"
 			CanUserReorderColumns="True">
+
+			<DataGrid.Styles>
+				<Style Selector="DataGridCell > Panel">
+					<Setter Property="Margin" Value="0,1,0,1"/>
+					<Setter Property="Height" Value="80"/>
+				</Style>
+				<Style Selector="DataGridCell > Panel > TextBlock">
+					<Setter Property="VerticalAlignment" Value="Center"/>
+					<Setter Property="HorizontalAlignment" Value="Stretch"/>
+					<Setter Property="TextWrapping" Value="Wrap"/>
+					<Setter Property="Padding" Value="4"/>
+				</Style>
+			</DataGrid.Styles>
 
 			<DataGrid.Columns>
 
@@ -42,8 +55,8 @@
 				<controls:DataGridTemplateColumnExt CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate" ClipboardContentBinding="{Binding Liberate.ToolTip}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Button Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="LiberateButton_Click" ToolTip.Tip="{Binding Liberate.ToolTip}">
-								<Image Stretch="None" Source="{Binding Liberate.Image}" />
+							<Button Opacity="{Binding Opacity}" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="LiberateButton_Click" ToolTip.Tip="{Binding Liberate.ToolTip}">
+								<Image Source="{Binding Liberate.Image}" Stretch="None" />
 							</Button>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -52,7 +65,7 @@
 				<DataGridTemplateColumn CanUserSort="False" Width="80" Header="Cover" SortMemberPath="Cover" ClipboardContentBinding="{Binding LibraryBook.Book.PictureLarge}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Image Tapped="Cover_Click" Height="80" Source="{Binding Cover}" ToolTip.Tip="Click to see full size" />
+							<Image Opacity="{Binding Opacity}" Tapped="Cover_Click" Height="80" Source="{Binding Cover}" ToolTip.Tip="Click to see full size" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
@@ -60,10 +73,8 @@
 				<controls:DataGridTemplateColumnExt MinWidth="150" Width="2*" Header="Title" CanUserSort="True" SortMemberPath="Title" ClipboardContentBinding="{Binding Title}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border Background="{Binding BackgroundBrush}" BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Title}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding Title}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -72,10 +83,8 @@
 				<controls:DataGridTemplateColumnExt MinWidth="80" Width="1*" Header="Authors" CanUserSort="True" SortMemberPath="Authors" ClipboardContentBinding="{Binding Authors}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Authors}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding Authors}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -84,10 +93,8 @@
 				<controls:DataGridTemplateColumnExt MinWidth="80" Width="1*"  Header="Narrators" CanUserSort="True" SortMemberPath="Narrators" ClipboardContentBinding="{Binding Narrators}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Narrators}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding Narrators}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -96,10 +103,8 @@
 				<controls:DataGridTemplateColumnExt Width="90"  Header="Length" CanUserSort="True" SortMemberPath="Length" ClipboardContentBinding="{Binding Length}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Length}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding Length}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -108,10 +113,8 @@
 				<controls:DataGridTemplateColumnExt MinWidth="80" Width="1*" Header="Series" CanUserSort="True" SortMemberPath="Series" ClipboardContentBinding="{Binding Series}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Series}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding Series}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -120,10 +123,8 @@
 				<controls:DataGridTemplateColumnExt MinWidth="100" Width="1*" Header="Description" CanUserSort="True" SortMemberPath="Description" ClipboardContentBinding="{Binding LongDescription}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock Tapped="Description_Click" VerticalAlignment="Center" TextWrapping="Wrap" ToolTip.Tip="Click to see full description" Text="{Binding Description}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
+								<TextBlock Text="{Binding Description}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -132,10 +133,8 @@
 				<controls:DataGridTemplateColumnExt Width="100" Header="Category" CanUserSort="True" SortMemberPath="Category" ClipboardContentBinding="{Binding Category}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Category}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding Category}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -144,10 +143,8 @@
 				<controls:DataGridTemplateColumnExt Width="120" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating" ClipboardContentBinding="{Binding ProductRating}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" FontSize="11" Text="{Binding ProductRating}" />
-								</Border>
+							<Panel  Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding ProductRating}" TextWrapping="NoWrap" FontSize="11" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -156,10 +153,8 @@
 				<controls:DataGridTemplateColumnExt Width="90" Header="Purchase&#xA;Date" CanUserSort="True" SortMemberPath="PurchaseDate" ClipboardContentBinding="{Binding PurchaseDate}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding PurchaseDate}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding PurchaseDate}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -168,10 +163,8 @@
 				<controls:DataGridTemplateColumnExt Width="120" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRating}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" FontSize="11" Text="{Binding MyRating}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding MyRating}" TextWrapping="NoWrap" FontSize="11" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -180,10 +173,8 @@
 				<controls:DataGridTemplateColumnExt Width="135" Header="Misc" CanUserSort="True" SortMemberPath="Misc" ClipboardContentBinding="{Binding Misc}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}">
-								<Border BorderThickness="3" Height="80">
-									<TextBlock VerticalAlignment="Center" TextWrapping="WrapWithOverflow" FontSize="10" Text="{Binding Misc}" />
-								</Border>
+							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+								<TextBlock Text="{Binding Misc}" TextWrapping="WrapWithOverflow" FontSize="10" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -192,14 +183,12 @@
 				<controls:DataGridTemplateColumnExt CanUserSort="True" Width="100" Header="Tags" SortMemberPath="BookTags" ClipboardContentBinding="{Binding BookTags.Tags}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<StackPanel Orientation="Horizontal">
-								<Button IsVisible="{Binding !IsSeries}" Width="100" Height="80" Click="OnTagsButtonClick" ToolTip.Tip="Click to edit tags" >
-									<Panel>
-										<Image IsVisible="{Binding !BookTags.HasTags}" Stretch="None" Source="/Assets/edit_25x25.png" />
-										<TextBlock IsVisible="{Binding BookTags.HasTags}" FontSize="12" TextWrapping="WrapWithOverflow" Text="{Binding BookTags.Tags}"/>
-									</Panel>
-								</Button>
-							</StackPanel>
+							<Button IsVisible="{Binding !IsSeries}" Width="100" Height="80" Click="OnTagsButtonClick" ToolTip.Tip="Click to edit tags" >
+								<Panel>
+									<Image IsVisible="{Binding !BookTags.HasTags}" Stretch="None" Source="/Assets/edit_25x25.png" />
+									<TextBlock IsVisible="{Binding BookTags.HasTags}" FontSize="12" TextWrapping="WrapWithOverflow" Text="{Binding BookTags.Tags}"/>
+								</Panel>
+							</Button>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
