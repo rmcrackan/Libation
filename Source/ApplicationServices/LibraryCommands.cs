@@ -300,12 +300,12 @@ namespace ApplicationServices
 					newParentsImportItems.Add(new ImportItem { DtoItem = seriesItem, AccountId = episode.Account, LocaleName = episode.Book.Locale });
 				}
 
-				var newCoutn = new LibraryBookImporter(context)
+				var newCount = new LibraryBookImporter(context)
 					.Import(newParentsImportItems);
 
 				await context.SaveChangesAsync();
 
-				return newCoutn;
+				return newCount;
 			}
 			catch (Exception ex)
 			{
@@ -337,22 +337,37 @@ namespace ApplicationServices
         #endregion
 
         #region remove books
-        public static Task<List<LibraryBook>> RemoveBooksAsync(List<string> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
-		public static List<LibraryBook> RemoveBook(string idToRemove) => removeBooks(new() { idToRemove });
-        private static List<LibraryBook> removeBooks(List<string> idsToRemove)
+        public static Task<int> RemoveBooksAsync(List<string> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
+		public static int RemoveBook(string idToRemove) => removeBooks(new() { idToRemove });
+        private static int removeBooks(List<string> idsToRemove)
 		{
-			using var context = DbContexts.GetContext();
-			var libBooks = context.GetLibrary_Flat_NoTracking();
+			try
+            {
+                if (idsToRemove is null || !idsToRemove.Any())
+                    return 0;
 
-			var removeLibraryBooks = libBooks.Where(lb => idsToRemove.Contains(lb.Book.AudibleProductId)).ToList();
-			context.LibraryBooks.RemoveRange(removeLibraryBooks);
-			context.Books.RemoveRange(removeLibraryBooks.Select(lb => lb.Book));
+                using var context = DbContexts.GetContext();
+                var libBooks = context.GetLibrary_Flat_NoTracking();
+                var removeLibraryBooks = libBooks.Where(lb => idsToRemove.Contains(lb.Book.AudibleProductId)).ToList();
 
-			var qtyChanges = context.SaveChanges();
-			if (qtyChanges > 0)
-				finalizeLibrarySizeChange();
+                // Attach() NoTracking entities before SaveChanges()
+                foreach (var lb in removeLibraryBooks)
+                {
+                    lb.IsDeleted = true;
+                    context.Attach(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                }
 
-			return removeLibraryBooks;
+                var qtyChanges = context.SaveChanges();
+                if (qtyChanges > 0)
+                    finalizeLibrarySizeChange();
+
+                return qtyChanges;
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "Error removing books");
+                throw;
+            }
 		}
 		#endregion
 

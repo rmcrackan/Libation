@@ -38,13 +38,14 @@ namespace DataLayer
         /// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>
         public static IQueryable<LibraryBook> GetLibrary(this IQueryable<LibraryBook> library)
             => library
+                .Where(lb => !lb.IsDeleted)
                 // owned items are always loaded. eg: book.UserDefinedItem, book.Supplements
                 .Include(le => le.Book).ThenInclude(b => b.SeriesLink).ThenInclude(sb => sb.Series)
                 .Include(le => le.Book).ThenInclude(b => b.ContributorsLink).ThenInclude(c => c.Contributor)
                 .Include(le => le.Book).ThenInclude(b => b.Category).ThenInclude(c => c.ParentCategory);
 
         public static IEnumerable<LibraryBook> ParentedEpisodes(this IEnumerable<LibraryBook> libraryBooks)
-            => libraryBooks.Where(lb => lb.Book.IsEpisodeParent()).SelectMany(s => libraryBooks.FindChildren(s));
+            => libraryBooks.Where(lb => lb.Book.IsEpisodeParent()).SelectMany(libraryBooks.FindChildren);
 
         public static IEnumerable<LibraryBook> FindOrphanedEpisodes(this IEnumerable<LibraryBook> libraryBooks)
 		    => libraryBooks

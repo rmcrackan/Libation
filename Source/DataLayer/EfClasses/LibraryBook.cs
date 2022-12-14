@@ -11,6 +11,8 @@ namespace DataLayer
         public DateTime DateAdded { get; private set; }
         public string Account { get; private set; }
 
+        public bool IsDeleted { get; set; }
+
         private LibraryBook() { }
         public LibraryBook(Book book, DateTime dateAdded, string account)
         {
