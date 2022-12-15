@@ -39,6 +39,19 @@ namespace DataLayer
         public static IQueryable<LibraryBook> GetLibrary(this IQueryable<LibraryBook> library)
             => library
                 .Where(lb => !lb.IsDeleted)
+                .getLibrary();
+
+        public static List<LibraryBook> GetDeletedLibraryBooks(this LibationContext context)
+            => context
+                .LibraryBooks
+                .AsNoTrackingWithIdentityResolution()
+                .Where(lb => lb.IsDeleted)
+                .getLibrary()
+                .ToList();
+
+        /// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>
+        private static IQueryable<LibraryBook> getLibrary(this IQueryable<LibraryBook> library)
+            => library
                 // owned items are always loaded. eg: book.UserDefinedItem, book.Supplements
                 .Include(le => le.Book).ThenInclude(b => b.SeriesLink).ThenInclude(sb => sb.Series)
                 .Include(le => le.Book).ThenInclude(b => b.ContributorsLink).ThenInclude(c => c.Contributor)

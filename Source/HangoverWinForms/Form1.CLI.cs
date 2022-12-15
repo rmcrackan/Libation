@@ -11,7 +11,7 @@ namespace HangoverWinForms
 
         private void cliTab_VisibleChanged(object sender, EventArgs e)
         {
-            if (!databaseTab.Visible)
+            if (!cliTab.Visible)
                 return;
         }
     }

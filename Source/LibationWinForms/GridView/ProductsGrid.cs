@@ -383,8 +383,7 @@ namespace LibationWinForms.GridView
 
 			if (visibleCount != bindingList.Count)
 				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
-
-		}
+        }
 
 		#endregion
 
