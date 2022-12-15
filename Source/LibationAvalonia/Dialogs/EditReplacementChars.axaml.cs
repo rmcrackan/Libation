@@ -158,7 +158,7 @@ namespace LibationAvalonia.Dialogs
 
 				set
 				{
-					if (value?.Length != 1 || !ReplacementCharacters.ContainsInvalidFilenameChar(value))
+					if (value?.Length != 1)
 						this.RaisePropertyChanged(nameof(CharacterToReplace));
 					else
 					{

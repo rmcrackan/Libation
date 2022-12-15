@@ -83,17 +83,17 @@ namespace FileUtilityTests
 		[TestMethod]
 		// empty replacement
 		[DataRow("http://test.com/a/b/c", "http꞉∕∕test.com∕a∕b∕c")]
-		public void DefaultReplacementTest(string inStr, string outStr) => Default.ReplaceInvalidFilenameChars(inStr).Should().Be(outStr);
+		public void DefaultReplacementTest(string inStr, string outStr) => Default.ReplaceFilenameChars(inStr).Should().Be(outStr);
 
 		[TestMethod]
 		// empty replacement
 		[DataRow("http://test.com/a/b/c", "http-__test.com_a_b_c")] 
-		public void LoFiDefaultReplacementTest(string inStr, string outStr) => LoFiDefault.ReplaceInvalidFilenameChars(inStr).Should().Be(outStr);
+		public void LoFiDefaultReplacementTest(string inStr, string outStr) => LoFiDefault.ReplaceFilenameChars(inStr).Should().Be(outStr);
 
 		[TestMethod]
 		// empty replacement
 		[DataRow("http://test.com/a/b/c", "http___test.com_a_b_c")] 
-		public void BarebonesDefaultReplacementTest(string inStr, string outStr) => Barebones.ReplaceInvalidFilenameChars(inStr).Should().Be(outStr);
+		public void BarebonesDefaultReplacementTest(string inStr, string outStr) => Barebones.ReplaceFilenameChars(inStr).Should().Be(outStr);
 	}
 
 	[TestClass]

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using Dinah.Core;
 using Dinah.Core.Logging;
+using FileManager;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
@@ -21,6 +22,7 @@ namespace LibationFileManager
                 .Build();
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
+                .Destructure.ByTransforming<LongPath>(lp => lp.Path)
                 .CreateLogger();
         }
 
