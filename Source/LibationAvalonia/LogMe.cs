@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Avalonia.Threading;
+using System;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia
@@ -40,19 +41,15 @@ namespace LibationAvalonia
 
 		private static async void LogMe_LogError(object sender, (Exception, string) tuple)
 		{
-			await Task.Run(() => LogForm?.WriteLine(tuple.Item2 ?? "Automated backup: error"));
-			await Task.Run(() => LogForm?.WriteLine("ERROR: " + tuple.Item1.Message));
+			await Dispatcher.UIThread.InvokeAsync(() => LogForm?.WriteLine(tuple.Item2 ?? "Automated backup: error"));
+			await Dispatcher.UIThread.InvokeAsync(() => LogForm?.WriteLine("ERROR: " + tuple.Item1.Message));
 		}
 
 		private static async void LogMe_LogErrorString(object sender, string text)
-		{
-			await Task.Run(() => LogForm?.WriteLine(text));
-		}
+			=> await Dispatcher.UIThread.InvokeAsync(() => LogForm?.WriteLine(text));
 
 		private static async void LogMe_LogInfo(object sender, string text)
-		{
-			await Task.Run(() => LogForm?.WriteLine(text));
-		}
+			=> await Dispatcher.UIThread.InvokeAsync(() => LogForm?.WriteLine(text));
 
 		public void Info(string text) => LogInfo?.Invoke(this, text);
 		public void Error(string text) => LogErrorString?.Invoke(this, text);
