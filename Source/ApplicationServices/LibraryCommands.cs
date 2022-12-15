@@ -9,7 +9,6 @@ using Dinah.Core;
 using DtoImporterService;
 using LibationFileManager;
 using Serilog;
-using static System.Reflection.Metadata.BlobBuilder;
 using static DtoImporterService.PerfLogger;
 
 namespace ApplicationServices
@@ -336,7 +335,7 @@ namespace ApplicationServices
         }
         #endregion
 
-        #region remove books
+        #region remove/restore books
         public static Task<int> RemoveBooksAsync(List<string> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
 		public static int RemoveBook(string idToRemove) => removeBooks(new() { idToRemove });
         private static int removeBooks(List<string> idsToRemove)
@@ -368,11 +367,40 @@ namespace ApplicationServices
                 Log.Logger.Error(ex, "Error removing books");
                 throw;
             }
-		}
-		#endregion
+        }
 
-		// call this whenever books are added or removed from library
-		private static void finalizeLibrarySizeChange() => LibrarySizeChanged?.Invoke(null, null);
+        public static int RestoreBooks(this List<LibraryBook> libraryBooks)
+		{
+			try
+            {
+                if (libraryBooks is null || !libraryBooks.Any())
+                    return 0;
+
+                using var context = DbContexts.GetContext();
+
+                // Attach() NoTracking entities before SaveChanges()
+                foreach (var lb in libraryBooks)
+                {
+                    lb.IsDeleted = false;
+                    context.Attach(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                }
+
+                var qtyChanges = context.SaveChanges();
+                if (qtyChanges > 0)
+                    finalizeLibrarySizeChange();
+
+                return qtyChanges;
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "Error restoring books");
+                throw;
+            }
+        }
+        #endregion
+
+        // call this whenever books are added or removed from library
+        private static void finalizeLibrarySizeChange() => LibrarySizeChanged?.Invoke(null, null);
 
 		/// <summary>Occurs when the size of the library changes. ie: books are added or removed</summary>
 		public static event EventHandler LibrarySizeChanged;

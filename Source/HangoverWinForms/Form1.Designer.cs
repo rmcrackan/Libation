@@ -36,14 +36,23 @@
             this.sqlTb = new System.Windows.Forms.TextBox();
             this.sqlLbl = new System.Windows.Forms.Label();
             this.databaseFileLbl = new System.Windows.Forms.Label();
+            this.deletedTab = new System.Windows.Forms.TabPage();
+            this.deletedCheckedLbl = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.saveBtn = new System.Windows.Forms.Button();
+            this.uncheckAllBtn = new System.Windows.Forms.Button();
+            this.checkAllBtn = new System.Windows.Forms.Button();
+            this.deletedCbl = new System.Windows.Forms.CheckedListBox();
             this.cliTab = new System.Windows.Forms.TabPage();
             this.tabControl1.SuspendLayout();
             this.databaseTab.SuspendLayout();
+            this.deletedTab.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.databaseTab);
+            this.tabControl1.Controls.Add(this.deletedTab);
             this.tabControl1.Controls.Add(this.cliTab);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
@@ -119,6 +128,86 @@
             this.databaseFileLbl.TabIndex = 0;
             this.databaseFileLbl.Text = "Database file: ";
             // 
+            // deletedTab
+            // 
+            this.deletedTab.Controls.Add(this.deletedCheckedLbl);
+            this.deletedTab.Controls.Add(this.label1);
+            this.deletedTab.Controls.Add(this.saveBtn);
+            this.deletedTab.Controls.Add(this.uncheckAllBtn);
+            this.deletedTab.Controls.Add(this.checkAllBtn);
+            this.deletedTab.Controls.Add(this.deletedCbl);
+            this.deletedTab.Location = new System.Drawing.Point(4, 24);
+            this.deletedTab.Name = "deletedTab";
+            this.deletedTab.Padding = new System.Windows.Forms.Padding(3);
+            this.deletedTab.Size = new System.Drawing.Size(792, 422);
+            this.deletedTab.TabIndex = 2;
+            this.deletedTab.Text = "Deleted Books";
+            this.deletedTab.UseVisualStyleBackColor = true;
+            // 
+            // deletedCheckedLbl
+            // 
+            this.deletedCheckedLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.deletedCheckedLbl.AutoSize = true;
+            this.deletedCheckedLbl.Location = new System.Drawing.Point(233, 395);
+            this.deletedCheckedLbl.Name = "deletedCheckedLbl";
+            this.deletedCheckedLbl.Size = new System.Drawing.Size(104, 15);
+            this.deletedCheckedLbl.TabIndex = 6;
+            this.deletedCheckedLbl.Text = "Checked: {0} of {1}";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(8, 3);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(239, 15);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "To restore deleted book, check box and save";
+            // 
+            // saveBtn
+            // 
+            this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.saveBtn.Location = new System.Drawing.Point(709, 391);
+            this.saveBtn.Name = "saveBtn";
+            this.saveBtn.Size = new System.Drawing.Size(75, 23);
+            this.saveBtn.TabIndex = 5;
+            this.saveBtn.Text = "Save";
+            this.saveBtn.UseVisualStyleBackColor = true;
+            this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
+            // 
+            // uncheckAllBtn
+            // 
+            this.uncheckAllBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.uncheckAllBtn.Location = new System.Drawing.Point(129, 391);
+            this.uncheckAllBtn.Name = "uncheckAllBtn";
+            this.uncheckAllBtn.Size = new System.Drawing.Size(98, 23);
+            this.uncheckAllBtn.TabIndex = 4;
+            this.uncheckAllBtn.Text = "Uncheck All";
+            this.uncheckAllBtn.UseVisualStyleBackColor = true;
+            this.uncheckAllBtn.Click += new System.EventHandler(this.uncheckAllBtn_Click);
+            // 
+            // checkAllBtn
+            // 
+            this.checkAllBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkAllBtn.Location = new System.Drawing.Point(8, 391);
+            this.checkAllBtn.Name = "checkAllBtn";
+            this.checkAllBtn.Size = new System.Drawing.Size(98, 23);
+            this.checkAllBtn.TabIndex = 3;
+            this.checkAllBtn.Text = "Check All";
+            this.checkAllBtn.UseVisualStyleBackColor = true;
+            this.checkAllBtn.Click += new System.EventHandler(this.checkAllBtn_Click);
+            // 
+            // deletedCbl
+            // 
+            this.deletedCbl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.deletedCbl.FormattingEnabled = true;
+            this.deletedCbl.Location = new System.Drawing.Point(8, 21);
+            this.deletedCbl.Name = "deletedCbl";
+            this.deletedCbl.Size = new System.Drawing.Size(776, 364);
+            this.deletedCbl.TabIndex = 2;
+            this.deletedCbl.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.deletedCbl_ItemCheck);
+            // 
             // cliTab
             // 
             this.cliTab.Location = new System.Drawing.Point(4, 24);
@@ -140,6 +229,8 @@
             this.tabControl1.ResumeLayout(false);
             this.databaseTab.ResumeLayout(false);
             this.databaseTab.PerformLayout();
+            this.deletedTab.ResumeLayout(false);
+            this.deletedTab.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -154,5 +245,12 @@
         private Label sqlLbl;
         private Button sqlExecuteBtn;
         private TabPage cliTab;
+        private TabPage deletedTab;
+        private CheckedListBox deletedCbl;
+        private Label label1;
+        private Button saveBtn;
+        private Button uncheckAllBtn;
+        private Button checkAllBtn;
+        private Label deletedCheckedLbl;
     }
 }
