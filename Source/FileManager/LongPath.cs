@@ -15,7 +15,7 @@ namespace FileManager
 		public const int MaxFilenameLength = 255;
 
 		private const int MAX_PATH = 260;
-		private const string LONG_PATH_PREFIX = "\\\\?\\";
+		private const string LONG_PATH_PREFIX = @"\\?\";
 
 		public string Path { get; init; }
 		public override string ToString() => Path;
@@ -35,13 +35,13 @@ namespace FileManager
 
 			if (path.StartsWith(LONG_PATH_PREFIX))
 				return new LongPath { Path = path };
-			else if ((path.Length > 2 && path[1] == ':') || path.StartsWith("UNC\\"))
+			else if ((path.Length > 2 && path[1] == ':') || path.StartsWith(@"UNC\"))
 				return new LongPath { Path = LONG_PATH_PREFIX + path };
-			else if (path.StartsWith("\\\\"))
+			else if (path.StartsWith(@"\\"))
 				//The "\\?\" prefix can also be used with paths constructed according to the
 				//universal naming convention (UNC). To specify such a path using UNC, use
 				//the "\\?\UNC\" prefix.
-				return new LongPath { Path = LONG_PATH_PREFIX + "UNC\\" + path.Substring(2) };
+				return new LongPath { Path = LONG_PATH_PREFIX + @"UNC\" + path.Substring(2) };
 			else
 			{
 				//These prefixes are not used as part of the path itself. They indicate that

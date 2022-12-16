@@ -179,6 +179,7 @@ namespace FileManager
             }
             catch (Exception exDebug)
             {
+                Serilog.Log.Logger.Debug(exDebug, "Silent failure");
                 return false;
             }
 
