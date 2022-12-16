@@ -1,7 +1,5 @@
 ﻿using HangoverBase;
 using ReactiveUI;
-using System;
-using System.Linq;
 
 namespace HangoverAvalonia.ViewModels
 {

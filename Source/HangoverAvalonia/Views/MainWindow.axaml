@@ -30,44 +30,6 @@
 				<Setter Property="Padding" Value="20,5,20,5"/>
 			</Style>
 		</TabControl.Styles>
-
-		<!-- Deleted Books Tab -->
-		<TabItem Name="deletedTab">
-			<TabItem.Header>
-				<TextBlock FontSize="14" VerticalAlignment="Center">Deleted Books</TextBlock>
-			</TabItem.Header>
-
-			<Grid
-				RowDefinitions="Auto,*,Auto">
-				
-				<TextBlock
-					Grid.Row="0"
-					Margin="5"
-					Text="To restore deleted book, check box and save" />
-				
-				<controls:CheckedListBox
-					Grid.Row="1"
-					Margin="5,0,5,0"
-					BorderThickness="1"
-					BorderBrush="Gray"
-					Name="deletedCbl"
-					Items="{Binding DeletedBooks}" />
-				
-				<Grid
-					Grid.Row="2"
-					Margin="5"
-					ColumnDefinitions="Auto,Auto,Auto,*">
-					
-					<Button Grid.Column="0" Margin="0,0,20,0" Content="Check All" Click="Deleted_CheckAll_Click" />
-					<Button Grid.Column="1" Margin="0,0,20,0" Content="Uncheck All" Click="Deleted_UncheckAll_Click" />
-					<TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding CheckedCountText}" />
-					<Button Grid.Column="3" HorizontalAlignment="Right" Content="Save" Click="Deleted_Save_Click" />
-					
-				</Grid>
-			</Grid>
-
-
-		</TabItem>
 		
 		<!-- Database Tab -->
 		<TabItem Name="databaseTab">
@@ -104,6 +66,42 @@
 					Text="{Binding SqlResults}" />
 			</Grid>
 			
+		</TabItem>
+
+		<!-- Deleted Books Tab -->
+		<TabItem Name="deletedTab">
+			<TabItem.Header>
+				<TextBlock FontSize="14" VerticalAlignment="Center">Deleted Books</TextBlock>
+			</TabItem.Header>
+
+			<Grid
+				RowDefinitions="Auto,*,Auto">
+
+				<TextBlock
+					Grid.Row="0"
+					Margin="5"
+					Text="To restore deleted book, check box and save" />
+
+				<controls:CheckedListBox
+					Grid.Row="1"
+					Margin="5,0,5,0"
+					BorderThickness="1"
+					BorderBrush="Gray"
+					Name="deletedCbl"
+					Items="{Binding DeletedBooks}" />
+
+				<Grid
+					Grid.Row="2"
+					Margin="5"
+					ColumnDefinitions="Auto,Auto,Auto,*">
+
+					<Button Grid.Column="0" Margin="0,0,20,0" Content="Check All" Click="Deleted_CheckAll_Click" />
+					<Button Grid.Column="1" Margin="0,0,20,0" Content="Uncheck All" Click="Deleted_UncheckAll_Click" />
+					<TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding CheckedCountText}" />
+					<Button Grid.Column="3" HorizontalAlignment="Right" Content="Save" Click="Deleted_Save_Click" />
+
+				</Grid>
+			</Grid>
 		</TabItem>
 
 		<!-- Command Line Interface Tab -->

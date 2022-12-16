@@ -1,7 +1,6 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using HangoverAvalonia.Controls;
-using System;
 using System.Linq;
 
 namespace HangoverAvalonia.Views

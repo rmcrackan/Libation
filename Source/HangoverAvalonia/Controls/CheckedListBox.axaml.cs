@@ -1,9 +1,7 @@
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
-using DataLayer;
 using HangoverAvalonia.ViewModels;
-using NPOI.XSSF.Streaming.Properties;
 using ReactiveUI;
 using System;
 using System.Collections;

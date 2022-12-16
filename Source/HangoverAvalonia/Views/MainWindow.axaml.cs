@@ -1,8 +1,6 @@
 using AppScaffolding;
 using Avalonia.Controls;
 using HangoverAvalonia.ViewModels;
-using System;
-using System.Linq;
 
 namespace HangoverAvalonia.Views
 {
