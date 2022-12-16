@@ -23,7 +23,7 @@ namespace AccountsTests
 {
     public class AccountsTestBase
     {
-        protected const string EMPTY_FILE = "{\r\n  \"Accounts\": []\r\n}";
+        protected string EMPTY_FILE { get; } = "{\r\n  \"Accounts\": []\r\n}".Replace("\r\n", Environment.NewLine);
 
         protected string TestFile;
         protected Locale usLocale => Localization.Get("us");
