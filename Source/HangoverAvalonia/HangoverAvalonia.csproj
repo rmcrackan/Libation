@@ -50,7 +50,12 @@
 		<None Remove="Assets\hangover.ico" />
 		<None Remove="hangover.ico" />
 	</ItemGroup>
-
+	
+	<ItemGroup>
+		<Compile Update="ViewModels\MainVM.*.cs">
+			<DependentUpon>MainVM.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
 	<ItemGroup>
 		<AvaloniaResource Include="hangover.ico" />

@@ -3,33 +3,74 @@
         xmlns:vm="using:HangoverAvalonia.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+		xmlns:controls="clr-namespace:HangoverAvalonia.Controls"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
 		Width="800" Height="500"
         x:Class="HangoverAvalonia.Views.MainWindow"
         Icon="/Assets/hangover.ico "
         Title="Hangover: Libation debug and recovery tool">
-
 	<Design.DataContext>
-		<vm:MainWindowViewModel/>
+		<vm:MainVM/>
 	</Design.DataContext>
-	
-	<TabControl Grid.Row="0">
+
+	<TabControl Name="tabControl1" Grid.Row="0">
 		<TabControl.Styles>
 			<Style Selector="ItemsPresenter#PART_ItemsPresenter">
-				<Setter Property="Height" Value="18"/>
+				<Setter Property="Height" Value="23"/>
 			</Style>
 			<Style Selector="TabItem">
-				<Setter Property="MinHeight" Value="30"/>
-				<Setter Property="Height" Value="30"/>
-				<Setter Property="Padding" Value="8,2,8,0"/>
+				<Setter Property="MinHeight" Value="40"/>
+				<Setter Property="Height" Value="40"/>
+				<Setter Property="Padding" Value="8,2,8,5"/>
 			</Style>
 			<Style Selector="TabItem#Header TextBlock">
 				<Setter Property="MinHeight" Value="5"/>
 			</Style>
+			<Style Selector="Button">
+				<Setter Property="Padding" Value="20,5,20,5"/>
+			</Style>
 		</TabControl.Styles>
+
+		<!-- Deleted Books Tab -->
+		<TabItem Name="deletedTab">
+			<TabItem.Header>
+				<TextBlock FontSize="14" VerticalAlignment="Center">Deleted Books</TextBlock>
+			</TabItem.Header>
+
+			<Grid
+				RowDefinitions="Auto,*,Auto">
+				
+				<TextBlock
+					Grid.Row="0"
+					Margin="5"
+					Text="To restore deleted book, check box and save" />
+				
+				<controls:CheckedListBox
+					Grid.Row="1"
+					Margin="5,0,5,0"
+					BorderThickness="1"
+					BorderBrush="Gray"
+					Name="deletedCbl"
+					Items="{Binding DeletedBooks}" />
+				
+				<Grid
+					Grid.Row="2"
+					Margin="5"
+					ColumnDefinitions="Auto,Auto,Auto,*">
+					
+					<Button Grid.Column="0" Margin="0,0,20,0" Content="Check All" Click="Deleted_CheckAll_Click" />
+					<Button Grid.Column="1" Margin="0,0,20,0" Content="Uncheck All" Click="Deleted_UncheckAll_Click" />
+					<TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding CheckedCountText}" />
+					<Button Grid.Column="3" HorizontalAlignment="Right" Content="Save" Click="Deleted_Save_Click" />
+					
+				</Grid>
+			</Grid>
+
+
+		</TabItem>
 		
 		<!-- Database Tab -->
-		<TabItem>
+		<TabItem Name="databaseTab">
 			<TabItem.Header>
 				<TextBlock FontSize="14" VerticalAlignment="Center">Database</TextBlock>
 			</TabItem.Header>
@@ -52,7 +93,6 @@
 				
 				<Button
 					Grid.Row="3"
-					Padding="20,5,20,5"
 					Content="Execute"
 					IsEnabled="{Binding DatabaseFound}"
 					Click="Execute_Click" />
@@ -65,8 +105,9 @@
 			</Grid>
 			
 		</TabItem>
+
 		<!-- Command Line Interface Tab -->
-		<TabItem>
+		<TabItem Name="cliTab">
 			<TabItem.Header>
 				<TextBlock FontSize="14" VerticalAlignment="Center">Command Line Interface</TextBlock>
 			</TabItem.Header>			

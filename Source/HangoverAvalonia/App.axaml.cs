@@ -17,10 +17,12 @@ namespace HangoverAvalonia
 		{
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 			{
-				desktop.MainWindow = new MainWindow
+				var mainWindow = new MainWindow
 				{
-					DataContext = new MainWindowViewModel(),
+					DataContext = new MainVM(),
 				};
+				desktop.MainWindow = mainWindow;
+				mainWindow.OnLoad();
 			}
 
 			base.OnFrameworkInitializationCompleted();
