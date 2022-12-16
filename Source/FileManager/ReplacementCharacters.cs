@@ -91,10 +91,10 @@ namespace FileManager
 				{
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("∕"),
-					Replacement.FilenameBackSlash(""),
+					Replacement.FilenameBackSlash("\\"),
 					Replacement.OpenQuote("“"),
 					Replacement.CloseQuote("”"),
-					Replacement.OtherQuote("＂")
+					Replacement.OtherQuote("\"")
 				}
 			};
 
@@ -115,7 +115,18 @@ namespace FileManager
 					Replacement.Colon("-"),
 				}
 			}
-			: Barebones;
+			: new ()
+			{
+				Replacements = new Replacement[]
+				{
+					Replacement.OtherInvalid("_"),
+					Replacement.FilenameForwardSlash("_"),
+					Replacement.FilenameBackSlash("\\"),
+					Replacement.OpenQuote("\""),
+					Replacement.CloseQuote("\""),
+					Replacement.OtherQuote("\"")
+				}
+			};
 
 		public static readonly ReplacementCharacters Barebones
 			= IsWindows
@@ -164,13 +175,10 @@ namespace FileManager
 
 		private string GetFilenameCharReplacement(char toReplace, char preceding, char succeding)
 		{
-			if (invalidSlashes.Contains(toReplace))
-			{
-				if (toReplace == ForwardSlash.CharacterToReplace)
-					return ForwardSlash.ReplacementString;
-				else
-					return BackSlash.ReplacementString;
-			}
+			if (toReplace == ForwardSlash.CharacterToReplace)
+				return ForwardSlash.ReplacementString;
+			else if (toReplace == BackSlash.CharacterToReplace)
+				return BackSlash.ReplacementString;
 			else return GetPathCharReplacement(toReplace, preceding, succeding);
 		}
 		private string GetPathCharReplacement(char toReplace, char preceding, char succeding)
@@ -198,6 +206,9 @@ namespace FileManager
 				else
 					return OtherQuote;
 			}
+
+			if (!IsWindows && toReplace == BackSlash.CharacterToReplace)
+				return BackSlash.ReplacementString;
 
 			//Replace any other non-mandatory characters
 			for (int i = Replacement.FIXED_COUNT; i < Replacements.Count; i++)
