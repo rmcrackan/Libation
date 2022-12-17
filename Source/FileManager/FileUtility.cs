@@ -84,7 +84,7 @@ namespace FileManager
 
 			var pathNoPrefix = path.PathWithoutPrefix;
 
-			pathNoPrefix = replacements.ReplaceInvalidPathChars(pathNoPrefix);
+			pathNoPrefix = replacements.ReplacePathChars(pathNoPrefix);
 			pathNoPrefix = removeDoubleSlashes(pathNoPrefix);
 
 			return pathNoPrefix;

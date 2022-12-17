@@ -81,40 +81,62 @@ namespace TemplatesTests
 			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension);
 
 		[TestMethod]
-		public void null_extension() => Tests("f.txt", @"C:\foo\bar", null, @"C:\foo\bar\f.txt");
+		[DataRow("f.txt", @"C:\foo\bar", null, @"C:\foo\bar\f.txt", PlatformID.Win32NT)]
+		[DataRow("f.txt", @"/foo/bar", null, @"/foo/bar/f.txt", PlatformID.Unix)]
+		[DataRow("f.txt", @"C:\foo\bar", "ext", @"C:\foo\bar\f.txt.ext", PlatformID.Win32NT)]
+		[DataRow("f.txt", @"/foo/bar", "ext", @"/foo/bar/f.txt.ext", PlatformID.Unix)]
+		[DataRow("f", @"C:\foo\bar", "ext", @"C:\foo\bar\f.ext", PlatformID.Win32NT)]
+		[DataRow("f", @"/foo/bar", "ext", @"/foo/bar/f.ext", PlatformID.Unix)]
+		[DataRow("<id>", @"C:\foo\bar", "ext", @"C:\foo\bar\asin.ext", PlatformID.Win32NT)]
+		[DataRow("<id>", @"/foo/bar", "ext", @"/foo/bar/asin.ext", PlatformID.Unix)]
+        [DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\128 - 44100 - 2.ext", PlatformID.Win32NT)]
+        [DataRow("<bitrate> - <samplerate> - <channels>", @"/foo/bar", "ext", @"/foo/bar/128 - 44100 - 2.ext", PlatformID.Unix)]
+        [DataRow("<year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\2017 - 2.ext", PlatformID.Win32NT)]
+        [DataRow("<year> - <channels>", @"/foo/bar", "ext", @"/foo/bar/2017 - 2.ext", PlatformID.Unix)]
+        public void Tests(string template, string dirFullPath, string extension, string expected, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform == platformID)
+				Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension)
+				.GetFilePath(Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
 
 		[TestMethod]
-		[DataRow("f.txt", @"C:\foo\bar", "ext", @"C:\foo\bar\f.txt.ext")]
-		[DataRow("f", @"C:\foo\bar", "ext", @"C:\foo\bar\f.ext")]
-		[DataRow("<id>", @"C:\foo\bar", "ext", @"C:\foo\bar\asin.ext")]
-        [DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\128 - 44100 - 2.ext")]
-        [DataRow("<year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\2017 - 2.ext")]
-        public void Tests(string template, string dirFullPath, string extension, string expected)
-			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension)
-			.GetFilePath(Replacements)
-			.PathWithoutPrefix
-			.Should().Be(expected);
+		[DataRow(@"C:\a\b", @"C:\a\b\foobar.ext", PlatformID.Win32NT)]
+		[DataRow(@"/a/b", @"/a/b/foobar.ext", PlatformID.Unix)]
+		public void IfSeries_empty(string directory, string expected, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform == platformID)
+				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series-><-if series>bar", directory, "ext")
+				.GetFilePath(Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
 
 		[TestMethod]
-		public void IfSeries_empty()
-			=> Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series-><-if series>bar", @"C:\a\b", "ext")
-			.GetFilePath(Replacements)
-			.PathWithoutPrefix
-			.Should().Be(@"C:\a\b\foobar.ext");
+		[DataRow(@"C:\a\b", @"C:\a\b\foobar.ext", PlatformID.Win32NT)]
+		[DataRow(@"/a/b", @"/a/b/foobar.ext", PlatformID.Unix)]
+		public void IfSeries_no_series(string directory, string expected, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform == platformID)
+				Templates.getFileNamingTemplate(GetLibraryBook(null), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext")
+				.GetFilePath(Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
 
 		[TestMethod]
-		public void IfSeries_no_series()
-			=> Templates.getFileNamingTemplate(GetLibraryBook(null), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
-			.GetFilePath(Replacements)
-			.PathWithoutPrefix
-			.Should().Be(@"C:\a\b\foobar.ext");
-
-		[TestMethod]
-		public void IfSeries_with_series()
-			=> Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series->-<series>-<id>-<-if series>bar", @"C:\a\b", "ext")
-			.GetFilePath(Replacements)
-			.PathWithoutPrefix
-			.Should().Be(@"C:\a\b\foo-Sherlock Holmes-asin-bar.ext");
+		[DataRow(@"C:\a\b", @"C:\a\b\foo-Sherlock Holmes-asin-bar.ext", PlatformID.Win32NT)]
+		[DataRow(@"/a/b", @"/a/b/foo-Sherlock Holmes-asin-bar.ext", PlatformID.Unix)]
+		public void IfSeries_with_series(string directory, string expected, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform == platformID)
+				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext")
+				.GetFilePath(Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
 	}
 }
 
@@ -256,7 +278,7 @@ namespace Templates_File_Tests
 	public class GetErrors
 	{
 		[TestMethod]
-		public void null_is_invalid() => Tests(null, new[] { Templates.ERROR_NULL_IS_INVALID });
+		public void null_is_invalid() => Tests(null, Environment.OSVersion.Platform, new[] { Templates.ERROR_NULL_IS_INVALID });
 
 		[TestMethod]
 		public void empty_is_valid() => valid_tests("");
@@ -267,19 +289,23 @@ namespace Templates_File_Tests
 		[TestMethod]
 		[DataRow(@"foo")]
 		[DataRow(@"<id>")]
-		public void valid_tests(string template) => Tests(template, Array.Empty<string>());
+		public void valid_tests(string template) => Tests(template, Environment.OSVersion.Platform, Array.Empty<string>());
 
 
 		[TestMethod]
-		[DataRow(@"C:\", Templates.ERROR_INVALID_FILE_NAME_CHAR)]
-		[DataRow(@"\foo", Templates.ERROR_INVALID_FILE_NAME_CHAR)]
-		[DataRow(@"/foo", Templates.ERROR_INVALID_FILE_NAME_CHAR)]
-		[DataRow(@"C:\", Templates.ERROR_INVALID_FILE_NAME_CHAR)]
-		public void Tests(string template, params string[] expected)
+		[DataRow(@"C:\", PlatformID.Win32NT, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
+		[DataRow(@"/", PlatformID.Unix, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
+		[DataRow(@"\foo", PlatformID.Win32NT, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
+		[DataRow(@"/foo", PlatformID.Win32NT, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
+		[DataRow(@"/foo", PlatformID.Unix, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
+		public void Tests(string template, PlatformID platformID, params string[] expected)
 		{
-			var result = Templates.File.GetErrors(template);
-			result.Count().Should().Be(expected.Length);
-			result.Should().BeEquivalentTo(expected);
+			if (Environment.OSVersion.Platform == platformID)
+			{
+				var result = Templates.File.GetErrors(template);
+				result.Count().Should().Be(expected.Length);
+				result.Should().BeEquivalentTo(expected);
+			}
 		}
 	}
 
@@ -287,21 +313,29 @@ namespace Templates_File_Tests
 	public class IsValid
 	{
 		[TestMethod]
-		public void null_is_invalid() => Tests(null, false);
+		public void null_is_invalid() => Tests(null, false, Environment.OSVersion.Platform);
 
 		[TestMethod]
-		public void empty_is_valid() => Tests("", true);
+		public void empty_is_valid() => Tests("", true, Environment.OSVersion.Platform);
 
 		[TestMethod]
-		public void whitespace_is_valid() => Tests("   ", true);
+		public void whitespace_is_valid() => Tests("   ", true, Environment.OSVersion.Platform);
 
 		[TestMethod]
-		[DataRow(@"C:\", false)]
-		[DataRow(@"foo", true)]
-		[DataRow(@"\foo", false)]
-		[DataRow(@"/foo", false)]
-		[DataRow(@"<id>", true)]
-		public void Tests(string template, bool expected) => Templates.File.IsValid(template).Should().Be(expected);
+		[DataRow(@"C:\", false, PlatformID.Win32NT)]
+		[DataRow(@"/", false, PlatformID.Unix)]
+		[DataRow(@"foo", true, PlatformID.Win32NT)]
+		[DataRow(@"foo", true, PlatformID.Unix)]
+		[DataRow(@"\foo", false, PlatformID.Win32NT)]
+		[DataRow(@"\foo", true, PlatformID.Unix)]
+		[DataRow(@"/foo", false, PlatformID.Win32NT)]
+		[DataRow(@"<id>", true, PlatformID.Win32NT)]
+		[DataRow(@"<id>", true, PlatformID.Unix)]
+		public void Tests(string template, bool expected, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform == platformID)
+						Templates.File.IsValid(template).Should().Be(expected);	
+		}
 	}
 
 	// same as Templates.Folder.GetWarnings
@@ -331,28 +365,34 @@ namespace Templates_ChapterFile_Tests
 	public class GetWarnings
 	{
 		[TestMethod]
-		public void null_is_invalid() => Tests(null, new[] { Templates.ERROR_NULL_IS_INVALID });
+		public void null_is_invalid() => Tests(null, null, new[] { Templates.ERROR_NULL_IS_INVALID });
 
 		[TestMethod]
-		public void empty_has_warnings() => Tests("", Templates.WARNING_EMPTY, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
+		public void empty_has_warnings() => Tests("", null, Templates.WARNING_EMPTY, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
 
 		[TestMethod]
-		public void whitespace_has_warnings() => Tests("   ", Templates.WARNING_WHITE_SPACE, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
+		public void whitespace_has_warnings() => Tests("   ", null, Templates.WARNING_WHITE_SPACE, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
 
 		[TestMethod]
 		[DataRow("<ch#>")]
 		[DataRow("<ch#> <id>")]
-		public void valid_tests(string template) => Tests(template, Array.Empty<string>());
+		public void valid_tests(string template) => Tests(template, null, Array.Empty<string>());
 
 		[TestMethod]
-		[DataRow(@"no tags", Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
-		[DataRow(@"<id>\foo\bar", Templates.ERROR_INVALID_FILE_NAME_CHAR, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
-		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
-		public void Tests(string template, params string[] expected)
+		[DataRow(@"no tags", null, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		[DataRow(@"<id>\foo\bar", true, Templates.ERROR_INVALID_FILE_NAME_CHAR, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		[DataRow(@"<id>/foo/bar", false, Templates.ERROR_INVALID_FILE_NAME_CHAR, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", null, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		public void Tests(string template, bool? windows, params string[] expected)
 		{
-			var result = Templates.ChapterFile.GetWarnings(template);
-			result.Count().Should().Be(expected.Length);
-			result.Should().BeEquivalentTo(expected);
+			if(windows is null
+			|| (windows is true && Environment.OSVersion.Platform is PlatformID.Win32NT)
+			|| (windows is false && Environment.OSVersion.Platform is PlatformID.Unix))
+			{
+				var result = Templates.ChapterFile.GetWarnings(template);
+				result.Count().Should().Be(expected.Length);
+				result.Should().BeEquivalentTo(expected);
+			}
 		}
 	}
 
@@ -408,10 +448,15 @@ namespace Templates_ChapterFile_Tests
 		static readonly ReplacementCharacters Default = ReplacementCharacters.Default;
 
 		[TestMethod]
-		[DataRow("[<id>] <ch# 0> of <ch count> - <ch title>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\[asin] 06 of 10 - chap.txt")]
-		[DataRow("<ch#>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\6.txt")]
-		public void Tests(string template, string dir, string ext, int pos, int total, string chapter, string expected)
-			=> Templates.ChapterFile.GetPortionFilename(GetLibraryBook(), template, new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, Default)
-			.Should().Be(expected);
+		[DataRow("[<id>] <ch# 0> of <ch count> - <ch title>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\[asin] 06 of 10 - chap.txt", PlatformID.Win32NT)]
+		[DataRow("[<id>] <ch# 0> of <ch count> - <ch title>", @"/foo/", "txt", 6, 10, "chap", @"/foo/[asin] 06 of 10 - chap.txt", PlatformID.Unix)]
+		[DataRow("<ch#>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\6.txt", PlatformID.Win32NT)]
+		[DataRow("<ch#>", @"/foo/", "txt", 6, 10, "chap", @"/foo/6.txt", PlatformID.Unix)]
+		public void Tests(string template, string dir, string ext, int pos, int total, string chapter, string expected, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform == platformID)
+				Templates.ChapterFile.GetPortionFilename(GetLibraryBook(), template, new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, Default)
+				.Should().Be(expected);
+		}
 	}
 }

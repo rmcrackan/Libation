@@ -143,7 +143,7 @@ namespace LibationAvalonia.Dialogs
 				get => _replacementText;
 				set
 				{
-					if (ReplacementCharacters.ContainsInvalidPathChar(value))
+					if (ReplacementCharacters.ContainsInvalidFilenameChar(value))
 						this.RaisePropertyChanged(nameof(ReplacementText));
 					else
 						this.RaiseAndSetIfChanged(ref _replacementText, value);
@@ -158,7 +158,7 @@ namespace LibationAvalonia.Dialogs
 
 				set
 				{
-					if (value?.Length != 1 || !ReplacementCharacters.ContainsInvalidPathChar(value))
+					if (value?.Length != 1)
 						this.RaisePropertyChanged(nameof(CharacterToReplace));
 					else
 					{

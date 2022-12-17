@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApplicationServices;
+using AudibleApi;
+using AudibleApi.Common;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using DataLayer;
@@ -22,7 +24,9 @@ namespace LibationAvalonia.ViewModels
 		ValidationFail,
 		FailedRetry,
 		FailedSkip,
-		FailedAbort
+		FailedAbort,
+		LicenseDenied,
+		LicenseDeniedPossibleOutage
 	}
 
 	public enum ProcessBookStatus
@@ -80,6 +84,8 @@ namespace LibationAvalonia.ViewModels
 			ProcessBookResult.FailedRetry => "Error, will retry later",
 			ProcessBookResult.FailedSkip => "Error, Skippping",
 			ProcessBookResult.FailedAbort => "Error, Abort",
+			ProcessBookResult.LicenseDenied => "License Denied",
+			ProcessBookResult.LicenseDeniedPossibleOutage => "Possible Service Interruption",
 			_ => Status.ToString(),
 		};
 
@@ -134,17 +140,30 @@ namespace LibationAvalonia.ViewModels
 					return Result = ProcessBookResult.Success;
 				else if (statusHandler.Errors.Contains("Cancelled"))
 				{
-					Logger.Info($"{procName}:  Process was cancelled {LibraryBook.Book}");
+					Logger.Info($"{procName}:  Process was cancelled - {LibraryBook.Book}");
 					return Result = ProcessBookResult.Cancelled;
 				}
 				else if (statusHandler.Errors.Contains("Validation failed"))
 				{
-					Logger.Info($"{procName}:  Validation failed {LibraryBook.Book}");
+					Logger.Info($"{procName}:  Validation failed - {LibraryBook.Book}");
 					return Result = ProcessBookResult.ValidationFail;
 				}
 
 				foreach (var errorMessage in statusHandler.Errors)
 					Logger.Error($"{procName}:  {errorMessage}");
+			}
+			catch (ContentLicenseDeniedException ldex)
+			{
+				if (ldex.AYCL?.RejectionReason is null or RejectionReason.GenericError)
+				{
+					Logger.Info($"{procName}:  Content license was denied, but this error appears to be caused by a temporary interruption of service. - {LibraryBook.Book}");
+					return Result = ProcessBookResult.LicenseDeniedPossibleOutage;
+				}
+				else
+				{
+					Logger.Info($"{procName}:  Content license denied. Check your Audible account to see if you have access to this title. - {LibraryBook.Book}");
+					return Result = ProcessBookResult.LicenseDenied;
+				}
 			}
 			catch (Exception ex)
 			{

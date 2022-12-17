@@ -61,59 +61,108 @@ namespace FileManager
 	[JsonConverter(typeof(ReplacementCharactersConverter))]
 	public class ReplacementCharacters
 	{
-		public static readonly ReplacementCharacters Default = new()
+		static ReplacementCharacters()
 		{
-			Replacements = new List<Replacement>()
-			{
-				Replacement.OtherInvalid("_"),
-				Replacement.FilenameForwardSlash("∕"),
-				Replacement.FilenameBackSlash(""),
-				Replacement.OpenQuote("“"),
-				Replacement.CloseQuote("”"),
-				Replacement.OtherQuote("＂"),
-				Replacement.OpenAngleBracket("＜"),
-				Replacement.CloseAngleBracket("＞"),
-				Replacement.Colon("꞉"),
-				Replacement.Asterisk("✱"),
-				Replacement.QuestionMark("？"),
-				Replacement.Pipe("⏐"),
-			}
-		};
 
-		public static readonly ReplacementCharacters LoFiDefault = new()
-		{
-			Replacements = new List<Replacement>()
+		}
+		public static readonly ReplacementCharacters Default
+			= IsWindows
+			? new()
 			{
-				Replacement.OtherInvalid("_"),
-				Replacement.FilenameForwardSlash("_"),
-				Replacement.FilenameBackSlash("_"),
-				Replacement.OpenQuote("'"),
-				Replacement.CloseQuote("'"),
-				Replacement.OtherQuote("'"),
-				Replacement.OpenAngleBracket("{"),
-				Replacement.CloseAngleBracket("}"),
-				Replacement.Colon("-"),
+				Replacements = new Replacement[]
+				{
+					Replacement.OtherInvalid("_"),
+					Replacement.FilenameForwardSlash("∕"),
+					Replacement.FilenameBackSlash(""),
+					Replacement.OpenQuote("“"),
+					Replacement.CloseQuote("”"),
+					Replacement.OtherQuote("＂"),
+					Replacement.OpenAngleBracket("＜"),
+					Replacement.CloseAngleBracket("＞"),
+					Replacement.Colon("꞉"),
+					Replacement.Asterisk("✱"),
+					Replacement.QuestionMark("？"),
+					Replacement.Pipe("⏐"),
+				}
 			}
-		};
-
-		public static readonly ReplacementCharacters Barebones = new()
-		{
-			Replacements = new List<Replacement>()
+			: new()
 			{
-				Replacement.OtherInvalid("_"),
-				Replacement.FilenameForwardSlash("_"),
-				Replacement.FilenameBackSlash("_"),
-				Replacement.OpenQuote("_"),
-				Replacement.CloseQuote("_"),
-				Replacement.OtherQuote("_"),
-			}
-		};
+				Replacements = new Replacement[]
+				{
+					Replacement.OtherInvalid("_"),
+					Replacement.FilenameForwardSlash("∕"),
+					Replacement.FilenameBackSlash("\\"),
+					Replacement.OpenQuote("“"),
+					Replacement.CloseQuote("”"),
+					Replacement.OtherQuote("\"")
+				}
+			};
 
-		private static readonly char[] invalidChars = Path.GetInvalidPathChars().Union(new[] {
-				'*', '?', ':',
-				// these are weird. If you run Path.GetInvalidPathChars() in Visual Studio's "C# Interactive", then these characters are included.
-				// In live code, Path.GetInvalidPathChars() does not include them
-				'"', '<', '>'
+		public static readonly ReplacementCharacters LoFiDefault
+			= IsWindows
+			? new()
+			{
+				Replacements = new Replacement[]
+				{
+					Replacement.OtherInvalid("_"),
+					Replacement.FilenameForwardSlash("_"),
+					Replacement.FilenameBackSlash("_"),
+					Replacement.OpenQuote("'"),
+					Replacement.CloseQuote("'"),
+					Replacement.OtherQuote("'"),
+					Replacement.OpenAngleBracket("{"),
+					Replacement.CloseAngleBracket("}"),
+					Replacement.Colon("-"),
+				}
+			}
+			: new ()
+			{
+				Replacements = new Replacement[]
+				{
+					Replacement.OtherInvalid("_"),
+					Replacement.FilenameForwardSlash("_"),
+					Replacement.FilenameBackSlash("\\"),
+					Replacement.OpenQuote("\""),
+					Replacement.CloseQuote("\""),
+					Replacement.OtherQuote("\"")
+				}
+			};
+
+		public static readonly ReplacementCharacters Barebones
+			= IsWindows
+			? new ()
+			{
+				Replacements = new Replacement[]
+				{
+					Replacement.OtherInvalid("_"),
+					Replacement.FilenameForwardSlash("_"),
+					Replacement.FilenameBackSlash("_"),
+					Replacement.OpenQuote("_"),
+					Replacement.CloseQuote("_"),
+					Replacement.OtherQuote("_")
+				}
+			}
+			: new ()
+			{
+				Replacements = new Replacement[]
+				{
+					Replacement.OtherInvalid("_"),
+					Replacement.FilenameForwardSlash("_"),
+					Replacement.FilenameBackSlash("\\"),
+					Replacement.OpenQuote("\""),
+					Replacement.CloseQuote("\""),
+					Replacement.OtherQuote("\"")
+				}
+			};
+
+		private static bool IsWindows => Environment.OSVersion.Platform is PlatformID.Win32NT;
+
+		private static readonly char[] invalidPathChars = Path.GetInvalidFileNameChars().Except(new[] {
+				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
+			}).ToArray();
+
+		private static readonly char[] invalidSlashes = Path.GetInvalidFileNameChars().Intersect(new[] {
+				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
 			}).ToArray();
 
 		public IReadOnlyList<Replacement> Replacements { get; init; }
@@ -158,6 +207,10 @@ namespace FileManager
 					return OtherQuote;
 			}
 
+			if (!IsWindows && toReplace == BackSlash.CharacterToReplace)
+				return BackSlash.ReplacementString;
+
+			//Replace any other non-mandatory characters
 			for (int i = Replacement.FIXED_COUNT; i < Replacements.Count; i++)
 			{
 				var r = Replacements[i];
@@ -167,13 +220,12 @@ namespace FileManager
 			return DefaultReplacement;
 		}
 
-
 		public static bool ContainsInvalidPathChar(string path)
-			=> path.Any(c => invalidChars?.Contains(c) == true);
+			=> path.Any(c => invalidPathChars.Contains(c));
 		public static bool ContainsInvalidFilenameChar(string path)
-			=> path.Any(c => invalidChars?.Concat(new char[] { '\\', '/' })?.Contains(c) == true);
+			=> ContainsInvalidPathChar(path) || path.Any(c => invalidSlashes.Contains(c));
 
-		public string ReplaceInvalidFilenameChars(string fileName)
+		public string ReplaceFilenameChars(string fileName)
 		{
 			if (string.IsNullOrEmpty(fileName)) return string.Empty;
 			var builder = new System.Text.StringBuilder();
@@ -181,7 +233,9 @@ namespace FileManager
 			{
 				var c = fileName[i];
 
-				if (invalidChars.Contains(c) || c == ForwardSlash.CharacterToReplace || c == BackSlash.CharacterToReplace)
+				if (invalidPathChars.Contains(c)
+					|| invalidSlashes.Contains(c)
+					|| Replacements.Any(r => r.CharacterToReplace == c) /* Replace any other legal characters that they user wants. */ )
 				{
 					char preceding = i > 0 ? fileName[i - 1] : default;
 					char succeeding = i < fileName.Length - 1 ? fileName[i + 1] : default;
@@ -189,30 +243,42 @@ namespace FileManager
 				}
 				else
 					builder.Append(c);
-
 			}
 			return builder.ToString();
 		}
 
-		public string ReplaceInvalidPathChars(string pathStr)
+		public string ReplacePathChars(string pathStr)
 		{
 			if (string.IsNullOrEmpty(pathStr)) return string.Empty;
 
-			// replace all colons except within the first 2 chars
 			var builder = new System.Text.StringBuilder();
 			for (var i = 0; i < pathStr.Length; i++)
 			{
 				var c = pathStr[i];
 
-				if (!invalidChars.Contains(c) || (c == ':' && i == 1 && Path.IsPathRooted(pathStr)))
-					builder.Append(c);
-				else
+				if (
+					(
+						invalidPathChars.Contains(c)
+						|| (	// Replace any other legal characters that they user wants.
+								c != Path.DirectorySeparatorChar
+								&& c != Path.AltDirectorySeparatorChar
+								&& Replacements.Any(r => r.CharacterToReplace == c)
+							)
+					)
+					&& !(	// replace all colons except drive letter designator on Windows
+							c == ':'
+							&& i == 1
+							&& Path.IsPathRooted(pathStr)
+							&& IsWindows
+					)
+				)
 				{
-					char preceding = i > 0 ? pathStr[i - 1] : default;
-					char succeeding = i < pathStr.Length - 1 ? pathStr[i + 1] : default;
-					builder.Append(GetPathCharReplacement(c, preceding, succeeding));
+						char preceding = i > 0 ? pathStr[i - 1] : default;
+						char succeeding = i < pathStr.Length - 1 ? pathStr[i + 1] : default;
+						builder.Append(GetPathCharReplacement(c, preceding, succeeding));
 				}
-
+				else
+					builder.Append(c);
 			}
 			return builder.ToString();
 		}
@@ -234,28 +300,19 @@ namespace FileManager
 			//Ensure that the first 6 replacements are for the expected chars and that all replacement strings are valid.
 			//If not, reset to default.
 
-			var default0 = Replacement.OtherInvalid("");
-			var default1 = Replacement.FilenameForwardSlash("");
-			var default2 = Replacement.FilenameBackSlash("");
-			var default3 = Replacement.OpenQuote("");
-			var default4 = Replacement.CloseQuote("");
-			var default5 = Replacement.OtherQuote("");
-
-			if (dict.Count < Replacement.FIXED_COUNT ||
-				dict[0].CharacterToReplace != default0.CharacterToReplace || dict[0].Description != default0.Description ||
-				dict[1].CharacterToReplace != default1.CharacterToReplace || dict[1].Description != default1.Description ||
-				dict[2].CharacterToReplace != default2.CharacterToReplace || dict[2].Description != default2.Description ||
-				dict[3].CharacterToReplace != default3.CharacterToReplace || dict[3].Description != default3.Description ||
-				dict[4].CharacterToReplace != default4.CharacterToReplace || dict[4].Description != default4.Description ||
-				dict[5].CharacterToReplace != default5.CharacterToReplace || dict[5].Description != default5.Description ||
-				dict.Any(r => ReplacementCharacters.ContainsInvalidPathChar(r.ReplacementString))
-				)
-			{
-				dict = ReplacementCharacters.Default.Replacements;
-			}
-			//First FIXED_COUNT are mandatory
 			for (int i = 0; i < Replacement.FIXED_COUNT; i++)
+			{
+				if (dict.Count < Replacement.FIXED_COUNT
+					|| dict[i].CharacterToReplace != ReplacementCharacters.Barebones.Replacements[i].CharacterToReplace
+					|| dict[i].Description != ReplacementCharacters.Barebones.Replacements[i].Description)
+				{
+					dict = ReplacementCharacters.Default.Replacements;
+					break;
+				}
+
+				//First FIXED_COUNT are mandatory
 				dict[i].Mandatory = true;
+			}
 
 			return new ReplacementCharacters { Replacements = dict };
 		}
@@ -265,7 +322,7 @@ namespace FileManager
 			ReplacementCharacters replacements = (ReplacementCharacters)value;
 
 			var propertyNames = replacements.Replacements
-				.Select(c => JObject.FromObject(c)).ToList();
+				.Select(JObject.FromObject).ToList();
 
 			var prop = new JProperty(nameof(Replacement), new JArray(propertyNames));
 

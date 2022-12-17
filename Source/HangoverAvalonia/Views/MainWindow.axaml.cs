@@ -6,19 +6,22 @@ namespace HangoverAvalonia.Views
 {
 	public partial class MainWindow : Window
 	{
-		MainWindowViewModel _viewModel => DataContext as MainWindowViewModel;
+		MainVM _viewModel => DataContext as MainVM;
 		public MainWindow()
 		{
 			InitializeComponent();
 
-            var config = LibationScaffolding.RunPreConfigMigrations();
-            LibationScaffolding.RunPostConfigMigrations(config);
-            LibationScaffolding.RunPostMigrationScaffolding(config);
-        }
+			var config = LibationScaffolding.RunPreConfigMigrations();
+			LibationScaffolding.RunPostConfigMigrations(config);
+			LibationScaffolding.RunPostMigrationScaffolding(config);
+		}
 
-		public void Execute_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void OnLoad()
 		{
-			_viewModel.ExecuteQuery();
+			deletedCbl.ItemCheck += Deleted_CheckedListBox_ItemCheck;
+			databaseTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) databaseTab_VisibleChanged(databaseTab.IsSelected); };
+			deletedTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) deletedTab_VisibleChanged(deletedTab.IsSelected); };
+			cliTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) cliTab_VisibleChanged(cliTab.IsSelected); };
 		}
 	}
 }

@@ -276,7 +276,7 @@ namespace LibationFileManager
 
         #region templates: custom file naming
 
-        [Description("Edit how illegal filename characters are replaced")]
+        [Description("Edit how filename characters are replaced")]
         public ReplacementCharacters ReplacementCharacters
         {
             get => persistentDictionary.GetNonString<ReplacementCharacters>(nameof(ReplacementCharacters));

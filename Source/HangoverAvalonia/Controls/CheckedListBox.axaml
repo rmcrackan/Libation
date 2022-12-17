@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="HangoverAvalonia.Controls.CheckedListBox">
+	
+	<UserControl.Resources>
+		<RecyclePool x:Key="RecyclePool" />
+		<DataTemplate x:Key="queuedBook">
+			<CheckBox Margin="10,0,0,0" Content="{Binding Item}" IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+		</DataTemplate>
+		<RecyclingElementFactory x:Key="elementFactory" RecyclePool="{StaticResource RecyclePool}">
+			<RecyclingElementFactory.Templates>
+				<StaticResource x:Key="queuedBook" ResourceKey="queuedBook" />
+			</RecyclingElementFactory.Templates>
+		</RecyclingElementFactory>
+	</UserControl.Resources>
+
+	<ScrollViewer
+		Name="scroller"
+		HorizontalScrollBarVisibility="Disabled"
+		VerticalScrollBarVisibility="Auto">
+		<ItemsRepeater IsVisible="True"
+			VerticalCacheLength="1.2"
+			HorizontalCacheLength="1"
+			Items="{Binding CheckboxItems}"
+			ItemTemplate="{StaticResource elementFactory}" />
+	</ScrollViewer>
+</UserControl>

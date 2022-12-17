@@ -161,6 +161,8 @@ namespace LibationWinForms.ProcessQueue
 				StartingTime = DateTime.Now;
 				counterTimer.Start();
 
+				bool shownServiceOutageMessage = false;
+
 				while (Queue.MoveNext())
 				{
 					var nextBook = Queue.Current;
@@ -177,6 +179,18 @@ namespace LibationWinForms.ProcessQueue
 						Queue.ClearQueue();
 					else if (result == ProcessBookResult.FailedSkip)
 						nextBook.LibraryBook.Book.UpdateBookStatus(DataLayer.LiberatedStatus.Error);
+					else if (result == ProcessBookResult.LicenseDeniedPossibleOutage && !shownServiceOutageMessage)
+					{
+						MessageBox.Show(@$"
+You were denied a content license for {nextBook.LibraryBook.Book.Title}
+
+This error appears to be caused by a temporary interruption of service that sometimes affects Libation's users. This type of error usually resolves itself in 1 to 2 days, and in the meantime you should still be able to access your books through Audible's website or app.
+",
+						"Possible Interruption of Service",
+						MessageBoxButtons.OK,
+						MessageBoxIcon.Asterisk);
+						shownServiceOutageMessage = true;
+					}
 				}
 				Serilog.Log.Logger.Information("Completed processing queue");
 

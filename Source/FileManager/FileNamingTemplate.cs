@@ -105,7 +105,7 @@ namespace FileManager
 
 			// Other illegal characters will be taken care of later. Must take care of slashes now so params can't introduce new folders.
 			// Esp important for file templates.
-			return replacements.ReplaceInvalidFilenameChars(value.ToString());
+			return replacements.ReplaceFilenameChars(value.ToString());
 		}
 	}
 }

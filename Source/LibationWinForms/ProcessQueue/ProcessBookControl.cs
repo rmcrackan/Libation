@@ -60,68 +60,34 @@ namespace LibationWinForms.ProcessQueue
 
 		public void SetResult(ProcessBookResult result)
 		{
-			string statusText = default;
-			switch (result)
+			(string statusText, ProcessBookStatus status) = result switch
 			{
-				case ProcessBookResult.Success:
-					statusText = "Finished";
-					Status = ProcessBookStatus.Completed;
-					break;
-				case ProcessBookResult.Cancelled:
-					statusText = "Cancelled";
-					Status = ProcessBookStatus.Cancelled;
-					break;
-				case ProcessBookResult.FailedRetry:
-					statusText = "Error, will retry later";
-					Status = ProcessBookStatus.Failed;
-					break;
-				case ProcessBookResult.FailedSkip:
-					statusText = "Error, Skippping";
-					Status = ProcessBookStatus.Failed;
-					break;
-				case ProcessBookResult.FailedAbort:
-					statusText = "Error, Abort";
-					Status = ProcessBookStatus.Failed;
-					break;
-				case ProcessBookResult.ValidationFail:
-					statusText = "Validion fail";
-					Status = ProcessBookStatus.Failed;
-					break;
-				case ProcessBookResult.None:
-					statusText = "UNKNOWN";
-					Status = ProcessBookStatus.Failed;
-					break;
-			}
+				ProcessBookResult.Success => ("Finished", ProcessBookStatus.Completed),
+				ProcessBookResult.Cancelled => ("Cancelled", ProcessBookStatus.Cancelled),
+				ProcessBookResult.FailedRetry => ("Error, will retry later", ProcessBookStatus.Failed),
+				ProcessBookResult.FailedSkip => ("Error, Skippping", ProcessBookStatus.Failed),
+				ProcessBookResult.FailedAbort => ("Error, Abort", ProcessBookStatus.Failed),
+				ProcessBookResult.ValidationFail => ("Validion fail", ProcessBookStatus.Failed),
+				ProcessBookResult.LicenseDenied => ("License Denied", ProcessBookStatus.Failed),
+				ProcessBookResult.LicenseDeniedPossibleOutage => ("Possible Service Interruption", ProcessBookStatus.Failed),
+				_ => ("UNKNOWN", ProcessBookStatus.Failed),
+			};
 
-			SetStatus(Status, statusText);
+			SetStatus(status, statusText);
 		}
 
 		public void SetStatus(ProcessBookStatus status, string statusText = null)
 		{
-			Color backColor = default;
-			switch (status)
+			Status = status;
+
+			Color backColor = Status switch
 			{
-				case ProcessBookStatus.Completed:
-					backColor = SuccessColor;
-					Status = ProcessBookStatus.Completed;
-					break;
-				case ProcessBookStatus.Cancelled:
-					backColor = CancelledColor;
-					Status = ProcessBookStatus.Cancelled;
-					break;
-				case ProcessBookStatus.Queued:
-					backColor = QueuedColor;
-					Status = ProcessBookStatus.Queued;
-					break;
-				case ProcessBookStatus.Working:
-					backColor = QueuedColor;
-					Status = ProcessBookStatus.Working;
-					break;
-				case ProcessBookStatus.Failed:
-					backColor = FailedColor;
-					Status = ProcessBookStatus.Failed;
-					break;
-			}
+				ProcessBookStatus.Completed => SuccessColor,
+				ProcessBookStatus.Cancelled => CancelledColor,
+				ProcessBookStatus.Queued => QueuedColor,
+				ProcessBookStatus.Working => QueuedColor,
+				_ => FailedColor
+			};
 
 			SuspendLayout();
 

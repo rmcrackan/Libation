@@ -15,16 +15,18 @@ namespace FileNamingTemplateTests
 		static ReplacementCharacters Replacements = ReplacementCharacters.Default;
 
 		[TestMethod]
-		public void equiv_GetValidFilename()
+		[DataRow(@"C:\foo\bar", @"C:\foo\bar\my꞉ book 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt", PlatformID.Win32NT)]
+		[DataRow(@"/foo/bar", @"/foo/bar/my: book 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt", PlatformID.Unix)]
+		public void equiv_GetValidFilename(string dirFullPath, string expected, PlatformID platformID)
 		{
+			if (Environment.OSVersion.Platform != platformID)
+				return;
+
 			var sb = new System.Text.StringBuilder();
 			sb.Append('0', 300);
 			var longText = sb.ToString();
 
-			var expectedNew = @"C:\foo\bar\my꞉ book 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt";
-			var f2 = NEW_GetValidFilename_FileNamingTemplate(@"C:\foo\bar", "my: book " + longText, "txt", "ID123456");
-
-			f2.Should().Be(expectedNew);
+			NEW_GetValidFilename_FileNamingTemplate(dirFullPath, "my: book " + longText, "txt", "ID123456").Should().Be(expected);
 		}
 
 		private static string NEW_GetValidFilename_FileNamingTemplate(string dirFullPath, string filename, string extension, string metadataSuffix)
@@ -40,12 +42,12 @@ namespace FileNamingTemplateTests
 		}
 
 		[TestMethod]
-		public void equiv_GetMultipartFileName()
+		[DataRow(@"C:\foo\bar\my file.txt", @"C:\foo\bar\my file - 002 - title.txt", PlatformID.Win32NT)]
+		[DataRow(@"/foo/bar/my file.txt", @"/foo/bar/my file - 002 - title.txt", PlatformID.Unix)]
+		public void equiv_GetMultipartFileName(string inStr, string outStr, PlatformID platformID)
 		{
-			var expected = @"C:\foo\bar\my file - 002 - title.txt";
-			var f2 = NEW_GetMultipartFileName_FileNamingTemplate(@"C:\foo\bar\my file.txt", 2, 100, "title");
-
-			f2.Should().Be(expected);
+			if (Environment.OSVersion.Platform == platformID)
+				NEW_GetMultipartFileName_FileNamingTemplate(inStr, 2, 100, "title").Should().Be(outStr);
 		}
 
 		private static string NEW_GetMultipartFileName_FileNamingTemplate(string originalPath, int partsPosition, int partsTotal, string suffix)
@@ -64,11 +66,16 @@ namespace FileNamingTemplateTests
 		}
 
 		[TestMethod]
-		public void remove_slashes()
+		[DataRow(@"\foo\<title>.txt", @"\foo\sl∕as∕he∕s.txt", PlatformID.Win32NT)]
+		[DataRow(@"/foo/<title>.txt", @"/foo/s\l∕a\s∕h\e∕s.txt", PlatformID.Unix)]
+		public void remove_slashes(string inStr, string outStr, PlatformID platformID)
 		{
-			var fileNamingTemplate = new FileNamingTemplate(@"\foo\<title>.txt");
-			fileNamingTemplate.AddParameterReplacement("title", @"s\l/a\s/h\e/s");
-			fileNamingTemplate.GetFilePath(Replacements).PathWithoutPrefix.Should().Be(@"\foo\sl∕as∕he∕s.txt");
+			if (Environment.OSVersion.Platform == platformID)
+			{
+				var fileNamingTemplate = new FileNamingTemplate(inStr);
+				fileNamingTemplate.AddParameterReplacement("title", @"s\l/a\s/h\e/s");
+				fileNamingTemplate.GetFilePath(Replacements).PathWithoutPrefix.Should().Be(outStr);
+			}
 		}
 	}
 }

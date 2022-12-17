@@ -101,7 +101,7 @@ namespace LibationWinForms.Dialogs
 			{
 				dataGridView1.Rows[e.RowIndex].ErrorText = $"The {charToReplaceStr[0]} character is already being replaced";
 			}
-			else if (ReplacementCharacters.ContainsInvalidPathChar(replacement))
+			else if (ReplacementCharacters.ContainsInvalidFilenameChar(replacement))
 			{
 				dataGridView1.Rows[e.RowIndex].ErrorText = $"Your {replacementStringCol.HeaderText} contains illegal characters";
 			}
