@@ -16,7 +16,16 @@ namespace LibationFileManager
         public static LongPath DownloadsInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
         public static LongPath DecryptInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
 
-        private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
+        static AudibleFileStorage()
+		{
+			//Clean up any partially-decrypted files from previous Libation instances.
+			//Do no clean DownloadsInProgressDirectory because those files are resumable
+			foreach (var tempFile in Directory.EnumerateFiles(DecryptInProgressDirectory))
+				FileUtility.SaferDelete(tempFile);
+		}
+
+
+		private static AaxcFileStorage AAXC { get; } = new AaxcFileStorage();
         public static bool AaxcExists(string productId) => AAXC.Exists(productId);
 
         public static AudioFileStorage Audio { get; } = new AudioFileStorage();
