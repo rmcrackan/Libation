@@ -55,6 +55,9 @@
 		<Compile Update="ViewModels\MainVM.*.cs">
 			<DependentUpon>MainVM.cs</DependentUpon>
 		</Compile>
+		<Compile Update="Views\MainWindow.*.cs">
+			<DependentUpon>MainWindow.axaml</DependentUpon>
+		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>

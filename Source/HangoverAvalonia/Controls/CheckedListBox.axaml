@@ -8,7 +8,7 @@
 	<UserControl.Resources>
 		<RecyclePool x:Key="RecyclePool" />
 		<DataTemplate x:Key="queuedBook">
-			<CheckBox Margin="10,0,0,0" Content="{Binding Item}" IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+			<CheckBox HorizontalAlignment="Stretch" Margin="10,0,0,0" Content="{Binding Item}" IsChecked="{Binding IsChecked, Mode=TwoWay}" />
 		</DataTemplate>
 		<RecyclingElementFactory x:Key="elementFactory" RecyclePool="{StaticResource RecyclePool}">
 			<RecyclingElementFactory.Templates>
