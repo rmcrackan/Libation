@@ -83,7 +83,6 @@ namespace AaxDecrypter
 		/// <param name="uri">Http(s) address of the file to download.</param>
 		/// <param name="writePosition">The position in <paramref name="uri"/> to begin downloading.</param>
 		/// <param name="requestHeaders">Http headers to be sent to the server with the <see cref="HttpWebRequest"/>.</param>
-		/// <param name="cookies">A <see cref="SingleUriCookieContainer"/> with cookies to send with the <see cref="HttpWebRequest"/>. It will also be populated with any cookies set by the server. </param>
 		public NetworkFileStream(string saveFilePath, Uri uri, long writePosition = 0, Dictionary<string, string> requestHeaders = null)
 		{
 			ArgumentValidator.EnsureNotNullOrWhiteSpace(saveFilePath, nameof(saveFilePath));
@@ -145,9 +144,9 @@ namespace AaxDecrypter
 			RequestHeaders["Range"] = $"bytes={WritePosition}-";
 		}
 
-		/// <summary>
-		/// Begins downloading <see cref="Uri"/> to <see cref="SaveFilePath"/> in a background thread.
-		/// </summary>
+
+		/// <summary> Begins downloading <see cref="Uri"/> to <see cref="SaveFilePath"/> in a background thread. </summary>
+		/// <returns>The downloader <see cref="Task"/></returns>
 		private Task BeginDownloading()
 		{
 			if (ContentLength != 0 && WritePosition == ContentLength)
@@ -179,9 +178,7 @@ namespace AaxDecrypter
 			return Task.Run(() => DownloadFile(networkStream));
 		}
 
-		/// <summary>
-		/// Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.
-		/// </summary>
+		/// <summary> Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.</summary>
 		private void DownloadFile(Stream networkStream)
 		{
 			var downloadPosition = WritePosition;
