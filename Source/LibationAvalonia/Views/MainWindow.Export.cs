@@ -1,5 +1,7 @@
 ﻿using ApplicationServices;
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
+using LibationFileManager;
 using System;
 using System.Linq;
 
@@ -14,34 +16,42 @@ namespace LibationAvalonia.Views
 		{
 			try
 			{
-				var saveFileDialog = new SaveFileDialog
+				var options = new FilePickerSaveOptions
 				{
 					Title = "Where to export Library",
+					SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Configuration.Instance.Books),
+					SuggestedFileName = $"Libation Library Export {DateTime.Now:yyyy-MM-dd}.xlsx",
+					DefaultExtension = "xlsx",
+					ShowOverwritePrompt = true,
+					FileTypeChoices = new FilePickerFileType[]
+					{
+						new("Excel Workbook (*.xlsx)") { Patterns = new[] { "xlsx" } },
+						new("CSV files (*.csv)") { Patterns = new[] { "csv" } },
+						new("JSON files (*.json)") { Patterns = new[] { "json" } },
+						new("All files (*.*)") { Patterns = new[] { "*" } },
+					}
 				};
-				saveFileDialog.Filters.Add(new FileDialogFilter { Name = "Excel Workbook (*.xlsx)", Extensions = new() { "xlsx" } });
-				saveFileDialog.Filters.Add(new FileDialogFilter { Name = "CSV files (*.csv)", Extensions = new() { "csv" } });
-				saveFileDialog.Filters.Add(new FileDialogFilter { Name = "JSON files (*.json)", Extensions = new() { "json" } });
-				saveFileDialog.Filters.Add(new FileDialogFilter { Name = "All files (*.*)", Extensions = new() { "*" } });
 
-				var fileName = await saveFileDialog.ShowAsync(this);
-				if (fileName is null) return;
+				var selectedFile = await StorageProvider.SaveFilePickerAsync(options);
 
-				var ext = System.IO.Path.GetExtension(fileName);
+				if (!selectedFile.TryGetUri(out var uri)) return;
+
+				var ext = System.IO.Path.GetExtension(uri.LocalPath);
 				switch (ext)
 				{
 					case "xlsx": // xlsx
 					default:
-						LibraryExporter.ToXlsx(fileName);
+						LibraryExporter.ToXlsx(uri.LocalPath);
 						break;
 					case "csv": // csv
-						LibraryExporter.ToCsv(fileName);
+						LibraryExporter.ToCsv(uri.LocalPath);
 						break;
 					case "json": // json
-						LibraryExporter.ToJson(fileName);
+						LibraryExporter.ToJson(uri.LocalPath);
 						break;
 				}
 
-				await MessageBox.Show("Library exported to:\r\n" + fileName, "Library Exported");
+				await MessageBox.Show("Library exported to:\r\n" + uri.LocalPath, "Library Exported");
 			}
 			catch (Exception ex)
 			{

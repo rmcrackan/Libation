@@ -5,6 +5,7 @@ using Dinah.Core;
 using LibationFileManager;
 using System.Collections.Generic;
 using ReactiveUI;
+using System.Linq;
 
 namespace LibationAvalonia.Controls
 {
@@ -15,7 +16,6 @@ namespace LibationAvalonia.Controls
 
 		public static readonly StyledProperty<string> SubDirectoryProperty =
 		AvaloniaProperty.Register<DirectorySelectControl, string>(nameof(SubDirectory));
-
 
 		public static readonly StyledProperty<string> DirectoryProperty =
 		AvaloniaProperty.Register<DirectorySelectControl, string>(nameof(Directory));
@@ -90,8 +90,19 @@ namespace LibationAvalonia.Controls
 
 		private async void CustomDirBrowseBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			OpenFolderDialog ofd = new();
-			customStates.CustomDir = await ofd.ShowAsync(VisualRoot as Window);
+			var options = new Avalonia.Platform.Storage.FolderPickerOpenOptions
+			{
+				AllowMultiple = false
+			};
+
+			var selectedFolders = await (VisualRoot as Window).StorageProvider.OpenFolderPickerAsync(options);
+
+			customStates.CustomDir =
+				selectedFolders
+				.SingleOrDefault()?.
+				TryGetUri(out var uri) is true
+				? uri.LocalPath
+				: customStates.CustomDir;
 		}
 
 		private void CheckStates_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -124,7 +135,6 @@ namespace LibationAvalonia.Controls
 
 			Directory = customStates.CustomChecked ? selectedDir : System.IO.Path.Combine(selectedDir, SubDirectory);
 		}
-
 
 		private void DirectoryOrCustomSelectControl_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
 		{

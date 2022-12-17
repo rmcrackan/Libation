@@ -9,6 +9,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
 using AudibleApi;
+using Avalonia.Platform.Storage;
+using LibationFileManager;
+using Avalonia.Platform.Storage.FileIO;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -110,24 +113,29 @@ namespace LibationAvalonia.Dialogs
 
 		public async void ImportButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-
-			OpenFileDialog ofd = new();
-			ofd.Filters.Add(new() { Name = "JSON File", Extensions = new() { "json" } });
-			ofd.Directory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-			ofd.AllowMultiple = false;
+			var openFileDialogOptions = new FilePickerOpenOptions
+			{
+				Title = $"Select the audible-cli [account].json file",
+				AllowMultiple = false,
+				SuggestedStartLocation = new BclStorageFolder(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)),
+				FileTypeFilter = new FilePickerFileType[]
+				{
+					new("JSON files (*.json)") { Patterns = new[] { "json" } },
+				}
+			};
 
 			string audibleAppDataDir = GetAudibleCliAppDataPath();
-
 			if (Directory.Exists(audibleAppDataDir))
-				ofd.Directory = audibleAppDataDir;
+				openFileDialogOptions.SuggestedStartLocation = new BclStorageFolder(audibleAppDataDir);
 
-			var filePath = await ofd.ShowAsync(this);
+			var selectedFiles = await StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
+			var selectedFile = selectedFiles.SingleOrDefault();
 
-			if (filePath is null || filePath.Length == 0) return;
+			if (!selectedFile.TryGetUri(out var uri)) return;
 
 			try
 			{
-				var jsonText = File.ReadAllText(filePath[0]);
+				var jsonText = File.ReadAllText(uri.LocalPath);
 				var mkbAuth = Mkb79Auth.FromJson(jsonText);
 				var account = await mkbAuth.ToAccountAsync();
 
@@ -148,7 +156,7 @@ namespace LibationAvalonia.Dialogs
 			{
 				await MessageBox.ShowAdminAlert(
 						this,
-						$"An error occurred while importing an account from:\r\n{filePath[0]}\r\n\r\nIs the file encrypted?",
+						$"An error occurred while importing an account from:\r\n{uri.LocalPath}\r\n\r\nIs the file encrypted?",
 						"Error Importing Account",
 						ex);
 			}
@@ -263,26 +271,36 @@ namespace LibationAvalonia.Dialogs
 				return;
 			}
 
-			SaveFileDialog sfd = new();
-			sfd.Filters.Add(new() { Name = "JSON File", Extensions = new() { "json" } });
+			var options = new FilePickerSaveOptions
+			{
+				Title = $"Save Sover Image",
+				SuggestedStartLocation = new BclStorageFolder(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)),
+				SuggestedFileName = $"{acc.AccountId}.json",
+				DefaultExtension = "json",
+				ShowOverwritePrompt = true,
+				FileTypeChoices = new FilePickerFileType[]
+					{
+						new("JSON files (*.json)") { Patterns = new[] { "json" } },
+					}
+			};
 
 			string audibleAppDataDir = GetAudibleCliAppDataPath();
 
 			if (Directory.Exists(audibleAppDataDir))
-				sfd.Directory = audibleAppDataDir;
+				options.SuggestedStartLocation = new BclStorageFolder(audibleAppDataDir);
 
-			string fileName = await sfd.ShowAsync(this);
-			if (fileName is null)
-				return;
+			var selectedFile = await StorageProvider.SaveFilePickerAsync(options);
+
+			if (!selectedFile.TryGetUri(out var uri)) return;
 
 			try
 			{
 				var mkbAuth = Mkb79Auth.FromAccount(account);
 				var jsonText = mkbAuth.ToJson();
 
-				File.WriteAllText(fileName, jsonText);
+				File.WriteAllText(uri.LocalPath, jsonText);
 
-				await MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{fileName}", "Success!");
+				await MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{uri.LocalPath}", "Success!");
 			}
 			catch (Exception ex)
 			{
