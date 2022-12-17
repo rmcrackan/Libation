@@ -11,42 +11,30 @@ using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
-	/// <summary>
-	/// A resumable, simultaneous file downloader and reader.
-	/// </summary>
+	/// <summary>A resumable, simultaneous file downloader and reader. </summary>
 	public class NetworkFileStream : Stream, IUpdatable
 	{
 		public event EventHandler Updated;
 
 		#region Public Properties
 
-		/// <summary>
-		/// Location to save the downloaded data.
-		/// </summary>
+		/// <summary> Location to save the downloaded data. </summary>
 		[JsonProperty(Required = Required.Always)]
 		public string SaveFilePath { get; }
 
-		/// <summary>
-		/// Http(s) address of the file to download.
-		/// </summary>
+		/// <summary> Http(s) address of the file to download. </summary>
 		[JsonProperty(Required = Required.Always)]
 		public Uri Uri { get; private set; }
 
-		/// <summary>
-		/// Http headers to be sent to the server with the request.
-		/// </summary>
+		/// <summary> Http headers to be sent to the server with the request. </summary>
 		[JsonProperty(Required = Required.Always)]
 		public Dictionary<string, string> RequestHeaders { get; private set; }
 
-		/// <summary>
-		/// The position in <see cref="SaveFilePath"/> that has been written and flushed to disk.
-		/// </summary>
+		/// <summary> The position in <see cref="SaveFilePath"/> that has been written and flushed to disk. </summary>
 		[JsonProperty(Required = Required.Always)]
 		public long WritePosition { get; private set; }
 
-		/// <summary>
-		/// The total length of the <see cref="Uri"/> file to download.
-		/// </summary>
+		/// <summary> The total length of the <see cref="Uri"/> file to download. </summary>
 		[JsonProperty(Required = Required.Always)]
 		public long ContentLength { get; private set; }
 
@@ -76,9 +64,7 @@ namespace AaxDecrypter
 
 		#region Constructor
 
-		/// <summary>
-		/// A resumable, simultaneous file downloader and reader.
-		/// </summary>
+		/// <summary> A resumable, simultaneous file downloader and reader. </summary>
 		/// <param name="saveFilePath">Path to a location on disk to save the downloaded data from <paramref name="uri"/></param>
 		/// <param name="uri">Http(s) address of the file to download.</param>
 		/// <param name="writePosition">The position in <paramref name="uri"/> to begin downloading.</param>
@@ -111,9 +97,7 @@ namespace AaxDecrypter
 
 		#region Downloader
 
-		/// <summary>
-		/// Update the <see cref="JsonFilePersister"/>.
-		/// </summary>
+		/// <summary> Update the <see cref="JsonFilePersister"/>. </summary>
 		private void Update()
 		{
 			RequestHeaders["Range"] = $"bytes={WritePosition}-";
@@ -127,9 +111,7 @@ namespace AaxDecrypter
 			}
 		}
 
-		/// <summary>
-		/// Set a different <see cref="System.Uri"/> to the same file targeted by this instance of <see cref="NetworkFileStream"/>
-		/// </summary>
+		/// <summary> Set a different <see cref="System.Uri"/> to the same file targeted by this instance of <see cref="NetworkFileStream"/> </summary>
 		/// <param name="uriToSameFile">New <see cref="System.Uri"/> host must match existing host.</param>
 		public void SetUriForSameFile(Uri uriToSameFile)
 		{
@@ -295,9 +277,7 @@ namespace AaxDecrypter
 			return _readFile.Position = newPosition;
 		}
 
-		/// <summary>
-		/// Blocks until the file has downloaded to at least <paramref name="requiredPosition"/>, then returns.
-		/// </summary>
+		/// <summary>Blocks until the file has downloaded to at least <paramref name="requiredPosition"/>, then returns. </summary>
 		/// <param name="requiredPosition">The minimum required flished data length in <see cref="SaveFilePath"/>.</param>
 		private void WaitToPosition(long requiredPosition)
 		{

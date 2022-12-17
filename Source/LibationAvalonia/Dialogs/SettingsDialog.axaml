@@ -351,21 +351,27 @@
 
 							</Grid>
 						</controls:GroupBox>
-
-						<StackPanel
+						<controls:GroupBox
 							Grid.Row="2"
+							Margin="5"
+							BorderWidth="1"
+							Label="Temporary Files Location">
+							
+						<StackPanel
 							Margin="5" >
 
 							<TextBlock
 								Margin="0,0,0,10"
 								Text="{Binding DownloadDecryptSettings.InProgressDescriptionText}" />
 
-							<controls:DirectorySelectControl
-								SubDirectory="Libation\DecryptInProgress"
-								SelectedDirectory="{Binding DownloadDecryptSettings.InProgressDirectory, Mode=TwoWay}" />
+							<controls:DirectoryOrCustomSelectControl
+								SubDirectory="Libation"
+								Directory="{Binding DownloadDecryptSettings.InProgressDirectory, Mode=TwoWay}"
+								KnownDirectories="{Binding DownloadDecryptSettings.KnownDirectories}" />
 
 
 						</StackPanel>
+						</controls:GroupBox>
 
 						<CheckBox
 							Grid.Row="3"
