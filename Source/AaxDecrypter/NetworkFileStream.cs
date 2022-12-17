@@ -1,35 +1,16 @@
 ﻿using Dinah.Core;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
-	/// <summary>
-	/// A <see cref="CookieContainer"/> for a single Uri.
-	/// </summary>
-	public class SingleUriCookieContainer : CookieContainer
-	{
-		private Uri baseAddress;
-		public Uri Uri
-		{
-			get => baseAddress;
-			set
-			{
-				baseAddress = new UriBuilder(value.Scheme, value.Host).Uri;
-			}
-		}
-
-		public CookieCollection GetCookies()
-		{
-			return GetCookies(Uri);
-		}
-	}
-
 	/// <summary>
 	/// A resumable, simultaneous file downloader and reader.
 	/// </summary>
@@ -52,16 +33,10 @@ namespace AaxDecrypter
 		public Uri Uri { get; private set; }
 
 		/// <summary>
-		/// All cookies set by caller or by the remote server.
-		/// </summary>
-		[JsonProperty(Required = Required.Always)]
-		public SingleUriCookieContainer CookieContainer { get; }
-
-		/// <summary>
 		/// Http headers to be sent to the server with the request.
 		/// </summary>
 		[JsonProperty(Required = Required.Always)]
-		public WebHeaderCollection RequestHeaders { get; private set; }
+		public Dictionary<string, string> RequestHeaders { get; private set; }
 
 		/// <summary>
 		/// The position in <see cref="SaveFilePath"/> that has been written and flushed to disk.
@@ -75,17 +50,16 @@ namespace AaxDecrypter
 		[JsonProperty(Required = Required.Always)]
 		public long ContentLength { get; private set; }
 
+		[JsonIgnore]
+		public bool IsCancelled { get; private set; }
+
 		#endregion
 
 		#region Private Properties
-		private HttpWebRequest HttpRequest { get; set; }
 		private FileStream _writeFile { get; }
 		private FileStream _readFile { get; }
-		private Stream _networkStream { get; set; }
-		private bool hasBegunDownloading { get; set; }
-		public bool IsCancelled { get; private set; }
-		private EventWaitHandle downloadEnded { get; set; }
-		private EventWaitHandle downloadedPiece { get; set; }
+		private EventWaitHandle _downloadedPiece { get; set; }
+		private Task _backgroundDownloadTask { get; set; }
 
 		#endregion
 
@@ -110,7 +84,7 @@ namespace AaxDecrypter
 		/// <param name="writePosition">The position in <paramref name="uri"/> to begin downloading.</param>
 		/// <param name="requestHeaders">Http headers to be sent to the server with the <see cref="HttpWebRequest"/>.</param>
 		/// <param name="cookies">A <see cref="SingleUriCookieContainer"/> with cookies to send with the <see cref="HttpWebRequest"/>. It will also be populated with any cookies set by the server. </param>
-		public NetworkFileStream(string saveFilePath, Uri uri, long writePosition = 0, WebHeaderCollection requestHeaders = null, SingleUriCookieContainer cookies = null)
+		public NetworkFileStream(string saveFilePath, Uri uri, long writePosition = 0, Dictionary<string, string> requestHeaders = null)
 		{
 			ArgumentValidator.EnsureNotNullOrWhiteSpace(saveFilePath, nameof(saveFilePath));
 			ArgumentValidator.EnsureNotNullOrWhiteSpace(uri?.AbsoluteUri, nameof(uri));
@@ -122,8 +96,7 @@ namespace AaxDecrypter
 			SaveFilePath = saveFilePath;
 			Uri = uri;
 			WritePosition = writePosition;
-			RequestHeaders = requestHeaders ?? new WebHeaderCollection();
-			CookieContainer = cookies ?? new SingleUriCookieContainer { Uri = uri };
+			RequestHeaders = requestHeaders ?? new();
 
 			_writeFile = new FileStream(SaveFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite)
 			{
@@ -144,7 +117,7 @@ namespace AaxDecrypter
 		/// </summary>
 		private void Update()
 		{
-			RequestHeaders = HttpRequest.Headers;
+			RequestHeaders["Range"] = $"bytes={WritePosition}-";
 			try
 			{
 				Updated?.Invoke(this, EventArgs.Empty);
@@ -165,37 +138,31 @@ namespace AaxDecrypter
 
 			if (uriToSameFile.Host != Uri.Host)
 				throw new ArgumentException($"New uri to the same file must have the same host.\r\n Old Host :{Uri.Host}\r\nNew Host: {uriToSameFile.Host}");
-			if (hasBegunDownloading)
+			if (_backgroundDownloadTask is not null)
 				throw new InvalidOperationException("Cannot change Uri after download has started.");
 
 			Uri = uriToSameFile;
-			HttpRequest = WebRequest.CreateHttp(Uri);
-
-			HttpRequest.CookieContainer = CookieContainer;
-			HttpRequest.Headers = RequestHeaders;
-			//If NetworkFileStream is resuming, Header will already contain a range.
-			HttpRequest.Headers.Remove("Range");
-			HttpRequest.AddRange(WritePosition);
+			RequestHeaders["Range"] = $"bytes={WritePosition}-";
 		}
 
 		/// <summary>
 		/// Begins downloading <see cref="Uri"/> to <see cref="SaveFilePath"/> in a background thread.
 		/// </summary>
-		private void BeginDownloading()
+		private Task BeginDownloading()
 		{
-			downloadEnded = new EventWaitHandle(false, EventResetMode.ManualReset);
-
 			if (ContentLength != 0 && WritePosition == ContentLength)
-			{
-				hasBegunDownloading = true;
-				downloadEnded.Set();
-				return;
-			}
+				return Task.CompletedTask;
 
 			if (ContentLength != 0 && WritePosition > ContentLength)
 				throw new WebException($"Specified write position (0x{WritePosition:X10}) is larger than  {nameof(ContentLength)} (0x{ContentLength:X10}).");
 
-			var response = HttpRequest.GetResponse() as HttpWebResponse;
+
+			var request = new HttpRequestMessage(HttpMethod.Get, Uri);
+
+			foreach (var header in RequestHeaders)
+				request.Headers.Add(header.Key, header.Value);
+
+			var response = new HttpClient().Send(request, HttpCompletionOption.ResponseHeadersRead);
 
 			if (response.StatusCode != HttpStatusCode.PartialContent)
 				throw new WebException($"Server at {Uri.Host} responded with unexpected status code: {response.StatusCode}.");
@@ -203,24 +170,19 @@ namespace AaxDecrypter
 			//Content length is the length of the range request, and it is only equal
 			//to the complete file length if requesting Range: bytes=0-
 			if (WritePosition == 0)
-				ContentLength = response.ContentLength;
+				ContentLength = response.Content.Headers.ContentLength.GetValueOrDefault();
 
-			_networkStream = response.GetResponseStream();
-			downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
+			var networkStream = response.Content.ReadAsStream();
+			_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
 
 			//Download the file in the background.
-			new Thread(() => DownloadFile())
-			{ IsBackground = true }
-			.Start();
-
-			hasBegunDownloading = true;
-			return;
+			return Task.Run(() => DownloadFile(networkStream));
 		}
 
 		/// <summary>
 		/// Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.
 		/// </summary>
-		private void DownloadFile()
+		private void DownloadFile(Stream networkStream)
 		{
 			var downloadPosition = WritePosition;
 			var nextFlush = downloadPosition + DATA_FLUSH_SZ;
@@ -231,7 +193,7 @@ namespace AaxDecrypter
 				int bytesRead;
 				do
 				{
-					bytesRead = _networkStream.Read(buff, 0, DOWNLOAD_BUFF_SZ);
+					bytesRead = networkStream.Read(buff, 0, DOWNLOAD_BUFF_SZ);
 					_writeFile.Write(buff, 0, bytesRead);
 
 					downloadPosition += bytesRead;
@@ -242,15 +204,12 @@ namespace AaxDecrypter
 						WritePosition = downloadPosition;
 						Update();
 						nextFlush = downloadPosition + DATA_FLUSH_SZ;
-						downloadedPiece.Set();
+						_downloadedPiece.Set();
 					}
 
 				} while (downloadPosition < ContentLength && !IsCancelled && bytesRead > 0);
 
-				_writeFile.Close();
-				_networkStream.Close();
 				WritePosition = downloadPosition;
-				Update();
 
 				if (!IsCancelled && WritePosition < ContentLength)
 					throw new WebException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
@@ -264,8 +223,10 @@ namespace AaxDecrypter
 			}
 			finally
 			{
-				downloadedPiece.Set();
-				downloadEnded.Set();
+				networkStream.Close();
+				_writeFile.Close();
+				_downloadedPiece.Set();
+				Update();
 			}
 		}
 
@@ -274,96 +235,7 @@ namespace AaxDecrypter
 		#region Json Connverters
 
 		public static JsonSerializerSettings GetJsonSerializerSettings()
-		{
-			var settings = new JsonSerializerSettings();
-			settings.Converters.Add(new CookieContainerConverter());
-			settings.Converters.Add(new WebHeaderCollectionConverter());
-			return settings;
-		}
-
-		internal class CookieContainerConverter : JsonConverter
-		{
-			public override bool CanConvert(Type objectType)
-				=> objectType == typeof(SingleUriCookieContainer);
-
-			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-			{
-				var jObj = JObject.Load(reader);
-
-				var result = new SingleUriCookieContainer()
-				{
-					Uri = new Uri(jObj["Uri"].Value<string>()),
-					Capacity = jObj["Capacity"].Value<int>(),
-					MaxCookieSize = jObj["MaxCookieSize"].Value<int>(),
-					PerDomainCapacity = jObj["PerDomainCapacity"].Value<int>()
-				};
-
-				var cookieList = jObj["Cookies"].ToList();
-
-				foreach (var cookie in cookieList)
-				{
-					result.Add(
-						new Cookie
-						{
-							Comment = cookie["Comment"].Value<string>(),
-							HttpOnly = cookie["HttpOnly"].Value<bool>(),
-							Discard = cookie["Discard"].Value<bool>(),
-							Domain = cookie["Domain"].Value<string>(),
-							Expired = cookie["Expired"].Value<bool>(),
-							Expires = cookie["Expires"].Value<DateTime>(),
-							Name = cookie["Name"].Value<string>(),
-							Path = cookie["Path"].Value<string>(),
-							Port = cookie["Port"].Value<string>(),
-							Secure = cookie["Secure"].Value<bool>(),
-							Value = cookie["Value"].Value<string>(),
-							Version = cookie["Version"].Value<int>(),
-						});
-				}
-
-				return result;
-			}
-
-			public override bool CanWrite => true;
-
-			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-			{
-				var cookies = value as SingleUriCookieContainer;
-				var obj = (JObject)JToken.FromObject(value);
-				var container = cookies.GetCookies();
-				var propertyNames = container.Select(c => JToken.FromObject(c));
-				obj.AddFirst(new JProperty("Cookies", new JArray(propertyNames)));
-				obj.WriteTo(writer);
-			}
-		}
-
-		internal class WebHeaderCollectionConverter : JsonConverter
-		{
-			public override bool CanConvert(Type objectType)
-				=> objectType == typeof(WebHeaderCollection);
-
-			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-			{
-				var jObj = JObject.Load(reader);
-				var result = new WebHeaderCollection();
-
-				foreach (var kvp in jObj)
-					result.Add(kvp.Key, kvp.Value.Value<string>());
-
-				return result;
-			}
-
-			public override bool CanWrite => true;
-
-			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-			{
-				var jObj = new JObject();
-				var type = value.GetType();
-				var headers = value as WebHeaderCollection;
-				var jHeaders = headers.AllKeys.Select(k => new JProperty(k, headers[k]));
-				jObj.Add(jHeaders);
-				jObj.WriteTo(writer);
-			}
-		}
+			=> new JsonSerializerSettings();
 
 		#endregion
 
@@ -383,8 +255,7 @@ namespace AaxDecrypter
 		{
 			get
 			{
-				if (!hasBegunDownloading)
-					BeginDownloading();
+				_backgroundDownloadTask ??= BeginDownloading();
 				return ContentLength;
 			}
 		}
@@ -401,15 +272,14 @@ namespace AaxDecrypter
 		[JsonIgnore]
 		public override int WriteTimeout { get => base.WriteTimeout; set => base.WriteTimeout = value; }
 
-		public override void Flush() => throw new NotImplementedException();
-		public override void SetLength(long value) => throw new NotImplementedException();
-		public override void Write(byte[] buffer, int offset, int count) => throw new NotImplementedException();
+		public override void Flush() => throw new InvalidOperationException();
+		public override void SetLength(long value) => throw new InvalidOperationException();
+		public override void Write(byte[] buffer, int offset, int count) => throw new InvalidOperationException();
 
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			if (!hasBegunDownloading)
-				BeginDownloading();
-			
+			_backgroundDownloadTask ??= BeginDownloading();
+
 			var toRead = Math.Min(count, Length - Position);
 			WaitToPosition(Position + toRead);
 			return _readFile.Read(buffer, offset, count);
@@ -435,31 +305,27 @@ namespace AaxDecrypter
 		private void WaitToPosition(long requiredPosition)
 		{
 			while (WritePosition < requiredPosition
-				&& hasBegunDownloading
-				&& !IsCancelled
-				&& !downloadEnded.WaitOne(0))
+				&& _backgroundDownloadTask?.IsCompleted is false
+				&& !IsCancelled)
 			{
-				downloadedPiece.WaitOne(100);
+				_downloadedPiece.WaitOne(100);
 			}
 		}
 
 		public override void Close()
 		{
 			IsCancelled = true;
-
-			while (downloadEnded is not null && !downloadEnded.WaitOne(100)) ;
+			_backgroundDownloadTask?.Wait();
 
 			_readFile.Close();
 			_writeFile.Close();
-			_networkStream?.Close();
 			Update();
 		}
 
 		#endregion
 		~NetworkFileStream()
 		{
-			downloadEnded?.Close();
-			downloadedPiece?.Close();
+			_downloadedPiece?.Close();
 		}
 	}
 }
