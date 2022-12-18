@@ -7,6 +7,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using ReactiveUI;
+using Avalonia.Platform.Storage;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -46,27 +47,30 @@ namespace LibationAvalonia.Dialogs
 
 		public async void SaveImage_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
+			var options = new FilePickerSaveOptions
+			{
+				Title = $"Save Sover Image",
+				SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)),
+				SuggestedFileName = $"{PictureFileName}.jpg",
+				DefaultExtension = "jpg",
+				ShowOverwritePrompt = true,
+				FileTypeChoices = new FilePickerFileType[]
+					{
+						new("Jpeg (*.jpg)") { Patterns = new[] { "jpg" } }
+					}
+			};
 
-			SaveFileDialog saveFileDialog = new();
-			saveFileDialog.Filters.Add(new FileDialogFilter { Name = "Jpeg", Extensions = new System.Collections.Generic.List<string>() { "jpg" } });
-			saveFileDialog.InitialFileName = PictureFileName;
-			saveFileDialog.Directory
-				= !LibationFileManager.Configuration.IsWindows ? null
-				: Directory.Exists(BookSaveDirectory) ? BookSaveDirectory
-				: Path.GetDirectoryName(BookSaveDirectory);
+			var selectedFile = await StorageProvider.SaveFilePickerAsync(options);
 
-			var fileName = await saveFileDialog.ShowAsync(this);
-
-			if (fileName is null)
-				return;
+			if (!selectedFile.TryGetUri(out var uri)) return;
 
 			try
 			{
-				File.WriteAllBytes(fileName, CoverBytes);
+				File.WriteAllBytes(uri.LocalPath, CoverBytes);
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, $"Failed to save picture to {fileName}");
+				Serilog.Log.Logger.Error(ex, $"Failed to save picture to {uri.LocalPath}");
 				await MessageBox.Show(this, $"An error was encountered while trying to save the picture\r\n\r\n{ex.Message}", "Failed to save picture", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 			}
 		}

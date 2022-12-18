@@ -9,6 +9,7 @@ using ReactiveUI;
 using Dinah.Core;
 using System.Linq;
 using FileManager;
+using System.IO;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -227,7 +228,6 @@ namespace LibationAvalonia.Dialogs
 	
 	public class DownloadDecryptSettings : ViewModels.ViewModelBase, ISettingsDisplay
 	{
-
 		private bool _badBookAsk;
 		private bool _badBookAbort;
 		private bool _badBookRetry;
@@ -242,7 +242,16 @@ namespace LibationAvalonia.Dialogs
 			LoadSettings(config);
 		}
 
-		public Configuration.KnownDirectories InProgressDirectory { get; set; }
+		public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
+		{
+				Configuration.KnownDirectories.WinTemp,
+				Configuration.KnownDirectories.UserProfile,
+				Configuration.KnownDirectories.AppDir,
+				Configuration.KnownDirectories.MyDocs,
+				Configuration.KnownDirectories.LibationFiles
+		};
+
+		public string InProgressDirectory { get; set; }
 		public void LoadSettings(Configuration config)
 		{
 			BadBookAsk = config.BadBook is Configuration.BadBookAction.Ask;
@@ -252,9 +261,7 @@ namespace LibationAvalonia.Dialogs
 			FolderTemplate = config.FolderTemplate;
 			FileTemplate = config.FileTemplate;
 			ChapterFileTemplate = config.ChapterFileTemplate;
-			InProgressDirectory
-				= config.InProgress == Configuration.AppDir_Absolute ? Configuration.KnownDirectories.AppDir
-				: Configuration.GetKnownDirectory(config.InProgress);
+			InProgressDirectory = config.InProgress;
 			UseCoverAsFolderIcon = config.UseCoverAsFolderIcon;
 		}
 
@@ -289,9 +296,7 @@ namespace LibationAvalonia.Dialogs
 			config.FolderTemplate = FolderTemplate;
 			config.FileTemplate = FileTemplate;
 			config.ChapterFileTemplate = ChapterFileTemplate;
-			config.InProgress
-				= InProgressDirectory is Configuration.KnownDirectories.AppDir ? Configuration.AppDir_Absolute
-				: Configuration.GetKnownDirectoryPath(InProgressDirectory);
+			config.InProgress = InProgressDirectory;
 
 			config.UseCoverAsFolderIcon = UseCoverAsFolderIcon;
 

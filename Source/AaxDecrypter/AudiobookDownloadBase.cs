@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Dinah.Core;
@@ -52,7 +51,7 @@ namespace AaxDecrypter
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
-		}		
+		}
 
 		public abstract Task CancelAsync();
 
@@ -72,7 +71,7 @@ namespace AaxDecrypter
 			=> RetrievedNarrators?.Invoke(this, narrators);
 		protected void OnRetrievedCoverArt(byte[] coverArt)
 			=> RetrievedCoverArt?.Invoke(this, coverArt);
-		protected void OnDecryptProgressUpdate(DownloadProgress downloadProgress) 
+		protected void OnDecryptProgressUpdate(DownloadProgress downloadProgress)
 			=> DecryptProgressUpdate?.Invoke(this, downloadProgress);
 		protected void OnDecryptTimeRemaining(TimeSpan timeRemaining)
 			=> DecryptTimeRemaining?.Invoke(this, timeRemaining);
@@ -111,8 +110,8 @@ namespace AaxDecrypter
 			{
 				FileUtility.SaferDelete(jsonDownloadState);
 
-				if (DownloadOptions.AudibleKey is not null && 
-					DownloadOptions.AudibleIV is not null && 
+				if (DownloadOptions.AudibleKey is not null &&
+					DownloadOptions.AudibleIV is not null &&
 					DownloadOptions.RetainEncryptedFile)
 				{
 					string aaxPath = Path.ChangeExtension(TempFilePath, ".aax");
@@ -156,12 +155,7 @@ namespace AaxDecrypter
 
 		private NetworkFileStreamPersister NewNetworkFilePersister()
 		{
-			var headers = new System.Net.WebHeaderCollection
-			{
-				{ "User-Agent", DownloadOptions.UserAgent }
-			};
-
-			var networkFileStream = new NetworkFileStream(TempFilePath, new Uri(DownloadOptions.DownloadUrl), 0, headers);
+			var networkFileStream = new NetworkFileStream(TempFilePath, new Uri(DownloadOptions.DownloadUrl), 0, new() { { "User-Agent", DownloadOptions.UserAgent } });
 			return new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
 		}
 	}

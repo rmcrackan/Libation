@@ -18,22 +18,6 @@ namespace LibationAvalonia
 			return defaultBrush;
 		}
 
-		public static Window GetParentWindow(this IControl control)
-		{
-            Window window = null;
-
-            var p = control.Parent;
-            while (p != null)
-            {
-                if (p is Window)
-                {
-                    window = (Window)p;
-                    break;
-                }
-                p = p.Parent;
-            }
-
-			return window;
-        }
+		public static Window GetParentWindow(this IControl control) => control.VisualRoot as Window;
 	}
 }

@@ -25,7 +25,7 @@ namespace LibationFileManager
             [Description("The same folder that Libation is running from")]
             AppDir = 2,
 
-            [Description("Windows temporary folder")]
+            [Description("System temporary folder")]
             WinTemp = 3,
 
             [Description("My Documents")]

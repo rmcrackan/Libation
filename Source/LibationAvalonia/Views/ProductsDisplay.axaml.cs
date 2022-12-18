@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using DataLayer;
 using FileLiberator;
 using LibationAvalonia.Controls;
@@ -42,7 +43,7 @@ namespace LibationAvalonia.Views
 				};
 
 				var pdvm = new ProductsDisplayViewModel();
-				pdvm.DisplayBooksAsync(sampleEntries);
+				_ = pdvm.DisplayBooksAsync(sampleEntries);
 				DataContext = pdvm;
 
 				return;
@@ -106,17 +107,22 @@ namespace LibationAvalonia.Views
                 {
                     try
                     {
-						var openFileDialog = new OpenFileDialog
+						var openFileDialogOptions = new FilePickerOpenOptions
 						{
 							Title = $"Locate the audio file for '{entry.Book.Title}'",
-							Filters = new() { new() { Name = "All files (*.*)", Extensions = new() { "*" } } },
-							AllowMultiple = false
+							AllowMultiple = false,
+							SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Configuration.Instance.Books),
+							FileTypeFilter = new FilePickerFileType[]
+							{
+								new("All files (*.*)") { Patterns = new[] { "*" } },
+							}
 						};
-						var filePaths = await openFileDialog.ShowAsync(this.GetParentWindow());
-						var filePath = filePaths.SingleOrDefault();
 
-                        if (!string.IsNullOrWhiteSpace(filePath))
-                            FilePathCache.Insert(entry.AudibleProductId, filePath);
+						var selectedFiles = await this.GetParentWindow().StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
+						var selectedFile = selectedFiles.SingleOrDefault();
+
+                        if (selectedFile.TryGetUri(out var uri))
+                            FilePathCache.Insert(entry.AudibleProductId, uri.LocalPath);
                     }
                     catch (Exception ex)
                     {
