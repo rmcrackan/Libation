@@ -1,0 +1,30 @@
+# build.yml
+# Reusable workflow that builds Libation for all platforms.
+---
+name: build
+
+on:
+  workflow_call:
+    inputs:
+      version_override:
+        type: string
+        description: 'Version number override'
+        required: false
+      run_unit_tests:
+        type: boolean
+        description: 'Skip running unit tests'
+        required: false
+        default: true
+
+jobs:
+  windows:
+    uses: ./.github/workflows/build-windows.yml
+    with:
+      version_override: ${{ inputs.version_override }}
+      run_unit_tests: ${{ inputs.run_unit_tests }}
+
+  linux:
+    uses: ./.github/workflows/build-linux.yml
+    with:
+      version_override: ${{ inputs.version_override }}
+      run_unit_tests: ${{ inputs.run_unit_tests }}
