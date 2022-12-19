@@ -156,7 +156,7 @@ namespace AaxDecrypter
 			_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
 
 			//Download the file in the background.
-			return DownloadFile(networkStream);
+			return Task.Run(async () => await DownloadFile(networkStream), _cancellationSource.Token);
 		}
 
 		/// <summary> Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.</summary>
@@ -273,7 +273,7 @@ namespace AaxDecrypter
 			};
 
 			WaitToPosition(newPosition);
-			return IsCancelled ? 0 : (_readFile.Position = newPosition);
+			return _readFile.Position = newPosition;
 		}
 
 		/// <summary>Blocks until the file has downloaded to at least <paramref name="requiredPosition"/>, then returns. </summary>
