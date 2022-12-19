@@ -39,13 +39,14 @@ namespace AaxDecrypter
 		public long ContentLength { get; private set; }
 
 		[JsonIgnore]
-		public bool IsCancelled { get; private set; }
+		public bool IsCancelled => _cancellationSource.IsCancellationRequested;
 
 		#endregion
 
 		#region Private Properties
 		private FileStream _writeFile { get; }
 		private FileStream _readFile { get; }
+		private CancellationTokenSource _cancellationSource { get; } = new();
 		private EventWaitHandle _downloadedPiece { get; set; }
 		private Task _backgroundDownloadTask { get; set; }
 
@@ -126,7 +127,6 @@ namespace AaxDecrypter
 			RequestHeaders["Range"] = $"bytes={WritePosition}-";
 		}
 
-
 		/// <summary> Begins downloading <see cref="Uri"/> to <see cref="SaveFilePath"/> in a background thread. </summary>
 		/// <returns>The downloader <see cref="Task"/></returns>
 		private Task BeginDownloading()
@@ -137,13 +137,12 @@ namespace AaxDecrypter
 			if (ContentLength != 0 && WritePosition > ContentLength)
 				throw new WebException($"Specified write position (0x{WritePosition:X10}) is larger than  {nameof(ContentLength)} (0x{ContentLength:X10}).");
 
-
 			var request = new HttpRequestMessage(HttpMethod.Get, Uri);
 
 			foreach (var header in RequestHeaders)
 				request.Headers.Add(header.Key, header.Value);
 
-			var response = new HttpClient().Send(request, HttpCompletionOption.ResponseHeadersRead);
+			var response = new HttpClient().Send(request, HttpCompletionOption.ResponseHeadersRead, _cancellationSource.Token);
 
 			if (response.StatusCode != HttpStatusCode.PartialContent)
 				throw new WebException($"Server at {Uri.Host} responded with unexpected status code: {response.StatusCode}.");
@@ -153,15 +152,15 @@ namespace AaxDecrypter
 			if (WritePosition == 0)
 				ContentLength = response.Content.Headers.ContentLength.GetValueOrDefault();
 
-			var networkStream = response.Content.ReadAsStream();
+			var networkStream = response.Content.ReadAsStream(_cancellationSource.Token);
 			_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
 
 			//Download the file in the background.
-			return Task.Run(() => DownloadFile(networkStream));
+			return DownloadFile(networkStream);
 		}
 
 		/// <summary> Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.</summary>
-		private void DownloadFile(Stream networkStream)
+		private async Task DownloadFile(Stream networkStream)
 		{
 			var downloadPosition = WritePosition;
 			var nextFlush = downloadPosition + DATA_FLUSH_SZ;
@@ -172,14 +171,14 @@ namespace AaxDecrypter
 				int bytesRead;
 				do
 				{
-					bytesRead = networkStream.Read(buff, 0, DOWNLOAD_BUFF_SZ);
-					_writeFile.Write(buff, 0, bytesRead);
+					bytesRead = await networkStream.ReadAsync(buff, 0, DOWNLOAD_BUFF_SZ, _cancellationSource.Token);
+					await _writeFile.WriteAsync(buff, 0, bytesRead, _cancellationSource.Token);
 
 					downloadPosition += bytesRead;
 
 					if (downloadPosition > nextFlush)
 					{
-						_writeFile.Flush();
+						await _writeFile.FlushAsync(_cancellationSource.Token);
 						WritePosition = downloadPosition;
 						Update();
 						nextFlush = downloadPosition + DATA_FLUSH_SZ;
@@ -261,7 +260,7 @@ namespace AaxDecrypter
 
 			var toRead = Math.Min(count, Length - Position);
 			WaitToPosition(Position + toRead);
-			return _readFile.Read(buffer, offset, count);
+			return IsCancelled ? 0: _readFile.Read(buffer, offset, count);
 		}
 
 		public override long Seek(long offset, SeekOrigin origin)
@@ -274,7 +273,7 @@ namespace AaxDecrypter
 			};
 
 			WaitToPosition(newPosition);
-			return _readFile.Position = newPosition;
+			return IsCancelled ? 0 : (_readFile.Position = newPosition);
 		}
 
 		/// <summary>Blocks until the file has downloaded to at least <paramref name="requiredPosition"/>, then returns. </summary>
@@ -285,13 +284,13 @@ namespace AaxDecrypter
 				&& _backgroundDownloadTask?.IsCompleted is false
 				&& !IsCancelled)
 			{
-				_downloadedPiece.WaitOne(100);
+				_downloadedPiece.WaitOne(50);
 			}
 		}
 
 		public override void Close()
 		{
-			IsCancelled = true;
+			_cancellationSource.Cancel();
 			_backgroundDownloadTask?.Wait();
 
 			_readFile.Close();
