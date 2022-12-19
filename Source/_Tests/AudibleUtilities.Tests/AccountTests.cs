@@ -21,7 +21,8 @@ using Newtonsoft.Json.Linq;
 
 namespace AccountsTests
 {
-    public class AccountsTestBase
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+	public class AccountsTestBase
     {
         protected string EMPTY_FILE { get; } = "{\r\n  \"Accounts\": []\r\n}".Replace("\r\n", Environment.NewLine);
 
@@ -514,8 +515,8 @@ namespace AccountsTests
 
     // account.Id + Locale.Name -- must be unique
     [TestClass]
-    public class validate : AccountsTestBase
-    {
+	public class validate : AccountsTestBase
+	{
         [TestMethod]
         public void violate_validation()
         {
@@ -590,4 +591,5 @@ namespace AccountsTests
             }
         }
     }
+#pragma warning restore CS8981
 }

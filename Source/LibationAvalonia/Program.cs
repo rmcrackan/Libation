@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -68,8 +69,9 @@ namespace LibationAvalonia
 
 				return true;
 			}
-			catch (Exception ex)
+			catch (Exception exDebug)
 			{
+				Serilog.Log.Logger.Debug(exDebug, "Silent failure");
 				return false;
 			}
 		}
