@@ -1,0 +1,82 @@
+# build-windows.yml
+# Reusable workflow that builds the Windows versions of Libation.
+---
+name: build
+
+on:
+  workflow_call:
+    inputs:
+      version_override:
+        type: string
+        description: 'Version number override'
+        required: false
+      run_unit_tests:
+        type: boolean
+        description: 'Skip running unit tests'
+        required: false
+        default: true
+
+env:
+  DOTNET_CONFIGURATION: 'Release'
+  DOTNET_VERSION: '7.0.x'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [Windows]
+        ui: [Avalonia]
+        release_name: [chardonnay]
+        include:
+          - os: Windows
+            ui: WinForms
+            release_name: classic
+            prefix: Classic-
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get version
+        id: get_version
+        run: |
+          if ("${{ inputs.version_override }}".length -gt 0) {
+            $version = "${{ inputs.version_override }}"
+          } else {
+            [xml]$appScaffolding = Get-Content -Path ./Source/AppScaffolding/AppScaffolding.csproj
+            $version = $appScaffolding.Project.PropertyGroup.Version
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Unit test
+        if: ${{ inputs.run_unit_tests }}
+        working-directory: ./Source
+        run: dotnet test
+
+      - name: Publish
+        working-directory: ./Source
+        run: |
+          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj -p:PublishProfile=Libation${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} LoadByOS/${{ matrix.os }}ConfigApp/${{ matrix.os }}ConfigApp.csproj -p:PublishProfile=LoadByOS/Properties/${{ matrix.os }}ConfigApp/PublishProfiles/${{ matrix.os }}Profile.pubxml
+          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} LibationCli/LibationCli.csproj -p:PublishProfile=LibationCli/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj -p:PublishProfile=Hangover${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+
+      - name: Zip artifact
+        id: zip
+        working-directory: ./Source/bin/Publish
+        run: |
+          $artifact="${{ matrix.prefix }}Libation.${{ steps.get_version.outputs.version }}-" + "${{ matrix.os }}".ToLower() + "-${{ matrix.release_name }}"
+          "artifact=$artifact" >> $env:GITHUB_OUTPUT
+          Compress-Archive -Path "${{ matrix.os }}-${{ matrix.release_name }}\*" -DestinationPath "$artifact.zip"
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.zip.outputs.artifact }}.zip
+          path: ./Source/bin/Publish/${{ steps.zip.outputs.artifact }}.zip
+          if-no-files-found: error

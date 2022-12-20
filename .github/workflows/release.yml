@@ -1,0 +1,64 @@
+# release.yml
+# Builds and creates the release on any tags starting with a `v`
+---
+name: release
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  prerelease:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Get tag version
+        id: get_version
+        run: |
+          export TAG='${{ github.ref_name }}'
+          echo "version=${TAG#v}" >> "${GITHUB_OUTPUT}"
+
+  docker:
+    needs: [prerelease]
+    uses: ./.github/workflows/docker.yml
+    with:
+      version: ${{ needs.prerelease.outputs.version }}
+    secrets:
+      docker_username: ${{ secrets.DOCKERHUB_USERNAME }}
+      docker_token: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  build:
+    needs: [prerelease]
+    uses: ./.github/workflows/build.yml
+    with:
+      version_override: ${{ needs.prerelease.outputs.version }}
+      run_unit_tests: false
+      
+  release:
+    needs: [prerelease,build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        with:
+          tag_name: '${{ github.ref }}'
+          release_name: 'Libation ${{ steps.version.outputs.version }}'
+          body: <Put a body here>
+          draft: true
+          prerelease: false
+
+      - name: Upload release assets
+        uses: dwenegar/upload-release-assets@v1
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        with:
+          release_id: '${{ steps.create_release.outputs.id }}'
+          assets_path: ./artifacts
