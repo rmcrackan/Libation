@@ -1,17 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ApplicationServices;
+using AppScaffolding;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using System;
 using Avalonia.ReactiveUI;
+using DataLayer;
+using Dinah.Core;
+using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
-using DataLayer;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AppScaffolding;
-using System.Linq;
-using LibationAvalonia.Dialogs;
 
 namespace LibationAvalonia.Views
 {
@@ -153,7 +154,7 @@ namespace LibationAvalonia.Views
 			var thisExe = Environment.ProcessPath;
 			var thisDir = System.IO.Path.GetDirectoryName(thisExe);
 
-			var args = $"--input {zipFile} --output {thisDir} --executable {thisExe}";
+			var args = $"--input {zipFile.SurroundWithQuotes()} --output {thisDir.SurroundWithQuotes()} --executable {thisExe.SurroundWithQuotes()}";
 
 			var zipExtractor = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ZipExtractor.exe");
 
