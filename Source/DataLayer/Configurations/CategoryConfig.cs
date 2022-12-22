@@ -9,6 +9,9 @@ namespace DataLayer.Configurations
         {
             entity.HasKey(c => c.CategoryId);
             entity.HasIndex(c => c.AudibleCategoryId);
+
+            // seeds go here. examples in Dinah.EntityFrameworkCore.Tests\DbContextFactoryExample.cs
+            entity.HasData(Category.GetEmpty());
         }
     }
 }
