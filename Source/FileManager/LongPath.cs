@@ -20,7 +20,7 @@ namespace FileManager
 		public string Path { get; init; }
 		public override string ToString() => Path;
 
-		private static readonly PlatformID PlatformID = Environment.OSVersion.Platform;
+		internal static readonly PlatformID PlatformID = Environment.OSVersion.Platform;
 
 	
 		public static implicit operator LongPath(string path)
