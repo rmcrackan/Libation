@@ -34,7 +34,13 @@ namespace LibationAvalonia.Dialogs
 			new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" },
 		};
 
-		public LiberatedStatusBatchManualDialog()
+        public LiberatedStatusBatchManualDialog(bool isPdf) : this()
+        {
+            if (isPdf)
+                this.Title = this.Title.Replace("book", "PDF");
+        }
+
+        public LiberatedStatusBatchManualDialog()
 		{
 			InitializeComponent();
 			SelectedItem = BookStatuses[0] as liberatedComboBoxItem;

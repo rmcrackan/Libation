@@ -90,7 +90,7 @@ namespace LibationWinForms
             visibleLibraryBooks.UpdateTags(dialog.NewTags);
         }
 
-		private void setDownloadedManualToolStripMenuItem_Click(object sender, EventArgs e)
+		private void setBookDownloadedManualToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			var dialog = new LiberatedStatusBatchManualDialog();
 			var result = dialog.ShowDialog();
@@ -102,13 +102,34 @@ namespace LibationWinForms
 			var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
 				visibleLibraryBooks,
                 // do not use `$` string interpolation. See impl.
-                "Are you sure you want to replace downloaded status in {0}?",
+                "Are you sure you want to replace book downloaded status in {0}?",
 				"Replace downloaded status?");
 
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
 			visibleLibraryBooks.UpdateBookStatus(dialog.BookLiberatedStatus);
+        }
+
+        private void setPdfDownloadedManualToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+			var dialog = new LiberatedStatusBatchManualDialog(isPdf: true);
+            var result = dialog.ShowDialog();
+            if (result != DialogResult.OK)
+                return;
+
+            var visibleLibraryBooks = productsDisplay.GetVisible();
+
+            var confirmationResult = MessageBoxLib.ShowConfirmationDialog(
+                visibleLibraryBooks,
+                // do not use `$` string interpolation. See impl.
+                "Are you sure you want to replace PDF downloaded status in {0}?",
+                "Replace downloaded status?");
+
+            if (confirmationResult != DialogResult.Yes)
+                return;
+
+            visibleLibraryBooks.UpdatePdfStatus(dialog.BookLiberatedStatus);
         }
 
         private async void setDownloadedAutoToolStripMenuItem_Click(object sender, EventArgs e)

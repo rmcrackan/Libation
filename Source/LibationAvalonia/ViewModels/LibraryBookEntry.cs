@@ -108,7 +108,7 @@ namespace LibationAvalonia.ViewModels
 					this.RaisePropertyChanged(nameof(Liberate));
 					break;
 				case nameof(udi.PdfStatus):
-					Book.UserDefinedItem.PdfStatus = udi.PdfStatus;
+					Book.UserDefinedItem.SetPdfStatus(udi.PdfStatus);
 					_pdfStatus = udi.PdfStatus;
 					this.RaisePropertyChanged(nameof(Liberate));
 					break;

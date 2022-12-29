@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 using DataLayer;
-using Dinah.Core;
-using LibationFileManager;
 
 namespace LibationWinForms.Dialogs
 {
@@ -17,6 +13,12 @@ namespace LibationWinForms.Dialogs
             public LiberatedStatus Status { get; set; }
             public string Text { get; set; }
             public override string ToString() => Text;
+        }
+
+        public LiberatedStatusBatchManualDialog(bool isPdf) : this()
+        {
+            if (isPdf)
+                this.Text = this.Text.Replace("book", "PDF");
         }
 
         public LiberatedStatusBatchManualDialog()

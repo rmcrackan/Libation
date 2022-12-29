@@ -146,10 +146,19 @@ namespace DataLayer
                 }
             }
         }
+        public void SetPdfStatus(LiberatedStatus? pdfStatus)
+        {
+            // don't change whether pdf is actually available. if null, leave as null. if not null, only assign non-null
+
+            // null => non-null : only when adding a supplement
+
+            if (pdfStatus.HasValue && PdfStatus.HasValue)
+                PdfStatus = pdfStatus;
+        }
         public LiberatedStatus? PdfStatus
         {
             get => _pdfStatus;
-            set
+            internal set
             {
                 if (_pdfStatus != value)
                 {

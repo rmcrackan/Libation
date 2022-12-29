@@ -62,7 +62,7 @@ namespace LibationAvalonia.Views
 			visibleLibraryBooks.UpdateTags(dialog.NewTags);
         }
 
-		public async void setDownloadedManualToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public async void setBookDownloadedManualToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var dialog = new Dialogs.LiberatedStatusBatchManualDialog();
 			var result = await dialog.ShowDialog<DialogResult>(this);
@@ -75,7 +75,7 @@ namespace LibationAvalonia.Views
 				this,
 				visibleLibraryBooks,
                 // do not use `$` string interpolation. See impl.
-                "Are you sure you want to replace downloaded status in {0}?",
+                "Are you sure you want to replace book downloaded status in {0}?",
 				"Replace downloaded status?");
 
 			if (confirmationResult != DialogResult.Yes)
@@ -84,7 +84,29 @@ namespace LibationAvalonia.Views
             visibleLibraryBooks.UpdateBookStatus(dialog.BookLiberatedStatus);
         }
 
-		public async void setDownloadedAutoToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+        public async void setPdfDownloadedManualToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+        {
+            var dialog = new Dialogs.LiberatedStatusBatchManualDialog(isPdf: true);
+            var result = await dialog.ShowDialog<DialogResult>(this);
+            if (result != DialogResult.OK)
+                return;
+
+            var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
+
+            var confirmationResult = await MessageBox.ShowConfirmationDialog(
+                this,
+                visibleLibraryBooks,
+                // do not use `$` string interpolation. See impl.
+                "Are you sure you want to replace PDF downloaded status in {0}?",
+                "Replace downloaded status?");
+
+            if (confirmationResult != DialogResult.Yes)
+                return;
+
+            visibleLibraryBooks.UpdatePdfStatus(dialog.BookLiberatedStatus);
+        }
+
+        public async void setDownloadedAutoToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
         {
             var dialog = new Dialogs.LiberatedStatusBatchAutoDialog();
             var result = await dialog.ShowDialog<DialogResult>(this);
