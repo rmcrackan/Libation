@@ -62,16 +62,6 @@ namespace FileManager
 
 		private static string replaceFileName(string filename, Dictionary<string,string> paramReplacements, int maxFilenameLength)
 		{
-			//Filename limits on NTFS and FAT filesystems are based on characters,
-			//but on ext* filesystems they're based on bytes. The ext* filesystems
-			//don't care about encoding, so how unicode characters are encoded is
-			///a choice made by the linux kernel. As best as I can tell, pretty
-			//much everyone uses UTF-8.
-			int getFilesystemStringLength(StringBuilder str)
-			 => LongPath.IsWindows ?
-				str.Length
-				: Encoding.UTF8.GetByteCount(str.ToString());
-
 			List<StringBuilder> filenameParts = new();
 			//Build the filename in parts, replacing replacement parameters with
 			//their values, and storing the parts in a list.
@@ -106,7 +96,7 @@ namespace FileManager
 
 			//Remove 1 character from the end of the longest filename part until
 			//the total filename is less than max filename length
-			while (filenameParts.Sum(p => getFilesystemStringLength(p)) > maxFilenameLength)
+			while (filenameParts.Sum(p => LongPath.GetFilesystemStringLength(p)) > maxFilenameLength)
 			{
 				int maxLength = filenameParts.Max(p => p.Length);
 				var maxEntry = filenameParts.First(p => p.Length == maxLength);

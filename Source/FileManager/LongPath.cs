@@ -13,6 +13,13 @@ namespace FileManager
 		public const int MaxFilenameLength = 255;
 		public static readonly int MaxDirectoryLength;
 		public static readonly int MaxPathLength;
+		private const int WIN_MAX_PATH = 260;
+		private const string WIN_LONG_PATH_PREFIX = @"\\?\";
+		internal static readonly bool IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+		internal static readonly bool IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+		internal static readonly bool IsOSX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+	
+		public string Path { get; }
 
 		static LongPath()
 		{
@@ -33,25 +40,26 @@ namespace FileManager
 			}
 		}
 
-		private const int WIN_MAX_PATH = 260;
-		private const string WIN_LONG_PATH_PREFIX = @"\\?\";
-
 		private LongPath(string path)
 		{
 			if (IsWindows && path.Length > MaxPathLength)
 				throw new System.IO.PathTooLongException($"Path exceeds {MaxPathLength} character limit. ({path})");
-			if ((!IsWindows && Encoding.UTF8.GetByteCount(path) > MaxPathLength))
+			if (!IsWindows && Encoding.UTF8.GetByteCount(path) > MaxPathLength)
 				throw new System.IO.PathTooLongException($"Path exceeds {MaxPathLength} byte limit. ({path})");
-				
+
 			Path = path;
 		}
-		public string Path { get; }
-		public override string ToString() => Path;
+		
+		//Filename limits on NTFS and FAT filesystems are based on characters,
+		//but on ext* filesystems they're based on bytes. The ext* filesystems
+		//don't care about encoding, so how unicode characters are encoded is
+		///a choice made by the linux kernel. As best as I can tell, pretty
+		//much everyone uses UTF-8.
+		public static int GetFilesystemStringLength(StringBuilder filename)
+			=> LongPath.IsWindows ?
+				filename.Length
+				: Encoding.UTF8.GetByteCount(filename.ToString());
 
-		internal static readonly bool IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-		internal static readonly bool IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-		internal static readonly bool IsOSX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-	
 		public static implicit operator LongPath(string path)
 		{
 			if (!IsWindows) return new LongPath(path);
@@ -152,6 +160,9 @@ namespace FileManager
 					:Path;
 			}
 		}
+
+		public override string ToString() => Path;
+
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
 		private static extern int GetShortPathName([MarshalAs(UnmanagedType.LPWStr)] string path, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder shortPath, int shortPathLength);
