@@ -68,7 +68,7 @@ namespace FileManager
 			///a choice made by the linux kernel. As best as I can tell, pretty
 			//much everyone uses UTF-8.
 			int getFilesystemStringLength(StringBuilder str)
-			 => LongPath.PlatformID is PlatformID.Win32NT ?
+			 => LongPath.IsWindows ?
 				str.Length
 				: Encoding.UTF8.GetByteCount(str.ToString());
 

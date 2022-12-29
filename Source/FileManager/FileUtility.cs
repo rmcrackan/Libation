@@ -6,11 +6,14 @@ using System.Text.RegularExpressions;
 using Dinah.Core;
 using Polly;
 using Polly.Retry;
+using Dinah.Core.Collections.Generic;
 
 namespace FileManager
 {
 	public static class FileUtility
 	{
+
+
 		/// <summary>
 		/// "txt" => ".txt"
 		/// <br />".txt" => ".txt"
@@ -55,15 +58,15 @@ namespace FileManager
 
 			// ensure uniqueness and check lengths
 			var dir = Path.GetDirectoryName(path);
-			dir = dir?.Truncate(LongPath.MaxDirectoryLength) ?? string.Empty;
+			dir = dir?.TruncateFilename(LongPath.MaxDirectoryLength) ?? string.Empty;
 
 			var extension = Path.GetExtension(path);
 
-			var filename = Path.GetFileNameWithoutExtension(path).Truncate(LongPath.MaxFilenameLength - extension.Length);
+			var filename = Path.GetFileNameWithoutExtension(path).TruncateFilename(LongPath.MaxFilenameLength - extension.Length);
 			var fileStem = Path.Combine(dir, filename);
 
 
-			var fullfilename = fileStem.Truncate(LongPath.MaxPathLength - extension.Length) + extension;
+			var fullfilename = fileStem.TruncateFilename(LongPath.MaxPathLength - extension.Length) + extension;
 
 			fullfilename = removeInvalidWhitespace(fullfilename);
 
@@ -71,7 +74,7 @@ namespace FileManager
 			while (File.Exists(fullfilename) && !returnFirstExisting)
 			{
 				var increm = $" ({++i})";
-				fullfilename = fileStem.Truncate(LongPath.MaxPathLength - increm.Length - extension.Length) + increm + extension;
+				fullfilename = fileStem.TruncateFilename(LongPath.MaxPathLength - increm.Length - extension.Length) + increm + extension;
 			}
 
 			return fullfilename;
@@ -128,6 +131,18 @@ namespace FileManager
 		}
 
 		public static string RemoveLastCharacter(this string str) => string.IsNullOrEmpty(str) ? str : str[..^1];
+
+		public static string TruncateFilename(this string filenameStr, int limit)
+		{
+			if (LongPath.IsWindows) return filenameStr.Truncate(limit);
+
+			int index = filenameStr.Length;
+
+			while (index > 0 && System.Text.Encoding.UTF8.GetByteCount(filenameStr, 0, index) > limit)
+				index--;
+
+			return filenameStr[..index];
+		}
 
 		/// <summary>
 		/// Move file.
