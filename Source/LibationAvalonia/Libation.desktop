@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Libation
-Exec=Libation
+Exec=libation
 Icon=libation
 Comment=Liberate your Audiobooks
 Terminal=false

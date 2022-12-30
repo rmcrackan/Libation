@@ -44,12 +44,20 @@ namespace FileManager
 			var fileNamePart = pathParts[^1];
 			pathParts.Remove(fileNamePart);
 
+			var fileExtension = Path.GetExtension(fileNamePart);
+			fileNamePart = fileNamePart[..^fileExtension.Length];
+
 			LongPath directory = Path.Join(pathParts.Select(p => replaceFileName(p, paramReplacements, LongPath.MaxFilenameLength)).ToArray());
 
 			//If file already exists, GetValidFilename will append " (n)" to the filename.
 			//This could cause the filename length to exceed MaxFilenameLength, so reduce
 			//allowable filename length by 5 chars, allowing for up to 99 duplicates.
-			return FileUtility.GetValidFilename(Path.Join(directory, replaceFileName(fileNamePart, paramReplacements, LongPath.MaxFilenameLength - 5)), replacements, returnFirstExisting);
+			return FileUtility
+			.GetValidFilename(
+				Path.Join(directory, replaceFileName(fileNamePart, paramReplacements, LongPath.MaxFilenameLength - fileExtension.Length - 5)) + fileExtension,
+				replacements,
+				returnFirstExisting
+				);
 		}
 
 		private static string replaceFileName(string filename, Dictionary<string,string> paramReplacements, int maxFilenameLength)
@@ -88,7 +96,7 @@ namespace FileManager
 
 			//Remove 1 character from the end of the longest filename part until
 			//the total filename is less than max filename length
-			while (filenameParts.Sum(p => p.Length) > maxFilenameLength)
+			while (filenameParts.Sum(p => LongPath.GetFilesystemStringLength(p)) > maxFilenameLength)
 			{
 				int maxLength = filenameParts.Max(p => p.Length);
 				var maxEntry = filenameParts.First(p => p.Length == maxLength);

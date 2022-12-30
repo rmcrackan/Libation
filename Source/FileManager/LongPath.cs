@@ -10,22 +10,59 @@ namespace FileManager
 	{
 		//https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=cmd
 
-		public const int MaxDirectoryLength = MaxPathLength - 13;
-		public const int MaxPathLength = short.MaxValue;
 		public const int MaxFilenameLength = 255;
-
-		private const int MAX_PATH = 260;
-		private const string LONG_PATH_PREFIX = @"\\?\";
-
-		public string Path { get; init; }
-		public override string ToString() => Path;
-
-		private static readonly PlatformID PlatformID = Environment.OSVersion.Platform;
-
+		public static readonly int MaxDirectoryLength;
+		public static readonly int MaxPathLength;
+		private const int WIN_MAX_PATH = 260;
+		private const string WIN_LONG_PATH_PREFIX = @"\\?\";
+		internal static readonly bool IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+		internal static readonly bool IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+		internal static readonly bool IsOSX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 	
+		public string Path { get; }
+
+		static LongPath()
+		{
+			if (IsWindows)
+			{
+				MaxPathLength = short.MaxValue;
+				MaxDirectoryLength = MaxPathLength - 13;
+			}
+			else if (IsOSX)
+			{
+				MaxPathLength = 1024;
+				MaxDirectoryLength = MaxPathLength - MaxFilenameLength;
+			}
+			else
+			{
+				MaxPathLength = 4096;
+				MaxDirectoryLength = MaxPathLength - MaxFilenameLength;
+			}
+		}
+
+		private LongPath(string path)
+		{
+			if (IsWindows && path.Length > MaxPathLength)
+				throw new System.IO.PathTooLongException($"Path exceeds {MaxPathLength} character limit. ({path})");
+			if (!IsWindows && Encoding.UTF8.GetByteCount(path) > MaxPathLength)
+				throw new System.IO.PathTooLongException($"Path exceeds {MaxPathLength} byte limit. ({path})");
+
+			Path = path;
+		}
+		
+		//Filename limits on NTFS and FAT filesystems are based on characters,
+		//but on ext* filesystems they're based on bytes. The ext* filesystems
+		//don't care about encoding, so how unicode characters are encoded is
+		///a choice made by the linux kernel. As best as I can tell, pretty
+		//much everyone uses UTF-8.
+		public static int GetFilesystemStringLength(StringBuilder filename)
+			=> LongPath.IsWindows ?
+				filename.Length
+				: Encoding.UTF8.GetByteCount(filename.ToString());
+
 		public static implicit operator LongPath(string path)
 		{
-			if (PlatformID is PlatformID.Unix) return new LongPath { Path = path };
+			if (!IsWindows) return new LongPath(path);
 
 			if (path is null) return null;
 
@@ -33,15 +70,15 @@ namespace FileManager
 			//the name to an NT-style name, except when using the "\\?\" prefix 
 			path = path.Replace(System.IO.Path.AltDirectorySeparatorChar, System.IO.Path.DirectorySeparatorChar);
 
-			if (path.StartsWith(LONG_PATH_PREFIX))
-				return new LongPath { Path = path };
+			if (path.StartsWith(WIN_LONG_PATH_PREFIX))
+				return new LongPath(path);
 			else if ((path.Length > 2 && path[1] == ':') || path.StartsWith(@"UNC\"))
-				return new LongPath { Path = LONG_PATH_PREFIX + path };
+				return new LongPath(WIN_LONG_PATH_PREFIX + path);
 			else if (path.StartsWith(@"\\"))
 				//The "\\?\" prefix can also be used with paths constructed according to the
 				//universal naming convention (UNC). To specify such a path using UNC, use
 				//the "\\?\UNC\" prefix.
-				return new LongPath { Path = LONG_PATH_PREFIX + @"UNC\" + path.Substring(2) };
+				return new LongPath(WIN_LONG_PATH_PREFIX + @"UNC\" + path.Substring(2));
 			else
 			{
 				//These prefixes are not used as part of the path itself. They indicate that
@@ -50,9 +87,9 @@ namespace FileManager
 				//a period to represent the current directory, or double dots to represent the
 				//parent directory. Because you cannot use the "\\?\" prefix with a relative
 				//path, relative paths are always limited to a total of MAX_PATH characters.
-				if (path.Length > MAX_PATH)
+				if (path.Length > WIN_MAX_PATH)
 					throw new System.IO.PathTooLongException();
-				return new LongPath { Path = path };
+				return new LongPath(path);
 			}
 		}
 
@@ -63,7 +100,7 @@ namespace FileManager
 		{
 			get
 			{
-				if (PlatformID is PlatformID.Unix) return Path;
+				if (!IsWindows) return Path;
 
 				//Short Path names are useful for navigating to the file in windows explorer,
 				//which will not recognize paths longer than MAX_PATH. Short path names are not
@@ -103,7 +140,7 @@ namespace FileManager
 		{
 			get
 			{
-				if (PlatformID is PlatformID.Unix) return Path;
+				if (!IsWindows) return Path;
 				if (Path is null) return null;
 
 				StringBuilder longPathBuffer = new(MaxPathLength);
@@ -117,12 +154,15 @@ namespace FileManager
 		{
 			get
 			{
-				if (PlatformID is PlatformID.Unix) return Path;
+				if (!IsWindows) return Path;
 				return
-					Path?.StartsWith(LONG_PATH_PREFIX) == true ? Path.Remove(0, LONG_PATH_PREFIX.Length)
+					Path?.StartsWith(WIN_LONG_PATH_PREFIX) == true ? Path.Remove(0, WIN_LONG_PATH_PREFIX.Length)
 					:Path;
 			}
 		}
+
+		public override string ToString() => Path;
+
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
 		private static extern int GetShortPathName([MarshalAs(UnmanagedType.LPWStr)] string path, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder shortPath, int shortPathLength);
