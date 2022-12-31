@@ -40,8 +40,6 @@ namespace LibationWinForms.GridView
 			EnableDoubleBuffering();
 			gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
 			removeGVColumn.Frozen = false;
-
-			gridEntryDataGridView.EditMode = DataGridViewEditMode.EditOnEnter;
 		}
 
 		private void EnableDoubleBuffering()

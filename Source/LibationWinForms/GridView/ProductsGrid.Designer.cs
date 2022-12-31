@@ -31,8 +31,6 @@
 			this.components = new System.ComponentModel.Container();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.gridEntryDataGridView = new System.Windows.Forms.DataGridView();
-			this.showHideColumnsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.syncBindingSource = new LibationWinForms.GridView.SyncBindingSource(this.components);
 			this.removeGVColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			this.liberateGVColumn = new LibationWinForms.GridView.LiberateDataGridViewImageButtonColumn();
 			this.coverGVColumn = new System.Windows.Forms.DataGridViewImageColumn();
@@ -48,6 +46,8 @@
 			this.myRatingGVColumn = new LibationWinForms.GridView.MyRatingGridViewColumn();
 			this.miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.tagAndDetailsGVColumn = new LibationWinForms.GridView.EditTagsDataGridViewImageButtonColumn();
+			this.showHideColumnsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.syncBindingSource = new LibationWinForms.GridView.SyncBindingSource(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).BeginInit();
 			this.SuspendLayout();
@@ -87,6 +87,7 @@
 			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
 			this.gridEntryDataGridView.DefaultCellStyle = dataGridViewCellStyle1;
 			this.gridEntryDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gridEntryDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
 			this.gridEntryDataGridView.Location = new System.Drawing.Point(0, 0);
 			this.gridEntryDataGridView.Name = "gridEntryDataGridView";
 			this.gridEntryDataGridView.RowHeadersVisible = false;
@@ -96,15 +97,6 @@
 			this.gridEntryDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentClick);
 			this.gridEntryDataGridView.CellContextMenuStripNeeded += new System.Windows.Forms.DataGridViewCellContextMenuStripNeededEventHandler(this.gridEntryDataGridView_CellContextMenuStripNeeded);
 			this.gridEntryDataGridView.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.gridEntryDataGridView_CellToolTipTextNeeded);
-			// 
-			// showHideColumnsContextMenuStrip
-			// 
-			this.showHideColumnsContextMenuStrip.Name = "contextMenuStrip1";
-			this.showHideColumnsContextMenuStrip.Size = new System.Drawing.Size(61, 4);
-			// 
-			// syncBindingSource
-			// 
-			this.syncBindingSource.DataSource = typeof(LibationWinForms.GridView.GridEntry);
 			// 
 			// removeGVColumn
 			// 
@@ -232,6 +224,15 @@
 			this.tagAndDetailsGVColumn.ReadOnly = true;
 			this.tagAndDetailsGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
 			this.tagAndDetailsGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			// 
+			// showHideColumnsContextMenuStrip
+			// 
+			this.showHideColumnsContextMenuStrip.Name = "contextMenuStrip1";
+			this.showHideColumnsContextMenuStrip.Size = new System.Drawing.Size(61, 4);
+			// 
+			// syncBindingSource
+			// 
+			this.syncBindingSource.DataSource = typeof(LibationWinForms.GridView.GridEntry);
 			// 
 			// ProductsGrid
 			// 

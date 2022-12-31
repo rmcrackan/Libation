@@ -67,7 +67,7 @@ namespace LibationWinForms.GridView
 			set
 			{
 				if (_myRating != value
-					&& (value.OverallRating + value.PerformanceRating + value.StoryRating) > 0
+					&& value.OverallRating != 0
 					&& updateReviewTask?.IsCompleted is not false)
 				{
 					updateReviewTask = UpdateRating(value);
@@ -88,7 +88,7 @@ namespace LibationWinForms.GridView
 			if (await api.ReviewAsync(Book.AudibleProductId, (int)rating.OverallRating, (int)rating.PerformanceRating, (int)rating.StoryRating))
 			{
 				_myRating = rating;
-				LibraryBook.Book.UpdateUserDefinedItem(null, null, null, rating);
+				LibraryBook.Book.UpdateUserDefinedItem(Book.UserDefinedItem.Tags, Book.UserDefinedItem.BookStatus, Book.UserDefinedItem.PdfStatus, rating);
 			}
 
 			this.NotifyPropertyChanged(nameof(MyRating));
