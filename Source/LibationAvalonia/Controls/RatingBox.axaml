@@ -1,0 +1,52 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="LibationAvalonia.Controls.RatingBox">
+
+	<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
+		<Grid.Styles>
+			<Style Selector="TextBlock">
+				<Setter Property="FontSize" Value="11" />
+			</Style>
+		</Grid.Styles>
+		
+		<TextBlock Grid.Column="0" Grid.Row="0" Name="tblockOverall" Text="Overall:" />
+		<TextBlock Grid.Column="0" Grid.Row="1" Name="tblockPerform" Text="Perform:" />
+		<TextBlock Grid.Column="0" Grid.Row="2" Name="tblockStory" Text="Story:" />
+
+		<Panel Background="Transparent" PointerEntered="Panel_PointerEntered" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="0">
+			<TextBlock Name="tblockOverallRating" />
+			<StackPanel IsVisible="false" Orientation="Horizontal">
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+			</StackPanel>
+		</Panel>
+
+		<Panel Background="Transparent" PointerEntered="Panel_PointerEntered" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="1">
+			<TextBlock Name="tblockPerformRating" />
+			<StackPanel IsVisible="false" Orientation="Horizontal">
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+			</StackPanel>
+		</Panel>
+		
+		<Panel Background="Transparent" PointerEntered="Panel_PointerEntered" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="2">
+			<TextBlock Name="tblockStoryRating" />
+			<StackPanel IsVisible="false" Orientation="Horizontal">
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" Text="☆" />
+			</StackPanel>
+		</Panel>
+	</Grid>
+</UserControl>

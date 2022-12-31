@@ -89,9 +89,9 @@ namespace LibationSearchEngine
                     ["Hours"] = lb => (lb.Book.LengthInMinutes / 60).ToLuceneString(),
 
                     ["ProductRating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
-                    ["Rating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
-                    ["UserRating"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating.ToLuceneString(),
-                    ["MyRating"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating.ToLuceneString()
+					["Rating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
+					["UserRating"] = lb => userRating(lb.Book),
+					["MyRating"] = lb => userRating(lb.Book)
                 }
                 );
 
@@ -136,8 +136,8 @@ namespace LibationSearchEngine
             var narrators = lb.Book.Narrators.Select(a => a.Name).ToArray();
             return authors.Intersect(narrators).Any();
         }
-
-        private static bool isLiberated(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated;
+        private static string userRating(Book book) => book.UserDefinedItem.Rating.OverallRating.ToLuceneString();
+		private static bool isLiberated(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated;
         private static bool liberatedError(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Error;
 
         // use these common fields in the "all" default search field
@@ -289,7 +289,25 @@ namespace LibationSearchEngine
                     d.AddBool("LiberatedError", v2);
                 });
 
-        private static void updateDocument(string productId, Action<Document> action)
+		public void UpdateUserRatings(Book book)
+	        => updateDocument(
+		        book.AudibleProductId,
+		        d =>
+		        {
+			        //
+			        // TODO: better synonym handling. This is too easy to mess up
+			        //
+
+			        // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
+			        // ie: must remove old before adding new else will create unwanted duplicates.
+			        var v1 = userRating(book);
+			        d.RemoveField("UserRating");
+			        d.AddNotAnalyzed("UserRating", v1);
+			        d.RemoveField("MyRating");
+			        d.AddNotAnalyzed("MyRating", v1);
+		        });
+
+		private static void updateDocument(string productId, Action<Document> action)
         {
             var productTerm = new Term(_ID_, productId);
 

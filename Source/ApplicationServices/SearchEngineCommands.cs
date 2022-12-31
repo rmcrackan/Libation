@@ -46,6 +46,7 @@ namespace ApplicationServices
 				{
 					UpdateLiberatedStatus(book);
 					UpdateBookTags(book);
+					UpdateUserRatings(book);
 				}
 			}
 		}
@@ -60,6 +61,10 @@ namespace ApplicationServices
 
 		internal static void UpdateBookTags(Book book) => performSafeCommand(e =>
 			e.UpdateTags(book.AudibleProductId, book.UserDefinedItem.Tags)
+		);
+
+		internal static void UpdateUserRatings(Book book) => performSafeCommand(e =>
+			e.UpdateUserRatings(book)
 		);
 
 		private static void performSafeCommand(Action<SearchEngine> action)

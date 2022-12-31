@@ -65,7 +65,7 @@ namespace LibationAvalonia.ViewModels
 			Title = Book.Title;
 			Series = Book.SeriesNames();
 			Length = Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min";
-			MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			_myRating = Book.UserDefinedItem.Rating;
 			PurchaseDate = libraryBook.DateAdded.ToString("d");
 			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 			Authors = Book.AuthorNames();

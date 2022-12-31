@@ -415,14 +415,16 @@ namespace ApplicationServices
             this Book book,
             string tags = null,
             LiberatedStatus? bookStatus = null,
-            LiberatedStatus? pdfStatus = null)
-            => new[] { book }.UpdateUserDefinedItem(tags, bookStatus, pdfStatus);
+            LiberatedStatus? pdfStatus = null,
+            Rating rating = null)
+            => new[] { book }.UpdateUserDefinedItem(tags, bookStatus, pdfStatus, rating);
 
-        public static int UpdateUserDefinedItem(
+		public static int UpdateUserDefinedItem(
             this IEnumerable<Book> books,
             string tags = null,
             LiberatedStatus? bookStatus = null,
-            LiberatedStatus? pdfStatus = null)
+            LiberatedStatus? pdfStatus = null,
+            Rating rating = null)
             => updateUserDefinedItem(
                 books,
                 udi => {
@@ -435,6 +437,9 @@ namespace ApplicationServices
 
                     // method handles null logic
                     udi.SetPdfStatus(pdfStatus);
+
+                    if (rating is not null)
+                        udi.Rating = rating;
                 });
 
         public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus)
@@ -487,7 +492,10 @@ namespace ApplicationServices
 
                 // Attach() NoTracking entities before SaveChanges()
                 foreach (var book in books)
+                {
                     context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+					context.Attach(book.UserDefinedItem.Rating).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				}
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)

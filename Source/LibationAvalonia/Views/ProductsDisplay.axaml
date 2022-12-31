@@ -124,7 +124,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
-								<TextBlock Text="{Binding Description}" />
+								<TextBlock Text="{Binding Description}" FontSize="11" VerticalAlignment="Top" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -160,11 +160,11 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Width="120" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRating}">
+				<controls:DataGridTemplateColumnExt Width="120" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRatingString}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
-								<TextBlock Text="{Binding MyRating}" TextWrapping="NoWrap" FontSize="11" />
+								<controls:RatingBox Margin="4" VerticalAlignment="Center" Rating="{Binding MyRating, Mode=TwoWay}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

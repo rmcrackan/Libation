@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using DataLayer;
+﻿using DataLayer;
 using Dinah.Core;
 using ReactiveUI;
 using System;
@@ -69,7 +68,7 @@ namespace LibationAvalonia.ViewModels
 
 			Title = Book.Title;
 			Series = Book.SeriesNames();
-			MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			_myRating = Book.UserDefinedItem.Rating;
 			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 			Authors = Book.AuthorNames();
 			Narrators = Book.NarratorNames();

@@ -43,7 +43,7 @@
             this.categoryGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.productRatingGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.purchaseDateGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.myRatingGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.myRatingGVColumn = new MyRatingGridViewColumn();
             this.miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tagAndDetailsGVColumn = new LibationWinForms.GridView.EditTagsDataGridViewImageButtonColumn();
             this.showHideColumnsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -204,7 +204,7 @@
             this.myRatingGVColumn.DataPropertyName = "MyRating";
             this.myRatingGVColumn.HeaderText = "My Rating";
             this.myRatingGVColumn.Name = "myRatingGVColumn";
-            this.myRatingGVColumn.ReadOnly = true;
+            this.myRatingGVColumn.ReadOnly = false;
             this.myRatingGVColumn.Width = 108;
             // 
             // miscGVColumn
@@ -265,7 +265,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn categoryGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn productRatingGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn purchaseDateGVColumn;
-		private System.Windows.Forms.DataGridViewTextBoxColumn myRatingGVColumn;
+		private MyRatingGridViewColumn myRatingGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn miscGVColumn;
 		private EditTagsDataGridViewImageButtonColumn tagAndDetailsGVColumn;
 	}

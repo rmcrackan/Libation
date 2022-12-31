@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using ApplicationServices;
 using AudibleUtilities;
-using Dinah.Core.Collections.Generic;
+using Dinah.Core;
 using Dinah.Core.IO;
 using Dinah.Core.Logging;
 using LibationFileManager;

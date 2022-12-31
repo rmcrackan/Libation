@@ -1,6 +1,8 @@
-﻿using Avalonia.Media;
+﻿using ApplicationServices;
+using Avalonia.Media;
 using DataLayer;
 using Dinah.Core;
+using FileLiberator;
 using LibationFileManager;
 using ReactiveUI;
 using System;
@@ -8,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.ViewModels
 {
@@ -42,7 +45,19 @@ namespace LibationAvalonia.ViewModels
 		public string Misc { get; protected set; }
 		public string Description { get; protected set; }
 		public string ProductRating { get; protected set; }
-		public string MyRating { get; protected set; }
+		public string MyRatingString => Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+		protected Rating _myRating;
+		public Rating MyRating
+		{
+			get => _myRating;
+			set
+			{
+				if (_myRating != value && updateReviewTask?.IsCompleted is not false)
+				{
+					updateReviewTask = UpdateRating(value);
+				}
+			}
+		}
 
 		protected bool? _remove = false;
 		public abstract bool? Remove { get; set; }
@@ -54,6 +69,23 @@ namespace LibationAvalonia.ViewModels
 		public abstract double Opacity { get; }
 		public IBrush BackgroundBrush => IsEpisode ? App.SeriesEntryGridBackgroundBrush : Brushes.Transparent;
 
+		#endregion
+
+		#region User rating
+
+		private Task updateReviewTask;
+		private async Task UpdateRating(Rating rating)
+		{
+			var api = await LibraryBook.GetApiAsync();
+
+			if (await api.ReviewAsync(Book.AudibleProductId, (int)rating.OverallRating, (int)rating.PerformanceRating, (int)rating.StoryRating))
+			{
+				_myRating = rating;
+				LibraryBook.Book.UpdateUserDefinedItem(null, null, null, rating);
+			}
+
+			this.RaisePropertyChanged(nameof(MyRating));
+		}
 		#endregion
 
 		#region Sorting

@@ -40,6 +40,8 @@ namespace LibationWinForms.GridView
 			EnableDoubleBuffering();
 			gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
 			removeGVColumn.Frozen = false;
+
+			gridEntryDataGridView.EditMode = DataGridViewEditMode.EditOnEnter;
 		}
 
 		private void EnableDoubleBuffering()
@@ -48,6 +50,8 @@ namespace LibationWinForms.GridView
 
 			propertyInfo.SetValue(gridEntryDataGridView, true, null);
 		}
+
+
 
 		#region Button controls
 		private void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)

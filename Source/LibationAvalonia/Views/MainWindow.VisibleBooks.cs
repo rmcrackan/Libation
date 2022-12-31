@@ -18,7 +18,7 @@ namespace LibationAvalonia.Views
 		}
 
 		private async void setLiberatedVisibleMenuItemAsync(object _, object __)
-			=> await Task.Run(setLiberatedVisibleMenuItem);
+			=> await Dispatcher.UIThread.InvokeAsync(setLiberatedVisibleMenuItem);
 
 		public void liberateVisible(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
@@ -114,7 +114,7 @@ namespace LibationAvalonia.Views
                 return;
 
             var bulkSetStatus = new BulkSetDownloadStatus(_viewModel.ProductsDisplay.GetVisibleBookEntries(), dialog.SetDownloaded, dialog.SetNotDownloaded);
-            var count = await Task.Run(() => bulkSetStatus.Discover());
+            var count = await Task.Run(bulkSetStatus.Discover);
 
             if (count == 0)
                 return;
@@ -154,7 +154,7 @@ namespace LibationAvalonia.Views
 		{
 			_viewModel.VisibleCount = qty;
 
-			await Task.Run(setLiberatedVisibleMenuItem);
+			await Dispatcher.UIThread.InvokeAsync(setLiberatedVisibleMenuItem);
 		}
 		void setLiberatedVisibleMenuItem()
 			=> _viewModel.VisibleNotLiberated

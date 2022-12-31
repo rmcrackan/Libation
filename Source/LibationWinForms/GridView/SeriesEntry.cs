@@ -89,7 +89,7 @@ namespace LibationWinForms.GridView
 
 			Title = Book.Title;
 			Series = Book.SeriesNames();
-			MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			MyRating = Book.UserDefinedItem.Rating;
 			PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
 			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 			Authors = Book.AuthorNames();
