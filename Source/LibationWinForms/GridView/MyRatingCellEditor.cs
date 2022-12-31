@@ -94,6 +94,7 @@ namespace LibationWinForms.GridView
 
 			if (newRating == Rating) return;
 
+			Rating = newRating;
 			EditingControlValueChanged = true;
 			EditingControlDataGridView.NotifyCurrentCellDirty(true);
 		}
