@@ -23,7 +23,7 @@ namespace LibationAvalonia.Controls
 				Name = "CellMyRatingDisplay",
 				HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
 				VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
-				AllRatingsVisible = false,
+				IsEditingMode = false,
 				Margin = new Thickness(3),
 				IsEnabled = false
 			};
@@ -42,7 +42,7 @@ namespace LibationAvalonia.Controls
 				Name = "CellMyRatingCellEditor",
 				HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
 				VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
-				AllRatingsVisible = true,
+				IsEditingMode = true,
 				Margin = new Thickness(3)
 			};
 

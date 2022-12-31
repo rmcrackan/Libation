@@ -13,7 +13,7 @@ namespace LibationAvalonia.Controls
 		public static readonly StyledProperty<Rating> RatingProperty =
 		AvaloniaProperty.Register<MyRatingCellEditor, Rating>(nameof(Rating));
 
-		public bool AllRatingsVisible { get; set; }
+		public bool IsEditingMode { get; set; }
 		public Rating Rating
 		{
 			get { return GetValue(RatingProperty); }
@@ -30,19 +30,21 @@ namespace LibationAvalonia.Controls
 		{
 			if (change.Property.Name == nameof(Rating) && Rating is not null)
 			{
+				var blankValue = IsEditingMode ? HOLLOW_STAR : string.Empty;
+
 				int rating = 0;
 				foreach (TextBlock star in panelOverall.Children)
-					star.Tag = star.Text = Rating.OverallRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
+					star.Tag = star.Text = Rating.OverallRating > rating++ ? SOLID_STAR : blankValue;
 
 				rating = 0;
 				foreach (TextBlock star in panelPerform.Children)
-					star.Tag = star.Text = Rating.PerformanceRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
+					star.Tag = star.Text = Rating.PerformanceRating > rating++ ? SOLID_STAR : blankValue;
 
 				rating = 0;
 				foreach (TextBlock star in panelStory.Children)
-					star.Tag = star.Text = Rating.StoryRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
+					star.Tag = star.Text = Rating.StoryRating > rating++ ? SOLID_STAR : blankValue;
 
-				SetVisible(AllRatingsVisible);
+				SetVisible(IsEditingMode);
 			}
 			base.OnPropertyChanged(change);
 		}
