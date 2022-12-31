@@ -26,7 +26,7 @@ namespace LibationWinForms.GridView
 
 	internal class MyRatingGridViewCell : DataGridViewTextBoxCell
 	{
-		private Rating DefaultRating => new Rating(0, 0, 0);
+		private static Rating DefaultRating => new Rating(0, 0, 0);
 		public override object DefaultNewRowValue => DefaultRating;
 		public override Type EditType => typeof(MyRatingCellEditor);
 		public override Type ValueType => typeof(Rating);
@@ -45,6 +45,7 @@ namespace LibationWinForms.GridView
 			if (value is Rating rating)
 			{
 				var starString = rating.ToStarString();
+				ToolTipText = starString;
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, starString, starString, errorText, cellStyle, advancedBorderStyle, paintParts);
 			}
 			else

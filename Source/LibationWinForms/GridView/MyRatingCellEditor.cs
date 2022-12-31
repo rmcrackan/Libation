@@ -39,10 +39,10 @@ namespace LibationWinForms.GridView
 		private void Star_MouseEnter(object sender, EventArgs e)
 		{
 			var thisTbox = sender as Label;
-			var stackPanel = thisTbox.Parent as Panel;
+			var panel = thisTbox.Parent as Panel;
 			var star = SOLID_STAR;
 
-			foreach (Label child in stackPanel.Controls)
+			foreach (Label child in panel.Controls)
 			{
 				child.Text = star;
 				if (child == thisTbox) star = HOLLOW_STAR;

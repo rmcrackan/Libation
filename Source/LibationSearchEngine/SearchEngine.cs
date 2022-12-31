@@ -90,8 +90,8 @@ namespace LibationSearchEngine
 
                     ["ProductRating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
 					["Rating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
-					["UserRating"] = lb => userRating(lb.Book),
-					["MyRating"] = lb => userRating(lb.Book)
+					["UserRating"] = lb => userOverallRating(lb.Book),
+					["MyRating"] = lb => userOverallRating(lb.Book)
                 }
                 );
 
@@ -136,7 +136,7 @@ namespace LibationSearchEngine
             var narrators = lb.Book.Narrators.Select(a => a.Name).ToArray();
             return authors.Intersect(narrators).Any();
         }
-        private static string userRating(Book book) => book.UserDefinedItem.Rating.OverallRating.ToLuceneString();
+        private static string userOverallRating(Book book) => book.UserDefinedItem.Rating.OverallRating.ToLuceneString();
 		private static bool isLiberated(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated;
         private static bool liberatedError(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Error;
 
@@ -300,7 +300,7 @@ namespace LibationSearchEngine
 
 			        // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
 			        // ie: must remove old before adding new else will create unwanted duplicates.
-			        var v1 = userRating(book);
+			        var v1 = userOverallRating(book);
 			        d.RemoveField("UserRating");
 			        d.AddNotAnalyzed("UserRating", v1);
 			        d.RemoveField("MyRating");

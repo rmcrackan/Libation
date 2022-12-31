@@ -140,7 +140,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Width="120" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating" ClipboardContentBinding="{Binding ProductRating}">
+				<controls:DataGridTemplateColumnExt Width="115" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating" ClipboardContentBinding="{Binding ProductRating}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel  Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
@@ -160,16 +160,9 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Width="120" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRatingString}">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
-								<controls:RatingBox Margin="4" VerticalAlignment="Center" Rating="{Binding MyRating, Mode=TwoWay}" />
-							</Panel>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</controls:DataGridTemplateColumnExt>
 
+				<controls:MyRatingGridColumn IsReadOnly="false" Width="115" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRatingString}" Binding="{Binding MyRating, Mode=TwoWay}" />
+				
 				<controls:DataGridTemplateColumnExt Width="135" Header="Misc" CanUserSort="True" SortMemberPath="Misc" ClipboardContentBinding="{Binding Misc}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>

@@ -439,7 +439,7 @@ namespace ApplicationServices
                     udi.SetPdfStatus(pdfStatus);
 
                     if (rating is not null)
-                        udi.Rating = rating;
+                        udi.UpdateRating(rating.OverallRating, rating.PerformanceRating, rating.StoryRating);
                 });
 
         public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus)
@@ -497,7 +497,7 @@ namespace ApplicationServices
 					context.Attach(book.UserDefinedItem.Rating).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				}
 
-                var qtyChanges = context.SaveChanges();
+				var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
                     BookUserDefinedItemCommitted?.Invoke(null, books);
 

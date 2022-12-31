@@ -95,9 +95,9 @@ namespace DataLayer
         #region Rating
         // owned: not an optional one-to-one
         /// <summary>The user's individual book rating</summary>
-        public Rating Rating { get; set; } = new Rating(0, 0, 0);
+        public Rating Rating { get; private set; } = new Rating(0, 0, 0);
 
-        public void UpdateRating(float overallRating, float performanceRating, float storyRating)
+		public void UpdateRating(float overallRating, float performanceRating, float storyRating)
             => Rating.Update(overallRating, performanceRating, storyRating);
         #endregion
 

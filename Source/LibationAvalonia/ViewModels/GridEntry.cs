@@ -45,7 +45,7 @@ namespace LibationAvalonia.ViewModels
 		public string Misc { get; protected set; }
 		public string Description { get; protected set; }
 		public string ProductRating { get; protected set; }
-		public string MyRatingString => Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+		public string MyRatingString => MyRating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 		protected Rating _myRating;
 		public Rating MyRating
 		{
