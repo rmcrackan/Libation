@@ -419,7 +419,7 @@ namespace ApplicationServices
             Rating rating = null)
             => new[] { book }.UpdateUserDefinedItem(tags, bookStatus, pdfStatus, rating);
 
-		public static int UpdateUserDefinedItem(
+        public static int UpdateUserDefinedItem(
             this IEnumerable<Book> books,
             string tags = null,
             LiberatedStatus? bookStatus = null,
@@ -494,10 +494,10 @@ namespace ApplicationServices
                 foreach (var book in books)
                 {
                     context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-					context.Attach(book.UserDefinedItem.Rating).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-				}
+                    context.Attach(book.UserDefinedItem.Rating).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                }
 
-				var qtyChanges = context.SaveChanges();
+                var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
                     BookUserDefinedItemCommitted?.Invoke(null, books);
 

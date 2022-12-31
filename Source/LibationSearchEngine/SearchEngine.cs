@@ -89,9 +89,9 @@ namespace LibationSearchEngine
                     ["Hours"] = lb => (lb.Book.LengthInMinutes / 60).ToLuceneString(),
 
                     ["ProductRating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
-					["Rating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
-					["UserRating"] = lb => userOverallRating(lb.Book),
-					["MyRating"] = lb => userOverallRating(lb.Book)
+                    ["Rating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
+                    ["UserRating"] = lb => userOverallRating(lb.Book),
+                    ["MyRating"] = lb => userOverallRating(lb.Book)
                 }
                 );
 
@@ -137,7 +137,7 @@ namespace LibationSearchEngine
             return authors.Intersect(narrators).Any();
         }
         private static string userOverallRating(Book book) => book.UserDefinedItem.Rating.OverallRating.ToLuceneString();
-		private static bool isLiberated(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated;
+        private static bool isLiberated(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated;
         private static bool liberatedError(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Error;
 
         // use these common fields in the "all" default search field
@@ -289,25 +289,25 @@ namespace LibationSearchEngine
                     d.AddBool("LiberatedError", v2);
                 });
 
-		public void UpdateUserRatings(Book book)
-	        => updateDocument(
-		        book.AudibleProductId,
-		        d =>
-		        {
-			        //
-			        // TODO: better synonym handling. This is too easy to mess up
-			        //
+        public void UpdateUserRatings(Book book)
+            => updateDocument(
+                book.AudibleProductId,
+                d =>
+                {
+                    //
+                    // TODO: better synonym handling. This is too easy to mess up
+                    //
 
-			        // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
-			        // ie: must remove old before adding new else will create unwanted duplicates.
-			        var v1 = userOverallRating(book);
-			        d.RemoveField("UserRating");
-			        d.AddNotAnalyzed("UserRating", v1);
-			        d.RemoveField("MyRating");
-			        d.AddNotAnalyzed("MyRating", v1);
-		        });
+                    // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
+                    // ie: must remove old before adding new else will create unwanted duplicates.
+                    var v1 = userOverallRating(book);
+                    d.RemoveField("UserRating");
+                    d.AddNotAnalyzed("UserRating", v1);
+                    d.RemoveField("MyRating");
+                    d.AddNotAnalyzed("MyRating", v1);
+                });
 
-		private static void updateDocument(string productId, Action<Document> action)
+        private static void updateDocument(string productId, Action<Document> action)
         {
             var productTerm = new Term(_ID_, productId);
 

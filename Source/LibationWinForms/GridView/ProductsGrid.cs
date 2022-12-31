@@ -51,8 +51,6 @@ namespace LibationWinForms.GridView
 			propertyInfo.SetValue(gridEntryDataGridView, true, null);
 		}
 
-
-
 		#region Button controls
 		private void DataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
 		{
