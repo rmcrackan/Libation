@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
 using DataLayer;
 
 namespace LibationAvalonia.Controls
@@ -28,6 +27,8 @@ namespace LibationAvalonia.Controls
 				IsEnabled = false
 			};
 
+			ToolTip.SetTip(cell, "Click to change ratings");
+
 			if (Binding != null)
 			{
 				myRatingElement.Bind(BindingTarget, Binding);
@@ -45,6 +46,8 @@ namespace LibationAvalonia.Controls
 				IsEditingMode = true,
 				Margin = new Thickness(3)
 			};
+
+			ToolTip.SetTip(cell, null);
 
 			return myRatingElement;
 		}

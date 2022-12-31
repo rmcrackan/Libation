@@ -44,8 +44,9 @@ namespace LibationWinForms.GridView
 		{
 			if (value is Rating rating)
 			{
+				ToolTipText = "Click to change ratings";
+
 				var starString = rating.ToStarString();
-				ToolTipText = starString;
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, starString, starString, errorText, cellStyle, advancedBorderStyle, paintParts);
 			}
 			else
