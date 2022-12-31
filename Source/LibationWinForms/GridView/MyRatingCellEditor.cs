@@ -1,18 +1,12 @@
 ﻿using DataLayer;
-using Mpeg4Lib.Boxes;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms.GridView
 {
-	public partial class RatingPicker : UserControl, IDataGridViewEditingControl
+	public partial class MyRatingCellEditor : UserControl, IDataGridViewEditingControl
 	{
 		private const string SOLID_STAR = "★";
 		private const string HOLLOW_STAR = "☆";
@@ -24,21 +18,22 @@ namespace LibationWinForms.GridView
 			{
 				_rating = value;
 				int rating = 0;
-				foreach (Label star in panel1.Controls)
+				foreach (Label star in panelOverall.Controls)
 					star.Tag = star.Text = _rating.OverallRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
 
 				rating = 0;
-				foreach (Label star in panel2.Controls)
+				foreach (Label star in panelPerform.Controls)
 					star.Tag = star.Text = _rating.PerformanceRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
 
 				rating = 0;
-				foreach (Label star in panel3.Controls)
+				foreach (Label star in panelStory.Controls)
 					star.Tag = star.Text = _rating.StoryRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
 			}
 		}
-		public RatingPicker()
+		public MyRatingCellEditor()
 		{
 			InitializeComponent();
+			this.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom;
 		}
 
 		private void Star_MouseEnter(object sender, EventArgs e)
@@ -79,46 +74,48 @@ namespace LibationWinForms.GridView
 			var thisTbox = sender as Label;
 			var panel = thisTbox.Parent as Panel;
 
-			int newRating = 0;
+			int newRatingValue = 0;
 			foreach (var child in panel.Controls)
 			{
-				newRating++;
+				newRatingValue++;
 				if (child == thisTbox) break;
 			}
 
-			if (panel == panel1)
-				overall = newRating;
-			else if (panel == panel2)
-				perform = newRating;
-			else if (panel == panel3)
-				story = newRating;
+			if (panel == panelOverall)
+				overall = newRatingValue;
+			else if (panel == panelPerform)
+				perform = newRatingValue;
+			else if (panel == panelStory)
+				story = newRatingValue;
 
 			if (overall + perform + story == 0f) return;
 
-			Rating = new Rating(overall, perform, story);
+			var newRating = new Rating(overall, perform, story);
+
+			if (newRating == Rating) return;
+
 			EditingControlValueChanged = true;
 			EditingControlDataGridView.NotifyCurrentCellDirty(true);
 		}
+
+		#region IDataGridViewEditingControl
 
 		DataGridView dataGridView;
 		private bool valueChanged = false;
 		int rowIndex;
 
-		#region IDataGridViewEditingControl
 		public DataGridView EditingControlDataGridView { get => dataGridView; set => dataGridView = value; }
-		public object EditingControlFormattedValue { get => Rating.ToStarString(); set { } }
 		public int EditingControlRowIndex { get => rowIndex; set => rowIndex = value; }
 		public bool EditingControlValueChanged { get => valueChanged; set => valueChanged = value; }
-
+		public object EditingControlFormattedValue { get => Rating; set => Rating = (Rating)value; }
 		public Cursor EditingPanelCursor => base.Cursor;
-
 		public bool RepositionEditingControlOnValueChange => false;
 
 		public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
 		{
-			this.Font = dataGridViewCellStyle.Font;
-			this.ForeColor = dataGridViewCellStyle.ForeColor;
-			this.BackColor = dataGridViewCellStyle.BackColor;
+			Font = dataGridViewCellStyle.Font;
+			ForeColor = dataGridViewCellStyle.ForeColor;
+			BackColor = dataGridViewCellStyle.BackColor;
 		}
 
 		public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey)

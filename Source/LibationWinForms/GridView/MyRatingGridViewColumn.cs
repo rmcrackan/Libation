@@ -1,6 +1,7 @@
 ﻿using DataLayer;
 using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -16,7 +17,7 @@ namespace LibationWinForms.GridView
 			set
 			{
 				if (value is not MyRatingGridViewCell)
-					throw new InvalidCastException("Must be a MyRatingGridViewCell");
+					throw new InvalidCastException($"Must be a {nameof(MyRatingGridViewCell)}");
 
 				base.CellTemplate = value;
 			}
@@ -25,49 +26,32 @@ namespace LibationWinForms.GridView
 
 	internal class MyRatingGridViewCell : DataGridViewTextBoxCell
 	{
+		private Rating DefaultRating => new Rating(0, 0, 0);
+		public override object DefaultNewRowValue => DefaultRating;
+		public override Type EditType => typeof(MyRatingCellEditor);
+		public override Type ValueType => typeof(Rating);
+
 		public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
 		{
 			base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
 
-			var ctl = DataGridView.EditingControl as RatingPicker;
+			var ctl = DataGridView.EditingControl as MyRatingCellEditor;
 
-			ctl.Rating =
-				Value is Rating rating
-				? rating
-				: (Rating)DefaultNewRowValue;
+			ctl.Rating = Value is Rating rating ? rating : DefaultRating;
+		}
+
+		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates cellState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+		{
+			if (value is Rating rating)
+			{
+				var starString = rating.ToStarString();
+				base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, starString, starString, errorText, cellStyle, advancedBorderStyle, paintParts);
+			}
+			else
+				base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, string.Empty, string.Empty, errorText, cellStyle, advancedBorderStyle, paintParts);
 		}
 
 		public override object ParseFormattedValue(object formattedValue, DataGridViewCellStyle cellStyle, TypeConverter formattedValueTypeConverter, TypeConverter valueTypeConverter)
-		{
-			const char SOLID_STAR = '★';
-			if (formattedValue is string s)
-			{
-				int overall = 0, performance = 0, story = 0;
-
-				foreach (var line in s.Split('\n'))
-				{
-					if (line.Contains("Overall"))
-						overall = line.Count(c => c == SOLID_STAR);
-					else if (line.Contains("Perform"))
-						performance = line.Count(c => c == SOLID_STAR);
-					else if (line.Contains("Story"))
-						story = line.Count(c => c == SOLID_STAR);
-				}
-
-				return new Rating(overall, performance, story);
-			}
-			else
-				return DefaultNewRowValue;
-		}
-
-
-		protected override object GetFormattedValue(object value, int rowIndex, ref DataGridViewCellStyle cellStyle, TypeConverter valueTypeConverter, TypeConverter formattedValueTypeConverter, DataGridViewDataErrorContexts context)
-			=> value is Rating rating
-				? rating.ToStarString()
-				: base.GetFormattedValue(value, rowIndex, ref cellStyle, valueTypeConverter, formattedValueTypeConverter, context);
-
-		public override Type EditType => typeof(RatingPicker);
-		public override object DefaultNewRowValue => new Rating(0, 0, 0);
-		public override Type ValueType => typeof(Rating);
+			=> formattedValue;
 	}
 }
