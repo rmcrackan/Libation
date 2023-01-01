@@ -77,7 +77,7 @@ namespace LibationAvalonia.Views
 
 			try
 			{
-				(string zipFile, UpgradeProperties upgradeProperties) = await Task.Run(() => downloadUpdate());
+				(string zipFile, UpgradeProperties upgradeProperties) = await Task.Run(downloadUpdate);
 
 				if (string.IsNullOrEmpty(zipFile) || !System.IO.File.Exists(zipFile))
 					return;
@@ -152,8 +152,6 @@ namespace LibationAvalonia.Views
 			var thisExe = Environment.ProcessPath;
 			var thisDir = System.IO.Path.GetDirectoryName(thisExe);
 
-			var args = $"--input {zipFile.SurroundWithQuotes()} --output {thisDir.SurroundWithQuotes()} --executable {thisExe.SurroundWithQuotes()}";
-
 			var zipExtractor = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ZipExtractor.exe");
 
 			System.IO.File.Copy("ZipExtractor.exe", zipExtractor, overwrite: true);
@@ -164,8 +162,16 @@ namespace LibationAvalonia.Views
 				UseShellExecute = true,
 				Verb = "runas",
 				WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal,
-				Arguments = args,
-				CreateNoWindow = true
+				CreateNoWindow = true,
+				ArgumentList =
+				{
+					"--input",
+					zipFile,
+					"--output",
+					thisDir,
+					"--executable",
+					thisExe
+				}
 			};
 
 			System.Diagnostics.Process.Start(psi);

@@ -32,6 +32,9 @@ namespace AaxDecrypter
 				AaxFile.AppleTags.Album = AaxFile.AppleTags.Album?.Replace(" (Unabridged)", "");
 			}
 
+			if (DownloadOptions.FixupFile)
+				AaxFile.AppleTags.AppleListBox.EditOrAddTag("TCOM", AaxFile.AppleTags.Narrator);
+
 			//Finishing configuring lame encoder.
 			if (DownloadOptions.OutputFormat == OutputFormat.Mp3)
 				MpegUtil.ConfigureLameOptions(
