@@ -27,14 +27,22 @@ namespace LibationAvalonia.Controls
 				IsEnabled = false
 			};
 
-			if (ToolTip.GetTip(cell) is null)
-				ToolTip.SetTip(cell, "Click to change ratings");
+			//Create a panel that fills the cell to host the rating tool tip
+			var panel = new Panel
+			{
+				Background = Avalonia.Media.Brushes.Transparent,
+				HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+				VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
+			};
+			panel.Children.Add(myRatingElement);
+
+			ToolTip.SetTip(panel, "Click to change ratings");
 
 			if (Binding != null)
 			{
 				myRatingElement.Bind(BindingTarget, Binding);
 			}
-			return myRatingElement;
+			return panel;
 		}
 
 		protected override IControl GenerateEditingElementDirect(DataGridCell cell, object dataItem)
@@ -47,8 +55,6 @@ namespace LibationAvalonia.Controls
 				IsEditingMode = true,
 				Margin = new Thickness(3)
 			};
-
-			ToolTip.SetTip(cell, null);
 
 			return myRatingElement;
 		}
