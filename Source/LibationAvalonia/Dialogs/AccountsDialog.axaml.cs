@@ -131,7 +131,7 @@ namespace LibationAvalonia.Dialogs
 			var selectedFiles = await StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
 			var selectedFile = selectedFiles.SingleOrDefault();
 
-			if (!selectedFile.TryGetUri(out var uri)) return;
+			if (selectedFile?.TryGetUri(out var uri) is not true) return;
 
 			try
 			{
@@ -291,7 +291,7 @@ namespace LibationAvalonia.Dialogs
 
 			var selectedFile = await StorageProvider.SaveFilePickerAsync(options);
 
-			if (!selectedFile.TryGetUri(out var uri)) return;
+			if (selectedFile?.TryGetUri(out var uri) is not true) return;
 
 			try
 			{

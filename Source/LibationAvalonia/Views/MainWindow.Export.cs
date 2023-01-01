@@ -34,7 +34,7 @@ namespace LibationAvalonia.Views
 
 				var selectedFile = await StorageProvider.SaveFilePickerAsync(options);
 
-				if (!selectedFile.TryGetUri(out var uri)) return;
+				if (selectedFile?.TryGetUri(out var uri) is not true) return;
 
 				var ext = System.IO.Path.GetExtension(uri.LocalPath);
 				switch (ext)

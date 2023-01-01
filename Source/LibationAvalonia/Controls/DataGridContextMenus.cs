@@ -1,12 +1,11 @@
-using Avalonia.Collections;
+﻿using Avalonia.Collections;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using LibationAvalonia.ViewModels;
 using System;
 using System.Reflection;
 
 namespace LibationAvalonia.Controls
-{	
+{
 	public class DataGridCellContextMenuStripNeededEventArgs
 	{
 		private static readonly MethodInfo GetCellValueMethod;
@@ -19,55 +18,54 @@ namespace LibationAvalonia.Controls
 			=> GetCellValueMethod.Invoke(column, new object[] { item, column.ClipboardContentBinding })?.ToString() ?? "";
 
 		public string CellClipboardContents => GetCellValue(Column, GridEntry);
-		public DataGridTemplateColumnExt Column { get; init; }
+		public DataGridColumn Column { get; init; }
 		public GridEntry GridEntry { get; init; }
 		public ContextMenu ContextMenu { get; init; }
 		public AvaloniaList<MenuItem> ContextMenuItems
 			=> ContextMenu.Items as AvaloniaList<MenuItem>;
 	}
 
-	public partial class DataGridTemplateColumnExt : DataGridTemplateColumn
+	internal static class DataGridContextMenus
 	{
-		public event EventHandler<DataGridCellContextMenuStripNeededEventArgs> CellContextMenuStripNeeded;
-
+		public static event EventHandler<DataGridCellContextMenuStripNeededEventArgs> CellContextMenuStripNeeded;
 		private static readonly ContextMenu ContextMenu = new();
-		private static readonly AvaloniaList<MenuItem> MenuItems  = new();
+		private static readonly AvaloniaList<MenuItem> MenuItems = new();
+		private static readonly PropertyInfo OwningColumnProperty;
 
-		public DataGridTemplateColumnExt()
+		static DataGridContextMenus()
 		{
-			AvaloniaXamlLoader.Load(this);
 			ContextMenu.Items = MenuItems;
+			OwningColumnProperty = typeof(DataGridCell).GetProperty("OwningColumn", BindingFlags.Instance | BindingFlags.NonPublic);
 		}
 
-		private void Cell_ContextRequested(object sender, ContextRequestedEventArgs e)
-		{
-			if (sender is DataGridCell cell && cell.DataContext is GridEntry entry)
-			{
-				var args = new DataGridCellContextMenuStripNeededEventArgs
-				{
-					Column = this,
-					GridEntry = entry,
-					ContextMenu = ContextMenu
-				};
-				args.ContextMenuItems.Clear();
-
-				CellContextMenuStripNeeded?.Invoke(sender, args);
-				
-				e.Handled = args.ContextMenuItems.Count == 0;
-			}
-			else
-				e.Handled = true;
-		}
-
-		protected override IControl GenerateElement(DataGridCell cell, object dataItem)
+		public static void AttachContextMenuToCell(this DataGridCell cell)
 		{
 			if (cell.ContextMenu is null)
 			{
 				cell.ContextRequested += Cell_ContextRequested;
 				cell.ContextMenu = ContextMenu;
 			}
+		}
 
-			return base.GenerateElement(cell, dataItem);
+		private static void Cell_ContextRequested(object sender, ContextRequestedEventArgs e)
+		{
+			if (sender is DataGridCell cell && cell.DataContext is GridEntry entry)
+			{
+				var args = new DataGridCellContextMenuStripNeededEventArgs
+				{
+					Column = OwningColumnProperty.GetValue(cell) as DataGridColumn,
+					GridEntry = entry,
+					ContextMenu = ContextMenu
+				};
+
+				args.ContextMenuItems.Clear();
+
+				CellContextMenuStripNeeded?.Invoke(sender, args);
+
+				e.Handled = args.ContextMenuItems.Count == 0;
+			}
+			else
+				e.Handled = true;
 		}
 	}
 }

@@ -2,51 +2,53 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="115" d:DesignHeight="80"
              x:Class="LibationAvalonia.Controls.MyRatingCellEditor">
-		
-	<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
-		<Grid.Styles>
-			<Style Selector="TextBlock">
-				<Setter Property="FontSize" Value="11" />
-			</Style>
-			<Style Selector="StackPanel > TextBlock">
-				<Setter Property="Padding" Value="0,0,-2,0" />
-			</Style>
-		</Grid.Styles>
 
-		<TextBlock Grid.Column="0" Grid.Row="0" Name="tblockOverall" Text="Overall:" />
-		<TextBlock Grid.Column="0" Grid.Row="1" Name="tblockPerform" Text="Perform:" />
-		<TextBlock Grid.Column="0" Grid.Row="2" Name="tblockStory" Text="Story:" />
+	<Panel Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+		<Grid Name="ratingsGrid"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0,0,0" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
+			<Grid.Styles>
+				<Style Selector="TextBlock">
+					<Setter Property="FontSize" Value="11" />
+				</Style>
+				<Style Selector="StackPanel > TextBlock">
+					<Setter Property="Padding" Value="0,0,-2,0" />
+				</Style>
+			</Grid.Styles>
 
-		<Panel Background="Transparent" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="0">
-			<StackPanel Name="panelOverall" Orientation="Horizontal">
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-			</StackPanel>
-		</Panel>
+			<TextBlock Grid.Column="0" Grid.Row="0" Name="tblockOverall" Text="Overall:" />
+			<TextBlock Grid.Column="0" Grid.Row="1" Name="tblockPerform" Text="Perform:" />
+			<TextBlock Grid.Column="0" Grid.Row="2" Name="tblockStory" Text="Story:" />
 
-		<Panel Background="Transparent" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="1">
-			<StackPanel Name="panelPerform" Orientation="Horizontal">
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-			</StackPanel>
-		</Panel>
+			<Panel Background="Transparent" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="0">
+				<StackPanel Name="panelOverall" Orientation="Horizontal">
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+				</StackPanel>
+			</Panel>
 
-		<Panel Background="Transparent" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="2">
-			<StackPanel Name="panelStory" Orientation="Horizontal">
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-				<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
-			</StackPanel>
-		</Panel>
-	</Grid>
+			<Panel Background="Transparent" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="1">
+				<StackPanel Name="panelPerform" Orientation="Horizontal">
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+				</StackPanel>
+			</Panel>
+
+			<Panel Background="Transparent" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="2">
+				<StackPanel Name="panelStory" Orientation="Horizontal">
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+					<TextBlock PointerEntered="Star_PointerEntered" Tapped="Star_Tapped" />
+				</StackPanel>
+			</Panel>
+		</Grid>
+	</Panel>
 </UserControl>

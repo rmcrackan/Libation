@@ -14,11 +14,8 @@ namespace LibationAvalonia.Controls
 		AvaloniaProperty.Register<MyRatingCellEditor, Rating>(nameof(Rating));
 
 		public bool IsEditingMode { get; set; }
-		public Rating Rating
-		{
-			get { return GetValue(RatingProperty); }
-			set { SetValue(RatingProperty, value); }
-		}
+		public Rating Rating { get => GetValue(RatingProperty); set => SetValue(RatingProperty, value); }
+		
 		public MyRatingCellEditor()
 		{
 			InitializeComponent();
@@ -44,16 +41,17 @@ namespace LibationAvalonia.Controls
 				foreach (TextBlock star in panelStory.Children)
 					star.Tag = star.Text = Rating.StoryRating > rating++ ? SOLID_STAR : blankValue;
 
-				SetVisible(IsEditingMode);
+				SetVisible();
 			}
 			base.OnPropertyChanged(change);
 		}
 
-		private void SetVisible(bool allVisible)
+		private void SetVisible()
 		{
-			tblockOverall.IsVisible = panelOverall.IsVisible = allVisible || Rating?.OverallRating > 0;
-			tblockPerform.IsVisible = panelPerform.IsVisible = allVisible || Rating?.PerformanceRating > 0;
-			tblockStory.IsVisible = panelStory.IsVisible = allVisible || Rating?.StoryRating > 0;
+			ratingsGrid.IsEnabled = IsEditingMode;
+			tblockOverall.IsVisible = panelOverall.IsVisible = IsEditingMode || Rating?.OverallRating > 0;
+			tblockPerform.IsVisible = panelPerform.IsVisible = IsEditingMode || Rating?.PerformanceRating > 0;
+			tblockStory.IsVisible = panelStory.IsVisible = IsEditingMode || Rating?.StoryRating > 0;
 		}
 
 		public void Panel_PointerExited(object sender, Avalonia.Input.PointerEventArgs e)

@@ -71,6 +71,7 @@ namespace LibationAvalonia.Views
 			AvaloniaXamlLoader.Load(this);
 
 			productsGrid = this.FindControl<DataGrid>(nameof(productsGrid));
+			DataGridContextMenus.CellContextMenuStripNeeded += ProductsGrid_CellContextMenuStripNeeded;
 		}
 
 		#region Cell Context Menu
@@ -121,7 +122,7 @@ namespace LibationAvalonia.Views
 						var selectedFiles = await this.GetParentWindow().StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
 						var selectedFile = selectedFiles.SingleOrDefault();
 
-                        if (selectedFile.TryGetUri(out var uri))
+                        if (selectedFile?.TryGetUri(out var uri) is true)
                             FilePathCache.Insert(entry.AudibleProductId, uri.LocalPath);
                     }
                     catch (Exception ex)
@@ -179,10 +180,6 @@ namespace LibationAvalonia.Views
 
 			foreach (var column in productsGrid.Columns)
 			{
-				//Wire up column context menu
-				if (column is DataGridTemplateColumnExt tc)
-					tc.CellContextMenuStripNeeded += ProductsGrid_CellContextMenuStripNeeded;
-
 				var itemName = column.SortMemberPath;
 
 				if (itemName == nameof(GridEntry.Remove))

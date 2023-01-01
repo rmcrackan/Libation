@@ -1,10 +1,11 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using LibationAvalonia.ViewModels;
 using System;
+using System.Linq;
 
 namespace LibationAvalonia.Controls
 {
-	public partial class DataGridCheckBoxColumnExt : DataGridCheckBoxColumn
+	public class DataGridCheckBoxColumnExt : DataGridCheckBoxColumn
 	{
 		protected override IControl GenerateEditingElementDirect(DataGridCell cell, object dataItem)
 		{

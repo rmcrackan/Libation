@@ -160,9 +160,8 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
+				<controls:DataGridMyRatingColumn IsReadOnly="false" Width="115" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRatingString}" Binding="{Binding MyRating, Mode=TwoWay}" />
 
-				<controls:MyRatingGridColumn IsReadOnly="false" Width="115" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRatingString}" Binding="{Binding MyRating, Mode=TwoWay}" />
-				
 				<controls:DataGridTemplateColumnExt Width="135" Header="Misc" CanUserSort="True" SortMemberPath="Misc" ClipboardContentBinding="{Binding Misc}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
