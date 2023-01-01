@@ -20,7 +20,7 @@ namespace LibationAvalonia.Views
 	{
 		public event EventHandler Load;
 		public event EventHandler<List<LibraryBook>> LibraryLoaded;
-		private MainWindowViewModel _viewModel;
+		private readonly MainWindowViewModel _viewModel;
 
 		public MainWindow()
 		{
@@ -135,11 +135,9 @@ namespace LibationAvalonia.Views
 			try
 			{
 				System.Net.Http.HttpClient cli = new();
-				using (var fs = System.IO.File.OpenWrite(zipFile))
-				{
-					using (var dlStream = await cli.GetStreamAsync(new Uri(upgradeProperties.ZipUrl)))
-						await dlStream.CopyToAsync(fs);
-				}
+				using var fs = System.IO.File.OpenWrite(zipFile);
+				using var dlStream = await cli.GetStreamAsync(new Uri(upgradeProperties.ZipUrl));
+					await dlStream.CopyToAsync(fs);
 			}
 			catch (Exception ex)
 			{

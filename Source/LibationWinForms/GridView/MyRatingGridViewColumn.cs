@@ -43,7 +43,7 @@ namespace LibationWinForms.GridView
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates cellState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
 			if (value is Rating rating)
-			{
+			{				
 				ToolTipText = "Click to change ratings";
 
 				var starString = rating.ToStarString();
@@ -52,6 +52,9 @@ namespace LibationWinForms.GridView
 			else
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, string.Empty, string.Empty, errorText, cellStyle, advancedBorderStyle, paintParts);
 		}
+
+		protected override object GetFormattedValue(object value, int rowIndex, ref DataGridViewCellStyle cellStyle, TypeConverter valueTypeConverter, TypeConverter formattedValueTypeConverter, DataGridViewDataErrorContexts context)
+			=> value is Rating rating ? rating.ToStarString() : value?.ToString();
 
 		public override object ParseFormattedValue(object formattedValue, DataGridViewCellStyle cellStyle, TypeConverter formattedValueTypeConverter, TypeConverter valueTypeConverter)
 			=> formattedValue;

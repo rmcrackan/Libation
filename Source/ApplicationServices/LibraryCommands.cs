@@ -126,22 +126,6 @@ namespace ApplicationServices
                 if (totalCount == 0)
                     return default;
 
-
-                Log.Logger.Information("Begin scan for orphaned episode parents");
-                var newParents = await findAndAddMissingParents(accounts);
-                Log.Logger.Information($"Orphan episode scan complete. New parents count {newParents}");
-
-                if (newParents >= 0)
-                {
-                    //If any episodes are still orphaned, their series have been
-                    //removed from the catalog and we'll never be able to find them.
-
-                    //only do this if findAndAddMissingParents returned >= 0. If it
-                    //returned < 0, an error happened and there's still a chance that
-                    //a future successful run will find missing parents.
-                    removedOrphanedEpisodes();
-                }
-
                 Log.Logger.Information("Begin long-running import");
                 logTime($"pre {nameof(importIntoDbAsync)}");
                 var newCount = await importIntoDbAsync(importItems);
@@ -233,84 +217,6 @@ namespace ApplicationServices
             logTime("importIntoDbAsync -- post finalizeLibrarySizeChange");
 
             return newCount;
-        }
-
-        static void removedOrphanedEpisodes()
-        {
-            using var context = DbContexts.GetContext();
-            try
-            {
-                var orphanedEpisodes =
-                    context
-                    .GetLibrary_Flat_NoTracking(includeParents: true)
-                    .FindOrphanedEpisodes();
-
-                context.LibraryBooks.RemoveRange(orphanedEpisodes);
-                context.Books.RemoveRange(orphanedEpisodes.Select(lb => lb.Book));
-
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Logger.Error(ex, "An error occurred while trying to remove orphaned episodes from the database");
-            }
-        }
-
-        static async Task<int> findAndAddMissingParents(Account[] accounts)
-        {
-            using var context = DbContexts.GetContext();
-
-            var library = context.GetLibrary_Flat_NoTracking(includeParents: true);
-
-            try
-            {
-                var orphanedEpisodes = library.FindOrphanedEpisodes().ToList();
-
-                if (!orphanedEpisodes.Any())
-                    return -1;
-
-                var orphanedSeries =
-                    orphanedEpisodes
-                    .SelectMany(lb => lb.Book.SeriesLink)
-                    .DistinctBy(s => s.Series.AudibleSeriesId)
-                    .ToList();
-
-                // The Catalog endpoint does not require authentication.
-                var api = new ApiUnauthenticated(accounts[0].Locale);
-
-                var seriesParents = orphanedSeries.Select(o => o.Series.AudibleSeriesId).ToList();
-                var items = await api.GetCatalogProductsAsync(seriesParents, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
-
-                List<ImportItem> newParentsImportItems = new();
-                foreach (var sp in orphanedSeries)
-                {
-                    var seriesItem = items.First(i => i.Asin == sp.Series.AudibleSeriesId);
-
-                    if (seriesItem.Relationships is null)
-                        continue;
-
-                    var episode = orphanedEpisodes.First(l => l.Book.AudibleProductId == sp.Book.AudibleProductId);
-
-                    seriesItem.PurchaseDate = new DateTimeOffset(episode.DateAdded);
-                    seriesItem.Series = new AudibleApi.Common.Series[]
-                    {
-                        new AudibleApi.Common.Series{ Asin = seriesItem.Asin, Title = seriesItem.TitleWithSubtitle, Sequence = "-1"}
-                    };
-
-                    newParentsImportItems.Add(new ImportItem { DtoItem = seriesItem, AccountId = episode.Account, LocaleName = episode.Book.Locale });
-                }
-
-                var newCount = new LibraryBookImporter(context)
-                    .Import(newParentsImportItems);
-
-                await context.SaveChangesAsync();
-
-                return newCount;
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Logger.Error(ex, "An error occurred while trying to scan for orphaned episode parents.");
-                return -1;
-            }
         }
 
         public static int SaveContext(LibationContext context)

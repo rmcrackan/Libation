@@ -81,7 +81,6 @@ namespace AppScaffolding
 			//
 
 			Migrations.migrate_to_v6_6_9(config);
-			Migrations.migrate_from_7_10_1(config);
 		}
 
 		public static void PopulateMissingConfigValues(Configuration config)
@@ -455,75 +454,6 @@ namespace AppScaffolding
 
 				// Serilog.Enrich must include "WithExceptionDetails"
 				UNSAFE_MigrationHelper.Settings_AddUniqueToArray("Serilog.Enrich", "WithExceptionDetails");
-			}
-		}
-
-		public static void migrate_from_7_10_1(Configuration config)
-		{
-			var lastMigrationThrew = config.GetNonString<bool>($"{nameof(migrate_from_7_10_1)}_ThrewError");
-
-			if (lastMigrationThrew) return;
-
-			try
-			{
-
-				//https://github.com/rmcrackan/Libation/issues/270#issuecomment-1152863629
-				//This migration helps fix databases contaminated with the 7.10.1 hack workaround
-				//and those with improperly identified or missing series. This does not solve cases
-				//where individual episodes are in the db with a valid series link, but said series'
-				//parents have not been imported into the database.  For those cases, Libation will
-				//attempt fixup by retrieving parents from the catalog endpoint
-
-				using var context = DbContexts.GetContext();
-
-				//This migration removes books and series with SERIES_ prefix that were created
-				//as a hack workaround in 7.10.1. Said workaround was removed in 7.10.2
-				string removeHackSeries = "delete " +
-										  "from series " +
-										  "where AudibleSeriesId like 'SERIES%'";
-
-				string removeHackBooks = "delete " +
-										 "from books " +
-										 "where AudibleProductId like 'SERIES%'";
-
-				//Detect series parents that were added to the database as books with ContentType.Episode,
-				//and change them to ContentType.Parent
-				string updateContentType =
-					"UPDATE books " +
-					"SET contenttype = 4 " +
-					"WHERE audibleproductid IN (SELECT books.audibleproductid " +
-												"FROM books " +
-													"INNER JOIN series " +
-														"ON ( books.audibleproductid = " +
-															"series.audibleseriesid) " +
-												"WHERE books.contenttype = 2)";
-
-				//Then detect series parents that were added to the database as books with ContentType.Parent
-				//but are missing a series link, and add the link (don't know how this happened)
-				string addMissingSeriesLink =
-					"INSERT INTO seriesbook " +
-					"SELECT series.seriesid, " +
-							"books.bookid, " +
-							"'- 1' " +
-					"FROM books " +
-						"LEFT OUTER JOIN seriesbook " +
-									"ON books.bookid = seriesbook.bookid " +
-						"INNER JOIN series " +
-									"ON books.audibleproductid = series.audibleseriesid " +
-					"WHERE books.contenttype = 4 " +
-							"AND seriesbook.seriesid IS NULL";
-
-				context.Database.ExecuteSqlRaw(removeHackSeries);
-				context.Database.ExecuteSqlRaw(removeHackBooks);
-				context.Database.ExecuteSqlRaw(updateContentType);
-				context.Database.ExecuteSqlRaw(addMissingSeriesLink);
-
-				LibraryCommands.SaveContext(context);
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "An error occurred while running database migrations in {0}", nameof(migrate_from_7_10_1));
-				config.SetObject($"{nameof(migrate_from_7_10_1)}_ThrewError", true);
 			}
 		}
 	}

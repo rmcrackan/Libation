@@ -6,25 +6,6 @@ using System.Reflection;
 
 namespace LibationAvalonia.Controls
 {
-	public class DataGridCellContextMenuStripNeededEventArgs
-	{
-		private static readonly MethodInfo GetCellValueMethod;
-		static DataGridCellContextMenuStripNeededEventArgs()
-		{
-			GetCellValueMethod = typeof(DataGridColumn).GetMethod("GetCellValue", BindingFlags.NonPublic | BindingFlags.Instance);
-		}
-
-		private static string GetCellValue(DataGridColumn column, object item)
-			=> GetCellValueMethod.Invoke(column, new object[] { item, column.ClipboardContentBinding })?.ToString() ?? "";
-
-		public string CellClipboardContents => GetCellValue(Column, GridEntry);
-		public DataGridColumn Column { get; init; }
-		public GridEntry GridEntry { get; init; }
-		public ContextMenu ContextMenu { get; init; }
-		public AvaloniaList<MenuItem> ContextMenuItems
-			=> ContextMenu.Items as AvaloniaList<MenuItem>;
-	}
-
 	internal static class DataGridContextMenus
 	{
 		public static event EventHandler<DataGridCellContextMenuStripNeededEventArgs> CellContextMenuStripNeeded;
@@ -40,7 +21,7 @@ namespace LibationAvalonia.Controls
 
 		public static void AttachContextMenuToCell(this DataGridCell cell)
 		{
-			if (cell.ContextMenu is null)
+			if (cell is not null && cell.ContextMenu is null)
 			{
 				cell.ContextRequested += Cell_ContextRequested;
 				cell.ContextMenu = ContextMenu;
@@ -67,5 +48,24 @@ namespace LibationAvalonia.Controls
 			else
 				e.Handled = true;
 		}
+	}
+
+	public class DataGridCellContextMenuStripNeededEventArgs
+	{
+		private static readonly MethodInfo GetCellValueMethod;
+		static DataGridCellContextMenuStripNeededEventArgs()
+		{
+			GetCellValueMethod = typeof(DataGridColumn).GetMethod("GetCellValue", BindingFlags.NonPublic | BindingFlags.Instance);
+		}
+
+		private static string GetCellValue(DataGridColumn column, object item)
+			=> GetCellValueMethod.Invoke(column, new object[] { item, column.ClipboardContentBinding })?.ToString() ?? "";
+
+		public string CellClipboardContents => GetCellValue(Column, GridEntry);
+		public DataGridColumn Column { get; init; }
+		public GridEntry GridEntry { get; init; }
+		public ContextMenu ContextMenu { get; init; }
+		public AvaloniaList<MenuItem> ContextMenuItems
+			=> ContextMenu.Items as AvaloniaList<MenuItem>;
 	}
 }

@@ -13,8 +13,6 @@ namespace LibationAvalonia
 {
 	static class Program
 	{
-		private static string EXE_DIR = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-
 		static void Main()
 		{
 			//***********************************************//
