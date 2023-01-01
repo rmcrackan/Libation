@@ -41,6 +41,7 @@ namespace LibationAvalonia.ViewModels
 
 		public ProductsDisplayViewModel()
 		{
+			SearchEngineCommands.SearchEngineUpdated += SearchEngineCommands_SearchEngineUpdated;
 			GridEntries = new(SOURCE);
 			GridEntries.Filter = CollectionFilter;
 
@@ -164,7 +165,19 @@ namespace LibationAvalonia.ViewModels
 			var seriesFilteredIn = entries.SeriesEntries().Where(s => s.Children.Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
 
 			return booksFilteredIn.Concat(seriesFilteredIn).ToList();
-		}		
+		}
+
+		private async void SearchEngineCommands_SearchEngineUpdated(object sender, EventArgs e)
+		{
+			var filterResults = QueryResults(SOURCE, FilterString);
+
+			if (filterResults.Except(FilteredInGridEntries).Any())
+			{
+				FilteredInGridEntries = filterResults;
+				GridEntries.CommitEdit();
+				await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
+			}
+		}
 
 		#endregion
 

@@ -27,7 +27,8 @@ namespace LibationAvalonia.Controls
 				IsEnabled = false
 			};
 
-			ToolTip.SetTip(cell, "Click to change ratings");
+			if (ToolTip.GetTip(cell) is null)
+				ToolTip.SetTip(cell, "Click to change ratings");
 
 			if (Binding != null)
 			{

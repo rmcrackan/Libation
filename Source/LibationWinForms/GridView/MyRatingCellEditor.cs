@@ -14,7 +14,8 @@ namespace LibationWinForms.GridView
 		private const string HOLLOW_STAR = "☆";
 
 		private Rating _rating;
-		public Rating Rating { 
+		public Rating Rating
+		{ 
 			get => _rating;
 			set
 			{
@@ -32,6 +33,7 @@ namespace LibationWinForms.GridView
 					star.Tag = star.Text = _rating.StoryRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
 			}
 		}
+
 		public MyRatingCellEditor()
 		{
 			InitializeComponent();
@@ -102,15 +104,11 @@ namespace LibationWinForms.GridView
 
 		#region IDataGridViewEditingControl
 
-		DataGridView dataGridView;
-		private bool valueChanged = false;
-		int rowIndex;
-
-		public DataGridView EditingControlDataGridView { get => dataGridView; set => dataGridView = value; }
-		public int EditingControlRowIndex { get => rowIndex; set => rowIndex = value; }
-		public bool EditingControlValueChanged { get => valueChanged; set => valueChanged = value; }
+		public DataGridView EditingControlDataGridView { get; set; }
+		public int EditingControlRowIndex { get; set; }
+		public bool EditingControlValueChanged { get; set; }
 		public object EditingControlFormattedValue { get => Rating; set => Rating = (Rating)value; }
-		public Cursor EditingPanelCursor => base.Cursor;
+		public Cursor EditingPanelCursor => Cursor;
 		public bool RepositionEditingControlOnValueChange => false;
 
 		public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
