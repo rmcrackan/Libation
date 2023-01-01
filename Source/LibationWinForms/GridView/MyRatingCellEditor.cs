@@ -102,12 +102,25 @@ namespace LibationWinForms.GridView
 			EditingControlDataGridView.NotifyCurrentCellDirty(true);
 		}
 
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			if (e.KeyCode == Keys.Escape)
+			{
+				EditingControlDataGridView.RefreshEdit();
+				EditingControlDataGridView.CancelEdit();
+				EditingControlDataGridView.CurrentCell.DetachEditingControl();
+				EditingControlDataGridView.CurrentCell = null;
+
+			}
+			base.OnKeyDown(e);
+		}
+
 		#region IDataGridViewEditingControl
 
 		public DataGridView EditingControlDataGridView { get; set; }
 		public int EditingControlRowIndex { get; set; }
 		public bool EditingControlValueChanged { get; set; }
-		public object EditingControlFormattedValue { get => Rating; set => Rating = (Rating)value; }
+		public object EditingControlFormattedValue { get => Rating; set { } }
 		public Cursor EditingPanelCursor => Cursor;
 		public bool RepositionEditingControlOnValueChange => false;
 
@@ -118,7 +131,7 @@ namespace LibationWinForms.GridView
 			BackColor = dataGridViewCellStyle.BackColor;
 		}
 
-		public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => false;
+		public bool EditingControlWantsInputKey(Keys keyData, bool dataGridViewWantsInputKey) => keyData == Keys.Escape;
 		public object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context) => EditingControlFormattedValue;
 		public void PrepareEditingControlForEdit(bool selectAll) { }
 

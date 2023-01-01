@@ -19,7 +19,7 @@ namespace LibationAvalonia.Controls
 			OwningColumnProperty = typeof(DataGridCell).GetProperty("OwningColumn", BindingFlags.Instance | BindingFlags.NonPublic);
 		}
 
-		public static void AttachContextMenuToCell(this DataGridCell cell)
+		public static void AttachContextMenu(this DataGridCell cell)
 		{
 			if (cell is not null && cell.ContextMenu is null)
 			{

@@ -8,7 +8,7 @@ namespace LibationAvalonia.Controls
 	{
 		protected override IControl GenerateElement(DataGridCell cell, object dataItem)
 		{
-			cell?.AttachContextMenuToCell();
+			cell?.AttachContextMenu();
 			return base.GenerateElement(cell, dataItem);
 		}
 	}
