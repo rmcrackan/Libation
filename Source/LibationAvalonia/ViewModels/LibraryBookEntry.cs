@@ -65,7 +65,9 @@ namespace LibationAvalonia.ViewModels
 			Title = Book.Title;
 			Series = Book.SeriesNames();
 			Length = Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min";
-			MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			//Ratings are changed using Update(), which is a problem for Avalonia data bindings because
+			//the reference doesn't change. Clone the rating so that it updates within Avalonia properly.
+			_myRating = new Rating(Book.UserDefinedItem.Rating.OverallRating, Book.UserDefinedItem.Rating.PerformanceRating, Book.UserDefinedItem.Rating.StoryRating);
 			PurchaseDate = libraryBook.DateAdded.ToString("d");
 			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 			Authors = Book.AuthorNames();

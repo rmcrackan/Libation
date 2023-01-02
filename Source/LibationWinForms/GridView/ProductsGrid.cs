@@ -120,7 +120,7 @@ namespace LibationWinForms.GridView
 					try
                     {
                         var dgv = (DataGridView)sender;
-                        var text = dgv[e.ColumnIndex, e.RowIndex].Value.ToString();
+                        var text = dgv[e.ColumnIndex, e.RowIndex].FormattedValue.ToString();
                         InteropFactory.Create().CopyTextToClipboard(text);
                     }
 					catch { }

@@ -7,7 +7,6 @@ namespace WindowsConfigApp
         public override Type InteropFunctionsType => typeof(WinInterop);
         public override Type[] ReferencedTypes => new Type[]
         {
-            typeof(Form1),
             typeof(Bitmap),
             typeof(Dinah.Core.WindowsDesktop.GitClient),
             typeof(Accessibility.IAccIdentity),

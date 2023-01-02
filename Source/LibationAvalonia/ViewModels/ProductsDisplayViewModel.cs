@@ -10,6 +10,8 @@ using ApplicationServices;
 using AudibleUtilities;
 using LibationAvalonia.Dialogs.Login;
 using Avalonia.Collections;
+using LibationSearchEngine;
+using Octokit.Internal;
 
 namespace LibationAvalonia.ViewModels
 {
@@ -41,6 +43,7 @@ namespace LibationAvalonia.ViewModels
 
 		public ProductsDisplayViewModel()
 		{
+			SearchEngineCommands.SearchEngineUpdated += SearchEngineCommands_SearchEngineUpdated;
 			GridEntries = new(SOURCE);
 			GridEntries.Filter = CollectionFilter;
 
@@ -156,15 +159,30 @@ namespace LibationAvalonia.ViewModels
 		{
 			if (string.IsNullOrEmpty(searchString)) return null;
 
-			var SearchResults = SearchEngineCommands.Search(searchString);
+			var searchResultSet = SearchEngineCommands.Search(searchString);
 
-			var booksFilteredIn = entries.BookEntries().Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry)lbe);
+			var booksFilteredIn = entries.BookEntries().Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry)lbe);
 
 			//Find all series containing children that match the search criteria
-			var seriesFilteredIn = entries.SeriesEntries().Where(s => s.Children.Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
+			var seriesFilteredIn = entries.SeriesEntries().Where(s => s.Children.Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
 
 			return booksFilteredIn.Concat(seriesFilteredIn).ToList();
-		}		
+		}
+
+		private async void SearchEngineCommands_SearchEngineUpdated(object sender, EventArgs e)
+		{
+			var filterResults = QueryResults(SOURCE, FilterString);
+
+			if (filterResults is not null && FilteredInGridEntries.Intersect(filterResults).Count() != FilteredInGridEntries.Count)
+			{
+				FilteredInGridEntries = filterResults;
+
+				if (GridEntries.IsEditingItem)
+					GridEntries.CommitEdit();
+
+				await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
+			}
+		}
 
 		#endregion
 

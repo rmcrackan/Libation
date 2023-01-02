@@ -43,23 +43,18 @@ namespace ApplicationServices
 			else
 			{
 				foreach (var book in books)
-				{
-					UpdateLiberatedStatus(book);
-					UpdateBookTags(book);
-				}
+					UpdateUserDefinedItems(book);
 			}
 		}
 
-		public static void FullReIndex() => performSafeCommand(e =>
-			fullReIndex(e)
-		);
+		public static void FullReIndex() => performSafeCommand(fullReIndex);
 
-		internal static void UpdateLiberatedStatus(Book book) => performSafeCommand(e =>
-			e.UpdateLiberatedStatus(book)
-		);
-
-		internal static void UpdateBookTags(Book book) => performSafeCommand(e =>
-			e.UpdateTags(book.AudibleProductId, book.UserDefinedItem.Tags)
+		internal static void UpdateUserDefinedItems(Book book) => performSafeCommand(e =>
+			{
+				e.UpdateLiberatedStatus(book);
+				e.UpdateTags(book.AudibleProductId, book.UserDefinedItem.Tags);
+				e.UpdateUserRatings(book);
+			}
 		);
 
 		private static void performSafeCommand(Action<SearchEngine> action)
@@ -87,7 +82,6 @@ namespace ApplicationServices
 				isUpdating = true;
 
 				action(new SearchEngine());
-
 				if (!prevIsUpdating)
 					SearchEngineUpdated?.Invoke(null, null);
 			}

@@ -20,7 +20,7 @@ namespace LibationAvalonia.Views
 	{
 		public event EventHandler Load;
 		public event EventHandler<List<LibraryBook>> LibraryLoaded;
-		private MainWindowViewModel _viewModel;
+		private readonly MainWindowViewModel _viewModel;
 
 		public MainWindow()
 		{
@@ -77,7 +77,7 @@ namespace LibationAvalonia.Views
 
 			try
 			{
-				(string zipFile, UpgradeProperties upgradeProperties) = await Task.Run(() => downloadUpdate());
+				(string zipFile, UpgradeProperties upgradeProperties) = await Task.Run(downloadUpdate);
 
 				if (string.IsNullOrEmpty(zipFile) || !System.IO.File.Exists(zipFile))
 					return;
@@ -135,11 +135,9 @@ namespace LibationAvalonia.Views
 			try
 			{
 				System.Net.Http.HttpClient cli = new();
-				using (var fs = System.IO.File.OpenWrite(zipFile))
-				{
-					using (var dlStream = await cli.GetStreamAsync(new Uri(upgradeProperties.ZipUrl)))
-						await dlStream.CopyToAsync(fs);
-				}
+				using var fs = System.IO.File.OpenWrite(zipFile);
+				using var dlStream = await cli.GetStreamAsync(new Uri(upgradeProperties.ZipUrl));
+					await dlStream.CopyToAsync(fs);
 			}
 			catch (Exception ex)
 			{
@@ -154,8 +152,6 @@ namespace LibationAvalonia.Views
 			var thisExe = Environment.ProcessPath;
 			var thisDir = System.IO.Path.GetDirectoryName(thisExe);
 
-			var args = $"--input {zipFile.SurroundWithQuotes()} --output {thisDir.SurroundWithQuotes()} --executable {thisExe.SurroundWithQuotes()}";
-
 			var zipExtractor = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ZipExtractor.exe");
 
 			System.IO.File.Copy("ZipExtractor.exe", zipExtractor, overwrite: true);
@@ -166,8 +162,16 @@ namespace LibationAvalonia.Views
 				UseShellExecute = true,
 				Verb = "runas",
 				WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal,
-				Arguments = args,
-				CreateNoWindow = true
+				CreateNoWindow = true,
+				ArgumentList =
+				{
+					"--input",
+					zipFile,
+					"--output",
+					thisDir,
+					"--executable",
+					thisExe
+				}
 			};
 
 			System.Diagnostics.Process.Start(psi);

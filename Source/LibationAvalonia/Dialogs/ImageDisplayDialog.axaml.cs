@@ -51,7 +51,7 @@ namespace LibationAvalonia.Dialogs
 			{
 				Title = $"Save Sover Image",
 				SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)),
-				SuggestedFileName = $"{PictureFileName}.jpg",
+				SuggestedFileName = PictureFileName,
 				DefaultExtension = "jpg",
 				ShowOverwritePrompt = true,
 				FileTypeChoices = new FilePickerFileType[]
@@ -62,7 +62,7 @@ namespace LibationAvalonia.Dialogs
 
 			var selectedFile = await StorageProvider.SaveFilePickerAsync(options);
 
-			if (!selectedFile.TryGetUri(out var uri)) return;
+			if (selectedFile?.TryGetUri(out var uri) is not true) return;
 
 			try
 			{

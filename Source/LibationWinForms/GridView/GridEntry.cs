@@ -1,7 +1,9 @@
-﻿using DataLayer;
+﻿using ApplicationServices;
+using DataLayer;
 using Dinah.Core;
 using Dinah.Core.DataBinding;
 using Dinah.Core.WindowsDesktop.Drawing;
+using FileLiberator;
 using LibationFileManager;
 using System;
 using System.Collections;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationWinForms.GridView
 {
@@ -57,14 +60,44 @@ namespace LibationWinForms.GridView
 		public string Misc { get; protected set; }
 		public string Description { get; protected set; }
 		public string ProductRating { get; protected set; }
-		public string MyRating { get; protected set; }
+		protected Rating _myRating;
+		public Rating MyRating
+		{
+			get => _myRating;
+			set
+			{
+				if (_myRating != value
+					&& value.OverallRating != 0
+					&& updateReviewTask?.IsCompleted is not false)
+				{
+					updateReviewTask = UpdateRating(value);
+				}
+			}
+		}
 		public abstract string DisplayTags { get; }
 
-        #endregion
+		#endregion
 
-        #region Sorting
+		#region User rating
 
-        public GridEntry() => _memberValues = CreateMemberValueDictionary();
+		private Task updateReviewTask;
+		private async Task UpdateRating(Rating rating)
+		{
+			var api = await LibraryBook.GetApiAsync();
+
+			if (await api.ReviewAsync(Book.AudibleProductId, (int)rating.OverallRating, (int)rating.PerformanceRating, (int)rating.StoryRating))
+			{
+				_myRating = rating;
+				LibraryBook.Book.UpdateUserDefinedItem(Book.UserDefinedItem.Tags, Book.UserDefinedItem.BookStatus, Book.UserDefinedItem.PdfStatus, rating);
+			}
+
+			this.NotifyPropertyChanged(nameof(MyRating));
+		}
+		#endregion
+
+		#region Sorting
+
+		public GridEntry() => _memberValues = CreateMemberValueDictionary();
 
 		// These methods are implementation of Dinah.Core.DataBinding.IMemberComparable
 		// Used by GridEntryBindingList for all sorting

@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using DataLayer;
+﻿using DataLayer;
 using Dinah.Core;
 using ReactiveUI;
 using System;
@@ -69,7 +68,9 @@ namespace LibationAvalonia.ViewModels
 
 			Title = Book.Title;
 			Series = Book.SeriesNames();
-			MyRating = Book.UserDefinedItem.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			//Ratings are changed using Update(), which is a problem for Avalonia data bindings because
+			//the reference doesn't change. Clone the rating so that it updates within Avalonia properly.
+			_myRating = new Rating(Book.UserDefinedItem.Rating.OverallRating, Book.UserDefinedItem.Rating.PerformanceRating, Book.UserDefinedItem.Rating.StoryRating);
 			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
 			Authors = Book.AuthorNames();
 			Narrators = Book.NarratorNames();

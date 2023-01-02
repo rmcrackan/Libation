@@ -90,8 +90,8 @@ namespace LibationSearchEngine
 
                     ["ProductRating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
                     ["Rating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
-                    ["UserRating"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating.ToLuceneString(),
-                    ["MyRating"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating.ToLuceneString()
+                    ["UserRating"] = lb => userOverallRating(lb.Book),
+                    ["MyRating"] = lb => userOverallRating(lb.Book)
                 }
                 );
 
@@ -136,7 +136,7 @@ namespace LibationSearchEngine
             var narrators = lb.Book.Narrators.Select(a => a.Name).ToArray();
             return authors.Intersect(narrators).Any();
         }
-
+        private static string userOverallRating(Book book) => book.UserDefinedItem.Rating.OverallRating.ToLuceneString();
         private static bool isLiberated(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated;
         private static bool liberatedError(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Error;
 
@@ -150,10 +150,10 @@ namespace LibationSearchEngine
                 stringIndexRules[ALL_NARRATOR_NAMES],
                 stringIndexRules[ALL_SERIES_NAMES]
             };
-		#endregion
+        #endregion
 
-		#region get search fields. used for display in help
-		public static IEnumerable<string> GetSearchIdFields()
+        #region get search fields. used for display in help
+        public static IEnumerable<string> GetSearchIdFields()
         {
             foreach (var key in idIndexRules.Keys)
                 yield return key;
@@ -176,29 +176,29 @@ namespace LibationSearchEngine
             foreach (var key in numberIndexRules.Keys)
                 yield return key;
         }
-		#endregion
+        #endregion
 
-		#region create and update index
+        #region create and update index
         /// <summary>create new. ie: full re-index</summary>
         public void CreateNewIndex(IEnumerable<LibraryBook> library, bool overwrite = true)
         {
-			// location of index/create the index
-			using var index = getIndex();
+            // location of index/create the index
+            using var index = getIndex();
             var exists = IndexReader.IndexExists(index);
             var createNewIndex = overwrite || !exists;
 
-			// analyzer for tokenizing text. same analyzer should be used for indexing and searching
-			using var analyzer = new StandardAnalyzer(Version);
-			using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
-			foreach (var libraryBook in library)
-			{
-				var doc = createBookIndexDocument(libraryBook);
-				ixWriter.AddDocument(doc);
-			}
+            // analyzer for tokenizing text. same analyzer should be used for indexing and searching
+            using var analyzer = new StandardAnalyzer(Version);
+            using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
+            foreach (var libraryBook in library)
+            {
+                var doc = createBookIndexDocument(libraryBook);
+                ixWriter.AddDocument(doc);
+            }
         }
 
-		/// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
-		public void UpdateBook(LibationContext context, string productId)
+        /// <summary>Long running. Use await Task.Run(() => UpdateBook(productId))</summary>
+        public void UpdateBook(LibationContext context, string productId)
         {
             var libraryBook = context.GetLibraryBook_Flat_NoTracking(productId);
             var term = new Term(_ID_, productId);
@@ -206,12 +206,12 @@ namespace LibationSearchEngine
             var document = createBookIndexDocument(libraryBook);
             var createNewIndex = false;
 
-			using var index = getIndex();
-			using var analyzer = new StandardAnalyzer(Version);
-			using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
-			ixWriter.DeleteDocuments(term);
-			ixWriter.AddDocument(document);
-		}
+            using var index = getIndex();
+            using var analyzer = new StandardAnalyzer(Version);
+            using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
+            ixWriter.DeleteDocuments(term);
+            ixWriter.AddDocument(document);
+        }
 
         private static Document createBookIndexDocument(LibraryBook libraryBook)
         {
@@ -262,7 +262,7 @@ namespace LibationSearchEngine
                 {
                     // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
                     // ie: must remove old before adding new else will create unwanted duplicates.
-                    d.RemoveField(fieldName);
+                    d.RemoveField(fieldName.ToLower());
                     d.AddAnalyzed(fieldName, newValue);
                 });
 
@@ -279,14 +279,32 @@ namespace LibationSearchEngine
                     // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
                     // ie: must remove old before adding new else will create unwanted duplicates.
                     var v1 = isLiberated(book);
-                    d.RemoveField("IsLiberated");
+                    d.RemoveField("isliberated");
                     d.AddBool("IsLiberated", v1);
-                    d.RemoveField("Liberated");
+                    d.RemoveField("liberated");
                     d.AddBool("Liberated", v1);
 
                     var v2 = liberatedError(book);
-                    d.RemoveField("LiberatedError");
+                    d.RemoveField("liberatederror");
                     d.AddBool("LiberatedError", v2);
+                });
+
+        public void UpdateUserRatings(Book book)
+            =>updateDocument(
+                book.AudibleProductId,
+                d =>
+                {
+                    //
+                    // TODO: better synonym handling. This is too easy to mess up
+                    //
+
+                    // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
+                    // ie: must remove old before adding new else will create unwanted duplicates.
+                    var v1 = userOverallRating(book);
+                    d.RemoveField("userrating");
+                    d.AddNotAnalyzed("UserRating", v1);
+                    d.RemoveField("myrating");
+                    d.AddNotAnalyzed("MyRating", v1);
                 });
 
         private static void updateDocument(string productId, Action<Document> action)
@@ -315,12 +333,12 @@ namespace LibationSearchEngine
             using var ixWriter = new IndexWriter(index, analyzer, createNewIndex, IndexWriter.MaxFieldLength.UNLIMITED);
             ixWriter.UpdateDocument(productTerm, document, analyzer);
         }
-		#endregion
+        #endregion
 
         // the workaround which allows displaying all books when query is empty
         public const string ALL_QUERY = "*:*";
 
-		#region search
+        #region search
         public SearchResultSet Search(string searchString)
         {
             Serilog.Log.Logger.Debug("original search string: {@DebugInfo}", new { searchString });
@@ -353,8 +371,8 @@ namespace LibationSearchEngine
             return searchString;
         }
 
-		#region format query string
-		private static string parseTag(string tagSearchString)
+        #region format query string
+        private static string parseTag(string tagSearchString)
         {
             var allMatches = LuceneRegex
                 .TagRegex
@@ -419,33 +437,33 @@ namespace LibationSearchEngine
         {
             var defaultField = ALL;
 
-			using var index = getIndex();
-			using var searcher = new IndexSearcher(index);
-			using var analyzer = new StandardAnalyzer(Version);
-			var query = analyzer.GetQuery(defaultField, searchString);
+            using var index = getIndex();
+            using var searcher = new IndexSearcher(index);
+            using var analyzer = new StandardAnalyzer(Version);
+            var query = analyzer.GetQuery(defaultField, searchString);
 
 
-			// lucene doesn't allow only negations. eg this returns nothing:
-			//     -tags:hidden
-			// work arounds: https://kb.ucla.edu/articles/pure-negation-query-in-lucene
-			// HOWEVER, doing this to any other type of query can cause EVERYTHING to be a match unless "Occur" is carefully set
-			// this should really check that all leaf nodes are MUST_NOT
-			if (query is BooleanQuery boolQuery)
-			{
-				var occurs = getOccurs_recurs(boolQuery);
-				if (occurs.Any() && occurs.All(o => o == Occur.MUST_NOT))
-					boolQuery.Add(new MatchAllDocsQuery(), Occur.MUST);
-			}
+            // lucene doesn't allow only negations. eg this returns nothing:
+            //     -tags:hidden
+            // work arounds: https://kb.ucla.edu/articles/pure-negation-query-in-lucene
+            // HOWEVER, doing this to any other type of query can cause EVERYTHING to be a match unless "Occur" is carefully set
+            // this should really check that all leaf nodes are MUST_NOT
+            if (query is BooleanQuery boolQuery)
+            {
+                var occurs = getOccurs_recurs(boolQuery);
+                if (occurs.Any() && occurs.All(o => o == Occur.MUST_NOT))
+                    boolQuery.Add(new MatchAllDocsQuery(), Occur.MUST);
+            }
 
-			var docs = searcher
-				.Search(query, searcher.MaxDoc + 1)
-				.ScoreDocs
-				.Select(ds => new ScoreDocExplicit(searcher.Doc(ds.Doc), ds.Score))
-				.ToList();
+            var docs = searcher
+                .Search(query, searcher.MaxDoc + 1)
+                .ScoreDocs
+                .Select(ds => new ScoreDocExplicit(searcher.Doc(ds.Doc), ds.Score))
+                .ToList();
             var queryString = query.ToString();
             Serilog.Log.Logger.Debug("query: {@DebugInfo}", new { queryString });
-			return new SearchResultSet(queryString, docs);
-		}
+            return new SearchResultSet(queryString, docs);
+        }
 
         private IEnumerable<Occur> getOccurs_recurs(BooleanQuery query)
         {
@@ -477,9 +495,9 @@ namespace LibationSearchEngine
             //        Serilog.Log.Logger.Debug($"   [{f.Name}]={f.StringValue}");
             //}
         }
-		#endregion
+        #endregion
 
-		private static Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
+        private static Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
 
         // not customizable. don't move to config
         private static string SearchEngineDirectory { get; }

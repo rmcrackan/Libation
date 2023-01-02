@@ -124,7 +124,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
-								<TextBlock Text="{Binding Description}" />
+								<TextBlock Text="{Binding Description}" FontSize="11" VerticalAlignment="Top" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
@@ -140,7 +140,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Width="120" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating" ClipboardContentBinding="{Binding ProductRating}">
+				<controls:DataGridTemplateColumnExt Width="115" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating" ClipboardContentBinding="{Binding ProductRating}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel  Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
@@ -160,15 +160,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Width="120" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRating}">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
-								<TextBlock Text="{Binding MyRating}" TextWrapping="NoWrap" FontSize="11" />
-							</Panel>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</controls:DataGridTemplateColumnExt>
+				<controls:DataGridMyRatingColumn IsReadOnly="false" Width="115" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRatingString}" Binding="{Binding MyRating, Mode=TwoWay}" />
 
 				<controls:DataGridTemplateColumnExt Width="135" Header="Misc" CanUserSort="True" SortMemberPath="Misc" ClipboardContentBinding="{Binding Misc}">
 					<DataGridTemplateColumn.CellTemplate>
