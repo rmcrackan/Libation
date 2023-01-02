@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
+using LibationFileManager;
 
 namespace LibationWinForms.ProcessQueue
 {
@@ -45,6 +47,9 @@ namespace LibationWinForms.ProcessQueue
 		public ProcessQueueControl()
 		{
 			InitializeComponent();
+
+			var speedLimitMBps = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
+			numericUpDown1.Value = speedLimitMBps > numericUpDown1.Maximum || speedLimitMBps < numericUpDown1.Minimum ? 0 : speedLimitMBps;
 
 			popoutBtn.DisplayStyle = ToolStripItemDisplayStyle.Text;
 			popoutBtn.Name = "popoutBtn";
@@ -424,5 +429,57 @@ This error appears to be caused by a temporary interruption of service that some
 		}
 
 		#endregion
+
+		private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+		{
+			var newValue = (long)(numericUpDown1.Value * 1024 * 1024);
+
+			var config = Configuration.Instance;
+			config.DownloadSpeedLimit = newValue;
+			if (config.DownloadSpeedLimit > newValue)
+				numericUpDown1.Value =
+					numericUpDown1.Value == 0.01m ? config.DownloadSpeedLimit / 1024m / 1024
+					: 0;
+
+			numericUpDown1.Increment =
+				numericUpDown1.Value > 100 ? 10
+				: numericUpDown1.Value > 10 ? 1
+				: numericUpDown1.Value > 1 ? 0.1m
+				: 0.01m;
+
+			numericUpDown1.DecimalPlaces =
+				numericUpDown1.Value >= 10 ? 0
+				: numericUpDown1.Value >= 1 ? 1
+				: 2;
+		}
+	}
+	public class NumericUpDownSuffix : NumericUpDown
+	{
+		[Description("Suffix displayed after numeric value."), Category("Data")]
+		[Browsable(true)]
+		[EditorBrowsable(EditorBrowsableState.Always)]
+		[DisallowNull]
+		public string Suffix
+		{
+			get => _suffix;
+			set
+			{
+				base.Text = string.IsNullOrEmpty(_suffix) ? base.Text : base.Text.Replace(_suffix, value);
+				_suffix = value;
+				ChangingText = true;
+			}
+		}
+		private string _suffix = string.Empty;
+		public override string Text
+		{
+			get => string.IsNullOrEmpty(Suffix) ? base.Text : base.Text.Replace(Suffix, string.Empty);
+			set
+			{
+				if (Value == Minimum)
+					base.Text = "∞";
+				else
+					base.Text = value + Suffix;
+			}
+		}
 	}
 }

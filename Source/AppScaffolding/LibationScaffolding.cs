@@ -176,6 +176,9 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.AutoDownloadEpisodes)))
 				config.AutoDownloadEpisodes = false;
+
+			if (!config.Exists(nameof(config.DownloadSpeedLimit)))
+				config.DownloadSpeedLimit = 0;
 		}
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>

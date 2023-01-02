@@ -172,7 +172,7 @@
 
 			</Grid>
 			<Border Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource DataGridGridLinesBrush}">
-				<SplitView IsPaneOpen="{Binding QueueOpen}" DisplayMode="Inline" OpenPaneLength="375" PanePlacement="Right">
+				<SplitView IsPaneOpen="{Binding QueueOpen}" DisplayMode="Inline" OpenPaneLength="400" MinWidth="400" PanePlacement="Right">
 
 					<!-- Process Queue -->
 					<SplitView.Pane>

@@ -4,9 +4,14 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:views="clr-namespace:LibationAvalonia.Views"
+	xmlns:viewModels="clr-namespace:LibationAvalonia.ViewModels"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="850"
+	mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="850"
 	x:Class="LibationAvalonia.Views.ProcessQueueControl">
+
+	<UserControl.Resources>
+		<views:DecimalConverter x:Key="myConverter" />
+	</UserControl.Resources>
 
 	<UserControl.Resources>
 		<RecyclePool x:Key="RecyclePool" />
@@ -32,25 +37,43 @@
 				<TabItem.Header>
 					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
 				</TabItem.Header>
-				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
+				<Grid Background="AliceBlue" ColumnDefinitions="*" RowDefinitions="*,40">
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource DataGridGridLinesBrush}" Background="WhiteSmoke">
 						<ScrollViewer
 							Name="scroller"
 							HorizontalScrollBarVisibility="Disabled"
 							VerticalScrollBarVisibility="Auto">
-								<ItemsRepeater IsVisible="True"
-									Grid.Column="0"
-									Name="repeater"
-									VerticalCacheLength="1.2"
-									HorizontalCacheLength="1"
-									Background="Transparent"
-									Items="{Binding Items}"
-									ItemTemplate="{StaticResource elementFactory}" />
+							<ItemsRepeater IsVisible="True"
+								Grid.Column="0"
+								Name="repeater"
+								VerticalCacheLength="1.2"
+								HorizontalCacheLength="1"
+								Background="Transparent"
+								Items="{Binding Items}"
+								ItemTemplate="{StaticResource elementFactory}" />
 						</ScrollViewer>
 					</Border>
-					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto" Margin="6,0,6,0">
-						<Button Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="CancelAllBtn_Click">Cancel All</Button>
-						<Button Grid.Column="1" FontSize="12" HorizontalAlignment="Right" Click="ClearFinishedBtn_Click">Clear Finished</Button>
+					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto,Auto">
+						<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="CancelAllBtn_Click">Cancel All</Button>
+						<StackPanel Orientation="Horizontal" Grid.Column="1" Margin="0,0,10,0" >
+							<StackPanel.Styles>
+								<Style Selector="NumericUpDown#PART_Spinner">
+									<Setter Property="Background" Value="Black"/>
+								</Style>
+							</StackPanel.Styles>
+							<TextBlock Margin="0,0,6,0" FontSize="11" Text="DL&#xA;Limit" VerticalAlignment="Center" />
+							<NumericUpDown
+								FontSize="12"
+								VerticalContentAlignment="Center"
+								TextConverter="{StaticResource myConverter}"
+								Height="{Binding #cancelAllBtn.DesiredSize.Height}"
+								Value="{Binding SpeedLimit, Mode=TwoWay}"
+								Minimum="0"
+								KeyDown="NumericUpDown_KeyDown"
+								Increment="{Binding SpeedLimitIncrement}"
+								Maximum="999" />
+						</StackPanel>
+						<Button Grid.Column="2" FontSize="12" HorizontalAlignment="Right" Click="ClearFinishedBtn_Click">Clear Finished</Button>
 					</Grid>
 				</Grid>
 			</TabItem>

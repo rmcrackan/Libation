@@ -31,6 +31,8 @@ namespace LibationWinForms.GridView
 		public override Type EditType => typeof(MyRatingCellEditor);
 		public override Type ValueType => typeof(Rating);
 
+		public MyRatingGridViewCell() { ToolTipText = "Click to change ratings"; }
+
 		public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
 		{
 			base.InitializeEditingControl(rowIndex, initialFormattedValue, dataGridViewCellStyle);
@@ -43,7 +45,7 @@ namespace LibationWinForms.GridView
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates cellState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
 			if (value is Rating rating)
-			{				
+			{
 				ToolTipText = "Click to change ratings";
 
 				var starString = rating.ToStarString();

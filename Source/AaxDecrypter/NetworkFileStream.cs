@@ -41,6 +41,10 @@ namespace AaxDecrypter
 		[JsonIgnore]
 		public bool IsCancelled => _cancellationSource.IsCancellationRequested;
 
+		private static long _globalSpeedLimit = 0;
+		/// <summary>bytes per second</summary>
+		public static long GlobalSpeedLimit { get => _globalSpeedLimit; set => _globalSpeedLimit = value <= 0 ? 0 : Math.Max(value, MIN_BYTES_PER_SECOND); }
+
 		#endregion
 
 		#region Private Properties
@@ -60,6 +64,13 @@ namespace AaxDecrypter
 		//NetworkFileStream will flush all data in _writeFile to disk after every
 		//DATA_FLUSH_SZ bytes are written to the file stream.
 		private const int DATA_FLUSH_SZ = 1024 * 1024;
+
+		//Number of times per second the download rate is checkd and throttled
+		private const int THROTTLE_FREQUENCY = 8;
+
+		//Minimum throttle rate. The minimum amount of data that can be throttled
+		//on each iteration of the download loop is DOWNLOAD_BUFF_SZ.
+		private const int MIN_BYTES_PER_SECOND = DOWNLOAD_BUFF_SZ * THROTTLE_FREQUENCY;
 
 		#endregion
 
@@ -168,6 +179,8 @@ namespace AaxDecrypter
 
 			try
 			{
+				DateTime startTime = DateTime.Now;
+				long bytesReadSinceThrottle = 0;
 				int bytesRead;
 				do
 				{
@@ -185,6 +198,22 @@ namespace AaxDecrypter
 						_downloadedPiece.Set();
 					}
 
+					#region throttle
+
+					bytesReadSinceThrottle += bytesRead;
+
+					if (GlobalSpeedLimit >= MIN_BYTES_PER_SECOND && bytesReadSinceThrottle > GlobalSpeedLimit / THROTTLE_FREQUENCY)
+					{
+						var delayMS = (int)(startTime.AddSeconds(1d / THROTTLE_FREQUENCY) - DateTime.Now).TotalMilliseconds;
+						if (delayMS > 0)
+							await Task.Delay(delayMS, _cancellationSource.Token);
+
+						startTime = DateTime.Now;
+						bytesReadSinceThrottle = 0;
+					}
+
+					#endregion
+
 				} while (downloadPosition < ContentLength && !IsCancelled && bytesRead > 0);
 
 				WritePosition = downloadPosition;
@@ -195,9 +224,9 @@ namespace AaxDecrypter
 				if (WritePosition > ContentLength)
 					throw new WebException($"Downloaded size (0x{WritePosition:X10}) is greater than {nameof(ContentLength)} (0x{ContentLength:X10}).");
 			}
-			catch (Exception ex)
+			catch (TaskCanceledException)
 			{
-				Serilog.Log.Error(ex, "An error was encountered while downloading {Uri}", Uri);
+				Serilog.Log.Information("Download was cancelled");
 			}
 			finally
 			{
