@@ -1,11 +1,13 @@
-using ApplicationServices;
+﻿using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace LibationAvalonia.Views
@@ -86,6 +88,11 @@ namespace LibationAvalonia.Views
 			#endregion
 		}
 
+		public void NumericUpDown_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
+		{
+			if (e.Key == Avalonia.Input.Key.Enter && sender is Avalonia.Input.IInputElement input) input.Focus();
+		}
+
 		private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
@@ -147,5 +154,42 @@ namespace LibationAvalonia.Views
 		}
 
 		#endregion
+	}
+
+	public class DecimalConverter : IValueConverter
+	{
+		public static readonly DecimalConverter Instance = new();
+
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if (value is string sourceText && targetType.IsAssignableTo(typeof(decimal?)))
+			{
+				if (sourceText == "∞") return 0;
+
+				for (int i = sourceText.Length; i > 0; i--)
+				{
+					if (decimal.TryParse(sourceText[..i], out var val))
+						return val;
+				}
+
+				return 0;
+			}
+			return 0;
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if (value is decimal val)
+			{
+				return
+					val == 0 ? "∞"
+					: (
+						val >= 10 ? ((long)val).ToString()
+						: val >= 1 ? val.ToString("F1")
+						: val.ToString("F2")
+					) + " MB/s";
+			}
+			return value.ToString();
+		}
 	}
 }

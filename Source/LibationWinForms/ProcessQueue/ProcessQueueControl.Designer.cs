@@ -43,6 +43,8 @@
 			this.panel3 = new System.Windows.Forms.Panel();
 			this.virtualFlowControl2 = new LibationWinForms.ProcessQueue.VirtualFlowControl();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.label1 = new System.Windows.Forms.Label();
+			this.numericUpDown1 = new LibationWinForms.ProcessQueue.NumericUpDownSuffix();
 			this.btnCleanFinished = new System.Windows.Forms.Button();
 			this.cancelAllBtn = new System.Windows.Forms.Button();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -58,6 +60,7 @@
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.panel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
 			this.tabPage2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.logDGV)).BeginInit();
 			this.panel2.SuspendLayout();
@@ -166,6 +169,8 @@
 			// 
 			this.panel1.BackColor = System.Drawing.SystemColors.Control;
 			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.panel1.Controls.Add(this.label1);
+			this.panel1.Controls.Add(this.numericUpDown1);
 			this.panel1.Controls.Add(this.btnCleanFinished);
 			this.panel1.Controls.Add(this.cancelAllBtn);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -173,6 +178,44 @@
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(390, 25);
 			this.panel1.TabIndex = 2;
+			// 
+			// label1
+			// 
+			this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(148, 4);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(54, 15);
+			this.label1.TabIndex = 5;
+			this.label1.Text = "DL Limit:";
+			// 
+			// numericUpDown1
+			// 
+			this.numericUpDown1.Anchor = System.Windows.Forms.AnchorStyles.Right;
+			this.numericUpDown1.DecimalPlaces = 1;
+			this.numericUpDown1.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+			this.numericUpDown1.Location = new System.Drawing.Point(208, 0);
+			this.numericUpDown1.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+			this.numericUpDown1.Name = "numericUpDown1";
+			this.numericUpDown1.Size = new System.Drawing.Size(84, 23);
+			this.numericUpDown1.Suffix = " MB/s";
+			this.numericUpDown1.TabIndex = 4;
+			this.numericUpDown1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+			this.numericUpDown1.ThousandsSeparator = true;
+			this.numericUpDown1.Value = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+			this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
 			// 
 			// btnCleanFinished
 			// 
@@ -305,6 +348,8 @@
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
 			this.panel1.ResumeLayout(false);
+			this.panel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
 			this.tabPage2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.logDGV)).EndInit();
 			this.panel2.ResumeLayout(false);
@@ -337,5 +382,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn timestampColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn logEntryColumn;
 		private System.Windows.Forms.Button logCopyBtn;
+		private NumericUpDownSuffix numericUpDown1;
+		private System.Windows.Forms.Label label1;
 	}
 }

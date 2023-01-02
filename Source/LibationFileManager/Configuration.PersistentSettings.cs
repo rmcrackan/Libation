@@ -274,9 +274,24 @@ namespace LibationFileManager
             set => persistentDictionary.SetNonString(nameof(SavePodcastsToParentFolder), value);
         }
 
-        #region templates: custom file naming
+		[Description("Global download speed limit in bytes per second.")]
+		public long DownloadSpeedLimit
+		{
+            get
+            {
+                AaxDecrypter.NetworkFileStream.GlobalSpeedLimit = persistentDictionary.GetNonString<long>(nameof(DownloadSpeedLimit));
+                return AaxDecrypter.NetworkFileStream.GlobalSpeedLimit;
+			}
+            set
+            {
+                AaxDecrypter.NetworkFileStream.GlobalSpeedLimit = value;
+				persistentDictionary.SetNonString(nameof(DownloadSpeedLimit), AaxDecrypter.NetworkFileStream.GlobalSpeedLimit);
+            }
+		}
 
-        [Description("Edit how filename characters are replaced")]
+		#region templates: custom file naming
+
+		[Description("Edit how filename characters are replaced")]
         public ReplacementCharacters ReplacementCharacters
         {
             get => persistentDictionary.GetNonString<ReplacementCharacters>(nameof(ReplacementCharacters));

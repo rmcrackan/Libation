@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Threading;
 using DataLayer;
+using LibationFileManager;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -25,9 +26,14 @@ namespace LibationAvalonia.ViewModels
 
 		public ProcessQueueViewModel()
 		{
+			Logger = LogMe.RegisterForm(this);
 			Queue.QueuededCountChanged += Queue_QueuededCountChanged;
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
-			Logger = LogMe.RegisterForm(this);
+
+			if (Design.IsDesignMode)
+					AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+
+			SpeedLimit = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
 		}
 
 		private int _completedCount;
@@ -35,6 +41,7 @@ namespace LibationAvalonia.ViewModels
 		private int _queuedCount;
 		private string _runningTime;
 		private bool _progressBarVisible;
+		private decimal _speedLimit;
 
 		public int CompletedCount { get => _completedCount; private set { this.RaiseAndSetIfChanged(ref _completedCount, value); this.RaisePropertyChanged(nameof(AnyCompleted)); } }
 		public int QueuedCount { get => _queuedCount; private set { this.RaiseAndSetIfChanged(ref _queuedCount, value); this.RaisePropertyChanged(nameof(AnyQueued)); } }
@@ -45,6 +52,37 @@ namespace LibationAvalonia.ViewModels
 		public bool AnyQueued => QueuedCount > 0;
 		public bool AnyErrors => ErrorCount > 0;
 		public double Progress => 100d * Queue.Completed.Count / Queue.Count;
+
+		public decimal SpeedLimit
+		{
+			get
+			{
+				return _speedLimit;
+			}
+			set
+			{
+				var newValue = Math.Min(999 * 1024 * 1024, (long)(value * 1024 * 1024));
+				var config = Configuration.Instance;
+				config.DownloadSpeedLimit = newValue;
+
+				_speedLimit
+					= config.DownloadSpeedLimit <= newValue ? value
+					: value == 0.01m ? config.DownloadSpeedLimit / 1024m / 1024
+					: 0;
+
+				config.DownloadSpeedLimit = (long)(_speedLimit * 1024 * 1024);
+
+				SpeedLimitIncrement = _speedLimit > 100 ? 10
+					: _speedLimit > 10 ? 1
+					: _speedLimit > 1 ? 0.1m
+					: 0.01m;
+
+				this.RaisePropertyChanged(nameof(SpeedLimitIncrement));
+				this.RaisePropertyChanged();
+			}
+		}
+
+		public decimal SpeedLimitIncrement { get; private set; }
 
 		private void Queue_CompletedCountChanged(object sender, int e)
 		{

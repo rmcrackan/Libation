@@ -15,6 +15,7 @@ namespace LibationWinForms
 		private void Configure_ProcessQueue()
 		{
 			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
+			splitContainer1.Panel2MinSize = 350;
 			var coppalseState = Configuration.Instance.GetNonString<bool>(nameof(splitContainer1.Panel2Collapsed));
 			WidthChange = splitContainer1.Panel2.Width + splitContainer1.SplitterWidth;
 			int width = this.Width;
