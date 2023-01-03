@@ -45,6 +45,9 @@ namespace LibationAvalonia.Views
 			Configure_Export();
 			Configure_Settings();
 			Configure_ProcessQueue();
+#if DEBUG
+			Configure_Update();
+#endif
 			Configure_Filter();
 			// misc which belongs in winforms app but doesn't have a UI element
 			Configure_NonUI();
@@ -58,124 +61,12 @@ namespace LibationAvalonia.Views
 				LibraryCommands.LibrarySizeChanged += async (_, _) => await _viewModel.ProductsDisplay.DisplayBooksAsync(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
-			Opened += MainWindow_Opened;
 			Closing += MainWindow_Closing;
 		}
 
 		private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			productsDisplay?.CloseImageDisplay();
-		}
-
-		private async void MainWindow_Opened(object sender, EventArgs e)
-		{
-#if !DEBUG
-			//This is temporaty until we have a solution for linux/mac so that
-			//Libation doesn't download a zip every time it runs.
-			if (!Configuration.IsWindows)
-				return;
-
-			try
-			{
-				(string zipFile, UpgradeProperties upgradeProperties) = await Task.Run(downloadUpdate);
-
-				if (string.IsNullOrEmpty(zipFile) || !System.IO.File.Exists(zipFile))
-					return;
-
-				var result = await MessageBox.Show($"{upgradeProperties.HtmlUrl}\r\n\r\nWould you like to upgrade now?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-
-				if (result != DialogResult.Yes)
-					return;
-
-				if (Configuration.IsWindows)
-				{
-					runWindowsUpgrader(zipFile);
-				}
-				else if (Configuration.IsLinux)
-				{
-
-				}
-				else if (Configuration.IsMacOs)
-				{
-
-				}
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "An error occured while checking for app updates.");
-				return;
-			}
-#endif
-		}
-
-		private async Task<(string zipFile, UpgradeProperties release)> downloadUpdate()
-		{
-			UpgradeProperties upgradeProperties;
-			try
-			{
-				upgradeProperties = LibationScaffolding.GetLatestRelease();
-				if (upgradeProperties is null)
-					return (null,null);
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Failed to check for update");
-				return (null, null);
-			}
-
-			if (upgradeProperties.ZipUrl is null)
-			{
-				Serilog.Log.Logger.Information("Download link for new version not found");
-				return (null, null);
-			}
-
-			//Silently download the update in the background, save it to a temp file.
-
-			var zipFile = System.IO.Path.GetTempFileName();
-			try
-			{
-				System.Net.Http.HttpClient cli = new();
-				using var fs = System.IO.File.OpenWrite(zipFile);
-				using var dlStream = await cli.GetStreamAsync(new Uri(upgradeProperties.ZipUrl));
-					await dlStream.CopyToAsync(fs);
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Failed to download the update: {pdate}", upgradeProperties.ZipUrl);
-				return (null, null);
-			}
-			return (zipFile, upgradeProperties);
-		}
-
-		private void runWindowsUpgrader(string zipFile)
-		{
-			var thisExe = Environment.ProcessPath;
-			var thisDir = System.IO.Path.GetDirectoryName(thisExe);
-
-			var zipExtractor = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ZipExtractor.exe");
-
-			System.IO.File.Copy("ZipExtractor.exe", zipExtractor, overwrite: true);
-
-			var psi = new System.Diagnostics.ProcessStartInfo()
-			{
-				FileName = zipExtractor,
-				UseShellExecute = true,
-				Verb = "runas",
-				WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal,
-				CreateNoWindow = true,
-				ArgumentList =
-				{
-					"--input",
-					zipFile,
-					"--output",
-					thisDir,
-					"--executable",
-					thisExe
-				}
-			};
-
-			System.Diagnostics.Process.Start(psi);
-			Environment.Exit(0);
 		}
 
 		private async void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
