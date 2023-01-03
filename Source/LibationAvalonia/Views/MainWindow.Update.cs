@@ -100,12 +100,7 @@ namespace LibationAvalonia.Views
 					if (config.GetObject(ignoreUpdate)?.ToString() == upgradeProperties.LatestRelease.ToString())
 						return;
 
-					var notificationResult =
-						await new UpgradeNotification(
-						upgradeProperties.LatestRelease,
-						upgradeProperties.ZipUrl,
-						upgradeProperties.ZipName)
-						.ShowDialog<DialogResult>(this);
+					var notificationResult = await new UpgradeNotification(upgradeProperties).ShowDialog<DialogResult>(this);
 
 					if (notificationResult == DialogResult.Ignore)
 						config.SetObject(ignoreUpdate, upgradeProperties.LatestRelease.ToString());

@@ -1,3 +1,4 @@
+using AppScaffolding;
 using Avalonia.Controls;
 using Dinah.Core;
 using System;
@@ -21,11 +22,11 @@ namespace LibationAvalonia.Dialogs
 			InitializeComponent();
 		}
 
-		public UpgradeNotification(Version version, string packageUrl, string zipFileName) : this()
+		public UpgradeNotification(UpgradeProperties upgradeProperties) : this()
 		{
-			VersionText = $"Libation version {version.ToString(3)} is now available.";
-			PackageUrl = packageUrl;
-			DownloadLinkText = $"Download {zipFileName}";
+			VersionText = $"Libation version {upgradeProperties.LatestRelease.ToString(3)} is now available.";
+			PackageUrl = upgradeProperties.ZipUrl;
+			DownloadLinkText = $"Download {upgradeProperties.ZipName}";
 			DataContext = this;
 		}
 
