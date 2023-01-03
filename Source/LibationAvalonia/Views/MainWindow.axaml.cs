@@ -45,7 +45,7 @@ namespace LibationAvalonia.Views
 			Configure_Export();
 			Configure_Settings();
 			Configure_ProcessQueue();
-#if DEBUG
+#if !DEBUG
 			Configure_Update();
 #endif
 			Configure_Filter();

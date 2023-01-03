@@ -21,6 +21,14 @@ namespace LibationAvalonia.Dialogs
 			InitializeComponent();
 		}
 
+		public UpgradeNotification(Version version, string packageUrl, string zipFileName) : this()
+		{
+			VersionText = $"Libation version {version.ToString(3)} is now available.";
+			PackageUrl = packageUrl;
+			DownloadLinkText = $"Download {zipFileName}";
+			DataContext = this;
+		}
+
 		public void OK_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e) => Close(DialogResult.OK);
 		public void DontRemind_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e) => Close(DialogResult.Ignore);
 		public void Download_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
@@ -29,13 +37,5 @@ namespace LibationAvalonia.Dialogs
 			=> Go.To.Url("ht" + "tps://getlibation.com");
 		public void Github_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 			=> Go.To.Url("ht" + "tps://github.com/rmcrackan/Libation");
-
-		public UpgradeNotification(Version version, string packageUrl, string zipFileName) : this()
-		{
-			VersionText = $"Libation version {version.ToString(3)} is now available.";
-			PackageUrl = packageUrl;
-			DownloadLinkText = $"Download {zipFileName}";
-			DataContext = this;
-		}
 	}
 }
