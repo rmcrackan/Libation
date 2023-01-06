@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs
@@ -74,11 +75,30 @@ namespace LibationWinForms.Dialogs
 
 		#region Buttons
 
-		private void exportCheckedBtn_Click(object sender, EventArgs e)
-			=> saveRecords(bookRecordEntries.Where(r => r.IsChecked).Select(r => r.Record));
+		private void setControlEnabled(object control, bool enabled)
+		{
+			if (control is Control c)
+			{
+				if (c.InvokeRequired)
+					c.Invoke(new MethodInvoker(() => c.Enabled = enabled));
+				else
+					c.Enabled = enabled;
+			}
+		}
 
-		private void exportAllBtn_Click(object sender, EventArgs e)
-			=> saveRecords(bookRecordEntries.Select(r => r.Record));
+		private async void exportCheckedBtn_Click(object sender, EventArgs e)
+		{
+			setControlEnabled(sender, false);
+			await saveRecords(bookRecordEntries.Where(r => r.IsChecked).Select(r => r.Record));
+			setControlEnabled(sender, true);
+		}
+
+		private async void exportAllBtn_Click(object sender, EventArgs e)
+		{
+			setControlEnabled(sender, false);
+			await saveRecords(bookRecordEntries.Select(r => r.Record));
+			setControlEnabled(sender, true);
+		}
 
 		private void uncheckAllBtn_Click(object sender, EventArgs e)
 		{
@@ -98,6 +118,8 @@ namespace LibationWinForms.Dialogs
 
 			if (!records.Any()) return;
 
+			setControlEnabled(sender, false);
+
 			bool success = false;
 			try
 			{
@@ -114,26 +136,49 @@ namespace LibationWinForms.Dialogs
 			{
 				Serilog.Log.Error(ex, ex.Message);
 			}
+			finally { setControlEnabled(sender, true); }
+
 			if (!success)
 				MessageBox.Show(this, $"Libation was unable to delete the {records.Count} selected records", "Deletion Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
+		private async void reloadAllBtn_Click(object sender, EventArgs e)
+		{
+			setControlEnabled(sender, false);
+
+			try
+			{
+				var api = await libraryBook.GetApiAsync();
+				var records = await api.GetRecordsAsync(libraryBook.Book.AudibleProductId);
+
+				bookRecordEntries = new BookRecordBindingList(records.Select(r => new BookRecordEntry(r)));
+				syncBindingSource.DataSource = bookRecordEntries;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, ex.Message);
+				MessageBox.Show(this, $"Libation was unable to to reload records", "Reload Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+			finally { setControlEnabled(sender, true); }
+		}
+
 		#endregion
 
-		private void saveRecords(IEnumerable<IRecord> records)
+		private async Task saveRecords(IEnumerable<IRecord> records)
 		{
 			try
 			{
-				var saveFileDialog = new SaveFileDialog
-				{
-					Title = "Where to export records",
-					AddExtension = true,
-					FileName = $"{libraryBook.Book.Title} - Records",
-					DefaultExt = "xlsx",
-					Filter = "Excel Workbook (*.xlsx)|*.xlsx|CSV files (*.csv)|*.csv|JSON files (*.json)|*.json" // + "|All files (*.*)|*.*"
-				};
+				var saveFileDialog = 
+					Invoke(() => new SaveFileDialog
+					{
+						Title = "Where to export records",
+						AddExtension = true,
+						FileName = $"{libraryBook.Book.Title} - Records",
+						DefaultExt = "xlsx",
+						Filter = "Excel Workbook (*.xlsx)|*.xlsx|CSV files (*.csv)|*.csv|JSON files (*.json)|*.json" // + "|All files (*.*)|*.*"
+					});
 
-				if (saveFileDialog.ShowDialog() != DialogResult.OK)
+				if (Invoke(saveFileDialog.ShowDialog) != DialogResult.OK)
 					return;
 
 				// FilterIndex is 1-based, NOT 0-based
@@ -141,13 +186,13 @@ namespace LibationWinForms.Dialogs
 				{
 					case 1: // xlsx
 					default:
-						RecordExporter.ToXlsx(saveFileDialog.FileName, records);
+						await Task.Run(() => RecordExporter.ToXlsx(saveFileDialog.FileName, records));
 						break;
 					case 2: // csv
-						RecordExporter.ToCsv(saveFileDialog.FileName, records);
+						await Task.Run(() => RecordExporter.ToCsv(saveFileDialog.FileName, records));
 						break;
 					case 3: // json
-						RecordExporter.ToJson(saveFileDialog.FileName, libraryBook, records);
+						await Task.Run(() => RecordExporter.ToJson(saveFileDialog.FileName, libraryBook, records));
 						break;
 				}
 			}
@@ -163,7 +208,7 @@ namespace LibationWinForms.Dialogs
 			base.OnKeyDown(e);
 		}
 
-		#region dataGridView Bindings
+		#region DataGridView Bindings
 
 		private class BookRecordBindingList : BindingList<BookRecordEntry>
 		{

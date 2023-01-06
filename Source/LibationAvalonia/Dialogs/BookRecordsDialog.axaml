@@ -1,0 +1,139 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
+		Width="700" Height="450"
+        x:Class="LibationAvalonia.Dialogs.BookRecordsDialog"
+        Title="BookRecordsDialog"
+		Icon="/Assets/libation.ico">
+
+	<Grid RowDefinitions="*,Auto">
+
+		<Grid.Styles>
+			<Style Selector="Button:focus">
+				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderThickness" Value="2" />
+			</Style>
+		</Grid.Styles>
+
+		<DataGrid
+			Grid.Row="0"
+			CanUserReorderColumns="True"
+			CanUserResizeColumns="True"
+			CanUserSortColumns="True"
+			AutoGenerateColumns="False"
+			IsReadOnly="False"
+			Items="{Binding DataGridCollectionView}"
+			GridLinesVisibility="All">
+
+			<DataGrid.Styles>
+				<Style Selector="DataGridColumnHeader">
+					<Setter Property="HorizontalContentAlignment" Value="Center" />
+				</Style>
+				<Style Selector="DataGridCell">
+					<Setter Property="HorizontalContentAlignment" Value="Center" />
+				</Style>
+			</DataGrid.Styles>
+
+			<DataGrid.Columns>
+
+				<DataGridCheckBoxColumn
+					Width="Auto"
+					IsReadOnly="False"
+					Binding="{Binding IsChecked, Mode=TwoWay}"
+					Header="Checked"/>
+				<DataGridTextColumn
+					Width="Auto"
+					IsReadOnly="True"
+					Binding="{Binding Type}"
+					Header="Type"/>
+				<DataGridTextColumn
+					Width="Auto"
+					IsReadOnly="True"
+					Binding="{Binding Created}"
+					Header="Created"/>
+				<DataGridTextColumn
+					Width="Auto"
+					IsReadOnly="True"
+					Binding="{Binding Start}"
+					Header="Start"/>
+				<DataGridTextColumn
+					Width="Auto"
+					IsReadOnly="True"
+					Binding="{Binding Modified}"
+					Header="Modified"/>
+				<DataGridTextColumn
+					Width="Auto"
+					IsReadOnly="True"
+					Binding="{Binding End}"
+					Header="End"/>
+				<DataGridTextColumn
+					Width="Auto"
+					IsReadOnly="True"
+					Binding="{Binding Note}"
+					Header="Note"/>
+				<DataGridTextColumn
+					Width="Auto"
+					IsReadOnly="True"
+					Binding="{Binding Title}"
+					Header="Title"/>
+
+
+
+			</DataGrid.Columns>
+		</DataGrid>
+		<Grid
+			Grid.Row="1"
+			Margin="10"
+			ColumnDefinitions="Auto,Auto,*,Auto"
+			RowDefinitions="Auto,Auto">
+			<Grid.Styles>
+				<Style Selector="Button">
+					<Setter Property="HorizontalAlignment" Value="Stretch"/>
+					<Setter Property="HorizontalContentAlignment" Value="Center"/>
+					<Setter Property="Margin" Value="0,10,0,0"/>
+					<Setter Property="Height" Value="30"/>
+				</Style>
+			</Grid.Styles>
+
+			<Button
+				Grid.Column="0"
+				Grid.Row="0"
+				Content="Check All"
+				Click="CheckAll_Click"/>
+
+			<Button
+				Grid.Column="0"
+				Grid.Row="1"
+				Content="Uncheck All"
+				Click="UncheckAll_Click"/>
+			
+			<Button
+				Grid.Column="1"
+				Grid.Row="0"
+				Margin="20,10,0,0"
+				Content="Delete Checked"
+				Click="DeleteChecked_Click"/>
+
+			<Button
+				Grid.Column="1"
+				Grid.Row="1"
+				Margin="20,10,0,0"
+				Content="Reload All"
+				Click="ReloadAll_Click"/>
+
+			<Button
+				Grid.Column="3"
+				Grid.Row="0"
+				Content="Export Checked"
+				Click="ExportChecked_Click"/>
+
+			<Button
+				Grid.Column="3"
+				Grid.Row="1"
+				Content="Export All"
+				Click="ExportAll_Click"/>
+		</Grid>
+	</Grid>
+</Window>

@@ -44,6 +44,7 @@
 			this.deleteCheckedBtn = new System.Windows.Forms.Button();
 			this.exportAllBtn = new System.Windows.Forms.Button();
 			this.exportCheckedBtn = new System.Windows.Forms.Button();
+			this.reloadAllBtn = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
 			this.SuspendLayout();
@@ -70,7 +71,7 @@
 			this.dataGridView1.Name = "dataGridView1";
 			this.dataGridView1.RowHeadersVisible = false;
 			this.dataGridView1.RowTemplate.Height = 25;
-			this.dataGridView1.Size = new System.Drawing.Size(334, 291);
+			this.dataGridView1.Size = new System.Drawing.Size(491, 291);
 			this.dataGridView1.TabIndex = 0;
 			// 
 			// checkboxColumn
@@ -158,7 +159,7 @@
 			this.deleteCheckedBtn.Location = new System.Drawing.Point(115, 297);
 			this.deleteCheckedBtn.Margin = new System.Windows.Forms.Padding(20, 3, 3, 3);
 			this.deleteCheckedBtn.Name = "deleteCheckedBtn";
-			this.deleteCheckedBtn.Size = new System.Drawing.Size(61, 52);
+			this.deleteCheckedBtn.Size = new System.Drawing.Size(97, 23);
 			this.deleteCheckedBtn.TabIndex = 3;
 			this.deleteCheckedBtn.Text = "Delete Checked";
 			this.deleteCheckedBtn.UseVisualStyleBackColor = true;
@@ -167,7 +168,7 @@
 			// exportAllBtn
 			// 
 			this.exportAllBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.exportAllBtn.Location = new System.Drawing.Point(221, 326);
+			this.exportAllBtn.Location = new System.Drawing.Point(378, 326);
 			this.exportAllBtn.Name = "exportAllBtn";
 			this.exportAllBtn.Size = new System.Drawing.Size(101, 23);
 			this.exportAllBtn.TabIndex = 4;
@@ -178,7 +179,7 @@
 			// exportCheckedBtn
 			// 
 			this.exportCheckedBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.exportCheckedBtn.Location = new System.Drawing.Point(221, 297);
+			this.exportCheckedBtn.Location = new System.Drawing.Point(378, 297);
 			this.exportCheckedBtn.Name = "exportCheckedBtn";
 			this.exportCheckedBtn.Size = new System.Drawing.Size(101, 23);
 			this.exportCheckedBtn.TabIndex = 5;
@@ -186,11 +187,24 @@
 			this.exportCheckedBtn.UseVisualStyleBackColor = true;
 			this.exportCheckedBtn.Click += new System.EventHandler(this.exportCheckedBtn_Click);
 			// 
+			// reloadAllBtn
+			// 
+			this.reloadAllBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.reloadAllBtn.Location = new System.Drawing.Point(115, 326);
+			this.reloadAllBtn.Margin = new System.Windows.Forms.Padding(20, 3, 3, 3);
+			this.reloadAllBtn.Name = "reloadAllBtn";
+			this.reloadAllBtn.Size = new System.Drawing.Size(97, 23);
+			this.reloadAllBtn.TabIndex = 6;
+			this.reloadAllBtn.Text = "Reload All";
+			this.reloadAllBtn.UseVisualStyleBackColor = true;
+			this.reloadAllBtn.Click += new System.EventHandler(this.reloadAllBtn_Click);
+			// 
 			// BookRecordsDialog
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(334, 361);
+			this.ClientSize = new System.Drawing.Size(491, 361);
+			this.Controls.Add(this.reloadAllBtn);
 			this.Controls.Add(this.exportCheckedBtn);
 			this.Controls.Add(this.exportAllBtn);
 			this.Controls.Add(this.deleteCheckedBtn);
@@ -200,7 +214,7 @@
 			this.KeyPreview = true;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
-			this.MinimumSize = new System.Drawing.Size(350, 400);
+			this.MinimumSize = new System.Drawing.Size(507, 400);
 			this.Name = "BookRecordsDialog";
 			this.Text = "Book Dialog";
 			this.Shown += new System.EventHandler(this.BookRecordsDialog_Shown);
@@ -227,5 +241,6 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn endTimeColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn noteColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn titleColumn;
+		private System.Windows.Forms.Button reloadAllBtn;
 	}
 }

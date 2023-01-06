@@ -37,7 +37,7 @@
 				<TabItem.Header>
 					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
 				</TabItem.Header>
-				<Grid Background="AliceBlue" ColumnDefinitions="*" RowDefinitions="*,40">
+				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource DataGridGridLinesBrush}" Background="WhiteSmoke">
 						<ScrollViewer
 							Name="scroller"
