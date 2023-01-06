@@ -71,6 +71,15 @@ namespace LibationWinForms.GridView
 					&& updateReviewTask?.IsCompleted is not false)
 				{
 					updateReviewTask = UpdateRating(value);
+					updateReviewTask.ContinueWith(t =>
+					{
+						if (t.Result)
+						{
+							_myRating = value;
+							LibraryBook.Book.UpdateUserDefinedItem(Book.UserDefinedItem.Tags, Book.UserDefinedItem.BookStatus, Book.UserDefinedItem.PdfStatus, value);
+						}
+						NotifyPropertyChanged();
+					});
 				}
 			}
 		}
@@ -80,18 +89,12 @@ namespace LibationWinForms.GridView
 
 		#region User rating
 
-		private Task updateReviewTask;
-		private async Task UpdateRating(Rating rating)
+		private Task<bool> updateReviewTask;
+		private async Task<bool> UpdateRating(Rating rating)
 		{
 			var api = await LibraryBook.GetApiAsync();
 
-			if (await api.ReviewAsync(Book.AudibleProductId, (int)rating.OverallRating, (int)rating.PerformanceRating, (int)rating.StoryRating))
-			{
-				_myRating = rating;
-				LibraryBook.Book.UpdateUserDefinedItem(Book.UserDefinedItem.Tags, Book.UserDefinedItem.BookStatus, Book.UserDefinedItem.PdfStatus, rating);
-			}
-
-			this.NotifyPropertyChanged(nameof(MyRating));
+			return await api.ReviewAsync(Book.AudibleProductId, (int)rating.OverallRating, (int)rating.PerformanceRating, (int)rating.StoryRating);
 		}
 		#endregion
 

@@ -93,7 +93,7 @@ namespace LibationAvalonia
 				saveState.Width = (int)form.Bounds.Size.Width;
 				saveState.Height = (int)form.Bounds.Size.Height;
 
-				config.SetObject(form.GetType().Name, saveState);
+				config.SetNonString(saveState, form.GetType().Name);
 			}
 			catch (Exception ex)
 			{

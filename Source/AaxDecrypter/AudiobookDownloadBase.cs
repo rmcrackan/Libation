@@ -48,9 +48,16 @@ namespace AaxDecrypter
 			TempFilePath = Path.ChangeExtension(jsonDownloadState, ".aaxc");
 
 			DownloadOptions = ArgumentValidator.EnsureNotNull(dlOptions, nameof(dlOptions));
+			DownloadOptions.PropertyChanged += DownloadOptions_PropertyChanged;
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
+		}
+
+		private void DownloadOptions_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(DownloadOptions.DownloadSpeedBps))
+				InputFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
 		}
 
 		public abstract Task CancelAsync();
@@ -132,14 +139,27 @@ namespace AaxDecrypter
 			return success;
 		}
 
+		protected async Task<bool> Step_DownloadClipsBookmarks()
+		{
+			if (!IsCanceled && DownloadOptions.DownloadClipsBookmarks)
+			{
+				var recordsFile = await DownloadOptions.SaveClipsAndBookmarks(OutputFileName);
+
+				if (File.Exists(recordsFile))
+					OnFileCreated(recordsFile);
+			}
+			return !IsCanceled;
+		}
+
 		private NetworkFileStreamPersister OpenNetworkFileStream()
 		{
-			if (!File.Exists(jsonDownloadState))
-				return NewNetworkFilePersister();
-
+			NetworkFileStreamPersister nfsp = default;
 			try
 			{
-				var nfsp = new NetworkFileStreamPersister(jsonDownloadState);
+				if (!File.Exists(jsonDownloadState))
+					return nfsp = NewNetworkFilePersister();
+
+				nfsp = new NetworkFileStreamPersister(jsonDownloadState);
 				// If More than ~1 hour has elapsed since getting the download url, it will expire.
 				// The new url will be to the same file.
 				nfsp.NetworkFileStream.SetUriForSameFile(new Uri(DownloadOptions.DownloadUrl));
@@ -149,7 +169,12 @@ namespace AaxDecrypter
 			{
 				FileUtility.SaferDelete(jsonDownloadState);
 				FileUtility.SaferDelete(TempFilePath);
-				return NewNetworkFilePersister();
+				return nfsp = NewNetworkFilePersister();
+			}
+			finally
+			{
+				if (nfsp is not null)
+					nfsp.NetworkFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
 			}
 		}
 

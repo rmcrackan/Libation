@@ -46,16 +46,27 @@ namespace FileManager
             return stringCache[propertyName];
         }
 
-        public T GetNonString<T>(string propertyName)
-        {
-            var obj = GetObject(propertyName);
-            if (obj is null) return default;
-            if (obj is JValue jValue) return jValue.Value<T>();
-            if (obj is JObject jObject)  return jObject.ToObject<T>();
-            return (T)obj;
-        }
+		public T GetNonString<T>(string propertyName)
+		{
+			var obj = GetObject(propertyName);
+			if (obj is null) return default;
 
-        public object GetObject(string propertyName)
+			if (obj is JValue jValue)
+			{
+				if (jValue.Type == JTokenType.String && typeof(T).IsAssignableTo(typeof(Enum)))
+				{
+					return
+						Enum.TryParse(typeof(T), jValue.Value<string>(), out var enumVal)
+						? (T)enumVal
+						: Enum.GetValues(typeof(T)).Cast<T>().First();
+				}
+				return jValue.Value<T>();
+			}
+			if (obj is JObject jObject) return jObject.ToObject<T>();
+			return (T)obj;
+		}
+
+		public object GetObject(string propertyName)
         {
             if (!objectCache.ContainsKey(propertyName))
             {

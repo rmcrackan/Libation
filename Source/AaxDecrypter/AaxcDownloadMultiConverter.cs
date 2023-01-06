@@ -43,7 +43,21 @@ namespace AaxDecrypter
 					return false;
 				}
 
+
 				//Step 3
+				if (DownloadOptions.DownloadClipsBookmarks)
+				{
+					Serilog.Log.Information("Begin Downloading Clips and Bookmarks");
+					if (await Task.Run(Step_DownloadClipsBookmarks))
+						Serilog.Log.Information("Completed Downloading Clips and Bookmarks");
+					else
+					{
+						Serilog.Log.Information("Failed to Download Clips and Bookmarks");
+						return false;
+					}
+				}
+
+				//Step 4
 				Serilog.Log.Information("Begin Cleanup");
 				if (await Task.Run(Step_Cleanup))
 					Serilog.Log.Information("Completed Cleanup");

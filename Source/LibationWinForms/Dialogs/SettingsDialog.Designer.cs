@@ -73,6 +73,8 @@
 			this.folderTemplateTb = new System.Windows.Forms.TextBox();
 			this.folderTemplateLbl = new System.Windows.Forms.Label();
 			this.tab4AudioFileOptions = new System.Windows.Forms.TabPage();
+			this.clipsBookmarksFormatCb = new System.Windows.Forms.ComboBox();
+			this.downloadClipsBookmarksCbox = new System.Windows.Forms.CheckBox();
 			this.audiobookFixupsGb = new System.Windows.Forms.GroupBox();
 			this.stripUnabridgedCbox = new System.Windows.Forms.CheckBox();
 			this.chapterTitleTemplateGb = new System.Windows.Forms.GroupBox();
@@ -281,7 +283,7 @@
 			this.allowLibationFixupCbox.AutoSize = true;
 			this.allowLibationFixupCbox.Checked = true;
 			this.allowLibationFixupCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.allowLibationFixupCbox.Location = new System.Drawing.Point(19, 118);
+			this.allowLibationFixupCbox.Location = new System.Drawing.Point(19, 143);
 			this.allowLibationFixupCbox.Name = "allowLibationFixupCbox";
 			this.allowLibationFixupCbox.Size = new System.Drawing.Size(163, 19);
 			this.allowLibationFixupCbox.TabIndex = 10;
@@ -633,6 +635,8 @@
 			// 
 			// tab4AudioFileOptions
 			// 
+			this.tab4AudioFileOptions.Controls.Add(this.clipsBookmarksFormatCb);
+			this.tab4AudioFileOptions.Controls.Add(this.downloadClipsBookmarksCbox);
 			this.tab4AudioFileOptions.Controls.Add(this.audiobookFixupsGb);
 			this.tab4AudioFileOptions.Controls.Add(this.chapterTitleTemplateGb);
 			this.tab4AudioFileOptions.Controls.Add(this.lameOptionsGb);
@@ -649,6 +653,26 @@
 			this.tab4AudioFileOptions.Text = "Audio File Options";
 			this.tab4AudioFileOptions.UseVisualStyleBackColor = true;
 			// 
+			// clipsBookmarksFormatCb
+			// 
+			this.clipsBookmarksFormatCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.clipsBookmarksFormatCb.FormattingEnabled = true;
+			this.clipsBookmarksFormatCb.Location = new System.Drawing.Point(269, 64);
+			this.clipsBookmarksFormatCb.Name = "clipsBookmarksFormatCb";
+			this.clipsBookmarksFormatCb.Size = new System.Drawing.Size(67, 23);
+			this.clipsBookmarksFormatCb.TabIndex = 21;
+			// 
+			// downloadClipsBookmarksCbox
+			// 
+			this.downloadClipsBookmarksCbox.AutoSize = true;
+			this.downloadClipsBookmarksCbox.Location = new System.Drawing.Point(19, 68);
+			this.downloadClipsBookmarksCbox.Name = "downloadClipsBookmarksCbox";
+			this.downloadClipsBookmarksCbox.Size = new System.Drawing.Size(248, 19);
+			this.downloadClipsBookmarksCbox.TabIndex = 20;
+			this.downloadClipsBookmarksCbox.Text = "Download Clips, Notes, and Bookmarks as";
+			this.downloadClipsBookmarksCbox.UseVisualStyleBackColor = true;
+			this.downloadClipsBookmarksCbox.CheckedChanged += new System.EventHandler(this.downloadClipsBookmarksCbox_CheckedChanged);
+			// 
 			// audiobookFixupsGb
 			// 
 			this.audiobookFixupsGb.Controls.Add(this.splitFilesByChapterCbox);
@@ -656,7 +680,7 @@
 			this.audiobookFixupsGb.Controls.Add(this.convertLosslessRb);
 			this.audiobookFixupsGb.Controls.Add(this.convertLossyRb);
 			this.audiobookFixupsGb.Controls.Add(this.stripAudibleBrandingCbox);
-			this.audiobookFixupsGb.Location = new System.Drawing.Point(6, 143);
+			this.audiobookFixupsGb.Location = new System.Drawing.Point(6, 169);
 			this.audiobookFixupsGb.Name = "audiobookFixupsGb";
 			this.audiobookFixupsGb.Size = new System.Drawing.Size(403, 160);
 			this.audiobookFixupsGb.TabIndex = 19;
@@ -1032,7 +1056,7 @@
 			// mergeOpeningEndCreditsCbox
 			// 
 			this.mergeOpeningEndCreditsCbox.AutoSize = true;
-			this.mergeOpeningEndCreditsCbox.Location = new System.Drawing.Point(19, 93);
+			this.mergeOpeningEndCreditsCbox.Location = new System.Drawing.Point(19, 118);
 			this.mergeOpeningEndCreditsCbox.Name = "mergeOpeningEndCreditsCbox";
 			this.mergeOpeningEndCreditsCbox.Size = new System.Drawing.Size(198, 19);
 			this.mergeOpeningEndCreditsCbox.TabIndex = 13;
@@ -1042,7 +1066,7 @@
 			// retainAaxFileCbox
 			// 
 			this.retainAaxFileCbox.AutoSize = true;
-			this.retainAaxFileCbox.Location = new System.Drawing.Point(19, 68);
+			this.retainAaxFileCbox.Location = new System.Drawing.Point(19, 93);
 			this.retainAaxFileCbox.Name = "retainAaxFileCbox";
 			this.retainAaxFileCbox.Size = new System.Drawing.Size(132, 19);
 			this.retainAaxFileCbox.TabIndex = 10;
@@ -1214,5 +1238,7 @@
 		private System.Windows.Forms.GroupBox audiobookFixupsGb;
 		private System.Windows.Forms.CheckBox betaOptInCbox;
         private System.Windows.Forms.CheckBox useCoverAsFolderIconCb;
-    }
+		private System.Windows.Forms.ComboBox clipsBookmarksFormatCb;
+		private System.Windows.Forms.CheckBox downloadClipsBookmarksCbox;
+	}
 }

@@ -16,7 +16,7 @@ namespace AaxDecrypter
 		{
 			try
 			{
-				Serilog.Log.Information("Begin download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
+				Serilog.Log.Information("Begin downloading unencrypted audiobook.");
 
 				//Step 1
 				Serilog.Log.Information("Begin Step 1: Get Mp3 Metadata");
@@ -39,6 +39,19 @@ namespace AaxDecrypter
 				}
 
 				//Step 3
+				if (DownloadOptions.DownloadClipsBookmarks)
+				{
+					Serilog.Log.Information("Begin Downloading Clips and Bookmarks");
+					if (await Task.Run(Step_DownloadClipsBookmarks))
+						Serilog.Log.Information("Completed Downloading Clips and Bookmarks");
+					else
+					{
+						Serilog.Log.Information("Failed to Download Clips and Bookmarks");
+						return false;
+					}
+				}
+
+				//Step 4
 				Serilog.Log.Information("Begin Step 3: Cleanup");
 				if (await Task.Run(Step_Cleanup))
 					Serilog.Log.Information("Completed Step 3: Cleanup");
@@ -57,7 +70,6 @@ namespace AaxDecrypter
 				return false;
 			}
 		}
-
 
 		public override Task CancelAsync()
 		{

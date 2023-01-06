@@ -87,7 +87,7 @@ namespace LibationWinForms
 
 			saveState.IsMaximized = form.WindowState == FormWindowState.Maximized;
 
-			config.SetObject(form.Name, saveState);
+			config.SetNonString(saveState, form.Name);
 		}
 
 	}

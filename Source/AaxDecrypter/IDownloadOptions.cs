@@ -1,8 +1,10 @@
 ﻿using AAXClean;
+using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
-    public interface IDownloadOptions
+    public interface IDownloadOptions : INotifyPropertyChanged
 	{
         FileManager.ReplacementCharacters ReplacementCharacters { get; }
         string DownloadUrl { get; }
@@ -14,6 +16,8 @@ namespace AaxDecrypter
         bool RetainEncryptedFile { get; }
         bool StripUnabridged { get; }
         bool CreateCueSheet { get; }
+        bool DownloadClipsBookmarks { get; }
+        long DownloadSpeedBps { get; }
         ChapterInfo ChapterInfo { get; }
         bool FixupFile { get; }
         NAudio.Lame.LameConfig LameConfig { get; }
@@ -21,5 +25,6 @@ namespace AaxDecrypter
         bool MatchSourceBitrate { get; }
         string GetMultipartFileName(MultiConvertFileProperties props);
         string GetMultipartTitleName(MultiConvertFileProperties props);
-    }    
+        Task<string> SaveClipsAndBookmarks(string fileName);
+	}    
 }

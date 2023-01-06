@@ -80,9 +80,16 @@ namespace LibationWinForms.Dialogs
 			if (control is Control c)
 			{
 				if (c.InvokeRequired)
-					c.Invoke(new MethodInvoker(() => c.Enabled = enabled));
+					c.Invoke(new MethodInvoker(() =>
+					{
+						c.Enabled = enabled;
+						c.Focus();
+					}));
 				else
+				{
 					c.Enabled = enabled;
+					c.Focus();
+				}
 			}
 		}
 
@@ -166,6 +173,8 @@ namespace LibationWinForms.Dialogs
 
 		private async Task saveRecords(IEnumerable<IRecord> records)
 		{
+			if (!records.Any()) return;
+
 			try
 			{
 				var saveFileDialog = 

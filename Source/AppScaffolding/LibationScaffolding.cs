@@ -173,6 +173,12 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.DownloadCoverArt)))
 				config.DownloadCoverArt = true;
+			
+			if (!config.Exists(nameof(config.DownloadClipsBookmarks)))
+				config.DownloadClipsBookmarks = false;
+
+			if (!config.Exists(nameof(config.ClipsBookmarksFileFormat)))
+				config.ClipsBookmarksFileFormat = Configuration.ClipBookmarkFormat.CSV;
 
 			if (!config.Exists(nameof(config.AutoDownloadEpisodes)))
 				config.AutoDownloadEpisodes = false;
@@ -229,7 +235,7 @@ namespace AppScaffolding
 				{ "Using", new JArray{ "Dinah.Core", "Serilog.Exceptions" } }, // dll's name, NOT namespace
 				{ "Enrich", new JArray{ "WithCaller", "WithExceptionDetails" } },
 			};
-			config.SetObject("Serilog", serilogObj);
+			config.SetNonString(serilogObj, "Serilog");
 		}
 
 		// to restore original: Console.SetOut(origOut);

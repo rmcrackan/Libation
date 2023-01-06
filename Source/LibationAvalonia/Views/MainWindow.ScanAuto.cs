@@ -5,6 +5,7 @@ using Dinah.Core;
 using LibationFileManager;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace LibationAvalonia.Views
@@ -13,6 +14,7 @@ namespace LibationAvalonia.Views
 	public partial class MainWindow
 	{
 		private InterruptableTimer autoScanTimer;
+		private IDisposable cancellation;
 
 		private void Configure_ScanAuto()
 		{
@@ -53,7 +55,11 @@ namespace LibationAvalonia.Views
 			AccountsSettingsPersister.Saved += accountsPostSave;
 
 			// when autoscan setting is changed, update menu checkbox and run autoscan
-			Configuration.Instance.AutoScanChanged += startAutoScan;
+			Configuration.Instance.PropertyChanged += (_, e) =>
+			{
+				if (e.PropertyName == nameof(Configuration.Instance.AutoScan))
+					startAutoScan();
+			};
 		}
 
 		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;

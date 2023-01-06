@@ -104,7 +104,7 @@ namespace FileLiberator
 
             var api = await libraryBook.GetApiAsync();
             var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
-            var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
+            using var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
 
             var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, dlOptions.OutputFormat.ToString().ToLower());
             var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
@@ -133,9 +133,7 @@ namespace FileLiberator
             abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
 
             // REAL WORK DONE HERE
-            var success = await abDownloader.RunAsync();
-
-            return success;
+            return await abDownloader.RunAsync();
         }
 
         private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, AudibleApi.Common.ContentLicense contentLic)
@@ -168,6 +166,8 @@ namespace FileLiberator
                 Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
                 MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
                 CreateCueSheet = config.CreateCueSheet,
+                DownloadClipsBookmarks = config.DownloadClipsBookmarks,
+                DownloadSpeedBps = config.DownloadSpeedLimit,
                 LameConfig = GetLameOptions(config),
                 ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
                 FixupFile = config.AllowLibationFixup
