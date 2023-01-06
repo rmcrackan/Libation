@@ -33,7 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core.WindowsDesktop" Version="7.1.0.1" />
+    <PackageReference Include="Dinah.Core.WindowsDesktop" Version="7.2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
