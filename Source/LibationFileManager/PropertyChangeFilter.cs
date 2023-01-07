@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 
 namespace LibationFileManager
 {
@@ -50,7 +51,7 @@ namespace LibationFileManager
 		
 		using var cancellation = propertyChangeFilter.ObservePropertyChanging<int>("MyProperty", MyPropertyChanging);
 		
-        void MyPropertyChanging(string propertyName, int oldValue, int newValue)
+        void MyPropertyChanging(int oldValue, int newValue)
         {
 			// Only the property whose name match
 			// "MyProperty" will fire this method.
@@ -62,7 +63,7 @@ namespace LibationFileManager
 	* OR *
 	******
 	
-		using var cancellation = propertyChangeFilter.ObservePropertyChanged<bool>("MyProperty", (_, s) =>
+		using var cancellation = propertyChangeFilter.ObservePropertyChanged<bool>("MyProperty", s =>
 			{
 				// Only the property whose name match
 				// "MyProperty" will fire this action.
@@ -79,8 +80,8 @@ namespace LibationFileManager
 		private readonly Dictionary<string, List<Delegate>> propertyChangedActions = new();
 		private readonly Dictionary<string, List<Delegate>> propertyChangingActions = new();
 		
-		private readonly List<KeyValuePair<PropertyChangedEventHandlerEx, PropertyChangedEventHandlerEx>> changedFilters = new();
-		private readonly List<KeyValuePair<PropertyChangingEventHandlerEx, PropertyChangingEventHandlerEx>> changingFilters = new();
+		private readonly List<(PropertyChangedEventHandlerEx subscriber, PropertyChangedEventHandlerEx wrapper)> changedFilters = new();
+		private readonly List<(PropertyChangingEventHandlerEx subscriber, PropertyChangingEventHandlerEx wrapper)> changingFilters = new();
 
 		public PropertyChangeFilter()
 		{
@@ -102,7 +103,7 @@ namespace LibationFileManager
 		{
 			add
 			{
-				var attributes = Attribute.GetCustomAttributes(value.Method, typeof(PropertyChangeFilterAttribute)) as PropertyChangeFilterAttribute[];
+				var attributes = getAttributes<PropertyChangeFilterAttribute>(value.Method);
 
 				if (attributes.Any())
 				{
@@ -113,7 +114,7 @@ namespace LibationFileManager
 						if (e.PropertyName.In(matches)) value(s, e);
 					}
 
-					changedFilters.Add(new(value, filterer));
+					changedFilters.Add((value, filterer));
 
 					_propertyChanged += filterer;
 				}
@@ -122,12 +123,12 @@ namespace LibationFileManager
 			}
 			remove
 			{
-				var del = changedFilters.LastOrDefault(d => d.Key == value);
-				if (del.Key is null)
+				var del = changedFilters.LastOrDefault(d => d.subscriber == value);
+				if (del == default)
 					_propertyChanged -= value;
 				else
 				{
-					_propertyChanged -= del.Value;
+					_propertyChanged -= del.wrapper;
 					changedFilters.Remove(del);
 				}
 			}
@@ -137,7 +138,7 @@ namespace LibationFileManager
 		{
 			add
 			{
-				var attributes = Attribute.GetCustomAttributes(value.Method, typeof(PropertyChangeFilterAttribute)) as PropertyChangeFilterAttribute[];
+				var attributes = getAttributes<PropertyChangeFilterAttribute>(value.Method);
 
 				if (attributes.Any())
 				{
@@ -148,7 +149,7 @@ namespace LibationFileManager
 						if (e.PropertyName.In(matches)) value(s, e);
 					}
 
-					changingFilters.Add(new(value, filterer));
+					changingFilters.Add((value, filterer));
 
 					_propertyChanging += filterer;
 
@@ -158,16 +159,19 @@ namespace LibationFileManager
 			}
 			remove
 			{
-				var del = changingFilters.LastOrDefault(d => d.Key == value);
-				if (del.Key is null)
+				var del = changingFilters.LastOrDefault(d => d.subscriber == value);
+				if (del == default)
 					_propertyChanging -= value;
 				else
 				{
-					_propertyChanging -= del.Value;
+					_propertyChanging -= del.wrapper;
 					changingFilters.Remove(del);
 				}
 			}
 		}
+
+		private static T[] getAttributes<T>(MethodInfo methodInfo) where T : Attribute
+			=> Attribute.GetCustomAttributes(methodInfo, typeof(T)) as T[];
 
 		#endregion
 
@@ -198,9 +202,9 @@ namespace LibationFileManager
 		/// </summary>
 		/// <typeparam name="T">The <paramref name="propertyName"/>'s <see cref="Type"/></typeparam>
 		/// <param name="propertyName">Name of the property whose change triggers the <paramref name="action"/></param>
-		/// <param name="action">Action to be executed with parameters: <paramref name="propertyName"/> and <strong>NewValue</strong></param>
+		/// <param name="action">Action to be executed with the NewValue as a parameter</param>
 		/// <returns>A reference to an interface that allows observers to stop receiving notifications before the provider has finished sending them.</returns>
-		public IDisposable ObservePropertyChanged<T>(string propertyName, Action<string, T> action)
+		public IDisposable ObservePropertyChanged<T>(string propertyName, Action<T> action)
 		{
 			validateSubscriber<T>(propertyName, action);
 
@@ -220,9 +224,9 @@ namespace LibationFileManager
 		/// </summary>
 		/// <typeparam name="T">The <paramref name="propertyName"/>'s <see cref="Type"/></typeparam>
 		/// <param name="propertyName">Name of the property whose change triggers the <paramref name="action"/></param>
-		/// <param name="action">Action to be executed with parameters: <paramref name="propertyName"/>, <b>OldValue</b>, and <b>NewValue</b></param>
+		/// <param name="action">Action to be executed with OldValue and NewValue as parameters</param>
 		/// <returns>A reference to an interface that allows observers to stop receiving notifications before the provider has finished sending them.</returns>
-		public IDisposable ObservePropertyChanging<T>(string propertyName, Action<string, T, T> action)
+		public IDisposable ObservePropertyChanging<T>(string propertyName, Action<T, T> action)
 		{
 			validateSubscriber<T>(propertyName, action);
 
@@ -257,7 +261,7 @@ namespace LibationFileManager
 			{
 				foreach (var action in propertyChangedActions[e.PropertyName])
 				{
-					action.DynamicInvoke(e.PropertyName, e.NewValue);
+					action.DynamicInvoke(e.NewValue);
 				}
 			}
 		}
@@ -268,7 +272,7 @@ namespace LibationFileManager
 			{
 				foreach (var action in propertyChangingActions[e.PropertyName])
 				{
-					action.DynamicInvoke(e.PropertyName, e.OldValue, e.NewValue);
+					action.DynamicInvoke(e.OldValue, e.NewValue);
 				}
 			}
 		}

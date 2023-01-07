@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using ApplicationServices;
-using AppScaffolding;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using DataLayer;
-using Dinah.Core;
-using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
 
@@ -30,8 +26,7 @@ namespace LibationAvalonia.Views
 #if DEBUG
 			this.AttachDevTools();
 #endif
-			this.FindAllControls();
-
+			FindAllControls();
 
 			// eg: if one of these init'd productsGrid, then another can't reliably subscribe to it
 			Configure_BackupCounts();

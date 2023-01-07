@@ -81,6 +81,7 @@ namespace LibationAvalonia.Dialogs
 		private class EditTemplateViewModel : ViewModels.ViewModelBase
 		{
 			private readonly Configuration config;
+			public FontFamily FontFamily { get; } = FontManager.Current.DefaultFontFamilyName;
 			public InlineCollection Inlines { get; } = new();
 			public Templates Template { get; }
 			public EditTemplateViewModel(Configuration configuration, Templates templates)
