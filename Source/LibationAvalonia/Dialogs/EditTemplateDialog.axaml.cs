@@ -1,10 +1,7 @@
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Media.TextFormatting;
 using Dinah.Core;
 using LibationFileManager;
 using System;
@@ -14,6 +11,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
+using Avalonia.Controls.Documents;
+using Avalonia.Collections;
+using Avalonia.Controls;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -22,14 +22,14 @@ namespace LibationAvalonia.Dialogs
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			if (value is string str && str[0] != '<' && str[^1] != '>')
-				return $"<{str}>";
+				return $"<{str}>".Replace("->", "-\x200C>").Replace("<-", "<\x200C-");
 			return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			if (value is string str && str[0] == '<' && str[^1] == '>')
-				return str[1..^2];
+				return str[1..^2].Replace("-\x200C>", "->").Replace("<\x200C-", "<-");
 			return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
 		}
 	}
@@ -42,26 +42,27 @@ namespace LibationAvalonia.Dialogs
 
 		public EditTemplateDialog()
 		{
-			InitializeComponent();
-			_viewModel = new(Configuration.Instance, this.Find<WrapPanel>(nameof(wrapPanel)));
+			AvaloniaXamlLoader.Load(this);
+			if (Design.IsDesignMode)
+			{
+				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+				_viewModel = new(Configuration.Instance, Templates.File);
+				_viewModel.resetTextBox(_viewModel.Template.DefaultTemplate);
+				Title = $"Edit {_viewModel.Template.Name}";
+				DataContext = _viewModel;
+			}
 		}
 
 		public EditTemplateDialog(Templates template, string inputTemplateText) : this()
 		{
-			_viewModel.template = ArgumentValidator.EnsureNotNull(template, nameof(template));
-			Title = $"Edit {_viewModel.template.Name}";
-			_viewModel.Description = _viewModel.template.Description;
+			ArgumentValidator.EnsureNotNull(template, nameof(template));
+
+			_viewModel = new EditTemplateViewModel(Configuration.Instance, template);
 			_viewModel.resetTextBox(inputTemplateText);
-
-			_viewModel.ListItems = _viewModel.template.GetTemplateTags();
-
+			Title = $"Edit {template.Name}";
 			DataContext = _viewModel;
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 		protected override async Task SaveAndCloseAsync()
 		{
 			if (!await _viewModel.Validate())
@@ -75,51 +76,57 @@ namespace LibationAvalonia.Dialogs
 			=> await SaveAndCloseAsync();
 
 		public void ResetButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> _viewModel.resetTextBox(_viewModel.template.DefaultTemplate);
+			=> _viewModel.resetTextBox(_viewModel.Template.DefaultTemplate);
 
 		private class EditTemplateViewModel : ViewModels.ViewModelBase
 		{
-			WrapPanel WrapPanel;
-			public Configuration config { get; }
-			public EditTemplateViewModel(Configuration configuration, WrapPanel panel)
+			private readonly Configuration config;
+			public InlineCollection Inlines { get; } = new();
+			public Templates Template { get; }
+			public EditTemplateViewModel(Configuration configuration, Templates templates)
 			{
 				config = configuration;
-				WrapPanel = panel;
+				Template = templates;
+				Description = templates.Description;
+				ListItems
+				= new AvaloniaList<Tuple<string, string>>(
+					Template
+					.GetTemplateTags()
+					.Select(
+						t => new Tuple<string, string>(
+							$"<{t.TagName.Replace("->", "-\x200C>").Replace("<-", "<\x200C-")}>",
+							t.Description)
+						)
+					);
 			}
+
 			// hold the work-in-progress value. not guaranteed to be valid
-			private string _workingTemplateText;
-			public string workingTemplateText
+			private string _userTemplateText;
+			public string UserTemplateText
 			{
-				get => _workingTemplateText;
+				get => _userTemplateText;
 				set
 				{
-					_workingTemplateText = template.Sanitize(value);
+					_userTemplateText = value;
 					templateTb_TextChanged();
-
 				}
 			}
+
+			public string workingTemplateText => Template.Sanitize(UserTemplateText);
 			private string _warningText;
-			public string WarningText
-			{
-				get => _warningText;
-				set
-				{
-					this.RaiseAndSetIfChanged(ref _warningText, value);
-				}
-			}
+			public string WarningText { get => _warningText; set => this.RaiseAndSetIfChanged(ref _warningText, value); }
 
-			public Templates template { get; set; }
-			public string Description { get; set; }
+			public string Description { get; }
 
-			public IEnumerable<TemplateTags> ListItems { get; set; }
+			public AvaloniaList<Tuple<string, string>> ListItems { get; set; }
 
-			public void resetTextBox(string value) => workingTemplateText = value;
+			public void resetTextBox(string value) => UserTemplateText = value;
 
 			public async Task<bool> Validate()
 			{
-				if (template.IsValid(workingTemplateText))
+				if (Template.IsValid(workingTemplateText))
 					return true;
-				var errors = template
+				var errors = Template
 					.GetErrors(workingTemplateText)
 					.Select(err => $"- {err}")
 					.Aggregate((a, b) => $"{a}\r\n{b}");
@@ -129,8 +136,8 @@ namespace LibationAvalonia.Dialogs
 
 			private void templateTb_TextChanged()
 			{
-				var isChapterTitle = template == Templates.ChapterTitle;
-				var isFolder = template == Templates.Folder;
+				var isChapterTitle = Template == Templates.ChapterTitle;
+				var isFolder = Template == Templates.Folder;
 
 				var libraryBookDto = new LibraryBookDto
 				{
@@ -142,7 +149,10 @@ namespace LibationAvalonia.Dialogs
 					Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
 					Narrators = new List<string> { "Stephen Fry" },
 					SeriesName = "Sherlock Holmes",
-					SeriesNumber = "1"
+					SeriesNumber = "1",
+					BitRate = 128,
+					SampleRate = 44100,
+					Channels = 2
 				};
 				var chapterName = "A Flight for Life";
 				var chapterNumber = 4;
@@ -162,15 +172,15 @@ namespace LibationAvalonia.Dialogs
 					isFolder ? workingTemplateText : config.FolderTemplate);
 
 				var file
-					= template == Templates.ChapterFile
-					? Templates.ChapterFile.GetPortionFilename(
-						libraryBookDto,
-						workingTemplateText,
-						partFileProperties,
-						"")
-					: Templates.File.GetPortionFilename(
-						libraryBookDto,
-						isFolder ? config.FileTemplate : workingTemplateText);
+				= Template == Templates.ChapterFile
+				? Templates.ChapterFile.GetPortionFilename(
+					libraryBookDto,
+					workingTemplateText,
+					partFileProperties,
+					"")
+				: Templates.File.GetPortionFilename(
+					libraryBookDto,
+					isFolder ? config.FileTemplate : workingTemplateText);
 				var ext = config.DecryptToLossy ? "mp3" : "m4b";
 
 				var chapterTitle = Templates.ChapterTitle.GetPortionTitle(libraryBookDto, workingTemplateText, partFileProperties);
@@ -186,63 +196,36 @@ namespace LibationAvalonia.Dialogs
 				string slashWrap(string val) => val.Replace(sing, $"{ZERO_WIDTH_SPACE}{sing}");
 
 				WarningText
-					= !template.HasWarnings(workingTemplateText)
+					= !Template.HasWarnings(workingTemplateText)
 					? ""
 					: "Warning:\r\n" +
-						template
+						Template
 						.GetWarnings(workingTemplateText)
 						.Select(err => $"- {err}")
 						.Aggregate((a, b) => $"{a}\r\n{b}");
 
-				var list = new List<TextCharacters>();
+				var bold = FontWeight.Bold;
+				var reg = FontWeight.Normal;
 
-				var bold = new Typeface(Typeface.Default.FontFamily, FontStyle.Normal, FontWeight.Bold);
-				var normal = new Typeface(Typeface.Default.FontFamily, FontStyle.Normal, FontWeight.Normal);
-
-				var stringList = new List<(string, FontWeight)>();
+				Inlines.Clear();
 
 				if (isChapterTitle)
 				{
-					stringList.Add((chapterTitle, FontWeight.Bold));
-				}
-				else
-				{
-
-					stringList.Add((slashWrap(books), FontWeight.Normal));
-					stringList.Add((sing, FontWeight.Normal));
-
-					stringList.Add((slashWrap(folder), isFolder ? FontWeight.Bold : FontWeight.Normal));
-
-					stringList.Add((sing, FontWeight.Normal));
-
-					stringList.Add((file, !isFolder ? FontWeight.Bold : FontWeight.Normal));
-
-					stringList.Add(($".{ext}", FontWeight.Normal));
+					Inlines.Add(new Run(chapterTitle) { FontWeight = bold });
+					return;
 				}
 
-				WrapPanel.Children.Clear();
+				Inlines.Add(new Run(slashWrap(books)) { FontWeight = reg });
+				Inlines.Add(new Run(sing) { FontWeight = reg });
 
-				//Avalonia doesn't yet support anything like rich text, so add a new textblock for every word/style
-				foreach (var item in stringList)
-				{
-					var wordsSplit = item.Item1.Split(' ');
+				Inlines.Add(new Run(slashWrap(folder)) { FontWeight = isFolder ? bold : reg });
 
-					for(int i = 0; i < wordsSplit.Length; i++)
-					{
-						var tb = new TextBlock
-						{
-							VerticalAlignment = Avalonia.Layout.VerticalAlignment.Bottom,
-							TextWrapping = TextWrapping.Wrap,
-							Text = wordsSplit[i] + (i == wordsSplit.Length - 1 ? "" : " "),
-							FontWeight = item.Item2
-						};
+				Inlines.Add(new Run(sing));
 
-						WrapPanel.Children.Add(tb);
-					}
-				}
+				Inlines.Add(new Run(slashWrap(file)) { FontWeight = isFolder ? reg : bold });
 
+				Inlines.Add(new Run($".{ext}"));
 			}
 		}
-
 	}
 }
