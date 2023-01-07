@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace FileManager
 {
-	public class Replacement : ICloneable
+	public record Replacement
 	{
 		public const int FIXED_COUNT = 6;
 
@@ -29,8 +29,6 @@ namespace FileManager
 		{
 			Mandatory = mandatory;
 		}
-
-		public object Clone() => new Replacement(CharacterToReplace, ReplacementString, Description, Mandatory);
 
 		public void Update(char charToReplace, string replacementString, string description)
 		{
@@ -61,10 +59,20 @@ namespace FileManager
 	[JsonConverter(typeof(ReplacementCharactersConverter))]
 	public class ReplacementCharacters
 	{
-		static ReplacementCharacters()
+		public override bool Equals(object obj)
 		{
+			if (obj is ReplacementCharacters second && Replacements.Count == second.Replacements.Count)
+			{
+				for (int i = 0; i < Replacements.Count; i++)
+					if (Replacements[i] != second.Replacements[i])
+						return false;
 
+				return true;
+			}
+			return false;
 		}
+		public override int GetHashCode() => Replacements.GetHashCode();
+
 		public static readonly ReplacementCharacters Default
 			= IsWindows
 			? new()

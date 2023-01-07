@@ -48,16 +48,10 @@ namespace AaxDecrypter
 			TempFilePath = Path.ChangeExtension(jsonDownloadState, ".aaxc");
 
 			DownloadOptions = ArgumentValidator.EnsureNotNull(dlOptions, nameof(dlOptions));
-			DownloadOptions.PropertyChanged += DownloadOptions_PropertyChanged;
+			DownloadOptions.DownloadSpeedChanged += (_, speed) => InputFileStream.SpeedLimit = speed;
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
-		}
-
-		private void DownloadOptions_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if (e.PropertyName == nameof(DownloadOptions.DownloadSpeedBps))
-				InputFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
 		}
 
 		public abstract Task CancelAsync();
@@ -173,7 +167,7 @@ namespace AaxDecrypter
 			}
 			finally
 			{
-				if (nfsp is not null)
+				if (nfsp?.NetworkFileStream is not null)
 					nfsp.NetworkFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
 			}
 		}

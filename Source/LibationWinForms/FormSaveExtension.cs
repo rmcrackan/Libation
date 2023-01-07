@@ -90,13 +90,13 @@ namespace LibationWinForms
 			config.SetNonString(saveState, form.Name);
 		}
 
-	}
-	class FormSizeAndPosition
-	{
-		public int X;
-		public int Y;
-		public int Height;
-		public int Width;
-		public bool IsMaximized;
+		private record FormSizeAndPosition
+		{
+			public int X;
+			public int Y;
+			public int Height;
+			public int Width;
+			public bool IsMaximized;
+		}
 	}
 }

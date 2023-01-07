@@ -5,7 +5,6 @@ using DataLayer;
 using LibationFileManager;
 using FileManager;
 using System.Threading.Tasks;
-using System.ComponentModel;
 using System;
 using System.IO;
 using ApplicationServices;
@@ -14,9 +13,7 @@ namespace FileLiberator
 {
     public class DownloadOptions : IDownloadOptions, IDisposable
     {
-
-        public event PropertyChangedEventHandler PropertyChanged;
-		private readonly IDisposable cancellation;
+        public event EventHandler<long> DownloadSpeedChanged;
 		public LibraryBook LibraryBook { get; }
         public LibraryBookDto LibraryBookDto { get; }
         public string DownloadUrl { get; }
@@ -29,7 +26,7 @@ namespace FileLiberator
         public bool StripUnabridged { get; init; }
         public bool CreateCueSheet { get; init; }
         public bool DownloadClipsBookmarks { get; init; }
-        public long DownloadSpeedBps { get; set; }
+        public long DownloadSpeedBps { get; init; }
 		public ChapterInfo ChapterInfo { get; init; }
         public bool FixupFile { get; init; }
         public NAudio.Lame.LameConfig LameConfig { get; init; }
@@ -72,27 +69,23 @@ namespace FileLiberator
             return string.Empty;
         }
 
-        private void DownloadSpeedChanged(string propertyName, long speed)
-        {
-			DownloadSpeedBps = speed;
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DownloadSpeedBps)));
-        }
-
-		public void Dispose()
-		{
-			cancellation?.Dispose();
-		}
+		private readonly IDisposable cancellation;
+		public void Dispose() => cancellation?.Dispose();
 
 		public DownloadOptions(LibraryBook libraryBook, string downloadUrl, string userAgent)
 		{
             LibraryBook = ArgumentValidator.EnsureNotNull(libraryBook, nameof(libraryBook));
             DownloadUrl = ArgumentValidator.EnsureNotNullOrEmpty(downloadUrl, nameof(downloadUrl));
             UserAgent = ArgumentValidator.EnsureNotNullOrEmpty(userAgent, nameof(userAgent));
+            // no null/empty check for key/iv. unencrypted files do not have them
 
 			LibraryBookDto = LibraryBook.ToDto();
 
-			cancellation = Configuration.Instance.SubscribeToPropertyChanged<long>(nameof(Configuration.DownloadSpeedLimit), DownloadSpeedChanged);
-			// no null/empty check for key/iv. unencrypted files do not have them
+            cancellation =
+                Configuration.Instance
+                .SubscribeToPropertyChanged<long>(
+                    nameof(Configuration.DownloadSpeedLimit),
+                    (_, s) => DownloadSpeedChanged?.Invoke(this, s));
 		}
-    }
+	}
 }

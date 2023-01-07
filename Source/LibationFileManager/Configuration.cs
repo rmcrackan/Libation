@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dinah.Core;
@@ -33,7 +32,11 @@ namespace LibationFileManager
 
 		#region singleton stuff
 		public static Configuration Instance { get; } = new Configuration();
-		private Configuration() { }
+		private Configuration()
+		{
+			PropertyChanging += Configuration_PropertyChanging;
+			PropertyChanged += Configuration_PropertyChanged;
+		}
 		#endregion
 	}
 }

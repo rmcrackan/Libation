@@ -1,4 +1,5 @@
 ﻿using Dinah.Core;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -150,6 +151,30 @@ namespace LibationFileManager
 				if (_observers.Contains(_observer))
 					_observers.Remove(_observer);
 			}
+		}
+
+		/*
+		 * Use this type in the getter for any Dictionary<TKey, TValue> settings,
+		 * and be sure to clone it before returning. This allows Configuration to
+		 * accurately detect if an of the Dictionary's elements have changed.
+		 */
+		private class EquatableDictionary<TKey, TValue> : Dictionary<TKey, TValue>
+		{
+			public EquatableDictionary(IEnumerable<KeyValuePair<TKey, TValue>> keyValuePairs) : base(keyValuePairs) { }
+			public EquatableDictionary<TKey, TValue> Clone() => new(this);
+			public override bool Equals(object obj)
+			{
+				if (obj is Dictionary<TKey, TValue> dic && Count == dic.Count)
+				{
+					foreach (var pair in this)
+						if (!dic.TryGetValue(pair.Key, out var value) || !pair.Value.Equals(value))
+							return false;
+
+					return true;
+				}
+				return false;
+			}
+			public override int GetHashCode() => base.GetHashCode();
 		}
 	}
 }

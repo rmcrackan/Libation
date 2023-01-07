@@ -1,11 +1,12 @@
 ﻿using AAXClean;
-using System.ComponentModel;
+using System;
 using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
-    public interface IDownloadOptions : INotifyPropertyChanged
+    public interface IDownloadOptions
 	{
+        event EventHandler<long> DownloadSpeedChanged;
         FileManager.ReplacementCharacters ReplacementCharacters { get; }
         string DownloadUrl { get; }
         string UserAgent { get; }

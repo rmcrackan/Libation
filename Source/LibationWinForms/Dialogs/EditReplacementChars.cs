@@ -30,7 +30,7 @@ namespace LibationWinForms.Dialogs
 				var r = replacements[i];
 
 				int row = dataGridView1.Rows.Add(r.CharacterToReplace.ToString(), r.ReplacementString, r.Description);
-				dataGridView1.Rows[row].Tag = r.Clone();
+				dataGridView1.Rows[row].Tag = r with { };
 
 
 				if (r.Mandatory)

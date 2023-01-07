@@ -49,8 +49,10 @@ namespace FileManager
 		public T GetNonString<T>(string propertyName)
 		{
 			var obj = GetObject(propertyName);
-			if (obj is null) return default;
 
+			if (obj is null) return default;
+            if (obj.GetType().IsAssignableTo(typeof(T))) return (T)obj;
+			if (obj is JObject jObject) return jObject.ToObject<T>();
 			if (obj is JValue jValue)
 			{
 				if (jValue.Type == JTokenType.String && typeof(T).IsAssignableTo(typeof(Enum)))
@@ -62,8 +64,7 @@ namespace FileManager
 				}
 				return jValue.Value<T>();
 			}
-			if (obj is JObject jObject) return jObject.ToObject<T>();
-			return (T)obj;
+            throw new InvalidCastException($"{obj.GetType()} is not convertible to {typeof(T)}");
 		}
 
 		public object GetObject(string propertyName)

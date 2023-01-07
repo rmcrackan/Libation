@@ -101,7 +101,7 @@ namespace LibationAvalonia
 			}
 		}
 
-		class FormSizeAndPosition
+		private record FormSizeAndPosition
 		{
 			public int X;
 			public int Y;
@@ -109,7 +109,6 @@ namespace LibationAvalonia
 			public int Width;
 			public bool IsMaximized;
 		}
-
 
 		public static void HideMinMaxBtns(this Window form)
 		{
