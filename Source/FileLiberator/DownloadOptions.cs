@@ -81,11 +81,10 @@ namespace FileLiberator
 
 			LibraryBookDto = LibraryBook.ToDto();
 
-            cancellation =
-                Configuration.Instance
-                .SubscribeToPropertyChanged<long>(
-                    nameof(Configuration.DownloadSpeedLimit),
-                    (_, s) => DownloadSpeedChanged?.Invoke(this, s));
+          cancellation = Configuration.Instance
+                        .ObservePropertyChanged<long>(
+                            nameof(Configuration.DownloadSpeedLimit),
+                            (_, s) => DownloadSpeedChanged?.Invoke(this, s));
 		}
 	}
 }

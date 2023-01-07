@@ -28,9 +28,9 @@ namespace LibationFileManager
 			var existing = getExistingValue(propertyName);
 			if (existing?.Equals(newValue) is true) return;
 
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgsEx(propertyName, existing, newValue));
+			OnPropertyChanging(propertyName, existing, newValue);
 			persistentDictionary.SetNonString(propertyName, newValue);
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgsEx(propertyName, newValue));
+			OnPropertyChanged(propertyName, newValue);
 		}
 
 		public void SetString(string newValue, [CallerMemberName] string propertyName = "")
@@ -38,9 +38,9 @@ namespace LibationFileManager
 			var existing = getExistingValue(propertyName);
 			if (existing?.Equals(newValue) is true) return;
 
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgsEx(propertyName, existing, newValue));
+			OnPropertyChanging(propertyName, existing, newValue);
 			persistentDictionary.SetString(propertyName, newValue);
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgsEx(propertyName, newValue));
+			OnPropertyChanged(propertyName, newValue);
 		}
 
 		private object getExistingValue(string propertyName)

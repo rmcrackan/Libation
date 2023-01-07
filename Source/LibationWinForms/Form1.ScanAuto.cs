@@ -59,14 +59,13 @@ namespace LibationWinForms
 			Configuration.Instance.PropertyChanged += Configuration_PropertyChanged;
 		}
 
-		private void Configuration_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+
+		[PropertyChangeFilter(nameof(Configuration.AutoScan))]
+		private void Configuration_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
 		{
-			if (e.PropertyName == nameof(Configuration.Instance.AutoScan))
-			{
-				// when autoscan setting is changed, update menu checkbox and run autoscan
-				updateAutoScanLibraryToolStripMenuItem(sender, e);
-				startAutoScan(sender, e);
-			}
+			// when autoscan setting is changed, update menu checkbox and run autoscan
+			updateAutoScanLibraryToolStripMenuItem(sender, e);
+			startAutoScan(sender, e);
 		}
 
 		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;

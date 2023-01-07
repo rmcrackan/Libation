@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="620"
+        mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="620"
 		MinWidth="800" MinHeight="620"
         x:Class="LibationAvalonia.Dialogs.SettingsDialog"
         xmlns:controls="clr-namespace:LibationAvalonia.Controls"
@@ -102,7 +102,7 @@
 								Click="OpenLogFolderButton_Click" />
 
 						</StackPanel>
-<!--
+						<!--
 						<CheckBox
 							Grid.Row="2"
 							Margin="5"
@@ -282,7 +282,7 @@
 									Grid.Column="0"
 									Margin="0,5,0,0"
 									Text="{Binding DownloadDecryptSettings.FolderTemplateText}" />
-								
+
 								<TextBox
 									Grid.Row="1"
 									Grid.Column="0"
@@ -356,21 +356,21 @@
 							Margin="5"
 							BorderWidth="1"
 							Label="Temporary Files Location">
-							
-						<StackPanel
-							Margin="5" >
 
-							<TextBlock
-								Margin="0,0,0,10"
-								Text="{Binding DownloadDecryptSettings.InProgressDescriptionText}" />
+							<StackPanel
+								Margin="5" >
 
-							<controls:DirectoryOrCustomSelectControl
-								SubDirectory="Libation"
-								Directory="{Binding DownloadDecryptSettings.InProgressDirectory, Mode=TwoWay}"
-								KnownDirectories="{Binding DownloadDecryptSettings.KnownDirectories}" />
+								<TextBlock
+									Margin="0,0,0,10"
+									Text="{Binding DownloadDecryptSettings.InProgressDescriptionText}" />
+
+								<controls:DirectoryOrCustomSelectControl
+									SubDirectory="Libation"
+									Directory="{Binding DownloadDecryptSettings.InProgressDirectory, Mode=TwoWay}"
+									KnownDirectories="{Binding DownloadDecryptSettings.KnownDirectories}" />
 
 
-						</StackPanel>
+							</StackPanel>
 						</controls:GroupBox>
 
 						<CheckBox
@@ -435,6 +435,26 @@
 									Text="{Binding AudioSettings.DownloadCoverArtText}" />
 
 							</CheckBox>
+
+							<StackPanel Orientation="Horizontal">
+								
+								<CheckBox
+									Margin="0,0,0,5"
+									IsChecked="{Binding AudioSettings.DownloadClipsBookmarks, Mode=TwoWay}">
+
+									<TextBlock
+										TextWrapping="Wrap"
+										Text="Download Clips, Notes and Bookmarks as" />
+
+								</CheckBox>
+								
+								<controls:WheelComboBox
+									Margin="5,0,0,0"
+									IsEnabled="{Binding AudioSettings.DownloadClipsBookmarks}"
+									Items="{Binding AudioSettings.ClipBookmarkFormats}"
+									SelectedItem="{Binding AudioSettings.ClipBookmarkFormat}"/>
+							
+							</StackPanel>
 
 							<CheckBox
 								Margin="0,0,0,5"

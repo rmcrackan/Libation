@@ -32,11 +32,7 @@ namespace LibationFileManager
 
 		#region singleton stuff
 		public static Configuration Instance { get; } = new Configuration();
-		private Configuration()
-		{
-			PropertyChanging += Configuration_PropertyChanging;
-			PropertyChanged += Configuration_PropertyChanged;
-		}
+		private Configuration() { }
 		#endregion
 	}
 }
