@@ -1,4 +1,4 @@
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Dinah.Core;
 using LibationFileManager;
@@ -50,11 +50,11 @@ namespace LibationAvalonia.Dialogs
 		{
 			var dataGrid = sender as DataGrid;
 
-			var item = dataGrid.SelectedItem as Tuple<string, string>;
+			var item = (dataGrid.SelectedItem as Tuple<string, string>).Item1.Replace("\x200C", "").Replace("...", "");
 			var text = userEditTbox.Text;
 
-			userEditTbox.Text = text.Insert(Math.Min(Math.Max(0, userEditTbox.CaretIndex), text.Length), item.Item1);
-			userEditTbox.CaretIndex += item.Item1.Length;
+			userEditTbox.Text = text.Insert(Math.Min(Math.Max(0, userEditTbox.CaretIndex), text.Length), item);
+			userEditTbox.CaretIndex += item.Length;
 		}
 
 		protected override async Task SaveAndCloseAsync()
