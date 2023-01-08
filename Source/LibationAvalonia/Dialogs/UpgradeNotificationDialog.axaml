@@ -6,7 +6,7 @@
         x:Class="LibationAvalonia.Dialogs.UpgradeNotificationDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		MinWidth="500" MinHeight="400"
-		Height="550" Width="450"
+		Height="450" Width="550"
 		
 		WindowStartupLocation="CenterOwner"
         Title="Upgrade Available"

@@ -5,7 +5,7 @@ using System;
 
 namespace LibationAvalonia.Dialogs
 {
-	public partial class UpgradeNotificationDialog : Window
+	public partial class UpgradeNotificationDialog : DialogWindow
 	{
 		private const string UpdateMessage = "There is a new version available. Would you like to update?\r\n\r\nAfter you close Libation, the upgrade will start automatically.";
 		public string TopMessage { get; }
