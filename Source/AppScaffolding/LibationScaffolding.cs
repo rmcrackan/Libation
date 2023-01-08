@@ -29,6 +29,9 @@ namespace AppScaffolding
 
 	public static class LibationScaffolding
 	{
+		public const string RepositoryUrl = "ht" + "tps://github.com/rmcrackan/Libation";
+		public const string WebsiteUrl = "ht" + "tps://getlibation.com";
+		public const string RepositoryLatestUrl = "ht" + "tps://github.com/rmcrackan/Libation/releases/latest";
 		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
 		public static VarietyType Variety
 			=> ReleaseIdentifier == ReleaseIdentifier.WindowsClassic ? VarietyType.Classic
@@ -354,7 +357,7 @@ namespace AppScaffolding
 		public static UpgradeProperties GetLatestRelease()
 		{
 			// timed out
-			(var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10));
+			(var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10000));
 
 			if (latest is null || zip is null)
 				return null;
@@ -363,9 +366,6 @@ namespace AppScaffolding
 			if (!Version.TryParse(latestVersionString, out var latestRelease))
 				return null;
 
-			// we're up to date
-			if (latestRelease <= BuildVersion)
-				return null;
 
 			// we have an update
 
@@ -378,7 +378,7 @@ namespace AppScaffolding
 				zipUrl
 			});
 
-			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease);
+			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease, latest.Body);
 		}
 		private static (Octokit.Release, Octokit.ReleaseAsset) getLatestRelease(TimeSpan timeout)
 		{

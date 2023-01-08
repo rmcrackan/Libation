@@ -188,7 +188,7 @@ namespace LibationWinForms
 				return;
 			}
 
-			Updater.Run(upgradeProperties.LatestRelease, upgradeProperties.ZipUrl);
+			Updater.Run(upgradeProperties);
 		}
 
 		private static void postLoggingGlobalExceptionHandling()

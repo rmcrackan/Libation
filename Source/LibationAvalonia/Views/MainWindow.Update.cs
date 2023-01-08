@@ -2,6 +2,7 @@
 using LibationAvalonia.Dialogs;
 using LibationFileManager;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
@@ -25,11 +26,11 @@ namespace LibationAvalonia.Views
 
 				//Silently download the update in the background, save it to a temp file.
 
-				var zipFile = System.IO.Path.GetTempFileName();
+				var zipFile = Path.GetTempFileName();
 				try
 				{
 					System.Net.Http.HttpClient cli = new();
-					using var fs = System.IO.File.OpenWrite(zipFile);
+					using var fs = File.OpenWrite(zipFile);
 					using var dlStream = await cli.GetStreamAsync(new Uri(upgradeProperties.ZipUrl));
 					await dlStream.CopyToAsync(fs);
 				}
@@ -44,11 +45,11 @@ namespace LibationAvalonia.Views
 			void runWindowsUpgrader(string zipFile)
 			{
 				var thisExe = Environment.ProcessPath;
-				var thisDir = System.IO.Path.GetDirectoryName(thisExe);
+				var thisDir = Path.GetDirectoryName(thisExe);
 
-				var zipExtractor = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ZipExtractor.exe");
+				var zipExtractor = Path.Combine(Path.GetTempPath(), "ZipExtractor.exe");
 
-				System.IO.File.Copy("ZipExtractor.exe", zipExtractor, overwrite: true);
+				File.Copy("ZipExtractor.exe", zipExtractor, overwrite: true);
 
 				var psi = new System.Diagnostics.ProcessStartInfo()
 				{
@@ -69,7 +70,6 @@ namespace LibationAvalonia.Views
 				};
 
 				System.Diagnostics.Process.Start(psi);
-				Environment.Exit(0);
 			}
 
 			try
@@ -77,34 +77,32 @@ namespace LibationAvalonia.Views
 				var upgradeProperties = await Task.Run(LibationScaffolding.GetLatestRelease);
 				if (upgradeProperties is null) return;
 
-				if (Configuration.IsWindows)
+				const string ignoreUpdate = "IgnoreUpdate";
+				var config = Configuration.Instance;
+
+				if (config.GetString(ignoreUpdate) == upgradeProperties.LatestRelease.ToString())
+					return;
+
+				var notificationResult = await new UpgradeNotificationDialog(upgradeProperties, Configuration.IsWindows).ShowDialog<DialogResult>(this);
+
+				if (notificationResult == DialogResult.Ignore)
+					config.SetString(upgradeProperties.LatestRelease.ToString(), ignoreUpdate);
+
+				if (notificationResult != DialogResult.OK || !Configuration.IsWindows) return;
+
+				//Download the update file in the background,
+				//then wire up installaion on window close.
+
+				string zipFile = await downloadUpdate(upgradeProperties);
+
+				if (string.IsNullOrEmpty(zipFile) || !File.Exists(zipFile))
+					return;
+
+				Closed += (_, _) =>
 				{
-					string zipFile = await downloadUpdate(upgradeProperties);
-
-					if (string.IsNullOrEmpty(zipFile) || !System.IO.File.Exists(zipFile))
-						return;
-
-					var result = await MessageBox.Show(this, $"{upgradeProperties.HtmlUrl}\r\n\r\nWould you like to upgrade now?", "New version available", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-
-					if (result == DialogResult.Yes)
+					if (File.Exists(zipFile))
 						runWindowsUpgrader(zipFile);
-				}
-				else
-				{
-					//We're not going to have a solution for in-place upgrade on
-					//linux/mac, so just notify that an update is available.
-
-					const string ignoreUpdate = "IgnoreUpdate";
-					var config = Configuration.Instance;
-
-					if (config.GetString(ignoreUpdate) == upgradeProperties.LatestRelease.ToString())
-						return;
-
-					var notificationResult = await new UpgradeNotification(upgradeProperties).ShowDialog<DialogResult>(this);
-
-					if (notificationResult == DialogResult.Ignore)
-						config.SetString(upgradeProperties.LatestRelease.ToString(), ignoreUpdate);
-				}
+				};
 			}
 			catch (Exception ex)
 			{
