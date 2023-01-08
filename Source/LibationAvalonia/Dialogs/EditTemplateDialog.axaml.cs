@@ -1,12 +1,9 @@
-using Avalonia.Data;
-using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Dinah.Core;
 using LibationFileManager;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,22 +14,6 @@ using Avalonia.Controls;
 
 namespace LibationAvalonia.Dialogs
 {
-	class BracketEscapeConverter : IValueConverter
-	{
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			if (value is string str && str[0] != '<' && str[^1] != '>')
-				return $"<{str}>".Replace("->", "-\x200C>").Replace("<-", "<\x200C-");
-			return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
-		}
-
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			if (value is string str && str[0] == '<' && str[^1] == '>')
-				return str[1..^2].Replace("-\x200C>", "->").Replace("<\x200C-", "<-");
-			return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
-		}
-	}
 	public partial class EditTemplateDialog : DialogWindow
 	{
 		// final value. post-validity check
@@ -43,6 +24,7 @@ namespace LibationAvalonia.Dialogs
 		public EditTemplateDialog()
 		{
 			AvaloniaXamlLoader.Load(this);
+			userEditTbox = this.FindControl<TextBox>(nameof(userEditTbox));
 			if (Design.IsDesignMode)
 			{
 				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
@@ -61,6 +43,18 @@ namespace LibationAvalonia.Dialogs
 			_viewModel.resetTextBox(inputTemplateText);
 			Title = $"Edit {template.Name}";
 			DataContext = _viewModel;
+		}
+
+
+		public void EditTemplateViewModel_DoubleTapped(object sender, Avalonia.Input.TappedEventArgs e)
+		{
+			var dataGrid = sender as DataGrid;
+
+			var item = dataGrid.SelectedItem as Tuple<string, string>;
+			var text = userEditTbox.Text;
+
+			userEditTbox.Text = text.Insert(Math.Min(Math.Max(0, userEditTbox.CaretIndex), text.Length), item.Item1);
+			userEditTbox.CaretIndex += item.Item1.Length;
 		}
 
 		protected override async Task SaveAndCloseAsync()
@@ -99,6 +93,7 @@ namespace LibationAvalonia.Dialogs
 							t.Description)
 						)
 					);
+
 			}
 
 			// hold the work-in-progress value. not guaranteed to be valid

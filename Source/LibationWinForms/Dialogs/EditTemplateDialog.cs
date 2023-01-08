@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows.Forms;
 using Dinah.Core;
 using LibationFileManager;
+using System.Windows.Controls;
 
 namespace LibationWinForms.Dialogs
 {
@@ -59,7 +60,7 @@ namespace LibationWinForms.Dialogs
 
 			// populate list view
 			foreach (var tag in template.GetTemplateTags())
-				listView1.Items.Add(new ListViewItem(new[] { $"<{tag.TagName}>", tag.Description }));
+				listView1.Items.Add(new System.Windows.Forms.ListViewItem(new[] { $"<{tag.TagName}>", tag.Description }));
 		}
 
 		private void resetToDefaultBtn_Click(object sender, EventArgs e) => resetTextBox(template.DefaultTemplate);
@@ -196,6 +197,17 @@ namespace LibationWinForms.Dialogs
 		{
 			this.DialogResult = DialogResult.Cancel;
 			this.Close();
+		}
+
+		private void listView1_DoubleClick(object sender, EventArgs e)
+		{
+			var item = listView1.SelectedItems[0];
+			var text = templateTb.Text;
+
+			var selStart = Math.Min(Math.Max(0, templateTb.SelectionStart), text.Length);
+
+			templateTb.Text = text.Insert(selStart, item.Text);
+			templateTb.SelectionStart = selStart + item.Text.Length;
 		}
 	}
 }

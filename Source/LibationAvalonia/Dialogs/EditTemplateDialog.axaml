@@ -22,6 +22,7 @@
 			<TextBox
 				Grid.Column="0"
 				Grid.Row="1"
+				Name="userEditTbox"
 				FontFamily="{Binding FontFamily}"
 				Text="{Binding UserTemplateText, Mode=TwoWay}" />
 
@@ -43,6 +44,7 @@
 					BorderThickness="1"
 					GridLinesVisibility="All"
 					AutoGenerateColumns="False"
+					DoubleTapped="EditTemplateViewModel_DoubleTapped"
 					Items="{Binding ListItems}" >
 
 					<DataGrid.Columns>
