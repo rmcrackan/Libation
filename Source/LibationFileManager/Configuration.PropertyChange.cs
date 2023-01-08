@@ -7,7 +7,7 @@ namespace LibationFileManager
 		/*
 		 * Use this type in the getter for any Dictionary<TKey, TValue> settings,
 		 * and be sure to clone it before returning. This allows Configuration to
-		 * accurately detect if an of the Dictionary's elements have changed.
+		 * accurately detect if any of the Dictionary's elements have changed.
 		 */
 		private class EquatableDictionary<TKey, TValue> : Dictionary<TKey, TValue>
 		{

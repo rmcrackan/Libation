@@ -36,7 +36,7 @@ namespace LibationFileManager
             }
             set
             {
-				OnPropertyChanging(nameof(LogLevel), LogLevel, value);
+                OnPropertyChanging(nameof(LogLevel), LogLevel, value);
                 var valueWasChanged = persistentDictionary.SetWithJsonPath("Serilog", "MinimumLevel", value.ToString());
                 if (!valueWasChanged)
                 {
@@ -46,9 +46,9 @@ namespace LibationFileManager
 
                 configuration.Reload();
 
-				OnPropertyChanged(nameof(LogLevel), value);
+                OnPropertyChanged(nameof(LogLevel), value);
 
-				Log.Logger.Information("Updated LogLevel MinimumLevel. {@DebugInfo}", new
+                Log.Logger.Information("Updated LogLevel MinimumLevel. {@DebugInfo}", new
                 {
                     LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
                     LogLevel_Debug_Enabled = Log.Logger.IsDebugEnabled(),

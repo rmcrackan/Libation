@@ -357,7 +357,7 @@ namespace AppScaffolding
 		public static UpgradeProperties GetLatestRelease()
 		{
 			// timed out
-			(var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10000));
+			(var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10));
 
 			if (latest is null || zip is null)
 				return null;

@@ -5,7 +5,6 @@ using Dinah.Core;
 using LibationFileManager;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 
 namespace LibationAvalonia.Views
@@ -14,7 +13,6 @@ namespace LibationAvalonia.Views
 	public partial class MainWindow
 	{
 		private InterruptableTimer autoScanTimer;
-		private IDisposable cancellation;
 
 		private void Configure_ScanAuto()
 		{

@@ -46,28 +46,28 @@ namespace FileManager
             return stringCache[propertyName];
         }
 
-		public T GetNonString<T>(string propertyName)
-		{
-			var obj = GetObject(propertyName);
+        public T GetNonString<T>(string propertyName)
+        {
+            var obj = GetObject(propertyName);
 
-			if (obj is null) return default;
+            if (obj is null) return default;
             if (obj.GetType().IsAssignableTo(typeof(T))) return (T)obj;
-			if (obj is JObject jObject) return jObject.ToObject<T>();
-			if (obj is JValue jValue)
-			{
-				if (jValue.Type == JTokenType.String && typeof(T).IsAssignableTo(typeof(Enum)))
-				{
-					return
-						Enum.TryParse(typeof(T), jValue.Value<string>(), out var enumVal)
-						? (T)enumVal
-						: Enum.GetValues(typeof(T)).Cast<T>().First();
-				}
-				return jValue.Value<T>();
-			}
+            if (obj is JObject jObject) return jObject.ToObject<T>();
+            if (obj is JValue jValue)
+            {
+                if (jValue.Type == JTokenType.String && typeof(T).IsAssignableTo(typeof(Enum)))
+                {
+                    return
+                        Enum.TryParse(typeof(T), jValue.Value<string>(), out var enumVal)
+                        ? (T)enumVal
+                        : Enum.GetValues(typeof(T)).Cast<T>().First();
+                }
+                return jValue.Value<T>();
+            }
             throw new InvalidCastException($"{obj.GetType()} is not convertible to {typeof(T)}");
-		}
+        }
 
-		public object GetObject(string propertyName)
+        public object GetObject(string propertyName)
         {
             if (!objectCache.ContainsKey(propertyName))
             {
