@@ -366,6 +366,9 @@ namespace AppScaffolding
 			if (!Version.TryParse(latestVersionString, out var latestRelease))
 				return null;
 
+			// we're up to date
+			if (latestRelease <= BuildVersion)
+				return null;
 
 			// we have an update
 
