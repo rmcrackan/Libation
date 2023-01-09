@@ -261,6 +261,10 @@ namespace AppScaffolding
 			if (!Version.TryParse(latestVersionString, out var latestRelease))
 				return null;
 
+			// we're up to date
+			if (latestRelease <= BuildVersion)
+				return null;
+
 			// we have an update
 
 			var zipUrl = zip?.BrowserDownloadUrl;
@@ -296,7 +300,6 @@ namespace AppScaffolding
 			var repoName = "Libation";
 
 			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(repoName));
-			gitHubClient.Credentials = new("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");
 
 			//Download the release index
 			var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
