@@ -48,6 +48,7 @@ namespace AaxDecrypter
 			TempFilePath = Path.ChangeExtension(jsonDownloadState, ".aaxc");
 
 			DownloadOptions = ArgumentValidator.EnsureNotNull(dlOptions, nameof(dlOptions));
+			DownloadOptions.DownloadSpeedChanged += (_, speed) => InputFileStream.SpeedLimit = speed;
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
@@ -132,14 +133,27 @@ namespace AaxDecrypter
 			return success;
 		}
 
+		protected async Task<bool> Step_DownloadClipsBookmarks()
+		{
+			if (!IsCanceled && DownloadOptions.DownloadClipsBookmarks)
+			{
+				var recordsFile = await DownloadOptions.SaveClipsAndBookmarks(OutputFileName);
+
+				if (File.Exists(recordsFile))
+					OnFileCreated(recordsFile);
+			}
+			return !IsCanceled;
+		}
+
 		private NetworkFileStreamPersister OpenNetworkFileStream()
 		{
-			if (!File.Exists(jsonDownloadState))
-				return NewNetworkFilePersister();
-
+			NetworkFileStreamPersister nfsp = default;
 			try
 			{
-				var nfsp = new NetworkFileStreamPersister(jsonDownloadState);
+				if (!File.Exists(jsonDownloadState))
+					return nfsp = NewNetworkFilePersister();
+
+				nfsp = new NetworkFileStreamPersister(jsonDownloadState);
 				// If More than ~1 hour has elapsed since getting the download url, it will expire.
 				// The new url will be to the same file.
 				nfsp.NetworkFileStream.SetUriForSameFile(new Uri(DownloadOptions.DownloadUrl));
@@ -149,7 +163,12 @@ namespace AaxDecrypter
 			{
 				FileUtility.SaferDelete(jsonDownloadState);
 				FileUtility.SaferDelete(TempFilePath);
-				return NewNetworkFilePersister();
+				return nfsp = NewNetworkFilePersister();
+			}
+			finally
+			{
+				if (nfsp?.NetworkFileStream is not null)
+					nfsp.NetworkFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
 			}
 		}
 

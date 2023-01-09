@@ -275,6 +275,8 @@ namespace LibationFileManager
 
 			public string GetPortionFilename(LibraryBookDto libraryBookDto, string template, AaxDecrypter.MultiConvertFileProperties props, string fullDirPath, ReplacementCharacters replacements = null)
 			{
+				if (string.IsNullOrWhiteSpace(template)) return string.Empty;
+
 				replacements ??= Configuration.Instance.ReplacementCharacters;
 				var fileNamingTemplate = getFileNamingTemplate(libraryBookDto, template, fullDirPath, Path.GetExtension(props.OutputFileName));
 
@@ -319,7 +321,8 @@ namespace LibationFileManager
 
 			public string GetPortionTitle(LibraryBookDto libraryBookDto, string template, AaxDecrypter.MultiConvertFileProperties props)
 			{
-				ArgumentValidator.EnsureNotNullOrWhiteSpace(template, nameof(template));
+				if (string.IsNullOrEmpty(template)) return string.Empty;
+
 				ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 
 				var fileNamingTemplate = new MetadataNamingTemplate(template);

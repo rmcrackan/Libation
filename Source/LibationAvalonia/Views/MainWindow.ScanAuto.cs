@@ -53,7 +53,7 @@ namespace LibationAvalonia.Views
 			AccountsSettingsPersister.Saved += accountsPostSave;
 
 			// when autoscan setting is changed, update menu checkbox and run autoscan
-			Configuration.Instance.AutoScanChanged += startAutoScan;
+			Configuration.Instance.PropertyChanged += startAutoScan;
 		}
 
 		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
@@ -77,9 +77,11 @@ namespace LibationAvalonia.Views
 				startAutoScan();
 		}
 
+		[PropertyChangeFilter(nameof(Configuration.AutoScan))]
 		private void startAutoScan(object sender = null, EventArgs e = null)
 		{
-			if (Configuration.Instance.AutoScan)
+			_viewModel.AutoScanChecked = Configuration.Instance.AutoScan;
+			if (_viewModel.AutoScanChecked)
 				autoScanTimer.PerformNow();
 			else
 				autoScanTimer.Stop();

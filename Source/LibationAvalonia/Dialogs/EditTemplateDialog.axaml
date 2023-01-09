@@ -8,11 +8,6 @@
 		Icon="/Assets/libation.ico"
         Title="EditTemplateDialog">
 
-	<Window.Resources>
-		<dialogs:BracketEscapeConverter x:Key="BracketEscapeConverter" />
-	</Window.Resources>
-
-
 	<Grid RowDefinitions="Auto,*,Auto">
 		<Grid
 			Grid.Row="0"
@@ -27,37 +22,36 @@
 			<TextBox
 				Grid.Column="0"
 				Grid.Row="1"
-				Text="{Binding workingTemplateText, Mode=TwoWay}" />
+				Name="userEditTbox"
+				FontFamily="{Binding FontFamily}"
+				Text="{Binding UserTemplateText, Mode=TwoWay}" />
 
 			<Button
 				Grid.Column="1"
 				Grid.Row="1"
 				Margin="10,0,0,0"
 				VerticalAlignment="Stretch"
-				Padding="20,3,20,3"
+				VerticalContentAlignment="Center"
 				Content="Reset to Default"
 				Click="ResetButton_Click" />
 		</Grid>
 		<Grid Grid.Row="1" ColumnDefinitions="Auto,*">
 
-			<Border
+				<DataGrid
 					Grid.Row="0"
 					Grid.Column="0"
-					Margin="5"
+					BorderBrush="{DynamicResource DataGridGridLinesBrush}"
 					BorderThickness="1"
-					BorderBrush="{DynamicResource DataGridGridLinesBrush}">
-
-				<DataGrid
 					GridLinesVisibility="All"
 					AutoGenerateColumns="False"
+					DoubleTapped="EditTemplateViewModel_DoubleTapped"
 					Items="{Binding ListItems}" >
 
 					<DataGrid.Columns>
-
 						<DataGridTemplateColumn Width="Auto" Header="Tag">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<TextPresenter Height="18" Margin="10,0,10,0" VerticalAlignment="Center" Text="{Binding TagName, Converter={StaticResource BracketEscapeConverter}}" />
+									<TextPresenter Height="18" Margin="10,0,10,0" VerticalAlignment="Center" Text="{Binding Item1}" />
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
@@ -68,7 +62,7 @@
 									<TextPresenter
 										Height="18"
 										Margin="10,0,10,0"
-										VerticalAlignment="Center" Text="{Binding Description}" />
+										VerticalAlignment="Center" Text="{Binding Item2}" />
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
@@ -76,13 +70,12 @@
 					</DataGrid.Columns>
 				</DataGrid>
 
-			</Border>
-
 
 			<Grid
 			Grid.Column="1"
-			Margin="5"
-			RowDefinitions="Auto,*,80" HorizontalAlignment="Stretch">
+			Margin="5,0,5,0"
+			RowDefinitions="Auto,*,Auto"
+			HorizontalAlignment="Stretch">
 
 				<TextBlock
 					Margin="5,5,5,10"
@@ -94,10 +87,9 @@
 					BorderThickness="1"
 					BorderBrush="{DynamicResource DataGridGridLinesBrush}">
 					
-					<WrapPanel
-						Grid.Row="1"
-						Name="wrapPanel"
-						Orientation="Horizontal" />
+					<TextBlock
+						TextWrapping="WrapWithOverflow"
+						Inlines="{Binding Inlines}" />
 
 				</Border>
 
@@ -105,10 +97,9 @@
 					Grid.Row="2"
 					Margin="5"
 					Foreground="Firebrick"
-					Text="{Binding WarningText}" />
-
+					Text="{Binding WarningText}"
+					IsVisible="{Binding WarningText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 			</Grid>
-
 		</Grid>
 		<Button
 			Grid.Row="2"

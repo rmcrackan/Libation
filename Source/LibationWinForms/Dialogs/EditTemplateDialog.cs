@@ -98,11 +98,17 @@ namespace LibationWinForms.Dialogs
 			};
 
 
+
 			var books = config.Books;
 			var folder = Templates.Folder.GetPortionFilename(
 				libraryBookDto,
-				isFolder ? workingTemplateText : config.FolderTemplate);
+				//Path must be rooted for windows to allow long file paths. This is
+				//only necessary for folder templates because they may contain several
+				//subdirectories. Without rooting, we won't be allowed to create a
+				//relative path longer than MAX_PATH
+				Path.Combine(books, isFolder ? workingTemplateText : config.FolderTemplate));
 
+			folder = Path.GetRelativePath(books, folder);
 
 			var file
 				= template == Templates.ChapterFile
@@ -196,6 +202,17 @@ namespace LibationWinForms.Dialogs
 		{
 			this.DialogResult = DialogResult.Cancel;
 			this.Close();
+		}
+
+		private void listView1_DoubleClick(object sender, EventArgs e)
+		{
+			var itemText = listView1.SelectedItems[0].Text.Replace("...", "");
+			var text = templateTb.Text;
+
+			var selStart = Math.Min(Math.Max(0, templateTb.SelectionStart), text.Length);
+
+			templateTb.Text = text.Insert(selStart, itemText);
+			templateTb.SelectionStart = selStart + itemText.Length;
 		}
 	}
 }

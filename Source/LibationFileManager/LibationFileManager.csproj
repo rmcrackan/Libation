@@ -20,10 +20,6 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="OSInterop\" />
-  </ItemGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>

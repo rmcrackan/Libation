@@ -8,6 +8,7 @@ using ApplicationServices;
 using DataLayer;
 using Dinah.Core.WindowsDesktop.Forms;
 using LibationFileManager;
+using LibationWinForms.Dialogs;
 
 namespace LibationWinForms.GridView
 {
@@ -138,22 +139,22 @@ namespace LibationWinForms.GridView
 
 			var setDownloadMenuItem = new ToolStripMenuItem()
             {
-                Text = "Set Download status to 'Downloaded'",
+                Text = "Set Download status to '&Downloaded'",
                 Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated
 			};
             setDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
 
             var setNotDownloadMenuItem = new ToolStripMenuItem()
             {
-                Text = "Set Download status to 'Not Downloaded'",
+                Text = "Set Download status to '&Not Downloaded'",
                 Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
             };
             setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
-            var removeMenuItem = new ToolStripMenuItem() { Text = "Remove from library" };
+            var removeMenuItem = new ToolStripMenuItem() { Text = "&Remove from library" };
             removeMenuItem.Click += (_, __) => LibraryCommands.RemoveBook(entry.AudibleProductId);
 
-            var locateFileMenuItem = new ToolStripMenuItem() { Text = "Locate file..." };
+            var locateFileMenuItem = new ToolStripMenuItem() { Text = "&Locate file..." };
             locateFileMenuItem.Click += (_, __) =>
             {
                 try
@@ -174,13 +175,18 @@ namespace LibationWinForms.GridView
                 }
             };
 
-            var stopLightContextMenu = new ContextMenuStrip();
+			var bookRecordMenuItem = new ToolStripMenuItem { Text = "View &Bookmarks/Clips" };
+			bookRecordMenuItem.Click += (_, _) => new BookRecordsDialog(entry.LibraryBook).ShowDialog(this);
+
+			var stopLightContextMenu = new ContextMenuStrip();
             stopLightContextMenu.Items.Add(setDownloadMenuItem);
             stopLightContextMenu.Items.Add(setNotDownloadMenuItem);
             stopLightContextMenu.Items.Add(removeMenuItem);
             stopLightContextMenu.Items.Add(locateFileMenuItem);
+			stopLightContextMenu.Items.Add(new ToolStripSeparator());
+			stopLightContextMenu.Items.Add(bookRecordMenuItem);
 
-            e.ContextMenuStrip = stopLightContextMenu;
+			e.ContextMenuStrip = stopLightContextMenu;
         }
 
 		private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);

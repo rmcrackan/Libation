@@ -93,7 +93,7 @@ namespace LibationAvalonia
 				saveState.Width = (int)form.Bounds.Size.Width;
 				saveState.Height = (int)form.Bounds.Size.Height;
 
-				config.SetObject(form.GetType().Name, saveState);
+				config.SetNonString(saveState, form.GetType().Name);
 			}
 			catch (Exception ex)
 			{
@@ -101,7 +101,7 @@ namespace LibationAvalonia
 			}
 		}
 
-		class FormSizeAndPosition
+		private record FormSizeAndPosition
 		{
 			public int X;
 			public int Y;
@@ -109,7 +109,6 @@ namespace LibationAvalonia
 			public int Width;
 			public bool IsMaximized;
 		}
-
 
 		public static void HideMinMaxBtns(this Window form)
 		{

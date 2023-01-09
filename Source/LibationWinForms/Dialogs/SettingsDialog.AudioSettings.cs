@@ -17,9 +17,19 @@ namespace LibationWinForms.Dialogs
 			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
 
+			clipsBookmarksFormatCb.Items.AddRange(
+				new object[]
+				{
+					Configuration.ClipBookmarkFormat.CSV,
+					Configuration.ClipBookmarkFormat.Xlsx,
+					Configuration.ClipBookmarkFormat.Json
+				});
+
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
 			createCueSheetCbox.Checked = config.CreateCueSheet;
 			downloadCoverArtCbox.Checked = config.DownloadCoverArt;
+			downloadClipsBookmarksCbox.Checked = config.DownloadClipsBookmarks;
+			clipsBookmarksFormatCb.SelectedItem = config.ClipsBookmarksFileFormat;
 			retainAaxFileCbox.Checked = config.RetainAaxFile;
 			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
 			mergeOpeningEndCreditsCbox.Checked = config.MergeOpeningAndEndCredits;
@@ -44,6 +54,7 @@ namespace LibationWinForms.Dialogs
 			convertFormatRb_CheckedChanged(this, EventArgs.Empty);
 			allowLibationFixupCbox_CheckedChanged(this, EventArgs.Empty);
 			splitFilesByChapterCbox_CheckedChanged(this, EventArgs.Empty);
+			downloadClipsBookmarksCbox_CheckedChanged(this, EventArgs.Empty);
 		}
 
 		private void Save_AudioSettings(Configuration config)
@@ -51,6 +62,8 @@ namespace LibationWinForms.Dialogs
 			config.AllowLibationFixup = allowLibationFixupCbox.Checked;
 			config.CreateCueSheet = createCueSheetCbox.Checked;
 			config.DownloadCoverArt = downloadCoverArtCbox.Checked;
+			config.DownloadClipsBookmarks = downloadClipsBookmarksCbox.Checked;
+			config.ClipsBookmarksFileFormat = (Configuration.ClipBookmarkFormat)clipsBookmarksFormatCb.SelectedItem;
 			config.RetainAaxFile = retainAaxFileCbox.Checked;
 			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
 			config.MergeOpeningAndEndCredits = mergeOpeningEndCreditsCbox.Checked;
@@ -66,6 +79,12 @@ namespace LibationWinForms.Dialogs
 			config.LameVBRQuality = lameVBRQualityTb.Value;
 
 			config.ChapterTitleTemplate = chapterTitleTemplateTb.Text;
+		}
+
+
+		private void downloadClipsBookmarksCbox_CheckedChanged(object sender, EventArgs e)
+		{
+			clipsBookmarksFormatCb.Enabled = downloadClipsBookmarksCbox.Checked;
 		}
 
 		private void lameTargetRb_CheckedChanged(object sender, EventArgs e)

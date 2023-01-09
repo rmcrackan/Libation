@@ -78,7 +78,7 @@ namespace LibationWinForms
 		private void ToggleQueueHideBtn_Click(object sender, EventArgs e)
 		{
 			SetQueueCollapseState(!splitContainer1.Panel2Collapsed);
-			Configuration.Instance.SetObject(nameof(splitContainer1.Panel2Collapsed), splitContainer1.Panel2Collapsed);
+			Configuration.Instance.SetNonString(splitContainer1.Panel2Collapsed, nameof(splitContainer1.Panel2Collapsed));
 		}
 
 		private void ProcessBookQueue1_PopOut(object sender, EventArgs e)

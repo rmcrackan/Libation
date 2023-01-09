@@ -10,6 +10,7 @@ using Dinah.Core;
 using System.Linq;
 using FileManager;
 using System.IO;
+using Avalonia.Collections;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -381,6 +382,7 @@ namespace LibationAvalonia.Dialogs
 	public class AudioSettings : ViewModels.ViewModelBase, ISettingsDisplay
 	{
 
+		private bool _downloadClipsBookmarks;
 		private bool _splitFilesByChapter;
 		private bool _allowLibationFixup;
 		private bool _lameTargetBitrate;
@@ -401,6 +403,8 @@ namespace LibationAvalonia.Dialogs
 			AllowLibationFixup = config.AllowLibationFixup;
 			DownloadCoverArt = config.DownloadCoverArt;
 			RetainAaxFile = config.RetainAaxFile;
+			DownloadClipsBookmarks = config.DownloadClipsBookmarks;
+			ClipBookmarkFormat = config.ClipsBookmarksFileFormat;
 			SplitFilesByChapter = config.SplitFilesByChapter;
 			MergeOpeningAndEndCredits = config.MergeOpeningAndEndCredits;
 			StripAudibleBrandAudio = config.StripAudibleBrandAudio;
@@ -421,6 +425,8 @@ namespace LibationAvalonia.Dialogs
 			config.AllowLibationFixup = AllowLibationFixup;
 			config.DownloadCoverArt = DownloadCoverArt;
 			config.RetainAaxFile = RetainAaxFile;
+			config.DownloadClipsBookmarks = DownloadClipsBookmarks;
+			config.ClipsBookmarksFileFormat = ClipBookmarkFormat;
 			config.SplitFilesByChapter = SplitFilesByChapter;
 			config.MergeOpeningAndEndCredits = MergeOpeningAndEndCredits;
 			config.StripAudibleBrandAudio = StripAudibleBrandAudio;
@@ -437,6 +443,7 @@ namespace LibationAvalonia.Dialogs
 			return Task.FromResult(true);
 		}
 
+		public AvaloniaList<Configuration.ClipBookmarkFormat> ClipBookmarkFormats { get; } = new(Enum<Configuration.ClipBookmarkFormat>.GetValues());
 		public string CreateCueSheetText { get; } = Configuration.GetDescription(nameof(Configuration.CreateCueSheet));
 		public string AllowLibationFixupText { get; } = Configuration.GetDescription(nameof(Configuration.AllowLibationFixup));
 		public string DownloadCoverArtText { get; } = Configuration.GetDescription(nameof(Configuration.DownloadCoverArt));
@@ -450,6 +457,8 @@ namespace LibationAvalonia.Dialogs
 		public bool CreateCueSheet { get; set; }
 		public bool DownloadCoverArt { get; set; }
 		public bool RetainAaxFile { get; set; }
+		public bool DownloadClipsBookmarks { get => _downloadClipsBookmarks; set => this.RaiseAndSetIfChanged(ref _downloadClipsBookmarks, value); }
+		public Configuration.ClipBookmarkFormat ClipBookmarkFormat { get; set; }
 		public bool MergeOpeningAndEndCredits { get; set; }
 		public bool StripAudibleBrandAudio { get; set; }
 		public bool StripUnabridged { get; set; }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ApplicationServices;
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
@@ -132,12 +131,17 @@ namespace LibationAvalonia.Views
                     }
                 };
 
-				args.ContextMenuItems.AddRange(new[]
+				var bookRecordMenuItem = new MenuItem { Header = "View _Bookmarks/Clips" };
+				bookRecordMenuItem.Click += async (_, _) => await new BookRecordsDialog(entry.LibraryBook).ShowDialog(VisualRoot as Window);
+
+				args.ContextMenuItems.AddRange(new Control[]
 				{
 					setDownloadMenuItem,
 					setNotDownloadMenuItem,
 					removeMenuItem,
-					locateFileMenuItem
+					locateFileMenuItem,
+					new Separator(),
+					bookRecordMenuItem
 				});
             }
 			else

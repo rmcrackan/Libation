@@ -56,7 +56,7 @@ namespace LibationAvalonia.Views
 		public void ToggleQueueHideBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			SetQueueCollapseState(_viewModel.QueueOpen);
-			Configuration.Instance.SetObject(nameof(_viewModel.QueueOpen), _viewModel.QueueOpen);
+			Configuration.Instance.SetNonString(_viewModel.QueueOpen, nameof(_viewModel.QueueOpen));
 		}
 	}
 }

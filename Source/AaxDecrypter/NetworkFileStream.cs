@@ -41,9 +41,9 @@ namespace AaxDecrypter
 		[JsonIgnore]
 		public bool IsCancelled => _cancellationSource.IsCancellationRequested;
 
-		private static long _globalSpeedLimit = 0;
+		private long _speedLimit = 0;
 		/// <summary>bytes per second</summary>
-		public static long GlobalSpeedLimit { get => _globalSpeedLimit; set => _globalSpeedLimit = value <= 0 ? 0 : Math.Max(value, MIN_BYTES_PER_SECOND); }
+		public long SpeedLimit { get => _speedLimit; set => _speedLimit = value <= 0 ? 0 : Math.Max(value, MIN_BYTES_PER_SECOND); }
 
 		#endregion
 
@@ -70,7 +70,7 @@ namespace AaxDecrypter
 
 		//Minimum throttle rate. The minimum amount of data that can be throttled
 		//on each iteration of the download loop is DOWNLOAD_BUFF_SZ.
-		private const int MIN_BYTES_PER_SECOND = DOWNLOAD_BUFF_SZ * THROTTLE_FREQUENCY;
+		public const int MIN_BYTES_PER_SECOND = DOWNLOAD_BUFF_SZ * THROTTLE_FREQUENCY;
 
 		#endregion
 
@@ -202,7 +202,7 @@ namespace AaxDecrypter
 
 					bytesReadSinceThrottle += bytesRead;
 
-					if (GlobalSpeedLimit >= MIN_BYTES_PER_SECOND && bytesReadSinceThrottle > GlobalSpeedLimit / THROTTLE_FREQUENCY)
+					if (SpeedLimit >= MIN_BYTES_PER_SECOND && bytesReadSinceThrottle > SpeedLimit / THROTTLE_FREQUENCY)
 					{
 						var delayMS = (int)(startTime.AddSeconds(1d / THROTTLE_FREQUENCY) - DateTime.Now).TotalMilliseconds;
 						if (delayMS > 0)

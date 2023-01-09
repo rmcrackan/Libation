@@ -10,7 +10,7 @@ namespace LibationAvalonia.Controls
 	{
 		public static event EventHandler<DataGridCellContextMenuStripNeededEventArgs> CellContextMenuStripNeeded;
 		private static readonly ContextMenu ContextMenu = new();
-		private static readonly AvaloniaList<MenuItem> MenuItems = new();
+		private static readonly AvaloniaList<Control> MenuItems = new();
 		private static readonly PropertyInfo OwningColumnProperty;
 
 		static DataGridContextMenus()
@@ -65,7 +65,7 @@ namespace LibationAvalonia.Controls
 		public DataGridColumn Column { get; init; }
 		public GridEntry GridEntry { get; init; }
 		public ContextMenu ContextMenu { get; init; }
-		public AvaloniaList<MenuItem> ContextMenuItems
-			=> ContextMenu.Items as AvaloniaList<MenuItem>;
+		public AvaloniaList<Control> ContextMenuItems
+			=> ContextMenu.Items as AvaloniaList<Control>;
 	}
 }

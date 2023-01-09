@@ -29,6 +29,9 @@ namespace AppScaffolding
 
 	public static class LibationScaffolding
 	{
+		public const string RepositoryUrl = "ht" + "tps://github.com/rmcrackan/Libation";
+		public const string WebsiteUrl = "ht" + "tps://getlibation.com";
+		public const string RepositoryLatestUrl = "ht" + "tps://github.com/rmcrackan/Libation/releases/latest";
 		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
 		public static VarietyType Variety
 			=> ReleaseIdentifier == ReleaseIdentifier.WindowsClassic ? VarietyType.Classic
@@ -173,6 +176,12 @@ namespace AppScaffolding
 
 			if (!config.Exists(nameof(config.DownloadCoverArt)))
 				config.DownloadCoverArt = true;
+			
+			if (!config.Exists(nameof(config.DownloadClipsBookmarks)))
+				config.DownloadClipsBookmarks = false;
+
+			if (!config.Exists(nameof(config.ClipsBookmarksFileFormat)))
+				config.ClipsBookmarksFileFormat = Configuration.ClipBookmarkFormat.CSV;
 
 			if (!config.Exists(nameof(config.AutoDownloadEpisodes)))
 				config.AutoDownloadEpisodes = false;
@@ -229,7 +238,7 @@ namespace AppScaffolding
 				{ "Using", new JArray{ "Dinah.Core", "Serilog.Exceptions" } }, // dll's name, NOT namespace
 				{ "Enrich", new JArray{ "WithCaller", "WithExceptionDetails" } },
 			};
-			config.SetObject("Serilog", serilogObj);
+			config.SetNonString(serilogObj, "Serilog");
 		}
 
 		// to restore original: Console.SetOut(origOut);
@@ -372,7 +381,7 @@ namespace AppScaffolding
 				zipUrl
 			});
 
-			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease);
+			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease, latest.Body);
 		}
 		private static (Octokit.Release, Octokit.ReleaseAsset) getLatestRelease(TimeSpan timeout)
 		{

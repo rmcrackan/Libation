@@ -56,12 +56,19 @@ namespace LibationWinForms
 			AccountsSettingsPersister.Saving += accountsPreSave;
 			AccountsSettingsPersister.Saved += accountsPostSave;
 
-			// when autoscan setting is changed, update menu checkbox and run autoscan
-			Configuration.Instance.AutoScanChanged += updateAutoScanLibraryToolStripMenuItem;
-			Configuration.Instance.AutoScanChanged += startAutoScan;
+			Configuration.Instance.PropertyChanged += Configuration_PropertyChanged;
 		}
 
-        private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
+
+		[PropertyChangeFilter(nameof(Configuration.AutoScan))]
+		private void Configuration_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
+		{
+			// when autoscan setting is changed, update menu checkbox and run autoscan
+			updateAutoScanLibraryToolStripMenuItem(sender, e);
+			startAutoScan(sender, e);
+		}
+
+		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
 		private List<(string AccountId, string LocaleName)> getDefaultAccounts()
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
