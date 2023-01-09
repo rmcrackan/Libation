@@ -1,6 +1,7 @@
 #!/bin/bash
 
-FILE=$1
+FILE=$1; shift
+VERSION=$1; shift
 
 if [ -z "$FILE" ]
 then
@@ -11,6 +12,20 @@ fi
 if [ ! -f "$FILE" ]
 then
   echo "The file \"$FILE\" does not exist."
+  exit
+fi
+
+if [ -z "$VERSION" ]
+then
+  echo "This script must be called with the Libation version number as an argument."
+  exit
+fi
+
+contains() { case "$1" in *"$2"*) true ;; *) false ;; esac }
+
+if ! contains "$FILE" "$VERSION"
+then
+  echo "This script must be called with a Libation version number that is present in the filename passed."
   exit
 fi
 
@@ -97,7 +112,7 @@ chmod 666 /usr/lib/libation/appsettings.json
 
 echo "Creating control file..."
 echo "Package: Libation
-Version: 8.7.0
+Version: $VERSION
 Architecture: all
 Essential: no
 Priority: optional
@@ -116,3 +131,4 @@ dpkg-deb --build $FOLDER_MAIN
 rm -r "$FOLDER_MAIN"
 
 echo "Done!"
+

@@ -138,7 +138,7 @@ namespace LibationFileManager
 		public Dictionary<string, int> GridColumnsWidths { get => GetNonString(defaultValue: new EquatableDictionary<string, int>()).Clone(); set => SetNonString(value); }
 
 		[Description("Save cover image alongside audiobook?")]
-		public bool DownloadCoverArt { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+		public bool DownloadCoverArt { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Download clips and bookmarks?")]
 		public bool DownloadClipsBookmarks { get => GetNonString(defaultValue: false); set => SetNonString(value); }
@@ -215,7 +215,7 @@ namespace LibationFileManager
 		[Description("How to format the folders in which files will be saved")]
 		public string FolderTemplate
 		{
-			get => Templates.Folder.GetValid(GetString(Templates.Folder.DefaultTemplate));
+			get => Templates.Folder.GetValid(GetString(defaultValue: Templates.Folder.DefaultTemplate));
 			set => setTemplate(Templates.Folder, value);
 		}
 

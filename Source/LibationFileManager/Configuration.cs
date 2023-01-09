@@ -24,9 +24,6 @@ namespace LibationFileManager
 			if (booksDir is null || !Directory.Exists(booksDir))
 				return false;
 
-			if (string.IsNullOrWhiteSpace(pDic.GetString(nameof(InProgress))))
-				return false;
-
 			return true;
 		}
 
