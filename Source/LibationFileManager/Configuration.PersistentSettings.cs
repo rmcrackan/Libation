@@ -128,16 +128,16 @@ namespace LibationFileManager
 		[Description("Lame target VBR quality [10,100]")]
 		public int LameVBRQuality { get => GetNonString<int>(); set => SetNonString(value); }
 
-		[Description("A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid")]
-		public Dictionary<string, bool> GridColumnsVisibilities { get => GetNonString<EquatableDictionary<string, bool>>().Clone(); set => SetNonString(value); }
+        [Description("A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid")]
+        public Dictionary<string, bool> GridColumnsVisibilities { get => GetNonString<EquatableDictionary<string, bool>>()?.Clone() ?? new(); set => SetNonString(value); }
 
-		[Description("A Dictionary of GridView data property names and int indicating its column's display index in ProductsGrid")]
-		public Dictionary<string, int> GridColumnsDisplayIndices { get => GetNonString<EquatableDictionary<string, int>>().Clone(); set => SetNonString(value); }
+        [Description("A Dictionary of GridView data property names and int indicating its column's display index in ProductsGrid")]
+        public Dictionary<string, int> GridColumnsDisplayIndices { get => GetNonString<EquatableDictionary<string, int>>()?.Clone() ?? new(); set => SetNonString(value); }
 
-		[Description("A Dictionary of GridView data property names and int indicating its column's width in ProductsGrid")]
-		public Dictionary<string, int> GridColumnsWidths { get => GetNonString<EquatableDictionary<string, int>>().Clone(); set => SetNonString(value); }
+        [Description("A Dictionary of GridView data property names and int indicating its column's width in ProductsGrid")]
+        public Dictionary<string, int> GridColumnsWidths { get => GetNonString<EquatableDictionary<string, int>>()?.Clone() ?? new(); set => SetNonString(value); }
 
-		[Description("Save cover image alongside audiobook?")]
+        [Description("Save cover image alongside audiobook?")]
 		public bool DownloadCoverArt { get => GetNonString<bool>(); set => SetNonString(value); }
 
 		[Description("Download clips and bookmarks?")]
