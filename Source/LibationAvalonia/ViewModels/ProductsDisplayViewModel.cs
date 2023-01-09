@@ -178,7 +178,7 @@ namespace LibationAvalonia.ViewModels
 				FilteredInGridEntries = filterResults;
 
 				if (GridEntries.IsEditingItem)
-					GridEntries.CommitEdit();
+					await Dispatcher.UIThread.InvokeAsync(GridEntries.CommitEdit);
 
 				await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
 			}
