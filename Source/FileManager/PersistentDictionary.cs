@@ -39,10 +39,10 @@ namespace FileManager
             {
                 var jObject = readFile();
                 if (jObject.ContainsKey(propertyName))
-					stringCache[propertyName] = jObject[propertyName].Value<string>();
-				else
-					stringCache[propertyName] = defaultValue;
-			}
+                    stringCache[propertyName] = jObject[propertyName].Value<string>();
+                else
+                    stringCache[propertyName] = defaultValue;
+            }
 
             return stringCache[propertyName];
         }
@@ -53,9 +53,9 @@ namespace FileManager
 
             if (obj is null)
             {
-				objectCache[propertyName] = defaultValue;
+                objectCache[propertyName] = defaultValue;
                 return defaultValue;
-			}
+            }
             if (obj.GetType().IsAssignableTo(typeof(T))) return (T)obj;
             if (obj is JObject jObject) return jObject.ToObject<T>();
             if (obj is JValue jValue)
