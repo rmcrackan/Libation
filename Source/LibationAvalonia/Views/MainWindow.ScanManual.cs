@@ -1,6 +1,5 @@
 ﻿using ApplicationServices;
 using AudibleUtilities;
-using Avalonia.Controls;
 using LibationFileManager;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_ScanManual()

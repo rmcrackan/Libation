@@ -80,7 +80,7 @@ namespace LibationAvalonia.Views
 				const string ignoreUpdate = "IgnoreUpdate";
 				var config = Configuration.Instance;
 
-				if (config.GetString(ignoreUpdate) == upgradeProperties.LatestRelease.ToString())
+				if (config.GetString(propertyName: ignoreUpdate) == upgradeProperties.LatestRelease.ToString())
 					return;
 
 				var notificationResult = await new UpgradeNotificationDialog(upgradeProperties, Configuration.IsWindows).ShowDialog<DialogResult>(this);

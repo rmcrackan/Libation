@@ -1,15 +1,12 @@
 ﻿using ApplicationServices;
 using Avalonia.Threading;
 using DataLayer;
-using Dinah.Core;
-using LibationFileManager;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_VisibleBooks()

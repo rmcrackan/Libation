@@ -131,8 +131,6 @@ namespace LibationAvalonia
 		{
 			config.Books ??= Path.Combine(Configuration.UserProfile, "Books");
 
-			AppScaffolding.LibationScaffolding.PopulateMissingConfigValues(config);
-
 			var settingsDialog = new SettingsDialog();
 			desktop.MainWindow = settingsDialog;
 			settingsDialog.RestoreSizeAndLocation(Configuration.Instance);

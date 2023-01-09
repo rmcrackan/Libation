@@ -6,12 +6,11 @@ using System.Linq;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_ProcessQueue()
 		{
-			var collapseState = !Configuration.Instance.GetNonString<bool>(nameof(_viewModel.QueueOpen));
+			var collapseState = !Configuration.Instance.GetNonString(defaultValue: true, nameof(_viewModel.QueueOpen));
 			SetQueueCollapseState(collapseState);
 		}
 
@@ -51,12 +50,12 @@ namespace LibationAvalonia.Views
 		private void SetQueueCollapseState(bool collapsed)
 		{
 			_viewModel.QueueOpen = !collapsed;
+			Configuration.Instance.SetNonString(!collapsed, nameof(_viewModel.QueueOpen));
 		}
 
 		public void ToggleQueueHideBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			SetQueueCollapseState(_viewModel.QueueOpen);
-			Configuration.Instance.SetNonString(_viewModel.QueueOpen, nameof(_viewModel.QueueOpen));
 		}
 	}
 }
