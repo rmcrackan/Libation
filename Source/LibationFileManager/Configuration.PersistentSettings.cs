@@ -188,7 +188,7 @@ namespace LibationFileManager
 		public bool DownloadEpisodes { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 		[Description("Automatically run periodic scans in the background?")]
-		public bool AutoScan { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+		public bool AutoScan { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Auto download books? After scan, download new books in 'checked' accounts.")]
 		// poorly named setting. Should just be 'AutoDownload'. It is NOT episode specific
