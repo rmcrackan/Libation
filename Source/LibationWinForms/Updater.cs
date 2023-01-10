@@ -29,7 +29,7 @@ namespace LibationWinForms
 				const string ignoreUpdate = "IgnoreUpdate";
 				var config = Configuration.Instance;
 
-				if (config.GetString(ignoreUpdate) == args.CurrentVersion)
+				if (config.GetString(propertyName: ignoreUpdate) == args.CurrentVersion)
 					return;
 
 				var notificationResult = new UpgradeNotificationDialog(upgradeProperties).ShowDialog();

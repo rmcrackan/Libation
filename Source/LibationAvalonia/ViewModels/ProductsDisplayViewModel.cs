@@ -77,13 +77,21 @@ namespace LibationAvalonia.ViewModels
 				//Run query on new list
 				FilteredInGridEntries = QueryResults(SOURCE, FilterString);
 
-				await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
+				await refreshGrid();
 
 			}
 			catch (Exception ex)
 			{
 				Serilog.Log.Error(ex, "Error displaying library in {0}", nameof(ProductsDisplayViewModel));
 			}
+		}
+
+		private async Task refreshGrid()
+		{
+			if (GridEntries.IsEditingItem)
+				await Dispatcher.UIThread.InvokeAsync(GridEntries.CommitEdit);
+
+			await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
 		}
 
 		private static List<GridEntry> CreateGridEntries(IEnumerable<LibraryBook> dbBooks)
@@ -118,10 +126,11 @@ namespace LibationAvalonia.ViewModels
 			return bookList;
 		}
 
-		public void ToggleSeriesExpanded(SeriesEntry seriesEntry)
+		public async Task ToggleSeriesExpanded(SeriesEntry seriesEntry)
 		{
 			seriesEntry.Liberate.Expanded = !seriesEntry.Liberate.Expanded;
-			GridEntries.Refresh();
+
+			await refreshGrid();
 		}
 
 		#endregion
@@ -140,7 +149,7 @@ namespace LibationAvalonia.ViewModels
 
 			FilteredInGridEntries = QueryResults(SOURCE, searchString);
 
-			await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
+			await refreshGrid();
 		}
 
 		private bool CollectionFilter(object item)
@@ -176,11 +185,7 @@ namespace LibationAvalonia.ViewModels
 			if (filterResults is not null && FilteredInGridEntries.Intersect(filterResults).Count() != FilteredInGridEntries.Count)
 			{
 				FilteredInGridEntries = filterResults;
-
-				if (GridEntries.IsEditingItem)
-					GridEntries.CommitEdit();
-
-				await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
+				await refreshGrid();
 			}
 		}
 

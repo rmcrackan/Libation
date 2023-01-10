@@ -33,29 +33,34 @@ namespace FileManager
             createNewFile();
         }
 
-        public string GetString(string propertyName)
+        public string GetString(string propertyName, string defaultValue = null)
         {
             if (!stringCache.ContainsKey(propertyName))
             {
                 var jObject = readFile();
-                if (!jObject.ContainsKey(propertyName))
-                    return null;
-                stringCache[propertyName] = jObject[propertyName].Value<string>();
+                if (jObject.ContainsKey(propertyName))
+                    stringCache[propertyName] = jObject[propertyName].Value<string>();
+                else
+                    stringCache[propertyName] = defaultValue;
             }
 
             return stringCache[propertyName];
         }
 
-        public T GetNonString<T>(string propertyName)
+        public T GetNonString<T>(string propertyName, T defaultValue = default)
         {
             var obj = GetObject(propertyName);
 
-            if (obj is null) return default;
+            if (obj is null)
+            {
+                objectCache[propertyName] = defaultValue;
+                return defaultValue;
+            }
             if (obj.GetType().IsAssignableTo(typeof(T))) return (T)obj;
             if (obj is JObject jObject) return jObject.ToObject<T>();
             if (obj is JValue jValue)
             {
-                if (jValue.Type == JTokenType.String && typeof(T).IsAssignableTo(typeof(Enum)))
+                if (typeof(T).IsAssignableTo(typeof(Enum)))
                 {
                     return
                         Enum.TryParse(typeof(T), jValue.Value<string>(), out var enumVal)

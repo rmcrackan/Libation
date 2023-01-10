@@ -30,7 +30,7 @@ namespace LibationWinForms.Dialogs
 		private void UpgradeNotificationDialog_Load(object sender, EventArgs e)
 		{
 			//This dialog starts before Form1, soposition it at the center of where Form1 will be.
-			var savedState = Configuration.Instance.GetNonString<FormSizeAndPosition>(nameof(Form1));
+			var savedState = Configuration.Instance.GetNonString<FormSizeAndPosition>(defaultValue: null, nameof(Form1));
 
 			if (savedState is null) return;
 

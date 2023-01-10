@@ -77,117 +77,12 @@ namespace AppScaffolding
 		public static void RunPostConfigMigrations(Configuration config)
 		{
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
-			PopulateMissingConfigValues(config);
 
 			//
 			// migrations go below here
 			//
 
 			Migrations.migrate_to_v6_6_9(config);
-		}
-
-		public static void PopulateMissingConfigValues(Configuration config)
-		{
-			config.InProgress ??= Configuration.WinTemp;
-
-            if (!config.Exists(nameof(config.UseCoverAsFolderIcon)))
-                config.UseCoverAsFolderIcon = false;
-
-            if (!config.Exists(nameof(config.BetaOptIn)))
-                config.BetaOptIn = false;
-
-            if (!config.Exists(nameof(config.AllowLibationFixup)))
-				config.AllowLibationFixup = true;
-
-			if (!config.Exists(nameof(config.CreateCueSheet)))
-				config.CreateCueSheet = true;
-
-			if (!config.Exists(nameof(config.RetainAaxFile)))
-				config.RetainAaxFile = false;
-
-			if (!config.Exists(nameof(config.SplitFilesByChapter)))
-				config.SplitFilesByChapter = false;
-
-			if (!config.Exists(nameof(config.StripUnabridged)))
-				config.StripUnabridged = false;
-
-			if (!config.Exists(nameof(config.StripAudibleBrandAudio)))
-				config.StripAudibleBrandAudio = false;
-
-			if (!config.Exists(nameof(config.DecryptToLossy)))
-				config.DecryptToLossy = false;
-
-			if (!config.Exists(nameof(config.LameTargetBitrate)))
-				config.LameTargetBitrate = false;
-
-			if (!config.Exists(nameof(config.LameDownsampleMono)))
-				config.LameDownsampleMono = true;
-
-			if (!config.Exists(nameof(config.LameBitrate)))
-				config.LameBitrate = 64;
-
-			if (!config.Exists(nameof(config.LameConstantBitrate)))
-				config.LameConstantBitrate = false;
-
-			if (!config.Exists(nameof(config.LameMatchSourceBR)))
-				config.LameMatchSourceBR = true;
-
-			if (!config.Exists(nameof(config.LameVBRQuality)))
-				config.LameVBRQuality = 2;
-
-			if (!config.Exists(nameof(config.BadBook)))
-				config.BadBook = Configuration.BadBookAction.Ask;
-
-			if (!config.Exists(nameof(config.ShowImportedStats)))
-				config.ShowImportedStats = true;
-
-			if (!config.Exists(nameof(config.ImportEpisodes)))
-				config.ImportEpisodes = true;
-
-			if (!config.Exists(nameof(config.DownloadEpisodes)))
-				config.DownloadEpisodes = true;
-
-			if (!config.Exists(nameof(config.ReplacementCharacters)))
-				config.ReplacementCharacters = FileManager.ReplacementCharacters.Default;
-
-			if (!config.Exists(nameof(config.FolderTemplate)))
-				config.FolderTemplate = Templates.Folder.DefaultTemplate;
-
-			if (!config.Exists(nameof(config.FileTemplate)))
-				config.FileTemplate = Templates.File.DefaultTemplate;
-
-			if (!config.Exists(nameof(config.ChapterFileTemplate)))
-				config.ChapterFileTemplate = Templates.ChapterFile.DefaultTemplate;
-
-			if (!config.Exists(nameof(config.ChapterTitleTemplate)))
-				config.ChapterTitleTemplate = Templates.ChapterTitle.DefaultTemplate;
-
-			if (!config.Exists(nameof(config.AutoScan)))
-				config.AutoScan = true;
-
-			if (!config.Exists(nameof(config.GridColumnsVisibilities)))
-				config.GridColumnsVisibilities = new Dictionary<string, bool>();
-
-			if (!config.Exists(nameof(config.GridColumnsDisplayIndices)))
-				config.GridColumnsDisplayIndices = new Dictionary<string, int>();
-
-			if (!config.Exists(nameof(config.GridColumnsWidths)))
-				config.GridColumnsWidths = new Dictionary<string, int>();
-
-			if (!config.Exists(nameof(config.DownloadCoverArt)))
-				config.DownloadCoverArt = true;
-			
-			if (!config.Exists(nameof(config.DownloadClipsBookmarks)))
-				config.DownloadClipsBookmarks = false;
-
-			if (!config.Exists(nameof(config.ClipsBookmarksFileFormat)))
-				config.ClipsBookmarksFileFormat = Configuration.ClipBookmarkFormat.CSV;
-
-			if (!config.Exists(nameof(config.AutoDownloadEpisodes)))
-				config.AutoDownloadEpisodes = false;
-
-			if (!config.Exists(nameof(config.DownloadSpeedLimit)))
-				config.DownloadSpeedLimit = 0;
 		}
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>

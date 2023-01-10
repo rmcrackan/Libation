@@ -57,13 +57,6 @@ namespace LibationAvalonia.ViewModels
 					&& updateReviewTask?.IsCompleted is not false)
 				{
 					updateReviewTask = UpdateRating(value);
-					updateReviewTask.ContinueWith(t =>
-					{
-						if (t.Result)
-							LibraryBook.Book.UpdateUserDefinedItem(Book.UserDefinedItem.Tags, Book.UserDefinedItem.BookStatus, Book.UserDefinedItem.PdfStatus, value);
-
-						this.RaiseAndSetIfChanged(ref _myRating, value);
-					});
 				}
 			}
 		}
@@ -82,12 +75,18 @@ namespace LibationAvalonia.ViewModels
 
 		#region User rating
 
-		private Task<bool> updateReviewTask;
-		private async Task<bool> UpdateRating(Rating rating)
+		private Task updateReviewTask;
+		private async Task UpdateRating(Rating rating)
 		{
 			var api = await LibraryBook.GetApiAsync();
 
-			return await api.ReviewAsync(Book.AudibleProductId, (int)rating.OverallRating, (int)rating.PerformanceRating, (int)rating.StoryRating);
+			if (await api.ReviewAsync(Book.AudibleProductId, (int)rating.OverallRating, (int)rating.PerformanceRating, (int)rating.StoryRating))
+			{
+				_myRating = rating;
+				LibraryBook.Book.UpdateUserDefinedItem(Book.UserDefinedItem.Tags, Book.UserDefinedItem.BookStatus, Book.UserDefinedItem.PdfStatus, rating);
+			}
+
+			this.RaisePropertyChanged(nameof(MyRating));
 		}
 
 		#endregion

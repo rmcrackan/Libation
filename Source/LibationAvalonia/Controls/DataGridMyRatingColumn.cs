@@ -2,6 +2,9 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using DataLayer;
+using LibationAvalonia.ViewModels;
+using ReactiveUI;
+using System;
 
 namespace LibationAvalonia.Controls
 {
@@ -28,6 +31,21 @@ namespace LibationAvalonia.Controls
 			{
 				myRatingElement.Bind(BindingTarget, Binding);
 			}
+
+			void setControlBackground(object dataContext)
+			{
+				if (dataContext is GridEntry ge)
+					myRatingElement.Background = ge.BackgroundBrush;
+			}
+
+			setControlBackground(cell?.DataContext);
+
+			var subscriber =
+				cell
+				?.ObservableForProperty(g => g.DataContext)
+				?.Subscribe(ctx => setControlBackground(ctx?.Value));
+
+			myRatingElement.DetachedFromVisualTree += (_, _) => subscriber?.Dispose();
 
 			return myRatingElement;
 		}

@@ -21,7 +21,7 @@ namespace LibationWinForms
 
 		public static void RestoreSizeAndLocation(this Form form, Configuration config)
 		{
-			FormSizeAndPosition savedState = config.GetNonString<FormSizeAndPosition>(form.Name);
+			var savedState = config.GetNonString<FormSizeAndPosition>(defaultValue: null, form.Name);
 
 			if (savedState is null)
 				return;

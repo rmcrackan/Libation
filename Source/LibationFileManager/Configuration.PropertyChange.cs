@@ -12,7 +12,7 @@ namespace LibationFileManager
 		private class EquatableDictionary<TKey, TValue> : Dictionary<TKey, TValue>
 		{
 			public EquatableDictionary() { }
-            public EquatableDictionary(IEnumerable<KeyValuePair<TKey, TValue>> keyValuePairs) : base(keyValuePairs) { }
+			public EquatableDictionary(IEnumerable<KeyValuePair<TKey, TValue>> keyValuePairs) : base(keyValuePairs) { }
 			public EquatableDictionary<TKey, TValue> Clone() => new(this);
 			public override bool Equals(object obj)
 			{

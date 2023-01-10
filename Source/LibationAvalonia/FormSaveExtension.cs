@@ -28,8 +28,7 @@ namespace LibationAvalonia
 			if (Design.IsDesignMode) return;
 			try
 			{
-
-				FormSizeAndPosition savedState = config.GetNonString<FormSizeAndPosition>(form.GetType().Name);
+				var savedState = config.GetNonString<FormSizeAndPosition>(defaultValue: null, form.GetType().Name);
 
 				if (savedState is null)
 					return;
