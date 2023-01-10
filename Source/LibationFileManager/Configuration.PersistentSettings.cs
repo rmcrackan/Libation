@@ -84,7 +84,12 @@ namespace LibationFileManager
 
 		// temp/working dir(s) should be outside of dropbox
 		[Description("Temporary location of files while they're in process of being downloaded and decrypted.\r\nWhen decryption is complete, the final file will be in Books location\r\nRecommend not using a folder which is backed up real time. Eg: Dropbox, iCloud, Google Drive")]
-		public string InProgress { get => GetString(defaultValue: WinTemp); set => SetString(value); }
+		public string InProgress { get
+			{
+				var tempDir = GetString();
+				return string.IsNullOrWhiteSpace(tempDir) ? WinTemp : tempDir;
+			}
+			set => SetString(value); }
 
 		[Description("Allow Libation to fix up audiobook metadata")]
 		public bool AllowLibationFixup { get => GetNonString(defaultValue: true); set => SetNonString(value); }

@@ -9,6 +9,7 @@ using System.Linq;
 
 namespace LibationAvalonia.Views
 {
+	//DONE
 	public partial class MainWindow
 	{
 		private InterruptableTimer autoScanTimer;

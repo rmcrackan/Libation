@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace LibationAvalonia.Views
 {
+	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_RemoveBooks() 
