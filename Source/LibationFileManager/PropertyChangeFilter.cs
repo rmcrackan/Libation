@@ -79,22 +79,35 @@ namespace LibationFileManager
 	{
 		private readonly Dictionary<string, List<Delegate>> propertyChangedActions = new();
 		private readonly Dictionary<string, List<Delegate>> propertyChangingActions = new();
-		
+
 		private readonly List<(PropertyChangedEventHandlerEx subscriber, PropertyChangedEventHandlerEx wrapper)> changedFilters = new();
 		private readonly List<(PropertyChangingEventHandlerEx subscriber, PropertyChangingEventHandlerEx wrapper)> changingFilters = new();
 
-		public PropertyChangeFilter()
+		protected void OnPropertyChanged(string propertyName, object newValue)
 		{
-			PropertyChanging += Configuration_PropertyChanging;
-			PropertyChanged += Configuration_PropertyChanged;
+			if (propertyChangedActions.ContainsKey(propertyName))
+			{
+				//Invoke observables registered for propertyName 
+				foreach (var action in propertyChangedActions[propertyName])
+					action.DynamicInvoke(newValue);
+			}
+
+			_propertyChanged?.Invoke(this, new(propertyName, newValue));
+		}
+
+		protected void OnPropertyChanging(string propertyName, object oldValue, object newValue)
+		{
+			if (propertyChangingActions.ContainsKey(propertyName))
+			{
+				//Invoke observables registered for propertyName
+				foreach (var action in propertyChangingActions[propertyName])
+					action.DynamicInvoke(oldValue, newValue);
+			}
+
+			_propertyChanging?.Invoke(this, new(propertyName, oldValue, newValue));
 		}
 
 		#region Events
-
-		protected void OnPropertyChanged(string propertyName, object newValue)
-			=> _propertyChanged?.Invoke(this, new(propertyName, newValue));
-		protected void OnPropertyChanging(string propertyName, object oldValue, object newValue)
-			=> _propertyChanging?.Invoke(this, new(propertyName, oldValue, newValue));
 
 		private PropertyChangedEventHandlerEx _propertyChanged;
 		private PropertyChangingEventHandlerEx _propertyChanging;
@@ -253,28 +266,6 @@ namespace LibationFileManager
 
 			if (propertyInfo.PropertyType != typeof(T))
 				throw new InvalidCastException($"{nameof(Configuration)}.{propertyName} is {propertyInfo.PropertyType}, but parameter is {typeof(T)}.");
-		}
-
-		private void Configuration_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
-		{
-			if (propertyChangedActions.ContainsKey(e.PropertyName))
-			{
-				foreach (var action in propertyChangedActions[e.PropertyName])
-				{
-					action.DynamicInvoke(e.NewValue);
-				}
-			}
-		}
-
-		private void Configuration_PropertyChanging(object sender, PropertyChangingEventArgsEx e)
-		{
-			if (propertyChangingActions.ContainsKey(e.PropertyName))
-			{
-				foreach (var action in propertyChangingActions[e.PropertyName])
-				{
-					action.DynamicInvoke(e.OldValue, e.NewValue);
-				}
-			}
 		}
 
 		private class Unsubscriber : IDisposable
