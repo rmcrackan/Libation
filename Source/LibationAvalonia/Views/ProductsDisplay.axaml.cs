@@ -273,13 +273,13 @@ namespace LibationAvalonia.Views
 
 		#region Button Click Handlers
 
-		public void LiberateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public async void LiberateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var button = args.Source as Button;
 
 			if (button.DataContext is SeriesEntry sEntry)
 			{
-				_viewModel.ToggleSeriesExpanded(sEntry);
+				await _viewModel.ToggleSeriesExpanded(sEntry);
 
 				//Expanding and collapsing reset the list, which will cause focus to shift
 				//to the topright cell. Reset focus onto the clicked button's cell.

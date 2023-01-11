@@ -53,7 +53,6 @@ namespace LibationAvalonia.ViewModels
 		public override bool IsSeries => false;
 		public override bool IsEpisode => Parent is not null;
 		public override bool IsBook => Parent is null;
-		public override double Opacity => Book.UserDefinedItem.Tags.ToLower().Contains("hidden") ? 0.4 : 1;
 
 		#endregion
 
@@ -69,7 +68,7 @@ namespace LibationAvalonia.ViewModels
 			//the reference doesn't change. Clone the rating so that it updates within Avalonia properly.
 			_myRating = new Rating(Book.UserDefinedItem.Rating.OverallRating, Book.UserDefinedItem.Rating.PerformanceRating, Book.UserDefinedItem.Rating.StoryRating);
 			PurchaseDate = libraryBook.DateAdded.ToString("d");
-			ProductRating = Book.Rating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+			ProductRating = Book.Rating ?? new Rating(0, 0, 0);
 			Authors = Book.AuthorNames();
 			Narrators = Book.NarratorNames();
 			Category = string.Join(" > ", Book.CategoriesNames());
@@ -102,7 +101,6 @@ namespace LibationAvalonia.ViewModels
 				case nameof(udi.Tags):
 					Book.UserDefinedItem.Tags = udi.Tags; 
 					this.RaisePropertyChanged(nameof(BookTags));
-					this.RaisePropertyChanged(nameof(Opacity));
 					break;
 				case nameof(udi.BookStatus):
 					Book.UserDefinedItem.BookStatus = udi.BookStatus;

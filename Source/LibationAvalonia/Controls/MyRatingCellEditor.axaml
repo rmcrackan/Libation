@@ -17,7 +17,7 @@
 			</Grid.Styles>
 
 			<TextBlock Grid.Column="0" Grid.Row="0" Name="tblockOverall" Text="Overall:" />
-			<TextBlock Grid.Column="0" Grid.Row="1" Name="tblockPerform" Text="Perform:" />
+			<TextBlock Grid.Column="0" Grid.Row="1" Name="tblockPerform" Text="Perform: " />
 			<TextBlock Grid.Column="0" Grid.Row="2" Name="tblockStory" Text="Story:" />
 
 			<Panel Background="Transparent" PointerExited="Panel_PointerExited" Grid.Column="1" Grid.Row="0">

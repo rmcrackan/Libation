@@ -19,9 +19,11 @@
 			CanUserReorderColumns="True">
 
 			<DataGrid.Styles>
-				<Style Selector="DataGridCell > Panel">
-					<Setter Property="Margin" Value="0,1,0,1"/>
+				<Style Selector="DataGridCell">
 					<Setter Property="Height" Value="80"/>
+				</Style>
+				<Style Selector="DataGridCell > Panel">
+					<Setter Property="VerticalAlignment" Value="Stretch"/>
 				</Style>
 				<Style Selector="DataGridCell > Panel > TextBlock">
 					<Setter Property="VerticalAlignment" Value="Center"/>
@@ -30,6 +32,10 @@
 					<Setter Property="Padding" Value="4"/>
 				</Style>
 			</DataGrid.Styles>
+
+			<DataGrid.Resources>
+				<controls:StarStringConverter x:Key="starStringConverter" />
+			</DataGrid.Resources>
 
 			<DataGrid.Columns>
 
@@ -73,7 +79,7 @@
 				<controls:DataGridTemplateColumnExt MinWidth="150" Width="2*" Header="Title" CanUserSort="True" SortMemberPath="Title" ClipboardContentBinding="{Binding Title}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+							<Panel Background="{Binding BackgroundBrush}">
 								<TextBlock Text="{Binding Title}" />
 							</Panel>
 						</DataTemplate>
@@ -83,7 +89,7 @@
 				<controls:DataGridTemplateColumnExt MinWidth="80" Width="1*" Header="Authors" CanUserSort="True" SortMemberPath="Authors" ClipboardContentBinding="{Binding Authors}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+							<Panel Background="{Binding BackgroundBrush}">
 								<TextBlock Text="{Binding Authors}" />
 							</Panel>
 						</DataTemplate>
@@ -93,7 +99,7 @@
 				<controls:DataGridTemplateColumnExt MinWidth="80" Width="1*"  Header="Narrators" CanUserSort="True" SortMemberPath="Narrators" ClipboardContentBinding="{Binding Narrators}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+							<Panel Background="{Binding BackgroundBrush}">
 								<TextBlock Text="{Binding Narrators}" />
 							</Panel>
 						</DataTemplate>
@@ -103,7 +109,7 @@
 				<controls:DataGridTemplateColumnExt Width="90"  Header="Length" CanUserSort="True" SortMemberPath="Length" ClipboardContentBinding="{Binding Length}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+							<Panel Background="{Binding BackgroundBrush}">
 								<TextBlock Text="{Binding Length}" />
 							</Panel>
 						</DataTemplate>
@@ -113,7 +119,7 @@
 				<controls:DataGridTemplateColumnExt MinWidth="80" Width="1*" Header="Series" CanUserSort="True" SortMemberPath="Series" ClipboardContentBinding="{Binding Series}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+							<Panel Background="{Binding BackgroundBrush}">
 								<TextBlock Text="{Binding Series}" />
 							</Panel>
 						</DataTemplate>
@@ -123,7 +129,7 @@
 				<controls:DataGridTemplateColumnExt MinWidth="100" Width="1*" Header="Description" CanUserSort="True" SortMemberPath="Description" ClipboardContentBinding="{Binding LongDescription}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
+							<Panel Background="{Binding BackgroundBrush}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
 								<TextBlock Text="{Binding Description}" FontSize="11" VerticalAlignment="Top" />
 							</Panel>
 						</DataTemplate>
@@ -133,39 +139,45 @@
 				<controls:DataGridTemplateColumnExt Width="100" Header="Category" CanUserSort="True" SortMemberPath="Category" ClipboardContentBinding="{Binding Category}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+							<Panel Background="{Binding BackgroundBrush}">
 								<TextBlock Text="{Binding Category}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt Width="115" Header="Product&#xA;Rating" CanUserSort="True" SortMemberPath="ProductRating" ClipboardContentBinding="{Binding ProductRating}">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<Panel  Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
-								<TextBlock Text="{Binding ProductRating}" TextWrapping="NoWrap" FontSize="11" />
-							</Panel>
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</controls:DataGridTemplateColumnExt>
+				<controls:DataGridMyRatingColumn
+					Header="Product&#xA;Rating"
+					IsReadOnly="true"
+					Width="115"
+					SortMemberPath="ProductRating" CanUserSort="True"
+					BackgroundBinding="{Binding BackgroundBrush}"
+					ClipboardContentBinding="{Binding ProductRating, Converter={StaticResource starStringConverter}}"
+					Binding="{Binding ProductRating}" />
 
 				<controls:DataGridTemplateColumnExt Width="90" Header="Purchase&#xA;Date" CanUserSort="True" SortMemberPath="PurchaseDate" ClipboardContentBinding="{Binding PurchaseDate}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+							<Panel Background="{Binding BackgroundBrush}">
 								<TextBlock Text="{Binding PurchaseDate}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridMyRatingColumn IsReadOnly="false" Width="115" Header="My Rating" CanUserSort="True" SortMemberPath="MyRating" ClipboardContentBinding="{Binding MyRatingString}" Binding="{Binding MyRating, Mode=TwoWay}" />
+				<controls:DataGridMyRatingColumn
+					Header="My Rating"					
+					IsReadOnly="false"
+					Width="115"
+					SortMemberPath="MyRating" CanUserSort="True"
+					BackgroundBinding="{Binding BackgroundBrush}"
+					ClipboardContentBinding="{Binding MyRating, Converter={StaticResource starStringConverter}}"
+					Binding="{Binding MyRating, Mode=TwoWay}" />
 
 				<controls:DataGridTemplateColumnExt Width="135" Header="Misc" CanUserSort="True" SortMemberPath="Misc" ClipboardContentBinding="{Binding Misc}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel Background="{Binding BackgroundBrush}" Opacity="{Binding Opacity}">
+							<Panel Background="{Binding BackgroundBrush}">
 								<TextBlock Text="{Binding Misc}" TextWrapping="WrapWithOverflow" FontSize="10" />
 							</Panel>
 						</DataTemplate>
@@ -187,6 +199,5 @@
 
 			</DataGrid.Columns>
 		</DataGrid>
-
 	</Grid>
 </UserControl>

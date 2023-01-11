@@ -44,8 +44,7 @@ namespace LibationAvalonia.ViewModels
 		public string Category { get; protected set; }
 		public string Misc { get; protected set; }
 		public string Description { get; protected set; }
-		public string ProductRating { get; protected set; }
-		public string MyRatingString => MyRating?.ToStarString()?.DefaultIfNullOrWhiteSpace("");
+		public Rating ProductRating { get; protected set; }
 		protected Rating _myRating;
 		public Rating MyRating
 		{
@@ -68,7 +67,6 @@ namespace LibationAvalonia.ViewModels
 		public abstract bool IsSeries { get; }
 		public abstract bool IsEpisode { get; }
 		public abstract bool IsBook { get; }
-		public abstract double Opacity { get; }
 		public IBrush BackgroundBrush => IsEpisode ? App.SeriesEntryGridBackgroundBrush : Brushes.Transparent;
 
 		#endregion
