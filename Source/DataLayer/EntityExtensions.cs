@@ -93,10 +93,12 @@ namespace DataLayer
 
             var starString = new string(STAR, fullStars);
 
-            if (score - fullStars >= 0.25f)
-                starString += HALF;
+            if (score - fullStars >= 0.75f)
+                starString += STAR;
+            else if (score - fullStars >= 0.25f)
+				starString += HALF;
 
-            return starString;
+			return starString;
         }
     }
 }
