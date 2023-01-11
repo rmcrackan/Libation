@@ -15,6 +15,10 @@ on:
         description: 'Skip running unit tests'
         required: false
         default: true
+    outputs:
+      version:
+        description: "The Libation version number"
+        value: ${{ jobs.build.outputs.version }}
 
 env:
   DOTNET_CONFIGURATION: 'Release'
@@ -23,6 +27,8 @@ env:
 jobs:
   build:
     runs-on: windows-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     strategy:
       matrix:
         os: [Windows]
@@ -48,8 +54,7 @@ jobs:
           if ("${{ inputs.version_override }}".length -gt 0) {
             $version = "${{ inputs.version_override }}"
           } else {
-            [xml]$appScaffolding = Get-Content -Path ./Source/AppScaffolding/AppScaffolding.csproj
-            $version = $appScaffolding.Project.PropertyGroup.Version
+            $version = (Select-Xml -Path "./Source/AppScaffolding/AppScaffolding.csproj" -XPath "/Project/PropertyGroup/Version").Node.InnerXML.Trim()
           }
           "version=$version" >> $env:GITHUB_OUTPUT
 
@@ -80,3 +85,4 @@ jobs:
           name: ${{ steps.zip.outputs.artifact }}.zip
           path: ./Source/bin/Publish/${{ steps.zip.outputs.artifact }}.zip
           if-no-files-found: error
+          

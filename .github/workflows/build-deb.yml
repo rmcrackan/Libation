@@ -1,0 +1,39 @@
+# build-deb.yml
+# Reusable workflow that builds the Linux Debian package.
+---
+name: build_deb
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        description: 'Version number'
+        required: true
+
+env:
+  FILE_NAME: "Libation.${{ inputs.version }}-linux-chardonnay"
+  
+jobs:
+  build_deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download Artifact
+        uses: actions/download-artifact@master
+        with:
+          name: "${{ env.FILE_NAME }}.tar.gz"
+
+      - name: Build .deb
+        id: deb
+        run: |
+          chmod +x ./Source/targz2deb.sh
+          ./Source/targz2deb.sh "${{ env.FILE_NAME }}.tar.gz" ${{ inputs.version }}
+      
+      - name: Publish .deb
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.FILE_NAME }}.deb
+          path: ${{ env.FILE_NAME }}.deb
+          if-no-files-found: error
