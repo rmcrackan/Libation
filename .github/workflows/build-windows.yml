@@ -45,13 +45,14 @@ jobs:
       - name: Get version
         id: get_version
         run: |
-          if ("${{ inputs.version_override }}".length -gt 0) {
-            $version = "${{ inputs.version_override }}"
-          } else {
-            [xml]$appScaffolding = Get-Content -Path ./Source/AppScaffolding/AppScaffolding.csproj
-            $version = $appScaffolding.Project.PropertyGroup.Version
-          }
-          "version=$version" >> $env:GITHUB_OUTPUT
+          inputVersion="${{ inputs.version_override }}"
+          if [[ "${#inputVersion}" -gt 0 ]]
+          then
+            version="${inputVersion}"
+          else
+            version="$(grep -oP '(?<=<Version>).*(?=</Version)' ./Source/AppScaffolding/AppScaffolding.csproj)"
+          fi
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
 
       - name: Unit test
         if: ${{ inputs.run_unit_tests }}
