@@ -31,7 +31,7 @@ namespace LibationAvalonia.ViewModels
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 
 			if (Design.IsDesignMode)
-					AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+					_ = Configuration.Instance.LibationFiles;
 
 			SpeedLimit = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
 		}
