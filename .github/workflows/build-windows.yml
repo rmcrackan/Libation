@@ -74,10 +74,13 @@ jobs:
       - name: Zip artifact
         id: zip
         working-directory: ./Source/bin/Publish
-        run: |
+        run: |        
+          $dir = "${{ matrix.os }}-${{ matrix.release_name }}\"
+          $delfiles = @("libmp3lame.so", "ffmpegaac.so", "glass-with-glow_256.svg", "Libation.desktop")
+          foreach ($file in $delfiles){ if (test-path $dir$file){ Remove-Item $dir$file } }
           $artifact="${{ matrix.prefix }}Libation.${{ steps.get_version.outputs.version }}-" + "${{ matrix.os }}".ToLower() + "-${{ matrix.release_name }}"
           "artifact=$artifact" >> $env:GITHUB_OUTPUT
-          Compress-Archive -Path "${{ matrix.os }}-${{ matrix.release_name }}\*" -DestinationPath "$artifact.zip"
+          Compress-Archive -Path "${dir}*" -DestinationPath "$artifact.zip"
 
       - name: Publish artifact
         uses: actions/upload-artifact@v3

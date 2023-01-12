@@ -116,7 +116,6 @@ Version: $VERSION
 Architecture: all
 Essential: no
 Priority: optional
-Depends: ffmpeg
 Maintainer: github.com/rmcrackan
 Description: liberate your audiobooks
 " >> "$FOLDER_DEBIAN/control"

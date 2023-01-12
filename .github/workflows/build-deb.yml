@@ -28,8 +28,8 @@ jobs:
       - name: Build .deb
         id: deb
         run: |
-          chmod +x ./Source/targz2deb.sh
-          ./Source/targz2deb.sh "${{ env.FILE_NAME }}.tar.gz" ${{ inputs.version }}
+          chmod +x ./.github/workflows/scripts/targz2deb.sh
+          ./.github/workflows/scripts/targz2deb.sh "${{ env.FILE_NAME }}.tar.gz" ${{ inputs.version }}
       
       - name: Publish .deb
         uses: actions/upload-artifact@v3

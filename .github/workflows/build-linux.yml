@@ -72,6 +72,8 @@ jobs:
         id: zip
         working-directory: ./Source/bin/Publish/${{ matrix.os }}-${{ matrix.release_name }}
         run: |
+          delfiles=("libmp3lame.x86.dll" "libmp3lame.x64.dll" "ffmpegaac.x86.dll" "ffmpegaac.x64.dll" "ZipExtractor.exe")
+          for n in "${delfiles[@]}"; do rm "$n"; done
           osbuild="$(echo '${{ matrix.os }}' | tr '[:upper:]' '[:lower:]')"
           artifact="Libation.${{ steps.get_version.outputs.version }}-${osbuild}-${{ matrix.release_name }}"
           echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
