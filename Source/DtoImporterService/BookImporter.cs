@@ -174,7 +174,10 @@ namespace DtoImporterService
 			if (item.PictureLarge is not null)
 				book.PictureLarge = item.PictureLarge;
 
-			book.UpdateProductRating(item.Product_OverallStars, item.Product_PerformanceStars, item.Product_StoryStars);
+			book.UpdateProductRating(
+				(float)(item.Rating?.OverallDistribution?.AverageRating ?? 0),
+				(float)(item.Rating?.PerformanceDistribution?.AverageRating ?? 0),
+				(float)(item.Rating?.StoryDistribution?.AverageRating ?? 0));
 
 			// important to update user-specific info. this will have changed if user has rated/reviewed the book since last library import
 			book.UserDefinedItem.UpdateRating(item.MyUserRating_Overall, item.MyUserRating_Performance, item.MyUserRating_Story);

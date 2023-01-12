@@ -208,11 +208,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.TextBox releaseNotesTbox;
-		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.LinkLabel linkLabel3;
-		private System.Windows.Forms.LinkLabel linkLabel2;
 		private System.Windows.Forms.LinkLabel packageDlLink;
 		private System.Windows.Forms.Button dontRemindBtn;
 		private System.Windows.Forms.Button yesBtn;

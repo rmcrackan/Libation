@@ -2,14 +2,24 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using DataLayer;
-using LibationAvalonia.ViewModels;
 using ReactiveUI;
 using System;
 
 namespace LibationAvalonia.Controls
 {
+	public class StarStringConverter : Avalonia.Data.Converters.IValueConverter
+	{
+		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+			=> value is Rating rating ? rating.ToStarString() : string.Empty;
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+			=> throw new NotImplementedException();
+	}
+
 	public class DataGridMyRatingColumn : DataGridBoundColumn
 	{
+		[Avalonia.Data.AssignBinding]
+		public Avalonia.Data.IBinding BackgroundBinding { get; set; }
 		private static Rating DefaultRating => new Rating(0, 0, 0);
 		public DataGridMyRatingColumn()
 		{
@@ -24,28 +34,19 @@ namespace LibationAvalonia.Controls
 				IsEditingMode = false
 			};
 
-			ToolTip.SetTip(myRatingElement, "Click to change ratings");
 			cell?.AttachContextMenu();
+
+			if (!IsReadOnly)
+				ToolTip.SetTip(myRatingElement, "Click to change ratings");
 
 			if (Binding != null)
 			{
 				myRatingElement.Bind(BindingTarget, Binding);
 			}
-
-			void setControlBackground(object dataContext)
+			if (BackgroundBinding != null)
 			{
-				if (dataContext is GridEntry ge)
-					myRatingElement.Background = ge.BackgroundBrush;
+				myRatingElement.Bind(MyRatingCellEditor.BackgroundProperty, BackgroundBinding);
 			}
-
-			setControlBackground(cell?.DataContext);
-
-			var subscriber =
-				cell
-				?.ObservableForProperty(g => g.DataContext)
-				?.Subscribe(ctx => setControlBackground(ctx?.Value));
-
-			myRatingElement.DetachedFromVisualTree += (_, _) => subscriber?.Dispose();
 
 			return myRatingElement;
 		}
@@ -57,6 +58,10 @@ namespace LibationAvalonia.Controls
 				Name = "CellMyRatingEditor",
 				IsEditingMode = true
 			};
+			if (BackgroundBinding != null)
+			{
+				myRatingElement.Bind(MyRatingCellEditor.BackgroundProperty, BackgroundBinding);
+			}
 
 			return myRatingElement;
 		}

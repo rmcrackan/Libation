@@ -27,7 +27,7 @@ namespace LibationAvalonia.Dialogs
 			userEditTbox = this.FindControl<TextBox>(nameof(userEditTbox));
 			if (Design.IsDesignMode)
 			{
-				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+				_ = Configuration.Instance.LibationFiles;
 				_viewModel = new(Configuration.Instance, Templates.File);
 				_viewModel.resetTextBox(_viewModel.Template.DefaultTemplate);
 				Title = $"Edit {_viewModel.Template.Name}";

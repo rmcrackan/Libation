@@ -28,3 +28,10 @@ jobs:
     with:
       version_override: ${{ inputs.version_override }}
       run_unit_tests: ${{ inputs.run_unit_tests }}
+
+  linux_deb:
+    needs: [linux]
+    uses: ./.github/workflows/build-deb.yml
+    with:
+      version: ${{ needs.linux.outputs.version }}
+      

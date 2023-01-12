@@ -22,7 +22,7 @@ namespace LibationAvalonia.Dialogs
 		public SettingsDialog()
 		{
 			if (Design.IsDesignMode)
-				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+				_ = Configuration.Instance.LibationFiles;
 			InitializeComponent();
 
 			DataContext = settingsDisp = new(config);

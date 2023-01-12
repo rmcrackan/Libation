@@ -1,6 +1,8 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using DataLayer;
+using ReactiveUI;
+using System;
 using System.Linq;
 
 namespace LibationAvalonia.Controls
@@ -9,6 +11,7 @@ namespace LibationAvalonia.Controls
 	{
 		private const string SOLID_STAR = "★";
 		private const string HOLLOW_STAR = "☆";
+		private const string HALF_STAR = "½";
 
 		public static readonly StyledProperty<Rating> RatingProperty =
 		AvaloniaProperty.Register<MyRatingCellEditor, Rating>(nameof(Rating));
@@ -19,39 +22,41 @@ namespace LibationAvalonia.Controls
 		public MyRatingCellEditor()
 		{
 			InitializeComponent();
+
+			var subscriber = this.ObservableForProperty(p => p.Rating).Subscribe(o => DisplayStarRating(o.Value ?? new Rating(0, 0, 0)));
+			Unloaded += (_, _) => subscriber.Dispose();
+
 			if (Design.IsDesignMode)
 				Rating = new Rating(5, 4, 3);
 		}
 
-		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+		private void DisplayStarRating(Rating rating)
 		{
-			if (change.Property.Name == nameof(Rating) && Rating is not null)
-			{
-				var blankValue = IsEditingMode ? HOLLOW_STAR : string.Empty;
+			var blankValue = IsEditingMode ? HOLLOW_STAR : string.Empty;
 
-				int rating = 0;
-				foreach (TextBlock star in panelOverall.Children)
-					star.Tag = star.Text = Rating.OverallRating > rating++ ? SOLID_STAR : blankValue;
+			string getStar(float score, int starIndex)
+				=> Math.Floor(score) > starIndex ? SOLID_STAR
+					: score < starIndex ? blankValue
+					: score - starIndex < 0.25 ? blankValue
+					: score - starIndex > 0.75 ? SOLID_STAR
+					: HALF_STAR;
 
-				rating = 0;
-				foreach (TextBlock star in panelPerform.Children)
-					star.Tag = star.Text = Rating.PerformanceRating > rating++ ? SOLID_STAR : blankValue;
+			int starIndex = 0;
+			foreach (TextBlock star in panelOverall.Children)
+				star.Tag = star.Text = getStar(rating.OverallRating, starIndex++);
 
-				rating = 0;
-				foreach (TextBlock star in panelStory.Children)
-					star.Tag = star.Text = Rating.StoryRating > rating++ ? SOLID_STAR : blankValue;
+			starIndex = 0;
+			foreach (TextBlock star in panelPerform.Children)
+				star.Tag = star.Text = getStar(rating.PerformanceRating, starIndex++);
 
-				SetVisible();
-			}
-			base.OnPropertyChanged(change);
-		}
+			starIndex = 0;
+			foreach (TextBlock star in panelStory.Children)
+				star.Tag = star.Text = getStar(rating.StoryRating, starIndex++);
 
-		private void SetVisible()
-		{
 			ratingsGrid.IsEnabled = IsEditingMode;
-			tblockOverall.IsVisible = panelOverall.IsVisible = IsEditingMode || Rating?.OverallRating > 0;
-			tblockPerform.IsVisible = panelPerform.IsVisible = IsEditingMode || Rating?.PerformanceRating > 0;
-			tblockStory.IsVisible = panelStory.IsVisible = IsEditingMode || Rating?.StoryRating > 0;
+			tblockOverall.IsVisible = panelOverall.IsVisible = IsEditingMode || rating.OverallRating > 0;
+			tblockPerform.IsVisible = panelPerform.IsVisible = IsEditingMode || rating.PerformanceRating > 0;
+			tblockStory.IsVisible = panelStory.IsVisible = IsEditingMode || rating.StoryRating > 0;
 		}
 
 		public void Panel_PointerExited(object sender, Avalonia.Input.PointerEventArgs e)
