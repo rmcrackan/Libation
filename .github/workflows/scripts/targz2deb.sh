@@ -105,6 +105,9 @@ ln -s /usr/lib/libation/Libation /usr/bin/libation
 ln -s /usr/lib/libation/Hangover /usr/bin/hangover
 ln -s /usr/lib/libation/LibationCli /usr/bin/libationcli
 
+# Increase the maximum number of inotify instances
+echo fs.inotify.max_user_instances=524288 | tee -a /etc/sysctl.conf && sysctl -p
+
 # workaround until this file is moved to the user's home directory
 touch /usr/lib/libation/appsettings.json
 chmod 666 /usr/lib/libation/appsettings.json

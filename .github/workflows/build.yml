@@ -14,7 +14,12 @@ on:
         type: boolean
         description: 'Skip running unit tests'
         required: false
-        default: true
+        default: true        
+      build_deb:
+        type: boolean
+        description: 'Build Debian package'
+        required: false
+        default: false
 
 jobs:
   windows:
@@ -31,6 +36,7 @@ jobs:
 
   linux_deb:
     needs: [linux]
+    if: inputs.build_deb
     uses: ./.github/workflows/build-deb.yml
     with:
       version: ${{ needs.linux.outputs.version }}

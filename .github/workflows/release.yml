@@ -33,6 +33,7 @@ jobs:
     with:
       version_override: ${{ needs.prerelease.outputs.version }}
       run_unit_tests: false
+      build_deb: true
       
   release:
     needs: [prerelease,build]
@@ -50,7 +51,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           tag_name: '${{ github.ref }}'
-          release_name: 'Libation ${{ steps.version.outputs.version }}'
+          release_name: 'Libation ${{ needs.prerelease.outputs.version }}'
           body: <Put a body here>
           draft: true
           prerelease: false
