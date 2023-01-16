@@ -13,6 +13,7 @@ namespace AaxDecrypter
 	{
 		private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
 		private List<string> multiPartFilePaths { get; } = new List<string>();
+		private FileStream workingFileStream;
 
 		public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
 			: base(outFileName, cacheDirectory, dlOptions) { }
@@ -130,18 +131,31 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 			// reset, just in case
 			multiPartFilePaths.Clear();
 
-			ConversionResult result;
+			try
+			{
+				ConversionResult result;
 
-			AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-			if (DownloadOptions.OutputFormat == OutputFormat.M4b)
-				result = await ConvertToMultiMp4a(splitChapters);
-			else
-				result = await ConvertToMultiMp3(splitChapters);
-			AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
+				AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+				if (DownloadOptions.OutputFormat == OutputFormat.M4b)
+					result = await ConvertToMultiMp4a(splitChapters);
+				else
+					result = await ConvertToMultiMp3(splitChapters);
 
-			Step_DownloadAudiobook_End(zeroProgress);
+				return result == ConversionResult.NoErrorsDetected;
+			}
+			catch(Exception ex)
+			{
+				Serilog.Log.Error(ex, "AAXClean Error");
+				workingFileStream?.Close();
+				FileUtility.SaferDelete(workingFileStream.Name);
+				return false;
+			}
+			finally
+			{
+				AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
-			return result == ConversionResult.NoErrorsDetected;
+				Step_DownloadAudiobook_End(zeroProgress);
+			}
 		}
 
 		private Task<ConversionResult> ConvertToMultiMp4a(ChapterInfo splitChapters)
@@ -195,9 +209,9 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
 			FileUtility.SaferDelete(fileName);
 
-			var file = File.Open(fileName, FileMode.OpenOrCreate);
+			workingFileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 			OnFileCreated(fileName);
-			return file;
+			return workingFileStream;
 		}
 	}
 }
