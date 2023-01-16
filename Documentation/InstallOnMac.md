@@ -5,7 +5,7 @@
 
 
 
-# Run Libation on MacOS (Beta)
+# Run Libation on MacOS
 This walkthrough should get you up and running with Libation on your Mac.
 
 ## Install Libation
