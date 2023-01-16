@@ -64,30 +64,40 @@ namespace FileLiberator
 						config.LameMatchSourceBR);
 
 					using var mp3File = File.OpenWrite(Path.GetTempFileName());
-					var result = await m4bBook.ConvertToMp3Async(mp3File, lameConfig);
-					m4bBook.InputStream.Close();
-					mp3File.Close();
-
-					if (result == ConversionResult.Failed)
+					try
 					{
-						FileUtility.SaferDelete(mp3File.Name);
+						var result = await m4bBook.ConvertToMp3Async(mp3File, lameConfig);
+
+						var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path, Configuration.Instance.ReplacementCharacters);
+						OnFileCreated(libraryBook, realMp3Path);
+
+						if (result == ConversionResult.Failed)
+						{
+							FileUtility.SaferDelete(mp3File.Name);
+						}
+						else if (result == ConversionResult.Cancelled)
+						{
+							FileUtility.SaferDelete(mp3File.Name);
+							return new StatusHandler { "Cancelled" };
+						}
+					}
+					catch (Exception ex)
+					{
+						Serilog.Log.Error(ex, "AAXClean error");
 						return new StatusHandler { "Conversion failed" };
 					}
-					else if (result == ConversionResult.Cancelled)
+					finally
 					{
-						FileUtility.SaferDelete(mp3File.Name);
-						return new StatusHandler { "Cancelled" };
+						m4bBook.InputStream.Close();
+						mp3File.Close();
 					}
-
-					var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path, Configuration.Instance.ReplacementCharacters);
-					OnFileCreated(libraryBook, realMp3Path);
 				}
-				return new StatusHandler();
 			}
 			finally
 			{
 				OnCompleted(libraryBook);
 			}
+			return new StatusHandler();
 		}
 
 		private void M4bBook_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)

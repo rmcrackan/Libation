@@ -92,17 +92,28 @@ namespace AaxDecrypter
 
 			AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 
-			ConversionResult decryptionResult = await decryptAsync(outputFile);
+			try
+			{
+				ConversionResult decryptionResult = await decryptAsync(outputFile);
+				var success = decryptionResult == ConversionResult.NoErrorsDetected && !IsCanceled;
+				if (success)
+					base.OnFileCreated(OutputFileName);
 
-			AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
+				return success;
+			}
+			catch(Exception ex)
+			{
+				Serilog.Log.Error(ex, "AAXClean Error");
+				FileUtility.SaferDelete(OutputFileName);
+				return false;
+			}
+			finally
+			{
+				outputFile.Close();
+				AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
-			Step_DownloadAudiobook_End(zeroProgress);
-
-			var success = decryptionResult == ConversionResult.NoErrorsDetected && !IsCanceled;
-			if (success)
-				base.OnFileCreated(OutputFileName);
-
-			return success;
+				Step_DownloadAudiobook_End(zeroProgress);
+			}
 		}
 
 		private Task<ConversionResult> decryptAsync(Stream outputFile)
