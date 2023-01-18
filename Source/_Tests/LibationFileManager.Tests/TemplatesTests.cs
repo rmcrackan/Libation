@@ -81,23 +81,25 @@ namespace TemplatesTests
 			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension);
 
 		[TestMethod]
-		[DataRow("f.txt", @"C:\foo\bar", null, @"C:\foo\bar\f.txt", PlatformID.Win32NT)]
-		[DataRow("f.txt", @"/foo/bar", null, @"/foo/bar/f.txt", PlatformID.Unix)]
-		[DataRow("f.txt", @"C:\foo\bar", "ext", @"C:\foo\bar\f.txt.ext", PlatformID.Win32NT)]
-		[DataRow("f.txt", @"/foo/bar", "ext", @"/foo/bar/f.txt.ext", PlatformID.Unix)]
-		[DataRow("f", @"C:\foo\bar", "ext", @"C:\foo\bar\f.ext", PlatformID.Win32NT)]
-		[DataRow("f", @"/foo/bar", "ext", @"/foo/bar/f.ext", PlatformID.Unix)]
-		[DataRow("<id>", @"C:\foo\bar", "ext", @"C:\foo\bar\asin.ext", PlatformID.Win32NT)]
-		[DataRow("<id>", @"/foo/bar", "ext", @"/foo/bar/asin.ext", PlatformID.Unix)]
-        [DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\128 - 44100 - 2.ext", PlatformID.Win32NT)]
-        [DataRow("<bitrate> - <samplerate> - <channels>", @"/foo/bar", "ext", @"/foo/bar/128 - 44100 - 2.ext", PlatformID.Unix)]
-        [DataRow("<year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\2017 - 2.ext", PlatformID.Win32NT)]
-        [DataRow("<year> - <channels>", @"/foo/bar", "ext", @"/foo/bar/2017 - 2.ext", PlatformID.Unix)]
-        public void Tests(string template, string dirFullPath, string extension, string expected, PlatformID platformID)
+		[DataRow("f.txt", @"C:\foo\bar", "", @"C:\foo\bar\f.txt", PlatformID.Win32NT)]
+		[DataRow("f.txt", @"/foo/bar", "", @"/foo/bar/f.txt", PlatformID.Unix)]
+		[DataRow("f.txt", @"C:\foo\bar", ".ext", @"C:\foo\bar\f.txt.ext", PlatformID.Win32NT)]
+		[DataRow("f.txt", @"/foo/bar", ".ext", @"/foo/bar/f.txt.ext", PlatformID.Unix)]
+		[DataRow("f", @"C:\foo\bar", ".ext", @"C:\foo\bar\f.ext", PlatformID.Win32NT)]
+		[DataRow("f", @"/foo/bar", ".ext", @"/foo/bar/f.ext", PlatformID.Unix)]
+		[DataRow("<id>", @"C:\foo\bar", ".ext", @"C:\foo\bar\asin.ext", PlatformID.Win32NT)]
+		[DataRow("<id>", @"/foo/bar", ".ext", @"/foo/bar/asin.ext", PlatformID.Unix)]
+        [DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\128 - 44100 - 2.ext", PlatformID.Win32NT)]
+        [DataRow("<bitrate> - <samplerate> - <channels>", @"/foo/bar", ".ext", @"/foo/bar/128 - 44100 - 2.ext", PlatformID.Unix)]
+        [DataRow("<year> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\2017 - 2.ext", PlatformID.Win32NT)]
+        [DataRow("<year> - <channels>", @"/foo/bar", ".ext", @"/foo/bar/2017 - 2.ext", PlatformID.Unix)]
+		[DataRow("(000.0) <year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\(000.0) 2017 - 2.ext", PlatformID.Win32NT)]
+		[DataRow("(000.0) <year> - <channels>", @"/foo/bar", ".ext", @"/foo/bar/(000.0) 2017 - 2.ext", PlatformID.Unix)]
+		public void Tests(string template, string dirFullPath, string extension, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
 				Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension)
-				.GetFilePath(Replacements)
+				.GetFilePath(Replacements, extension)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -109,7 +111,7 @@ namespace TemplatesTests
 		{
 			if (Environment.OSVersion.Platform == platformID)
 				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series-><-if series>bar", directory, "ext")
-				.GetFilePath(Replacements)
+				.GetFilePath(Replacements, ".ext")
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -121,7 +123,7 @@ namespace TemplatesTests
 		{
 			if (Environment.OSVersion.Platform == platformID)
 				Templates.getFileNamingTemplate(GetLibraryBook(null), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext")
-				.GetFilePath(Replacements)
+				.GetFilePath(Replacements, ".ext")
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -133,7 +135,7 @@ namespace TemplatesTests
 		{
 			if (Environment.OSVersion.Platform == platformID)
 				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext")
-				.GetFilePath(Replacements)
+				.GetFilePath(Replacements, ".ext")
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}

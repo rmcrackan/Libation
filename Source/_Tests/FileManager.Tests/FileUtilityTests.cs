@@ -197,30 +197,30 @@ namespace FileUtilityTests
 
 		[TestMethod]
 		// dot-files
-		[DataRow(@"C:\a bc\x y z\.f i l e.txt", PlatformID.Win32NT)]
-		[DataRow(@"/a bc/x y z/.f i l e.txt", PlatformID.Unix)]
+		[DataRow(@"C:\a bc\x y z\.f i l e.txt", "txt", PlatformID.Win32NT)]
+		[DataRow(@"/a bc/x y z/.f i l e.txt", "txt", PlatformID.Unix)]
 		// dot-folders
-		[DataRow(@"C:\a bc\.x y z\f i l e.txt", PlatformID.Win32NT)]
-		[DataRow(@"/a bc/.x y z/f i l e.txt", PlatformID.Unix)]
-		public void Valid(string input, PlatformID platformID) => Tests(input, input, platformID);
+		[DataRow(@"C:\a bc\.x y z\f i l e.txt", "txt", PlatformID.Win32NT)]
+		[DataRow(@"/a bc/.x y z/f i l e.txt", "txt", PlatformID.Unix)]
+		public void Valid(string input, string extension, PlatformID platformID) => Tests(input, extension, input, platformID);
 
 		[TestMethod]
 		// folder spaces
-		[DataRow(@"C:\   a bc   \x y z   ", @"C:\a bc\x y z", PlatformID.Win32NT)]
-		[DataRow(@"/   a bc   /x y z   ", @"/a bc/x y z", PlatformID.Unix)]
+		[DataRow(@"C:\   a bc   \x y z   ","", @"C:\a bc\x y z", PlatformID.Win32NT)]
+		[DataRow(@"/   a bc   /x y z   ", "", @"/a bc/x y z", PlatformID.Unix)]
 		// file spaces
-		[DataRow(@"C:\a bc\x y z\   f i l e.txt   ", @"C:\a bc\x y z\f i l e.txt", PlatformID.Win32NT)]
-		[DataRow(@"/a bc/x y z/   f i l e.txt   ", @"/a bc/x y z/f i l e.txt", PlatformID.Unix)]
+		[DataRow(@"C:\a bc\x y z\   f i l e.txt   ", "txt", @"C:\a bc\x y z\f i l e.txt", PlatformID.Win32NT)]
+		[DataRow(@"/a bc/x y z/   f i l e.txt   ", "txt", @"/a bc/x y z/f i l e.txt", PlatformID.Unix)]
 		// eliminate beginning space and end dots and spaces
-		[DataRow(@"C:\a bc\   . . . x y z . . .   \f i l e.txt", @"C:\a bc\. . . x y z\f i l e.txt", PlatformID.Win32NT)]
-		[DataRow(@"/a bc/   . . . x y z . . .   /f i l e.txt", @"/a bc/. . . x y z/f i l e.txt", PlatformID.Unix)]
+		[DataRow(@"C:\a bc\   . . . x y z . . .   \f i l e.txt", "txt", @"C:\a bc\. . . x y z\f i l e.txt", PlatformID.Win32NT)]
+		[DataRow(@"/a bc/   . . . x y z . . .   /f i l e.txt", "txt", @"/a bc/. . . x y z/f i l e.txt", PlatformID.Unix)]
 		// file end dots
-		[DataRow(@"C:\a bc\x y z\f i l e.txt . . .", @"C:\a bc\x y z\f i l e.txt", PlatformID.Win32NT)]
-		[DataRow(@"/a bc/x y z/f i l e.txt . . .", @"/a bc/x y z/f i l e.txt", PlatformID.Unix)]
-		public void Tests(string input, string expected, PlatformID platformID)
+		[DataRow(@"C:\a bc\x y z\f i l e.txt . . .", "txt", @"C:\a bc\x y z\f i l e.txt", PlatformID.Win32NT)]
+		[DataRow(@"/a bc/x y z/f i l e.txt . . .", "txt", @"/a bc/x y z/f i l e.txt", PlatformID.Unix)]
+		public void Tests(string input, string extension, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
-				FileUtility.GetValidFilename(input, Replacements).PathWithoutPrefix.Should().Be(expected);
+				FileUtility.GetValidFilename(input, Replacements, extension).PathWithoutPrefix.Should().Be(expected);
 		}
 	}
 

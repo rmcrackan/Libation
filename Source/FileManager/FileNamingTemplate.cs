@@ -13,7 +13,7 @@ namespace FileManager
 		public FileNamingTemplate(string template) : base(template) { }
 
 		/// <summary>Generate a valid path for this file or directory</summary>
-		public LongPath GetFilePath(ReplacementCharacters replacements, bool returnFirstExisting = false)
+		public LongPath GetFilePath(ReplacementCharacters replacements, string fileExtension, bool returnFirstExisting = false)
 		{
 			string fileName = 
 				Template.EndsWith(Path.DirectorySeparatorChar) || Template.EndsWith(Path.AltDirectorySeparatorChar) ?
@@ -44,7 +44,6 @@ namespace FileManager
 			var fileNamePart = pathParts[^1];
 			pathParts.Remove(fileNamePart);
 
-			var fileExtension = Path.GetExtension(fileNamePart);
 			fileNamePart = fileNamePart[..^fileExtension.Length];
 
 			LongPath directory = Path.Join(pathParts.Select(p => replaceFileName(p, paramReplacements, LongPath.MaxFilenameLength)).ToArray());
@@ -56,6 +55,7 @@ namespace FileManager
 			.GetValidFilename(
 				Path.Join(directory, replaceFileName(fileNamePart, paramReplacements, LongPath.MaxFilenameLength - fileExtension.Length - 5)) + fileExtension,
 				replacements,
+				fileExtension,
 				returnFirstExisting
 				);
 		}

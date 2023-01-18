@@ -203,7 +203,8 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 		private FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
 		{
 			var fileName = DownloadOptions.GetMultipartFileName(multiConvertFileProperties);
-			fileName = FileUtility.GetValidFilename(fileName, DownloadOptions.ReplacementCharacters);
+			var extension = Path.GetExtension(fileName);
+			fileName = FileUtility.GetValidFilename(fileName, DownloadOptions.ReplacementCharacters, extension);
 
 			multiPartFilePaths.Add(fileName);
 
