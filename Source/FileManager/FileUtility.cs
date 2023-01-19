@@ -49,9 +49,11 @@ namespace FileManager
 		/// <br/>- ensure uniqueness
 		/// <br/>- enforce max file length
 		/// </summary>
-		public static LongPath GetValidFilename(LongPath path, ReplacementCharacters replacements, bool returnFirstExisting = false)
+		public static LongPath GetValidFilename(LongPath path, ReplacementCharacters replacements, string fileExtension, bool returnFirstExisting = false)
 		{
 			ArgumentValidator.EnsureNotNull(path, nameof(path));
+			ArgumentValidator.EnsureNotNull(fileExtension, nameof(fileExtension));
+			fileExtension = GetStandardizedExtension(fileExtension);
 
 			// remove invalid chars
 			path = GetSafePath(path, replacements);
@@ -60,21 +62,20 @@ namespace FileManager
 			var dir = Path.GetDirectoryName(path);
 			dir = dir?.TruncateFilename(LongPath.MaxDirectoryLength) ?? string.Empty;
 
-			var extension = Path.GetExtension(path);
+			var fileName = Path.GetFileName(path);
+			var extIndex = fileName.LastIndexOf(fileExtension, StringComparison.OrdinalIgnoreCase);
+			var filenameWithoutExtension = extIndex >= 0 ? fileName.Remove(extIndex, fileExtension.Length) : fileName;
+			var fileStem
+				= Path.Combine(dir, filenameWithoutExtension.TruncateFilename(LongPath.MaxFilenameLength - fileExtension.Length))
+				.TruncateFilename(LongPath.MaxPathLength - fileExtension.Length);
 
-			var filename = Path.GetFileNameWithoutExtension(path).TruncateFilename(LongPath.MaxFilenameLength - extension.Length);
-			var fileStem = Path.Combine(dir, filename);
-
-
-			var fullfilename = fileStem.TruncateFilename(LongPath.MaxPathLength - extension.Length) + extension;
-
-			fullfilename = removeInvalidWhitespace(fullfilename);
+			var fullfilename = removeInvalidWhitespace(fileStem) + fileExtension;
 
 			var i = 0;
 			while (File.Exists(fullfilename) && !returnFirstExisting)
 			{
 				var increm = $" ({++i})";
-				fullfilename = fileStem.TruncateFilename(LongPath.MaxPathLength - increm.Length - extension.Length) + increm + extension;
+				fullfilename = fileStem.TruncateFilename(LongPath.MaxPathLength - increm.Length - fileExtension.Length) + increm + fileExtension;
 			}
 
 			return fullfilename;
@@ -152,7 +153,8 @@ namespace FileManager
 		/// </summary>
 		public static string SaferMoveToValidPath(LongPath source, LongPath destination, ReplacementCharacters replacements)
 		{
-			destination = GetValidFilename(destination, replacements);
+			var extension = Path.GetExtension(source);
+			destination = GetValidFilename(destination, replacements, extension);
 			SaferMove(source, destination);
 			return destination;
 		}

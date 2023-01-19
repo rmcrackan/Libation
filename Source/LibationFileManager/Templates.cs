@@ -99,11 +99,11 @@ namespace LibationFileManager
 		/// <summary>
 		/// EditTemplateDialog: Get template generated filename for portion of path
 		/// </summary>
-		public string GetPortionFilename(LibraryBookDto libraryBookDto, string template)
+		public string GetPortionFilename(LibraryBookDto libraryBookDto, string template, string fileExtension)
 			=> string.IsNullOrWhiteSpace(template)
 			? ""
-			: getFileNamingTemplate(libraryBookDto, template, null, null)
-			.GetFilePath(Configuration.Instance.ReplacementCharacters).PathWithoutPrefix;
+			: getFileNamingTemplate(libraryBookDto, template, null, fileExtension)
+			.GetFilePath(Configuration.Instance.ReplacementCharacters, fileExtension).PathWithoutPrefix;
 
 		private static Regex ifSeriesRegex { get; } = new Regex("<if series->(.*?)<-if series>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -215,7 +215,7 @@ namespace LibationFileManager
 			/// <summary>USES LIVE CONFIGURATION VALUES</summary>
 			public string GetFilename(LibraryBookDto libraryBookDto, string baseDir = null)
 				=> getFileNamingTemplate(libraryBookDto, Configuration.Instance.FolderTemplate, baseDir ?? AudibleFileStorage.BooksDirectory, null)
-				.GetFilePath(Configuration.Instance.ReplacementCharacters);
+				.GetFilePath(Configuration.Instance.ReplacementCharacters, string.Empty);
 			#endregion
 		}
 
@@ -238,7 +238,7 @@ namespace LibationFileManager
 			/// <summary>USES LIVE CONFIGURATION VALUES</summary>
 			public string GetFilename(LibraryBookDto libraryBookDto, string dirFullPath, string extension, bool returnFirstExisting = false)
 				=> getFileNamingTemplate(libraryBookDto, Configuration.Instance.FileTemplate, dirFullPath, extension)
-				.GetFilePath(Configuration.Instance.ReplacementCharacters, returnFirstExisting);
+				.GetFilePath(Configuration.Instance.ReplacementCharacters, extension, returnFirstExisting);
 			#endregion
 		}
 
@@ -273,19 +273,20 @@ namespace LibationFileManager
 			public string GetFilename(LibraryBookDto libraryBookDto, AaxDecrypter.MultiConvertFileProperties props)
 				=> GetPortionFilename(libraryBookDto, Configuration.Instance.ChapterFileTemplate, props, AudibleFileStorage.DecryptInProgressDirectory);
 
-			public string GetPortionFilename(LibraryBookDto libraryBookDto, string template, AaxDecrypter.MultiConvertFileProperties props, string fullDirPath, ReplacementCharacters replacements = null)
+			public string GetPortionFilename(LibraryBookDto libraryBookDto, string template,  AaxDecrypter.MultiConvertFileProperties props, string fullDirPath, ReplacementCharacters replacements = null)
 			{
 				if (string.IsNullOrWhiteSpace(template)) return string.Empty;
 
 				replacements ??= Configuration.Instance.ReplacementCharacters;
-				var fileNamingTemplate = getFileNamingTemplate(libraryBookDto, template, fullDirPath, Path.GetExtension(props.OutputFileName));
+				var fileExtension = Path.GetExtension(props.OutputFileName);
+				var fileNamingTemplate = getFileNamingTemplate(libraryBookDto, template, fullDirPath, fileExtension);
 
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChCount, props.PartsTotal);
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChNumber, props.PartsPosition);
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChNumber0, FileUtility.GetSequenceFormatted(props.PartsPosition, props.PartsTotal));
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChTitle, props.Title ?? "");
 
-				return fileNamingTemplate.GetFilePath(replacements).PathWithoutPrefix;
+				return fileNamingTemplate.GetFilePath(replacements, fileExtension).PathWithoutPrefix;
 			}
 			#endregion
 		}
