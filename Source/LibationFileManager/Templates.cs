@@ -105,6 +105,7 @@ namespace LibationFileManager
 			: getFileNamingTemplate(libraryBookDto, template, null, fileExtension)
 			.GetFilePath(Configuration.Instance.ReplacementCharacters, fileExtension).PathWithoutPrefix;
 
+		private static Regex dateFormatRegex { get; } = new Regex(@"<date\[(.*?)\]>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		private static Regex ifSeriesRegex { get; } = new Regex("<if series->(.*?)<-if series>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		internal static FileNamingTemplate getFileNamingTemplate(LibraryBookDto libraryBookDto, string template, string dirFullPath, string extension)
@@ -119,6 +120,8 @@ namespace LibationFileManager
 			template = ifSeriesRegex.Replace(
 				template,
 				string.IsNullOrWhiteSpace(libraryBookDto.SeriesName) ? "" : "$1");
+
+			template = dateFormatRegex.Replace(template, dateMatchEvaluator);
 
 			var t = template + FileUtility.GetStandardizedExtension(extension);
 			var fullfilename = dirFullPath == "" ? t : Path.Combine(dirFullPath, t);
@@ -147,6 +150,18 @@ namespace LibationFileManager
             return fileNamingTemplate;
 		}
 		#endregion
+
+		private static string dateMatchEvaluator(Match match)
+		{
+			try
+			{
+				return DateTime.Now.ToString(match.Groups[1].Value);
+			}
+			catch
+			{
+				return match.Value;
+			}
+		}
 
 		public virtual IEnumerable<TemplateTags> GetTemplateTags()
 			=> TemplateTags.GetAll()

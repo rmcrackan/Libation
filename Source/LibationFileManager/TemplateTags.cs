@@ -41,8 +41,9 @@ namespace LibationFileManager
         public static TemplateTags Locale { get; } = new TemplateTags("locale", "Region/country");
         public static TemplateTags YearPublished { get; } = new TemplateTags("year", "Year published");
 
-        // Special case. Isn't mapped to a replacement in Templates.cs
+        // Special cases. Aren't mapped to replacements in Templates.cs
         // Included here for display by EditTemplateDialog
+        public static TemplateTags Date { get; } = new TemplateTags("date[...]", "File date/time. e.g. yyyy-MM-dd HH-mm");
         public static TemplateTags IfSeries { get; } = new TemplateTags("if series->...<-if series", "Only include if part of a series");
     }
 }
