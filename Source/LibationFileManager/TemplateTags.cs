@@ -48,7 +48,7 @@ namespace LibationFileManager
         // Included here for display by EditTemplateDialog
         public static TemplateTags FileDate { get; } = new TemplateTags("file date [...]", "File date/time. e.g. yyyy-MM-dd HH-mm", false, $"<file date [{Templates.DEFAULT_DATE_FORMAT}]>");
         public static TemplateTags DatePublished { get; } = new TemplateTags("pub date [...]", "Publication date. e.g. yyyy-MM-dd", false, $"<pub date [{Templates.DEFAULT_DATE_FORMAT}]>");
-        public static TemplateTags DateAdded { get; } = new TemplateTags("date added [...]", "Date added to you Audible account. e.g. yyyy-MM-dd", false, $"<date added [{Templates.DEFAULT_DATE_FORMAT}]>");
+        public static TemplateTags DateAdded { get; } = new TemplateTags("date added [...]", "Date added to your Audible account. e.g. yyyy-MM-dd", false, $"<date added [{Templates.DEFAULT_DATE_FORMAT}]>");
         public static TemplateTags IfSeries { get; } = new TemplateTags("if series->...<-if series", "Only include if part of a series", false, "<if series-><-if series>");
     }
 }

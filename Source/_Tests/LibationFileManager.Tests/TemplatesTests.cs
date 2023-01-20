@@ -102,27 +102,25 @@ namespace TemplatesTests
 			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements);
 
 		[TestMethod]
-		[DataRow("f.txt", @"C:\foo\bar", "", @"C:\foo\bar\f.txt", PlatformID.Win32NT)]
-		[DataRow("f.txt", @"/foo/bar", "", @"/foo/bar/f.txt", PlatformID.Unix)]
-		[DataRow("f.txt", @"C:\foo\bar", ".ext", @"C:\foo\bar\f.txt.ext", PlatformID.Win32NT)]
-		[DataRow("f.txt", @"/foo/bar", ".ext", @"/foo/bar/f.txt.ext", PlatformID.Unix)]
-		[DataRow("f", @"C:\foo\bar", ".ext", @"C:\foo\bar\f.ext", PlatformID.Win32NT)]
-		[DataRow("f", @"/foo/bar", ".ext", @"/foo/bar/f.ext", PlatformID.Unix)]
-		[DataRow("<id>", @"C:\foo\bar", ".ext", @"C:\foo\bar\asin.ext", PlatformID.Win32NT)]
-		[DataRow("<id>", @"/foo/bar", ".ext", @"/foo/bar/asin.ext", PlatformID.Unix)]
-        [DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\128 - 44100 - 2.ext", PlatformID.Win32NT)]
-        [DataRow("<bitrate> - <samplerate> - <channels>", @"/foo/bar", ".ext", @"/foo/bar/128 - 44100 - 2.ext", PlatformID.Unix)]
-        [DataRow("<year> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\2017 - 2.ext", PlatformID.Win32NT)]
-        [DataRow("<year> - <channels>", @"/foo/bar", ".ext", @"/foo/bar/2017 - 2.ext", PlatformID.Unix)]
-		[DataRow("(000.0) <year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\(000.0) 2017 - 2.ext", PlatformID.Win32NT)]
-		[DataRow("(000.0) <year> - <channels>", @"/foo/bar", ".ext", @"/foo/bar/(000.0) 2017 - 2.ext", PlatformID.Unix)]
-		public void Tests(string template, string dirFullPath, string extension, string expected, PlatformID platformID)
+		[DataRow("f.txt", @"C:\foo\bar", "", @"C:\foo\bar\f.txt")]
+		[DataRow("f.txt", @"C:\foo\bar", ".ext", @"C:\foo\bar\f.txt.ext")]
+		[DataRow("f", @"C:\foo\bar", ".ext", @"C:\foo\bar\f.ext")]
+		[DataRow("<id>", @"C:\foo\bar", ".ext", @"C:\foo\bar\asin.ext")]
+        [DataRow("<bitrate> - <samplerate> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\128 - 44100 - 2.ext")]
+        [DataRow("<year> - <channels>", @"C:\foo\bar", ".ext", @"C:\foo\bar\2017 - 2.ext")]
+		[DataRow("(000.0) <year> - <channels>", @"C:\foo\bar", "ext", @"C:\foo\bar\(000.0) 2017 - 2.ext")]
+		public void Tests(string template, string dirFullPath, string extension, string expected)
 		{
-			if (Environment.OSVersion.Platform == platformID)
-				Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
-				.GetFilePath(extension)
-				.PathWithoutPrefix
-				.Should().Be(expected);
+			if (Environment.OSVersion.Platform is not PlatformID.Win32NT)
+			{
+				dirFullPath = dirFullPath.Replace("C:", "").Replace('\\', '/');
+				expected = expected.Replace("C:", "").Replace('\\', '/');
+			}
+
+			Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
+			.GetFilePath(extension)
+			.PathWithoutPrefix
+			.Should().Be(expected);
 		}
 
 		[TestMethod]
@@ -154,8 +152,12 @@ namespace TemplatesTests
 		[TestMethod]
 		[DataRow("<filedate[h]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[h]＞.m4b")]
 		[DataRow("< filedate[yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜ filedate[yyyy]＞.m4b")]
+		[DataRow("<filedate[yyyy][]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[yyyy][]＞.m4b")]
+		[DataRow("<filedate[yyyy[]]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[yyyy[]]＞.m4b")]
 		[DataRow("<filedate yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate yyyy]＞.m4b")]
+		[DataRow("<filedate ]yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate ]yyyy]＞.m4b")]
 		[DataRow("<filedate [yyyy>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate [yyyy＞.m4b")]
+		[DataRow("<filedate [yyyy[>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate [yyyy[＞.m4b")]
 		[DataRow("<filedate yyyy>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate yyyy＞.m4b")]
 		[DataRow("<filedate[yyyy]", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[yyyy].m4b")]
 		[DataRow("<fil edate[yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜fil edate[yyyy]＞.m4b")]
