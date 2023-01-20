@@ -27,11 +27,13 @@ namespace FileLiberator
 		public static LibraryBookDto ToDto(this LibraryBook libraryBook) => new()
 		{
 			Account = libraryBook.Account,
+			DateAdded = libraryBook.DateAdded,
 
 			AudibleProductId = libraryBook.Book.AudibleProductId,
 			Title = libraryBook.Book.Title ?? "",
 			Locale = libraryBook.Book.Locale,
 			YearPublished = libraryBook.Book.DatePublished?.Year,
+			DatePublished = libraryBook.Book.DatePublished,
 
 			Authors = libraryBook.Book.Authors.Select(c => c.Name).ToList(),
 

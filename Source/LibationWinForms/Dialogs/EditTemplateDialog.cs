@@ -18,7 +18,7 @@ namespace LibationWinForms.Dialogs
 		private string workingTemplateText
 		{
 			get => _workingTemplateText;
-			set => _workingTemplateText = template.Sanitize(value);
+			set => _workingTemplateText = template.Sanitize(value, Configuration.Instance.ReplacementCharacters);
 		}
 
 		private void resetTextBox(string value) => this.templateTb.Text = workingTemplateText = value;
@@ -59,7 +59,7 @@ namespace LibationWinForms.Dialogs
 
 			// populate list view
 			foreach (var tag in template.GetTemplateTags())
-				listView1.Items.Add(new ListViewItem(new[] { $"<{tag.TagName}>", tag.Description }));
+				listView1.Items.Add(new ListViewItem(new[] { $"<{tag.TagName}>", tag.Description }) { Tag = tag.DefaultValue });
 		}
 
 		private void resetToDefaultBtn_Click(object sender, EventArgs e) => resetTextBox(template.DefaultTemplate);
@@ -73,6 +73,8 @@ namespace LibationWinForms.Dialogs
 			var libraryBookDto = new LibraryBookDto
 			{
 				Account = "my account",
+				DateAdded = new DateTime(2022, 6, 9, 0, 0, 0),
+				DatePublished = new DateTime(2017, 2, 27, 0, 0, 0),
 				AudibleProductId = "123456789",
 				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
 				Locale = "us",
@@ -207,9 +209,11 @@ namespace LibationWinForms.Dialogs
 
 		private void listView1_DoubleClick(object sender, EventArgs e)
 		{
-			var itemText = listView1.SelectedItems[0].Text.Replace("...", "");
-			var text = templateTb.Text;
+			var itemText = listView1.SelectedItems[0].Tag as string;
 
+			if (string.IsNullOrEmpty(itemText)) return;
+
+			var text = templateTb.Text;
 			var selStart = Math.Min(Math.Max(0, templateTb.SelectionStart), text.Length);
 
 			templateTb.Text = text.Insert(selStart, itemText);

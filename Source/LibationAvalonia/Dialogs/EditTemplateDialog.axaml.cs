@@ -50,7 +50,9 @@ namespace LibationAvalonia.Dialogs
 		{
 			var dataGrid = sender as DataGrid;
 
-			var item = (dataGrid.SelectedItem as Tuple<string, string>).Item1.Replace("\x200C", "").Replace("...", "");
+			var item = (dataGrid.SelectedItem as Tuple<string, string, string>).Item3;
+			if (string.IsNullOrWhiteSpace(item)) return;
+
 			var text = userEditTbox.Text;
 
 			userEditTbox.Text = text.Insert(Math.Min(Math.Max(0, userEditTbox.CaretIndex), text.Length), item);
@@ -84,13 +86,14 @@ namespace LibationAvalonia.Dialogs
 				Template = templates;
 				Description = templates.Description;
 				ListItems
-				= new AvaloniaList<Tuple<string, string>>(
+				= new AvaloniaList<Tuple<string, string, string>>(
 					Template
 					.GetTemplateTags()
 					.Select(
-						t => new Tuple<string, string>(
+						t => new Tuple<string, string, string>(
 							$"<{t.TagName.Replace("->", "-\x200C>").Replace("<-", "<\x200C-")}>",
-							t.Description)
+							t.Description,
+							t.DefaultValue)
 						)
 					);
 
@@ -108,13 +111,13 @@ namespace LibationAvalonia.Dialogs
 				}
 			}
 
-			public string workingTemplateText => Template.Sanitize(UserTemplateText);
+			public string workingTemplateText => Template.Sanitize(UserTemplateText, Configuration.Instance.ReplacementCharacters);
 			private string _warningText;
 			public string WarningText { get => _warningText; set => this.RaiseAndSetIfChanged(ref _warningText, value); }
 
 			public string Description { get; }
 
-			public AvaloniaList<Tuple<string, string>> ListItems { get; set; }
+			public AvaloniaList<Tuple<string, string, string>> ListItems { get; set; }
 
 			public void resetTextBox(string value) => UserTemplateText = value;
 
@@ -138,6 +141,8 @@ namespace LibationAvalonia.Dialogs
 				var libraryBookDto = new LibraryBookDto
 				{
 					Account = "my account",
+					DateAdded = new DateTime(2022, 6, 9, 0, 0, 0),
+					DatePublished = new DateTime(2017, 2, 27, 0, 0, 0),
 					AudibleProductId = "123456789",
 					Title = "A Study in Scarlet: A Sherlock Holmes Novel",
 					Locale = "us",

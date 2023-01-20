@@ -7,16 +7,19 @@ namespace LibationFileManager
 {
     public sealed class TemplateTags : Enumeration<TemplateTags>
     {
-        public string TagName => DisplayName;
+		public string TagName => DisplayName;
+        public string DefaultValue { get; }
         public string Description { get; }
         public bool IsChapterOnly { get; }
 
         private static int value = 0;
-        private TemplateTags(string tagName, string description, bool isChapterOnly = false) : base(value++, tagName)
+        private TemplateTags(string tagName, string description, bool isChapterOnly = false, string defaultValue = null) : base(value++, tagName)
         {
             Description = description;
             IsChapterOnly = isChapterOnly;
-        }
+            DefaultValue = defaultValue ?? $"<{tagName}>";
+
+		}
 
         // putting these first is the incredibly lazy way to make them show up first in the EditTemplateDialog
         public static TemplateTags ChCount { get; } = new TemplateTags("ch count", "Number of chapters", true);
@@ -41,8 +44,11 @@ namespace LibationFileManager
         public static TemplateTags Locale { get; } = new TemplateTags("locale", "Region/country");
         public static TemplateTags YearPublished { get; } = new TemplateTags("year", "Year published");
 
-        // Special case. Isn't mapped to a replacement in Templates.cs
+        // Special cases. Aren't mapped to replacements in Templates.cs
         // Included here for display by EditTemplateDialog
-        public static TemplateTags IfSeries { get; } = new TemplateTags("if series->...<-if series", "Only include if part of a series");
+        public static TemplateTags FileDate { get; } = new TemplateTags("file date [...]", "File date/time. e.g. yyyy-MM-dd HH-mm", false, $"<file date [{Templates.DEFAULT_DATE_FORMAT}]>");
+        public static TemplateTags DatePublished { get; } = new TemplateTags("pub date [...]", "Publication date. e.g. yyyy-MM-dd", false, $"<pub date [{Templates.DEFAULT_DATE_FORMAT}]>");
+        public static TemplateTags DateAdded { get; } = new TemplateTags("date added [...]", "Date added to your Audible account. e.g. yyyy-MM-dd", false, $"<date added [{Templates.DEFAULT_DATE_FORMAT}]>");
+        public static TemplateTags IfSeries { get; } = new TemplateTags("if series->...<-if series", "Only include if part of a series", false, "<if series-><-if series>");
     }
 }

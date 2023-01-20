@@ -9,11 +9,15 @@ namespace FileManager
 	/// <summary>Get valid filename. Advanced features incl. parameterized template</summary>
 	public class FileNamingTemplate : NamingTemplate
 	{
+		public ReplacementCharacters ReplacementCharacters { get; }
 		/// <param name="template">Proposed file name with optional html-styled template tags.</param>
-		public FileNamingTemplate(string template) : base(template) { }
+		public FileNamingTemplate(string template, ReplacementCharacters replacement) : base(template)
+		{
+			ReplacementCharacters = replacement ?? ReplacementCharacters.Default;
+		}
 
 		/// <summary>Generate a valid path for this file or directory</summary>
-		public LongPath GetFilePath(ReplacementCharacters replacements, string fileExtension, bool returnFirstExisting = false)
+		public LongPath GetFilePath(string fileExtension, bool returnFirstExisting = false)
 		{
 			string fileName = 
 				Template.EndsWith(Path.DirectorySeparatorChar) || Template.EndsWith(Path.AltDirectorySeparatorChar) ?
@@ -22,7 +26,7 @@ namespace FileManager
 
 			List<string> pathParts = new();
 
-			var paramReplacements = ParameterReplacements.ToDictionary(r => $"<{formatKey(r.Key)}>", r => formatValue(r.Value, replacements));
+			var paramReplacements = ParameterReplacements.ToDictionary(r => $"<{formatKey(r.Key)}>", r => formatValue(r.Value, ReplacementCharacters));
 
 			while (!string.IsNullOrEmpty(fileName))
 			{
@@ -54,7 +58,7 @@ namespace FileManager
 			return FileUtility
 			.GetValidFilename(
 				Path.Join(directory, replaceFileName(fileNamePart, paramReplacements, LongPath.MaxFilenameLength - fileExtension.Length - 5)) + fileExtension,
-				replacements,
+				ReplacementCharacters,
 				fileExtension,
 				returnFirstExisting
 				);
