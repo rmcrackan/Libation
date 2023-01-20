@@ -36,10 +36,10 @@ namespace FileNamingTemplateTests
 			extension = FileUtility.GetStandardizedExtension(extension);
 			var fullfilename = Path.Combine(dirFullPath, template + extension);
 
-			var fileNamingTemplate = new FileNamingTemplate(fullfilename);
+			var fileNamingTemplate = new FileNamingTemplate(fullfilename, Replacements);
 			fileNamingTemplate.AddParameterReplacement("title", filename);
 			fileNamingTemplate.AddParameterReplacement("id", metadataSuffix);
-			return fileNamingTemplate.GetFilePath(Replacements, extension).PathWithoutPrefix;
+			return fileNamingTemplate.GetFilePath(extension).PathWithoutPrefix;
 		}
 
 		[TestMethod]
@@ -61,10 +61,10 @@ namespace FileNamingTemplateTests
 			var estension = Path.GetExtension(originalPath);
 			var t = Path.ChangeExtension(originalPath, null) + " - <chapter> - <title>" + estension;
 
-			var fileNamingTemplate = new FileNamingTemplate(t);
+			var fileNamingTemplate = new FileNamingTemplate(t, Replacements);
 			fileNamingTemplate.AddParameterReplacement("chapter", chapterCountLeadingZeros);
 			fileNamingTemplate.AddParameterReplacement("title", suffix);
-			return fileNamingTemplate.GetFilePath(Replacements, estension).PathWithoutPrefix;
+			return fileNamingTemplate.GetFilePath(estension).PathWithoutPrefix;
 		}
 
 		[TestMethod]
@@ -74,9 +74,9 @@ namespace FileNamingTemplateTests
 		{
 			if (Environment.OSVersion.Platform == platformID)
 			{
-				var fileNamingTemplate = new FileNamingTemplate(inStr);
+				var fileNamingTemplate = new FileNamingTemplate(inStr, Replacements);
 				fileNamingTemplate.AddParameterReplacement("title", @"s\l/a\s/h\e/s");
-				fileNamingTemplate.GetFilePath(Replacements, "txt").PathWithoutPrefix.Should().Be(outStr);
+				fileNamingTemplate.GetFilePath("txt").PathWithoutPrefix.Should().Be(outStr);
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,11 +26,32 @@ namespace TemplatesTests
 			=> new()
 			{
 				Account = "my account",
+				DateAdded = new DateTime(2022, 6, 9, 0, 0, 0),
+				DatePublished = new DateTime(2017, 2, 27, 0, 0, 0),
+				FileDate = new DateTime(2023, 1, 28, 0, 0, 0),
 				AudibleProductId = "asin",
 				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
 				Locale = "us",
-                YearPublished = 2017,
-                Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
+				YearPublished = 2017,
+				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
+				Narrators = new List<string> { "Stephen Fry" },
+				SeriesName = seriesName ?? "",
+				SeriesNumber = "1",
+				BitRate = 128,
+				SampleRate = 44100,
+				Channels = 2
+			};
+
+		public static LibraryBookDto GetLibraryBookWithNullDates(string seriesName = "Sherlock Holmes")
+			=> new()
+			{
+				Account = "my account",
+				FileDate = new DateTime(2023, 1, 28, 0, 0, 0),
+				AudibleProductId = "asin",
+				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
+				Locale = "us",
+				YearPublished = 2017,
+				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
 				Narrators = new List<string> { "Stephen Fry" },
 				SeriesName = seriesName ?? "",
 				SeriesNumber = "1",
@@ -71,14 +92,14 @@ namespace TemplatesTests
 		[DataRow(null, @"C:\", "ext")]
 		[ExpectedException(typeof(ArgumentNullException))]
 		public void arg_null_exception(string template, string dirFullPath, string extension)
-			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension);
+			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements);
 
 		[TestMethod]
 		[DataRow("", @"C:\foo\bar", "ext")]
 		[DataRow("   ", @"C:\foo\bar", "ext")]
 		[ExpectedException(typeof(ArgumentException))]
 		public void arg_exception(string template, string dirFullPath, string extension)
-			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension);
+			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements);
 
 		[TestMethod]
 		[DataRow("f.txt", @"C:\foo\bar", "", @"C:\foo\bar\f.txt", PlatformID.Win32NT)]
@@ -98,10 +119,116 @@ namespace TemplatesTests
 		public void Tests(string template, string dirFullPath, string extension, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
-				Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension)
-				.GetFilePath(Replacements, extension)
+				Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
+				.GetFilePath(extension)
 				.PathWithoutPrefix
 				.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("<id> - <filedate[yy-MM-dd]>", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 23-01-28.m4b")]
+		[DataRow("<id> - <filedate  [  yy-MM-dd    ]  >", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 23-01-28.m4b")]
+		[DataRow("<id> - <file date  [yy-MM-dd]  >", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 23-01-28.m4b")]
+		[DataRow("<id> - <file     date[yy-MM-dd]>", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 23-01-28.m4b")]
+		[DataRow("<id> - <file date[]>", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 2023-01-28.m4b")]
+		[DataRow("<id> - <filedate[]>", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 2023-01-28.m4b")]
+		[DataRow("<id> - <filedate [    ]  >", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 2023-01-28.m4b")]
+		[DataRow("<id> - <filedate>", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 2023-01-28.m4b")]
+		[DataRow("<id> - <filedate  >", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 2023-01-28.m4b")]
+		[DataRow("<id> - <file date>", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 2023-01-28.m4b")]
+		[DataRow("<id> - <file     date>", @"C:\foo\bar", "m4b", @"C:\foo\bar\asin - 2023-01-28.m4b")]
+		public void DateFormat_pattern(string template, string dirFullPath, string extension, string expected)
+		{
+			if (Environment.OSVersion.Platform is not PlatformID.Win32NT)
+			{
+				dirFullPath = dirFullPath.Replace("C:", "").Replace('\\', '/');
+				expected = expected.Replace("C:", "").Replace('\\', '/');
+			}
+
+			Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
+				.GetFilePath(extension)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("<filedate[h]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[h]＞.m4b")]
+		[DataRow("< filedate[yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜ filedate[yyyy]＞.m4b")]
+		[DataRow("<filedate yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate yyyy]＞.m4b")]
+		[DataRow("<filedate [yyyy>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate [yyyy＞.m4b")]
+		[DataRow("<filedate yyyy>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate yyyy＞.m4b")]
+		[DataRow("<filedate[yyyy]", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[yyyy].m4b")]
+		[DataRow("<fil edate[yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜fil edate[yyyy]＞.m4b")]
+		[DataRow("<filed ate[yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filed ate[yyyy]＞.m4b")]
+		public void DateFormat_invalid(string template, string dirFullPath, string extension, string expected)
+		{
+			if (Environment.OSVersion.Platform is not PlatformID.Win32NT)
+			{
+				dirFullPath = dirFullPath.Replace("C:", "").Replace('\\', '/');
+				expected = expected.Replace("C:", "").Replace('\\', '/').Replace('＜', '<').Replace('＞','>');
+			}
+
+			Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
+				.GetFilePath(extension)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("<filedate[yy-MM-dd]> <date added[yy-MM-dd]> <pubdate[yy-MM]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\23-01-28 22-06-09 17-02.m4b")]
+		[DataRow("<filedate[yy-MM-dd]> <filedate[yy-MM-dd]> <filedate[yy-MM-dd]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\23-01-28 23-01-28 23-01-28.m4b")]
+		[DataRow("<file date     [             yy-MM-dd      ]         > <filedate   [  yy-MM-dd ] > <file  date   [ yy-MM-dd]    >", @"C:\foo\bar", ".m4b", @"C:\foo\bar\23-01-28 23-01-28 23-01-28.m4b")]
+		public void DateFormat_multiple(string template, string dirFullPath, string extension, string expected)
+		{
+			if (Environment.OSVersion.Platform is not PlatformID.Win32NT)
+			{
+				dirFullPath = dirFullPath.Replace("C:", "").Replace('\\', '/');
+				expected = expected.Replace("C:", "").Replace('\\', '/');
+			}
+
+			Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
+				.GetFilePath(extension)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("<id> - <pubdate[MM/dd/yy HH:mm]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\asin - 02∕27∕17 00꞉00.m4b", PlatformID.Win32NT)]
+		[DataRow("<id> - <pubdate[MM/dd/yy HH:mm]>", @"/foo/bar", ".m4b", @"/foo/bar/asin - 02∕27∕17 00:00.m4b", PlatformID.Unix)]
+		[DataRow("<id> - <filedate[MM/dd/yy HH:mm]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\asin - 01∕28∕23 00꞉00.m4b", PlatformID.Win32NT)]
+		[DataRow("<id> - <filedate[MM/dd/yy HH:mm]>", @"/foo/bar", ".m4b", @"/foo/bar/asin - 01∕28∕23 00:00.m4b", PlatformID.Unix)]
+		[DataRow("<id> - <date added[MM/dd/yy HH:mm]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\asin - 06∕09∕22 00꞉00.m4b", PlatformID.Win32NT)]
+		[DataRow("<id> - <date added[MM/dd/yy HH:mm]>", @"/foo/bar", ".m4b", @"/foo/bar/asin - 06∕09∕22 00:00.m4b", PlatformID.Unix)]
+		public void DateFormat_illegal(string template, string dirFullPath, string extension, string expected, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform == platformID)
+			{
+				Templates.File.HasWarnings(template).Should().BeTrue();
+				Templates.File.HasWarnings(Templates.File.Sanitize(template, Replacements)).Should().BeFalse();
+				Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
+					.GetFilePath(extension)
+					.PathWithoutPrefix
+					.Should().Be(expected);
+
+			}
+		}
+
+
+		[TestMethod]
+		[DataRow("<filedate[yy-MM-dd]> <date added[yy-MM-dd]> <pubdate[yy-MM]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\23-01-28.m4b")]
+		public void DateFormat_null(string template, string dirFullPath, string extension, string expected)
+		{
+			if (Environment.OSVersion.Platform is not PlatformID.Win32NT)
+			{
+				dirFullPath = dirFullPath.Replace("C:", "").Replace('\\', '/');
+				expected = expected.Replace("C:", "").Replace('\\', '/');
+			}
+
+			Templates.getFileNamingTemplate(GetLibraryBookWithNullDates(), template, dirFullPath, extension, Replacements)
+				.GetFilePath(extension)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+
 		}
 
 		[TestMethod]
@@ -110,8 +237,8 @@ namespace TemplatesTests
 		public void IfSeries_empty(string directory, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
-				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series-><-if series>bar", directory, "ext")
-				.GetFilePath(Replacements, ".ext")
+				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series-><-if series>bar", directory, "ext", Replacements)
+				.GetFilePath(".ext")
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -122,8 +249,8 @@ namespace TemplatesTests
 		public void IfSeries_no_series(string directory, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
-				Templates.getFileNamingTemplate(GetLibraryBook(null), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext")
-				.GetFilePath(Replacements, ".ext")
+				Templates.getFileNamingTemplate(GetLibraryBook(null), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext", Replacements)
+				.GetFilePath(".ext")
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -134,8 +261,8 @@ namespace TemplatesTests
 		public void IfSeries_with_series(string directory, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
-				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext")
-				.GetFilePath(Replacements, ".ext")
+				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext", Replacements)
+				.GetFilePath(".ext")
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}

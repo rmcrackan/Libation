@@ -25,10 +25,14 @@ namespace LibationFileManager
         public int BitRate { get; set; }
         public int SampleRate { get; set; }
         public int Channels { get; set; }
-    }
+		public DateTime FileDate { get; set; } = DateTime.Now;
+        public DateTime? DatePublished { get; set; }
+
+	}
 
     public class LibraryBookDto : BookDto
-    {
-        public string Account { get; set; }
+	{
+		public DateTime? DateAdded { get; set; }
+		public string Account { get; set; }
     }
 }

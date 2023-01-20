@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Dinah.Core;
+using Dinah.Core.Collections.Generic;
 using FileManager;
 
 namespace LibationFileManager
@@ -102,17 +103,21 @@ namespace LibationFileManager
 		public string GetPortionFilename(LibraryBookDto libraryBookDto, string template, string fileExtension)
 			=> string.IsNullOrWhiteSpace(template)
 			? ""
-			: getFileNamingTemplate(libraryBookDto, template, null, fileExtension)
-			.GetFilePath(Configuration.Instance.ReplacementCharacters, fileExtension).PathWithoutPrefix;
+			: getFileNamingTemplate(libraryBookDto, template, null, fileExtension, Configuration.Instance.ReplacementCharacters)
+			.GetFilePath(fileExtension).PathWithoutPrefix;
 
-		private static Regex dateFormatRegex { get; } = new Regex(@"<date\[(.*?)\]>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		public const string DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+		private static Regex fileDateTagRegex { get; } = new Regex(@"<file\s*?date\s*?(?:\s*?|\[(.*?)\])\s*?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		private static Regex dateAddedTagRegex { get; } = new Regex(@"<date\s*?added\s*?(?:\s*?|\[(.*?)\])\s*?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		private static Regex datePublishedTagRegex { get; } = new Regex(@"<pub\s*?date\s*?(?:\s*?|\[(.*?)\])\s*?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		private static Regex ifSeriesRegex { get; } = new Regex("<if series->(.*?)<-if series>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-		internal static FileNamingTemplate getFileNamingTemplate(LibraryBookDto libraryBookDto, string template, string dirFullPath, string extension)
+		internal static FileNamingTemplate getFileNamingTemplate(LibraryBookDto libraryBookDto, string template, string dirFullPath, string extension, ReplacementCharacters replacements)
 		{
 			ArgumentValidator.EnsureNotNullOrWhiteSpace(template, nameof(template));
 			ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 
+			replacements ??= Configuration.Instance.ReplacementCharacters;
 			dirFullPath = dirFullPath?.Trim() ?? "";
 
 			// for non-series, remove <if series-> and <-if series> tags and everything in between
@@ -121,12 +126,16 @@ namespace LibationFileManager
 				template,
 				string.IsNullOrWhiteSpace(libraryBookDto.SeriesName) ? "" : "$1");
 
-			template = dateFormatRegex.Replace(template, dateMatchEvaluator);
+			//Get date replacement parameters. Sanitizes the format text and replaces
+			//the template with the sanitized text before creating FileNamingTemplate
+			var fileDateParams = getSanitizeDateReplacementParameters(fileDateTagRegex, ref template, replacements, libraryBookDto.FileDate);
+			var dateAddedParams = getSanitizeDateReplacementParameters(dateAddedTagRegex, ref template, replacements, libraryBookDto.DateAdded);
+			var pubDateParams = getSanitizeDateReplacementParameters(datePublishedTagRegex, ref template, replacements, libraryBookDto.DatePublished);
 
 			var t = template + FileUtility.GetStandardizedExtension(extension);
 			var fullfilename = dirFullPath == "" ? t : Path.Combine(dirFullPath, t);
 
-			var fileNamingTemplate = new FileNamingTemplate(fullfilename);
+			var fileNamingTemplate = new FileNamingTemplate(fullfilename, replacements);
 
 			var title = libraryBookDto.Title ?? "";
 			var titleShort = title.IndexOf(':') < 1 ? title : title.Substring(0, title.IndexOf(':'));
@@ -147,30 +156,91 @@ namespace LibationFileManager
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.Locale, libraryBookDto.Locale);
             fileNamingTemplate.AddParameterReplacement(TemplateTags.YearPublished, libraryBookDto.YearPublished?.ToString() ?? "1900");
 
-            return fileNamingTemplate;
+			//Add the sanitized replacement parameters
+			foreach (var param in fileDateParams)
+				fileNamingTemplate.ParameterReplacements.AddIfNotContains(param);
+			foreach (var param in dateAddedParams)
+				fileNamingTemplate.ParameterReplacements.AddIfNotContains(param);
+			foreach (var param in pubDateParams)
+				fileNamingTemplate.ParameterReplacements.AddIfNotContains(param);
+
+			return fileNamingTemplate;
 		}
 		#endregion
 
-		private static string dateMatchEvaluator(Match match)
+		#region DateTime Tags
+
+		/// <param name="template">the file naming template. Any found date tags will be sanitized,
+		/// and the template's original date tag will be replaced with the sanitized tag.</param>
+		/// <returns>A list of parameter replacement key-value pairs</returns>
+		private static List<KeyValuePair<string, object>> getSanitizeDateReplacementParameters(Regex datePattern, ref string template, ReplacementCharacters replacements, DateTime? dateTime)
 		{
+			List<KeyValuePair<string, object>> dateParams = new();
+
+			foreach (Match dateTag in datePattern.Matches(template))
+			{
+				var sanitizedTag = sanitizeDateParameterTag(dateTag, replacements, out var sanitizedFormatter);
+				if (tryFormatDateTime(dateTime, sanitizedFormatter, replacements, out var formattedDateString))
+				{
+					dateParams.Add(new(sanitizedTag, formattedDateString));
+					template = template.Replace(dateTag.Value, sanitizedTag);
+				}
+			}
+			return dateParams;
+		}
+
+		/// <returns>a date parameter replacement tag with the format string sanitized</returns>
+		private static string sanitizeDateParameterTag(Match dateTag, ReplacementCharacters replacements, out string sanitizedFormatter)
+		{
+			if (dateTag.Groups.Count < 2 || string.IsNullOrWhiteSpace(dateTag.Groups[1].Value))
+			{
+				sanitizedFormatter = DEFAULT_DATE_FORMAT;
+				return dateTag.Value;
+			}
+
+			var formatter = dateTag.Groups[1].Value;
+
+			sanitizedFormatter = replacements.ReplaceFilenameChars(formatter).Trim();
+
+			return dateTag.Value.Replace(formatter, sanitizedFormatter);
+		}
+
+		private static bool tryFormatDateTime(DateTime? dateTime, string sanitizedFormatter, ReplacementCharacters replacements, out string formattedDateString)
+		{
+			if (!dateTime.HasValue)
+			{
+				formattedDateString = string.Empty;
+				return true;
+			}
+
 			try
 			{
-				return DateTime.Now.ToString(match.Groups[1].Value);
+				formattedDateString = replacements.ReplaceFilenameChars(dateTime.Value.ToString(sanitizedFormatter)).Trim();
+				return true;
 			}
 			catch
 			{
-				return match.Value;
+				formattedDateString = null;
+				return false;
 			}
 		}
+		#endregion
 
 		public virtual IEnumerable<TemplateTags> GetTemplateTags()
 			=> TemplateTags.GetAll()
 			// yeah, this line is a little funky but it works when you think through it. also: trust the unit tests
 			.Where(t => IsChapterized || !t.IsChapterOnly);
 
-		public string Sanitize(string template)
+		public string Sanitize(string template, ReplacementCharacters replacements)
 		{
 			var value = template ?? "";
+
+			// Replace invalid filename characters in the DateTime format provider so we don't trip any alarms.
+			// Illegal filename characters in the formatter are allowed because they will be replaced by
+			// getFileNamingTemplate()
+			value = fileDateTagRegex.Replace(value, m => sanitizeDateParameterTag(m, replacements, out _));
+			value = dateAddedTagRegex.Replace(value, m => sanitizeDateParameterTag(m, replacements, out _));
+			value = datePublishedTagRegex.Replace(value, m => sanitizeDateParameterTag(m, replacements, out _));
 
 			// don't use alt slash
 			value = value.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
@@ -218,7 +288,7 @@ namespace LibationFileManager
 
 				// must be relative. no colons. all other path chars are valid enough to pass this check and will be handled on final save.
 				if (ReplacementCharacters.ContainsInvalidPathChar(template.Replace("<", "").Replace(">", "")))
-						return new[] { ERROR_INVALID_FILE_NAME_CHAR };
+					return new[] { ERROR_INVALID_FILE_NAME_CHAR };
 
 				return Valid;
 			}
@@ -229,8 +299,8 @@ namespace LibationFileManager
 			#region to file name
 			/// <summary>USES LIVE CONFIGURATION VALUES</summary>
 			public string GetFilename(LibraryBookDto libraryBookDto, string baseDir = null)
-				=> getFileNamingTemplate(libraryBookDto, Configuration.Instance.FolderTemplate, baseDir ?? AudibleFileStorage.BooksDirectory, null)
-				.GetFilePath(Configuration.Instance.ReplacementCharacters, string.Empty);
+				=> getFileNamingTemplate(libraryBookDto, Configuration.Instance.FolderTemplate, baseDir ?? AudibleFileStorage.BooksDirectory, null, Configuration.Instance.ReplacementCharacters)
+				.GetFilePath(string.Empty);
 			#endregion
 		}
 
@@ -252,8 +322,8 @@ namespace LibationFileManager
 			#region to file name
 			/// <summary>USES LIVE CONFIGURATION VALUES</summary>
 			public string GetFilename(LibraryBookDto libraryBookDto, string dirFullPath, string extension, bool returnFirstExisting = false)
-				=> getFileNamingTemplate(libraryBookDto, Configuration.Instance.FileTemplate, dirFullPath, extension)
-				.GetFilePath(Configuration.Instance.ReplacementCharacters, extension, returnFirstExisting);
+				=> getFileNamingTemplate(libraryBookDto, Configuration.Instance.FileTemplate, dirFullPath, extension, Configuration.Instance.ReplacementCharacters)
+				.GetFilePath(extension, returnFirstExisting);
 			#endregion
 		}
 
@@ -294,14 +364,21 @@ namespace LibationFileManager
 
 				replacements ??= Configuration.Instance.ReplacementCharacters;
 				var fileExtension = Path.GetExtension(props.OutputFileName);
-				var fileNamingTemplate = getFileNamingTemplate(libraryBookDto, template, fullDirPath, fileExtension);
+				var fileNamingTemplate = getFileNamingTemplate(libraryBookDto, template, fullDirPath, fileExtension, replacements);
 
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChCount, props.PartsTotal);
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChNumber, props.PartsPosition);
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChNumber0, FileUtility.GetSequenceFormatted(props.PartsPosition, props.PartsTotal));
 				fileNamingTemplate.AddParameterReplacement(TemplateTags.ChTitle, props.Title ?? "");
 
-				return fileNamingTemplate.GetFilePath(replacements, fileExtension).PathWithoutPrefix;
+				foreach (Match dateTag in fileDateTagRegex.Matches(fileNamingTemplate.Template))
+				{
+					var sanitizedTag = sanitizeDateParameterTag(dateTag, replacements, out string sanitizedFormatter);
+					if (tryFormatDateTime(props.FileDate, sanitizedFormatter, replacements, out var formattedDateString))
+						fileNamingTemplate.ParameterReplacements[sanitizedTag] = formattedDateString;
+				}
+
+				return fileNamingTemplate.GetFilePath(fileExtension).PathWithoutPrefix;
 			}
 			#endregion
 		}
