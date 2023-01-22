@@ -41,7 +41,7 @@ jobs:
       version: ${{ needs.prerelease.outputs.version }}
       
   release:
-    needs: [prerelease,build]
+    needs: [prerelease,build,deb]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
