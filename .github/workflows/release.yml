@@ -49,22 +49,10 @@ jobs:
         with:
           path: artifacts
 
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: '${{ github.ref }}'
-          release_name: 'Libation ${{ needs.prerelease.outputs.version }}'
           body: <Put a body here>
           draft: true
           prerelease: false
-
-      - name: Upload release assets
-        uses: dwenegar/upload-release-assets@v1
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        with:
-          release_id: '${{ steps.create_release.outputs.id }}'
-          assets_path: ./artifacts
+          files: ./artifacts/*
