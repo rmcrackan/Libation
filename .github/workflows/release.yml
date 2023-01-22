@@ -56,4 +56,4 @@ jobs:
           body: <Put a body here>
           draft: true
           prerelease: false
-          files: ./artifacts/*
+          files: artifacts/*
