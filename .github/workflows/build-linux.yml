@@ -15,10 +15,6 @@ on:
         description: 'Skip running unit tests'
         required: false
         default: true
-    outputs:
-      version:
-        description: "The Libation version number"
-        value: ${{ jobs.build.outputs.version }}
 
 env:
   DOTNET_CONFIGURATION: 'Release'

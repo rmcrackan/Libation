@@ -15,10 +15,6 @@ on:
         description: 'Skip running unit tests'
         required: false
         default: true
-    outputs:
-      version:
-        description: "The Libation version number"
-        value: ${{ jobs.build.outputs.version }}
 
 env:
   DOTNET_CONFIGURATION: 'Release'
@@ -27,8 +23,6 @@ env:
 jobs:
   build:
     runs-on: windows-latest
-    outputs:
-      version: ${{ steps.get_version.outputs.version }}
     strategy:
       matrix:
         os: [Windows]
@@ -74,7 +68,7 @@ jobs:
       - name: Zip artifact
         id: zip
         working-directory: ./Source/bin/Publish
-        run: |        
+        run: |
           $dir = "${{ matrix.os }}-${{ matrix.release_name }}\"
           $delfiles = @("libmp3lame.so", "ffmpegaac.so", "glass-with-glow_256.svg", "Libation.desktop")
           foreach ($file in $delfiles){ if (test-path $dir$file){ Remove-Item $dir$file } }

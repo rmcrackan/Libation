@@ -33,7 +33,12 @@ jobs:
     with:
       version_override: ${{ needs.prerelease.outputs.version }}
       run_unit_tests: false
-      build_deb: true
+
+  deb:
+    needs: [prerelease,build]
+    uses: ./.github/workflows/build-deb.yml
+    with:
+      version: ${{ needs.prerelease.outputs.version }}
       
   release:
     needs: [prerelease,build]
