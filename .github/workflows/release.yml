@@ -50,6 +50,7 @@ jobs:
           path: artifacts
 
       - name: Release
+        id: release
         uses: softprops/action-gh-release@v1
         with:
           name: Libation ${{ needs.prerelease.outputs.version }}
@@ -62,5 +63,5 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
-          release_id: '${{ steps.create_release.outputs.id }}'
+          release_id: '${{ steps.release.outputs.id }}'
           assets_path: ./artifacts
