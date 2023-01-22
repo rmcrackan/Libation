@@ -36,7 +36,7 @@ jobs:
 
   deb:
     needs: [prerelease,build]
-    uses: ./.github/workflows/build-deb.yml
+    uses: ./.github/workflows/deb.yml
     with:
       version: ${{ needs.prerelease.outputs.version }}
       
