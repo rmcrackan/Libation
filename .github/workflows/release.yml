@@ -52,6 +52,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          name: Libation ${{ needs.prerelease.outputs.version }}
           body: <Put a body here>
           draft: true
           prerelease: false
