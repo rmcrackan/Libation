@@ -38,3 +38,7 @@ Once Gatekeeper reenabled, you can open Libation again without it being blocked.
 Thanks [joseph-holland](https://github.com/rmcrackan/Libation/issues/327#issuecomment-1268993349)!
 
 Report bugs to https://github.com/rmcrackan/Libation/issues
+
+## Get Libation running on Mac
+
+[Run Libation on MacOS](https://user-images.githubusercontent.com/37587114/213933357-983d8ede-2738-4b32-9c6e-40de21ff09c2.mp4)
