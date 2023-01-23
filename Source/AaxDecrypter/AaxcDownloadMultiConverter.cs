@@ -133,32 +133,33 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
 			try
 			{
-				ConversionResult result;
-
-				AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 				if (DownloadOptions.OutputFormat == OutputFormat.M4b)
-					result = await ConvertToMultiMp4a(splitChapters);
+					aaxConversion = ConvertToMultiMp4a(splitChapters);
 				else
-					result = await ConvertToMultiMp3(splitChapters);
+					aaxConversion = ConvertToMultiMp3(splitChapters);
 
-				return result == ConversionResult.NoErrorsDetected;
+				aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+				await aaxConversion;
+				return aaxConversion.IsCompletedSuccessfully;
 			}
 			catch(Exception ex)
 			{
 				Serilog.Log.Error(ex, "AAXClean Error");
 				workingFileStream?.Close();
-				FileUtility.SaferDelete(workingFileStream.Name);
+				if (workingFileStream?.Name is not null)
+					FileUtility.SaferDelete(workingFileStream.Name);
 				return false;
 			}
 			finally
 			{
-				AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
+				if (aaxConversion is not null)
+					aaxConversion.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
 				Step_DownloadAudiobook_End(zeroProgress);
 			}
 		}
 
-		private Task<ConversionResult> ConvertToMultiMp4a(ChapterInfo splitChapters)
+		private Mp4Operation ConvertToMultiMp4a(ChapterInfo splitChapters)
 		{
 			var chapterCount = 0;
 			return AaxFile.ConvertToMultiMp4aAsync
@@ -169,7 +170,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 				);
 		}
 
-		private Task<ConversionResult> ConvertToMultiMp3(ChapterInfo splitChapters)
+		private Mp4Operation ConvertToMultiMp3(ChapterInfo splitChapters)
 		{
 			var chapterCount = 0;
 			return AaxFile.ConvertToMultiMp3Async

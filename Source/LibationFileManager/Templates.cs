@@ -107,9 +107,9 @@ namespace LibationFileManager
 			.GetFilePath(fileExtension).PathWithoutPrefix;
 
 		public const string DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
-		private static Regex fileDateTagRegex { get; } = new Regex(@"<file\s*?date\s*?(?:\[([^\[\]]*?)\]){0,1}\s*?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		private static Regex dateAddedTagRegex { get; } = new Regex(@"<date\s*?added\s*?(?:\[([^\[\]]*?)\]){0,1}\s*?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-		private static Regex datePublishedTagRegex { get; } = new Regex(@"<pub\s*?date\s*?(?:\[([^\[\]]*?)\]){0,1}\s*?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		private static Regex fileDateTagRegex { get; } = new Regex(@"<file\s*?date\s*?(?:\[([^\[\]]*?)\]\s*?)?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		private static Regex dateAddedTagRegex { get; } = new Regex(@"<date\s*?added\s*?(?:\[([^\[\]]*?)\]\s*?)?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		private static Regex datePublishedTagRegex { get; } = new Regex(@"<pub\s*?date\s*?(?:\[([^\[\]]*?)\]\s*?)?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		private static Regex ifSeriesRegex { get; } = new Regex("<if series->(.*?)<-if series>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		internal static FileNamingTemplate getFileNamingTemplate(LibraryBookDto libraryBookDto, string template, string dirFullPath, string extension, ReplacementCharacters replacements)

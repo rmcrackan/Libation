@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AAXClean;
 using AAXClean.Codecs;
 using FileManager;
+using Mpeg4Lib.Util;
 
 namespace AaxDecrypter
 {
@@ -90,16 +91,20 @@ namespace AaxDecrypter
 			var outputFile = File.Open(OutputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 			OnFileCreated(OutputFileName);
 
-			AaxFile.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 
 			try
 			{
-				ConversionResult decryptionResult = await decryptAsync(outputFile);
-				var success = decryptionResult == ConversionResult.NoErrorsDetected && !IsCanceled;
-				if (success)
-					base.OnFileCreated(OutputFileName);
+				aaxConversion =  decryptAsync(outputFile);
+				aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+				await aaxConversion;
 
-				return success;
+				if (aaxConversion.IsCompletedSuccessfully)
+				{
+					outputFile.Close();
+					base.OnFileCreated(OutputFileName);
+				}
+
+				return aaxConversion.IsCompletedSuccessfully;
 			}
 			catch(Exception ex)
 			{
@@ -110,13 +115,15 @@ namespace AaxDecrypter
 			finally
 			{
 				outputFile.Close();
-				AaxFile.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
+
+				if (aaxConversion is not null)
+					aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 
 				Step_DownloadAudiobook_End(zeroProgress);
 			}
 		}
 
-		private Task<ConversionResult> decryptAsync(Stream outputFile)
+		private Mp4Operation decryptAsync(Stream outputFile)
 			=> DownloadOptions.OutputFormat == OutputFormat.Mp3 ? 
 			AaxFile.ConvertToMp3Async
 			(

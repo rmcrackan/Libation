@@ -151,9 +151,9 @@ namespace FileManager
 		/// <br/>- Perform <see cref="SaferMove"/>
 		/// <br/>- Return valid path
 		/// </summary>
-		public static string SaferMoveToValidPath(LongPath source, LongPath destination, ReplacementCharacters replacements)
+		public static string SaferMoveToValidPath(LongPath source, LongPath destination, ReplacementCharacters replacements, string extension = null)
 		{
-			var extension = Path.GetExtension(source);
+			extension = extension ?? Path.GetExtension(source);
 			destination = GetValidFilename(destination, replacements, extension);
 			SaferMove(source, destination);
 			return destination;

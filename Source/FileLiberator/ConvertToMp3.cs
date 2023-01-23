@@ -15,12 +15,12 @@ namespace FileLiberator
 	public class ConvertToMp3 : AudioDecodable
 	{
 		public override string Name => "Convert to Mp3";
-		private Mp4File m4bBook;
-
+		private Mp4Operation Mp4Operation;
+		private TimeSpan bookDuration;
 		private long fileSize;
 		private static string Mp3FileName(string m4bPath) => Path.ChangeExtension(m4bPath ?? "", ".mp3");
 
-		public override Task CancelAsync() => m4bBook?.CancelAsync() ?? Task.CompletedTask;
+		public override Task CancelAsync() => Mp4Operation?.CancelAsync() ?? Task.CompletedTask;		
 
 		public static bool ValidateMp3(LibraryBook libraryBook)
 		{
@@ -43,9 +43,9 @@ namespace FileLiberator
 					var proposedMp3Path = Mp3FileName(m4bPath);
 					if (File.Exists(proposedMp3Path) || !File.Exists(m4bPath)) continue;
 
-					m4bBook = await Task.Run(() => new Mp4File(m4bPath, FileAccess.Read));
-					m4bBook.ConversionProgressUpdate += M4bBook_ConversionProgressUpdate;
+					var m4bBook = await Task.Run(() => new Mp4File(m4bPath, FileAccess.Read));
 
+					bookDuration = m4bBook.Duration;
 					fileSize = m4bBook.InputStream.Length;
 
 					OnTitleDiscovered(m4bBook.AppleTags.Title);
@@ -66,19 +66,19 @@ namespace FileLiberator
 					using var mp3File = File.OpenWrite(Path.GetTempFileName());
 					try
 					{
-						var result = await m4bBook.ConvertToMp3Async(mp3File, lameConfig);
+						Mp4Operation = m4bBook.ConvertToMp3Async(mp3File, lameConfig);
+						Mp4Operation.ConversionProgressUpdate += M4bBook_ConversionProgressUpdate;
+						await Mp4Operation;
 
-						var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path, Configuration.Instance.ReplacementCharacters);
-						OnFileCreated(libraryBook, realMp3Path);
-
-						if (result == ConversionResult.Failed)
-						{
-							FileUtility.SaferDelete(mp3File.Name);
-						}
-						else if (result == ConversionResult.Cancelled)
+						if (Mp4Operation.IsCanceled)
 						{
 							FileUtility.SaferDelete(mp3File.Name);
 							return new StatusHandler { "Cancelled" };
+						}
+						else
+						{
+							var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path, Configuration.Instance.ReplacementCharacters, "mp3");
+							OnFileCreated(libraryBook, realMp3Path);
 						}
 					}
 					catch (Exception ex)
@@ -88,6 +88,9 @@ namespace FileLiberator
 					}
 					finally
 					{
+						if (Mp4Operation is not null)
+							Mp4Operation.ConversionProgressUpdate -= M4bBook_ConversionProgressUpdate;
+
 						m4bBook.InputStream.Close();
 						mp3File.Close();
 					}
@@ -102,14 +105,13 @@ namespace FileLiberator
 
 		private void M4bBook_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
 		{
-			var duration = m4bBook.Duration;
-			var remainingSecsToProcess = (duration - e.ProcessPosition).TotalSeconds;
+			var remainingSecsToProcess = (bookDuration - e.ProcessPosition).TotalSeconds;
 			var estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
-
+				
 			if (double.IsNormal(estTimeRemaining))
 				OnStreamingTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
 
-			double progressPercent = 100 * e.ProcessPosition.TotalSeconds / duration.TotalSeconds;
+			double progressPercent = 100 * e.ProcessPosition.TotalSeconds / bookDuration.TotalSeconds;
 
 			OnStreamingProgressChanged(
 				new DownloadProgress
