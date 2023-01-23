@@ -1,7 +1,7 @@
-# build-deb.yml
+# deb.yml
 # Reusable workflow that builds the Linux Debian package.
 ---
-name: build_deb
+name: deb
 
 on:
   workflow_call:
@@ -21,15 +21,14 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Download Artifact
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v3
         with:
           name: "${{ env.FILE_NAME }}.tar.gz"
 
       - name: Build .deb
         id: deb
         run: |
-          chmod +x ./.github/workflows/scripts/targz2deb.sh
-          ./.github/workflows/scripts/targz2deb.sh "${{ env.FILE_NAME }}.tar.gz" ${{ inputs.version }}
+          ./Scripts/targz2deb.sh "${{ env.FILE_NAME }}.tar.gz" ${{ inputs.version }}
       
       - name: Publish .deb
         uses: actions/upload-artifact@v3

@@ -33,10 +33,15 @@ jobs:
     with:
       version_override: ${{ needs.prerelease.outputs.version }}
       run_unit_tests: false
-      build_deb: true
+
+  deb:
+    needs: [prerelease,build]
+    uses: ./.github/workflows/deb.yml
+    with:
+      version: ${{ needs.prerelease.outputs.version }}
       
   release:
-    needs: [prerelease,build]
+    needs: [prerelease,build,deb]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -44,14 +49,11 @@ jobs:
         with:
           path: artifacts
 
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      - name: Release
+        id: release
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: '${{ github.ref }}'
-          release_name: 'Libation ${{ needs.prerelease.outputs.version }}'
+          name: Libation ${{ needs.prerelease.outputs.version }}
           body: <Put a body here>
           draft: true
           prerelease: false
@@ -61,5 +63,5 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
-          release_id: '${{ steps.create_release.outputs.id }}'
+          release_id: '${{ steps.release.outputs.id }}'
           assets_path: ./artifacts
