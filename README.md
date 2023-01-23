@@ -30,6 +30,7 @@
     - [Settings](Documentation/Advanced.md#settings)
     - [Custom File Naming](Documentation/Advanced.md#custom-file-naming)
     - [Command Line Interface](Documentation/Advanced.md#command-line-interface)
+- [Docker](Documentation/Docker.md)
 
 ## Getting started
 
