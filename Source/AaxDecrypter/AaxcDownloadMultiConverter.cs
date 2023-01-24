@@ -140,6 +140,10 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
 				aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 				await aaxConversion;
+
+				if (aaxConversion.IsCompletedSuccessfully)
+					moveMoovToBeginning(workingFileStream?.Name);
+
 				return aaxConversion.IsCompletedSuccessfully;
 			}
 			catch(Exception ex)
@@ -195,10 +199,24 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 				PartsTotal = splitChapters.Count,
 				Title = newSplitCallback?.Chapter?.Title,
 			};
+
+			moveMoovToBeginning(workingFileStream?.Name);
+
 			newSplitCallback.OutputFile = createOutputFileStream(props);
 			newSplitCallback.TrackTitle = DownloadOptions.GetMultipartTitleName(props);
 			newSplitCallback.TrackNumber = currentChapter;
 			newSplitCallback.TrackCount = splitChapters.Count;
+		}
+
+		private void moveMoovToBeginning(string filename)
+		{
+			if (DownloadOptions.OutputFormat is OutputFormat.M4b
+				&& DownloadOptions.MoveMoovToBeginning
+				&& filename is not null
+				&& File.Exists(filename))
+			{
+				Mp4File.RelocateMoovAsync(filename).GetAwaiter().GetResult();
+			}
 		}
 
 		private FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)

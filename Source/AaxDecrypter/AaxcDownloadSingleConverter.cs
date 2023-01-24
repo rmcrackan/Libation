@@ -98,11 +98,20 @@ namespace AaxDecrypter
 				aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 				await aaxConversion;
 
-				if (aaxConversion.IsCompletedSuccessfully)
+				outputFile.Close();
+
+				if (aaxConversion.IsCompletedSuccessfully
+					&& DownloadOptions.OutputFormat is OutputFormat.M4b
+					&& DownloadOptions.MoveMoovToBeginning)
 				{
-					outputFile.Close();
-					base.OnFileCreated(OutputFileName);
+					aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+					aaxConversion = Mp4File.RelocateMoovAsync(OutputFileName);
+					aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+					await aaxConversion;
 				}
+
+				if (aaxConversion.IsCompletedSuccessfully)
+					base.OnFileCreated(OutputFileName);
 
 				return aaxConversion.IsCompletedSuccessfully;
 			}
@@ -117,7 +126,7 @@ namespace AaxDecrypter
 				outputFile.Close();
 
 				if (aaxConversion is not null)
-					aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+					aaxConversion.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
 				Step_DownloadAudiobook_End(zeroProgress);
 			}

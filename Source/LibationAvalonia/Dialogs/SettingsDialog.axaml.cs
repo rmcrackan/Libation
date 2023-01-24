@@ -383,6 +383,7 @@ namespace LibationAvalonia.Dialogs
 	{
 
 		private bool _downloadClipsBookmarks;
+		private bool _decryptToLossy;
 		private bool _splitFilesByChapter;
 		private bool _allowLibationFixup;
 		private bool _lameTargetBitrate;
@@ -390,8 +391,6 @@ namespace LibationAvalonia.Dialogs
 		private int _lameBitrate;
 		private int _lameVBRQuality;
 		private string _chapterTitleTemplate;
-
-		public bool IsMp3Supported => Configuration.IsLinux || Configuration.IsWindows;
 
 		public AudioSettings(Configuration config)
 		{
@@ -411,6 +410,7 @@ namespace LibationAvalonia.Dialogs
 			StripUnabridged = config.StripUnabridged;
 			ChapterTitleTemplate = config.ChapterTitleTemplate;
 			DecryptToLossy = config.DecryptToLossy;
+			MoveMoovToBeginning = config.MoveMoovToBeginning;
 			LameTargetBitrate = config.LameTargetBitrate;
 			LameDownsampleMono = config.LameDownsampleMono;
 			LameConstantBitrate = config.LameConstantBitrate;
@@ -433,6 +433,7 @@ namespace LibationAvalonia.Dialogs
 			config.StripUnabridged = StripUnabridged;
 			config.ChapterTitleTemplate = ChapterTitleTemplate;
 			config.DecryptToLossy = DecryptToLossy;
+			config.MoveMoovToBeginning = MoveMoovToBeginning;
 			config.LameTargetBitrate = LameTargetBitrate;
 			config.LameDownsampleMono = LameDownsampleMono;
 			config.LameConstantBitrate = LameConstantBitrate;
@@ -453,6 +454,7 @@ namespace LibationAvalonia.Dialogs
 		public string StripAudibleBrandingText { get; } = Configuration.GetDescription(nameof(Configuration.StripAudibleBrandAudio));
 		public string StripUnabridgedText { get; } = Configuration.GetDescription(nameof(Configuration.StripUnabridged));
 		public string ChapterTitleTemplateText { get; } = Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate));
+		public string MoveMoovToBeginningText { get; } = Configuration.GetDescription(nameof(Configuration.MoveMoovToBeginning));
 
 		public bool CreateCueSheet { get; set; }
 		public bool DownloadCoverArt { get; set; }
@@ -462,7 +464,8 @@ namespace LibationAvalonia.Dialogs
 		public bool MergeOpeningAndEndCredits { get; set; }
 		public bool StripAudibleBrandAudio { get; set; }
 		public bool StripUnabridged { get; set; }
-		public bool DecryptToLossy { get; set; }
+		public bool DecryptToLossy { get => _decryptToLossy; set => this.RaiseAndSetIfChanged(ref _decryptToLossy, value); }
+		public bool MoveMoovToBeginning { get; set; }
 
 		public bool LameDownsampleMono { get; set; } = Design.IsDesignMode;
 		public bool LameConstantBitrate { get; set; } = Design.IsDesignMode;

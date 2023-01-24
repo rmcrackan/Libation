@@ -76,6 +76,7 @@
 			this.clipsBookmarksFormatCb = new System.Windows.Forms.ComboBox();
 			this.downloadClipsBookmarksCbox = new System.Windows.Forms.CheckBox();
 			this.audiobookFixupsGb = new System.Windows.Forms.GroupBox();
+			this.moveMoovAtomCbox = new System.Windows.Forms.CheckBox();
 			this.stripUnabridgedCbox = new System.Windows.Forms.CheckBox();
 			this.chapterTitleTemplateGb = new System.Windows.Forms.GroupBox();
 			this.chapterTitleTemplateBtn = new System.Windows.Forms.Button();
@@ -294,7 +295,7 @@
 			// convertLossyRb
 			// 
 			this.convertLossyRb.AutoSize = true;
-			this.convertLossyRb.Location = new System.Drawing.Point(13, 136);
+			this.convertLossyRb.Location = new System.Drawing.Point(13, 158);
 			this.convertLossyRb.Name = "convertLossyRb";
 			this.convertLossyRb.Size = new System.Drawing.Size(329, 19);
 			this.convertLossyRb.TabIndex = 12;
@@ -675,6 +676,7 @@
 			// 
 			// audiobookFixupsGb
 			// 
+			this.audiobookFixupsGb.Controls.Add(this.moveMoovAtomCbox);
 			this.audiobookFixupsGb.Controls.Add(this.splitFilesByChapterCbox);
 			this.audiobookFixupsGb.Controls.Add(this.stripUnabridgedCbox);
 			this.audiobookFixupsGb.Controls.Add(this.convertLosslessRb);
@@ -682,10 +684,20 @@
 			this.audiobookFixupsGb.Controls.Add(this.stripAudibleBrandingCbox);
 			this.audiobookFixupsGb.Location = new System.Drawing.Point(6, 169);
 			this.audiobookFixupsGb.Name = "audiobookFixupsGb";
-			this.audiobookFixupsGb.Size = new System.Drawing.Size(403, 160);
+			this.audiobookFixupsGb.Size = new System.Drawing.Size(403, 185);
 			this.audiobookFixupsGb.TabIndex = 19;
 			this.audiobookFixupsGb.TabStop = false;
 			this.audiobookFixupsGb.Text = "Audiobook Fix-ups";
+			// 
+			// moveMoovAtomCbox
+			// 
+			this.moveMoovAtomCbox.AutoSize = true;
+			this.moveMoovAtomCbox.Location = new System.Drawing.Point(23, 133);
+			this.moveMoovAtomCbox.Name = "moveMoovAtomCbox";
+			this.moveMoovAtomCbox.Size = new System.Drawing.Size(188, 19);
+			this.moveMoovAtomCbox.TabIndex = 14;
+			this.moveMoovAtomCbox.Text = "[MoveMoovToBeginning desc]";
+			this.moveMoovAtomCbox.UseVisualStyleBackColor = true;
 			// 
 			// stripUnabridgedCbox
 			// 
@@ -701,7 +713,7 @@
 			// 
 			this.chapterTitleTemplateGb.Controls.Add(this.chapterTitleTemplateBtn);
 			this.chapterTitleTemplateGb.Controls.Add(this.chapterTitleTemplateTb);
-			this.chapterTitleTemplateGb.Location = new System.Drawing.Point(6, 335);
+			this.chapterTitleTemplateGb.Location = new System.Drawing.Point(6, 360);
 			this.chapterTitleTemplateGb.Name = "chapterTitleTemplateGb";
 			this.chapterTitleTemplateGb.Size = new System.Drawing.Size(842, 54);
 			this.chapterTitleTemplateGb.TabIndex = 18;
@@ -738,7 +750,7 @@
 			this.lameOptionsGb.Controls.Add(this.groupBox2);
 			this.lameOptionsGb.Location = new System.Drawing.Point(415, 6);
 			this.lameOptionsGb.Name = "lameOptionsGb";
-			this.lameOptionsGb.Size = new System.Drawing.Size(433, 323);
+			this.lameOptionsGb.Size = new System.Drawing.Size(433, 348);
 			this.lameOptionsGb.TabIndex = 14;
 			this.lameOptionsGb.TabStop = false;
 			this.lameOptionsGb.Text = "Mp3 Encoding Options";
@@ -1240,5 +1252,6 @@
         private System.Windows.Forms.CheckBox useCoverAsFolderIconCb;
 		private System.Windows.Forms.ComboBox clipsBookmarksFormatCb;
 		private System.Windows.Forms.CheckBox downloadClipsBookmarksCbox;
+		private System.Windows.Forms.CheckBox moveMoovAtomCbox;
 	}
 }

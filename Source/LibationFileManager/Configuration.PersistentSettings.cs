@@ -115,6 +115,9 @@ namespace LibationFileManager
 		[Description("Decrypt to lossy format?")]
 		public bool DecryptToLossy { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
+		[Description("Move the mp4 moov atom to the beginning of the file?")]
+		public bool MoveMoovToBeginning { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+
 		[Description("Lame encoder target. true = Bitrate, false = Quality")]
 		public bool LameTargetBitrate { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 

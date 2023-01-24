@@ -24,6 +24,7 @@ namespace AaxDecrypter
         NAudio.Lame.LameConfig LameConfig { get; }
         bool Downsample { get; }
         bool MatchSourceBitrate { get; }
+        bool MoveMoovToBeginning { get; }
         string GetMultipartFileName(MultiConvertFileProperties props);
         string GetMultipartTitleName(MultiConvertFileProperties props);
         Task<string> SaveClipsAndBookmarks(string fileName);
