@@ -10,6 +10,7 @@ namespace AaxDecrypter
 		public event EventHandler<AppleTags> RetrievedMetadata;
 
 		protected AaxFile AaxFile;
+		protected Mp4Operation aaxConversion;
 
 		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
 			: base(outFileName, cacheDirectory, dlOptions) { }
@@ -101,9 +102,9 @@ namespace AaxDecrypter
 		public override async Task CancelAsync()
 		{
 			IsCanceled = true;
-			if (AaxFile != null)
-				await AaxFile.CancelAsync();
-			AaxFile?.Dispose();
+				if (aaxConversion != null)
+					await aaxConversion.CancelAsync();
+			AaxFile?.Close();
 			CloseInputFileStream();
 		}
 	}

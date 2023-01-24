@@ -160,6 +160,7 @@ namespace FileLiberator
                 AudibleKey = contentLic?.Voucher?.Key,
                 AudibleIV = contentLic?.Voucher?.Iv,
                 OutputFormat = outputFormat,
+                MoveMoovToBeginning = config.MoveMoovToBeginning,
                 TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
                 RetainEncryptedFile = config.RetainAaxFile && encrypted,
                 StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,

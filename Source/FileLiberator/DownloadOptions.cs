@@ -34,6 +34,8 @@ namespace FileLiberator
 		public bool MatchSourceBitrate { get; init; }
 		public ReplacementCharacters ReplacementCharacters => Configuration.Instance.ReplacementCharacters;
 
+		public bool MoveMoovToBeginning { get; init; }
+
 		public string GetMultipartFileName(MultiConvertFileProperties props)
 			=> Templates.ChapterFile.GetFilename(LibraryBookDto, props);
 

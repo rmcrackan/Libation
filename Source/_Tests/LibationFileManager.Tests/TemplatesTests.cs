@@ -153,6 +153,7 @@ namespace TemplatesTests
 		[DataRow("<filedate[h]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[h]＞.m4b")]
 		[DataRow("< filedate[yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜ filedate[yyyy]＞.m4b")]
 		[DataRow("<filedate[yyyy][]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[yyyy][]＞.m4b")]
+		[DataRow("<filedate[[yyyy]]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[[yyyy]]＞.m4b")]
 		[DataRow("<filedate[yyyy[]]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate[yyyy[]]＞.m4b")]
 		[DataRow("<filedate yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate yyyy]＞.m4b")]
 		[DataRow("<filedate ]yyyy]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\＜filedate ]yyyy]＞.m4b")]

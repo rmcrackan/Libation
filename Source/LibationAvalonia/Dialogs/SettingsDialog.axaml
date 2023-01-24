@@ -526,15 +526,27 @@
 										Margin="0,5,0,5"
 										IsChecked="{Binding !AudioSettings.DecryptToLossy, Mode=TwoWay}">
 
-										<TextBlock
-											TextWrapping="Wrap"
-											Text="Download my books in the original audio format (Lossless)" />
+										<StackPanel >
 
+											<TextBlock
+												TextWrapping="Wrap"
+												Text="Download my books in the original audio format (Lossless)" />
+											<CheckBox
+												Margin="0,0,0,5"
+												IsEnabled="{Binding !AudioSettings.DecryptToLossy}"
+												IsChecked="{Binding AudioSettings.MoveMoovToBeginning, Mode=TwoWay}">
+
+												<TextBlock
+													TextWrapping="Wrap"
+													Text="{Binding AudioSettings.MoveMoovToBeginningText}" />
+
+											</CheckBox>
+
+										</StackPanel>
 									</RadioButton>
 
 									<RadioButton
 										Margin="0,5,0,5"
-										IsEnabled="{Binding AudioSettings.IsMp3Supported}"
 										IsChecked="{Binding AudioSettings.DecryptToLossy, Mode=TwoWay}">
 
 										<TextBlock
@@ -548,7 +560,6 @@
 
 						<StackPanel
 							Grid.Row="0"
-							IsVisible="{Binding AudioSettings.IsMp3Supported}"
 							Grid.Column="1">
 
 							<controls:GroupBox

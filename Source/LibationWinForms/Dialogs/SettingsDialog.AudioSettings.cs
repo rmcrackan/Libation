@@ -16,6 +16,7 @@ namespace LibationWinForms.Dialogs
 			this.mergeOpeningEndCreditsCbox.Text = desc(nameof(config.MergeOpeningAndEndCredits));
 			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
+			this.moveMoovAtomCbox.Text = desc(nameof(config.MoveMoovToBeginning));
 
 			clipsBookmarksFormatCb.Items.AddRange(
 				new object[]
@@ -37,6 +38,7 @@ namespace LibationWinForms.Dialogs
 			stripAudibleBrandingCbox.Checked = config.StripAudibleBrandAudio;
 			convertLosslessRb.Checked = !config.DecryptToLossy;
 			convertLossyRb.Checked = config.DecryptToLossy;
+			moveMoovAtomCbox.Checked = config.MoveMoovToBeginning;
 
 			lameTargetBitrateRb.Checked = config.LameTargetBitrate;
 			lameTargetQualityRb.Checked = !config.LameTargetBitrate;
@@ -70,6 +72,7 @@ namespace LibationWinForms.Dialogs
 			config.StripUnabridged = stripUnabridgedCbox.Checked;
 			config.StripAudibleBrandAudio = stripAudibleBrandingCbox.Checked;
 			config.DecryptToLossy = convertLossyRb.Checked;
+			config.MoveMoovToBeginning = moveMoovAtomCbox.Checked;
 
 			config.LameTargetBitrate = lameTargetBitrateRb.Checked;
 			config.LameDownsampleMono = lameDownsampleMonoCbox.Checked;
@@ -107,6 +110,7 @@ namespace LibationWinForms.Dialogs
 
 		private void convertFormatRb_CheckedChanged(object sender, EventArgs e)
 		{
+			moveMoovAtomCbox.Enabled = convertLosslessRb.Checked;
 			lameTargetRb_CheckedChanged(sender, e);
 			LameMatchSourceBRCbox_CheckedChanged(sender, e);
 		}
