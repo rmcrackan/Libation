@@ -117,7 +117,7 @@ namespace AaxDecrypter
 				outputFile.Close();
 
 				if (aaxConversion is not null)
-					aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+					aaxConversion.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 
 				Step_DownloadAudiobook_End(zeroProgress);
 			}
