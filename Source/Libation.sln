@@ -93,14 +93,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MacOSConfigApp", "LoadByOS\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsConfigApp", "LoadByOS\WindowsConfigApp\WindowsConfigApp.csproj", "{5F65A509-26E3-4B02-B403-EEB6F0EF391F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAXClean.Codecs", "..\..\AaxClean\AaxTest\AAXClean.Codecs\src\AAXClean.Codecs\AAXClean.Codecs.csproj", "{EE7189CE-D9BB-4CE9-AC82-2688E1F5A838}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAXClean", "..\..\AaxClean\AaxTest\AAXClean\src\AAXClean\AAXClean.csproj", "{3252C885-DED3-4119-8C69-7DADD3EC22E9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mpeg4Lib", "..\..\AaxClean\AaxTest\AAXClean\src\Mpeg4Lib\Mpeg4Lib.csproj", "{9E9F33F4-1F03-43D9-BA88-B3BFC98D6AEF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NAudio.Lame_SA", "..\..\AaxClean\AaxTest\NAudio.Lame_SA\NAudio.Lame_SA\NAudio.Lame_SA.csproj", "{EF8F35AD-581C-434A-A2FB-E82F428C4DD8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -215,22 +207,6 @@ Global
 		{5F65A509-26E3-4B02-B403-EEB6F0EF391F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F65A509-26E3-4B02-B403-EEB6F0EF391F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F65A509-26E3-4B02-B403-EEB6F0EF391F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EE7189CE-D9BB-4CE9-AC82-2688E1F5A838}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EE7189CE-D9BB-4CE9-AC82-2688E1F5A838}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE7189CE-D9BB-4CE9-AC82-2688E1F5A838}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE7189CE-D9BB-4CE9-AC82-2688E1F5A838}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3252C885-DED3-4119-8C69-7DADD3EC22E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3252C885-DED3-4119-8C69-7DADD3EC22E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3252C885-DED3-4119-8C69-7DADD3EC22E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3252C885-DED3-4119-8C69-7DADD3EC22E9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9E9F33F4-1F03-43D9-BA88-B3BFC98D6AEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E9F33F4-1F03-43D9-BA88-B3BFC98D6AEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E9F33F4-1F03-43D9-BA88-B3BFC98D6AEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E9F33F4-1F03-43D9-BA88-B3BFC98D6AEF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EF8F35AD-581C-434A-A2FB-E82F428C4DD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EF8F35AD-581C-434A-A2FB-E82F428C4DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EF8F35AD-581C-434A-A2FB-E82F428C4DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EF8F35AD-581C-434A-A2FB-E82F428C4DD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -104,7 +104,7 @@ namespace AaxDecrypter
 					&& DownloadOptions.OutputFormat is OutputFormat.M4b
 					&& DownloadOptions.MoveMoovToBeginning)
 				{
-					aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
+					aaxConversion.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
 					aaxConversion = Mp4File.RelocateMoovAsync(OutputFileName);
 					aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
 					await aaxConversion;
