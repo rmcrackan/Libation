@@ -10,14 +10,14 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dinah.Core" Version="7.2.0.1" />
-    <PackageReference Include="Dinah.EntityFrameworkCore" Version="7.1.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.1">
+    <PackageReference Include="Dinah.Core" Version="7.2.1.1" />
+    <PackageReference Include="Dinah.EntityFrameworkCore" Version="7.1.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.1">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
