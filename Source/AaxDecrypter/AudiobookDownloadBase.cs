@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Dinah.Core;
+using Dinah.Core.Net.Http;
+using Dinah.Core.StepRunner;
+using FileManager;
+using System;
 using System.IO;
 using System.Threading.Tasks;
-using Dinah.Core;
-using Dinah.Core.Net.Http;
-using FileManager;
 
 namespace AaxDecrypter
 {
@@ -19,19 +20,17 @@ namespace AaxDecrypter
 		public event EventHandler<TimeSpan> DecryptTimeRemaining;
 		public event EventHandler<string> FileCreated;
 
-		public bool IsCanceled { get; set; }
-		public string TempFilePath { get; }
+		public bool IsCanceled { get; protected set; }
 
-		protected string OutputFileName { get; private set; }
+		protected AsyncStepSequence AsyncSteps { get; } = new();
+		protected string OutputFileName { get; }
 		protected IDownloadOptions DownloadOptions { get; }
-		protected NetworkFileStream InputFileStream => (nfsPersister ??= OpenNetworkFileStream()).NetworkFileStream;
+		protected NetworkFileStream InputFileStream => nfsPersister.NetworkFileStream;
 
-		// Don't give the property a 'set'. This should have to be an obvious choice; not accidental
-		protected void SetOutputFileName(string newOutputFileName) => OutputFileName = newOutputFileName;
-
-		private NetworkFileStreamPersister nfsPersister;
-
-		private string jsonDownloadState { get; }
+		private readonly NetworkFileStreamPersister nfsPersister;
+		private readonly DownloadProgress zeroProgress;
+		private readonly string jsonDownloadState;
+		private readonly string tempFilePath;
 
 		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
 		{
@@ -45,24 +44,45 @@ namespace AaxDecrypter
 				Directory.CreateDirectory(cacheDirectory);
 
 			jsonDownloadState = Path.Combine(cacheDirectory, Path.GetFileName(Path.ChangeExtension(OutputFileName, ".json")));
-			TempFilePath = Path.ChangeExtension(jsonDownloadState, ".aaxc");
+			tempFilePath = Path.ChangeExtension(jsonDownloadState, ".aaxc");
 
 			DownloadOptions = ArgumentValidator.EnsureNotNull(dlOptions, nameof(dlOptions));
 			DownloadOptions.DownloadSpeedChanged += (_, speed) => InputFileStream.SpeedLimit = speed;
 
 			// delete file after validation is complete
 			FileUtility.SaferDelete(OutputFileName);
+
+			nfsPersister = OpenNetworkFileStream();
+
+			zeroProgress = new DownloadProgress
+			{
+				BytesReceived = 0,
+				ProgressPercentage = 0,
+				TotalBytesToReceive = InputFileStream.Length
+			};
+
+			OnDecryptProgressUpdate(zeroProgress);
+		}
+
+		public async Task<bool> RunAsync()
+		{
+			AsyncSteps[$"Final Step: Cleanup"] = CleanupAsync;
+			(bool success, var elapsed) = await AsyncSteps.RunAsync();
+
+			var speedup = DownloadOptions.RuntimeLength.TotalSeconds / elapsed.TotalSeconds;
+			Serilog.Log.Information($"Speedup is {speedup:F0}x realtime.");
+
+			return success;
 		}
 
 		public abstract Task CancelAsync();
+		protected abstract Task<bool> Step_DownloadAndDecryptAudiobookAsync();
 
 		public virtual void SetCoverArt(byte[] coverArt)
 		{
 			if (coverArt is not null)
 				OnRetrievedCoverArt(coverArt);
 		}
-
-		public abstract Task<bool> RunAsync();
 
 		protected void OnRetrievedTitle(string title)
 			=> RetrievedTitle?.Invoke(this, title);
@@ -79,13 +99,25 @@ namespace AaxDecrypter
 		protected void OnFileCreated(string path)
 			=> FileCreated?.Invoke(this, path);
 
-		protected void CloseInputFileStream()
+		protected virtual void FinalizeDownload()
 		{
-			nfsPersister?.NetworkFileStream?.Close();
 			nfsPersister?.Dispose();
+			OnDecryptProgressUpdate(zeroProgress);
 		}
 
-		protected bool Step_CreateCue()
+		protected async Task<bool> Step_DownloadClipsBookmarksAsync()
+		{
+			if (!IsCanceled && DownloadOptions.DownloadClipsBookmarks)
+			{
+				var recordsFile = await DownloadOptions.SaveClipsAndBookmarksAsync(OutputFileName);
+
+				if (File.Exists(recordsFile))
+					OnFileCreated(recordsFile);
+			}
+			return !IsCanceled;
+		}
+
+		protected async Task<bool> Step_CreateCueAsync()
 		{
 			if (!DownloadOptions.CreateCueSheet) return true;
 
@@ -93,56 +125,41 @@ namespace AaxDecrypter
 			try
 			{
 				var path = Path.ChangeExtension(OutputFileName, ".cue");
-				path = FileUtility.GetValidFilename(path, DownloadOptions.ReplacementCharacters, ".cue");
-				File.WriteAllText(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadOptions.ChapterInfo));
+				await File.WriteAllTextAsync(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadOptions.ChapterInfo));
 				OnFileCreated(path);
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, $"{nameof(Step_CreateCue)}. FAILED");
+				Serilog.Log.Logger.Error(ex, $"{nameof(Step_CreateCueAsync)} Failed");
 			}
 			return !IsCanceled;
 		}
 
-		protected bool Step_Cleanup()
+		private async Task<bool> CleanupAsync()
 		{
-			bool success = !IsCanceled;
-			if (success)
+			if (IsCanceled) return false;
+
+			FileUtility.SaferDelete(jsonDownloadState);
+
+			if (!string.IsNullOrEmpty(DownloadOptions.AudibleKey) &&
+				!string.IsNullOrEmpty(DownloadOptions.AudibleIV) &&
+				DownloadOptions.RetainEncryptedFile)
 			{
-				FileUtility.SaferDelete(jsonDownloadState);
+				string aaxPath = Path.ChangeExtension(tempFilePath, ".aax");
+				FileUtility.SaferMove(tempFilePath, aaxPath);
 
-				if (DownloadOptions.AudibleKey is not null &&
-					DownloadOptions.AudibleIV is not null &&
-					DownloadOptions.RetainEncryptedFile)
-				{
-					string aaxPath = Path.ChangeExtension(TempFilePath, ".aax");
-					FileUtility.SaferMove(TempFilePath, aaxPath);
+				//Write aax decryption key
+				string keyPath = Path.ChangeExtension(aaxPath, ".key");
+				FileUtility.SaferDelete(keyPath);
+				await File.WriteAllTextAsync(keyPath, $"Key={DownloadOptions.AudibleKey}{Environment.NewLine}IV={DownloadOptions.AudibleIV}");
 
-					//Write aax decryption key
-					string keyPath = Path.ChangeExtension(aaxPath, ".key");
-					FileUtility.SaferDelete(keyPath);
-					File.WriteAllText(keyPath, $"Key={DownloadOptions.AudibleKey}\r\nIV={DownloadOptions.AudibleIV}");
-
-					OnFileCreated(aaxPath);
-					OnFileCreated(keyPath);
-				}
-				else
-					FileUtility.SaferDelete(TempFilePath);
+				OnFileCreated(aaxPath);
+				OnFileCreated(keyPath);
 			}
+			else
+				FileUtility.SaferDelete(tempFilePath);
 
-			return success;
-		}
-
-		protected async Task<bool> Step_DownloadClipsBookmarks()
-		{
-			if (!IsCanceled && DownloadOptions.DownloadClipsBookmarks)
-			{
-				var recordsFile = await DownloadOptions.SaveClipsAndBookmarks(OutputFileName);
-
-				if (File.Exists(recordsFile))
-					OnFileCreated(recordsFile);
-			}
-			return !IsCanceled;
+			return true;
 		}
 
 		private NetworkFileStreamPersister OpenNetworkFileStream()
@@ -151,31 +168,31 @@ namespace AaxDecrypter
 			try
 			{
 				if (!File.Exists(jsonDownloadState))
-					return nfsp = NewNetworkFilePersister();
+					return nfsp = newNetworkFilePersister();
 
 				nfsp = new NetworkFileStreamPersister(jsonDownloadState);
-				// If More than ~1 hour has elapsed since getting the download url, it will expire.
-				// The new url will be to the same file.
+				// The download url expires after 1 hour.
+				// The new url points to the same file.
 				nfsp.NetworkFileStream.SetUriForSameFile(new Uri(DownloadOptions.DownloadUrl));
 				return nfsp;
 			}
 			catch
 			{
 				FileUtility.SaferDelete(jsonDownloadState);
-				FileUtility.SaferDelete(TempFilePath);
-				return nfsp = NewNetworkFilePersister();
+				FileUtility.SaferDelete(tempFilePath);
+				return nfsp = newNetworkFilePersister();
 			}
 			finally
 			{
 				if (nfsp?.NetworkFileStream is not null)
 					nfsp.NetworkFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
 			}
-		}
 
-		private NetworkFileStreamPersister NewNetworkFilePersister()
-		{
-			var networkFileStream = new NetworkFileStream(TempFilePath, new Uri(DownloadOptions.DownloadUrl), 0, new() { { "User-Agent", DownloadOptions.UserAgent } });
-			return new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
+			NetworkFileStreamPersister newNetworkFilePersister()
+			{
+				var networkFileStream = new NetworkFileStream(tempFilePath, new Uri(DownloadOptions.DownloadUrl), 0, new() { { "User-Agent", DownloadOptions.UserAgent } });
+				return new NetworkFileStreamPersister(networkFileStream, jsonDownloadState);
+			}
 		}
 	}
 }

@@ -1,7 +1,5 @@
 ﻿using AAXClean;
 using NAudio.Lame;
-using System;
-using System.Linq;
 
 namespace AaxDecrypter
 {

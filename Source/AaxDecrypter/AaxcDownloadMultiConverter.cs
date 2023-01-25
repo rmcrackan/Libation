@@ -1,81 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using AAXClean;
+﻿using AAXClean;
 using AAXClean.Codecs;
 using FileManager;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace AaxDecrypter
 {
 	public class AaxcDownloadMultiConverter : AaxcDownloadConvertBase
 	{
-		private static TimeSpan minChapterLength { get; } = TimeSpan.FromSeconds(3);
-		private List<string> multiPartFilePaths { get; } = new List<string>();
+		private static readonly TimeSpan minChapterLength = TimeSpan.FromSeconds(3);
 		private FileStream workingFileStream;
 
 		public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
-			: base(outFileName, cacheDirectory, dlOptions) { }
-
-		public override async Task<bool> RunAsync()
+			: base(outFileName, cacheDirectory, dlOptions)
 		{
-			try
-			{
-				Serilog.Log.Information("Begin download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
-
-				//Step 1
-				Serilog.Log.Information("Begin Get Aaxc Metadata");
-				if (await Task.Run(Step_GetMetadata))
-					Serilog.Log.Information("Completed Get Aaxc Metadata");
-				else
-				{
-					Serilog.Log.Information("Failed to Complete Get Aaxc Metadata");
-					return false;
-				}
-
-				//Step 2
-				Serilog.Log.Information("Begin Download Decrypted Audiobook");
-				if (await Step_DownloadAudiobookAsMultipleFilesPerChapter())
-					Serilog.Log.Information("Completed Download Decrypted Audiobook");
-				else
-				{
-					Serilog.Log.Information("Failed to Complete Download Decrypted Audiobook");
-					return false;
-				}
-
-
-				//Step 3
-				if (DownloadOptions.DownloadClipsBookmarks)
-				{
-					Serilog.Log.Information("Begin Downloading Clips and Bookmarks");
-					if (await Task.Run(Step_DownloadClipsBookmarks))
-						Serilog.Log.Information("Completed Downloading Clips and Bookmarks");
-					else
-					{
-						Serilog.Log.Information("Failed to Download Clips and Bookmarks");
-						return false;
-					}
-				}
-
-				//Step 4
-				Serilog.Log.Information("Begin Cleanup");
-				if (await Task.Run(Step_Cleanup))
-					Serilog.Log.Information("Completed Cleanup");
-				else
-				{
-					Serilog.Log.Information("Failed to Complete Cleanup");
-					return false;
-				}
-
-				Serilog.Log.Information("Completed download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
-				return true;
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Error(ex, "Error encountered in download and convert Aaxc To {format}", DownloadOptions.OutputFormat);
-				return false;
-			}
+			AsyncSteps.Name = $"Download, Convert Aaxc To {DownloadOptions.OutputFormat}, and Split";
+			AsyncSteps["Step 1: Get Aaxc Metadata"] = () => Task.Run(Step_GetMetadata);
+			AsyncSteps["Step 2: Download Decrypted Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
+			AsyncSteps["Step 3: Download Clips and Bookmarks"] = Step_DownloadClipsBookmarksAsync;
 		}
 
 		/*
@@ -102,10 +45,8 @@ The book will be split into the following files:
 
 That naming may not be desirable for everyone, but it's an easy change to instead use the last of the combined chapter's title in the file name.
 		 */
-		private async Task<bool> Step_DownloadAudiobookAsMultipleFilesPerChapter()
+		protected async override Task<bool> Step_DownloadAndDecryptAudiobookAsync()
 		{
-			var zeroProgress = Step_DownloadAudiobook_Start();
-
 			var chapters = DownloadOptions.ChapterInfo.Chapters;
 
 			// Ensure split files are at least minChapterLength in duration.
@@ -128,110 +69,81 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 				}
 			}
 
-			// reset, just in case
-			multiPartFilePaths.Clear();
-
 			try
 			{
-				if (DownloadOptions.OutputFormat == OutputFormat.M4b)
-					aaxConversion = ConvertToMultiMp4a(splitChapters);
-				else
-					aaxConversion = ConvertToMultiMp3(splitChapters);
+				await (AaxConversion = decryptMultiAsync(splitChapters));
 
-				aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-				await aaxConversion;
+				if (AaxConversion.IsCompletedSuccessfully)
+					await moveMoovToBeginning(workingFileStream?.Name);
 
-				if (aaxConversion.IsCompletedSuccessfully)
-					moveMoovToBeginning(workingFileStream?.Name);
-
-				return aaxConversion.IsCompletedSuccessfully;
-			}
-			catch(Exception ex)
-			{
-				Serilog.Log.Error(ex, "AAXClean Error");
-				workingFileStream?.Close();
-				if (workingFileStream?.Name is not null)
-					FileUtility.SaferDelete(workingFileStream.Name);
-				return false;
+				return AaxConversion.IsCompletedSuccessfully;
 			}
 			finally
 			{
-				if (aaxConversion is not null)
-					aaxConversion.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
-
-				Step_DownloadAudiobook_End(zeroProgress);
+				workingFileStream?.Dispose();
+				FinalizeDownload();
 			}
 		}
 
-		private Mp4Operation ConvertToMultiMp4a(ChapterInfo splitChapters)
+		private Mp4Operation decryptMultiAsync(ChapterInfo splitChapters)
 		{
 			var chapterCount = 0;
-			return AaxFile.ConvertToMultiMp4aAsync
+			return
+				DownloadOptions.OutputFormat == OutputFormat.M4b
+				? AaxFile.ConvertToMultiMp4aAsync
 				(
 					splitChapters,
-					newSplitCallback => Callback(++chapterCount, splitChapters, newSplitCallback),
+					newSplitCallback => newSplit(++chapterCount, splitChapters, newSplitCallback),
 					DownloadOptions.TrimOutputToChapterLength
-				);
-		}
-
-		private Mp4Operation ConvertToMultiMp3(ChapterInfo splitChapters)
-		{
-			var chapterCount = 0;
-			return AaxFile.ConvertToMultiMp3Async
+				)
+				: AaxFile.ConvertToMultiMp3Async
 				(
 					splitChapters,
-					newSplitCallback => Callback(++chapterCount, splitChapters, newSplitCallback),
+					newSplitCallback => newSplit(++chapterCount, splitChapters, newSplitCallback),
 					DownloadOptions.LameConfig,
 					DownloadOptions.TrimOutputToChapterLength
 				);
-		}
 
-
-		private void Callback(int currentChapter, ChapterInfo splitChapters, NewMP3SplitCallback newSplitCallback)
-			=> Callback(currentChapter, splitChapters, newSplitCallback as NewSplitCallback);
-
-		private void Callback(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
-		{
-			MultiConvertFileProperties props = new()
+			void newSplit(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
 			{
-				OutputFileName = OutputFileName,
-				PartsPosition = currentChapter,
-				PartsTotal = splitChapters.Count,
-				Title = newSplitCallback?.Chapter?.Title,
-			};
+				MultiConvertFileProperties props = new()
+				{
+					OutputFileName = OutputFileName,
+					PartsPosition = currentChapter,
+					PartsTotal = splitChapters.Count,
+					Title = newSplitCallback?.Chapter?.Title,
+				};
 
-			moveMoovToBeginning(workingFileStream?.Name);
+				moveMoovToBeginning(workingFileStream?.Name).GetAwaiter().GetResult();
 
-			newSplitCallback.OutputFile = createOutputFileStream(props);
-			newSplitCallback.TrackTitle = DownloadOptions.GetMultipartTitleName(props);
-			newSplitCallback.TrackNumber = currentChapter;
-			newSplitCallback.TrackCount = splitChapters.Count;
+				newSplitCallback.OutputFile = createOutputFileStream(props);
+				newSplitCallback.TrackTitle = DownloadOptions.GetMultipartTitle(props);
+				newSplitCallback.TrackNumber = currentChapter;
+				newSplitCallback.TrackCount = splitChapters.Count;
+
+				FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
+				{
+					var fileName = DownloadOptions.GetMultipartFileName(multiConvertFileProperties);
+					FileUtility.SaferDelete(fileName);
+
+					workingFileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+					OnFileCreated(fileName);
+
+					return workingFileStream;
+				}
+			}
 		}
 
-		private void moveMoovToBeginning(string filename)
+		private Mp4Operation moveMoovToBeginning(string filename)
 		{
 			if (DownloadOptions.OutputFormat is OutputFormat.M4b
 				&& DownloadOptions.MoveMoovToBeginning
 				&& filename is not null
 				&& File.Exists(filename))
 			{
-				Mp4File.RelocateMoovAsync(filename).GetAwaiter().GetResult();
+				return Mp4File.RelocateMoovAsync(filename);
 			}
-		}
-
-		private FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
-		{
-			var fileName = DownloadOptions.GetMultipartFileName(multiConvertFileProperties);
-			var extension = Path.GetExtension(fileName);
-			fileName = FileUtility.GetValidFilename(fileName, DownloadOptions.ReplacementCharacters, extension);
-
-			multiPartFilePaths.Add(fileName);
-
-			FileUtility.SaferDelete(fileName);
-
-			workingFileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-			OnFileCreated(fileName);
-			return workingFileStream;
+			else return Mp4Operation.CompletedOperation;
 		}
 	}
 }
