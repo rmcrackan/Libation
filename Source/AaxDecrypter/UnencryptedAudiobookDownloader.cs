@@ -38,28 +38,28 @@ namespace AaxDecrypter
 				if (double.IsNormal(estTimeRemaining))
 					OnDecryptTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
 
-				var progressPercent = (double)InputFileStream.WritePosition / InputFileStream.Length;
+				var progressPercent = 100d * InputFileStream.WritePosition / InputFileStream.Length;
 
 				OnDecryptProgressUpdate(
 					new DownloadProgress
 					{
-						ProgressPercentage = 100 * progressPercent,
-						BytesReceived = (long)(InputFileStream.Length * progressPercent),
+						ProgressPercentage = progressPercent,
+						BytesReceived = InputFileStream.WritePosition,
 						TotalBytesToReceive = InputFileStream.Length
 					});
 
 				await Task.Delay(200);
 			}
 
-			FinalizeDownload();
-
-			if (!IsCanceled)
+			if (IsCanceled)
+				return false;
+			else
 			{
+				FinalizeDownload();
 				FileUtility.SaferMove(InputFileStream.SaveFilePath, OutputFileName);
 				OnFileCreated(OutputFileName);
+				return true;
 			}
-
-			return !IsCanceled;
 		}
 	}
 }

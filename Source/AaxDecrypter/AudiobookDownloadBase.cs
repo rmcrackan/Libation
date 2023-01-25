@@ -21,7 +21,6 @@ namespace AaxDecrypter
 		public event EventHandler<string> FileCreated;
 
 		public bool IsCanceled { get; protected set; }
-
 		protected AsyncStepSequence AsyncSteps { get; } = new();
 		protected string OutputFileName { get; }
 		protected IDownloadOptions DownloadOptions { get; }
@@ -66,10 +65,10 @@ namespace AaxDecrypter
 
 		public async Task<bool> RunAsync()
 		{
-			AsyncSteps[$"Final Step: Cleanup"] = CleanupAsync;
+			AsyncSteps[$"Cleanup"] = CleanupAsync;
 			(bool success, var elapsed) = await AsyncSteps.RunAsync();
 
-			var speedup = DownloadOptions.RuntimeLength.TotalSeconds / elapsed.TotalSeconds;
+			var speedup = DownloadOptions.RuntimeLength / elapsed;
 			Serilog.Log.Information($"Speedup is {speedup:F0}x realtime.");
 
 			return success;
@@ -119,7 +118,7 @@ namespace AaxDecrypter
 
 		protected async Task<bool> Step_CreateCueAsync()
 		{
-			if (!DownloadOptions.CreateCueSheet) return true;
+			if (!DownloadOptions.CreateCueSheet) return !IsCanceled;
 
 			// not a critical step. its failure should not prevent future steps from running
 			try
@@ -159,7 +158,7 @@ namespace AaxDecrypter
 			else
 				FileUtility.SaferDelete(tempFilePath);
 
-			return true;
+			return !IsCanceled;
 		}
 
 		private NetworkFileStreamPersister OpenNetworkFileStream()
@@ -184,8 +183,7 @@ namespace AaxDecrypter
 			}
 			finally
 			{
-				if (nfsp?.NetworkFileStream is not null)
-					nfsp.NetworkFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
+				nfsp.NetworkFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
 			}
 
 			NetworkFileStreamPersister newNetworkFilePersister()

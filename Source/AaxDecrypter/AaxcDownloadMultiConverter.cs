@@ -116,21 +116,19 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
 				moveMoovToBeginning(workingFileStream?.Name).GetAwaiter().GetResult();
 
-				newSplitCallback.OutputFile = createOutputFileStream(props);
+				newSplitCallback.OutputFile = workingFileStream = createOutputFileStream(props);
 				newSplitCallback.TrackTitle = DownloadOptions.GetMultipartTitle(props);
 				newSplitCallback.TrackNumber = currentChapter;
 				newSplitCallback.TrackCount = splitChapters.Count;
 
-				FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
-				{
-					var fileName = DownloadOptions.GetMultipartFileName(multiConvertFileProperties);
-					FileUtility.SaferDelete(fileName);
+				OnFileCreated(workingFileStream.Name);
+			}
 
-					workingFileStream = File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-					OnFileCreated(fileName);
-
-					return workingFileStream;
-				}
+			FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
+			{
+				var fileName = DownloadOptions.GetMultipartFileName(multiConvertFileProperties);
+				FileUtility.SaferDelete(fileName);
+				return File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 			}
 		}
 
