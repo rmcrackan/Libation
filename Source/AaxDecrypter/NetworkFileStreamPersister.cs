@@ -17,7 +17,8 @@ namespace AaxDecrypter
 
 		protected override void Dispose(bool disposing)
 		{
-			NetworkFileStream?.Dispose();
+			if (disposing)
+				NetworkFileStream?.Dispose();
 			base.Dispose(disposing);
 		}
 	}
