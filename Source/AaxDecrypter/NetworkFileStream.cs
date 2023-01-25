@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -83,16 +82,13 @@ namespace AaxDecrypter
 		/// <param name="requestHeaders">Http headers to be sent to the server with the <see cref="HttpWebRequest"/>.</param>
 		public NetworkFileStream(string saveFilePath, Uri uri, long writePosition = 0, Dictionary<string, string> requestHeaders = null)
 		{
-			ArgumentValidator.EnsureNotNullOrWhiteSpace(saveFilePath, nameof(saveFilePath));
-			ArgumentValidator.EnsureNotNullOrWhiteSpace(uri?.AbsoluteUri, nameof(uri));
-			ArgumentValidator.EnsureGreaterThan(writePosition, nameof(writePosition), -1);
+			SaveFilePath = ArgumentValidator.EnsureNotNullOrWhiteSpace(saveFilePath, nameof(saveFilePath));
+			Uri = ArgumentValidator.EnsureNotNull(uri, nameof(uri));
+			WritePosition = ArgumentValidator.EnsureGreaterThan(writePosition, nameof(writePosition), -1);
 
 			if (!Directory.Exists(Path.GetDirectoryName(saveFilePath)))
 				throw new ArgumentException($"Specified {nameof(saveFilePath)} directory \"{Path.GetDirectoryName(saveFilePath)}\" does not exist.");
 
-			SaveFilePath = saveFilePath;
-			Uri = uri;
-			WritePosition = writePosition;
 			RequestHeaders = requestHeaders ?? new();
 
 			_writeFile = new FileStream(SaveFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite)
@@ -109,8 +105,8 @@ namespace AaxDecrypter
 
 		#region Downloader
 
-		/// <summary> Update the <see cref="JsonFilePersister"/>. </summary>
-		private void Update()
+		/// <summary> Update the <see cref="Dinah.Core.IO.JsonFilePersister{T}"/>. </summary>
+		private void OnUpdate()
 		{
 			RequestHeaders["Range"] = $"bytes={WritePosition}-";
 			try
@@ -167,7 +163,7 @@ namespace AaxDecrypter
 			_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
 
 			//Download the file in the background.
-			return Task.Run(async () => await DownloadFile(networkStream), _cancellationSource.Token);
+			return Task.Run(() => DownloadFile(networkStream), _cancellationSource.Token);
 		}
 
 		/// <summary> Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.</summary>
@@ -184,7 +180,7 @@ namespace AaxDecrypter
 				int bytesRead;
 				do
 				{
-					bytesRead = await networkStream.ReadAsync(buff, 0, DOWNLOAD_BUFF_SZ, _cancellationSource.Token);
+					bytesRead = await networkStream.ReadAsync(buff, _cancellationSource.Token);
 					await _writeFile.WriteAsync(buff, 0, bytesRead, _cancellationSource.Token);
 
 					downloadPosition += bytesRead;
@@ -193,7 +189,7 @@ namespace AaxDecrypter
 					{
 						await _writeFile.FlushAsync(_cancellationSource.Token);
 						WritePosition = downloadPosition;
-						Update();
+						OnUpdate();
 						nextFlush = downloadPosition + DATA_FLUSH_SZ;
 						_downloadedPiece.Set();
 					}
@@ -233,16 +229,9 @@ namespace AaxDecrypter
 				networkStream.Close();
 				_writeFile.Close();
 				_downloadedPiece.Set();
-				Update();
+				OnUpdate();
 			}
 		}
-
-		#endregion
-
-		#region Json Connverters
-
-		public static JsonSerializerSettings GetJsonSerializerSettings()
-			=> new JsonSerializerSettings();
 
 		#endregion
 
@@ -289,7 +278,7 @@ namespace AaxDecrypter
 
 			var toRead = Math.Min(count, Length - Position);
 			WaitToPosition(Position + toRead);
-			return IsCancelled ? 0: _readFile.Read(buffer, offset, count);
+			return IsCancelled ? 0 : _readFile.Read(buffer, offset, count);
 		}
 
 		public override long Seek(long offset, SeekOrigin origin)
@@ -306,7 +295,7 @@ namespace AaxDecrypter
 		}
 
 		/// <summary>Blocks until the file has downloaded to at least <paramref name="requiredPosition"/>, then returns. </summary>
-		/// <param name="requiredPosition">The minimum required flished data length in <see cref="SaveFilePath"/>.</param>
+		/// <param name="requiredPosition">The minimum required flushed data length in <see cref="SaveFilePath"/>.</param>
 		private void WaitToPosition(long requiredPosition)
 		{
 			while (WritePosition < requiredPosition
@@ -317,20 +306,31 @@ namespace AaxDecrypter
 			}
 		}
 
-		public override void Close()
-		{
-			_cancellationSource.Cancel();
-			_backgroundDownloadTask?.Wait();
+		private bool disposed = false;
 
-			_readFile.Close();
-			_writeFile.Close();
-			Update();
+		/*
+		 * https://learn.microsoft.com/en-us/dotnet/api/system.io.stream.dispose?view=net-7.0
+		 * 
+		 * In derived classes, do not override the Close() method, instead, put all of the
+		 * Stream cleanup logic in the Dispose(Boolean) method.
+		 */
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && !disposed)
+			{
+				_cancellationSource.Cancel();
+				_backgroundDownloadTask?.GetAwaiter().GetResult();
+				_downloadedPiece?.Dispose();
+				_cancellationSource?.Dispose();
+				_readFile.Dispose();
+				_writeFile.Dispose();
+				OnUpdate();
+			}
+
+			disposed = true;
+			base.Dispose(disposing);
 		}
 
 		#endregion
-		~NetworkFileStream()
-		{
-			_downloadedPiece?.Close();
-		}
 	}
 }

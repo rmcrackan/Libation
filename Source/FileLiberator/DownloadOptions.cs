@@ -3,7 +3,6 @@ using AAXClean;
 using Dinah.Core;
 using DataLayer;
 using LibationFileManager;
-using FileManager;
 using System.Threading.Tasks;
 using System;
 using System.IO;
@@ -17,36 +16,35 @@ namespace FileLiberator
 		public LibraryBook LibraryBook { get; }
 		public LibraryBookDto LibraryBookDto { get; }
 		public string DownloadUrl { get; }
-		public string UserAgent { get; }
 		public string AudibleKey { get; init; }
 		public string AudibleIV { get; init; }
-		public AaxDecrypter.OutputFormat OutputFormat { get; init; }
-		public bool TrimOutputToChapterLength { get; init; }
-		public bool RetainEncryptedFile { get; init; }
-		public bool StripUnabridged { get; init; }
-		public bool CreateCueSheet { get; init; }
-		public bool DownloadClipsBookmarks { get; init; }
-		public long DownloadSpeedBps { get; init; }
+		public TimeSpan RuntimeLength { get; init; }
+		public OutputFormat OutputFormat { get; init; }
 		public ChapterInfo ChapterInfo { get; init; }
-		public bool FixupFile { get; init; }
 		public NAudio.Lame.LameConfig LameConfig { get; init; }
-		public bool Downsample { get; init; }
-		public bool MatchSourceBitrate { get; init; }
-		public ReplacementCharacters ReplacementCharacters => Configuration.Instance.ReplacementCharacters;
-
-		public bool MoveMoovToBeginning { get; init; }
+		public string UserAgent => AudibleApi.Resources.USER_AGENT;
+		public bool TrimOutputToChapterLength => config.AllowLibationFixup && config.StripAudibleBrandAudio;
+		public bool StripUnabridged => config.AllowLibationFixup && config.StripUnabridged;
+		public bool CreateCueSheet => config.CreateCueSheet;
+		public bool DownloadClipsBookmarks => config.DownloadClipsBookmarks;
+		public long DownloadSpeedBps => config.DownloadSpeedLimit;
+		public bool RetainEncryptedFile => config.RetainAaxFile;
+		public bool FixupFile => config.AllowLibationFixup;
+		public bool Downsample => config.AllowLibationFixup && config.LameDownsampleMono;
+		public bool MatchSourceBitrate => config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate;
+		public bool MoveMoovToBeginning => config.MoveMoovToBeginning;
 
 		public string GetMultipartFileName(MultiConvertFileProperties props)
 			=> Templates.ChapterFile.GetFilename(LibraryBookDto, props);
 
-		public string GetMultipartTitleName(MultiConvertFileProperties props)
+		public string GetMultipartTitle(MultiConvertFileProperties props)
 			=> Templates.ChapterTitle.GetTitle(LibraryBookDto, props);
 
-		public async Task<string> SaveClipsAndBookmarks(string fileName)
+		public async Task<string> SaveClipsAndBookmarksAsync(string fileName)
 		{
 			if (DownloadClipsBookmarks)
 			{
-				var format = Configuration.Instance.ClipsBookmarksFileFormat;
+				var format = config.ClipsBookmarksFileFormat;
 
 				var formatExtension = format.ToString().ToLowerInvariant();
 				var filePath = Path.ChangeExtension(fileName, formatExtension);
@@ -71,20 +69,21 @@ namespace FileLiberator
 			return string.Empty;
 		}
 
+		private readonly Configuration config;
 		private readonly IDisposable cancellation;
 		public void Dispose() => cancellation?.Dispose();
 
-		public DownloadOptions(LibraryBook libraryBook, string downloadUrl, string userAgent)
+		public DownloadOptions(Configuration config, LibraryBook libraryBook, string downloadUrl)
 		{
+			this.config = ArgumentValidator.EnsureNotNull(config, nameof(config));
 			LibraryBook = ArgumentValidator.EnsureNotNull(libraryBook, nameof(libraryBook));
 			DownloadUrl = ArgumentValidator.EnsureNotNullOrEmpty(downloadUrl, nameof(downloadUrl));
-			UserAgent = ArgumentValidator.EnsureNotNullOrEmpty(userAgent, nameof(userAgent));
 			// no null/empty check for key/iv. unencrypted files do not have them
 
 			LibraryBookDto = LibraryBook.ToDto();
 
 			cancellation =
-				Configuration.Instance
+				config
 				.ObservePropertyChanged<long>(
 					nameof(Configuration.DownloadSpeedLimit),
 					newVal => DownloadSpeedChanged?.Invoke(this, newVal));

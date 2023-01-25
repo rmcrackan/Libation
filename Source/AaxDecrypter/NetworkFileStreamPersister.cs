@@ -1,11 +1,9 @@
 ﻿using Dinah.Core.IO;
-using Newtonsoft.Json;
 
 namespace AaxDecrypter
 {
-    internal class NetworkFileStreamPersister : JsonFilePersister<NetworkFileStream>
-    {
-
+	internal class NetworkFileStreamPersister : JsonFilePersister<NetworkFileStream>
+	{
 		/// <summary>Alias for Target </summary>
 		public NetworkFileStream NetworkFileStream => Target;
 
@@ -17,7 +15,11 @@ namespace AaxDecrypter
 		public NetworkFileStreamPersister(string path, string jsonPath = null)
 			: base(path, jsonPath) { }
 
-		protected override JsonSerializerSettings GetSerializerSettings() => NetworkFileStream.GetJsonSerializerSettings();
-
-    }
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+				NetworkFileStream?.Dispose();
+			base.Dispose(disposing);
+		}
+	}
 }

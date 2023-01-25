@@ -1,8 +1,7 @@
-﻿using System;
+﻿using AAXClean;
+using Dinah.Core;
 using System.IO;
 using System.Text;
-using AAXClean;
-using Dinah.Core;
 
 namespace AaxDecrypter
 {
@@ -16,15 +15,14 @@ namespace AaxDecrypter
 
             var startOffset = chapters.StartOffset;
 
-            var trackCount = 0;
+            var trackCount = 1;
             foreach (var c in chapters.Chapters)
             {
                 var startTime = c.StartOffset - startOffset;
-                trackCount++;
 
-                stringBuilder.AppendLine($"TRACK {trackCount} AUDIO");
+                stringBuilder.AppendLine($"TRACK {trackCount++} AUDIO");
                 stringBuilder.AppendLine($"  TITLE \"{c.Title}\"");
-                stringBuilder.AppendLine($"  INDEX 01 {(int)startTime.TotalMinutes}:{startTime:ss}:{(int)(startTime.Milliseconds / 1000d * 75)}");
+                stringBuilder.AppendLine($"  INDEX 01 {(int)startTime.TotalMinutes}:{startTime:ss}:{(int)(startTime.Milliseconds * 75d / 1000):D2}");
             }
 
             return stringBuilder.ToString();
@@ -46,7 +44,7 @@ namespace AaxDecrypter
             for (var i = 0; i < cueContents.Length; i++)
             {
                 var line = cueContents[i];
-                if (!line.Trim().StartsWith("FILE") || !line.Contains(" "))
+                if (!line.Trim().StartsWith("FILE") || !line.Contains(' '))
                     continue;
 
                 var fileTypeBegins = line.LastIndexOf(" ") + 1;

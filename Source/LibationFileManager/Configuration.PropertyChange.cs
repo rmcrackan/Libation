@@ -2,7 +2,7 @@
 
 namespace LibationFileManager
 {
-	public partial class Configuration : PropertyChangeFilter
+	public partial class Configuration
 	{
 		/*
 		 * Use this type in the getter for any Dictionary<TKey, TValue> settings,

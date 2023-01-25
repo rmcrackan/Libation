@@ -40,6 +40,7 @@ namespace FileManager
 			}
 		}
 
+		[JsonConstructor]
 		private LongPath(string path)
 		{
 			if (IsWindows && path.Length > MaxPathLength)
@@ -56,9 +57,8 @@ namespace FileManager
 		///a choice made by the linux kernel. As best as I can tell, pretty
 		//much everyone uses UTF-8.
 		public static int GetFilesystemStringLength(StringBuilder filename)
-			=> LongPath.IsWindows ?
-				filename.Length
-				: Encoding.UTF8.GetByteCount(filename.ToString());
+			=> IsWindows ? filename.Length
+			: Encoding.UTF8.GetByteCount(filename.ToString());
 
 		public static implicit operator LongPath(string path)
 		{

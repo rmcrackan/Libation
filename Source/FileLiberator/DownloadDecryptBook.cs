@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AaxDecrypter;
 using ApplicationServices;
-using AudibleApi;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
@@ -138,41 +137,27 @@ namespace FileLiberator
 
         private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, AudibleApi.Common.ContentLicense contentLic)
         {
-            //I assume if ContentFormat == "MPEG" that the delivered file is an unencrypted mp3.
-            //I also assume that if DrmType != Adrm, the file will be an mp3.
-            //These assumptions may be wrong, and only time and bug reports will tell.
+			//If DrmType != Adrm the delivered file is an unencrypted mp3.
 
-            bool encrypted = contentLic.DrmType == AudibleApi.Common.DrmType.Adrm;
+            var outputFormat
+                = contentLic.DrmType != AudibleApi.Common.DrmType.Adrm || (config.AllowLibationFixup && config.DecryptToLossy)
+                ? OutputFormat.Mp3
+                : OutputFormat.M4b;
 
-            var outputFormat = !encrypted || (config.AllowLibationFixup && config.DecryptToLossy) ?
-                     OutputFormat.Mp3 : OutputFormat.M4b;
+            long chapterStartMs
+                = config.StripAudibleBrandAudio
+                ? contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs
+                : 0;
 
-            long chapterStartMs = config.StripAudibleBrandAudio ?
-                contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs : 0;
-
-            var dlOptions = new DownloadOptions
-                 (
-                    libraryBook,
-                    contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl,
-                    Resources.USER_AGENT
-                 )
+            var dlOptions = new DownloadOptions(config, libraryBook, contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl)
             {
                 AudibleKey = contentLic?.Voucher?.Key,
                 AudibleIV = contentLic?.Voucher?.Iv,
-                OutputFormat = outputFormat,
-                MoveMoovToBeginning = config.MoveMoovToBeginning,
-                TrimOutputToChapterLength = config.AllowLibationFixup && config.StripAudibleBrandAudio,
-                RetainEncryptedFile = config.RetainAaxFile && encrypted,
-                StripUnabridged = config.AllowLibationFixup && config.StripUnabridged,
-                Downsample = config.AllowLibationFixup && config.LameDownsampleMono,
-                MatchSourceBitrate = config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate,
-                CreateCueSheet = config.CreateCueSheet,
-                DownloadClipsBookmarks = config.DownloadClipsBookmarks,
-                DownloadSpeedBps = config.DownloadSpeedLimit,
-                LameConfig = GetLameOptions(config),
-                ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
-                FixupFile = config.AllowLibationFixup
-            };
+				OutputFormat = outputFormat,
+				LameConfig = GetLameOptions(config),
+				ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
+				RuntimeLength = TimeSpan.FromMilliseconds(contentLic?.ContentMetadata?.ChapterInfo?.RuntimeLengthMs ?? 0),
+			};
 
             var chapters = flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters).OrderBy(c => c.StartOffsetMs).ToList();
 
@@ -277,8 +262,10 @@ namespace FileLiberator
 
             foreach (var c in chapters)
             {
-                if (c.Chapters is not null)
-                {
+                if (c.Chapters is null)
+					chaps.Add(c);
+				else
+				{
                     if (c.LengthMs < 10000)
                     {
                         c.Chapters[0].StartOffsetMs = c.StartOffsetMs;
@@ -296,8 +283,6 @@ namespace FileLiberator
                     chaps.AddRange(children);
                     c.Chapters = null;
                 }
-                else
-                    chaps.Add(c);
             }
             return chaps;
         }

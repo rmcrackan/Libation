@@ -7,7 +7,7 @@ using FileManager;
 
 namespace LibationFileManager
 {
-	public partial class Configuration
+	public partial class Configuration : PropertyChangeFilter
 	{
 		public bool LibationSettingsAreValid
 			=> File.Exists(APPSETTINGS_JSON)
