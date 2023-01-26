@@ -128,7 +128,7 @@ chmod +x "$FOLDER_DEBIAN/preinst"
 chmod +x "$FOLDER_DEBIAN/postinst"
 
 echo "Creating .deb file..."
-dpkg-deb --build $FOLDER_MAIN
+dpkg-deb -Zxz --build $FOLDER_MAIN
 
 rm -r "$FOLDER_MAIN"
 
