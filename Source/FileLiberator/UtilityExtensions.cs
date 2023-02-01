@@ -45,6 +45,7 @@ namespace FileLiberator
 			BitRate = libraryBook.Book.AudioFormat.Bitrate,
 			SampleRate = libraryBook.Book.AudioFormat.SampleRate,
 			Channels = libraryBook.Book.AudioFormat.Channels,
+			Language = libraryBook.Book.Language
 		};
 	}
 }

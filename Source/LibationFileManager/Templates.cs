@@ -112,6 +112,17 @@ namespace LibationFileManager
 		private static Regex datePublishedTagRegex { get; } = new Regex(@"<pub\s*?date\s*?(?:\[([^\[\]]*?)\]\s*?)?>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		private static Regex ifSeriesRegex { get; } = new Regex("<if series->(.*?)<-if series>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+		private static string getLanguageShort(string language)
+		{
+			if (language is null)
+				return null;
+
+			language = language.Trim();
+			if (language.Length <= 3)
+				return language.ToUpper();
+			return language[..3].ToUpper();
+		}
+
 		internal static FileNamingTemplate getFileNamingTemplate(LibraryBookDto libraryBookDto, string template, string dirFullPath, string extension, ReplacementCharacters replacements)
 		{
 			ArgumentValidator.EnsureNotNullOrWhiteSpace(template, nameof(template));
@@ -155,9 +166,11 @@ namespace LibationFileManager
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.Account, libraryBookDto.Account);
 			fileNamingTemplate.AddParameterReplacement(TemplateTags.Locale, libraryBookDto.Locale);
             fileNamingTemplate.AddParameterReplacement(TemplateTags.YearPublished, libraryBookDto.YearPublished?.ToString() ?? "1900");
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.Language, libraryBookDto.Language);
+            fileNamingTemplate.AddParameterReplacement(TemplateTags.LanguageShort, getLanguageShort(libraryBookDto.Language));
 
-			//Add the sanitized replacement parameters
-			foreach (var param in fileDateParams)
+            //Add the sanitized replacement parameters
+            foreach (var param in fileDateParams)
 				fileNamingTemplate.ParameterReplacements.AddIfNotContains(param);
 			foreach (var param in dateAddedParams)
 				fileNamingTemplate.ParameterReplacements.AddIfNotContains(param);

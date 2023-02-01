@@ -50,6 +50,7 @@ namespace DataLayer
         // book details
         public bool IsAbridged { get; private set; }
         public DateTime? DatePublished { get; private set; }
+        public string Language { get; private set; }
 
         // non-null. use "empty pattern"
         internal int CategoryId { get; private set; }
@@ -215,11 +216,12 @@ namespace DataLayer
         public void UpdateProductRating(float overallRating, float performanceRating, float storyRating)
             => Rating.Update(overallRating, performanceRating, storyRating);
 
-        public void UpdateBookDetails(bool isAbridged, DateTime? datePublished)
+        public void UpdateBookDetails(bool isAbridged, DateTime? datePublished, string language)
         {
             // don't overwrite with default values
             IsAbridged |= isAbridged;
             DatePublished = datePublished ?? DatePublished;
+            Language = language?.FirstCharToUpper() ?? Language;
         }
 
         public void UpdateCategory(Category category, DbContext context = null)

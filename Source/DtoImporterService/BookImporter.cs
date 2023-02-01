@@ -152,9 +152,9 @@ namespace DtoImporterService
 				book.ReplacePublisher(publisher);
 			}
 
-			book.UpdateBookDetails(item.IsAbridged, item.DatePublished);
+            book.UpdateBookDetails(item.IsAbridged, item.DatePublished, item.Language);
 
-			if (item.PdfUrl is not null)
+            if (item.PdfUrl is not null)
 				book.AddSupplementDownloadUrl(item.PdfUrl.ToString());
 
 			return book;
@@ -174,7 +174,12 @@ namespace DtoImporterService
 			if (item.PictureLarge is not null)
 				book.PictureLarge = item.PictureLarge;
 
-			book.UpdateProductRating(
+            // 2023-02-01
+            // updateBook must update language on books which were imported before the migration which added language.
+            // Can eventually delete this
+            book.UpdateBookDetails(item.IsAbridged, item.DatePublished, item.Language);
+
+            book.UpdateProductRating(
 				(float)(item.Rating?.OverallDistribution?.AverageRating ?? 0),
 				(float)(item.Rating?.PerformanceDistribution?.AverageRating ?? 0),
 				(float)(item.Rating?.StoryDistribution?.AverageRating ?? 0));

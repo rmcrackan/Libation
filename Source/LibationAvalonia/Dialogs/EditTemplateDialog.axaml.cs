@@ -153,8 +153,9 @@ namespace LibationAvalonia.Dialogs
 					SeriesNumber = "1",
 					BitRate = 128,
 					SampleRate = 44100,
-					Channels = 2
-				};
+					Channels = 2,
+                    Language = "English"
+                };
 				var chapterName = "A Flight for Life";
 				var chapterNumber = 4;
 				var chaptersTotal = 10;

@@ -27,7 +27,7 @@ namespace LibationFileManager
         public int Channels { get; set; }
 		public DateTime FileDate { get; set; } = DateTime.Now;
         public DateTime? DatePublished { get; set; }
-
+        public string Language { get; set; }
 	}
 
     public class LibraryBookDto : BookDto

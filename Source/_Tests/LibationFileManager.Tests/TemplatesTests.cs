@@ -39,8 +39,9 @@ namespace TemplatesTests
 				SeriesNumber = "1",
 				BitRate = 128,
 				SampleRate = 44100,
-				Channels = 2
-			};
+				Channels = 2,
+                Language = "English"
+            };
 
 		public static LibraryBookDto GetLibraryBookWithNullDates(string seriesName = "Sherlock Holmes")
 			=> new()
@@ -57,8 +58,9 @@ namespace TemplatesTests
 				SeriesNumber = "1",
 				BitRate = 128,
 				SampleRate = 44100,
-				Channels = 2
-			};
+				Channels = 2,
+                Language = "English"
+            };
 	}
 
 	[TestClass]

@@ -52,6 +52,7 @@ Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Boo
 Audio Bitrate: {Book.AudioFormat}
 Category: {string.Join(" > ", Book.CategoriesNames())}
 Purchase Date: {_libraryBook.DateAdded:d}
+Language: {Book.Language}
 Audible ID: {Book.AudibleProductId}
 ".Trim();
 

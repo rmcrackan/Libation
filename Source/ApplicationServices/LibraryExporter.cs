@@ -103,7 +103,10 @@ namespace ApplicationServices
 
         [Name("Audio Format")]
 		public string AudioFormat { get; set; }
-	}
+
+		[Name("Language")]
+        public string Language { get; set; }
+    }
 	public static class LibToDtos
 	{
 		public static List<ExportDto> ToDtos(this IEnumerable<LibraryBook> library)
@@ -136,7 +139,8 @@ namespace ApplicationServices
 				BookStatus = a.Book.UserDefinedItem.BookStatus.ToString(),
 				PdfStatus = a.Book.UserDefinedItem.PdfStatus.ToString(),
 				ContentType = a.Book.ContentType.ToString(),
-				AudioFormat = a.Book.AudioFormat.ToString()
+				AudioFormat = a.Book.AudioFormat.ToString(),
+				Language = a.Book.Language
 			}).ToList();
 	}
 	public static class LibraryExporter
@@ -207,8 +211,9 @@ namespace ApplicationServices
 				nameof(ExportDto.BookStatus),
 				nameof(ExportDto.PdfStatus),
 				nameof(ExportDto.ContentType),
-				nameof(ExportDto.AudioFormat)
-			};
+				nameof(ExportDto.AudioFormat),
+                nameof(ExportDto.Language)
+            };
 			var col = 0;
 			foreach (var c in columns)
 			{
@@ -273,9 +278,10 @@ namespace ApplicationServices
 				row.CreateCell(col++).SetCellValue(dto.BookStatus);
 				row.CreateCell(col++).SetCellValue(dto.PdfStatus);
 				row.CreateCell(col++).SetCellValue(dto.ContentType);
-				row.CreateCell(col++).SetCellValue(dto.AudioFormat);
+                row.CreateCell(col++).SetCellValue(dto.AudioFormat);
+                row.CreateCell(col++).SetCellValue(dto.Language);
 
-				rowIndex++;
+                rowIndex++;
 			}
 
 			using var fileData = new System.IO.FileStream(saveFilePath, System.IO.FileMode.Create);

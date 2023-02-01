@@ -41,8 +41,10 @@ namespace LibationFileManager
         public static TemplateTags SampleRate { get; } = new TemplateTags("samplerate", "File's orig. sample rate");
         public static TemplateTags Channels { get; } = new TemplateTags("channels", "Number of audio channels");
         public static TemplateTags Account { get; } = new TemplateTags("account", "Audible account of this book");
-        public static TemplateTags Locale { get; } = new TemplateTags("locale", "Region/country");
-        public static TemplateTags YearPublished { get; } = new TemplateTags("year", "Year published");
+        public static TemplateTags Locale { get; } = new("locale", "Region/country");
+        public static TemplateTags YearPublished { get; } = new("year", "Year published");
+        public static TemplateTags Language { get; } = new("language", "Book's language");
+        public static TemplateTags LanguageShort { get; } = new("language short", "Book's language abbreviated. Eg: ENG");
 
         // Special cases. Aren't mapped to replacements in Templates.cs
         // Included here for display by EditTemplateDialog
