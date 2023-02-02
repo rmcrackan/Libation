@@ -41,6 +41,7 @@ namespace FileLiberator
 
 			SeriesName = libraryBook.Book.SeriesLink.FirstOrDefault()?.Series.Name,
 			SeriesNumber = libraryBook.Book.SeriesLink.FirstOrDefault()?.Order,
+			IsPodcast = libraryBook.Book.IsEpisodeChild(),
 
 			BitRate = libraryBook.Book.AudioFormat.Bitrate,
 			SampleRate = libraryBook.Book.AudioFormat.SampleRate,

@@ -106,7 +106,8 @@ namespace LibationWinForms.Dialogs
 			chapterTitleTemplateGb.Enabled = splitFilesByChapterCbox.Checked;
 		}
 
-		private void chapterTitleTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.ChapterTitle, chapterTitleTemplateTb);
+		private void chapterTitleTemplateBtn_Click(object sender, EventArgs e)
+			=> editTemplate(TemplateEditor<Templates.ChapterTitleTemplate>.CreateNameEditor(chapterTitleTemplateTb.Text), chapterTitleTemplateTb);
 
 		private void convertFormatRb_CheckedChanged(object sender, EventArgs e)
 		{

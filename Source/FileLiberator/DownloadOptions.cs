@@ -38,7 +38,7 @@ namespace FileLiberator
 			=> Templates.ChapterFile.GetFilename(LibraryBookDto, props);
 
 		public string GetMultipartTitle(MultiConvertFileProperties props)
-			=> Templates.ChapterTitle.GetTitle(LibraryBookDto, props);
+			=> Templates.ChapterTitle.GetName(LibraryBookDto, props);
 
 		public async Task<string> SaveClipsAndBookmarksAsync(string fileName)
 		{

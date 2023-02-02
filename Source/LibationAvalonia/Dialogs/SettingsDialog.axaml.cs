@@ -52,21 +52,22 @@ namespace LibationAvalonia.Dialogs
 
 		public async void EditFolderTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = await editTemplate(Templates.Folder, settingsDisp.DownloadDecryptSettings.FolderTemplate);
+			var newTemplate = await editTemplate(TemplateEditor<Templates.FolderTemplate>.CreateFilenameEditor(config.Books, settingsDisp.DownloadDecryptSettings.FolderTemplate));
 			if (newTemplate is not null)
 				settingsDisp.DownloadDecryptSettings.FolderTemplate = newTemplate;
 		}
 
 		public async void EditFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			var newTemplate = await editTemplate(Templates.File, settingsDisp.DownloadDecryptSettings.FileTemplate);
+		{			
+			var newTemplate = await editTemplate(TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(config.Books, settingsDisp.DownloadDecryptSettings.FileTemplate));
 			if (newTemplate is not null)
 				settingsDisp.DownloadDecryptSettings.FileTemplate = newTemplate;
 		}
 
 		public async void EditChapterFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = await editTemplate(Templates.ChapterFile, settingsDisp.DownloadDecryptSettings.ChapterFileTemplate);
+			
+			var newTemplate = await editTemplate(TemplateEditor<Templates.ChapterFileTemplate>.CreateFilenameEditor(config.Books, settingsDisp.DownloadDecryptSettings.ChapterFileTemplate));
 			if (newTemplate is not null)
 				settingsDisp.DownloadDecryptSettings.ChapterFileTemplate = newTemplate;
 		}
@@ -79,16 +80,16 @@ namespace LibationAvalonia.Dialogs
 
 		public async void EditChapterTitleTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = await editTemplate(Templates.ChapterTitle, settingsDisp.AudioSettings.ChapterTitleTemplate);
+			var newTemplate = await editTemplate(TemplateEditor<Templates.ChapterTitleTemplate>.CreateNameEditor(settingsDisp.AudioSettings.ChapterTitleTemplate));
 			if (newTemplate is not null)
 				settingsDisp.AudioSettings.ChapterTitleTemplate = newTemplate;
 		}
 
-		private async Task<string> editTemplate(Templates template, string existingTemplate)
+		private async Task<string> editTemplate(ITemplateEditor template)
 		{
-			var form = new EditTemplateDialog(template, existingTemplate);
+			var form = new EditTemplateDialog(template);
 			if (await form.ShowDialog<DialogResult>(this) == DialogResult.OK)
-				return form.TemplateText;
+				return template.EditingTemplate.TemplateText;
 			else return null;
 		}
 	}
@@ -266,28 +267,8 @@ namespace LibationAvalonia.Dialogs
 			UseCoverAsFolderIcon = config.UseCoverAsFolderIcon;
 		}
 
-		public async Task<bool> SaveSettingsAsync(Configuration config)
+		public Task<bool> SaveSettingsAsync(Configuration config)
 		{
-			static Task validationError(string text, string caption)
-				=> MessageBox.Show(text, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-			// these 3 should do nothing. Configuration will only init these with a valid value. EditTemplateDialog ensures valid before returning
-			if (!Templates.Folder.IsValid(FolderTemplate))
-			{
-				await validationError($"Not saving change to folder naming template. Invalid format.", "Invalid folder template");
-				return false;
-			}
-			if (!Templates.File.IsValid(FileTemplate))
-			{
-				await validationError($"Not saving change to file naming template. Invalid format.", "Invalid file template");
-				return false;
-			}
-			if (!Templates.ChapterFile.IsValid(ChapterFileTemplate))
-			{
-				await validationError($"Not saving change to chapter file naming template. Invalid format.", "Invalid chapter file template");
-				return false;
-			}
-
 			config.BadBook
 				= BadBookAbort ? Configuration.BadBookAction.Abort
 				: BadBookRetry ? Configuration.BadBookAction.Retry
@@ -301,7 +282,7 @@ namespace LibationAvalonia.Dialogs
 
 			config.UseCoverAsFolderIcon = UseCoverAsFolderIcon;
 
-			return true;
+			return Task.FromResult(true);
 		}
 
 		public string UseCoverAsFolderIconText { get; } = Configuration.GetDescription(nameof(Configuration.UseCoverAsFolderIcon));

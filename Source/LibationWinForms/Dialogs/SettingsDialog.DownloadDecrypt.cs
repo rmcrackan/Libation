@@ -7,10 +7,12 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class SettingsDialog
 	{
-		private void folderTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.Folder, folderTemplateTb);
-		private void fileTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.File, fileTemplateTb);
-		private void chapterFileTemplateBtn_Click(object sender, EventArgs e) => editTemplate(Templates.ChapterFile, chapterFileTemplateTb);
-
+		private void folderTemplateBtn_Click(object sender, EventArgs e)
+			=> editTemplate(TemplateEditor<Templates.FolderTemplate>.CreateFilenameEditor(config.Books, folderTemplateTb.Text), folderTemplateTb);
+		private void fileTemplateBtn_Click(object sender, EventArgs e)
+			=> editTemplate(TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(config.Books, fileTemplateTb.Text), fileTemplateTb);
+		private void chapterFileTemplateBtn_Click(object sender, EventArgs e)
+			=> editTemplate(TemplateEditor<Templates.ChapterFileTemplate>.CreateFilenameEditor(config.Books, chapterFileTemplateTb.Text), chapterFileTemplateTb);
 
 		private void editCharreplacementBtn_Click(object sender, EventArgs e)
 		{

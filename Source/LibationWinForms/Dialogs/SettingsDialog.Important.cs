@@ -56,23 +56,6 @@ namespace LibationWinForms.Dialogs
 				validationError("Cannot set Books Location to blank", "Location is blank");
 				return;
 			}
-
-			// these 3 should do nothing. Configuration will only init these with a valid value. EditTemplateDialog ensures valid before returning
-			if (!Templates.Folder.IsValid(folderTemplateTb.Text))
-			{
-				validationError($"Not saving change to folder naming template. Invalid format.", "Invalid folder template");
-				return;
-			}
-			if (!Templates.File.IsValid(fileTemplateTb.Text))
-			{
-				validationError($"Not saving change to file naming template. Invalid format.", "Invalid file template");
-				return;
-			}
-			if (!Templates.ChapterFile.IsValid(chapterFileTemplateTb.Text))
-			{
-				validationError($"Not saving change to chapter file naming template. Invalid format.", "Invalid chapter file template");
-				return;
-			}
 			#endregion
 
 			LongPath lonNewBooks = newBooks;

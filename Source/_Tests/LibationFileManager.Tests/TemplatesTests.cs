@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Dinah.Core;
 using FileManager;
+using FileManager.NamingTemplate;
 using FluentAssertions;
 using LibationFileManager;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -42,46 +43,21 @@ namespace TemplatesTests
 				Channels = 2,
                 Language = "English"
             };
-
-		public static LibraryBookDto GetLibraryBookWithNullDates(string seriesName = "Sherlock Holmes")
-			=> new()
-			{
-				Account = "my account",
-				FileDate = new DateTime(2023, 1, 28, 0, 0, 0),
-				AudibleProductId = "asin",
-				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
-				Locale = "us",
-				YearPublished = 2017,
-				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
-				Narrators = new List<string> { "Stephen Fry" },
-				SeriesName = seriesName ?? "",
-				SeriesNumber = "1",
-				BitRate = 128,
-				SampleRate = 44100,
-				Channels = 2,
-                Language = "English"
-            };
-	}
-
-	[TestClass]
-	public class ContainsChapterOnlyTags
-	{
-		[TestMethod]
-		[DataRow("<ch>", false)]
-		[DataRow("<ch#>", true)]
-		[DataRow("<id>", false)]
-		[DataRow("<id><ch#>", true)]
-		public void Tests(string template, bool expected) => Templates.ContainsChapterOnlyTags(template).Should().Be(expected);
 	}
 
 	[TestClass]
 	public class ContainsTag
 	{
 		[TestMethod]
-		[DataRow("<ch#>", "ch#", true)]
-		[DataRow("<id>", "ch#", false)]
-		[DataRow("<id><ch#>", "ch#", true)]
-		public void Tests(string template, string tag, bool expected) => Templates.ContainsTag(template, tag).Should().Be(expected);
+		[DataRow("<ch#>", 0)]
+		[DataRow("<id>", 1)]
+		[DataRow("<id><ch#>", 1)]
+		public void Tests(string template, int numTags)
+		{
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+
+			fileTemplate.TagsInUse.Should().HaveCount(numTags);
+		}
 	}
 
 	[TestClass]
@@ -89,19 +65,22 @@ namespace TemplatesTests
 	{
 		static ReplacementCharacters Replacements = ReplacementCharacters.Default;
 
+		[TestMethod]
+		[DataRow(null)]
+		public void template_null(string template)
+		{
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var t).Should().BeFalse();
+			t.IsValid.Should().BeFalse();
+		}
 
 		[TestMethod]
-		[DataRow(null, @"C:\", "ext")]
-		[ExpectedException(typeof(ArgumentNullException))]
-		public void arg_null_exception(string template, string dirFullPath, string extension)
-			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements);
-
-		[TestMethod]
-		[DataRow("", @"C:\foo\bar", "ext")]
-		[DataRow("   ", @"C:\foo\bar", "ext")]
-		[ExpectedException(typeof(ArgumentException))]
-		public void arg_exception(string template, string dirFullPath, string extension)
-			=> Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements);
+		[DataRow("")]
+		[DataRow("   ")]
+		public void template_empty(string template)
+		{
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var t).Should().BeTrue();
+			t.Warnings.Should().HaveCount(2);
+		}
 
 		[TestMethod]
 		[DataRow("f.txt", @"C:\foo\bar", "", @"C:\foo\bar\f.txt")]
@@ -119,10 +98,26 @@ namespace TemplatesTests
 				expected = expected.Replace("C:", "").Replace('\\', '/');
 			}
 
-			Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
-			.GetFilePath(extension)
-			.PathWithoutPrefix
-			.Should().Be(expected);
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+
+			fileTemplate
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("<bitrate>Kbps <samplerate>Hz", "128Kbps 44100Hz")]
+		[DataRow("<bitrate>Kbps <samplerate[6]>Hz", "128Kbps 044100Hz")]
+		[DataRow("<bitrate[4]>Kbps <samplerate>Hz", "0128Kbps 44100Hz")]
+		[DataRow("<bitrate[4]>Kbps <titleshort[u]>", "0128Kbps A STUDY IN SCARLET")]
+		[DataRow("<bitrate[4]>Kbps <titleshort[l]>", "0128Kbps a study in scarlet")]
+		[DataRow("<bitrate[4]>Kbps <samplerate[6]>Hz", "0128Kbps 044100Hz")]
+		[DataRow("<bitrate  [ 4 ]  >Kbps <samplerate   [  6  ]   >Hz", "0128Kbps 044100Hz")]
+		public void FormatTags(string template, string expected)
+		{
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate.GetFilename(GetLibraryBook(), "", "", Replacements).PathWithoutPrefix.Should().Be(expected);
 		}
 
 		[TestMethod]
@@ -145,8 +140,9 @@ namespace TemplatesTests
 				expected = expected.Replace("C:", "").Replace('\\', '/');
 			}
 
-			Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
-				.GetFilePath(extension)
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -170,11 +166,12 @@ namespace TemplatesTests
 			if (Environment.OSVersion.Platform is not PlatformID.Win32NT)
 			{
 				dirFullPath = dirFullPath.Replace("C:", "").Replace('\\', '/');
-				expected = expected.Replace("C:", "").Replace('\\', '/').Replace('＜', '<').Replace('＞','>');
+				expected = expected.Replace("C:", "").Replace('\\', '/').Replace('＜', '<').Replace('＞', '>');
 			}
 
-			Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
-				.GetFilePath(extension)
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -191,8 +188,9 @@ namespace TemplatesTests
 				expected = expected.Replace("C:", "").Replace('\\', '/');
 			}
 
-			Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
-				.GetFilePath(extension)
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
@@ -208,13 +206,13 @@ namespace TemplatesTests
 		{
 			if (Environment.OSVersion.Platform == platformID)
 			{
-				Templates.File.HasWarnings(template).Should().BeTrue();
-				Templates.File.HasWarnings(Templates.File.Sanitize(template, Replacements)).Should().BeFalse();
-				Templates.getFileNamingTemplate(GetLibraryBook(), template, dirFullPath, extension, Replacements)
-					.GetFilePath(extension)
+				Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+
+				fileTemplate.HasWarnings.Should().BeFalse();
+				fileTemplate
+					.GetFilename(GetLibraryBook(), dirFullPath, extension, Replacements)
 					.PathWithoutPrefix
 					.Should().Be(expected);
-
 			}
 		}
 
@@ -229,11 +227,15 @@ namespace TemplatesTests
 				expected = expected.Replace("C:", "").Replace('\\', '/');
 			}
 
-			Templates.getFileNamingTemplate(GetLibraryBookWithNullDates(), template, dirFullPath, extension, Replacements)
-				.GetFilePath(extension)
+			var lbDto = GetLibraryBook();
+			lbDto.DatePublished = null;
+			lbDto.DateAdded = null;
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(lbDto, dirFullPath, extension, Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
-
 		}
 
 		[TestMethod]
@@ -242,10 +244,14 @@ namespace TemplatesTests
 		public void IfSeries_empty(string directory, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
-				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series-><-if series>bar", directory, "ext", Replacements)
-				.GetFilePath(".ext")
-				.PathWithoutPrefix
-				.Should().Be(expected);
+			{
+				Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series-><-if series>bar", out var fileTemplate).Should().BeTrue();
+
+				fileTemplate
+					.GetFilename(GetLibraryBook(), directory, "ext", Replacements)
+					.PathWithoutPrefix
+					.Should().Be(expected);
+			}
 		}
 
 		[TestMethod]
@@ -254,10 +260,13 @@ namespace TemplatesTests
 		public void IfSeries_no_series(string directory, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
-				Templates.getFileNamingTemplate(GetLibraryBook(null), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext", Replacements)
-				.GetFilePath(".ext")
+			{
+				Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series->-<series>-<id>-<-if series>bar", out var fileTemplate).Should().BeTrue();
+
+				fileTemplate.GetFilename(GetLibraryBook(null), directory, "ext", Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
+			}
 		}
 
 		[TestMethod]
@@ -266,10 +275,112 @@ namespace TemplatesTests
 		public void IfSeries_with_series(string directory, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
-				Templates.getFileNamingTemplate(GetLibraryBook(), "foo<if series->-<series>-<id>-<-if series>bar", directory, "ext", Replacements)
-				.GetFilePath(".ext")
-				.PathWithoutPrefix
-				.Should().Be(expected);
+			{
+				Templates.TryGetTemplate<Templates.FileTemplate>("foo<if series->-<series>-<id>-<-if series>bar", out var fileTemplate).Should().BeTrue();
+
+				fileTemplate
+					.GetFilename(GetLibraryBook(), directory, "ext", Replacements)
+					.PathWithoutPrefix
+					.Should().Be(expected);
+			}
+		}
+	}
+}
+
+
+namespace Templates_Other
+{
+
+	[TestClass]
+	public class GetFilePath
+	{
+		static ReplacementCharacters Replacements = ReplacementCharacters.Default;
+
+		[TestMethod]
+		[DataRow(@"C:\foo\bar", @"C:\foo\bar\Folder\my꞉ book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\[ID123456].txt", PlatformID.Win32NT)]
+		[DataRow(@"/foo/bar", @"/foo/bar/Folder/my: book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000/[ID123456].txt", PlatformID.Unix)]
+		public void equiv_GetValidFilename(string dirFullPath, string expected, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform != platformID)
+				return;
+
+			var sb = new System.Text.StringBuilder();
+			sb.Append('0', 300);
+			var longText = sb.ToString();
+
+			NEW_GetValidFilename_FileNamingTemplate(dirFullPath, "my: book " + longText, "txt", "ID123456").Should().Be(expected);
+		}
+
+		private class TemplateTag : ITemplateTag
+		{
+			public string TagName { get; init; }
+			public string DefaultValue { get; }
+			public string Description { get; }
+			public string Display { get; }
+		}
+		private static string NEW_GetValidFilename_FileNamingTemplate(string dirFullPath, string filename, string extension, string metadataSuffix)
+		{
+			char slash = Path.DirectorySeparatorChar;
+
+			var template = $"{slash}Folder{slash}<title>{slash}[<id>]{slash}";
+
+			extension = FileUtility.GetStandardizedExtension(extension);
+
+			var lbDto = GetLibraryBook();
+			lbDto.Title = filename;
+			lbDto.AudibleProductId = metadataSuffix;
+
+			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var fileNamingTemplate).Should().BeTrue();
+
+			return fileNamingTemplate.GetFilename(lbDto, dirFullPath, extension, Replacements).PathWithoutPrefix;
+		}
+
+		[TestMethod]
+		[DataRow(@"C:\foo\bar\my file.txt", @"C:\foo\bar\my file - 002 - title.txt", PlatformID.Win32NT)]
+		[DataRow(@"/foo/bar/my file.txt", @"/foo/bar/my file - 002 - title.txt", PlatformID.Unix)]
+		public void equiv_GetMultipartFileName(string inStr, string outStr, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform == platformID)
+				NEW_GetMultipartFileName_FileNamingTemplate(inStr, 2, 100, "title").Should().Be(outStr);
+		}
+
+		private static string NEW_GetMultipartFileName_FileNamingTemplate(string originalPath, int partsPosition, int partsTotal, string suffix)
+		{
+			// 1-9     => 1-9
+			// 10-99   => 01-99
+			// 100-999 => 001-999
+
+			var estension = Path.GetExtension(originalPath);
+			var dir = Path.GetDirectoryName(originalPath);
+			var template = Path.GetFileNameWithoutExtension(originalPath) + " - <ch# 0> - <title>" + estension;
+
+			var lbDto = GetLibraryBook();
+			lbDto.Title = suffix;
+
+			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate).Should().BeTrue();
+
+			return chapterFileTemplate
+				.GetFilename(lbDto, new AaxDecrypter.MultiConvertFileProperties { Title = suffix, PartsTotal = partsTotal, PartsPosition = partsPosition }, dir, estension, Replacements)
+				.PathWithoutPrefix;
+		}
+
+		[TestMethod]
+		[DataRow(@"\foo\<title>.txt", @"\foo\sl∕as∕he∕s.txt", PlatformID.Win32NT)]
+		[DataRow(@"/foo/<title>.txt", @"/foo/s\l∕a\s∕h\e∕s.txt", PlatformID.Unix)]
+		public void remove_slashes(string inStr, string outStr, PlatformID platformID)
+		{
+			if (Environment.OSVersion.Platform == platformID)
+			{
+				var lbDto = GetLibraryBook();
+				lbDto.Title = @"s\l/a\s/h\e/s";
+
+				var directory = Path.GetDirectoryName(inStr);
+				var fileName = Path.GetFileName(inStr);
+
+				Templates.TryGetTemplate<Templates.FileTemplate>(fileName, out var fileNamingTemplate).Should().BeTrue();
+
+				fileNamingTemplate.GetFilename(lbDto, directory, "txt", Replacements).PathWithoutPrefix.Should().Be(outStr);
+			}
 		}
 	}
 }
@@ -280,7 +391,7 @@ namespace Templates_Folder_Tests
 	public class GetErrors
 	{
 		[TestMethod]
-		public void null_is_invalid() => Tests(null, new[] { Templates.ERROR_NULL_IS_INVALID });
+		public void null_is_invalid() => Tests(null, PlatformID.Win32NT | PlatformID.Unix, new[] { NamingTemplate.ERROR_NULL_IS_INVALID });
 
 		[TestMethod]
 		public void empty_is_valid() => valid_tests("");
@@ -296,15 +407,19 @@ namespace Templates_Folder_Tests
 		[DataRow(@"foo\bar")]
 		[DataRow(@"<id>")]
 		[DataRow(@"<id>\<title>")]
-		public void valid_tests(string template) => Tests(template, Array.Empty<string>());
+		public void valid_tests(string template) => Tests(template, PlatformID.Win32NT | PlatformID.Unix, Array.Empty<string>());
 
 		[TestMethod]
-		[DataRow(@"C:\", Templates.ERROR_FULL_PATH_IS_INVALID)]
-		public void Tests(string template, params string[] expected)
+		[DataRow(@"C:\", PlatformID.Win32NT, Templates.ERROR_FULL_PATH_IS_INVALID)]
+		public void Tests(string template, PlatformID platformID, params string[] expected)
 		{
-			var result = Templates.Folder.GetErrors(template);
-			result.Count().Should().Be(expected.Length);
-			result.Should().BeEquivalentTo(expected);
+			if ((platformID & Environment.OSVersion.Platform) == Environment.OSVersion.Platform)
+			{
+				Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate);
+				var result = folderTemplate.Errors;
+				result.Should().HaveCount(expected.Length);
+				result.Should().BeEquivalentTo(expected);
+			}
 		}
 	}
 
@@ -312,50 +427,57 @@ namespace Templates_Folder_Tests
 	public class IsValid
 	{
 		[TestMethod]
-		public void null_is_invalid() => Tests(null, false);
+		public void null_is_invalid() => Templates.TryGetTemplate<Templates.FolderTemplate>(null, out _).Should().BeFalse();
 
 		[TestMethod]
-		public void empty_is_valid() => Tests("", true);
+		public void empty_is_valid() => Tests("", true, PlatformID.Win32NT | PlatformID.Unix);
 
 		[TestMethod]
-		public void whitespace_is_valid() => Tests("   ", true);
+		public void whitespace_is_valid() => Tests("   ", true, PlatformID.Win32NT | PlatformID.Unix);
 
 		[TestMethod]
-		[DataRow(@"C:\", false)]
-		[DataRow(@"foo", true)]
-		[DataRow(@"\foo", true)]
-		[DataRow(@"foo\", true)]
-		[DataRow(@"\foo\", true)]
-		[DataRow(@"foo\bar", true)]
-		[DataRow(@"<id>", true)]
-		[DataRow(@"<id>\<title>", true)]
-		public void Tests(string template, bool expected) => Templates.Folder.IsValid(template).Should().Be(expected);
+		[DataRow(@"C:\", false, PlatformID.Win32NT)]
+		[DataRow(@"foo", true, PlatformID.Win32NT | PlatformID.Unix)]
+		[DataRow(@"\foo", true, PlatformID.Win32NT | PlatformID.Unix)]
+		[DataRow(@"foo\", true, PlatformID.Win32NT | PlatformID.Unix)]
+		[DataRow(@"\foo\", true, PlatformID.Win32NT | PlatformID.Unix)]
+		[DataRow(@"foo\bar", true, PlatformID.Win32NT | PlatformID.Unix)]
+		[DataRow(@"<id>", true, PlatformID.Win32NT | PlatformID.Unix)]
+		[DataRow(@"<id>\<title>", true, PlatformID.Win32NT | PlatformID.Unix)]
+		public void Tests(string template, bool expected, PlatformID platformID)
+		{
+			if ((platformID & Environment.OSVersion.Platform) == Environment.OSVersion.Platform)
+			{
+				Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate).Should().BeTrue();
+				folderTemplate.IsValid.Should().Be(expected);
+			}
+		}
 	}
 
 	[TestClass]
 	public class GetWarnings
 	{
 		[TestMethod]
-		public void null_is_invalid() => Tests(null, new[] { Templates.ERROR_NULL_IS_INVALID });
+		public void null_is_invalid() => Tests(null, new[] { NamingTemplate.ERROR_NULL_IS_INVALID });
 
 		[TestMethod]
-		public void empty_has_warnings() => Tests("", Templates.WARNING_EMPTY, Templates.WARNING_NO_TAGS);
+		public void empty_has_warnings() => Tests("", NamingTemplate.WARNING_EMPTY, NamingTemplate.WARNING_NO_TAGS);
 
 		[TestMethod]
-		public void whitespace_has_warnings() => Tests("   ", Templates.WARNING_WHITE_SPACE, Templates.WARNING_NO_TAGS);
+		public void whitespace_has_warnings() => Tests("   ", NamingTemplate.WARNING_WHITE_SPACE, NamingTemplate.WARNING_NO_TAGS);
 
 		[TestMethod]
 		[DataRow(@"<id>\foo\bar")]
 		public void valid_tests(string template) => Tests(template, Array.Empty<string>());
 
 		[TestMethod]
-		[DataRow(@"no tags", Templates.WARNING_NO_TAGS)]
-		[DataRow("<ch#> <id>", Templates.WARNING_HAS_CHAPTER_TAGS)]
-		[DataRow("<ch#> chapter tag", Templates.WARNING_NO_TAGS, Templates.WARNING_HAS_CHAPTER_TAGS)]
+		[DataRow(@"no tags", NamingTemplate.WARNING_NO_TAGS)]
+		[DataRow("<ch#> chapter tag", NamingTemplate.WARNING_NO_TAGS)]
 		public void Tests(string template, params string[] expected)
 		{
-			var result = Templates.Folder.GetWarnings(template);
-			result.Count().Should().Be(expected.Length);
+			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate);
+			var result = folderTemplate.Warnings;
+			result.Should().HaveCount(expected.Length);
 			result.Should().BeEquivalentTo(expected);
 		}
 	}
@@ -375,16 +497,23 @@ namespace Templates_Folder_Tests
 		[TestMethod]
 		[DataRow(@"no tags", true)]
 		[DataRow(@"<id>\foo\bar", false)]
-		[DataRow("<ch#> <id>", true)]
 		[DataRow("<ch#> chapter tag", true)]
-		public void Tests(string template, bool expected) => Templates.Folder.HasWarnings(template).Should().Be(expected);
+		public void Tests(string template, bool expected)
+		{
+			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate);
+			folderTemplate.HasWarnings.Should().Be(expected);
+		}
 	}
 
 	[TestClass]
 	public class TagCount
 	{
 		[TestMethod]
-		public void null_throws() => Assert.ThrowsException<NullReferenceException>(() => Templates.Folder.TagCount(null));
+		public void null_invalid()
+		{
+			Templates.TryGetTemplate<Templates.FolderTemplate>(null, out var template).Should().BeFalse();
+			template.IsValid.Should().BeFalse();
+		}
 
 		[TestMethod]
 		public void empty() => Tests("", 0);
@@ -402,7 +531,11 @@ namespace Templates_Folder_Tests
 		[DataRow("<not a real tag>", 0)]
 		[DataRow("<ch#> non-folder tag", 0)]
 		[DataRow("<ID> case specific", 0)]
-		public void Tests(string template, int expected) => Templates.Folder.TagCount(template).Should().Be(expected);
+		public void Tests(string template, int expected)
+		{
+			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var folderTemplate).Should().BeTrue();
+			folderTemplate.TagsInUse.Count().Should().Be(expected);
+		}
 	}
 }
 
@@ -412,7 +545,7 @@ namespace Templates_File_Tests
 	public class GetErrors
 	{
 		[TestMethod]
-		public void null_is_invalid() => Tests(null, Environment.OSVersion.Platform, new[] { Templates.ERROR_NULL_IS_INVALID });
+		public void null_is_invalid() => Tests(null, Environment.OSVersion.Platform, new[] { NamingTemplate.ERROR_NULL_IS_INVALID });
 
 		[TestMethod]
 		public void empty_is_valid() => valid_tests("");
@@ -425,19 +558,13 @@ namespace Templates_File_Tests
 		[DataRow(@"<id>")]
 		public void valid_tests(string template) => Tests(template, Environment.OSVersion.Platform, Array.Empty<string>());
 
-
-		[TestMethod]
-		[DataRow(@"C:\", PlatformID.Win32NT, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
-		[DataRow(@"/", PlatformID.Unix, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
-		[DataRow(@"\foo", PlatformID.Win32NT, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
-		[DataRow(@"/foo", PlatformID.Win32NT, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
-		[DataRow(@"/foo", PlatformID.Unix, Templates.ERROR_INVALID_FILE_NAME_CHAR)]
 		public void Tests(string template, PlatformID platformID, params string[] expected)
 		{
 			if (Environment.OSVersion.Platform == platformID)
 			{
-				var result = Templates.File.GetErrors(template);
-				result.Count().Should().Be(expected.Length);
+				Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate);
+				var result = fileTemplate.Errors;
+				result.Should().HaveCount(expected.Length);
 				result.Should().BeEquivalentTo(expected);
 			}
 		}
@@ -447,28 +574,26 @@ namespace Templates_File_Tests
 	public class IsValid
 	{
 		[TestMethod]
-		public void null_is_invalid() => Tests(null, false, Environment.OSVersion.Platform);
+		public void null_is_invalid() => Templates.TryGetTemplate<Templates.FileTemplate>(null, out _).Should().BeFalse();
 
 		[TestMethod]
-		public void empty_is_valid() => Tests("", true, Environment.OSVersion.Platform);
+		public void empty_is_valid() => Tests("", true);
 
 		[TestMethod]
-		public void whitespace_is_valid() => Tests("   ", true, Environment.OSVersion.Platform);
+		public void whitespace_is_valid() => Tests("   ", true);
 
 		[TestMethod]
-		[DataRow(@"C:\", false, PlatformID.Win32NT)]
-		[DataRow(@"/", false, PlatformID.Unix)]
-		[DataRow(@"foo", true, PlatformID.Win32NT)]
-		[DataRow(@"foo", true, PlatformID.Unix)]
-		[DataRow(@"\foo", false, PlatformID.Win32NT)]
-		[DataRow(@"\foo", true, PlatformID.Unix)]
-		[DataRow(@"/foo", false, PlatformID.Win32NT)]
-		[DataRow(@"<id>", true, PlatformID.Win32NT)]
-		[DataRow(@"<id>", true, PlatformID.Unix)]
-		public void Tests(string template, bool expected, PlatformID platformID)
+		[DataRow(@"foo", true)]
+		[DataRow(@"\foo", true)]
+		[DataRow(@"foo\", true)]
+		[DataRow(@"\foo\", true)]
+		[DataRow(@"foo\bar", true)]
+		[DataRow(@"<id>", true)]
+		[DataRow(@"<id>\<title>", true)]
+		public void Tests(string template, bool expected)
 		{
-			if (Environment.OSVersion.Platform == platformID)
-						Templates.File.IsValid(template).Should().Be(expected);	
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var folderTemplate).Should().BeTrue();
+			folderTemplate.IsValid.Should().Be(expected);
 		}
 	}
 
@@ -499,13 +624,13 @@ namespace Templates_ChapterFile_Tests
 	public class GetWarnings
 	{
 		[TestMethod]
-		public void null_is_invalid() => Tests(null, null, new[] { Templates.ERROR_NULL_IS_INVALID });
+		public void null_is_invalid() => Tests(null, null, new[] { NamingTemplate.ERROR_NULL_IS_INVALID, Templates.WARNING_NO_CHAPTER_NUMBER_TAG });
 
 		[TestMethod]
-		public void empty_has_warnings() => Tests("", null, Templates.WARNING_EMPTY, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
+		public void empty_has_warnings() => Tests("", null, NamingTemplate.WARNING_EMPTY, NamingTemplate.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
 
 		[TestMethod]
-		public void whitespace_has_warnings() => Tests("   ", null, Templates.WARNING_WHITE_SPACE, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
+		public void whitespace_has_warnings() => Tests("   ", null, NamingTemplate.WARNING_WHITE_SPACE, NamingTemplate.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG);
 
 		[TestMethod]
 		[DataRow("<ch#>")]
@@ -513,18 +638,20 @@ namespace Templates_ChapterFile_Tests
 		public void valid_tests(string template) => Tests(template, null, Array.Empty<string>());
 
 		[TestMethod]
-		[DataRow(@"no tags", null, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
-		[DataRow(@"<id>\foo\bar", true, Templates.ERROR_INVALID_FILE_NAME_CHAR, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
-		[DataRow(@"<id>/foo/bar", false, Templates.ERROR_INVALID_FILE_NAME_CHAR, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
-		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", null, Templates.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		[DataRow(@"no tags", null, NamingTemplate.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		[DataRow(@"<id>\foo\bar", true, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		[DataRow(@"<id>/foo/bar", false, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
+		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", null, NamingTemplate.WARNING_NO_TAGS, Templates.WARNING_NO_CHAPTER_NUMBER_TAG)]
 		public void Tests(string template, bool? windows, params string[] expected)
 		{
-			if(windows is null
+			if (windows is null
 			|| (windows is true && Environment.OSVersion.Platform is PlatformID.Win32NT)
 			|| (windows is false && Environment.OSVersion.Platform is PlatformID.Unix))
 			{
-				var result = Templates.ChapterFile.GetWarnings(template);
-				result.Count().Should().Be(expected.Length);
+
+				Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate);
+				var result = chapterFileTemplate.Warnings;
+				result.Should().HaveCount(expected.Length);
 				result.Should().BeEquivalentTo(expected);
 			}
 		}
@@ -548,14 +675,18 @@ namespace Templates_ChapterFile_Tests
 		[DataRow("<ch#> <id>", false)]
 		[DataRow("<ch#> -- chapter tag", false)]
 		[DataRow("<chapter count> -- chapter tag but not ch# or ch_#", true)]
-		public void Tests(string template, bool expected) => Templates.ChapterFile.HasWarnings(template).Should().Be(expected);
+		public void Tests(string template, bool expected)
+		{
+			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate);
+			chapterFileTemplate.HasWarnings.Should().Be(expected);
+		}
 	}
 
 	[TestClass]
 	public class TagCount
 	{
 		[TestMethod]
-		public void null_is_not_recommended() => Assert.ThrowsException<NullReferenceException>(() => Tests(null, -1));
+		public void null_is_not_recommended() => Templates.TryGetTemplate<Templates.ChapterFileTemplate>(null, out _).Should().BeFalse();
 
 		[TestMethod]
 		public void empty_is_not_recommended() => Tests("", 0);
@@ -573,11 +704,15 @@ namespace Templates_ChapterFile_Tests
 		[DataRow("<not a real tag>", 0)]
 		[DataRow("<ch#> non-folder tag", 1)]
 		[DataRow("<ID> case specific", 0)]
-		public void Tests(string template, int expected) => Templates.ChapterFile.TagCount(template).Should().Be(expected);
+		public void Tests(string template, int expected)
+		{
+			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate).Should().BeTrue();
+			chapterFileTemplate.TagsInUse.Count().Should().Be(expected);
+		}
 	}
 
 	[TestClass]
-	public class GetPortionFilename
+	public class GetFilename
 	{
 		static readonly ReplacementCharacters Default = ReplacementCharacters.Default;
 
@@ -589,8 +724,13 @@ namespace Templates_ChapterFile_Tests
 		public void Tests(string template, string dir, string ext, int pos, int total, string chapter, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform == platformID)
-				Templates.ChapterFile.GetPortionFilename(GetLibraryBook(), template, new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, Default)
-				.Should().Be(expected);
+			{
+				Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterTemplate).Should().BeTrue();
+				chapterTemplate
+					.GetFilename(GetLibraryBook(), new() { OutputFileName = $"xyz.{ext}", PartsPosition = pos, PartsTotal = total, Title = chapter }, dir, ext, Default)
+					.PathWithoutPrefix
+					.Should().Be(expected);
+			}
 		}
 	}
 }

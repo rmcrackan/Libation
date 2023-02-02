@@ -21,6 +21,7 @@ namespace LibationFileManager
 
         public string SeriesName { get; set; }
         public string SeriesNumber { get; set; }
+        public bool IsPodcast { get; set; }
 
         public int BitRate { get; set; }
         public int SampleRate { get; set; }

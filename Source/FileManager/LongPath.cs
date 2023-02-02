@@ -56,9 +56,9 @@ namespace FileManager
 		//don't care about encoding, so how unicode characters are encoded is
 		///a choice made by the linux kernel. As best as I can tell, pretty
 		//much everyone uses UTF-8.
-		public static int GetFilesystemStringLength(StringBuilder filename)
+		public static int GetFilesystemStringLength(string filename)
 			=> IsWindows ? filename.Length
-			: Encoding.UTF8.GetByteCount(filename.ToString());
+			: Encoding.UTF8.GetByteCount(filename);
 
 		public static implicit operator LongPath(string path)
 		{
