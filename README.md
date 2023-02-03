@@ -28,7 +28,7 @@
 - [Advanced](Documentation/Advanced.md)
     - [Files and folders](Documentation/Advanced.md#files-and-folders)
     - [Settings](Documentation/Advanced.md#settings)
-    - [Custom File Naming](Documentation/Advanced.md#custom-file-naming)
+    - [Custom File Naming](Documentation/NamingTemplates.md)
     - [Command Line Interface](Documentation/Advanced.md#command-line-interface)
 - [Docker](Documentation/Docker.md)
 
