@@ -9,7 +9,7 @@
 
 - [Files and folders](#files-and-folders)
 - [Settings](#settings)
-- [Custom File Naming](#custom-file-naming)
+- [Custom File Naming](NamingTemplates.md)
 - [Command Line Interface](#command-line-interface)
 
 
@@ -27,12 +27,6 @@ To make upgrades and reinstalls easier, Libation separates all of its responsibi
 ### Settings
 
 * Allow Libation to fix up audiobook metadata. After decrypting a title, Libation attempts to fix details like chapters and cover art. Some power users and/or control freaks prefer to manage this themselves. By unchecking this setting, Libation will only decrypt the book and will leave metadata as-is, warts and all.
-
-### Custom File Naming
-
-In Settings, on the Download/Decrypt tab, you can specify the format in which you want your files to be named. As you edit these templates, a live example will be shown. Parameters are listed for folders, files, and files split by chapter including an explanation of what each naming option means. For instance: you can use template `<title short> - <ch# 0> of <ch count> - <ch title>` to create the file `A Study in Scarlet - 04 of 10 - A Flight for Life.m4b`.
-
-These templates apply to GUI and CLI.
 
 ### Command Line Interface
 
