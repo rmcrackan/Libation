@@ -16,7 +16,7 @@ internal interface IPropertyTag
 	public Regex NameMatcher { get; }
 
 	/// <summary>
-	/// Determine if the template string starts with <see cref="TemplateTag"/>, and if it does parse the tag to an <see cref="ITagExpression"/>
+	/// Determine if the template string starts with <see cref="TemplateTag"/>, and if it does parse the tag to an <see cref="Expression"/>
 	/// </summary>
 	/// <param name="templateString">Template string</param>
 	/// <param name="exactName">The <paramref name="templateString"/> substring that was matched.</param>

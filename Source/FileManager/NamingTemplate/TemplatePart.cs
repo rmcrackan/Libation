@@ -104,9 +104,6 @@ public class TemplatePart : IEnumerable<TemplatePart>
 		var last = left.LastPart;
 		last.next = right;
 		right.previous = last;
-		return left;
+		return left.FirstPart;
 	}
-
-	public static TemplatePart operator +(TemplatePart left, TemplatePart right)
-		=> Concatenate(left, right);
 }
