@@ -35,10 +35,14 @@ namespace FileLiberator
 		public bool MoveMoovToBeginning => config.MoveMoovToBeginning;
 
 		public string GetMultipartFileName(MultiConvertFileProperties props)
-			=> Templates.ChapterFile.GetFilename(LibraryBookDto, props);
+		{
+			var baseDir = Path.GetDirectoryName(props.OutputFileName);
+			var extension = Path.GetExtension(props.OutputFileName);
+			return Templates.ChapterFile.GetFilename(LibraryBookDto, props, baseDir, extension);
+		}
 
 		public string GetMultipartTitle(MultiConvertFileProperties props)
-			=> Templates.ChapterTitle.GetTitle(LibraryBookDto, props);
+			=> Templates.ChapterTitle.GetName(LibraryBookDto, props);
 
 		public async Task<string> SaveClipsAndBookmarksAsync(string fileName)
 		{

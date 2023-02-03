@@ -27,11 +27,11 @@ namespace LibationWinForms.Dialogs
 			Load_AudioSettings(config);
 		}
 
-		private static void editTemplate(Templates template, TextBox textBox)
+		private static void editTemplate(ITemplateEditor template, TextBox textBox)
 		{
-			var form = new EditTemplateDialog(template, textBox.Text);
+			var form = new EditTemplateDialog(template);
 			if (form.ShowDialog() == DialogResult.OK)
-				textBox.Text = form.TemplateText;
+				textBox.Text = template.EditingTemplate.TemplateText;
 		}
 
 		private void saveBtn_Click(object sender, EventArgs e)

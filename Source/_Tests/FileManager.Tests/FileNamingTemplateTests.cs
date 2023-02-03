@@ -1,82 +1,185 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Dinah.Core;
-using FileManager;
+﻿using System.Linq;
+using FileManager.NamingTemplate;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FileNamingTemplateTests
+namespace NamingTemplateTests
 {
-	[TestClass]
-	public class GetFilePath
+	class TemplateTag : ITemplateTag
 	{
-		static ReplacementCharacters Replacements = ReplacementCharacters.Default;
+		public string TagName { get; init; }
+	}
+
+	class PropertyClass1
+	{
+		public string Item1 { get; set; }
+		public string Item2 { get; set; }
+		public string Item3 { get; set; }
+		public int Int1 { get; set; }
+		public bool Condition { get; set; }
+	}
+
+	class PropertyClass2
+	{
+		public string Item1 { get; set; }
+		public string Item2 { get; set; }
+		public string Item3 { get; set; }
+		public string Item4 { get; set; }
+		public bool Condition { get; set; }
+	}
+	class PropertyClass3
+	{
+		public string Item1 { get; set; }
+		public string Item2 { get; set; }
+		public string Item3 { get; set; }
+		public string Item4 { get; set; }
+		public int? Int2 { get; set; }
+		public bool Condition { get; set; }
+	}
+
+
+	[TestClass]
+	public class GetPortionFilename
+	{
+		PropertyTagClass<PropertyClass1> props1 = new();
+		PropertyTagClass<PropertyClass2> props2 = new();
+		PropertyTagClass<PropertyClass3> props3 = new();
+		ConditionalTagClass<PropertyClass1> conditional1 = new();
+		ConditionalTagClass<PropertyClass2> conditional2 = new();
+		ConditionalTagClass<PropertyClass3> conditional3 = new();
+
+		PropertyClass1 propertyClass1 = new()
+		{
+			Item1 = "prop1_item1",
+			Item2 = "prop1_item2",
+			Item3 = "prop1_item3",
+			Int1 = 55,
+			Condition = true,
+		};
+
+		PropertyClass2 propertyClass2 = new()
+		{
+			Item1 = "prop2_item1",
+			Item3 = "prop2_item3",
+			Item4 = "prop2_item4",
+			Condition = false
+		};
+
+		PropertyClass3 propertyClass3 = new()
+		{
+			Item1 = "prop3_item1",
+			Item2 = "prop3_item2",
+			Item3 = "Prop3_Item3",
+			Item4 = "prop3_item4",
+			Condition = true
+		};
+
+		public GetPortionFilename()
+		{
+			props1.RegisterProperty(new TemplateTag { TagName = "item1" }, i => i.Item1);
+			props1.RegisterProperty(new TemplateTag { TagName = "item2" }, i => i.Item2);
+			props1.RegisterProperty(new TemplateTag { TagName = "item3" }, i => i.Item3);
+
+			props2.RegisterProperty(new TemplateTag { TagName = "item1" }, i => i.Item1);
+			props2.RegisterProperty(new TemplateTag { TagName = "item2" }, i => i.Item2);
+			props2.RegisterProperty(new TemplateTag { TagName = "item3" }, i => i.Item3);
+			props2.RegisterProperty(new TemplateTag { TagName = "item4" }, i => i.Item4);
+
+			props3.RegisterProperty(new TemplateTag { TagName = "item3_1" }, i => i.Item1);
+			props3.RegisterProperty(new TemplateTag { TagName = "item3_2" }, i => i.Item2);
+			props3.RegisterProperty(new TemplateTag { TagName = "item3_3" }, i => i.Item3);
+			props3.RegisterProperty(new TemplateTag { TagName = "item3_4" }, i => i.Item4);
+
+			conditional1.RegisterCondition(new TemplateTag { TagName = "ifc1" }, i => i.Condition);
+			conditional2.RegisterCondition(new TemplateTag { TagName = "ifc2" }, i => i.Condition);
+			conditional3.RegisterCondition(new TemplateTag { TagName = "ifc3" }, i => i.Condition);
+		}
+
 
 		[TestMethod]
-		[DataRow(@"C:\foo\bar", @"C:\foo\bar\my꞉ book 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt", PlatformID.Win32NT)]
-		[DataRow(@"/foo/bar", @"/foo/bar/my: book 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt", PlatformID.Unix)]
-		public void equiv_GetValidFilename(string dirFullPath, string expected, PlatformID platformID)
+		[DataRow("<item1>", "prop1_item1", 1)]
+		[DataRow("< item1>", "< item1>", 0)]
+		[DataRow("<item1 >", "<item1 >", 0)]
+		[DataRow("< item1 >", "< item1 >", 0)]
+		[DataRow("<item3_1>", "prop3_item1", 1)]
+		[DataRow("<item1> <item2> <item3> <item4>", "prop1_item1 prop1_item2 prop1_item3 prop2_item4", 4)]
+		[DataRow("<item3_1> <item3_2> <item3> <item4>", "prop3_item1 prop3_item2 prop1_item3 prop2_item4", 4)]
+		[DataRow("<ifc1-><item1><-ifc1><ifc2-><item4><-ifc2><ifc3-><item3_2><-ifc3>", "prop1_item1prop3_item2", 3)]
+		[DataRow("<ifc1-><ifc3-><item1><ifc2-><item4><-ifc2><item3_2><-ifc3><-ifc1>", "prop1_item1prop3_item2", 3)]
+		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><-ifc2>", "", 3)]
+		[DataRow("<!ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><-ifc2>", "prop1_item1prop2_item4prop3_item2", 3)]
+		public void test(string inStr, string outStr, int numTags)
 		{
-			if (Environment.OSVersion.Platform != platformID)
-				return;
+			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
 
-			var sb = new System.Text.StringBuilder();
-			sb.Append('0', 300);
-			var longText = sb.ToString();
+			template.TagsInUse.Should().HaveCount(numTags);
+			template.Warnings.Should().HaveCount(numTags > 0 ? 0 : 1);
+			template.Errors.Should().HaveCount(0);
 
-			NEW_GetValidFilename_FileNamingTemplate(dirFullPath, "my: book " + longText, "txt", "ID123456").Should().Be(expected);
-		}
+			var templateText = string.Join("", template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
 
-		private static string NEW_GetValidFilename_FileNamingTemplate(string dirFullPath, string filename, string extension, string metadataSuffix)
-		{
-			var template = $"<title> [<id>]";
-
-			extension = FileUtility.GetStandardizedExtension(extension);
-			var fullfilename = Path.Combine(dirFullPath, template + extension);
-
-			var fileNamingTemplate = new FileNamingTemplate(fullfilename, Replacements);
-			fileNamingTemplate.AddParameterReplacement("title", filename);
-			fileNamingTemplate.AddParameterReplacement("id", metadataSuffix);
-			return fileNamingTemplate.GetFilePath(extension).PathWithoutPrefix;
+			templateText.Should().Be(outStr);
 		}
 
 		[TestMethod]
-		[DataRow(@"C:\foo\bar\my file.txt", @"C:\foo\bar\my file - 002 - title.txt", PlatformID.Win32NT)]
-		[DataRow(@"/foo/bar/my file.txt", @"/foo/bar/my file - 002 - title.txt", PlatformID.Unix)]
-		public void equiv_GetMultipartFileName(string inStr, string outStr, PlatformID platformID)
+		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><ifc2->", new string[] { "Missing <-ifc2> closing conditional.", "Missing <-ifc2> closing conditional." })]
+		[DataRow("<ifc2-><ifc1-><ifc3-><-ifc3><-ifc1><-ifc2>", new string[] { "Should use tags. Eg: <title>" })]
+		[DataRow("<ifc1-><ifc3-><item1><-ifc3><-ifc1><-ifc2>", new string[] { "Missing <ifc2-> open conditional." })]
+		[DataRow("<ifc1-><ifc3-><-ifc3><-ifc1><-ifc2>", new string[] { "Missing <ifc2-> open conditional.", "Should use tags. Eg: <title>" })]
+		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1>", new string[] { "Missing <-ifc2> closing conditional." })]
+		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3>", new string[] { "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
+		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4>", new string[] { "Missing <-ifc3> closing conditional.", "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
+		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc1><-ifc2>", new string[] { "Missing <-ifc3> closing conditional.", "Missing <-ifc3> closing conditional.", "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
+		public void condition_error(string inStr, string[] warnings)
 		{
-			if (Environment.OSVersion.Platform == platformID)
-				NEW_GetMultipartFileName_FileNamingTemplate(inStr, 2, 100, "title").Should().Be(outStr);
+			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+
+			template.Errors.Should().HaveCount(0);
+			template.Warnings.Should().BeEquivalentTo(warnings);
 		}
-
-		private static string NEW_GetMultipartFileName_FileNamingTemplate(string originalPath, int partsPosition, int partsTotal, string suffix)
-		{
-			// 1-9     => 1-9
-			// 10-99   => 01-99
-			// 100-999 => 001-999
-			var chapterCountLeadingZeros = partsPosition.ToString().PadLeft(partsTotal.ToString().Length, '0');
-
-			var estension = Path.GetExtension(originalPath);
-			var t = Path.ChangeExtension(originalPath, null) + " - <chapter> - <title>" + estension;
-
-			var fileNamingTemplate = new FileNamingTemplate(t, Replacements);
-			fileNamingTemplate.AddParameterReplacement("chapter", chapterCountLeadingZeros);
-			fileNamingTemplate.AddParameterReplacement("title", suffix);
-			return fileNamingTemplate.GetFilePath(estension).PathWithoutPrefix;
-		}
-
 		[TestMethod]
-		[DataRow(@"\foo\<title>.txt", @"\foo\sl∕as∕he∕s.txt", PlatformID.Win32NT)]
-		[DataRow(@"/foo/<title>.txt", @"/foo/s\l∕a\s∕h\e∕s.txt", PlatformID.Unix)]
-		public void remove_slashes(string inStr, string outStr, PlatformID platformID)
+		[DataRow("<int1>", "55")]
+		[DataRow("<int1[]>", "55")]
+		[DataRow("<int1[5]>", "00055")]
+		[DataRow("<int2>", "")]
+		[DataRow("<int2[]>", "")]
+		[DataRow("<int2[4]>", "")]
+		[DataRow("<item3_format>", "Prop3_Item3")]
+		[DataRow("<item3_format[]>", "Prop3_Item3")]
+		[DataRow("<item3_format[rtreue5]>", "Prop3_Item3")]
+		[DataRow("<item3_format[l]>", "prop3_item3")]
+		[DataRow("<item3_format[u]>", "PROP3_ITEM3")]
+		[DataRow("<item2_2_null>", "")]
+		[DataRow("<item2_2_null[]>", "")]
+		[DataRow("<item2_2_null[l]>", "")]
+		public void formatting(string inStr, string outStr)
 		{
-			if (Environment.OSVersion.Platform == platformID)
+			props1.RegisterProperty(new TemplateTag { TagName = "int1" }, i => i.Int1, formatInt);
+			props3.RegisterProperty(new TemplateTag { TagName = "int2" }, i => i.Int2, formatInt);
+			props3.RegisterProperty(new TemplateTag { TagName = "item3_format" }, i => i.Item3, formatString);
+			props2.RegisterProperty(new TemplateTag { TagName = "item2_2_null" }, i => i.Item2, formatString);
+
+			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+
+			template.Warnings.Should().HaveCount(0);
+			template.Errors.Should().HaveCount(0);
+
+			var templateText = string.Join("", template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
+
+			templateText.Should().Be(outStr);
+
+			string formatInt(ITemplateTag templateTag, int value, string format)
 			{
-				var fileNamingTemplate = new FileNamingTemplate(inStr, Replacements);
-				fileNamingTemplate.AddParameterReplacement("title", @"s\l/a\s/h\e/s");
-				fileNamingTemplate.GetFilePath("txt").PathWithoutPrefix.Should().Be(outStr);
+				if (int.TryParse(format, out var numDecs))
+					return value.ToString($"D{numDecs}");
+				return value.ToString();
+			}
+
+			string formatString(ITemplateTag templateTag, string value, string formatString)
+			{
+				if (string.Compare(formatString, "u", ignoreCase: true) == 0) return value?.ToUpper();
+				else if (string.Compare(formatString, "l", ignoreCase: true) == 0) return value?.ToLower();
+				else return value;
 			}
 		}
 	}

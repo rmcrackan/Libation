@@ -1,31 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Dinah.Core;
+﻿using FileManager.NamingTemplate;
 
 namespace LibationFileManager
 {
-    public sealed class TemplateTags : Enumeration<TemplateTags>
-    {
-		public string TagName => DisplayName;
-        public string DefaultValue { get; }
+    public sealed class TemplateTags : ITemplateTag
+	{
+		public const string DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+		public string TagName { get; }
+		public string DefaultValue { get; }
         public string Description { get; }
-        public bool IsChapterOnly { get; }
+        public string Display { get; }
 
-        private static int value = 0;
-        private TemplateTags(string tagName, string description, bool isChapterOnly = false, string defaultValue = null) : base(value++, tagName)
-        {
-            Description = description;
-            IsChapterOnly = isChapterOnly;
-            DefaultValue = defaultValue ?? $"<{tagName}>";
-
+		private TemplateTags(string tagName, string description, string defaultValue = null, string display = null)
+		{
+			TagName = tagName;
+			Description = description;
+			DefaultValue = defaultValue ?? $"<{tagName}>";
+			Display = display ?? $"<{tagName}>";
 		}
 
-        // putting these first is the incredibly lazy way to make them show up first in the EditTemplateDialog
-        public static TemplateTags ChCount { get; } = new TemplateTags("ch count", "Number of chapters", true);
-        public static TemplateTags ChTitle { get; } = new TemplateTags("ch title", "Chapter title", true);
-        public static TemplateTags ChNumber { get; } = new TemplateTags("ch#", "Chapter #", true);
-        public static TemplateTags ChNumber0 { get; } = new TemplateTags("ch# 0", "Chapter # with leading zeros", true);
+		public static TemplateTags ChCount { get; } = new TemplateTags("ch count", "Number of chapters");
+        public static TemplateTags ChTitle { get; } = new TemplateTags("ch title", "Chapter title");
+        public static TemplateTags ChNumber { get; } = new TemplateTags("ch#", "Chapter #");
+        public static TemplateTags ChNumber0 { get; } = new TemplateTags("ch# 0", "Chapter # with leading zeros");
 
         public static TemplateTags Id { get; } = new TemplateTags("id", "Audible ID");
         public static TemplateTags Title { get; } = new TemplateTags("title", "Full title");
@@ -41,16 +37,16 @@ namespace LibationFileManager
         public static TemplateTags SampleRate { get; } = new TemplateTags("samplerate", "File's orig. sample rate");
         public static TemplateTags Channels { get; } = new TemplateTags("channels", "Number of audio channels");
         public static TemplateTags Account { get; } = new TemplateTags("account", "Audible account of this book");
-        public static TemplateTags Locale { get; } = new("locale", "Region/country");
+        public static TemplateTags Locale { get; } = new ("locale", "Region/country");
         public static TemplateTags YearPublished { get; } = new("year", "Year published");
-        public static TemplateTags Language { get; } = new("language", "Book's language");
-        public static TemplateTags LanguageShort { get; } = new("language short", "Book's language abbreviated. Eg: ENG");
+		public static TemplateTags Language { get; } = new("language", "Book's language");
+		public static TemplateTags LanguageShort { get; } = new("language short", "Book's language abbreviated. Eg: ENG");
 
-        // Special cases. Aren't mapped to replacements in Templates.cs
-        // Included here for display by EditTemplateDialog
-        public static TemplateTags FileDate { get; } = new TemplateTags("file date [...]", "File date/time. e.g. yyyy-MM-dd HH-mm", false, $"<file date [{Templates.DEFAULT_DATE_FORMAT}]>");
-        public static TemplateTags DatePublished { get; } = new TemplateTags("pub date [...]", "Publication date. e.g. yyyy-MM-dd", false, $"<pub date [{Templates.DEFAULT_DATE_FORMAT}]>");
-        public static TemplateTags DateAdded { get; } = new TemplateTags("date added [...]", "Date added to your Audible account. e.g. yyyy-MM-dd", false, $"<date added [{Templates.DEFAULT_DATE_FORMAT}]>");
-        public static TemplateTags IfSeries { get; } = new TemplateTags("if series->...<-if series", "Only include if part of a series", false, "<if series-><-if series>");
+		public static TemplateTags FileDate { get; } = new TemplateTags("file date", "File date/time. e.g. yyyy-MM-dd HH-mm", $"<file date [{DEFAULT_DATE_FORMAT}]>", "<file date [...]>");
+        public static TemplateTags DatePublished { get; } = new TemplateTags("pub date", "Publication date. e.g. yyyy-MM-dd", $"<pub date [{DEFAULT_DATE_FORMAT}]>", "<pub date [...]>");
+        public static TemplateTags DateAdded { get; } = new TemplateTags("date added", "Date added to your Audible account. e.g. yyyy-MM-dd", $"<date added [{DEFAULT_DATE_FORMAT}]>", "<date added [...]>");
+        public static TemplateTags IfSeries { get; } = new TemplateTags("if series", "Only include if part of a book series or podcast", "<if series-><-if series>", "<if series->...<-if series>");
+        public static TemplateTags IfPodcast { get; } = new TemplateTags("if podcast", "Only include if part of a podcast", "<if podcast-><-if podcast>", "<if podcast->...<-if podcast>");
+        public static TemplateTags IfBookseries { get; } = new TemplateTags("if bookseries", "Only include if part of a book series", "<if bookseries-><-if bookseries>", "<if bookseries->...<-if bookseries>");
     }
 }

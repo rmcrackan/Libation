@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Windows.Forms;
@@ -10,33 +9,19 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class EditTemplateDialog : Form
 	{
-		// final value. post-validity check
-		public string TemplateText { get; private set; }
-
-		// hold the work-in-progress value. not guaranteed to be valid
-		private string _workingTemplateText;
-		private string workingTemplateText
-		{
-			get => _workingTemplateText;
-			set => _workingTemplateText = template.Sanitize(value, Configuration.Instance.ReplacementCharacters);
-		}
-
-		private void resetTextBox(string value) => this.templateTb.Text = workingTemplateText = value;
-
+		private void resetTextBox(string value) => this.templateTb.Text = value;
 		private Configuration config { get; } = Configuration.Instance;
-
-		private Templates template { get; }
-		private string inputTemplateText { get; }
+		private ITemplateEditor templateEditor { get;}		
 
 		public EditTemplateDialog()
 		{
 			InitializeComponent();
 			this.SetLibationIcon();
 		}
-		public EditTemplateDialog(Templates template, string inputTemplateText) : this()
+
+		public EditTemplateDialog(ITemplateEditor templateEditor) : this()
 		{
-			this.template = ArgumentValidator.EnsureNotNull(template, nameof(template));
-			this.inputTemplateText = inputTemplateText ?? "";
+			this.templateEditor = ArgumentValidator.EnsureNotNull(templateEditor, nameof(templateEditor));
 		}
 
 		private void EditTemplateDialog_Load(object sender, EventArgs e)
@@ -44,89 +29,31 @@ namespace LibationWinForms.Dialogs
 			if (this.DesignMode)
 				return;
 
-			if (template is null)
+			if (templateEditor is null)
 			{
-				MessageBoxLib.ShowAdminAlert(this, $"Programming error. {nameof(EditTemplateDialog)} was not created correctly", "Edit template error", new NullReferenceException($"{nameof(template)} is null"));
+				MessageBoxLib.ShowAdminAlert(this, $"Programming error. {nameof(EditTemplateDialog)} was not created correctly", "Edit template error", new NullReferenceException($"{nameof(templateEditor)} is null"));
 				return;
 			}
 
 			warningsLbl.Text = "";
 
-			this.Text = $"Edit {template.Name}";
+			this.Text = $"Edit {templateEditor.EditingTemplate.Name}";
 
-			this.templateLbl.Text = template.Description;
-			resetTextBox(inputTemplateText);
+			this.templateLbl.Text = templateEditor.EditingTemplate.Description;
+			resetTextBox(templateEditor.EditingTemplate.TemplateText);
 
 			// populate list view
-			foreach (var tag in template.GetTemplateTags())
-				listView1.Items.Add(new ListViewItem(new[] { $"<{tag.TagName}>", tag.Description }) { Tag = tag.DefaultValue });
+			foreach (TemplateTags tag in templateEditor.EditingTemplate.TagsRegistered)
+				listView1.Items.Add(new ListViewItem(new[] { tag.Display, tag.Description }) { Tag = tag.DefaultValue });
+
+			listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}
 
-		private void resetToDefaultBtn_Click(object sender, EventArgs e) => resetTextBox(template.DefaultTemplate);
+		private void resetToDefaultBtn_Click(object sender, EventArgs e) => resetTextBox(templateEditor.DefaultTemplate);
 
 		private void templateTb_TextChanged(object sender, EventArgs e)
 		{
-			workingTemplateText = templateTb.Text;
-			var isChapterTitle = template == Templates.ChapterTitle;
-			var isFolder = template == Templates.Folder;
-
-			var libraryBookDto = new LibraryBookDto
-			{
-				Account = "my account",
-				DateAdded = new DateTime(2022, 6, 9, 0, 0, 0),
-				DatePublished = new DateTime(2017, 2, 27, 0, 0, 0),
-				AudibleProductId = "123456789",
-				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
-				Locale = "us",
-                YearPublished = 2017,
-                Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
-				Narrators = new List<string> { "Stephen Fry" },
-				SeriesName = "Sherlock Holmes",
-				SeriesNumber = "1",
-				BitRate = 128,
-				SampleRate = 44100,
-				Channels = 2,
-				Language = "English"
-			};
-			var chapterName = "A Flight for Life";
-			var chapterNumber = 4;
-			var chaptersTotal = 10;
-
-			var partFileProperties = new AaxDecrypter.MultiConvertFileProperties() 
-			{ 
-				OutputFileName = "", 
-				PartsPosition = chapterNumber, 
-				PartsTotal = chaptersTotal, 
-				Title = chapterName 
-			};
-
-
-			/*
-			* Path must be rooted for windows to allow long file paths. This is
-			* only necessary for folder templates because they may contain several
-			* subdirectories. Without rooting, we won't be allowed to create a
-			* relative path longer than MAX_PATH.
-			*/
-			var books = config.Books;
-			var folder = Templates.Folder.GetPortionFilename(
-				libraryBookDto,				
-				Path.Combine(books, isFolder ? workingTemplateText : config.FolderTemplate), "");
-
-			folder = Path.GetRelativePath(books, folder);
-
-			var file
-				= template == Templates.ChapterFile
-				? Templates.ChapterFile.GetPortionFilename(
-					libraryBookDto,
-					workingTemplateText,
-					partFileProperties,
-					"")
-				: Templates.File.GetPortionFilename(
-					libraryBookDto,
-					isFolder ? config.FileTemplate : workingTemplateText, "");
-			var ext = config.DecryptToLossy ? "mp3" : "m4b";
-
-			var chapterTitle = Templates.ChapterTitle.GetPortionTitle(libraryBookDto, workingTemplateText, partFileProperties);
+			templateEditor.SetTemplateText(templateTb.Text);			
 
 			const char ZERO_WIDTH_SPACE = '\u200B';
 			var sing = $"{Path.DirectorySeparatorChar}";
@@ -139,11 +66,12 @@ namespace LibationWinForms.Dialogs
 			string slashWrap(string val) => val.Replace(sing, $"{ZERO_WIDTH_SPACE}{sing}");
 
 			warningsLbl.Text
-				= !template.HasWarnings(workingTemplateText)
+				= !templateEditor.EditingTemplate.HasWarnings
 				? ""
 				: "Warning:\r\n" +
-					template
-					.GetWarnings(workingTemplateText)
+					templateEditor
+					.EditingTemplate
+					.Warnings
 					.Select(err => $"- {err}")
 					.Aggregate((a, b) => $"{a}\r\n{b}");
 
@@ -153,50 +81,51 @@ namespace LibationWinForms.Dialogs
 			richTextBox1.Clear();
 			richTextBox1.SelectionFont = reg;
 
-			if (isChapterTitle)
+			if (!templateEditor.IsFilePath)
 			{
 				richTextBox1.SelectionFont = bold;
-				richTextBox1.AppendText(chapterTitle);
+				richTextBox1.AppendText(templateEditor.GetName());
 				return;
 			}
 
-			richTextBox1.AppendText(slashWrap(books));
+			var folder = templateEditor.GetFolderName();
+			var file = templateEditor.GetFileName();
+			var ext = config.DecryptToLossy ? "mp3" : "m4b";
+
+			richTextBox1.AppendText(slashWrap(templateEditor.BaseDirectory.PathWithoutPrefix));
 			richTextBox1.AppendText(sing);
 
-			if (isFolder)
+			if (templateEditor.IsFolder)
 				richTextBox1.SelectionFont = bold;
 
 			richTextBox1.AppendText(slashWrap(folder));
 
-			if (isFolder)
+			if (templateEditor.IsFolder)
 				richTextBox1.SelectionFont = reg;
 
 			richTextBox1.AppendText(sing);
 
-			if (!isFolder)
+			if (templateEditor.IsFilePath && !templateEditor.IsFolder)
 				richTextBox1.SelectionFont = bold;
 
 			richTextBox1.AppendText(file);
 
-			if (!isFolder)
-				richTextBox1.SelectionFont = reg;
-
+			richTextBox1.SelectionFont = reg;
 			richTextBox1.AppendText($".{ext}");
 		}
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			if (!template.IsValid(workingTemplateText))
+			if (!templateEditor.EditingTemplate.IsValid)
 			{
-				var errors = template
-					.GetErrors(workingTemplateText)
+				var errors = templateEditor
+					.EditingTemplate
+					.Errors
 					.Select(err => $"- {err}")
 					.Aggregate((a, b) => $"{a}\r\n{b}");
 				MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
-
-			TemplateText = workingTemplateText;
 
 			this.DialogResult = DialogResult.OK;
 			this.Close();

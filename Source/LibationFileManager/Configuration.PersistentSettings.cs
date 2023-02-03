@@ -80,7 +80,7 @@ namespace LibationFileManager
 		public bool BetaOptIn { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Location for book storage. Includes destination of newly liberated books")]
-		public string Books { get => GetString(); set => SetString(value); }
+		public LongPath Books { get => GetString(); set => SetString(value); }
 
 		// temp/working dir(s) should be outside of dropbox
 		[Description("Temporary location of files while they're in process of being downloaded and decrypted.\r\nWhen decryption is complete, the final file will be in Books location\r\nRecommend not using a folder which is backed up real time. Eg: Dropbox, iCloud, Google Drive")]
@@ -223,36 +223,41 @@ namespace LibationFileManager
 		[Description("How to format the folders in which files will be saved")]
 		public string FolderTemplate
 		{
-			get => Templates.Folder.GetValid(GetString(defaultValue: Templates.Folder.DefaultTemplate));
-			set => setTemplate(Templates.Folder, value);
+			get => getTemplate<Templates.FolderTemplate>();
+			set => setTemplate<Templates.FolderTemplate>(value);
 		}
 
 		[Description("How to format the saved pdf and audio files")]
 		public string FileTemplate
 		{
-			get => Templates.File.GetValid(GetString(defaultValue: Templates.File.DefaultTemplate));
-			set => setTemplate(Templates.File, value);
+			get => getTemplate<Templates.FileTemplate>();
+			set => setTemplate<Templates.FileTemplate>(value);
 		}
 
 		[Description("How to format the saved audio files when split by chapters")]
 		public string ChapterFileTemplate
 		{
-			get => Templates.ChapterFile.GetValid(GetString(defaultValue: Templates.ChapterFile.DefaultTemplate));
-			set => setTemplate(Templates.ChapterFile, value);
+			get => getTemplate<Templates.ChapterFileTemplate>();
+			set => setTemplate<Templates.ChapterFileTemplate>(value);
 		}
 
 		[Description("How to format the file's Tile stored in metadata")]
 		public string ChapterTitleTemplate
 		{
-			get => Templates.ChapterTitle.GetValid(GetString(defaultValue: Templates.ChapterTitle.DefaultTemplate));
-			set => setTemplate(Templates.ChapterTitle, value);
+			get => getTemplate<Templates.ChapterTitleTemplate>();
+			set => setTemplate<Templates.ChapterTitleTemplate>(value);
 		}
 
-		private void setTemplate(Templates templ, string newValue, [CallerMemberName] string propertyName = "")
+		private string getTemplate<T>([CallerMemberName] string propertyName = "")
+			where T : Templates, ITemplate, new()
 		{
-			var template = newValue?.Trim();
-			if (templ.IsValid(template))
-				SetString(template, propertyName);
+			return Templates.GetTemplate<T>(GetString(defaultValue: T.DefaultTemplate, propertyName)).TemplateText;
+		}
+
+		private void setTemplate<T>(string newValue, [CallerMemberName] string propertyName = "")
+			where T : Templates, ITemplate, new()
+		{
+			SetString(Templates.GetTemplate<T>(newValue).TemplateText, propertyName);
 		}
 		#endregion
 	}

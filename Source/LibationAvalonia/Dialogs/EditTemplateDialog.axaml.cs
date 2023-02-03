@@ -11,14 +11,12 @@ using ReactiveUI;
 using Avalonia.Controls.Documents;
 using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml.Templates;
 
 namespace LibationAvalonia.Dialogs
 {
 	public partial class EditTemplateDialog : DialogWindow
 	{
-		// final value. post-validity check
-		public string TemplateText { get; private set; }
-
 		private EditTemplateViewModel _viewModel;
 
 		public EditTemplateDialog()
@@ -28,20 +26,21 @@ namespace LibationAvalonia.Dialogs
 			if (Design.IsDesignMode)
 			{
 				_ = Configuration.Instance.LibationFiles;
-				_viewModel = new(Configuration.Instance, Templates.File);
-				_viewModel.resetTextBox(_viewModel.Template.DefaultTemplate);
-				Title = $"Edit {_viewModel.Template.Name}";
+				var editor = TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(Configuration.Instance.Books, Configuration.Instance.FileTemplate);
+				_viewModel = new(Configuration.Instance, editor);
+				_viewModel.resetTextBox(editor.EditingTemplate.TemplateText);
+				Title = $"Edit {editor.EditingTemplate.Name}";
 				DataContext = _viewModel;
 			}
 		}
 
-		public EditTemplateDialog(Templates template, string inputTemplateText) : this()
+		public EditTemplateDialog(ITemplateEditor templateEditor) : this()
 		{
-			ArgumentValidator.EnsureNotNull(template, nameof(template));
+			ArgumentValidator.EnsureNotNull(templateEditor, nameof(templateEditor));
 
-			_viewModel = new EditTemplateViewModel(Configuration.Instance, template);
-			_viewModel.resetTextBox(inputTemplateText);
-			Title = $"Edit {template.Name}";
+			_viewModel = new EditTemplateViewModel(Configuration.Instance, templateEditor);
+			_viewModel.resetTextBox(templateEditor.EditingTemplate.TemplateText);
+			Title = $"Edit {templateEditor.EditingTemplate.Name}";
 			DataContext = _viewModel;
 		}
 
@@ -64,7 +63,6 @@ namespace LibationAvalonia.Dialogs
 			if (!await _viewModel.Validate())
 				return;
 
-			TemplateText = _viewModel.workingTemplateText;
 			await base.SaveAndCloseAsync();
 		}
 
@@ -72,23 +70,25 @@ namespace LibationAvalonia.Dialogs
 			=> await SaveAndCloseAsync();
 
 		public void ResetButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> _viewModel.resetTextBox(_viewModel.Template.DefaultTemplate);
+			=> _viewModel.resetTextBox(_viewModel.TemplateEditor.DefaultTemplate);
 
 		private class EditTemplateViewModel : ViewModels.ViewModelBase
 		{
 			private readonly Configuration config;
 			public FontFamily FontFamily { get; } = FontManager.Current.DefaultFontFamilyName;
 			public InlineCollection Inlines { get; } = new();
-			public Templates Template { get; }
-			public EditTemplateViewModel(Configuration configuration, Templates templates)
+			public ITemplateEditor TemplateEditor { get; }
+			public EditTemplateViewModel(Configuration configuration, ITemplateEditor templates)
 			{
 				config = configuration;
-				Template = templates;
-				Description = templates.Description;
+				TemplateEditor = templates;
+				Description = templates.EditingTemplate.Description;
 				ListItems
 				= new AvaloniaList<Tuple<string, string, string>>(
-					Template
-					.GetTemplateTags()
+					TemplateEditor
+					.EditingTemplate
+					.TagsRegistered
+					.Cast<TemplateTags>()
 					.Select(
 						t => new Tuple<string, string, string>(
 							$"<{t.TagName.Replace("->", "-\x200C>").Replace("<-", "<\x200C-")}>",
@@ -111,7 +111,6 @@ namespace LibationAvalonia.Dialogs
 				}
 			}
 
-			public string workingTemplateText => Template.Sanitize(UserTemplateText, Configuration.Instance.ReplacementCharacters);
 			private string _warningText;
 			public string WarningText { get => _warningText; set => this.RaiseAndSetIfChanged(ref _warningText, value); }
 
@@ -123,78 +122,22 @@ namespace LibationAvalonia.Dialogs
 
 			public async Task<bool> Validate()
 			{
-				if (Template.IsValid(workingTemplateText))
+				if (TemplateEditor.EditingTemplate.IsValid)
 					return true;
-				var errors = Template
-					.GetErrors(workingTemplateText)
-					.Select(err => $"- {err}")
-					.Aggregate((a, b) => $"{a}\r\n{b}");
+
+				var errors
+					= TemplateEditor
+						.EditingTemplate
+						.Errors
+						.Select(err => $"- {err}")
+						.Aggregate((a, b) => $"{a}\r\n{b}");
 				await MessageBox.Show($"This template text is not valid. Errors:\r\n{errors}", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return false;
 			}
 
 			private void templateTb_TextChanged()
 			{
-				var isChapterTitle = Template == Templates.ChapterTitle;
-				var isFolder = Template == Templates.Folder;
-
-				var libraryBookDto = new LibraryBookDto
-				{
-					Account = "my account",
-					DateAdded = new DateTime(2022, 6, 9, 0, 0, 0),
-					DatePublished = new DateTime(2017, 2, 27, 0, 0, 0),
-					AudibleProductId = "123456789",
-					Title = "A Study in Scarlet: A Sherlock Holmes Novel",
-					Locale = "us",
-					YearPublished = 2017,
-					Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
-					Narrators = new List<string> { "Stephen Fry" },
-					SeriesName = "Sherlock Holmes",
-					SeriesNumber = "1",
-					BitRate = 128,
-					SampleRate = 44100,
-					Channels = 2,
-                    Language = "English"
-                };
-				var chapterName = "A Flight for Life";
-				var chapterNumber = 4;
-				var chaptersTotal = 10;
-
-				var partFileProperties = new AaxDecrypter.MultiConvertFileProperties()
-				{
-					OutputFileName = "",
-					PartsPosition = chapterNumber,
-					PartsTotal = chaptersTotal,
-					Title = chapterName
-				};
-
-				/*
-				* Path must be rooted for windows to allow long file paths. This is
-				* only necessary for folder templates because they may contain several
-				* subdirectories. Without rooting, we won't be allowed to create a
-				* relative path longer than MAX_PATH.
-				*/
-
-				var books = config.Books;
-				var folder = Templates.Folder.GetPortionFilename(
-					libraryBookDto,
-					Path.Combine(books, isFolder ? workingTemplateText : config.FolderTemplate), "");
-
-				folder = Path.GetRelativePath(books, folder);
-
-				var file
-				= Template == Templates.ChapterFile
-				? Templates.ChapterFile.GetPortionFilename(
-					libraryBookDto,
-					workingTemplateText,
-					partFileProperties,
-					"")
-				: Templates.File.GetPortionFilename(
-					libraryBookDto,
-					isFolder ? config.FileTemplate : workingTemplateText, "");
-				var ext = config.DecryptToLossy ? "mp3" : "m4b";
-
-				var chapterTitle = Templates.ChapterTitle.GetPortionTitle(libraryBookDto, workingTemplateText, partFileProperties);
+				TemplateEditor.SetTemplateText(UserTemplateText);
 
 				const char ZERO_WIDTH_SPACE = '\u200B';
 				var sing = $"{Path.DirectorySeparatorChar}";
@@ -207,11 +150,12 @@ namespace LibationAvalonia.Dialogs
 				string slashWrap(string val) => val.Replace(sing, $"{ZERO_WIDTH_SPACE}{sing}");
 
 				WarningText
-					= !Template.HasWarnings(workingTemplateText)
+					= !TemplateEditor.EditingTemplate.HasWarnings
 					? ""
 					: "Warning:\r\n" +
-						Template
-						.GetWarnings(workingTemplateText)
+						TemplateEditor
+						.EditingTemplate
+						.Warnings
 						.Select(err => $"- {err}")
 						.Aggregate((a, b) => $"{a}\r\n{b}");
 
@@ -220,20 +164,24 @@ namespace LibationAvalonia.Dialogs
 
 				Inlines.Clear();
 
-				if (isChapterTitle)
+				if (!TemplateEditor.IsFilePath)
 				{
-					Inlines.Add(new Run(chapterTitle) { FontWeight = bold });
+					Inlines.Add(new Run(TemplateEditor.GetName()) { FontWeight = bold });
 					return;
 				}
 
-				Inlines.Add(new Run(slashWrap(books)) { FontWeight = reg });
+				var folder = TemplateEditor.GetFolderName();
+				var file = TemplateEditor.GetFileName();
+				var ext = config.DecryptToLossy ? "mp3" : "m4b";
+
+				Inlines.Add(new Run(slashWrap(TemplateEditor.BaseDirectory.PathWithoutPrefix)) { FontWeight = reg });
 				Inlines.Add(new Run(sing) { FontWeight = reg });
 
-				Inlines.Add(new Run(slashWrap(folder)) { FontWeight = isFolder ? bold : reg });
+				Inlines.Add(new Run(slashWrap(folder)) { FontWeight = TemplateEditor.IsFolder ? bold : reg });
 
 				Inlines.Add(new Run(sing));
 
-				Inlines.Add(new Run(slashWrap(file)) { FontWeight = isFolder ? reg : bold });
+				Inlines.Add(new Run(slashWrap(file)) { FontWeight = TemplateEditor.IsFolder ? reg : bold });
 
 				Inlines.Add(new Run($".{ext}"));
 			}
