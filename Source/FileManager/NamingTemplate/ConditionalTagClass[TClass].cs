@@ -24,13 +24,17 @@ public class ConditionalTagClass<TClass> : TagClass
 {
 	public ConditionalTagClass(bool caseSensative = true) :base(typeof(TClass), caseSensative) { }
 
-	public void RegisterCondition(ITemplateTag templateTag, Func<TClass, bool> propertyGetter)
+	/// <summary>
+	/// Register a conditional tag.
+	/// </summary>
+	/// <param name="propertyGetter">A Func to get the condition's <see cref="bool"/> value from <see cref="TClass"/></param>
+	public void Add(ITemplateTag templateTag, Func<TClass, bool> propertyGetter)
 	{
 		var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
 
 		AddPropertyTag(new ConditionalTag(templateTag, Options, expr));
 	}
-
+	
 	private class ConditionalTag : TagBase, IClosingPropertyTag
 	{
 		public Regex NameCloseMatcher { get; }
@@ -51,12 +55,10 @@ public class ConditionalTagClass<TClass> : TagClass
 				propertyTag = this;
 				return true;
 			}
-			else
-			{
-				exactName = null;
-				propertyTag = null;
-				return false;
-			}
+
+			exactName = null;
+			propertyTag = null;
+			return false;
 		}
 
 		protected override Expression GetTagExpression(string exactName, string formatter) => formatter == "!" ? Expression.Not(ExpressionValue) : ExpressionValue;

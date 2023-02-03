@@ -9,7 +9,7 @@ public class NamingTemplate
 {
 	public string TemplateText { get; private set; }
 	public IEnumerable<ITemplateTag> TagsInUse => _tagsInUse;
-	public IEnumerable<ITemplateTag> TagsRegistered => Classes.SelectMany(p => p.TemplateTags).DistinctBy(f => f.TagName);
+	public IEnumerable<ITemplateTag> TagsRegistered => Classes.SelectMany(t => t).DistinctBy(t => t.TagName);
 	public IEnumerable<string> Warnings => errors.Concat(warnings);
 	public IEnumerable<string> Errors => errors;
 
@@ -183,6 +183,7 @@ public class NamingTemplate
 			if (pc.StartsWith(template, out exactName, out propertyTag, out valueExpression))
 				return true;
 		}
+
 		exactName = null;
 		valueExpression = null;
 		propertyTag = null;
@@ -196,6 +197,7 @@ public class NamingTemplate
 			if (pc.StartsWithClosing(template, out exactName, out closingPropertyTag))
 				return true;
 		}
+
 		exactName = null;
 		closingPropertyTag = null;
 		return false;

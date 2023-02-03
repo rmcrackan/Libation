@@ -13,7 +13,7 @@ internal interface IPropertyTag
 	Type ReturnType { get; }
 
 	/// <summary>The <see cref="Regex"/> used to match <see cref="TemplateTag"/> in template strings.</summary>
-	public Regex NameMatcher { get; }
+	Regex NameMatcher { get; }
 
 	/// <summary>
 	/// Determine if the template string starts with <see cref="TemplateTag"/>, and if it does parse the tag to an <see cref="Expression"/>
@@ -52,12 +52,10 @@ internal abstract class TagBase : IPropertyTag
 			propertyValue = GetTagExpression(exactName, match.Groups.Count == 2 ? match.Groups[1].Value.Trim() : "");
 			return true;
 		}
-		else
-		{
-			exactName = null;
-			propertyValue = null;
-			return false;
-		}
+
+		exactName = null;
+		propertyValue = null;
+		return false;
 	}
 
 	public override string ToString()

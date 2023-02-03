@@ -17,9 +17,9 @@ public class PropertyTagClass<TClass> : TagClass
 	/// <typeparam name="U">Type of the property from <see cref="TClass"/></typeparam>
 	/// <param name="propertyGetter">A Func to get the property value from <see cref="TClass"/></param>
 	/// <param name="formatter">Optional formatting function that accepts the <typeparamref name="U"/> property and a formatting string and returnes the value formatted to string</param>
-	public void RegisterProperty<U>(ITemplateTag templateTag, Func<TClass, U?> propertyGetter, PropertyFormatter<U> formatter = null)
+	public void Add<U>(ITemplateTag templateTag, Func<TClass, U?> propertyGetter, PropertyFormatter<U> formatter = null)
 		where U : struct
-		=> RegisterPropertyInternal(templateTag, propertyGetter, formatter);
+		=> RegisterProperty(templateTag, propertyGetter, formatter);
 
 	/// <summary>
 	/// Register a non-nullable value type property
@@ -27,19 +27,19 @@ public class PropertyTagClass<TClass> : TagClass
 	/// <typeparam name="U">Type of the property from <see cref="TClass"/></typeparam>
 	/// <param name="propertyGetter">A Func to get the property value from <see cref="TClass"/></param>
 	/// <param name="formatter">Optional formatting function that accepts the <typeparamref name="U"/> property and a formatting string and returnes the value formatted to string</param>
-	public void RegisterProperty<U>(ITemplateTag templateTag, Func<TClass, U> propertyGetter, PropertyFormatter<U> formatter = null)
+	public void Add<U>(ITemplateTag templateTag, Func<TClass, U> propertyGetter, PropertyFormatter<U> formatter = null)
 		where U : struct
-		=> RegisterPropertyInternal(templateTag, propertyGetter, formatter);
+		=> RegisterProperty(templateTag, propertyGetter, formatter);
 
 	/// <summary>
 	/// Register a string type property.
 	/// </summary>
 	/// <param name="propertyGetter">A Func to get the string property from <see cref="TClass"/></param>
 	/// <param name="formatter">Optional formatting function that accepts the string property and a formatting string and returnes the value formatted to string</param>
-	public void RegisterProperty(ITemplateTag templateTag, Func<TClass, string> propertyGetter, PropertyFormatter<string> formatter = null)
-		=> RegisterPropertyInternal(templateTag, propertyGetter, formatter);
+	public void Add(ITemplateTag templateTag, Func<TClass, string> propertyGetter, PropertyFormatter<string> formatter = null)
+		=> RegisterProperty(templateTag, propertyGetter, formatter);
 
-	private void RegisterPropertyInternal(ITemplateTag templateTag, Delegate propertyGetter, Delegate formatter)
+	private void RegisterProperty(ITemplateTag templateTag, Delegate propertyGetter, Delegate formatter)
 	{
 		if (formatter?.Target is not null)
 			throw new ArgumentException($"{nameof(formatter)} must be a static method");

@@ -6,7 +6,6 @@ using AaxDecrypter;
 using Dinah.Core;
 using FileManager;
 using FileManager.NamingTemplate;
-using Serilog.Formatting;
 
 namespace LibationFileManager
 {
@@ -21,7 +20,7 @@ namespace LibationFileManager
 		public const string ERROR_FULL_PATH_IS_INVALID = @"No colons or full paths allowed. Eg: should not start with C:\";
 		public const string WARNING_NO_CHAPTER_NUMBER_TAG = "Should include chapter number tag in template used for naming files which are split by chapter. Ie: <ch#> or <ch# 0>";
 
-		//Assign the properties in the static constructor will require all
+		//Assigning the properties in the static constructor will require all
 		//Templates users to have a valid configuration file. To allow tests
 		//to work without access to Configuration, only load templates on demand.
 		private static FolderTemplate _folder;
@@ -35,6 +34,7 @@ namespace LibationFileManager
 		public static ChapterTitleTemplate ChapterTitle => _chapterTitle ??= GetTemplate<ChapterTitleTemplate>(Configuration.Instance.ChapterTitleTemplate);
 
 		#region Template Parsing
+
 		public static T GetTemplate<T>(string templateText) where T : Templates, ITemplate, new()
 			=> TryGetTemplate<T>(templateText, out var template) ? template : GetDefaultTemplate<T>();
 
@@ -53,30 +53,31 @@ namespace LibationFileManager
 		{
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.FolderTemplate))]
-			(_,e) => _folder = GetTemplate<FolderTemplate>((string)e.NewValue);
+				(_,e) => _folder = GetTemplate<FolderTemplate>((string)e.NewValue);
 
-			Configuration.Instance.PropertyChanged
-				+= [PropertyChangeFilter(nameof(Configuration.FileTemplate))]
-			(_, e) => _file = GetTemplate<FileTemplate>((string)e.NewValue);
+			Configuration.Instance.PropertyChanged +=
+				[PropertyChangeFilter(nameof(Configuration.FileTemplate))]
+				(_, e) => _file = GetTemplate<FileTemplate>((string)e.NewValue);
 
-			Configuration.Instance.PropertyChanged
-				+= [PropertyChangeFilter(nameof(Configuration.ChapterFileTemplate))]
-			(_, e) => _chapterFile = GetTemplate<ChapterFileTemplate>((string)e.NewValue);
+			Configuration.Instance.PropertyChanged +=
+				[PropertyChangeFilter(nameof(Configuration.ChapterFileTemplate))]
+				(_, e) => _chapterFile = GetTemplate<ChapterFileTemplate>((string)e.NewValue);
 
-			Configuration.Instance.PropertyChanged
-				+= [PropertyChangeFilter(nameof(Configuration.ChapterTitleTemplate))]
-			(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>((string)e.NewValue);
+			Configuration.Instance.PropertyChanged +=
+				[PropertyChangeFilter(nameof(Configuration.ChapterTitleTemplate))]
+				(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>((string)e.NewValue);
 		}
+
 		#endregion
 
 		#region Template Properties
+
 		public IEnumerable<TemplateTags> TagsRegistered => Template.TagsRegistered.Cast<TemplateTags>();
 		public IEnumerable<TemplateTags> TagsInUse => Template.TagsInUse.Cast<TemplateTags>();
 		public abstract string Name { get; }
 		public abstract string Description { get; }
 		public string TemplateText => Template.TemplateText;
 		protected NamingTemplate Template { get; private set; }
-
 
 		#endregion
 
@@ -152,7 +153,7 @@ namespace LibationFileManager
 					part.Insert(maxIndex, maxEntry.Remove(maxLength - 1, 1));
 				}
 			}
-			//Any 
+
 			var fullPath = Path.Combine(pathParts.Select(fileParts => string.Join("", fileParts)).Prepend(baseDir).ToArray());
 
 			return  FileUtility.GetValidFilename(fullPath, replacements, fileExtension, returnFirstExisting);
@@ -163,7 +164,7 @@ namespace LibationFileManager
 		/// returned as empty directories and are taken care of by Path.Combine()
 		/// </summary>
 		/// <returns>A List of template directories. Each directory is a list of template part strings</returns>
-		private List<List<string>> GetPathParts(IEnumerable<string> templateParts)
+		private static List<List<string>> GetPathParts(IEnumerable<string> templateParts)
 		{
 			List<List<string>> directories = new();
 			List<string> dir = new();
@@ -190,64 +191,54 @@ namespace LibationFileManager
 
 		#region Registered Template Properties
 
-		private static readonly PropertyTagClass<LibraryBookDto> filePropertyTags = GetFilePropertyTags();
-		private static readonly ConditionalTagClass<LibraryBookDto> conditionalTags = GetConditionalTags();
-		private static readonly List<TagClass> chapterPropertyTags = GetChapterPropertyTags();
-
-		private static ConditionalTagClass<LibraryBookDto> GetConditionalTags()
+		private static readonly PropertyTagClass<LibraryBookDto> filePropertyTags = new()
 		{
-			ConditionalTagClass<LibraryBookDto> lbConditions = new();
+			{ TemplateTags.Id, lb => lb.AudibleProductId },
+			{ TemplateTags.Title, lb => lb.Title, StringFormatter },
+			{ TemplateTags.TitleShort, lb => lb.Title.IndexOf(':') < 1 ? lb.Title : lb.Title.Substring(0, lb.Title.IndexOf(':')), StringFormatter },
+			{ TemplateTags.Author, lb => lb.AuthorNames, StringFormatter },
+			{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor, StringFormatter },
+			{ TemplateTags.Narrator, lb => lb.NarratorNames, StringFormatter },
+			{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator, StringFormatter },
+			{ TemplateTags.Series, lb => lb.SeriesName, StringFormatter },
+			{ TemplateTags.SeriesNumber, lb => lb.SeriesNumber, IntegerFormatter },
+			{ TemplateTags.Language, lb => lb.Language, StringFormatter },
+			{ TemplateTags.LanguageShort, lb => getLanguageShort(lb.Language), StringFormatter },
+			{ TemplateTags.Bitrate, lb => lb.BitRate, IntegerFormatter },
+			{ TemplateTags.SampleRate, lb => lb.SampleRate, IntegerFormatter },
+			{ TemplateTags.Channels, lb => lb.Channels, IntegerFormatter },
+			{ TemplateTags.Account, lb => lb.Account, StringFormatter },
+			{ TemplateTags.Locale, lb => lb.Locale, StringFormatter },
+			{ TemplateTags.YearPublished, lb => lb.YearPublished, IntegerFormatter },
+			{ TemplateTags.DatePublished, lb => lb.DatePublished, DateTimeFormatter },
+			{ TemplateTags.DateAdded, lb => lb.DateAdded, DateTimeFormatter },
+			{ TemplateTags.FileDate, lb => lb.FileDate, DateTimeFormatter },
+		};
 
-			lbConditions.RegisterCondition(TemplateTags.IfSeries, lb => lb.IsSeries);
-			lbConditions.RegisterCondition(TemplateTags.IfPodcast, lb => lb.IsPodcast);
-			lbConditions.RegisterCondition(TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast);
-
-			return lbConditions;
-		}
-
-		private static PropertyTagClass<LibraryBookDto> GetFilePropertyTags()
+		private static readonly List<TagClass> chapterPropertyTags = new()
 		{
-			PropertyTagClass<LibraryBookDto> lbProperties = new();
-			lbProperties.RegisterProperty(TemplateTags.Id, lb => lb.AudibleProductId);
-			lbProperties.RegisterProperty(TemplateTags.Title, lb => lb.Title, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.TitleShort, lb => lb.Title.IndexOf(':') < 1 ? lb.Title : lb.Title.Substring(0, lb.Title.IndexOf(':')), StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Author, lb => lb.AuthorNames, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.FirstAuthor, lb => lb.FirstAuthor, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Narrator, lb => lb.NarratorNames, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.FirstNarrator, lb => lb.FirstNarrator, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Series, lb => lb.SeriesName, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.SeriesNumber, lb => lb.SeriesNumber, IntegerFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Language, lb => lb.Language, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.LanguageShort, lb => getLanguageShort(lb.Language), StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Bitrate, lb => lb.BitRate, IntegerFormatter); 
-			lbProperties.RegisterProperty(TemplateTags.SampleRate, lb => lb.SampleRate, IntegerFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Channels, lb => lb.Channels, IntegerFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Account, lb => lb.Account, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Locale, lb => lb.Locale, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.YearPublished, lb => lb.YearPublished, IntegerFormatter);
-			lbProperties.RegisterProperty(TemplateTags.DatePublished, lb => lb.DatePublished, DateTimeFormatter);
-			lbProperties.RegisterProperty(TemplateTags.DateAdded, lb => lb.DateAdded, DateTimeFormatter);
-			lbProperties.RegisterProperty(TemplateTags.FileDate, lb => lb.FileDate, DateTimeFormatter);
-			return lbProperties;
-		}
+			new PropertyTagClass<LibraryBookDto>()
+			{
+				{ TemplateTags.Title, lb => lb.Title, StringFormatter },
+				{ TemplateTags.TitleShort, lb => lb?.Title?.IndexOf(':') > 0 ? lb.Title.Substring(0, lb.Title.IndexOf(':')) : lb.Title, StringFormatter },
+				{ TemplateTags.Series, lb => lb.SeriesName, StringFormatter },
+			},
+			new PropertyTagClass<MultiConvertFileProperties>()
+			{
+				{ TemplateTags.ChCount, lb => lb.PartsTotal, IntegerFormatter },
+				{ TemplateTags.ChNumber, lb => lb.PartsPosition, IntegerFormatter },
+				{ TemplateTags.ChNumber0, m => m.PartsPosition.ToString("D" + ((int)Math.Log10(m.PartsTotal) + 1)) },
+				{ TemplateTags.ChTitle, m => m.Title, StringFormatter },
+				{ TemplateTags.FileDate, lb => lb.FileDate, DateTimeFormatter }
+			}
+		};
 
-		private static List<TagClass> GetChapterPropertyTags()
+		private static readonly ConditionalTagClass<LibraryBookDto> conditionalTags = new()
 		{
-			PropertyTagClass<LibraryBookDto> lbProperties = new();
-			PropertyTagClass<MultiConvertFileProperties> multiConvertProperties = new();
-
-			lbProperties.RegisterProperty(TemplateTags.Title, lb => lb.Title, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.TitleShort, lb => lb?.Title?.IndexOf(':') > 0 ? lb.Title.Substring(0, lb.Title.IndexOf(':')) : lb.Title, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Series, lb => lb.SeriesName, StringFormatter);
-
-			multiConvertProperties.RegisterProperty(TemplateTags.ChCount, lb => lb.PartsTotal, IntegerFormatter);
-			multiConvertProperties.RegisterProperty(TemplateTags.ChNumber, lb => lb.PartsPosition, IntegerFormatter);
-			multiConvertProperties.RegisterProperty(TemplateTags.ChNumber0, m => m.PartsPosition.ToString("D" + ((int)Math.Log10(m.PartsTotal) + 1)));
-			multiConvertProperties.RegisterProperty(TemplateTags.ChTitle, m => m.Title, StringFormatter);
-			multiConvertProperties.RegisterProperty(TemplateTags.FileDate, lb => lb.FileDate, DateTimeFormatter);
-
-			return new List<TagClass> { lbProperties, multiConvertProperties };
-		}
+			{TemplateTags.IfSeries, lb => lb.IsSeries },
+			{TemplateTags.IfPodcast, lb => lb.IsPodcast },
+			{TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast },
+		};
 
 		#endregion
 
@@ -298,17 +289,12 @@ namespace LibationFileManager
 				=> TemplateText?.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ERROR_FULL_PATH_IS_INVALID) : base.Errors;
 
 			protected override List<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
-			{
-				foreach (var tp in parts)
-				{
+				=> parts
+				.Select(tp => tp.TemplateTag is null
 					//FolderTemplate literals can have directory separator characters
-					if (tp.TemplateTag is null)
-						tp.Value = replacements.ReplacePathChars(tp.Value.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar));
-					else
-						tp.Value = replacements.ReplaceFilenameChars(tp.Value);
-				}
-				return parts.Select(p => p.Value).ToList();
-			}
+					? replacements.ReplacePathChars(tp.Value.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar))
+					: replacements.ReplaceFilenameChars(tp.Value)
+				).ToList();
 		}
 
 		public class FileTemplate : Templates, ITemplate
@@ -324,8 +310,7 @@ namespace LibationFileManager
 			public override string Name => "Chapter File Template";
 			public override string Description => Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));
 			public static string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
-			public static IEnumerable<TagClass> TagClass { get; }
-				= chapterPropertyTags.Append(filePropertyTags).Append(conditionalTags);
+			public static IEnumerable<TagClass> TagClass { get; } = chapterPropertyTags.Append(filePropertyTags).Append(conditionalTags);
 
 			public override IEnumerable<string> Warnings
 				=> Template.TagsInUse.Any(t => t.TagName.In(TemplateTags.ChNumber.TagName, TemplateTags.ChNumber0.TagName))
@@ -338,8 +323,7 @@ namespace LibationFileManager
 			public override string Name => "Chapter Title Template";
 			public override string Description => Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate));
 			public static string DefaultTemplate => "<ch#> - <title short>: <ch title>";
-			public static IEnumerable<TagClass> TagClass { get; }
-				= chapterPropertyTags.Append(conditionalTags);
+			public static IEnumerable<TagClass> TagClass { get; } = chapterPropertyTags.Append(conditionalTags);
 
 			protected override IEnumerable<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
 				=> parts.Select(p => p.Value);

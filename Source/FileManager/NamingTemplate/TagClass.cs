@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -6,17 +7,16 @@ using System.Text.RegularExpressions;
 
 namespace FileManager.NamingTemplate;
 
-
 /// <summary>A collection of <see cref="IPropertyTag"/>s registered to a single <see cref="Type"/>.</summary>
-public abstract class TagClass
+public abstract class TagClass : IEnumerable<ITemplateTag>
 {
 	/// <summary>The <see cref="ParameterExpression"/> of the <see cref="TagClass"/>'s TClass type.</summary>
 	public ParameterExpression Parameter { get; }
 	/// <summary>The <see cref="ITemplateTag"/>s registered with this <see cref="TagClass"/> </summary>
-	public IEnumerable<ITemplateTag> TemplateTags => PropertyTags.Select(p => p.TemplateTag);
+	public IEnumerator<ITemplateTag> GetEnumerator() => PropertyTags.Select(p => p.TemplateTag).GetEnumerator();
 
 	protected RegexOptions Options { get; } = RegexOptions.Compiled;
-	private protected List<IPropertyTag> PropertyTags { get; } = new();
+	private List<IPropertyTag> PropertyTags { get; } = new();
 
 	protected TagClass(Type classType, bool caseSensative = true)
 	{
@@ -42,6 +42,7 @@ public abstract class TagClass
 				return true;
 			}
 		}
+
 		propertyValue = null;
 		propertyTag = null;
 		exactName = null;
@@ -74,4 +75,6 @@ public abstract class TagClass
 		if (!PropertyTags.Any(c => c.TemplateTag.TagName == propertyTag.TemplateTag.TagName))
 			PropertyTags.Add(propertyTag);
 	}
+
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

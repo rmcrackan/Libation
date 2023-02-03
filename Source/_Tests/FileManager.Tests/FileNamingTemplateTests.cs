@@ -41,12 +41,39 @@ namespace NamingTemplateTests
 	[TestClass]
 	public class GetPortionFilename
 	{
-		PropertyTagClass<PropertyClass1> props1 = new();
-		PropertyTagClass<PropertyClass2> props2 = new();
-		PropertyTagClass<PropertyClass3> props3 = new();
-		ConditionalTagClass<PropertyClass1> conditional1 = new();
-		ConditionalTagClass<PropertyClass2> conditional2 = new();
-		ConditionalTagClass<PropertyClass3> conditional3 = new();
+		PropertyTagClass<PropertyClass1> props1 = new()
+		{
+			{ new TemplateTag { TagName = "item1" }, i => i.Item1 },
+			{ new TemplateTag { TagName = "item2" }, i => i.Item2 },
+			{ new TemplateTag { TagName = "item3" }, i => i.Item3 }
+		};
+
+		PropertyTagClass<PropertyClass2> props2 = new()
+		{
+			{ new TemplateTag { TagName = "item1" }, i => i.Item1 },
+			{ new TemplateTag { TagName = "item2" }, i => i.Item2 },
+			{ new TemplateTag { TagName = "item3" }, i => i.Item3 },
+			{ new TemplateTag { TagName = "item4" }, i => i.Item4 },
+		};
+		PropertyTagClass<PropertyClass3> props3 = new()
+		{
+			{ new TemplateTag { TagName = "item3_1" }, i => i.Item1 },
+			{ new TemplateTag { TagName = "item3_2" }, i => i.Item2 },
+			{ new TemplateTag { TagName = "item3_3" }, i => i.Item3 },
+			{ new TemplateTag { TagName = "item3_4" }, i => i.Item4 },
+		};
+		ConditionalTagClass<PropertyClass1> conditional1 = new()
+		{
+			{ new TemplateTag { TagName = "ifc1" }, i => i.Condition },
+		};
+		ConditionalTagClass<PropertyClass2> conditional2 = new()
+		{
+			{ new TemplateTag { TagName = "ifc2" }, i => i.Condition },
+		};
+		ConditionalTagClass<PropertyClass3> conditional3 = new()
+		{
+			{ new TemplateTag { TagName = "ifc3" }, i => i.Condition },
+		};
 
 		PropertyClass1 propertyClass1 = new()
 		{
@@ -73,27 +100,6 @@ namespace NamingTemplateTests
 			Item4 = "prop3_item4",
 			Condition = true
 		};
-
-		public GetPortionFilename()
-		{
-			props1.RegisterProperty(new TemplateTag { TagName = "item1" }, i => i.Item1);
-			props1.RegisterProperty(new TemplateTag { TagName = "item2" }, i => i.Item2);
-			props1.RegisterProperty(new TemplateTag { TagName = "item3" }, i => i.Item3);
-
-			props2.RegisterProperty(new TemplateTag { TagName = "item1" }, i => i.Item1);
-			props2.RegisterProperty(new TemplateTag { TagName = "item2" }, i => i.Item2);
-			props2.RegisterProperty(new TemplateTag { TagName = "item3" }, i => i.Item3);
-			props2.RegisterProperty(new TemplateTag { TagName = "item4" }, i => i.Item4);
-
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_1" }, i => i.Item1);
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_2" }, i => i.Item2);
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_3" }, i => i.Item3);
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_4" }, i => i.Item4);
-
-			conditional1.RegisterCondition(new TemplateTag { TagName = "ifc1" }, i => i.Condition);
-			conditional2.RegisterCondition(new TemplateTag { TagName = "ifc2" }, i => i.Condition);
-			conditional3.RegisterCondition(new TemplateTag { TagName = "ifc3" }, i => i.Condition);
-		}
 
 
 		[TestMethod]
@@ -154,10 +160,10 @@ namespace NamingTemplateTests
 		[DataRow("<item2_2_null[l]>", "")]
 		public void formatting(string inStr, string outStr)
 		{
-			props1.RegisterProperty(new TemplateTag { TagName = "int1" }, i => i.Int1, formatInt);
-			props3.RegisterProperty(new TemplateTag { TagName = "int2" }, i => i.Int2, formatInt);
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_format" }, i => i.Item3, formatString);
-			props2.RegisterProperty(new TemplateTag { TagName = "item2_2_null" }, i => i.Item2, formatString);
+			props1.Add(new TemplateTag { TagName = "int1" }, i => i.Int1, formatInt);
+			props3.Add(new TemplateTag { TagName = "int2" }, i => i.Int2, formatInt);
+			props3.Add(new TemplateTag { TagName = "item3_format" }, i => i.Item3, formatString);
+			props2.Add(new TemplateTag { TagName = "item2_2_null" }, i => i.Item2, formatString);
 
 			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
 

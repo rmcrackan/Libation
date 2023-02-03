@@ -18,7 +18,7 @@ public class TemplatePart : IEnumerable<TemplatePart>
 	public ITemplateTag TemplateTag { get; }
 
 	/// <summary>The evaluated string.</summary>
-	public string Value { get; set; }
+	public string Value { get; }
 
 	private TemplatePart previous;
 	private TemplatePart next;
