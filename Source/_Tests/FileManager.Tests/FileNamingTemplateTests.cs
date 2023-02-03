@@ -106,7 +106,7 @@ namespace NamingTemplateTests
 		[DataRow("<item3_1> <item3_2> <item3> <item4>", "prop3_item1 prop3_item2 prop1_item3 prop2_item4", 4)]
 		[DataRow("<ifc1-><item1><-ifc1><ifc2-><item4><-ifc2><ifc3-><item3_2><-ifc3>", "prop1_item1prop3_item2", 3)]
 		[DataRow("<ifc1-><ifc3-><item1><ifc2-><item4><-ifc2><item3_2><-ifc3><-ifc1>", "prop1_item1prop3_item2", 3)]
-		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><-ifc2>", "", 3)]
+		[DataRow("<!ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><-ifc2>", "prop1_item1prop2_item4prop3_item2", 3)]
 		public void test(string inStr, string outStr, int numTags)
 		{
 			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });

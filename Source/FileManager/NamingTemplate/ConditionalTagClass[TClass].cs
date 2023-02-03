@@ -38,7 +38,7 @@ public class ConditionalTagClass<TClass> : TagClass
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, Expression conditionExpression)
 			: base(templateTag, conditionExpression)
 		{
-			NameMatcher = new Regex($"^<{templateTag.TagName}->", options);
+			NameMatcher = new Regex($"^<(!)?{templateTag.TagName}->", options);
 			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
 		}
 
@@ -59,6 +59,6 @@ public class ConditionalTagClass<TClass> : TagClass
 			}
 		}
 
-		protected override Expression GetTagExpression(string exactName, string formatter) => ExpressionValue;
+		protected override Expression GetTagExpression(string exactName, string formatter) => formatter == "!" ? Expression.Not(ExpressionValue) : ExpressionValue;
 	}
 }
