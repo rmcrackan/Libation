@@ -45,7 +45,8 @@ namespace LibationFileManager
 		public static TemplateTags FileDate { get; } = new TemplateTags("file date", "File date/time. e.g. yyyy-MM-dd HH-mm", $"<file date [{DEFAULT_DATE_FORMAT}]>", "<file date [...]>");
         public static TemplateTags DatePublished { get; } = new TemplateTags("pub date", "Publication date. e.g. yyyy-MM-dd", $"<pub date [{DEFAULT_DATE_FORMAT}]>", "<pub date [...]>");
         public static TemplateTags DateAdded { get; } = new TemplateTags("date added", "Date added to your Audible account. e.g. yyyy-MM-dd", $"<date added [{DEFAULT_DATE_FORMAT}]>", "<date added [...]>");
-        public static TemplateTags IfSeries { get; } = new TemplateTags("if series", "Only include if part of a series", "<if series-><-if series>", "<if series->...<-if series>");
+        public static TemplateTags IfSeries { get; } = new TemplateTags("if series", "Only include if part of a book series or podcast", "<if series-><-if series>", "<if series->...<-if series>");
         public static TemplateTags IfPodcast { get; } = new TemplateTags("if podcast", "Only include if part of a podcast", "<if podcast-><-if podcast>", "<if podcast->...<-if podcast>");
+        public static TemplateTags IfBookseries { get; } = new TemplateTags("if bookseries", "Only include if part of a book series", "<if bookseries-><-if bookseries>", "<if bookseries->...<-if bookseries>");
     }
 }

@@ -58,7 +58,7 @@ namespace LibationFileManager
 				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
 				Narrators = new List<string> { "Stephen Fry" },
 				SeriesName = "Sherlock Holmes",
-				SeriesNumber = "1",
+				SeriesNumber = 1,
 				BitRate = 128,
 				SampleRate = 44100,
 				Channels = 2,

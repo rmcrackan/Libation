@@ -19,7 +19,7 @@ public class PropertyTagClass<TClass> : TagClass
 	/// <param name="formatter">Optional formatting function that accepts the <typeparamref name="U"/> property and a formatting string and returnes the value formatted to string</param>
 	public void RegisterProperty<U>(ITemplateTag templateTag, Func<TClass, U?> propertyGetter, PropertyFormatter<U> formatter = null)
 		where U : struct
-		=> RegisterProperty(templateTag, propertyGetter, formatter?.Method);
+		=> RegisterPropertyInternal(templateTag, propertyGetter, formatter);
 
 	/// <summary>
 	/// Register a non-nullable value type property
@@ -29,7 +29,7 @@ public class PropertyTagClass<TClass> : TagClass
 	/// <param name="formatter">Optional formatting function that accepts the <typeparamref name="U"/> property and a formatting string and returnes the value formatted to string</param>
 	public void RegisterProperty<U>(ITemplateTag templateTag, Func<TClass, U> propertyGetter, PropertyFormatter<U> formatter = null)
 		where U : struct
-		=> RegisterProperty(templateTag, propertyGetter, formatter?.Method);
+		=> RegisterPropertyInternal(templateTag, propertyGetter, formatter);
 
 	/// <summary>
 	/// Register a string type property.
@@ -37,13 +37,16 @@ public class PropertyTagClass<TClass> : TagClass
 	/// <param name="propertyGetter">A Func to get the string property from <see cref="TClass"/></param>
 	/// <param name="formatter">Optional formatting function that accepts the string property and a formatting string and returnes the value formatted to string</param>
 	public void RegisterProperty(ITemplateTag templateTag, Func<TClass, string> propertyGetter, PropertyFormatter<string> formatter = null)
-		=> RegisterProperty(templateTag, propertyGetter, formatter?.Method);
+		=> RegisterPropertyInternal(templateTag, propertyGetter, formatter);
 
-	private void RegisterProperty(ITemplateTag templateTag, Delegate propertyGetter, MethodInfo formatter)
+	private void RegisterPropertyInternal(ITemplateTag templateTag, Delegate propertyGetter, Delegate formatter)
 	{
+		if (formatter?.Target is not null)
+			throw new ArgumentException($"{nameof(formatter)} must be a static method");
+
 		var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
 
-		AddPropertyTag(new PropertyTag(templateTag, Options, expr, formatter));
+		AddPropertyTag(new PropertyTag(templateTag, Options, expr, formatter?.Method));
 	}
 
 	private class PropertyTag : TagBase

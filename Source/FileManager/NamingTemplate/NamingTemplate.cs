@@ -47,7 +47,7 @@ public class NamingTemplate
 
 	/// <summary>Parse a template string to a <see cref="NamingTemplate"/></summary>
 	/// <param name="template">The template string to parse</param>
-	/// <param name="tagClasses">A collection of <see cref="ITagClass"/> with
+	/// <param name="tagClasses">A collection of <see cref="TagClass"/> with
 	/// properties registered to match to the <paramref name="template"/></param>
 	public static NamingTemplate Parse(string template, IEnumerable<TagClass> tagClasses)
 	{
@@ -111,10 +111,10 @@ public class NamingTemplate
 				checkAndAddLiterals();
 
 				if (propertyTag is IClosingPropertyTag)
-					currentNode = AddNewNode(currentNode, BinaryNode.CreateConditional(propertyTag.TemplateTag, valueExpression));
+					currentNode = currentNode.AddNewNode(BinaryNode.CreateConditional(propertyTag.TemplateTag, valueExpression));
 				else
 				{
-					currentNode = AddNewNode(currentNode, BinaryNode.CreateValue(propertyTag.TemplateTag, valueExpression));
+					currentNode = currentNode.AddNewNode(BinaryNode.CreateValue(propertyTag.TemplateTag, valueExpression));
 					_tagsInUse.Add(propertyTag.TemplateTag);
 				}
 
@@ -170,7 +170,7 @@ public class NamingTemplate
 		{
 			if (literalChars.Count != 0)
 			{
-				currentNode = AddNewNode(currentNode, BinaryNode.CreateValue(new string(literalChars.ToArray())));
+				currentNode = currentNode.AddNewNode(BinaryNode.CreateValue(new string(literalChars.ToArray())));
 				literalChars.Clear();
 			}
 		}
@@ -201,34 +201,12 @@ public class NamingTemplate
 		return false;
 	}
 
-	private static BinaryNode AddNewNode(BinaryNode currentNode, BinaryNode newNode)
-	{
-		if (currentNode.LeftChild is null)
-		{
-			newNode.Parent = currentNode;
-			currentNode.LeftChild = newNode;
-		}
-		else if (currentNode.RightChild is null)
-		{
-			newNode.Parent = currentNode;
-			currentNode.RightChild = newNode;
-		}
-		else
-		{
-			currentNode.RightChild = BinaryNode.CreateConcatenation(currentNode.RightChild, newNode);
-			currentNode.RightChild.Parent = currentNode;
-			currentNode = currentNode.RightChild;
-		}
-
-		return newNode.IsConditional ? newNode : currentNode;
-	}
-
 	private class BinaryNode
 	{
 		public string Name { get; }
-		public BinaryNode Parent { get; set; }
-		public BinaryNode RightChild { get; set; }
-		public BinaryNode LeftChild { get; set; }
+		public BinaryNode Parent { get; private set; }
+		public BinaryNode RightChild { get; private set; }
+		public BinaryNode LeftChild { get; private set; }
 		public Expression Expression { get; private init; }
 		public bool IsConditional { get; private init; } = false;
 		public bool IsValue { get; private init; } = false;
@@ -253,7 +231,7 @@ public class NamingTemplate
 			Expression = property
 		};
 
-		public static BinaryNode CreateConcatenation(BinaryNode left, BinaryNode right)
+		private static BinaryNode CreateConcatenation(BinaryNode left, BinaryNode right)
 		{
 			var newNode = new BinaryNode("Concatenation")
 			{
@@ -267,5 +245,29 @@ public class NamingTemplate
 
 		private BinaryNode(string name) => Name = name;
 		public override string ToString() => Name;
+
+		public BinaryNode AddNewNode(BinaryNode newNode)
+		{
+			BinaryNode currentNode = this;
+
+			if (LeftChild is null)
+			{
+				newNode.Parent = currentNode;
+				LeftChild = newNode;
+			}
+			else if (RightChild is null)
+			{
+				newNode.Parent = currentNode;
+				RightChild = newNode;
+			}
+			else
+			{
+				RightChild = CreateConcatenation(RightChild, newNode);
+				RightChild.Parent = currentNode;
+				currentNode = RightChild;
+			}
+
+			return newNode.IsConditional ? newNode : currentNode;
+		}
 	}
 }

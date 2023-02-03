@@ -6,6 +6,7 @@ using AaxDecrypter;
 using Dinah.Core;
 using FileManager;
 using FileManager.NamingTemplate;
+using Serilog.Formatting;
 
 namespace LibationFileManager
 {
@@ -105,24 +106,24 @@ namespace LibationFileManager
 			ArgumentValidator.EnsureNotNull(fileExtension, nameof(fileExtension));
 
 			replacements ??= Configuration.Instance.ReplacementCharacters;
-			return GetFilename(baseDir, fileExtension, returnFirstExisting, replacements, libraryBookDto);
+			return GetFilename(baseDir, fileExtension,replacements, returnFirstExisting, libraryBookDto);
 		}
 
-		public LongPath GetFilename(LibraryBookDto libraryBookDto, MultiConvertFileProperties multiChapProps, string baseDir = "", string fileExtension = null, ReplacementCharacters replacements = null)
+		public LongPath GetFilename(LibraryBookDto libraryBookDto, MultiConvertFileProperties multiChapProps, string baseDir, string fileExtension, ReplacementCharacters replacements = null, bool returnFirstExisting = false)
 		{
 			ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 			ArgumentValidator.EnsureNotNull(multiChapProps, nameof(multiChapProps));
 			ArgumentValidator.EnsureNotNull(baseDir, nameof(baseDir));
+			ArgumentValidator.EnsureNotNull(fileExtension, nameof(fileExtension));
 
 			replacements ??= Configuration.Instance.ReplacementCharacters;
-			fileExtension ??= Path.GetExtension(multiChapProps.OutputFileName);
-			return GetFilename(baseDir, fileExtension, false, replacements, libraryBookDto, multiChapProps);
+			return GetFilename(baseDir, fileExtension, replacements, returnFirstExisting, libraryBookDto, multiChapProps);
 		}
 
 		protected virtual IEnumerable<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
 			=> parts.Select(p => replacements.ReplaceFilenameChars(p.Value));
 
-		private LongPath GetFilename(string baseDir, string fileExtension, bool returnFirstExisting, ReplacementCharacters replacements,  params object[] dtos)
+		private LongPath GetFilename(string baseDir, string fileExtension, ReplacementCharacters replacements, bool returnFirstExisting, params object[] dtos)
 		{
 			fileExtension = FileUtility.GetStandardizedExtension(fileExtension);
 
@@ -151,14 +152,15 @@ namespace LibationFileManager
 					part.Insert(maxIndex, maxEntry.Remove(maxLength - 1, 1));
 				}
 			}
-
-			var fullPath = Path.Combine(pathParts.Select(p => string.Join("", p)).Prepend(baseDir).ToArray());
+			//Any 
+			var fullPath = Path.Combine(pathParts.Select(fileParts => string.Join("", fileParts)).Prepend(baseDir).ToArray());
 
 			return  FileUtility.GetValidFilename(fullPath, replacements, fileExtension, returnFirstExisting);
 		}
 
 		/// <summary>
-		/// Organize template parts into directories. 
+		/// Organize template parts into directories. Any Extra slashes will be
+		/// returned as empty directories and are taken care of by Path.Combine()
 		/// </summary>
 		/// <returns>A List of template directories. Each directory is a list of template part strings</returns>
 		private List<List<string>> GetPathParts(IEnumerable<string> templateParts)
@@ -196,8 +198,9 @@ namespace LibationFileManager
 		{
 			ConditionalTagClass<LibraryBookDto> lbConditions = new();
 
-			lbConditions.RegisterCondition(TemplateTags.IfSeries, lb => !string.IsNullOrWhiteSpace(lb.SeriesName));
+			lbConditions.RegisterCondition(TemplateTags.IfSeries, lb => lb.IsSeries);
 			lbConditions.RegisterCondition(TemplateTags.IfPodcast, lb => lb.IsPodcast);
+			lbConditions.RegisterCondition(TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast);
 
 			return lbConditions;
 		}
@@ -206,16 +209,16 @@ namespace LibationFileManager
 		{
 			PropertyTagClass<LibraryBookDto> lbProperties = new();
 			lbProperties.RegisterProperty(TemplateTags.Id, lb => lb.AudibleProductId);
-			lbProperties.RegisterProperty(TemplateTags.Title, lb => lb.Title ?? "", StringFormatter);
+			lbProperties.RegisterProperty(TemplateTags.Title, lb => lb.Title, StringFormatter);
 			lbProperties.RegisterProperty(TemplateTags.TitleShort, lb => lb.Title.IndexOf(':') < 1 ? lb.Title : lb.Title.Substring(0, lb.Title.IndexOf(':')), StringFormatter);
 			lbProperties.RegisterProperty(TemplateTags.Author, lb => lb.AuthorNames, StringFormatter);
 			lbProperties.RegisterProperty(TemplateTags.FirstAuthor, lb => lb.FirstAuthor, StringFormatter);
 			lbProperties.RegisterProperty(TemplateTags.Narrator, lb => lb.NarratorNames, StringFormatter);
 			lbProperties.RegisterProperty(TemplateTags.FirstNarrator, lb => lb.FirstNarrator, StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.Series, lb => lb.SeriesName ?? "", StringFormatter);
-			lbProperties.RegisterProperty(TemplateTags.SeriesNumber, lb => lb.SeriesNumber);
-			lbProperties.RegisterProperty(TemplateTags.Language, lb => lb.Language);
-			lbProperties.RegisterProperty(TemplateTags.LanguageShort, lb => getLanguageShort(lb.Language));
+			lbProperties.RegisterProperty(TemplateTags.Series, lb => lb.SeriesName, StringFormatter);
+			lbProperties.RegisterProperty(TemplateTags.SeriesNumber, lb => lb.SeriesNumber, IntegerFormatter);
+			lbProperties.RegisterProperty(TemplateTags.Language, lb => lb.Language, StringFormatter);
+			lbProperties.RegisterProperty(TemplateTags.LanguageShort, lb => getLanguageShort(lb.Language), StringFormatter);
 			lbProperties.RegisterProperty(TemplateTags.Bitrate, lb => lb.BitRate, IntegerFormatter); 
 			lbProperties.RegisterProperty(TemplateTags.SampleRate, lb => lb.SampleRate, IntegerFormatter);
 			lbProperties.RegisterProperty(TemplateTags.Channels, lb => lb.Channels, IntegerFormatter);
@@ -233,14 +236,15 @@ namespace LibationFileManager
 			PropertyTagClass<LibraryBookDto> lbProperties = new();
 			PropertyTagClass<MultiConvertFileProperties> multiConvertProperties = new();
 
-			lbProperties.RegisterProperty(TemplateTags.Title, lb => lb.Title ?? "");
-			lbProperties.RegisterProperty(TemplateTags.TitleShort, lb => lb.Title.IndexOf(':') < 1 ? lb.Title : lb.Title.Substring(0, lb.Title.IndexOf(':')));
-			lbProperties.RegisterProperty(TemplateTags.Series, lb => lb.SeriesName ?? "");
+			lbProperties.RegisterProperty(TemplateTags.Title, lb => lb.Title, StringFormatter);
+			lbProperties.RegisterProperty(TemplateTags.TitleShort, lb => lb?.Title?.IndexOf(':') > 0 ? lb.Title.Substring(0, lb.Title.IndexOf(':')) : lb.Title, StringFormatter);
+			lbProperties.RegisterProperty(TemplateTags.Series, lb => lb.SeriesName, StringFormatter);
 
 			multiConvertProperties.RegisterProperty(TemplateTags.ChCount, lb => lb.PartsTotal, IntegerFormatter);
 			multiConvertProperties.RegisterProperty(TemplateTags.ChNumber, lb => lb.PartsPosition, IntegerFormatter);
 			multiConvertProperties.RegisterProperty(TemplateTags.ChNumber0, m => m.PartsPosition.ToString("D" + ((int)Math.Log10(m.PartsTotal) + 1)));
-			multiConvertProperties.RegisterProperty(TemplateTags.ChTitle, m => m.Title ?? "", StringFormatter);
+			multiConvertProperties.RegisterProperty(TemplateTags.ChTitle, m => m.Title, StringFormatter);
+			multiConvertProperties.RegisterProperty(TemplateTags.FileDate, lb => lb.FileDate, DateTimeFormatter);
 
 			return new List<TagClass> { lbProperties, multiConvertProperties };
 		}
@@ -302,15 +306,6 @@ namespace LibationFileManager
 						tp.Value = replacements.ReplacePathChars(tp.Value.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar));
 					else
 						tp.Value = replacements.ReplaceFilenameChars(tp.Value);
-				}
-				if (parts.Count > 0)
-				{
-					//Remove DirectorySeparatorChar at beginning and end of template
-					if (parts[0].Value.Length > 0 && parts[0].Value[0] == Path.DirectorySeparatorChar)
-						parts[0].Value = parts[0].Value.Remove(0,1);
-
-					if (parts[^1].Value.Length > 0 && parts[^1].Value[^1] == Path.DirectorySeparatorChar)
-						parts[^1].Value = parts[^1].Value.Remove(parts[^1].Value.Length - 1, 1);
 				}
 				return parts.Select(p => p.Value).ToList();
 			}

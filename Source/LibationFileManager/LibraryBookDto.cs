@@ -20,7 +20,8 @@ namespace LibationFileManager
         public string FirstNarrator => Narrators.FirstOrDefault();
 
         public string SeriesName { get; set; }
-        public string SeriesNumber { get; set; }
+        public int? SeriesNumber { get; set; }
+        public bool IsSeries => !string.IsNullOrEmpty(SeriesName);
         public bool IsPodcast { get; set; }
 
         public int BitRate { get; set; }
