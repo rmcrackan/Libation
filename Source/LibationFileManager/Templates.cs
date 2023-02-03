@@ -50,33 +50,22 @@ namespace LibationFileManager
 
 		static Templates()
 		{
-			Configuration.Instance.PropertyChanged += FolderTemplate_PropertyChanged;
-			Configuration.Instance.PropertyChanged += FileTemplate_PropertyChanged;
-			Configuration.Instance.PropertyChanged += ChapterFileTemplate_PropertyChanged;
-			Configuration.Instance.PropertyChanged += ChapterTitleTemplate_PropertyChanged;
-		}
+			Configuration.Instance.PropertyChanged +=
+				[PropertyChangeFilter(nameof(Configuration.FolderTemplate))]
+			(_,e) => _folder = GetTemplate<FolderTemplate>((string)e.NewValue);
 
-		[PropertyChangeFilter(nameof(Configuration.FolderTemplate))]
-		private static void FolderTemplate_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
-		{
-			_folder = GetTemplate<FolderTemplate>((string)e.NewValue);
-		}
-		[PropertyChangeFilter(nameof(Configuration.FileTemplate))]
-		private static void FileTemplate_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
-		{
-			_file = GetTemplate<FileTemplate>((string)e.NewValue);
-		}
-		[PropertyChangeFilter(nameof(Configuration.ChapterFileTemplate))]
-		private static void ChapterFileTemplate_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
-		{
-			_chapterFile = GetTemplate<ChapterFileTemplate>((string)e.NewValue);
-		}
-		[PropertyChangeFilter(nameof(Configuration.ChapterTitleTemplate))]
-		private static void ChapterTitleTemplate_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
-		{
-			_chapterTitle = GetTemplate<ChapterTitleTemplate>((string)e.NewValue);
-		}
+			Configuration.Instance.PropertyChanged
+				+= [PropertyChangeFilter(nameof(Configuration.FileTemplate))]
+			(_, e) => _file = GetTemplate<FileTemplate>((string)e.NewValue);
 
+			Configuration.Instance.PropertyChanged
+				+= [PropertyChangeFilter(nameof(Configuration.ChapterFileTemplate))]
+			(_, e) => _chapterFile = GetTemplate<ChapterFileTemplate>((string)e.NewValue);
+
+			Configuration.Instance.PropertyChanged
+				+= [PropertyChangeFilter(nameof(Configuration.ChapterTitleTemplate))]
+			(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>((string)e.NewValue);
+		}
 		#endregion
 
 		#region Template Properties
@@ -86,6 +75,7 @@ namespace LibationFileManager
 		public abstract string Description { get; }
 		public string TemplateText => Template.TemplateText;
 		protected NamingTemplate Template { get; private set; }
+
 
 		#endregion
 
@@ -134,15 +124,24 @@ namespace LibationFileManager
 
 		private LongPath GetFilename(string baseDir, string fileExtension, bool returnFirstExisting, ReplacementCharacters replacements,  params object[] dtos)
 		{
-			var parts = Template.Evaluate(dtos).ToList();			
+			fileExtension = FileUtility.GetStandardizedExtension(fileExtension);
 
+			var parts = Template.Evaluate(dtos).ToList();
 			var pathParts = GetPathParts(GetTemplatePartsStrings(parts, replacements));
 
 			//Remove 1 character from the end of the longest filename part until
 			//the total filename is less than max filename length
-			foreach (var part in pathParts)
+			for (int i = 0; i < pathParts.Count; i++)
 			{
-				while (part.Sum(LongPath.GetFilesystemStringLength) > LongPath.MaxFilenameLength)
+				var part = pathParts[i];
+
+				//If file already exists, GetValidFilename will append " (n)" to the filename.
+				//This could cause the filename length to exceed MaxFilenameLength, so reduce
+				//allowable filename length by 5 chars, allowing for up to 99 duplicates.
+				var maxFilenameLength = LongPath.MaxFilenameLength - 
+					(i < pathParts.Count - 1 || string.IsNullOrEmpty(fileExtension) ? 0 : fileExtension.Length + 5);
+
+				while (part.Sum(LongPath.GetFilesystemStringLength) > maxFilenameLength)
 				{
 					int maxLength = part.Max(p => p.Length);
 					var maxEntry = part.First(p => p.Length == maxLength);

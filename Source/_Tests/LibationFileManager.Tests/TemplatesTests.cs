@@ -297,9 +297,15 @@ namespace Templates_Other
 		static ReplacementCharacters Replacements = ReplacementCharacters.Default;
 
 		[TestMethod]
-		[DataRow(@"C:\foo\bar", @"C:\foo\bar\Folder\my꞉ book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\[ID123456].txt", PlatformID.Win32NT)]
-		[DataRow(@"/foo/bar", @"/foo/bar/Folder/my: book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000/[ID123456].txt", PlatformID.Unix)]
-		public void equiv_GetValidFilename(string dirFullPath, string expected, PlatformID platformID)
+		[DataRow(@"C:\foo\bar", @"\Folder\<title>\[<id>]\", @"C:\foo\bar\Folder\my꞉ book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\[ID123456].txt", PlatformID.Win32NT)]
+		[DataRow("/foo/bar", "/Folder/<title>/[<id>]/", @" / foo/bar/Folder/my: book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000/[ID123456].txt", PlatformID.Unix)]
+		[DataRow(@"C:\foo\bar", @"\Folder\<title> [<id>]", @"C:\foo\bar\Folder\my꞉ book 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt", PlatformID.Win32NT)]
+		[DataRow("/foo/bar", "/Folder/<title> [<id>]", @"/foo/bar/Folder/my: book 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt", PlatformID.Unix)]
+		[DataRow(@"C:\foo\bar", @"\Folder\<title> <title> <title> <title> <title> <title> <title> <title> <title> [<id>]", @"C:\foo\bar\Folder\my꞉ book 0000000000000000 my꞉ book 0000000000000000 my꞉ book 0000000000000000 my꞉ book 0000000000000000 my꞉ book 0000000000000000 my꞉ book 0000000000000000 my꞉ book 0000000000000000 my꞉ book 00000000000000000 my꞉ book 00000000000000000 [ID123456].txt", PlatformID.Win32NT)]
+		[DataRow("/foo/bar", "/Folder/<title> <title> <title> <title> <title> <title> <title> <title> <title> [<id>]", @"/foo/bar/Folder/my: book 0000000000000000 my: book 0000000000000000 my: book 0000000000000000 my: book 0000000000000000 my: book 0000000000000000 my: book 0000000000000000 my: book 0000000000000000 my: book 00000000000000000 my: book 00000000000000000 [ID123456].txt", PlatformID.Unix)]
+		[DataRow(@"C:\foo\bar", @"\<title>\<title> [<id>]", @"C:\foo\bar\my꞉ book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\my꞉ book 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt", PlatformID.Win32NT)]
+		[DataRow("/foo/bar", @"/<title>/<title> [<id>]", "/foo/bar/my: book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000/my: book 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 [ID123456].txt", PlatformID.Unix)]
+		public void Test_trim_to_max_path(string dirFullPath, string template, string expected, PlatformID platformID)
 		{
 			if (Environment.OSVersion.Platform != platformID)
 				return;
@@ -308,7 +314,21 @@ namespace Templates_Other
 			sb.Append('0', 300);
 			var longText = sb.ToString();
 
-			NEW_GetValidFilename_FileNamingTemplate(dirFullPath, "my: book " + longText, "txt", "ID123456").Should().Be(expected);
+			NEW_GetValidFilename_FileNamingTemplate(dirFullPath, template, "my: book " + longText, "txt").Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow(@"\foo\bar", @"<title>\<title>")]
+		[DataRow(@"\foooo\barrrr", "<title>")]
+		public void Test_windows_relative_path_too_long(string baseDir, string template)
+		{
+			if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+				return;
+
+			var sb = new System.Text.StringBuilder();
+			sb.Append('0', 300);
+			var longText = sb.ToString();
+			Assert.ThrowsException<PathTooLongException>(() => NEW_GetValidFilename_FileNamingTemplate(baseDir, template, "my: book " + longText, "txt"));
 		}
 
 		private class TemplateTag : ITemplateTag
@@ -318,17 +338,13 @@ namespace Templates_Other
 			public string Description { get; }
 			public string Display { get; }
 		}
-		private static string NEW_GetValidFilename_FileNamingTemplate(string dirFullPath, string filename, string extension, string metadataSuffix)
+		private static string NEW_GetValidFilename_FileNamingTemplate(string dirFullPath, string template, string title, string extension)
 		{
-			char slash = Path.DirectorySeparatorChar;
-
-			var template = $"{slash}Folder{slash}<title>{slash}[<id>]{slash}";
-
 			extension = FileUtility.GetStandardizedExtension(extension);
 
 			var lbDto = GetLibraryBook();
-			lbDto.Title = filename;
-			lbDto.AudibleProductId = metadataSuffix;
+			lbDto.Title = title;
+			lbDto.AudibleProductId = "ID123456";
 
 			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var fileNamingTemplate).Should().BeTrue();
 

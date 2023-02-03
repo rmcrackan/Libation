@@ -106,7 +106,7 @@ public class NamingTemplate
 
 		while (templateString.Length > 0)
 		{
-			if (StartsWith(Classes, templateString, out string exactPropertyName, out var propertyTag, out var valueExpression))
+			if (StartsWith(templateString, out string exactPropertyName, out var propertyTag, out var valueExpression))
 			{
 				checkAndAddLiterals();
 
@@ -120,7 +120,7 @@ public class NamingTemplate
 
 				templateString = templateString[exactPropertyName.Length..];
 			}
-			else if (StartsWithClosing(Classes, templateString, out exactPropertyName, out var closingPropertyTag))
+			else if (StartsWithClosing(templateString, out exactPropertyName, out var closingPropertyTag))
 			{
 				checkAndAddLiterals();
 
@@ -176,9 +176,9 @@ public class NamingTemplate
 		}
 	}
 
-	private static bool StartsWith(IEnumerable<TagClass> propertyClasses, string template, out string exactName, out IPropertyTag propertyTag, out Expression valueExpression)
+	private bool StartsWith(string template, out string exactName, out IPropertyTag propertyTag, out Expression valueExpression)
 	{
-		foreach (var pc in propertyClasses)
+		foreach (var pc in Classes)
 		{
 			if (pc.StartsWith(template, out exactName, out propertyTag, out valueExpression))
 				return true;
@@ -189,9 +189,9 @@ public class NamingTemplate
 		return false;
 	}
 
-	private static bool StartsWithClosing(IEnumerable<TagClass> conditionalGroups, string template, out string exactName, out IClosingPropertyTag closingPropertyTag)
+	private bool StartsWithClosing(string template, out string exactName, out IClosingPropertyTag closingPropertyTag)
 	{
-		foreach (var pc in conditionalGroups)
+		foreach (var pc in Classes)
 		{
 			if (pc.StartsWithClosing(template, out exactName, out closingPropertyTag))
 				return true;
