@@ -33,20 +33,56 @@ namespace NamingTemplateTests
 		public string Item2 { get; set; }
 		public string Item3 { get; set; }
 		public string Item4 { get; set; }
+		public ReferenceType RefType { get; set; }
 		public int? Int2 { get; set; }
 		public bool Condition { get; set; }
+	}
+	class ReferenceType
+	{
+		public override string ToString()
+		{
+			return nameof(ReferenceType);
+		}
 	}
 
 
 	[TestClass]
 	public class GetPortionFilename
 	{
-		PropertyTagClass<PropertyClass1> props1 = new();
-		PropertyTagClass<PropertyClass2> props2 = new();
-		PropertyTagClass<PropertyClass3> props3 = new();
-		ConditionalTagClass<PropertyClass1> conditional1 = new();
-		ConditionalTagClass<PropertyClass2> conditional2 = new();
-		ConditionalTagClass<PropertyClass3> conditional3 = new();
+		PropertyTagCollection<PropertyClass1> props1 = new()
+		{
+			{ new TemplateTag { TagName = "item1" }, i => i.Item1 },
+			{ new TemplateTag { TagName = "item2" }, i => i.Item2 },
+			{ new TemplateTag { TagName = "item3" }, i => i.Item3 }
+		};
+
+		PropertyTagCollection<PropertyClass2> props2 = new()
+		{
+			{ new TemplateTag { TagName = "item1" }, i => i.Item1 },
+			{ new TemplateTag { TagName = "item2" }, i => i.Item2 },
+			{ new TemplateTag { TagName = "item3" }, i => i.Item3 },
+			{ new TemplateTag { TagName = "item4" }, i => i.Item4 },
+		};
+		PropertyTagCollection<PropertyClass3> props3 = new(true, GetVal)
+		{
+			{ new TemplateTag { TagName = "item3_1" }, i => i.Item1 },
+			{ new TemplateTag { TagName = "item3_2" }, i => i.Item2 },
+			{ new TemplateTag { TagName = "item3_3" }, i => i.Item3 },
+			{ new TemplateTag { TagName = "item3_4" }, i => i.Item4 },
+			{ new TemplateTag { TagName = "reftype" }, i => i.RefType },
+		};
+		ConditionalTagCollection<PropertyClass1> conditional1 = new()
+		{
+			{ new TemplateTag { TagName = "ifc1" }, i => i.Condition },
+		};
+		ConditionalTagCollection<PropertyClass2> conditional2 = new()
+		{
+			{ new TemplateTag { TagName = "ifc2" }, i => i.Condition },
+		};
+		ConditionalTagCollection<PropertyClass3> conditional3 = new()
+		{
+			{ new TemplateTag { TagName = "ifc3" }, i => i.Condition },
+		};
 
 		PropertyClass1 propertyClass1 = new()
 		{
@@ -74,27 +110,6 @@ namespace NamingTemplateTests
 			Condition = true
 		};
 
-		public GetPortionFilename()
-		{
-			props1.RegisterProperty(new TemplateTag { TagName = "item1" }, i => i.Item1);
-			props1.RegisterProperty(new TemplateTag { TagName = "item2" }, i => i.Item2);
-			props1.RegisterProperty(new TemplateTag { TagName = "item3" }, i => i.Item3);
-
-			props2.RegisterProperty(new TemplateTag { TagName = "item1" }, i => i.Item1);
-			props2.RegisterProperty(new TemplateTag { TagName = "item2" }, i => i.Item2);
-			props2.RegisterProperty(new TemplateTag { TagName = "item3" }, i => i.Item3);
-			props2.RegisterProperty(new TemplateTag { TagName = "item4" }, i => i.Item4);
-
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_1" }, i => i.Item1);
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_2" }, i => i.Item2);
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_3" }, i => i.Item3);
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_4" }, i => i.Item4);
-
-			conditional1.RegisterCondition(new TemplateTag { TagName = "ifc1" }, i => i.Condition);
-			conditional2.RegisterCondition(new TemplateTag { TagName = "ifc2" }, i => i.Condition);
-			conditional3.RegisterCondition(new TemplateTag { TagName = "ifc3" }, i => i.Condition);
-		}
-
 
 		[TestMethod]
 		[DataRow("<item1>", "prop1_item1", 1)]
@@ -110,7 +125,7 @@ namespace NamingTemplateTests
 		[DataRow("<!ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><-ifc2>", "prop1_item1prop2_item4prop3_item2", 3)]
 		public void test(string inStr, string outStr, int numTags)
 		{
-			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+			var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
 
 			template.TagsInUse.Should().HaveCount(numTags);
 			template.Warnings.Should().HaveCount(numTags > 0 ? 0 : 1);
@@ -132,11 +147,17 @@ namespace NamingTemplateTests
 		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc1><-ifc2>", new string[] { "Missing <-ifc3> closing conditional.", "Missing <-ifc3> closing conditional.", "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
 		public void condition_error(string inStr, string[] warnings)
 		{
-			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+			var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
 
 			template.Errors.Should().HaveCount(0);
 			template.Warnings.Should().BeEquivalentTo(warnings);
 		}
+
+		static string GetVal(ITemplateTag templateTag, ReferenceType referenceType, string format)
+		{
+			return "";
+		}
+
 		[TestMethod]
 		[DataRow("<int1>", "55")]
 		[DataRow("<int1[]>", "55")]
@@ -152,14 +173,15 @@ namespace NamingTemplateTests
 		[DataRow("<item2_2_null>", "")]
 		[DataRow("<item2_2_null[]>", "")]
 		[DataRow("<item2_2_null[l]>", "")]
+		[DataRow("<reftype[l]>", "")]
 		public void formatting(string inStr, string outStr)
 		{
-			props1.RegisterProperty(new TemplateTag { TagName = "int1" }, i => i.Int1, formatInt);
-			props3.RegisterProperty(new TemplateTag { TagName = "int2" }, i => i.Int2, formatInt);
-			props3.RegisterProperty(new TemplateTag { TagName = "item3_format" }, i => i.Item3, formatString);
-			props2.RegisterProperty(new TemplateTag { TagName = "item2_2_null" }, i => i.Item2, formatString);
+			props1.Add(new TemplateTag { TagName = "int1" }, i => i.Int1, formatInt);
+			props3.Add(new TemplateTag { TagName = "int2" }, i => i.Int2, formatInt);
+			props3.Add(new TemplateTag { TagName = "item3_format" }, i => i.Item3, formatString);
+			props2.Add(new TemplateTag { TagName = "item2_2_null" }, i => i.Item2, formatString);
 
-			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+			var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
 
 			template.Warnings.Should().HaveCount(0);
 			template.Errors.Should().HaveCount(0);

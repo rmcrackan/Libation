@@ -23,7 +23,7 @@ These tags will be replaced in the template with the audiobook's values.
 
 |Tag|Description|Type|
 |-|-|-|
-|\<id\>|Audible book ID (ASIN)|Text|
+|\<id\> **†**|Audible book ID (ASIN)|Text|
 |\<title\>|Full title|Text|
 |\<title short\>|Title. Stop at first colon|Text|
 |\<author\>|Author(s)|Text|
@@ -39,16 +39,18 @@ These tags will be replaced in the template with the audiobook's values.
 |\<locale\>|Region/country|Text|
 |\<year\>|Year published|Integer|
 |\<language\>|Book's language|Text|
-|\<language short\>|Book's language abbreviated. Eg: ENG|Text|
+|\<language short\> **†**|Book's language abbreviated. Eg: ENG|Text|
 |\<file date\>|File creation date/time.|DateTime|
 |\<pub date\>|Audiobook publication date|DateTime|
 |\<date added\>|Date the book added to your Audible account|DateTime|
-|\<ch count\>|Number of chapters **†**|Integer|
-|\<ch title\>|Chapter title **†**|Text|
-|\<ch#\>|Chapter number **†**|Integer|
-|\<ch# 0\>|Chapter number with leading zeros **†**|Integer|
+|\<ch count\> **‡**|Number of chapters|Integer|
+|\<ch title\> **‡**|Chapter title|Text|
+|\<ch#\> **‡**|Chapter number|Integer|
+|\<ch# 0\> **‡**|Chapter number with leading zeros|Integer|
 
-**†** Only valid for Chapter Filename and Chapter Tile Metadata
+**†** Does not support custom formatting
+
+**‡** Only valid for Chapter Filename and Chapter Tile Metadata
 
 To change how these properties are displayed, [read about custom formatters](#tag-formatters)
 

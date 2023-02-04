@@ -9,14 +9,14 @@ public class NamingTemplate
 {
 	public string TemplateText { get; private set; }
 	public IEnumerable<ITemplateTag> TagsInUse => _tagsInUse;
-	public IEnumerable<ITemplateTag> TagsRegistered => Classes.SelectMany(p => p.TemplateTags).DistinctBy(f => f.TagName);
+	public IEnumerable<ITemplateTag> TagsRegistered => Classes.SelectMany(t => t).DistinctBy(t => t.TagName);
 	public IEnumerable<string> Warnings => errors.Concat(warnings);
 	public IEnumerable<string> Errors => errors;
 
 	private Delegate templateToString;
 	private readonly List<string> warnings = new();
 	private readonly List<string> errors = new();
-	private readonly IEnumerable<TagClass> Classes;
+	private readonly IEnumerable<TagCollection> Classes;
 	private readonly List<ITemplateTag> _tagsInUse = new();
 
 	public const string ERROR_NULL_IS_INVALID = "Null template is invalid.";
@@ -27,7 +27,7 @@ public class NamingTemplate
 	/// <summary>
 	/// Invoke the <see cref="NamingTemplate"/> to  
 	/// </summary>
-	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagClass{TClass}"/> and <see cref="ConditionalTagClass{TClass}"/></param>
+	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagCollection{TClass}"/> and <see cref="ConditionalTagCollection{TClass}"/></param>
 	/// <returns></returns>
 	public TemplatePart Evaluate(params object[] propertyClasses)
 	{
@@ -47,9 +47,9 @@ public class NamingTemplate
 
 	/// <summary>Parse a template string to a <see cref="NamingTemplate"/></summary>
 	/// <param name="template">The template string to parse</param>
-	/// <param name="tagClasses">A collection of <see cref="TagClass"/> with
+	/// <param name="tagClasses">A collection of <see cref="TagCollection"/> with
 	/// properties registered to match to the <paramref name="template"/></param>
-	public static NamingTemplate Parse(string template, IEnumerable<TagClass> tagClasses)
+	public static NamingTemplate Parse(string template, IEnumerable<TagCollection> tagClasses)
 	{
 		var namingTemplate = new NamingTemplate(tagClasses);
 		try
@@ -71,7 +71,7 @@ public class NamingTemplate
 		return namingTemplate;
 	}
 
-	private NamingTemplate(IEnumerable<TagClass> properties)
+	private NamingTemplate(IEnumerable<TagCollection> properties)
 	{
 		Classes = properties;
 	}
@@ -183,6 +183,7 @@ public class NamingTemplate
 			if (pc.StartsWith(template, out exactName, out propertyTag, out valueExpression))
 				return true;
 		}
+
 		exactName = null;
 		valueExpression = null;
 		propertyTag = null;
@@ -196,6 +197,7 @@ public class NamingTemplate
 			if (pc.StartsWithClosing(template, out exactName, out closingPropertyTag))
 				return true;
 		}
+
 		exactName = null;
 		closingPropertyTag = null;
 		return false;
