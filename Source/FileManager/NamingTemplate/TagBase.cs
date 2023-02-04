@@ -29,13 +29,13 @@ internal abstract class TagBase : IPropertyTag
 {
 	public ITemplateTag TemplateTag { get; }
 	public Regex NameMatcher { get; protected init; }
-	public Type ReturnType => ExpressionValue.Type;
-	protected Expression ExpressionValue { get; }
+	public Type ReturnType => ValueExpression.Type;
+	protected Expression ValueExpression { get; }
 
 	protected TagBase(ITemplateTag templateTag, Expression propertyExpression)
 	{
 		TemplateTag = templateTag;
-		ExpressionValue = propertyExpression;
+		ValueExpression = propertyExpression;
 	}
 
 	/// <summary>Create an <see cref="Expression"/> that returns the property's value.</summary>

@@ -61,6 +61,6 @@ public class ConditionalTagClass<TClass> : TagCollection
 			return false;
 		}
 
-		protected override Expression GetTagExpression(string exactName, string formatter) => formatter == "!" ? Expression.Not(ExpressionValue) : ExpressionValue;
+		protected override Expression GetTagExpression(string exactName, string formatter) => formatter == "!" ? Expression.Not(ValueExpression) : ValueExpression;
 	}
 }

@@ -41,21 +41,21 @@ namespace NamingTemplateTests
 	[TestClass]
 	public class GetPortionFilename
 	{
-		PropertyTagClass<PropertyClass1> props1 = new()
+		PropertyTagCollection<PropertyClass1> props1 = new()
 		{
 			{ new TemplateTag { TagName = "item1" }, i => i.Item1 },
 			{ new TemplateTag { TagName = "item2" }, i => i.Item2 },
 			{ new TemplateTag { TagName = "item3" }, i => i.Item3 }
 		};
 
-		PropertyTagClass<PropertyClass2> props2 = new()
+		PropertyTagCollection<PropertyClass2> props2 = new()
 		{
 			{ new TemplateTag { TagName = "item1" }, i => i.Item1 },
 			{ new TemplateTag { TagName = "item2" }, i => i.Item2 },
 			{ new TemplateTag { TagName = "item3" }, i => i.Item3 },
 			{ new TemplateTag { TagName = "item4" }, i => i.Item4 },
 		};
-		PropertyTagClass<PropertyClass3> props3 = new()
+		PropertyTagCollection<PropertyClass3> props3 = new()
 		{
 			{ new TemplateTag { TagName = "item3_1" }, i => i.Item1 },
 			{ new TemplateTag { TagName = "item3_2" }, i => i.Item2 },
