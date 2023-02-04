@@ -19,7 +19,7 @@ namespace LibationAvalonia.Views
 				var options = new FilePickerSaveOptions
 				{
 					Title = "Where to export Library",
-					SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Configuration.Instance.Books),
+					SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Configuration.Instance.Books.PathWithoutPrefix),
 					SuggestedFileName = $"Libation Library Export {DateTime.Now:yyyy-MM-dd}.xlsx",
 					DefaultExtension = "xlsx",
 					ShowOverwritePrompt = true,

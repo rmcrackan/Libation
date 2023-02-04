@@ -111,7 +111,7 @@ namespace LibationAvalonia.Views
 						{
 							Title = $"Locate the audio file for '{entry.Book.Title}'",
 							AllowMultiple = false,
-							SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Configuration.Instance.Books),
+							SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Configuration.Instance.Books.PathWithoutPrefix),
 							FileTypeFilter = new FilePickerFileType[]
 							{
 								new("All files (*.*)") { Patterns = new[] { "*" } },
