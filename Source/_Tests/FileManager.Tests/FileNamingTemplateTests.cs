@@ -33,8 +33,16 @@ namespace NamingTemplateTests
 		public string Item2 { get; set; }
 		public string Item3 { get; set; }
 		public string Item4 { get; set; }
+		public ReferenceType RefType { get; set; }
 		public int? Int2 { get; set; }
 		public bool Condition { get; set; }
+	}
+	class ReferenceType
+	{
+		public override string ToString()
+		{
+			return nameof(ReferenceType);
+		}
 	}
 
 
@@ -55,22 +63,23 @@ namespace NamingTemplateTests
 			{ new TemplateTag { TagName = "item3" }, i => i.Item3 },
 			{ new TemplateTag { TagName = "item4" }, i => i.Item4 },
 		};
-		PropertyTagCollection<PropertyClass3> props3 = new()
+		PropertyTagCollection<PropertyClass3> props3 = new(true, GetVal)
 		{
 			{ new TemplateTag { TagName = "item3_1" }, i => i.Item1 },
 			{ new TemplateTag { TagName = "item3_2" }, i => i.Item2 },
 			{ new TemplateTag { TagName = "item3_3" }, i => i.Item3 },
 			{ new TemplateTag { TagName = "item3_4" }, i => i.Item4 },
+			{ new TemplateTag { TagName = "reftype" }, i => i.RefType },
 		};
-		ConditionalTagClass<PropertyClass1> conditional1 = new()
+		ConditionalTagCollection<PropertyClass1> conditional1 = new()
 		{
 			{ new TemplateTag { TagName = "ifc1" }, i => i.Condition },
 		};
-		ConditionalTagClass<PropertyClass2> conditional2 = new()
+		ConditionalTagCollection<PropertyClass2> conditional2 = new()
 		{
 			{ new TemplateTag { TagName = "ifc2" }, i => i.Condition },
 		};
-		ConditionalTagClass<PropertyClass3> conditional3 = new()
+		ConditionalTagCollection<PropertyClass3> conditional3 = new()
 		{
 			{ new TemplateTag { TagName = "ifc3" }, i => i.Condition },
 		};
@@ -143,6 +152,12 @@ namespace NamingTemplateTests
 			template.Errors.Should().HaveCount(0);
 			template.Warnings.Should().BeEquivalentTo(warnings);
 		}
+
+		static string GetVal(ITemplateTag templateTag, ReferenceType referenceType, string format)
+		{
+			return "";
+		}
+
 		[TestMethod]
 		[DataRow("<int1>", "55")]
 		[DataRow("<int1[]>", "55")]
@@ -158,6 +173,7 @@ namespace NamingTemplateTests
 		[DataRow("<item2_2_null>", "")]
 		[DataRow("<item2_2_null[]>", "")]
 		[DataRow("<item2_2_null[l]>", "")]
+		[DataRow("<reftype[l]>", "")]
 		public void formatting(string inStr, string outStr)
 		{
 			props1.Add(new TemplateTag { TagName = "int1" }, i => i.Int1, formatInt);

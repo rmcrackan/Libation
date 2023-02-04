@@ -27,7 +27,7 @@ public class NamingTemplate
 	/// <summary>
 	/// Invoke the <see cref="NamingTemplate"/> to  
 	/// </summary>
-	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagCollection{TClass}"/> and <see cref="ConditionalTagClass{TClass}"/></param>
+	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagCollection{TClass}"/> and <see cref="ConditionalTagCollection{TClass}"/></param>
 	/// <returns></returns>
 	public TemplatePart Evaluate(params object[] propertyClasses)
 	{

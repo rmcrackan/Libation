@@ -12,7 +12,7 @@ namespace LibationFileManager
 	public interface ITemplate
 	{
 		static abstract string DefaultTemplate { get; }
-		static abstract IEnumerable<TagCollection> TagClass { get; }
+		static abstract IEnumerable<TagCollection> TagCollections { get; }
 	}
 
 	public abstract class Templates
@@ -40,14 +40,14 @@ namespace LibationFileManager
 
 		public static bool TryGetTemplate<T>(string templateText, out T template) where T : Templates, ITemplate, new()
 		{
-			var namingTemplate = NamingTemplate.Parse(templateText, T.TagClass);
+			var namingTemplate = NamingTemplate.Parse(templateText, T.TagCollections);
 
 			template = new() { Template = namingTemplate };
 			return !namingTemplate.Errors.Any();
 		}
 
 		private static T GetDefaultTemplate<T>() where T : Templates, ITemplate, new()
-			=> new() { Template = NamingTemplate.Parse(T.DefaultTemplate, T.TagClass) };
+			=> new() { Template = NamingTemplate.Parse(T.DefaultTemplate, T.TagCollections) };
 
 		static Templates()
 		{
@@ -197,7 +197,7 @@ namespace LibationFileManager
 			//Don't allow formatting of Id
 			{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
 			{ TemplateTags.Title, lb => lb.Title },
-			{ TemplateTags.TitleShort, lb => lb.Title.IndexOf(':') < 1 ? lb.Title : lb.Title.Substring(0, lb.Title.IndexOf(':')) },
+			{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
 			{ TemplateTags.Author, lb => lb.AuthorNames },
 			{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor },
 			{ TemplateTags.Narrator, lb => lb.NarratorNames },
@@ -223,7 +223,7 @@ namespace LibationFileManager
 			new PropertyTagCollection<LibraryBookDto>(caseSensative: true, StringFormatter)
 			{
 				{ TemplateTags.Title, lb => lb.Title },
-				{ TemplateTags.TitleShort, lb => lb ?.Title ?.IndexOf(':') > 0 ? lb.Title.Substring(0, lb.Title.IndexOf(':')) : lb.Title },
+				{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
 				{ TemplateTags.Series, lb => lb.SeriesName },
 			},
 			new PropertyTagCollection<MultiConvertFileProperties>(caseSensative: true, StringFormatter, IntegerFormatter, DateTimeFormatter)
@@ -236,7 +236,7 @@ namespace LibationFileManager
 			}
 		};
 
-		private static readonly ConditionalTagClass<LibraryBookDto> conditionalTags = new()
+		private static readonly ConditionalTagCollection<LibraryBookDto> conditionalTags = new()
 		{
 			{ TemplateTags.IfSeries, lb => lb.IsSeries },
 			{ TemplateTags.IfPodcast, lb => lb.IsPodcast },
@@ -246,6 +246,9 @@ namespace LibationFileManager
 		#endregion
 
 		#region Tag Formatters
+
+		private static string getTitleShort(string title)
+			=> title?.IndexOf(':') > 0 ? title.Substring(0, title.IndexOf(':')) : title;
 
 		private static string getLanguageShort(string language)
 		{
@@ -286,7 +289,7 @@ namespace LibationFileManager
 			public override string Name => "Folder Template";
 			public override string Description => Configuration.GetDescription(nameof(Configuration.FolderTemplate));
 			public static string DefaultTemplate { get; } = "<title short> [<id>]";
-			public static IEnumerable<TagCollection> TagClass => new TagCollection[] { filePropertyTags, conditionalTags };
+			public static IEnumerable<TagCollection> TagCollections => new TagCollection[] { filePropertyTags, conditionalTags };
 
 			public override IEnumerable<string> Errors
 				=> TemplateText?.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ERROR_FULL_PATH_IS_INVALID) : base.Errors;
@@ -305,7 +308,7 @@ namespace LibationFileManager
 			public override string Name => "File Template";
 			public override string Description => Configuration.GetDescription(nameof(Configuration.FileTemplate));
 			public static string DefaultTemplate { get; } = "<title> [<id>]";
-			public static IEnumerable<TagCollection> TagClass { get; } = new TagCollection[] { filePropertyTags, conditionalTags };
+			public static IEnumerable<TagCollection> TagCollections { get; } = new TagCollection[] { filePropertyTags, conditionalTags };
 		}
 
 		public class ChapterFileTemplate : Templates, ITemplate
@@ -313,7 +316,7 @@ namespace LibationFileManager
 			public override string Name => "Chapter File Template";
 			public override string Description => Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));
 			public static string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
-			public static IEnumerable<TagCollection> TagClass { get; } = chapterPropertyTags.Append(filePropertyTags).Append(conditionalTags);
+			public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(filePropertyTags).Append(conditionalTags);
 
 			public override IEnumerable<string> Warnings
 				=> Template.TagsInUse.Any(t => t.TagName.In(TemplateTags.ChNumber.TagName, TemplateTags.ChNumber0.TagName))
@@ -326,7 +329,7 @@ namespace LibationFileManager
 			public override string Name => "Chapter Title Template";
 			public override string Description => Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate));
 			public static string DefaultTemplate => "<ch#> - <title short>: <ch title>";
-			public static IEnumerable<TagCollection> TagClass { get; } = chapterPropertyTags.Append(conditionalTags);
+			public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(conditionalTags);
 
 			protected override IEnumerable<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
 				=> parts.Select(p => p.Value);
