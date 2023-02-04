@@ -116,7 +116,7 @@ namespace NamingTemplateTests
 		[DataRow("<!ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><-ifc2>", "prop1_item1prop2_item4prop3_item2", 3)]
 		public void test(string inStr, string outStr, int numTags)
 		{
-			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+			var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
 
 			template.TagsInUse.Should().HaveCount(numTags);
 			template.Warnings.Should().HaveCount(numTags > 0 ? 0 : 1);
@@ -138,7 +138,7 @@ namespace NamingTemplateTests
 		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc1><-ifc2>", new string[] { "Missing <-ifc3> closing conditional.", "Missing <-ifc3> closing conditional.", "Missing <-ifc1> closing conditional.", "Missing <-ifc2> closing conditional." })]
 		public void condition_error(string inStr, string[] warnings)
 		{
-			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+			var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
 
 			template.Errors.Should().HaveCount(0);
 			template.Warnings.Should().BeEquivalentTo(warnings);
@@ -165,7 +165,7 @@ namespace NamingTemplateTests
 			props3.Add(new TemplateTag { TagName = "item3_format" }, i => i.Item3, formatString);
 			props2.Add(new TemplateTag { TagName = "item2_2_null" }, i => i.Item2, formatString);
 
-			var template = NamingTemplate.Parse(inStr, new TagClass[] { props1, props2, props3, conditional1, conditional2, conditional3 });
+			var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
 
 			template.Warnings.Should().HaveCount(0);
 			template.Errors.Should().HaveCount(0);

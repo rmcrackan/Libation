@@ -16,7 +16,7 @@ public class NamingTemplate
 	private Delegate templateToString;
 	private readonly List<string> warnings = new();
 	private readonly List<string> errors = new();
-	private readonly IEnumerable<TagClass> Classes;
+	private readonly IEnumerable<TagCollection> Classes;
 	private readonly List<ITemplateTag> _tagsInUse = new();
 
 	public const string ERROR_NULL_IS_INVALID = "Null template is invalid.";
@@ -47,9 +47,9 @@ public class NamingTemplate
 
 	/// <summary>Parse a template string to a <see cref="NamingTemplate"/></summary>
 	/// <param name="template">The template string to parse</param>
-	/// <param name="tagClasses">A collection of <see cref="TagClass"/> with
+	/// <param name="tagClasses">A collection of <see cref="TagCollection"/> with
 	/// properties registered to match to the <paramref name="template"/></param>
-	public static NamingTemplate Parse(string template, IEnumerable<TagClass> tagClasses)
+	public static NamingTemplate Parse(string template, IEnumerable<TagCollection> tagClasses)
 	{
 		var namingTemplate = new NamingTemplate(tagClasses);
 		try
@@ -71,7 +71,7 @@ public class NamingTemplate
 		return namingTemplate;
 	}
 
-	private NamingTemplate(IEnumerable<TagClass> properties)
+	private NamingTemplate(IEnumerable<TagCollection> properties)
 	{
 		Classes = properties;
 	}

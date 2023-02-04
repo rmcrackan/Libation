@@ -20,7 +20,7 @@ internal interface IClosingPropertyTag : IPropertyTag
 	bool StartsWithClosing(string templateString, out string exactName, out IClosingPropertyTag propertyTag);
 }
 
-public class ConditionalTagClass<TClass> : TagClass
+public class ConditionalTagClass<TClass> : TagCollection
 {
 	public ConditionalTagClass(bool caseSensative = true) :base(typeof(TClass), caseSensative) { }
 

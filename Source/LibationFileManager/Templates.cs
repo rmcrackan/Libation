@@ -225,19 +225,19 @@ namespace LibationFileManager
 			},
 			new PropertyTagClass<MultiConvertFileProperties>()
 			{
-				{ TemplateTags.ChCount, lb => lb.PartsTotal, IntegerFormatter },
-				{ TemplateTags.ChNumber, lb => lb.PartsPosition, IntegerFormatter },
+				{ TemplateTags.ChCount, m => m.PartsTotal, IntegerFormatter },
+				{ TemplateTags.ChNumber, m => m.PartsPosition, IntegerFormatter },
 				{ TemplateTags.ChNumber0, m => m.PartsPosition.ToString("D" + ((int)Math.Log10(m.PartsTotal) + 1)) },
 				{ TemplateTags.ChTitle, m => m.Title, StringFormatter },
-				{ TemplateTags.FileDate, lb => lb.FileDate, DateTimeFormatter }
+				{ TemplateTags.FileDate, m => m.FileDate, DateTimeFormatter }
 			}
 		};
 
 		private static readonly ConditionalTagClass<LibraryBookDto> conditionalTags = new()
 		{
-			{TemplateTags.IfSeries, lb => lb.IsSeries },
-			{TemplateTags.IfPodcast, lb => lb.IsPodcast },
-			{TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast },
+			{ TemplateTags.IfSeries, lb => lb.IsSeries },
+			{ TemplateTags.IfPodcast, lb => lb.IsPodcast },
+			{ TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast },
 		};
 
 		#endregion

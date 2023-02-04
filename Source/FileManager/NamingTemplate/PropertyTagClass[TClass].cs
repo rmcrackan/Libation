@@ -7,7 +7,7 @@ namespace FileManager.NamingTemplate;
 
 public delegate string PropertyFormatter<T>(ITemplateTag templateTag, T value, string formatString);
 
-public class PropertyTagClass<TClass> : TagClass
+public class PropertyTagClass<TClass> : TagCollection
 {
 	public PropertyTagClass(bool caseSensative = true) : base(typeof(TClass), caseSensative) { }
 
