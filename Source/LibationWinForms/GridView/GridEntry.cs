@@ -140,7 +140,16 @@ namespace LibationWinForms.GridView
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
 		{
-			if (e.Definition.PictureId == Book.PictureId)
+            // state validation
+            if (e is null ||
+				e.Definition.PictureId is null ||
+				Book?.PictureId is null ||
+				e.Picture is null ||
+				e.Picture.Length == 0)
+				return;
+
+            // logic validation
+            if (e.Definition.PictureId == Book.PictureId)
 			{
 				Cover = ImageReader.ToImage(e.Picture);
 				PictureStorage.PictureCached -= PictureStorage_PictureCached;
