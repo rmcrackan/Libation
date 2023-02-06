@@ -10,11 +10,11 @@ namespace FileManager.NamingTemplate;
 /// <summary>A collection of <see cref="IPropertyTag"/>s registered to a single <see cref="Type"/>.</summary>
 public abstract class TagCollection : IEnumerable<ITemplateTag>
 {
-	/// <summary>The <see cref="ParameterExpression"/> of the <see cref="TagCollection"/>'s TClass type.</summary>
-	public ParameterExpression Parameter { get; }
 	/// <summary>The <see cref="ITemplateTag"/>s registered with this <see cref="TagCollection"/> </summary>
 	public IEnumerator<ITemplateTag> GetEnumerator() => PropertyTags.Select(p => p.TemplateTag).GetEnumerator();
 
+	/// <summary>The <see cref="ParameterExpression"/> of the <see cref="TagCollection"/>'s TClass type.</summary>
+	internal ParameterExpression Parameter { get; }
 	protected RegexOptions Options { get; } = RegexOptions.Compiled;
 	private List<IPropertyTag> PropertyTags { get; } = new();
 

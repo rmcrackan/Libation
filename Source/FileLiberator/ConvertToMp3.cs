@@ -16,8 +16,7 @@ namespace FileLiberator
 	{
 		public override string Name => "Convert to Mp3";
 		private Mp4Operation Mp4Operation;
-		private TimeSpan bookDuration;
-		private long fileSize;
+		private readonly AaxDecrypter.AverageSpeed averageSpeed = new();
 		private static string Mp3FileName(string m4bPath) => Path.ChangeExtension(m4bPath ?? "", ".mp3");
 
 		public override Task CancelAsync() => Mp4Operation?.CancelAsync() ?? Task.CompletedTask;		
@@ -44,9 +43,6 @@ namespace FileLiberator
 					if (File.Exists(proposedMp3Path) || !File.Exists(m4bPath)) continue;
 
 					var m4bBook = await Task.Run(() => new Mp4File(m4bPath, FileAccess.Read));
-
-					bookDuration = m4bBook.Duration;
-					fileSize = m4bBook.InputStream.Length;
 
 					OnTitleDiscovered(m4bBook.AppleTags.Title);
 					OnAuthorsDiscovered(m4bBook.AppleTags.FirstAuthor);
@@ -105,20 +101,22 @@ namespace FileLiberator
 
 		private void M4bBook_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
 		{
-			var remainingSecsToProcess = (bookDuration - e.ProcessPosition).TotalSeconds;
-			var estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
-				
+			averageSpeed.AddPosition(e.ProcessPosition.TotalSeconds);
+
+			var remainingTimeToProcess = (e.TotalDuration - e.ProcessPosition).TotalSeconds;
+			var estTimeRemaining = remainingTimeToProcess / averageSpeed.Average;
+
 			if (double.IsNormal(estTimeRemaining))
 				OnStreamingTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
 
-			double progressPercent = 100 * e.ProcessPosition.TotalSeconds / bookDuration.TotalSeconds;
+			double progressPercent = 100 * e.ProcessPosition.TotalSeconds / e.TotalDuration.TotalSeconds;
 
 			OnStreamingProgressChanged(
 				new DownloadProgress
 				{
 					ProgressPercentage = progressPercent,
-					BytesReceived = (long)(fileSize * progressPercent),
-					TotalBytesToReceive = fileSize
+					BytesReceived = (long)e.ProcessPosition.TotalSeconds,
+					TotalBytesToReceive = (long)e.TotalDuration.TotalSeconds
 				});
 		}
 	}

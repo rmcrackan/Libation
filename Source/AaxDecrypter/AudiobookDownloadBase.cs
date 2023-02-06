@@ -25,6 +25,7 @@ namespace AaxDecrypter
 		protected string OutputFileName { get; }
 		protected IDownloadOptions DownloadOptions { get; }
 		protected NetworkFileStream InputFileStream => nfsPersister.NetworkFileStream;
+		protected virtual long InputFilePosition => InputFileStream.Position;
 
 		private readonly NetworkFileStreamPersister nfsPersister;
 		private readonly DownloadProgress zeroProgress;
@@ -65,13 +66,47 @@ namespace AaxDecrypter
 
 		public async Task<bool> RunAsync()
 		{
+			var progressTask = Task.Run(reportProgress);
+
 			AsyncSteps[$"Cleanup"] = CleanupAsync;
 			(bool success, var elapsed) = await AsyncSteps.RunAsync();
+
+			await progressTask;
 
 			var speedup = DownloadOptions.RuntimeLength / elapsed;
 			Serilog.Log.Information($"Speedup is {speedup:F0}x realtime.");
 
 			return success;
+
+			async Task reportProgress()
+			{
+				AverageSpeed averageSpeed = new();
+
+				while (InputFileStream.CanRead && InputFileStream.Length > InputFilePosition && !InputFileStream.IsCancelled)
+				{
+					averageSpeed.AddPosition(InputFilePosition);
+
+					var estSecsRemaining = (InputFileStream.Length - InputFilePosition) / averageSpeed.Average;
+
+					if (double.IsNormal(estSecsRemaining))
+						OnDecryptTimeRemaining(TimeSpan.FromSeconds(estSecsRemaining));
+
+					var progressPercent = 100d * InputFilePosition / InputFileStream.Length;
+
+					OnDecryptProgressUpdate(
+						new DownloadProgress
+						{
+							ProgressPercentage = progressPercent,
+							BytesReceived = InputFilePosition,
+							TotalBytesToReceive = InputFileStream.Length
+						});
+
+					await Task.Delay(200);
+				}
+
+				OnDecryptTimeRemaining(TimeSpan.Zero);
+				OnDecryptProgressUpdate(zeroProgress);
+			}
 		}
 
 		public abstract Task CancelAsync();
@@ -101,6 +136,7 @@ namespace AaxDecrypter
 		protected virtual void FinalizeDownload()
 		{
 			nfsPersister?.Dispose();
+			OnDecryptTimeRemaining(TimeSpan.Zero);
 			OnDecryptProgressUpdate(zeroProgress);
 		}
 

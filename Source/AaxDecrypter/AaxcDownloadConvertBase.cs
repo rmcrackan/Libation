@@ -1,31 +1,15 @@
 ﻿using AAXClean;
-using Dinah.Core.Net.Http;
 using System;
 using System.Threading.Tasks;
 
 namespace AaxDecrypter
-{
+{	
 	public abstract class AaxcDownloadConvertBase : AudiobookDownloadBase
 	{
 		public event EventHandler<AppleTags> RetrievedMetadata;
 
 		protected AaxFile AaxFile { get; private set; }
-		private Mp4Operation aaxConversion;
-		protected Mp4Operation AaxConversion
-		{
-			get => aaxConversion;
-			set
-			{
-				if (aaxConversion is not null)
-					aaxConversion.ConversionProgressUpdate -= AaxFile_ConversionProgressUpdate;
-
-				if (value is not null)
-				{
-					aaxConversion = value;
-					aaxConversion.ConversionProgressUpdate += AaxFile_ConversionProgressUpdate;
-				}
-			}
-		}
+		protected Mp4Operation AaxConversion { get; set; }
 
 		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
 			: base(outFileName, cacheDirectory, dlOptions) { }
@@ -43,12 +27,6 @@ namespace AaxDecrypter
 			IsCanceled = true;
 			await (AaxConversion?.CancelAsync() ?? Task.CompletedTask);
 			FinalizeDownload();
-		}
-
-		protected override void FinalizeDownload()
-		{
-			AaxConversion = null;
-			base.FinalizeDownload();
 		}
 
 		protected bool Step_GetMetadata()
@@ -81,25 +59,6 @@ namespace AaxDecrypter
 			RetrievedMetadata?.Invoke(this, AaxFile.AppleTags);
 
 			return !IsCanceled;
-		}
-
-		private void AaxFile_ConversionProgressUpdate(object sender, ConversionProgressEventArgs e)
-		{
-			var remainingSecsToProcess = (e.TotalDuration - e.ProcessPosition).TotalSeconds;
-			var estTimeRemaining = remainingSecsToProcess / e.ProcessSpeed;
-
-			if (double.IsNormal(estTimeRemaining))
-				OnDecryptTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
-
-			var progressPercent = e.ProcessPosition / e.TotalDuration;
-
-			OnDecryptProgressUpdate(
-				new DownloadProgress
-				{
-					ProgressPercentage = 100 * progressPercent,
-					BytesReceived = (long)(InputFileStream.Length * progressPercent),
-					TotalBytesToReceive = InputFileStream.Length
-				});
 		}
 	}
 }

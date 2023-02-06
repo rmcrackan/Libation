@@ -1,5 +1,4 @@
-﻿using Dinah.Core.Net.Http;
-using FileManager;
+﻿using FileManager;
 using System;
 using System.Threading.Tasks;
 
@@ -7,6 +6,8 @@ namespace AaxDecrypter
 {
 	public class UnencryptedAudiobookDownloader : AudiobookDownloadBase
 	{
+		protected override long InputFilePosition => InputFileStream.WritePosition;
+
 		public UnencryptedAudiobookDownloader(string outFileName, string cacheDirectory, IDownloadOptions dlLic)
 			: base(outFileName, cacheDirectory, dlLic)
 		{
@@ -25,31 +26,9 @@ namespace AaxDecrypter
 
 		protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
 		{
-			DateTime startTime = DateTime.Now;
-
 			// MUST put InputFileStream.Length first, because it starts background downloader.
-
-			while (InputFileStream.Length > InputFileStream.WritePosition && !InputFileStream.IsCancelled)
-			{
-				var rate = InputFileStream.WritePosition / (DateTime.Now - startTime).TotalSeconds;
-
-				var estTimeRemaining = (InputFileStream.Length - InputFileStream.WritePosition) / rate;
-
-				if (double.IsNormal(estTimeRemaining))
-					OnDecryptTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
-
-				var progressPercent = 100d * InputFileStream.WritePosition / InputFileStream.Length;
-
-				OnDecryptProgressUpdate(
-					new DownloadProgress
-					{
-						ProgressPercentage = progressPercent,
-						BytesReceived = InputFileStream.WritePosition,
-						TotalBytesToReceive = InputFileStream.Length
-					});
-
+			while (InputFileStream.Length > InputFilePosition && !InputFileStream.IsCancelled)
 				await Task.Delay(200);
-			}
 
 			if (IsCanceled)
 				return false;
