@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using AppScaffolding;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.DataBinding;

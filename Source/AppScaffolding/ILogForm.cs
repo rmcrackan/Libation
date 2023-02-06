@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LibationWinForms.ProcessQueue
+﻿namespace AppScaffolding
 {
 	public interface ILogForm
 	{

@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using LibationAvalonia.ViewModels;
 using ApplicationServices;
 using DataLayer;
+using AppScaffolding;
 
 namespace LibationAvalonia.Views
 {
