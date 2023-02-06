@@ -29,7 +29,7 @@ namespace LibationAvalonia.Dialogs
 				var editor = TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(Configuration.Instance.Books, Configuration.Instance.FileTemplate);
 				_viewModel = new(Configuration.Instance, editor);
 				_viewModel.resetTextBox(editor.EditingTemplate.TemplateText);
-				Title = $"Edit {editor.EditingTemplate.Name}";
+				Title = $"Edit {editor.TemplateName}";
 				DataContext = _viewModel;
 			}
 		}
@@ -40,7 +40,7 @@ namespace LibationAvalonia.Dialogs
 
 			_viewModel = new EditTemplateViewModel(Configuration.Instance, templateEditor);
 			_viewModel.resetTextBox(templateEditor.EditingTemplate.TemplateText);
-			Title = $"Edit {templateEditor.EditingTemplate.Name}";
+			Title = $"Edit {templateEditor.TemplateName}";
 			DataContext = _viewModel;
 		}
 
@@ -82,7 +82,7 @@ namespace LibationAvalonia.Dialogs
 			{
 				config = configuration;
 				TemplateEditor = templates;
-				Description = templates.EditingTemplate.Description;
+				Description = templates.TemplateDescription;
 				ListItems
 				= new AvaloniaList<Tuple<string, string, string>>(
 					TemplateEditor

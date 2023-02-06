@@ -37,9 +37,9 @@ namespace LibationWinForms.Dialogs
 
 			warningsLbl.Text = "";
 
-			this.Text = $"Edit {templateEditor.EditingTemplate.Name}";
+			this.Text = $"Edit {templateEditor.TemplateName}";
 
-			this.templateLbl.Text = templateEditor.EditingTemplate.Description;
+			this.templateLbl.Text = templateEditor.TemplateDescription;
 			resetTextBox(templateEditor.EditingTemplate.TemplateText);
 
 			// populate list view

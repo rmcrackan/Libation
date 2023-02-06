@@ -9,14 +9,14 @@ public class NamingTemplate
 {
 	public string TemplateText { get; private set; }
 	public IEnumerable<ITemplateTag> TagsInUse => _tagsInUse;
-	public IEnumerable<ITemplateTag> TagsRegistered => Classes.SelectMany(t => t).DistinctBy(t => t.TagName);
+	public IEnumerable<ITemplateTag> TagsRegistered => TagCollections.SelectMany(t => t).DistinctBy(t => t.TagName);
 	public IEnumerable<string> Warnings => errors.Concat(warnings);
 	public IEnumerable<string> Errors => errors;
 
 	private Delegate templateToString;
 	private readonly List<string> warnings = new();
 	private readonly List<string> errors = new();
-	private readonly IEnumerable<TagCollection> Classes;
+	private readonly IEnumerable<TagCollection> TagCollections;
 	private readonly List<ITemplateTag> _tagsInUse = new();
 
 	public const string ERROR_NULL_IS_INVALID = "Null template is invalid.";
@@ -25,21 +25,18 @@ public class NamingTemplate
 	public const string WARNING_NO_TAGS = "Should use tags. Eg: <title>";
 
 	/// <summary>
-	/// Invoke the <see cref="NamingTemplate"/> to  
+	/// Invoke the <see cref="NamingTemplate"/>
 	/// </summary>
 	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagCollection{TClass}"/> and <see cref="ConditionalTagCollection{TClass}"/></param>
-	/// <returns></returns>
 	public TemplatePart Evaluate(params object[] propertyClasses)
 	{
-		//Match propertyClasses to the arguments required by templateToString.DynamicInvoke()
-		var delegateArgTypes = templateToString.GetType().GenericTypeArguments[..^1];
+		// Match propertyClasses to the arguments required by templateToString.DynamicInvoke(). 
+		// First parameter is "this", so ignore it.
+		var delegateArgTypes = templateToString.Method.GetParameters().Skip(1);
 
-		object[] args = new object[delegateArgTypes.Length];
-
-		for (int i = 0; i < delegateArgTypes.Length; i++)
-			args[i] = propertyClasses.First(o => o.GetType() == delegateArgTypes[i]);
-
-		if (args.Any(a => a is null))
+		object[] args = delegateArgTypes.Join(propertyClasses, o => o.ParameterType, i => i.GetType(), (_, i) => i).ToArray();
+		
+		if (args.Length != delegateArgTypes.Count())
 			throw new ArgumentException($"This instance of {nameof(NamingTemplate)} requires the following arguments: {string.Join(", ", delegateArgTypes.Select(t => t.Name).Distinct())}");
 
 		return ((TemplatePart)templateToString.DynamicInvoke(args)).FirstPart;
@@ -47,22 +44,17 @@ public class NamingTemplate
 
 	/// <summary>Parse a template string to a <see cref="NamingTemplate"/></summary>
 	/// <param name="template">The template string to parse</param>
-	/// <param name="tagClasses">A collection of <see cref="TagCollection"/> with
+	/// <param name="tagCollections">A collection of <see cref="TagCollection"/> with
 	/// properties registered to match to the <paramref name="template"/></param>
-	public static NamingTemplate Parse(string template, IEnumerable<TagCollection> tagClasses)
+	public static NamingTemplate Parse(string template, IEnumerable<TagCollection> tagCollections)
 	{
-		var namingTemplate = new NamingTemplate(tagClasses);
+		var namingTemplate = new NamingTemplate(tagCollections);
 		try
 		{
 			BinaryNode intermediate = namingTemplate.IntermediateParse(template);
 			Expression evalTree = GetExpressionTree(intermediate);
 
-			List<ParameterExpression> parameters = new();
-
-			foreach (var tagclass in tagClasses)
-					parameters.Add(tagclass.Parameter);
-
-			namingTemplate.templateToString = Expression.Lambda(evalTree, parameters).Compile();
+			namingTemplate.templateToString = Expression.Lambda(evalTree, tagCollections.Select(tc => tc.Parameter)).Compile();
 		}
 		catch(Exception ex)
 		{
@@ -73,7 +65,7 @@ public class NamingTemplate
 
 	private NamingTemplate(IEnumerable<TagCollection> properties)
 	{
-		Classes = properties;
+		TagCollections = properties;
 	}
 
 	/// <summary>Builds an <see cref="Expression"/> tree that will evaluate to a <see cref="TemplatePart"/></summary>
@@ -84,7 +76,7 @@ public class NamingTemplate
 		else if (node.IsConditional) return Expression.Condition(node.Expression, concatExpression(node), TemplatePart.Blank);
 		else return concatExpression(node);
 
-		Expression concatExpression(BinaryNode node)
+		static Expression concatExpression(BinaryNode node)
 			=> TemplatePart.CreateConcatenation(GetExpressionTree(node.LeftChild), GetExpressionTree(node.RightChild));
 	}
 
@@ -100,8 +92,8 @@ public class NamingTemplate
 
 		TemplateText = templateString;
 
-		BinaryNode currentNode = BinaryNode.CreateRoot();
-		BinaryNode topNode = currentNode;
+		BinaryNode topNode = BinaryNode.CreateRoot();
+		BinaryNode currentNode = topNode;
 		List<char> literalChars = new();
 
 		while (templateString.Length > 0)
@@ -170,7 +162,7 @@ public class NamingTemplate
 		{
 			if (literalChars.Count != 0)
 			{
-				currentNode = currentNode.AddNewNode(BinaryNode.CreateValue(new string(literalChars.ToArray())));
+				currentNode = currentNode.AddNewNode(BinaryNode.CreateValue(string.Concat(literalChars)));
 				literalChars.Clear();
 			}
 		}
@@ -178,7 +170,7 @@ public class NamingTemplate
 
 	private bool StartsWith(string template, out string exactName, out IPropertyTag propertyTag, out Expression valueExpression)
 	{
-		foreach (var pc in Classes)
+		foreach (var pc in TagCollections)
 		{
 			if (pc.StartsWith(template, out exactName, out propertyTag, out valueExpression))
 				return true;
@@ -192,7 +184,7 @@ public class NamingTemplate
 
 	private bool StartsWithClosing(string template, out string exactName, out IClosingPropertyTag closingPropertyTag)
 	{
-		foreach (var pc in Classes)
+		foreach (var pc in TagCollections)
 		{
 			if (pc.StartsWithClosing(template, out exactName, out closingPropertyTag))
 				return true;

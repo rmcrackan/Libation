@@ -11,6 +11,8 @@ namespace LibationFileManager
 {
 	public interface ITemplate
 	{
+		static abstract string Name { get; }
+		static abstract string Description { get; }
 		static abstract string DefaultTemplate { get; }
 		static abstract IEnumerable<TagCollection> TagCollections { get; }
 	}
@@ -42,12 +44,12 @@ namespace LibationFileManager
 		{
 			var namingTemplate = NamingTemplate.Parse(templateText, T.TagCollections);
 
-			template = new() { Template = namingTemplate };
+			template = new() { NamingTemplate = namingTemplate };
 			return !namingTemplate.Errors.Any();
 		}
 
 		private static T GetDefaultTemplate<T>() where T : Templates, ITemplate, new()
-			=> new() { Template = NamingTemplate.Parse(T.DefaultTemplate, T.TagCollections) };
+			=> new() { NamingTemplate = NamingTemplate.Parse(T.DefaultTemplate, T.TagCollections) };
 
 		static Templates()
 		{
@@ -72,21 +74,19 @@ namespace LibationFileManager
 
 		#region Template Properties
 
-		public IEnumerable<TemplateTags> TagsRegistered => Template.TagsRegistered.Cast<TemplateTags>();
-		public IEnumerable<TemplateTags> TagsInUse => Template.TagsInUse.Cast<TemplateTags>();
-		public abstract string Name { get; }
-		public abstract string Description { get; }
-		public string TemplateText => Template.TemplateText;
-		protected NamingTemplate Template { get; private set; }
+		public IEnumerable<TemplateTags> TagsRegistered => NamingTemplate.TagsRegistered.Cast<TemplateTags>();
+		public IEnumerable<TemplateTags> TagsInUse => NamingTemplate.TagsInUse.Cast<TemplateTags>();
+		public string TemplateText => NamingTemplate.TemplateText;
+		protected NamingTemplate NamingTemplate { get; private set; }
 
 		#endregion
 
 		#region validation
 
-		public virtual IEnumerable<string> Errors => Template.Errors;
+		public virtual IEnumerable<string> Errors => NamingTemplate.Errors;
 		public bool IsValid => !Errors.Any();
 
-		public virtual IEnumerable<string> Warnings => Template.Warnings;
+		public virtual IEnumerable<string> Warnings => NamingTemplate.Warnings;
 		public bool HasWarnings => Warnings.Any();
 
 		#endregion
@@ -97,7 +97,7 @@ namespace LibationFileManager
 		{
 			ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 			ArgumentValidator.EnsureNotNull(multiChapProps, nameof(multiChapProps));
-			return string.Join("", Template.Evaluate(libraryBookDto, multiChapProps).Select(p => p.Value));
+			return string.Concat(NamingTemplate.Evaluate(libraryBookDto, multiChapProps).Select(p => p.Value));
 		}
 
 		public LongPath GetFilename(LibraryBookDto libraryBookDto, string baseDir, string fileExtension, ReplacementCharacters replacements = null, bool returnFirstExisting = false)
@@ -128,7 +128,7 @@ namespace LibationFileManager
 		{
 			fileExtension = FileUtility.GetStandardizedExtension(fileExtension);
 
-			var parts = Template.Evaluate(dtos).ToList();
+			var parts = NamingTemplate.Evaluate(dtos).ToList();
 			var pathParts = GetPathParts(GetTemplatePartsStrings(parts, replacements));
 
 			//Remove 1 character from the end of the longest filename part until
@@ -154,7 +154,7 @@ namespace LibationFileManager
 				}
 			}
 
-			var fullPath = Path.Combine(pathParts.Select(fileParts => string.Join("", fileParts)).Prepend(baseDir).ToArray());
+			var fullPath = Path.Combine(pathParts.Select(fileParts => string.Concat(fileParts)).Prepend(baseDir).ToArray());
 
 			return  FileUtility.GetValidFilename(fullPath, replacements, fileExtension, returnFirstExisting);
 		}
@@ -286,8 +286,8 @@ namespace LibationFileManager
 
 		public class FolderTemplate : Templates, ITemplate
 		{
-			public override string Name => "Folder Template";
-			public override string Description => Configuration.GetDescription(nameof(Configuration.FolderTemplate));
+			public static string Name { get; }= "Folder Template";
+			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate));
 			public static string DefaultTemplate { get; } = "<title short> [<id>]";
 			public static IEnumerable<TagCollection> TagCollections => new TagCollection[] { filePropertyTags, conditionalTags };
 
@@ -305,29 +305,29 @@ namespace LibationFileManager
 
 		public class FileTemplate : Templates, ITemplate
 		{
-			public override string Name => "File Template";
-			public override string Description => Configuration.GetDescription(nameof(Configuration.FileTemplate));
+			public static string Name { get; } = "File Template";
+			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FileTemplate));
 			public static string DefaultTemplate { get; } = "<title> [<id>]";
 			public static IEnumerable<TagCollection> TagCollections { get; } = new TagCollection[] { filePropertyTags, conditionalTags };
 		}
 
 		public class ChapterFileTemplate : Templates, ITemplate
 		{
-			public override string Name => "Chapter File Template";
-			public override string Description => Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));
+			public static string Name { get; } = "Chapter File Template";
+			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));
 			public static string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
 			public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(filePropertyTags).Append(conditionalTags);
 
 			public override IEnumerable<string> Warnings
-				=> Template.TagsInUse.Any(t => t.TagName.In(TemplateTags.ChNumber.TagName, TemplateTags.ChNumber0.TagName))
+				=> NamingTemplate.TagsInUse.Any(t => t.TagName.In(TemplateTags.ChNumber.TagName, TemplateTags.ChNumber0.TagName))
 				? base.Warnings
 				: base.Warnings.Append(WARNING_NO_CHAPTER_NUMBER_TAG);
 		}
 
 		public class ChapterTitleTemplate : Templates, ITemplate
 		{
-			public override string Name => "Chapter Title Template";
-			public override string Description => Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate));
+			public static string Name { get; } = "Chapter Title Template";
+			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate));
 			public static string DefaultTemplate => "<ch#> - <title short>: <ch title>";
 			public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(conditionalTags);
 
