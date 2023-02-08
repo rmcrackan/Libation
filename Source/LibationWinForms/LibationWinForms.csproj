@@ -49,9 +49,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
-		<ProjectReference Include="..\AppScaffolding\AppScaffolding.csproj" />
-		<ProjectReference Include="..\FileLiberator\FileLiberator.csproj" />
+	  <ProjectReference Include="..\LibationUiBase\LibationUiBase.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="Form1.*.cs">

@@ -1,6 +1,8 @@
 ﻿using AAXClean;
 using AAXClean.Codecs;
+using Dinah.Core.Net.Http;
 using FileManager;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -8,6 +10,7 @@ namespace AaxDecrypter
 {
 	public class AaxcDownloadSingleConverter : AaxcDownloadConvertBase
 	{
+		private readonly AverageSpeed averageSpeed = new();
 		public AaxcDownloadSingleConverter(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
 			: base(outFileName, cacheDirectory, dlOptions)
 		{
@@ -35,7 +38,10 @@ namespace AaxDecrypter
 					&& DownloadOptions.OutputFormat is OutputFormat.M4b)
 				{
 					outputFile.Close();
-					await (AaxConversion = Mp4File.RelocateMoovAsync(OutputFileName));
+					AaxConversion = Mp4File.RelocateMoovAsync(OutputFileName);
+					AaxConversion.ConversionProgressUpdate += AaxConversion_MoovProgressUpdate;
+					await AaxConversion;
+					AaxConversion.ConversionProgressUpdate -= AaxConversion_MoovProgressUpdate;
 				}
 
 				return AaxConversion.IsCompletedSuccessfully;
@@ -44,6 +50,27 @@ namespace AaxDecrypter
 			{
 				FinalizeDownload();
 			}
+		}
+
+		private void AaxConversion_MoovProgressUpdate(object sender, ConversionProgressEventArgs e)
+		{
+			averageSpeed.AddPosition(e.ProcessPosition.TotalSeconds);
+
+			var remainingTimeToProcess = (e.TotalDuration - e.ProcessPosition).TotalSeconds;
+			var estTimeRemaining = remainingTimeToProcess / averageSpeed.Average;
+
+			if (double.IsNormal(estTimeRemaining))
+				OnDecryptTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
+
+			var progressPercent = 100d * (1 - remainingTimeToProcess / e.TotalDuration.TotalSeconds);
+
+			OnDecryptProgressUpdate(
+				new DownloadProgress
+				{
+					ProgressPercentage = progressPercent,
+					BytesReceived = (long)(InputFileStream.Length * progressPercent),
+					TotalBytesToReceive = InputFileStream.Length
+				});
 		}
 
 		private Mp4Operation decryptAsync(Stream outputFile)

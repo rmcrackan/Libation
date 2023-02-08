@@ -131,7 +131,7 @@ namespace NamingTemplateTests
 			template.Warnings.Should().HaveCount(numTags > 0 ? 0 : 1);
 			template.Errors.Should().HaveCount(0);
 
-			var templateText = string.Join("", template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
+			var templateText = string.Concat(template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
 
 			templateText.Should().Be(outStr);
 		}
@@ -186,7 +186,7 @@ namespace NamingTemplateTests
 			template.Warnings.Should().HaveCount(0);
 			template.Errors.Should().HaveCount(0);
 
-			var templateText = string.Join("", template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
+			var templateText = string.Concat(template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
 
 			templateText.Should().Be(outStr);
 

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace LibationWinForms.ProcessQueue
+namespace LibationUiBase
 {
 	// decouple serilog and form. include convenience factory method
 	public class LogMe

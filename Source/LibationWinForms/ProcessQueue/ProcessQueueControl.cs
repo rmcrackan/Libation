@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using LibationFileManager;
+using LibationUiBase;
 
 namespace LibationWinForms.ProcessQueue
 {

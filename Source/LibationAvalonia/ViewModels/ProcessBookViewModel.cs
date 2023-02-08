@@ -12,6 +12,7 @@ using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using FileLiberator;
 using LibationFileManager;
+using LibationUiBase;
 using ReactiveUI;
 
 namespace LibationAvalonia.ViewModels
@@ -394,7 +395,7 @@ $@"  Title: {libraryBook.Book.Title}
 			return ProcessBookResult.FailedRetry;
 		}
 
-		private string SkipDialogText => @"
+		private static string SkipDialogText => @"
 An error occurred while trying to process this book.
 {0}
 
@@ -404,9 +405,9 @@ An error occurred while trying to process this book.
 
 - IGNORE: Permanently ignore this book. Continue processing books. (Will not try this book again later.)
 ".Trim();
-		private MessageBoxButtons SkipDialogButtons => MessageBoxButtons.AbortRetryIgnore;
-		private MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
-		private DialogResult SkipResult => DialogResult.Ignore;
+		private static MessageBoxButtons SkipDialogButtons => MessageBoxButtons.AbortRetryIgnore;
+		private static MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
+		private static DialogResult SkipResult => DialogResult.Ignore;
 	}
 
 	#endregion

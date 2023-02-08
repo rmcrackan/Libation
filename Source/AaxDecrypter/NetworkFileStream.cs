@@ -238,10 +238,10 @@ namespace AaxDecrypter
 		#region Download Stream Reader
 
 		[JsonIgnore]
-		public override bool CanRead => true;
+		public override bool CanRead => _readFile.CanRead;
 
 		[JsonIgnore]
-		public override bool CanSeek => true;
+		public override bool CanSeek => _readFile.CanSeek;
 
 		[JsonIgnore]
 		public override bool CanWrite => false;

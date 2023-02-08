@@ -12,6 +12,8 @@ namespace LibationFileManager
 		bool IsFilePath { get; }
 		LongPath BaseDirectory { get; }
 		string DefaultTemplate { get; }
+		string TemplateName { get; }
+		string TemplateDescription { get; }
 		Templates Folder { get; }
 		Templates File { get; }
 		Templates Name { get; }
@@ -28,6 +30,8 @@ namespace LibationFileManager
 		public bool IsFilePath => EditingTemplate is not Templates.ChapterTitleTemplate;
 		public LongPath BaseDirectory { get; private init; }
 		public string DefaultTemplate { get; private init; }
+		public string TemplateName { get; private init; }
+		public string TemplateDescription { get; private init; }
 		public Templates Folder { get; private set; }
 		public Templates File { get; private set; }
 		public Templates Name { get; private set; }
@@ -99,7 +103,10 @@ namespace LibationFileManager
 			{
 				_editingTemplate = template,
 				BaseDirectory = baseDir,
-				DefaultTemplate = T.DefaultTemplate
+				DefaultTemplate = T.DefaultTemplate,
+				TemplateName = T.Name,
+				TemplateDescription = T.Description
+				
 			};
 
 			if (!templateEditor.IsFolder && !templateEditor.IsFilePath)
@@ -118,7 +125,9 @@ namespace LibationFileManager
 			var templateEditor = new TemplateEditor<T>
 			{
 				_editingTemplate = nameTemplate,
-				DefaultTemplate = T.DefaultTemplate
+				DefaultTemplate = T.DefaultTemplate,
+				TemplateName = T.Name,
+				TemplateDescription = T.Description
 			};
 
 			if (templateEditor.IsFolder || templateEditor.IsFilePath)

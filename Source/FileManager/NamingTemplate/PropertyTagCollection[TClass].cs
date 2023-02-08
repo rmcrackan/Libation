@@ -44,6 +44,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 	/// <summary>
 	/// Register a nullable value type <typeparamref name="TClass"/> property.
 	/// </summary>
+	/// <typeparam name="TProperty">Type of the property from <see cref="TClass"/></typeparam>
 	/// <param name="propertyGetter">A Func to get the string property from <see cref="TClass"/></param>
 	/// <param name="toString">ToString function that accepts the <typeparamref name="TProperty"/> property and returnes a string</param>
 	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty?> propertyGetter, Func<TProperty, string> toString)
@@ -64,6 +65,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 	/// <summary>
 	/// Register a <typeparamref name="TClass"/> property.
 	/// </summary>
+	/// <typeparam name="TProperty">Type of the property from <see cref="TClass"/></typeparam>
 	/// <param name="propertyGetter">A Func to get the string property from <see cref="TClass"/></param>
 	/// <param name="toString">ToString function that accepts the <typeparamref name="TProperty"/> property and returnes a string</param>
 	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, Func<TProperty, string> toString)
@@ -75,16 +77,25 @@ public class PropertyTagCollection<TClass> : TagCollection
 		ArgumentValidator.EnsureNotNull(templateTag, nameof(templateTag));
 		ArgumentValidator.EnsureNotNull(propertyGetter, nameof(propertyGetter));
 
-		formatter ??= GetDefaultFormatter<TPropertyValue>();
+		var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
 
-		if (formatter is null)
-			RegisterWithToString<TProperty, TPropertyValue>(templateTag, propertyGetter, null);
+		if ((formatter ??= GetDefaultFormatter<TPropertyValue>()) is null)
+			AddPropertyTag(new PropertyTag<TPropertyValue>(templateTag, Options, expr, ToStringFunc));
 		else
-		{
-			var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
-			AddPropertyTag(PropertyTag.Create(templateTag, Options, expr, formatter));
-		}
+			AddPropertyTag(new PropertyTag<TPropertyValue>(templateTag, Options, expr, formatter));
 	}
+
+	private void RegisterWithToString<TProperty, TPropertyValue>
+		(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, Func<TPropertyValue, string> toString)
+	{
+		ArgumentValidator.EnsureNotNull(templateTag, nameof(templateTag));
+		ArgumentValidator.EnsureNotNull(propertyGetter, nameof(propertyGetter));
+
+		var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
+		AddPropertyTag(new PropertyTag<TPropertyValue>(templateTag, Options, expr, toString ?? ToStringFunc));
+	}
+
+	private static string ToStringFunc<T>(T propertyValue) => propertyValue?.ToString() ?? "";
 
 	private PropertyFormatter<T> GetDefaultFormatter<T>()
 	{
@@ -93,54 +104,35 @@ public class PropertyTagCollection<TClass> : TagCollection
 			var del = defaultFormatters.FirstOrDefault(kvp => kvp.Key == typeof(T)).Value;
 			return del is null ? null : Delegate.CreateDelegate(typeof(PropertyFormatter<T>), del.Target, del.Method) as PropertyFormatter<T>;
 		}
-		catch
-		{
-			return null;
-		}
+		catch { return null; }
 	}
 
-	private void RegisterWithToString<TProperty, TPropertyValue>
-		(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, Func<TPropertyValue, string> toString)
+	private class PropertyTag<TPropertyValue> : TagBase
 	{
-		static string ToStringFunc(TPropertyValue value) => value?.ToString() ?? "";
-		ArgumentValidator.EnsureNotNull(templateTag, nameof(templateTag));
-		ArgumentValidator.EnsureNotNull(propertyGetter, nameof(propertyGetter));
+		private Func<Expression, string, Expression> CreateToStringExpression { get; }
 
-		var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
-		AddPropertyTag(PropertyTag.Create(templateTag, Options, expr, toString ?? ToStringFunc));
-	}
-
-	private class PropertyTag : TagBase
-	{
-		private Func<Expression, string, Expression> CreateToStringExpression { get; init; }
-		private PropertyTag(ITemplateTag templateTag, Expression propertyGetter) : base(templateTag, propertyGetter) { }
-
-		public static PropertyTag Create<TPropertyValue>(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, PropertyFormatter<TPropertyValue> formatter)
+		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, PropertyFormatter<TPropertyValue> formatter)
+			: base(templateTag, propertyGetter)
 		{
-			return new PropertyTag(templateTag, propertyGetter)
-			{
-				NameMatcher = new Regex(@$"^<{templateTag.TagName.Replace(" ", "\\s*?")}\s*?(?:\[([^\[\]]*?)\]\s*?)?>", options),
-				CreateToStringExpression = (expVal, format) =>
+			NameMatcher = new Regex(@$"^<{templateTag.TagName.Replace(" ", "\\s*?")}\s*?(?:\[([^\[\]]*?)\]\s*?)?>", options);
+			CreateToStringExpression = (expVal, format) =>
 				Expression.Call(
 					formatter.Target is null ? null : Expression.Constant(formatter.Target),
 					formatter.Method,
 					Expression.Constant(templateTag),
 					expVal,
-					Expression.Constant(format))
-			};
+					Expression.Constant(format));
 		}
 
-		public static PropertyTag Create<TPropertyValue>(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, Func<TPropertyValue, string> toString)
+		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, Func<TPropertyValue, string> toString)
+			: base(templateTag, propertyGetter)
 		{
-			return new PropertyTag(templateTag, propertyGetter)
-			{
-				NameMatcher = new Regex(@$"^<{templateTag.TagName}>", options),
-				CreateToStringExpression = (expVal, _) =>
+			NameMatcher = new Regex(@$"^<{templateTag.TagName.Replace(" ", "\\s*?")}>", options);
+			CreateToStringExpression = (expVal, _) =>
 					Expression.Call(
 						toString.Target is null ? null : Expression.Constant(toString.Target),
 						toString.Method,
-						expVal)
-			};
+						expVal);
 		}
 
 		protected override Expression GetTagExpression(string exactName, string formatString)
