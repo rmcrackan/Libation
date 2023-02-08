@@ -62,9 +62,9 @@ namespace FileManager
 
 		public static implicit operator LongPath(string path)
 		{
-			if (!IsWindows) return new LongPath(path);
-
 			if (path is null) return null;
+
+			if (!IsWindows) return new LongPath(path);
 
 			//File I/O functions in the Windows API convert "/" to "\" as part of converting
 			//the name to an NT-style name, except when using the "\\?\" prefix 
