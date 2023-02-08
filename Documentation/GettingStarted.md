@@ -20,6 +20,13 @@
 
 ### [Download Libation](https://github.com/rmcrackan/Libation/releases)
 
+##### Which version? Chardonnay vs Classic
+
+Nearly 100% of the difference is look and feel -- it's a matter of preference.
+
+Chardonnay has an updated look and will work and look the same on Windows, Mac, and Linux.  
+Classic is Windows only. It has an older look because it's built with older, duller, and more mature technology. This tech has built into it better support for things like accessibility for screen readers.
+
 ### Installation
 
 * Windows
