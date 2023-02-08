@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApplicationServices;
-using AppScaffolding;
 using AudibleApi;
 using AudibleApi.Common;
 using Avalonia.Media;
@@ -13,6 +12,7 @@ using Dinah.Core;
 using Dinah.Core.ErrorHandling;
 using FileLiberator;
 using LibationFileManager;
+using LibationUiBase;
 using ReactiveUI;
 
 namespace LibationAvalonia.ViewModels

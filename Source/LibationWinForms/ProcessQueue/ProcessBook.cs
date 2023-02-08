@@ -15,7 +15,7 @@ using Dinah.Core.ErrorHandling;
 using Dinah.Core.WindowsDesktop.Drawing;
 using FileLiberator;
 using LibationFileManager;
-using AppScaffolding;
+using LibationUiBase;
 
 namespace LibationWinForms.ProcessQueue
 {

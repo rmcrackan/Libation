@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace AppScaffolding
+namespace LibationUiBase
 {
 	public class ObjectComparer<T> : IComparer where T : IComparable
 	{

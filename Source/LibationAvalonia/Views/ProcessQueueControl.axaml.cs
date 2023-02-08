@@ -1,11 +1,11 @@
 ﻿using ApplicationServices;
-using AppScaffolding;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using DataLayer;
 using LibationAvalonia.ViewModels;
+using LibationUiBase;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

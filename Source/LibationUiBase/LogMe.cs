@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace AppScaffolding
+namespace LibationUiBase
 {
 	// decouple serilog and form. include convenience factory method
 	public class LogMe

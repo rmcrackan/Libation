@@ -1,10 +1,10 @@
 ﻿using ApplicationServices;
-using AppScaffolding;
 using Avalonia.Media;
 using DataLayer;
 using Dinah.Core;
 using FileLiberator;
 using LibationFileManager;
+using LibationUiBase;
 using ReactiveUI;
 using System;
 using System.Collections;

@@ -1,11 +1,11 @@
 ﻿using ApplicationServices;
-using AppScaffolding;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.DataBinding;
 using Dinah.Core.WindowsDesktop.Drawing;
 using FileLiberator;
 using LibationFileManager;
+using LibationUiBase;
 using System;
 using System.Collections;
 using System.Collections.Generic;

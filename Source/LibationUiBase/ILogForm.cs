@@ -1,4 +1,4 @@
-﻿namespace AppScaffolding
+﻿namespace LibationUiBase
 {
 	public interface ILogForm
 	{
