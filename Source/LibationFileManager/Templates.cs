@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using AaxDecrypter;
 using Dinah.Core;
 using FileManager;
 using FileManager.NamingTemplate;
+using NameParser;
 
 namespace LibationFileManager
 {
@@ -68,6 +70,8 @@ namespace LibationFileManager
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.ChapterTitleTemplate))]
 				(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>((string)e.NewValue);
+
+			HumanName.Suffixes.Add("ret");
 		}
 
 		#endregion
@@ -198,9 +202,9 @@ namespace LibationFileManager
 			{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
 			{ TemplateTags.Title, lb => lb.Title },
 			{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
-			{ TemplateTags.Author, lb => lb.AuthorNames },
+			{ TemplateTags.Author, lb => lb.Authors, NameFormatter },
 			{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor },
-			{ TemplateTags.Narrator, lb => lb.NarratorNames },
+			{ TemplateTags.Narrator, lb => lb.Narrators, NameFormatter },
 			{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator },
 			{ TemplateTags.Series, lb => lb.SeriesName },
 			{ TemplateTags.SeriesNumber, lb => lb.SeriesNumber },
@@ -246,6 +250,70 @@ namespace LibationFileManager
 		#endregion
 
 		#region Tag Formatters
+
+		private static readonly string[] suffixes = { "introductions", "introduction", "adaptation", "translator", "contributor", "illustrator", "director", "foreword", "editor", "preface", "adaptor", "afterword", "interviewer", "introductions", "essay", "editor/introduction" };
+
+		private static string removeSuffix(string namesString)
+		{
+			foreach (var suffix in suffixes)
+				namesString = namesString.Replace($" - {suffix}", "");
+
+			return namesString.Replace('’', '\'').Replace(" - Ret.", ", Ret.").Trim();
+		}
+
+		//Format must have at least one of the string {T}, {F}, {M}, {L}, or {S}
+		private static readonly Regex FormatRegex = new(@"[Ff]ormat\((.*?(?:{[TFMLS]})+.*?)\)", RegexOptions.Compiled);
+		//Sort must have exactly one of the characters F, M, or L
+		private static readonly Regex SortRegex = new(@"[Ss]ort\(\s*?([FML])\s*?\)", RegexOptions.Compiled);
+		//Max must have a 1 or 2-digit number
+		private static readonly Regex MaxRegex = new(@"[Mm]ax\(\s*?(\d{1,2})\s*?\)", RegexOptions.Compiled);
+		//Separator can be anything
+		private static readonly Regex SeparatorRegex = new(@"[Ss]eparator\((.*?)\)", RegexOptions.Compiled);
+
+		private static string NameFormatter(ITemplateTag templateTag, IEnumerable<string> value, string formatString)
+		{
+			var names = value.Select(n => new HumanName(removeSuffix(n), Prefer.FirstOverPrefix));
+					
+			var formatMatch = FormatRegex.Match(formatString);
+			string nameFormatString
+				= formatMatch.Success
+				? formatMatch.Groups[1].Value
+					.Replace("{T}", "{0}")
+					.Replace("{F}", "{1}")
+					.Replace("{M}", "{2}")
+					.Replace("{L}", "{3}")
+					.Replace("{S}", "{4}")
+				: "{0} {1} {2} {3} {4}"; // T F M L S
+
+			var maxMatch = MaxRegex.Match(formatString);
+			int maxNames = maxMatch.Success && int.TryParse(maxMatch.Groups[1].Value, out var max) ? int.Max(1, max) : int.MaxValue;
+
+			var separatorMatch = SeparatorRegex.Match(formatString);
+			var separatorString = separatorMatch.Success ? separatorMatch.Groups[1].Value : ", ";
+
+			var sortMatch = SortRegex.Match(formatString);
+			var sortedNames
+				= sortMatch.Success
+				? (
+					  sortMatch.Groups[1].Value.ToUpper() == "F" ? names.OrderBy(n => n.First)
+					: sortMatch.Groups[1].Value.ToUpper() == "M" ? names.OrderBy(n => n.Middle)
+					: sortMatch.Groups[1].Value.ToUpper() == "L" ? names.OrderBy(n => n.Last)
+					: names
+				)
+				: names;
+
+			var formattedNames = string.Join(
+					separatorString,
+					sortedNames
+					.Take(int.Min(sortedNames.Count(), maxNames))
+					.Select(n => string.Format(nameFormatString, n.Title, n.First, n.Middle, n.Last, n.Suffix).Trim())
+					);
+
+			while (formattedNames.Contains("  "))
+				formattedNames = formattedNames.Replace("  ", " ");
+
+			return formattedNames;
+		}
 
 		private static string getTitleShort(string title)
 			=> title?.IndexOf(':') > 0 ? title.Substring(0, title.IndexOf(':')) : title;

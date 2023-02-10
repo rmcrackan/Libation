@@ -239,6 +239,29 @@ namespace TemplatesTests
 		}
 
 		[TestMethod]
+		[DataRow("<author>", "Arthur Conan Doyle, Stephen Fry")]
+		[DataRow("<author[]>", "Arthur Conan Doyle, Stephen Fry")]
+		[DataRow("<author[sort(F)]>", "Arthur Conan Doyle, Stephen Fry")]
+		[DataRow("<author[sort(L)]>", "Arthur Conan Doyle, Stephen Fry")]
+		[DataRow("<author[sort(M)]>", "Stephen Fry, Arthur Conan Doyle")]
+		[DataRow("<author[sort(m)]>", "Arthur Conan Doyle, Stephen Fry")]
+		[DataRow("<author  [  max(  1  )  ]>", "Arthur Conan Doyle")]
+		[DataRow("<author[max(2)]>", "Arthur Conan Doyle, Stephen Fry")]
+		[DataRow("<author[max(3)]>", "Arthur Conan Doyle, Stephen Fry")]
+		[DataRow("<author[format({L}, {F})]>", "Doyle, Arthur, Fry, Stephen")]
+		[DataRow("<author[format({f}, {l})]>", "Arthur Conan Doyle, Stephen Fry")]
+		[DataRow("<author[format(First={F}, Last={L})]>", "First=Arthur, Last=Doyle, First=Stephen, Last=Fry")]
+		[DataRow("<author[format({L}, {F}) separator( - )]>", "Doyle, Arthur - Fry, Stephen")]
+		public void NameFormat(string template, string expected)
+		{
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(GetLibraryBook(), "", "", Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
 		[DataRow(@"C:\a\b", @"C:\a\b\foobar.ext", PlatformID.Win32NT)]
 		[DataRow(@"/a/b", @"/a/b/foobar.ext", PlatformID.Unix)]
 		public void IfSeries_empty(string directory, string expected, PlatformID platformID)

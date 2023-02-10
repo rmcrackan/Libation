@@ -46,7 +46,7 @@ namespace LibationAvalonia.Dialogs
 		{
 			tokenSource.Cancel();
 			//If this dialog is closed before it's completed, Closing is fired
-			//once for the form clising and again for the MessageBox closing.
+			//once for the form closing and again for the MessageBox closing.
 			Closing -= LocateAudiobooksDialog_Closing;
 			this.SaveSizeAndLocation(Configuration.Instance);
 		}

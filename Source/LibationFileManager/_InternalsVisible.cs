@@ -1,1 +1,0 @@
-﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(nameof(LibationFileManager) + ".Tests")]

@@ -10,6 +10,7 @@ These templates apply to both GUI and CLI.
   - [Conditional Tags](#conditional-tags)
 - [Tag Formatters](#tag-formatters)
   - [Text Formatters](#text-formatters)
+  - [Name List Formatters](#name-list-formatters)
   - [Integer Formatters](#integer-formatters)
   - [Date Formatters](#date-formatters)
 
@@ -26,9 +27,9 @@ These tags will be replaced in the template with the audiobook's values.
 |\<id\> **†**|Audible book ID (ASIN)|Text|
 |\<title\>|Full title|Text|
 |\<title short\>|Title. Stop at first colon|Text|
-|\<author\>|Author(s)|Text|
+|\<author\>|Author(s)|Name List|
 |\<first author\>|First author|Text|
-|\<narrator\>|Narrator(s)|Text|
+|\<narrator\>|Narrator(s)|Name List|
 |\<first narrator\>|First narrator|Text|
 |\<series\>|Name of series|Text|
 |\<series#\>|Number order in series|Text|
@@ -73,7 +74,7 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 
 
 # Tag Formatters
-**Text**, **Integer**, and **DateTime** tags can be optionally formatted using format text in square brackets after the tag name. Below is a list of supported formatters for each tag type.
+**Text**, **Name List**, **Integer**, and **DateTime** tags can be optionally formatted using format text in square brackets after the tag name. Below is a list of supported formatters for each tag type.
 
 ## Text Formatters
 |Formatter|Description|Example Usage|Example Result|
@@ -81,12 +82,18 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 |L|Converts text to lowercase|\<title[L]\>|a study in scarlet꞉ a sherlock holmes novel|
 |U|Converts text to uppercase|\<title short[U]\>|A STUDY IN SCARLET|
 
+## Name List Formatters
+|Formatter|Description|Example Usage|Example Result|
+|-|-|-|-|
+|separator()|Speficy the text used to join multiple people's names.<br><br>Default is ", "|`<author[separator(; )]>`|Arthur Conan Doyle; Stephen Fry|
+|format(\{T \| F \| M \| L \| S\})|Formats the human name using the name part tags.<br>\{T\} = Title (e.g. "Dr.")<br>\{F\} = First name<br>\{M\} = Middle name<br>\{L\} = Last Name<br>\{S\} = Suffix (e.g. "PhD")<br><br>Default is \{P\} \{F\} \{M\} \{L\} \{S\} |`<author[format({L}, {F}) separator(; )]>`|Doyle, Arthur; Fry, Stephen|
+|sort(F \| M \| L)|Sorts the names by first, middle, or last name<br><br>Default is unsorted|`<author[sort(M)]>`|Stephen Fry, Arthur Conan Doyle|
+|max(#)|Only use the first # of names<br><br>Default is all names|`<author[max(1)]>`|Arthur Conan Doyle|
+
 ## Integer Formatters
 |Formatter|Description|Example Usage|Example Result|
 |-|-|-|-|
-|# (a number)|Zero-pads the number|\<bitrate[4]\><br>\<series#[3]\><br>\<samplerate[6]\>|0128<br>001<br>044100|
-
-**Text**, **Integer**, and **DateTime** tags can be optionally formatted using format text in square brackets after the tag name. Below is a list of supported formatters for each tag type.
+|# (a number)|Zero-pads the number|\<bitrate\[4\]\><br>\<series#\[3\]\><br>\<samplerate\[6\]\>|0128<br>001<br>044100|
 
 ## Date Formatters
 Form more standard formatters, [see this guide from Microsoft](https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings).

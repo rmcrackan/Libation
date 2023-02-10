@@ -53,7 +53,7 @@
 						<MenuItem IsVisible="{Binding MultipleAccounts}" IsEnabled="{Binding RemoveMenuItemsEnabled}" Click="removeSomeAccountsToolStripMenuItem_Click" Header="_Remove Books from Some Accounts" />
 						
 						<Separator />
-						<MenuItem Click="locateAudiobooksToolStripMenuItem_Click" Header="Locate Audiobooks" />
+						<MenuItem Click="locateAudiobooksToolStripMenuItem_Click" Header="L_ocate Audiobooks" />
 
 					</MenuItem>
 					

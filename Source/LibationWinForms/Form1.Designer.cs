@@ -569,7 +569,7 @@
 			// 
 			this.locateAudiobooksToolStripMenuItem.Name = "locateAudiobooksToolStripMenuItem";
 			this.locateAudiobooksToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
-			this.locateAudiobooksToolStripMenuItem.Text = "Locate Audiobooks";
+			this.locateAudiobooksToolStripMenuItem.Text = "L&ocate Audiobooks";
 			this.locateAudiobooksToolStripMenuItem.Click += new System.EventHandler(this.locateAudiobooksToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator3
