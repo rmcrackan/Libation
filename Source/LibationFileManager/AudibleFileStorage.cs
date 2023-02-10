@@ -142,7 +142,6 @@ namespace LibationFileManager
 				if (cancellationToken.IsCancellationRequested)
 					yield break;
 
-				int generation = 0;
 				FilePathCache.CacheEntry audioFile = default;
 
 				try
@@ -150,8 +149,6 @@ namespace LibationFileManager
 					using var fileStream = File.OpenRead(path);
 
 					var mp4File = await Task.Run(() => new AAXClean.Mp4File(fileStream), cancellationToken);
-
-					generation = GC.GetGeneration(mp4File);
 
 					if (mp4File?.AppleTags?.Asin is not null)
 						audioFile = new FilePathCache.CacheEntry(mp4File.AppleTags.Asin, FileType.Audio, path);
@@ -163,7 +160,7 @@ namespace LibationFileManager
 				}
 				finally
 				{
-					GC.Collect(generation);
+					GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
 				}
 
 				if (audioFile is not null)
