@@ -73,7 +73,7 @@ namespace LibationWinForms.Dialogs
 
 			using var context = DbContexts.GetContext();
 
-			await foreach (var book in AudioFileLocator.FindAudiobooks(fbd.SelectedPath, tokenSource.Token))
+			await foreach (var book in AudioFileStorage.FindAudiobooksAsync(fbd.SelectedPath, tokenSource.Token))
 			{
 				try
 				{

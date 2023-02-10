@@ -278,9 +278,9 @@ namespace LibationFileManager
 			var sortedNames
 				= sortMatch.Success
 				? (
-					  sortMatch.Groups[1].Value.ToUpper() == "F" ? names.OrderBy(n => n.First)
-					: sortMatch.Groups[1].Value.ToUpper() == "M" ? names.OrderBy(n => n.Middle)
-					: sortMatch.Groups[1].Value.ToUpper() == "L" ? names.OrderBy(n => n.Last)
+					  sortMatch.Groups[1].Value == "F" ? names.OrderBy(n => n.First)
+					: sortMatch.Groups[1].Value == "M" ? names.OrderBy(n => n.Middle)
+					: sortMatch.Groups[1].Value == "L" ? names.OrderBy(n => n.Last)
 					: names
 				)
 				: names;

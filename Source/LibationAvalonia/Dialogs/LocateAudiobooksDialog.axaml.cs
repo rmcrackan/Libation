@@ -83,7 +83,7 @@ namespace LibationAvalonia.Dialogs
 
 			using var context = DbContexts.GetContext();
 
-			await foreach (var book in AudioFileLocator.FindAudiobooks(uri.LocalPath, tokenSource.Token))
+			await foreach (var book in AudioFileStorage.FindAudiobooksAsync(uri.LocalPath, tokenSource.Token))
 			{
 				try
 				{
