@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
+		Width="600" Height="450"
+		x:Class="LibationAvalonia.Dialogs.LocateAudiobooksDialog"
+        Title="Locate Audiobooks"
+		WindowStartupLocation="CenterOwner"
+		Icon="/Assets/libation.ico">
+
+	<Grid Margin="5" ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
+		<TextBlock Grid.Column="0" Text="Found Audiobooks" />
+		<StackPanel Grid.Column="1"  Orientation="Horizontal">
+
+			<TextBlock Text="IDs Found: " />
+			<TextBlock Text="{Binding FoundAsins}" />
+		</StackPanel>
+		<ListBox Margin="0,5,0,0" Grid.Row="1" Grid.ColumnSpan="2" Name="foundAudiobooksLB" Items="{Binding FoundFiles}" AutoScrollToSelectedItem="true">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Grid ColumnDefinitions="Auto,*">
+						<TextBlock Grid.Column="0" Margin="0,0,10,0" Text="{Binding Item1}" />
+						<TextBlock Grid.Column="1" Text="{Binding Item2}" />
+					</Grid>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</Grid>
+</Window>

@@ -7,6 +7,7 @@ using ApplicationServices;
 using Dinah.Core;
 using Dinah.Core.Threading;
 using LibationFileManager;
+using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {

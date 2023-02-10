@@ -12,7 +12,7 @@
 		Icon="/Assets/libation.ico">
 
 	<Grid RowDefinitions="Auto,Auto,Auto">
-
+		
 		<TextBlock
 			Grid.Row="0"
 			Margin="10,10,10,0"
