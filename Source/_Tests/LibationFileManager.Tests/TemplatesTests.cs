@@ -239,27 +239,87 @@ namespace TemplatesTests
 		}
 
 		[TestMethod]
-		[DataRow("<author>", "Arthur Conan Doyle, Stephen Fry")]
-		[DataRow("<author[]>", "Arthur Conan Doyle, Stephen Fry")]
-		[DataRow("<author[sort(F)]>", "Arthur Conan Doyle, Stephen Fry")]
-		[DataRow("<author[sort(L)]>", "Arthur Conan Doyle, Stephen Fry")]
-		[DataRow("<author[sort(M)]>", "Stephen Fry, Arthur Conan Doyle")]
-		[DataRow("<author[sort(m)]>", "Arthur Conan Doyle, Stephen Fry")]
-		[DataRow("<author  [  max(  1  )  ]>", "Arthur Conan Doyle")]
-		[DataRow("<author[max(2)]>", "Arthur Conan Doyle, Stephen Fry")]
-		[DataRow("<author[max(3)]>", "Arthur Conan Doyle, Stephen Fry")]
-		[DataRow("<author[format({L}, {F})]>", "Doyle, Arthur, Fry, Stephen")]
-		[DataRow("<author[format({f}, {l})]>", "Arthur Conan Doyle, Stephen Fry")]
-		[DataRow("<author[format(First={F}, Last={L})]>", "First=Arthur, Last=Doyle, First=Stephen, Last=Fry")]
-		[DataRow("<author[format({L}, {F}) separator( - )]>", "Doyle, Arthur - Fry, Stephen")]
-		public void NameFormat(string template, string expected)
+		[DataRow("Bruce Bueno de Mesquita", "Title=, First=Bruce, Middle=Bueno Last=de Mesquita, Suffix=")]
+		[DataRow("Ramon de Ocampo", "Title=, First=Ramon, Middle= Last=de Ocampo, Suffix=")]
+		[DataRow("Ramon De Ocampo", "Title=, First=Ramon, Middle= Last=De Ocampo, Suffix=")]
+		[DataRow("Jennifer Van Dyck", "Title=, First=Jennifer, Middle= Last=Van Dyck, Suffix=")]
+		[DataRow("Carla Naumburg PhD", "Title=, First=Carla, Middle= Last=Naumburg, Suffix=PhD")]
+		[DataRow("Doug Stanhope and Friends", "Title=, First=Doug, Middle= Last=Stanhope and Friends, Suffix=")]
+		[DataRow("Tamara Lovatt-Smith", "Title=, First=Tamara, Middle= Last=Lovatt-Smith, Suffix=")]
+		[DataRow("Common", "Title=, First=Common, Middle= Last=Common, Suffix=")]
+		[DataRow("Doug Tisdale Jr.", "Title=, First=Doug, Middle= Last=Tisdale, Suffix=Jr")]
+		[DataRow("Robert S. Mueller III", "Title=, First=Robert, Middle=S. Last=Mueller, Suffix=III")]
+		[DataRow("Frank T Vertosick Jr. MD", "Title=, First=Frank, Middle=T Last=Vertosick, Suffix=Jr. MD")]
+		[DataRow("The Arabian Nights", "Title=, First=The Arabian, Middle= Last=Nights, Suffix=")]
+		[DataRow("The Great Courses", "Title=, First=The Great, Middle= Last=Courses, Suffix=")]
+		[DataRow("The Laurie Berkner Band", "Title=, First=The Laurie, Middle=Berkner Last=Band, Suffix=")]
+		[DataRow("Committee on Foreign Affairs", "Title=, First=Committee, Middle=on Last=Foreign Affairs, Suffix=")]
+		[DataRow("House Permanent Select Committee on Intelligence", "Title=, First=House, Middle=Permanent Select Committee on Last=Intelligence, Suffix=")]
+		[DataRow("Professor David K. Johnson PhD University of Oklahoma", "Title=Professor, First=David, Middle=K. Johnson PhD Last=University of Oklahoma, Suffix=")]
+		[DataRow("Festival of the Spoken Nerd", "Title=, First=Festival of the Spoken, Middle= Last=Nerd, Suffix=")]
+		[DataRow("Audible Original", "Title=, First=Audible, Middle= Last=Original, Suffix=")]
+		[DataRow("Audible Originals", "Title=, First=Audible, Middle= Last=Originals, Suffix=")]
+		[DataRow("Patrick O'Brian", "Title=, First=Patrick, Middle= Last=O'Brian, Suffix=")]
+		[DataRow("Patrick O’Connell", "Title=, First=Patrick, Middle= Last=O'Connell, Suffix=")]
+		[DataRow("L.E. Modesitt", "Title=, First=L.E., Middle= Last=Modesitt, Suffix=")]
+		[DataRow("L. E. Modesitt Jr.", "Title=, First=L., Middle=E. Last=Modesitt, Suffix=Jr")]
+		[DataRow("LE Modesitt, Jr.", "Title=, First=LE, Middle= Last=Modesitt, Suffix=Jr")]
+		[DataRow("Marine Le Pen", "Title=, First=Marine, Middle= Last=Le Pen, Suffix=")]
+		[DataRow("L. Sprague de Camp", "Title=, First=L., Middle=Sprague Last=de Camp, Suffix=")]
+		[DataRow("Lt. Col. - Ret. Douglas L. Bland", "Title=, First=Ret., Middle=Douglas L. Bland Last=Lt. Col., Suffix=")]
+		[DataRow("Col. Lee Ellis - Ret. - foreword", "Title=Col., First=Lee, Middle= Last=Ellis, Suffix=Ret")]
+		public void NameFormat_unusual(string author, string expected)
 		{
-			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			var bookDto = GetLibraryBook();
+			bookDto.Authors = new List<string> { author };
+			Templates.TryGetTemplate<Templates.FileTemplate>("<author[format(Title={T}, First={F}, Middle={M} Last={L}, Suffix={S})]>", out var fileTemplate).Should().BeTrue();
 			fileTemplate
-				.GetFilename(GetLibraryBook(), "", "", Replacements)
+				.GetFilename(bookDto, "", "", Replacements)
 				.PathWithoutPrefix
 				.Should().Be(expected);
 		}
+
+		[TestMethod]
+		[DataRow("<author>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
+		[DataRow("<author[]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
+		[DataRow("<author[sort(F)]>", "Charles E. Gannon, Christopher John Fetherolf, Jill Conner Browne, Jon Bon Jovi, Lucy Maud Montgomery, Paul Van Doren")]
+		[DataRow("<author[sort(L)]>", "Jon Bon Jovi, Jill Conner Browne, Christopher John Fetherolf, Charles E. Gannon, Lucy Maud Montgomery, Paul Van Doren")]
+		[DataRow("<author[sort(M)]>", "Jon Bon Jovi, Paul Van Doren, Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery")]
+		[DataRow("<author[sort(f)]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
+		[DataRow("<author[sort(m)]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
+		[DataRow("<author[sort(l)]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
+		[DataRow("<author  [  max(  1  )  ]>", "Jill Conner Browne")]
+		[DataRow("<author[max(2)]>", "Jill Conner Browne, Charles E. Gannon")]
+		[DataRow("<author[max(3)]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf")]
+		[DataRow("<author[format({L}, {F})]>", "Browne, Jill, Gannon, Charles, Fetherolf, Christopher, Montgomery, Lucy, Bon Jovi, Jon, Van Doren, Paul")]
+		[DataRow("<author[format({f}, {l})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
+		[DataRow("<author[format(First={F}, Last={L})]>", "First=Jill, Last=Browne, First=Charles, Last=Gannon, First=Christopher, Last=Fetherolf, First=Lucy, Last=Montgomery, First=Jon, Last=Bon Jovi, First=Paul, Last=Van Doren")]
+		[DataRow("<author[format({L}, {F}) separator( - ) max(3)]>", "Browne, Jill - Gannon, Charles - Fetherolf, Christopher")]
+		[DataRow("<author[sort(F) max(2) separator(; ) format({F})]>", "Charles; Christopher")]
+		[DataRow("<author[sort(L) max(2) separator(; ) format({L})]>", "Bon Jovi; Browne")]
+		//Jon Bon Jovi and Paul Van Doren don't have middle names, so they are sorted to the top.
+		//Since only the middle names of the first 2 names are to be displayed, the name string is empty.
+		[DataRow("<author[sort(M) max(2) separator(; ) format({M})]>", ";")]
+		public void NameFormat_formatters(string template, string expected)
+		{
+			var bookDto = GetLibraryBook();
+			bookDto.Authors = new List<string>
+			{
+				"Jill Conner Browne",
+				"Charles E. Gannon",
+				"Christopher John Fetherolf",
+				"Lucy Maud Montgomery",
+				"Jon Bon Jovi",
+				"Paul Van Doren"
+			};
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(bookDto, "", "", Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
+
 
 		[TestMethod]
 		[DataRow(@"C:\a\b", @"C:\a\b\foobar.ext", PlatformID.Win32NT)]

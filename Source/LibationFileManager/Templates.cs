@@ -72,6 +72,7 @@ namespace LibationFileManager
 				(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>((string)e.NewValue);
 
 			HumanName.Suffixes.Add("ret");
+			HumanName.Titles.Add("professor");
 		}
 
 		#endregion
@@ -202,9 +203,9 @@ namespace LibationFileManager
 			{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
 			{ TemplateTags.Title, lb => lb.Title },
 			{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
-			{ TemplateTags.Author, lb => lb.Authors, NameFormatter },
+			{ TemplateTags.Author, lb => lb.Authors, NameListFormatter },
 			{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor },
-			{ TemplateTags.Narrator, lb => lb.Narrators, NameFormatter },
+			{ TemplateTags.Narrator, lb => lb.Narrators, NameListFormatter },
 			{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator },
 			{ TemplateTags.Series, lb => lb.SeriesName },
 			{ TemplateTags.SeriesNumber, lb => lb.SeriesNumber },
@@ -249,17 +250,7 @@ namespace LibationFileManager
 
 		#endregion
 
-		#region Tag Formatters
-
-		private static readonly string[] suffixes = { "introductions", "introduction", "adaptation", "translator", "contributor", "illustrator", "director", "foreword", "editor", "preface", "adaptor", "afterword", "interviewer", "introductions", "essay", "editor/introduction" };
-
-		private static string removeSuffix(string namesString)
-		{
-			foreach (var suffix in suffixes)
-				namesString = namesString.Replace($" - {suffix}", "");
-
-			return namesString.Replace('’', '\'').Replace(" - Ret.", ", Ret.").Trim();
-		}
+		#region Tag Formatters		
 
 		//Format must have at least one of the string {T}, {F}, {M}, {L}, or {S}
 		private static readonly Regex FormatRegex = new(@"[Ff]ormat\((.*?(?:{[TFMLS]})+.*?)\)", RegexOptions.Compiled);
@@ -270,20 +261,12 @@ namespace LibationFileManager
 		//Separator can be anything
 		private static readonly Regex SeparatorRegex = new(@"[Ss]eparator\((.*?)\)", RegexOptions.Compiled);
 
-		private static string NameFormatter(ITemplateTag templateTag, IEnumerable<string> value, string formatString)
+		private static string NameListFormatter(ITemplateTag templateTag, IEnumerable<string> value, string formatString)
 		{
 			var names = value.Select(n => new HumanName(removeSuffix(n), Prefer.FirstOverPrefix));
 					
 			var formatMatch = FormatRegex.Match(formatString);
-			string nameFormatString
-				= formatMatch.Success
-				? formatMatch.Groups[1].Value
-					.Replace("{T}", "{0}")
-					.Replace("{F}", "{1}")
-					.Replace("{M}", "{2}")
-					.Replace("{L}", "{3}")
-					.Replace("{S}", "{4}")
-				: "{0} {1} {2} {3} {4}"; // T F M L S
+			string nameFormatString = formatMatch.Success ? formatMatch.Groups[1].Value : "{T} {F} {M} {L} {S}";
 
 			var maxMatch = MaxRegex.Match(formatString);
 			int maxNames = maxMatch.Success && int.TryParse(maxMatch.Groups[1].Value, out var max) ? int.Max(1, max) : int.MaxValue;
@@ -306,13 +289,37 @@ namespace LibationFileManager
 					separatorString,
 					sortedNames
 					.Take(int.Min(sortedNames.Count(), maxNames))
-					.Select(n => string.Format(nameFormatString, n.Title, n.First, n.Middle, n.Last, n.Suffix).Trim())
-					);
+					.Select(n => formatName(n, nameFormatString)));
 
 			while (formattedNames.Contains("  "))
 				formattedNames = formattedNames.Replace("  ", " ");
 
 			return formattedNames;
+
+			static string removeSuffix(string namesString)
+			{
+				namesString = namesString.Replace('’', '\'').Replace(" - Ret.", ", Ret.");
+
+				int dashIndex = namesString.IndexOf(" - ");
+
+				return (dashIndex > 0 ? namesString[..dashIndex] : namesString).Trim();
+			}
+
+			static string formatName(HumanName humanName, string nameFormatString)
+			{
+				//Single-word names parse as first names. Use it as last name.
+				var lastName = string.IsNullOrWhiteSpace(humanName.Last) ? humanName.First : humanName.Last;
+
+				nameFormatString
+					= nameFormatString
+					.Replace("{T}", "{0}")
+					.Replace("{F}", "{1}")
+					.Replace("{M}", "{2}")
+					.Replace("{L}", "{3}")
+					.Replace("{S}", "{4}");
+
+				return string.Format(nameFormatString, humanName.Title, humanName.First, humanName.Middle, lastName, humanName.Suffix).Trim();
+			}
 		}
 
 		private static string getTitleShort(string title)
