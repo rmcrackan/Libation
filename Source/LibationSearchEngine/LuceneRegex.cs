@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace LibationSearchEngine
 {
-    internal static class LuceneRegex
+    internal static partial class LuceneRegex
     {
         #region pattern pieces
         //  negative lookbehind: cannot be preceeded by an escaping \
@@ -38,28 +38,32 @@ namespace LibationSearchEngine
         private static string fieldPattern { get; } = NOT_ESCAPED + WORD_CAPTURE + FIELD_END;
         public static Regex FieldRegex { get; } = new Regex(fieldPattern, RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
-        // auto-pad numbers to 8 char.s. This will match int.s and dates (yyyyMMdd)
-        //   positive look behind: beginning  space  {  [  :
-        //   positive look ahead: end  space  ]  }
-        public static Regex NumbersRegex { get; } = new Regex(@"(?<=^|\s|\{|\[|:)(\d+\.?\d*)(?=$|\s|\]|\})", RegexOptions.Compiled);
+		/// <summary>
+		/// auto-pad numbers to 8 char.s. This will match int.s and dates (yyyyMMdd)
+		///   positive look behind: beginning  space  {  [  :
+		///   positive look ahead: end  space  ]  }
+		/// </summary>
 
-        /// <summary>
-        /// proper bools are single keywords which are turned into keyword:True
-        /// if bordered by colons or inside brackets, they are not stand-alone bool keywords
-        /// the negative lookbehind and lookahead patterns prevent bugs where a bool keyword is also a user-defined tag:
-        ///   [israted]
-        ///     parseTag => tags:israted
-        ///     replaceBools => tags:israted:True
-        ///   or
-        ///     [israted]
-        ///       replaceBools => israted:True
-        ///         parseTag => [israted:True]
-        /// also don't want to apply :True where the value already exists:
-        ///   israted:false => israted:false:True
-        ///   
-        /// despite using parans, lookahead and lookbehind are zero-length assertions which do not capture. therefore the bool search keyword is still $1 since it's the first and only capture
-        /// </summary>
-        private static string boolPattern_parameterized { get; }
+		[GeneratedRegex(@"(?<=^|\s|\{|\[|:)(\d+\.?\d*)(?=$|\s|\]|\})", RegexOptions.Compiled)]
+		public static partial Regex NumbersRegex();
+
+		/// <summary>
+		/// proper bools are single keywords which are turned into keyword:True
+		/// if bordered by colons or inside brackets, they are not stand-alone bool keywords
+		/// the negative lookbehind and lookahead patterns prevent bugs where a bool keyword is also a user-defined tag:
+		///   [israted]
+		///     parseTag => tags:israted
+		///     replaceBools => tags:israted:True
+		///   or
+		///     [israted]
+		///       replaceBools => israted:True
+		///         parseTag => [israted:True]
+		/// also don't want to apply :True where the value already exists:
+		///   israted:false => israted:false:True
+		///   
+		/// despite using parans, lookahead and lookbehind are zero-length assertions which do not capture. therefore the bool search keyword is still $1 since it's the first and only capture
+		/// </summary>
+		private static string boolPattern_parameterized { get; }
             = @"
 ### IMPORTANT: 'ignore whitespace' is only partially honored in character sets
 ### - new lines are ok
@@ -95,5 +99,5 @@ namespace LibationSearchEngine
 
             return regex;
         }
-    }
+	}
 }

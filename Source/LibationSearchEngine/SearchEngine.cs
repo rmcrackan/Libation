@@ -402,7 +402,7 @@ namespace LibationSearchEngine
         private static string padNumbers(string searchString)
         {
             var matches = LuceneRegex
-                .NumbersRegex
+                .NumbersRegex()
                 .Matches(searchString)
                 .Cast<Match>()
                 .OrderByDescending(m => m.Index);
@@ -410,7 +410,7 @@ namespace LibationSearchEngine
             foreach (var m in matches)
             {
                 var replaceString = double.Parse(m.ToString()).ToLuceneString();
-                searchString = LuceneRegex.NumbersRegex.Replace(searchString, replaceString, 1, m.Index);
+                searchString = LuceneRegex.NumbersRegex().Replace(searchString, replaceString, 1, m.Index);
             }
 
             return searchString;
