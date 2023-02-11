@@ -89,5 +89,10 @@ namespace LibationWinForms
 					ex);
 			}
 		}
+
+		private void locateAudiobooksToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			new LocateAudiobooksDialog().ShowDialog();
+		}
 	}
 }

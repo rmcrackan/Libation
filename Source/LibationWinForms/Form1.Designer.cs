@@ -60,8 +60,10 @@
             this.setBookDownloadedManualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setPdfDownloadedManualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setDownloadedAutoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.locateAudiobooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.accountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.basicSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -149,7 +151,9 @@
             this.scanLibraryToolStripMenuItem,
             this.scanLibraryOfAllAccountsToolStripMenuItem,
             this.scanLibraryOfSomeAccountsToolStripMenuItem,
-            this.removeLibraryBooksToolStripMenuItem});
+            this.removeLibraryBooksToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.locateAudiobooksToolStripMenuItem});
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
             this.importToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
             this.importToolStripMenuItem.Text = "&Import";
@@ -560,10 +564,22 @@
             this.processBookQueue1.Name = "processBookQueue1";
             this.processBookQueue1.Size = new System.Drawing.Size(430, 640);
             this.processBookQueue1.TabIndex = 0;
-            // 
-            // Form1
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			// 
+			// locateAudiobooksToolStripMenuItem
+			// 
+			this.locateAudiobooksToolStripMenuItem.Name = "locateAudiobooksToolStripMenuItem";
+			this.locateAudiobooksToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.locateAudiobooksToolStripMenuItem.Text = "L&ocate Audiobooks";
+			this.locateAudiobooksToolStripMenuItem.Click += new System.EventHandler(this.locateAudiobooksToolStripMenuItem_Click);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(244, 6);
+			// 
+			// Form1
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1463, 640);
             this.Controls.Add(this.splitContainer1);
@@ -630,6 +646,8 @@
         private System.Windows.Forms.ToolStripMenuItem setBookDownloadedManualToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setDownloadedAutoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+		private System.Windows.Forms.ToolStripMenuItem locateAudiobooksToolStripMenuItem;
         private LibationWinForms.FormattableToolStripMenuItem liberateVisibleToolStripMenuItem_LiberateMenu;
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;

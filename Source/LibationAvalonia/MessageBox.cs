@@ -154,6 +154,7 @@ Libation.
 
 		private static async Task<DialogResult> ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{
+			owner = owner?.IsLoaded is true ? owner : null;
 			var dialog = await Dispatcher.UIThread.InvokeAsync(() => CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition));
 
 			return await DisplayWindow(dialog, owner);

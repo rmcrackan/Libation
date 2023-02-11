@@ -86,7 +86,11 @@ namespace LibationFileManager
         public static void Insert(string id, string path)
 		{
 			var type = FileTypes.GetFileTypeFromPath(path);
-			var entry = new CacheEntry(id, type, path);
+			Insert(new CacheEntry(id, type, path));
+		}
+
+		public static void Insert(CacheEntry entry)
+		{
 			cache.Add(entry);
 			Inserted?.Invoke(null, entry);
 			save();

@@ -1,6 +1,7 @@
 ﻿using ApplicationServices;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using FileManager;
 using LibationFileManager;
 using System;
 using System.Linq;
@@ -20,14 +21,14 @@ namespace LibationAvalonia.Views
 				{
 					Title = "Where to export Library",
 					SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Configuration.Instance.Books.PathWithoutPrefix),
-					SuggestedFileName = $"Libation Library Export {DateTime.Now:yyyy-MM-dd}.xlsx",
+					SuggestedFileName = $"Libation Library Export {DateTime.Now:yyyy-MM-dd}",
 					DefaultExtension = "xlsx",
 					ShowOverwritePrompt = true,
 					FileTypeChoices = new FilePickerFileType[]
 					{
-						new("Excel Workbook (*.xlsx)") { Patterns = new[] { "xlsx" } },
-						new("CSV files (*.csv)") { Patterns = new[] { "csv" } },
-						new("JSON files (*.json)") { Patterns = new[] { "json" } },
+						new("Excel Workbook (*.xlsx)") { Patterns = new[] { "*.xlsx" } },
+						new("CSV files (*.csv)") { Patterns = new[] { "*.csv" } },
+						new("JSON files (*.json)") { Patterns = new[] { "*.json" } },
 						new("All files (*.*)") { Patterns = new[] { "*" } },
 					}
 				};
@@ -36,17 +37,17 @@ namespace LibationAvalonia.Views
 
 				if (selectedFile?.TryGetUri(out var uri) is not true) return;
 
-				var ext = System.IO.Path.GetExtension(uri.LocalPath);
+				var ext = FileUtility.GetStandardizedExtension(System.IO.Path.GetExtension(uri.LocalPath));
 				switch (ext)
 				{
-					case "xlsx": // xlsx
+					case ".xlsx": // xlsx
 					default:
 						LibraryExporter.ToXlsx(uri.LocalPath);
 						break;
-					case "csv": // csv
+					case ".csv": // csv
 						LibraryExporter.ToCsv(uri.LocalPath);
 						break;
-					case "json": // json
+					case ".json": // json
 						LibraryExporter.ToJson(uri.LocalPath);
 						break;
 				}

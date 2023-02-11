@@ -1,6 +1,7 @@
 ﻿using ApplicationServices;
 using AudibleUtilities;
 using Avalonia.Controls;
+using LibationAvalonia.Dialogs;
 using LibationFileManager;
 using System;
 using System.Collections.Generic;
@@ -76,6 +77,12 @@ namespace LibationAvalonia.Views
 					"Error importing library",
 					ex);
 			}
+		}
+
+		private async void locateAudiobooksToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			var locateDialog = new LocateAudiobooksDialog();
+			await locateDialog.ShowDialog(this);
 		}
 	}
 }

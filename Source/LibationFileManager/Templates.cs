@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using AaxDecrypter;
 using Dinah.Core;
 using FileManager;
 using FileManager.NamingTemplate;
+using NameParser;
 
 namespace LibationFileManager
 {
@@ -17,7 +19,7 @@ namespace LibationFileManager
 		static abstract IEnumerable<TagCollection> TagCollections { get; }
 	}
 
-	public abstract class Templates
+	public abstract partial class Templates
 	{
 		public const string ERROR_FULL_PATH_IS_INVALID = @"No colons or full paths allowed. Eg: should not start with C:\";
 		public const string WARNING_NO_CHAPTER_NUMBER_TAG = "Should include chapter number tag in template used for naming files which are split by chapter. Ie: <ch#> or <ch# 0>";
@@ -68,6 +70,9 @@ namespace LibationFileManager
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.ChapterTitleTemplate))]
 				(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>((string)e.NewValue);
+
+			HumanName.Suffixes.Add("ret");
+			HumanName.Titles.Add("professor");
 		}
 
 		#endregion
@@ -198,9 +203,9 @@ namespace LibationFileManager
 			{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
 			{ TemplateTags.Title, lb => lb.Title },
 			{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
-			{ TemplateTags.Author, lb => lb.AuthorNames },
+			{ TemplateTags.Author, lb => lb.Authors, NameListFormatter },
 			{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor },
-			{ TemplateTags.Narrator, lb => lb.NarratorNames },
+			{ TemplateTags.Narrator, lb => lb.Narrators, NameListFormatter },
 			{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator },
 			{ TemplateTags.Series, lb => lb.SeriesName },
 			{ TemplateTags.SeriesNumber, lb => lb.SeriesNumber },
@@ -246,6 +251,89 @@ namespace LibationFileManager
 		#endregion
 
 		#region Tag Formatters
+
+		/// <summary> Sort must have exactly one of the characters F, M, or L </summary>
+		[GeneratedRegex(@"[Ss]ort\(\s*?([FML])\s*?\)")]
+		private static partial Regex NamesSortRegex();
+		/// <summary> Format must have at least one of the string {T}, {F}, {M}, {L}, or {S} </summary>
+		[GeneratedRegex(@"[Ff]ormat\((.*?(?:{[TFMLS]})+.*?)\)")]
+		private static partial Regex NamesFormatRegex();
+		/// <summary> Separator can be anything </summary>
+		[GeneratedRegex(@"[Ss]eparator\((.*?)\)")]
+		private static partial Regex NamesSeparatorRegex();
+		/// <summary> Max must have a 1 or 2-digit number </summary>
+		[GeneratedRegex(@"[Mm]ax\(\s*?(\d{1,2})\s*?\)")]
+		private static partial Regex NamesMaxRegex();
+
+		private static string NameListFormatter(ITemplateTag templateTag, IEnumerable<string> names, string formatString)
+		{
+			var humanNames = names.Select(n => new HumanName(removeSuffix(n), Prefer.FirstOverPrefix));
+
+			var sortedNames = sort(humanNames, formatString);
+			var nameFormatString = format(formatString, defaultValue: "{T} {F} {M} {L} {S}");
+			var separatorString = separator(formatString, defaultValue: ", ");
+			var maxNames = max(formatString, defaultValue: humanNames.Count());
+
+			var formattedNames = string.Join(separatorString, sortedNames.Take(maxNames).Select(n => formatName(n, nameFormatString)));
+
+			while (formattedNames.Contains("  "))
+				formattedNames = formattedNames.Replace("  ", " ");
+
+			return formattedNames;
+
+			static string removeSuffix(string namesString)
+			{
+				namesString = namesString.Replace('’', '\'').Replace(" - Ret.", ", Ret.");
+				int dashIndex = namesString.IndexOf(" - ");
+				return (dashIndex > 0 ? namesString[..dashIndex] : namesString).Trim();
+			}
+
+			static IEnumerable<HumanName> sort(IEnumerable<HumanName> humanNames, string formatString)
+			{
+				var sortMatch = NamesSortRegex().Match(formatString);
+				return
+					sortMatch.Success
+					? sortMatch.Groups[1].Value == "F" ? humanNames.OrderBy(n => n.First)
+						: sortMatch.Groups[1].Value == "M" ? humanNames.OrderBy(n => n.Middle)
+						: sortMatch.Groups[1].Value == "L" ? humanNames.OrderBy(n => n.Last)
+						: humanNames
+					: humanNames;
+			}
+
+			static string format(string formatString, string defaultValue)
+			{
+				var formatMatch = NamesFormatRegex().Match(formatString);
+				return formatMatch.Success ? formatMatch.Groups[1].Value : defaultValue;
+			}
+
+			static string separator(string formatString, string defaultValue)
+			{
+				var separatorMatch = NamesSeparatorRegex().Match(formatString);
+				return separatorMatch.Success ? separatorMatch.Groups[1].Value : defaultValue;
+			}
+
+			static int max(string formatString, int defaultValue)
+			{
+				var maxMatch = NamesMaxRegex().Match(formatString);
+				return maxMatch.Success && int.TryParse(maxMatch.Groups[1].Value, out var max) ? int.Max(1, max) : defaultValue;
+			}
+
+			static string formatName(HumanName humanName, string nameFormatString)
+			{
+				//Single-word names parse as first names. Use it as last name.
+				var lastName = string.IsNullOrWhiteSpace(humanName.Last) ? humanName.First : humanName.Last;
+
+				nameFormatString
+					= nameFormatString
+					.Replace("{T}", "{0}")
+					.Replace("{F}", "{1}")
+					.Replace("{M}", "{2}")
+					.Replace("{L}", "{3}")
+					.Replace("{S}", "{4}");
+
+				return string.Format(nameFormatString, humanName.Title, humanName.First, humanName.Middle, lastName, humanName.Suffix).Trim();
+			}
+		}
 
 		private static string getTitleShort(string title)
 			=> title?.IndexOf(':') > 0 ? title.Substring(0, title.IndexOf(':')) : title;

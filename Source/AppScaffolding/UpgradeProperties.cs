@@ -1,11 +1,11 @@
-﻿using System;
+﻿using NPOI.XWPF.UserModel;
+using System;
 using System.Text.RegularExpressions;
 
 namespace AppScaffolding
 {
-	public record UpgradeProperties
+	public partial record UpgradeProperties
 	{
-		private static readonly Regex linkstripper = new Regex(@"\[(.*)\]\(.*\)");
 		public string ZipUrl { get; }
 		public string HtmlUrl { get; }
 		public string ZipName { get; }
@@ -18,17 +18,10 @@ namespace AppScaffolding
 			HtmlUrl = htmlUrl;
 			ZipUrl = zipUrl;
 			LatestRelease = latestRelease;
-			Notes = stripMarkdownLinks(notes);
+			Notes = LinkStripRegex().Replace(notes, "$1");
 		}
-		private string stripMarkdownLinks(string body)
-		{
-			body = body.Replace(@"\", "");
-			var matches = linkstripper.Matches(body);
 
-			foreach (Match match in matches)
-				body = body.Replace(match.Groups[0].Value, match.Groups[1].Value);
-
-			return body;
-		}
+		[GeneratedRegex(@"\[(.*)\]\(.*\)")]
+		private static partial Regex LinkStripRegex();
 	}
 }

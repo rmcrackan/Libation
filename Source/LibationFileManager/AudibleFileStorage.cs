@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Dinah.Core;
+using System.Threading.Tasks;
+using System.Threading;
 using FileManager;
 
 namespace LibationFileManager
@@ -104,8 +108,14 @@ namespace LibationFileManager
 
         private static BackgroundFileSystem BookDirectoryFiles { get; set; }
         private static object bookDirectoryFilesLocker { get; } = new();
+		private static EnumerationOptions enumerationOptions { get; } = new()
+		{
+			RecurseSubdirectories = true,
+			IgnoreInaccessible = true,
+			MatchCasing = MatchCasing.CaseInsensitive
+		};
 
-        protected override LongPath GetFilePathCustom(string productId)
+		protected override LongPath GetFilePathCustom(string productId)
             => GetFilePathsCustom(productId).FirstOrDefault();
 
         protected override List<LongPath> GetFilePathsCustom(string productId)
@@ -122,5 +132,40 @@ namespace LibationFileManager
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
 
         public LongPath GetPath(string productId) => GetFilePath(productId);
+
+		public static async IAsyncEnumerable<FilePathCache.CacheEntry> FindAudiobooksAsync(LongPath searchDirectory, [EnumeratorCancellation] CancellationToken cancellationToken)
+		{
+			ArgumentValidator.EnsureNotNull(searchDirectory, nameof(searchDirectory));
+
+			foreach (LongPath path in Directory.EnumerateFiles(searchDirectory, "*.M4B", enumerationOptions))
+			{
+				if (cancellationToken.IsCancellationRequested)
+					yield break;
+
+				FilePathCache.CacheEntry audioFile = default;
+
+				try
+				{
+					using var fileStream = File.OpenRead(path);
+
+					var mp4File = await Task.Run(() => new AAXClean.Mp4File(fileStream), cancellationToken);
+
+					if (mp4File?.AppleTags?.Asin is not null)
+						audioFile = new FilePathCache.CacheEntry(mp4File.AppleTags.Asin, FileType.Audio, path);
+
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Error(ex, "Error checking for asin in {@file}", path);
+				}
+				finally
+				{
+					GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+				}
+
+				if (audioFile is not null)
+					yield return audioFile;
+			}
+		}
 	}
 }
