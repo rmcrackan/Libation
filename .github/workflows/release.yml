@@ -39,9 +39,15 @@ jobs:
     uses: ./.github/workflows/deb.yml
     with:
       version: ${{ needs.prerelease.outputs.version }}
+
+  bundle:
+    needs: [prerelease,build]
+    uses: ./.github/workflows/bundle.yml
+    with:
+      version: ${{ needs.prerelease.outputs.version }}
       
   release:
-    needs: [prerelease,build,deb]
+    needs: [prerelease,build,deb,bundle]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts

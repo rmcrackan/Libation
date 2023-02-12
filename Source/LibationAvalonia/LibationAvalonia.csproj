@@ -121,8 +121,14 @@
 		<None Update="glass-with-glow_256.svg">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="Info.plist">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="Libation.desktop">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="libation.icns">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="ZipExtractor.exe">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>

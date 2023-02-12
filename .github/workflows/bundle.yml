@@ -1,0 +1,39 @@
+# bundle.yml
+# Reusable workflow that builds the MacOS app bundle.
+---
+name: bundle
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        description: 'Version number'
+        required: true
+
+env:
+  FILE_NAME: "Libation.${{ inputs.version }}-macos-chardonnay"
+  
+jobs:
+  build_bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: "${{ env.FILE_NAME }}.tar.gz"
+
+      - name: Build .app bundle
+        id: bundle
+        run: |
+          chmod +rwx ./Scripts/targz2bundle.sh
+          ./Scripts/targz2bundle.sh "${{ env.FILE_NAME }}.tar.gz" ${{ inputs.version }}
+      
+      - name: Publish .app bundle
+        uses: actions/upload-artifact@v3
+        with:
+          name: "Libation.app-${{ inputs.version }}.tar.gz"
+          path: "Libation.app-${{ inputs.version }}.tar.gz"
+          if-no-files-found: error
