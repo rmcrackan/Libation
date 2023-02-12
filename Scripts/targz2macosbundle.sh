@@ -29,7 +29,6 @@ then
   exit
 fi
 
-# remove trailing ".tar.gz"
 BUNDLE="Libation.app"
 echo "Bundle dir: $BUNDLE"
 
@@ -75,6 +74,10 @@ for n in "${delfiles[@]}"; do rm "$BUNDLE_MACOS/$n"; done
 
 echo "Creating app bundle: $BUNDLE-$VERSION.tar.gz"
 tar -czvf "$BUNDLE-$VERSION.tar.gz" "$BUNDLE"
+
+mkdir bundle
+echo "moving to ./bundle/$BUNDLE-$VERSION.tar.gz"
+mv "$BUNDLE-$VERSION.tar.gz" "./bundle/$BUNDLE-$VERSION.tar.gz"
 
 rm -r "$BUNDLE"
 

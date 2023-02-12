@@ -130,7 +130,10 @@ chmod +x "$FOLDER_DEBIAN/postinst"
 echo "Creating .deb file..."
 dpkg-deb -Zxz --build $FOLDER_MAIN
 
+mkdir bundle
+echo "moving to ./bundle/$FOLDER_MAIN.deb"
+mv "$FOLDER_MAIN.deb" "./bundle/$FOLDER_MAIN.deb"
+
 rm -r "$FOLDER_MAIN"
 
 echo "Done!"
-
