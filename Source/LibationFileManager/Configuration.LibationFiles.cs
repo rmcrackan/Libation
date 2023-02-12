@@ -10,8 +10,42 @@ namespace LibationFileManager
 {
     public partial class Configuration
     {
-        private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "appsettings.json");
-        private const string LIBATION_FILES_KEY = "LibationFiles";
+        private static string getAppsettingsFile()
+        {
+            const string appsettings_filename = "appsettings.json";
+            const string empty_json = "{ }";
+
+			System.Collections.Generic.Queue<string> searchDirs = new();
+
+            searchDirs.Enqueue(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+            searchDirs.Enqueue(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Libation"));
+			searchDirs.Enqueue(UserProfile);
+
+            do
+            {
+                var appsettingsFile = Path.Combine(searchDirs.Dequeue(), appsettings_filename);
+
+                if (File.Exists(appsettingsFile))
+                    return appsettingsFile;
+                try
+                {
+                    File.WriteAllText(appsettingsFile, empty_json);
+                    return appsettingsFile;
+				}
+                catch { }
+			}
+            while (searchDirs.Count > 0);
+
+            //We Could not find or create appsettings.json.
+            //As a Hail Mary, create it in temp files.
+            var tempAppsettings = Path.GetTempFileName();
+			File.WriteAllText(tempAppsettings, empty_json);
+			return tempAppsettings;
+		}
+
+        private static string APPSETTINGS_JSON { get; } = getAppsettingsFile();
+
+		private const string LIBATION_FILES_KEY = "LibationFiles";
 
         [Description("Location for storage of program-created files")]
         public string LibationFiles
@@ -49,17 +83,14 @@ namespace LibationFileManager
             string startingContents = null;
             try
             {
-                if (File.Exists(APPSETTINGS_JSON))
-                {
-                    startingContents = File.ReadAllText(APPSETTINGS_JSON);
-                    var startingJObj = JObject.Parse(startingContents);
+                startingContents = File.ReadAllText(APPSETTINGS_JSON);
+                var startingJObj = JObject.Parse(startingContents);
 
-                    if (startingJObj.ContainsKey(LIBATION_FILES_KEY))
-                    {
-                        var startingValue = startingJObj[LIBATION_FILES_KEY].Value<string>();
-                        if (!string.IsNullOrWhiteSpace(startingValue))
-                            return startingValue;
-                    }
+                if (startingJObj.ContainsKey(LIBATION_FILES_KEY))
+                {
+                    var startingValue = startingJObj[LIBATION_FILES_KEY].Value<string>();
+                    if (!string.IsNullOrWhiteSpace(startingValue))
+                        return startingValue;
                 }
             }
             catch { }
