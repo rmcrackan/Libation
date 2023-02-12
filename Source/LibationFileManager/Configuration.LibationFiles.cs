@@ -10,39 +10,6 @@ namespace LibationFileManager
 {
     public partial class Configuration
     {
-        private static string getAppsettingsFile()
-        {
-            const string appsettings_filename = "appsettings.json";
-            const string empty_json = "{ }";
-
-			System.Collections.Generic.Queue<string> searchDirs = new();
-
-            searchDirs.Enqueue(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
-            searchDirs.Enqueue(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Libation"));
-			searchDirs.Enqueue(UserProfile);
-
-            do
-            {
-                var appsettingsFile = Path.Combine(searchDirs.Dequeue(), appsettings_filename);
-
-                if (File.Exists(appsettingsFile))
-                    return appsettingsFile;
-                try
-                {
-                    File.WriteAllText(appsettingsFile, empty_json);
-                    return appsettingsFile;
-				}
-                catch { }
-			}
-            while (searchDirs.Count > 0);
-
-            //We Could not find or create appsettings.json.
-            //As a Hail Mary, create it in temp files.
-            var tempAppsettings = Path.GetTempFileName();
-			File.WriteAllText(tempAppsettings, empty_json);
-			return tempAppsettings;
-		}
-
         private static string APPSETTINGS_JSON { get; } = getAppsettingsFile();
 
 		private const string LIBATION_FILES_KEY = "LibationFiles";
@@ -78,31 +45,58 @@ namespace LibationFileManager
 
         private static string libationFilesPathCache { get; set; }
 
-        private string getLibationFilesSettingFromJson()
+		private static string getAppsettingsFile()
+		{
+			const string appsettings_filename = "appsettings.json";
+
+			//Possible appsettings.json locations, in order of preference.
+			string[] possibleAppsettingsFiles = new[]
+			{
+				Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), appsettings_filename),
+				Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Libation", appsettings_filename),
+				Path.Combine(UserProfile, appsettings_filename),
+				Path.Combine(Path.GetTempPath(), "Libation", appsettings_filename)
+			};
+
+			//Try to find and validate appsettings.json in each folder
+			foreach (var appsettingsFile in possibleAppsettingsFiles)
+			{
+				if (File.Exists(appsettingsFile))
+				{
+					try
+					{
+						var appSettings = JObject.Parse(File.ReadAllText(appsettingsFile));
+
+						if (appSettings.ContainsKey(LIBATION_FILES_KEY)
+							&& appSettings[LIBATION_FILES_KEY] is JValue jval
+							&& jval.Value is string settingsPath
+							&& !string.IsNullOrWhiteSpace(settingsPath))
+							return appsettingsFile;
+					}
+					catch { }
+				}
+			}
+
+			//Valid appsettings.json not found. Try to create it in each folder.
+			var endingContents = new JObject { { LIBATION_FILES_KEY, UserProfile } }.ToString(Formatting.Indented);
+			foreach (var appsettingsFile in possibleAppsettingsFiles)
+			{
+				try
+				{
+					File.WriteAllText(appsettingsFile, endingContents);
+					return appsettingsFile;
+				}
+				catch(Exception ex)
+				{
+					Log.Error(ex, $"Failed to create {appsettingsFile}");
+				}
+			}
+
+			throw new ApplicationException($"Could not locate or create {appsettings_filename}");
+		}
+
+		private static string getLibationFilesSettingFromJson()
         {
-            string startingContents = null;
-            try
-            {
-                startingContents = File.ReadAllText(APPSETTINGS_JSON);
-                var startingJObj = JObject.Parse(startingContents);
-
-                if (startingJObj.ContainsKey(LIBATION_FILES_KEY))
-                {
-                    var startingValue = startingJObj[LIBATION_FILES_KEY].Value<string>();
-                    if (!string.IsNullOrWhiteSpace(startingValue))
-                        return startingValue;
-                }
-            }
-            catch { }
-
-            // not found. write to file. read from file
-            var endingContents = new JObject { { LIBATION_FILES_KEY, UserProfile.ToString() } }.ToString(Formatting.Indented);
-            if (startingContents != endingContents)
-            {
-                File.WriteAllText(APPSETTINGS_JSON, endingContents);
-                System.Threading.Thread.Sleep(100);
-            }
-
             // do not check whether directory exists. special/meta directory (eg: AppDir) is valid
             // verify from live file. no try/catch. want failures to be visible
             var jObjFinal = JObject.Parse(File.ReadAllText(APPSETTINGS_JSON));
@@ -110,16 +104,8 @@ namespace LibationFileManager
             return valueFinal;
         }
 
-        public void SetLibationFiles(string directory)
+        public static void SetLibationFiles(string directory)
         {
-            // ensure exists
-            if (!File.Exists(APPSETTINGS_JSON))
-            {
-                // getter creates new file, loads PersistentDictionary
-                var _ = LibationFiles;
-                System.Threading.Thread.Sleep(100);
-            }
-
             libationFilesPathCache = null;
 
             var startingContents = File.ReadAllText(APPSETTINGS_JSON);
@@ -131,14 +117,26 @@ namespace LibationFileManager
             if (startingContents == endingContents)
                 return;
 
-            // now it's set in the file again but no settings have moved yet
-            File.WriteAllText(APPSETTINGS_JSON, endingContents);
-
             try
             {
-                Log.Logger.Information("Libation files changed {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory });
-            }
-            catch { }
-        }
+                // now it's set in the file again but no settings have moved yet
+                File.WriteAllText(APPSETTINGS_JSON, endingContents);
+
+				tryLog(() => Log.Logger.Information("Libation files changed {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory }));
+			}
+			catch (IOException ex)
+			{
+                tryLog(() => Log.Logger.Error(ex, "Failed to change Libation files location {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory }));
+			}
+
+            static void tryLog(Action logAction)
+            {
+                try
+                {
+                    logAction();
+				}
+				catch { }
+			}
+		}
     }
 }
