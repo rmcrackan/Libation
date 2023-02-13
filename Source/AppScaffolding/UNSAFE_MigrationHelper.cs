@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dinah.Core;
+using LibationFileManager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -25,9 +26,6 @@ namespace AppScaffolding
 			: value;
 
 		#region appsettings.json
-		private static string APPSETTINGS_JSON { get; } = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), "appsettings.json");
-
-		public static bool APPSETTINGS_Json_Exists => File.Exists(APPSETTINGS_JSON);
 
 		public static bool APPSETTINGS_TryGet(string key, out string value)
 		{
@@ -61,11 +59,7 @@ namespace AppScaffolding
 		/// <param name="save">True: save if contents changed. False: no not attempt save</param>
 		private static void process_APPSETTINGS_Json(Action<JObject> action, bool save = true)
 		{
-			// only insert if not exists
-			if (!APPSETTINGS_Json_Exists)
-				return;
-
-			var startingContents = File.ReadAllText(APPSETTINGS_JSON);
+			var startingContents = File.ReadAllText(Configuration.AppsettingsJsonFile);
 
 			JObject jObj;
 			try
@@ -88,7 +82,7 @@ namespace AppScaffolding
 			if (startingContents.EqualsInsensitive(endingContents_indented) || startingContents.EqualsInsensitive(endingContents_compact))
 				return;
 
-			File.WriteAllText(APPSETTINGS_JSON, endingContents_indented);
+			File.WriteAllText(Configuration.AppsettingsJsonFile, endingContents_indented);
 			System.Threading.Thread.Sleep(100);
 		}
 		#endregion

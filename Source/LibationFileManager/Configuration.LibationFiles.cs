@@ -10,7 +10,7 @@ namespace LibationFileManager
 {
     public partial class Configuration
     {
-        private static string APPSETTINGS_JSON { get; } = getAppsettingsFile();
+        public static string AppsettingsJsonFile { get; } = getOrCreateAppsettingsFile();
 
 		private const string LIBATION_FILES_KEY = "LibationFiles";
 
@@ -19,7 +19,7 @@ namespace LibationFileManager
         {
             get
             {
-                if (libationFilesPathCache is not null)
+				if (libationFilesPathCache is not null)
                     return libationFilesPathCache;
 
                 // FIRST: must write here before SettingsFilePath in next step reads cache
@@ -45,7 +45,30 @@ namespace LibationFileManager
 
         private static string libationFilesPathCache { get; set; }
 
-		private static string getAppsettingsFile()
+		/// <summary>
+		/// Try to find appsettings.json in the following locations:
+		///  <list type="number">
+		///		<item>
+		///			<description>[App Directory]</description>
+		///		</item>
+		///		<item>
+		///			<description>%LocalAppData%\Libation</description>
+		///		</item>
+		///		<item>
+		///			<description>%AppData%\Libation</description>
+		///		</item>
+		///		<item>
+		///			<description>%Temp%\Libation</description>
+		///		</item>
+		///  </list>   
+		///    
+		/// If not found, try to create it in each of the same locations in-order until successful.
+		///  
+		/// <para>This method must complete successfully for Libation to continue.</para>
+		/// </summary>
+		/// <returns>appsettings.json file path</returns>
+		/// <exception cref="ApplicationException">appsettings.json could not be found or created.</exception>
+		private static string getOrCreateAppsettingsFile()
 		{
 			const string appsettings_filename = "appsettings.json";
 
@@ -99,7 +122,7 @@ namespace LibationFileManager
         {
             // do not check whether directory exists. special/meta directory (eg: AppDir) is valid
             // verify from live file. no try/catch. want failures to be visible
-            var jObjFinal = JObject.Parse(File.ReadAllText(APPSETTINGS_JSON));
+            var jObjFinal = JObject.Parse(File.ReadAllText(AppsettingsJsonFile));
             var valueFinal = jObjFinal[LIBATION_FILES_KEY].Value<string>();
             return valueFinal;
         }
@@ -108,7 +131,7 @@ namespace LibationFileManager
         {
             libationFilesPathCache = null;
 
-            var startingContents = File.ReadAllText(APPSETTINGS_JSON);
+            var startingContents = File.ReadAllText(AppsettingsJsonFile);
             var jObj = JObject.Parse(startingContents);
 
             jObj[LIBATION_FILES_KEY] = directory;
@@ -120,13 +143,13 @@ namespace LibationFileManager
             try
             {
                 // now it's set in the file again but no settings have moved yet
-                File.WriteAllText(APPSETTINGS_JSON, endingContents);
+                File.WriteAllText(AppsettingsJsonFile, endingContents);
 
-				tryLog(() => Log.Logger.Information("Libation files changed {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory }));
+				tryLog(() => Log.Logger.Information("Libation files changed {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, directory }));
 			}
 			catch (IOException ex)
 			{
-                tryLog(() => Log.Logger.Error(ex, "Failed to change Libation files location {@DebugInfo}", new { APPSETTINGS_JSON, LIBATION_FILES_KEY, directory }));
+                tryLog(() => Log.Logger.Error(ex, "Failed to change Libation files location {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, directory }));
 			}
 
             static void tryLog(Action logAction)
