@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
@@ -152,7 +153,7 @@ namespace LibationWinForms.GridView
             setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
             var removeMenuItem = new ToolStripMenuItem() { Text = "&Remove from library" };
-            removeMenuItem.Click += (_, __) => LibraryCommands.RemoveBook(entry.AudibleProductId);
+			removeMenuItem.Click += async (_, __) => await Task.Run(() => LibraryCommands.RemoveBook(entry.AudibleProductId));
 
             var locateFileMenuItem = new ToolStripMenuItem() { Text = "&Locate file..." };
             locateFileMenuItem.Click += (_, __) =>

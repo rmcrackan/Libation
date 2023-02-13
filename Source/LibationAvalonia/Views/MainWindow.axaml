@@ -131,6 +131,8 @@
 						<MenuItem Click="accountsToolStripMenuItem_Click" Header="_Accounts..." />
 						<MenuItem Click="basicSettingsToolStripMenuItem_Click" Header="_Settings..." />
 						<Separator />
+						<MenuItem Click="launchHangoverToolStripMenuItem_Click" Header="Launch _Hangover" />
+						<Separator />
 						<MenuItem Click="aboutToolStripMenuItem_Click" Header="A_bout..." />
 					</MenuItem>
 				</Menu>

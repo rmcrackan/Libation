@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
@@ -100,9 +101,9 @@ namespace LibationAvalonia.Views
                 setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
                 var removeMenuItem = new MenuItem() { Header = "_Remove from library" };
-                removeMenuItem.Click += (_, __) => LibraryCommands.RemoveBook(entry.AudibleProductId);
+				removeMenuItem.Click += async (_, __) => await Task.Run(() => LibraryCommands.RemoveBook(entry.AudibleProductId));
 
-                var locateFileMenuItem = new MenuItem() { Header = "_Locate file..." };
+				var locateFileMenuItem = new MenuItem() { Header = "_Locate file..." };
                 locateFileMenuItem.Click += async (_, __) =>
                 {
                     try

@@ -5,6 +5,7 @@ using FileManager;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Serilog;
+using Dinah.Core.Logging;
 
 namespace LibationFileManager
 {
@@ -111,7 +112,7 @@ namespace LibationFileManager
 				}
 				catch(Exception ex)
 				{
-					Log.Error(ex, $"Failed to create {appsettingsFile}");
+					Log.Logger.TryLogError(ex, $"Failed to create {appsettingsFile}");
 				}
 			}
 
@@ -145,20 +146,11 @@ namespace LibationFileManager
                 // now it's set in the file again but no settings have moved yet
                 File.WriteAllText(AppsettingsJsonFile, endingContents);
 
-				tryLog(() => Log.Logger.Information("Libation files changed {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, directory }));
+				Log.Logger.TryLogInformation("Libation files changed {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, directory });
 			}
 			catch (IOException ex)
 			{
-                tryLog(() => Log.Logger.Error(ex, "Failed to change Libation files location {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, directory }));
-			}
-
-            static void tryLog(Action logAction)
-            {
-                try
-                {
-                    logAction();
-				}
-				catch { }
+                Log.Logger.TryLogError(ex, "Failed to change Libation files location {@DebugInfo}", new { AppsettingsJsonFile, LIBATION_FILES_KEY, directory });
 			}
 		}
     }

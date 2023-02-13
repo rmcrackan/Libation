@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using ApplicationServices;
 using Avalonia;
@@ -13,8 +14,25 @@ namespace LibationAvalonia
 {
 	static class Program
 	{
-		static void Main()
+		static void Main(string[] args)
 		{
+			if (Configuration.IsMacOs && args != null && args.Length != 0 && args[0] == "hangover")
+			{
+				//Launch the Hangover app within the sandbox
+				Assembly asm = Assembly.GetExecutingAssembly();
+				string path = Path.GetDirectoryName(asm.Location);
+				Process.Start("Hangover" + (Configuration.IsWindows ? ".exe" : ""));
+				return;
+			}
+			if (Configuration.IsMacOs && args != null && args.Length != 0 && args[0] == "cli")
+			{
+				//Open a new Terminal in the sandbox
+				Assembly asm2 = Assembly.GetExecutingAssembly();
+				string libationProgramFiles = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+				Process.Start("/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal", $"\"{libationProgramFiles}\"");
+				return;
+			}
+
 			//***********************************************//
 			//                                               //
 			//   do not use Configuration before this line   //
