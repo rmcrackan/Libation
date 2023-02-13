@@ -35,7 +35,7 @@ namespace LibationWinForms.Dialogs
 				},
 				Configuration.KnownDirectories.UserProfile,
 				"Books");
-			booksSelectControl.SelectDirectory(config.Books);
+			booksSelectControl.SelectDirectory(config.Books.PathWithoutPrefix);
 
 			saveEpisodesToSeriesFolderCbox.Checked = config.SavePodcastsToParentFolder;
 			betaOptInCbox.Checked = config.BetaOptIn;
