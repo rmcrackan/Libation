@@ -34,4 +34,13 @@
     <ProjectReference Include="..\..\AppScaffolding\AppScaffolding.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Info.plist">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="libation.icns">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

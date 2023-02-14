@@ -40,4 +40,10 @@
     <ProjectReference Include="..\..\AppScaffolding\AppScaffolding.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="ZipExtractor.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

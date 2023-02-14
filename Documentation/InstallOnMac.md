@@ -9,18 +9,14 @@ This walkthrough should get you up and running with Libation on your Mac.
 
 ## Install Libation
 
-- Download the `Libation.app.x.x.x.tar.gz` file from the latest release and extract it. 
+- Download the `Libation.app-x64-x.x.x.tgz` file from the latest release and extract it. 
 - Move the extracted Libation app bundle to your applications folder.
 - Open a terminal (Go > Utilities > Terminal)
-- In the terminal type the following commands
-  - `sudo spctl --add --label "Libation" /Applications/Libation.app` (you'll be prompted to enter your password.)
-  - `sudo spctl --master-disable`
-- Keep the terminal open and run the Libation app
-- Go back to terminal and type the following command
-  - `sudo spctl --master-enable`
-- Close the terminal
-
-Libation is now registered with gatekeeper and will run even when gatekeeper is turned back on.
+- Copy/paste/run the following command (you'll be prompted to enter your password)
+  ```Console
+  sudo spctl --master-disable && sudo spctl --add --label "Libation" /Applications/Libation.app && open /Applications/Libation.app && sudo spctl --master-enable
+  ```
+- Close the terminal and use Libation!
 
 ## Running Hangover
 
@@ -36,6 +32,8 @@ Libation comes with a command-line interface. Unfortunately, due to the way apps
 open /Applications/Libation.app --args cli
 ```
 To use LibationCli from an unsandboxed terminal, you must disable gatekeeper again and run the program directly at `/Applications/Libation.app/Contents/MacOS/LibationCli`
+
+Then use `./LibationCli` to execute a command.
 
 ## Get Libation running on Mac
 

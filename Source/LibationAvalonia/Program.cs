@@ -16,15 +16,20 @@ namespace LibationAvalonia
 	{
 		static void Main(string[] args)
 		{
-			if (Configuration.IsMacOs && args != null && args.Length != 0 && args[0] == "hangover")
+
+			if (Configuration.IsMacOs && args?.Length > 0 && args[0] == "hangover")
 			{
 				//Launch the Hangover app within the sandbox
+				//We can do this because we're already executing inside the sandbox.
+				//Any process created in the sandbox executes in the same sandbox.
+				//Unfortunately, all sandbox files are read/execute, so no writing!
+
 				Assembly asm = Assembly.GetExecutingAssembly();
 				string path = Path.GetDirectoryName(asm.Location);
 				Process.Start("Hangover" + (Configuration.IsWindows ? ".exe" : ""));
 				return;
 			}
-			if (Configuration.IsMacOs && args != null && args.Length != 0 && args[0] == "cli")
+			if (Configuration.IsMacOs && args?.Length > 0 && args[0] == "cli")
 			{
 				//Open a new Terminal in the sandbox
 				Assembly asm2 = Assembly.GetExecutingAssembly();

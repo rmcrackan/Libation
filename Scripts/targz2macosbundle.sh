@@ -69,7 +69,7 @@ echo "Set Libation version number..."
 sed -i -e "s/VERSION_STRING/$VERSION/" "$BUNDLE_CONTENTS/Info.plist"
 
 echo "deleting unneeded files.."
-delfiles=("libmp3lame.x64.so" "ffmpegaac.x64.so" "Libation.desktop" "libation.icns" "Info.plist" "glass-with-glow_256.svg")
+delfiles=("libmp3lame.x64.so" "ffmpegaac.x64.so" "libation.icns" "Info.plist")
 for n in "${delfiles[@]}"; do rm "$BUNDLE_MACOS/$n"; done
 
 echo "Creating app bundle: $BUNDLE-$VERSION.tar.gz"
@@ -77,7 +77,7 @@ tar -czvf "$BUNDLE-$VERSION.tar.gz" "$BUNDLE"
 
 mkdir bundle
 echo "moving to ./bundle/$BUNDLE-$VERSION.tar.gz"
-mv "$BUNDLE-$VERSION.tar.gz" "./bundle/$BUNDLE-$VERSION.tar.gz"
+mv "$BUNDLE-$VERSION.tar.gz" "./bundle/$BUNDLE-x64-$VERSION.tgz"
 
 rm -r "$BUNDLE"
 
