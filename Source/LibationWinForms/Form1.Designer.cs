@@ -62,6 +62,8 @@
             this.setDownloadedAutoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.launchHangoverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.locateAudiobooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.accountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -378,6 +380,8 @@
             this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.accountsToolStripMenuItem,
             this.basicSettingsToolStripMenuItem,
+			this.toolStripSeparator4,
+			this.launchHangoverToolStripMenuItem,
             this.toolStripSeparator2,
             this.aboutToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
@@ -572,6 +576,13 @@
 			this.locateAudiobooksToolStripMenuItem.Text = "L&ocate Audiobooks";
 			this.locateAudiobooksToolStripMenuItem.Click += new System.EventHandler(this.locateAudiobooksToolStripMenuItem_Click);
 			// 
+			// launchHangoverToolStripMenuItem
+			// 
+			this.launchHangoverToolStripMenuItem.Name = "launchHangoverToolStripMenuItem";
+			this.launchHangoverToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.launchHangoverToolStripMenuItem.Text = "Launch &Hangover";
+			this.launchHangoverToolStripMenuItem.Click += new System.EventHandler(this.launchHangoverToolStripMenuItem_Click);
+			// 
 			// toolStripSeparator3
 			// 
 			this.toolStripSeparator3.Name = "toolStripSeparator3";
@@ -648,6 +659,8 @@
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripMenuItem locateAudiobooksToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+		private System.Windows.Forms.ToolStripMenuItem launchHangoverToolStripMenuItem;
         private LibationWinForms.FormattableToolStripMenuItem liberateVisibleToolStripMenuItem_LiberateMenu;
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;

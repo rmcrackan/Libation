@@ -17,7 +17,7 @@ namespace HangoverAvalonia.ViewModels
 
 		private void Load_databaseVM()
 		{
-			_tab = new(new(() => SqlQuery, s => SqlResults = s, s => SqlResults = s));
+			_tab = new(new DatabaseTabCommands(() => SqlQuery, s => SqlResults += s, s => SqlResults = s));
 
 			_tab.LoadDatabaseFile();
 			if (_tab.DbFile is null)

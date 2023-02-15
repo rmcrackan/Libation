@@ -106,7 +106,10 @@ ln -s /usr/lib/libation/Hangover /usr/bin/hangover
 ln -s /usr/lib/libation/LibationCli /usr/bin/libationcli
 
 # Increase the maximum number of inotify instances
-echo fs.inotify.max_user_instances=524288 | tee -a /etc/sysctl.conf && sysctl -p
+
+if ! grep -q 'fs.inotify.max_user_instances=524288' /etc/sysctl.conf; then  
+  echo fs.inotify.max_user_instances=524288 | tee -a /etc/sysctl.conf && sysctl -p
+fi
 
 # workaround until this file is moved to the user's home directory
 touch /usr/lib/libation/appsettings.json
@@ -130,7 +133,10 @@ chmod +x "$FOLDER_DEBIAN/postinst"
 echo "Creating .deb file..."
 dpkg-deb -Zxz --build $FOLDER_MAIN
 
+mkdir bundle
+echo "moving to ./bundle/$FOLDER_MAIN.deb"
+mv "$FOLDER_MAIN.deb" "./bundle/$FOLDER_MAIN.deb"
+
 rm -r "$FOLDER_MAIN"
 
 echo "Done!"
-

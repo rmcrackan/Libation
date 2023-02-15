@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace LibationFileManager
 {
@@ -6,6 +7,8 @@ namespace LibationFileManager
     {
         void SetFolderIcon(string image, string directory);
         void DeleteFolderIcon(string directory);
-        void CopyTextToClipboard(string text);
+        Process RunAsRoot(string exe, string args);
+        void InstallUpdate(string updateBundle);
+        bool CanUpdate { get; }
     }
 }

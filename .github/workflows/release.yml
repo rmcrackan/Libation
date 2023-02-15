@@ -34,14 +34,14 @@ jobs:
       version_override: ${{ needs.prerelease.outputs.version }}
       run_unit_tests: false
 
-  deb:
+  bundle:
     needs: [prerelease,build]
-    uses: ./.github/workflows/deb.yml
+    uses: ./.github/workflows/bundle-linux.yml
     with:
       version: ${{ needs.prerelease.outputs.version }}
       
   release:
-    needs: [prerelease,build,deb]
+    needs: [prerelease,build,bundle]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -53,7 +53,7 @@ jobs:
         id: release
         uses: softprops/action-gh-release@v1
         with:
-          name: Libation ${{ needs.prerelease.outputs.version }}
+          name: Libation v${{ needs.prerelease.outputs.version }}
           body: <Put a body here>
           draft: true
           prerelease: false

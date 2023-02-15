@@ -1,0 +1,43 @@
+# build-linux.yml
+# Reusable workflow that builds the Libation installation bundles for Linux and MacOS.
+---
+name: bundle-linux
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        description: 'Version number'
+        required: true
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, macos]
+        release_name: [chardonnay]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: "Libation.${{ inputs.version }}-${{ matrix.os }}-${{ matrix.release_name }}.tar.gz"
+          
+      - name: Build bundle
+        id: build
+        run: |
+          SCRIPT=targz2${{ matrix.os }}bundle.sh
+          chmod +rwx ./Scripts/${SCRIPT}
+          ./Scripts/${SCRIPT} "Libation.${{ inputs.version }}-${{ matrix.os }}-${{ matrix.release_name }}.tar.gz" ${{ inputs.version }}
+          artifact=$(ls ./bundle)
+          echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
+          
+      - name: Publish bundle
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.artifact }}
+          path: ./bundle/${{ steps.build.outputs.artifact }}
+          if-no-files-found: error

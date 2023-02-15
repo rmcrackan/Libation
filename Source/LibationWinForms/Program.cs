@@ -92,7 +92,7 @@ namespace LibationWinForms
 			// check for existing settings in default location
 			var defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
 			if (Configuration.SettingsFileIsValid(defaultSettingsFile))
-				config.SetLibationFiles(defaultLibationFilesDir);
+				Configuration.SetLibationFiles(defaultLibationFilesDir);
 
 			if (config.LibationSettingsAreValid)
 				return;
@@ -112,7 +112,7 @@ namespace LibationWinForms
 			}
 
 			if (setupDialog.IsNewUser)
-				config.SetLibationFiles(defaultLibationFilesDir);
+				Configuration.SetLibationFiles(defaultLibationFilesDir);
 			else if (setupDialog.IsReturningUser)
 			{
 				var libationFilesDialog = new LibationFilesDialog();
@@ -123,7 +123,7 @@ namespace LibationWinForms
 					return;
 				}
 
-				config.SetLibationFiles(libationFilesDialog.SelectedDirectory);
+				Configuration.SetLibationFiles(libationFilesDialog.SelectedDirectory);
 				if (config.LibationSettingsAreValid)
 					return;
 

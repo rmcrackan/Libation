@@ -14,5 +14,17 @@ namespace LibationWinForms
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
             => MessageBox.Show($"Libation {AppScaffolding.LibationScaffolding.Variety}{Environment.NewLine}Version {AppScaffolding.LibationScaffolding.BuildVersion}", $"Libation v{AppScaffolding.LibationScaffolding.BuildVersion}");
-    }
+
+		private void launchHangoverToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+			try
+			{
+				System.Diagnostics.Process.Start("Hangover.exe");
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Failed to launch Hangover");
+			}
+		}
+	}
 }

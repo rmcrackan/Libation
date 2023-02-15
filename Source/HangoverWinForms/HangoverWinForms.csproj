@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+	<AssemblyName>Hangover</AssemblyName>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>hangover.ico</ApplicationIcon>
     <ImplicitUsings>enable</ImplicitUsings>

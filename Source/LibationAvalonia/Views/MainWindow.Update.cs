@@ -14,7 +14,7 @@ namespace LibationAvalonia.Views
 			Opened += async (_, _) => await checkForUpdates();
 		}
 
-        private async Task checkForUpdates()
+		private async Task checkForUpdates()
 		{
 			async Task<string> downloadUpdate(UpgradeProperties upgradeProperties)
 			{
@@ -26,7 +26,7 @@ namespace LibationAvalonia.Views
 
 				//Silently download the update in the background, save it to a temp file.
 
-				var zipFile = Path.GetTempFileName();
+				var zipFile = Path.Combine(Path.GetTempPath(), Path.GetFileName(upgradeProperties.ZipUrl));
 				try
 				{
 					System.Net.Http.HttpClient cli = new();
@@ -42,36 +42,6 @@ namespace LibationAvalonia.Views
 				return zipFile;
 			}
 
-			void runWindowsUpgrader(string zipFile)
-			{
-				var thisExe = Environment.ProcessPath;
-				var thisDir = Path.GetDirectoryName(thisExe);
-
-				var zipExtractor = Path.Combine(Path.GetTempPath(), "ZipExtractor.exe");
-
-				File.Copy("ZipExtractor.exe", zipExtractor, overwrite: true);
-
-				var psi = new System.Diagnostics.ProcessStartInfo()
-				{
-					FileName = zipExtractor,
-					UseShellExecute = true,
-					Verb = "runas",
-					WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal,
-					CreateNoWindow = true,
-					ArgumentList =
-					{
-						"--input",
-						zipFile,
-						"--output",
-						thisDir,
-						"--executable",
-						thisExe
-					}
-				};
-
-				System.Diagnostics.Process.Start(psi);
-			}
-
 			try
 			{
 				var upgradeProperties = await Task.Run(LibationScaffolding.GetLatestRelease);
@@ -83,26 +53,22 @@ namespace LibationAvalonia.Views
 				if (config.GetString(propertyName: ignoreUpdate) == upgradeProperties.LatestRelease.ToString())
 					return;
 
-				var notificationResult = await new UpgradeNotificationDialog(upgradeProperties, Configuration.IsWindows).ShowDialog<DialogResult>(this);
+				var interop = InteropFactory.Create();
+
+				var notificationResult = await new UpgradeNotificationDialog(upgradeProperties, interop.CanUpdate).ShowDialog<DialogResult>(this);
 
 				if (notificationResult == DialogResult.Ignore)
 					config.SetString(upgradeProperties.LatestRelease.ToString(), ignoreUpdate);
 
-				if (notificationResult != DialogResult.OK || !Configuration.IsWindows) return;
+				if (notificationResult != DialogResult.OK) return;
 
 				//Download the update file in the background,
-				//then wire up installaion on window close.
+				string updateBundle = await downloadUpdate(upgradeProperties);
 
-				string zipFile = await downloadUpdate(upgradeProperties);
+				if (string.IsNullOrEmpty(updateBundle) || !File.Exists(updateBundle)) return;
 
-				if (string.IsNullOrEmpty(zipFile) || !File.Exists(zipFile))
-					return;
-
-				Closed += (_, _) =>
-				{
-					if (File.Exists(zipFile))
-						runWindowsUpgrader(zipFile);
-				};
+				//Install the update
+				interop.InstallUpdate(updateBundle);
 			}
 			catch (Exception ex)
 			{

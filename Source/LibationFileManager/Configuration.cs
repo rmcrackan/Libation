@@ -9,9 +9,7 @@ namespace LibationFileManager
 {
 	public partial class Configuration : PropertyChangeFilter
 	{
-		public bool LibationSettingsAreValid
-			=> File.Exists(APPSETTINGS_JSON)
-			&& SettingsFileIsValid(SettingsFilePath);
+		public bool LibationSettingsAreValid => SettingsFileIsValid(SettingsFilePath);
 
 		public static bool SettingsFileIsValid(string settingsFile)
 		{

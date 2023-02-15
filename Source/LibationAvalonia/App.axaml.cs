@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using ApplicationServices;
-using Dinah.Core;
 
 namespace LibationAvalonia
 {
@@ -53,7 +52,7 @@ namespace LibationAvalonia
 					// check for existing settings in default location
 					var defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
 					if (Configuration.SettingsFileIsValid(defaultSettingsFile))
-						config.SetLibationFiles(defaultLibationFilesDir);
+						Configuration.SetLibationFiles(defaultLibationFilesDir);
 
 					if (config.LibationSettingsAreValid)
 					{
@@ -86,7 +85,7 @@ namespace LibationAvalonia
 				// - error message, Exit()
 				if (setupDialog.IsNewUser)
 				{
-					setupDialog.Config.SetLibationFiles(Configuration.UserProfile);
+					Configuration.SetLibationFiles(Configuration.UserProfile);
 					ShowSettingsWindow(desktop, setupDialog.Config, OnSettingsCompleted);
 				}
 				else if (setupDialog.IsReturningUser)
@@ -178,7 +177,7 @@ namespace LibationAvalonia
 
 		private async void OnLibationFilesCompleted(IClassicDesktopStyleApplicationLifetime desktop, LibationFilesDialog libationFilesDialog, Configuration config)
 		{
-			config.SetLibationFiles(libationFilesDialog.SelectedDirectory);
+			Configuration.SetLibationFiles(libationFilesDialog.SelectedDirectory);
 			if (config.LibationSettingsAreValid)
 			{
 				await RunMigrationsAsync(config);
