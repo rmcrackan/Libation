@@ -9,7 +9,7 @@ This walkthrough should get you up and running with Libation on your Mac.
 
 ## Install Libation
 
-- Download the `Libation.app-x64-x.x.x.tgz` file from the latest release and extract it. 
+- Download the `Libation.app-macOS-x64-x.x.x.tgz` file from the latest release and extract it. 
 - Move the extracted Libation app bundle to your applications folder.
 - Open a terminal (Go > Utilities > Terminal)
 - Copy/paste/run the following command (you'll be prompted to enter your password)

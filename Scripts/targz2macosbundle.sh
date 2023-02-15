@@ -77,7 +77,7 @@ tar -czvf "$BUNDLE-$VERSION.tar.gz" "$BUNDLE"
 
 mkdir bundle
 echo "moving to ./bundle/$BUNDLE-$VERSION.tar.gz"
-mv "$BUNDLE-$VERSION.tar.gz" "./bundle/$BUNDLE-x64-$VERSION.tgz"
+mv "$BUNDLE-$VERSION.tar.gz" "./bundle/$BUNDLE-macOS-x64-$VERSION.tgz"
 
 rm -r "$BUNDLE"
 
