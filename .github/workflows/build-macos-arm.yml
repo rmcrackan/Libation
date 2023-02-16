@@ -1,7 +1,8 @@
-# build-linux.yml
-# Reusable workflow that builds the Linux and MacOS versions of Libation.
+# build-macos-arm.yml
+# Reusable workflow that builds the MacOS ARM versions of Libation.
 ---
 name: build
+runs-on: self-hosted
 
 on:
   workflow_call:
