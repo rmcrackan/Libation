@@ -6,6 +6,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 jobs:
   prerelease:
     runs-on: ubuntu-latest
@@ -39,7 +40,7 @@ jobs:
     uses: ./.github/workflows/bundle-linux.yml
     with:
       version: ${{ needs.prerelease.outputs.version }}
-      
+
   release:
     needs: [prerelease,build,bundle]
     runs-on: ubuntu-latest
