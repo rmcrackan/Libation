@@ -37,4 +37,4 @@ Then use `./LibationCli` to execute a command.
 
 ## Get Libation running on Mac
 
-[Run Libation on MacOS](https://user-images.githubusercontent.com/37587114/213933357-983d8ede-2738-4b32-9c6e-40de21ff09c2.mp4)
+[Run Libation on MacOS](https://user-images.githubusercontent.com/37587114/219271379-a922e4e1-48a0-48e4-bd81-48aa1226a4f5.mp4)
