@@ -1,0 +1,91 @@
+# build-linux.yml
+# Reusable workflow that builds the Linux and MacOS versions of Libation.
+---
+name: build
+
+on:
+  workflow_call:
+    inputs:
+      version_override:
+        type: string
+        description: 'Version number override'
+        required: false
+      run_unit_tests:
+        type: boolean
+        description: 'Skip running unit tests'
+        required: false
+        default: true
+
+env:
+  DOTNET_CONFIGURATION: 'Release'
+  DOTNET_VERSION: '7.0.x'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [MacOS]
+        ui: [Avalonia]
+        architecture: arm64
+        release_name: [chardonnay]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get version
+        id: get_version
+        run: |
+          inputVersion="${{ inputs.version_override }}"
+          if [[ "${#inputVersion}" -gt 0 ]]
+          then
+            version="${inputVersion}"
+          else
+            version="$(grep -oP '(?<=<Version>).*(?=</Version)' ./Source/AppScaffolding/AppScaffolding.csproj)"
+          fi
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
+      - name: Unit test
+        if: ${{ inputs.run_unit_tests }}
+        working-directory: ./Source
+        run: dotnet test
+
+      - name: Publish
+        working-directory: ./Source
+        # TODO: Set RuntimeIdentifier based on ${{ matrix.architecture }}
+        run: |
+          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj -p:PublishProfile=Libation${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml -p:RuntimeIdentifier=osx-arm64
+          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} LoadByOS/${{ matrix.os }}ConfigApp/${{ matrix.os }}ConfigApp.csproj -p:PublishProfile=LoadByOS/Properties/${{ matrix.os }}ConfigApp/PublishProfiles/${{ matrix.os }}Profile.pubxml -p:RuntimeIdentifier=osx-arm64
+          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} LibationCli/LibationCli.csproj -p:PublishProfile=LibationCli/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml -p:RuntimeIdentifier=osx-arm64
+          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj -p:PublishProfile=Hangover${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml -p:RuntimeIdentifier=osx-arm64
+
+      # TODO: Only for macOS and ARM builds
+      - name: Get Dylibs
+        working-directory: ./Source/bin/Publish/${{ matrix.os }}-${{ matrix.release_name }}
+        run: |
+          wget https://github.com/hutattedonmyarm/Libation/releases/download/9.3.0/dylibs.tar.gz
+          tar -xvf dylibs.tar.gz
+          rm dylibs.tar.gz
+
+      - name: Zip artifact
+        id: zip
+        working-directory: ./Source/bin/Publish/${{ matrix.os }}-${{ matrix.release_name }}
+        run: |
+          delfiles=("libmp3lame.x86.dylib", "libmp3lame.x86.so", "libmp3lame.x86.dll" "libmp3lame.x64.dll" "ffmpegaac.x86.dll" "ffmpegaac.x64.dll", "ffmpegaac.x64.dylib", "ffmpegaac.x64.so")
+          for n in "${delfiles[@]}"; do rm "$n"; done
+          osbuild="$(echo '${{ matrix.os }}' | tr '[:upper:]' '[:lower:]')"
+          artifact="Libation.${{ steps.get_version.outputs.version }}-${osbuild}-${{ matrix.release_name }}"
+          echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
+          tar -zcvf "../${artifact}.tar.gz" .
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.zip.outputs.artifact }}.tar.gz
+          path: ./Source/bin/Publish/${{ steps.zip.outputs.artifact }}.tar.gz
+          if-no-files-found: error
