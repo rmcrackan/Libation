@@ -23,10 +23,10 @@ namespace LinuxConfigApp
         public void SetFolderIcon(string image, string directory) => throw new PlatformNotSupportedException();
         public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 
-		//only run the audo updater is the current app was installed from the
-		//.deb package. Try to detect this by checking if the symlink exists.
-		public bool CanUpdate => Directory.Exists("/usr/bin/libation");
-		public void InstallUpdate(string updateBundle)
+        //only run the audo updater is the current app was installed from the
+        //.deb package. Try to detect this by checking if the symlink exists.
+        public bool CanUpdate => Directory.Exists("/usr/lib/libation");
+        public void InstallUpdate(string updateBundle)
 		{
 			RunAsRoot("apt", $"install '{updateBundle}'");
 		}
