@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Libation
-Exec=libation
+Exec=/usr/bin/libation
 Icon=libation
 Comment=Liberate your Audiobooks
 Terminal=false

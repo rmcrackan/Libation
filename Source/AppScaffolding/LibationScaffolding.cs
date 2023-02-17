@@ -21,7 +21,9 @@ namespace AppScaffolding
 		WindowsClassic,
 		WindowsAvalonia,
 		LinuxAvalonia,
-		MacOSAvalonia
+		MacOSAvalonia,
+		LinuxAvalonia_Arm64,
+		MacOSAvalonia_Arm64
 	}
 
 	// I know I'm taking the wine metaphor a bit far by naming this "Variety", but I don't know what else to call it
@@ -35,7 +37,7 @@ namespace AppScaffolding
 		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
 		public static VarietyType Variety
 			=> ReleaseIdentifier == ReleaseIdentifier.WindowsClassic ? VarietyType.Classic
-			: ReleaseIdentifier.In(ReleaseIdentifier.WindowsAvalonia, ReleaseIdentifier.LinuxAvalonia, ReleaseIdentifier.MacOSAvalonia) ? VarietyType.Chardonnay
+			: Enum.IsDefined(ReleaseIdentifier) ? VarietyType.Chardonnay
 			: VarietyType.None;
 
 		public static void SetReleaseIdentifier(ReleaseIdentifier releaseID)
@@ -296,8 +298,8 @@ namespace AppScaffolding
 		}
 		private static async System.Threading.Tasks.Task<(Octokit.Release, Octokit.ReleaseAsset)> getLatestRelease()
 		{
-			var ownerAccount = "rmcrackan";
-			var repoName = "Libation";
+			const string ownerAccount = "rmcrackan";
+			const string repoName = "Libation";
 
 			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(repoName));
 
@@ -305,12 +307,11 @@ namespace AppScaffolding
 			var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
 			var releaseIndex = JObject.Parse(System.Text.Encoding.ASCII.GetString(bts));
 			var regexPattern = releaseIndex.Value<string>(ReleaseIdentifier.ToString());
-
-			// https://octokitnet.readthedocs.io/en/latest/releases/
-			var releases = await gitHubClient.Repository.Release.GetAll(ownerAccount, repoName);
-
 			var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-			var latestRelease = releases.FirstOrDefault(r => !r.Draft && !r.Prerelease && r.Assets.Any(a => regex.IsMatch(a.Name)));
+
+			//https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release
+			var latestRelease = await gitHubClient.Repository.Release.GetLatest(ownerAccount, repoName);
+
 			return (latestRelease, latestRelease?.Assets?.FirstOrDefault(a => regex.IsMatch(a.Name)));
 		}
 	}

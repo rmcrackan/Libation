@@ -20,13 +20,16 @@ namespace LibationAvalonia.Views
 			{
 				if (upgradeProperties.ZipUrl is null)
 				{
-					Serilog.Log.Logger.Information("Download link for new version not found");
+					Serilog.Log.Logger.Warning("Download link for new version not found");
 					return null;
 				}
 
 				//Silently download the update in the background, save it to a temp file.
 
 				var zipFile = Path.Combine(Path.GetTempPath(), Path.GetFileName(upgradeProperties.ZipUrl));
+
+				Serilog.Log.Logger.Information($"Downloading {zipFile}");
+
 				try
 				{
 					System.Net.Http.HttpClient cli = new();
@@ -55,6 +58,9 @@ namespace LibationAvalonia.Views
 
 				var interop = InteropFactory.Create();
 
+				if (!interop.CanUpdate)
+					Serilog.Log.Logger.Information("Can't perform update automatically");
+
 				var notificationResult = await new UpgradeNotificationDialog(upgradeProperties, interop.CanUpdate).ShowDialog<DialogResult>(this);
 
 				if (notificationResult == DialogResult.Ignore)
@@ -68,7 +74,9 @@ namespace LibationAvalonia.Views
 				if (string.IsNullOrEmpty(updateBundle) || !File.Exists(updateBundle)) return;
 
 				//Install the update
+				Serilog.Log.Logger.Information($"Begin running auto-updater");
 				interop.InstallUpdate(updateBundle);
+				Serilog.Log.Logger.Information($"Completed running auto-updater");
 			}
 			catch (Exception ex)
 			{

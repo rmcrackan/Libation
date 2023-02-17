@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ApplicationServices;
 using Avalonia;
@@ -52,12 +53,29 @@ namespace LibationAvalonia
 			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 			var appBuilderTask = Task.Run(BuildAvaloniaApp);
 
+
 			if (Configuration.IsWindows)
 				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.WindowsAvalonia);
 			else if (Configuration.IsLinux)
-				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.LinuxAvalonia);
+			{
+				var releaseID = RuntimeInformation.OSArchitecture switch
+				{
+					Architecture.X64 => AppScaffolding.ReleaseIdentifier.LinuxAvalonia,
+					Architecture.Arm64 => AppScaffolding.ReleaseIdentifier.LinuxAvalonia_Arm64,
+					_ => throw new PlatformNotSupportedException()
+				};
+				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(releaseID);
+			}
 			else if (Configuration.IsMacOs)
-				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.MacOSAvalonia);
+			{
+				var releaseID = RuntimeInformation.OSArchitecture switch
+				{
+					Architecture.X64 => AppScaffolding.ReleaseIdentifier.MacOSAvalonia,
+					Architecture.Arm64 => AppScaffolding.ReleaseIdentifier.MacOSAvalonia_Arm64,
+					_ => throw new PlatformNotSupportedException()
+				};
+				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(releaseID);
+			}
 			else return;
 
 

@@ -21,7 +21,7 @@ namespace MacOSConfigApp
 			Serilog.Log.Information($"Extracting update bundle to {AppPath}");
 
 			//tar wil overwrite existing without elevated privileges
-			Process.Start("tar", $"-xzf \"{updateBundle}\" -C \"/Applications\"").WaitForExit();
+			Process.Start("tar", $"-xf \"{updateBundle}\" -C \"/Applications\"").WaitForExit();
 			
 			//For now, it seems like this step is unnecessary. We can overwrite and
 			//run Libation without needing to re-add the exception. This is insurance.

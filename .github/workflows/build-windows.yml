@@ -60,21 +60,49 @@ jobs:
       - name: Publish
         working-directory: ./Source
         run: |
-          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj -p:PublishProfile=Libation${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} LoadByOS/${{ matrix.os }}ConfigApp/${{ matrix.os }}ConfigApp.csproj -p:PublishProfile=LoadByOS/Properties/${{ matrix.os }}ConfigApp/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} LibationCli/LibationCli.csproj -p:PublishProfile=LibationCli/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          dotnet publish -c ${{ env.DOTNET_CONFIGURATION }} -o bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj -p:PublishProfile=Hangover${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+          dotnet publish `
+              --configuration ${{ env.DOTNET_CONFIGURATION }} `
+              --output bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} `
+              Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj `
+              -p:PublishProfile=Libation${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+          dotnet publish `
+              --configuration ${{ env.DOTNET_CONFIGURATION }} `
+              --output bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} `
+              LoadByOS/${{ matrix.os }}ConfigApp/${{ matrix.os }}ConfigApp.csproj `
+              -p:PublishProfile=LoadByOS/Properties/${{ matrix.os }}ConfigApp/PublishProfiles/${{ matrix.os }}Profile.pubxml
+          dotnet publish `
+              --configuration ${{ env.DOTNET_CONFIGURATION }} `
+              --output bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} `
+              LibationCli/LibationCli.csproj `
+              -p:PublishProfile=LibationCli/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+          dotnet publish `
+              --configuration ${{ env.DOTNET_CONFIGURATION }} `
+              --output bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} `
+              Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj `
+              -p:PublishProfile=Hangover${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
 
       - name: Zip artifact
         id: zip
         working-directory: ./Source/bin/Publish
         run: |
-          $dir = "${{ matrix.os }}-${{ matrix.release_name }}\"
-          $delfiles = @("libmp3lame.so", "ffmpegaac.so", "glass-with-glow_256.svg", "Libation.desktop")
-          foreach ($file in $delfiles){ if (test-path $dir$file){ Remove-Item $dir$file } }
+          $bin_dir = "${{ matrix.os }}-${{ matrix.release_name }}\"
+          $delfiles = @(
+            "libmp3lame.x64.so",
+            "libmp3lame.arm64.so",
+            "libmp3lame.x64.dylib",
+            "libmp3lame.arm64.dylib",
+            "ffmpegaac.x64.so",
+            "ffmpegaac.arm64.so",
+            "ffmpegaac.x64.dylib",
+            "ffmpegaac.arm64.dylib",
+            "WindowsConfigApp.exe",
+            "WindowsConfigApp.runtimeconfig.json",
+            "WindowsConfigApp.deps.json"
+            )
+          foreach ($file in $delfiles){ if (test-path $bin_dir$file){ Remove-Item $bin_dir$file } }
           $artifact="${{ matrix.prefix }}Libation.${{ steps.get_version.outputs.version }}-" + "${{ matrix.os }}".ToLower() + "-${{ matrix.release_name }}"
           "artifact=$artifact" >> $env:GITHUB_OUTPUT
-          Compress-Archive -Path "${dir}*" -DestinationPath "$artifact.zip"
+          Compress-Archive -Path "${bin_dir}*" -DestinationPath "$artifact.zip"
 
       - name: Publish artifact
         uses: actions/upload-artifact@v3
