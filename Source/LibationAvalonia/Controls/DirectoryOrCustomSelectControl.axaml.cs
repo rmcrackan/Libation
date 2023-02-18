@@ -133,7 +133,7 @@ namespace LibationAvalonia.Controls
 					: Configuration.GetKnownDirectoryPath(directorySelectControl.SelectedDirectory);
 			selectedDir ??= string.Empty;
 
-			Directory = customStates.CustomChecked ? selectedDir : System.IO.Path.Combine(selectedDir, SubDirectory);
+			Directory = customStates.CustomChecked ? selectedDir : System.IO.Path.Combine(selectedDir, SubDirectory ?? "");
 		}
 
 		private void DirectoryOrCustomSelectControl_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
