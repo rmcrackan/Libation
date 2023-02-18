@@ -24,18 +24,15 @@ namespace LibationAvalonia
 				//We can do this because we're already executing inside the sandbox.
 				//Any process created in the sandbox executes in the same sandbox.
 				//Unfortunately, all sandbox files are read/execute, so no writing!
-
-				Assembly asm = Assembly.GetExecutingAssembly();
-				string path = Path.GetDirectoryName(asm.Location);
-				Process.Start("Hangover" + (Configuration.IsWindows ? ".exe" : ""));
+				Process.Start("Hangover");
 				return;
 			}
 			if (Configuration.IsMacOs && args?.Length > 0 && args[0] == "cli")
 			{
 				//Open a new Terminal in the sandbox
-				Assembly asm2 = Assembly.GetExecutingAssembly();
-				string libationProgramFiles = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-				Process.Start("/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal", $"\"{libationProgramFiles}\"");
+				Process.Start(
+					"/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal",
+					$"\"{Configuration.ProcessDirectory}\"");
 				return;
 			}
 

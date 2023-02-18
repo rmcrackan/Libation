@@ -1,11 +1,7 @@
-﻿using AppScaffolding;
-
-namespace LinuxConfigApp
+﻿namespace LinuxConfigApp
 {
-    class Program : OSConfigBase
+    class Program
     {
-        public override Type InteropFunctionsType => typeof(LinuxInterop);
-
-        static void Main() => new Program().Run();
+        static void Main() { }
     }
 }

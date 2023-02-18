@@ -1,6 +1,5 @@
 ﻿using LibationFileManager;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace LinuxConfigApp
 {
@@ -39,8 +38,6 @@ namespace LinuxConfigApp
 			//prompt across multiple distributions and desktop environments.
 			const string runasroot = "runasroot.sh";
 
-			var asmDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
 			string command = $"{exe ?? ""} {args ?? ""}".Trim();
 
 			foreach (var console in consoleCommands)
@@ -55,7 +52,7 @@ namespace LinuxConfigApp
 						$"Running '{exe}' as root", // console title
 						console[2],
 						"/bin/sh",
-						Path.Combine(asmDir, runasroot), //script file
+						Path.Combine(Configuration.ProcessDirectory, runasroot), //script file
 						"Installing libation.deb", //command title
 						command, // command to execute vis /bin/sh
 						$"Please run '{command}' manually" // error message to display in the terminal

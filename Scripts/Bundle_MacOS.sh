@@ -79,7 +79,7 @@ echo "Set CFBundleVersion to $VERSION"
 sed -i -e "s/VERSION_STRING/$VERSION/" $BUNDLE_CONTENTS/Info.plist
 
 
-delfiles=('libmp3lame.x64.so' 'ffmpegaac.x64.so' 'libmp3lame.arm64.so' 'ffmpegaac.arm64.so' 'libmp3lame.x64.dll' 'ffmpegaac.x64.dll' 'libmp3lame.x86.dll' 'ffmpegaac.x86.dll' 'ffmpegaac.x86.dll' 'MacOSConfigApp' 'MacOSConfigApp.runtimeconfig.json' 'MacOSConfigApp.deps.json')
+delfiles=( 'libmp3lame.arm64.so' 'libmp3lame.x64.so' 'libmp3lame.x64.dll' 'libmp3lame.x86.dll' 'ffmpegaac.arm64.so' 'ffmpegaac.x64.so' 'ffmpegaac.x64.dll' 'ffmpegaac.x86.dll' 'MacOSConfigApp' 'MacOSConfigApp.deps.json' 'MacOSConfigApp.runtimeconfig.json')
 if [[ "$ARCH" == "arm64" ]]
 then
   delfiles+=('libmp3lame.x64.dylib' 'ffmpegaac.x64.dylib')

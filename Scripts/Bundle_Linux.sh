@@ -53,7 +53,7 @@ if [ $? -ne 0 ]
 fi
 
 
-delfiles=('libmp3lame.x64.dylib' 'libmp3lame.arm64.dylib' 'ffmpegaac.x64.dylib' 'ffmpegaac.arm64.dylib' 'libmp3lame.x64.dll' 'ffmpegaac.x64.dll' 'libmp3lame.x86.dll' 'ffmpegaac.x86.dll' 'LinuxConfigApp' 'LinuxConfigApp.runtimeconfig.json' 'LinuxConfigApp.deps.json')
+delfiles=('libmp3lame.arm64.dylib' 'libmp3lame.x64.dylib' 'libmp3lame.x64.dll' 'libmp3lame.x86.dll' 'ffmpegaac.arm64.dylib' 'ffmpegaac.x64.dylib' 'ffmpegaac.x64.dll' 'ffmpegaac.x86.dll' 'LinuxConfigApp' 'LinuxConfigApp.deps.json' 'LinuxConfigApp.runtimeconfig.json')
 if [[ "$ARCH" == "arm64" ]]
 then
   delfiles+=('libmp3lame.x64.so' 'ffmpegaac.x64.so')

@@ -2,7 +2,7 @@
   "WindowsClassic":      "Libation\\.\\d+\\.\\d+\\.\\d+-win(dows)?-classic\\.zip",
   "WindowsAvalonia":     "Libation\\.\\d+\\.\\d+\\.\\d+-win(dows)?-chardonnay\\.zip",
   "LinuxAvalonia":       "Libation\\.\\d+\\.\\d+\\.\\d+-linux-amd64\\.deb",
-  "MacOSAvalonia":       "Libation\\.\\d+\\.\\d+\\.\\d+-macOS-x64\\.tgz"
+  "MacOSAvalonia":       "Libation\\.\\d+\\.\\d+\\.\\d+-macOS-x64\\.tgz",
   "LinuxAvalonia_Arm64": "Libation\\.\\d+\\.\\d+\\.\\d+-linux-arm64\\.deb",
   "MacOSAvalonia_Arm64": "Libation\\.\\d+\\.\\d+\\.\\d+-macOS-arm64\\.tgz"
 }
