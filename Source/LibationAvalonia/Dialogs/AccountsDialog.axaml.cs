@@ -120,7 +120,11 @@ namespace LibationAvalonia.Dialogs
 				SuggestedStartLocation = new BclStorageFolder(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)),
 				FileTypeFilter = new FilePickerFileType[]
 				{
-					new("JSON files (*.json)") { Patterns = new[] { "*.json" } },
+					new("JSON files (*.json)")
+					{
+						Patterns = new[] { "*.json" },
+						AppleUniformTypeIdentifiers  = new[] { "public.json" }
+					}
 				}
 			};
 
@@ -280,7 +284,11 @@ namespace LibationAvalonia.Dialogs
 				ShowOverwritePrompt = true,
 				FileTypeChoices = new FilePickerFileType[]
 					{
-						new("JSON files (*.json)") { Patterns = new[] { "*.json" } },
+						new("JSON files (*.json)")
+						{
+							Patterns = new[] { "*.json" },
+							AppleUniformTypeIdentifiers  = new[] { "public.json" }
+						}
 					}
 			};
 

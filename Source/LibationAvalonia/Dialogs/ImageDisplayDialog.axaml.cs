@@ -56,7 +56,11 @@ namespace LibationAvalonia.Dialogs
 				ShowOverwritePrompt = true,
 				FileTypeChoices = new FilePickerFileType[]
 					{
-						new("Jpeg (*.jpg)") { Patterns = new[] { "jpg" } }
+						new("Jpeg (*.jpg)")
+						{
+							Patterns = new[] { "jpg" },
+							AppleUniformTypeIdentifiers = new[] { "public.jpeg" }
+						}
 					}
 			};
 
