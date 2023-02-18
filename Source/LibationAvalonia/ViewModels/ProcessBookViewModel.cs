@@ -7,6 +7,7 @@ using AudibleApi;
 using AudibleApi.Common;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
@@ -60,12 +61,12 @@ namespace LibationAvalonia.ViewModels
 		#region Properties exposed to the view
 		public ProcessBookResult Result { get => _result; set { this.RaiseAndSetIfChanged(ref _result, value); this.RaisePropertyChanged(nameof(StatusText)); } }
 		public ProcessBookStatus Status { get => _status; set { this.RaiseAndSetIfChanged(ref _status, value); this.RaisePropertyChanged(nameof(BackgroundColor)); this.RaisePropertyChanged(nameof(IsFinished)); this.RaisePropertyChanged(nameof(IsDownloading)); this.RaisePropertyChanged(nameof(Queued)); } }
-		public string Narrator { get => _narrator; set { this.RaiseAndSetIfChanged(ref _narrator, value); } }
-		public string Author { get => _author; set { this.RaiseAndSetIfChanged(ref _author, value); } }
-		public string Title { get => _title; set { this.RaiseAndSetIfChanged(ref _title, value); } }
-		public int Progress { get => _progress; private set { this.RaiseAndSetIfChanged(ref _progress, value); } }
-		public string ETA { get => _eta; private set { this.RaiseAndSetIfChanged(ref _eta, value); } }
-		public Bitmap Cover { get => _cover; private set { this.RaiseAndSetIfChanged(ref _cover, value); } }
+		public string Narrator { get => _narrator; set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _narrator, value)); }
+		public string Author { get => _author; set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _author, value)); }
+		public string Title { get => _title; set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _title, value)); }
+		public int Progress { get => _progress; private set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _progress, value)); }
+		public string ETA { get => _eta; private  set => Dispatcher.UIThread.Post(() =>this.RaiseAndSetIfChanged(ref _eta, value)); }
+		public Bitmap Cover { get => _cover; private set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _cover, value)); }
 		public bool IsFinished => Status is not ProcessBookStatus.Queued and not ProcessBookStatus.Working;
 		public bool IsDownloading => Status is ProcessBookStatus.Working;
 		public bool Queued => Status is ProcessBookStatus.Queued;
@@ -131,6 +132,7 @@ namespace LibationAvalonia.ViewModels
 		public async Task<ProcessBookResult> ProcessOneAsync()
 		{
 			string procName = CurrentProcessable.Name;
+			ProcessBookResult result = ProcessBookResult.None;
 			try
 			{
 				LinkProcessable(CurrentProcessable);
@@ -138,32 +140,34 @@ namespace LibationAvalonia.ViewModels
 				var statusHandler = await CurrentProcessable.ProcessSingleAsync(LibraryBook, validate: true);
 
 				if (statusHandler.IsSuccess)
-					return Result = ProcessBookResult.Success;
+					result = ProcessBookResult.Success;
 				else if (statusHandler.Errors.Contains("Cancelled"))
 				{
 					Logger.Info($"{procName}:  Process was cancelled - {LibraryBook.Book}");
-					return Result = ProcessBookResult.Cancelled;
+					result = ProcessBookResult.Cancelled;
 				}
 				else if (statusHandler.Errors.Contains("Validation failed"))
 				{
 					Logger.Info($"{procName}:  Validation failed - {LibraryBook.Book}");
-					return Result = ProcessBookResult.ValidationFail;
+					result = ProcessBookResult.ValidationFail;
 				}
-
-				foreach (var errorMessage in statusHandler.Errors)
-					Logger.Error($"{procName}:  {errorMessage}");
+				else
+				{
+					foreach (var errorMessage in statusHandler.Errors)
+						Logger.Error($"{procName}:  {errorMessage}");
+				}
 			}
 			catch (ContentLicenseDeniedException ldex)
 			{
 				if (ldex.AYCL?.RejectionReason is null or RejectionReason.GenericError)
 				{
 					Logger.Info($"{procName}:  Content license was denied, but this error appears to be caused by a temporary interruption of service. - {LibraryBook.Book}");
-					return Result = ProcessBookResult.LicenseDeniedPossibleOutage;
+					result = ProcessBookResult.LicenseDeniedPossibleOutage;
 				}
 				else
 				{
 					Logger.Info($"{procName}:  Content license denied. Check your Audible account to see if you have access to this title. - {LibraryBook.Book}");
-					return Result = ProcessBookResult.LicenseDenied;
+					result = ProcessBookResult.LicenseDenied;
 				}
 			}
 			catch (Exception ex)
@@ -172,18 +176,21 @@ namespace LibationAvalonia.ViewModels
 			}
 			finally
 			{
-				if (Result == ProcessBookResult.None)
-					Result = await showRetry(LibraryBook);
+				if (result == ProcessBookResult.None)
+					result = await showRetry(LibraryBook);
 
-				Status = Result switch
+				var status = result switch
 				{
 					ProcessBookResult.Success => ProcessBookStatus.Completed,
 					ProcessBookResult.Cancelled => ProcessBookStatus.Cancelled,
 					_ => ProcessBookStatus.Failed,
 				};
+
+				await Dispatcher.UIThread.InvokeAsync(() => Status = status);
 			}
 
-			return Result;
+			await Dispatcher.UIThread.InvokeAsync(() => Result = result);
+			return result;
 		}
 
 		public async Task CancelAsync()
@@ -294,9 +301,9 @@ namespace LibationAvalonia.ViewModels
 
 		#region Processable event handlers
 
-		private void Processable_Begin(object sender, LibraryBook libraryBook)
+		private async void Processable_Begin(object sender, LibraryBook libraryBook)
 		{
-			Status = ProcessBookStatus.Working;
+			await Dispatcher.UIThread.InvokeAsync(() => Status = ProcessBookStatus.Working);
 
 			Logger.Info($"{Environment.NewLine}{((Processable)sender).Name} Step, Begin: {libraryBook.Book}");
 
