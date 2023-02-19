@@ -10,8 +10,6 @@ using ApplicationServices;
 using AudibleUtilities;
 using LibationAvalonia.Dialogs.Login;
 using Avalonia.Collections;
-using LibationSearchEngine;
-using Octokit.Internal;
 
 namespace LibationAvalonia.ViewModels
 {
@@ -62,6 +60,7 @@ namespace LibationAvalonia.ViewModels
 			{
 				var existingSeriesEntries = SOURCE.SeriesEntries().ToList();
 
+				FilteredInGridEntries?.Clear();
 				SOURCE.Clear();
 				SOURCE.AddRange(CreateGridEntries(dbBooks));
 
@@ -164,7 +163,7 @@ namespace LibationAvalonia.ViewModels
 			return FilteredInGridEntries.Contains(item);
 		}
 
-		private static List<GridEntry> QueryResults(List<GridEntry> entries, string searchString)
+		private static List<GridEntry> QueryResults(IEnumerable<GridEntry> entries, string searchString)
 		{
 			if (string.IsNullOrEmpty(searchString)) return null;
 

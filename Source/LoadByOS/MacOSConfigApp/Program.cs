@@ -1,11 +1,7 @@
-﻿using AppScaffolding;
-
-namespace MacOSConfigApp
+﻿namespace MacOSConfigApp
 {
-    class Program : OSConfigBase
+    class Program
     {
-        public override Type InteropFunctionsType => typeof(MacOSInterop);
-
-        static void Main() => new Program().Run();
+        static void Main() { }
     }
 }

@@ -136,10 +136,10 @@ namespace AaxDecrypter
 
 		/// <summary> Begins downloading <see cref="Uri"/> to <see cref="SaveFilePath"/> in a background thread. </summary>
 		/// <returns>The downloader <see cref="Task"/></returns>
-		private Task BeginDownloading()
+		public async Task BeginDownloadingAsync()
 		{
 			if (ContentLength != 0 && WritePosition == ContentLength)
-				return Task.CompletedTask;
+				return;
 
 			if (ContentLength != 0 && WritePosition > ContentLength)
 				throw new WebException($"Specified write position (0x{WritePosition:X10}) is larger than  {nameof(ContentLength)} (0x{ContentLength:X10}).");
@@ -149,7 +149,7 @@ namespace AaxDecrypter
 			foreach (var header in RequestHeaders)
 				request.Headers.Add(header.Key, header.Value);
 
-			var response = new HttpClient().Send(request, HttpCompletionOption.ResponseHeadersRead, _cancellationSource.Token);
+			var response = await new HttpClient().SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _cancellationSource.Token);
 
 			if (response.StatusCode != HttpStatusCode.PartialContent)
 				throw new WebException($"Server at {Uri.Host} responded with unexpected status code: {response.StatusCode}.");
@@ -159,11 +159,11 @@ namespace AaxDecrypter
 			if (WritePosition == 0)
 				ContentLength = response.Content.Headers.ContentLength.GetValueOrDefault();
 
-			var networkStream = response.Content.ReadAsStream(_cancellationSource.Token);
+			var networkStream = await response.Content.ReadAsStreamAsync(_cancellationSource.Token);
 			_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
 
 			//Download the file in the background.
-			return Task.Run(() => DownloadFile(networkStream), _cancellationSource.Token);
+			_backgroundDownloadTask = Task.Run(() => DownloadFile(networkStream), _cancellationSource.Token);
 		}
 
 		/// <summary> Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.</summary>
@@ -251,7 +251,8 @@ namespace AaxDecrypter
 		{
 			get
 			{
-				_backgroundDownloadTask ??= BeginDownloading();
+				if (_backgroundDownloadTask is null)
+					throw new InvalidOperationException($"Background downloader must first be started by calling {nameof(BeginDownloadingAsync)}");
 				return ContentLength;
 			}
 		}
@@ -274,7 +275,8 @@ namespace AaxDecrypter
 
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			_backgroundDownloadTask ??= BeginDownloading();
+			if (_backgroundDownloadTask is null)
+				throw new InvalidOperationException($"Background downloader must first be started by calling {nameof(BeginDownloadingAsync)}");
 
 			var toRead = Math.Min(count, Length - Position);
 			WaitToPosition(Position + toRead);

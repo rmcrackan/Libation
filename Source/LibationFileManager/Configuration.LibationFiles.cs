@@ -76,7 +76,7 @@ namespace LibationFileManager
 			//Possible appsettings.json locations, in order of preference.
 			string[] possibleAppsettingsFiles = new[]
 			{
-				Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), appsettings_filename),
+				Path.Combine(ProcessDirectory, appsettings_filename),
 				Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Libation", appsettings_filename),
 				Path.Combine(UserProfile, appsettings_filename),
 				Path.Combine(Path.GetTempPath(), "Libation", appsettings_filename)

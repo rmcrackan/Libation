@@ -33,15 +33,9 @@ jobs:
     with:
       version_override: ${{ needs.prerelease.outputs.version }}
       run_unit_tests: false
-
-  bundle:
-    needs: [prerelease,build]
-    uses: ./.github/workflows/bundle-linux.yml
-    with:
-      version: ${{ needs.prerelease.outputs.version }}
       
   release:
-    needs: [prerelease,build,bundle]
+    needs: [prerelease,build]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts

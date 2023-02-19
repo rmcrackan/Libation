@@ -3,6 +3,7 @@ using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
 using FileManager;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -58,7 +59,7 @@ namespace AaxDecrypter
 			{
 				BytesReceived = 0,
 				ProgressPercentage = 0,
-				TotalBytesToReceive = InputFileStream.Length
+				TotalBytesToReceive = 0
 			};
 
 			OnDecryptProgressUpdate(zeroProgress);
@@ -66,6 +67,7 @@ namespace AaxDecrypter
 
 		public async Task<bool> RunAsync()
 		{
+			await InputFileStream.BeginDownloadingAsync();
 			var progressTask = Task.Run(reportProgress);
 
 			AsyncSteps[$"Cleanup"] = CleanupAsync;

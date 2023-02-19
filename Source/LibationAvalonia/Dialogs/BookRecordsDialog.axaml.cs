@@ -153,10 +153,22 @@ namespace LibationAvalonia.Dialogs
 					ShowOverwritePrompt = true,
 					FileTypeChoices = new FilePickerFileType[]
 					{
-						new("Excel Workbook (*.xlsx)") { Patterns = new[] { "*.xlsx" } },
-						new("CSV files (*.csv)") { Patterns = new[] { "*.csv" } },
-						new("JSON files (*.json)") { Patterns = new[] { "*.json" } },
-						new("All files (*.*)") { Patterns = new[] { "*" } }
+						new("Excel Workbook (*.xlsx)")
+						{
+							Patterns = new[] { "*.xlsx" },
+							AppleUniformTypeIdentifiers = new[] { "org.openxmlformats.spreadsheetml.sheet" }
+						},
+						new("CSV files (*.csv)")
+						{
+							Patterns = new[] { "*.csv" },
+							AppleUniformTypeIdentifiers = new[] { "public.comma-separated-values-text" }
+						},
+						new("JSON files (*.json)")
+						{
+							Patterns = new[] { "*.json" },
+							AppleUniformTypeIdentifiers  = new[] { "public.json" }
+						},
+						new("All files (*.*)") { Patterns = new[] { "*" } },
 					}
 				});
 

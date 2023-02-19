@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using Dinah.Core;
 
 namespace LibationFileManager
@@ -25,21 +23,29 @@ namespace LibationFileManager
             instance ??=
                 InteropFunctionsType is null
                 ? new NullInteropFunctions()
-                //: values is null || values.Length == 0 ? Activator.CreateInstance(InteropFunctionsType) as IInteropFunctions
                 : Activator.CreateInstance(InteropFunctionsType, values) as IInteropFunctions;
             return instance;
         }
 
-        #region load types
+		#region load types
 
-        public static Func<string, bool> MatchesOS { get; }
+		private const string CONFIG_APP_ENDING = "ConfigApp.dll";
+
+		public static Func<string, bool> MatchesOS { get; }
             = Configuration.IsWindows ? a => Path.GetFileName(a).StartsWithInsensitive("win")
             : Configuration.IsLinux ? a => Path.GetFileName(a).StartsWithInsensitive("linux")
             : Configuration.IsMacOs ? a => Path.GetFileName(a).StartsWithInsensitive("mac") || Path.GetFileName(a).StartsWithInsensitive("osx")
             : _ => false;
 
-        private const string CONFIG_APP_ENDING = "ConfigApp.dll";
-        private static List<ProcessModule> ModuleList { get; } = new();
+		private static readonly EnumerationOptions enumerationOptions = new()
+		{
+			MatchType = MatchType.Simple,
+			MatchCasing = MatchCasing.CaseInsensitive,
+			IgnoreInaccessible = true,
+			RecurseSubdirectories = false,
+			ReturnSpecialDirectories = false
+		};
+
         static InteropFactory()
         {
             // searches file names for potential matches; doesn't run anything
@@ -52,94 +58,36 @@ namespace LibationFileManager
                 return;
             }
 
-            /*
-            * Commented code used to locate assemblies from the *ConfigApp.exe's module list.
-            * Use this method to locate dependencies when they are not in Libation's program files directory.
-#if DEBUG
-
-           // runs the exe and gets the exe's loaded modules
-           ModuleList = LoadModuleList(Path.GetFileNameWithoutExtension(configApp))
-               .OrderBy(x => x.ModuleName)
-               .ToList();
-#endif
-            */
-
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
             var configAppAssembly = Assembly.LoadFrom(configApp);
             var type = typeof(IInteropFunctions);
             InteropFunctionsType = configAppAssembly
                 .GetTypes()
-                .FirstOrDefault(t => type.IsAssignableFrom(t));
+                .FirstOrDefault(type.IsAssignableFrom);
         }
         private static string getOSConfigApp()
         {
-            var here = Path.GetDirectoryName(Environment.ProcessPath);
-
             // find '*ConfigApp.dll' files
             var appName =
-                Directory.EnumerateFiles(here, $"*{CONFIG_APP_ENDING}", SearchOption.TopDirectoryOnly)
-                // sanity check. shouldn't ever be true
-                .Except(new[] { Environment.ProcessPath })
+                Directory.EnumerateFiles(Configuration.ProcessDirectory, $"*{CONFIG_APP_ENDING}", enumerationOptions)
                 .FirstOrDefault(exe => MatchesOS(exe));
 
             return appName;
         }
 
-        /*
-         * Use this method to locate dependencies when they are not in Libation's program files directory.
-         * 
-         private static List<ProcessModule> LoadModuleList(string exeName)
-         {
-             var proc = new Process
-             {
-                 StartInfo = new()
-                 {
-                     FileName = exeName,
-                     RedirectStandardInput = true,
-                     RedirectStandardOutput = true,
-                     CreateNoWindow = true,
-                     WindowStyle = ProcessWindowStyle.Hidden,
-                     UseShellExecute = false
-                 }
-             };
-
-             var waitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
-
-             proc.OutputDataReceived += (_, _) => waitHandle.Set();
-             proc.Start();
-             proc.BeginOutputReadLine();
-
-             //Let the win process know we're ready to receive its standard output
-             proc.StandardInput.WriteLine();
-
-             if (!waitHandle.WaitOne(2000))
-                 throw new Exception("Failed to start program");
-
-             //The win process has finished loading and is now waiting inside Main().
-             //Copy it process module list.
-             var modules = proc.Modules.Cast<ProcessModule>().ToList();
-
-             //Let the win process know we're done reading its module list
-             proc.StandardInput.WriteLine();
-
-             return modules;
-         }
-         */
-
         private static Dictionary<string, Assembly> lowEffortCache { get; } = new();
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            // e.g. "System.Windows.Forms, Version=6.0.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
-            var asmName = args.Name.Split(',')[0] + ".dll";
-            var here = Path.GetDirectoryName(Environment.ProcessPath);
+            var asmName = new AssemblyName(args.Name);
+            var here = Configuration.ProcessDirectory;
 
             var key = $"{asmName}|{here}";
 
             if (lowEffortCache.TryGetValue(key, out var value))
                 return value;
 
-            var assembly = CurrentDomain_AssemblyResolve_internal(asmName: asmName, here: here);
+            var assembly = CurrentDomain_AssemblyResolve_internal(asmName, here: here);
             lowEffortCache[key] = assembly;
 
             //Let the runtime handle any dll not found exceptions.
@@ -149,27 +97,22 @@ namespace LibationFileManager
             return assembly;
         }
 
-        private static Assembly CurrentDomain_AssemblyResolve_internal(string asmName, string here)
+		private static Assembly CurrentDomain_AssemblyResolve_internal(AssemblyName asmName, string here)
         {
             /*
-             * Commented code used to locate assemblies from the *ConfigApp.exe's module list.
-             * Use this method to locate dependencies when they are not in Libation's program files directory.
- #if DEBUG
-
-            var modulePath = ModuleList.SingleOrDefault(m => m.ModuleName.EqualsInsensitive(asmName))?.FileName;
- #else
-            */
-
-            // find the requested assembly in the program files directory
+             * Find the requested assembly in the program files directory.
+             * Assumes that all assemblies are in this application's directory.
+             * If they're not (e.g. the app is not self-contained), you will need
+             * to located them. The original way of doing this was to execute the
+             * config app, wait for the runtime to load all dependencies, and
+             * then seach the Process.Modules for the assembly name. Code for
+             * this approach is still in the _Demos projects.
+             */
             var modulePath =
-                Directory.EnumerateFiles(here, asmName, SearchOption.TopDirectoryOnly)
+                Directory.EnumerateFiles(here, $"{asmName.Name}.dll", enumerationOptions)
                 .SingleOrDefault();
 
-//#endif
-            if (modulePath is null)
-                return null;
-
-            return Assembly.LoadFrom(modulePath);
+            return modulePath is null ? null : Assembly.LoadFrom(modulePath);
         }
 
         #endregion

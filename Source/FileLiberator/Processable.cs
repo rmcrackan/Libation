@@ -54,6 +54,8 @@ namespace FileLiberator
                 = (await ProcessAsync(libraryBook))
                 ?? new StatusHandler { "Processable should never return a null status" };
 
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+
             return status;
         }
         

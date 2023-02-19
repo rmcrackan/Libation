@@ -117,10 +117,13 @@ namespace LibationAvalonia.Dialogs
 			{
 				Title = $"Select the audible-cli [account].json file",
 				AllowMultiple = false,
-				SuggestedStartLocation = new BclStorageFolder(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)),
 				FileTypeFilter = new FilePickerFileType[]
 				{
-					new("JSON files (*.json)") { Patterns = new[] { "*.json" } },
+						new("JSON files (*.json)")
+						{
+							Patterns = new[] { "*.json" },
+							AppleUniformTypeIdentifiers  = new[] { "public.json" }
+						}
 				}
 			};
 
@@ -274,13 +277,16 @@ namespace LibationAvalonia.Dialogs
 			var options = new FilePickerSaveOptions
 			{
 				Title = $"Save Sover Image",
-				SuggestedStartLocation = new BclStorageFolder(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)),
 				SuggestedFileName = $"{acc.AccountId}.json",
 				DefaultExtension = "json",
 				ShowOverwritePrompt = true,
 				FileTypeChoices = new FilePickerFileType[]
 					{
-						new("JSON files (*.json)") { Patterns = new[] { "*.json" } },
+						new("JSON files (*.json)")
+						{
+							Patterns = new[] { "*.json" },
+							AppleUniformTypeIdentifiers  = new[] { "public.json" }
+						}
 					}
 			};
 

@@ -365,7 +365,6 @@
 									Text="{Binding DownloadDecryptSettings.InProgressDescriptionText}" />
 
 								<controls:DirectoryOrCustomSelectControl
-									SubDirectory="Libation"
 									Directory="{Binding DownloadDecryptSettings.InProgressDirectory, Mode=TwoWay}"
 									KnownDirectories="{Binding DownloadDecryptSettings.KnownDirectories}" />
 

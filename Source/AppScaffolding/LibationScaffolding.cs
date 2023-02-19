@@ -9,7 +9,7 @@ using Dinah.Core;
 using Dinah.Core.IO;
 using Dinah.Core.Logging;
 using LibationFileManager;
-using Microsoft.EntityFrameworkCore;
+using System.Runtime.InteropServices;
 using Newtonsoft.Json.Linq;
 using Serilog;
 
@@ -18,14 +18,22 @@ namespace AppScaffolding
 	public enum ReleaseIdentifier
 	{
 		None,
-		WindowsClassic,
-		WindowsAvalonia,
-		LinuxAvalonia,
-		MacOSAvalonia
+		WindowsClassic = OS.Windows | Variety.Classic | Architecture.X64,
+		WindowsAvalonia = OS.Windows | Variety.Chardonnay | Architecture.X64,
+		LinuxAvalonia = OS.Linux | Variety.Chardonnay | Architecture.X64,
+		MacOSAvalonia = OS.MacOS | Variety.Chardonnay | Architecture.X64,
+		LinuxAvalonia_Arm64 = OS.Linux | Variety.Chardonnay | Architecture.Arm64,
+		MacOSAvalonia_Arm64 = OS.MacOS | Variety.Chardonnay | Architecture.Arm64
 	}
 
 	// I know I'm taking the wine metaphor a bit far by naming this "Variety", but I don't know what else to call it
-	public enum VarietyType { None, Classic, Chardonnay }
+	[Flags]
+	public enum Variety
+	{
+		None,
+		Classic = 0x10000,
+		Chardonnay = 0x20000,
+	}
 
 	public static class LibationScaffolding
 	{
@@ -33,13 +41,22 @@ namespace AppScaffolding
 		public const string WebsiteUrl = "ht" + "tps://getlibation.com";
 		public const string RepositoryLatestUrl = "ht" + "tps://github.com/rmcrackan/Libation/releases/latest";
 		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
-		public static VarietyType Variety
-			=> ReleaseIdentifier == ReleaseIdentifier.WindowsClassic ? VarietyType.Classic
-			: ReleaseIdentifier.In(ReleaseIdentifier.WindowsAvalonia, ReleaseIdentifier.LinuxAvalonia, ReleaseIdentifier.MacOSAvalonia) ? VarietyType.Chardonnay
-			: VarietyType.None;
+		public static Variety Variety { get; private set; }
 
-		public static void SetReleaseIdentifier(ReleaseIdentifier releaseID)
-			=> ReleaseIdentifier = releaseID;
+		public static void SetReleaseIdentifier(Variety varietyType)
+		{
+			Variety = Enum.IsDefined(varietyType) ? varietyType : Variety.None;
+
+			var releaseID = (ReleaseIdentifier)((int)varietyType | (int)Configuration.OS | (int)RuntimeInformation.ProcessArchitecture);
+
+			if (Enum.IsDefined(releaseID))
+				ReleaseIdentifier = releaseID;
+			else
+			{
+				ReleaseIdentifier = ReleaseIdentifier.None;
+				Serilog.Log.Logger.Warning("Unknown release identifier @{DebugInfo}", new { Variety = varietyType, Configuration.OS, RuntimeInformation.ProcessArchitecture });
+			}
+		}
 
 		// AppScaffolding
 		private static Assembly _executingAssembly;
@@ -296,8 +313,8 @@ namespace AppScaffolding
 		}
 		private static async System.Threading.Tasks.Task<(Octokit.Release, Octokit.ReleaseAsset)> getLatestRelease()
 		{
-			var ownerAccount = "rmcrackan";
-			var repoName = "Libation";
+			const string ownerAccount = "rmcrackan";
+			const string repoName = "Libation";
 
 			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(repoName));
 
@@ -305,12 +322,11 @@ namespace AppScaffolding
 			var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
 			var releaseIndex = JObject.Parse(System.Text.Encoding.ASCII.GetString(bts));
 			var regexPattern = releaseIndex.Value<string>(ReleaseIdentifier.ToString());
-
-			// https://octokitnet.readthedocs.io/en/latest/releases/
-			var releases = await gitHubClient.Repository.Release.GetAll(ownerAccount, repoName);
-
 			var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-			var latestRelease = releases.FirstOrDefault(r => !r.Draft && !r.Prerelease && r.Assets.Any(a => regex.IsMatch(a.Name)));
+
+			//https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release
+			var latestRelease = await gitHubClient.Repository.Release.GetLatest(ownerAccount, repoName);
+
 			return (latestRelease, latestRelease?.Assets?.FirstOrDefault(a => regex.IsMatch(a.Name)));
 		}
 	}

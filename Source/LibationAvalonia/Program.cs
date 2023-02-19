@@ -2,9 +2,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using ApplicationServices;
+using AppScaffolding;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
@@ -23,18 +23,15 @@ namespace LibationAvalonia
 				//We can do this because we're already executing inside the sandbox.
 				//Any process created in the sandbox executes in the same sandbox.
 				//Unfortunately, all sandbox files are read/execute, so no writing!
-
-				Assembly asm = Assembly.GetExecutingAssembly();
-				string path = Path.GetDirectoryName(asm.Location);
-				Process.Start("Hangover" + (Configuration.IsWindows ? ".exe" : ""));
+				Process.Start("Hangover");
 				return;
 			}
 			if (Configuration.IsMacOs && args?.Length > 0 && args[0] == "cli")
 			{
 				//Open a new Terminal in the sandbox
-				Assembly asm2 = Assembly.GetExecutingAssembly();
-				string libationProgramFiles = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-				Process.Start("/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal", $"\"{libationProgramFiles}\"");
+				Process.Start(
+					"/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal",
+					$"\"{Configuration.ProcessDirectory}\"");
 				return;
 			}
 
@@ -44,7 +41,7 @@ namespace LibationAvalonia
 			//                                               //
 			//***********************************************//
 			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
-			var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
+			var config = LibationScaffolding.RunPreConfigMigrations();
 
 			App.SetupRequired = !config.LibationSettingsAreValid;
 
@@ -52,13 +49,10 @@ namespace LibationAvalonia
 			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 			var appBuilderTask = Task.Run(BuildAvaloniaApp);
 
-			if (Configuration.IsWindows)
-				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.WindowsAvalonia);
-			else if (Configuration.IsLinux)
-				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.LinuxAvalonia);
-			else if (Configuration.IsMacOs)
-				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.MacOSAvalonia);
-			else return;
+			LibationScaffolding.SetReleaseIdentifier(Variety.Chardonnay);
+
+			if (LibationScaffolding.ReleaseIdentifier is ReleaseIdentifier.None)
+				return;
 
 
 			if (!App.SetupRequired)
@@ -85,8 +79,8 @@ namespace LibationAvalonia
 			try
 			{
 				// most migrations go in here
-				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
-				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
+				LibationScaffolding.RunPostConfigMigrations(config);
+				LibationScaffolding.RunPostMigrationScaffolding(config);
 
 				return true;
 			}

@@ -141,7 +141,7 @@ namespace LibationAvalonia.Dialogs
 
 		public void LoadSettings(Configuration config)
 		{
-			BooksDirectory = config.Books;
+			BooksDirectory = config.Books.PathWithoutPrefix;
 			SavePodcastsToParentFolder = config.SavePodcastsToParentFolder;
 			LoggingLevel = config.LogLevel;
 			BetaOptIn = config.BetaOptIn;

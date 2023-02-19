@@ -7,6 +7,10 @@
 	<string>Libation</string>
 	<key>CFBundleName</key>
 	<string>Libation</string>
+	<key>LSArchitecturePriority</key>
+	<string>ARCHITECTURE_STRING</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.15.0</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.libation.macos</string>
 	<key>NSHighResolutionCapable</key>
