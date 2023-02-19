@@ -99,7 +99,15 @@ namespace LibationFileManager
 
 		private static Assembly CurrentDomain_AssemblyResolve_internal(AssemblyName asmName, string here)
         {
-            // find the requested assembly in the program files directory
+            /*
+             * Find the requested assembly in the program files directory.
+             * Assumes that all assemblies are in this application's directory.
+             * If they're not (e.g. the app is not self-contained), you will need
+             * to located them. The original way of doing this was to execute the
+             * config app, wait for the runtime to load all dependencies, and
+             * then seach the Process.Modules for the assembly name. Code for
+             * this approach is still in the _Demos projects.
+             */
             var modulePath =
                 Directory.EnumerateFiles(here, $"{asmName.Name}.dll", enumerationOptions)
                 .SingleOrDefault();
