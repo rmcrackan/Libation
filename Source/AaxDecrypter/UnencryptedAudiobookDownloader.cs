@@ -26,8 +26,7 @@ namespace AaxDecrypter
 
 		protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
 		{
-			// MUST put InputFileStream.Length first, because it starts background downloader.
-			while (InputFileStream.Length > InputFilePosition && !InputFileStream.IsCancelled)
+			while (InputFilePosition < InputFileStream.Length && !InputFileStream.IsCancelled)
 				await Task.Delay(200);
 
 			if (IsCanceled)
