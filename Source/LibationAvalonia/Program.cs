@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ApplicationServices;
+using AppScaffolding;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
@@ -42,7 +43,7 @@ namespace LibationAvalonia
 			//                                               //
 			//***********************************************//
 			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
-			var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
+			var config = LibationScaffolding.RunPreConfigMigrations();
 
 			App.SetupRequired = !config.LibationSettingsAreValid;
 
@@ -50,29 +51,10 @@ namespace LibationAvalonia
 			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 			var appBuilderTask = Task.Run(BuildAvaloniaApp);
 
-			if (Configuration.IsWindows)
-				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.WindowsAvalonia);
-			else if (Configuration.IsLinux)
-			{
-				var releaseID = RuntimeInformation.OSArchitecture switch
-				{
-					Architecture.X64 => AppScaffolding.ReleaseIdentifier.LinuxAvalonia,
-					Architecture.Arm64 => AppScaffolding.ReleaseIdentifier.LinuxAvalonia_Arm64,
-					_ => throw new PlatformNotSupportedException()
-				};
-				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(releaseID);
-			}
-			else if (Configuration.IsMacOs)
-			{
-				var releaseID = RuntimeInformation.OSArchitecture switch
-				{
-					Architecture.X64 => AppScaffolding.ReleaseIdentifier.MacOSAvalonia,
-					Architecture.Arm64 => AppScaffolding.ReleaseIdentifier.MacOSAvalonia_Arm64,
-					_ => throw new PlatformNotSupportedException()
-				};
-				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(releaseID);
-			}
-			else return;
+			LibationScaffolding.SetReleaseIdentifier(Variety.Chardonnay);
+
+			if (LibationScaffolding.ReleaseIdentifier is ReleaseIdentifier.None)
+				return;
 
 
 			if (!App.SetupRequired)
@@ -99,8 +81,8 @@ namespace LibationAvalonia
 			try
 			{
 				// most migrations go in here
-				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
-				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
+				LibationScaffolding.RunPostConfigMigrations(config);
+				LibationScaffolding.RunPostMigrationScaffolding(config);
 
 				return true;
 			}

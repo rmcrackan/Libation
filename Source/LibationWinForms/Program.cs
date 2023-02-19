@@ -30,7 +30,7 @@ namespace LibationWinForms
 
 				ApplicationConfiguration.Initialize();
 
-				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.ReleaseIdentifier.WindowsClassic);
+				AppScaffolding.LibationScaffolding.SetReleaseIdentifier(AppScaffolding.Variety.Classic);
 
 				//***********************************************//
 				//                                               //

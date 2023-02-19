@@ -247,7 +247,15 @@ namespace AaxDecrypter
 		public override bool CanWrite => false;
 
 		[JsonIgnore]
-		public override long Length => ContentLength;
+		public override long Length
+		{
+			get
+			{
+				if (_backgroundDownloadTask is null)
+					throw new InvalidOperationException($"Background downloader must first be started by calling {nameof(BeginDownloadingAsync)}");
+				return ContentLength;
+			}
+		}
 
 		[JsonIgnore]
 		public override long Position { get => _readFile.Position; set => Seek(value, SeekOrigin.Begin); }
@@ -267,6 +275,9 @@ namespace AaxDecrypter
 
 		public override int Read(byte[] buffer, int offset, int count)
 		{
+			if (_backgroundDownloadTask is null)
+				throw new InvalidOperationException($"Background downloader must first be started by calling {nameof(BeginDownloadingAsync)}");
+
 			var toRead = Math.Min(count, Length - Position);
 			WaitToPosition(Position + toRead);
 			return IsCancelled ? 0 : _readFile.Read(buffer, offset, count);
