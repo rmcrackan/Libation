@@ -94,7 +94,7 @@ do
   rm $BUNDLE_MACOS/$n
 done
 
-APP_FILE=Libation.${VERSION}-chardonnay-macOS-${ARCH}.tgz
+APP_FILE=Libation.${VERSION}-macOS-chardonnay-${ARCH}.tgz
 
 echo "Creating app bundle: $APP_FILE"
 tar -czvf $APP_FILE $BUNDLE

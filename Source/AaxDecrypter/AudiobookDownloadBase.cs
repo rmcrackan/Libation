@@ -59,7 +59,7 @@ namespace AaxDecrypter
 			{
 				BytesReceived = 0,
 				ProgressPercentage = 0,
-				TotalBytesToReceive = InputFileStream.Length
+				TotalBytesToReceive = 0
 			};
 
 			OnDecryptProgressUpdate(zeroProgress);
