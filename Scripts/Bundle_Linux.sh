@@ -139,7 +139,7 @@ echo "Changing permissions for pre- and post-install files..."
 chmod +x "$FOLDER_DEBIAN/preinst"
 chmod +x "$FOLDER_DEBIAN/postinst"
 
-DEB_FILE="Libation.${VERSION}-linux-${ARCH}.deb"
+DEB_FILE=Libation.${VERSION}-linux-chardonnay-${ARCH}.deb
 echo "Creating $DEB_FILE"
 dpkg-deb -Zxz --build $DEB_DIR ./$DEB_FILE
 
