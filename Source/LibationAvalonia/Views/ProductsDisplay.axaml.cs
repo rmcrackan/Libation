@@ -19,6 +19,7 @@ namespace LibationAvalonia.Views
 	public partial class ProductsDisplay : UserControl
 	{
 		public event EventHandler<LibraryBook> LiberateClicked;
+		public event EventHandler<LibraryBook> ConvertToMp3Clicked;
 
 		private ProductsDisplayViewModel _viewModel => DataContext as ProductsDisplayViewModel;
 		ImageDisplayDialog imageDisplayDialog;
@@ -131,6 +132,12 @@ namespace LibationAvalonia.Views
                         await MessageBox.ShowAdminAlert(null, msg, msg, ex);
                     }
                 };
+				var convertToMp3MenuItem = new MenuItem
+				{
+					Header = "_Convert to Mp3",
+					IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
+				};
+				convertToMp3MenuItem.Click += (_, _) => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook);
 
 				var bookRecordMenuItem = new MenuItem { Header = "View _Bookmarks/Clips" };
 				bookRecordMenuItem.Click += async (_, _) => await new BookRecordsDialog(entry.LibraryBook).ShowDialog(VisualRoot as Window);
@@ -141,6 +148,7 @@ namespace LibationAvalonia.Views
 					setNotDownloadMenuItem,
 					removeMenuItem,
 					locateFileMenuItem,
+					convertToMp3MenuItem,
 					new Separator(),
 					bookRecordMenuItem
 				});

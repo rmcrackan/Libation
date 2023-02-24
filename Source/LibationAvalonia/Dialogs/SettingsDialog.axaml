@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="620"
-		MinWidth="800" MinHeight="620"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
+		MinWidth="900" MinHeight="700"
         x:Class="LibationAvalonia.Dialogs.SettingsDialog"
         xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         Title="Edit Settings"
@@ -601,6 +601,25 @@
 												Text="Downsample to mono? (Recommended)" />
 
 										</CheckBox>
+									</Grid>
+
+									<Grid Margin="5,5,5,0" RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
+
+										<TextBlock Margin="0,0,0,5" Text="Max audio sample rate:" />
+										<controls:WheelComboBox
+											Grid.Row="1"
+											HorizontalAlignment="Stretch"
+											Items="{Binding AudioSettings.SampleRates}"
+											SelectedItem="{Binding AudioSettings.SelectedSampleRate, Mode=TwoWay}"/>
+										
+										<TextBlock Margin="0,0,0,5" Grid.Column="2" Text="Encoder Quality:" />
+										
+										<controls:WheelComboBox
+											Grid.Column="2"
+											Grid.Row="1"
+											HorizontalAlignment="Stretch"
+											Items="{Binding AudioSettings.EncoderQualities}"
+											SelectedItem="{Binding AudioSettings.SelectedEncoderQuality, Mode=TwoWay}"/>
 									</Grid>
 
 									<controls:GroupBox

@@ -93,15 +93,13 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 				? AaxFile.ConvertToMultiMp4aAsync
 				(
 					splitChapters,
-					newSplitCallback => newSplit(++chapterCount, splitChapters, newSplitCallback),
-					DownloadOptions.TrimOutputToChapterLength
+					newSplitCallback => newSplit(++chapterCount, splitChapters, newSplitCallback)
 				)
 				: AaxFile.ConvertToMultiMp3Async
 				(
 					splitChapters,
 					newSplitCallback => newSplit(++chapterCount, splitChapters, newSplitCallback),
-					DownloadOptions.LameConfig,
-					DownloadOptions.TrimOutputToChapterLength
+					DownloadOptions.LameConfig
 				);
 
 			void newSplit(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)

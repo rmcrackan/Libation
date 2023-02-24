@@ -520,6 +520,7 @@
             this.productsDisplay.VisibleCountChanged += new System.EventHandler<int>(this.productsDisplay_VisibleCountChanged);
             this.productsDisplay.RemovableCountChanged += new System.EventHandler<int>(this.productsDisplay_RemovableCountChanged);
             this.productsDisplay.LiberateClicked += new System.EventHandler<DataLayer.LibraryBook>(this.ProductsDisplay_LiberateClicked);
+            this.productsDisplay.ConvertToMp3Clicked += new System.EventHandler<DataLayer.LibraryBook>(this.ProductsDisplay_ConvertToMp3Clicked);
             this.productsDisplay.InitialLoaded += new System.EventHandler(this.productsDisplay_InitialLoaded);
             // 
             // toggleQueueHideBtn

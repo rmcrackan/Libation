@@ -41,6 +41,7 @@
 			this.productsGrid.TabIndex = 0;
 			this.productsGrid.VisibleCountChanged += new System.EventHandler<int>(this.productsGrid_VisibleCountChanged);
 			this.productsGrid.LiberateClicked += new LibationWinForms.GridView.LibraryBookEntryClickedEventHandler(this.productsGrid_LiberateClicked);
+			this.productsGrid.ConvertToMp3Clicked += new LibationWinForms.GridView.LibraryBookEntryClickedEventHandler(this.productsGrid_ConvertToMp3Clicked);
 			this.productsGrid.CoverClicked += new LibationWinForms.GridView.GridEntryClickedEventHandler(this.productsGrid_CoverClicked);
 			this.productsGrid.DetailsClicked += new LibationWinForms.GridView.LibraryBookEntryClickedEventHandler(this.productsGrid_DetailsClicked);
 			this.productsGrid.DescriptionClicked += new LibationWinForms.GridView.GridEntryRectangleClickedEventHandler(this.productsGrid_DescriptionClicked);

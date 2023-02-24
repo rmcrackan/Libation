@@ -27,6 +27,7 @@ namespace AaxDecrypter
 		protected IDownloadOptions DownloadOptions { get; }
 		protected NetworkFileStream InputFileStream => nfsPersister.NetworkFileStream;
 		protected virtual long InputFilePosition => InputFileStream.Position;
+		private bool downloadFinished;
 
 		private readonly NetworkFileStreamPersister nfsPersister;
 		private readonly DownloadProgress zeroProgress;
@@ -84,7 +85,11 @@ namespace AaxDecrypter
 			{
 				AverageSpeed averageSpeed = new();
 
-				while (InputFileStream.CanRead && InputFileStream.Length > InputFilePosition && !InputFileStream.IsCancelled)
+				while (
+					InputFileStream.CanRead
+					&& InputFileStream.Length > InputFilePosition
+					&& !InputFileStream.IsCancelled
+					&& !downloadFinished)
 				{
 					averageSpeed.AddPosition(InputFilePosition);
 
@@ -138,8 +143,7 @@ namespace AaxDecrypter
 		protected virtual void FinalizeDownload()
 		{
 			nfsPersister?.Dispose();
-			OnDecryptTimeRemaining(TimeSpan.Zero);
-			OnDecryptProgressUpdate(zeroProgress);
+			downloadFinished = true;
 		}
 
 		protected async Task<bool> Step_DownloadClipsBookmarksAsync()

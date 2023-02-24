@@ -11,6 +11,7 @@ using System.Linq;
 using FileManager;
 using System.IO;
 using Avalonia.Collections;
+using LibationUiBase;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -372,6 +373,31 @@ namespace LibationAvalonia.Dialogs
 		private int _lameBitrate;
 		private int _lameVBRQuality;
 		private string _chapterTitleTemplate;
+		public SampleRateSelection SelectedSampleRate { get; set; }
+		public NAudio.Lame.EncoderQuality SelectedEncoderQuality { get; set; }
+
+		public AvaloniaList<SampleRateSelection> SampleRates { get; }
+			= new(
+				new []
+				{
+					AAXClean.SampleRate.Hz_44100,
+					AAXClean.SampleRate.Hz_32000,
+					AAXClean.SampleRate.Hz_24000,
+					AAXClean.SampleRate.Hz_22050,
+					AAXClean.SampleRate.Hz_16000,
+					AAXClean.SampleRate.Hz_12000,
+				}
+				.Select(s => new SampleRateSelection(s)));
+
+		public AvaloniaList<NAudio.Lame.EncoderQuality> EncoderQualities { get; }
+		= new(
+			new[]
+			{
+				NAudio.Lame.EncoderQuality.High,
+				NAudio.Lame.EncoderQuality.Standard,
+				NAudio.Lame.EncoderQuality.Fast,
+			});
+
 
 		public AudioSettings(Configuration config)
 		{
@@ -398,6 +424,9 @@ namespace LibationAvalonia.Dialogs
 			LameMatchSource = config.LameMatchSourceBR;
 			LameBitrate = config.LameBitrate;
 			LameVBRQuality = config.LameVBRQuality;
+
+			SelectedSampleRate = SampleRates.FirstOrDefault(s => s.SampleRate == config.MaxSampleRate);
+			SelectedEncoderQuality = config.LameEncoderQuality;
 		}
 
 		public Task<bool> SaveSettingsAsync(Configuration config)
@@ -421,6 +450,9 @@ namespace LibationAvalonia.Dialogs
 			config.LameMatchSourceBR = LameMatchSource;
 			config.LameBitrate = LameBitrate;
 			config.LameVBRQuality = LameVBRQuality;
+
+			config.LameEncoderQuality = SelectedEncoderQuality;
+			config.MaxSampleRate = SelectedSampleRate?.SampleRate ?? config.MaxSampleRate;
 
 			return Task.FromResult(true);
 		}

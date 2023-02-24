@@ -19,6 +19,7 @@ namespace LibationWinForms.GridView
 		public event EventHandler<int> VisibleCountChanged;
 		public event EventHandler<int> RemovableCountChanged;
 		public event EventHandler<LibraryBook> LiberateClicked;
+		public event EventHandler<LibraryBook> ConvertToMp3Clicked;
 		public event EventHandler InitialLoaded;
 
 		private bool hasBeenDisplayed;
@@ -202,6 +203,12 @@ namespace LibationWinForms.GridView
 		{
 			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error)
 				LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
+		}
+
+		private void productsGrid_ConvertToMp3Clicked(LibraryBookEntry liveGridEntry)
+		{
+			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error)
+				ConvertToMp3Clicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 
 		private void productsGrid_RemovableCountChanged(object sender, EventArgs e)

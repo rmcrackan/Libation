@@ -22,6 +22,7 @@ namespace LibationWinForms.GridView
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 		public event LibraryBookEntryClickedEventHandler LiberateClicked;
+		public event LibraryBookEntryClickedEventHandler ConvertToMp3Clicked;
 		public event GridEntryClickedEventHandler CoverClicked;
 		public event LibraryBookEntryClickedEventHandler DetailsClicked;
 		public event GridEntryRectangleClickedEventHandler DescriptionClicked;
@@ -176,6 +177,13 @@ namespace LibationWinForms.GridView
                 }
             };
 
+			var convertToMp3MenuItem = new ToolStripMenuItem
+			{
+				Text = "&Convert to Mp3",
+				Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
+			};
+			convertToMp3MenuItem.Click += (_, e) => ConvertToMp3Clicked?.Invoke(entry as LibraryBookEntry);
+
 			var bookRecordMenuItem = new ToolStripMenuItem { Text = "View &Bookmarks/Clips" };
 			bookRecordMenuItem.Click += (_, _) => new BookRecordsDialog(entry.LibraryBook).ShowDialog(this);
 
@@ -184,6 +192,7 @@ namespace LibationWinForms.GridView
             stopLightContextMenu.Items.Add(setNotDownloadMenuItem);
             stopLightContextMenu.Items.Add(removeMenuItem);
             stopLightContextMenu.Items.Add(locateFileMenuItem);
+            stopLightContextMenu.Items.Add(convertToMp3MenuItem);
 			stopLightContextMenu.Items.Add(new ToolStripSeparator());
 			stopLightContextMenu.Items.Add(bookRecordMenuItem);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using LibationFileManager;
 using System.Linq;
+using LibationUiBase;
 
 namespace LibationWinForms.Dialogs
 {
@@ -26,6 +27,25 @@ namespace LibationWinForms.Dialogs
 					Configuration.ClipBookmarkFormat.Json
 				});
 
+			maxSampleRateCb.Items.AddRange(
+				new object[]
+				{
+					new SampleRateSelection(AAXClean.SampleRate.Hz_44100),
+					new SampleRateSelection(AAXClean.SampleRate.Hz_32000),
+					new SampleRateSelection(AAXClean.SampleRate.Hz_24000),
+					new SampleRateSelection(AAXClean.SampleRate.Hz_22050),
+					new SampleRateSelection(AAXClean.SampleRate.Hz_16000),
+					new SampleRateSelection(AAXClean.SampleRate.Hz_12000)
+				});
+
+			encoderQualityCb.Items.AddRange(
+				new object[]
+				{
+					NAudio.Lame.EncoderQuality.High,
+					NAudio.Lame.EncoderQuality.Standard,
+					NAudio.Lame.EncoderQuality.Fast,
+				});
+
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
 			createCueSheetCbox.Checked = config.CreateCueSheet;
 			downloadCoverArtCbox.Checked = config.DownloadCoverArt;
@@ -42,6 +62,8 @@ namespace LibationWinForms.Dialogs
 
 			lameTargetBitrateRb.Checked = config.LameTargetBitrate;
 			lameTargetQualityRb.Checked = !config.LameTargetBitrate;
+			maxSampleRateCb.SelectedItem = maxSampleRateCb.Items.Cast<SampleRateSelection>().Single(s => s.SampleRate == config.MaxSampleRate);
+			encoderQualityCb.SelectedItem = config.LameEncoderQuality;
 			lameDownsampleMonoCbox.Checked = config.LameDownsampleMono;
 			lameBitrateTb.Value = config.LameBitrate;
 			lameConstantBitrateCbox.Checked = config.LameConstantBitrate;
@@ -75,6 +97,9 @@ namespace LibationWinForms.Dialogs
 			config.MoveMoovToBeginning = moveMoovAtomCbox.Checked;
 
 			config.LameTargetBitrate = lameTargetBitrateRb.Checked;
+			config.MaxSampleRate = ((SampleRateSelection)maxSampleRateCb.SelectedItem).SampleRate;
+			config.LameEncoderQuality = (NAudio.Lame.EncoderQuality)encoderQualityCb.SelectedItem;
+			encoderQualityCb.SelectedItem = config.LameEncoderQuality;
 			config.LameDownsampleMono = lameDownsampleMonoCbox.Checked;
 			config.LameBitrate = lameBitrateTb.Value;
 			config.LameConstantBitrate = lameConstantBitrateCbox.Checked;

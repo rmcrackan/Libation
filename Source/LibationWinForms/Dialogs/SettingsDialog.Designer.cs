@@ -115,6 +115,10 @@
 			this.retainAaxFileCbox = new System.Windows.Forms.CheckBox();
 			this.downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
 			this.createCueSheetCbox = new System.Windows.Forms.CheckBox();
+			this.maxSampleRateCb = new System.Windows.Forms.ComboBox();
+			this.encoderQualityCb = new System.Windows.Forms.ComboBox();
+			this.label20 = new System.Windows.Forms.Label();
+			this.label21 = new System.Windows.Forms.Label();
 			this.badBookGb.SuspendLayout();
 			this.tabControl.SuspendLayout();
 			this.tab1ImportantSettings.SuspendLayout();
@@ -743,6 +747,10 @@
 			// 
 			// lameOptionsGb
 			// 
+			this.lameOptionsGb.Controls.Add(this.label20);
+			this.lameOptionsGb.Controls.Add(this.label21);
+			this.lameOptionsGb.Controls.Add(this.encoderQualityCb);
+			this.lameOptionsGb.Controls.Add(this.maxSampleRateCb);
 			this.lameOptionsGb.Controls.Add(this.lameDownsampleMonoCbox);
 			this.lameOptionsGb.Controls.Add(this.lameBitrateGb);
 			this.lameOptionsGb.Controls.Add(this.label1);
@@ -757,8 +765,7 @@
 			// 
 			// lameDownsampleMonoCbox
 			// 
-			this.lameDownsampleMonoCbox.AutoSize = true;
-			this.lameDownsampleMonoCbox.Location = new System.Drawing.Point(234, 35);
+			this.lameDownsampleMonoCbox.Location = new System.Drawing.Point(237, 30);
 			this.lameDownsampleMonoCbox.Name = "lameDownsampleMonoCbox";
 			this.lameDownsampleMonoCbox.Size = new System.Drawing.Size(184, 34);
 			this.lameDownsampleMonoCbox.TabIndex = 1;
@@ -776,9 +783,9 @@
 			this.lameBitrateGb.Controls.Add(this.label11);
 			this.lameBitrateGb.Controls.Add(this.label3);
 			this.lameBitrateGb.Controls.Add(this.lameBitrateTb);
-			this.lameBitrateGb.Location = new System.Drawing.Point(6, 84);
+			this.lameBitrateGb.Location = new System.Drawing.Point(6, 104);
 			this.lameBitrateGb.Name = "lameBitrateGb";
-			this.lameBitrateGb.Size = new System.Drawing.Size(421, 101);
+			this.lameBitrateGb.Size = new System.Drawing.Size(421, 102);
 			this.lameBitrateGb.TabIndex = 0;
 			this.lameBitrateGb.TabStop = false;
 			this.lameBitrateGb.Text = "Bitrate";
@@ -786,7 +793,7 @@
 			// LameMatchSourceBRCbox
 			// 
 			this.LameMatchSourceBRCbox.AutoSize = true;
-			this.LameMatchSourceBRCbox.Location = new System.Drawing.Point(260, 77);
+			this.LameMatchSourceBRCbox.Location = new System.Drawing.Point(275, 76);
 			this.LameMatchSourceBRCbox.Name = "LameMatchSourceBRCbox";
 			this.LameMatchSourceBRCbox.Size = new System.Drawing.Size(140, 19);
 			this.LameMatchSourceBRCbox.TabIndex = 3;
@@ -883,7 +890,7 @@
 			this.label1.AutoSize = true;
 			this.label1.Enabled = false;
 			this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(6, 298);
+			this.label1.Location = new System.Drawing.Point(6, 325);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(172, 15);
 			this.label1.TabIndex = 1;
@@ -904,9 +911,9 @@
 			this.lameQualityGb.Controls.Add(this.label14);
 			this.lameQualityGb.Controls.Add(this.label2);
 			this.lameQualityGb.Controls.Add(this.lameVBRQualityTb);
-			this.lameQualityGb.Location = new System.Drawing.Point(6, 186);
+			this.lameQualityGb.Location = new System.Drawing.Point(6, 212);
 			this.lameQualityGb.Name = "lameQualityGb";
-			this.lameQualityGb.Size = new System.Drawing.Size(421, 109);
+			this.lameQualityGb.Size = new System.Drawing.Size(421, 103);
 			this.lameQualityGb.TabIndex = 0;
 			this.lameQualityGb.TabStop = false;
 			this.lameQualityGb.Text = "Quality";
@@ -986,7 +993,7 @@
 			// label13
 			// 
 			this.label13.AutoSize = true;
-			this.label13.Location = new System.Drawing.Point(376, 81);
+			this.label13.Location = new System.Drawing.Point(376, 80);
 			this.label13.Name = "label13";
 			this.label13.Size = new System.Drawing.Size(39, 15);
 			this.label13.TabIndex = 1;
@@ -995,7 +1002,7 @@
 			// label10
 			// 
 			this.label10.AutoSize = true;
-			this.label10.Location = new System.Drawing.Point(6, 81);
+			this.label10.Location = new System.Drawing.Point(6, 80);
 			this.label10.Name = "label10";
 			this.label10.Size = new System.Drawing.Size(43, 15);
 			this.label10.TabIndex = 1;
@@ -1036,7 +1043,7 @@
 			this.groupBox2.Controls.Add(this.lameTargetBitrateRb);
 			this.groupBox2.Location = new System.Drawing.Point(6, 22);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(222, 56);
+			this.groupBox2.Size = new System.Drawing.Size(214, 47);
 			this.groupBox2.TabIndex = 0;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Target";
@@ -1044,7 +1051,7 @@
 			// lameTargetQualityRb
 			// 
 			this.lameTargetQualityRb.AutoSize = true;
-			this.lameTargetQualityRb.Location = new System.Drawing.Point(138, 23);
+			this.lameTargetQualityRb.Location = new System.Drawing.Point(139, 22);
 			this.lameTargetQualityRb.Name = "lameTargetQualityRb";
 			this.lameTargetQualityRb.Size = new System.Drawing.Size(63, 19);
 			this.lameTargetQualityRb.TabIndex = 0;
@@ -1056,7 +1063,7 @@
 			// lameTargetBitrateRb
 			// 
 			this.lameTargetBitrateRb.AutoSize = true;
-			this.lameTargetBitrateRb.Location = new System.Drawing.Point(6, 23);
+			this.lameTargetBitrateRb.Location = new System.Drawing.Point(6, 22);
 			this.lameTargetBitrateRb.Name = "lameTargetBitrateRb";
 			this.lameTargetBitrateRb.Size = new System.Drawing.Size(59, 19);
 			this.lameTargetBitrateRb.TabIndex = 0;
@@ -1111,6 +1118,42 @@
 			this.createCueSheetCbox.Text = "[CreateCueSheet desc]";
 			this.createCueSheetCbox.UseVisualStyleBackColor = true;
 			this.createCueSheetCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
+			// 
+			// maxSampleRateCb
+			// 
+			this.maxSampleRateCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.maxSampleRateCb.FormattingEnabled = true;
+			this.maxSampleRateCb.Location = new System.Drawing.Point(119, 75);
+			this.maxSampleRateCb.Name = "maxSampleRateCb";
+			this.maxSampleRateCb.Size = new System.Drawing.Size(101, 23);
+			this.maxSampleRateCb.TabIndex = 2;
+			// 
+			// encoderQualityCb
+			// 
+			this.encoderQualityCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.encoderQualityCb.FormattingEnabled = true;
+			this.encoderQualityCb.Location = new System.Drawing.Point(337, 75);
+			this.encoderQualityCb.Name = "encoderQualityCb";
+			this.encoderQualityCb.Size = new System.Drawing.Size(90, 23);
+			this.encoderQualityCb.TabIndex = 2;
+			// 
+			// label20
+			// 
+			this.label20.AutoSize = true;
+			this.label20.Location = new System.Drawing.Point(12, 78);
+			this.label20.Name = "label20";
+			this.label20.Size = new System.Drawing.Size(101, 15);
+			this.label20.TabIndex = 3;
+			this.label20.Text = "Max Sample Rate:";
+			// 
+			// label21
+			// 
+			this.label21.AutoSize = true;
+			this.label21.Location = new System.Drawing.Point(239, 78);
+			this.label21.Name = "label21";
+			this.label21.Size = new System.Drawing.Size(94, 15);
+			this.label21.TabIndex = 3;
+			this.label21.Text = "Encoder Quality:";
 			// 
 			// SettingsDialog
 			// 
@@ -1253,5 +1296,9 @@
 		private System.Windows.Forms.ComboBox clipsBookmarksFormatCb;
 		private System.Windows.Forms.CheckBox downloadClipsBookmarksCbox;
 		private System.Windows.Forms.CheckBox moveMoovAtomCbox;
+		private System.Windows.Forms.ComboBox encoderQualityCb;
+		private System.Windows.Forms.ComboBox maxSampleRateCb;
+		private System.Windows.Forms.Label label21;
+		private System.Windows.Forms.Label label20;
 	}
 }

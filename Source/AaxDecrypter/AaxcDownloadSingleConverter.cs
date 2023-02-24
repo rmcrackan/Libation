@@ -3,6 +3,7 @@ using AAXClean.Codecs;
 using Dinah.Core.Net.Http;
 using FileManager;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -14,12 +15,15 @@ namespace AaxDecrypter
 		public AaxcDownloadSingleConverter(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
 			: base(outFileName, cacheDirectory, dlOptions)
 		{
+			var step = 1;
 
 			AsyncSteps.Name = $"Download and Convert Aaxc To {DownloadOptions.OutputFormat}";
-			AsyncSteps["Step 1: Get Aaxc Metadata"] = () => Task.Run(Step_GetMetadata);
-			AsyncSteps["Step 2: Download Decrypted Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
-			AsyncSteps["Step 3: Download Clips and Bookmarks"] = Step_DownloadClipsBookmarksAsync;
-			AsyncSteps["Step 4: Create Cue"] = Step_CreateCueAsync;
+			AsyncSteps[$"Step {step++}: Get Aaxc Metadata"] = () => Task.Run(Step_GetMetadata);
+			AsyncSteps[$"Step {step++}: Download Decrypted Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
+			if (DownloadOptions.MoveMoovToBeginning && DownloadOptions.OutputFormat is OutputFormat.M4b)
+				AsyncSteps[$"Step {step++}: Move moov atom to beginning"] = Step_MoveMoov;
+			AsyncSteps[$"Step {step++}: Download Clips and Bookmarks"] = Step_DownloadClipsBookmarksAsync;
+			AsyncSteps[$"Step {step++}: Create Cue"] = Step_CreateCueAsync;
 		}
 
 		protected async override Task<bool> Step_DownloadAndDecryptAudiobookAsync()
@@ -31,18 +35,7 @@ namespace AaxDecrypter
 
 			try
 			{
-				await (AaxConversion = decryptAsync(outputFile));
-
-				if (AaxConversion.IsCompletedSuccessfully
-					&& DownloadOptions.MoveMoovToBeginning
-					&& DownloadOptions.OutputFormat is OutputFormat.M4b)
-				{
-					outputFile.Close();
-					AaxConversion = Mp4File.RelocateMoovAsync(OutputFileName);
-					AaxConversion.ConversionProgressUpdate += AaxConversion_MoovProgressUpdate;
-					await AaxConversion;
-					AaxConversion.ConversionProgressUpdate -= AaxConversion_MoovProgressUpdate;
-				}
+				await (AaxConversion = decryptAsync(outputFile));				
 
 				return AaxConversion.IsCompletedSuccessfully;
 			}
@@ -52,23 +45,30 @@ namespace AaxDecrypter
 			}
 		}
 
+		private async Task<bool> Step_MoveMoov()
+		{
+			AaxConversion = Mp4File.RelocateMoovAsync(OutputFileName);
+			AaxConversion.ConversionProgressUpdate += AaxConversion_MoovProgressUpdate;
+			await AaxConversion;
+			AaxConversion.ConversionProgressUpdate -= AaxConversion_MoovProgressUpdate;
+			return AaxConversion.IsCompletedSuccessfully;
+		}
+
 		private void AaxConversion_MoovProgressUpdate(object sender, ConversionProgressEventArgs e)
 		{
 			averageSpeed.AddPosition(e.ProcessPosition.TotalSeconds);
 
-			var remainingTimeToProcess = (e.TotalDuration - e.ProcessPosition).TotalSeconds;
+			var remainingTimeToProcess = (e.EndTime - e.ProcessPosition).TotalSeconds;
 			var estTimeRemaining = remainingTimeToProcess / averageSpeed.Average;
 
 			if (double.IsNormal(estTimeRemaining))
 				OnDecryptTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
 
-			var progressPercent = 100d * (1 - remainingTimeToProcess / e.TotalDuration.TotalSeconds);
-
 			OnDecryptProgressUpdate(
 				new DownloadProgress
 				{
-					ProgressPercentage = progressPercent,
-					BytesReceived = (long)(InputFileStream.Length * progressPercent),
+					ProgressPercentage = 100 * e.FractionCompleted,
+					BytesReceived = (long)(InputFileStream.Length * e.FractionCompleted),
 					TotalBytesToReceive = InputFileStream.Length
 				});
 		}
@@ -79,15 +79,13 @@ namespace AaxDecrypter
 			(
 				outputFile,
 				DownloadOptions.LameConfig,
-				DownloadOptions.ChapterInfo,
-				DownloadOptions.TrimOutputToChapterLength
+				DownloadOptions.ChapterInfo
 			)
 			: DownloadOptions.FixupFile
 			? AaxFile.ConvertToMp4aAsync
 			(
 				outputFile,
-				DownloadOptions.ChapterInfo,
-				DownloadOptions.TrimOutputToChapterLength
+				DownloadOptions.ChapterInfo
 			)
 			: AaxFile.ConvertToMp4aAsync(outputFile);
 	}
