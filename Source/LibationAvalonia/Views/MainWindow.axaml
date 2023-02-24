@@ -188,7 +188,8 @@
 					<views:ProductsDisplay
 						Name="productsDisplay"
 						DataContext="{Binding ProductsDisplay}"						
-						LiberateClicked="ProductsDisplay_LiberateClicked"/>				
+						LiberateClicked="ProductsDisplay_LiberateClicked"
+						ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />				
 				</SplitView>
 			</Border>
 

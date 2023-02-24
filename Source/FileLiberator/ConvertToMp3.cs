@@ -103,20 +103,20 @@ namespace FileLiberator
 		{
 			averageSpeed.AddPosition(e.ProcessPosition.TotalSeconds);
 
-			var remainingTimeToProcess = (e.TotalDuration - e.ProcessPosition).TotalSeconds;
+			var remainingTimeToProcess = (e.EndTime - e.ProcessPosition).TotalSeconds;
 			var estTimeRemaining = remainingTimeToProcess / averageSpeed.Average;
 
 			if (double.IsNormal(estTimeRemaining))
 				OnStreamingTimeRemaining(TimeSpan.FromSeconds(estTimeRemaining));
 
-			double progressPercent = 100 * e.ProcessPosition.TotalSeconds / e.TotalDuration.TotalSeconds;
+			double progressPercent = 100 * e.FractionCompleted;
 
 			OnStreamingProgressChanged(
 				new DownloadProgress
 				{
 					ProgressPercentage = progressPercent,
-					BytesReceived = (long)e.ProcessPosition.TotalSeconds,
-					TotalBytesToReceive = (long)e.TotalDuration.TotalSeconds
+					BytesReceived = (long)(e.ProcessPosition - e.StartTime).TotalSeconds,
+					TotalBytesToReceive = (long)(e.EndTime - e.StartTime).TotalSeconds
 				});
 		}
 	}

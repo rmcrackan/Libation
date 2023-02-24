@@ -14,6 +14,7 @@ namespace AaxDecrypter
 	public class NetworkFileStream : Stream, IUpdatable
 	{
 		public event EventHandler Updated;
+		public event EventHandler DownloadCompleted;
 
 		#region Public Properties
 
@@ -139,7 +140,10 @@ namespace AaxDecrypter
 		public async Task BeginDownloadingAsync()
 		{
 			if (ContentLength != 0 && WritePosition == ContentLength)
+			{
+				_backgroundDownloadTask = Task.CompletedTask;
 				return;
+			}
 
 			if (ContentLength != 0 && WritePosition > ContentLength)
 				throw new WebException($"Specified write position (0x{WritePosition:X10}) is larger than  {nameof(ContentLength)} (0x{ContentLength:X10}).");
@@ -230,6 +234,7 @@ namespace AaxDecrypter
 				_writeFile.Close();
 				_downloadedPiece.Set();
 				OnUpdate();
+				DownloadCompleted?.Invoke(this, null);
 			}
 		}
 

@@ -121,6 +121,12 @@ namespace LibationFileManager
 		[Description("Lame encoder target. true = Bitrate, false = Quality")]
 		public bool LameTargetBitrate { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
+		[Description("Maximum audio sample rate")]
+		public AAXClean.SampleRate MaxSampleRate { get => GetNonString(defaultValue: AAXClean.SampleRate.Hz_44100); set => SetNonString(value); }
+
+		[Description("Lame encoder quality")]
+		public NAudio.Lame.EncoderQuality LameEncoderQuality { get => GetNonString(defaultValue: NAudio.Lame.EncoderQuality.High); set => SetNonString(value); }
+
 		[Description("Lame encoder downsamples to mono")]
 		public bool LameDownsampleMono {  get => GetNonString(defaultValue: true); set => SetNonString(value); }
 

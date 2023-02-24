@@ -47,6 +47,23 @@ namespace LibationAvalonia.Views
 				Serilog.Log.Logger.Error(ex, "An error occurred while handling the stop light button click for {libraryBook}", libraryBook);
 			}
 		}
+
+		public void ProductsDisplay_ConvertToMp3Clicked(object sender, LibraryBook libraryBook)
+		{
+			try
+			{
+				if (libraryBook.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated)
+				{
+					Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", libraryBook);
+					SetQueueCollapseState(false);
+					_viewModel.ProcessQueue.AddConvertMp3(libraryBook);
+				}
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error occurred while handling the stop light button click for {libraryBook}", libraryBook);
+			}
+		}
 		private void SetQueueCollapseState(bool collapsed)
 		{
 			_viewModel.QueueOpen = !collapsed;

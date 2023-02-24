@@ -17,10 +17,14 @@ namespace FileLiberator
 
         protected LameConfig GetLameOptions(Configuration config)
         {
-            LameConfig lameConfig = new();
-            lameConfig.Mode = MPEGMode.Mono;
+			LameConfig lameConfig = new()
+			{
+				Mode = MPEGMode.Mono,
+				Quality = config.LameEncoderQuality,
+                OutputSampleRate = (int)config.MaxSampleRate
+			};
 
-            if (config.LameTargetBitrate)
+			if (config.LameTargetBitrate)
             {
                 if (config.LameConstantBitrate)
                     lameConfig.BitRate = config.LameBitrate;

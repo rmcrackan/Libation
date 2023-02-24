@@ -40,8 +40,14 @@ namespace AaxDecrypter
 				AaxFile.AppleTags.Album = AaxFile.AppleTags.Album?.Replace(" (Unabridged)", "");
 			}
 
-			if (DownloadOptions.FixupFile && !string.IsNullOrWhiteSpace(AaxFile.AppleTags.Narrator))
-				AaxFile.AppleTags.AppleListBox.EditOrAddTag("TCOM", AaxFile.AppleTags.Narrator);
+			if (DownloadOptions.FixupFile)
+			{
+				if (!string.IsNullOrWhiteSpace(AaxFile.AppleTags.Narrator))
+					AaxFile.AppleTags.AppleListBox.EditOrAddTag("TCOM", AaxFile.AppleTags.Narrator);
+
+				if (!string.IsNullOrWhiteSpace(AaxFile.AppleTags.Copyright))
+					AaxFile.AppleTags.Copyright = AaxFile.AppleTags.Copyright.Replace("(P)", "℗").Replace("&#169;", "©");
+			}
 
 			//Finishing configuring lame encoder.
 			if (DownloadOptions.OutputFormat == OutputFormat.Mp3)
