@@ -22,7 +22,7 @@ namespace FileLiberator
 		public OutputFormat OutputFormat { get; init; }
 		public ChapterInfo ChapterInfo { get; init; }
 		public NAudio.Lame.LameConfig LameConfig { get; init; }
-		public string UserAgent => AudibleApi.Resources.USER_AGENT;
+		public string UserAgent => AudibleApi.Resources.User_Agent;
 		public bool TrimOutputToChapterLength => config.AllowLibationFixup && config.StripAudibleBrandAudio;
 		public bool StripUnabridged => config.AllowLibationFixup && config.StripUnabridged;
 		public bool CreateCueSheet => config.CreateCueSheet;
