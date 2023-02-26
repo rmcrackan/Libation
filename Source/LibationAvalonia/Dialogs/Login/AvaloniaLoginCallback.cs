@@ -9,26 +9,28 @@ namespace LibationAvalonia.Dialogs.Login
 	{
 		private Account _account { get; }
 
+		public string DeviceName { get; } = "Libation";
+
 		public AvaloniaLoginCallback(Account account)
 		{
 			_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
 		}
 
-		public async Task<string> Get2faCodeAsync()
+		public async Task<string> Get2faCodeAsync(string prompt)
 		{
-			var dialog = new _2faCodeDialog();
+			var dialog = new _2faCodeDialog(prompt);
 			if (await ShowDialog(dialog))
 				return dialog.Code;
 
 			return null;
 		}
 
-		public async Task<string> GetCaptchaAnswerAsync(byte[] captchaImage)
+		public async Task<(string password, string guess)> GetCaptchaAnswerAsync(string password, byte[] captchaImage)
 		{
-			var dialog = new CaptchaDialog(captchaImage);
+			var dialog = new CaptchaDialog(password, captchaImage);
 			if (await ShowDialog(dialog))
-				return dialog.Answer;
-			return null;
+				return (dialog.Password, dialog.Answer);
+			return (null,null);
 		}
 
 		public async Task<(string name, string value)> GetMfaChoiceAsync(MfaConfig mfaConfig)

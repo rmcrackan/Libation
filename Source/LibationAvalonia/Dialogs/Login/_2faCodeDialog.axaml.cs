@@ -8,10 +8,14 @@ namespace LibationAvalonia.Dialogs.Login
 	public partial class _2faCodeDialog : DialogWindow
 	{
 		public string Code { get; set; }
+		public string Prompt { get; }
 
-		public _2faCodeDialog()
+
+		public _2faCodeDialog() => InitializeComponent();
+
+		public _2faCodeDialog(string prompt) : this()
 		{
-			InitializeComponent();
+			Prompt = prompt;
 			DataContext = this;
 		}
 

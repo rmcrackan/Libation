@@ -1,4 +1,3 @@
-using AudibleApi;
 using AudibleUtilities;
 using Avalonia;
 using Avalonia.Controls;
@@ -49,7 +48,7 @@ namespace LibationAvalonia.Dialogs.Login
 		protected override async Task SaveAndCloseAsync()
 		{
 			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new { ResponseUrl });
-			if (!Uri.TryCreate(ResponseUrl, UriKind.Absolute, out var result))
+			if (!Uri.TryCreate(ResponseUrl, UriKind.Absolute, out _))
 			{
 				await MessageBox.Show("Invalid response URL");
 				return;

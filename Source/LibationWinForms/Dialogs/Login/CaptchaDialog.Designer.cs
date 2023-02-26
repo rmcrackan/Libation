@@ -28,68 +28,95 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.captchaPb = new System.Windows.Forms.PictureBox();
-			this.answerTb = new System.Windows.Forms.TextBox();
-			this.submitBtn = new System.Windows.Forms.Button();
-			this.answerLbl = new System.Windows.Forms.Label();
-			((System.ComponentModel.ISupportInitialize)(this.captchaPb)).BeginInit();
-			this.SuspendLayout();
+			captchaPb = new System.Windows.Forms.PictureBox();
+			answerTb = new System.Windows.Forms.TextBox();
+			submitBtn = new System.Windows.Forms.Button();
+			answerLbl = new System.Windows.Forms.Label();
+			label1 = new System.Windows.Forms.Label();
+			passwordTb = new System.Windows.Forms.TextBox();
+			((System.ComponentModel.ISupportInitialize)captchaPb).BeginInit();
+			SuspendLayout();
 			// 
 			// captchaPb
 			// 
-			this.captchaPb.Location = new System.Drawing.Point(12, 12);
-			this.captchaPb.Name = "captchaPb";
-			this.captchaPb.Size = new System.Drawing.Size(200, 70);
-			this.captchaPb.TabIndex = 0;
-			this.captchaPb.TabStop = false;
+			captchaPb.Location = new System.Drawing.Point(13, 14);
+			captchaPb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			captchaPb.Name = "captchaPb";
+			captchaPb.Size = new System.Drawing.Size(235, 81);
+			captchaPb.TabIndex = 0;
+			captchaPb.TabStop = false;
 			// 
 			// answerTb
 			// 
-			this.answerTb.Location = new System.Drawing.Point(118, 88);
-			this.answerTb.Name = "answerTb";
-			this.answerTb.Size = new System.Drawing.Size(94, 20);
-			this.answerTb.TabIndex = 1;
+			answerTb.Location = new System.Drawing.Point(136, 130);
+			answerTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			answerTb.Name = "answerTb";
+			answerTb.Size = new System.Drawing.Size(111, 23);
+			answerTb.TabIndex = 2;
 			// 
 			// submitBtn
 			// 
-			this.submitBtn.Location = new System.Drawing.Point(137, 114);
-			this.submitBtn.Name = "submitBtn";
-			this.submitBtn.Size = new System.Drawing.Size(75, 23);
-			this.submitBtn.TabIndex = 2;
-			this.submitBtn.Text = "Submit";
-			this.submitBtn.UseVisualStyleBackColor = true;
-			this.submitBtn.Click += new System.EventHandler(this.submitBtn_Click);
+			submitBtn.Location = new System.Drawing.Point(159, 171);
+			submitBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			submitBtn.Name = "submitBtn";
+			submitBtn.Size = new System.Drawing.Size(88, 27);
+			submitBtn.TabIndex = 2;
+			submitBtn.Text = "Submit";
+			submitBtn.UseVisualStyleBackColor = true;
+			submitBtn.Click += submitBtn_Click;
 			// 
 			// answerLbl
 			// 
-			this.answerLbl.AutoSize = true;
-			this.answerLbl.Location = new System.Drawing.Point(12, 91);
-			this.answerLbl.Name = "answerLbl";
-			this.answerLbl.Size = new System.Drawing.Size(100, 13);
-			this.answerLbl.TabIndex = 0;
-			this.answerLbl.Text = "CAPTCHA answer: ";
+			answerLbl.AutoSize = true;
+			answerLbl.Location = new System.Drawing.Point(13, 133);
+			answerLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			answerLbl.Name = "answerLbl";
+			answerLbl.Size = new System.Drawing.Size(106, 15);
+			answerLbl.TabIndex = 0;
+			answerLbl.Text = "CAPTCHA answer: ";
+			// 
+			// label1
+			// 
+			label1.AutoSize = true;
+			label1.Location = new System.Drawing.Point(13, 104);
+			label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(60, 15);
+			label1.TabIndex = 0;
+			label1.Text = "Password:";
+			// 
+			// passwordTb
+			// 
+			passwordTb.Location = new System.Drawing.Point(81, 101);
+			passwordTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			passwordTb.Name = "passwordTb";
+			passwordTb.PasswordChar = '*';
+			passwordTb.Size = new System.Drawing.Size(167, 23);
+			passwordTb.TabIndex = 1;
 			// 
 			// CaptchaDialog
 			// 
-			this.AcceptButton = this.submitBtn;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(224, 149);
-			this.Controls.Add(this.answerLbl);
-			this.Controls.Add(this.submitBtn);
-			this.Controls.Add(this.answerTb);
-			this.Controls.Add(this.captchaPb);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
-			this.Name = "CaptchaDialog";
-			this.ShowIcon = false;
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "CAPTCHA";
-			((System.ComponentModel.ISupportInitialize)(this.captchaPb)).EndInit();
-			this.ResumeLayout(false);
-			this.PerformLayout();
-
+			AcceptButton = submitBtn;
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			ClientSize = new System.Drawing.Size(261, 210);
+			Controls.Add(passwordTb);
+			Controls.Add(label1);
+			Controls.Add(answerLbl);
+			Controls.Add(submitBtn);
+			Controls.Add(answerTb);
+			Controls.Add(captchaPb);
+			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			MaximizeBox = false;
+			MinimizeBox = false;
+			Name = "CaptchaDialog";
+			ShowIcon = false;
+			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			Text = "CAPTCHA";
+			((System.ComponentModel.ISupportInitialize)captchaPb).EndInit();
+			ResumeLayout(false);
+			PerformLayout();
 		}
 
 		#endregion
@@ -98,5 +125,7 @@
 		private System.Windows.Forms.TextBox answerTb;
 		private System.Windows.Forms.Button submitBtn;
 		private System.Windows.Forms.Label answerLbl;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.TextBox passwordTb;
 	}
 }

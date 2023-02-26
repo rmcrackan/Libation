@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AudibleApi;
 using AudibleApi.Authorization;
+using AudibleApi.Cryptography;
 using Dinah.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace AudibleUtilities
 {
-	public partial class Mkb79Auth : IIdentityMaintainer
+    public partial class Mkb79Auth : IIdentityMaintainer
 	{
 		[JsonProperty("website_cookies")]
 		private JObject _websiteCookies { get; set; }
@@ -178,7 +179,7 @@ namespace AudibleUtilities
 				LocaleCode = account.Locale.CountryCode,
 				RefreshToken = account.IdentityTokens.RefreshToken.Value,				
 				StoreAuthenticationCookie = account.IdentityTokens.StoreAuthenticationCookie,
-				WebsiteCookies = new(account.IdentityTokens.Cookies.ToKeyValuePair()),
+				WebsiteCookies = new(account.IdentityTokens.Cookies),
 			};
 	}
 
