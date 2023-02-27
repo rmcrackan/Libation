@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SixLabors.ImageSharp;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Dinah.Core.WindowsDesktop;
-using Dinah.Core.WindowsDesktop.Drawing;
 using LibationFileManager;
+using System.IO;
+using System;
 
 namespace WindowsConfigApp
 {
@@ -21,11 +17,11 @@ namespace WindowsConfigApp
 
             try
             {
-                var icon = ImageReader.ToIcon(image);
+				var icon = Image.Load(File.ReadAllBytes(image)).ToIcon();
                 iconPath = Path.Combine(directory, $"{Guid.NewGuid()}.ico");
-                icon.Save(iconPath);
+                File.WriteAllBytes(iconPath, icon);
 
-                new DirectoryInfo(directory).SetIcon(iconPath, Directories.FolderTypes.Music);
+				new DirectoryInfo(directory)?.SetIcon(iconPath, "Music");
             }
             finally
             {
@@ -36,6 +32,7 @@ namespace WindowsConfigApp
 
         public void DeleteFolderIcon(string directory)
             => new DirectoryInfo(directory)?.DeleteIcon();
+
         public bool CanUpdate => true;
 		public void InstallUpdate(string updateBundle)
 		{
