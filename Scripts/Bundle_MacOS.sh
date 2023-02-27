@@ -96,6 +96,9 @@ done
 
 APP_FILE=Libation.${VERSION}-macOS-chardonnay-${ARCH}.tgz
 
+echo "Signing executables in: $BUNDLE"
+codesign --force --deep -s - $BUNDLE
+
 echo "Creating app bundle: $APP_FILE"
 tar -czvf $APP_FILE $BUNDLE
 

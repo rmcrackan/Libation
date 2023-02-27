@@ -97,10 +97,10 @@ namespace WindowsConfigApp
 			refresh();
 		}
 
-		private static void refresh() => SHChangeNotify(0x08000000, 0x0000, IntPtr.Zero, IntPtr.Zero); //SHCNE_ASSOCCHANGED SHCNF_IDLIST
+		private static void refresh() => SHChangeNotify(0x08000000, 0x0000, 0, 0); //SHCNE_ASSOCCHANGED SHCNF_IDLIST
 
 
 		[DllImport("shell32.dll", SetLastError = true)]
-		private static extern void SHChangeNotify(int wEventId, int uFlags, IntPtr dwItem1, IntPtr dwItem2);
+		private static extern void SHChangeNotify(int wEventId, int uFlags, nint dwItem1, nint dwItem2);
 	}
 }

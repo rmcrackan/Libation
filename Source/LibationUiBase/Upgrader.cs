@@ -13,23 +13,23 @@ namespace LibationUiBase
 		public UpgradeProperties UpgradeProperties { get; internal init; }
 		public bool CapUpgrade { get; internal init; }
 		private bool _ignore = false;
-		private bool _installUpdate = true;
+		private bool _installUpgrade = true;
 		public bool Ignore
 		{
 			get => _ignore;
 			set
 			{
 				_ignore = value;
-				_installUpdate &= !Ignore;
+				_installUpgrade &= !Ignore;
 			}
 		}
-		public bool InstallUpdate
+		public bool InstallUpgrade
 		{
-			get => _installUpdate;
+			get => _installUpgrade;
 			set
 			{
-				_installUpdate = value;
-				_ignore &= !InstallUpdate;
+				_installUpgrade = value;
+				_ignore &= !InstallUpgrade;
 			}
 		}
 	}
@@ -47,35 +47,35 @@ namespace LibationUiBase
 				var upgradeProperties = await Task.Run(LibationScaffolding.GetLatestRelease);
 				if (upgradeProperties is null) return;
 
-				const string ignoreUpdate = "IgnoreUpdate";
+				const string ignoreUpgrade = "IgnoreUpgrade";
 				var config = Configuration.Instance;
 
-				if (config.GetString(propertyName: ignoreUpdate) == upgradeProperties.LatestRelease.ToString())
+				if (config.GetString(propertyName: ignoreUpgrade) == upgradeProperties.LatestRelease.ToString())
 					return;
 
 				var interop = InteropFactory.Create();
 
-				if (!interop.CanUpdate)
-					Serilog.Log.Logger.Information("Can't perform update automatically");
+				if (!interop.CanUpgrade)
+					Serilog.Log.Logger.Information("Can't perform upgrade automatically");
 
 				var upgradeEventArgs = new UpgradeEventArgs
 				{
 					UpgradeProperties = upgradeProperties,
-					CapUpgrade = interop.CanUpdate
+					CapUpgrade = interop.CanUpgrade
 				};
 
 				await upgradeAvailableHandler(upgradeEventArgs);
 
 				if (upgradeEventArgs.Ignore)
-					config.SetString(upgradeProperties.LatestRelease.ToString(), ignoreUpdate);
+					config.SetString(upgradeProperties.LatestRelease.ToString(), ignoreUpgrade);
 
-				if (!upgradeEventArgs.InstallUpdate) return;
+				if (!upgradeEventArgs.InstallUpgrade) return;
 
-				//Download the update file in the background,
+				//Download the upgrade file in the background,
 				DownloadBegin?.Invoke(this, EventArgs.Empty);
-				string updateBundle = await DownloadUpgradeAsync(upgradeProperties);
+				string upgradeBundle = await DownloadUpgradeAsync(upgradeProperties);
 
-				if (string.IsNullOrEmpty(updateBundle) || !File.Exists(updateBundle))
+				if (string.IsNullOrEmpty(upgradeBundle) || !File.Exists(upgradeBundle))
 				{
 					DownloadCompleted?.Invoke(this, false);
 				}
@@ -83,15 +83,15 @@ namespace LibationUiBase
 				{
 					DownloadCompleted?.Invoke(this, true);
 
-					//Install the update
-					Serilog.Log.Logger.Information($"Begin running auto-updater");
-					interop.InstallUpdate(updateBundle);
-					Serilog.Log.Logger.Information($"Completed running auto-updater");
+					//Install the upgrade
+					Serilog.Log.Logger.Information($"Begin running auto-upgrader");
+					interop.InstallUpgrade(upgradeBundle);
+					Serilog.Log.Logger.Information($"Completed running auto-upgrader");
 				}
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "An error occured while checking for app updates.");
+				Serilog.Log.Logger.Error(ex, "An error occured while checking for app upgrades.");
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace LibationUiBase
 				return null;
 			}
 
-			//Silently download the update in the background, save it to a temp file.
+			//Silently download the upgrade in the background, save it to a temp file.
 
 			var zipFile = Path.Combine(Path.GetTempPath(), Path.GetFileName(upgradeProperties.ZipUrl));
 
@@ -140,7 +140,7 @@ namespace LibationUiBase
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "Failed to download the update: {pdate}", upgradeProperties.ZipUrl);
+				Serilog.Log.Logger.Error(ex, "Failed to download the upgrade: {bundle}", upgradeProperties.ZipUrl);
 				return null;
 			}
 		}

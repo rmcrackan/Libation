@@ -91,7 +91,15 @@ namespace LibationAvalonia.Dialogs.Login
 		public CaptchaDialogViewModel(string password, Bitmap[] gifFrames, int[] frameDelayMs)
 		{
 			Password = password;
-			FrameSwitch = SwitchFramesAsync(gifFrames, frameDelayMs);
+			if (gifFrames.Length == 1)
+			{
+				FrameSwitch = Task.CompletedTask;
+				CaptchaImage = gifFrames[0];
+			}
+			else
+			{
+				FrameSwitch = SwitchFramesAsync(gifFrames, frameDelayMs);
+			}
 		}
 
 		public async Task StopAsync()

@@ -8,7 +8,7 @@ namespace LibationFileManager
         void SetFolderIcon(string image, string directory);
         void DeleteFolderIcon(string directory);
         Process RunAsRoot(string exe, string args);
-        void InstallUpdate(string updateBundle);
-        bool CanUpdate { get; }
+        void InstallUpgrade(string upgradeBundle);
+        bool CanUpgrade { get; }
     }
 }

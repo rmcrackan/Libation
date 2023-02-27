@@ -5,19 +5,37 @@
     "tasks": [
         {
             "label": "build",
+            "dependsOn": [
+                "build_libation",
+                "build_linuxconfigapp"
+            ]
+        },
+        {
+            "label": "build_libation",
             "type": "shell",
             "command": "dotnet",
             "args": [
                 "build",
-                // Ask msbuild to generate full paths for file names.
                 "${workspaceFolder}/Source/LibationAvalonia/LibationAvalonia.csproj"
             ],
             "group": "build",
             "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "silent"
+                //"reveal": "silent"
             },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build_linuxconfigapp",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/Source/LoadByOS/LinuxConfigApp/LinuxConfigApp.csproj"
+            ],
+            "group": "build",
+            "presentation": {
+                //"reveal": "silent"
+            },
             "problemMatcher": "$msCompile"
         }
     ]

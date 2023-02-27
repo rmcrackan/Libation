@@ -1,8 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Threading;
-using System;
-using System.Threading;
+using LibationAvalonia.Dialogs;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia
@@ -17,6 +15,9 @@ namespace LibationAvalonia
 				return brush;
 			return defaultBrush;
 		}
+
+		public static Task<DialogResult> ShowDialogAsync(this DialogWindow dialogWindow, Window owner = null)
+			=> dialogWindow.ShowDialog<DialogResult>(owner ?? App.MainWindow);
 
 		public static Window GetParentWindow(this IControl control) => control.VisualRoot as Window;
 	}
