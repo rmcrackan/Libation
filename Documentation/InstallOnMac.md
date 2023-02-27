@@ -13,9 +13,14 @@ This walkthrough should get you up and running with Libation on your Mac.
 - Move the extracted Libation app bundle to your applications folder.
 - Open a terminal (Go > Utilities > Terminal)
 - Copy/paste/run the following command (you'll be prompted to enter your password)
-  ```Console
-  sudo spctl --master-disable && sudo spctl --add --label "Libation" /Applications/Libation.app && open /Applications/Libation.app && sudo spctl --master-enable
-  ```
+  - macOS x64
+    ```Console
+    sudo spctl --master-disable && sudo spctl --add --label "Libation" /Applications/Libation.app && open /Applications/Libation.app && sudo spctl --master-enable
+    ```
+  - macOS arm64
+    ```Console
+    codesign --force --deep -s - /Applications/Libation.app && sudo spctl --master-disable && sudo spctl --add --label "Libation" /Applications/Libation.app && open /Applications/Libation.app && sudo spctl --master-enable
+    ```
 - Close the terminal and use Libation!
 
 ## Running Hangover
