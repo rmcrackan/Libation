@@ -9,10 +9,12 @@
         Title="2FA Code"
 		Icon="/Assets/libation.ico">
 	
-	<Grid VerticalAlignment="Stretch" RowDefinitions="*,Auto,Auto,Auto">
+	<Grid
+		VerticalAlignment="Stretch"
+		ColumnDefinitions="*" Margin="5"
+		RowDefinitions="*,Auto,Auto,Auto">
 		
 		<TextBlock
-			Margin="5"
 			TextAlignment="Center"
 			TextWrapping="Wrap"
 			Text="{Binding Prompt}" />
@@ -22,16 +24,17 @@
 			Grid.Row="1"
 			TextAlignment="Center"
 			Text="Enter 2FA Code" />
-		
+
 		<TextBox
+			Name="_2FABox"
 			Margin="5,0,5,0"
 			Grid.Row="2"
+			HorizontalContentAlignment="Center"
 			Text="{Binding Code, Mode=TwoWay}" />
 		
 		<Button
 			Margin="5"
 			Grid.Row="3"
-			VerticalAlignment="Bottom"
 			HorizontalAlignment="Stretch"
 			HorizontalContentAlignment="Center"
 			Content="Submit"

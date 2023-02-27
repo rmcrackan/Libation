@@ -47,7 +47,7 @@ namespace LibationWinForms
 			// load init state to menu checkbox
 			Load += updateAutoScanLibraryToolStripMenuItem;
 			// if enabled: begin on load
-			Load += startAutoScan;
+			Shown += startAutoScan;
 
 			// if new 'default' account is added, run autoscan
 			AccountsSettingsPersister.Saving += accountsPreSave;

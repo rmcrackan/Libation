@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AudibleUtilities
 {
-    public partial class Mkb79Auth : IIdentityMaintainer
+	public partial class Mkb79Auth : IIdentityMaintainer
 	{
 		[JsonProperty("website_cookies")]
 		private JObject _websiteCookies { get; set; }

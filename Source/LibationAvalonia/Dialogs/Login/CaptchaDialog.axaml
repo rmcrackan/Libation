@@ -35,13 +35,13 @@
 			Text="Password:" />
 
 		<TextBox
+			Name="passwordBox"
 			Grid.Row="2"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
 			Margin="0,10,0,0"
 			PasswordChar="*"
-			Text="{Binding Password}"
-			IsEnabled="{Binding Password, Converter={x:Static StringConverters.IsNullOrEmpty}}" />
+			Text="{Binding Password, Mode=TwoWay}" />
 		
 		<TextBlock
 			Grid.Row="3"
@@ -51,10 +51,11 @@
 			Text="CAPTCHA&#xa;answer:" />
 		
 		<TextBox
+			Name="captchaBox"
 			Grid.Row="3"
 			Grid.Column="1"
 			Margin="0,10,0,0"
-			Text="{Binding Answer}" />
+			Text="{Binding Answer, Mode=TwoWay}" />
 		
 		<Button
 			Grid.Row="4"

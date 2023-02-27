@@ -24,10 +24,8 @@ namespace LibationWinForms.Dialogs.Login
 			this.captchaPb.Image = image;
 
 			passwordTb.Text = password;
-			passwordTb.Enabled = string.IsNullOrEmpty(password);
 
-			if (passwordTb.Enabled)
-				answerTb.Select();
+			(string.IsNullOrEmpty(password) ? passwordTb : answerTb).Select();
 		}
 
 		private void submitBtn_Click(object sender, EventArgs e)

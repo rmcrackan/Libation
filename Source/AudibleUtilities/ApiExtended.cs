@@ -18,7 +18,7 @@ namespace AudibleUtilities
 	public class ApiExtended
 	{
 		public Api Api { get; private set; }
-		private const string DeviceName = "Libation";
+
 		private ApiExtended(Api api) => Api = api;
 
 		/// <summary>Get api from existing tokens else login with 'eager' choice. External browser url is provided. Response can be external browser login or continuing with native api callbacks.</summary>

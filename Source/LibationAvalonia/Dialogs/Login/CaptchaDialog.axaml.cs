@@ -1,3 +1,4 @@
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using LibationAvalonia.ViewModels;
@@ -12,10 +13,12 @@ namespace LibationAvalonia.Dialogs.Login
 		public string Password => _viewModel.Password;
 		public string Answer => _viewModel.Answer;
 
-		private CaptchaDialogViewModel _viewModel;
+		private readonly CaptchaDialogViewModel _viewModel;
 		public CaptchaDialog()
 		{
 			InitializeComponent();
+			passwordBox = this.FindControl<TextBox>(nameof(passwordBox));
+			captchaBox = this.FindControl<TextBox>(nameof(captchaBox));
 		}
 
 		public CaptchaDialog(string password, byte[] captchaImage) :this()
@@ -25,19 +28,25 @@ namespace LibationAvalonia.Dialogs.Login
 			using var gif = SixLabors.ImageSharp.Image.Load(captchaImage);
 			var gifEncoder = new SixLabors.ImageSharp.Formats.Gif.GifEncoder();
 			var gifFrames = new Bitmap[gif.Frames.Count];
+			var frameDelayMs = new int[gif.Frames.Count];
 
 			for (int i = 0; i < gif.Frames.Count; i++)
 			{
-				using var framems = new MemoryStream();
+				var frameMetadata = gif.Frames[i].Metadata.GetFormatMetadata(SixLabors.ImageSharp.Formats.Gif.GifFormat.Instance);
 
-				using var clonedFrame = gif.Frames.CloneFrame(i);
+                using var clonedFrame = gif.Frames.CloneFrame(i);
+				using var framems = new MemoryStream();
 
 				clonedFrame.Save(framems, gifEncoder);
 				framems.Position = 0;
+
 				gifFrames[i] = new Bitmap(framems);
+				frameDelayMs[i] = frameMetadata.FrameDelay * 10;
 			}
 
-			DataContext = _viewModel = new(password, gifFrames);
+			DataContext = _viewModel = new(password, gifFrames, frameDelayMs);
+
+			Opened += (_, _) => (string.IsNullOrEmpty(password) ? passwordBox : captchaBox).Focus();
 		}
 
 		private void InitializeComponent()
@@ -59,6 +68,12 @@ namespace LibationAvalonia.Dialogs.Login
 			await base.SaveAndCloseAsync();
 		}
 
+		protected override async Task CancelAndCloseAsync()
+		{
+			await _viewModel.StopAsync();
+			await base.CancelAndCloseAsync();	
+		}
+
 		public async void Submit_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await SaveAndCloseAsync();
 	}
@@ -72,14 +87,11 @@ namespace LibationAvalonia.Dialogs.Login
 		private Bitmap _captchaImage;
 		private bool keepSwitching = true;
 		private readonly Task FrameSwitch;
-		private readonly Bitmap[] GifFrames;
-		private const int FRAME_INTERVAL_MS = 100;
 
-		public CaptchaDialogViewModel(string password, Bitmap[] gifFrames)
+		public CaptchaDialogViewModel(string password, Bitmap[] gifFrames, int[] frameDelayMs)
 		{
 			Password = password;
-			GifFrames = gifFrames;
-			FrameSwitch = SwitchFramesAsync();
+			FrameSwitch = SwitchFramesAsync(gifFrames, frameDelayMs);
 		}
 
 		public async Task StopAsync()
@@ -88,16 +100,19 @@ namespace LibationAvalonia.Dialogs.Login
 			await FrameSwitch;
 		}
 
-		private async Task SwitchFramesAsync()
+		private async Task SwitchFramesAsync(Bitmap[] gifFrames, int[] frameDelayMs)
 		{
 			int index = 0;
 			while(keepSwitching)
 			{
-				CaptchaImage = GifFrames[index++];
+				CaptchaImage = gifFrames[index];
+				await Task.Delay(frameDelayMs[index++]);
 
-				index %= GifFrames.Length;
-				await Task.Delay(FRAME_INTERVAL_MS);
+				index %= gifFrames.Length;
 			}
+
+			foreach (var frame in gifFrames)
+				frame.Dispose();
 		}
 	}
 }
