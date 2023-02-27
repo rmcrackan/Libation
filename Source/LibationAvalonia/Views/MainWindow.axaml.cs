@@ -40,9 +40,7 @@ namespace LibationAvalonia.Views
 			Configure_Export();
 			Configure_Settings();
 			Configure_ProcessQueue();
-#if !DEBUG
 			Configure_Update();
-#endif
 			Configure_Filter();
 			// misc which belongs in winforms app but doesn't have a UI element
 			Configure_NonUI();

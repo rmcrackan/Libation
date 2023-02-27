@@ -25,6 +25,9 @@ namespace LibationAvalonia.ViewModels
 		public ProcessQueueViewModel ProcessQueue { get; } = new ProcessQueueViewModel();
 		public ProductsDisplayViewModel ProductsDisplay { get; } = new ProductsDisplayViewModel();
 
+		private double? _downloadProgress = null;
+		public double? DownloadProgress { get => _downloadProgress; set => this.RaiseAndSetIfChanged(ref _downloadProgress, value); }
+
 
 		/// <summary> Library filterting query </summary>
 		public string FilterString { get => _filterString; set => this.RaiseAndSetIfChanged(ref _filterString, value); }
