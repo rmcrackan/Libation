@@ -25,7 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AppScaffolding\AppScaffolding.csproj" />
+    <ProjectReference Include="..\..\LibationUiBase\LibationUiBase.csproj" />
   </ItemGroup>
 
   <ItemGroup>
