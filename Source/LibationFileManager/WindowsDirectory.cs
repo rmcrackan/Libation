@@ -9,10 +9,12 @@ namespace LibationFileManager
 {
     public static class WindowsDirectory
     {
+
         public static void SetCoverAsFolderIcon(string pictureId, string directory)
         {
             try
             {
+                //Currently only works for Windows and macOS
                 if (!Configuration.Instance.UseCoverAsFolderIcon || Configuration.IsLinux)
                     return;
 
