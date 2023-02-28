@@ -13,7 +13,7 @@ namespace LibationFileManager
         {
             try
             {
-                if (!Configuration.Instance.UseCoverAsFolderIcon || !Configuration.IsWindows)
+                if (!Configuration.Instance.UseCoverAsFolderIcon || Configuration.IsLinux)
                     return;
 
                 // get path of cover art in Images dir. Download first if not exists

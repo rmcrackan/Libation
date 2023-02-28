@@ -18,11 +18,8 @@ namespace WindowsConfigApp
 
             try
             {
-				var icon = Image.Load(File.ReadAllBytes(image)).ToIcon();
-                iconPath = Path.Combine(directory, $"{Guid.NewGuid()}.ico");
-                File.WriteAllBytes(iconPath, icon);
-
-				new DirectoryInfo(directory)?.SetIcon(iconPath, "Music");
+				var icon = Image.Load(image).ToIcon();
+				new DirectoryInfo(directory)?.SetIcon(icon, "Music");
             }
             finally
             {

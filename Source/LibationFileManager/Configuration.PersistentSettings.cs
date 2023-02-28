@@ -73,7 +73,7 @@ namespace LibationFileManager
 
 		public bool Exists(string propertyName) => persistentDictionary.Exists(propertyName);
 
-		[Description("Set cover art as the folder's icon. (Windows only)")]
+		[Description("Set cover art as the folder's icon. (Windows and macOS only)")]
 		public bool UseCoverAsFolderIcon { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Use the beta version of Libation\r\nNew and experimental features, but probably buggy.\r\n(requires restart to take effect)")]

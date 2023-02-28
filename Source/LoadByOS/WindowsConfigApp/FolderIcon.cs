@@ -63,10 +63,10 @@ namespace WindowsConfigApp
 
 		// https://github.com/dimuththarindu/FIC-Folder-Icon-Changer/blob/master/project/FIC/Classes/IconCustomizer.cs
 
-		public static void SetIcon(this DirectoryInfo directoryInfo, string icoPath, string folderType)
-			=> SetIcon(directoryInfo.FullName, icoPath, folderType);
+		public static void SetIcon(this DirectoryInfo directoryInfo, byte[] icon, string folderType)
+			=> SetIcon(directoryInfo.FullName, icon, folderType);
 
-		public static void SetIcon(string dir, string icoPath, string folderType)
+		public static void SetIcon(string dir, byte[] icon, string folderType)
 		{
 			var desktop_ini = Path.Combine(dir, "desktop.ini");
 			var Icon_ico = Path.Combine(dir, "Icon.ico");
@@ -76,7 +76,7 @@ namespace WindowsConfigApp
 			DeleteIcon(dir);
 
 			//copying Icon file //overwriting
-			File.Copy(icoPath, Icon_ico, true);
+			File.WriteAllBytes(Icon_ico, icon);
 
 			//writing configuration file
 			string[] desktopLines = { "[.ShellClassInfo]", "IconResource=Icon.ico,0", "[ViewState]", "Mode=", "Vid=", $"FolderType={folderType}" };

@@ -108,7 +108,8 @@ namespace LibationAvalonia.Dialogs
 			LoadSettings(config);
 		}
 
-		public bool IsWindows => AppScaffolding.LibationScaffolding.ReleaseIdentifier is AppScaffolding.ReleaseIdentifier.WindowsAvalonia;
+		public bool IsLinux => Configuration.IsLinux;
+		public bool IsWindows => Configuration.IsWindows;
 		public ImportantSettings ImportantSettings { get; private set; }
 		public ImportSettings ImportSettings { get; private set; }
 		public DownloadDecryptSettings DownloadDecryptSettings { get; private set; }
