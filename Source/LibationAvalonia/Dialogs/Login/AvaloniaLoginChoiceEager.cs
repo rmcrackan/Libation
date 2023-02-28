@@ -5,14 +5,15 @@ using AudibleUtilities;
 
 namespace LibationAvalonia.Dialogs.Login
 {
-	public class AvaloniaLoginChoiceEager : AvaloniaLoginBase, ILoginChoiceEager
+	public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	{
 		/// <summary>Convenience method. Recommended when wiring up Winforms to <see cref="ApplicationServices.LibraryCommands.ImportAccountAsync"/></summary>
-		public static async Task<ApiExtended> ApiExtendedFunc(Account account) => await ApiExtended.CreateAsync(account, new AvaloniaLoginChoiceEager(account));
+		public static async Task<ApiExtended> ApiExtendedFunc(Account account)
+			=> await ApiExtended.CreateAsync(account, new AvaloniaLoginChoiceEager(account));
 
-		public ILoginCallback LoginCallback { get; private set; }
+		public ILoginCallback LoginCallback { get; }
 
-		private Account _account { get; }
+		private readonly Account _account;
 
 		public AvaloniaLoginChoiceEager(Account account)
 		{
@@ -24,9 +25,8 @@ namespace LibationAvalonia.Dialogs.Login
 		{
 			var dialog = new LoginChoiceEagerDialog(_account);
 
-			if (!await ShowDialog(dialog))
+			if (await dialog.ShowDialogAsync() is not DialogResult.OK)
 				return null;
-
 
 			switch (dialog.LoginMethod)
 			{
@@ -35,7 +35,7 @@ namespace LibationAvalonia.Dialogs.Login
 				case LoginMethod.External:
 					{
 						var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
-						return await ShowDialog(externalDialog)
+						return await externalDialog.ShowDialogAsync() is DialogResult.OK
 							? ChoiceOut.External(externalDialog.ResponseUrl)
 							: null;
 					}

@@ -51,9 +51,6 @@ namespace LibationWinForms
 
 				MessageBoxLib.VerboseLoggingWarning_ShowIfTrue();
 
-#if !DEBUG
-				checkForUpdate();
-#endif
 				// logging is init'd here
 				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
 			}
@@ -163,31 +160,6 @@ namespace LibationWinForms
 			// examples:
 			// - only supported in winforms. don't move to app scaffolding
 			// - long running. won't get a chance to finish in cli. don't move to app scaffolding
-		}
-
-		private static void checkForUpdate()
-		{
-			AppScaffolding.UpgradeProperties upgradeProperties;
-
-			try
-			{
-				upgradeProperties = AppScaffolding.LibationScaffolding.GetLatestRelease();
-				if (upgradeProperties is null)
-					return;
-			}
-			catch (Exception ex)
-			{
-				MessageBoxLib.ShowAdminAlert(null, "Error checking for update", "Error checking for update", ex);
-				return;
-			}
-
-			if (upgradeProperties.ZipUrl is null)
-			{
-				MessageBox.Show(upgradeProperties.HtmlUrl, "New version available");
-				return;
-			}
-
-			Updater.Run(upgradeProperties);
 		}
 
 		private static void postLoggingGlobalExceptionHandling()

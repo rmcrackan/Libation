@@ -23,10 +23,10 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [Linux, MacOS]
+        os: [ubuntu-latest, macos-latest]
         arch: [x64, arm64]
     steps:
       - uses: actions/checkout@v3
@@ -45,59 +45,60 @@ jobs:
           then
             version="${inputVersion}"
           else
-            version="$(grep -oP '(?<=<Version>).*(?=</Version)' ./Source/AppScaffolding/AppScaffolding.csproj)"
+            version="$(grep -Eio -m 1 '<Version>.*</Version>' ./Source/AppScaffolding/AppScaffolding.csproj | sed -r 's/<\/?Version>//g')"
           fi
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
-
       - name: Unit test
         if: ${{ inputs.run_unit_tests }}
         working-directory: ./Source
         run: dotnet test
 
       - name: Publish
+        id: publish
         working-directory: ./Source
         run: |
           os=${{ matrix.os }}
-          RUNTIME_IDENTIFIER="$(echo ${os,} | sed 's/macOS/osx/')-${{ matrix.arch }}"
+          target_os="$(echo ${os/-latest/} | sed 's/ubuntu/linux/')"
+          display_os="$(echo ${target_os/macos/macOS} | sed 's/linux/Linux/')"
+          echo "display_os=${display_os}" >> $GITHUB_OUTPUT
+          RUNTIME_IDENTIFIER="$(echo ${target_os/macos/osx})-${{ matrix.arch }}"
           echo "$RUNTIME_IDENTIFIER"
           dotnet publish \
               LibationAvalonia/LibationAvalonia.csproj \
               --runtime "$RUNTIME_IDENTIFIER" \
               --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output bin/Publish/${{ matrix.os }}-${{ matrix.arch }}-${{ env.RELEASE_NAME }} \
-              -p:PublishProfile=LibationAvalonia/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+              --output bin/Publish/${display_os}-${{ matrix.arch }}-${{ env.RELEASE_NAME }} \
+              -p:PublishProfile=LibationAvalonia/Properties/PublishProfiles/${display_os}Profile.pubxml
           dotnet publish \
-              LoadByOS/${{ matrix.os }}ConfigApp/${{ matrix.os }}ConfigApp.csproj \
+              LoadByOS/${display_os}ConfigApp/${display_os}ConfigApp.csproj \
               --runtime "$RUNTIME_IDENTIFIER" \
               --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output bin/Publish/${{ matrix.os }}-${{ matrix.arch }}-${{ env.RELEASE_NAME }} \
-              -p:PublishProfile=LoadByOS/Properties/${{ matrix.os }}ConfigApp/PublishProfiles/${{ matrix.os }}Profile.pubxml
+              --output bin/Publish/${display_os}-${{ matrix.arch }}-${{ env.RELEASE_NAME }} \
+              -p:PublishProfile=LoadByOS/Properties/${display_os}ConfigApp/PublishProfiles/${display_os}Profile.pubxml
           dotnet publish \
               LibationCli/LibationCli.csproj \
               --runtime "$RUNTIME_IDENTIFIER" \
               --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output bin/Publish/${{ matrix.os }}-${{ matrix.arch }}-${{ env.RELEASE_NAME }} \
-              -p:PublishProfile=LibationCli/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+              --output bin/Publish/${display_os}-${{ matrix.arch }}-${{ env.RELEASE_NAME }} \
+              -p:PublishProfile=LibationCli/Properties/PublishProfiles/${display_os}Profile.pubxml
           dotnet publish \
               HangoverAvalonia/HangoverAvalonia.csproj \
               --runtime "$RUNTIME_IDENTIFIER" \
               --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output bin/Publish/${{ matrix.os }}-${{ matrix.arch }}-${{ env.RELEASE_NAME }} \
-              -p:PublishProfile=HangoverAvalonia/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          
+              --output bin/Publish/${display_os}-${{ matrix.arch }}-${{ env.RELEASE_NAME }} \
+              -p:PublishProfile=HangoverAvalonia/Properties/PublishProfiles/${display_os}Profile.pubxml
       - name: Build bundle
         id: bundle
-        working-directory: ./Source/bin/Publish/${{ matrix.os }}-${{ matrix.arch }}-${{ env.RELEASE_NAME }}
+        working-directory: ./Source/bin/Publish/${{ steps.publish.outputs.display_os }}-${{ matrix.arch }}-${{ env.RELEASE_NAME }}
         run: |
           BUNDLE_DIR=$(pwd)
           echo "Bundle dir: ${BUNDLE_DIR}"
           cd ..
-          SCRIPT=../../../Scripts/Bundle_${{ matrix.os }}.sh
+          SCRIPT=../../../Scripts/Bundle_${{ steps.publish.outputs.display_os }}.sh
           chmod +rx ${SCRIPT}
           ${SCRIPT} "${BUNDLE_DIR}" "${{ steps.get_version.outputs.version }}" "${{ matrix.arch }}"
           artifact=$(ls ./bundle)
           echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
-          
       - name: Publish bundle
         uses: actions/upload-artifact@v3
         with:

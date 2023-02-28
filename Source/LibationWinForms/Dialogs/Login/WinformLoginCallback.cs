@@ -10,25 +10,27 @@ namespace LibationWinForms.Login
 	{
 		private Account _account { get; }
 
+		public string DeviceName { get; } = "Libation";
+
 		public WinformLoginCallback(Account account)
 		{
 			_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
 		}
 
-		public Task<string> Get2faCodeAsync()
+		public Task<string> Get2faCodeAsync(string prompt)
 		{
-			using var dialog = new _2faCodeDialog();
+			using var dialog = new _2faCodeDialog(prompt);
 			if (ShowDialog(dialog))
 				return Task.FromResult(dialog.Code);
 			return Task.FromResult<string>(null);
 		}
 
-		public Task<string> GetCaptchaAnswerAsync(byte[] captchaImage)
+		public Task<(string password, string guess)> GetCaptchaAnswerAsync(string password, byte[] captchaImage)
 		{
-			using var dialog = new CaptchaDialog(captchaImage);
+			using var dialog = new CaptchaDialog(password, captchaImage);
 			if (ShowDialog(dialog))
-				return Task.FromResult(dialog.Answer);
-			return Task.FromResult<string>(null);
+				return Task.FromResult((dialog.Password, dialog.Answer));
+			return Task.FromResult<(string, string)>((null,null));
 		}
 
 		public Task<(string name, string value)> GetMfaChoiceAsync(MfaConfig mfaConfig)

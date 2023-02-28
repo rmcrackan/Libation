@@ -88,38 +88,27 @@ cp $FOLDER_EXEC/Libation.desktop $FOLDER_DESKTOP/Libation.desktop
 
 echo "Creating pre-install file..."
 echo "#!/bin/bash
-
 # Pre-install script, removes previous installation program files and sym links
-
 echo \"Removing previously created symlinks...\"
-
 rm /usr/bin/libation
 rm /usr/bin/hangover
 rm /usr/bin/libationcli
-
 echo \"Removing previously installed Libation files...\"
-
 rm -r /usr/lib/libation
-
 # making sure it won't stop installation
 exit 0
 " >> $FOLDER_DEBIAN/preinst
 
 echo "Creating post-install file..."
 echo "#!/bin/bash
-
 gtk-update-icon-cache -f /usr/share/icons/hicolor/
-
 ln -s /usr/lib/libation/Libation /usr/bin/libation
 ln -s /usr/lib/libation/Hangover /usr/bin/hangover
 ln -s /usr/lib/libation/LibationCli /usr/bin/libationcli
-
 # Increase the maximum number of inotify instances
-
-if ! grep -q 'fs.inotify.max_user_instances=524288' /etc/sysctl.conf; then  
+if ! grep -q 'fs.inotify.max_user_instances=524288' /etc/sysctl.conf; then
   echo fs.inotify.max_user_instances=524288 | tee -a /etc/sysctl.conf && sysctl -p
 fi
-
 # workaround until this file is moved to the user's home directory
 touch /usr/lib/libation/appsettings.json
 chmod 666 /usr/lib/libation/appsettings.json
@@ -138,6 +127,11 @@ Description: liberate your audiobooks
 echo "Changing permissions for pre- and post-install files..."
 chmod +x "$FOLDER_DEBIAN/preinst"
 chmod +x "$FOLDER_DEBIAN/postinst"
+
+if [ "$(uname -s)" == "Darwin" ]; then
+  echo "macOS detected, installing dpkg"
+  brew install dpkg
+fi
 
 DEB_FILE=Libation.${VERSION}-linux-chardonnay-${ARCH}.deb
 echo "Creating $DEB_FILE"

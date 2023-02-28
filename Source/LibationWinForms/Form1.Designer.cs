@@ -71,7 +71,9 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.visibleCountLbl = new LibationWinForms.FormattableToolStripStatusLabel();
+			this.upgradePb = new System.Windows.Forms.ToolStripProgressBar();
+			this.upgradeLbl = new System.Windows.Forms.ToolStripStatusLabel();
+			this.visibleCountLbl = new LibationWinForms.FormattableToolStripStatusLabel();
             this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.pdfsCountsLbl = new LibationWinForms.FormattableToolStripStatusLabel();
@@ -418,7 +420,9 @@
             // 
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(40, 40);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.visibleCountLbl,
+			this.upgradeLbl,
+            this.upgradePb,
+			this.visibleCountLbl,
             this.springLbl,
             this.backupsCountsLbl,
             this.pdfsCountsLbl});
@@ -429,10 +433,21 @@
             this.statusStrip1.Size = new System.Drawing.Size(1025, 22);
             this.statusStrip1.TabIndex = 6;
             this.statusStrip1.Text = "statusStrip1";
-            // 
-            // visibleCountLbl
-            // 
-            this.visibleCountLbl.FormatText = "Visible: {0}";
+			// 
+			// upgradePb
+			// 
+			this.upgradePb.Name = "upgradePb";
+			this.upgradePb.Size = new System.Drawing.Size(100, 16);
+			// 
+			// upgradeLbl
+			// 
+			this.upgradeLbl.Name = "upgradeLbl";
+			this.upgradeLbl.Size = new System.Drawing.Size(66, 17);
+			this.upgradeLbl.Text = "Upgrading:";
+			// 
+			// visibleCountLbl
+			// 
+			this.visibleCountLbl.FormatText = "Visible: {0}";
             this.visibleCountLbl.Name = "visibleCountLbl";
             this.visibleCountLbl.Size = new System.Drawing.Size(61, 17);
             this.visibleCountLbl.Text = "Visible: {0}";
@@ -671,5 +686,7 @@
 		private System.Windows.Forms.Button removeBooksBtn;
 		private System.Windows.Forms.Button doneRemovingBtn;
         private System.Windows.Forms.ToolStripMenuItem setPdfDownloadedManualToolStripMenuItem;
-    }
+        private System.Windows.Forms.ToolStripProgressBar upgradePb;
+		private System.Windows.Forms.ToolStripStatusLabel upgradeLbl;
+	}
 }

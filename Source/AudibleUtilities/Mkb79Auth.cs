@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AudibleApi;
 using AudibleApi.Authorization;
+using AudibleApi.Cryptography;
 using Dinah.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -178,7 +179,7 @@ namespace AudibleUtilities
 				LocaleCode = account.Locale.CountryCode,
 				RefreshToken = account.IdentityTokens.RefreshToken.Value,				
 				StoreAuthenticationCookie = account.IdentityTokens.StoreAuthenticationCookie,
-				WebsiteCookies = new(account.IdentityTokens.Cookies.ToKeyValuePair()),
+				WebsiteCookies = new(account.IdentityTokens.Cookies),
 			};
 	}
 

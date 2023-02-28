@@ -3,7 +3,6 @@ using Dinah.Core.Net.Http;
 using Dinah.Core.StepRunner;
 using FileManager;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -225,6 +224,7 @@ namespace AaxDecrypter
 			}
 			finally
 			{
+				nfsp.NetworkFileStream.RequestHeaders["User-Agent"] = DownloadOptions.UserAgent;
 				nfsp.NetworkFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
 			}
 

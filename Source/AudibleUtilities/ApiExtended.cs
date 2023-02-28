@@ -39,42 +39,6 @@ namespace AudibleUtilities
 			return new ApiExtended(api);
 		}
 
-		/// <summary>Get api from existing tokens else login with native api callbacks.</summary>
-		public static async Task<ApiExtended> CreateAsync(Account account, ILoginCallback loginCallback)
-		{
-			Serilog.Log.Logger.Information("{@DebugInfo}", new
-			{
-				LoginType = nameof(ILoginCallback),
-				Account = account?.MaskedLogEntry ?? "[null]",
-				LocaleName = account?.Locale?.Name
-			});
-
-			var api = await EzApiCreator.GetApiAsync(
-				loginCallback,
-				account.Locale,
-				AudibleApiStorage.AccountsSettingsFile,
-				account.GetIdentityTokensJsonPath());
-			return new ApiExtended(api);
-		}
-
-		/// <summary>Get api from existing tokens else login with external browser</summary>
-		public static async Task<ApiExtended> CreateAsync(Account account, ILoginExternal loginExternal)
-		{
-			Serilog.Log.Logger.Information("{@DebugInfo}", new
-			{
-				LoginType = nameof(ILoginExternal),
-				Account = account?.MaskedLogEntry ?? "[null]",
-				LocaleName = account?.Locale?.Name
-			});
-
-			var api = await EzApiCreator.GetApiAsync(
-				loginExternal,
-				account.Locale,
-				AudibleApiStorage.AccountsSettingsFile,
-				account.GetIdentityTokensJsonPath());
-			return new ApiExtended(api);
-		}
-
 		/// <summary>Get api from existing tokens. Assumes you have valid login tokens. Else exception</summary>
 		public static async Task<ApiExtended> CreateAsync(Account account)
 		{

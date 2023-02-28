@@ -51,6 +51,7 @@ namespace LibationWinForms
 			Configure_Settings();
 			Configure_ProcessQueue();
 			Configure_Filter();
+			Configure_Upgrade();
 			// misc which belongs in winforms app but doesn't have a UI element
 			Configure_NonUI();
 

@@ -23,12 +23,12 @@ namespace LinuxConfigApp
 		public void SetFolderIcon(string image, string directory) => throw new PlatformNotSupportedException();
 		public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 
-		//only run the auto updater if the current app was installed from the
+		//only run the auto upgrader if the current app was installed from the
 		//.deb package. Try to detect this by checking if the symlink exists.
-		public bool CanUpdate => Directory.Exists("/usr/lib/libation");
-		public void InstallUpdate(string updateBundle)
+		public bool CanUpgrade => Directory.Exists("/usr/lib/libation");
+		public void InstallUpgrade(string upgradeBundle)
 		{
-			RunAsRoot("apt", $"install '{updateBundle}'");
+			RunAsRoot("apt", $"install '{upgradeBundle}'");
 		}
 
 		public Process RunAsRoot(string exe, string args)

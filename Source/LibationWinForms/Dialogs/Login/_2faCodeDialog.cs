@@ -8,9 +8,10 @@ namespace LibationWinForms.Dialogs.Login
 	{
 		public string Code { get; private set; }
 
-		public _2faCodeDialog()
+		public _2faCodeDialog() => InitializeComponent();
+		public _2faCodeDialog(string prompt) : this()
 		{
-			InitializeComponent();
+			promptLbl.Text = prompt;
 		}
 
 		private void submitBtn_Click(object sender, EventArgs e)

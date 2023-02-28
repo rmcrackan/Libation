@@ -11,11 +11,13 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using ApplicationServices;
+using Avalonia.Controls;
 
 namespace LibationAvalonia
 {
 	public class App : Application
 	{
+		public static Window MainWindow { get;private set; }
 		public static IBrush ProcessQueueBookFailedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCompletedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
@@ -213,7 +215,7 @@ namespace LibationAvalonia
 		private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)
 		{
 			var mainWindow = new MainWindow();
-			desktop.MainWindow = mainWindow;
+			desktop.MainWindow = MainWindow = mainWindow;
 			mainWindow.RestoreSizeAndLocation(Configuration.Instance);
 			mainWindow.OnLoad();
 			mainWindow.OnLibraryLoaded(LibraryTask.GetAwaiter().GetResult());

@@ -13,19 +13,12 @@
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-		<StartupObject />
 		<IsPublishable>true</IsPublishable>
 		<!-- Version is now in AppScaffolding.csproj -->
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<!--
-    HACK FOR COMPILER BUG  2021-09-14. Hopefully will be fixed in future versions
-    - Not using SatelliteResourceLanguages will load all language packs: works
-    - Specifying 'en' semicolon 1 more should load 1 language pack: works
-    - Specifying only 'en' should load no language packs: broken, still loads all
-    -->
-		<SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -44,7 +37,6 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Autoupdater.NET.Official" Version="1.7.6" />
 		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="7.2.2.1" />
 	</ItemGroup>
 

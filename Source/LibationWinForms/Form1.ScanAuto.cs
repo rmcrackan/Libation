@@ -17,11 +17,8 @@ namespace LibationWinForms
 		private void Configure_ScanAuto()
         {
 			// creating InterruptableTimer inside 'Configure_' is a break from the pattern. As long as no one else needs to access or subscribe to it, this is ok
-			var hours = 0;
-			var minutes = 5;
-			var seconds = 0;
-			var _5_minutes = new TimeSpan(hours, minutes, seconds);
-			autoScanTimer = new InterruptableTimer(_5_minutes);
+
+			autoScanTimer = new InterruptableTimer(TimeSpan.FromMinutes(5));
 
 			// subscribe as async/non-blocking. I'd actually rather prefer blocking but real-world testing found that caused a deadlock in the AudibleAPI
 			autoScanTimer.Elapsed += async (_, __) =>
@@ -50,7 +47,7 @@ namespace LibationWinForms
 			// load init state to menu checkbox
 			Load += updateAutoScanLibraryToolStripMenuItem;
 			// if enabled: begin on load
-			Load += startAutoScan;
+			Shown += startAutoScan;
 
 			// if new 'default' account is added, run autoscan
 			AccountsSettingsPersister.Saving += accountsPreSave;

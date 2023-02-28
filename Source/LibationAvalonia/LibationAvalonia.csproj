@@ -4,8 +4,6 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net7.0</TargetFramework>
-		<!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
-		<TrimMode>copyused</TrimMode>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<ApplicationIcon>libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
@@ -17,13 +15,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<!--
-    HACK FOR COMPILER BUG  2021-09-14. Hopefully will be fixed in future versions
-    - Not using SatelliteResourceLanguages will load all language packs: works
-    - Specifying 'en' semicolon 1 more should load 1 language pack: works
-    - Specifying only 'en' should load no language packs: broken, still loads all
-    -->
-		<SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -109,7 +101,7 @@
 		<PackageReference Include="Avalonia.Diagnostics" Version="11.0.0-preview4 " />
 		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview4" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview4" />
-		<PackageReference Include="XamlNameReferenceGenerator" Version="1.5.1" />
+		<PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
 	</ItemGroup>
 
 	<ItemGroup>

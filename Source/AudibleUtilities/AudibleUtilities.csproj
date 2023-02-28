@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AudibleApi" Version="8.0.0.1" />
+    <PackageReference Include="AudibleApi" Version="8.1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -13,15 +13,15 @@ namespace MacOSConfigApp
         public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 
 		//I haven't figured out how to find the app bundle's directory from within
-		//the running process, so don't update unless it's "installed" in /Applications
-		public bool CanUpdate => Directory.Exists(AppPath);
+		//the running process, so don't upgrade unless it's "installed" in /Applications
+		public bool CanUpgrade => Directory.Exists(AppPath);
 
-		public void InstallUpdate(string updateBundle)
+		public void InstallUpgrade(string upgradeBundle)
 		{
-			Serilog.Log.Information($"Extracting update bundle to {AppPath}");
+			Serilog.Log.Information($"Extracting upgrade bundle to {AppPath}");
 
 			//tar wil overwrite existing without elevated privileges
-			Process.Start("tar", $"-xf \"{updateBundle}\" -C \"/Applications\"").WaitForExit();
+			Process.Start("tar", $"-xf \"{upgradeBundle}\" -C \"/Applications\"").WaitForExit();
 			
 			//For now, it seems like this step is unnecessary. We can overwrite and
 			//run Libation without needing to re-add the exception. This is insurance.

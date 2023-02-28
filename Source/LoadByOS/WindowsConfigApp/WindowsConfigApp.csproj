@@ -2,24 +2,15 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
     <PublishReadyToRun>true</PublishReadyToRun>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup>
-    <!--
-    HACK FOR COMPILER BUG  2021-09-14. Hopefully will be fixed in future versions
-    - Not using SatelliteResourceLanguages will load all language packs: works
-    - Specifying 'en' semicolon 1 more should load 1 language pack: works
-    - Specifying only 'en' should load no language packs: broken, still loads all
-    -->
-    <SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -33,11 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core.WindowsDesktop" Version="7.2.2.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\AppScaffolding\AppScaffolding.csproj" />
+    <ProjectReference Include="..\..\LibationUiBase\LibationUiBase.csproj" />
   </ItemGroup>
 
   <ItemGroup>

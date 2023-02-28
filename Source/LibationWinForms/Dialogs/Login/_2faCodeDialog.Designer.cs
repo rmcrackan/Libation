@@ -28,62 +28,77 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.submitBtn = new System.Windows.Forms.Button();
-			this.codeTb = new System.Windows.Forms.TextBox();
-			this.label1 = new System.Windows.Forms.Label();
-			this.SuspendLayout();
+			submitBtn = new System.Windows.Forms.Button();
+			codeTb = new System.Windows.Forms.TextBox();
+			label1 = new System.Windows.Forms.Label();
+			promptLbl = new System.Windows.Forms.Label();
+			SuspendLayout();
 			// 
 			// submitBtn
 			// 
-			this.submitBtn.Location = new System.Drawing.Point(15, 51);
-			this.submitBtn.Name = "SaveBtn";
-			this.submitBtn.Size = new System.Drawing.Size(79, 23);
-			this.submitBtn.TabIndex = 1;
-			this.submitBtn.Text = "Submit";
-			this.submitBtn.UseVisualStyleBackColor = true;
-			this.submitBtn.Click += new System.EventHandler(this.submitBtn_Click);
+			submitBtn.Location = new System.Drawing.Point(18, 108);
+			submitBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			submitBtn.Name = "submitBtn";
+			submitBtn.Size = new System.Drawing.Size(191, 27);
+			submitBtn.TabIndex = 1;
+			submitBtn.Text = "Submit";
+			submitBtn.UseVisualStyleBackColor = true;
+			submitBtn.Click += submitBtn_Click;
 			// 
 			// codeTb
 			// 
-			this.codeTb.Location = new System.Drawing.Point(15, 25);
-			this.codeTb.Name = "newTagsTb";
-			this.codeTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.codeTb.Size = new System.Drawing.Size(79, 20);
-			this.codeTb.TabIndex = 0;
+			codeTb.Location = new System.Drawing.Point(108, 79);
+			codeTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			codeTb.Name = "codeTb";
+			codeTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			codeTb.Size = new System.Drawing.Size(101, 23);
+			codeTb.TabIndex = 0;
 			// 
 			// label1
 			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(12, 9);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(82, 13);
-			this.label1.TabIndex = 2;
-			this.label1.Text = "Enter 2FA Code";
+			label1.AutoSize = true;
+			label1.Location = new System.Drawing.Point(13, 82);
+			label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(87, 15);
+			label1.TabIndex = 2;
+			label1.Text = "Enter 2FA Code";
+			// 
+			// promptLbl
+			// 
+			promptLbl.Location = new System.Drawing.Point(13, 9);
+			promptLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			promptLbl.Name = "promptLbl";
+			promptLbl.Size = new System.Drawing.Size(196, 59);
+			promptLbl.TabIndex = 2;
+			promptLbl.Text = "[Prompt]";
 			// 
 			// _2faCodeDialog
 			// 
-			this.AcceptButton = this.submitBtn;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(106, 86);
-			this.Controls.Add(this.label1);
-			this.Controls.Add(this.codeTb);
-			this.Controls.Add(this.submitBtn);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
-			this.Name = "_2faCodeDialog";
-			this.ShowIcon = false;
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "2FA Code";
-			this.ResumeLayout(false);
-			this.PerformLayout();
-
+			AcceptButton = submitBtn;
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			ClientSize = new System.Drawing.Size(222, 147);
+			Controls.Add(promptLbl);
+			Controls.Add(label1);
+			Controls.Add(codeTb);
+			Controls.Add(submitBtn);
+			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			MaximizeBox = false;
+			MinimizeBox = false;
+			Name = "_2faCodeDialog";
+			ShowIcon = false;
+			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			Text = "2FA Code";
+			ResumeLayout(false);
+			PerformLayout();
 		}
 
 		#endregion
 		private System.Windows.Forms.Button submitBtn;
 		private System.Windows.Forms.TextBox codeTb;
 		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Label promptLbl;
 	}
 }

@@ -36,6 +36,7 @@
 								Width="60"
 								Height="30"
 								Content="X"
+								HorizontalContentAlignment="Center"
 								IsEnabled="{Binding !IsDefault}"
 								Click="DeleteButton_Clicked" />
 
