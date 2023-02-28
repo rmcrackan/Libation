@@ -24,7 +24,7 @@ namespace LibationAvalonia.Views
 			upgrader.DownloadBegin += async (_, _) => await Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(true));
 			upgrader.DownloadCompleted += async (_, _) => await Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(false));
 
-			Opened += async (_, _) => await upgrader.CheForUpgradeAsync(upgradeAvailable);
+			Opened += async (_, _) => await upgrader.CheckForUpgradeAsync(upgradeAvailable);
 #endif
 		}
 

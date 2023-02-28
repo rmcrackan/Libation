@@ -3,6 +3,7 @@ using System.Diagnostics;
 using LibationFileManager;
 using System.IO;
 using System;
+using Dinah.Core;
 
 namespace WindowsConfigApp
 {
@@ -42,7 +43,10 @@ namespace WindowsConfigApp
 
 			File.Copy("ZipExtractor.exe", zipExtractor, overwrite: true);
 
-			RunAsRoot(zipExtractor, $"--input \"{upgradeBundle}\" --output \"{thisDir}\" --executable \"{thisExe}\"");
+			RunAsRoot(zipExtractor,
+                $"--input {upgradeBundle.SurroundWithQuotes()} " +
+                $"--output {thisDir.SurroundWithQuotes()} " +
+                $"--executable {thisExe.SurroundWithQuotes()}");
 		}
 
 		public Process RunAsRoot(string exe, string args)

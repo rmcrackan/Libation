@@ -25,7 +25,7 @@ namespace LibationWinForms
 			upgrader.DownloadBegin += (_, _) => Invoke(() => setProgressVisible(true));
 			upgrader.DownloadCompleted += (_, _) => Invoke(() => setProgressVisible(false));
 
-			Shown += async (_, _) => await upgrader.CheForUpgradeAsync(upgradeAvailable);
+			Shown += async (_, _) => await upgrader.CheckForUpgradeAsync(upgradeAvailable);
 #endif
 		}
 
