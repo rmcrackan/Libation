@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using DataLayer;
@@ -16,9 +17,8 @@ namespace LibationAvalonia.ViewModels
 	public class ProcessQueueViewModel : ViewModelBase, ILogForm
 	{
 		public ObservableCollection<LogEntry> LogEntries { get; } = new();
-		public TrackedQueue<ProcessBookViewModel> Items { get; } = new();
-
-		private TrackedQueue<ProcessBookViewModel> Queue => Items;
+		public AvaloniaList<ProcessBookViewModel> Items { get; } = new();
+		public TrackedQueue<ProcessBookViewModel> Queue { get; }
 		public ProcessBookViewModel SelectedItem { get; set; }
 		public Task QueueRunner { get; private set; }
 		public bool Running => !QueueRunner?.IsCompleted ?? false;
@@ -28,6 +28,7 @@ namespace LibationAvalonia.ViewModels
 		public ProcessQueueViewModel()
 		{
 			Logger = LogMe.RegisterForm(this);
+			Queue = new(Items);
 			Queue.QueuededCountChanged += Queue_QueuededCountChanged;
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 
@@ -88,19 +89,19 @@ namespace LibationAvalonia.ViewModels
 
 		public decimal SpeedLimitIncrement { get; private set; }
 
-		private void Queue_CompletedCountChanged(object sender, int e)
+		private async void Queue_CompletedCountChanged(object sender, int e)
 		{
 			int errCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.FailedAbort or ProcessBookResult.FailedSkip or ProcessBookResult.FailedRetry or ProcessBookResult.ValidationFail);
 			int completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
 
 			ErrorCount = errCount;
 			CompletedCount = completeCount;
-			Dispatcher.UIThread.Post(() => this.RaisePropertyChanged(nameof(Progress)));
+			await Dispatcher.UIThread.InvokeAsync(() => this.RaisePropertyChanged(nameof(Progress)));
 		}
-		private void Queue_QueuededCountChanged(object sender, int cueCount)
+		private async void Queue_QueuededCountChanged(object sender, int cueCount)
 		{
 			QueuedCount = cueCount;
-			Dispatcher.UIThread.Post(() => this.RaisePropertyChanged(nameof(Progress)));
+			await Dispatcher.UIThread.InvokeAsync(() => this.RaisePropertyChanged(nameof(Progress)));
 		}
 
 		public void WriteLine(string text)

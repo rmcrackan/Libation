@@ -15,7 +15,7 @@ namespace LibationAvalonia.Views
 {
 	public partial class ProcessQueueControl : UserControl
     {
-		private TrackedQueue<ProcessBookViewModel> Queue => _viewModel.Items;
+		private TrackedQueue<ProcessBookViewModel> Queue => _viewModel.Queue;
 		private ProcessQueueViewModel _viewModel => DataContext as ProcessQueueViewModel;
 
 		public ProcessQueueControl()
@@ -76,14 +76,14 @@ namespace LibationAvalonia.Views
 					},
 				};
 
-				vm.Items.Enqueue(testList);
-				vm.Items.MoveNext();
-				vm.Items.MoveNext();
-				vm.Items.MoveNext();
-				vm.Items.MoveNext();
-				vm.Items.MoveNext();
-				vm.Items.MoveNext();
-				vm.Items.MoveNext();
+				vm.Queue.Enqueue(testList);
+				vm.Queue.MoveNext();
+				vm.Queue.MoveNext();
+				vm.Queue.MoveNext();
+				vm.Queue.MoveNext();
+				vm.Queue.MoveNext();
+				vm.Queue.MoveNext();
+				vm.Queue.MoveNext();
 				return;
 			}
 			#endregion

@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LibationWinForms.ProcessQueue
+namespace LibationUiBase
 {
 	public enum QueuePosition
 	{
 		Fisrt,
 		OneUp,
 		OneDown,
-		Last
+		Last,
 	}
 
 	/*
@@ -22,11 +22,21 @@ namespace LibationWinForms.ProcessQueue
 	 *   
 	 * The index is the link position from the first link you lifted to the
 	 * last one in the chain.
+	 * 
+	 * 
+	 * For this to work with Avalonia's ItemsRepeater, it must be an ObservableCollection
+	 * (not merely a Collection with INotifyCollectionChanged, INotifyPropertyChanged). 
+	 * So TrackedQueue maintains 2 copies of the list. The primary copy of the list is
+	 * split into Completed, Current and Queued and is used by ProcessQueue to keep track
+	 * of what's what. The secondary copy is a concatenation of primary's three sources
+	 * and is stored in ObservableCollection.Items.  When the primary list changes, the
+	 * secondary list is cleared and reset to match the primary. 
 	 */
 	public class TrackedQueue<T> where T : class
 	{
 		public event EventHandler<int> CompletedCountChanged;
 		public event EventHandler<int> QueuededCountChanged;
+
 		public T Current { get; private set; }
 
 		public IReadOnlyList<T> Queued => _queued;
@@ -35,6 +45,13 @@ namespace LibationWinForms.ProcessQueue
 		private readonly List<T> _queued = new();
 		private readonly List<T> _completed = new();
 		private readonly object lockObject = new();
+
+		private readonly ICollection<T> _underlyingList;
+
+		public TrackedQueue(ICollection<T> underlyingList = null)
+		{
+			_underlyingList = underlyingList;
+		}
 
 		public T this[int index]
 		{
@@ -95,7 +112,10 @@ namespace LibationWinForms.ProcessQueue
 			}
 
 			if (itemsRemoved)
+			{
 				QueuededCountChanged?.Invoke(this, queuedCount);
+				RebuildSecondary();
+			}
 			return itemsRemoved;
 		}
 
@@ -103,6 +123,7 @@ namespace LibationWinForms.ProcessQueue
 		{
 			lock(lockObject)
 				Current = null;
+			RebuildSecondary();
 		}
 		
 		public bool RemoveCompleted(T item)
@@ -117,7 +138,10 @@ namespace LibationWinForms.ProcessQueue
 			}
 
 			if (itemsRemoved)
+			{
 				CompletedCountChanged?.Invoke(this, completedCount);
+				RebuildSecondary();
+			}
 			return itemsRemoved;
 		}
 
@@ -126,6 +150,7 @@ namespace LibationWinForms.ProcessQueue
 			lock (lockObject)
 				_queued.Clear();
 			QueuededCountChanged?.Invoke(this, 0);
+			RebuildSecondary();
 		}
 
 		public void ClearCompleted()
@@ -133,6 +158,7 @@ namespace LibationWinForms.ProcessQueue
 			lock (lockObject)
 				_completed.Clear();
 			CompletedCountChanged?.Invoke(this, 0);
+			RebuildSecondary();
 		}
 
 		public bool Any(Func<T, bool> predicate)
@@ -177,6 +203,7 @@ namespace LibationWinForms.ProcessQueue
 					_queued.Insert(_queued.Count, item);
 				}
 			}
+			RebuildSecondary();
 		}
 
 		public bool MoveNext()
@@ -210,29 +237,7 @@ namespace LibationWinForms.ProcessQueue
 				if (completedChanged)
 					CompletedCountChanged?.Invoke(this, completedCount);
 				QueuededCountChanged?.Invoke(this, queuedCount);
-			}
-		}
-
-		public bool TryPeek(out T item)
-		{
-			lock (lockObject)
-			{
-				if (_queued.Count == 0)
-				{
-					item = null;
-					return false;
-				}
-				item = _queued[0];
-				return true;
-			}
-		}
-
-		public T Peek()
-		{
-			lock (lockObject)
-			{
-				if (_queued.Count == 0) throw new InvalidOperationException("Queue empty");
-				return _queued.Count > 0 ? _queued[0] : default;
+				RebuildSecondary();
 			}
 		}
 
@@ -244,7 +249,22 @@ namespace LibationWinForms.ProcessQueue
 				_queued.AddRange(item);
 				queueCount = _queued.Count;
 			}
+			foreach (var i in item)
+				_underlyingList?.Add(i);
 			QueuededCountChanged?.Invoke(this, queueCount);
+		}
+
+		private void RebuildSecondary()
+		{
+			_underlyingList?.Clear();
+			foreach (var item in GetAllItems())
+				_underlyingList?.Add(item);
+		}
+
+		public IEnumerable<T> GetAllItems()
+		{
+			if (Current is null) return Completed.Concat(Queued);
+			return Completed.Concat(new List<T> { Current }).Concat(Queued);
 		}
 	}
 }
