@@ -369,8 +369,10 @@ namespace ApplicationServices
 
                     if (rating is not null)
                         udi.UpdateRating(rating.OverallRating, rating.PerformanceRating, rating.StoryRating);
-                });
+				});
 
+        public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus, Version libationVersion)
+            => book.UpdateUserDefinedItem(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion); });
         public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus)
             => book.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
         public static int UpdateBookStatus(this IEnumerable<Book> books, LiberatedStatus bookStatus)

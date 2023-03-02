@@ -80,7 +80,7 @@ namespace FileLiberator
                 {
 					Task.Run(() => downloadCoverArt(libraryBook)),
 					Task.Run(() => moveFilesToBooksDir(libraryBook, entries)),
-					Task.Run(() => libraryBook.Book.UpdateBookStatus(LiberatedStatus.Liberated)),
+					Task.Run(() => libraryBook.Book.UpdateBookStatus(LiberatedStatus.Liberated, Configuration.LibationVersion)),
 					Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(libraryBook.Book.PictureId, finalStorageDir))
 				};
 
