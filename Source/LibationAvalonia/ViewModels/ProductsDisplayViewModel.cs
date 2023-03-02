@@ -337,10 +337,10 @@ namespace LibationAvalonia.ViewModels
 			if (selectedBooks.Count == 0)
 				return;
 
-			var libraryBooks = selectedBooks.Select(rge => rge.LibraryBook).ToList();
+			var booksToRemove = selectedBooks.Select(rge => rge.LibraryBook).ToList();
 			var result = await MessageBox.ShowConfirmationDialog(
 				null,
-				libraryBooks,
+				booksToRemove,
 				// do not use `$` string interpolation. See impl.
 				"Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?");
@@ -350,8 +350,6 @@ namespace LibationAvalonia.ViewModels
 
 			foreach (var book in selectedBooks)
 				book.PropertyChanged -= GridEntry_PropertyChanged;
-
-			var idsToRemove = libraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
 
 			void BindingList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 			{
@@ -371,7 +369,7 @@ namespace LibationAvalonia.ViewModels
 
 			//The RemoveBooksAsync will fire LibrarySizeChanged, which calls ProductsDisplay2.Display(),
 			//so there's no need to remove books from the grid display here.
-			var removeLibraryBooks = await LibraryCommands.RemoveBooksAsync(idsToRemove);
+			await booksToRemove.RemoveBooksAsync();
 
 			RemovableCountChanged?.Invoke(this, 0);
 		}

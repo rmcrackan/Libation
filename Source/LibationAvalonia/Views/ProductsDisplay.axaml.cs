@@ -102,7 +102,7 @@ namespace LibationAvalonia.Views
                 setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
                 var removeMenuItem = new MenuItem() { Header = "_Remove from library" };
-				removeMenuItem.Click += async (_, __) => await Task.Run(() => LibraryCommands.RemoveBook(entry.AudibleProductId));
+				removeMenuItem.Click += async (_, __) => await Task.Run(entry.LibraryBook.RemoveBook);
 
 				var locateFileMenuItem = new MenuItem() { Header = "_Locate file..." };
                 locateFileMenuItem.Click += async (_, __) =>

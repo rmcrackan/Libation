@@ -168,11 +168,8 @@ namespace LibationWinForms
                 "Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?");
 
-			if (confirmationResult != DialogResult.Yes)
-				return;
-
-			var visibleIds = visibleLibraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
-			await LibraryCommands.RemoveBooksAsync(visibleIds);
+			if (confirmationResult is DialogResult.Yes)
+				await visibleLibraryBooks.RemoveBooksAsync();
 		}
 
 		private async void productsDisplay_VisibleCountChanged(object sender, int qty)

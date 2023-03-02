@@ -1,4 +1,5 @@
 ﻿using AudibleUtilities;
+using LibationAvalonia.Dialogs;
 using System;
 using System.Linq;
 
@@ -13,6 +14,12 @@ namespace LibationAvalonia.Views
 				return;
 
 			_viewModel.RemoveButtonsVisible = false;
+		}
+
+		public async void openTrashBinToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			var trash = new TrashBinDialog();
+			await trash.ShowDialog(this);
 		}
 
 		public void removeLibraryBooksToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

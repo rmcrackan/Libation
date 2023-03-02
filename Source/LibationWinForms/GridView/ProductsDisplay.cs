@@ -107,9 +107,9 @@ namespace LibationWinForms.GridView
 			if (selectedBooks.Count == 0)
 				return;
 
-			var libraryBooks = selectedBooks.Select(rge => rge.LibraryBook).ToList();
+			var booksToRemove = selectedBooks.Select(rge => rge.LibraryBook).ToList();
 			var result = MessageBoxLib.ShowConfirmationDialog(
-				libraryBooks,
+				booksToRemove,
                 // do not use `$` string interpolation. See impl.
                 "Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?");
@@ -118,8 +118,7 @@ namespace LibationWinForms.GridView
 				return;
 
 			productsGrid.RemoveBooks(selectedBooks);
-			var idsToRemove = libraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
-			var removeLibraryBooks = await LibraryCommands.RemoveBooksAsync(idsToRemove);
+			await booksToRemove.RemoveBooksAsync();
 		}
 
 		public async Task ScanAndRemoveBooksAsync(params Account[] accounts)

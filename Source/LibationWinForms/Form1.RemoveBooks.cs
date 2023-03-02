@@ -16,6 +16,9 @@ namespace LibationWinForms
 		private async void removeBooksBtn_Click(object sender, EventArgs e)
 			=> await productsDisplay.RemoveCheckedBooksAsync();
 
+		private void openTrashBinToolStripMenuItem_Click(object sender, EventArgs e)
+			=> new TrashBinDialog().ShowDialog(this);
+
 		private void doneRemovingBtn_Click(object sender, EventArgs e)
 		{
 			removeBooksBtn.Visible = false;
