@@ -14,6 +14,12 @@ namespace LibationAvalonia.ViewModels
 		public static IEnumerable<SeriesEntry> SeriesEntries(this IEnumerable<GridEntry> gridEntries)
 			=> gridEntries.OfType<SeriesEntry>();
 
+		public static T? FindByAsin<T>(this IEnumerable<T> gridEntries, string audibleProductID) where T : GridEntry
+			=> gridEntries.FirstOrDefault(i => i.AudibleProductId == audibleProductID);
+
+		public static IEnumerable<SeriesEntry> EmptySeries(this IEnumerable<GridEntry> gridEntries)
+			=> gridEntries.SeriesEntries().Where(i => i.Children.Count == 0);
+
 		public static SeriesEntry? FindSeriesParent(this IEnumerable<GridEntry> gridEntries, LibraryBook seriesEpisode)
 		{
 			if (seriesEpisode.Book.SeriesLink is null) return null;

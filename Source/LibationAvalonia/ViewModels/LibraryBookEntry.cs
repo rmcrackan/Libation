@@ -58,8 +58,22 @@ namespace LibationAvalonia.ViewModels
 
 		public LibraryBookEntry(LibraryBook libraryBook)
 		{
-			LibraryBook = libraryBook;
+			setLibraryBook(libraryBook);
 			LoadCover();
+		}
+
+		public void UpdateLibraryBook(LibraryBook libraryBook)
+		{
+			if (AudibleProductId != libraryBook.Book.AudibleProductId)
+				throw new Exception("Invalid grid entry update. IDs must match");
+
+			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
+			setLibraryBook(libraryBook);
+		}
+
+		private void setLibraryBook(LibraryBook libraryBook)
+		{
+			LibraryBook = libraryBook;
 
 			Title = Book.Title;
 			Series = Book.SeriesNames();
@@ -77,6 +91,7 @@ namespace LibationAvalonia.ViewModels
 			Description = TrimTextToWord(LongDescription, 62);
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 
+			this.RaisePropertyChanged(nameof(MyRating));
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 

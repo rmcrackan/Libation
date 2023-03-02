@@ -44,7 +44,7 @@ namespace LibationAvalonia.Views
 				};
 
 				var pdvm = new ProductsDisplayViewModel();
-				_ = pdvm.DisplayBooksAsync(sampleEntries);
+				pdvm.BindToGrid(sampleEntries);
 				DataContext = pdvm;
 
 				return;

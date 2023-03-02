@@ -56,14 +56,35 @@ namespace LibationAvalonia.ViewModels
 		{
 			Liberate = new LiberateButtonStatus(IsSeries);
 			SeriesIndex = -1;
-			LibraryBook = parent;
-
-			LoadCover();
 
 			Children = children
 				.Select(c => new LibraryBookEntry(c) { Parent = this })
 				.OrderBy(c => c.SeriesIndex)
 				.ToList();
+
+			setLibraryBook(parent);
+			LoadCover();
+		}
+
+		public void RemoveChild(LibraryBookEntry lbe)
+		{
+			Children.Remove(lbe);
+			PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
+			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
+			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
+		}
+
+		public void UpdateLibraryBook(LibraryBook libraryBook)
+		{
+			if (AudibleProductId != libraryBook.Book.AudibleProductId)
+				throw new Exception("Invalid grid entry update. IDs must match");
+
+			setLibraryBook(libraryBook);
+		}
+
+		private void setLibraryBook(LibraryBook libraryBook)
+		{
+			LibraryBook = libraryBook;
 
 			Title = Book.Title;
 			Series = Book.SeriesNames();
@@ -81,6 +102,8 @@ namespace LibationAvalonia.ViewModels
 			PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
 			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
+
+			this.RaisePropertyChanged(nameof(MyRating));
 		}
 
 
