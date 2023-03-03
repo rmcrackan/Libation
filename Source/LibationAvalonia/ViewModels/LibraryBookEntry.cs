@@ -87,6 +87,7 @@ namespace LibationAvalonia.ViewModels
 			Narrators = Book.NarratorNames();
 			Category = string.Join(" > ", Book.CategoriesNames());
 			Misc = GetMiscDisplay(libraryBook);
+			LastDownload = new(Book.UserDefinedItem);
 			LongDescription = GetDescriptionDisplay(Book);
 			Description = TrimTextToWord(LongDescription, 62);
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
@@ -127,6 +128,10 @@ namespace LibationAvalonia.ViewModels
 					_pdfStatus = udi.PdfStatus;
 					this.RaisePropertyChanged(nameof(Liberate));
 					break;
+				case nameof(udi.LastDownloaded):
+					LastDownload = new(udi);
+					this.RaisePropertyChanged(nameof(LastDownload));
+					break;
 			}
 		}
 
@@ -149,6 +154,7 @@ namespace LibationAvalonia.ViewModels
 			{ nameof(Description), () => Description },
 			{ nameof(Category), () => Category },
 			{ nameof(Misc), () => Misc },
+			{ nameof(LastDownload), () => LastDownload },
 			{ nameof(BookTags), () => BookTags?.Tags ?? string.Empty },
 			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },

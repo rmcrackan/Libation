@@ -306,6 +306,12 @@ namespace LibationAvalonia.Views
 				imageDisplayDialog.Close();
 		}
 
+		public void Version_DoubleClick(object sender, Avalonia.Input.TappedEventArgs args)
+		{
+			if (sender is Control panel && panel.DataContext is LibraryBookEntry lbe && lbe.LastDownload.IsValid)
+				lbe.LastDownload.OpenReleaseUrl();
+		}
+
 		public void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
 			if (sender is not Image tblock || tblock.DataContext is not GridEntry gEntry)

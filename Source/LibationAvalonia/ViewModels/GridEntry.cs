@@ -43,6 +43,7 @@ namespace LibationAvalonia.ViewModels
 		private string _narrators;
 		private string _category;
 		private string _misc;
+		private LastDownloadStatus _lastDownload;
 		private string _description;
 		private Rating _productrating;
 		protected Rating _myRating;
@@ -55,6 +56,7 @@ namespace LibationAvalonia.ViewModels
 		public string Authors { get => _authors; protected set => this.RaiseAndSetIfChanged(ref _authors, value); }
 		public string Narrators { get => _narrators; protected set => this.RaiseAndSetIfChanged(ref _narrators, value); }
 		public string Category { get => _category; protected set => this.RaiseAndSetIfChanged(ref _category, value); }
+		public LastDownloadStatus LastDownload { get => _lastDownload; protected set => this.RaiseAndSetIfChanged(ref _lastDownload, value); }
 		public string Misc { get => _misc; protected set => this.RaiseAndSetIfChanged(ref _misc, value); }
 		public string Description { get => _description; protected set => this.RaiseAndSetIfChanged(ref _description, value); }
 		public Rating ProductRating { get => _productrating; protected set => this.RaiseAndSetIfChanged(ref _productrating, value); }
@@ -122,6 +124,7 @@ namespace LibationAvalonia.ViewModels
 			{ typeof(bool), new ObjectComparer<bool>() },
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
 			{ typeof(LiberateButtonStatus), new ObjectComparer<LiberateButtonStatus>() },
+			{ typeof(LastDownloadStatus), new ObjectComparer<LastDownloadStatus>() },
 		};
 
 		#endregion

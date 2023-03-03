@@ -45,6 +45,7 @@
 			this.purchaseDateGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.myRatingGVColumn = new LibationWinForms.GridView.MyRatingGridViewColumn();
 			this.miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.lastDownloadedGVColumn = new LastDownloadedGridViewColumn();
 			this.tagAndDetailsGVColumn = new LibationWinForms.GridView.EditTagsDataGridViewImageButtonColumn();
 			this.showHideColumnsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.syncBindingSource = new LibationWinForms.GridView.SyncBindingSource(this.components);
@@ -75,7 +76,8 @@
             this.purchaseDateGVColumn,
             this.myRatingGVColumn,
             this.miscGVColumn,
-            this.tagAndDetailsGVColumn});
+			this.lastDownloadedGVColumn,
+			this.tagAndDetailsGVColumn});
 			this.gridEntryDataGridView.ContextMenuStrip = this.showHideColumnsContextMenuStrip;
 			this.gridEntryDataGridView.DataSource = this.syncBindingSource;
 			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -216,6 +218,15 @@
 			this.miscGVColumn.ReadOnly = true;
 			this.miscGVColumn.Width = 135;
 			// 
+			// lastDownloadedGVColumn
+			// 
+			this.lastDownloadedGVColumn.DataPropertyName = "LastDownload";
+			this.lastDownloadedGVColumn.HeaderText = "Last Download";
+			this.lastDownloadedGVColumn.Name = "lastDownloadedGVColumn";
+			this.lastDownloadedGVColumn.ReadOnly = true;
+			this.lastDownloadedGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			this.lastDownloadedGVColumn.Width = 108;
+			// 
 			// tagAndDetailsGVColumn
 			// 
 			this.tagAndDetailsGVColumn.DataPropertyName = "DisplayTags";
@@ -268,6 +279,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn purchaseDateGVColumn;
 		private MyRatingGridViewColumn myRatingGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn miscGVColumn;
+		private LastDownloadedGridViewColumn lastDownloadedGVColumn;
 		private EditTagsDataGridViewImageButtonColumn tagAndDetailsGVColumn;
 	}
 }

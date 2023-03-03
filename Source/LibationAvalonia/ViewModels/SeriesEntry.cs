@@ -96,6 +96,7 @@ namespace LibationAvalonia.ViewModels
 			Narrators = Book.NarratorNames();
 			Category = string.Join(" > ", Book.CategoriesNames());
 			Misc = GetMiscDisplay(LibraryBook);
+			LastDownload = new();
 			LongDescription = GetDescriptionDisplay(Book);
 			Description = TrimTextToWord(LongDescription, 62);
 
@@ -124,6 +125,7 @@ namespace LibationAvalonia.ViewModels
 			{ nameof(Description), () => Description },
 			{ nameof(Category), () => Category },
 			{ nameof(Misc), () => Misc },
+			{ nameof(LastDownload), () => LastDownload },
 			{ nameof(BookTags), () => BookTags?.Tags ?? string.Empty },
 			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },
