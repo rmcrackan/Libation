@@ -56,14 +56,35 @@ namespace LibationAvalonia.ViewModels
 		{
 			Liberate = new LiberateButtonStatus(IsSeries);
 			SeriesIndex = -1;
-			LibraryBook = parent;
-
-			LoadCover();
 
 			Children = children
 				.Select(c => new LibraryBookEntry(c) { Parent = this })
 				.OrderBy(c => c.SeriesIndex)
 				.ToList();
+
+			setLibraryBook(parent);
+			LoadCover();
+		}
+
+		public void RemoveChild(LibraryBookEntry lbe)
+		{
+			Children.Remove(lbe);
+			PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
+			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
+			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
+		}
+
+		public void UpdateLibraryBook(LibraryBook libraryBook)
+		{
+			if (AudibleProductId != libraryBook.Book.AudibleProductId)
+				throw new Exception("Invalid grid entry update. IDs must match");
+
+			setLibraryBook(libraryBook);
+		}
+
+		private void setLibraryBook(LibraryBook libraryBook)
+		{
+			LibraryBook = libraryBook;
 
 			Title = Book.Title;
 			Series = Book.SeriesNames();
@@ -75,12 +96,15 @@ namespace LibationAvalonia.ViewModels
 			Narrators = Book.NarratorNames();
 			Category = string.Join(" > ", Book.CategoriesNames());
 			Misc = GetMiscDisplay(LibraryBook);
+			LastDownload = new();
 			LongDescription = GetDescriptionDisplay(Book);
 			Description = TrimTextToWord(LongDescription, 62);
 
 			PurchaseDate = Children.Min(c => c.LibraryBook.DateAdded).ToString("d");
 			int bookLenMins = Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 			Length = bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
+
+			this.RaisePropertyChanged(nameof(MyRating));
 		}
 
 
@@ -101,6 +125,7 @@ namespace LibationAvalonia.ViewModels
 			{ nameof(Description), () => Description },
 			{ nameof(Category), () => Category },
 			{ nameof(Misc), () => Misc },
+			{ nameof(LastDownload), () => LastDownload },
 			{ nameof(BookTags), () => BookTags?.Tags ?? string.Empty },
 			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },

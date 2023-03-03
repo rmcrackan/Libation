@@ -59,6 +59,7 @@ namespace LibationWinForms.GridView
 		public string Narrators { get; protected set; }
 		public string Category { get; protected set; }
 		public string Misc { get; protected set; }
+		public virtual LastDownloadStatus LastDownload { get; protected set; } = new();
 		public string Description { get; protected set; }
 		public string ProductRating { get; protected set; }
 		protected Rating _myRating;
@@ -120,6 +121,7 @@ namespace LibationWinForms.GridView
 			{ typeof(bool), new ObjectComparer<bool>() },
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
 			{ typeof(LiberateButtonStatus), new ObjectComparer<LiberateButtonStatus>() },
+			{ typeof(LastDownloadStatus), new ObjectComparer<LastDownloadStatus>() },
 		};
 
 		#endregion

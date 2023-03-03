@@ -144,11 +144,8 @@ namespace LibationAvalonia.Views
 				"Remove books from Libation?",
 				MessageBoxDefaultButton.Button2);
 
-			if (confirmationResult != DialogResult.Yes)
-				return;
-
-			var visibleIds = visibleLibraryBooks.Select(lb => lb.Book.AudibleProductId).ToList();
-			await LibraryCommands.RemoveBooksAsync(visibleIds);
+			if (confirmationResult is DialogResult.Yes)
+				await visibleLibraryBooks.RemoveBooksAsync();
 		}
 		public async void ProductsDisplay_VisibleCountChanged(object sender, int qty)
 		{

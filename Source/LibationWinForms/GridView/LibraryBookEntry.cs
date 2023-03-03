@@ -1,6 +1,7 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
+using LibationUiBase;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,6 +24,8 @@ namespace LibationWinForms.GridView
         private DateTime lastStatusUpdate = default;
 		private LiberatedStatus _bookStatus;
 		private LiberatedStatus? _pdfStatus;
+
+		public override LastDownloadStatus LastDownload { get; protected set; }
 
 		public override RemoveStatus Remove
 		{
@@ -87,6 +90,7 @@ namespace LibationWinForms.GridView
 			Narrators = Book.NarratorNames();
 			Category = string.Join(" > ", Book.CategoriesNames());
 			Misc = GetMiscDisplay(libraryBook);
+			LastDownload = new(Book.UserDefinedItem);
 			LongDescription = GetDescriptionDisplay(Book);
 			Description = TrimTextToWord(LongDescription, 62);
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
@@ -126,6 +130,10 @@ namespace LibationWinForms.GridView
 					_pdfStatus = udi.PdfStatus;
 					NotifyPropertyChanged(nameof(Liberate));
 					break;
+				case nameof(udi.LastDownloaded):
+					LastDownload = new(udi);
+					NotifyPropertyChanged(nameof(LastDownload));
+					break;
 			}
 		}
 
@@ -153,6 +161,7 @@ namespace LibationWinForms.GridView
 			{ nameof(Description), () => Description },
 			{ nameof(Category), () => Category },
 			{ nameof(Misc), () => Misc },
+			{ nameof(LastDownload), () => LastDownload },
 			{ nameof(DisplayTags), () => DisplayTags },
 			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },

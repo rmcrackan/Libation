@@ -75,12 +75,14 @@ namespace AppScaffolding
 			??= new[] { ExecutingAssembly.GetName(), EntryAssembly.GetName() }
 			.Max(a => a.Version);
 
-        /// <summary>Run migrations before loading Configuration for the first time. Then load and return Configuration</summary>
-        public static Configuration RunPreConfigMigrations()
+		/// <summary>Run migrations before loading Configuration for the first time. Then load and return Configuration</summary>
+		public static Configuration RunPreConfigMigrations()
 		{
 			// must occur before access to Configuration instance
 			// // outdated. kept here as an example of what belongs in this area
 			// // Migrations.migrate_to_v5_2_0__pre_config();
+
+			Configuration.SetLibationVersion(BuildVersion);
 
 			//***********************************************//
 			//                                               //

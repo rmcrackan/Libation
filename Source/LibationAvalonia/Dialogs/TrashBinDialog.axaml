@@ -1,0 +1,66 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="630" d:DesignHeight="480"
+        x:Class="LibationAvalonia.Dialogs.TrashBinDialog"
+		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+		MinWidth="630" MinHeight="480" 
+        Title="Trash Bin"
+		WindowStartupLocation="CenterOwner"
+		Icon="/Assets/libation.ico">
+	
+	<Grid
+		RowDefinitions="Auto,*,Auto">
+		
+		<TextBlock
+			Grid.Row="0"
+			Margin="5"
+			Text="Check books you want to permanently delete from or restore to Libation" />
+
+		<controls:CheckedListBox
+			Grid.Row="1"
+			Margin="5,0,5,0"
+			BorderThickness="1"
+			BorderBrush="Gray"
+			IsEnabled="{Binding	ControlsEnabled}"
+			Items="{Binding DeletedBooks}" />
+
+		<Grid
+			Grid.Row="2"
+			Margin="5"
+			ColumnDefinitions="Auto,Auto,*,Auto">
+
+			<CheckBox
+				IsEnabled="{Binding	ControlsEnabled}"
+				IsThreeState="True"
+				Margin="0,0,20,0"
+				IsChecked="{Binding EverythingChecked}"
+				Content="Everything" />
+			
+			<TextBlock
+				Grid.Column="1"
+				VerticalAlignment="Center"
+				Text="{Binding CheckedCountText}" />
+			
+			<Button
+				IsEnabled="{Binding	ControlsEnabled}"
+				Grid.Column="2"
+				Margin="0,0,20,0"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Stretch"
+				VerticalContentAlignment="Center"
+				Content="Restore"
+				Click="Restore_Click" />
+			
+			<Button
+				IsEnabled="{Binding	ControlsEnabled}"
+				Grid.Column="3"
+				Click="EmptyTrash_Click" >
+				<TextBlock
+					TextAlignment="Center"
+					Text="Permanently Delete&#xa;from Libation" />
+			</Button>
+		</Grid>
+	</Grid>
+</Window>

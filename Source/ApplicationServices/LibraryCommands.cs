@@ -242,18 +242,16 @@ namespace ApplicationServices
         #endregion
 
         #region remove/restore books
-        public static Task<int> RemoveBooksAsync(List<string> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
-        public static int RemoveBook(string idToRemove) => removeBooks(new() { idToRemove });
-        private static int removeBooks(List<string> idsToRemove)
+        public static Task<int> RemoveBooksAsync(this IEnumerable<LibraryBook> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
+        public static int RemoveBook(this LibraryBook idToRemove) => removeBooks(new[] { idToRemove });
+        private static int removeBooks(IEnumerable<LibraryBook> removeLibraryBooks)
         {
             try
             {
-                if (idsToRemove is null || !idsToRemove.Any())
+                if (removeLibraryBooks is null || !removeLibraryBooks.Any())
                     return 0;
 
                 using var context = DbContexts.GetContext();
-                var libBooks = context.GetLibrary_Flat_NoTracking();
-                var removeLibraryBooks = libBooks.Where(lb => idsToRemove.Contains(lb.Book.AudibleProductId)).ToList();
 
                 // Attach() NoTracking entities before SaveChanges()
                 foreach (var lb in removeLibraryBooks)
@@ -275,7 +273,7 @@ namespace ApplicationServices
             }
         }
 
-        public static int RestoreBooks(this List<LibraryBook> libraryBooks)
+        public static int RestoreBooks(this IEnumerable<LibraryBook> libraryBooks)
         {
             try
             {
@@ -296,6 +294,31 @@ namespace ApplicationServices
                     finalizeLibrarySizeChange();
 
                 return qtyChanges;
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "Error restoring books");
+                throw;
+            }
+        }
+
+        public static int PermanentlyDeleteBooks(this IEnumerable<LibraryBook> libraryBooks)
+        {
+            try
+            {
+                if (libraryBooks is null || !libraryBooks.Any())
+                    return 0;
+
+                using var context = DbContexts.GetContext();
+
+				context.LibraryBooks.RemoveRange(libraryBooks);
+				context.Books.RemoveRange(libraryBooks.Select(lb => lb.Book));				
+
+                var qtyChanges = context.SaveChanges();
+				if (qtyChanges > 0)
+					finalizeLibrarySizeChange();
+
+				return qtyChanges;
             }
             catch (Exception ex)
             {
@@ -346,8 +369,10 @@ namespace ApplicationServices
 
                     if (rating is not null)
                         udi.UpdateRating(rating.OverallRating, rating.PerformanceRating, rating.StoryRating);
-                });
+				});
 
+        public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus, Version libationVersion)
+            => book.UpdateUserDefinedItem(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion); });
         public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus)
             => book.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
         public static int UpdateBookStatus(this IEnumerable<Book> books, LiberatedStatus bookStatus)

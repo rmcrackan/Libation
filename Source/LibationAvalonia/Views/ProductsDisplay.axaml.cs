@@ -44,7 +44,7 @@ namespace LibationAvalonia.Views
 				};
 
 				var pdvm = new ProductsDisplayViewModel();
-				_ = pdvm.DisplayBooksAsync(sampleEntries);
+				pdvm.BindToGrid(sampleEntries);
 				DataContext = pdvm;
 
 				return;
@@ -102,7 +102,7 @@ namespace LibationAvalonia.Views
                 setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
                 var removeMenuItem = new MenuItem() { Header = "_Remove from library" };
-				removeMenuItem.Click += async (_, __) => await Task.Run(() => LibraryCommands.RemoveBook(entry.AudibleProductId));
+				removeMenuItem.Click += async (_, __) => await Task.Run(entry.LibraryBook.RemoveBook);
 
 				var locateFileMenuItem = new MenuItem() { Header = "_Locate file..." };
                 locateFileMenuItem.Click += async (_, __) =>
@@ -304,6 +304,12 @@ namespace LibationAvalonia.Views
 		{
 			if (imageDisplayDialog is not null && imageDisplayDialog.IsVisible)
 				imageDisplayDialog.Close();
+		}
+
+		public void Version_DoubleClick(object sender, Avalonia.Input.TappedEventArgs args)
+		{
+			if (sender is Control panel && panel.DataContext is LibraryBookEntry lbe && lbe.LastDownload.IsValid)
+				lbe.LastDownload.OpenReleaseUrl();
 		}
 
 		public void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)

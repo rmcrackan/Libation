@@ -12,6 +12,6 @@ namespace LibationWinForms.GridView
 		// per standard INotifyPropertyChanged pattern:
 		// https://docs.microsoft.com/en-us/dotnet/desktop/wpf/data/how-to-implement-property-change-notification
 		public void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-			=> this.UIThreadAsync(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
+			=> this.UIThreadSync(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
 	}
 }

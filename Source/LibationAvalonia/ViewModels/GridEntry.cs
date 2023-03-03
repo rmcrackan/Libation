@@ -35,18 +35,31 @@ namespace LibationAvalonia.ViewModels
 		#region Model properties exposed to the view
 
 		private Avalonia.Media.Imaging.Bitmap _cover;
-		public Avalonia.Media.Imaging.Bitmap Cover { get => _cover; protected set { this.RaiseAndSetIfChanged(ref _cover, value); } }
-		public string PurchaseDate { get; protected set; }
-		public string Series { get; protected set; }
-		public string Title { get; protected set; }
-		public string Length { get; protected set; }
-		public string Authors { get; protected set; }
-		public string Narrators { get; protected set; }
-		public string Category { get; protected set; }
-		public string Misc { get; protected set; }
-		public string Description { get; protected set; }
-		public Rating ProductRating { get; protected set; }
+		private string _purchasedate;
+		private string _series;
+		private string _title;
+		private string _length;
+		private string _authors;
+		private string _narrators;
+		private string _category;
+		private string _misc;
+		private LastDownloadStatus _lastDownload;
+		private string _description;
+		private Rating _productrating;
 		protected Rating _myRating;
+
+		public Avalonia.Media.Imaging.Bitmap Cover { get => _cover; protected set => this.RaiseAndSetIfChanged(ref _cover, value); }
+		public string PurchaseDate { get => _purchasedate; protected set => this.RaiseAndSetIfChanged(ref _purchasedate, value); }
+		public string Series { get => _series; protected set => this.RaiseAndSetIfChanged(ref _series, value); }
+		public string Title { get => _title; protected set => this.RaiseAndSetIfChanged(ref _title, value); }
+		public string Length { get => _length; protected set => this.RaiseAndSetIfChanged(ref _length, value); }
+		public string Authors { get => _authors; protected set => this.RaiseAndSetIfChanged(ref _authors, value); }
+		public string Narrators { get => _narrators; protected set => this.RaiseAndSetIfChanged(ref _narrators, value); }
+		public string Category { get => _category; protected set => this.RaiseAndSetIfChanged(ref _category, value); }
+		public LastDownloadStatus LastDownload { get => _lastDownload; protected set => this.RaiseAndSetIfChanged(ref _lastDownload, value); }
+		public string Misc { get => _misc; protected set => this.RaiseAndSetIfChanged(ref _misc, value); }
+		public string Description { get => _description; protected set => this.RaiseAndSetIfChanged(ref _description, value); }
+		public Rating ProductRating { get => _productrating; protected set => this.RaiseAndSetIfChanged(ref _productrating, value); }
 		public Rating MyRating
 		{
 			get => _myRating;
@@ -111,6 +124,7 @@ namespace LibationAvalonia.ViewModels
 			{ typeof(bool), new ObjectComparer<bool>() },
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
 			{ typeof(LiberateButtonStatus), new ObjectComparer<LiberateButtonStatus>() },
+			{ typeof(LastDownloadStatus), new ObjectComparer<LastDownloadStatus>() },
 		};
 
 		#endregion

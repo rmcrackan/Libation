@@ -154,7 +154,7 @@ namespace LibationWinForms.GridView
             setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
             var removeMenuItem = new ToolStripMenuItem() { Text = "&Remove from library" };
-			removeMenuItem.Click += async (_, __) => await Task.Run(() => LibraryCommands.RemoveBook(entry.AudibleProductId));
+			removeMenuItem.Click += async (_, __) => await Task.Run(entry.LibraryBook.RemoveBook);
 
             var locateFileMenuItem = new ToolStripMenuItem() { Text = "&Locate file..." };
             locateFileMenuItem.Click += (_, __) =>

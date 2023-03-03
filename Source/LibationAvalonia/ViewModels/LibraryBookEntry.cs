@@ -58,8 +58,22 @@ namespace LibationAvalonia.ViewModels
 
 		public LibraryBookEntry(LibraryBook libraryBook)
 		{
-			LibraryBook = libraryBook;
+			setLibraryBook(libraryBook);
 			LoadCover();
+		}
+
+		public void UpdateLibraryBook(LibraryBook libraryBook)
+		{
+			if (AudibleProductId != libraryBook.Book.AudibleProductId)
+				throw new Exception("Invalid grid entry update. IDs must match");
+
+			UserDefinedItem.ItemChanged -= UserDefinedItem_ItemChanged;
+			setLibraryBook(libraryBook);
+		}
+
+		private void setLibraryBook(LibraryBook libraryBook)
+		{
+			LibraryBook = libraryBook;
 
 			Title = Book.Title;
 			Series = Book.SeriesNames();
@@ -73,10 +87,12 @@ namespace LibationAvalonia.ViewModels
 			Narrators = Book.NarratorNames();
 			Category = string.Join(" > ", Book.CategoriesNames());
 			Misc = GetMiscDisplay(libraryBook);
+			LastDownload = new(Book.UserDefinedItem);
 			LongDescription = GetDescriptionDisplay(Book);
 			Description = TrimTextToWord(LongDescription, 62);
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 
+			this.RaisePropertyChanged(nameof(MyRating));
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
@@ -112,6 +128,10 @@ namespace LibationAvalonia.ViewModels
 					_pdfStatus = udi.PdfStatus;
 					this.RaisePropertyChanged(nameof(Liberate));
 					break;
+				case nameof(udi.LastDownloaded):
+					LastDownload = new(udi);
+					this.RaisePropertyChanged(nameof(LastDownload));
+					break;
 			}
 		}
 
@@ -134,6 +154,7 @@ namespace LibationAvalonia.ViewModels
 			{ nameof(Description), () => Description },
 			{ nameof(Category), () => Category },
 			{ nameof(Misc), () => Misc },
+			{ nameof(LastDownload), () => LastDownload },
 			{ nameof(BookTags), () => BookTags?.Tags ?? string.Empty },
 			{ nameof(Liberate), () => Liberate },
 			{ nameof(DateAdded), () => DateAdded },

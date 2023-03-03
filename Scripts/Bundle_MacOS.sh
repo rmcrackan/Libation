@@ -65,6 +65,9 @@ if [ $? -ne 0 ]
  exit
 fi
 
+echo "Make fileicon executable..."
+chmod +x $BUNDLE_MACOS/fileicon
+
 echo "Moving icon..."
 mv $BUNDLE_MACOS/libation.icns $BUNDLE_RESOURCES/libation.icns
 

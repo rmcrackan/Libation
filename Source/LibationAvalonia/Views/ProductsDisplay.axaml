@@ -183,6 +183,16 @@
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
+				
+				<controls:DataGridTemplateColumnExt Width="102" Header="Last&#xA;Download" CanUserSort="True" SortMemberPath="LastDownload" ClipboardContentBinding="{Binding LastDownload}">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<Panel Background="{Binding BackgroundBrush}" ToolTip.Tip="{Binding LastDownload.ToolTipText}" DoubleTapped="Version_DoubleClick">
+								<TextBlock Text="{Binding LastDownload}" TextWrapping="WrapWithOverflow" FontSize="10" />
+							</Panel>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</controls:DataGridTemplateColumnExt>
 
 				<controls:DataGridTemplateColumnExt CanUserSort="True" Width="100" Header="Tags" SortMemberPath="BookTags" ClipboardContentBinding="{Binding BookTags.Tags}">
 					<DataGridTemplateColumn.CellTemplate>

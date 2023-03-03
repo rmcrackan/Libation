@@ -131,6 +131,7 @@
 						<MenuItem Click="accountsToolStripMenuItem_Click" Header="_Accounts..." />
 						<MenuItem Click="basicSettingsToolStripMenuItem_Click" Header="_Settings..." />
 						<Separator />
+						<MenuItem Click="openTrashBinToolStripMenuItem_Click" Header="Trash Bin" />
 						<MenuItem Click="launchHangoverToolStripMenuItem_Click" Header="Launch _Hangover" />
 						<Separator />
 						<MenuItem Click="aboutToolStripMenuItem_Click" Header="A_bout..." />
@@ -172,7 +173,12 @@
 
 				<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
 					<Button Click="filterBtn_Click" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
-					<Button Padding="5,0,5,0" Click="ToggleQueueHideBtn_Click" Content="{Binding QueueHideButtonText}"/>
+					<Button Padding="5,0,5,0" Click="ToggleQueueHideBtn_Click">
+						<Panel>
+							<Image Stretch="None" IsVisible="{Binding !QueueOpen}" Source="/Assets/Arrows_left.png" />
+							<Image Stretch="None" IsVisible="{Binding QueueOpen}" Source="/Assets/Arrows_right.png" />
+						</Panel>
+					</Button>
 				</StackPanel>
 
 			</Grid>

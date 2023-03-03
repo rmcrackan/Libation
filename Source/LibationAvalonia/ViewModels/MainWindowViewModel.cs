@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using Avalonia.Media.Imaging;
 using Dinah.Core;
 using LibationFileManager;
 using ReactiveUI;
@@ -135,14 +136,8 @@ namespace LibationAvalonia.ViewModels
 			set
 			{
 				this.RaiseAndSetIfChanged(ref _queueOpen, value);
-				QueueHideButtonText = _queueOpen? "❱❱❱" : "❰❰❰";
-				this.RaisePropertyChanged(nameof(QueueHideButtonText));
 			}
 		}
-
-		/// <summary> The Process Queue's Expand/Collapse button display text </summary>
-		public string QueueHideButtonText { get; private set; }
-
 
 
 		/// <summary> The number of books visible in the Product Display </summary>

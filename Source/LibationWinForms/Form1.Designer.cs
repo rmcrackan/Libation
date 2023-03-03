@@ -63,6 +63,7 @@
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.openTrashBinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.launchHangoverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.locateAudiobooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -383,8 +384,9 @@
             this.accountsToolStripMenuItem,
             this.basicSettingsToolStripMenuItem,
 			this.toolStripSeparator4,
+			this.openTrashBinToolStripMenuItem,
 			this.launchHangoverToolStripMenuItem,
-            this.toolStripSeparator2,
+			this.toolStripSeparator2,
             this.aboutToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
@@ -592,6 +594,13 @@
 			this.locateAudiobooksToolStripMenuItem.Text = "L&ocate Audiobooks";
 			this.locateAudiobooksToolStripMenuItem.Click += new System.EventHandler(this.locateAudiobooksToolStripMenuItem_Click);
 			// 
+			// openTrashBinToolStripMenuItem
+			// 
+			this.openTrashBinToolStripMenuItem.Name = "openTrashBinToolStripMenuItem";
+			this.openTrashBinToolStripMenuItem.Size = new System.Drawing.Size(247, 22);
+			this.openTrashBinToolStripMenuItem.Text = "Trash Bin";
+			this.openTrashBinToolStripMenuItem.Click += new System.EventHandler(this.openTrashBinToolStripMenuItem_Click);
+			// 
 			// launchHangoverToolStripMenuItem
 			// 
 			this.launchHangoverToolStripMenuItem.Name = "launchHangoverToolStripMenuItem";
@@ -676,6 +685,7 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripMenuItem locateAudiobooksToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+		private System.Windows.Forms.ToolStripMenuItem openTrashBinToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem launchHangoverToolStripMenuItem;
         private LibationWinForms.FormattableToolStripMenuItem liberateVisibleToolStripMenuItem_LiberateMenu;
 		private System.Windows.Forms.SplitContainer splitContainer1;

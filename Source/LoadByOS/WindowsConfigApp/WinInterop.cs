@@ -14,22 +14,9 @@ namespace WindowsConfigApp
 
         public void SetFolderIcon(string image, string directory)
         {
-            string iconPath = null;
-
-            try
-            {
-				var icon = Image.Load(File.ReadAllBytes(image)).ToIcon();
-                iconPath = Path.Combine(directory, $"{Guid.NewGuid()}.ico");
-                File.WriteAllBytes(iconPath, icon);
-
-				new DirectoryInfo(directory)?.SetIcon(iconPath, "Music");
-            }
-            finally
-            {
-                if (File.Exists(iconPath))
-                    File.Delete(iconPath);
-            }
-        }
+			var icon = Image.Load(image).ToIcon();
+			new DirectoryInfo(directory)?.SetIcon(icon, "Music");
+		}
 
         public void DeleteFolderIcon(string directory)
             => new DirectoryInfo(directory)?.DeleteIcon();

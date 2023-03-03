@@ -9,11 +9,13 @@ namespace LibationFileManager
 {
     public static class WindowsDirectory
     {
+
         public static void SetCoverAsFolderIcon(string pictureId, string directory)
         {
             try
             {
-                if (!Configuration.Instance.UseCoverAsFolderIcon || !Configuration.IsWindows)
+                //Currently only works for Windows and macOS
+                if (!Configuration.Instance.UseCoverAsFolderIcon || Configuration.IsLinux)
                     return;
 
                 // get path of cover art in Images dir. Download first if not exists

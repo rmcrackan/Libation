@@ -24,8 +24,27 @@ namespace DataLayer
     {
         internal int BookId { get; private set; }
         public Book Book { get; private set; }
+        public DateTime? LastDownloaded { get; private set; }
+        public Version LastDownloadedVersion { get; private set; }
 
-        private UserDefinedItem() { }
+        public void SetLastDownloaded(Version version)
+        {
+            if (LastDownloadedVersion != version)
+            {
+                LastDownloadedVersion = version;
+				OnItemChanged(nameof(LastDownloadedVersion));
+			}
+
+            if (version is null)
+                LastDownloaded = null;
+            else
+            {
+				LastDownloaded = DateTime.Now;
+                OnItemChanged(nameof(LastDownloaded));
+			}
+		}
+
+		private UserDefinedItem() { }
         internal UserDefinedItem(Book book)
 		{
 			ArgumentValidator.EnsureNotNull(book, nameof(book));

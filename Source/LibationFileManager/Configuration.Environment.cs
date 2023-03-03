@@ -20,6 +20,8 @@ namespace LibationFileManager
 		public static bool IsWindows { get; } = OperatingSystem.IsWindows();
         public static bool IsLinux { get; } = OperatingSystem.IsLinux();
         public static bool IsMacOs { get; } = OperatingSystem.IsMacOS();
+		public static Version LibationVersion { get; private set; }
+		public static void SetLibationVersion(Version version) => LibationVersion = version;
 
 		public static OS OS { get; }
 			= IsLinux ? OS.Linux

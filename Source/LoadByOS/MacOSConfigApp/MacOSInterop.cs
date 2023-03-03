@@ -1,4 +1,5 @@
-﻿using LibationFileManager;
+﻿using Dinah.Core;
+using LibationFileManager;
 using System.Diagnostics;
 
 namespace MacOSConfigApp
@@ -9,8 +10,14 @@ namespace MacOSConfigApp
 		public MacOSInterop() { }
         public MacOSInterop(params object[] values) { }
 
-		public void SetFolderIcon(string image, string directory) => throw new PlatformNotSupportedException();
-        public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
+		public void SetFolderIcon(string image, string directory)
+		{
+			Process.Start("fileicon", $"set {directory.SurroundWithQuotes()} {image.SurroundWithQuotes()}").WaitForExit();
+		}
+		public void DeleteFolderIcon(string directory)
+		{
+			Process.Start("fileicon", $"rm {directory.SurroundWithQuotes()}").WaitForExit();
+		}
 
 		//I haven't figured out how to find the app bundle's directory from within
 		//the running process, so don't upgrade unless it's "installed" in /Applications
@@ -21,7 +28,7 @@ namespace MacOSConfigApp
 			Serilog.Log.Information($"Extracting upgrade bundle to {AppPath}");
 
 			//tar wil overwrite existing without elevated privileges
-			Process.Start("tar", $"-xf \"{upgradeBundle}\" -C \"/Applications\"").WaitForExit();
+			Process.Start("tar", $"-xf {upgradeBundle.SurroundWithQuotes()} -C \"/Applications\"").WaitForExit();
 			
 			//For now, it seems like this step is unnecessary. We can overwrite and
 			//run Libation without needing to re-add the exception. This is insurance.
