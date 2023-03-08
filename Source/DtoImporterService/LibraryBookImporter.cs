@@ -94,6 +94,6 @@ namespace DtoImporterService
 		//confidence that it won't yield many/any false positives.
 		private static bool isPlusTitleUnavailable(ImportItem item)
 			=> item.DtoItem.IsAyce is true
-			&& !item.DtoItem.Plans.Any(p => p.PlanName.ContainsInsensitive("Minerva") || p.PlanName.ContainsInsensitive("Free"));
+			&& item.DtoItem.Plans?.Any(p => p.PlanName.ContainsInsensitive("Minerva") || p.PlanName.ContainsInsensitive("Free")) is not true;
 	}
 }
