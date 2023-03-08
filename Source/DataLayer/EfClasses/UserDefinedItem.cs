@@ -122,7 +122,11 @@ namespace DataLayer
         public Rating Rating { get; private set; } = new Rating(0, 0, 0);
 
         public void UpdateRating(float overallRating, float performanceRating, float storyRating)
-            => Rating.Update(overallRating, performanceRating, storyRating);
+        {
+            var changed = Rating.OverallRating != overallRating || Rating.PerformanceRating != performanceRating || Rating.StoryRating != storyRating;
+			Rating.Update(overallRating, performanceRating, storyRating);
+            if (changed) OnItemChanged(nameof(Rating));
+		}
         #endregion
 
         #region LiberatedStatuses

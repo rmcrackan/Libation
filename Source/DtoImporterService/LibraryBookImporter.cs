@@ -70,8 +70,11 @@ namespace DtoImporterService
 				}
 			}
 
-			//If an existing Book wasn't found in the import, the owning LibraryBook's Book will be null. 
-			foreach (var nullBook in DbContext.LibraryBooks.AsEnumerable().Where(lb => lb.Book is null))
+			var scannedAccounts = importItems.Select(i => i.AccountId).Distinct().ToList();
+
+			//If an existing Book wasn't found in the import, the owning LibraryBook's Book will be null.
+			//Only change AbsentFromLastScan for LibraryBooks of accounts that were scanned.
+			foreach (var nullBook in DbContext.LibraryBooks.AsEnumerable().Where(lb => lb.Book is null && lb.Account.In(scannedAccounts)))
 				nullBook.AbsentFromLastScan = true;
 
 			//Join importItems on LibraryBooks before iterating over LibraryBooks to avoid
@@ -88,12 +91,29 @@ namespace DtoImporterService
 			return qtyNew;
 		}
 
+		/*
+		 * Subscription Plan Names:
+		 * 
+		 * US:	"SpecialBenefit"
+		 * IT:	"Rodizio"
+		 * 
+		 * Audible Plus Plan Names:
+		 * 
+		 * US:	"US Minerva"
+		 * IT:	"Audible-AYCL" 
+		 *
+		 */
+
 
 		//This SEEMS to work to detect plus titles which are no longer available.
 		//I have my doubts it won't yield false negatives, but I have more
 		//confidence that it won't yield many/any false positives.
 		private static bool isPlusTitleUnavailable(ImportItem item)
 			=> item.DtoItem.IsAyce is true
-			&& item.DtoItem.Plans?.Any(p => p.PlanName.ContainsInsensitive("Minerva") || p.PlanName.ContainsInsensitive("Free")) is not true;
+			&& item.DtoItem.Plans?.Any(p =>
+				p.PlanName.ContainsInsensitive("Minerva") ||
+				p.PlanName.ContainsInsensitive("AYCL") ||
+				p.PlanName.ContainsInsensitive("Free")
+			) is not true;
 	}
 }

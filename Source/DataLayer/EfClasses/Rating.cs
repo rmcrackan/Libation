@@ -5,7 +5,7 @@ using Dinah.Core;
 namespace DataLayer
 {
     /// <summary>Parameterless ctor and setters should be used by EF only. Everything else should treat it as immutable</summary>
-    public class Rating : ValueObject_Static<Rating>
+    public class Rating : ValueObject_Static<Rating>, IComparable<Rating>, IComparable
     {
         public float OverallRating { get; private set; }
         public float PerformanceRating { get; private set; }
@@ -38,6 +38,16 @@ namespace DataLayer
             yield return StoryRating;
         }
 
-		public override string ToString() => $"Overall={OverallRating} Perf={PerformanceRating} Story={StoryRating}";
-	}
+        public override string ToString() => $"Overall={OverallRating} Perf={PerformanceRating} Story={StoryRating}";
+
+        public int CompareTo(Rating other)
+        {
+            var compare = OverallRating.CompareTo(other.OverallRating);
+            if (compare != 0) return compare;
+            compare = PerformanceRating.CompareTo(other.PerformanceRating);
+            if (compare != 0) return compare;
+            return StoryRating.CompareTo(other.StoryRating);
+        }
+        public int CompareTo(object obj) => obj is Rating second ? CompareTo(second) : -1;
+    }
 }
