@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AudibleApi;
 using AudibleUtilities;
@@ -453,41 +454,74 @@ namespace ApplicationServices
 
         // below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
 
-        public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int booksError, int pdfsDownloaded, int pdfsNotDownloaded)
+        public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int booksError, int booksUnavailable, int pdfsDownloaded, int pdfsNotDownloaded, int pdfsUnavailable)
         {
             public int PendingBooks => booksNoProgress + booksDownloadedOnly;
             public bool HasPendingBooks => PendingBooks > 0;
 
-            public bool HasBookResults => 0 < (booksFullyBackedUp + booksDownloadedOnly + booksNoProgress + booksError);
-            public bool HasPdfResults => 0 < (pdfsNotDownloaded + pdfsDownloaded);
-        }
-        public static LibraryStats GetCounts()
+            public bool HasBookResults => 0 < (booksFullyBackedUp + booksDownloadedOnly + booksNoProgress + booksError + booksUnavailable);
+            public bool HasPdfResults => 0 < (pdfsNotDownloaded + pdfsDownloaded + pdfsUnavailable);
+
+			public string StatusString => HasPdfResults ? $"{toBookStatusString()}  |  {toPdfStatusString()}" : toBookStatusString();
+
+			private string toBookStatusString()
+			{
+                if (!HasBookResults) return "No books. Begin by importing your library";
+
+                if (!HasPendingBooks && booksError + booksUnavailable == 0) return $"All {"book".PluralizeWithCount(booksFullyBackedUp)} backed up";
+
+				var sb = new StringBuilder($"BACKUPS: No progress: {booksNoProgress}  In process: {booksDownloadedOnly}  Fully backed up: {booksFullyBackedUp}");
+
+                if (booksError > 0)
+                    sb.Append($"  Errors: {booksError}");
+                if (booksUnavailable > 0)
+					sb.Append($"  Unavailable: {booksUnavailable}");
+
+				return sb.ToString();
+			}
+
+			private string toPdfStatusString()
+            {
+                if (pdfsNotDownloaded + pdfsUnavailable == 0) return $"All {pdfsDownloaded} PDFs downloaded";
+
+                var sb = new StringBuilder($"PDFs: NOT d/l'ed: {pdfsNotDownloaded}  Downloaded: {pdfsDownloaded}");
+
+                if (pdfsUnavailable > 0)
+					sb.Append($"  Unavailable: {pdfsUnavailable}");
+
+                return sb.ToString();
+			}
+		}
+        public static LibraryStats GetCounts(IEnumerable<LibraryBook> libraryBooks = null)
         {
-            var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
+            libraryBooks ??= DbContexts.GetLibrary_Flat_NoTracking();
 
             var results = libraryBooks
                 .AsParallel()
-                .Where(lb => !lb.AbsentFromLastScan)
-                .Select(lb => Liberated_Status(lb.Book))
+                .Select(lb => new { absent = lb.AbsentFromLastScan, status = Liberated_Status(lb.Book) })
                 .ToList();
-            var booksFullyBackedUp = results.Count(r => r == LiberatedStatus.Liberated);
-            var booksDownloadedOnly = results.Count(r => r == LiberatedStatus.PartialDownload);
-            var booksNoProgress = results.Count(r => r == LiberatedStatus.NotLiberated);
-            var booksError = results.Count(r => r == LiberatedStatus.Error);
 
-            Log.Logger.Information("Book counts. {@DebugInfo}", new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError });
+            var booksFullyBackedUp = results.Count(r => r.status == LiberatedStatus.Liberated);
+            var booksDownloadedOnly = results.Count(r => !r.absent && r.status == LiberatedStatus.PartialDownload);
+            var booksNoProgress = results.Count(r => !r.absent && r.status == LiberatedStatus.NotLiberated);
+            var booksError = results.Count(r => r.status == LiberatedStatus.Error);
+            var booksUnavailable = results.Count(r => r.absent && r.status is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload);
 
-            var boolResults = libraryBooks
+			Log.Logger.Information("Book counts. {@DebugInfo}", new { total = results.Count, booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError, booksUnavailable });
+
+            var pdfResults = libraryBooks
                 .AsParallel()
                 .Where(lb => lb.Book.HasPdf())
-                .Select(lb => Pdf_Status(lb.Book))
+                .Select(lb => new { absent = lb.AbsentFromLastScan, status = Pdf_Status(lb.Book) })
                 .ToList();
-            var pdfsDownloaded = boolResults.Count(r => r == LiberatedStatus.Liberated);
-            var pdfsNotDownloaded = boolResults.Count(r => r == LiberatedStatus.NotLiberated);
 
-            Log.Logger.Information("PDF counts. {@DebugInfo}", new { total = boolResults.Count, pdfsDownloaded, pdfsNotDownloaded });
+            var pdfsDownloaded = pdfResults.Count(r => r.status == LiberatedStatus.Liberated);
+            var pdfsNotDownloaded = pdfResults.Count(r => !r.absent && r.status == LiberatedStatus.NotLiberated);
+            var pdfsUnavailable = pdfResults.Count(r => r.absent && r.status == LiberatedStatus.NotLiberated);
 
-            return new(booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError, pdfsDownloaded, pdfsNotDownloaded);
+			Log.Logger.Information("PDF counts. {@DebugInfo}", new { total = pdfResults.Count, pdfsDownloaded, pdfsNotDownloaded, pdfsUnavailable });
+
+            return new(booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError, booksUnavailable, pdfsDownloaded, pdfsNotDownloaded, pdfsUnavailable);
         }
     }
 }

@@ -31,17 +31,22 @@ namespace LibationAvalonia.Views
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
-				List<LibraryBook> sampleEntries = new()
+				List<LibraryBook> sampleEntries;
+				try
 				{
-					//context.GetLibraryBook_Flat_NoTracking("B00DCD0OXU"),
-					context.GetLibraryBook_Flat_NoTracking("B002V8H7G4"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"),
-					context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")
-				};
+					sampleEntries = new()
+					{
+						//context.GetLibraryBook_Flat_NoTracking("B00DCD0OXU"),try{
+						context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"),
+						context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
+						context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
+						context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
+						context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"),
+						context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"),
+						context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")
+					};
+				}
+				catch { sampleEntries = new(); }
 
 				var pdvm = new ProductsDisplayViewModel();
 				pdvm.BindToGrid(sampleEntries);
