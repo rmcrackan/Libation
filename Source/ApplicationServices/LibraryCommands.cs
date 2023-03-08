@@ -467,6 +467,7 @@ namespace ApplicationServices
 
             var results = libraryBooks
                 .AsParallel()
+                .Where(lb => !lb.AbsentFromLastScan)
                 .Select(lb => Liberated_Status(lb.Book))
                 .ToList();
             var booksFullyBackedUp = results.Count(r => r == LiberatedStatus.Liberated);

@@ -44,13 +44,12 @@ namespace LibationAvalonia.ViewModels
 					_pdfStatus = LibraryCommands.Pdf_Status(LibraryBook.Book);
 					lastStatusUpdate = DateTime.Now;
 				}
-				return new LiberateButtonStatus(IsSeries) { BookStatus = _bookStatus, PdfStatus = _pdfStatus };
+				return new LiberateButtonStatus(isSeries: false, LibraryBook.AbsentFromLastScan) { BookStatus = _bookStatus, PdfStatus = _pdfStatus };
 			}
 		}
 
 		public override BookTags BookTags => new() { Tags = string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated) };
 
-		public override bool IsSeries => false;
 		public override bool IsEpisode => Parent is not null;
 		public override bool IsBook => Parent is null;
 
@@ -93,6 +92,7 @@ namespace LibationAvalonia.ViewModels
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 
 			this.RaisePropertyChanged(nameof(MyRating));
+			this.RaisePropertyChanged(nameof(Liberate));
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 

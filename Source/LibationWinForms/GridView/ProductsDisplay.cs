@@ -200,7 +200,8 @@ namespace LibationWinForms.GridView
 
 		private void productsGrid_LiberateClicked(LibraryBookEntry liveGridEntry)
 		{
-			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error)
+			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error
+				&& !liveGridEntry.Liberate.IsUnavailable)
 				LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 

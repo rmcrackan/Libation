@@ -180,7 +180,7 @@ namespace LibationWinForms.GridView
 			var convertToMp3MenuItem = new ToolStripMenuItem
 			{
 				Text = "&Convert to Mp3",
-				Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
+				Enabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
 			};
 			convertToMp3MenuItem.Click += (_, e) => ConvertToMp3Clicked?.Invoke(entry as LibraryBookEntry);
 

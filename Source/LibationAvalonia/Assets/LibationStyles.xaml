@@ -8,6 +8,8 @@
 		<SolidColorBrush x:Key="ProcessQueueBookCancelledBrush" Color="Khaki" />
 		<SolidColorBrush x:Key="ProcessQueueBookDefaultBrush" Color="{StaticResource SystemAltHighColor}" />
 		<SolidColorBrush x:Key="ProcessQueueBookBorderBrush" Color="Gray" />
+		<SolidColorBrush x:Key="DisabledGrayBrush" Color="#60D3D3D3" />
+		
 	</Styles.Resources>
 	<Style Selector="TextBox[IsReadOnly=true]">
 		<Setter Property="Background" Value="LightGray" />

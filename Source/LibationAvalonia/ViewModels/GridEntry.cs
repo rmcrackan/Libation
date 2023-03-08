@@ -78,7 +78,6 @@ namespace LibationAvalonia.ViewModels
 		public abstract bool? Remove { get; set; }
 		public abstract LiberateButtonStatus Liberate { get; }
 		public abstract BookTags BookTags { get; }
-		public abstract bool IsSeries { get; }
 		public abstract bool IsEpisode { get; }
 		public abstract bool IsBook { get; }
 		public IBrush BackgroundBrush => IsEpisode ? App.SeriesEntryGridBackgroundBrush : Brushes.Transparent;

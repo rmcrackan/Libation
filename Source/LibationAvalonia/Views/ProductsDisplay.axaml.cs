@@ -34,7 +34,7 @@ namespace LibationAvalonia.Views
 				List<LibraryBook> sampleEntries = new()
 				{
 					//context.GetLibraryBook_Flat_NoTracking("B00DCD0OXU"),
-					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
+					context.GetLibraryBook_Flat_NoTracking("B002V8H7G4"),
 					context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
 					context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
 					context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
@@ -84,7 +84,7 @@ namespace LibationAvalonia.Views
 			{
 				var entry = args.GridEntry;
 
-                if (entry.IsSeries)
+                if (entry.Liberate.IsSeries)
 					return;
 
                 var setDownloadMenuItem = new MenuItem()
@@ -135,7 +135,7 @@ namespace LibationAvalonia.Views
 				var convertToMp3MenuItem = new MenuItem
 				{
 					Header = "_Convert to Mp3",
-					IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
+					IsEnabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated 
 				};
 				convertToMp3MenuItem.Click += (_, _) => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook);
 

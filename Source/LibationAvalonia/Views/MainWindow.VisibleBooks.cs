@@ -157,6 +157,7 @@ namespace LibationAvalonia.Views
 			=> _viewModel.VisibleNotLiberated
 				= _viewModel.ProductsDisplay
 				.GetVisibleBookEntries()
+				.Where(lb => !lb.AbsentFromLastScan)
 				.Count(lb => lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.NotLiberated);
 	}
 }

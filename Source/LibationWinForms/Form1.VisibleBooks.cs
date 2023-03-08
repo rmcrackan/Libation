@@ -27,7 +27,7 @@ namespace LibationWinForms
 			=> await Task.Run(setLiberatedVisibleMenuItem);
 		void setLiberatedVisibleMenuItem()
 		{
-			var notLiberated = productsDisplay.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			var notLiberated = productsDisplay.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.NotLiberated && !lb.AbsentFromLastScan);
 			this.UIThreadSync(() =>
 			{
 				if (notLiberated > 0)
