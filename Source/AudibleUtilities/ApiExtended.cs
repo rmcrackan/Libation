@@ -97,7 +97,7 @@ namespace AudibleUtilities
 
 			var sw = Stopwatch.StartNew();
 
-			//Scan the library for all added books, and add ay episode-type items to seriesItems to be scanned for episodes/parents
+			//Scan the library for all added books, and add any episode-type items to seriesItems to be scanned for episodes/parents
 			await foreach (var item in Api.GetLibraryItemAsyncEnumerable(libraryOptions, BatchSize, MaxConcurrency))
 			{
 				if ((item.IsEpisodes || item.IsSeriesParent) && importEpisodes)
@@ -124,8 +124,8 @@ namespace AudibleUtilities
 			//This method blocks until episodeChannel.Writer is closed by scanAllSeries()
 			await foreach (var ep in getAllEpisodesAsync(episodeChannel.Reader))
 			{
-				items.Add(ep);
-				count++;
+				items.AddRange(ep);
+				count += ep.Count;
 			}
 
 			//Be sure to await the scanAllSeries Task so that any exceptions are thrown
@@ -172,7 +172,7 @@ namespace AudibleUtilities
 		/// the Items are yielded, that task is removed from the list, and a new get task is read from
 		/// the channel.
 		/// </summary>
-		private async IAsyncEnumerable<Item> getAllEpisodesAsync(ChannelReader<Task<List<Item>>> channel)
+		private async IAsyncEnumerable<List<Item>> getAllEpisodesAsync(ChannelReader<Task<List<Item>>> channel)
 		{
 			List<Task<List<Item>>> concurentGets = new();
 
@@ -187,8 +187,7 @@ namespace AudibleUtilities
 				if (await channel.WaitToReadAsync())
 					concurentGets.Add(await channel.ReadAsync());
 
-				foreach (var item in completed.Result)
-					yield return item;
+				yield return completed.Result;
 			}
 		}
 
