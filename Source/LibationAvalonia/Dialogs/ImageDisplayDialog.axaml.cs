@@ -1,8 +1,5 @@
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -16,22 +13,7 @@ namespace LibationAvalonia.Dialogs
 		public string PictureFileName { get; set; }
 		public string BookSaveDirectory { get; set; }
 
-		private byte[] _coverBytes;
-		public byte[] CoverBytes
-		{
-			get => _coverBytes;
-			set
-			{
-				_coverBytes = value;
-				var ms = new MemoryStream(_coverBytes);
-				ms.Position = 0;
-				_bitmapHolder.CoverImage = new Bitmap(ms);
-			}
-		}
-
-
 		private readonly BitmapHolder _bitmapHolder = new BitmapHolder();
-
 
 		public ImageDisplayDialog()
 		{
@@ -43,6 +25,21 @@ namespace LibationAvalonia.Dialogs
 		private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
+		}
+
+		public void SetCoverBytes(byte[] cover)
+		{
+			try
+			{
+				var ms = new MemoryStream(cover);
+				_bitmapHolder.CoverImage = new Bitmap(ms);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error loading cover art for {file}", PictureFileName);
+				using var ms = App.OpenAsset("img-coverart-prod-unavailable_500x500.jpg");
+				_bitmapHolder.CoverImage = new Bitmap(ms);				
+			}
 		}
 
 		public async void SaveImage_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -70,7 +67,7 @@ namespace LibationAvalonia.Dialogs
 
 			try
 			{
-				File.WriteAllBytes(uri.LocalPath, CoverBytes);
+				_bitmapHolder.CoverImage.Save(uri.LocalPath);
 			}
 			catch (Exception ex)
 			{

@@ -12,6 +12,7 @@ namespace DataLayer
         public string Account { get; private set; }
 
         public bool IsDeleted { get; set; }
+        public bool AbsentFromLastScan { get; set; }
 
         private LibraryBook() { }
         public LibraryBook(Book book, DateTime dateAdded, string account)

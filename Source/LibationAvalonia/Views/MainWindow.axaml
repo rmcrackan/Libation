@@ -209,7 +209,7 @@
 				<TextBlock FontSize="14" Grid.Column="0" Text="Upgrading:" VerticalAlignment="Center" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}" />
 				<ProgressBar Grid.Column="1" Margin="5,0,10,0" VerticalAlignment="Stretch" Width="100" Value="{Binding DownloadProgress}" IsVisible="{Binding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}"/>
 				<TextBlock FontSize="14" Grid.Column="2" Text="{Binding VisibleCountText}" VerticalAlignment="Center" />
-				<TextBlock FontSize="14" Grid.Column="3" Text="{Binding StatusCountText}" VerticalAlignment="Center" />		
+				<TextBlock FontSize="14" Grid.Column="3" Text="{Binding LibraryStats.StatusString}" VerticalAlignment="Center" />		
 			</Grid>
 		</Grid>
 	</Border>

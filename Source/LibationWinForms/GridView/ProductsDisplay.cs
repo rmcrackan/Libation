@@ -39,7 +39,7 @@ namespace LibationWinForms.GridView
 			void PictureCached(object sender, PictureCachedEventArgs e)
 			{
 				if (e.Definition.PictureId == picDef.PictureId)
-					imageDisplay.CoverPicture = e.Picture;
+					imageDisplay.SetCoverArt(e.Picture);
 
 				PictureStorage.PictureCached -= PictureCached;
 			}
@@ -51,7 +51,7 @@ namespace LibationWinForms.GridView
 
 			if (imageDisplay is null || imageDisplay.IsDisposed || !imageDisplay.Visible)
 			{
-				imageDisplay = new GridView.ImageDisplay();
+				imageDisplay = new ImageDisplay();
 				imageDisplay.RestoreSizeAndLocation(Configuration.Instance);
 				imageDisplay.FormClosed += (_, _) => imageDisplay.SaveSizeAndLocation(Configuration.Instance);
 			}
@@ -59,7 +59,7 @@ namespace LibationWinForms.GridView
 			imageDisplay.BookSaveDirectory = AudibleFileStorage.Audio.GetDestinationDirectory(liveGridEntry.LibraryBook);
 			imageDisplay.PictureFileName = System.IO.Path.GetFileName(AudibleFileStorage.Audio.GetBooksDirectoryFilename(liveGridEntry.LibraryBook, ".jpg"));
 			imageDisplay.Text = windowTitle;
-			imageDisplay.CoverPicture = initialImageBts;
+			imageDisplay.SetCoverArt(initialImageBts);
 			if (!isDefault)
 				PictureStorage.PictureCached -= PictureCached;
 
@@ -200,7 +200,8 @@ namespace LibationWinForms.GridView
 
 		private void productsGrid_LiberateClicked(LibraryBookEntry liveGridEntry)
 		{
-			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error)
+			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error
+				&& !liveGridEntry.Liberate.IsUnavailable)
 				LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 

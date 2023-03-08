@@ -77,7 +77,6 @@
 			this.visibleCountLbl = new LibationWinForms.FormattableToolStripStatusLabel();
             this.springLbl = new System.Windows.Forms.ToolStripStatusLabel();
             this.backupsCountsLbl = new System.Windows.Forms.ToolStripStatusLabel();
-            this.pdfsCountsLbl = new LibationWinForms.FormattableToolStripStatusLabel();
             this.addQuickFilterBtn = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -426,8 +425,7 @@
             this.upgradePb,
 			this.visibleCountLbl,
             this.springLbl,
-            this.backupsCountsLbl,
-            this.pdfsCountsLbl});
+            this.backupsCountsLbl});
             this.statusStrip1.Location = new System.Drawing.Point(0, 618);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
@@ -465,13 +463,6 @@
             this.backupsCountsLbl.Name = "backupsCountsLbl";
             this.backupsCountsLbl.Size = new System.Drawing.Size(218, 17);
             this.backupsCountsLbl.Text = "[Calculating backed up book quantities]";
-            // 
-            // pdfsCountsLbl
-            // 
-            this.pdfsCountsLbl.FormatText = "|  PDFs: NOT d/l\'ed: {0}  Downloaded: {1}";
-            this.pdfsCountsLbl.Name = "pdfsCountsLbl";
-            this.pdfsCountsLbl.Size = new System.Drawing.Size(218, 17);
-            this.pdfsCountsLbl.Text = "|  PDFs: NOT d/l\'ed: {0}  Downloaded: {1}";
             // 
             // addQuickFilterBtn
             // 
@@ -649,7 +640,6 @@
 		private System.Windows.Forms.ToolStripMenuItem liberateToolStripMenuItem;
 		private System.Windows.Forms.ToolStripStatusLabel backupsCountsLbl;
 		private LibationWinForms.FormattableToolStripMenuItem beginBookBackupsToolStripMenuItem;
-		private LibationWinForms.FormattableToolStripStatusLabel pdfsCountsLbl;
 		private LibationWinForms.FormattableToolStripMenuItem beginPdfBackupsToolStripMenuItem;
 		private System.Windows.Forms.TextBox filterSearchTb;
 		private System.Windows.Forms.Button filterBtn;

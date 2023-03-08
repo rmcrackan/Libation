@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using DataLayer;
 using Dinah.Core;
 using FileLiberator;
@@ -78,7 +79,6 @@ namespace LibationAvalonia.ViewModels
 		public abstract bool? Remove { get; set; }
 		public abstract LiberateButtonStatus Liberate { get; }
 		public abstract BookTags BookTags { get; }
-		public abstract bool IsSeries { get; }
 		public abstract bool IsEpisode { get; }
 		public abstract bool IsBook { get; }
 		public IBrush BackgroundBrush => IsEpisode ? App.SeriesEntryGridBackgroundBrush : Brushes.Transparent;
@@ -140,8 +140,7 @@ namespace LibationAvalonia.ViewModels
 				PictureStorage.PictureCached += PictureStorage_PictureCached;
 
 			// Mutable property. Set the field so PropertyChanged isn't fired.
-			using var ms = new System.IO.MemoryStream(picture);
-			_cover = new Avalonia.Media.Imaging.Bitmap(ms);
+			_cover = loadImage(picture);
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
@@ -157,11 +156,27 @@ namespace LibationAvalonia.ViewModels
             // logic validation
             if (e.Definition.PictureId == Book.PictureId)
 			{
-				using var ms = new System.IO.MemoryStream(e.Picture);
-				Cover = new Avalonia.Media.Imaging.Bitmap(ms);
+				Cover = loadImage(e.Picture);
 				PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
 		}
+
+		private Bitmap loadImage(byte[] picture)
+		{
+			try
+			{
+				using var ms = new System.IO.MemoryStream(picture);
+				return new Bitmap(ms);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error loading cover art for {Book}", Book);
+				return DefaultImage;
+			}
+		}
+
+		private static Bitmap _defaultImage;
+		private static Bitmap DefaultImage => _defaultImage ??= new Bitmap(App.OpenAsset("img-coverart-prod-unavailable_80x80.jpg"));
 
 		#endregion
 

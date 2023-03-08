@@ -13,7 +13,6 @@ namespace LibationWinForms
 			// init formattable
 			beginBookBackupsToolStripMenuItem.Format(0);
 			beginPdfBackupsToolStripMenuItem.Format(0);
-			pdfsCountsLbl.Text = "|  [Calculating backed up PDFs]";
 
 			Load += setBackupCounts;
             LibraryCommands.LibrarySizeChanged += setBackupCounts;
@@ -21,9 +20,8 @@ namespace LibationWinForms
 
 			updateCountsBw.DoWork += UpdateCountsBw_DoWork;
 			updateCountsBw.RunWorkerCompleted += exportMenuEnable;
-			updateCountsBw.RunWorkerCompleted += updateBottomBookNumbers;
+			updateCountsBw.RunWorkerCompleted += updateBottomStats;
 			updateCountsBw.RunWorkerCompleted += update_BeginBookBackups_menuItem;
-			updateCountsBw.RunWorkerCompleted += updateBottomPdfNumbers;
 			updateCountsBw.RunWorkerCompleted += udpate_BeginPdfOnlyBackups_menuItem;
 		}
 
@@ -52,27 +50,13 @@ namespace LibationWinForms
 			Invoke(() => exportLibraryToolStripMenuItem.Enabled = libraryStats.HasBookResults);
 		}
 
-		// this cannot be cleanly be FormattableToolStripMenuItem because of the optional "Errors" text
-		private const string backupsCountsLbl_Format = "BACKUPS: No progress: {0}  In process: {1}  Fully backed up: {2}";
-
-		private void updateBottomBookNumbers(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
+		private void updateBottomStats(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 		{
 			var libraryStats = e.Result as LibraryCommands.LibraryStats;
-
-			var formatString
-				= !libraryStats.HasBookResults ? "No books. Begin by importing your library"
-				: libraryStats.booksError > 0 ? backupsCountsLbl_Format + "  Errors: {3}"
-				: libraryStats.HasPendingBooks ? backupsCountsLbl_Format
-				: $"All {"book".PluralizeWithCount(libraryStats.booksFullyBackedUp)} backed up";
-			var statusStripText = string.Format(formatString,
-				libraryStats.booksNoProgress,
-				libraryStats.booksDownloadedOnly,
-				libraryStats.booksFullyBackedUp,
-				libraryStats.booksError);
-			statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = statusStripText);
+			statusStrip1.UIThreadAsync(() => backupsCountsLbl.Text = libraryStats.StatusString);
 		}
 
-		// update 'begin book backups' menu item
+		// update 'begin book and pdf backups' menu item
 		private void update_BeginBookBackups_menuItem(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
 		{
 			var libraryStats = e.Result as LibraryCommands.LibraryStats;
@@ -86,18 +70,6 @@ namespace LibationWinForms
 				beginBookBackupsToolStripMenuItem.Format(menuItemText);
 				beginBookBackupsToolStripMenuItem.Enabled = libraryStats.HasPendingBooks;
 			});
-		}
-
-		private void updateBottomPdfNumbers(object _, System.ComponentModel.RunWorkerCompletedEventArgs e)
-		{
-			var libraryStats = e.Result as LibraryCommands.LibraryStats;
-
-			// don't need to assign the output of Format(). It just makes this logic cleaner
-			var statusStripText
-				= !libraryStats.HasPdfResults ? ""
-				: libraryStats.pdfsNotDownloaded > 0 ? pdfsCountsLbl.Format(libraryStats.pdfsNotDownloaded, libraryStats.pdfsDownloaded)
-				: $"|  All {libraryStats.pdfsDownloaded} PDFs downloaded";
-			statusStrip1.UIThreadAsync(() => pdfsCountsLbl.Text = statusStripText);
 		}
 
 		// update 'begin pdf only backups' menu item

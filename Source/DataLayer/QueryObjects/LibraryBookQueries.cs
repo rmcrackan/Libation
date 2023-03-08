@@ -107,8 +107,9 @@ namespace DataLayer
             => bookList
                 .Where(
                     lb =>
-                        lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload
-                        || lb.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload
+                        !lb.AbsentFromLastScan &&
+                        (lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload
+                        || lb.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
                     );
     }
 }
