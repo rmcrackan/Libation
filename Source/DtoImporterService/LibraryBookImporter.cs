@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AudibleUtilities;
 using DataLayer;
+using Dinah.Core;
 using Dinah.Core.Collections.Generic;
 
 namespace DtoImporterService
@@ -40,9 +41,8 @@ namespace DtoImporterService
 			//
 			// CURRENT SOLUTION: don't re-insert
 
-			var currentLibraryProductIds = DbContext.LibraryBooks.Select(l => l.Book.AudibleProductId).ToList();
 			var newItems = importItems
-				.Where(dto => !currentLibraryProductIds.Contains(dto.DtoItem.ProductId))
+				.ExceptBy(DbContext.LibraryBooks.Select(lb => lb.Book.AudibleProductId), imp => imp.DtoItem.ProductId)
 				.ToList();
 
 			// if 2 accounts try to import the same book in the same transaction: error since we're only tracking and pulling by asin.
@@ -55,7 +55,11 @@ namespace DtoImporterService
 				var libraryBook = new LibraryBook(
 					bookImporter.Cache[newItem.DtoItem.ProductId],
 					newItem.DtoItem.DateAdded,
-					newItem.AccountId);
+					newItem.AccountId)
+				{
+					AbsentFromLastScan = isPlusTitleUnavailable(newItem)
+				};
+
 				try
 				{
 					DbContext.LibraryBooks.Add(libraryBook);
@@ -66,8 +70,30 @@ namespace DtoImporterService
 				}
 			}
 
+			//If an existing Book wasn't found in the import, the owning LibraryBook's Book will be null. 
+			foreach (var nullBook in DbContext.LibraryBooks.AsEnumerable().Where(lb => lb.Book is null))
+				nullBook.AbsentFromLastScan = true;
+
+			//Join importItems on LibraryBooks before iterating over LibraryBooks to avoid
+			//quadratic complexity caused by searching all of importItems for each LibraryBook.
+			//Join uses hashing, so complexity should approach O(N) instead of O(N^2).
+			var items_lbs
+			   = importItems
+			   .Join(DbContext.LibraryBooks, o => (o.AccountId, o.DtoItem.ProductId), i => (i.Account, i.Book?.AudibleProductId), (o, i) => (o, i));
+
+			foreach ((ImportItem item, LibraryBook lb) in items_lbs)
+				lb.AbsentFromLastScan = isPlusTitleUnavailable(item);
+
 			var qtyNew = hash.Count;
 			return qtyNew;
 		}
+
+
+		//This SEEMS to work to detect plus titles which are no longer available.
+		//I have my doubts it won't yield false negatives, but I have more
+		//confidence that it won't yield many/any false positives.
+		private static bool isPlusTitleUnavailable(ImportItem item)
+			=> item.DtoItem.IsAyce is true
+			&& item.DtoItem.Plans?.Any(p => p.PlanName.ContainsInsensitive("Minerva") || p.PlanName.ContainsInsensitive("Free")) is not true;
 	}
 }

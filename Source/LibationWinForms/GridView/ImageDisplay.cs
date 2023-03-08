@@ -9,16 +9,25 @@ namespace LibationWinForms.GridView
 	{
 		public string PictureFileName { get; set; }
 		public string BookSaveDirectory { get; set; }
-		public byte[] CoverPicture { get => _coverBytes; set => pictureBox1.Image = Dinah.Core.WindowsDesktop.Drawing.ImageReader.ToImage(_coverBytes = value); }
-
-		private byte[] _coverBytes;
-
 
 		public ImageDisplay()
 		{
 			InitializeComponent();
 			lastWidth = Width;
 			lastHeight = Height;
+		}
+
+		public void SetCoverArt(byte[] cover)
+		{
+			try
+			{
+				pictureBox1.Image = Dinah.Core.WindowsDesktop.Drawing.ImageReader.ToImage(cover);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error loading cover art for {file}", PictureFileName);
+				pictureBox1.Image = Properties.Resources.default_cover_500x500;
+			}
 		}
 
 		#region Make the form's aspect ratio always match the picture's aspect ratio.
@@ -106,7 +115,7 @@ namespace LibationWinForms.GridView
 
 			try
 			{
-				File.WriteAllBytes(saveFileDialog.FileName, CoverPicture);
+				pictureBox1.Image.Save(saveFileDialog.FileName);
 			}
 			catch (Exception ex)
 			{

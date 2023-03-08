@@ -1,6 +1,4 @@
 ﻿using ApplicationServices;
-using Avalonia.Media.Imaging;
-using Dinah.Core;
 using LibationFileManager;
 using ReactiveUI;
 
@@ -167,18 +165,6 @@ namespace LibationAvalonia.ViewModels
 			{
 				this.RaiseAndSetIfChanged(ref _libraryStats, value);
 
-				var backupsCountText
-					= !LibraryStats.HasBookResults ? "No books. Begin by importing your library"
-					: !LibraryStats.HasPendingBooks ? $"All {"book".PluralizeWithCount(LibraryStats.booksFullyBackedUp)} backed up"
-					: $"BACKUPS: No progress: {LibraryStats.booksNoProgress}  In process: {LibraryStats.booksDownloadedOnly}  Fully backed up: {LibraryStats.booksFullyBackedUp} {(LibraryStats.booksError > 0 ? $"  Errors : {LibraryStats.booksError}" : "")}";
-
-				var pdfCountText
-					= !LibraryStats.HasPdfResults ? ""
-					: LibraryStats.pdfsNotDownloaded == 0 ? $"  |  All {LibraryStats.pdfsDownloaded} PDFs downloaded"
-					: $"  |  PDFs: NOT d/l'ed: {LibraryStats.pdfsNotDownloaded} Downloaded: {LibraryStats.pdfsDownloaded}";
-
-				StatusCountText = backupsCountText + pdfCountText;
-
 				BookBackupsToolStripText
 					= LibraryStats.HasPendingBooks
 					? $"Begin _Book and PDF Backups: {LibraryStats.PendingBooks} remaining"
@@ -189,19 +175,15 @@ namespace LibationAvalonia.ViewModels
 					? $"Begin _PDF Only Backups: {LibraryStats.pdfsNotDownloaded} remaining"
 					: "All PDFs have been downloaded";
 
-				this.RaisePropertyChanged(nameof(StatusCountText));
 				this.RaisePropertyChanged(nameof(BookBackupsToolStripText));
 				this.RaisePropertyChanged(nameof(PdfBackupsToolStripText));
 			}
 		}
 
-		/// <summary> Bottom-left library statistics display text </summary>
-		public string StatusCountText { get; private set; } = "[Calculating backed up book quantities]  |  [Calculating backed up PDFs]";
 		/// <summary> The "Begin Book and PDF Backup" menu item header text </summary>
 		public string BookBackupsToolStripText { get; private set; } = "Begin _Book and PDF Backups: 0";
 		/// <summary> The "Begin PDF Only Backup" menu item header text </summary>
 		public string PdfBackupsToolStripText { get; private set; } = "Begin _PDF Only Backups: 0";
-
 
 
 		/// <summary> The number of books visible in the Products Display that have not yet been liberated </summary>

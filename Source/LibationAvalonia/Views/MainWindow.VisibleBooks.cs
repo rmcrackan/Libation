@@ -154,9 +154,9 @@ namespace LibationAvalonia.Views
 			await Dispatcher.UIThread.InvokeAsync(setLiberatedVisibleMenuItem);
 		}
 		void setLiberatedVisibleMenuItem()
-			=> _viewModel.VisibleNotLiberated
-				= _viewModel.ProductsDisplay
-				.GetVisibleBookEntries()
-				.Count(lb => lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.NotLiberated);
+		{
+			var libraryStats = LibraryCommands.GetCounts(_viewModel.ProductsDisplay.GetVisibleBookEntries());
+			_viewModel.VisibleNotLiberated = libraryStats.PendingBooks;
+		}
 	}
 }

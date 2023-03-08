@@ -17,11 +17,14 @@ namespace LibationWinForms.GridView
 	internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell
 	{
 		private static readonly Color SERIES_BG_COLOR = Color.FromArgb(230, 255, 230);
+		private static readonly Brush DISABLED_GRAY = new SolidBrush(Color.FromArgb(0x60, Color.LightGray));
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
 			if (value is LiberateButtonStatus status)
 			{
-				if (status.BookStatus is LiberatedStatus.Error)
+
+				if (status.BookStatus is LiberatedStatus.Error || status.IsUnavailable)
+					//Don't paint the button graphic
 					paintParts ^= DataGridViewPaintParts.ContentBackground | DataGridViewPaintParts.ContentForeground | DataGridViewPaintParts.SelectionBackground;
 
 				if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is LibraryBookEntry lbEntry && lbEntry.Parent is not null)
@@ -41,7 +44,14 @@ namespace LibationWinForms.GridView
 
 					DrawButtonImage(graphics, buttonImage, cellBounds);
 
-					ToolTipText = mouseoverText;
+					if (status.IsUnavailable)
+					{
+						//Create the "disabled" look by painting a transparent gray box over the buttom image.
+						graphics.FillRectangle(DISABLED_GRAY, cellBounds);
+						ToolTipText = "This book cannot be downloaded\r\nbecause it wasn't found during\r\nthe most recent library scan";
+					}
+					else
+						ToolTipText = mouseoverText;
 				}
 			}
 		}

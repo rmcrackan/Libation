@@ -106,6 +106,12 @@ namespace ApplicationServices
 
 		[Name("Language")]
         public string Language { get; set; }
+
+		[Name("LastDownloaded")]
+		public DateTime? LastDownloaded { get; set; }
+
+		[Name("LastDownloadedVersion")]
+        public string LastDownloadedVersion { get; set; }
     }
 	public static class LibToDtos
 	{
@@ -140,7 +146,10 @@ namespace ApplicationServices
 				PdfStatus = a.Book.UserDefinedItem.PdfStatus.ToString(),
 				ContentType = a.Book.ContentType.ToString(),
 				AudioFormat = a.Book.AudioFormat.ToString(),
-				Language = a.Book.Language
+				Language = a.Book.Language,
+				LastDownloaded = a.Book.UserDefinedItem.LastDownloaded,
+				LastDownloadedVersion = a.Book.UserDefinedItem.LastDownloadedVersion?.ToString() ?? "",
+
 			}).ToList();
 	}
 	public static class LibraryExporter
@@ -212,7 +221,9 @@ namespace ApplicationServices
 				nameof(ExportDto.PdfStatus),
 				nameof(ExportDto.ContentType),
 				nameof(ExportDto.AudioFormat),
-                nameof(ExportDto.Language)
+                nameof(ExportDto.Language),
+                nameof(ExportDto.LastDownloaded),
+                nameof(ExportDto.LastDownloadedVersion),
             };
 			var col = 0;
 			foreach (var c in columns)
@@ -238,9 +249,9 @@ namespace ApplicationServices
 
 				row.CreateCell(col++).SetCellValue(dto.Account);
 
-				var dateAddedCell = row.CreateCell(col++);
-				dateAddedCell.CellStyle = dateStyle;
-				dateAddedCell.SetCellValue(dto.DateAdded);
+				var dateCell = row.CreateCell(col++);
+				dateCell.CellStyle = dateStyle;
+				dateCell.SetCellValue(dto.DateAdded);
 
 				row.CreateCell(col++).SetCellValue(dto.AudibleProductId);
 				row.CreateCell(col++).SetCellValue(dto.Locale);
@@ -280,6 +291,15 @@ namespace ApplicationServices
 				row.CreateCell(col++).SetCellValue(dto.ContentType);
                 row.CreateCell(col++).SetCellValue(dto.AudioFormat);
                 row.CreateCell(col++).SetCellValue(dto.Language);
+
+				if (dto.LastDownloaded.HasValue)
+				{
+					dateCell = row.CreateCell(col);
+					dateCell.CellStyle = dateStyle;
+					dateCell.SetCellValue(dto.LastDownloaded.Value);
+				}
+
+                row.CreateCell(++col).SetCellValue(dto.LastDownloadedVersion);
 
                 rowIndex++;
 			}

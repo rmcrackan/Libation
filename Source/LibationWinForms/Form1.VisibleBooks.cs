@@ -27,25 +27,22 @@ namespace LibationWinForms
 			=> await Task.Run(setLiberatedVisibleMenuItem);
 		void setLiberatedVisibleMenuItem()
 		{
-			var notLiberated = productsDisplay.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
+			var libraryStats = LibraryCommands.GetCounts(productsDisplay.GetVisible());
 			this.UIThreadSync(() =>
 			{
-				if (notLiberated > 0)
+				if (libraryStats.HasPendingBooks)
 				{
-					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Format(notLiberated);
-					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Enabled = true;
-
-					liberateVisibleToolStripMenuItem_LiberateMenu.Format(notLiberated);
-					liberateVisibleToolStripMenuItem_LiberateMenu.Enabled = true;
+					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Format(libraryStats.PendingBooks);
+					liberateVisibleToolStripMenuItem_LiberateMenu.Format(libraryStats.PendingBooks);
 				}
 				else
 				{
 					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Text = "All visible books are liberated";
-					liberateVisibleToolStripMenuItem_VisibleBooksMenu.Enabled = false;
-
 					liberateVisibleToolStripMenuItem_LiberateMenu.Text = "All visible books are liberated";
-					liberateVisibleToolStripMenuItem_LiberateMenu.Enabled = false;
 				}
+
+				liberateVisibleToolStripMenuItem_VisibleBooksMenu.Enabled = libraryStats.HasPendingBooks;
+				liberateVisibleToolStripMenuItem_LiberateMenu.Enabled = libraryStats.HasPendingBooks;
 			});
 		}
 
@@ -180,9 +177,6 @@ namespace LibationWinForms
 			// top menu strip
 			visibleBooksToolStripMenuItem.Format(qty);
 			visibleBooksToolStripMenuItem.Enabled = qty > 0;
-
-			//Not used for anything?
-			var notLiberatedCount = productsDisplay.GetVisible().Count(lb => lb.Book.UserDefinedItem.BookStatus == DataLayer.LiberatedStatus.NotLiberated);
 			
 			await Task.Run(setLiberatedVisibleMenuItem);
 		}

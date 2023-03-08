@@ -62,7 +62,7 @@ namespace LibationWinForms.GridView
 
 		private SeriesEntry(LibraryBook parent)
 		{
-			Liberate = new LiberateButtonStatus { IsSeries = true };
+			Liberate = new LiberateButtonStatus(isSeries: true, isAbsent: false);
 			SeriesIndex = -1;
 			LibraryBook = parent;
 			LoadCover();

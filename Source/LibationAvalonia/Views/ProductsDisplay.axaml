@@ -61,9 +61,13 @@
 				<controls:DataGridTemplateColumnExt CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate" ClipboardContentBinding="{Binding Liberate.ToolTip}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Button Opacity="{Binding Opacity}" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="LiberateButton_Click" ToolTip.Tip="{Binding Liberate.ToolTip}">
-								<Image Source="{Binding Liberate.Image}" Stretch="None" />
-							</Button>
+							<Panel ToolTip.Tip="{Binding Liberate.ToolTip}">
+								<Button Opacity="{Binding Opacity}" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="LiberateButton_Click" IsVisible="{Binding !Liberate.IsUnavailable}">
+									<Image Source="{Binding Liberate.Image}" Stretch="None" />
+								</Button>
+								<Image Source="{Binding Liberate.Image}" Stretch="None" IsVisible="{Binding Liberate.IsUnavailable}"/>
+								<Panel Background="{StaticResource DisabledGrayBrush}" IsVisible="{Binding Liberate.IsUnavailable}" />
+							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>

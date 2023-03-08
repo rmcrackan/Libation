@@ -46,7 +46,6 @@ namespace LibationAvalonia.ViewModels
 		public override LiberateButtonStatus Liberate { get; }
 		public override BookTags BookTags { get; } = new();
 
-		public override bool IsSeries => true;
 		public override bool IsEpisode => false;
 		public override bool IsBook => false;
 
@@ -54,7 +53,7 @@ namespace LibationAvalonia.ViewModels
 
 		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children)
 		{
-			Liberate = new LiberateButtonStatus(IsSeries);
+			Liberate = new LiberateButtonStatus(isSeries: true, isAbsent: false);
 			SeriesIndex = -1;
 
 			Children = children
