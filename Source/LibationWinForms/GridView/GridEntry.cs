@@ -138,7 +138,7 @@ namespace LibationWinForms.GridView
 				PictureStorage.PictureCached += PictureStorage_PictureCached;
 
 			// Mutable property. Set the field so PropertyChanged isn't fired.
-			_cover = ImageReader.ToImage(picture);
+			_cover = loadImage(picture);
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
@@ -154,8 +154,22 @@ namespace LibationWinForms.GridView
             // logic validation
             if (e.Definition.PictureId == Book.PictureId)
 			{
-				Cover = ImageReader.ToImage(e.Picture);
+				Cover = loadImage(e.Picture);
 				PictureStorage.PictureCached -= PictureStorage_PictureCached;
+			}
+		}
+
+
+		private Image loadImage(byte[] picture)
+		{
+			try
+			{
+				return ImageReader.ToImage(picture);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error loading cover art for {Book}", Book);
+				return Properties.Resources.default_cover_80x80;
 			}
 		}
 

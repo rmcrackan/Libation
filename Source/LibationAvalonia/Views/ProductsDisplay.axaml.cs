@@ -327,7 +327,7 @@ namespace LibationAvalonia.Views
 			void PictureCached(object sender, PictureCachedEventArgs e)
 			{
 				if (e.Definition.PictureId == picDef.PictureId)
-					imageDisplayDialog.CoverBytes = e.Picture;
+					imageDisplayDialog.SetCoverBytes(e.Picture);
 
 				PictureStorage.PictureCached -= PictureCached;
 			}
@@ -342,7 +342,7 @@ namespace LibationAvalonia.Views
 			imageDisplayDialog.BookSaveDirectory = AudibleFileStorage.Audio.GetDestinationDirectory(gEntry.LibraryBook);
 			imageDisplayDialog.PictureFileName = System.IO.Path.GetFileName(AudibleFileStorage.Audio.GetBooksDirectoryFilename(gEntry.LibraryBook, ".jpg"));
 			imageDisplayDialog.Title = windowTitle;
-			imageDisplayDialog.CoverBytes = initialImageBts;
+			imageDisplayDialog.SetCoverBytes(initialImageBts);
 
 			if (!isDefault)
 				PictureStorage.PictureCached -= PictureCached;
