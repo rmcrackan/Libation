@@ -7,8 +7,11 @@ using AudibleApi;
 using AudibleUtilities;
 using DataLayer;
 using Dinah.Core;
+using Dinah.Core.Logging;
 using DtoImporterService;
+using FileManager;
 using LibationFileManager;
+using Newtonsoft.Json.Linq;
 using Serilog;
 using static DtoImporterService.PerfLogger;
 
@@ -169,13 +172,21 @@ namespace ApplicationServices
         private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions libraryOptions)
         {
             var tasks = new List<Task<List<ImportItem>>>();
-            foreach (var account in accounts)
+
+            using LogArchiver archiver
+                = Log.Logger.IsDebugEnabled()
+                ? new LogArchiver(System.IO.Path.Combine(Configuration.Instance.LibationFiles, "LibraryScans.zip"))
+                : default;
+
+			archiver?.DeleteAllButNewestN(20);
+
+			foreach (var account in accounts)
             {
                 // get APIs in serial b/c of logins. do NOT move inside of parallel (Task.WhenAll)
                 var apiExtended = await apiExtendedfunc(account);
 
                 // add scanAccountAsync as a TASK: do not await
-                tasks.Add(scanAccountAsync(apiExtended, account, libraryOptions));
+                tasks.Add(scanAccountAsync(apiExtended, account, libraryOptions, archiver));
             }
 
             // import library in parallel
@@ -184,7 +195,7 @@ namespace ApplicationServices
             return importItems;
         }
 
-        private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions libraryOptions)
+        private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions libraryOptions, LogArchiver archiver)
         {
             ArgumentValidator.EnsureNotNull(account, nameof(account));
 
@@ -196,6 +207,8 @@ namespace ApplicationServices
             logTime($"pre scanAccountAsync {account.AccountName}");
 
             var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions, Configuration.Instance.ImportEpisodes);
+
+            archiver?.AddFile($"{DateTime.Now:u} {account.MaskedLogEntry}.json", new JObject { { "Account", account.MaskedLogEntry }, { "ScannedDateTime", DateTime.Now.ToString("u") }, {"Items", JArray.FromObject(dtoItems) } });
 
             logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
 
