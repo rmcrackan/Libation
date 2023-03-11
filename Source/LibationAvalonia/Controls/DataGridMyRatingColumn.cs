@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Interactivity;
 using DataLayer;
 using ReactiveUI;
@@ -7,19 +8,10 @@ using System;
 
 namespace LibationAvalonia.Controls
 {
-	public class StarStringConverter : Avalonia.Data.Converters.IValueConverter
-	{
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-			=> value is Rating rating ? rating.ToStarString() : string.Empty;
-
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-			=> throw new NotImplementedException();
-	}
-
 	public class DataGridMyRatingColumn : DataGridBoundColumn
 	{
-		[Avalonia.Data.AssignBinding]
-		public Avalonia.Data.IBinding BackgroundBinding { get; set; }
+		[AssignBinding] public IBinding BackgroundBinding { get; set; }
+		[AssignBinding] public IBinding OpacityBinding { get; set; }
 		private static Rating DefaultRating => new Rating(0, 0, 0);
 		public DataGridMyRatingColumn()
 		{
@@ -40,13 +32,11 @@ namespace LibationAvalonia.Controls
 				ToolTip.SetTip(myRatingElement, "Click to change ratings");
 
 			if (Binding != null)
-			{
 				myRatingElement.Bind(BindingTarget, Binding);
-			}
 			if (BackgroundBinding != null)
-			{
 				myRatingElement.Bind(MyRatingCellEditor.BackgroundProperty, BackgroundBinding);
-			}
+			if (OpacityBinding != null)
+				myRatingElement.Bind(MyRatingCellEditor.OpacityProperty, OpacityBinding);
 
 			return myRatingElement;
 		}
@@ -58,10 +48,11 @@ namespace LibationAvalonia.Controls
 				Name = "CellMyRatingEditor",
 				IsEditingMode = true
 			};
+
 			if (BackgroundBinding != null)
-			{
 				myRatingElement.Bind(MyRatingCellEditor.BackgroundProperty, BackgroundBinding);
-			}
+			if (OpacityBinding != null)
+				myRatingElement.Bind(MyRatingCellEditor.OpacityProperty, OpacityBinding);
 
 			return myRatingElement;
 		}

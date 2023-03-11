@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace LibationUiBase
+namespace LibationUiBase.GridView
 {
 	public class ObjectComparer<T> : IComparer where T : IComparable
 	{

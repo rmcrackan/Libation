@@ -1,15 +1,16 @@
+using ApplicationServices;
+using AudibleUtilities;
+using Avalonia.Collections;
+using Avalonia.Threading;
 using DataLayer;
+using LibationAvalonia.Dialogs.Login;
+using LibationUiBase.GridView;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using ReactiveUI;
-using Avalonia.Threading;
-using ApplicationServices;
-using AudibleUtilities;
-using LibationAvalonia.Dialogs.Login;
-using Avalonia.Collections;
 
 namespace LibationAvalonia.ViewModels
 {
@@ -20,9 +21,9 @@ namespace LibationAvalonia.ViewModels
 		public event EventHandler<int> RemovableCountChanged;
 
 		/// <summary>Backing list of all grid entries</summary>
-		private readonly AvaloniaList<GridEntry> SOURCE = new();
+		private readonly AvaloniaList<IGridEntry> SOURCE = new();
 		/// <summary>Grid entries included in the filter set. If null, all grid entries are shown</summary>
-		private List<GridEntry> FilteredInGridEntries;
+		private List<IGridEntry> FilteredInGridEntries;
 		public string FilterString { get; private set; }
 		public DataGridCollectionView GridEntries { get; private set; }
 
@@ -31,11 +32,11 @@ namespace LibationAvalonia.ViewModels
 
 		public List<LibraryBook> GetVisibleBookEntries()
 			=> GridEntries
-			.OfType<LibraryBookEntry>()
+			.OfType<ILibraryBookEntry>()
 			.Select(lbe => lbe.LibraryBook)
 			.ToList();
 
-		private IEnumerable<LibraryBookEntry> GetAllBookEntries()
+		private IEnumerable<ILibraryBookEntry> GetAllBookEntries()
 			=> SOURCE
 			.BookEntries();
 
@@ -88,21 +89,14 @@ namespace LibationAvalonia.ViewModels
 
 		internal void BindToGrid(List<LibraryBook> dbBooks)
 		{
-			GridEntries = new(SOURCE)
-			{
-				Filter = CollectionFilter
-			};
-
-			GridEntries.CollectionChanged += (_, _)
-				=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<LibraryBookEntry>().Count());
+			GridEntries = new(SOURCE) { Filter = CollectionFilter };
 
 			var geList = dbBooks
 				.Where(lb => lb.Book.IsProduct())
-				.Select(b => new LibraryBookEntry(b))
-				.Cast<GridEntry>()
-				.ToList();
+				.Select(b => new LibraryBookEntry<AvaloniaEntryStatus>(b))
+				.ToList<IGridEntry>();
 
-			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild());
+			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild()).ToList();
 
 			var seriesBooks = dbBooks.Where(lb => lb.Book.IsEpisodeParent()).ToList();
 
@@ -112,7 +106,7 @@ namespace LibationAvalonia.ViewModels
 
 				if (!seriesEpisodes.Any()) continue;
 
-				var seriesEntry = new SeriesEntry(parent, seriesEpisodes);
+				var seriesEntry = new SeriesEntry<AvaloniaEntryStatus>(parent, seriesEpisodes);
 				seriesEntry.Liberate.Expanded = false;
 
 				geList.Add(seriesEntry);
@@ -122,6 +116,10 @@ namespace LibationAvalonia.ViewModels
 			//Create the filtered-in list before adding entries to avoid a refresh
 			FilteredInGridEntries = QueryResults(geList, FilterString);
 			SOURCE.AddRange(geList.OrderByDescending(e => e.DateAdded));
+			GridEntries.CollectionChanged += (_, _)
+				=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<ILibraryBookEntry>().Count());
+
+			VisibleCountChanged?.Invoke(this, GridEntries.OfType<ILibraryBookEntry>().Count());
 		}
 
 		/// <summary>
@@ -132,9 +130,9 @@ namespace LibationAvalonia.ViewModels
 			#region Add new or update existing grid entries
 
 			//Add absent entries to grid, or update existing entry
-			var allEntries = SOURCE.BookEntries();
+			var allEntries = SOURCE.BookEntries().ToList();
 			var seriesEntries = SOURCE.SeriesEntries().ToList();
-			var parentedEpisodes = dbBooks.ParentedEpisodes();
+			var parentedEpisodes = dbBooks.ParentedEpisodes().ToList();
 
 			await Dispatcher.UIThread.InvokeAsync(() =>
 			{
@@ -166,7 +164,7 @@ namespace LibationAvalonia.ViewModels
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
 
 			//Remove books in series from their parents' Children list
-			foreach (var removed in removedBooks.Where(b => b.Parent is not null))
+			foreach (var removed in removedBooks.Where(b => b.Liberate.IsEpisode))
 				removed.Parent.RemoveChild(removed);
 
 			//Remove series that have no children
@@ -180,9 +178,9 @@ namespace LibationAvalonia.ViewModels
 			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
 		}
 
-		private void RemoveBooks(IEnumerable<LibraryBookEntry> removedBooks, IEnumerable<SeriesEntry> removedSeries)
+		private void RemoveBooks(IEnumerable<ILibraryBookEntry> removedBooks, IEnumerable<ISeriesEntry> removedSeries)
 		{
-			foreach (var removed in removedBooks.Cast<GridEntry>().Concat(removedSeries).Where(b => b is not null).ToList())
+			foreach (var removed in removedBooks.Cast<IGridEntry>().Concat(removedSeries).Where(b => b is not null).ToList())
 			{
 				if (GridEntries.PassesFilter(removed))
 					GridEntries.Remove(removed);
@@ -195,21 +193,21 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		private void UpsertBook(LibraryBook book, LibraryBookEntry existingBookEntry)
+		private void UpsertBook(LibraryBook book, ILibraryBookEntry existingBookEntry)
 		{
 			if (existingBookEntry is null)
 				// Add the new product to top
-				SOURCE.Insert(0, new LibraryBookEntry(book));
+				SOURCE.Insert(0, new LibraryBookEntry<AvaloniaEntryStatus>(book));
 			else
 				// update existing
 				existingBookEntry.UpdateLibraryBook(book);
 		}
 
-		private void UpsertEpisode(LibraryBook episodeBook, LibraryBookEntry existingEpisodeEntry, List<SeriesEntry> seriesEntries, IEnumerable<LibraryBook> dbBooks)
+		private void UpsertEpisode(LibraryBook episodeBook, ILibraryBookEntry existingEpisodeEntry, List<ISeriesEntry> seriesEntries, IEnumerable<LibraryBook> dbBooks)
 		{
 			if (existingEpisodeEntry is null)
 			{
-				LibraryBookEntry episodeEntry;
+				ILibraryBookEntry episodeEntry;
 
 				var seriesEntry = seriesEntries.FindSeriesParent(episodeBook);
 
@@ -227,7 +225,7 @@ namespace LibationAvalonia.ViewModels
 						return;
 					}
 
-					seriesEntry = new SeriesEntry(seriesBook, new[] { episodeBook });
+					seriesEntry = new SeriesEntry<AvaloniaEntryStatus>(seriesBook, episodeBook);
 					seriesEntries.Add(seriesEntry);
 
 					episodeEntry = seriesEntry.Children[0];
@@ -237,7 +235,7 @@ namespace LibationAvalonia.ViewModels
 				else
 				{
 					//Series exists. Create and add episode child then update the SeriesEntry
-					episodeEntry = new(episodeBook) { Parent = seriesEntry };
+					episodeEntry = new LibraryBookEntry<AvaloniaEntryStatus>(episodeBook, seriesEntry);
 					seriesEntry.Children.Add(episodeEntry);
 					var seriesBook = dbBooks.Single(lb => lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId);
 					seriesEntry.UpdateLibraryBook(seriesBook);
@@ -259,7 +257,7 @@ namespace LibationAvalonia.ViewModels
 			await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
 		}
 
-		public async Task ToggleSeriesExpanded(SeriesEntry seriesEntry)
+		public async Task ToggleSeriesExpanded(ISeriesEntry seriesEntry)
 		{
 			seriesEntry.Liberate.Expanded = !seriesEntry.Liberate.Expanded;
 
@@ -284,8 +282,8 @@ namespace LibationAvalonia.ViewModels
 
 		private bool CollectionFilter(object item)
 		{
-			if (item is LibraryBookEntry lbe
-				&& lbe.IsEpisode
+			if (item is ILibraryBookEntry lbe
+				&& lbe.Liberate.IsEpisode
 				&& lbe.Parent?.Liberate?.Expanded != true)
 				return false;
 
@@ -294,13 +292,13 @@ namespace LibationAvalonia.ViewModels
 			return FilteredInGridEntries.Contains(item);
 		}
 
-		private static List<GridEntry> QueryResults(IEnumerable<GridEntry> entries, string searchString)
+		private static List<IGridEntry> QueryResults(IEnumerable<IGridEntry> entries, string searchString)
 		{
 			if (string.IsNullOrEmpty(searchString)) return null;
 
 			var searchResultSet = SearchEngineCommands.Search(searchString);
 
-			var booksFilteredIn = entries.BookEntries().Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry)lbe);
+			var booksFilteredIn = entries.BookEntries().Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (IGridEntry)lbe);
 
 			//Find all series containing children that match the search criteria
 			var seriesFilteredIn = entries.SeriesEntries().Where(s => s.Children.Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
@@ -415,7 +413,7 @@ namespace LibationAvalonia.ViewModels
 
 		private void GridEntry_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == nameof(GridEntry.Remove) && sender is LibraryBookEntry lbEntry)
+			if (e.PropertyName == nameof(IGridEntry.Remove) && sender is ILibraryBookEntry)
 			{
 				int removeCount = GetAllBookEntries().Count(lbe => lbe.Remove is true);
 				RemovableCountChanged?.Invoke(this, removeCount);

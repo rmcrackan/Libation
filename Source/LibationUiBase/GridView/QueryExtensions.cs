@@ -3,24 +3,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LibationWinForms.GridView
+namespace LibationUiBase.GridView
 {
 #nullable enable
-	internal static class QueryExtensions
+	public static class QueryExtensions
 	{
-		public static IEnumerable<LibraryBookEntry> BookEntries(this IEnumerable<GridEntry> gridEntries)
-			=> gridEntries.OfType<LibraryBookEntry>();
+		public static IEnumerable<ILibraryBookEntry> BookEntries(this IEnumerable<IGridEntry> gridEntries)
+			=> gridEntries.OfType<ILibraryBookEntry>();
 
-		public static IEnumerable<SeriesEntry> SeriesEntries(this IEnumerable<GridEntry> gridEntries)
-			=> gridEntries.OfType<SeriesEntry>();
+		public static IEnumerable<ISeriesEntry> SeriesEntries(this IEnumerable<IGridEntry> gridEntries)
+			=> gridEntries.OfType<ISeriesEntry>();
 
-		public static T? FindByAsin<T>(this IEnumerable<T> gridEntries, string audibleProductID) where T : GridEntry
+		public static T? FindByAsin<T>(this IEnumerable<T> gridEntries, string audibleProductID) where T : IGridEntry
 			=> gridEntries.FirstOrDefault(i => i.AudibleProductId == audibleProductID);
 
-		public static IEnumerable<SeriesEntry> EmptySeries(this IEnumerable<GridEntry> gridEntries)
+		public static IEnumerable<ISeriesEntry> EmptySeries(this IEnumerable<IGridEntry> gridEntries)
 			=> gridEntries.SeriesEntries().Where(i => i.Children.Count == 0);
 
-		public static SeriesEntry? FindSeriesParent(this IEnumerable<GridEntry> gridEntries, LibraryBook seriesEpisode)
+		public static ISeriesEntry? FindSeriesParent(this IEnumerable<IGridEntry> gridEntries, LibraryBook seriesEpisode)
 		{
 			if (seriesEpisode.Book.SeriesLink is null) return null;
 

@@ -1,6 +1,7 @@
 ﻿using ApplicationServices;
 using Dinah.Core.DataBinding;
 using LibationSearchEngine;
+using LibationUiBase.GridView;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,20 +21,20 @@ namespace LibationWinForms.GridView
 	 * Remove is overridden to ensure that removed items are removed from
 	 * the base list (visible items) as well as the FilterRemoved list.
 	 */
-	internal class GridEntryBindingList : BindingList<GridEntry>, IBindingListView
+	internal class GridEntryBindingList : BindingList<IGridEntry>, IBindingListView
 	{
-		public GridEntryBindingList() : base(new List<GridEntry>()) { }
-		public GridEntryBindingList(IEnumerable<GridEntry> enumeration) : base(new List<GridEntry>(enumeration)) { }
+		public GridEntryBindingList() : base(new List<IGridEntry>()) { }
+		public GridEntryBindingList(IEnumerable<IGridEntry> enumeration) : base(new List<IGridEntry>(enumeration)) { }
 
 		/// <returns>All items in the list, including those filtered out.</returns>
-		public List<GridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
+		public List<IGridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
 		public bool SupportsFiltering => true;
 		public string Filter { get => FilterString; set => ApplyFilter(value); }
 
 		/// <summary>When true, itms will not be checked filtered by search criteria on item changed<summary>
 		public bool SuspendFilteringOnUpdate { get; set; }
 
-		protected MemberComparer<GridEntry> Comparer { get; } = new();
+		protected MemberComparer<IGridEntry> Comparer { get; } = new();
 		protected override bool SupportsSortingCore => true;
 		protected override bool SupportsSearchingCore => true;
 		protected override bool IsSortedCore => isSorted;
@@ -41,7 +42,7 @@ namespace LibationWinForms.GridView
 		protected override ListSortDirection SortDirectionCore => listSortDirection;
 
 		/// <summary> Items that were removed from the base list due to filtering </summary>
-		private readonly List<GridEntry> FilterRemoved = new();
+		private readonly List<IGridEntry> FilterRemoved = new();
 		private string FilterString;
 		private SearchResultSet SearchResults;
 		private bool isSorted;
@@ -59,7 +60,7 @@ namespace LibationWinForms.GridView
 		public ListSortDescriptionCollection SortDescriptions => throw new NotImplementedException();
 		#endregion
 
-		public new void Remove(GridEntry entry)
+		public new void Remove(IGridEntry entry)
 		{
 			FilterRemoved.Remove(entry);
 			base.Remove(entry);
@@ -73,7 +74,7 @@ namespace LibationWinForms.GridView
 			FilterString = filterString;
 			SearchResults = SearchEngineCommands.Search(filterString);
 
-			var booksFilteredIn = Items.BookEntries().Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (GridEntry)lbe);
+			var booksFilteredIn = Items.BookEntries().Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (IGridEntry)lbe);
 
 			//Find all series containing children that match the search criteria
 			var seriesFilteredIn = Items.SeriesEntries().Where(s => s.Children.Join(SearchResults.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
@@ -99,7 +100,7 @@ namespace LibationWinForms.GridView
 				ExpandItem(series);
 		}
 
-		public void CollapseItem(SeriesEntry sEntry)
+		public void CollapseItem(ISeriesEntry sEntry)
 		{
 			foreach (var episode in Items.BookEntries().Where(b => b.Parent == sEntry).ToList())
 			{
@@ -110,7 +111,7 @@ namespace LibationWinForms.GridView
 			sEntry.Liberate.Expanded = false;
 		}
 
-		public void ExpandItem(SeriesEntry sEntry)
+		public void ExpandItem(ISeriesEntry sEntry)
 		{
 			var sindex = Items.IndexOf(sEntry);
 
@@ -133,7 +134,7 @@ namespace LibationWinForms.GridView
 
 			foreach (var item in FilterRemoved.ToList())
 			{
-				if (item is SeriesEntry || (item is LibraryBookEntry lbe && (lbe.Parent is null || lbe.Parent.Liberate.Expanded)))
+				if (item is ISeriesEntry || (item is ILibraryBookEntry lbe && (lbe.Liberate.IsBook || lbe.Parent.Liberate.Expanded)))
 				{
 					FilterRemoved.Remove(item);
 					InsertItem(visibleCount++, item);
@@ -145,7 +146,7 @@ namespace LibationWinForms.GridView
 			else
 			//No user sort is applied, so do default sorting by DateAdded, descending
 			{
-				Comparer.PropertyName = nameof(GridEntry.DateAdded);
+				Comparer.PropertyName = nameof(IGridEntry.DateAdded);
 				Comparer.Direction = ListSortDirection.Descending;
 				Sort();
 			}
@@ -172,9 +173,9 @@ namespace LibationWinForms.GridView
 
 		protected void Sort()
 		{
-			var itemsList = (List<GridEntry>)Items;
+			var itemsList = (List<IGridEntry>)Items;
 
-			var children = itemsList.BookEntries().Where(i => i.Parent is not null).ToList();
+			var children = itemsList.BookEntries().Where(i => i.Liberate.IsEpisode).ToList();
 
 			var sortedItems = itemsList.Except(children).OrderBy(ge => ge, Comparer).ToList();
 
@@ -198,7 +199,7 @@ namespace LibationWinForms.GridView
 		{
 			if (e.ListChangedType == ListChangedType.ItemChanged)
 			{
-				if (FilterString is not null && !SuspendFilteringOnUpdate && Items[e.NewIndex] is LibraryBookEntry lbItem)
+				if (FilterString is not null && !SuspendFilteringOnUpdate && Items[e.NewIndex] is ILibraryBookEntry lbItem)
 				{
 					SearchResults = SearchEngineCommands.Search(FilterString);
 					if (!SearchResults.Docs.Any(d => d.ProductId == lbItem.AudibleProductId))
