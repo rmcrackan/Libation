@@ -3,6 +3,7 @@ using AudibleUtilities;
 using DataLayer;
 using FileLiberator;
 using LibationFileManager;
+using LibationUiBase.GridView;
 using LibationWinForms.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace LibationWinForms.GridView
 		#region Button controls		
 
 		private ImageDisplay imageDisplay;
-		private void productsGrid_CoverClicked(GridEntry liveGridEntry)
+		private void productsGrid_CoverClicked(IGridEntry liveGridEntry)
 		{
 			var picDef = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge ?? liveGridEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 
@@ -67,7 +68,7 @@ namespace LibationWinForms.GridView
 				imageDisplay.Show(null);
 		}
 
-		private void productsGrid_DescriptionClicked(GridEntry liveGridEntry, Rectangle cellRectangle)
+		private void productsGrid_DescriptionClicked(IGridEntry liveGridEntry, Rectangle cellRectangle)
 		{
 			var displayWindow = new DescriptionDisplay
 			{
@@ -86,11 +87,11 @@ namespace LibationWinForms.GridView
 			displayWindow.Show(this);
 		}
 
-		private void productsGrid_DetailsClicked(LibraryBookEntry liveGridEntry)
+		private void productsGrid_DetailsClicked(ILibraryBookEntry liveGridEntry)
 		{
 			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
 			if (bookDetailsForm.ShowDialog() == DialogResult.OK)
-				liveGridEntry.Commit(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+				liveGridEntry.Book.UpdateUserDefinedItem(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 		}
 
 		#endregion
@@ -102,7 +103,7 @@ namespace LibationWinForms.GridView
 
 		public async Task RemoveCheckedBooksAsync()
 		{
-			var selectedBooks = productsGrid.GetAllBookEntries().Where(lbe => lbe.Remove is RemoveStatus.Removed).ToList();
+			var selectedBooks = productsGrid.GetAllBookEntries().Where(lbe => lbe.Remove is true).ToList();
 
 			if (selectedBooks.Count == 0)
 				return;
@@ -110,8 +111,8 @@ namespace LibationWinForms.GridView
 			var booksToRemove = selectedBooks.Select(rge => rge.LibraryBook).ToList();
 			var result = MessageBoxLib.ShowConfirmationDialog(
 				booksToRemove,
-                // do not use `$` string interpolation. See impl.
-                "Are you sure you want to remove {0} from Libation's library?",
+				// do not use `$` string interpolation. See impl.
+				"Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?");
 
 			if (result != DialogResult.Yes)
@@ -141,7 +142,7 @@ namespace LibationWinForms.GridView
 				var removable = allBooks.Where(lbe => removedBooks.Any(rb => rb.Book.AudibleProductId == lbe.AudibleProductId)).ToList();
 
 				foreach (var r in removable)
-					r.Remove = RemoveStatus.Removed;
+					r.Remove = true;
 
 				productsGrid_RemovableCountChanged(this, null);
 			}
@@ -198,14 +199,14 @@ namespace LibationWinForms.GridView
 			VisibleCountChanged?.Invoke(this, count);
 		}
 
-		private void productsGrid_LiberateClicked(LibraryBookEntry liveGridEntry)
+		private void productsGrid_LiberateClicked(ILibraryBookEntry liveGridEntry)
 		{
 			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error
 				&& !liveGridEntry.Liberate.IsUnavailable)
 				LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 
-		private void productsGrid_ConvertToMp3Clicked(LibraryBookEntry liveGridEntry)
+		private void productsGrid_ConvertToMp3Clicked(ILibraryBookEntry liveGridEntry)
 		{
 			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error)
 				ConvertToMp3Clicked?.Invoke(this, liveGridEntry.LibraryBook);
@@ -213,7 +214,7 @@ namespace LibationWinForms.GridView
 
 		private void productsGrid_RemovableCountChanged(object sender, EventArgs e)
 		{
-			RemovableCountChanged?.Invoke(sender, productsGrid.GetAllBookEntries().Count(lbe => lbe.Remove is RemoveStatus.Removed));
+			RemovableCountChanged?.Invoke(sender, productsGrid.GetAllBookEntries().Count(lbe => lbe.Remove is true));
 		}
 	}
 }

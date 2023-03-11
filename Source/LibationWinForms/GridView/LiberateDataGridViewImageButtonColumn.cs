@@ -1,8 +1,6 @@
-﻿using System;
+﻿using DataLayer;
 using System.Drawing;
 using System.Windows.Forms;
-using DataLayer;
-using Dinah.Core.WindowsDesktop.Forms;
 
 namespace LibationWinForms.GridView
 {
@@ -16,78 +14,26 @@ namespace LibationWinForms.GridView
 
 	internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell
 	{
-		private static readonly Color SERIES_BG_COLOR = Color.FromArgb(230, 255, 230);
 		private static readonly Brush DISABLED_GRAY = new SolidBrush(Color.FromArgb(0x60, Color.LightGray));
+		private static readonly Color HiddenForeColor = Color.LightGray;
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
-			if (value is LiberateButtonStatus status)
+			if (value is WinFormsEntryStatus status)
 			{
-
 				if (status.BookStatus is LiberatedStatus.Error || status.IsUnavailable)
 					//Don't paint the button graphic
 					paintParts ^= DataGridViewPaintParts.ContentBackground | DataGridViewPaintParts.ContentForeground | DataGridViewPaintParts.SelectionBackground;
 
-				if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is LibraryBookEntry lbEntry && lbEntry.Parent is not null)
-					DataGridView.Rows[rowIndex].DefaultCellStyle.BackColor = SERIES_BG_COLOR;
-
+				DataGridView.Rows[rowIndex].DefaultCellStyle.BackColor = (Color)status.BackgroundBrush;
+				DataGridView.Rows[rowIndex].DefaultCellStyle.ForeColor = status.Opacity == 1 ? DataGridView.DefaultCellStyle.ForeColor : HiddenForeColor;
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
-				if (status.IsSeries)
-				{
-					DrawButtonImage(graphics, status.Expanded ? Properties.Resources.minus : Properties.Resources.plus, cellBounds);
+				DrawButtonImage(graphics, (Image)status.ButtonImage, cellBounds);
+				ToolTipText = status.ToolTip;
 
-					ToolTipText = status.Expanded ? "Click to Collpase" : "Click to Expand";
-				}
-				else
-				{
-					(string mouseoverText, Bitmap buttonImage) = GetLiberateDisplay(status.BookStatus, status.PdfStatus);
-
-					DrawButtonImage(graphics, buttonImage, cellBounds);
-
-					if (status.IsUnavailable)
-					{
-						//Create the "disabled" look by painting a transparent gray box over the buttom image.
-						graphics.FillRectangle(DISABLED_GRAY, cellBounds);
-						ToolTipText = "This book cannot be downloaded\r\nbecause it wasn't found during\r\nthe most recent library scan";
-					}
-					else
-						ToolTipText = mouseoverText;
-				}
+				if (status.IsUnavailable || status.Opacity < 1)
+					graphics.FillRectangle(DISABLED_GRAY, cellBounds);
 			}
-		}
-
-		private static (string mouseoverText, Bitmap buttonImage) GetLiberateDisplay(LiberatedStatus liberatedStatus, LiberatedStatus? pdfStatus)
-		{
-			if (liberatedStatus == LiberatedStatus.Error)
-				return ("Book downloaded ERROR", Properties.Resources.error);
-
-			(string libState, string image_lib) = liberatedStatus switch
-			{
-				LiberatedStatus.Liberated => ("Liberated", "green"),
-				LiberatedStatus.PartialDownload => ("File has been at least\r\npartially downloaded", "yellow"),
-				LiberatedStatus.NotLiberated => ("Book NOT downloaded", "red"),
-				_ => throw new Exception("Unexpected liberation state")
-			};
-
-			(string pdfState, string image_pdf) = pdfStatus switch
-			{
-				LiberatedStatus.Liberated => ("\r\nPDF downloaded", "_pdf_yes"),
-				LiberatedStatus.NotLiberated => ("\r\nPDF NOT downloaded", "_pdf_no"),
-				LiberatedStatus.Error => ("\r\nPDF downloaded ERROR", "_pdf_no"),
-				null => ("", ""),
-				_ => throw new Exception("Unexpected PDF state")
-			};
-
-			var mouseoverText = libState + pdfState;
-
-			if (liberatedStatus == LiberatedStatus.NotLiberated ||
-				liberatedStatus == LiberatedStatus.PartialDownload ||
-				pdfStatus == LiberatedStatus.NotLiberated)
-				mouseoverText += "\r\nClick to complete";
-
-			var buttonImage = (Bitmap)Properties.Resources.ResourceManager.GetObject($"liberate_{image_lib}{image_pdf}");
-
-			return (mouseoverText, buttonImage);
 		}
 	}
 }

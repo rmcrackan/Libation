@@ -1,5 +1,5 @@
 ﻿using Avalonia.Controls;
-using System;
+using LibationUiBase.GridView;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +13,7 @@ namespace LibationAvalonia.ViewModels
 	/// sorted by series index, ascending. Stable sorting is achieved by comparing the GridEntry.ListIndex
 	/// properties when 2 items compare equal.
 	/// </summary>
-	internal class RowComparer : IComparer, IComparer<GridEntry>, IComparer<object>
+	internal class RowComparer : IComparer, IComparer<IGridEntry>, IComparer<object>
 	{
 		private static readonly PropertyInfo HeaderCellPi = typeof(DataGridColumn).GetProperty("HeaderCell", BindingFlags.NonPublic | BindingFlags.Instance);
 		private static readonly PropertyInfo CurrentSortingStatePi = typeof(DataGridColumnHeader).GetProperty("CurrentSortingState", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -33,22 +33,22 @@ namespace LibationAvalonia.ViewModels
 			if (x is not null && y is null) return 1;
 			if (x is null && y is null) return 0;
 
-			var geA = (GridEntry)x;
-			var geB = (GridEntry)y;
+			var geA = (IGridEntry)x;
+			var geB = (IGridEntry)y;
 
 			var sortDirection = GetSortOrder();
 
-			SeriesEntry parentA = null;
-			SeriesEntry parentB = null;
+			ISeriesEntry parentA = null;
+			ISeriesEntry parentB = null;
 
-			if (geA is LibraryBookEntry lbA && lbA.Parent is SeriesEntry seA)
+			if (geA is ILibraryBookEntry lbA && lbA.Parent is ISeriesEntry seA)
 				parentA = seA;
-			if (geB is LibraryBookEntry lbB && lbB.Parent is SeriesEntry seB)
+			if (geB is ILibraryBookEntry lbB && lbB.Parent is ISeriesEntry seB)
 				parentB = seB;
 
 			//both a and b are top-level grid entries
 			if (parentA is null && parentB is null)
-				return InternalCompare(geA, geB, sortDirection);
+				return InternalCompare(geA, geB);
 
 			//a is top-level, b is a child
 			if (parentA is null && parentB is not null)
@@ -57,7 +57,7 @@ namespace LibationAvalonia.ViewModels
 				if (parentB == geA)
 					return sortDirection is ListSortDirection.Ascending ? -1 : 1;
 				else
-					return InternalCompare(geA, parentB, sortDirection);
+					return InternalCompare(geA, parentB);
 			}
 
 			//a is a child, b is a top-level
@@ -67,7 +67,7 @@ namespace LibationAvalonia.ViewModels
 				if (parentA == geB)
 					return sortDirection is ListSortDirection.Ascending ? 1 : -1;
 				else
-					return InternalCompare(parentA, geB, sortDirection);
+					return InternalCompare(parentA, geB);
 			}
 
 			//both are children of the same series, always present in order of series index, ascending
@@ -75,29 +75,22 @@ namespace LibationAvalonia.ViewModels
 				return geA.SeriesIndex.CompareTo(geB.SeriesIndex) * (sortDirection is ListSortDirection.Ascending ? 1 : -1);
 
 			//a and b are children of different series.
-			return InternalCompare(parentA, parentB, sortDirection);
+			return InternalCompare(parentA, parentB);
 		}
 
 		//Avalonia doesn't expose the column's CurrentSortingState, so we must get it through reflection
 		private ListSortDirection? GetSortOrder()
 			=> CurrentSortingStatePi.GetValue(HeaderCellPi.GetValue(Column)) as ListSortDirection?;
 
-		private int InternalCompare(GridEntry x, GridEntry y, ListSortDirection? sortDirection)
+		private int InternalCompare(IGridEntry x, IGridEntry y)
 		{
 			var val1 = x.GetMemberValue(PropertyName);
 			var val2 = y.GetMemberValue(PropertyName);
 
-			var compareResult = x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
-
-			//If items compare equal, compare them by their positions in the the list.
-			//This is how you achieve a stable sort.
-			if (compareResult == 0)
-				return x.ListIndex.CompareTo(y.ListIndex) * (sortDirection is ListSortDirection.Ascending ? 1 : -1);
-			else
-				return compareResult;
+			return x.GetMemberComparer(val1.GetType()).Compare(val1, val2); ;
 		}
 
-		public int Compare(GridEntry x, GridEntry y)
+		public int Compare(IGridEntry x, IGridEntry y)
 		{
 			return Compare((object)x, y);
 		}

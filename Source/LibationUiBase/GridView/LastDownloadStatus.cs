@@ -1,7 +1,7 @@
 ﻿using DataLayer;
 using System;
 
-namespace LibationUiBase
+namespace LibationUiBase.GridView
 {
 	public class LastDownloadStatus : IComparable
 	{
