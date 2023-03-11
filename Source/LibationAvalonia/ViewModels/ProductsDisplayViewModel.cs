@@ -88,13 +88,7 @@ namespace LibationAvalonia.ViewModels
 
 		internal void BindToGrid(List<LibraryBook> dbBooks)
 		{
-			GridEntries = new(SOURCE)
-			{
-				Filter = CollectionFilter
-			};
-
-			GridEntries.CollectionChanged += (_, _)
-				=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<LibraryBookEntry>().Count());
+			GridEntries = new(SOURCE) { Filter = CollectionFilter };
 
 			var geList = dbBooks
 				.Where(lb => lb.Book.IsProduct())
@@ -122,6 +116,9 @@ namespace LibationAvalonia.ViewModels
 			//Create the filtered-in list before adding entries to avoid a refresh
 			FilteredInGridEntries = QueryResults(geList, FilterString);
 			SOURCE.AddRange(geList.OrderByDescending(e => e.DateAdded));
+			VisibleCountChanged?.Invoke(this, GridEntries.OfType<LibraryBookEntry>().Count());
+			GridEntries.CollectionChanged += (_, _)
+				=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<LibraryBookEntry>().Count());
 		}
 
 		/// <summary>
@@ -134,7 +131,7 @@ namespace LibationAvalonia.ViewModels
 			//Add absent entries to grid, or update existing entry
 			var allEntries = SOURCE.BookEntries();
 			var seriesEntries = SOURCE.SeriesEntries().ToList();
-			var parentedEpisodes = dbBooks.ParentedEpisodes();
+			var parentedEpisodes = dbBooks.ParentedEpisodes().ToList();
 
 			await Dispatcher.UIThread.InvokeAsync(() =>
 			{
@@ -177,7 +174,6 @@ namespace LibationAvalonia.ViewModels
 			#endregion
 
 			await Filter(FilterString);
-			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
 		}
 
 		private void RemoveBooks(IEnumerable<LibraryBookEntry> removedBooks, IEnumerable<SeriesEntry> removedSeries)

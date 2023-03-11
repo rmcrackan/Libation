@@ -95,7 +95,8 @@ namespace ApplicationServices
                 stop();
                 var putBreakPointHere = logOutput;
                 ScanEnd?.Invoke(null, null);
-            }
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+			}
         }
 
         #region FULL LIBRARY scan and import
@@ -166,6 +167,7 @@ namespace ApplicationServices
                 stop();
                 var putBreakPointHere = logOutput;
                 ScanEnd?.Invoke(null, null);
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
             }
         }
 
@@ -173,7 +175,7 @@ namespace ApplicationServices
         {
             var tasks = new List<Task<List<ImportItem>>>();
 
-            using LogArchiver archiver
+            await using LogArchiver archiver
                 = Log.Logger.IsDebugEnabled()
                 ? new LogArchiver(System.IO.Path.Combine(Configuration.Instance.LibationFiles, "LibraryScans.zip"))
                 : default;
@@ -208,7 +210,19 @@ namespace ApplicationServices
 
             var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions, Configuration.Instance.ImportEpisodes);
 
-            archiver?.AddFile($"{DateTime.Now:u} {account.MaskedLogEntry}.json", new JObject { { "Account", account.MaskedLogEntry }, { "ScannedDateTime", DateTime.Now.ToString("u") }, {"Items", JArray.FromObject(dtoItems) } });
+            if (archiver is not null)
+            {
+                var fileName = $"{DateTime.Now:u} {account.MaskedLogEntry}.json";
+
+				var scanFile = new JObject
+                {
+                    { "Account", account.MaskedLogEntry },
+                    { "ScannedDateTime", DateTime.Now.ToString("u") },
+                    { "Items", await Task.Run(() => JArray.FromObject(dtoItems)) }
+                };
+
+				await archiver.AddFileAsync(fileName, scanFile);
+			}
 
             logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
 
