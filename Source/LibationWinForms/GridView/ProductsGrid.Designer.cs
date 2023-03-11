@@ -1,6 +1,8 @@
-﻿namespace LibationWinForms.GridView
+﻿using LibationUiBase.GridView;
+
+namespace LibationWinForms.GridView
 {
-	partial class ProductsGrid
+    partial class ProductsGrid
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -41,7 +43,7 @@
 			this.seriesGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.descriptionGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.categoryGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.productRatingGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.productRatingGVColumn = new LibationWinForms.GridView.MyRatingGridViewColumn();
 			this.purchaseDateGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.myRatingGVColumn = new LibationWinForms.GridView.MyRatingGridViewColumn();
 			this.miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -193,6 +195,7 @@
 			this.productRatingGVColumn.HeaderText = "Product Rating";
 			this.productRatingGVColumn.Name = "productRatingGVColumn";
 			this.productRatingGVColumn.ReadOnly = true;
+			this.productRatingGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
 			this.productRatingGVColumn.Width = 108;
 			// 
 			// purchaseDateGVColumn
@@ -229,7 +232,7 @@
 			// 
 			// tagAndDetailsGVColumn
 			// 
-			this.tagAndDetailsGVColumn.DataPropertyName = "DisplayTags";
+			this.tagAndDetailsGVColumn.DataPropertyName = "BookTags";
 			this.tagAndDetailsGVColumn.HeaderText = "Tags and Details";
 			this.tagAndDetailsGVColumn.Name = "tagAndDetailsGVColumn";
 			this.tagAndDetailsGVColumn.ReadOnly = true;
@@ -243,7 +246,7 @@
 			// 
 			// syncBindingSource
 			// 
-			this.syncBindingSource.DataSource = typeof(LibationWinForms.GridView.GridEntry);
+			this.syncBindingSource.DataSource = typeof(IGridEntry);
 			// 
 			// ProductsGrid
 			// 
@@ -275,7 +278,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn seriesGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn descriptionGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn categoryGVColumn;
-		private System.Windows.Forms.DataGridViewTextBoxColumn productRatingGVColumn;
+		private MyRatingGridViewColumn productRatingGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn purchaseDateGVColumn;
 		private MyRatingGridViewColumn myRatingGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn miscGVColumn;

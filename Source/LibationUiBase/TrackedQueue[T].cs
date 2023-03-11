@@ -121,11 +121,11 @@ namespace LibationUiBase
 
 		public void ClearCurrent()
 		{
-			lock(lockObject)
+			lock (lockObject)
 				Current = null;
 			RebuildSecondary();
 		}
-		
+
 		public bool RemoveCompleted(T item)
 		{
 			bool itemsRemoved;

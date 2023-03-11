@@ -1,4 +1,4 @@
-﻿using LibationUiBase;
+﻿using LibationUiBase.GridView;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -26,7 +26,8 @@ namespace LibationWinForms.GridView
 		private LastDownloadStatus LastDownload => (LastDownloadStatus)Value;
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates cellState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
-			ToolTipText = ((LastDownloadStatus)value).ToolTipText;
+			if (value is LastDownloadStatus lastDl)
+				ToolTipText = lastDl.ToolTipText;
 			base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
 		}
 

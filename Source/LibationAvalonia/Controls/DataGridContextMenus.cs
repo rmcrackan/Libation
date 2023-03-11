@@ -1,6 +1,6 @@
 ﻿using Avalonia.Collections;
 using Avalonia.Controls;
-using LibationAvalonia.ViewModels;
+using LibationUiBase.GridView;
 using System;
 using System.Reflection;
 
@@ -30,7 +30,7 @@ namespace LibationAvalonia.Controls
 
 		private static void Cell_ContextRequested(object sender, ContextRequestedEventArgs e)
 		{
-			if (sender is DataGridCell cell && cell.DataContext is GridEntry entry)
+			if (sender is DataGridCell cell && cell.DataContext is IGridEntry entry)
 			{
 				var args = new DataGridCellContextMenuStripNeededEventArgs
 				{
@@ -63,7 +63,7 @@ namespace LibationAvalonia.Controls
 
 		public string CellClipboardContents => GetCellValue(Column, GridEntry);
 		public DataGridColumn Column { get; init; }
-		public GridEntry GridEntry { get; init; }
+		public IGridEntry GridEntry { get; init; }
 		public ContextMenu ContextMenu { get; init; }
 		public AvaloniaList<Control> ContextMenuItems
 			=> ContextMenu.Items as AvaloniaList<Control>;

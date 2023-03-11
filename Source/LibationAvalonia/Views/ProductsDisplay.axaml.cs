@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
@@ -13,6 +9,11 @@ using LibationAvalonia.Controls;
 using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
+using LibationUiBase.GridView;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
 {
@@ -61,7 +62,7 @@ namespace LibationAvalonia.Views
 			{
 				column.CustomSortComparer = new RowComparer(column);
 			}
-		}		
+		}
 
 		private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
 		{
@@ -83,37 +84,37 @@ namespace LibationAvalonia.Views
 		#region Cell Context Menu
 
 		public void ProductsGrid_CellContextMenuStripNeeded(object sender, DataGridCellContextMenuStripNeededEventArgs args)
-        {
-            // stop light
-            if (args.Column.SortMemberPath == "Liberate")
+		{
+			// stop light
+			if (args.Column.SortMemberPath == "Liberate")
 			{
 				var entry = args.GridEntry;
 
-                if (entry.Liberate.IsSeries)
+				if (entry.Liberate.IsSeries)
 					return;
 
-                var setDownloadMenuItem = new MenuItem()
-                {
-                    Header = "Set Download status to '_Downloaded'",
-                    IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated
-                };
-                setDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
+				var setDownloadMenuItem = new MenuItem()
+				{
+					Header = "Set Download status to '_Downloaded'",
+					IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated
+				};
+				setDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
 
-                var setNotDownloadMenuItem = new MenuItem()
-                {
-                    Header = "Set Download status to '_Not Downloaded'",
-                    IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
-                };
-                setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
+				var setNotDownloadMenuItem = new MenuItem()
+				{
+					Header = "Set Download status to '_Not Downloaded'",
+					IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
+				};
+				setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
-                var removeMenuItem = new MenuItem() { Header = "_Remove from library" };
+				var removeMenuItem = new MenuItem() { Header = "_Remove from library" };
 				removeMenuItem.Click += async (_, __) => await Task.Run(entry.LibraryBook.RemoveBook);
 
 				var locateFileMenuItem = new MenuItem() { Header = "_Locate file..." };
-                locateFileMenuItem.Click += async (_, __) =>
-                {
-                    try
-                    {
+				locateFileMenuItem.Click += async (_, __) =>
+				{
+					try
+					{
 						var openFileDialogOptions = new FilePickerOpenOptions
 						{
 							Title = $"Locate the audio file for '{entry.Book.Title}'",
@@ -128,19 +129,19 @@ namespace LibationAvalonia.Views
 						var selectedFiles = await this.GetParentWindow().StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
 						var selectedFile = selectedFiles.SingleOrDefault();
 
-                        if (selectedFile?.TryGetUri(out var uri) is true)
-                            FilePathCache.Insert(entry.AudibleProductId, uri.LocalPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        var msg = "Error saving book's location";
-                        await MessageBox.ShowAdminAlert(null, msg, msg, ex);
-                    }
-                };
+						if (selectedFile?.TryGetUri(out var uri) is true)
+							FilePathCache.Insert(entry.AudibleProductId, uri.LocalPath);
+					}
+					catch (Exception ex)
+					{
+						var msg = "Error saving book's location";
+						await MessageBox.ShowAdminAlert(null, msg, msg, ex);
+					}
+				};
 				var convertToMp3MenuItem = new MenuItem
 				{
 					Header = "_Convert to Mp3",
-					IsEnabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated 
+					IsEnabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
 				};
 				convertToMp3MenuItem.Click += (_, _) => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook);
 
@@ -157,7 +158,7 @@ namespace LibationAvalonia.Views
 					new Separator(),
 					bookRecordMenuItem
 				});
-            }
+			}
 			else
 			{
 				// any non-stop light column
@@ -200,7 +201,7 @@ namespace LibationAvalonia.Views
 			{
 				var itemName = column.SortMemberPath;
 
-				if (itemName == nameof(GridEntry.Remove))
+				if (itemName == nameof(IGridEntry.Remove))
 					continue;
 
 				menuItems.Add
@@ -291,7 +292,7 @@ namespace LibationAvalonia.Views
 		{
 			var button = args.Source as Button;
 
-			if (button.DataContext is SeriesEntry sEntry)
+			if (button.DataContext is ISeriesEntry sEntry)
 			{
 				await _viewModel.ToggleSeriesExpanded(sEntry);
 
@@ -299,7 +300,7 @@ namespace LibationAvalonia.Views
 				//to the topright cell. Reset focus onto the clicked button's cell.
 				(sender as Button).Parent?.Focus();
 			}
-			else if (button.DataContext is LibraryBookEntry lbEntry)
+			else if (button.DataContext is ILibraryBookEntry lbEntry)
 			{
 				LiberateClicked?.Invoke(this, lbEntry.LibraryBook);
 			}
@@ -313,13 +314,13 @@ namespace LibationAvalonia.Views
 
 		public void Version_DoubleClick(object sender, Avalonia.Input.TappedEventArgs args)
 		{
-			if (sender is Control panel && panel.DataContext is LibraryBookEntry lbe && lbe.LastDownload.IsValid)
+			if (sender is Control panel && panel.DataContext is ILibraryBookEntry lbe && lbe.LastDownload.IsValid)
 				lbe.LastDownload.OpenReleaseUrl();
 		}
 
 		public void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
-			if (sender is not Image tblock || tblock.DataContext is not GridEntry gEntry)
+			if (sender is not Image tblock || tblock.DataContext is not IGridEntry gEntry)
 				return;
 
 			if (imageDisplayDialog is null || !imageDisplayDialog.IsVisible)
@@ -358,7 +359,7 @@ namespace LibationAvalonia.Views
 
 		public void Description_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
-			if (sender is Control tblock && tblock.DataContext is GridEntry gEntry)
+			if (sender is Control tblock && tblock.DataContext is IGridEntry gEntry)
 			{
 				var pt = tblock.PointToScreen(tblock.Bounds.TopRight);
 				var displayWindow = new DescriptionDisplayDialog
@@ -387,7 +388,7 @@ namespace LibationAvalonia.Views
 		{
 			var button = args.Source as Button;
 
-			if (button.DataContext is LibraryBookEntry lbEntry && VisualRoot is Window window)
+			if (button.DataContext is ILibraryBookEntry lbEntry && VisualRoot is Window window)
 			{
 				if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
 				{

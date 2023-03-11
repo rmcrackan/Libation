@@ -40,7 +40,7 @@ namespace LibationUiBase
 		public event EventHandler<DownloadProgress> DownloadProgress;
 		public event EventHandler<bool> DownloadCompleted;
 
-		public async Task CheckForUpgradeAsync(Func<UpgradeEventArgs,Task> upgradeAvailableHandler)
+		public async Task CheckForUpgradeAsync(Func<UpgradeEventArgs, Task> upgradeAvailableHandler)
 		{
 			try
 			{
