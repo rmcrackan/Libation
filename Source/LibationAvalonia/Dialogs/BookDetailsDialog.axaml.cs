@@ -1,5 +1,4 @@
 using ApplicationServices;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
@@ -10,7 +9,6 @@ using LibationAvalonia.ViewModels;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -112,8 +110,7 @@ namespace LibationAvalonia.Dialogs
 
 				//init cover image
 				var picture = PictureStorage.GetPictureSynchronously(new PictureDefinition(libraryBook.Book.PictureId, PictureSize._80x80));
-				using var ms = new System.IO.MemoryStream(picture);
-				Cover = new Bitmap(ms);
+				Cover = AvaloniaUtils.TryLoadImageOrDefault(picture, PictureSize._80x80);
 
 				//init book details
 				DetailsText = @$"

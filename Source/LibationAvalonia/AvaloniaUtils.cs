@@ -1,6 +1,8 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using LibationAvalonia.Dialogs;
+using LibationFileManager;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia
@@ -20,5 +22,21 @@ namespace LibationAvalonia
 			=> dialogWindow.ShowDialog<DialogResult>(owner ?? App.MainWindow);
 
 		public static Window GetParentWindow(this IControl control) => control.VisualRoot as Window;
+
+
+		private static Bitmap defaultImage;
+		public static Bitmap TryLoadImageOrDefault(byte[] picture, PictureSize defaultSize = PictureSize.Native)
+		{
+			try
+			{
+				using var ms = new System.IO.MemoryStream(picture);
+				return new Bitmap(ms);
+			}
+			catch
+			{
+				using var ms = new System.IO.MemoryStream(PictureStorage.GetDefaultImage(defaultSize));
+				return defaultImage ??= new Bitmap(ms);
+			}
+		}
 	}
 }

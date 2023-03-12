@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using DataLayer;
@@ -42,7 +41,7 @@ namespace LibationWinForms.Dialogs
 			this.Text = Book.Title;
 
 			(_, var picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
-			this.coverPb.Image = Dinah.Core.WindowsDesktop.Drawing.ImageReader.ToImage(picture);
+			this.coverPb.Image = WinFormsUtil.TryLoadImageOrDefault(picture, PictureSize._80x80);
 
 			var t = @$"
 Title: {Book.Title}
