@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows.Forms;
 using LibationFileManager;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace LibationWinForms
 {
@@ -44,20 +45,31 @@ namespace LibationWinForms
 
 			var rect = new Rectangle(x, y, savedState.Width, savedState.Height);
 
-			// is proposed rect on a screen?
-			if (Screen.AllScreens.Any(screen => screen.WorkingArea.Contains(rect)))
+			if (savedState.IsMaximized)
 			{
+				//When a window is maximized, the client rectangle is not on a screen (y is negative).
 				form.StartPosition = FormStartPosition.Manual;
 				form.DesktopBounds = rect;
+
+				// FINAL: for Maximized: start normal state, set size and location, THEN set max state
+				form.WindowState = FormWindowState.Maximized;
 			}
 			else
 			{
-				form.StartPosition = FormStartPosition.WindowsDefaultLocation;
-				form.Size = rect.Size;
-			}
+				// is proposed rect on a screen?
+				if (Screen.AllScreens.Any(screen => screen.WorkingArea.Contains(rect)))
+				{
+					form.StartPosition = FormStartPosition.Manual;
+					form.DesktopBounds = rect;
+				}
+				else
+				{
+					form.StartPosition = FormStartPosition.WindowsDefaultLocation;
+					form.Size = rect.Size;
+				}
 
-			// FINAL: for Maximized: start normal state, set size and location, THEN set max state
-			form.WindowState = savedState.IsMaximized ? FormWindowState.Maximized : FormWindowState.Normal;
+				form.WindowState = FormWindowState.Normal;
+			}
 		}
 
 		public static void SaveSizeAndLocation(this Form form, Configuration config)
