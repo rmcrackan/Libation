@@ -213,12 +213,13 @@ namespace ApplicationServices
             if (archiver is not null)
             {
                 var fileName = $"{DateTime.Now:u} {account.MaskedLogEntry}.json";
+                var items = await Task.Run(() => JArray.FromObject(dtoItems.Select(i => i.SourceJson)));
 
 				var scanFile = new JObject
                 {
                     { "Account", account.MaskedLogEntry },
                     { "ScannedDateTime", DateTime.Now.ToString("u") },
-                    { "Items", await Task.Run(() => JArray.FromObject(dtoItems.Select(i => i.SourceJson))) }
+                    { "Items",  items}
                 };
 
 				await archiver.AddFileAsync(fileName, scanFile);

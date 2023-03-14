@@ -91,29 +91,8 @@ namespace DtoImporterService
 			return qtyNew;
 		}
 
-		/*
-		 * Subscription Plan Names:
-		 * 
-		 * US:	"SpecialBenefit"
-		 * IT:	"Rodizio"
-		 * 
-		 * Audible Plus Plan Names:
-		 * 
-		 * US:	"US Minerva"
-		 * IT:	"Audible-AYCL" 
-		 *
-		 */
-
-
-		//This SEEMS to work to detect plus titles which are no longer available.
-		//I have my doubts it won't yield false negatives, but I have more
-		//confidence that it won't yield many/any false positives.
 		private static bool isPlusTitleUnavailable(ImportItem item)
 			=> item.DtoItem.IsAyce is true
-			&& item.DtoItem.Plans?.Any(p =>
-				p.PlanName.ContainsInsensitive("Minerva") ||
-				p.PlanName.ContainsInsensitive("AYCL") ||
-				p.PlanName.ContainsInsensitive("Free")
-			) is not true;
+			&& item.DtoItem.Plans?.Any(p => p.IsAyce) is not true;
 	}
 }
