@@ -218,7 +218,7 @@ namespace ApplicationServices
                 {
                     { "Account", account.MaskedLogEntry },
                     { "ScannedDateTime", DateTime.Now.ToString("u") },
-                    { "Items", await Task.Run(() => JArray.FromObject(dtoItems)) }
+                    { "Items", await Task.Run(() => JArray.FromObject(dtoItems.Select(i => i.SourceJson))) }
                 };
 
 				await archiver.AddFileAsync(fileName, scanFile);
