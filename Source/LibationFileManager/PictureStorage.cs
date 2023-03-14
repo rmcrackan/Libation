@@ -67,7 +67,7 @@ namespace LibationFileManager
 				}
 
 				DownloadQueue.Add(def);
-				return (true, getDefaultImage(def.Size));
+				return (true, GetDefaultImage(def.Size));
 			}
 		}
 
@@ -96,7 +96,7 @@ namespace LibationFileManager
 
 		public static void SetDefaultImage(PictureSize pictureSize, byte[] bytes)
 			=> defaultImages[pictureSize] = bytes;
-		private static byte[] getDefaultImage(PictureSize size)
+		public static byte[] GetDefaultImage(PictureSize size)
 			=> defaultImages.ContainsKey(size)
 			? defaultImages[size]
 			: new byte[0];
@@ -120,7 +120,7 @@ namespace LibationFileManager
 		private static byte[] downloadBytes(PictureDefinition def)
 		{
 			if (def.PictureId is null)
-				return getDefaultImage(def.Size);
+				return GetDefaultImage(def.Size);
 
 			try
 			{
@@ -135,7 +135,7 @@ namespace LibationFileManager
 			}
 			catch
 			{
-				return getDefaultImage(def.Size);
+				return GetDefaultImage(def.Size);
 			}
 		}
 	}

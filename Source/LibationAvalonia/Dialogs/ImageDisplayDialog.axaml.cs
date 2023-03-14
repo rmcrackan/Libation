@@ -2,7 +2,6 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using System;
 using System.ComponentModel;
-using System.IO;
 using ReactiveUI;
 using Avalonia.Platform.Storage;
 
@@ -29,17 +28,7 @@ namespace LibationAvalonia.Dialogs
 
 		public void SetCoverBytes(byte[] cover)
 		{
-			try
-			{
-				var ms = new MemoryStream(cover);
-				_bitmapHolder.CoverImage = new Bitmap(ms);
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Error loading cover art for {file}", PictureFileName);
-				using var ms = App.OpenAsset("img-coverart-prod-unavailable_500x500.jpg");
-				_bitmapHolder.CoverImage = new Bitmap(ms);				
-			}
+			_bitmapHolder.CoverImage = AvaloniaUtils.TryLoadImageOrDefault(cover);
 		}
 
 		public async void SaveImage_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)

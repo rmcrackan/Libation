@@ -132,7 +132,7 @@ namespace LibationAvalonia.ViewModels
 			//Add absent entries to grid, or update existing entry
 			var allEntries = SOURCE.BookEntries().ToList();
 			var seriesEntries = SOURCE.SeriesEntries().ToList();
-			var parentedEpisodes = dbBooks.ParentedEpisodes().ToList();
+			var parentedEpisodes = dbBooks.ParentedEpisodes().ToHashSet();
 
 			await Dispatcher.UIThread.InvokeAsync(() =>
 			{
@@ -142,7 +142,7 @@ namespace LibationAvalonia.ViewModels
 
 					if (libraryBook.Book.IsProduct())
 						UpsertBook(libraryBook, existingEntry);
-					else if (parentedEpisodes.Any(lb => lb == libraryBook))
+					else if (parentedEpisodes.Contains(libraryBook))
 						//Only try to add or update is this LibraryBook is a know child of a parent
 						UpsertEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);
 				}

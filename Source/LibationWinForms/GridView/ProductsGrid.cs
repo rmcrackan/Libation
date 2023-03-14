@@ -265,9 +265,7 @@ namespace LibationWinForms.GridView
 
 			var allEntries = bindingList.AllItems().BookEntries();
 			var seriesEntries = bindingList.AllItems().SeriesEntries().ToList();
-			var parentedEpisodes = dbBooks.ParentedEpisodes().ToList();
-
-			var sw = new Stopwatch();
+			var parentedEpisodes = dbBooks.ParentedEpisodes().ToHashSet();
 
 			foreach (var libraryBook in dbBooks.OrderBy(e => e.DateAdded))
 			{
@@ -278,14 +276,11 @@ namespace LibationWinForms.GridView
 					AddOrUpdateBook(libraryBook, existingEntry);
 					continue;
 				}
-				sw.Start();
-				if (parentedEpisodes.Any(lb => lb == libraryBook))
+				if (parentedEpisodes.Contains(libraryBook))
 				{
-					sw.Stop();
 					//Only try to add or update is this LibraryBook is a know child of a parent
 					AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);
 				}
-				sw.Stop();
 			}
 
 			bindingList.SuspendFilteringOnUpdate = false;

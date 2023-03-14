@@ -19,15 +19,7 @@ namespace LibationWinForms.GridView
 
 		public void SetCoverArt(byte[] cover)
 		{
-			try
-			{
-				pictureBox1.Image = Dinah.Core.WindowsDesktop.Drawing.ImageReader.ToImage(cover);
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Error loading cover art for {file}", PictureFileName);
-				pictureBox1.Image = Properties.Resources.default_cover_500x500;
-			}
+			pictureBox1.Image = WinFormsUtil.TryLoadImageOrDefault(cover);
 		}
 
 		#region Make the form's aspect ratio always match the picture's aspect ratio.

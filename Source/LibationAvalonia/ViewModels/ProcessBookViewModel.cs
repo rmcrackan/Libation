@@ -115,16 +115,14 @@ namespace LibationAvalonia.ViewModels
 				PictureStorage.PictureCached += PictureStorage_PictureCached;
 
 			// Mutable property. Set the field so PropertyChanged isn't fired.
-			using var ms = new System.IO.MemoryStream(picture);
-			_cover = new Bitmap(ms);
+			_cover = AvaloniaUtils.TryLoadImageOrDefault(picture, PictureSize._80x80);
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
 		{
 			if (e.Definition.PictureId == LibraryBook.Book.PictureId)
 			{
-				using var ms = new System.IO.MemoryStream(e.Picture);
-				Cover = new Bitmap(ms);
+				Cover = AvaloniaUtils.TryLoadImageOrDefault(e.Picture, PictureSize._80x80);
 				PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
 		}
