@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using DataLayer;
 using LibationAvalonia.Dialogs.Login;
 using LibationUiBase.GridView;
+using NPOI.SS.Formula.Functions;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -116,17 +117,20 @@ namespace LibationAvalonia.ViewModels
 			//Create the filtered-in list before adding entries to avoid a refresh
 			FilteredInGridEntries = QueryResults(geList, FilterString);
 			SOURCE.AddRange(geList.OrderByDescending(e => e.DateAdded));
-			GridEntries.CollectionChanged += (_, _)
-				=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<ILibraryBookEntry>().Count());
-
-			VisibleCountChanged?.Invoke(this, GridEntries.OfType<ILibraryBookEntry>().Count());
+			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
+			GridEntries_CollectionChanged();
 		}
+
+		private void GridEntries_CollectionChanged(object sender = null, EventArgs e = null)
+			=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<ILibraryBookEntry>().Count());
 
 		/// <summary>
 		/// Call when there's been a change to the library
 		/// </summary>
 		internal async Task UpdateGridAsync(List<LibraryBook> dbBooks)
 		{
+			GridEntries.CollectionChanged -= GridEntries_CollectionChanged;
+
 			#region Add new or update existing grid entries
 
 			//Add absent entries to grid, or update existing entry
@@ -176,6 +180,9 @@ namespace LibationAvalonia.ViewModels
 
 			await Filter(FilterString);
 			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+
+			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
+			GridEntries_CollectionChanged();
 		}
 
 		private void RemoveBooks(IEnumerable<ILibraryBookEntry> removedBooks, IEnumerable<ISeriesEntry> removedSeries)
