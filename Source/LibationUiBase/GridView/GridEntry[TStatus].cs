@@ -104,7 +104,7 @@ namespace LibationUiBase.GridView
 			Liberate.Expanded = expanded;
 
 			Title = Book.Title;
-			Series = Book.SeriesNames();
+			Series = Book.SeriesNames(includeIndex: true);
 			Length = GetBookLengthString();
 			//Ratings are changed using Update(), which is a problem for Avalonia data bindings because
 			//the reference doesn't change. Clone the rating so that it updates within Avalonia properly.

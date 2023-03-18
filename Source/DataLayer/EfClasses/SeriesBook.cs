@@ -8,7 +8,7 @@ namespace DataLayer
         internal int BookId { get; private set; }
 
         public string Order { get; private set; }
-        public float Index => StringLib.ExtractFirstNumber(Order);
+        public float Index { get; }
 
         public Series Series { get; private set; }
         public Book Book { get; private set; }
@@ -22,7 +22,8 @@ namespace DataLayer
             Series = series;
             Book = book;
             Order = order;
-        }
+            Index = StringLib.ExtractFirstNumber(Order);
+		}
 
         public void UpdateOrder(string order)
         {

@@ -18,9 +18,9 @@ namespace DataLayer
         /// <summary>True if exists and IsLiberated. Else false</summary>
         public static bool PDF_Exists(this Book book) => book.UserDefinedItem.PdfStatus == LiberatedStatus.Liberated;
 
-        public static string SeriesSortable(this Book book) => Formatters.GetSortName(book.SeriesNames());
+        public static string SeriesSortable(this Book book) => Formatters.GetSortName(book.SeriesNames(true));
 		public static bool HasPdf(this Book book) => book.Supplements.Any();
-        public static string SeriesNames(this Book book)
+        public static string SeriesNames(this Book book, bool includeIndex = false)
         {
             if (book.SeriesLink is null)
                 return "";
@@ -28,7 +28,7 @@ namespace DataLayer
             // first: alphabetical by name
             var withNames = book.SeriesLink
                 .Where(s => !string.IsNullOrWhiteSpace(s.Series.Name))
-                .Select(s => s.Series.Name)
+                .Select(getSeriesNameString)
                 .OrderBy(a => a)
                 .ToList();
             // then un-named are alpha by series id
@@ -40,7 +40,12 @@ namespace DataLayer
 
             var all = withNames.Union(nullNames).ToList();
             return string.Join(", ", all);
-        }
+
+            string getSeriesNameString(SeriesBook sb)
+                => includeIndex && !string.IsNullOrWhiteSpace(sb.Order) && sb.Order != "-1"
+                ? $"{sb.Series.Name} (#{sb.Order})"
+                : sb.Series.Name;
+		}
         public static string[] CategoriesNames(this Book book)
             => book.Category is null ? new string[0]
             : book.Category.ParentCategory is null ? new[] { book.Category.Name }
