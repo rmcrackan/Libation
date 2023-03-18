@@ -5,7 +5,6 @@ using Avalonia.Threading;
 using DataLayer;
 using LibationAvalonia.Dialogs.Login;
 using LibationUiBase.GridView;
-using NPOI.SS.Formula.Functions;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -32,10 +31,14 @@ namespace LibationAvalonia.ViewModels
 		public bool RemoveColumnVisivle { get => _removeColumnVisivle; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisivle, value); }
 
 		public List<LibraryBook> GetVisibleBookEntries()
-			=> GridEntries
-			.OfType<ILibraryBookEntry>()
-			.Select(lbe => lbe.LibraryBook)
-			.ToList();
+			=> FilteredInGridEntries?
+				.OfType<ILibraryBookEntry>()
+				.Select(lbe => lbe.LibraryBook)
+				.ToList()
+			?? SOURCE
+				.OfType<ILibraryBookEntry>()
+				.Select(lbe => lbe.LibraryBook)
+				.ToList();
 
 		private IEnumerable<ILibraryBookEntry> GetAllBookEntries()
 			=> SOURCE
@@ -122,7 +125,13 @@ namespace LibationAvalonia.ViewModels
 		}
 
 		private void GridEntries_CollectionChanged(object sender = null, EventArgs e = null)
-			=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<ILibraryBookEntry>().Count());
+		{ 
+			var count
+				= FilteredInGridEntries?.OfType<ILibraryBookEntry>().Count()
+				?? SOURCE.OfType<ILibraryBookEntry>().Count();
+
+			 VisibleCountChanged?.Invoke(this, count);
+		}
 
 		/// <summary>
 		/// Call when there's been a change to the library

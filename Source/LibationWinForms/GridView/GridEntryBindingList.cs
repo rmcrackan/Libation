@@ -28,6 +28,18 @@ namespace LibationWinForms.GridView
 
 		/// <returns>All items in the list, including those filtered out.</returns>
 		public List<IGridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
+
+		/// <summary>All items that pass the current filter</summary>
+		public IEnumerable<ILibraryBookEntry> GetFilteredInItems()
+			=> SearchResults is null
+			? FilterRemoved
+				.OfType<ILibraryBookEntry>()
+				.Union(Items.OfType<ILibraryBookEntry>())
+			: FilterRemoved
+				.OfType<ILibraryBookEntry>()
+				.Join(SearchResults.Docs, o => o.Book.AudibleProductId, i => i.ProductId, (o, _) => o)
+				.Union(Items.OfType<ILibraryBookEntry>());
+
 		public bool SupportsFiltering => true;
 		public string Filter { get => FilterString; set => ApplyFilter(value); }
 
@@ -102,7 +114,7 @@ namespace LibationWinForms.GridView
 
 		public void CollapseItem(ISeriesEntry sEntry)
 		{
-			foreach (var episode in Items.BookEntries().Where(b => b.Parent == sEntry).ToList())
+			foreach (var episode in sEntry.Children.Join(Items.BookEntries(), o => o, i => i, (_, i) => i).ToList())
 			{
 				FilterRemoved.Add(episode);
 				base.Remove(episode);
@@ -115,7 +127,7 @@ namespace LibationWinForms.GridView
 		{
 			var sindex = Items.IndexOf(sEntry);
 
-			foreach (var episode in FilterRemoved.BookEntries().Where(b => b.Parent == sEntry).ToList())
+			foreach (var episode in sEntry.Children.Join(FilterRemoved.BookEntries(), o => o, i => i, (_, i) => i).ToList())
 			{
 				if (SearchResults is null || SearchResults.Docs.Any(d => d.ProductId == episode.AudibleProductId))
 				{

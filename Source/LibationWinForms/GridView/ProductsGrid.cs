@@ -7,7 +7,6 @@ using LibationWinForms.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,7 +33,7 @@ namespace LibationWinForms.GridView
 		private GridEntryBindingList bindingList;
 		internal IEnumerable<LibraryBook> GetVisibleBooks()
 			=> bindingList
-			.BookEntries()
+			.GetFilteredInItems()
 			.Select(lbe => lbe.LibraryBook);
 		internal IEnumerable<ILibraryBookEntry> GetAllBookEntries()
 			=> bindingList.AllItems().BookEntries();
@@ -84,7 +83,7 @@ namespace LibationWinForms.GridView
 						else
 							bindingList.ExpandItem(sEntry);
 
-						VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+						VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 					}
 					else if (e.ColumnIndex == descriptionGVColumn.Index)
 						DescriptionClicked?.Invoke(sEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
@@ -248,7 +247,7 @@ namespace LibationWinForms.GridView
 			bindingList = new GridEntryBindingList(geList.OrderByDescending(e => e.DateAdded));
 			bindingList.CollapseAll();
 			syncBindingSource.DataSource = bindingList;
-			VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+			VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 		}
 
 		internal void UpdateGrid(List<LibraryBook> dbBooks)
@@ -317,7 +316,7 @@ namespace LibationWinForms.GridView
 				//no need to re-filter for removed books
 				bindingList.Remove(removed);
 
-			VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+			VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 		}
 
 		private void AddOrUpdateBook(LibraryBook book, ILibraryBookEntry existingBookEntry)
@@ -364,6 +363,7 @@ namespace LibationWinForms.GridView
 					//Series exists. Create and add episode child then update the SeriesEntry
 					episodeEntry = new LibraryBookEntry<WinFormsEntryStatus>(episodeBook, seriesEntry);
 					seriesEntry.Children.Add(episodeEntry);
+					seriesEntry.Children.Sort((c1,c2) => c1.SeriesIndex.CompareTo(c2.SeriesIndex));
 					var seriesBook = dbBooks.Single(lb => lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId);
 					seriesEntry.UpdateLibraryBook(seriesBook);
 				}
@@ -395,7 +395,7 @@ namespace LibationWinForms.GridView
 				syncBindingSource.Filter = searchString;
 
 			if (visibleCount != bindingList.Count)
-				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+				VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 		}
 
 		#endregion
