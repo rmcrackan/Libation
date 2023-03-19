@@ -16,11 +16,22 @@ namespace LibationFileManager
 			if (!Directory.Exists(Path.GetDirectoryName(settingsFile)) || !File.Exists(settingsFile))
 				return false;
 
-			var pDic = new PersistentDictionary(settingsFile, isReadOnly: true);
+			var pDic = new PersistentDictionary(settingsFile, isReadOnly: false);
 
 			var booksDir = pDic.GetString(nameof(Books));
 			if (booksDir is null || !Directory.Exists(booksDir))
-				return false;
+			{
+				booksDir = Path.Combine(Path.GetDirectoryName(settingsFile), nameof(Books));
+				try
+				{
+					Directory.CreateDirectory(booksDir);
+
+					pDic.SetString(nameof(Books), booksDir);
+
+					return booksDir is not null && Directory.Exists(booksDir);
+				}
+				catch { return false; }
+			}
 
 			return true;
 		}
