@@ -99,7 +99,6 @@ namespace LibationWinForms.GridView
 			this.gridEntryDataGridView.Size = new System.Drawing.Size(1570, 380);
 			this.gridEntryDataGridView.TabIndex = 0;
 			this.gridEntryDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentClick);
-			this.gridEntryDataGridView.CellContextMenuStripNeeded += new System.Windows.Forms.DataGridViewCellContextMenuStripNeededEventHandler(this.gridEntryDataGridView_CellContextMenuStripNeeded);
 			this.gridEntryDataGridView.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.gridEntryDataGridView_CellToolTipTextNeeded);
 			// 
 			// removeGVColumn

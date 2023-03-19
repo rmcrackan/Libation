@@ -1,8 +1,10 @@
 ﻿using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
+using LibationUiBase.GridView;
 using LibationWinForms.ProcessQueue;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -53,6 +55,22 @@ namespace LibationWinForms
 			catch (Exception ex)
 			{
 				Serilog.Log.Logger.Error(ex, "An error occurred while handling the stop light button click for {libraryBook}", libraryBook);
+			}
+		}
+
+		private void ProductsDisplay_LiberateSeriesClicked(object sender, ISeriesEntry series)
+		{
+			try
+			{
+				SetQueueCollapseState(false);
+
+				Serilog.Log.Logger.Information("Begin backing up all {series} episodes", series.LibraryBook);
+
+				processBookQueue1.AddDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated());
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error occurred while backing up {series} episodes", series.LibraryBook);
 			}
 		}
 

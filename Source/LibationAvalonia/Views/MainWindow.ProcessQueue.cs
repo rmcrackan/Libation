@@ -1,7 +1,9 @@
 ﻿using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
+using LibationUiBase.GridView;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace LibationAvalonia.Views
@@ -45,6 +47,22 @@ namespace LibationAvalonia.Views
 			catch (Exception ex)
 			{
 				Serilog.Log.Logger.Error(ex, "An error occurred while handling the stop light button click for {libraryBook}", libraryBook);
+			}
+		}
+
+		public void ProductsDisplay_LiberateSeriesClicked(object sender, ISeriesEntry series)
+		{
+			try
+			{
+				SetQueueCollapseState(false);
+
+				Serilog.Log.Logger.Information("Begin backing up all {series} episodes", series.LibraryBook);
+
+				_viewModel.ProcessQueue.AddDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated());
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "An error occurred while backing up {series} episodes", series.LibraryBook);
 			}
 		}
 
