@@ -21,7 +21,6 @@ namespace LibationWinForms.GridView
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 		public event LibraryBookEntryClickedEventHandler LiberateClicked;
-		public event LibraryBookEntryClickedEventHandler ConvertToMp3Clicked;
 		public event GridEntryClickedEventHandler CoverClicked;
 		public event LibraryBookEntryClickedEventHandler DetailsClicked;
 		public event GridEntryRectangleClickedEventHandler DescriptionClicked;
@@ -308,7 +307,8 @@ namespace LibationWinForms.GridView
 
 				//Add episode to the grid beneath the parent
 				int seriesIndex = bindingList.IndexOf(seriesEntry);
-				bindingList.Insert(seriesIndex + 1, episodeEntry);
+				int episodeIndex = seriesEntry.Children.IndexOf(episodeEntry);
+				bindingList.Insert(seriesIndex + 1 + episodeIndex, episodeEntry);
 
 				if (seriesEntry.Liberate.Expanded)
 					bindingList.ExpandItem(seriesEntry);

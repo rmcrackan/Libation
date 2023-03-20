@@ -1,4 +1,5 @@
 ﻿using LibationFileManager;
+using LibationUiBase;
 using System;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace LibationAvalonia.Views
 			App.OpenAsset("img-coverart-prod-unavailable_500x500.jpg").CopyTo(ms3);
 			PictureStorage.SetDefaultImage(PictureSize._500x500, ms3.ToArray());
 			PictureStorage.SetDefaultImage(PictureSize.Native, ms3.ToArray());
+
+			BaseUtil.SetLoadImageDelegate(AvaloniaUtils.TryLoadImageOrDefault);
 		}
 	}
 }

@@ -149,7 +149,7 @@ namespace AudibleUtilities
 			foreach (var parent in items.Where(i => i.IsSeriesParent))
 			{
 				var children = items.Where(i => i.IsEpisodes && i.Relationships.Any(r => r.Asin == parent.Asin));
-				setSeries(parent, children);
+				SetSeries(parent, children);
 			}
 
 			sw.Stop();
@@ -232,7 +232,7 @@ namespace AudibleUtilities
 			finally { semaphore.Release(); }
 		}
 
-		private static void setSeries(Item parent, IEnumerable<Item> children)
+		public static void SetSeries(Item parent, IEnumerable<Item> children)
 		{
 			//A series parent will always have exactly 1 Series
 			parent.Series = new[]

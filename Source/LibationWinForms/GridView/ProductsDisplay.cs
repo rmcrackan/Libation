@@ -5,6 +5,7 @@ using FileLiberator;
 using LibationFileManager;
 using LibationUiBase.GridView;
 using LibationWinForms.Dialogs;
+using LibationWinForms.SeriesView;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -219,6 +220,20 @@ namespace LibationWinForms.GridView
 			}
 
 			#endregion
+			#region View All Series
+
+			if (entry.Book.SeriesLink.Any())
+			{
+				var header = entry.Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
+
+				var viewSeriesMenuItem = new ToolStripMenuItem { Text = header };
+
+				ctxMenu.Items.Add(viewSeriesMenuItem);
+
+				viewSeriesMenuItem.Click += (_, _) => new SeriesViewDialog(entry.LibraryBook).Show();
+			}
+
+			#endregion
 		}
 
 		#endregion
@@ -331,12 +346,6 @@ namespace LibationWinForms.GridView
 			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error
 				&& !liveGridEntry.Liberate.IsUnavailable)
 				LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
-		}
-
-		private void productsGrid_ConvertToMp3Clicked(ILibraryBookEntry liveGridEntry)
-		{
-			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error)
-				ConvertToMp3Clicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 
 		private void productsGrid_RemovableCountChanged(object sender, EventArgs e)

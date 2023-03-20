@@ -216,6 +216,19 @@ namespace LibationAvalonia.Views
 				}
 
 				#endregion
+				#region View All Series
+
+				if (entry.Book.SeriesLink.Any())
+				{
+					var header = entry.Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
+					var viewSeriesMenuItem = new MenuItem { Header = header };
+
+					args.ContextMenuItems.Add(viewSeriesMenuItem);
+
+					viewSeriesMenuItem.Click += (_, _) => new SeriesViewDialog(entry.LibraryBook).Show();
+				}
+
+				#endregion
 			}
 			else
 			{

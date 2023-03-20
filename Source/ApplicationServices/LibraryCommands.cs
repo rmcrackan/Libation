@@ -171,7 +171,60 @@ namespace ApplicationServices
             }
         }
 
-        private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions libraryOptions)
+        public static async Task<int> ImportSingleToDbAsync(AudibleApi.Common.Item item, string accountId, string localeName)
+        {
+            ArgumentValidator.EnsureNotNull(item, "item");
+            ArgumentValidator.EnsureNotNull(accountId, "accountId");
+            ArgumentValidator.EnsureNotNull(localeName, "localeName");
+
+            var importItem = new ImportItem
+            {
+                DtoItem = item,
+                AccountId = accountId,
+                LocaleName = localeName
+            };
+
+            var importItems = new List<ImportItem> { importItem };
+            var validator = new LibraryValidator();
+            var exceptions = validator.Validate(importItems.Select(i => i.DtoItem));
+
+            if (exceptions?.Any() ?? false)
+            {
+                Log.Logger.Error(new AggregateException(exceptions), "Error validating library book. {@DebugInfo}", new { item, accountId, localeName });
+                return 0;
+            }
+
+            using var context = DbContexts.GetContext();
+
+            var bookImporter = new BookImporter(context);
+            await Task.Run(() => bookImporter.Import(importItems));
+            var book = await Task.Run(() => context.LibraryBooks.FirstOrDefault(lb => lb.Book.AudibleProductId == importItem.DtoItem.ProductId));
+            
+            if (book is null)
+            {
+                book = new LibraryBook(bookImporter.Cache[importItem.DtoItem.ProductId], importItem.DtoItem.DateAdded, importItem.AccountId);
+                context.LibraryBooks.Add(book);
+            }
+            else
+            {
+                book.AbsentFromLastScan = false;
+            }
+
+            try
+            {
+                int qtyChanged = await Task.Run(() => SaveContext(context));
+                if (qtyChanged > 0)
+                    await Task.Run(finalizeLibrarySizeChange);
+                return qtyChanged;
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "Error adding single library book to DB. {@DebugInfo}", new { item, accountId, localeName });
+                return 0;
+            }
+        }
+
+		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions libraryOptions)
         {
             var tasks = new List<Task<List<ImportItem>>>();
 

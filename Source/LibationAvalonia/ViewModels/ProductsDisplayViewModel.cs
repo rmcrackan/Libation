@@ -114,12 +114,20 @@ namespace LibationAvalonia.ViewModels
 				seriesEntry.Liberate.Expanded = false;
 
 				geList.Add(seriesEntry);
-				geList.AddRange(seriesEntry.Children);
 			}
 
 			//Create the filtered-in list before adding entries to avoid a refresh
 			FilteredInGridEntries = QueryResults(geList, FilterString);
 			SOURCE.AddRange(geList.OrderByDescending(e => e.DateAdded));
+
+			//Add all children beneath their parent
+			foreach (var series in SOURCE.OfType<ISeriesEntry>().ToList())
+			{
+				var seriesIndex = SOURCE.IndexOf(series);
+				foreach (var child in series.Children)
+					SOURCE.Insert(++seriesIndex, child);
+			}
+
 			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
 			GridEntries_CollectionChanged();
 		}
@@ -253,13 +261,15 @@ namespace LibationAvalonia.ViewModels
 					//Series exists. Create and add episode child then update the SeriesEntry
 					episodeEntry = new LibraryBookEntry<AvaloniaEntryStatus>(episodeBook, seriesEntry);
 					seriesEntry.Children.Add(episodeEntry);
+					seriesEntry.Children.Sort((c1, c2) => c1.SeriesIndex.CompareTo(c2.SeriesIndex));
 					var seriesBook = dbBooks.Single(lb => lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId);
 					seriesEntry.UpdateLibraryBook(seriesBook);
 				}
 
 				//Add episode to the grid beneath the parent
 				int seriesIndex = SOURCE.IndexOf(seriesEntry);
-				SOURCE.Insert(seriesIndex + 1, episodeEntry);
+				int episodeIndex = seriesEntry.Children.IndexOf(episodeEntry);
+				SOURCE.Insert(seriesIndex + 1 + episodeIndex, episodeEntry);
 			}
 			else
 				existingEpisodeEntry.UpdateLibraryBook(episodeBook);

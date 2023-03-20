@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ApplicationServices;
 using Dinah.Core.WindowsDesktop.Drawing;
 using LibationFileManager;
+using LibationUiBase;
 
 namespace LibationWinForms
 {
@@ -19,6 +20,8 @@ namespace LibationWinForms
             PictureStorage.SetDefaultImage(PictureSize._300x300, Properties.Resources.default_cover_300x300.ToBytes(format));
             PictureStorage.SetDefaultImage(PictureSize._500x500, Properties.Resources.default_cover_500x500.ToBytes(format));
             PictureStorage.SetDefaultImage(PictureSize.Native, Properties.Resources.default_cover_500x500.ToBytes(format));
+
+            BaseUtil.SetLoadImageDelegate(WinFormsUtil.TryLoadImageOrDefault);
 
             // wire-up event to automatically download after scan.
             // winforms only. this should NOT be allowed in cli

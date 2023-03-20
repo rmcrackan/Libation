@@ -41,7 +41,6 @@
 			productsGrid.TabIndex = 0;
 			productsGrid.VisibleCountChanged += productsGrid_VisibleCountChanged;
 			productsGrid.LiberateClicked += productsGrid_LiberateClicked;
-			productsGrid.ConvertToMp3Clicked += productsGrid_ConvertToMp3Clicked;
 			productsGrid.CoverClicked += productsGrid_CoverClicked;
 			productsGrid.DetailsClicked += productsGrid_DetailsClicked;
 			productsGrid.DescriptionClicked += productsGrid_DescriptionClicked;

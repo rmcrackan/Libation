@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Styling;
 using System;
 
@@ -14,7 +15,14 @@ namespace LibationAvalonia.Controls
 		public LinkLabel()
 		{
 			InitializeComponent();
+			Tapped += LinkLabel_Tapped;
 		}
+
+		private void LinkLabel_Tapped(object sender, TappedEventArgs e)
+		{
+			Foreground = Brushes.Purple;
+		}
+
 		protected override void OnPointerEntered(PointerEventArgs e)
 		{
 			this.Cursor = HandCursor;
