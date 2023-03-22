@@ -220,6 +220,9 @@ namespace AudibleUtilities
 
 		public static void SetSeries(Item parent, IEnumerable<Item> children)
 		{
+			ArgumentValidator.EnsureNotNull(parent, nameof(parent));
+			ArgumentValidator.EnsureNotNull(children, nameof(children));
+
 			//A series parent will always have exactly 1 Series
 			parent.Series = new[]
 			{
@@ -232,7 +235,15 @@ namespace AudibleUtilities
 			};
 
 			if (parent.PurchaseDate == default)
-				parent.PurchaseDate = children.Select(c => c.PurchaseDate).Order().First();
+			{
+				parent.PurchaseDate = children.Select(c => c.PurchaseDate).Order().FirstOrDefault(d => d != default);
+
+				if (parent.PurchaseDate == default)
+				{
+					Serilog.Log.Logger.Warning("{series} doesn't have a purchase date. Using UtcNow", parent);
+					parent.PurchaseDate = DateTimeOffset.UtcNow;
+				}
+			}
 
 			foreach (var child in children)
 			{
