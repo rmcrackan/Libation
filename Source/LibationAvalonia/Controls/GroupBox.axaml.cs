@@ -29,10 +29,5 @@ namespace LibationAvalonia.Controls
 			get { return GetValue(LabelProperty); }
 			set { SetValue(LabelProperty, value); }
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

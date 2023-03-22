@@ -31,12 +31,6 @@ namespace LibationAvalonia.Dialogs.Login
 			DataContext = this;
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
-
 		protected override Task SaveAndCloseAsync()
 		{
 			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new { email = Account?.AccountId?.ToMask(), passwordLength = Password?.Length });

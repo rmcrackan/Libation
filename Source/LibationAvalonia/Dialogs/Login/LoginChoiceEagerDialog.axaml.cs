@@ -36,10 +36,5 @@ namespace LibationAvalonia.Dialogs.Login
 			LoginMethod = LoginMethod.External;
 			await SaveAndCloseAsync();
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

@@ -23,7 +23,6 @@
 				Grid.Column="0"
 				Grid.Row="1"
 				Name="userEditTbox"
-				FontFamily="{Binding FontFamily}"
 				Text="{Binding UserTemplateText, Mode=TwoWay}" />
 
 			<Button

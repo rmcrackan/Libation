@@ -90,10 +90,5 @@ namespace LibationAvalonia.Controls
 			get => GetValue(SubDirectoryProperty);
 			set => SetValue(SubDirectoryProperty, value);
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

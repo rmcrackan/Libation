@@ -29,6 +29,7 @@ namespace LibationAvalonia.Views
 		public ProductsDisplay()
 		{
 			InitializeComponent();
+			DataGridContextMenus.CellContextMenuStripNeeded += ProductsGrid_CellContextMenuStripNeeded;
 
 			if (Design.IsDesignMode)
 			{
@@ -72,14 +73,6 @@ namespace LibationAvalonia.Views
 				col.DisplayIndex = 0;
 				col.CanUserReorder = false;
 			}
-		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-
-			productsGrid = this.FindControl<DataGrid>(nameof(productsGrid));
-			DataGridContextMenus.CellContextMenuStripNeeded += ProductsGrid_CellContextMenuStripNeeded;
 		}
 
 		#region Cell Context Menu
@@ -163,22 +156,24 @@ namespace LibationAvalonia.Views
 					{
 						try
 						{
+							var window = this.GetParentWindow();
+
 							var openFileDialogOptions = new FilePickerOpenOptions
 							{
 								Title = $"Locate the audio file for '{entry.Book.Title}'",
 								AllowMultiple = false,
-								SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Configuration.Instance.Books.PathWithoutPrefix),
+								SuggestedStartLocation = await window.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
 								FileTypeFilter = new FilePickerFileType[]
 								{
 								new("All files (*.*)") { Patterns = new[] { "*" } },
 								}
 							};
 
-							var selectedFiles = await this.GetParentWindow().StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
-							var selectedFile = selectedFiles.SingleOrDefault();
+							var selectedFiles = await window.StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
+							var selectedFile = selectedFiles.SingleOrDefault()?.TryGetLocalPath();
 
-							if (selectedFile?.TryGetUri(out var uri) is true)
-								FilePathCache.Insert(entry.AudibleProductId, uri.LocalPath);
+							if (selectedFile is not null)
+								FilePathCache.Insert(entry.AudibleProductId, selectedFile);
 						}
 						catch (Exception ex)
 						{
@@ -369,7 +364,8 @@ namespace LibationAvalonia.Views
 
 				//Expanding and collapsing reset the list, which will cause focus to shift
 				//to the topright cell. Reset focus onto the clicked button's cell.
-				(sender as Button).Parent?.Focus();
+				var parentControl = (sender as Button).Parent as Control;
+				parentControl?.Focus();
 			}
 			else if (button.DataContext is ILibraryBookEntry lbEntry)
 			{

@@ -48,10 +48,5 @@ namespace LibationAvalonia.Dialogs
 			DialogResult = DialogResult.OK;
 			Close(DialogResult);
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

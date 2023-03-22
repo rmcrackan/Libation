@@ -8,10 +8,9 @@
 	</Application.DataTemplates>
 	
     <Application.Styles>
-		<FluentTheme Mode="Light"/>
-		<StyleInclude Source="avares://Avalonia.Themes.Fluent/FluentLight.xaml"/>
-		<StyleInclude Source="avares://Avalonia.Themes.Fluent/Accents/BaseLight.xaml"/>
-		<StyleInclude Source="/Assets/DataGridTheme.xaml"/>
+		<FluentTheme />
+		<StyleInclude Source="avares://Avalonia.Themes.Fluent/FluentTheme.xaml"/>
+		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
 		<StyleInclude Source="/Assets/LibationStyles.xaml"/>
 	</Application.Styles>
 </Application>

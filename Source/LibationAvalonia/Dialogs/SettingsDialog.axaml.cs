@@ -29,11 +29,6 @@ namespace LibationAvalonia.Dialogs
 			DataContext = settingsDisp = new(config);
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		protected override async Task SaveAndCloseAsync()
 		{
 			if (!await settingsDisp.SaveSettingsAsync(config))

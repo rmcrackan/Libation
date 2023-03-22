@@ -52,11 +52,5 @@ namespace LibationAvalonia.Dialogs
 		{
 			Close();
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 	}
 }

@@ -12,11 +12,6 @@ namespace LibationAvalonia.Dialogs.Login
 			InitializeComponent();
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		protected override Task SaveAndCloseAsync()
 		{
 			Serilog.Log.Logger.Information("Approve button clicked");

@@ -60,11 +60,6 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		public void OkButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			SaveAndClose();

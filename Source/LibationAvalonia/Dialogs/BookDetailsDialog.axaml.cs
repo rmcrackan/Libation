@@ -63,11 +63,6 @@ namespace LibationAvalonia.Dialogs
 		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
             => SaveAndClose();
 
-        private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		private class BookDetailsDialogViewModel : ViewModelBase
 		{
 			public class liberatedComboBoxItem

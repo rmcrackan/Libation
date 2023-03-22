@@ -41,10 +41,5 @@ namespace LibationAvalonia.Views
 			=> PositionButtonClicked?.Invoke(DataItem, QueuePosition.OneDown);
 		public void MoveLast_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> PositionButtonClicked?.Invoke(DataItem, QueuePosition.Last);
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

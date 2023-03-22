@@ -94,11 +94,6 @@ namespace LibationAvalonia.Views
 			if (e.Key == Avalonia.Input.Key.Enter && sender is Avalonia.Input.IInputElement input) input.Focus();
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		#region Control event handlers
 
 		private async void ProcessBookControl2_CancelButtonClicked(ProcessBookViewModel item)

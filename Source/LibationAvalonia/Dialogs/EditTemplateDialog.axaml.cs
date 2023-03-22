@@ -75,7 +75,6 @@ namespace LibationAvalonia.Dialogs
 		private class EditTemplateViewModel : ViewModels.ViewModelBase
 		{
 			private readonly Configuration config;
-			public FontFamily FontFamily { get; } = FontManager.Current.DefaultFontFamilyName;
 			public InlineCollection Inlines { get; } = new();
 			public ITemplateEditor TemplateEditor { get; }
 			public EditTemplateViewModel(Configuration configuration, ITemplateEditor templates)
@@ -91,7 +90,7 @@ namespace LibationAvalonia.Dialogs
 					.Cast<TemplateTags>()
 					.Select(
 						t => new Tuple<string, string, string>(
-							$"<{t.TagName.Replace("->", "-\x200C>").Replace("<-", "<\x200C-")}>",
+							$"<{t.TagName}>",
 							t.Description,
 							t.DefaultValue)
 						)

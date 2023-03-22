@@ -61,6 +61,11 @@
 				<DataGridTemplateColumn.CellTemplate>
 					<DataTemplate>
 						<Panel>
+							<Panel.Styles>
+								<Style Selector="TextBlock">
+									<Setter Property="FontSize" Value="13"/>
+								</Style>
+							</Panel.Styles>
 							<Button
 								Padding="0"
 								HorizontalAlignment="Stretch"

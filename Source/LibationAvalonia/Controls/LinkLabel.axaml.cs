@@ -33,10 +33,5 @@ namespace LibationAvalonia.Controls
 			this.Cursor = Cursor.Default;
 			base.OnPointerExited(e);
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

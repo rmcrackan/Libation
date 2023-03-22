@@ -40,10 +40,6 @@ namespace LibationAvalonia.Dialogs.Login
 			Account = account;
 			DataContext = this;
 		}
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 
 		protected override async Task SaveAndCloseAsync()
 		{

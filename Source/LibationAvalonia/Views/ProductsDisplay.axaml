@@ -30,6 +30,7 @@
 					<Setter Property="HorizontalAlignment" Value="Stretch"/>
 					<Setter Property="TextWrapping" Value="Wrap"/>
 					<Setter Property="Padding" Value="4"/>
+					<Setter Property="FontSize" Value="12"/>
 				</Style>
 			</DataGrid.Styles>
 			
@@ -80,7 +81,7 @@
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 							<Panel Opacity="{Binding Liberate.Opacity}" Background="{Binding Liberate.BackgroundBrush}">
-								<TextBlock Text="{Binding Title}" />
+								<TextBlock FontSize="14" Text="{Binding Title}" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

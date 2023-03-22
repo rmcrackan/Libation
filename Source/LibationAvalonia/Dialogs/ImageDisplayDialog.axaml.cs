@@ -20,12 +20,6 @@ namespace LibationAvalonia.Dialogs
 			DataContext = _bitmapHolder;
 		}
 
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		public void SetCoverBytes(byte[] cover)
 		{
 			_bitmapHolder.CoverImage = AvaloniaUtils.TryLoadImageOrDefault(cover);
@@ -36,7 +30,7 @@ namespace LibationAvalonia.Dialogs
 			var options = new FilePickerSaveOptions
 			{
 				Title = $"Save Sover Image",
-				SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)),
+				SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)),
 				SuggestedFileName = PictureFileName,
 				DefaultExtension = "jpg",
 				ShowOverwritePrompt = true,
@@ -50,17 +44,17 @@ namespace LibationAvalonia.Dialogs
 					}
 			};
 
-			var selectedFile = await StorageProvider.SaveFilePickerAsync(options);
+			var selectedFile = (await StorageProvider.SaveFilePickerAsync(options))?.TryGetLocalPath();
 
-			if (selectedFile?.TryGetUri(out var uri) is not true) return;
+			if (selectedFile is null) return;
 
 			try
 			{
-				_bitmapHolder.CoverImage.Save(uri.LocalPath);
+				_bitmapHolder.CoverImage.Save(selectedFile);
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, $"Failed to save picture to {uri.LocalPath}");
+				Serilog.Log.Logger.Error(ex, $"Failed to save picture to {selectedFile}");
 				await MessageBox.Show(this, $"An error was encountered while trying to save the picture\r\n\r\n{ex.Message}", "Failed to save picture", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 			}
 		}

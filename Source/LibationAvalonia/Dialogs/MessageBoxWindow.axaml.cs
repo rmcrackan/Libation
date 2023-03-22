@@ -17,11 +17,6 @@ namespace LibationAvalonia.Dialogs
 			InitializeComponent();
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		protected override void CancelAndClose() => Close(DialogResult.None);
 
 		protected override void SaveAndClose() { }

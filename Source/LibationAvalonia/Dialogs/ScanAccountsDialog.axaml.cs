@@ -26,6 +26,10 @@ namespace LibationAvalonia.Dialogs
 		public ScanAccountsDialog()
 		{
 			InitializeComponent();
+
+			this.HideMinMaxBtns();
+			this.Opened += ScanAccountsDialog_Opened;
+
 			LoadAccounts();
 		}
 
@@ -43,13 +47,6 @@ namespace LibationAvalonia.Dialogs
 				});
 
 			DataContext = this;
-		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-			this.HideMinMaxBtns();
-			this.Opened += ScanAccountsDialog_Opened;
 		}
 
 		private void ScanAccountsDialog_Opened(object sender, System.EventArgs e)

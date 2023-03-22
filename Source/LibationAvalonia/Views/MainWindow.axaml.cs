@@ -23,10 +23,6 @@ namespace LibationAvalonia.Views
 			this.DataContext = _viewModel = new MainWindowViewModel();
 
 			InitializeComponent();
-#if DEBUG
-			this.AttachDevTools();
-#endif
-			FindAllControls();
 
 			// eg: if one of these init'd productsGrid, then another can't reliably subscribe to it
 			Configure_BackupCounts();
@@ -70,18 +66,7 @@ namespace LibationAvalonia.Views
 			_viewModel.ProductsDisplay.BindToGrid(dbBooks);
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		public void OnLoad() => Load?.Invoke(this, EventArgs.Empty);
 		public void OnLibraryLoaded(List<LibraryBook> initialLibrary) => LibraryLoaded?.Invoke(this, initialLibrary);
-
-		private void FindAllControls()
-		{
-			quickFiltersToolStripMenuItem = this.FindControl<MenuItem>(nameof(quickFiltersToolStripMenuItem));
-			productsDisplay = this.FindControl<ProductsDisplay>(nameof(productsDisplay));
-		}
 	}
 }

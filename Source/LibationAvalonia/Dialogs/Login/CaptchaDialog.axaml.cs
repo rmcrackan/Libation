@@ -49,11 +49,6 @@ namespace LibationAvalonia.Dialogs.Login
 			Opened += (_, _) => (string.IsNullOrEmpty(password) ? passwordBox : captchaBox).Focus();
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		protected override async Task SaveAndCloseAsync()
 		{
 			if (string.IsNullOrWhiteSpace(_viewModel.Password))

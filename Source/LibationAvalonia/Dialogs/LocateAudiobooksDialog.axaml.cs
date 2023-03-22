@@ -70,12 +70,12 @@ namespace LibationAvalonia.Dialogs
 			{
 				Title = "Select the folder to search for audiobooks",
 				AllowMultiple = false,
-				SuggestedStartLocation = new BclStorageFolder(Configuration.Instance.Books.PathWithoutPrefix) 
+				SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix) 
 			};
 
-			var selectedFolder = await StorageProvider.OpenFolderPickerAsync(folderPicker);
+			var selectedFolder = (await StorageProvider.OpenFolderPickerAsync(folderPicker))?.SingleOrDefault()?.TryGetLocalPath();
 
-			if (selectedFolder.FirstOrDefault().TryGetUri(out var uri) is not true || !Directory.Exists(uri.LocalPath))
+			if (selectedFolder is null || !Directory.Exists(selectedFolder))
 			{
 				await CancelAndCloseAsync();
 				return;
@@ -83,7 +83,7 @@ namespace LibationAvalonia.Dialogs
 
 			using var context = DbContexts.GetContext();
 
-			await foreach (var book in AudioFileStorage.FindAudiobooksAsync(uri.LocalPath, tokenSource.Token))
+			await foreach (var book in AudioFileStorage.FindAudiobooksAsync(selectedFolder, tokenSource.Token))
 			{
 				try
 				{

@@ -64,7 +64,8 @@ namespace HangoverBase
 
             try
             {
-                var sql = _commands.SqlInput().Trim();
+                var sql = _commands.SqlInput()?.Trim();
+                if (sql is null) return;
 
                 #region // explanation
                 // Routing statements to non-query is a convenience.
