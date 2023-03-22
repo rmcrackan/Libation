@@ -12,6 +12,7 @@ using DtoImporterService;
 using FileManager;
 using LibationFileManager;
 using Newtonsoft.Json.Linq;
+using NPOI.OpenXmlFormats.Spreadsheet;
 using Serilog;
 using static DtoImporterService.PerfLogger;
 
@@ -261,26 +262,43 @@ namespace ApplicationServices
 
             logTime($"pre scanAccountAsync {account.AccountName}");
 
-            var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions, Configuration.Instance.ImportEpisodes);
-
-            if (archiver is not null)
+            try
             {
-                var fileName = $"{DateTime.Now:u} {account.MaskedLogEntry}.json";
-                var items = await Task.Run(() => JArray.FromObject(dtoItems.Select(i => i.SourceJson)));
+                var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions, Configuration.Instance.ImportEpisodes);
 
-				var scanFile = new JObject
-                {
-                    { "Account", account.MaskedLogEntry },
-                    { "ScannedDateTime", DateTime.Now.ToString("u") },
-                    { "Items",  items}
-                };
+                logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
+                
+                await logDtoItemsAsync(dtoItems);
 
-				await archiver.AddFileAsync(fileName, scanFile);
+				return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = account.Locale?.Name }).ToList();
+            }
+            catch(ImportValidationException ex)
+			{
+				await logDtoItemsAsync(ex.Items, ex.InnerExceptions.ToArray());
+				throw;
+            }
+
+            async Task logDtoItemsAsync(IEnumerable<AudibleApi.Common.Item> dtoItems, IEnumerable<Exception> exceptions = null)
+            {
+				if (archiver is not null)
+				{
+					var fileName = $"{DateTime.Now:u} {account.MaskedLogEntry}.json";
+					var items = await Task.Run(() => JArray.FromObject(dtoItems.Select(i => i.SourceJson)));
+
+					var scanFile = new JObject
+				    {
+					    { "Account", account.MaskedLogEntry },
+					    { "ScannedDateTime", DateTime.Now.ToString("u") },
+				    };
+
+					if (exceptions?.Any() is true)
+                        scanFile.Add("Exceptions", JArray.FromObject(exceptions));
+
+					scanFile.Add("Items", items);
+
+					await archiver.AddFileAsync(fileName, scanFile);
+				}
 			}
-
-            logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
-
-            return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = account.Locale?.Name }).ToList();
         }
 
         private static async Task<int> importIntoDbAsync(List<ImportItem> importItems)
