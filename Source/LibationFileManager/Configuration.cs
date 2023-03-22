@@ -19,8 +19,13 @@ namespace LibationFileManager
 			var pDic = new PersistentDictionary(settingsFile, isReadOnly: false);
 
 			var booksDir = pDic.GetString(nameof(Books));
-			if (booksDir is null || !Directory.Exists(booksDir))
+
+			if (booksDir is null) return false;
+
+			if (!Directory.Exists(booksDir))
 			{
+				//"Books" is not null, so setup has already been run.
+				//Since Books can't be found, try to create it in Libation settings folder
 				booksDir = Path.Combine(Path.GetDirectoryName(settingsFile), nameof(Books));
 				try
 				{
