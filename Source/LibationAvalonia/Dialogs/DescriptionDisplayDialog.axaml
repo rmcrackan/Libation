@@ -5,8 +5,13 @@
         mc:Ignorable="d" d:DesignWidth="540" d:DesignHeight="140"
         x:Class="LibationAvalonia.Dialogs.DescriptionDisplayDialog"
 		SystemDecorations="None"
-        Title="DescriptionDisplay">	
-		
+        Title="DescriptionDisplay">
+
+	<Window.Styles>
+		<Style Selector="TextBox[IsReadOnly=true] /template/ Border#PART_BorderElement">
+			<Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
+		</Style>
+	</Window.Styles>
 	<TextBox
 		Text="{Binding DescriptionText}"
 		IsReadOnly="True"
@@ -15,5 +20,5 @@
 		Name="DescriptionTextBox"
 		CaretBrush="{StaticResource SystemControlTransparentBrush}"
 		LostFocus="DescriptionTextBox_LostFocus" />
-	
+
 </Window>

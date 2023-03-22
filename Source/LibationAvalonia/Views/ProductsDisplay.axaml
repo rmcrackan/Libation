@@ -32,6 +32,11 @@
 					<Setter Property="Padding" Value="4"/>
 					<Setter Property="FontSize" Value="12"/>
 				</Style>
+				<Style Selector="DataGridCell Path">
+					<Setter Property="Stretch" Value="Uniform" />
+					<Setter Property="VerticalAlignment" Value="Center" />
+					<Setter Property="Fill" Value="{DynamicResource	IconFill}" />
+				</Style>
 			</DataGrid.Styles>
 			
 			<DataGrid.Columns>
@@ -58,13 +63,14 @@
 				<controls:DataGridTemplateColumnExt CanUserSort="True" Width="75" Header="Liberate" SortMemberPath="Liberate" ClipboardContentBinding="{Binding Liberate.ToolTip}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<Panel ToolTip.Tip="{Binding Liberate.ToolTip}">
-								<Button Opacity="{Binding Liberate.Opacity}" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="LiberateButton_Click" IsVisible="{Binding !Liberate.IsUnavailable}">
-									<Image Source="{Binding Liberate.ButtonImage}" Stretch="None" />
-								</Button>
-								<Image Source="{Binding Liberate.ButtonImage}" Stretch="None" IsVisible="{Binding Liberate.IsUnavailable}"/>
-								<Panel Background="{StaticResource DisabledGrayBrush}" IsVisible="{Binding Liberate.IsUnavailable}" />
-							</Panel>
+							<views:LiberateStatusButton
+								ToolTip.Tip="{Binding Liberate.ToolTip}"
+								BookStatus="{Binding Liberate.BookStatus}"
+								PdfStatus="{Binding Liberate.PdfStatus}"
+								IsUnavailable="{Binding Liberate.IsUnavailable}"
+								IsSeries="{Binding Liberate.IsSeries}"
+								Expanded="{Binding Liberate.Expanded}"
+								Click="LiberateButton_Click" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
@@ -202,7 +208,9 @@
 						<DataTemplate>
 							<Button IsVisible="{Binding !Liberate.IsSeries}" Width="100" Height="80" Click="OnTagsButtonClick" ToolTip.Tip="Click to edit tags" >
 								<Panel Opacity="{Binding Liberate.Opacity}">
-									<Image IsVisible="{Binding BookTags, Converter={x:Static StringConverters.IsNullOrEmpty}}" Stretch="None" Source="/Assets/edit_25x25.png" />
+									<Panel Width="24" Height="24" IsVisible="{Binding BookTags, Converter={x:Static StringConverters.IsNullOrEmpty}}">
+										<Path Stretch="Uniform" Fill="{DynamicResource IconFill}" Data="{StaticResource EditTagsIcon}" />
+									</Panel>
 									<TextBlock IsVisible="{Binding BookTags, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" FontSize="12" TextWrapping="WrapWithOverflow" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding BookTags}"/>
 								</Panel>
 							</Button>

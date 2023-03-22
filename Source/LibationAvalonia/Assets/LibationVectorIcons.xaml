@@ -1,0 +1,69 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:collections="using:Avalonia.Collections">
+  <Styles.Resources>
+   <ResourceDictionary>   
+		<StreamGeometry x:Key="LeftArrows">M30,0 H60 L30,50 L60,100 H30 L0,50 M85,0 H115 L85,50 L115,100 H85 L55,50 M140,0 H170 L140,50 L170,100 H140 L110,50</StreamGeometry>
+		<StreamGeometry x:Key="FirstButtonIcon">M0,0 H100 V12 H53 L100,46 H0 L47,12 H0</StreamGeometry>
+		<StreamGeometry x:Key="UpButtonIcon">M0,36.66 L50,0 L100,36.66</StreamGeometry>
+		<StreamGeometry x:Key="DownButtonIcon">M0,0 L100,0 L50,36.66</StreamGeometry>
+		<StreamGeometry x:Key="LastButtonIcon">M0,0 H100 L53,34 H100 V46 H0 V34 H47</StreamGeometry>
+		<StreamGeometry x:Key="CancelButtonIcon">M30,0 H50 V30 H80 V50 H50 V80 H30 V50 H0 V30 H30</StreamGeometry>
+		<StreamGeometry x:Key="QueuedIcon">M31,0 H49 V100 H31 M58,0 H76 V100 H58 M85,0 H103 V100 H85 M8,85 V122 H129 V85 H117 V109 H20 V85 H8 M0,36 V66 L24,51 M114,36 V66 L138,51</StreamGeometry>
+		<StreamGeometry x:Key="QueueCompletedIcon">M0,0 H100 V100 H0 V0 M2,50 L36,82 L 93,27 L81,15 L36,59 L14,38</StreamGeometry>
+		<StreamGeometry x:Key="QueueErrorIcon">M0,0 H100 V100 H0 V0 M15,71 L29,85 L50,64 L71,85 L85,71 L64,50 L85,29 L71,15 L50,36 L29,15 L15,29 L36,50</StreamGeometry>
+		<StreamGeometry x:Key="BookErrorIcon">M32,0 a 32,32 0 0 1 0,64 a 32,32 0 0 1 0,-64 m 0,4 a 28,28 0 0 1 0,56 a 28,28 0 0 1 0,-56 m-21,24 h42 a 1,1 0 0 1 1,1 v6 a 1,1 0 0 1 -1,1 h-42 a 1,1 0 0 1 -1,-1 v-6 a 1,1 0 0 1 1,-1</StreamGeometry>
+
+		<RotateTransform x:Key="Rotate45Transform" Angle="45" />
+
+		<StreamGeometry x:Key="EditTagsIcon">
+			M39,35 L50,24 H11
+			A 11,11 0 0 0 0,35 V89 A 11,11 0 0 0 11,100 H64 A 11,11 0 0 0 75,89 V52 L64,63 V89 H11 V35
+			M 51,65 H36 V50
+			M 90.5,26.5 L55,62 L 39,45 L74,10
+			M 78,6 L81.5,2.5 A 8,8 0 0 1 91.5,2 L98.5,9 A 8,8 0 0 1 97.5,19.5 L94,23
+		</StreamGeometry>
+
+		<StreamGeometry x:Key="CollapseIcon">
+			M0,2 A 2,2 0 0 1 2,0 H62 A2,2 0 0 1 64,2 V62 A 2,2 0 0 1 62,64 H 2 A 2,2 0 0 1 0,62 V2
+			M 2,2 H62 V62 H2 V2
+			M11,28 h42 a 1,1 0 0 1 1,1 v6 a 1,1 0 0 1 -1,1 h-42 a 1,1 0 0 1 -1,-1 v-6 a 1,1 0 0 1 1,-1
+		</StreamGeometry>
+	   <StreamGeometry x:Key="VerticalBarIcon">M28,53 v-42 a 1,1 0 0 1 1,-1 h6 a 1,1 0 0 1 1,1 v42 a 1,1 0 0 1 -1,1 h-6 a 1,1 0 0 1 -1,-1</StreamGeometry>
+
+
+	   <CombinedGeometry x:Key="ExpandIcon" Geometry1="{StaticResource CollapseIcon}" Geometry2="{StaticResource VerticalBarIcon}" />
+
+		<StreamGeometry x:Key="StoplightBodyIcon">
+			M0,12 A 12,12 0 0 1 12,0 H34 A 12,12 0 0 1 46,12 V88 A 12,12 0 0 1 34,100 H12 A 12,12 0 0 1 0,88 V12
+			M20,8 H26 A 12,12 0 0 1 26,32 H20 A 12,12 0 0 1 20,8
+			M20,38 H26 A 12,12 0 0 1 26,62 H20 A 12,12 0 0 1 20,38
+			M20,68 H26 A 12,12 0 0 1 26,92 H20 A 12,12 0 0 1 20,68
+		</StreamGeometry>
+
+		<StreamGeometry x:Key="PdfDownloadedIcon">
+			M4,38.5 H3 A 3,3 0 0 1 0,35.5 V21.4 A 3,3 0 0 1 3,18.4 H4 V2 A 2,2 0 0 1 6,0 H30.5 L41,12 V18.4 A 3,3 0 0 1 45,21.4 V35.5 A 3,3 0 0 1 42,38.5 H41 V48.5 A 2,2 0 0 1 39,50.5 H6 A 2,2 0 0 1 4,48.5
+			M6,38.5 H39 V48.5 H6 V38.5
+			M6,18.4 V2 H29 V12 A 1,1 0 0 0 30,13 H39 V18.4
+			M 4.3179,36 c 0,0 0.122,-14.969 0.122,-14.969 1.469,-0.194 2.939,-0.388 4.5,-0.362 1.561,0.026 3.214,0.27 4.357,0.944 1.143,0.674 1.775,1.776 2.015,2.959 0.24,1.184 0.087,2.449 -0.5,3.52 -0.587,1.071 -1.607,1.949 -2.816,2.352 -1.209,0.403 -2.607,0.332 -4.005,0.26 0,0 -0.031,5.265 -0.031,5.265 0,0 -3.673,0.122 -3.673,0.122 0,0 0.031,-0.092 0.031,-0.092
+			m 3.643,-12.428 c 0,0 0.031,4.286 0.031,4.286 0.735,0.051 1.47,0.102 2.107,-0.056 0.638,-0.158 1.178,-0.526 1.459,-1.122 0.281,-0.597 0.301,-1.423 0.01,-2.005 -0.291,-0.582 -0.893,-0.918 -1.546,-1.061 -0.653,-0.143 -1.357,-0.092 -1.709,-0.066 -0.352,0.026 -0.352,0.026 -0.352,0.026
+			m 9.428,12.428 c 2.265,0.245 4.531,0.49 6.674,0.066 2.143,-0.424 4.163,-1.515 5.285,-3.081 1.122,-1.566 1.347,-3.607 1.27,-5.306 -0.076,-1.699 -0.454,-3.056 -1.454,-4.219 -1,-1.163 -2.622,-2.133 -4.704,-2.505 -2.082,-0.373 -4.623,-0.148 -7.164,0.076 0,0 0.092,14.969 0.092,14.969
+			m 3.49,-12.398 c 0,0 0,9.673 0,9.673 0.888,0.02 1.776,0.041 2.653,-0.179 0.877,-0.219 1.745,-0.679 2.367,-1.541 0.622,-0.862 1,-2.127 0.98,-3.403 -0.02,-1.275 -0.439,-2.561 -1.193,-3.337 -0.755,-0.776 -1.847,-1.041 -2.704,-1.158 -0.857,-0.117 -1.48,-0.087 -2.102,-0.056
+			m 11.908,12.245 v-14.785 h8.969 v2.51 h-5.786 v3.612 h5.388 v2.51 h-5.449 v6.092
+		</StreamGeometry>
+
+		<StreamGeometry x:Key="PdfDownArrowIcon">
+			M29,44 V58.7498 H35.0491 A 1.5,1.5 0 0 1 36.1342,61.2861 L23.5607,73.8595 A 1.5,1.5 0 0 1 21.4393,73.8595 L8.8658,61.2861 A 1.5,1.5 0 0 1 9.9509,58.7498 H16 V44 A 1.5,1.5 0 0 1 17.5,42.5 H27.5 A 1.5,1.5 0 0 1 29,44
+		</StreamGeometry>			
+
+		<CombinedGeometry x:Key="PdfNotDownloadedIcon" Geometry1="{StaticResource PdfDownloadedIcon}" Geometry2="{StaticResource PdfDownArrowIcon}" />
+
+	   <StreamGeometry  x:Key="ImportIcon">
+		   M5.65,4.3 h-2.75 a2.9,2.25 0 0 0 -2.9,2.25 v7.2
+		   a2.9,2.25 0 0 0 2.9,2.25 h10.2 a2.9,2.25 0 0 0 2.9,-2.25 v-7.2 a2.9,2.25 0 0 0 -2.9,-2.25
+		   h-2.75 v1.6 h2.75 a1.3,0.65 0 0 1 1.3,0.65 v7.2 a1.3,0.65 0 0 1 -1.3,0.65 h-10.2 a1.3,0.65 0 0 1 -1.3,-0.65 v-7.2 a1.3,0.65 0 0 1 1.3,-0.65 h2.75 v-1.6
+		   M7.2,0.8 a 0.8,0.8 0 0 1 1.6,0 v8 l0.9929,-0.9929 a 0.8,0.8 0 0 1 1.1314,1.1314 l-2.3586,2.3586
+		   a 0.8,0.8 0 0 1 -1.1314,0 l-2.3586,-2.3586  a 0.8,0.8 0 0 1 1.1314,-1.1314 l0.9929,0.9929 v8
+	   </StreamGeometry>
+   </ResourceDictionary>
+  </Styles.Resources>
+</Styles>

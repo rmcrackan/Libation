@@ -5,7 +5,7 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net7.0</TargetFramework>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-		<ApplicationIcon>libation.ico</ApplicationIcon>
+		<ApplicationIcon>Assets/libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
 		<IsPublishable>true</IsPublishable>
 		<PublishReadyToRun>true</PublishReadyToRun>
@@ -30,48 +30,16 @@
 
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\**" />
-		<None Remove=".gitignore" />
-		<None Remove="Assets\Arrows_left.png" />
-		<None Remove="Assets\Arrows_right.png" />
-		<None Remove="Assets\Asterisk.png" />
-		<None Remove="Assets\cancel.png" />
-		<None Remove="Assets\completed.png" />
-		<None Remove="Assets\down.png" />
-		<None Remove="Assets\download-arrow.png" />
-		<None Remove="Assets\edit-tags-25x25.png" />
-		<None Remove="Assets\edit-tags-50x50.png" />
-		<None Remove="Assets\edit_25x25.png" />
-		<None Remove="Assets\edit_64x64.png" />
-		<None Remove="Assets\error.png" />
-		<None Remove="Assets\errored.png" />
-		<None Remove="Assets\Exclamation.png" />
-		<None Remove="Assets\first.png" />
-		<None Remove="Assets\glass-with-glow_16.png" />
+		<None Remove=".gitignore" />		
+		<None Remove="Assets\DataGridFluentTheme.xaml" />
 		<None Remove="Assets\img-coverart-prod-unavailable_300x300.jpg" />
 		<None Remove="Assets\img-coverart-prod-unavailable_500x500.jpg" />
 		<None Remove="Assets\img-coverart-prod-unavailable_80x80.jpg" />
-		<None Remove="Assets\import_16x16.png" />
-		<None Remove="Assets\last.png" />
-		<None Remove="Assets\libation.ico" />
-		<None Remove="Assets\LibationStyles.xaml" />
-		<None Remove="Assets\liberate_green.png" />
-		<None Remove="Assets\liberate_green_pdf_no.png" />
-		<None Remove="Assets\liberate_green_pdf_yes.png" />
-		<None Remove="Assets\liberate_red.png" />
-		<None Remove="Assets\liberate_red_pdf_no.png" />
-		<None Remove="Assets\liberate_red_pdf_yes.png" />
-		<None Remove="Assets\liberate_yellow.png" />
-		<None Remove="Assets\liberate_yellow_pdf_no.png" />
-		<None Remove="Assets\liberate_yellow_pdf_yes.png" />
+		<None Remove="Assets\1x1.png" />
 		<None Remove="Assets\MBIcons\Asterisk.png" />
 		<None Remove="Assets\MBIcons\error.png" />
 		<None Remove="Assets\MBIcons\Exclamation.png" />
 		<None Remove="Assets\MBIcons\Question.png" />
-		<None Remove="Assets\minus.png" />
-		<None Remove="Assets\plus.png" />
-		<None Remove="Assets\Question.png" />
-		<None Remove="Assets\queued.png" />
-		<None Remove="Assets\up.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -79,6 +47,9 @@
 			<DesignTime>True</DesignTime>
 			<AutoGen>True</AutoGen>
 			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Views\LiberateStatusButton.axaml.cs">
+		  <DependentUpon>LiberateStatusButton.axaml</DependentUpon>
 		</Compile>
 		<Compile Update="Views\MainWindow.*.cs">
 			<DependentUpon>MainWindow.axaml</DependentUpon>

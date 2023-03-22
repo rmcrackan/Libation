@@ -20,7 +20,7 @@ namespace LibationAvalonia.Controls
 
 		private void LinkLabel_Tapped(object sender, TappedEventArgs e)
 		{
-			Foreground = Brushes.Purple;
+			Foreground = App.HyperlinkVisited;
 		}
 
 		protected override void OnPointerEntered(PointerEventArgs e)

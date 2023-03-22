@@ -16,11 +16,7 @@ namespace LibationAvalonia.ViewModels
 		protected override Bitmap LoadImage(byte[] picture)
 			=> AvaloniaUtils.TryLoadImageOrDefault(picture, LibationFileManager.PictureSize._80x80);
 
-		protected override Bitmap GetResourceImage(string rescName)
-		{
-			//These images are assest, so assume they will never corrupt.
-			using var stream = App.OpenAsset(rescName + ".png");
-			return new Bitmap(stream);
-		}
+		//Button icons are handled by LiberateStatusButton
+		protected override Bitmap GetResourceImage(string rescName) => null;
 	}
 }

@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using LibationFileManager;
 using System;
 using System.Collections.Generic;
@@ -9,7 +7,6 @@ using ReactiveUI;
 using Dinah.Core;
 using System.Linq;
 using FileManager;
-using System.IO;
 using Avalonia.Collections;
 using LibationUiBase;
 
@@ -129,7 +126,7 @@ namespace LibationAvalonia.Dialogs
 		}
 	}
 
-	public class ImportantSettings : ISettingsDisplay
+	public class ImportantSettings : ViewModels.ViewModelBase, ISettingsDisplay
 	{
 		public ImportantSettings(Configuration config)
 		{
@@ -142,6 +139,10 @@ namespace LibationAvalonia.Dialogs
 			SavePodcastsToParentFolder = config.SavePodcastsToParentFolder;
 			LoggingLevel = config.LogLevel;
 			BetaOptIn = config.BetaOptIn;
+			ThemeVariant = InitialThemeVariant
+				= Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)) is nameof(Avalonia.Styling.ThemeVariant.Dark)
+				? nameof(Avalonia.Styling.ThemeVariant.Dark)
+				: nameof(Avalonia.Styling.ThemeVariant.Light);
 		}
 
 		public async Task<bool> SaveSettingsAsync(Configuration config)
@@ -163,6 +164,7 @@ namespace LibationAvalonia.Dialogs
 			config.SavePodcastsToParentFolder = SavePodcastsToParentFolder;
 			config.LogLevel = LoggingLevel;
 			config.BetaOptIn = BetaOptIn;
+			Configuration.Instance.SetString(ThemeVariant, nameof(ThemeVariant));
 
 			return true;
 		}
@@ -179,11 +181,27 @@ namespace LibationAvalonia.Dialogs
 		public string SavePodcastsToParentFolderText { get; } = Configuration.GetDescription(nameof(Configuration.SavePodcastsToParentFolder));
 		public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
 		public string BetaOptInText { get; } = Configuration.GetDescription(nameof(Configuration.BetaOptIn));
+		public string[] Themes { get; } = { nameof(Avalonia.Styling.ThemeVariant.Light), nameof(Avalonia.Styling.ThemeVariant.Dark) };
+
 
 		public string BooksDirectory { get; set; }
 		public bool SavePodcastsToParentFolder { get; set; }
 		public Serilog.Events.LogEventLevel LoggingLevel { get; set; }
 		public bool BetaOptIn { get; set; }
+		private string themeVariant;
+		public string ThemeVariant
+		{
+			get => themeVariant;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref themeVariant, value);
+
+				SelectionChanged = ThemeVariant != InitialThemeVariant;
+				this.RaisePropertyChanged(nameof(SelectionChanged));				
+			}
+		}
+		public string InitialThemeVariant { get; private set; }
+		public bool SelectionChanged { get; private set; }
 	}
 
 	public class ImportSettings : ISettingsDisplay

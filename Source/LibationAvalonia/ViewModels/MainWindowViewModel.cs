@@ -134,8 +134,11 @@ namespace LibationAvalonia.ViewModels
 			set
 			{
 				this.RaiseAndSetIfChanged(ref _queueOpen, value);
+				QueueButtonAngle = value ? 180 : 0;
+				this.RaisePropertyChanged(nameof(QueueButtonAngle));
 			}
 		}
+		public double QueueButtonAngle { get; private set; }
 
 
 		/// <summary> The number of books visible in the Product Display </summary>

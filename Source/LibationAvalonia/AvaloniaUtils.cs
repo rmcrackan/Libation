@@ -13,9 +13,8 @@ namespace LibationAvalonia
 		public static IBrush GetBrushFromResources(string name)
 			=> GetBrushFromResources(name, Brushes.Transparent);
 		public static IBrush GetBrushFromResources(string name, IBrush defaultBrush)
-		{
-			//TODO: use ThemeVariant
-			if (App.Current.Styles.TryGetResource(name, null, out var value) && value is IBrush brush)
+		{			
+			if (App.Current.TryGetResource(name, App.Current.ActualThemeVariant, out var value) && value is IBrush brush)
 				return brush;
 			return defaultBrush;
 		}

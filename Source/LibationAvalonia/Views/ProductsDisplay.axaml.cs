@@ -354,9 +354,9 @@ namespace LibationAvalonia.Views
 
 		#region Button Click Handlers
 
-		public async void LiberateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public async void LiberateButton_Click(object sender, EventArgs e)
 		{
-			var button = args.Source as Button;
+			var button = sender as LiberateStatusButton;
 
 			if (button.DataContext is ISeriesEntry sEntry)
 			{
@@ -364,8 +364,7 @@ namespace LibationAvalonia.Views
 
 				//Expanding and collapsing reset the list, which will cause focus to shift
 				//to the topright cell. Reset focus onto the clicked button's cell.
-				var parentControl = (sender as Button).Parent as Control;
-				parentControl?.Focus();
+				button.Focus();
 			}
 			else if (button.DataContext is ILibraryBookEntry lbEntry)
 			{

@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="200" MinWidth="64" MinHeight="64"
+			 Background="Transparent"
+			 x:DataType="vm:LiberateStatusButtonViewModel"
+             x:Class="LibationAvalonia.Views.LiberateStatusButton">
+
+	<UserControl.Styles>
+		<Style Selector="Path">
+			<Setter Property="Fill" Value="{DynamicResource IconFill}" />
+			<Setter Property="Stretch" Value="Uniform" />
+			<Setter Property="HorizontalAlignment" Value="Center" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+		</Style>
+		<Style Selector="Rectangle">
+			<Setter Property="Width" Value="20" />
+			<Setter Property="Height" Value="18" />
+		</Style>
+
+		<Style Selector="Grid > Path">
+			<Setter Property="Margin" Value="4,0,0,0" />
+			<Setter Property="Width" Value="28.8" />
+		</Style>
+
+		<Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+		</Style>
+	</UserControl.Styles>
+
+	<Button
+		Name="button"
+		HorizontalAlignment="Stretch"
+		VerticalAlignment="Stretch"
+		IsEnabled="{Binding	IsButtonEnabled}" Padding="0" Click="Button_Click" >
+		<Panel>
+	
+			<Panel
+				Width="64" Height="64"
+				IsVisible="{CompiledBinding !IsError}">
+
+				<Panel IsVisible="{CompiledBinding IsSeries}">
+					<Path IsVisible="{CompiledBinding Expanded}" Data="{StaticResource CollapseIcon}" />
+					<Path IsVisible="{CompiledBinding !Expanded}" Data="{StaticResource ExpandIcon}" />
+				</Panel>
+
+				<Grid
+					IsVisible="{CompiledBinding	!IsSeries}"
+					HorizontalAlignment="Center"
+					ColumnDefinitions="Auto,Auto">
+
+					<Canvas Width="29.44" Height="64">
+						<Rectangle Canvas.Left="5" Canvas.Top="5" IsVisible="{CompiledBinding RedVisible}" Fill="{DynamicResource StoplightRed}" />
+						<Rectangle Canvas.Left="5" Canvas.Top="23" IsVisible="{CompiledBinding YellowVisible}" Fill="{DynamicResource StoplightYellow}" />
+						<Rectangle Canvas.Left="5" Canvas.Top="42" IsVisible="{CompiledBinding GreenVisible}" Fill="{DynamicResource StoplightGreen}" />
+						<Path Height="64" Stretch="Uniform" Data="{StaticResource StoplightBodyIcon}"/>
+					</Canvas>
+
+					<Path Grid.Column="1" IsVisible="{CompiledBinding PdfDownloadedVisible}" Data="{StaticResource PdfDownloadedIcon}"/>
+					<Path Grid.Column="1" IsVisible="{CompiledBinding PdfNotDownloadedVisible}" Data="{StaticResource PdfNotDownloadedIcon}"/>
+				</Grid>
+
+			</Panel>
+			 
+			<Path
+				Stretch="None" Width="64"
+				IsVisible="{CompiledBinding IsError}"
+				Fill="{DynamicResource CancelRed}"
+				Data="{StaticResource BookErrorIcon}" />
+			
+			<Path 
+				Stretch="Fill"
+				IsVisible="{CompiledBinding !IsButtonEnabled}"
+				Fill="{DynamicResource DisabledGrayBrush}"
+				Data="M0,0 H1 V1 H0" />
+		</Panel>
+	</Button>
+
+</UserControl>
