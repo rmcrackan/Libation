@@ -229,7 +229,7 @@ namespace ApplicationServices
         {
             var tasks = new List<Task<List<ImportItem>>>();
 
-            await using LogArchiver archiver
+           await using LogArchiver archiver
                 = Log.Logger.IsDebugEnabled()
                 ? new LogArchiver(System.IO.Path.Combine(Configuration.Instance.LibationFiles, "LibraryScans.zip"))
                 : default;
@@ -238,16 +238,24 @@ namespace ApplicationServices
 
 			foreach (var account in accounts)
             {
-                // get APIs in serial b/c of logins. do NOT move inside of parallel (Task.WhenAll)
-                var apiExtended = await apiExtendedfunc(account);
+                try
+                {
+                    // get APIs in serial b/c of logins. do NOT move inside of parallel (Task.WhenAll)
+                    var apiExtended = await apiExtendedfunc(account);
 
-                // add scanAccountAsync as a TASK: do not await
-                tasks.Add(scanAccountAsync(apiExtended, account, libraryOptions, archiver));
+                    // add scanAccountAsync as a TASK: do not await
+                    tasks.Add(scanAccountAsync(apiExtended, account, libraryOptions, archiver));
+                }
+                catch(Exception ex)
+                {
+                    //Catch to allow other accounts to continue scanning.
+                    Log.Logger.Error(ex, "Failed to scan account");
+                }
             }
 
             // import library in parallel
-            var arrayOfLists = await Task.WhenAll(tasks);
-            var importItems = arrayOfLists.SelectMany(a => a).ToList();
+            var arrayOfLists = await Task.WhenAll(tasks);            
+			var importItems = arrayOfLists.SelectMany(a => a).ToList();
             return importItems;
         }
 

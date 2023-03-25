@@ -427,6 +427,10 @@ namespace LibationAvalonia.ViewModels
 				foreach (var r in removable)
 					r.Remove = true;
 			}
+			catch (OperationCanceledException)
+			{
+				Serilog.Log.Information("Audible login attempt cancelled by user");
+			}
 			catch (Exception ex)
 			{
 				await MessageBox.ShowAdminAlert(

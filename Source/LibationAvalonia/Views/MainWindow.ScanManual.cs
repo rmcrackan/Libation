@@ -69,6 +69,10 @@ namespace LibationAvalonia.Views
 				if (Configuration.Instance.ShowImportedStats && newAdded > 0)
 					await MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
 			}
+			catch(OperationCanceledException)
+			{
+				Serilog.Log.Information("Audible login attempt cancelled by user");
+			}
 			catch (Exception ex)
 			{
 				await MessageBox.ShowAdminAlert(

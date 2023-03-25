@@ -288,6 +288,10 @@ namespace LibationWinForms.GridView
 
 				productsGrid_RemovableCountChanged(this, null);
 			}
+			catch (OperationCanceledException)
+			{
+				Serilog.Log.Information("Audible login attempt cancelled by user");
+			}
 			catch (Exception ex)
 			{
 				MessageBoxLib.ShowAdminAlert(
