@@ -1229,7 +1229,7 @@
 		private System.Windows.Forms.CheckBox downloadEpisodesCb;
 		private System.Windows.Forms.CheckBox importEpisodesCb;
 		private System.Windows.Forms.CheckBox splitFilesByChapterCbox;
-		private System.Windows.Forms.TabControl tabControl;
+		public System.Windows.Forms.TabControl tabControl;
 		private System.Windows.Forms.TabPage tab1ImportantSettings;
 		private System.Windows.Forms.GroupBox booksGb;
 		private System.Windows.Forms.TabPage tab2ImportLibrary;

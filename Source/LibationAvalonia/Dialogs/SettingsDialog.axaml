@@ -21,7 +21,7 @@
 			Content="Save"
 			Click="SaveButton_Clicked" />
 
-		<TabControl  Grid.Column="0">
+		<TabControl Name="tabControl" Grid.Column="0">
 			<TabControl.Styles>
 				<Style Selector="ItemsPresenter#PART_ItemsPresenter">
 					<Setter Property="Height" Value="28"/>

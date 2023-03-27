@@ -634,7 +634,7 @@
 
 		#endregion
 		private System.Windows.Forms.MenuStrip menuStrip1;
-		private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
 		private System.Windows.Forms.StatusStrip statusStrip1;
 		private System.Windows.Forms.ToolStripStatusLabel springLbl;
 		private LibationWinForms.FormattableToolStripStatusLabel visibleCountLbl;
@@ -645,16 +645,16 @@
 		private System.Windows.Forms.TextBox filterSearchTb;
 		private System.Windows.Forms.Button filterBtn;
 		private System.Windows.Forms.Button filterHelpBtn;
-		private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem scanLibraryToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem scanLibraryToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem quickFiltersToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem firstFilterIsDefaultToolStripMenuItem;
 		private System.Windows.Forms.Button addQuickFilterBtn;
 		private System.Windows.Forms.ToolStripMenuItem editQuickFiltersToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-		private System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfSomeAccountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem noAccountsYetAddAccountToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
