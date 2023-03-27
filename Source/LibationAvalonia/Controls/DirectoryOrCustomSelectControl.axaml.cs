@@ -97,12 +97,7 @@ namespace LibationAvalonia.Controls
 
 			var selectedFolders = await (VisualRoot as Window).StorageProvider.OpenFolderPickerAsync(options);
 
-			customStates.CustomDir =
-				selectedFolders
-				.SingleOrDefault()?.
-				TryGetUri(out var uri) is true
-				? uri.LocalPath
-				: customStates.CustomDir;
+			customStates.CustomDir = selectedFolders.SingleOrDefault()?.Path?.LocalPath ?? customStates.CustomDir;
 		}
 
 		private void CheckStates_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -179,11 +174,6 @@ namespace LibationAvalonia.Controls
 				return System.IO.Path.GetDirectoryName(path);
 
 			return path;
-		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
 		}
 	}
 }

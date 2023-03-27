@@ -8,7 +8,18 @@ namespace AudibleUtilities
 	public interface IValidator
 	{
 		IEnumerable<Exception> Validate(IEnumerable<Item> items);
+
+		public static IValidator[] GetAllValidators()
+			=> new IValidator[]
+			{
+				new LibraryValidator(),
+				new BookValidator(),
+				new CategoryValidator(),
+				new ContributorValidator(),
+				new SeriesValidator(),
+			};
 	}
+
 	public class LibraryValidator : IValidator
 	{
 		public IEnumerable<Exception> Validate(IEnumerable<Item> items)

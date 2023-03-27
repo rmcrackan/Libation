@@ -37,6 +37,12 @@ namespace LibationWinForms.Dialogs.Login
 			Email = accountId;
 			Password = this.passwordTb.Text;
 
+			if (string.IsNullOrWhiteSpace(Password))
+			{
+				MessageBox.Show("Please enter your password");
+				return;
+			}
+
 			Serilog.Log.Logger.Information("Submit button clicked: {@DebugInfo}", new { email = Email?.ToMask(), passwordLength = Password.Length });
 
 			LoginMethod = AudibleApi.LoginMethod.Api;

@@ -172,23 +172,23 @@ namespace LibationAvalonia.Dialogs
 					}
 				});
 
-				var selectedFile = await StorageProvider.SaveFilePickerAsync(saveFileDialog);
+				var selectedFile = (await StorageProvider.SaveFilePickerAsync(saveFileDialog))?.TryGetLocalPath();
 
-				if (selectedFile?.TryGetUri(out var uri) is not true) return;
+				if (selectedFile is null) return;
 
-				var ext = System.IO.Path.GetExtension(uri.LocalPath).ToLowerInvariant();
+				var ext = System.IO.Path.GetExtension(selectedFile).ToLowerInvariant();
 
 				switch (ext)
 				{
 					case ".xlsx":
 					default:
-						await Task.Run(() => RecordExporter.ToXlsx(uri.LocalPath, records));
+						await Task.Run(() => RecordExporter.ToXlsx(selectedFile, records));
 						break;
 					case ".csv":
-						await Task.Run(() => RecordExporter.ToCsv(uri.LocalPath, records));
+						await Task.Run(() => RecordExporter.ToCsv(selectedFile, records));
 						break;
 					case ".json":
-						await Task.Run(() => RecordExporter.ToJson(uri.LocalPath, libraryBook, records));
+						await Task.Run(() => RecordExporter.ToJson(selectedFile, libraryBook, records));
 						break;
 				}
 			}

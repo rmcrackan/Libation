@@ -26,10 +26,5 @@ namespace LibationAvalonia.Controls
 
 			base.OnPointerWheelChanged(e);
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

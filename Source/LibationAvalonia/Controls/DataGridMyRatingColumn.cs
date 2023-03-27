@@ -18,7 +18,7 @@ namespace LibationAvalonia.Controls
 			BindingTarget = MyRatingCellEditor.RatingProperty;
 		}
 
-		protected override IControl GenerateElement(DataGridCell cell, object dataItem)
+		protected override Control GenerateElement(DataGridCell cell, object dataItem)
 		{
 			var myRatingElement = new MyRatingCellEditor
 			{
@@ -41,7 +41,7 @@ namespace LibationAvalonia.Controls
 			return myRatingElement;
 		}
 
-		protected override IControl GenerateEditingElementDirect(DataGridCell cell, object dataItem)
+		protected override Control GenerateEditingElementDirect(DataGridCell cell, object dataItem)
 		{
 			var myRatingElement = new MyRatingCellEditor
 			{
@@ -57,12 +57,12 @@ namespace LibationAvalonia.Controls
 			return myRatingElement;
 		}
 
-		protected override object PrepareCellForEdit(IControl editingElement, RoutedEventArgs editingEventArgs)
+		protected override object PrepareCellForEdit(Control editingElement, RoutedEventArgs editingEventArgs)
 			=> editingElement is MyRatingCellEditor myRating
 			? myRating.Rating
 			: DefaultRating;
 
-		protected override void CancelCellEdit(IControl editingElement, object uneditedValue)
+		protected override void CancelCellEdit(Control editingElement, object uneditedValue)
 		{
 			if (editingElement is MyRatingCellEditor myRating)
 			{

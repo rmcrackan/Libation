@@ -34,6 +34,7 @@ namespace LibationUiBase.GridView
 		#region Model properties exposed to the view
 
 		protected bool? remove = false;
+		private EntryStatus _liberate;
 		private string _purchasedate;
 		private string _length;
 		private LastDownloadStatus _lastDownload;
@@ -50,7 +51,7 @@ namespace LibationUiBase.GridView
 		private Rating _myRating;
 
 		public abstract bool? Remove { get; set; }
-		public EntryStatus Liberate { get; private set; }
+		public EntryStatus Liberate { get => _liberate; private set => RaiseAndSetIfChanged(ref _liberate, value); }
 		public string PurchaseDate { get => _purchasedate; protected set => RaiseAndSetIfChanged(ref _purchasedate, value); }
 		public string Length { get => _length; protected set => RaiseAndSetIfChanged(ref _length, value); }
 		public LastDownloadStatus LastDownload { get => _lastDownload; protected set => RaiseAndSetIfChanged(ref _lastDownload, value); }
@@ -98,9 +99,12 @@ namespace LibationUiBase.GridView
 
 			LibraryBook = libraryBook;
 
+			var expanded = Liberate?.Expanded ?? false;
 			Liberate = TStatus.Create(libraryBook);
+			Liberate.Expanded = expanded;
+
 			Title = Book.Title;
-			Series = Book.SeriesNames();
+			Series = Book.SeriesNames(includeIndex: true);
 			Length = GetBookLengthString();
 			//Ratings are changed using Update(), which is a problem for Avalonia data bindings because
 			//the reference doesn't change. Clone the rating so that it updates within Avalonia properly.

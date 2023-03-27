@@ -1,16 +1,12 @@
-﻿using ApplicationServices;
-using DataLayer;
+﻿using DataLayer;
 using Dinah.Core.WindowsDesktop.Forms;
 using LibationFileManager;
 using LibationUiBase.GridView;
-using LibationWinForms.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms.GridView
@@ -18,23 +14,24 @@ namespace LibationWinForms.GridView
 	public delegate void GridEntryClickedEventHandler(IGridEntry liveGridEntry);
 	public delegate void LibraryBookEntryClickedEventHandler(ILibraryBookEntry liveGridEntry);
 	public delegate void GridEntryRectangleClickedEventHandler(IGridEntry liveGridEntry, Rectangle cellRectangle);
+	public delegate void ProductsGridCellContextMenuStripNeededEventHandler(IGridEntry liveGridEntry, ContextMenuStrip ctxMenu);
 
 	public partial class ProductsGrid : UserControl
 	{
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 		public event LibraryBookEntryClickedEventHandler LiberateClicked;
-		public event LibraryBookEntryClickedEventHandler ConvertToMp3Clicked;
 		public event GridEntryClickedEventHandler CoverClicked;
 		public event LibraryBookEntryClickedEventHandler DetailsClicked;
 		public event GridEntryRectangleClickedEventHandler DescriptionClicked;
 		public new event EventHandler<ScrollEventArgs> Scroll;
 		public event EventHandler RemovableCountChanged;
+		public event ProductsGridCellContextMenuStripNeededEventHandler LiberateContextMenuStripNeeded;
 
 		private GridEntryBindingList bindingList;
 		internal IEnumerable<LibraryBook> GetVisibleBooks()
 			=> bindingList
-			.BookEntries()
+			.GetFilteredInItems()
 			.Select(lbe => lbe.LibraryBook);
 		internal IEnumerable<ILibraryBookEntry> GetAllBookEntries()
 			=> bindingList.AllItems().BookEntries();
@@ -44,7 +41,41 @@ namespace LibationWinForms.GridView
 			InitializeComponent();
 			EnableDoubleBuffering();
 			gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
+			gridEntryDataGridView.CellContextMenuStripNeeded += GridEntryDataGridView_CellContextMenuStripNeeded;
 			removeGVColumn.Frozen = false;
+		}
+
+		private void GridEntryDataGridView_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs e)
+		{
+			// header
+			if (e.RowIndex < 0)
+				return;
+
+			// cover
+			else if (e.ColumnIndex == coverGVColumn.Index)
+				return;
+
+			e.ContextMenuStrip = new ContextMenuStrip();
+			// any non-stop light
+			if (e.ColumnIndex != liberateGVColumn.Index)
+			{
+				e.ContextMenuStrip.Items.Add("Copy", null, (_, __) =>
+				{
+					try
+					{
+						var dgv = (DataGridView)sender;
+						var text = dgv[e.ColumnIndex, e.RowIndex].FormattedValue.ToString();
+						Clipboard.SetDataObject(text, false, 5, 150);
+					}
+					catch { }
+				});				
+			}
+			else
+			{
+				var entry = getGridEntry(e.RowIndex);
+				var name = gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName;
+				LiberateContextMenuStripNeeded?.Invoke(entry, e.ContextMenuStrip);
+			}
 		}
 
 		private void EnableDoubleBuffering()
@@ -84,7 +115,7 @@ namespace LibationWinForms.GridView
 						else
 							bindingList.ExpandItem(sEntry);
 
-						VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+						VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 					}
 					else if (e.ColumnIndex == descriptionGVColumn.Index)
 						DescriptionClicked?.Invoke(sEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
@@ -102,101 +133,6 @@ namespace LibationWinForms.GridView
 			{
 				Serilog.Log.Logger.Error(ex, $"An error was encountered while processing a user click in the {nameof(ProductsGrid)}");
 			}
-		}
-
-		private void gridEntryDataGridView_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs e)
-		{
-			// header
-			if (e.RowIndex < 0)
-				return;
-
-			// cover
-			if (e.ColumnIndex == coverGVColumn.Index)
-				return;
-
-			// any non-stop light
-			if (e.ColumnIndex != liberateGVColumn.Index)
-			{
-				var copyContextMenu = new ContextMenuStrip();
-				copyContextMenu.Items.Add("Copy", null, (_, __) =>
-				{
-					try
-					{
-						var dgv = (DataGridView)sender;
-						var text = dgv[e.ColumnIndex, e.RowIndex].FormattedValue.ToString();
-						Clipboard.SetDataObject(text, false, 5, 150);
-					}
-					catch { }
-				});
-
-				e.ContextMenuStrip = copyContextMenu;
-				return;
-			}
-
-			// else: stop light
-
-			var entry = getGridEntry(e.RowIndex);
-			if (entry.Liberate.IsSeries)
-				return;
-
-			var setDownloadMenuItem = new ToolStripMenuItem()
-			{
-				Text = "Set Download status to '&Downloaded'",
-				Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated
-			};
-			setDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
-
-			var setNotDownloadMenuItem = new ToolStripMenuItem()
-			{
-				Text = "Set Download status to '&Not Downloaded'",
-				Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated
-			};
-			setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
-
-			var removeMenuItem = new ToolStripMenuItem() { Text = "&Remove from library" };
-			removeMenuItem.Click += async (_, __) => await Task.Run(entry.LibraryBook.RemoveBook);
-
-			var locateFileMenuItem = new ToolStripMenuItem() { Text = "&Locate file..." };
-			locateFileMenuItem.Click += (_, __) =>
-			{
-				try
-				{
-					var openFileDialog = new OpenFileDialog
-					{
-						Title = $"Locate the audio file for '{entry.Book.Title}'",
-						Filter = "All files (*.*)|*.*",
-						FilterIndex = 1
-					};
-					if (openFileDialog.ShowDialog() == DialogResult.OK)
-						FilePathCache.Insert(entry.AudibleProductId, openFileDialog.FileName);
-				}
-				catch (Exception ex)
-				{
-					var msg = "Error saving book's location";
-					MessageBoxLib.ShowAdminAlert(this, msg, msg, ex);
-				}
-			};
-
-			var convertToMp3MenuItem = new ToolStripMenuItem
-			{
-				Text = "&Convert to Mp3",
-				Enabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
-			};
-			convertToMp3MenuItem.Click += (_, e) => ConvertToMp3Clicked?.Invoke(entry as ILibraryBookEntry);
-
-			var bookRecordMenuItem = new ToolStripMenuItem { Text = "View &Bookmarks/Clips" };
-			bookRecordMenuItem.Click += (_, _) => new BookRecordsDialog(entry.LibraryBook).ShowDialog(this);
-
-			var stopLightContextMenu = new ContextMenuStrip();
-			stopLightContextMenu.Items.Add(setDownloadMenuItem);
-			stopLightContextMenu.Items.Add(setNotDownloadMenuItem);
-			stopLightContextMenu.Items.Add(removeMenuItem);
-			stopLightContextMenu.Items.Add(locateFileMenuItem);
-			stopLightContextMenu.Items.Add(convertToMp3MenuItem);
-			stopLightContextMenu.Items.Add(new ToolStripSeparator());
-			stopLightContextMenu.Items.Add(bookRecordMenuItem);
-
-			e.ContextMenuStrip = stopLightContextMenu;
 		}
 
 		private IGridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<IGridEntry>(rowIndex);
@@ -248,7 +184,7 @@ namespace LibationWinForms.GridView
 			bindingList = new GridEntryBindingList(geList.OrderByDescending(e => e.DateAdded));
 			bindingList.CollapseAll();
 			syncBindingSource.DataSource = bindingList;
-			VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+			VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 		}
 
 		internal void UpdateGrid(List<LibraryBook> dbBooks)
@@ -317,7 +253,7 @@ namespace LibationWinForms.GridView
 				//no need to re-filter for removed books
 				bindingList.Remove(removed);
 
-			VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+			VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 		}
 
 		private void AddOrUpdateBook(LibraryBook book, ILibraryBookEntry existingBookEntry)
@@ -364,13 +300,15 @@ namespace LibationWinForms.GridView
 					//Series exists. Create and add episode child then update the SeriesEntry
 					episodeEntry = new LibraryBookEntry<WinFormsEntryStatus>(episodeBook, seriesEntry);
 					seriesEntry.Children.Add(episodeEntry);
+					seriesEntry.Children.Sort((c1,c2) => c1.SeriesIndex.CompareTo(c2.SeriesIndex));
 					var seriesBook = dbBooks.Single(lb => lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId);
 					seriesEntry.UpdateLibraryBook(seriesBook);
 				}
 
 				//Add episode to the grid beneath the parent
 				int seriesIndex = bindingList.IndexOf(seriesEntry);
-				bindingList.Insert(seriesIndex + 1, episodeEntry);
+				int episodeIndex = seriesEntry.Children.IndexOf(episodeEntry);
+				bindingList.Insert(seriesIndex + 1 + episodeIndex, episodeEntry);
 
 				if (seriesEntry.Liberate.Expanded)
 					bindingList.ExpandItem(seriesEntry);
@@ -395,7 +333,7 @@ namespace LibationWinForms.GridView
 				syncBindingSource.Filter = searchString;
 
 			if (visibleCount != bindingList.Count)
-				VisibleCountChanged?.Invoke(this, bindingList.BookEntries().Count());
+				VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 		}
 
 		#endregion

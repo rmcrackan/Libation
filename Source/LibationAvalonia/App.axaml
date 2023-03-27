@@ -2,16 +2,71 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:LibationAvalonia"
 			 x:Class="LibationAvalonia.App">
-	
+
 	<Application.DataTemplates>
 		<local:ViewLocator/>
 	</Application.DataTemplates>
-	
-    <Application.Styles>
-		<FluentTheme Mode="Light"/>
-		<StyleInclude Source="avares://Avalonia.Themes.Fluent/FluentLight.xaml"/>
-		<StyleInclude Source="avares://Avalonia.Themes.Fluent/Accents/BaseLight.xaml"/>
-		<StyleInclude Source="/Assets/DataGridTheme.xaml"/>
-		<StyleInclude Source="/Assets/LibationStyles.xaml"/>
+
+	<Application.Resources>
+
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Light">
+					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#abffab" />
+					<SolidColorBrush x:Key="ProcessQueueBookFailedBrush" Color="LightCoral" />
+					<SolidColorBrush x:Key="ProcessQueueBookCompletedBrush" Color="PaleGreen" />
+					<SolidColorBrush x:Key="ProcessQueueBookCancelledBrush" Color="Khaki" />
+					<SolidColorBrush x:Key="HyperlinkNew" Color="Blue" />
+					<SolidColorBrush x:Key="HyperlinkVisited" Color="Purple" />
+					<SolidColorBrush x:Key="ProcessQueueBookDefaultBrush" Color="White" />
+					<SolidColorBrush x:Key="SystemOpaqueBase" Color="White" />
+
+					<SolidColorBrush x:Key="CancelRed" Color="FireBrick" />
+					<SolidColorBrush x:Key="IconFill" Color="#231F20" />
+					<SolidColorBrush x:Key="StoplightRed" Color="#F06060" />
+					<SolidColorBrush x:Key="StoplightYellow" Color="#F0E160" />
+					<SolidColorBrush x:Key="StoplightGreen" Color="#70FA70" />
+
+					<SolidColorBrush x:Key="DisabledGrayBrush" Opacity="0.4"  Color="{StaticResource SystemChromeMediumColor}" />
+
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Dark">
+					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#bed2fa" />
+					<SolidColorBrush x:Key="ProcessQueueBookFailedBrush" Color="#502727" />
+					<SolidColorBrush x:Key="ProcessQueueBookCompletedBrush" Color="#1c3e20" />
+					<SolidColorBrush x:Key="ProcessQueueBookCancelledBrush" Color="#4e4b15" />
+					<SolidColorBrush x:Key="HyperlinkNew" Color="CornflowerBlue" />
+					<SolidColorBrush x:Key="HyperlinkVisited" Color="Orchid" />
+					<SolidColorBrush x:Key="ProcessQueueBookDefaultBrush" Color="Black" />
+					<SolidColorBrush x:Key="SystemOpaqueBase" Color="Black" />
+
+					<SolidColorBrush x:Key="CancelRed" Color="#802727" />
+					<SolidColorBrush x:Key="IconFill" Color="#DCE0DF" />
+					<SolidColorBrush x:Key="StoplightRed" Color="#5F0707" />
+					<SolidColorBrush x:Key="StoplightYellow" Color="#5F5B1A" />
+					<SolidColorBrush x:Key="StoplightGreen" Color="#174E15" />
+
+
+					<SolidColorBrush x:Key="DisabledGrayBrush" Opacity="0.4"  Color="{StaticResource SystemChromeMediumColor}" />
+					
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+			
+</ResourceDictionary>
+	</Application.Resources>
+
+	<Application.Styles>
+		<FluentTheme />
+		<StyleInclude Source="avares://Avalonia.Themes.Fluent/FluentTheme.xaml"/>
+		<StyleInclude Source="/Assets/DataGridFluentTheme.xaml"/>
+		<StyleInclude Source="/Assets/LibationVectorIcons.xaml"/>
+
+		<Style Selector="TextBox[IsReadOnly=true]">
+			<Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+			<Setter Property="CaretBrush" Value="{DynamicResource SystemControlTransparentBrush}" />
+			<Style Selector="^ /template/ Border#PART_BorderElement">
+				<Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+			</Style>
+		</Style>
 	</Application.Styles>
 </Application>

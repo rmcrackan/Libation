@@ -2,16 +2,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="90" MaxHeight="90" MinHeight="90" MinWidth="300"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="87" MaxHeight="87" MinHeight="87" MinWidth="300"
              x:Class="LibationAvalonia.Views.ProcessBookControl" Background="{Binding BackgroundColor}">
 	
-	<Border BorderBrush="{DynamicResource ProcessQueueBookBorderBrush}" BorderThickness="2">
+	<Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="0,0,0,1">
 		<Grid ColumnDefinitions="Auto,*,Auto">
 			
-			<Panel Grid.Column="0" Margin="3" Background="LightGray" Width="80" Height="80" HorizontalAlignment="Left">
+			<Panel Grid.Column="0" Margin="3" Width="80" Height="80" HorizontalAlignment="Left">
 				<Image Width="80" Height="80" Source="{Binding Cover}" Stretch="Uniform" />
 			</Panel>
-			<Grid Margin="0,3,0,3" Grid.Column="1" ColumnDefinitions="1*" RowDefinitions="1*,16">
+			<Grid Margin="0,3,0,3" Grid.Column="1" ColumnDefinitions="*" RowDefinitions="*,16">
 				<StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
 					<TextBlock ClipToBounds="True" TextWrapping="Wrap" FontSize="11" Text="{Binding Title}" />
 					<TextBlock FontSize="10" TextWrapping="NoWrap" Text="{Binding Author}" />
@@ -28,23 +28,35 @@
 				</Panel>
 			</Grid>
 			<Grid Margin="3" Grid.Column="2" HorizontalAlignment="Right" ColumnDefinitions="Auto,Auto">
+				<Grid.Styles>
+					<Style Selector="Button">
+						<Setter Property="Padding" Value="0,1,0,1" />
+						<Setter Property="Height" Value="20" />
+						<Setter Property="Width" Value="30" />
+						<Style Selector="^ > Path">
+							<Setter Property="Stretch" Value="Uniform" />
+							<Setter Property="Fill" Value="{DynamicResource IconFill}" />
+						</Style>
+					</Style>
+				</Grid.Styles>
 				<StackPanel IsVisible="{Binding Queued}" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Vertical">
-					<Button Height="20" Width="30" Click="MoveFirst_Click">
-						<Image Height="20" Width="30" Source="/Assets/first.png" Stretch="Uniform" VerticalAlignment="Bottom"/>
+					
+					<Button Click="MoveFirst_Click">
+						<Path VerticalAlignment="Top" Data="{StaticResource	FirstButtonIcon}" />
 					</Button>
-					<Button Height="20" Width="30" Click="MoveUp_Click">
-						<Image Height="20" Width="30" Source="/Assets/up.png" Stretch="Uniform" VerticalAlignment="Bottom" />
+					<Button Click="MoveUp_Click">
+						<Path VerticalAlignment="Top" Data="{StaticResource	UpButtonIcon}" />
 					</Button>
-					<Button Height="20" Width="30" Click="MoveDown_Click">
-						<Image Height="20" Width="30" Source="/Assets/down.png" Stretch="Uniform" VerticalAlignment="Top" />
+					<Button Click="MoveDown_Click">
+						<Path VerticalAlignment="Bottom" Data="{StaticResource	DownButtonIcon}" />
 					</Button>
-					<Button Height="20" Width="30" Click="MoveLast_Click">
-						<Image Height="20" Width="30" Source="/Assets/last.png" Stretch="Uniform" VerticalAlignment="Top"/>
+					<Button Click="MoveLast_Click">
+						<Path VerticalAlignment="Bottom" Data="{StaticResource	LastButtonIcon}" />
 					</Button>
 				</StackPanel>
-				<Panel Margin="3" Grid.Column="1" VerticalAlignment="Top">
-					<Button Height="32" Width="22" IsVisible="{Binding !IsFinished}" CornerRadius="11" Click="Cancel_Click">
-						<Image Width="20" Height="20" Source="/Assets/cancel.png" Stretch="Uniform" />
+				<Panel Margin="3,0,0,0" Grid.Column="1" VerticalAlignment="Top">
+					<Button Height="32" Background="{DynamicResource CancelRed}" Width="22" IsVisible="{Binding !IsFinished}" CornerRadius="11" Click="Cancel_Click">
+						<Path Fill="{DynamicResource ProcessQueueBookDefaultBrush}" VerticalAlignment="Center" Data="{StaticResource CancelButtonIcon}" RenderTransform="{StaticResource Rotate45Transform}" />
 					</Button>
 				</Panel>
 			</Grid>

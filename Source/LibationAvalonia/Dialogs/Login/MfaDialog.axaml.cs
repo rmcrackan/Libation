@@ -65,11 +65,6 @@ namespace LibationAvalonia.Dialogs.Login
 			}
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		protected override async Task SaveAndCloseAsync()
 		{
 			var selected = Values.CheckedButton;

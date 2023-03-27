@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="LibationAvalonia.Views.SeriesViewDialog"
+		Icon="/Assets/libation.ico"
+        Title="View All Items in Series">
+	
+	<TabControl
+		Items="{Binding	TabItems}"
+		VerticalAlignment="Stretch"
+		HorizontalAlignment="Stretch">
+		<TabControl.Styles>
+			<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+				<Setter Property="Height" Value="23"/>
+			</Style>
+			<Style Selector="TabItem">
+				<Setter Property="MinHeight" Value="40"/>
+				<Setter Property="Height" Value="40"/>
+				<Setter Property="Padding" Value="8,2,8,5"/>
+			</Style>
+			<Style Selector="TabItem#Header TextBlock">
+				<Setter Property="MinHeight" Value="5"/>
+			</Style>
+			<Style Selector="Button">
+				<Setter Property="Padding" Value="20,5,20,5"/>
+			</Style>
+		</TabControl.Styles>
+		
+	</TabControl>
+</Window>

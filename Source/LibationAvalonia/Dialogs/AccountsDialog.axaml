@@ -33,9 +33,9 @@
 						<DataTemplate>
 
 							<Button
-								Width="60"
-								Height="30"
 								Content="X"
+								VerticalAlignment="Stretch"
+								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Center"
 								IsEnabled="{Binding !IsDefault}"
 								Click="DeleteButton_Clicked" />
@@ -49,9 +49,10 @@
 						<DataTemplate>
 
 							<Button
-								Width="60"
-								Height="30"
 								Content="Export"
+								VerticalAlignment="Stretch"
+								HorizontalAlignment="Stretch"
+								HorizontalContentAlignment="Center"
 								IsEnabled="{Binding !IsDefault}"
 								ToolTip.Tip="Export account authorization to audible-cli"
 								Click="ExportButton_Clicked" />

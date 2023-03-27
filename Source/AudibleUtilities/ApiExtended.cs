@@ -149,7 +149,7 @@ namespace AudibleUtilities
 			foreach (var parent in items.Where(i => i.IsSeriesParent))
 			{
 				var children = items.Where(i => i.IsEpisodes && i.Relationships.Any(r => r.Asin == parent.Asin));
-				setSeries(parent, children);
+				SetSeries(parent, children);
 			}
 
 			sw.Stop();
@@ -157,25 +157,11 @@ namespace AudibleUtilities
 			Serilog.Log.Logger.Information("Completed indexing series episodes after {elappsed_ms} ms.", sw.ElapsedMilliseconds);
 			Serilog.Log.Logger.Information($"Completed library scan in {totalTime.TotalMilliseconds:F0} ms.");
 
-			var validators = new List<IValidator>();
-			validators.AddRange(getValidators());
-			foreach (var v in validators)
-			{
-				var exceptions = v.Validate(items);
-				if (exceptions is not null && exceptions.Any())
-					throw new AggregateException(exceptions);
-			}
+			var allExceptions = IValidator.GetAllValidators().SelectMany(v => v.Validate(items));
+			if (allExceptions?.Any() is true)
+				throw new ImportValidationException(items, allExceptions);
+
 			return items;
-		}
-
-		private static List<IValidator> getValidators()
-		{
-			var type = typeof(IValidator);
-			var types = AppDomain.CurrentDomain.GetAssemblies()
-				.SelectMany(s => s.GetTypes())
-				.Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
-
-			return types.Select(t => Activator.CreateInstance(t) as IValidator).ToList();
 		}
 
 		#region episodes and podcasts
@@ -232,8 +218,11 @@ namespace AudibleUtilities
 			finally { semaphore.Release(); }
 		}
 
-		private static void setSeries(Item parent, IEnumerable<Item> children)
+		public static void SetSeries(Item parent, IEnumerable<Item> children)
 		{
+			ArgumentValidator.EnsureNotNull(parent, nameof(parent));
+			ArgumentValidator.EnsureNotNull(children, nameof(children));
+
 			//A series parent will always have exactly 1 Series
 			parent.Series = new[]
 			{
@@ -246,7 +235,15 @@ namespace AudibleUtilities
 			};
 
 			if (parent.PurchaseDate == default)
-				parent.PurchaseDate = children.Select(c => c.PurchaseDate).Order().First();
+			{
+				parent.PurchaseDate = children.Select(c => c.PurchaseDate).Order().FirstOrDefault(d => d != default);
+
+				if (parent.PurchaseDate == default)
+				{
+					Serilog.Log.Logger.Warning("{series} doesn't have a purchase date. Using UtcNow", parent);
+					parent.PurchaseDate = DateTimeOffset.UtcNow;
+				}
+			}
 
 			foreach (var child in children)
 			{

@@ -25,6 +25,8 @@ namespace DataLayer
             Account = account;
         }
 
-        public override string ToString() => $"{DateAdded:d} {Book}";
+        public void SetAccount(string account) => Account = account;
+
+		public override string ToString() => $"{DateAdded:d} {Book}";
 	}
 }

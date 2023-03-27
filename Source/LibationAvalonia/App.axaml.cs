@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using ApplicationServices;
 using Avalonia.Controls;
+using Avalonia.Styling;
 
 namespace LibationAvalonia
 {
@@ -23,6 +24,7 @@ namespace LibationAvalonia
 		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
 		public static IBrush ProcessQueueBookDefaultBrush { get; private set; }
 		public static IBrush SeriesEntryGridBackgroundBrush { get; private set; }
+		public static IBrush HyperlinkVisited { get; private set; }
 
 		public static IAssetLoader AssetLoader { get; private set; }
 
@@ -58,7 +60,7 @@ namespace LibationAvalonia
 
 					if (config.LibationSettingsAreValid)
 					{
-						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));						
 						ShowMainWindow(desktop);
 					}
 					else
@@ -214,6 +216,10 @@ namespace LibationAvalonia
 
 		private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)
 		{
+			Current.RequestedThemeVariant = Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)) is "Dark" ? ThemeVariant.Dark : ThemeVariant.Light;
+
+			//Reload colors for current theme
+			LoadStyles();
 			var mainWindow = new MainWindow();
 			desktop.MainWindow = MainWindow = mainWindow;
 			mainWindow.RestoreSizeAndLocation(Configuration.Instance);
@@ -227,8 +233,9 @@ namespace LibationAvalonia
 			ProcessQueueBookFailedBrush = AvaloniaUtils.GetBrushFromResources("ProcessQueueBookFailedBrush");
 			ProcessQueueBookCompletedBrush = AvaloniaUtils.GetBrushFromResources("ProcessQueueBookCompletedBrush");
 			ProcessQueueBookCancelledBrush = AvaloniaUtils.GetBrushFromResources("ProcessQueueBookCancelledBrush");
-			ProcessQueueBookDefaultBrush = AvaloniaUtils.GetBrushFromResources("ProcessQueueBookDefaultBrush");
 			SeriesEntryGridBackgroundBrush = AvaloniaUtils.GetBrushFromResources("SeriesEntryGridBackgroundBrush");
+			ProcessQueueBookDefaultBrush = AvaloniaUtils.GetBrushFromResources("ProcessQueueBookDefaultBrush");
+			HyperlinkVisited = AvaloniaUtils.GetBrushFromResources(nameof(HyperlinkVisited));
 		}
 	}
 }

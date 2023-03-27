@@ -41,32 +41,41 @@ namespace DtoImporterService
 			//
 			// CURRENT SOLUTION: don't re-insert
 
-			var newItems = importItems
-				.ExceptBy(DbContext.LibraryBooks.Select(lb => lb.Book.AudibleProductId), imp => imp.DtoItem.ProductId)
-				.ToList();
+			var existingEntries = DbContext.LibraryBooks.AsEnumerable().Where(l => l.Book is not null).ToDictionary(l => l.Book.AudibleProductId);
+			var hash = ToDictionarySafe(importItems, dto => dto.DtoItem.ProductId, tieBreak);
+			int qtyNew = 0;
 
-			// if 2 accounts try to import the same book in the same transaction: error since we're only tracking and pulling by asin.
-			// just use the first
-			var hash = newItems.ToDictionarySafe(dto => dto.DtoItem.ProductId);
-			foreach (var kvp in hash)
+			foreach (var item in hash.Values)
 			{
-				var newItem = kvp.Value;
-
-				var libraryBook = new LibraryBook(
-					bookImporter.Cache[newItem.DtoItem.ProductId],
-					newItem.DtoItem.DateAdded,
-					newItem.AccountId)
+				if (existingEntries.TryGetValue(item.DtoItem.ProductId, out LibraryBook existing))
 				{
-					AbsentFromLastScan = isPlusTitleUnavailable(newItem)
-				};
+					if (existing.Account != item.AccountId)
+					{
+						//Book is absent from the existing LibraryBook's account. Use the alternate account.
+						existing.SetAccount(item.AccountId);
+					}
 
-				try
-				{
-					DbContext.LibraryBooks.Add(libraryBook);
+					existing.AbsentFromLastScan = isPlusTitleUnavailable(item);
 				}
-				catch (Exception ex)
+				else
 				{
-					Serilog.Log.Logger.Error(ex, "Error adding library book. {@DebugInfo}", new { libraryBook.Book, libraryBook.Account });
+					var libraryBook = new LibraryBook(
+						bookImporter.Cache[item.DtoItem.ProductId],
+						item.DtoItem.DateAdded,
+						item.AccountId)
+						{
+							AbsentFromLastScan = isPlusTitleUnavailable(item)
+						};
+
+					try
+					{
+						DbContext.LibraryBooks.Add(libraryBook);
+						qtyNew++;
+					}
+					catch (Exception ex)
+					{
+						Serilog.Log.Logger.Error(ex, "Error adding library book. {@DebugInfo}", new { libraryBook.Book, libraryBook.Account });
+					}
 				}
 			}
 
@@ -77,19 +86,27 @@ namespace DtoImporterService
 			foreach (var nullBook in DbContext.LibraryBooks.AsEnumerable().Where(lb => lb.Book is null && lb.Account.In(scannedAccounts)))
 				nullBook.AbsentFromLastScan = true;
 
-			//Join importItems on LibraryBooks before iterating over LibraryBooks to avoid
-			//quadratic complexity caused by searching all of importItems for each LibraryBook.
-			//Join uses hashing, so complexity should approach O(N) instead of O(N^2).
-			var items_lbs
-			   = importItems
-			   .Join(DbContext.LibraryBooks, o => (o.AccountId, o.DtoItem.ProductId), i => (i.Account, i.Book?.AudibleProductId), (o, i) => (o, i));
-
-			foreach ((ImportItem item, LibraryBook lb) in items_lbs)
-				lb.AbsentFromLastScan = isPlusTitleUnavailable(item);
-
-			var qtyNew = hash.Count;
 			return qtyNew;
+		}		
+
+		private static Dictionary<TKey, TSource> ToDictionarySafe<TKey, TSource>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TSource, TSource> tieBreaker)
+		{
+			var dictionary = new Dictionary<TKey, TSource>();
+
+			foreach (TSource newItem in source)
+			{
+				TKey key = keySelector(newItem);
+
+				dictionary[key]
+					= dictionary.TryGetValue(key, out TSource existingItem)
+					? tieBreaker(existingItem, newItem)
+					: newItem;
+			}
+			return dictionary;
 		}
+
+		private static ImportItem tieBreak(ImportItem item1, ImportItem item2)
+			=> isPlusTitleUnavailable(item1) && !isPlusTitleUnavailable(item2) ? item2 : item1;
 
 		private static bool isPlusTitleUnavailable(ImportItem item)
 			=> item.DtoItem.IsAyce is true

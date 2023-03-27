@@ -38,7 +38,7 @@
 					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource DataGridGridLinesBrush}" Background="WhiteSmoke">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemChromeMediumLowColor}">
 						<ScrollViewer
 							Name="scroller"
 							HorizontalScrollBarVisibility="Disabled"
@@ -83,7 +83,7 @@
 					<TextBlock FontSize="14" VerticalAlignment="Center">Queue Log</TextBlock>
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource DataGridGridLinesBrush}" Background="WhiteSmoke">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemChromeMediumLowColor}">
 						<DataGrid AutoGenerateColumns="False" Items="{Binding LogEntries}">
 							<DataGrid.Columns>
 								<DataGridTextColumn SortMemberPath="LogDate" Header="Timestamp" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>
@@ -99,7 +99,7 @@
 							</DataGrid.Columns>
 						</DataGrid>
 					</Border>
-					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto" Margin="6,0,6,0">
+					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto">
 						<Button Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="LogCopyBtn_Click">Copy Log Entries to Clipboard</Button>
 						<Button Grid.Column="1" FontSize="12" HorizontalAlignment="Right" Click="ClearLogBtn_Click">Clear Log</Button>
 					</Grid>
@@ -108,6 +108,7 @@
 		</TabControl>
 		<!-- Queue Status -->
 		<Grid Grid.Row="1" Margin="5,0,0,0" ColumnDefinitions="Auto,*,Auto">
+			
 			<Panel Grid.Column="0">
 				<Panel.Styles>
 					<Style Selector="ProgressBar:horizontal">
@@ -117,17 +118,32 @@
 				<ProgressBar IsVisible="{Binding ProgressBarVisible}" Value="{Binding Progress}" ShowProgressText="True" />
 			</Panel>
 			<StackPanel Orientation="Horizontal" Grid.Column="1">
-				<StackPanel Margin="5,0,0,0" Orientation="Horizontal">
-					<Image IsVisible="{Binding AnyQueued}" Width="20" Height="20" Source="/Assets/queued.png" />
-					<TextBlock IsVisible="{Binding AnyQueued}" VerticalAlignment="Center" Text="{Binding QueuedCount}" />
+				<StackPanel.Styles>
+					<Style Selector="StackPanel">
+						<Setter Property="Height" Value="15" />
+						<Setter Property="Margin" Value="10,0,0,0" />
+						<Setter Property="Orientation" Value="Horizontal" />
+						<Style Selector="^ > Path">
+							<Setter Property="Stretch" Value="Uniform" />
+							<Setter Property="Fill" Value="{DynamicResource IconFill}" />
+						</Style>
+						<Style Selector="^ > TextBlock">
+							<Setter Property="Margin" Value="3,0,0,0" />
+							<Setter Property="VerticalAlignment" Value="Center" />
+						</Style>
+					</Style>
+				</StackPanel.Styles>
+				<StackPanel IsVisible="{Binding AnyQueued}">
+					<Path Data="{StaticResource QueuedIcon}" />
+					<TextBlock Text="{Binding QueuedCount}" />
 				</StackPanel>
-				<StackPanel Margin="5,0,0,0" Orientation="Horizontal">
-					<Image IsVisible="{Binding AnyCompleted}" Width="20" Height="20" Source="/Assets/completed.png" />
-					<TextBlock IsVisible="{Binding AnyCompleted}" VerticalAlignment="Center" Text="{Binding CompletedCount}" />
+				<StackPanel IsVisible="{Binding AnyCompleted}">
+					<Path Data="{StaticResource QueueCompletedIcon}" />
+					<TextBlock Text="{Binding CompletedCount}" />
 				</StackPanel>
-				<StackPanel Margin="5,0,0,0" Orientation="Horizontal">
-					<Image IsVisible="{Binding AnyErrors}" Width="20" Height="20" Source="/Assets/errored.png" />
-					<TextBlock IsVisible="{Binding AnyErrors}" VerticalAlignment="Center" Text="{Binding ErrorCount}" />
+				<StackPanel IsVisible="{Binding AnyErrors}">
+					<Path Data="{StaticResource QueueErrorIcon}"/>
+					<TextBlock Text="{Binding ErrorCount}" />
 				</StackPanel>
 			</StackPanel>
 			<Panel Grid.Column="2" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Center">

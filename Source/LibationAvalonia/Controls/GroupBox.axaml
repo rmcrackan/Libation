@@ -27,7 +27,7 @@
 							VerticalAlignment="Top">
 							<TextBlock
 								Padding="4,0,4,0"
-								Background="{StaticResource SystemAltHighColor}"
+								Background="{DynamicResource SystemAltHighColor}"
 								Text="{TemplateBinding Label}"
 								/>
 						</Grid>

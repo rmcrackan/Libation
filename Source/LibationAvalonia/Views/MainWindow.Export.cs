@@ -20,7 +20,7 @@ namespace LibationAvalonia.Views
 				var options = new FilePickerSaveOptions
 				{
 					Title = "Where to export Library",
-					SuggestedStartLocation = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(Configuration.Instance.Books.PathWithoutPrefix),
+					SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
 					SuggestedFileName = $"Libation Library Export {DateTime.Now:yyyy-MM-dd}",
 					DefaultExtension = "xlsx",
 					ShowOverwritePrompt = true,
@@ -46,26 +46,26 @@ namespace LibationAvalonia.Views
 					}
 				};
 
-				var selectedFile = await StorageProvider.SaveFilePickerAsync(options);
+				var selectedFile = (await StorageProvider.SaveFilePickerAsync(options))?.TryGetLocalPath();
 
-				if (selectedFile?.TryGetUri(out var uri) is not true) return;
+				if (selectedFile is null) return;
 
-				var ext = FileUtility.GetStandardizedExtension(System.IO.Path.GetExtension(uri.LocalPath));
+				var ext = FileUtility.GetStandardizedExtension(System.IO.Path.GetExtension(selectedFile));
 				switch (ext)
 				{
 					case ".xlsx": // xlsx
 					default:
-						LibraryExporter.ToXlsx(uri.LocalPath);
+						LibraryExporter.ToXlsx(selectedFile);
 						break;
 					case ".csv": // csv
-						LibraryExporter.ToCsv(uri.LocalPath);
+						LibraryExporter.ToCsv(selectedFile);
 						break;
 					case ".json": // json
-						LibraryExporter.ToJson(uri.LocalPath);
+						LibraryExporter.ToJson(selectedFile);
 						break;
 				}
 
-				await MessageBox.Show("Library exported to:\r\n" + uri.LocalPath, "Library Exported");
+				await MessageBox.Show("Library exported to:\r\n" + selectedFile, "Library Exported");
 			}
 			catch (Exception ex)
 			{

@@ -12,6 +12,7 @@ using DtoImporterService;
 using FileManager;
 using LibationFileManager;
 using Newtonsoft.Json.Linq;
+using NPOI.OpenXmlFormats.Spreadsheet;
 using Serilog;
 using static DtoImporterService.PerfLogger;
 
@@ -171,11 +172,64 @@ namespace ApplicationServices
             }
         }
 
-        private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions libraryOptions)
+        public static async Task<int> ImportSingleToDbAsync(AudibleApi.Common.Item item, string accountId, string localeName)
+        {
+            ArgumentValidator.EnsureNotNull(item, "item");
+            ArgumentValidator.EnsureNotNull(accountId, "accountId");
+            ArgumentValidator.EnsureNotNull(localeName, "localeName");
+
+            var importItem = new ImportItem
+            {
+                DtoItem = item,
+                AccountId = accountId,
+                LocaleName = localeName
+            };
+
+            var importItems = new List<ImportItem> { importItem };
+            var validator = new LibraryValidator();
+            var exceptions = validator.Validate(importItems.Select(i => i.DtoItem));
+
+            if (exceptions?.Any() ?? false)
+            {
+                Log.Logger.Error(new AggregateException(exceptions), "Error validating library book. {@DebugInfo}", new { item, accountId, localeName });
+                return 0;
+            }
+
+            using var context = DbContexts.GetContext();
+
+            var bookImporter = new BookImporter(context);
+            await Task.Run(() => bookImporter.Import(importItems));
+            var book = await Task.Run(() => context.LibraryBooks.FirstOrDefault(lb => lb.Book.AudibleProductId == importItem.DtoItem.ProductId));
+            
+            if (book is null)
+            {
+                book = new LibraryBook(bookImporter.Cache[importItem.DtoItem.ProductId], importItem.DtoItem.DateAdded, importItem.AccountId);
+                context.LibraryBooks.Add(book);
+            }
+            else
+            {
+                book.AbsentFromLastScan = false;
+            }
+
+            try
+            {
+                int qtyChanged = await Task.Run(() => SaveContext(context));
+                if (qtyChanged > 0)
+                    await Task.Run(finalizeLibrarySizeChange);
+                return qtyChanged;
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "Error adding single library book to DB. {@DebugInfo}", new { item, accountId, localeName });
+                return 0;
+            }
+        }
+
+		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions libraryOptions)
         {
             var tasks = new List<Task<List<ImportItem>>>();
 
-            await using LogArchiver archiver
+           await using LogArchiver archiver
                 = Log.Logger.IsDebugEnabled()
                 ? new LogArchiver(System.IO.Path.Combine(Configuration.Instance.LibationFiles, "LibraryScans.zip"))
                 : default;
@@ -184,16 +238,24 @@ namespace ApplicationServices
 
 			foreach (var account in accounts)
             {
-                // get APIs in serial b/c of logins. do NOT move inside of parallel (Task.WhenAll)
-                var apiExtended = await apiExtendedfunc(account);
+                try
+                {
+                    // get APIs in serial b/c of logins. do NOT move inside of parallel (Task.WhenAll)
+                    var apiExtended = await apiExtendedfunc(account);
 
-                // add scanAccountAsync as a TASK: do not await
-                tasks.Add(scanAccountAsync(apiExtended, account, libraryOptions, archiver));
+                    // add scanAccountAsync as a TASK: do not await
+                    tasks.Add(scanAccountAsync(apiExtended, account, libraryOptions, archiver));
+                }
+                catch(Exception ex)
+                {
+                    //Catch to allow other accounts to continue scanning.
+                    Log.Logger.Error(ex, "Failed to scan account");
+                }
             }
 
             // import library in parallel
-            var arrayOfLists = await Task.WhenAll(tasks);
-            var importItems = arrayOfLists.SelectMany(a => a).ToList();
+            var arrayOfLists = await Task.WhenAll(tasks);            
+			var importItems = arrayOfLists.SelectMany(a => a).ToList();
             return importItems;
         }
 
@@ -208,26 +270,43 @@ namespace ApplicationServices
 
             logTime($"pre scanAccountAsync {account.AccountName}");
 
-            var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions, Configuration.Instance.ImportEpisodes);
-
-            if (archiver is not null)
+            try
             {
-                var fileName = $"{DateTime.Now:u} {account.MaskedLogEntry}.json";
-                var items = await Task.Run(() => JArray.FromObject(dtoItems.Select(i => i.SourceJson)));
+                var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions, Configuration.Instance.ImportEpisodes);
 
-				var scanFile = new JObject
-                {
-                    { "Account", account.MaskedLogEntry },
-                    { "ScannedDateTime", DateTime.Now.ToString("u") },
-                    { "Items",  items}
-                };
+                logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
+                
+                await logDtoItemsAsync(dtoItems);
 
-				await archiver.AddFileAsync(fileName, scanFile);
+				return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = account.Locale?.Name }).ToList();
+            }
+            catch(ImportValidationException ex)
+			{
+				await logDtoItemsAsync(ex.Items, ex.InnerExceptions.ToArray());
+				throw;
+            }
+
+            async Task logDtoItemsAsync(IEnumerable<AudibleApi.Common.Item> dtoItems, IEnumerable<Exception> exceptions = null)
+            {
+				if (archiver is not null)
+				{
+					var fileName = $"{DateTime.Now:u} {account.MaskedLogEntry}.json";
+					var items = await Task.Run(() => JArray.FromObject(dtoItems.Select(i => i.SourceJson)));
+
+					var scanFile = new JObject
+				    {
+					    { "Account", account.MaskedLogEntry },
+					    { "ScannedDateTime", DateTime.Now.ToString("u") },
+				    };
+
+					if (exceptions?.Any() is true)
+                        scanFile.Add("Exceptions", JArray.FromObject(exceptions));
+
+					scanFile.Add("Items", items);
+
+					await archiver.AddFileAsync(fileName, scanFile);
+				}
 			}
-
-            logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
-
-            return dtoItems.Select(d => new ImportItem { DtoItem = d, AccountId = account.AccountId, LocaleName = account.Locale?.Name }).ToList();
         }
 
         private static async Task<int> importIntoDbAsync(List<ImportItem> importItems)

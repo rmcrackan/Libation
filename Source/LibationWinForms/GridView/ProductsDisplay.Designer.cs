@@ -28,35 +28,34 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.productsGrid = new LibationWinForms.GridView.ProductsGrid();
-			this.SuspendLayout();
+			productsGrid = new ProductsGrid();
+			SuspendLayout();
 			// 
 			// productsGrid
 			// 
-			this.productsGrid.AutoScroll = true;
-			this.productsGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.productsGrid.Location = new System.Drawing.Point(0, 0);
-			this.productsGrid.Name = "productsGrid";
-			this.productsGrid.Size = new System.Drawing.Size(1510, 380);
-			this.productsGrid.TabIndex = 0;
-			this.productsGrid.VisibleCountChanged += new System.EventHandler<int>(this.productsGrid_VisibleCountChanged);
-			this.productsGrid.LiberateClicked += new LibationWinForms.GridView.LibraryBookEntryClickedEventHandler(this.productsGrid_LiberateClicked);
-			this.productsGrid.ConvertToMp3Clicked += new LibationWinForms.GridView.LibraryBookEntryClickedEventHandler(this.productsGrid_ConvertToMp3Clicked);
-			this.productsGrid.CoverClicked += new LibationWinForms.GridView.GridEntryClickedEventHandler(this.productsGrid_CoverClicked);
-			this.productsGrid.DetailsClicked += new LibationWinForms.GridView.LibraryBookEntryClickedEventHandler(this.productsGrid_DetailsClicked);
-			this.productsGrid.DescriptionClicked += new LibationWinForms.GridView.GridEntryRectangleClickedEventHandler(this.productsGrid_DescriptionClicked);
-			this.productsGrid.RemovableCountChanged += new System.EventHandler(this.productsGrid_RemovableCountChanged);
+			productsGrid.AutoScroll = true;
+			productsGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+			productsGrid.Location = new System.Drawing.Point(0, 0);
+			productsGrid.Name = "productsGrid";
+			productsGrid.Size = new System.Drawing.Size(1510, 380);
+			productsGrid.TabIndex = 0;
+			productsGrid.VisibleCountChanged += productsGrid_VisibleCountChanged;
+			productsGrid.LiberateClicked += productsGrid_LiberateClicked;
+			productsGrid.CoverClicked += productsGrid_CoverClicked;
+			productsGrid.DetailsClicked += productsGrid_DetailsClicked;
+			productsGrid.DescriptionClicked += productsGrid_DescriptionClicked;
+			productsGrid.RemovableCountChanged += productsGrid_RemovableCountChanged;
+			productsGrid.LiberateContextMenuStripNeeded += productsGrid_CellContextMenuStripNeeded;
 			// 
 			// ProductsDisplay
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.productsGrid);
-			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.Name = "ProductsDisplay";
-			this.Size = new System.Drawing.Size(1510, 380);
-			this.ResumeLayout(false);
-
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			Controls.Add(productsGrid);
+			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			Name = "ProductsDisplay";
+			Size = new System.Drawing.Size(1510, 380);
+			ResumeLayout(false);
 		}
 
 		#endregion

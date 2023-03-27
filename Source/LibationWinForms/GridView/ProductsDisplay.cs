@@ -5,6 +5,7 @@ using FileLiberator;
 using LibationFileManager;
 using LibationUiBase.GridView;
 using LibationWinForms.Dialogs;
+using LibationWinForms.SeriesView;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -20,6 +21,7 @@ namespace LibationWinForms.GridView
 		public event EventHandler<int> VisibleCountChanged;
 		public event EventHandler<int> RemovableCountChanged;
 		public event EventHandler<LibraryBook> LiberateClicked;
+		public event EventHandler<ISeriesEntry> LiberateSeriesClicked;
 		public event EventHandler<LibraryBook> ConvertToMp3Clicked;
 		public event EventHandler InitialLoaded;
 
@@ -96,6 +98,146 @@ namespace LibationWinForms.GridView
 
 		#endregion
 
+		#region Cell Context Menu
+
+		private void productsGrid_CellContextMenuStripNeeded(IGridEntry entry, ContextMenuStrip ctxMenu)
+		{
+			#region Liberate all Episodes
+
+			if (entry.Liberate.IsSeries)
+			{
+				var liberateEpisodesMenuItem = new ToolStripMenuItem()
+				{
+					Text = "&Liberate All Episodes",
+					Enabled = ((ISeriesEntry)entry).Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
+				};
+
+				ctxMenu.Items.Add(liberateEpisodesMenuItem);
+
+				liberateEpisodesMenuItem.Click += (_, _) => LiberateSeriesClicked?.Invoke(this, (ISeriesEntry)entry);
+			}
+
+			#endregion
+			#region Set Download status to Downloaded
+
+			var setDownloadMenuItem = new ToolStripMenuItem()
+			{
+				Text = "Set Download status to '&Downloaded'",
+				Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || entry.Liberate.IsSeries
+			};
+
+			ctxMenu.Items.Add(setDownloadMenuItem);
+
+			if (entry.Liberate.IsSeries)
+				setDownloadMenuItem.Click += (_, _) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.Liberated);
+			else
+				setDownloadMenuItem.Click += (_, _) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
+
+			#endregion
+			#region Set Download status to Not Downloaded
+
+			var setNotDownloadMenuItem = new ToolStripMenuItem()
+			{
+				Text = "Set Download status to '&Not Downloaded'",
+				Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || entry.Liberate.IsSeries
+			};
+
+			ctxMenu.Items.Add(setNotDownloadMenuItem);
+
+			if (entry.Liberate.IsSeries)
+				setNotDownloadMenuItem.Click += (_, _) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.NotLiberated);
+			else
+				setNotDownloadMenuItem.Click += (_, _) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
+
+			#endregion
+			#region Remove from library
+
+			var removeMenuItem = new ToolStripMenuItem() { Text = "&Remove from library" };
+
+			ctxMenu.Items.Add(removeMenuItem);
+
+			if (entry.Liberate.IsSeries)
+				removeMenuItem.Click += async (_, _) => await ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).RemoveBooksAsync();
+			else
+				removeMenuItem.Click += async (_, _) => await Task.Run(entry.LibraryBook.RemoveBook);
+
+			#endregion
+
+			if (!entry.Liberate.IsSeries)
+			{
+				#region Locate file
+				var locateFileMenuItem = new ToolStripMenuItem() { Text = "&Locate file..." };
+
+				ctxMenu.Items.Add(locateFileMenuItem);
+
+				locateFileMenuItem.Click += (_, _) =>
+				{
+					try
+					{
+						var openFileDialog = new OpenFileDialog
+						{
+							Title = $"Locate the audio file for '{entry.Book.Title}'",
+							Filter = "All files (*.*)|*.*",
+							FilterIndex = 1
+						};
+						if (openFileDialog.ShowDialog() == DialogResult.OK)
+							FilePathCache.Insert(entry.AudibleProductId, openFileDialog.FileName);
+					}
+					catch (Exception ex)
+					{
+						var msg = "Error saving book's location";
+						MessageBoxLib.ShowAdminAlert(this, msg, msg, ex);
+					}
+				};
+
+				#endregion
+				#region Convert to Mp3
+
+				var convertToMp3MenuItem = new ToolStripMenuItem
+				{
+					Text = "&Convert to Mp3",
+					Enabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
+				};
+
+				ctxMenu.Items.Add(convertToMp3MenuItem);
+
+				convertToMp3MenuItem.Click += (_, e) => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook);
+
+				#endregion
+			}
+
+			ctxMenu.Items.Add(new ToolStripSeparator());
+
+			#region View Bookmarks/Clips
+
+			if (!entry.Liberate.IsSeries)
+			{
+				var bookRecordMenuItem = new ToolStripMenuItem { Text = "View &Bookmarks/Clips" };
+
+				ctxMenu.Items.Add(bookRecordMenuItem);
+
+				bookRecordMenuItem.Click += (_, _) => new BookRecordsDialog(entry.LibraryBook).ShowDialog(this);
+			}
+
+			#endregion
+			#region View All Series
+
+			if (entry.Book.SeriesLink.Any())
+			{
+				var header = entry.Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
+
+				var viewSeriesMenuItem = new ToolStripMenuItem { Text = header };
+
+				ctxMenu.Items.Add(viewSeriesMenuItem);
+
+				viewSeriesMenuItem.Click += (_, _) => new SeriesViewDialog(entry.LibraryBook).Show();
+			}
+
+			#endregion
+		}
+
+		#endregion
+
 		#region Scan and Remove Books
 
 		public void CloseRemoveBooksColumn()
@@ -145,6 +287,10 @@ namespace LibationWinForms.GridView
 					r.Remove = true;
 
 				productsGrid_RemovableCountChanged(this, null);
+			}
+			catch (OperationCanceledException)
+			{
+				Serilog.Log.Information("Audible login attempt cancelled by user");
 			}
 			catch (Exception ex)
 			{
@@ -204,12 +350,6 @@ namespace LibationWinForms.GridView
 			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error
 				&& !liveGridEntry.Liberate.IsUnavailable)
 				LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
-		}
-
-		private void productsGrid_ConvertToMp3Clicked(ILibraryBookEntry liveGridEntry)
-		{
-			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error)
-				ConvertToMp3Clicked?.Invoke(this, liveGridEntry.LibraryBook);
 		}
 
 		private void productsGrid_RemovableCountChanged(object sender, EventArgs e)

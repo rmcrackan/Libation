@@ -30,10 +30,5 @@ namespace LibationAvalonia.Dialogs
 			IsReturningUser = true;
 			Close(DialogResult.OK);
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

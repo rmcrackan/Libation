@@ -6,7 +6,7 @@
              x:Class="LibationAvalonia.Controls.LinkLabel">
 	<TextBlock.Styles>
 		<Style Selector="TextBlock">
-			<Setter Property="Foreground" Value="Blue"/>
+			<Setter Property="Foreground" Value="{DynamicResource HyperlinkNew}"/>
 			<Setter Property="TextDecorations" Value="Underline"/>
 		</Style>
 	</TextBlock.Styles>

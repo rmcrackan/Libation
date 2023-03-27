@@ -113,6 +113,32 @@
 
 						</CheckBox>
 -->
+						<Grid
+							Grid.Row="2"
+							ColumnDefinitions="Auto,Auto,*"
+							Margin="10"
+							VerticalAlignment="Bottom">
+							<TextBlock
+								Grid.Column="0"
+								FontSize="16"
+								VerticalAlignment="Center"
+								Text="Theme:  "/>
+							
+							<controls:WheelComboBox
+								Grid.Column="1"
+								 SelectedItem="{Binding ImportantSettings.ThemeVariant, Mode=TwoWay}"
+								 Items="{Binding ImportantSettings.Themes}" />
+							<TextBlock
+								Grid.Column="2"
+								FontSize="16"
+								FontWeight="Bold"
+								Margin="10,0,0,0"
+								VerticalAlignment="Center"
+								IsVisible="{Binding	ImportantSettings.SelectionChanged}"
+								Text="Theme change takes effect on restart"/>
+
+						</Grid>
+
 					</Grid>
 				</Border>
 			</TabItem>

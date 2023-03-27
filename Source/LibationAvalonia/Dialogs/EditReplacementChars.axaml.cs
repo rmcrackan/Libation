@@ -170,10 +170,5 @@ namespace LibationAvalonia.Dialogs
 			public char Character => string.IsNullOrEmpty(_characterToReplace) ? default : _characterToReplace[0];
 			public bool IsDefault { get; private set; }
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

@@ -80,6 +80,10 @@ namespace LibationWinForms
 				if (Configuration.Instance.ShowImportedStats && newAdded > 0)
 					MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
 			}
+			catch (OperationCanceledException)
+			{
+				Serilog.Log.Information("Audible login attempt cancelled by user");
+			}
 			catch (Exception ex)
 			{
 				MessageBoxLib.ShowAdminAlert(

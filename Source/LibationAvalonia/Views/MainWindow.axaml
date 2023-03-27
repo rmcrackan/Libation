@@ -138,7 +138,7 @@
 					</MenuItem>
 				</Menu>
 				<StackPanel IsVisible="{Binding ActivelyScanning}" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-					<Image Width="16" Height="16" Source="/Assets/import_16x16.png" />
+					<Path VerticalAlignment="Center" Fill="{StaticResource IconFill}" Data="{StaticResource ImportIcon}" />
 					<TextBlock Margin="5,0,5,0" VerticalAlignment="Center" Text="{Binding ScanningText}"/>
 				</StackPanel>
 			</Grid>
@@ -172,12 +172,13 @@
 				<TextBox Grid.Column="1" Margin="10,0,0,0" IsVisible="{Binding !RemoveButtonsVisible}" Text="{Binding FilterString, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
 
 				<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
-					<Button Click="filterBtn_Click" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
-					<Button Padding="5,0,5,0" Click="ToggleQueueHideBtn_Click">
-						<Panel>
-							<Image Stretch="None" IsVisible="{Binding !QueueOpen}" Source="/Assets/Arrows_left.png" />
-							<Image Stretch="None" IsVisible="{Binding QueueOpen}" Source="/Assets/Arrows_right.png" />
-						</Panel>
+					<Button Click="filterBtn_Click" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
+					<Button Padding="2,6,2,6" VerticalAlignment="Stretch" Click="ToggleQueueHideBtn_Click">
+						<Path Stretch="Uniform" Fill="{DynamicResource IconFill}" Data="{StaticResource	LeftArrows}">
+							<Path.RenderTransform>
+								<RotateTransform Angle="{Binding QueueButtonAngle}"/>
+							</Path.RenderTransform>
+						</Path>
 					</Button>
 				</StackPanel>
 
@@ -195,10 +196,11 @@
 						Name="productsDisplay"
 						DataContext="{Binding ProductsDisplay}"						
 						LiberateClicked="ProductsDisplay_LiberateClicked"
+						LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
 						ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />				
 				</SplitView>
-			</Border>
-
+			</Border>			
+			
 			<!-- Bottom Status Strip -->
 			<Grid Grid.Row="3" Margin="0,10,0,0" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,*,Auto">
 				<Grid.Styles>

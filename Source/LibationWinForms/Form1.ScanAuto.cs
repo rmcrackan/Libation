@@ -38,7 +38,11 @@ namespace LibationWinForms
 					else
 						await importAsync();
 				}
-                catch (Exception ex)
+				catch (OperationCanceledException)
+				{
+					Serilog.Log.Information("Audible login attempt cancelled by user");
+				}
+				catch (Exception ex)
                 {
 					Serilog.Log.Logger.Error(ex, "Error invoking auto-scan");
                 }

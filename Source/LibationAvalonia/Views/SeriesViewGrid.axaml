@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+             x:Class="LibationAvalonia.Views.SeriesViewGrid">
+	
+	<DataGrid
+		ClipboardCopyMode="IncludeHeader"
+		GridLinesVisibility="All"
+		AutoGenerateColumns="False"
+		Items="{Binding SeriesEntries}"
+		CanUserSortColumns="True"
+		CanUserReorderColumns="True"
+		BorderThickness="3">
+
+		<DataGrid.Styles>
+			<Style Selector="DataGridCell">
+				<Setter Property="Height" Value="80"/>
+			</Style>
+			<Style Selector="DataGridCell > Panel">
+				<Setter Property="VerticalAlignment" Value="Stretch"/>
+			</Style>
+			<Style Selector="DataGridCell > Panel > TextBlock">
+				<Setter Property="VerticalAlignment" Value="Center"/>
+				<Setter Property="HorizontalAlignment" Value="Stretch"/>
+				<Setter Property="TextWrapping" Value="Wrap"/>
+				<Setter Property="Padding" Value="4"/>
+			</Style>
+		</DataGrid.Styles>
+
+		<DataGrid.Columns>
+
+			<DataGridTemplateColumn Width="80" Header="Cover" CanUserSort="False">
+				<DataGridTemplateColumn.CellTemplate>
+					<DataTemplate>
+						<Image
+							Tapped="Cover_Click"
+							Height="80"
+							Source="{Binding Cover}"
+							ToolTip.Tip="Click to see full size" />
+					</DataTemplate>
+				</DataGridTemplateColumn.CellTemplate>
+			</DataGridTemplateColumn>
+
+			<DataGridTemplateColumn Width="Auto" Header="Series&#xa;Order" CanUserSort="True" SortMemberPath="Order">
+				<DataGridTemplateColumn.CellTemplate>
+					<DataTemplate>
+						<Panel>
+							<TextBlock
+								Text="{Binding Order}"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center" />
+						</Panel>
+					</DataTemplate>
+				</DataGridTemplateColumn.CellTemplate>
+			</DataGridTemplateColumn>
+
+			<DataGridTemplateColumn Width="Auto" Header="Availability" CanUserSort="True" SortMemberPath="Button">
+				<DataGridTemplateColumn.CellTemplate>
+					<DataTemplate>
+						<Panel>
+							<Panel.Styles>
+								<Style Selector="TextBlock">
+									<Setter Property="FontSize" Value="13"/>
+								</Style>
+							</Panel.Styles>
+							<Button
+								Padding="0"
+								HorizontalAlignment="Stretch"
+								VerticalAlignment="Stretch"
+								Click="Availability_Click"
+								IsVisible="{Binding Button.HasButtonAction}"
+								IsEnabled="{Binding Button.Enabled}">
+								<TextBlock
+									Text="{Binding Button.DisplayText}"
+									TextAlignment="Center"
+									VerticalAlignment="Center" />
+							</Button>
+							<TextBlock
+								HorizontalAlignment="Center"
+								IsVisible="{Binding !Button.HasButtonAction}"
+								Text="{Binding	Button.DisplayText}" />
+						</Panel>
+					</DataTemplate>
+				</DataGridTemplateColumn.CellTemplate>
+			</DataGridTemplateColumn>
+
+			<DataGridTemplateColumn MinWidth="150" Width="*" Header="Title" CanUserSort="True" SortMemberPath="Title">
+				<DataGridTemplateColumn.CellTemplate>
+					<DataTemplate>
+						<Panel ToolTip.Tip="Open Audible product page">
+							<controls:LinkLabel
+								VerticalAlignment="Center"
+								Text="{Binding Title}"
+								Tapped="Title_Click" />
+						</Panel>
+					</DataTemplate>
+				</DataGridTemplateColumn.CellTemplate>
+			</DataGridTemplateColumn>
+			
+		</DataGrid.Columns>
+	</DataGrid>
+</UserControl>

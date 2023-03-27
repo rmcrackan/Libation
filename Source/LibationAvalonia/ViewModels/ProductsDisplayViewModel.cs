@@ -31,10 +31,14 @@ namespace LibationAvalonia.ViewModels
 		public bool RemoveColumnVisivle { get => _removeColumnVisivle; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisivle, value); }
 
 		public List<LibraryBook> GetVisibleBookEntries()
-			=> GridEntries
-			.OfType<ILibraryBookEntry>()
-			.Select(lbe => lbe.LibraryBook)
-			.ToList();
+			=> FilteredInGridEntries?
+				.OfType<ILibraryBookEntry>()
+				.Select(lbe => lbe.LibraryBook)
+				.ToList()
+			?? SOURCE
+				.OfType<ILibraryBookEntry>()
+				.Select(lbe => lbe.LibraryBook)
+				.ToList();
 
 		private IEnumerable<ILibraryBookEntry> GetAllBookEntries()
 			=> SOURCE
@@ -110,16 +114,31 @@ namespace LibationAvalonia.ViewModels
 				seriesEntry.Liberate.Expanded = false;
 
 				geList.Add(seriesEntry);
-				geList.AddRange(seriesEntry.Children);
 			}
 
 			//Create the filtered-in list before adding entries to avoid a refresh
 			FilteredInGridEntries = QueryResults(geList, FilterString);
 			SOURCE.AddRange(geList.OrderByDescending(e => e.DateAdded));
-			GridEntries.CollectionChanged += (_, _)
-				=> VisibleCountChanged?.Invoke(this, GridEntries.OfType<ILibraryBookEntry>().Count());
 
-			VisibleCountChanged?.Invoke(this, GridEntries.OfType<ILibraryBookEntry>().Count());
+			//Add all children beneath their parent
+			foreach (var series in SOURCE.OfType<ISeriesEntry>().ToList())
+			{
+				var seriesIndex = SOURCE.IndexOf(series);
+				foreach (var child in series.Children)
+					SOURCE.Insert(++seriesIndex, child);
+			}
+
+			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
+			GridEntries_CollectionChanged();
+		}
+
+		private void GridEntries_CollectionChanged(object sender = null, EventArgs e = null)
+		{ 
+			var count
+				= FilteredInGridEntries?.OfType<ILibraryBookEntry>().Count()
+				?? SOURCE.OfType<ILibraryBookEntry>().Count();
+
+			 VisibleCountChanged?.Invoke(this, count);
 		}
 
 		/// <summary>
@@ -127,6 +146,8 @@ namespace LibationAvalonia.ViewModels
 		/// </summary>
 		internal async Task UpdateGridAsync(List<LibraryBook> dbBooks)
 		{
+			GridEntries.CollectionChanged -= GridEntries_CollectionChanged;
+
 			#region Add new or update existing grid entries
 
 			//Add absent entries to grid, or update existing entry
@@ -176,6 +197,9 @@ namespace LibationAvalonia.ViewModels
 
 			await Filter(FilterString);
 			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+
+			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
+			GridEntries_CollectionChanged();
 		}
 
 		private void RemoveBooks(IEnumerable<ILibraryBookEntry> removedBooks, IEnumerable<ISeriesEntry> removedSeries)
@@ -237,13 +261,15 @@ namespace LibationAvalonia.ViewModels
 					//Series exists. Create and add episode child then update the SeriesEntry
 					episodeEntry = new LibraryBookEntry<AvaloniaEntryStatus>(episodeBook, seriesEntry);
 					seriesEntry.Children.Add(episodeEntry);
+					seriesEntry.Children.Sort((c1, c2) => c1.SeriesIndex.CompareTo(c2.SeriesIndex));
 					var seriesBook = dbBooks.Single(lb => lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId);
 					seriesEntry.UpdateLibraryBook(seriesBook);
 				}
 
 				//Add episode to the grid beneath the parent
 				int seriesIndex = SOURCE.IndexOf(seriesEntry);
-				SOURCE.Insert(seriesIndex + 1, episodeEntry);
+				int episodeIndex = seriesEntry.Children.IndexOf(episodeEntry);
+				SOURCE.Insert(seriesIndex + 1 + episodeIndex, episodeEntry);
 			}
 			else
 				existingEpisodeEntry.UpdateLibraryBook(episodeBook);
@@ -400,6 +426,10 @@ namespace LibationAvalonia.ViewModels
 
 				foreach (var r in removable)
 					r.Remove = true;
+			}
+			catch (OperationCanceledException)
+			{
+				Serilog.Log.Information("Audible login attempt cancelled by user");
 			}
 			catch (Exception ex)
 			{

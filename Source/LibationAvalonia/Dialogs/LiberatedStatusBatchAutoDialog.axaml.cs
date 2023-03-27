@@ -12,10 +12,6 @@ namespace LibationAvalonia.Dialogs
 			InitializeComponent();
 			DataContext = this;
 		}
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 
 		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> SaveAndClose();

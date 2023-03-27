@@ -10,7 +10,7 @@
 		Icon="/Assets/1x1.png">
 	<Grid ColumnDefinitions="*" RowDefinitions="*,Auto">
 		
-		<DockPanel Margin="5,10,10,20" Grid.Row="0" Background="White">
+		<DockPanel Margin="5,10,10,20" Grid.Row="0">
 			<StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
 				VerticalAlignment="Top">
 			
@@ -26,7 +26,7 @@
 			</StackPanel>
 		</DockPanel>
 
-		<DockPanel Height="45" Grid.Row="1" Background="WhiteSmoke">
+		<DockPanel Height="45" Grid.Row="1" Background="{DynamicResource SystemChromeMediumLowColor}">
 			<DockPanel.Styles>
 				<Style Selector="Button:focus">
 					<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />

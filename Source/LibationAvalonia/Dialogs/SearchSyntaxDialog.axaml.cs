@@ -12,6 +12,8 @@ namespace LibationAvalonia.Dialogs
 		{
 			InitializeComponent();
 
+			this.HideMinMaxBtns();
+
 			StringFields = @"
 Search for wizard of oz:
      title:oz
@@ -51,13 +53,6 @@ for the ID field
 
 			DataContext = this;
 
-		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-
-			this.HideMinMaxBtns();
 		}
 	}
 }

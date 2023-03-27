@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs.Login
 {
@@ -31,15 +32,21 @@ namespace LibationAvalonia.Dialogs.Login
 			DataContext = this;
 		}
 
+		protected override async Task SaveAndCloseAsync()
+		{
+			if (string.IsNullOrWhiteSpace(Password))
+			{
+				await MessageBox.Show(this, "Please enter your password");
+				return;
+			}
+
+			await base.SaveAndCloseAsync();
+		}
+
 		public async void ExternalLoginLink_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 		{
 			LoginMethod = LoginMethod.External;
 			await SaveAndCloseAsync();
-		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
 		}
 	}
 }

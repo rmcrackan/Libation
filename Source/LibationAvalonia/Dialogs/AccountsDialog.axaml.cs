@@ -129,16 +129,16 @@ namespace LibationAvalonia.Dialogs
 
 			string audibleAppDataDir = GetAudibleCliAppDataPath();
 			if (Directory.Exists(audibleAppDataDir))
-				openFileDialogOptions.SuggestedStartLocation = new BclStorageFolder(audibleAppDataDir);
+				openFileDialogOptions.SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(audibleAppDataDir);
 
 			var selectedFiles = await StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
-			var selectedFile = selectedFiles.SingleOrDefault();
+			var selectedFile = selectedFiles.SingleOrDefault()?.TryGetLocalPath();
 
-			if (selectedFile?.TryGetUri(out var uri) is not true) return;
+			if (selectedFile is null) return;
 
 			try
 			{
-				var jsonText = File.ReadAllText(uri.LocalPath);
+				var jsonText = File.ReadAllText(selectedFile);
 				var mkbAuth = Mkb79Auth.FromJson(jsonText);
 				var account = await mkbAuth.ToAccountAsync();
 
@@ -159,7 +159,7 @@ namespace LibationAvalonia.Dialogs
 			{
 				await MessageBox.ShowAdminAlert(
 						this,
-						$"An error occurred while importing an account from:\r\n{uri.LocalPath}\r\n\r\nIs the file encrypted?",
+						$"An error occurred while importing an account from:\r\n{selectedFile}\r\n\r\nIs the file encrypted?",
 						"Error Importing Account",
 						ex);
 			}
@@ -195,12 +195,6 @@ namespace LibationAvalonia.Dialogs
 
 		public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await SaveAndCloseAsync();
-
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 
 		private void persist(AccountsSettings accountsSettings)
 		{
@@ -293,20 +287,20 @@ namespace LibationAvalonia.Dialogs
 			string audibleAppDataDir = GetAudibleCliAppDataPath();
 
 			if (Directory.Exists(audibleAppDataDir))
-				options.SuggestedStartLocation = new BclStorageFolder(audibleAppDataDir);
+				options.SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(audibleAppDataDir);
 
-			var selectedFile = await StorageProvider.SaveFilePickerAsync(options);
+			var selectedFile = (await StorageProvider.SaveFilePickerAsync(options))?.TryGetLocalPath();
 
-			if (selectedFile?.TryGetUri(out var uri) is not true) return;
+			if (selectedFile is null) return;
 
 			try
 			{
 				var mkbAuth = Mkb79Auth.FromAccount(account);
 				var jsonText = mkbAuth.ToJson();
 
-				File.WriteAllText(uri.LocalPath, jsonText);
+				File.WriteAllText(selectedFile, jsonText);
 
-				await MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{uri.LocalPath}", "Success!");
+				await MessageBox.Show(this, $"Successfully exported {account.AccountName} to\r\n\r\n{selectedFile}", "Success!");
 			}
 			catch (Exception ex)
 			{

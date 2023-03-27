@@ -33,9 +33,10 @@
 						<DataTemplate>
 
 							<Button
-								Width="55"
-								Height="30"
 								Content="X"
+								VerticalAlignment="Stretch"
+								HorizontalAlignment="Stretch"
+								HorizontalContentAlignment="Center"
 								IsEnabled="{Binding !IsDefault}"
 								Click="DeleteButton_Clicked" />
 
@@ -49,15 +50,15 @@
 					Binding="{Binding FilterString, Mode=TwoWay}"
 					Header="Filter"/>
 
-
 				<DataGridTemplateColumn Header="Move&#xa;Up">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
 
 							<Button
-								Width="50"
-								Height="30"
 								Content="▲"
+								VerticalAlignment="Stretch"
+								HorizontalAlignment="Stretch"
+								HorizontalContentAlignment="Center"
 								IsEnabled="{Binding !IsDefault}"
 								ToolTip.Tip="Export account authorization to audible-cli"
 								Click="MoveUpButton_Clicked" />
@@ -73,9 +74,10 @@
 						<DataTemplate>
 
 							<Button
-								Width="50"
-								Height="30"
 								Content="▼"
+								VerticalAlignment="Stretch"
+								HorizontalAlignment="Stretch"
+								HorizontalContentAlignment="Center"
 								IsEnabled="{Binding !IsDefault}"
 								ToolTip.Tip="Export account authorization to audible-cli"
 								Click="MoveDownButton_Clicked" />
