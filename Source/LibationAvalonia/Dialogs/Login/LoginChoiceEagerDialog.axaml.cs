@@ -32,7 +32,7 @@ namespace LibationAvalonia.Dialogs.Login
 
 		protected override async Task SaveAndCloseAsync()
 		{
-			if (string.IsNullOrWhiteSpace(Password))
+			if (LoginMethod is LoginMethod.Api && string.IsNullOrWhiteSpace(Password))
 			{
 				await MessageBox.Show(this, "Please enter your password");
 				return;
