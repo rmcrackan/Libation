@@ -40,6 +40,7 @@ namespace LibationUiBase.GridView
 		private LastDownloadStatus _lastDownload;
 		private object _cover;
 		private string _series;
+		private SeriesOrder _seriesOrder;
 		private string _title;
 		private string _authors;
 		private string _narrators;
@@ -57,6 +58,7 @@ namespace LibationUiBase.GridView
 		public LastDownloadStatus LastDownload { get => _lastDownload; protected set => RaiseAndSetIfChanged(ref _lastDownload, value); }
 		public object Cover { get => _cover; private set => RaiseAndSetIfChanged(ref _cover, value); }
 		public string Series { get => _series; private set => RaiseAndSetIfChanged(ref _series, value); }
+		public SeriesOrder SeriesOrder { get => _seriesOrder; private set => RaiseAndSetIfChanged(ref _seriesOrder, value); }
 		public string Title { get => _title; private set => RaiseAndSetIfChanged(ref _title, value); }
 		public string Authors { get => _authors; private set => RaiseAndSetIfChanged(ref _authors, value); }
 		public string Narrators { get => _narrators; private set => RaiseAndSetIfChanged(ref _narrators, value); }
@@ -105,6 +107,7 @@ namespace LibationUiBase.GridView
 
 			Title = Book.Title;
 			Series = Book.SeriesNames(includeIndex: true);
+			SeriesOrder = new SeriesOrder(Book.SeriesLink);
 			Length = GetBookLengthString();
 			//Ratings are changed using Update(), which is a problem for Avalonia data bindings because
 			//the reference doesn't change. Clone the rating so that it updates within Avalonia properly.
@@ -200,6 +203,7 @@ namespace LibationUiBase.GridView
 				{ nameof(Remove), () => Remove.HasValue ? Remove.Value ? RemoveStatus.Removed : RemoveStatus.NotRemoved : RemoveStatus.SomeRemoved },
 				{ nameof(Title), () => Book.TitleSortable() },
 				{ nameof(Series), () => Book.SeriesSortable() },
+				{ nameof(SeriesOrder), () => SeriesOrder },
 				{ nameof(Length), () => GetLengthInMinutes() },
 				{ nameof(MyRating), () => Book.UserDefinedItem.Rating },
 				{ nameof(PurchaseDate), () => GetPurchaseDate() },
@@ -233,6 +237,7 @@ namespace LibationUiBase.GridView
 			{ typeof(Rating), new ObjectComparer<Rating>() },
 			{ typeof(DateTime), new ObjectComparer<DateTime>() },
 			{ typeof(EntryStatus), new ObjectComparer<EntryStatus>() },
+			{ typeof(SeriesOrder), new ObjectComparer<SeriesOrder>() },
 			{ typeof(LastDownloadStatus), new ObjectComparer<LastDownloadStatus>() },
 		};
 
