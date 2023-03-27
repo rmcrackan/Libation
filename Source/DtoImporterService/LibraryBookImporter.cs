@@ -109,7 +109,7 @@ namespace DtoImporterService
 			=> isPlusTitleUnavailable(item1) && !isPlusTitleUnavailable(item2) ? item2 : item1;
 
 		private static bool isPlusTitleUnavailable(ImportItem item)
-			=> item.DtoItem.IsAyce is true
-			&& item.DtoItem.Plans?.Any(p => p.IsAyce) is not true;
+			=> item.DtoItem.ContentType is null
+			|| (item.DtoItem.IsAyce is true && item.DtoItem.Plans?.Any(p => p.IsAyce) is not true);
 	}
 }
