@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="750"
 		MinWidth="900" MinHeight="700"
+		Width="900" Height="700"
         x:Class="LibationAvalonia.Dialogs.SettingsDialog"
         xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         Title="Edit Settings"

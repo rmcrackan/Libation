@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="950" d:DesignHeight="650"
 		MinWidth="950" MinHeight="650"
 		MaxWidth="950" MaxHeight="650"
+		Width="950" Height="650"
         x:Class="LibationAvalonia.Dialogs.SearchSyntaxDialog"
         Title="Filter Options"
 		WindowStartupLocation="CenterOwner"

@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="500"		
         x:Class="LibationAvalonia.Dialogs.ImageDisplayDialog"
 		MinWidth="500" MinHeight="500"
+		Width="500" Height="520"
         Title="Cover"
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/libation.ico">

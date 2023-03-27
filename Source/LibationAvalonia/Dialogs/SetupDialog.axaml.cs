@@ -7,10 +7,12 @@ namespace LibationAvalonia.Dialogs
 	{
 		public bool IsNewUser { get; private set; }
 		public bool IsReturningUser { get; private set; }
+		public ComboBoxItem SelectedTheme { get; set; }
 		public Configuration Config { get; init; }
 		public SetupDialog()
 		{
 			InitializeComponent();
+			DataContext = this;
 		}
 
 		public void NewUser_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

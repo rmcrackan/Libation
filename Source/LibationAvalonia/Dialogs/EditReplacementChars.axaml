@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
 		MinWidth="500" MinHeight="450"
+		Width="500" Height="450"
         x:Class="LibationAvalonia.Dialogs.EditReplacementChars"
         Title="Illegal Character Replacement"		
 		Icon="/Assets/libation.ico">

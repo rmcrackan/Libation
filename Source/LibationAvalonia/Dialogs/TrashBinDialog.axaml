@@ -6,6 +6,7 @@
         x:Class="LibationAvalonia.Dialogs.TrashBinDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		MinWidth="630" MinHeight="480" 
+		Width="630" Height="480"
         Title="Trash Bin"
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/libation.ico">

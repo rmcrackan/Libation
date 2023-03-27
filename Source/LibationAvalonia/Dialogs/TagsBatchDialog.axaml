@@ -6,6 +6,7 @@
         x:Class="LibationAvalonia.Dialogs.TagsBatchDialog"
 		MinWidth="630" MinHeight="110"
 		MaxWidth="630" MaxHeight="110"
+		Width="630" Height="110"
         Title="Replace Tags"
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/libation.ico">
