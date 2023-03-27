@@ -4,7 +4,6 @@ using Avalonia.Data;
 using Avalonia.Interactivity;
 using DataLayer;
 using ReactiveUI;
-using System;
 
 namespace LibationAvalonia.Controls
 {

@@ -1,17 +1,14 @@
+using AudibleApi;
 using AudibleUtilities;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ReactiveUI;
-using AudibleApi;
-using Avalonia.Platform.Storage;
-using LibationFileManager;
-using Avalonia.Platform.Storage.FileIO;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -31,7 +28,7 @@ namespace LibationAvalonia.Dialogs
 				{
 					this.RaiseAndSetIfChanged(ref _accountId, value);
 					this.RaisePropertyChanged(nameof(IsDefault));
-				} 
+				}
 			}
 			public Locale SelectedLocale
 			{

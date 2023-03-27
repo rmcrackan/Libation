@@ -1,11 +1,7 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using System;
-using System.Collections;
-using System.Linq;
 
 namespace LibationAvalonia.Controls
 {

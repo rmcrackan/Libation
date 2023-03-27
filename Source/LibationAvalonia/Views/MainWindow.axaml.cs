@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ApplicationServices;
 using Avalonia.ReactiveUI;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LibationAvalonia.Views
 {

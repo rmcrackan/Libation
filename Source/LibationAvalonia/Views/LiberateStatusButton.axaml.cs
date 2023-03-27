@@ -1,11 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationUiBase.GridView;
-using NPOI.HSSF.Record.PivotTable;
 using System;
 
 namespace LibationAvalonia.Views

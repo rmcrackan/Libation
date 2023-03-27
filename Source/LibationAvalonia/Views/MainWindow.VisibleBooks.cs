@@ -1,15 +1,11 @@
 ﻿using ApplicationServices;
 using Avalonia.Threading;
 using DataLayer;
-using Dinah.Core;
-using LibationFileManager;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_VisibleBooks()
@@ -52,15 +48,15 @@ namespace LibationAvalonia.Views
 			var confirmationResult = await MessageBox.ShowConfirmationDialog(
 				this,
 				visibleLibraryBooks,
-                // do not use `$` string interpolation. See impl.
-                "Are you sure you want to replace tags in {0}?",
+				// do not use `$` string interpolation. See impl.
+				"Are you sure you want to replace tags in {0}?",
 				"Replace tags?");
 
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
 			visibleLibraryBooks.UpdateTags(dialog.NewTags);
-        }
+		}
 
 		public async void setBookDownloadedManualToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
@@ -74,73 +70,73 @@ namespace LibationAvalonia.Views
 			var confirmationResult = await MessageBox.ShowConfirmationDialog(
 				this,
 				visibleLibraryBooks,
-                // do not use `$` string interpolation. See impl.
-                "Are you sure you want to replace book downloaded status in {0}?",
+				// do not use `$` string interpolation. See impl.
+				"Are you sure you want to replace book downloaded status in {0}?",
 				"Replace downloaded status?");
 
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-            visibleLibraryBooks.UpdateBookStatus(dialog.BookLiberatedStatus);
-        }
+			visibleLibraryBooks.UpdateBookStatus(dialog.BookLiberatedStatus);
+		}
 
-        public async void setPdfDownloadedManualToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
-        {
-            var dialog = new Dialogs.LiberatedStatusBatchManualDialog(isPdf: true);
-            var result = await dialog.ShowDialog<DialogResult>(this);
-            if (result != DialogResult.OK)
-                return;
+		public async void setPdfDownloadedManualToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		{
+			var dialog = new Dialogs.LiberatedStatusBatchManualDialog(isPdf: true);
+			var result = await dialog.ShowDialog<DialogResult>(this);
+			if (result != DialogResult.OK)
+				return;
 
-            var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
+			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
 
-            var confirmationResult = await MessageBox.ShowConfirmationDialog(
-                this,
-                visibleLibraryBooks,
-                // do not use `$` string interpolation. See impl.
-                "Are you sure you want to replace PDF downloaded status in {0}?",
-                "Replace downloaded status?");
+			var confirmationResult = await MessageBox.ShowConfirmationDialog(
+				this,
+				visibleLibraryBooks,
+				// do not use `$` string interpolation. See impl.
+				"Are you sure you want to replace PDF downloaded status in {0}?",
+				"Replace downloaded status?");
 
-            if (confirmationResult != DialogResult.Yes)
-                return;
+			if (confirmationResult != DialogResult.Yes)
+				return;
 
-            visibleLibraryBooks.UpdatePdfStatus(dialog.BookLiberatedStatus);
-        }
+			visibleLibraryBooks.UpdatePdfStatus(dialog.BookLiberatedStatus);
+		}
 
-        public async void setDownloadedAutoToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
-        {
-            var dialog = new Dialogs.LiberatedStatusBatchAutoDialog();
-            var result = await dialog.ShowDialog<DialogResult>(this);
-            if (result != DialogResult.OK)
-                return;
+		public async void setDownloadedAutoToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		{
+			var dialog = new Dialogs.LiberatedStatusBatchAutoDialog();
+			var result = await dialog.ShowDialog<DialogResult>(this);
+			if (result != DialogResult.OK)
+				return;
 
-            var bulkSetStatus = new BulkSetDownloadStatus(_viewModel.ProductsDisplay.GetVisibleBookEntries(), dialog.SetDownloaded, dialog.SetNotDownloaded);
-            var count = await Task.Run(bulkSetStatus.Discover);
+			var bulkSetStatus = new BulkSetDownloadStatus(_viewModel.ProductsDisplay.GetVisibleBookEntries(), dialog.SetDownloaded, dialog.SetNotDownloaded);
+			var count = await Task.Run(bulkSetStatus.Discover);
 
-            if (count == 0)
-                return;
+			if (count == 0)
+				return;
 
-            var confirmationResult = await MessageBox.Show(
-                bulkSetStatus.AggregateMessage,
-                "Replace downloaded status?",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button1);
+			var confirmationResult = await MessageBox.Show(
+				bulkSetStatus.AggregateMessage,
+				"Replace downloaded status?",
+				MessageBoxButtons.YesNo,
+				MessageBoxIcon.Question,
+				MessageBoxDefaultButton.Button1);
 
-            if (confirmationResult != DialogResult.Yes)
-                return;
+			if (confirmationResult != DialogResult.Yes)
+				return;
 
-            bulkSetStatus.Execute();
-        }
+			bulkSetStatus.Execute();
+		}
 
-        public async void removeToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+		public async void removeToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var visibleLibraryBooks = _viewModel.ProductsDisplay.GetVisibleBookEntries();
 
 			var confirmationResult = await MessageBox.ShowConfirmationDialog(
 				this,
 				visibleLibraryBooks,
-                // do not use `$` string interpolation. See impl.
-                "Are you sure you want to remove {0} from Libation's library?",
+				// do not use `$` string interpolation. See impl.
+				"Are you sure you want to remove {0} from Libation's library?",
 				"Remove books from Libation?",
 				MessageBoxDefaultButton.Button2);
 

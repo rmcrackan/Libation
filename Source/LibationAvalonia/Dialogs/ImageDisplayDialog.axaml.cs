@@ -1,9 +1,8 @@
-using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
+using ReactiveUI;
 using System;
 using System.ComponentModel;
-using ReactiveUI;
-using Avalonia.Platform.Storage;
 
 namespace LibationAvalonia.Dialogs
 {

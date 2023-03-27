@@ -1,7 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-using AudibleApi;
+﻿using AudibleApi;
 using AudibleUtilities;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs.Login
 {

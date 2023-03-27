@@ -1,6 +1,3 @@
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using LibationAvalonia.ViewModels.Dialogs;
 
 namespace LibationAvalonia.Dialogs
@@ -12,7 +9,7 @@ namespace LibationAvalonia.Dialogs
 		{
 			InitializeComponent();
 		}
-		public MessageBoxWindow(bool saveAndRestorePosition):base(saveAndRestorePosition)
+		public MessageBoxWindow(bool saveAndRestorePosition) : base(saveAndRestorePosition)
 		{
 			InitializeComponent();
 		}

@@ -1,6 +1,4 @@
 ﻿using ApplicationServices;
-using System;
-using System.Linq;
 using Avalonia.Threading;
 using System.Threading.Tasks;
 
@@ -19,7 +17,7 @@ namespace LibationAvalonia.Views
 		private void setBackupCounts(object _, object __)
 		{
 			if (updateCountsTask?.IsCompleted is not false)
-				updateCountsTask = Dispatcher.UIThread.InvokeAsync(() => _viewModel.LibraryStats = LibraryCommands.GetCounts());		
+				updateCountsTask = Dispatcher.UIThread.InvokeAsync(() => _viewModel.LibraryStats = LibraryCommands.GetCounts());
 		}
 	}
 }

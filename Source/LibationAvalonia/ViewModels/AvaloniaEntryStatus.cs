@@ -6,7 +6,7 @@ using System;
 
 namespace LibationAvalonia.ViewModels
 {
-    public class AvaloniaEntryStatus : EntryStatus, IEntryStatus, IComparable
+	public class AvaloniaEntryStatus : EntryStatus, IEntryStatus, IComparable
 	{
 		public override IBrush BackgroundBrush => IsEpisode ? App.SeriesEntryGridBackgroundBrush : Brushes.Transparent;
 

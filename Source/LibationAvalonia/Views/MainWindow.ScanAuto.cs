@@ -43,7 +43,7 @@ namespace LibationAvalonia.Views
 			};
 
 			_viewModel.AutoScanChecked = Configuration.Instance.AutoScan;
-			
+
 			// if enabled: begin on load
 			Opened += startAutoScan;
 

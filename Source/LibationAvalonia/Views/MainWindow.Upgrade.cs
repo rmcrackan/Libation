@@ -1,12 +1,7 @@
-﻿using Avalonia.Threading;
-using LibationAvalonia.Dialogs;
-using LibationUiBase;
-using System.Threading.Tasks;
-
-namespace LibationAvalonia.Views
+﻿namespace LibationAvalonia.Views
 {
-    public partial class MainWindow
-    {
+	public partial class MainWindow
+	{
 		private void Configure_Upgrade()
 		{
 			setProgressVisible(false);

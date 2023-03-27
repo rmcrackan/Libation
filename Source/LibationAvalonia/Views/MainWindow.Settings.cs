@@ -3,7 +3,6 @@ using System;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_Settings() { }
@@ -23,7 +22,7 @@ namespace LibationAvalonia.Views
 			{
 				System.Diagnostics.Process.Start("Hangover" + (Configuration.IsWindows ? ".exe" : ""));
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Serilog.Log.Logger.Error(ex, "Failed to launch Hangover");
 			}

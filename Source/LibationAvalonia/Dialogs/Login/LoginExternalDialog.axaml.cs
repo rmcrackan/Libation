@@ -1,7 +1,6 @@
 using AudibleUtilities;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Dinah.Core;
 using System;
 using System.Linq;
@@ -28,7 +27,7 @@ namespace LibationAvalonia.Dialogs.Login
 				DataContext = this;
 			}
 		}
-		public LoginExternalDialog(Account account, string loginUrl):this()
+		public LoginExternalDialog(Account account, string loginUrl) : this()
 		{
 			Account = account;
 			ExternalLoginUrl = loginUrl;

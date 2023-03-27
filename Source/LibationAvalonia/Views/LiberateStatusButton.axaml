@@ -35,7 +35,7 @@
 		Name="button"
 		HorizontalAlignment="Stretch"
 		VerticalAlignment="Stretch"
-		IsEnabled="{Binding	IsButtonEnabled}" Padding="0" Click="Button_Click" >
+		IsEnabled="{CompiledBinding	IsButtonEnabled}" Padding="0" Click="Button_Click" >
 		<Panel>
 	
 			<Panel

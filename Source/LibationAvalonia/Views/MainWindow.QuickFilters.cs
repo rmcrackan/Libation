@@ -1,11 +1,11 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using LibationFileManager;
-using System;
 using System.Linq;
+using Avalonia.Data;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_QuickFilters()
@@ -13,24 +13,54 @@ namespace LibationAvalonia.Views
 			_viewModel.FirstFilterIsDefault = QuickFilters.UseDefault;
 			Load += updateFiltersMenu;
 			QuickFilters.Updated += updateFiltersMenu;
+
+			//We need to be able to dynamically add and remove menu items from the Quick Filters menu.
+			//To do that, we need quick filter's menu items source to be writable, which we can only
+			//achieve by creating the list ourselves (instead of allowing Avalonia to create it from the xaml)
+			
+			var startWithFilterMenuItem = new MenuItem
+			{
+				Header = "Start Libation with 1st filter _Default",
+				Icon = new CheckBox
+				{
+					BorderThickness = new Thickness(0),
+					IsHitTestVisible = false,
+					[!CheckBox.IsCheckedProperty] = new Binding(nameof(_viewModel.FirstFilterIsDefault))
+				}
+			};
+
+			var editFiltersMenuItem = new MenuItem { Header = "_Edit quick filters..." };
+
+			startWithFilterMenuItem.Click += firstFilterIsDefaultToolStripMenuItem_Click;
+			editFiltersMenuItem.Click += editQuickFiltersToolStripMenuItem_Click;
+
+			_viewModel.QuickFilterMenuItems.Add(startWithFilterMenuItem);
+			_viewModel.QuickFilterMenuItems.Add(editFiltersMenuItem);
+			_viewModel.QuickFilterMenuItems.Add(new Separator());
 		}
 
-		private object quickFilterTag { get; } = new();
+		private async void QuickFiltersMenuItem_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
+		{
+			int keyNum = (int)e.Key - 34;
+
+			if (keyNum <=9 && keyNum >= 1)
+			{
+				var menuItem = _viewModel.QuickFilterMenuItems
+					.OfType<MenuItem>()
+					.FirstOrDefault(i => i.Header is string h && h.StartsWith($"_{keyNum}"));
+
+				if (menuItem is not null)
+				{
+					await performFilter(menuItem.Tag as string);
+					e.Handled = true;
+				}
+			}
+		}
+
 		private void updateFiltersMenu(object _ = null, object __ = null)
 		{
-			var allItems = quickFiltersToolStripMenuItem
-				.Items
-				.Cast<Control>()
-				.ToList();
-
-			var toRemove = allItems
-				.OfType<MenuItem>()
-				.Where(mi => mi.Tag == quickFilterTag)
-				.ToList();
-
-			allItems = allItems
-				.Except(toRemove)
-				.ToList();
+			//Clear all filters
+			_viewModel.QuickFilterMenuItems.RemoveAll(_viewModel.QuickFilterMenuItems.Where(i => i.Tag is string).ToList());
 
 			// re-populate
 			var index = 0;
@@ -38,27 +68,23 @@ namespace LibationAvalonia.Views
 			{
 				var quickFilterMenuItem = new MenuItem
 				{
-					Tag = quickFilterTag,
+					Tag = filter,
 					Header = $"_{++index}: {filter}"
 				};
 				quickFilterMenuItem.Click += async (_, __) => await performFilter(filter);
-				allItems.Add(quickFilterMenuItem);
+				_viewModel.QuickFilterMenuItems.Add(quickFilterMenuItem);
 			}
-			quickFiltersToolStripMenuItem.Items = allItems;
 		}
 
-		public void firstFilterIsDefaultToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private void firstFilterIsDefaultToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			if (sender is MenuItem mi && mi.Icon is CheckBox checkBox)
-			{
-				checkBox.IsChecked = !(checkBox.IsChecked ?? false);
-			}
+			_viewModel.FirstFilterIsDefault = !_viewModel.FirstFilterIsDefault;
 		}
 
-		public void addQuickFilterBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private void addQuickFilterBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> QuickFilters.Add(_viewModel.FilterString);
 
-		public async void editQuickFiltersToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private async void editQuickFiltersToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await new Dialogs.EditQuickFilters().ShowDialog(this);
 	}
 }

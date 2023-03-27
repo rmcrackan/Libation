@@ -86,20 +86,13 @@
 
 					<!-- Quick Filters Menu -->
 
-					<MenuItem Name="quickFiltersToolStripMenuItem" Header="Quick _Filters">
+					<MenuItem Header="Quick _Filters" ItemsSource="{Binding QuickFilterMenuItems}" KeyDown="QuickFiltersMenuItem_KeyDown">
 						<!-- Remove height style property for menu item -->
 						<MenuItem.Styles>
 							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
 								<Setter Property="Height" Value="NaN"/>
 							</Style>
 						</MenuItem.Styles>
-						<MenuItem Click="firstFilterIsDefaultToolStripMenuItem_Click" Header="Start Libation with 1st filter _Default">
-							<MenuItem.Icon>
-								<CheckBox  BorderThickness="0" IsChecked="{Binding FirstFilterIsDefault, Mode=TwoWay}" IsHitTestVisible="False"  />
-							</MenuItem.Icon>
-						</MenuItem>
-						<MenuItem Click="editQuickFiltersToolStripMenuItem_Click" Header="_Edit quick filters..." />
-						<Separator />
 					</MenuItem>
 
 					<!-- Visible Books Menu -->

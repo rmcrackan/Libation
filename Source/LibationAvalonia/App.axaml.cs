@@ -1,24 +1,24 @@
-﻿using Avalonia;
+﻿using ApplicationServices;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using LibationFileManager;
-using LibationAvalonia.Views;
-using System;
 using Avalonia.Platform;
+using Avalonia.Styling;
 using LibationAvalonia.Dialogs;
-using System.Threading.Tasks;
+using LibationAvalonia.Views;
+using LibationFileManager;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using ApplicationServices;
-using Avalonia.Controls;
-using Avalonia.Styling;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia
 {
 	public class App : Application
 	{
-		public static Window MainWindow { get;private set; }
+		public static Window MainWindow { get; private set; }
 		public static IBrush ProcessQueueBookFailedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCompletedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
@@ -60,7 +60,7 @@ namespace LibationAvalonia
 
 					if (config.LibationSettingsAreValid)
 					{
-						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));						
+						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 						ShowMainWindow(desktop);
 					}
 					else

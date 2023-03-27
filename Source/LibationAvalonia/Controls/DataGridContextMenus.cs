@@ -15,7 +15,7 @@ namespace LibationAvalonia.Controls
 
 		static DataGridContextMenus()
 		{
-			ContextMenu.Items = MenuItems;
+			ContextMenu.ItemsSource = MenuItems;
 			OwningColumnProperty = typeof(DataGridCell).GetProperty("OwningColumn", BindingFlags.Instance | BindingFlags.NonPublic);
 		}
 

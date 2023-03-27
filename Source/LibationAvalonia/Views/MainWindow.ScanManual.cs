@@ -1,6 +1,5 @@
 ﻿using ApplicationServices;
 using AudibleUtilities;
-using Avalonia.Controls;
 using LibationAvalonia.Dialogs;
 using LibationFileManager;
 using System;
@@ -10,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_ScanManual()
@@ -69,7 +67,7 @@ namespace LibationAvalonia.Views
 				if (Configuration.Instance.ShowImportedStats && newAdded > 0)
 					await MessageBox.Show($"Total processed: {totalProcessed}\r\nNew: {newAdded}");
 			}
-			catch(OperationCanceledException)
+			catch (OperationCanceledException)
 			{
 				Serilog.Log.Information("Audible login attempt cancelled by user");
 			}

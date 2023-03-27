@@ -1,11 +1,10 @@
 using ApplicationServices;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using DataLayer;
 using Dinah.Core;
-using LibationFileManager;
 using LibationAvalonia.ViewModels;
+using LibationFileManager;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -42,14 +41,14 @@ namespace LibationAvalonia.Dialogs
 				LibraryBook = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
 			}
 		}
-		public BookDetailsDialog(LibraryBook libraryBook) :this()
+		public BookDetailsDialog(LibraryBook libraryBook) : this()
 		{
 			LibraryBook = libraryBook;
 		}
 
 		protected override void SaveAndClose()
-        {
-            LibraryBook.Book.UpdateUserDefinedItem(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
+		{
+			LibraryBook.Book.UpdateUserDefinedItem(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
 			base.SaveAndClose();
 		}
 
@@ -61,7 +60,7 @@ namespace LibationAvalonia.Dialogs
 		}
 
 		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-            => SaveAndClose();
+			=> SaveAndClose();
 
 		private class BookDetailsDialogViewModel : ViewModelBase
 		{

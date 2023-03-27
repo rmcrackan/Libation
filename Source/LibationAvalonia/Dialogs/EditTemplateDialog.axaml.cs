@@ -1,17 +1,15 @@
-﻿using Avalonia.Markup.Xaml;
+﻿using Avalonia.Collections;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Dinah.Core;
 using LibationFileManager;
+using ReactiveUI;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ReactiveUI;
-using Avalonia.Controls.Documents;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml.Templates;
 
 namespace LibationAvalonia.Dialogs
 {

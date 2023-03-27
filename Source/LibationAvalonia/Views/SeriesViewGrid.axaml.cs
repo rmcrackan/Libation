@@ -1,6 +1,4 @@
-using ApplicationServices;
 using AudibleApi.Common;
-using AudibleUtilities;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using DataLayer;

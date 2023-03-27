@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using LibationFileManager;
+using System;
+using System.Linq;
 
 namespace LibationAvalonia
 {

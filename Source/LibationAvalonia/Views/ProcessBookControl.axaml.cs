@@ -1,9 +1,7 @@
-using System;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using LibationAvalonia.ViewModels;
 using ApplicationServices;
+using Avalonia.Controls;
 using DataLayer;
+using LibationAvalonia.ViewModels;
 using LibationUiBase;
 
 namespace LibationAvalonia.Views

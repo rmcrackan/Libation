@@ -1,18 +1,16 @@
 ﻿using Avalonia.Input;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
 		protected void Configure_Filter() { }
 
 		public async void filterHelpBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await (new LibationAvalonia.Dialogs.SearchSyntaxDialog()).ShowDialog(this);
-		
+
 		public async void filterSearchTb_KeyPress(object sender, KeyEventArgs e)
 		{
 			if (e.Key == Key.Return)

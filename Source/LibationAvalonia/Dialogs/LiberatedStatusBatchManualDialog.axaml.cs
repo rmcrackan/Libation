@@ -1,4 +1,3 @@
-using Avalonia.Markup.Xaml;
 using DataLayer;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,13 +33,13 @@ namespace LibationAvalonia.Dialogs
 			new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" },
 		};
 
-        public LiberatedStatusBatchManualDialog(bool isPdf) : this()
-        {
-            if (isPdf)
-                this.Title = this.Title.Replace("book", "PDF");
-        }
+		public LiberatedStatusBatchManualDialog(bool isPdf) : this()
+		{
+			if (isPdf)
+				this.Title = this.Title.Replace("book", "PDF");
+		}
 
-        public LiberatedStatusBatchManualDialog()
+		public LiberatedStatusBatchManualDialog()
 		{
 			InitializeComponent();
 			SelectedItem = BookStatuses[0] as liberatedComboBoxItem;

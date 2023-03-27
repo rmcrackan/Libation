@@ -1,16 +1,15 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 using DataLayer;
 using Dinah.Core.Logging;
-using LibationAvalonia.ViewModels.Dialogs;
 using LibationAvalonia.Dialogs;
+using LibationAvalonia.ViewModels.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading;
-using Avalonia.Threading;
 
 namespace LibationAvalonia
 {
@@ -64,23 +63,23 @@ namespace LibationAvalonia
 
 		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 			=> ShowCoreAsync(null, text, caption, buttons, icon, defaultButton);
-public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, bool saveAndRestorePosition = true)
-			=> ShowCoreAsync(null, text, caption, buttons, icon, MessageBoxDefaultButton.Button1, saveAndRestorePosition);
-public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons)
-			=> ShowCoreAsync(null, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-	public static Task<DialogResult> Show(string text, string caption)
-			=> ShowCoreAsync(null, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-	public static Task<DialogResult> Show(string text)
-			=> ShowCoreAsync(null, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
-			=> ShowCoreAsync(owner, text, caption, buttons, icon, defaultButton);
+		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, bool saveAndRestorePosition = true)
+					=> ShowCoreAsync(null, text, caption, buttons, icon, MessageBoxDefaultButton.Button1, saveAndRestorePosition);
+		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons)
+					=> ShowCoreAsync(null, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+		public static Task<DialogResult> Show(string text, string caption)
+				=> ShowCoreAsync(null, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+		public static Task<DialogResult> Show(string text)
+				=> ShowCoreAsync(null, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
+					=> ShowCoreAsync(owner, text, caption, buttons, icon, defaultButton);
 
-public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
-			=> ShowCoreAsync(owner, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
-	public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons)
-			=> ShowCoreAsync(owner, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-	public static Task<DialogResult> Show(Window owner, string text, string caption)
-			=> ShowCoreAsync(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
+					=> ShowCoreAsync(owner, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
+		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons)
+				=> ShowCoreAsync(owner, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+		public static Task<DialogResult> Show(Window owner, string text, string caption)
+				=> ShowCoreAsync(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		public static Task<DialogResult> Show(Window owner, string text)
 			=> ShowCoreAsync(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
@@ -102,10 +101,10 @@ Libation.
 ".Trim(), "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
-        /// <summary>
-        /// Note: the format field should use {0} and NOT use the `$` string interpolation. Formatting is done inside this method.
-        /// </summary>
-        public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
+		/// <summary>
+		/// Note: the format field should use {0} and NOT use the `$` string interpolation. Formatting is done inside this method.
+		/// </summary>
+		public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
 		{
 			if (libraryBooks is null || !libraryBooks.Any())
 				return DialogResult.Cancel;
@@ -120,7 +119,7 @@ Libation.
 				= string.Format(format, $"{thisThese} {count} {bookBooks}")
 				+ $"\r\n\r\n{titlesAgg}";
 
-			return await ShowCoreAsync(owner, 
+			return await ShowCoreAsync(owner,
 				message,
 				title,
 				MessageBoxButtons.YesNo,

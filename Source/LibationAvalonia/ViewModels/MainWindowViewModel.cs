@@ -1,4 +1,6 @@
 ﻿using ApplicationServices;
+using Avalonia.Collections;
+using Avalonia.Controls;
 using LibationFileManager;
 using ReactiveUI;
 
@@ -41,24 +43,25 @@ namespace LibationAvalonia.ViewModels
 
 
 		/// <summary> Auto scanning accounts is enables </summary>
-		public bool AutoScanChecked 
-		{ 
-			get => _autoScanChecked; 
-			set 
-			{ 
+		public bool AutoScanChecked
+		{
+			get => _autoScanChecked;
+			set
+			{
 				if (value != _autoScanChecked)
 					Configuration.Instance.AutoScan = value;
 				this.RaiseAndSetIfChanged(ref _autoScanChecked, value);
-			} 
+			}
 		}
 
+		public AvaloniaList<Control> QuickFilterMenuItems { get; } = new();
 
 		/// <summary> Indicates if the first quick filter is the default filter </summary>
 		public bool FirstFilterIsDefault
-		{ 
-			get => _firstFilterIsDefault; 
-			set 
-			{ 
+		{
+			get => _firstFilterIsDefault;
+			set
+			{
 				if (value != _firstFilterIsDefault)
 					QuickFilters.UseDefault = value;
 				this.RaiseAndSetIfChanged(ref _firstFilterIsDefault, value);

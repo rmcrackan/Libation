@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ApplicationServices;
+﻿using ApplicationServices;
 using AudibleApi;
 using AudibleApi.Common;
 using Avalonia.Media;
@@ -15,6 +11,10 @@ using FileLiberator;
 using LibationFileManager;
 using LibationUiBase;
 using ReactiveUI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.ViewModels
 {
@@ -65,7 +65,7 @@ namespace LibationAvalonia.ViewModels
 		public string Author { get => _author; set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _author, value)); }
 		public string Title { get => _title; set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _title, value)); }
 		public int Progress { get => _progress; private set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _progress, value)); }
-		public string ETA { get => _eta; private  set => Dispatcher.UIThread.Post(() =>this.RaiseAndSetIfChanged(ref _eta, value)); }
+		public string ETA { get => _eta; private set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _eta, value)); }
 		public Bitmap Cover { get => _cover; private set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _cover, value)); }
 		public bool IsFinished => Status is not ProcessBookStatus.Queued and not ProcessBookStatus.Working;
 		public bool IsDownloading => Status is ProcessBookStatus.Working;
@@ -315,36 +315,36 @@ namespace LibationAvalonia.ViewModels
 			Logger.Info($"{((Processable)sender).Name} Step, Completed: {libraryBook.Book}");
 			UnlinkProcessable((Processable)sender);
 
-            if (Processes.Count == 0)
-            {
-                Completed?.Invoke(this, EventArgs.Empty);
+			if (Processes.Count == 0)
+			{
+				Completed?.Invoke(this, EventArgs.Empty);
 				return;
-            }
+			}
 
-            NextProcessable();
-            LinkProcessable(CurrentProcessable);
+			NextProcessable();
+			LinkProcessable(CurrentProcessable);
 
 			StatusHandler result;
-            try
+			try
 			{
 				result = await CurrentProcessable.ProcessSingleAsync(libraryBook, validate: true);
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Logger.Error(ex, $"{nameof(Processable_Completed)} error");
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, $"{nameof(Processable_Completed)} error");
 
-                result = new StatusHandler();
-                result.AddError($"{nameof(Processable_Completed)} error. See log for details. Error summary: {ex.Message}");
-            }
+				result = new StatusHandler();
+				result.AddError($"{nameof(Processable_Completed)} error. See log for details. Error summary: {ex.Message}");
+			}
 
-            if (result.HasErrors)
-            {
-                foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
-                    Logger.Error(errorMessage);
+			if (result.HasErrors)
+			{
+				foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
+					Logger.Error(errorMessage);
 
-                Completed?.Invoke(this, EventArgs.Empty);
-            }
-        }
+				Completed?.Invoke(this, EventArgs.Empty);
+			}
+		}
 
 		#endregion
 

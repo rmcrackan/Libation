@@ -1,8 +1,6 @@
 using AudibleApi;
 using AudibleUtilities;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,7 +24,7 @@ namespace LibationAvalonia.Dialogs.Login
 				DataContext = this;
 			}
 		}
-		public LoginChoiceEagerDialog(Account account):this()
+		public LoginChoiceEagerDialog(Account account) : this()
 		{
 			Account = account;
 			DataContext = this;

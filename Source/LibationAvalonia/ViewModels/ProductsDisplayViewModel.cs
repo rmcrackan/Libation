@@ -133,12 +133,12 @@ namespace LibationAvalonia.ViewModels
 		}
 
 		private void GridEntries_CollectionChanged(object sender = null, EventArgs e = null)
-		{ 
+		{
 			var count
 				= FilteredInGridEntries?.OfType<ILibraryBookEntry>().Count()
 				?? SOURCE.OfType<ILibraryBookEntry>().Count();
 
-			 VisibleCountChanged?.Invoke(this, count);
+			VisibleCountChanged?.Invoke(this, count);
 		}
 
 		/// <summary>

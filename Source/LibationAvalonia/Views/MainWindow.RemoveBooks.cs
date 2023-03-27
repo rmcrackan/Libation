@@ -1,14 +1,12 @@
 ﻿using AudibleUtilities;
 using LibationAvalonia.Dialogs;
-using System;
 using System.Linq;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
-		private void Configure_RemoveBooks() 
+		private void Configure_RemoveBooks()
 		{
 			if (Avalonia.Controls.Design.IsDesignMode)
 				return;

@@ -79,7 +79,7 @@ namespace LibationAvalonia.Dialogs
 
 		public void CheckAll_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			foreach (var record in bookRecordEntries) 
+			foreach (var record in bookRecordEntries)
 				record.IsChecked = true;
 		}
 		public void UncheckAll_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

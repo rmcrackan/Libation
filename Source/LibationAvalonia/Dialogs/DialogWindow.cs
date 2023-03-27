@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using LibationFileManager;
 using System;
 using System.Threading.Tasks;
@@ -17,10 +16,6 @@ namespace LibationAvalonia.Dialogs
 			this.Initialized += DialogWindow_Initialized;
 			this.Opened += DialogWindow_Opened;
 			this.Closing += DialogWindow_Closing;
-
-#if DEBUG
-			this.AttachDevTools();
-#endif
 		}
 		public DialogWindow(bool saveAndRestorePosition) : this()
 		{
