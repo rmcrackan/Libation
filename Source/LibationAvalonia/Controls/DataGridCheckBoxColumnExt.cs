@@ -3,7 +3,7 @@ using LibationUiBase.GridView;
 
 namespace LibationAvalonia.Controls
 {
-    public class DataGridCheckBoxColumnExt : DataGridCheckBoxColumn
+	public class DataGridCheckBoxColumnExt : DataGridCheckBoxColumn
 	{
 		protected override Control GenerateEditingElementDirect(DataGridCell cell, object dataItem)
 		{

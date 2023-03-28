@@ -1,10 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Dinah.Core;
 using LibationFileManager;
-using System.Collections.Generic;
 using ReactiveUI;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace LibationAvalonia.Controls
@@ -56,12 +55,12 @@ namespace LibationAvalonia.Controls
 			directorySelectControl.PropertyChanged += DirectorySelectControl_PropertyChanged;
 		}
 
-		private class CustomState: ViewModels.ViewModelBase
+		private class CustomState : ViewModels.ViewModelBase
 		{
 			private string _customDir;
 			private bool _knownChecked;
 			private bool _customChecked;
-			public string CustomDir { get=> _customDir; set => this.RaiseAndSetIfChanged(ref _customDir, value); }
+			public string CustomDir { get => _customDir; set => this.RaiseAndSetIfChanged(ref _customDir, value); }
 			public bool KnownChecked
 			{
 				get => _knownChecked;
@@ -141,7 +140,7 @@ namespace LibationAvalonia.Controls
 				var known = Configuration.GetKnownDirectory(noSubDir);
 
 				if (known == Configuration.KnownDirectories.None && noSubDir == Configuration.AppDir_Absolute)
-					known = Configuration.KnownDirectories.AppDir;				
+					known = Configuration.KnownDirectories.AppDir;
 
 				if (known is Configuration.KnownDirectories.None)
 				{

@@ -1,24 +1,24 @@
-﻿using Avalonia;
+﻿using ApplicationServices;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using LibationFileManager;
-using LibationAvalonia.Views;
-using System;
 using Avalonia.Platform;
+using Avalonia.Styling;
 using LibationAvalonia.Dialogs;
-using System.Threading.Tasks;
+using LibationAvalonia.Views;
+using LibationFileManager;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using ApplicationServices;
-using Avalonia.Controls;
-using Avalonia.Styling;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia
 {
 	public class App : Application
 	{
-		public static Window MainWindow { get;private set; }
+		public static Window MainWindow { get; private set; }
 		public static IBrush ProcessQueueBookFailedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCompletedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
@@ -39,18 +39,15 @@ namespace LibationAvalonia
 		}
 
 		public static Task<List<DataLayer.LibraryBook>> LibraryTask;
-		public static bool SetupRequired;
 
 		public override void OnFrameworkInitializationCompleted()
 		{
-			LoadStyles();
-
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 			{
-				if (SetupRequired)
-				{
-					var config = Configuration.Instance;
+				var config = Configuration.Instance;
 
+				if (!config.LibationSettingsAreValid)
+				{
 					var defaultLibationFilesDir = Configuration.UserProfile;
 
 					// check for existing settings in default location
@@ -60,7 +57,7 @@ namespace LibationAvalonia
 
 					if (config.LibationSettingsAreValid)
 					{
-						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));						
+						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 						ShowMainWindow(desktop);
 					}
 					else
@@ -86,11 +83,29 @@ namespace LibationAvalonia
 			{
 				// all returns should be preceded by either:
 				// - if config.LibationSettingsAreValid
-				// - error message, Exit()
+				// - error message, Exit()				
 				if (setupDialog.IsNewUser)
 				{
 					Configuration.SetLibationFiles(Configuration.UserProfile);
-					ShowSettingsWindow(desktop, setupDialog.Config, OnSettingsCompleted);
+					setupDialog.Config.Books = Path.Combine(Configuration.UserProfile, nameof(Configuration.Books));
+
+					if (setupDialog.Config.LibationSettingsAreValid)
+					{
+						var theme
+							= setupDialog.SelectedTheme.Content is nameof(ThemeVariant.Dark)
+							? nameof(ThemeVariant.Dark)
+							: nameof(ThemeVariant.Light);
+
+						setupDialog.Config.SetString(theme, nameof(ThemeVariant));
+
+
+						await RunMigrationsAsync(setupDialog.Config);
+						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+						AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+						ShowMainWindow(desktop);
+					}
+					else
+						await CancelInstallation();
 				}
 				else if (setupDialog.IsReturningUser)
 				{
@@ -130,40 +145,6 @@ namespace LibationAvalonia
 			AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
 		}
 
-		private void ShowSettingsWindow(IClassicDesktopStyleApplicationLifetime desktop, Configuration config, Action<IClassicDesktopStyleApplicationLifetime, SettingsDialog, Configuration> OnClose)
-		{
-			config.Books ??= Path.Combine(Configuration.UserProfile, "Books");
-
-			var settingsDialog = new SettingsDialog();
-			desktop.MainWindow = settingsDialog;
-			settingsDialog.RestoreSizeAndLocation(Configuration.Instance);
-			settingsDialog.Show();
-
-			void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
-			{
-				settingsDialog.Closing -= WindowClosing;
-				e.Cancel = true;
-				OnClose?.Invoke(desktop, settingsDialog, config);
-			}
-			settingsDialog.Closing += WindowClosing;
-		}
-
-		private async void OnSettingsCompleted(IClassicDesktopStyleApplicationLifetime desktop, SettingsDialog settingsDialog, Configuration config)
-		{
-			if (config.LibationSettingsAreValid)
-			{
-				await RunMigrationsAsync(config);
-				LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-				AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
-				ShowMainWindow(desktop);
-			}
-			else
-				await CancelInstallation();
-
-			settingsDialog.Close();
-		}
-
-
 		private void ShowLibationFilesDialog(IClassicDesktopStyleApplicationLifetime desktop, Configuration config, Action<IClassicDesktopStyleApplicationLifetime, LibationFilesDialog, Configuration> OnClose)
 		{
 			var libationFilesDialog = new LibationFilesDialog();
@@ -200,11 +181,23 @@ namespace LibationAvalonia
 					MessageBoxIcon.Question);
 
 				if (continueResult == DialogResult.Yes)
-					ShowSettingsWindow(desktop, config, OnSettingsCompleted);
+				{
+					config.Books = Path.Combine(libationFilesDialog.SelectedDirectory, nameof(Configuration.Books));
+
+					if (config.LibationSettingsAreValid)
+					{
+						await RunMigrationsAsync(config);
+						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+						AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
+						ShowMainWindow(desktop);
+					}
+					else
+						await CancelInstallation();
+				}
 				else
 					await CancelInstallation();
-
 			}
+
 			libationFilesDialog.Close();
 		}
 
@@ -230,11 +223,11 @@ namespace LibationAvalonia
 
 		private static void LoadStyles()
 		{
-			ProcessQueueBookFailedBrush = AvaloniaUtils.GetBrushFromResources("ProcessQueueBookFailedBrush");
-			ProcessQueueBookCompletedBrush = AvaloniaUtils.GetBrushFromResources("ProcessQueueBookCompletedBrush");
-			ProcessQueueBookCancelledBrush = AvaloniaUtils.GetBrushFromResources("ProcessQueueBookCancelledBrush");
-			SeriesEntryGridBackgroundBrush = AvaloniaUtils.GetBrushFromResources("SeriesEntryGridBackgroundBrush");
-			ProcessQueueBookDefaultBrush = AvaloniaUtils.GetBrushFromResources("ProcessQueueBookDefaultBrush");
+			ProcessQueueBookFailedBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookFailedBrush));
+			ProcessQueueBookCompletedBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookCompletedBrush));
+			ProcessQueueBookCancelledBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookCancelledBrush));
+			SeriesEntryGridBackgroundBrush = AvaloniaUtils.GetBrushFromResources(nameof(SeriesEntryGridBackgroundBrush));
+			ProcessQueueBookDefaultBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookDefaultBrush));
 			HyperlinkVisited = AvaloniaUtils.GetBrushFromResources(nameof(HyperlinkVisited));
 		}
 	}

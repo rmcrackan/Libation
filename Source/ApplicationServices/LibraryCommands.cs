@@ -12,7 +12,6 @@ using DtoImporterService;
 using FileManager;
 using LibationFileManager;
 using Newtonsoft.Json.Linq;
-using NPOI.OpenXmlFormats.Spreadsheet;
 using Serilog;
 using static DtoImporterService.PerfLogger;
 
@@ -21,7 +20,7 @@ namespace ApplicationServices
     public static class LibraryCommands
     {
         public static event EventHandler<int> ScanBegin;
-        public static event EventHandler ScanEnd;
+        public static event EventHandler<int> ScanEnd;
 
         public static bool Scanning { get; private set; }
         private static object _lock { get; } = new();
@@ -95,7 +94,7 @@ namespace ApplicationServices
             {
                 stop();
                 var putBreakPointHere = logOutput;
-                ScanEnd?.Invoke(null, null);
+                ScanEnd?.Invoke(null, 0);
 				GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
 			}
         }
@@ -108,7 +107,8 @@ namespace ApplicationServices
             if (accounts is null || accounts.Length == 0)
                 return (0, 0);
 
-            try
+            int newCount = 0;
+			try
             {
                 lock (_lock)
                 {
@@ -134,7 +134,7 @@ namespace ApplicationServices
 
                 Log.Logger.Information("Begin long-running import");
                 logTime($"pre {nameof(importIntoDbAsync)}");
-                var newCount = await importIntoDbAsync(importItems);
+                newCount = await importIntoDbAsync(importItems);
                 logTime($"post {nameof(importIntoDbAsync)}");
                 Log.Logger.Information($"Import complete. New count {newCount}");
 
@@ -167,7 +167,7 @@ namespace ApplicationServices
             {
                 stop();
                 var putBreakPointHere = logOutput;
-                ScanEnd?.Invoke(null, null);
+                ScanEnd?.Invoke(null, newCount);
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
             }
         }
@@ -283,7 +283,8 @@ namespace ApplicationServices
             catch(ImportValidationException ex)
 			{
 				await logDtoItemsAsync(ex.Items, ex.InnerExceptions.ToArray());
-				throw;
+				//If ImportValidationException is thrown, all Dto items get logged as part of the exception
+				throw new AggregateException(ex.InnerExceptions);
             }
 
             async Task logDtoItemsAsync(IEnumerable<AudibleApi.Common.Item> dtoItems, IEnumerable<Exception> exceptions = null)

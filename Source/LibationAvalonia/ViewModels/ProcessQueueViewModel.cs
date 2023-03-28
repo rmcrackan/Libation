@@ -33,7 +33,7 @@ namespace LibationAvalonia.ViewModels
 			Queue.CompletedCountChanged += Queue_CompletedCountChanged;
 
 			if (Design.IsDesignMode)
-					_ = Configuration.Instance.LibationFiles;
+				_ = Configuration.Instance.LibationFiles;
 
 			SpeedLimit = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
 		}

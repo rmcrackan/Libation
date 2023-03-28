@@ -1,6 +1,4 @@
 ﻿using Avalonia.Controls;
-using System;
-using System.Linq;
 
 namespace LibationAvalonia.Controls
 {

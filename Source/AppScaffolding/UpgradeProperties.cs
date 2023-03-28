@@ -1,5 +1,4 @@
-﻿using NPOI.XWPF.UserModel;
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 
 namespace AppScaffolding

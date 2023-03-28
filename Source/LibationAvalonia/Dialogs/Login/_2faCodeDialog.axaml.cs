@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs.Login
@@ -12,7 +11,7 @@ namespace LibationAvalonia.Dialogs.Login
 
 		public _2faCodeDialog()
 		{
-			AvaloniaXamlLoader.Load(this);
+			InitializeComponent();
 			_2FABox = this.FindControl<TextBox>(nameof(_2FABox));
 		}
 

@@ -1,6 +1,4 @@
-using ApplicationServices;
 using AudibleApi.Common;
-using AudibleUtilities;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using DataLayer;
@@ -83,7 +81,9 @@ namespace LibationAvalonia.Views
 			if (!isDefault)
 				PictureStorage.PictureCached -= PictureCached;
 
-			if (!imageDisplayDialog.IsVisible)
+			if (imageDisplayDialog.IsVisible)
+				imageDisplayDialog.Activate();
+			else
 				imageDisplayDialog.Show();
 		}
 	}

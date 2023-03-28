@@ -70,6 +70,7 @@
             this.accountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.basicSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tourToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.upgradePb = new System.Windows.Forms.ToolStripProgressBar();
@@ -386,6 +387,7 @@
 			this.openTrashBinToolStripMenuItem,
 			this.launchHangoverToolStripMenuItem,
 			this.toolStripSeparator2,
+            this.tourToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
@@ -409,6 +411,13 @@
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(130, 6);
+            // 
+            // tourToolStripMenuItem
+            // 
+            this.tourToolStripMenuItem.Name = "tourToolStripMenuItem";
+            this.tourToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.tourToolStripMenuItem.Text = "Take a Guided &Tour of Libation";
+            this.tourToolStripMenuItem.Click += new System.EventHandler(this.tourToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -634,7 +643,7 @@
 
 		#endregion
 		private System.Windows.Forms.MenuStrip menuStrip1;
-		private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
 		private System.Windows.Forms.StatusStrip statusStrip1;
 		private System.Windows.Forms.ToolStripStatusLabel springLbl;
 		private LibationWinForms.FormattableToolStripStatusLabel visibleCountLbl;
@@ -642,19 +651,19 @@
 		private System.Windows.Forms.ToolStripStatusLabel backupsCountsLbl;
 		private LibationWinForms.FormattableToolStripMenuItem beginBookBackupsToolStripMenuItem;
 		private LibationWinForms.FormattableToolStripMenuItem beginPdfBackupsToolStripMenuItem;
-		private System.Windows.Forms.TextBox filterSearchTb;
-		private System.Windows.Forms.Button filterBtn;
-		private System.Windows.Forms.Button filterHelpBtn;
-		private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem scanLibraryToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem quickFiltersToolStripMenuItem;
+		public System.Windows.Forms.TextBox filterSearchTb;
+		public System.Windows.Forms.Button filterBtn;
+		public System.Windows.Forms.Button filterHelpBtn;
+		public System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem scanLibraryToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem quickFiltersToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem firstFilterIsDefaultToolStripMenuItem;
-		private System.Windows.Forms.Button addQuickFilterBtn;
-		private System.Windows.Forms.ToolStripMenuItem editQuickFiltersToolStripMenuItem;
+		public System.Windows.Forms.Button addQuickFilterBtn;
+		public System.Windows.Forms.ToolStripMenuItem editQuickFiltersToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-		private System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem basicSettingsToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem accountsToolStripMenuItem;
+		public System.Windows.Forms.ToolStripMenuItem scanLibraryOfAllAccountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem scanLibraryOfSomeAccountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem noAccountsYetAddAccountToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
@@ -664,6 +673,7 @@
         private System.Windows.Forms.ToolStripMenuItem removeAllAccountsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeSomeAccountsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem tourToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem scanningToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem autoScanLibraryToolStripMenuItem;
@@ -683,7 +693,7 @@
 		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Button toggleQueueHideBtn;
-		private LibationWinForms.GridView.ProductsDisplay productsDisplay;
+		public LibationWinForms.GridView.ProductsDisplay productsDisplay;
 		private System.Windows.Forms.Button removeBooksBtn;
 		private System.Windows.Forms.Button doneRemovingBtn;
         private System.Windows.Forms.ToolStripMenuItem setPdfDownloadedManualToolStripMenuItem;

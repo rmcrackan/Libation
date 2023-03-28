@@ -142,12 +142,6 @@ namespace LibationWinForms
 			// if 'new user' was clicked, or if 'returning user' chose new install: show basic settings dialog
 			config.Books ??= Path.Combine(defaultLibationFilesDir, "Books");
 
-			if (new SettingsDialog().ShowDialog() != DialogResult.OK)
-			{
-				CancelInstallation();
-				return;
-			}
-
 			if (config.LibationSettingsAreValid)
 				return;
 

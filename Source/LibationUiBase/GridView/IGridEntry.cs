@@ -20,6 +20,7 @@ namespace LibationUiBase.GridView
 		string Length { get; }
 		LastDownloadStatus LastDownload { get; }
 		string Series { get; }
+		SeriesOrder SeriesOrder { get; }
 		string Title { get; }
 		string Authors { get; }
 		string Narrators { get; }

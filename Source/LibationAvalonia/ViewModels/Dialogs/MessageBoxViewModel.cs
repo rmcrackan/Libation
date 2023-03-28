@@ -22,8 +22,8 @@ namespace LibationAvalonia.ViewModels.Dialogs
 		public bool HasButton3 => !string.IsNullOrEmpty(Button3Text);
 		public bool HasButton2 => !string.IsNullOrEmpty(Button2Text);
 
-		public int WindowHeight { get;private set; }
-		public int WindowWidth { get;private set; }
+		public int WindowHeight { get; private set; }
+		public int WindowWidth { get; private set; }
 
 		public string Button1Text => _button switch
 		{
@@ -47,7 +47,7 @@ namespace LibationAvalonia.ViewModels.Dialogs
 			MessageBoxButtons.CancelTryContinue => "Try",
 			_ => string.Empty,
 		};
-		
+
 		public string Button3Text => _button switch
 		{
 			MessageBoxButtons.AbortRetryIgnore => "Ignore",

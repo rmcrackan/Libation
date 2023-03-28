@@ -37,7 +37,7 @@ namespace LibationWinForms.Dialogs.Login
 			Email = accountId;
 			Password = this.passwordTb.Text;
 
-			if (string.IsNullOrWhiteSpace(Password))
+			if (LoginMethod is AudibleApi.LoginMethod.Api && string.IsNullOrWhiteSpace(Password))
 			{
 				MessageBox.Show("Please enter your password");
 				return;

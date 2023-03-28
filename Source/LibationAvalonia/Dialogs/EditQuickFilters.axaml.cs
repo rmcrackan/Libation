@@ -1,9 +1,9 @@
 using AudibleUtilities;
 using Avalonia.Controls;
 using LibationFileManager;
+using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Linq;
-using ReactiveUI;
 
 namespace LibationAvalonia.Dialogs
 {

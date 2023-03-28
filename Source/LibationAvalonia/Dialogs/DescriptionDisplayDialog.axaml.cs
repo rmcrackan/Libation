@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using System;
 
 namespace LibationAvalonia.Dialogs
@@ -12,9 +11,7 @@ namespace LibationAvalonia.Dialogs
 		public DescriptionDisplayDialog()
 		{
 			InitializeComponent();
-#if DEBUG
-			this.AttachDevTools();
-#endif
+
 			DescriptionTextBox = this.FindControl<TextBox>(nameof(DescriptionTextBox));
 			this.Activated += DescriptionDisplay_Activated;
 			Opened += DescriptionDisplay_Opened;

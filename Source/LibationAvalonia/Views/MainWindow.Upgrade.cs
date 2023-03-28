@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
 {
-    public partial class MainWindow
-    {
+	public partial class MainWindow
+	{
 		private void Configure_Upgrade()
 		{
 			setProgressVisible(false);

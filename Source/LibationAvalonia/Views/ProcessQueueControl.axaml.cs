@@ -2,7 +2,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
-using Avalonia.Markup.Xaml;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationUiBase;
@@ -14,7 +13,7 @@ using System.Linq;
 namespace LibationAvalonia.Views
 {
 	public partial class ProcessQueueControl : UserControl
-    {
+	{
 		private TrackedQueue<ProcessBookViewModel> Queue => _viewModel.Queue;
 		private ProcessQueueViewModel _viewModel => DataContext as ProcessQueueViewModel;
 

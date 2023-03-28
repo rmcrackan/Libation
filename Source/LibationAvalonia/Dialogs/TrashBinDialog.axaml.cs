@@ -1,7 +1,6 @@
 using ApplicationServices;
 using Avalonia.Collections;
 using Avalonia.Controls;
-using Avalonia.Threading;
 using DataLayer;
 using LibationAvalonia.Controls;
 using LibationAvalonia.ViewModels;
@@ -25,7 +24,7 @@ namespace LibationAvalonia.Dialogs
 			this.RestoreSizeAndLocation(Configuration.Instance);
 			DataContext = _viewModel = new();
 
-			this.Closing += (_,_) => this.SaveSizeAndLocation(Configuration.Instance);
+			this.Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 		}
 
 		public async void EmptyTrash_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -40,7 +39,7 @@ namespace LibationAvalonia.Dialogs
 		public string CheckedCountText => $"Checked : {_checkedBooksCount} of {_totalBooksCount}";
 
 		private bool _controlsEnabled = true;
-		public bool ControlsEnabled { get => _controlsEnabled; set=> this.RaiseAndSetIfChanged(ref _controlsEnabled, value); }
+		public bool ControlsEnabled { get => _controlsEnabled; set => this.RaiseAndSetIfChanged(ref _controlsEnabled, value); }
 
 		private bool? everythingChecked = false;
 		public bool? EverythingChecked
@@ -96,7 +95,7 @@ namespace LibationAvalonia.Dialogs
 		{
 			foreach (var item in DeletedBooks)
 				item.IsChecked = true;
-		}		
+		}
 
 		public void UncheckAll()
 		{

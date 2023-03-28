@@ -1,8 +1,6 @@
 using AudibleApi;
 using AudibleUtilities;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,7 +24,7 @@ namespace LibationAvalonia.Dialogs.Login
 				DataContext = this;
 			}
 		}
-		public LoginChoiceEagerDialog(Account account):this()
+		public LoginChoiceEagerDialog(Account account) : this()
 		{
 			Account = account;
 			DataContext = this;
@@ -34,7 +32,7 @@ namespace LibationAvalonia.Dialogs.Login
 
 		protected override async Task SaveAndCloseAsync()
 		{
-			if (string.IsNullOrWhiteSpace(Password))
+			if (LoginMethod is LoginMethod.Api && string.IsNullOrWhiteSpace(Password))
 			{
 				await MessageBox.Show(this, "Please enter your password");
 				return;

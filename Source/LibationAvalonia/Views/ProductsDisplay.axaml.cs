@@ -1,7 +1,6 @@
 using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using DataLayer;
 using FileLiberator;
@@ -256,7 +255,7 @@ namespace LibationAvalonia.Views
 			contextMenu.MenuClosed += ContextMenu_MenuClosed;
 			contextMenu.ContextMenuOpening += ContextMenu_ContextMenuOpening;
 			List<Control> menuItems = new();
-			contextMenu.Items = menuItems;
+			contextMenu.ItemsSource = menuItems;
 
 			menuItems.Add(new MenuItem { Header = "Show / Hide Columns" });
 			menuItems.Add(new MenuItem { Header = "-" });
@@ -274,13 +273,9 @@ namespace LibationAvalonia.Views
 					(
 						new MenuItem
 						{
-							Header = ((string)column.Header).Replace((char)0xa, ' '),
+							Header = ((string)column.Header).Replace('\n', ' '),
 							Tag = column,
-							Margin = new Thickness(6, 0),
-							Icon = new CheckBox
-							{
-								Width = 50,
-							}
+							Icon = new CheckBox(),
 						}
 					);
 
@@ -419,7 +414,9 @@ namespace LibationAvalonia.Views
 			if (!isDefault)
 				PictureStorage.PictureCached -= PictureCached;
 
-			if (!imageDisplayDialog.IsVisible)
+			if (imageDisplayDialog.IsVisible)
+				imageDisplayDialog.Activate();
+			else
 				imageDisplayDialog.Show();
 		}
 

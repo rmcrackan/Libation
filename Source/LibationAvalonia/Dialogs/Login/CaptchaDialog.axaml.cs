@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using LibationAvalonia.ViewModels;
 using ReactiveUI;
@@ -21,7 +20,7 @@ namespace LibationAvalonia.Dialogs.Login
 			captchaBox = this.FindControl<TextBox>(nameof(captchaBox));
 		}
 
-		public CaptchaDialog(string password, byte[] captchaImage) :this()
+		public CaptchaDialog(string password, byte[] captchaImage) : this()
 		{
 			//Avalonia doesn't support animated gifs.
 			//Deconstruct gifs into frames and manually switch them.
@@ -34,7 +33,7 @@ namespace LibationAvalonia.Dialogs.Login
 			{
 				var frameMetadata = gif.Frames[i].Metadata.GetFormatMetadata(SixLabors.ImageSharp.Formats.Gif.GifFormat.Instance);
 
-                using var clonedFrame = gif.Frames.CloneFrame(i);
+				using var clonedFrame = gif.Frames.CloneFrame(i);
 				using var framems = new MemoryStream();
 
 				clonedFrame.Save(framems, gifEncoder);
@@ -66,7 +65,7 @@ namespace LibationAvalonia.Dialogs.Login
 		protected override async Task CancelAndCloseAsync()
 		{
 			await _viewModel.StopAsync();
-			await base.CancelAndCloseAsync();	
+			await base.CancelAndCloseAsync();
 		}
 
 		public async void Submit_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -106,7 +105,7 @@ namespace LibationAvalonia.Dialogs.Login
 		private async Task SwitchFramesAsync(Bitmap[] gifFrames, int[] frameDelayMs)
 		{
 			int index = 0;
-			while(keepSwitching)
+			while (keepSwitching)
 			{
 				CaptchaImage = gifFrames[index];
 				await Task.Delay(frameDelayMs[index++]);

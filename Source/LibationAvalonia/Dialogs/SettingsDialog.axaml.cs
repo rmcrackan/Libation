@@ -1,14 +1,14 @@
+using Avalonia.Collections;
 using Avalonia.Controls;
+using Dinah.Core;
+using FileManager;
 using LibationFileManager;
+using LibationUiBase;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using ReactiveUI;
-using Dinah.Core;
 using System.Linq;
-using FileManager;
-using Avalonia.Collections;
-using LibationUiBase;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -51,7 +51,7 @@ namespace LibationAvalonia.Dialogs
 		}
 
 		public async void EditFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{			
+		{
 			var newTemplate = await editTemplate(TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(config.Books, settingsDisp.DownloadDecryptSettings.FileTemplate));
 			if (newTemplate is not null)
 				settingsDisp.DownloadDecryptSettings.FileTemplate = newTemplate;
@@ -59,7 +59,7 @@ namespace LibationAvalonia.Dialogs
 
 		public async void EditChapterFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			
+
 			var newTemplate = await editTemplate(TemplateEditor<Templates.ChapterFileTemplate>.CreateFilenameEditor(config.Books, settingsDisp.DownloadDecryptSettings.ChapterFileTemplate));
 			if (newTemplate is not null)
 				settingsDisp.DownloadDecryptSettings.ChapterFileTemplate = newTemplate;
@@ -197,7 +197,7 @@ namespace LibationAvalonia.Dialogs
 				this.RaiseAndSetIfChanged(ref themeVariant, value);
 
 				SelectionChanged = ThemeVariant != InitialThemeVariant;
-				this.RaisePropertyChanged(nameof(SelectionChanged));				
+				this.RaisePropertyChanged(nameof(SelectionChanged));
 			}
 		}
 		public string InitialThemeVariant { get; private set; }
@@ -242,7 +242,7 @@ namespace LibationAvalonia.Dialogs
 		public bool DownloadEpisodes { get; set; }
 		public bool AutoDownloadEpisodes { get; set; }
 	}
-	
+
 	public class DownloadDecryptSettings : ViewModels.ViewModelBase, ISettingsDisplay
 	{
 		private bool _badBookAsk;
@@ -345,7 +345,7 @@ namespace LibationAvalonia.Dialogs
 				}
 			}
 		}
-		public bool BadBookRetry		
+		public bool BadBookRetry
 		{
 			get => _badBookRetry;
 			set
@@ -392,7 +392,7 @@ namespace LibationAvalonia.Dialogs
 
 		public AvaloniaList<SampleRateSelection> SampleRates { get; }
 			= new(
-				new []
+				new[]
 				{
 					AAXClean.SampleRate.Hz_44100,
 					AAXClean.SampleRate.Hz_32000,

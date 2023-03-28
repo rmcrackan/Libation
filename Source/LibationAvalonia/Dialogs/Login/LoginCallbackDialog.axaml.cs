@@ -1,7 +1,5 @@
 using AudibleUtilities;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Dinah.Core;
 using System.Linq;
 using System.Threading.Tasks;

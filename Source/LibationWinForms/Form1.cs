@@ -60,6 +60,22 @@ namespace LibationWinForms
 				this.Load += (_, __) => productsDisplay.Display();
 				LibraryCommands.LibrarySizeChanged += (_, __) => this.UIThreadAsync(() => productsDisplay.Display());
 			}
+			Shown += Form1_Shown;
+		}
+
+		private async void Form1_Shown(object sender, EventArgs e)
+		{
+			if (Configuration.Instance.FirstLaunch)
+			{
+				var result = MessageBox.Show(this, "Would you like a guided tour to get started?", "Libation Walkthrough", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+
+				if (result is DialogResult.Yes)
+				{
+					await new Walkthrough(this).RunAsync();
+				}
+
+				Configuration.Instance.FirstLaunch = false;
+			}
 		}
 
 		private void Form1_Load(object sender, EventArgs e)

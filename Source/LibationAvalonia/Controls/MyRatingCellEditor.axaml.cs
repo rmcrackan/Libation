@@ -18,7 +18,7 @@ namespace LibationAvalonia.Controls
 
 		public bool IsEditingMode { get; set; }
 		public Rating Rating { get => GetValue(RatingProperty); set => SetValue(RatingProperty, value); }
-		
+
 		public MyRatingCellEditor()
 		{
 			InitializeComponent();

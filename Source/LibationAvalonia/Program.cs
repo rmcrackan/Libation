@@ -43,8 +43,6 @@ namespace LibationAvalonia
 			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 			var config = LibationScaffolding.RunPreConfigMigrations();
 
-			App.SetupRequired = !config.LibationSettingsAreValid;
-
 			//Start as much work in parallel as possible.
 			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 			var appBuilderTask = Task.Run(BuildAvaloniaApp);
@@ -55,7 +53,7 @@ namespace LibationAvalonia
 				return;
 
 
-			if (!App.SetupRequired)
+			if (config.LibationSettingsAreValid)
 			{
 				if (!RunDbMigrations(config))
 					return;
@@ -63,7 +61,7 @@ namespace LibationAvalonia
 				App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 			}
 
-			(appBuilderTask.GetAwaiter().GetResult()).SetupWithLifetime(classicLifetimeTask.GetAwaiter().GetResult());
+			appBuilderTask.GetAwaiter().GetResult().SetupWithLifetime(classicLifetimeTask.GetAwaiter().GetResult());
 
 			classicLifetimeTask.Result.Start(null);
 		}

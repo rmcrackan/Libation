@@ -3,9 +3,6 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using LibationAvalonia.ViewModels;
 using ReactiveUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace LibationAvalonia.Controls
 {
@@ -15,7 +12,7 @@ namespace LibationAvalonia.Controls
 		AvaloniaProperty.Register<CheckedListBox, AvaloniaList<CheckBoxViewModel>>(nameof(Items));
 
 		public AvaloniaList<CheckBoxViewModel> Items { get => GetValue(ItemsProperty); set => SetValue(ItemsProperty, value); }
-		private CheckedListBoxViewModel _viewModel = new();	
+		private CheckedListBoxViewModel _viewModel = new();
 
 		public CheckedListBox()
 		{

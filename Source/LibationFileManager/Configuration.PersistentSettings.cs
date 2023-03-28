@@ -142,8 +142,15 @@ namespace LibationFileManager
 		[Description("Lame target VBR quality [10,100]")]
 		public int LameVBRQuality { get => GetNonString(defaultValue: 2); set => SetNonString(value); }
 
+		private static readonly EquatableDictionary<string, bool> DefaultColumns = new(
+			new KeyValuePair<string, bool>[]
+			{
+				new ("SeriesOrder", false),
+				new ("LastDownload", false)
+			});
+
 		[Description("A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid")]
-		public Dictionary<string, bool> GridColumnsVisibilities { get => GetNonString(defaultValue: new EquatableDictionary<string, bool>()).Clone(); set => SetNonString(value); }
+		public Dictionary<string, bool> GridColumnsVisibilities { get => GetNonString(defaultValue: DefaultColumns).Clone(); set => SetNonString(value); }
 
 		[Description("A Dictionary of GridView data property names and int indicating its column's display index in ProductsGrid")]
 		public Dictionary<string, int> GridColumnsDisplayIndices { get => GetNonString(defaultValue: new EquatableDictionary<string, int>()).Clone(); set => SetNonString(value); }
@@ -183,6 +190,9 @@ namespace LibationFileManager
 			[Description("Permanently ignore book. Continue processing books. Do not try book again.")]
 			Ignore = 3
 		}
+
+		[Description("Indicates that this is the first time Libation has been run")]
+		public bool FirstLaunch { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 		[Description("When liberating books and there is an error, Libation should:")]
 		public BadBookAction BadBook { get => GetNonString(defaultValue: BadBookAction.Ask); set => SetNonString(value); }

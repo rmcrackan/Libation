@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ApplicationServices;
 using Avalonia.ReactiveUI;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LibationAvalonia.Views
 {
@@ -48,6 +48,23 @@ namespace LibationAvalonia.Views
 				Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 			}
 			Closing += MainWindow_Closing;
+
+			Opened += MainWindow_Opened;
+		}
+
+		private async void MainWindow_Opened(object sender, EventArgs e)
+		{
+			if (Configuration.Instance.FirstLaunch)
+			{
+				var result = await MessageBox.Show(this, "Would you like a guided tour to get started?", "Libation Walkthrough", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+
+				if (result is DialogResult.Yes)
+				{
+					await new Walkthrough(this).RunAsync();
+				}
+
+				Configuration.Instance.FirstLaunch = false;
+			}
 		}
 
 		private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

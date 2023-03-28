@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using DataLayer;
 using LibationAvalonia.ViewModels;
+using LibationUiBase.GridView;
 using System;
 
 namespace LibationAvalonia.Views
@@ -45,6 +46,16 @@ namespace LibationAvalonia.Views
 				PdfStatus = null;
 				IsSeries = true;
 			}
+
+			DataContextChanged += LiberateStatusButton_DataContextChanged;
+		}
+
+		private void LiberateStatusButton_DataContextChanged(object sender, EventArgs e)
+		{
+			//Force book status recheck when an entry is scrolled into view.
+			//This will force a recheck for a paprtially downloaded file.
+			var status = DataContext as ILibraryBookEntry;
+			status?.Liberate.Invalidate(nameof(status.Liberate.BookStatus));
 		}
 
 		private void Button_Click(object sender, RoutedEventArgs e) => Click?.Invoke(this, EventArgs.Empty);

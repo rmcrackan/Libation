@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+			 xmlns:uibase="clr-namespace:LibationUiBase.SeriesView;assembly=LibationUiBase"
              x:Class="LibationAvalonia.Views.SeriesViewGrid">
 	
 	<DataGrid
@@ -34,11 +35,11 @@
 
 			<DataGridTemplateColumn Width="80" Header="Cover" CanUserSort="False">
 				<DataGridTemplateColumn.CellTemplate>
-					<DataTemplate>
+					<DataTemplate x:DataType="uibase:SeriesItem">
 						<Image
 							Tapped="Cover_Click"
 							Height="80"
-							Source="{Binding Cover}"
+							Source="{CompiledBinding Cover}"
 							ToolTip.Tip="Click to see full size" />
 					</DataTemplate>
 				</DataGridTemplateColumn.CellTemplate>
@@ -46,10 +47,10 @@
 
 			<DataGridTemplateColumn Width="Auto" Header="Series&#xa;Order" CanUserSort="True" SortMemberPath="Order">
 				<DataGridTemplateColumn.CellTemplate>
-					<DataTemplate>
+					<DataTemplate x:DataType="uibase:SeriesItem">
 						<Panel>
 							<TextBlock
-								Text="{Binding Order}"
+								Text="{CompiledBinding Order}"
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center" />
 						</Panel>
@@ -59,7 +60,7 @@
 
 			<DataGridTemplateColumn Width="Auto" Header="Availability" CanUserSort="True" SortMemberPath="Button">
 				<DataGridTemplateColumn.CellTemplate>
-					<DataTemplate>
+					<DataTemplate x:DataType="uibase:SeriesItem">
 						<Panel>
 							<Panel.Styles>
 								<Style Selector="TextBlock">
@@ -71,17 +72,17 @@
 								HorizontalAlignment="Stretch"
 								VerticalAlignment="Stretch"
 								Click="Availability_Click"
-								IsVisible="{Binding Button.HasButtonAction}"
-								IsEnabled="{Binding Button.Enabled}">
+								IsVisible="{CompiledBinding Button.HasButtonAction}"
+								IsEnabled="{CompiledBinding Button.Enabled}">
 								<TextBlock
-									Text="{Binding Button.DisplayText}"
+									Text="{CompiledBinding Button.DisplayText}"
 									TextAlignment="Center"
 									VerticalAlignment="Center" />
 							</Button>
 							<TextBlock
 								HorizontalAlignment="Center"
-								IsVisible="{Binding !Button.HasButtonAction}"
-								Text="{Binding	Button.DisplayText}" />
+								IsVisible="{CompiledBinding !Button.HasButtonAction}"
+								Text="{CompiledBinding Button.DisplayText}" />
 						</Panel>
 					</DataTemplate>
 				</DataGridTemplateColumn.CellTemplate>
@@ -89,11 +90,11 @@
 
 			<DataGridTemplateColumn MinWidth="150" Width="*" Header="Title" CanUserSort="True" SortMemberPath="Title">
 				<DataGridTemplateColumn.CellTemplate>
-					<DataTemplate>
+					<DataTemplate x:DataType="uibase:SeriesItem">
 						<Panel ToolTip.Tip="Open Audible product page">
 							<controls:LinkLabel
 								VerticalAlignment="Center"
-								Text="{Binding Title}"
+								Text="{CompiledBinding Title}"
 								Tapped="Title_Click" />
 						</Panel>
 					</DataTemplate>

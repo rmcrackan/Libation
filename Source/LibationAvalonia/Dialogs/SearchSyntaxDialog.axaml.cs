@@ -1,5 +1,3 @@
-using Avalonia.Markup.Xaml;
-
 namespace LibationAvalonia.Dialogs
 {
 	public partial class SearchSyntaxDialog : DialogWindow

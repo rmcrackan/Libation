@@ -2,7 +2,6 @@ using ApplicationServices;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using Avalonia.Platform.Storage.FileIO;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
@@ -53,7 +52,7 @@ namespace LibationAvalonia.Dialogs
 
 		private void LocateAudiobooks_FileFound(object sender, FilePathCache.CacheEntry e)
 		{
-			var newItem = new Tuple<string,string>($"[{e.Id}]", Path.GetFileName(e.Path));
+			var newItem = new Tuple<string, string>($"[{e.Id}]", Path.GetFileName(e.Path));
 			_viewModel.FoundFiles.Add(newItem);
 			foundAudiobooksLB.SelectedItem = newItem;
 
@@ -70,7 +69,7 @@ namespace LibationAvalonia.Dialogs
 			{
 				Title = "Select the folder to search for audiobooks",
 				AllowMultiple = false,
-				SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix) 
+				SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix)
 			};
 
 			var selectedFolder = (await StorageProvider.OpenFolderPickerAsync(folderPicker))?.SingleOrDefault()?.TryGetLocalPath();

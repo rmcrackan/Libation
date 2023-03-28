@@ -1,12 +1,11 @@
+using Avalonia.Collections;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+using Avalonia.Data;
 using FileManager;
 using LibationFileManager;
-using System.Collections.Generic;
 using ReactiveUI;
+using System.Collections.Generic;
 using System.Linq;
-using Avalonia.Collections;
-using Avalonia.Data;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -37,7 +36,7 @@ namespace LibationAvalonia.Dialogs
 		}
 
 		public void Defaults_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=>	LoadTable(ReplacementCharacters.Default.Replacements);
+			=> LoadTable(ReplacementCharacters.Default.Replacements);
 		public void LoFiDefaults_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> LoadTable(ReplacementCharacters.LoFiDefault.Replacements);
 		public void Barebones_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -50,7 +49,7 @@ namespace LibationAvalonia.Dialogs
 		protected override void SaveAndClose()
 		{
 			var replacements = SOURCE
-				.Where(r=> !r.IsDefault)
+				.Where(r => !r.IsDefault)
 				.Select(r => new Replacement(r.Character, r.ReplacementText, r.Description) { Mandatory = r.Mandatory })
 				.ToList();
 

@@ -3,14 +3,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="350"
-		MinWidth="500" MinHeight="350"
-		MaxWidth="500" MaxHeight="350"
         x:Class="LibationAvalonia.Dialogs.SetupDialog"
 		WindowStartupLocation="CenterScreen"
+		Width="500" Height="350"
 		Icon="/Assets/libation.ico"
         Title="Welcome to Libation">
 
-	<Grid Margin="10" ColumnDefinitions="*" RowDefinitions="*,Auto,Auto">
+	<Grid
+		Margin="10"
+		HorizontalAlignment="Stretch"
+		RowDefinitions="*,Auto,Auto">
 		
 		<TextBlock Grid.Row="0" TextWrapping="Wrap" Text="This appears to be your first time using Libation or a previous setup was incomplete.
 &#xa;
@@ -21,18 +23,48 @@
 &#xa;
 &#xa;Download your entire library from the &quot;Liberate&quot; tab or
 &#xa;liberate your books one at a time by clicking the stoplight." />
-		
-		<Button
-			Grid.Row="1"
-			Width="480"
-			Margin="0,0,0,10"
-			Click="NewUser_Click">
 
+		<Grid
+			Grid.Row="1"
+			HorizontalAlignment="Stretch"
+			ColumnDefinitions="*,Auto"
+			Margin="0,0,0,10">
+
+			<Button
+				HorizontalAlignment="Stretch"
+				HorizontalContentAlignment="Center"
+				Padding="0,20"
+				Margin="0,0,10,0"
+				Click="NewUser_Click">
+
+				<TextBlock
+					FontSize="18"
+					TextAlignment="Center"
+					Text="NEW USER"/>
+
+			</Button>
+
+			<Grid
+				Grid.Column="1"
+				RowDefinitions="*,*">
+				
 			<TextBlock
-				TextAlignment="Center"
-				Text="NEW USER&#xa;&#xa;Choose Settings"/>
+				VerticalAlignment="Top"
+				Text="Theme:  " />
 			
-		</Button>
+			<ComboBox
+				Grid.Row="1"
+				VerticalAlignment="Bottom"
+				SelectedIndex="0"
+				SelectedItem="{Binding SelectedTheme, Mode=OneWayToSource}">
+				<ComboBox.Items>
+					<ComboBoxItem Content="Light" />
+					<ComboBoxItem Content="Dark" />
+				</ComboBox.Items>
+			</ComboBox>
+
+			</Grid>
+		</Grid>
 		
 		<Button
 			Grid.Row="2"

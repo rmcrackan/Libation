@@ -1,10 +1,8 @@
 ﻿using ApplicationServices;
 using System;
-using System.Linq;
 
 namespace LibationAvalonia.Views
 {
-	//DONE
 	public partial class MainWindow
 	{
 		private void Configure_ScanNotification()
@@ -18,7 +16,7 @@ namespace LibationAvalonia.Views
 			_viewModel.NumAccountsScanning = accountsLength;
 		}
 
-		private void LibraryCommands_ScanEnd(object sender, EventArgs e)
+		private void LibraryCommands_ScanEnd(object sender, int newCount)
 		{
 			_viewModel.NumAccountsScanning = 0;
 		}

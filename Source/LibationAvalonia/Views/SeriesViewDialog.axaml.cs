@@ -1,16 +1,11 @@
-using AudibleApi.Common;
-using AudibleApi;
+using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Media;
 using DataLayer;
 using Dinah.Core;
-using FileLiberator;
-using System.Collections.Generic;
-using System.Linq;
-using Avalonia.Collections;
 using LibationAvalonia.Dialogs;
 using LibationUiBase.SeriesView;
 using System;
-using Avalonia.Media;
 
 namespace LibationAvalonia.Views
 {

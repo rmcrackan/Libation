@@ -5,7 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="185"
         x:Class="LibationAvalonia.Dialogs.ScanAccountsDialog"
 		MinWidth="500" MinHeight="160"
-		MaxWidth="500" MaxHeight="185"
+		Width="500" Height="200"
         Title="Which Accounts?"
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/libation.ico">

@@ -1,10 +1,6 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using LibationFileManager;
-using LibationAvalonia.Controls;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -18,7 +14,7 @@ namespace LibationAvalonia.Dialogs
 				Configuration.KnownDirectories.AppDir,
 				Configuration.KnownDirectories.MyDocs
 			};
-			
+
 			public string Directory { get; set; } = Configuration.GetKnownDirectoryPath(Configuration.KnownDirectories.UserProfile);
 		}
 		private DirSelectOptions dirSelectOptions;
@@ -28,9 +24,6 @@ namespace LibationAvalonia.Dialogs
 		{
 			InitializeComponent();
 
-#if DEBUG
-			this.AttachDevTools();
-#endif
 			DataContext = dirSelectOptions = new();
 		}
 

@@ -1,11 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using System.Threading.Tasks;
+using Avalonia.Data;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Linq;
-using Avalonia.Data;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs.Login
 {
