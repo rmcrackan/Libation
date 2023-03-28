@@ -80,7 +80,7 @@ namespace LibationAvalonia
 
 					if (!selectedTab.IsVisible || !(selectedTab.Header is TextBlock header && settingTabMessages.ContainsKey(header.Text))) return;
 
-					await MessageBox.Show(settingsDialog, settingTabMessages[header.Text], header.Text + " Tab", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					await MessageBox.Show(settingsDialog, settingTabMessages[header.Text], header.Text + " Tab", MessageBoxButtons.OK);
 
 					settingTabMessages.Remove(header.Text);
 				}
@@ -106,7 +106,7 @@ namespace LibationAvalonia
 
 			if (count < 1)
 			{
-				await Dispatcher.UIThread.InvokeAsync(() => MessageBox.Show(MainForm, "Add an Audible account, then sync your library through the \"Import\" menu", "Add an Audible Account"));
+				await Dispatcher.UIThread.InvokeAsync(() => MessageBox.Show(MainForm, "Add an Audible account, then sync your library through the \"Import\" menu", "Add an Audible Account", MessageBoxButtons.OK, MessageBoxIcon.Information));
 				return false;
 			}
 

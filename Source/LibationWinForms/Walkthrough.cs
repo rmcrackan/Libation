@@ -79,7 +79,7 @@ namespace LibationWinForms
 
 				if (!selectedTab.Visible || !settingTabMessages.ContainsKey(selectedTab.Text)) return;
 
-				MessageBox.Show(selectedTab, settingTabMessages[selectedTab.Text], selectedTab.Text + " Tab", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show(selectedTab, settingTabMessages[selectedTab.Text], selectedTab.Text + " Tab", MessageBoxButtons.OK);
 
 				settingTabMessages.Remove(selectedTab.Text);
 			}
@@ -104,7 +104,7 @@ namespace LibationWinForms
 
 			if (count < 1)
 			{
-				MainForm.Invoke(() => MessageBox.Show(MainForm, "Add an Audible account, then sync your library through the \"Import\" menu", "Add an Audible Account"));
+				MainForm.Invoke(() => MessageBox.Show(MainForm, "Add an Audible account, then sync your library through the \"Import\" menu", "Add an Audible Account", MessageBoxButtons.OK, MessageBoxIcon.Information));
 				return false;
 			}
 

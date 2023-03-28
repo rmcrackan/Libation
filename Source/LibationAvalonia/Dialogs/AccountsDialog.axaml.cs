@@ -1,5 +1,6 @@
 using AudibleApi;
 using AudibleUtilities;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using ReactiveUI;
@@ -14,7 +15,7 @@ namespace LibationAvalonia.Dialogs
 {
 	public partial class AccountsDialog : DialogWindow
 	{
-		public ObservableCollection<AccountDto> Accounts { get; } = new();
+		public AvaloniaList<AccountDto> Accounts { get; } = new();
 		public class AccountDto : ViewModels.ViewModelBase
 		{
 			private string _accountId;

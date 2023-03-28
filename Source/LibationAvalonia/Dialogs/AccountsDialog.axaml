@@ -64,11 +64,14 @@
 				<DataGridCheckBoxColumn
 					Binding="{Binding LibraryScan, Mode=TwoWay}"
 					Header="Include in&#xa;library scan?"/>
-
-				<DataGridTextColumn
-					Width="2*"
-					Binding="{Binding AccountId, Mode=TwoWay}"
-					Header="Audible&#xa;email/login"/>
+				
+				<DataGridTemplateColumn Width="2*" Header="Audible&#xa;email/login">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<TextBox Text="{Binding AccountId, Mode=TwoWay}" />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
 
 				<DataGridTemplateColumn Width="Auto" Header="Locale">
 					<DataGridTemplateColumn.CellTemplate>
@@ -93,10 +96,13 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<DataGridTextColumn
-					Width="3*"
-					Binding="{Binding AccountName, Mode=TwoWay}"
-					Header="Account Nickname&#xa;(optional)"/>
+				<DataGridTemplateColumn Width="3*" Header="Account Nickname&#xa;(optional)">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<TextBox Text="{Binding AccountName, Mode=TwoWay}" />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
 
 			</DataGrid.Columns>
 		</DataGrid>

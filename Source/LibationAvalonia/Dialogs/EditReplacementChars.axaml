@@ -27,21 +27,31 @@
 			Items="{Binding replacements}">
 
 			<DataGrid.Columns>
+
+
+				<DataGridTemplateColumn Header="Char to&#xa;Replace">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<TextBox IsReadOnly="{Binding Mandatory}" Text="{Binding CharacterToReplace, Mode=TwoWay}" />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
 				
-				<DataGridTextColumn
-					IsReadOnly="False"
-					Binding="{Binding CharacterToReplace, Mode=TwoWay}"
-					Header="Char to&#xa;Replace"/>
+				<DataGridTemplateColumn Header="Replacement&#xa;Text">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<TextBox Text="{Binding ReplacementText, Mode=TwoWay}" />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
 
-				<DataGridTextColumn
-					IsReadOnly="False"
-					Binding="{Binding ReplacementText, Mode=TwoWay}"
-					Header="Replacement&#xa;Text"/>
-
-				<DataGridTextColumn Width="*"
-					IsReadOnly="False"
-					Binding="{Binding Description, Mode=TwoWay}"
-					Header="Description"/>
+				<DataGridTemplateColumn Width="*" Header="Description">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<TextBox IsReadOnly="{Binding Mandatory}" Text="{Binding Description, Mode=TwoWay}" />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
 
 			</DataGrid.Columns>
 		</DataGrid>

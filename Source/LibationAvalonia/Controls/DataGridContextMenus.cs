@@ -66,6 +66,6 @@ namespace LibationAvalonia.Controls
 		public IGridEntry GridEntry { get; init; }
 		public ContextMenu ContextMenu { get; init; }
 		public AvaloniaList<Control> ContextMenuItems
-			=> ContextMenu.Items as AvaloniaList<Control>;
+			=> ContextMenu.ItemsSource as AvaloniaList<Control>;
 	}
 }
