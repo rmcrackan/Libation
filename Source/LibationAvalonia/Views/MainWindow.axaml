@@ -8,7 +8,7 @@
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		mc:Ignorable="d" d:DesignWidth="1850" d:DesignHeight="700"
 		x:Class="LibationAvalonia.Views.MainWindow"
-		Title="Libation"
+		Title="Libation: Liberate your Library"
 		Name="Form1"
 		Icon="/Assets/libation.ico">
 
