@@ -20,7 +20,7 @@ namespace ApplicationServices
     public static class LibraryCommands
     {
         public static event EventHandler<int> ScanBegin;
-        public static event EventHandler ScanEnd;
+        public static event EventHandler<int> ScanEnd;
 
         public static bool Scanning { get; private set; }
         private static object _lock { get; } = new();
@@ -94,7 +94,7 @@ namespace ApplicationServices
             {
                 stop();
                 var putBreakPointHere = logOutput;
-                ScanEnd?.Invoke(null, null);
+                ScanEnd?.Invoke(null, 0);
 				GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
 			}
         }
@@ -107,7 +107,8 @@ namespace ApplicationServices
             if (accounts is null || accounts.Length == 0)
                 return (0, 0);
 
-            try
+            int newCount = 0;
+			try
             {
                 lock (_lock)
                 {
@@ -133,7 +134,7 @@ namespace ApplicationServices
 
                 Log.Logger.Information("Begin long-running import");
                 logTime($"pre {nameof(importIntoDbAsync)}");
-                var newCount = await importIntoDbAsync(importItems);
+                newCount = await importIntoDbAsync(importItems);
                 logTime($"post {nameof(importIntoDbAsync)}");
                 Log.Logger.Information($"Import complete. New count {newCount}");
 
@@ -166,7 +167,7 @@ namespace ApplicationServices
             {
                 stop();
                 var putBreakPointHere = logOutput;
-                ScanEnd?.Invoke(null, null);
+                ScanEnd?.Invoke(null, newCount);
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
             }
         }

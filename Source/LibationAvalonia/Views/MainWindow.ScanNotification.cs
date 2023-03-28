@@ -16,7 +16,7 @@ namespace LibationAvalonia.Views
 			_viewModel.NumAccountsScanning = accountsLength;
 		}
 
-		private void LibraryCommands_ScanEnd(object sender, EventArgs e)
+		private void LibraryCommands_ScanEnd(object sender, int newCount)
 		{
 			_viewModel.NumAccountsScanning = 0;
 		}

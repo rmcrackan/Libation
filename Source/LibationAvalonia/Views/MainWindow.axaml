@@ -87,7 +87,7 @@
 
 					<!-- Quick Filters Menu -->
 
-					<MenuItem Header="Quick _Filters" ItemsSource="{Binding QuickFilterMenuItems}" KeyDown="QuickFiltersMenuItem_KeyDown">
+					<MenuItem Name="quickFiltersToolStripMenuItem" Header="Quick _Filters" ItemsSource="{Binding QuickFilterMenuItems}" KeyDown="QuickFiltersMenuItem_KeyDown">
 						<!-- Remove height style property for menu item -->
 						<MenuItem.Styles>
 							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
@@ -154,8 +154,8 @@
 				</Grid.Styles>
 				
 				<StackPanel Grid.Column="0" Orientation="Horizontal">
-					<Button Margin="0" Click="filterHelpBtn_Click" Content="?"/>
-					<Button Click="addQuickFilterBtn_Click" Content="Add To Quick Filters"/>
+					<Button Name="filterHelpBtn" Margin="0" Click="filterHelpBtn_Click" Content="?"/>
+					<Button Name="addQuickFilterBtn" Click="addQuickFilterBtn_Click" Content="Add To Quick Filters"/>
 				</StackPanel>
 
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -163,10 +163,10 @@
 					<Button IsVisible="{Binding RemoveButtonsVisible}" Click="doneRemovingBtn_Click" Content="Done Removing Books"/>
 				</StackPanel>
 				
-				<TextBox Grid.Column="1" Margin="10,0,0,0" IsVisible="{Binding !RemoveButtonsVisible}" Text="{Binding FilterString, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
+				<TextBox Grid.Column="1" Margin="10,0,0,0" Name="filterSearchTb" IsVisible="{Binding !RemoveButtonsVisible}" Text="{Binding FilterString, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
 
 				<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
-					<Button Click="filterBtn_Click" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
+					<Button Name="filterBtn" Click="filterBtn_Click" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
 					<Button Padding="2,6,2,6" VerticalAlignment="Stretch" Click="ToggleQueueHideBtn_Click">
 						<Path Stretch="Uniform" Fill="{DynamicResource IconFill}" Data="{StaticResource	LeftArrows}">
 							<Path.RenderTransform>

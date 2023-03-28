@@ -28,7 +28,7 @@ namespace LibationWinForms
 				: $"Scanning {accountsLength} accounts...";
 		}
 
-		private void LibraryCommands_ScanEnd(object sender, EventArgs e)
+		private void LibraryCommands_ScanEnd(object sender, int newCount)
 		{
 			removeLibraryBooksToolStripMenuItem.Enabled = true;
 			removeAllAccountsToolStripMenuItem.Enabled = true;

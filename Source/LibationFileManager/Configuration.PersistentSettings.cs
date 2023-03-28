@@ -192,7 +192,7 @@ namespace LibationFileManager
 		}
 
 		[Description("Indicates that this is the first time Libation has been run")]
-		public bool FirstLaunch { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+		public bool FirstLaunch { get => true; set => SetNonString(value); }
 
 		[Description("When liberating books and there is an error, Libation should:")]
 		public BadBookAction BadBook { get => GetNonString(defaultValue: BadBookAction.Ask); set => SetNonString(value); }
