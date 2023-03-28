@@ -6,7 +6,7 @@ using Avalonia.Platform.Storage;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,7 +19,6 @@ namespace LibationAvalonia.Dialogs
 		public class AccountDto : ViewModels.ViewModelBase
 		{
 			private string _accountId;
-			private Locale _selectedLocale;
 			public IReadOnlyList<Locale> Locales => AccountsDialog.Locales;
 			public bool LibraryScan { get; set; } = true;
 			public string AccountId
@@ -31,17 +30,19 @@ namespace LibationAvalonia.Dialogs
 					this.RaisePropertyChanged(nameof(IsDefault));
 				}
 			}
-			public Locale SelectedLocale
-			{
-				get => _selectedLocale;
-				set
-				{
-					this.RaiseAndSetIfChanged(ref _selectedLocale, value);
-					this.RaisePropertyChanged(nameof(IsDefault));
-				}
-			}
+
+			public Locale SelectedLocale { get; set; }
 			public string AccountName { get; set; }
-			public bool IsDefault => string.IsNullOrEmpty(AccountId) && SelectedLocale is null;
+			public bool IsDefault => string.IsNullOrEmpty(AccountId);
+
+			public AccountDto() { }
+			public AccountDto(Account account)
+			{
+				LibraryScan = account.LibraryScan;
+				AccountId = account.AccountId;
+				SelectedLocale = Locales.Single(l => l.Name == account.Locale.Name);
+				AccountName = account.AccountName;
+			}
 		}
 
 		private static string GetAudibleCliAppDataPath()
@@ -56,57 +57,40 @@ namespace LibationAvalonia.Dialogs
 			// here: copy strings and dispose of persister
 			// only persist in 'save' step
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var accounts = persister.AccountsSettings.Accounts;
-			if (accounts.Any())
-			{
-				foreach (var account in accounts)
-					AddAccountToGrid(account);
-			}
+
+			Accounts.CollectionChanged += Accounts_CollectionChanged;
+			Accounts.AddRange(persister.AccountsSettings.Accounts.Select(a => new AccountDto(a)));
 
 			DataContext = this;
 			addBlankAccount();
 		}
-		private void addBlankAccount()
-		{
 
-			var newBlank = new AccountDto();
-			newBlank.PropertyChanged += AccountDto_PropertyChanged;
-			Accounts.Insert(Accounts.Count, newBlank);
-		}
-
-		private void AddAccountToGrid(Account account)
+		private void Accounts_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
-			AccountDto accountDto = new()
+			if (e.Action is NotifyCollectionChangedAction.Add && e.NewItems?.Count > 0)
 			{
-				LibraryScan = account.LibraryScan,
-				AccountId = account.AccountId,
-				SelectedLocale = Locales.Single(l => l.Name == account.Locale.Name),
-				AccountName = account.AccountName,
-			};
-			accountDto.PropertyChanged += AccountDto_PropertyChanged;
-
-			//ObservableCollection doesn't fire CollectionChanged on Add, so use Insert instead
-			Accounts.Insert(Accounts.Count, accountDto);
+				foreach (var newItem in  e.NewItems.OfType<AccountDto>())
+					newItem.PropertyChanged += AccountDto_PropertyChanged;
+			}
+			else if (e.Action is NotifyCollectionChangedAction.Remove && e.OldItems?.Count > 0)
+			{
+				foreach (var oldItem in e.OldItems.OfType<AccountDto>())
+					oldItem.PropertyChanged -= AccountDto_PropertyChanged;
+			}
 		}
+
+		private void addBlankAccount() => Accounts.Insert(Accounts.Count, new AccountDto());
 
 		private void AccountDto_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if (Accounts.Any(a => a.IsDefault))
-				return;
-
-			addBlankAccount();
+			if (!Accounts.Any(a => a.IsDefault))
+				addBlankAccount();
 		}
 
 		public void DeleteButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			if (e.Source is Button expBtn && expBtn.DataContext is AccountDto acc)
-			{
-				var index = Accounts.IndexOf(acc);
-				if (index < 0) return;
-
-				acc.PropertyChanged -= AccountDto_PropertyChanged;
 				Accounts.Remove(acc);
-			}
 		}
 
 		public async void ImportButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -117,11 +101,11 @@ namespace LibationAvalonia.Dialogs
 				AllowMultiple = false,
 				FileTypeFilter = new FilePickerFileType[]
 				{
-						new("JSON files (*.json)")
-						{
-							Patterns = new[] { "*.json" },
-							AppleUniformTypeIdentifiers  = new[] { "public.json" }
-						}
+					new("JSON files (*.json)")
+					{
+						Patterns = new[] { "*.json" },
+						AppleUniformTypeIdentifiers  = new[] { "public.json" }
+					}
 				}
 			};
 
@@ -151,7 +135,7 @@ namespace LibationAvalonia.Dialogs
 
 				persister.AccountsSettings.Add(account);
 
-				AddAccountToGrid(account);
+				Accounts.Add(new AccountDto(account));
 			}
 			catch (Exception ex)
 			{
