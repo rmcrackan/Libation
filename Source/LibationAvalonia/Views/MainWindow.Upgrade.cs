@@ -1,4 +1,9 @@
-﻿namespace LibationAvalonia.Views
+﻿using Avalonia.Threading;
+using LibationAvalonia.Dialogs;
+using LibationUiBase;
+using System.Threading.Tasks;
+
+namespace LibationAvalonia.Views
 {
 	public partial class MainWindow
 	{
