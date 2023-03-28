@@ -41,7 +41,7 @@ namespace DtoImporterService
 			//
 			// CURRENT SOLUTION: don't re-insert
 
-			var existingEntries = DbContext.LibraryBooks.AsEnumerable().Where(l => l.Book is not null).ToDictionary(l => l.Book.AudibleProductId);
+			var existingEntries = DbContext.LibraryBooks.AsEnumerable().Where(l => l.Book is not null).ToDictionarySafe(l => l.Book.AudibleProductId);
 			var hash = ToDictionarySafe(importItems, dto => dto.DtoItem.ProductId, tieBreak);
 			int qtyNew = 0;
 
