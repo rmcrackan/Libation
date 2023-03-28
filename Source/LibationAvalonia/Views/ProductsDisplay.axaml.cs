@@ -414,7 +414,9 @@ namespace LibationAvalonia.Views
 			if (!isDefault)
 				PictureStorage.PictureCached -= PictureCached;
 
-			if (!imageDisplayDialog.IsVisible)
+			if (imageDisplayDialog.IsVisible)
+				imageDisplayDialog.Activate();
+			else
 				imageDisplayDialog.Show();
 		}
 
