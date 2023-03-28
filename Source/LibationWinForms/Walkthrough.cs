@@ -1,5 +1,6 @@
 ﻿using AudibleUtilities;
 using Dinah.Core.StepRunner;
+using Dinah.Core.WindowsDesktop.Processes;
 using LibationWinForms.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,8 @@ namespace LibationWinForms
 
 		private async Task<bool> ShowAccountDialog()
 		{
-			MainForm.Invoke(() => MessageBox.Show(MainForm, "First, add you Audible account(s).", "Add Accounts"));
+			var result = MainForm.Invoke(() => MessageBox.Show(MainForm, "First, add you Audible account(s).", "Add Accounts", MessageBoxButtons.OKCancel));
+			if (result is DialogResult.Cancel) return false;
 
 			await Task.Delay(750);
 			MainForm.Invoke(MainForm.settingsToolStripMenuItem.ShowDropDown);
@@ -50,7 +52,8 @@ namespace LibationWinForms
 
 		private async Task<bool> ShowSettingsDialog()
 		{
-			MainForm.Invoke(() => MessageBox.Show(MainForm, "Next, adjust Libation's settings", "Change Settings"));
+			var result = MainForm.Invoke(() => MessageBox.Show(MainForm, "Next, adjust Libation's settings", "Change Settings", MessageBoxButtons.OKCancel));
+			if (result is DialogResult.Cancel) return false;
 
 			await Task.Delay(750);
 			MainForm.Invoke(MainForm.settingsToolStripMenuItem.ShowDropDown);
@@ -110,8 +113,9 @@ namespace LibationWinForms
 
 			var accounts = count > 1 ? "accounts" :"account";
 			var library = count > 1 ? "libraries" : "library";
-			MainForm.Invoke(() => MessageBox.Show(MainForm, $"Finally, scan your Audible {accounts} to sync your {library} with Libation", $"Scan {accounts}"));
-			
+			var result = MainForm.Invoke(() => MessageBox.Show(MainForm, $"Finally, scan your Audible {accounts} to sync your {library} with Libation", $"Scan {accounts}", MessageBoxButtons.OKCancel));
+			if (result is DialogResult.Cancel) return false;
+
 			await Task.Delay(750);
 			MainForm.Invoke(MainForm.importToolStripMenuItem.ShowDropDown);
 			await Task.Delay(500);

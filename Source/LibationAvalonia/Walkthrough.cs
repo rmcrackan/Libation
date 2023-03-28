@@ -34,7 +34,9 @@ namespace LibationAvalonia
 
 		private async Task<bool> ShowAccountDialog()
 		{
-			await Dispatcher.UIThread.InvokeAsync(() => MessageBox.Show(MainForm, "First, add you Audible account(s).", "Add Accounts"));
+			var result = await Dispatcher.UIThread.InvokeAsync(() => MessageBox.Show(MainForm, "First, add you Audible account(s).", "Add Accounts", MessageBoxButtons.OKCancel));
+
+			if (result is DialogResult.Cancel) return false;
 
 			await Task.Delay(750);
 			await Dispatcher.UIThread.InvokeAsync(MainForm.settingsToolStripMenuItem.Open);
@@ -49,7 +51,9 @@ namespace LibationAvalonia
 
 		private async Task<bool> ShowSettingsDialog()
 		{
-			await Dispatcher.UIThread.InvokeAsync(() => MessageBox.Show(MainForm, "Next, adjust Libation's settings", "Change Settings"));
+			var result = await Dispatcher.UIThread.InvokeAsync(() => MessageBox.Show(MainForm, "Next, adjust Libation's settings", "Change Settings", MessageBoxButtons.OKCancel));
+
+			if (result is DialogResult.Cancel) return false;
 
 			await Task.Delay(750);
 			await Dispatcher.UIThread.InvokeAsync(MainForm.settingsToolStripMenuItem.Open);
@@ -112,7 +116,8 @@ namespace LibationAvalonia
 
 			var accounts = count > 1 ? "accounts" : "account";
 			var library = count > 1 ? "libraries" : "library";
-			await Dispatcher.UIThread.InvokeAsync(() => MessageBox.Show(MainForm, $"Finally, scan your Audible {accounts} to sync your {library} with Libation", $"Scan {accounts}"));
+			var result = await Dispatcher.UIThread.InvokeAsync(() => MessageBox.Show(MainForm, $"Finally, scan your Audible {accounts} to sync your {library} with Libation", $"Scan {accounts}", MessageBoxButtons.OKCancel));
+			if (result is DialogResult.Cancel) return false;
 
 			await Task.Delay(750);
 			await Dispatcher.UIThread.InvokeAsync(MainForm.importToolStripMenuItem.Open);
@@ -120,6 +125,7 @@ namespace LibationAvalonia
 			await Dispatcher.UIThread.InvokeAsync(() => (count > 1 ? MainForm.scanLibraryOfAllAccountsToolStripMenuItem : MainForm.scanLibraryToolStripMenuItem).IsSelected = true);
 			await Task.Delay(1000);
 			await Dispatcher.UIThread.InvokeAsync(() => (count > 1 ? MainForm.scanLibraryOfAllAccountsToolStripMenuItem : MainForm.scanLibraryToolStripMenuItem).RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent)));
+			await Dispatcher.UIThread.InvokeAsync(MainForm.importToolStripMenuItem.Close);
 
 			return true;
 		}
