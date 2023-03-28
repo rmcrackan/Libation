@@ -37,7 +37,7 @@ namespace LibationWinForms
 
 		private async Task<bool> ShowAccountDialog()
 		{
-			if (OkCancelMessageBox("First, add you Audible account(s).", "Add Accounts") is not DialogResult.OK) return false;
+			if (OkCancelMessageBox("First, add your Audible account(s).", "Add Accounts") is not DialogResult.OK) return false;
 
 			await Task.Delay(750);
 			await flashControlAsync(MainForm.settingsToolStripMenuItem);
@@ -62,8 +62,8 @@ namespace LibationWinForms
 			await Task.Delay(750);
 			await flashControlAsync(MainForm.settingsToolStripMenuItem);
 			MainForm.Invoke(MainForm.settingsToolStripMenuItem.ShowDropDown);
-
 			await Task.Delay(500);
+
 			await flashControlAsync(MainForm.basicSettingsToolStripMenuItem);
 			MainForm.Invoke(MainForm.basicSettingsToolStripMenuItem.Select);
 			await Task.Delay(500);
@@ -128,9 +128,11 @@ namespace LibationWinForms
 			await flashControlAsync(MainForm.importToolStripMenuItem);
 			MainForm.Invoke(MainForm.importToolStripMenuItem.ShowDropDown);
 			await Task.Delay(500);
+
 			await flashControlAsync(scanItem);
 			MainForm.Invoke(scanItem.Select);
 			await Task.Delay(500);
+
 			MainForm.Invoke(scanItem.PerformClick);
 
 			var tcs = new TaskCompletionSource();
@@ -175,6 +177,7 @@ namespace LibationWinForms
 			await flashControlAsync(MainForm.filterBtn);
 			MainForm.Invoke(MainForm.filterBtn.Select);
 			await Task.Delay(500);
+
 			MainForm.Invoke(MainForm.filterBtn.PerformClick);
 			await Task.Delay(1000);
 
@@ -196,24 +199,24 @@ namespace LibationWinForms
 			if (OkCancelMessageBox("Queries that you perform regularly can be added to 'Quick Filters'", "Quick Filters") is not DialogResult.OK) return false;
 
 			MainForm.Invoke(() => MainForm.filterSearchTb.Text = firstAuthor);
+
 			await Task.Delay(750);
 			await flashControlAsync(MainForm.addQuickFilterBtn);
-			await Task.Delay(750);
-
 			MainForm.Invoke(MainForm.addQuickFilterBtn.PerformClick);
+			await Task.Delay(750);
 
 			await flashControlAsync(MainForm.quickFiltersToolStripMenuItem);
 			MainForm.Invoke(MainForm.quickFiltersToolStripMenuItem.ShowDropDown);
 			await Task.Delay(500);
 
-			MainForm.Invoke(MainForm.editQuickFiltersToolStripMenuItem.Select);
 			await flashControlAsync(MainForm.editQuickFiltersToolStripMenuItem);
+			MainForm.Invoke(MainForm.editQuickFiltersToolStripMenuItem.Select);
 			await Task.Delay(500);
 
 			var editQuickFilters = MainForm.Invoke(() => new EditQuickFilters());
 			editQuickFilters.Shown += (_, _) => MessageBox.Show(editQuickFilters, "From here you can edit, delete, and change the order of Quick Filters", "Editing Quick Filters");
-
 			MainForm.Invoke(editQuickFilters.ShowDialog);
+
 			return true;
 		}
 

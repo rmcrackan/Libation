@@ -16,6 +16,9 @@ namespace LibationAvalonia.Views
 		public async void aboutToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await MessageBox.Show($"Libation {AppScaffolding.LibationScaffolding.Variety}{Environment.NewLine}Version {AppScaffolding.LibationScaffolding.BuildVersion}", $"Libation v{AppScaffolding.LibationScaffolding.BuildVersion}");
 
+		public async void tourToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+			=> await new Walkthrough(this).RunAsync();
+
 		public void launchHangoverToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			try

@@ -128,6 +128,7 @@
 						<MenuItem Click="openTrashBinToolStripMenuItem_Click" Header="Trash Bin" />
 						<MenuItem Click="launchHangoverToolStripMenuItem_Click" Header="Launch _Hangover" />
 						<Separator />
+						<MenuItem Click="tourToolStripMenuItem_Click" Header="Take a Guided _Tour of Libation" />
 						<MenuItem Click="aboutToolStripMenuItem_Click" Header="A_bout..." />
 					</MenuItem>
 				</Menu>

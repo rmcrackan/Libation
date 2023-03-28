@@ -41,7 +41,7 @@ namespace LibationAvalonia
 
 		private async Task<bool> ShowAccountDialog()
 		{
-			if (await OkCancelMessageBox("First, add you Audible account(s).", "Add Accounts") is not DialogResult.OK) return false;
+			if (await OkCancelMessageBox("First, add your Audible account(s).", "Add Accounts") is not DialogResult.OK) return false;
 
 			await Task.Delay(750);
 			await flashControlAsync(MainForm.settingsToolStripMenuItem);
@@ -134,9 +134,11 @@ namespace LibationAvalonia
 			await flashControlAsync(MainForm.importToolStripMenuItem);
 			await InvokeAsync(MainForm.importToolStripMenuItem.Open);
 			await Task.Delay(500);
+
 			await flashControlAsync(scanItem);
 			await InvokeAsync(() => scanItem.IsSelected = true);
 			await Task.Delay(500);
+
 			await InvokeAsync(() => scanItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)));
 			await InvokeAsync(MainForm.importToolStripMenuItem.Close);
 
@@ -181,6 +183,7 @@ namespace LibationAvalonia
 			await flashControlAsync(MainForm.filterBtn);
 			await InvokeAsync(MainForm.filterBtn.Focus);
 			await Task.Delay(500);
+
 			await InvokeAsync(() => MainForm.filterBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)));
 			await Task.Delay(1000);
 
@@ -204,9 +207,8 @@ namespace LibationAvalonia
 
 			await Task.Delay(750);
 			await flashControlAsync(MainForm.addQuickFilterBtn);
-			await Task.Delay(750);
-
 			await InvokeAsync(() => MainForm.addQuickFilterBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)));
+			await Task.Delay(750);
 
 			await flashControlAsync(MainForm.quickFiltersToolStripMenuItem);
 			await InvokeAsync(MainForm.quickFiltersToolStripMenuItem.Open);

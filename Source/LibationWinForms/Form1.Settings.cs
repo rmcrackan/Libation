@@ -15,6 +15,9 @@ namespace LibationWinForms
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
             => MessageBox.Show($"Libation {AppScaffolding.LibationScaffolding.Variety}{Environment.NewLine}Version {AppScaffolding.LibationScaffolding.BuildVersion}", $"Libation v{AppScaffolding.LibationScaffolding.BuildVersion}");
 
+		private async void tourToolStripMenuItem_Click(object sender, EventArgs e)
+			=> await new Walkthrough(this).RunAsync();
+
 		private void launchHangoverToolStripMenuItem_Click(object sender, EventArgs e)
         {
 			try
