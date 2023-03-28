@@ -282,7 +282,8 @@ namespace ApplicationServices
             catch(ImportValidationException ex)
 			{
 				await logDtoItemsAsync(ex.Items, ex.InnerExceptions.ToArray());
-				throw;
+				//If ImportValidationException is thrown, all Dto items get logged as part of the exception
+				throw new AggregateException(ex.InnerExceptions);
             }
 
             async Task logDtoItemsAsync(IEnumerable<AudibleApi.Common.Item> dtoItems, IEnumerable<Exception> exceptions = null)

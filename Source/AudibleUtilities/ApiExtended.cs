@@ -152,13 +152,17 @@ namespace AudibleUtilities
 				SetSeries(parent, children);
 			}
 
+			int orphansRemoved = items.RemoveAll(i => (i.IsEpisodes || i.IsSeriesParent) && i.Series is null);
+			if (orphansRemoved > 0)
+				Serilog.Log.Debug("{orphansRemoved} podcast orphans not imported", orphansRemoved);
+
 			sw.Stop();
 			totalTime += sw.Elapsed;
 			Serilog.Log.Logger.Information("Completed indexing series episodes after {elappsed_ms} ms.", sw.ElapsedMilliseconds);
 			Serilog.Log.Logger.Information($"Completed library scan in {totalTime.TotalMilliseconds:F0} ms.");
 
-			var allExceptions = IValidator.GetAllValidators().SelectMany(v => v.Validate(items));
-			if (allExceptions?.Any() is true)
+			var allExceptions = IValidator.GetAllValidators().SelectMany(v => v.Validate(items)).ToList();
+			if (allExceptions?.Count > 0)
 				throw new ImportValidationException(items, allExceptions);
 
 			return items;
