@@ -41,13 +41,20 @@ namespace DtoImporterService
 			//
 			// CURRENT SOLUTION: don't re-insert
 
+
+			//When Books are upserted during the BookImporter run, they are linked to their LibraryBook in the DbContext
+			//instance. If a LibraryBook has a null book here, that means it's Book was not imported during by BookImporter.
+			//There should never be duplicates, but this is defensive.
 			var existingEntries = DbContext.LibraryBooks.AsEnumerable().Where(l => l.Book is not null).ToDictionarySafe(l => l.Book.AudibleProductId);
-			var hash = ToDictionarySafe(importItems, dto => dto.DtoItem.ProductId, tieBreak);
+
+			//If importItems are contains duplicates by asin, keep the Item that's "available"
+			var uniqueImportItems = ToDictionarySafe(importItems, dto => dto.DtoItem.ProductId, tieBreak);
+
 			int qtyNew = 0;
 
-			foreach (var item in hash.Values)
+			foreach (var item in uniqueImportItems.Values)
 			{
-				if (existingEntries.TryGetValue(item.DtoItem.ProductId, out LibraryBook existing))
+				if (qtyNew == 0 && existingEntries.TryGetValue(item.DtoItem.ProductId, out LibraryBook existing))
 				{
 					if (existing.Account != item.AccountId)
 					{
