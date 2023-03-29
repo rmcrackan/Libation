@@ -13,14 +13,15 @@ namespace LibationWinForms
 {
 	internal class Walkthrough
 	{
-		private static Dictionary<string, string> settingTabMessages = new()
+		private Dictionary<string, string> settingTabMessages = new()
 		{
-			{ "Important settings", "Change where liberated books are stored."},
-			{ "Import library", "Change how your library is scanned, imported, and liberated."},
-			{ "Download/Decrypt", "Control how liberated files and folders are named and stored."},
-			{ "Audio File Options", "Control how audio files are decrypted, including audio format and metadata handling."},
+			{ "Important settings", "From here you can change where liberated books are stored and how detailed Libation's logs are.\r\n\r\nIf you experience a problem and need help, you'll be asked to provide your log file. In certain circumstances we may need you to reproduce the error with a higher level of logging detail."},
+			{ "Import library", "In this tab you can change how your library is scanned and imported into Libation, as well as automatic liberation."},
+			{ "Download/Decrypt", "These settings allow you to control how liberated files and folders are named and stored.\r\nYou can customize the 'Naming Templates' to use any number of the audiobook's properties to build a customized file and folder naming format. Learn more about the syntax from the wiki at\r\n\r\nhttps://github.com/rmcrackan/Libation/blob/master/Documentation/NamingTemplates.md"},
+			{ "Audio File Options", "Control how audio files are decrypted, including audio format and metadata handling.\r\n\r\nIf you choose to split your audiobook into multiple files by chapter marker, you may edit the chapter file 'Naming Template' to control how each chapter file is named."},
 		};
 
+		private static readonly Color FlashColor = Color.DodgerBlue;
 		private readonly Form1 MainForm;
 		private readonly AsyncStepSequence sequence = new();
 		public Walkthrough(Form1 form1)
@@ -31,22 +32,19 @@ namespace LibationWinForms
 			sequence[nameof(ShowAccountScanning)] = ShowAccountScanning;
 			sequence[nameof(ShowSearching)] = ShowSearching;
 			sequence[nameof(ShowQuickFilters)] = ShowQuickFilters;
+			sequence[nameof(ShowTourComplete)] = ShowTourComplete;
 		}
 
 		public async Task RunAsync() => await sequence.RunAsync();
 
 		private async Task<bool> ShowAccountDialog()
 		{
-			if (OkCancelMessageBox("First, add your Audible account(s).", "Add Accounts") is not DialogResult.OK) return false;
+			if (!ProceedMessageBox("First, add your Audible account(s).", "Add Accounts"))
+				return false;
 
 			await Task.Delay(750);
-			await flashControlAsync(MainForm.settingsToolStripMenuItem);
-			MainForm.Invoke(MainForm.settingsToolStripMenuItem.ShowDropDown);
-			await Task.Delay(500);
-
-			await flashControlAsync(MainForm.accountsToolStripMenuItem);
-			MainForm.Invoke(MainForm.accountsToolStripMenuItem.Select);
-			await Task.Delay(500);
+			await displayControlAsync(MainForm.settingsToolStripMenuItem);
+			await displayControlAsync(MainForm.accountsToolStripMenuItem);
 
 			using var accountSettings = MainForm.Invoke(() => new AccountsDialog());
 			accountSettings.StartPosition = FormStartPosition.CenterParent;
@@ -57,16 +55,12 @@ namespace LibationWinForms
 
 		private async Task<bool> ShowSettingsDialog()
 		{
-			if (OkCancelMessageBox("Next, adjust Libation's settings", "Change Settings") is not DialogResult.OK) return false;
+			if (!ProceedMessageBox("Next, adjust Libation's settings", "Change Settings"))
+				return false;
 
 			await Task.Delay(750);
-			await flashControlAsync(MainForm.settingsToolStripMenuItem);
-			MainForm.Invoke(MainForm.settingsToolStripMenuItem.ShowDropDown);
-			await Task.Delay(500);
-
-			await flashControlAsync(MainForm.basicSettingsToolStripMenuItem);
-			MainForm.Invoke(MainForm.basicSettingsToolStripMenuItem.Select);
-			await Task.Delay(500);
+			await displayControlAsync(MainForm.settingsToolStripMenuItem);
+			await displayControlAsync(MainForm.basicSettingsToolStripMenuItem);
 
 			using var settingsDialog = MainForm.Invoke(() => new SettingsDialog());
 
@@ -76,6 +70,8 @@ namespace LibationWinForms
 			settingsDialog.FormClosing += SettingsDialog_FormClosing;
 			settingsDialog.Shown += TabControl_TabIndexChanged;
 			settingsDialog.tabControl.SelectedIndexChanged += TabControl_TabIndexChanged;
+			settingsDialog.cancelBtn.Text = "Next Tab";
+			settingsDialog.saveBtn.Visible = false;
 
 			MainForm.Invoke(() => settingsDialog.ShowDialog(MainForm));
 
@@ -86,6 +82,12 @@ namespace LibationWinForms
 				var selectedTab = settingsDialog.tabControl.SelectedTab;
 
 				tabsToVisit.Remove(selectedTab);
+
+				if (tabsToVisit.Count == 0)
+				{
+					settingsDialog.cancelBtn.Text = "Cancel";
+					settingsDialog.saveBtn.Visible = true;
+				}
 
 				if (!selectedTab.Visible || !settingTabMessages.ContainsKey(selectedTab.Text)) return;
 
@@ -98,10 +100,7 @@ namespace LibationWinForms
 			{
 				if (tabsToVisit.Count > 0)
 				{
-					var nextTab = tabsToVisit[0];
-					tabsToVisit.RemoveAt(0);
-
-					settingsDialog.tabControl.SelectedTab = nextTab;
+					settingsDialog.tabControl.SelectedTab = tabsToVisit[0];
 					e.Cancel = true;
 				}
 			}
@@ -109,29 +108,26 @@ namespace LibationWinForms
 
 		private async Task<bool> ShowAccountScanning()
 		{
-			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var count = persister.AccountsSettings.Accounts.Count;
+			persister.Dispose();
 
 			if (count < 1)
 			{
-				MainForm.Invoke(() => MessageBox.Show(MainForm, "Add an Audible account, then sync your library through the \"Import\" menu", "Add an Audible Account", MessageBoxButtons.OK, MessageBoxIcon.Information));
-				return false;
+				MainForm.Invoke(() => MessageBox.Show(MainForm, "Add an Audible account, then sync your library through the 'Import' menu.", "Add an Audible Account", MessageBoxButtons.OK, MessageBoxIcon.Information));
+				return true;
 			}
 
 			var accounts = count > 1 ? "accounts" :"account";
 			var library = count > 1 ? "libraries" : "library";
-			if (OkCancelMessageBox($"Finally, scan your Audible {accounts} to sync your {library} with Libation", $"Scan {accounts}") is not DialogResult.OK) return false;
+			if (!ProceedMessageBox($"Finally, scan your Audible {accounts} to sync your {library} with Libation.\r\n\r\nIf this is your first time scanning an account, you'll be prompted to enter your account's password to log into your Audible account.", $"Scan {accounts}"))
+				return false;
 
 			var scanItem = count > 1 ? MainForm.scanLibraryOfAllAccountsToolStripMenuItem : MainForm.scanLibraryToolStripMenuItem;
 
 			await Task.Delay(750);
-			await flashControlAsync(MainForm.importToolStripMenuItem);
-			MainForm.Invoke(MainForm.importToolStripMenuItem.ShowDropDown);
-			await Task.Delay(500);
-
-			await flashControlAsync(scanItem);
-			MainForm.Invoke(scanItem.Select);
-			await Task.Delay(500);
+			await displayControlAsync(MainForm.importToolStripMenuItem);
+			await displayControlAsync(scanItem);
 
 			MainForm.Invoke(scanItem.PerformClick);
 
@@ -162,28 +158,28 @@ namespace LibationWinForms
 			var firstAuthor = getFirstAuthor();
 			if (firstAuthor == null) return true;
 
-			if (OkCancelMessageBox("You can filter the grid entries by searching", "Searching") is not DialogResult.OK) return false;
+			if (!ProceedMessageBox("You can filter the grid entries by searching", "Searching"))
+				return false;
 
-			MainForm.Invoke(MainForm.filterSearchTb.Focus);
-			await flashControlAsync(MainForm.filterSearchTb);
+			await displayControlAsync(MainForm.filterSearchTb);
 
 			MainForm.Invoke(() => MainForm.filterSearchTb.Text = string.Empty);
 			foreach (var c in firstAuthor)
 			{
 				MainForm.Invoke(() => MainForm.filterSearchTb.Text += c);
-				await Task.Delay(200);
+				await Task.Delay(150);
 			}
 
-			await flashControlAsync(MainForm.filterBtn);
-			MainForm.Invoke(MainForm.filterBtn.Select);
-			await Task.Delay(500);
+			await displayControlAsync(MainForm.filterBtn);
 
 			MainForm.Invoke(MainForm.filterBtn.PerformClick);
+
 			await Task.Delay(1000);
 
 			MessageBox.Show(MainForm, "Libation provides a built-in cheat sheet for its query language", "Search Cheat Sheet");
 
-			await flashControlAsync(MainForm.filterHelpBtn);
+			await displayControlAsync(MainForm.filterHelpBtn);
+
 			using var filterHelp = MainForm.Invoke(() => new SearchSyntaxDialog());
 			MainForm.Invoke(filterHelp.ShowDialog);
 
@@ -193,25 +189,17 @@ namespace LibationWinForms
 		private async Task<bool> ShowQuickFilters()
 		{
 			var firstAuthor = getFirstAuthor();
-
 			if (firstAuthor == null) return true;
 
-			if (OkCancelMessageBox("Queries that you perform regularly can be added to 'Quick Filters'", "Quick Filters") is not DialogResult.OK) return false;
+			if (!ProceedMessageBox("Queries that you perform regularly can be added to 'Quick Filters'", "Quick Filters"))
+				return false;
 
 			MainForm.Invoke(() => MainForm.filterSearchTb.Text = firstAuthor);
 
 			await Task.Delay(750);
-			await flashControlAsync(MainForm.addQuickFilterBtn);
-			MainForm.Invoke(MainForm.addQuickFilterBtn.PerformClick);
-			await Task.Delay(750);
-
-			await flashControlAsync(MainForm.quickFiltersToolStripMenuItem);
-			MainForm.Invoke(MainForm.quickFiltersToolStripMenuItem.ShowDropDown);
-			await Task.Delay(500);
-
-			await flashControlAsync(MainForm.editQuickFiltersToolStripMenuItem);
-			MainForm.Invoke(MainForm.editQuickFiltersToolStripMenuItem.Select);
-			await Task.Delay(500);
+			await displayControlAsync(MainForm.addQuickFilterBtn);
+			await displayControlAsync(MainForm.quickFiltersToolStripMenuItem);
+			await displayControlAsync(MainForm.editQuickFiltersToolStripMenuItem);
 
 			var editQuickFilters = MainForm.Invoke(() => new EditQuickFilters());
 			editQuickFilters.Shown += (_, _) => MessageBox.Show(editQuickFilters, "From here you can edit, delete, and change the order of Quick Filters", "Editing Quick Filters");
@@ -220,10 +208,35 @@ namespace LibationWinForms
 			return true;
 		}
 
+		private Task<bool> ShowTourComplete()
+		{
+			MessageBox.Show(MainForm, "You're now ready to begin using Libation.\r\n\r\nEnjoy!", "Tour Finished");
+			return Task.FromResult(true);
+		}
+
 		private string getFirstAuthor()
 		{
 			var books = DbContexts.GetLibrary_Flat_NoTracking();
 			return books.SelectMany(lb => lb.Book.Authors).FirstOrDefault(a => !string.IsNullOrWhiteSpace(a.Name))?.Name;
+		}
+
+		private async Task displayControlAsync(ToolStripMenuItem menuItem)
+		{
+			MainForm.Invoke(() => menuItem.Enabled = false);
+			MainForm.Invoke(MainForm.productsDisplay.Focus);
+			await flashControlAsync(menuItem);
+			MainForm.Invoke(menuItem.ShowDropDown);
+			await Task.Delay(500);
+			MainForm.Invoke(() => menuItem.Enabled = true);
+		}
+
+		private async Task displayControlAsync(Control button)
+		{
+			MainForm.Invoke(() => button.Enabled = false);
+			MainForm.Invoke(MainForm.productsDisplay.Focus);
+			await flashControlAsync(button);
+			await Task.Delay(500);
+			MainForm.Invoke(() => button.Enabled = true);
 		}
 
 		private async Task flashControlAsync(Control control, int flashCount = 3)
@@ -231,7 +244,7 @@ namespace LibationWinForms
 			var backColor = MainForm.Invoke(() => control.BackColor);
 			for (int i = 0; i < flashCount; i++)
 			{
-				MainForm.Invoke(() => control.BackColor = Color.Firebrick);
+				MainForm.Invoke(() => control.BackColor = FlashColor);
 				await Task.Delay(200);
 				MainForm.Invoke(() => control.BackColor = backColor);
 				await Task.Delay(200);
@@ -243,14 +256,14 @@ namespace LibationWinForms
 			var backColor = MainForm.Invoke(() => control.BackColor);
 			for (int i = 0; i < flashCount; i++)
 			{
-				MainForm.Invoke(() => control.BackColor = Color.Firebrick);
+				MainForm.Invoke(() => control.BackColor = FlashColor);
 				await Task.Delay(200);
 				MainForm.Invoke(() => control.BackColor = backColor);
 				await Task.Delay(200);
 			}
 		}
 
-		private DialogResult OkCancelMessageBox(string message, string caption)
-			=> MainForm.Invoke(() => MessageBox.Show(MainForm, message, caption, MessageBoxButtons.OKCancel));
+		private bool ProceedMessageBox(string message, string caption)
+			=> MainForm.Invoke(() => MessageBox.Show(MainForm, message, caption, MessageBoxButtons.OKCancel)) is DialogResult.OK;
 	}
 }
