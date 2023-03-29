@@ -54,7 +54,7 @@ namespace DtoImporterService
 
 			foreach (var item in uniqueImportItems.Values)
 			{
-				if (qtyNew == 0 && existingEntries.TryGetValue(item.DtoItem.ProductId, out LibraryBook existing))
+				if (existingEntries.TryGetValue(item.DtoItem.ProductId, out LibraryBook existing))
 				{
 					if (existing.Account != item.AccountId)
 					{

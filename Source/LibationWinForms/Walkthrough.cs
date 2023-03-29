@@ -1,6 +1,7 @@
 ﻿using ApplicationServices;
 using AudibleUtilities;
 using Dinah.Core.StepRunner;
+using LibationFileManager;
 using LibationWinForms.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,8 @@ namespace LibationWinForms
 		private readonly AsyncStepSequence sequence = new();
 		public Walkthrough(Form1 form1)
 		{
+			var autoscan = Configuration.Instance.AutoScan;
+			Configuration.Instance.AutoScan = false;
 			MainForm = form1;
 			sequence[nameof(ShowAccountDialog)] = ShowAccountDialog;
 			sequence[nameof(ShowSettingsDialog)] = ShowSettingsDialog;
@@ -33,6 +36,7 @@ namespace LibationWinForms
 			sequence[nameof(ShowSearching)] = ShowSearching;
 			sequence[nameof(ShowQuickFilters)] = ShowQuickFilters;
 			sequence[nameof(ShowTourComplete)] = ShowTourComplete;
+			Configuration.Instance.AutoScan = autoscan;
 		}
 
 		public async Task RunAsync() => await sequence.RunAsync();
