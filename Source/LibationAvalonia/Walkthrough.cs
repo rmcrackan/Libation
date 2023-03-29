@@ -9,6 +9,7 @@ using Avalonia.Styling;
 using Dinah.Core.StepRunner;
 using LibationAvalonia.Dialogs;
 using LibationAvalonia.Views;
+using LibationFileManager;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,6 +32,8 @@ namespace LibationAvalonia
 		private readonly AsyncStepSequence sequence = new();
 		public Walkthrough(MainWindow mainForm)
 		{
+			var autoscan = Configuration.Instance.AutoScan;
+			Configuration.Instance.AutoScan = false;
 			MainForm = mainForm;
 			sequence[nameof(ShowAccountDialog)] = () => UIThread.InvokeAsync(ShowAccountDialog);
 			sequence[nameof(ShowSettingsDialog)] = () => UIThread.InvokeAsync(ShowSettingsDialog);
@@ -38,6 +41,7 @@ namespace LibationAvalonia
 			sequence[nameof(ShowSearching)] = () => UIThread.InvokeAsync(ShowSearching);
 			sequence[nameof(ShowQuickFilters)] = () => UIThread.InvokeAsync(ShowQuickFilters);
 			sequence[nameof(ShowTourComplete)] = () => UIThread.InvokeAsync(ShowTourComplete);
+			Configuration.Instance.AutoScan = autoscan;
 		}
 
 		public async Task RunAsync() => await sequence.RunAsync();
