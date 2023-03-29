@@ -30,9 +30,10 @@ namespace LibationAvalonia
 		private static readonly IBrush FlashColor = Brushes.DodgerBlue;
 		private readonly MainWindow MainForm;
 		private readonly AsyncStepSequence sequence = new();
+		private readonly bool AutoScan;
 		public Walkthrough(MainWindow mainForm)
 		{
-			var autoscan = Configuration.Instance.AutoScan;
+			AutoScan = Configuration.Instance.AutoScan;
 			Configuration.Instance.AutoScan = false;
 			MainForm = mainForm;
 			sequence[nameof(ShowAccountDialog)] = () => UIThread.InvokeAsync(ShowAccountDialog);
@@ -41,10 +42,13 @@ namespace LibationAvalonia
 			sequence[nameof(ShowSearching)] = () => UIThread.InvokeAsync(ShowSearching);
 			sequence[nameof(ShowQuickFilters)] = () => UIThread.InvokeAsync(ShowQuickFilters);
 			sequence[nameof(ShowTourComplete)] = () => UIThread.InvokeAsync(ShowTourComplete);
-			Configuration.Instance.AutoScan = autoscan;
 		}
 
-		public async Task RunAsync() => await sequence.RunAsync();
+		public async Task RunAsync()
+		{
+			await sequence.RunAsync();
+			Configuration.Instance.AutoScan = AutoScan;
+		}
 
 		private async Task<bool> ShowAccountDialog()
 		{
