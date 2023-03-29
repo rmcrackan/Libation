@@ -1211,8 +1211,8 @@
 		#endregion
 		private System.Windows.Forms.Label booksLocationDescLbl;
 		private System.Windows.Forms.Label inProgressDescLbl;
-		private System.Windows.Forms.Button saveBtn;
-		private System.Windows.Forms.Button cancelBtn;
+		public System.Windows.Forms.Button saveBtn;
+		public System.Windows.Forms.Button cancelBtn;
 		private System.Windows.Forms.CheckBox allowLibationFixupCbox;
 		private DirectoryOrCustomSelectControl booksSelectControl;
 		private DirectorySelectControl inProgressSelectControl;

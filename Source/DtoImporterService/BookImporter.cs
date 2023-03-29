@@ -46,7 +46,7 @@ namespace DtoImporterService
 			var productIds = importItems
 				.Select(i => i.DtoItem.ProductId)
 				.Distinct()
-				.ToList();
+				.ToHashSet();
 
 			Cache = DbContext.Books
 				.GetBooks(b => productIds.Contains(b.AudibleProductId))

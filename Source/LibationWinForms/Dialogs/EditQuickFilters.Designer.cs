@@ -32,10 +32,10 @@
             this.saveBtn = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.Original = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Delete = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.Delete = new DisableButtonColumn();
             this.Filter = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MoveUp = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.MoveDown = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.MoveUp = new DisableButtonColumn();
+            this.MoveDown = new DisableButtonColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -145,9 +145,9 @@
         private System.Windows.Forms.Button saveBtn;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Original;
-        private System.Windows.Forms.DataGridViewButtonColumn Delete;
+        private DisableButtonColumn Delete;
         private System.Windows.Forms.DataGridViewTextBoxColumn Filter;
-        private System.Windows.Forms.DataGridViewButtonColumn MoveUp;
-        private System.Windows.Forms.DataGridViewButtonColumn MoveDown;
+        private DisableButtonColumn MoveUp;
+        private DisableButtonColumn MoveDown;
     }
 }

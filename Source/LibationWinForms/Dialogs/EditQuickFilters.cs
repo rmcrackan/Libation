@@ -1,10 +1,19 @@
 ﻿using System;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using LibationFileManager;
 
 namespace LibationWinForms.Dialogs
 {
+	public class DisableButtonColumn : DataGridViewButtonColumn
+	{
+		public DisableButtonColumn()
+		{
+			CellTemplate = new EditQuickFilters.DisableButtonCell();
+		}
+	}
+
 	public partial class EditQuickFilters : Form
 	{
 		private const string BLACK_UP_POINTING_TRIANGLE = "\u25B2";
@@ -14,6 +23,25 @@ namespace LibationWinForms.Dialogs
 		private const string COL_Filter = nameof(Filter);
 		private const string COL_MoveUp = nameof(MoveUp);
 		private const string COL_MoveDown = nameof(MoveDown);
+
+		internal class DisableButtonCell : DataGridViewButtonCell
+		{
+			protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+			{
+				if ((OwningColumn.Name == COL_MoveUp && rowIndex == 0)
+					|| (OwningColumn.Name == COL_MoveDown && rowIndex == LastRowIndex)
+					|| OwningRow.IsNewRow)
+				{
+					base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts ^ (DataGridViewPaintParts.ContentBackground | DataGridViewPaintParts.ContentForeground | DataGridViewPaintParts.SelectionBackground));
+
+					ButtonRenderer.DrawButton(graphics, cellBounds, value as string, cellStyle.Font, false, System.Windows.Forms.VisualStyles.PushButtonState.Disabled);
+				}
+				else
+					base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
+			}
+
+			int LastRowIndex => DataGridView.Rows[^1].IsNewRow ? DataGridView.Rows[^1].Index - 1 : DataGridView.Rows[^1].Index;
+		}
 
 		public EditQuickFilters()
 		{
@@ -65,7 +93,7 @@ namespace LibationWinForms.Dialogs
 			var dgv = (DataGridView)sender;
 
 			var col = dgv.Columns[e.ColumnIndex];
-			if (col is DataGridViewButtonColumn && e.RowIndex >= 0)
+			if (col is DataGridViewButtonColumn && e.RowIndex >= 0 && !dgv.Rows[e.RowIndex].IsNewRow)
 			{
 				var row = dgv.Rows[e.RowIndex];
 				switch (col.Name)

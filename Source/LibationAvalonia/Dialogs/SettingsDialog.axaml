@@ -19,6 +19,7 @@
 			Height="30"
 			Padding="30,3,30,3"
 			Content="Save"
+			Name="saveBtn"
 			Click="SaveButton_Clicked" />
 
 		<TabControl Name="tabControl" Grid.Column="0">
