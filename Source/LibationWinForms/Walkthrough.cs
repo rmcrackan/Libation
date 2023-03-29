@@ -25,9 +25,10 @@ namespace LibationWinForms
 		private static readonly Color FlashColor = Color.DodgerBlue;
 		private readonly Form1 MainForm;
 		private readonly AsyncStepSequence sequence = new();
+		private readonly bool AutoScan;
 		public Walkthrough(Form1 form1)
 		{
-			var autoscan = Configuration.Instance.AutoScan;
+			AutoScan = Configuration.Instance.AutoScan;
 			Configuration.Instance.AutoScan = false;
 			MainForm = form1;
 			sequence[nameof(ShowAccountDialog)] = ShowAccountDialog;
@@ -36,10 +37,13 @@ namespace LibationWinForms
 			sequence[nameof(ShowSearching)] = ShowSearching;
 			sequence[nameof(ShowQuickFilters)] = ShowQuickFilters;
 			sequence[nameof(ShowTourComplete)] = ShowTourComplete;
-			Configuration.Instance.AutoScan = autoscan;
 		}
 
-		public async Task RunAsync() => await sequence.RunAsync();
+		public async Task RunAsync()
+		{
+			await sequence.RunAsync();
+			Configuration.Instance.AutoScan = AutoScan;
+		}
 
 		private async Task<bool> ShowAccountDialog()
 		{
