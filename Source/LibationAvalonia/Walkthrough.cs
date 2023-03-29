@@ -214,6 +214,7 @@ namespace LibationAvalonia
 
 			await Task.Delay(750);
 			await displayControlAsync(MainForm.addQuickFilterBtn);
+			MainForm.addQuickFilterBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
 			await displayControlAsync(MainForm.quickFiltersToolStripMenuItem);
 			await displayControlAsync(editQuickFiltersToolStripMenuItem);
 

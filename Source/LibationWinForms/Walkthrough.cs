@@ -198,6 +198,7 @@ namespace LibationWinForms
 
 			await Task.Delay(750);
 			await displayControlAsync(MainForm.addQuickFilterBtn);
+			MainForm.Invoke(MainForm.addQuickFilterBtn.PerformClick);
 			await displayControlAsync(MainForm.quickFiltersToolStripMenuItem);
 			await displayControlAsync(MainForm.editQuickFiltersToolStripMenuItem);
 
