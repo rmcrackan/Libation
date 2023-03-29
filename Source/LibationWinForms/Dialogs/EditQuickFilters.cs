@@ -93,7 +93,7 @@ namespace LibationWinForms.Dialogs
 			var dgv = (DataGridView)sender;
 
 			var col = dgv.Columns[e.ColumnIndex];
-			if (col is DataGridViewButtonColumn && e.RowIndex >= 0)
+			if (col is DataGridViewButtonColumn && e.RowIndex >= 0 && !dgv.Rows[e.RowIndex].IsNewRow)
 			{
 				var row = dgv.Rows[e.RowIndex];
 				switch (col.Name)
