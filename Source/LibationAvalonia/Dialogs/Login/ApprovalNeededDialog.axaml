@@ -2,9 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="240" d:DesignHeight="120"
-		MinWidth="240" MinHeight="120"
-		MaxWidth="240" MaxHeight="120"
+        mc:Ignorable="d" d:DesignWidth="240" d:DesignHeight="140"
+		MinWidth="240" MinHeight="140"
+		MaxWidth="240" MaxHeight="140"
+		Width="240" Height="140"
         x:Class="LibationAvalonia.Dialogs.Login.ApprovalNeededDialog"
         Title="Approval Alert Detected"
 		Icon="/Assets/libation.ico">
