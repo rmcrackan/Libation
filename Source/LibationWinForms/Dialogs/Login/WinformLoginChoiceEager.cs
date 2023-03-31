@@ -25,7 +25,7 @@ namespace LibationWinForms.Login
 		{
 			using var dialog = new LoginChoiceEagerDialog(_account);
 
-			if (!ShowDialog(dialog) || string.IsNullOrWhiteSpace(dialog.Password))
+			if (!ShowDialog(dialog) || (dialog.LoginMethod is LoginMethod.Api && string.IsNullOrWhiteSpace(dialog.Password)))
 				return null;
 
 			switch (dialog.LoginMethod)

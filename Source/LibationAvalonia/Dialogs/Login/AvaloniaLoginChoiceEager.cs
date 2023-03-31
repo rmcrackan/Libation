@@ -25,7 +25,8 @@ namespace LibationAvalonia.Dialogs.Login
 		{
 			var dialog = new LoginChoiceEagerDialog(_account);
 
-			if (await dialog.ShowDialogAsync() is not DialogResult.OK || string.IsNullOrWhiteSpace(dialog.Password))
+			if (await dialog.ShowDialogAsync() is not DialogResult.OK ||
+				(dialog.LoginMethod is LoginMethod.Api && string.IsNullOrWhiteSpace(dialog.Password)))
 				return null;
 
 			switch (dialog.LoginMethod)
