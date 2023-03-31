@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="220" d:DesignHeight="250"
 		MinWidth="220" MinHeight="250"
 		MaxWidth="220" MaxHeight="250"
+		Width="220" Height="250"
         x:Class="LibationAvalonia.Dialogs.Login.CaptchaDialog"
         Title="CAPTCHA"
 		Icon="/Assets/libation.ico">

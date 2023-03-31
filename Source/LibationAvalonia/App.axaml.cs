@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Platform;
@@ -44,6 +45,9 @@ namespace LibationAvalonia
 		{
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 			{
+				var acceleratorKey = Configuration.IsMacOs ? KeyModifiers.Meta : KeyModifiers.Alt;
+				AvaloniaLocator.CurrentMutable.Bind<IAccessKeyHandler>().ToFunc(() => new AccessKeyHandlerEx(acceleratorKey));
+
 				var config = Configuration.Instance;
 
 				if (!config.LibationSettingsAreValid)
