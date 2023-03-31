@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="200"
 		MinWidth="200" MinHeight="200"
 		MaxWidth="200" MaxHeight="200"
+		Width="200" Height="200"
         x:Class="LibationAvalonia.Dialogs.Login._2faCodeDialog"
         Title="2FA Code"
 		Icon="/Assets/libation.ico">
