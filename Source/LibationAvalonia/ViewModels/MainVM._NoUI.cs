@@ -2,9 +2,9 @@
 using LibationUiBase;
 using System.IO;
 
-namespace LibationAvalonia.Views
+namespace LibationAvalonia.ViewModels
 {
-	public partial class MainWindow
+	partial class MainVM
 	{
 		private void Configure_NonUI()
 		{

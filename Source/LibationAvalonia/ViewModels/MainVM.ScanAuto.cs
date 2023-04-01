@@ -1,23 +1,19 @@
 ﻿using ApplicationServices;
 using AudibleUtilities;
-using Avalonia.Controls;
 using Dinah.Core;
 using LibationFileManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LibationAvalonia.Views
+namespace LibationAvalonia.ViewModels
 {
-	public partial class MainWindow
+	partial class MainVM
 	{
-		private InterruptableTimer autoScanTimer;
+		private readonly InterruptableTimer autoScanTimer = new InterruptableTimer(TimeSpan.FromMinutes(5));
 
 		private void Configure_ScanAuto()
 		{
-			// creating InterruptableTimer inside 'Configure_' is a break from the pattern. As long as no one else needs to access or subscribe to it, this is ok
-			autoScanTimer = new InterruptableTimer(TimeSpan.FromMinutes(5));
-
 			// subscribe as async/non-blocking. I'd actually rather prefer blocking but real-world testing found that caused a deadlock in the AudibleAPI
 			autoScanTimer.Elapsed += async (_, __) =>
 			{
@@ -30,7 +26,7 @@ namespace LibationAvalonia.Views
 				// in autoScan, new books SHALL NOT show dialog
 				try
 				{
-					await LibraryCommands.ImportAccountAsync(Dialogs.Login.AvaloniaLoginChoiceEager.ApiExtendedFunc, accounts);
+					await LibraryCommands.ImportAccountAsync(LibationAvalonia.Dialogs.Login.AvaloniaLoginChoiceEager.ApiExtendedFunc, accounts);
 				}
 				catch (OperationCanceledException)
 				{
@@ -42,10 +38,8 @@ namespace LibationAvalonia.Views
 				}
 			};
 
-			_viewModel.AutoScanChecked = Configuration.Instance.AutoScan;
-
 			// if enabled: begin on load
-			Opened += startAutoScan;
+			MainWindow.Loaded += startAutoScan;
 
 			// if new 'default' account is added, run autoscan
 			AccountsSettingsPersister.Saving += accountsPreSave;
@@ -54,6 +48,7 @@ namespace LibationAvalonia.Views
 			// when autoscan setting is changed, update menu checkbox and run autoscan
 			Configuration.Instance.PropertyChanged += startAutoScan;
 		}
+
 
 		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
 		private List<(string AccountId, string LocaleName)> getDefaultAccounts()
@@ -65,32 +60,24 @@ namespace LibationAvalonia.Views
 				.Select(a => (a.AccountId, a.Locale.Name))
 				.ToList();
 		}
+
 		private void accountsPreSave(object sender = null, EventArgs e = null)
 			=> preSaveDefaultAccounts = getDefaultAccounts();
+
 		private void accountsPostSave(object sender = null, EventArgs e = null)
 		{
-			var postSaveDefaultAccounts = getDefaultAccounts();
-			var newDefaultAccounts = postSaveDefaultAccounts.Except(preSaveDefaultAccounts).ToList();
-
-			if (newDefaultAccounts.Any())
+			if (getDefaultAccounts().Except(preSaveDefaultAccounts).Any())
 				startAutoScan();
 		}
 
 		[PropertyChangeFilter(nameof(Configuration.AutoScan))]
 		private void startAutoScan(object sender = null, EventArgs e = null)
 		{
-			_viewModel.AutoScanChecked = Configuration.Instance.AutoScan;
-			if (_viewModel.AutoScanChecked)
+			AutoScanChecked = Configuration.Instance.AutoScan;
+			if (AutoScanChecked)
 				autoScanTimer.PerformNow();
 			else
 				autoScanTimer.Stop();
-		}
-		public void autoScanLibraryToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			if (sender is MenuItem mi && mi.Icon is CheckBox checkBox)
-			{
-				checkBox.IsChecked = !(checkBox.IsChecked ?? false);
-			}
 		}
 	}
 }

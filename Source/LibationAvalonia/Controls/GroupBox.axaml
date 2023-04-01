@@ -6,9 +6,6 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LibationAvalonia.Controls.GroupBox">
 
-	<Design.DataContext>
-	</Design.DataContext>
-
 	<ContentControl.Styles>
 		<Style Selector="controls|GroupBox Border">
 			<Setter Property="BorderBrush" Value="DarkGray" />

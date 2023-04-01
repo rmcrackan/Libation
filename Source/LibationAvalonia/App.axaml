@@ -1,7 +1,8 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:LibationAvalonia"
-			 x:Class="LibationAvalonia.App">
+			 x:Class="LibationAvalonia.App"
+             Name="Libation">
 
 	<Application.DataTemplates>
 		<local:ViewLocator/>
@@ -69,4 +70,9 @@
 			</Style>
 		</Style>
 	</Application.Styles>
+
+	<NativeMenu.Menu>
+		<NativeMenu />
+	</NativeMenu.Menu>
+
 </Application>

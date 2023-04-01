@@ -51,8 +51,8 @@
 		<Compile Update="Views\LiberateStatusButton.axaml.cs">
 		  <DependentUpon>LiberateStatusButton.axaml</DependentUpon>
 		</Compile>
-		<Compile Update="Views\MainWindow.*.cs">
-			<DependentUpon>MainWindow.axaml</DependentUpon>
+		<Compile Update="ViewModels\MainVM.*.cs">
+			<DependentUpon>MainVM.cs</DependentUpon>
 		</Compile>
 	</ItemGroup>
 

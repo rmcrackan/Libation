@@ -11,9 +11,6 @@
 
 	<UserControl.Resources>
 		<views:DecimalConverter x:Key="myConverter" />
-	</UserControl.Resources>
-
-	<UserControl.Resources>
 		<RecyclePool x:Key="RecyclePool" />
 		<DataTemplate x:Key="queuedBook">
 			<views:ProcessBookControl />

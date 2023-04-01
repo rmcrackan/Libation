@@ -27,7 +27,7 @@
 				<DataTemplate>
 
 					<TextBlock
-						Text="{Binding, Converter={StaticResource KnownDirectoryConverter}}" />
+						Text="{Binding Converter={StaticResource KnownDirectoryConverter}}" />
 
 				</DataTemplate>
 			</ComboBox.ItemTemplate>

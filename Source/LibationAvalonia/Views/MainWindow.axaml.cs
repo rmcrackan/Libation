@@ -1,58 +1,32 @@
-using ApplicationServices;
+using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.ReactiveUI;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
+using LibationUiBase.GridView;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace LibationAvalonia.Views
 {
-	public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
+	public partial class MainWindow : ReactiveWindow<MainVM>
 	{
-		public event EventHandler Load;
 		public event EventHandler<List<LibraryBook>> LibraryLoaded;
-		private readonly MainWindowViewModel _viewModel;
-
 		public MainWindow()
 		{
-			this.DataContext = _viewModel = new MainWindowViewModel();
+			DataContext = new MainVM(this);
 
 			InitializeComponent();
-
-			// eg: if one of these init'd productsGrid, then another can't reliably subscribe to it
-			Configure_BackupCounts();
-			Configure_ScanAuto();
-			Configure_ScanNotification();
-			Configure_VisibleBooks();
-			Configure_QuickFilters();
-			Configure_ScanManual();
-			Configure_RemoveBooks();
-			Configure_Liberate();
-			Configure_Export();
-			Configure_Settings();
-			Configure_ProcessQueue();
 			Configure_Upgrade();
-			Configure_Filter();
-			// misc which belongs in winforms app but doesn't have a UI element
-			Configure_NonUI();
 
-			_viewModel.ProductsDisplay.RemovableCountChanged += ProductsDisplay_RemovableCountChanged;
-			_viewModel.ProductsDisplay.VisibleCountChanged += ProductsDisplay_VisibleCountChanged;
-
-			{
-				this.LibraryLoaded += MainWindow_LibraryLoaded;
-
-				LibraryCommands.LibrarySizeChanged += async (_, _) => await _viewModel.ProductsDisplay.UpdateGridAsync(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-				Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
-			}
+			Loaded += MainWindow_Loaded;
 			Closing += MainWindow_Closing;
-
-			Opened += MainWindow_Opened;
+			LibraryLoaded += MainWindow_LibraryLoaded;
 		}
 
-		private async void MainWindow_Opened(object sender, EventArgs e)
+		private async void MainWindow_Loaded(object sender, EventArgs e)
 		{
 			if (Configuration.Instance.FirstLaunch)
 			{
@@ -66,21 +40,71 @@ namespace LibationAvalonia.Views
 				Configuration.Instance.FirstLaunch = false;
 			}
 		}
-
+		
 		private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			productsDisplay?.CloseImageDisplay();
+			this.SaveSizeAndLocation(Configuration.Instance);
 		}
 
 		private async void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
 		{
 			if (QuickFilters.UseDefault)
-				await performFilter(QuickFilters.Filters.FirstOrDefault());
+				await ViewModel.PerformFilter(QuickFilters.Filters.FirstOrDefault());
 
-			_viewModel.ProductsDisplay.BindToGrid(dbBooks);
+			ViewModel.ProductsDisplay.BindToGrid(dbBooks);
 		}
 
-		public void OnLoad() => Load?.Invoke(this, EventArgs.Empty);
 		public void OnLibraryLoaded(List<LibraryBook> initialLibrary) => LibraryLoaded?.Invoke(this, initialLibrary);
+		public void ProductsDisplay_LiberateClicked(object _, LibraryBook libraryBook) => ViewModel.LiberateClicked(libraryBook);
+		public void ProductsDisplay_LiberateSeriesClicked(object _, ISeriesEntry series) => ViewModel.LiberateSeriesClicked(series);
+		public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook libraryBook) => ViewModel.ConvertToMp3Clicked(libraryBook);
+
+		public async void filterSearchTb_KeyPress(object _, KeyEventArgs e)
+		{
+			if (e.Key == Key.Return)
+			{
+				await ViewModel.PerformFilter(ViewModel.FilterString);
+
+				// silence the 'ding'
+				e.Handled = true;
+			}
+		}
+
+		private void QuickFiltersMenuItem_KeyDown(object _, KeyEventArgs e)
+		{
+			int keyNum = (int)e.Key - 34;
+
+			if (keyNum <= 9 && keyNum >= 1)
+			{
+				ViewModel.QuickFilterMenuItems
+					.OfType<MenuItem>()
+					.FirstOrDefault(i => i.Header is string h && h.StartsWith($"_{keyNum}"))
+					?.Command
+					?.Execute(null);
+			}
+		}
+		private void Configure_Upgrade()
+		{
+			setProgressVisible(false);
+#if DEBUG
+			async System.Threading.Tasks.Task upgradeAvailable(LibationUiBase.UpgradeEventArgs e)
+			{
+				var notificationResult = await new LibationAvalonia.Dialogs.UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade).ShowDialogAsync(this);
+
+				e.Ignore = notificationResult == DialogResult.Ignore;
+				e.InstallUpgrade = notificationResult == DialogResult.OK;
+			}
+
+			var upgrader = new LibationUiBase.Upgrader();
+			upgrader.DownloadProgress += async (_, e) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => ViewModel.DownloadProgress = e.ProgressPercentage);
+			upgrader.DownloadBegin += async (_, _) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(true));
+			upgrader.DownloadCompleted += async (_, _) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(false));
+
+			Opened += async (_, _) => await upgrader.CheckForUpgradeAsync(upgradeAvailable);
+#endif
+		}
+
+		private void setProgressVisible(bool visible) => ViewModel.DownloadProgress = visible ? 0 : null;
 	}
 }

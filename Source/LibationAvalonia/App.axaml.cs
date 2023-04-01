@@ -14,6 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using ReactiveUI;
+using DataLayer;
 
 namespace LibationAvalonia
 {
@@ -45,9 +47,6 @@ namespace LibationAvalonia
 		{
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 			{
-				var acceleratorKey = Configuration.IsMacOs ? KeyModifiers.Meta : KeyModifiers.Alt;
-				AvaloniaLocator.CurrentMutable.Bind<IAccessKeyHandler>().ToFunc(() => new AccessKeyHandlerEx(acceleratorKey));
-
 				var config = Configuration.Instance;
 
 				if (!config.LibationSettingsAreValid)
@@ -219,9 +218,8 @@ namespace LibationAvalonia
 			LoadStyles();
 			var mainWindow = new MainWindow();
 			desktop.MainWindow = MainWindow = mainWindow;
-			mainWindow.RestoreSizeAndLocation(Configuration.Instance);
-			mainWindow.OnLoad();
 			mainWindow.OnLibraryLoaded(LibraryTask.GetAwaiter().GetResult());
+			mainWindow.RestoreSizeAndLocation(Configuration.Instance);
 			mainWindow.Show();
 		}
 
