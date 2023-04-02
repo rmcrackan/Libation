@@ -87,10 +87,10 @@ namespace LibationAvalonia.Views
 		private void Configure_Upgrade()
 		{
 			setProgressVisible(false);
-#if DEBUG
+#if !DEBUG
 			async System.Threading.Tasks.Task upgradeAvailable(LibationUiBase.UpgradeEventArgs e)
 			{
-				var notificationResult = await new LibationAvalonia.Dialogs.UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade).ShowDialogAsync(this);
+				var notificationResult = await new Dialogs.UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade).ShowDialogAsync(this);
 
 				e.Ignore = notificationResult == DialogResult.Ignore;
 				e.InstallUpgrade = notificationResult == DialogResult.OK;

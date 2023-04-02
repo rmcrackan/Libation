@@ -697,7 +697,7 @@
 		private System.Windows.Forms.Button removeBooksBtn;
 		private System.Windows.Forms.Button doneRemovingBtn;
         private System.Windows.Forms.ToolStripMenuItem setPdfDownloadedManualToolStripMenuItem;
-        private System.Windows.Forms.ToolStripProgressBar upgradePb;
-		private System.Windows.Forms.ToolStripStatusLabel upgradeLbl;
+		public System.Windows.Forms.ToolStripProgressBar upgradePb;
+		public System.Windows.Forms.ToolStripStatusLabel upgradeLbl;
 	}
 }

@@ -63,6 +63,16 @@ namespace LibationWinForms.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap cheers {
+            get {
+                object obj = ResourceManager.GetObject("cheers", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap default_cover_300x300 {
             get {
                 object obj = ResourceManager.GetObject("default_cover_300x300", resourceCulture);

@@ -72,7 +72,9 @@
 	</Application.Styles>
 
 	<NativeMenu.Menu>
-		<NativeMenu />
+		<NativeMenu>
+			<NativeMenuItem Header="About Libation" />
+		</NativeMenu>
 	</NativeMenu.Menu>
 
 </Application>
