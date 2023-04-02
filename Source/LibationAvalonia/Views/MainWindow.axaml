@@ -145,12 +145,12 @@
 								<Setter Property="Height" Value="NaN"/>
 							</Style>
 						</MenuItem.Styles>
-						<MenuItem IsEnabled="{CompiledBinding LibraryStats.HasBookResults}" Command="{CompiledBinding ExportLibraryAsync}" Header="E_xport Library" />
+						<MenuItem IsEnabled="{CompiledBinding LibraryStats.HasBookResults}" Command="{CompiledBinding ExportLibraryAsync}" Header="E_xport Library" InputGesture="ctrl+S" />
 					</MenuItem>
 
 					<!-- Quick Filters Menu -->
 
-					<MenuItem Name="quickFiltersToolStripMenuItem" Header="Quick _Filters" ItemsSource="{CompiledBinding QuickFilterMenuItems}" KeyDown="QuickFiltersMenuItem_KeyDown">
+					<MenuItem Name="quickFiltersToolStripMenuItem" Header="Quick _Filters" ItemsSource="{CompiledBinding QuickFilterMenuItems}">
 						<!-- Remove height style property for menu item -->
 						<MenuItem.Styles>
 							<Style Selector="ItemsPresenter#PART_ItemsPresenter">
@@ -185,8 +185,8 @@
 								<Setter Property="Height" Value="NaN"/>
 							</Style>
 						</MenuItem.Styles>
-						<MenuItem Name="accountsToolStripMenuItem" Command="{CompiledBinding ShowAccountsAsync}" Header="_Accounts..." />
-						<MenuItem Name="basicSettingsToolStripMenuItem" Command="{CompiledBinding ShowSettingsAsync}" Header="_Settings..." />
+						<MenuItem Name="accountsToolStripMenuItem" Command="{CompiledBinding ShowAccountsAsync}" Header="_Accounts..." InputGesture="ctrl+shift+A"/>
+						<MenuItem Name="basicSettingsToolStripMenuItem" Command="{CompiledBinding ShowSettingsAsync}" Header="_Settings..." InputGesture="ctrl+P" />
 						<Separator />
 						<MenuItem Command="{CompiledBinding ShowTrashBinAsync}" Header="Trash Bin" />
 						<MenuItem Command="{CompiledBinding LaunchHangover}" Header="Launch _Hangover" />

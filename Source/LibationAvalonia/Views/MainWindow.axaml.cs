@@ -1,10 +1,10 @@
-using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.ReactiveUI;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
 using LibationUiBase.GridView;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +24,15 @@ namespace LibationAvalonia.Views
 			Loaded += MainWindow_Loaded;
 			Closing += MainWindow_Closing;
 			LibraryLoaded += MainWindow_LibraryLoaded;
+
+			KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(selectAndFocusSearchBox), Gesture = new KeyGesture(Key.F, Configuration.IsMacOs ? KeyModifiers.Meta : KeyModifiers.Control) });
+
+			if (!Configuration.IsMacOs)
+			{
+				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ShowSettingsAsync), Gesture = new KeyGesture(Key.P, KeyModifiers.Control) });
+				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ShowAccountsAsync), Gesture = new KeyGesture(Key.A, KeyModifiers.Control | KeyModifiers.Shift) });
+				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ExportLibraryAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Control) });
+			}
 		}
 
 		private async void MainWindow_Loaded(object sender, EventArgs e)
@@ -55,6 +64,12 @@ namespace LibationAvalonia.Views
 			ViewModel.ProductsDisplay.BindToGrid(dbBooks);
 		}
 
+		private void selectAndFocusSearchBox()
+		{
+			filterSearchTb.SelectAll();
+			filterSearchTb.Focus();
+		}
+
 		public void OnLibraryLoaded(List<LibraryBook> initialLibrary) => LibraryLoaded?.Invoke(this, initialLibrary);
 		public void ProductsDisplay_LiberateClicked(object _, LibraryBook libraryBook) => ViewModel.LiberateClicked(libraryBook);
 		public void ProductsDisplay_LiberateSeriesClicked(object _, ISeriesEntry series) => ViewModel.LiberateSeriesClicked(series);
@@ -71,19 +86,6 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private void QuickFiltersMenuItem_KeyDown(object _, KeyEventArgs e)
-		{
-			int keyNum = (int)e.Key - 34;
-
-			if (keyNum <= 9 && keyNum >= 1)
-			{
-				ViewModel.QuickFilterMenuItems
-					.OfType<MenuItem>()
-					.FirstOrDefault(i => i.Header is string h && h.StartsWith($"_{keyNum}"))
-					?.Command
-					?.Execute(null);
-			}
-		}
 		private void Configure_Upgrade()
 		{
 			setProgressVisible(false);

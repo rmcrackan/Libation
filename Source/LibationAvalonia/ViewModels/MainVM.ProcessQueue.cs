@@ -88,7 +88,7 @@ namespace LibationAvalonia.ViewModels
 			{
 				if (libraryBook.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated)
 				{
-					Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", libraryBook);
+					Serilog.Log.Logger.Information("Begin convert to mp3 {libraryBook}", libraryBook);
 					setQueueCollapseState(false);
 					ProcessQueue.AddConvertMp3(libraryBook);
 				}

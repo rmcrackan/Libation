@@ -2,9 +2,11 @@
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Data;
+using Avalonia.Input;
 using LibationFileManager;
 using ReactiveUI;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.ViewModels
@@ -30,7 +32,6 @@ namespace LibationAvalonia.ViewModels
 				this.RaiseAndSetIfChanged(ref _firstFilterIsDefault, value);
 			}
 		}
-
 
 
 		private void Configure_Filters()
@@ -88,7 +89,16 @@ namespace LibationAvalonia.ViewModels
 			var quickFilterNativeMenu = (NativeMenuItem)NativeMenu.GetMenu(MainWindow).Items[3];
 			for (int i = quickFilterNativeMenu.Menu.Items.Count - 1; i >= 3; i--)
 			{
-				(((NativeMenuItem)quickFilterNativeMenu.Menu.Items[i]).Command as IDisposable).Dispose();
+				var command = ((NativeMenuItem)quickFilterNativeMenu.Menu.Items[i]).Command as IDisposable;
+				if (command != null)
+				{
+					var existingBinding = MainWindow.KeyBindings.FirstOrDefault(kb => kb.Command == command);
+					if (existingBinding != null)
+						MainWindow.KeyBindings.Remove(existingBinding);
+
+					command.Dispose();
+				}
+
 				quickFilterNativeMenu.Menu.Items.RemoveAt(i);
 				QuickFilterMenuItems.RemoveAt(i);
 			}
@@ -99,10 +109,25 @@ namespace LibationAvalonia.ViewModels
 			{
 				var command = ReactiveCommand.Create(async () => await PerformFilter(filter));
 
-				quickFilterNativeMenu.Menu.Items.Add(new NativeMenuItem { Header = $"{++index}: {filter}", Command = command, Gesture = new Avalonia.Input.KeyGesture(Avalonia.Input.Key.D0 + index, Avalonia.Input.KeyModifiers.Meta) });
+				var menuItem = new MenuItem { Header = $"{++index}: {filter}", Command = command };
+				var nativeMenuItem = new NativeMenuItem { Header = $"{index}: {filter}", Command = command };
 
-				QuickFilterMenuItems.Add(new MenuItem { Header = $"_{index}: {filter}", Command = command });
+				if (Configuration.IsMacOs && index <= 10)
+				{
+					//Register hotkeys Command + 1 - 0 for quick filters
+					var key = index == 10 ? Key.D0 : Key.D0 + index;
+					nativeMenuItem.Gesture = new KeyGesture(key, KeyModifiers.Meta);
+				}
+				else if (!Configuration.IsMacOs && index <= 12)
+				{
+					//Register hotkeys F1 - F12 for quick filters
+					menuItem.InputGesture = new KeyGesture(Key.F1 + index - 1);
+					MainWindow.KeyBindings.Add(new KeyBinding { Command = command, Gesture = menuItem.InputGesture });
+				}
+
+				QuickFilterMenuItems.Add(menuItem);
+				quickFilterNativeMenu.Menu.Items.Add(nativeMenuItem);
 			}
-		}		
+		}
 	}
 }

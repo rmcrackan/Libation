@@ -24,7 +24,6 @@ namespace LibationAvalonia.ViewModels
 		/// <summary> The "Liberate" menu item header text (submenu item of the "Visible Books" menu item) </summary>
 		public string LiberateVisibleToolStripText_2 { get; private set; } = menufyText("Liberate: 0");
 
-
 		private void Configure_VisibleBooks()
 		{
 			LibraryCommands.BookUserDefinedItemCommitted += setLiberatedVisibleMenuItemAsync;
@@ -37,6 +36,7 @@ namespace LibationAvalonia.ViewModels
 			this.RaisePropertyChanged(nameof(VisibleCountText));
 			this.RaisePropertyChanged(nameof(VisibleCountMenuItemText));
 		}
+
 		private void setVisibleNotLiberatedCount(int visibleNotLiberated)
 		{
 			_visibleNotLiberated = visibleNotLiberated;
@@ -85,6 +85,7 @@ namespace LibationAvalonia.ViewModels
 				Serilog.Log.Logger.Error(ex, "An error occurred while backing up visible library books");
 			}
 		}
+
 		public async Task ReplaceTagsAsync()
 		{
 			var dialog = new TagsBatchDialog();

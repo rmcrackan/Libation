@@ -24,12 +24,12 @@ namespace LibationAvalonia.ViewModels
 
 			Configure_NonUI();
 			Configure_BackupCounts();
+			Configure_Export();
 			Configure_Filters();
 			Configure_Import();
 			Configure_Liberate();
 			Configure_ProcessQueue();
 			Configure_ScanAuto();
-			Configure_Export();
 			Configure_Settings();
 			Configure_VisibleBooks();
 		}

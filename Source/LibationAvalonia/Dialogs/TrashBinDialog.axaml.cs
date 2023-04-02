@@ -25,12 +25,18 @@ namespace LibationAvalonia.Dialogs
 			DataContext = _viewModel = new();
 
 			this.Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
+			this.KeyDown += TrashBinDialog_KeyDown;
 		}
 
 		public async void EmptyTrash_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await _viewModel.PermanentlyDeleteCheckedAsync();
 		public async void Restore_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await _viewModel.RestoreCheckedAsync();
+		private void TrashBinDialog_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
+		{
+			if (e.Key == Avalonia.Input.Key.Escape)
+				Close();
+		}
 	}
 
 	public class TrashBinViewModel : ViewModelBase, IDisposable
