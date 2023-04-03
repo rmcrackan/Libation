@@ -3,21 +3,22 @@ using Avalonia.Platform.Storage;
 using FileManager;
 using LibationFileManager;
 using System;
+using System.Threading.Tasks;
 
-namespace LibationAvalonia.Views
+namespace LibationAvalonia.ViewModels
 {
-	public partial class MainWindow
+	partial class MainVM
 	{
 		private void Configure_Export() { }
 
-		public async void exportLibraryToolStripMenuItem_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async Task ExportLibraryAsync()
 		{
 			try
 			{
 				var options = new FilePickerSaveOptions
 				{
 					Title = "Where to export Library",
-					SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
+					SuggestedStartLocation = await MainWindow.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
 					SuggestedFileName = $"Libation Library Export {DateTime.Now:yyyy-MM-dd}",
 					DefaultExtension = "xlsx",
 					ShowOverwritePrompt = true,
@@ -43,7 +44,7 @@ namespace LibationAvalonia.Views
 					}
 				};
 
-				var selectedFile = (await StorageProvider.SaveFilePickerAsync(options))?.TryGetLocalPath();
+				var selectedFile = (await MainWindow.StorageProvider.SaveFilePickerAsync(options))?.TryGetLocalPath();
 
 				if (selectedFile is null) return;
 
@@ -66,7 +67,7 @@ namespace LibationAvalonia.Views
 			}
 			catch (Exception ex)
 			{
-				await MessageBox.ShowAdminAlert(this, "Error attempting to export your library.", "Error exporting", ex);
+				await MessageBox.ShowAdminAlert(MainWindow, "Error attempting to export your library.", "Error exporting", ex);
 			}
 		}
 	}

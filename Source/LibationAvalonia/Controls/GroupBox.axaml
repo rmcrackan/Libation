@@ -6,9 +6,6 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LibationAvalonia.Controls.GroupBox">
 
-	<Design.DataContext>
-	</Design.DataContext>
-
 	<ContentControl.Styles>
 		<Style Selector="controls|GroupBox Border">
 			<Setter Property="BorderBrush" Value="DarkGray" />
@@ -16,7 +13,7 @@
 		<Style Selector="controls|GroupBox">
 			<Setter Property="Template">
 				<ControlTemplate>
-					<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="7,10,*,Auto">
+					<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="8,12,*,Auto">
 
 						<Grid
 							ZIndex="1"

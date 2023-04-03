@@ -149,7 +149,7 @@ namespace LibationAvalonia
 			await displayControlAsync(MainForm.importToolStripMenuItem);
 			await displayControlAsync(scanItem);
 
-			scanItem.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+			scanItem.Command.Execute(null);
 			MainForm.importToolStripMenuItem.Close();
 
 			var tcs = new TaskCompletionSource();
@@ -193,7 +193,7 @@ namespace LibationAvalonia
 
 			await displayControlAsync(MainForm.filterBtn);
 
-			MainForm.filterBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+			MainForm.filterBtn.Command.Execute(null);
 
 			await Task.Delay(1000);
 
@@ -222,7 +222,7 @@ namespace LibationAvalonia
 
 			await Task.Delay(750);
 			await displayControlAsync(MainForm.addQuickFilterBtn);
-			MainForm.addQuickFilterBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+			MainForm.addQuickFilterBtn.Command.Execute(null);
 			await displayControlAsync(MainForm.quickFiltersToolStripMenuItem);
 			await displayControlAsync(editQuickFiltersToolStripMenuItem);
 

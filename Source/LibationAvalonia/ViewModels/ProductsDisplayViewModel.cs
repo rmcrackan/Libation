@@ -117,7 +117,7 @@ namespace LibationAvalonia.ViewModels
 			}
 
 			//Create the filtered-in list before adding entries to avoid a refresh
-			FilteredInGridEntries = QueryResults(geList, FilterString);
+			FilteredInGridEntries = QueryResults(geList.Union(geList.OfType<ISeriesEntry>().SelectMany(s => s.Children)), FilterString);
 			SOURCE.AddRange(geList.OrderByDescending(e => e.DateAdded));
 
 			//Add all children beneath their parent
