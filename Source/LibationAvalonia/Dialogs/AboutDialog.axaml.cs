@@ -1,12 +1,10 @@
-using Avalonia.Collections;
 using Avalonia.Controls;
+using LibationAvalonia.Controls;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
 using LibationUiBase;
 using ReactiveUI;
 using System;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
@@ -50,8 +48,14 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		private void Link_rmcrackan(object sender, Avalonia.Input.TappedEventArgs e) => Dinah.Core.Go.To.Url($"ht" + "tps://github.com/rmcrackan");
-		private void Link_MBucari(object sender, Avalonia.Input.TappedEventArgs e) => Dinah.Core.Go.To.Url($"ht" + "tps://github.com/MBucari");
+		private void Link_GithubUser(object sender, Avalonia.Input.TappedEventArgs e)
+		{
+			if (sender is LinkLabel lbl)
+			{
+				Dinah.Core.Go.To.Url($"ht" + $"tps://github.com/{lbl.Text.Replace('.','-')}");
+			}
+		}
+
 		private void Link_getlibation(object sender, Avalonia.Input.TappedEventArgs e) => Dinah.Core.Go.To.Url(AppScaffolding.LibationScaffolding.WebsiteUrl);
 
 		private void ViewReleaseNotes_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
@@ -61,7 +65,6 @@ namespace LibationAvalonia.Dialogs
 	public class AboutVM : ViewModelBase
 	{
 		public string Version { get; }
-		public AvaloniaList<AssemblyName> Assemblies { get; } = new();
 		public bool CanCheckForUpgrade { get => canCheckForUpgrade; set => this.RaiseAndSetIfChanged(ref canCheckForUpgrade, value); }
 		public string UpgradeButtonText { get => upgradeButtonText; set => this.RaiseAndSetIfChanged(ref upgradeButtonText, value); }
 
@@ -72,9 +75,6 @@ namespace LibationAvalonia.Dialogs
 		public AboutVM()
 		{
 			Version = $"Libation {AppScaffolding.LibationScaffolding.Variety} v{AppScaffolding.LibationScaffolding.BuildVersion}";
-			Assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Select(a => new AssemblyName(a.FullName)).Where(a => a.Version.Major + a.Version.Minor + a.Version.Build + a.Version.Revision > 0).OrderBy(a => a.Name));
 		}
-
-		public async Task CopyAssembliesAsync() => await App.Current.Clipboard.SetTextAsync(string.Join(Environment.NewLine, Assemblies.Select(a => $"{a.Name}\t{a.Version}")));
 	}
 }

@@ -2,29 +2,29 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="600"
-		MinWidth="500" MinHeight="550"
-		Width="500" Height="600"
+		mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="520"
+		MinWidth="400" MinHeight="520"
+		Width="400" Height="520"
         x:Class="LibationAvalonia.Dialogs.AboutDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         Title="About Libation"
 		Icon="/Assets/libation.ico">
 	
-	<Grid Margin="10" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,*">
+	<Grid Margin="10" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,*">
 		
-		<controls:LinkLabel Grid.ColumnSpan="2" FontSize="18" FontWeight="Bold" Text="{Binding Version}" ToolTip.Tip="View Release Notes" Tapped="ViewReleaseNotes_Tapped" />
+		<controls:LinkLabel Grid.ColumnSpan="2" FontSize="16" FontWeight="Bold" Text="{Binding Version}" ToolTip.Tip="View Release Notes" Tapped="ViewReleaseNotes_Tapped" />
 
-		<controls:LinkLabel Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Right" Text="https://getlibation.com" Tapped="Link_getlibation"/>
+		<controls:LinkLabel Grid.Column="1" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Right" Text="https://getlibation.com" Tapped="Link_getlibation"/>
 		
 		<Button Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,20,0,0"  IsEnabled="{Binding CanCheckForUpgrade}" Content="{Binding UpgradeButtonText}" Click="CheckForUpgrade_Click" />
 
-		<Canvas Grid.Row="2" Grid.ColumnSpan="2" Margin="0,30" Width="345" Height="280">
+		<Canvas Grid.Row="2" Grid.ColumnSpan="2" Margin="0,30,0,20" Width="280" Height="220">
 			<Path Stretch="None" Fill="{DynamicResource IconFill}" Data="{DynamicResource LibationCheersIcon}">
 				<Path.RenderTransform>
 					<TransformGroup>
 						<RotateTransform Angle="12" />
-						<ScaleTransform ScaleX="0.5" ScaleY="0.5" />
-						<TranslateTransform X="-150" Y="-120" /> 
+						<ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+						<TranslateTransform X="-160" Y="-150" /> 
 					</TransformGroup>
 				</Path.RenderTransform>
 			</Path>
@@ -33,36 +33,41 @@
 					<TransformGroup>
 						<ScaleTransform ScaleX="-1" ScaleY="1" />
 						<RotateTransform Angle="-12" />
-						<ScaleTransform ScaleX="0.5" ScaleY="0.5" />
-						<TranslateTransform X="78" Y="-120" />
+						<ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+						<TranslateTransform X="23" Y="-150" />
 					</TransformGroup>			
 				</Path.RenderTransform>
 			</Path>
-			<controls:LinkLabel Canvas.Left="50" Canvas.Top="40" Text="rmcrackan" Tapped="Link_rmcrackan" ToolTip.Tip="View rmcrackan's GitHub profile" />
-			<controls:LinkLabel Canvas.Right="50" Canvas.Top="40" Text="MBucari" Tapped="Link_MBucari" ToolTip.Tip="View MBucari's GitHub profile" />
 		</Canvas>
-		
-		<TextBlock Grid.Row="3" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Text="Loaded Assemblies"/>
-		<Button Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Padding="10,0" Content="Copy to Clipboard" Command="{Binding CopyAssembliesAsync}"/>
-		
-		<ListBox Grid.Row="4" Grid.ColumnSpan="2" Margin="0,10,0,0" ItemsSource="{Binding Assemblies}">
-			<ListBox.Styles>
-				<Style Selector="ListBoxItem" >
-					<Setter Property="Padding" Value="0" />
-					<Style Selector="^ > Grid > TextBlock" >
-						<Setter Property="FontSize" Value="11" />
-					</Style>
-				</Style>
-			</ListBox.Styles>
-			<ListBox.ItemTemplate>
-				<DataTemplate>
-					<Grid ColumnDefinitions="*,Auto">
-						<TextBlock Text="{Binding Name}" />
-						<TextBlock Grid.Column="1" Text="{Binding Version}" />
-					</Grid>
-				</DataTemplate>
-			</ListBox.ItemTemplate>
-		</ListBox>
+
+		<controls:GroupBox Grid.Row="3" BorderWidth="2" Label="Acknowledgements" Grid.ColumnSpan="2">
+			<StackPanel>
+
+				<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+					<controls:LinkLabel FontWeight="Bold" Text="rmcrackan" Tapped="Link_GithubUser" />
+					<TextBlock Grid.Column="1" Margin="10,0" Text="Creator" />
+					<controls:LinkLabel Grid.Row="1" FontWeight="Bold" Text="Mbucari" Tapped="Link_GithubUser" />
+					<TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0" Text="Developer" />
+				</Grid>
+				
+				<TextBlock Margin="0,10" FontSize="12" Text="Additional Contributions by:" TextDecorations="Underline"/>
+
+				<WrapPanel>
+					<WrapPanel.Styles>
+						<Style Selector="TextBlock">
+							<Setter Property="Margin" Value="5,0" />
+							<Setter Property="FontSize" Value="13" />
+						</Style>
+					</WrapPanel.Styles>
+					<controls:LinkLabel Text="pixil98" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="hutattedonmyarm" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="seanke" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="wtanksleyjr" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="Dr.Blank" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="CharlieRussel" Tapped="Link_GithubUser" />
+				</WrapPanel>
+			</StackPanel>			
+		</controls:GroupBox>
 		
 	</Grid>
 </Window>

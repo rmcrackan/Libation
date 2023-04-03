@@ -13,7 +13,7 @@
 		<Style Selector="controls|GroupBox">
 			<Setter Property="Template">
 				<ControlTemplate>
-					<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="7,10,*,Auto">
+					<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="8,12,*,Auto">
 
 						<Grid
 							ZIndex="1"

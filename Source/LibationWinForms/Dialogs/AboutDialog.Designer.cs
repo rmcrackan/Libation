@@ -28,170 +28,281 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.pictureBox1 = new System.Windows.Forms.PictureBox();
-			this.releaseNotesLbl = new System.Windows.Forms.LinkLabel();
-			this.checkForUpgradeBtn = new System.Windows.Forms.Button();
-			this.listView1 = new System.Windows.Forms.ListView();
-			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-			this.copyBtn = new System.Windows.Forms.Button();
-			this.label2 = new System.Windows.Forms.Label();
-			this.getLibationLbl = new System.Windows.Forms.LinkLabel();
-			this.rmcrackanLbl = new System.Windows.Forms.LinkLabel();
-			this.MBucariLbl = new System.Windows.Forms.LinkLabel();
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-			this.SuspendLayout();
+			pictureBox1 = new System.Windows.Forms.PictureBox();
+			releaseNotesLbl = new System.Windows.Forms.LinkLabel();
+			checkForUpgradeBtn = new System.Windows.Forms.Button();
+			getLibationLbl = new System.Windows.Forms.LinkLabel();
+			rmcrackanLbl = new System.Windows.Forms.LinkLabel();
+			MBucariLbl = new System.Windows.Forms.LinkLabel();
+			groupBox1 = new System.Windows.Forms.GroupBox();
+			label3 = new System.Windows.Forms.Label();
+			label4 = new System.Windows.Forms.Label();
+			label2 = new System.Windows.Forms.Label();
+			label1 = new System.Windows.Forms.Label();
+			flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+			linkLabel4 = new System.Windows.Forms.LinkLabel();
+			linkLabel2 = new System.Windows.Forms.LinkLabel();
+			linkLabel3 = new System.Windows.Forms.LinkLabel();
+			linkLabel1 = new System.Windows.Forms.LinkLabel();
+			linkLabel5 = new System.Windows.Forms.LinkLabel();
+			linkLabel6 = new System.Windows.Forms.LinkLabel();
+			((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+			groupBox1.SuspendLayout();
+			flowLayoutPanel1.SuspendLayout();
+			SuspendLayout();
 			// 
 			// pictureBox1
 			// 
-			this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.pictureBox1.Image = global::LibationWinForms.Properties.Resources.cheers;
-			this.pictureBox1.Location = new System.Drawing.Point(22, 224);
-			this.pictureBox1.Margin = new System.Windows.Forms.Padding(6);
-			this.pictureBox1.Name = "pictureBox1";
-			this.pictureBox1.Size = new System.Drawing.Size(761, 604);
-			this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-			this.pictureBox1.TabIndex = 0;
-			this.pictureBox1.TabStop = false;
+			pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			pictureBox1.Image = Properties.Resources.cheers;
+			pictureBox1.Location = new System.Drawing.Point(12, 91);
+			pictureBox1.Name = "pictureBox1";
+			pictureBox1.Size = new System.Drawing.Size(410, 210);
+			pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			pictureBox1.TabIndex = 0;
+			pictureBox1.TabStop = false;
 			// 
 			// releaseNotesLbl
 			// 
-			this.releaseNotesLbl.AutoSize = true;
-			this.releaseNotesLbl.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.releaseNotesLbl.Location = new System.Drawing.Point(22, 26);
-			this.releaseNotesLbl.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-			this.releaseNotesLbl.Name = "releaseNotesLbl";
-			this.releaseNotesLbl.Size = new System.Drawing.Size(343, 41);
-			this.releaseNotesLbl.TabIndex = 2;
-			this.releaseNotesLbl.TabStop = true;
-			this.releaseNotesLbl.Text = "Libation Classic v11.0.0.0";
+			releaseNotesLbl.AutoSize = true;
+			releaseNotesLbl.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			releaseNotesLbl.Location = new System.Drawing.Point(12, 12);
+			releaseNotesLbl.Name = "releaseNotesLbl";
+			releaseNotesLbl.Size = new System.Drawing.Size(171, 20);
+			releaseNotesLbl.TabIndex = 2;
+			releaseNotesLbl.TabStop = true;
+			releaseNotesLbl.Text = "Libation Classic v11.0.0.0";
 			// 
 			// checkForUpgradeBtn
 			// 
-			this.checkForUpgradeBtn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.checkForUpgradeBtn.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.checkForUpgradeBtn.Location = new System.Drawing.Point(22, 115);
-			this.checkForUpgradeBtn.Margin = new System.Windows.Forms.Padding(6);
-			this.checkForUpgradeBtn.Name = "checkForUpgradeBtn";
-			this.checkForUpgradeBtn.Size = new System.Drawing.Size(761, 66);
-			this.checkForUpgradeBtn.TabIndex = 3;
-			this.checkForUpgradeBtn.Text = "Check for Upgrade";
-			this.checkForUpgradeBtn.UseVisualStyleBackColor = true;
-			// 
-			// listView1
-			// 
-			this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2});
-			this.listView1.Location = new System.Drawing.Point(22, 947);
-			this.listView1.Margin = new System.Windows.Forms.Padding(6);
-			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(758, 219);
-			this.listView1.TabIndex = 4;
-			this.listView1.UseCompatibleStateImageBehavior = false;
-			this.listView1.View = System.Windows.Forms.View.Details;
-			// 
-			// columnHeader1
-			// 
-			this.columnHeader1.Text = "Assembly";
-			// 
-			// columnHeader2
-			// 
-			this.columnHeader2.Text = "Version";
-			// 
-			// copyBtn
-			// 
-			this.copyBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.copyBtn.Location = new System.Drawing.Point(565, 885);
-			this.copyBtn.Margin = new System.Windows.Forms.Padding(6);
-			this.copyBtn.Name = "copyBtn";
-			this.copyBtn.Size = new System.Drawing.Size(219, 49);
-			this.copyBtn.TabIndex = 5;
-			this.copyBtn.Text = "Copy to Clipboard";
-			this.copyBtn.UseVisualStyleBackColor = true;
-			// 
-			// label2
-			// 
-			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(22, 894);
-			this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(217, 32);
-			this.label2.TabIndex = 6;
-			this.label2.Text = "Loaded Assemblies";
+			checkForUpgradeBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			checkForUpgradeBtn.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			checkForUpgradeBtn.Location = new System.Drawing.Point(12, 54);
+			checkForUpgradeBtn.Name = "checkForUpgradeBtn";
+			checkForUpgradeBtn.Size = new System.Drawing.Size(410, 31);
+			checkForUpgradeBtn.TabIndex = 3;
+			checkForUpgradeBtn.Text = "Check for Upgrade";
+			checkForUpgradeBtn.UseVisualStyleBackColor = true;
 			// 
 			// getLibationLbl
 			// 
-			this.getLibationLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.getLibationLbl.AutoSize = true;
-			this.getLibationLbl.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.getLibationLbl.Location = new System.Drawing.Point(455, 26);
-			this.getLibationLbl.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-			this.getLibationLbl.Name = "getLibationLbl";
-			this.getLibationLbl.Size = new System.Drawing.Size(325, 41);
-			this.getLibationLbl.TabIndex = 7;
-			this.getLibationLbl.TabStop = true;
-			this.getLibationLbl.Text = "https://getlibation.com";
-			this.getLibationLbl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.getLibationLbl_LinkClicked);
+			getLibationLbl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			getLibationLbl.AutoSize = true;
+			getLibationLbl.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			getLibationLbl.Location = new System.Drawing.Point(245, 12);
+			getLibationLbl.Name = "getLibationLbl";
+			getLibationLbl.Size = new System.Drawing.Size(162, 20);
+			getLibationLbl.TabIndex = 7;
+			getLibationLbl.TabStop = true;
+			getLibationLbl.Text = "https://getlibation.com";
+			getLibationLbl.LinkClicked += getLibationLbl_LinkClicked;
 			// 
 			// rmcrackanLbl
 			// 
-			this.rmcrackanLbl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.rmcrackanLbl.AutoSize = true;
-			this.rmcrackanLbl.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.rmcrackanLbl.Location = new System.Drawing.Point(45, 567);
-			this.rmcrackanLbl.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-			this.rmcrackanLbl.Name = "rmcrackanLbl";
-			this.rmcrackanLbl.Size = new System.Drawing.Size(123, 32);
-			this.rmcrackanLbl.TabIndex = 8;
-			this.rmcrackanLbl.TabStop = true;
-			this.rmcrackanLbl.Text = "rmcrackan";
-			this.rmcrackanLbl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.rmcrackanLbl_LinkClicked);
+			rmcrackanLbl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			rmcrackanLbl.AutoSize = true;
+			rmcrackanLbl.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+			rmcrackanLbl.Location = new System.Drawing.Point(6, 19);
+			rmcrackanLbl.Name = "rmcrackanLbl";
+			rmcrackanLbl.Padding = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			rmcrackanLbl.Size = new System.Drawing.Size(80, 25);
+			rmcrackanLbl.TabIndex = 8;
+			rmcrackanLbl.TabStop = true;
+			rmcrackanLbl.Text = "rmcrackan";
+			rmcrackanLbl.LinkClicked += Link_GithubUser;
 			// 
 			// MBucariLbl
 			// 
-			this.MBucariLbl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.MBucariLbl.AutoSize = true;
-			this.MBucariLbl.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			this.MBucariLbl.Location = new System.Drawing.Point(665, 567);
-			this.MBucariLbl.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-			this.MBucariLbl.Name = "MBucariLbl";
-			this.MBucariLbl.Size = new System.Drawing.Size(101, 32);
-			this.MBucariLbl.TabIndex = 9;
-			this.MBucariLbl.TabStop = true;
-			this.MBucariLbl.Text = "MBucari";
-			this.MBucariLbl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.MBucariLbl_LinkClicked);
+			MBucariLbl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			MBucariLbl.AutoSize = true;
+			MBucariLbl.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+			MBucariLbl.Location = new System.Drawing.Point(6, 40);
+			MBucariLbl.Name = "MBucariLbl";
+			MBucariLbl.Padding = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			MBucariLbl.Size = new System.Drawing.Size(64, 25);
+			MBucariLbl.TabIndex = 9;
+			MBucariLbl.TabStop = true;
+			MBucariLbl.Text = "Mbucari";
+			MBucariLbl.LinkClicked += Link_GithubUser;
+			// 
+			// groupBox1
+			// 
+			groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			groupBox1.Controls.Add(label3);
+			groupBox1.Controls.Add(label4);
+			groupBox1.Controls.Add(label2);
+			groupBox1.Controls.Add(label1);
+			groupBox1.Controls.Add(flowLayoutPanel1);
+			groupBox1.Controls.Add(MBucariLbl);
+			groupBox1.Controls.Add(rmcrackanLbl);
+			groupBox1.Location = new System.Drawing.Point(12, 307);
+			groupBox1.Name = "groupBox1";
+			groupBox1.Size = new System.Drawing.Size(410, 172);
+			groupBox1.TabIndex = 10;
+			groupBox1.TabStop = false;
+			groupBox1.Text = "Acknowledgements";
+			// 
+			// label3
+			// 
+			label3.AutoSize = true;
+			label3.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			label3.Location = new System.Drawing.Point(92, 43);
+			label3.Name = "label3";
+			label3.Padding = new System.Windows.Forms.Padding(0, 0, 0, 3);
+			label3.Size = new System.Drawing.Size(71, 22);
+			label3.TabIndex = 12;
+			label3.Text = "Developer";
+			// 
+			// label4
+			// 
+			label4.AutoSize = true;
+			label4.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			label4.Location = new System.Drawing.Point(92, 22);
+			label4.Name = "label4";
+			label4.Padding = new System.Windows.Forms.Padding(0, 0, 0, 3);
+			label4.Size = new System.Drawing.Size(55, 22);
+			label4.TabIndex = 12;
+			label4.Text = "Creator";
+			// 
+			// label2
+			// 
+			label2.AutoSize = true;
+			label2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			label2.Location = new System.Drawing.Point(92, 22);
+			label2.Name = "label2";
+			label2.Padding = new System.Windows.Forms.Padding(0, 0, 0, 3);
+			label2.Size = new System.Drawing.Size(45, 22);
+			label2.TabIndex = 12;
+			label2.Text = "label2";
+			// 
+			// label1
+			// 
+			label1.AutoSize = true;
+			label1.Location = new System.Drawing.Point(6, 82);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(157, 15);
+			label1.TabIndex = 11;
+			label1.Text = "Additional Contributions by:";
+			// 
+			// flowLayoutPanel1
+			// 
+			flowLayoutPanel1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			flowLayoutPanel1.Controls.Add(linkLabel4);
+			flowLayoutPanel1.Controls.Add(linkLabel2);
+			flowLayoutPanel1.Controls.Add(linkLabel3);
+			flowLayoutPanel1.Controls.Add(linkLabel1);
+			flowLayoutPanel1.Controls.Add(linkLabel5);
+			flowLayoutPanel1.Controls.Add(linkLabel6);
+			flowLayoutPanel1.Location = new System.Drawing.Point(6, 100);
+			flowLayoutPanel1.Name = "flowLayoutPanel1";
+			flowLayoutPanel1.Size = new System.Drawing.Size(398, 66);
+			flowLayoutPanel1.TabIndex = 10;
+			// 
+			// linkLabel4
+			// 
+			linkLabel4.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			linkLabel4.AutoSize = true;
+			linkLabel4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			linkLabel4.Location = new System.Drawing.Point(3, 0);
+			linkLabel4.Name = "linkLabel4";
+			linkLabel4.Padding = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			linkLabel4.Size = new System.Drawing.Size(41, 21);
+			linkLabel4.TabIndex = 9;
+			linkLabel4.TabStop = true;
+			linkLabel4.Text = "pixil98";
+			linkLabel4.LinkClicked += Link_GithubUser;
+			// 
+			// linkLabel2
+			// 
+			linkLabel2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			linkLabel2.AutoSize = true;
+			linkLabel2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			linkLabel2.Location = new System.Drawing.Point(50, 0);
+			linkLabel2.Name = "linkLabel2";
+			linkLabel2.Padding = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			linkLabel2.Size = new System.Drawing.Size(104, 21);
+			linkLabel2.TabIndex = 9;
+			linkLabel2.TabStop = true;
+			linkLabel2.Text = "hutattedonmyarm";
+			linkLabel2.LinkClicked += Link_GithubUser;
+			// 
+			// linkLabel3
+			// 
+			linkLabel3.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			linkLabel3.AutoSize = true;
+			linkLabel3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			linkLabel3.Location = new System.Drawing.Point(160, 0);
+			linkLabel3.Name = "linkLabel3";
+			linkLabel3.Padding = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			linkLabel3.Size = new System.Drawing.Size(43, 21);
+			linkLabel3.TabIndex = 9;
+			linkLabel3.TabStop = true;
+			linkLabel3.Text = "seanke";
+			linkLabel3.LinkClicked += Link_GithubUser;
+			// 
+			// linkLabel1
+			// 
+			linkLabel1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			linkLabel1.AutoSize = true;
+			linkLabel1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			linkLabel1.Location = new System.Drawing.Point(209, 0);
+			linkLabel1.Name = "linkLabel1";
+			linkLabel1.Padding = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			linkLabel1.Size = new System.Drawing.Size(66, 21);
+			linkLabel1.TabIndex = 9;
+			linkLabel1.TabStop = true;
+			linkLabel1.Text = "wtanksleyjr";
+			linkLabel1.LinkClicked += Link_GithubUser;
+			// 
+			// linkLabel5
+			// 
+			linkLabel5.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			linkLabel5.AutoSize = true;
+			linkLabel5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			linkLabel5.Location = new System.Drawing.Point(281, 0);
+			linkLabel5.Name = "linkLabel5";
+			linkLabel5.Padding = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			linkLabel5.Size = new System.Drawing.Size(51, 21);
+			linkLabel5.TabIndex = 9;
+			linkLabel5.TabStop = true;
+			linkLabel5.Text = "Dr.Blank";
+			linkLabel5.LinkClicked += Link_GithubUser;
+			// 
+			// linkLabel6
+			// 
+			linkLabel6.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			linkLabel6.AutoSize = true;
+			linkLabel6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			linkLabel6.Location = new System.Drawing.Point(3, 21);
+			linkLabel6.Name = "linkLabel6";
+			linkLabel6.Padding = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			linkLabel6.Size = new System.Drawing.Size(77, 21);
+			linkLabel6.TabIndex = 9;
+			linkLabel6.TabStop = true;
+			linkLabel6.Text = "CharlieRussel";
+			linkLabel6.LinkClicked += Link_GithubUser;
 			// 
 			// AboutDialog
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(806, 1197);
-			this.Controls.Add(this.MBucariLbl);
-			this.Controls.Add(this.rmcrackanLbl);
-			this.Controls.Add(this.getLibationLbl);
-			this.Controls.Add(this.label2);
-			this.Controls.Add(this.copyBtn);
-			this.Controls.Add(this.listView1);
-			this.Controls.Add(this.checkForUpgradeBtn);
-			this.Controls.Add(this.releaseNotesLbl);
-			this.Controls.Add(this.pictureBox1);
-			this.Margin = new System.Windows.Forms.Padding(6);
-			this.MinimumSize = new System.Drawing.Size(813, 1200);
-			this.Name = "AboutDialog";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "About Libation";
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-			this.ResumeLayout(false);
-			this.PerformLayout();
-
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			ClientSize = new System.Drawing.Size(434, 491);
+			Controls.Add(groupBox1);
+			Controls.Add(getLibationLbl);
+			Controls.Add(checkForUpgradeBtn);
+			Controls.Add(releaseNotesLbl);
+			Controls.Add(pictureBox1);
+			MinimumSize = new System.Drawing.Size(445, 530);
+			Name = "AboutDialog";
+			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			Text = "About Libation";
+			((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+			groupBox1.ResumeLayout(false);
+			groupBox1.PerformLayout();
+			flowLayoutPanel1.ResumeLayout(false);
+			flowLayoutPanel1.PerformLayout();
+			ResumeLayout(false);
+			PerformLayout();
 		}
 
 		#endregion
@@ -199,13 +310,20 @@
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.Windows.Forms.LinkLabel releaseNotesLbl;
 		private System.Windows.Forms.Button checkForUpgradeBtn;
-		private System.Windows.Forms.ListView listView1;
-		private System.Windows.Forms.Button copyBtn;
-		private System.Windows.Forms.Label label2;
-		private System.Windows.Forms.ColumnHeader columnHeader1;
-		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.LinkLabel getLibationLbl;
 		private System.Windows.Forms.LinkLabel rmcrackanLbl;
 		private System.Windows.Forms.LinkLabel MBucariLbl;
+		private System.Windows.Forms.GroupBox groupBox1;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+		private System.Windows.Forms.LinkLabel linkLabel1;
+		private System.Windows.Forms.LinkLabel linkLabel4;
+		private System.Windows.Forms.LinkLabel linkLabel2;
+		private System.Windows.Forms.LinkLabel linkLabel3;
+		private System.Windows.Forms.LinkLabel linkLabel5;
+		private System.Windows.Forms.LinkLabel linkLabel6;
+		private System.Windows.Forms.Label label3;
+		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.Label label2;
 	}
 }
