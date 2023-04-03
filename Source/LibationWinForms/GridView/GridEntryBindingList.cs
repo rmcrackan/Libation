@@ -201,8 +201,8 @@ namespace LibationWinForms.GridView
 			{
 				var pIndex = itemsList.IndexOf(parent);
 
-				//children should always be sorted by series index.
-				foreach (var c in children.Where(c => c.Parent == parent).OrderBy(c => c.SeriesIndex))
+				//children are sorted beneath their series parent
+				foreach (var c in children.Where(c => c.Parent == parent).OrderBy(c => c, Comparer))
 					itemsList.Insert(++pIndex, c);
 			}
 		}

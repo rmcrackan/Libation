@@ -70,9 +70,9 @@ namespace LibationAvalonia.ViewModels
 					return InternalCompare(parentA, geB);
 			}
 
-			//both are children of the same series, always present in order of series index, ascending
+			//both are children of the same series
 			if (parentA == parentB)
-				return geA.SeriesIndex.CompareTo(geB.SeriesIndex) * (sortDirection is ListSortDirection.Ascending ? 1 : -1);
+				return InternalCompare(geA, geB);
 
 			//a and b are children of different series.
 			return InternalCompare(parentA, parentB);
