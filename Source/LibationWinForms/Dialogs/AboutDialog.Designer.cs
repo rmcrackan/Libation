@@ -72,6 +72,7 @@
 			releaseNotesLbl.TabIndex = 2;
 			releaseNotesLbl.TabStop = true;
 			releaseNotesLbl.Text = "Libation Classic v11.0.0.0";
+			releaseNotesLbl.LinkClicked += releaseNotesLbl_LinkClicked;
 			// 
 			// checkForUpgradeBtn
 			// 
@@ -83,6 +84,7 @@
 			checkForUpgradeBtn.TabIndex = 3;
 			checkForUpgradeBtn.Text = "Check for Upgrade";
 			checkForUpgradeBtn.UseVisualStyleBackColor = true;
+			checkForUpgradeBtn.Click += checkForUpgradeBtn_Click;
 			// 
 			// getLibationLbl
 			// 
