@@ -2,9 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="600"
-		MinWidth="450" MinHeight="550"
-		Width="450" Height="600"
+		mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="600"
+		MinWidth="500" MinHeight="550"
+		Width="500" Height="600"
         x:Class="LibationAvalonia.Dialogs.AboutDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         Title="About Libation"
@@ -12,9 +12,9 @@
 	
 	<Grid Margin="10" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,*">
 		
-		<TextBlock Grid.ColumnSpan="2" FontSize="18" FontWeight="Bold" Text="{Binding Version}" />
+		<controls:LinkLabel Grid.ColumnSpan="2" FontSize="18" FontWeight="Bold" Text="{Binding Version}" ToolTip.Tip="View Release Notes" Tapped="ViewReleaseNotes_Tapped" />
 
-		<controls:LinkLabel Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Right" Text="Release Notes" Tapped="ViewReleaseNotes_Tapped"/>
+		<controls:LinkLabel Grid.Column="1" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Right" Text="https://getlibation.com" Tapped="Link_getlibation"/>
 		
 		<Button Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,20,0,0"  IsEnabled="{Binding CanCheckForUpgrade}" Content="{Binding UpgradeButtonText}" Click="CheckForUpgrade_Click" />
 
@@ -38,10 +38,12 @@
 					</TransformGroup>			
 				</Path.RenderTransform>
 			</Path>
+			<controls:LinkLabel Canvas.Left="50" Canvas.Top="40" Text="rmcrackan" Tapped="Link_rmcrackan" ToolTip.Tip="View rmcrackan's GitHub profile" />
+			<controls:LinkLabel Canvas.Right="50" Canvas.Top="40" Text="MBucari" Tapped="Link_MBucari" ToolTip.Tip="View MBucari's GitHub profile" />
 		</Canvas>
 		
 		<TextBlock Grid.Row="3" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Text="Loaded Assemblies"/>
-		<Button Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Padding="10,0" Content="Copy to Clopboard" Command="{Binding CopyAssembliesAsync}"/>
+		<Button Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Padding="10,0" Content="Copy to Clipboard" Command="{Binding CopyAssembliesAsync}"/>
 		
 		<ListBox Grid.Row="4" Grid.ColumnSpan="2" Margin="0,10,0,0" ItemsSource="{Binding Assemblies}">
 			<ListBox.Styles>

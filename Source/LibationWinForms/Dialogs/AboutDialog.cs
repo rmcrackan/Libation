@@ -18,7 +18,13 @@ namespace LibationWinForms.Dialogs
 		{
 			InitializeComponent();
 			this.SetLibationIcon();
-			versionLbl.Text = $"Libation {AppScaffolding.LibationScaffolding.Variety} v{AppScaffolding.LibationScaffolding.BuildVersion}";
+			releaseNotesLbl.Text = $"Libation {AppScaffolding.LibationScaffolding.Variety} v{AppScaffolding.LibationScaffolding.BuildVersion}";
+			var toolTip = new ToolTip();
+
+			toolTip.SetToolTip(releaseNotesLbl, "View Release Notes");
+			toolTip.SetToolTip(rmcrackanLbl, "View rmcrackan's GitHub profile");
+			toolTip.SetToolTip(MBucariLbl, "View MBucari's GitHub profile");
+
 			var asmNames = AppDomain.CurrentDomain.GetAssemblies().Select(a => new AssemblyName(a.FullName)).Where(a => a.Version.Major + a.Version.Minor + a.Version.Build + a.Version.Revision > 0).OrderBy(a => a.Name).ToList();
 
 			listView1.Items.AddRange(asmNames.Select(a => new ListViewItem(new string[] { a.Name, a.Version.ToString() })).ToArray());
@@ -62,5 +68,12 @@ namespace LibationWinForms.Dialogs
 			var text = string.Join(Environment.NewLine, listView1.Items.OfType<ListViewItem>().Select(i => $"{i.SubItems[0].Text}\t{i.SubItems[1].Text}"));
 			Clipboard.SetDataObject(text, false, 5, 150);
 		}
+
+		private void getLibationLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+			=> Dinah.Core.Go.To.Url(AppScaffolding.LibationScaffolding.WebsiteUrl);
+
+		private void rmcrackanLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => Dinah.Core.Go.To.Url($"ht" + "tps://github.com/rmcrackan");
+
+		private void MBucariLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => Dinah.Core.Go.To.Url($"ht" + "tps://github.com/MBucari");
 	}
 }

@@ -50,10 +50,12 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
+		private void Link_rmcrackan(object sender, Avalonia.Input.TappedEventArgs e) => Dinah.Core.Go.To.Url($"ht" + "tps://github.com/rmcrackan");
+		private void Link_MBucari(object sender, Avalonia.Input.TappedEventArgs e) => Dinah.Core.Go.To.Url($"ht" + "tps://github.com/MBucari");
+		private void Link_getlibation(object sender, Avalonia.Input.TappedEventArgs e) => Dinah.Core.Go.To.Url(AppScaffolding.LibationScaffolding.WebsiteUrl);
+
 		private void ViewReleaseNotes_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
-		{
-			Dinah.Core.Go.To.Url($"{AppScaffolding.LibationScaffolding.RepositoryUrl}/releases/tag/v{AppScaffolding.LibationScaffolding.BuildVersion.ToString(3)}");
-		}
+			=> Dinah.Core.Go.To.Url($"{AppScaffolding.LibationScaffolding.RepositoryUrl}/releases/tag/v{AppScaffolding.LibationScaffolding.BuildVersion.ToString(3)}");
 	}
 
 	public class AboutVM : ViewModelBase
