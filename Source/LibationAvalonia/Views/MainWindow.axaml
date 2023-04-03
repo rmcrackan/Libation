@@ -42,7 +42,7 @@
 				<NativeMenu>
 					<NativeMenuItem
 						Header="Start Libation with 1st filter Default"
-						Command="{CompiledBinding FirstFilterIsDefaultToggle}"
+						Command="{CompiledBinding ToggleFirstFilterIsDefault}"
 						IsChecked="{CompiledBinding FirstFilterIsDefault}"
 						ToggleType="CheckBox" />
 					<NativeMenuItem Command="{CompiledBinding EditQuickFiltersAsync}" Header="Edit quick filters..." Gesture="{OnPlatform macOS='alt+⌘+Q'}" />
