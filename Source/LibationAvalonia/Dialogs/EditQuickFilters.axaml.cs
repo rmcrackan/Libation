@@ -38,7 +38,7 @@ namespace LibationAvalonia.Dialogs
 			if (!accounts.Any())
 				return;
 
-			ControlToFocusOnShow = this.FindControl<Button>(nameof(SaveButton_Clicked));
+			ControlToFocusOnShow = this.FindControl<Button>(nameof(saveBtn));
 
 			var allFilters = QuickFilters.Filters.Select(f => new Filter { FilterString = f }).ToList();
 			allFilters.Add(new Filter());
@@ -99,11 +99,6 @@ namespace LibationAvalonia.Dialogs
 				Filters.Remove(filter);
 				Filters.Insert(index + 1, filter);
 			}
-		}
-
-		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			SaveAndClose();
 		}
 	}
 }

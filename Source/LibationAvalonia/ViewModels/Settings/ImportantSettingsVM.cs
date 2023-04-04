@@ -1,4 +1,5 @@
-﻿using FileManager;
+﻿using Avalonia.Controls.Shapes;
+using FileManager;
 using LibationFileManager;
 using ReactiveUI;
 using System;
@@ -29,10 +30,10 @@ namespace LibationAvalonia.ViewModels.Settings
 
 		public void SaveSettings(Configuration config)
 		{
-			LongPath lonNewBooks = BooksDirectory;
+			LongPath lonNewBooks = Configuration.GetKnownDirectory(BooksDirectory) is Configuration.KnownDirectories.None ? BooksDirectory : System.IO.Path.Combine(BooksDirectory, "Books");
 			if (!System.IO.Directory.Exists(lonNewBooks))
 				System.IO.Directory.CreateDirectory(lonNewBooks);
-			config.Books = BooksDirectory;
+			config.Books = lonNewBooks;
 			config.SavePodcastsToParentFolder = SavePodcastsToParentFolder;
 			config.LogLevel = LoggingLevel;
 			Configuration.Instance.SetString(ThemeVariant, nameof(ThemeVariant));

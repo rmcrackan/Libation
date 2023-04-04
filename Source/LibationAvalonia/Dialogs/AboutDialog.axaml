@@ -40,7 +40,7 @@
 			</Path>
 		</Canvas>
 
-		<controls:GroupBox Grid.Row="3" BorderWidth="2" Label="Acknowledgements" Grid.ColumnSpan="2">
+		<controls:GroupBox Grid.Row="3" Label="Acknowledgements" Grid.ColumnSpan="2">
 			<StackPanel>
 
 				<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">

@@ -35,16 +35,12 @@ namespace LibationAvalonia.Dialogs
 			LoadTable(config.ReplacementCharacters.Replacements);
 		}
 
-		public void Defaults_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void Defaults()
 			=> LoadTable(ReplacementCharacters.Default.Replacements);
-		public void LoFiDefaults_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void LoFiDefaults()
 			=> LoadTable(ReplacementCharacters.LoFiDefault.Replacements);
-		public void Barebones_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void Barebones()
 			=> LoadTable(ReplacementCharacters.Barebones.Replacements);
-		public void Save_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> SaveAndClose();
-		public void Cancel_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> Close();
 
 		protected override void SaveAndClose()
 		{

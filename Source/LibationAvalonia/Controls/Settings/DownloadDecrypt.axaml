@@ -12,7 +12,6 @@
 		<controls:GroupBox
 			Grid.Row="0"
 			Margin="5"
-			BorderWidth="1"
 			Label="{CompiledBinding BadBookGroupboxText}">
 
 			<Grid
@@ -68,7 +67,6 @@
 		<controls:GroupBox
 			Margin="5"
 			Grid.Row="1"
-			BorderWidth="1"
 			Label="Custom File Naming">
 
 			<Grid
@@ -83,7 +81,7 @@
 					</Style>
 					<Style Selector="Button">
 						<Setter Property="VerticalAlignment" Value="Stretch" />
-						<Setter Property="Margin" Value="0,5,10,10" />
+						<Setter Property="Margin" Value="0,5,0,10" />
 						<Setter Property="Padding" Value="30,0" />
 					</Style>
 				</Grid.Styles>
@@ -150,14 +148,14 @@
 		<controls:GroupBox
 			Grid.Row="2"
 			Margin="5"
-			BorderWidth="1"
 			Label="Temporary Files Location">
 
 			<StackPanel
-				Margin="5" >
+				Margin="0,5" >
 
 				<TextBlock
 					Margin="0,0,0,10"
+					TextWrapping="Wrap"
 					Text="{CompiledBinding InProgressDescriptionText}" />
 
 				<controls:DirectoryOrCustomSelectControl

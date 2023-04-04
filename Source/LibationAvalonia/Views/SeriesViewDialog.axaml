@@ -8,7 +8,7 @@
         Title="View All Items in Series">
 	
 	<TabControl
-		Items="{Binding	TabItems}"
+		ItemsSource="{Binding	TabItems}"
 		VerticalAlignment="Stretch"
 		HorizontalAlignment="Stretch">
 		<TabControl.Styles>

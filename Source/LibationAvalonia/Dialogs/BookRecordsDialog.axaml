@@ -101,13 +101,13 @@
 				Grid.Column="0"
 				Grid.Row="0"
 				Content="Check All"
-				Click="CheckAll_Click"/>
+				Command="{Binding CheckAll}"/>
 
 			<Button
 				Grid.Column="0"
 				Grid.Row="1"
 				Content="Uncheck All"
-				Click="UncheckAll_Click"/>
+				Command="{Binding UncheckAll}"/>
 			
 			<Button
 				Grid.Column="1"

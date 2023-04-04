@@ -3,46 +3,53 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="200"
              x:Class="LibationAvalonia.Controls.GroupBox">
 
 	<ContentControl.Styles>
-		<Style Selector="controls|GroupBox Border">
-			<Setter Property="BorderBrush" Value="DarkGray" />
-		</Style>
 		<Style Selector="controls|GroupBox">
+			<Setter Property="BorderBrush" Value="{DynamicResource SystemBaseMediumLowColor}" /> 
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="3" />
 			<Setter Property="Template">
 				<ControlTemplate>
-					<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="8,12,*,Auto">
-
+					<Grid ColumnDefinitions="Auto,Auto,*,Auto" RowDefinitions="Auto,*,Auto">
+						<Panel
+							Name="PART_LabelOffsetter"							
+							Grid.Column="1"
+							Margin="8,9,0,0"  /> 
 						<Grid
 							ZIndex="1"
 							Grid.Row="0"
 							Grid.RowSpan="2"
-							Grid.Column="1" Margin="8,0,0,0"
+							Grid.Column="2"
 							ColumnDefinitions="Auto,*"
 							VerticalAlignment="Top">
 							<TextBlock
-								Padding="4,0,4,0"
+								Name="PART_Label"
+								Padding="4,0"
 								Background="{DynamicResource SystemAltHighColor}"
 								Text="{TemplateBinding Label}"
 								/>
 						</Grid>
 
 						<ContentPresenter
-							Margin="8,0,8,5"
-							Grid.Row="2"
+							Name="PART_ContentPresenter"
+							Margin="8,10,8,5"
+							Grid.Row="1"
 							Grid.Column="1"
+							Grid.ColumnSpan="2"
 							Content="{TemplateBinding Content}"/>
 
 						<Border
-							BorderBrush="DarkGray"
-							BorderThickness="{TemplateBinding BorderWidth}"
-							CornerRadius="3"
+							Name="PART_Border"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}"
 							Grid.Column="0"
-							Grid.ColumnSpan="3"
+							Grid.ColumnSpan="4"
 							Grid.Row="1"
-							Grid.RowSpan="3"/>
+							Grid.RowSpan="2"/>
 					
 					</Grid>
 				</ControlTemplate>

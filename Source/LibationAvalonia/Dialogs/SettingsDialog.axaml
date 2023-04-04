@@ -31,20 +31,17 @@
 					<Setter Property="Height" Value="30"/>
 				</Style>
 				<Style Selector="TabControl /template/ ContentPresenter#PART_SelectedContentHost">
-					<Setter Property="BorderBrush" Value="{DynamicResource DataGridGridLinesBrush}" />
-					<Setter Property="BorderThickness" Value="2" />
+					<Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColor}" />
+					<Setter Property="BorderThickness" Value="1" />
 				</Style>
 				<Style Selector="TabItem">
-					<Setter Property="MinHeight" Value="40"/>
-					<Setter Property="Height" Value="40"/>
+					<Setter Property="MinHeight" Value="45"/>
+					<Setter Property="Height" Value="45"/>
 					<Setter Property="Padding" Value="8,2,8,10"/>
 					<Style Selector="^ > TextBlock" >
 						<Setter Property="FontSize" Value="14" />
 						<Setter Property="VerticalAlignment" Value="Center" />
 					</Style>
-				</Style>
-				<Style Selector="Button">
-					<Setter Property="VerticalContentAlignment" Value="Center" />
 				</Style>
 			</TabControl.Styles>
 

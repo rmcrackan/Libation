@@ -45,7 +45,6 @@
 		<controls:GroupBox
 			Label="Edit Tags"
 			Grid.Row="1"
-			BorderWidth="1"
 			Margin="10,0,10,0">
 			
 			<StackPanel Orientation="Vertical">
@@ -63,7 +62,6 @@
 		<controls:GroupBox
 			Label="Liberated status: Whether the book/pdf has been downloaded"
 			Grid.Row="2"
-			BorderWidth="1"
 			Margin="10,10,10,10">
 			
 			<StackPanel Orientation="Vertical">
@@ -95,7 +93,7 @@
 						Height="25"
 						VerticalAlignment="Center"
 						SelectedItem="{Binding BookLiberatedSelectedItem, Mode=TwoWay}"
-						Items="{Binding BookLiberatedItems}">
+						ItemsSource="{Binding BookLiberatedItems}">
 						
 						<ComboBox.ItemTemplate>
 							<DataTemplate>
@@ -116,8 +114,8 @@
 						Height="25"
 						Width="150"
 						VerticalAlignment="Center"
-						SelectedItem="{Binding PdfLiberatedSelectedItem, Mode=TwoWay}"						
-						Items="{Binding PdfLiberatedItems}">
+						SelectedItem="{Binding PdfLiberatedSelectedItem, Mode=TwoWay}"
+						ItemsSource="{Binding PdfLiberatedItems}">
 						
 						<ComboBox.ItemTemplate>
 							<DataTemplate>

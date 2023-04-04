@@ -2,33 +2,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="630" d:DesignHeight="110"		
+        mc:Ignorable="d" d:DesignWidth="630" d:DesignHeight="90"		
         x:Class="LibationAvalonia.Dialogs.TagsBatchDialog"
-		MinWidth="630" MinHeight="110"
-		MaxWidth="630" MaxHeight="110"
+		MinWidth="630" MinHeight="90"
+		MaxWidth="630" MaxHeight="90"
 		Width="630" Height="110"
         Title="Replace Tags"
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/libation.ico">
 
-	<Grid RowDefinitions="Auto,Auto,Auto">
+	<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" Margin="10">
 		<TextBlock
-			Grid.Row="0"
-			Margin="10,10,10,0"
+			Grid.ColumnSpan="2"
+			Margin="0,0,0,10"
 			Text="Tags are separated by a space. Each tag can contain letters, numbers, and underscores"/>
 		<TextBox
 			Grid.Row="1"
-			Margin="10"
 			MinHeight="25"
 			Name="EditTagsTb"
 			Text="{Binding NewTags, Mode=TwoWay}" />
 		<Button
-			Grid.Row="2"
-			Padding="30,0,30,0"
-			Margin="10,0,10,10"
-			HorizontalAlignment="Right"
-			Height="25"
+			Grid.Row="1"
+			Grid.Column="1"
+			Margin="10,0,0,0"
+			Padding="20,3"
+			VerticalAlignment="Stretch"
 			Content="Save"
-			Click="SaveButton_Clicked"/>
+			Command="{Binding SaveAndClose}"/>
 	</Grid>
 </Window>

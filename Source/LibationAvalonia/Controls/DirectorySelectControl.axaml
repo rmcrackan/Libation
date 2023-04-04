@@ -24,7 +24,7 @@
 					Name="combo"
 					MinHeight="{Binding #displayPathTbox.MinHeight}"
 					SelectedItem="{Binding $parent[1].SelectedDirectory, Mode=TwoWay}"
-					Items="{Binding $parent[1].KnownDirectories}">
+					ItemsSource="{Binding $parent[1].KnownDirectories}">
 			<ComboBox.ItemTemplate>
 				<DataTemplate>
 					<TextBlock Text="{Binding Converter={StaticResource KnownDirectoryConverter}}" />

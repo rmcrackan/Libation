@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="185"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="200"
         x:Class="LibationAvalonia.Dialogs.ScanAccountsDialog"
 		MinWidth="500" MinHeight="160"
 		Width="500" Height="200"
@@ -10,7 +10,7 @@
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/libation.ico">
 
-	<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+	<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*,Auto">
 		
 		<Grid.Styles>
 			<Style Selector="Button:focus">
@@ -23,20 +23,19 @@
 			Grid.Row="0"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
-			Margin="10,10,10,0"
+			Margin="10"
 			Text="Check the accounts to scan and import.&#xa;To change default selections, go to: Settings > Accounts"/>
 
 		<ScrollViewer
 			Grid.Row="1"
 			Grid.Column="0"
 			Grid.ColumnSpan="2"
+			Margin="10,0"
+			VerticalAlignment="Stretch"
 			HorizontalScrollBarVisibility="Disabled"
-			VerticalScrollBarVisibility="Auto"
-			Margin="10"
-			MinHeight="90"
-			MaxHeight="90">
+			VerticalScrollBarVisibility="Auto">
 
-			<ListBox Items="{Binding Accounts}">
+			<ListBox ItemsSource="{Binding Accounts}">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
 
@@ -62,21 +61,19 @@
 		<Button
 			Grid.Row="2"
 			Grid.Column="0"
-			Padding="20,0,20,0"
-			Margin="10,0,10,10"
-			Height="25"
+			Padding="20,5"
+			Margin="10"
 			Content="Edit Accounts"
-			Click="EditAccountsButton_Clicked"/>
+			Command="{Binding EditAccountsAsync}"/>
 		
 		<Button
 			Grid.Row="2"
 			Grid.Column="1"
-			Padding="30,0,30,0"
-			Margin="10,0,10,10"
+			Padding="30,5"
+			Margin="10"
 			HorizontalAlignment="Right"
-			Height="25"
 			Content="Import"
 			Name="ImportButton"
-			Click="ImportButton_Clicked"/>
+			Command="{Binding SaveAndClose}"/>
 	</Grid>
 </Window>

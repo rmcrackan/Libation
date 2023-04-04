@@ -74,6 +74,9 @@
 			<Setter Property="Foreground" Value="{DynamicResource HyperlinkNew}"/>
 			<Setter Property="ForegroundVisited" Value="{DynamicResource HyperlinkVisited}"/>
 		</Style>
+		<Style Selector="Button">
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
 	</Application.Styles>
 
 	<NativeMenu.Menu>

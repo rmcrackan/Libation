@@ -52,12 +52,12 @@
 				VerticalAlignment="Stretch"
 				VerticalContentAlignment="Center"
 				Content="Restore"
-				Click="Restore_Click" />
+				Command="{Binding RestoreCheckedAsync}"/>
 			
 			<Button
 				IsEnabled="{Binding	ControlsEnabled}"
 				Grid.Column="3"
-				Click="EmptyTrash_Click" >
+				Command="{Binding PermanentlyDeleteCheckedAsync}" >
 				<TextBlock
 					TextAlignment="Center"
 					Text="Permanently Delete&#xa;from Libation" />

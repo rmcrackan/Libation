@@ -12,7 +12,6 @@
 		<controls:GroupBox
 			Grid.Row="0"
 			Margin="5"
-			BorderWidth="1"
 			Label="Books Location">
 
 			<StackPanel>
@@ -43,15 +42,16 @@
 				Text="Logging level" />
 
 			<controls:WheelComboBox
-				Width="150"
+				Width="120"
 				Height="25"
 				HorizontalContentAlignment="Stretch"
 				SelectedItem="{CompiledBinding LoggingLevel, Mode=TwoWay}"
-				Items="{CompiledBinding LoggingLevels}" />
+				ItemsSource="{CompiledBinding LoggingLevels}" />
 
 			<Button
 				Margin="50,0,0,0"
-				Padding="20,3,20,3"
+				Padding="20,0"
+				VerticalAlignment="Stretch"
 				Content="Open Log Folder"
 				Click="OpenLogFolderButton_Click" />
 
@@ -70,13 +70,15 @@
 
 			<controls:WheelComboBox
 				Grid.Column="1"
-					SelectedItem="{CompiledBinding ThemeVariant, Mode=TwoWay}"
-					Items="{CompiledBinding Themes}" />
+				MinWidth="80"
+				SelectedItem="{CompiledBinding ThemeVariant, Mode=TwoWay}"
+				ItemsSource="{CompiledBinding Themes}"/>
+			
 			<TextBlock
 				Grid.Column="2"
 				FontSize="16"
 				FontWeight="Bold"
-				Margin="10,0,0,0"
+				Margin="10,0"
 				VerticalAlignment="Center"
 				IsVisible="{CompiledBinding	SelectionChanged}"
 				Text="Theme change takes effect on restart"/>
