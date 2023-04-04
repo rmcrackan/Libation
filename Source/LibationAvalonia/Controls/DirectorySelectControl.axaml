@@ -8,6 +8,7 @@
 	
 	<UserControl.Resources>
 		<controls:KnownDirectoryConverter x:Key="KnownDirectoryConverter" />
+		<controls:KnownDirectoryPath x:Key="KnownDirectoryPath" />
 	</UserControl.Resources>
 
 
@@ -20,19 +21,26 @@
 		<controls:WheelComboBox
 					HorizontalContentAlignment = "Stretch"
 					HorizontalAlignment = "Stretch"
+					Name="combo"
 					MinHeight="{Binding #displayPathTbox.MinHeight}"
 					SelectedItem="{Binding $parent[1].SelectedDirectory, Mode=TwoWay}"
 					Items="{Binding $parent[1].KnownDirectories}">
 			<ComboBox.ItemTemplate>
 				<DataTemplate>
-
-					<TextBlock
-						Text="{Binding Converter={StaticResource KnownDirectoryConverter}}" />
-
+					<TextBlock Text="{Binding Converter={StaticResource KnownDirectoryConverter}}" />
 				</DataTemplate>
 			</ComboBox.ItemTemplate>
 		</controls:WheelComboBox>
-		<TextBox Margin="0,10,0,10" IsReadOnly="True" Name="displayPathTbox" />
+		<TextBox Margin="0,10,0,10" IsReadOnly="True">
+			<TextBox.Text>
+				<MultiBinding Converter="{StaticResource KnownDirectoryPath}">
+					<MultiBinding.Bindings>
+						<Binding Path="#combo.SelectedItem"/>
+						<Binding Path="$parent[1].SubDirectory"/>
+					</MultiBinding.Bindings>
+				</MultiBinding>
+			</TextBox.Text>
+		</TextBox>
 	</StackPanel>
 	
 </UserControl>

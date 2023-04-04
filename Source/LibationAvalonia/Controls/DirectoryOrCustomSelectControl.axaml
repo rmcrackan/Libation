@@ -5,29 +5,30 @@
              xmlns:controls="clr-namespace:LibationAvalonia.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LibationAvalonia.Controls.DirectoryOrCustomSelectControl">
-	<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
-	<controls:DirectorySelectControl
-		Grid.Column="1"
-		Grid.Row="0"
-		Name="directorySelectControl"
-		SubDirectory="{Binding $parent.SubDirectory}"
-		KnownDirectories="{Binding $parent.KnownDirectories}" />
+	
+	<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Name="grid">
+		<controls:DirectorySelectControl
+			Grid.Column="1"
+			Grid.Row="0"
+			IsEnabled="{Binding KnownChecked}"
+			SelectedDirectory="{Binding SelectedDirectory, Mode=TwoWay}"
+			SubDirectory="{Binding $parent[1].SubDirectory}"
+			KnownDirectories="{Binding $parent[1].KnownDirectories}" />
 
 		<RadioButton
 			Grid.Column="0"
 			Grid.Row="0"
-			Name="knownDirRadio"
-			IsChecked="{Binding KnownChecked, Mode=TwoWay}" />
+			IsChecked="{Binding KnownChecked, Mode=TwoWay}"/>
 
 		<RadioButton
 			Grid.Column="0"
 			Grid.Row="1"
-			Name="customDirRadio"
-			IsChecked="{Binding CustomChecked, Mode=TwoWay}" />
+			IsChecked="{Binding CustomChecked, Mode=TwoWay}"/>
 
-		<Grid Grid.Column="1" Grid.Row="1" ColumnDefinitions="*,Auto">
-			<TextBox IsEnabled="{Binding CustomChecked}" Name="customDirTbox" Grid.Column="0" IsReadOnly="True" Text="{Binding CustomDir, Mode=TwoWay}" />
-			<Button Name="customDirBrowseBtn" Grid.Column="1" Content="..." Margin="5,0,0,0" Padding="10,0,10,0" VerticalAlignment="Stretch" />
+		<Grid Grid.Column="1" Grid.Row="1" ColumnDefinitions="*,Auto"
+			  IsEnabled="{Binding CustomChecked}">
+			<TextBox Grid.Column="0" IsReadOnly="True" Text="{Binding CustomDir, Mode=TwoWay}" />
+			<Button Grid.Column="1" Content="..." Margin="5,0,0,0" Padding="10,0,10,0" Click="CustomDirBrowseBtn_Click" VerticalAlignment="Stretch" />
 		</Grid>
 	</Grid>
 </UserControl>
