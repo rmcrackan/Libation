@@ -27,7 +27,6 @@ namespace LibationAvalonia
 		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
 		public static IBrush ProcessQueueBookDefaultBrush { get; private set; }
 		public static IBrush SeriesEntryGridBackgroundBrush { get; private set; }
-		public static IBrush HyperlinkVisited { get; private set; }
 
 		public static IAssetLoader AssetLoader { get; private set; }
 
@@ -230,7 +229,6 @@ namespace LibationAvalonia
 			ProcessQueueBookCancelledBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookCancelledBrush));
 			SeriesEntryGridBackgroundBrush = AvaloniaUtils.GetBrushFromResources(nameof(SeriesEntryGridBackgroundBrush));
 			ProcessQueueBookDefaultBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookDefaultBrush));
-			HyperlinkVisited = AvaloniaUtils.GetBrushFromResources(nameof(HyperlinkVisited));
 		}
 	}
 }

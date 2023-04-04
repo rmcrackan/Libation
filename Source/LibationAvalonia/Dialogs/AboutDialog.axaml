@@ -54,7 +54,7 @@
 
 				<WrapPanel>
 					<WrapPanel.Styles>
-						<Style Selector="TextBlock">
+						<Style Selector="controls|LinkLabel">
 							<Setter Property="Margin" Value="5,0" />
 							<Setter Property="FontSize" Value="13" />
 						</Style>

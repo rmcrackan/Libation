@@ -1,6 +1,7 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:LibationAvalonia"
+             xmlns:controls="using:LibationAvalonia.Controls"
 			 x:Class="LibationAvalonia.App"
              Name="Libation">
 
@@ -68,6 +69,10 @@
 			<Style Selector="^ /template/ Border#PART_BorderElement">
 				<Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
 			</Style>
+		</Style>
+		<Style Selector="controls|LinkLabel">
+			<Setter Property="Foreground" Value="{DynamicResource HyperlinkNew}"/>
+			<Setter Property="ForegroundVisited" Value="{DynamicResource HyperlinkVisited}"/>
 		</Style>
 	</Application.Styles>
 
