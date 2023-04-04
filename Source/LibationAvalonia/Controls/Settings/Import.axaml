@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
+			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
+			 x:DataType="vm:ImportSettingsVM"
+             x:Class="LibationAvalonia.Controls.Settings.Import">
+	
+	<StackPanel Margin="5">
+		<StackPanel.Styles>
+			<Style Selector="CheckBox">
+				<Setter Property="Margin" Value="0,0,0,10" />
+				<Style Selector="^ > TextBlock">
+					<Setter Property="TextWrapping" Value="Wrap" />
+				</Style>
+			</Style>
+		</StackPanel.Styles>
+
+		<CheckBox IsChecked="{CompiledBinding AutoScan, Mode=TwoWay}">
+			<TextBlock Text="{CompiledBinding AutoScanText}" />
+		</CheckBox>
+
+		<CheckBox IsChecked="{CompiledBinding ShowImportedStats, Mode=TwoWay}">
+			<TextBlock Text="{CompiledBinding ShowImportedStatsText}" />
+		</CheckBox>
+
+		<CheckBox IsChecked="{CompiledBinding ImportEpisodes, Mode=TwoWay}">
+			<TextBlock Text="{CompiledBinding ImportEpisodesText}" />
+		</CheckBox>
+
+		<CheckBox IsChecked="{CompiledBinding DownloadEpisodes, Mode=TwoWay}">
+			<TextBlock Text="{CompiledBinding DownloadEpisodesText}" />
+		</CheckBox>
+
+		<CheckBox IsChecked="{CompiledBinding AutoDownloadEpisodes, Mode=TwoWay}">
+			<TextBlock Text="{CompiledBinding AutoDownloadEpisodesText}" />
+		</CheckBox>
+	</StackPanel>
+</UserControl>
