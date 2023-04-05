@@ -4,6 +4,9 @@
 ...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
 
 
+### Disclaimer
+The docker image is provided as-is. We hope it can be useful to you but it is not officially supported.
+
 ### Setup
 In order to use the docker image, you'll need to provide it with a copy of the `AccountsSettings.json`, `Settings.json`, and `LibationContext.db` files. These files can usually be found in the Libation folder in your user's home directory. If you haven't run Libation yet, you'll need to launch it to generate these files and setup your accounts. Once you have them, copy these files to a new location, such as `/opt/libation/config`. Before using them we'll need to make a couple edits so that the filepaths referenced are correct when running from the docker image.
 
