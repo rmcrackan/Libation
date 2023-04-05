@@ -21,7 +21,6 @@
 
 		<controls:GroupBox
 			Grid.Row="1"
-			BorderWidth="2"
 			Label="Release Information"
 			Margin="0,10,0,10">
 			

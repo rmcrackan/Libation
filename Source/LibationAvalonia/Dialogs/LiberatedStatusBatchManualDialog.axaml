@@ -2,25 +2,25 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="120"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="100"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         x:Class="LibationAvalonia.Dialogs.LiberatedStatusBatchManualDialog"
         Title="Liberated status: Whether the book has been downloaded"
-		MinWidth="400" MinHeight="120"
-		MaxWidth="400" MaxHeight="120"
-		Width="400" Height="120"
+		MinWidth="400" MinHeight="100"
+		MaxWidth="400" MaxHeight="100"
+		Width="400" Height="100"
 		WindowStartupLocation="CenterOwner"
 		Icon="/Assets/libation.ico">
 
-	<Grid RowDefinitions="Auto,Auto,Auto">
+	<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
 
 		<TextBlock
-			Grid.Row="0"
-			Margin="10,10,10,0"
+			Grid.ColumnSpan="2"
+			Margin="10"
 			Text="To download again next time: change to Not Downloaded&#xa;To not download: change to Downloaded"/>
 		
 		<StackPanel
-			Margin="10"
+			Margin="10,0"
 			Grid.Row="1"
 			Orientation="Horizontal">
 
@@ -36,7 +36,7 @@
 				Height="25"
 				VerticalAlignment="Center"
 				SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-				Items="{Binding BookStatuses}">
+				ItemsSource="{Binding BookStatuses}">
 
 				<ComboBox.ItemTemplate>
 					<DataTemplate>
@@ -49,14 +49,15 @@
 				</ComboBox.ItemTemplate>
 			</controls:WheelComboBox>
 		</StackPanel>
-		
+
 		<Button
-			Grid.Row="2"
-			Padding="30,0,30,0"
-			Margin="10,0,10,10"
+			Grid.Row="1"
+			Grid.Column="1"
+			Margin="10,0"
+			Padding="30,5"
+			VerticalAlignment="Stretch"
 			HorizontalAlignment="Right"
-			Height="25"
 			Content="Save"
-			Click="SaveButton_Clicked"/>
+			Click="SaveButton_Clicked" />
 	</Grid>
 </Window>

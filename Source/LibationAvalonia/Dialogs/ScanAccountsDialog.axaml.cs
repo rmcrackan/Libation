@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -25,7 +26,7 @@ namespace LibationAvalonia.Dialogs
 			InitializeComponent();
 
 			this.HideMinMaxBtns();
-			this.Opened += ScanAccountsDialog_Opened;
+			ControlToFocusOnShow = this.FindControl<Button>(nameof(ImportButton));
 
 			LoadAccounts();
 		}
@@ -46,12 +47,7 @@ namespace LibationAvalonia.Dialogs
 			DataContext = this;
 		}
 
-		private void ScanAccountsDialog_Opened(object sender, System.EventArgs e)
-		{
-			this.FindControl<Button>(nameof(ImportButton)).Focus();
-		}
-
-		public async void EditAccountsButton_Clicked(object sender, RoutedEventArgs e)
+		public async Task EditAccountsAsync()
 		{
 			if (await new AccountsDialog().ShowDialog<DialogResult>(this) == DialogResult.OK)
 			{
@@ -67,7 +63,5 @@ namespace LibationAvalonia.Dialogs
 
 			base.SaveAndClose();
 		}
-
-		public void ImportButton_Clicked(object sender, RoutedEventArgs e) => SaveAndClose();
 	}
 }

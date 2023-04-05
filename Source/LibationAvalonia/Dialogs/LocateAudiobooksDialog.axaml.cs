@@ -89,7 +89,7 @@ namespace LibationAvalonia.Dialogs
 					FilePathCache.Insert(book);
 
 					var lb = context.GetLibraryBook_Flat_NoTracking(book.Id);
-					if (lb.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Liberated)
+					if (lb?.Book?.UserDefinedItem.BookStatus is not LiberatedStatus.Liberated)
 						await Task.Run(() => lb.UpdateBookStatus(LiberatedStatus.Liberated));
 
 					FileFound?.Invoke(this, book);

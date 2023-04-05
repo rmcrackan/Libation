@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reactive.Subjects;
 
 namespace LibationAvalonia.Controls
 {
@@ -19,6 +18,24 @@ namespace LibationAvalonia.Controls
 			if (value is Configuration.KnownDirectories dir)
 				return dir.GetDescription();
 			return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return new BindingNotification(new InvalidCastException(), BindingErrorType.Error);
+		}
+	}
+	public class KnownDirectoryPath : IMultiValueConverter
+	{
+		public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
+		{
+			if (values?.Count == 2 && values[0] is Configuration.KnownDirectories kdir && kdir is not Configuration.KnownDirectories.None)
+			{
+				var subdir = values[1] as string ?? "";
+				var path = kdir is Configuration.KnownDirectories.AppDir ? Configuration.AppDir_Absolute : Configuration.GetKnownDirectoryPath(kdir);
+				return Path.Combine(path, subdir);
+			}
+			return "";
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -39,8 +56,8 @@ namespace LibationAvalonia.Controls
 				Configuration.KnownDirectories.LibationFiles
 			};
 
-		public static readonly StyledProperty<Configuration.KnownDirectories> SelectedDirectoryProperty =
-		AvaloniaProperty.Register<DirectorySelectControl, Configuration.KnownDirectories>(nameof(SelectedDirectory));
+		public static readonly StyledProperty<Configuration.KnownDirectories?> SelectedDirectoryProperty =
+		AvaloniaProperty.Register<DirectorySelectControl, Configuration.KnownDirectories?>(nameof(SelectedDirectory));
 
 		public static readonly StyledProperty<List<Configuration.KnownDirectories>> KnownDirectoriesProperty =
 		AvaloniaProperty.Register<DirectorySelectControl, List<Configuration.KnownDirectories>>(nameof(KnownDirectories), DefaultKnownDirectories);
@@ -51,25 +68,6 @@ namespace LibationAvalonia.Controls
 		public DirectorySelectControl()
 		{
 			InitializeComponent();
-
-			displayPathTbox = this.Get<TextBox>(nameof(displayPathTbox));
-			displayPathTbox.Bind(TextBox.TextProperty, TextboxPath);
-			PropertyChanged += DirectorySelectControl_PropertyChanged;
-		}
-
-		private Subject<string> TextboxPath = new Subject<string>();
-
-		private void DirectorySelectControl_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
-		{
-			if (e.Property.Name == nameof(SelectedDirectory))
-			{
-				TextboxPath.OnNext(
-					Path.Combine(
-						SelectedDirectory is Configuration.KnownDirectories.None ? string.Empty
-						: SelectedDirectory is Configuration.KnownDirectories.AppDir ? Configuration.AppDir_Absolute
-						: Configuration.GetKnownDirectoryPath(SelectedDirectory)
-						, SubDirectory ?? string.Empty));
-			}
 		}
 
 		public List<Configuration.KnownDirectories> KnownDirectories
@@ -78,7 +76,7 @@ namespace LibationAvalonia.Controls
 			set => SetValue(KnownDirectoriesProperty, value);
 		}
 
-		public Configuration.KnownDirectories SelectedDirectory
+		public Configuration.KnownDirectories? SelectedDirectory
 		{
 			get => GetValue(SelectedDirectoryProperty);
 			set => SetValue(SelectedDirectoryProperty, value);

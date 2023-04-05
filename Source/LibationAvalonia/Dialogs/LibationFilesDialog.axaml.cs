@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using LibationFileManager;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -27,9 +28,8 @@ namespace LibationAvalonia.Dialogs
 			DataContext = dirSelectOptions = new();
 		}
 
-		public async void SaveButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async Task SaveButtonAsync()
 		{
-
 			var libationDir = dirSelectOptions.Directory;
 
 			if (!System.IO.Directory.Exists(libationDir))

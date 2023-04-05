@@ -27,6 +27,6 @@
 			Margin="5"
 			Padding="30,3,30,3"
 			Content="Save"
-			Click="SaveButton_Click" />
+			Command="{Binding SaveButtonAsync}" />
 	</Grid>
 </Window>

@@ -99,10 +99,10 @@
 
 			<Button
 				Grid.Column="1"
-				Height="30"
-				Padding="30,3,30,3"
+				Padding="30,5"
+				Name="saveBtn"
 				Content="Save"
-				Click="SaveButton_Clicked" />
+				Command="{Binding SaveAndClose}" />
 		</Grid>
 	</Grid>
 </Window>

@@ -40,7 +40,7 @@
 			</Path>
 		</Canvas>
 
-		<controls:GroupBox Grid.Row="3" BorderWidth="2" Label="Acknowledgements" Grid.ColumnSpan="2">
+		<controls:GroupBox Grid.Row="3" Label="Acknowledgements" Grid.ColumnSpan="2">
 			<StackPanel>
 
 				<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
@@ -54,7 +54,7 @@
 
 				<WrapPanel>
 					<WrapPanel.Styles>
-						<Style Selector="TextBlock">
+						<Style Selector="controls|LinkLabel">
 							<Setter Property="Margin" Value="5,0" />
 							<Setter Property="FontSize" Value="13" />
 						</Style>

@@ -1,0 +1,88 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
+			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
+			 x:DataType="vm:ImportantSettingsVM"
+             x:Class="LibationAvalonia.Controls.Settings.Important">
+
+	<Grid RowDefinitions="Auto,Auto,*">
+		<controls:GroupBox
+			Grid.Row="0"
+			Margin="5"
+			Label="Books Location">
+
+			<StackPanel>
+				<TextBlock
+					Margin="5"
+					Text="{CompiledBinding BooksText}" />
+
+				<controls:DirectoryOrCustomSelectControl Margin="0,10,0,10"
+									SubDirectory="Books"
+									Directory="{CompiledBinding BooksDirectory, Mode=TwoWay}"
+									KnownDirectories="{CompiledBinding KnownDirectories}" />
+
+				<CheckBox IsChecked="{CompiledBinding SavePodcastsToParentFolder, Mode=TwoWay}">
+					<TextBlock Text="{CompiledBinding SavePodcastsToParentFolderText}" />
+				</CheckBox>
+
+			</StackPanel>
+
+		</controls:GroupBox>
+
+		<StackPanel
+			Grid.Row="1" Margin="5"
+			Orientation="Horizontal">
+
+			<TextBlock
+				Margin="0,0,10,0"
+				VerticalAlignment="Center"
+				Text="Logging level" />
+
+			<controls:WheelComboBox
+				Width="120"
+				Height="25"
+				HorizontalContentAlignment="Stretch"
+				SelectedItem="{CompiledBinding LoggingLevel, Mode=TwoWay}"
+				ItemsSource="{CompiledBinding LoggingLevels}" />
+
+			<Button
+				Margin="50,0,0,0"
+				Padding="20,0"
+				VerticalAlignment="Stretch"
+				Content="Open Log Folder"
+				Click="OpenLogFolderButton_Click" />
+
+		</StackPanel>
+
+		<Grid
+			Grid.Row="2"
+			ColumnDefinitions="Auto,Auto,*"
+			Margin="10"
+			VerticalAlignment="Bottom">
+			<TextBlock
+				Grid.Column="0"
+				FontSize="16"
+				VerticalAlignment="Center"
+				Text="Theme:  "/>
+
+			<controls:WheelComboBox
+				Grid.Column="1"
+				MinWidth="80"
+				SelectedItem="{CompiledBinding ThemeVariant, Mode=TwoWay}"
+				ItemsSource="{CompiledBinding Themes}"/>
+			
+			<TextBlock
+				Grid.Column="2"
+				FontSize="16"
+				FontWeight="Bold"
+				Margin="10,0"
+				VerticalAlignment="Center"
+				IsVisible="{CompiledBinding	SelectionChanged}"
+				Text="Theme change takes effect on restart"/>
+
+		</Grid>
+	</Grid>
+</UserControl>

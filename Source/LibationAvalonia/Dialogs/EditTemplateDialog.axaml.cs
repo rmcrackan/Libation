@@ -19,14 +19,14 @@ namespace LibationAvalonia.Dialogs
 
 		public EditTemplateDialog()
 		{
-			AvaloniaXamlLoader.Load(this);
-			userEditTbox = this.FindControl<TextBox>(nameof(userEditTbox));
+			InitializeComponent();
+
 			if (Design.IsDesignMode)
 			{
 				_ = Configuration.Instance.LibationFiles;
 				var editor = TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(Configuration.Instance.Books, Configuration.Instance.FileTemplate);
 				_viewModel = new(Configuration.Instance, editor);
-				_viewModel.resetTextBox(editor.EditingTemplate.TemplateText);
+				_viewModel.ResetTextBox(editor.EditingTemplate.TemplateText);
 				Title = $"Edit {editor.TemplateName}";
 				DataContext = _viewModel;
 			}
@@ -37,7 +37,7 @@ namespace LibationAvalonia.Dialogs
 			ArgumentValidator.EnsureNotNull(templateEditor, nameof(templateEditor));
 
 			_viewModel = new EditTemplateViewModel(Configuration.Instance, templateEditor);
-			_viewModel.resetTextBox(templateEditor.EditingTemplate.TemplateText);
+			_viewModel.ResetTextBox(templateEditor.EditingTemplate.TemplateText);
 			Title = $"Edit {templateEditor.TemplateName}";
 			DataContext = _viewModel;
 		}
@@ -66,9 +66,6 @@ namespace LibationAvalonia.Dialogs
 
 		public async void SaveButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await SaveAndCloseAsync();
-
-		public void ResetButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> _viewModel.resetTextBox(_viewModel.TemplateEditor.DefaultTemplate);
 
 		private class EditTemplateViewModel : ViewModels.ViewModelBase
 		{
@@ -115,7 +112,8 @@ namespace LibationAvalonia.Dialogs
 
 			public AvaloniaList<Tuple<string, string, string>> ListItems { get; set; }
 
-			public void resetTextBox(string value) => UserTemplateText = value;
+			public void ResetTextBox(string value) => UserTemplateText = value;
+			public void ResetToDefault() => ResetTextBox(TemplateEditor.DefaultTemplate);
 
 			public async Task<bool> Validate()
 			{

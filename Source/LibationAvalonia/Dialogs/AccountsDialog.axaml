@@ -81,7 +81,7 @@
 							  HorizontalContentAlignment = "Stretch"
 							  HorizontalAlignment = "Stretch"
 							  SelectedItem="{Binding SelectedLocale, Mode=TwoWay}"
-							  Items="{Binding Locales}">
+							  ItemsSource="{Binding Locales}">
 
 								<ComboBox.ItemTemplate>
 									<DataTemplate>
@@ -113,14 +113,13 @@
 
 			<Button
 				Grid.Column="0"
-				Height="30"
+				Padding="5,5"
 				Content="Import from audible-cli"
 				Click="ImportButton_Clicked" />
 
 			<Button
 				Grid.Column="1"
-				Height="30"
-				Padding="30,3,30,3"
+				Padding="30,5"
 				Content="Save"
 				Click="SaveButton_Clicked" />
 		</Grid>

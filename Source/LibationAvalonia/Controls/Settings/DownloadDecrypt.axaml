@@ -1,0 +1,182 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="700"
+			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
+			 x:DataType="vm:DownloadDecryptSettingsVM"
+             x:Class="LibationAvalonia.Controls.Settings.DownloadDecrypt">
+	
+	<Grid RowDefinitions="Auto,Auto,Auto,*">
+		<controls:GroupBox
+			Grid.Row="0"
+			Margin="5"
+			Label="{CompiledBinding BadBookGroupboxText}">
+
+			<Grid
+				ColumnDefinitions="*,*"
+				RowDefinitions="Auto,Auto">
+				<Grid.Styles>
+					<Style Selector="RadioButton">
+						<Setter Property="Margin" Value="0,5,0,5" />
+						<Style Selector="^ > TextBlock">
+							<Setter Property="TextWrapping" Value="Wrap" />
+						</Style>
+					</Style>
+				</Grid.Styles>
+
+				<RadioButton
+					Grid.Column="0"
+					Grid.Row="0"
+					IsChecked="{CompiledBinding BadBookAsk, Mode=TwoWay}">
+
+					<TextBlock Text="{CompiledBinding BadBookAskText}" />
+
+				</RadioButton>
+
+				<RadioButton
+					Grid.Column="1"
+					Grid.Row="0"
+					IsChecked="{CompiledBinding BadBookAbort, Mode=TwoWay}">
+
+					<TextBlock Text="{CompiledBinding BadBookAbortText}" />
+
+				</RadioButton>
+
+				<RadioButton
+					Grid.Column="0"
+					Grid.Row="1"
+					IsChecked="{CompiledBinding BadBookRetry, Mode=TwoWay}">
+
+					<TextBlock Text="{CompiledBinding BadBookRetryText}" />
+
+				</RadioButton>
+
+				<RadioButton
+					Grid.Column="1"
+					Grid.Row="1"
+					IsChecked="{CompiledBinding BadBookIgnore, Mode=TwoWay}">
+
+					<TextBlock Text="{CompiledBinding BadBookIgnoreText}" />
+
+				</RadioButton>
+			</Grid>
+		</controls:GroupBox>
+
+		<controls:GroupBox
+			Margin="5"
+			Grid.Row="1"
+			Label="Custom File Naming">
+
+			<Grid
+				RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+				ColumnDefinitions="*,Auto">
+
+				<Grid.Styles>
+					<Style Selector="TextBox">
+						<Setter Property="Margin" Value="0,5,10,10" />
+						<Setter Property="FontSize" Value="14" />
+						<Setter Property="IsReadOnly" Value="True" />
+					</Style>
+					<Style Selector="Button">
+						<Setter Property="VerticalAlignment" Value="Stretch" />
+						<Setter Property="Margin" Value="0,5,0,10" />
+						<Setter Property="Padding" Value="30,0" />
+					</Style>
+				</Grid.Styles>
+
+				<TextBlock
+					Grid.Row="0"
+					Grid.Column="0"
+					Margin="0,5,0,0"
+					Text="{CompiledBinding FolderTemplateText}" />
+
+				<TextBox
+					Grid.Row="1"
+					Grid.Column="0"
+					Text="{CompiledBinding FolderTemplate}" />
+
+				<Button
+					Grid.Row="1"
+					Grid.Column="1"
+					Content="Edit"
+					Click="EditFolderTemplateButton_Click" />
+
+				<TextBlock
+					Grid.Row="2"
+					Grid.Column="0"
+					Text="{CompiledBinding FileTemplateText}" />
+
+				<TextBox
+					Grid.Row="3"
+					Grid.Column="0"
+					Text="{CompiledBinding FileTemplate}" />
+
+				<Button
+					Grid.Row="3"
+					Grid.Column="1"
+					Content="Edit"
+					Click="EditFileTemplateButton_Click" />
+
+				<TextBlock
+					Grid.Row="4"
+					Grid.Column="0"
+					Text="{CompiledBinding ChapterFileTemplateText}" />
+
+				<TextBox
+					Grid.Row="5"
+					Grid.Column="0"
+					Text="{CompiledBinding ChapterFileTemplate}" />
+
+				<Button
+					Grid.Row="5"
+					Grid.Column="1"
+					Content="Edit"
+					Click="EditChapterFileTemplateButton_Click" />
+
+				<Button
+					Grid.Row="6"
+					Grid.Column="0"
+					Height="30"
+					Margin="0"
+					Content="{CompiledBinding EditCharReplacementText}"
+					Click="EditCharReplacementButton_Click" />
+
+			</Grid>
+		</controls:GroupBox>
+		<controls:GroupBox
+			Grid.Row="2"
+			Margin="5"
+			Label="Temporary Files Location">
+
+			<StackPanel
+				Margin="0,5" >
+
+				<TextBlock
+					Margin="0,0,0,10"
+					TextWrapping="Wrap"
+					Text="{CompiledBinding InProgressDescriptionText}" />
+
+				<controls:DirectoryOrCustomSelectControl
+					Directory="{CompiledBinding InProgressDirectory, Mode=TwoWay}"
+					KnownDirectories="{CompiledBinding KnownDirectories}" />
+
+			</StackPanel>
+		</controls:GroupBox>
+
+		<CheckBox
+			Grid.Row="3"
+			Margin="5"
+			VerticalAlignment="Top"
+			IsVisible="{CompiledBinding !Config.IsLinux}"
+			IsChecked="{CompiledBinding UseCoverAsFolderIcon, Mode=TwoWay}">
+
+			<TextBlock
+				TextWrapping="Wrap"
+				Text="{CompiledBinding UseCoverAsFolderIconText}" />
+
+		</CheckBox>
+
+	</Grid>
+</UserControl>

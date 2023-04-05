@@ -16,26 +16,19 @@ namespace LibationAvalonia.Dialogs
 {
 	public partial class TrashBinDialog : Window
 	{
-		TrashBinViewModel _viewModel;
-
 		public TrashBinDialog()
 		{
 			InitializeComponent();
 			this.RestoreSizeAndLocation(Configuration.Instance);
-			DataContext = _viewModel = new();
+			DataContext = new TrashBinViewModel();
 
 			this.Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
-			this.KeyDown += TrashBinDialog_KeyDown;
-		}
 
-		public async void EmptyTrash_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> await _viewModel.PermanentlyDeleteCheckedAsync();
-		public async void Restore_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> await _viewModel.RestoreCheckedAsync();
-		private void TrashBinDialog_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
-		{
-			if (e.Key == Avalonia.Input.Key.Escape)
-				Close();
+			KeyBindings.Add(new Avalonia.Input.KeyBinding
+			{
+				Gesture = new Avalonia.Input.KeyGesture(Avalonia.Input.Key.Escape),
+				Command = ReactiveCommand.Create(Close)
+			});
 		}
 	}
 
