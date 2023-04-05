@@ -1,8 +1,6 @@
 using Avalonia.Controls;
-using Avalonia.ReactiveUI;
 using Dinah.Core;
 using FileManager;
-using LibationAvalonia.ViewModels;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
 

@@ -2,7 +2,7 @@
 
 namespace LibationAvalonia.ViewModels.Settings
 {
-	public class ImportSettingsVM : ISettingsDisplay
+	public class ImportSettingsVM
 	{
 		public ImportSettingsVM(Configuration config)
 		{

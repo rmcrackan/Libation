@@ -1,5 +1,4 @@
-﻿using Avalonia.Controls.Shapes;
-using FileManager;
+﻿using FileManager;
 using LibationFileManager;
 using ReactiveUI;
 using System;
@@ -7,7 +6,7 @@ using System.Collections.Generic;
 
 namespace LibationAvalonia.ViewModels.Settings
 {
-	public class ImportantSettingsVM : ViewModelBase, ISettingsDisplay
+	public class ImportantSettingsVM : ViewModelBase
 	{
 		private string themeVariant;
 		private string initialThemeVariant;

@@ -2,13 +2,7 @@
 
 namespace LibationAvalonia.ViewModels.Settings
 {
-	internal interface ISettingsDisplay
-	{
-		void LoadSettings(Configuration config);
-		void SaveSettings(Configuration config);
-	}
-
-	public class SettingsVM : ISettingsDisplay
+	public class SettingsVM
 	{
 		public SettingsVM(Configuration config)
 		{

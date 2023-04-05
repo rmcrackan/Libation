@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace LibationAvalonia.ViewModels.Settings
 {
-	public class AudioSettingsVM : ViewModelBase, ISettingsDisplay
+	public class AudioSettingsVM : ViewModelBase
 	{
 		private bool _downloadClipsBookmarks;
 		private bool _decryptToLossy;

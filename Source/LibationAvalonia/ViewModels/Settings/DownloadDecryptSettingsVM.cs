@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace LibationAvalonia.ViewModels.Settings
 {
-	public class DownloadDecryptSettingsVM : ViewModelBase, ISettingsDisplay
+	public class DownloadDecryptSettingsVM : ViewModelBase
 	{
 		private string _folderTemplate;
 		private string _fileTemplate;
