@@ -5,7 +5,7 @@ using LibationFileManager;
 
 namespace LibationAvalonia.Controls.Settings
 {
-	public partial class Import : ReactiveUserControl<ImportSettingsVM>
+	public partial class Import : UserControl
 	{
 		public Import()
 		{

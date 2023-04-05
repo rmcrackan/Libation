@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace LibationAvalonia.Controls.Settings
 {
-	public partial class DownloadDecrypt : ReactiveUserControl<DownloadDecryptSettingsVM>
+	public partial class DownloadDecrypt : UserControl
 	{
+		private DownloadDecryptSettingsVM _viewModel => DataContext as DownloadDecryptSettingsVM;
 		public DownloadDecrypt()
 		{
 			InitializeComponent();
@@ -21,29 +22,32 @@ namespace LibationAvalonia.Controls.Settings
 
 		public async void EditFolderTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = await editTemplate(TemplateEditor<Templates.FolderTemplate>.CreateFilenameEditor(ViewModel.Config.Books, ViewModel.FolderTemplate));
+			if (_viewModel is null) return;
+			var newTemplate = await editTemplate(TemplateEditor<Templates.FolderTemplate>.CreateFilenameEditor(_viewModel.Config.Books, _viewModel.FolderTemplate));
 			if (newTemplate is not null)
-				ViewModel.FolderTemplate = newTemplate;
+				_viewModel.FolderTemplate = newTemplate;
 		}
 
 		public async void EditFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = await editTemplate(TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(ViewModel.Config.Books, ViewModel.FileTemplate));
+			if (_viewModel is null) return;
+			var newTemplate = await editTemplate(TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(_viewModel.Config.Books, _viewModel.FileTemplate));
 			if (newTemplate is not null)
-				ViewModel.FileTemplate = newTemplate;
+				_viewModel.FileTemplate = newTemplate;
 		}
 
 		public async void EditChapterFileTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-
-			var newTemplate = await editTemplate(TemplateEditor<Templates.ChapterFileTemplate>.CreateFilenameEditor(ViewModel.Config.Books, ViewModel.ChapterFileTemplate));
+			if (_viewModel is null) return;
+			var newTemplate = await editTemplate(TemplateEditor<Templates.ChapterFileTemplate>.CreateFilenameEditor(_viewModel.Config.Books, _viewModel.ChapterFileTemplate));
 			if (newTemplate is not null)
-				ViewModel.ChapterFileTemplate = newTemplate;
+				_viewModel.ChapterFileTemplate = newTemplate;
 		}
 
 		public async void EditCharReplacementButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var form = new EditReplacementChars(ViewModel.Config);
+			if (_viewModel is null) return;
+			var form = new EditReplacementChars(_viewModel.Config);
 			await form.ShowDialog<DialogResult>(this.GetParentWindow());
 		}
 

@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace LibationAvalonia.Controls.Settings
 {
-	public partial class Audio : ReactiveUserControl<AudioSettingsVM>
+	public partial class Audio : UserControl
 	{
+		private AudioSettingsVM _viewModel => DataContext as AudioSettingsVM; 
 		public Audio()
 		{
 			InitializeComponent();
@@ -21,9 +22,10 @@ namespace LibationAvalonia.Controls.Settings
 
 		public async void EditChapterTitleTemplateButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var newTemplate = await editTemplate(TemplateEditor<Templates.ChapterTitleTemplate>.CreateNameEditor(ViewModel.ChapterTitleTemplate));
+			if (_viewModel is null) return;
+			var newTemplate = await editTemplate(TemplateEditor<Templates.ChapterTitleTemplate>.CreateNameEditor(_viewModel.ChapterTitleTemplate));
 			if (newTemplate is not null)
-				ViewModel.ChapterTitleTemplate = newTemplate;
+				_viewModel.ChapterTitleTemplate = newTemplate;
 		}
 
 		private async Task<string> editTemplate(ITemplateEditor template)

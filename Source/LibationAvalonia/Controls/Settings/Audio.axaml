@@ -296,7 +296,6 @@
 					Grid.Row="4"
 					Margin="0,5"
 					VerticalAlignment="Bottom"
-					Foreground="{StaticResource SystemControlDisabledBaseMediumLowBrush}"
 					Text="Using L.A.M.E encoding engine"
 					FontStyle="Oblique" />
 			</Grid>			
@@ -305,6 +304,7 @@
 		<controls:GroupBox
 			Grid.Row="2"
 			Grid.ColumnSpan="2"
+			Margin="0,10,0,0"
 			IsEnabled="{CompiledBinding SplitFilesByChapter}"
 			Label="{CompiledBinding ChapterTitleTemplateText}">
 

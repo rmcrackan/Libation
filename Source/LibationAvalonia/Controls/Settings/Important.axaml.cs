@@ -2,12 +2,13 @@ using Avalonia.Controls;
 using Avalonia.ReactiveUI;
 using Dinah.Core;
 using FileManager;
+using LibationAvalonia.ViewModels;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
 
 namespace LibationAvalonia.Controls.Settings
 {
-	public partial class Important : ReactiveUserControl<ImportantSettingsVM>
+	public partial class Important : UserControl
 	{
 		public Important()
 		{

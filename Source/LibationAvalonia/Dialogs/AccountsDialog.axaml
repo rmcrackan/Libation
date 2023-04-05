@@ -113,6 +113,7 @@
 
 			<Button
 				Grid.Column="0"
+				Padding="5,5"
 				Content="Import from audible-cli"
 				Click="ImportButton_Clicked" />
 
