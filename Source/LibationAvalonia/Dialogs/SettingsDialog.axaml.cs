@@ -1,14 +1,6 @@
-using Avalonia.Collections;
 using Avalonia.Controls;
-using Dinah.Core;
-using FileManager;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
-using LibationUiBase;
-using ReactiveUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
@@ -47,10 +39,5 @@ namespace LibationAvalonia.Dialogs
 
 		public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> await SaveAndCloseAsync();
-
-		public void OpenLogFolderButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
-		}
 	}
 }

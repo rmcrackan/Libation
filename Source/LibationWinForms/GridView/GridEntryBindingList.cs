@@ -24,7 +24,11 @@ namespace LibationWinForms.GridView
 	internal class GridEntryBindingList : BindingList<IGridEntry>, IBindingListView
 	{
 		public GridEntryBindingList() : base(new List<IGridEntry>()) { }
-		public GridEntryBindingList(IEnumerable<IGridEntry> enumeration) : base(new List<IGridEntry>(enumeration)) { }
+		public GridEntryBindingList(IEnumerable<IGridEntry> enumeration) : base(new List<IGridEntry>(enumeration))
+		{
+			SearchEngineCommands.SearchEngineUpdated += (_,_) => ApplyFilter(FilterString);
+		}
+
 
 		/// <returns>All items in the list, including those filtered out.</returns>
 		public List<IGridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();

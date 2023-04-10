@@ -53,7 +53,7 @@
 				Padding="20,0"
 				VerticalAlignment="Stretch"
 				Content="Open Log Folder"
-				Click="OpenLogFolderButton_Click" />
+				Command="{CompiledBinding OpenLogFolderButton}" />
 
 		</StackPanel>
 

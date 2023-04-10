@@ -1,4 +1,5 @@
-﻿using FileManager;
+﻿using Dinah.Core;
+using FileManager;
 using LibationFileManager;
 using ReactiveUI;
 using System;
@@ -37,6 +38,8 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.LogLevel = LoggingLevel;
 			Configuration.Instance.SetString(ThemeVariant, nameof(ThemeVariant));
 		}
+
+		public void OpenLogFolderButton() => Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
 
 		public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
 		{
