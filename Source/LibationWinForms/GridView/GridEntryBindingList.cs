@@ -56,9 +56,6 @@ namespace LibationWinForms.GridView
 			}
 		}
 
-		/// <summary>When true, itms will not be checked filtered by search criteria on item changed<summary>
-		public bool SuspendFilteringOnUpdate { get; set; }
-
 		protected RowComparer Comparer { get; } = new();
 		protected override bool SupportsSortingCore => true;
 		protected override bool SupportsSearchingCore => true;
@@ -112,7 +109,7 @@ namespace LibationWinForms.GridView
 				foreach (var newRemove in toRemoveEntries)
 				{
 					FilterRemoved.Add(newRemove);
-					Items.Remove(newRemove);
+					base.Remove(newRemove);
 				}
 			}
 
@@ -138,7 +135,7 @@ namespace LibationWinForms.GridView
 						continue;
 
 					FilterRemoved.Remove(addBack);
-					Items.Add(addBack);
+					Add(addBack);
 				}
 			}
 		}
@@ -147,7 +144,7 @@ namespace LibationWinForms.GridView
 		{
 			var filterResults = AllItems().FilterEntries(FilterString);
 
-			if (filterResults is not null && FilteredInGridEntries.Intersect(filterResults).Count() != FilteredInGridEntries.Count)
+			if (filterResults is not null && (FilteredInGridEntries is null || FilteredInGridEntries.Intersect(filterResults).Count() != FilteredInGridEntries.Count))
 			{
 				FilteredInGridEntries = filterResults;
 				refreshEntries();
@@ -181,7 +178,7 @@ namespace LibationWinForms.GridView
 		{
 			var sindex = Items.IndexOf(sEntry);
 
-			foreach (var episode in sEntry.Children.Intersect(FilterRemoved.BookEntries()).ToList())
+			foreach (var episode in Comparer.OrderEntries(sEntry.Children.Intersect(FilterRemoved.BookEntries())).ToList())
 			{
 				if (FilteredInGridEntries?.Contains(episode) ?? true)
 				{
