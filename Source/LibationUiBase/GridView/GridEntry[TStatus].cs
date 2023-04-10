@@ -155,7 +155,7 @@ namespace LibationUiBase.GridView
 				return;
 
 			//If UserDefinedItem was changed on a different Book instance (such as when batch liberating via menus),
-			//EntryStatu's Book instance will not have the current DB state.
+			//EntryStatus' Book instance will not have the current DB state.
 			Liberate.Book = udi.Book;
 
 			// UDI changed, possibly in a different context/view. Update this viewmodel. Call NotifyPropertyChanged to notify view.
