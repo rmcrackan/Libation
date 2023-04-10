@@ -58,7 +58,7 @@ namespace LibationUiBase.GridView
 		public abstract object BackgroundBrush { get; }
 		public object ButtonImage => GetLiberateIcon();
 		public string ToolTip => GetTooltip();
-		internal Book Book { get; }
+		private Book Book { get; }
 
 		private DateTime lastBookUpdate;
 		private LiberatedStatus bookStatus;

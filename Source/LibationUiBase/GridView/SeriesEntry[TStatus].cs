@@ -47,7 +47,7 @@ namespace LibationUiBase.GridView
 
 			Children = children
 				.Select(c => new LibraryBookEntry<TStatus>(c, this))
-				.OrderBy(c => c.SeriesIndex)
+				.OrderByDescending(c => c.SeriesOrder)
 				.ToList<ILibraryBookEntry>();
 
 			UpdateLibraryBook(parent);

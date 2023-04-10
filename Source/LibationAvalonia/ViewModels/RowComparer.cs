@@ -16,11 +16,13 @@ namespace LibationAvalonia.ViewModels
 		public RowComparer(DataGridColumn column)
 		{
 			Column = column;
-			PropertyName = Column.SortMemberPath;
+			PropertyName = Column?.SortMemberPath ?? nameof(IGridEntry.DateAdded);
 		}
 
 		//Avalonia doesn't expose the column's CurrentSortingState, so we must get it through reflection
-		protected override ListSortDirection? GetSortOrder()
-			=> CurrentSortingStatePi.GetValue(HeaderCellPi.GetValue(Column)) as ListSortDirection?;
+		protected override ListSortDirection GetSortOrder()
+			=> Column is null ? ListSortDirection.Descending
+			: CurrentSortingStatePi.GetValue(HeaderCellPi.GetValue(Column)) is ListSortDirection lsd ? lsd
+			: ListSortDirection.Descending;
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using ApplicationServices;
-using Dinah.Core.DataBinding;
 using LibationUiBase.GridView;
 using System;
 using System.Collections.Generic;
@@ -25,6 +24,8 @@ namespace LibationWinForms.GridView
 		public GridEntryBindingList(IEnumerable<IGridEntry> enumeration) : base(new List<IGridEntry>(enumeration))
 		{
 			SearchEngineCommands.SearchEngineUpdated += SearchEngineCommands_SearchEngineUpdated;
+
+			refreshEntries();
 		}
 
 
@@ -216,9 +217,7 @@ namespace LibationWinForms.GridView
 		{
 			var itemsList = (List<IGridEntry>)Items;
 			//User Order/OrderDescending and replace items in list instead of using List.Sort() to achieve stable sorting.
-			var sortedItems
-				= Comparer.SortOrder == ListSortDirection.Ascending ? itemsList.Order(Comparer).ToList()
-				: itemsList.OrderDescending(Comparer).ToList();
+			var sortedItems = Comparer.OrderEntries(itemsList).ToList();
 
 			itemsList.Clear();
 			itemsList.AddRange(sortedItems);

@@ -181,7 +181,7 @@ namespace LibationWinForms.GridView
 				geList.AddRange(seriesEntry.Children);
 			}
 
-			bindingList = new GridEntryBindingList(geList.OrderByDescending(e => e.DateAdded));
+			bindingList = new GridEntryBindingList(geList);
 			bindingList.CollapseAll();
 			syncBindingSource.DataSource = bindingList;
 			VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
