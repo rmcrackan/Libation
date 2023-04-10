@@ -58,7 +58,22 @@ namespace LibationUiBase.GridView
 
 			//both are children of the same series
 			if (parentA == parentB)
-				return InternalCompare(geA, geB);
+			{
+				//Podcast episodes usually all have the same PurchaseDate and DateAdded property:
+				//the date that the series was added to the library. So when sorting by PurchaseDate
+				//and DateAdded, compare SeriesOrder instead.
+				//
+				//Note that DateAdded is not a grid column and users cannot sort by that property.
+				//Entries are only sorted by DateAdded as a default sorting order when no other
+				//sorting column has been chose. We negate the comparison so that episodes are listed
+				//in ascending order.
+				return PropertyName switch
+				{
+					nameof(IGridEntry.PurchaseDate) => geA.SeriesOrder.CompareTo(geB.SeriesOrder),
+					nameof(IGridEntry.DateAdded) => geA.SeriesOrder.CompareTo(geB.SeriesOrder) * (GetSortOrder() is ListSortDirection.Descending ? 1 : -1),
+					_ => InternalCompare(geA, geB),
+				};
+			}
 
 			//a and b are children of different series.
 			return InternalCompare(parentA, parentB);
