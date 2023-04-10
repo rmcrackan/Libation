@@ -1,4 +1,5 @@
-﻿using DataLayer;
+﻿using ApplicationServices;
+using DataLayer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,20 @@ namespace LibationUiBase.GridView
 				Serilog.Log.Error(ex, "Query error in {0}", nameof(FindSeriesParent));
 				return null;
 			}
+		}
+
+		public static HashSet<IGridEntry>? FilterEntries(this IEnumerable<IGridEntry> entries, string searchString)
+		{
+			if (string.IsNullOrEmpty(searchString)) return null;
+
+			var searchResultSet = SearchEngineCommands.Search(searchString);
+
+			var booksFilteredIn = entries.BookEntries().Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (IGridEntry)lbe);
+
+			//Find all series containing children that match the search criteria
+			var seriesFilteredIn = entries.SeriesEntries().Where(s => s.Children.Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
+
+			return booksFilteredIn.Concat(seriesFilteredIn).ToHashSet();
 		}
 	}
 #nullable disable
