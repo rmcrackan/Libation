@@ -41,6 +41,12 @@ namespace LibationUiBase.GridView
 			}
 		}
 
+		public static bool SearchSetsDiffer(this HashSet<IGridEntry>? searchSet, HashSet<IGridEntry>? otherSet)
+			=> searchSet is null != otherSet is null ||
+					(searchSet is not null &&
+					otherSet is not null &&
+					searchSet.Intersect(otherSet).Count() != searchSet.Count);
+
 		public static HashSet<IGridEntry>? FilterEntries(this IEnumerable<IGridEntry> entries, string searchString)
 		{
 			if (string.IsNullOrEmpty(searchString)) return null;

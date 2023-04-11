@@ -322,7 +322,7 @@ namespace LibationAvalonia.ViewModels
 		{
 			var filterResults = SOURCE.FilterEntries(FilterString);
 
-			if (filterResults is not null && (FilteredInGridEntries is null || FilteredInGridEntries.Intersect(filterResults).Count() != FilteredInGridEntries.Count))
+			if (FilteredInGridEntries.SearchSetsDiffer(filterResults))
 			{
 				FilteredInGridEntries = filterResults;
 				await refreshGrid();

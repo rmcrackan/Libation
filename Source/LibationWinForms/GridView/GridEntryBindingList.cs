@@ -18,16 +18,20 @@ namespace LibationWinForms.GridView
 	 * 
 	 * Remove is overridden to ensure that removed items are removed from
 	 * the base list (visible items) as well as the FilterRemoved list.
+	 * 
+	 * Using BindingList.Add/Insert and BindingList.Remove will cause the
+	 * BindingList to subscribe/unsibscribe to/from the item's PropertyChanged
+	 * event. Adding or removing from the underlying list will not change the
+	 * BindingList's subscription to that item.
 	 */
 	internal class GridEntryBindingList : BindingList<IGridEntry>, IBindingListView
 	{
 		public GridEntryBindingList(IEnumerable<IGridEntry> enumeration) : base(new List<IGridEntry>(enumeration))
 		{
 			SearchEngineCommands.SearchEngineUpdated += SearchEngineCommands_SearchEngineUpdated;
-
+			ListChanged += GridEntryBindingList_ListChanged;
 			refreshEntries();
 		}
-
 
 		/// <returns>All items in the list, including those filtered out.</returns>
 		public List<IGridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
@@ -51,7 +55,7 @@ namespace LibationWinForms.GridView
 				if (Items.Count + FilterRemoved.Count == 0)
 					return;
 
-				FilteredInGridEntries = Items.Concat(FilterRemoved).FilterEntries(FilterString);
+				FilteredInGridEntries = AllItems().FilterEntries(FilterString);
 				refreshEntries();
 			}
 		}
@@ -61,17 +65,15 @@ namespace LibationWinForms.GridView
 		protected override bool SupportsSearchingCore => true;
 		protected override bool IsSortedCore => isSorted;
 		protected override PropertyDescriptor SortPropertyCore => propertyDescriptor;
-		protected override ListSortDirection SortDirectionCore => listSortDirection;
+		protected override ListSortDirection SortDirectionCore => Comparer.SortOrder;
 
 		/// <summary> Items that were removed from the base list due to filtering </summary>
 		private readonly List<IGridEntry> FilterRemoved = new();
 		private string FilterString;
 		private bool isSorted;
-		private ListSortDirection listSortDirection;
 		private PropertyDescriptor propertyDescriptor;
 		/// <summary> All GridEntries present in the current filter set. If null, no filter is applied and all entries are filtered in.(This was a performance choice)</summary>
 		private HashSet<IGridEntry> FilteredInGridEntries;
-
 
 		#region Unused - Advanced Filtering
 		public bool SupportsAdvancedSorting => false;
@@ -113,15 +115,7 @@ namespace LibationWinForms.GridView
 				}
 			}
 
-			if (IsSortedCore)
-				Sort();
-			else
-			{
-				//No user sort is applied, so do default sorting by DateAdded, descending
-				Comparer.PropertyName = nameof(IGridEntry.DateAdded);
-				Comparer.SortOrder = ListSortDirection.Descending;
-				Sort();
-			}
+			SortInternal();
 
 			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
 
@@ -144,7 +138,7 @@ namespace LibationWinForms.GridView
 		{
 			var filterResults = AllItems().FilterEntries(FilterString);
 
-			if (filterResults is not null && (FilteredInGridEntries is null || FilteredInGridEntries.Intersect(filterResults).Count() != FilteredInGridEntries.Count))
+			if (FilteredInGridEntries.SearchSetsDiffer(filterResults))
 			{
 				FilteredInGridEntries = filterResults;
 				refreshEntries();
@@ -201,16 +195,15 @@ namespace LibationWinForms.GridView
 			Comparer.PropertyName = property.Name;
 			Comparer.SortOrder = direction;
 
-			Sort();
+			SortInternal();
 
 			propertyDescriptor = property;
-			listSortDirection = direction;
 			isSorted = true;
 
 			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
 		}
 
-		private void Sort()
+		private void SortInternal()
 		{
 			var itemsList = (List<IGridEntry>)Items;
 			//User Order/OrderDescending and replace items in list instead of using List.Sort() to achieve stable sorting.
@@ -220,19 +213,17 @@ namespace LibationWinForms.GridView
 			itemsList.AddRange(sortedItems);
 		}
 
-		protected override void OnListChanged(ListChangedEventArgs e)
+		private void GridEntryBindingList_ListChanged(object sender, ListChangedEventArgs e)
 		{
-			if (e.ListChangedType == ListChangedType.ItemChanged && isSorted && e.PropertyDescriptor == SortPropertyCore)
+			if (e.ListChangedType == ListChangedType.ItemChanged && IsSortedCore && e.PropertyDescriptor == SortPropertyCore)
 				refreshEntries();
-			else
-				base.OnListChanged(e);
 		}
 
 		protected override void RemoveSortCore()
 		{
 			isSorted = false;
 			propertyDescriptor = base.SortPropertyCore;
-			listSortDirection = base.SortDirectionCore;
+			Comparer.SortOrder = base.SortDirectionCore;
 
 			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
 		}
