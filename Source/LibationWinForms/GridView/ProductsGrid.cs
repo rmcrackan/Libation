@@ -181,7 +181,7 @@ namespace LibationWinForms.GridView
 				geList.AddRange(seriesEntry.Children);
 			}
 
-			bindingList = new GridEntryBindingList(geList.OrderByDescending(e => e.DateAdded));
+			bindingList = new GridEntryBindingList(geList);
 			bindingList.CollapseAll();
 			syncBindingSource.DataSource = bindingList;
 			VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
@@ -194,8 +194,6 @@ namespace LibationWinForms.GridView
 			//Remove filter prior to adding/updating boooks
 			string existingFilter = syncBindingSource.Filter;
 			Filter(null);
-
-			bindingList.SuspendFilteringOnUpdate = true;
 
 			//Add absent entries to grid, or update existing entry
 
@@ -218,8 +216,6 @@ namespace LibationWinForms.GridView
 					AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);
 				}
 			}
-
-			bindingList.SuspendFilteringOnUpdate = false;
 
 			//Re-apply filter after adding new/updating existing books to capture any changes
 			Filter(existingFilter);

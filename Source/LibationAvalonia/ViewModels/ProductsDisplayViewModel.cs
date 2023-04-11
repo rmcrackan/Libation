@@ -23,7 +23,7 @@ namespace LibationAvalonia.ViewModels
 		/// <summary>Backing list of all grid entries</summary>
 		private readonly AvaloniaList<IGridEntry> SOURCE = new();
 		/// <summary>Grid entries included in the filter set. If null, all grid entries are shown</summary>
-		private List<IGridEntry> FilteredInGridEntries;
+		private HashSet<IGridEntry> FilteredInGridEntries;
 		public string FilterString { get; private set; }
 		public DataGridCollectionView GridEntries { get; private set; }
 
@@ -117,8 +117,8 @@ namespace LibationAvalonia.ViewModels
 			}
 
 			//Create the filtered-in list before adding entries to avoid a refresh
-			FilteredInGridEntries = QueryResults(geList.Union(geList.OfType<ISeriesEntry>().SelectMany(s => s.Children)), FilterString);
-			SOURCE.AddRange(geList.OrderByDescending(e => e.DateAdded));
+			FilteredInGridEntries = geList.Union(geList.OfType<ISeriesEntry>().SelectMany(s => s.Children)).FilterEntries(FilterString);
+			SOURCE.AddRange(geList.OrderDescending(new RowComparer(null)));
 
 			//Add all children beneath their parent
 			foreach (var series in SOURCE.OfType<ISeriesEntry>().ToList())
@@ -301,7 +301,7 @@ namespace LibationAvalonia.ViewModels
 			if (SOURCE.Count == 0)
 				return;
 
-			FilteredInGridEntries = QueryResults(SOURCE, searchString);
+			FilteredInGridEntries = SOURCE.FilterEntries(searchString);
 
 			await refreshGrid();
 		}
@@ -318,25 +318,11 @@ namespace LibationAvalonia.ViewModels
 			return FilteredInGridEntries.Contains(item);
 		}
 
-		private static List<IGridEntry> QueryResults(IEnumerable<IGridEntry> entries, string searchString)
-		{
-			if (string.IsNullOrEmpty(searchString)) return null;
-
-			var searchResultSet = SearchEngineCommands.Search(searchString);
-
-			var booksFilteredIn = entries.BookEntries().Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (IGridEntry)lbe);
-
-			//Find all series containing children that match the search criteria
-			var seriesFilteredIn = entries.SeriesEntries().Where(s => s.Children.Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
-
-			return booksFilteredIn.Concat(seriesFilteredIn).ToList();
-		}
-
 		private async void SearchEngineCommands_SearchEngineUpdated(object sender, EventArgs e)
 		{
-			var filterResults = QueryResults(SOURCE, FilterString);
+			var filterResults = SOURCE.FilterEntries(FilterString);
 
-			if (filterResults is not null && FilteredInGridEntries.Intersect(filterResults).Count() != FilteredInGridEntries.Count)
+			if (FilteredInGridEntries.SearchSetsDiffer(filterResults))
 			{
 				FilteredInGridEntries = filterResults;
 				await refreshGrid();

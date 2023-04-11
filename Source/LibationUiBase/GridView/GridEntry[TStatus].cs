@@ -154,9 +154,13 @@ namespace LibationUiBase.GridView
 			if (udi.Book.AudibleProductId != Book.AudibleProductId)
 				return;
 
-			//If UserDefinedItem was changed on a different Book instance (such as when batch liberating via menus),
-			//EntryStatu's Book instance will not have the current DB state.
-			Liberate.Book = udi.Book;
+			if (udi.Book != LibraryBook.Book)
+			{
+				//If UserDefinedItem was changed on a different Book instance (such as when batch liberating via menus),
+				//Liberate.Book and LibraryBook.Book instances will not have the current DB state.
+				Invoke(() => UpdateLibraryBook(new LibraryBook(udi.Book, LibraryBook.DateAdded, LibraryBook.Account)));
+				return;
+			}
 
 			// UDI changed, possibly in a different context/view. Update this viewmodel. Call NotifyPropertyChanged to notify view.
 			// - This method responds to tons of incidental changes. Do not persist to db from here. Committing to db must be a volitional action by the caller, not incidental. Otherwise batch changes would be impossible; we would only have slow one-offs
