@@ -189,6 +189,9 @@ namespace LibationWinForms.GridView
 
 		internal void UpdateGrid(List<LibraryBook> dbBooks)
 		{
+			//First row that is in view in the DataGridView
+			var topRow = gridEntryDataGridView.Rows.Cast<DataGridViewRow>().FirstOrDefault(r => r.Displayed)?.Index ?? 0;
+
 			#region Add new or update existing grid entries
 
 			//Remove filter prior to adding/updating boooks
@@ -201,6 +204,7 @@ namespace LibationWinForms.GridView
 			var seriesEntries = bindingList.AllItems().SeriesEntries().ToList();
 			var parentedEpisodes = dbBooks.ParentedEpisodes().ToHashSet();
 
+			bindingList.RaiseListChangedEvents = false;
 			foreach (var libraryBook in dbBooks.OrderBy(e => e.DateAdded))
 			{
 				var existingEntry = allEntries.FindByAsin(libraryBook.Book.AudibleProductId);
@@ -216,8 +220,11 @@ namespace LibationWinForms.GridView
 					AddOrUpdateEpisode(libraryBook, existingEntry, seriesEntries, dbBooks);
 				}
 			}
+			bindingList.RaiseListChangedEvents = true;
 
 			//Re-apply filter after adding new/updating existing books to capture any changes
+			//The Filter call also ensures that the binding list is reset so the DataGridView
+			//is made aware of all changes that were made while RaiseListChangedEvents was false
 			Filter(existingFilter);
 
 			#endregion
@@ -231,6 +238,8 @@ namespace LibationWinForms.GridView
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
 
 			RemoveBooks(removedBooks);
+
+			gridEntryDataGridView.FirstDisplayedScrollingRowIndex = topRow;
 		}
 
 		public void RemoveBooks(IEnumerable<ILibraryBookEntry> removedBooks)
