@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using AudibleApi;
 using AudibleUtilities;
 using LibationWinForms.Dialogs.Login;
@@ -12,7 +13,7 @@ namespace LibationWinForms.Login
 
 		public string DeviceName { get; } = "Libation";
 
-		public WinformLoginCallback(Account account)
+		public WinformLoginCallback(Account account, IWin32Window owner) : base(owner)
 		{
 			_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
 		}
