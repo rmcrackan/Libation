@@ -69,7 +69,7 @@ jobs:
               LoadByOS/${{ matrix.os }}ConfigApp/${{ matrix.os }}ConfigApp.csproj `
               --configuration ${{ env.DOTNET_CONFIGURATION }} `
               --output bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} `
-              -p:PublishProfile=LoadByOS/Properties/${{ matrix.os }}ConfigApp/PublishProfiles/${{ matrix.os }}Profile.pubxml
+              -p:PublishProfile=LoadByOS/${{ matrix.os }}ConfigApp/PublishProfiles/${{ matrix.os }}Profile.pubxml
           dotnet publish `
               LibationCli/LibationCli.csproj `
               --configuration ${{ env.DOTNET_CONFIGURATION }} `

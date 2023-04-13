@@ -35,7 +35,7 @@
 			Grid.Row="2"
 			Grid.Column="0"
 			Margin="0,5,0,5"
-			ColumnDefinitions="Auto,*">
+			ColumnDefinitions="Auto,*,Auto">
 			
 			<TextBlock
 				Grid.Column="0"
@@ -46,6 +46,12 @@
 				Grid.Column="1"
 				PasswordChar="*"
 				Text="{Binding Password, Mode=TwoWay}" />
+			<Button
+				Margin="5,0"
+				Grid.Column="2"
+				VerticalAlignment="Stretch"
+				Content="Submit"
+				Command="{Binding SaveAndCloseAsync}" />
 		</Grid>
 
 		<StackPanel

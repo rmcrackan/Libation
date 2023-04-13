@@ -20,6 +20,7 @@ namespace LinuxConfigApp
 		public LinuxInterop() { }
 		public LinuxInterop(params object[] values) { }
 
+		public IWebViewAdapter CreateWebViewAdapter() => null;
 		public void SetFolderIcon(string image, string directory) => throw new PlatformNotSupportedException();
 		public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 

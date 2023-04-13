@@ -4,7 +4,7 @@ namespace LibationAvalonia.Dialogs.Login
 {
 	public partial class ApprovalNeededDialog : DialogWindow
 	{
-		public ApprovalNeededDialog()
+		public ApprovalNeededDialog() : base(saveAndRestorePosition: false)
 		{
 			InitializeComponent();
 		}

@@ -14,6 +14,7 @@ namespace LibationAvalonia
 {
 	static class Program
 	{
+		[STAThread]
 		static void Main(string[] args)
 		{
 

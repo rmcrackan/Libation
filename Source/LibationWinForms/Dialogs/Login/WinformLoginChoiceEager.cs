@@ -29,10 +29,16 @@ namespace LibationWinForms.Login
 		{
 			if (Environment.OSVersion.Version.Major >= 10)
 			{
-				using var browserLogin = new WebLoginDialog(_account.AccountId, choiceIn.LoginUrl);
-
-				if (ShowDialog(browserLogin))
-					return Task.FromResult(ChoiceOut.External(browserLogin.ResponseUrl));
+				try
+				{
+					using var weblogin = new WebLoginDialog(_account.AccountId, choiceIn.LoginUrl);
+					if (ShowDialog(weblogin))
+						return Task.FromResult(ChoiceOut.External(weblogin.ResponseUrl));
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, $"Failed to run {nameof(WebLoginDialog)}");
+				}
 			}
 
 			using var dialog = new LoginChoiceEagerDialog(_account);

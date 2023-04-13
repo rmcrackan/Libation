@@ -11,7 +11,7 @@ namespace LibationAvalonia.Dialogs.Login
 		public Account Account { get; }
 		public string Password { get; set; }
 
-		public LoginCallbackDialog()
+		public LoginCallbackDialog() : base(saveAndRestorePosition: false)
 		{
 			InitializeComponent();
 

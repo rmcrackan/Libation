@@ -1,27 +1,19 @@
-﻿using Dinah.Core;
-using LibationFileManager;
+using Avalonia.Controls;
+using Dinah.Core;
 using System;
-using System.Windows.Forms;
 
-namespace LibationWinForms.Login
+namespace LibationAvalonia.Dialogs.Login
 {
-	public partial class WebLoginDialog : Form
+	public partial class WebLoginDialog : Window
 	{
 		public string ResponseUrl { get; private set; }
 		private readonly string accountID;
-		private readonly IWebViewAdapter webView;
+
 		public WebLoginDialog()
 		{
 			InitializeComponent();
-			webView = InteropFactory.Create().CreateWebViewAdapter();
-
-			var webViewControl = webView.NativeWebView as Control;
-			webViewControl.Dock = DockStyle.Fill;
-			Controls.Add(webViewControl);
-
 			webView.NavigationStarted += WebView_NavigationStarted;
-			webView.DOMContentLoaded += WebView_DOMContentLoaded;
-			this.SetLibationIcon();
+			webView.DOMContentLoaded += WebView_NavigationCompleted;
 		}
 
 		public WebLoginDialog(string accountID, string loginUrl) : this()
@@ -29,18 +21,17 @@ namespace LibationWinForms.Login
 			this.accountID = ArgumentValidator.EnsureNotNullOrWhiteSpace(accountID, nameof(accountID));
 			webView.Source = new Uri(ArgumentValidator.EnsureNotNullOrWhiteSpace(loginUrl, nameof(loginUrl)));
 		}
-
-		private void WebView_NavigationStarted(object sender, WebViewNavigationEventArgs e)
+		
+		private void WebView_NavigationStarted(object sender, LibationFileManager.WebViewNavigationEventArgs e)
 		{
 			if (e.Request?.AbsolutePath.Contains("/ap/maplanding") is true)
 			{
 				ResponseUrl = e.Request.ToString();
-				DialogResult = DialogResult.OK;
-				Close();
+				Close(DialogResult.OK);
 			}
 		}
 
-		private async void WebView_DOMContentLoaded(object sender, EventArgs e)
+		private async void WebView_NavigationCompleted(object sender, EventArgs e)
 		{
 			await webView.InvokeScriptAsync(getScript(accountID));
 		}
@@ -58,5 +49,6 @@ namespace LibationWinForms.Login
 				}
 			})()
 			""";
+		
 	}
 }

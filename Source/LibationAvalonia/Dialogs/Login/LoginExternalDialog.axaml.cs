@@ -14,7 +14,7 @@ namespace LibationAvalonia.Dialogs.Login
 		public string ExternalLoginUrl { get; }
 		public string ResponseUrl { get; set; }
 
-		public LoginExternalDialog()
+		public LoginExternalDialog() : base(saveAndRestorePosition: false)
 		{
 			InitializeComponent();
 

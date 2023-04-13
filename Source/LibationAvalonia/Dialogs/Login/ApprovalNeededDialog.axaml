@@ -6,6 +6,7 @@
 		MinWidth="240" MinHeight="140"
 		MaxWidth="240" MaxHeight="140"
 		Width="240" Height="140"
+		WindowStartupLocation="CenterOwner"
         x:Class="LibationAvalonia.Dialogs.Login.ApprovalNeededDialog"
         Title="Approval Alert Detected"
 		Icon="/Assets/libation.ico">

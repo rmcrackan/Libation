@@ -12,7 +12,7 @@ namespace LibationAvalonia.Dialogs.Login
 		public string Password { get; set; }
 		public LoginMethod LoginMethod { get; private set; }
 
-		public LoginChoiceEagerDialog()
+		public LoginChoiceEagerDialog() : base(saveAndRestorePosition: false)
 		{
 			InitializeComponent();
 
