@@ -53,10 +53,10 @@ namespace LibationUiBase.GridView
 
 			var searchResultSet = SearchEngineCommands.Search(searchString);
 
-			var booksFilteredIn = entries.BookEntries().Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => (IGridEntry)lbe);
+			var booksFilteredIn = entries.IntersectBy(searchResultSet.Docs.Select(d => d.ProductId), l => l.AudibleProductId);
 
 			//Find all series containing children that match the search criteria
-			var seriesFilteredIn = entries.SeriesEntries().Where(s => s.Children.Join(searchResultSet.Docs, lbe => lbe.AudibleProductId, d => d.ProductId, (lbe, d) => lbe).Any());
+			var seriesFilteredIn = booksFilteredIn.OfType<ILibraryBookEntry>().Where(lbe => lbe.Parent is not null).Select(lbe => lbe.Parent).Distinct();
 
 			return booksFilteredIn.Concat(seriesFilteredIn).ToHashSet();
 		}

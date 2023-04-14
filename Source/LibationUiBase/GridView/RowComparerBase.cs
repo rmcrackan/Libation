@@ -80,7 +80,12 @@ namespace LibationUiBase.GridView
 			var val1 = x.GetMemberValue(PropertyName);
 			var val2 = y.GetMemberValue(PropertyName);
 
-			return x.GetMemberComparer(val1.GetType()).Compare(val1, val2); ;
+			var compare =  x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
+			
+			return compare == 0 && x.Liberate.IsSeries && y.Liberate.IsSeries
+				//Both a and b are series parents and compare as equal, so break the tie.
+				? x.AudibleProductId.CompareTo(y.AudibleProductId)
+				: compare;
 		}
 
 		public int Compare(IGridEntry x, IGridEntry y)

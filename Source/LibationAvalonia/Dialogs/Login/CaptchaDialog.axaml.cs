@@ -13,7 +13,7 @@ namespace LibationAvalonia.Dialogs.Login
 		public string Answer => _viewModel.Answer;
 
 		private readonly CaptchaDialogViewModel _viewModel;
-		public CaptchaDialog()
+		public CaptchaDialog() : base(saveAndRestorePosition: false)
 		{
 			InitializeComponent();
 			passwordBox = this.FindControl<TextBox>(nameof(passwordBox));

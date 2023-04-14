@@ -12,7 +12,10 @@ namespace WindowsConfigApp
         public WinInterop() { }
         public WinInterop(params object[] values) { }
 
-        public void SetFolderIcon(string image, string directory)
+#nullable enable
+		public IWebViewAdapter? CreateWebViewAdapter() => new WindowsWebView2Adapter();
+#nullable disable
+		public void SetFolderIcon(string image, string directory)
         {
 			var icon = Image.Load(image).ToIcon();
 			new DirectoryInfo(directory)?.SetIcon(icon, "Music");
@@ -50,5 +53,5 @@ namespace WindowsConfigApp
 
             return Process.Start(psi);
 		}
-    }
+	}
 }

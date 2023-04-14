@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+	<TargetFramework>net7.0-windows</TargetFramework>
+	<UseWindowsForms>true</UseWindowsForms>
+	<EnableWindowsTargeting>true</EnableWindowsTargeting>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
@@ -22,6 +24,10 @@
     <OutputPath>..\..\bin\Release</OutputPath>
     <DebugType>embedded</DebugType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1722.45" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\LibationUiBase\LibationUiBase.csproj" />

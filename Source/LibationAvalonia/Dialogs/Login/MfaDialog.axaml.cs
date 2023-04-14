@@ -14,7 +14,7 @@ namespace LibationAvalonia.Dialogs.Login
 		public string SelectedValue { get; private set; }
 		private RbValues Values { get; } = new();
 
-		public MfaDialog()
+		public MfaDialog() : base(saveAndRestorePosition: false)
 		{
 			InitializeComponent();
 

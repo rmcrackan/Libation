@@ -1,5 +1,7 @@
 ﻿using AudibleApi;
 using AudibleUtilities;
+using Avalonia.Threading;
+using LibationFileManager;
 using System;
 using System.Threading.Tasks;
 
@@ -23,6 +25,20 @@ namespace LibationAvalonia.Dialogs.Login
 
 		public async Task<ChoiceOut> StartAsync(ChoiceIn choiceIn)
 		{
+			if (Configuration.IsWindows && Environment.OSVersion.Version.Major >= 10)
+			{
+				try
+				{
+					var weblogin = new WebLoginDialog(_account.AccountId, choiceIn.LoginUrl);
+					if (await weblogin.ShowDialog<DialogResult>(App.MainWindow) is DialogResult.OK)
+						return ChoiceOut.External(weblogin.ResponseUrl);
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Logger.Error(ex, $"Failed to run {nameof(WebLoginDialog)}");
+				}
+			}
+
 			var dialog = new LoginChoiceEagerDialog(_account);
 
 			if (await dialog.ShowDialogAsync() is not DialogResult.OK ||

@@ -97,6 +97,9 @@ namespace LibationWinForms.GridView
 		/// </summary>
 		private void refreshEntries()
 		{
+			var priorState = RaiseListChangedEvents;
+			RaiseListChangedEvents = false;
+
 			if (FilteredInGridEntries is null)
 			{
 				addRemovedItemsBack(FilterRemoved.ToList());
@@ -117,7 +120,8 @@ namespace LibationWinForms.GridView
 
 			SortInternal();
 
-			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
+			ResetList();
+			RaiseListChangedEvents = priorState;
 
 			void addRemovedItemsBack(List<IGridEntry> addBackEntries)
 			{
@@ -200,7 +204,7 @@ namespace LibationWinForms.GridView
 			propertyDescriptor = property;
 			isSorted = true;
 
-			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
+			ResetList();
 		}
 
 		private void SortInternal()
@@ -224,8 +228,15 @@ namespace LibationWinForms.GridView
 			isSorted = false;
 			propertyDescriptor = base.SortPropertyCore;
 			Comparer.SortOrder = base.SortDirectionCore;
+			ResetList();
+		}
 
+		private void ResetList()
+		{
+			var priorState = RaiseListChangedEvents;
+			RaiseListChangedEvents = true;
 			OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
+			RaiseListChangedEvents = priorState;
 		}
 	}
 }

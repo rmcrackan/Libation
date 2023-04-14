@@ -32,7 +32,7 @@ namespace LibationWinForms
 				// in autoScan, new books SHALL NOT show dialog
 				try
 				{
-					Task importAsync() => LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.ApiExtendedFunc, accounts);
+					Task importAsync() => LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.CreateApiExtendedFunc(this), accounts);
 					if (InvokeRequired)
 						await Invoke(importAsync);
 					else

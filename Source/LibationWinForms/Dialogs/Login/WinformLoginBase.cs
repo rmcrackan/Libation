@@ -1,15 +1,22 @@
 ﻿using System;
+using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs.Login
 {
 	public abstract class WinformLoginBase
 	{
-		/// <returns>True if ShowDialog's DialogResult == OK</returns>
-		protected static bool ShowDialog(System.Windows.Forms.Form dialog)
+		private readonly IWin32Window _owner;
+		protected WinformLoginBase(IWin32Window owner)
 		{
-			var result = dialog.ShowDialog();
+			_owner = owner;
+		}
+
+		/// <returns>True if ShowDialog's DialogResult == OK</returns>
+		protected bool ShowDialog(Form dialog)
+		{
+			var result = dialog.ShowDialog(_owner);
 			Serilog.Log.Logger.Debug("{@DebugInfo}", new { DialogResult = result });
-			return result == System.Windows.Forms.DialogResult.OK;
+			return result == DialogResult.OK;
 		}
 	}
 }
