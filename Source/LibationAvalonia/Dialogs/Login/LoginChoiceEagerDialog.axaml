@@ -2,9 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="200"
-		MinWidth="350" MinHeight="200"
-		Width="350" Height="200"
+        mc:Ignorable="d" d:DesignWidth="360" d:DesignHeight="200"
+		MinWidth="370" MinHeight="200"
+		Width="370" Height="200"
 		WindowStartupLocation="CenterOwner"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         x:Class="LibationAvalonia.Dialogs.Login.LoginChoiceEagerDialog"
@@ -60,7 +60,7 @@
 
 			<controls:LinkLabel
 				Tapped="ExternalLoginLink_Tapped"
-				Text="Or click here to log in with your browser." />
+				Text="Trouble logging in? Click here to log in with your browser." />
 			
 			<TextBlock
 				TextWrapping="Wrap"
