@@ -118,8 +118,15 @@ namespace AppScaffolding
 
 		private static void ensureSerilogConfig(Configuration config)
 		{
-			if (config.GetObject("Serilog") is not null)
+			if (config.GetObject("Serilog") is JObject serilog)
+			{
+				if (serilog["WriteTo"] is JArray sinks && sinks.FirstOrDefault(s => s["Name"].Value<string>() is "File") is JToken fileSink)
+				{
+					fileSink["Name"] = "ZipFile";
+					config.SetNonString(serilog.DeepClone(), "Serilog");
+				}
 				return;
+			}
 
 			var serilogObj = new JObject
 			{
@@ -129,7 +136,7 @@ namespace AppScaffolding
 						// new JObject { {"Name", "Console" } }, // this has caused more problems than it's solved
 						new JObject
 						{
-							{ "Name", "File" },
+							{ "Name", "ZipFile" },
 							{ "Args",
 								new JObject
 								{
