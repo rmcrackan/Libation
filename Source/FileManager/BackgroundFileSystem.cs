@@ -147,7 +147,8 @@ namespace FileManager
         private void AddPath(LongPath path)
         {
             path = path.LongPathName;
-            if (!File.Exists(path) && !Directory.Exists(path))
+            //Temporary files created when updating the db will disappear before their attributes can be read.
+            if (Path.GetFileName(path).Contains("LibationContext.db") || !File.Exists(path) && !Directory.Exists(path))
                 return;
             if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
                 AddUniqueFiles(FileUtility.SaferEnumerateFiles(path, SearchPattern, SearchOption));
