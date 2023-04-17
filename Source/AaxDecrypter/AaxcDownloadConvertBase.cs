@@ -32,7 +32,11 @@ namespace AaxDecrypter
 		protected bool Step_GetMetadata()
 		{
 			AaxFile = new AaxFile(InputFileStream);
-			AaxFile.SetDecryptionKey(DownloadOptions.AudibleKey, DownloadOptions.AudibleIV);
+
+			if (DownloadOptions.AudibleKey?.Length == 8 && DownloadOptions.AudibleIV is null)
+				AaxFile.SetDecryptionKey(DownloadOptions.AudibleKey);
+			else
+				AaxFile.SetDecryptionKey(DownloadOptions.AudibleKey, DownloadOptions.AudibleIV);
 
 			if (DownloadOptions.StripUnabridged)
 			{
