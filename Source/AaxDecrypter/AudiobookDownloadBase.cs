@@ -182,7 +182,6 @@ namespace AaxDecrypter
 			FileUtility.SaferDelete(jsonDownloadState);
 
 			if (!string.IsNullOrEmpty(DownloadOptions.AudibleKey) &&
-				!string.IsNullOrEmpty(DownloadOptions.AudibleIV) &&
 				DownloadOptions.RetainEncryptedFile)
 			{
 				string aaxPath = Path.ChangeExtension(tempFilePath, ".aax");
