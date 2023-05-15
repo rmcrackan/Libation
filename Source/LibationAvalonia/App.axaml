@@ -53,15 +53,15 @@
 					
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
-			
-</ResourceDictionary>
+		</ResourceDictionary>		
 	</Application.Resources>
 
 	<Application.Styles>
 		<FluentTheme />
 		<StyleInclude Source="avares://Avalonia.Themes.Fluent/FluentTheme.xaml"/>
-		<StyleInclude Source="/Assets/DataGridFluentTheme.xaml"/>
+		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
 		<StyleInclude Source="/Assets/LibationVectorIcons.xaml"/>
+		<StyleInclude Source="/Assets/DataGridColumnHeader.xaml"/>
 
 		<Style Selector="TextBox[IsReadOnly=true]">
 			<Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />

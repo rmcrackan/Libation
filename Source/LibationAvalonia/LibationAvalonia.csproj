@@ -32,8 +32,8 @@
 
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\**" />
-		<None Remove=".gitignore" />		
-		<None Remove="Assets\DataGridFluentTheme.xaml" />
+		<None Remove=".gitignore" />
+		<None Remove="Assets\DataGridColumnHeader.xaml" />
 		<None Remove="Assets\img-coverart-prod-unavailable_300x300.jpg" />
 		<None Remove="Assets\img-coverart-prod-unavailable_500x500.jpg" />
 		<None Remove="Assets\img-coverart-prod-unavailable_80x80.jpg" />
