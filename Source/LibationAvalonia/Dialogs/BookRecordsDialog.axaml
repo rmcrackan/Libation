@@ -24,7 +24,7 @@
 			CanUserSortColumns="True"
 			AutoGenerateColumns="False"
 			IsReadOnly="False"
-			Items="{Binding DataGridCollectionView}"
+			ItemsSource="{Binding DataGridCollectionView}"
 			GridLinesVisibility="All">
 
 			<DataGrid.Styles>

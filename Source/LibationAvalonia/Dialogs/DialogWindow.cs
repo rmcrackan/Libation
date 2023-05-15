@@ -41,9 +41,9 @@ namespace LibationAvalonia.Dialogs
 		}
 
 		protected virtual void SaveAndClose() => Close(DialogResult.OK);
-		protected virtual Task SaveAndCloseAsync() => Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(SaveAndClose);
+		protected virtual async Task SaveAndCloseAsync() => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(SaveAndClose);
 		protected virtual void CancelAndClose() => Close(DialogResult.Cancel);
-		protected virtual Task CancelAndCloseAsync() => Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(CancelAndClose);
+		protected virtual async Task CancelAndCloseAsync() => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(CancelAndClose);
 
 		private async void DialogWindow_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
 		{

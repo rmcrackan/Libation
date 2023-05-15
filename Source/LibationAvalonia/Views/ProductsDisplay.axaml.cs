@@ -231,7 +231,7 @@ namespace LibationAvalonia.Views
 				var menuItem = new MenuItem { Header = "_Copy Cell Contents" };
 
 				menuItem.Click += async (s, e)
-					=> await Application.Current.Clipboard.SetTextAsync(args.CellClipboardContents);
+					=> await App.MainWindow.Clipboard.SetTextAsync(args.CellClipboardContents);
 
 				args.ContextMenuItems.Add(menuItem);
 			}

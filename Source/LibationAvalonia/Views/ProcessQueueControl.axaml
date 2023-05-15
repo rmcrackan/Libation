@@ -46,7 +46,7 @@
 								VerticalCacheLength="1.2"
 								HorizontalCacheLength="1"
 								Background="Transparent"
-								Items="{Binding Items}"
+								ItemsSource="{Binding Items}"
 								ItemTemplate="{StaticResource elementFactory}" />
 						</ScrollViewer>
 					</Border>
@@ -81,7 +81,7 @@
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
 					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemChromeMediumLowColor}">
-						<DataGrid AutoGenerateColumns="False" Items="{Binding LogEntries}">
+						<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
 							<DataGrid.Columns>
 								<DataGridTextColumn SortMemberPath="LogDate" Header="Timestamp" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>
 								<DataGridTemplateColumn SortMemberPath="LogMessage"  Width="*" Header="Message" CanUserSort="True">

@@ -45,7 +45,7 @@
 					GridLinesVisibility="All"
 					AutoGenerateColumns="False"
 					DoubleTapped="EditTemplateViewModel_DoubleTapped"
-					Items="{Binding ListItems}" >
+					ItemsSource="{Binding ListItems}" >
 
 					<DataGrid.Columns>
 						<DataGridTemplateColumn Width="Auto" Header="Tag">
