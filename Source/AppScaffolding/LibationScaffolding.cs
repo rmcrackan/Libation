@@ -330,7 +330,18 @@ namespace AppScaffolding
 			//Download the release index
 			var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
 			var releaseIndex = JObject.Parse(System.Text.Encoding.ASCII.GetString(bts));
-			var regexPattern = releaseIndex.Value<string>(ReleaseIdentifier.ToString());
+
+			string regexPattern;
+
+			try
+			{
+				regexPattern = releaseIndex.Value<string>(InteropFactory.Create().ReleaseIdentifier);
+			}
+			catch
+			{
+				regexPattern = releaseIndex.Value<string>(ReleaseIdentifier.ToString());
+			}
+
 			var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
 			//https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release

@@ -24,6 +24,8 @@ namespace MacOSConfigApp
 		//the running process, so don't upgrade unless it's "installed" in /Applications
 		public bool CanUpgrade => Directory.Exists(AppPath);
 
+		public string ReleaseIdentifier => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
+
 		public void InstallUpgrade(string upgradeBundle)
 		{
 			Serilog.Log.Information($"Extracting upgrade bundle to {AppPath}");
