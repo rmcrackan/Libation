@@ -53,7 +53,7 @@ namespace LibationAvalonia.Dialogs.Login
 
 
 		public async void CopyUrlToClipboard_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> await Application.Current.Clipboard.SetTextAsync(ExternalLoginUrl);
+			=> await App.MainWindow.Clipboard.SetTextAsync(ExternalLoginUrl);
 
 		public void LaunchInBrowser_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> Go.To.Url(ExternalLoginUrl);

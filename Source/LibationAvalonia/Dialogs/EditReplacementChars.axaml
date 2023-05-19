@@ -24,7 +24,7 @@
 			BeginningEdit="ReplacementGrid_BeginningEdit"
 			CellEditEnding="ReplacementGrid_CellEditEnding"
 			KeyDown="ReplacementGrid_KeyDown"
-			Items="{Binding replacements}">
+			ItemsSource="{Binding replacements}">
 
 			<DataGrid.Columns>
 

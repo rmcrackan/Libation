@@ -23,7 +23,7 @@
 			CanUserSortColumns="False"
 			AutoGenerateColumns="False"
 			IsReadOnly="False"
-			Items="{Binding Filters}"
+			ItemsSource="{Binding Filters}"
 			GridLinesVisibility="All">
 
 			<DataGrid.Columns>
@@ -44,14 +44,11 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
-				<DataGridTemplateColumn Width="*" Header="Filter">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<TextBox Text="{Binding FilterString, Mode=TwoWay}" />
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
-
+				<DataGridTextColumn
+					Width="*"
+					IsReadOnly="False"
+					Binding="{Binding FilterString, Mode=TwoWay}"
+					Header="Filter"/>
 
 				<DataGridTemplateColumn Header="Move&#xa;Up">
 					<DataGridTemplateColumn.CellTemplate>

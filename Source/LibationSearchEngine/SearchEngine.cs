@@ -46,9 +46,6 @@ namespace LibationSearchEngine
             = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
                 new Dictionary<string, Func<LibraryBook, string>>
                 {
-                    [nameof(LibraryBook.DateAdded)] = lb => lb.DateAdded.ToLuceneString(),
-                    [nameof(Book.DatePublished)] = lb => lb.Book.DatePublished?.ToLuceneString(),
-
                     [nameof(Book.Title)] = lb => lb.Book.Title,
                     [ALL_AUTHOR_NAMES] = lb => lb.Book.AuthorNames(),
                     ["Author"] = lb => lb.Book.AuthorNames(),
@@ -91,7 +88,13 @@ namespace LibationSearchEngine
                     ["ProductRating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
                     ["Rating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
                     ["UserRating"] = lb => userOverallRating(lb.Book),
-                    ["MyRating"] = lb => userOverallRating(lb.Book)
+                    ["MyRating"] = lb => userOverallRating(lb.Book),
+
+					[nameof(LibraryBook.DateAdded)] = lb => lb.DateAdded.ToLuceneString(),
+					[nameof(Book.DatePublished)] = lb => lb.Book.DatePublished?.ToLuceneString(),
+
+					["LastDownload"] = lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString(),
+                    ["LastDownloaded"] = lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString()
                 }
                 );
 
@@ -127,6 +130,9 @@ namespace LibationSearchEngine
                     ["Episode"] = lb => lb.Book.IsEpisodeChild(),
                     ["Episodes"] = lb => lb.Book.IsEpisodeChild(),
                     ["IsEpisode"] = lb => lb.Book.IsEpisodeChild(),
+
+                    ["Absent"] = lb => lb.AbsentFromLastScan,
+                    ["AbsentFromLastScan"] = lb => lb.AbsentFromLastScan,
                 }
                 );
 
@@ -287,7 +293,13 @@ namespace LibationSearchEngine
                     var v2 = liberatedError(book);
                     d.RemoveField("liberatederror");
                     d.AddBool("LiberatedError", v2);
-                });
+
+                    var v3 = book.UserDefinedItem.LastDownloaded?.ToLuceneString() ?? "";
+					d.RemoveField("LastDownload");
+					d.AddNotAnalyzed("LastDownload", v3);
+					d.RemoveField("LastDownloaded");
+					d.AddNotAnalyzed("LastDownloaded", v3);
+				});
 
         public void UpdateUserRatings(Book book)
             =>updateDocument(

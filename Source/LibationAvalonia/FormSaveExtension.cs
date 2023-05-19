@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform;
 using LibationFileManager;
 using System;
 using System.Linq;
@@ -111,12 +112,12 @@ namespace LibationAvalonia
 
 		public static void HideMinMaxBtns(this Window form)
 		{
-			if (Design.IsDesignMode || !Configuration.IsWindows)
+			if (Design.IsDesignMode || !Configuration.IsWindows || form.TryGetPlatformHandle() is not IPlatformHandle handle)
 				return;
-			var handle = form.PlatformImpl.Handle.Handle;
-			var currentStyle = GetWindowLong(handle, GWL_STYLE);
 
-			SetWindowLong(handle, GWL_STYLE, currentStyle & ~WS_MAXIMIZEBOX & ~WS_MINIMIZEBOX);
+			var currentStyle = GetWindowLong(handle.Handle, GWL_STYLE);
+
+			SetWindowLong(handle.Handle, GWL_STYLE, currentStyle & ~WS_MAXIMIZEBOX & ~WS_MINIMIZEBOX);
 		}
 
 		const long WS_MINIMIZEBOX = 0x00020000L;

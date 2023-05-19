@@ -25,6 +25,9 @@ namespace WindowsConfigApp
             => new DirectoryInfo(directory)?.DeleteIcon();
 
         public bool CanUpgrade => true;
+
+		public string ReleaseIdString => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
+
 		public void InstallUpgrade(string upgradeBundle)
 		{
 			var thisExe = Environment.ProcessPath;

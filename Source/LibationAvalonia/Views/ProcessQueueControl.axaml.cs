@@ -130,7 +130,7 @@ namespace LibationAvalonia.Views
 		private async void LogCopyBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			string logText = string.Join("\r\n", _viewModel.LogEntries.Select(r => $"{r.LogDate.ToShortDateString()} {r.LogDate.ToShortTimeString()}\t{r.LogMessage}"));
-			await Application.Current.Clipboard.SetTextAsync(logText);
+			await App.MainWindow.Clipboard.SetTextAsync(logText);
 		}
 
 		private async void cancelAllBtn_Click(object sender, EventArgs e)

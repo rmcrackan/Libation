@@ -1,0 +1,104 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:collections="using:Avalonia.Collections">
+	<Styles.Resources>
+		<!--
+		Based on Fluent template from v11.0.0-preview8
+		Modified sort arrow positioning to make more room for header text
+		-->
+		<ControlTheme x:Key="{x:Type DataGridColumnHeader}" TargetType="DataGridColumnHeader">
+			<Setter Property="Foreground" Value="{DynamicResource DataGridColumnHeaderForegroundBrush}" />
+			<Setter Property="Background" Value="{DynamicResource DataGridColumnHeaderBackgroundBrush}" />
+			<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="SeparatorBrush" Value="{DynamicResource DataGridGridLinesBrush}" />
+			<Setter Property="Padding" Value="8,0,0,0" />
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="MinHeight" Value="32" />
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border x:Name="HeaderBorder"
+							Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}">
+						<Grid Name="PART_ColumnHeaderRoot" ColumnDefinitions="*,Auto">
+
+							<Grid Margin="{TemplateBinding Padding}"
+								  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								  VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="16" />
+								</Grid.ColumnDefinitions>
+
+								<ContentPresenter Content="{TemplateBinding Content}"
+												  ContentTemplate="{TemplateBinding ContentTemplate}" />
+
+								<Path Name="SortIcon"
+									  IsVisible="False"
+									  Grid.Column="1"
+									  Height="12"
+									  HorizontalAlignment="Left"
+									  VerticalAlignment="Center"
+									  Fill="{TemplateBinding Foreground}"
+									  Stretch="Uniform" />
+							</Grid>
+
+							<Rectangle Name="VerticalSeparator"
+									   Grid.Column="1"
+									   Width="1"
+									   VerticalAlignment="Stretch"
+									   Fill="{TemplateBinding SeparatorBrush}"
+									   IsVisible="{TemplateBinding AreSeparatorsVisible}" />
+
+							<Grid x:Name="FocusVisual" IsHitTestVisible="False"
+								  IsVisible="False">
+								<Rectangle x:Name="FocusVisualPrimary"
+										   HorizontalAlignment="Stretch"
+										   VerticalAlignment="Stretch"
+										   Fill="Transparent"
+										   IsHitTestVisible="False"
+										   Stroke="{DynamicResource DataGridCellFocusVisualPrimaryBrush}"
+										   StrokeThickness="2" />
+								<Rectangle x:Name="FocusVisualSecondary"
+										   Margin="2"
+										   HorizontalAlignment="Stretch"
+										   VerticalAlignment="Stretch"
+										   Fill="Transparent"
+										   IsHitTestVisible="False"
+										   Stroke="{DynamicResource DataGridCellFocusVisualSecondaryBrush}"
+										   StrokeThickness="1" />
+							</Grid>
+						</Grid>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+
+			<Style Selector="^:focus-visible /template/ Grid#FocusVisual">
+				<Setter Property="IsVisible" Value="True" />
+			</Style>
+
+			<Style Selector="^:pointerover /template/ Grid#PART_ColumnHeaderRoot">
+				<Setter Property="Background" Value="{DynamicResource DataGridColumnHeaderHoveredBackgroundBrush}" />
+			</Style>
+
+			<Style Selector="^:pressed /template/ Grid#PART_ColumnHeaderRoot">
+				<Setter Property="Background" Value="{DynamicResource DataGridColumnHeaderPressedBackgroundBrush}" />
+			</Style>
+
+			<Style Selector="^:dragIndicator">
+				<Setter Property="Opacity" Value="0.5" />
+			</Style>
+
+			<Style Selector="^:sortascending /template/ Path#SortIcon">
+				<Setter Property="IsVisible" Value="True" />
+				<Setter Property="Data" Value="{StaticResource DataGridSortIconAscendingPath}" />
+			</Style>
+
+			<Style Selector="^:sortdescending /template/ Path#SortIcon">
+				<Setter Property="IsVisible" Value="True" />
+				<Setter Property="Data" Value="{StaticResource DataGridSortIconDescendingPath}" />
+			</Style>
+		</ControlTheme>
+	</Styles.Resources>
+</Styles>

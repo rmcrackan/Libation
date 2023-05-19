@@ -24,7 +24,7 @@
 		<ItemsRepeater IsVisible="True"
 			VerticalCacheLength="1.2"
 			HorizontalCacheLength="1"
-			Items="{Binding CheckboxItems}"
+			ItemsSource="{Binding CheckboxItems}"
 			ItemTemplate="{StaticResource elementFactory}" />
 	</ScrollViewer>
 </UserControl>

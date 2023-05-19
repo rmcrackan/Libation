@@ -22,6 +22,7 @@ env:
 
 jobs:
   build:
+    name: '${{ matrix.os }}-${{ matrix.release_name }}'
     runs-on: windows-latest
     strategy:
       matrix:
@@ -110,4 +111,4 @@ jobs:
           name: ${{ steps.zip.outputs.artifact }}.zip
           path: ./Source/bin/Publish/${{ steps.zip.outputs.artifact }}.zip
           if-no-files-found: error
-          
+          retention-days: 7          

@@ -15,7 +15,7 @@
 			ClipboardCopyMode="IncludeHeader"
 			GridLinesVisibility="All"
 			AutoGenerateColumns="False"
-			Items="{Binding GridEntries}"
+			ItemsSource="{Binding GridEntries}"
 			CanUserSortColumns="True" BorderThickness="3"
 			CanUserReorderColumns="True">
 
