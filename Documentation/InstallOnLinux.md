@@ -6,16 +6,24 @@
 
 ### Install and Run Libation on Ubuntu
 
-New Libation releases are automatically packed into a debian package and are available from the Libation repository's releases page.
+New Libation releases are automatically packed into .deb and .rpm package and are available from the Libation repository's releases page.
 
-Run this command in your terminal to dowbnload and install Libation, replacing the url with the Latest Libation .deb package url:
 
-```Console
-wget -O libation.deb https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay.deb &&
-sudo apt install ./libation.deb
-```
+Run this command in your terminal to dowbnload and install Libation, replacing the url with the latest Libation package url:
 
-You should now see Libation among your applications.
+- Debian
+  ```Console
+  wget -O libation.deb https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay.deb &&
+  sudo apt install ./libation.deb
+  ```
+- Redhat and CentOS
+  ```Console
+  wget -O libation.rpm https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay.rpm &&
+  sudo yum install ./libation.rpm
+  ```
+
+
+If your desktop uses gtk, you should now see Libation among your applications.
 
 Additionally, you may launch Libation, LibationCli, and Hangover (the Libation recovery app) via the command line using 'libation, libationcli', and 'hangover' aliases respectively.
 
