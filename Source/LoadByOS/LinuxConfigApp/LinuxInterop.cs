@@ -28,11 +28,14 @@ namespace LinuxConfigApp
 		public string ReleaseIdentifier => LibationScaffolding.ReleaseIdentifier.ToString() + (File.Exists("/bin/yum") ? "_RPM" : "");
 
 		//only run the auto upgrader if the current app was installed from the
-		//.deb package. Try to detect this by checking if the symlink exists.
+		//.deb or .rpm package. Try to detect this by checking if the symlink exists.
 		public bool CanUpgrade => Directory.Exists("/usr/lib/libation");
 		public void InstallUpgrade(string upgradeBundle)
 		{
-			RunAsRoot("apt", $"install '{upgradeBundle}'");
+			if (File.Exists("/bin/yum"))
+				RunAsRoot("yum", $"install '{upgradeBundle}'");
+			else
+				RunAsRoot("apt", $"install '{upgradeBundle}'");
 		}
 
 		public Process RunAsRoot(string exe, string args)
