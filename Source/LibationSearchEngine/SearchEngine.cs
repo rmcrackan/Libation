@@ -90,10 +90,10 @@ namespace LibationSearchEngine
                     ["UserRating"] = lb => userOverallRating(lb.Book),
                     ["MyRating"] = lb => userOverallRating(lb.Book),
 
-					[nameof(LibraryBook.DateAdded)] = lb => lb.DateAdded.ToLuceneString(),
-					[nameof(Book.DatePublished)] = lb => lb.Book.DatePublished?.ToLuceneString(),
+                    [nameof(LibraryBook.DateAdded)] = lb => lb.DateAdded.ToLuceneString(),
+                    [nameof(Book.DatePublished)] = lb => lb.Book.DatePublished?.ToLuceneString() ?? "",
 
-					["LastDownload"] = lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString(),
+                    ["LastDownload"] = lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString(),
                     ["LastDownloaded"] = lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString()
                 }
                 );
