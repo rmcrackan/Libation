@@ -81,8 +81,6 @@ if test -f 'libcoreclrtraceptprovider.so'; then
     rm 'libcoreclrtraceptprovider.so'
 fi
 
-touch appsettings.json
-chmod 666 appsettings.json
 
 install -m 666 libation_glass.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/libation.svg
 install -m 666 Libation.desktop %{buildroot}%{_datadir}/applications/Libation.desktop
@@ -94,26 +92,33 @@ install * %{buildroot}%{_libdir}/%{name}/
 
 %post
 
-ln -s %{_libdir}/%{name}/Libation %{_bindir}/libation
-ln -s %{_libdir}/%{name}/Hangover %{_bindir}/hangover
-ln -s %{_libdir}/%{name}/LibationCli %{_bindir}/libationcli
+if [ \$1 -eq 1 ] ; then
+  # Initial installation
+  touch %{_libdir}/%{name}/appsettings.json
+  chmod 666 %{_libdir}/%{name}/appsettings.json
+  
+  ln -s %{_libdir}/%{name}/Libation %{_bindir}/libation
+  ln -s %{_libdir}/%{name}/Hangover %{_bindir}/hangover
+  ln -s %{_libdir}/%{name}/LibationCli %{_bindir}/libationcli
 
-gtk-update-icon-cache -f %{_datadir}/icons/hicolor/
+  gtk-update-icon-cache -f %{_datadir}/icons/hicolor/
+    
+  if ! grep -q 'fs.inotify.max_user_instances=524288' /etc/sysctl.conf; then
+    echo fs.inotify.max_user_instances=524288 | tee -a /etc/sysctl.conf && sysctl -p
+  fi
+fi
 
 %postun
-
-rm %{_bindir}/libation
-rm %{_bindir}/hangover
-rm %{_bindir}/libationcli
-
-if ! grep -q 'fs.inotify.max_user_instances=524288' /etc/sysctl.conf; then
-  echo fs.inotify.max_user_instances=524288 | tee -a /etc/sysctl.conf && sysctl -p
+if [ \$1 -eq 0 ] ; then
+  # Uninstall
+  rm %{_bindir}/libation
+  rm %{_bindir}/hangover
+  rm %{_bindir}/libationcli
 fi
 
 %files
 %{_datadir}/icons/hicolor/scalable/apps/libation.svg
-%{_datadir}/applications/Libation.desktop
-%{_libdir}/%{name}/appsettings.json" >> ~/rpmbuild/SPECS/libation.spec
+%{_datadir}/applications/Libation.desktop" >> ~/rpmbuild/SPECS/libation.spec
 
 
 cd "$BIN_DIR"

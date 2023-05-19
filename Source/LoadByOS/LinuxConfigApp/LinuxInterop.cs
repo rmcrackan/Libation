@@ -29,11 +29,11 @@ namespace LinuxConfigApp
 
 		//only run the auto upgrader if the current app was installed from the
 		//.deb or .rpm package. Try to detect this by checking if the symlink exists.
-		public bool CanUpgrade => Directory.Exists("/usr/lib/libation");
+		public bool CanUpgrade => File.Exists("/bin/libation");
 		public void InstallUpgrade(string upgradeBundle)
 		{
 			if (File.Exists("/bin/yum"))
-				RunAsRoot("yum", $"install '{upgradeBundle}'");
+				RunAsRoot("yum", $"install -y '{upgradeBundle}'");
 			else
 				RunAsRoot("apt", $"install '{upgradeBundle}'");
 		}
