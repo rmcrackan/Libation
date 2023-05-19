@@ -25,7 +25,7 @@ namespace LinuxConfigApp
 		public void SetFolderIcon(string image, string directory) => throw new PlatformNotSupportedException();
 		public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 
-		public string ReleaseIdentifier => LibationScaffolding.ReleaseIdentifier.ToString() + (File.Exists("/bin/yum") ? "_RPM" : "");
+		public string ReleaseIdString => LibationScaffolding.ReleaseIdentifier.ToString() + (File.Exists("/bin/yum") ? "_RPM" : "");
 
 		//only run the auto upgrader if the current app was installed from the
 		//.deb or .rpm package. Try to detect this by checking if the symlink exists.

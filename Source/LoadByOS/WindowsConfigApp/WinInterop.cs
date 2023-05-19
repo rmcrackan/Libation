@@ -26,7 +26,7 @@ namespace WindowsConfigApp
 
         public bool CanUpgrade => true;
 
-		public string ReleaseIdentifier => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
+		public string ReleaseIdString => AppScaffolding.LibationScaffolding.ReleaseIdentifier.ToString();
 
 		public void InstallUpgrade(string upgradeBundle)
 		{

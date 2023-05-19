@@ -335,7 +335,7 @@ namespace AppScaffolding
 
 			try
 			{
-				regexPattern = releaseIndex.Value<string>(InteropFactory.Create().ReleaseIdentifier);
+				regexPattern = releaseIndex.Value<string>(InteropFactory.Create().ReleaseIdString);
 			}
 			catch
 			{
