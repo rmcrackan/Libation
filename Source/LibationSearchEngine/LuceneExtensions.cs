@@ -37,6 +37,8 @@ namespace LibationSearchEngine
         internal static string ToLuceneString(this float f) => ((double)f).ToLuceneString();
         internal static string ToLuceneString(this DateTime dt)
             => dt.ToString("yyyyMMdd") + DECIMAL_PRECISION;
+        internal static string ToLuceneString(this DateTime? dt)
+            => dt?.ToLuceneString() ?? "";
         internal static string ToLuceneString(this double d)
             => d.ToString("0" + DECIMAL_PRECISION).PadLeft(PAD_DIGITS + DECIMAL_PRECISION.Length, '0');
     }
