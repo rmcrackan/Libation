@@ -249,8 +249,26 @@ namespace AudibleUtilities
 				}
 			}
 
-			foreach (var child in children)
+			int lastEpNum = -1, dupeCount = 0;
+			foreach (var child in children.OrderBy(i => i.EpisodeNumber).ThenBy(i => i.PublicationDateTime))
 			{
+				string sequence;
+				if (child.EpisodeNumber is null)
+				{
+					// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive for malformed data from audible
+					sequence = parent.Relationships.FirstOrDefault(r => r.Asin == child.Asin)?.Sort?.ToString() ?? "0";
+				}
+				else
+				{
+					//multipart episodes may have the same episode number
+					if (child.EpisodeNumber == lastEpNum)
+						dupeCount++;
+					else
+						lastEpNum = child.EpisodeNumber.Value;
+
+					sequence = (lastEpNum + dupeCount).ToString();
+				}
+
 				// use parent's 'DateAdded'. DateAdded is just a convenience prop for: PurchaseDate.UtcDateTime
 				child.PurchaseDate = parent.PurchaseDate;
 				// parent is essentially a series
@@ -259,8 +277,7 @@ namespace AudibleUtilities
 					new Series
 					{
 						Asin = parent.Asin,
-						// This should properly be Single() not FirstOrDefault(), but FirstOrDefault is defensive for malformed data from audible
-						Sequence = parent.Relationships.FirstOrDefault(r => r.Asin == child.Asin)?.Sort?.ToString() ?? "0",
+						Sequence = sequence,
 						Title = parent.TitleWithSubtitle
 					}
 				};
