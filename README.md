@@ -49,12 +49,12 @@
 * Customizable saved filters for common searches
 * Open source
 * Supports most regions: US, UK, Canada, Germany, France, Australia, Japan, India, and Spain
+* Fully supported in Windows, Mac, and Linux
 
 <a name="theBad"/>
 
 ### The bad
 
-* Only fully supported in Windows. (Mac and Linux are in beta)
 * Large file size
 * Made by a programmer, not a designer so the goals are function rather than beauty. And it shows
 
