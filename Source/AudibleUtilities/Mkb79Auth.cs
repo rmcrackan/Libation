@@ -43,6 +43,9 @@ namespace AudibleUtilities
 		[JsonProperty("locale_code")]
 		public string LocaleCode { get; private set; }
 
+		[JsonProperty("with_username")]
+		public bool WithUsername { get; private set; }
+
 		[JsonProperty("activation_bytes")]
 		public string ActivationBytes { get; private set; }
 
@@ -68,7 +71,8 @@ namespace AudibleUtilities
 		}
 
 		[JsonIgnore] public ISystemDateTime SystemDateTime { get; } = new SystemDateTime();
-		[JsonIgnore] public Locale Locale => Localization.Get(LocaleCode);
+		[JsonIgnore]
+		public Locale Locale => Localization.Locales.Where(l => l.WithUsername == WithUsername).Single(l => l.CountryCode == LocaleCode);
 		[JsonIgnore] public string DeviceSerialNumber => DeviceInfo.DeviceSerialNumber;
 		[JsonIgnore] public string DeviceType => DeviceInfo.DeviceType;
 		[JsonIgnore] public string AmazonAccountId => CustomerInfo.UserId;
@@ -177,6 +181,7 @@ namespace AudibleUtilities
 				DevicePrivateKey = account.IdentityTokens.PrivateKey,
 				AccessTokenExpires = account.IdentityTokens.ExistingAccessToken.Expires,
 				LocaleCode = account.Locale.CountryCode,
+				WithUsername = account.Locale.WithUsername,
 				RefreshToken = account.IdentityTokens.RefreshToken.Value,				
 				StoreAuthenticationCookie = account.IdentityTokens.StoreAuthenticationCookie,
 				WebsiteCookies = new(account.IdentityTokens.Cookies),
