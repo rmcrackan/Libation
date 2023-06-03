@@ -7,7 +7,8 @@ namespace LibationAvalonia.Controls
 {
 	public partial class WheelComboBox : ComboBox, IStyleable
 	{
-		Type IStyleable.StyleKey => typeof(ComboBox);
+		protected override Type StyleKeyOverride => typeof(ComboBox);
+
 		public WheelComboBox()
 		{
 			InitializeComponent();

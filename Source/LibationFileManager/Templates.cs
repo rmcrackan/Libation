@@ -213,7 +213,7 @@ namespace LibationFileManager
 			{ TemplateTags.LanguageShort, lb =>lb.Language, getLanguageShort },
 			{ TemplateTags.Bitrate, lb => (int?)(lb.IsPodcastParent ? null : lb.BitRate) },
 			{ TemplateTags.SampleRate, lb => (int?)(lb.IsPodcastParent ? null : lb.SampleRate) },
-			{ TemplateTags.Channels, lb => (int?)(lb.IsPodcastParent ? null :lb.Channels) },
+			{ TemplateTags.Channels, lb => (int?)(lb.IsPodcastParent ? null : lb.Channels) },
 			{ TemplateTags.Account, lb => lb.Account },
 			{ TemplateTags.Locale, lb => lb.Locale },
 			{ TemplateTags.YearPublished, lb => lb.YearPublished },
@@ -242,9 +242,9 @@ namespace LibationFileManager
 
 		private static readonly ConditionalTagCollection<LibraryBookDto> conditionalTags = new()
 		{
-			{ TemplateTags.IfSeries, lb => lb.IsSeries },
-			{ TemplateTags.IfPodcast, lb => lb.IsPodcast },
-			{ TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast&& !lb.IsPodcastParent },
+			{ TemplateTags.IfSeries, lb => lb.IsSeries || lb.IsPodcastParent },
+			{ TemplateTags.IfPodcast, lb => lb.IsPodcast || lb.IsPodcastParent },
+			{ TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast && !lb.IsPodcastParent },
 		};
 
 		private static readonly ConditionalTagCollection<LibraryBookDto> folderConditionalTags = new()
