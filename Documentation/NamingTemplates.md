@@ -63,6 +63,9 @@ Anything between the opening tag (`<tagname->`) and closing tag (`<-tagname>`) w
 |\<if series-\>...\<-if series\>|Only include if part of a book series or podcast|Conditional|
 |\<if podcast-\>...\<-if podcast\>|Only include if part of a podcast|Conditional|
 |\<if bookseries-\>...\<-if bookseries\>|Only include if part of a book series|Conditional|
+|\<if podcastparent-\>...\<-if podcastparent\>**†**|Only include if item is a podcast series parent|Conditional|
+
+**†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
 For example, <if podcast-\>\<series\>\<-if podcast\> will evaluate to the podcast's series name if the file is a podcast. For audiobooks that are not podcasts, that tag will be blank.
 
