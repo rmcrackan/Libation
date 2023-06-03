@@ -252,8 +252,8 @@ namespace LibationAvalonia.Views
 			var displayIndices = config.GridColumnsDisplayIndices;
 
 			var contextMenu = new ContextMenu();
-			contextMenu.MenuClosed += ContextMenu_MenuClosed;
-			contextMenu.ContextMenuOpening += ContextMenu_ContextMenuOpening;
+			contextMenu.Closed += ContextMenu_MenuClosed;
+			contextMenu.Opening += ContextMenu_ContextMenuOpening;
 			List<Control> menuItems = new();
 			contextMenu.ItemsSource = menuItems;
 

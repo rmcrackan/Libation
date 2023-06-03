@@ -190,7 +190,11 @@ namespace AaxDecrypter
 				//Write aax decryption key
 				string keyPath = Path.ChangeExtension(aaxPath, ".key");
 				FileUtility.SaferDelete(keyPath);
-				await File.WriteAllTextAsync(keyPath, $"Key={DownloadOptions.AudibleKey}{Environment.NewLine}IV={DownloadOptions.AudibleIV}");
+
+				if (string.IsNullOrEmpty(DownloadOptions.AudibleIV))
+					await File.WriteAllTextAsync(keyPath, $"ActivationBytes={DownloadOptions.AudibleKey}");
+				else
+					await File.WriteAllTextAsync(keyPath, $"Key={DownloadOptions.AudibleKey}{Environment.NewLine}IV={DownloadOptions.AudibleIV}");
 
 				OnFileCreated(aaxPath);
 				OnFileCreated(keyPath);

@@ -10,9 +10,9 @@ using System.Windows.Input;
 
 namespace LibationAvalonia.Controls
 {
-	public partial class LinkLabel : TextBlock, IStyleable, ICommandSource
+	public partial class LinkLabel : TextBlock, ICommandSource
 	{
-		Type IStyleable.StyleKey => typeof(LinkLabel);
+		protected override Type StyleKeyOverride => typeof(LinkLabel);
 
 		public static readonly StyledProperty<ICommand> CommandProperty =
 			AvaloniaProperty.Register<LinkLabel, ICommand>(nameof(Command), enableDataValidation: true);

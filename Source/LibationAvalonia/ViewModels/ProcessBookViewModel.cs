@@ -61,12 +61,12 @@ namespace LibationAvalonia.ViewModels
 		#region Properties exposed to the view
 		public ProcessBookResult Result { get => _result; set { this.RaiseAndSetIfChanged(ref _result, value); this.RaisePropertyChanged(nameof(StatusText)); } }
 		public ProcessBookStatus Status { get => _status; set { this.RaiseAndSetIfChanged(ref _status, value); this.RaisePropertyChanged(nameof(BackgroundColor)); this.RaisePropertyChanged(nameof(IsFinished)); this.RaisePropertyChanged(nameof(IsDownloading)); this.RaisePropertyChanged(nameof(Queued)); } }
-		public string Narrator { get => _narrator; set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _narrator, value)); }
-		public string Author { get => _author; set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _author, value)); }
-		public string Title { get => _title; set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _title, value)); }
-		public int Progress { get => _progress; private set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _progress, value)); }
-		public string ETA { get => _eta; private set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _eta, value)); }
-		public Bitmap Cover { get => _cover; private set => Dispatcher.UIThread.Post(() => this.RaiseAndSetIfChanged(ref _cover, value)); }
+		public string Narrator { get => _narrator; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _narrator, value)); }
+		public string Author { get => _author; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _author, value)); }
+		public string Title { get => _title; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _title, value)); }
+		public int Progress { get => _progress; private set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _progress, value)); }
+		public string ETA { get => _eta; private set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _eta, value)); }
+		public Bitmap Cover { get => _cover; private set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _cover, value)); }
 		public bool IsFinished => Status is not ProcessBookStatus.Queued and not ProcessBookStatus.Working;
 		public bool IsDownloading => Status is ProcessBookStatus.Working;
 		public bool Queued => Status is ProcessBookStatus.Queued;

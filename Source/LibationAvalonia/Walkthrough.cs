@@ -248,7 +248,7 @@ namespace LibationAvalonia
 		private async Task displayControlAsync(TemplatedControl control)
 		{
 			await UIThread.InvokeAsync(() => control.IsEnabled = false);
-			await UIThread.InvokeAsync(MainForm.productsDisplay.Focus);
+			await UIThread.InvokeAsync(() => MainForm.productsDisplay.Focus());
 			await UIThread.InvokeAsync(() => flashControlAsync(control));
 			if (control is MenuItem menuItem) await UIThread.InvokeAsync(menuItem.Open);
 			await Task.Delay(500);

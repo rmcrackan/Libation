@@ -22,6 +22,7 @@ namespace LibationFileManager
         public string SeriesName { get; set; }
         public int? SeriesNumber { get; set; }
         public bool IsSeries => !string.IsNullOrEmpty(SeriesName);
+        public bool IsPodcastParent { get; set; }
         public bool IsPodcast { get; set; }
 
         public int BitRate { get; set; }
