@@ -45,11 +45,11 @@ namespace LibationAvalonia.ViewModels
 		private bool _progressBarVisible;
 		private decimal _speedLimit;
 
-		public int CompletedCount { get => _completedCount; private set => Dispatcher.UIThread.Post(() => { this.RaiseAndSetIfChanged(ref _completedCount, value); this.RaisePropertyChanged(nameof(AnyCompleted)); }); }
-		public int QueuedCount { get => _queuedCount; private set => Dispatcher.UIThread.Post(() => { this.RaiseAndSetIfChanged(ref _queuedCount, value); this.RaisePropertyChanged(nameof(AnyQueued)); }); }
-		public int ErrorCount { get => _errorCount; private set => Dispatcher.UIThread.Post(() => { this.RaiseAndSetIfChanged(ref _errorCount, value); this.RaisePropertyChanged(nameof(AnyErrors)); }); }
-		public string RunningTime { get => _runningTime; set => Dispatcher.UIThread.Post(() => { this.RaiseAndSetIfChanged(ref _runningTime, value); }); }
-		public bool ProgressBarVisible { get => _progressBarVisible; set => Dispatcher.UIThread.Post(() => { this.RaiseAndSetIfChanged(ref _progressBarVisible, value); }); }
+		public int CompletedCount { get => _completedCount; private set => Dispatcher.UIThread.Invoke(() => { this.RaiseAndSetIfChanged(ref _completedCount, value); this.RaisePropertyChanged(nameof(AnyCompleted)); }); }
+		public int QueuedCount { get => _queuedCount; private set => Dispatcher.UIThread.Invoke(() => { this.RaiseAndSetIfChanged(ref _queuedCount, value); this.RaisePropertyChanged(nameof(AnyQueued)); }); }
+		public int ErrorCount { get => _errorCount; private set => Dispatcher.UIThread.Invoke(() => { this.RaiseAndSetIfChanged(ref _errorCount, value); this.RaisePropertyChanged(nameof(AnyErrors)); }); }
+		public string RunningTime { get => _runningTime; set => Dispatcher.UIThread.Invoke(() => { this.RaiseAndSetIfChanged(ref _runningTime, value); }); }
+		public bool ProgressBarVisible { get => _progressBarVisible; set => Dispatcher.UIThread.Invoke(() => { this.RaiseAndSetIfChanged(ref _progressBarVisible, value); }); }
 		public bool AnyCompleted => CompletedCount > 0;
 		public bool AnyQueued => QueuedCount > 0;
 		public bool AnyErrors => ErrorCount > 0;
@@ -79,7 +79,7 @@ namespace LibationAvalonia.ViewModels
 					: _speedLimit > 1 ? 0.1m
 					: 0.01m;
 
-				Dispatcher.UIThread.Post(() =>
+				Dispatcher.UIThread.Invoke(() =>
 				   {
 					   this.RaisePropertyChanged(nameof(SpeedLimitIncrement));
 					   this.RaisePropertyChanged();
@@ -106,7 +106,7 @@ namespace LibationAvalonia.ViewModels
 
 		public void WriteLine(string text)
 		{
-			Dispatcher.UIThread.Post(() =>
+			Dispatcher.UIThread.Invoke(() =>
 				LogEntries.Add(new()
 				{
 					LogDate = DateTime.Now,
@@ -183,7 +183,7 @@ namespace LibationAvalonia.ViewModels
 
 		public void AddToQueue(IEnumerable<ProcessBookViewModel> pbook)
 		{
-			Dispatcher.UIThread.Post(() =>
+			Dispatcher.UIThread.Invoke(() =>
 			{
 				Queue.Enqueue(pbook);
 				if (!Running)
