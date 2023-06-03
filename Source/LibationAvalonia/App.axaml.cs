@@ -28,8 +28,6 @@ namespace LibationAvalonia
 		public static IBrush ProcessQueueBookDefaultBrush { get; private set; }
 		public static IBrush SeriesEntryGridBackgroundBrush { get; private set; }
 
-		public static IAssetLoader AssetLoader { get; private set; }
-
 		public static readonly Uri AssetUriBase = new("avares://Libation/Assets/");
 		public static Stream OpenAsset(string assetRelativePath)
 			=> AssetLoader.Open(new Uri(AssetUriBase, assetRelativePath));
@@ -37,7 +35,6 @@ namespace LibationAvalonia
 		public override void Initialize()
 		{
 			AvaloniaXamlLoader.Load(this);
-			AssetLoader = AvaloniaLocator.Current.GetService<IAssetLoader>();
 		}
 
 		public static Task<List<DataLayer.LibraryBook>> LibraryTask;

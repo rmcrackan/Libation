@@ -16,9 +16,15 @@ namespace LibationAvalonia.Controls
 		{
 			var dir = Math.Sign(e.Delta.Y);
 			if (dir == 1 && SelectedIndex > 0)
+			{
 				SelectedIndex--;
+				e.Handled = true;
+			}
 			else if (dir == -1 && SelectedIndex < ItemCount - 1)
+			{
 				SelectedIndex++;
+				e.Handled = true;
+			}
 
 			base.OnPointerWheelChanged(e);
 		}
