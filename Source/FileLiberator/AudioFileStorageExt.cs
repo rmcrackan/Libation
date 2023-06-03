@@ -25,8 +25,7 @@ namespace FileLiberator
 
 					if (seriesParent is not null)
 					{
-						var baseDir = Templates.Folder.GetFilename(seriesParent.ToDto(), AudibleFileStorage.BooksDirectory, "");
-						return Templates.Folder.GetFilename(libraryBook.ToDto(), baseDir, "");
+						return Templates.Folder.GetFilename(seriesParent.ToDto(), AudibleFileStorage.BooksDirectory, "");
 					}
 				}
 			}

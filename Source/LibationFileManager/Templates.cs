@@ -207,13 +207,13 @@ namespace LibationFileManager
 			{ TemplateTags.Narrator, lb => lb.Narrators, NameListFormat.Formatter },
 			{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator },
 			{ TemplateTags.Series, lb => lb.SeriesName },
-			{ TemplateTags.SeriesNumber, lb => lb.SeriesNumber },
+			{ TemplateTags.SeriesNumber, lb => lb.IsPodcastParent ? null : lb.SeriesNumber },
 			{ TemplateTags.Language, lb => lb.Language },
 			//Don't allow formatting of LanguageShort
 			{ TemplateTags.LanguageShort, lb =>lb.Language, getLanguageShort },
-			{ TemplateTags.Bitrate, lb => lb.BitRate },
-			{ TemplateTags.SampleRate, lb => lb.SampleRate },
-			{ TemplateTags.Channels, lb => lb.Channels },
+			{ TemplateTags.Bitrate, lb => (int?)(lb.IsPodcastParent ? null : lb.BitRate) },
+			{ TemplateTags.SampleRate, lb => (int?)(lb.IsPodcastParent ? null : lb.SampleRate) },
+			{ TemplateTags.Channels, lb => (int?)(lb.IsPodcastParent ? null :lb.Channels) },
 			{ TemplateTags.Account, lb => lb.Account },
 			{ TemplateTags.Locale, lb => lb.Locale },
 			{ TemplateTags.YearPublished, lb => lb.YearPublished },
@@ -244,7 +244,12 @@ namespace LibationFileManager
 		{
 			{ TemplateTags.IfSeries, lb => lb.IsSeries },
 			{ TemplateTags.IfPodcast, lb => lb.IsPodcast },
-			{ TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast },
+			{ TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast&& !lb.IsPodcastParent },
+		};
+
+		private static readonly ConditionalTagCollection<LibraryBookDto> folderConditionalTags = new()
+		{
+			{ TemplateTags.IfPodcastParent, lb => lb.IsPodcastParent }
 		};
 
 		#endregion
@@ -293,7 +298,8 @@ namespace LibationFileManager
 			public static string Name { get; }= "Folder Template";
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate));
 			public static string DefaultTemplate { get; } = "<title short> [<id>]";
-			public static IEnumerable<TagCollection> TagCollections => new TagCollection[] { filePropertyTags, conditionalTags };
+			public static IEnumerable<TagCollection> TagCollections
+				=> new TagCollection[] { filePropertyTags, conditionalTags, folderConditionalTags };
 
 			public override IEnumerable<string> Errors
 				=> TemplateText?.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ERROR_FULL_PATH_IS_INVALID) : base.Errors;
