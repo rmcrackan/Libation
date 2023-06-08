@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
+using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
@@ -452,15 +453,19 @@ namespace LibationSearchEngine
             using var index = getIndex();
             using var searcher = new IndexSearcher(index);
             using var analyzer = new StandardAnalyzer(Version);
-            var query = analyzer.GetQuery(defaultField, searchString);
+            using var asinAnalyzer = new AsinAnalyzer();
 
+			var dic = idIndexRules.Keys.Select(k => new KeyValuePair<string, Analyzer>(k.ToLowerInvariant(), asinAnalyzer));
+			using var perFieldAnalyzer = new PerFieldAnalyzerWrapper(analyzer, dic);
 
-            // lucene doesn't allow only negations. eg this returns nothing:
-            //     -tags:hidden
-            // work arounds: https://kb.ucla.edu/articles/pure-negation-query-in-lucene
-            // HOWEVER, doing this to any other type of query can cause EVERYTHING to be a match unless "Occur" is carefully set
-            // this should really check that all leaf nodes are MUST_NOT
-            if (query is BooleanQuery boolQuery)
+			var query = perFieldAnalyzer.GetQuery(defaultField, searchString);
+
+			// lucene doesn't allow only negations. eg this returns nothing:
+			//     -tags:hidden
+			// work arounds: https://kb.ucla.edu/articles/pure-negation-query-in-lucene
+			// HOWEVER, doing this to any other type of query can cause EVERYTHING to be a match unless "Occur" is carefully set
+			// this should really check that all leaf nodes are MUST_NOT
+			if (query is BooleanQuery boolQuery)
             {
                 var occurs = getOccurs_recurs(boolQuery);
                 if (occurs.Any() && occurs.All(o => o == Occur.MUST_NOT))
