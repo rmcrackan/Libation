@@ -6,8 +6,8 @@ using System.Text.RegularExpressions;
 using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
-using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Standard;
+using Lucene.Net.Analysis.Tokenattributes;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
@@ -32,18 +32,18 @@ namespace LibationSearchEngine
         public const string ALL_NARRATOR_NAMES = "NarratorNames";
         public const string ALL_SERIES_NAMES = "SeriesNames";
 
-        private static ReadOnlyDictionary<string, Func<LibraryBook, string>> idIndexRules { get; }
+        internal static ReadOnlyDictionary<string, Func<LibraryBook, string>> idIndexRules { get; }
             = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
                 new Dictionary<string, Func<LibraryBook, string>>
                 {
-                    [nameof(Book.AudibleProductId)] = lb => lb.Book.AudibleProductId,
-                    ["ProductId"] = lb => lb.Book.AudibleProductId,
-                    ["Id"] = lb => lb.Book.AudibleProductId,
-                    ["ASIN"] = lb => lb.Book.AudibleProductId
-                }
+                    [nameof(Book.AudibleProductId)] = lb => lb.Book.AudibleProductId.ToLowerInvariant(),
+                    ["ProductId"] = lb => lb.Book.AudibleProductId.ToLowerInvariant(),
+                    ["Id"] = lb => lb.Book.AudibleProductId.ToLowerInvariant(),
+                    ["ASIN"] = lb => lb.Book.AudibleProductId.ToLowerInvariant()
+				}
                 );
 
-        private static ReadOnlyDictionary<string, Func<LibraryBook, string>> stringIndexRules { get; }
+		internal static ReadOnlyDictionary<string, Func<LibraryBook, string>> stringIndexRules { get; }
             = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
                 new Dictionary<string, Func<LibraryBook, string>>
                 {
@@ -75,7 +75,7 @@ namespace LibationSearchEngine
                 }
                 );
 
-        private static ReadOnlyDictionary<string, Func<LibraryBook, string>> numberIndexRules { get; }
+		internal static ReadOnlyDictionary<string, Func<LibraryBook, string>> numberIndexRules { get; }
             = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
                 new Dictionary<string, Func<LibraryBook, string>>
                 {
@@ -99,7 +99,7 @@ namespace LibationSearchEngine
                 }
                 );
 
-        private static ReadOnlyDictionary<string, Func<LibraryBook, bool>> boolIndexRules { get; }
+        internal static ReadOnlyDictionary<string, Func<LibraryBook, bool>> boolIndexRules { get; }
             = new ReadOnlyDictionary<string, Func<LibraryBook, bool>>(
                 new Dictionary<string, Func<LibraryBook, bool>>
                 {
@@ -353,112 +353,27 @@ namespace LibationSearchEngine
 
         #region search
         public SearchResultSet Search(string searchString)
-        {
-            Serilog.Log.Logger.Debug("original search string: {@DebugInfo}", new { searchString });
-            searchString = FormatSearchQuery(searchString);
+		{
+			using var analyzer = new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);
+
+			Serilog.Log.Logger.Debug("original search string: {@DebugInfo}", new { searchString });
+            searchString = QuerySanitizer.Sanitize(searchString, analyzer);
             Serilog.Log.Logger.Debug("formatted search string: {@DebugInfo}", new { searchString });
 
-            var results = generalSearch(searchString);
+            var results = generalSearch(searchString, analyzer);
             Serilog.Log.Logger.Debug("Hit(s): {@DebugInfo}", new { count = results.Docs.Count() });
             displayResults(results);
 
             return results;
         }
 
-        internal static string FormatSearchQuery(string searchString)
-        {
-            if (string.IsNullOrWhiteSpace(searchString))
-                return ALL_QUERY;
-
-            searchString = replaceBools(searchString);
-
-            searchString = parseTag(searchString);
-
-            // in ranges " TO " must be uppercase
-            searchString = searchString.Replace(" to ", " TO ");
-
-            searchString = padNumbers(searchString);
-
-            searchString = lowerFieldNames(searchString);
-
-            return searchString;
-        }
-
-        #region format query string
-        private static string parseTag(string tagSearchString)
-        {
-            var allMatches = LuceneRegex
-                .TagRegex
-                .Matches(tagSearchString)
-                .Cast<Match>()
-                .Select(a => a.ToString())
-                .ToList();
-            foreach (var match in allMatches)
-                tagSearchString = tagSearchString.Replace(
-                    match,
-                    TAGS + ":" + match.Trim('[', ']').Trim()
-                    );
-
-            return tagSearchString;
-        }
-
-        private static string replaceBools(string searchString)
-        {
-            foreach (var boolSearch in boolIndexRules.Keys)
-                searchString =
-                    LuceneRegex.GetBoolRegex(boolSearch)
-                    .Replace(searchString, @"$1:True");
-
-            return searchString;
-        }
-
-        private static string padNumbers(string searchString)
-        {
-            var matches = LuceneRegex
-                .NumbersRegex()
-                .Matches(searchString)
-                .Cast<Match>()
-                .OrderByDescending(m => m.Index);
-
-            foreach (var m in matches)
-            {
-                var replaceString = double.Parse(m.ToString()).ToLuceneString();
-                searchString = LuceneRegex.NumbersRegex().Replace(searchString, replaceString, 1, m.Index);
-            }
-
-            return searchString;
-        }
-
-        private static string lowerFieldNames(string searchString)
-        {
-            // fields are case specific
-            var allMatches = LuceneRegex
-                .FieldRegex
-                .Matches(searchString)
-                .Cast<Match>()
-                .Select(a => a.ToString())
-                .ToList();
-
-            foreach (var match in allMatches)
-                searchString = searchString.Replace(match, match.ToLowerInvariant());
-
-            return searchString;
-        }
-        #endregion
-
-        private SearchResultSet generalSearch(string searchString)
+        private SearchResultSet generalSearch(string searchString, StandardAnalyzer analyzer)
         {
             var defaultField = ALL;
 
             using var index = getIndex();
             using var searcher = new IndexSearcher(index);
-            using var analyzer = new StandardAnalyzer(Version);
-            using var asinAnalyzer = new AsinAnalyzer();
-
-			var dic = idIndexRules.Keys.Select(k => new KeyValuePair<string, Analyzer>(k.ToLowerInvariant(), asinAnalyzer));
-			using var perFieldAnalyzer = new PerFieldAnalyzerWrapper(analyzer, dic);
-
-			var query = perFieldAnalyzer.GetQuery(defaultField, searchString);
+			var query = analyzer.GetQuery(defaultField, searchString);
 
 			// lucene doesn't allow only negations. eg this returns nothing:
 			//     -tags:hidden

@@ -10,6 +10,7 @@ using Dinah.Core;
 using FluentAssertions;
 using FluentAssertions.Common;
 using LibationSearchEngine;
+using Lucene.Net.Analysis.Standard;
 using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -31,6 +32,7 @@ namespace SearchEngineTests
 		// tag surrounded by spaces
 		[DataRow("[foo]", "tags:foo")]
 		[DataRow("  [foo]", "  tags:foo")]
+		[DataRow("  [   foo   ]", "  tags:foo")]
 		[DataRow("[foo]  ", "tags:foo  ")]
 		[DataRow("  [foo]  ", "  tags:foo  ")]
 		[DataRow("-[foo]", "-tags:foo")]
@@ -57,9 +59,12 @@ namespace SearchEngineTests
 		// bool keyword with [:bool]. Do not add :True
 		[DataRow("israted:True", "israted:True")]
 		[DataRow("isRated:false", "israted:false")]
+		[DataRow("liberated AND isRated:false", "liberated:True AND israted:false")]
 
 		// tag which happens to be a bool keyword >> parse as tag
 		[DataRow("[israted]", "tags:israted")]
+		[DataRow("[tags]    [israted] [tags] [tags]  [isliberated] [israted]   ", "tags:tags    tags:israted tags:tags tags:tags  tags:isliberated tags:israted   ")]
+		[DataRow("[tags][israted]", "tags:tagstags:israted")]
 
 		// numbers with "to". TO all caps, numbers [8.2] format
 		[DataRow("1 to 10", "00000001.00 TO 00000010.00")]
@@ -72,6 +77,10 @@ namespace SearchEngineTests
 		[DataRow("-isRATED", "-israted:True")]
 
 		public void FormattingTest(string input, string output)
-			=> SearchEngine.FormatSearchQuery(input).Should().Be(output);
+		{
+			using var analyzer = new StandardAnalyzer(SearchEngine.Version);
+
+			QuerySanitizer.Sanitize(input, analyzer).Should().Be(output);
+		}
 	}
 }
