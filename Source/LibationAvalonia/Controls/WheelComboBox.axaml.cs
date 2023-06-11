@@ -1,11 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Styling;
 using System;
 
 namespace LibationAvalonia.Controls
 {
-	public partial class WheelComboBox : ComboBox, IStyleable
+	public partial class WheelComboBox : ComboBox
 	{
 		protected override Type StyleKeyOverride => typeof(ComboBox);
 
