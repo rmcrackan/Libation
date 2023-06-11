@@ -28,6 +28,15 @@ To make upgrades and reinstalls easier, Libation separates all of its responsibi
 
 * Allow Libation to fix up audiobook metadata. After decrypting a title, Libation attempts to fix details like chapters and cover art. Some power users and/or control freaks prefer to manage this themselves. By unchecking this setting, Libation will only decrypt the book and will leave metadata as-is, warts and all.
 
+In addition to the options that are enabled if you allow Libation to "fix up" the audiobook, it does the following:
+
+* Adds the `TCOM` metadata tag for the narrators.
+* Sets the `©gen` metadata tag for the genres.
+* Unescapes the copyright symbol (replace `&#169;` with `©`)
+* Replaces the recording copyright `(P)` string with `℗`
+* Replaces the chapter markers embedded in the aax file with the chapter markers retrieved from Audible's API.
+* Sets the embedded cover art image with the 500x500 px cover art retrieved from Audible
+
 ### Command Line Interface
 
 Libationcli.exe allows limited access to Libation's functionalities as a CLI.
