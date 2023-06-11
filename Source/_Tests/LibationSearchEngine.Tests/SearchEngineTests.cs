@@ -53,6 +53,13 @@ namespace SearchEngineTests
 		[DataRow("-israted  ", "-israted:True  ")]
 		[DataRow("  -israted  ", "  -israted:True  ")]
 
+		//ID Tags to lowercase and not parsed as numbers
+		[DataRow("id:0000000123", "id:0000000123")]
+		[DataRow("id:B000000123", "id:b000000123")]
+		[DataRow("ASIN:B000000123", "asin:b000000123")]
+		[DataRow("AudibleProductId:B000000123", "audibleproductid:b000000123")]
+		[DataRow("ProductId:B000000123", "productid:b000000123")]
+
 		// bool keyword. Append :True
 		[DataRow("israted", "israted:True")]
 
