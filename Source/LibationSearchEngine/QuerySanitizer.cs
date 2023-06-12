@@ -8,22 +8,20 @@ namespace LibationSearchEngine
 	internal static class QuerySanitizer
 	{
 		private static readonly HashSet<string> idTerms
-				= SearchEngine.idIndexRules.Keys
-				.Select(s => s.ToLowerInvariant())
-				.ToHashSet();
+			= SearchEngine.FieldIndexRules.IdFieldNames
+			.Select(n => n.ToLowerInvariant())
+			.ToHashSet();
 
 		private static readonly HashSet<string> boolTerms
-				= SearchEngine.boolIndexRules.Keys
-				.Select(s => s.ToLowerInvariant())
-				.ToHashSet();
+			= SearchEngine.FieldIndexRules.BoolFieldNames
+			.Select(n => n.ToLowerInvariant())
+			.ToHashSet();
 
 		private static readonly HashSet<string> fieldTerms
-				= SearchEngine.stringIndexRules.Keys
-				.Union(SearchEngine.numberIndexRules.Keys)
-				.Select(s => s.ToLowerInvariant())
-				.Union(idTerms)
-				.Union(boolTerms)
-				.ToHashSet();
+			= SearchEngine.FieldIndexRules
+			.SelectMany(r => r.FieldNames)
+			.Select(n => n.ToLowerInvariant())
+			.ToHashSet();
 
 		internal static string Sanitize(string searchString, StandardAnalyzer analyzer)
 		{

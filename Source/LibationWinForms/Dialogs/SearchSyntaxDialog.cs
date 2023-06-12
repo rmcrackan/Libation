@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibationSearchEngine;
+using System;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -10,10 +11,10 @@ namespace LibationWinForms.Dialogs
 		{
 			InitializeComponent();
 
-			label2.Text += "\r\n\r\n" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchStringFields());
-			label3.Text += "\r\n\r\n" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchNumberFields());
-			label4.Text += "\r\n\r\n" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchBoolFields());
-			label5.Text += "\r\n\r\n" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchIdFields());
+			label2.Text += "\r\n\r\n" + string.Join("\r\n", SearchEngine.FieldIndexRules.StringFieldNames);
+			label3.Text += "\r\n\r\n" + string.Join("\r\n", SearchEngine.FieldIndexRules.NumberFieldNames);
+			label4.Text += "\r\n\r\n" + string.Join("\r\n", SearchEngine.FieldIndexRules.BoolFieldNames);
+			label5.Text += "\r\n\r\n" + string.Join("\r\n", SearchEngine.FieldIndexRules.IdFieldNames);
 			this.SetLibationIcon();
 		}
 

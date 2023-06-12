@@ -1,3 +1,5 @@
+using LibationSearchEngine;
+
 namespace LibationAvalonia.Dialogs
 {
 	public partial class SearchSyntaxDialog : DialogWindow
@@ -18,7 +20,7 @@ Search for wizard of oz:
      title:""wizard of oz""
 
 
-" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchStringFields());
+" + string.Join("\r\n", SearchEngine.FieldIndexRules.StringFieldNames);
 
 			NumberFields = @"
 Find books between 1-100 minutes long
@@ -30,14 +32,14 @@ Find books published from 2020-1-1 to
      datepublished:[20200101 TO 20231231]
 
 
-" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchNumberFields());
+" + string.Join("\r\n", SearchEngine.FieldIndexRules.NumberFieldNames);
 
 			BoolFields = @"
 Find books that you haven't rated:
      -IsRated
 
 
-" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchBoolFields());
+" + string.Join("\r\n", SearchEngine.FieldIndexRules.BoolFieldNames);
 
 			IdFields = @"
 Alice's Adventures in
@@ -49,7 +51,7 @@ All of these are synonyms
 for the ID field
 
 
-" + string.Join("\r\n", LibationSearchEngine.SearchEngine.GetSearchIdFields());
+" + string.Join("\r\n", SearchEngine.FieldIndexRules.IdFieldNames);
 
 
 			DataContext = this;
