@@ -47,7 +47,7 @@ namespace AaxDecrypter
 			if (DownloadOptions.FixupFile)
 			{
 				if (!string.IsNullOrWhiteSpace(AaxFile.AppleTags.Narrator))
-					AaxFile.AppleTags.AppleListBox.EditOrAddTag("TCOM", AaxFile.AppleTags.Narrator);
+					AaxFile.AppleTags.AppleListBox.EditOrAddTag("©wrt", AaxFile.AppleTags.Narrator);
 
 				if (!string.IsNullOrWhiteSpace(AaxFile.AppleTags.Copyright))
 					AaxFile.AppleTags.Copyright = AaxFile.AppleTags.Copyright.Replace("(P)", "℗").Replace("&#169;", "©");
