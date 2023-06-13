@@ -10,7 +10,7 @@ namespace ApplicationServices
 {
     public class BulkSetDownloadStatus
     {
-        private List<(string message, LiberatedStatus newStatus, IEnumerable<Book> Books)> actionSets { get; } = new();
+        private List<(string message, LiberatedStatus newStatus, IEnumerable<LibraryBook> LibraryBooks)> actionSets { get; } = new();
 
         public int Count => actionSets.Count;
 
@@ -33,7 +33,7 @@ namespace ApplicationServices
             var bookExistsList = _libraryBooks
                 .Select(libraryBook => new
                 {
-                    libraryBook.Book,
+					LibraryBook = libraryBook,
                     FileExists = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId) is not null
                 })
                 .ToList();
@@ -41,8 +41,8 @@ namespace ApplicationServices
             if (_setDownloaded)
             {
                 var books2change = bookExistsList
-                    .Where(a => a.FileExists && a.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated)
-                    .Select(a => a.Book)
+                    .Where(a => a.FileExists && a.LibraryBook.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated)
+                    .Select(a => a.LibraryBook)
                     .ToList();
 
                 if (books2change.Any())
@@ -55,8 +55,8 @@ namespace ApplicationServices
             if (_setNotDownloaded)
             {
                 var books2change = bookExistsList
-                    .Where(a => !a.FileExists && a.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated)
-                    .Select(a => a.Book)
+                    .Where(a => !a.FileExists && a.LibraryBook.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated)
+                    .Select(a => a.LibraryBook)
                     .ToList();
 
                 if (books2change.Any())
@@ -72,7 +72,7 @@ namespace ApplicationServices
         public void Execute()
         {
             foreach (var a in actionSets)
-                a.Books.UpdateBookStatus(a.newStatus);
+                a.LibraryBooks.UpdateBookStatus(a.newStatus);
         }
     }
 }

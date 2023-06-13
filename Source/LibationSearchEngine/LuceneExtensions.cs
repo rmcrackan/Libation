@@ -17,7 +17,7 @@ namespace LibationSearchEngine
 				document.Add(new Field(name.ToLowerInvariant(), value, Field.Store.YES, Field.Index.ANALYZED));
 		}        
 
-        internal static void RemoveRule(this Document document, IIndexRule rule)
+        internal static void RemoveRule(this Document document, IndexRule rule)
 		{
 			// fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
 			// ie: must remove old before adding new else will create unwanted duplicates.
@@ -25,20 +25,9 @@ namespace LibationSearchEngine
 				document.RemoveFields(name.ToLowerInvariant());
 		}
 
-        internal static void AddIndexRule(this Document document, IIndexRule rule, LibraryBook libraryBook)
+        internal static void AddIndexRule(this Document document, IndexRule rule, LibraryBook libraryBook)
 		{
 			string value = rule.GetValue(libraryBook);
-
-			addIndexRule(document, rule, value);
-		}
-
-        internal static void AddIndexRule(this Document document, BookRule rule, Book libraryBook)
-		{
-			addIndexRule(document, rule, rule.ValueGetter(libraryBook));
-		}
-
-        private static void addIndexRule(Document document, IIndexRule rule, string value)
-		{
 			if (value is null) return;
 
 			foreach (var name in rule.FieldNames)

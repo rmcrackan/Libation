@@ -33,34 +33,34 @@ namespace LibationSearchEngine
 		// use these common fields in the "all" default search field
 		public static IndexRuleCollection FieldIndexRules { get; } = new IndexRuleCollection
         {
-            { FieldType.ID, Book => Book.AudibleProductId.ToLowerInvariant(), nameof(Book.AudibleProductId), "ProductId", "Id", "ASIN" },
-            { FieldType.Raw, Book => Book.AudibleProductId, _ID_ },
-            { FieldType.String, Book => Book.Title, nameof(Book.Title), "ProductId", "Id", "ASIN" },
-            { FieldType.String, Book => Book.AuthorNames(), "AuthorNames", "Author", "Authors" },
-            { FieldType.String, Book => Book.NarratorNames(), "NarratorNames", "Narrator", "Narrators" },
-            { FieldType.String, Book => Book.Publisher, nameof(Book.Publisher) },
-            { FieldType.String, Book => Book.SeriesNames(), "SeriesNames", "Narrator", "Series" },
-            { FieldType.String, Book => string.Join(", ", Book.SeriesLink.Select(s => s.Series.AudibleSeriesId)), "SeriesId" },
-            { FieldType.String, Book => Book.CategoriesIds() is null ? null : string.Join(", ", Book.CategoriesIds()), nameof(Book.Category), "Categories", "CategoriesId", "CategoryId", "CategoriesNames" },
-            { FieldType.String, Book => Book.UserDefinedItem.Tags, TAGS.FirstCharToUpper() },
-            { FieldType.String, Book => Book.Locale, "Locale", "Region" },
+            { FieldType.ID, lb => lb.Book.AudibleProductId.ToLowerInvariant(), nameof(Book.AudibleProductId), "ProductId", "Id", "ASIN" },
+            { FieldType.Raw, lb => lb.Book.AudibleProductId, _ID_ },
+            { FieldType.String, lb => lb.Book.Title, nameof(Book.Title), "ProductId", "Id", "ASIN" },
+            { FieldType.String, lb => lb.Book.AuthorNames(), "AuthorNames", "Author", "Authors" },
+            { FieldType.String, lb => lb.Book.NarratorNames(), "NarratorNames", "Narrator", "Narrators" },
+            { FieldType.String, lb => lb.Book.Publisher, nameof(Book.Publisher) },
+            { FieldType.String, lb => lb.Book.SeriesNames(), "SeriesNames", "Narrator", "Series" },
+            { FieldType.String, lb => string.Join(", ", lb.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId)), "SeriesId" },
+            { FieldType.String, lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()), nameof(Book.Category), "Categories", "CategoriesId", "CategoryId", "CategoriesNames" },
+            { FieldType.String, lb => lb.Book.UserDefinedItem.Tags, TAGS.FirstCharToUpper() },
+            { FieldType.String, lb => lb.Book.Locale, "Locale", "Region" },
             { FieldType.String, lb => lb.Account, "Account", "Email" },
-            { FieldType.Bool, Book => Book.HasPdf().ToString(), "HasDownloads", "HasDownload", "Downloads" , "Download", "HasPDFs", "HasPDF" , "PDFs", "PDF" },
-            { FieldType.Bool, Book => (Book.UserDefinedItem.Rating.OverallRating > 0f).ToString(), "IsRated", "Rated" },
-            { FieldType.Bool, Book => isAuthorNarrated(Book).ToString(), "IsAuthorNarrated", "AuthorNarrated" },
-            { FieldType.Bool, Book => Book.IsAbridged.ToString(), nameof(Book.IsAbridged), "Abridged" },
-            { FieldType.Bool, Book => (Book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated).ToString(), "IsLiberated", "Liberated" },
-            { FieldType.Bool, Book => (Book.UserDefinedItem.BookStatus == LiberatedStatus.Error).ToString(), "LiberatedError" },
-            { FieldType.Bool, Book => Book.IsEpisodeChild().ToString(), "Podcast", "Podcasts", "IsPodcast", "Episode", "Episodes", "IsEpisode" },
+            { FieldType.Bool, lb => lb.Book.HasPdf().ToString(), "HasDownloads", "HasDownload", "Downloads" , "Download", "HasPDFs", "HasPDF" , "PDFs", "PDF" },
+            { FieldType.Bool, lb => (lb.Book.UserDefinedItem.Rating.OverallRating > 0f).ToString(), "IsRated", "Rated" },
+            { FieldType.Bool, lb => isAuthorNarrated(lb.Book).ToString(), "IsAuthorNarrated", "AuthorNarrated" },
+            { FieldType.Bool, lb => lb.Book.IsAbridged.ToString(), nameof(Book.IsAbridged), "Abridged" },
+            { FieldType.Bool, lb => (lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated).ToString(), "IsLiberated", "Liberated" },
+            { FieldType.Bool, lb => (lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.Error).ToString(), "LiberatedError" },
+            { FieldType.Bool, lb => lb.Book.IsEpisodeChild().ToString(), "Podcast", "Podcasts", "IsPodcast", "Episode", "Episodes", "IsEpisode" },
             { FieldType.Bool, lb => lb.AbsentFromLastScan.ToString(), "AbsentFromLastScan", "Absent" },
             // all numbers are padded to 8 char.s
             // This will allow a single method to auto-pad numbers. The method will match these as well as date: yyyymmdd
-            { FieldType.Number, Book => Book.LengthInMinutes.ToLuceneString(), nameof(Book.LengthInMinutes), "Length", "Minutes" },
-            { FieldType.Number, Book => (Book.LengthInMinutes / 60).ToLuceneString(), "Hours" },
-            { FieldType.Number, Book => Book.Rating.OverallRating.ToLuceneString(), "ProductRating", "Rating" },
-            { FieldType.Number, Book => Book.UserDefinedItem.Rating.OverallRating.ToLuceneString(), "UserRating", "MyRating" },
-            { FieldType.Number, Book => Book.DatePublished?.ToLuceneString() ?? "", nameof(Book.DatePublished) },
-            { FieldType.Number, Book => Book.UserDefinedItem.LastDownloaded.ToLuceneString(), nameof(UserDefinedItem.LastDownloaded), "LastDownload" },
+            { FieldType.Number, lb => lb.Book.LengthInMinutes.ToLuceneString(), nameof(Book.LengthInMinutes), "Length", "Minutes" },
+            { FieldType.Number, lb => (lb.Book.LengthInMinutes / 60).ToLuceneString(), "Hours" },
+            { FieldType.Number, lb => lb.Book.Rating.OverallRating.ToLuceneString(), "ProductRating", "Rating" },
+            { FieldType.Number, lb => lb.Book.UserDefinedItem.Rating.OverallRating.ToLuceneString(), "UserRating", "MyRating" },
+            { FieldType.Number, lb => lb.Book.DatePublished?.ToLuceneString() ?? "", nameof(Book.DatePublished) },
+            { FieldType.Number, lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString(), nameof(UserDefinedItem.LastDownloaded), "LastDownload" },
             { FieldType.Number, lb => lb.DateAdded.ToLuceneString(), nameof(LibraryBook.DateAdded) }
 		};
         #endregion
@@ -132,14 +132,14 @@ namespace LibationSearchEngine
 				});
 
 		// update single document entry
-        public void UpdateLiberatedStatus(Book book)
+        public void UpdateLiberatedStatus(LibraryBook book)
             => updateDocument(
-                book.AudibleProductId,
+                book.Book.AudibleProductId,
                 d =>
                 {
-                    var lib = FieldIndexRules.GetRuleByFieldName<BookRule>("IsLiberated");
-                    var libError = FieldIndexRules.GetRuleByFieldName<BookRule>("LiberatedError");
-                    var lastDl = FieldIndexRules.GetRuleByFieldName<BookRule>(nameof(UserDefinedItem.LastDownloaded));
+                    var lib = FieldIndexRules.GetRuleByFieldName("IsLiberated");
+                    var libError = FieldIndexRules.GetRuleByFieldName("LiberatedError");
+                    var lastDl = FieldIndexRules.GetRuleByFieldName(nameof(UserDefinedItem.LastDownloaded));
 
                     d.RemoveRule(lib);
                     d.RemoveRule(libError);
@@ -150,12 +150,12 @@ namespace LibationSearchEngine
                     d.AddIndexRule(lastDl, book);
 				});
 
-        public void UpdateUserRatings(Book book)
+        public void UpdateUserRatings(LibraryBook book)
             =>updateDocument(
-                book.AudibleProductId,
+                book.Book.AudibleProductId,
                 d =>
 				{
-					var rating = FieldIndexRules.GetRuleByFieldName<BookRule>("UserRating");
+					var rating = FieldIndexRules.GetRuleByFieldName("UserRating");
 
 					d.RemoveRule(rating);
 					d.AddIndexRule(rating, book);

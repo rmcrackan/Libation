@@ -112,7 +112,7 @@ namespace LibationAvalonia.Views
 				if (entry.Liberate.IsSeries)
 					setDownloadMenuItem.Click += (_, __) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.Liberated);
 				else
-					setDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
+					setDownloadMenuItem.Click += (_, __) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.Liberated);
 
 				#endregion
 				#region Set Download status to Not Downloaded
@@ -128,7 +128,7 @@ namespace LibationAvalonia.Views
 				if (entry.Liberate.IsSeries)
 					setNotDownloadMenuItem.Click += (_, __) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.NotLiberated);
 				else
-					setNotDownloadMenuItem.Click += (_, __) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
+					setNotDownloadMenuItem.Click += (_, __) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
 				#endregion
 				#region Remove from library
