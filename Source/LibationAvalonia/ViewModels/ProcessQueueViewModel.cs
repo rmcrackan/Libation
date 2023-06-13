@@ -223,7 +223,7 @@ namespace LibationAvalonia.ViewModels
 					else if (result == ProcessBookResult.FailedAbort)
 						Queue.ClearQueue();
 					else if (result == ProcessBookResult.FailedSkip)
-						nextBook.LibraryBook.Book.UpdateBookStatus(LiberatedStatus.Error);
+						nextBook.LibraryBook.UpdateBookStatus(LiberatedStatus.Error);
 					else if (result == ProcessBookResult.LicenseDeniedPossibleOutage && !shownServiceOutageMessage)
 					{
 						await MessageBox.Show(@$"

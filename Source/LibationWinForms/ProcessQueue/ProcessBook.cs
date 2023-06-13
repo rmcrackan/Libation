@@ -377,7 +377,7 @@ $@"  Title: {libraryBook.Book.Title}
 
 			if (dialogResult == SkipResult)
 			{
-				libraryBook.Book.UpdateBookStatus(LiberatedStatus.Error);
+				libraryBook.UpdateBookStatus(LiberatedStatus.Error);
 
 				Logger.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}");
 

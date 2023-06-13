@@ -184,7 +184,7 @@ namespace LibationWinForms.ProcessQueue
 					else if (result == ProcessBookResult.FailedAbort)
 						Queue.ClearQueue();
 					else if (result == ProcessBookResult.FailedSkip)
-						nextBook.LibraryBook.Book.UpdateBookStatus(DataLayer.LiberatedStatus.Error);
+						nextBook.LibraryBook.UpdateBookStatus(DataLayer.LiberatedStatus.Error);
 					else if (result == ProcessBookResult.LicenseDeniedPossibleOutage && !shownServiceOutageMessage)
 					{
 						MessageBox.Show(@$"

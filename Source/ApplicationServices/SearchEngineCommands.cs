@@ -34,7 +34,7 @@ namespace ApplicationServices
 		#region Update
 		private static bool isUpdating;
 
-		public static void UpdateBooks(IEnumerable<Book> books)
+		public static void UpdateBooks(IEnumerable<LibraryBook> books)
 		{
 			// Semi-arbitrary. At some point it's more worth it to do a full re-index than to do one offs.
 			// I did not benchmark before choosing the number here
@@ -49,10 +49,10 @@ namespace ApplicationServices
 
 		public static void FullReIndex() => performSafeCommand(fullReIndex);
 
-		internal static void UpdateUserDefinedItems(Book book) => performSafeCommand(e =>
+		internal static void UpdateUserDefinedItems(LibraryBook book) => performSafeCommand(e =>
 			{
 				e.UpdateLiberatedStatus(book);
-				e.UpdateTags(book.AudibleProductId, book.UserDefinedItem.Tags);
+				e.UpdateTags(book.Book.AudibleProductId, book.Book.UserDefinedItem.Tags);
 				e.UpdateUserRatings(book);
 			}
 		);

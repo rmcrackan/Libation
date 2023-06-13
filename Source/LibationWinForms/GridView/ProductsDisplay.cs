@@ -93,7 +93,7 @@ namespace LibationWinForms.GridView
 		{
 			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
 			if (bookDetailsForm.ShowDialog() == DialogResult.OK)
-				liveGridEntry.Book.UpdateUserDefinedItem(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+				liveGridEntry.LibraryBook.UpdateUserDefinedItem(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 		}
 
 		#endregion
@@ -131,7 +131,7 @@ namespace LibationWinForms.GridView
 			if (entry.Liberate.IsSeries)
 				setDownloadMenuItem.Click += (_, _) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.Liberated);
 			else
-				setDownloadMenuItem.Click += (_, _) => entry.Book.UpdateBookStatus(LiberatedStatus.Liberated);
+				setDownloadMenuItem.Click += (_, _) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.Liberated);
 
 			#endregion
 			#region Set Download status to Not Downloaded
@@ -147,7 +147,7 @@ namespace LibationWinForms.GridView
 			if (entry.Liberate.IsSeries)
 				setNotDownloadMenuItem.Click += (_, _) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.NotLiberated);
 			else
-				setNotDownloadMenuItem.Click += (_, _) => entry.Book.UpdateBookStatus(LiberatedStatus.NotLiberated);
+				setNotDownloadMenuItem.Click += (_, _) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
 			#endregion
 			#region Remove from library

@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
 using Lucene.Net.Analysis.Standard;
-using Lucene.Net.Analysis.Tokenattributes;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
@@ -25,164 +22,47 @@ namespace LibationSearchEngine
         public const string ALL = "all";
 
         #region index rules
-        // common fields used in the "all" default search field
-        public const string ALL_AUDIBLE_PRODUCT_ID = nameof(Book.AudibleProductId);
-        public const string ALL_TITLE = nameof(Book.Title);
-        public const string ALL_AUTHOR_NAMES = "AuthorNames";
-        public const string ALL_NARRATOR_NAMES = "NarratorNames";
-        public const string ALL_SERIES_NAMES = "SeriesNames";
 
-        internal static ReadOnlyDictionary<string, Func<LibraryBook, string>> idIndexRules { get; }
-            = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
-                new Dictionary<string, Func<LibraryBook, string>>
-                {
-                    [nameof(Book.AudibleProductId)] = lb => lb.Book.AudibleProductId.ToLowerInvariant(),
-                    ["ProductId"] = lb => lb.Book.AudibleProductId.ToLowerInvariant(),
-                    ["Id"] = lb => lb.Book.AudibleProductId.ToLowerInvariant(),
-                    ["ASIN"] = lb => lb.Book.AudibleProductId.ToLowerInvariant()
-				}
-                );
-
-		internal static ReadOnlyDictionary<string, Func<LibraryBook, string>> stringIndexRules { get; }
-            = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
-                new Dictionary<string, Func<LibraryBook, string>>
-                {
-                    [nameof(Book.Title)] = lb => lb.Book.Title,
-                    [ALL_AUTHOR_NAMES] = lb => lb.Book.AuthorNames(),
-                    ["Author"] = lb => lb.Book.AuthorNames(),
-                    ["Authors"] = lb => lb.Book.AuthorNames(),
-                    [ALL_NARRATOR_NAMES] = lb => lb.Book.NarratorNames(),
-                    ["Narrator"] = lb => lb.Book.NarratorNames(),
-                    ["Narrators"] = lb => lb.Book.NarratorNames(),
-                    [nameof(Book.Publisher)] = lb => lb.Book.Publisher,
-
-                    [ALL_SERIES_NAMES] = lb => lb.Book.SeriesNames(),
-                    ["Series"] = lb => lb.Book.SeriesNames(),
-                    ["SeriesId"] = lb => string.Join(", ", lb.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId)),
-
-                    ["CategoriesNames"] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
-                    [nameof(Book.Category)] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
-                    ["Categories"] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
-                    ["CategoriesId"] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
-                    ["CategoryId"] = lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()),
-
-                    [TAGS.FirstCharToUpper()] = lb => lb.Book.UserDefinedItem.Tags,
-
-                    ["Locale"] = lb => lb.Book.Locale,
-                    ["Region"] = lb => lb.Book.Locale,
-                    ["Account"] = lb => lb.Account,
-                    ["Email"] = lb => lb.Account
-                }
-                );
-
-		internal static ReadOnlyDictionary<string, Func<LibraryBook, string>> numberIndexRules { get; }
-            = new ReadOnlyDictionary<string, Func<LibraryBook, string>>(
-                new Dictionary<string, Func<LibraryBook, string>>
-                {
-                    // for now, all numbers are padded to 8 char.s
-                    // This will allow a single method to auto-pad numbers. The method will match these as well as date: yyyymmdd
-                    [nameof(Book.LengthInMinutes)] = lb => lb.Book.LengthInMinutes.ToLuceneString(),
-                    ["Length"] = lb => lb.Book.LengthInMinutes.ToLuceneString(),
-                    ["Minutes"] = lb => lb.Book.LengthInMinutes.ToLuceneString(),
-                    ["Hours"] = lb => (lb.Book.LengthInMinutes / 60).ToLuceneString(),
-
-                    ["ProductRating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
-                    ["Rating"] = lb => lb.Book.Rating.OverallRating.ToLuceneString(),
-                    ["UserRating"] = lb => userOverallRating(lb.Book),
-                    ["MyRating"] = lb => userOverallRating(lb.Book),
-
-                    [nameof(LibraryBook.DateAdded)] = lb => lb.DateAdded.ToLuceneString(),
-                    [nameof(Book.DatePublished)] = lb => lb.Book.DatePublished?.ToLuceneString() ?? "",
-
-                    ["LastDownload"] = lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString(),
-                    ["LastDownloaded"] = lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString()
-                }
-                );
-
-        internal static ReadOnlyDictionary<string, Func<LibraryBook, bool>> boolIndexRules { get; }
-            = new ReadOnlyDictionary<string, Func<LibraryBook, bool>>(
-                new Dictionary<string, Func<LibraryBook, bool>>
-                {
-                    ["HasDownloads"] = lb => lb.Book.HasPdf(),
-                    ["HasDownload"] = lb => lb.Book.HasPdf(),
-                    ["Downloads"] = lb => lb.Book.HasPdf(),
-                    ["Download"] = lb => lb.Book.HasPdf(),
-                    ["HasPDFs"] = lb => lb.Book.HasPdf(),
-                    ["HasPDF"] = lb => lb.Book.HasPdf(),
-                    ["PDFs"] = lb => lb.Book.HasPdf(),
-                    ["PDF"] = lb => lb.Book.HasPdf(),
-
-                    ["IsRated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,
-                    ["Rated"] = lb => lb.Book.UserDefinedItem.Rating.OverallRating > 0f,
-
-                    ["IsAuthorNarrated"] = isAuthorNarrated,
-                    ["AuthorNarrated"] = isAuthorNarrated,
-
-                    [nameof(Book.IsAbridged)] = lb => lb.Book.IsAbridged,
-                    ["Abridged"] = lb => lb.Book.IsAbridged,
-
-                    ["IsLiberated"] = lb => isLiberated(lb.Book),
-                    ["Liberated"] = lb => isLiberated(lb.Book),
-                    ["LiberatedError"] = lb => liberatedError(lb.Book),
-
-                    ["Podcast"] = lb => lb.Book.IsEpisodeChild(),
-                    ["Podcasts"] = lb => lb.Book.IsEpisodeChild(),
-                    ["IsPodcast"] = lb => lb.Book.IsEpisodeChild(),
-                    ["Episode"] = lb => lb.Book.IsEpisodeChild(),
-                    ["Episodes"] = lb => lb.Book.IsEpisodeChild(),
-                    ["IsEpisode"] = lb => lb.Book.IsEpisodeChild(),
-
-                    ["Absent"] = lb => lb.AbsentFromLastScan,
-                    ["AbsentFromLastScan"] = lb => lb.AbsentFromLastScan,
-                }
-                );
-
-        private static bool isAuthorNarrated(LibraryBook lb)
+        private static bool isAuthorNarrated(Book book)
         {
-            var authors = lb.Book.Authors.Select(a => a.Name).ToArray();
-            var narrators = lb.Book.Narrators.Select(a => a.Name).ToArray();
+            var authors = book.Authors.Select(a => a.Name).ToArray();
+            var narrators = book.Narrators.Select(a => a.Name).ToArray();
             return authors.Intersect(narrators).Any();
         }
-        private static string userOverallRating(Book book) => book.UserDefinedItem.Rating.OverallRating.ToLuceneString();
-        private static bool isLiberated(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated;
-        private static bool liberatedError(Book book) => book.UserDefinedItem.BookStatus == LiberatedStatus.Error;
 
-        // use these common fields in the "all" default search field
-        private static IEnumerable<Func<LibraryBook, string>> allFieldIndexRules { get; }
-            = new List<Func<LibraryBook, string>>
-            {
-                idIndexRules[ALL_AUDIBLE_PRODUCT_ID],
-                stringIndexRules[ALL_TITLE],
-                stringIndexRules[ALL_AUTHOR_NAMES],
-                stringIndexRules[ALL_NARRATOR_NAMES],
-                stringIndexRules[ALL_SERIES_NAMES]
-            };
-        #endregion
-
-        #region get search fields. used for display in help
-        public static IEnumerable<string> GetSearchIdFields()
+		// use these common fields in the "all" default search field
+		public static IndexRuleCollection FieldIndexRules { get; } = new IndexRuleCollection
         {
-            foreach (var key in idIndexRules.Keys)
-                yield return key;
-        }
-
-        public static IEnumerable<string> GetSearchStringFields()
-        {
-            foreach (var key in stringIndexRules.Keys)
-                yield return key;
-        }
-
-        public static IEnumerable<string> GetSearchBoolFields()
-        {
-            foreach (var key in boolIndexRules.Keys)
-                yield return key;
-        }
-
-        public static IEnumerable<string> GetSearchNumberFields()
-        {
-            foreach (var key in numberIndexRules.Keys)
-                yield return key;
-        }
+            { FieldType.ID, lb => lb.Book.AudibleProductId.ToLowerInvariant(), nameof(Book.AudibleProductId), "ProductId", "Id", "ASIN" },
+            { FieldType.Raw, lb => lb.Book.AudibleProductId, _ID_ },
+            { FieldType.String, lb => lb.Book.Title, nameof(Book.Title), "ProductId", "Id", "ASIN" },
+            { FieldType.String, lb => lb.Book.AuthorNames(), "AuthorNames", "Author", "Authors" },
+            { FieldType.String, lb => lb.Book.NarratorNames(), "NarratorNames", "Narrator", "Narrators" },
+            { FieldType.String, lb => lb.Book.Publisher, nameof(Book.Publisher) },
+            { FieldType.String, lb => lb.Book.SeriesNames(), "SeriesNames", "Narrator", "Series" },
+            { FieldType.String, lb => string.Join(", ", lb.Book.SeriesLink.Select(s => s.Series.AudibleSeriesId)), "SeriesId" },
+            { FieldType.String, lb => lb.Book.CategoriesIds() is null ? null : string.Join(", ", lb.Book.CategoriesIds()), nameof(Book.Category), "Categories", "CategoriesId", "CategoryId", "CategoriesNames" },
+            { FieldType.String, lb => lb.Book.UserDefinedItem.Tags, TAGS.FirstCharToUpper() },
+            { FieldType.String, lb => lb.Book.Locale, "Locale", "Region" },
+            { FieldType.String, lb => lb.Account, "Account", "Email" },
+            { FieldType.Bool, lb => lb.Book.HasPdf().ToString(), "HasDownloads", "HasDownload", "Downloads" , "Download", "HasPDFs", "HasPDF" , "PDFs", "PDF" },
+            { FieldType.Bool, lb => (lb.Book.UserDefinedItem.Rating.OverallRating > 0f).ToString(), "IsRated", "Rated" },
+            { FieldType.Bool, lb => isAuthorNarrated(lb.Book).ToString(), "IsAuthorNarrated", "AuthorNarrated" },
+            { FieldType.Bool, lb => lb.Book.IsAbridged.ToString(), nameof(Book.IsAbridged), "Abridged" },
+            { FieldType.Bool, lb => (lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated).ToString(), "IsLiberated", "Liberated" },
+            { FieldType.Bool, lb => (lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.Error).ToString(), "LiberatedError" },
+            { FieldType.Bool, lb => lb.Book.IsEpisodeChild().ToString(), "Podcast", "Podcasts", "IsPodcast", "Episode", "Episodes", "IsEpisode" },
+            { FieldType.Bool, lb => lb.AbsentFromLastScan.ToString(), "AbsentFromLastScan", "Absent" },
+            // all numbers are padded to 8 char.s
+            // This will allow a single method to auto-pad numbers. The method will match these as well as date: yyyymmdd
+            { FieldType.Number, lb => lb.Book.LengthInMinutes.ToLuceneString(), nameof(Book.LengthInMinutes), "Length", "Minutes" },
+            { FieldType.Number, lb => (lb.Book.LengthInMinutes / 60).ToLuceneString(), "Hours" },
+            { FieldType.Number, lb => lb.Book.Rating.OverallRating.ToLuceneString(), "ProductRating", "Rating" },
+            { FieldType.Number, lb => lb.Book.UserDefinedItem.Rating.OverallRating.ToLuceneString(), "UserRating", "MyRating" },
+            { FieldType.Number, lb => lb.Book.DatePublished?.ToLuceneString() ?? "", nameof(Book.DatePublished) },
+            { FieldType.Number, lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString(), nameof(UserDefinedItem.LastDownloaded), "LastDownload" },
+            { FieldType.Number, lb => lb.DateAdded.ToLuceneString(), nameof(LibraryBook.DateAdded) }
+		};
         #endregion
 
         #region create and update index
@@ -224,35 +104,15 @@ namespace LibationSearchEngine
         {
             var doc = new Document();
 
-            // refine with
-            // http://codeclimber.net.nz/archive/2009/09/10/how-subtext-lucenenet-index-is-structured/
-
-            // fields are key value pairs and MULTIPLE FIELDS CAN HAVE THE SAME KEY.
-            // splitting authors and narrators and/or tags into multiple fields could be interesting research.
-            // it could allow for more advanced searches, or maybe it could break broad searches.
-
-            // all searching should be lowercase
-            // external callers have the reasonable expectation that product id will be returned CASE SPECIFIC
-            doc.AddRaw(_ID_, libraryBook.Book.AudibleProductId);
-
             // concat all common fields for the default 'all' field
             var allConcat =
-                allFieldIndexRules
-                .Select(rule => rule(libraryBook))
+                FieldIndexRules
+                .Select(rule => rule.GetValue(libraryBook))
                 .Aggregate((a, b) => $"{a} {b}");
             doc.AddAnalyzed(ALL, allConcat);
 
-            foreach (var kvp in idIndexRules)
-                doc.AddNotAnalyzed(kvp.Key, kvp.Value(libraryBook));
-
-            foreach (var kvp in stringIndexRules)
-                doc.AddAnalyzed(kvp.Key, kvp.Value(libraryBook));
-
-            foreach (var kvp in boolIndexRules)
-                doc.AddBool(kvp.Key, kvp.Value(libraryBook));
-
-            foreach (var kvp in numberIndexRules)
-                doc.AddNotAnalyzed(kvp.Key, kvp.Value(libraryBook));
+            foreach (var rule in FieldIndexRules)
+                doc.AddIndexRule(rule, libraryBook);
 
             return doc;
         }
@@ -267,58 +127,39 @@ namespace LibationSearchEngine
                 productId,
                 d =>
                 {
-                    // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
-                    // ie: must remove old before adding new else will create unwanted duplicates.
-                    d.RemoveField(fieldName.ToLower());
+					d.RemoveField(fieldName.ToLower());
                     d.AddAnalyzed(fieldName, newValue);
-                });
-
-        // update single document entry
-        public void UpdateLiberatedStatus(Book book)
-            => updateDocument(
-                book.AudibleProductId,
-                d =>
-                {
-                    //
-                    // TODO: better synonym handling. This is too easy to mess up
-                    //
-
-                    // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
-                    // ie: must remove old before adding new else will create unwanted duplicates.
-                    var v1 = isLiberated(book);
-                    d.RemoveField("isliberated");
-                    d.AddBool("IsLiberated", v1);
-                    d.RemoveField("liberated");
-                    d.AddBool("Liberated", v1);
-
-                    var v2 = liberatedError(book);
-                    d.RemoveField("liberatederror");
-                    d.AddBool("LiberatedError", v2);
-
-                    var v3 = book.UserDefinedItem.LastDownloaded?.ToLuceneString() ?? "";
-					d.RemoveField("LastDownload");
-					d.AddNotAnalyzed("LastDownload", v3);
-					d.RemoveField("LastDownloaded");
-					d.AddNotAnalyzed("LastDownloaded", v3);
 				});
 
-        public void UpdateUserRatings(Book book)
-            =>updateDocument(
-                book.AudibleProductId,
+		// update single document entry
+        public void UpdateLiberatedStatus(LibraryBook book)
+            => updateDocument(
+                book.Book.AudibleProductId,
                 d =>
                 {
-                    //
-                    // TODO: better synonym handling. This is too easy to mess up
-                    //
+                    var lib = FieldIndexRules.GetRuleByFieldName("IsLiberated");
+                    var libError = FieldIndexRules.GetRuleByFieldName("LiberatedError");
+                    var lastDl = FieldIndexRules.GetRuleByFieldName(nameof(UserDefinedItem.LastDownloaded));
 
-                    // fields are key value pairs. MULTIPLE FIELDS CAN POTENTIALLY HAVE THE SAME KEY.
-                    // ie: must remove old before adding new else will create unwanted duplicates.
-                    var v1 = userOverallRating(book);
-                    d.RemoveField("userrating");
-                    d.AddNotAnalyzed("UserRating", v1);
-                    d.RemoveField("myrating");
-                    d.AddNotAnalyzed("MyRating", v1);
-                });
+                    d.RemoveRule(lib);
+                    d.RemoveRule(libError);
+                    d.RemoveRule(lastDl);
+
+                    d.AddIndexRule(lib, book);
+                    d.AddIndexRule(libError, book);
+                    d.AddIndexRule(lastDl, book);
+				});
+
+        public void UpdateUserRatings(LibraryBook book)
+            =>updateDocument(
+                book.Book.AudibleProductId,
+                d =>
+				{
+					var rating = FieldIndexRules.GetRuleByFieldName("UserRating");
+
+					d.RemoveRule(rating);
+					d.AddIndexRule(rating, book);
+				});
 
         private static void updateDocument(string productId, Action<Document> action)
         {
@@ -335,10 +176,8 @@ namespace LibationSearchEngine
                 return;
             var document = searcher.Doc(scoreDoc.Doc);
 
-
             // perform update
             action(document);
-
 
             // update index
             var createNewIndex = false;
@@ -412,24 +251,24 @@ namespace LibationSearchEngine
             return returnList;
         }
 
-        private void displayResults(SearchResultSet docs)
-        {
-            //for (int i = 0; i < docs.Docs.Count(); i++)
-            //{
-            //    var sde = docs.Docs.First();
+		private void displayResults(SearchResultSet docs)
+		{
+			//for (int i = 0; i < docs.Docs.Count(); i++)
+			//{
+			//    var sde = docs.Docs.First();
 
-            //    Document doc = sde.Doc;
-            //    float score = sde.Score;
+			//    Document doc = sde.Doc;
+			//    float score = sde.Score;
 
-            //    Serilog.Log.Logger.Debug($"{(i + 1)}) score={score}. Fields:");
-            //    var allFields = doc.GetFields();
-            //    foreach (var f in allFields)
-            //        Serilog.Log.Logger.Debug($"   [{f.Name}]={f.StringValue}");
-            //}
-        }
-        #endregion
+			//    Serilog.Log.Logger.Debug($"{(i + 1)}) score={score}. Fields:");
+			//    var allFields = doc.GetFields();
+			//    foreach (var f in allFields)
+			//        Serilog.Log.Logger.Debug($"   [{f.Name}]={f.StringValue}");
+			//}
+		}
+		#endregion
 
-        private static Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
+		private static Directory getIndex() => FSDirectory.Open(SearchEngineDirectory);
 
         // not customizable. don't move to config
         private static string SearchEngineDirectory { get; }

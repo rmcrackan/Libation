@@ -446,25 +446,25 @@ namespace ApplicationServices
         /// <summary>
         /// Occurs when the size of the library does not change but book(s) details do. Especially when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/> changed values are successfully persisted.
         /// </summary>
-        public static event EventHandler<IEnumerable<Book>> BookUserDefinedItemCommitted;
+        public static event EventHandler<IEnumerable<LibraryBook>> BookUserDefinedItemCommitted;
 
         #region Update book details
         public static int UpdateUserDefinedItem(
-            this Book book,
+            this LibraryBook lb,
             string tags = null,
             LiberatedStatus? bookStatus = null,
             LiberatedStatus? pdfStatus = null,
             Rating rating = null)
-            => new[] { book }.UpdateUserDefinedItem(tags, bookStatus, pdfStatus, rating);
+            => new[] { lb }.UpdateUserDefinedItem(tags, bookStatus, pdfStatus, rating);
 
         public static int UpdateUserDefinedItem(
-            this IEnumerable<Book> books,
+            this IEnumerable<LibraryBook> lb,
             string tags = null,
             LiberatedStatus? bookStatus = null,
             LiberatedStatus? pdfStatus = null,
             Rating rating = null)
             => updateUserDefinedItem(
-                books,
+                lb,
                 udi => {
                     // blank tags are expected. null tags are not
                     if (tags is not null)
@@ -480,66 +480,52 @@ namespace ApplicationServices
                         udi.UpdateRating(rating.OverallRating, rating.PerformanceRating, rating.StoryRating);
 				});
 
-        public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus, Version libationVersion)
-            => book.UpdateUserDefinedItem(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion); });
-        public static int UpdateBookStatus(this Book book, LiberatedStatus bookStatus)
-            => book.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
-        public static int UpdateBookStatus(this IEnumerable<Book> books, LiberatedStatus bookStatus)
-            => books.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
+        public static int UpdateBookStatus(this LibraryBook lb, LiberatedStatus bookStatus, Version libationVersion)
+            => lb.UpdateUserDefinedItem(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion); });
+
         public static int UpdateBookStatus(this LibraryBook libraryBook, LiberatedStatus bookStatus)
             => libraryBook.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
         public static int UpdateBookStatus(this IEnumerable<LibraryBook> libraryBooks, LiberatedStatus bookStatus)
             => libraryBooks.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
 
-        public static int UpdatePdfStatus(this Book book, LiberatedStatus pdfStatus)
-            => book.UpdateUserDefinedItem(udi => udi.SetPdfStatus(pdfStatus));
-        public static int UpdatePdfStatus(this IEnumerable<Book> books, LiberatedStatus pdfStatus)
-            => books.UpdateUserDefinedItem(udi => udi.SetPdfStatus(pdfStatus));
         public static int UpdatePdfStatus(this LibraryBook libraryBook, LiberatedStatus pdfStatus)
             => libraryBook.UpdateUserDefinedItem(udi => udi.SetPdfStatus(pdfStatus));
         public static int UpdatePdfStatus(this IEnumerable<LibraryBook> libraryBooks, LiberatedStatus pdfStatus)
             => libraryBooks.UpdateUserDefinedItem(udi => udi.SetPdfStatus(pdfStatus));
 
-        public static int UpdateTags(this Book book, string tags)
-            => book.UpdateUserDefinedItem(udi => udi.Tags = tags);
-        public static int UpdateTags(this IEnumerable<Book> books, string tags)
-            => books.UpdateUserDefinedItem(udi => udi.Tags = tags);
         public static int UpdateTags(this LibraryBook libraryBook, string tags)
             => libraryBook.UpdateUserDefinedItem(udi => udi.Tags = tags);
         public static int UpdateTags(this IEnumerable<LibraryBook> libraryBooks, string tags)
             => libraryBooks.UpdateUserDefinedItem(udi => udi.Tags = tags);
 
         public static int UpdateUserDefinedItem(this LibraryBook libraryBook, Action<UserDefinedItem> action)
-            => libraryBook.Book.updateUserDefinedItem(action);
+            => libraryBook.updateUserDefinedItem(action);
         public static int UpdateUserDefinedItem(this IEnumerable<LibraryBook> libraryBooks, Action<UserDefinedItem> action)
-            => libraryBooks.Select(lb => lb.Book).updateUserDefinedItem(action);
+            => libraryBooks.updateUserDefinedItem(action);
 
-        public static int UpdateUserDefinedItem(this Book book, Action<UserDefinedItem> action) => book.updateUserDefinedItem(action);
-        public static int UpdateUserDefinedItem(this IEnumerable<Book> books, Action<UserDefinedItem> action) => books.updateUserDefinedItem(action);
-
-        private static int updateUserDefinedItem(this Book book, Action<UserDefinedItem> action) => new[] { book }.updateUserDefinedItem(action);
-        private static int updateUserDefinedItem(this IEnumerable<Book> books, Action<UserDefinedItem> action)
+        private static int updateUserDefinedItem(this LibraryBook libraryBook, Action<UserDefinedItem> action) => new[] { libraryBook }.updateUserDefinedItem(action);
+        private static int updateUserDefinedItem(this IEnumerable<LibraryBook> libraryBooks, Action<UserDefinedItem> action)
         {
             try
             {
-                if (books is null || !books.Any())
+                if (libraryBooks is null || !libraryBooks.Any())
                     return 0;
 
-                foreach (var book in books)
-                    action?.Invoke(book.UserDefinedItem);
+                foreach (var book in libraryBooks)
+                    action?.Invoke(book.Book.UserDefinedItem);
 
                 using var context = DbContexts.GetContext();
 
                 // Attach() NoTracking entities before SaveChanges()
-                foreach (var book in books)
+                foreach (var book in libraryBooks)
                 {
-                    context.Attach(book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                    context.Attach(book.UserDefinedItem.Rating).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                    context.Attach(book.Book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                    context.Attach(book.Book.UserDefinedItem.Rating).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                 }
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
-                    BookUserDefinedItemCommitted?.Invoke(null, books);
+                    BookUserDefinedItemCommitted?.Invoke(null, libraryBooks);
 
                 return qtyChanges;
             }
