@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using Dinah.Core;
 using Polly;
 using Polly.Retry;
-using Dinah.Core.Collections.Generic;
 
 namespace FileManager
 {
@@ -147,14 +146,24 @@ namespace FileManager
 
 		/// <summary>
 		/// Move file.
-		/// <br/>- Ensure valid file name path: remove invalid chars, ensure uniqueness, enforce max file length
+		/// <br/>- Ensure valid file name path: remove invalid chars, enforce max file length
 		/// <br/>- Perform <see cref="SaferMove"/>
-		/// <br/>- Return valid path
 		/// </summary>
-		public static string SaferMoveToValidPath(LongPath source, LongPath destination, ReplacementCharacters replacements, string extension = null)
+		/// <param name="source">Name of the file to move</param>
+		/// <param name="destination">The new path and name for the file.</param>
+		/// <param name="replacements">Rules for replacing illegal file path characters</param>
+		/// <param name="extension">File extension override to use for <paramref name="destination"/></param>
+		/// <param name="overwrite">If <c>false</c> and <paramref name="destination"/> exists, append " (n)" to filename and try again.</param>
+		/// <returns>The actual destination filename</returns>
+		public static string SaferMoveToValidPath(
+			LongPath source,
+			LongPath destination,
+			ReplacementCharacters replacements,
+			string extension = null,
+			bool overwrite = false)
 		{
-			extension = extension ?? Path.GetExtension(source);
-			destination = GetValidFilename(destination, replacements, extension);
+			extension ??= Path.GetExtension(source);
+			destination = GetValidFilename(destination, replacements, extension, overwrite);
 			SaferMove(source, destination);
 			return destination;
 		}

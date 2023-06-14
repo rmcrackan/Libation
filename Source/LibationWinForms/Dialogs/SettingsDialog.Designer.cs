@@ -28,1184 +28,1183 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.booksLocationDescLbl = new System.Windows.Forms.Label();
-			this.inProgressDescLbl = new System.Windows.Forms.Label();
-			this.saveBtn = new System.Windows.Forms.Button();
-			this.cancelBtn = new System.Windows.Forms.Button();
-			this.importEpisodesCb = new System.Windows.Forms.CheckBox();
-			this.downloadEpisodesCb = new System.Windows.Forms.CheckBox();
-			this.badBookGb = new System.Windows.Forms.GroupBox();
-			this.badBookIgnoreRb = new System.Windows.Forms.RadioButton();
-			this.badBookRetryRb = new System.Windows.Forms.RadioButton();
-			this.badBookAbortRb = new System.Windows.Forms.RadioButton();
-			this.badBookAskRb = new System.Windows.Forms.RadioButton();
-			this.stripAudibleBrandingCbox = new System.Windows.Forms.CheckBox();
-			this.splitFilesByChapterCbox = new System.Windows.Forms.CheckBox();
-			this.allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
-			this.convertLossyRb = new System.Windows.Forms.RadioButton();
-			this.convertLosslessRb = new System.Windows.Forms.RadioButton();
-			this.inProgressSelectControl = new LibationWinForms.Dialogs.DirectorySelectControl();
-			this.logsBtn = new System.Windows.Forms.Button();
-			this.booksSelectControl = new LibationWinForms.Dialogs.DirectoryOrCustomSelectControl();
-			this.loggingLevelLbl = new System.Windows.Forms.Label();
-			this.loggingLevelCb = new System.Windows.Forms.ComboBox();
-			this.tabControl = new System.Windows.Forms.TabControl();
-			this.tab1ImportantSettings = new System.Windows.Forms.TabPage();
-			this.betaOptInCbox = new System.Windows.Forms.CheckBox();
-			this.booksGb = new System.Windows.Forms.GroupBox();
-			this.saveEpisodesToSeriesFolderCbox = new System.Windows.Forms.CheckBox();
-			this.tab2ImportLibrary = new System.Windows.Forms.TabPage();
-			this.autoDownloadEpisodesCb = new System.Windows.Forms.CheckBox();
-			this.autoScanCb = new System.Windows.Forms.CheckBox();
-			this.showImportedStatsCb = new System.Windows.Forms.CheckBox();
-			this.tab3DownloadDecrypt = new System.Windows.Forms.TabPage();
-			this.useCoverAsFolderIconCb = new System.Windows.Forms.CheckBox();
-			this.inProgressFilesGb = new System.Windows.Forms.GroupBox();
-			this.customFileNamingGb = new System.Windows.Forms.GroupBox();
-			this.editCharreplacementBtn = new System.Windows.Forms.Button();
-			this.chapterFileTemplateBtn = new System.Windows.Forms.Button();
-			this.chapterFileTemplateTb = new System.Windows.Forms.TextBox();
-			this.chapterFileTemplateLbl = new System.Windows.Forms.Label();
-			this.fileTemplateBtn = new System.Windows.Forms.Button();
-			this.fileTemplateTb = new System.Windows.Forms.TextBox();
-			this.fileTemplateLbl = new System.Windows.Forms.Label();
-			this.folderTemplateBtn = new System.Windows.Forms.Button();
-			this.folderTemplateTb = new System.Windows.Forms.TextBox();
-			this.folderTemplateLbl = new System.Windows.Forms.Label();
-			this.tab4AudioFileOptions = new System.Windows.Forms.TabPage();
-			this.clipsBookmarksFormatCb = new System.Windows.Forms.ComboBox();
-			this.downloadClipsBookmarksCbox = new System.Windows.Forms.CheckBox();
-			this.audiobookFixupsGb = new System.Windows.Forms.GroupBox();
-			this.moveMoovAtomCbox = new System.Windows.Forms.CheckBox();
-			this.stripUnabridgedCbox = new System.Windows.Forms.CheckBox();
-			this.chapterTitleTemplateGb = new System.Windows.Forms.GroupBox();
-			this.chapterTitleTemplateBtn = new System.Windows.Forms.Button();
-			this.chapterTitleTemplateTb = new System.Windows.Forms.TextBox();
-			this.lameOptionsGb = new System.Windows.Forms.GroupBox();
-			this.lameDownsampleMonoCbox = new System.Windows.Forms.CheckBox();
-			this.lameBitrateGb = new System.Windows.Forms.GroupBox();
-			this.LameMatchSourceBRCbox = new System.Windows.Forms.CheckBox();
-			this.lameConstantBitrateCbox = new System.Windows.Forms.CheckBox();
-			this.label7 = new System.Windows.Forms.Label();
-			this.label6 = new System.Windows.Forms.Label();
-			this.label5 = new System.Windows.Forms.Label();
-			this.label4 = new System.Windows.Forms.Label();
-			this.label11 = new System.Windows.Forms.Label();
-			this.label3 = new System.Windows.Forms.Label();
-			this.lameBitrateTb = new System.Windows.Forms.TrackBar();
-			this.label1 = new System.Windows.Forms.Label();
-			this.lameQualityGb = new System.Windows.Forms.GroupBox();
-			this.label19 = new System.Windows.Forms.Label();
-			this.label18 = new System.Windows.Forms.Label();
-			this.label17 = new System.Windows.Forms.Label();
-			this.label16 = new System.Windows.Forms.Label();
-			this.label12 = new System.Windows.Forms.Label();
-			this.label15 = new System.Windows.Forms.Label();
-			this.label9 = new System.Windows.Forms.Label();
-			this.label8 = new System.Windows.Forms.Label();
-			this.label13 = new System.Windows.Forms.Label();
-			this.label10 = new System.Windows.Forms.Label();
-			this.label14 = new System.Windows.Forms.Label();
-			this.label2 = new System.Windows.Forms.Label();
-			this.lameVBRQualityTb = new System.Windows.Forms.TrackBar();
-			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.lameTargetQualityRb = new System.Windows.Forms.RadioButton();
-			this.lameTargetBitrateRb = new System.Windows.Forms.RadioButton();
-			this.mergeOpeningEndCreditsCbox = new System.Windows.Forms.CheckBox();
-			this.retainAaxFileCbox = new System.Windows.Forms.CheckBox();
-			this.downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
-			this.createCueSheetCbox = new System.Windows.Forms.CheckBox();
-			this.maxSampleRateCb = new System.Windows.Forms.ComboBox();
-			this.encoderQualityCb = new System.Windows.Forms.ComboBox();
-			this.label20 = new System.Windows.Forms.Label();
-			this.label21 = new System.Windows.Forms.Label();
-			this.badBookGb.SuspendLayout();
-			this.tabControl.SuspendLayout();
-			this.tab1ImportantSettings.SuspendLayout();
-			this.booksGb.SuspendLayout();
-			this.tab2ImportLibrary.SuspendLayout();
-			this.tab3DownloadDecrypt.SuspendLayout();
-			this.inProgressFilesGb.SuspendLayout();
-			this.customFileNamingGb.SuspendLayout();
-			this.tab4AudioFileOptions.SuspendLayout();
-			this.audiobookFixupsGb.SuspendLayout();
-			this.chapterTitleTemplateGb.SuspendLayout();
-			this.lameOptionsGb.SuspendLayout();
-			this.lameBitrateGb.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.lameBitrateTb)).BeginInit();
-			this.lameQualityGb.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.lameVBRQualityTb)).BeginInit();
-			this.groupBox2.SuspendLayout();
-			this.SuspendLayout();
+			booksLocationDescLbl = new System.Windows.Forms.Label();
+			inProgressDescLbl = new System.Windows.Forms.Label();
+			saveBtn = new System.Windows.Forms.Button();
+			cancelBtn = new System.Windows.Forms.Button();
+			importEpisodesCb = new System.Windows.Forms.CheckBox();
+			downloadEpisodesCb = new System.Windows.Forms.CheckBox();
+			badBookGb = new System.Windows.Forms.GroupBox();
+			badBookIgnoreRb = new System.Windows.Forms.RadioButton();
+			badBookRetryRb = new System.Windows.Forms.RadioButton();
+			badBookAbortRb = new System.Windows.Forms.RadioButton();
+			badBookAskRb = new System.Windows.Forms.RadioButton();
+			stripAudibleBrandingCbox = new System.Windows.Forms.CheckBox();
+			splitFilesByChapterCbox = new System.Windows.Forms.CheckBox();
+			allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
+			convertLossyRb = new System.Windows.Forms.RadioButton();
+			convertLosslessRb = new System.Windows.Forms.RadioButton();
+			inProgressSelectControl = new DirectorySelectControl();
+			logsBtn = new System.Windows.Forms.Button();
+			booksSelectControl = new DirectoryOrCustomSelectControl();
+			loggingLevelLbl = new System.Windows.Forms.Label();
+			loggingLevelCb = new System.Windows.Forms.ComboBox();
+			tabControl = new System.Windows.Forms.TabControl();
+			tab1ImportantSettings = new System.Windows.Forms.TabPage();
+			betaOptInCbox = new System.Windows.Forms.CheckBox();
+			booksGb = new System.Windows.Forms.GroupBox();
+			saveEpisodesToSeriesFolderCbox = new System.Windows.Forms.CheckBox();
+			tab2ImportLibrary = new System.Windows.Forms.TabPage();
+			autoDownloadEpisodesCb = new System.Windows.Forms.CheckBox();
+			autoScanCb = new System.Windows.Forms.CheckBox();
+			showImportedStatsCb = new System.Windows.Forms.CheckBox();
+			tab3DownloadDecrypt = new System.Windows.Forms.TabPage();
+			useCoverAsFolderIconCb = new System.Windows.Forms.CheckBox();
+			inProgressFilesGb = new System.Windows.Forms.GroupBox();
+			customFileNamingGb = new System.Windows.Forms.GroupBox();
+			editCharreplacementBtn = new System.Windows.Forms.Button();
+			chapterFileTemplateBtn = new System.Windows.Forms.Button();
+			chapterFileTemplateTb = new System.Windows.Forms.TextBox();
+			chapterFileTemplateLbl = new System.Windows.Forms.Label();
+			fileTemplateBtn = new System.Windows.Forms.Button();
+			fileTemplateTb = new System.Windows.Forms.TextBox();
+			fileTemplateLbl = new System.Windows.Forms.Label();
+			folderTemplateBtn = new System.Windows.Forms.Button();
+			folderTemplateTb = new System.Windows.Forms.TextBox();
+			folderTemplateLbl = new System.Windows.Forms.Label();
+			tab4AudioFileOptions = new System.Windows.Forms.TabPage();
+			clipsBookmarksFormatCb = new System.Windows.Forms.ComboBox();
+			downloadClipsBookmarksCbox = new System.Windows.Forms.CheckBox();
+			audiobookFixupsGb = new System.Windows.Forms.GroupBox();
+			moveMoovAtomCbox = new System.Windows.Forms.CheckBox();
+			stripUnabridgedCbox = new System.Windows.Forms.CheckBox();
+			chapterTitleTemplateGb = new System.Windows.Forms.GroupBox();
+			chapterTitleTemplateBtn = new System.Windows.Forms.Button();
+			chapterTitleTemplateTb = new System.Windows.Forms.TextBox();
+			lameOptionsGb = new System.Windows.Forms.GroupBox();
+			label20 = new System.Windows.Forms.Label();
+			label21 = new System.Windows.Forms.Label();
+			encoderQualityCb = new System.Windows.Forms.ComboBox();
+			maxSampleRateCb = new System.Windows.Forms.ComboBox();
+			lameDownsampleMonoCbox = new System.Windows.Forms.CheckBox();
+			lameBitrateGb = new System.Windows.Forms.GroupBox();
+			LameMatchSourceBRCbox = new System.Windows.Forms.CheckBox();
+			lameConstantBitrateCbox = new System.Windows.Forms.CheckBox();
+			label7 = new System.Windows.Forms.Label();
+			label6 = new System.Windows.Forms.Label();
+			label5 = new System.Windows.Forms.Label();
+			label4 = new System.Windows.Forms.Label();
+			label11 = new System.Windows.Forms.Label();
+			label3 = new System.Windows.Forms.Label();
+			lameBitrateTb = new System.Windows.Forms.TrackBar();
+			label1 = new System.Windows.Forms.Label();
+			lameQualityGb = new System.Windows.Forms.GroupBox();
+			label19 = new System.Windows.Forms.Label();
+			label18 = new System.Windows.Forms.Label();
+			label17 = new System.Windows.Forms.Label();
+			label16 = new System.Windows.Forms.Label();
+			label12 = new System.Windows.Forms.Label();
+			label15 = new System.Windows.Forms.Label();
+			label9 = new System.Windows.Forms.Label();
+			label8 = new System.Windows.Forms.Label();
+			label13 = new System.Windows.Forms.Label();
+			label10 = new System.Windows.Forms.Label();
+			label14 = new System.Windows.Forms.Label();
+			label2 = new System.Windows.Forms.Label();
+			lameVBRQualityTb = new System.Windows.Forms.TrackBar();
+			groupBox2 = new System.Windows.Forms.GroupBox();
+			lameTargetQualityRb = new System.Windows.Forms.RadioButton();
+			lameTargetBitrateRb = new System.Windows.Forms.RadioButton();
+			mergeOpeningEndCreditsCbox = new System.Windows.Forms.CheckBox();
+			retainAaxFileCbox = new System.Windows.Forms.CheckBox();
+			downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
+			createCueSheetCbox = new System.Windows.Forms.CheckBox();
+			overwriteExistingCbox = new System.Windows.Forms.CheckBox();
+			badBookGb.SuspendLayout();
+			tabControl.SuspendLayout();
+			tab1ImportantSettings.SuspendLayout();
+			booksGb.SuspendLayout();
+			tab2ImportLibrary.SuspendLayout();
+			tab3DownloadDecrypt.SuspendLayout();
+			inProgressFilesGb.SuspendLayout();
+			customFileNamingGb.SuspendLayout();
+			tab4AudioFileOptions.SuspendLayout();
+			audiobookFixupsGb.SuspendLayout();
+			chapterTitleTemplateGb.SuspendLayout();
+			lameOptionsGb.SuspendLayout();
+			lameBitrateGb.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)lameBitrateTb).BeginInit();
+			lameQualityGb.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)lameVBRQualityTb).BeginInit();
+			groupBox2.SuspendLayout();
+			SuspendLayout();
 			// 
 			// booksLocationDescLbl
 			// 
-			this.booksLocationDescLbl.AutoSize = true;
-			this.booksLocationDescLbl.Location = new System.Drawing.Point(7, 19);
-			this.booksLocationDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.booksLocationDescLbl.Name = "booksLocationDescLbl";
-			this.booksLocationDescLbl.Size = new System.Drawing.Size(69, 15);
-			this.booksLocationDescLbl.TabIndex = 1;
-			this.booksLocationDescLbl.Text = "[book desc]";
+			booksLocationDescLbl.AutoSize = true;
+			booksLocationDescLbl.Location = new System.Drawing.Point(7, 19);
+			booksLocationDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			booksLocationDescLbl.Name = "booksLocationDescLbl";
+			booksLocationDescLbl.Size = new System.Drawing.Size(69, 15);
+			booksLocationDescLbl.TabIndex = 1;
+			booksLocationDescLbl.Text = "[book desc]";
 			// 
 			// inProgressDescLbl
 			// 
-			this.inProgressDescLbl.AutoSize = true;
-			this.inProgressDescLbl.Location = new System.Drawing.Point(7, 19);
-			this.inProgressDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.inProgressDescLbl.Name = "inProgressDescLbl";
-			this.inProgressDescLbl.Size = new System.Drawing.Size(100, 45);
-			this.inProgressDescLbl.TabIndex = 18;
-			this.inProgressDescLbl.Text = "[in progress desc]\r\n[line 2]\r\n[line 3]";
+			inProgressDescLbl.AutoSize = true;
+			inProgressDescLbl.Location = new System.Drawing.Point(7, 19);
+			inProgressDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			inProgressDescLbl.Name = "inProgressDescLbl";
+			inProgressDescLbl.Size = new System.Drawing.Size(100, 45);
+			inProgressDescLbl.TabIndex = 18;
+			inProgressDescLbl.Text = "[in progress desc]\r\n[line 2]\r\n[line 3]";
 			// 
 			// saveBtn
 			// 
-			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(667, 491);
-			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.saveBtn.Name = "saveBtn";
-			this.saveBtn.Size = new System.Drawing.Size(88, 27);
-			this.saveBtn.TabIndex = 98;
-			this.saveBtn.Text = "Save";
-			this.saveBtn.UseVisualStyleBackColor = true;
-			this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
+			saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+			saveBtn.Location = new System.Drawing.Point(667, 491);
+			saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			saveBtn.Name = "saveBtn";
+			saveBtn.Size = new System.Drawing.Size(88, 27);
+			saveBtn.TabIndex = 98;
+			saveBtn.Text = "Save";
+			saveBtn.UseVisualStyleBackColor = true;
+			saveBtn.Click += saveBtn_Click;
 			// 
 			// cancelBtn
 			// 
-			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(785, 491);
-			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.cancelBtn.Name = "cancelBtn";
-			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
-			this.cancelBtn.TabIndex = 99;
-			this.cancelBtn.Text = "Cancel";
-			this.cancelBtn.UseVisualStyleBackColor = true;
-			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
+			cancelBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+			cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			cancelBtn.Location = new System.Drawing.Point(785, 491);
+			cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			cancelBtn.Name = "cancelBtn";
+			cancelBtn.Size = new System.Drawing.Size(88, 27);
+			cancelBtn.TabIndex = 99;
+			cancelBtn.Text = "Cancel";
+			cancelBtn.UseVisualStyleBackColor = true;
+			cancelBtn.Click += cancelBtn_Click;
 			// 
 			// importEpisodesCb
 			// 
-			this.importEpisodesCb.AutoSize = true;
-			this.importEpisodesCb.Location = new System.Drawing.Point(6, 56);
-			this.importEpisodesCb.Name = "importEpisodesCb";
-			this.importEpisodesCb.Size = new System.Drawing.Size(146, 19);
-			this.importEpisodesCb.TabIndex = 3;
-			this.importEpisodesCb.Text = "[import episodes desc]";
-			this.importEpisodesCb.UseVisualStyleBackColor = true;
+			importEpisodesCb.AutoSize = true;
+			importEpisodesCb.Location = new System.Drawing.Point(6, 56);
+			importEpisodesCb.Name = "importEpisodesCb";
+			importEpisodesCb.Size = new System.Drawing.Size(146, 19);
+			importEpisodesCb.TabIndex = 3;
+			importEpisodesCb.Text = "[import episodes desc]";
+			importEpisodesCb.UseVisualStyleBackColor = true;
 			// 
 			// downloadEpisodesCb
 			// 
-			this.downloadEpisodesCb.AutoSize = true;
-			this.downloadEpisodesCb.Location = new System.Drawing.Point(6, 81);
-			this.downloadEpisodesCb.Name = "downloadEpisodesCb";
-			this.downloadEpisodesCb.Size = new System.Drawing.Size(163, 19);
-			this.downloadEpisodesCb.TabIndex = 4;
-			this.downloadEpisodesCb.Text = "[download episodes desc]";
-			this.downloadEpisodesCb.UseVisualStyleBackColor = true;
+			downloadEpisodesCb.AutoSize = true;
+			downloadEpisodesCb.Location = new System.Drawing.Point(6, 81);
+			downloadEpisodesCb.Name = "downloadEpisodesCb";
+			downloadEpisodesCb.Size = new System.Drawing.Size(163, 19);
+			downloadEpisodesCb.TabIndex = 4;
+			downloadEpisodesCb.Text = "[download episodes desc]";
+			downloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
 			// badBookGb
 			// 
-			this.badBookGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.badBookGb.Controls.Add(this.badBookIgnoreRb);
-			this.badBookGb.Controls.Add(this.badBookRetryRb);
-			this.badBookGb.Controls.Add(this.badBookAbortRb);
-			this.badBookGb.Controls.Add(this.badBookAskRb);
-			this.badBookGb.Location = new System.Drawing.Point(7, 6);
-			this.badBookGb.Name = "badBookGb";
-			this.badBookGb.Size = new System.Drawing.Size(834, 76);
-			this.badBookGb.TabIndex = 13;
-			this.badBookGb.TabStop = false;
-			this.badBookGb.Text = "[bad book desc]";
+			badBookGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			badBookGb.Controls.Add(badBookIgnoreRb);
+			badBookGb.Controls.Add(badBookRetryRb);
+			badBookGb.Controls.Add(badBookAbortRb);
+			badBookGb.Controls.Add(badBookAskRb);
+			badBookGb.Location = new System.Drawing.Point(7, 6);
+			badBookGb.Name = "badBookGb";
+			badBookGb.Size = new System.Drawing.Size(834, 76);
+			badBookGb.TabIndex = 13;
+			badBookGb.TabStop = false;
+			badBookGb.Text = "[bad book desc]";
 			// 
 			// badBookIgnoreRb
 			// 
-			this.badBookIgnoreRb.AutoSize = true;
-			this.badBookIgnoreRb.Location = new System.Drawing.Point(384, 47);
-			this.badBookIgnoreRb.Name = "badBookIgnoreRb";
-			this.badBookIgnoreRb.Size = new System.Drawing.Size(94, 19);
-			this.badBookIgnoreRb.TabIndex = 17;
-			this.badBookIgnoreRb.TabStop = true;
-			this.badBookIgnoreRb.Text = "[ignore desc]";
-			this.badBookIgnoreRb.UseVisualStyleBackColor = true;
+			badBookIgnoreRb.AutoSize = true;
+			badBookIgnoreRb.Location = new System.Drawing.Point(384, 47);
+			badBookIgnoreRb.Name = "badBookIgnoreRb";
+			badBookIgnoreRb.Size = new System.Drawing.Size(94, 19);
+			badBookIgnoreRb.TabIndex = 17;
+			badBookIgnoreRb.TabStop = true;
+			badBookIgnoreRb.Text = "[ignore desc]";
+			badBookIgnoreRb.UseVisualStyleBackColor = true;
 			// 
 			// badBookRetryRb
 			// 
-			this.badBookRetryRb.AutoSize = true;
-			this.badBookRetryRb.Location = new System.Drawing.Point(5, 47);
-			this.badBookRetryRb.Name = "badBookRetryRb";
-			this.badBookRetryRb.Size = new System.Drawing.Size(84, 19);
-			this.badBookRetryRb.TabIndex = 16;
-			this.badBookRetryRb.TabStop = true;
-			this.badBookRetryRb.Text = "[retry desc]";
-			this.badBookRetryRb.UseVisualStyleBackColor = true;
+			badBookRetryRb.AutoSize = true;
+			badBookRetryRb.Location = new System.Drawing.Point(5, 47);
+			badBookRetryRb.Name = "badBookRetryRb";
+			badBookRetryRb.Size = new System.Drawing.Size(84, 19);
+			badBookRetryRb.TabIndex = 16;
+			badBookRetryRb.TabStop = true;
+			badBookRetryRb.Text = "[retry desc]";
+			badBookRetryRb.UseVisualStyleBackColor = true;
 			// 
 			// badBookAbortRb
 			// 
-			this.badBookAbortRb.AutoSize = true;
-			this.badBookAbortRb.Location = new System.Drawing.Point(384, 22);
-			this.badBookAbortRb.Name = "badBookAbortRb";
-			this.badBookAbortRb.Size = new System.Drawing.Size(88, 19);
-			this.badBookAbortRb.TabIndex = 15;
-			this.badBookAbortRb.TabStop = true;
-			this.badBookAbortRb.Text = "[abort desc]";
-			this.badBookAbortRb.UseVisualStyleBackColor = true;
+			badBookAbortRb.AutoSize = true;
+			badBookAbortRb.Location = new System.Drawing.Point(384, 22);
+			badBookAbortRb.Name = "badBookAbortRb";
+			badBookAbortRb.Size = new System.Drawing.Size(88, 19);
+			badBookAbortRb.TabIndex = 15;
+			badBookAbortRb.TabStop = true;
+			badBookAbortRb.Text = "[abort desc]";
+			badBookAbortRb.UseVisualStyleBackColor = true;
 			// 
 			// badBookAskRb
 			// 
-			this.badBookAskRb.AutoSize = true;
-			this.badBookAskRb.Location = new System.Drawing.Point(6, 22);
-			this.badBookAskRb.Name = "badBookAskRb";
-			this.badBookAskRb.Size = new System.Drawing.Size(77, 19);
-			this.badBookAskRb.TabIndex = 14;
-			this.badBookAskRb.TabStop = true;
-			this.badBookAskRb.Text = "[ask desc]";
-			this.badBookAskRb.UseVisualStyleBackColor = true;
+			badBookAskRb.AutoSize = true;
+			badBookAskRb.Location = new System.Drawing.Point(6, 22);
+			badBookAskRb.Name = "badBookAskRb";
+			badBookAskRb.Size = new System.Drawing.Size(77, 19);
+			badBookAskRb.TabIndex = 14;
+			badBookAskRb.TabStop = true;
+			badBookAskRb.Text = "[ask desc]";
+			badBookAskRb.UseVisualStyleBackColor = true;
 			// 
 			// stripAudibleBrandingCbox
 			// 
-			this.stripAudibleBrandingCbox.AutoSize = true;
-			this.stripAudibleBrandingCbox.Location = new System.Drawing.Point(13, 72);
-			this.stripAudibleBrandingCbox.Name = "stripAudibleBrandingCbox";
-			this.stripAudibleBrandingCbox.Size = new System.Drawing.Size(143, 34);
-			this.stripAudibleBrandingCbox.TabIndex = 13;
-			this.stripAudibleBrandingCbox.Text = "[StripAudibleBranding\r\ndesc]";
-			this.stripAudibleBrandingCbox.UseVisualStyleBackColor = true;
+			stripAudibleBrandingCbox.AutoSize = true;
+			stripAudibleBrandingCbox.Location = new System.Drawing.Point(13, 72);
+			stripAudibleBrandingCbox.Name = "stripAudibleBrandingCbox";
+			stripAudibleBrandingCbox.Size = new System.Drawing.Size(143, 34);
+			stripAudibleBrandingCbox.TabIndex = 13;
+			stripAudibleBrandingCbox.Text = "[StripAudibleBranding\r\ndesc]";
+			stripAudibleBrandingCbox.UseVisualStyleBackColor = true;
 			// 
 			// splitFilesByChapterCbox
 			// 
-			this.splitFilesByChapterCbox.AutoSize = true;
-			this.splitFilesByChapterCbox.Location = new System.Drawing.Point(13, 22);
-			this.splitFilesByChapterCbox.Name = "splitFilesByChapterCbox";
-			this.splitFilesByChapterCbox.Size = new System.Drawing.Size(162, 19);
-			this.splitFilesByChapterCbox.TabIndex = 13;
-			this.splitFilesByChapterCbox.Text = "[SplitFilesByChapter desc]";
-			this.splitFilesByChapterCbox.UseVisualStyleBackColor = true;
-			this.splitFilesByChapterCbox.CheckedChanged += new System.EventHandler(this.splitFilesByChapterCbox_CheckedChanged);
+			splitFilesByChapterCbox.AutoSize = true;
+			splitFilesByChapterCbox.Location = new System.Drawing.Point(13, 22);
+			splitFilesByChapterCbox.Name = "splitFilesByChapterCbox";
+			splitFilesByChapterCbox.Size = new System.Drawing.Size(162, 19);
+			splitFilesByChapterCbox.TabIndex = 13;
+			splitFilesByChapterCbox.Text = "[SplitFilesByChapter desc]";
+			splitFilesByChapterCbox.UseVisualStyleBackColor = true;
+			splitFilesByChapterCbox.CheckedChanged += splitFilesByChapterCbox_CheckedChanged;
 			// 
 			// allowLibationFixupCbox
 			// 
-			this.allowLibationFixupCbox.AutoSize = true;
-			this.allowLibationFixupCbox.Checked = true;
-			this.allowLibationFixupCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.allowLibationFixupCbox.Location = new System.Drawing.Point(19, 143);
-			this.allowLibationFixupCbox.Name = "allowLibationFixupCbox";
-			this.allowLibationFixupCbox.Size = new System.Drawing.Size(163, 19);
-			this.allowLibationFixupCbox.TabIndex = 10;
-			this.allowLibationFixupCbox.Text = "[AllowLibationFixup desc]";
-			this.allowLibationFixupCbox.UseVisualStyleBackColor = true;
-			this.allowLibationFixupCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
+			allowLibationFixupCbox.AutoSize = true;
+			allowLibationFixupCbox.Checked = true;
+			allowLibationFixupCbox.CheckState = System.Windows.Forms.CheckState.Checked;
+			allowLibationFixupCbox.Location = new System.Drawing.Point(19, 143);
+			allowLibationFixupCbox.Name = "allowLibationFixupCbox";
+			allowLibationFixupCbox.Size = new System.Drawing.Size(163, 19);
+			allowLibationFixupCbox.TabIndex = 10;
+			allowLibationFixupCbox.Text = "[AllowLibationFixup desc]";
+			allowLibationFixupCbox.UseVisualStyleBackColor = true;
+			allowLibationFixupCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
 			// 
 			// convertLossyRb
 			// 
-			this.convertLossyRb.AutoSize = true;
-			this.convertLossyRb.Location = new System.Drawing.Point(13, 158);
-			this.convertLossyRb.Name = "convertLossyRb";
-			this.convertLossyRb.Size = new System.Drawing.Size(329, 19);
-			this.convertLossyRb.TabIndex = 12;
-			this.convertLossyRb.Text = "Download my books as .MP3 files (transcode if necessary)";
-			this.convertLossyRb.UseVisualStyleBackColor = true;
-			this.convertLossyRb.CheckedChanged += new System.EventHandler(this.convertFormatRb_CheckedChanged);
+			convertLossyRb.AutoSize = true;
+			convertLossyRb.Location = new System.Drawing.Point(13, 158);
+			convertLossyRb.Name = "convertLossyRb";
+			convertLossyRb.Size = new System.Drawing.Size(329, 19);
+			convertLossyRb.TabIndex = 12;
+			convertLossyRb.Text = "Download my books as .MP3 files (transcode if necessary)";
+			convertLossyRb.UseVisualStyleBackColor = true;
+			convertLossyRb.CheckedChanged += convertFormatRb_CheckedChanged;
 			// 
 			// convertLosslessRb
 			// 
-			this.convertLosslessRb.AutoSize = true;
-			this.convertLosslessRb.Checked = true;
-			this.convertLosslessRb.Location = new System.Drawing.Point(13, 111);
-			this.convertLosslessRb.Name = "convertLosslessRb";
-			this.convertLosslessRb.Size = new System.Drawing.Size(335, 19);
-			this.convertLosslessRb.TabIndex = 11;
-			this.convertLosslessRb.TabStop = true;
-			this.convertLosslessRb.Text = "Download my books in the original audio format (Lossless)";
-			this.convertLosslessRb.UseVisualStyleBackColor = true;
-			this.convertLosslessRb.CheckedChanged += new System.EventHandler(this.convertFormatRb_CheckedChanged);
+			convertLosslessRb.AutoSize = true;
+			convertLosslessRb.Checked = true;
+			convertLosslessRb.Location = new System.Drawing.Point(13, 111);
+			convertLosslessRb.Name = "convertLosslessRb";
+			convertLosslessRb.Size = new System.Drawing.Size(335, 19);
+			convertLosslessRb.TabIndex = 11;
+			convertLosslessRb.TabStop = true;
+			convertLosslessRb.Text = "Download my books in the original audio format (Lossless)";
+			convertLosslessRb.UseVisualStyleBackColor = true;
+			convertLosslessRb.CheckedChanged += convertFormatRb_CheckedChanged;
 			// 
 			// inProgressSelectControl
 			// 
-			this.inProgressSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.inProgressSelectControl.Location = new System.Drawing.Point(7, 68);
-			this.inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-			this.inProgressSelectControl.Name = "inProgressSelectControl";
-			this.inProgressSelectControl.Size = new System.Drawing.Size(828, 52);
-			this.inProgressSelectControl.TabIndex = 19;
+			inProgressSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			inProgressSelectControl.Location = new System.Drawing.Point(7, 68);
+			inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			inProgressSelectControl.Name = "inProgressSelectControl";
+			inProgressSelectControl.Size = new System.Drawing.Size(828, 52);
+			inProgressSelectControl.TabIndex = 19;
 			// 
 			// logsBtn
 			// 
-			this.logsBtn.Location = new System.Drawing.Point(256, 198);
-			this.logsBtn.Name = "logsBtn";
-			this.logsBtn.Size = new System.Drawing.Size(132, 23);
-			this.logsBtn.TabIndex = 5;
-			this.logsBtn.Text = "Open log folder";
-			this.logsBtn.UseVisualStyleBackColor = true;
-			this.logsBtn.Click += new System.EventHandler(this.logsBtn_Click);
+			logsBtn.Location = new System.Drawing.Point(256, 220);
+			logsBtn.Name = "logsBtn";
+			logsBtn.Size = new System.Drawing.Size(132, 23);
+			logsBtn.TabIndex = 5;
+			logsBtn.Text = "Open log folder";
+			logsBtn.UseVisualStyleBackColor = true;
+			logsBtn.Click += logsBtn_Click;
 			// 
 			// booksSelectControl
 			// 
-			this.booksSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.booksSelectControl.Location = new System.Drawing.Point(7, 37);
-			this.booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-			this.booksSelectControl.Name = "booksSelectControl";
-			this.booksSelectControl.Size = new System.Drawing.Size(829, 87);
-			this.booksSelectControl.TabIndex = 2;
+			booksSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			booksSelectControl.Location = new System.Drawing.Point(7, 37);
+			booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			booksSelectControl.Name = "booksSelectControl";
+			booksSelectControl.Size = new System.Drawing.Size(829, 87);
+			booksSelectControl.TabIndex = 2;
 			// 
 			// loggingLevelLbl
 			// 
-			this.loggingLevelLbl.AutoSize = true;
-			this.loggingLevelLbl.Location = new System.Drawing.Point(6, 201);
-			this.loggingLevelLbl.Name = "loggingLevelLbl";
-			this.loggingLevelLbl.Size = new System.Drawing.Size(78, 15);
-			this.loggingLevelLbl.TabIndex = 3;
-			this.loggingLevelLbl.Text = "Logging level";
+			loggingLevelLbl.AutoSize = true;
+			loggingLevelLbl.Location = new System.Drawing.Point(6, 223);
+			loggingLevelLbl.Name = "loggingLevelLbl";
+			loggingLevelLbl.Size = new System.Drawing.Size(78, 15);
+			loggingLevelLbl.TabIndex = 3;
+			loggingLevelLbl.Text = "Logging level";
 			// 
 			// loggingLevelCb
 			// 
-			this.loggingLevelCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.loggingLevelCb.FormattingEnabled = true;
-			this.loggingLevelCb.Location = new System.Drawing.Point(90, 198);
-			this.loggingLevelCb.Name = "loggingLevelCb";
-			this.loggingLevelCb.Size = new System.Drawing.Size(129, 23);
-			this.loggingLevelCb.TabIndex = 4;
+			loggingLevelCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			loggingLevelCb.FormattingEnabled = true;
+			loggingLevelCb.Location = new System.Drawing.Point(90, 220);
+			loggingLevelCb.Name = "loggingLevelCb";
+			loggingLevelCb.Size = new System.Drawing.Size(129, 23);
+			loggingLevelCb.TabIndex = 4;
 			// 
 			// tabControl
 			// 
-			this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.tabControl.Controls.Add(this.tab1ImportantSettings);
-			this.tabControl.Controls.Add(this.tab2ImportLibrary);
-			this.tabControl.Controls.Add(this.tab3DownloadDecrypt);
-			this.tabControl.Controls.Add(this.tab4AudioFileOptions);
-			this.tabControl.Location = new System.Drawing.Point(12, 12);
-			this.tabControl.Name = "tabControl";
-			this.tabControl.SelectedIndex = 0;
-			this.tabControl.Size = new System.Drawing.Size(862, 473);
-			this.tabControl.TabIndex = 100;
+			tabControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			tabControl.Controls.Add(tab1ImportantSettings);
+			tabControl.Controls.Add(tab2ImportLibrary);
+			tabControl.Controls.Add(tab3DownloadDecrypt);
+			tabControl.Controls.Add(tab4AudioFileOptions);
+			tabControl.Location = new System.Drawing.Point(12, 12);
+			tabControl.Name = "tabControl";
+			tabControl.SelectedIndex = 0;
+			tabControl.Size = new System.Drawing.Size(862, 473);
+			tabControl.TabIndex = 100;
 			// 
 			// tab1ImportantSettings
 			// 
-			this.tab1ImportantSettings.Controls.Add(this.betaOptInCbox);
-			this.tab1ImportantSettings.Controls.Add(this.booksGb);
-			this.tab1ImportantSettings.Controls.Add(this.logsBtn);
-			this.tab1ImportantSettings.Controls.Add(this.loggingLevelCb);
-			this.tab1ImportantSettings.Controls.Add(this.loggingLevelLbl);
-			this.tab1ImportantSettings.Location = new System.Drawing.Point(4, 24);
-			this.tab1ImportantSettings.Name = "tab1ImportantSettings";
-			this.tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(3);
-			this.tab1ImportantSettings.Size = new System.Drawing.Size(854, 445);
-			this.tab1ImportantSettings.TabIndex = 0;
-			this.tab1ImportantSettings.Text = "Important settings";
-			this.tab1ImportantSettings.UseVisualStyleBackColor = true;
+			tab1ImportantSettings.Controls.Add(betaOptInCbox);
+			tab1ImportantSettings.Controls.Add(booksGb);
+			tab1ImportantSettings.Controls.Add(logsBtn);
+			tab1ImportantSettings.Controls.Add(loggingLevelCb);
+			tab1ImportantSettings.Controls.Add(loggingLevelLbl);
+			tab1ImportantSettings.Location = new System.Drawing.Point(4, 24);
+			tab1ImportantSettings.Name = "tab1ImportantSettings";
+			tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(3);
+			tab1ImportantSettings.Size = new System.Drawing.Size(854, 445);
+			tab1ImportantSettings.TabIndex = 0;
+			tab1ImportantSettings.Text = "Important settings";
+			tab1ImportantSettings.UseVisualStyleBackColor = true;
 			// 
 			// betaOptInCbox
 			// 
-			this.betaOptInCbox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.betaOptInCbox.AutoSize = true;
-			this.betaOptInCbox.Enabled = false;
-			this.betaOptInCbox.Location = new System.Drawing.Point(13, 399);
-			this.betaOptInCbox.Name = "betaOptInCbox";
-			this.betaOptInCbox.Size = new System.Drawing.Size(107, 19);
-			this.betaOptInCbox.TabIndex = 6;
-			this.betaOptInCbox.Text = "[Opt in to Beta]";
-			this.betaOptInCbox.UseVisualStyleBackColor = true;
+			betaOptInCbox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+			betaOptInCbox.AutoSize = true;
+			betaOptInCbox.Enabled = false;
+			betaOptInCbox.Location = new System.Drawing.Point(13, 399);
+			betaOptInCbox.Name = "betaOptInCbox";
+			betaOptInCbox.Size = new System.Drawing.Size(107, 19);
+			betaOptInCbox.TabIndex = 6;
+			betaOptInCbox.Text = "[Opt in to Beta]";
+			betaOptInCbox.UseVisualStyleBackColor = true;
 			// 
 			// booksGb
 			// 
-			this.booksGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.booksGb.Controls.Add(this.saveEpisodesToSeriesFolderCbox);
-			this.booksGb.Controls.Add(this.booksSelectControl);
-			this.booksGb.Controls.Add(this.booksLocationDescLbl);
-			this.booksGb.Location = new System.Drawing.Point(6, 6);
-			this.booksGb.Name = "booksGb";
-			this.booksGb.Size = new System.Drawing.Size(842, 156);
-			this.booksGb.TabIndex = 0;
-			this.booksGb.TabStop = false;
-			this.booksGb.Text = "Books location";
+			booksGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			booksGb.Controls.Add(overwriteExistingCbox);
+			booksGb.Controls.Add(saveEpisodesToSeriesFolderCbox);
+			booksGb.Controls.Add(booksSelectControl);
+			booksGb.Controls.Add(booksLocationDescLbl);
+			booksGb.Location = new System.Drawing.Point(6, 6);
+			booksGb.Name = "booksGb";
+			booksGb.Size = new System.Drawing.Size(842, 182);
+			booksGb.TabIndex = 0;
+			booksGb.TabStop = false;
+			booksGb.Text = "Books location";
 			// 
 			// saveEpisodesToSeriesFolderCbox
 			// 
-			this.saveEpisodesToSeriesFolderCbox.AutoSize = true;
-			this.saveEpisodesToSeriesFolderCbox.Location = new System.Drawing.Point(7, 131);
-			this.saveEpisodesToSeriesFolderCbox.Name = "saveEpisodesToSeriesFolderCbox";
-			this.saveEpisodesToSeriesFolderCbox.Size = new System.Drawing.Size(191, 19);
-			this.saveEpisodesToSeriesFolderCbox.TabIndex = 3;
-			this.saveEpisodesToSeriesFolderCbox.Text = "[Save Episodes To Series Folder]";
-			this.saveEpisodesToSeriesFolderCbox.UseVisualStyleBackColor = true;
+			saveEpisodesToSeriesFolderCbox.AutoSize = true;
+			saveEpisodesToSeriesFolderCbox.Location = new System.Drawing.Point(7, 131);
+			saveEpisodesToSeriesFolderCbox.Name = "saveEpisodesToSeriesFolderCbox";
+			saveEpisodesToSeriesFolderCbox.Size = new System.Drawing.Size(191, 19);
+			saveEpisodesToSeriesFolderCbox.TabIndex = 3;
+			saveEpisodesToSeriesFolderCbox.Text = "[Save Episodes To Series Folder]";
+			saveEpisodesToSeriesFolderCbox.UseVisualStyleBackColor = true;
 			// 
 			// tab2ImportLibrary
 			// 
-			this.tab2ImportLibrary.Controls.Add(this.autoDownloadEpisodesCb);
-			this.tab2ImportLibrary.Controls.Add(this.autoScanCb);
-			this.tab2ImportLibrary.Controls.Add(this.showImportedStatsCb);
-			this.tab2ImportLibrary.Controls.Add(this.importEpisodesCb);
-			this.tab2ImportLibrary.Controls.Add(this.downloadEpisodesCb);
-			this.tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
-			this.tab2ImportLibrary.Name = "tab2ImportLibrary";
-			this.tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
-			this.tab2ImportLibrary.Size = new System.Drawing.Size(854, 445);
-			this.tab2ImportLibrary.TabIndex = 1;
-			this.tab2ImportLibrary.Text = "Import library";
-			this.tab2ImportLibrary.UseVisualStyleBackColor = true;
+			tab2ImportLibrary.Controls.Add(autoDownloadEpisodesCb);
+			tab2ImportLibrary.Controls.Add(autoScanCb);
+			tab2ImportLibrary.Controls.Add(showImportedStatsCb);
+			tab2ImportLibrary.Controls.Add(importEpisodesCb);
+			tab2ImportLibrary.Controls.Add(downloadEpisodesCb);
+			tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
+			tab2ImportLibrary.Name = "tab2ImportLibrary";
+			tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
+			tab2ImportLibrary.Size = new System.Drawing.Size(854, 445);
+			tab2ImportLibrary.TabIndex = 1;
+			tab2ImportLibrary.Text = "Import library";
+			tab2ImportLibrary.UseVisualStyleBackColor = true;
 			// 
 			// autoDownloadEpisodesCb
 			// 
-			this.autoDownloadEpisodesCb.AutoSize = true;
-			this.autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 106);
-			this.autoDownloadEpisodesCb.Name = "autoDownloadEpisodesCb";
-			this.autoDownloadEpisodesCb.Size = new System.Drawing.Size(190, 19);
-			this.autoDownloadEpisodesCb.TabIndex = 5;
-			this.autoDownloadEpisodesCb.Text = "[auto download episodes desc]";
-			this.autoDownloadEpisodesCb.UseVisualStyleBackColor = true;
+			autoDownloadEpisodesCb.AutoSize = true;
+			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 106);
+			autoDownloadEpisodesCb.Name = "autoDownloadEpisodesCb";
+			autoDownloadEpisodesCb.Size = new System.Drawing.Size(190, 19);
+			autoDownloadEpisodesCb.TabIndex = 5;
+			autoDownloadEpisodesCb.Text = "[auto download episodes desc]";
+			autoDownloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
 			// autoScanCb
 			// 
-			this.autoScanCb.AutoSize = true;
-			this.autoScanCb.Location = new System.Drawing.Point(6, 6);
-			this.autoScanCb.Name = "autoScanCb";
-			this.autoScanCb.Size = new System.Drawing.Size(112, 19);
-			this.autoScanCb.TabIndex = 1;
-			this.autoScanCb.Text = "[auto scan desc]";
-			this.autoScanCb.UseVisualStyleBackColor = true;
+			autoScanCb.AutoSize = true;
+			autoScanCb.Location = new System.Drawing.Point(6, 6);
+			autoScanCb.Name = "autoScanCb";
+			autoScanCb.Size = new System.Drawing.Size(112, 19);
+			autoScanCb.TabIndex = 1;
+			autoScanCb.Text = "[auto scan desc]";
+			autoScanCb.UseVisualStyleBackColor = true;
 			// 
 			// showImportedStatsCb
 			// 
-			this.showImportedStatsCb.AutoSize = true;
-			this.showImportedStatsCb.Location = new System.Drawing.Point(6, 31);
-			this.showImportedStatsCb.Name = "showImportedStatsCb";
-			this.showImportedStatsCb.Size = new System.Drawing.Size(168, 19);
-			this.showImportedStatsCb.TabIndex = 2;
-			this.showImportedStatsCb.Text = "[show imported stats desc]";
-			this.showImportedStatsCb.UseVisualStyleBackColor = true;
+			showImportedStatsCb.AutoSize = true;
+			showImportedStatsCb.Location = new System.Drawing.Point(6, 31);
+			showImportedStatsCb.Name = "showImportedStatsCb";
+			showImportedStatsCb.Size = new System.Drawing.Size(168, 19);
+			showImportedStatsCb.TabIndex = 2;
+			showImportedStatsCb.Text = "[show imported stats desc]";
+			showImportedStatsCb.UseVisualStyleBackColor = true;
 			// 
 			// tab3DownloadDecrypt
 			// 
-			this.tab3DownloadDecrypt.Controls.Add(this.useCoverAsFolderIconCb);
-			this.tab3DownloadDecrypt.Controls.Add(this.inProgressFilesGb);
-			this.tab3DownloadDecrypt.Controls.Add(this.customFileNamingGb);
-			this.tab3DownloadDecrypt.Controls.Add(this.badBookGb);
-			this.tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
-			this.tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
-			this.tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3);
-			this.tab3DownloadDecrypt.Size = new System.Drawing.Size(854, 445);
-			this.tab3DownloadDecrypt.TabIndex = 2;
-			this.tab3DownloadDecrypt.Text = "Download/Decrypt";
-			this.tab3DownloadDecrypt.UseVisualStyleBackColor = true;
+			tab3DownloadDecrypt.Controls.Add(useCoverAsFolderIconCb);
+			tab3DownloadDecrypt.Controls.Add(inProgressFilesGb);
+			tab3DownloadDecrypt.Controls.Add(customFileNamingGb);
+			tab3DownloadDecrypt.Controls.Add(badBookGb);
+			tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
+			tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
+			tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3);
+			tab3DownloadDecrypt.Size = new System.Drawing.Size(854, 445);
+			tab3DownloadDecrypt.TabIndex = 2;
+			tab3DownloadDecrypt.Text = "Download/Decrypt";
+			tab3DownloadDecrypt.UseVisualStyleBackColor = true;
 			// 
 			// useCoverAsFolderIconCb
 			// 
-			this.useCoverAsFolderIconCb.AutoSize = true;
-			this.useCoverAsFolderIconCb.Location = new System.Drawing.Point(7, 415);
-			this.useCoverAsFolderIconCb.Name = "useCoverAsFolderIconCb";
-			this.useCoverAsFolderIconCb.Size = new System.Drawing.Size(180, 19);
-			this.useCoverAsFolderIconCb.TabIndex = 22;
-			this.useCoverAsFolderIconCb.Text = "[UseCoverAsFolderIcon desc]";
-			this.useCoverAsFolderIconCb.UseVisualStyleBackColor = true;
+			useCoverAsFolderIconCb.AutoSize = true;
+			useCoverAsFolderIconCb.Location = new System.Drawing.Point(7, 415);
+			useCoverAsFolderIconCb.Name = "useCoverAsFolderIconCb";
+			useCoverAsFolderIconCb.Size = new System.Drawing.Size(180, 19);
+			useCoverAsFolderIconCb.TabIndex = 22;
+			useCoverAsFolderIconCb.Text = "[UseCoverAsFolderIcon desc]";
+			useCoverAsFolderIconCb.UseVisualStyleBackColor = true;
 			// 
 			// inProgressFilesGb
 			// 
-			this.inProgressFilesGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.inProgressFilesGb.Controls.Add(this.inProgressDescLbl);
-			this.inProgressFilesGb.Controls.Add(this.inProgressSelectControl);
-			this.inProgressFilesGb.Location = new System.Drawing.Point(6, 281);
-			this.inProgressFilesGb.Name = "inProgressFilesGb";
-			this.inProgressFilesGb.Size = new System.Drawing.Size(841, 128);
-			this.inProgressFilesGb.TabIndex = 21;
-			this.inProgressFilesGb.TabStop = false;
-			this.inProgressFilesGb.Text = "In progress files";
+			inProgressFilesGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			inProgressFilesGb.Controls.Add(inProgressDescLbl);
+			inProgressFilesGb.Controls.Add(inProgressSelectControl);
+			inProgressFilesGb.Location = new System.Drawing.Point(6, 281);
+			inProgressFilesGb.Name = "inProgressFilesGb";
+			inProgressFilesGb.Size = new System.Drawing.Size(841, 128);
+			inProgressFilesGb.TabIndex = 21;
+			inProgressFilesGb.TabStop = false;
+			inProgressFilesGb.Text = "In progress files";
 			// 
 			// customFileNamingGb
 			// 
-			this.customFileNamingGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.customFileNamingGb.Controls.Add(this.editCharreplacementBtn);
-			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateBtn);
-			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateTb);
-			this.customFileNamingGb.Controls.Add(this.chapterFileTemplateLbl);
-			this.customFileNamingGb.Controls.Add(this.fileTemplateBtn);
-			this.customFileNamingGb.Controls.Add(this.fileTemplateTb);
-			this.customFileNamingGb.Controls.Add(this.fileTemplateLbl);
-			this.customFileNamingGb.Controls.Add(this.folderTemplateBtn);
-			this.customFileNamingGb.Controls.Add(this.folderTemplateTb);
-			this.customFileNamingGb.Controls.Add(this.folderTemplateLbl);
-			this.customFileNamingGb.Location = new System.Drawing.Point(7, 88);
-			this.customFileNamingGb.Name = "customFileNamingGb";
-			this.customFileNamingGb.Size = new System.Drawing.Size(841, 187);
-			this.customFileNamingGb.TabIndex = 20;
-			this.customFileNamingGb.TabStop = false;
-			this.customFileNamingGb.Text = "Custom file naming";
+			customFileNamingGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			customFileNamingGb.Controls.Add(editCharreplacementBtn);
+			customFileNamingGb.Controls.Add(chapterFileTemplateBtn);
+			customFileNamingGb.Controls.Add(chapterFileTemplateTb);
+			customFileNamingGb.Controls.Add(chapterFileTemplateLbl);
+			customFileNamingGb.Controls.Add(fileTemplateBtn);
+			customFileNamingGb.Controls.Add(fileTemplateTb);
+			customFileNamingGb.Controls.Add(fileTemplateLbl);
+			customFileNamingGb.Controls.Add(folderTemplateBtn);
+			customFileNamingGb.Controls.Add(folderTemplateTb);
+			customFileNamingGb.Controls.Add(folderTemplateLbl);
+			customFileNamingGb.Location = new System.Drawing.Point(7, 88);
+			customFileNamingGb.Name = "customFileNamingGb";
+			customFileNamingGb.Size = new System.Drawing.Size(841, 187);
+			customFileNamingGb.TabIndex = 20;
+			customFileNamingGb.TabStop = false;
+			customFileNamingGb.Text = "Custom file naming";
 			// 
 			// editCharreplacementBtn
 			// 
-			this.editCharreplacementBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.editCharreplacementBtn.Location = new System.Drawing.Point(5, 158);
-			this.editCharreplacementBtn.Name = "editCharreplacementBtn";
-			this.editCharreplacementBtn.Size = new System.Drawing.Size(281, 23);
-			this.editCharreplacementBtn.TabIndex = 8;
-			this.editCharreplacementBtn.Text = "[edit char replacement desc]";
-			this.editCharreplacementBtn.UseVisualStyleBackColor = true;
-			this.editCharreplacementBtn.Click += new System.EventHandler(this.editCharreplacementBtn_Click);
+			editCharreplacementBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+			editCharreplacementBtn.Location = new System.Drawing.Point(5, 158);
+			editCharreplacementBtn.Name = "editCharreplacementBtn";
+			editCharreplacementBtn.Size = new System.Drawing.Size(281, 23);
+			editCharreplacementBtn.TabIndex = 8;
+			editCharreplacementBtn.Text = "[edit char replacement desc]";
+			editCharreplacementBtn.UseVisualStyleBackColor = true;
+			editCharreplacementBtn.Click += editCharreplacementBtn_Click;
 			// 
 			// chapterFileTemplateBtn
 			// 
-			this.chapterFileTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.chapterFileTemplateBtn.Location = new System.Drawing.Point(761, 124);
-			this.chapterFileTemplateBtn.Name = "chapterFileTemplateBtn";
-			this.chapterFileTemplateBtn.Size = new System.Drawing.Size(75, 23);
-			this.chapterFileTemplateBtn.TabIndex = 8;
-			this.chapterFileTemplateBtn.Text = "Edit...";
-			this.chapterFileTemplateBtn.UseVisualStyleBackColor = true;
-			this.chapterFileTemplateBtn.Click += new System.EventHandler(this.chapterFileTemplateBtn_Click);
+			chapterFileTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			chapterFileTemplateBtn.Location = new System.Drawing.Point(761, 124);
+			chapterFileTemplateBtn.Name = "chapterFileTemplateBtn";
+			chapterFileTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			chapterFileTemplateBtn.TabIndex = 8;
+			chapterFileTemplateBtn.Text = "Edit...";
+			chapterFileTemplateBtn.UseVisualStyleBackColor = true;
+			chapterFileTemplateBtn.Click += chapterFileTemplateBtn_Click;
 			// 
 			// chapterFileTemplateTb
 			// 
-			this.chapterFileTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.chapterFileTemplateTb.Location = new System.Drawing.Point(6, 125);
-			this.chapterFileTemplateTb.Name = "chapterFileTemplateTb";
-			this.chapterFileTemplateTb.ReadOnly = true;
-			this.chapterFileTemplateTb.Size = new System.Drawing.Size(749, 23);
-			this.chapterFileTemplateTb.TabIndex = 7;
+			chapterFileTemplateTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			chapterFileTemplateTb.Location = new System.Drawing.Point(6, 125);
+			chapterFileTemplateTb.Name = "chapterFileTemplateTb";
+			chapterFileTemplateTb.ReadOnly = true;
+			chapterFileTemplateTb.Size = new System.Drawing.Size(749, 23);
+			chapterFileTemplateTb.TabIndex = 7;
 			// 
 			// chapterFileTemplateLbl
 			// 
-			this.chapterFileTemplateLbl.AutoSize = true;
-			this.chapterFileTemplateLbl.Location = new System.Drawing.Point(6, 107);
-			this.chapterFileTemplateLbl.Name = "chapterFileTemplateLbl";
-			this.chapterFileTemplateLbl.Size = new System.Drawing.Size(132, 15);
-			this.chapterFileTemplateLbl.TabIndex = 6;
-			this.chapterFileTemplateLbl.Text = "[chapter template desc]";
+			chapterFileTemplateLbl.AutoSize = true;
+			chapterFileTemplateLbl.Location = new System.Drawing.Point(6, 107);
+			chapterFileTemplateLbl.Name = "chapterFileTemplateLbl";
+			chapterFileTemplateLbl.Size = new System.Drawing.Size(132, 15);
+			chapterFileTemplateLbl.TabIndex = 6;
+			chapterFileTemplateLbl.Text = "[chapter template desc]";
 			// 
 			// fileTemplateBtn
 			// 
-			this.fileTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.fileTemplateBtn.Location = new System.Drawing.Point(761, 80);
-			this.fileTemplateBtn.Name = "fileTemplateBtn";
-			this.fileTemplateBtn.Size = new System.Drawing.Size(75, 23);
-			this.fileTemplateBtn.TabIndex = 5;
-			this.fileTemplateBtn.Text = "Edit...";
-			this.fileTemplateBtn.UseVisualStyleBackColor = true;
-			this.fileTemplateBtn.Click += new System.EventHandler(this.fileTemplateBtn_Click);
+			fileTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			fileTemplateBtn.Location = new System.Drawing.Point(761, 80);
+			fileTemplateBtn.Name = "fileTemplateBtn";
+			fileTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			fileTemplateBtn.TabIndex = 5;
+			fileTemplateBtn.Text = "Edit...";
+			fileTemplateBtn.UseVisualStyleBackColor = true;
+			fileTemplateBtn.Click += fileTemplateBtn_Click;
 			// 
 			// fileTemplateTb
 			// 
-			this.fileTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.fileTemplateTb.Location = new System.Drawing.Point(6, 81);
-			this.fileTemplateTb.Name = "fileTemplateTb";
-			this.fileTemplateTb.ReadOnly = true;
-			this.fileTemplateTb.Size = new System.Drawing.Size(749, 23);
-			this.fileTemplateTb.TabIndex = 4;
+			fileTemplateTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			fileTemplateTb.Location = new System.Drawing.Point(6, 81);
+			fileTemplateTb.Name = "fileTemplateTb";
+			fileTemplateTb.ReadOnly = true;
+			fileTemplateTb.Size = new System.Drawing.Size(749, 23);
+			fileTemplateTb.TabIndex = 4;
 			// 
 			// fileTemplateLbl
 			// 
-			this.fileTemplateLbl.AutoSize = true;
-			this.fileTemplateLbl.Location = new System.Drawing.Point(6, 63);
-			this.fileTemplateLbl.Name = "fileTemplateLbl";
-			this.fileTemplateLbl.Size = new System.Drawing.Size(108, 15);
-			this.fileTemplateLbl.TabIndex = 3;
-			this.fileTemplateLbl.Text = "[file template desc]";
+			fileTemplateLbl.AutoSize = true;
+			fileTemplateLbl.Location = new System.Drawing.Point(6, 63);
+			fileTemplateLbl.Name = "fileTemplateLbl";
+			fileTemplateLbl.Size = new System.Drawing.Size(108, 15);
+			fileTemplateLbl.TabIndex = 3;
+			fileTemplateLbl.Text = "[file template desc]";
 			// 
 			// folderTemplateBtn
 			// 
-			this.folderTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.folderTemplateBtn.Location = new System.Drawing.Point(760, 36);
-			this.folderTemplateBtn.Name = "folderTemplateBtn";
-			this.folderTemplateBtn.Size = new System.Drawing.Size(75, 23);
-			this.folderTemplateBtn.TabIndex = 2;
-			this.folderTemplateBtn.Text = "Edit...";
-			this.folderTemplateBtn.UseVisualStyleBackColor = true;
-			this.folderTemplateBtn.Click += new System.EventHandler(this.folderTemplateBtn_Click);
+			folderTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			folderTemplateBtn.Location = new System.Drawing.Point(760, 36);
+			folderTemplateBtn.Name = "folderTemplateBtn";
+			folderTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			folderTemplateBtn.TabIndex = 2;
+			folderTemplateBtn.Text = "Edit...";
+			folderTemplateBtn.UseVisualStyleBackColor = true;
+			folderTemplateBtn.Click += folderTemplateBtn_Click;
 			// 
 			// folderTemplateTb
 			// 
-			this.folderTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.folderTemplateTb.Location = new System.Drawing.Point(5, 37);
-			this.folderTemplateTb.Name = "folderTemplateTb";
-			this.folderTemplateTb.ReadOnly = true;
-			this.folderTemplateTb.Size = new System.Drawing.Size(749, 23);
-			this.folderTemplateTb.TabIndex = 1;
+			folderTemplateTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			folderTemplateTb.Location = new System.Drawing.Point(5, 37);
+			folderTemplateTb.Name = "folderTemplateTb";
+			folderTemplateTb.ReadOnly = true;
+			folderTemplateTb.Size = new System.Drawing.Size(749, 23);
+			folderTemplateTb.TabIndex = 1;
 			// 
 			// folderTemplateLbl
 			// 
-			this.folderTemplateLbl.AutoSize = true;
-			this.folderTemplateLbl.Location = new System.Drawing.Point(5, 19);
-			this.folderTemplateLbl.Name = "folderTemplateLbl";
-			this.folderTemplateLbl.Size = new System.Drawing.Size(123, 15);
-			this.folderTemplateLbl.TabIndex = 0;
-			this.folderTemplateLbl.Text = "[folder template desc]";
+			folderTemplateLbl.AutoSize = true;
+			folderTemplateLbl.Location = new System.Drawing.Point(5, 19);
+			folderTemplateLbl.Name = "folderTemplateLbl";
+			folderTemplateLbl.Size = new System.Drawing.Size(123, 15);
+			folderTemplateLbl.TabIndex = 0;
+			folderTemplateLbl.Text = "[folder template desc]";
 			// 
 			// tab4AudioFileOptions
 			// 
-			this.tab4AudioFileOptions.Controls.Add(this.clipsBookmarksFormatCb);
-			this.tab4AudioFileOptions.Controls.Add(this.downloadClipsBookmarksCbox);
-			this.tab4AudioFileOptions.Controls.Add(this.audiobookFixupsGb);
-			this.tab4AudioFileOptions.Controls.Add(this.chapterTitleTemplateGb);
-			this.tab4AudioFileOptions.Controls.Add(this.lameOptionsGb);
-			this.tab4AudioFileOptions.Controls.Add(this.mergeOpeningEndCreditsCbox);
-			this.tab4AudioFileOptions.Controls.Add(this.retainAaxFileCbox);
-			this.tab4AudioFileOptions.Controls.Add(this.downloadCoverArtCbox);
-			this.tab4AudioFileOptions.Controls.Add(this.createCueSheetCbox);
-			this.tab4AudioFileOptions.Controls.Add(this.allowLibationFixupCbox);
-			this.tab4AudioFileOptions.Location = new System.Drawing.Point(4, 24);
-			this.tab4AudioFileOptions.Name = "tab4AudioFileOptions";
-			this.tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(3);
-			this.tab4AudioFileOptions.Size = new System.Drawing.Size(854, 445);
-			this.tab4AudioFileOptions.TabIndex = 3;
-			this.tab4AudioFileOptions.Text = "Audio File Options";
-			this.tab4AudioFileOptions.UseVisualStyleBackColor = true;
+			tab4AudioFileOptions.Controls.Add(clipsBookmarksFormatCb);
+			tab4AudioFileOptions.Controls.Add(downloadClipsBookmarksCbox);
+			tab4AudioFileOptions.Controls.Add(audiobookFixupsGb);
+			tab4AudioFileOptions.Controls.Add(chapterTitleTemplateGb);
+			tab4AudioFileOptions.Controls.Add(lameOptionsGb);
+			tab4AudioFileOptions.Controls.Add(mergeOpeningEndCreditsCbox);
+			tab4AudioFileOptions.Controls.Add(retainAaxFileCbox);
+			tab4AudioFileOptions.Controls.Add(downloadCoverArtCbox);
+			tab4AudioFileOptions.Controls.Add(createCueSheetCbox);
+			tab4AudioFileOptions.Controls.Add(allowLibationFixupCbox);
+			tab4AudioFileOptions.Location = new System.Drawing.Point(4, 24);
+			tab4AudioFileOptions.Name = "tab4AudioFileOptions";
+			tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(3);
+			tab4AudioFileOptions.Size = new System.Drawing.Size(854, 445);
+			tab4AudioFileOptions.TabIndex = 3;
+			tab4AudioFileOptions.Text = "Audio File Options";
+			tab4AudioFileOptions.UseVisualStyleBackColor = true;
 			// 
 			// clipsBookmarksFormatCb
 			// 
-			this.clipsBookmarksFormatCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.clipsBookmarksFormatCb.FormattingEnabled = true;
-			this.clipsBookmarksFormatCb.Location = new System.Drawing.Point(269, 64);
-			this.clipsBookmarksFormatCb.Name = "clipsBookmarksFormatCb";
-			this.clipsBookmarksFormatCb.Size = new System.Drawing.Size(67, 23);
-			this.clipsBookmarksFormatCb.TabIndex = 21;
+			clipsBookmarksFormatCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			clipsBookmarksFormatCb.FormattingEnabled = true;
+			clipsBookmarksFormatCb.Location = new System.Drawing.Point(269, 64);
+			clipsBookmarksFormatCb.Name = "clipsBookmarksFormatCb";
+			clipsBookmarksFormatCb.Size = new System.Drawing.Size(67, 23);
+			clipsBookmarksFormatCb.TabIndex = 21;
 			// 
 			// downloadClipsBookmarksCbox
 			// 
-			this.downloadClipsBookmarksCbox.AutoSize = true;
-			this.downloadClipsBookmarksCbox.Location = new System.Drawing.Point(19, 68);
-			this.downloadClipsBookmarksCbox.Name = "downloadClipsBookmarksCbox";
-			this.downloadClipsBookmarksCbox.Size = new System.Drawing.Size(248, 19);
-			this.downloadClipsBookmarksCbox.TabIndex = 20;
-			this.downloadClipsBookmarksCbox.Text = "Download Clips, Notes, and Bookmarks as";
-			this.downloadClipsBookmarksCbox.UseVisualStyleBackColor = true;
-			this.downloadClipsBookmarksCbox.CheckedChanged += new System.EventHandler(this.downloadClipsBookmarksCbox_CheckedChanged);
+			downloadClipsBookmarksCbox.AutoSize = true;
+			downloadClipsBookmarksCbox.Location = new System.Drawing.Point(19, 68);
+			downloadClipsBookmarksCbox.Name = "downloadClipsBookmarksCbox";
+			downloadClipsBookmarksCbox.Size = new System.Drawing.Size(248, 19);
+			downloadClipsBookmarksCbox.TabIndex = 20;
+			downloadClipsBookmarksCbox.Text = "Download Clips, Notes, and Bookmarks as";
+			downloadClipsBookmarksCbox.UseVisualStyleBackColor = true;
+			downloadClipsBookmarksCbox.CheckedChanged += downloadClipsBookmarksCbox_CheckedChanged;
 			// 
 			// audiobookFixupsGb
 			// 
-			this.audiobookFixupsGb.Controls.Add(this.moveMoovAtomCbox);
-			this.audiobookFixupsGb.Controls.Add(this.splitFilesByChapterCbox);
-			this.audiobookFixupsGb.Controls.Add(this.stripUnabridgedCbox);
-			this.audiobookFixupsGb.Controls.Add(this.convertLosslessRb);
-			this.audiobookFixupsGb.Controls.Add(this.convertLossyRb);
-			this.audiobookFixupsGb.Controls.Add(this.stripAudibleBrandingCbox);
-			this.audiobookFixupsGb.Location = new System.Drawing.Point(6, 169);
-			this.audiobookFixupsGb.Name = "audiobookFixupsGb";
-			this.audiobookFixupsGb.Size = new System.Drawing.Size(403, 185);
-			this.audiobookFixupsGb.TabIndex = 19;
-			this.audiobookFixupsGb.TabStop = false;
-			this.audiobookFixupsGb.Text = "Audiobook Fix-ups";
+			audiobookFixupsGb.Controls.Add(moveMoovAtomCbox);
+			audiobookFixupsGb.Controls.Add(splitFilesByChapterCbox);
+			audiobookFixupsGb.Controls.Add(stripUnabridgedCbox);
+			audiobookFixupsGb.Controls.Add(convertLosslessRb);
+			audiobookFixupsGb.Controls.Add(convertLossyRb);
+			audiobookFixupsGb.Controls.Add(stripAudibleBrandingCbox);
+			audiobookFixupsGb.Location = new System.Drawing.Point(6, 169);
+			audiobookFixupsGb.Name = "audiobookFixupsGb";
+			audiobookFixupsGb.Size = new System.Drawing.Size(403, 185);
+			audiobookFixupsGb.TabIndex = 19;
+			audiobookFixupsGb.TabStop = false;
+			audiobookFixupsGb.Text = "Audiobook Fix-ups";
 			// 
 			// moveMoovAtomCbox
 			// 
-			this.moveMoovAtomCbox.AutoSize = true;
-			this.moveMoovAtomCbox.Location = new System.Drawing.Point(23, 133);
-			this.moveMoovAtomCbox.Name = "moveMoovAtomCbox";
-			this.moveMoovAtomCbox.Size = new System.Drawing.Size(188, 19);
-			this.moveMoovAtomCbox.TabIndex = 14;
-			this.moveMoovAtomCbox.Text = "[MoveMoovToBeginning desc]";
-			this.moveMoovAtomCbox.UseVisualStyleBackColor = true;
+			moveMoovAtomCbox.AutoSize = true;
+			moveMoovAtomCbox.Location = new System.Drawing.Point(23, 133);
+			moveMoovAtomCbox.Name = "moveMoovAtomCbox";
+			moveMoovAtomCbox.Size = new System.Drawing.Size(188, 19);
+			moveMoovAtomCbox.TabIndex = 14;
+			moveMoovAtomCbox.Text = "[MoveMoovToBeginning desc]";
+			moveMoovAtomCbox.UseVisualStyleBackColor = true;
 			// 
 			// stripUnabridgedCbox
 			// 
-			this.stripUnabridgedCbox.AutoSize = true;
-			this.stripUnabridgedCbox.Location = new System.Drawing.Point(13, 47);
-			this.stripUnabridgedCbox.Name = "stripUnabridgedCbox";
-			this.stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
-			this.stripUnabridgedCbox.TabIndex = 13;
-			this.stripUnabridgedCbox.Text = "[StripUnabridged desc]";
-			this.stripUnabridgedCbox.UseVisualStyleBackColor = true;
+			stripUnabridgedCbox.AutoSize = true;
+			stripUnabridgedCbox.Location = new System.Drawing.Point(13, 47);
+			stripUnabridgedCbox.Name = "stripUnabridgedCbox";
+			stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
+			stripUnabridgedCbox.TabIndex = 13;
+			stripUnabridgedCbox.Text = "[StripUnabridged desc]";
+			stripUnabridgedCbox.UseVisualStyleBackColor = true;
 			// 
 			// chapterTitleTemplateGb
 			// 
-			this.chapterTitleTemplateGb.Controls.Add(this.chapterTitleTemplateBtn);
-			this.chapterTitleTemplateGb.Controls.Add(this.chapterTitleTemplateTb);
-			this.chapterTitleTemplateGb.Location = new System.Drawing.Point(6, 360);
-			this.chapterTitleTemplateGb.Name = "chapterTitleTemplateGb";
-			this.chapterTitleTemplateGb.Size = new System.Drawing.Size(842, 54);
-			this.chapterTitleTemplateGb.TabIndex = 18;
-			this.chapterTitleTemplateGb.TabStop = false;
-			this.chapterTitleTemplateGb.Text = "[chapter title template desc]";
+			chapterTitleTemplateGb.Controls.Add(chapterTitleTemplateBtn);
+			chapterTitleTemplateGb.Controls.Add(chapterTitleTemplateTb);
+			chapterTitleTemplateGb.Location = new System.Drawing.Point(6, 360);
+			chapterTitleTemplateGb.Name = "chapterTitleTemplateGb";
+			chapterTitleTemplateGb.Size = new System.Drawing.Size(842, 54);
+			chapterTitleTemplateGb.TabIndex = 18;
+			chapterTitleTemplateGb.TabStop = false;
+			chapterTitleTemplateGb.Text = "[chapter title template desc]";
 			// 
 			// chapterTitleTemplateBtn
 			// 
-			this.chapterTitleTemplateBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.chapterTitleTemplateBtn.Location = new System.Drawing.Point(764, 22);
-			this.chapterTitleTemplateBtn.Name = "chapterTitleTemplateBtn";
-			this.chapterTitleTemplateBtn.Size = new System.Drawing.Size(75, 23);
-			this.chapterTitleTemplateBtn.TabIndex = 17;
-			this.chapterTitleTemplateBtn.Text = "Edit...";
-			this.chapterTitleTemplateBtn.UseVisualStyleBackColor = true;
-			this.chapterTitleTemplateBtn.Click += new System.EventHandler(this.chapterTitleTemplateBtn_Click);
+			chapterTitleTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			chapterTitleTemplateBtn.Location = new System.Drawing.Point(764, 22);
+			chapterTitleTemplateBtn.Name = "chapterTitleTemplateBtn";
+			chapterTitleTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			chapterTitleTemplateBtn.TabIndex = 17;
+			chapterTitleTemplateBtn.Text = "Edit...";
+			chapterTitleTemplateBtn.UseVisualStyleBackColor = true;
+			chapterTitleTemplateBtn.Click += chapterTitleTemplateBtn_Click;
 			// 
 			// chapterTitleTemplateTb
 			// 
-			this.chapterTitleTemplateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.chapterTitleTemplateTb.Location = new System.Drawing.Point(6, 22);
-			this.chapterTitleTemplateTb.Name = "chapterTitleTemplateTb";
-			this.chapterTitleTemplateTb.ReadOnly = true;
-			this.chapterTitleTemplateTb.Size = new System.Drawing.Size(752, 23);
-			this.chapterTitleTemplateTb.TabIndex = 16;
+			chapterTitleTemplateTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			chapterTitleTemplateTb.Location = new System.Drawing.Point(6, 22);
+			chapterTitleTemplateTb.Name = "chapterTitleTemplateTb";
+			chapterTitleTemplateTb.ReadOnly = true;
+			chapterTitleTemplateTb.Size = new System.Drawing.Size(752, 23);
+			chapterTitleTemplateTb.TabIndex = 16;
 			// 
 			// lameOptionsGb
 			// 
-			this.lameOptionsGb.Controls.Add(this.label20);
-			this.lameOptionsGb.Controls.Add(this.label21);
-			this.lameOptionsGb.Controls.Add(this.encoderQualityCb);
-			this.lameOptionsGb.Controls.Add(this.maxSampleRateCb);
-			this.lameOptionsGb.Controls.Add(this.lameDownsampleMonoCbox);
-			this.lameOptionsGb.Controls.Add(this.lameBitrateGb);
-			this.lameOptionsGb.Controls.Add(this.label1);
-			this.lameOptionsGb.Controls.Add(this.lameQualityGb);
-			this.lameOptionsGb.Controls.Add(this.groupBox2);
-			this.lameOptionsGb.Location = new System.Drawing.Point(415, 6);
-			this.lameOptionsGb.Name = "lameOptionsGb";
-			this.lameOptionsGb.Size = new System.Drawing.Size(433, 348);
-			this.lameOptionsGb.TabIndex = 14;
-			this.lameOptionsGb.TabStop = false;
-			this.lameOptionsGb.Text = "Mp3 Encoding Options";
-			// 
-			// lameDownsampleMonoCbox
-			// 
-			this.lameDownsampleMonoCbox.Location = new System.Drawing.Point(237, 30);
-			this.lameDownsampleMonoCbox.Name = "lameDownsampleMonoCbox";
-			this.lameDownsampleMonoCbox.Size = new System.Drawing.Size(184, 34);
-			this.lameDownsampleMonoCbox.TabIndex = 1;
-			this.lameDownsampleMonoCbox.Text = "Downsample stereo to mono?\r\n(Recommended)\r\n";
-			this.lameDownsampleMonoCbox.UseVisualStyleBackColor = true;
-			// 
-			// lameBitrateGb
-			// 
-			this.lameBitrateGb.Controls.Add(this.LameMatchSourceBRCbox);
-			this.lameBitrateGb.Controls.Add(this.lameConstantBitrateCbox);
-			this.lameBitrateGb.Controls.Add(this.label7);
-			this.lameBitrateGb.Controls.Add(this.label6);
-			this.lameBitrateGb.Controls.Add(this.label5);
-			this.lameBitrateGb.Controls.Add(this.label4);
-			this.lameBitrateGb.Controls.Add(this.label11);
-			this.lameBitrateGb.Controls.Add(this.label3);
-			this.lameBitrateGb.Controls.Add(this.lameBitrateTb);
-			this.lameBitrateGb.Location = new System.Drawing.Point(6, 104);
-			this.lameBitrateGb.Name = "lameBitrateGb";
-			this.lameBitrateGb.Size = new System.Drawing.Size(421, 102);
-			this.lameBitrateGb.TabIndex = 0;
-			this.lameBitrateGb.TabStop = false;
-			this.lameBitrateGb.Text = "Bitrate";
-			// 
-			// LameMatchSourceBRCbox
-			// 
-			this.LameMatchSourceBRCbox.AutoSize = true;
-			this.LameMatchSourceBRCbox.Location = new System.Drawing.Point(275, 76);
-			this.LameMatchSourceBRCbox.Name = "LameMatchSourceBRCbox";
-			this.LameMatchSourceBRCbox.Size = new System.Drawing.Size(140, 19);
-			this.LameMatchSourceBRCbox.TabIndex = 3;
-			this.LameMatchSourceBRCbox.Text = "Match source bitrate?";
-			this.LameMatchSourceBRCbox.UseVisualStyleBackColor = true;
-			this.LameMatchSourceBRCbox.CheckedChanged += new System.EventHandler(this.LameMatchSourceBRCbox_CheckedChanged);
-			// 
-			// lameConstantBitrateCbox
-			// 
-			this.lameConstantBitrateCbox.AutoSize = true;
-			this.lameConstantBitrateCbox.Location = new System.Drawing.Point(6, 77);
-			this.lameConstantBitrateCbox.Name = "lameConstantBitrateCbox";
-			this.lameConstantBitrateCbox.Size = new System.Drawing.Size(216, 19);
-			this.lameConstantBitrateCbox.TabIndex = 2;
-			this.lameConstantBitrateCbox.Text = "Restrict encoder to constant bitrate?";
-			this.lameConstantBitrateCbox.UseVisualStyleBackColor = true;
-			// 
-			// label7
-			// 
-			this.label7.AutoSize = true;
-			this.label7.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.label7.Location = new System.Drawing.Point(390, 52);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(25, 15);
-			this.label7.TabIndex = 1;
-			this.label7.Text = "320";
-			// 
-			// label6
-			// 
-			this.label6.AutoSize = true;
-			this.label6.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.label6.Location = new System.Drawing.Point(309, 52);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(25, 15);
-			this.label6.TabIndex = 1;
-			this.label6.Text = "256";
-			// 
-			// label5
-			// 
-			this.label5.AutoSize = true;
-			this.label5.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.label5.Location = new System.Drawing.Point(228, 52);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(25, 15);
-			this.label5.TabIndex = 1;
-			this.label5.Text = "192";
-			// 
-			// label4
-			// 
-			this.label4.AutoSize = true;
-			this.label4.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.label4.Location = new System.Drawing.Point(147, 52);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(25, 15);
-			this.label4.TabIndex = 1;
-			this.label4.Text = "128";
-			// 
-			// label11
-			// 
-			this.label11.AutoSize = true;
-			this.label11.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.label11.Location = new System.Drawing.Point(10, 52);
-			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(19, 15);
-			this.label11.TabIndex = 1;
-			this.label11.Text = "16";
-			// 
-			// label3
-			// 
-			this.label3.AutoSize = true;
-			this.label3.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.label3.Location = new System.Drawing.Point(71, 52);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(19, 15);
-			this.label3.TabIndex = 1;
-			this.label3.Text = "64";
-			// 
-			// lameBitrateTb
-			// 
-			this.lameBitrateTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.lameBitrateTb.LargeChange = 32;
-			this.lameBitrateTb.Location = new System.Drawing.Point(6, 22);
-			this.lameBitrateTb.Maximum = 320;
-			this.lameBitrateTb.Minimum = 16;
-			this.lameBitrateTb.Name = "lameBitrateTb";
-			this.lameBitrateTb.Size = new System.Drawing.Size(409, 45);
-			this.lameBitrateTb.SmallChange = 8;
-			this.lameBitrateTb.TabIndex = 0;
-			this.lameBitrateTb.TickFrequency = 16;
-			this.lameBitrateTb.Value = 64;
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Enabled = false;
-			this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-			this.label1.Location = new System.Drawing.Point(6, 325);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(172, 15);
-			this.label1.TabIndex = 1;
-			this.label1.Text = "Using L.A.M.E. encoding engine";
-			// 
-			// lameQualityGb
-			// 
-			this.lameQualityGb.Controls.Add(this.label19);
-			this.lameQualityGb.Controls.Add(this.label18);
-			this.lameQualityGb.Controls.Add(this.label17);
-			this.lameQualityGb.Controls.Add(this.label16);
-			this.lameQualityGb.Controls.Add(this.label12);
-			this.lameQualityGb.Controls.Add(this.label15);
-			this.lameQualityGb.Controls.Add(this.label9);
-			this.lameQualityGb.Controls.Add(this.label8);
-			this.lameQualityGb.Controls.Add(this.label13);
-			this.lameQualityGb.Controls.Add(this.label10);
-			this.lameQualityGb.Controls.Add(this.label14);
-			this.lameQualityGb.Controls.Add(this.label2);
-			this.lameQualityGb.Controls.Add(this.lameVBRQualityTb);
-			this.lameQualityGb.Location = new System.Drawing.Point(6, 212);
-			this.lameQualityGb.Name = "lameQualityGb";
-			this.lameQualityGb.Size = new System.Drawing.Size(421, 103);
-			this.lameQualityGb.TabIndex = 0;
-			this.lameQualityGb.TabStop = false;
-			this.lameQualityGb.Text = "Quality";
-			// 
-			// label19
-			// 
-			this.label19.AutoSize = true;
-			this.label19.Location = new System.Drawing.Point(349, 52);
-			this.label19.Name = "label19";
-			this.label19.Size = new System.Drawing.Size(20, 15);
-			this.label19.TabIndex = 1;
-			this.label19.Text = "V8";
-			// 
-			// label18
-			// 
-			this.label18.AutoSize = true;
-			this.label18.Location = new System.Drawing.Point(307, 52);
-			this.label18.Name = "label18";
-			this.label18.Size = new System.Drawing.Size(20, 15);
-			this.label18.TabIndex = 1;
-			this.label18.Text = "V7";
-			// 
-			// label17
-			// 
-			this.label17.AutoSize = true;
-			this.label17.Location = new System.Drawing.Point(265, 52);
-			this.label17.Name = "label17";
-			this.label17.Size = new System.Drawing.Size(20, 15);
-			this.label17.TabIndex = 1;
-			this.label17.Text = "V6";
-			// 
-			// label16
-			// 
-			this.label16.AutoSize = true;
-			this.label16.Location = new System.Drawing.Point(223, 52);
-			this.label16.Name = "label16";
-			this.label16.Size = new System.Drawing.Size(20, 15);
-			this.label16.TabIndex = 1;
-			this.label16.Text = "V5";
-			// 
-			// label12
-			// 
-			this.label12.AutoSize = true;
-			this.label12.Location = new System.Drawing.Point(182, 52);
-			this.label12.Name = "label12";
-			this.label12.Size = new System.Drawing.Size(20, 15);
-			this.label12.TabIndex = 1;
-			this.label12.Text = "V4";
-			// 
-			// label15
-			// 
-			this.label15.AutoSize = true;
-			this.label15.Location = new System.Drawing.Point(140, 52);
-			this.label15.Name = "label15";
-			this.label15.Size = new System.Drawing.Size(20, 15);
-			this.label15.TabIndex = 1;
-			this.label15.Text = "V3";
-			// 
-			// label9
-			// 
-			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(97, 52);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(20, 15);
-			this.label9.TabIndex = 1;
-			this.label9.Text = "V2";
-			// 
-			// label8
-			// 
-			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(391, 52);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(20, 15);
-			this.label8.TabIndex = 1;
-			this.label8.Text = "V9";
-			// 
-			// label13
-			// 
-			this.label13.AutoSize = true;
-			this.label13.Location = new System.Drawing.Point(376, 80);
-			this.label13.Name = "label13";
-			this.label13.Size = new System.Drawing.Size(39, 15);
-			this.label13.TabIndex = 1;
-			this.label13.Text = "Lower";
-			// 
-			// label10
-			// 
-			this.label10.AutoSize = true;
-			this.label10.Location = new System.Drawing.Point(6, 80);
-			this.label10.Name = "label10";
-			this.label10.Size = new System.Drawing.Size(43, 15);
-			this.label10.TabIndex = 1;
-			this.label10.Text = "Higher";
-			// 
-			// label14
-			// 
-			this.label14.AutoSize = true;
-			this.label14.Location = new System.Drawing.Point(56, 52);
-			this.label14.Name = "label14";
-			this.label14.Size = new System.Drawing.Size(20, 15);
-			this.label14.TabIndex = 1;
-			this.label14.Text = "V1";
-			// 
-			// label2
-			// 
-			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(14, 52);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(20, 15);
-			this.label2.TabIndex = 1;
-			this.label2.Text = "V0";
-			// 
-			// lameVBRQualityTb
-			// 
-			this.lameVBRQualityTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			this.lameVBRQualityTb.LargeChange = 1;
-			this.lameVBRQualityTb.Location = new System.Drawing.Point(10, 22);
-			this.lameVBRQualityTb.Maximum = 9;
-			this.lameVBRQualityTb.Name = "lameVBRQualityTb";
-			this.lameVBRQualityTb.Size = new System.Drawing.Size(405, 45);
-			this.lameVBRQualityTb.TabIndex = 0;
-			this.lameVBRQualityTb.Value = 9;
-			// 
-			// groupBox2
-			// 
-			this.groupBox2.Controls.Add(this.lameTargetQualityRb);
-			this.groupBox2.Controls.Add(this.lameTargetBitrateRb);
-			this.groupBox2.Location = new System.Drawing.Point(6, 22);
-			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(214, 47);
-			this.groupBox2.TabIndex = 0;
-			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Target";
-			// 
-			// lameTargetQualityRb
-			// 
-			this.lameTargetQualityRb.AutoSize = true;
-			this.lameTargetQualityRb.Location = new System.Drawing.Point(139, 22);
-			this.lameTargetQualityRb.Name = "lameTargetQualityRb";
-			this.lameTargetQualityRb.Size = new System.Drawing.Size(63, 19);
-			this.lameTargetQualityRb.TabIndex = 0;
-			this.lameTargetQualityRb.TabStop = true;
-			this.lameTargetQualityRb.Text = "Quality";
-			this.lameTargetQualityRb.UseVisualStyleBackColor = true;
-			this.lameTargetQualityRb.CheckedChanged += new System.EventHandler(this.lameTargetRb_CheckedChanged);
-			// 
-			// lameTargetBitrateRb
-			// 
-			this.lameTargetBitrateRb.AutoSize = true;
-			this.lameTargetBitrateRb.Location = new System.Drawing.Point(6, 22);
-			this.lameTargetBitrateRb.Name = "lameTargetBitrateRb";
-			this.lameTargetBitrateRb.Size = new System.Drawing.Size(59, 19);
-			this.lameTargetBitrateRb.TabIndex = 0;
-			this.lameTargetBitrateRb.TabStop = true;
-			this.lameTargetBitrateRb.Text = "Bitrate";
-			this.lameTargetBitrateRb.UseVisualStyleBackColor = true;
-			this.lameTargetBitrateRb.CheckedChanged += new System.EventHandler(this.lameTargetRb_CheckedChanged);
-			// 
-			// mergeOpeningEndCreditsCbox
-			// 
-			this.mergeOpeningEndCreditsCbox.AutoSize = true;
-			this.mergeOpeningEndCreditsCbox.Location = new System.Drawing.Point(19, 118);
-			this.mergeOpeningEndCreditsCbox.Name = "mergeOpeningEndCreditsCbox";
-			this.mergeOpeningEndCreditsCbox.Size = new System.Drawing.Size(198, 19);
-			this.mergeOpeningEndCreditsCbox.TabIndex = 13;
-			this.mergeOpeningEndCreditsCbox.Text = "[MergeOpeningEndCredits desc]";
-			this.mergeOpeningEndCreditsCbox.UseVisualStyleBackColor = true;
-			// 
-			// retainAaxFileCbox
-			// 
-			this.retainAaxFileCbox.AutoSize = true;
-			this.retainAaxFileCbox.Location = new System.Drawing.Point(19, 93);
-			this.retainAaxFileCbox.Name = "retainAaxFileCbox";
-			this.retainAaxFileCbox.Size = new System.Drawing.Size(132, 19);
-			this.retainAaxFileCbox.TabIndex = 10;
-			this.retainAaxFileCbox.Text = "[RetainAaxFile desc]";
-			this.retainAaxFileCbox.UseVisualStyleBackColor = true;
-			this.retainAaxFileCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
-			// 
-			// downloadCoverArtCbox
-			// 
-			this.downloadCoverArtCbox.AutoSize = true;
-			this.downloadCoverArtCbox.Checked = true;
-			this.downloadCoverArtCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.downloadCoverArtCbox.Location = new System.Drawing.Point(19, 43);
-			this.downloadCoverArtCbox.Name = "downloadCoverArtCbox";
-			this.downloadCoverArtCbox.Size = new System.Drawing.Size(162, 19);
-			this.downloadCoverArtCbox.TabIndex = 10;
-			this.downloadCoverArtCbox.Text = "[DownloadCoverArt desc]";
-			this.downloadCoverArtCbox.UseVisualStyleBackColor = true;
-			this.downloadCoverArtCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
-			// 
-			// createCueSheetCbox
-			// 
-			this.createCueSheetCbox.AutoSize = true;
-			this.createCueSheetCbox.Checked = true;
-			this.createCueSheetCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.createCueSheetCbox.Location = new System.Drawing.Point(19, 18);
-			this.createCueSheetCbox.Name = "createCueSheetCbox";
-			this.createCueSheetCbox.Size = new System.Drawing.Size(145, 19);
-			this.createCueSheetCbox.TabIndex = 10;
-			this.createCueSheetCbox.Text = "[CreateCueSheet desc]";
-			this.createCueSheetCbox.UseVisualStyleBackColor = true;
-			this.createCueSheetCbox.CheckedChanged += new System.EventHandler(this.allowLibationFixupCbox_CheckedChanged);
-			// 
-			// maxSampleRateCb
-			// 
-			this.maxSampleRateCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.maxSampleRateCb.FormattingEnabled = true;
-			this.maxSampleRateCb.Location = new System.Drawing.Point(119, 75);
-			this.maxSampleRateCb.Name = "maxSampleRateCb";
-			this.maxSampleRateCb.Size = new System.Drawing.Size(101, 23);
-			this.maxSampleRateCb.TabIndex = 2;
-			// 
-			// encoderQualityCb
-			// 
-			this.encoderQualityCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.encoderQualityCb.FormattingEnabled = true;
-			this.encoderQualityCb.Location = new System.Drawing.Point(337, 75);
-			this.encoderQualityCb.Name = "encoderQualityCb";
-			this.encoderQualityCb.Size = new System.Drawing.Size(90, 23);
-			this.encoderQualityCb.TabIndex = 2;
+			lameOptionsGb.Controls.Add(label20);
+			lameOptionsGb.Controls.Add(label21);
+			lameOptionsGb.Controls.Add(encoderQualityCb);
+			lameOptionsGb.Controls.Add(maxSampleRateCb);
+			lameOptionsGb.Controls.Add(lameDownsampleMonoCbox);
+			lameOptionsGb.Controls.Add(lameBitrateGb);
+			lameOptionsGb.Controls.Add(label1);
+			lameOptionsGb.Controls.Add(lameQualityGb);
+			lameOptionsGb.Controls.Add(groupBox2);
+			lameOptionsGb.Location = new System.Drawing.Point(415, 6);
+			lameOptionsGb.Name = "lameOptionsGb";
+			lameOptionsGb.Size = new System.Drawing.Size(433, 348);
+			lameOptionsGb.TabIndex = 14;
+			lameOptionsGb.TabStop = false;
+			lameOptionsGb.Text = "Mp3 Encoding Options";
 			// 
 			// label20
 			// 
-			this.label20.AutoSize = true;
-			this.label20.Location = new System.Drawing.Point(12, 78);
-			this.label20.Name = "label20";
-			this.label20.Size = new System.Drawing.Size(101, 15);
-			this.label20.TabIndex = 3;
-			this.label20.Text = "Max Sample Rate:";
+			label20.AutoSize = true;
+			label20.Location = new System.Drawing.Point(12, 78);
+			label20.Name = "label20";
+			label20.Size = new System.Drawing.Size(101, 15);
+			label20.TabIndex = 3;
+			label20.Text = "Max Sample Rate:";
 			// 
 			// label21
 			// 
-			this.label21.AutoSize = true;
-			this.label21.Location = new System.Drawing.Point(239, 78);
-			this.label21.Name = "label21";
-			this.label21.Size = new System.Drawing.Size(94, 15);
-			this.label21.TabIndex = 3;
-			this.label21.Text = "Encoder Quality:";
+			label21.AutoSize = true;
+			label21.Location = new System.Drawing.Point(239, 78);
+			label21.Name = "label21";
+			label21.Size = new System.Drawing.Size(94, 15);
+			label21.TabIndex = 3;
+			label21.Text = "Encoder Quality:";
+			// 
+			// encoderQualityCb
+			// 
+			encoderQualityCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			encoderQualityCb.FormattingEnabled = true;
+			encoderQualityCb.Location = new System.Drawing.Point(337, 75);
+			encoderQualityCb.Name = "encoderQualityCb";
+			encoderQualityCb.Size = new System.Drawing.Size(90, 23);
+			encoderQualityCb.TabIndex = 2;
+			// 
+			// maxSampleRateCb
+			// 
+			maxSampleRateCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			maxSampleRateCb.FormattingEnabled = true;
+			maxSampleRateCb.Location = new System.Drawing.Point(119, 75);
+			maxSampleRateCb.Name = "maxSampleRateCb";
+			maxSampleRateCb.Size = new System.Drawing.Size(101, 23);
+			maxSampleRateCb.TabIndex = 2;
+			// 
+			// lameDownsampleMonoCbox
+			// 
+			lameDownsampleMonoCbox.Location = new System.Drawing.Point(237, 30);
+			lameDownsampleMonoCbox.Name = "lameDownsampleMonoCbox";
+			lameDownsampleMonoCbox.Size = new System.Drawing.Size(184, 34);
+			lameDownsampleMonoCbox.TabIndex = 1;
+			lameDownsampleMonoCbox.Text = "Downsample stereo to mono?\r\n(Recommended)\r\n";
+			lameDownsampleMonoCbox.UseVisualStyleBackColor = true;
+			// 
+			// lameBitrateGb
+			// 
+			lameBitrateGb.Controls.Add(LameMatchSourceBRCbox);
+			lameBitrateGb.Controls.Add(lameConstantBitrateCbox);
+			lameBitrateGb.Controls.Add(label7);
+			lameBitrateGb.Controls.Add(label6);
+			lameBitrateGb.Controls.Add(label5);
+			lameBitrateGb.Controls.Add(label4);
+			lameBitrateGb.Controls.Add(label11);
+			lameBitrateGb.Controls.Add(label3);
+			lameBitrateGb.Controls.Add(lameBitrateTb);
+			lameBitrateGb.Location = new System.Drawing.Point(6, 104);
+			lameBitrateGb.Name = "lameBitrateGb";
+			lameBitrateGb.Size = new System.Drawing.Size(421, 102);
+			lameBitrateGb.TabIndex = 0;
+			lameBitrateGb.TabStop = false;
+			lameBitrateGb.Text = "Bitrate";
+			// 
+			// LameMatchSourceBRCbox
+			// 
+			LameMatchSourceBRCbox.AutoSize = true;
+			LameMatchSourceBRCbox.Location = new System.Drawing.Point(275, 76);
+			LameMatchSourceBRCbox.Name = "LameMatchSourceBRCbox";
+			LameMatchSourceBRCbox.Size = new System.Drawing.Size(140, 19);
+			LameMatchSourceBRCbox.TabIndex = 3;
+			LameMatchSourceBRCbox.Text = "Match source bitrate?";
+			LameMatchSourceBRCbox.UseVisualStyleBackColor = true;
+			LameMatchSourceBRCbox.CheckedChanged += LameMatchSourceBRCbox_CheckedChanged;
+			// 
+			// lameConstantBitrateCbox
+			// 
+			lameConstantBitrateCbox.AutoSize = true;
+			lameConstantBitrateCbox.Location = new System.Drawing.Point(6, 77);
+			lameConstantBitrateCbox.Name = "lameConstantBitrateCbox";
+			lameConstantBitrateCbox.Size = new System.Drawing.Size(216, 19);
+			lameConstantBitrateCbox.TabIndex = 2;
+			lameConstantBitrateCbox.Text = "Restrict encoder to constant bitrate?";
+			lameConstantBitrateCbox.UseVisualStyleBackColor = true;
+			// 
+			// label7
+			// 
+			label7.AutoSize = true;
+			label7.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			label7.Location = new System.Drawing.Point(390, 52);
+			label7.Name = "label7";
+			label7.Size = new System.Drawing.Size(25, 15);
+			label7.TabIndex = 1;
+			label7.Text = "320";
+			// 
+			// label6
+			// 
+			label6.AutoSize = true;
+			label6.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			label6.Location = new System.Drawing.Point(309, 52);
+			label6.Name = "label6";
+			label6.Size = new System.Drawing.Size(25, 15);
+			label6.TabIndex = 1;
+			label6.Text = "256";
+			// 
+			// label5
+			// 
+			label5.AutoSize = true;
+			label5.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			label5.Location = new System.Drawing.Point(228, 52);
+			label5.Name = "label5";
+			label5.Size = new System.Drawing.Size(25, 15);
+			label5.TabIndex = 1;
+			label5.Text = "192";
+			// 
+			// label4
+			// 
+			label4.AutoSize = true;
+			label4.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			label4.Location = new System.Drawing.Point(147, 52);
+			label4.Name = "label4";
+			label4.Size = new System.Drawing.Size(25, 15);
+			label4.TabIndex = 1;
+			label4.Text = "128";
+			// 
+			// label11
+			// 
+			label11.AutoSize = true;
+			label11.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			label11.Location = new System.Drawing.Point(10, 52);
+			label11.Name = "label11";
+			label11.Size = new System.Drawing.Size(19, 15);
+			label11.TabIndex = 1;
+			label11.Text = "16";
+			// 
+			// label3
+			// 
+			label3.AutoSize = true;
+			label3.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			label3.Location = new System.Drawing.Point(71, 52);
+			label3.Name = "label3";
+			label3.Size = new System.Drawing.Size(19, 15);
+			label3.TabIndex = 1;
+			label3.Text = "64";
+			// 
+			// lameBitrateTb
+			// 
+			lameBitrateTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			lameBitrateTb.LargeChange = 32;
+			lameBitrateTb.Location = new System.Drawing.Point(6, 22);
+			lameBitrateTb.Maximum = 320;
+			lameBitrateTb.Minimum = 16;
+			lameBitrateTb.Name = "lameBitrateTb";
+			lameBitrateTb.Size = new System.Drawing.Size(409, 45);
+			lameBitrateTb.SmallChange = 8;
+			lameBitrateTb.TabIndex = 0;
+			lameBitrateTb.TickFrequency = 16;
+			lameBitrateTb.Value = 64;
+			// 
+			// label1
+			// 
+			label1.AutoSize = true;
+			label1.Enabled = false;
+			label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
+			label1.Location = new System.Drawing.Point(6, 325);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(172, 15);
+			label1.TabIndex = 1;
+			label1.Text = "Using L.A.M.E. encoding engine";
+			// 
+			// lameQualityGb
+			// 
+			lameQualityGb.Controls.Add(label19);
+			lameQualityGb.Controls.Add(label18);
+			lameQualityGb.Controls.Add(label17);
+			lameQualityGb.Controls.Add(label16);
+			lameQualityGb.Controls.Add(label12);
+			lameQualityGb.Controls.Add(label15);
+			lameQualityGb.Controls.Add(label9);
+			lameQualityGb.Controls.Add(label8);
+			lameQualityGb.Controls.Add(label13);
+			lameQualityGb.Controls.Add(label10);
+			lameQualityGb.Controls.Add(label14);
+			lameQualityGb.Controls.Add(label2);
+			lameQualityGb.Controls.Add(lameVBRQualityTb);
+			lameQualityGb.Location = new System.Drawing.Point(6, 212);
+			lameQualityGb.Name = "lameQualityGb";
+			lameQualityGb.Size = new System.Drawing.Size(421, 103);
+			lameQualityGb.TabIndex = 0;
+			lameQualityGb.TabStop = false;
+			lameQualityGb.Text = "Quality";
+			// 
+			// label19
+			// 
+			label19.AutoSize = true;
+			label19.Location = new System.Drawing.Point(349, 52);
+			label19.Name = "label19";
+			label19.Size = new System.Drawing.Size(20, 15);
+			label19.TabIndex = 1;
+			label19.Text = "V8";
+			// 
+			// label18
+			// 
+			label18.AutoSize = true;
+			label18.Location = new System.Drawing.Point(307, 52);
+			label18.Name = "label18";
+			label18.Size = new System.Drawing.Size(20, 15);
+			label18.TabIndex = 1;
+			label18.Text = "V7";
+			// 
+			// label17
+			// 
+			label17.AutoSize = true;
+			label17.Location = new System.Drawing.Point(265, 52);
+			label17.Name = "label17";
+			label17.Size = new System.Drawing.Size(20, 15);
+			label17.TabIndex = 1;
+			label17.Text = "V6";
+			// 
+			// label16
+			// 
+			label16.AutoSize = true;
+			label16.Location = new System.Drawing.Point(223, 52);
+			label16.Name = "label16";
+			label16.Size = new System.Drawing.Size(20, 15);
+			label16.TabIndex = 1;
+			label16.Text = "V5";
+			// 
+			// label12
+			// 
+			label12.AutoSize = true;
+			label12.Location = new System.Drawing.Point(182, 52);
+			label12.Name = "label12";
+			label12.Size = new System.Drawing.Size(20, 15);
+			label12.TabIndex = 1;
+			label12.Text = "V4";
+			// 
+			// label15
+			// 
+			label15.AutoSize = true;
+			label15.Location = new System.Drawing.Point(140, 52);
+			label15.Name = "label15";
+			label15.Size = new System.Drawing.Size(20, 15);
+			label15.TabIndex = 1;
+			label15.Text = "V3";
+			// 
+			// label9
+			// 
+			label9.AutoSize = true;
+			label9.Location = new System.Drawing.Point(97, 52);
+			label9.Name = "label9";
+			label9.Size = new System.Drawing.Size(20, 15);
+			label9.TabIndex = 1;
+			label9.Text = "V2";
+			// 
+			// label8
+			// 
+			label8.AutoSize = true;
+			label8.Location = new System.Drawing.Point(391, 52);
+			label8.Name = "label8";
+			label8.Size = new System.Drawing.Size(20, 15);
+			label8.TabIndex = 1;
+			label8.Text = "V9";
+			// 
+			// label13
+			// 
+			label13.AutoSize = true;
+			label13.Location = new System.Drawing.Point(376, 80);
+			label13.Name = "label13";
+			label13.Size = new System.Drawing.Size(39, 15);
+			label13.TabIndex = 1;
+			label13.Text = "Lower";
+			// 
+			// label10
+			// 
+			label10.AutoSize = true;
+			label10.Location = new System.Drawing.Point(6, 80);
+			label10.Name = "label10";
+			label10.Size = new System.Drawing.Size(43, 15);
+			label10.TabIndex = 1;
+			label10.Text = "Higher";
+			// 
+			// label14
+			// 
+			label14.AutoSize = true;
+			label14.Location = new System.Drawing.Point(56, 52);
+			label14.Name = "label14";
+			label14.Size = new System.Drawing.Size(20, 15);
+			label14.TabIndex = 1;
+			label14.Text = "V1";
+			// 
+			// label2
+			// 
+			label2.AutoSize = true;
+			label2.Location = new System.Drawing.Point(14, 52);
+			label2.Name = "label2";
+			label2.Size = new System.Drawing.Size(20, 15);
+			label2.TabIndex = 1;
+			label2.Text = "V0";
+			// 
+			// lameVBRQualityTb
+			// 
+			lameVBRQualityTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
+			lameVBRQualityTb.LargeChange = 1;
+			lameVBRQualityTb.Location = new System.Drawing.Point(10, 22);
+			lameVBRQualityTb.Maximum = 9;
+			lameVBRQualityTb.Name = "lameVBRQualityTb";
+			lameVBRQualityTb.Size = new System.Drawing.Size(405, 45);
+			lameVBRQualityTb.TabIndex = 0;
+			lameVBRQualityTb.Value = 9;
+			// 
+			// groupBox2
+			// 
+			groupBox2.Controls.Add(lameTargetQualityRb);
+			groupBox2.Controls.Add(lameTargetBitrateRb);
+			groupBox2.Location = new System.Drawing.Point(6, 22);
+			groupBox2.Name = "groupBox2";
+			groupBox2.Size = new System.Drawing.Size(214, 47);
+			groupBox2.TabIndex = 0;
+			groupBox2.TabStop = false;
+			groupBox2.Text = "Target";
+			// 
+			// lameTargetQualityRb
+			// 
+			lameTargetQualityRb.AutoSize = true;
+			lameTargetQualityRb.Location = new System.Drawing.Point(139, 22);
+			lameTargetQualityRb.Name = "lameTargetQualityRb";
+			lameTargetQualityRb.Size = new System.Drawing.Size(63, 19);
+			lameTargetQualityRb.TabIndex = 0;
+			lameTargetQualityRb.TabStop = true;
+			lameTargetQualityRb.Text = "Quality";
+			lameTargetQualityRb.UseVisualStyleBackColor = true;
+			lameTargetQualityRb.CheckedChanged += lameTargetRb_CheckedChanged;
+			// 
+			// lameTargetBitrateRb
+			// 
+			lameTargetBitrateRb.AutoSize = true;
+			lameTargetBitrateRb.Location = new System.Drawing.Point(6, 22);
+			lameTargetBitrateRb.Name = "lameTargetBitrateRb";
+			lameTargetBitrateRb.Size = new System.Drawing.Size(59, 19);
+			lameTargetBitrateRb.TabIndex = 0;
+			lameTargetBitrateRb.TabStop = true;
+			lameTargetBitrateRb.Text = "Bitrate";
+			lameTargetBitrateRb.UseVisualStyleBackColor = true;
+			lameTargetBitrateRb.CheckedChanged += lameTargetRb_CheckedChanged;
+			// 
+			// mergeOpeningEndCreditsCbox
+			// 
+			mergeOpeningEndCreditsCbox.AutoSize = true;
+			mergeOpeningEndCreditsCbox.Location = new System.Drawing.Point(19, 118);
+			mergeOpeningEndCreditsCbox.Name = "mergeOpeningEndCreditsCbox";
+			mergeOpeningEndCreditsCbox.Size = new System.Drawing.Size(198, 19);
+			mergeOpeningEndCreditsCbox.TabIndex = 13;
+			mergeOpeningEndCreditsCbox.Text = "[MergeOpeningEndCredits desc]";
+			mergeOpeningEndCreditsCbox.UseVisualStyleBackColor = true;
+			// 
+			// retainAaxFileCbox
+			// 
+			retainAaxFileCbox.AutoSize = true;
+			retainAaxFileCbox.Location = new System.Drawing.Point(19, 93);
+			retainAaxFileCbox.Name = "retainAaxFileCbox";
+			retainAaxFileCbox.Size = new System.Drawing.Size(132, 19);
+			retainAaxFileCbox.TabIndex = 10;
+			retainAaxFileCbox.Text = "[RetainAaxFile desc]";
+			retainAaxFileCbox.UseVisualStyleBackColor = true;
+			retainAaxFileCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
+			// 
+			// downloadCoverArtCbox
+			// 
+			downloadCoverArtCbox.AutoSize = true;
+			downloadCoverArtCbox.Checked = true;
+			downloadCoverArtCbox.CheckState = System.Windows.Forms.CheckState.Checked;
+			downloadCoverArtCbox.Location = new System.Drawing.Point(19, 43);
+			downloadCoverArtCbox.Name = "downloadCoverArtCbox";
+			downloadCoverArtCbox.Size = new System.Drawing.Size(162, 19);
+			downloadCoverArtCbox.TabIndex = 10;
+			downloadCoverArtCbox.Text = "[DownloadCoverArt desc]";
+			downloadCoverArtCbox.UseVisualStyleBackColor = true;
+			downloadCoverArtCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
+			// 
+			// createCueSheetCbox
+			// 
+			createCueSheetCbox.AutoSize = true;
+			createCueSheetCbox.Checked = true;
+			createCueSheetCbox.CheckState = System.Windows.Forms.CheckState.Checked;
+			createCueSheetCbox.Location = new System.Drawing.Point(19, 18);
+			createCueSheetCbox.Name = "createCueSheetCbox";
+			createCueSheetCbox.Size = new System.Drawing.Size(145, 19);
+			createCueSheetCbox.TabIndex = 10;
+			createCueSheetCbox.Text = "[CreateCueSheet desc]";
+			createCueSheetCbox.UseVisualStyleBackColor = true;
+			createCueSheetCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
+			// 
+			// overwriteExistingCbox
+			// 
+			overwriteExistingCbox.AutoSize = true;
+			overwriteExistingCbox.Location = new System.Drawing.Point(7, 156);
+			overwriteExistingCbox.Name = "overwriteExistingCbox";
+			overwriteExistingCbox.Size = new System.Drawing.Size(129, 19);
+			overwriteExistingCbox.TabIndex = 3;
+			overwriteExistingCbox.Text = "[Overwrite Existing]";
+			overwriteExistingCbox.UseVisualStyleBackColor = true;
 			// 
 			// SettingsDialog
 			// 
-			this.AcceptButton = this.saveBtn;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(886, 534);
-			this.Controls.Add(this.tabControl);
-			this.Controls.Add(this.cancelBtn);
-			this.Controls.Add(this.saveBtn);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
-			this.Name = "SettingsDialog";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Edit Settings";
-			this.Load += new System.EventHandler(this.SettingsDialog_Load);
-			this.badBookGb.ResumeLayout(false);
-			this.badBookGb.PerformLayout();
-			this.tabControl.ResumeLayout(false);
-			this.tab1ImportantSettings.ResumeLayout(false);
-			this.tab1ImportantSettings.PerformLayout();
-			this.booksGb.ResumeLayout(false);
-			this.booksGb.PerformLayout();
-			this.tab2ImportLibrary.ResumeLayout(false);
-			this.tab2ImportLibrary.PerformLayout();
-			this.tab3DownloadDecrypt.ResumeLayout(false);
-			this.tab3DownloadDecrypt.PerformLayout();
-			this.inProgressFilesGb.ResumeLayout(false);
-			this.inProgressFilesGb.PerformLayout();
-			this.customFileNamingGb.ResumeLayout(false);
-			this.customFileNamingGb.PerformLayout();
-			this.tab4AudioFileOptions.ResumeLayout(false);
-			this.tab4AudioFileOptions.PerformLayout();
-			this.audiobookFixupsGb.ResumeLayout(false);
-			this.audiobookFixupsGb.PerformLayout();
-			this.chapterTitleTemplateGb.ResumeLayout(false);
-			this.chapterTitleTemplateGb.PerformLayout();
-			this.lameOptionsGb.ResumeLayout(false);
-			this.lameOptionsGb.PerformLayout();
-			this.lameBitrateGb.ResumeLayout(false);
-			this.lameBitrateGb.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.lameBitrateTb)).EndInit();
-			this.lameQualityGb.ResumeLayout(false);
-			this.lameQualityGb.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.lameVBRQualityTb)).EndInit();
-			this.groupBox2.ResumeLayout(false);
-			this.groupBox2.PerformLayout();
-			this.ResumeLayout(false);
-
+			AcceptButton = saveBtn;
+			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			CancelButton = cancelBtn;
+			ClientSize = new System.Drawing.Size(886, 534);
+			Controls.Add(tabControl);
+			Controls.Add(cancelBtn);
+			Controls.Add(saveBtn);
+			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			MaximizeBox = false;
+			MinimizeBox = false;
+			Name = "SettingsDialog";
+			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			Text = "Edit Settings";
+			Load += SettingsDialog_Load;
+			badBookGb.ResumeLayout(false);
+			badBookGb.PerformLayout();
+			tabControl.ResumeLayout(false);
+			tab1ImportantSettings.ResumeLayout(false);
+			tab1ImportantSettings.PerformLayout();
+			booksGb.ResumeLayout(false);
+			booksGb.PerformLayout();
+			tab2ImportLibrary.ResumeLayout(false);
+			tab2ImportLibrary.PerformLayout();
+			tab3DownloadDecrypt.ResumeLayout(false);
+			tab3DownloadDecrypt.PerformLayout();
+			inProgressFilesGb.ResumeLayout(false);
+			inProgressFilesGb.PerformLayout();
+			customFileNamingGb.ResumeLayout(false);
+			customFileNamingGb.PerformLayout();
+			tab4AudioFileOptions.ResumeLayout(false);
+			tab4AudioFileOptions.PerformLayout();
+			audiobookFixupsGb.ResumeLayout(false);
+			audiobookFixupsGb.PerformLayout();
+			chapterTitleTemplateGb.ResumeLayout(false);
+			chapterTitleTemplateGb.PerformLayout();
+			lameOptionsGb.ResumeLayout(false);
+			lameOptionsGb.PerformLayout();
+			lameBitrateGb.ResumeLayout(false);
+			lameBitrateGb.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)lameBitrateTb).EndInit();
+			lameQualityGb.ResumeLayout(false);
+			lameQualityGb.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)lameVBRQualityTb).EndInit();
+			groupBox2.ResumeLayout(false);
+			groupBox2.PerformLayout();
+			ResumeLayout(false);
 		}
 
 		#endregion
@@ -1292,7 +1291,7 @@
 		private System.Windows.Forms.CheckBox mergeOpeningEndCreditsCbox;
 		private System.Windows.Forms.GroupBox audiobookFixupsGb;
 		private System.Windows.Forms.CheckBox betaOptInCbox;
-        private System.Windows.Forms.CheckBox useCoverAsFolderIconCb;
+		private System.Windows.Forms.CheckBox useCoverAsFolderIconCb;
 		private System.Windows.Forms.ComboBox clipsBookmarksFormatCb;
 		private System.Windows.Forms.CheckBox downloadClipsBookmarksCbox;
 		private System.Windows.Forms.CheckBox moveMoovAtomCbox;
@@ -1300,5 +1299,6 @@
 		private System.Windows.Forms.ComboBox maxSampleRateCb;
 		private System.Windows.Forms.Label label21;
 		private System.Windows.Forms.Label label20;
+		private System.Windows.Forms.CheckBox overwriteExistingCbox;
 	}
 }

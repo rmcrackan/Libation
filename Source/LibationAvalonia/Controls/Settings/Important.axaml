@@ -28,6 +28,10 @@
 					<TextBlock Text="{CompiledBinding SavePodcastsToParentFolderText}" />
 				</CheckBox>
 
+				<CheckBox IsChecked="{CompiledBinding OverwriteExisting, Mode=TwoWay}">
+					<TextBlock Text="{CompiledBinding OverwriteExistingText}" />
+				</CheckBox>
+
 			</StackPanel>
 
 		</controls:GroupBox>
