@@ -73,23 +73,15 @@ namespace FileLiberator
 						}
 						else
 						{
-							try
-							{
-								var realMp3Path
-									= FileUtility.SaferMoveToValidPath(
-										mp3File.Name,
-										proposedMp3Path,
-										Configuration.Instance.ReplacementCharacters,
-										extension: "mp3",
-										Configuration.Instance.OverwriteExisting);
+							var realMp3Path
+								= FileUtility.SaferMoveToValidPath(
+									mp3File.Name,
+									proposedMp3Path,
+									Configuration.Instance.ReplacementCharacters,
+									extension: "mp3",
+									Configuration.Instance.OverwriteExisting);
 
-								OnFileCreated(libraryBook, realMp3Path);
-							}
-							catch
-							{
-								return new StatusHandler { "Failed to move decrypted files to Books directory" };
-								throw;
-							}
+							OnFileCreated(libraryBook, realMp3Path);
 						}
 					}
 					catch (Exception ex)

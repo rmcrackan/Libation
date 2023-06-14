@@ -94,7 +94,6 @@ namespace FileLiberator
                     //Only fail if the downloaded audio files failed to move to Books directory
 					if (moveFilesTask.IsFaulted)
                     {
-                        return new StatusHandler { "Failed to move decrypted files to Books directory" };
                         throw;
                     }
                 }
