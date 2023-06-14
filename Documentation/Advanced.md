@@ -30,7 +30,7 @@ To make upgrades and reinstalls easier, Libation separates all of its responsibi
 
 In addition to the options that are enabled if you allow Libation to "fix up" the audiobook, it does the following:
 
-* Adds the `TCOM` metadata tag for the narrators.
+* Adds the `TCOM` (`@wrt` in M4B files) metadata tag for the narrators.
 * Sets the `©gen` metadata tag for the genres.
 * Unescapes the copyright symbol (replace `&#169;` with `©`)
 * Replaces the recording copyright `(P)` string with `℗`
