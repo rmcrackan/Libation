@@ -26,7 +26,8 @@ namespace TemplatesTests
 		public static LibraryBookDto GetLibraryBook(string seriesName = "Sherlock Holmes")
 			=> new()
 			{
-				Account = "my account",
+				Account = "myaccount@example.co",
+				AccountNickname = "my account",
 				DateAdded = new DateTime(2022, 6, 9, 0, 0, 0),
 				DatePublished = new DateTime(2017, 2, 27, 0, 0, 0),
 				FileDate = new DateTime(2023, 1, 28, 0, 0, 0),

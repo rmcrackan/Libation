@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AudibleUtilities;
 using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
@@ -20,34 +21,44 @@ namespace FileLiberator
 
 		public static async Task<AudibleApi.Api> GetApiAsync(this LibraryBook libraryBook)
 		{
-			var apiExtended = await AudibleUtilities.ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
+			var apiExtended = await ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
 			return apiExtended.Api;
 		}
 
-		public static LibraryBookDto ToDto(this LibraryBook libraryBook) => new()
+		public static LibraryBookDto ToDto(this LibraryBook libraryBook)
 		{
-			Account = libraryBook.Account,
-			DateAdded = libraryBook.DateAdded,
+			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
+			var nickname
+				= persister.AccountsSettings.Accounts
+				.FirstOrDefault(a => a.AccountId == libraryBook.Account)
+				?.AccountName;
 
-			AudibleProductId = libraryBook.Book.AudibleProductId,
-			Title = libraryBook.Book.Title ?? "",
-			Locale = libraryBook.Book.Locale,
-			YearPublished = libraryBook.Book.DatePublished?.Year,
-			DatePublished = libraryBook.Book.DatePublished,
+			return new()
+			{
+				Account = libraryBook.Account,
+				AccountNickname = nickname,
+				DateAdded = libraryBook.DateAdded,
 
-			Authors = libraryBook.Book.Authors.Select(c => c.Name).ToList(),
+				AudibleProductId = libraryBook.Book.AudibleProductId,
+				Title = libraryBook.Book.Title ?? "",
+				Locale = libraryBook.Book.Locale,
+				YearPublished = libraryBook.Book.DatePublished?.Year,
+				DatePublished = libraryBook.Book.DatePublished,
 
-			Narrators = libraryBook.Book.Narrators.Select(c => c.Name).ToList(),
+				Authors = libraryBook.Book.Authors.Select(c => c.Name).ToList(),
 
-			SeriesName = libraryBook.Book.SeriesLink.FirstOrDefault()?.Series.Name,
-			SeriesNumber = (int?)libraryBook.Book.SeriesLink.FirstOrDefault()?.Index,
-			IsPodcastParent = libraryBook.Book.IsEpisodeParent(),
-			IsPodcast = libraryBook.Book.IsEpisodeChild() || libraryBook.Book.IsEpisodeParent(),
+				Narrators = libraryBook.Book.Narrators.Select(c => c.Name).ToList(),
 
-			BitRate = libraryBook.Book.AudioFormat.Bitrate,
-			SampleRate = libraryBook.Book.AudioFormat.SampleRate,
-			Channels = libraryBook.Book.AudioFormat.Channels,
-			Language = libraryBook.Book.Language
-		};
+				SeriesName = libraryBook.Book.SeriesLink.FirstOrDefault()?.Series.Name,
+				SeriesNumber = (int?)libraryBook.Book.SeriesLink.FirstOrDefault()?.Index,
+				IsPodcastParent = libraryBook.Book.IsEpisodeParent(),
+				IsPodcast = libraryBook.Book.IsEpisodeChild() || libraryBook.Book.IsEpisodeParent(),
+
+				BitRate = libraryBook.Book.AudioFormat.Bitrate,
+				SampleRate = libraryBook.Book.AudioFormat.SampleRate,
+				Channels = libraryBook.Book.AudioFormat.Channels,
+				Language = libraryBook.Book.Language
+			};
+		}
 	}
 }
