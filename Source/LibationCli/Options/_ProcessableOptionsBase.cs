@@ -27,6 +27,7 @@ namespace LibationCli
 				}
 				catch (Exception ex)
 				{
+					Console.Error.WriteLine("CLI error. See log for more details.");
 					Serilog.Log.Logger.Error(ex, "CLI error");
 				}
 			};
@@ -54,12 +55,15 @@ namespace LibationCli
 					return;
 
 				foreach (var errorMessage in statusHandler.Errors)
+				{
+					Console.Error.WriteLine(errorMessage);
 					Serilog.Log.Logger.Error(errorMessage);
+				}
 			}
 			catch (Exception ex)
 			{
 				var msg = "Error processing book. Skipping. This book will be tried again on next attempt. For options of skipping or marking as error, retry with main Libation app.";
-				Console.WriteLine(msg + ". See log for more details.");
+				Console.Error.WriteLine(msg + ". See log for more details.");
 				Serilog.Log.Logger.Error(ex, $"{msg} {{@DebugInfo}}", new { Book = libraryBook.LogFriendly() });
 			}
 		}

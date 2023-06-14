@@ -18,11 +18,11 @@ namespace LibationCli
 			{
 				Environment.ExitCode = (int)ExitCode.RunTimeError;
 
-				Console.WriteLine("ERROR");
-				Console.WriteLine("=====");
-				Console.WriteLine(ex.Message);
-				Console.WriteLine();
-				Console.WriteLine(ex.StackTrace);
+				Console.Error.WriteLine("ERROR");
+				Console.Error.WriteLine("=====");
+				Console.Error.WriteLine(ex.Message);
+				Console.Error.WriteLine();
+				Console.Error.WriteLine(ex.StackTrace);
 			}
 		}
 

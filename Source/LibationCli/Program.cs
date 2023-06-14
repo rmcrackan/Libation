@@ -70,7 +70,7 @@ namespace LibationCli
 
 			if (errorsList.Any(e => e.Tag.In(ErrorType.NoVerbSelectedError)))
 			{
-				Console.WriteLine("No verb selected");
+				Console.Error.WriteLine("No verb selected");
 				return;
 			}
 
