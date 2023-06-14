@@ -27,13 +27,13 @@ namespace LibationWinForms.Dialogs
 			editCharreplacementBtn.Text = desc(nameof(config.ReplacementCharacters));
 
 			badBookGb.Text = desc(nameof(config.BadBook));
-            badBookAskRb.Text = Configuration.BadBookAction.Ask.GetDescription();
+			badBookAskRb.Text = Configuration.BadBookAction.Ask.GetDescription();
 			badBookAbortRb.Text = Configuration.BadBookAction.Abort.GetDescription();
 			badBookRetryRb.Text = Configuration.BadBookAction.Retry.GetDescription();
 			badBookIgnoreRb.Text = Configuration.BadBookAction.Ignore.GetDescription();
-            useCoverAsFolderIconCb.Text = desc(nameof(config.UseCoverAsFolderIcon));
+			useCoverAsFolderIconCb.Text = desc(nameof(config.UseCoverAsFolderIcon));
 
-            inProgressSelectControl.SetDirectoryItems(new()
+			inProgressSelectControl.SetDirectoryItems(new()
 			{
 				Configuration.KnownDirectories.WinTemp,
 				Configuration.KnownDirectories.UserProfile,
@@ -60,7 +60,7 @@ namespace LibationWinForms.Dialogs
 			fileTemplateTb.Text = config.FileTemplate;
 			chapterFileTemplateTb.Text = config.ChapterFileTemplate;
 			useCoverAsFolderIconCb.Checked = config.UseCoverAsFolderIcon;
-        }
+		}
 
 		private void Save_DownloadDecrypt(Configuration config)
 		{

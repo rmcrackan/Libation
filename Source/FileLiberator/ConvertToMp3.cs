@@ -73,7 +73,14 @@ namespace FileLiberator
 						}
 						else
 						{
-							var realMp3Path = FileUtility.SaferMoveToValidPath(mp3File.Name, proposedMp3Path, Configuration.Instance.ReplacementCharacters, "mp3");
+							var realMp3Path
+								= FileUtility.SaferMoveToValidPath(
+									mp3File.Name,
+									proposedMp3Path,
+									Configuration.Instance.ReplacementCharacters,
+									extension: "mp3",
+									Configuration.Instance.OverwriteExisting);
+
 							OnFileCreated(libraryBook, realMp3Path);
 						}
 					}

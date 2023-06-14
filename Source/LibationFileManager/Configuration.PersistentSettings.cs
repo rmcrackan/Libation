@@ -82,6 +82,9 @@ namespace LibationFileManager
 		[Description("Location for book storage. Includes destination of newly liberated books")]
 		public LongPath Books { get => GetString(); set => SetString(value); }
 
+		[Description("Overwrite existing files if they already exist?")]
+		public bool OverwriteExisting { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+
 		// temp/working dir(s) should be outside of dropbox
 		[Description("Temporary location of files while they're in process of being downloaded and decrypted.\r\nWhen decryption is complete, the final file will be in Books location\r\nRecommend not using a folder which is backed up real time. Eg: Dropbox, iCloud, Google Drive")]
 		public string InProgress { get

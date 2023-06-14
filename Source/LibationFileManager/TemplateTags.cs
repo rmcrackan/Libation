@@ -37,6 +37,7 @@ namespace LibationFileManager
         public static TemplateTags SampleRate { get; } = new TemplateTags("samplerate", "File's orig. sample rate");
         public static TemplateTags Channels { get; } = new TemplateTags("channels", "Number of audio channels");
         public static TemplateTags Account { get; } = new TemplateTags("account", "Audible account of this book");
+        public static TemplateTags AccountNickname { get; } = new TemplateTags("account nickname", "Audible account nickname of this book");
         public static TemplateTags Locale { get; } = new ("locale", "Region/country");
         public static TemplateTags YearPublished { get; } = new("year", "Year published");
 		public static TemplateTags Language { get; } = new("language", "Book's language");

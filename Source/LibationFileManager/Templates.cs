@@ -215,6 +215,7 @@ namespace LibationFileManager
 			{ TemplateTags.SampleRate, lb => (int?)(lb.IsPodcastParent ? null : lb.SampleRate) },
 			{ TemplateTags.Channels, lb => (int?)(lb.IsPodcastParent ? null : lb.Channels) },
 			{ TemplateTags.Account, lb => lb.Account },
+			{ TemplateTags.AccountNickname, lb => lb.AccountNickname },
 			{ TemplateTags.Locale, lb => lb.Locale },
 			{ TemplateTags.YearPublished, lb => lb.YearPublished },
 			{ TemplateTags.DatePublished, lb => lb.DatePublished },

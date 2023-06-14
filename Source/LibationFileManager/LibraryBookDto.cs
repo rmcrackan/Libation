@@ -37,5 +37,6 @@ namespace LibationFileManager
 	{
 		public DateTime? DateAdded { get; set; }
 		public string Account { get; set; }
+		public string AccountNickname { get; set; }
     }
 }

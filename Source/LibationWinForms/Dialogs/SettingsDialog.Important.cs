@@ -23,7 +23,8 @@ namespace LibationWinForms.Dialogs
 
 			booksLocationDescLbl.Text = desc(nameof(config.Books));
 			betaOptInCbox.Text = desc(nameof(config.BetaOptIn));
-			this.saveEpisodesToSeriesFolderCbox.Text = desc(nameof(config.SavePodcastsToParentFolder));
+			saveEpisodesToSeriesFolderCbox.Text = desc(nameof(config.SavePodcastsToParentFolder));
+			overwriteExistingCbox.Text = desc(nameof(config.OverwriteExisting));
 
 			booksSelectControl.SetSearchTitle("books location");
 			booksSelectControl.SetDirectoryItems(
@@ -38,6 +39,8 @@ namespace LibationWinForms.Dialogs
 			booksSelectControl.SelectDirectory(config.Books.PathWithoutPrefix);
 
 			saveEpisodesToSeriesFolderCbox.Checked = config.SavePodcastsToParentFolder;
+			overwriteExistingCbox.Checked = config.OverwriteExisting;
+
 			betaOptInCbox.Checked = config.BetaOptIn;
 
 			if (!betaOptInCbox.Checked)
@@ -76,6 +79,7 @@ namespace LibationWinForms.Dialogs
 			}
 
 			config.SavePodcastsToParentFolder = saveEpisodesToSeriesFolderCbox.Checked;
+			config.OverwriteExisting = overwriteExistingCbox.Checked;
 
 			config.BetaOptIn = betaOptInCbox.Checked;
 		}

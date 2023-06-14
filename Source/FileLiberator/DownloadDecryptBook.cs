@@ -41,7 +41,7 @@ namespace FileLiberator
 
             OnBegin(libraryBook);
 
-			try
+            try
             {
                 if (libraryBook.Book.Audio_Exists())
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
@@ -76,17 +76,34 @@ namespace FileLiberator
 
                 var finalStorageDir = getDestinationDirectory(libraryBook);
 
-				Task[] finalTasks = new[]
+                var moveFilesTask = Task.Run(() => moveFilesToBooksDir(libraryBook, entries));
+                Task[] finalTasks = new[]
                 {
-					Task.Run(() => downloadCoverArt(libraryBook)),
-					Task.Run(() => moveFilesToBooksDir(libraryBook, entries)),
-					Task.Run(() => libraryBook.UpdateBookStatus(LiberatedStatus.Liberated, Configuration.LibationVersion)),
-					Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(libraryBook.Book.PictureId, finalStorageDir))
-				};
+                    Task.Run(() => downloadCoverArt(libraryBook)),
+                    moveFilesTask,
+                    Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(libraryBook.Book.PictureId, finalStorageDir))
+                };
 
-				await Task.WhenAll(finalTasks);
+				try
+                {
+                    await Task.WhenAll(finalTasks);
+                }
+                catch
+                {
+					//Swallow downloadCoverArt and SetCoverAsFolderIcon exceptions.
+                    //Only fail if the downloaded audio files failed to move to Books directory
+					if (moveFilesTask.IsFaulted)
+                    {
+                        throw;
+                    }
+                }
+                finally
+                {
+					if (moveFilesTask.IsCompletedSuccessfully)
+						await Task.Run(() => libraryBook.UpdateBookStatus(LiberatedStatus.Liberated, Configuration.LibationVersion));
+				}
 
-                return new StatusHandler();
+				return new StatusHandler();
             }
             finally
             {
@@ -343,7 +360,13 @@ namespace FileLiberator
             {
                 var entry = entries[i];
 
-                var realDest = FileUtility.SaferMoveToValidPath(entry.Path, Path.Combine(destinationDir, Path.GetFileName(entry.Path)), Configuration.Instance.ReplacementCharacters);
+                var realDest
+                    = FileUtility.SaferMoveToValidPath(
+                        entry.Path,
+                        Path.Combine(destinationDir, Path.GetFileName(entry.Path)),
+                        Configuration.Instance.ReplacementCharacters,
+                        overwrite: Configuration.Instance.OverwriteExisting);
+                
                 FilePathCache.Insert(libraryBook.Book.AudibleProductId, realDest);
 
                 // propagate corrected path. Must update cache with corrected path. Also want updated path for cue file (after this for-loop)
@@ -370,7 +393,7 @@ namespace FileLiberator
 
 		private static void downloadCoverArt(LibraryBook libraryBook)
         {
-            if (!Configuration.Instance.DownloadCoverArt) return;
+			if (!Configuration.Instance.DownloadCoverArt) return;
 
             var coverPath = "[null]";
 
