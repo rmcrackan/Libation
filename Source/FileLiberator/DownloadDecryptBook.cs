@@ -396,7 +396,7 @@ namespace FileLiberator
         {
 			if (!Configuration.Instance.DownloadCoverArt) return;
 
-            var coverPath = "[null]";throw new Exception();
+            var coverPath = "[null]";
 
             try
             {
