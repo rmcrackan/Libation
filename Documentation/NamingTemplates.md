@@ -37,6 +37,7 @@ These tags will be replaced in the template with the audiobook's values.
 |\<samplerate\>|File's original audio sample rate|Integer|
 |\<channels\>|Number of audio channels|Integer|
 |\<account\>|Audible account of this book|Text|
+|\<account nickname\>|Audible account nickname of this book|Text|
 |\<locale\>|Region/country|Text|
 |\<year\>|Year published|Integer|
 |\<language\>|Book's language|Text|
