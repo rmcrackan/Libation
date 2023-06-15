@@ -89,9 +89,9 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 ## Name List Formatters
 |Formatter|Description|Example Usage|Example Result|
 |-|-|-|-|
-|separator()|Speficy the text used to join multiple people's names.<br><br>Default is ", "|`<author[separator(; )]>`|Arthur Conan Doyle; Stephen Fry|
-|format(\{T \| F \| M \| L \| S\})|Formats the human name using the name part tags.<br>\{T\} = Title (e.g. "Dr.")<br>\{F\} = First name<br>\{M\} = Middle name<br>\{L\} = Last Name<br>\{S\} = Suffix (e.g. "PhD")<br><br>Default is \{P\} \{F\} \{M\} \{L\} \{S\} |`<author[format({L}, {F}) separator(; )]>`|Doyle, Arthur; Fry, Stephen|
-|sort(F \| M \| L)|Sorts the names by first, middle, or last name<br><br>Default is unsorted|`<author[sort(M)]>`|Stephen Fry, Arthur Conan Doyle|
+|separator()|Speficy the text used to join<br>multiple people's names.<br><br>Default is ", "|`<author[separator(; )]>`|Arthur Conan Doyle; Stephen Fry|
+|format(\{T \| F \| M \| L \| S\})|Formats the human name using<br>the name part tags.<br>\{T\} = Title (e.g. "Dr.")<br>\{F\} = First name<br>\{M\} = Middle name<br>\{L\} = Last Name<br>\{S\} = Suffix (e.g. "PhD")<br><br>Default is \{P\} \{F\} \{M\} \{L\} \{S\}|`<author[format({L}, {F})`<br>`separator(; )]>`|Doyle, Arthur; Fry, Stephen|
+|sort(F \| M \| L)|Sorts the names by first, middle,<br>or last name<br><br>Default is unsorted|`<author[sort(M)]>`|Stephen Fry, Arthur Conan Doyle|
 |max(#)|Only use the first # of names<br><br>Default is all names|`<author[max(1)]>`|Arthur Conan Doyle|
 
 ## Number Formatters
@@ -99,7 +99,8 @@ For more custom formatters and examples, [see this guide from Microsoft](https:/
 |Formatter|Description|Example Usage|Example Result|
 |-|-|-|-|
 |\[integer\]|Zero-pads the number|\<bitrate\[4\]\><br>\<series#\[3\]\><br>\<samplerate\[6\]\>|0128<br>001<br>044100|
-|0|Replaces the zero with the corresponding digit if one is present; otherwise, zero appears in the result string.|\<series#\[000.0\]\>|001.0|
+|0|Replaces the zero with the corresponding digit if one<br>is present; otherwise, zero appears in the result string.|\<series#\[000.0\]\>|001.0|
+|#|Replaces the "#" symbol with the corresponding digit if one<br> is present; otherwise, no digit appears in the result string|\<series#\[00.##\]\>|01|
 
 ## Date Formatters
 Form more standard formatters, [see this guide from Microsoft](https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings).
