@@ -196,7 +196,7 @@ namespace LibationFileManager
 		#region Registered Template Properties
 
 		private static readonly PropertyTagCollection<LibraryBookDto> filePropertyTags =
-			new(caseSensative: true, StringFormatter, DateTimeFormatter, IntegerFormatter)
+			new(caseSensative: true, StringFormatter, DateTimeFormatter, IntegerFormatter, FloatFormatter)
 		{
 			//Don't allow formatting of Id
 			{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
@@ -279,10 +279,20 @@ namespace LibationFileManager
 		}
 
 		private static string IntegerFormatter(ITemplateTag templateTag, int value, string formatString)
+			=> FloatFormatter(templateTag, value, formatString);
+
+		private static string FloatFormatter(ITemplateTag templateTag, float value, string formatString)
 		{
-			if (int.TryParse(formatString, out var numDigits))
-				return value.ToString($"D{numDigits}");
-			return value.ToString();
+			if (int.TryParse(formatString, out var numDigits) && numDigits > 0)
+			{
+				//Zero-pad the integer part
+				var strValue = value.ToString();
+				var decIndex = strValue.IndexOf(System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator);
+				var zeroPad = decIndex == -1 ? int.Max(0, numDigits - strValue.Length) : int.Max(0, numDigits - decIndex);
+
+				return new string('0', zeroPad) + strValue;
+			}
+			return value.ToString(formatString);
 		}
 
 		private static string DateTimeFormatter(ITemplateTag templateTag, DateTime value, string formatString)

@@ -11,7 +11,7 @@ These templates apply to both GUI and CLI.
 - [Tag Formatters](#tag-formatters)
   - [Text Formatters](#text-formatters)
   - [Name List Formatters](#name-list-formatters)
-  - [Integer Formatters](#integer-formatters)
+  - [Number Formatters](#number-formatters)
   - [Date Formatters](#date-formatters)
 
 
@@ -32,23 +32,23 @@ These tags will be replaced in the template with the audiobook's values.
 |\<narrator\>|Narrator(s)|Name List|
 |\<first narrator\>|First narrator|Text|
 |\<series\>|Name of series|Text|
-|\<series#\>|Number order in series|Text|
-|\<bitrate\>|File's original bitrate (Kbps)|Integer|
-|\<samplerate\>|File's original audio sample rate|Integer|
-|\<channels\>|Number of audio channels|Integer|
+|\<series#\>|Number order in series|Number|
+|\<bitrate\>|File's original bitrate (Kbps)|Number|
+|\<samplerate\>|File's original audio sample rate|Number|
+|\<channels\>|Number of audio channels|Number|
 |\<account\>|Audible account of this book|Text|
 |\<account nickname\>|Audible account nickname of this book|Text|
 |\<locale\>|Region/country|Text|
-|\<year\>|Year published|Integer|
+|\<year\>|Year published|Number|
 |\<language\>|Book's language|Text|
 |\<language short\> **†**|Book's language abbreviated. Eg: ENG|Text|
 |\<file date\>|File creation date/time.|DateTime|
 |\<pub date\>|Audiobook publication date|DateTime|
 |\<date added\>|Date the book added to your Audible account|DateTime|
-|\<ch count\> **‡**|Number of chapters|Integer|
+|\<ch count\> **‡**|Number of chapters|Number|
 |\<ch title\> **‡**|Chapter title|Text|
-|\<ch#\> **‡**|Chapter number|Integer|
-|\<ch# 0\> **‡**|Chapter number with leading zeros|Integer|
+|\<ch#\> **‡**|Chapter number|Number|
+|\<ch# 0\> **‡**|Chapter number with leading zeros|Number|
 
 **†** Does not support custom formatting
 
@@ -78,7 +78,7 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 
 
 # Tag Formatters
-**Text**, **Name List**, **Integer**, and **DateTime** tags can be optionally formatted using format text in square brackets after the tag name. Below is a list of supported formatters for each tag type.
+**Text**, **Name List**, **Number**, and **DateTime** tags can be optionally formatted using format text in square brackets after the tag name. Below is a list of supported formatters for each tag type.
 
 ## Text Formatters
 |Formatter|Description|Example Usage|Example Result|
@@ -89,15 +89,18 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 ## Name List Formatters
 |Formatter|Description|Example Usage|Example Result|
 |-|-|-|-|
-|separator()|Speficy the text used to join multiple people's names.<br><br>Default is ", "|`<author[separator(; )]>`|Arthur Conan Doyle; Stephen Fry|
-|format(\{T \| F \| M \| L \| S\})|Formats the human name using the name part tags.<br>\{T\} = Title (e.g. "Dr.")<br>\{F\} = First name<br>\{M\} = Middle name<br>\{L\} = Last Name<br>\{S\} = Suffix (e.g. "PhD")<br><br>Default is \{P\} \{F\} \{M\} \{L\} \{S\} |`<author[format({L}, {F}) separator(; )]>`|Doyle, Arthur; Fry, Stephen|
-|sort(F \| M \| L)|Sorts the names by first, middle, or last name<br><br>Default is unsorted|`<author[sort(M)]>`|Stephen Fry, Arthur Conan Doyle|
+|separator()|Speficy the text used to join<br>multiple people's names.<br><br>Default is ", "|`<author[separator(; )]>`|Arthur Conan Doyle; Stephen Fry|
+|format(\{T \| F \| M \| L \| S\})|Formats the human name using<br>the name part tags.<br>\{T\} = Title (e.g. "Dr.")<br>\{F\} = First name<br>\{M\} = Middle name<br>\{L\} = Last Name<br>\{S\} = Suffix (e.g. "PhD")<br><br>Default is \{P\} \{F\} \{M\} \{L\} \{S\}|`<author[format({L}, {F})`<br>`separator(; )]>`|Doyle, Arthur; Fry, Stephen|
+|sort(F \| M \| L)|Sorts the names by first, middle,<br>or last name<br><br>Default is unsorted|`<author[sort(M)]>`|Stephen Fry, Arthur Conan Doyle|
 |max(#)|Only use the first # of names<br><br>Default is all names|`<author[max(1)]>`|Arthur Conan Doyle|
 
-## Integer Formatters
+## Number Formatters
+For more custom formatters and examples, [see this guide from Microsoft](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-numeric-format-strings).
 |Formatter|Description|Example Usage|Example Result|
 |-|-|-|-|
-|# (a number)|Zero-pads the number|\<bitrate\[4\]\><br>\<series#\[3\]\><br>\<samplerate\[6\]\>|0128<br>001<br>044100|
+|\[integer\]|Zero-pads the number|\<bitrate\[4\]\><br>\<series#\[3\]\><br>\<samplerate\[6\]\>|0128<br>001<br>044100|
+|0|Replaces the zero with the corresponding digit if one<br>is present; otherwise, zero appears in the result string.|\<series#\[000.0\]\>|001.0|
+|#|Replaces the "#" symbol with the corresponding digit if one<br> is present; otherwise, no digit appears in the result string|\<series#\[00.##\]\>|01|
 
 ## Date Formatters
 Form more standard formatters, [see this guide from Microsoft](https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings).

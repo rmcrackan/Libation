@@ -50,7 +50,7 @@ namespace FileLiberator
 				Narrators = libraryBook.Book.Narrators.Select(c => c.Name).ToList(),
 
 				SeriesName = libraryBook.Book.SeriesLink.FirstOrDefault()?.Series.Name,
-				SeriesNumber = (int?)libraryBook.Book.SeriesLink.FirstOrDefault()?.Index,
+				SeriesNumber = libraryBook.Book.SeriesLink.FirstOrDefault()?.Index,
 				IsPodcastParent = libraryBook.Book.IsEpisodeParent(),
 				IsPodcast = libraryBook.Book.IsEpisodeChild() || libraryBook.Book.IsEpisodeParent(),
 
