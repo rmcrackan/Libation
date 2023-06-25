@@ -179,6 +179,7 @@ namespace LibationFileManager
 				while((slashIndex = part.IndexOf(Path.DirectorySeparatorChar, lastIndex)) > -1)
 				{
 					dir.Add(part[lastIndex..slashIndex]);
+					RemoveSpaces(dir);
 					directories.Add(dir);
 					dir = new();
 
@@ -186,9 +187,55 @@ namespace LibationFileManager
 				}
 				dir.Add(part[lastIndex..]);
 			}
+			RemoveSpaces(dir);
 			directories.Add(dir);
 
 			return directories;
+		}
+
+		/// <summary>
+		/// Remove spaces from the filename parts to ensure that after concatenation
+		/// <br>-</br> There is no leading or trailing white space
+		/// <br>-</br> There are no multispace instances
+		/// </summary>
+		private static void RemoveSpaces(List<string> parts)
+		{
+			while (parts.Count > 0 && string.IsNullOrWhiteSpace(parts[0]))
+				parts.RemoveAt(0);
+
+			while (parts.Count > 0 && string.IsNullOrWhiteSpace(parts[^1]))
+				parts.RemoveAt(parts.Count - 1);
+
+			if (parts.Count == 0) return;
+
+			parts[0] = parts[0].TrimStart();
+			parts[^1] = parts[^1].TrimEnd();
+
+			//Replace all multispace substrings with single space
+			for (int i = 0; i < parts.Count; i++)
+			{
+				string original;
+				do
+				{
+					original = parts[i];
+					parts[i] = original.Replace("  ", " ");
+				}while(original.Length != parts[i].Length);
+			}
+
+			//Remove instances of double spaces at part boundaries
+			for (int i = 1; i < parts.Count; i++)
+			{
+				if (parts[i - 1].EndsWith(' ') && parts[i].StartsWith(' '))
+				{
+					parts[i] = parts[i].Substring(1);
+
+					if (parts[i].Length == 0)
+					{
+						parts.RemoveAt(i);
+						i--;
+					}
+				}
+			}
 		}
 
 		#endregion
