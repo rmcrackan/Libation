@@ -157,6 +157,8 @@ namespace LibationAvalonia.Dialogs
 		{
 			try
 			{
+				accountsGrid.CommitEdit();
+
 				if (!await inputIsValid())
 					return;
 
