@@ -197,19 +197,19 @@ namespace LibationFileManager
 		[JsonConverter(typeof(StringEnumConverter))]
 		public enum DateTimeSource
 		{
-			[Description("File creation date/time.")]
+			[Description("File creation date/time")]
 			File,
 			[Description("Audiobook publication date")]
 			Published,
-			[Description("Date the book added to your Audible account")]
+			[Description("Date book was added to your Audible account")]
 			Added
 		}
 
 		[Description("Set file \"created\" timestamp to:")]
-		public DateTimeSource CreationTime { get => GetNonString(defaultValue: DateTimeSource.Published); set => SetNonString(value); }
+		public DateTimeSource CreationTime { get => GetNonString(defaultValue: DateTimeSource.File); set => SetNonString(value); }
 
 		[Description("Set file \"modified\" timestamp to:")]
-		public DateTimeSource LastWriteTime { get => GetNonString(defaultValue: DateTimeSource.Published); set => SetNonString(value); }
+		public DateTimeSource LastWriteTime { get => GetNonString(defaultValue: DateTimeSource.File); set => SetNonString(value); }
 
 		[Description("Indicates that this is the first time Libation has been run")]
 		public bool FirstLaunch { get => GetNonString(defaultValue: true); set => SetNonString(value); }

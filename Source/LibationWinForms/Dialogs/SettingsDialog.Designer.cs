@@ -434,7 +434,7 @@
 			lastWriteTimeCb.FormattingEnabled = true;
 			lastWriteTimeCb.Location = new System.Drawing.Point(188, 214);
 			lastWriteTimeCb.Name = "lastWriteTimeCb";
-			lastWriteTimeCb.Size = new System.Drawing.Size(266, 23);
+			lastWriteTimeCb.Size = new System.Drawing.Size(272, 23);
 			lastWriteTimeCb.TabIndex = 5;
 			// 
 			// creationTimeCb
@@ -443,7 +443,7 @@
 			creationTimeCb.FormattingEnabled = true;
 			creationTimeCb.Location = new System.Drawing.Point(188, 185);
 			creationTimeCb.Name = "creationTimeCb";
-			creationTimeCb.Size = new System.Drawing.Size(266, 23);
+			creationTimeCb.Size = new System.Drawing.Size(272, 23);
 			creationTimeCb.TabIndex = 5;
 			// 
 			// lastWriteTimeLbl
