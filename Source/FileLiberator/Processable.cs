@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
@@ -98,5 +99,26 @@ namespace FileLiberator
             Serilog.Log.Logger.Debug("Event fired {@DebugInfo}", new { Name = nameof(Completed), Book = libraryBook.LogFriendly() });
             Completed?.Invoke(this, libraryBook);
         }
-    }
+
+		protected static void SetFileTime(LibraryBook libraryBook, string file)
+			=> setFileSystemTime(libraryBook, new FileInfo(file));
+		protected static void SetDirectoryTime(LibraryBook libraryBook, string file)
+			=> setFileSystemTime(libraryBook, new DirectoryInfo(file));
+
+		private static void setFileSystemTime(LibraryBook libraryBook, FileSystemInfo fileInfo)
+		{
+			if (!fileInfo.Exists) return;
+
+            fileInfo.CreationTimeUtc = getTimeValue(Configuration.Instance.CreationTime) ?? fileInfo.CreationTimeUtc;
+            fileInfo.LastWriteTimeUtc = getTimeValue(Configuration.Instance.LastWriteTime) ?? fileInfo.LastWriteTimeUtc;			
+
+			DateTime? getTimeValue(Configuration.DateTimeSource source) => source switch
+			{
+				Configuration.DateTimeSource.Added => libraryBook.DateAdded,
+				Configuration.DateTimeSource.Published => libraryBook.Book.DatePublished,
+				_ => null,
+			};
+		}
+
+	}
 }

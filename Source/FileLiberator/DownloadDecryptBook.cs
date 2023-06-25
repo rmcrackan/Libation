@@ -99,8 +99,12 @@ namespace FileLiberator
                 }
                 finally
                 {
-					if (moveFilesTask.IsCompletedSuccessfully)
-						await Task.Run(() => libraryBook.UpdateBookStatus(LiberatedStatus.Liberated, Configuration.LibationVersion));
+                    if (moveFilesTask.IsCompletedSuccessfully)
+                    {
+                        await Task.Run(() => libraryBook.UpdateBookStatus(LiberatedStatus.Liberated, Configuration.LibationVersion));
+
+						SetDirectoryTime(libraryBook, finalStorageDir);
+					}
 				}
 
 				return new StatusHandler();
@@ -366,8 +370,9 @@ namespace FileLiberator
                         Path.Combine(destinationDir, Path.GetFileName(entry.Path)),
                         Configuration.Instance.ReplacementCharacters,
                         overwrite: Configuration.Instance.OverwriteExisting);
-                
-                FilePathCache.Insert(libraryBook.Book.AudibleProductId, realDest);
+
+                SetFileTime(libraryBook, realDest);
+				FilePathCache.Insert(libraryBook.Book.AudibleProductId, realDest);
 
                 // propagate corrected path. Must update cache with corrected path. Also want updated path for cue file (after this for-loop)
                 entries[i] = entry with { Path = realDest };
@@ -375,7 +380,10 @@ namespace FileLiberator
 
 			var cue = entries.FirstOrDefault(f => f.FileType == FileType.Cue);
             if (cue != default)
+            {
                 Cue.UpdateFileName(cue.Path, getFirstAudioFile(entries).Path);
+				SetFileTime(libraryBook, cue.Path);
+			}
 
             AudibleFileStorage.Audio.Refresh();
         }
@@ -408,7 +416,10 @@ namespace FileLiberator
 
                 var picBytes = PictureStorage.GetPictureSynchronously(new(libraryBook.Book.PictureLarge ?? libraryBook.Book.PictureId, PictureSize.Native));
                 if (picBytes.Length > 0)
+                {
                     File.WriteAllBytes(coverPath, picBytes);
+                    SetFileTime(libraryBook, coverPath);
+                }
             }
             catch (Exception ex)
             {

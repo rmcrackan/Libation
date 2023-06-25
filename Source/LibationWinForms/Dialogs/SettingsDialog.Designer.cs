@@ -53,6 +53,11 @@
 			tab1ImportantSettings = new System.Windows.Forms.TabPage();
 			betaOptInCbox = new System.Windows.Forms.CheckBox();
 			booksGb = new System.Windows.Forms.GroupBox();
+			lastWriteTimeCb = new System.Windows.Forms.ComboBox();
+			creationTimeCb = new System.Windows.Forms.ComboBox();
+			lastWriteTimeLbl = new System.Windows.Forms.Label();
+			creationTimeLbl = new System.Windows.Forms.Label();
+			overwriteExistingCbox = new System.Windows.Forms.CheckBox();
 			saveEpisodesToSeriesFolderCbox = new System.Windows.Forms.CheckBox();
 			tab2ImportLibrary = new System.Windows.Forms.TabPage();
 			autoDownloadEpisodesCb = new System.Windows.Forms.CheckBox();
@@ -119,7 +124,6 @@
 			retainAaxFileCbox = new System.Windows.Forms.CheckBox();
 			downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
 			createCueSheetCbox = new System.Windows.Forms.CheckBox();
-			overwriteExistingCbox = new System.Windows.Forms.CheckBox();
 			badBookGb.SuspendLayout();
 			tabControl.SuspendLayout();
 			tab1ImportantSettings.SuspendLayout();
@@ -331,7 +335,7 @@
 			// 
 			// logsBtn
 			// 
-			logsBtn.Location = new System.Drawing.Point(256, 220);
+			logsBtn.Location = new System.Drawing.Point(256, 261);
 			logsBtn.Name = "logsBtn";
 			logsBtn.Size = new System.Drawing.Size(132, 23);
 			logsBtn.TabIndex = 5;
@@ -351,7 +355,7 @@
 			// loggingLevelLbl
 			// 
 			loggingLevelLbl.AutoSize = true;
-			loggingLevelLbl.Location = new System.Drawing.Point(6, 223);
+			loggingLevelLbl.Location = new System.Drawing.Point(6, 264);
 			loggingLevelLbl.Name = "loggingLevelLbl";
 			loggingLevelLbl.Size = new System.Drawing.Size(78, 15);
 			loggingLevelLbl.TabIndex = 3;
@@ -361,7 +365,7 @@
 			// 
 			loggingLevelCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			loggingLevelCb.FormattingEnabled = true;
-			loggingLevelCb.Location = new System.Drawing.Point(90, 220);
+			loggingLevelCb.Location = new System.Drawing.Point(90, 261);
 			loggingLevelCb.Name = "loggingLevelCb";
 			loggingLevelCb.Size = new System.Drawing.Size(129, 23);
 			loggingLevelCb.TabIndex = 4;
@@ -409,16 +413,68 @@
 			// booksGb
 			// 
 			booksGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			booksGb.Controls.Add(lastWriteTimeCb);
+			booksGb.Controls.Add(creationTimeCb);
+			booksGb.Controls.Add(lastWriteTimeLbl);
+			booksGb.Controls.Add(creationTimeLbl);
 			booksGb.Controls.Add(overwriteExistingCbox);
 			booksGb.Controls.Add(saveEpisodesToSeriesFolderCbox);
 			booksGb.Controls.Add(booksSelectControl);
 			booksGb.Controls.Add(booksLocationDescLbl);
 			booksGb.Location = new System.Drawing.Point(6, 6);
 			booksGb.Name = "booksGb";
-			booksGb.Size = new System.Drawing.Size(842, 182);
+			booksGb.Size = new System.Drawing.Size(842, 249);
 			booksGb.TabIndex = 0;
 			booksGb.TabStop = false;
 			booksGb.Text = "Books location";
+			// 
+			// lastWriteTimeCb
+			// 
+			lastWriteTimeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			lastWriteTimeCb.FormattingEnabled = true;
+			lastWriteTimeCb.Location = new System.Drawing.Point(188, 214);
+			lastWriteTimeCb.Name = "lastWriteTimeCb";
+			lastWriteTimeCb.Size = new System.Drawing.Size(266, 23);
+			lastWriteTimeCb.TabIndex = 5;
+			// 
+			// creationTimeCb
+			// 
+			creationTimeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			creationTimeCb.FormattingEnabled = true;
+			creationTimeCb.Location = new System.Drawing.Point(188, 185);
+			creationTimeCb.Name = "creationTimeCb";
+			creationTimeCb.Size = new System.Drawing.Size(266, 23);
+			creationTimeCb.TabIndex = 5;
+			// 
+			// lastWriteTimeLbl
+			// 
+			lastWriteTimeLbl.AutoSize = true;
+			lastWriteTimeLbl.Location = new System.Drawing.Point(7, 217);
+			lastWriteTimeLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			lastWriteTimeLbl.Name = "lastWriteTimeLbl";
+			lastWriteTimeLbl.Size = new System.Drawing.Size(116, 15);
+			lastWriteTimeLbl.TabIndex = 4;
+			lastWriteTimeLbl.Text = "[last write time desc]";
+			// 
+			// creationTimeLbl
+			// 
+			creationTimeLbl.AutoSize = true;
+			creationTimeLbl.Location = new System.Drawing.Point(7, 188);
+			creationTimeLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			creationTimeLbl.Name = "creationTimeLbl";
+			creationTimeLbl.Size = new System.Drawing.Size(112, 15);
+			creationTimeLbl.TabIndex = 4;
+			creationTimeLbl.Text = "[creation time desc]";
+			// 
+			// overwriteExistingCbox
+			// 
+			overwriteExistingCbox.AutoSize = true;
+			overwriteExistingCbox.Location = new System.Drawing.Point(7, 156);
+			overwriteExistingCbox.Name = "overwriteExistingCbox";
+			overwriteExistingCbox.Size = new System.Drawing.Size(129, 19);
+			overwriteExistingCbox.TabIndex = 3;
+			overwriteExistingCbox.Text = "[Overwrite Existing]";
+			overwriteExistingCbox.UseVisualStyleBackColor = true;
 			// 
 			// saveEpisodesToSeriesFolderCbox
 			// 
@@ -1145,16 +1201,6 @@
 			createCueSheetCbox.UseVisualStyleBackColor = true;
 			createCueSheetCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
 			// 
-			// overwriteExistingCbox
-			// 
-			overwriteExistingCbox.AutoSize = true;
-			overwriteExistingCbox.Location = new System.Drawing.Point(7, 156);
-			overwriteExistingCbox.Name = "overwriteExistingCbox";
-			overwriteExistingCbox.Size = new System.Drawing.Size(129, 19);
-			overwriteExistingCbox.TabIndex = 3;
-			overwriteExistingCbox.Text = "[Overwrite Existing]";
-			overwriteExistingCbox.UseVisualStyleBackColor = true;
-			// 
 			// SettingsDialog
 			// 
 			AcceptButton = saveBtn;
@@ -1300,5 +1346,9 @@
 		private System.Windows.Forms.Label label21;
 		private System.Windows.Forms.Label label20;
 		private System.Windows.Forms.CheckBox overwriteExistingCbox;
+		private System.Windows.Forms.Label creationTimeLbl;
+		private System.Windows.Forms.ComboBox lastWriteTimeCb;
+		private System.Windows.Forms.ComboBox creationTimeCb;
+		private System.Windows.Forms.Label lastWriteTimeLbl;
 	}
 }
