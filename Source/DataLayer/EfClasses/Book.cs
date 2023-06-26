@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Dinah.Core;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +34,8 @@ namespace DataLayer
 
         // immutable
         public string AudibleProductId { get; private set; }
-        public string Title { get; private set; }
+        public string Title { get; set; }
+        public string Subtitle { get; set; }
         public string Description { get; private set; }
         public int LengthInMinutes { get; private set; }
         public ContentType ContentType { get; private set; }
@@ -70,6 +72,7 @@ namespace DataLayer
         public Book(
             AudibleProductId audibleProductId,
             string title,
+            string subtitle,
             string description,
             int lengthInMinutes,
             ContentType contentType,
@@ -99,6 +102,7 @@ namespace DataLayer
 
             // simple assigns
             Title = title.Trim() ?? "";
+      Subtitle = subtitle?.Trim() ?? "";
             Description = description?.Trim() ?? "";
             LengthInMinutes = lengthInMinutes;
             ContentType = contentType;

@@ -118,7 +118,8 @@ namespace DtoImporterService
 			{
 				book = DbContext.Books.Add(new Book(
 					new AudibleProductId(item.ProductId),
-					item.TitleWithSubtitle,
+					item.Title,
+					item.Subtitle,
 					item.Description,
 					item.LengthInMinutes,
 					contentType,
@@ -163,6 +164,10 @@ namespace DtoImporterService
 		private void updateBook(ImportItem importItem, Book book)
 		{
 			var item = importItem.DtoItem;
+
+			// Update the book titles, since formatting can change
+			book.Title = item.Title;
+			book.Subtitle = item.Subtitle;
 
 			var codec = item.AvailableCodecs?.Max(f => AudioFormat.FromString(f.EnhancedCodec)) ?? new AudioFormat();
 			book.AudioFormat = codec;

@@ -41,6 +41,7 @@ namespace FileLiberator
 
 				AudibleProductId = libraryBook.Book.AudibleProductId,
 				Title = libraryBook.Book.Title ?? "",
+				Subtitle = libraryBook.Book.Subtitle ?? "",
 				Locale = libraryBook.Book.Locale,
 				YearPublished = libraryBook.Book.DatePublished?.Year,
 				DatePublished = libraryBook.Book.DatePublished,
