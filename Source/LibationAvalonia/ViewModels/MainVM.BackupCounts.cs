@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using Avalonia.Threading;
+using LibationFileManager;
 using ReactiveUI;
 using System.Threading.Tasks;
 
@@ -52,6 +53,10 @@ namespace LibationAvalonia.ViewModels
 				updateCountsTask = Task.Run(() => LibraryCommands.GetCounts());
 				var stats = await updateCountsTask;
 				await Dispatcher.UIThread.InvokeAsync(() => LibraryStats = stats);
+				
+				if (Configuration.Instance.AutoDownloadEpisodes
+					&& stats.booksNoProgress + stats.pdfsNotDownloaded > 0)
+					await Dispatcher.UIThread.InvokeAsync(BackupAllBooks);
 			}
 		}
 	}

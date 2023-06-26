@@ -1,9 +1,11 @@
-﻿using Avalonia.Collections;
+﻿using AAXClean;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Dinah.Core;
 using LibationFileManager;
 using LibationUiBase;
 using ReactiveUI;
+using System;
 using System.Linq;
 
 namespace LibationAvalonia.ViewModels.Settings
@@ -19,21 +21,11 @@ namespace LibationAvalonia.ViewModels.Settings
 		private int _lameBitrate;
 		private int _lameVBRQuality;
 		private string _chapterTitleTemplate;
-		public SampleRateSelection SelectedSampleRate { get; set; }
+		public EnumDiaplay<SampleRate> SelectedSampleRate { get; set; }
 		public NAudio.Lame.EncoderQuality SelectedEncoderQuality { get; set; }
 
-		public AvaloniaList<SampleRateSelection> SampleRates { get; }
-			= new(
-				new[]
-				{
-					AAXClean.SampleRate.Hz_44100,
-					AAXClean.SampleRate.Hz_32000,
-					AAXClean.SampleRate.Hz_24000,
-					AAXClean.SampleRate.Hz_22050,
-					AAXClean.SampleRate.Hz_16000,
-					AAXClean.SampleRate.Hz_12000,
-				}
-				.Select(s => new SampleRateSelection(s)));
+		public AvaloniaList<EnumDiaplay<SampleRate>> SampleRates { get; }
+			= new(Enum.GetValues<SampleRate>().Select(v => new EnumDiaplay<SampleRate>(v, $"{(int)v} Hz")));
 
 		public AvaloniaList<NAudio.Lame.EncoderQuality> EncoderQualities { get; }
 		= new(
@@ -71,7 +63,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			LameBitrate = config.LameBitrate;
 			LameVBRQuality = config.LameVBRQuality;
 
-			SelectedSampleRate = SampleRates.FirstOrDefault(s => s.SampleRate == config.MaxSampleRate);
+			SelectedSampleRate = SampleRates.SingleOrDefault(s => s.Value == config.MaxSampleRate);
 			SelectedEncoderQuality = config.LameEncoderQuality;
 		}
 
@@ -98,7 +90,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.LameVBRQuality = LameVBRQuality;
 
 			config.LameEncoderQuality = SelectedEncoderQuality;
-			config.MaxSampleRate = SelectedSampleRate?.SampleRate ?? config.MaxSampleRate;
+			config.MaxSampleRate = SelectedSampleRate?.Value ?? config.MaxSampleRate;
 		}
 
 		public AvaloniaList<Configuration.ClipBookmarkFormat> ClipBookmarkFormats { get; } = new(Enum<Configuration.ClipBookmarkFormat>.GetValues());

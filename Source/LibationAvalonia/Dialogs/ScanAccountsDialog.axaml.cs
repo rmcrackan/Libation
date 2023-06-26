@@ -41,6 +41,7 @@ namespace LibationAvalonia.Dialogs
 				_accounts.Add(new listItem
 				{
 					Account = account,
+					IsChecked = account.LibraryScan,
 					Text = $"{account.AccountName} ({account.AccountId} - {account.Locale.Name})"
 				});
 

@@ -13,7 +13,7 @@
 			Grid.Row="0"
 			Margin="5"
 			Label="Books Location">
-
+			
 			<StackPanel>
 				<TextBlock
 					Margin="5"
@@ -31,6 +31,40 @@
 				<CheckBox IsChecked="{CompiledBinding OverwriteExisting, Mode=TwoWay}">
 					<TextBlock Text="{CompiledBinding OverwriteExistingText}" />
 				</CheckBox>
+
+				<Grid
+					RowDefinitions="Auto,Auto"
+					ColumnDefinitions="Auto,*">
+					
+					<TextBlock
+						VerticalAlignment="Center"
+						Margin="0,0,10,0"
+						Text="{CompiledBinding CreationTimeText}" />
+
+					<controls:WheelComboBox
+						Height="25"
+						Grid.Column="1"
+						Margin="0,5"
+						HorizontalContentAlignment="Stretch"
+						SelectedItem="{CompiledBinding CreationTime, Mode=TwoWay}"
+						ItemsSource="{CompiledBinding DateTimeSources}" />
+
+					<TextBlock
+						VerticalAlignment="Center"
+						Grid.Row="1"
+						Margin="0,0,10,0"
+						Text="{CompiledBinding LastWriteTimeText}" />
+
+					<controls:WheelComboBox
+						Height="25"
+						Grid.Row="1"
+						Grid.Column="1"
+						Margin="0,5"
+						HorizontalContentAlignment="Stretch"
+						SelectedItem="{CompiledBinding LastWriteTime, Mode=TwoWay}"
+						ItemsSource="{CompiledBinding DateTimeSources}" />
+
+				</Grid>
 
 			</StackPanel>
 

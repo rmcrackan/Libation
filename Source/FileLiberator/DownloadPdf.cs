@@ -30,6 +30,11 @@ namespace FileLiberator
 				var actualDownloadedFilePath = await downloadPdfAsync(libraryBook, proposedDownloadFilePath);
 				var result = verifyDownload(actualDownloadedFilePath);
 
+				if (result.IsSuccess)
+				{
+					SetFileTime(libraryBook, actualDownloadedFilePath);
+					SetDirectoryTime(libraryBook, Path.GetDirectoryName(actualDownloadedFilePath));
+				}
 				libraryBook.UpdatePdfStatus(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
 
                 return result;

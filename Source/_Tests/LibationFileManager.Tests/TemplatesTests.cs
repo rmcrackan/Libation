@@ -108,6 +108,42 @@ namespace TemplatesTests
 		}
 
 		[TestMethod]
+		[DataRow("<samplerate>", "", "", "100")]
+		[DataRow(" <samplerate> ", "", "", "100")]
+		[DataRow("4<samplerate>4", "", "", "100")]
+		[DataRow("<bitrate>   -   <bitrate>", "", "", "1 8 - 1 8")]
+		[DataRow("<bitrate>   42   <bitrate>", "", "", "1 8 1 8")]
+		[DataRow(" <bitrate> - <bitrate> ", "", "", "1 8 - 1 8")]
+		[DataRow("4<bitrate> - <bitrate> 4", "", "", "1 8 - 1 8")]
+		[DataRow("4<bitrate> - <bitrate> 4", "", "", "1 8 - 1 8")]
+		[DataRow("<channels><channels><samplerate><channels><channels>", "", "", "100")]
+		[DataRow(" <channels> <channels> <samplerate> <channels> <channels>", "", "", "100")]
+		[DataRow(" <channels> - <channels> <samplerate> <channels> - <channels>", "", "", "- 100 -")]
+
+		public void Tests_removeSpaces(string template, string dirFullPath, string extension, string expected)
+		{
+			if (Environment.OSVersion.Platform is not PlatformID.Win32NT)
+			{
+				dirFullPath = dirFullPath.Replace("C:", "").Replace('\\', '/');
+				expected = expected.Replace("C:", "").Replace('\\', '/');
+			}
+			var replacements
+				= new ReplacementCharacters
+				{
+					Replacements = Replacements.Replacements
+					.Append(new Replacement('4', "  ", ""))
+					.Append(new Replacement('2', "  ", ""))
+					.ToArray() };
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+
+			fileTemplate
+				.GetFilename(GetLibraryBook(), dirFullPath, extension, replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
 		[DataRow("<bitrate>Kbps <samplerate>Hz", "128Kbps 44100Hz")]
 		[DataRow("<bitrate>Kbps <samplerate[6]>Hz", "128Kbps 044100Hz")]
 		[DataRow("<bitrate[4]>Kbps <samplerate>Hz", "0128Kbps 44100Hz")]

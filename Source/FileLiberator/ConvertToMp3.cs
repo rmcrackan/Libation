@@ -81,6 +81,9 @@ namespace FileLiberator
 									extension: "mp3",
 									Configuration.Instance.OverwriteExisting);
 
+							SetFileTime(libraryBook, realMp3Path);
+							SetDirectoryTime(libraryBook, Path.GetDirectoryName(realMp3Path));
+
 							OnFileCreated(libraryBook, realMp3Path);
 						}
 					}

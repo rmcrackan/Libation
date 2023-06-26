@@ -28,15 +28,9 @@ namespace LibationWinForms.Dialogs
 				});
 
 			maxSampleRateCb.Items.AddRange(
-				new object[]
-				{
-					new SampleRateSelection(AAXClean.SampleRate.Hz_44100),
-					new SampleRateSelection(AAXClean.SampleRate.Hz_32000),
-					new SampleRateSelection(AAXClean.SampleRate.Hz_24000),
-					new SampleRateSelection(AAXClean.SampleRate.Hz_22050),
-					new SampleRateSelection(AAXClean.SampleRate.Hz_16000),
-					new SampleRateSelection(AAXClean.SampleRate.Hz_12000)
-				});
+				Enum.GetValues<AAXClean.SampleRate>()
+				.Select(v => new EnumDiaplay<AAXClean.SampleRate>(v, $"{(int)v} Hz"))
+				.ToArray());
 
 			encoderQualityCb.Items.AddRange(
 				new object[]
@@ -62,7 +56,13 @@ namespace LibationWinForms.Dialogs
 
 			lameTargetBitrateRb.Checked = config.LameTargetBitrate;
 			lameTargetQualityRb.Checked = !config.LameTargetBitrate;
-			maxSampleRateCb.SelectedItem = maxSampleRateCb.Items.Cast<SampleRateSelection>().Single(s => s.SampleRate == config.MaxSampleRate);
+
+			maxSampleRateCb.SelectedItem
+				= maxSampleRateCb.Items
+				.Cast<EnumDiaplay<AAXClean.SampleRate>>()
+				.SingleOrDefault(v => v.Value == config.MaxSampleRate)
+				?? maxSampleRateCb.Items[0];
+
 			encoderQualityCb.SelectedItem = config.LameEncoderQuality;
 			lameDownsampleMonoCbox.Checked = config.LameDownsampleMono;
 			lameBitrateTb.Value = config.LameBitrate;
@@ -95,9 +95,8 @@ namespace LibationWinForms.Dialogs
 			config.StripAudibleBrandAudio = stripAudibleBrandingCbox.Checked;
 			config.DecryptToLossy = convertLossyRb.Checked;
 			config.MoveMoovToBeginning = moveMoovAtomCbox.Checked;
-
 			config.LameTargetBitrate = lameTargetBitrateRb.Checked;
-			config.MaxSampleRate = ((SampleRateSelection)maxSampleRateCb.SelectedItem).SampleRate;
+			config.MaxSampleRate = ((EnumDiaplay<AAXClean.SampleRate>)maxSampleRateCb.SelectedItem).Value;
 			config.LameEncoderQuality = (NAudio.Lame.EncoderQuality)encoderQualityCb.SelectedItem;
 			encoderQualityCb.SelectedItem = config.LameEncoderQuality;
 			config.LameDownsampleMono = lameDownsampleMonoCbox.Checked;

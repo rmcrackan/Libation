@@ -23,6 +23,7 @@
 			CanUserSortColumns="False"
 			AutoGenerateColumns="False"
 			IsReadOnly="False"
+			Name="accountsGrid"
 			ItemsSource="{Binding Accounts}"
 			GridLinesVisibility="All">
 
