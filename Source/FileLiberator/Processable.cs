@@ -45,7 +45,7 @@ namespace FileLiberator
 
             Serilog.Log.Logger.Information("Begin " + nameof(ProcessSingleAsync) + " {@DebugInfo}", new
             {
-                libraryBook.Book.Title,
+                libraryBook.Book.TitleWithSubtitle,
                 libraryBook.Book.AudibleProductId,
                 libraryBook.Book.Locale,
                 Account = libraryBook.Account?.ToMask() ?? "[empty]"

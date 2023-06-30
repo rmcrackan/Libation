@@ -77,7 +77,7 @@ namespace LibationWinForms.ProcessQueue
 			LibraryBook = libraryBook;
 			Logger = logme;
 
-			title = LibraryBook.Book.Title;
+			title = LibraryBook.Book.TitleWithSubtitle;
 			authorNames = LibraryBook.Book.AuthorNames();
 			narratorNames = LibraryBook.Book.NarratorNames();
 			_bookText = $"{title}\r\nBy {authorNames}\r\nNarrated by {narratorNames}";
@@ -291,7 +291,7 @@ namespace LibationWinForms.ProcessQueue
 
 			Logger.Info($"{Environment.NewLine}{((Processable)sender).Name} Step, Begin: {libraryBook.Book}");
 
-			title = libraryBook.Book.Title;
+			title = libraryBook.Book.TitleWithSubtitle;
 			authorNames = libraryBook.Book.AuthorNames();
 			narratorNames = libraryBook.Book.NarratorNames();
 			updateBookInfo();
@@ -359,7 +359,7 @@ namespace LibationWinForms.ProcessQueue
 					: str;
 
 				details =
-$@"  Title: {libraryBook.Book.Title}
+$@"  Title: {libraryBook.Book.TitleWithSubtitle}
   ID: {libraryBook.Book.AudibleProductId}
   Author: {trunc(libraryBook.Book.AuthorNames())}
   Narr: {trunc(libraryBook.Book.NarratorNames())}";
@@ -379,7 +379,7 @@ $@"  Title: {libraryBook.Book.Title}
 			{
 				libraryBook.UpdateBookStatus(LiberatedStatus.Error);
 
-				Logger.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}");
+				Logger.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.TitleWithSubtitle}");
 
 				return ProcessBookResult.FailedSkip;
 			}

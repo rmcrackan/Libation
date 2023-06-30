@@ -108,7 +108,7 @@ namespace ApplicationServices
 
 			var recordsObj = new JObject
 			{
-				{ "title", libraryBook.Book.Title},
+				{ "title", libraryBook.Book.TitleWithSubtitle},
 				{ "asin", libraryBook.Book.AudibleProductId},
 				{ "exportTime", DateTime.Now},
 				{ "records", JArray.FromObject(recordsEx) }

@@ -248,7 +248,9 @@ namespace LibationFileManager
 			//Don't allow formatting of Id
 			{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
 			{ TemplateTags.Title, lb => lb.TitleWithSubtitle },
-			{ TemplateTags.TitleShort, lb => lb.Title },
+			{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
+			{ TemplateTags.AudibleTitle, lb => lb.Title },
+			{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
 			{ TemplateTags.Author, lb => lb.Authors, NameListFormat.Formatter },
 			{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor },
 			{ TemplateTags.Narrator, lb => lb.Narrators, NameListFormat.Formatter },
@@ -275,7 +277,9 @@ namespace LibationFileManager
 			new PropertyTagCollection<LibraryBookDto>(caseSensative: true, StringFormatter)
 			{
 				{ TemplateTags.Title, lb => lb.TitleWithSubtitle },
-				{ TemplateTags.TitleShort, lb => lb.Title },
+				{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
+				{ TemplateTags.AudibleTitle, lb => lb.Title },
+				{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
 				{ TemplateTags.Series, lb => lb.SeriesName },
 			},
 			new PropertyTagCollection<MultiConvertFileProperties>(caseSensative: true, StringFormatter, IntegerFormatter, DateTimeFormatter)

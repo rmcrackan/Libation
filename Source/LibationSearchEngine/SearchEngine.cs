@@ -35,7 +35,7 @@ namespace LibationSearchEngine
         {
             { FieldType.ID, lb => lb.Book.AudibleProductId.ToLowerInvariant(), nameof(Book.AudibleProductId), "ProductId", "Id", "ASIN" },
             { FieldType.Raw, lb => lb.Book.AudibleProductId, _ID_ },
-            { FieldType.String, lb => lb.Book.Title, nameof(Book.Title), "ProductId", "Id", "ASIN" },
+            { FieldType.String, lb => lb.Book.TitleWithSubtitle, "Title", "ProductId", "Id", "ASIN" },
             { FieldType.String, lb => lb.Book.AuthorNames(), "AuthorNames", "Author", "Authors" },
             { FieldType.String, lb => lb.Book.NarratorNames(), "NarratorNames", "Narrator", "Narrators" },
             { FieldType.String, lb => lb.Book.Publisher, nameof(Book.Publisher) },

@@ -14,7 +14,7 @@ namespace FileLiberator
 		public static (string id, string title, string locale, string account) LogFriendly(this LibraryBook libraryBook)
 			=> (
 			id: libraryBook.Book.AudibleProductId,
-			title: libraryBook.Book.Title,
+			title: libraryBook.Book.TitleWithSubtitle,
 			locale: libraryBook.Book.Locale,
 			account: libraryBook.Account.ToMask()
 			);
@@ -40,8 +40,9 @@ namespace FileLiberator
 				DateAdded = libraryBook.DateAdded,
 
 				AudibleProductId = libraryBook.Book.AudibleProductId,
-				Title = libraryBook.Book.Title ?? "",
-				Subtitle = libraryBook.Book.Subtitle ?? "",
+				Title = libraryBook.Book.Title,
+				Subtitle = libraryBook.Book.Subtitle,
+				TitleWithSubtitle = libraryBook.Book.TitleWithSubtitle,
 				Locale = libraryBook.Book.Locale,
 				YearPublished = libraryBook.Book.DatePublished?.Year,
 				DatePublished = libraryBook.Book.DatePublished,

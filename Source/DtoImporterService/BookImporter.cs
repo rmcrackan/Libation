@@ -166,8 +166,7 @@ namespace DtoImporterService
 			var item = importItem.DtoItem;
 
 			// Update the book titles, since formatting can change
-			book.Title = item.Title;
-			book.Subtitle = item.Subtitle;
+			book.UpdateTitle(item.Title, item.Subtitle);
 
 			var codec = item.AvailableCodecs?.Max(f => AudioFormat.FromString(f.EnhancedCodec)) ?? new AudioFormat();
 			book.AudioFormat = codec;

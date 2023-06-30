@@ -227,7 +227,7 @@ namespace LibationAvalonia.ViewModels
 					else if (result == ProcessBookResult.LicenseDeniedPossibleOutage && !shownServiceOutageMessage)
 					{
 						await MessageBox.Show(@$"
-You were denied a content license for {nextBook.LibraryBook.Book.Title}
+You were denied a content license for {nextBook.LibraryBook.Book.TitleWithSubtitle}
 
 This error appears to be caused by a temporary interruption of service that sometimes affects Libation's users. This type of error usually resolves itself in 1 to 2 days, and in the meantime you should still be able to access your books through Audible's website or app.
 ",

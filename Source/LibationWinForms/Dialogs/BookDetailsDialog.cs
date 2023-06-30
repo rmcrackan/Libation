@@ -38,13 +38,14 @@ namespace LibationWinForms.Dialogs
 		// 1st draft: lazily cribbed from GridEntry.ctor()
 		private void initDetails()
 		{
-			this.Text = Book.Title;
+			this.Text = Book.TitleWithSubtitle;
 
 			(_, var picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
 			this.coverPb.Image = WinFormsUtil.TryLoadImageOrDefault(picture, PictureSize._80x80);
 
+			var title = string.IsNullOrEmpty(Book.Subtitle) ? Book.Title : $"{Book.Title}\r\n        {Book.Subtitle}";
 			var t = @$"
-Title: {Book.Title}
+Title: {title}
 Author(s): {Book.AuthorNames()}
 Narrator(s): {Book.NarratorNames()}
 Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}

@@ -35,6 +35,9 @@ namespace ApplicationServices
 		[Name("Title")]
 		public string Title { get; set; }
 
+		[Name("Subtitle")]
+		public string Subtitle { get; set; }
+
 		[Name("Authors")]
 		public string AuthorNames { get; set; }
 
@@ -123,6 +126,7 @@ namespace ApplicationServices
 				AudibleProductId = a.Book.AudibleProductId,
 				Locale = a.Book.Locale,
 				Title = a.Book.Title,
+				Subtitle = a.Book.Subtitle,
 				AuthorNames = a.Book.AuthorNames(),
 				NarratorNames = a.Book.NarratorNames(),
 				LengthInMinutes = a.Book.LengthInMinutes,
@@ -198,6 +202,7 @@ namespace ApplicationServices
 				nameof(ExportDto.AudibleProductId),
 				nameof(ExportDto.Locale),
 				nameof(ExportDto.Title),
+				nameof(ExportDto.Subtitle),
 				nameof(ExportDto.AuthorNames),
 				nameof(ExportDto.NarratorNames),
 				nameof(ExportDto.LengthInMinutes),
@@ -256,6 +261,7 @@ namespace ApplicationServices
 				row.CreateCell(col++).SetCellValue(dto.AudibleProductId);
 				row.CreateCell(col++).SetCellValue(dto.Locale);
 				row.CreateCell(col++).SetCellValue(dto.Title);
+				row.CreateCell(col++).SetCellValue(dto.Subtitle);
 				row.CreateCell(col++).SetCellValue(dto.AuthorNames);
 				row.CreateCell(col++).SetCellValue(dto.NarratorNames);
 				row.CreateCell(col++).SetCellValue(dto.LengthInMinutes);

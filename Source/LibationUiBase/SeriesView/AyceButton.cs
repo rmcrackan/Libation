@@ -108,7 +108,7 @@ namespace LibationUiBase.SeriesView
 					{
 						Asin = seriesParent.AudibleProductId,
 						Sequence = item.Relationships.FirstOrDefault(r => r.Asin == seriesParent.AudibleProductId)?.Sort?.ToString() ?? "0",
-						Title = seriesParent.Title
+						Title = seriesParent.TitleWithSubtitle
 					}
 				};
 			}

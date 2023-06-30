@@ -105,7 +105,7 @@ namespace LibationUiBase.GridView
 			Liberate = TStatus.Create(libraryBook);
 			Liberate.Expanded = expanded;
 
-			Title = Book.Title;
+			Title = Book.TitleWithSubtitle;
 			Series = Book.SeriesNames(includeIndex: true);
 			SeriesOrder = new SeriesOrder(Book.SeriesLink);
 			Length = GetBookLengthString();
