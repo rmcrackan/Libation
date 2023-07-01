@@ -105,7 +105,7 @@ namespace LibationAvalonia.ViewModels
 			LibraryBook = libraryBook;
 			Logger = logme;
 
-			_title = LibraryBook.Book.Title;
+			_title = LibraryBook.Book.TitleWithSubtitle;
 			_author = LibraryBook.Book.AuthorNames();
 			_narrator = LibraryBook.Book.NarratorNames();
 
@@ -305,7 +305,7 @@ namespace LibationAvalonia.ViewModels
 
 			Logger.Info($"{Environment.NewLine}{((Processable)sender).Name} Step, Begin: {libraryBook.Book}");
 
-			Title = libraryBook.Book.Title;
+			Title = libraryBook.Book.TitleWithSubtitle;
 			Author = libraryBook.Book.AuthorNames();
 			Narrator = libraryBook.Book.NarratorNames();
 		}
@@ -372,7 +372,7 @@ namespace LibationAvalonia.ViewModels
 					: str;
 
 				details =
-$@"  Title: {libraryBook.Book.Title}
+$@"  Title: {libraryBook.Book.TitleWithSubtitle}
   ID: {libraryBook.Book.AudibleProductId}
   Author: {trunc(libraryBook.Book.AuthorNames())}
   Narr: {trunc(libraryBook.Book.NarratorNames())}";
@@ -392,7 +392,7 @@ $@"  Title: {libraryBook.Book.Title}
 			{
 				libraryBook.UpdateBookStatus(LiberatedStatus.Error);
 
-				Logger.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.Title}");
+				Logger.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.TitleWithSubtitle}");
 
 				return ProcessBookResult.FailedSkip;
 			}

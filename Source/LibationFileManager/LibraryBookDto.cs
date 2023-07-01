@@ -8,7 +8,9 @@ namespace LibationFileManager
     {
         public string AudibleProductId { get; set; }
         public string Title { get; set; }
-        public string Locale { get; set; }
+		public string Subtitle { get; set; }
+		public string TitleWithSubtitle { get; set; }
+		public string Locale { get; set; }
         public int? YearPublished { get; set; }
 
         public IEnumerable<string> Authors { get; set; }

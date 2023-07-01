@@ -21,7 +21,7 @@ namespace LibationAvalonia.Dialogs
 			set
 			{
 				_libraryBook = value;
-				Title = _libraryBook.Book.Title;
+				Title = _libraryBook.Book.TitleWithSubtitle;
 				DataContext = _viewModel = new BookDetailsDialogViewModel(_libraryBook);
 			}
 		}
@@ -106,9 +106,11 @@ namespace LibationAvalonia.Dialogs
 				var picture = PictureStorage.GetPictureSynchronously(new PictureDefinition(libraryBook.Book.PictureId, PictureSize._80x80));
 				Cover = AvaloniaUtils.TryLoadImageOrDefault(picture, PictureSize._80x80);
 
+				var title = string.IsNullOrEmpty(Book.Subtitle) ? Book.Title : $"{Book.Title}\r\n        {Book.Subtitle}";
+
 				//init book details
 				DetailsText = @$"
-Title: {Book.Title}
+Title: {title}
 Author(s): {Book.AuthorNames()}
 Narrator(s): {Book.NarratorNames()}
 Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}

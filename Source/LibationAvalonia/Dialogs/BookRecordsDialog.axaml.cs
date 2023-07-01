@@ -37,7 +37,7 @@ namespace LibationAvalonia.Dialogs
 		public BookRecordsDialog(LibraryBook libraryBook) : this()
 		{
 			this.libraryBook = libraryBook;
-			Title = $"{libraryBook.Book.Title} - Clips and Bookmarks";
+			Title = $"{libraryBook.Book.TitleWithSubtitle} - Clips and Bookmarks";
 
 			Loaded += BookRecordsDialog_Loaded;
 		}
@@ -148,7 +148,7 @@ namespace LibationAvalonia.Dialogs
 				await Dispatcher.UIThread.InvokeAsync(() => new FilePickerSaveOptions
 				{
 					Title = "Where to export book records",
-					SuggestedFileName = $"{libraryBook.Book.Title} - Records",
+					SuggestedFileName = $"{libraryBook.Book.TitleWithSubtitle} - Records",
 					DefaultExtension = "xlsx",
 					ShowOverwritePrompt = true,
 					FileTypeChoices = new FilePickerFileType[]

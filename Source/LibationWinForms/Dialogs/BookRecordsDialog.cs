@@ -45,7 +45,7 @@ namespace LibationWinForms.Dialogs
 		{
 			this.libraryBook = libraryBook;
 
-			Text = $"{libraryBook.Book.Title} - Clips and Bookmarks";
+			Text = $"{libraryBook.Book.TitleWithSubtitle} - Clips and Bookmarks";
 		}
 
 		private async void BookRecordsDialog_Shown(object sender, EventArgs e)
@@ -182,7 +182,7 @@ namespace LibationWinForms.Dialogs
 					{
 						Title = "Where to export records",
 						AddExtension = true,
-						FileName = $"{libraryBook.Book.Title} - Records",
+						FileName = $"{libraryBook.Book.TitleWithSubtitle} - Records",
 						DefaultExt = "xlsx",
 						Filter = "Excel Workbook (*.xlsx)|*.xlsx|CSV files (*.csv)|*.csv|JSON files (*.json)|*.json" // + "|All files (*.*)|*.*"
 					});

@@ -34,7 +34,10 @@ namespace DataLayer
         // immutable
         public string AudibleProductId { get; private set; }
         public string Title { get; private set; }
-        public string Description { get; private set; }
+        public string Subtitle { get; private set; }
+        private string _titleWithSubtitle;
+        public string TitleWithSubtitle => _titleWithSubtitle ??= string.IsNullOrEmpty(Subtitle) ? Title : $"{Title}: {Subtitle}";
+		public string Description { get; private set; }
         public int LengthInMinutes { get; private set; }
         public ContentType ContentType { get; private set; }
         public string Locale { get; private set; }
@@ -70,6 +73,7 @@ namespace DataLayer
         public Book(
             AudibleProductId audibleProductId,
             string title,
+            string subtitle,
             string description,
             int lengthInMinutes,
             ContentType contentType,
@@ -98,8 +102,8 @@ namespace DataLayer
 			Category = category;
 
             // simple assigns
-            Title = title.Trim() ?? "";
-            Description = description?.Trim() ?? "";
+            UpdateTitle(title, subtitle);
+			Description = description?.Trim() ?? "";
             LengthInMinutes = lengthInMinutes;
             ContentType = contentType;
 
@@ -107,10 +111,16 @@ namespace DataLayer
             ReplaceAuthors(authors);
             ReplaceNarrators(narrators);
 		}
+        public void UpdateTitle(string  title, string subtitle)
+        {
+            Title = title?.Trim() ?? "";
+            Subtitle = subtitle?.Trim() ?? "";
+            _titleWithSubtitle = null;
+		}
 
-        #region contributors, authors, narrators
-        // use uninitialised backing fields - this means we can detect if the collection was loaded
-        private HashSet<BookContributor> _contributorsLink;
+		#region contributors, authors, narrators
+		// use uninitialised backing fields - this means we can detect if the collection was loaded
+		private HashSet<BookContributor> _contributorsLink;
         // i'd like this to be internal but migration throws this exception when i try:
         //   Value cannot be null.
         //   Parameter name: property
@@ -233,6 +243,6 @@ namespace DataLayer
 			Category = category;
         }
 
-        public override string ToString() => $"[{AudibleProductId}] {Title}";
+        public override string ToString() => $"[{AudibleProductId}] {TitleWithSubtitle}";
 	}
 }

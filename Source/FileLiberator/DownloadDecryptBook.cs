@@ -331,9 +331,9 @@ namespace FileLiberator
             string errorTitle()
             {
                 var title
-                    = (libraryBook.Book.Title.Length > 53)
-                    ? $"{libraryBook.Book.Title.Truncate(50)}..."
-                    : libraryBook.Book.Title;
+                    = (libraryBook.Book.TitleWithSubtitle.Length > 53)
+                    ? $"{libraryBook.Book.TitleWithSubtitle.Truncate(50)}..."
+                    : libraryBook.Book.TitleWithSubtitle;
                 var errorBookTitle = $"{title} [{libraryBook.Book.AudibleProductId}]";
                 return errorBookTitle;
             };

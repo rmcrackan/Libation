@@ -176,7 +176,7 @@ namespace LibationWinForms.GridView
 					{
 						var openFileDialog = new OpenFileDialog
 						{
-							Title = $"Locate the audio file for '{entry.Book.Title}'",
+							Title = $"Locate the audio file for '{entry.Book.TitleWithSubtitle}'",
 							Filter = "All files (*.*)|*.*",
 							FilterIndex = 1
 						};

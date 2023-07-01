@@ -8,7 +8,7 @@ namespace DataLayer
 {
     public static class EntityExtensions
     {
-        public static string TitleSortable(this Book book) => Formatters.GetSortName(book.Title);
+        public static string TitleSortable(this Book book) => Formatters.GetSortName(book.Title + book.Subtitle);
 
         public static string AuthorNames(this Book book) => string.Join(", ", book.Authors.Select(a => a.Name));
         public static string NarratorNames(this Book book) => string.Join(", ", book.Narrators.Select(n => n.Name));
@@ -62,7 +62,7 @@ namespace DataLayer
 
 			max = Math.Max(max, 1);
 
-			var titles = libraryBooks.Select(lb => "- " + lb.Book.Title).ToList();
+			var titles = libraryBooks.Select(lb => "- " + lb.Book.TitleWithSubtitle).ToList();
 			var titlesAgg = titles.Take(max).Aggregate((a, b) => $"{a}\r\n{b}");
 			if (titles.Count == max + 1)
 				titlesAgg += $"\r\n\r\nand 1 other";

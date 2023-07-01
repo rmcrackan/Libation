@@ -463,7 +463,7 @@ namespace Templates_Other
 			extension = FileUtility.GetStandardizedExtension(extension);
 
 			var lbDto = GetLibraryBook();
-			lbDto.Title = title;
+			lbDto.TitleWithSubtitle = title;
 			lbDto.AudibleProductId = "ID123456";
 
 			Templates.TryGetTemplate<Templates.FolderTemplate>(template, out var fileNamingTemplate).Should().BeTrue();
@@ -491,7 +491,7 @@ namespace Templates_Other
 			var template = Path.GetFileNameWithoutExtension(originalPath) + " - <ch# 0> - <title>" + estension;
 
 			var lbDto = GetLibraryBook();
-			lbDto.Title = suffix;
+			lbDto.TitleWithSubtitle = suffix;
 
 			Templates.TryGetTemplate<Templates.ChapterFileTemplate>(template, out var chapterFileTemplate).Should().BeTrue();
 
@@ -508,7 +508,7 @@ namespace Templates_Other
 			if (Environment.OSVersion.Platform == platformID)
 			{
 				var lbDto = GetLibraryBook();
-				lbDto.Title = @"s\l/a\s/h\e/s";
+				lbDto.TitleWithSubtitle = @"s\l/a\s/h\e/s";
 
 				var directory = Path.GetDirectoryName(inStr);
 				var fileName = Path.GetFileName(inStr);

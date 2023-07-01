@@ -25,8 +25,10 @@ These tags will be replaced in the template with the audiobook's values.
 |Tag|Description|Type|
 |-|-|-|
 |\<id\> **†**|Audible book ID (ASIN)|Text|
-|\<title\>|Full title|Text|
+|\<title\>|Full title with subtitle|Text|
 |\<title short\>|Title. Stop at first colon|Text|
+|\<audible title\>|Audible's title (does not include subtitle)|Text|
+|\<audible subtitle\>|Audible's subtitle|Text|
 |\<author\>|Author(s)|Name List|
 |\<first author\>|First author|Text|
 |\<narrator\>|Narrator(s)|Name List|

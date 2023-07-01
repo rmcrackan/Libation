@@ -159,7 +159,7 @@ namespace LibationAvalonia.Views
 
 							var openFileDialogOptions = new FilePickerOpenOptions
 							{
-								Title = $"Locate the audio file for '{entry.Book.Title}'",
+								Title = $"Locate the audio file for '{entry.Book.TitleWithSubtitle}'",
 								AllowMultiple = false,
 								SuggestedStartLocation = await window.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
 								FileTypeFilter = new FilePickerFileType[]
