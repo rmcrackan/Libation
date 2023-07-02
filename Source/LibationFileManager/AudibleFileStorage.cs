@@ -126,7 +126,16 @@ namespace LibationFileManager
                     BookDirectoryFiles = new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
 
             var regex = GetBookSearchRegex(productId);
-            return BookDirectoryFiles.FindFiles(regex);
+
+            //Find all extant files matching the priductID
+            //using both the file system and the file path cache
+			return
+                FilePathCache
+                .GetFiles(productId)
+                .Where(c => c.fileType == FileType.Audio && File.Exists(c.path))
+                .Select(c => c.path)
+                .Union(BookDirectoryFiles.FindFiles(regex))
+                .ToList();
         }
 
         public void Refresh() => BookDirectoryFiles.RefreshFiles();
