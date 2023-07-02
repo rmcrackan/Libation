@@ -10,7 +10,7 @@ namespace LibationCli.Options
 	[Verb("search", HelpText = "Search for books in your library")]
 	internal class SearchOptions : OptionsBase
 	{
-		[Value(0, MetaName = "query", Required = true, HelpText = "Lucene query test to search")]
+		[Value(0, MetaName = "query", Required = true, HelpText = "Lucene search string")]
 		public IEnumerable<string> Query { get; set; }
 
 		protected override Task ProcessAsync()
@@ -31,7 +31,7 @@ namespace LibationCli.Options
 				if (waitForNextBatch)
 				{
 					Console.Write(nextPrompt);
-					waitForNextBatch = Console.ReadKey().Key != ConsoleKey.Escape;
+					waitForNextBatch = Console.ReadKey(intercept: true).Key != ConsoleKey.Escape;
 					ReplaceConsoleText(Console.Out, nextPrompt.Length, "");
 					Console.SetCursorPosition(0, Console.CursorTop);
 				}

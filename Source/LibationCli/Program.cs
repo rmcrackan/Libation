@@ -21,7 +21,7 @@ namespace LibationCli
 		{
 
 #if DEBUG
-			string input = null;
+			string input = "";
 
 			//input = "  set-status -n --force B017V4IM1G";
 			//input = "  liberate B017V4IM1G";

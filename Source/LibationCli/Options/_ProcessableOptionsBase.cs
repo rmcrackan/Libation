@@ -51,16 +51,20 @@ namespace LibationCli
 
 		protected async Task RunAsync(Processable Processable)
 		{
-			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking().AsEnumerable();
+			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
 
 			if (Asins.Any())
 			{
-				var asinsLower = Asins.Select(a => a.ToLower()).ToArray();
-				libraryBooks = libraryBooks.Where(lb => lb.Book.AudibleProductId.ToLower().In(asinsLower));
-			}
+				var asinsLower = Asins.Select(a => a.TrimStart('[').TrimEnd(']').ToLower()).ToArray();
 
-			foreach (var libraryBook in Processable.GetValidLibraryBooks(libraryBooks))
-				await ProcessOneAsync(Processable, libraryBook, false);
+				foreach (var lb in libraryBooks.Where(lb => lb.Book.AudibleProductId.ToLower().In(asinsLower)))
+					await ProcessOneAsync(Processable, lb, true);
+			}
+			else
+			{
+				foreach (var lb in Processable.GetValidLibraryBooks(libraryBooks))
+					await ProcessOneAsync(Processable, lb, false);
+			}
 
 			var done = "Done. All books have been processed";
 			Console.WriteLine(done);

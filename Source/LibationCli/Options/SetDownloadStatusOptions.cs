@@ -17,7 +17,7 @@ namespace LibationCli
 		[Option(shortName: 'd', longName: "downloaded", Group = "Download Status", HelpText = "set download status to 'Downloaded'")]
 		public bool SetDownloaded { get; set; }
 
-		[Option(shortName: 'n', longName: "not-downloaded", Group = "Download Status", HelpText = "set download status to 'Downloaded'")]
+		[Option(shortName: 'n', longName: "not-downloaded", Group = "Download Status", HelpText = "set download status to 'Not Downloaded'")]
 		public bool SetNotDownloaded { get; set; }
 
 		[Option("force", HelpText = "Set the download status regardless of whether the book's audio file can be found. Only one download status option may be used with this option.")]
@@ -38,7 +38,7 @@ namespace LibationCli
 
 			if (Asins.Any())
 			{
-				var asins = Asins.Select(a => a.ToLower()).ToArray();
+				var asins = Asins.Select(a => a.TrimStart('[').TrimEnd(']').ToLower()).ToArray();
 				libraryBooks = libraryBooks.Where(lb => lb.Book.AudibleProductId.ToLower().In(asins)).ToList();
 
 				if (libraryBooks.Count == 0)
