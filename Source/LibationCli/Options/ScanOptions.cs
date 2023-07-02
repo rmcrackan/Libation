@@ -1,18 +1,18 @@
-﻿using System;
+﻿using ApplicationServices;
+using AudibleUtilities;
+using CommandLine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ApplicationServices;
-using AudibleUtilities;
-using CommandLine;
 
 namespace LibationCli
 {
 	[Verb("scan", HelpText = "Scan library. Default: scan all accounts. Optional: use 'account' flag to specify a single account.")]
 	public class ScanOptions : OptionsBase
 	{
-		[Value(0, MetaName = "Accounts", HelpText = "Optional: nicknames of accounts to scan.", Required = false)]
-		public IEnumerable<string> AccountNicknames { get; set; }
+		[Value(0, MetaName = "Accounts", HelpText = "Optional: user ID or nicknames of accounts to scan.", Required = false)]
+		public IEnumerable<string> AccountNames { get; set; }
 
 		protected override async Task ProcessAsync()
 		{
@@ -42,13 +42,19 @@ namespace LibationCli
 		private Account[] getAccounts()
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			var accounts = persister.AccountsSettings.GetAll().ToArray();
+			var allAccounts = persister.AccountsSettings.GetAll().ToArray();
 
-			if (!AccountNicknames.Any())
-				return accounts;
+			if (!AccountNames.Any())
+				return allAccounts;
 
-			var found = accounts.Where(acct => AccountNicknames.Contains(acct.AccountName)).ToArray();
-			var notFound = AccountNicknames.Except(found.Select(f => f.AccountName)).ToArray();
+			var accountNames = AccountNames.Select(n => n.ToLower()).ToArray();
+
+			var found
+				= allAccounts
+				.Where(acct => accountNames.Contains(acct.AccountName.ToLower()) || accountNames.Contains(acct.AccountId.ToLower()))
+				.ToArray();
+
+			var notFound = allAccounts.Except(found).ToArray();
 
 			// no accounts found. do not continue
 			if (!found.Any())

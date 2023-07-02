@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CommandLine;
+﻿using CommandLine;
 using CommandLine.Text;
 using Dinah.Core;
-using Dinah.Core.Collections;
-using Dinah.Core.Collections.Generic;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationCli
 {
@@ -19,24 +16,22 @@ namespace LibationCli
 	}
 	class Program
 	{
-        static async Task<int> Main(string[] args)
+		public readonly static Type[] VerbTypes = Setup.LoadVerbs();
+		static async Task Main(string[] args)
 		{
-			//***********************************************//
-			//                                               //
-			//   do not use Configuration before this line   //
-			//                                               //
-			//***********************************************//
-			Setup.Initialize();
-
-			var types = Setup.LoadVerbs();
 
 #if DEBUG
 			string input = null;
 
+			//input = "  set-status -n --force B017V4IM1G";
+			//input = "  liberate B017V4IM1G";
+			//input = "  convert B017V4IM1G";
+			//input = "  search \"-liberated\"";
 			//input = "  export --help";
+			//input = "  version --check";
 			//input = "  scan  rmcrackan";
+			//input = "  help  set-status";
 			//input = "  liberate ";
-
 
 			// note: this hack will fail for quoted file paths with spaces because it will break on those spaces
 			if (!string.IsNullOrWhiteSpace(input))
@@ -44,22 +39,40 @@ namespace LibationCli
 			var setBreakPointHere = args;
 #endif
 
-			var result = Parser.Default.ParseArguments(args, types);
+			var result = new Parser(ConfigureParser).ParseArguments(args, VerbTypes);
 
-			// if successfully parsed
-			// async: run parsed options
-			await result.WithParsedAsync<OptionsBase>(opt => opt.Run());
+			if (result.Value is HelpVerb helper)
+				Console.Error.WriteLine(helper.GetHelpText());
+			else if (result.TypeInfo.Current == typeof(HelpVerb))
+			{
+				//Error parsing the command, but the verb type was identified as HelpVerb
+				//Print LibationCli usage
+				var helpText = HelpVerb.CreateHelpText();
+				helpText.AddVerbs(VerbTypes);
+				Console.Error.WriteLine(helpText);
+			}
+			else if (result.Errors.Any())
+				HandleErrors(result);
+			else
+			{
+				//Everything parsed correctly, so execute the command
 
-			// if not successfully parsed
-			// sync: handle parse errors
-			result.WithNotParsed(errors => HandleErrors(result, errors));
+				//***********************************************//
+				//                                               //
+				//   do not use Configuration before this line   //
+				//                                               //
+				//***********************************************//
+				Setup.Initialize();
 
-			return Environment.ExitCode;
+				// if successfully parsed
+				// async: run parsed options
+				await result.WithParsedAsync<OptionsBase>(opt => opt.Run());
+			}
 		}
 
-		private static void HandleErrors(ParserResult<object> result, IEnumerable<Error> errors)
+		private static void HandleErrors(ParserResult<object> result)
 		{
-			var errorsList = errors.ToList();
+			var errorsList = result.Errors.ToList();
 			if (errorsList.Any(e => e.Tag.In(ErrorType.HelpRequestedError, ErrorType.VersionRequestedError, ErrorType.HelpVerbRequestedError)))
 			{
 				Environment.ExitCode = (int)ExitCode.NonRunNonError;
@@ -67,17 +80,36 @@ namespace LibationCli
 			}
 
 			Environment.ExitCode = (int)ExitCode.ParseError;
+			var helpText = HelpVerb.CreateHelpText();
 
-			if (errorsList.Any(e => e.Tag.In(ErrorType.NoVerbSelectedError)))
+			if (errorsList.OfType<NoVerbSelectedError>().Any())
 			{
-				Console.Error.WriteLine("No verb selected");
-				return;
+				//Print LibationCli usage
+				helpText.AddPreOptionsLine("No verb selected");
+				helpText.AddVerbs(VerbTypes);
 			}
+			else
+			{
+				//print the specified verb's usage
+				helpText.AddDashesToOption = true;
+				helpText.AutoHelp = true;
 
-			var helpText = HelpText.AutoBuild(result,
-				h => HelpText.DefaultParsingErrorsHandler(result, h),
-				e => e);
-			Console.WriteLine(helpText);
+				if (!errorsList.OfType<UnknownOptionError>().Any(o => o.Token.ToLower() == "help"))
+				{
+					//verb was not executed with the "--help" option,
+					//so print verb option parsing error info.
+					helpText = HelpText.DefaultParsingErrorsHandler(result, helpText);
+				}
+
+				helpText.AddOptions(result);
+			}
+			Console.Error.WriteLine(helpText);
+		}
+
+		private static void ConfigureParser(ParserSettings settings)
+		{
+			settings.AutoVersion = false;
+			settings.AutoHelp = false;
 		}
 	}
 }

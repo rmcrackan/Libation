@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using CommandLine;
+using System;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
-using CommandLine;
 
 namespace LibationCli
 {
@@ -17,13 +17,32 @@ namespace LibationCli
 			catch (Exception ex)
 			{
 				Environment.ExitCode = (int)ExitCode.RunTimeError;
-
-				Console.Error.WriteLine("ERROR");
-				Console.Error.WriteLine("=====");
-				Console.Error.WriteLine(ex.Message);
-				Console.Error.WriteLine();
-				Console.Error.WriteLine(ex.StackTrace);
+				PrintVerbUsage(new string[]
+				{
+					"ERROR",
+					"=====",
+					ex.Message,
+					"",
+					ex.StackTrace
+				});
 			}
+		}
+
+		protected void PrintVerbUsage(params string[] linesBeforeUsage)
+		{
+			var verb = GetType().GetCustomAttribute<VerbAttribute>().Name;
+			var helpText = new HelpVerb { HelpType = verb }.GetHelpText();
+			helpText.AddPreOptionsLines(linesBeforeUsage);
+			helpText.AddPreOptionsLine("");
+			helpText.AddPreOptionsLine($"{verb} Usage:");
+			Console.Error.WriteLine(helpText);
+		}
+
+		protected static void ReplaceConsoleText(TextWriter writer, int previousLength, string newText)
+		{
+			writer.Write(new string('\b', previousLength));
+			writer.Write(newText);
+			writer.Write(new string(' ', int.Max(0, previousLength - newText.Length)));
 		}
 
 		protected abstract Task ProcessAsync();
