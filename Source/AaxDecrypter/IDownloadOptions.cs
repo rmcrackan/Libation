@@ -21,7 +21,14 @@ namespace AaxDecrypter
         long DownloadSpeedBps { get; }
         ChapterInfo ChapterInfo { get; }
         bool FixupFile { get; }
-        NAudio.Lame.LameConfig LameConfig { get; }
+		string AudibleProductId { get; }
+		string Title { get; }
+		string Subtitle { get; }
+		string Publisher { get; }
+		string Language { get; }
+		string SeriesName { get; }
+		float? SeriesNumber { get; }
+		NAudio.Lame.LameConfig LameConfig { get; }
         bool Downsample { get; }
         bool MatchSourceBitrate { get; }
         bool MoveMoovToBeginning { get; }
