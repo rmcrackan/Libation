@@ -48,6 +48,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			DownloadCoverArt = config.DownloadCoverArt;
 			RetainAaxFile = config.RetainAaxFile;
 			DownloadClipsBookmarks = config.DownloadClipsBookmarks;
+			FileDownloadQuality = config.FileDownloadQuality;
 			ClipBookmarkFormat = config.ClipsBookmarksFileFormat;
 			SplitFilesByChapter = config.SplitFilesByChapter;
 			MergeOpeningAndEndCredits = config.MergeOpeningAndEndCredits;
@@ -74,6 +75,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.DownloadCoverArt = DownloadCoverArt;
 			config.RetainAaxFile = RetainAaxFile;
 			config.DownloadClipsBookmarks = DownloadClipsBookmarks;
+			config.FileDownloadQuality = FileDownloadQuality;
 			config.ClipsBookmarksFileFormat = ClipBookmarkFormat;
 			config.SplitFilesByChapter = SplitFilesByChapter;
 			config.MergeOpeningAndEndCredits = MergeOpeningAndEndCredits;
@@ -93,7 +95,9 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.MaxSampleRate = SelectedSampleRate?.Value ?? config.MaxSampleRate;
 		}
 
+		public AvaloniaList<Configuration.DownloadQuality> DownloadQualities { get; } = new(Enum<Configuration.DownloadQuality>.GetValues());
 		public AvaloniaList<Configuration.ClipBookmarkFormat> ClipBookmarkFormats { get; } = new(Enum<Configuration.ClipBookmarkFormat>.GetValues());
+		public string FileDownloadQualityText { get; } = Configuration.GetDescription(nameof(Configuration.FileDownloadQuality));
 		public string CreateCueSheetText { get; } = Configuration.GetDescription(nameof(Configuration.CreateCueSheet));
 		public string AllowLibationFixupText { get; } = Configuration.GetDescription(nameof(Configuration.AllowLibationFixup));
 		public string DownloadCoverArtText { get; } = Configuration.GetDescription(nameof(Configuration.DownloadCoverArt));
@@ -109,6 +113,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public bool DownloadCoverArt { get; set; }
 		public bool RetainAaxFile { get; set; }
 		public bool DownloadClipsBookmarks { get => _downloadClipsBookmarks; set => this.RaiseAndSetIfChanged(ref _downloadClipsBookmarks, value); }
+		public Configuration.DownloadQuality FileDownloadQuality { get; set; }
 		public Configuration.ClipBookmarkFormat ClipBookmarkFormat { get; set; }
 		public bool MergeOpeningAndEndCredits { get; set; }
 		public bool StripAudibleBrandAudio { get; set; }

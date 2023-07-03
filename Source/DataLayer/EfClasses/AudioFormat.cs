@@ -13,7 +13,11 @@ namespace DataLayer
         LC_64_22050_stereo = (64L << 18) | (22050 << 2) | 2,
         LC_64_44100_stereo = (64L << 18) | (44100 << 2) | 2,
         LC_128_44100_stereo = (128L << 18) | (44100 << 2) | 2,
-    }
+		AAX_22_32 = LC_32_22050_stereo,
+		AAX_22_64 = LC_64_22050_stereo,
+		AAX_44_64 = LC_64_44100_stereo,
+		AAX_44_128 = LC_128_44100_stereo
+	}
 
     public class AudioFormat : IComparable<AudioFormat>, IComparable
     {
