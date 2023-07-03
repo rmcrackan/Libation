@@ -16,18 +16,14 @@ internal class HelpVerb
 	/// <summary>
 	/// Create a base <see cref="HelpText"/> for <see cref="LibationCli"/>
 	/// </summary>
-	public static HelpText CreateHelpText()
+	public static HelpText CreateHelpText() => new HelpText
 	{
-		var auto = new HelpText
-		{
-			AutoVersion = false,
-			AutoHelp = false,
-			Heading = $"LibationCli v{LibationScaffolding.BuildVersion.ToString(3)}",
-			AdditionalNewLineAfterOption = true,
-			MaximumDisplayWidth = 80
-		};
-		return auto;
-	}
+		AutoVersion = false,
+		AutoHelp = false,
+		Heading = $"LibationCli v{LibationScaffolding.BuildVersion.ToString(3)}",
+		AdditionalNewLineAfterOption = true,
+		MaximumDisplayWidth = 80
+	};
 
 	/// <summary>
 	/// Get the <see cref="HelpType"/>'s <see cref="HelpText"/>
@@ -43,8 +39,8 @@ internal class HelpVerb
 		}
 		else
 		{
-			helpText.AddDashesToOption = true;
 			helpText.AutoHelp = true;
+			helpText.AddDashesToOption = true;
 			helpText.AddOptions(result);
 		}
 		return helpText;

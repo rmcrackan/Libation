@@ -30,7 +30,6 @@ internal class ConsoleProgressBar
 		}
 	}
 
-
 	private double m_Progress;
 	private TimeSpan m_RemainingTime;
 	private int m_LastWriteLength = 0;
@@ -71,7 +70,7 @@ internal class ConsoleProgressBar
 
 	public void Clear()
 		=> Output.Write(
-			new string('\b', m_LastWriteLength)
-			+ new string(' ', m_LastWriteLength)
-			+ new string('\b', m_LastWriteLength));
+			new string('\b', m_LastWriteLength) +
+			new string(' ', m_LastWriteLength) +
+			new string('\b', m_LastWriteLength));
 }
