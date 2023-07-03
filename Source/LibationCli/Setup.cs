@@ -10,11 +10,6 @@ namespace LibationCli
 	{
 		public static void Initialize()
 		{
-			//Determine variety by the dlls present in the current directory.
-			//Necessary to be able to check for upgrades.
-			var variety = System.IO.File.Exists("System.Windows.Forms.dll") ? Variety.Classic : Variety.Chardonnay;
-			LibationScaffolding.SetReleaseIdentifier(variety);
-
 			//***********************************************//
 			//                                               //
 			//   do not use Configuration before this line   //

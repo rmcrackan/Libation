@@ -11,6 +11,9 @@ namespace LibationCli.Options;
 [Verb("search", HelpText = "Search for books in your library")]
 internal class SearchOptions : OptionsBase
 {
+	[Option('n', Default = 10, HelpText = "Number of search results per page")]
+	public int NumResultsPerPage { get; set; }
+
 	[Value(0, MetaName = "query", Required = true, HelpText = "Lucene search string")]
 	public IEnumerable<string> Query { get; set; }
 
@@ -21,15 +24,13 @@ internal class SearchOptions : OptionsBase
 
 		Console.WriteLine($"Found {results.Count} matching results.");
 
-		const int numResults = 10;
-
-		string nextPrompt = "Press any key for the next " + numResults + " results or Esc for all results";
+		string nextPrompt = "Press any key for the next " + NumResultsPerPage + " results or Esc for all results";
 		bool waitForNextBatch = true;
 
-		for (int i = 0; i < results.Count; i += numResults)
+		for (int i = 0; i < results.Count; i += NumResultsPerPage)
 		{
 			var sb = new StringBuilder();
-			for (int j = i; j < int.Min(results.Count, i + numResults); j++)
+			for (int j = i; j < int.Min(results.Count, i + NumResultsPerPage); j++)
 				sb.AppendLine(getDocDisplay(results[j].Doc));
 
 			Console.Write(sb.ToString());

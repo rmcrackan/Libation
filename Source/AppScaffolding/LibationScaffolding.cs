@@ -43,21 +43,6 @@ namespace AppScaffolding
 		public static ReleaseIdentifier ReleaseIdentifier { get; private set; }
 		public static Variety Variety { get; private set; }
 
-		public static void SetReleaseIdentifier(Variety varietyType)
-		{
-			Variety = Enum.IsDefined(varietyType) ? varietyType : Variety.None;
-
-			var releaseID = (ReleaseIdentifier)((int)varietyType | (int)Configuration.OS | (int)RuntimeInformation.ProcessArchitecture);
-
-			if (Enum.IsDefined(releaseID))
-				ReleaseIdentifier = releaseID;
-			else
-			{
-				ReleaseIdentifier = ReleaseIdentifier.None;
-				Serilog.Log.Logger.Warning("Unknown release identifier @{DebugInfo}", new { Variety = varietyType, Configuration.OS, RuntimeInformation.ProcessArchitecture });
-			}
-		}
-
 		// AppScaffolding
 		private static Assembly _executingAssembly;
 		private static Assembly ExecutingAssembly
@@ -110,6 +95,22 @@ namespace AppScaffolding
 			ensureSerilogConfig(config);
 			configureLogging(config);
 			logStartupState(config);
+
+			#region Determine Libation Variery and Release ID
+
+			Variety = File.Exists("System.Windows.Forms.dll") ? Variety.Classic : Variety.Chardonnay;
+
+			var releaseID = (ReleaseIdentifier)((int)Variety | (int)Configuration.OS | (int)RuntimeInformation.ProcessArchitecture);
+
+			if (Enum.IsDefined(releaseID))
+				ReleaseIdentifier = releaseID;
+			else
+			{
+				ReleaseIdentifier = ReleaseIdentifier.None;
+				Serilog.Log.Logger.Warning("Unknown release identifier @{DebugInfo}", new { Variety, Configuration.OS, RuntimeInformation.ProcessArchitecture });
+			}
+
+			#endregion
 
 			// all else should occur after logging
 

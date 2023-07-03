@@ -14,6 +14,7 @@ namespace LibationCli
         """)]
 	public class SetDownloadStatusOptions : OptionsBase
 	{
+		//https://github.com/commandlineparser/commandline/wiki/Option-Groups
 		[Option(shortName: 'd', longName: "downloaded", Group = "Download Status", HelpText = "set download status to 'Downloaded'")]
 		public bool SetDownloaded { get; set; }
 

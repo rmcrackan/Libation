@@ -127,10 +127,10 @@ namespace LibationFileManager
 
             var regex = GetBookSearchRegex(productId);
 
-            //Find all extant files matching the priductID
-            //using both the file system and the file path cache
+			//Find all extant files matching the productId
+			//using both the file system and the file path cache
 			return
-                FilePathCache
+				FilePathCache
                 .GetFiles(productId)
                 .Where(c => c.fileType == FileType.Audio && File.Exists(c.path))
                 .Select(c => c.path)

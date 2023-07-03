@@ -27,13 +27,13 @@ namespace LibationCli
 		}
 		*/
 		#endregion
-		[Option(shortName: 'x', longName: "xlsx", HelpText = "Microsoft Excel Spreadsheet", SetName = "Export Format")]
+		[Option(shortName: 'x', longName: "xlsx", HelpText = "Microsoft Excel Spreadsheet", SetName = "xlsx")]
 		public bool xlsx { get; set; }
 
-		[Option(shortName: 'c', longName: "csv", HelpText = "Comma-separated values", SetName = "Export Format")]
+		[Option(shortName: 'c', longName: "csv", HelpText = "Comma-separated values", SetName = "csv")]
 		public bool csv { get; set; }
 
-		[Option(shortName: 'j', longName: "json", HelpText = "JavaScript Object Notation", SetName = "Export Format")]
+		[Option(shortName: 'j', longName: "json", HelpText = "JavaScript Object Notation", SetName = "json")]
 		public bool json { get; set; }
 
 		protected override Task ProcessAsync()
