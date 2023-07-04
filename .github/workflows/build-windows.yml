@@ -75,6 +75,7 @@ jobs:
               LibationCli/LibationCli.csproj `
               --configuration ${{ env.DOTNET_CONFIGURATION }} `
               --output bin/Publish/${{ matrix.os }}-${{ matrix.release_name }} `
+              -p:DefineConstants="${{ matrix.release_name }}" `
               -p:PublishProfile=LibationCli/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
           dotnet publish `
               Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj `

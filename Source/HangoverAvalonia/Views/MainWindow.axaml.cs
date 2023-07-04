@@ -13,7 +13,7 @@ namespace HangoverAvalonia.Views
 
 			var config = LibationScaffolding.RunPreConfigMigrations();
 			LibationScaffolding.RunPostConfigMigrations(config);
-			LibationScaffolding.RunPostMigrationScaffolding(config);
+			LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
 		}
 
 		public void OnLoad()

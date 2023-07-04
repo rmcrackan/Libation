@@ -90,27 +90,17 @@ namespace AppScaffolding
 		}
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>
-		public static void RunPostMigrationScaffolding(Configuration config)
+		public static void RunPostMigrationScaffolding(Variety variety, Configuration config)
 		{
+			Variety = Enum.IsDefined(variety) ? variety : Variety.None;
+
+			var releaseID = (ReleaseIdentifier)((int)variety | (int)Configuration.OS | (int)RuntimeInformation.ProcessArchitecture);
+
+			ReleaseIdentifier = Enum.IsDefined(releaseID) ? releaseID : ReleaseIdentifier.None;
+
 			ensureSerilogConfig(config);
 			configureLogging(config);
 			logStartupState(config);
-
-			#region Determine Libation Variery and Release ID
-
-			Variety = File.Exists("System.Windows.Forms.dll") ? Variety.Classic : Variety.Chardonnay;
-
-			var releaseID = (ReleaseIdentifier)((int)Variety | (int)Configuration.OS | (int)RuntimeInformation.ProcessArchitecture);
-
-			if (Enum.IsDefined(releaseID))
-				ReleaseIdentifier = releaseID;
-			else
-			{
-				ReleaseIdentifier = ReleaseIdentifier.None;
-				Serilog.Log.Logger.Warning("Unknown release identifier @{DebugInfo}", new { Variety, Configuration.OS, RuntimeInformation.ProcessArchitecture });
-			}
-
-			#endregion
 
 			// all else should occur after logging
 

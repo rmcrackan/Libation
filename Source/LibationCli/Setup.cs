@@ -17,9 +17,13 @@ namespace LibationCli
 			//***********************************************//
 			var config = LibationScaffolding.RunPreConfigMigrations();
 
-
 			LibationScaffolding.RunPostConfigMigrations(config);
-			LibationScaffolding.RunPostMigrationScaffolding(config);
+
+#if classic
+			LibationScaffolding.RunPostMigrationScaffolding(Variety.Classic, config);
+#else
+			LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
+#endif
 		}
 
 		public static Type[] LoadVerbs() => Assembly.GetExecutingAssembly()

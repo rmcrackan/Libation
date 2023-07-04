@@ -73,9 +73,9 @@ namespace LibationAvalonia
 			{
 				// most migrations go in here
 				LibationScaffolding.RunPostConfigMigrations(config);
-				LibationScaffolding.RunPostMigrationScaffolding(config);
+				LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
 
-				return LibationScaffolding.ReleaseIdentifier is not ReleaseIdentifier.None;
+				return true;
 			}
 			catch (Exception exDebug)
 			{

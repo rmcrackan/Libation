@@ -10,7 +10,7 @@ namespace HangoverWinForms
 
             var config = LibationScaffolding.RunPreConfigMigrations();
             LibationScaffolding.RunPostConfigMigrations(config);
-            LibationScaffolding.RunPostMigrationScaffolding(config);
+            LibationScaffolding.RunPostMigrationScaffolding(Variety.Classic, config);
 
             databaseTab.VisibleChanged += databaseTab_VisibleChanged;
             cliTab.VisibleChanged += cliTab_VisibleChanged;

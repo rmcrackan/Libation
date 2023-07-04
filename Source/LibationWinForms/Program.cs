@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using AppScaffolding;
 using Dinah.Core;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
@@ -42,7 +43,7 @@ namespace LibationWinForms
 				RunInstaller(config);
 
 				// most migrations go in here
-				AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
+				LibationScaffolding.RunPostConfigMigrations(config);
 
 				// migrations which require Forms or are long-running
 				RunWindowsOnlyMigrations(config);
@@ -50,7 +51,7 @@ namespace LibationWinForms
 				MessageBoxLib.VerboseLoggingWarning_ShowIfTrue();
 
 				// logging is init'd here
-				AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
+				LibationScaffolding.RunPostMigrationScaffolding(Variety.Classic, config);
 			}
 			catch (Exception ex)
 			{

@@ -141,7 +141,7 @@ namespace LibationAvalonia
 			await MessageBox.VerboseLoggingWarning_ShowIfTrue();
 
 			// logging is init'd here
-			AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(config);
+			AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(AppScaffolding.Variety.Chardonnay, config);
 		}
 
 		private void ShowLibationFilesDialog(IClassicDesktopStyleApplicationLifetime desktop, Configuration config, Action<IClassicDesktopStyleApplicationLifetime, LibationFilesDialog, Configuration> OnClose)
