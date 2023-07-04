@@ -21,6 +21,13 @@ namespace FileLiberator
 		public TimeSpan RuntimeLength { get; init; }
 		public OutputFormat OutputFormat { get; init; }
 		public ChapterInfo ChapterInfo { get; init; }
+		public string Title => LibraryBook.Book.Title;
+		public string Subtitle => LibraryBook.Book.Subtitle;
+		public string Publisher => LibraryBook.Book.Publisher;
+		public string Language => LibraryBook.Book.Language;
+		public string AudibleProductId => LibraryBookDto.AudibleProductId;
+		public string SeriesName => LibraryBookDto.SeriesName;
+		public float? SeriesNumber => LibraryBookDto.SeriesNumber;
 		public NAudio.Lame.LameConfig LameConfig { get; init; }
 		public string UserAgent => AudibleApi.Resources.Download_User_Agent;
 		public bool TrimOutputToChapterLength => config.AllowLibationFixup && config.StripAudibleBrandAudio;

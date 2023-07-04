@@ -205,6 +205,16 @@ namespace LibationFileManager
 			Added
 		}
 
+		[JsonConverter(typeof(StringEnumConverter))]
+		public enum DownloadQuality
+		{
+			High,
+			Normal
+		}
+
+		[Description("Audio quality to request from Audible:")]
+		public DownloadQuality FileDownloadQuality { get => GetNonString(defaultValue: DownloadQuality.High); set => SetNonString(value); }
+
 		[Description("Set file \"created\" timestamp to:")]
 		public DateTimeSource CreationTime { get => GetNonString(defaultValue: DateTimeSource.File); set => SetNonString(value); }
 

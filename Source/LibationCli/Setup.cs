@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AppScaffolding;
+using CommandLine;
+using System;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using AppScaffolding;
-using CommandLine;
-using CommandLine.Text;
-using Dinah.Core;
-using Dinah.Core.Collections;
-using Dinah.Core.Collections.Generic;
 
 namespace LibationCli
 {
@@ -26,28 +20,6 @@ namespace LibationCli
 
 			LibationScaffolding.RunPostConfigMigrations(config);
 			LibationScaffolding.RunPostMigrationScaffolding(config);
-
-#if !DEBUG
-			checkForUpdate();
-#endif
-		}
-
-		private static void checkForUpdate()
-		{
-			var upgradeProperties = LibationScaffolding.GetLatestRelease();
-			if (upgradeProperties is null)
-				return;
-
-			var origColor = Console.ForegroundColor;
-			try
-			{
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine($"UPDATE AVAILABLE @ {upgradeProperties.ZipUrl}");
-			}
-			finally
-			{
-				Console.ForegroundColor = origColor;
-			}
 		}
 
 		public static Type[] LoadVerbs() => Assembly.GetExecutingAssembly()

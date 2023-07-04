@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CommandLine;
+﻿using CommandLine;
 using DataLayer;
 using FileLiberator;
+using System.Threading.Tasks;
 
 namespace LibationCli
 {

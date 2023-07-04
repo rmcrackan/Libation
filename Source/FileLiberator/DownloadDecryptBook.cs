@@ -121,8 +121,9 @@ namespace FileLiberator
 
             downloadValidation(libraryBook);
 
+            var quality = (AudibleApi.DownloadQuality)config.FileDownloadQuality;
             var api = await libraryBook.GetApiAsync();
-            var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId);
+            var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, quality);
             using var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
 
             var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, dlOptions.OutputFormat.ToString().ToLower());
@@ -169,7 +170,10 @@ namespace FileLiberator
                 ? contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs
                 : 0;
 
-            var dlOptions = new DownloadOptions(config, libraryBook, contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl)
+            //Set the requested AudioFormat for use in file naming templates
+			libraryBook.Book.AudioFormat = AudioFormat.FromString(contentLic.ContentMetadata.ContentReference.ContentFormat);
+
+			var dlOptions = new DownloadOptions(config, libraryBook, contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl)
             {
                 AudibleKey = contentLic?.Voucher?.Key,
                 AudibleIV = contentLic?.Voucher?.Iv,

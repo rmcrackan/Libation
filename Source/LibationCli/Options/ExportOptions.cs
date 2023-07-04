@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ApplicationServices;
-using AudibleUtilities;
+﻿using ApplicationServices;
 using CommandLine;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace LibationCli
 {
@@ -29,26 +27,38 @@ namespace LibationCli
 		}
 		*/
 		#endregion
-		[Option(shortName: 'x', longName: "xlsx", SetName = "xlsx", Required = true)]
+		[Option(shortName: 'x', longName: "xlsx", HelpText = "Microsoft Excel Spreadsheet", SetName = "xlsx")]
 		public bool xlsx { get; set; }
 
-		[Option(shortName: 'c', longName: "csv", SetName = "csv", Required = true)]
+		[Option(shortName: 'c', longName: "csv", HelpText = "Comma-separated values", SetName = "csv")]
 		public bool csv { get; set; }
 
-		[Option(shortName: 'j', longName: "json", SetName = "json", Required = true)]
+		[Option(shortName: 'j', longName: "json", HelpText = "JavaScript Object Notation", SetName = "json")]
 		public bool json { get; set; }
 
 		protected override Task ProcessAsync()
 		{
-			if (xlsx)
-				LibraryExporter.ToXlsx(FilePath);
-			if (csv)
-				LibraryExporter.ToCsv(FilePath);
-			if (json)
-				LibraryExporter.ToJson(FilePath);
+			Action<string> exporter
+				= csv ? LibraryExporter.ToCsv
+				: json ? LibraryExporter.ToJson
+				: xlsx ? LibraryExporter.ToXlsx
+				: Path.GetExtension(FilePath)?.ToLower() switch
+				{
+					".xlsx" => LibraryExporter.ToXlsx,
+					".csv" => LibraryExporter.ToCsv,
+					".json" => LibraryExporter.ToJson,
+					_ => null
+				};
 
-			Console.WriteLine($"Library exported to: {FilePath}");
-
+			if (exporter is null)
+			{
+				PrintVerbUsage($"Undefined export format for file type \"{Path.GetExtension(FilePath)}\"");
+			}
+			else
+			{
+				exporter(FilePath);
+				Console.WriteLine($"Library exported to: {FilePath}");
+			}
 			return Task.CompletedTask;
 		}
 	}

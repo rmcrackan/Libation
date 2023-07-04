@@ -48,12 +48,6 @@ namespace LibationAvalonia
 			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
 			var appBuilderTask = Task.Run(BuildAvaloniaApp);
 
-			LibationScaffolding.SetReleaseIdentifier(Variety.Chardonnay);
-
-			if (LibationScaffolding.ReleaseIdentifier is ReleaseIdentifier.None)
-				return;
-
-
 			if (config.LibationSettingsAreValid)
 			{
 				if (!RunDbMigrations(config))
@@ -81,7 +75,7 @@ namespace LibationAvalonia
 				LibationScaffolding.RunPostConfigMigrations(config);
 				LibationScaffolding.RunPostMigrationScaffolding(config);
 
-				return true;
+				return LibationScaffolding.ReleaseIdentifier is not ReleaseIdentifier.None;
 			}
 			catch (Exception exDebug)
 			{

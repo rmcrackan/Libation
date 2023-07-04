@@ -26,11 +26,7 @@ namespace AaxDecrypter
 
 		protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
 		{
-			TaskCompletionSource completionSource = new();
-
-			InputFileStream.DownloadCompleted += (_, _) => completionSource.SetResult();
-
-			await completionSource.Task;
+			await InputFileStream.DownloadTask;
 
 			if (IsCanceled)
 				return false;

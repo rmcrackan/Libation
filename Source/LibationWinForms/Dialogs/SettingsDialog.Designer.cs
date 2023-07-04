@@ -78,6 +78,8 @@
 			folderTemplateTb = new System.Windows.Forms.TextBox();
 			folderTemplateLbl = new System.Windows.Forms.Label();
 			tab4AudioFileOptions = new System.Windows.Forms.TabPage();
+			fileDownloadQualityCb = new System.Windows.Forms.ComboBox();
+			fileDownloadQualityLbl = new System.Windows.Forms.Label();
 			clipsBookmarksFormatCb = new System.Windows.Forms.ComboBox();
 			downloadClipsBookmarksCbox = new System.Windows.Forms.CheckBox();
 			audiobookFixupsGb = new System.Windows.Forms.GroupBox();
@@ -146,30 +148,30 @@
 			// booksLocationDescLbl
 			// 
 			booksLocationDescLbl.AutoSize = true;
-			booksLocationDescLbl.Location = new System.Drawing.Point(7, 19);
-			booksLocationDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			booksLocationDescLbl.Location = new System.Drawing.Point(13, 41);
+			booksLocationDescLbl.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			booksLocationDescLbl.Name = "booksLocationDescLbl";
-			booksLocationDescLbl.Size = new System.Drawing.Size(69, 15);
+			booksLocationDescLbl.Size = new System.Drawing.Size(137, 32);
 			booksLocationDescLbl.TabIndex = 1;
 			booksLocationDescLbl.Text = "[book desc]";
 			// 
 			// inProgressDescLbl
 			// 
 			inProgressDescLbl.AutoSize = true;
-			inProgressDescLbl.Location = new System.Drawing.Point(7, 19);
-			inProgressDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			inProgressDescLbl.Location = new System.Drawing.Point(13, 41);
+			inProgressDescLbl.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			inProgressDescLbl.Name = "inProgressDescLbl";
-			inProgressDescLbl.Size = new System.Drawing.Size(100, 45);
+			inProgressDescLbl.Size = new System.Drawing.Size(201, 96);
 			inProgressDescLbl.TabIndex = 18;
 			inProgressDescLbl.Text = "[in progress desc]\r\n[line 2]\r\n[line 3]";
 			// 
 			// saveBtn
 			// 
 			saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-			saveBtn.Location = new System.Drawing.Point(667, 491);
-			saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			saveBtn.Location = new System.Drawing.Point(1239, 1047);
+			saveBtn.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			saveBtn.Name = "saveBtn";
-			saveBtn.Size = new System.Drawing.Size(88, 27);
+			saveBtn.Size = new System.Drawing.Size(163, 58);
 			saveBtn.TabIndex = 98;
 			saveBtn.Text = "Save";
 			saveBtn.UseVisualStyleBackColor = true;
@@ -179,10 +181,10 @@
 			// 
 			cancelBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 			cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			cancelBtn.Location = new System.Drawing.Point(785, 491);
-			cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			cancelBtn.Location = new System.Drawing.Point(1458, 1047);
+			cancelBtn.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			cancelBtn.Name = "cancelBtn";
-			cancelBtn.Size = new System.Drawing.Size(88, 27);
+			cancelBtn.Size = new System.Drawing.Size(163, 58);
 			cancelBtn.TabIndex = 99;
 			cancelBtn.Text = "Cancel";
 			cancelBtn.UseVisualStyleBackColor = true;
@@ -191,9 +193,10 @@
 			// importEpisodesCb
 			// 
 			importEpisodesCb.AutoSize = true;
-			importEpisodesCb.Location = new System.Drawing.Point(6, 56);
+			importEpisodesCb.Location = new System.Drawing.Point(11, 119);
+			importEpisodesCb.Margin = new System.Windows.Forms.Padding(6);
 			importEpisodesCb.Name = "importEpisodesCb";
-			importEpisodesCb.Size = new System.Drawing.Size(146, 19);
+			importEpisodesCb.Size = new System.Drawing.Size(287, 36);
 			importEpisodesCb.TabIndex = 3;
 			importEpisodesCb.Text = "[import episodes desc]";
 			importEpisodesCb.UseVisualStyleBackColor = true;
@@ -201,9 +204,10 @@
 			// downloadEpisodesCb
 			// 
 			downloadEpisodesCb.AutoSize = true;
-			downloadEpisodesCb.Location = new System.Drawing.Point(6, 81);
+			downloadEpisodesCb.Location = new System.Drawing.Point(11, 173);
+			downloadEpisodesCb.Margin = new System.Windows.Forms.Padding(6);
 			downloadEpisodesCb.Name = "downloadEpisodesCb";
-			downloadEpisodesCb.Size = new System.Drawing.Size(163, 19);
+			downloadEpisodesCb.Size = new System.Drawing.Size(321, 36);
 			downloadEpisodesCb.TabIndex = 4;
 			downloadEpisodesCb.Text = "[download episodes desc]";
 			downloadEpisodesCb.UseVisualStyleBackColor = true;
@@ -215,9 +219,11 @@
 			badBookGb.Controls.Add(badBookRetryRb);
 			badBookGb.Controls.Add(badBookAbortRb);
 			badBookGb.Controls.Add(badBookAskRb);
-			badBookGb.Location = new System.Drawing.Point(7, 6);
+			badBookGb.Location = new System.Drawing.Point(13, 13);
+			badBookGb.Margin = new System.Windows.Forms.Padding(6);
 			badBookGb.Name = "badBookGb";
-			badBookGb.Size = new System.Drawing.Size(834, 76);
+			badBookGb.Padding = new System.Windows.Forms.Padding(6);
+			badBookGb.Size = new System.Drawing.Size(1549, 162);
 			badBookGb.TabIndex = 13;
 			badBookGb.TabStop = false;
 			badBookGb.Text = "[bad book desc]";
@@ -225,9 +231,10 @@
 			// badBookIgnoreRb
 			// 
 			badBookIgnoreRb.AutoSize = true;
-			badBookIgnoreRb.Location = new System.Drawing.Point(384, 47);
+			badBookIgnoreRb.Location = new System.Drawing.Point(713, 100);
+			badBookIgnoreRb.Margin = new System.Windows.Forms.Padding(6);
 			badBookIgnoreRb.Name = "badBookIgnoreRb";
-			badBookIgnoreRb.Size = new System.Drawing.Size(94, 19);
+			badBookIgnoreRb.Size = new System.Drawing.Size(183, 36);
 			badBookIgnoreRb.TabIndex = 17;
 			badBookIgnoreRb.TabStop = true;
 			badBookIgnoreRb.Text = "[ignore desc]";
@@ -236,9 +243,10 @@
 			// badBookRetryRb
 			// 
 			badBookRetryRb.AutoSize = true;
-			badBookRetryRb.Location = new System.Drawing.Point(5, 47);
+			badBookRetryRb.Location = new System.Drawing.Point(9, 100);
+			badBookRetryRb.Margin = new System.Windows.Forms.Padding(6);
 			badBookRetryRb.Name = "badBookRetryRb";
-			badBookRetryRb.Size = new System.Drawing.Size(84, 19);
+			badBookRetryRb.Size = new System.Drawing.Size(163, 36);
 			badBookRetryRb.TabIndex = 16;
 			badBookRetryRb.TabStop = true;
 			badBookRetryRb.Text = "[retry desc]";
@@ -247,9 +255,10 @@
 			// badBookAbortRb
 			// 
 			badBookAbortRb.AutoSize = true;
-			badBookAbortRb.Location = new System.Drawing.Point(384, 22);
+			badBookAbortRb.Location = new System.Drawing.Point(713, 47);
+			badBookAbortRb.Margin = new System.Windows.Forms.Padding(6);
 			badBookAbortRb.Name = "badBookAbortRb";
-			badBookAbortRb.Size = new System.Drawing.Size(88, 19);
+			badBookAbortRb.Size = new System.Drawing.Size(170, 36);
 			badBookAbortRb.TabIndex = 15;
 			badBookAbortRb.TabStop = true;
 			badBookAbortRb.Text = "[abort desc]";
@@ -258,9 +267,10 @@
 			// badBookAskRb
 			// 
 			badBookAskRb.AutoSize = true;
-			badBookAskRb.Location = new System.Drawing.Point(6, 22);
+			badBookAskRb.Location = new System.Drawing.Point(11, 47);
+			badBookAskRb.Margin = new System.Windows.Forms.Padding(6);
 			badBookAskRb.Name = "badBookAskRb";
-			badBookAskRb.Size = new System.Drawing.Size(77, 19);
+			badBookAskRb.Size = new System.Drawing.Size(148, 36);
 			badBookAskRb.TabIndex = 14;
 			badBookAskRb.TabStop = true;
 			badBookAskRb.Text = "[ask desc]";
@@ -269,9 +279,10 @@
 			// stripAudibleBrandingCbox
 			// 
 			stripAudibleBrandingCbox.AutoSize = true;
-			stripAudibleBrandingCbox.Location = new System.Drawing.Point(13, 72);
+			stripAudibleBrandingCbox.Location = new System.Drawing.Point(24, 154);
+			stripAudibleBrandingCbox.Margin = new System.Windows.Forms.Padding(6);
 			stripAudibleBrandingCbox.Name = "stripAudibleBrandingCbox";
-			stripAudibleBrandingCbox.Size = new System.Drawing.Size(143, 34);
+			stripAudibleBrandingCbox.Size = new System.Drawing.Size(279, 68);
 			stripAudibleBrandingCbox.TabIndex = 13;
 			stripAudibleBrandingCbox.Text = "[StripAudibleBranding\r\ndesc]";
 			stripAudibleBrandingCbox.UseVisualStyleBackColor = true;
@@ -279,9 +290,10 @@
 			// splitFilesByChapterCbox
 			// 
 			splitFilesByChapterCbox.AutoSize = true;
-			splitFilesByChapterCbox.Location = new System.Drawing.Point(13, 22);
+			splitFilesByChapterCbox.Location = new System.Drawing.Point(24, 47);
+			splitFilesByChapterCbox.Margin = new System.Windows.Forms.Padding(6);
 			splitFilesByChapterCbox.Name = "splitFilesByChapterCbox";
-			splitFilesByChapterCbox.Size = new System.Drawing.Size(162, 19);
+			splitFilesByChapterCbox.Size = new System.Drawing.Size(319, 36);
 			splitFilesByChapterCbox.TabIndex = 13;
 			splitFilesByChapterCbox.Text = "[SplitFilesByChapter desc]";
 			splitFilesByChapterCbox.UseVisualStyleBackColor = true;
@@ -292,9 +304,10 @@
 			allowLibationFixupCbox.AutoSize = true;
 			allowLibationFixupCbox.Checked = true;
 			allowLibationFixupCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			allowLibationFixupCbox.Location = new System.Drawing.Point(19, 143);
+			allowLibationFixupCbox.Location = new System.Drawing.Point(35, 336);
+			allowLibationFixupCbox.Margin = new System.Windows.Forms.Padding(6);
 			allowLibationFixupCbox.Name = "allowLibationFixupCbox";
-			allowLibationFixupCbox.Size = new System.Drawing.Size(163, 19);
+			allowLibationFixupCbox.Size = new System.Drawing.Size(315, 36);
 			allowLibationFixupCbox.TabIndex = 10;
 			allowLibationFixupCbox.Text = "[AllowLibationFixup desc]";
 			allowLibationFixupCbox.UseVisualStyleBackColor = true;
@@ -303,9 +316,10 @@
 			// convertLossyRb
 			// 
 			convertLossyRb.AutoSize = true;
-			convertLossyRb.Location = new System.Drawing.Point(13, 158);
+			convertLossyRb.Location = new System.Drawing.Point(24, 337);
+			convertLossyRb.Margin = new System.Windows.Forms.Padding(6);
 			convertLossyRb.Name = "convertLossyRb";
-			convertLossyRb.Size = new System.Drawing.Size(329, 19);
+			convertLossyRb.Size = new System.Drawing.Size(659, 36);
 			convertLossyRb.TabIndex = 12;
 			convertLossyRb.Text = "Download my books as .MP3 files (transcode if necessary)";
 			convertLossyRb.UseVisualStyleBackColor = true;
@@ -315,9 +329,10 @@
 			// 
 			convertLosslessRb.AutoSize = true;
 			convertLosslessRb.Checked = true;
-			convertLosslessRb.Location = new System.Drawing.Point(13, 111);
+			convertLosslessRb.Location = new System.Drawing.Point(24, 237);
+			convertLosslessRb.Margin = new System.Windows.Forms.Padding(6);
 			convertLosslessRb.Name = "convertLosslessRb";
-			convertLosslessRb.Size = new System.Drawing.Size(335, 19);
+			convertLosslessRb.Size = new System.Drawing.Size(670, 36);
 			convertLosslessRb.TabIndex = 11;
 			convertLosslessRb.TabStop = true;
 			convertLosslessRb.Text = "Download my books in the original audio format (Lossless)";
@@ -327,17 +342,18 @@
 			// inProgressSelectControl
 			// 
 			inProgressSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			inProgressSelectControl.Location = new System.Drawing.Point(7, 68);
-			inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			inProgressSelectControl.Location = new System.Drawing.Point(13, 145);
+			inProgressSelectControl.Margin = new System.Windows.Forms.Padding(6, 9, 6, 9);
 			inProgressSelectControl.Name = "inProgressSelectControl";
-			inProgressSelectControl.Size = new System.Drawing.Size(828, 52);
+			inProgressSelectControl.Size = new System.Drawing.Size(1538, 111);
 			inProgressSelectControl.TabIndex = 19;
 			// 
 			// logsBtn
 			// 
-			logsBtn.Location = new System.Drawing.Point(256, 261);
+			logsBtn.Location = new System.Drawing.Point(475, 557);
+			logsBtn.Margin = new System.Windows.Forms.Padding(6);
 			logsBtn.Name = "logsBtn";
-			logsBtn.Size = new System.Drawing.Size(132, 23);
+			logsBtn.Size = new System.Drawing.Size(245, 49);
 			logsBtn.TabIndex = 5;
 			logsBtn.Text = "Open log folder";
 			logsBtn.UseVisualStyleBackColor = true;
@@ -346,18 +362,19 @@
 			// booksSelectControl
 			// 
 			booksSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			booksSelectControl.Location = new System.Drawing.Point(7, 37);
-			booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			booksSelectControl.Location = new System.Drawing.Point(13, 79);
+			booksSelectControl.Margin = new System.Windows.Forms.Padding(6, 9, 6, 9);
 			booksSelectControl.Name = "booksSelectControl";
-			booksSelectControl.Size = new System.Drawing.Size(829, 87);
+			booksSelectControl.Size = new System.Drawing.Size(1540, 186);
 			booksSelectControl.TabIndex = 2;
 			// 
 			// loggingLevelLbl
 			// 
 			loggingLevelLbl.AutoSize = true;
-			loggingLevelLbl.Location = new System.Drawing.Point(6, 264);
+			loggingLevelLbl.Location = new System.Drawing.Point(11, 563);
+			loggingLevelLbl.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			loggingLevelLbl.Name = "loggingLevelLbl";
-			loggingLevelLbl.Size = new System.Drawing.Size(78, 15);
+			loggingLevelLbl.Size = new System.Drawing.Size(158, 32);
 			loggingLevelLbl.TabIndex = 3;
 			loggingLevelLbl.Text = "Logging level";
 			// 
@@ -365,9 +382,10 @@
 			// 
 			loggingLevelCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			loggingLevelCb.FormattingEnabled = true;
-			loggingLevelCb.Location = new System.Drawing.Point(90, 261);
+			loggingLevelCb.Location = new System.Drawing.Point(167, 557);
+			loggingLevelCb.Margin = new System.Windows.Forms.Padding(6);
 			loggingLevelCb.Name = "loggingLevelCb";
-			loggingLevelCb.Size = new System.Drawing.Size(129, 23);
+			loggingLevelCb.Size = new System.Drawing.Size(236, 40);
 			loggingLevelCb.TabIndex = 4;
 			// 
 			// tabControl
@@ -377,10 +395,11 @@
 			tabControl.Controls.Add(tab2ImportLibrary);
 			tabControl.Controls.Add(tab3DownloadDecrypt);
 			tabControl.Controls.Add(tab4AudioFileOptions);
-			tabControl.Location = new System.Drawing.Point(12, 12);
+			tabControl.Location = new System.Drawing.Point(22, 26);
+			tabControl.Margin = new System.Windows.Forms.Padding(6);
 			tabControl.Name = "tabControl";
 			tabControl.SelectedIndex = 0;
-			tabControl.Size = new System.Drawing.Size(862, 473);
+			tabControl.Size = new System.Drawing.Size(1601, 1009);
 			tabControl.TabIndex = 100;
 			// 
 			// tab1ImportantSettings
@@ -390,10 +409,11 @@
 			tab1ImportantSettings.Controls.Add(logsBtn);
 			tab1ImportantSettings.Controls.Add(loggingLevelCb);
 			tab1ImportantSettings.Controls.Add(loggingLevelLbl);
-			tab1ImportantSettings.Location = new System.Drawing.Point(4, 24);
+			tab1ImportantSettings.Location = new System.Drawing.Point(8, 46);
+			tab1ImportantSettings.Margin = new System.Windows.Forms.Padding(6);
 			tab1ImportantSettings.Name = "tab1ImportantSettings";
-			tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(3);
-			tab1ImportantSettings.Size = new System.Drawing.Size(854, 445);
+			tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(6);
+			tab1ImportantSettings.Size = new System.Drawing.Size(1585, 955);
 			tab1ImportantSettings.TabIndex = 0;
 			tab1ImportantSettings.Text = "Important settings";
 			tab1ImportantSettings.UseVisualStyleBackColor = true;
@@ -403,9 +423,10 @@
 			betaOptInCbox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
 			betaOptInCbox.AutoSize = true;
 			betaOptInCbox.Enabled = false;
-			betaOptInCbox.Location = new System.Drawing.Point(13, 399);
+			betaOptInCbox.Location = new System.Drawing.Point(24, 856);
+			betaOptInCbox.Margin = new System.Windows.Forms.Padding(6);
 			betaOptInCbox.Name = "betaOptInCbox";
-			betaOptInCbox.Size = new System.Drawing.Size(107, 19);
+			betaOptInCbox.Size = new System.Drawing.Size(210, 36);
 			betaOptInCbox.TabIndex = 6;
 			betaOptInCbox.Text = "[Opt in to Beta]";
 			betaOptInCbox.UseVisualStyleBackColor = true;
@@ -421,9 +442,11 @@
 			booksGb.Controls.Add(saveEpisodesToSeriesFolderCbox);
 			booksGb.Controls.Add(booksSelectControl);
 			booksGb.Controls.Add(booksLocationDescLbl);
-			booksGb.Location = new System.Drawing.Point(6, 6);
+			booksGb.Location = new System.Drawing.Point(11, 13);
+			booksGb.Margin = new System.Windows.Forms.Padding(6);
 			booksGb.Name = "booksGb";
-			booksGb.Size = new System.Drawing.Size(842, 249);
+			booksGb.Padding = new System.Windows.Forms.Padding(6);
+			booksGb.Size = new System.Drawing.Size(1564, 531);
 			booksGb.TabIndex = 0;
 			booksGb.TabStop = false;
 			booksGb.Text = "Books location";
@@ -432,46 +455,49 @@
 			// 
 			lastWriteTimeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			lastWriteTimeCb.FormattingEnabled = true;
-			lastWriteTimeCb.Location = new System.Drawing.Point(188, 214);
+			lastWriteTimeCb.Location = new System.Drawing.Point(391, 457);
+			lastWriteTimeCb.Margin = new System.Windows.Forms.Padding(6);
 			lastWriteTimeCb.Name = "lastWriteTimeCb";
-			lastWriteTimeCb.Size = new System.Drawing.Size(272, 23);
+			lastWriteTimeCb.Size = new System.Drawing.Size(502, 40);
 			lastWriteTimeCb.TabIndex = 5;
 			// 
 			// creationTimeCb
 			// 
 			creationTimeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			creationTimeCb.FormattingEnabled = true;
-			creationTimeCb.Location = new System.Drawing.Point(188, 185);
+			creationTimeCb.Location = new System.Drawing.Point(391, 395);
+			creationTimeCb.Margin = new System.Windows.Forms.Padding(6);
 			creationTimeCb.Name = "creationTimeCb";
-			creationTimeCb.Size = new System.Drawing.Size(272, 23);
+			creationTimeCb.Size = new System.Drawing.Size(502, 40);
 			creationTimeCb.TabIndex = 5;
 			// 
 			// lastWriteTimeLbl
 			// 
 			lastWriteTimeLbl.AutoSize = true;
-			lastWriteTimeLbl.Location = new System.Drawing.Point(7, 217);
-			lastWriteTimeLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			lastWriteTimeLbl.Location = new System.Drawing.Point(13, 463);
+			lastWriteTimeLbl.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			lastWriteTimeLbl.Name = "lastWriteTimeLbl";
-			lastWriteTimeLbl.Size = new System.Drawing.Size(116, 15);
+			lastWriteTimeLbl.Size = new System.Drawing.Size(233, 32);
 			lastWriteTimeLbl.TabIndex = 4;
 			lastWriteTimeLbl.Text = "[last write time desc]";
 			// 
 			// creationTimeLbl
 			// 
 			creationTimeLbl.AutoSize = true;
-			creationTimeLbl.Location = new System.Drawing.Point(7, 188);
-			creationTimeLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			creationTimeLbl.Location = new System.Drawing.Point(13, 401);
+			creationTimeLbl.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
 			creationTimeLbl.Name = "creationTimeLbl";
-			creationTimeLbl.Size = new System.Drawing.Size(112, 15);
+			creationTimeLbl.Size = new System.Drawing.Size(224, 32);
 			creationTimeLbl.TabIndex = 4;
 			creationTimeLbl.Text = "[creation time desc]";
 			// 
 			// overwriteExistingCbox
 			// 
 			overwriteExistingCbox.AutoSize = true;
-			overwriteExistingCbox.Location = new System.Drawing.Point(7, 156);
+			overwriteExistingCbox.Location = new System.Drawing.Point(13, 333);
+			overwriteExistingCbox.Margin = new System.Windows.Forms.Padding(6);
 			overwriteExistingCbox.Name = "overwriteExistingCbox";
-			overwriteExistingCbox.Size = new System.Drawing.Size(129, 19);
+			overwriteExistingCbox.Size = new System.Drawing.Size(251, 36);
 			overwriteExistingCbox.TabIndex = 3;
 			overwriteExistingCbox.Text = "[Overwrite Existing]";
 			overwriteExistingCbox.UseVisualStyleBackColor = true;
@@ -479,9 +505,10 @@
 			// saveEpisodesToSeriesFolderCbox
 			// 
 			saveEpisodesToSeriesFolderCbox.AutoSize = true;
-			saveEpisodesToSeriesFolderCbox.Location = new System.Drawing.Point(7, 131);
+			saveEpisodesToSeriesFolderCbox.Location = new System.Drawing.Point(13, 279);
+			saveEpisodesToSeriesFolderCbox.Margin = new System.Windows.Forms.Padding(6);
 			saveEpisodesToSeriesFolderCbox.Name = "saveEpisodesToSeriesFolderCbox";
-			saveEpisodesToSeriesFolderCbox.Size = new System.Drawing.Size(191, 19);
+			saveEpisodesToSeriesFolderCbox.Size = new System.Drawing.Size(386, 36);
 			saveEpisodesToSeriesFolderCbox.TabIndex = 3;
 			saveEpisodesToSeriesFolderCbox.Text = "[Save Episodes To Series Folder]";
 			saveEpisodesToSeriesFolderCbox.UseVisualStyleBackColor = true;
@@ -493,10 +520,11 @@
 			tab2ImportLibrary.Controls.Add(showImportedStatsCb);
 			tab2ImportLibrary.Controls.Add(importEpisodesCb);
 			tab2ImportLibrary.Controls.Add(downloadEpisodesCb);
-			tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
+			tab2ImportLibrary.Location = new System.Drawing.Point(8, 46);
+			tab2ImportLibrary.Margin = new System.Windows.Forms.Padding(6);
 			tab2ImportLibrary.Name = "tab2ImportLibrary";
-			tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
-			tab2ImportLibrary.Size = new System.Drawing.Size(854, 445);
+			tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(6);
+			tab2ImportLibrary.Size = new System.Drawing.Size(1585, 955);
 			tab2ImportLibrary.TabIndex = 1;
 			tab2ImportLibrary.Text = "Import library";
 			tab2ImportLibrary.UseVisualStyleBackColor = true;
@@ -504,9 +532,10 @@
 			// autoDownloadEpisodesCb
 			// 
 			autoDownloadEpisodesCb.AutoSize = true;
-			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 106);
+			autoDownloadEpisodesCb.Location = new System.Drawing.Point(11, 226);
+			autoDownloadEpisodesCb.Margin = new System.Windows.Forms.Padding(6);
 			autoDownloadEpisodesCb.Name = "autoDownloadEpisodesCb";
-			autoDownloadEpisodesCb.Size = new System.Drawing.Size(190, 19);
+			autoDownloadEpisodesCb.Size = new System.Drawing.Size(376, 36);
 			autoDownloadEpisodesCb.TabIndex = 5;
 			autoDownloadEpisodesCb.Text = "[auto download episodes desc]";
 			autoDownloadEpisodesCb.UseVisualStyleBackColor = true;
@@ -514,9 +543,10 @@
 			// autoScanCb
 			// 
 			autoScanCb.AutoSize = true;
-			autoScanCb.Location = new System.Drawing.Point(6, 6);
+			autoScanCb.Location = new System.Drawing.Point(11, 13);
+			autoScanCb.Margin = new System.Windows.Forms.Padding(6);
 			autoScanCb.Name = "autoScanCb";
-			autoScanCb.Size = new System.Drawing.Size(112, 19);
+			autoScanCb.Size = new System.Drawing.Size(217, 36);
 			autoScanCb.TabIndex = 1;
 			autoScanCb.Text = "[auto scan desc]";
 			autoScanCb.UseVisualStyleBackColor = true;
@@ -524,9 +554,10 @@
 			// showImportedStatsCb
 			// 
 			showImportedStatsCb.AutoSize = true;
-			showImportedStatsCb.Location = new System.Drawing.Point(6, 31);
+			showImportedStatsCb.Location = new System.Drawing.Point(11, 66);
+			showImportedStatsCb.Margin = new System.Windows.Forms.Padding(6);
 			showImportedStatsCb.Name = "showImportedStatsCb";
-			showImportedStatsCb.Size = new System.Drawing.Size(168, 19);
+			showImportedStatsCb.Size = new System.Drawing.Size(330, 36);
 			showImportedStatsCb.TabIndex = 2;
 			showImportedStatsCb.Text = "[show imported stats desc]";
 			showImportedStatsCb.UseVisualStyleBackColor = true;
@@ -537,10 +568,11 @@
 			tab3DownloadDecrypt.Controls.Add(inProgressFilesGb);
 			tab3DownloadDecrypt.Controls.Add(customFileNamingGb);
 			tab3DownloadDecrypt.Controls.Add(badBookGb);
-			tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
+			tab3DownloadDecrypt.Location = new System.Drawing.Point(8, 46);
+			tab3DownloadDecrypt.Margin = new System.Windows.Forms.Padding(6);
 			tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
-			tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3);
-			tab3DownloadDecrypt.Size = new System.Drawing.Size(854, 445);
+			tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(6);
+			tab3DownloadDecrypt.Size = new System.Drawing.Size(1585, 955);
 			tab3DownloadDecrypt.TabIndex = 2;
 			tab3DownloadDecrypt.Text = "Download/Decrypt";
 			tab3DownloadDecrypt.UseVisualStyleBackColor = true;
@@ -548,9 +580,10 @@
 			// useCoverAsFolderIconCb
 			// 
 			useCoverAsFolderIconCb.AutoSize = true;
-			useCoverAsFolderIconCb.Location = new System.Drawing.Point(7, 415);
+			useCoverAsFolderIconCb.Location = new System.Drawing.Point(13, 885);
+			useCoverAsFolderIconCb.Margin = new System.Windows.Forms.Padding(6);
 			useCoverAsFolderIconCb.Name = "useCoverAsFolderIconCb";
-			useCoverAsFolderIconCb.Size = new System.Drawing.Size(180, 19);
+			useCoverAsFolderIconCb.Size = new System.Drawing.Size(353, 36);
 			useCoverAsFolderIconCb.TabIndex = 22;
 			useCoverAsFolderIconCb.Text = "[UseCoverAsFolderIcon desc]";
 			useCoverAsFolderIconCb.UseVisualStyleBackColor = true;
@@ -560,9 +593,11 @@
 			inProgressFilesGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			inProgressFilesGb.Controls.Add(inProgressDescLbl);
 			inProgressFilesGb.Controls.Add(inProgressSelectControl);
-			inProgressFilesGb.Location = new System.Drawing.Point(6, 281);
+			inProgressFilesGb.Location = new System.Drawing.Point(11, 599);
+			inProgressFilesGb.Margin = new System.Windows.Forms.Padding(6);
 			inProgressFilesGb.Name = "inProgressFilesGb";
-			inProgressFilesGb.Size = new System.Drawing.Size(841, 128);
+			inProgressFilesGb.Padding = new System.Windows.Forms.Padding(6);
+			inProgressFilesGb.Size = new System.Drawing.Size(1562, 273);
 			inProgressFilesGb.TabIndex = 21;
 			inProgressFilesGb.TabStop = false;
 			inProgressFilesGb.Text = "In progress files";
@@ -580,9 +615,11 @@
 			customFileNamingGb.Controls.Add(folderTemplateBtn);
 			customFileNamingGb.Controls.Add(folderTemplateTb);
 			customFileNamingGb.Controls.Add(folderTemplateLbl);
-			customFileNamingGb.Location = new System.Drawing.Point(7, 88);
+			customFileNamingGb.Location = new System.Drawing.Point(13, 188);
+			customFileNamingGb.Margin = new System.Windows.Forms.Padding(6);
 			customFileNamingGb.Name = "customFileNamingGb";
-			customFileNamingGb.Size = new System.Drawing.Size(841, 187);
+			customFileNamingGb.Padding = new System.Windows.Forms.Padding(6);
+			customFileNamingGb.Size = new System.Drawing.Size(1562, 399);
 			customFileNamingGb.TabIndex = 20;
 			customFileNamingGb.TabStop = false;
 			customFileNamingGb.Text = "Custom file naming";
@@ -590,9 +627,10 @@
 			// editCharreplacementBtn
 			// 
 			editCharreplacementBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-			editCharreplacementBtn.Location = new System.Drawing.Point(5, 158);
+			editCharreplacementBtn.Location = new System.Drawing.Point(9, 337);
+			editCharreplacementBtn.Margin = new System.Windows.Forms.Padding(6);
 			editCharreplacementBtn.Name = "editCharreplacementBtn";
-			editCharreplacementBtn.Size = new System.Drawing.Size(281, 23);
+			editCharreplacementBtn.Size = new System.Drawing.Size(522, 49);
 			editCharreplacementBtn.TabIndex = 8;
 			editCharreplacementBtn.Text = "[edit char replacement desc]";
 			editCharreplacementBtn.UseVisualStyleBackColor = true;
@@ -601,9 +639,10 @@
 			// chapterFileTemplateBtn
 			// 
 			chapterFileTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			chapterFileTemplateBtn.Location = new System.Drawing.Point(761, 124);
+			chapterFileTemplateBtn.Location = new System.Drawing.Point(1413, 265);
+			chapterFileTemplateBtn.Margin = new System.Windows.Forms.Padding(6);
 			chapterFileTemplateBtn.Name = "chapterFileTemplateBtn";
-			chapterFileTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			chapterFileTemplateBtn.Size = new System.Drawing.Size(139, 49);
 			chapterFileTemplateBtn.TabIndex = 8;
 			chapterFileTemplateBtn.Text = "Edit...";
 			chapterFileTemplateBtn.UseVisualStyleBackColor = true;
@@ -612,27 +651,30 @@
 			// chapterFileTemplateTb
 			// 
 			chapterFileTemplateTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			chapterFileTemplateTb.Location = new System.Drawing.Point(6, 125);
+			chapterFileTemplateTb.Location = new System.Drawing.Point(11, 267);
+			chapterFileTemplateTb.Margin = new System.Windows.Forms.Padding(6);
 			chapterFileTemplateTb.Name = "chapterFileTemplateTb";
 			chapterFileTemplateTb.ReadOnly = true;
-			chapterFileTemplateTb.Size = new System.Drawing.Size(749, 23);
+			chapterFileTemplateTb.Size = new System.Drawing.Size(1388, 39);
 			chapterFileTemplateTb.TabIndex = 7;
 			// 
 			// chapterFileTemplateLbl
 			// 
 			chapterFileTemplateLbl.AutoSize = true;
-			chapterFileTemplateLbl.Location = new System.Drawing.Point(6, 107);
+			chapterFileTemplateLbl.Location = new System.Drawing.Point(11, 228);
+			chapterFileTemplateLbl.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			chapterFileTemplateLbl.Name = "chapterFileTemplateLbl";
-			chapterFileTemplateLbl.Size = new System.Drawing.Size(132, 15);
+			chapterFileTemplateLbl.Size = new System.Drawing.Size(265, 32);
 			chapterFileTemplateLbl.TabIndex = 6;
 			chapterFileTemplateLbl.Text = "[chapter template desc]";
 			// 
 			// fileTemplateBtn
 			// 
 			fileTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			fileTemplateBtn.Location = new System.Drawing.Point(761, 80);
+			fileTemplateBtn.Location = new System.Drawing.Point(1413, 171);
+			fileTemplateBtn.Margin = new System.Windows.Forms.Padding(6);
 			fileTemplateBtn.Name = "fileTemplateBtn";
-			fileTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			fileTemplateBtn.Size = new System.Drawing.Size(139, 49);
 			fileTemplateBtn.TabIndex = 5;
 			fileTemplateBtn.Text = "Edit...";
 			fileTemplateBtn.UseVisualStyleBackColor = true;
@@ -641,27 +683,30 @@
 			// fileTemplateTb
 			// 
 			fileTemplateTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			fileTemplateTb.Location = new System.Drawing.Point(6, 81);
+			fileTemplateTb.Location = new System.Drawing.Point(11, 173);
+			fileTemplateTb.Margin = new System.Windows.Forms.Padding(6);
 			fileTemplateTb.Name = "fileTemplateTb";
 			fileTemplateTb.ReadOnly = true;
-			fileTemplateTb.Size = new System.Drawing.Size(749, 23);
+			fileTemplateTb.Size = new System.Drawing.Size(1388, 39);
 			fileTemplateTb.TabIndex = 4;
 			// 
 			// fileTemplateLbl
 			// 
 			fileTemplateLbl.AutoSize = true;
-			fileTemplateLbl.Location = new System.Drawing.Point(6, 63);
+			fileTemplateLbl.Location = new System.Drawing.Point(11, 134);
+			fileTemplateLbl.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			fileTemplateLbl.Name = "fileTemplateLbl";
-			fileTemplateLbl.Size = new System.Drawing.Size(108, 15);
+			fileTemplateLbl.Size = new System.Drawing.Size(218, 32);
 			fileTemplateLbl.TabIndex = 3;
 			fileTemplateLbl.Text = "[file template desc]";
 			// 
 			// folderTemplateBtn
 			// 
 			folderTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			folderTemplateBtn.Location = new System.Drawing.Point(760, 36);
+			folderTemplateBtn.Location = new System.Drawing.Point(1411, 77);
+			folderTemplateBtn.Margin = new System.Windows.Forms.Padding(6);
 			folderTemplateBtn.Name = "folderTemplateBtn";
-			folderTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			folderTemplateBtn.Size = new System.Drawing.Size(139, 49);
 			folderTemplateBtn.TabIndex = 2;
 			folderTemplateBtn.Text = "Edit...";
 			folderTemplateBtn.UseVisualStyleBackColor = true;
@@ -670,23 +715,27 @@
 			// folderTemplateTb
 			// 
 			folderTemplateTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			folderTemplateTb.Location = new System.Drawing.Point(5, 37);
+			folderTemplateTb.Location = new System.Drawing.Point(9, 79);
+			folderTemplateTb.Margin = new System.Windows.Forms.Padding(6);
 			folderTemplateTb.Name = "folderTemplateTb";
 			folderTemplateTb.ReadOnly = true;
-			folderTemplateTb.Size = new System.Drawing.Size(749, 23);
+			folderTemplateTb.Size = new System.Drawing.Size(1388, 39);
 			folderTemplateTb.TabIndex = 1;
 			// 
 			// folderTemplateLbl
 			// 
 			folderTemplateLbl.AutoSize = true;
-			folderTemplateLbl.Location = new System.Drawing.Point(5, 19);
+			folderTemplateLbl.Location = new System.Drawing.Point(9, 41);
+			folderTemplateLbl.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			folderTemplateLbl.Name = "folderTemplateLbl";
-			folderTemplateLbl.Size = new System.Drawing.Size(123, 15);
+			folderTemplateLbl.Size = new System.Drawing.Size(248, 32);
 			folderTemplateLbl.TabIndex = 0;
 			folderTemplateLbl.Text = "[folder template desc]";
 			// 
 			// tab4AudioFileOptions
 			// 
+			tab4AudioFileOptions.Controls.Add(fileDownloadQualityCb);
+			tab4AudioFileOptions.Controls.Add(fileDownloadQualityLbl);
 			tab4AudioFileOptions.Controls.Add(clipsBookmarksFormatCb);
 			tab4AudioFileOptions.Controls.Add(downloadClipsBookmarksCbox);
 			tab4AudioFileOptions.Controls.Add(audiobookFixupsGb);
@@ -697,29 +746,52 @@
 			tab4AudioFileOptions.Controls.Add(downloadCoverArtCbox);
 			tab4AudioFileOptions.Controls.Add(createCueSheetCbox);
 			tab4AudioFileOptions.Controls.Add(allowLibationFixupCbox);
-			tab4AudioFileOptions.Location = new System.Drawing.Point(4, 24);
+			tab4AudioFileOptions.Location = new System.Drawing.Point(8, 46);
+			tab4AudioFileOptions.Margin = new System.Windows.Forms.Padding(6);
 			tab4AudioFileOptions.Name = "tab4AudioFileOptions";
-			tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(3);
-			tab4AudioFileOptions.Size = new System.Drawing.Size(854, 445);
+			tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(6);
+			tab4AudioFileOptions.Size = new System.Drawing.Size(1585, 955);
 			tab4AudioFileOptions.TabIndex = 3;
 			tab4AudioFileOptions.Text = "Audio File Options";
 			tab4AudioFileOptions.UseVisualStyleBackColor = true;
+			// 
+			// fileDownloadQualityCb
+			// 
+			fileDownloadQualityCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			fileDownloadQualityCb.FormattingEnabled = true;
+			fileDownloadQualityCb.Location = new System.Drawing.Point(490, 16);
+			fileDownloadQualityCb.Margin = new System.Windows.Forms.Padding(6, 6, 10, 6);
+			fileDownloadQualityCb.Name = "fileDownloadQualityCb";
+			fileDownloadQualityCb.Size = new System.Drawing.Size(160, 40);
+			fileDownloadQualityCb.TabIndex = 23;
+			// 
+			// fileDownloadQualityLbl
+			// 
+			fileDownloadQualityLbl.AutoSize = true;
+			fileDownloadQualityLbl.Location = new System.Drawing.Point(35, 19);
+			fileDownloadQualityLbl.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
+			fileDownloadQualityLbl.Name = "fileDownloadQualityLbl";
+			fileDownloadQualityLbl.Size = new System.Drawing.Size(304, 32);
+			fileDownloadQualityLbl.TabIndex = 22;
+			fileDownloadQualityLbl.Text = "[FileDownloadQuality desc]";
 			// 
 			// clipsBookmarksFormatCb
 			// 
 			clipsBookmarksFormatCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			clipsBookmarksFormatCb.FormattingEnabled = true;
-			clipsBookmarksFormatCb.Location = new System.Drawing.Point(269, 64);
+			clipsBookmarksFormatCb.Location = new System.Drawing.Point(529, 172);
+			clipsBookmarksFormatCb.Margin = new System.Windows.Forms.Padding(6);
 			clipsBookmarksFormatCb.Name = "clipsBookmarksFormatCb";
-			clipsBookmarksFormatCb.Size = new System.Drawing.Size(67, 23);
+			clipsBookmarksFormatCb.Size = new System.Drawing.Size(121, 40);
 			clipsBookmarksFormatCb.TabIndex = 21;
 			// 
 			// downloadClipsBookmarksCbox
 			// 
 			downloadClipsBookmarksCbox.AutoSize = true;
-			downloadClipsBookmarksCbox.Location = new System.Drawing.Point(19, 68);
+			downloadClipsBookmarksCbox.Location = new System.Drawing.Point(35, 176);
+			downloadClipsBookmarksCbox.Margin = new System.Windows.Forms.Padding(6);
 			downloadClipsBookmarksCbox.Name = "downloadClipsBookmarksCbox";
-			downloadClipsBookmarksCbox.Size = new System.Drawing.Size(248, 19);
+			downloadClipsBookmarksCbox.Size = new System.Drawing.Size(492, 36);
 			downloadClipsBookmarksCbox.TabIndex = 20;
 			downloadClipsBookmarksCbox.Text = "Download Clips, Notes, and Bookmarks as";
 			downloadClipsBookmarksCbox.UseVisualStyleBackColor = true;
@@ -733,9 +805,11 @@
 			audiobookFixupsGb.Controls.Add(convertLosslessRb);
 			audiobookFixupsGb.Controls.Add(convertLossyRb);
 			audiobookFixupsGb.Controls.Add(stripAudibleBrandingCbox);
-			audiobookFixupsGb.Location = new System.Drawing.Point(6, 169);
+			audiobookFixupsGb.Location = new System.Drawing.Point(11, 408);
+			audiobookFixupsGb.Margin = new System.Windows.Forms.Padding(6);
 			audiobookFixupsGb.Name = "audiobookFixupsGb";
-			audiobookFixupsGb.Size = new System.Drawing.Size(403, 185);
+			audiobookFixupsGb.Padding = new System.Windows.Forms.Padding(6);
+			audiobookFixupsGb.Size = new System.Drawing.Size(748, 395);
 			audiobookFixupsGb.TabIndex = 19;
 			audiobookFixupsGb.TabStop = false;
 			audiobookFixupsGb.Text = "Audiobook Fix-ups";
@@ -743,9 +817,10 @@
 			// moveMoovAtomCbox
 			// 
 			moveMoovAtomCbox.AutoSize = true;
-			moveMoovAtomCbox.Location = new System.Drawing.Point(23, 133);
+			moveMoovAtomCbox.Location = new System.Drawing.Point(43, 284);
+			moveMoovAtomCbox.Margin = new System.Windows.Forms.Padding(6);
 			moveMoovAtomCbox.Name = "moveMoovAtomCbox";
-			moveMoovAtomCbox.Size = new System.Drawing.Size(188, 19);
+			moveMoovAtomCbox.Size = new System.Drawing.Size(372, 36);
 			moveMoovAtomCbox.TabIndex = 14;
 			moveMoovAtomCbox.Text = "[MoveMoovToBeginning desc]";
 			moveMoovAtomCbox.UseVisualStyleBackColor = true;
@@ -753,9 +828,10 @@
 			// stripUnabridgedCbox
 			// 
 			stripUnabridgedCbox.AutoSize = true;
-			stripUnabridgedCbox.Location = new System.Drawing.Point(13, 47);
+			stripUnabridgedCbox.Location = new System.Drawing.Point(24, 100);
+			stripUnabridgedCbox.Margin = new System.Windows.Forms.Padding(6);
 			stripUnabridgedCbox.Name = "stripUnabridgedCbox";
-			stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
+			stripUnabridgedCbox.Size = new System.Drawing.Size(288, 36);
 			stripUnabridgedCbox.TabIndex = 13;
 			stripUnabridgedCbox.Text = "[StripUnabridged desc]";
 			stripUnabridgedCbox.UseVisualStyleBackColor = true;
@@ -764,9 +840,11 @@
 			// 
 			chapterTitleTemplateGb.Controls.Add(chapterTitleTemplateBtn);
 			chapterTitleTemplateGb.Controls.Add(chapterTitleTemplateTb);
-			chapterTitleTemplateGb.Location = new System.Drawing.Point(6, 360);
+			chapterTitleTemplateGb.Location = new System.Drawing.Point(6, 828);
+			chapterTitleTemplateGb.Margin = new System.Windows.Forms.Padding(6);
 			chapterTitleTemplateGb.Name = "chapterTitleTemplateGb";
-			chapterTitleTemplateGb.Size = new System.Drawing.Size(842, 54);
+			chapterTitleTemplateGb.Padding = new System.Windows.Forms.Padding(6);
+			chapterTitleTemplateGb.Size = new System.Drawing.Size(1573, 115);
 			chapterTitleTemplateGb.TabIndex = 18;
 			chapterTitleTemplateGb.TabStop = false;
 			chapterTitleTemplateGb.Text = "[chapter title template desc]";
@@ -774,9 +852,10 @@
 			// chapterTitleTemplateBtn
 			// 
 			chapterTitleTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			chapterTitleTemplateBtn.Location = new System.Drawing.Point(764, 22);
+			chapterTitleTemplateBtn.Location = new System.Drawing.Point(1428, 47);
+			chapterTitleTemplateBtn.Margin = new System.Windows.Forms.Padding(6);
 			chapterTitleTemplateBtn.Name = "chapterTitleTemplateBtn";
-			chapterTitleTemplateBtn.Size = new System.Drawing.Size(75, 23);
+			chapterTitleTemplateBtn.Size = new System.Drawing.Size(139, 49);
 			chapterTitleTemplateBtn.TabIndex = 17;
 			chapterTitleTemplateBtn.Text = "Edit...";
 			chapterTitleTemplateBtn.UseVisualStyleBackColor = true;
@@ -785,10 +864,11 @@
 			// chapterTitleTemplateTb
 			// 
 			chapterTitleTemplateTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			chapterTitleTemplateTb.Location = new System.Drawing.Point(6, 22);
+			chapterTitleTemplateTb.Location = new System.Drawing.Point(11, 47);
+			chapterTitleTemplateTb.Margin = new System.Windows.Forms.Padding(6);
 			chapterTitleTemplateTb.Name = "chapterTitleTemplateTb";
 			chapterTitleTemplateTb.ReadOnly = true;
-			chapterTitleTemplateTb.Size = new System.Drawing.Size(752, 23);
+			chapterTitleTemplateTb.Size = new System.Drawing.Size(1402, 39);
 			chapterTitleTemplateTb.TabIndex = 16;
 			// 
 			// lameOptionsGb
@@ -802,9 +882,11 @@
 			lameOptionsGb.Controls.Add(label1);
 			lameOptionsGb.Controls.Add(lameQualityGb);
 			lameOptionsGb.Controls.Add(groupBox2);
-			lameOptionsGb.Location = new System.Drawing.Point(415, 6);
+			lameOptionsGb.Location = new System.Drawing.Point(771, 13);
+			lameOptionsGb.Margin = new System.Windows.Forms.Padding(6);
 			lameOptionsGb.Name = "lameOptionsGb";
-			lameOptionsGb.Size = new System.Drawing.Size(433, 348);
+			lameOptionsGb.Padding = new System.Windows.Forms.Padding(6);
+			lameOptionsGb.Size = new System.Drawing.Size(804, 742);
 			lameOptionsGb.TabIndex = 14;
 			lameOptionsGb.TabStop = false;
 			lameOptionsGb.Text = "Mp3 Encoding Options";
@@ -812,18 +894,20 @@
 			// label20
 			// 
 			label20.AutoSize = true;
-			label20.Location = new System.Drawing.Point(12, 78);
+			label20.Location = new System.Drawing.Point(22, 166);
+			label20.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label20.Name = "label20";
-			label20.Size = new System.Drawing.Size(101, 15);
+			label20.Size = new System.Drawing.Size(204, 32);
 			label20.TabIndex = 3;
 			label20.Text = "Max Sample Rate:";
 			// 
 			// label21
 			// 
 			label21.AutoSize = true;
-			label21.Location = new System.Drawing.Point(239, 78);
+			label21.Location = new System.Drawing.Point(444, 166);
+			label21.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label21.Name = "label21";
-			label21.Size = new System.Drawing.Size(94, 15);
+			label21.Size = new System.Drawing.Size(188, 32);
 			label21.TabIndex = 3;
 			label21.Text = "Encoder Quality:";
 			// 
@@ -831,25 +915,28 @@
 			// 
 			encoderQualityCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			encoderQualityCb.FormattingEnabled = true;
-			encoderQualityCb.Location = new System.Drawing.Point(337, 75);
+			encoderQualityCb.Location = new System.Drawing.Point(626, 160);
+			encoderQualityCb.Margin = new System.Windows.Forms.Padding(6);
 			encoderQualityCb.Name = "encoderQualityCb";
-			encoderQualityCb.Size = new System.Drawing.Size(90, 23);
+			encoderQualityCb.Size = new System.Drawing.Size(164, 40);
 			encoderQualityCb.TabIndex = 2;
 			// 
 			// maxSampleRateCb
 			// 
 			maxSampleRateCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			maxSampleRateCb.FormattingEnabled = true;
-			maxSampleRateCb.Location = new System.Drawing.Point(119, 75);
+			maxSampleRateCb.Location = new System.Drawing.Point(221, 160);
+			maxSampleRateCb.Margin = new System.Windows.Forms.Padding(6);
 			maxSampleRateCb.Name = "maxSampleRateCb";
-			maxSampleRateCb.Size = new System.Drawing.Size(101, 23);
+			maxSampleRateCb.Size = new System.Drawing.Size(184, 40);
 			maxSampleRateCb.TabIndex = 2;
 			// 
 			// lameDownsampleMonoCbox
 			// 
-			lameDownsampleMonoCbox.Location = new System.Drawing.Point(237, 30);
+			lameDownsampleMonoCbox.Location = new System.Drawing.Point(440, 64);
+			lameDownsampleMonoCbox.Margin = new System.Windows.Forms.Padding(6);
 			lameDownsampleMonoCbox.Name = "lameDownsampleMonoCbox";
-			lameDownsampleMonoCbox.Size = new System.Drawing.Size(184, 34);
+			lameDownsampleMonoCbox.Size = new System.Drawing.Size(342, 73);
 			lameDownsampleMonoCbox.TabIndex = 1;
 			lameDownsampleMonoCbox.Text = "Downsample stereo to mono?\r\n(Recommended)\r\n";
 			lameDownsampleMonoCbox.UseVisualStyleBackColor = true;
@@ -865,9 +952,11 @@
 			lameBitrateGb.Controls.Add(label11);
 			lameBitrateGb.Controls.Add(label3);
 			lameBitrateGb.Controls.Add(lameBitrateTb);
-			lameBitrateGb.Location = new System.Drawing.Point(6, 104);
+			lameBitrateGb.Location = new System.Drawing.Point(11, 222);
+			lameBitrateGb.Margin = new System.Windows.Forms.Padding(6);
 			lameBitrateGb.Name = "lameBitrateGb";
-			lameBitrateGb.Size = new System.Drawing.Size(421, 102);
+			lameBitrateGb.Padding = new System.Windows.Forms.Padding(6);
+			lameBitrateGb.Size = new System.Drawing.Size(782, 218);
 			lameBitrateGb.TabIndex = 0;
 			lameBitrateGb.TabStop = false;
 			lameBitrateGb.Text = "Bitrate";
@@ -875,9 +964,10 @@
 			// LameMatchSourceBRCbox
 			// 
 			LameMatchSourceBRCbox.AutoSize = true;
-			LameMatchSourceBRCbox.Location = new System.Drawing.Point(275, 76);
+			LameMatchSourceBRCbox.Location = new System.Drawing.Point(511, 162);
+			LameMatchSourceBRCbox.Margin = new System.Windows.Forms.Padding(6);
 			LameMatchSourceBRCbox.Name = "LameMatchSourceBRCbox";
-			LameMatchSourceBRCbox.Size = new System.Drawing.Size(140, 19);
+			LameMatchSourceBRCbox.Size = new System.Drawing.Size(277, 36);
 			LameMatchSourceBRCbox.TabIndex = 3;
 			LameMatchSourceBRCbox.Text = "Match source bitrate?";
 			LameMatchSourceBRCbox.UseVisualStyleBackColor = true;
@@ -886,9 +976,10 @@
 			// lameConstantBitrateCbox
 			// 
 			lameConstantBitrateCbox.AutoSize = true;
-			lameConstantBitrateCbox.Location = new System.Drawing.Point(6, 77);
+			lameConstantBitrateCbox.Location = new System.Drawing.Point(11, 164);
+			lameConstantBitrateCbox.Margin = new System.Windows.Forms.Padding(6);
 			lameConstantBitrateCbox.Name = "lameConstantBitrateCbox";
-			lameConstantBitrateCbox.Size = new System.Drawing.Size(216, 19);
+			lameConstantBitrateCbox.Size = new System.Drawing.Size(431, 36);
 			lameConstantBitrateCbox.TabIndex = 2;
 			lameConstantBitrateCbox.Text = "Restrict encoder to constant bitrate?";
 			lameConstantBitrateCbox.UseVisualStyleBackColor = true;
@@ -897,9 +988,10 @@
 			// 
 			label7.AutoSize = true;
 			label7.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			label7.Location = new System.Drawing.Point(390, 52);
+			label7.Location = new System.Drawing.Point(724, 111);
+			label7.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label7.Name = "label7";
-			label7.Size = new System.Drawing.Size(25, 15);
+			label7.Size = new System.Drawing.Size(53, 32);
 			label7.TabIndex = 1;
 			label7.Text = "320";
 			// 
@@ -907,9 +999,10 @@
 			// 
 			label6.AutoSize = true;
 			label6.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			label6.Location = new System.Drawing.Point(309, 52);
+			label6.Location = new System.Drawing.Point(574, 111);
+			label6.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label6.Name = "label6";
-			label6.Size = new System.Drawing.Size(25, 15);
+			label6.Size = new System.Drawing.Size(53, 32);
 			label6.TabIndex = 1;
 			label6.Text = "256";
 			// 
@@ -917,9 +1010,10 @@
 			// 
 			label5.AutoSize = true;
 			label5.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			label5.Location = new System.Drawing.Point(228, 52);
+			label5.Location = new System.Drawing.Point(423, 111);
+			label5.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label5.Name = "label5";
-			label5.Size = new System.Drawing.Size(25, 15);
+			label5.Size = new System.Drawing.Size(53, 32);
 			label5.TabIndex = 1;
 			label5.Text = "192";
 			// 
@@ -927,9 +1021,10 @@
 			// 
 			label4.AutoSize = true;
 			label4.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			label4.Location = new System.Drawing.Point(147, 52);
+			label4.Location = new System.Drawing.Point(273, 111);
+			label4.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label4.Name = "label4";
-			label4.Size = new System.Drawing.Size(25, 15);
+			label4.Size = new System.Drawing.Size(53, 32);
 			label4.TabIndex = 1;
 			label4.Text = "128";
 			// 
@@ -937,9 +1032,10 @@
 			// 
 			label11.AutoSize = true;
 			label11.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			label11.Location = new System.Drawing.Point(10, 52);
+			label11.Location = new System.Drawing.Point(19, 111);
+			label11.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label11.Name = "label11";
-			label11.Size = new System.Drawing.Size(19, 15);
+			label11.Size = new System.Drawing.Size(40, 32);
 			label11.TabIndex = 1;
 			label11.Text = "16";
 			// 
@@ -947,9 +1043,10 @@
 			// 
 			label3.AutoSize = true;
 			label3.BackColor = System.Drawing.SystemColors.ControlLightLight;
-			label3.Location = new System.Drawing.Point(71, 52);
+			label3.Location = new System.Drawing.Point(132, 111);
+			label3.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label3.Name = "label3";
-			label3.Size = new System.Drawing.Size(19, 15);
+			label3.Size = new System.Drawing.Size(40, 32);
 			label3.TabIndex = 1;
 			label3.Text = "64";
 			// 
@@ -957,11 +1054,12 @@
 			// 
 			lameBitrateTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			lameBitrateTb.LargeChange = 32;
-			lameBitrateTb.Location = new System.Drawing.Point(6, 22);
+			lameBitrateTb.Location = new System.Drawing.Point(11, 47);
+			lameBitrateTb.Margin = new System.Windows.Forms.Padding(6);
 			lameBitrateTb.Maximum = 320;
 			lameBitrateTb.Minimum = 16;
 			lameBitrateTb.Name = "lameBitrateTb";
-			lameBitrateTb.Size = new System.Drawing.Size(409, 45);
+			lameBitrateTb.Size = new System.Drawing.Size(760, 90);
 			lameBitrateTb.SmallChange = 8;
 			lameBitrateTb.TabIndex = 0;
 			lameBitrateTb.TickFrequency = 16;
@@ -972,9 +1070,10 @@
 			label1.AutoSize = true;
 			label1.Enabled = false;
 			label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-			label1.Location = new System.Drawing.Point(6, 325);
+			label1.Location = new System.Drawing.Point(11, 693);
+			label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(172, 15);
+			label1.Size = new System.Drawing.Size(333, 32);
 			label1.TabIndex = 1;
 			label1.Text = "Using L.A.M.E. encoding engine";
 			// 
@@ -993,9 +1092,11 @@
 			lameQualityGb.Controls.Add(label14);
 			lameQualityGb.Controls.Add(label2);
 			lameQualityGb.Controls.Add(lameVBRQualityTb);
-			lameQualityGb.Location = new System.Drawing.Point(6, 212);
+			lameQualityGb.Location = new System.Drawing.Point(11, 452);
+			lameQualityGb.Margin = new System.Windows.Forms.Padding(6);
 			lameQualityGb.Name = "lameQualityGb";
-			lameQualityGb.Size = new System.Drawing.Size(421, 103);
+			lameQualityGb.Padding = new System.Windows.Forms.Padding(6);
+			lameQualityGb.Size = new System.Drawing.Size(782, 220);
 			lameQualityGb.TabIndex = 0;
 			lameQualityGb.TabStop = false;
 			lameQualityGb.Text = "Quality";
@@ -1003,108 +1104,120 @@
 			// label19
 			// 
 			label19.AutoSize = true;
-			label19.Location = new System.Drawing.Point(349, 52);
+			label19.Location = new System.Drawing.Point(648, 111);
+			label19.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label19.Name = "label19";
-			label19.Size = new System.Drawing.Size(20, 15);
+			label19.Size = new System.Drawing.Size(42, 32);
 			label19.TabIndex = 1;
 			label19.Text = "V8";
 			// 
 			// label18
 			// 
 			label18.AutoSize = true;
-			label18.Location = new System.Drawing.Point(307, 52);
+			label18.Location = new System.Drawing.Point(570, 111);
+			label18.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label18.Name = "label18";
-			label18.Size = new System.Drawing.Size(20, 15);
+			label18.Size = new System.Drawing.Size(42, 32);
 			label18.TabIndex = 1;
 			label18.Text = "V7";
 			// 
 			// label17
 			// 
 			label17.AutoSize = true;
-			label17.Location = new System.Drawing.Point(265, 52);
+			label17.Location = new System.Drawing.Point(492, 111);
+			label17.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label17.Name = "label17";
-			label17.Size = new System.Drawing.Size(20, 15);
+			label17.Size = new System.Drawing.Size(42, 32);
 			label17.TabIndex = 1;
 			label17.Text = "V6";
 			// 
 			// label16
 			// 
 			label16.AutoSize = true;
-			label16.Location = new System.Drawing.Point(223, 52);
+			label16.Location = new System.Drawing.Point(414, 111);
+			label16.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label16.Name = "label16";
-			label16.Size = new System.Drawing.Size(20, 15);
+			label16.Size = new System.Drawing.Size(42, 32);
 			label16.TabIndex = 1;
 			label16.Text = "V5";
 			// 
 			// label12
 			// 
 			label12.AutoSize = true;
-			label12.Location = new System.Drawing.Point(182, 52);
+			label12.Location = new System.Drawing.Point(338, 111);
+			label12.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label12.Name = "label12";
-			label12.Size = new System.Drawing.Size(20, 15);
+			label12.Size = new System.Drawing.Size(42, 32);
 			label12.TabIndex = 1;
 			label12.Text = "V4";
 			// 
 			// label15
 			// 
 			label15.AutoSize = true;
-			label15.Location = new System.Drawing.Point(140, 52);
+			label15.Location = new System.Drawing.Point(260, 111);
+			label15.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label15.Name = "label15";
-			label15.Size = new System.Drawing.Size(20, 15);
+			label15.Size = new System.Drawing.Size(42, 32);
 			label15.TabIndex = 1;
 			label15.Text = "V3";
 			// 
 			// label9
 			// 
 			label9.AutoSize = true;
-			label9.Location = new System.Drawing.Point(97, 52);
+			label9.Location = new System.Drawing.Point(180, 111);
+			label9.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label9.Name = "label9";
-			label9.Size = new System.Drawing.Size(20, 15);
+			label9.Size = new System.Drawing.Size(42, 32);
 			label9.TabIndex = 1;
 			label9.Text = "V2";
 			// 
 			// label8
 			// 
 			label8.AutoSize = true;
-			label8.Location = new System.Drawing.Point(391, 52);
+			label8.Location = new System.Drawing.Point(726, 111);
+			label8.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label8.Name = "label8";
-			label8.Size = new System.Drawing.Size(20, 15);
+			label8.Size = new System.Drawing.Size(42, 32);
 			label8.TabIndex = 1;
 			label8.Text = "V9";
 			// 
 			// label13
 			// 
 			label13.AutoSize = true;
-			label13.Location = new System.Drawing.Point(376, 80);
+			label13.Location = new System.Drawing.Point(698, 171);
+			label13.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label13.Name = "label13";
-			label13.Size = new System.Drawing.Size(39, 15);
+			label13.Size = new System.Drawing.Size(77, 32);
 			label13.TabIndex = 1;
 			label13.Text = "Lower";
 			// 
 			// label10
 			// 
 			label10.AutoSize = true;
-			label10.Location = new System.Drawing.Point(6, 80);
+			label10.Location = new System.Drawing.Point(11, 171);
+			label10.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label10.Name = "label10";
-			label10.Size = new System.Drawing.Size(43, 15);
+			label10.Size = new System.Drawing.Size(86, 32);
 			label10.TabIndex = 1;
 			label10.Text = "Higher";
 			// 
 			// label14
 			// 
 			label14.AutoSize = true;
-			label14.Location = new System.Drawing.Point(56, 52);
+			label14.Location = new System.Drawing.Point(104, 111);
+			label14.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label14.Name = "label14";
-			label14.Size = new System.Drawing.Size(20, 15);
+			label14.Size = new System.Drawing.Size(42, 32);
 			label14.TabIndex = 1;
 			label14.Text = "V1";
 			// 
 			// label2
 			// 
 			label2.AutoSize = true;
-			label2.Location = new System.Drawing.Point(14, 52);
+			label2.Location = new System.Drawing.Point(26, 111);
+			label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
 			label2.Name = "label2";
-			label2.Size = new System.Drawing.Size(20, 15);
+			label2.Size = new System.Drawing.Size(42, 32);
 			label2.TabIndex = 1;
 			label2.Text = "V0";
 			// 
@@ -1112,10 +1225,11 @@
 			// 
 			lameVBRQualityTb.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			lameVBRQualityTb.LargeChange = 1;
-			lameVBRQualityTb.Location = new System.Drawing.Point(10, 22);
+			lameVBRQualityTb.Location = new System.Drawing.Point(19, 47);
+			lameVBRQualityTb.Margin = new System.Windows.Forms.Padding(6);
 			lameVBRQualityTb.Maximum = 9;
 			lameVBRQualityTb.Name = "lameVBRQualityTb";
-			lameVBRQualityTb.Size = new System.Drawing.Size(405, 45);
+			lameVBRQualityTb.Size = new System.Drawing.Size(752, 90);
 			lameVBRQualityTb.TabIndex = 0;
 			lameVBRQualityTb.Value = 9;
 			// 
@@ -1123,9 +1237,11 @@
 			// 
 			groupBox2.Controls.Add(lameTargetQualityRb);
 			groupBox2.Controls.Add(lameTargetBitrateRb);
-			groupBox2.Location = new System.Drawing.Point(6, 22);
+			groupBox2.Location = new System.Drawing.Point(11, 47);
+			groupBox2.Margin = new System.Windows.Forms.Padding(6);
 			groupBox2.Name = "groupBox2";
-			groupBox2.Size = new System.Drawing.Size(214, 47);
+			groupBox2.Padding = new System.Windows.Forms.Padding(6);
+			groupBox2.Size = new System.Drawing.Size(397, 100);
 			groupBox2.TabIndex = 0;
 			groupBox2.TabStop = false;
 			groupBox2.Text = "Target";
@@ -1133,9 +1249,10 @@
 			// lameTargetQualityRb
 			// 
 			lameTargetQualityRb.AutoSize = true;
-			lameTargetQualityRb.Location = new System.Drawing.Point(139, 22);
+			lameTargetQualityRb.Location = new System.Drawing.Point(258, 47);
+			lameTargetQualityRb.Margin = new System.Windows.Forms.Padding(6);
 			lameTargetQualityRb.Name = "lameTargetQualityRb";
-			lameTargetQualityRb.Size = new System.Drawing.Size(63, 19);
+			lameTargetQualityRb.Size = new System.Drawing.Size(121, 36);
 			lameTargetQualityRb.TabIndex = 0;
 			lameTargetQualityRb.TabStop = true;
 			lameTargetQualityRb.Text = "Quality";
@@ -1145,9 +1262,10 @@
 			// lameTargetBitrateRb
 			// 
 			lameTargetBitrateRb.AutoSize = true;
-			lameTargetBitrateRb.Location = new System.Drawing.Point(6, 22);
+			lameTargetBitrateRb.Location = new System.Drawing.Point(11, 47);
+			lameTargetBitrateRb.Margin = new System.Windows.Forms.Padding(6);
 			lameTargetBitrateRb.Name = "lameTargetBitrateRb";
-			lameTargetBitrateRb.Size = new System.Drawing.Size(59, 19);
+			lameTargetBitrateRb.Size = new System.Drawing.Size(114, 36);
 			lameTargetBitrateRb.TabIndex = 0;
 			lameTargetBitrateRb.TabStop = true;
 			lameTargetBitrateRb.Text = "Bitrate";
@@ -1157,9 +1275,10 @@
 			// mergeOpeningEndCreditsCbox
 			// 
 			mergeOpeningEndCreditsCbox.AutoSize = true;
-			mergeOpeningEndCreditsCbox.Location = new System.Drawing.Point(19, 118);
+			mergeOpeningEndCreditsCbox.Location = new System.Drawing.Point(35, 283);
+			mergeOpeningEndCreditsCbox.Margin = new System.Windows.Forms.Padding(6);
 			mergeOpeningEndCreditsCbox.Name = "mergeOpeningEndCreditsCbox";
-			mergeOpeningEndCreditsCbox.Size = new System.Drawing.Size(198, 19);
+			mergeOpeningEndCreditsCbox.Size = new System.Drawing.Size(392, 36);
 			mergeOpeningEndCreditsCbox.TabIndex = 13;
 			mergeOpeningEndCreditsCbox.Text = "[MergeOpeningEndCredits desc]";
 			mergeOpeningEndCreditsCbox.UseVisualStyleBackColor = true;
@@ -1167,9 +1286,10 @@
 			// retainAaxFileCbox
 			// 
 			retainAaxFileCbox.AutoSize = true;
-			retainAaxFileCbox.Location = new System.Drawing.Point(19, 93);
+			retainAaxFileCbox.Location = new System.Drawing.Point(35, 229);
+			retainAaxFileCbox.Margin = new System.Windows.Forms.Padding(6);
 			retainAaxFileCbox.Name = "retainAaxFileCbox";
-			retainAaxFileCbox.Size = new System.Drawing.Size(132, 19);
+			retainAaxFileCbox.Size = new System.Drawing.Size(256, 36);
 			retainAaxFileCbox.TabIndex = 10;
 			retainAaxFileCbox.Text = "[RetainAaxFile desc]";
 			retainAaxFileCbox.UseVisualStyleBackColor = true;
@@ -1180,9 +1300,10 @@
 			downloadCoverArtCbox.AutoSize = true;
 			downloadCoverArtCbox.Checked = true;
 			downloadCoverArtCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			downloadCoverArtCbox.Location = new System.Drawing.Point(19, 43);
+			downloadCoverArtCbox.Location = new System.Drawing.Point(35, 123);
+			downloadCoverArtCbox.Margin = new System.Windows.Forms.Padding(6);
 			downloadCoverArtCbox.Name = "downloadCoverArtCbox";
-			downloadCoverArtCbox.Size = new System.Drawing.Size(162, 19);
+			downloadCoverArtCbox.Size = new System.Drawing.Size(316, 36);
 			downloadCoverArtCbox.TabIndex = 10;
 			downloadCoverArtCbox.Text = "[DownloadCoverArt desc]";
 			downloadCoverArtCbox.UseVisualStyleBackColor = true;
@@ -1193,9 +1314,10 @@
 			createCueSheetCbox.AutoSize = true;
 			createCueSheetCbox.Checked = true;
 			createCueSheetCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			createCueSheetCbox.Location = new System.Drawing.Point(19, 18);
+			createCueSheetCbox.Location = new System.Drawing.Point(35, 69);
+			createCueSheetCbox.Margin = new System.Windows.Forms.Padding(6);
 			createCueSheetCbox.Name = "createCueSheetCbox";
-			createCueSheetCbox.Size = new System.Drawing.Size(145, 19);
+			createCueSheetCbox.Size = new System.Drawing.Size(287, 36);
 			createCueSheetCbox.TabIndex = 10;
 			createCueSheetCbox.Text = "[CreateCueSheet desc]";
 			createCueSheetCbox.UseVisualStyleBackColor = true;
@@ -1204,15 +1326,15 @@
 			// SettingsDialog
 			// 
 			AcceptButton = saveBtn;
-			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			CancelButton = cancelBtn;
-			ClientSize = new System.Drawing.Size(886, 534);
+			ClientSize = new System.Drawing.Size(1645, 1139);
 			Controls.Add(tabControl);
 			Controls.Add(cancelBtn);
 			Controls.Add(saveBtn);
 			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
 			MaximizeBox = false;
 			MinimizeBox = false;
 			Name = "SettingsDialog";
@@ -1350,5 +1472,7 @@
 		private System.Windows.Forms.ComboBox lastWriteTimeCb;
 		private System.Windows.Forms.ComboBox creationTimeCb;
 		private System.Windows.Forms.Label lastWriteTimeLbl;
+		private System.Windows.Forms.ComboBox fileDownloadQualityCb;
+		private System.Windows.Forms.Label fileDownloadQualityLbl;
 	}
 }

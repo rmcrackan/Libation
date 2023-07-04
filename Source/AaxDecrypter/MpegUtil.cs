@@ -1,4 +1,5 @@
 ﻿using AAXClean;
+using AAXClean.Codecs;
 using NAudio.Lame;
 using System;
 
@@ -6,6 +7,7 @@ namespace AaxDecrypter
 {
 	public static class MpegUtil
 	{
+		private const string TagDomain = "com.pilabor.tone";
 		public static void ConfigureLameOptions(Mp4File mp4File, LameConfig lameConfig, bool downsample, bool matchSourceBitrate)
 		{
 			double bitrateMultiple = 1;
@@ -36,6 +38,21 @@ namespace AaxDecrypter
 				else if (lameConfig.VBR == VBRMode.ABR)
 					lameConfig.ABRRateKbps = kbps;
 			}
+
+			//Setup metadata tags
+			lameConfig.ID3 = mp4File.AppleTags.ToIDTags();
+
+			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "SUBTITLE") is string subtitle)
+				lameConfig.ID3.Subtitle = subtitle;
+
+			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "LANGUAGE") is string lang)
+				lameConfig.ID3.UserDefinedText.Add("LANGUAGE", lang);
+
+			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "SERIES") is string series)
+				lameConfig.ID3.UserDefinedText.Add("SERIES", series);
+
+			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "PART") is string part)
+				lameConfig.ID3.UserDefinedText.Add("PART", part);
 		}
 	}
 }

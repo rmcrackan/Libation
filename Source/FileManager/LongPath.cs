@@ -163,6 +163,11 @@ namespace FileManager
 
 		public override string ToString() => Path;
 
+		public override int GetHashCode() => Path.GetHashCode();
+		public override bool Equals(object obj) => obj is LongPath other && Path == other.Path;
+		public static bool operator ==(LongPath path1, LongPath path2) => path1.Equals(path2);
+		public static bool operator !=(LongPath path1, LongPath path2) => !path1.Equals(path2);
+
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
 		private static extern int GetShortPathName([MarshalAs(UnmanagedType.LPWStr)] string path, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder shortPath, int shortPathLength);

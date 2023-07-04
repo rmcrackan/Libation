@@ -51,6 +51,34 @@ namespace AaxDecrypter
 
 				if (!string.IsNullOrWhiteSpace(AaxFile.AppleTags.Copyright))
 					AaxFile.AppleTags.Copyright = AaxFile.AppleTags.Copyright.Replace("(P)", "℗").Replace("&#169;", "©");
+
+				//Add audiobook shelf tags
+				//https://github.com/advplyr/audiobookshelf/issues/1794#issuecomment-1565050213
+				const string tagDomain = "com.pilabor.tone";
+
+				AaxFile.AppleTags.Title = DownloadOptions.Title;
+
+				if (DownloadOptions.Subtitle is string subtitle)
+					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "SUBTITLE", subtitle);
+
+				if (DownloadOptions.Publisher is string publisher)
+					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "PUBLISHER", publisher);
+
+				if (DownloadOptions.Language is string language)
+					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "LANGUAGE", language);
+
+				if (DownloadOptions.AudibleProductId is string asin)
+				{
+					AaxFile.AppleTags.Asin = asin;
+					AaxFile.AppleTags.AppleListBox.EditOrAddTag("asin", asin);
+					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_ASIN", asin);
+				}
+
+				if (DownloadOptions.SeriesName is string series)
+					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "SERIES", series);
+
+				if (DownloadOptions.SeriesNumber is float part)
+					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "PART", part.ToString());
 			}
 
 			//Finishing configuring lame encoder.

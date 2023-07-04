@@ -9,6 +9,7 @@ namespace LibationWinForms.Dialogs
 	{
 		private void Load_AudioSettings(Configuration config)
 		{
+			this.fileDownloadQualityLbl.Text = desc(nameof(config.FileDownloadQuality));
 			this.allowLibationFixupCbox.Text = desc(nameof(config.AllowLibationFixup));
 			this.createCueSheetCbox.Text = desc(nameof(config.CreateCueSheet));
 			this.downloadCoverArtCbox.Text = desc(nameof(config.DownloadCoverArt));
@@ -18,6 +19,13 @@ namespace LibationWinForms.Dialogs
 			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
 			this.moveMoovAtomCbox.Text = desc(nameof(config.MoveMoovToBeginning));
+
+			fileDownloadQualityCb.Items.AddRange(
+				new object[]
+				{
+					Configuration.DownloadQuality.Normal,
+					Configuration.DownloadQuality.High
+				});
 
 			clipsBookmarksFormatCb.Items.AddRange(
 				new object[]
@@ -44,6 +52,7 @@ namespace LibationWinForms.Dialogs
 			createCueSheetCbox.Checked = config.CreateCueSheet;
 			downloadCoverArtCbox.Checked = config.DownloadCoverArt;
 			downloadClipsBookmarksCbox.Checked = config.DownloadClipsBookmarks;
+			fileDownloadQualityCb.SelectedItem = config.FileDownloadQuality;
 			clipsBookmarksFormatCb.SelectedItem = config.ClipsBookmarksFileFormat;
 			retainAaxFileCbox.Checked = config.RetainAaxFile;
 			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
@@ -87,6 +96,7 @@ namespace LibationWinForms.Dialogs
 			config.CreateCueSheet = createCueSheetCbox.Checked;
 			config.DownloadCoverArt = downloadCoverArtCbox.Checked;
 			config.DownloadClipsBookmarks = downloadClipsBookmarksCbox.Checked;
+			config.FileDownloadQuality = (Configuration.DownloadQuality)fileDownloadQualityCb.SelectedItem;
 			config.ClipsBookmarksFileFormat = (Configuration.ClipBookmarkFormat)clipsBookmarksFormatCb.SelectedItem;
 			config.RetainAaxFile = retainAaxFileCbox.Checked;
 			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
@@ -98,7 +108,6 @@ namespace LibationWinForms.Dialogs
 			config.LameTargetBitrate = lameTargetBitrateRb.Checked;
 			config.MaxSampleRate = ((EnumDiaplay<AAXClean.SampleRate>)maxSampleRateCb.SelectedItem).Value;
 			config.LameEncoderQuality = (NAudio.Lame.EncoderQuality)encoderQualityCb.SelectedItem;
-			encoderQualityCb.SelectedItem = config.LameEncoderQuality;
 			config.LameDownsampleMono = lameDownsampleMonoCbox.Checked;
 			config.LameBitrate = lameBitrateTb.Value;
 			config.LameConstantBitrate = lameConstantBitrateCbox.Checked;

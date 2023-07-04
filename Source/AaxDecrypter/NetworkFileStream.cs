@@ -14,7 +14,6 @@ namespace AaxDecrypter
 	public class NetworkFileStream : Stream, IUpdatable
 	{
 		public event EventHandler Updated;
-		public event EventHandler DownloadCompleted;
 
 		#region Public Properties
 
@@ -41,6 +40,9 @@ namespace AaxDecrypter
 		[JsonIgnore]
 		public bool IsCancelled => _cancellationSource.IsCancellationRequested;
 
+		[JsonIgnore]
+		public Task DownloadTask { get; private set; }
+
 		private long _speedLimit = 0;
 		/// <summary>bytes per second</summary>
 		public long SpeedLimit { get => _speedLimit; set => _speedLimit = value <= 0 ? 0 : Math.Max(value, MIN_BYTES_PER_SECOND); }
@@ -52,7 +54,6 @@ namespace AaxDecrypter
 		private FileStream _readFile { get; }
 		private CancellationTokenSource _cancellationSource { get; } = new();
 		private EventWaitHandle _downloadedPiece { get; set; }
-		private Task _backgroundDownloadTask { get; set; }
 
 		#endregion
 
@@ -128,7 +129,7 @@ namespace AaxDecrypter
 
 			if (uriToSameFile.Host != Uri.Host)
 				throw new ArgumentException($"New uri to the same file must have the same host.\r\n Old Host :{Uri.Host}\r\nNew Host: {uriToSameFile.Host}");
-			if (_backgroundDownloadTask is not null)
+			if (DownloadTask is not null)
 				throw new InvalidOperationException("Cannot change Uri after download has started.");
 
 			Uri = uriToSameFile;
@@ -141,7 +142,7 @@ namespace AaxDecrypter
 		{
 			if (ContentLength != 0 && WritePosition == ContentLength)
 			{
-				_backgroundDownloadTask = Task.CompletedTask;
+				DownloadTask = Task.CompletedTask;
 				return;
 			}
 
@@ -167,7 +168,8 @@ namespace AaxDecrypter
 			_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
 
 			//Download the file in the background.
-			_backgroundDownloadTask = Task.Run(() => DownloadFile(networkStream), _cancellationSource.Token);
+
+			DownloadTask = Task.Run(() => DownloadFile(networkStream), _cancellationSource.Token);
 		}
 
 		/// <summary> Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.</summary>
@@ -234,7 +236,6 @@ namespace AaxDecrypter
 				_writeFile.Close();
 				_downloadedPiece.Set();
 				OnUpdate();
-				DownloadCompleted?.Invoke(this, null);
 			}
 		}
 
@@ -256,7 +257,7 @@ namespace AaxDecrypter
 		{
 			get
 			{
-				if (_backgroundDownloadTask is null)
+				if (DownloadTask is null)
 					throw new InvalidOperationException($"Background downloader must first be started by calling {nameof(BeginDownloadingAsync)}");
 				return ContentLength;
 			}
@@ -280,7 +281,7 @@ namespace AaxDecrypter
 
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			if (_backgroundDownloadTask is null)
+			if (DownloadTask is null)
 				throw new InvalidOperationException($"Background downloader must first be started by calling {nameof(BeginDownloadingAsync)}");
 
 			var toRead = Math.Min(count, Length - Position);
@@ -306,7 +307,7 @@ namespace AaxDecrypter
 		private void WaitToPosition(long requiredPosition)
 		{
 			while (WritePosition < requiredPosition
-				&& _backgroundDownloadTask?.IsCompleted is false
+				&& DownloadTask?.IsCompleted is false
 				&& !IsCancelled)
 			{
 				_downloadedPiece.WaitOne(50);
@@ -326,7 +327,7 @@ namespace AaxDecrypter
 			if (disposing && !disposed)
 			{
 				_cancellationSource.Cancel();
-				_backgroundDownloadTask?.GetAwaiter().GetResult();
+				DownloadTask?.GetAwaiter().GetResult();
 				_downloadedPiece?.Dispose();
 				_cancellationSource?.Dispose();
 				_readFile.Dispose();
