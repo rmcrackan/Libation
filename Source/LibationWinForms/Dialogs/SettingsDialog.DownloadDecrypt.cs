@@ -5,78 +5,78 @@ using LibationFileManager;
 
 namespace LibationWinForms.Dialogs
 {
-	public partial class SettingsDialog
-	{
-		private void folderTemplateBtn_Click(object sender, EventArgs e)
-			=> editTemplate(TemplateEditor<Templates.FolderTemplate>.CreateFilenameEditor(config.Books, folderTemplateTb.Text), folderTemplateTb);
-		private void fileTemplateBtn_Click(object sender, EventArgs e)
-			=> editTemplate(TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(config.Books, fileTemplateTb.Text), fileTemplateTb);
-		private void chapterFileTemplateBtn_Click(object sender, EventArgs e)
-			=> editTemplate(TemplateEditor<Templates.ChapterFileTemplate>.CreateFilenameEditor(config.Books, chapterFileTemplateTb.Text), chapterFileTemplateTb);
+    public partial class SettingsDialog
+    {
+        private void folderTemplateBtn_Click(object sender, EventArgs e)
+            => editTemplate(TemplateEditor<Templates.FolderTemplate>.CreateFilenameEditor(config.Books, folderTemplateTb.Text), folderTemplateTb);
+        private void fileTemplateBtn_Click(object sender, EventArgs e)
+            => editTemplate(TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(config.Books, fileTemplateTb.Text), fileTemplateTb);
+        private void chapterFileTemplateBtn_Click(object sender, EventArgs e)
+            => editTemplate(TemplateEditor<Templates.ChapterFileTemplate>.CreateFilenameEditor(config.Books, chapterFileTemplateTb.Text), chapterFileTemplateTb);
 
-		private void editCharreplacementBtn_Click(object sender, EventArgs e)
-		{
-			var form = new EditReplacementChars(config);
-			form.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			form.ShowDialog(this);
-		}
+        private void editCharreplacementBtn_Click(object sender, EventArgs e)
+        {
+            var form = new EditReplacementChars(config);
+            form.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            form.ShowDialog(this);
+        }
 
-		private void Load_DownloadDecrypt(Configuration config)
-		{
-			inProgressDescLbl.Text = desc(nameof(config.InProgress));
-			editCharreplacementBtn.Text = desc(nameof(config.ReplacementCharacters));
+        private void Load_DownloadDecrypt(Configuration config)
+        {
+            inProgressDescLbl.Text = desc(nameof(config.InProgress));
+            editCharreplacementBtn.Text = desc(nameof(config.ReplacementCharacters));
 
-			badBookGb.Text = desc(nameof(config.BadBook));
-			badBookAskRb.Text = Configuration.BadBookAction.Ask.GetDescription();
-			badBookAbortRb.Text = Configuration.BadBookAction.Abort.GetDescription();
-			badBookRetryRb.Text = Configuration.BadBookAction.Retry.GetDescription();
-			badBookIgnoreRb.Text = Configuration.BadBookAction.Ignore.GetDescription();
-			useCoverAsFolderIconCb.Text = desc(nameof(config.UseCoverAsFolderIcon));
+            badBookGb.Text = desc(nameof(config.BadBook));
+            badBookAskRb.Text = Configuration.BadBookAction.Ask.GetDescription();
+            badBookAbortRb.Text = Configuration.BadBookAction.Abort.GetDescription();
+            badBookRetryRb.Text = Configuration.BadBookAction.Retry.GetDescription();
+            badBookIgnoreRb.Text = Configuration.BadBookAction.Ignore.GetDescription();
+            useCoverAsFolderIconCb.Text = desc(nameof(config.UseCoverAsFolderIcon));
 
-			inProgressSelectControl.SetDirectoryItems(new()
-			{
-				Configuration.KnownDirectories.WinTemp,
-				Configuration.KnownDirectories.UserProfile,
-				Configuration.KnownDirectories.AppDir,
-				Configuration.KnownDirectories.MyDocs,
-				Configuration.KnownDirectories.LibationFiles
-			}, Configuration.KnownDirectories.WinTemp);
-			inProgressSelectControl.SelectDirectory(config.InProgress);
+            inProgressSelectControl.SetDirectoryItems(new()
+            {
+                Configuration.KnownDirectories.WinTemp,
+                Configuration.KnownDirectories.UserProfile,
+                Configuration.KnownDirectories.AppDir,
+                Configuration.KnownDirectories.MyDocs,
+                Configuration.KnownDirectories.LibationFiles
+            }, Configuration.KnownDirectories.WinTemp);
+            inProgressSelectControl.SelectDirectory(config.InProgress);
 
-			var rb = config.BadBook switch
-			{
-				Configuration.BadBookAction.Ask => this.badBookAskRb,
-				Configuration.BadBookAction.Abort => this.badBookAbortRb,
-				Configuration.BadBookAction.Retry => this.badBookRetryRb,
-				Configuration.BadBookAction.Ignore => this.badBookIgnoreRb,
-				_ => this.badBookAskRb
-			};
-			rb.Checked = true;
+            var rb = config.BadBook switch
+            {
+                Configuration.BadBookAction.Ask => this.badBookAskRb,
+                Configuration.BadBookAction.Abort => this.badBookAbortRb,
+                Configuration.BadBookAction.Retry => this.badBookRetryRb,
+                Configuration.BadBookAction.Ignore => this.badBookIgnoreRb,
+                _ => this.badBookAskRb
+            };
+            rb.Checked = true;
 
-			folderTemplateLbl.Text = desc(nameof(config.FolderTemplate));
-			fileTemplateLbl.Text = desc(nameof(config.FileTemplate));
-			chapterFileTemplateLbl.Text = desc(nameof(config.ChapterFileTemplate));
-			folderTemplateTb.Text = config.FolderTemplate;
-			fileTemplateTb.Text = config.FileTemplate;
-			chapterFileTemplateTb.Text = config.ChapterFileTemplate;
-			useCoverAsFolderIconCb.Checked = config.UseCoverAsFolderIcon;
-		}
+            folderTemplateLbl.Text = desc(nameof(config.FolderTemplate));
+            fileTemplateLbl.Text = desc(nameof(config.FileTemplate));
+            chapterFileTemplateLbl.Text = desc(nameof(config.ChapterFileTemplate));
+            folderTemplateTb.Text = config.FolderTemplate;
+            fileTemplateTb.Text = config.FileTemplate;
+            chapterFileTemplateTb.Text = config.ChapterFileTemplate;
+            useCoverAsFolderIconCb.Checked = config.UseCoverAsFolderIcon;
+        }
 
-		private void Save_DownloadDecrypt(Configuration config)
-		{
-			config.InProgress = inProgressSelectControl.SelectedDirectory;
+        private void Save_DownloadDecrypt(Configuration config)
+        {
+            config.InProgress = inProgressSelectControl.SelectedDirectory;
 
-			config.BadBook
-				= badBookAskRb.Checked ? Configuration.BadBookAction.Ask
-				: badBookAbortRb.Checked ? Configuration.BadBookAction.Abort
-				: badBookRetryRb.Checked ? Configuration.BadBookAction.Retry
-				: badBookIgnoreRb.Checked ? Configuration.BadBookAction.Ignore
-				: Configuration.BadBookAction.Ask;
+            config.BadBook
+                = badBookAskRb.Checked ? Configuration.BadBookAction.Ask
+                : badBookAbortRb.Checked ? Configuration.BadBookAction.Abort
+                : badBookRetryRb.Checked ? Configuration.BadBookAction.Retry
+                : badBookIgnoreRb.Checked ? Configuration.BadBookAction.Ignore
+                : Configuration.BadBookAction.Ask;
 
-			config.FolderTemplate = folderTemplateTb.Text;
-			config.FileTemplate = fileTemplateTb.Text;
-			config.ChapterFileTemplate = chapterFileTemplateTb.Text;
-			config.UseCoverAsFolderIcon = useCoverAsFolderIconCb.Checked;
-		}
-	}
+            config.FolderTemplate = folderTemplateTb.Text;
+            config.FileTemplate = fileTemplateTb.Text;
+            config.ChapterFileTemplate = chapterFileTemplateTb.Text;
+            config.UseCoverAsFolderIcon = useCoverAsFolderIconCb.Checked;
+        }
+    }
 }
