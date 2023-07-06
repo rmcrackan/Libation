@@ -2,10 +2,11 @@
 using Lucene.Net.Analysis.Tokenattributes;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace LibationSearchEngine
 {
-	internal static class QuerySanitizer
+	internal static partial class QuerySanitizer
 	{
 		private static readonly HashSet<string> idTerms
 			= SearchEngine.FieldIndexRules.IdFieldNames
@@ -23,10 +24,16 @@ namespace LibationSearchEngine
 			.Select(n => n.ToLowerInvariant())
 			.ToHashSet();
 
+		private static readonly Regex tagRegex = TagRegex();
+
 		internal static string Sanitize(string searchString, StandardAnalyzer analyzer)
 		{
 			if (string.IsNullOrWhiteSpace(searchString))
 				return SearchEngine.ALL_QUERY;
+
+			//Replace a block tags with tags with proper tag query syntax
+			//eg: [foo] -> tags:foo
+			searchString = tagRegex.Replace(searchString, $"{SearchEngine.TAGS}:$1 ");
 
 			// range operator " TO " and bool operators " AND " and " OR " must be uppercase
 			searchString
@@ -76,11 +83,6 @@ namespace LibationSearchEngine
 					addUnalteredToken(offset);
 					previousIsTags = false;
 				}
-				else if (tryParseBlockTag(offset, partList, searchString, out var tagName))
-				{
-					//The term is a block tag. add it to the part list
-					partList.Add($"{SearchEngine.TAGS}:{tagName}");
-				}
 				else if (double.TryParse(term, out var num))
 				{
 					//Term is a number so pad it with zeros
@@ -117,35 +119,7 @@ namespace LibationSearchEngine
 				partList.Add(searchString.Substring(offset.StartOffset, offset.EndOffset - offset.StartOffset));			
 		}
 
-		private static bool tryParseBlockTag(IOffsetAttribute offset, List<string> partList, string searchString, out string tagName)
-		{
-			tagName = null;
-			if (partList.Count == 0) return false;
-
-			var previous = partList[^1].TrimEnd();
-
-			//cannot be preceeded by an escaping \
-			if (previous.Length == 0) return false;
-			if (previous[^1] != '[' || (previous.Length > 1 && previous[^2] == '\\')) return false;
-
-			var next = searchString.Substring(offset.EndOffset);
-			if (next.Length == 0 || !next.TrimStart().StartsWith(']')) return false;
-
-			tagName = searchString.Substring(offset.StartOffset, offset.EndOffset - offset.StartOffset);
-
-			//Only legal tag characters are letters, numbers and underscores
-			//Per DataLayer.UserDefinedItem.IllegalCharacterRegex()
-			foreach (var c in tagName)
-			{
-				if (!char.IsLetterOrDigit(c) && c != '_')
-					return false;
-			}
-
-			//Remove the leading '['
-			partList[^1] = previous[..^1];
-			//Ignore the trailing ']'
-			offset.SetOffset(offset.StartOffset, searchString.IndexOf(']', offset.EndOffset) + 1);
-			return true;
-		}
+		[GeneratedRegex(@"(?<!\\)\[\u0020*(\w+)\u0020*\]", RegexOptions.Compiled)]
+		private static partial Regex TagRegex();
 	}
 }
