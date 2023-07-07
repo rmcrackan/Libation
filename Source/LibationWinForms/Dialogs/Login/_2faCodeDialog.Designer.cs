@@ -76,8 +76,8 @@
 			// _2faCodeDialog
 			// 
 			AcceptButton = submitBtn;
-			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			ClientSize = new System.Drawing.Size(222, 147);
 			Controls.Add(promptLbl);
 			Controls.Add(label1);

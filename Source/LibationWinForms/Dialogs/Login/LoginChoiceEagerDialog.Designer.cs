@@ -121,8 +121,8 @@
 			// LoginChoiceEagerDialog
 			// 
 			AcceptButton = submitBtn;
-			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			ClientSize = new System.Drawing.Size(394, 216);
 			Controls.Add(externalLoginLbl2);
 			Controls.Add(externalLoginLbl1);

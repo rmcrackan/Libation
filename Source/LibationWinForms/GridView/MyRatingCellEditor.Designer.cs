@@ -324,8 +324,8 @@
 			// 
 			// MyRatingCellEditor
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.Controls.Add(this.panelStory);
 			this.Controls.Add(this.panelPerform);
 			this.Controls.Add(this.lblStory);

@@ -17,7 +17,7 @@ namespace LibationWinForms
 		private void Configure_ProcessQueue()
 		{
 			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
-			splitContainer1.Panel2MinSize = 350;
+			splitContainer1.Panel2MinSize = this.DpiScale(350);
 			var coppalseState = Configuration.Instance.GetNonString(defaultValue: false, nameof(splitContainer1.Panel2Collapsed));
 			WidthChange = splitContainer1.Panel2.Width + splitContainer1.SplitterWidth;
 			int width = this.Width;
@@ -130,7 +130,7 @@ namespace LibationWinForms
 			this.Width -= dockForm.WidthChange;
 			toggleQueueHideBtn.Visible = false;
 			int deltax = filterBtn.Margin.Right + toggleQueueHideBtn.Width + toggleQueueHideBtn.Margin.Left;
-			filterBtn.Location= new System.Drawing.Point(filterBtn.Location.X + deltax, filterBtn.Location.Y);
+			filterBtn.Location = new System.Drawing.Point(filterBtn.Location.X + deltax, filterBtn.Location.Y);
 			filterSearchTb.Location = new System.Drawing.Point(filterSearchTb.Location.X + deltax, filterSearchTb.Location.Y);
 		}
 

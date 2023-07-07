@@ -49,8 +49,8 @@
 			// 
 			// ProductsDisplay
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			Controls.Add(productsGrid);
 			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			Name = "ProductsDisplay";

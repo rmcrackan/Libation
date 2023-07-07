@@ -29,44 +29,45 @@ namespace LibationWinForms.Dialogs
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.directoryComboBox = new System.Windows.Forms.ComboBox();
-			this.textBox1 = new System.Windows.Forms.TextBox();
-			this.SuspendLayout();
+			directoryComboBox = new System.Windows.Forms.ComboBox();
+			textBox1 = new System.Windows.Forms.TextBox();
+			SuspendLayout();
 			// 
 			// directoryComboBox
 			// 
-			this.directoryComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.directoryComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.directoryComboBox.FormattingEnabled = true;
-			this.directoryComboBox.Location = new System.Drawing.Point(0, 0);
-			this.directoryComboBox.Name = "directoryComboBox";
-			this.directoryComboBox.Size = new System.Drawing.Size(407, 23);
-			this.directoryComboBox.TabIndex = 0;
-			this.directoryComboBox.SelectedIndexChanged += new System.EventHandler(this.directoryComboBox_SelectedIndexChanged);
+			directoryComboBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			directoryComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			directoryComboBox.FormattingEnabled = true;
+			directoryComboBox.Location = new System.Drawing.Point(0, 0);
+			directoryComboBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+			directoryComboBox.Name = "directoryComboBox";
+			directoryComboBox.Size = new System.Drawing.Size(810, 40);
+			directoryComboBox.TabIndex = 0;
+			directoryComboBox.SelectedIndexChanged += directoryComboBox_SelectedIndexChanged;
 			// 
 			// textBox1
 			// 
-			this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.textBox1.Location = new System.Drawing.Point(0, 29);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.ReadOnly = true;
-			this.textBox1.Size = new System.Drawing.Size(407, 23);
-			this.textBox1.TabIndex = 1;
+			textBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			textBox1.Location = new System.Drawing.Point(0, 58);
+			textBox1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+			textBox1.Name = "textBox1";
+			textBox1.ReadOnly = true;
+			textBox1.Size = new System.Drawing.Size(810, 39);
+			textBox1.TabIndex = 1;
 			// 
 			// DirectorySelectControl
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.textBox1);
-			this.Controls.Add(this.directoryComboBox);
-			this.Name = "DirectorySelectControl";
-			this.Size = new System.Drawing.Size(407, 52);
-			this.Load += new System.EventHandler(this.DirectorySelectControl_Load);
-			this.ResumeLayout(false);
-			this.PerformLayout();
-
+			AutoScaleDimensions = new System.Drawing.SizeF(192F, 192F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			AutoSize = true;
+			Controls.Add(textBox1);
+			Controls.Add(directoryComboBox);
+			Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+			Name = "DirectorySelectControl";
+			Size = new System.Drawing.Size(814, 104);
+			Load += DirectorySelectControl_Load;
+			ResumeLayout(false);
+			PerformLayout();
 		}
 
 		#endregion

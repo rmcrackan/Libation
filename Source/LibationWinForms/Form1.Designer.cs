@@ -315,7 +315,7 @@
             this.scanningToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.scanningToolStripMenuItem.Enabled = false;
             this.scanningToolStripMenuItem.Image = global::LibationWinForms.Properties.Resources.import_16x16;
-            this.scanningToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.scanningToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.SizeToFit;
             this.scanningToolStripMenuItem.Name = "scanningToolStripMenuItem";
             this.scanningToolStripMenuItem.Size = new System.Drawing.Size(93, 20);
             this.scanningToolStripMenuItem.Text = "Scanning...";
@@ -616,8 +616,8 @@
 			// 
 			// Form1
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(1463, 640);
             this.Controls.Add(this.splitContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
