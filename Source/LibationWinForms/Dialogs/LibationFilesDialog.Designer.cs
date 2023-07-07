@@ -28,74 +28,74 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.libationFilesDescLbl = new System.Windows.Forms.Label();
-			this.cancelBtn = new System.Windows.Forms.Button();
-			this.saveBtn = new System.Windows.Forms.Button();
-			this.libationFilesSelectControl = new LibationWinForms.Dialogs.DirectoryOrCustomSelectControl();
-			this.SuspendLayout();
+			libationFilesDescLbl = new System.Windows.Forms.Label();
+			cancelBtn = new System.Windows.Forms.Button();
+			saveBtn = new System.Windows.Forms.Button();
+			libationFilesSelectControl = new DirectoryOrCustomSelectControl();
+			SuspendLayout();
 			// 
 			// libationFilesDescLbl
 			// 
-			this.libationFilesDescLbl.AutoSize = true;
-			this.libationFilesDescLbl.Location = new System.Drawing.Point(14, 10);
-			this.libationFilesDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-			this.libationFilesDescLbl.Name = "libationFilesDescLbl";
-			this.libationFilesDescLbl.Size = new System.Drawing.Size(39, 15);
-			this.libationFilesDescLbl.TabIndex = 0;
-			this.libationFilesDescLbl.Text = "[desc]";
+			libationFilesDescLbl.AutoSize = true;
+			libationFilesDescLbl.Location = new System.Drawing.Point(28, 20);
+			libationFilesDescLbl.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
+			libationFilesDescLbl.Name = "libationFilesDescLbl";
+			libationFilesDescLbl.Size = new System.Drawing.Size(76, 32);
+			libationFilesDescLbl.TabIndex = 0;
+			libationFilesDescLbl.Text = "[desc]";
 			// 
 			// cancelBtn
 			// 
-			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(832, 118);
-			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.cancelBtn.Name = "cancelBtn";
-			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
-			this.cancelBtn.TabIndex = 3;
-			this.cancelBtn.Text = "Cancel";
-			this.cancelBtn.UseVisualStyleBackColor = true;
-			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
+			cancelBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+			cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			cancelBtn.Location = new System.Drawing.Point(1664, 236);
+			cancelBtn.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
+			cancelBtn.Name = "cancelBtn";
+			cancelBtn.Size = new System.Drawing.Size(176, 54);
+			cancelBtn.TabIndex = 3;
+			cancelBtn.Text = "Cancel";
+			cancelBtn.UseVisualStyleBackColor = true;
+			cancelBtn.Click += cancelBtn_Click;
 			// 
 			// saveBtn
 			// 
-			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(714, 118);
-			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.saveBtn.Name = "saveBtn";
-			this.saveBtn.Size = new System.Drawing.Size(88, 27);
-			this.saveBtn.TabIndex = 2;
-			this.saveBtn.Text = "Save";
-			this.saveBtn.UseVisualStyleBackColor = true;
-			this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
+			saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+			saveBtn.Location = new System.Drawing.Point(1428, 236);
+			saveBtn.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
+			saveBtn.Name = "saveBtn";
+			saveBtn.Size = new System.Drawing.Size(176, 54);
+			saveBtn.TabIndex = 2;
+			saveBtn.Text = "Save";
+			saveBtn.UseVisualStyleBackColor = true;
+			saveBtn.Click += saveBtn_Click;
 			// 
 			// libationFilesSelectControl
 			// 
-			this.libationFilesSelectControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.libationFilesSelectControl.Location = new System.Drawing.Point(14, 28);
-			this.libationFilesSelectControl.Name = "libationFilesSelectControl";
-			this.libationFilesSelectControl.Size = new System.Drawing.Size(909, 87);
-			this.libationFilesSelectControl.TabIndex = 1;
+			libationFilesSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			libationFilesSelectControl.Location = new System.Drawing.Point(28, 56);
+			libationFilesSelectControl.Margin = new System.Windows.Forms.Padding(12);
+			libationFilesSelectControl.Name = "libationFilesSelectControl";
+			libationFilesSelectControl.Size = new System.Drawing.Size(1818, 176);
+			libationFilesSelectControl.TabIndex = 1;
 			// 
 			// LibationFilesDialog
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(933, 164);
-			this.Controls.Add(this.libationFilesSelectControl);
-			this.Controls.Add(this.cancelBtn);
-			this.Controls.Add(this.saveBtn);
-			this.Controls.Add(this.libationFilesDescLbl);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.Name = "LibationFilesDialog";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Libation Files location";
-			this.Load += new System.EventHandler(this.LibationFilesDialog_Load);
-			this.ResumeLayout(false);
-			this.PerformLayout();
-
+			AutoScaleDimensions = new System.Drawing.SizeF(192F, 192F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			AutoSize = true;
+			ClientSize = new System.Drawing.Size(1866, 328);
+			Controls.Add(libationFilesSelectControl);
+			Controls.Add(cancelBtn);
+			Controls.Add(saveBtn);
+			Controls.Add(libationFilesDescLbl);
+			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+			Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
+			Name = "LibationFilesDialog";
+			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			Text = "Libation Files location";
+			Load += LibationFilesDialog_Load;
+			ResumeLayout(false);
+			PerformLayout();
 		}
 
 		#endregion

@@ -84,8 +84,8 @@ namespace LibationWinForms.Dialogs.Login
 			// MfaDialog
 			// 
 			this.AcceptButton = this.submitBtn;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(398, 129);
 			this.Controls.Add(this.radioButton3);
 			this.Controls.Add(this.radioButton2);

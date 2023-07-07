@@ -43,6 +43,8 @@ namespace LibationWinForms.GridView
 			gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
 			gridEntryDataGridView.CellContextMenuStripNeeded += GridEntryDataGridView_CellContextMenuStripNeeded;
 			removeGVColumn.Frozen = false;
+
+			gridEntryDataGridView.RowTemplate.Height = this.DpiScale(gridEntryDataGridView.RowTemplate.Height);
 		}
 
 		private void GridEntryDataGridView_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs e)
@@ -378,7 +380,7 @@ namespace LibationWinForms.GridView
 				menuItem.Click += HideMenuItem_Click;
 				showHideColumnsContextMenuStrip.Items.Add(menuItem);
 
-				column.Width = gridColumnsWidths.GetValueOrDefault(itemName, column.Width);
+				column.Width = gridColumnsWidths.GetValueOrDefault(itemName, this.DpiScale(column.Width));
 				column.MinimumWidth = 10;
 				column.HeaderCell.ContextMenuStrip = showHideColumnsContextMenuStrip;
 				column.Visible = visible;

@@ -89,8 +89,8 @@
 			// LoginCallbackDialog
 			// 
 			this.AcceptButton = this.submitBtn;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(330, 114);
 			this.Controls.Add(this.usernameLbl);
 			this.Controls.Add(this.localeLbl);

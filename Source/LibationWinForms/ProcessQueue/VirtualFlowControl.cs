@@ -108,7 +108,7 @@ namespace LibationWinForms.ProcessQueue
 
 
 			var control = InitControl(0);
-			VirtualControlHeight = control.Height + control.Margin.Top + control.Margin.Bottom;
+			VirtualControlHeight = this.DpiUnscale(control.Height + control.Margin.Top + control.Margin.Bottom);
 			TopMargin = control.Margin.Top;
 
 			BookControls.Add(control);
@@ -123,7 +123,7 @@ namespace LibationWinForms.ProcessQueue
 
 			vScrollBar1.Scroll += (_, s) => SetScrollPosition(s.NewValue);
 			vScrollBar1.SmallChange = SmallScrollChange;
-			panel1.Height += NUM_BLANK_SPACES_AT_BOTTOM * VirtualControlHeight;
+			panel1.Height += this.DpiScale(NUM_BLANK_SPACES_AT_BOTTOM * VirtualControlHeight);
 		}
 
 		private ProcessBookControl InitControl(int locationY)

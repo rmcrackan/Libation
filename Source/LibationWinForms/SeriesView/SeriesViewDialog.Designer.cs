@@ -44,7 +44,7 @@ namespace LibationWinForms.SeriesView
 			// 
 			// SeriesViewDialog
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new System.Drawing.Size(800, 450);
 			Controls.Add(tabControl1);

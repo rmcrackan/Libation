@@ -35,7 +35,7 @@ namespace LibationWinForms.GridView
 			this.gridEntryDataGridView = new System.Windows.Forms.DataGridView();
 			this.removeGVColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			this.liberateGVColumn = new LibationWinForms.GridView.LiberateDataGridViewImageButtonColumn();
-			this.coverGVColumn = new System.Windows.Forms.DataGridViewImageColumn();
+			this.coverGVColumn = new CoverGridViewColumn();
 			this.titleGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.authorsGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.narratorsGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -152,6 +152,7 @@ namespace LibationWinForms.GridView
 			this.authorsGVColumn.HeaderText = "Authors";
 			this.authorsGVColumn.Name = "authorsGVColumn";
 			this.authorsGVColumn.ReadOnly = true;
+			this.authorsGVColumn.Width = 100;
 			// 
 			// narratorsGVColumn
 			// 
@@ -159,6 +160,7 @@ namespace LibationWinForms.GridView
 			this.narratorsGVColumn.HeaderText = "Narrators";
 			this.narratorsGVColumn.Name = "narratorsGVColumn";
 			this.narratorsGVColumn.ReadOnly = true;
+			this.narratorsGVColumn.Width = 100;
 			// 
 			// lengthGVColumn
 			// 
@@ -166,6 +168,7 @@ namespace LibationWinForms.GridView
 			this.lengthGVColumn.HeaderText = "Length";
 			this.lengthGVColumn.Name = "lengthGVColumn";
 			this.lengthGVColumn.ReadOnly = true;
+			this.lengthGVColumn.Width = 100;
 			this.lengthGVColumn.ToolTipText = "Recording Length";
 			// 
 			// seriesGVColumn
@@ -174,6 +177,7 @@ namespace LibationWinForms.GridView
 			this.seriesGVColumn.HeaderText = "Series";
 			this.seriesGVColumn.Name = "seriesGVColumn";
 			this.seriesGVColumn.ReadOnly = true;
+			this.seriesGVColumn.Width = 100;
 			// 
 			// seriesOrderGVColumn
 			// 
@@ -190,6 +194,7 @@ namespace LibationWinForms.GridView
 			this.descriptionGVColumn.HeaderText = "Description";
 			this.descriptionGVColumn.Name = "descriptionGVColumn";
 			this.descriptionGVColumn.ReadOnly = true;
+			this.descriptionGVColumn.Width = 100;
 			this.descriptionGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
 			// 
 			// categoryGVColumn
@@ -198,6 +203,7 @@ namespace LibationWinForms.GridView
 			this.categoryGVColumn.HeaderText = "Category";
 			this.categoryGVColumn.Name = "categoryGVColumn";
 			this.categoryGVColumn.ReadOnly = true;
+			this.categoryGVColumn.Width = 100;
 			// 
 			// productRatingGVColumn
 			// 
@@ -206,7 +212,7 @@ namespace LibationWinForms.GridView
 			this.productRatingGVColumn.Name = "productRatingGVColumn";
 			this.productRatingGVColumn.ReadOnly = true;
 			this.productRatingGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			this.productRatingGVColumn.Width = 108;
+			this.productRatingGVColumn.Width = 112;
 			// 
 			// purchaseDateGVColumn
 			// 
@@ -214,6 +220,7 @@ namespace LibationWinForms.GridView
 			this.purchaseDateGVColumn.HeaderText = "Purchase Date";
 			this.purchaseDateGVColumn.Name = "purchaseDateGVColumn";
 			this.purchaseDateGVColumn.ReadOnly = true;
+			this.purchaseDateGVColumn.Width = 100;
 			// 
 			// myRatingGVColumn
 			// 
@@ -221,7 +228,7 @@ namespace LibationWinForms.GridView
 			this.myRatingGVColumn.HeaderText = "My Rating";
 			this.myRatingGVColumn.Name = "myRatingGVColumn";
 			this.myRatingGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			this.myRatingGVColumn.Width = 108;
+			this.myRatingGVColumn.Width = 112;
 			// 
 			// miscGVColumn
 			// 
@@ -229,7 +236,7 @@ namespace LibationWinForms.GridView
 			this.miscGVColumn.HeaderText = "Misc";
 			this.miscGVColumn.Name = "miscGVColumn";
 			this.miscGVColumn.ReadOnly = true;
-			this.miscGVColumn.Width = 135;
+			this.miscGVColumn.Width = 140;
 			// 
 			// lastDownloadedGVColumn
 			// 
@@ -248,6 +255,7 @@ namespace LibationWinForms.GridView
 			this.tagAndDetailsGVColumn.ReadOnly = true;
 			this.tagAndDetailsGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
 			this.tagAndDetailsGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			this.tagAndDetailsGVColumn.Width = 100;
 			// 
 			// showHideColumnsContextMenuStrip
 			// 
@@ -260,8 +268,8 @@ namespace LibationWinForms.GridView
 			// 
 			// ProductsGrid
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.AutoScroll = true;
 			this.Controls.Add(this.gridEntryDataGridView);
 			this.Name = "ProductsGrid";
@@ -280,7 +288,7 @@ namespace LibationWinForms.GridView
 		private SyncBindingSource syncBindingSource;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn removeGVColumn;
 		private LiberateDataGridViewImageButtonColumn liberateGVColumn;
-		private System.Windows.Forms.DataGridViewImageColumn coverGVColumn;
+		private CoverGridViewColumn coverGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn titleGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn authorsGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn narratorsGVColumn;
