@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using ApplicationServices;
 using AppScaffolding;
@@ -35,6 +34,7 @@ namespace LibationAvalonia
 					$"\"{Configuration.ProcessDirectory}\"");
 				return;
 			}
+			AppDomain.CurrentDomain.UnhandledException += (o, e) => LogError(e.ExceptionObject);
 
 			//***********************************************//
 			//                                               //
@@ -42,23 +42,32 @@ namespace LibationAvalonia
 			//                                               //
 			//***********************************************//
 			// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
-			var config = LibationScaffolding.RunPreConfigMigrations();
-
-			//Start as much work in parallel as possible.
-			var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
-			var appBuilderTask = Task.Run(BuildAvaloniaApp);
-
-			if (config.LibationSettingsAreValid)
+			try
 			{
-				if (!RunDbMigrations(config))
-					return;
+				var config = LibationScaffolding.RunPreConfigMigrations();
 
-				App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+				//Start as much work in parallel as possible.
+				var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
+				var appBuilderTask = Task.Run(BuildAvaloniaApp);
+
+				if (config.LibationSettingsAreValid)
+				{
+					// most migrations go in here
+					LibationScaffolding.RunPostConfigMigrations(config);
+					LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
+
+					//Start loading the library before loading the main form
+					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+				}
+
+				appBuilderTask.GetAwaiter().GetResult().SetupWithLifetime(classicLifetimeTask.GetAwaiter().GetResult());
+
+				classicLifetimeTask.Result.Start(null);
 			}
-
-			appBuilderTask.GetAwaiter().GetResult().SetupWithLifetime(classicLifetimeTask.GetAwaiter().GetResult());
-
-			classicLifetimeTask.Result.Start(null);
+			catch(Exception e)
+			{
+				LogError(e);
+			}
 		}
 
 		public static AppBuilder BuildAvaloniaApp()
@@ -67,20 +76,35 @@ namespace LibationAvalonia
 			.LogToTrace()
 			.UseReactiveUI();
 
-		public static bool RunDbMigrations(Configuration config)
+		private static void LogError(object exceptionObject)
 		{
-			try
-			{
-				// most migrations go in here
-				LibationScaffolding.RunPostConfigMigrations(config);
-				LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
+			var logError = $"""
+				{DateTime.Now} - Libation Crash
+				 OS                    {Configuration.OS}
+				 Version               {LibationScaffolding.BuildVersion}
+				 ReleaseIdentifier     {LibationScaffolding.ReleaseIdentifier}
+				 InteropFunctionsType  {InteropFactory.InteropFunctionsType}
+				 LibationFiles         {getConfigValue(c => c.LibationFiles)}
+				 Books Folder          {getConfigValue(c => c.Books)}
+				 === EXCEPTION ===
+				 {exceptionObject}
+				""";
 
-				return true;
-			}
-			catch (Exception exDebug)
+			var crashLog = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "LibationCrash.log");
+
+			using var sw = new StreamWriter(crashLog, true);
+			sw.WriteLine(logError);
+
+			static string getConfigValue(Func<Configuration, string> selector)
 			{
-				Serilog.Log.Logger.Debug(exDebug, "Silent failure");
-				return false;
+				try
+				{
+					return selector(Configuration.Instance);
+				}
+				catch (Exception ex)
+				{
+					return ex.ToString();
+				}
 			}
 		}
 	}
