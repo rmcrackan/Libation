@@ -1,6 +1,8 @@
 ﻿using ApplicationServices;
+using DataLayer;
 using Dinah.Core;
 using Dinah.Core.Threading;
+using System.Collections.Generic;
 
 namespace LibationWinForms
 {
@@ -14,7 +16,6 @@ namespace LibationWinForms
 			beginBookBackupsToolStripMenuItem.Format(0);
 			beginPdfBackupsToolStripMenuItem.Format(0);
 
-			Load += setBackupCounts;
             LibraryCommands.LibrarySizeChanged += setBackupCounts;
             LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
 
@@ -40,7 +41,11 @@ namespace LibationWinForms
 			while (runBackupCountsAgain)
 			{
 				runBackupCountsAgain = false;
-				e.Result = LibraryCommands.GetCounts();
+
+				if (e.Argument is not IEnumerable<LibraryBook> lbs)
+					lbs = DbContexts.GetLibrary_Flat_NoTracking();
+
+				e.Result = LibraryCommands.GetCounts(lbs);
 			}
 		}
 

@@ -306,22 +306,22 @@ namespace LibationWinForms.GridView
 
 		#region UI display functions		
 
-		public void Display()
+		public async Task DisplayAsync(List<LibraryBook> libraryBooks = null)
 		{
 			try
 			{
 				// don't return early if lib size == 0. this will not update correctly if all books are removed
-				var lib = DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
+				libraryBooks ??= DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
 
 				if (!hasBeenDisplayed)
 				{
 					// bind
-					productsGrid.BindToGrid(lib);
+					await productsGrid.BindToGridAsync(libraryBooks);
 					hasBeenDisplayed = true;
 					InitialLoaded?.Invoke(this, new());
 				}
 				else
-					productsGrid.UpdateGrid(lib);
+					productsGrid.UpdateGrid(libraryBooks);
 			}
 			catch (Exception ex)
 			{

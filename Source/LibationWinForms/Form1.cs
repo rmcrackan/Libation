@@ -4,10 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
-using Dinah.Core;
-using Dinah.Core.Threading;
+using DataLayer;
 using LibationFileManager;
-using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {
@@ -57,8 +55,7 @@ namespace LibationWinForms
 
 			// Configure_Grid(); // since it's just this, can keep here. If it needs more, then give grid it's own 'partial class Form1'
 			{
-				this.Load += (_, __) => productsDisplay.Display();
-				LibraryCommands.LibrarySizeChanged += (_, __) => this.UIThreadAsync(() => productsDisplay.Display());
+				LibraryCommands.LibrarySizeChanged += (_, __) => Invoke(productsDisplay.DisplayAsync);
 			}
 			Shown += Form1_Shown;
 		}
@@ -76,6 +73,13 @@ namespace LibationWinForms
 
 				Configuration.Instance.FirstLaunch = false;
 			}
+		}
+
+		public async Task InitLibraryAsync(List<LibraryBook> libraryBooks)
+		{
+			runBackupCountsAgain = true;
+			updateCountsBw.RunWorkerAsync(libraryBooks.Where(b => !b.Book.IsEpisodeParent()));
+			await productsDisplay.DisplayAsync(libraryBooks);
 		}
 
 		private void Form1_Load(object sender, EventArgs e)

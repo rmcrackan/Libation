@@ -51,7 +51,7 @@ namespace LibationAvalonia.Views
 				catch { sampleEntries = new(); }
 
 				var pdvm = new ProductsDisplayViewModel();
-				pdvm.BindToGrid(sampleEntries);
+				_ = pdvm.BindToGridAsync(sampleEntries);
 				DataContext = pdvm;
 
 				return;
