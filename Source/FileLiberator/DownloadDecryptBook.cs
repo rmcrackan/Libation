@@ -351,11 +351,15 @@ namespace FileLiberator
 
         private void AaxcDownloader_RetrievedCoverArt(object _, byte[] e)
         {
+            if (Configuration.Instance.AllowLibationFixup)
+            {
+                e = OnRequestCoverArt();
+				abDownloader.SetCoverArt(e);
+            }
+            
             if (e is not null)
                 OnCoverImageDiscovered(e);
-            else if (Configuration.Instance.AllowLibationFixup)
-                abDownloader.SetCoverArt(OnRequestCoverArt());
-        }
+		}
 
         /// <summary>Move new files to 'Books' directory</summary>
         /// <returns>Return directory if audiobook file(s) were successfully created and can be located on disk. Else null.</returns>

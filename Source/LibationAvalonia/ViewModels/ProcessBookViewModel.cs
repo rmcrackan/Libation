@@ -264,9 +264,12 @@ namespace LibationAvalonia.ViewModels
 
 		private byte[] AudioDecodable_RequestCoverArt(object sender, EventArgs e)
 		{
-			byte[] coverData = PictureStorage
-				.GetPictureSynchronously(
-				new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._500x500));
+			var quality
+				= Configuration.Instance.FileDownloadQuality == Configuration.DownloadQuality.High
+				? new PictureDefinition(LibraryBook.Book.PictureLarge, PictureSize.Native)
+				: new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._500x500);
+
+			byte[] coverData = PictureStorage.GetPictureSynchronously(quality);
 
 			AudioDecodable_CoverImageDiscovered(this, coverData);
 			return coverData;

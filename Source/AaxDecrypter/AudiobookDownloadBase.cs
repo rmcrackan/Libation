@@ -118,11 +118,7 @@ namespace AaxDecrypter
 		public abstract Task CancelAsync();
 		protected abstract Task<bool> Step_DownloadAndDecryptAudiobookAsync();
 
-		public virtual void SetCoverArt(byte[] coverArt)
-		{
-			if (coverArt is not null)
-				OnRetrievedCoverArt(coverArt);
-		}
+		public virtual void SetCoverArt(byte[] coverArt) { }
 
 		protected void OnRetrievedTitle(string title)
 			=> RetrievedTitle?.Invoke(this, title);
