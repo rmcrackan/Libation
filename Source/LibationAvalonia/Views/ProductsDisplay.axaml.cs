@@ -78,163 +78,158 @@ namespace LibationAvalonia.Views
 
 		public void ProductsGrid_CellContextMenuStripNeeded(object sender, DataGridCellContextMenuStripNeededEventArgs args)
 		{
-			// stop light
-			if (args.Column.SortMemberPath == "Liberate")
+			if (args.Column.SortMemberPath is not "Liberate" and not "Cover")
 			{
-				var entry = args.GridEntry;
-
-				#region Liberate all Episodes
-
-				if (entry.Liberate.IsSeries)
-				{
-					var liberateEpisodesMenuItem = new MenuItem()
-					{
-						Header = "_Liberate All Episodes",
-						IsEnabled = ((ISeriesEntry)entry).Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
-					};
-
-					args.ContextMenuItems.Add(liberateEpisodesMenuItem);
-
-					liberateEpisodesMenuItem.Click += (_, _) => LiberateSeriesClicked?.Invoke(this, ((ISeriesEntry)entry));
-				}
-
-				#endregion
-				#region Set Download status to Downloaded
-
-				var setDownloadMenuItem = new MenuItem()
-				{
-					Header = "Set Download status to '_Downloaded'",
-					IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || entry.Liberate.IsSeries
-				};
-
-				args.ContextMenuItems.Add(setDownloadMenuItem);
-
-				if (entry.Liberate.IsSeries)
-					setDownloadMenuItem.Click += (_, __) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.Liberated);
-				else
-					setDownloadMenuItem.Click += (_, __) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.Liberated);
-
-				#endregion
-				#region Set Download status to Not Downloaded
-
-				var setNotDownloadMenuItem = new MenuItem()
-				{
-					Header = "Set Download status to '_Not Downloaded'",
-					IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || entry.Liberate.IsSeries
-				};
-
-				args.ContextMenuItems.Add(setNotDownloadMenuItem);
-
-				if (entry.Liberate.IsSeries)
-					setNotDownloadMenuItem.Click += (_, __) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.NotLiberated);
-				else
-					setNotDownloadMenuItem.Click += (_, __) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.NotLiberated);
-
-				#endregion
-				#region Remove from library
-
-				var removeMenuItem = new MenuItem() { Header = "_Remove from library" };
-
-				args.ContextMenuItems.Add(removeMenuItem);
-
-				if (entry.Liberate.IsSeries)
-					removeMenuItem.Click += async (_, __) => await ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).RemoveBooksAsync();
-				else
-					removeMenuItem.Click += async (_, __) => await Task.Run(entry.LibraryBook.RemoveBook);
-
-				#endregion
-
-				if (!entry.Liberate.IsSeries)
-				{
-					#region Locate file
-					var locateFileMenuItem = new MenuItem() { Header = "_Locate file..." };
-
-					args.ContextMenuItems.Add(locateFileMenuItem);
-
-					locateFileMenuItem.Click += async (_, __) =>
-					{
-						try
-						{
-							var window = this.GetParentWindow();
-
-							var openFileDialogOptions = new FilePickerOpenOptions
-							{
-								Title = $"Locate the audio file for '{entry.Book.TitleWithSubtitle}'",
-								AllowMultiple = false,
-								SuggestedStartLocation = await window.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
-								FileTypeFilter = new FilePickerFileType[]
-								{
-								new("All files (*.*)") { Patterns = new[] { "*" } },
-								}
-							};
-
-							var selectedFiles = await window.StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
-							var selectedFile = selectedFiles.SingleOrDefault()?.TryGetLocalPath();
-
-							if (selectedFile is not null)
-								FilePathCache.Insert(entry.AudibleProductId, selectedFile);
-						}
-						catch (Exception ex)
-						{
-							var msg = "Error saving book's location";
-							await MessageBox.ShowAdminAlert(null, msg, msg, ex);
-						}
-					};
-
-					#endregion
-					#region Convert to Mp3
-					var convertToMp3MenuItem = new MenuItem
-					{
-						Header = "_Convert to Mp3",
-						IsEnabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
-					};
-					args.ContextMenuItems.Add(convertToMp3MenuItem);
-
-					convertToMp3MenuItem.Click += (_, _) => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook);
-
-					#endregion
-				}
-
-				args.ContextMenuItems.Add(new Separator());
-
-				#region View Bookmarks/Clips
-
-				if (!entry.Liberate.IsSeries)
-				{
-
-					var bookRecordMenuItem = new MenuItem { Header = "View _Bookmarks/Clips" };
-
-					args.ContextMenuItems.Add(bookRecordMenuItem);
-
-					bookRecordMenuItem.Click += async (_, _) => await new BookRecordsDialog(entry.LibraryBook).ShowDialog(VisualRoot as Window);
-				}
-
-				#endregion
-				#region View All Series
-
-				if (entry.Book.SeriesLink.Any())
-				{
-					var header = entry.Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
-					var viewSeriesMenuItem = new MenuItem { Header = header };
-
-					args.ContextMenuItems.Add(viewSeriesMenuItem);
-
-					viewSeriesMenuItem.Click += (_, _) => new SeriesViewDialog(entry.LibraryBook).Show();
-				}
-
-				#endregion
-			}
-			else
-			{
-				// any non-stop light column
-				// (except for the Cover column which does not have a context menu)
 				var menuItem = new MenuItem { Header = "_Copy Cell Contents" };
 
 				menuItem.Click += async (s, e)
 					=> await App.MainWindow.Clipboard.SetTextAsync(args.CellClipboardContents);
 
 				args.ContextMenuItems.Add(menuItem);
+				args.ContextMenuItems.Add(new Separator());
 			}
+			var entry = args.GridEntry;
+
+			#region Liberate all Episodes
+
+			if (entry.Liberate.IsSeries)
+			{
+				var liberateEpisodesMenuItem = new MenuItem()
+				{
+					Header = "_Liberate All Episodes",
+					IsEnabled = ((ISeriesEntry)entry).Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
+				};
+
+				args.ContextMenuItems.Add(liberateEpisodesMenuItem);
+
+				liberateEpisodesMenuItem.Click += (_, _) => LiberateSeriesClicked?.Invoke(this, ((ISeriesEntry)entry));
+			}
+
+			#endregion
+			#region Set Download status to Downloaded
+
+			var setDownloadMenuItem = new MenuItem()
+			{
+				Header = "Set Download status to '_Downloaded'",
+				IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || entry.Liberate.IsSeries
+			};
+
+			args.ContextMenuItems.Add(setDownloadMenuItem);
+
+			if (entry.Liberate.IsSeries)
+				setDownloadMenuItem.Click += (_, __) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.Liberated);
+			else
+				setDownloadMenuItem.Click += (_, __) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.Liberated);
+
+			#endregion
+			#region Set Download status to Not Downloaded
+
+			var setNotDownloadMenuItem = new MenuItem()
+			{
+				Header = "Set Download status to '_Not Downloaded'",
+				IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || entry.Liberate.IsSeries
+			};
+
+			args.ContextMenuItems.Add(setNotDownloadMenuItem);
+
+			if (entry.Liberate.IsSeries)
+				setNotDownloadMenuItem.Click += (_, __) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.NotLiberated);
+			else
+				setNotDownloadMenuItem.Click += (_, __) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.NotLiberated);
+
+			#endregion
+			#region Remove from library
+
+			var removeMenuItem = new MenuItem() { Header = "_Remove from library" };
+
+			args.ContextMenuItems.Add(removeMenuItem);
+
+			if (entry.Liberate.IsSeries)
+				removeMenuItem.Click += async (_, __) => await ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).RemoveBooksAsync();
+			else
+				removeMenuItem.Click += async (_, __) => await Task.Run(entry.LibraryBook.RemoveBook);
+
+			#endregion
+
+			if (!entry.Liberate.IsSeries)
+			{
+				#region Locate file
+				var locateFileMenuItem = new MenuItem() { Header = "_Locate file..." };
+
+				args.ContextMenuItems.Add(locateFileMenuItem);
+
+				locateFileMenuItem.Click += async (_, __) =>
+				{
+					try
+					{
+						var window = this.GetParentWindow();
+
+						var openFileDialogOptions = new FilePickerOpenOptions
+						{
+							Title = $"Locate the audio file for '{entry.Book.TitleWithSubtitle}'",
+							AllowMultiple = false,
+							SuggestedStartLocation = await window.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
+							FileTypeFilter = new FilePickerFileType[]
+							{
+								new("All files (*.*)") { Patterns = new[] { "*" } },
+							}
+						};
+
+						var selectedFiles = await window.StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
+						var selectedFile = selectedFiles.SingleOrDefault()?.TryGetLocalPath();
+
+						if (selectedFile is not null)
+							FilePathCache.Insert(entry.AudibleProductId, selectedFile);
+					}
+					catch (Exception ex)
+					{
+						var msg = "Error saving book's location";
+						await MessageBox.ShowAdminAlert(null, msg, msg, ex);
+					}
+				};
+
+				#endregion
+				#region Convert to Mp3
+				var convertToMp3MenuItem = new MenuItem
+				{
+					Header = "_Convert to Mp3",
+					IsEnabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
+				};
+				args.ContextMenuItems.Add(convertToMp3MenuItem);
+
+				convertToMp3MenuItem.Click += (_, _) => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook);
+
+				#endregion
+			}
+
+			args.ContextMenuItems.Add(new Separator());
+
+			#region View Bookmarks/Clips
+
+			if (!entry.Liberate.IsSeries)
+			{
+
+				var bookRecordMenuItem = new MenuItem { Header = "View _Bookmarks/Clips" };
+
+				args.ContextMenuItems.Add(bookRecordMenuItem);
+
+				bookRecordMenuItem.Click += async (_, _) => await new BookRecordsDialog(entry.LibraryBook).ShowDialog(VisualRoot as Window);
+			}
+
+			#endregion
+			#region View All Series
+
+			if (entry.Book.SeriesLink.Any())
+			{
+				var header = entry.Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
+				var viewSeriesMenuItem = new MenuItem { Header = header };
+
+				args.ContextMenuItems.Add(viewSeriesMenuItem);
+
+				viewSeriesMenuItem.Click += (_, _) => new SeriesViewDialog(entry.LibraryBook).Show();
+			}
+
+			#endregion
 		}
 
 		#endregion

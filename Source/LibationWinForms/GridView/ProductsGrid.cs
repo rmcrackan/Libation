@@ -56,15 +56,11 @@ namespace LibationWinForms.GridView
 			if (e.RowIndex < 0)
 				return;
 
-			// cover
-			else if (e.ColumnIndex == coverGVColumn.Index)
-				return;
-
 			e.ContextMenuStrip = new ContextMenuStrip();
-			// any non-stop light
-			if (e.ColumnIndex != liberateGVColumn.Index)
+			// any column except cover & stop light
+			if (e.ColumnIndex != liberateGVColumn.Index && e.ColumnIndex != coverGVColumn.Index)
 			{
-				e.ContextMenuStrip.Items.Add("Copy", null, (_, __) =>
+				e.ContextMenuStrip.Items.Add("Copy Cell Contents", null, (_, __) =>
 				{
 					try
 					{
@@ -73,14 +69,13 @@ namespace LibationWinForms.GridView
 						Clipboard.SetDataObject(text, false, 5, 150);
 					}
 					catch { }
-				});				
+				});
+				e.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 			}
-			else
-			{
-				var entry = getGridEntry(e.RowIndex);
-				var name = gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName;
-				LiberateContextMenuStripNeeded?.Invoke(entry, e.ContextMenuStrip);
-			}
+
+			var entry = getGridEntry(e.RowIndex);
+			var name = gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName;
+			LiberateContextMenuStripNeeded?.Invoke(entry, e.ContextMenuStrip);
 		}
 
 		private void EnableDoubleBuffering()
