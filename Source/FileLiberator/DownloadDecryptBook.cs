@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AaxDecrypter;
 using ApplicationServices;
+using AudibleApi.Common;
 using DataLayer;
 using Dinah.Core;
 using Dinah.Core.ErrorHandling;
@@ -124,12 +125,12 @@ namespace FileLiberator
             var quality = (AudibleApi.DownloadQuality)config.FileDownloadQuality;
             var api = await libraryBook.GetApiAsync();
             var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, quality);
-            using var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
+			using var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
 
             var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, dlOptions.OutputFormat.ToString().ToLower());
             var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
-            if (contentLic.DrmType != AudibleApi.Common.DrmType.Adrm)
+            if (contentLic.DrmType != DrmType.Adrm)
                 abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, dlOptions);
             else
             {
@@ -152,16 +153,34 @@ namespace FileLiberator
             abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
             abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
 
-			// REAL WORK DONE HERE
-			return await abDownloader.RunAsync();
+            // REAL WORK DONE HERE
+            var success = await abDownloader.RunAsync();
+
+			if (success && config.SaveMetadataToFile)
+            {
+                var metadataFile = Templates.File.GetFilename(dlOptions.LibraryBookDto, Path.GetDirectoryName(outFileName), ".metadata.json");
+
+				saveMetadata(libraryBook, contentLic.ContentMetadata, metadataFile);
+			}            
+			return success;
         }
 
-        private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, AudibleApi.Common.ContentLicense contentLic)
+		private void saveMetadata(LibraryBook libraryBook, ContentMetadata contentMetadata, string fileName)
+		{
+            var export = Newtonsoft.Json.Linq.JObject.FromObject(LibToDtos.ToDtos(new[] { libraryBook })[0]);
+			export.Add(nameof(contentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(contentMetadata.ChapterInfo));
+			export.Add(nameof(contentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(contentMetadata.ContentReference));
+
+			File.WriteAllText(fileName, export.ToString());
+            OnFileCreated(libraryBook, fileName);
+		}
+
+		private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, ContentLicense contentLic)
         {
 			//If DrmType != Adrm the delivered file is an unencrypted mp3.
 
             var outputFormat
-                = contentLic.DrmType != AudibleApi.Common.DrmType.Adrm || (config.AllowLibationFixup && config.DecryptToLossy)
+                = contentLic.DrmType != DrmType.Adrm || (config.AllowLibationFixup && config.DecryptToLossy)
                 ? OutputFormat.Mp3
                 : OutputFormat.M4b;
 
@@ -183,7 +202,11 @@ namespace FileLiberator
 				RuntimeLength = TimeSpan.FromMilliseconds(contentLic?.ContentMetadata?.ChapterInfo?.RuntimeLengthMs ?? 0),
 			};
 
-            var chapters = flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters).OrderBy(c => c.StartOffsetMs).ToList();
+            var titleConcat = config.CombineNestedChapterTitles ? ": " : null;
+            var chapters
+                = flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters, titleConcat)
+                .OrderBy(c => c.StartOffsetMs)
+                .ToList();
 
             if (config.MergeOpeningAndEndCredits)
                 combineCredits(chapters);
@@ -280,14 +303,19 @@ namespace FileLiberator
 
 		*/
 
-        public static List<AudibleApi.Common.Chapter> flattenChapters(IList<AudibleApi.Common.Chapter> chapters, string titleConcat = ": ")
+        public static List<Chapter> flattenChapters(IList<Chapter> chapters, string titleConcat = ": ")
         {
-            List<AudibleApi.Common.Chapter> chaps = new();
+            List<Chapter> chaps = new();
 
             foreach (var c in chapters)
             {
                 if (c.Chapters is null)
 					chaps.Add(c);
+                else if (titleConcat is null)
+                {
+                    chaps.Add(c);
+					chaps.AddRange(flattenChapters(c.Chapters));
+                }
 				else
 				{
                     if (c.LengthMs < 10000)
@@ -305,13 +333,12 @@ namespace FileLiberator
                         child.Title = $"{c.Title}{titleConcat}{child.Title}";
 
                     chaps.AddRange(children);
-                    c.Chapters = null;
                 }
             }
             return chaps;
         }
 
-        public static void combineCredits(IList<AudibleApi.Common.Chapter> chapters)
+        public static void combineCredits(IList<Chapter> chapters)
         {
             if (chapters.Count > 1 && chapters[0].Title == "Opening Credits")
             {

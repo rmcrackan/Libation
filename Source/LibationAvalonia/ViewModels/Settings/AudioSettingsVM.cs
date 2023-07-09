@@ -44,6 +44,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public void LoadSettings(Configuration config)
 		{
 			CreateCueSheet = config.CreateCueSheet;
+			CombineNestedChapterTitles = config.CombineNestedChapterTitles;
 			AllowLibationFixup = config.AllowLibationFixup;
 			DownloadCoverArt = config.DownloadCoverArt;
 			RetainAaxFile = config.RetainAaxFile;
@@ -71,6 +72,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public void SaveSettings(Configuration config)
 		{
 			config.CreateCueSheet = CreateCueSheet;
+			config.CombineNestedChapterTitles = CombineNestedChapterTitles;
 			config.AllowLibationFixup = AllowLibationFixup;
 			config.DownloadCoverArt = DownloadCoverArt;
 			config.RetainAaxFile = RetainAaxFile;
@@ -99,7 +101,10 @@ namespace LibationAvalonia.ViewModels.Settings
 		public AvaloniaList<Configuration.ClipBookmarkFormat> ClipBookmarkFormats { get; } = new(Enum<Configuration.ClipBookmarkFormat>.GetValues());
 		public string FileDownloadQualityText { get; } = Configuration.GetDescription(nameof(Configuration.FileDownloadQuality));
 		public string CreateCueSheetText { get; } = Configuration.GetDescription(nameof(Configuration.CreateCueSheet));
+		public string CombineNestedChapterTitlesText { get; } = Configuration.GetDescription(nameof(Configuration.CombineNestedChapterTitles));
+		public string CombineNestedChapterTitlesTip => Configuration.GetHelpText(nameof(CombineNestedChapterTitles));
 		public string AllowLibationFixupText { get; } = Configuration.GetDescription(nameof(Configuration.AllowLibationFixup));
+		public string AllowLibationFixupTip => Configuration.GetHelpText(nameof(AllowLibationFixup));
 		public string DownloadCoverArtText { get; } = Configuration.GetDescription(nameof(Configuration.DownloadCoverArt));
 		public string RetainAaxFileText { get; } = Configuration.GetDescription(nameof(Configuration.RetainAaxFile));
 		public string SplitFilesByChapterText { get; } = Configuration.GetDescription(nameof(Configuration.SplitFilesByChapter));
@@ -110,6 +115,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string MoveMoovToBeginningText { get; } = Configuration.GetDescription(nameof(Configuration.MoveMoovToBeginning));
 
 		public bool CreateCueSheet { get; set; }
+		public bool CombineNestedChapterTitles { get; set; }
 		public bool DownloadCoverArt { get; set; }
 		public bool RetainAaxFile { get; set; }
 		public bool DownloadClipsBookmarks { get => _downloadClipsBookmarks; set => this.RaiseAndSetIfChanged(ref _downloadClipsBookmarks, value); }

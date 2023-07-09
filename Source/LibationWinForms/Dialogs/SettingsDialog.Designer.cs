@@ -80,6 +80,7 @@
 			tab4AudioFileOptions = new System.Windows.Forms.TabPage();
 			fileDownloadQualityCb = new System.Windows.Forms.ComboBox();
 			fileDownloadQualityLbl = new System.Windows.Forms.Label();
+			combineNestedChapterTitlesCbox = new System.Windows.Forms.CheckBox();
 			clipsBookmarksFormatCb = new System.Windows.Forms.ComboBox();
 			downloadClipsBookmarksCbox = new System.Windows.Forms.CheckBox();
 			audiobookFixupsGb = new System.Windows.Forms.GroupBox();
@@ -126,6 +127,7 @@
 			retainAaxFileCbox = new System.Windows.Forms.CheckBox();
 			downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
 			createCueSheetCbox = new System.Windows.Forms.CheckBox();
+			saveMetadataToFileCbox = new System.Windows.Forms.CheckBox();
 			badBookGb.SuspendLayout();
 			tabControl.SuspendLayout();
 			tab1ImportantSettings.SuspendLayout();
@@ -168,7 +170,7 @@
 			// saveBtn
 			// 
 			saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-			saveBtn.Location = new System.Drawing.Point(1334, 982);
+			saveBtn.Location = new System.Drawing.Point(1337, 998);
 			saveBtn.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
 			saveBtn.Name = "saveBtn";
 			saveBtn.Size = new System.Drawing.Size(176, 54);
@@ -181,7 +183,7 @@
 			// 
 			cancelBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 			cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			cancelBtn.Location = new System.Drawing.Point(1570, 982);
+			cancelBtn.Location = new System.Drawing.Point(1573, 998);
 			cancelBtn.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
 			cancelBtn.Name = "cancelBtn";
 			cancelBtn.Size = new System.Drawing.Size(176, 54);
@@ -223,7 +225,7 @@
 			badBookGb.Margin = new System.Windows.Forms.Padding(6);
 			badBookGb.Name = "badBookGb";
 			badBookGb.Padding = new System.Windows.Forms.Padding(6);
-			badBookGb.Size = new System.Drawing.Size(1668, 152);
+			badBookGb.Size = new System.Drawing.Size(1671, 152);
 			badBookGb.TabIndex = 13;
 			badBookGb.TabStop = false;
 			badBookGb.Text = "[bad book desc]";
@@ -304,7 +306,7 @@
 			allowLibationFixupCbox.AutoSize = true;
 			allowLibationFixupCbox.Checked = true;
 			allowLibationFixupCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			allowLibationFixupCbox.Location = new System.Drawing.Point(38, 316);
+			allowLibationFixupCbox.Location = new System.Drawing.Point(38, 362);
 			allowLibationFixupCbox.Margin = new System.Windows.Forms.Padding(6);
 			allowLibationFixupCbox.Name = "allowLibationFixupCbox";
 			allowLibationFixupCbox.Size = new System.Drawing.Size(315, 36);
@@ -316,7 +318,7 @@
 			// convertLossyRb
 			// 
 			convertLossyRb.AutoSize = true;
-			convertLossyRb.Location = new System.Drawing.Point(26, 316);
+			convertLossyRb.Location = new System.Drawing.Point(26, 318);
 			convertLossyRb.Margin = new System.Windows.Forms.Padding(6);
 			convertLossyRb.Name = "convertLossyRb";
 			convertLossyRb.Size = new System.Drawing.Size(659, 36);
@@ -329,7 +331,7 @@
 			// 
 			convertLosslessRb.AutoSize = true;
 			convertLosslessRb.Checked = true;
-			convertLosslessRb.Location = new System.Drawing.Point(26, 222);
+			convertLosslessRb.Location = new System.Drawing.Point(26, 224);
 			convertLosslessRb.Margin = new System.Windows.Forms.Padding(6);
 			convertLosslessRb.Name = "convertLosslessRb";
 			convertLosslessRb.Size = new System.Drawing.Size(670, 36);
@@ -346,7 +348,7 @@
 			inProgressSelectControl.Location = new System.Drawing.Point(14, 136);
 			inProgressSelectControl.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
 			inProgressSelectControl.Name = "inProgressSelectControl";
-			inProgressSelectControl.Size = new System.Drawing.Size(1656, 103);
+			inProgressSelectControl.Size = new System.Drawing.Size(1659, 103);
 			inProgressSelectControl.TabIndex = 19;
 			// 
 			// logsBtn
@@ -366,7 +368,7 @@
 			booksSelectControl.Location = new System.Drawing.Point(14, 46);
 			booksSelectControl.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
 			booksSelectControl.Name = "booksSelectControl";
-			booksSelectControl.Size = new System.Drawing.Size(1658, 204);
+			booksSelectControl.Size = new System.Drawing.Size(1661, 204);
 			booksSelectControl.TabIndex = 2;
 			// 
 			// loggingLevelLbl
@@ -400,7 +402,7 @@
 			tabControl.Margin = new System.Windows.Forms.Padding(6);
 			tabControl.Name = "tabControl";
 			tabControl.SelectedIndex = 0;
-			tabControl.Size = new System.Drawing.Size(1724, 946);
+			tabControl.Size = new System.Drawing.Size(1727, 962);
 			tabControl.TabIndex = 100;
 			// 
 			// tab1ImportantSettings
@@ -414,7 +416,7 @@
 			tab1ImportantSettings.Margin = new System.Windows.Forms.Padding(6);
 			tab1ImportantSettings.Name = "tab1ImportantSettings";
 			tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(6);
-			tab1ImportantSettings.Size = new System.Drawing.Size(1708, 892);
+			tab1ImportantSettings.Size = new System.Drawing.Size(1711, 908);
 			tab1ImportantSettings.TabIndex = 0;
 			tab1ImportantSettings.Text = "Important settings";
 			tab1ImportantSettings.UseVisualStyleBackColor = true;
@@ -424,7 +426,7 @@
 			betaOptInCbox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
 			betaOptInCbox.AutoSize = true;
 			betaOptInCbox.Enabled = false;
-			betaOptInCbox.Location = new System.Drawing.Point(26, 828);
+			betaOptInCbox.Location = new System.Drawing.Point(26, 844);
 			betaOptInCbox.Margin = new System.Windows.Forms.Padding(6);
 			betaOptInCbox.Name = "betaOptInCbox";
 			betaOptInCbox.Size = new System.Drawing.Size(210, 36);
@@ -447,7 +449,7 @@
 			booksGb.Margin = new System.Windows.Forms.Padding(6);
 			booksGb.Name = "booksGb";
 			booksGb.Padding = new System.Windows.Forms.Padding(6);
-			booksGb.Size = new System.Drawing.Size(1684, 498);
+			booksGb.Size = new System.Drawing.Size(1687, 498);
 			booksGb.TabIndex = 0;
 			booksGb.TabStop = false;
 			booksGb.Text = "Books location";
@@ -525,7 +527,7 @@
 			tab2ImportLibrary.Margin = new System.Windows.Forms.Padding(6);
 			tab2ImportLibrary.Name = "tab2ImportLibrary";
 			tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(6);
-			tab2ImportLibrary.Size = new System.Drawing.Size(1708, 892);
+			tab2ImportLibrary.Size = new System.Drawing.Size(1711, 908);
 			tab2ImportLibrary.TabIndex = 1;
 			tab2ImportLibrary.Text = "Import library";
 			tab2ImportLibrary.UseVisualStyleBackColor = true;
@@ -565,6 +567,7 @@
 			// 
 			// tab3DownloadDecrypt
 			// 
+			tab3DownloadDecrypt.Controls.Add(saveMetadataToFileCbox);
 			tab3DownloadDecrypt.Controls.Add(useCoverAsFolderIconCb);
 			tab3DownloadDecrypt.Controls.Add(inProgressFilesGb);
 			tab3DownloadDecrypt.Controls.Add(customFileNamingGb);
@@ -573,7 +576,7 @@
 			tab3DownloadDecrypt.Margin = new System.Windows.Forms.Padding(6);
 			tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
 			tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(6);
-			tab3DownloadDecrypt.Size = new System.Drawing.Size(1708, 892);
+			tab3DownloadDecrypt.Size = new System.Drawing.Size(1711, 908);
 			tab3DownloadDecrypt.TabIndex = 2;
 			tab3DownloadDecrypt.Text = "Download/Decrypt";
 			tab3DownloadDecrypt.UseVisualStyleBackColor = true;
@@ -598,7 +601,7 @@
 			inProgressFilesGb.Margin = new System.Windows.Forms.Padding(6);
 			inProgressFilesGb.Name = "inProgressFilesGb";
 			inProgressFilesGb.Padding = new System.Windows.Forms.Padding(6);
-			inProgressFilesGb.Size = new System.Drawing.Size(1682, 256);
+			inProgressFilesGb.Size = new System.Drawing.Size(1685, 256);
 			inProgressFilesGb.TabIndex = 21;
 			inProgressFilesGb.TabStop = false;
 			inProgressFilesGb.Text = "In progress files";
@@ -620,7 +623,7 @@
 			customFileNamingGb.Margin = new System.Windows.Forms.Padding(6);
 			customFileNamingGb.Name = "customFileNamingGb";
 			customFileNamingGb.Padding = new System.Windows.Forms.Padding(6);
-			customFileNamingGb.Size = new System.Drawing.Size(1682, 374);
+			customFileNamingGb.Size = new System.Drawing.Size(1685, 374);
 			customFileNamingGb.TabIndex = 20;
 			customFileNamingGb.TabStop = false;
 			customFileNamingGb.Text = "Custom file naming";
@@ -640,7 +643,7 @@
 			// chapterFileTemplateBtn
 			// 
 			chapterFileTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			chapterFileTemplateBtn.Location = new System.Drawing.Point(1522, 248);
+			chapterFileTemplateBtn.Location = new System.Drawing.Point(1525, 248);
 			chapterFileTemplateBtn.Margin = new System.Windows.Forms.Padding(6);
 			chapterFileTemplateBtn.Name = "chapterFileTemplateBtn";
 			chapterFileTemplateBtn.Size = new System.Drawing.Size(150, 46);
@@ -656,7 +659,7 @@
 			chapterFileTemplateTb.Margin = new System.Windows.Forms.Padding(6);
 			chapterFileTemplateTb.Name = "chapterFileTemplateTb";
 			chapterFileTemplateTb.ReadOnly = true;
-			chapterFileTemplateTb.Size = new System.Drawing.Size(1494, 39);
+			chapterFileTemplateTb.Size = new System.Drawing.Size(1497, 39);
 			chapterFileTemplateTb.TabIndex = 7;
 			// 
 			// chapterFileTemplateLbl
@@ -672,7 +675,7 @@
 			// fileTemplateBtn
 			// 
 			fileTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			fileTemplateBtn.Location = new System.Drawing.Point(1522, 160);
+			fileTemplateBtn.Location = new System.Drawing.Point(1525, 160);
 			fileTemplateBtn.Margin = new System.Windows.Forms.Padding(6);
 			fileTemplateBtn.Name = "fileTemplateBtn";
 			fileTemplateBtn.Size = new System.Drawing.Size(150, 46);
@@ -688,7 +691,7 @@
 			fileTemplateTb.Margin = new System.Windows.Forms.Padding(6);
 			fileTemplateTb.Name = "fileTemplateTb";
 			fileTemplateTb.ReadOnly = true;
-			fileTemplateTb.Size = new System.Drawing.Size(1494, 39);
+			fileTemplateTb.Size = new System.Drawing.Size(1497, 39);
 			fileTemplateTb.TabIndex = 4;
 			// 
 			// fileTemplateLbl
@@ -704,7 +707,7 @@
 			// folderTemplateBtn
 			// 
 			folderTemplateBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			folderTemplateBtn.Location = new System.Drawing.Point(1520, 72);
+			folderTemplateBtn.Location = new System.Drawing.Point(1523, 72);
 			folderTemplateBtn.Margin = new System.Windows.Forms.Padding(6);
 			folderTemplateBtn.Name = "folderTemplateBtn";
 			folderTemplateBtn.Size = new System.Drawing.Size(150, 46);
@@ -720,7 +723,7 @@
 			folderTemplateTb.Margin = new System.Windows.Forms.Padding(6);
 			folderTemplateTb.Name = "folderTemplateTb";
 			folderTemplateTb.ReadOnly = true;
-			folderTemplateTb.Size = new System.Drawing.Size(1494, 39);
+			folderTemplateTb.Size = new System.Drawing.Size(1497, 39);
 			folderTemplateTb.TabIndex = 1;
 			// 
 			// folderTemplateLbl
@@ -737,6 +740,7 @@
 			// 
 			tab4AudioFileOptions.Controls.Add(fileDownloadQualityCb);
 			tab4AudioFileOptions.Controls.Add(fileDownloadQualityLbl);
+			tab4AudioFileOptions.Controls.Add(combineNestedChapterTitlesCbox);
 			tab4AudioFileOptions.Controls.Add(clipsBookmarksFormatCb);
 			tab4AudioFileOptions.Controls.Add(downloadClipsBookmarksCbox);
 			tab4AudioFileOptions.Controls.Add(audiobookFixupsGb);
@@ -751,7 +755,7 @@
 			tab4AudioFileOptions.Margin = new System.Windows.Forms.Padding(6);
 			tab4AudioFileOptions.Name = "tab4AudioFileOptions";
 			tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(6);
-			tab4AudioFileOptions.Size = new System.Drawing.Size(1708, 892);
+			tab4AudioFileOptions.Size = new System.Drawing.Size(1711, 908);
 			tab4AudioFileOptions.TabIndex = 3;
 			tab4AudioFileOptions.Text = "Audio File Options";
 			tab4AudioFileOptions.UseVisualStyleBackColor = true;
@@ -775,6 +779,17 @@
 			fileDownloadQualityLbl.Size = new System.Drawing.Size(304, 32);
 			fileDownloadQualityLbl.TabIndex = 22;
 			fileDownloadQualityLbl.Text = "[FileDownloadQuality desc]";
+			// 
+			// combineNestedChapterTitlesCbox
+			// 
+			combineNestedChapterTitlesCbox.AutoSize = true;
+			combineNestedChapterTitlesCbox.Location = new System.Drawing.Point(38, 314);
+			combineNestedChapterTitlesCbox.Margin = new System.Windows.Forms.Padding(6);
+			combineNestedChapterTitlesCbox.Name = "combineNestedChapterTitlesCbox";
+			combineNestedChapterTitlesCbox.Size = new System.Drawing.Size(428, 36);
+			combineNestedChapterTitlesCbox.TabIndex = 13;
+			combineNestedChapterTitlesCbox.Text = "[CombineNestedChapterTitles desc]";
+			combineNestedChapterTitlesCbox.UseVisualStyleBackColor = true;
 			// 
 			// clipsBookmarksFormatCb
 			// 
@@ -806,11 +821,11 @@
 			audiobookFixupsGb.Controls.Add(convertLosslessRb);
 			audiobookFixupsGb.Controls.Add(convertLossyRb);
 			audiobookFixupsGb.Controls.Add(stripAudibleBrandingCbox);
-			audiobookFixupsGb.Location = new System.Drawing.Point(12, 382);
+			audiobookFixupsGb.Location = new System.Drawing.Point(12, 399);
 			audiobookFixupsGb.Margin = new System.Windows.Forms.Padding(6);
 			audiobookFixupsGb.Name = "audiobookFixupsGb";
 			audiobookFixupsGb.Padding = new System.Windows.Forms.Padding(6);
-			audiobookFixupsGb.Size = new System.Drawing.Size(806, 370);
+			audiobookFixupsGb.Size = new System.Drawing.Size(806, 365);
 			audiobookFixupsGb.TabIndex = 19;
 			audiobookFixupsGb.TabStop = false;
 			audiobookFixupsGb.Text = "Audiobook Fix-ups";
@@ -818,7 +833,7 @@
 			// moveMoovAtomCbox
 			// 
 			moveMoovAtomCbox.AutoSize = true;
-			moveMoovAtomCbox.Location = new System.Drawing.Point(46, 266);
+			moveMoovAtomCbox.Location = new System.Drawing.Point(46, 268);
 			moveMoovAtomCbox.Margin = new System.Windows.Forms.Padding(6);
 			moveMoovAtomCbox.Name = "moveMoovAtomCbox";
 			moveMoovAtomCbox.Size = new System.Drawing.Size(372, 36);
@@ -1324,13 +1339,24 @@
 			createCueSheetCbox.UseVisualStyleBackColor = true;
 			createCueSheetCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
 			// 
+			// saveMetadataToFileCbox
+			// 
+			saveMetadataToFileCbox.AutoSize = true;
+			saveMetadataToFileCbox.Location = new System.Drawing.Point(963, 830);
+			saveMetadataToFileCbox.Margin = new System.Windows.Forms.Padding(6);
+			saveMetadataToFileCbox.Name = "saveMetadataToFileCbox";
+			saveMetadataToFileCbox.Size = new System.Drawing.Size(328, 36);
+			saveMetadataToFileCbox.TabIndex = 22;
+			saveMetadataToFileCbox.Text = "[SaveMetadataToFile desc]";
+			saveMetadataToFileCbox.UseVisualStyleBackColor = true;
+			// 
 			// SettingsDialog
 			// 
 			AcceptButton = saveBtn;
 			AutoScaleDimensions = new System.Drawing.SizeF(192F, 192F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			CancelButton = cancelBtn;
-			ClientSize = new System.Drawing.Size(1772, 1060);
+			ClientSize = new System.Drawing.Size(1775, 1076);
 			Controls.Add(tabControl);
 			Controls.Add(cancelBtn);
 			Controls.Add(saveBtn);
@@ -1475,5 +1501,7 @@
 		private System.Windows.Forms.Label lastWriteTimeLbl;
 		private System.Windows.Forms.ComboBox fileDownloadQualityCb;
 		private System.Windows.Forms.Label fileDownloadQualityLbl;
+		private System.Windows.Forms.CheckBox combineNestedChapterTitlesCbox;
+		private System.Windows.Forms.CheckBox saveMetadataToFileCbox;
 	}
 }

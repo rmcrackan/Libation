@@ -32,6 +32,7 @@ namespace LibationWinForms.Dialogs
 			badBookRetryRb.Text = Configuration.BadBookAction.Retry.GetDescription();
 			badBookIgnoreRb.Text = Configuration.BadBookAction.Ignore.GetDescription();
 			useCoverAsFolderIconCb.Text = desc(nameof(config.UseCoverAsFolderIcon));
+			saveMetadataToFileCbox.Text = desc(nameof(config.SaveMetadataToFile));
 
 			inProgressSelectControl.SetDirectoryItems(new()
 			{
@@ -60,6 +61,7 @@ namespace LibationWinForms.Dialogs
 			fileTemplateTb.Text = config.FileTemplate;
 			chapterFileTemplateTb.Text = config.ChapterFileTemplate;
 			useCoverAsFolderIconCb.Checked = config.UseCoverAsFolderIcon;
+			saveMetadataToFileCbox.Checked = config.SaveMetadataToFile;
 		}
 
 		private void Save_DownloadDecrypt(Configuration config)
@@ -77,6 +79,7 @@ namespace LibationWinForms.Dialogs
 			config.FileTemplate = fileTemplateTb.Text;
 			config.ChapterFileTemplate = chapterFileTemplateTb.Text;
 			config.UseCoverAsFolderIcon = useCoverAsFolderIconCb.Checked;
+			config.SaveMetadataToFile = saveMetadataToFileCbox.Checked;
 		}
 	}
 }

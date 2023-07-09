@@ -127,6 +127,8 @@ namespace AaxDecrypter
 		{
 			ArgumentValidator.EnsureNotNullOrWhiteSpace(uriToSameFile?.AbsoluteUri, nameof(uriToSameFile));
 
+			if (Path.GetFileName(uriToSameFile.LocalPath) != Path.GetFileName(Uri.LocalPath))
+				throw new ArgumentException($"New uri to the same file must have the same file name.");
 			if (uriToSameFile.Host != Uri.Host)
 				throw new ArgumentException($"New uri to the same file must have the same host.\r\n Old Host :{Uri.Host}\r\nNew Host: {uriToSameFile.Host}");
 			if (DownloadTask is not null)

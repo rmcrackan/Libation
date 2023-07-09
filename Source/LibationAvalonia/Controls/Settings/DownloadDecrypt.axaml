@@ -165,18 +165,32 @@
 			</StackPanel>
 		</controls:GroupBox>
 
-		<CheckBox
+		<StackPanel
 			Grid.Row="3"
-			Margin="5"
-			VerticalAlignment="Top"
-			IsVisible="{CompiledBinding !Config.IsLinux}"
-			IsChecked="{CompiledBinding UseCoverAsFolderIcon, Mode=TwoWay}">
+			Orientation="Horizontal">
 
-			<TextBlock
-				TextWrapping="Wrap"
-				Text="{CompiledBinding UseCoverAsFolderIconText}" />
+			<CheckBox
+				Margin="5"
+				VerticalAlignment="Top"
+				IsVisible="{CompiledBinding !Config.IsLinux}"
+				IsChecked="{CompiledBinding UseCoverAsFolderIcon, Mode=TwoWay}">
 
-		</CheckBox>
+				<TextBlock
+					TextWrapping="Wrap"
+					Text="{CompiledBinding UseCoverAsFolderIconText}" />
 
+			</CheckBox>
+
+			<CheckBox
+				Margin="5"
+				VerticalAlignment="Top"
+				IsChecked="{CompiledBinding SaveMetadataToFile, Mode=TwoWay}">
+
+				<TextBlock
+					TextWrapping="Wrap"
+					Text="{CompiledBinding SaveMetadataToFileText}" />
+
+			</CheckBox>
+		</StackPanel>
 	</Grid>
 </UserControl>

@@ -38,6 +38,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			ChapterFileTemplate = config.ChapterFileTemplate;
 			InProgressDirectory = config.InProgress;
 			UseCoverAsFolderIcon = config.UseCoverAsFolderIcon;
+			SaveMetadataToFile = config.SaveMetadataToFile;
 		}
 
 		public void SaveSettings(Configuration config)
@@ -54,9 +55,11 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.InProgress = InProgressDirectory;
 
 			config.UseCoverAsFolderIcon = UseCoverAsFolderIcon;
+			config.SaveMetadataToFile = SaveMetadataToFile;
 		}
 
 		public string UseCoverAsFolderIconText { get; } = Configuration.GetDescription(nameof(Configuration.UseCoverAsFolderIcon));
+		public string SaveMetadataToFileText { get; } = Configuration.GetDescription(nameof(Configuration.SaveMetadataToFile));
 		public string BadBookGroupboxText { get; } = Configuration.GetDescription(nameof(Configuration.BadBook));
 		public string BadBookAskText { get; } = Configuration.BadBookAction.Ask.GetDescription();
 		public string BadBookAbortText { get; } = Configuration.BadBookAction.Abort.GetDescription();
@@ -72,6 +75,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string FileTemplate { get => _fileTemplate; set { this.RaiseAndSetIfChanged(ref _fileTemplate, value); } }
 		public string ChapterFileTemplate { get => _chapterFileTemplate; set { this.RaiseAndSetIfChanged(ref _chapterFileTemplate, value); } }
 		public bool UseCoverAsFolderIcon { get; set; }
+		public bool SaveMetadataToFile { get; set; }
 
 		public bool BadBookAsk { get; set; }
 		public bool BadBookAbort { get; set; }
