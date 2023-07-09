@@ -50,7 +50,15 @@ namespace LibationWinForms
 				// migrations which require Forms or are long-running
 				RunWindowsOnlyMigrations(config);
 
-				//start loading the db as soon as possible
+				//*******************************************************************//
+				//                                                                   //
+				//  Start loading the library as soon as possible                    //
+				//                                                                   //
+				//  Before calling anything else, including subscribing to events,   //
+				//  to ensure database exists. If we wait and let it happen lazily,  //
+				//  race conditions and errors are likely during new installs        //
+				//                                                                   //
+				//*******************************************************************//
 				libraryLoadTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 
 				MessageBoxLib.VerboseLoggingWarning_ShowIfTrue();

@@ -15,10 +15,6 @@ namespace LibationWinForms
 		{
 			InitializeComponent();
 
-			// Pre-requisite:
-			// Before calling anything else, including subscribing to events, ensure database exists. If we wait and let it happen lazily, race conditions and errors are likely during new installs
-			using var _ = DbContexts.GetContext();
-
 			this.RestoreSizeAndLocation(Configuration.Instance);
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 
@@ -55,7 +51,7 @@ namespace LibationWinForms
 
 			// Configure_Grid(); // since it's just this, can keep here. If it needs more, then give grid it's own 'partial class Form1'
 			{
-				LibraryCommands.LibrarySizeChanged += (_, __) => Invoke(productsDisplay.DisplayAsync);
+				LibraryCommands.LibrarySizeChanged += (_, __) => Invoke(() => productsDisplay.DisplayAsync());
 			}
 			Shown += Form1_Shown;
 		}
