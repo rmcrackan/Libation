@@ -202,6 +202,25 @@ namespace LibationAvalonia.Views
 				#endregion
 			}
 
+			#region Force Re-Download
+			if (!entry.Liberate.IsSeries)
+			{
+				var reDownloadMenuItem = new MenuItem()
+				{
+					Header = "Re-download this audiobook",
+					IsEnabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
+				};
+
+				args.ContextMenuItems.Add(reDownloadMenuItem);
+				reDownloadMenuItem.Click += (s, _) =>
+				{
+					//No need to persist this change. It only needs to last long for the file to start downloading
+					entry.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
+					LiberateClicked?.Invoke(s, entry.LibraryBook);
+				};
+			}
+			#endregion
+
 			args.ContextMenuItems.Add(new Separator());
 
 			#region View Bookmarks/Clips

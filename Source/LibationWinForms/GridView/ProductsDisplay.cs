@@ -206,6 +206,25 @@ namespace LibationWinForms.GridView
 				#endregion
 			}
 
+			#region Force Re-Download
+			if (!entry.Liberate.IsSeries)
+			{
+				var reDownloadMenuItem = new ToolStripMenuItem()
+				{
+					Text = "Re-download this audiobook",
+					Enabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
+				};
+
+				ctxMenu.Items.Add(reDownloadMenuItem);
+				reDownloadMenuItem.Click += (s, _) =>
+				{
+					//No need to persist this change. It only needs to last long for the file to start downloading
+					entry.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
+					LiberateClicked?.Invoke(s, entry.LibraryBook);
+				};
+			}
+			#endregion
+
 			ctxMenu.Items.Add(new ToolStripSeparator());
 
 			#region View Bookmarks/Clips
