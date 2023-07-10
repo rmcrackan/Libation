@@ -4,7 +4,6 @@ using LibationFileManager;
 using LibationUiBase.GridView;
 using LibationWinForms.ProcessQueue;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -12,15 +11,14 @@ namespace LibationWinForms
 {
 	public partial class Form1
 	{
-
 		int WidthChange = 0;
 		private void Configure_ProcessQueue()
 		{
 			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
-			splitContainer1.Panel2MinSize = this.DpiScale(350);
-			var coppalseState = Configuration.Instance.GetNonString(defaultValue: false, nameof(splitContainer1.Panel2Collapsed));
+			
 			WidthChange = splitContainer1.Panel2.Width + splitContainer1.SplitterWidth;
 			int width = this.Width;
+			var coppalseState = Configuration.Instance.GetNonString(defaultValue: false, nameof(splitContainer1.Panel2Collapsed));
 			SetQueueCollapseState(coppalseState);
 			this.Width = width;
 		}

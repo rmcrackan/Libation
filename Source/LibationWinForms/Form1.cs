@@ -14,7 +14,8 @@ namespace LibationWinForms
 		public Form1()
 		{
 			InitializeComponent();
-
+			//Set this size before restoring form size and position
+			splitContainer1.Panel2MinSize = this.DpiScale(350);
 			this.RestoreSizeAndLocation(Configuration.Instance);
 			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 
