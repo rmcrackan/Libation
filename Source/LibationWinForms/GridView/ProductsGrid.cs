@@ -452,7 +452,8 @@ namespace LibationWinForms.GridView
 			var config = Configuration.Instance;
 
 			var dictionary = config.GridColumnsWidths;
-			dictionary[e.Column.DataPropertyName] = e.Column.Width;
+			dictionary[e.Column.DataPropertyName] = e.Column.Width;   
+			config.GridColumnsWidths = dictionary;
 		}
 
 		#endregion
