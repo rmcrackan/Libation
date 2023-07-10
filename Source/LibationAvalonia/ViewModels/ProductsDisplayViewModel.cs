@@ -91,37 +91,21 @@ namespace LibationAvalonia.ViewModels
 
 		#region Display Functions
 
-		internal void BindToGrid(List<LibraryBook> dbBooks)
+		internal async Task BindToGridAsync(List<LibraryBook> dbBooks)
 		{
 			GridEntries = new(SOURCE) { Filter = CollectionFilter };
 
-			var geList = dbBooks
-				.Where(lb => lb.Book.IsProduct())
-				.Select(b => new LibraryBookEntry<AvaloniaEntryStatus>(b))
-				.ToList<IGridEntry>();
+			var geList = await LibraryBookEntry<AvaloniaEntryStatus>.GetAllProductsAsync(dbBooks);
 
-			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild()).ToList();
+			var seriesEntries = await SeriesEntry<AvaloniaEntryStatus>.GetAllSeriesEntriesAsync(dbBooks);
 
-			var seriesBooks = dbBooks.Where(lb => lb.Book.IsEpisodeParent()).ToList();
-
-			foreach (var parent in seriesBooks)
-			{
-				var seriesEpisodes = episodes.FindChildren(parent);
-
-				if (!seriesEpisodes.Any()) continue;
-
-				var seriesEntry = new SeriesEntry<AvaloniaEntryStatus>(parent, seriesEpisodes);
-				seriesEntry.Liberate.Expanded = false;
-
-				geList.Add(seriesEntry);
-			}
+			SOURCE.AddRange(geList.Concat(seriesEntries).OrderDescending(new RowComparer(null)));
 
 			//Create the filtered-in list before adding entries to avoid a refresh
-			FilteredInGridEntries = geList.Union(geList.OfType<ISeriesEntry>().SelectMany(s => s.Children)).FilterEntries(FilterString);
-			SOURCE.AddRange(geList.OrderDescending(new RowComparer(null)));
+			FilteredInGridEntries = geList.Union(seriesEntries.SelectMany(s => s.Children)).FilterEntries(FilterString);
 
 			//Add all children beneath their parent
-			foreach (var series in SOURCE.OfType<ISeriesEntry>().ToList())
+			foreach (var series in seriesEntries)
 			{
 				var seriesIndex = SOURCE.IndexOf(series);
 				foreach (var child in series.Children)

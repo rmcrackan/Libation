@@ -1,7 +1,10 @@
 ﻿using ApplicationServices;
 using Avalonia.Threading;
+using DataLayer;
 using LibationFileManager;
 using ReactiveUI;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.ViewModels
@@ -41,16 +44,17 @@ namespace LibationAvalonia.ViewModels
 
 		private void Configure_BackupCounts()
 		{
-			MainWindow.Loaded += setBackupCounts;
-			LibraryCommands.LibrarySizeChanged += setBackupCounts;
-			LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
+			MainWindow.LibraryLoaded += (_, e) => setBackupCounts(e.Where(l => !l.Book.IsEpisodeParent()));
+			LibraryCommands.LibrarySizeChanged += (_,_) => setBackupCounts();
+			LibraryCommands.BookUserDefinedItemCommitted += (_, _) => setBackupCounts();
 		}
 
-		private async void setBackupCounts(object _, object __)
+		private async void setBackupCounts(IEnumerable<LibraryBook> libraryBooks = null)
 		{
 			if (updateCountsTask?.IsCompleted ?? true)
 			{
-				updateCountsTask = Task.Run(() => LibraryCommands.GetCounts());
+				libraryBooks ??= DbContexts.GetLibrary_Flat_NoTracking();
+				updateCountsTask = Task.Run(() => LibraryCommands.GetCounts(libraryBooks));
 				var stats = await updateCountsTask;
 				await Dispatcher.UIThread.InvokeAsync(() => LibraryStats = stats);
 				

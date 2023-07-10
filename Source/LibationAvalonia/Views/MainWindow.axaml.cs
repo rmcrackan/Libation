@@ -61,7 +61,7 @@ namespace LibationAvalonia.Views
 			if (QuickFilters.UseDefault)
 				await ViewModel.PerformFilter(QuickFilters.Filters.FirstOrDefault());
 
-			ViewModel.ProductsDisplay.BindToGrid(dbBooks);
+			await ViewModel.ProductsDisplay.BindToGridAsync(dbBooks);
 		}
 
 		private void selectAndFocusSearchBox()

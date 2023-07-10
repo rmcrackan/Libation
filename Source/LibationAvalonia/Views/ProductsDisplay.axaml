@@ -84,13 +84,13 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
-				<DataGridTemplateColumn CanUserSort="False" Width="80" Header="Cover" SortMemberPath="Cover" ClipboardContentBinding="{Binding LibraryBook.Book.PictureLarge}">
+				<controls:DataGridTemplateColumnExt CanUserSort="False" Width="80" Header="Cover" SortMemberPath="Cover" ClipboardContentBinding="{Binding LibraryBook.Book.PictureLarge}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
 							<Image Opacity="{CompiledBinding Liberate.Opacity}" Tapped="Cover_Click" Height="80" Source="{CompiledBinding Cover}" ToolTip.Tip="Click to see full size" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
+				</controls:DataGridTemplateColumnExt>
 
 				<controls:DataGridTemplateColumnExt MinWidth="150" Width="2*" Header="Title" CanUserSort="True" SortMemberPath="Title" ClipboardContentBinding="{Binding Title}">
 					<DataGridTemplateColumn.CellTemplate>

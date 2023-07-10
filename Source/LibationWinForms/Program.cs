@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using ApplicationServices;
 using AppScaffolding;
-using Dinah.Core;
+using DataLayer;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
-using Serilog;
 
 namespace LibationWinForms
 {
@@ -20,6 +21,7 @@ namespace LibationWinForms
 		[STAThread]
 		static void Main()
 		{
+			Task<List<LibraryBook>> libraryLoadTask;
 			try
 			{
 				//// Uncomment to see Console. Must be called before anything writes to Console.
@@ -48,6 +50,17 @@ namespace LibationWinForms
 				// migrations which require Forms or are long-running
 				RunWindowsOnlyMigrations(config);
 
+				//*******************************************************************//
+				//                                                                   //
+				//  Start loading the library as soon as possible                    //
+				//                                                                   //
+				//  Before calling anything else, including subscribing to events,   //
+				//  to ensure database exists. If we wait and let it happen lazily,  //
+				//  race conditions and errors are likely during new installs        //
+				//                                                                   //
+				//*******************************************************************//
+				libraryLoadTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+
 				MessageBoxLib.VerboseLoggingWarning_ShowIfTrue();
 
 				// logging is init'd here
@@ -71,7 +84,9 @@ namespace LibationWinForms
 			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
 			postLoggingGlobalExceptionHandling();
 
-			Application.Run(new Form1());
+			var form1 = new Form1();
+			form1.Load += async (_, _) => await form1.InitLibraryAsync(await libraryLoadTask);
+			Application.Run(form1);
 		}
 
 		private static void RunInstaller(Configuration config)

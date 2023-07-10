@@ -30,7 +30,6 @@ namespace LibationWinForms.GridView
 		{
 			SearchEngineCommands.SearchEngineUpdated += SearchEngineCommands_SearchEngineUpdated;
 			ListChanged += GridEntryBindingList_ListChanged;
-			refreshEntries();
 		}
 
 		/// <returns>All items in the list, including those filtered out.</returns>

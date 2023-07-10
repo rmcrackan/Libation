@@ -206,6 +206,25 @@ namespace LibationWinForms.GridView
 				#endregion
 			}
 
+			#region Force Re-Download
+			if (!entry.Liberate.IsSeries)
+			{
+				var reDownloadMenuItem = new ToolStripMenuItem()
+				{
+					Text = "Re-download this audiobook",
+					Enabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
+				};
+
+				ctxMenu.Items.Add(reDownloadMenuItem);
+				reDownloadMenuItem.Click += (s, _) =>
+				{
+					//No need to persist this change. It only needs to last long for the file to start downloading
+					entry.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
+					LiberateClicked?.Invoke(s, entry.LibraryBook);
+				};
+			}
+			#endregion
+
 			ctxMenu.Items.Add(new ToolStripSeparator());
 
 			#region View Bookmarks/Clips
@@ -306,22 +325,22 @@ namespace LibationWinForms.GridView
 
 		#region UI display functions		
 
-		public void Display()
+		public async Task DisplayAsync(List<LibraryBook> libraryBooks = null)
 		{
 			try
 			{
 				// don't return early if lib size == 0. this will not update correctly if all books are removed
-				var lib = DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
+				libraryBooks ??= DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
 
 				if (!hasBeenDisplayed)
 				{
 					// bind
-					productsGrid.BindToGrid(lib);
+					await productsGrid.BindToGridAsync(libraryBooks);
 					hasBeenDisplayed = true;
 					InitialLoaded?.Invoke(this, new());
 				}
 				else
-					productsGrid.UpdateGrid(lib);
+					productsGrid.UpdateGrid(libraryBooks);
 			}
 			catch (Exception ex)
 			{

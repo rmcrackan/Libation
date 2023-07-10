@@ -14,11 +14,15 @@ namespace LibationWinForms.Dialogs
 			this.createCueSheetCbox.Text = desc(nameof(config.CreateCueSheet));
 			this.downloadCoverArtCbox.Text = desc(nameof(config.DownloadCoverArt));
 			this.retainAaxFileCbox.Text = desc(nameof(config.RetainAaxFile));
+			this.combineNestedChapterTitlesCbox.Text = desc(nameof(config.CombineNestedChapterTitles));
 			this.splitFilesByChapterCbox.Text = desc(nameof(config.SplitFilesByChapter));
 			this.mergeOpeningEndCreditsCbox.Text = desc(nameof(config.MergeOpeningAndEndCredits));
 			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
 			this.moveMoovAtomCbox.Text = desc(nameof(config.MoveMoovToBeginning));
+
+			toolTip.SetToolTip(combineNestedChapterTitlesCbox, Configuration.GetHelpText(nameof(config.CombineNestedChapterTitles)));
+			toolTip.SetToolTip(allowLibationFixupCbox, Configuration.GetHelpText(nameof(config.AllowLibationFixup)));
 
 			fileDownloadQualityCb.Items.AddRange(
 				new object[]
@@ -55,6 +59,7 @@ namespace LibationWinForms.Dialogs
 			fileDownloadQualityCb.SelectedItem = config.FileDownloadQuality;
 			clipsBookmarksFormatCb.SelectedItem = config.ClipsBookmarksFileFormat;
 			retainAaxFileCbox.Checked = config.RetainAaxFile;
+			combineNestedChapterTitlesCbox.Checked = config.CombineNestedChapterTitles;
 			splitFilesByChapterCbox.Checked = config.SplitFilesByChapter;
 			mergeOpeningEndCreditsCbox.Checked = config.MergeOpeningAndEndCredits;
 			stripUnabridgedCbox.Checked = config.StripUnabridged;
@@ -99,6 +104,7 @@ namespace LibationWinForms.Dialogs
 			config.FileDownloadQuality = (Configuration.DownloadQuality)fileDownloadQualityCb.SelectedItem;
 			config.ClipsBookmarksFileFormat = (Configuration.ClipBookmarkFormat)clipsBookmarksFormatCb.SelectedItem;
 			config.RetainAaxFile = retainAaxFileCbox.Checked;
+			config.CombineNestedChapterTitles = combineNestedChapterTitlesCbox.Checked;
 			config.SplitFilesByChapter = splitFilesByChapterCbox.Checked;
 			config.MergeOpeningAndEndCredits = mergeOpeningEndCreditsCbox.Checked;
 			config.StripUnabridged = stripUnabridgedCbox.Checked;

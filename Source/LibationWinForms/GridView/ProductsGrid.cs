@@ -5,8 +5,11 @@ using LibationUiBase.GridView;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LibationWinForms.GridView
@@ -53,15 +56,11 @@ namespace LibationWinForms.GridView
 			if (e.RowIndex < 0)
 				return;
 
-			// cover
-			else if (e.ColumnIndex == coverGVColumn.Index)
-				return;
-
 			e.ContextMenuStrip = new ContextMenuStrip();
-			// any non-stop light
-			if (e.ColumnIndex != liberateGVColumn.Index)
+			// any column except cover & stop light
+			if (e.ColumnIndex != liberateGVColumn.Index && e.ColumnIndex != coverGVColumn.Index)
 			{
-				e.ContextMenuStrip.Items.Add("Copy", null, (_, __) =>
+				e.ContextMenuStrip.Items.Add("Copy Cell Contents", null, (_, __) =>
 				{
 					try
 					{
@@ -70,14 +69,13 @@ namespace LibationWinForms.GridView
 						Clipboard.SetDataObject(text, false, 5, 150);
 					}
 					catch { }
-				});				
+				});
+				e.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 			}
-			else
-			{
-				var entry = getGridEntry(e.RowIndex);
-				var name = gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName;
-				LiberateContextMenuStripNeeded?.Invoke(entry, e.ContextMenuStrip);
-			}
+
+			var entry = getGridEntry(e.RowIndex);
+			var name = gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName;
+			LiberateContextMenuStripNeeded?.Invoke(entry, e.ContextMenuStrip);
 		}
 
 		private void EnableDoubleBuffering()
@@ -160,27 +158,23 @@ namespace LibationWinForms.GridView
 			}
 		}
 
-		internal void BindToGrid(List<LibraryBook> dbBooks)
+		internal async Task BindToGridAsync(List<LibraryBook> dbBooks)
 		{
-			var geList = dbBooks
-				.Where(lb => lb.Book.IsProduct())
-				.Select(b => new LibraryBookEntry<WinFormsEntryStatus>(b))
-				.ToList<IGridEntry>();
+			var geList = await LibraryBookEntry<WinFormsEntryStatus>.GetAllProductsAsync(dbBooks);
 
-			var episodes = dbBooks.Where(lb => lb.Book.IsEpisodeChild());
+			var seriesEntries = await SeriesEntry<WinFormsEntryStatus>.GetAllSeriesEntriesAsync(dbBooks);
 
-			var seriesBooks = dbBooks.Where(lb => lb.Book.IsEpisodeParent()).ToList();
+			geList.AddRange(seriesEntries);
+			//Sort descending by date (default sort property)
+			var comparer = new RowComparer();
+			geList.Sort((a, b) => comparer.Compare(b, a));
 
-			foreach (var parent in seriesBooks)
+			//Add all children beneath their parent
+			foreach (var series in seriesEntries)
 			{
-				var seriesEpisodes = episodes.FindChildren(parent);
-
-				if (!seriesEpisodes.Any()) continue;
-
-				var seriesEntry = new SeriesEntry<WinFormsEntryStatus>(parent, seriesEpisodes);
-
-				geList.Add(seriesEntry);
-				geList.AddRange(seriesEntry.Children);
+				var seriesIndex = geList.IndexOf(series);
+				foreach (var child in series.Children)
+					geList.Insert(++seriesIndex, child);
 			}
 
 			bindingList = new GridEntryBindingList(geList);

@@ -73,7 +73,15 @@
 				<TextBlock Text="{CompiledBinding MergeOpeningEndCreditsText}" />
 			</CheckBox>
 
-			<CheckBox IsChecked="{CompiledBinding AllowLibationFixup, Mode=TwoWay}">
+			<CheckBox				
+				ToolTip.Tip="{CompiledBinding CombineNestedChapterTitlesTip}"
+				IsChecked="{CompiledBinding CombineNestedChapterTitles, Mode=TwoWay}">
+				<TextBlock Text="{CompiledBinding CombineNestedChapterTitlesText}" />
+			</CheckBox>
+
+			<CheckBox
+				ToolTip.Tip="{CompiledBinding AllowLibationFixupTip}"
+				IsChecked="{CompiledBinding AllowLibationFixup, Mode=TwoWay}">
 				<TextBlock Text="{CompiledBinding AllowLibationFixupText}" />
 			</CheckBox>
 		</StackPanel>

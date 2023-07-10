@@ -9,6 +9,12 @@ namespace LibationWinForms.Dialogs
 	{
 		private Configuration config { get; } = Configuration.Instance;
 		private Func<string, string> desc { get; } = Configuration.GetDescription;
+		private readonly ToolTip toolTip = new ToolTip
+		{
+			InitialDelay = 300,
+			AutoPopDelay = 10000,
+			ReshowDelay = 0
+		};
 
 		public SettingsDialog()
 		{

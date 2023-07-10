@@ -73,8 +73,11 @@ namespace LibationFileManager
 
 		public bool Exists(string propertyName) => persistentDictionary.Exists(propertyName);
 
-		[Description("Set cover art as the folder's icon. (Windows and macOS only)")]
+		[Description("Set cover art as the folder's icon.")]
 		public bool UseCoverAsFolderIcon { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+
+		[Description("Save audiobook metadata to metadata.json")]
+		public bool SaveMetadataToFile { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Use the beta version of Libation\r\nNew and experimental features, but probably buggy.\r\n(requires restart to take effect)")]
 		public bool BetaOptIn { get => GetNonString(defaultValue: false); set => SetNonString(value); }
@@ -163,6 +166,9 @@ namespace LibationFileManager
 
 		[Description("Save cover image alongside audiobook?")]
 		public bool DownloadCoverArt { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+
+		[Description("Combine nested chapter titles")]
+		public bool CombineNestedChapterTitles { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Download clips and bookmarks?")]
 		public bool DownloadClipsBookmarks { get => GetNonString(defaultValue: false); set => SetNonString(value); }

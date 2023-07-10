@@ -540,7 +540,6 @@ namespace FileLiberator.Tests
 				value[i].StartOffsetMs.Should().Be(expected[i].StartOffsetMs);
 				value[i].StartOffsetSec.Should().Be(expected[i].StartOffsetSec);
 				value[i].LengthMs.Should().Be(expected[i].LengthMs);
-				value[i].Chapters.Should().BeNull();
 			}
 		}
 	}
