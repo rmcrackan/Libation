@@ -131,6 +131,35 @@ namespace FileManager
             writeFile(propertyName, parsedNewValue);
         }
 
+        public bool RemoveProperty(string propertyName)
+        {
+            if (IsReadOnly)
+                return false;
+
+            var success = false;
+            try
+            {
+                lock (locker)
+                {
+                    var jObject = readFile();
+
+                    if (!jObject.ContainsKey(propertyName))
+                        return false;
+
+                    jObject.Remove(propertyName);
+
+                    var endContents = JsonConvert.SerializeObject(jObject, Formatting.Indented);
+
+                    File.WriteAllText(Filepath, endContents);
+                    success = true;
+                }
+                Serilog.Log.Logger.Information("Removed property. {@DebugInfo}", propertyName);
+            }
+            catch { }
+
+			return success;
+		}
+
         private void writeFile(string propertyName, JToken newValue)
         {
             if (IsReadOnly)

@@ -23,15 +23,15 @@ namespace LibationWinForms
 			}
 		}
 
-		public static int DpiScale(this Control control, int value)
-			=> (int)(control.DeviceDpi / BaseDpi * value);
+		public static int DpiScale(this Control control, int value, float additionalScaleFactor = 1)
+			=> (int)float.Round(control.DeviceDpi / BaseDpi * value * additionalScaleFactor);
 
 		public static int DpiUnscale(this Control control, int value)
-			=> (int)(BaseDpi / control.DeviceDpi * value);
+			=> (int)float.Round(BaseDpi / control.DeviceDpi * value);
 
 		public static int ScaleX(this Graphics control, int value)
-			=> (int)(control.DpiX / BaseDpi * value);
+			=> (int)float.Round(control.DpiX / BaseDpi * value);
 		public static int ScaleY(this Graphics control, int value)
-			=> (int)(control.DpiY / BaseDpi * value);
+			=> (int)float.Round(control.DpiY / BaseDpi * value);
 	}
 }

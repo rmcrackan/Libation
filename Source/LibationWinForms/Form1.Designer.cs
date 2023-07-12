@@ -31,7 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.filterHelpBtn = new System.Windows.Forms.Button();
             this.filterBtn = new System.Windows.Forms.Button();
-            this.filterSearchTb = new System.Windows.Forms.TextBox();
+            this.filterSearchTb = new ClearableTextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoScanLibraryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -129,10 +129,11 @@
             this.filterSearchTb.Size = new System.Drawing.Size(681, 25);
             this.filterSearchTb.TabIndex = 1;
             this.filterSearchTb.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.filterSearchTb_KeyPress);
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(40, 40);
+            this.filterSearchTb.TextCleared += filterSearchTb_TextCleared;
+			// 
+			// menuStrip1
+			// 
+			this.menuStrip1.ImageScalingSize = new System.Drawing.Size(40, 40);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importToolStripMenuItem,
             this.liberateToolStripMenuItem,
@@ -651,7 +652,7 @@
 		private System.Windows.Forms.ToolStripStatusLabel backupsCountsLbl;
 		private LibationWinForms.FormattableToolStripMenuItem beginBookBackupsToolStripMenuItem;
 		private LibationWinForms.FormattableToolStripMenuItem beginPdfBackupsToolStripMenuItem;
-		public System.Windows.Forms.TextBox filterSearchTb;
+		public ClearableTextBox filterSearchTb;
 		public System.Windows.Forms.Button filterBtn;
 		public System.Windows.Forms.Button filterHelpBtn;
 		public System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;

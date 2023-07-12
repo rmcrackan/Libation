@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="200" MinWidth="64" MinHeight="64"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="200" MinWidth="37" MinHeight="40"
 			 Background="Transparent"
 			 x:DataType="vm:LiberateStatusButtonViewModel"
              x:Class="LibationAvalonia.Views.LiberateStatusButton">
@@ -35,48 +35,51 @@
 		Name="button"
 		HorizontalAlignment="Stretch"
 		VerticalAlignment="Stretch"
-		IsEnabled="{CompiledBinding	IsButtonEnabled}" Padding="0" Click="Button_Click" >
-		<Panel>
-	
-			<Panel
-				Width="64" Height="64"
-				IsVisible="{CompiledBinding !IsError}">
+		Padding="0"
+		IsEnabled="{CompiledBinding	IsButtonEnabled}" Click="Button_Click" >
 
-				<Panel IsVisible="{CompiledBinding IsSeries}">
-					<Path IsVisible="{CompiledBinding Expanded}" Data="{StaticResource CollapseIcon}" />
-					<Path IsVisible="{CompiledBinding !Expanded}" Data="{StaticResource ExpandIcon}" />
+		<Grid RowDefinitions="*,8*,*">
+			<Viewbox
+				Grid.Row="1"
+				Stretch="Uniform"
+				HorizontalAlignment="Stretch"
+				VerticalAlignment="Stretch">
+				<Panel>
+					<Panel IsVisible="{CompiledBinding !IsError}">
+
+						<Panel IsVisible="{CompiledBinding IsSeries}">
+							<Path IsVisible="{CompiledBinding Expanded}" Data="{StaticResource CollapseIcon}" />
+							<Path IsVisible="{CompiledBinding !Expanded}" Data="{StaticResource ExpandIcon}" />
+						</Panel>
+
+						<Grid
+							IsVisible="{CompiledBinding	!IsSeries}"
+							HorizontalAlignment="Center"
+							ColumnDefinitions="Auto,Auto">
+							<Canvas Width="29.44" Height="64">
+								<Rectangle Canvas.Left="5" Canvas.Top="5" IsVisible="{CompiledBinding RedVisible}" Fill="{DynamicResource StoplightRed}" />
+								<Rectangle Canvas.Left="5" Canvas.Top="23" IsVisible="{CompiledBinding YellowVisible}" Fill="{DynamicResource StoplightYellow}" />
+								<Rectangle Canvas.Left="5" Canvas.Top="42" IsVisible="{CompiledBinding GreenVisible}" Fill="{DynamicResource StoplightGreen}" />
+								<Path Height="64" Stretch="Uniform" Data="{StaticResource StoplightBodyIcon}"/>
+							</Canvas>
+							<Path Grid.Column="1" IsVisible="{CompiledBinding PdfDownloadedVisible}" Data="{StaticResource PdfDownloadedIcon}"/>
+							<Path Grid.Column="1" IsVisible="{CompiledBinding PdfNotDownloadedVisible}" Data="{StaticResource PdfNotDownloadedIcon}"/>
+						</Grid>
+					</Panel>
+
+					<Path
+						Stretch="None" Width="64"
+						IsVisible="{CompiledBinding IsError}"
+						Fill="{DynamicResource CancelRed}"
+						Data="{StaticResource BookErrorIcon}" />
+
+					<Path
+						Stretch="Fill"
+						IsVisible="{CompiledBinding !IsButtonEnabled}"
+						Fill="{DynamicResource DisabledGrayBrush}"
+						Data="M0,0 H1 V1 H0" />
 				</Panel>
-
-				<Grid
-					IsVisible="{CompiledBinding	!IsSeries}"
-					HorizontalAlignment="Center"
-					ColumnDefinitions="Auto,Auto">
-
-					<Canvas Width="29.44" Height="64">
-						<Rectangle Canvas.Left="5" Canvas.Top="5" IsVisible="{CompiledBinding RedVisible}" Fill="{DynamicResource StoplightRed}" />
-						<Rectangle Canvas.Left="5" Canvas.Top="23" IsVisible="{CompiledBinding YellowVisible}" Fill="{DynamicResource StoplightYellow}" />
-						<Rectangle Canvas.Left="5" Canvas.Top="42" IsVisible="{CompiledBinding GreenVisible}" Fill="{DynamicResource StoplightGreen}" />
-						<Path Height="64" Stretch="Uniform" Data="{StaticResource StoplightBodyIcon}"/>
-					</Canvas>
-
-					<Path Grid.Column="1" IsVisible="{CompiledBinding PdfDownloadedVisible}" Data="{StaticResource PdfDownloadedIcon}"/>
-					<Path Grid.Column="1" IsVisible="{CompiledBinding PdfNotDownloadedVisible}" Data="{StaticResource PdfNotDownloadedIcon}"/>
-				</Grid>
-
-			</Panel>
-			 
-			<Path
-				Stretch="None" Width="64"
-				IsVisible="{CompiledBinding IsError}"
-				Fill="{DynamicResource CancelRed}"
-				Data="{StaticResource BookErrorIcon}" />
-			
-			<Path 
-				Stretch="Fill"
-				IsVisible="{CompiledBinding !IsButtonEnabled}"
-				Fill="{DynamicResource DisabledGrayBrush}"
-				Data="M0,0 H1 V1 H0" />
-		</Panel>
+			</Viewbox>
+		</Grid>
 	</Button>
-
 </UserControl>

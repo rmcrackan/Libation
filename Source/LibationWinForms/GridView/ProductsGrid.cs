@@ -1,14 +1,14 @@
 ﻿using DataLayer;
+using Dinah.Core;
 using Dinah.Core.WindowsDesktop.Forms;
 using LibationFileManager;
 using LibationUiBase.GridView;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -47,8 +47,64 @@ namespace LibationWinForms.GridView
 			gridEntryDataGridView.CellContextMenuStripNeeded += GridEntryDataGridView_CellContextMenuStripNeeded;
 			removeGVColumn.Frozen = false;
 
-			gridEntryDataGridView.RowTemplate.Height = this.DpiScale(gridEntryDataGridView.RowTemplate.Height);
+			defaultFont = gridEntryDataGridView.DefaultCellStyle.Font;
+			setGridFontScale(Configuration.Instance.GridFontScaleFactor);
+			setGridScale(Configuration.Instance.GridScaleFactor);
+			Configuration.Instance.PropertyChanged += Configuration_ScaleChanged;
+			Configuration.Instance.PropertyChanged += Configuration_FontScaleChanged;
+
+			gridEntryDataGridView.Disposed += (_, _) =>
+			{
+				Configuration.Instance.PropertyChanged -= Configuration_ScaleChanged;
+				Configuration.Instance.PropertyChanged -= Configuration_FontScaleChanged;
+			};
 		}
+
+		#region Scaling
+
+		[PropertyChangeFilter(nameof(Configuration.GridFontScaleFactor))]
+		private void Configuration_FontScaleChanged(object sender, PropertyChangedEventArgsEx e)
+			=> setGridFontScale((float)e.NewValue);
+
+		[PropertyChangeFilter(nameof(Configuration.GridScaleFactor))]
+		private void Configuration_ScaleChanged(object sender, PropertyChangedEventArgsEx e)
+			=> setGridScale((float)e.NewValue);
+
+		/// <summary>
+		/// Keep track of the original dimensions for rescaling
+		/// </summary>
+		private static readonly Dictionary<DataGridViewElement, int> originalDims = new();
+		private readonly Font defaultFont;
+		private void setGridScale(float scale)
+		{
+			foreach (var col in gridEntryDataGridView.Columns.Cast<DataGridViewColumn>())
+			{
+				//Only resize fixed-width columns. The rest can be adjusted by users.
+				if (col.Resizable is DataGridViewTriState.False)
+				{
+					if (!originalDims.ContainsKey(col))
+						originalDims[col] = col.Width;
+
+					col.Width = this.DpiScale(originalDims[col], scale);
+				}
+
+				if (col is IDataGridScaleColumn scCol)
+					scCol.ScaleFactor = scale;
+			}
+
+			if (!originalDims.ContainsKey(gridEntryDataGridView.RowTemplate))
+				originalDims[gridEntryDataGridView.RowTemplate] = gridEntryDataGridView.RowTemplate.Height;
+
+			var height = gridEntryDataGridView.RowTemplate.Height = this.DpiScale(originalDims[gridEntryDataGridView.RowTemplate], scale);
+
+			foreach (var row in gridEntryDataGridView.Rows.Cast<DataGridViewRow>())
+				row.Height = height;
+		}
+
+		private void setGridFontScale(float scale)
+			=> gridEntryDataGridView.DefaultCellStyle.Font = new Font(defaultFont.FontFamily, defaultFont.Size * scale);
+
+		#endregion
 
 		private void GridEntryDataGridView_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs e)
 		{
@@ -301,7 +357,7 @@ namespace LibationWinForms.GridView
 					//Series exists. Create and add episode child then update the SeriesEntry
 					episodeEntry = new LibraryBookEntry<WinFormsEntryStatus>(episodeBook, seriesEntry);
 					seriesEntry.Children.Add(episodeEntry);
-					seriesEntry.Children.Sort((c1,c2) => c1.SeriesIndex.CompareTo(c2.SeriesIndex));
+					seriesEntry.Children.Sort((c1, c2) => c1.SeriesIndex.CompareTo(c2.SeriesIndex));
 					var seriesBook = dbBooks.Single(lb => lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId);
 					seriesEntry.UpdateLibraryBook(seriesBook);
 				}
@@ -326,6 +382,8 @@ namespace LibationWinForms.GridView
 
 		public void Filter(string searchString)
 		{
+			if (bindingList is null) return;
+
 			int visibleCount = bindingList.Count;
 
 			if (string.IsNullOrEmpty(searchString))
@@ -365,16 +423,19 @@ namespace LibationWinForms.GridView
 				var itemName = column.DataPropertyName;
 				var visible = gridColumnsVisibilities.GetValueOrDefault(itemName, true);
 
-				var menuItem = new ToolStripMenuItem()
+				var menuItem = new ToolStripMenuItem(column.HeaderText)
 				{
-					Text = column.HeaderText,
 					Checked = visible,
 					Tag = itemName
 				};
 				menuItem.Click += HideMenuItem_Click;
 				showHideColumnsContextMenuStrip.Items.Add(menuItem);
 
-				column.Width = gridColumnsWidths.GetValueOrDefault(itemName, this.DpiScale(column.Width));
+				//Only set column widths for user resizable columns.
+				//Fixed column widths are set by setGridScale()
+				if (column.Resizable is not DataGridViewTriState.False)
+					column.Width = gridColumnsWidths.GetValueOrDefault(itemName, this.DpiScale(column.Width));
+
 				column.MinimumWidth = 10;
 				column.HeaderCell.ContextMenuStrip = showHideColumnsContextMenuStrip;
 				column.Visible = visible;
@@ -452,7 +513,7 @@ namespace LibationWinForms.GridView
 			var config = Configuration.Instance;
 
 			var dictionary = config.GridColumnsWidths;
-			dictionary[e.Column.DataPropertyName] = e.Column.Width;   
+			dictionary[e.Column.DataPropertyName] = e.Column.Width;
 			config.GridColumnsWidths = dictionary;
 		}
 

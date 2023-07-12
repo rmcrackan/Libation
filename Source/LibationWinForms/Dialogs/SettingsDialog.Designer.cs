@@ -51,7 +51,12 @@
 			loggingLevelCb = new System.Windows.Forms.ComboBox();
 			tabControl = new System.Windows.Forms.TabControl();
 			tab1ImportantSettings = new System.Windows.Forms.TabPage();
-			betaOptInCbox = new System.Windows.Forms.CheckBox();
+			groupBox1 = new System.Windows.Forms.GroupBox();
+			applyDisplaySettingsBtn = new System.Windows.Forms.Button();
+			gridScaleFactorLbl = new System.Windows.Forms.Label();
+			gridScaleFactorTbar = new System.Windows.Forms.TrackBar();
+			gridFontScaleFactorLbl = new System.Windows.Forms.Label();
+			gridFontScaleFactorTbar = new System.Windows.Forms.TrackBar();
 			booksGb = new System.Windows.Forms.GroupBox();
 			lastWriteTimeCb = new System.Windows.Forms.ComboBox();
 			creationTimeCb = new System.Windows.Forms.ComboBox();
@@ -131,6 +136,9 @@
 			badBookGb.SuspendLayout();
 			tabControl.SuspendLayout();
 			tab1ImportantSettings.SuspendLayout();
+			groupBox1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)gridScaleFactorTbar).BeginInit();
+			((System.ComponentModel.ISupportInitialize)gridFontScaleFactorTbar).BeginInit();
 			booksGb.SuspendLayout();
 			tab2ImportLibrary.SuspendLayout();
 			tab3DownloadDecrypt.SuspendLayout();
@@ -340,7 +348,7 @@
 			// 
 			// logsBtn
 			// 
-			logsBtn.Location = new System.Drawing.Point(256, 261);
+			logsBtn.Location = new System.Drawing.Point(256, 424);
 			logsBtn.Name = "logsBtn";
 			logsBtn.Size = new System.Drawing.Size(132, 23);
 			logsBtn.TabIndex = 5;
@@ -351,6 +359,7 @@
 			// booksSelectControl
 			// 
 			booksSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			booksSelectControl.AutoSize = true;
 			booksSelectControl.Location = new System.Drawing.Point(7, 23);
 			booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			booksSelectControl.Name = "booksSelectControl";
@@ -360,7 +369,7 @@
 			// loggingLevelLbl
 			// 
 			loggingLevelLbl.AutoSize = true;
-			loggingLevelLbl.Location = new System.Drawing.Point(6, 264);
+			loggingLevelLbl.Location = new System.Drawing.Point(6, 427);
 			loggingLevelLbl.Name = "loggingLevelLbl";
 			loggingLevelLbl.Size = new System.Drawing.Size(78, 15);
 			loggingLevelLbl.TabIndex = 3;
@@ -370,7 +379,7 @@
 			// 
 			loggingLevelCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			loggingLevelCb.FormattingEnabled = true;
-			loggingLevelCb.Location = new System.Drawing.Point(90, 261);
+			loggingLevelCb.Location = new System.Drawing.Point(90, 424);
 			loggingLevelCb.Name = "loggingLevelCb";
 			loggingLevelCb.Size = new System.Drawing.Size(129, 23);
 			loggingLevelCb.TabIndex = 4;
@@ -390,30 +399,84 @@
 			// 
 			// tab1ImportantSettings
 			// 
-			tab1ImportantSettings.Controls.Add(betaOptInCbox);
+			tab1ImportantSettings.Controls.Add(groupBox1);
 			tab1ImportantSettings.Controls.Add(booksGb);
 			tab1ImportantSettings.Controls.Add(logsBtn);
 			tab1ImportantSettings.Controls.Add(loggingLevelCb);
 			tab1ImportantSettings.Controls.Add(loggingLevelLbl);
 			tab1ImportantSettings.Location = new System.Drawing.Point(4, 24);
 			tab1ImportantSettings.Name = "tab1ImportantSettings";
-			tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+			tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(3);
 			tab1ImportantSettings.Size = new System.Drawing.Size(856, 453);
 			tab1ImportantSettings.TabIndex = 0;
 			tab1ImportantSettings.Text = "Important settings";
 			tab1ImportantSettings.UseVisualStyleBackColor = true;
 			// 
-			// betaOptInCbox
+			// groupBox1
 			// 
-			betaOptInCbox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
-			betaOptInCbox.AutoSize = true;
-			betaOptInCbox.Enabled = false;
-			betaOptInCbox.Location = new System.Drawing.Point(13, 421);
-			betaOptInCbox.Name = "betaOptInCbox";
-			betaOptInCbox.Size = new System.Drawing.Size(107, 19);
-			betaOptInCbox.TabIndex = 6;
-			betaOptInCbox.Text = "[Opt in to Beta]";
-			betaOptInCbox.UseVisualStyleBackColor = true;
+			groupBox1.Controls.Add(applyDisplaySettingsBtn);
+			groupBox1.Controls.Add(gridScaleFactorLbl);
+			groupBox1.Controls.Add(gridScaleFactorTbar);
+			groupBox1.Controls.Add(gridFontScaleFactorLbl);
+			groupBox1.Controls.Add(gridFontScaleFactorTbar);
+			groupBox1.Location = new System.Drawing.Point(6, 261);
+			groupBox1.Name = "groupBox1";
+			groupBox1.Size = new System.Drawing.Size(844, 83);
+			groupBox1.TabIndex = 9;
+			groupBox1.TabStop = false;
+			groupBox1.Text = "Display Settings";
+			// 
+			// applyDisplaySettingsBtn
+			// 
+			applyDisplaySettingsBtn.Location = new System.Drawing.Point(698, 34);
+			applyDisplaySettingsBtn.Name = "applyDisplaySettingsBtn";
+			applyDisplaySettingsBtn.Size = new System.Drawing.Size(140, 23);
+			applyDisplaySettingsBtn.TabIndex = 9;
+			applyDisplaySettingsBtn.Text = "Apply Display Settings";
+			applyDisplaySettingsBtn.UseVisualStyleBackColor = true;
+			applyDisplaySettingsBtn.Click += applyDisplaySettingsBtn_Click;
+			// 
+			// gridScaleFactorLbl
+			// 
+			gridScaleFactorLbl.AutoSize = true;
+			gridScaleFactorLbl.Location = new System.Drawing.Point(6, 36);
+			gridScaleFactorLbl.Name = "gridScaleFactorLbl";
+			gridScaleFactorLbl.Size = new System.Drawing.Size(124, 15);
+			gridScaleFactorLbl.TabIndex = 8;
+			gridScaleFactorLbl.Text = "[GridScaleFactor desc]";
+			// 
+			// gridScaleFactorTbar
+			// 
+			gridScaleFactorTbar.AutoSize = false;
+			gridScaleFactorTbar.LargeChange = 25;
+			gridScaleFactorTbar.Location = new System.Drawing.Point(136, 36);
+			gridScaleFactorTbar.Maximum = 100;
+			gridScaleFactorTbar.Minimum = -100;
+			gridScaleFactorTbar.Name = "gridScaleFactorTbar";
+			gridScaleFactorTbar.Size = new System.Drawing.Size(160, 20);
+			gridScaleFactorTbar.TabIndex = 7;
+			gridScaleFactorTbar.TickFrequency = 25;
+			// 
+			// gridFontScaleFactorLbl
+			// 
+			gridFontScaleFactorLbl.AutoSize = true;
+			gridFontScaleFactorLbl.Location = new System.Drawing.Point(320, 36);
+			gridFontScaleFactorLbl.Name = "gridFontScaleFactorLbl";
+			gridFontScaleFactorLbl.Size = new System.Drawing.Size(124, 15);
+			gridFontScaleFactorLbl.TabIndex = 8;
+			gridFontScaleFactorLbl.Text = "[GridScaleFactor desc]";
+			// 
+			// gridFontScaleFactorTbar
+			// 
+			gridFontScaleFactorTbar.AutoSize = false;
+			gridFontScaleFactorTbar.LargeChange = 25;
+			gridFontScaleFactorTbar.Location = new System.Drawing.Point(450, 36);
+			gridFontScaleFactorTbar.Maximum = 100;
+			gridFontScaleFactorTbar.Minimum = -100;
+			gridFontScaleFactorTbar.Name = "gridFontScaleFactorTbar";
+			gridFontScaleFactorTbar.Size = new System.Drawing.Size(160, 20);
+			gridFontScaleFactorTbar.TabIndex = 7;
+			gridFontScaleFactorTbar.TickFrequency = 25;
 			// 
 			// booksGb
 			// 
@@ -500,7 +563,7 @@
 			tab2ImportLibrary.Controls.Add(downloadEpisodesCb);
 			tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
 			tab2ImportLibrary.Name = "tab2ImportLibrary";
-			tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+			tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
 			tab2ImportLibrary.Size = new System.Drawing.Size(856, 453);
 			tab2ImportLibrary.TabIndex = 1;
 			tab2ImportLibrary.Text = "Import library";
@@ -545,7 +608,7 @@
 			tab3DownloadDecrypt.Controls.Add(badBookGb);
 			tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
 			tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
-			tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+			tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3);
 			tab3DownloadDecrypt.Size = new System.Drawing.Size(856, 453);
 			tab3DownloadDecrypt.TabIndex = 2;
 			tab3DownloadDecrypt.Text = "Download/Decrypt";
@@ -718,7 +781,7 @@
 			tab4AudioFileOptions.Controls.Add(allowLibationFixupCbox);
 			tab4AudioFileOptions.Location = new System.Drawing.Point(4, 24);
 			tab4AudioFileOptions.Name = "tab4AudioFileOptions";
-			tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+			tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(3);
 			tab4AudioFileOptions.Size = new System.Drawing.Size(856, 453);
 			tab4AudioFileOptions.TabIndex = 3;
 			tab4AudioFileOptions.Text = "Audio File Options";
@@ -1273,6 +1336,10 @@
 			tabControl.ResumeLayout(false);
 			tab1ImportantSettings.ResumeLayout(false);
 			tab1ImportantSettings.PerformLayout();
+			groupBox1.ResumeLayout(false);
+			groupBox1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)gridScaleFactorTbar).EndInit();
+			((System.ComponentModel.ISupportInitialize)gridFontScaleFactorTbar).EndInit();
 			booksGb.ResumeLayout(false);
 			booksGb.PerformLayout();
 			tab2ImportLibrary.ResumeLayout(false);
@@ -1385,7 +1452,6 @@
 		private System.Windows.Forms.Button editCharreplacementBtn;
 		private System.Windows.Forms.CheckBox mergeOpeningEndCreditsCbox;
 		private System.Windows.Forms.GroupBox audiobookFixupsGb;
-		private System.Windows.Forms.CheckBox betaOptInCbox;
 		private System.Windows.Forms.CheckBox useCoverAsFolderIconCb;
 		private System.Windows.Forms.ComboBox clipsBookmarksFormatCb;
 		private System.Windows.Forms.CheckBox downloadClipsBookmarksCbox;
@@ -1403,5 +1469,11 @@
 		private System.Windows.Forms.Label fileDownloadQualityLbl;
 		private System.Windows.Forms.CheckBox combineNestedChapterTitlesCbox;
 		private System.Windows.Forms.CheckBox saveMetadataToFileCbox;
+		private System.Windows.Forms.TrackBar gridScaleFactorTbar;
+		private System.Windows.Forms.TrackBar gridFontScaleFactorTbar;
+		private System.Windows.Forms.Label gridScaleFactorLbl;
+		private System.Windows.Forms.Label gridFontScaleFactorLbl;
+		private System.Windows.Forms.GroupBox groupBox1;
+		private System.Windows.Forms.Button applyDisplaySettingsBtn;
 	}
 }

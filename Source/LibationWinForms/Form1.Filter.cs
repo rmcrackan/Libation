@@ -10,6 +10,10 @@ namespace LibationWinForms
 
 		private void filterHelpBtn_Click(object sender, EventArgs e) => new SearchSyntaxDialog().ShowDialog();
 
+		private void filterSearchTb_TextCleared(object sender, EventArgs e)
+		{
+			performFilter(string.Empty);
+		}
 		private void filterSearchTb_KeyPress(object sender, KeyPressEventArgs e)
 		{
 			if (e.KeyChar == (char)Keys.Return)

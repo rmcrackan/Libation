@@ -5,12 +5,18 @@ using LibationUiBase.GridView;
 
 namespace LibationWinForms.GridView
 {
-    public class EditTagsDataGridViewImageButtonColumn : DataGridViewButtonColumn
+	public interface IDataGridScaleColumn
+	{
+		float ScaleFactor { get; set; }
+	}
+    public class EditTagsDataGridViewImageButtonColumn : DataGridViewButtonColumn, IDataGridScaleColumn
 	{
 		public EditTagsDataGridViewImageButtonColumn()
 		{
 			CellTemplate = new EditTagsDataGridViewImageButtonCell();
 		}
+
+		public float ScaleFactor { get; set; }
 	}
 
 	internal class EditTagsDataGridViewImageButtonCell : DataGridViewImageButtonCell

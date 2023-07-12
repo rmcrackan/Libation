@@ -8,9 +8,6 @@
 	<Panel Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 		<Grid Name="ratingsGrid"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0,0,0" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
 			<Grid.Styles>
-				<Style Selector="TextBlock">
-					<Setter Property="FontSize" Value="11" />
-				</Style>
 				<Style Selector="StackPanel > TextBlock">
 					<Setter Property="Padding" Value="0,0,-2,0" />
 				</Style>
