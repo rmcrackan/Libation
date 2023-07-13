@@ -54,6 +54,8 @@ namespace LibationUiBase.GridView
 					SynchronizationContext.SetSynchronizationContext(syncContext);
 
 					int length = int.Min(numPer, products.Length - start);
+					if (length < 1) return Array.Empty<IGridEntry>();
+
 					var result = new IGridEntry[length];
 
 					for (int j = 0; j < length; j++)

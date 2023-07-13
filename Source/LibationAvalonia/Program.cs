@@ -36,6 +36,7 @@ namespace LibationAvalonia
 			}
 			AppDomain.CurrentDomain.UnhandledException += (o, e) => LogError(e.ExceptionObject);
 
+			bool loggingEnabled = false;
 			//***********************************************//
 			//                                               //
 			//   do not use Configuration before this line   //
@@ -55,6 +56,7 @@ namespace LibationAvalonia
 					// most migrations go in here
 					LibationScaffolding.RunPostConfigMigrations(config);
 					LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
+					loggingEnabled = true;
 
 					//Start loading the library before loading the main form
 					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
@@ -64,9 +66,12 @@ namespace LibationAvalonia
 
 				classicLifetimeTask.Result.Start(null);
 			}
-			catch(Exception e)
+			catch (Exception ex)
 			{
-				LogError(e);
+				if (loggingEnabled)
+					Serilog.Log.Logger.Error(ex, "CRASH");
+				else
+					LogError(ex);
 			}
 		}
 
