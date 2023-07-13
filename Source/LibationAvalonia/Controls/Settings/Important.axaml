@@ -97,7 +97,8 @@
 
 		<controls:GroupBox
 			Grid.Row="2"
-			Margin="5">
+			Margin="5"
+			Label="Display Settings">
 			<Grid
 				RowDefinitions="Auto,Auto"
 				ColumnDefinitions="Auto,Auto,*">
