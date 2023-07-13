@@ -69,7 +69,6 @@
 			// 
 			this.lblPerform.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.lblPerform.AutoSize = true;
-			this.lblPerform.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.lblPerform.Location = new System.Drawing.Point(0, 16);
 			this.lblPerform.Margin = new System.Windows.Forms.Padding(0);
 			this.lblPerform.Name = "lblPerform";
@@ -103,7 +102,6 @@
 			// 
 			// noBorderLabel1
 			// 
-			this.noBorderLabel1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel1.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel1.Location = new System.Drawing.Point(0, 0);
 			this.noBorderLabel1.Name = "noBorderLabel1";
@@ -116,7 +114,6 @@
 			// 
 			// noBorderLabel2
 			// 
-			this.noBorderLabel2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel2.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel2.Location = new System.Drawing.Point(10, 0);
 			this.noBorderLabel2.Name = "noBorderLabel2";
@@ -129,7 +126,6 @@
 			// 
 			// noBorderLabel3
 			// 
-			this.noBorderLabel3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel3.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel3.Location = new System.Drawing.Point(20, 0);
 			this.noBorderLabel3.Name = "noBorderLabel3";
@@ -142,7 +138,6 @@
 			// 
 			// noBorderLabel4
 			// 
-			this.noBorderLabel4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel4.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel4.Location = new System.Drawing.Point(30, 0);
 			this.noBorderLabel4.Name = "noBorderLabel4";
@@ -155,7 +150,6 @@
 			// 
 			// noBorderLabel5
 			// 
-			this.noBorderLabel5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel5.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel5.Location = new System.Drawing.Point(40, 0);
 			this.noBorderLabel5.Name = "noBorderLabel5";
@@ -181,7 +175,6 @@
 			// 
 			// noBorderLabel6
 			// 
-			this.noBorderLabel6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel6.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel6.Location = new System.Drawing.Point(0, 0);
 			this.noBorderLabel6.Name = "noBorderLabel6";
@@ -194,7 +187,6 @@
 			// 
 			// noBorderLabel7
 			// 
-			this.noBorderLabel7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel7.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel7.Location = new System.Drawing.Point(10, 0);
 			this.noBorderLabel7.Name = "noBorderLabel7";
@@ -207,7 +199,6 @@
 			// 
 			// noBorderLabel8
 			// 
-			this.noBorderLabel8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel8.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel8.Location = new System.Drawing.Point(20, 0);
 			this.noBorderLabel8.Name = "noBorderLabel8";
@@ -220,7 +211,6 @@
 			// 
 			// noBorderLabel9
 			// 
-			this.noBorderLabel9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel9.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel9.Location = new System.Drawing.Point(30, 0);
 			this.noBorderLabel9.Name = "noBorderLabel9";
@@ -233,7 +223,6 @@
 			// 
 			// noBorderLabel10
 			// 
-			this.noBorderLabel10.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel10.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel10.Location = new System.Drawing.Point(40, 0);
 			this.noBorderLabel10.Name = "noBorderLabel10";
@@ -259,7 +248,6 @@
 			// 
 			// noBorderLabel11
 			// 
-			this.noBorderLabel11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel11.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel11.Location = new System.Drawing.Point(0, 0);
 			this.noBorderLabel11.Name = "noBorderLabel11";
@@ -272,7 +260,6 @@
 			// 
 			// noBorderLabel12
 			// 
-			this.noBorderLabel12.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel12.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel12.Location = new System.Drawing.Point(10, 0);
 			this.noBorderLabel12.Name = "noBorderLabel12";
@@ -285,7 +272,6 @@
 			// 
 			// noBorderLabel13
 			// 
-			this.noBorderLabel13.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel13.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel13.Location = new System.Drawing.Point(20, 0);
 			this.noBorderLabel13.Name = "noBorderLabel13";
@@ -298,7 +284,6 @@
 			// 
 			// noBorderLabel14
 			// 
-			this.noBorderLabel14.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel14.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel14.Location = new System.Drawing.Point(30, 0);
 			this.noBorderLabel14.Name = "noBorderLabel14";
@@ -311,7 +296,6 @@
 			// 
 			// noBorderLabel15
 			// 
-			this.noBorderLabel15.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.noBorderLabel15.LabelOffset = new System.Drawing.Point(-3, -3);
 			this.noBorderLabel15.Location = new System.Drawing.Point(40, 0);
 			this.noBorderLabel15.Name = "noBorderLabel15";

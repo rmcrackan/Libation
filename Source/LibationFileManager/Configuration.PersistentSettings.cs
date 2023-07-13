@@ -20,6 +20,8 @@ namespace LibationFileManager
 
 		private PersistentDictionary persistentDictionary;
 
+		public bool RemoveProperty(string propertyName) => persistentDictionary.RemoveProperty(propertyName);
+
 		public T GetNonString<T>(T defaultValue, [CallerMemberName] string propertyName = "") => persistentDictionary.GetNonString(propertyName, defaultValue);
 		public object GetObject([CallerMemberName] string propertyName = "") => persistentDictionary.GetObject(propertyName);
 		public string GetString(string defaultValue = null, [CallerMemberName] string propertyName = "") => persistentDictionary.GetString(propertyName, defaultValue);
@@ -78,6 +80,12 @@ namespace LibationFileManager
 
 		[Description("Save audiobook metadata to metadata.json")]
 		public bool SaveMetadataToFile { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+
+		[Description("Book display grid size")]
+		public float GridScaleFactor { get => float.Min(2, float.Max(0.5f, GetNonString(defaultValue: 1f))); set => SetNonString(value); }
+
+		[Description("Book display font size")]
+		public float GridFontScaleFactor { get => float.Min(2, float.Max(0.5f, GetNonString(defaultValue: 1f))); set => SetNonString(value); }
 
 		[Description("Use the beta version of Libation\r\nNew and experimental features, but probably buggy.\r\n(requires restart to take effect)")]
 		public bool BetaOptIn { get => GetNonString(defaultValue: false); set => SetNonString(value); }

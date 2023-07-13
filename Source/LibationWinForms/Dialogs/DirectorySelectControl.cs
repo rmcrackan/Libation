@@ -50,6 +50,12 @@ namespace LibationWinForms.Dialogs
 
 			return path;
 		}
+		protected override void OnResize(EventArgs e)
+		{
+			base.OnResize(e);
+			//For some reason anchors don't work when the parent form scales up, even with AutoScale
+			directoryComboBox.Width = textBox1.Width = Width;
+		}
 
 		private DirectoryComboBoxItem selectedItem => (DirectoryComboBoxItem)this.directoryComboBox.SelectedItem;
 

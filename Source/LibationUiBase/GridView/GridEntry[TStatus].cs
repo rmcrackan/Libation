@@ -120,7 +120,7 @@ namespace LibationUiBase.GridView
 			Misc = GetMiscDisplay(libraryBook);
 			LastDownload = new(Book.UserDefinedItem);
 			LongDescription = GetDescriptionDisplay(Book);
-			Description = TrimTextToWord(LongDescription, 62);
+			Description = LongDescription;// TrimTextToWord(LongDescription, 62);
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 			BookTags = GetBookTags();
 

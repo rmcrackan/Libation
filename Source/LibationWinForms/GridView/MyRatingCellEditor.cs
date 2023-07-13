@@ -37,6 +37,13 @@ namespace LibationWinForms.GridView
 		public MyRatingCellEditor()
 		{
 			InitializeComponent();
+			this.FontChanged += MyRatingCellEditor_FontChanged;
+		}
+
+		private void MyRatingCellEditor_FontChanged(object sender, EventArgs e)
+		{
+			var scale = Font.Size / 9;
+			Scale(new SizeF(scale, scale));
 		}
 
 		private void Star_MouseEnter(object sender, EventArgs e)

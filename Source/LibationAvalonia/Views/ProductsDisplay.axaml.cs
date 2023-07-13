@@ -2,7 +2,9 @@ using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Avalonia.Styling;
 using DataLayer;
+using Dinah.Core;
 using FileLiberator;
 using LibationAvalonia.Controls;
 using LibationAvalonia.Dialogs;
@@ -30,6 +32,25 @@ namespace LibationAvalonia.Views
 			InitializeComponent();
 			DataGridContextMenus.CellContextMenuStripNeeded += ProductsGrid_CellContextMenuStripNeeded;
 
+			var cellSelector = Selectors.Is<DataGridCell>(null);
+			rowHeightStyle = new Style(_ => cellSelector);
+			rowHeightStyle.Setters.Add(rowHeightSetter);
+
+			var tboxSelector = cellSelector.Descendant().Is<TextBlock>();
+			fontSizeStyle = new Style(_ => tboxSelector);
+			fontSizeStyle.Setters.Add(fontSizeSetter);
+
+			var tboxH1Selector = cellSelector.Child().Is<Panel>().Child().Is<TextBlock>().Class("h1");
+			fontSizeH1Style = new Style(_ => tboxH1Selector);
+			fontSizeH1Style.Setters.Add(fontSizeH1Setter);
+
+			var tboxH2Selector = cellSelector.Child().Is<Panel>().Child().Is<TextBlock>().Class("h2");
+			fontSizeH2Style = new Style(_ => tboxH2Selector);
+			fontSizeH2Style.Setters.Add(fontSizeH2Setter);
+
+			Configuration.Instance.PropertyChanged += Configuration_GridScaleChanged;
+			Configuration.Instance.PropertyChanged += Configuration_FontChanged;
+
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
@@ -54,9 +75,13 @@ namespace LibationAvalonia.Views
 				_ = pdvm.BindToGridAsync(sampleEntries);
 				DataContext = pdvm;
 
+				setGridScale(1);
+				setFontScale(1);
 				return;
 			}
 
+			setGridScale(Configuration.Instance.GridScaleFactor);
+			setFontScale(Configuration.Instance.GridFontScaleFactor);
 			Configure_ColumnCustomization();
 
 			foreach (var column in productsGrid.Columns)
@@ -67,12 +92,81 @@ namespace LibationAvalonia.Views
 
 		private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
 		{
-			if (sender is DataGridColumn col && e.Property.Name == nameof(DataGridColumn.IsVisible))
+			if (sender is DataGridColumn col && e.Property == DataGridColumn.IsVisibleProperty)
 			{
 				col.DisplayIndex = 0;
 				col.CanUserReorder = false;
 			}
 		}
+
+		#region Scaling
+
+		[PropertyChangeFilter(nameof(Configuration.GridScaleFactor))]
+		private void Configuration_GridScaleChanged(object sender, Dinah.Core.PropertyChangedEventArgsEx e)
+		{
+			setGridScale((float)e.NewValue);
+		}
+
+		[PropertyChangeFilter(nameof(Configuration.GridFontScaleFactor))]
+		private void Configuration_FontChanged(object sender, Dinah.Core.PropertyChangedEventArgsEx e)
+		{
+			setFontScale((float)e.NewValue);
+		}
+
+		private readonly Style rowHeightStyle;
+		private readonly Setter rowHeightSetter = new() { Property = DataGridCell.HeightProperty };
+
+		private readonly Style fontSizeStyle;
+		private readonly Setter fontSizeSetter = new() { Property = TextBlock.FontSizeProperty };
+
+		private readonly Style fontSizeH1Style;
+		private readonly Setter fontSizeH1Setter = new() { Property = TextBlock.FontSizeProperty };
+
+		private readonly Style fontSizeH2Style;
+		private readonly Setter fontSizeH2Setter = new() { Property = TextBlock.FontSizeProperty };
+
+		private void setFontScale(double scaleFactor)
+		{
+			const double TextBlockFontSize = 11;
+			const double H1FontSize = 14;
+			const double H2FontSize = 12;
+
+			fontSizeSetter.Value = TextBlockFontSize * scaleFactor;
+			fontSizeH1Setter.Value = H1FontSize * scaleFactor;
+			fontSizeH2Setter.Value = H2FontSize * scaleFactor;
+
+			productsGrid.Styles.Remove(fontSizeStyle);
+			productsGrid.Styles.Remove(fontSizeH1Style);
+			productsGrid.Styles.Remove(fontSizeH2Style);
+			productsGrid.Styles.Add(fontSizeStyle);
+			productsGrid.Styles.Add(fontSizeH1Style);
+			productsGrid.Styles.Add(fontSizeH2Style);
+		}
+
+		private void setGridScale(double scaleFactor)
+		{
+			const float BaseRowHeight = 80;
+			const float BaseLiberateWidth = 75;
+			const float BaseCoverWidth = 80;
+
+			foreach (var column in productsGrid.Columns)
+			{
+				switch (column.SortMemberPath)
+				{
+					case nameof(IGridEntry.Liberate):
+						column.Width = new DataGridLength(BaseLiberateWidth * scaleFactor);
+						break;
+					case nameof(IGridEntry.Cover):
+						column.Width = new DataGridLength(BaseCoverWidth * scaleFactor);
+						break;
+				}
+			}
+			rowHeightSetter.Value = BaseRowHeight * scaleFactor;
+			productsGrid.Styles.Remove(rowHeightStyle);
+			productsGrid.Styles.Add(rowHeightStyle);
+		}
+
+		#endregion
 
 		#region Cell Context Menu
 

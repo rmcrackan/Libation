@@ -4,12 +4,14 @@ using System.Windows.Forms;
 
 namespace LibationWinForms.GridView
 {
-	public class LiberateDataGridViewImageButtonColumn : DataGridViewButtonColumn
+	public class LiberateDataGridViewImageButtonColumn : DataGridViewButtonColumn, IDataGridScaleColumn
 	{
 		public LiberateDataGridViewImageButtonColumn()
 		{
 			CellTemplate = new LiberateDataGridViewImageButtonCell();
 		}
+
+		public float ScaleFactor { get; set; }
 	}
 
 	internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell

@@ -2,7 +2,7 @@
 
 namespace LibationWinForms.GridView
 {
-    partial class ProductsGrid
+	partial class ProductsGrid
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -30,254 +30,260 @@ namespace LibationWinForms.GridView
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
+			components = new System.ComponentModel.Container();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-			this.gridEntryDataGridView = new System.Windows.Forms.DataGridView();
-			this.removeGVColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-			this.liberateGVColumn = new LibationWinForms.GridView.LiberateDataGridViewImageButtonColumn();
-			this.coverGVColumn = new CoverGridViewColumn();
-			this.titleGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.authorsGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.narratorsGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.lengthGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.seriesGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.seriesOrderGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.descriptionGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.categoryGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.productRatingGVColumn = new LibationWinForms.GridView.MyRatingGridViewColumn();
-			this.purchaseDateGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.myRatingGVColumn = new LibationWinForms.GridView.MyRatingGridViewColumn();
-			this.miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.lastDownloadedGVColumn = new LastDownloadedGridViewColumn();
-			this.tagAndDetailsGVColumn = new LibationWinForms.GridView.EditTagsDataGridViewImageButtonColumn();
-			this.showHideColumnsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.syncBindingSource = new LibationWinForms.GridView.SyncBindingSource(this.components);
-			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).BeginInit();
-			this.SuspendLayout();
+			gridEntryDataGridView = new System.Windows.Forms.DataGridView();
+			removeGVColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+			liberateGVColumn = new LiberateDataGridViewImageButtonColumn();
+			coverGVColumn = new System.Windows.Forms.DataGridViewImageColumn();
+			titleGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			authorsGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			narratorsGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			lengthGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			seriesGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			seriesOrderGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			descriptionGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			categoryGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			productRatingGVColumn = new MyRatingGridViewColumn();
+			purchaseDateGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			myRatingGVColumn = new MyRatingGridViewColumn();
+			miscGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			lastDownloadedGVColumn = new LastDownloadedGridViewColumn();
+			tagAndDetailsGVColumn = new EditTagsDataGridViewImageButtonColumn();
+			showHideColumnsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
+			syncBindingSource = new SyncBindingSource(components);
+			((System.ComponentModel.ISupportInitialize)gridEntryDataGridView).BeginInit();
+			((System.ComponentModel.ISupportInitialize)syncBindingSource).BeginInit();
+			SuspendLayout();
 			// 
 			// gridEntryDataGridView
 			// 
-			this.gridEntryDataGridView.AllowUserToAddRows = false;
-			this.gridEntryDataGridView.AllowUserToDeleteRows = false;
-			this.gridEntryDataGridView.AllowUserToOrderColumns = true;
-			this.gridEntryDataGridView.AllowUserToResizeRows = false;
-			this.gridEntryDataGridView.AutoGenerateColumns = false;
-			this.gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.removeGVColumn,
-            this.liberateGVColumn,
-            this.coverGVColumn,
-            this.titleGVColumn,
-            this.authorsGVColumn,
-            this.narratorsGVColumn,
-            this.lengthGVColumn,
-            this.seriesGVColumn,
-			this.seriesOrderGVColumn,
-			this.descriptionGVColumn,
-            this.categoryGVColumn,
-            this.productRatingGVColumn,
-            this.purchaseDateGVColumn,
-            this.myRatingGVColumn,
-            this.miscGVColumn,
-			this.lastDownloadedGVColumn,
-			this.tagAndDetailsGVColumn});
-			this.gridEntryDataGridView.ContextMenuStrip = this.showHideColumnsContextMenuStrip;
-			this.gridEntryDataGridView.DataSource = this.syncBindingSource;
-			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-			dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-			dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-			dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-			dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-			dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-			this.gridEntryDataGridView.DefaultCellStyle = dataGridViewCellStyle1;
-			this.gridEntryDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gridEntryDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-			this.gridEntryDataGridView.Location = new System.Drawing.Point(0, 0);
-			this.gridEntryDataGridView.Name = "gridEntryDataGridView";
-			this.gridEntryDataGridView.RowHeadersVisible = false;
-			this.gridEntryDataGridView.RowTemplate.Height = 82;
-			this.gridEntryDataGridView.Size = new System.Drawing.Size(1570, 380);
-			this.gridEntryDataGridView.TabIndex = 0;
-			this.gridEntryDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentClick);
-			this.gridEntryDataGridView.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.gridEntryDataGridView_CellToolTipTextNeeded);
+			gridEntryDataGridView.AllowUserToAddRows = false;
+			gridEntryDataGridView.AllowUserToDeleteRows = false;
+			gridEntryDataGridView.AllowUserToOrderColumns = true;
+			gridEntryDataGridView.AllowUserToResizeRows = false;
+			gridEntryDataGridView.AutoGenerateColumns = false;
+			gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { removeGVColumn, liberateGVColumn, coverGVColumn, titleGVColumn, authorsGVColumn, narratorsGVColumn, lengthGVColumn, seriesGVColumn, seriesOrderGVColumn, descriptionGVColumn, categoryGVColumn, productRatingGVColumn, purchaseDateGVColumn, myRatingGVColumn, miscGVColumn, lastDownloadedGVColumn, tagAndDetailsGVColumn });
+			gridEntryDataGridView.ContextMenuStrip = showHideColumnsContextMenuStrip;
+			gridEntryDataGridView.DataSource = syncBindingSource;
+			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+			dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+			dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+			dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+			gridEntryDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
+			gridEntryDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+			gridEntryDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+			gridEntryDataGridView.Location = new System.Drawing.Point(0, 0);
+			gridEntryDataGridView.Margin = new System.Windows.Forms.Padding(6);
+			gridEntryDataGridView.Name = "gridEntryDataGridView";
+			gridEntryDataGridView.RowHeadersVisible = false;
+			gridEntryDataGridView.RowHeadersWidth = 82;
+			gridEntryDataGridView.RowTemplate.Height = 82;
+			gridEntryDataGridView.Size = new System.Drawing.Size(3140, 760);
+			gridEntryDataGridView.TabIndex = 0;
+			gridEntryDataGridView.CellContentClick += DataGridView_CellContentClick;
+			gridEntryDataGridView.CellToolTipTextNeeded += gridEntryDataGridView_CellToolTipTextNeeded;
 			// 
 			// removeGVColumn
 			// 
-			this.removeGVColumn.DataPropertyName = "Remove";
-			this.removeGVColumn.FalseValue = "";
-			this.removeGVColumn.Frozen = true;
-			this.removeGVColumn.HeaderText = "Remove";
-			this.removeGVColumn.IndeterminateValue = "";
-			this.removeGVColumn.MinimumWidth = 60;
-			this.removeGVColumn.Name = "removeGVColumn";
-			this.removeGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-			this.removeGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			this.removeGVColumn.ThreeState = true;
-			this.removeGVColumn.TrueValue = "";
-			this.removeGVColumn.Width = 60;
+			removeGVColumn.DataPropertyName = "Remove";
+			removeGVColumn.FalseValue = "";
+			removeGVColumn.Frozen = true;
+			removeGVColumn.HeaderText = "Remove";
+			removeGVColumn.IndeterminateValue = "";
+			removeGVColumn.MinimumWidth = 60;
+			removeGVColumn.Name = "removeGVColumn";
+			removeGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+			removeGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			removeGVColumn.ThreeState = true;
+			removeGVColumn.TrueValue = "";
+			removeGVColumn.Width = 60;
 			// 
 			// liberateGVColumn
 			// 
-			this.liberateGVColumn.DataPropertyName = "Liberate";
-			this.liberateGVColumn.HeaderText = "Liberate";
-			this.liberateGVColumn.Name = "liberateGVColumn";
-			this.liberateGVColumn.ReadOnly = true;
-			this.liberateGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-			this.liberateGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			this.liberateGVColumn.Width = 75;
+			liberateGVColumn.DataPropertyName = "Liberate";
+			liberateGVColumn.HeaderText = "Liberate";
+			liberateGVColumn.MinimumWidth = 10;
+			liberateGVColumn.Name = "liberateGVColumn";
+			liberateGVColumn.ReadOnly = true;
+			liberateGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+			liberateGVColumn.ScaleFactor = 0F;
+			liberateGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			liberateGVColumn.Width = 75;
 			// 
 			// coverGVColumn
 			// 
-			this.coverGVColumn.DataPropertyName = "Cover";
-			this.coverGVColumn.HeaderText = "Cover";
-			this.coverGVColumn.Name = "coverGVColumn";
-			this.coverGVColumn.ReadOnly = true;
-			this.coverGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-			this.coverGVColumn.ToolTipText = "Cover Art";
-			this.coverGVColumn.Width = 80;
+			coverGVColumn.DataPropertyName = "Cover";
+			coverGVColumn.HeaderText = "Cover";
+			coverGVColumn.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom;
+			coverGVColumn.MinimumWidth = 10;
+			coverGVColumn.Name = "coverGVColumn";
+			coverGVColumn.ReadOnly = true;
+			coverGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+			coverGVColumn.ToolTipText = "Cover Art";
+			coverGVColumn.Width = 80;
 			// 
 			// titleGVColumn
 			// 
-			this.titleGVColumn.DataPropertyName = "Title";
-			this.titleGVColumn.HeaderText = "Title";
-			this.titleGVColumn.Name = "titleGVColumn";
-			this.titleGVColumn.ReadOnly = true;
-			this.titleGVColumn.Width = 200;
+			titleGVColumn.DataPropertyName = "Title";
+			titleGVColumn.HeaderText = "Title";
+			titleGVColumn.MinimumWidth = 10;
+			titleGVColumn.Name = "titleGVColumn";
+			titleGVColumn.ReadOnly = true;
+			titleGVColumn.Width = 200;
 			// 
 			// authorsGVColumn
 			// 
-			this.authorsGVColumn.DataPropertyName = "Authors";
-			this.authorsGVColumn.HeaderText = "Authors";
-			this.authorsGVColumn.Name = "authorsGVColumn";
-			this.authorsGVColumn.ReadOnly = true;
-			this.authorsGVColumn.Width = 100;
+			authorsGVColumn.DataPropertyName = "Authors";
+			authorsGVColumn.HeaderText = "Authors";
+			authorsGVColumn.MinimumWidth = 10;
+			authorsGVColumn.Name = "authorsGVColumn";
+			authorsGVColumn.ReadOnly = true;
+			authorsGVColumn.Width = 100;
 			// 
 			// narratorsGVColumn
 			// 
-			this.narratorsGVColumn.DataPropertyName = "Narrators";
-			this.narratorsGVColumn.HeaderText = "Narrators";
-			this.narratorsGVColumn.Name = "narratorsGVColumn";
-			this.narratorsGVColumn.ReadOnly = true;
-			this.narratorsGVColumn.Width = 100;
+			narratorsGVColumn.DataPropertyName = "Narrators";
+			narratorsGVColumn.HeaderText = "Narrators";
+			narratorsGVColumn.MinimumWidth = 10;
+			narratorsGVColumn.Name = "narratorsGVColumn";
+			narratorsGVColumn.ReadOnly = true;
+			narratorsGVColumn.Width = 100;
 			// 
 			// lengthGVColumn
 			// 
-			this.lengthGVColumn.DataPropertyName = "Length";
-			this.lengthGVColumn.HeaderText = "Length";
-			this.lengthGVColumn.Name = "lengthGVColumn";
-			this.lengthGVColumn.ReadOnly = true;
-			this.lengthGVColumn.Width = 100;
-			this.lengthGVColumn.ToolTipText = "Recording Length";
+			lengthGVColumn.DataPropertyName = "Length";
+			lengthGVColumn.HeaderText = "Length";
+			lengthGVColumn.MinimumWidth = 10;
+			lengthGVColumn.Name = "lengthGVColumn";
+			lengthGVColumn.ReadOnly = true;
+			lengthGVColumn.ToolTipText = "Recording Length";
+			lengthGVColumn.Width = 100;
 			// 
 			// seriesGVColumn
 			// 
-			this.seriesGVColumn.DataPropertyName = "Series";
-			this.seriesGVColumn.HeaderText = "Series";
-			this.seriesGVColumn.Name = "seriesGVColumn";
-			this.seriesGVColumn.ReadOnly = true;
-			this.seriesGVColumn.Width = 100;
+			seriesGVColumn.DataPropertyName = "Series";
+			seriesGVColumn.HeaderText = "Series";
+			seriesGVColumn.MinimumWidth = 10;
+			seriesGVColumn.Name = "seriesGVColumn";
+			seriesGVColumn.ReadOnly = true;
+			seriesGVColumn.Width = 100;
 			// 
 			// seriesOrderGVColumn
 			// 
-			this.seriesOrderGVColumn.DataPropertyName = "SeriesOrder";
-			this.seriesOrderGVColumn.HeaderText = "Series\r\nOrder";
-			this.seriesOrderGVColumn.Name = "seriesOrderGVColumn";
-			this.seriesOrderGVColumn.Width = 60;
-			this.seriesOrderGVColumn.ReadOnly = true;
-			this.seriesOrderGVColumn.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			seriesOrderGVColumn.DataPropertyName = "SeriesOrder";
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			seriesOrderGVColumn.DefaultCellStyle = dataGridViewCellStyle1;
+			seriesOrderGVColumn.HeaderText = "Series\r\nOrder";
+			seriesOrderGVColumn.MinimumWidth = 10;
+			seriesOrderGVColumn.Name = "seriesOrderGVColumn";
+			seriesOrderGVColumn.ReadOnly = true;
+			seriesOrderGVColumn.Width = 60;
 			// 
 			// descriptionGVColumn
 			// 
-			this.descriptionGVColumn.DataPropertyName = "Description";
-			this.descriptionGVColumn.HeaderText = "Description";
-			this.descriptionGVColumn.Name = "descriptionGVColumn";
-			this.descriptionGVColumn.ReadOnly = true;
-			this.descriptionGVColumn.Width = 100;
-			this.descriptionGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+			descriptionGVColumn.DataPropertyName = "Description";
+			descriptionGVColumn.HeaderText = "Description";
+			descriptionGVColumn.MinimumWidth = 10;
+			descriptionGVColumn.Name = "descriptionGVColumn";
+			descriptionGVColumn.ReadOnly = true;
+			descriptionGVColumn.Width = 100;
 			// 
 			// categoryGVColumn
 			// 
-			this.categoryGVColumn.DataPropertyName = "Category";
-			this.categoryGVColumn.HeaderText = "Category";
-			this.categoryGVColumn.Name = "categoryGVColumn";
-			this.categoryGVColumn.ReadOnly = true;
-			this.categoryGVColumn.Width = 100;
+			categoryGVColumn.DataPropertyName = "Category";
+			categoryGVColumn.HeaderText = "Category";
+			categoryGVColumn.MinimumWidth = 10;
+			categoryGVColumn.Name = "categoryGVColumn";
+			categoryGVColumn.ReadOnly = true;
+			categoryGVColumn.Width = 100;
 			// 
 			// productRatingGVColumn
 			// 
-			this.productRatingGVColumn.DataPropertyName = "ProductRating";
-			this.productRatingGVColumn.HeaderText = "Product Rating";
-			this.productRatingGVColumn.Name = "productRatingGVColumn";
-			this.productRatingGVColumn.ReadOnly = true;
-			this.productRatingGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			this.productRatingGVColumn.Width = 112;
+			productRatingGVColumn.DataPropertyName = "ProductRating";
+			productRatingGVColumn.HeaderText = "Product Rating";
+			productRatingGVColumn.MinimumWidth = 10;
+			productRatingGVColumn.Name = "productRatingGVColumn";
+			productRatingGVColumn.ReadOnly = true;
+			productRatingGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			productRatingGVColumn.Width = 112;
 			// 
 			// purchaseDateGVColumn
 			// 
-			this.purchaseDateGVColumn.DataPropertyName = "PurchaseDate";
-			this.purchaseDateGVColumn.HeaderText = "Purchase Date";
-			this.purchaseDateGVColumn.Name = "purchaseDateGVColumn";
-			this.purchaseDateGVColumn.ReadOnly = true;
-			this.purchaseDateGVColumn.Width = 100;
+			purchaseDateGVColumn.DataPropertyName = "PurchaseDate";
+			purchaseDateGVColumn.HeaderText = "Purchase Date";
+			purchaseDateGVColumn.MinimumWidth = 10;
+			purchaseDateGVColumn.Name = "purchaseDateGVColumn";
+			purchaseDateGVColumn.ReadOnly = true;
+			purchaseDateGVColumn.Width = 100;
 			// 
 			// myRatingGVColumn
 			// 
-			this.myRatingGVColumn.DataPropertyName = "MyRating";
-			this.myRatingGVColumn.HeaderText = "My Rating";
-			this.myRatingGVColumn.Name = "myRatingGVColumn";
-			this.myRatingGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			this.myRatingGVColumn.Width = 112;
+			myRatingGVColumn.DataPropertyName = "MyRating";
+			myRatingGVColumn.HeaderText = "My Rating";
+			myRatingGVColumn.MinimumWidth = 10;
+			myRatingGVColumn.Name = "myRatingGVColumn";
+			myRatingGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			myRatingGVColumn.Width = 112;
 			// 
 			// miscGVColumn
 			// 
-			this.miscGVColumn.DataPropertyName = "Misc";
-			this.miscGVColumn.HeaderText = "Misc";
-			this.miscGVColumn.Name = "miscGVColumn";
-			this.miscGVColumn.ReadOnly = true;
-			this.miscGVColumn.Width = 140;
+			miscGVColumn.DataPropertyName = "Misc";
+			miscGVColumn.HeaderText = "Misc";
+			miscGVColumn.MinimumWidth = 10;
+			miscGVColumn.Name = "miscGVColumn";
+			miscGVColumn.ReadOnly = true;
+			miscGVColumn.Width = 140;
 			// 
 			// lastDownloadedGVColumn
 			// 
-			this.lastDownloadedGVColumn.DataPropertyName = "LastDownload";
-			this.lastDownloadedGVColumn.HeaderText = "Last Download";
-			this.lastDownloadedGVColumn.Name = "lastDownloadedGVColumn";
-			this.lastDownloadedGVColumn.ReadOnly = true;
-			this.lastDownloadedGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			this.lastDownloadedGVColumn.Width = 108;
+			lastDownloadedGVColumn.DataPropertyName = "LastDownload";
+			lastDownloadedGVColumn.HeaderText = "Last Download";
+			lastDownloadedGVColumn.MinimumWidth = 10;
+			lastDownloadedGVColumn.Name = "lastDownloadedGVColumn";
+			lastDownloadedGVColumn.ReadOnly = true;
+			lastDownloadedGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			lastDownloadedGVColumn.Width = 108;
 			// 
 			// tagAndDetailsGVColumn
 			// 
-			this.tagAndDetailsGVColumn.DataPropertyName = "BookTags";
-			this.tagAndDetailsGVColumn.HeaderText = "Tags and Details";
-			this.tagAndDetailsGVColumn.Name = "tagAndDetailsGVColumn";
-			this.tagAndDetailsGVColumn.ReadOnly = true;
-			this.tagAndDetailsGVColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-			this.tagAndDetailsGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-			this.tagAndDetailsGVColumn.Width = 100;
+			tagAndDetailsGVColumn.DataPropertyName = "BookTags";
+			tagAndDetailsGVColumn.HeaderText = "Tags and Details";
+			tagAndDetailsGVColumn.MinimumWidth = 10;
+			tagAndDetailsGVColumn.Name = "tagAndDetailsGVColumn";
+			tagAndDetailsGVColumn.ReadOnly = true;
+			tagAndDetailsGVColumn.ScaleFactor = 0F;
+			tagAndDetailsGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			tagAndDetailsGVColumn.Width = 100;
 			// 
 			// showHideColumnsContextMenuStrip
 			// 
-			this.showHideColumnsContextMenuStrip.Name = "contextMenuStrip1";
-			this.showHideColumnsContextMenuStrip.Size = new System.Drawing.Size(61, 4);
+			showHideColumnsContextMenuStrip.ImageScalingSize = new System.Drawing.Size(32, 32);
+			showHideColumnsContextMenuStrip.Name = "contextMenuStrip1";
+			showHideColumnsContextMenuStrip.ShowCheckMargin = true;
+			showHideColumnsContextMenuStrip.Size = new System.Drawing.Size(83, 4);
 			// 
 			// syncBindingSource
 			// 
-			this.syncBindingSource.DataSource = typeof(IGridEntry);
+			syncBindingSource.DataSource = typeof(IGridEntry);
 			// 
 			// ProductsGrid
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.AutoScroll = true;
-			this.Controls.Add(this.gridEntryDataGridView);
-			this.Name = "ProductsGrid";
-			this.Size = new System.Drawing.Size(1570, 380);
-			this.Load += new System.EventHandler(this.ProductsGrid_Load);
-			((System.ComponentModel.ISupportInitialize)(this.gridEntryDataGridView)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.syncBindingSource)).EndInit();
-			this.ResumeLayout(false);
+			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			AutoScroll = true;
+			Controls.Add(gridEntryDataGridView);
+			Name = "ProductsGrid";
+			Size = new System.Drawing.Size(1570, 380);
+			Load += new System.EventHandler(ProductsGrid_Load);
+			((System.ComponentModel.ISupportInitialize)(gridEntryDataGridView)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(syncBindingSource)).EndInit();
+			ResumeLayout(false);
 
 		}
 
@@ -288,7 +294,7 @@ namespace LibationWinForms.GridView
 		private SyncBindingSource syncBindingSource;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn removeGVColumn;
 		private LiberateDataGridViewImageButtonColumn liberateGVColumn;
-		private CoverGridViewColumn coverGVColumn;
+		private System.Windows.Forms.DataGridViewImageColumn coverGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn titleGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn authorsGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn narratorsGVColumn;

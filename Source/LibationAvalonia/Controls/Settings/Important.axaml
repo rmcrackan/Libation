@@ -2,18 +2,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="600"
 			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
 			 x:DataType="vm:ImportantSettingsVM"
              x:Class="LibationAvalonia.Controls.Settings.Important">
 
-	<Grid RowDefinitions="Auto,Auto,*">
+	<Grid RowDefinitions="Auto,Auto,Auto,*">
 		<controls:GroupBox
 			Grid.Row="0"
 			Margin="5"
 			Label="Books Location">
-			
+
 			<StackPanel>
 				<TextBlock
 					Margin="5"
@@ -35,7 +35,7 @@
 				<Grid
 					RowDefinitions="Auto,Auto"
 					ColumnDefinitions="Auto,*">
-					
+
 					<TextBlock
 						VerticalAlignment="Center"
 						Margin="0,0,10,0"
@@ -95,8 +95,62 @@
 
 		</StackPanel>
 
-		<Grid
+		<controls:GroupBox
 			Grid.Row="2"
+			Margin="5">
+			<Grid
+				RowDefinitions="Auto,Auto"
+				ColumnDefinitions="Auto,Auto,*">
+
+				<TextBlock
+					Margin="0,0,10,0"
+					VerticalAlignment="Center"
+					Text="{CompiledBinding GridScaleFactorText}"/>
+
+				<Slider
+					Grid.Column="1"
+					Width="200"
+					Value="{CompiledBinding GridScaleFactor, Mode=TwoWay}"
+					VerticalAlignment="Center"
+					Minimum="-100"
+					Maximum="100"
+					IsSnapToTickEnabled="False"
+					TickFrequency="25"
+					TickPlacement="BottomRight">
+				</Slider>
+
+				<TextBlock
+					Margin="0,0,10,0"
+					Grid.Row="1"
+					VerticalAlignment="Center"
+					Text="{CompiledBinding GridFontScaleFactorText}"/>
+
+				<Slider
+					Grid.Column="1"
+					Grid.Row="1"
+					Width="200"
+					Value="{CompiledBinding GridFontScaleFactor, Mode=TwoWay}"
+					VerticalAlignment="Center"
+					Minimum="-100"
+					Maximum="100"
+					IsSnapToTickEnabled="False"
+					TickFrequency="25"
+					TickPlacement="BottomRight">
+				</Slider>
+				<Button
+					Grid.Column="2"
+					Grid.Row="1"
+					HorizontalAlignment="Right"
+					Margin="0,5"
+					Padding="20,0"
+					VerticalAlignment="Stretch"
+					Content="Apply Display Settings"
+					Command="{CompiledBinding ApplyDisplaySettings}"/>
+			</Grid>
+		</controls:GroupBox>
+
+		<Grid
+			Grid.Row="3"
 			ColumnDefinitions="Auto,Auto,*"
 			Margin="10"
 			VerticalAlignment="Bottom">
@@ -111,7 +165,7 @@
 				MinWidth="80"
 				SelectedItem="{CompiledBinding ThemeVariant, Mode=TwoWay}"
 				ItemsSource="{CompiledBinding Themes}"/>
-			
+
 			<TextBlock
 				Grid.Column="2"
 				FontSize="16"

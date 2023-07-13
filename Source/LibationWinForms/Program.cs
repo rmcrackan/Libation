@@ -168,6 +168,17 @@ namespace LibationWinForms
 			// examples:
 			// - only supported in winforms. don't move to app scaffolding
 			// - long running. won't get a chance to finish in cli. don't move to app scaffolding
+
+			const string hasMigratedKey = "hasMigratedToHighDPI";
+			if (!config.GetNonString(defaultValue: false, hasMigratedKey))
+			{
+				config.RemoveProperty(nameof(config.GridColumnsWidths));
+
+				foreach (var form in typeof(Program).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(Form))))
+					config.RemoveProperty(form.Name);
+
+				config.SetNonString(true, hasMigratedKey);
+			}
 		}
 
 		private static void postLoggingGlobalExceptionHandling()

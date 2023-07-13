@@ -7,8 +7,10 @@ namespace LibationWinForms.GridView
 	{
 		protected void DrawButtonImage(Graphics graphics, Image image, Rectangle cellBounds)
 		{
-			var w = graphics.ScaleX(image.Width);
-			var h = graphics.ScaleY(image.Height);
+			var scaleFactor = OwningColumn is IDataGridScaleColumn scCol ? scCol.ScaleFactor : 1f;
+
+			var w = (int)float.Round(graphics.ScaleX(image.Width) * scaleFactor);
+			var h = (int)float.Round(graphics.ScaleY(image.Height) * scaleFactor);
 			var x = cellBounds.Left + (cellBounds.Width - w) / 2;
 			var y = cellBounds.Top + (cellBounds.Height - h) / 2;
 
