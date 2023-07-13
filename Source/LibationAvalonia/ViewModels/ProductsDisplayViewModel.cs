@@ -99,10 +99,10 @@ namespace LibationAvalonia.ViewModels
 
 			var seriesEntries = await SeriesEntry<AvaloniaEntryStatus>.GetAllSeriesEntriesAsync(dbBooks);
 
-			SOURCE.AddRange(geList.Concat(seriesEntries).OrderDescending(new RowComparer(null)));
-
 			//Create the filtered-in list before adding entries to avoid a refresh
 			FilteredInGridEntries = geList.Union(seriesEntries.SelectMany(s => s.Children)).FilterEntries(FilterString);
+			//Adding entries to the Source list will invoke CollectionFilter
+			SOURCE.AddRange(geList.Concat(seriesEntries).OrderDescending(new RowComparer(null)));
 
 			//Add all children beneath their parent
 			foreach (var series in seriesEntries)
