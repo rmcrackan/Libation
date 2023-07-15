@@ -51,18 +51,19 @@ namespace FileLiberator
 
 					var config = Configuration.Instance;
 					var lameConfig = GetLameOptions(config);
-
+					var chapters = m4bBook.GetChaptersFromMetadata();
 					//Finishing configuring lame encoder.
 					AaxDecrypter.MpegUtil.ConfigureLameOptions(
 						m4bBook,
 						lameConfig,
 						config.LameDownsampleMono,
-						config.LameMatchSourceBR);
+						config.LameMatchSourceBR,
+						chapters);
 
-					using var mp3File = File.OpenWrite(Path.GetTempFileName());
+					using var mp3File = File.Open(Path.GetTempFileName(), FileMode.OpenOrCreate, FileAccess.ReadWrite);
 					try
 					{
-						Mp4Operation = m4bBook.ConvertToMp3Async(mp3File, lameConfig);
+						Mp4Operation = m4bBook.ConvertToMp3Async(mp3File, lameConfig, chapters);
 						Mp4Operation.ConversionProgressUpdate += M4bBook_ConversionProgressUpdate;
 						await Mp4Operation;
 
