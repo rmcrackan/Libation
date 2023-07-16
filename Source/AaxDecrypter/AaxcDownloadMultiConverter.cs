@@ -21,6 +21,18 @@ namespace AaxDecrypter
 			AsyncSteps["Step 3: Download Clips and Bookmarks"] = Step_DownloadClipsBookmarksAsync;
 		}
 
+		protected override void OnInitialized()
+		{
+			//Finishing configuring lame encoder.
+			if (DownloadOptions.OutputFormat == OutputFormat.Mp3)
+				MpegUtil.ConfigureLameOptions(
+					AaxFile,
+					DownloadOptions.LameConfig,
+					DownloadOptions.Downsample,
+					DownloadOptions.MatchSourceBitrate,
+					chapters: null);
+		}
+
 		/*
 https://github.com/rmcrackan/Libation/pull/127#issuecomment-939088489
 

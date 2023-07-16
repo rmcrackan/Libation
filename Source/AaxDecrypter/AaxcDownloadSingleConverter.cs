@@ -3,7 +3,6 @@ using AAXClean.Codecs;
 using Dinah.Core.Net.Http;
 using FileManager;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -24,6 +23,18 @@ namespace AaxDecrypter
 				AsyncSteps[$"Step {step++}: Move moov atom to beginning"] = Step_MoveMoov;
 			AsyncSteps[$"Step {step++}: Download Clips and Bookmarks"] = Step_DownloadClipsBookmarksAsync;
 			AsyncSteps[$"Step {step++}: Create Cue"] = Step_CreateCueAsync;
+		}
+
+		protected override void OnInitialized()
+		{
+			//Finishing configuring lame encoder.
+			if (DownloadOptions.OutputFormat == OutputFormat.Mp3)
+				MpegUtil.ConfigureLameOptions(
+					AaxFile,
+					DownloadOptions.LameConfig,
+					DownloadOptions.Downsample,
+					DownloadOptions.MatchSourceBitrate,
+					DownloadOptions.ChapterInfo);
 		}
 
 		protected async override Task<bool> Step_DownloadAndDecryptAudiobookAsync()

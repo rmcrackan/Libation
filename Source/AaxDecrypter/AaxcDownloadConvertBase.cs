@@ -81,14 +81,7 @@ namespace AaxDecrypter
 					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "PART", part.ToString());
 			}
 
-			//Finishing configuring lame encoder.
-			if (DownloadOptions.OutputFormat == OutputFormat.Mp3)
-				MpegUtil.ConfigureLameOptions(
-					AaxFile,
-					DownloadOptions.LameConfig,
-					DownloadOptions.Downsample,
-					DownloadOptions.MatchSourceBitrate);
-
+			OnInitialized();
 			OnRetrievedTitle(AaxFile.AppleTags.TitleSansUnabridged);
 			OnRetrievedAuthors(AaxFile.AppleTags.FirstAuthor ?? "[unknown]");
 			OnRetrievedNarrators(AaxFile.AppleTags.Narrator ?? "[unknown]");
@@ -98,5 +91,7 @@ namespace AaxDecrypter
 
 			return !IsCanceled;
 		}
+
+		protected virtual void OnInitialized() { }
 	}
 }

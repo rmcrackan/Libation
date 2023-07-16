@@ -8,7 +8,12 @@ namespace AaxDecrypter
 	public static class MpegUtil
 	{
 		private const string TagDomain = "com.pilabor.tone";
-		public static void ConfigureLameOptions(Mp4File mp4File, LameConfig lameConfig, bool downsample, bool matchSourceBitrate)
+		public static void ConfigureLameOptions(
+			Mp4File mp4File,
+			LameConfig lameConfig,
+			bool downsample,
+			bool matchSourceBitrate,
+			ChapterInfo chapters)
 		{
 			double bitrateMultiple = 1;
 
@@ -53,6 +58,12 @@ namespace AaxDecrypter
 
 			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "PART") is string part)
 				lameConfig.ID3.UserDefinedText.Add("PART", part);
+
+			if (chapters?.Count > 0)
+			{
+				var cue = Cue.CreateContents(lameConfig.ID3.Title + ".mp3", chapters);
+				lameConfig.ID3.UserDefinedText.Add("CUESHEET", cue);
+			}
 		}
 	}
 }
