@@ -316,7 +316,7 @@
             this.scanningToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.scanningToolStripMenuItem.Enabled = false;
             this.scanningToolStripMenuItem.Image = global::LibationWinForms.Properties.Resources.import_16x16;
-            this.scanningToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.SizeToFit;
+            this.scanningToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.scanningToolStripMenuItem.Name = "scanningToolStripMenuItem";
             this.scanningToolStripMenuItem.Size = new System.Drawing.Size(93, 20);
             this.scanningToolStripMenuItem.Text = "Scanning...";

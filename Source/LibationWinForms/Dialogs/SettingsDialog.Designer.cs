@@ -428,9 +428,9 @@
 			// 
 			// applyDisplaySettingsBtn
 			// 
-			applyDisplaySettingsBtn.Location = new System.Drawing.Point(698, 34);
+			applyDisplaySettingsBtn.Location = new System.Drawing.Point(689, 26);
 			applyDisplaySettingsBtn.Name = "applyDisplaySettingsBtn";
-			applyDisplaySettingsBtn.Size = new System.Drawing.Size(140, 23);
+			applyDisplaySettingsBtn.Size = new System.Drawing.Size(148, 34);
 			applyDisplaySettingsBtn.TabIndex = 9;
 			applyDisplaySettingsBtn.Text = "Apply Display Settings";
 			applyDisplaySettingsBtn.UseVisualStyleBackColor = true;
