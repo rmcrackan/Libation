@@ -160,20 +160,15 @@ namespace FileLiberator
             {
                 var metadataFile = Templates.File.GetFilename(dlOptions.LibraryBookDto, Path.GetDirectoryName(outFileName), ".metadata.json");
 
-				saveMetadata(libraryBook, contentLic.ContentMetadata, metadataFile);
+                var item = await api.GetCatalogProductAsync(libraryBook.Book.AudibleProductId, AudibleApi.CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+				item.SourceJson.Add(nameof(ContentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(contentLic.ContentMetadata.ChapterInfo));
+				item.SourceJson.Add(nameof(ContentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(contentLic.ContentMetadata.ContentReference));
+
+				File.WriteAllText(metadataFile, item.SourceJson.ToString());
+				OnFileCreated(libraryBook, metadataFile);
 			}            
 			return success;
         }
-
-		private void saveMetadata(LibraryBook libraryBook, ContentMetadata contentMetadata, string fileName)
-		{
-            var export = Newtonsoft.Json.Linq.JObject.FromObject(LibToDtos.ToDtos(new[] { libraryBook })[0]);
-			export.Add(nameof(contentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(contentMetadata.ChapterInfo));
-			export.Add(nameof(contentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(contentMetadata.ContentReference));
-
-			File.WriteAllText(fileName, export.ToString());
-            OnFileCreated(libraryBook, fileName);
-		}
 
 		private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, ContentLicense contentLic)
         {
