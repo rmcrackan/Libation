@@ -116,7 +116,7 @@ namespace LibationUiBase.GridView
 			ProductRating = Book.Rating ?? new Rating(0, 0, 0);
 			Authors = Book.AuthorNames();
 			Narrators = Book.NarratorNames();
-			Category = string.Join(" > ", Book.CategoriesNames());
+			Category = string.Join(", ", Book.LowestCategoryNames());
 			Misc = GetMiscDisplay(libraryBook);
 			LastDownload = new(Book.UserDefinedItem);
 			LongDescription = GetDescriptionDisplay(Book);

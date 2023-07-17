@@ -72,9 +72,10 @@ namespace DataLayer.Configurations
                 .SetPropertyAccessMode(PropertyAccessMode.Field);
 
             entity
-                .HasOne(b => b.Category)
-                .WithMany()
-                .HasForeignKey(b => b.CategoryId);
+                .Metadata
+                .FindNavigation(nameof(Book.CategoriesLink))
+				// PropertyAccessMode.Field : Categories is a get-only property, not a field, so use its backing field
+				.SetPropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

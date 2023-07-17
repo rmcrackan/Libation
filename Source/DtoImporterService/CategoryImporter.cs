@@ -12,7 +12,8 @@ namespace DtoImporterService
 	{
 		protected override IValidator Validator => new CategoryValidator();
 
-		public Dictionary<string, Category> Cache { get; private set; } = new();
+		private Dictionary<string, Category> Cache { get; set; } = new();
+		public HashSet<DataLayer.CategoryLadder> LadderCache { get; private set; } = new();
 
 		public CategoryImporter(LibationContext context) : base(context) { }
 
@@ -30,44 +31,39 @@ namespace DtoImporterService
 			loadLocal_categories(categoryIds);
 
 			// upsert
-			var categoryPairs = importItems
-				.Select(i => i.DtoItem)
-				.GetCategoryPairsDistinct()
+			var categoryLadders = importItems
+				.SelectMany(i => i.DtoItem.CategoryLadders)
+				.Select(cl => cl.Ladder)
+				.Where(l => l?.Length > 0)
 				.ToList();
-			var qtyNew = upsertCategories(categoryPairs);
+
+			var qtyNew = upsertCategories(categoryLadders);
 			return qtyNew;
 		}
 
 		private void loadLocal_categories(List<string> categoryIds)
 		{
-			// must include default/empty/missing
-			categoryIds.Add(Category.GetEmpty().AudibleCategoryId);
-
 			// load existing => local
 			Cache = DbContext.Categories
 				.Where(c => categoryIds.Contains(c.AudibleCategoryId))
 				.ToDictionarySafe(c => c.AudibleCategoryId);
+
+			LadderCache = DbContext.CategoryLadders.ToHashSet();
 		}
 
 		// only use after loading contributors => local
-		private int upsertCategories(List<Ladder[]> categoryPairs)
+		private int upsertCategories(List<Ladder[]> ladders)
 		{
 			var qtyNew = 0;
 
-			foreach (var pair in categoryPairs)
+			foreach (var ladder in ladders)
 			{
-				for (var i = 0; i < pair.Length; i++)
+				var categories = new List<Category>(ladder.Length);
+
+				for (var i = 0; i < ladder.Length; i++)
 				{
-					// CATEGORY HACK: not yet supported: depth beyond 0 and 1
-					if (i > 1)
-						break;
-
-					var id = pair[i].CategoryId;
-					var name = pair[i].CategoryName;
-
-					Category parentCategory = null;
-					if (i == 1)
-						Cache.TryGetValue(pair[0].CategoryId, out parentCategory);
+					var id = ladder[i].CategoryId;
+					var name = ladder[i].CategoryName;
 
 					if (!Cache.TryGetValue(id, out var category))
 					{
@@ -75,11 +71,35 @@ namespace DtoImporterService
 						qtyNew++;
 					}
 
-					category.UpdateParentCategory(parentCategory);
+					categories.Add(category);
+				}
+
+				var categoryLadder = new DataLayer.CategoryLadder(categories);
+				if (!LadderCache.Contains(categoryLadder))
+				{
+					addCategoryLadder(categoryLadder);
+					qtyNew++;
 				}
 			}
 
 			return qtyNew;
+		}
+
+		private DataLayer.CategoryLadder addCategoryLadder(DataLayer.CategoryLadder categoryList)
+		{
+			try
+			{
+				var entityEntry = DbContext.CategoryLadders.Add(categoryList);
+				var entity = entityEntry.Entity;
+
+				LadderCache.Add(entity);
+				return entity;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error adding category ladder. {@DebugInfo}", categoryList);
+				throw;
+			}
 		}
 
 		private Category addCategory(string id, string name)

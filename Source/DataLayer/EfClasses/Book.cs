@@ -55,10 +55,6 @@ namespace DataLayer
         public DateTime? DatePublished { get; private set; }
         public string Language { get; private set; }
 
-        // non-null. use "empty pattern"
-        internal int CategoryId { get; private set; }
-        public Category Category { get; private set; }
-
         // is owned, not optional 1:1
         public UserDefinedItem UserDefinedItem { get; private set; }
 
@@ -79,7 +75,6 @@ namespace DataLayer
             ContentType contentType,
 			IEnumerable<Contributor> authors,
 			IEnumerable<Contributor> narrators,
-			Category category,
             string localeName)
         {
             // validate
@@ -96,10 +91,9 @@ namespace DataLayer
             // non-ef-ctor init.s
             UserDefinedItem = new UserDefinedItem(this);
             _contributorsLink = new HashSet<BookContributor>();
+            _categoriesLink = new HashSet<BookCategory>();
             _seriesLink = new HashSet<SeriesBook>();
             _supplements = new HashSet<Supplement>();
-
-			Category = category;
 
             // simple assigns
             UpdateTitle(title, subtitle);
@@ -182,9 +176,30 @@ namespace DataLayer
 
 			return entry;
 		}
+		#region categories
+		private HashSet<BookCategory> _categoriesLink;
+		public IEnumerable<BookCategory> CategoriesLink => _categoriesLink?.ToList();
+		public void UpsertCategories(CategoryLadder ladder)
+		{
+			ArgumentValidator.EnsureNotNull(ladder, nameof(ladder));
 
-        #region series
-        private HashSet<SeriesBook> _seriesLink;
+			var singleBookCategory = _categoriesLink.SingleOrDefault(bc => bc.CategoryLadder.Equals(ladder));
+
+			if (singleBookCategory is null)
+				_categoriesLink.Add(new BookCategory(this, ladder));
+            else
+            {
+                for (var i = 0; i < ladder._categories.Count; i++)
+                {
+                    //Update the category name
+					singleBookCategory.CategoryLadder._categories[i].Name = ladder._categories[i].Name;
+				}
+            }
+		}
+		#endregion
+
+		#region series
+		private HashSet<SeriesBook> _seriesLink;
         public IEnumerable<SeriesBook> SeriesLink => _seriesLink?.ToList();
 
         public void UpsertSeries(Series series, string order, DbContext context = null)
@@ -232,15 +247,6 @@ namespace DataLayer
             IsAbridged |= isAbridged;
             DatePublished = datePublished ?? DatePublished;
             Language = language?.FirstCharToUpper() ?? Language;
-        }
-
-        public void UpdateCategory(Category category, DbContext context = null)
-		{
-			// since category is never null, nullity means it hasn't been loaded
-			if (Category is null)
-				getEntry(context).Reference(s => s.Category).Load();
-
-			Category = category;
         }
 
         public override string ToString() => $"[{AudibleProductId}] {TitleWithSubtitle}";

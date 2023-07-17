@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Dinah.Core;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataLayer
 {
@@ -15,20 +12,20 @@ namespace DataLayer
             Id = id;
         }
     }
+
     public class Category
     {
-        // Empty is a special case. use private ctor w/o validation
-        public static Category GetEmpty() => new() { CategoryId = -1, AudibleCategoryId = "", Name = "" };
-
         internal int CategoryId { get; private set; }
         public string AudibleCategoryId { get; private set; }
 
-        public string Name { get; private set; }
-        public Category ParentCategory { get; private set; }
+        public string Name { get; internal set; }
 
-        private Category() { }
+        internal List<CategoryLadder> _categoryLadders = new();
+        public IReadOnlyCollection<CategoryLadder> CategoryLadders => _categoryLadders.AsReadOnly();
+
+		private Category() { }
         /// <summary>special id class b/c it's too easy to get string order mixed up</summary>
-        public Category(AudibleCategoryId audibleSeriesId, string name, Category parentCategory = null)
+        public Category(AudibleCategoryId audibleSeriesId, string name)
         {
             ArgumentValidator.EnsureNotNull(audibleSeriesId, nameof(audibleSeriesId));
             var id = audibleSeriesId.Id;
@@ -37,15 +34,6 @@ namespace DataLayer
 
             AudibleCategoryId = id;
             Name = name;
-
-            UpdateParentCategory(parentCategory);
-        }
-
-        public void UpdateParentCategory(Category parentCategory)
-        {
-            // don't overwrite with null but not an error
-            if (parentCategory is not null)
-                ParentCategory = parentCategory;
         }
 
 		public override string ToString() => $"[{AudibleCategoryId}] {Name}";
