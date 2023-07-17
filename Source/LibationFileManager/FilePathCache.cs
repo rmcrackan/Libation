@@ -56,11 +56,11 @@ namespace LibationFileManager
 			?.FirstOrDefault()
 			?.Path;
 
-		private static List<CacheEntry> getEntries(Func<CacheEntry, bool> predicate)
+		private static IEnumerable<CacheEntry> getEntries(Func<CacheEntry, bool> predicate)
 		{
 			var entries = cache.Where(predicate).ToList();
 			if (entries is null || !entries.Any())
-				return null;
+				return Enumerable.Empty<CacheEntry>();
 
 			remove(entries.Where(e => !File.Exists(e.Path)).ToList());
 
