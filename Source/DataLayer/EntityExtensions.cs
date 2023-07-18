@@ -61,7 +61,15 @@ namespace DataLayer
                 .Distinct()
                 .ToArray();
 
-		public static string[] CategoriesIds(this Book book)
+        public static string[] AllCategoryNames(this Book book)
+            => book.CategoriesLink?.Any() is not true ? Array.Empty<string>()
+            : book
+                .CategoriesLink
+                .SelectMany(cl => cl.CategoryLadder.Categories)
+                .Select(c => c.Name)
+                .ToArray();
+
+		public static string[] AllCategoryIds(this Book book)
             => book.CategoriesLink?.Any() is not true ? null
             : book
                 .CategoriesLink
