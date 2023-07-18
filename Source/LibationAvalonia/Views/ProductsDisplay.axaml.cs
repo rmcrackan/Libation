@@ -536,7 +536,7 @@ namespace LibationAvalonia.Views
 				var displayWindow = new DescriptionDisplayDialog
 				{
 					SpawnLocation = new Point(pt.X, pt.Y),
-					DescriptionText = gEntry.LongDescription,
+					DescriptionText = gEntry.Description,
 				};
 
 				void CloseWindow(object o, DataGridRowEventArgs e)

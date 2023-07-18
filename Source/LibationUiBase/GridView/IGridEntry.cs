@@ -10,7 +10,6 @@ namespace LibationUiBase.GridView
 		EntryStatus Liberate { get; }
 		float SeriesIndex { get; }
 		string AudibleProductId { get; }
-		string LongDescription { get; }
 		LibraryBook LibraryBook { get; }
 		Book Book { get; }
 		DateTime DateAdded { get; }

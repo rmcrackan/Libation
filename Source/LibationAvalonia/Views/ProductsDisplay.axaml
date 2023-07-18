@@ -148,7 +148,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
-				<controls:DataGridTemplateColumnExt MinWidth="100" Width="1*" Header="Description" CanUserSort="True" SortMemberPath="Description" ClipboardContentBinding="{Binding LongDescription}">
+				<controls:DataGridTemplateColumnExt MinWidth="100" Width="1*" Header="Description" CanUserSort="True" SortMemberPath="Description" ClipboardContentBinding="{Binding Description}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
 							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
