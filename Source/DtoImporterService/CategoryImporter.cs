@@ -12,23 +12,15 @@ namespace DtoImporterService
 	{
 		protected override IValidator Validator => new CategoryValidator();
 
-		private Dictionary<string, Category> Cache { get; set; } = new();
+		private Dictionary<string, Category> CategoryCache { get; set; } = new();
 		public HashSet<DataLayer.CategoryLadder> LadderCache { get; private set; } = new();
 
 		public CategoryImporter(LibationContext context) : base(context) { }
 
 		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
-			// get distinct
-			var categoryIds = importItems
-				.Select(i => i.DtoItem)
-				.GetCategoriesDistinct()
-				.Select(c => c.CategoryId)
-				.Distinct()
-				.ToList();
-
 			// load db existing => .Local
-			loadLocal_categories(categoryIds);
+			loadLocal_categories();
 
 			// upsert
 			var categoryLadders = importItems
@@ -41,14 +33,11 @@ namespace DtoImporterService
 			return qtyNew;
 		}
 
-		private void loadLocal_categories(List<string> categoryIds)
+		private void loadLocal_categories()
 		{
 			// load existing => local
-			Cache = DbContext.Categories
-				.Where(c => categoryIds.Contains(c.AudibleCategoryId))
-				.ToDictionarySafe(c => c.AudibleCategoryId);
-
-			LadderCache = DbContext.CategoryLadders.ToHashSet();
+			LadderCache = DbContext.GetCategoryLadders().ToHashSet();
+			CategoryCache = LadderCache.SelectMany(cl => cl.Categories).ToDictionarySafe(c => c.AudibleCategoryId);
 		}
 
 		// only use after loading contributors => local
@@ -65,10 +54,9 @@ namespace DtoImporterService
 					var id = ladder[i].CategoryId;
 					var name = ladder[i].CategoryName;
 
-					if (!Cache.TryGetValue(id, out var category))
+					if (!CategoryCache.TryGetValue(id, out var category))
 					{
 						category = addCategory(id, name);
-						qtyNew++;
 					}
 
 					categories.Add(category);
@@ -111,7 +99,7 @@ namespace DtoImporterService
 				var entityEntry = DbContext.Categories.Add(category);
 				var entity = entityEntry.Entity;
 
-				Cache.Add(entity.AudibleCategoryId, entity);
+				CategoryCache.Add(entity.AudibleCategoryId, entity);
 				return entity;
 			}
 			catch (Exception ex)

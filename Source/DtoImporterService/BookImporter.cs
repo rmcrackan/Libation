@@ -188,13 +188,15 @@ namespace DtoImporterService
 
 			if (item.CategoryLadders is not null)
 			{
+				var ladders = new List<DataLayer.CategoryLadder>();
 				foreach (var ladder in item.CategoryLadders.Select(cl => cl.Ladder).Where(l => l?.Length > 0))
 				{
 					var categoryIds = ladder.Select(l => l.CategoryId).ToList();
-					var cata = categoryImporter.LadderCache.Single(c => c.Equals(categoryIds));
-
-					book.UpsertCategories(cata);
+					ladders.Add(categoryImporter.LadderCache.Single(c => c.Equals(categoryIds)));
 				}
+				//Set all ladders at once so ladders that have been
+				//removed by audible can be removed from the DB
+				book.SetCategoryLadders(ladders);
 			}
 		}
 

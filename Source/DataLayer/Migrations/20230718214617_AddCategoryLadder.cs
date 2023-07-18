@@ -5,7 +5,7 @@
 namespace DataLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCategoriesList : Migration
+    public partial class AddCategoryLadder : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,6 +25,11 @@ namespace DataLayer.Migrations
             migrationBuilder.DropIndex(
                 name: "IX_Books_CategoryId",
                 table: "Books");
+
+            migrationBuilder.DeleteData(
+                table: "Categories",
+                keyColumn: "CategoryId",
+                keyValue: -1);
 
             migrationBuilder.DropColumn(
                 name: "ParentCategoryCategoryId",
@@ -94,11 +99,6 @@ namespace DataLayer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "CategoryLadders",
-                column: "CategoryLadderId",
-                value: -1);
-
             migrationBuilder.CreateIndex(
                 name: "IX_BookCategory_BookId",
                 table: "BookCategory",
@@ -140,12 +140,10 @@ namespace DataLayer.Migrations
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.UpdateData(
+            migrationBuilder.InsertData(
                 table: "Categories",
-                keyColumn: "CategoryId",
-                keyValue: -1,
-                column: "ParentCategoryCategoryId",
-                value: null);
+                columns: new[] { "CategoryId", "AudibleCategoryId", "Name", "ParentCategoryCategoryId" },
+                values: new object[] { -1, "", "", null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_ParentCategoryCategoryId",

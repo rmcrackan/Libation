@@ -141,14 +141,6 @@ namespace DataLayer.Migrations
                     b.HasIndex("AudibleCategoryId");
 
                     b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            CategoryId = -1,
-                            AudibleCategoryId = "",
-                            Name = ""
-                        });
                 });
 
             modelBuilder.Entity("DataLayer.CategoryLadder", b =>
@@ -160,12 +152,6 @@ namespace DataLayer.Migrations
                     b.HasKey("CategoryLadderId");
 
                     b.ToTable("CategoryLadders");
-
-                    b.HasData(
-                        new
-                        {
-                            CategoryLadderId = -1
-                        });
                 });
 
             modelBuilder.Entity("DataLayer.Contributor", b =>

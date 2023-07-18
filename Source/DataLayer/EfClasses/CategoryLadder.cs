@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
+#nullable enable
 namespace DataLayer
 {
 	public class CategoryLadder : IEquatable<CategoryLadder>
@@ -11,10 +12,19 @@ namespace DataLayer
 		internal int CategoryLadderId { get; private set; }
 
 		internal List<Category> _categories;
-		public ReadOnlyCollection<Category> Categories => _categories.AsReadOnly();
+		private ReadOnlyCollection<Category>? _categoriesReadOnly;
+		public ReadOnlyCollection<Category> Categories
+		{
+			get
+			{
+				if (_categoriesReadOnly?.SequenceEqual(_categories) is not true)
+					_categoriesReadOnly = _categories.AsReadOnly();
+				return _categoriesReadOnly;
+			}
+		}
 
-		private HashSet<BookCategory> _booksLink;
-		public IEnumerable<BookCategory> BooksLink => _booksLink?.ToList();
+		private HashSet<BookCategory>? _booksLink;
+		public IEnumerable<BookCategory>? BooksLink => _booksLink?.ToList();
 		private CategoryLadder() { _categories = new(); }
 		public CategoryLadder(List<Category> categories)
 		{
@@ -32,16 +42,16 @@ namespace DataLayer
 			return hashCode.ToHashCode();
 		}
 
-		public bool Equals(CategoryLadder other)
-		{
-			if (other?._categories is null)
-				return false;
+		public bool Equals(CategoryLadder? other)
+			=> other?._categories is not null
+			&& Equals(other._categories.Select(c => c.AudibleCategoryId));
 
-			return Equals(other._categories.Select(c => c.AudibleCategoryId));
-		}
-		public bool Equals(IEnumerable<string> categoryIds)
-			=> _categories.Select(c => c.AudibleCategoryId).SequenceEqual(categoryIds);
-		public override bool Equals(object obj) => obj is CategoryLadder other && Equals(other);
+		public bool Equals(IEnumerable<string?>? categoryIds)
+			=> categoryIds is not null
+			&& _categories.Select(c => c.AudibleCategoryId).SequenceEqual(categoryIds);
+
+		public override bool Equals(object? obj)
+			=> obj is CategoryLadder other && Equals(other);
 
 		public override string ToString() => string.Join(" > ", _categories.Select(c => c.Name));
 	}

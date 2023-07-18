@@ -7,8 +7,13 @@ using System.Threading.Tasks;
 namespace DataLayer
 {
     public static class EntityExtensions
-    {
-        public static string TitleSortable(this Book book) => Formatters.GetSortName(book.Title + book.Subtitle);
+	{
+		public static IEnumerable<BookContributor> ByRole(this IEnumerable<BookContributor> contributors, Role role)
+			=> contributors
+				.Where(a => a.Role == role)
+				.OrderBy(a => a.Order);
+
+		public static string TitleSortable(this Book book) => Formatters.GetSortName(book.Title + book.Subtitle);
 
         public static string AuthorNames(this Book book) => string.Join(", ", book.Authors.Select(a => a.Name));
         public static string NarratorNames(this Book book) => string.Join(", ", book.Narrators.Select(n => n.Name));

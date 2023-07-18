@@ -21,10 +21,7 @@ namespace DataLayer.Configurations
             entity.Ignore(nameof(Book.Narrators));
             entity.Ignore(nameof(Book.AudioFormat));
             entity.Ignore(nameof(Book.TitleWithSubtitle));
-            //// these don't seem to matter
-            //entity.Ignore(nameof(Book.AuthorNames));
-            //entity.Ignore(nameof(Book.NarratorNames));
-            //entity.Ignore(nameof(Book.HasPdfs));
+            entity.Ignore(b => b.Categories);
 
             // OwnsMany: "Can only ever appear on navigation properties of other entity types.
             //  Are automatically loaded, and can only be tracked by a DbContext alongside their owner."
@@ -58,24 +55,6 @@ namespace DataLayer.Configurations
                     // owns it 1:1, store in same table
                     b_udi.OwnsOne(udi => udi.Rating);
                 });
-
-            entity
-                .Metadata
-                .FindNavigation(nameof(Book.ContributorsLink))
-                // PropertyAccessMode.Field : Contributions is a get-only property, not a field, so use its backing field
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
-
-            entity
-                .Metadata
-                .FindNavigation(nameof(Book.SeriesLink))
-                // PropertyAccessMode.Field : Series is a get-only property, not a field, so use its backing field
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
-
-            entity
-                .Metadata
-                .FindNavigation(nameof(Book.CategoriesLink))
-				// PropertyAccessMode.Field : Categories is a get-only property, not a field, so use its backing field
-				.SetPropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }
