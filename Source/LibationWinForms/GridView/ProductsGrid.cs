@@ -362,12 +362,17 @@ namespace LibationWinForms.GridView
 					seriesEntry.UpdateLibraryBook(seriesBook);
 				}
 
+				//Series entry must be expanded so its child can
+				//be placed in the correct position beneath it.
+				var isExpanded = seriesEntry.Liberate.Expanded;
+				bindingList.ExpandItem(seriesEntry);
+
 				//Add episode to the grid beneath the parent
 				int seriesIndex = bindingList.IndexOf(seriesEntry);
 				int episodeIndex = seriesEntry.Children.IndexOf(episodeEntry);
 				bindingList.Insert(seriesIndex + 1 + episodeIndex, episodeEntry);
 
-				if (seriesEntry.Liberate.Expanded)
+				if (isExpanded)
 					bindingList.ExpandItem(seriesEntry);
 				else
 					bindingList.CollapseItem(seriesEntry);
