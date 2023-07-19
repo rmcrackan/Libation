@@ -140,7 +140,7 @@ namespace FileLiberator
                     new AaxcDownloadSingleConverter(outFileName, cacheDir, dlOptions);
 
                 if (config.AllowLibationFixup)
-                    converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.CategoriesNames());
+                    converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.LowestCategoryNames());
 
                 abDownloader = converter;
             }

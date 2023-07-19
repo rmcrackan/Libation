@@ -12,74 +12,82 @@ namespace DtoImporterService
 	{
 		protected override IValidator Validator => new CategoryValidator();
 
-		public Dictionary<string, Category> Cache { get; private set; } = new();
+		private Dictionary<string, Category> CategoryCache { get; set; } = new();
+		public HashSet<DataLayer.CategoryLadder> LadderCache { get; private set; } = new();
 
 		public CategoryImporter(LibationContext context) : base(context) { }
 
 		protected override int DoImport(IEnumerable<ImportItem> importItems)
 		{
-			// get distinct
-			var categoryIds = importItems
-				.Select(i => i.DtoItem)
-				.GetCategoriesDistinct()
-				.Select(c => c.CategoryId)
-				.Distinct()
-				.ToList();
-
 			// load db existing => .Local
-			loadLocal_categories(categoryIds);
+			loadLocal_categories();
 
 			// upsert
-			var categoryPairs = importItems
-				.Select(i => i.DtoItem)
-				.GetCategoryPairsDistinct()
+			var categoryLadders = importItems
+				.SelectMany(i => i.DtoItem.CategoryLadders)
+				.Select(cl => cl.Ladder)
+				.Where(l => l?.Length > 0)
 				.ToList();
-			var qtyNew = upsertCategories(categoryPairs);
+
+			var qtyNew = upsertCategories(categoryLadders);
 			return qtyNew;
 		}
 
-		private void loadLocal_categories(List<string> categoryIds)
+		private void loadLocal_categories()
 		{
-			// must include default/empty/missing
-			categoryIds.Add(Category.GetEmpty().AudibleCategoryId);
-
 			// load existing => local
-			Cache = DbContext.Categories
-				.Where(c => categoryIds.Contains(c.AudibleCategoryId))
-				.ToDictionarySafe(c => c.AudibleCategoryId);
+			LadderCache = DbContext.GetCategoryLadders().ToHashSet();
+			CategoryCache = LadderCache.SelectMany(cl => cl.Categories).ToDictionarySafe(c => c.AudibleCategoryId);
 		}
 
 		// only use after loading contributors => local
-		private int upsertCategories(List<Ladder[]> categoryPairs)
+		private int upsertCategories(List<Ladder[]> ladders)
 		{
 			var qtyNew = 0;
 
-			foreach (var pair in categoryPairs)
+			foreach (var ladder in ladders)
 			{
-				for (var i = 0; i < pair.Length; i++)
+				var categories = new List<Category>(ladder.Length);
+
+				for (var i = 0; i < ladder.Length; i++)
 				{
-					// CATEGORY HACK: not yet supported: depth beyond 0 and 1
-					if (i > 1)
-						break;
+					var id = ladder[i].CategoryId;
+					var name = ladder[i].CategoryName;
 
-					var id = pair[i].CategoryId;
-					var name = pair[i].CategoryName;
-
-					Category parentCategory = null;
-					if (i == 1)
-						Cache.TryGetValue(pair[0].CategoryId, out parentCategory);
-
-					if (!Cache.TryGetValue(id, out var category))
+					if (!CategoryCache.TryGetValue(id, out var category))
 					{
 						category = addCategory(id, name);
-						qtyNew++;
 					}
 
-					category.UpdateParentCategory(parentCategory);
+					categories.Add(category);
+				}
+
+				var categoryLadder = new DataLayer.CategoryLadder(categories);
+				if (!LadderCache.Contains(categoryLadder))
+				{
+					addCategoryLadder(categoryLadder);
+					qtyNew++;
 				}
 			}
 
 			return qtyNew;
+		}
+
+		private DataLayer.CategoryLadder addCategoryLadder(DataLayer.CategoryLadder categoryList)
+		{
+			try
+			{
+				var entityEntry = DbContext.CategoryLadders.Add(categoryList);
+				var entity = entityEntry.Entity;
+
+				LadderCache.Add(entity);
+				return entity;
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Logger.Error(ex, "Error adding category ladder. {@DebugInfo}", categoryList);
+				throw;
+			}
 		}
 
 		private Category addCategory(string id, string name)
@@ -91,7 +99,7 @@ namespace DtoImporterService
 				var entityEntry = DbContext.Categories.Add(category);
 				var entity = entityEntry.Entity;
 
-				Cache.Add(entity.AudibleCategoryId, entity);
+				CategoryCache.Add(entity.AudibleCategoryId, entity);
 				return entity;
 			}
 			catch (Exception ex)

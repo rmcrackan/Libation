@@ -75,7 +75,7 @@ namespace LibationWinForms.GridView
 			var displayWindow = new DescriptionDisplay
 			{
 				SpawnLocation = PointToScreen(cellRectangle.Location + new Size(cellRectangle.Width, 0)),
-				DescriptionText = liveGridEntry.LongDescription,
+				DescriptionText = liveGridEntry.Description,
 				BorderThickness = 2,
 			};
 

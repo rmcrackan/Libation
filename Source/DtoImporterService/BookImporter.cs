@@ -99,20 +99,6 @@ namespace DtoImporterService
                     .Select(n => contributorImporter.Cache[n.Name])
 					.ToList();
 
-			// categories are laid out for a breadcrumb. category is 1st, subcategory is 2nd
-			// absence of categories is also possible
-
-			// CATEGORY HACK: only use the 1st 2 categories
-			// after we support full arbitrary-depth category trees and multiple categories per book, the real impl will be something like this
-			//   var lastCategory = item.Categories.LastOrDefault()?.CategoryId ?? "";
-			var lastCategory
-				= item.Categories.Length == 0 ? ""
-				: item.Categories.Length == 1 ? item.Categories[0].CategoryId
-				// 2+
-				: item.Categories[1].CategoryId;
-
-			var category = categoryImporter.Cache[lastCategory];
-
 			Book book;
 			try
 			{
@@ -125,7 +111,6 @@ namespace DtoImporterService
 					contentType,
 					authors,
 					narrators,
-					category,
 					importItem.LocaleName)
 					).Entity;
 				Cache.Add(book.AudibleProductId, book);
@@ -140,7 +125,6 @@ namespace DtoImporterService
 					contentType,
 					QtyAuthors = authors?.Count,
 					QtyNarrators = narrators?.Count,
-					Category = category?.Name,
 					importItem.LocaleName
 				});
 				throw;
@@ -200,6 +184,19 @@ namespace DtoImporterService
 					var series = seriesImporter.Cache[seriesEntry.SeriesId];
 					book.UpsertSeries(series, seriesEntry.Sequence);
 				}
+			}
+
+			if (item.CategoryLadders is not null)
+			{
+				var ladders = new List<DataLayer.CategoryLadder>();
+				foreach (var ladder in item.CategoryLadders.Select(cl => cl.Ladder).Where(l => l?.Length > 0))
+				{
+					var categoryIds = ladder.Select(l => l.CategoryId).ToList();
+					ladders.Add(categoryImporter.LadderCache.Single(c => c.Equals(categoryIds)));
+				}
+				//Set all ladders at once so ladders that have been
+				//removed by audible can be removed from the DB
+				book.SetCategoryLadders(ladders);
 			}
 		}
 

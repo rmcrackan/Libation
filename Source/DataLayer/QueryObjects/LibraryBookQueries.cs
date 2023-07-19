@@ -55,7 +55,7 @@ namespace DataLayer
                 // owned items are always loaded. eg: book.UserDefinedItem, book.Supplements
                 .Include(le => le.Book).ThenInclude(b => b.SeriesLink).ThenInclude(sb => sb.Series)
                 .Include(le => le.Book).ThenInclude(b => b.ContributorsLink).ThenInclude(c => c.Contributor)
-                .Include(le => le.Book).ThenInclude(b => b.Category).ThenInclude(c => c.ParentCategory);
+                .Include(le => le.Book).ThenInclude(b => b.CategoriesLink).ThenInclude(c => c.CategoryLadder).ThenInclude(c => c._categories);
 
         public static IEnumerable<LibraryBook> ParentedEpisodes(this IEnumerable<LibraryBook> libraryBooks)
             => libraryBooks.Where(lb => lb.Book.IsEpisodeParent()).SelectMany(libraryBooks.FindChildren);

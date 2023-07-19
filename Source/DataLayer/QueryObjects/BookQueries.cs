@@ -34,7 +34,7 @@ namespace DataLayer
                 // owned items are always loaded. eg: book.UserDefinedItem, book.Supplements
                 .Include(b => b.SeriesLink).ThenInclude(sb => sb.Series)
                 .Include(b => b.ContributorsLink).ThenInclude(c => c.Contributor)
-                .Include(b => b.Category).ThenInclude(c => c.ParentCategory);
+                .Include(b => b.CategoriesLink).ThenInclude(c => c.CategoryLadder).ThenInclude(c => c._categories);
 
         public static bool IsProduct(this Book book)
             => book.ContentType is not ContentType.Episode and not ContentType.Parent;

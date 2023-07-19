@@ -27,7 +27,6 @@ namespace LibationUiBase.GridView
 		[Browsable(false)] public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)] public LibraryBook LibraryBook { get; protected set; }
 		[Browsable(false)] public float SeriesIndex { get; protected set; }
-		[Browsable(false)] public string LongDescription { get; protected set; }
 		[Browsable(false)] public abstract DateTime DateAdded { get; }
 		[Browsable(false)] public Book Book => LibraryBook.Book;
 
@@ -109,22 +108,17 @@ namespace LibationUiBase.GridView
 			Series = Book.SeriesNames(includeIndex: true);
 			SeriesOrder = new SeriesOrder(Book.SeriesLink);
 			Length = GetBookLengthString();
-			//Ratings are changed using Update(), which is a problem for Avalonia data bindings because
-			//the reference doesn't change. Clone the rating so that it updates within Avalonia properly.
-			_myRating = new Rating(Book.UserDefinedItem.Rating.OverallRating, Book.UserDefinedItem.Rating.PerformanceRating, Book.UserDefinedItem.Rating.StoryRating);
+			RaiseAndSetIfChanged(ref _myRating, Book.UserDefinedItem.Rating, nameof(MyRating));
 			PurchaseDate = GetPurchaseDateString();
 			ProductRating = Book.Rating ?? new Rating(0, 0, 0);
 			Authors = Book.AuthorNames();
 			Narrators = Book.NarratorNames();
-			Category = string.Join(" > ", Book.CategoriesNames());
+			Category = string.Join(", ", Book.LowestCategoryNames());
 			Misc = GetMiscDisplay(libraryBook);
 			LastDownload = new(Book.UserDefinedItem);
-			LongDescription = GetDescriptionDisplay(Book);
-			Description = LongDescription;// TrimTextToWord(LongDescription, 62);
+			Description = GetDescriptionDisplay(Book);
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 			BookTags = GetBookTags();
-
-			RaisePropertyChanged(nameof(MyRating));
 
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
@@ -182,6 +176,8 @@ namespace LibationUiBase.GridView
 					break;
 				case nameof(udi.Rating):
 					_myRating = udi.Rating;
+					//Ratings are changed using Update(), which is a problem for Avalonia data bindings because
+					//the reference doesn't change. Must call RaisePropertyChanged instead of RaiseAndSetIfChanged
 					RaisePropertyChanged(nameof(MyRating));
 					break;
 			}

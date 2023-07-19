@@ -23,6 +23,7 @@ namespace DataLayer
         public DbSet<Contributor> Contributors { get; private set; }
         public DbSet<Series> Series { get; private set; }
         public DbSet<Category> Categories { get; private set; }
+        public DbSet<CategoryLadder> CategoryLadders { get; private set; }
 
         public static LibationContext Create(string connectionString)
         {
@@ -39,13 +40,15 @@ namespace DataLayer
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.ApplyConfiguration(new BookConfig());
+			modelBuilder.ApplyConfiguration(new BookConfig());
             modelBuilder.ApplyConfiguration(new ContributorConfig());
             modelBuilder.ApplyConfiguration(new BookContributorConfig());
             modelBuilder.ApplyConfiguration(new LibraryBookConfig());
             modelBuilder.ApplyConfiguration(new SeriesConfig());
             modelBuilder.ApplyConfiguration(new SeriesBookConfig());
             modelBuilder.ApplyConfiguration(new CategoryConfig());
+			modelBuilder.ApplyConfiguration(new CategoryLadderConfig());
+			modelBuilder.ApplyConfiguration(new BookCategoryConfig());
 
 			// views are now supported via "keyless entity types" (instead of "entity types" or the prev "query types"):
 			// https://docs.microsoft.com/en-us/ef/core/modeling/keyless-entity-types

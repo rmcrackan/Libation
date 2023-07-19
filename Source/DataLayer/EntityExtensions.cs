@@ -7,8 +7,13 @@ using System.Threading.Tasks;
 namespace DataLayer
 {
     public static class EntityExtensions
-    {
-        public static string TitleSortable(this Book book) => Formatters.GetSortName(book.Title + book.Subtitle);
+	{
+		public static IEnumerable<BookContributor> ByRole(this IEnumerable<BookContributor> contributors, Role role)
+			=> contributors
+				.Where(a => a.Role == role)
+				.OrderBy(a => a.Order);
+
+		public static string TitleSortable(this Book book) => Formatters.GetSortName(book.Title + book.Subtitle);
 
         public static string AuthorNames(this Book book) => string.Join(", ", book.Authors.Select(a => a.Name));
         public static string NarratorNames(this Book book) => string.Join(", ", book.Narrators.Select(n => n.Name));
@@ -46,14 +51,31 @@ namespace DataLayer
                 ? $"{sb.Series.Name} (#{sb.Order})"
                 : sb.Series.Name;
 		}
-        public static string[] CategoriesNames(this Book book)
-            => book.Category is null ? new string[0]
-            : book.Category.ParentCategory is null ? new[] { book.Category.Name }
-            : new[] { book.Category.ParentCategory.Name, book.Category.Name };
-        public static string[] CategoriesIds(this Book book)
-            => book.Category is null ? null
-            : book.Category.ParentCategory is null ? new[] { book.Category.AudibleCategoryId }
-            : new[] { book.Category.ParentCategory.AudibleCategoryId, book.Category.AudibleCategoryId };
+
+        public static string[] LowestCategoryNames(this Book book)
+            => book.CategoriesLink?.Any() is not true ? Array.Empty<string>()
+			: book
+                .CategoriesLink
+                .Select(cl => cl.CategoryLadder.Categories.LastOrDefault()?.Name)
+                .Where(c => c is not null)
+                .Distinct()
+                .ToArray();
+
+        public static string[] AllCategoryNames(this Book book)
+            => book.CategoriesLink?.Any() is not true ? Array.Empty<string>()
+            : book
+                .CategoriesLink
+                .SelectMany(cl => cl.CategoryLadder.Categories)
+                .Select(c => c.Name)
+                .ToArray();
+
+		public static string[] AllCategoryIds(this Book book)
+            => book.CategoriesLink?.Any() is not true ? null
+            : book
+                .CategoriesLink
+                .SelectMany(cl => cl.CategoryLadder.Categories)
+                .Select(c => c.AudibleCategoryId)
+                .ToArray();
 
         public static string AggregateTitles(this IEnumerable<LibraryBook> libraryBooks, int max = 5)
 		{
