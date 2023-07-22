@@ -5,7 +5,7 @@
     <Version>10.6.3.1</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Octokit" Version="6.0.0" />
+    <PackageReference Include="Octokit" Version="7.0.1" />
     <PackageReference Include="Serilog.Sinks.ZipFile" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
