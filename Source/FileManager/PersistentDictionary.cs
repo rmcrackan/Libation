@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+#nullable enable
 namespace FileManager
 {
     public class PersistentDictionary
@@ -13,19 +15,19 @@ namespace FileManager
         public bool IsReadOnly { get; }
 
         // optimize for strings. expectation is most settings will be strings and a rare exception will be something else
-        private Dictionary<string, string> stringCache { get; } = new Dictionary<string, string>();
-        private Dictionary<string, object> objectCache { get; } = new Dictionary<string, object>();
+        private Dictionary<string, string?> stringCache { get; } = new();
+        private Dictionary<string, object?> objectCache { get; } = new();
 
         public PersistentDictionary(string filepath, bool isReadOnly = false)
         {
             Filepath = filepath;
             IsReadOnly = isReadOnly;
 
-            if (File.Exists(Filepath))
+            if (File.Exists(Filepath) || Path.GetDirectoryName(Filepath) is not string dirName)
                 return;
 
             // will create any missing directories, incl subdirectories. if all already exist: no action
-            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+            Directory.CreateDirectory(dirName);
 
             if (IsReadOnly)
                 return;
@@ -33,13 +35,14 @@ namespace FileManager
             createNewFile();
         }
 
-        public string GetString(string propertyName, string defaultValue = null)
+		[return: NotNullIfNotNull(nameof(defaultValue))]
+		public string? GetString(string propertyName, string? defaultValue = null)
         {
             if (!stringCache.ContainsKey(propertyName))
             {
                 var jObject = readFile();
                 if (jObject.ContainsKey(propertyName))
-                    stringCache[propertyName] = jObject[propertyName].Value<string>();
+                    stringCache[propertyName] = jObject[propertyName]?.Value<string>();
                 else
                     stringCache[propertyName] = defaultValue;
             }
@@ -47,7 +50,8 @@ namespace FileManager
             return stringCache[propertyName];
         }
 
-        public T GetNonString<T>(string propertyName, T defaultValue = default)
+        [return: NotNullIfNotNull(nameof(defaultValue))]
+        public T? GetNonString<T>(string propertyName, T? defaultValue = default)
         {
             var obj = GetObject(propertyName);
 
@@ -72,21 +76,21 @@ namespace FileManager
             throw new InvalidCastException($"{obj.GetType()} is not convertible to {typeof(T)}");
         }
 
-        public object GetObject(string propertyName)
+        public object? GetObject(string propertyName)
         {
             if (!objectCache.ContainsKey(propertyName))
             {
                 var jObject = readFile();
                 if (!jObject.ContainsKey(propertyName))
                     return null;
-                objectCache[propertyName] = jObject[propertyName].Value<object>();
+                objectCache[propertyName] = jObject[propertyName]?.Value<object>();
             }
 
             return objectCache[propertyName];
         }
 
-        public string GetStringFromJsonPath(string jsonPath, string propertyName) => GetStringFromJsonPath($"{jsonPath}.{propertyName}");
-        public string GetStringFromJsonPath(string jsonPath)
+        public string? GetStringFromJsonPath(string jsonPath, string propertyName) => GetStringFromJsonPath($"{jsonPath}.{propertyName}");
+        public string? GetStringFromJsonPath(string jsonPath)
         {
             if (!stringCache.ContainsKey(jsonPath))
             {
@@ -96,7 +100,7 @@ namespace FileManager
                     var token = jObject.SelectToken(jsonPath);
                     if (token is null)
                         return null;
-                    stringCache[jsonPath] = (string)token;
+                    stringCache[jsonPath] = token.Value<string>();
                 }
                 catch
                 {
@@ -110,7 +114,7 @@ namespace FileManager
         public bool Exists(string propertyName) => readFile().ContainsKey(propertyName);
 
         private object locker { get; } = new object();
-        public void SetString(string propertyName, string newValue)
+        public void SetString(string propertyName, string? newValue)
         {
             // only do this check in string cache, NOT object cache
             if (stringCache.ContainsKey(propertyName) && stringCache[propertyName] == newValue)
@@ -122,7 +126,7 @@ namespace FileManager
             writeFile(propertyName, newValue);
         }
 
-        public void SetNonString(string propertyName, object newValue)
+        public void SetNonString(string propertyName, object? newValue)
         {
             // set cache
             objectCache[propertyName] = newValue;
@@ -160,7 +164,7 @@ namespace FileManager
 			return success;
 		}
 
-        private void writeFile(string propertyName, JToken newValue)
+        private void writeFile(string propertyName, JToken? newValue)
         {
             if (IsReadOnly)
                 return;
@@ -190,7 +194,7 @@ namespace FileManager
 
         /// <summary>WILL ONLY set if already present. WILL NOT create new</summary>
         /// <returns>Value was changed</returns>
-        public bool SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false)
+        public bool SetWithJsonPath(string jsonPath, string propertyName, string? newValue, bool suppressLogging = false)
         {
             if (IsReadOnly)
                 return false;
@@ -242,7 +246,7 @@ namespace FileManager
             return true;
         }
 
-        private static string formatValueForLog(string value)
+        private static string formatValueForLog(string? value)
             => value is null ? "[null]"
             : string.IsNullOrEmpty(value) ? "[empty]"
             : string.IsNullOrWhiteSpace(value) ? $"[whitespace. Length={value.Length}]"
@@ -283,7 +287,6 @@ namespace FileManager
         private void createNewFile()
         {
             File.WriteAllText(Filepath, "{}");
-            System.Threading.Thread.Sleep(100);
         }
     }
 }

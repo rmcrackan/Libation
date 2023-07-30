@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
+#nullable enable
 namespace FileManager.NamingTemplate;
 
 /// <summary>Represents one part of an evaluated <see cref="NamingTemplate"/>.</summary>
@@ -15,13 +16,13 @@ public class TemplatePart : IEnumerable<TemplatePart>
 
 	/// <summary> The <see cref="IPropertyTag"/>'s <see cref="ITemplateTag"/> if <see cref="TemplatePart"/> is
 	/// a registered property, otherwise <see cref="null"/> for string literals. </summary>
-	public ITemplateTag TemplateTag { get; }
+	public ITemplateTag? TemplateTag { get; }
 
 	/// <summary>The evaluated string.</summary>
 	public string Value { get; }
 
-	private TemplatePart previous;
-	private TemplatePart next;
+	private TemplatePart? previous;
+	private TemplatePart? next;
 	private TemplatePart(string name, string value)
 	{
 		TagName = name;
@@ -53,14 +54,33 @@ public class TemplatePart : IEnumerable<TemplatePart>
 	private static Expression CreateExpression(string name, Expression value)
 		=> Expression.New(constructorInfo, Expression.Constant(name), value);
 
-	private static readonly ConstructorInfo constructorInfo
-		= typeof(TemplatePart).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new Type[] { typeof(string), typeof(string) });
+	private static readonly ConstructorInfo constructorInfo;
+	private static readonly ConstructorInfo tagTemplateConstructorInfo;
+	private static readonly MethodInfo addMethodInfo;
+	static TemplatePart()
+	{
+		var type = typeof(TemplatePart);
 
-	private static readonly ConstructorInfo tagTemplateConstructorInfo
-		= typeof(TemplatePart).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new Type[] { typeof(ITemplateTag), typeof(string)	});
+		if (type.GetConstructor(
+			BindingFlags.NonPublic | BindingFlags.Instance,
+			new Type[] { typeof(string), typeof(string) }) is not ConstructorInfo c1)
+			throw new MissingMethodException(nameof(TemplatePart));
 
-	private static readonly MethodInfo addMethodInfo
-		= typeof(TemplatePart).GetMethod(nameof(Concatenate), BindingFlags.NonPublic | BindingFlags.Static, new Type[] { typeof(TemplatePart), typeof(TemplatePart) });
+		if (type.GetConstructor(
+			BindingFlags.NonPublic | BindingFlags.Instance,
+			new Type[] { typeof(ITemplateTag), typeof(string) }) is not ConstructorInfo c2)
+			throw new MissingMethodException(nameof(TemplatePart));
+
+		if (type.GetMethod(
+			nameof(Concatenate),
+			BindingFlags.NonPublic | BindingFlags.Static,
+			new Type[] { typeof(TemplatePart), typeof(TemplatePart) }) is not MethodInfo m1)
+			throw new MissingMethodException(nameof(Concatenate));
+
+		constructorInfo = c1;
+		tagTemplateConstructorInfo = c2;
+		addMethodInfo = m1;
+	}
 
 	public IEnumerator<TemplatePart> GetEnumerator()
 	{

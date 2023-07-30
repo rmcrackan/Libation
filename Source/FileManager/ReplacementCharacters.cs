@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+#nullable enable
 namespace FileManager
 {
 	public record Replacement
@@ -59,7 +60,7 @@ namespace FileManager
 	[JsonConverter(typeof(ReplacementCharactersConverter))]
 	public class ReplacementCharacters
 	{
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is ReplacementCharacters second && Replacements.Count == second.Replacements.Count)
 			{
@@ -173,7 +174,7 @@ namespace FileManager
 				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
 			}).ToArray();
 
-		public IReadOnlyList<Replacement> Replacements { get; init; }
+		required public IReadOnlyList<Replacement> Replacements { get; init; }
 		private string DefaultReplacement => Replacements[0].ReplacementString;
 		private Replacement ForwardSlash => Replacements[1];
 		private Replacement BackSlash => Replacements[2];
@@ -298,12 +299,14 @@ namespace FileManager
 		public override bool CanConvert(Type objectType)
 			=> objectType == typeof(ReplacementCharacters);
 
-		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+		public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
 		{
 			var jObj = JObject.Load(reader);
 			var replaceArr = jObj[nameof(Replacement)];
-			IReadOnlyList<Replacement> dict = replaceArr
-				.ToObject<Replacement[]>().ToList();
+			var dict
+				= replaceArr?.ToObject<Replacement[]>()?.ToList()
+				?? ReplacementCharacters.Default.Replacements;
+
 
 			//Ensure that the first 6 replacements are for the expected chars and that all replacement strings are valid.
 			//If not, reset to default.
@@ -325,9 +328,10 @@ namespace FileManager
 			return new ReplacementCharacters { Replacements = dict };
 		}
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
 		{
-			ReplacementCharacters replacements = (ReplacementCharacters)value;
+			if (value is not ReplacementCharacters replacements)
+				return;
 
 			var propertyNames = replacements.Replacements
 				.Select(JObject.FromObject).ToList();

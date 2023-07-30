@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
+#nullable enable
 namespace FileManager.NamingTemplate;
 
 public delegate string PropertyFormatter<T>(ITemplateTag templateTag, T value, string formatString);
@@ -37,7 +38,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 	/// <param name="formatter">Optional formatting function that accepts the <typeparamref name="TProperty"/> property
 	/// and a formatting string and returnes the value the formatted string. If <see cref="null"/>, use the default
 	/// <typeparamref name="TProperty"/> formatter if present, or <see cref="object.ToString"/></param>
-	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty?> propertyGetter, PropertyFormatter<TProperty> formatter = null)
+	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty?> propertyGetter, PropertyFormatter<TProperty>? formatter = null)
 		where TProperty : struct
 		=> RegisterWithFormatter(templateTag, propertyGetter, formatter);
 
@@ -59,7 +60,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 	/// <param name="formatter">Optional formatting function that accepts the <typeparamref name="TProperty"/> property
 	/// and a formatting string and returnes the value formatted to string. If <see cref="null"/>, use the default
 	/// <typeparamref name="TProperty"/> formatter if present, or <see cref="object.ToString"/></param>
-	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PropertyFormatter<TProperty> formatter = null)
+	public void Add<TProperty>(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PropertyFormatter<TProperty>? formatter = null)
 		=> RegisterWithFormatter(templateTag, propertyGetter, formatter);
 
 	/// <summary>
@@ -72,14 +73,15 @@ public class PropertyTagCollection<TClass> : TagCollection
 		=> RegisterWithToString(templateTag, propertyGetter, toString);
 
 	private void RegisterWithFormatter<TProperty, TPropertyValue>
-		(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PropertyFormatter<TPropertyValue> formatter)
+		(ITemplateTag templateTag, Func<TClass, TProperty> propertyGetter, PropertyFormatter<TPropertyValue>? formatter)
 	{
 		ArgumentValidator.EnsureNotNull(templateTag, nameof(templateTag));
 		ArgumentValidator.EnsureNotNull(propertyGetter, nameof(propertyGetter));
 
 		var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
+		formatter ??= GetDefaultFormatter<TPropertyValue>();
 
-		if ((formatter ??= GetDefaultFormatter<TPropertyValue>()) is null)
+		if (formatter is null)
 			AddPropertyTag(new PropertyTag<TPropertyValue>(templateTag, Options, expr, ToStringFunc));
 		else
 			AddPropertyTag(new PropertyTag<TPropertyValue>(templateTag, Options, expr, formatter));
@@ -97,7 +99,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 
 	private static string ToStringFunc<T>(T propertyValue) => propertyValue?.ToString() ?? "";
 
-	private PropertyFormatter<T> GetDefaultFormatter<T>()
+	private PropertyFormatter<T>? GetDefaultFormatter<T>()
 	{
 		try
 		{
@@ -109,6 +111,7 @@ public class PropertyTagCollection<TClass> : TagCollection
 
 	private class PropertyTag<TPropertyValue> : TagBase
 	{
+		public override Regex NameMatcher { get; }
 		private Func<Expression, string, Expression> CreateToStringExpression { get; }
 
 		public PropertyTag(ITemplateTag templateTag, RegexOptions options, Expression propertyGetter, PropertyFormatter<TPropertyValue> formatter)

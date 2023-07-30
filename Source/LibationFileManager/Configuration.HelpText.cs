@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
+#nullable enable
 namespace LibationFileManager
 {
     public partial class Configuration
@@ -29,8 +30,7 @@ namespace LibationFileManager
         }
         .AsReadOnly();
 
-        public static string GetHelpText(string settingName)
+        public static string? GetHelpText(string settingName)
             => HelpText.TryGetValue(settingName, out var value) ? value : null;
-
 	}
 }

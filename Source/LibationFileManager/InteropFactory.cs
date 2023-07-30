@@ -5,11 +5,12 @@ using System.Linq;
 using System.Reflection;
 using Dinah.Core;
 
+#nullable enable
 namespace LibationFileManager
 {
     public static class InteropFactory
     {
-        public static Type InteropFunctionsType { get; }
+        public static Type? InteropFunctionsType { get; }
 
         public static IInteropFunctions Create() => _create();
 
@@ -17,13 +18,17 @@ namespace LibationFileManager
         //public static IInteropFunctions Create(string str, int i) => _create(str, i);
         //public static IInteropFunctions Create(params object[] values) => _create(values);
 
-        private static IInteropFunctions instance { get; set; }
+        private static IInteropFunctions? instance { get; set; }
         private static IInteropFunctions _create(params object[] values)
         {
             instance ??=
                 InteropFunctionsType is null
                 ? new NullInteropFunctions()
                 : Activator.CreateInstance(InteropFunctionsType, values) as IInteropFunctions;
+
+            if (instance is null)
+                throw new TypeLoadException();
+
             return instance;
         }
 
@@ -66,7 +71,7 @@ namespace LibationFileManager
                 .GetTypes()
                 .FirstOrDefault(type.IsAssignableFrom);
         }
-        private static string getOSConfigApp()
+        private static string? getOSConfigApp()
         {
             // find '*ConfigApp.dll' files
             var appName =
@@ -76,8 +81,8 @@ namespace LibationFileManager
             return appName;
         }
 
-        private static Dictionary<string, Assembly> lowEffortCache { get; } = new();
-        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        private static Dictionary<string, Assembly?> lowEffortCache { get; } = new();
+        private static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs args)
         {
             var asmName = new AssemblyName(args.Name);
             var here = Configuration.ProcessDirectory;
@@ -97,7 +102,7 @@ namespace LibationFileManager
             return assembly;
         }
 
-		private static Assembly CurrentDomain_AssemblyResolve_internal(AssemblyName asmName, string here)
+		private static Assembly? CurrentDomain_AssemblyResolve_internal(AssemblyName asmName, string here)
         {
             /*
              * Find the requested assembly in the program files directory.

@@ -5,13 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+#nullable enable
 namespace LibationFileManager
 {
 	internal partial class NameListFormat
 	{
-		public static string Formatter(ITemplateTag _, IEnumerable<string> names, string formatString)
+		public static string Formatter(ITemplateTag _, IEnumerable<string>? names, string formatString)
 		{
-			var humanNames = names.Select(n => new HumanName(RemoveSuffix(n), Prefer.FirstOverPrefix));
+			if (names is null) return "";
+
+            var humanNames = names.Select(n => new HumanName(RemoveSuffix(n), Prefer.FirstOverPrefix));
 
 			var sortedNames = Sort(humanNames, formatString);
 			var nameFormatString = Format(formatString, defaultValue: "{T} {F} {M} {L} {S}");

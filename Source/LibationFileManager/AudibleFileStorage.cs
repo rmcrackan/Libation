@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 using System.Threading;
 using FileManager;
 
+#nullable enable
 namespace LibationFileManager
 {
     public abstract class AudibleFileStorage
     {
-        protected abstract LongPath GetFilePathCustom(string productId);
+        protected abstract LongPath? GetFilePathCustom(string productId);
         protected abstract List<LongPath> GetFilePathsCustom(string productId);
 
         #region static
@@ -57,7 +58,7 @@ namespace LibationFileManager
             regexTemplate = $@"{{0}}.*?\.({extAggr})$";
         }
 
-        protected LongPath GetFilePath(string productId)
+        protected LongPath? GetFilePath(string productId)
         {
             // primary lookup
             var cachedFile = FilePathCache.GetFirstPath(productId, FileType);
@@ -87,7 +88,7 @@ namespace LibationFileManager
     {
         internal AaxcFileStorage() : base(FileType.AAXC) { }
 
-        protected override LongPath GetFilePathCustom(string productId)
+        protected override LongPath? GetFilePathCustom(string productId)
             => GetFilePathsCustom(productId).FirstOrDefault();
 
         protected override List<LongPath> GetFilePathsCustom(string productId)
@@ -104,9 +105,9 @@ namespace LibationFileManager
     public class AudioFileStorage : AudibleFileStorage
     {
         internal AudioFileStorage() : base(FileType.Audio)
-            => BookDirectoryFiles ??= new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
+            => BookDirectoryFiles ??= newBookDirectoryFiles();
 
-        private static BackgroundFileSystem BookDirectoryFiles { get; set; }
+        private static BackgroundFileSystem? BookDirectoryFiles { get; set; }
         private static object bookDirectoryFilesLocker { get; } = new();
 		private static EnumerationOptions enumerationOptions { get; } = new()
 		{
@@ -115,17 +116,20 @@ namespace LibationFileManager
 			MatchCasing = MatchCasing.CaseInsensitive
 		};
 
-		protected override LongPath GetFilePathCustom(string productId)
+		protected override LongPath? GetFilePathCustom(string productId)
             => GetFilePathsCustom(productId).FirstOrDefault();
 
-        protected override List<LongPath> GetFilePathsCustom(string productId)
+        private static BackgroundFileSystem newBookDirectoryFiles()
+            => new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
+
+		protected override List<LongPath> GetFilePathsCustom(string productId)
         {
             // If user changed the BooksDirectory: reinitialize
             lock (bookDirectoryFilesLocker)
-                if (BooksDirectory != BookDirectoryFiles.RootDirectory)
-                    BookDirectoryFiles = new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
+                if (BooksDirectory != BookDirectoryFiles?.RootDirectory)
+                    BookDirectoryFiles = newBookDirectoryFiles();
 
-            var regex = GetBookSearchRegex(productId);
+			var regex = GetBookSearchRegex(productId);
 
 			//Find all extant files matching the productId
 			//using both the file system and the file path cache
@@ -138,9 +142,16 @@ namespace LibationFileManager
                 .ToList();
         }
 
-        public void Refresh() => BookDirectoryFiles.RefreshFiles();
+        public void Refresh()
+        {
+            if (BookDirectoryFiles is null)
+                lock (bookDirectoryFilesLocker)
+                    BookDirectoryFiles = newBookDirectoryFiles();
+            else
+                BookDirectoryFiles?.RefreshFiles();
+        }
 
-        public LongPath GetPath(string productId) => GetFilePath(productId);
+        public LongPath? GetPath(string productId) => GetFilePath(productId);
 
 		public static async IAsyncEnumerable<FilePathCache.CacheEntry> FindAudiobooksAsync(LongPath searchDirectory, [EnumeratorCancellation] CancellationToken cancellationToken)
 		{
@@ -151,7 +162,7 @@ namespace LibationFileManager
 				if (cancellationToken.IsCancellationRequested)
 					yield break;
 
-				FilePathCache.CacheEntry audioFile = default;
+				FilePathCache.CacheEntry? audioFile = default;
 
 				try
 				{

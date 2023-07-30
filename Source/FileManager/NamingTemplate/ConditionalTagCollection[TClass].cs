@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
+#nullable enable
 namespace FileManager.NamingTemplate;
 
 internal interface IClosingPropertyTag : IPropertyTag
@@ -17,7 +19,7 @@ internal interface IClosingPropertyTag : IPropertyTag
 	/// <param name="exactName">The <paramref name="templateString"/> substring that was matched.</param>
 	/// <param name="propertyTag">The registered <see cref="IPropertyTag"/></param>
 	/// <returns>True if the <paramref name="templateString"/> starts with this tag.</returns>
-	bool StartsWithClosing(string templateString, out string exactName, out IClosingPropertyTag propertyTag);
+	bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag);
 }
 
 public class ConditionalTagCollection<TClass> : TagCollection
@@ -37,6 +39,7 @@ public class ConditionalTagCollection<TClass> : TagCollection
 	
 	private class ConditionalTag : TagBase, IClosingPropertyTag
 	{
+		public override Regex NameMatcher { get; }
 		public Regex NameCloseMatcher { get; }
 
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, Expression conditionExpression)
@@ -46,7 +49,7 @@ public class ConditionalTagCollection<TClass> : TagCollection
 			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
 		}
 
-		public bool StartsWithClosing(string templateString, out string exactName, out IClosingPropertyTag propertyTag)
+		public bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag)
 		{
 			var match = NameCloseMatcher.Match(templateString);
 			if (match.Success)

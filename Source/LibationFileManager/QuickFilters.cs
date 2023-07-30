@@ -5,30 +5,30 @@ using System.Linq;
 using Dinah.Core.Collections.Generic;
 using Newtonsoft.Json;
 
+#nullable enable
 namespace LibationFileManager
 {
     public static class QuickFilters
     {
-        public static event EventHandler Updated;
+        public static event EventHandler? Updated;
 
-        internal class FilterState
+		public static event EventHandler? UseDefaultChanged;
+
+		internal class FilterState
         {
             public bool UseDefault { get; set; }
             public List<string> Filters { get; set; } = new List<string>();
         }
 
-        static FilterState inMemoryState { get; } = new FilterState();
-
         public static string JsonFile => Path.Combine(Configuration.Instance.LibationFiles, "QuickFilters.json");
 
-        static QuickFilters()
-        {
-            // load json into memory. if file doesn't exist, nothing to do. save() will create if needed
-            if (File.Exists(JsonFile))
-                inMemoryState = JsonConvert.DeserializeObject<FilterState>(File.ReadAllText(JsonFile));
-        }
 
-        public static event EventHandler UseDefaultChanged;
+		// load json into memory. if file doesn't exist, nothing to do. save() will create if needed
+		static FilterState inMemoryState { get; }
+            = File.Exists(JsonFile) && JsonConvert.DeserializeObject<FilterState>(File.ReadAllText(JsonFile)) is FilterState inMemState
+            ? inMemState
+            : new FilterState();
+
         public static bool UseDefault
         {
             get => inMemoryState.UseDefault;
@@ -43,7 +43,7 @@ namespace LibationFileManager
                     save(false);
                 }
 
-                UseDefaultChanged?.Invoke(null, null);
+                UseDefaultChanged?.Invoke(null, EventArgs.Empty);
             }
         }
 
@@ -121,7 +121,7 @@ namespace LibationFileManager
 			}
 
             if (invokeUpdatedEvent)
-                Updated?.Invoke(null, null);
+                Updated?.Invoke(null, EventArgs.Empty);
         }
     }
 }

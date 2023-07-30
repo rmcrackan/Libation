@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationFileManager
 {
 	[Flags]
@@ -20,7 +21,7 @@ namespace LibationFileManager
 		public static bool IsWindows { get; } = OperatingSystem.IsWindows();
         public static bool IsLinux { get; } = OperatingSystem.IsLinux();
         public static bool IsMacOs { get; } = OperatingSystem.IsMacOS();
-		public static Version LibationVersion { get; private set; }
+		public static Version? LibationVersion { get; private set; }
 		public static void SetLibationVersion(Version version) => LibationVersion = version;
 
 		public static OS OS { get; }

@@ -5,11 +5,12 @@ using System.IO;
 using System.Linq;
 using Dinah.Core;
 
+#nullable enable
 namespace LibationFileManager
 {
     public partial class Configuration
     {
-        public static string ProcessDirectory { get; } = Path.GetDirectoryName(Exe.FileLocationOnDisk);
+        public static string ProcessDirectory { get; } = Path.GetDirectoryName(Exe.FileLocationOnDisk)!;
 		public static string AppDir_Relative => $@".{Path.PathSeparator}{LIBATION_FILES_KEY}";
         public static string AppDir_Absolute => Path.GetFullPath(Path.Combine(ProcessDirectory, LIBATION_FILES_KEY));
         public static string MyDocs => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Libation"));
@@ -36,7 +37,7 @@ namespace LibationFileManager
             LibationFiles = 5
         }
         // use func calls so we always get the latest value of LibationFiles
-        private static List<(KnownDirectories directory, Func<string> getPathFunc)> directoryOptionsPaths { get; } = new()
+        private static List<(KnownDirectories directory, Func<string?> getPathFunc)> directoryOptionsPaths { get; } = new()
         {
             (KnownDirectories.None, () => null),
             (KnownDirectories.UserProfile, () => UserProfile),
@@ -47,7 +48,7 @@ namespace LibationFileManager
 			// also, keep this at bottom of this list
 			(KnownDirectories.LibationFiles, () => libationFilesPathCache)
         };
-        public static string GetKnownDirectoryPath(KnownDirectories directory)
+        public static string? GetKnownDirectoryPath(KnownDirectories directory)
         {
             var dirFunc = directoryOptionsPaths.SingleOrDefault(dirFunc => dirFunc.directory == directory);
             return dirFunc == default ? null : dirFunc.getPathFunc();

@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 
+#nullable enable
 namespace FileManager.NamingTemplate;
 
 public class NamingTemplate
 {
-	public string TemplateText { get; private set; }
+	public string TemplateText { get; private set; } = string.Empty;
 	public IEnumerable<ITemplateTag> TagsInUse => _tagsInUse;
 	public IEnumerable<ITemplateTag> TagsRegistered => TagCollections.SelectMany(t => t).DistinctBy(t => t.TagName);
 	public IEnumerable<string> Warnings => errors.Concat(warnings);
 	public IEnumerable<string> Errors => errors;
 
-	private Delegate templateToString;
+	private Delegate? templateToString;
 	private readonly List<string> warnings = new();
 	private readonly List<string> errors = new();
 	private readonly IEnumerable<TagCollection> TagCollections;
@@ -30,6 +32,9 @@ public class NamingTemplate
 	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagCollection{TClass}"/> and <see cref="ConditionalTagCollection{TClass}"/></param>
 	public TemplatePart Evaluate(params object[] propertyClasses)
 	{
+		if (templateToString is null)
+			throw new InvalidOperationException();
+
 		// Match propertyClasses to the arguments required by templateToString.DynamicInvoke(). 
 		// First parameter is "this", so ignore it.
 		var delegateArgTypes = templateToString.Method.GetParameters().Skip(1);
@@ -39,7 +44,7 @@ public class NamingTemplate
 		if (args.Length != delegateArgTypes.Count())
 			throw new ArgumentException($"This instance of {nameof(NamingTemplate)} requires the following arguments: {string.Join(", ", delegateArgTypes.Select(t => t.Name).Distinct())}");
 
-		return ((TemplatePart)templateToString.DynamicInvoke(args)).FirstPart;
+		return (templateToString.DynamicInvoke(args) as TemplatePart)!.FirstPart;
 	}
 
 	/// <summary>Parse a template string to a <see cref="NamingTemplate"/></summary>
@@ -69,7 +74,7 @@ public class NamingTemplate
 	}
 
 	/// <summary>Builds an <see cref="Expression"/> tree that will evaluate to a <see cref="TemplatePart"/></summary>
-	private static Expression GetExpressionTree(BinaryNode node)
+	private static Expression GetExpressionTree(BinaryNode? node)
 	{
 		if (node is null) return TemplatePart.Blank;
 		else if (node.IsValue) return node.Expression;
@@ -81,10 +86,10 @@ public class NamingTemplate
 	}
 
 	/// <summary>Parse a template string into a <see cref="BinaryNode"/> tree</summary>
-	private BinaryNode IntermediateParse(string templateString)
+	private BinaryNode IntermediateParse(string? templateString)
 	{
 		if (templateString is null)
-			throw new NullReferenceException(ERROR_NULL_IS_INVALID);
+			throw new ArgumentException(ERROR_NULL_IS_INVALID);
 		else if (string.IsNullOrEmpty(templateString))
 			warnings.Add(WARNING_EMPTY);
 		else if (string.IsNullOrWhiteSpace(templateString))
@@ -93,12 +98,12 @@ public class NamingTemplate
 		TemplateText = templateString;
 
 		BinaryNode topNode = BinaryNode.CreateRoot();
-		BinaryNode currentNode = topNode;
+		BinaryNode? currentNode = topNode;
 		List<char> literalChars = new();
 
 		while (templateString.Length > 0)
 		{
-			if (StartsWith(templateString, out string exactPropertyName, out var propertyTag, out var valueExpression))
+			if (StartsWith(templateString, out var exactPropertyName, out var propertyTag, out var valueExpression))
 			{
 				checkAndAddLiterals();
 
@@ -116,7 +121,7 @@ public class NamingTemplate
 			{
 				checkAndAddLiterals();
 
-				BinaryNode lastParenth = currentNode;
+				BinaryNode? lastParenth = currentNode;
 
 				while (lastParenth?.IsConditional is false)
 					lastParenth = lastParenth.Parent;
@@ -168,7 +173,7 @@ public class NamingTemplate
 		}
 	}
 
-	private bool StartsWith(string template, out string exactName, out IPropertyTag propertyTag, out Expression valueExpression)
+	private bool StartsWith(string template, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IPropertyTag? propertyTag, [NotNullWhen(true)] out Expression? valueExpression)
 	{
 		foreach (var pc in TagCollections)
 		{
@@ -182,7 +187,7 @@ public class NamingTemplate
 		return false;
 	}
 
-	private bool StartsWithClosing(string template, out string exactName, out IClosingPropertyTag closingPropertyTag)
+	private bool StartsWithClosing(string template, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? closingPropertyTag)
 	{
 		foreach (var pc in TagCollections)
 		{
@@ -198,36 +203,36 @@ public class NamingTemplate
 	private class BinaryNode
 	{
 		public string Name { get; }
-		public BinaryNode Parent { get; private set; }
-		public BinaryNode RightChild { get; private set; }
-		public BinaryNode LeftChild { get; private set; }
-		public Expression Expression { get; private init; }
+		public BinaryNode? Parent { get; private set; }
+		public BinaryNode? RightChild { get; private set; }
+		public BinaryNode? LeftChild { get; private set; }
+		public Expression Expression { get; }
 		public bool IsConditional { get; private init; } = false;
 		public bool IsValue { get; private init; } = false;
 
-		public static BinaryNode CreateRoot() => new("Root");
+		public static BinaryNode CreateRoot() => new("Root", Expression.Empty());
 
-		public static BinaryNode CreateValue(string literal) => new("Literal")
-		{
-			IsValue = true,
-			Expression = TemplatePart.CreateLiteral(literal)
-		};
+		public static BinaryNode CreateValue(string literal)
+			=> new("Literal", TemplatePart.CreateLiteral(literal))
+			{
+				IsValue = true
+			};
 
-		public static BinaryNode CreateValue(ITemplateTag templateTag, Expression property) => new(templateTag.TagName)
-		{
-			IsValue = true,
-			Expression = TemplatePart.CreateProperty(templateTag, property)
-		};
+		public static BinaryNode CreateValue(ITemplateTag templateTag, Expression property)
+			=> new(templateTag.TagName, TemplatePart.CreateProperty(templateTag, property))
+			{
+				IsValue = true
+			};
 
-		public static BinaryNode CreateConditional(ITemplateTag templateTag, Expression property) => new(templateTag.TagName)
-		{
-			IsConditional = true,
-			Expression = property
-		};
+		public static BinaryNode CreateConditional(ITemplateTag templateTag, Expression property)
+			=> new(templateTag.TagName, property)
+			{
+				IsConditional = true
+			};
 
 		private static BinaryNode CreateConcatenation(BinaryNode left, BinaryNode right)
 		{
-			var newNode = new BinaryNode("Concatenation")
+			var newNode = new BinaryNode("Concatenation", Expression.Empty())
 			{
 				LeftChild = left,
 				RightChild = right
@@ -237,7 +242,12 @@ public class NamingTemplate
 			return newNode;
 		}
 
-		private BinaryNode(string name) => Name = name;
+		private BinaryNode(string name, Expression expression)
+		{
+			Name = name;
+			Expression = expression;
+		}
+
 		public override string ToString() => Name;
 
 		public BinaryNode AddNewNode(BinaryNode newNode)

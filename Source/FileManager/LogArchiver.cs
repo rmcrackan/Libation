@@ -8,9 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace FileManager
 {
-	public sealed class LogArchiver : IAsyncDisposable
+	public sealed class LogArchiver : IAsyncDisposable, IDisposable
 	{
 		public Encoding Encoding { get; set; }
 		public string FileName { get; }
@@ -39,28 +40,28 @@ namespace FileManager
 				e.Delete();
 		}
 
-		public async Task AddFileAsync(string name, JObject contents, string comment = null)
+		public async Task AddFileAsync(string name, JObject contents, string? comment = null)
 		{
 			ArgumentValidator.EnsureNotNull(contents, nameof(contents));
 			await AddFileAsync(name, Encoding.GetBytes(contents.ToString(Newtonsoft.Json.Formatting.Indented)), comment);
 		}
 
-		public async Task AddFileAsync(string name, string contents, string comment = null)
+		public async Task AddFileAsync(string name, string contents, string? comment = null)
 		{
 			ArgumentValidator.EnsureNotNull(contents, nameof(contents));
 			await AddFileAsync(name, Encoding.GetBytes(contents), comment);
 		}
 
-		public Task AddFileAsync(string name, ReadOnlyMemory<byte> contents, string comment = null)
+		public Task AddFileAsync(string name, ReadOnlyMemory<byte> contents, string? comment = null)
 		{
 			ArgumentValidator.EnsureNotNull(name, nameof(name));
 
 			name = ReplacementCharacters.Barebones.ReplaceFilenameChars(name);
-			return Task.Run(() => AddfileInternal(name, contents.Span, comment));			
+			return Task.Run(() => AddFileInternal(name, contents.Span, comment));			
 		}
 
 		private readonly object lockObj = new();
-		private void AddfileInternal(string name, ReadOnlySpan<byte> contents, string comment)
+		private void AddFileInternal(string name, ReadOnlySpan<byte> contents, string? comment)
 		{
 			lock (lockObj)
 			{
@@ -73,5 +74,7 @@ namespace FileManager
 		}
 
 		public async ValueTask DisposeAsync() => await Task.Run(archive.Dispose);
+
+		public void Dispose() => archive.Dispose();
 	}
 }

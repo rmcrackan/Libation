@@ -2,7 +2,6 @@
 using System.Diagnostics;
 
 #nullable enable
-
 namespace LibationFileManager
 {
     public class NullInteropFunctions : IInteropFunctions

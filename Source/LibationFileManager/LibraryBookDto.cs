@@ -2,26 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
 namespace LibationFileManager
 {
     public class BookDto
     {
-        public string AudibleProductId { get; set; }
-        public string Title { get; set; }
-		public string Subtitle { get; set; }
-		public string TitleWithSubtitle { get; set; }
-		public string Locale { get; set; }
+        public string? AudibleProductId { get; set; }
+        public string? Title { get; set; }
+		public string? Subtitle { get; set; }
+		public string? TitleWithSubtitle { get; set; }
+		public string? Locale { get; set; }
         public int? YearPublished { get; set; }
 
-        public IEnumerable<string> Authors { get; set; }
-        public string AuthorNames => string.Join(", ", Authors);
-        public string FirstAuthor => Authors.FirstOrDefault();
+        public IEnumerable<string>? Authors { get; set; }
+        public string? AuthorNames => Authors is null ? null : string.Join(", ", Authors);
+        public string? FirstAuthor => Authors?.FirstOrDefault();
 
-        public IEnumerable<string> Narrators { get; set; }
-        public string NarratorNames => string.Join(", ", Narrators);
-        public string FirstNarrator => Narrators.FirstOrDefault();
+        public IEnumerable<string>? Narrators { get; set; }
+        public string? NarratorNames => Narrators is null? null: string.Join(", ", Narrators);
+        public string? FirstNarrator => Narrators?.FirstOrDefault();
 
-        public string SeriesName { get; set; }
+        public string? SeriesName { get; set; }
         public float? SeriesNumber { get; set; }
         public bool IsSeries => !string.IsNullOrEmpty(SeriesName);
         public bool IsPodcastParent { get; set; }
@@ -32,13 +33,13 @@ namespace LibationFileManager
         public int Channels { get; set; }
 		public DateTime FileDate { get; set; } = DateTime.Now;
         public DateTime? DatePublished { get; set; }
-        public string Language { get; set; }
+        public string? Language { get; set; }
 	}
 
     public class LibraryBookDto : BookDto
 	{
 		public DateTime? DateAdded { get; set; }
-		public string Account { get; set; }
-		public string AccountNickname { get; set; }
+		public string? Account { get; set; }
+		public string? AccountNickname { get; set; }
     }
 }

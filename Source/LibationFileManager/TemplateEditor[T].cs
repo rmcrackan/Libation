@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 
+#nullable enable
 namespace LibationFileManager
 {
 	public interface ITemplateEditor
@@ -14,14 +15,11 @@ namespace LibationFileManager
 		string DefaultTemplate { get; }
 		string TemplateName { get; }
 		string TemplateDescription { get; }
-		Templates Folder { get; }
-		Templates File { get; }
-		Templates Name { get; }
 		Templates EditingTemplate { get; }
-		void SetTemplateText(string templateText);
-		string GetFolderName();
-		string GetFileName();
-		string GetName();
+		bool SetTemplateText(string templateText);
+		string? GetFolderName();
+		string? GetFileName();
+		string? GetName();
 	}
 
 	public class TemplateEditor<T> : ITemplateEditor where T : Templates, ITemplate, new()
@@ -32,9 +30,9 @@ namespace LibationFileManager
 		public string DefaultTemplate { get; private init; }
 		public string TemplateName { get; private init; }
 		public string TemplateDescription { get; private init; }
-		public Templates Folder { get; private set; }
-		public Templates File { get; private set; }
-		public Templates Name { get; private set; }
+		private Templates? Folder { get; set; }
+		private Templates? File { get; set; }
+		private Templates? Name { get; set; }
 		public Templates EditingTemplate
 		{
 			get => _editingTemplate;
@@ -43,10 +41,14 @@ namespace LibationFileManager
 
 		private Templates _editingTemplate;
 
-		public void SetTemplateText(string templateText)
+		public bool SetTemplateText(string templateText)
 		{
-			Templates.TryGetTemplate<T>(templateText, out var template);
-			EditingTemplate = template;
+			if (Templates.TryGetTemplate<T>(templateText, out var template))
+			{
+				EditingTemplate = template;
+				return true;
+			}
+			return false;
 		}
 
 		private static readonly LibraryBookDto libraryBookDto
@@ -80,7 +82,7 @@ namespace LibationFileManager
 				Title = "A Flight for Life"
 			};
 
-		public string GetFolderName()
+		public string? GetFolderName()
 		{
 			/*
 			* Path must be rooted for windows to allow long file paths. This is
@@ -88,49 +90,49 @@ namespace LibationFileManager
 			* subdirectories. Without rooting, we won't be allowed to create a
 			* relative path longer than MAX_PATH.
 			*/
-			var dir = Folder.GetFilename(libraryBookDto, BaseDirectory, "");
+			var dir = Folder?.GetFilename(libraryBookDto, BaseDirectory, "");
+			if (dir is null) return null;
 			return Path.GetRelativePath(BaseDirectory, dir);
 		}
 
-		public string GetFileName()
-			=> File.GetFilename(libraryBookDto, partFileProperties, "", "");
-		public string GetName()
-			=> Name.GetName(libraryBookDto, partFileProperties);
+		public string? GetFileName()
+			=> File?.GetFilename(libraryBookDto, partFileProperties, "", "");
+		public string? GetName()
+			=> Name?.GetName(libraryBookDto, partFileProperties);
+
+		private TemplateEditor(
+			Templates editingTemplate,
+			LongPath baseDirectory,
+			string defaultTemplate,
+			string templateName,
+			string templateDescription)
+		{
+			_editingTemplate = editingTemplate;
+			BaseDirectory = baseDirectory;
+			DefaultTemplate = defaultTemplate;
+			TemplateName = templateName;
+			TemplateDescription = templateDescription;
+		}
 
 		public static ITemplateEditor CreateFilenameEditor(LongPath baseDir, string templateText)
 		{
-			Templates.TryGetTemplate<T>(templateText, out var template);
+			if (!Templates.TryGetTemplate<T>(templateText, out var template))
+				throw new ArgumentException($"Failed to parse {nameof(templateText)}");
 
-			var templateEditor = new TemplateEditor<T>
-			{
-				_editingTemplate = template,
-				BaseDirectory = baseDir,
-				DefaultTemplate = T.DefaultTemplate,
-				TemplateName = T.Name,
-				TemplateDescription = T.Description
-				
-			};
+			var templateEditor = new TemplateEditor<T>(template, baseDir, T.DefaultTemplate, T.Name, T.Description);
 
 			if (!templateEditor.IsFolder && !templateEditor.IsFilePath)
 				throw new InvalidOperationException($"This method is only for File and Folder templates. Use {nameof(CreateNameEditor)} for name templates");
-
-			templateEditor.Folder = templateEditor.IsFolder ? template : Templates.Folder;
-			templateEditor.File = templateEditor.IsFolder ? Templates.File : template;
 
 			return templateEditor;
 		}
 
 		public static ITemplateEditor CreateNameEditor(string templateText)
 		{
-			Templates.TryGetTemplate<T>(templateText, out var nameTemplate);
+			if (!Templates.TryGetTemplate<T>(templateText, out var nameTemplate))
+				throw new ArgumentException($"Failed to parse {nameof(templateText)}");
 
-			var templateEditor = new TemplateEditor<T>
-			{
-				_editingTemplate = nameTemplate,
-				DefaultTemplate = T.DefaultTemplate,
-				TemplateName = T.Name,
-				TemplateDescription = T.Description
-			};
+			var templateEditor = new TemplateEditor<T>(nameTemplate, "", T.DefaultTemplate, T.Name, T.Description);
 
 			if (templateEditor.IsFolder || templateEditor.IsFilePath)
 				throw new InvalidOperationException($"This method is only for name templates. Use {nameof(CreateFilenameEditor)} for file templates");
