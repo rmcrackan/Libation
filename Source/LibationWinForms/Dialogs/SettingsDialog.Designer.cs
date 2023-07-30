@@ -360,7 +360,7 @@
 			// 
 			booksSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			booksSelectControl.AutoSize = true;
-			booksSelectControl.Location = new System.Drawing.Point(7, 23);
+			booksSelectControl.Location = new System.Drawing.Point(8, 38);
 			booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			booksSelectControl.Name = "booksSelectControl";
 			booksSelectControl.Size = new System.Drawing.Size(830, 102);
@@ -419,7 +419,7 @@
 			groupBox1.Controls.Add(gridScaleFactorTbar);
 			groupBox1.Controls.Add(gridFontScaleFactorLbl);
 			groupBox1.Controls.Add(gridFontScaleFactorTbar);
-			groupBox1.Location = new System.Drawing.Point(6, 261);
+			groupBox1.Location = new System.Drawing.Point(6, 277);
 			groupBox1.Name = "groupBox1";
 			groupBox1.Size = new System.Drawing.Size(844, 83);
 			groupBox1.TabIndex = 9;
@@ -491,7 +491,7 @@
 			booksGb.Controls.Add(booksLocationDescLbl);
 			booksGb.Location = new System.Drawing.Point(6, 6);
 			booksGb.Name = "booksGb";
-			booksGb.Size = new System.Drawing.Size(844, 249);
+			booksGb.Size = new System.Drawing.Size(844, 265);
 			booksGb.TabIndex = 0;
 			booksGb.TabStop = false;
 			booksGb.Text = "Books location";
@@ -500,7 +500,7 @@
 			// 
 			lastWriteTimeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			lastWriteTimeCb.FormattingEnabled = true;
-			lastWriteTimeCb.Location = new System.Drawing.Point(211, 214);
+			lastWriteTimeCb.Location = new System.Drawing.Point(212, 229);
 			lastWriteTimeCb.Name = "lastWriteTimeCb";
 			lastWriteTimeCb.Size = new System.Drawing.Size(272, 23);
 			lastWriteTimeCb.TabIndex = 5;
@@ -509,7 +509,7 @@
 			// 
 			creationTimeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			creationTimeCb.FormattingEnabled = true;
-			creationTimeCb.Location = new System.Drawing.Point(211, 185);
+			creationTimeCb.Location = new System.Drawing.Point(212, 200);
 			creationTimeCb.Name = "creationTimeCb";
 			creationTimeCb.Size = new System.Drawing.Size(272, 23);
 			creationTimeCb.TabIndex = 5;
@@ -517,7 +517,7 @@
 			// lastWriteTimeLbl
 			// 
 			lastWriteTimeLbl.AutoSize = true;
-			lastWriteTimeLbl.Location = new System.Drawing.Point(7, 217);
+			lastWriteTimeLbl.Location = new System.Drawing.Point(8, 232);
 			lastWriteTimeLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			lastWriteTimeLbl.Name = "lastWriteTimeLbl";
 			lastWriteTimeLbl.Size = new System.Drawing.Size(116, 15);
@@ -527,7 +527,7 @@
 			// creationTimeLbl
 			// 
 			creationTimeLbl.AutoSize = true;
-			creationTimeLbl.Location = new System.Drawing.Point(7, 188);
+			creationTimeLbl.Location = new System.Drawing.Point(8, 203);
 			creationTimeLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			creationTimeLbl.Name = "creationTimeLbl";
 			creationTimeLbl.Size = new System.Drawing.Size(112, 15);
@@ -537,7 +537,7 @@
 			// overwriteExistingCbox
 			// 
 			overwriteExistingCbox.AutoSize = true;
-			overwriteExistingCbox.Location = new System.Drawing.Point(7, 156);
+			overwriteExistingCbox.Location = new System.Drawing.Point(8, 171);
 			overwriteExistingCbox.Name = "overwriteExistingCbox";
 			overwriteExistingCbox.Size = new System.Drawing.Size(129, 19);
 			overwriteExistingCbox.TabIndex = 3;
@@ -547,7 +547,7 @@
 			// saveEpisodesToSeriesFolderCbox
 			// 
 			saveEpisodesToSeriesFolderCbox.AutoSize = true;
-			saveEpisodesToSeriesFolderCbox.Location = new System.Drawing.Point(7, 131);
+			saveEpisodesToSeriesFolderCbox.Location = new System.Drawing.Point(8, 146);
 			saveEpisodesToSeriesFolderCbox.Name = "saveEpisodesToSeriesFolderCbox";
 			saveEpisodesToSeriesFolderCbox.Size = new System.Drawing.Size(191, 19);
 			saveEpisodesToSeriesFolderCbox.TabIndex = 3;
