@@ -6,18 +6,25 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationFileManager
 {
 	public enum PictureSize { Native, _80x80 = 80, _300x300 = 300, _500x500 = 500 }
 	public class PictureCachedEventArgs : EventArgs
 	{
-		public PictureDefinition Definition { get; internal set; }
-		public byte[] Picture { get; internal set; }
+		public PictureDefinition Definition { get; }
+		public byte[] Picture { get; }
+
+		internal PictureCachedEventArgs(PictureDefinition definition, byte[] picture)
+		{
+			Definition = definition;
+			Picture = picture;
+		}
 	}
 	public struct PictureDefinition : IEquatable<PictureDefinition>
 	{
-		public string PictureId { get; }
-		public PictureSize Size { get; }
+		public string PictureId { get; init; }
+		public PictureSize Size { get; init; }
 
 		public PictureDefinition(string pictureId, PictureSize pictureSize)
 		{
@@ -45,7 +52,7 @@ namespace LibationFileManager
 			.Start();
 		}
 
-		public static event EventHandler<PictureCachedEventArgs> PictureCached;
+		public static event EventHandler<PictureCachedEventArgs>? PictureCached;
 
 		private static BlockingCollection<PictureDefinition> DownloadQueue { get; } = new BlockingCollection<PictureDefinition>();
 		private static object cacheLocker { get; } = new object();
@@ -112,7 +119,7 @@ namespace LibationFileManager
 				lock (cacheLocker)
 					cache[def] = bytes;
 
-				PictureCached?.Invoke(nameof(PictureStorage), new PictureCachedEventArgs { Definition = def, Picture = bytes });
+				PictureCached?.Invoke(nameof(PictureStorage), new PictureCachedEventArgs(def, bytes));
 			}
 		}
 

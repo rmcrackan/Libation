@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Serilog;
 using Dinah.Core.Logging;
 
+#nullable enable
 namespace LibationFileManager
 {
     public partial class Configuration
@@ -44,7 +45,7 @@ namespace LibationFileManager
             }
         }
 
-        private static string libationFilesPathCache { get; set; }
+        private static string? libationFilesPathCache { get; set; }
 
 		/// <summary>
 		/// Try to find appsettings.json in the following locations:
@@ -124,7 +125,10 @@ namespace LibationFileManager
             // do not check whether directory exists. special/meta directory (eg: AppDir) is valid
             // verify from live file. no try/catch. want failures to be visible
             var jObjFinal = JObject.Parse(File.ReadAllText(AppsettingsJsonFile));
-            var valueFinal = jObjFinal[LIBATION_FILES_KEY].Value<string>();
+
+			if (jObjFinal[LIBATION_FILES_KEY]?.Value<string>() is not string valueFinal)
+				throw new InvalidDataException($"{LIBATION_FILES_KEY} not found in {AppsettingsJsonFile}");
+
             return valueFinal;
         }
 

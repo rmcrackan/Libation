@@ -1,5 +1,6 @@
 ﻿using FileManager.NamingTemplate;
 
+#nullable enable
 namespace LibationFileManager
 {
 	public sealed class TemplateTags : ITemplateTag
@@ -10,7 +11,7 @@ namespace LibationFileManager
 		public string Description { get; }
 		public string Display { get; }
 
-		private TemplateTags(string tagName, string description, string defaultValue = null, string display = null)
+		private TemplateTags(string tagName, string description, string? defaultValue = null, string? display = null)
 		{
 			TagName = tagName;
 			Description = description;

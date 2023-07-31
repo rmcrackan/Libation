@@ -4,7 +4,7 @@ using System.Linq;
 using Dinah.Core;
 using FileManager;
 
-
+#nullable enable
 namespace LibationFileManager
 {
 	public partial class Configuration : PropertyChangeFilter
@@ -24,9 +24,12 @@ namespace LibationFileManager
 
 			if (!Directory.Exists(booksDir))
 			{
+				if (Path.GetDirectoryName(settingsFile) is not string dir)
+					throw new DirectoryNotFoundException(settingsFile);
+
 				//"Books" is not null, so setup has already been run.
 				//Since Books can't be found, try to create it in Libation settings folder
-				booksDir = Path.Combine(Path.GetDirectoryName(settingsFile), nameof(Books));
+				booksDir = Path.Combine(dir, nameof(Books));
 				try
 				{
 					Directory.CreateDirectory(booksDir);

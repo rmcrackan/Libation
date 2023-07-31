@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
+#nullable enable
 namespace FileManager.NamingTemplate;
 
 /// <summary>A collection of <see cref="IPropertyTag"/>s registered to a single <see cref="Type"/>.</summary>
@@ -32,7 +34,7 @@ public abstract class TagCollection : IEnumerable<ITemplateTag>
 	/// <param name="exactName">The <paramref name="templateString"/> substring that was matched.</param>
 	/// <param name="propertyValue">The <see cref="Expression"/> that returns the <paramref name="propertyTag"/>'s value</param>
 	/// <returns>True if the <paramref name="templateString"/> starts with a tag registered in this class.</returns>
-	internal bool StartsWith(string templateString, out string exactName, out IPropertyTag propertyTag, out Expression propertyValue)
+	internal bool StartsWith(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IPropertyTag? propertyTag, [NotNullWhen(true)] out Expression? propertyValue)
 	{
 		foreach (var p in PropertyTags)
 		{
@@ -57,7 +59,7 @@ public abstract class TagCollection : IEnumerable<ITemplateTag>
 	/// <param name="exactName">The <paramref name="templateString"/> substring that was matched.</param>
 	/// <param name="closingPropertyTag">The registered <see cref="IClosingPropertyTag"/></param>
 	/// <returns>True if the <paramref name="templateString"/> starts with this tag.</returns>
-	internal bool StartsWithClosing(string templateString, out string exactName, out IClosingPropertyTag closingPropertyTag)
+	internal bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? closingPropertyTag)
 	{
 		foreach (var  cg in PropertyTags.OfType<IClosingPropertyTag>())
 		{

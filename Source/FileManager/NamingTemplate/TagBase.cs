@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
+#nullable enable
 namespace FileManager.NamingTemplate;
 
 internal interface IPropertyTag
@@ -22,13 +24,13 @@ internal interface IPropertyTag
 	/// <param name="exactName">The <paramref name="templateString"/> substring that was matched.</param>
 	/// <param name="propertyValue">The <see cref="Expression"/> that returns the property's value</param>
 	/// <returns>True if the <paramref name="templateString"/> starts with this tag.</returns>
-	bool StartsWith(string templateString, out string exactName, out Expression propertyValue);
+	bool StartsWith(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out Expression? propertyValue);
 }
 
 internal abstract class TagBase : IPropertyTag
 {
 	public ITemplateTag TemplateTag { get; }
-	public Regex NameMatcher { get; protected init; }
+	public abstract Regex NameMatcher { get; }
 	public Type ReturnType => ValueExpression.Type;
 	protected Expression ValueExpression { get; }
 
@@ -43,7 +45,7 @@ internal abstract class TagBase : IPropertyTag
 	/// <param name="formatter">The optional format string in the match inside the square brackets</param>
 	protected abstract Expression GetTagExpression(string exactName, string formatter);
 
-	public bool StartsWith(string templateString, out string exactName, out Expression propertyValue)
+	public bool StartsWith(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out Expression? propertyValue)
 	{
 		var match = NameMatcher.Match(templateString);
 		if (match.Success)

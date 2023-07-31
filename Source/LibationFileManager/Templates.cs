@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using AaxDecrypter;
@@ -8,6 +9,7 @@ using FileManager;
 using FileManager.NamingTemplate;
 using NameParser;
 
+#nullable enable
 namespace LibationFileManager
 {
 	public interface ITemplate
@@ -26,10 +28,10 @@ namespace LibationFileManager
 		//Assigning the properties in the static constructor will require all
 		//Templates users to have a valid configuration file. To allow tests
 		//to work without access to Configuration, only load templates on demand.
-		private static FolderTemplate _folder;
-		private static FileTemplate _file;
-		private static ChapterFileTemplate _chapterFile;
-		private static ChapterTitleTemplate _chapterTitle;
+		private static FolderTemplate? _folder;
+		private static FileTemplate? _file;
+		private static ChapterFileTemplate? _chapterFile;
+		private static ChapterTitleTemplate? _chapterTitle;
 
 		public static FolderTemplate Folder => _folder ??= GetTemplate<FolderTemplate>(Configuration.Instance.FolderTemplate);
 		public static FileTemplate File => _file ??= GetTemplate<FileTemplate>(Configuration.Instance.FileTemplate);
@@ -38,10 +40,10 @@ namespace LibationFileManager
 
 		#region Template Parsing
 
-		public static T GetTemplate<T>(string templateText) where T : Templates, ITemplate, new()
-			=> TryGetTemplate<T>(templateText, out var template) ? template : GetDefaultTemplate<T>();
+		public static T GetTemplate<T>(string? templateText) where T : Templates, ITemplate, new()
+			=> TryGetTemplate<T>(templateText ?? "", out var template) ? template : GetDefaultTemplate<T>();
 
-		public static bool TryGetTemplate<T>(string templateText, out T template) where T : Templates, ITemplate, new()
+		public static bool TryGetTemplate<T>(string templateText, [NotNullWhen(true)] out T? template) where T : Templates, ITemplate, new()
 		{
 			var namingTemplate = NamingTemplate.Parse(templateText, T.TagCollections);
 
@@ -56,19 +58,19 @@ namespace LibationFileManager
 		{
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.FolderTemplate))]
-				(_,e) => _folder = GetTemplate<FolderTemplate>((string)e.NewValue);
+				(_,e) => _folder = GetTemplate<FolderTemplate>(e.NewValue as string);
 
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.FileTemplate))]
-				(_, e) => _file = GetTemplate<FileTemplate>((string)e.NewValue);
+				(_, e) => _file = GetTemplate<FileTemplate>(e.NewValue as string);
 
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.ChapterFileTemplate))]
-				(_, e) => _chapterFile = GetTemplate<ChapterFileTemplate>((string)e.NewValue);
+				(_, e) => _chapterFile = GetTemplate<ChapterFileTemplate>(e.NewValue as string);
 
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.ChapterTitleTemplate))]
-				(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>((string)e.NewValue);
+				(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>(e.NewValue as string);
 
 			HumanName.Suffixes.Add("ret");
 			HumanName.Titles.Add("professor");
@@ -78,10 +80,18 @@ namespace LibationFileManager
 
 		#region Template Properties
 
-		public IEnumerable<TemplateTags> TagsRegistered => NamingTemplate.TagsRegistered.Cast<TemplateTags>();
-		public IEnumerable<TemplateTags> TagsInUse => NamingTemplate.TagsInUse.Cast<TemplateTags>();
-		public string TemplateText => NamingTemplate.TemplateText;
-		protected NamingTemplate NamingTemplate { get; private set; }
+		public IEnumerable<TemplateTags> TagsRegistered
+			=> NamingTemplate?.TagsRegistered.Cast<TemplateTags>() ?? Enumerable.Empty<TemplateTags>();
+		public IEnumerable<TemplateTags> TagsInUse
+			=> NamingTemplate?.TagsInUse.Cast<TemplateTags>() ?? Enumerable.Empty<TemplateTags>();
+		public string TemplateText => NamingTemplate?.TemplateText ?? "";
+
+		private readonly NamingTemplate? _namingTemplate;
+		protected NamingTemplate NamingTemplate
+		{
+			get => _namingTemplate ?? throw new NullReferenceException(nameof(_namingTemplate));
+			private init => _namingTemplate = value;
+		}
 
 		#endregion
 
@@ -104,7 +114,7 @@ namespace LibationFileManager
 			return string.Concat(NamingTemplate.Evaluate(libraryBookDto, multiChapProps).Select(p => p.Value));
 		}
 
-		public LongPath GetFilename(LibraryBookDto libraryBookDto, string baseDir, string fileExtension, ReplacementCharacters replacements = null, bool returnFirstExisting = false)
+		public LongPath GetFilename(LibraryBookDto libraryBookDto, string baseDir, string fileExtension, ReplacementCharacters? replacements = null, bool returnFirstExisting = false)
 		{
 			ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 			ArgumentValidator.EnsureNotNull(baseDir, nameof(baseDir));
@@ -114,7 +124,7 @@ namespace LibationFileManager
 			return GetFilename(baseDir, fileExtension,replacements, returnFirstExisting, libraryBookDto);
 		}
 
-		public LongPath GetFilename(LibraryBookDto libraryBookDto, MultiConvertFileProperties multiChapProps, string baseDir, string fileExtension, ReplacementCharacters replacements = null, bool returnFirstExisting = false)
+		public LongPath GetFilename(LibraryBookDto libraryBookDto, MultiConvertFileProperties multiChapProps, string baseDir, string fileExtension, ReplacementCharacters? replacements = null, bool returnFirstExisting = false)
 		{
 			ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 			ArgumentValidator.EnsureNotNull(multiChapProps, nameof(multiChapProps));
@@ -246,7 +256,7 @@ namespace LibationFileManager
 			new(caseSensative: true, StringFormatter, DateTimeFormatter, IntegerFormatter, FloatFormatter)
 		{
 			//Don't allow formatting of Id
-			{ TemplateTags.Id, lb => lb.AudibleProductId, v => v },
+			{ TemplateTags.Id, lb => lb.AudibleProductId, v => v ?? "" },
 			{ TemplateTags.Title, lb => lb.TitleWithSubtitle },
 			{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
 			{ TemplateTags.AudibleTitle, lb => lb.Title },
@@ -308,13 +318,13 @@ namespace LibationFileManager
 
 		#region Tag Formatters
 
-		private static string getTitleShort(string title)
+		private static string? getTitleShort(string? title)
 			=> title?.IndexOf(':') > 0 ? title.Substring(0, title.IndexOf(':')) : title;
 
-		private static string getLanguageShort(string language)
+		private static string getLanguageShort(string? language)
 		{
 			if (language is null)
-				return null;
+				return "";
 
 			language = language.Trim();
 			if (language.Length <= 3)
@@ -324,8 +334,9 @@ namespace LibationFileManager
 
 		private static string StringFormatter(ITemplateTag templateTag, string value, string formatString)
 		{
-			if (string.Compare(formatString, "u", ignoreCase: true) == 0) return value?.ToUpper();
-			else if (string.Compare(formatString, "l", ignoreCase: true) == 0) return value?.ToLower();
+			if (value is null) return "";
+			else if (string.Compare(formatString, "u", ignoreCase: true) == 0) return value.ToUpper();
+			else if (string.Compare(formatString, "l", ignoreCase: true) == 0) return value.ToLower();
 			else return value;
 		}
 
@@ -358,7 +369,7 @@ namespace LibationFileManager
 		public class FolderTemplate : Templates, ITemplate
 		{
 			public static string Name { get; }= "Folder Template";
-			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate));
+			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title short> [<id>]";
 			public static IEnumerable<TagCollection> TagCollections
 				=> new TagCollection[] { filePropertyTags, conditionalTags, folderConditionalTags };
@@ -378,7 +389,7 @@ namespace LibationFileManager
 		public class FileTemplate : Templates, ITemplate
 		{
 			public static string Name { get; } = "File Template";
-			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FileTemplate));
+			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FileTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title> [<id>]";
 			public static IEnumerable<TagCollection> TagCollections { get; } = new TagCollection[] { filePropertyTags, conditionalTags };
 		}
@@ -386,7 +397,7 @@ namespace LibationFileManager
 		public class ChapterFileTemplate : Templates, ITemplate
 		{
 			public static string Name { get; } = "Chapter File Template";
-			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));
+			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
 			public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(filePropertyTags).Append(conditionalTags);
 
@@ -399,7 +410,7 @@ namespace LibationFileManager
 		public class ChapterTitleTemplate : Templates, ITemplate
 		{
 			public static string Name { get; } = "Chapter Title Template";
-			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate));
+			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate)) ?? "";
 			public static string DefaultTemplate => "<ch#> - <title short>: <ch title>";
 			public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(conditionalTags);
 

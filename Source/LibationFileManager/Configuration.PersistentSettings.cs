@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ using FileManager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
+#nullable enable
 namespace LibationFileManager
 {
 	public partial class Configuration
@@ -18,34 +20,52 @@ namespace LibationFileManager
 		// config class is only responsible for path. not responsible for setting defaults, dir validation, or dir creation
 		// exceptions: appsettings.json, LibationFiles dir, Settings.json
 
-		private PersistentDictionary persistentDictionary;
+		private PersistentDictionary? persistentDictionary;
 
-		public bool RemoveProperty(string propertyName) => persistentDictionary.RemoveProperty(propertyName);
+		private PersistentDictionary Settings
+		{
+			get
+			{
+				if (persistentDictionary is null)
+					throw new InvalidOperationException($"{nameof(persistentDictionary)} must first be set by accessing {nameof(LibationFiles)} or calling {nameof(SettingsFileIsValid)}");
+				return persistentDictionary;
+			}
+		}
 
-		public T GetNonString<T>(T defaultValue, [CallerMemberName] string propertyName = "") => persistentDictionary.GetNonString(propertyName, defaultValue);
-		public object GetObject([CallerMemberName] string propertyName = "") => persistentDictionary.GetObject(propertyName);
-		public string GetString(string defaultValue = null, [CallerMemberName] string propertyName = "") => persistentDictionary.GetString(propertyName, defaultValue);
-		public void SetNonString(object newValue, [CallerMemberName] string propertyName = "")
+		public bool RemoveProperty(string propertyName) => Settings.RemoveProperty(propertyName);
+
+		[return: NotNullIfNotNull(nameof(defaultValue))]
+		public T? GetNonString<T>(T defaultValue, [CallerMemberName] string propertyName = "")
+			=> Settings.GetNonString(propertyName, defaultValue);
+
+
+		[return: NotNullIfNotNull(nameof(defaultValue))]
+		public string? GetString(string? defaultValue = null, [CallerMemberName] string propertyName = "")
+			=> Settings.GetString(propertyName, defaultValue);
+
+		public object? GetObject([CallerMemberName] string propertyName = "") => Settings.GetObject(propertyName);
+
+		public void SetNonString(object? newValue, [CallerMemberName] string propertyName = "")
 		{
 			var existing = getExistingValue(propertyName);
 			if (existing?.Equals(newValue) is true) return;
 
 			OnPropertyChanging(propertyName, existing, newValue);
-			persistentDictionary.SetNonString(propertyName, newValue);
+			Settings.SetNonString(propertyName, newValue);
 			OnPropertyChanged(propertyName, newValue);
 		}
 
-		public void SetString(string newValue, [CallerMemberName] string propertyName = "")
+		public void SetString(string? newValue, [CallerMemberName] string propertyName = "")
 		{
 			var existing = getExistingValue(propertyName);
 			if (existing?.Equals(newValue) is true) return;
 
 			OnPropertyChanging(propertyName, existing, newValue);
-			persistentDictionary.SetString(propertyName, newValue);
+			Settings.SetString(propertyName, newValue);
 			OnPropertyChanged(propertyName, newValue);
 		}
 
-		private object getExistingValue(string propertyName)
+		private object? getExistingValue(string propertyName)
 		{
 			var property = GetType().GetProperty(propertyName);
 			if (property is not null) return property.GetValue(this);
@@ -53,16 +73,16 @@ namespace LibationFileManager
 		}
 
 		/// <summary>WILL ONLY set if already present. WILL NOT create new</summary>
-		public void SetWithJsonPath(string jsonPath, string propertyName, string newValue, bool suppressLogging = false)
+		public void SetWithJsonPath(string jsonPath, string propertyName, string? newValue, bool suppressLogging = false)
 		{
-			var settingWasChanged = persistentDictionary.SetWithJsonPath(jsonPath, propertyName, newValue, suppressLogging);
+			var settingWasChanged = Settings.SetWithJsonPath(jsonPath, propertyName, newValue, suppressLogging);
 			if (settingWasChanged)
 				configuration?.Reload();
 		}
 
 		public string SettingsFilePath => Path.Combine(LibationFiles, "Settings.json");
 
-		public static string GetDescription(string propertyName)
+		public static string? GetDescription(string propertyName)
 		{
 			var attribute = typeof(Configuration)
 				.GetProperty(propertyName)
@@ -73,7 +93,7 @@ namespace LibationFileManager
 			return attribute?.Description;
 		}
 
-		public bool Exists(string propertyName) => persistentDictionary.Exists(propertyName);
+		public bool Exists(string propertyName) => Settings.Exists(propertyName);
 
 		[Description("Set cover art as the folder's icon.")]
 		public bool UseCoverAsFolderIcon { get => GetNonString(defaultValue: false); set => SetNonString(value); }
@@ -91,7 +111,7 @@ namespace LibationFileManager
 		public bool BetaOptIn { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Location for book storage. Includes destination of newly liberated books")]
-		public LongPath Books { get => GetString(); set => SetString(value); }
+		public LongPath? Books { get => GetString(); set => SetString(value); }
 
 		[Description("Overwrite existing files if they already exist?")]
 		public bool OverwriteExisting { get => GetNonString(defaultValue: false); set => SetNonString(value); }

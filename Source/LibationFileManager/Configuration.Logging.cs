@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Dinah.Core;
 using Dinah.Core.Logging;
 using FileManager;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 
+#nullable enable
 namespace LibationFileManager
 {
     public partial class Configuration
     {
-        private IConfigurationRoot configuration;
+        private IConfigurationRoot? configuration;
 
         public void ConfigureLogging()
         {
@@ -31,20 +30,20 @@ namespace LibationFileManager
         {
             get
             {
-                var logLevelStr = persistentDictionary.GetStringFromJsonPath("Serilog", "MinimumLevel");
+                var logLevelStr = Settings.GetStringFromJsonPath("Serilog", "MinimumLevel");
                 return Enum.TryParse<LogEventLevel>(logLevelStr, out var logLevelEnum) ? logLevelEnum : LogEventLevel.Information;
             }
             set
             {
                 OnPropertyChanging(nameof(LogLevel), LogLevel, value);
-                var valueWasChanged = persistentDictionary.SetWithJsonPath("Serilog", "MinimumLevel", value.ToString());
+                var valueWasChanged = Settings.SetWithJsonPath("Serilog", "MinimumLevel", value.ToString());
                 if (!valueWasChanged)
                 {
                     Log.Logger.Debug("LogLevel.set attempt. No change");
                     return;
                 }
 
-                configuration.Reload();
+                configuration?.Reload();
 
                 OnPropertyChanged(nameof(LogLevel), value);
 

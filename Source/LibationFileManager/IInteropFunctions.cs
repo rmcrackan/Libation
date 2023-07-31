@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationFileManager
 {
-#nullable enable
 	public interface IInteropFunctions
     {
 		/// <summary>

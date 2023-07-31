@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -7,20 +8,20 @@ using Dinah.Core;
 using Polly;
 using Polly.Retry;
 
+#nullable enable
 namespace FileManager
 {
 	public static class FileUtility
 	{
-
-
 		/// <summary>
 		/// "txt" => ".txt"
 		/// <br />".txt" => ".txt"
 		/// <br />null or whitespace => ""
 		/// </summary>
-		public static string GetStandardizedExtension(string extension)
+		[return: NotNull]
+		public static string GetStandardizedExtension(string? extension)
 			=> string.IsNullOrWhiteSpace(extension)
-			? (extension ?? "")?.Trim()
+			? string.Empty
 			: '.' + extension.Trim().Trim('.');
 
 		/// <summary>
@@ -48,18 +49,18 @@ namespace FileManager
 		/// <br/>- ensure uniqueness
 		/// <br/>- enforce max file length
 		/// </summary>
-		public static LongPath GetValidFilename(LongPath path, ReplacementCharacters replacements, string fileExtension, bool returnFirstExisting = false)
+		public static LongPath GetValidFilename(LongPath path, ReplacementCharacters replacements, string? fileExtension, bool returnFirstExisting = false)
 		{
 			ArgumentValidator.EnsureNotNull(path, nameof(path));
-			ArgumentValidator.EnsureNotNull(fileExtension, nameof(fileExtension));
+			ArgumentValidator.EnsureNotNull(replacements, nameof(replacements));
+
 			fileExtension = GetStandardizedExtension(fileExtension);
 
 			// remove invalid chars
 			path = GetSafePath(path, replacements);
 
 			// ensure uniqueness and check lengths
-			var dir = Path.GetDirectoryName(path);
-			dir = dir?.TruncateFilename(LongPath.MaxDirectoryLength) ?? string.Empty;
+			var dir = Path.GetDirectoryName(path)?.TruncateFilename(LongPath.MaxDirectoryLength) ?? string.Empty;
 
 			var fileName = Path.GetFileName(path);
 			var extIndex = fileName.LastIndexOf(fileExtension, StringComparison.OrdinalIgnoreCase);
@@ -84,6 +85,7 @@ namespace FileManager
 		public static LongPath GetSafePath(LongPath path, ReplacementCharacters replacements)
 		{
 			ArgumentValidator.EnsureNotNull(path, nameof(path));
+			ArgumentValidator.EnsureNotNull(replacements, nameof(replacements));
 
 			var pathNoPrefix = path.PathWithoutPrefix;
 
@@ -159,7 +161,7 @@ namespace FileManager
 			LongPath source,
 			LongPath destination,
 			ReplacementCharacters replacements,
-			string extension = null,
+			string? extension = null,
 			bool overwrite = false)
 		{
 			extension ??= Path.GetExtension(source);
@@ -213,6 +215,9 @@ namespace FileManager
 					SaferDelete(destination);
 
 					var dir = Path.GetDirectoryName(destination);
+					if (dir is null)
+						throw new DirectoryNotFoundException();
+
 					Serilog.Log.Logger.Debug("Attempt to create directory: {@DebugText}", new { dir });
 					Directory.CreateDirectory(dir);
 

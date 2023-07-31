@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace FileManager
 {
     /// <summary>
@@ -16,9 +17,9 @@ namespace FileManager
         public string SearchPattern { get; private set; }
         public SearchOption SearchOption { get; private set; }
 
-        private FileSystemWatcher fileSystemWatcher { get; set; }
-        private BlockingCollection<FileSystemEventArgs> directoryChangesEvents { get; set; }
-        private Task backgroundScanner { get; set; }
+        private FileSystemWatcher? fileSystemWatcher { get; set; }
+        private BlockingCollection<FileSystemEventArgs>? directoryChangesEvents { get; set; }
+        private Task? backgroundScanner { get; set; }
 
         private object fsCacheLocker { get; } = new();
         private List<LongPath> fsCache { get; } = new();
@@ -32,7 +33,7 @@ namespace FileManager
             Init();
         }
 
-        public LongPath FindFile(System.Text.RegularExpressions.Regex regex)
+        public LongPath? FindFile(System.Text.RegularExpressions.Regex regex)
         {
             lock (fsCacheLocker)
                 return fsCache.FirstOrDefault(s => regex.IsMatch(s));
@@ -105,13 +106,13 @@ namespace FileManager
 
         private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
         {
-            directoryChangesEvents.Add(e);
+            directoryChangesEvents?.Add(e);
         }
 
         #region Background Thread
         private void BackgroundScanner()
         {
-            while (directoryChangesEvents.TryTake(out FileSystemEventArgs change, -1))
+            while (directoryChangesEvents?.TryTake(out var change, -1) is true)
             {
                 lock (fsCacheLocker)
                     UpdateLocalCache(change);

@@ -6,6 +6,7 @@ using Dinah.Core.Collections.Immutable;
 using FileManager;
 using Newtonsoft.Json;
 
+#nullable enable
 namespace LibationFileManager
 {
 	public static class FilePathCache
@@ -14,8 +15,8 @@ namespace LibationFileManager
 
 		private const string FILENAME = "FileLocations.json";
 
-		public static event EventHandler<CacheEntry> Inserted;
-		public static event EventHandler<CacheEntry> Removed;
+		public static event EventHandler<CacheEntry>? Inserted;
+		public static event EventHandler<CacheEntry>? Removed;
 
 		private static Cache<CacheEntry> cache { get; } = new Cache<CacheEntry>();
 
@@ -51,7 +52,7 @@ namespace LibationFileManager
 			.Select(entry => (entry.FileType, entry.Path))
 			.ToList();
 
-		public static LongPath GetFirstPath(string id, FileType type)
+		public static LongPath? GetFirstPath(string id, FileType type)
 			=> getEntries(entry => entry.Id == id && entry.FileType == type)
 			?.FirstOrDefault()
 			?.Path;

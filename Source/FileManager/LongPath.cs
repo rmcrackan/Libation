@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
+#nullable enable
 namespace FileManager
 {
 	public class LongPath
@@ -15,9 +17,9 @@ namespace FileManager
 		public static readonly int MaxPathLength;
 		private const int WIN_MAX_PATH = 260;
 		private const string WIN_LONG_PATH_PREFIX = @"\\?\";
-		internal static readonly bool IsWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-		internal static readonly bool IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-		internal static readonly bool IsOSX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+		internal static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+		internal static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+		internal static readonly bool IsOSX = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 	
 		public string Path { get; }
 
@@ -60,7 +62,8 @@ namespace FileManager
 			=> IsWindows ? filename.Length
 			: Encoding.UTF8.GetByteCount(filename);
 
-		public static implicit operator LongPath(string path)
+		[return: NotNullIfNotNull(nameof(path))]
+		public static implicit operator LongPath?(string? path)
 		{
 			if (path is null) return null;
 
@@ -93,7 +96,8 @@ namespace FileManager
 			}
 		}
 
-		public static implicit operator string(LongPath path) => path?.Path;
+		[return: NotNullIfNotNull(nameof(path))]
+		public static implicit operator string?(LongPath? path) => path?.Path;
 
 		[JsonIgnore]
 		public string ShortPathName
@@ -127,8 +131,6 @@ namespace FileManager
 				//for newly-created entries in ther file system. Existing entries made while
 				//8dot3 names were disabled will not be reachable by short paths.
 
-				if (Path is null) return null;
-
 				StringBuilder shortPathBuffer = new(MaxPathLength);
 				GetShortPathName(Path, shortPathBuffer, MaxPathLength);
 				return shortPathBuffer.ToString();
@@ -141,7 +143,6 @@ namespace FileManager
 			get
 			{
 				if (!IsWindows) return Path;
-				if (Path is null) return null;
 
 				StringBuilder longPathBuffer = new(MaxPathLength);
 				GetLongPathName(Path, longPathBuffer, MaxPathLength);
@@ -156,17 +157,18 @@ namespace FileManager
 			{
 				if (!IsWindows) return Path;
 				return
-					Path?.StartsWith(WIN_LONG_PATH_PREFIX) == true ? Path.Remove(0, WIN_LONG_PATH_PREFIX.Length)
-					:Path;
+					Path.StartsWith(WIN_LONG_PATH_PREFIX)
+					? Path.Remove(0, WIN_LONG_PATH_PREFIX.Length)
+					: Path;
 			}
 		}
 
 		public override string ToString() => Path;
 
 		public override int GetHashCode() => Path.GetHashCode();
-		public override bool Equals(object obj) => obj is LongPath other && Path == other.Path;
-		public static bool operator ==(LongPath path1, LongPath path2) => path1.Equals(path2);
-		public static bool operator !=(LongPath path1, LongPath path2) => !path1.Equals(path2);
+		public override bool Equals(object? obj) => obj is LongPath other && Path == other.Path;
+		public static bool operator ==(LongPath? path1, LongPath? path2) => path1?.Equals(path2) is true;
+		public static bool operator !=(LongPath? path1, LongPath? path2) => path1 is null || path2 is null || !path1.Equals(path2);
 
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
