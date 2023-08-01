@@ -37,11 +37,16 @@ namespace LibationWinForms.Dialogs
 			if (directory != Configuration.KnownDirectories.None)
 				selectDir(directory, null);
 		}
+
 		protected override void OnResize(EventArgs e)
 		{
 			base.OnResize(e);
-			//For some reason anchors don't work when the parent form scales up, even with AutoScale
-			directorySelectControl.Width = customTb.Width = Width;
+			//Workaround for anchoring bug in user controls
+			//https://github.com/dotnet/winforms/issues/6381
+			customBtn.Location = new System.Drawing.Point(Width - customBtn.Width, customTb.Location.Y);
+			customBtn.Height = customTb.Height;
+			directorySelectControl.Width = Width - directorySelectControl.Location.X;
+			customTb.Width = Width - customTb.Location.X - customBtn.Width - customTb.Margin.Left;
 		}
 
 		/// <summary>set selection</summary>

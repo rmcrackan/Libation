@@ -49,7 +49,7 @@ namespace LibationWinForms.Dialogs
 			// customDirectoryRb
 			// 
 			customDirectoryRb.AutoSize = true;
-			customDirectoryRb.Location = new System.Drawing.Point(2, 62);
+			customDirectoryRb.Location = new System.Drawing.Point(3, 58);
 			customDirectoryRb.Name = "customDirectoryRb";
 			customDirectoryRb.Size = new System.Drawing.Size(14, 13);
 			customDirectoryRb.TabIndex = 2;
@@ -58,18 +58,16 @@ namespace LibationWinForms.Dialogs
 			// 
 			// customTb
 			// 
-			customTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			customTb.Location = new System.Drawing.Point(22, 58);
+			customTb.Location = new System.Drawing.Point(23, 56);
 			customTb.Name = "customTb";
-			customTb.Size = new System.Drawing.Size(588, 23);
+			customTb.Size = new System.Drawing.Size(606, 23);
 			customTb.TabIndex = 3;
 			// 
 			// customBtn
 			// 
-			customBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-			customBtn.Location = new System.Drawing.Point(616, 58);
+			customBtn.Location = new System.Drawing.Point(635, 55);
 			customBtn.Name = "customBtn";
-			customBtn.Size = new System.Drawing.Size(41, 27);
+			customBtn.Size = new System.Drawing.Size(26, 23);
 			customBtn.TabIndex = 4;
 			customBtn.Text = "...";
 			customBtn.UseVisualStyleBackColor = true;
@@ -77,12 +75,9 @@ namespace LibationWinForms.Dialogs
 			// 
 			// directorySelectControl
 			// 
-			directorySelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			directorySelectControl.AutoSize = true;
 			directorySelectControl.Location = new System.Drawing.Point(23, 0);
-			directorySelectControl.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
 			directorySelectControl.Name = "directorySelectControl";
-			directorySelectControl.Size = new System.Drawing.Size(635, 55);
+			directorySelectControl.Size = new System.Drawing.Size(637, 50);
 			directorySelectControl.TabIndex = 5;
 			// 
 			// DirectoryOrCustomSelectControl
@@ -95,7 +90,7 @@ namespace LibationWinForms.Dialogs
 			Controls.Add(customDirectoryRb);
 			Controls.Add(knownDirectoryRb);
 			Name = "DirectoryOrCustomSelectControl";
-			Size = new System.Drawing.Size(660, 88);
+			Size = new System.Drawing.Size(660, 80);
 			Load += DirectoryOrCustomSelectControl_Load;
 			ResumeLayout(false);
 			PerformLayout();
