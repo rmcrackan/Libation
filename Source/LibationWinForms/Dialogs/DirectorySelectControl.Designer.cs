@@ -35,7 +35,7 @@ namespace LibationWinForms.Dialogs
 			// 
 			// directoryComboBox
 			// 
-			directoryComboBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			directoryComboBox.Dock = System.Windows.Forms.DockStyle.Top;
 			directoryComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			directoryComboBox.FormattingEnabled = true;
 			directoryComboBox.Location = new System.Drawing.Point(0, 0);
@@ -46,8 +46,8 @@ namespace LibationWinForms.Dialogs
 			// 
 			// textBox1
 			// 
-			textBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			textBox1.Location = new System.Drawing.Point(0, 29);
+			textBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
+			textBox1.Location = new System.Drawing.Point(0, 26);
 			textBox1.Name = "textBox1";
 			textBox1.ReadOnly = true;
 			textBox1.Size = new System.Drawing.Size(814, 23);
@@ -57,11 +57,10 @@ namespace LibationWinForms.Dialogs
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			AutoSize = true;
 			Controls.Add(textBox1);
 			Controls.Add(directoryComboBox);
 			Name = "DirectorySelectControl";
-			Size = new System.Drawing.Size(814, 55);
+			Size = new System.Drawing.Size(814, 49);
 			Load += DirectorySelectControl_Load;
 			ResumeLayout(false);
 			PerformLayout();

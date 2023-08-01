@@ -339,11 +339,10 @@
 			// inProgressSelectControl
 			// 
 			inProgressSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			inProgressSelectControl.AutoSize = true;
-			inProgressSelectControl.Location = new System.Drawing.Point(7, 68);
+			inProgressSelectControl.Location = new System.Drawing.Point(6, 85);
 			inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			inProgressSelectControl.Name = "inProgressSelectControl";
-			inProgressSelectControl.Size = new System.Drawing.Size(830, 55);
+			inProgressSelectControl.Size = new System.Drawing.Size(830, 49);
 			inProgressSelectControl.TabIndex = 19;
 			// 
 			// logsBtn
@@ -359,11 +358,10 @@
 			// booksSelectControl
 			// 
 			booksSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			booksSelectControl.AutoSize = true;
-			booksSelectControl.Location = new System.Drawing.Point(8, 38);
+			booksSelectControl.Location = new System.Drawing.Point(6, 37);
 			booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			booksSelectControl.Name = "booksSelectControl";
-			booksSelectControl.Size = new System.Drawing.Size(830, 102);
+			booksSelectControl.Size = new System.Drawing.Size(832, 102);
 			booksSelectControl.TabIndex = 2;
 			// 
 			// loggingLevelLbl
@@ -617,7 +615,7 @@
 			// saveMetadataToFileCbox
 			// 
 			saveMetadataToFileCbox.AutoSize = true;
-			saveMetadataToFileCbox.Location = new System.Drawing.Point(482, 415);
+			saveMetadataToFileCbox.Location = new System.Drawing.Point(482, 428);
 			saveMetadataToFileCbox.Name = "saveMetadataToFileCbox";
 			saveMetadataToFileCbox.Size = new System.Drawing.Size(165, 19);
 			saveMetadataToFileCbox.TabIndex = 22;
@@ -627,7 +625,7 @@
 			// useCoverAsFolderIconCb
 			// 
 			useCoverAsFolderIconCb.AutoSize = true;
-			useCoverAsFolderIconCb.Location = new System.Drawing.Point(7, 415);
+			useCoverAsFolderIconCb.Location = new System.Drawing.Point(7, 428);
 			useCoverAsFolderIconCb.Name = "useCoverAsFolderIconCb";
 			useCoverAsFolderIconCb.Size = new System.Drawing.Size(180, 19);
 			useCoverAsFolderIconCb.TabIndex = 22;
@@ -641,7 +639,7 @@
 			inProgressFilesGb.Controls.Add(inProgressSelectControl);
 			inProgressFilesGb.Location = new System.Drawing.Point(6, 281);
 			inProgressFilesGb.Name = "inProgressFilesGb";
-			inProgressFilesGb.Size = new System.Drawing.Size(842, 128);
+			inProgressFilesGb.Size = new System.Drawing.Size(842, 141);
 			inProgressFilesGb.TabIndex = 21;
 			inProgressFilesGb.TabStop = false;
 			inProgressFilesGb.Text = "In progress files";

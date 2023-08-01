@@ -48,7 +48,7 @@
 			// 
 			cancelBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 			cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			cancelBtn.Location = new System.Drawing.Point(832, 118);
+			cancelBtn.Location = new System.Drawing.Point(832, 119);
 			cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			cancelBtn.Name = "cancelBtn";
 			cancelBtn.Size = new System.Drawing.Size(88, 27);
@@ -60,7 +60,7 @@
 			// saveBtn
 			// 
 			saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-			saveBtn.Location = new System.Drawing.Point(714, 118);
+			saveBtn.Location = new System.Drawing.Point(736, 119);
 			saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			saveBtn.Name = "saveBtn";
 			saveBtn.Size = new System.Drawing.Size(88, 27);
@@ -73,9 +73,9 @@
 			// 
 			libationFilesSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			libationFilesSelectControl.Location = new System.Drawing.Point(14, 28);
-			libationFilesSelectControl.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+			libationFilesSelectControl.Margin = new System.Windows.Forms.Padding(6);
 			libationFilesSelectControl.Name = "libationFilesSelectControl";
-			libationFilesSelectControl.Size = new System.Drawing.Size(906, 88);
+			libationFilesSelectControl.Size = new System.Drawing.Size(906, 81);
 			libationFilesSelectControl.TabIndex = 1;
 			// 
 			// LibationFilesDialog
@@ -83,7 +83,7 @@
 			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			AutoSize = true;
-			ClientSize = new System.Drawing.Size(933, 164);
+			ClientSize = new System.Drawing.Size(933, 158);
 			Controls.Add(libationFilesSelectControl);
 			Controls.Add(cancelBtn);
 			Controls.Add(saveBtn);
