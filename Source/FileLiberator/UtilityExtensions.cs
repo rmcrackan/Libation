@@ -30,7 +30,7 @@ namespace FileLiberator
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var nickname
 				= persister.AccountsSettings.Accounts
-				.FirstOrDefault(a => a.AccountId == libraryBook.Account)
+				.FirstOrDefault(a => a.AccountId == libraryBook.Account && a.Locale.Name == libraryBook.Book.Locale)
 				?.AccountName;
 
 			return new()

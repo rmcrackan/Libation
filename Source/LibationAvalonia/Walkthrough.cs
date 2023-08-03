@@ -3,7 +3,6 @@ using AudibleUtilities;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Dinah.Core.StepRunner;
@@ -13,7 +12,6 @@ using LibationFileManager;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Avalonia.Threading.Dispatcher;
 
 namespace LibationAvalonia
 {
@@ -36,12 +34,13 @@ namespace LibationAvalonia
 			AutoScan = Configuration.Instance.AutoScan;
 			Configuration.Instance.AutoScan = false;
 			MainForm = mainForm;
-			sequence[nameof(ShowAccountDialog)] = () => UIThread.InvokeAsync(ShowAccountDialog);
-			sequence[nameof(ShowSettingsDialog)] = () => UIThread.InvokeAsync(ShowSettingsDialog);
-			sequence[nameof(ShowAccountScanning)] = () => UIThread.InvokeAsync(ShowAccountScanning);
-			sequence[nameof(ShowSearching)] = () => UIThread.InvokeAsync(ShowSearching);
-			sequence[nameof(ShowQuickFilters)] = () => UIThread.InvokeAsync(ShowQuickFilters);
-			sequence[nameof(ShowTourComplete)] = () => UIThread.InvokeAsync(ShowTourComplete);
+			var uiDispatcher = Avalonia.Threading.Dispatcher.UIThread;
+			sequence[nameof(ShowAccountDialog)] = () => uiDispatcher.InvokeAsync(ShowAccountDialog);
+			sequence[nameof(ShowSettingsDialog)] = () => uiDispatcher.InvokeAsync(ShowSettingsDialog);
+			sequence[nameof(ShowAccountScanning)] = () => uiDispatcher.InvokeAsync(ShowAccountScanning);
+			sequence[nameof(ShowSearching)] = () => uiDispatcher.InvokeAsync(ShowSearching);
+			sequence[nameof(ShowQuickFilters)] = () => uiDispatcher.InvokeAsync(ShowQuickFilters);
+			sequence[nameof(ShowTourComplete)] = () => uiDispatcher.InvokeAsync(ShowTourComplete);
 		}
 
 		public async Task RunAsync()
@@ -60,7 +59,7 @@ namespace LibationAvalonia
 			await displayControlAsync(MainForm.accountsToolStripMenuItem);
 
 			var accountSettings = new AccountsDialog();
-			accountSettings.Loaded += async (_, _) => await MessageBox.Show(accountSettings, "Add your Audible account(s), then save.", "Add an Account");
+			accountSettings.Opened += async (_, _) => await MessageBox.Show(accountSettings, "Add your Audible account(s), then save.", "Add an Account");
 			await accountSettings.ShowDialog(MainForm);
 			return true;
 		}
@@ -74,14 +73,14 @@ namespace LibationAvalonia
 			await displayControlAsync(MainForm.settingsToolStripMenuItem);
 			await displayControlAsync(MainForm.basicSettingsToolStripMenuItem);
 
-			var settingsDialog = await UIThread.InvokeAsync(() => new SettingsDialog());
+			var settingsDialog = new SettingsDialog();
 
 			var tabsToVisit = settingsDialog.tabControl.Items.OfType<TabItem>().ToList();
 
 			foreach (var tab in tabsToVisit)
 				tab.PropertyChanged += TabControl_PropertyChanged;
 
-			settingsDialog.Loaded += SettingsDialog_Loaded;
+			settingsDialog.Opened += SettingsDialog_Opened;
 			settingsDialog.Closing += SettingsDialog_FormClosing;
 			settingsDialog.saveBtn.Content = "Next Tab";
 
@@ -103,7 +102,7 @@ namespace LibationAvalonia
 				settingTabMessages.Remove(header.Text);
 			}
 
-			async void SettingsDialog_Loaded(object sender, RoutedEventArgs e)
+			async void SettingsDialog_Opened(object sender, System.EventArgs e)
 			{
 				await ShowTabPageMessageBoxAsync(tabsToVisit[0]);
 			}
@@ -227,7 +226,7 @@ namespace LibationAvalonia
 			await displayControlAsync(editQuickFiltersToolStripMenuItem);
 
 			var editQuickFilters = new EditQuickFilters();
-			editQuickFilters.Loaded += async (_, _) => await MessageBox.Show(editQuickFilters, "From here you can edit, delete, and change the order of Quick Filters", "Editing Quick Filters");
+			editQuickFilters.Opened += async (_, _) => await MessageBox.Show(editQuickFilters, "From here you can edit, delete, and change the order of Quick Filters", "Editing Quick Filters");
 			await editQuickFilters.ShowDialog(MainForm);
 
 			return true;
@@ -247,12 +246,12 @@ namespace LibationAvalonia
 
 		private async Task displayControlAsync(TemplatedControl control)
 		{
-			await UIThread.InvokeAsync(() => control.IsEnabled = false);
-			await UIThread.InvokeAsync(() => MainForm.productsDisplay.Focus());
-			await UIThread.InvokeAsync(() => flashControlAsync(control));
-			if (control is MenuItem menuItem) await UIThread.InvokeAsync(menuItem.Open);
+			control.IsEnabled = false;
+			MainForm.productsDisplay.Focus();
+			await flashControlAsync(control);
+			if (control is MenuItem menuItem) menuItem.Open();
 			await Task.Delay(500);
-			await UIThread.InvokeAsync(() => control.IsEnabled = true);
+			control.IsEnabled = true;
 		}
 
 		private static async Task flashControlAsync(TemplatedControl control, int flashCount = 3)
