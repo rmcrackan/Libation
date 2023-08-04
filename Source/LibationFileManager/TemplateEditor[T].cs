@@ -60,6 +60,7 @@ namespace LibationFileManager
 				DatePublished = new DateTime(2017, 2, 27, 0, 0, 0),
 				AudibleProductId = "123456789",
 				Title = "A Study in Scarlet",
+				TitleWithSubtitle = "A Study in Scarlet: A Sherlock Holmes Novel",
 				Subtitle = "A Sherlock Holmes Novel",
 				Locale = "us",
 				YearPublished = 2017,
@@ -123,6 +124,11 @@ namespace LibationFileManager
 
 			if (!templateEditor.IsFolder && !templateEditor.IsFilePath)
 				throw new InvalidOperationException($"This method is only for File and Folder templates. Use {nameof(CreateNameEditor)} for name templates");
+			
+			if (templateEditor.IsFolder)
+				templateEditor.File = Templates.File;
+			else
+				templateEditor.Folder = Templates.Folder;
 
 			return templateEditor;
 		}
