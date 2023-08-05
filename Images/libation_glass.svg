@@ -1,28 +1,45 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" enable-background="new 0 0 512 512">
-<path id="glass" d=
-"M139,2
-	A 192,200 0 0 0 103,84
-	A 222,334 41 0 0 241,320
-	V478
-	H160
-	A 16,16 0 0 0 160,510
-	H352
-	A16 16 0 0 0 352,478
-	H271
-	V320
-	A 222,334 -41 0 0 409,84
-	A 192,200 0 0 0 373,2
-M355,32
-	A 192,200 0 0 1 381,127
-	A 187.5,334 -35 0 1 256,286
-	A 187.5,334 35 0 1 131,127
-	A 192,200 0 0 1 157,32
-	H355
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 524 524" enable-background="new 0 0 524 524">
+
+    <defs>
+      <filter id="white-glow" x="-400%" y="-400%" width="800%" height="800%">
+          <feFlood result="flood" flood-color="#ffffff" flood-opacity="1"></feFlood>
+          <feComposite in="flood" result="mask" in2="SourceGraphic" operator="in"></feComposite>
+          <feMorphology in="mask" result="dilated" operator="dilate" radius="3"></feMorphology>
+          <feGaussianBlur in="dilated" result="blurred" stdDeviation="6"></feGaussianBlur>
+          <feMerge>
+              <feMergeNode in="blurred"></feMergeNode>
+              <feMergeNode in="SourceGraphic"></feMergeNode>
+          </feMerge>
+      </filter>
+    </defs>
+
+<rect x="-400%" y="-400%" width="800%" height="800%" fill="Black" />
+<path id="glass" fill-rule="evenodd" style="fill: #000; filter:url(#white-glow)" d=
+"M145,8
+	a 192,200 0 0 0 -36,82
+	a 222,334 41 0 0 138,236
+	v158
+	h-81
+	a 16,16 0 0 0 0,32
+	h192
+	a 16 16 0 0 0 0,-32
+	h-81
+	v-158
+	a 222,334 -41 0 0 138,-236
+	a 192,200 0 0 0 -36,-82
+	h-234
+m18,30
+	a 192,200 0 0 0 -26,95
+	a 187.5,334 35 0 0 125,159
+	a 187.5,334 -35 0 0 125,-159
+	a 192,200 0 0 0 -26,-95
+	h-198
 z" />
 
-<path id="wine-level" d=
-"M146,128
-	A 168,300 35 0 0 256,270
-	A 168,300 -35 0 0 366,128
+<path id="wine-level" style="fill: #000; filter:url(#white-glow)" d=
+"M156,136
+	a 168,300 35 0 0 106,138
+	a 168,300 -35 0 0 106,-138
 z"/>
+
 </svg>
