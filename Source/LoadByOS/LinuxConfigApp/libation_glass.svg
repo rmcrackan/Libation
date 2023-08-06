@@ -1,28 +1,17 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="256.0px" height="256.0px" viewBox="0 0 512 512" enable-background="new 0 0 512 512">
-<path id="glass" d=
-"M139,2
-	A 192,200 0 0 0 103,84
-	A 222,334 41 0 0 241,320
-	V478
-	H160
-	A 16,16 0 0 0 160,510
-	H352
-	A16 16 0 0 0 352,478
-	H271
-	V320
-	A 222,334 -41 0 0 409,84
-	A 192,200 0 0 0 373,2
-M355,32
-	A 192,200 0 0 1 381,127
-	A 187.5,334 -35 0 1 256,286
-	A 187.5,334 35 0 1 131,127
-	A 192,200 0 0 1 157,32
-	H355
-z" />
-
-<path id="wine-level" d=
-"M146,128
-	A 168,300 35 0 0 256,270
-	A 168,300 -35 0 0 366,128
-z"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 0 524 524"
+   enable-background="new 0 0 524 524"
+   id="svg2"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <path
+     id="glass"
+     style="fill:#000000;stroke:#ffffff;stroke-width:15;stroke-opacity:1"
+     d="m 139,8 a 192,200 0 0 0 -36,82 222,334 41 0 0 138,236 v 158 h -81 a 16,16 0 0 0 0,32 h 192 a 16,16 0 0 0 0,-32 H 271 V 326 A 222,334 -41 0 0 409,90 192,200 0 0 0 373,8 M 355,38 A 192,200 0 0 1 381,133 187.5,334 -35 0 1 256,292 187.5,334 35 0 1 131,133 192,200 0 0 1 157,38 Z" />
+  <path
+     id="wine-level"
+     style="fill:#000000;stroke:#ffffff;stroke-width:15;stroke-opacity:1"
+     d="M 130.89329,136 C 127.43056,223.18769 184.92587,291.90751 256,292 c 71.07413,-0.0925 128.56944,-68.81231 125.10671,-156 z" />
 </svg>
