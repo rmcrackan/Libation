@@ -1,15 +1,18 @@
 using ApplicationServices;
 using AudibleUtilities;
 using Avalonia.Collections;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using DataLayer;
 using LibationAvalonia.Dialogs.Login;
+using LibationFileManager;
 using LibationUiBase.GridView;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.ViewModels
@@ -27,8 +30,8 @@ namespace LibationAvalonia.ViewModels
 		public string FilterString { get; private set; }
 		public DataGridCollectionView GridEntries { get; private set; }
 
-		private bool _removeColumnVisivle;
-		public bool RemoveColumnVisivle { get => _removeColumnVisivle; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisivle, value); }
+		private bool _removeColumnVisible;
+		public bool RemoveColumnVisible { get => _removeColumnVisible; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisible, value); }
 
 		public List<LibraryBook> GetVisibleBookEntries()
 			=> FilteredInGridEntries?
@@ -321,7 +324,7 @@ namespace LibationAvalonia.ViewModels
 		{
 			foreach (var item in SOURCE)
 				item.PropertyChanged -= GridEntry_PropertyChanged;
-			RemoveColumnVisivle = false;
+			RemoveColumnVisible = false;
 		}
 
 		public async Task RemoveCheckedBooksAsync()
@@ -376,7 +379,7 @@ namespace LibationAvalonia.ViewModels
 				item.PropertyChanged += GridEntry_PropertyChanged;
 			}
 
-			RemoveColumnVisivle = true;
+			RemoveColumnVisible = true;
 			RemovableCountChanged?.Invoke(this, 0);
 
 			try
@@ -417,6 +420,45 @@ namespace LibationAvalonia.ViewModels
 			{
 				int removeCount = GetAllBookEntries().Count(lbe => lbe.Remove is true);
 				RemovableCountChanged?.Invoke(this, removeCount);
+			}
+		}
+
+		#endregion
+
+		#region Column Widths
+
+		public DataGridLength TitleWidth { get => getColumnWidth("Title", 200); set => setColumnWidth("Title", value); }
+		public DataGridLength AuthorsWidth { get => getColumnWidth("Authors", 100); set => setColumnWidth("Authors", value); }
+		public DataGridLength NarratorsWidth { get => getColumnWidth("Narrators", 100); set => setColumnWidth("Narrators", value); }
+		public DataGridLength LengthWidth { get => getColumnWidth("Length", 80); set => setColumnWidth("Length", value); }
+		public DataGridLength SeriesWidth { get => getColumnWidth("Series", 100); set => setColumnWidth("Series", value); }
+		public DataGridLength SeriesOrderWidth { get => getColumnWidth("SeriesOrder", 60); set => setColumnWidth("SeriesOrder", value); }
+		public DataGridLength DescriptionWidth { get => getColumnWidth("Description", 100); set => setColumnWidth("Description", value); }
+		public DataGridLength CategoryWidth { get => getColumnWidth("Category", 100); set => setColumnWidth("Category", value); }
+		public DataGridLength ProductRatingWidth { get => getColumnWidth("ProductRating", 95); set => setColumnWidth("ProductRating", value); }
+		public DataGridLength PurchaseDateWidth { get => getColumnWidth("PurchaseDate", 75); set => setColumnWidth("PurchaseDate", value); }
+		public DataGridLength MyRatingWidth { get => getColumnWidth("MyRating", 95); set => setColumnWidth("MyRating", value); }
+		public DataGridLength MiscWidth { get => getColumnWidth("Misc", 140); set => setColumnWidth("Misc", value); }
+		public DataGridLength LastDownloadWidth { get => getColumnWidth("LastDownload", 100); set => setColumnWidth("LastDownload", value); }
+		public DataGridLength BookTagsWidth { get => getColumnWidth("BookTags", 100); set => setColumnWidth("BookTags", value); }
+
+		private static DataGridLength getColumnWidth(string columnName, double defaultWidth)
+			=> Configuration.Instance.GridColumnsWidths.TryGetValue(columnName, out var val)
+			? new DataGridLength(val)
+			: new DataGridLength(defaultWidth);
+
+		private void setColumnWidth(string columnName, DataGridLength width, [CallerMemberName] string propertyName = "")
+		{
+			var dictionary = Configuration.Instance.GridColumnsWidths;
+
+			var newValue = (int)width.DisplayValue;
+			var valueSame = dictionary.TryGetValue(columnName, out var val) && val == newValue;
+			dictionary[columnName] = newValue;
+
+			if (!valueSame)
+			{
+				Configuration.Instance.GridColumnsWidths = dictionary;
+				this.RaisePropertyChanged(propertyName);
 			}
 		}
 
