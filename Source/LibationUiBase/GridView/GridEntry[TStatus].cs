@@ -37,7 +37,7 @@ namespace LibationUiBase.GridView
 		private string _purchasedate;
 		private string _length;
 		private LastDownloadStatus _lastDownload;
-		private object _cover;
+		private Lazy<object> _lazyCover;
 		private string _series;
 		private SeriesOrder _seriesOrder;
 		private string _title;
@@ -55,7 +55,7 @@ namespace LibationUiBase.GridView
 		public string PurchaseDate { get => _purchasedate; protected set => RaiseAndSetIfChanged(ref _purchasedate, value); }
 		public string Length { get => _length; protected set => RaiseAndSetIfChanged(ref _length, value); }
 		public LastDownloadStatus LastDownload { get => _lastDownload; protected set => RaiseAndSetIfChanged(ref _lastDownload, value); }
-		public object Cover { get => _cover; private set => RaiseAndSetIfChanged(ref _cover, value); }
+		public object Cover { get => _lazyCover.Value; }
 		public string Series { get => _series; private set => RaiseAndSetIfChanged(ref _series, value); }
 		public SeriesOrder SeriesOrder { get => _seriesOrder; private set => RaiseAndSetIfChanged(ref _seriesOrder, value); }
 		public string Title { get => _title; private set => RaiseAndSetIfChanged(ref _title, value); }
@@ -132,7 +132,7 @@ namespace LibationUiBase.GridView
 			int bookLenMins = GetLengthInMinutes();
 			return bookLenMins == 0 ? "" : $"{bookLenMins / 60} hr {bookLenMins % 60} min";
 		}
-
+		
 		#endregion
 
 		#region detect changes to the model, update the view.
@@ -200,35 +200,30 @@ namespace LibationUiBase.GridView
 
 		#region Sorting
 
-		public GridEntry()
+		public object GetMemberValue(string memberName) => memberName switch
 		{
-			memberValues = new()
-			{
-				{ nameof(Remove), () => Remove.HasValue ? Remove.Value ? RemoveStatus.Removed : RemoveStatus.NotRemoved : RemoveStatus.SomeRemoved },
-				{ nameof(Title), () => Book.TitleSortable() },
-				{ nameof(Series), () => Book.SeriesSortable() },
-				{ nameof(SeriesOrder), () => SeriesOrder },
-				{ nameof(Length), () => GetLengthInMinutes() },
-				{ nameof(MyRating), () => Book.UserDefinedItem.Rating },
-				{ nameof(PurchaseDate), () => GetPurchaseDate() },
-				{ nameof(ProductRating), () => Book.Rating },
-				{ nameof(Authors), () => Authors },
-				{ nameof(Narrators), () => Narrators },
-				{ nameof(Description), () => Description },
-				{ nameof(Category), () => Category },
-				{ nameof(Misc), () => Misc },
-				{ nameof(LastDownload), () => LastDownload },
-				{ nameof(BookTags), () => BookTags ?? string.Empty },
-				{ nameof(Liberate), () => Liberate },
-				{ nameof(DateAdded), () => DateAdded },
-			};
-		}
+			nameof(Remove) => Remove.HasValue ? Remove.Value ? RemoveStatus.Removed : RemoveStatus.NotRemoved : RemoveStatus.SomeRemoved,
+			nameof(Title) => Book.TitleSortable(),
+			nameof(Series) => Book.SeriesSortable(),
+			nameof(SeriesOrder) => SeriesOrder,
+			nameof(Length) => GetLengthInMinutes(),
+			nameof(MyRating) => Book.UserDefinedItem.Rating,
+			nameof(PurchaseDate) => GetPurchaseDate(),
+			nameof(ProductRating) => Book.Rating,
+			nameof(Authors) => Authors,
+			nameof(Narrators) => Narrators,
+			nameof(Description) => Description,
+			nameof(Category) => Category,
+			nameof(Misc) => Misc,
+			nameof(LastDownload) => LastDownload,
+			nameof(BookTags) => BookTags ?? string.Empty,
+			nameof(Liberate) => Liberate,
+			nameof(DateAdded) => DateAdded,
+			_ => null
+		};
 
-		public object GetMemberValue(string memberName) => memberValues[memberName]();
 		public IComparer GetMemberComparer(Type memberType)
 			=> memberTypeComparers.TryGetValue(memberType, out IComparer value) ? value : memberTypeComparers[memberType.BaseType];
-
-		private readonly Dictionary<string, Func<object>> memberValues;
 
 		// Instantiate comparers for every exposed member object type.
 		private static readonly Dictionary<Type, IComparer> memberTypeComparers = new()
@@ -258,7 +253,7 @@ namespace LibationUiBase.GridView
 				PictureStorage.PictureCached += PictureStorage_PictureCached;
 
 			// Mutable property. Set the field so PropertyChanged isn't fired.
-			_cover = Liberate.LoadImage(picture);
+			_lazyCover = new Lazy<object>(() => Liberate.LoadImage(picture));
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
@@ -272,7 +267,8 @@ namespace LibationUiBase.GridView
 			// logic validation
 			if (e.Definition.PictureId == Book.PictureId)
 			{
-				Cover = Liberate.LoadImage(e.Picture);
+				_lazyCover = new Lazy<object>(() => Liberate.LoadImage(e.Picture));
+				RaisePropertyChanged(nameof(Cover));
 				PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
 		}
