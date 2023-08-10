@@ -13,8 +13,6 @@ using LibationSearchEngine;
 using Lucene.Net.Analysis.Standard;
 using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Moq.Protected;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

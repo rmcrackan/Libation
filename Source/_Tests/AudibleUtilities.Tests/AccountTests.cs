@@ -14,8 +14,6 @@ using FluentAssertions;
 using FluentAssertions.Common;
 using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Moq.Protected;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
