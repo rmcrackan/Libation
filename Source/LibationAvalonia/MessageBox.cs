@@ -177,9 +177,12 @@ Libation.
 			tbx.MinWidth = vm.TextBlockMinWidth;
 			tbx.Text = message;
 
-			var thisScreen = owner.Screens.ScreenFromVisual(owner);
+			
+			var thisScreen = owner.Screens?.ScreenFromVisual(owner);
 
-			var maxSize = new Size(0.20 * thisScreen.Bounds.Width, 0.9 * thisScreen.Bounds.Height - 55);
+			var maxSize
+				= thisScreen is null ? owner.ClientSize
+				: new Size(0.20 * thisScreen.Bounds.Width, 0.9 * thisScreen.Bounds.Height - 55);
 
 			var desiredMax = new Size(maxSize.Width, maxSize.Height);
 

@@ -21,7 +21,7 @@ namespace LibationAvalonia.Views
 			InitializeComponent();
 			Configure_Upgrade();
 
-			Loaded += MainWindow_Loaded;
+			Opened += MainWindow_Opened;
 			Closing += MainWindow_Closing;
 			LibraryLoaded += MainWindow_LibraryLoaded;
 
@@ -35,7 +35,7 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private async void MainWindow_Loaded(object sender, EventArgs e)
+		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
 			if (Configuration.Instance.FirstLaunch)
 			{
