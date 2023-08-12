@@ -149,6 +149,8 @@ namespace DtoImporterService
 		{
 			var item = importItem.DtoItem;
 
+			book.UpdateLengthInMinutes(item.LengthInMinutes);
+
 			// Update the book titles, since formatting can change
 			book.UpdateTitle(item.Title, item.Subtitle);
 
