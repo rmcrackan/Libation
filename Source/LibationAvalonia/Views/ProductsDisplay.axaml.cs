@@ -11,6 +11,7 @@ using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
 using LibationUiBase.GridView;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -172,126 +173,107 @@ namespace LibationAvalonia.Views
 
 		public void ProductsGrid_CellContextMenuStripNeeded(object sender, DataGridCellContextMenuStripNeededEventArgs args)
 		{
+			var entry = args.GridEntry;
+			var ctx = new GridContextMenu(entry, '_');
+
 			if (args.Column.SortMemberPath is not "Liberate" and not "Cover")
 			{
-				var menuItem = new MenuItem { Header = "_Copy Cell Contents" };
-
-				menuItem.Click += async (s, e)
-					=> await App.MainWindow.Clipboard.SetTextAsync(args.CellClipboardContents);
-
-				args.ContextMenuItems.Add(menuItem);
+				args.ContextMenuItems.Add(new MenuItem
+				{
+					Header = ctx.CopyCellText,
+					Command = ReactiveCommand.CreateFromTask(() => App.MainWindow.Clipboard.SetTextAsync(args.CellClipboardContents))
+				});
 				args.ContextMenuItems.Add(new Separator());
 			}
-			var entry = args.GridEntry;
 
 			#region Liberate all Episodes
 
 			if (entry.Liberate.IsSeries)
 			{
-				var liberateEpisodesMenuItem = new MenuItem()
+				args.ContextMenuItems.Add(new MenuItem()
 				{
-					Header = "_Liberate All Episodes",
-					IsEnabled = ((ISeriesEntry)entry).Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
-				};
-
-				args.ContextMenuItems.Add(liberateEpisodesMenuItem);
-
-				liberateEpisodesMenuItem.Click += (_, _) => LiberateSeriesClicked?.Invoke(this, ((ISeriesEntry)entry));
+					Header = ctx.LiberateEpisodesText,
+					IsEnabled = ctx.LiberateEpisodesEnabled,
+					Command = ReactiveCommand.Create(() => LiberateSeriesClicked?.Invoke(this, (ISeriesEntry)entry))
+				});
 			}
 
 			#endregion
 			#region Set Download status to Downloaded
 
-			var setDownloadMenuItem = new MenuItem()
+			args.ContextMenuItems.Add(new MenuItem()
 			{
-				Header = "Set Download status to '_Downloaded'",
-				IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || entry.Liberate.IsSeries
-			};
-
-			args.ContextMenuItems.Add(setDownloadMenuItem);
-
-			if (entry.Liberate.IsSeries)
-				setDownloadMenuItem.Click += (_, __) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.Liberated);
-			else
-				setDownloadMenuItem.Click += (_, __) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.Liberated);
+				Header = ctx.SetDownloadedText,
+				IsEnabled = ctx.SetDownloadedEnabled,
+				Command = ReactiveCommand.Create(ctx.SetDownloaded)
+			});
 
 			#endregion
 			#region Set Download status to Not Downloaded
 
-			var setNotDownloadMenuItem = new MenuItem()
+			args.ContextMenuItems.Add(new MenuItem()
 			{
-				Header = "Set Download status to '_Not Downloaded'",
-				IsEnabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || entry.Liberate.IsSeries
-			};
-
-			args.ContextMenuItems.Add(setNotDownloadMenuItem);
-
-			if (entry.Liberate.IsSeries)
-				setNotDownloadMenuItem.Click += (_, __) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.NotLiberated);
-			else
-				setNotDownloadMenuItem.Click += (_, __) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.NotLiberated);
+				Header = ctx.SetNotDownloadedText,
+				IsEnabled = ctx.SetNotDownloadedEnabled,
+				Command = ReactiveCommand.Create(ctx.SetNotDownloaded)
+			});
 
 			#endregion
 			#region Remove from library
 
-			var removeMenuItem = new MenuItem() { Header = "_Remove from library" };
-
-			args.ContextMenuItems.Add(removeMenuItem);
-
-			if (entry.Liberate.IsSeries)
-				removeMenuItem.Click += async (_, __) => await ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).RemoveBooksAsync();
-			else
-				removeMenuItem.Click += async (_, __) => await Task.Run(entry.LibraryBook.RemoveBook);
+			args.ContextMenuItems.Add(new MenuItem
+			{
+				Header = ctx.RemoveText,
+				Command = ReactiveCommand.CreateFromTask(ctx.RemoveAsync)
+			});
 
 			#endregion
 
 			if (!entry.Liberate.IsSeries)
 			{
 				#region Locate file
-				var locateFileMenuItem = new MenuItem() { Header = "_Locate file..." };
 
-				args.ContextMenuItems.Add(locateFileMenuItem);
-
-				locateFileMenuItem.Click += async (_, __) =>
+				args.ContextMenuItems.Add(new MenuItem
 				{
-					try
+					Header = ctx.LocateFileText,
+					Command = ReactiveCommand.CreateFromTask(async () =>
 					{
-						var window = this.GetParentWindow();
-
-						var openFileDialogOptions = new FilePickerOpenOptions
+						try
 						{
-							Title = $"Locate the audio file for '{entry.Book.TitleWithSubtitle}'",
-							AllowMultiple = false,
-							SuggestedStartLocation = await window.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
-							FileTypeFilter = new FilePickerFileType[]
+							var window = this.GetParentWindow();
+
+							var openFileDialogOptions = new FilePickerOpenOptions
 							{
-								new("All files (*.*)") { Patterns = new[] { "*" } },
-							}
-						};
+								Title = ctx.LocateFileDialogTitle,
+								AllowMultiple = false,
+								SuggestedStartLocation = await window.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
+								FileTypeFilter = new FilePickerFileType[]
+								{
+									new("All files (*.*)") { Patterns = new[] { "*" } },
+								}
+							};
 
-						var selectedFiles = await window.StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
-						var selectedFile = selectedFiles.SingleOrDefault()?.TryGetLocalPath();
+							var selectedFiles = await window.StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
+							var selectedFile = selectedFiles.SingleOrDefault()?.TryGetLocalPath();
 
-						if (selectedFile is not null)
-							FilePathCache.Insert(entry.AudibleProductId, selectedFile);
-					}
-					catch (Exception ex)
-					{
-						var msg = "Error saving book's location";
-						await MessageBox.ShowAdminAlert(null, msg, msg, ex);
-					}
-				};
+							if (selectedFile is not null)
+								FilePathCache.Insert(entry.AudibleProductId, selectedFile);
+						}
+						catch (Exception ex)
+						{
+							await MessageBox.ShowAdminAlert(null, ctx.LocateFileErrorMessage, ctx.LocateFileErrorMessage, ex);
+						}
+					})
+				});
 
 				#endregion
 				#region Convert to Mp3
-				var convertToMp3MenuItem = new MenuItem
+				args.ContextMenuItems.Add(new MenuItem
 				{
-					Header = "_Convert to Mp3",
-					IsEnabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
-				};
-				args.ContextMenuItems.Add(convertToMp3MenuItem);
-
-				convertToMp3MenuItem.Click += (_, _) => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook);
+					Header = ctx.ConvertToMp3Text,
+					IsEnabled = ctx.ConvertToMp3Enabled,
+					Command = ReactiveCommand.Create(() => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook))
+				});
 
 				#endregion
 			}
@@ -299,34 +281,72 @@ namespace LibationAvalonia.Views
 			#region Force Re-Download
 			if (!entry.Liberate.IsSeries)
 			{
-				var reDownloadMenuItem = new MenuItem()
+				args.ContextMenuItems.Add(new MenuItem()
 				{
-					Header = "Re-download this audiobook",
-					IsEnabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
-				};
-
-				args.ContextMenuItems.Add(reDownloadMenuItem);
-				reDownloadMenuItem.Click += (s, _) =>
-				{
-					//No need to persist this change. It only needs to last long for the file to start downloading
-					entry.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
-					LiberateClicked?.Invoke(s, entry.LibraryBook);
-				};
+					Header = ctx.ReDownloadText,
+					IsEnabled = ctx.ReDownloadEnabled,
+					Command = ReactiveCommand.Create(() =>
+					{
+						//No need to persist this change. It only needs to last long for the file to start downloading
+						entry.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
+						LiberateClicked?.Invoke(this, entry.LibraryBook);
+					})
+				});
 			}
 			#endregion
 
 			args.ContextMenuItems.Add(new Separator());
 
+			#region Edit Templates
+			async Task editTemplate<T>(LibraryBook libraryBook, string existingTemplate, Action<string> setNewTemplate)
+				where T : Templates, LibationFileManager.ITemplate, new()
+			{
+				var template = ctx.CreateTemplateEditor<T>(libraryBook, existingTemplate);
+				var form = new EditTemplateDialog(template);
+				if (await form.ShowDialog<DialogResult>(this.GetParentWindow()) == DialogResult.OK)
+				{
+					setNewTemplate(template.EditingTemplate.TemplateText);
+				}
+			}
+
+			if (!entry.Liberate.IsSeries)
+			{
+				args.ContextMenuItems.Add(new MenuItem
+				{
+					Header = ctx.EditTemplatesText,
+					ItemsSource = new[]
+					{
+						new MenuItem
+						{
+							Header = ctx.FolderTemplateText,
+							Command = ReactiveCommand.CreateFromTask(() => editTemplate<Templates.FolderTemplate>(entry.LibraryBook, Configuration.Instance.FolderTemplate, t => Configuration.Instance.FolderTemplate = t))
+						},
+						new MenuItem
+						{
+							Header = ctx.FileTemplateText,
+							Command = ReactiveCommand.CreateFromTask(() => editTemplate<Templates.FileTemplate>(entry.LibraryBook, Configuration.Instance.FileTemplate, t => Configuration.Instance.FileTemplate = t))
+						},
+						new MenuItem
+						{
+							Header = ctx.MultipartTemplateText,
+							Command = ReactiveCommand.CreateFromTask(() => editTemplate<Templates.ChapterFileTemplate>(entry.LibraryBook, Configuration.Instance.ChapterFileTemplate, t => Configuration.Instance.ChapterFileTemplate = t))
+						}
+					}
+				});
+				args.ContextMenuItems.Add(new Separator());
+			}
+
+			#endregion
+
 			#region View Bookmarks/Clips
 
 			if (!entry.Liberate.IsSeries)
 			{
-
-				var bookRecordMenuItem = new MenuItem { Header = "View _Bookmarks/Clips" };
-
-				args.ContextMenuItems.Add(bookRecordMenuItem);
-
-				bookRecordMenuItem.Click += async (_, _) => await new BookRecordsDialog(entry.LibraryBook).ShowDialog(VisualRoot as Window);
+				args.ContextMenuItems.Add(new MenuItem
+				{
+					Header = ctx.ViewBookmarksText,
+					Command = ReactiveCommand.CreateFromTask(() => new BookRecordsDialog(entry.LibraryBook).ShowDialog(VisualRoot as Window))
+				});
 			}
 
 			#endregion
@@ -334,12 +354,11 @@ namespace LibationAvalonia.Views
 
 			if (entry.Book.SeriesLink.Any())
 			{
-				var header = entry.Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
-				var viewSeriesMenuItem = new MenuItem { Header = header };
-
-				args.ContextMenuItems.Add(viewSeriesMenuItem);
-
-				viewSeriesMenuItem.Click += (_, _) => new SeriesViewDialog(entry.LibraryBook).Show();
+				args.ContextMenuItems.Add(new MenuItem
+				{
+					Header = ctx.ViewSeriesText,
+					Command = ReactiveCommand.Create(() => new SeriesViewDialog(entry.LibraryBook).Show())
+				});
 			}
 
 			#endregion

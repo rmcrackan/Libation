@@ -102,19 +102,19 @@ namespace LibationWinForms.GridView
 
 		private void productsGrid_CellContextMenuStripNeeded(IGridEntry entry, ContextMenuStrip ctxMenu)
 		{
+			var ctx = new GridContextMenu(entry, '&');
 			#region Liberate all Episodes
 
 			if (entry.Liberate.IsSeries)
 			{
 				var liberateEpisodesMenuItem = new ToolStripMenuItem()
 				{
-					Text = "&Liberate All Episodes",
-					Enabled = ((ISeriesEntry)entry).Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
+					Text = ctx.LiberateEpisodesText,
+					Enabled = ctx.LiberateEpisodesEnabled
 				};
 
-				ctxMenu.Items.Add(liberateEpisodesMenuItem);
-
 				liberateEpisodesMenuItem.Click += (_, _) => LiberateSeriesClicked?.Invoke(this, (ISeriesEntry)entry);
+				ctxMenu.Items.Add(liberateEpisodesMenuItem);
 			}
 
 			#endregion
@@ -122,61 +122,44 @@ namespace LibationWinForms.GridView
 
 			var setDownloadMenuItem = new ToolStripMenuItem()
 			{
-				Text = "Set Download status to '&Downloaded'",
-				Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || entry.Liberate.IsSeries
+				Text = ctx.SetDownloadedText,
+				Enabled = ctx.SetDownloadedEnabled
 			};
-
+			setDownloadMenuItem.Click += (_, _) => ctx.SetDownloaded();
 			ctxMenu.Items.Add(setDownloadMenuItem);
-
-			if (entry.Liberate.IsSeries)
-				setDownloadMenuItem.Click += (_, _) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.Liberated);
-			else
-				setDownloadMenuItem.Click += (_, _) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.Liberated);
 
 			#endregion
 			#region Set Download status to Not Downloaded
 
 			var setNotDownloadMenuItem = new ToolStripMenuItem()
 			{
-				Text = "Set Download status to '&Not Downloaded'",
-				Enabled = entry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || entry.Liberate.IsSeries
+				Text = ctx.SetNotDownloadedText,
+				Enabled = ctx.SetNotDownloadedEnabled
 			};
-
+			setNotDownloadMenuItem.Click += (_, _) => ctx.SetNotDownloaded();
 			ctxMenu.Items.Add(setNotDownloadMenuItem);
-
-			if (entry.Liberate.IsSeries)
-				setNotDownloadMenuItem.Click += (_, _) => ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.NotLiberated);
-			else
-				setNotDownloadMenuItem.Click += (_, _) => entry.LibraryBook.UpdateBookStatus(LiberatedStatus.NotLiberated);
 
 			#endregion
 			#region Remove from library
 
-			var removeMenuItem = new ToolStripMenuItem() { Text = "&Remove from library" };
-
+			var removeMenuItem = new ToolStripMenuItem() { Text = ctx.RemoveText };
+			removeMenuItem.Click += async (_, _) => await ctx.RemoveAsync();
 			ctxMenu.Items.Add(removeMenuItem);
-
-			if (entry.Liberate.IsSeries)
-				removeMenuItem.Click += async (_, _) => await ((ISeriesEntry)entry).Children.Select(c => c.LibraryBook).RemoveBooksAsync();
-			else
-				removeMenuItem.Click += async (_, _) => await Task.Run(entry.LibraryBook.RemoveBook);
 
 			#endregion
 
 			if (!entry.Liberate.IsSeries)
 			{
 				#region Locate file
-				var locateFileMenuItem = new ToolStripMenuItem() { Text = "&Locate file..." };
-
+				var locateFileMenuItem = new ToolStripMenuItem() { Text = ctx.LocateFileText };
 				ctxMenu.Items.Add(locateFileMenuItem);
-
 				locateFileMenuItem.Click += (_, _) =>
 				{
 					try
 					{
 						var openFileDialog = new OpenFileDialog
 						{
-							Title = $"Locate the audio file for '{entry.Book.TitleWithSubtitle}'",
+							Title = ctx.LocateFileDialogTitle,
 							Filter = "All files (*.*)|*.*",
 							FilterIndex = 1
 						};
@@ -185,8 +168,7 @@ namespace LibationWinForms.GridView
 					}
 					catch (Exception ex)
 					{
-						var msg = "Error saving book's location";
-						MessageBoxLib.ShowAdminAlert(this, msg, msg, ex);
+						MessageBoxLib.ShowAdminAlert(this, ctx.LocateFileErrorMessage, ctx.LocateFileErrorMessage, ex);
 					}
 				};
 
@@ -195,13 +177,11 @@ namespace LibationWinForms.GridView
 
 				var convertToMp3MenuItem = new ToolStripMenuItem
 				{
-					Text = "&Convert to Mp3",
-					Enabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
+					Text = ctx.ConvertToMp3Text,
+					Enabled = ctx.ConvertToMp3Enabled
 				};
-
-				ctxMenu.Items.Add(convertToMp3MenuItem);
-
 				convertToMp3MenuItem.Click += (_, e) => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook);
+				ctxMenu.Items.Add(convertToMp3MenuItem);
 
 				#endregion
 			}
@@ -211,10 +191,9 @@ namespace LibationWinForms.GridView
 			{
 				var reDownloadMenuItem = new ToolStripMenuItem()
 				{
-					Text = "Re-download this audiobook",
-					Enabled = entry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated
+					Text = ctx.ReDownloadText,
+					Enabled = ctx.ReDownloadEnabled
 				};
-
 				ctxMenu.Items.Add(reDownloadMenuItem);
 				reDownloadMenuItem.Click += (s, _) =>
 				{
@@ -224,6 +203,35 @@ namespace LibationWinForms.GridView
 				};
 			}
 			#endregion
+			#region Edit Templates
+			void editTemplate<T>(LibraryBook libraryBook, string existingTemplate, Action<string> setNewTemplate)
+				where T : Templates, LibationFileManager.ITemplate, new()
+			{
+				var template = ctx.CreateTemplateEditor<T>(libraryBook, existingTemplate);
+				var form = new EditTemplateDialog(template);
+				if (form.ShowDialog(this) == DialogResult.OK)
+				{
+					setNewTemplate(template.EditingTemplate.TemplateText);
+				}
+			}
+
+			if (!entry.Liberate.IsSeries)
+			{
+				var folderTemplateMenuItem = new ToolStripMenuItem { Text = ctx.FolderTemplateText };
+				var fileTemplateMenuItem = new ToolStripMenuItem { Text = ctx.FileTemplateText };
+				var multiFileTemplateMenuItem = new ToolStripMenuItem { Text = ctx.MultipartTemplateText };
+				folderTemplateMenuItem.Click += (s, _) => editTemplate<Templates.FolderTemplate>(entry.LibraryBook, Configuration.Instance.FolderTemplate, t => Configuration.Instance.FolderTemplate = t);
+				fileTemplateMenuItem.Click += (s, _) => editTemplate<Templates.FileTemplate>(entry.LibraryBook, Configuration.Instance.FileTemplate, t => Configuration.Instance.FileTemplate = t);
+				multiFileTemplateMenuItem.Click += (s, _) => editTemplate<Templates.ChapterFileTemplate>(entry.LibraryBook, Configuration.Instance.ChapterFileTemplate, t => Configuration.Instance.ChapterFileTemplate = t);
+
+				var editTemplatesMenuItem = new ToolStripMenuItem { Text = ctx.EditTemplatesText };
+				editTemplatesMenuItem.DropDownItems.AddRange(new[] { folderTemplateMenuItem, fileTemplateMenuItem, multiFileTemplateMenuItem });
+
+				ctxMenu.Items.Add(new ToolStripSeparator());
+				ctxMenu.Items.Add(editTemplatesMenuItem);
+			}
+
+			#endregion
 
 			ctxMenu.Items.Add(new ToolStripSeparator());
 
@@ -231,11 +239,9 @@ namespace LibationWinForms.GridView
 
 			if (!entry.Liberate.IsSeries)
 			{
-				var bookRecordMenuItem = new ToolStripMenuItem { Text = "View &Bookmarks/Clips" };
-
-				ctxMenu.Items.Add(bookRecordMenuItem);
-
+				var bookRecordMenuItem = new ToolStripMenuItem { Text = ctx.ViewBookmarksText };
 				bookRecordMenuItem.Click += (_, _) => new BookRecordsDialog(entry.LibraryBook).ShowDialog(this);
+				ctxMenu.Items.Add(bookRecordMenuItem);
 			}
 
 			#endregion
@@ -243,13 +249,9 @@ namespace LibationWinForms.GridView
 
 			if (entry.Book.SeriesLink.Any())
 			{
-				var header = entry.Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
-
-				var viewSeriesMenuItem = new ToolStripMenuItem { Text = header };
-
-				ctxMenu.Items.Add(viewSeriesMenuItem);
-
+				var viewSeriesMenuItem = new ToolStripMenuItem { Text = ctx.ViewSeriesText };
 				viewSeriesMenuItem.Click += (_, _) => new SeriesViewDialog(entry.LibraryBook).Show();
+				ctxMenu.Items.Add(viewSeriesMenuItem);
 			}
 
 			#endregion

@@ -21,7 +21,8 @@ namespace FileLiberator
 				var series = libraryBook.Book.SeriesLink.SingleOrDefault();
 				if (series is not null)
 				{
-					var seriesParent = ApplicationServices.DbContexts.GetContext().GetLibraryBook_Flat_NoTracking(series.Series.AudibleSeriesId);
+					using var context = ApplicationServices.DbContexts.GetContext();
+					var seriesParent = context.GetLibraryBook_Flat_NoTracking(series.Series.AudibleSeriesId);
 
 					if (seriesParent is not null)
 					{
