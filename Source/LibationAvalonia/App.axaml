@@ -44,9 +44,9 @@
 
 					<SolidColorBrush x:Key="CancelRed" Color="#802727" />
 					<SolidColorBrush x:Key="IconFill" Color="#DCE0DF" />
-					<SolidColorBrush x:Key="StoplightRed" Color="#5F0707" />
-					<SolidColorBrush x:Key="StoplightYellow" Color="#5F5B1A" />
-					<SolidColorBrush x:Key="StoplightGreen" Color="#174E15" />
+					<SolidColorBrush x:Key="StoplightRed" Color="#7d1f1f" />
+					<SolidColorBrush x:Key="StoplightYellow" Color="#7d7d1f" />
+					<SolidColorBrush x:Key="StoplightGreen" Color="#1f7d1f" />
 
 
 					<SolidColorBrush x:Key="DisabledGrayBrush" Opacity="0.4"  Color="{StaticResource SystemChromeMediumColor}" />

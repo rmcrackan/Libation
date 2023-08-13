@@ -106,6 +106,7 @@ namespace DataLayer
             ReplaceAuthors(authors);
             ReplaceNarrators(narrators);
         }
+
         public void UpdateTitle(string title, string subtitle)
         {
             Title = title?.Trim() ?? "";
@@ -113,8 +114,11 @@ namespace DataLayer
             _titleWithSubtitle = null;
         }
 
-        #region contributors, authors, narrators
-        internal HashSet<BookContributor> ContributorsLink { get; private set; }
+        public void UpdateLengthInMinutes(int lengthInMinutes)
+            => LengthInMinutes = lengthInMinutes;
+
+		#region contributors, authors, narrators
+		internal HashSet<BookContributor> ContributorsLink { get; private set; }
 
         public IEnumerable<Contributor> Authors => ContributorsLink.ByRole(Role.Author).Select(bc => bc.Contributor).ToList();
         public IEnumerable<Contributor> Narrators => ContributorsLink.ByRole(Role.Narrator).Select(bc => bc.Contributor).ToList();

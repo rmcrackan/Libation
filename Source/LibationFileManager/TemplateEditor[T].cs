@@ -51,7 +51,10 @@ namespace LibationFileManager
 			return false;
 		}
 
-		private static readonly LibraryBookDto libraryBookDto
+		public LibraryBookDto FolderBook { get; }
+		public LibraryBookDto LibraryBook { get; }
+
+		private static readonly LibraryBookDto DefaultLibraryBook
 			= new()
 			{
 				Account = "myaccount@example.co",
@@ -74,7 +77,7 @@ namespace LibationFileManager
 				Language = "English"
 			};
 
-		private static readonly MultiConvertFileProperties partFileProperties
+		private static readonly MultiConvertFileProperties DefaultMultipartProperties
 			= new()
 			{
 				OutputFileName = "",
@@ -91,23 +94,27 @@ namespace LibationFileManager
 			* subdirectories. Without rooting, we won't be allowed to create a
 			* relative path longer than MAX_PATH.
 			*/
-			var dir = Folder?.GetFilename(libraryBookDto, BaseDirectory, "");
+			var dir = Folder?.GetFilename(FolderBook, BaseDirectory, "");
 			if (dir is null) return null;
 			return Path.GetRelativePath(BaseDirectory, dir);
 		}
 
 		public string? GetFileName()
-			=> File?.GetFilename(libraryBookDto, partFileProperties, "", "");
+			=> File?.GetFilename(LibraryBook, DefaultMultipartProperties, "", "");
 		public string? GetName()
-			=> Name?.GetName(libraryBookDto, partFileProperties);
+			=> Name?.GetName(LibraryBook, DefaultMultipartProperties);
 
 		private TemplateEditor(
+			LibraryBookDto? folderDto,
+			LibraryBookDto? fileDto,
 			Templates editingTemplate,
 			LongPath baseDirectory,
 			string defaultTemplate,
 			string templateName,
 			string templateDescription)
 		{
+			FolderBook = folderDto ?? DefaultLibraryBook;
+			LibraryBook = fileDto ?? DefaultLibraryBook;
 			_editingTemplate = editingTemplate;
 			BaseDirectory = baseDirectory;
 			DefaultTemplate = defaultTemplate;
@@ -115,12 +122,12 @@ namespace LibationFileManager
 			TemplateDescription = templateDescription;
 		}
 
-		public static ITemplateEditor CreateFilenameEditor(LongPath baseDir, string templateText)
+		public static ITemplateEditor CreateFilenameEditor(LongPath baseDir, string templateText, LibraryBookDto? folderDto = null, LibraryBookDto? fileDto = null)
 		{
 			if (!Templates.TryGetTemplate<T>(templateText, out var template))
 				throw new ArgumentException($"Failed to parse {nameof(templateText)}");
 
-			var templateEditor = new TemplateEditor<T>(template, baseDir, T.DefaultTemplate, T.Name, T.Description);
+			var templateEditor = new TemplateEditor<T>(folderDto, fileDto, template, baseDir, T.DefaultTemplate, T.Name, T.Description);
 
 			if (!templateEditor.IsFolder && !templateEditor.IsFilePath)
 				throw new InvalidOperationException($"This method is only for File and Folder templates. Use {nameof(CreateNameEditor)} for name templates");
@@ -133,12 +140,12 @@ namespace LibationFileManager
 			return templateEditor;
 		}
 
-		public static ITemplateEditor CreateNameEditor(string templateText)
+		public static ITemplateEditor CreateNameEditor(string templateText, LibraryBookDto? libraryBookDto = null)
 		{
 			if (!Templates.TryGetTemplate<T>(templateText, out var nameTemplate))
 				throw new ArgumentException($"Failed to parse {nameof(templateText)}");
 
-			var templateEditor = new TemplateEditor<T>(nameTemplate, "", T.DefaultTemplate, T.Name, T.Description);
+			var templateEditor = new TemplateEditor<T>(null, libraryBookDto, nameTemplate, "", T.DefaultTemplate, T.Name, T.Description);
 
 			if (templateEditor.IsFolder || templateEditor.IsFilePath)
 				throw new InvalidOperationException($"This method is only for name templates. Use {nameof(CreateFilenameEditor)} for file templates");
