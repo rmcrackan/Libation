@@ -23,9 +23,11 @@ namespace DtoImporterService
 			loadLocal_categories();
 
 			// upsert
+			//Import item may not have no (null) categories
 			var categoryLadders = importItems
+				.Where(i => i.DtoItem.CategoryLadders is not null)
 				.SelectMany(i => i.DtoItem.CategoryLadders)
-				.Select(cl => cl.Ladder)
+				.Select(cl => cl?.Ladder)
 				.Where(l => l?.Length > 0)
 				.ToList();
 
