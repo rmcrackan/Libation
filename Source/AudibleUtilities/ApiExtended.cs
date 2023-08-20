@@ -207,7 +207,11 @@ namespace AudibleUtilities
 			try
 			{
 				var sw = Stopwatch.StartNew();
-				var items = await Api.GetCatalogProductsAsync(asins, CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+				var items = await Api.GetCatalogProductsAsync(asins, CatalogOptions.ResponseGroupOptions.Rating | CatalogOptions.ResponseGroupOptions.Media
+					| CatalogOptions.ResponseGroupOptions.Relationships | CatalogOptions.ResponseGroupOptions.ProductDesc
+					| CatalogOptions.ResponseGroupOptions.Contributors | CatalogOptions.ResponseGroupOptions.ProvidedReview
+					| CatalogOptions.ResponseGroupOptions.ProductPlans | CatalogOptions.ResponseGroupOptions.Series
+					| CatalogOptions.ResponseGroupOptions.CategoryLadders | CatalogOptions.ResponseGroupOptions.ProductExtendedAttrs);
 				sw.Stop();
 
 				Serilog.Log.Logger.Debug($"Batch {batchNum} End: Retrieved {items.Count} items in {sw.ElapsedMilliseconds} ms");

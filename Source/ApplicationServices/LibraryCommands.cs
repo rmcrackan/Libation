@@ -119,9 +119,14 @@ namespace ApplicationServices
 
                 logTime($"pre {nameof(scanAccountsAsync)} all");
                 var libraryOptions = new LibraryOptions
-                {
-                    ResponseGroups = LibraryOptions.ResponseGroupOptions.ALL_OPTIONS,
-                    ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
+				{
+					ResponseGroups
+					    = LibraryOptions.ResponseGroupOptions.Rating | LibraryOptions.ResponseGroupOptions.Media
+					    | LibraryOptions.ResponseGroupOptions.Relationships | LibraryOptions.ResponseGroupOptions.ProductDesc
+					    | LibraryOptions.ResponseGroupOptions.Contributors | LibraryOptions.ResponseGroupOptions.ProvidedReview
+					    | LibraryOptions.ResponseGroupOptions.ProductPlans | LibraryOptions.ResponseGroupOptions.Series
+					    | LibraryOptions.ResponseGroupOptions.CategoryLadders | LibraryOptions.ResponseGroupOptions.ProductExtendedAttrs,
+					ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
                 };
                 var importItems = await scanAccountsAsync(apiExtendedfunc, accounts, libraryOptions);
                 logTime($"post {nameof(scanAccountsAsync)} all");
