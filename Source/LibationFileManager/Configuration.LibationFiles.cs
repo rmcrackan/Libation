@@ -108,6 +108,7 @@ namespace LibationFileManager
 			{
 				try
 				{
+					Directory.CreateDirectory(Path.GetDirectoryName(appsettingsFile)!);
 					File.WriteAllText(appsettingsFile, endingContents);
 					return appsettingsFile;
 				}
