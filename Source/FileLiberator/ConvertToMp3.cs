@@ -60,6 +60,11 @@ namespace FileLiberator
 						config.LameMatchSourceBR,
 						chapters);
 
+					if (m4bBook.AppleTags.Tracks is (int trackNum, int trackCount))
+					{
+						lameConfig.ID3.Track = trackCount > 0 ? $"{trackNum}/{trackCount}" : trackNum.ToString();
+					}
+
 					using var mp3File = File.Open(Path.GetTempFileName(), FileMode.OpenOrCreate, FileAccess.ReadWrite);
 					try
 					{

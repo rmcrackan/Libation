@@ -170,21 +170,19 @@ namespace LibationFileManager
 
 				try
 				{
-					using var fileStream = File.OpenRead(path);
-
 					if (format is OutputFormat.M4b)
 					{
-						var mp4File = await Task.Run(() => new AAXClean.Mp4File(fileStream), cancellationToken);
+						var tags = await Task.Run(() => AAXClean.AppleTags.FromFile(path));
 
-						if (mp4File?.AppleTags?.Asin is not null)
-							audioFile = new FilePathCache.CacheEntry(mp4File.AppleTags.Asin, FileType.Audio, path);
+						if (tags?.Asin is not null)
+							audioFile = new FilePathCache.CacheEntry(tags.Asin, FileType.Audio, path);
 					}
 					else
 					{
-						var id3 = NAudio.Lame.ID3.Id3Tag.Create(fileStream);
+						using var fileStream = File.OpenRead(path);
+						var id3 = await Task.Run(() => NAudio.Lame.ID3.Id3Tag.Create(fileStream));
 
-						var asin
-							= id3?.Children
+						var asin = id3?.Children
 							.OfType<NAudio.Lame.ID3.TXXXFrame>()
 							.FirstOrDefault(f => f.FieldName == "AUDIBLE_ASIN")
 							?.FieldValue;
