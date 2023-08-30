@@ -95,20 +95,4 @@ public class GridContextMenu
 
 		return TemplateEditor<T>.CreateFilenameEditor(Configuration.Instance.Books, existingTemplate, folderDto, fileDto);
 	}
-
-
-}
-class Command : ICommand
-{
-	public event EventHandler CanExecuteChanged;
-
-	public bool CanExecute(object parameter)
-	{
-		throw new NotImplementedException();
-	}
-
-	public void Execute(object parameter)
-	{
-		throw new NotImplementedException();
-	}
 }

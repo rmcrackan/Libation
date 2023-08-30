@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Serilog;
 using Dinah.Core.Logging;
+using System.Diagnostics;
 
 #nullable enable
 namespace LibationFileManager
@@ -75,17 +76,19 @@ namespace LibationFileManager
 			const string appsettings_filename = "appsettings.json";
 
 			//Possible appsettings.json locations, in order of preference.
-			string[] possibleAppsettingsFiles = new[]
+			string[] possibleAppsettingsDirectories = new[]
 			{
-				Path.Combine(ProcessDirectory, appsettings_filename),
-				Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Libation", appsettings_filename),
-				Path.Combine(UserProfile, appsettings_filename),
-				Path.Combine(Path.GetTempPath(), "Libation", appsettings_filename)
+				ProcessDirectory,
+				Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Libation"),
+				UserProfile,
+				Path.Combine(Path.GetTempPath(), "Libation")
 			};
 
 			//Try to find and validate appsettings.json in each folder
-			foreach (var appsettingsFile in possibleAppsettingsFiles)
+			foreach (var dir in possibleAppsettingsDirectories)
 			{
+				var appsettingsFile = Path.Combine(dir, appsettings_filename);
+
 				if (File.Exists(appsettingsFile))
 				{
 					try
@@ -104,10 +107,13 @@ namespace LibationFileManager
 
 			//Valid appsettings.json not found. Try to create it in each folder.
 			var endingContents = new JObject { { LIBATION_FILES_KEY, UserProfile } }.ToString(Formatting.Indented);
-			foreach (var appsettingsFile in possibleAppsettingsFiles)
+			foreach (var dir in possibleAppsettingsDirectories)
 			{
+				var appsettingsFile = Path.Combine(dir, appsettings_filename);
+
 				try
 				{
+					Directory.CreateDirectory(dir);
 					File.WriteAllText(appsettingsFile, endingContents);
 					return appsettingsFile;
 				}
@@ -121,16 +127,56 @@ namespace LibationFileManager
 		}
 
 		private static string getLibationFilesSettingFromJson()
-        {
-            // do not check whether directory exists. special/meta directory (eg: AppDir) is valid
-            // verify from live file. no try/catch. want failures to be visible
-            var jObjFinal = JObject.Parse(File.ReadAllText(AppsettingsJsonFile));
+		{
+			// do not check whether directory exists. special/meta directory (eg: AppDir) is valid
+			// verify from live file. no try/catch. want failures to be visible
+			var jObjFinal = JObject.Parse(File.ReadAllText(AppsettingsJsonFile));
 
 			if (jObjFinal[LIBATION_FILES_KEY]?.Value<string>() is not string valueFinal)
 				throw new InvalidDataException($"{LIBATION_FILES_KEY} not found in {AppsettingsJsonFile}");
 
-            return valueFinal;
-        }
+			if (IsWindows)
+			{
+				valueFinal = Environment.ExpandEnvironmentVariables(valueFinal);
+			}
+			else
+			{
+				//If the shell command fails and returns null, proceed with the verbatim
+				//LIBATION_FILES_KEY path and hope for the best. If Libation can't find
+				//anything at this path it will set LIBATION_FILES_KEY to UserProfile
+				valueFinal = runShellCommand("echo " + valueFinal) ?? valueFinal;
+			}
+
+			return valueFinal;
+
+			static string? runShellCommand(string command)
+			{
+				var psi = new ProcessStartInfo
+				{
+					FileName = "/bin/sh",
+					RedirectStandardOutput = true,
+					UseShellExecute = false,
+					CreateNoWindow = true,
+					ArgumentList =
+					{
+						"-c",
+						command
+					}
+				};
+
+				try
+				{
+					var proc = Process.Start(psi);
+					proc?.WaitForExit();
+					return proc?.StandardOutput?.ReadToEnd()?.Trim();
+				}
+				catch (Exception e)
+				{
+					Serilog.Log.Error(e, "Failed to run shell command. {Arguments}", psi.ArgumentList);
+					return null;
+				}
+			}
+		}
 
         public static void SetLibationFiles(string directory)
         {

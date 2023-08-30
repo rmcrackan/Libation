@@ -1,11 +1,9 @@
-using Avalonia.Controls;
 using LibationFileManager;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
 {
-	public partial class LibationFilesDialog : Window
+	public partial class LibationFilesDialog : DialogWindow
 	{
 		private class DirSelectOptions
 		{
@@ -18,28 +16,26 @@ namespace LibationAvalonia.Dialogs
 
 			public string Directory { get; set; } = Configuration.GetKnownDirectoryPath(Configuration.KnownDirectories.UserProfile);
 		}
-		private DirSelectOptions dirSelectOptions;
+
+		private readonly DirSelectOptions dirSelectOptions;
 		public string SelectedDirectory => dirSelectOptions.Directory;
-		public DialogResult DialogResult { get; private set; }
-		public LibationFilesDialog()
+
+		public LibationFilesDialog() : base(saveAndRestorePosition: false)
 		{
 			InitializeComponent();
 
 			DataContext = dirSelectOptions = new();
 		}
 
-		public async Task SaveButtonAsync()
+		public async void Save_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var libationDir = dirSelectOptions.Directory;
-
-			if (!System.IO.Directory.Exists(libationDir))
+			if (!System.IO.Directory.Exists(SelectedDirectory))
 			{
-				await MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + libationDir, "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error, saveAndRestorePosition: false);
+				await MessageBox.Show("Not saving change to Libation Files location. This folder does not exist:\r\n" + SelectedDirectory, "Folder does not exist", MessageBoxButtons.OK, MessageBoxIcon.Error, saveAndRestorePosition: false);
 				return;
 			}
 
-			DialogResult = DialogResult.OK;
-			Close(DialogResult);
+			await SaveAndCloseAsync();
 		}
 	}
 }
