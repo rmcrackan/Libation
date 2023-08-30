@@ -229,7 +229,7 @@
 			badBookGb.Controls.Add(badBookAskRb);
 			badBookGb.Location = new System.Drawing.Point(7, 6);
 			badBookGb.Name = "badBookGb";
-			badBookGb.Size = new System.Drawing.Size(836, 76);
+			badBookGb.Size = new System.Drawing.Size(841, 76);
 			badBookGb.TabIndex = 13;
 			badBookGb.TabStop = false;
 			badBookGb.Text = "[bad book desc]";
@@ -397,6 +397,7 @@
 			// 
 			// tab1ImportantSettings
 			// 
+			tab1ImportantSettings.AutoScroll = true;
 			tab1ImportantSettings.Controls.Add(groupBox1);
 			tab1ImportantSettings.Controls.Add(booksGb);
 			tab1ImportantSettings.Controls.Add(logsBtn);
@@ -412,6 +413,7 @@
 			// 
 			// groupBox1
 			// 
+			groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			groupBox1.Controls.Add(applyDisplaySettingsBtn);
 			groupBox1.Controls.Add(gridScaleFactorLbl);
 			groupBox1.Controls.Add(gridScaleFactorTbar);
@@ -426,6 +428,7 @@
 			// 
 			// applyDisplaySettingsBtn
 			// 
+			applyDisplaySettingsBtn.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			applyDisplaySettingsBtn.Location = new System.Drawing.Point(689, 26);
 			applyDisplaySettingsBtn.Name = "applyDisplaySettingsBtn";
 			applyDisplaySettingsBtn.Size = new System.Drawing.Size(148, 34);
@@ -554,6 +557,7 @@
 			// 
 			// tab2ImportLibrary
 			// 
+			tab2ImportLibrary.AutoScroll = true;
 			tab2ImportLibrary.Controls.Add(autoDownloadEpisodesCb);
 			tab2ImportLibrary.Controls.Add(autoScanCb);
 			tab2ImportLibrary.Controls.Add(showImportedStatsCb);
@@ -599,6 +603,7 @@
 			// 
 			// tab3DownloadDecrypt
 			// 
+			tab3DownloadDecrypt.AutoScroll = true;
 			tab3DownloadDecrypt.Controls.Add(saveMetadataToFileCbox);
 			tab3DownloadDecrypt.Controls.Add(useCoverAsFolderIconCb);
 			tab3DownloadDecrypt.Controls.Add(inProgressFilesGb);
@@ -764,6 +769,7 @@
 			// 
 			// tab4AudioFileOptions
 			// 
+			tab4AudioFileOptions.AutoScroll = true;
 			tab4AudioFileOptions.Controls.Add(fileDownloadQualityCb);
 			tab4AudioFileOptions.Controls.Add(fileDownloadQualityLbl);
 			tab4AudioFileOptions.Controls.Add(combineNestedChapterTitlesCbox);
@@ -845,7 +851,7 @@
 			audiobookFixupsGb.Controls.Add(stripAudibleBrandingCbox);
 			audiobookFixupsGb.Location = new System.Drawing.Point(6, 200);
 			audiobookFixupsGb.Name = "audiobookFixupsGb";
-			audiobookFixupsGb.Size = new System.Drawing.Size(403, 182);
+			audiobookFixupsGb.Size = new System.Drawing.Size(385, 182);
 			audiobookFixupsGb.TabIndex = 19;
 			audiobookFixupsGb.TabStop = false;
 			audiobookFixupsGb.Text = "Audiobook Fix-ups";
@@ -872,6 +878,7 @@
 			// 
 			// chapterTitleTemplateGb
 			// 
+			chapterTitleTemplateGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			chapterTitleTemplateGb.Controls.Add(chapterTitleTemplateBtn);
 			chapterTitleTemplateGb.Controls.Add(chapterTitleTemplateTb);
 			chapterTitleTemplateGb.Location = new System.Drawing.Point(3, 388);
@@ -903,6 +910,7 @@
 			// 
 			// lameOptionsGb
 			// 
+			lameOptionsGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			lameOptionsGb.Controls.Add(label20);
 			lameOptionsGb.Controls.Add(label21);
 			lameOptionsGb.Controls.Add(encoderQualityCb);
@@ -912,9 +920,9 @@
 			lameOptionsGb.Controls.Add(label1);
 			lameOptionsGb.Controls.Add(lameQualityGb);
 			lameOptionsGb.Controls.Add(groupBox2);
-			lameOptionsGb.Location = new System.Drawing.Point(415, 6);
+			lameOptionsGb.Location = new System.Drawing.Point(397, 6);
 			lameOptionsGb.Name = "lameOptionsGb";
-			lameOptionsGb.Size = new System.Drawing.Size(433, 376);
+			lameOptionsGb.Size = new System.Drawing.Size(450, 376);
 			lameOptionsGb.TabIndex = 14;
 			lameOptionsGb.TabStop = false;
 			lameOptionsGb.Text = "Mp3 Encoding Options";
@@ -930,6 +938,7 @@
 			// 
 			// label21
 			// 
+			label21.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label21.AutoSize = true;
 			label21.Location = new System.Drawing.Point(239, 89);
 			label21.Name = "label21";
@@ -939,33 +948,37 @@
 			// 
 			// encoderQualityCb
 			// 
+			encoderQualityCb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			encoderQualityCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			encoderQualityCb.FormattingEnabled = true;
 			encoderQualityCb.Location = new System.Drawing.Point(337, 86);
 			encoderQualityCb.Name = "encoderQualityCb";
-			encoderQualityCb.Size = new System.Drawing.Size(90, 23);
+			encoderQualityCb.Size = new System.Drawing.Size(107, 23);
 			encoderQualityCb.TabIndex = 2;
 			// 
 			// maxSampleRateCb
 			// 
+			maxSampleRateCb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			maxSampleRateCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			maxSampleRateCb.FormattingEnabled = true;
 			maxSampleRateCb.Location = new System.Drawing.Point(119, 86);
 			maxSampleRateCb.Name = "maxSampleRateCb";
-			maxSampleRateCb.Size = new System.Drawing.Size(101, 23);
+			maxSampleRateCb.Size = new System.Drawing.Size(76, 23);
 			maxSampleRateCb.TabIndex = 2;
 			// 
 			// lameDownsampleMonoCbox
 			// 
-			lameDownsampleMonoCbox.Location = new System.Drawing.Point(237, 30);
+			lameDownsampleMonoCbox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			lameDownsampleMonoCbox.Location = new System.Drawing.Point(247, 29);
 			lameDownsampleMonoCbox.Name = "lameDownsampleMonoCbox";
-			lameDownsampleMonoCbox.Size = new System.Drawing.Size(184, 34);
+			lameDownsampleMonoCbox.Size = new System.Drawing.Size(197, 34);
 			lameDownsampleMonoCbox.TabIndex = 1;
 			lameDownsampleMonoCbox.Text = "Downsample stereo to mono?\r\n(Recommended)\r\n";
 			lameDownsampleMonoCbox.UseVisualStyleBackColor = true;
 			// 
 			// lameBitrateGb
 			// 
+			lameBitrateGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			lameBitrateGb.Controls.Add(LameMatchSourceBRCbox);
 			lameBitrateGb.Controls.Add(lameConstantBitrateCbox);
 			lameBitrateGb.Controls.Add(label7);
@@ -977,15 +990,16 @@
 			lameBitrateGb.Controls.Add(lameBitrateTb);
 			lameBitrateGb.Location = new System.Drawing.Point(6, 116);
 			lameBitrateGb.Name = "lameBitrateGb";
-			lameBitrateGb.Size = new System.Drawing.Size(421, 113);
+			lameBitrateGb.Size = new System.Drawing.Size(438, 113);
 			lameBitrateGb.TabIndex = 0;
 			lameBitrateGb.TabStop = false;
 			lameBitrateGb.Text = "Bitrate";
 			// 
 			// LameMatchSourceBRCbox
 			// 
+			LameMatchSourceBRCbox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
 			LameMatchSourceBRCbox.AutoSize = true;
-			LameMatchSourceBRCbox.Location = new System.Drawing.Point(275, 76);
+			LameMatchSourceBRCbox.Location = new System.Drawing.Point(254, 76);
 			LameMatchSourceBRCbox.Name = "LameMatchSourceBRCbox";
 			LameMatchSourceBRCbox.Size = new System.Drawing.Size(140, 19);
 			LameMatchSourceBRCbox.TabIndex = 3;
@@ -1005,6 +1019,7 @@
 			// 
 			// label7
 			// 
+			label7.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label7.AutoSize = true;
 			label7.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label7.Location = new System.Drawing.Point(390, 52);
@@ -1015,6 +1030,7 @@
 			// 
 			// label6
 			// 
+			label6.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label6.AutoSize = true;
 			label6.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label6.Location = new System.Drawing.Point(309, 52);
@@ -1025,6 +1041,7 @@
 			// 
 			// label5
 			// 
+			label5.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label5.AutoSize = true;
 			label5.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label5.Location = new System.Drawing.Point(228, 52);
@@ -1035,6 +1052,7 @@
 			// 
 			// label4
 			// 
+			label4.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label4.AutoSize = true;
 			label4.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label4.Location = new System.Drawing.Point(147, 52);
@@ -1045,6 +1063,7 @@
 			// 
 			// label11
 			// 
+			label11.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label11.AutoSize = true;
 			label11.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label11.Location = new System.Drawing.Point(10, 52);
@@ -1055,6 +1074,7 @@
 			// 
 			// label3
 			// 
+			label3.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label3.AutoSize = true;
 			label3.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label3.Location = new System.Drawing.Point(71, 52);
@@ -1071,7 +1091,7 @@
 			lameBitrateTb.Maximum = 320;
 			lameBitrateTb.Minimum = 16;
 			lameBitrateTb.Name = "lameBitrateTb";
-			lameBitrateTb.Size = new System.Drawing.Size(409, 45);
+			lameBitrateTb.Size = new System.Drawing.Size(408, 45);
 			lameBitrateTb.SmallChange = 8;
 			lameBitrateTb.TabIndex = 0;
 			lameBitrateTb.TickFrequency = 16;
@@ -1090,6 +1110,7 @@
 			// 
 			// lameQualityGb
 			// 
+			lameQualityGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			lameQualityGb.Controls.Add(label19);
 			lameQualityGb.Controls.Add(label18);
 			lameQualityGb.Controls.Add(label17);
@@ -1105,13 +1126,14 @@
 			lameQualityGb.Controls.Add(lameVBRQualityTb);
 			lameQualityGb.Location = new System.Drawing.Point(6, 235);
 			lameQualityGb.Name = "lameQualityGb";
-			lameQualityGb.Size = new System.Drawing.Size(421, 109);
+			lameQualityGb.Size = new System.Drawing.Size(438, 109);
 			lameQualityGb.TabIndex = 0;
 			lameQualityGb.TabStop = false;
 			lameQualityGb.Text = "Quality";
 			// 
 			// label19
 			// 
+			label19.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label19.AutoSize = true;
 			label19.Location = new System.Drawing.Point(349, 52);
 			label19.Name = "label19";
@@ -1121,6 +1143,7 @@
 			// 
 			// label18
 			// 
+			label18.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label18.AutoSize = true;
 			label18.Location = new System.Drawing.Point(307, 52);
 			label18.Name = "label18";
@@ -1130,6 +1153,7 @@
 			// 
 			// label17
 			// 
+			label17.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label17.AutoSize = true;
 			label17.Location = new System.Drawing.Point(265, 52);
 			label17.Name = "label17";
@@ -1139,6 +1163,7 @@
 			// 
 			// label16
 			// 
+			label16.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label16.AutoSize = true;
 			label16.Location = new System.Drawing.Point(223, 52);
 			label16.Name = "label16";
@@ -1148,6 +1173,7 @@
 			// 
 			// label12
 			// 
+			label12.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label12.AutoSize = true;
 			label12.Location = new System.Drawing.Point(182, 52);
 			label12.Name = "label12";
@@ -1157,6 +1183,7 @@
 			// 
 			// label15
 			// 
+			label15.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label15.AutoSize = true;
 			label15.Location = new System.Drawing.Point(140, 52);
 			label15.Name = "label15";
@@ -1166,6 +1193,7 @@
 			// 
 			// label9
 			// 
+			label9.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label9.AutoSize = true;
 			label9.Location = new System.Drawing.Point(97, 52);
 			label9.Name = "label9";
@@ -1175,6 +1203,7 @@
 			// 
 			// label8
 			// 
+			label8.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label8.AutoSize = true;
 			label8.Location = new System.Drawing.Point(391, 52);
 			label8.Name = "label8";
@@ -1202,6 +1231,7 @@
 			// 
 			// label14
 			// 
+			label14.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label14.AutoSize = true;
 			label14.Location = new System.Drawing.Point(56, 52);
 			label14.Name = "label14";
@@ -1211,6 +1241,7 @@
 			// 
 			// label2
 			// 
+			label2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label2.AutoSize = true;
 			label2.Location = new System.Drawing.Point(14, 52);
 			label2.Name = "label2";
@@ -1225,25 +1256,27 @@
 			lameVBRQualityTb.Location = new System.Drawing.Point(10, 22);
 			lameVBRQualityTb.Maximum = 9;
 			lameVBRQualityTb.Name = "lameVBRQualityTb";
-			lameVBRQualityTb.Size = new System.Drawing.Size(405, 45);
+			lameVBRQualityTb.Size = new System.Drawing.Size(404, 45);
 			lameVBRQualityTb.TabIndex = 0;
 			lameVBRQualityTb.Value = 9;
 			// 
 			// groupBox2
 			// 
+			groupBox2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			groupBox2.Controls.Add(lameTargetQualityRb);
 			groupBox2.Controls.Add(lameTargetBitrateRb);
 			groupBox2.Location = new System.Drawing.Point(6, 22);
 			groupBox2.Name = "groupBox2";
-			groupBox2.Size = new System.Drawing.Size(214, 58);
+			groupBox2.Size = new System.Drawing.Size(189, 58);
 			groupBox2.TabIndex = 0;
 			groupBox2.TabStop = false;
 			groupBox2.Text = "Target";
 			// 
 			// lameTargetQualityRb
 			// 
+			lameTargetQualityRb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
 			lameTargetQualityRb.AutoSize = true;
-			lameTargetQualityRb.Location = new System.Drawing.Point(139, 22);
+			lameTargetQualityRb.Location = new System.Drawing.Point(118, 22);
 			lameTargetQualityRb.Name = "lameTargetQualityRb";
 			lameTargetQualityRb.Size = new System.Drawing.Size(63, 19);
 			lameTargetQualityRb.TabIndex = 0;
@@ -1321,7 +1354,6 @@
 			Controls.Add(tabControl);
 			Controls.Add(cancelBtn);
 			Controls.Add(saveBtn);
-			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			MaximizeBox = false;
 			MinimizeBox = false;
