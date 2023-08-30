@@ -23,6 +23,17 @@ This walkthrough should get you up and running with Libation on your Mac.
   ```  
 - Close the terminal and use Libation!
 
+## Troubleshooting
+
+If Libation fails to start after completing the above steps, try the following:
+
+1. Right-click the Libation app in your applications folder and select _Show Package Contents_
+2. Open the `Contents` folder and then the `MacOS` folder.
+3. Find the file named `Libation`, right-click it, and then select _Open_.
+
+Libation _should_ launch, and you should now be able to open Libation by just double-clicking the app bundle in your applications folder.
+
+
 ## Running Hangover
 
 Libation comes with a recovery app called Hangover. You can start it by running this command:
