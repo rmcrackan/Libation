@@ -94,8 +94,6 @@ install * %{buildroot}%{_libdir}/%{name}/
 
 if [ \$1 -eq 1 ] ; then
   # Initial installation
-  touch %{_libdir}/%{name}/appsettings.json
-  chmod 666 %{_libdir}/%{name}/appsettings.json
   
   ln -s %{_libdir}/%{name}/Libation %{_bindir}/libation
   ln -s %{_libdir}/%{name}/Hangover %{_bindir}/hangover
