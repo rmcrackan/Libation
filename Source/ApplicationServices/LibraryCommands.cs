@@ -125,7 +125,8 @@ namespace ApplicationServices
 					    | LibraryOptions.ResponseGroupOptions.Relationships | LibraryOptions.ResponseGroupOptions.ProductDesc
 					    | LibraryOptions.ResponseGroupOptions.Contributors | LibraryOptions.ResponseGroupOptions.ProvidedReview
 					    | LibraryOptions.ResponseGroupOptions.ProductPlans | LibraryOptions.ResponseGroupOptions.Series
-					    | LibraryOptions.ResponseGroupOptions.CategoryLadders | LibraryOptions.ResponseGroupOptions.ProductExtendedAttrs,
+					    | LibraryOptions.ResponseGroupOptions.CategoryLadders | LibraryOptions.ResponseGroupOptions.ProductExtendedAttrs
+					    | LibraryOptions.ResponseGroupOptions.PdfUrl,
 					ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
                 };
                 var importItems = await scanAccountsAsync(apiExtendedfunc, accounts, libraryOptions);
