@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.docker_token }}
 
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           push: true
           build-args: 'FOLDER_NAME=Linux-chardonnay'
