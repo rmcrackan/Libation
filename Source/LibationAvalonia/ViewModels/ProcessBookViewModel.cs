@@ -265,7 +265,7 @@ namespace LibationAvalonia.ViewModels
 		private byte[] AudioDecodable_RequestCoverArt(object sender, EventArgs e)
 		{
 			var quality
-				= Configuration.Instance.FileDownloadQuality == Configuration.DownloadQuality.High
+				= Configuration.Instance.FileDownloadQuality == Configuration.DownloadQuality.High && LibraryBook.Book.PictureLarge is not null
 				? new PictureDefinition(LibraryBook.Book.PictureLarge, PictureSize.Native)
 				: new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._500x500);
 
