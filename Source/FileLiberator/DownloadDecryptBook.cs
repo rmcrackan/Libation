@@ -375,8 +375,15 @@ namespace FileLiberator
         {
             if (Configuration.Instance.AllowLibationFixup)
             {
-                e = OnRequestCoverArt();
-				abDownloader.SetCoverArt(e);
+                try
+                {
+                    e = OnRequestCoverArt();
+                    abDownloader.SetCoverArt(e);
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Logger.Error(ex, "Failed to retrieve cover art from server.");
+                }
             }
             
             if (e is not null)
