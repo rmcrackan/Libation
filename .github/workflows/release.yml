@@ -53,7 +53,7 @@ jobs:
           prerelease: false
 
       - name: Upload release assets
-        uses: dwenegar/upload-release-assets@v1
+        uses: dwenegar/upload-release-assets@v2
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
