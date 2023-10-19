@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="30.0.1" />
-    <PackageReference Include="NPOI" Version="2.6.1" />
+    <PackageReference Include="NPOI" Version="2.6.2" />
   </ItemGroup>
 
   <ItemGroup>
