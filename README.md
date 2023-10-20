@@ -31,6 +31,7 @@
     - [Custom File Naming](Documentation/NamingTemplates.md)
     - [Command Line Interface](Documentation/Advanced.md#command-line-interface)
 - [Docker](Documentation/Docker.md)
+- [Frequently Asked Questions](Documentation/FrequentlyAskedQuestions.md)
 
 ## Getting started
 
