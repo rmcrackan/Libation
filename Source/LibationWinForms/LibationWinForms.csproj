@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net7.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows7.0</TargetFramework>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ApplicationIcon>libation.ico</ApplicationIcon>
@@ -37,7 +37,7 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="7.3.0.1" />
+		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="8.0.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>

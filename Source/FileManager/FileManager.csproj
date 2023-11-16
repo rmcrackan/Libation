@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core" Version="7.3.0.1" />
-    <PackageReference Include="Polly" Version="7.2.4" />
+    <PackageReference Include="Dinah.Core" Version="8.0.0.1" />
+    <PackageReference Include="Polly" Version="8.2.0" />
   </ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
