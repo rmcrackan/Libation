@@ -37,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
         env:
@@ -107,7 +107,7 @@ jobs:
           Compress-Archive -Path "${bin_dir}*" -DestinationPath "$artifact.zip"
 
       - name: Publish artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.zip.outputs.artifact }}.zip
           path: ./Source/bin/Publish/${{ steps.zip.outputs.artifact }}.zip
