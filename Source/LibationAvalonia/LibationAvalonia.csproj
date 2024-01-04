@@ -69,14 +69,14 @@
 		<UpToDateCheckInput Remove="Controls\GroupBox.axaml" />
 	</ItemGroup>
 
-	<ItemGroup>		
-		<PackageReference Include="Avalonia.Diagnostics" Version="11.0.6" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
-		<PackageReference Include="Avalonia" Version="11.0.6" />
-		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.6" />
-		<PackageReference Include="Avalonia.Controls.ItemsRepeater" Version="11.0.6" />
-		<PackageReference Include="Avalonia.Desktop" Version="11.0.6" />
-		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.6" />
-		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.6" />
+	<ItemGroup>
+		<PackageReference Include="Avalonia.Diagnostics" Version="11.0.5" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+		<PackageReference Include="Avalonia" Version="11.0.5" />
+		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.5" />
+		<PackageReference Include="Avalonia.Controls.ItemsRepeater" Version="11.0.5" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.0.5" />
+		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.5" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.5" />
 	</ItemGroup>
 
 	<ItemGroup>
