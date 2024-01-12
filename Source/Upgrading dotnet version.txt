@@ -1,0 +1,9 @@
+For reasons I cannot figure out, upgrading the major .net version breaks Libation until these were done. Update these to the same version of .net as the app and release their nugets:
+
+* https://github.com/rmcrackan/Dinah.Core
+* https://github.com/rmcrackan/AudibleApi
+* https://github.com/rmcrackan/LuceneNet303r2
+
+* https://github.com/Mbucari/AAXClean.Codecs
+* https://github.com/Mbucari/AAXClean
+* https://github.com/Mbucari/serilog-sinks-zipfile

@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Octokit" Version="9.1.0" />
-    <PackageReference Include="Serilog.Sinks.ZipFile" Version="1.0.1" />
+    <PackageReference Include="Serilog.Sinks.ZipFile" Version="3.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApplicationServices\ApplicationServices.csproj" />
