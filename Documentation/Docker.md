@@ -12,7 +12,15 @@ In order to use the docker image, you'll need to provide it with a copy of the `
 
 In Settings.json, make the following changes:
 * Change `Books` to `/data`
-* Change `InProgress` to `/tmp`
+* Change `InProgress` to `/tmp` *
+
+*You may have to paste the following at the end of your your Settings.json file if `InProgess` is not present:
+
+```
+  "InProgress": "/tmp"
+```
+![image](https://github.com/patienttruth/Libation/assets/105557996/cf65a108-cadf-4284-9000-e7672c99c59b)
+
 
 ### Running
 Once the configuration files are copied and edited, the docker image can be run with the following command.
