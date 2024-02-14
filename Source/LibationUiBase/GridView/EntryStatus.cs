@@ -133,7 +133,7 @@ namespace LibationUiBase.GridView
 		private string GetTooltip()
 		{
 			if (IsSeries)
-				return Expanded ? "Click to Collpase" : "Click to Expand";
+				return Expanded ? "Click to Collapse" : "Click to Expand";
 
 			if (IsUnavailable)
 				return "This book cannot be downloaded\nbecause it wasn't found during\nthe most recent library scan";
