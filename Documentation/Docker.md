@@ -1,10 +1,11 @@
 ## [Download Libation](https://github.com/rmcrackan/Libation/releases/latest)
 
-### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PayPal.me](https://paypal.me/MBucari?locale.x=en_us)
+### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PayPal.me](https://paypal.me/mcrackan?locale.x=en_us)
 ...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
 
 
-### Disclaimer
+
+# Disclaimer
 The docker image is provided as-is. We hope it can be useful to you but it is not officially supported.
 
 ### Setup

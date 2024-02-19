@@ -1,10 +1,11 @@
 ## [Download Libation](https://github.com/rmcrackan/Libation/releases/latest)
 
-### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PayPal.me](https://paypal.me/MBucari?locale.x=en_us)
+### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PayPal.me](https://paypal.me/mcrackan?locale.x=en_us)
 ...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
 
 
-### Install and Run Libation on Ubuntu
+
+# Install and Run Libation on Ubuntu
 
 New Libation releases are automatically packed into .deb and .rpm package and are available from the Libation repository's releases page.
 

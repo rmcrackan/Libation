@@ -1,3 +1,10 @@
+## [Download Libation](https://github.com/rmcrackan/Libation/releases/latest)
+
+### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PayPal.me](https://paypal.me/mcrackan?locale.x=en_us)
+...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
+
+
+
 # Naming Templates
 File and Folder names can be customized using Libation's built-in tag template naming engine. To edit how folder and file names are created, go to Settings \> Download/Decrypt and edit the naming templates. If you're splitting your audiobook into multiple files by chapter, you can also use a custom template to set each chapter's title metadata tag by editing the template in Settings \> Audio File Options.
 
