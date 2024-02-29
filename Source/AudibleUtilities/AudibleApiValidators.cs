@@ -90,8 +90,10 @@ namespace AudibleUtilities
 			var distinct = items.GetSeriesDistinct();
 			if (distinct.Any(s => s.SeriesId is null))
 				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(Series.SeriesId)}", nameof(items)));
-			if (distinct.Any(s => s.SeriesName is null))
-				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(Series.SeriesName)}", nameof(items)));
+
+			//// unfortunately, a user has a series with no name
+			//if (distinct.Any(s => s.SeriesName is null))
+			//    exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(Series.SeriesName)}", nameof(items)));
 
 			return exceptions;
 		}
