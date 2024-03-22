@@ -10,7 +10,7 @@
 New Libation releases are automatically packed into .deb and .rpm package and are available from the Libation repository's releases page.
 
 
-Run this command in your terminal to dowbnload and install Libation, replacing the url with the latest Libation package url:
+Run this command in your terminal to download and install Libation, replacing the url with the latest Libation package url:
 
 - Debian
   ```Console
