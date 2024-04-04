@@ -107,7 +107,7 @@ namespace LibationAvalonia.Controls
 
 				if (known is Configuration.KnownDirectories.None)
 				{
-					directoryState.CustomDir = noSubDir;
+					directoryState.CustomDir = directory;
 					directoryState.CustomChecked = true;
 				}
 				else
