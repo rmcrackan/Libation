@@ -95,9 +95,9 @@ namespace LibationFileManager
             var assembly = CurrentDomain_AssemblyResolve_internal(asmName, here: here);
             lowEffortCache[key] = assembly;
 
-            //Let the runtime handle any dll not found exceptions.
+            // Let the runtime handle any dll not found exceptions
             if (assembly is null)
-                Serilog.Log.Logger.Error($"Unable to load module {args.Name}");
+                Serilog.Log.Logger.Warning($"Unable to load module {args.Name}");
 
             return assembly;
         }
