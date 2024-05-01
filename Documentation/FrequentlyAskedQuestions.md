@@ -23,3 +23,9 @@
 * iOS: [Bound](https://apps.apple.com/us/app/bound-audiobook-player/id1041727137)
 * Android: [Smart AudioBook Player](https://play.google.com/store/apps/details?id=ak.alizandro.smartaudiobookplayer&hl=en_US&gl=US)
 * Desktop: [VLC](https://www.videolan.org/)
+
+## Q: How do I use Libation with a South Africa account?
+
+**A:** Like many countries, amazon gives South Africa it's own amazon site. [Unlike many other regions](https://www.audible.com/ep/country-selector) there is not South Africa specific audible site. Use `US` for your region -- ie: audible.com.
+
+(Not exactly a *frequently* asked question but it's come up more than once)
