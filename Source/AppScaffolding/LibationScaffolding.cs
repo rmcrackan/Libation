@@ -254,6 +254,8 @@ namespace AppScaffolding
 
 				AudibleFileStorage.DecryptInProgressDirectory,
 				DecryptInProgressFiles = FileManager.FileUtility.SaferEnumerateFiles(AudibleFileStorage.DecryptInProgressDirectory).Count(),
+
+                disableIPv6 = AppContext.TryGetSwitch("System.Net.DisableIPv6", out bool disableIPv6Value),
 			});
 
             if (InteropFactory.InteropFunctionsType is null)

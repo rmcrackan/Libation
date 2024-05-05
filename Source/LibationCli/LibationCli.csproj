@@ -11,6 +11,10 @@
 		<IsPublishable>True</IsPublishable>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<RuntimeHostConfigurationOption Include="System.Net.DisableIPv6" Value="true" />
+	</ItemGroup>
+
 	<PropertyGroup>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	</PropertyGroup>
