@@ -16,7 +16,27 @@ namespace LibationWinForms.GridView
 
 	internal class LiberateDataGridViewImageButtonCell : DataGridViewImageButtonCell
 	{
-		private static readonly Brush DISABLED_GRAY = new SolidBrush(Color.FromArgb(0x60, Color.LightGray));
+        #region Accessibility
+        private string accessibilityName => "Liberate Image Button";
+		private string accessibilityDescription = "undefined";
+        protected override AccessibleObject CreateAccessibilityInstance() => new MyAccessibilityObject(accessibilityName, accessibilityDescription);
+        protected class MyAccessibilityObject : DataGridViewCellAccessibleObject
+        {
+            public override string Name => _name;
+            public override string Description => _description;
+
+            private string _name { get; }
+            private string _description { get; }
+
+            public MyAccessibilityObject(string name, string description) : base()
+            {
+                _name = name;
+                _description = description;
+            }
+        }
+        #endregion
+
+        private static readonly Brush DISABLED_GRAY = new SolidBrush(Color.FromArgb(0x60, Color.LightGray));
 		private static readonly Color HiddenForeColor = Color.LightGray;
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
@@ -31,7 +51,8 @@ namespace LibationWinForms.GridView
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
 				DrawButtonImage(graphics, (Image)status.ButtonImage, cellBounds);
-				ToolTipText = status.ToolTip;
+                accessibilityDescription = status.ToolTip;
+                ToolTipText = status.ToolTip;
 
 				if (status.IsUnavailable || status.Opacity < 1)
 					graphics.FillRectangle(DISABLED_GRAY, cellBounds);
