@@ -24,23 +24,39 @@ namespace LibationWinForms.Dialogs
 		private const string COL_MoveUp = nameof(MoveUp);
 		private const string COL_MoveDown = nameof(MoveDown);
 
-		internal class DisableButtonCell : DataGridViewButtonCell
-		{
-			protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+		internal class DisableButtonCell : AccessibleDataGridViewButtonCell
+        {
+            private int LastRowIndex => DataGridView.Rows[^1].IsNewRow ? DataGridView.Rows[^1].Index - 1 : DataGridView.Rows[^1].Index;
+
+			public DisableButtonCell() : base("Edit Filter button") { }
+
+            protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 			{
-				if ((OwningColumn.Name == COL_MoveUp && rowIndex == 0)
-					|| (OwningColumn.Name == COL_MoveDown && rowIndex == LastRowIndex)
-					|| OwningRow.IsNewRow)
-				{
+				var isMoveUp = OwningColumn.Name == COL_MoveUp;
+				var isMoveDown = OwningColumn.Name == COL_MoveDown;
+				var isDelete = OwningColumn.Name == COL_Delete;
+                var isNewRow = OwningRow.IsNewRow;
+
+                if (isNewRow
+                    || (isMoveUp && rowIndex == 0)
+					|| (isMoveDown && rowIndex == LastRowIndex))
+                {
 					base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts ^ (DataGridViewPaintParts.ContentBackground | DataGridViewPaintParts.ContentForeground | DataGridViewPaintParts.SelectionBackground));
 
 					ButtonRenderer.DrawButton(graphics, cellBounds, value as string, cellStyle.Font, false, System.Windows.Forms.VisualStyles.PushButtonState.Disabled);
-				}
+                }
 				else
-					base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
-			}
+				{
+                    base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
 
-			int LastRowIndex => DataGridView.Rows[^1].IsNewRow ? DataGridView.Rows[^1].Index - 1 : DataGridView.Rows[^1].Index;
+					if (isMoveUp)
+						AccessibilityDescription = "Move up";
+					else if (isMoveDown)
+						AccessibilityDescription = "Move down";
+					else if (isDelete)
+						AccessibilityDescription = "Delete";
+                }
+			}
 		}
 
 		public EditQuickFilters()

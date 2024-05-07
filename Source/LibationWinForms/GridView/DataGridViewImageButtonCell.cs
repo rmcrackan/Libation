@@ -1,11 +1,12 @@
 ﻿using System.Drawing;
-using System.Windows.Forms;
 
 namespace LibationWinForms.GridView
 {
-	public class DataGridViewImageButtonCell : DataGridViewButtonCell
-	{
-		protected void DrawButtonImage(Graphics graphics, Image image, Rectangle cellBounds)
+    public class DataGridViewImageButtonCell : AccessibleDataGridViewButtonCell
+    {
+        public DataGridViewImageButtonCell(string accessibilityName) : base(accessibilityName) { }
+
+        protected void DrawButtonImage(Graphics graphics, Image image, Rectangle cellBounds)
 		{
 			var scaleFactor = OwningColumn is IDataGridScaleColumn scCol ? scCol.ScaleFactor : 1f;
 

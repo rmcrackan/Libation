@@ -1,9 +1,9 @@
-﻿using DataLayer;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using DataLayer;
 
 namespace LibationWinForms.GridView
 {
@@ -24,14 +24,17 @@ namespace LibationWinForms.GridView
 		}
 	}
 
-	internal class MyRatingGridViewCell : DataGridViewTextBoxCell
-	{
+	internal class MyRatingGridViewCell : AccessibleDataGridViewTextBoxCell
+    {
 		private static Rating DefaultRating => new Rating(0, 0, 0);
 		public override object DefaultNewRowValue => DefaultRating;
 		public override Type EditType => typeof(MyRatingCellEditor);
 		public override Type ValueType => typeof(Rating);
 
-		public MyRatingGridViewCell() { ToolTipText = ReadOnly ? "" : "Click to change ratings"; }
+		public MyRatingGridViewCell() : base("My Rating")
+		{
+            AccessibilityDescription = ReadOnly ? "" : "Click to change ratings";
+		}
 
 		public override void InitializeEditingControl(int rowIndex, object initialFormattedValue, DataGridViewCellStyle dataGridViewCellStyle)
 		{
@@ -46,14 +49,14 @@ namespace LibationWinForms.GridView
 		{
 			if (value is Rating rating)
 			{
-				ToolTipText = ReadOnly ? "" : "Click to change ratings";
-
 				var starString = rating.ToStarString();
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, starString, starString, errorText, cellStyle, advancedBorderStyle, paintParts);
-			}
-			else
-				base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, string.Empty, string.Empty, errorText, cellStyle, advancedBorderStyle, paintParts);
-		}
+				
+				AccessibilityDescription = ReadOnly ? "" : "Click to change ratings";
+            }
+            else
+                base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, string.Empty, string.Empty, errorText, cellStyle, advancedBorderStyle, paintParts);
+        }
 
 		protected override object GetFormattedValue(object value, int rowIndex, ref DataGridViewCellStyle cellStyle, TypeConverter valueTypeConverter, TypeConverter formattedValueTypeConverter, DataGridViewDataErrorContexts context)
 			=> value is Rating rating ? rating.ToStarString() : value?.ToString();

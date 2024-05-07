@@ -1,7 +1,7 @@
-﻿using LibationUiBase.GridView;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using LibationUiBase.GridView;
 
 namespace LibationWinForms.GridView
 {
@@ -21,15 +21,19 @@ namespace LibationWinForms.GridView
 		}
 	}
 
-	internal class LastDownloadedGridViewCell : DataGridViewTextBoxCell
-	{
+	internal class LastDownloadedGridViewCell : AccessibleDataGridViewTextBoxCell
+    {
 		private LastDownloadStatus LastDownload => (LastDownloadStatus)Value;
-		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates cellState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+
+        public LastDownloadedGridViewCell() : base("Last Downloaded") { }
+
+        protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates cellState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
-			if (value is LastDownloadStatus lastDl)
-				ToolTipText = lastDl.ToolTipText;
 			base.Paint(graphics, clipBounds, cellBounds, rowIndex, cellState, value, formattedValue, errorText, cellStyle, advancedBorderStyle, paintParts);
-		}
+
+            if (value is LastDownloadStatus lastDl)
+                AccessibilityDescription = lastDl.ToolTipText;
+        }
 
 		protected override void OnDoubleClick(DataGridViewCellEventArgs e)
 		{

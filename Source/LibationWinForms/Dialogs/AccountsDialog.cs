@@ -51,13 +51,13 @@ namespace LibationWinForms.Dialogs
 
 		private void AddAccountToGrid(Account account)
 		{
-			int row = dataGridView1.Rows.Add(
-					"X",
-					"Export",
-					account.LibraryScan,
-					account.AccountId,
-					account.Locale.Name,
-					account.AccountName);
+			var row = dataGridView1.Rows.Add(
+				"X",
+				"Export",
+				account.LibraryScan,
+				account.AccountId,
+				account.Locale.Name,
+				account.AccountName);
 
 			dataGridView1[COL_Export, row].ToolTipText = "Export account authorization to audible-cli";
 		}
