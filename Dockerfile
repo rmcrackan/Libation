@@ -1,12 +1,12 @@
 # Dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:7.0 as build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0 as build-env
 
 COPY Source /Source
 RUN dotnet publish -c Release -o /Source/bin/Publish/Linux-chardonnay /Source/LibationCli/LibationCli.csproj -p:PublishProfile=/Source/LibationCli/Properties/PublishProfiles/LinuxProfile.pubxml
 COPY Docker/liberate.sh /Source/bin/Publish/Linux-chardonnay
 
 
-FROM mcr.microsoft.com/dotnet/runtime:7.0
+FROM mcr.microsoft.com/dotnet/runtime:8.0
 
 ENV SLEEP_TIME "30m"
 
