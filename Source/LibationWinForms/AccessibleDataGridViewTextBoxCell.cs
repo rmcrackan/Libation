@@ -30,16 +30,16 @@ namespace LibationWinForms
 
         protected class TextBoxCellAccessibilityObject : DataGridViewTextBoxCellAccessibleObject
         {
-            public string AccessibilityName { get; set; }
-            public string AccessibilityDescription { get; set; }
+            private string _name;
+            public override string Name => _name;
 
-            public override string Name => AccessibilityName;
-            public override string Description => AccessibilityDescription;
+            private string _description;
+            public override string Description => _description;
 
             public TextBoxCellAccessibilityObject(DataGridViewCell owner, string name, string description) : base(owner)
             {
-                AccessibilityName = name;
-                AccessibilityDescription = description;
+                _name = name;
+                _description = description;
             }
         }
     }
