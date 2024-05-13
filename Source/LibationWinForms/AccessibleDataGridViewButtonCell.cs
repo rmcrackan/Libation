@@ -4,31 +4,28 @@ namespace LibationWinForms
 {
     public class AccessibleDataGridViewButtonCell : DataGridViewButtonCell
     {
-        protected string AccessibilityName
-        {
-            get => MyAccessibilityObject.AccessibilityName;
-            set => MyAccessibilityObject.AccessibilityName = value;
-        }
+        private string accessibilityDescription;
+
+        protected string AccessibilityName { get; }
 
         /// <summary>
         /// Get or set description for accessibility. eg: screen readers. Also sets the ToolTipText
         /// </summary>
         protected string AccessibilityDescription
         {
-            get => MyAccessibilityObject.AccessibilityDescription;
+            get => accessibilityDescription;
             set
             {
-                MyAccessibilityObject.AccessibilityDescription = value;
-                MyAccessibilityObject.Owner.ToolTipText = value;
+                accessibilityDescription = value;
+                ToolTipText = value;
             }
         }
 
-        protected ButtonCellAccessibilityObject MyAccessibilityObject { get; set; }
-        protected override AccessibleObject CreateAccessibilityInstance() => MyAccessibilityObject;
+        protected override AccessibleObject CreateAccessibilityInstance() => new ButtonCellAccessibilityObject(this, name: AccessibilityName, description: AccessibilityDescription);
 
         public AccessibleDataGridViewButtonCell(string accessibilityName) : base()
         {
-            MyAccessibilityObject = new(this, name: accessibilityName, description: "");
+            AccessibilityName = accessibilityName;
         }
 
         protected class ButtonCellAccessibilityObject : DataGridViewButtonCellAccessibleObject

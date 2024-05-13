@@ -4,34 +4,31 @@ namespace LibationWinForms
 {
     internal class AccessibleDataGridViewTextBoxCell : DataGridViewTextBoxCell
     {
-        protected virtual string AccessibilityName
-        {
-            get => MyAccessibilityObject.AccessibilityName;
-            set => MyAccessibilityObject.AccessibilityName = value;
-        }
+        private string accessibilityDescription;
+
+        protected string AccessibilityName { get; }
 
         /// <summary>
         /// Get or set description for accessibility. eg: screen readers. Also sets the ToolTipText
         /// </summary>
         protected string AccessibilityDescription
         {
-            get => MyAccessibilityObject.AccessibilityDescription;
+            get => accessibilityDescription;
             set
             {
-                MyAccessibilityObject.AccessibilityDescription = value;
-                MyAccessibilityObject.Owner.ToolTipText = value;
+                accessibilityDescription = value;
+                ToolTipText = value;
             }
         }
 
-        protected ButtonCellAccessibilityObject MyAccessibilityObject { get; set; }
-        protected override AccessibleObject CreateAccessibilityInstance() => MyAccessibilityObject;
+        protected override AccessibleObject CreateAccessibilityInstance() => new TextBoxCellAccessibilityObject(this, name: AccessibilityName, description: AccessibilityDescription);
 
         public AccessibleDataGridViewTextBoxCell(string accessibilityName) : base()
         {
-            MyAccessibilityObject = new(this, name: accessibilityName, description: "");
+            AccessibilityName = accessibilityName;
         }
 
-        protected class ButtonCellAccessibilityObject : DataGridViewTextBoxCellAccessibleObject
+        protected class TextBoxCellAccessibilityObject : DataGridViewTextBoxCellAccessibleObject
         {
             public string AccessibilityName { get; set; }
             public string AccessibilityDescription { get; set; }
@@ -39,7 +36,7 @@ namespace LibationWinForms
             public override string Name => AccessibilityName;
             public override string Description => AccessibilityDescription;
 
-            public ButtonCellAccessibilityObject(DataGridViewCell owner, string name, string description) : base(owner)
+            public TextBoxCellAccessibilityObject(DataGridViewCell owner, string name, string description) : base(owner)
             {
                 AccessibilityName = name;
                 AccessibilityDescription = description;
