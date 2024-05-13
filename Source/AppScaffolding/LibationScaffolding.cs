@@ -233,6 +233,7 @@ namespace AppScaffolding
 				Version = BuildVersion.ToString(),
 				ReleaseIdentifier,
 				Configuration.OS,
+                Environment.OSVersion,
                 InteropFactory.InteropFunctionsType,
                 Mode = mode,
 				LogLevel_Verbose_Enabled = Log.Logger.IsVerboseEnabled(),
