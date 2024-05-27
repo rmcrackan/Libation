@@ -22,7 +22,13 @@
 * iOS: [BookPlayer](https://apps.apple.com/us/app/bookplayer/id1138219998)
 * iOS: [Bound](https://apps.apple.com/us/app/bound-audiobook-player/id1041727137)
 * Android: [Smart AudioBook Player](https://play.google.com/store/apps/details?id=ak.alizandro.smartaudiobookplayer&hl=en_US&gl=US)
+* Android: [Listen](https://play.google.com/store/apps/details?id=ru.litres.android.audio&hl=en_US&gl=US)
 * Desktop: [VLC](https://www.videolan.org/)
+
+Self-hosting online:
+
+* [audiobookshelf](https://www.audiobookshelf.org). On [reddit](https://www.reddit.com/r/audiobookshelf/)
+* [plex](https://www.plex.tv/). Listen with [Prologue](https://prologue.audio/) (iOS)
 
 ## Q: How do I use Libation with a South Africa account?
 
