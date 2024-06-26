@@ -124,6 +124,9 @@ namespace AppScaffolding
 				{ "MinimumLevel", "Information" },
 				{ "WriteTo", new JArray
 					{
+						// ABOUT SINKS
+						// Only ZipFile sink is currently used. By user request (June 2024) others packages are included for experimental use.
+
 						// new JObject { {"Name", "Console" } }, // this has caused more problems than it's solved
 						new JObject
 						{
