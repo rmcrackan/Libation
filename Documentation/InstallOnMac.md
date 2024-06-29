@@ -42,7 +42,7 @@ Libation comes with a recovery app called Hangover. You can start it by running 
 open /Applications/Libation.app --args hangover
 ```
 
-## Runnign LibationCli
+## Running LibationCli
 
 Libation comes with a command-line interface. Unfortunately, due to the way apps are sandboxed on mac, its use is somewhat limited. To open a new sandboxed terminal in LibationCli's directory, run the following command:
 ```Console
