@@ -9,9 +9,9 @@ using Dinah.Core;
 using Dinah.Core.IO;
 using Dinah.Core.Logging;
 using LibationFileManager;
-using System.Runtime.InteropServices;
 using Newtonsoft.Json.Linq;
 using Serilog;
+using System.Runtime.InteropServices;
 
 namespace AppScaffolding
 {
@@ -230,7 +230,14 @@ namespace AppScaffolding
 
 			// begin logging session with a form feed
 			Log.Logger.Information("\r\n\f");
-			Log.Logger.Information("Begin. {@DebugInfo}", new
+
+			static int fileCount(FileManager.LongPath longPath)
+            {
+                try { return FileManager.FileUtility.SaferEnumerateFiles(longPath).Count(); }
+                catch { return -1; }
+            }
+
+            Log.Logger.Information("Begin. {@DebugInfo}", new
 			{
 				AppName = EntryAssembly.GetName().Name,
 				Version = BuildVersion.ToString(),
@@ -255,10 +262,10 @@ namespace AppScaffolding
 				config.InProgress,
 
 				AudibleFileStorage.DownloadsInProgressDirectory,
-				DownloadsInProgressFiles = FileManager.FileUtility.SaferEnumerateFiles(AudibleFileStorage.DownloadsInProgressDirectory).Count(),
+				DownloadsInProgressFiles = fileCount(AudibleFileStorage.DownloadsInProgressDirectory),
 
 				AudibleFileStorage.DecryptInProgressDirectory,
-				DecryptInProgressFiles = FileManager.FileUtility.SaferEnumerateFiles(AudibleFileStorage.DecryptInProgressDirectory).Count(),
+				DecryptInProgressFiles = fileCount(AudibleFileStorage.DecryptInProgressDirectory),
 
                 disableIPv6 = AppContext.TryGetSwitch("System.Net.DisableIPv6", out bool disableIPv6Value),
 			});

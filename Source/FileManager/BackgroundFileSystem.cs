@@ -50,7 +50,7 @@ namespace FileManager
             lock (fsCacheLocker)
             {
                 fsCache.Clear();
-                fsCache.AddRange(FileUtility.SaferEnumerateFiles(RootDirectory, SearchPattern, SearchOption));
+                fsCache.AddRange(SafestEnumerateFiles(RootDirectory));
             }
         }
 
@@ -59,7 +59,7 @@ namespace FileManager
             Stop();
 
             lock (fsCacheLocker)
-                fsCache.AddRange(FileUtility.SaferEnumerateFiles(RootDirectory, SearchPattern, SearchOption));
+                fsCache.AddRange(SafestEnumerateFiles(RootDirectory));
 
             directoryChangesEvents = new BlockingCollection<FileSystemEventArgs>();
 			fileSystemWatcher = new FileSystemWatcher(RootDirectory)
@@ -152,9 +152,21 @@ namespace FileManager
             if (Path.GetFileName(path).Contains("LibationContext.db") || !File.Exists(path) && !Directory.Exists(path))
                 return;
             if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
-                AddUniqueFiles(FileUtility.SaferEnumerateFiles(path, SearchPattern, SearchOption));
+                AddUniqueFiles(SafestEnumerateFiles(path));
             else
                 AddUniqueFile(path);
+        }
+
+        private IEnumerable<LongPath> SafestEnumerateFiles(string path)
+        {
+            try
+            {
+                return FileUtility.SaferEnumerateFiles(path, SearchPattern, SearchOption);
+            }
+            catch
+            {
+                return [];
+            }
         }
 
         private void AddUniqueFiles(IEnumerable<LongPath> newFiles)

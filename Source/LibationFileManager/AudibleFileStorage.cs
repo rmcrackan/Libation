@@ -25,9 +25,18 @@ namespace LibationFileManager
 		static AudibleFileStorage()
 		{
 			//Clean up any partially-decrypted files from previous Libation instances.
-			//Do no clean DownloadsInProgressDirectory because those files are resumable
-			foreach (var tempFile in Directory.EnumerateFiles(DecryptInProgressDirectory))
-				FileUtility.SaferDelete(tempFile);
+			//Do not clean DownloadsInProgressDirectory. Those files are resumable.
+			try
+            {
+                foreach (var tempFile in FileUtility.SaferEnumerateFiles(DecryptInProgressDirectory))
+                    FileUtility.SaferDelete(tempFile);
+            }
+            catch (Exception ex)
+            {
+                // since this is a static constructor which may be called very early, do not assume Serilog is initialized
+                try { Serilog.Log.Error(ex, "Error cleaning up partially-decrypted files"); }
+				catch { }
+            }
 		}
 
 
