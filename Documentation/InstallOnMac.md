@@ -16,13 +16,29 @@ This walkthrough should get you up and running with Libation on your Mac.
   - Apple Silicon (M1, M2, ...): `Libation.9.4.2-macOS-chardonnay-`**arm64**`.tgz`
   - Intel: `Libation.x.x.x-macOS-chardonnay-`**x64**`.tgz`
 - Move the extracted Libation app bundle to your applications folder.
-- Open a terminal (Go > Utilities > Terminal)
-- Copy/paste/run the following command (you'll be prompted to enter your password)
-  
+- Right-click on Libation and then click on open
+- The first time, it will not immediately show you an option to open it. Just dismiss the dialog and do the same thing again (right-click -> open) then you will get an option to run the unsigned application. This takes about 10 seconds.
+
+## If this doesn't work
+
+You can add Libation as a safe app without touching Gatekeeper.
+
+- Copy/paste/run the following command. Adjust the file path to the Libation.app on your computer if necessary.
+
+  ```Console
+  xattr -r -d com.apple.quarantine ~/Downloads/Libation.app
+  ```
+- Close the terminal and use Libation!
+
+## If this still doesn't work
+
+- Copy/paste/run the following command (you'll be prompted to enter your Mac password)
+
   ```Console
   sudo spctl --master-disable && sudo spctl --add --label "Libation" /Applications/Libation.app && open /Applications/Libation.app && sudo spctl --master-enable
-  ```  
-- Close the terminal and use Libation!
+  ```
+
+* Close the terminal and use Libation!
 
 ## Troubleshooting
 
