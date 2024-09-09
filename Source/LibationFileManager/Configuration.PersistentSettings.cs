@@ -321,7 +321,7 @@ namespace LibationFileManager
 			set => setTemplate<Templates.ChapterFileTemplate>(value);
 		}
 
-		[Description("How to format the file's Tile stored in metadata")]
+		[Description("How to format the file's Title stored in metadata")]
 		public string ChapterTitleTemplate
 		{
 			get => getTemplate<Templates.ChapterTitleTemplate>();
