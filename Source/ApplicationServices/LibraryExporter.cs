@@ -115,6 +115,9 @@ namespace ApplicationServices
 
 		[Name("LastDownloadedVersion")]
         public string LastDownloadedVersion { get; set; }
+
+		[Name("IsFinished")]
+        public bool IsFinished { get; set; }
     }
 	public static class LibToDtos
 	{
@@ -153,8 +156,8 @@ namespace ApplicationServices
 				Language = a.Book.Language,
 				LastDownloaded = a.Book.UserDefinedItem.LastDownloaded,
 				LastDownloadedVersion = a.Book.UserDefinedItem.LastDownloadedVersion?.ToString() ?? "",
-
-			}).ToList();
+                IsFinished = a.Book.UserDefinedItem.IsFinished
+            }).ToList();
 	}
 	public static class LibraryExporter
 	{
@@ -229,6 +232,7 @@ namespace ApplicationServices
                 nameof(ExportDto.Language),
                 nameof(ExportDto.LastDownloaded),
                 nameof(ExportDto.LastDownloadedVersion),
+                nameof(ExportDto.IsFinished)
             };
 			var col = 0;
 			foreach (var c in columns)
@@ -306,6 +310,7 @@ namespace ApplicationServices
 				}
 
                 row.CreateCell(++col).SetCellValue(dto.LastDownloadedVersion);
+                row.CreateCell(++col).SetCellValue(dto.IsFinished);
 
                 rowIndex++;
 			}

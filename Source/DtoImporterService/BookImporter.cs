@@ -164,6 +164,9 @@ namespace DtoImporterService
 			if (item.PictureLarge is not null)
 				book.PictureLarge = item.PictureLarge;
 
+			if (item.IsFinished is not null)
+                book.UserDefinedItem.IsFinished = item.IsFinished.Value;
+
             // 2023-02-01
             // updateBook must update language on books which were imported before the migration which added language.
             // Can eventually delete this

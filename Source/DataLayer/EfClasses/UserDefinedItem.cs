@@ -195,7 +195,23 @@ namespace DataLayer
                 }
             }
         }
-		#endregion
+        #endregion
+
+        #region IsFinished
+        private bool _isFinished;
+        public bool IsFinished
+        {
+            get => _isFinished;
+            set
+            {
+                if (value != _isFinished)
+                {
+                    _isFinished = value;
+                    OnItemChanged(nameof(IsFinished));
+                }
+            }
+        }
+        #endregion
 
         public override string ToString() => $"{Book} {Rating} {Tags}";
 	}
