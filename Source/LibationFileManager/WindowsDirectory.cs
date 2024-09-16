@@ -15,7 +15,7 @@ namespace LibationFileManager
             try
             {
                 //Currently only works for Windows and macOS
-                if (!Configuration.Instance.UseCoverAsFolderIcon || Configuration.IsLinux)
+                if (!Configuration.Instance.UseCoverAsFolderIcon)
                     return;
 
                 // get path of cover art in Images dir. Download first if not exists
