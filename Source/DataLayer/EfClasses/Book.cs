@@ -191,7 +191,7 @@ namespace DataLayer
 			ArgumentValidator.EnsureNotNull(ladders, nameof(ladders));
 
 			//Replace all existing category ladders.
-            //Some books make have duplocate ladders
+            //Some books make have duplicate ladders
 			CategoriesLink.Clear();
             CategoriesLink.UnionWith(ladders.Distinct().Select(l => new BookCategory(this, l)));
 		}
