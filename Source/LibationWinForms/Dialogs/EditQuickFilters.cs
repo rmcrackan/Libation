@@ -6,14 +6,6 @@ using LibationFileManager;
 
 namespace LibationWinForms.Dialogs
 {
-	public class DisableButtonColumn : DataGridViewButtonColumn
-	{
-		public DisableButtonColumn()
-		{
-			CellTemplate = new EditQuickFilters.DisableButtonCell();
-		}
-	}
-
 	public partial class EditQuickFilters : Form
 	{
 		private const string BLACK_UP_POINTING_TRIANGLE = "\u25B2";
@@ -21,7 +13,8 @@ namespace LibationWinForms.Dialogs
 		private const string COL_Original = nameof(Original);
 		private const string COL_Delete = nameof(Delete);
 		private const string COL_Filter = nameof(Filter);
-		private const string COL_MoveUp = nameof(MoveUp);
+        private const string COL_FilterName = nameof(FilterName);
+        private const string COL_MoveUp = nameof(MoveUp);
 		private const string COL_MoveDown = nameof(MoveDown);
 
 		internal class DisableButtonCell : AccessibleDataGridViewButtonCell
@@ -76,10 +69,11 @@ namespace LibationWinForms.Dialogs
 				return;
 
 			foreach (var filter in filters)
-				dataGridView1.Rows.Add(filter, "X", filter, BLACK_UP_POINTING_TRIANGLE, BLACK_DOWN_POINTING_TRIANGLE);
-		}
+                dataGridView1.Rows.Add(filter.Filter, "X", filter.Name, filter.Filter, BLACK_UP_POINTING_TRIANGLE, BLACK_DOWN_POINTING_TRIANGLE);
+              //dataGridView1.Rows.Add(filter, "X", filter, BLACK_UP_POINTING_TRIANGLE, BLACK_DOWN_POINTING_TRIANGLE);
+        }
 
-		private void dataGridView1_DefaultValuesNeeded(object sender, DataGridViewRowEventArgs e)
+        private void dataGridView1_DefaultValuesNeeded(object sender, DataGridViewRowEventArgs e)
 		{
 			e.Row.Cells[COL_Delete].Value = "X";
 			e.Row.Cells[COL_MoveUp].Value = BLACK_UP_POINTING_TRIANGLE;
@@ -90,7 +84,9 @@ namespace LibationWinForms.Dialogs
 		{
 			var list = dataGridView1.Rows
 				.OfType<DataGridViewRow>()
-				.Select(r => r.Cells[COL_Filter].Value?.ToString())
+				.Select(r => new QuickFilters.NamedFilter(
+						         r.Cells[COL_Filter].Value?.ToString(), 
+						         r.Cells[COL_FilterName].Value?.ToString()))
 				.ToList();
 			QuickFilters.ReplaceAll(list);
 
@@ -137,4 +133,12 @@ namespace LibationWinForms.Dialogs
 			}
 		}
 	}
+    public class DisableButtonColumn : DataGridViewButtonColumn
+    {
+        public DisableButtonColumn()
+        {
+            CellTemplate = new EditQuickFilters.DisableButtonCell();
+        }
+    }
+
 }

@@ -2,11 +2,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="350"
         Width="800" Height="450"
         x:Class="LibationAvalonia.Dialogs.EditQuickFilters"
         Title="Audible Accounts"
-		Icon="/Assets/libation.ico">
+		Icon="/Assets/libation.ico"
+		x:DataType="dialogs:EditQuickFilters">
 	<Grid RowDefinitions="*,Auto">
 
 		<Grid.Styles>
@@ -43,7 +45,14 @@
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
-				
+
+				<DataGridTextColumn
+    				Width="*"
+				    IsReadOnly="False"
+				    Binding="{Binding Name, Mode=TwoWay}"
+				    Header="Name"/>
+
+
 				<DataGridTextColumn
 					Width="*"
 					IsReadOnly="False"

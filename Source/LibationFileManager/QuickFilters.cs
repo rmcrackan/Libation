@@ -1,23 +1,80 @@
-﻿using System;
+﻿using Dinah.Core.Collections.Generic;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Dinah.Core.Collections.Generic;
-using Newtonsoft.Json;
 
 #nullable enable
 namespace LibationFileManager
 {
     public static class QuickFilters
     {
+        static QuickFilters()
+        {
+            // Read file, but convert old format to new (with Name field) as necessary.
+            if (!File.Exists(JsonFile))
+            {
+                inMemoryState = new();
+                return;
+            }
+
+            try
+            {
+                if (JsonConvert.DeserializeObject<FilterState>(File.ReadAllText(JsonFile))
+                    is FilterState inMemState)
+                {
+                    inMemoryState = inMemState;
+                    return;
+                }
+            }
+            catch
+            {
+                Serilog.Log.Logger.Information("QuickFilters.json needs upgrade");
+            }
+
+            try
+            {
+                if (JsonConvert.DeserializeObject<OldFilterState>(File.ReadAllText(JsonFile))
+                    is OldFilterState inMemState)
+                {
+                    Serilog.Log.Logger.Error("Old format detected, upgrading QuickFilters.json");
+
+                    // Copy old structure to new.
+                    inMemoryState = new();
+                    inMemoryState.UseDefault = inMemState.UseDefault;
+                    foreach (var oldFilter in inMemState.Filters)
+                        inMemoryState.Filters.Add(new NamedFilter(oldFilter, null));
+
+                    Serilog.Log.Logger.Error($"QuickFilters.json upgraded, {inMemState.Filters?.Count ?? 0} filter(s) converted");
+
+                    return;
+                }
+                Debug.Assert(false, "Should not get here, QuickFilters.json deserialization issue");
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Logger.Error(ex, "QuickFilters.json could not be upgraded, recreating");
+            }
+
+            inMemoryState = new FilterState();
+        }
+
         public static event EventHandler? Updated;
 
 		public static event EventHandler? UseDefaultChanged;
 
-		internal class FilterState
+        public class OldFilterState
         {
             public bool UseDefault { get; set; }
-            public List<string> Filters { get; set; } = new List<string>();
+            public List<string> Filters { get; set; } = new();
+        }
+
+        public class FilterState
+        {
+            public bool UseDefault { get; set; }
+            public List<NamedFilter> Filters { get; set; } = new();
         }
 
         public static string JsonFile => Path.Combine(Configuration.Instance.LibationFiles, "QuickFilters.json");
@@ -25,9 +82,6 @@ namespace LibationFileManager
 
 		// load json into memory. if file doesn't exist, nothing to do. save() will create if needed
 		static FilterState inMemoryState { get; }
-            = File.Exists(JsonFile) && JsonConvert.DeserializeObject<FilterState>(File.ReadAllText(JsonFile)) is FilterState inMemState
-            ? inMemState
-            : new FilterState();
 
         public static bool UseDefault
         {
@@ -47,26 +101,35 @@ namespace LibationFileManager
             }
         }
 
-        public static IEnumerable<string> Filters => inMemoryState.Filters.AsReadOnly();
-
-        public static void Add(string filter)
+        // Note that records overload equality automagically, so should be able to
+        // compare these the same way as comparing simple strings.
+        public record NamedFilter(string Filter, string Name)
         {
-            if (string.IsNullOrWhiteSpace(filter))
+            public string Filter { get; set; } = Filter;
+            public string Name { get; set; } = Name;
+        }
+
+        public static IEnumerable<NamedFilter> Filters => inMemoryState.Filters.AsReadOnly();
+
+        public static void Add(NamedFilter namedFilter)
+        {
+            if (string.IsNullOrWhiteSpace(namedFilter.Filter))
                 return;
-            filter = filter.Trim();
+            namedFilter.Filter = namedFilter.Filter?.Trim() ?? null;
+            namedFilter.Name = namedFilter.Name?.Trim() ?? null;
 
             lock (locker)
             {
-                // check for duplicate
-                if (inMemoryState.Filters.ContainsInsensative(filter))
+                // check for duplicates
+                if (inMemoryState.Filters.Select(x => x.Filter).ContainsInsensative(namedFilter.Filter))
                     return;
 
-                inMemoryState.Filters.Add(filter);
+                inMemoryState.Filters.Add(namedFilter);
                 save();
             }
         }
 
-        public static void Remove(string filter)
+        public static void Remove(NamedFilter filter)
         {
             lock (locker)
             {
@@ -75,7 +138,7 @@ namespace LibationFileManager
             }
         }
 
-        public static void Edit(string oldFilter, string newFilter)
+        public static void Edit(NamedFilter oldFilter, NamedFilter newFilter)
         {
             lock (locker)
             {
@@ -89,20 +152,21 @@ namespace LibationFileManager
             }
         }
 
-        public static void ReplaceAll(IEnumerable<string> filters)
+        public static void ReplaceAll(IEnumerable<NamedFilter> filters)
         {
             filters = filters
-                .Where(f => !string.IsNullOrWhiteSpace(f))
-                .Distinct()
-                .Select(f => f.Trim());
+                .Where(f => !string.IsNullOrWhiteSpace(f.Filter))
+                .Distinct();
+            foreach (var filter in filters)
+                filter.Filter = filter.Filter.Trim();
             lock (locker)
             {
-                inMemoryState.Filters = new List<string>(filters);
+                inMemoryState.Filters = new List<NamedFilter>(filters);
                 save();
             }
         }
 
-        private static object locker { get; } = new object();
+        private static object locker { get; } = new();
 
         // ONLY call this within lock()
         private static void save(bool invokeUpdatedEvent = true)

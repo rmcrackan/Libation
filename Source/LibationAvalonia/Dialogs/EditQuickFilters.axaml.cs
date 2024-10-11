@@ -12,8 +12,18 @@ namespace LibationAvalonia.Dialogs
 		public ObservableCollection<Filter> Filters { get; } = new();
 
 		public class Filter : ViewModels.ViewModelBase
-		{
-			private string _filterString;
+		{ 
+            private string _name;
+            public string Name
+            {
+                get => _name;
+                set
+                {
+                    this.RaiseAndSetIfChanged(ref _name, value);
+                }
+            }
+
+            private string _filterString;
 			public string FilterString
 			{
 				get => _filterString;
@@ -25,6 +35,9 @@ namespace LibationAvalonia.Dialogs
 				}
 			}
 			public bool IsDefault { get; private set; } = true;
+
+			public QuickFilters.NamedFilter AsNamedFilter() => new(FilterString, Name);
+
 		}
 		public EditQuickFilters()
 		{
@@ -40,7 +53,7 @@ namespace LibationAvalonia.Dialogs
 
 			ControlToFocusOnShow = this.FindControl<Button>(nameof(saveBtn));
 
-			var allFilters = QuickFilters.Filters.Select(f => new Filter { FilterString = f }).ToList();
+			var allFilters = QuickFilters.Filters.Select(f => new Filter { FilterString = f.Filter, Name = f.Name }).ToList();
 			allFilters.Add(new Filter());
 
 			foreach (var f in allFilters)
@@ -61,7 +74,7 @@ namespace LibationAvalonia.Dialogs
 
 		protected override void SaveAndClose()
 		{
-			QuickFilters.ReplaceAll(Filters.Where(f => !f.IsDefault).Select(f => f.FilterString));
+			QuickFilters.ReplaceAll(Filters.Where(f => !f.IsDefault).Select(x => x.AsNamedFilter()));
 			base.SaveAndClose();
 		}
 
