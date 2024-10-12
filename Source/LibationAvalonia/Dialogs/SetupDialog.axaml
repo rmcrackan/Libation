@@ -2,12 +2,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="350"
         x:Class="LibationAvalonia.Dialogs.SetupDialog"
 		WindowStartupLocation="CenterScreen"
 		Width="500" Height="350"
 		Icon="/Assets/libation.ico"
-        Title="Welcome to Libation">
+        Title="Welcome to Libation"
+		x:DataType="dialogs:SetupDialog">
 
 	<Grid
 		Margin="10"
@@ -58,6 +60,7 @@
 				SelectedIndex="0"
 				SelectedItem="{Binding SelectedTheme, Mode=OneWayToSource}">
 				<ComboBox.Items>
+                    <ComboBoxItem Content="System" />
 					<ComboBoxItem Content="Light" />
 					<ComboBoxItem Content="Dark" />
 				</ComboBox.Items>

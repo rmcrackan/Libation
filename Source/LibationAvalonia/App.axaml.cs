@@ -90,13 +90,9 @@ namespace LibationAvalonia
 
 					if (setupDialog.Config.LibationSettingsAreValid)
 					{
-						var theme
-							= setupDialog.SelectedTheme.Content is nameof(ThemeVariant.Dark)
-							? nameof(ThemeVariant.Dark)
-							: nameof(ThemeVariant.Light);
-
+                        string theme = setupDialog.SelectedTheme.Content as string;
+						
 						setupDialog.Config.SetString(theme, nameof(ThemeVariant));
-
 
 						await RunMigrationsAsync(setupDialog.Config);
 						LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
@@ -208,9 +204,15 @@ namespace LibationAvalonia
 
 		private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)
 		{
-			Current.RequestedThemeVariant = Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)) is "Dark" ? ThemeVariant.Dark : ThemeVariant.Light;
+            Current.RequestedThemeVariant = Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)) switch
+            {
+                nameof(ThemeVariant.Dark) => ThemeVariant.Dark,
+                nameof(ThemeVariant.Light) => ThemeVariant.Light,
+				// "System"
+                _ => ThemeVariant.Default
+            };
 
-			//Reload colors for current theme
+            //Reload colors for current theme
 			LoadStyles();
 			var mainWindow = new MainWindow();
 			desktop.MainWindow = MainWindow = mainWindow;
