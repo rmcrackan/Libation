@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -406,6 +407,12 @@ namespace AppScaffolding
 			}
 		}
 
+        class FilterState_6_6_9
+        {
+            public bool UseDefault { get; set; }
+            public List<string> Filters { get; set; } = new();
+        }
+
         public static void migrate_to_v11_5_0(Configuration config)
         {
             // Read file, but convert old format to new (with Name field) as necessary.
@@ -431,8 +438,8 @@ namespace AppScaffolding
 
             try
             {
-                if (JsonConvert.DeserializeObject<QuickFilters.OldFilterState>(File.ReadAllText(QuickFilters.JsonFile))
-                    is QuickFilters.OldFilterState inMemState)
+                if (JsonConvert.DeserializeObject<FilterState_6_6_9>(File.ReadAllText(QuickFilters.JsonFile))
+                    is FilterState_6_6_9 inMemState)
                 {
                     // Copy old structure to new.
                     QuickFilters.InMemoryState = new();

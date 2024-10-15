@@ -14,12 +14,6 @@ namespace LibationFileManager
 
 		public static event EventHandler? UseDefaultChanged;
 
-        public class OldFilterState
-        {
-            public bool UseDefault { get; set; }
-            public List<string> Filters { get; set; } = new();
-        }
-
         public class FilterState
         {
             public bool UseDefault { get; set; }
