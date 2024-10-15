@@ -79,7 +79,7 @@ namespace LibationAvalonia.Views
 		{
 			if (e.Key == Key.Return)
 			{
-				await ViewModel.PerformFilter(ViewModel.FilterString);
+				await ViewModel.PerformFilter(ViewModel.SelectedNamedFilter);
 
 				// silence the 'ding'
 				e.Handled = true;

@@ -191,7 +191,7 @@
 				<Button IsVisible="{CompiledBinding RemoveButtonsVisible}" Command="{CompiledBinding DoneRemovingBtn}" Content="Done Removing Books"/>
 			</StackPanel>
 				
-			<TextBox Grid.Column="1" Margin="10,0,0,0" Name="filterSearchTb" IsVisible="{CompiledBinding !RemoveButtonsVisible}" Text="{CompiledBinding FilterString, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
+			<TextBox Grid.Column="1" Margin="10,0,0,0" Name="filterSearchTb" IsVisible="{CompiledBinding !RemoveButtonsVisible}" Text="{CompiledBinding SelectedNamedFilter, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
 
 			<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
 				<Button Name="filterBtn" Command="{CompiledBinding FilterBtn}" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>

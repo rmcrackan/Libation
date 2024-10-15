@@ -13,12 +13,12 @@ namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
-		private string lastGoodFilter = "";
-		private string _filterString;
+		private QuickFilters.NamedFilter lastGoodFilter = new(string.Empty, null);
+		private QuickFilters.NamedFilter _selectedNamedFilter;
 		private bool _firstFilterIsDefault = true;
 
 		/// <summary> Library filterting query </summary>
-		public string FilterString { get => _filterString; set => this.RaiseAndSetIfChanged(ref _filterString, value); }
+		public QuickFilters.NamedFilter SelectedNamedFilter { get => _selectedNamedFilter; set => this.RaiseAndSetIfChanged(ref _selectedNamedFilter, value); }
 		public AvaloniaList<Control> QuickFilterMenuItems { get; } = new();
 		/// <summary> Indicates if the first quick filter is the default filter </summary>
 		public bool FirstFilterIsDefault { get => _firstFilterIsDefault; set => QuickFilters.UseDefault = this.RaiseAndSetIfChanged(ref _firstFilterIsDefault, value); }
@@ -50,19 +50,19 @@ namespace LibationAvalonia.ViewModels
 			QuickFilterMenuItems.Add(new Separator());
 		}
 
-		public void AddQuickFilterBtn() => QuickFilters.Add(FilterString);
-		public async Task FilterBtn() => await PerformFilter(FilterString);
+		public void AddQuickFilterBtn() => QuickFilters.Add(SelectedNamedFilter);
+		public async Task FilterBtn() => await PerformFilter(SelectedNamedFilter);
 		public async Task FilterHelpBtn() => await new LibationAvalonia.Dialogs.SearchSyntaxDialog().ShowDialog(MainWindow);
 		public void ToggleFirstFilterIsDefault() => FirstFilterIsDefault = !FirstFilterIsDefault;
 		public async Task EditQuickFiltersAsync() => await new LibationAvalonia.Dialogs.EditQuickFilters().ShowDialog(MainWindow);
-		public async Task PerformFilter(string filterString)
+		public async Task PerformFilter(QuickFilters.NamedFilter namedFilter)
 		{
-			FilterString = filterString;
+			SelectedNamedFilter = namedFilter;
 
 			try
 			{
-				await ProductsDisplay.Filter(filterString);
-				lastGoodFilter = filterString;
+				await ProductsDisplay.Filter(namedFilter.Filter);
+				lastGoodFilter = namedFilter;
 			}
 			catch (Exception ex)
 			{
@@ -99,8 +99,8 @@ namespace LibationAvalonia.ViewModels
 			{
 				var command = ReactiveCommand.Create(async () => await PerformFilter(filter));
 
-				var menuItem = new MenuItem { Header = $"{++index}: {filter}", Command = command };
-				var nativeMenuItem = new NativeMenuItem { Header = $"{index}: {filter}", Command = command };
+				var menuItem = new MenuItem { Header = $"{++index}: {(string.IsNullOrWhiteSpace(filter.Name) ? filter.Filter : filter.Name)}", Command = command };
+				var nativeMenuItem = new NativeMenuItem { Header = $"{index}: {(string.IsNullOrWhiteSpace(filter.Name) ? filter.Filter : filter.Name)}", Command = command };
 
 				if (Configuration.IsMacOs && index <= 10)
 				{

@@ -1,21 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using ApplicationServices;
+﻿using ApplicationServices;
 using AudibleUtilities;
-using Dinah.Core;
 using Dinah.Core.IO;
 using Dinah.Core.Logging;
 using LibationFileManager;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace AppScaffolding
 {
-	public enum ReleaseIdentifier
+    public enum ReleaseIdentifier
 	{
 		None,
 		WindowsClassic = OS.Windows | Variety.Classic | Architecture.X64,
@@ -87,7 +88,8 @@ namespace AppScaffolding
 			//
 
 			Migrations.migrate_to_v6_6_9(config);
-		}
+            Migrations.migrate_to_v11_5_0(config);
+        }
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>
 		public static void RunPostMigrationScaffolding(Variety variety, Configuration config)
@@ -404,5 +406,55 @@ namespace AppScaffolding
 				UNSAFE_MigrationHelper.Settings_AddUniqueToArray("Serilog.Enrich", "WithExceptionDetails");
 			}
 		}
-	}
+
+        class FilterState_6_6_9
+        {
+            public bool UseDefault { get; set; }
+            public List<string> Filters { get; set; } = new();
+        }
+
+        public static void migrate_to_v11_5_0(Configuration config)
+        {
+            // Read file, but convert old format to new (with Name field) as necessary.
+            if (!File.Exists(QuickFilters.JsonFile))
+            {
+                QuickFilters.InMemoryState = new();
+                return;
+            }
+
+            try
+            {
+                if (JsonConvert.DeserializeObject<QuickFilters.FilterState>(File.ReadAllText(QuickFilters.JsonFile))
+                    is QuickFilters.FilterState inMemState)
+                {
+                    QuickFilters.InMemoryState = inMemState;
+                    return;
+                }
+            }
+            catch
+            {
+                // Eat
+            }
+
+            try
+            {
+                if (JsonConvert.DeserializeObject<FilterState_6_6_9>(File.ReadAllText(QuickFilters.JsonFile))
+                    is FilterState_6_6_9 inMemState)
+                {
+                    // Copy old structure to new.
+                    QuickFilters.InMemoryState = new();
+                    QuickFilters.InMemoryState.UseDefault = inMemState.UseDefault;
+                    foreach (var oldFilter in inMemState.Filters)
+                        QuickFilters.InMemoryState.Filters.Add(new QuickFilters.NamedFilter(oldFilter, null));
+
+                    return;
+                }
+                Debug.Assert(false, "Should not get here, QuickFilters.json deserialization issue");
+            }
+            catch
+            {
+				// Eat
+            }
+        }
+    }
 }

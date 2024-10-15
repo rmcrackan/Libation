@@ -34,9 +34,9 @@ namespace LibationWinForms
 				var quickFilterMenuItem = new ToolStripMenuItem
 				{
 					Tag = quickFilterTag,
-					Text = $"&{++index}: {filter}"
+					Text = $"&{++index}: {(string.IsNullOrWhiteSpace(filter.Name) ? filter.Filter : filter.Name)}"
 				};
-				quickFilterMenuItem.Click += (_, __) => performFilter(filter);
+				quickFilterMenuItem.Click += (_, __) => performFilter(filter.Filter);
 				quickFiltersToolStripMenuItem.DropDownItems.Add(quickFilterMenuItem);
 			}
 		}
@@ -47,14 +47,17 @@ namespace LibationWinForms
 		private void firstFilterIsDefaultToolStripMenuItem_Click(object sender, EventArgs e)
 			=> QuickFilters.UseDefault = !firstFilterIsDefaultToolStripMenuItem.Checked;
 
-		private void addQuickFilterBtn_Click(object sender, EventArgs e) => QuickFilters.Add(this.filterSearchTb.Text);
+		private void addQuickFilterBtn_Click(object sender, EventArgs e)
+        {
+            QuickFilters.Add(new QuickFilters.NamedFilter(this.filterSearchTb.Text, null));
+        }
 
-		private void editQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new EditQuickFilters().ShowDialog();
+        private void editQuickFiltersToolStripMenuItem_Click(object sender, EventArgs e) => new EditQuickFilters().ShowDialog();
 
 		private void productsDisplay_InitialLoaded(object sender, EventArgs e)
 		{
 			if (QuickFilters.UseDefault)
-				performFilter(QuickFilters.Filters.FirstOrDefault());
+				performFilter(QuickFilters.Filters.FirstOrDefault().Filter);
 		}
 	}
 }
