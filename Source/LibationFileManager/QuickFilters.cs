@@ -29,8 +29,8 @@ namespace LibationFileManager
         public static string JsonFile => Path.Combine(Configuration.Instance.LibationFiles, "QuickFilters.json");
 
 
-		// load json into memory. if file doesn't exist, nothing to do. save() will create if needed
-		public static FilterState InMemoryState { get; set; }
+        // load json into memory. if file doesn't exist, nothing to do. save() will create if needed
+        public static FilterState InMemoryState { get; set; } = null!;
 
         public static bool UseDefault
         {
@@ -55,16 +55,19 @@ namespace LibationFileManager
         public record NamedFilter(string Filter, string Name)
         {
             public string Filter { get; set; } = Filter;
-            public string Name { get; set; } = Name;
+            public string? Name { get; set; } = Name;
         }
 
         public static IEnumerable<NamedFilter> Filters => InMemoryState.Filters.AsReadOnly();
 
         public static void Add(NamedFilter namedFilter)
         {
+            if (namedFilter == null) 
+                throw new ArgumentNullException(nameof(namedFilter));
+
             if (string.IsNullOrWhiteSpace(namedFilter.Filter))
                 return;
-            namedFilter.Filter = namedFilter.Filter?.Trim() ?? null;
+            namedFilter.Filter = namedFilter.Filter?.Trim() ?? string.Empty;
             namedFilter.Name = namedFilter.Name?.Trim() ?? null;
 
             lock (locker)

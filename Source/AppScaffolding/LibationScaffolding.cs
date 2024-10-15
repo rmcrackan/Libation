@@ -408,10 +408,6 @@ namespace AppScaffolding
 
         public static void migrate_to_v11_5_0(Configuration config)
         {
-            var writeToPath = "Serilog.WriteTo";
-
-			//QuickFilters.FilterState? inMemoryState;
-
             // Read file, but convert old format to new (with Name field) as necessary.
             if (!File.Exists(QuickFilters.JsonFile))
             {
@@ -448,7 +444,7 @@ namespace AppScaffolding
                 }
                 Debug.Assert(false, "Should not get here, QuickFilters.json deserialization issue");
             }
-            catch (Exception ex)
+            catch
             {
 				// Eat
             }
