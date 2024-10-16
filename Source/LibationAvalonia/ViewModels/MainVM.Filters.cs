@@ -14,7 +14,7 @@ namespace LibationAvalonia.ViewModels
 	partial class MainVM
 	{
 		private QuickFilters.NamedFilter lastGoodFilter = new(string.Empty, null);
-		private QuickFilters.NamedFilter _selectedNamedFilter;
+		private QuickFilters.NamedFilter _selectedNamedFilter = new(string.Empty, null);
 		private bool _firstFilterIsDefault = true;
 
 		/// <summary> Library filterting query </summary>
