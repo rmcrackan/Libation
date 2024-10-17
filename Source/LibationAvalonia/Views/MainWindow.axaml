@@ -206,7 +206,7 @@
 
 		</Grid>
 		
-		<Border Grid.Row="2" Margin="8,0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumLowColor}">
+		<Border Grid.Row="2" Margin="8,0" BorderThickness="0" BorderBrush="{DynamicResource SystemBaseMediumLowColor}">
 			<SplitView IsPaneOpen="{CompiledBinding QueueOpen}" DisplayMode="Inline" OpenPaneLength="400" MinWidth="400" PanePlacement="Right">
 
 				<!-- Process Queue -->

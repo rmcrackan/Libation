@@ -5,8 +5,10 @@
 			 xmlns:views="clr-namespace:LibationAvalonia.Views"
 			 xmlns:uibase="clr-namespace:LibationUiBase.GridView;assembly=LibationUiBase"
 			 xmlns:controls="clr-namespace:LibationAvalonia.Controls"
-             mc:Ignorable="d" d:DesignWidth="1560" d:DesignHeight="400"
-             x:Class="LibationAvalonia.Views.ProductsDisplay">
+			 xmlns:viewModels="clr-namespace:LibationAvalonia.ViewModels"
+			 mc:Ignorable="d" d:DesignWidth="1560" d:DesignHeight="400"
+             x:Class="LibationAvalonia.Views.ProductsDisplay"
+			 x:DataType="viewModels:ProductsDisplayViewModel">
 
 	<Grid>
 
@@ -16,7 +18,7 @@
 			GridLinesVisibility="All"
 			AutoGenerateColumns="False"
 			ItemsSource="{Binding GridEntries}"
-			CanUserSortColumns="True" BorderThickness="3"
+			CanUserSortColumns="True" BorderThickness="0"
 			CanUserResizeColumns="True"
 			CanUserReorderColumns="True">
 
@@ -24,6 +26,9 @@
 				<Style Selector="DataGridCell > Panel">
 					<Setter Property="VerticalAlignment" Value="Stretch"/>
 				</Style>
+                <Style Selector="DataGrid:focus DataGridCell:current /template/ Grid#FocusVisual">
+                    <Setter Property="IsVisible" Value="False" />
+                </Style>
 				<Style Selector="DataGridCell > Panel > TextBlock">
 					<Setter Property="VerticalAlignment" Value="Center"/>
 					<Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -43,7 +48,10 @@
 						<Setter Property="Margin" Value="6,0" />
 					</Style>
 				</Style>
-			</DataGrid.Styles>
+                <Style Selector="DataGridColumnHeader">
+                    <Setter Property="FontSize" Value="16" />
+                </Style>
+			    </DataGrid.Styles>
 			
 			<DataGrid.Columns>
  
@@ -67,7 +75,8 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<controls:DataGridTemplateColumnExt CanUserResize="False" CanUserSort="True" Header="Liberate" SortMemberPath="Liberate" ClipboardContentBinding="{Binding Liberate.ToolTip}">
+				<controls:DataGridTemplateColumnExt CanUserResize="False" CanUserSort="True" Header="Liberate" SortMemberPath="Liberate" ClipboardContentBinding="{Binding Liberate.ToolTip}"
+													>
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
 							<views:LiberateStatusButton
