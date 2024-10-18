@@ -31,10 +31,10 @@ namespace LibationAvalonia.ViewModels.Settings
 			LoggingLevel = config.LogLevel;
 			GridScaleFactor = scaleFactorToLinearRange(config.GridScaleFactor);
 			GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
-			ThemeVariant = initialThemeVariant
-				= Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)) is nameof(Avalonia.Styling.ThemeVariant.Dark)
-				? nameof(Avalonia.Styling.ThemeVariant.Dark)
-				: nameof(Avalonia.Styling.ThemeVariant.Light);
+
+			ThemeVariant = initialThemeVariant = Configuration.Instance.GetString(propertyName: nameof(ThemeVariant));
+			if (string.IsNullOrWhiteSpace(initialThemeVariant)) 
+				ThemeVariant = initialThemeVariant = "System";
 		}
 
 		public void SaveSettings(Configuration config)
@@ -83,7 +83,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
 		public string GridFontScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridFontScaleFactor));
 		public string BetaOptInText { get; } = Configuration.GetDescription(nameof(Configuration.BetaOptIn));
-		public string[] Themes { get; } = { nameof(Avalonia.Styling.ThemeVariant.Light), nameof(Avalonia.Styling.ThemeVariant.Dark) };
+		public string[] Themes { get; } = { "System", nameof(Avalonia.Styling.ThemeVariant.Light), nameof(Avalonia.Styling.ThemeVariant.Dark) };
 
 		public string BooksDirectory { get; set; }
 		public bool SavePodcastsToParentFolder { get; set; }
