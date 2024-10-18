@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/dotnet/runtime:8.0
 ARG USER_UID=1001
 
 
-ENV SLEEP_TIME=30m
+ENV SLEEP_TIME=-1
 
 # Set the character set that will be used for folder and filenames when liberating
 ENV LANG=C.UTF-8
