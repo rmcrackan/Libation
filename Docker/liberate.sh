@@ -19,29 +19,11 @@ fi
 
 echo ""
 
-# Check if the config directory is passed in, and there is no link to it then create the link.
-if [ -d "/config" ] && [ ! -d "/root/Libation" ]; then
-    echo "Linking config directory to the Libation config directory"
-    ln -s /config/ /root/Libation
-fi
-
-# If no config error and exit
-if [ ! -d "/config" ]; then
-    echo "ERROR: No /config directory. You must pass in a volume containing your config mapped to /config"
-    exit 1
-fi
-
 # If user passes in db from a /db/ folder and a db does not already exist / is not already linked
 FILE=/db/LibationContext.db
 if [ -f "${FILE}" ] && [ ! -f "/config/LibationContext.db" ]; then
     echo "Linking passed in Libation database from /db/ to the Libation config directory"
     ln -s $FILE /config/LibationContext.db
-fi
-
-# Confirm we have a db in the config direcotry.
-if [ ! -f "/config/LibationContext.db" ]; then
-    echo "ERROR: No Libation database detected, exiting."
-    exit 1
 fi
 
 # ################################
