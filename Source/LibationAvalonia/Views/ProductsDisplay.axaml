@@ -26,9 +26,9 @@
 				<Style Selector="DataGridCell > Panel">
 					<Setter Property="VerticalAlignment" Value="Stretch"/>
 				</Style>
-                <Style Selector="DataGrid:focus DataGridCell:current /template/ Grid#FocusVisual">
-                    <Setter Property="IsVisible" Value="False" />
-                </Style>
+				<Style Selector="DataGrid:focus DataGridCell:current /template/ Grid#FocusVisual">
+					<Setter Property="IsVisible" Value="False" />
+				</Style>
 				<Style Selector="DataGridCell > Panel > TextBlock">
 					<Setter Property="VerticalAlignment" Value="Center"/>
 					<Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -48,13 +48,13 @@
 						<Setter Property="Margin" Value="6,0" />
 					</Style>
 				</Style>
-                <Style Selector="DataGridColumnHeader">
-                    <Setter Property="FontSize" Value="16" />
-                </Style>
-			    </DataGrid.Styles>
-			
+				<Style Selector="DataGridColumnHeader">
+					<Setter Property="FontSize" Value="16" />
+				</Style>
+			</DataGrid.Styles>
+
 			<DataGrid.Columns>
- 
+
 				<DataGridTemplateColumn
 					CanUserSort="True"
 					CanUserResize="False"
@@ -75,8 +75,7 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
-				<controls:DataGridTemplateColumnExt CanUserResize="False" CanUserSort="True" Header="Liberate" SortMemberPath="Liberate" ClipboardContentBinding="{Binding Liberate.ToolTip}"
-													>
+				<controls:DataGridTemplateColumnExt CanUserResize="False" CanUserSort="True" Header="Liberate" SortMemberPath="Liberate" ClipboardContentBinding="{Binding Liberate.ToolTip}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
 							<views:LiberateStatusButton
@@ -96,6 +95,16 @@
 						<DataTemplate x:DataType="uibase:IGridEntry">
 							<Image Opacity="{CompiledBinding Liberate.Opacity}" Tapped="Cover_Click" Source="{CompiledBinding Cover}" ToolTip.Tip="Click to see full size" />
 						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</controls:DataGridTemplateColumnExt>
+
+				<controls:DataGridTemplateColumnExt CanUserResize="False" CanUserSort="False"
+													Header="Playlist" IsReadOnly="True">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="uibase:IGridEntry">
+							<Button x:Name="AddToPlaylistButton" Click="AddToPlaylistButton_Click" Margin="5"
+									Content="{Binding AddToPlaylistText}"/>
+            </DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 
@@ -208,7 +217,7 @@
 					SortMemberPath="MyRating" CanUserSort="True"
 					OpacityBinding="{CompiledBinding Liberate.Opacity}"
 					BackgroundBinding="{CompiledBinding Liberate.BackgroundBrush}"
-					ClipboardContentBinding="{CompiledBinding MyRating}"					
+					ClipboardContentBinding="{CompiledBinding MyRating}"
 					Binding="{CompiledBinding MyRating, Mode=TwoWay}" />
 
 				<controls:DataGridTemplateColumnExt Header="Misc" MinWidth="10" Width="{Binding MiscWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Misc" ClipboardContentBinding="{Binding Misc}">
@@ -220,7 +229,7 @@
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
-				
+
 				<controls:DataGridTemplateColumnExt Header="Last&#xA;Download" MinWidth="10" Width="{Binding LastDownloadWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="LastDownload" ClipboardContentBinding="{Binding LastDownload}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">

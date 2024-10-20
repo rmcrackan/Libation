@@ -118,7 +118,17 @@ namespace LibationUiBase.GridView
 			Length = GetBookLengthString();
 		}
 
-		protected override string GetBookTags() => null;
+		public override string AddToPlaylistText
+        {
+            get
+            {
+                return Children.Count == 0 ? "Shouldn't see this" :
+                    Children.Count == 1 ? "Add 1 Item to Playlist" :
+                    $"Add {Children.Count} Items to Playlist";
+            }
+        }
+
+        protected override string GetBookTags() => null;
 		protected override int GetLengthInMinutes() => Children.Count == 0 ? 0 : Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 		protected override DateTime GetPurchaseDate() => Children.Count == 0 ? default : Children.Min(c => c.LibraryBook.DateAdded);
 	}

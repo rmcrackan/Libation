@@ -123,7 +123,9 @@ namespace LibationUiBase.GridView
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
-		protected abstract string GetBookTags();
+        public abstract string AddToPlaylistText { get; }
+        
+        protected abstract string GetBookTags();
 		protected virtual DateTime GetPurchaseDate() => LibraryBook.DateAdded;
 		protected virtual int GetLengthInMinutes() => Book.LengthInMinutes;
 		protected string GetPurchaseDateString() => GetPurchaseDate().ToString("d");

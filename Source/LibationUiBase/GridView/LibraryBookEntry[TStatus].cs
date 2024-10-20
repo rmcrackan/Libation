@@ -68,6 +68,8 @@ namespace LibationUiBase.GridView
 			return (await Task.WhenAll(tasks)).SelectMany(a => a).ToList();
 		}
 
-		protected override string GetBookTags() => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
+		public override string AddToPlaylistText => "Add to Playlist";
+
+        protected override string GetBookTags() => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 	}
 }

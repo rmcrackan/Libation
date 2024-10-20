@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using DataLayer;
 using LibationAvalonia.ViewModels;
+using LibationAvalonia.ViewModels.Player;
 using LibationUiBase;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,8 @@ namespace LibationAvalonia.Views
 {
 	public partial class ProcessQueueControl : UserControl
 	{
-		private TrackedQueue<ProcessBookViewModel> Queue => _viewModel.Queue;
+		public PlayerViewModel PlayerViewModel { get; } = new();
+        private TrackedQueue<ProcessBookViewModel> Queue => _viewModel.Queue;
 		private ProcessQueueViewModel _viewModel => DataContext as ProcessQueueViewModel;
 
 		public ProcessQueueControl()

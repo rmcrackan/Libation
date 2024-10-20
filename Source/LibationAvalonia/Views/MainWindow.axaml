@@ -1,242 +1,417 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Window xmlns="https://github.com/avaloniaui"
-		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:vm="clr-namespace:LibationAvalonia.ViewModels"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:views="clr-namespace:LibationAvalonia.Views"
-		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
-		mc:Ignorable="d" d:DesignWidth="1850" d:DesignHeight="700"
-		x:Class="LibationAvalonia.Views.MainWindow"
-		Title="Libation: Liberate your Library"
-		x:DataType="vm:MainVM"
-		Name="Form1"
-		Icon="/Assets/libation.ico">
+<?xml version="1.0" encoding="UTF-8" ?>
+<Window
+  x:Class="LibationAvalonia.Views.MainWindow"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:views="clr-namespace:LibationAvalonia.Views"
+  xmlns:vm="clr-namespace:LibationAvalonia.ViewModels"
+  Name="Form1"
+  Title="Libation: Liberate your Library"
+  d:DesignHeight="700"
+  d:DesignWidth="1850"
+  x:DataType="vm:MainVM"
+  Icon="/Assets/libation.ico"
+  mc:Ignorable="d">
 
-	<NativeMenu.Menu>
-		<NativeMenu>
-			<NativeMenuItem Header="Import">
-				<NativeMenu>
-					<NativeMenuItem
-						Header="Auto Scan Library"
-						Command="{CompiledBinding ToggleAutoScan}"
-						IsChecked="{CompiledBinding AutoScanChecked}"
-						ToggleType="CheckBox" />
-					<NativeMenuItemSeparator />
-				</NativeMenu>
-			</NativeMenuItem>
-			<NativeMenuItem Header="Liberate">
-				<NativeMenu>
-					<NativeMenuItem Command="{CompiledBinding BackupAllBooks}" Header="{CompiledBinding BookBackupsToolStripText}" Gesture="{OnPlatform macOS='alt+⌘+B'}" />
-					<NativeMenuItem Command="{CompiledBinding BackupAllPdfs}" Header="{CompiledBinding PdfBackupsToolStripText}"  Gesture="{OnPlatform macOS='alt+⌘+P'}"/>
-					<NativeMenuItem Command="{CompiledBinding ConvertAllToMp3Async}" Header="Convert all M4b to Mp3 [Long-running]..." />
-					<NativeMenuItem Command="{CompiledBinding LiberateVisible}" Header="{CompiledBinding LiberateVisibleToolStripText}" IsEnabled="{CompiledBinding AnyVisibleNotLiberated}" />
-				</NativeMenu>
-			</NativeMenuItem>
-			<NativeMenuItem Header="Export">
-				<NativeMenu>
-					<NativeMenuItem Command="{CompiledBinding ExportLibraryAsync}" Header="Export Library" Gesture="{OnPlatform macOS='alt+⌘+X'}"/>
-				</NativeMenu>
-			</NativeMenuItem>
-			<NativeMenuItem Header="Quick Filters">
-				<NativeMenu>
-					<NativeMenuItem
-						Header="Start Libation with 1st filter Default"
-						Command="{CompiledBinding ToggleFirstFilterIsDefault}"
-						IsChecked="{CompiledBinding FirstFilterIsDefault}"
-						ToggleType="CheckBox" />
-					<NativeMenuItem Command="{CompiledBinding EditQuickFiltersAsync}" Header="Edit quick filters..." Gesture="{OnPlatform macOS='alt+⌘+Q'}" />
-					<NativeMenuItemSeparator />
-				</NativeMenu>
-			</NativeMenuItem>
-			<NativeMenuItem Header="Visible Books">
-				<NativeMenu>
-					<NativeMenuItem Command="{CompiledBinding LiberateVisible}" Header="{CompiledBinding LiberateVisibleToolStripText_2}" IsEnabled="{CompiledBinding AnyVisibleNotLiberated}" Gesture="{OnPlatform macOS='alt+⌘+V'}" />
-					<NativeMenuItem Command="{CompiledBinding ReplaceTagsAsync}" Header="Replace Tags..." />
-					<NativeMenuItem Command="{CompiledBinding SetBookDownloadedAsync}" Header="Set book 'Downloaded' status manually..." />
-					<NativeMenuItem Command="{CompiledBinding SetPdfDownloadedAsync}" Header="Set PDF 'Downloaded' status manually..." />
-					<NativeMenuItem Command="{CompiledBinding SetDownloadedAutoAsync}" Header="Set 'Downloaded' status automatically..." />
-					<NativeMenuItem Command="{CompiledBinding RemoveVisibleAsync}" Header="Remove from library..." />
-				</NativeMenu>
-			</NativeMenuItem>
-			<NativeMenuItem Header="Settings">
-				<NativeMenu>
-					<NativeMenuItem Command="{CompiledBinding ShowAccountsAsync}" Header="Accounts..." Gesture="{OnPlatform macOS='⌘+.'}" />
-					<NativeMenuItem Command="{CompiledBinding ShowSettingsAsync}" Header="Settings..." Gesture="{OnPlatform macOS='⌘+,'}" />
-					<NativeMenuItemSeparator />
-					<NativeMenuItem Command="{CompiledBinding ShowTrashBinAsync}" Header="Trash Bin" Gesture="{OnPlatform macOS='alt+⌘+T'}" />
-					<NativeMenuItem Command="{CompiledBinding LaunchHangover}" Header="Launch Hangover" />
-					<NativeMenuItemSeparator />
-					<NativeMenuItem Command="{CompiledBinding StartWalkthroughAsync}" Header="Take a Guided Tour of Libation" />
-					<NativeMenuItem Command="{CompiledBinding ShowAboutAsync}" Header="About..." />
-				</NativeMenu>
-			</NativeMenuItem>
-		</NativeMenu>
-	</NativeMenu.Menu>
+  <NativeMenu.Menu>
+    <NativeMenu>
+      <NativeMenuItem Header="Import">
+        <NativeMenu>
+          <NativeMenuItem
+            Command="{CompiledBinding ToggleAutoScan}"
+            Header="Auto Scan Library"
+            IsChecked="{CompiledBinding AutoScanChecked}"
+            ToggleType="CheckBox" />
+          <NativeMenuItemSeparator />
+        </NativeMenu>
+      </NativeMenuItem>
+      <NativeMenuItem Header="Liberate">
+        <NativeMenu>
+          <NativeMenuItem
+            Command="{CompiledBinding BackupAllBooks}"
+            Gesture="{OnPlatform macOS='alt+⌘+B'}"
+            Header="{CompiledBinding BookBackupsToolStripText}" />
+          <NativeMenuItem
+            Command="{CompiledBinding BackupAllPdfs}"
+            Gesture="{OnPlatform macOS='alt+⌘+P'}"
+            Header="{CompiledBinding PdfBackupsToolStripText}" />
+          <NativeMenuItem Command="{CompiledBinding ConvertAllToMp3Async}" Header="Convert all M4b to Mp3 [Long-running]..." />
+          <NativeMenuItem
+            Command="{CompiledBinding LiberateVisible}"
+            Header="{CompiledBinding LiberateVisibleToolStripText}"
+            IsEnabled="{CompiledBinding AnyVisibleNotLiberated}" />
+        </NativeMenu>
+      </NativeMenuItem>
+      <NativeMenuItem Header="Export">
+        <NativeMenu>
+          <NativeMenuItem
+            Command="{CompiledBinding ExportLibraryAsync}"
+            Gesture="{OnPlatform macOS='alt+⌘+X'}"
+            Header="Export Library" />
+        </NativeMenu>
+      </NativeMenuItem>
+      <NativeMenuItem Header="Quick Filters">
+        <NativeMenu>
+          <NativeMenuItem
+            Command="{CompiledBinding ToggleFirstFilterIsDefault}"
+            Header="Start Libation with 1st filter Default"
+            IsChecked="{CompiledBinding FirstFilterIsDefault}"
+            ToggleType="CheckBox" />
+          <NativeMenuItem
+            Command="{CompiledBinding EditQuickFiltersAsync}"
+            Gesture="{OnPlatform macOS='alt+⌘+Q'}"
+            Header="Edit quick filters..." />
+          <NativeMenuItemSeparator />
+        </NativeMenu>
+      </NativeMenuItem>
+      <NativeMenuItem Header="Visible Books">
+        <NativeMenu>
+          <NativeMenuItem
+            Command="{CompiledBinding LiberateVisible}"
+            Gesture="{OnPlatform macOS='alt+⌘+V'}"
+            Header="{CompiledBinding LiberateVisibleToolStripText_2}"
+            IsEnabled="{CompiledBinding AnyVisibleNotLiberated}" />
+          <NativeMenuItem Command="{CompiledBinding ReplaceTagsAsync}" Header="Replace Tags..." />
+          <NativeMenuItem Command="{CompiledBinding SetBookDownloadedAsync}" Header="Set book 'Downloaded' status manually..." />
+          <NativeMenuItem Command="{CompiledBinding SetPdfDownloadedAsync}" Header="Set PDF 'Downloaded' status manually..." />
+          <NativeMenuItem Command="{CompiledBinding SetDownloadedAutoAsync}" Header="Set 'Downloaded' status automatically..." />
+          <NativeMenuItem Command="{CompiledBinding RemoveVisibleAsync}" Header="Remove from library..." />
+        </NativeMenu>
+      </NativeMenuItem>
+      <NativeMenuItem Header="Settings">
+        <NativeMenu>
+          <NativeMenuItem
+            Command="{CompiledBinding ShowAccountsAsync}"
+            Gesture="{OnPlatform macOS='⌘+.'}"
+            Header="Accounts..." />
+          <NativeMenuItem
+            Command="{CompiledBinding ShowSettingsAsync}"
+            Gesture="{OnPlatform macOS='⌘+,'}"
+            Header="Settings..." />
+          <NativeMenuItemSeparator />
+          <NativeMenuItem
+            Command="{CompiledBinding ShowTrashBinAsync}"
+            Gesture="{OnPlatform macOS='alt+⌘+T'}"
+            Header="Trash Bin" />
+          <NativeMenuItem Command="{CompiledBinding LaunchHangover}" Header="Launch Hangover" />
+          <NativeMenuItemSeparator />
+          <NativeMenuItem Command="{CompiledBinding StartWalkthroughAsync}" Header="Take a Guided Tour of Libation" />
+          <NativeMenuItem Command="{CompiledBinding ShowAboutAsync}" Header="About..." />
+        </NativeMenu>
+      </NativeMenuItem>
+    </NativeMenu>
+  </NativeMenu.Menu>
 
-	<Grid RowDefinitions="Auto,Auto,*,Auto">
-		<Border Grid.Row="0"  BorderBrush="{DynamicResource SystemBaseLowColor}" BorderThickness="0,1">
-			<Grid ColumnDefinitions="*,Auto">
-			<!-- Menu Strip -->
-			<Menu VerticalAlignment="Top" IsVisible="{CompiledBinding MenuBarVisible}">
-					
-				<!-- Decrease height of menu strop -->					
-				<Menu.Styles>
-					<Style Selector="Menu /template/ ItemsPresenter#PART_ItemsPresenter">
-						<Setter Property="Height" Value="25"/>
-					</Style>
-				</Menu.Styles>
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Border
+      Grid.Row="0"
+      BorderBrush="{DynamicResource SystemBaseLowColor}"
+      BorderThickness="0,1">
+      <Grid ColumnDefinitions="*,Auto">
+        <!--  Menu Strip  -->
+        <Menu VerticalAlignment="Top" IsVisible="{CompiledBinding MenuBarVisible}">
 
-				<!-- Import Menu -->
-					
-				<MenuItem Name="importToolStripMenuItem" Header="_Import">
-					<MenuItem IsVisible="{CompiledBinding AnyAccounts}" Command="{CompiledBinding ToggleAutoScan}" Header="A_uto Scan Library">
-						<MenuItem.Icon>
-							<CheckBox BorderThickness="0" IsChecked="{CompiledBinding AutoScanChecked, Mode=TwoWay}" IsHitTestVisible="False" />
-						</MenuItem.Icon>
-					</MenuItem>
-					<MenuItem IsVisible="{CompiledBinding !AnyAccounts}" Command="{CompiledBinding AddAccountsAsync}" Header="No accounts yet. A_dd Account..." />
-						
-					<!-- Scan Library -->
-					<MenuItem IsVisible="{CompiledBinding OneAccount}" IsEnabled="{CompiledBinding !ActivelyScanning}" Name="scanLibraryToolStripMenuItem" Command="{CompiledBinding ScanAccountAsync}" Header="Scan _Library" />
-					<MenuItem IsVisible="{CompiledBinding MultipleAccounts}" IsEnabled="{CompiledBinding !ActivelyScanning}" Name="scanLibraryOfAllAccountsToolStripMenuItem" Command="{CompiledBinding ScanAllAccountsAsync}" Header="Scan Library of _All Accounts" />
-					<MenuItem IsVisible="{CompiledBinding MultipleAccounts}" IsEnabled="{CompiledBinding !ActivelyScanning}" Command="{CompiledBinding ScanSomeAccountsAsync}" Header="Scan Library of _Some Accounts" />
-						
-					<Separator IsVisible="{CompiledBinding AnyAccounts}" />
-						
-					<!-- Remove Books -->
-					<MenuItem IsVisible="{CompiledBinding OneAccount}" IsEnabled="{CompiledBinding RemoveMenuItemsEnabled}" Command="{CompiledBinding RemoveBooksAsync}" Header="_Remove Library Books" />
-					<MenuItem IsVisible="{CompiledBinding MultipleAccounts}" IsEnabled="{CompiledBinding RemoveMenuItemsEnabled}" Command="{CompiledBinding RemoveBooksAllAsync}" Header="_Remove Books from All Accounts" />
-					<MenuItem IsVisible="{CompiledBinding MultipleAccounts}" IsEnabled="{CompiledBinding RemoveMenuItemsEnabled}" Command="{CompiledBinding RemoveBooksSomeAsync}" Header="_Remove Books from Some Accounts" />
-						
-					<Separator />
-					<MenuItem Command="{CompiledBinding LocateAudiobooksAsync}" Header="L_ocate Audiobooks..." />
+          <!--  Decrease height of menu strip  -->
+          <Menu.Styles>
+            <Style Selector="Menu /template/ ItemsPresenter#PART_ItemsPresenter">
+              <Setter Property="Height" Value="25" />
+            </Style>
+          </Menu.Styles>
 
-				</MenuItem>
-					
-				<!-- Liberate Menu -->
+          <!--  Import Menu  -->
 
-				<MenuItem Header="_Liberate">
-					<MenuItem Command="{CompiledBinding BackupAllBooks}" Header="{CompiledBinding BookBackupsToolStripText}" />
-					<MenuItem Command="{CompiledBinding BackupAllPdfs}" Header="{CompiledBinding PdfBackupsToolStripText}" />
-					<MenuItem Command="{CompiledBinding ConvertAllToMp3Async}" Header="Convert all _M4b to Mp3 [Long-running]..." />
-					<MenuItem Command="{CompiledBinding LiberateVisible}" Header="{CompiledBinding LiberateVisibleToolStripText}" IsEnabled="{CompiledBinding AnyVisibleNotLiberated}" />
-				</MenuItem>
+          <MenuItem Name="importToolStripMenuItem" Header="_Import">
+            <MenuItem
+              Command="{CompiledBinding ToggleAutoScan}"
+              Header="A_uto Scan Library"
+              IsVisible="{CompiledBinding AnyAccounts}">
+              <MenuItem.Icon>
+                <CheckBox
+                  BorderThickness="0"
+                  IsChecked="{CompiledBinding AutoScanChecked,
+                                              Mode=TwoWay}"
+                  IsHitTestVisible="False" />
+              </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+              Command="{CompiledBinding AddAccountsAsync}"
+              Header="No accounts yet. A_dd Account..."
+              IsVisible="{CompiledBinding !AnyAccounts}" />
 
-				<!-- Export Menu -->
+            <!--  Scan Library  -->
+            <MenuItem
+              Name="scanLibraryToolStripMenuItem"
+              Command="{CompiledBinding ScanAccountAsync}"
+              Header="Scan _Library"
+              IsEnabled="{CompiledBinding !ActivelyScanning}"
+              IsVisible="{CompiledBinding OneAccount}" />
+            <MenuItem
+              Name="scanLibraryOfAllAccountsToolStripMenuItem"
+              Command="{CompiledBinding ScanAllAccountsAsync}"
+              Header="Scan Library of _All Accounts"
+              IsEnabled="{CompiledBinding !ActivelyScanning}"
+              IsVisible="{CompiledBinding MultipleAccounts}" />
+            <MenuItem
+              Command="{CompiledBinding ScanSomeAccountsAsync}"
+              Header="Scan Library of _Some Accounts"
+              IsEnabled="{CompiledBinding !ActivelyScanning}"
+              IsVisible="{CompiledBinding MultipleAccounts}" />
 
-				<MenuItem Header="E_xport">
-					<!-- Remove height style property for menu item -->
-					<MenuItem IsEnabled="{CompiledBinding LibraryStats.HasBookResults}" Command="{CompiledBinding ExportLibraryAsync}" Header="E_xport Library" InputGesture="ctrl+S" />
-				</MenuItem>
+            <Separator IsVisible="{CompiledBinding AnyAccounts}" />
 
-				<!-- Quick Filters Menu -->
+            <!--  Remove Books  -->
+            <MenuItem
+              Command="{CompiledBinding RemoveBooksAsync}"
+              Header="_Remove Library Books"
+              IsEnabled="{CompiledBinding RemoveMenuItemsEnabled}"
+              IsVisible="{CompiledBinding OneAccount}" />
+            <MenuItem
+              Command="{CompiledBinding RemoveBooksAllAsync}"
+              Header="_Remove Books from All Accounts"
+              IsEnabled="{CompiledBinding RemoveMenuItemsEnabled}"
+              IsVisible="{CompiledBinding MultipleAccounts}" />
+            <MenuItem
+              Command="{CompiledBinding RemoveBooksSomeAsync}"
+              Header="_Remove Books from Some Accounts"
+              IsEnabled="{CompiledBinding RemoveMenuItemsEnabled}"
+              IsVisible="{CompiledBinding MultipleAccounts}" />
 
-				<MenuItem Name="quickFiltersToolStripMenuItem" Header="Quick _Filters" ItemsSource="{CompiledBinding QuickFilterMenuItems}" />
+            <Separator />
+            <MenuItem Command="{CompiledBinding LocateAudiobooksAsync}" Header="L_ocate Audiobooks..." />
 
-				<!-- Visible Books Menu -->
+          </MenuItem>
 
-				<MenuItem Header="{CompiledBinding VisibleCountMenuItemText}" >
-					<MenuItem Command="{CompiledBinding LiberateVisible}" Header="{CompiledBinding LiberateVisibleToolStripText_2}" IsEnabled="{CompiledBinding AnyVisibleNotLiberated}" />
-					<MenuItem Command="{CompiledBinding ReplaceTagsAsync}" Header="Replace _Tags..." />
-					<MenuItem Command="{CompiledBinding SetBookDownloadedAsync}" Header="Set book '_Downloaded' status manually..." />
-					<MenuItem Command="{CompiledBinding SetPdfDownloadedAsync}" Header="Set _PDF 'Downloaded' status manually..." />
-					<MenuItem Command="{CompiledBinding SetDownloadedAutoAsync}" Header="Set '_Downloaded' status automatically..." />
-					<MenuItem Command="{CompiledBinding RemoveVisibleAsync}" Header="_Remove from library..." />
-				</MenuItem>
+          <!--  Liberate Menu  -->
 
-				<!-- Settings Menu -->
+          <MenuItem Header="_Liberate">
+            <MenuItem Command="{CompiledBinding BackupAllBooks}" Header="{CompiledBinding BookBackupsToolStripText}" />
+            <MenuItem Command="{CompiledBinding BackupAllPdfs}" Header="{CompiledBinding PdfBackupsToolStripText}" />
+            <MenuItem Command="{CompiledBinding ConvertAllToMp3Async}" Header="Convert all _M4b to Mp3 [Long-running]..." />
+            <MenuItem
+              Command="{CompiledBinding LiberateVisible}"
+              Header="{CompiledBinding LiberateVisibleToolStripText}"
+              IsEnabled="{CompiledBinding AnyVisibleNotLiberated}" />
+          </MenuItem>
 
-				<MenuItem Header="_Settings" Name="settingsToolStripMenuItem">
-					<MenuItem Name="accountsToolStripMenuItem" Command="{CompiledBinding ShowAccountsAsync}" Header="_Accounts..." InputGesture="ctrl+shift+A"/>
-					<MenuItem Name="basicSettingsToolStripMenuItem" Command="{CompiledBinding ShowSettingsAsync}" Header="_Settings..." InputGesture="ctrl+P" />
-					<Separator />
-					<MenuItem Command="{CompiledBinding ShowTrashBinAsync}" Header="Trash Bin" />
-					<MenuItem Command="{CompiledBinding LaunchHangover}" Header="Launch _Hangover" />
-					<Separator />
-					<MenuItem Command="{CompiledBinding StartWalkthroughAsync}" Header="Take a Guided _Tour of Libation" />
-					<MenuItem Command="{CompiledBinding ShowAboutAsync}" Header="A_bout..." />
-				</MenuItem>
-			</Menu>
-				
-			<StackPanel IsVisible="{CompiledBinding ActivelyScanning}" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-				<Path VerticalAlignment="Center" Fill="{StaticResource IconFill}" Data="{StaticResource ImportIcon}" />
-				<TextBlock Margin="5,0,5,0" VerticalAlignment="Center" Text="{CompiledBinding ScanningText}"/>
-			</StackPanel>
-		</Grid>
-		</Border>
-		<!-- Buttons and Search Box -->
-		<Grid Grid.Row="1" Margin="8" Height="30" ColumnDefinitions="Auto,*,Auto">
+          <!--  Export Menu  -->
 
-			<Grid.Styles>
-				<Style Selector="TextBox">
-					<Setter Property="MinHeight" Value="10" />
-				</Style>
-				<Style Selector="Button">
-					<Setter Property="Padding" Value="15,0,15,0" />
-					<Setter Property="Margin" Value="10,0,0,0" />
-					<Setter Property="Height" Value="30" />
-					<Setter Property="HorizontalContentAlignment" Value="Center" />
-					<Setter Property="VerticalContentAlignment" Value="Center" />
-				</Style>
-			</Grid.Styles>
-				
-			<StackPanel Grid.Column="0" Orientation="Horizontal">
-				<Button Name="filterHelpBtn" Margin="0" Command="{CompiledBinding FilterHelpBtn}" Content="?"/>
-				<Button Name="addQuickFilterBtn" Command="{CompiledBinding AddQuickFilterBtn}" Content="Add To Quick Filters"/>
-			</StackPanel>
+          <MenuItem Header="E_xport">
+            <!--  Remove height style property for menu item  -->
+            <MenuItem
+              Command="{CompiledBinding ExportLibraryAsync}"
+              Header="E_xport Library"
+              InputGesture="ctrl+S"
+              IsEnabled="{CompiledBinding LibraryStats.HasBookResults}" />
+          </MenuItem>
 
-			<StackPanel Grid.Column="1" Orientation="Horizontal">
-				<Button IsVisible="{CompiledBinding RemoveButtonsVisible}" IsEnabled="{CompiledBinding RemoveBooksButtonEnabled}" Command="{CompiledBinding RemoveBooksBtn}" Content="{CompiledBinding RemoveBooksButtonText}"/>
-				<Button IsVisible="{CompiledBinding RemoveButtonsVisible}" Command="{CompiledBinding DoneRemovingBtn}" Content="Done Removing Books"/>
-			</StackPanel>
-				
-			<TextBox Grid.Column="1" Margin="10,0,0,0" Name="filterSearchTb" IsVisible="{CompiledBinding !RemoveButtonsVisible}" Text="{CompiledBinding SelectedNamedFilter.Filter, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
+          <!--  Quick Filters Menu  -->
 
-			<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
-				<Button Name="filterBtn" Command="{CompiledBinding FilterBtn}" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
-				<Button Padding="2,6,2,6" VerticalAlignment="Stretch" Command="{CompiledBinding ToggleQueueHideBtn}">
-					<Path Stretch="Uniform" Fill="{DynamicResource IconFill}" Data="{StaticResource	LeftArrows}">
-						<Path.RenderTransform>
-							<RotateTransform Angle="{CompiledBinding QueueButtonAngle}"/>
-						</Path.RenderTransform>
-					</Path>
-				</Button>
-			</StackPanel>
+          <MenuItem
+            Name="quickFiltersToolStripMenuItem"
+            Header="Quick _Filters"
+            ItemsSource="{CompiledBinding QuickFilterMenuItems}" />
 
-		</Grid>
-		
-		<Border Grid.Row="2" Margin="8,0" BorderThickness="0" BorderBrush="{DynamicResource SystemBaseMediumLowColor}">
-			<SplitView IsPaneOpen="{CompiledBinding QueueOpen}" DisplayMode="Inline" OpenPaneLength="400" MinWidth="400" PanePlacement="Right">
+          <!--  Visible Books Menu  -->
 
-				<!-- Process Queue -->
-				<SplitView.Pane>
-					<Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource SystemBaseMediumLowColor}">
-						<views:ProcessQueueControl DataContext="{CompiledBinding ProcessQueue}"/>
-					</Border>
-				</SplitView.Pane>
+          <MenuItem Header="{CompiledBinding VisibleCountMenuItemText}">
+            <MenuItem
+              Command="{CompiledBinding LiberateVisible}"
+              Header="{CompiledBinding LiberateVisibleToolStripText_2}"
+              IsEnabled="{CompiledBinding AnyVisibleNotLiberated}" />
+            <MenuItem Command="{CompiledBinding ReplaceTagsAsync}" Header="Replace _Tags..." />
+            <MenuItem Command="{CompiledBinding SetBookDownloadedAsync}" Header="Set book '_Downloaded' status manually..." />
+            <MenuItem Command="{CompiledBinding SetPdfDownloadedAsync}" Header="Set _PDF 'Downloaded' status manually..." />
+            <MenuItem Command="{CompiledBinding SetDownloadedAutoAsync}" Header="Set '_Downloaded' status automatically..." />
+            <MenuItem Command="{CompiledBinding RemoveVisibleAsync}" Header="_Remove from library..." />
+          </MenuItem>
 
-				<!-- Product Display Grid -->
-				<views:ProductsDisplay
-					Name="productsDisplay"
-					DataContext="{CompiledBinding ProductsDisplay}"						
-					LiberateClicked="ProductsDisplay_LiberateClicked"
-					LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
-					ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />				
-			</SplitView>
-		</Border>
-			
-		<!-- Bottom Status Strip -->
-		<Grid Grid.Row="3" Margin="8" VerticalAlignment="Bottom" ColumnDefinitions="Auto,Auto,*,Auto">
-			<Grid.Styles>
-				<Style Selector="ProgressBar:horizontal">
-					<Setter Property="MinWidth" Value="100" />
-				</Style>
-			</Grid.Styles>
-			<TextBlock FontSize="14" Grid.Column="0" Text="Upgrading:" VerticalAlignment="Center" IsVisible="{CompiledBinding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}" />
-			<ProgressBar Grid.Column="1" Margin="5,0,10,0" VerticalAlignment="Stretch" Width="100" Value="{CompiledBinding DownloadProgress}" IsVisible="{CompiledBinding DownloadProgress, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-			<TextBlock FontSize="14" Grid.Column="2" Text="{CompiledBinding VisibleCountText}" VerticalAlignment="Center" />
-			<TextBlock FontSize="14" Grid.Column="3" Text="{CompiledBinding LibraryStats.StatusString}" VerticalAlignment="Center" />		
-		</Grid>
-	</Grid>
+          <!--  Settings Menu  -->
+
+          <MenuItem Name="settingsToolStripMenuItem" Header="_Settings">
+            <MenuItem
+              Name="accountsToolStripMenuItem"
+              Command="{CompiledBinding ShowAccountsAsync}"
+              Header="_Accounts..."
+              InputGesture="ctrl+shift+A" />
+            <MenuItem
+              Name="basicSettingsToolStripMenuItem"
+              Command="{CompiledBinding ShowSettingsAsync}"
+              Header="_Settings..."
+              InputGesture="ctrl+P" />
+            <Separator />
+            <MenuItem Command="{CompiledBinding ShowTrashBinAsync}" Header="Trash Bin" />
+            <MenuItem Command="{CompiledBinding LaunchHangover}" Header="Launch _Hangover" />
+            <Separator />
+            <MenuItem Command="{CompiledBinding StartWalkthroughAsync}" Header="Take a Guided _Tour of Libation" />
+            <MenuItem Command="{CompiledBinding ShowAboutAsync}" Header="A_bout..." />
+          </MenuItem>
+        </Menu>
+
+        <StackPanel
+          Grid.Column="1"
+          HorizontalAlignment="Right"
+          IsVisible="{CompiledBinding ActivelyScanning}"
+          Orientation="Horizontal">
+          <Path
+            VerticalAlignment="Center"
+            Data="{StaticResource ImportIcon}"
+            Fill="{StaticResource IconFill}" />
+          <TextBlock
+            Margin="5,0,5,0"
+            VerticalAlignment="Center"
+            Text="{CompiledBinding ScanningText}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+    <!--  Buttons and Search Box  -->
+    <Grid
+      Grid.Row="1"
+      Height="30"
+      Margin="8"
+      ColumnDefinitions="Auto,*,Auto">
+
+      <Grid.Styles>
+        <Style Selector="TextBox">
+          <Setter Property="MinHeight" Value="10" />
+        </Style>
+        <Style Selector="Button">
+          <Setter Property="Padding" Value="15,0,15,0" />
+          <Setter Property="Margin" Value="10,0,0,0" />
+          <Setter Property="Height" Value="30" />
+          <Setter Property="HorizontalContentAlignment" Value="Center" />
+          <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+      </Grid.Styles>
+
+      <StackPanel Grid.Column="0" Orientation="Horizontal">
+        <Button
+          Name="filterHelpBtn"
+          Margin="0"
+          Command="{CompiledBinding FilterHelpBtn}"
+          Content="?" />
+        <Button
+          Name="addQuickFilterBtn"
+          Command="{CompiledBinding AddQuickFilterBtn}"
+          Content="Add To Quick Filters" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="1" Orientation="Horizontal">
+        <Button
+          Command="{CompiledBinding RemoveBooksBtn}"
+          Content="{CompiledBinding RemoveBooksButtonText}"
+          IsEnabled="{CompiledBinding RemoveBooksButtonEnabled}"
+          IsVisible="{CompiledBinding RemoveButtonsVisible}" />
+        <Button
+          Command="{CompiledBinding DoneRemovingBtn}"
+          Content="Done Removing Books"
+          IsVisible="{CompiledBinding RemoveButtonsVisible}" />
+      </StackPanel>
+
+      <TextBox
+        Name="filterSearchTb"
+        Grid.Column="1"
+        Margin="10,0,0,0"
+        IsVisible="{CompiledBinding !RemoveButtonsVisible}"
+        KeyDown="filterSearchTb_KeyPress"
+        Text="{CompiledBinding SelectedNamedFilter.Filter,
+                               Mode=TwoWay}" />
+
+      <StackPanel
+        Grid.Column="2"
+        Height="30"
+        Orientation="Horizontal">
+        <Button
+          Name="filterBtn"
+          VerticalAlignment="Stretch"
+          HorizontalContentAlignment="Center"
+          VerticalContentAlignment="Center"
+          Command="{CompiledBinding FilterBtn}"
+          Content="Filter" />
+        <Button
+          Padding="2,6,2,6"
+          VerticalAlignment="Stretch"
+          Command="{CompiledBinding ToggleQueueHideBtn}">
+          <Path
+            Data="{StaticResource LeftArrows}"
+            Fill="{DynamicResource IconFill}"
+            Stretch="Uniform">
+            <Path.RenderTransform>
+              <RotateTransform Angle="{CompiledBinding QueueButtonAngle}" />
+            </Path.RenderTransform>
+          </Path>
+        </Button>
+      </StackPanel>
+
+    </Grid>
+
+    <Border
+      Grid.Row="2"
+      Margin="8,0"
+      BorderBrush="{DynamicResource SystemBaseMediumLowColor}"
+      BorderThickness="0">
+      <SplitView
+        MinWidth="400"
+        DisplayMode="Inline"
+        IsPaneOpen="{CompiledBinding QueueOpen}"
+        OpenPaneLength="400"
+        PanePlacement="Right">
+
+        <!--  Process Queue  -->
+        <SplitView.Pane>
+          <Border BorderBrush="{DynamicResource SystemBaseMediumLowColor}" BorderThickness="1,0,0,0">
+            <views:ProcessQueueControl DataContext="{CompiledBinding ProcessQueue}" />
+          </Border>
+        </SplitView.Pane>
+
+        <!--  Product Display Grid  -->
+        <views:ProductsDisplay
+          Name="productsDisplay"
+          ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked"
+          DataContext="{CompiledBinding ProductsDisplay}"
+          LiberateClicked="ProductsDisplay_LiberateClicked"
+          LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked" />
+      </SplitView>
+    </Border>
+
+    <!--  Bottom Status Strip  -->
+    <Grid
+      Grid.Row="3"
+      Margin="8"
+      VerticalAlignment="Bottom"
+      ColumnDefinitions="Auto,Auto,*,Auto">
+      <Grid.Styles>
+        <Style Selector="ProgressBar:horizontal">
+          <Setter Property="MinWidth" Value="100" />
+        </Style>
+      </Grid.Styles>
+      <TextBlock
+        Grid.Column="0"
+        VerticalAlignment="Center"
+        FontSize="14"
+        IsVisible="{CompiledBinding DownloadProgress,
+                                    Converter={x:Static ObjectConverters.IsNotNull}}"
+        Text="Upgrading:" />
+      <ProgressBar
+        Grid.Column="1"
+        Width="100"
+        Margin="5,0,10,0"
+        VerticalAlignment="Stretch"
+        IsVisible="{CompiledBinding DownloadProgress,
+                                    Converter={x:Static ObjectConverters.IsNotNull}}"
+        Value="{CompiledBinding DownloadProgress}" />
+      <TextBlock
+        Grid.Column="2"
+        VerticalAlignment="Center"
+        FontSize="14"
+        Text="{CompiledBinding VisibleCountText}" />
+      <TextBlock
+        Grid.Column="3"
+        VerticalAlignment="Center"
+        FontSize="14"
+        Text="{CompiledBinding LibraryStats.StatusString}" />
+    </Grid>
+  </Grid>
 </Window>

@@ -87,6 +87,10 @@
 	  <ProjectReference Include="..\LibationUiBase\LibationUiBase.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Views\Player\" />
+	</ItemGroup>
+
 	<Target Name="SpicNSpan" AfterTargets="Clean">
 		<!-- Remove obj folder -->
 		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />

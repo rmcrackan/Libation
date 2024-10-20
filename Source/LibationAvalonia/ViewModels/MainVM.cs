@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using LibationAvalonia.ViewModels.Player;
 using LibationAvalonia.Views;
 using LibationFileManager;
 using ReactiveUI;
@@ -7,6 +8,7 @@ namespace LibationAvalonia.ViewModels
 {
 	public partial class MainVM : ViewModelBase
 	{
+		public PlayerViewModel PlayerViewModel { get; set; }
 		public ProcessQueueViewModel ProcessQueue { get; } = new ProcessQueueViewModel();
 		public ProductsDisplayViewModel ProductsDisplay { get; } = new ProductsDisplayViewModel();
 

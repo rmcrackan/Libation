@@ -1,151 +1,287 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <UserControl
-	xmlns="https://github.com/avaloniaui"
-	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:views="clr-namespace:LibationAvalonia.Views"
-	xmlns:viewModels="clr-namespace:LibationAvalonia.ViewModels"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="850"
-	x:Class="LibationAvalonia.Views.ProcessQueueControl">
+  x:Class="LibationAvalonia.Views.ProcessQueueControl"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:viewModels="clr-namespace:LibationAvalonia.ViewModels"
+  xmlns:views="clr-namespace:LibationAvalonia.Views"
+  d:DesignHeight="850"
+  d:DesignWidth="400"
+  mc:Ignorable="d">
 
-	<UserControl.Resources>
-		<views:DecimalConverter x:Key="myConverter" />
-		<RecyclePool x:Key="RecyclePool" />
-		<DataTemplate x:Key="queuedBook">
-			<views:ProcessBookControl />
-		</DataTemplate>
-		<RecyclingElementFactory x:Key="elementFactory" RecyclePool="{StaticResource RecyclePool}">
-			<RecyclingElementFactory.Templates>
-				<StaticResource x:Key="queuedBook" ResourceKey="queuedBook" />
-			</RecyclingElementFactory.Templates>
-		</RecyclingElementFactory>
-	</UserControl.Resources>
+  <UserControl.Resources>
+    <views:DecimalConverter x:Key="myConverter" />
+    <RecyclePool x:Key="RecyclePool" />
+    <DataTemplate x:Key="queuedBook">
+      <views:ProcessBookControl />
+    </DataTemplate>
+    <RecyclingElementFactory x:Key="elementFactory" RecyclePool="{StaticResource RecyclePool}">
+      <RecyclingElementFactory.Templates>
+        <StaticResource x:Key="queuedBook" ResourceKey="queuedBook" />
+      </RecyclingElementFactory.Templates>
+    </RecyclingElementFactory>
+  </UserControl.Resources>
 
-	<Grid RowDefinitions="*,Auto">
-		<TabControl Grid.Row="0">
-			<TabControl.Styles>
-				<Style Selector="ItemsPresenter#PART_ItemsPresenter">
-					<Setter Property="Height" Value="33"/>
-				</Style>
-			</TabControl.Styles>
-			<!-- Queue Tab -->
-			<TabItem>
-				<TabItem.Header>
-					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
-				</TabItem.Header>
-				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemChromeMediumLowColor}">
-						<ScrollViewer
-							Name="scroller"
-							HorizontalScrollBarVisibility="Disabled"
-							VerticalScrollBarVisibility="Auto">
-							<ItemsRepeater IsVisible="True"
-								Grid.Column="0"
-								Name="repeater"
-								VerticalCacheLength="1.2"
-								HorizontalCacheLength="1"
-								Background="Transparent"
-								ItemsSource="{Binding Items}"
-								ItemTemplate="{StaticResource elementFactory}" />
-						</ScrollViewer>
-					</Border>
-					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto,Auto">
-						<Button Name="cancelAllBtn" Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="CancelAllBtn_Click">Cancel All</Button>
-						<StackPanel Orientation="Horizontal" Grid.Column="1" Margin="0,0,10,0" >
-							<StackPanel.Styles>
-								<Style Selector="NumericUpDown#PART_Spinner">
-									<Setter Property="Background" Value="Black"/>
-								</Style>
-							</StackPanel.Styles>
-							<TextBlock Margin="0,0,6,0" FontSize="11" Text="DL&#xA;Limit" VerticalAlignment="Center" />
-							<NumericUpDown
-								FontSize="12"
-								VerticalContentAlignment="Center"
-								TextConverter="{StaticResource myConverter}"
-								Height="{Binding #cancelAllBtn.DesiredSize.Height}"
-								Value="{Binding SpeedLimit, Mode=TwoWay}"
-								Minimum="0"
-								KeyDown="NumericUpDown_KeyDown"
-								Increment="{Binding SpeedLimitIncrement}"
-								Maximum="999" />
-						</StackPanel>
-						<Button Grid.Column="2" FontSize="12" HorizontalAlignment="Right" Click="ClearFinishedBtn_Click">Clear Finished</Button>
-					</Grid>
-				</Grid>
-			</TabItem>
-			<!-- Log Tab -->
-			<TabItem>
-				<TabItem.Header>
-					<TextBlock FontSize="14" VerticalAlignment="Center">Queue Log</TextBlock>
-				</TabItem.Header>
-				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemChromeMediumLowColor}">
-						<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
-							<DataGrid.Columns>
-								<DataGridTextColumn SortMemberPath="LogDate" Header="Timestamp" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>
-								<DataGridTemplateColumn SortMemberPath="LogMessage"  Width="*" Header="Message" CanUserSort="True">
-									<DataGridTemplateColumn.CellTemplate>
-										<DataTemplate>
-											<Border BorderThickness="3">
-												<TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding LogMessage}" />
-											</Border>
-										</DataTemplate>
-									</DataGridTemplateColumn.CellTemplate>
-								</DataGridTemplateColumn>
-							</DataGrid.Columns>
-						</DataGrid>
-					</Border>
-					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto">
-						<Button Grid.Column="0" FontSize="12" HorizontalAlignment="Left" Click="LogCopyBtn_Click">Copy Log Entries to Clipboard</Button>
-						<Button Grid.Column="1" FontSize="12" HorizontalAlignment="Right" Click="ClearLogBtn_Click">Clear Log</Button>
-					</Grid>
-				</Grid>
-			</TabItem>
-		</TabControl>
-		<!-- Queue Status -->
-		<Grid Grid.Row="1" Margin="5,0,0,0" ColumnDefinitions="Auto,*,Auto">
-			
-			<Panel Grid.Column="0">
-				<Panel.Styles>
-					<Style Selector="ProgressBar:horizontal">
-						<Setter Property="MinWidth" Value="100" />
-					</Style>
-				</Panel.Styles>
-				<ProgressBar IsVisible="{Binding ProgressBarVisible}" Value="{Binding Progress}" ShowProgressText="True" />
-			</Panel>
-			<StackPanel Orientation="Horizontal" Grid.Column="1">
-				<StackPanel.Styles>
-					<Style Selector="StackPanel">
-						<Setter Property="Height" Value="15" />
-						<Setter Property="Margin" Value="10,0,0,0" />
-						<Setter Property="Orientation" Value="Horizontal" />
-						<Style Selector="^ > Path">
-							<Setter Property="Stretch" Value="Uniform" />
-							<Setter Property="Fill" Value="{DynamicResource IconFill}" />
-						</Style>
-						<Style Selector="^ > TextBlock">
-							<Setter Property="Margin" Value="3,0,0,0" />
-							<Setter Property="VerticalAlignment" Value="Center" />
-						</Style>
-					</Style>
-				</StackPanel.Styles>
-				<StackPanel IsVisible="{Binding AnyQueued}">
-					<Path Data="{StaticResource QueuedIcon}" />
-					<TextBlock Text="{Binding QueuedCount}" />
-				</StackPanel>
-				<StackPanel IsVisible="{Binding AnyCompleted}">
-					<Path Data="{StaticResource QueueCompletedIcon}" />
-					<TextBlock Text="{Binding CompletedCount}" />
-				</StackPanel>
-				<StackPanel IsVisible="{Binding AnyErrors}">
-					<Path Data="{StaticResource QueueErrorIcon}"/>
-					<TextBlock Text="{Binding ErrorCount}" />
-				</StackPanel>
-			</StackPanel>
-			<Panel Grid.Column="2" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Center">
-				<TextBlock Text="{Binding RunningTime}" />
-			</Panel>
-		</Grid>
-	</Grid>
+  <Grid RowDefinitions="*,Auto">
+    <TabControl Grid.Row="0">
+      <TabControl.Styles>
+        <Style Selector="ItemsPresenter#PART_ItemsPresenter">
+          <Setter Property="Height" Value="33" />
+        </Style>
+      </TabControl.Styles>
+
+      <!--  Queue Tab  -->
+      <TabItem>
+        <TabItem.Header>
+          <TextBlock VerticalAlignment="Center" FontSize="14">Process Queue</TextBlock>
+        </TabItem.Header>
+        <Grid ColumnDefinitions="*" RowDefinitions="*,40">
+          <Border
+            Grid.Row="0"
+            Grid.Column="0"
+            Background="{DynamicResource SystemChromeMediumLowColor}"
+            BorderBrush="{DynamicResource SystemBaseMediumColor}"
+            BorderThickness="1">
+            <ScrollViewer
+              Name="scroller"
+              HorizontalScrollBarVisibility="Disabled"
+              VerticalScrollBarVisibility="Auto">
+              <ItemsRepeater
+                Name="repeater"
+                Grid.Column="0"
+                Background="Transparent"
+                HorizontalCacheLength="1"
+                IsVisible="True"
+                ItemTemplate="{StaticResource elementFactory}"
+                ItemsSource="{Binding Items}"
+                VerticalCacheLength="1.2" />
+            </ScrollViewer>
+          </Border>
+          <Grid
+            Grid.Row="1"
+            Grid.Column="0"
+            ColumnDefinitions="*,Auto,Auto">
+            <Button
+              Name="cancelAllBtn"
+              Grid.Column="0"
+              HorizontalAlignment="Left"
+              Click="CancelAllBtn_Click"
+              FontSize="12">
+              Cancel All
+            </Button>
+            <StackPanel
+              Grid.Column="1"
+              Margin="0,0,10,0"
+              Orientation="Horizontal">
+              <StackPanel.Styles>
+                <Style Selector="NumericUpDown#PART_Spinner">
+                  <Setter Property="Background" Value="Black" />
+                </Style>
+              </StackPanel.Styles>
+              <TextBlock
+                Margin="0,0,6,0"
+                VerticalAlignment="Center"
+                FontSize="11"
+                Text="DL&#xA;Limit" />
+              <NumericUpDown
+                Height="{Binding #cancelAllBtn.DesiredSize.Height}"
+                VerticalContentAlignment="Center"
+                FontSize="12"
+                Increment="{Binding SpeedLimitIncrement}"
+                KeyDown="NumericUpDown_KeyDown"
+                Maximum="999"
+                Minimum="0"
+                TextConverter="{StaticResource myConverter}"
+                Value="{Binding SpeedLimit, Mode=TwoWay}" />
+            </StackPanel>
+            <Button
+              Grid.Column="2"
+              HorizontalAlignment="Right"
+              Click="ClearFinishedBtn_Click"
+              FontSize="12">
+              Clear Finished
+            </Button>
+          </Grid>
+        </Grid>
+      </TabItem>
+      <!--  Log Tab  -->
+      <TabItem>
+        <TabItem.Header>
+          <TextBlock VerticalAlignment="Center" FontSize="14">Queue Log</TextBlock>
+        </TabItem.Header>
+        <Grid ColumnDefinitions="*" RowDefinitions="*,40">
+          <Border
+            Grid.Row="0"
+            Grid.Column="0"
+            Background="{DynamicResource SystemChromeMediumLowColor}"
+            BorderBrush="{DynamicResource SystemBaseMediumColor}"
+            BorderThickness="1">
+            <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
+              <DataGrid.Columns>
+                <DataGridTextColumn
+                  Width="90"
+                  Binding="{Binding LogDateString}"
+                  CanUserSort="True"
+                  Header="Timestamp"
+                  SortMemberPath="LogDate" />
+                <DataGridTemplateColumn
+                  Width="*"
+                  CanUserSort="True"
+                  Header="Message"
+                  SortMemberPath="LogMessage">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                      <Border BorderThickness="3">
+                        <TextBlock
+                          VerticalAlignment="Center"
+                          Text="{Binding LogMessage}"
+                          TextWrapping="Wrap" />
+                      </Border>
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+          </Border>
+          <Grid
+            Grid.Row="1"
+            Grid.Column="0"
+            ColumnDefinitions="*,Auto">
+            <Button
+              Grid.Column="0"
+              HorizontalAlignment="Left"
+              Click="LogCopyBtn_Click"
+              FontSize="12">
+              Copy Log Entries to Clipboard
+            </Button>
+            <Button
+              Grid.Column="1"
+              HorizontalAlignment="Right"
+              Click="ClearLogBtn_Click"
+              FontSize="12">
+              Clear Log
+            </Button>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <!--  Playlist Tab  -->
+      <TabItem>
+        <TabItem.Header>
+          <TextBlock VerticalAlignment="Center" FontSize="14">Playlist</TextBlock>
+        </TabItem.Header>
+        <Grid ColumnDefinitions="*" RowDefinitions="*,40">
+          <Border
+            Grid.Row="0"
+            Grid.Column="0"
+            Background="{DynamicResource SystemChromeMediumLowColor}"
+            BorderBrush="{DynamicResource SystemBaseMediumColor}"
+            BorderThickness="1">
+            <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
+              <DataGrid.Columns>
+                <DataGridTextColumn
+                  Width="120"
+                  Binding="{Binding LogDateString}"
+                  CanUserSort="True"
+                  Header="Timestamp"
+                  SortMemberPath="LogDate" />
+                <DataGridTemplateColumn
+                  Width="*"
+                  CanUserSort="True"
+                  Header="Message"
+                  SortMemberPath="LogMessage">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                      <Border BorderThickness="3">
+                        <TextBlock
+                          VerticalAlignment="Center"
+                          Text="{Binding LogMessage}"
+                          TextWrapping="Wrap" />
+                      </Border>
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+          </Border>
+          <Grid
+            Grid.Row="1"
+            Grid.Column="0"
+            ColumnDefinitions="*,Auto">
+            <Button
+              Grid.Column="0"
+              HorizontalAlignment="Left"
+              Click="LogCopyBtn_Click"
+              FontSize="12">
+              Copy Log Entries to Clipboard
+            </Button>
+            <Button
+              Grid.Column="1"
+              HorizontalAlignment="Right"
+              Click="ClearLogBtn_Click"
+              FontSize="12">
+              Clear Log
+            </Button>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+    </TabControl>
+    <!--  Queue Status  -->
+    <Grid
+      Grid.Row="1"
+      Margin="5,0,0,0"
+      ColumnDefinitions="Auto,*,Auto">
+
+      <Panel Grid.Column="0">
+        <Panel.Styles>
+          <Style Selector="ProgressBar:horizontal">
+            <Setter Property="MinWidth" Value="100" />
+          </Style>
+        </Panel.Styles>
+        <ProgressBar
+          IsVisible="{Binding ProgressBarVisible}"
+          ShowProgressText="True"
+          Value="{Binding Progress}" />
+      </Panel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal">
+        <StackPanel.Styles>
+          <Style Selector="StackPanel">
+            <Setter Property="Height" Value="15" />
+            <Setter Property="Margin" Value="10,0,0,0" />
+            <Setter Property="Orientation" Value="Horizontal" />
+            <Style Selector="^ > Path">
+              <Setter Property="Stretch" Value="Uniform" />
+              <Setter Property="Fill" Value="{DynamicResource IconFill}" />
+            </Style>
+            <Style Selector="^ > TextBlock">
+              <Setter Property="Margin" Value="3,0,0,0" />
+              <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+          </Style>
+        </StackPanel.Styles>
+        <StackPanel IsVisible="{Binding AnyQueued}">
+          <Path Data="{StaticResource QueuedIcon}" />
+          <TextBlock Text="{Binding QueuedCount}" />
+        </StackPanel>
+        <StackPanel IsVisible="{Binding AnyCompleted}">
+          <Path Data="{StaticResource QueueCompletedIcon}" />
+          <TextBlock Text="{Binding CompletedCount}" />
+        </StackPanel>
+        <StackPanel IsVisible="{Binding AnyErrors}">
+          <Path Data="{StaticResource QueueErrorIcon}" />
+          <TextBlock Text="{Binding ErrorCount}" />
+        </StackPanel>
+      </StackPanel>
+      <Panel
+        Grid.Column="2"
+        Margin="0,0,5,0"
+        HorizontalAlignment="Right"
+        VerticalAlignment="Center">
+        <TextBlock Text="{Binding RunningTime}" />
+      </Panel>
+    </Grid>
+  </Grid>
 </UserControl>
