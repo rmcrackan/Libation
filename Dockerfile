@@ -1,8 +1,14 @@
 # Dockerfile
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+ARG TARGET_ARCH=linux-x64
 
 COPY Source /Source
-RUN dotnet publish -c Release -o /Source/bin/Publish/Linux-chardonnay /Source/LibationCli/LibationCli.csproj -p:PublishProfile=/Source/LibationCli/Properties/PublishProfiles/LinuxProfile.pubxml
+RUN dotnet publish \
+    /Source/LibationCli/LibationCli.csproj \
+    --runtime linux-${TARGET_ARCH} \
+    --configuration Release \
+    --output /Source/bin/Publish/Linux-chardonnay \
+    -p:PublishProfile=/Source/LibationCli/Properties/PublishProfiles/LinuxProfile.pubxml
 
 FROM mcr.microsoft.com/dotnet/runtime:8.0
 ARG USER_UID=1001
