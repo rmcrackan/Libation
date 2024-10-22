@@ -44,7 +44,7 @@ sudo docker run -d \
 | SLEEP_TIME  | -1 | Length of time to sleep before doing another scan/download. Set to -1 to run one. |
 | LIBATION_BOOKS_DIR | /data | Folder where books will be saved |
 | LIBATION_CONFIG_DIR | /config | Folder to read configuration from. |
-| LIBATION_DB_DIR    | /db | Optional folder to load database from. If not present, will load database from `LIBATION_CONFIG_DIR`. |
+| LIBATION_DB_DIR    | /db | Optional folder to load database from. If not mounted, will load database from `LIBATION_CONFIG_DIR`. |
 
 ### User
 This docker image runs as user `1001`. In order for the image to function properly, user `1001` must be able to read and write the volumes that are mounted in. If they are not, you will see errors 
@@ -62,4 +62,4 @@ sudo docker run -d \
 ```
 
 ### Advanced Database Options
-The docker image supports an optional database mount location defined by `LIBATION_DB_DIR`. This allows the database to be mounted as read/write, while allowing the rest of the configuration files to be mounted as read only. This is specifically useful if running in Kubernetes where you can use Configmaps and Secrets to define the configuration. The image will attempt to load the database first from `LIBATION_DB_DIR`, then from `LIBATION_CONFIG_DIR`, and finally it will try to create a new database in `LIBATION_CONFIG_DIR`.
+The docker image supports an optional database mount location defined by `LIBATION_DB_DIR`. This allows the database to be mounted as read/write, while allowing the rest of the configuration files to be mounted as read only. This is specifically useful if running in Kubernetes where you can use Configmaps and Secrets to define the configuration. If the `LIBATION_DB_DIR` is mounted, it will be used, otherwise it will look for the database in `LIBATION_CONFIG_DIR`. If it does not find the database in the expected location, it will attempt to make an empty database there.

@@ -49,7 +49,7 @@ update_settings() {
 
 is_mounted() {
   DIR=$1
-  if mount | grep -q "${DIR}";
+  if grep -qs "${DIR} " /proc/mounts;
   then
     return 0
   else
@@ -80,13 +80,6 @@ run() {
 }
 
 main() {
-  # TERM isn't set by default in docker images
-  if [[ -z ${TERM} || ${TERM} = "dumb" ]]; then
-    TERM=xterm-256color
-  fi
-
-  info ${TERM}
-
   info "initializing libation"
   init_config_file AccountsSettings.json
   init_config_file Settings.json
@@ -98,7 +91,7 @@ main() {
   info "loading database"
   FILE=LibationContext.db
   # If user provides a separate database mount, use that
-  if is_mounted ${LIBATION_DB_DIR};
+  if is_mounted "${LIBATION_DB_DIR}";
   then
     debug "using database directory ${LIBATION_DB_DIR}"
     if [ -f "${LIBATION_DB_DIR}/${FILE}" ]; then
@@ -119,7 +112,7 @@ main() {
   fi
 
   # Try to warn if books dir wasn't mounted in
-  if ! is_mounted ${LIBATION_BOOKS_DIR};
+  if ! is_mounted "${LIBATION_BOOKS_DIR}";
   then
     warn "${LIBATION_BOOKS_DIR} does not appear to be mounted, books will not be saved"
   fi
