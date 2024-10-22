@@ -1,6 +1,6 @@
 # Dockerfile
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
-ARG TARGET_ARCH=linux-x64
+ARG TARGET_ARCH=amd64
 
 COPY Source /Source
 RUN dotnet publish \
