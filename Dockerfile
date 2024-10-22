@@ -1,11 +1,11 @@
 # Dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
-ARG TARGET_ARCH=amd64
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETARCH=amd64
 
 COPY Source /Source
 RUN dotnet publish \
     /Source/LibationCli/LibationCli.csproj \
-    --runtime linux-${TARGET_ARCH} \
+    --arch ${TARGETARCH} \
     --configuration Release \
     --output /Source/bin/Publish/Linux-chardonnay \
     -p:PublishProfile=/Source/LibationCli/Properties/PublishProfiles/LinuxProfile.pubxml
@@ -28,7 +28,7 @@ RUN apt-get update && apt-get -y upgrade && \
     apt-get install -y jq && \
     mkdir -m777 ${LIBATION_CONFIG_INTERNAL} ${LIBATION_BOOKS_DIR}
 
-COPY --from=build-env /Source/bin/Publish/Linux-chardonnay /libation
+COPY --from=build /Source/bin/Publish/Linux-chardonnay /libation
 COPY Docker/* /libation
 
 USER ${USER_UID}:${USER_GID}

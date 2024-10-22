@@ -76,4 +76,4 @@ jobs:
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           build-args: |
-            TARGET_ARCH=${{ matrix.arch }}
+            TARGETARCH=${{ matrix.arch }}
