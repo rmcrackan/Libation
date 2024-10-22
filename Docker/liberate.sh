@@ -49,17 +49,22 @@ update_settings() {
 
 is_mounted() {
   DIR=$1
-  return $(mount | grep ${DIR})
+  if mount | grep -q "${DIR}";
+  then
+    return 0
+  else
+    return 1
+  fi
 }
 
 create_db() {
-  FILE=$1
-  if [ -f "${FILE}" ]; then
+  DBFILE=$1
+  if [ -f "${DBFILE}" ]; then
     warn "prexisting database found when creating"
     return 0
   else
-    warn "database not found, creating one at ${FILE}"
-    if ! touch "${FILE}"; then
+    warn "database not found, creating one at ${DBFILE}"
+    if ! touch "${DBFILE}"; then
       error "unable to create database, check permissions on host"
       exit 1
     fi
@@ -93,9 +98,9 @@ main() {
   info "loading database"
   FILE=LibationContext.db
   # If user provides a separate database mount, use that
-  if [ is_mounted ${LIBATION_DB_DIR} ];
+  if is_mounted ${LIBATION_DB_DIR};
   then
-    debug using database directory `${LIBATION_DB_DIR}`
+    debug "using database directory ${LIBATION_DB_DIR}"
     if [ -f "${LIBATION_DB_DIR}/${FILE}" ]; then
       info "database found in ${LIBATION_DB_DIR}"
     else
@@ -104,7 +109,7 @@ main() {
     ln -s /${LIBATION_DB_DIR}/${FILE} ${LIBATION_CONFIG_INTERNAL}/${FILE}
   # Otherwise, use the config directory
   else
-    debug using config directory `${LIBATION_CONFIG_DIR}`
+    debug "using config directory ${LIBATION_CONFIG_DIR}"
     if [ -f "${LIBATION_CONFIG_DIR}/${FILE}" ]; then
       info "database found in ${LIBATION_CONFIG_DIR}"
     else
@@ -114,7 +119,7 @@ main() {
   fi
 
   # Try to warn if books dir wasn't mounted in
-  if [ ! is_mounted ${LIBATION_BOOKS_DIR} ];
+  if ! is_mounted ${LIBATION_BOOKS_DIR};
   then
     warn "${LIBATION_BOOKS_DIR} does not appear to be mounted, books will not be saved"
   fi

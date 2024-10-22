@@ -1,6 +1,6 @@
 # Dockerfile
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG TARGETARCH=amd64
+FROM --platform=${BUILDPLATFORM} mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETARCH
 
 COPY Source /Source
 RUN dotnet publish \
