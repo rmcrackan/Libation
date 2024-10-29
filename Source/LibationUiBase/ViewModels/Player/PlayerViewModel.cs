@@ -61,7 +61,7 @@ public class PlayerViewModel : ViewModelBase
         await plevm.Init(book);
         plevm.Sequence = playlistItems.Count + 1;
         playlistItems.Add(plevm);
-        eventAggregator.GetEvent<BookAddedToPlaylist>().Publish(book);
+        //eventAggregator.GetEvent<BookAddedToPlaylist>().Publish(book);
     }
 
     public ValueTask RemoveFromPlaylist(ILibraryBookEntry book)
@@ -70,7 +70,7 @@ public class PlayerViewModel : ViewModelBase
         if (plevm != null)
         {
             playlistItems.Remove(plevm);
-            eventAggregator.GetEvent<BookRemovedFromPlaylist>().Publish(book);
+            //eventAggregator.GetEvent<BookRemovedFromPlaylist>().Publish(book);
         }
 
         return ValueTask.CompletedTask;

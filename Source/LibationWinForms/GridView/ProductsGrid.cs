@@ -69,8 +69,8 @@ namespace LibationWinForms.GridView
             };
 
             eventAggregator = ServiceLocator.Get<IEventAggregator>();
-            eventAggregator.GetEvent<BookAddedToPlaylist>().Subscribe(InvalidateBookEntry, ThreadOption.UIThread);
-            eventAggregator.GetEvent<BookRemovedFromPlaylist>().Subscribe(InvalidateBookEntry, ThreadOption.UIThread);
+            //eventAggregator.GetEvent<BookAddedToPlaylist>().Subscribe(InvalidateBookEntry, ThreadOption.PublisherThread);
+            //eventAggregator.GetEvent<BookRemovedFromPlaylist>().Subscribe(InvalidateBookEntry, ThreadOption.PublisherThread);
         }
 
         #region Scaling
@@ -606,15 +606,16 @@ namespace LibationWinForms.GridView
 
         private void InvalidateBookEntry(ILibraryBookEntry bookEntry)
         {
+
             for (int row = 0; row < gridEntryDataGridView.Rows.Count; row++)
             {
                 if (gridEntryDataGridView.Rows[row].DataBoundItem is ILibraryBookEntry be &&
                     be.AudibleProductId == bookEntry.AudibleProductId)
                 {
-                    bindingList.ResetItem(row);
-                    gridEntryDataGridView.InvalidateRow(row);
-                    playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    //bindingList.ResetItem(row);
+                    //gridEntryDataGridView.InvalidateRow(row);
+                    //playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    //playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
                     return;
                 }
             }
