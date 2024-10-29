@@ -99,8 +99,11 @@ public class PlayerViewModel : ViewModelBase
         switch (propertyName)
         {
             case nameof(SelectedBook):
-                SelectedBook.IsCurrent = true;
-                SelectedBook.IsCurrentStr = CurrentIndicator;
+                if (SelectedBook != null)
+                {
+                    SelectedBook.IsCurrent = true;
+                    SelectedBook.IsCurrentStr = CurrentIndicator;
+                }
                 break;
         }
     }

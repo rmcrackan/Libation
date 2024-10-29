@@ -56,6 +56,11 @@ namespace LibationWinForms.GridView
             gridEntryDataGridView.CellClick += gridEntryDataGridView_CellClick;
             removeGVColumn.Frozen = false;
 
+            // Hide the column selection when you're clicking in cells.
+            gridEntryDataGridView.ColumnHeadersDefaultCellStyle.SelectionBackColor =
+                gridEntryDataGridView.ColumnHeadersDefaultCellStyle.BackColor;
+            gridEntryDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+
             defaultFont = gridEntryDataGridView.DefaultCellStyle.Font;
             setGridFontScale(Configuration.Instance.GridFontScaleFactor);
             setGridScale(Configuration.Instance.GridScaleFactor);
@@ -604,21 +609,21 @@ namespace LibationWinForms.GridView
             }
         }
 
-        private void InvalidateBookEntry(ILibraryBookEntry bookEntry)
-        {
+        //private void InvalidateBookEntry(ILibraryBookEntry bookEntry)
+        //{
 
-            for (int row = 0; row < gridEntryDataGridView.Rows.Count; row++)
-            {
-                if (gridEntryDataGridView.Rows[row].DataBoundItem is ILibraryBookEntry be &&
-                    be.AudibleProductId == bookEntry.AudibleProductId)
-                {
-                    //bindingList.ResetItem(row);
-                    //gridEntryDataGridView.InvalidateRow(row);
-                    //playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    //playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                    return;
-                }
-            }
-        }
+        //    for (int row = 0; row < gridEntryDataGridView.Rows.Count; row++)
+        //    {
+        //        if (gridEntryDataGridView.Rows[row].DataBoundItem is ILibraryBookEntry be &&
+        //            be.AudibleProductId == bookEntry.AudibleProductId)
+        //        {
+        //            //bindingList.ResetItem(row);
+        //            //gridEntryDataGridView.InvalidateRow(row);
+        //            //playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+        //            //playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+        //            return;
+        //        }
+        //    }
+        //}
     }
 }
