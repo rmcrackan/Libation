@@ -30,9 +30,11 @@ namespace LibationUiBase.GridView
 		Rating MyRating { get; set; }
 		string BookTags { get; }
 		void UpdateLibraryBook(LibraryBook libraryBook);
-		
-		//bool IsSeries => this is ISeriesEntry;
-		string AddToPlaylistText { get; }
-		//int? CurrentChapterNumber { get; }
+
+        bool CanAddToPlaylistText { get; }
+        string AddToPlaylistText { get; }
+        bool BookIsInPlaylist { get; }
+
+        //int? CurrentChapterNumber { get; }
     }
 }

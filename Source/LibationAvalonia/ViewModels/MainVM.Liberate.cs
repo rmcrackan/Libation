@@ -19,7 +19,7 @@ namespace LibationAvalonia.ViewModels
 
 				Serilog.Log.Logger.Information("Begin backing up all library books");
 
-				ProcessQueue.AddDownloadDecrypt(
+                Sidebar.ProcessQueue.AddDownloadDecrypt(
 					DbContexts
 					.GetLibrary_Flat_NoTracking()
 					.UnLiberated()
@@ -34,7 +34,7 @@ namespace LibationAvalonia.ViewModels
 		public void BackupAllPdfs()
 		{
 			setQueueCollapseState(false);
-			ProcessQueue.AddDownloadPdf(DbContexts.GetLibrary_Flat_NoTracking().Where(lb => lb.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated));
+            Sidebar.ProcessQueue.AddDownloadPdf(DbContexts.GetLibrary_Flat_NoTracking().Where(lb => lb.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated));
 		}
 
 		public async Task ConvertAllToMp3Async()
@@ -50,7 +50,7 @@ namespace LibationAvalonia.ViewModels
 			if (result == DialogResult.Yes)
 			{
 				setQueueCollapseState(false);
-				ProcessQueue.AddConvertMp3(DbContexts.GetLibrary_Flat_NoTracking().Where(lb => lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated && lb.Book.ContentType is ContentType.Product));
+                Sidebar.ProcessQueue.AddConvertMp3(DbContexts.GetLibrary_Flat_NoTracking().Where(lb => lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated && lb.Book.ContentType is ContentType.Product));
 			}
 			//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.
 		}

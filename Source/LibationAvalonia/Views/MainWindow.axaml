@@ -359,10 +359,10 @@
         OpenPaneLength="400"
         PanePlacement="Right">
 
-        <!--  Process Queue  -->
+        <!--  Sidebar  -->
         <SplitView.Pane>
           <Border BorderBrush="{DynamicResource SystemBaseMediumLowColor}" BorderThickness="1,0,0,0">
-            <views:ProcessQueueControl DataContext="{CompiledBinding ProcessQueue}" />
+            <views:SidebarControl DataContext="{CompiledBinding Sidebar}" />
           </Border>
         </SplitView.Pane>
 

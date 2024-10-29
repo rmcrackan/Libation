@@ -16,6 +16,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AppScaffolding;
+using LibationUiBase;
+using System.Diagnostics;
+using Dinah.Core.Logging;
+using LibationUiBase.ViewModels.Player;
 
 namespace LibationAvalonia.Views
 {
@@ -25,6 +30,7 @@ namespace LibationAvalonia.Views
         public event EventHandler<ISeriesEntry> LiberateSeriesClicked;
         public event EventHandler<LibraryBook> ConvertToMp3Clicked;
 
+        private PlayerViewModel _playerViewModel = ServiceLocator.Get<PlayerViewModel>();
         private ProductsDisplayViewModel _viewModel => DataContext as ProductsDisplayViewModel;
         ImageDisplayDialog imageDisplayDialog;
 
@@ -590,24 +596,19 @@ namespace LibationAvalonia.Views
             }
         }
 
-        private void AddToPlaylistButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private async void AddToPlaylistButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            IGridEntry gridEntry = (IGridEntry)((Button)sender).DataContext;
+            var gridEntry = (IGridEntry)((Button)sender).DataContext;
             if (gridEntry is ISeriesEntry se)
             {
-                foreach (var child in se.Children)
-                {
-                    AddToPlaylist(child);
-                }
+                foreach (ILibraryBookEntry child in se.Children) 
+                    await _playerViewModel.AddToPlaylist(child);
             }
+            else if (gridEntry is ILibraryBookEntry book)
+                await _playerViewModel.AddToPlaylist(book);
             else
-                AddToPlaylist(gridEntry as ILibraryBookEntry);
+                Serilog.Log.Logger.TryLogError($"Cannot add item type {gridEntry.GetType().Name} to playlist");
         }
         #endregion
-
-        private void AddToPlaylist(ILibraryBookEntry book)
-        {
-            // TODO: Implement
-        }
     }
 }

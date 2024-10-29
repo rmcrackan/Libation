@@ -4,6 +4,7 @@ using Dinah.Core;
 using Dinah.Core.Threading;
 using FileLiberator;
 using LibationFileManager;
+using LibationUiBase.ViewModels.Player;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace LibationUiBase.GridView
 {
-	public enum RemoveStatus
+    public enum RemoveStatus
 	{
 		NotRemoved,
 		Removed,
@@ -24,7 +25,9 @@ namespace LibationUiBase.GridView
 	/// <summary>The View Model base for the DataGridView</summary>
 	public abstract class GridEntry<TStatus> : SynchronizeInvoker, IGridEntry where TStatus : IEntryStatus
 	{
-		[Browsable(false)] public string AudibleProductId => Book.AudibleProductId;
+        private PlayerViewModel _player = ServiceLocator.Get<PlayerViewModel>();
+
+        [Browsable(false)] public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)] public LibraryBook LibraryBook { get; protected set; }
 		[Browsable(false)] public float SeriesIndex { get; protected set; }
 		[Browsable(false)] public abstract DateTime DateAdded { get; }
@@ -123,8 +126,17 @@ namespace LibationUiBase.GridView
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
-        public abstract string AddToPlaylistText { get; }
-        
+		public virtual bool CanAddToPlaylistText => this is not ISeriesEntry;
+        public virtual string AddToPlaylistText
+        {
+            get
+            {
+                return this is ISeriesEntry book ? null : BookIsInPlaylist ? "Add to Playlist" : "Remove from Playlist";
+            }
+        }
+
+        public bool BookIsInPlaylist => this is ILibraryBookEntry book && _player.IsInPlaylist(book);
+
         protected abstract string GetBookTags();
 		protected virtual DateTime GetPurchaseDate() => LibraryBook.DateAdded;
 		protected virtual int GetLengthInMinutes() => Book.LengthInMinutes;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <UserControl
-  x:Class="LibationAvalonia.Views.ProcessQueueControl"
+  x:Class="LibationAvalonia.Views.SidebarControl"
   xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,8 +9,9 @@
   xmlns:views="clr-namespace:LibationAvalonia.Views"
   d:DesignHeight="850"
   d:DesignWidth="400"
-  mc:Ignorable="d">
-
+  mc:Ignorable="d"
+  x:DataType="viewModels:SidebarViewModel">
+    
   <UserControl.Resources>
     <views:DecimalConverter x:Key="myConverter" />
     <RecyclePool x:Key="RecyclePool" />
@@ -37,7 +38,8 @@
         <TabItem.Header>
           <TextBlock VerticalAlignment="Center" FontSize="14">Process Queue</TextBlock>
         </TabItem.Header>
-        <Grid ColumnDefinitions="*" RowDefinitions="*,40">
+        <Grid ColumnDefinitions="*" RowDefinitions="*,40"
+              DataContext="{CompiledBinding ProcessQueue}">
           <Border
             Grid.Row="0"
             Grid.Column="0"
@@ -94,7 +96,7 @@
                 Maximum="999"
                 Minimum="0"
                 TextConverter="{StaticResource myConverter}"
-                Value="{Binding SpeedLimit, Mode=TwoWay}" />
+                Value="{CompiledBinding SpeedLimit, Mode=TwoWay}" />
             </StackPanel>
             <Button
               Grid.Column="2"
@@ -106,12 +108,14 @@
           </Grid>
         </Grid>
       </TabItem>
+      
       <!--  Log Tab  -->
       <TabItem>
         <TabItem.Header>
           <TextBlock VerticalAlignment="Center" FontSize="14">Queue Log</TextBlock>
         </TabItem.Header>
-        <Grid ColumnDefinitions="*" RowDefinitions="*,40">
+        <Grid ColumnDefinitions="*" RowDefinitions="*,40"
+              DataContext="{CompiledBinding ProcessQueue}">
           <Border
             Grid.Row="0"
             Grid.Column="0"
@@ -172,7 +176,8 @@
         <TabItem.Header>
           <TextBlock VerticalAlignment="Center" FontSize="14">Playlist</TextBlock>
         </TabItem.Header>
-        <Grid ColumnDefinitions="*" RowDefinitions="*,40">
+        <Grid ColumnDefinitions="*" RowDefinitions="*,40"
+              DataContext="{CompiledBinding Player}">
           <Border
             Grid.Row="0"
             Grid.Column="0"

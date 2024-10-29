@@ -8,6 +8,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LibationUiBase;
 
 namespace LibationAvalonia.Views
 {
@@ -16,7 +17,9 @@ namespace LibationAvalonia.Views
 		public event EventHandler<List<LibraryBook>> LibraryLoaded;
 		public MainWindow()
 		{
-			DataContext = new MainVM(this);
+			var vm = new MainVM(this);
+			DataContext = vm;
+
 
 			InitializeComponent();
 			Configure_Upgrade();

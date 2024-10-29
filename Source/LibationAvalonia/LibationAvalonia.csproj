@@ -57,6 +57,9 @@
 		<Compile Update="Views\LiberateStatusButton.axaml.cs">
 		  <DependentUpon>LiberateStatusButton.axaml</DependentUpon>
 		</Compile>
+		<Compile Update="Views\SidebarControl.axaml.cs">
+		  <DependentUpon>SidebarControl.axaml</DependentUpon>
+		</Compile>
 		<Compile Update="ViewModels\MainVM.*.cs">
 			<DependentUpon>MainVM.cs</DependentUpon>
 		</Compile>
@@ -79,6 +82,7 @@
 		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.5" />
 		<PackageReference Include="Avalonia.Controls.ItemsRepeater" Version="11.0.5" />
 		<PackageReference Include="Avalonia.Desktop" Version="11.0.5" />
+		<PackageReference Include="Avalonia.Labs.CommandManager" Version="11.2.0" />
 		<PackageReference Include="Avalonia.ReactiveUI" Version="11.0.5" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.5" />
 	</ItemGroup>
@@ -88,6 +92,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="ViewModels\Player\" />
 	  <Folder Include="Views\Player\" />
 	</ItemGroup>
 

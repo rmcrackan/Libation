@@ -2,15 +2,17 @@
 using Dinah.Core;
 using Dinah.Core.WindowsDesktop.Forms;
 using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.GridView;
+using LibationUiBase.ViewModels.Player;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Color = System.Drawing.Color;
 
 namespace LibationWinForms.GridView
 {
@@ -21,6 +23,9 @@ namespace LibationWinForms.GridView
 
     public partial class ProductsGrid : UserControl
     {
+        IEventAggregator eventAggregator;
+        PlayerViewModel _player = ServiceLocator.Get<PlayerViewModel>();
+
         /// <summary>Number of visible rows has changed</summary>
         public event EventHandler<int> VisibleCountChanged;
         public event LibraryBookEntryClickedEventHandler LiberateClicked;
@@ -33,9 +38,12 @@ namespace LibationWinForms.GridView
 
         private GridEntryBindingList bindingList;
         internal IEnumerable<LibraryBook> GetVisibleBooks()
-            => bindingList
-            .GetFilteredInItems()
-            .Select(lbe => lbe.LibraryBook);
+        {
+            return bindingList
+                .GetFilteredInItems()
+                .Select(lbe => lbe.LibraryBook);
+        }
+
         internal IEnumerable<ILibraryBookEntry> GetAllBookEntries()
             => bindingList.AllItems().BookEntries();
 
@@ -45,6 +53,7 @@ namespace LibationWinForms.GridView
             EnableDoubleBuffering();
             gridEntryDataGridView.Scroll += (_, s) => Scroll?.Invoke(this, s);
             gridEntryDataGridView.CellContextMenuStripNeeded += GridEntryDataGridView_CellContextMenuStripNeeded;
+            gridEntryDataGridView.CellClick += gridEntryDataGridView_CellClick;
             removeGVColumn.Frozen = false;
 
             defaultFont = gridEntryDataGridView.DefaultCellStyle.Font;
@@ -58,6 +67,10 @@ namespace LibationWinForms.GridView
                 Configuration.Instance.PropertyChanged -= Configuration_ScaleChanged;
                 Configuration.Instance.PropertyChanged -= Configuration_FontScaleChanged;
             };
+
+            eventAggregator = ServiceLocator.Get<IEventAggregator>();
+            eventAggregator.GetEvent<BookAddedToPlaylist>().Subscribe(InvalidateBookEntry, ThreadOption.UIThread);
+            eventAggregator.GetEvent<BookRemovedFromPlaylist>().Subscribe(InvalidateBookEntry, ThreadOption.UIThread);
         }
 
         #region Scaling
@@ -526,15 +539,85 @@ namespace LibationWinForms.GridView
 
         private void gridEntryDataGridView_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
-            if (!SystemInformation.HighContrast)
-                return;
-
             var grid = sender as DataGridView;
 
-            // Correct high contrast call background colors.
+            // hide "Add to Playlist" button for series.
             for (int row = 0; row < grid.Rows.Count; row++)
-            for (int col = 0; col < grid.Columns.Count; col++) 
-                    grid[col, row].Style.BackColor = SystemColors.Control;
+            {
+                if (grid.Rows[row].DataBoundItem is ISeriesEntry)
+                    grid[playlistColumn.Index, row] = GetEmptyCell();
+                else
+                    grid[playlistColumn.Index, row] = GetPlaylistButtonCell();
+            }
+
+            if (SystemInformation.HighContrast)
+            {
+                // Correct high contrast call background colors.
+                for (int row = 0; row < grid.Rows.Count; row++)
+                    for (int col = 0; col < grid.Columns.Count; col++)
+                    {
+                        if (col > playlistColumn.Index &&
+                            grid.Rows[row].DataBoundItem is ILibraryBookEntry b &&
+                            b.Parent != null)
+                            grid[col, row].Style.BackColor = Color.FromArgb(32, 32, 32);
+                        else
+                            grid[col, row].Style.BackColor = SystemColors.Control;
+                    }
+            }
+        }
+
+        private DataGridViewCell GetPlaylistButtonCell()
+        {
+            return new DataGridViewButtonCell
+            {
+                Style = new DataGridViewCellStyle
+                {
+                    Alignment = DataGridViewContentAlignment.MiddleLeft,
+                    Padding = new Padding(8),
+                    WrapMode = DataGridViewTriState.False,
+                }
+            };
+        }
+
+        private DataGridViewCell GetEmptyCell() => new DataGridViewTextBoxCell
+        {
+            Style = new DataGridViewCellStyle
+            {
+                Alignment = DataGridViewContentAlignment.MiddleLeft,
+                SelectionForeColor = Color.Transparent,
+                ForeColor = Color.Transparent,
+                WrapMode = DataGridViewTriState.False
+            }
+        };
+
+        private void gridEntryDataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            var grid = sender as DataGridView;
+
+            if (e.ColumnIndex == playlistColumn.Index &&
+                grid.Rows[e.RowIndex].DataBoundItem is ILibraryBookEntry book)
+            {
+                if (_player.IsInPlaylist(book))
+                    _player.RemoveFromPlaylist(book);
+                else
+                    _player.AddToPlaylist(book);
+            }
+        }
+
+        private void InvalidateBookEntry(ILibraryBookEntry bookEntry)
+        {
+            for (int row = 0; row < gridEntryDataGridView.Rows.Count; row++)
+            {
+                if (gridEntryDataGridView.Rows[row].DataBoundItem is ILibraryBookEntry be &&
+                    be.AudibleProductId == bookEntry.AudibleProductId)
+                {
+                    bindingList.ResetItem(row);
+                    gridEntryDataGridView.InvalidateRow(row);
+                    playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    return;
+                }
+            }
         }
     }
 }

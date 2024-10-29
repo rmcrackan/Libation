@@ -41,7 +41,6 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia" Version="11.0.5" />
 		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="8.0.0.1" />
 	</ItemGroup>
 
