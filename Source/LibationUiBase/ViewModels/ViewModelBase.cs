@@ -9,7 +9,7 @@ public abstract class ViewModelBase : INotifyPropertyChanged, INotifyPropertyCha
     public ViewModelBase()
     {
         this.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
-        this.PropertyChanging += (s, e) => OnPropertyChanged(e.PropertyName);
+        this.PropertyChanging += (s, e) => OnPropertyChanging(e.PropertyName);
     }
 
     protected virtual void OnPropertyChanging(string propertyName) { }
@@ -17,20 +17,18 @@ public abstract class ViewModelBase : INotifyPropertyChanged, INotifyPropertyCha
 
     public TRet RaiseAndSetIfChanged<TRet>(ref TRet backingField, TRet newValue, [CallerMemberName] string propertyName = null)
     {
-        if (EqualityComparer<TRet>.Default.Equals(backingField, newValue)) return newValue;
+        //if (EqualityComparer<TRet>.Default.Equals(backingField, newValue)) return newValue;
 
         RaisePropertyChanging(propertyName);
         backingField = newValue;
-        RaisePropertyChanged(new PropertyChangedEventArgs(propertyName));
+        RaisePropertyChanged(propertyName);
         return newValue;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
-    public void RaisePropertyChanged(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
-    public void RaisePropertyChanged(string propertyName) => RaisePropertyChanged(new PropertyChangedEventArgs(propertyName));
+    public void RaisePropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     
     public event PropertyChangingEventHandler PropertyChanging;
-    public void RaisePropertyChanging(PropertyChangingEventArgs args) => PropertyChanging?.Invoke(this, args);
-    public void RaisePropertyChanging(string propertyName) => RaisePropertyChanging(new PropertyChangingEventArgs(propertyName));
+    public void RaisePropertyChanging(string propertyName) => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
 }
 

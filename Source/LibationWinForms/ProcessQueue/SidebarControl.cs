@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -467,35 +466,6 @@ This error appears to be caused by a temporary interruption of service that some
                 numericUpDown1.Value >= 10 ? 0
                 : numericUpDown1.Value >= 1 ? 1
                 : 2;
-        }
-    }
-    public class NumericUpDownSuffix : NumericUpDown
-    {
-        [Description("Suffix displayed after numeric value."), Category("Data")]
-        [Browsable(true)]
-        [EditorBrowsable(EditorBrowsableState.Always)]
-        [DisallowNull]
-        public string Suffix
-        {
-            get => _suffix;
-            set
-            {
-                base.Text = string.IsNullOrEmpty(_suffix) ? base.Text : base.Text.Replace(_suffix, value);
-                _suffix = value;
-                ChangingText = true;
-            }
-        }
-        private string _suffix = string.Empty;
-        public override string Text
-        {
-            get => string.IsNullOrEmpty(Suffix) ? base.Text : base.Text.Replace(Suffix, string.Empty);
-            set
-            {
-                if (Value == Minimum)
-                    base.Text = "∞";
-                else
-                    base.Text = value + Suffix;
-            }
         }
     }
 }

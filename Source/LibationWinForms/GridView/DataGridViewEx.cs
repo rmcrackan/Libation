@@ -119,6 +119,16 @@ namespace LibationWinForms.GridView
         {
             try
             {
+                if (dataItem == null)
+                {
+                    if (SelectedItem != null)
+                    {
+                        SelectedItem = null;
+                        ClearSelection();
+                    }
+                    return;
+                }
+
                 if (SelectedItem != dataItem)
                 {
                     foreach (DataGridViewRow row in Rows)

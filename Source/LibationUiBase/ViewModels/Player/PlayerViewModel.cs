@@ -1,6 +1,5 @@
 ﻿using LibationUiBase.GridView;
 using Prism.Events;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -51,7 +50,7 @@ public class PlayerViewModel : ViewModelBase
 
     private void RenumberPlaylist()
     {
-        for (var i = 0; playlistItems.Count > 0; i++) 
+        for (var i = 0; playlistItems.Count > 0; i++)
             playlistItems[i].Sequence = i + 1;
     }
 
@@ -61,7 +60,7 @@ public class PlayerViewModel : ViewModelBase
         await plevm.Init(book);
         plevm.Sequence = playlistItems.Count + 1;
         playlistItems.Add(plevm);
-        //eventAggregator.GetEvent<BookAddedToPlaylist>().Publish(book);
+        eventAggregator.GetEvent<BookAddedToPlaylist>().Publish(book);
     }
 
     public ValueTask RemoveFromPlaylist(ILibraryBookEntry book)
@@ -70,7 +69,7 @@ public class PlayerViewModel : ViewModelBase
         if (plevm != null)
         {
             playlistItems.Remove(plevm);
-            //eventAggregator.GetEvent<BookRemovedFromPlaylist>().Publish(book);
+            eventAggregator.GetEvent<BookRemovedFromPlaylist>().Publish(book);
         }
 
         return ValueTask.CompletedTask;
@@ -87,9 +86,10 @@ public class PlayerViewModel : ViewModelBase
         switch (propertyName)
         {
             case nameof(SelectedBook):
-                SelectedBook.IsCurrent = false;
-                SelectedBook.IsCurrentStr = null;
+                //SelectedBook.IsCurrent = false;
+                //SelectedBook.IsCurrentStr = null;
                 MoveUpCommand.RaiseCanExecuteChanged();
+                MoveDownCommand.RaiseCanExecuteChanged();
                 break;
         }
     }
@@ -99,11 +99,10 @@ public class PlayerViewModel : ViewModelBase
         switch (propertyName)
         {
             case nameof(SelectedBook):
-                if (SelectedBook != null)
-                {
-                    SelectedBook.IsCurrent = true;
-                    SelectedBook.IsCurrentStr = CurrentIndicator;
-                }
+                MoveDownCommand.RaiseCanExecuteChanged();
+                MoveUpCommand.RaiseCanExecuteChanged();
+                //SelectedBook.IsCurrent = true;
+                //SelectedBook.IsCurrentStr = CurrentIndicator;
                 break;
         }
     }
