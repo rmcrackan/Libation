@@ -5,6 +5,8 @@ namespace LibationUiBase.ViewModels.Player;
 
 public class PlaylistEntryViewModel : ViewModelBase
 {
+    const string CurrentIndicator = "▶";
+
     private int sequence;
     public int Sequence
     {
@@ -50,4 +52,21 @@ public class PlaylistEntryViewModel : ViewModelBase
     }
 
     public override string ToString() => Title;
+
+    protected override void OnPropertyChanged(string propertyName)
+    {
+        switch (propertyName)
+        {
+            case nameof(IsCurrent):
+                IsCurrentStr = IsCurrent ? CurrentIndicator : null;
+                break;
+        }
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is PlaylistEntryViewModel plevm && bookEntry != null)
+            return bookEntry?.AudibleProductId == plevm?.bookEntry.AudibleProductId;
+        return false;
+    }
 }

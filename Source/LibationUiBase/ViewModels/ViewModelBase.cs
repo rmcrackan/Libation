@@ -8,8 +8,8 @@ public abstract class ViewModelBase : INotifyPropertyChanged, INotifyPropertyCha
 {
     public ViewModelBase()
     {
-        this.PropertyChanged += (s, e) => OnPropertyChanged(e.PropertyName);
-        this.PropertyChanging += (s, e) => OnPropertyChanging(e.PropertyName);
+        this.PropertyChanged += (_, e) => OnPropertyChanged(e.PropertyName);
+        this.PropertyChanging += (_, e) => OnPropertyChanging(e.PropertyName);
     }
 
     protected virtual void OnPropertyChanging(string propertyName) { }
@@ -17,7 +17,7 @@ public abstract class ViewModelBase : INotifyPropertyChanged, INotifyPropertyCha
 
     public TRet RaiseAndSetIfChanged<TRet>(ref TRet backingField, TRet newValue, [CallerMemberName] string propertyName = null)
     {
-        //if (EqualityComparer<TRet>.Default.Equals(backingField, newValue)) return newValue;
+        if (EqualityComparer<TRet>.Default.Equals(backingField, newValue)) return newValue;
 
         RaisePropertyChanging(propertyName);
         backingField = newValue;

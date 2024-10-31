@@ -8,7 +8,6 @@ namespace LibationUiBase.ViewModels.Player
         public ILibraryBookEntry Book { get; }
 
         public BookAddedToPlaylist() {}
-
         public BookAddedToPlaylist(ILibraryBookEntry book)
         {
             Book = book;
@@ -20,7 +19,6 @@ namespace LibationUiBase.ViewModels.Player
         public ILibraryBookEntry Book { get; }
 
         public BookRemovedFromPlaylist() {}
-
         public BookRemovedFromPlaylist(ILibraryBookEntry book)
         {
             Book = book;

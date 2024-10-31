@@ -23,7 +23,7 @@ namespace LibationWinForms.GridView
 
     public partial class ProductsGrid : UserControl
     {
-        IEventAggregator eventAggregator;
+        //IEventAggregator eventAggregator;
         PlayerViewModel _player = ServiceLocator.Get<PlayerViewModel>();
 
         /// <summary>Number of visible rows has changed</summary>
@@ -73,7 +73,7 @@ namespace LibationWinForms.GridView
                 Configuration.Instance.PropertyChanged -= Configuration_FontScaleChanged;
             };
 
-            eventAggregator = ServiceLocator.Get<IEventAggregator>();
+            //eventAggregator = ServiceLocator.Get<IEventAggregator>();
             //eventAggregator.GetEvent<BookAddedToPlaylist>().Subscribe(InvalidateBookEntry, ThreadOption.PublisherThread);
             //eventAggregator.GetEvent<BookRemovedFromPlaylist>().Subscribe(InvalidateBookEntry, ThreadOption.PublisherThread);
         }
@@ -609,21 +609,21 @@ namespace LibationWinForms.GridView
             }
         }
 
-        //private void InvalidateBookEntry(ILibraryBookEntry bookEntry)
-        //{
+        private void InvalidateBookEntry(ILibraryBookEntry bookEntry)
+        {
 
-        //    for (int row = 0; row < gridEntryDataGridView.Rows.Count; row++)
-        //    {
-        //        if (gridEntryDataGridView.Rows[row].DataBoundItem is ILibraryBookEntry be &&
-        //            be.AudibleProductId == bookEntry.AudibleProductId)
-        //        {
-        //            //bindingList.ResetItem(row);
-        //            //gridEntryDataGridView.InvalidateRow(row);
-        //            //playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-        //            //playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        //            return;
-        //        }
-        //    }
-        //}
+            for (int row = 0; row < gridEntryDataGridView.Rows.Count; row++)
+            {
+                if (gridEntryDataGridView.Rows[row].DataBoundItem is ILibraryBookEntry be &&
+                    be.AudibleProductId == bookEntry.AudibleProductId)
+                {
+                    //bindingList.ResetItem(row);
+                    //gridEntryDataGridView.InvalidateRow(row);
+                    playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    playlistColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    return;
+                }
+            }
+        }
     }
 }

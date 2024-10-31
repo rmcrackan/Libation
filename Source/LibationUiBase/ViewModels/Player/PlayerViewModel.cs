@@ -8,8 +8,6 @@ namespace LibationUiBase.ViewModels.Player;
 
 public class PlayerViewModel : ViewModelBase
 {
-    const string CurrentIndicator = "▶";
-
     private readonly IEventAggregator eventAggregator;
     private BindingList<PlaylistEntryViewModel> playlistItems = new();
     /// <summary>
@@ -37,20 +35,28 @@ public class PlayerViewModel : ViewModelBase
         {
             playlistItems.MoveUp(SelectedBook);
             RenumberPlaylist();
-        }, _ => SelectedBook != null && playlistItems.IndexOf(SelectedBook) > 0);
+            var temp = SelectedBook;
+            SelectedBook = null;
+            SelectedBook = temp;
+        }, _ => SelectedBook != null && playlistItems.IndexOf(SelectedBook) > 0 &&
+                IsInPlaylist(SelectedBook));
 
         MoveDownCommand = new RelayCommand(_ =>
         {
             playlistItems.MoveDown(SelectedBook);
             RenumberPlaylist();
-        }, _ => SelectedBook != null && playlistItems.IndexOf(SelectedBook) < playlistItems.Count - 1);
+            var temp = SelectedBook;
+            SelectedBook = null;
+            SelectedBook = temp;
+        }, _ => SelectedBook != null && playlistItems.IndexOf(SelectedBook) < playlistItems.Count - 1 &&
+                IsInPlaylist(SelectedBook));
 
         this.eventAggregator = eventAggregator;
     }
 
     private void RenumberPlaylist()
     {
-        for (var i = 0; playlistItems.Count > 0; i++)
+        for (var i = 0; i < playlistItems.Count; i++)
             playlistItems[i].Sequence = i + 1;
     }
 
@@ -60,7 +66,7 @@ public class PlayerViewModel : ViewModelBase
         await plevm.Init(book);
         plevm.Sequence = playlistItems.Count + 1;
         playlistItems.Add(plevm);
-        eventAggregator.GetEvent<BookAddedToPlaylist>().Publish(book);
+        //eventAggregator.GetEvent<BookAddedToPlaylist>().Publish(book);
     }
 
     public ValueTask RemoveFromPlaylist(ILibraryBookEntry book)
@@ -69,27 +75,36 @@ public class PlayerViewModel : ViewModelBase
         if (plevm != null)
         {
             playlistItems.Remove(plevm);
-            eventAggregator.GetEvent<BookRemovedFromPlaylist>().Publish(book);
+            InvalidateCommands();
+            //eventAggregator.GetEvent<BookRemovedFromPlaylist>().Publish(book);
         }
 
         return ValueTask.CompletedTask;
     }
 
+    private void InvalidateCommands()
+    {
+        MoveDownCommand.RaiseCanExecuteChanged();
+        MoveUpCommand.RaiseCanExecuteChanged();
+    }
+
     public bool IsInPlaylist(ILibraryBookEntry book) =>
         PlaylistItems.Any(item => item.BookEntry.AudibleProductId == book.AudibleProductId);
 
-    public override string ToString() =>
-        string.Join(", ", playlistItems);
+    public bool IsInPlaylist(PlaylistEntryViewModel book) =>
+        PlaylistItems.Any(item => item.BookEntry.AudibleProductId == book.BookEntry.AudibleProductId);
+
+
+    public override string ToString() => $"{nameof(PlayerViewModel)}: {string.Join(", ", playlistItems)}";
 
     protected override void OnPropertyChanging(string propertyName)
     {
         switch (propertyName)
         {
             case nameof(SelectedBook):
-                //SelectedBook.IsCurrent = false;
-                //SelectedBook.IsCurrentStr = null;
-                MoveUpCommand.RaiseCanExecuteChanged();
-                MoveDownCommand.RaiseCanExecuteChanged();
+                if (SelectedBook != null)
+                    SelectedBook.IsCurrent = false;
+                InvalidateCommands();
                 break;
         }
     }
@@ -99,10 +114,9 @@ public class PlayerViewModel : ViewModelBase
         switch (propertyName)
         {
             case nameof(SelectedBook):
-                MoveDownCommand.RaiseCanExecuteChanged();
-                MoveUpCommand.RaiseCanExecuteChanged();
-                //SelectedBook.IsCurrent = true;
-                //SelectedBook.IsCurrentStr = CurrentIndicator;
+                if (SelectedBook != null)
+                    SelectedBook.IsCurrent = true;
+                InvalidateCommands();
                 break;
         }
     }

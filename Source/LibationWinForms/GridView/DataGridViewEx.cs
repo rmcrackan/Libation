@@ -1,157 +1,200 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Windows.Forms;
 
-namespace LibationWinForms.GridView
+namespace LibationWinForms.GridView;
+
+/// <summary>
+/// A DataGridView with a bindable SelectedItem property.
+/// </summary>
+public class DataGridViewEx : DataGridView, INotifyPropertyChanged
 {
+    private BindingSource bindingSource;
+
+    private object selectedItem;
     /// <summary>
-    /// A DataGridView with a bindable SelectedItem property.
+    /// Can bind to this.
     /// </summary>
-    public class DataGridViewEx : DataGridView
+    public object SelectedItem
     {
-        private BindingSource bindingSource;
+        get => DbNullToNull(selectedItem);
+        set => SetCurrentItem(DbNullToNull(value));
+    }
 
-        // Can bind to this!
-        public object SelectedItem
+    public DataGridViewEx()
+    {
+        EditMode = DataGridViewEditMode.EditProgrammatically;
+        MultiSelect = false;
+        ColumnHeadersDefaultCellStyle.SelectionBackColor =
+            ColumnHeadersDefaultCellStyle.BackColor;
+        SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        this.DataSourceChanged += DataGridViewEx_DataSourceChanged;
+    }
+
+    public void AddSelectedItemBinding<T>(T vm, Expression<Func<T, object>> selectedItemProperty)
+    {
+        try
         {
-            get => GetCurrent();
-            set => SetCurrentItem(value);
+            var prop = GetPropertyName(selectedItemProperty);
+            this.DataBindings.Add(nameof(SelectedItem), vm, prop);
         }
-
-        public DataGridViewEx()
+        catch (Exception e)
         {
-            ColumnHeadersDefaultCellStyle.SelectionBackColor =
-                ColumnHeadersDefaultCellStyle.BackColor;
-            SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            this.DataSourceChanged += DataGridViewEx_DataSourceChanged;
+            Console.WriteLine(e);
+            throw;
         }
+    }
 
-        public void AddSelectedItemBinding<T>(T vm, Expression<Func<T, object>> selectedItemProperty)
+    static string GetPropertyName<T>(Expression<Func<T, object>> propertyExpression)
+    {
+        var memberExpression = propertyExpression.Body as MemberExpression;
+
+        if (memberExpression == null)
         {
-            try
+            if (propertyExpression.Body is UnaryExpression unaryExpression)
             {
-                var prop = GetPropertyName(selectedItemProperty);
-                this.DataBindings.Add(nameof(SelectedItem), vm, prop);
+                memberExpression = unaryExpression.Operand as MemberExpression;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
         }
 
-        static string GetPropertyName<T>(Expression<Func<T, object>> propertyExpression)
-        {
-            MemberExpression memberExpression = propertyExpression.Body as MemberExpression;
+        if (memberExpression != null)
+            return memberExpression.Member.Name;
 
-            if (memberExpression == null)
+        throw new ArgumentException($"Property expression is not a member access: {propertyExpression}", nameof(propertyExpression));
+    }
+
+    private void DataGridViewEx_DataSourceChanged(object sender, EventArgs e)
+    {
+        try
+        {
+            // Remove events from old binding source.
+            if (this.bindingSource is not null)
             {
-                if (propertyExpression.Body is UnaryExpression unaryExpression)
+                this.bindingSource.CurrencyManager.PositionChanged -= CurrencyManager_PositionChanged;
+                this.bindingSource.CurrencyManager.ListChanged -= CurrencyManager_ListChanged;
+            }
+
+            if (DataSource is BindingSource bs)
+            {
+                // Set up events on new binding source.
+                this.bindingSource = bs;
+                bs.CurrencyManager.PositionChanged += CurrencyManager_PositionChanged;
+                bs.CurrencyManager.ListChanged += CurrencyManager_ListChanged;
+                this.DataBindings.DefaultDataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+                RaisePropertyChanged(nameof(SelectedItem));
+            }
+            else
+                throw new InvalidOperationException($"{nameof(DataGridViewEx)} data source must be a BindingSource in order to handle selection.");
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+            throw;
+        }
+    }
+
+    private void CurrencyManager_PositionChanged(object sender, EventArgs args)
+    {
+        var current = GetCurrent();
+        if (current != SelectedItem)
+            SelectedItem = current;
+    }
+
+    private void CurrencyManager_ListChanged(object sender, ListChangedEventArgs args)
+    {
+        if (args.ListChangedType == ListChangedType.Reset ||
+            args.ListChangedType == ListChangedType.ItemDeleted)
+        {
+            if (Rows.Count > 0 && SelectedRows.Count == 0)
+            {
+                this.bindingSource.Position = 0;
+            }
+            if (SelectedRows.Count > 0)
+                BeginInvoke(new MethodInvoker(() =>
                 {
-                    memberExpression = unaryExpression.Operand as MemberExpression;
+                    if (SelectedRows.Count > 0)
+                        SelectedItem = SelectedRows[0].DataBoundItem;
+                }));
+        }
+    }
+    private object GetCurrent()
+    {
+        try
+        {
+            return bindingSource.Count == 0 ||
+                   bindingSource.CurrencyManager.Position == -1 ||
+                   bindingSource.CurrencyManager.Position >= Rows.Count
+                ? null
+                : DbNullToNull(Rows[bindingSource.CurrencyManager.Position].DataBoundItem);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    private void SetCurrentItem(object dataItem)
+    {
+        try
+        {
+            if (dataItem == null)
+            {
+                if (selectedItem != null)
+                {
+                    selectedItem = null;
+                    if (SelectedRows.Count > 0)
+                        BeginInvoke(new MethodInvoker(ClearSelection));
                 }
+                return;
             }
 
-            if (memberExpression != null)
-                return memberExpression.Member.Name;
+            selectedItem = dataItem;
 
-            throw new ArgumentException("Expression is not a member access", nameof(propertyExpression));
-        }
-
-        private void DataGridViewEx_DataSourceChanged(object sender, EventArgs e)
-        {
-            try
+            for (var index = 0; index < Rows.Count; index++)
             {
-                if (this.bindingSource is not null)
-                    this.bindingSource.CurrencyManager.CurrentChanged -= CurrencyManager_CurrentChanged;
+                var row = Rows[index];
 
-                if (DataSource is BindingSource bs)
+                // Change the physically selected row in the grid.
+                if (CurrentRow == null ||
+                    row.DataBoundItem == dataItem)
                 {
-                    if (bindingSource != bs)
-                    {
-                        this.bindingSource = bs;
-                        bs.CurrencyManager.CurrentChanged += CurrencyManager_CurrentChanged;
-                    }
-                }
-                else
-                    throw new InvalidOperationException($"{nameof(DataGridViewEx)} data source must be a BindingSource in order to handle currency");
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                throw;
-            }
-        }
-
-        private void CurrencyManager_CurrentChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                // Set SelectedItem property
-                object current = GetCurrent();
-                if (current != SelectedItem)
-                    SelectedItem = current;
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                throw;
-            }
-        }
-
-        private object GetCurrent()
-        {
-            try
-            {
-                return bindingSource.Count == 0 ||
-                       bindingSource.CurrencyManager.Position == -1
-                    ? null
-                    : bindingSource.CurrencyManager.Current;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }            
-        }
-
-        private void SetCurrentItem(object dataItem)
-        {
-            try
-            {
-                if (dataItem == null)
-                {
-                    if (SelectedItem != null)
-                    {
-                        SelectedItem = null;
-                        ClearSelection();
-                    }
+                    BeginInvoke(new MethodInvoker(() =>
+                        CurrentCell = row.Cells[0]));
                     return;
                 }
-
-                if (SelectedItem != dataItem)
-                {
-                    foreach (DataGridViewRow row in Rows)
-                    {
-                        if (row.DataBoundItem == dataItem)
-                        {
-                            SelectedItem = dataItem;
-                            CurrentCell = row.Cells[0];
-                            return;
-                        }
-                    }
-                    if (SelectedItem != null)
-                    {
-                        SelectedItem = null;
-                        ClearSelection();
-                    }
-                }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }            
         }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        finally
+        {
+            RaisePropertyChanged(nameof(SelectedItem));
+        }
+    }
+    
+    private object DbNullToNull(object dataItem)
+    {
+        return dataItem is DBNull ? null: dataItem;
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    private void RaisePropertyChanged(string propertyName)
+    {
+        try
+        {
+            var ev = new PropertyChangedEventArgs(propertyName);
+            PropertyChanged?.Invoke(this, ev);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            // Eat DBNull conversion bug.
+        }
+        
     }
 }
