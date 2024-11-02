@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Windows.Forms;
@@ -24,6 +25,7 @@ public class DataGridViewEx : DataGridView, INotifyPropertyChanged
 
     public DataGridViewEx()
     {
+        this.DefaultCellStyle.DataSourceNullValue = null;
         EditMode = DataGridViewEditMode.EditProgrammatically;
         MultiSelect = false;
         ColumnHeadersDefaultCellStyle.SelectionBackColor =
@@ -97,7 +99,7 @@ public class DataGridViewEx : DataGridView, INotifyPropertyChanged
     private void CurrencyManager_PositionChanged(object sender, EventArgs args)
     {
         var current = GetCurrent();
-        if (current != SelectedItem)
+        if (current != null && current != SelectedItem)
             SelectedItem = current;
     }
 
@@ -118,6 +120,7 @@ public class DataGridViewEx : DataGridView, INotifyPropertyChanged
                 }));
         }
     }
+
     private object GetCurrent()
     {
         try
@@ -179,16 +182,23 @@ public class DataGridViewEx : DataGridView, INotifyPropertyChanged
     
     private object DbNullToNull(object dataItem)
     {
-        return dataItem is DBNull ? null: dataItem;
+        return dataItem;// is DBNull ? null: dataItem;
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    List<PropertyChangedEventHandler> handlers = new();
+    public event PropertyChangedEventHandler PropertyChanged
+    {
+        add { handlers.Add(value); }
+        remove { handlers.Remove(value); }
+    }
+
     private void RaisePropertyChanged(string propertyName)
     {
         try
         {
             var ev = new PropertyChangedEventArgs(propertyName);
-            PropertyChanged?.Invoke(this, ev);
+            foreach (var handler in handlers)
+                handler(this, ev);
         }
         catch (Exception e)
         {
