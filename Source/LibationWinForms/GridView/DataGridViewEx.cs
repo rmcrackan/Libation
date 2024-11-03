@@ -108,9 +108,9 @@ public class DataGridViewEx : DataGridView, INotifyPropertyChanged
         if (args.ListChangedType == ListChangedType.Reset ||
             args.ListChangedType == ListChangedType.ItemDeleted)
         {
-            if (Rows.Count > 0 && SelectedRows.Count == 0)
+            if (this.bindingSource.Position == -1)
             {
-                this.bindingSource.Position = 0;
+                selectedItem = null;
             }
             if (SelectedRows.Count > 0)
                 BeginInvoke(new MethodInvoker(() =>
@@ -182,7 +182,7 @@ public class DataGridViewEx : DataGridView, INotifyPropertyChanged
     
     private object DbNullToNull(object dataItem)
     {
-        return dataItem;// is DBNull ? null: dataItem;
+        return dataItem is DBNull ? null: dataItem;
     }
 
     List<PropertyChangedEventHandler> handlers = new();
