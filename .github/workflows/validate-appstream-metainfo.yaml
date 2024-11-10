@@ -1,0 +1,21 @@
+name: Validate MetaInfo
+"on":
+  pull_request:
+    branches: ["master"]
+    paths:
+      - .github/workflows/validate-appstream-metainfo.yml
+      - Source/LoadByOS/LinuxConfigApp/com.getlibation.Libation.metainfo.xml
+  push:
+    branches: ["master"]
+    paths:
+      - .github/workflows/validate-appstream-metainfo.yml
+      - Source/LoadByOS/LinuxConfigApp/com.getlibation.Libation.metainfo.xml
+
+jobs:
+  validate-appstream-metainfo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt --yes install appstream-util
+      - name: Check the MetaInfo file
+        run: appstream-util validate Source/LoadByOS/LinuxConfigApp/com.getlibation.Libation.metainfo.xml
