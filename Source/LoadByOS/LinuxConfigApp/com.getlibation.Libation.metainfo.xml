@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2024 rmcrackan <rmcrackan@gmail.com> -->
+<component type="desktop-application">
+  <id>com.getlibation.Libation</id>
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <content_rating type="oars-1.1" />
+  <name>Libation</name>
+  <summary>Liberate your Audiobooks</summary>
+  <developer id="com.getlibation">
+    <name>rmcrackan</name>
+  </developer>
+  <update_contact>rmcrackan@gmail.com</update_contact>
+  <description>
+    <p>Free and open source app to manage your Audible books.</p>
+    <ul>
+      <li>Import library from audible, including cover art</li>
+      <li>Download and remove DRM from all books</li>
+      <li>Download accompanying PDFs</li>
+      <li>Add tags to books for better organization</li>
+      <li>Powerful advanced search built on the Lucene search engine</li>
+      <li>Customizable saved filters for common searches</li>
+      <li>Open source</li>
+      <li>Supports all regions: US, UK, Canada, Germany, France, Australia, Japan, India, and Spain</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">com.getlibation.Libation.desktop</launchable>
+  <url type="bugtracker">https://github.com/rmcrackan/Libation/issues</url>
+  <url type="donation">https://paypal.me/mcrackan?locale.x=en_us</url>
+  <url type="homepage">https://getlibation.com</url>
+  <url type="vcs-browser">https://github.com/rmcrackan/Libation</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/rmcrackan/Libation/refs/heads/master/Source/LoadByOS/LinuxConfigApp/screenshots/main-page-light.png</image>
+      <caption>Listing of audiobooks</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/rmcrackan/Libation/refs/heads/master/Source/LoadByOS/LinuxConfigApp/screenshots/main-page-dark.png</image>
+      <caption>Listing of audiobooks</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/rmcrackan/Libation/refs/heads/master/Source/LoadByOS/LinuxConfigApp/screenshots/filter.png</image>
+      <caption>Listing of audiobooks filtered to show titles from a specific series</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/rmcrackan/Libation/refs/heads/master/Source/LoadByOS/LinuxConfigApp/screenshots/important-settings.png</image>
+      <caption>Settings page with basic settings</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/rmcrackan/Libation/refs/heads/master/Source/LoadByOS/LinuxConfigApp/screenshots/audio-file-settings.png</image>
+      <caption>Settings for audio file format and conversion</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/rmcrackan/Libation/refs/heads/master/Source/LoadByOS/LinuxConfigApp/screenshots/download-decrypt-settings.png</image>
+      <caption>Download and decrypt settings</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/rmcrackan/Libation/refs/heads/master/Source/LoadByOS/LinuxConfigApp/screenshots/accounts.png</image>
+      <caption>Account list</caption>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="11.5.2" date="2024-10-25">
+      <description>
+        <p>Update Bundle_MacOS.sh to address #854, #1020</p>
+      </description>
+    </release>
+    <release version="11.1" date="2023-10-18">
+      <description>
+        <p>New locale: Brazil</p>
+      </description>
+    </release>
+  </releases>
+</component>
