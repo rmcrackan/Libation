@@ -22,7 +22,10 @@ ENV SLEEP_TIME=-1
 ENV LIBATION_CONFIG_INTERNAL=/config-internal
 ENV LIBATION_CONFIG_DIR=/config
 ENV LIBATION_DB_DIR=/db
+ENV LIBATION_DB_FILE=
+ENV LIBATION_CREATE_DB=true
 ENV LIBATION_BOOKS_DIR=/data
+
 
 RUN apt-get update && apt-get -y upgrade && \
     apt-get install -y jq && \
