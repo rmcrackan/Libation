@@ -14,8 +14,9 @@ name: Validate MetaInfo
 jobs:
   validate-appstream-metainfo:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub/flatpak-builder-lint:latest
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt --yes install appstream-util
       - name: Check the MetaInfo file
-        run: appstream-util validate Source/LoadByOS/LinuxConfigApp/com.getlibation.Libation.metainfo.xml
+        run: flatpak-builder-lint appstream Source/LoadByOS/LinuxConfigApp/com.getlibation.Libation.metainfo.xml
