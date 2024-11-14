@@ -6,3 +6,5 @@ Comment=Liberate your Audiobooks
 Terminal=false
 Type=Application
 MimeType=x-content/unix-software;
+Categories=Audio;AudioVideo;
+Keywords=audible;audio;audiobook;book;

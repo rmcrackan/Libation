@@ -86,8 +86,12 @@ delfiles=( 'libmp3lame.arm64.so' 'libmp3lame.x64.so' 'libmp3lame.x64.dll' 'libmp
 if [[ "$ARCH" == "arm64" ]]
 then
   delfiles+=('libmp3lame.x64.dylib' 'ffmpegaac.x64.dylib')
+  mv $BUNDLE_MACOS/ffmpegaac.arm64.dylib  $BUNDLE_MACOS/ffmpegaac.dylib
+  mv $BUNDLE_MACOS/libmp3lame.arm64.dylib  $BUNDLE_MACOS/libmp3lame.dylib
 else
   delfiles+=('libmp3lame.arm64.dylib' 'ffmpegaac.arm64.dylib')
+  mv $BUNDLE_MACOS/ffmpegaac.x64.dylib  $BUNDLE_MACOS/ffmpegaac.dylib
+  mv $BUNDLE_MACOS/libmp3lame.x64.dylib  $BUNDLE_MACOS/libmp3lame.dylib
 fi
 
 
