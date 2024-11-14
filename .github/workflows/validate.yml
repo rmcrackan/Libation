@@ -1,5 +1,5 @@
 # validate.yml
-# Validates that Libation will build on a pull request or push to master. 
+# Validates that Libation will build on a pull request or push to master.
 ---
 name: validate
 
@@ -12,3 +12,11 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
+  docker:
+    uses: ./.github/workflows/docker.yml
+    with:
+      version: ${GITHUB_SHA}
+      release: false
+    secrets:
+      docker_username: ${{ secrets.DOCKERHUB_USERNAME }}
+      docker_token: ${{ secrets.DOCKERHUB_TOKEN }}

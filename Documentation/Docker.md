@@ -3,38 +3,30 @@
 ### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PayPal.me](https://paypal.me/mcrackan?locale.x=en_us)
 ...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
 
-
+> [!WARNING]
+> ## Breaking Changes
+> * The docker image now runs as user 1001 and group 1001. Make sure that the permissions on your volumes allow user 1001 to read and write to them.
+> * `SLEEP_TIME` is now set to `-1` by default. This means the image will run once and exit. If you were relying on the previous default, you'll need to explicitly set the `SLEEP_TIME` environment variable to `30m` to replicate the previous behavior.
+> * The docker image now ignores the values in `Settings.json` for `Books` and `InProgress`. You can now change the folder that books are saved to by using the `LIBATION_BOOKS_DIR` environment variable.
 
 # Disclaimer
 The docker image is provided as-is. We hope it can be useful to you but it is not officially supported.
 
-### Setup
-In order to use the docker image, you'll need to provide it with a copy of the `AccountsSettings.json`, `Settings.json`, and `LibationContext.db` files. These files can usually be found in the Libation folder in your user's home directory. If you haven't run Libation yet, you'll need to launch it to generate these files and setup your accounts. Once you have them, copy these files to a new location, such as `/opt/libation/config`. Before using them we'll need to make a couple edits so that the filepaths referenced are correct when running from the docker image.
-
-In Settings.json, make the following changes:
-* Change `Books` to `/data`
-* Change `InProgress` to `/tmp` *
-
-*You may have to paste the following at the end of your your Settings.json file if `InProgess` is not present:
-
-```
-  "InProgress": "/tmp"
-```
-![image](https://github.com/patienttruth/Libation/assets/105557996/cf65a108-cadf-4284-9000-e7672c99c59b)
-
+### Configuration
+Configuration in Libation is handled by two files, `AccountsSettings.json` and `Settings.json`. These files can usually be found in the Libation folder in your user's home directory. The easiest way to configure these is to run the desktop version of Libation and then copy them into a folder, such as `/opt/libation/config`, that you'll volume mount into the image. `Settings.json` is technically optional, and, if not provided, Libation will run using the default settings. Additionally, the `Books` and `InProgress` settings in `Settings.json` will be ignored and the image will instead substitute it's own values.
 
 ### Running
-Once the configuration files are copied and edited, the docker image can be run with the following command.
+Once the configuration files are copied, the docker image can be run with the following command.
 ```
 sudo docker run -d \
   -v /opt/libation/config:/config \
   -v /opt/libation/books:/data \
   --name libation \
   --restart=always \
-  rmcrackan/libation
+  rmcrackan/libation:latest
 ```
 
-By default the container will scan for new books every 30 minutes and download any new ones. This is configurable by passing in a value for the `SLEEP_TIME` environment variable. Additionally, if you pass in `-1` it will scan and download books once and then exit.
+By default the container will scan for new books once and download any new ones. This is configurable by passing in a value for the `SLEEP_TIME` environment variable. For example, if you pass in `10m` it will keep running, scan for new books, and download them every 10 minutes.
 
 ```
 sudo docker run -d \
@@ -43,6 +35,33 @@ sudo docker run -d \
   -e SLEEP_TIME='10m' \
   --name libation \
   --restart=always \
-  rmcrackan/libation
+  rmcrackan/libation:latest
 ```
 
+### Environment Variables
+| Env Var  | Default | Description |
+| -------- | ------- | ----------- |
+| SLEEP_TIME  | -1 | Length of time to sleep before doing another scan/download. Set to -1 to run one. |
+| LIBATION_BOOKS_DIR | /data | Folder where books will be saved |
+| LIBATION_CONFIG_DIR | /config | Folder to read configuration from. |
+| LIBATION_DB_DIR    | /db | Optional folder to load database from. If not mounted, will load database from `LIBATION_CONFIG_DIR`. |
+| LIBATION_DB_FILE | | Name of database file to load. By default it will look for all `.db` files and load one if there is only one present. |
+| LIBATION_CREATE_DB | true | Whether or not the image should create a database file if none are found. |
+
+### User
+This docker image runs as user `1001`. In order for the image to function properly, user `1001` must be able to read and write the volumes that are mounted in. If they are not, you will see errors 
+
+If you want to change the user the image runs as, you can specify `-u <uid>:<gid>`. For example, to run it as user `2000` and group `3000`, you could do the following:
+
+```
+sudo docker run -d \
+  -u 2000:3000 \
+  -v /opt/libation/config:/config \
+  -v /opt/libation/books:/data \
+  --name libation \
+  --restart=always \
+  rmcrackan/libation:latest
+```
+
+### Advanced Database Options
+The docker image supports an optional database mount location defined by `LIBATION_DB_DIR`. This allows the database to be mounted as read/write, while allowing the rest of the configuration files to be mounted as read only. This is specifically useful if running in Kubernetes where you can use Configmaps and Secrets to define the configuration. If the `LIBATION_DB_DIR` is mounted, it will be used, otherwise it will look for the database in `LIBATION_CONFIG_DIR`. If it does not find the database in the expected location, it will attempt to make an empty database there.

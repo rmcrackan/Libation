@@ -5,7 +5,7 @@ name: release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 jobs:
   prerelease:
     runs-on: ubuntu-latest
@@ -15,7 +15,7 @@ jobs:
       - name: Get tag version
         id: get_version
         run: |
-          export TAG='${{ github.ref_name }}'
+          export TAG="${{ github.ref_name }}"
           echo "version=${TAG#v}" >> "${GITHUB_OUTPUT}"
 
   docker:
@@ -23,6 +23,7 @@ jobs:
     uses: ./.github/workflows/docker.yml
     with:
       version: ${{ needs.prerelease.outputs.version }}
+      release: true
     secrets:
       docker_username: ${{ secrets.DOCKERHUB_USERNAME }}
       docker_token: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -33,9 +34,9 @@ jobs:
     with:
       version_override: ${{ needs.prerelease.outputs.version }}
       run_unit_tests: false
-      
+
   release:
-    needs: [prerelease,build]
+    needs: [prerelease, build]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -55,7 +56,7 @@ jobs:
       - name: Upload release assets
         uses: dwenegar/upload-release-assets@v2
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          release_id: '${{ steps.release.outputs.id }}'
+          release_id: "${{ steps.release.outputs.id }}"
           assets_path: ./artifacts
