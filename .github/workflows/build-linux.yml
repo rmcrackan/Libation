@@ -8,37 +8,37 @@ on:
     inputs:
       version_override:
         type: string
-        description: 'Version number override'
+        description: "Version number override"
         required: false
       run_unit_tests:
         type: boolean
-        description: 'Skip running unit tests'
+        description: "Skip running unit tests"
         required: false
         default: true
       runs_on:
         type: string
-        description: 'The GitHub hosted runner to use'
+        description: "The GitHub hosted runner to use"
         required: true
       OS:
         type: string
         description: >
           The operating system targeted by the build.
-          
+
           There must be a corresponding Bundle_$OS.sh script file in ./Scripts
         required: true
       architecture:
         type: string
-        description: 'CPU architecture targeted by the build.'
+        description: "CPU architecture targeted by the build."
         required: true
 
 env:
-  DOTNET_CONFIGURATION: 'Release'
-  DOTNET_VERSION: '8.0.x'
-  RELEASE_NAME: 'chardonnay'
+  DOTNET_CONFIGURATION: "Release"
+  DOTNET_VERSION: "8.0.x"
+  RELEASE_NAME: "chardonnay"
 
 jobs:
   build:
-    name: '${{ inputs.OS }}-${{ inputs.architecture }}'
+    name: "${{ inputs.OS }}-${{ inputs.architecture }}"
     runs-on: ${{ inputs.runs_on }}
     steps:
       - uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
             version="$(grep -Eio -m 1 '<Version>.*</Version>' ./Source/AppScaffolding/AppScaffolding.csproj | sed -r 's/<\/?Version>//g')"
           fi
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
-          
+
       - name: Unit test
         if: ${{ inputs.run_unit_tests }}
         working-directory: ./Source
@@ -69,7 +69,7 @@ jobs:
       - name: Publish
         id: publish
         working-directory: ./Source
-        run: |          
+        run: |
           if [[ "${{ inputs.OS }}" == "MacOS" ]]
           then
             display_os="macOS"
@@ -78,13 +78,13 @@ jobs:
             display_os="Linux"
             RUNTIME_ID="linux-${{ inputs.architecture }}"
           fi
-          
+
           OUTPUT="bin/Publish/${display_os}-${{ inputs.architecture }}-${{ env.RELEASE_NAME }}"
-          
+
           echo "display_os=${display_os}" >> $GITHUB_OUTPUT
           echo "Runtime Identifier: $RUNTIME_ID"
           echo "Output Directory: $OUTPUT"
-          
+
           dotnet publish \
               LibationAvalonia/LibationAvalonia.csproj \
               --runtime $RUNTIME_ID \
@@ -122,7 +122,7 @@ jobs:
           ${SCRIPT} "${BUNDLE_DIR}" "${{ steps.get_version.outputs.version }}" "${{ inputs.architecture }}"
           artifact=$(ls ./bundle)
           echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
-          
+
       - name: Publish bundle
         uses: actions/upload-artifact@v4
         with:

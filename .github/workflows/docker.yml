@@ -8,11 +8,11 @@ on:
     inputs:
       version:
         type: string
-        description: 'Version number'
+        description: "Version number"
         required: true
       release:
         type: boolean
-        description: 'Is this a release build?'
+        description: "Is this a release build?"
         required: true
     secrets:
       docker_username:

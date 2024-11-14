@@ -8,21 +8,21 @@ on:
     inputs:
       version_override:
         type: string
-        description: 'Version number override'
+        description: "Version number override"
         required: false
       run_unit_tests:
         type: boolean
-        description: 'Skip running unit tests'
+        description: "Skip running unit tests"
         required: false
         default: true
 
 env:
-  DOTNET_CONFIGURATION: 'Release'
-  DOTNET_VERSION: '8.0.x'
+  DOTNET_CONFIGURATION: "Release"
+  DOTNET_VERSION: "8.0.x"
 
 jobs:
   build:
-    name: '${{ matrix.os }}-${{ matrix.release_name }}'
+    name: "${{ matrix.os }}-${{ matrix.release_name }}"
     runs-on: windows-latest
     strategy:
       matrix:
@@ -112,4 +112,4 @@ jobs:
           name: ${{ steps.zip.outputs.artifact }}.zip
           path: ./Source/bin/Publish/${{ steps.zip.outputs.artifact }}.zip
           if-no-files-found: error
-          retention-days: 7          
+          retention-days: 7

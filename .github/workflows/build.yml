@@ -8,22 +8,21 @@ on:
     inputs:
       version_override:
         type: string
-        description: 'Version number override'
+        description: "Version number override"
         required: false
       run_unit_tests:
         type: boolean
-        description: 'Skip running unit tests'
+        description: "Skip running unit tests"
         required: false
-        default: true        
+        default: true
 
 jobs:
-
   windows:
     uses: ./.github/workflows/build-windows.yml
     with:
       version_override: ${{ inputs.version_override }}
       run_unit_tests: ${{ inputs.run_unit_tests }}
-      
+
   linux:
     strategy:
       matrix:
@@ -36,7 +35,7 @@ jobs:
       OS: ${{ matrix.OS }}
       architecture: ${{ matrix.architecture }}
       run_unit_tests: ${{ inputs.run_unit_tests }}
-      
+
   macos:
     strategy:
       matrix:
@@ -47,4 +46,4 @@ jobs:
       runs_on: macos-latest
       OS: MacOS
       architecture: ${{ matrix.architecture }}
-      run_unit_tests: ${{ inputs.run_unit_tests }}     
+      run_unit_tests: ${{ inputs.run_unit_tests }}
