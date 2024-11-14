@@ -45,6 +45,8 @@ sudo docker run -d \
 | LIBATION_BOOKS_DIR | /data | Folder where books will be saved |
 | LIBATION_CONFIG_DIR | /config | Folder to read configuration from. |
 | LIBATION_DB_DIR    | /db | Optional folder to load database from. If not mounted, will load database from `LIBATION_CONFIG_DIR`. |
+| LIBATION_DB_FILE | | Name of database file to load. By default it will look for all `.db` files and load one if there is only one present. |
+| LIBATION_CREATE_DB | true | Whether or not the image should create a database file if none are found. |
 
 ### User
 This docker image runs as user `1001`. In order for the image to function properly, user `1001` must be able to read and write the volumes that are mounted in. If they are not, you will see errors 
