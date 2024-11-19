@@ -149,7 +149,7 @@ main() {
     SLEEP_TIME=-1
   fi
 
-  if [ "${SLEEP_TIME}" -eq -1 ]; then
+  if [ "${SLEEP_TIME}" == -1 ]; then
     info "running once"
   else
     info "running every ${SLEEP_TIME}"
@@ -161,7 +161,7 @@ main() {
     run
     
     # Liberate only once if SLEEP_TIME was set to -1
-    if [ "${SLEEP_TIME}" -eq -1 ]; then
+    if [ "${SLEEP_TIME}" == -1 ]; then
       break  
     fi
 
