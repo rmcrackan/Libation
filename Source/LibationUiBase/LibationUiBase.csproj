@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Prism.Core" Version="9.0.537" />
 	<PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
   </ItemGroup>
 

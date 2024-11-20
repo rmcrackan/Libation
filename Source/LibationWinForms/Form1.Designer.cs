@@ -85,7 +85,7 @@
             this.toggleQueueHideBtn = new System.Windows.Forms.Button();
             this.doneRemovingBtn = new System.Windows.Forms.Button();
             this.removeBooksBtn = new System.Windows.Forms.Button();
-            this.processBookQueue1 = new LibationWinForms.ProcessQueue.ProcessQueueControl();
+            this.processBookQueue1 = new LibationWinForms.ProcessQueue.SidebarControl();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -691,7 +691,7 @@
 		private System.Windows.Forms.ToolStripMenuItem launchHangoverToolStripMenuItem;
         private LibationWinForms.FormattableToolStripMenuItem liberateVisibleToolStripMenuItem_LiberateMenu;
 		private System.Windows.Forms.SplitContainer splitContainer1;
-		private LibationWinForms.ProcessQueue.ProcessQueueControl processBookQueue1;
+		private LibationWinForms.ProcessQueue.SidebarControl processBookQueue1;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Button toggleQueueHideBtn;
 		public LibationWinForms.GridView.ProductsDisplay productsDisplay;

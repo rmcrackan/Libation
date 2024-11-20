@@ -40,13 +40,13 @@ namespace LibationAvalonia.ViewModels
 				{
 					Serilog.Log.Logger.Information("Begin single book backup of {libraryBook}", libraryBook);
 					setQueueCollapseState(false);
-					ProcessQueue.AddDownloadDecrypt(libraryBook);
+					Sidebar.ProcessQueue.AddDownloadDecrypt(libraryBook);
 				}
 				else if (libraryBook.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
 				{
 					Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", libraryBook);
 					setQueueCollapseState(false);
-					ProcessQueue.AddDownloadPdf(libraryBook);
+					Sidebar.ProcessQueue.AddDownloadPdf(libraryBook);
 				}
 				else if (libraryBook.Book.Audio_Exists())
 				{
@@ -56,7 +56,7 @@ namespace LibationAvalonia.ViewModels
 					if (!Go.To.File(filePath?.ShortPathName))
 					{
 						var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-						await MessageBox.Show($"File not found" + suffix);
+						await MessageBox.Show($"File not found: {suffix}");
 					}
 				}
 			}
@@ -74,7 +74,7 @@ namespace LibationAvalonia.ViewModels
 
 				Serilog.Log.Logger.Information("Begin backing up all {series} episodes", series.LibraryBook);
 
-				ProcessQueue.AddDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated());
+				Sidebar.ProcessQueue.AddDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated());
 			}
 			catch (Exception ex)
 			{
@@ -90,7 +90,7 @@ namespace LibationAvalonia.ViewModels
 				{
 					Serilog.Log.Logger.Information("Begin convert to mp3 {libraryBook}", libraryBook);
 					setQueueCollapseState(false);
-					ProcessQueue.AddConvertMp3(libraryBook);
+					Sidebar.ProcessQueue.AddConvertMp3(libraryBook);
 				}
 			}
 			catch (Exception ex)

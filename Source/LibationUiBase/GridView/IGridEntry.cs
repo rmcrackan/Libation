@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace LibationUiBase.GridView
 {
-	public interface IGridEntry : IMemberComparable, INotifyPropertyChanged
+    public interface IGridEntry : IMemberComparable, INotifyPropertyChanged
 	{
 		EntryStatus Liberate { get; }
 		float SeriesIndex { get; }
@@ -30,5 +30,11 @@ namespace LibationUiBase.GridView
 		Rating MyRating { get; set; }
 		string BookTags { get; }
 		void UpdateLibraryBook(LibraryBook libraryBook);
-	}
+
+        bool CanAddToPlaylistText { get; }
+        string AddToPlaylistText { get; }
+        bool BookIsInPlaylist { get; }
+
+        //int? CurrentChapterNumber { get; }
+    }
 }

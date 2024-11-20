@@ -72,8 +72,8 @@ namespace FileManager
             fileSystemWatcher.Renamed += FileSystemWatcher_Changed;
             fileSystemWatcher.Error += FileSystemWatcher_Error;
 
-            backgroundScanner = new Task(BackgroundScanner);
-            backgroundScanner.Start();
+            backgroundScanner = Task.Factory.StartNew(BackgroundScanner, TaskCreationOptions.LongRunning);
+            //backgroundScanner.Start();
         }
         private void Stop()
         {

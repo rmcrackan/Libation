@@ -11,10 +11,10 @@ namespace LibationUiBase.GridView
 	/// <summary>The View Model for a LibraryBook that is ContentType.Parent</summary>
 	public class SeriesEntry<TStatus> : GridEntry<TStatus>, ISeriesEntry where TStatus : IEntryStatus
 	{
-		public List<ILibraryBookEntry> Children { get; }
+        public List<ILibraryBookEntry> Children { get; }
 		public override DateTime DateAdded => Children.Max(c => c.DateAdded);
 
-		private bool suspendCounting = false;
+		private bool suspendCounting;
 		public void ChildRemoveUpdate()
 		{
 			if (suspendCounting) return;
@@ -42,7 +42,7 @@ namespace LibationUiBase.GridView
 			}
 		}
 
-		public SeriesEntry(LibraryBook parent, LibraryBook child) : this(parent, new[] { child }) { }
+		public SeriesEntry(LibraryBook parent, LibraryBook child) : this(parent, [child]) { }
 		public SeriesEntry(LibraryBook parent, IEnumerable<LibraryBook> children)
 		{
 			LastDownload = new();
@@ -118,7 +118,7 @@ namespace LibationUiBase.GridView
 			Length = GetBookLengthString();
 		}
 
-		protected override string GetBookTags() => null;
+        protected override string GetBookTags() => null;
 		protected override int GetLengthInMinutes() => Children.Count == 0 ? 0 : Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 		protected override DateTime GetPurchaseDate() => Children.Count == 0 ? default : Children.Min(c => c.LibraryBook.DateAdded);
 	}

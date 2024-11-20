@@ -74,7 +74,7 @@ namespace LibationAvalonia.ViewModels
 
 				Serilog.Log.Logger.Information("Begin backing up visible library books");
 
-				ProcessQueue.AddDownloadDecrypt(
+				Sidebar.ProcessQueue.AddDownloadDecrypt(
 					ProductsDisplay
 					.GetVisibleBookEntries()
 					.UnLiberated()

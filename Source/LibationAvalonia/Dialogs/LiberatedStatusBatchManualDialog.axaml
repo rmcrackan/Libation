@@ -35,7 +35,7 @@
 				MinHeight="25"
 				Height="25"
 				VerticalAlignment="Center"
-				SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+				SelectedItem="{Binding SelectedBook, Mode=TwoWay}"
 				ItemsSource="{Binding BookStatuses}">
 
 				<ComboBox.ItemTemplate>

@@ -2,17 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using AppScaffolding;
 using DataLayer;
 using LibationFileManager;
+using LibationUiBase;
+using LibationUiBase.ViewModels;
+using LibationUiBase.ViewModels.Player;
 using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
 {
-	static class Program
+    static class Program
 	{
 		[System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
 		[return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
@@ -84,12 +88,31 @@ namespace LibationWinForms
 			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
 			postLoggingGlobalExceptionHandling();
 
-			var form1 = new Form1();
+			RegisterTypes();
+			ServiceLocator.AddCommonServicesAndBuild();
+
+            var form1 = new Form1();
 			form1.Load += async (_, _) => await form1.InitLibraryAsync(await libraryLoadTask);
 			Application.Run(form1);
 		}
 
-		private static void RunInstaller(Configuration config)
+        private static void RegisterTypes()
+        {
+            ServiceLocator.RegisterTransient<ICanExecuteChanged, WinFormsCanExecuteChanged>();
+            ServiceLocator.RegisterSingleton<PlayerViewModel>();
+			ServiceLocator.RegisterTransient<PlaylistEntryViewModel>();
+
+            // Register VMs here only.
+            foreach (var type in Assembly.GetExecutingAssembly().GetExportedTypes())
+            {
+                if (type.IsSubclassOf(typeof(ViewModelBase)) && !type.IsAbstract)
+                    ServiceLocator.RegisterTransient(type);
+            }
+
+            // Add more types as needed here.
+        }
+
+        private static void RunInstaller(Configuration config)
 		{
 			// all returns should be preceded by either:
 			// - if config.LibationSettingsAreValid
