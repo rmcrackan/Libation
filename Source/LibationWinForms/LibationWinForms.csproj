@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows7.0</TargetFramework>
+		<TargetFramework>net9.0-windows7.0</TargetFramework>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ApplicationIcon>libation.ico</ApplicationIcon>
@@ -14,6 +14,7 @@
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<IsPublishable>true</IsPublishable>
+		<NoWarn>$(NoWarn);WFO1000</NoWarn>
 		<!-- Version is now in AppScaffolding.csproj -->
 	</PropertyGroup>
 
@@ -41,7 +42,7 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="8.0.0.1" />
+		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="9.0.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
