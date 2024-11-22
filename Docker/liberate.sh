@@ -80,7 +80,7 @@ setup_db() {
   # Figure out the right databse file
   if [[ -z "${LIBATION_DB_FILE}" ]];
   then
-    dbCount=$(find "${DBPATH}" -type f -name "${dbpattern}" | wc -l)
+    dbCount=$(find "${DBPATH}" -maxdepth 1 -type f -name "${dbpattern}" | wc -l)
     if [ "${dbCount}" -gt 1 ];
     then
       error "too many database files found, set LIBATION_DB_FILE to the filename you wish to use"
