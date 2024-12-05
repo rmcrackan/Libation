@@ -46,11 +46,6 @@ namespace LibationAvalonia
 			try
 			{
 				var config = LibationScaffolding.RunPreConfigMigrations();
-
-				//Start as much work in parallel as possible.
-				var classicLifetimeTask = Task.Run(() => new ClassicDesktopStyleApplicationLifetime());
-				var appBuilderTask = Task.Run(BuildAvaloniaApp);
-
 				if (config.LibationSettingsAreValid)
 				{
 					// most migrations go in here
@@ -62,9 +57,7 @@ namespace LibationAvalonia
 					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				}
 
-				appBuilderTask.GetAwaiter().GetResult().SetupWithLifetime(classicLifetimeTask.GetAwaiter().GetResult());
-
-				classicLifetimeTask.Result.Start(null);
+				BuildAvaloniaApp().StartWithClassicDesktopLifetime(null);
 			}
 			catch (Exception ex)
 			{
