@@ -1,5 +1,5 @@
 # Dockerfile
-FROM --platform=${BUILDPLATFORM} mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=${BUILDPLATFORM} mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG TARGETARCH
 
 COPY Source /Source
@@ -10,7 +10,7 @@ RUN dotnet publish \
     --output /Source/bin/Publish/Linux-chardonnay \
     -p:PublishProfile=/Source/LibationCli/Properties/PublishProfiles/LinuxProfile.pubxml
 
-FROM mcr.microsoft.com/dotnet/runtime:8.0
+FROM mcr.microsoft.com/dotnet/runtime:9.0
 ARG USER_UID=1001
 ARG USER_GID=1001
 
