@@ -33,11 +33,28 @@ Run this command in your terminal to download and install Libation, replacing th
   This package is available on [Arch User Repository](https://aur.archlinux.org/packages/libation), install via your choice of [AUR helpers](https://wiki.archlinux.org/title/AUR_helpers).
   Thanks to [mhdi](https://aur.archlinux.org/account/mhdi) who is taking care of AUR package maintenance.
 - NixOS/package
-  ```Console
-  nix-shell -p libation
-  ```
-  A nix-shell will temporarily modify your $PATH environment variable. This can be used to try a piece of software before deciding to permanently install it.
-  Thanks to [TomaSajt](https://github.com/tomasajt) for taking care of Nix package maintenance.
+  - Install via `nix-shell`
+    ```Console
+    nix-shell -p libation
+    ```
+    A `nix-shell` will temporarily modify your $PATH environment variable. This can be used to try a piece of software before deciding to permanently install it.
+  - Install via NixOS configuration
+    ```Console
+    environment.systemPackages = [
+      pkgs.libation
+    ];
+    ```
+    Add the following Nix code to your NixOS Configuration, usually located in `/etc/nixos/configuration.nix`
+  - On NixOS via via `nix-env`
+    ```Console
+    nix-env -iA nixos.libation
+    ```
+  - On Non NixOS via `nix-env`
+    ```Console
+    nix-env -iA nixpkgs.libation
+    ```
+    Warning: Using `nix-env` permanently modifies a local profile of installed packages. This must be updated and maintained by the user in the same way as with a traditional package manager.
+    Thanks to [TomaSajt](https://github.com/tomasajt) for taking care of Nix package maintenance.
 
 If your desktop uses gtk, you should now see Libation among your applications.
 
