@@ -4,10 +4,14 @@
 ...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
 
 
+# Packaging status
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/libation.svg)](https://repology.org/project/libation/versions)
+
 
 # Install and Run Libation on Ubuntu
 
-New Libation releases are automatically packed into .deb and .rpm package and are available from the Libation repository's releases page.
+New Libation releases are automatically packed into `.deb` and `.rpm` package and are available from the Libation repository's releases page.
 
 
 Run this command in your terminal to download and install Libation, replacing the url with the latest Libation package url:
@@ -22,7 +26,18 @@ Run this command in your terminal to download and install Libation, replacing th
   wget -O libation.rpm https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay.rpm &&
   sudo yum install ./libation.rpm
   ```
-
+- Arch Linux
+  ```Console
+  yay -S libation
+  ```
+  This package is available on [Arch User Repository](https://aur.archlinux.org/packages/libation), install via your choice of [AUR helpers](https://wiki.archlinux.org/title/AUR_helpers).
+  Thanks to [mhdi](https://aur.archlinux.org/account/mhdi) who is taking care of AUR package maintenance.
+- NixOS/package
+  ```Console
+  nix-shell -p libation
+  ```
+  A nix-shell will temporarily modify your $PATH environment variable. This can be used to try a piece of software before deciding to permanently install it.
+  Thanks to [TomaSajt](https://github.com/tomasajt) for taking care of Nix package maintenance.
 
 If your desktop uses gtk, you should now see Libation among your applications.
 
