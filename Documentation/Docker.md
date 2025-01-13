@@ -49,7 +49,7 @@ sudo docker run -d \
 | LIBATION_CREATE_DB | true | Whether or not the image should create a database file if none are found. |
 
 ### User
-This docker image runs as user `1001`. In order for the image to function properly, user `1001` must be able to read and write the volumes that are mounted in. If they are not, you will see errors, including [sqlite error](#1060), [Microsoft.Data.Sqlite.SqliteException](#1110), or [Microsoft.EntityFrameworkCore.DbUpdateException](#1049)
+This docker image runs as user `1001`. In order for the image to function properly, user `1001` must be able to read and write the volumes that are mounted in. If they are not, you will see errors, including [sqlite error](#1060), [Microsoft.Data.Sqlite.SqliteException](#1110), [unable to open database file](#1113), [Microsoft.EntityFrameworkCore.DbUpdateException](#1049)
 
 If you're not sure what your user number is, check the output of the `id` command. Docker should normally run with the number of the user who configured and ran it.
 
