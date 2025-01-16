@@ -41,6 +41,7 @@ namespace LibationWinForms.Dialogs
 
 			maxSampleRateCb.Items.AddRange(
 				Enum.GetValues<AAXClean.SampleRate>()
+				.Where(r => r >= AAXClean.SampleRate.Hz_8000 && r <= AAXClean.SampleRate.Hz_48000)
 				.Select(v => new EnumDiaplay<AAXClean.SampleRate>(v, $"{(int)v} Hz"))
 				.ToArray());
 

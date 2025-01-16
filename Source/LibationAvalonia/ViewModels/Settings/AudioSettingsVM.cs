@@ -25,7 +25,9 @@ namespace LibationAvalonia.ViewModels.Settings
 		public NAudio.Lame.EncoderQuality SelectedEncoderQuality { get; set; }
 
 		public AvaloniaList<EnumDiaplay<SampleRate>> SampleRates { get; }
-			= new(Enum.GetValues<SampleRate>().Select(v => new EnumDiaplay<SampleRate>(v, $"{(int)v} Hz")));
+				= new(Enum.GetValues<SampleRate>()
+				.Where(r => r >= SampleRate.Hz_8000 && r <= SampleRate.Hz_48000)
+				.Select(v => new EnumDiaplay<SampleRate>(v, $"{(int)v} Hz")));
 
 		public AvaloniaList<NAudio.Lame.EncoderQuality> EncoderQualities { get; }
 		= new(

@@ -89,7 +89,8 @@ namespace AppScaffolding
 
 			Migrations.migrate_to_v6_6_9(config);
             Migrations.migrate_to_v11_5_0(config);
-        }
+			Migrations.migrate_to_v11_6_5(config);
+		}
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>
 		public static void RunPostMigrationScaffolding(Variety variety, Configuration config)
@@ -413,7 +414,16 @@ namespace AppScaffolding
             public List<string> Filters { get; set; } = new();
         }
 
-        public static void migrate_to_v11_5_0(Configuration config)
+		public static void migrate_to_v11_6_5(Configuration config)
+		{
+			//Settings migration for unsupported sample rates (#1116)
+			if (config.MaxSampleRate < AAXClean.SampleRate.Hz_8000)
+				config.MaxSampleRate = AAXClean.SampleRate.Hz_8000;
+			else if (config.MaxSampleRate > AAXClean.SampleRate.Hz_48000)
+				config.MaxSampleRate = AAXClean.SampleRate.Hz_48000;
+		}
+
+		public static void migrate_to_v11_5_0(Configuration config)
         {
             // Read file, but convert old format to new (with Name field) as necessary.
             if (!File.Exists(QuickFilters.JsonFile))
