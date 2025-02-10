@@ -31,6 +31,10 @@ Self-hosting online:
 * [audiobookshelf](https://www.audiobookshelf.org). On [reddit](https://www.reddit.com/r/audiobookshelf/)
 * [plex](https://www.plex.tv/). Listen with [Prologue](https://prologue.audio/) (iOS)
 
+## Q: I'm having trouble loggin into my Brazil account.
+
+For reasons known only to Jeff Bezos and God, amazon and audible brazil handle logins slightly differently. [See this ticket for more details.](https://github.com/rmcrackan/Libation/issues/1103)
+
 ## Q: How do I use Libation with a South Africa account?
 
 **A:** Like many countries, amazon gives South Africa it's own amazon site. [Unlike many other regions](https://www.audible.com/ep/country-selector) there is not South Africa specific audible site. Use `US` for your region -- ie: audible.com.
