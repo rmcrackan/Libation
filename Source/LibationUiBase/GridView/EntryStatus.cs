@@ -53,7 +53,13 @@ namespace LibationUiBase.GridView
 		public bool IsSeries { get; }
 		public bool IsEpisode { get; }
 		public bool IsBook => !IsSeries && !IsEpisode;
-		public bool IsUnavailable => !IsSeries & isAbsent & (BookStatus is not LiberatedStatus.Liberated || PdfStatus is not null and not LiberatedStatus.Liberated);
+		public bool IsUnavailable
+			=> !IsSeries
+			& isAbsent
+			& (
+				BookStatus is not LiberatedStatus.Liberated
+				|| PdfStatus is not null and not LiberatedStatus.Liberated
+			);
 		public double Opacity => !IsSeries && Book.UserDefinedItem.Tags.ContainsInsensitive("hidden") ? 0.4 : 1;
 		public abstract object BackgroundBrush { get; }
 		public object ButtonImage => GetLiberateIcon();
