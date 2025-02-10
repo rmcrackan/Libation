@@ -12,17 +12,34 @@ namespace LibationWinForms
 {
 	public static class MessageBoxLib
 	{
-		/// <summary>
-		/// Logs error. Displays a message box dialog with specified text and caption.
-		/// </summary>
-		/// <param name="synchronizeInvoke">Form calling this method.</param>
-		/// <param name="text">The text to display in the message box.</param>
-		/// <param name="caption">The text to display in the title bar of the message box.</param>
-		/// <param name="exception">Exception to log.</param>
-		public static void ShowAdminAlert(System.ComponentModel.ISynchronizeInvoke owner, string text, string caption, Exception exception)
+		private static int nreCount = 0;
+		private const int NRE_LIMIT = 5;
+
+        /// <summary>
+        /// Logs error. Displays a message box dialog with specified text and caption.
+        /// </summary>
+        /// <param name="synchronizeInvoke">Form calling this method.</param>
+        /// <param name="text">The text to display in the message box.</param>
+        /// <param name="caption">The text to display in the title bar of the message box.</param>
+        /// <param name="exception">Exception to log.</param>
+        public static void ShowAdminAlert(System.ComponentModel.ISynchronizeInvoke owner, string text, string caption, Exception exception)
 		{
-			// for development and debugging, show me what broke!
-			if (System.Diagnostics.Debugger.IsAttached)
+            // HACK: limited NRE swallowing -- this. is. AWFUL
+            // I can't figure out how to circumvent the DataGridView internal NRE when:
+            // * book has tag: asdf
+            // * filter is `[asdf]`
+            // * tag asdf is removed from book
+            // * DataGridView throws NRE
+            if (exception is NullReferenceException nre && nreCount < NRE_LIMIT)
+            {
+				nreCount++;
+                Serilog.Log.Logger.Error(nre, "Alert admin error. Swallow NRE: {@DebugText}", new { text, caption, nreCount });
+                return;
+            }
+
+
+            // for development and debugging, show me what broke!
+            if (System.Diagnostics.Debugger.IsAttached)
 				throw exception;
 
 			try
