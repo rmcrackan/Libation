@@ -89,11 +89,34 @@ namespace LibationWinForms.GridView
 			displayWindow.Show(this);
 		}
 
-		private void productsGrid_DetailsClicked(ILibraryBookEntry liveGridEntry)
+		private async void productsGrid_DetailsClicked(ILibraryBookEntry liveGridEntry)
 		{
-			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
-			if (bookDetailsForm.ShowDialog() == DialogResult.OK)
-				liveGridEntry.LibraryBook.UpdateUserDefinedItem(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+			// HACK: workaround for a Winforms bug.
+			// This event is fired by the DataGridCell.OnMouseUpInternal
+			// method. If any user changes made in the BookDetailsDialog
+			// result in the entry's row being removed from the DataGridView,
+			// then when this event handler returns, OnMouseUpInternal will
+			// throw a NRE trying to access the DataGridCell.DataGridView
+			// property.
+
+			//Steps to cause the bug:
+			// * book has tag: asdf
+			// * filter is `[asdf]`
+			// * tag asdf is removed from book
+			// * DataGridView throws NRE
+
+			//The workaround is to make this event handler execute
+			//asynchronously so that DataGridCell.OnMouseUpInternal completes
+			//before the user can change the DataGridView state.
+
+			await Task.Run(() => this.Invoke(runAsync));
+
+			void runAsync()
+			{
+				var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
+				if (bookDetailsForm.ShowDialog() == DialogResult.OK)
+					liveGridEntry.LibraryBook.UpdateUserDefinedItem(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+			}
 		}
 
 		#endregion
