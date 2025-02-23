@@ -40,6 +40,15 @@ You can add Libation as a safe app without touching Gatekeeper.
 
 * Close the terminal and use Libation!
 
+## "Apple can't check app for malicious software"
+
+From: [How to Open Anyway](https://support.apple.com/guide/mac-help/apple-cant-check-app-for-malicious-software-mchleab3a043/mac):
+
+* On your Mac, choose Apple menu > System Settings, then click Privacy & Security in the sidebar. (You may need to scroll down.)
+* Go to Security, then click Open.
+* Click Open Anyway. This button is available for about an hour after you try to open the app.
+* Enter your login password, then click OK.
+
 ## Troubleshooting
 
 If Libation fails to start after completing the above steps, try the following:
