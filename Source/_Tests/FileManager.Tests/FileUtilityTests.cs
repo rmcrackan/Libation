@@ -26,13 +26,13 @@ namespace FileUtilityTests
 		// standardize slashes. There is no unix equivalent because there is no alt directory separator
 		[DataRow(@"a/b\c/d", @"a\b\c\d", PlatformID.Win32NT)]
 		// remove illegal chars
-		[DataRow("a*?:z.txt", "a✱？꞉z.txt", PlatformID.Win32NT)]
+		[DataRow("a*?:z.txt", "a✱？_z.txt", PlatformID.Win32NT)]
 		[DataRow("a*?:z.txt", "a*?:z.txt", PlatformID.Unix)]
 		// retain drive letter path colon
 		[DataRow(@"C:\az.txt", @"C:\az.txt", PlatformID.Win32NT)]
 		[DataRow(@"/:/az.txt", @"/:/az.txt", PlatformID.Unix)]
 		// replace all other colons
-		[DataRow(@"a\b:c\d.txt", @"a\b꞉c\d.txt", PlatformID.Win32NT)]
+		[DataRow(@"a\b:c\d.txt", @"a\b_c\d.txt", PlatformID.Win32NT)]
 		[DataRow(@"a/b:c/d.txt", @"a/b:c/d.txt", PlatformID.Unix)]
 		// remove empty directories
 		[DataRow(@"C:\a\\\b\c\\\d.txt", @"C:\a\b\c\d.txt", PlatformID.Win32NT)]
@@ -104,13 +104,13 @@ namespace FileUtilityTests
 
 		// needs separate method. middle null param not running correctly in TestExplorer when used in DataRow()
 		[TestMethod]
-		[DataRow("http://test.com/a/b/c", "http꞉∕∕test.com∕a∕b∕c", PlatformID.Win32NT)]
+		[DataRow("http://test.com/a/b/c", "http_∕∕test.com∕a∕b∕c", PlatformID.Win32NT)]
 		[DataRow("http://test.com/a/b/c", "http:∕∕test.com∕a∕b∕c", PlatformID.Unix)]
 		public void url_null_replacement(string inStr, string outStr, PlatformID platformID) => DefaultReplacementTest(inStr, outStr, platformID);
 
 		[TestMethod]
 		// empty replacement
-		[DataRow("http://test.com/a/b/c", "http꞉∕∕test.com∕a∕b∕c", PlatformID.Win32NT)]
+		[DataRow("http://test.com/a/b/c", "http_∕∕test.com∕a∕b∕c", PlatformID.Win32NT)]
 		[DataRow("http://test.com/a/b/c", "http:∕∕test.com∕a∕b∕c", PlatformID.Unix)]
 		public void DefaultReplacementTest(string inStr, string outStr, PlatformID platformID) => Test(inStr, outStr, Default, platformID);
 
