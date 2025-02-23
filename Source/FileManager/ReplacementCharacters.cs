@@ -88,7 +88,7 @@ namespace FileManager
 					Replacement.OtherQuote("＂"),
 					Replacement.OpenAngleBracket("＜"),
 					Replacement.CloseAngleBracket("＞"),
-					Replacement.Colon(";"),
+					Replacement.Colon("_"),
 					Replacement.Asterisk("✱"),
 					Replacement.QuestionMark("？"),
 					Replacement.Pipe("⏐"),
