@@ -13,7 +13,7 @@ This walkthrough should get you up and running with Libation on your Mac.
 ## Install Libation
 
 - Download the file from the latest release and extract it.
-  - Apple Silicon (M1, M2, ...): `Libation.9.4.2-macOS-chardonnay-`**arm64**`.tgz`
+  - Apple Silicon (M1, M2, ...): `Libation.x.x.x-macOS-chardonnay-`**arm64**`.tgz`
   - Intel: `Libation.x.x.x-macOS-chardonnay-`**x64**`.tgz`
 - Move the extracted Libation app bundle to your applications folder.
 - Right-click on Libation and then click on open
