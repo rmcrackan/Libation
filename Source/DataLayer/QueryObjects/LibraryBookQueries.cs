@@ -21,8 +21,8 @@ namespace DataLayer
                 .AsNoTrackingWithIdentityResolution()
                 .GetLibrary()
                 .AsEnumerable()
-                .Where(lb => !lb.Book.IsEpisodeParent() || includeParents)
-                .ToList();
+				.Where(c => !c.Book.IsEpisodeParent() || includeParents)
+				.ToList();
 
         public static LibraryBook GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId)
             => context
@@ -91,7 +91,7 @@ namespace DataLayer
         }
 #nullable disable
 
-        public static IEnumerable<LibraryBook> FindChildren(this IEnumerable<LibraryBook> bookList, LibraryBook parent)
+        public static List<LibraryBook> FindChildren(this IEnumerable<LibraryBook> bookList, LibraryBook parent)
             => bookList
             .Where(
                 lb => 
