@@ -369,12 +369,12 @@ namespace ApplicationServices
 
                 using var context = DbContexts.GetContext();
 
-                // Attach() NoTracking entities before SaveChanges()
-                foreach (var lb in removeLibraryBooks)
+				// Entry() NoTracking entities before SaveChanges()
+				foreach (var lb in removeLibraryBooks)
                 {
-                    lb.IsDeleted = true;
-                    context.Attach(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                }
+					lb.IsDeleted = true;
+					context.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				}
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
@@ -398,12 +398,12 @@ namespace ApplicationServices
 
                 using var context = DbContexts.GetContext();
 
-                // Attach() NoTracking entities before SaveChanges()
-                foreach (var lb in libraryBooks)
-                {
-                    lb.IsDeleted = false;
-                    context.Attach(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                }
+				// Entry() NoTracking entities before SaveChanges()
+				foreach (var lb in libraryBooks)
+				{
+					lb.IsDeleted = false;
+					context.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				}
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
@@ -518,17 +518,18 @@ namespace ApplicationServices
                 if (libraryBooks is null || !libraryBooks.Any())
                     return 0;
 
-                foreach (var book in libraryBooks)
-                    action?.Invoke(book.Book.UserDefinedItem);
-
                 using var context = DbContexts.GetContext();
 
-                // Attach() NoTracking entities before SaveChanges()
-                foreach (var book in libraryBooks)
+				// Entry() instead of Attach() due to possible stack overflow with large tables
+				foreach (var book in libraryBooks)
                 {
-                    context.Attach(book.Book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                    context.Attach(book.Book.UserDefinedItem.Rating).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                }
+					action?.Invoke(book.Book.UserDefinedItem);
+
+					var udiEntity = context.Entry(book.Book.UserDefinedItem);
+
+					udiEntity.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+					udiEntity.Reference(udi => udi.Rating).TargetEntry.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				}
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
