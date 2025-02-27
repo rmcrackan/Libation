@@ -1,7 +1,9 @@
 ﻿using ApplicationServices;
+using DataLayer;
 using LibationAvalonia.Views;
 using LibationFileManager;
 using ReactiveUI;
+using System.Collections.Generic;
 
 namespace LibationAvalonia.ViewModels
 {
@@ -34,9 +36,8 @@ namespace LibationAvalonia.ViewModels
 			Configure_VisibleBooks();
 		}
 
-		private async void LibraryCommands_LibrarySizeChanged(object sender, System.EventArgs e)
+		private async void LibraryCommands_LibrarySizeChanged(object sender, List<LibraryBook> fullLibrary)
 		{
-			var fullLibrary = await System.Threading.Tasks.Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 			await ProductsDisplay.UpdateGridAsync(fullLibrary);
 		}
 

@@ -279,8 +279,11 @@ namespace AppScaffolding
 
         private static void wireUpSystemEvents(Configuration configuration)
 		{
-			LibraryCommands.LibrarySizeChanged += (_, __) => SearchEngineCommands.FullReIndex();
-			LibraryCommands.BookUserDefinedItemCommitted += (_, books) => SearchEngineCommands.UpdateBooks(books);
+			LibraryCommands.LibrarySizeChanged += (object _, List<DataLayer.LibraryBook> libraryBooks)
+				=> SearchEngineCommands.FullReIndex(libraryBooks);
+
+			LibraryCommands.BookUserDefinedItemCommitted += (_, books)
+				=> SearchEngineCommands.UpdateBooks(books);
 		}
 
 		public static UpgradeProperties GetLatestRelease()

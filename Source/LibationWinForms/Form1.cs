@@ -52,7 +52,8 @@ namespace LibationWinForms
 
 			// Configure_Grid(); // since it's just this, can keep here. If it needs more, then give grid it's own 'partial class Form1'
 			{
-				LibraryCommands.LibrarySizeChanged += (_, __) => Invoke(() => productsDisplay.DisplayAsync());
+				LibraryCommands.LibrarySizeChanged += (object _, List<LibraryBook> fullLibrary)
+					=> Invoke(() => productsDisplay.DisplayAsync(fullLibrary));
 			}
 			Shown += Form1_Shown;
 		}
@@ -75,7 +76,7 @@ namespace LibationWinForms
 		public async Task InitLibraryAsync(List<LibraryBook> libraryBooks)
 		{
 			runBackupCountsAgain = true;
-			updateCountsBw.RunWorkerAsync(libraryBooks.Where(b => !b.Book.IsEpisodeParent()));
+			updateCountsBw.RunWorkerAsync(libraryBooks);
 			await productsDisplay.DisplayAsync(libraryBooks);
 		}
 

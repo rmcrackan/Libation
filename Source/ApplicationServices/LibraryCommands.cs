@@ -445,10 +445,14 @@ namespace ApplicationServices
         #endregion
 
         // call this whenever books are added or removed from library
-        private static void finalizeLibrarySizeChange() => LibrarySizeChanged?.Invoke(null, null);
+        private static void finalizeLibrarySizeChange()
+        {
+            var library = DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
+            LibrarySizeChanged?.Invoke(null, library);
+        }
 
         /// <summary>Occurs when the size of the library changes. ie: books are added or removed</summary>
-        public static event EventHandler LibrarySizeChanged;
+        public static event EventHandler<List<LibraryBook>> LibrarySizeChanged;
 
         /// <summary>
         /// Occurs when the size of the library does not change but book(s) details do. Especially when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/> changed values are successfully persisted.
@@ -600,7 +604,8 @@ namespace ApplicationServices
 
             var results = libraryBooks
                 .AsParallel()
-                .Select(lb => new { absent = lb.AbsentFromLastScan, status = Liberated_Status(lb.Book) })
+				.WithoutParents()
+				.Select(lb => new { absent = lb.AbsentFromLastScan, status = Liberated_Status(lb.Book) })
                 .ToList();
 
             var booksFullyBackedUp = results.Count(r => r.status == LiberatedStatus.Liberated);

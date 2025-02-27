@@ -13,7 +13,6 @@ namespace LibationAvalonia.Views
 {
 	public partial class MainWindow : ReactiveWindow<MainVM>
 	{
-		public event EventHandler<List<LibraryBook>> LibraryLoaded;
 		public MainWindow()
 		{
 			DataContext = new MainVM(this);
@@ -66,6 +65,7 @@ namespace LibationAvalonia.Views
 			if (QuickFilters.UseDefault)
 				await ViewModel.PerformFilter(QuickFilters.Filters.FirstOrDefault());
 
+			await ViewModel.SetBackupCountsAsync(initialLibrary);
 			await ViewModel.ProductsDisplay.BindToGridAsync(initialLibrary);
 		}
 

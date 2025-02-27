@@ -44,16 +44,18 @@ namespace LibationAvalonia.ViewModels
 
 		private void Configure_BackupCounts()
 		{
-			MainWindow.LibraryLoaded += (_, e) => setBackupCounts(e.Where(l => !l.Book.IsEpisodeParent()));
-			LibraryCommands.LibrarySizeChanged += (_,_) => setBackupCounts();
-			LibraryCommands.BookUserDefinedItemCommitted += (_, _) => setBackupCounts();
+			LibraryCommands.LibrarySizeChanged += async (object _, List<LibraryBook> libraryBooks)
+				=> await SetBackupCountsAsync(libraryBooks);
+
+			//Pass null to the setup count to get the whole library.
+			LibraryCommands.BookUserDefinedItemCommitted += async (_, _)
+				=> await SetBackupCountsAsync(null);
 		}
 
-		private async void setBackupCounts(IEnumerable<LibraryBook> libraryBooks = null)
+		public async Task SetBackupCountsAsync(IEnumerable<LibraryBook> libraryBooks)
 		{
 			if (updateCountsTask?.IsCompleted ?? true)
 			{
-				libraryBooks ??= DbContexts.GetLibrary_Flat_NoTracking();
 				updateCountsTask = Task.Run(() => LibraryCommands.GetCounts(libraryBooks));
 				var stats = await updateCountsTask;
 				await Dispatcher.UIThread.InvokeAsync(() => LibraryStats = stats);
