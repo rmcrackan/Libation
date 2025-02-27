@@ -24,14 +24,14 @@ namespace LibationFileManager
 
 
         // load json into memory. if file doesn't exist, nothing to do. save() will create if needed
-        public static FilterState InMemoryState { get; set; } = null!;
+        public static FilterState? InMemoryState { get; set; }
 
         public static bool UseDefault
         {
-            get => InMemoryState.UseDefault;
+            get => InMemoryState?.UseDefault ?? false;
             set
             {
-                if (UseDefault == value)
+                if (InMemoryState is null || UseDefault == value)
                     return;
 
                 lock (locker)
@@ -52,7 +52,8 @@ namespace LibationFileManager
             public string? Name { get; set; } = Name;
         }
 
-        public static IEnumerable<NamedFilter> Filters => InMemoryState.Filters.AsReadOnly();
+        public static IEnumerable<NamedFilter> Filters
+            => InMemoryState?.Filters.AsReadOnly() ?? Enumerable.Empty<NamedFilter>();
 
         public static void Add(NamedFilter namedFilter)
         {
@@ -64,10 +65,11 @@ namespace LibationFileManager
             namedFilter.Filter = namedFilter.Filter?.Trim() ?? string.Empty;
             namedFilter.Name = namedFilter.Name?.Trim() ?? null;
 
-            lock (locker)
-            {
-                // check for duplicates
-                if (InMemoryState.Filters.Select(x => x.Filter).ContainsInsensative(namedFilter.Filter))
+			lock (locker)
+			{
+				InMemoryState ??= new();
+				// check for duplicates
+				if (InMemoryState.Filters.Select(x => x.Filter).ContainsInsensative(namedFilter.Filter))
                     return;
 
                 InMemoryState.Filters.Add(namedFilter);
@@ -79,6 +81,8 @@ namespace LibationFileManager
         {
             lock (locker)
             {
+                if (InMemoryState is null)
+                    return;
                 InMemoryState.Filters.Remove(filter);
                 save();
             }
@@ -88,8 +92,7 @@ namespace LibationFileManager
         {
             lock (locker)
             {
-                var index = InMemoryState.Filters.IndexOf(oldFilter);
-                if (index < 0)
+                if (InMemoryState is null || InMemoryState.Filters.IndexOf(oldFilter) < 0)
                     return;
 
                 InMemoryState.Filters = InMemoryState.Filters.Select(f => f == oldFilter ? newFilter : f).ToList();
@@ -107,7 +110,8 @@ namespace LibationFileManager
                 filter.Filter = filter.Filter.Trim();
             lock (locker)
             {
-                InMemoryState.Filters = new List<NamedFilter>(filters);
+                InMemoryState ??= new();
+				InMemoryState.Filters = new List<NamedFilter>(filters);
                 save();
             }
         }
