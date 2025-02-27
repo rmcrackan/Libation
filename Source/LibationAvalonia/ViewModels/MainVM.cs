@@ -20,7 +20,7 @@ namespace LibationAvalonia.ViewModels
 			MainWindow = mainWindow;
 
 			ProductsDisplay.RemovableCountChanged += (_, removeCount) => RemoveBooksButtonText = removeCount == 1 ? "Remove 1 Book from Libation" : $"Remove {removeCount} Books from Libation";
-			LibraryCommands.LibrarySizeChanged += async (_, _) => await ProductsDisplay.UpdateGridAsync(DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+			LibraryCommands.LibrarySizeChanged += LibraryCommands_LibrarySizeChanged;
 
 			Configure_NonUI();
 			Configure_BackupCounts();
@@ -32,6 +32,12 @@ namespace LibationAvalonia.ViewModels
 			Configure_ScanAuto();
 			Configure_Settings();
 			Configure_VisibleBooks();
+		}
+
+		private async void LibraryCommands_LibrarySizeChanged(object sender, System.EventArgs e)
+		{
+			var fullLibrary = await System.Threading.Tasks.Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+			await ProductsDisplay.UpdateGridAsync(fullLibrary);
 		}
 
 		private static string menufyText(string header) => Configuration.IsMacOs ? header : $"_{header}";

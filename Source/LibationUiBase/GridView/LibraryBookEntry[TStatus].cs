@@ -33,10 +33,11 @@ namespace LibationUiBase.GridView
 			LoadCover();
 		}
 
-
 		public static async Task<List<IGridEntry>> GetAllProductsAsync(IEnumerable<LibraryBook> libraryBooks)
 		{
 			var products = libraryBooks.Where(lb => lb.Book.IsProduct()).ToArray();
+			if (products.Length == 0)
+				return [];
 
 			int parallelism = int.Max(1, Environment.ProcessorCount - 1);
 

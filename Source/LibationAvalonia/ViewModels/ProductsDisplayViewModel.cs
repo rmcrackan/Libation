@@ -28,7 +28,13 @@ namespace LibationAvalonia.ViewModels
 		/// <summary>Grid entries included in the filter set. If null, all grid entries are shown</summary>
 		private HashSet<IGridEntry> FilteredInGridEntries;
 		public string FilterString { get; private set; }
-		public DataGridCollectionView GridEntries { get; private set; }
+
+		private DataGridCollectionView _gridEntries;
+		public DataGridCollectionView GridEntries
+		{
+			get => _gridEntries;
+			private set => this.RaiseAndSetIfChanged(ref _gridEntries, value);
+		}
 
 		private bool _removeColumnVisible;
 		public bool RemoveColumnVisible { get => _removeColumnVisible; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisible, value); }
