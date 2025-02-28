@@ -1,8 +1,6 @@
 ﻿using ApplicationServices;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Platform;
@@ -14,14 +12,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using ReactiveUI;
-using DataLayer;
+using Avalonia.Threading;
 
 namespace LibationAvalonia
 {
 	public class App : Application
 	{
-		public static Window MainWindow { get; private set; }
+		public static MainWindow MainWindow { get; private set; }
 		public static IBrush ProcessQueueBookFailedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCompletedBrush { get; private set; }
 		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
@@ -216,9 +213,15 @@ namespace LibationAvalonia
 			LoadStyles();
 			var mainWindow = new MainWindow();
 			desktop.MainWindow = MainWindow = mainWindow;
-			mainWindow.OnLibraryLoaded(LibraryTask.GetAwaiter().GetResult());
+			mainWindow.Loaded += MainWindow_Loaded;
 			mainWindow.RestoreSizeAndLocation(Configuration.Instance);
 			mainWindow.Show();
+		}
+
+		private static async void MainWindow_Loaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			var library = await LibraryTask;
+			await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync(library));
 		}
 
 		private static void LoadStyles()

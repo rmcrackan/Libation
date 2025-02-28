@@ -1,6 +1,5 @@
 ﻿using DataLayer;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -62,53 +61,54 @@ namespace LibationUiBase.GridView
 			var seriesBooks = libraryBooks.Where(lb => lb.Book.IsEpisodeParent()).ToArray();
 			var allEpisodes = libraryBooks.Where(lb => lb.Book.IsEpisodeChild()).ToArray();
 
-			int parallelism = int.Max(1, Environment.ProcessorCount - 1);
-
-			var tasks = new Task[parallelism];
-			var syncContext = SynchronizationContext.Current;
-
-			var q = new BlockingCollection<(int, LibraryBook episode)>();
-
 			var seriesEntries = new ISeriesEntry[seriesBooks.Length];
-			var seriesEpisodes = new ConcurrentBag<ILibraryBookEntry>[seriesBooks.Length];
+			var seriesEpisodes = new ILibraryBookEntry[seriesBooks.Length][];
 
-			for (int i = 0; i < parallelism; i++)
-			{
-				tasks[i] = Task.Run(() =>
-				{
-					SynchronizationContext.SetSynchronizationContext(syncContext);
+			var syncContext = SynchronizationContext.Current;
+			var options = new ParallelOptions { MaxDegreeOfParallelism = int.Max(1, Environment.ProcessorCount - 1) };
 
-					while (q.TryTake(out var entry, -1))
-					{
-						var parent = seriesEntries[entry.Item1];
-						var episodeBag = seriesEpisodes[entry.Item1];
-						episodeBag.Add(new LibraryBookEntry<TStatus>(entry.episode, parent));
-					}
-				});
-			}
+			//Asynchronously create an ILibraryBookEntry for every episode in the library
+			await Parallel.ForEachAsync(getAllEpisodes(), options,  createEpisodeEntry);
 
-			for (int i = 0; i <seriesBooks.Length; i++)
-			{
-				var series = seriesBooks[i];
-				seriesEntries[i] = new SeriesEntry<TStatus>(series, Enumerable.Empty<LibraryBook>());
-				seriesEpisodes[i] = new ConcurrentBag<ILibraryBookEntry>();
-
-				foreach (var ep in allEpisodes.FindChildren(series))
-					q.Add((i, ep));
-			}
-
-			q.CompleteAdding();
-
-			await Task.WhenAll(tasks);
-
-			for (int i = 0; i < seriesBooks.Length; i++)
+			//Match all episode entries to their corresponding parents
+			for (int i = seriesEntries.Length - 1; i >= 0; i--)
 			{
 				var series = seriesEntries[i];
-				series.Children.AddRange(seriesEpisodes[i].OrderByDescending(c => c.SeriesOrder));
+
+				//Sort episodes by series order descending, then add them to their parent's entry
+				Array.Sort(seriesEpisodes[i], (a, b) => -a.SeriesOrder.CompareTo(b.SeriesOrder));
+				series.Children.AddRange(seriesEpisodes[i]);
 				series.UpdateLibraryBook(series.LibraryBook);
 			}
 
-			return seriesEntries.Where(s => s.Children.Count != 0).ToList();
+			return seriesEntries.Where(s => s.Children.Count != 0).Cast<ISeriesEntry>().ToList();
+
+			//Create a LibraryBookEntry for a single episode
+			ValueTask createEpisodeEntry((int seriesIndex, int episodeIndex, LibraryBook episode) data, CancellationToken cancellationToken)
+			{
+				SynchronizationContext.SetSynchronizationContext(syncContext);
+				var parent = seriesEntries[data.seriesIndex];
+				seriesEpisodes[data.seriesIndex][data.episodeIndex] = new LibraryBookEntry<TStatus>(data.episode, parent);
+				return ValueTask.CompletedTask;
+			}
+
+			//Enumeration all series episodes, along with the index to its seriesEntries entry
+			//and an index to its seriesEpisodes entry
+			IEnumerable<(int seriesIndex, int episodeIndex, LibraryBook episode)> getAllEpisodes()
+			{
+				for (int i = 0; i < seriesBooks.Length; i++)
+				{
+					var series = seriesBooks[i];
+					var childEpisodes = allEpisodes.FindChildren(series);
+
+					SynchronizationContext.SetSynchronizationContext(syncContext);
+					seriesEntries[i] = new SeriesEntry<TStatus>(series, []);
+					seriesEpisodes[i] = new ILibraryBookEntry[childEpisodes.Count];
+
+					for (int j = 0; j < childEpisodes.Count; j++)
+						yield return (i, j, childEpisodes[j]);
+				}
+			}
 		}
 
 		public void RemoveChild(ILibraryBookEntry lbe)

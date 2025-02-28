@@ -222,7 +222,7 @@ namespace ApplicationServices
             {
                 int qtyChanged = await Task.Run(() => SaveContext(context));
                 if (qtyChanged > 0)
-                    await Task.Run(finalizeLibrarySizeChange);
+                    await Task.Run(() => finalizeLibrarySizeChange(context));
                 return qtyChanged;
             }
             catch (Exception ex)
@@ -329,7 +329,7 @@ namespace ApplicationServices
 
             // this is any changes at all to the database, not just new books
             if (qtyChanges > 0)
-                await Task.Run(() => finalizeLibrarySizeChange());
+                await Task.Run(() => finalizeLibrarySizeChange(context));
             logTime("importIntoDbAsync -- post finalizeLibrarySizeChange");
 
             return newCount;
@@ -369,16 +369,16 @@ namespace ApplicationServices
 
                 using var context = DbContexts.GetContext();
 
-                // Attach() NoTracking entities before SaveChanges()
-                foreach (var lb in removeLibraryBooks)
+				// Entry() NoTracking entities before SaveChanges()
+				foreach (var lb in removeLibraryBooks)
                 {
-                    lb.IsDeleted = true;
-                    context.Attach(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                }
+					lb.IsDeleted = true;
+					context.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				}
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
-                    finalizeLibrarySizeChange();
+                    finalizeLibrarySizeChange(context);
 
                 return qtyChanges;
             }
@@ -398,16 +398,16 @@ namespace ApplicationServices
 
                 using var context = DbContexts.GetContext();
 
-                // Attach() NoTracking entities before SaveChanges()
-                foreach (var lb in libraryBooks)
-                {
-                    lb.IsDeleted = false;
-                    context.Attach(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                }
+				// Entry() NoTracking entities before SaveChanges()
+				foreach (var lb in libraryBooks)
+				{
+					lb.IsDeleted = false;
+					context.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				}
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
-                    finalizeLibrarySizeChange();
+                    finalizeLibrarySizeChange(context);
 
                 return qtyChanges;
             }
@@ -432,7 +432,7 @@ namespace ApplicationServices
 
                 var qtyChanges = context.SaveChanges();
 				if (qtyChanges > 0)
-					finalizeLibrarySizeChange();
+					finalizeLibrarySizeChange(context);
 
 				return qtyChanges;
             }
@@ -445,10 +445,14 @@ namespace ApplicationServices
         #endregion
 
         // call this whenever books are added or removed from library
-        private static void finalizeLibrarySizeChange() => LibrarySizeChanged?.Invoke(null, null);
+        private static void finalizeLibrarySizeChange(LibationContext context)
+        {
+            var library = context.GetLibrary_Flat_NoTracking(includeParents: true);
+            LibrarySizeChanged?.Invoke(null, library);
+        }
 
         /// <summary>Occurs when the size of the library changes. ie: books are added or removed</summary>
-        public static event EventHandler LibrarySizeChanged;
+        public static event EventHandler<List<LibraryBook>> LibrarySizeChanged;
 
         /// <summary>
         /// Occurs when the size of the library does not change but book(s) details do. Especially when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/> changed values are successfully persisted.
@@ -518,17 +522,18 @@ namespace ApplicationServices
                 if (libraryBooks is null || !libraryBooks.Any())
                     return 0;
 
-                foreach (var book in libraryBooks)
-                    action?.Invoke(book.Book.UserDefinedItem);
-
                 using var context = DbContexts.GetContext();
 
-                // Attach() NoTracking entities before SaveChanges()
-                foreach (var book in libraryBooks)
+				// Entry() instead of Attach() due to possible stack overflow with large tables
+				foreach (var book in libraryBooks)
                 {
-                    context.Attach(book.Book.UserDefinedItem).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                    context.Attach(book.Book.UserDefinedItem.Rating).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                }
+					action?.Invoke(book.Book.UserDefinedItem);
+
+					var udiEntity = context.Entry(book.Book.UserDefinedItem);
+
+					udiEntity.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+					udiEntity.Reference(udi => udi.Rating).TargetEntry.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+				}
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
@@ -599,7 +604,8 @@ namespace ApplicationServices
 
             var results = libraryBooks
                 .AsParallel()
-                .Select(lb => new { absent = lb.AbsentFromLastScan, status = Liberated_Status(lb.Book) })
+				.WithoutParents()
+				.Select(lb => new { absent = lb.AbsentFromLastScan, status = Liberated_Status(lb.Book) })
                 .ToList();
 
             var booksFullyBackedUp = results.Count(r => r.status == LiberatedStatus.Liberated);

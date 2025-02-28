@@ -13,7 +13,6 @@ namespace LibationAvalonia.Views
 {
 	public partial class MainWindow : ReactiveWindow<MainVM>
 	{
-		public event EventHandler<List<LibraryBook>> LibraryLoaded;
 		public MainWindow()
 		{
 			DataContext = new MainVM(this);
@@ -23,7 +22,6 @@ namespace LibationAvalonia.Views
 
 			Opened += MainWindow_Opened;
 			Closing += MainWindow_Closing;
-			LibraryLoaded += MainWindow_LibraryLoaded;
 
 			KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(selectAndFocusSearchBox), Gesture = new KeyGesture(Key.F, Configuration.IsMacOs ? KeyModifiers.Meta : KeyModifiers.Control) });
 
@@ -56,21 +54,21 @@ namespace LibationAvalonia.Views
 			this.SaveSizeAndLocation(Configuration.Instance);
 		}
 
-		private async void MainWindow_LibraryLoaded(object sender, List<LibraryBook> dbBooks)
-		{
-			if (QuickFilters.UseDefault)
-				await ViewModel.PerformFilter(QuickFilters.Filters.FirstOrDefault());
-
-			await ViewModel.ProductsDisplay.BindToGridAsync(dbBooks);
-		}
-
 		private void selectAndFocusSearchBox()
 		{
 			filterSearchTb.SelectAll();
 			filterSearchTb.Focus();
 		}
 
-		public void OnLibraryLoaded(List<LibraryBook> initialLibrary) => LibraryLoaded?.Invoke(this, initialLibrary);
+		public async System.Threading.Tasks.Task OnLibraryLoadedAsync(List<LibraryBook> initialLibrary)
+		{
+			if (QuickFilters.UseDefault)
+				await ViewModel.PerformFilter(QuickFilters.Filters.FirstOrDefault());
+
+			await ViewModel.SetBackupCountsAsync(initialLibrary);
+			await ViewModel.ProductsDisplay.BindToGridAsync(initialLibrary);
+		}
+
 		public void ProductsDisplay_LiberateClicked(object _, LibraryBook libraryBook) => ViewModel.LiberateClicked(libraryBook);
 		public void ProductsDisplay_LiberateSeriesClicked(object _, ISeriesEntry series) => ViewModel.LiberateSeriesClicked(series);
 		public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook libraryBook) => ViewModel.ConvertToMp3Clicked(libraryBook);

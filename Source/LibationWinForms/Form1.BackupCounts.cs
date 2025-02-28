@@ -17,7 +17,9 @@ namespace LibationWinForms
 			beginPdfBackupsToolStripMenuItem.Format(0);
 
             LibraryCommands.LibrarySizeChanged += setBackupCounts;
-            LibraryCommands.BookUserDefinedItemCommitted += setBackupCounts;
+			//Pass null to the runner to get the whole library.
+			LibraryCommands.BookUserDefinedItemCommitted += (_, _)
+				=> setBackupCounts(null, null);
 
 			updateCountsBw.DoWork += UpdateCountsBw_DoWork;
 			updateCountsBw.RunWorkerCompleted += exportMenuEnable;
@@ -28,12 +30,12 @@ namespace LibationWinForms
 
 		private bool runBackupCountsAgain;
 
-		private void setBackupCounts(object _, object __)
+		private void setBackupCounts(object _, List<LibraryBook> libraryBooks)
 		{
 			runBackupCountsAgain = true;
 
 			if (!updateCountsBw.IsBusy)
-				updateCountsBw.RunWorkerAsync();
+				updateCountsBw.RunWorkerAsync(libraryBooks);
 		}
 
 		private void UpdateCountsBw_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
@@ -41,11 +43,7 @@ namespace LibationWinForms
 			while (runBackupCountsAgain)
 			{
 				runBackupCountsAgain = false;
-
-				if (e.Argument is not IEnumerable<LibraryBook> lbs)
-					lbs = DbContexts.GetLibrary_Flat_NoTracking();
-
-				e.Result = LibraryCommands.GetCounts(lbs);
+				e.Result = LibraryCommands.GetCounts(e.Argument as IEnumerable<LibraryBook>);
 			}
 		}
 

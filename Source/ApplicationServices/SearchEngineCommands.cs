@@ -48,6 +48,8 @@ namespace ApplicationServices
 		}
 
 		public static void FullReIndex() => performSafeCommand(fullReIndex);
+		public static void FullReIndex(List<LibraryBook> libraryBooks)
+			=> performSafeCommand(se => fullReIndex(se, libraryBooks.WithoutParents()));
 
 		internal static void UpdateUserDefinedItems(LibraryBook book) => performSafeCommand(e =>
 			{
@@ -94,8 +96,11 @@ namespace ApplicationServices
 		private static void fullReIndex(SearchEngine engine)
 		{
 			var library = DbContexts.GetLibrary_Flat_NoTracking();
-			engine.CreateNewIndex(library);
+			fullReIndex(engine, library);
 		}
+
+		private static void fullReIndex(SearchEngine engine, IEnumerable<LibraryBook> libraryBooks)
+		=> engine.CreateNewIndex(libraryBooks);
 		#endregion
 	}
 }
