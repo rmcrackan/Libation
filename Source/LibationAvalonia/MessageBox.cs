@@ -165,8 +165,6 @@ Libation.
 
 			var dialog = new MessageBoxWindow(saveAndRestorePosition);
 
-			dialog.HideMinMaxBtns();
-
 			var vm = new MessageBoxViewModel(message, caption, buttons, icon, defaultButton);
 			dialog.DataContext = vm;
 			dialog.ControlToFocusOnShow = dialog.FindControl<Control>(defaultButton.ToString());
@@ -190,11 +188,13 @@ Libation.
 
 			tbx.Height = tbx.DesiredSize.Height;
 			tbx.Width = tbx.DesiredSize.Width;
-			dialog.MinHeight = vm.FormHeightFromTboxHeight((int)tbx.DesiredSize.Height);
+
+			var absoluteHeight = vm.FormHeightFromTboxHeight((int)tbx.DesiredSize.Height);
+			dialog.MinHeight = absoluteHeight;
 			dialog.MinWidth = vm.FormWidthFromTboxWidth((int)tbx.DesiredSize.Width);
-			dialog.MaxHeight = dialog.MinHeight;
+			dialog.MaxHeight = absoluteHeight;
 			dialog.MaxWidth = dialog.MinWidth;
-			dialog.Height = dialog.MinHeight;
+			dialog.Height = absoluteHeight;
 			dialog.Width = dialog.MinWidth;
 			return dialog;
 		}

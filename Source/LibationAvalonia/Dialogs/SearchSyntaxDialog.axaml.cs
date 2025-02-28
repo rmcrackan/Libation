@@ -12,8 +12,6 @@ namespace LibationAvalonia.Dialogs
 		{
 			InitializeComponent();
 
-			this.HideMinMaxBtns();
-
 			StringFields = @"
 Search for wizard of oz:
      title:oz

@@ -101,11 +101,14 @@ namespace LibationAvalonia.ViewModels.Settings
 			set
 			{
 				this.RaiseAndSetIfChanged(ref themeVariant, value);
-
-				SelectionChanged = ThemeVariant != initialThemeVariant;
-				this.RaisePropertyChanged(nameof(SelectionChanged));
+				App.Current.RequestedThemeVariant = themeVariant switch
+				{
+					nameof(Avalonia.Styling.ThemeVariant.Dark) => Avalonia.Styling.ThemeVariant.Dark,
+					nameof(Avalonia.Styling.ThemeVariant.Light) => Avalonia.Styling.ThemeVariant.Light,
+					// "System"
+					_ => Avalonia.Styling.ThemeVariant.Default
+				};
 			}
 		}
-		public bool SelectionChanged { get; private set; }
 	}
 }

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:LibationAvalonia"
              xmlns:controls="using:LibationAvalonia.Controls"
+             xmlns:dialogs="using:LibationAvalonia.Dialogs"
 			 x:Class="LibationAvalonia.App"
              Name="Libation">
 
@@ -12,6 +13,10 @@
 	<Application.Resources>
 
 		<ResourceDictionary>
+			<ControlTheme x:Key="{x:Type TextBlock}" TargetType="TextBlock">
+				<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+				<Setter Property="Background" Value="Transparent" />
+			</ControlTheme>
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Light">
 					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#abffab" />
@@ -81,6 +86,60 @@
 			<!-- It's called AutoHide, but this is really the mouseover shrink/expand. -->
             <Setter Property="AllowAutoHide" Value="false"/>
 		</Style>
+
+		<Style Selector="dialogs|DialogWindow">
+			<Style Selector="^[UseCustomTitleBar=false]">
+				<Setter Property="SystemDecorations" Value="Full"/>
+				<Setter Property="Template">
+					<ControlTemplate>
+						<ContentPresenter Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Content="{TemplateBinding Content}" />
+					</ControlTemplate>
+				</Setter>
+			</Style>
+			<Style Selector="^[UseCustomTitleBar=true]">
+				<Setter Property="SystemDecorations" Value="BorderOnly"/>
+				<Setter Property="Template">
+					<ControlTemplate>
+						<Panel Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+							<Grid RowDefinitions="30,*">
+								<Border Name="DialogWindowTitleBorder" Margin="5,0" Background="{DynamicResource SystemAltMediumColor}">
+									<Border.Styles>
+										<Style Selector="Button#DialogCloseButton">
+											<Style Selector="^:pointerover">
+												<Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+													<Setter Property="Background" Value="Red" />
+												</Style>
+												<Style Selector="^ Path">
+													<Setter Property="Fill" Value="{DynamicResource IconFill}" />
+												</Style>
+											</Style>
+											<Style Selector="^:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
+												<Setter Property="Background" Value="Transparent" />
+												<Setter Property="BorderBrush" Value="Transparent" />
+											</Style>
+										</Style>
+									</Border.Styles>
+								
+									<Grid ColumnDefinitions="Auto,*,Auto">
+
+										<Path Name="DialogWindowTitleIcon" Margin="3,5,0,5" Fill="{DynamicResource IconFill}" Stretch="Uniform"  Data="{StaticResource LibationGlassIcon}"/>
+									
+										<TextBlock Name="DialogWindowTitleTextBlock" Margin="8,0,0,0" VerticalAlignment="Center" FontWeight="DemiBold" FontSize="12" Grid.Column="1" Text="{TemplateBinding Title}" />
+
+										<Button Name="DialogCloseButton" Grid.Column="2">
+											<Path Fill="{DynamicResource SystemControlBackgroundBaseLowBrush}" VerticalAlignment="Center" Stretch="Uniform" RenderTransform="{StaticResource Rotate45Transform}" Data="{StaticResource CancelButtonIcon}" />
+										</Button>
+									</Grid>
+								</Border>
+								<Path Stroke="{DynamicResource SystemBaseMediumLowColor}" StrokeThickness="1" VerticalAlignment="Bottom" Stretch="Fill" Data="M0,0 L1,0" />
+								<ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}" />
+							</Grid>
+						</Panel>
+					</ControlTemplate>
+				</Setter>
+			</Style>
+		</Style>
+		
 	</Application.Styles>
 
 	<NativeMenu.Menu>

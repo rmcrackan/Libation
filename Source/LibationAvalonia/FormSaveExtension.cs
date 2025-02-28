@@ -109,23 +109,5 @@ namespace LibationAvalonia
 			public int Width;
 			public bool IsMaximized;
 		}
-
-		public static void HideMinMaxBtns(this Window form)
-		{
-			if (Design.IsDesignMode || !Configuration.IsWindows || form.TryGetPlatformHandle() is not IPlatformHandle handle)
-				return;
-
-			var currentStyle = GetWindowLong(handle.Handle, GWL_STYLE);
-
-			SetWindowLong(handle.Handle, GWL_STYLE, currentStyle & ~WS_MAXIMIZEBOX & ~WS_MINIMIZEBOX);
-		}
-
-		const long WS_MINIMIZEBOX = 0x00020000L;
-		const long WS_MAXIMIZEBOX = 0x10000L;
-		const int GWL_STYLE = -16;
-		[System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "GetWindowLong")]
-		static extern long GetWindowLong(IntPtr hWnd, int nIndex);
-		[System.Runtime.InteropServices.DllImport("user32.dll")]
-		static extern int SetWindowLong(IntPtr hWnd, int nIndex, long dwNewLong);
 	}
 }

@@ -25,7 +25,6 @@ namespace LibationAvalonia.Dialogs
 		{
 			InitializeComponent();
 
-			this.HideMinMaxBtns();
 			ControlToFocusOnShow = this.FindControl<Button>(nameof(ImportButton));
 
 			LoadAccounts();

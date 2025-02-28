@@ -6,7 +6,7 @@
 	xmlns:views="clr-namespace:LibationAvalonia.Views"
 	xmlns:viewModels="clr-namespace:LibationAvalonia.ViewModels"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="850"
+	mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="650"
 	x:Class="LibationAvalonia.Views.ProcessQueueControl">
 
 	<UserControl.Resources>
@@ -39,7 +39,8 @@
 						<ScrollViewer
 							Name="scroller"
 							HorizontalScrollBarVisibility="Disabled"
-							VerticalScrollBarVisibility="Auto">
+							VerticalScrollBarVisibility="Auto"
+							AllowAutoHide="False">
 							<ItemsRepeater IsVisible="True"
 								Grid.Column="0"
 								Name="repeater"
