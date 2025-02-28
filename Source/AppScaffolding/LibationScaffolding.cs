@@ -90,6 +90,7 @@ namespace AppScaffolding
 			Migrations.migrate_to_v6_6_9(config);
             Migrations.migrate_to_v11_5_0(config);
 			Migrations.migrate_to_v11_6_5(config);
+			Migrations.migrate_to_v12_0_1(config);
 		}
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>
@@ -416,6 +417,82 @@ namespace AppScaffolding
             public bool UseDefault { get; set; }
             public List<string> Filters { get; set; } = new();
         }
+
+
+		public static void migrate_to_v12_0_1(Configuration config)
+		{
+#nullable enable
+			//Migrate from version 1 file cache to the dictionary-based version 2 cache
+			const string FILENAME_V1 = "FileLocations.json";
+			const string FILENAME_V2 = "FileLocationsV2.json";
+
+			var jsonFileV1 = Path.Combine(Configuration.Instance.LibationFiles, FILENAME_V1);
+			var jsonFileV2 = Path.Combine(Configuration.Instance.LibationFiles, FILENAME_V2);
+
+			if (!File.Exists(jsonFileV2) && File.Exists(jsonFileV1))
+			{
+				try
+				{
+					//FilePathCache loads the cache in its static constructor,
+					//so perform migration without using FilePathCache.CacheEntry
+					if (JArray.Parse(File.ReadAllText(jsonFileV1)) is not JArray v1Cache || v1Cache.Count == 0)
+						return;
+
+					Dictionary<string, JArray> cache = new();
+
+					//Convert to c# objects to speed up searching by ID inside the iterator 
+					var allItems
+						= v1Cache
+						.Select(i => new
+						{
+							Id = i["Id"]?.Value<string>(),
+							Path = i["Path"]?["Path"]?.Value<string>()
+						}).Where(i => i.Id != null)
+						.ToArray();
+
+					foreach (var id in allItems.Select(i => i.Id).OfType<string>().Distinct())
+					{
+						//Use this opportunity to purge non-existent files and re-classify file types
+						//(due to *.aax files previously not being classified as FileType.AAXC)
+						var items = allItems
+							.Where(i => i.Id == id && File.Exists(i.Path))
+							.Select(i => new JObject
+							{
+								{ "Id", i.Id },
+								{ "FileType", (int)FileTypes.GetFileTypeFromPath(i.Path) },
+								{ "Path", new JObject{ { "Path", i.Path } } }
+							})
+							.ToArray();
+
+						if (items.Length == 0)
+							continue;
+
+						cache[id] = new JArray(items);
+					}
+
+					var cacheJson = new JObject { { "Dictionary", JObject.FromObject(cache) } };
+					var cacheFileText = cacheJson.ToString(Formatting.Indented);
+
+					void migrate()
+					{
+						File.WriteAllText(jsonFileV2, cacheFileText);
+						File.Delete(jsonFileV1);
+					}
+
+					try { migrate(); }
+					catch (IOException)
+					{
+						try { migrate(); }
+						catch (IOException)
+						{
+							migrate();
+						}
+					}
+				}
+				catch { /* eat */ }
+			}
+#nullable restore
+		}
 
 		public static void migrate_to_v11_6_5(Configuration config)
 		{

@@ -11,6 +11,7 @@ namespace LibationFileManager
 	{
 		private static Dictionary<string, FileType> dic => new()
 		{
+			["aax"] = FileType.AAXC,
 			["aaxc"] = FileType.AAXC,
 			["cue"] = FileType.Cue,
 			["pdf"] = FileType.PDF,
