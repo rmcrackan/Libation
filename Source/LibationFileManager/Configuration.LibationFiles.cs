@@ -22,11 +22,11 @@ namespace LibationFileManager
         {
             get
             {
-				if (libationFilesPathCache is not null)
-                    return libationFilesPathCache;
+				if (LibationSettingsDirectory is not null)
+                    return LibationSettingsDirectory;
 
                 // FIRST: must write here before SettingsFilePath in next step reads cache
-                libationFilesPathCache = getLibationFilesSettingFromJson();
+                LibationSettingsDirectory = getLibationFilesSettingFromJson();
 
                 // SECOND. before setting to json file with SetWithJsonPath, PersistentDictionary must exist
                 persistentDictionary = new PersistentDictionary(SettingsFilePath);
@@ -42,11 +42,14 @@ namespace LibationFileManager
 
                 SetWithJsonPath(jsonpath, "path", logPath, true);
 
-                return libationFilesPathCache;
+                return LibationSettingsDirectory;
             }
         }
 
-        private static string? libationFilesPathCache { get; set; }
+		/// <summary>
+		/// Directory pointed to by appsettings.json
+		/// </summary>
+        private static string? LibationSettingsDirectory { get; set; }
 
 		/// <summary>
 		/// Try to find appsettings.json in the following locations:
@@ -79,7 +82,7 @@ namespace LibationFileManager
 			string[] possibleAppsettingsDirectories = new[]
 			{
 				ProcessDirectory,
-				Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Libation"),
+				LocalAppData,
 				UserProfile,
 				Path.Combine(Path.GetTempPath(), "Libation")
 			};
@@ -106,9 +109,15 @@ namespace LibationFileManager
 			}
 
 			//Valid appsettings.json not found. Try to create it in each folder.
-			var endingContents = new JObject { { LIBATION_FILES_KEY, UserProfile } }.ToString(Formatting.Indented);
+			var endingContents = new JObject { { LIBATION_FILES_KEY, DefaultLibationFilesDirectory } }.ToString(Formatting.Indented);
+
 			foreach (var dir in possibleAppsettingsDirectories)
 			{
+				//Don't try to create appsettings.json in the program files directory on *.nix systems.
+				//However, still _look_ for one there for backwards compatibility with previous installations
+				if (!IsWindows && dir == ProcessDirectory)
+					continue;
+
 				var appsettingsFile = Path.Combine(dir, appsettings_filename);
 
 				try
@@ -180,7 +189,7 @@ namespace LibationFileManager
 
         public static void SetLibationFiles(string directory)
         {
-            libationFilesPathCache = null;
+            LibationSettingsDirectory = null;
 
             var startingContents = File.ReadAllText(AppsettingsJsonFile);
             var jObj = JObject.Parse(startingContents);

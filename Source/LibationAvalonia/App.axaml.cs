@@ -44,7 +44,7 @@ namespace LibationAvalonia
 
 				if (!config.LibationSettingsAreValid)
 				{
-					var defaultLibationFilesDir = Configuration.UserProfile;
+					var defaultLibationFilesDir = Configuration.DefaultLibationFilesDirectory;
 
 					// check for existing settings in default location
 					var defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
@@ -82,8 +82,8 @@ namespace LibationAvalonia
 				// - error message, Exit()				
 				if (setupDialog.IsNewUser)
 				{
-					Configuration.SetLibationFiles(Configuration.UserProfile);
-					setupDialog.Config.Books = Path.Combine(Configuration.UserProfile, nameof(Configuration.Books));
+					Configuration.SetLibationFiles(Configuration.DefaultLibationFilesDirectory);
+					setupDialog.Config.Books = Configuration.DefaultBooksDirectory;
 
 					if (setupDialog.Config.LibationSettingsAreValid)
 					{
@@ -174,7 +174,7 @@ namespace LibationAvalonia
 
 				if (continueResult == DialogResult.Yes)
 				{
-					config.Books = Path.Combine(libationFilesDialog.SelectedDirectory, nameof(Configuration.Books));
+					config.Books = Configuration.DefaultBooksDirectory;
 
 					if (config.LibationSettingsAreValid)
 					{
