@@ -105,13 +105,14 @@ namespace LibationWinForms
 				splitContainer1.Panel2Collapsed = false;
 				processBookQueue1.popoutBtn.Visible = true;
 			}
+
+			Configuration.Instance.SetNonString(splitContainer1.Panel2Collapsed, nameof(splitContainer1.Panel2Collapsed));
 			toggleQueueHideBtn.Text = splitContainer1.Panel2Collapsed ? "❰❰❰" : "❱❱❱";
 		}
 
 		private void ToggleQueueHideBtn_Click(object sender, EventArgs e)
 		{
 			SetQueueCollapseState(!splitContainer1.Panel2Collapsed);
-			Configuration.Instance.SetNonString(splitContainer1.Panel2Collapsed, nameof(splitContainer1.Panel2Collapsed));
 		}
 
 		private void ProcessBookQueue1_PopOut(object sender, EventArgs e)
