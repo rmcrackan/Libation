@@ -8,6 +8,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.Views
 {
@@ -60,13 +61,14 @@ namespace LibationAvalonia.Views
 			filterSearchTb.Focus();
 		}
 
-		public async System.Threading.Tasks.Task OnLibraryLoadedAsync(List<LibraryBook> initialLibrary)
+		public async Task OnLibraryLoadedAsync(List<LibraryBook> initialLibrary)
 		{
 			if (QuickFilters.UseDefault)
 				await ViewModel.PerformFilter(QuickFilters.Filters.FirstOrDefault());
 
-			await ViewModel.SetBackupCountsAsync(initialLibrary);
-			await ViewModel.ProductsDisplay.BindToGridAsync(initialLibrary);
+			await Task.WhenAll(
+				ViewModel.SetBackupCountsAsync(initialLibrary),
+				ViewModel.ProductsDisplay.BindToGridAsync(initialLibrary));
 		}
 
 		public void ProductsDisplay_LiberateClicked(object _, LibraryBook libraryBook) => ViewModel.LiberateClicked(libraryBook);

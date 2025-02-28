@@ -4,6 +4,7 @@ using LibationAvalonia.Views;
 using LibationFileManager;
 using ReactiveUI;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace LibationAvalonia.ViewModels
 {
@@ -38,7 +39,9 @@ namespace LibationAvalonia.ViewModels
 
 		private async void LibraryCommands_LibrarySizeChanged(object sender, List<LibraryBook> fullLibrary)
 		{
-			await ProductsDisplay.UpdateGridAsync(fullLibrary);
+			await Task.WhenAll(
+				SetBackupCountsAsync(fullLibrary),
+				ProductsDisplay.UpdateGridAsync(fullLibrary));
 		}
 
 		private static string menufyText(string header) => Configuration.IsMacOs ? header : $"_{header}";
