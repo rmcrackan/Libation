@@ -222,7 +222,7 @@ namespace ApplicationServices
             {
                 int qtyChanged = await Task.Run(() => SaveContext(context));
                 if (qtyChanged > 0)
-                    await Task.Run(finalizeLibrarySizeChange);
+                    await Task.Run(() => finalizeLibrarySizeChange(context));
                 return qtyChanged;
             }
             catch (Exception ex)
@@ -329,7 +329,7 @@ namespace ApplicationServices
 
             // this is any changes at all to the database, not just new books
             if (qtyChanges > 0)
-                await Task.Run(() => finalizeLibrarySizeChange());
+                await Task.Run(() => finalizeLibrarySizeChange(context));
             logTime("importIntoDbAsync -- post finalizeLibrarySizeChange");
 
             return newCount;
@@ -378,7 +378,7 @@ namespace ApplicationServices
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
-                    finalizeLibrarySizeChange();
+                    finalizeLibrarySizeChange(context);
 
                 return qtyChanges;
             }
@@ -407,7 +407,7 @@ namespace ApplicationServices
 
                 var qtyChanges = context.SaveChanges();
                 if (qtyChanges > 0)
-                    finalizeLibrarySizeChange();
+                    finalizeLibrarySizeChange(context);
 
                 return qtyChanges;
             }
@@ -432,7 +432,7 @@ namespace ApplicationServices
 
                 var qtyChanges = context.SaveChanges();
 				if (qtyChanges > 0)
-					finalizeLibrarySizeChange();
+					finalizeLibrarySizeChange(context);
 
 				return qtyChanges;
             }
@@ -445,9 +445,9 @@ namespace ApplicationServices
         #endregion
 
         // call this whenever books are added or removed from library
-        private static void finalizeLibrarySizeChange()
+        private static void finalizeLibrarySizeChange(LibationContext context)
         {
-            var library = DbContexts.GetLibrary_Flat_NoTracking(includeParents: true);
+            var library = context.GetLibrary_Flat_NoTracking(includeParents: true);
             LibrarySizeChanged?.Invoke(null, library);
         }
 
