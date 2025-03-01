@@ -82,7 +82,15 @@ namespace LibationWinForms.ProcessQueue
 		}
 
 		private bool isBookInQueue(DataLayer.LibraryBook libraryBook)
-			=> Queue.Any(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
+		{
+			var entry = Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
+			if (entry == null)
+				return false;
+			else if (entry.Status is ProcessBookStatus.Cancelled or ProcessBookStatus.Failed)
+				return !Queue.RemoveCompleted(entry);
+			else
+				return true;
+		}
 
 		public void AddDownloadPdf(DataLayer.LibraryBook libraryBook)
 			=> AddDownloadPdf(new List<DataLayer.LibraryBook>() { libraryBook });

@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using LibationFileManager;
 using System;
 using System.Threading.Tasks;
@@ -9,17 +11,96 @@ namespace LibationAvalonia.Dialogs
 	{
 		public bool SaveAndRestorePosition { get; set; } = true;
 		public Control ControlToFocusOnShow { get; set; }
+		protected override Type StyleKeyOverride => typeof(DialogWindow);
+
+		public static readonly StyledProperty<bool> UseCustomTitleBarProperty =
+		AvaloniaProperty.Register<DialogWindow, bool>(nameof(UseCustomTitleBar));
+
+		public bool UseCustomTitleBar
+		{
+			get { return GetValue(UseCustomTitleBarProperty); }
+			set { SetValue(UseCustomTitleBarProperty, value); }
+		}
+
 		public DialogWindow()
 		{
-			this.HideMinMaxBtns();
-			this.KeyDown += DialogWindow_KeyDown;
-			this.Initialized += DialogWindow_Initialized;
-			this.Opened += DialogWindow_Opened;
-			this.Closing += DialogWindow_Closing;
+			KeyDown += DialogWindow_KeyDown;
+			Initialized += DialogWindow_Initialized;
+			Opened += DialogWindow_Opened;
+			Closing += DialogWindow_Closing;
+
+			UseCustomTitleBar = Configuration.IsWindows;
 		}
+
+		private bool fixedMinHeight = false;
+		private bool fixedMaxHeight = false;
+		private bool fixedHeight = false;
+
+		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+		{
+			const int customTitleBarHeight = 30;
+			if (UseCustomTitleBar)
+			{
+				if (change.Property == MinHeightProperty && !fixedMinHeight)
+				{
+					fixedMinHeight = true;
+					MinHeight += customTitleBarHeight;
+					fixedMinHeight = false;
+				}
+				if (change.Property == MaxHeightProperty && !fixedMaxHeight)
+				{
+					fixedMaxHeight = true;
+					MaxHeight += customTitleBarHeight;
+					fixedMaxHeight = false;
+				}
+				if (change.Property == HeightProperty && !fixedHeight)
+				{
+					fixedHeight = true;
+					Height += customTitleBarHeight;
+					fixedHeight = false;
+				}
+			}
+			base.OnPropertyChanged(change);
+		}
+
 		public DialogWindow(bool saveAndRestorePosition) : this()
 		{
 			SaveAndRestorePosition = saveAndRestorePosition;
+		}
+
+		protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+		{
+			base.OnApplyTemplate(e);
+
+			if (!UseCustomTitleBar)
+				return;
+
+			var closeButton = e.NameScope.Find<Button>("DialogCloseButton");
+			var border = e.NameScope.Get<Border>("DialogWindowTitleBorder");
+			var titleBlock = e.NameScope.Get<TextBlock>("DialogWindowTitleTextBlock");
+			var icon = e.NameScope.Get<Avalonia.Controls.Shapes.Path>("DialogWindowTitleIcon");
+
+			closeButton.Click += CloseButton_Click;
+			border.PointerPressed += Border_PointerPressed;
+			icon.IsVisible = Icon != null;
+
+			if (MinHeight == MaxHeight && MinWidth == MaxWidth)
+			{
+				CanResize = false;
+				border.Margin = new Thickness(0);
+				icon.Margin = new Thickness(8, 5, 0, 5);
+			}
+		}
+
+		private void Border_PointerPressed(object sender, Avalonia.Input.PointerPressedEventArgs e)
+		{
+			if (e.GetCurrentPoint(null).Properties.IsLeftButtonPressed)
+				BeginMoveDrag(e);
+		}
+
+		private void CloseButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			CancelAndClose();
 		}
 
 		private void DialogWindow_Initialized(object sender, EventArgs e)

@@ -44,7 +44,8 @@ namespace LibationWinForms.Dialogs
 				{
 					Configuration.KnownDirectories.UserProfile,
 					Configuration.KnownDirectories.AppDir,
-					Configuration.KnownDirectories.MyDocs
+					Configuration.KnownDirectories.MyDocs,
+					Configuration.KnownDirectories.MyMusic,
 				},
 				Configuration.KnownDirectories.UserProfile,
 				"Books");

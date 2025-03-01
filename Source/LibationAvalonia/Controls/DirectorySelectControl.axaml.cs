@@ -51,7 +51,9 @@ namespace LibationAvalonia.Controls
 			{
 				Configuration.KnownDirectories.WinTemp,
 				Configuration.KnownDirectories.UserProfile,
+				Configuration.KnownDirectories.ApplicationData,
 				Configuration.KnownDirectories.AppDir,
+				Configuration.KnownDirectories.MyMusic,
 				Configuration.KnownDirectories.MyDocs,
 				Configuration.KnownDirectories.LibationFiles
 			};

@@ -17,7 +17,7 @@ namespace LibationWinForms
 			//Set this size before restoring form size and position
 			splitContainer1.Panel2MinSize = this.DpiScale(350);
 			this.RestoreSizeAndLocation(Configuration.Instance);
-			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
+			FormClosing += Form1_FormClosing;
 
 			// this looks like a perfect opportunity to refactor per below.
 			// since this loses design-time tooling and internal access, for now I'm opting for partial classes
@@ -56,6 +56,14 @@ namespace LibationWinForms
 					=> Invoke(() => productsDisplay.DisplayAsync(fullLibrary));
 			}
 			Shown += Form1_Shown;
+		}
+
+		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			//Always close the queue before saving the form to prevent
+			//Form1 from getting excessively wide when it's restored.
+			SetQueueCollapseState(true);
+			this.SaveSizeAndLocation(Configuration.Instance);
 		}
 
 		private async void Form1_Shown(object sender, EventArgs e)

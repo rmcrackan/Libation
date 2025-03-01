@@ -21,6 +21,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
 		{
 			Configuration.KnownDirectories.WinTemp,
+			Configuration.KnownDirectories.ApplicationData,
 			Configuration.KnownDirectories.UserProfile,
 			Configuration.KnownDirectories.AppDir,
 			Configuration.KnownDirectories.MyDocs,

@@ -98,7 +98,7 @@ namespace LibationWinForms
 			if (config.LibationSettingsAreValid)
 				return;
 
-			var defaultLibationFilesDir = Configuration.UserProfile;
+			var defaultLibationFilesDir = Configuration.DefaultLibationFilesDirectory;
 
 			// check for existing settings in default location
 			var defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
@@ -154,7 +154,7 @@ namespace LibationWinForms
 
 			// INIT DEFAULT SETTINGS
 			// if 'new user' was clicked, or if 'returning user' chose new install: show basic settings dialog
-			config.Books ??= Path.Combine(defaultLibationFilesDir, "Books");
+			config.Books ??= Configuration.DefaultBooksDirectory;
 
 			if (config.LibationSettingsAreValid)
 				return;

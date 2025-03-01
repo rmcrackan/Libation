@@ -50,7 +50,7 @@ namespace LibationFileManager
 			get
 			{
 				if (string.IsNullOrWhiteSpace(Configuration.Instance.Books))
-					Configuration.Instance.Books = Path.Combine(Configuration.UserProfile, "Books");
+					Configuration.Instance.Books = Configuration.DefaultBooksDirectory;
 				return Directory.CreateDirectory(Configuration.Instance.Books).FullName;
 			}
 		}

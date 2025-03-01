@@ -10,8 +10,8 @@ namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
-		private int _visibleNotLiberated = 1;
-		private int _visibleCount = 1;
+		private int _visibleNotLiberated = 0;
+		private int _visibleCount = 0;
 
 		/// <summary> The Bottom-right visible book count status text </summary>
 		public string VisibleCountText => $"Visible: {_visibleCount}";

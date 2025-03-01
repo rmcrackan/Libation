@@ -18,9 +18,8 @@ namespace LibationFileManager
 
 			var pDic = new PersistentDictionary(settingsFile, isReadOnly: false);
 
-			var booksDir = pDic.GetString(nameof(Books));
-
-			if (booksDir is null) return false;
+			if (pDic.GetString(nameof(Books)) is not string booksDir)
+				return false;
 
 			if (!Directory.Exists(booksDir))
 			{
@@ -28,17 +27,21 @@ namespace LibationFileManager
 					throw new DirectoryNotFoundException(settingsFile);
 
 				//"Books" is not null, so setup has already been run.
-				//Since Books can't be found, try to create it in Libation settings folder
-				booksDir = Path.Combine(dir, nameof(Books));
-				try
+				//Since Books can't be found, try to create it
+				//and then revert to the default books directory
+				foreach (string d in new string[] { booksDir, DefaultBooksDirectory })
 				{
-					Directory.CreateDirectory(booksDir);
+					try
+					{
+						Directory.CreateDirectory(d);
 
-					pDic.SetString(nameof(Books), booksDir);
+						pDic.SetString(nameof(Books), d);
 
-					return booksDir is not null && Directory.Exists(booksDir);
+						return Directory.Exists(d);
+					}
+					catch { /* Do Nothing */ }
 				}
-				catch { return false; }
+				return false;
 			}
 
 			return true;

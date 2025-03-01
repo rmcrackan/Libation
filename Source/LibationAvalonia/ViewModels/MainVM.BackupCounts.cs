@@ -4,7 +4,6 @@ using DataLayer;
 using LibationFileManager;
 using ReactiveUI;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.ViewModels
@@ -44,9 +43,6 @@ namespace LibationAvalonia.ViewModels
 
 		private void Configure_BackupCounts()
 		{
-			LibraryCommands.LibrarySizeChanged += async (object _, List<LibraryBook> libraryBooks)
-				=> await SetBackupCountsAsync(libraryBooks);
-
 			//Pass null to the setup count to get the whole library.
 			LibraryCommands.BookUserDefinedItemCommitted += async (_, _)
 				=> await SetBackupCountsAsync(null);

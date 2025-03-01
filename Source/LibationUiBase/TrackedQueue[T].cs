@@ -169,6 +169,16 @@ namespace LibationUiBase
 			}
 		}
 
+		public T FirstOrDefault(Func<T, bool> predicate)
+		{
+			lock (lockObject)
+			{
+				return Current != null && predicate(Current) ? Current
+					: _completed.FirstOrDefault(predicate) is T completed ? completed
+					: _queued.FirstOrDefault(predicate);
+			}
+		}
+
 		public void MoveQueuePosition(T item, QueuePosition requestedPosition)
 		{
 			lock (lockObject)

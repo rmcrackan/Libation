@@ -37,6 +37,7 @@ namespace LibationWinForms.Dialogs
 			inProgressSelectControl.SetDirectoryItems(new()
 			{
 				Configuration.KnownDirectories.WinTemp,
+				Configuration.KnownDirectories.ApplicationData,
 				Configuration.KnownDirectories.UserProfile,
 				Configuration.KnownDirectories.AppDir,
 				Configuration.KnownDirectories.MyDocs,
