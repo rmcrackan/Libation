@@ -144,7 +144,7 @@ namespace ApplicationServices
 				PictureId = a.Book.PictureId,
 				IsAbridged = a.Book.IsAbridged,
 				DatePublished = a.Book.DatePublished,
-				CategoriesNames = a.Book.LowestCategoryNames().Any() ? a.Book.LowestCategoryNames().Aggregate((a, b) => $"{a}, {b}") : "",
+				CategoriesNames = string.Join("; ", a.Book.LowestCategoryNames()),
 				MyRatingOverall = a.Book.UserDefinedItem.Rating.OverallRating,
 				MyRatingPerformance = a.Book.UserDefinedItem.Rating.PerformanceRating,
 				MyRatingStory = a.Book.UserDefinedItem.Rating.StoryRating,
