@@ -11,6 +11,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -102,16 +103,17 @@ namespace LibationAvalonia.ViewModels
 
 		internal async Task BindToGridAsync(List<LibraryBook> dbBooks)
 		{
-			GridEntries = new(SOURCE) { Filter = CollectionFilter };
+			var sc = await Dispatcher.UIThread.InvokeAsync(() => AvaloniaSynchronizationContext.Current);
+			AvaloniaSynchronizationContext.SetSynchronizationContext(sc);
 
 			var geList = await LibraryBookEntry<AvaloniaEntryStatus>.GetAllProductsAsync(dbBooks);
-
 			var seriesEntries = await SeriesEntry<AvaloniaEntryStatus>.GetAllSeriesEntriesAsync(dbBooks);
 
 			//Create the filtered-in list before adding entries to avoid a refresh
 			FilteredInGridEntries = geList.Union(seriesEntries.SelectMany(s => s.Children)).FilterEntries(FilterString);
 			//Adding entries to the Source list will invoke CollectionFilter
-			SOURCE.AddRange(geList.Concat(seriesEntries).OrderDescending(new RowComparer(null)));
+			//Perform on UI thread for safety
+			await Dispatcher.UIThread.InvokeAsync(() => SOURCE.AddRange(geList.Concat(seriesEntries).OrderDescending(new RowComparer(null))));
 
 			//Add all children beneath their parent
 			foreach (var series in seriesEntries)
@@ -121,6 +123,10 @@ namespace LibationAvalonia.ViewModels
 					SOURCE.Insert(++seriesIndex, child);
 			}
 
+			// Adding SOURCE to the DataGridViewCollection after building the source
+			//Saves ~500 ms on a library of ~4500 books.
+			//Perform on UI thread for safety
+			await Dispatcher.UIThread.InvokeAsync(() => GridEntries = new(SOURCE) { Filter = CollectionFilter });
 			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
 			GridEntries_CollectionChanged();
 		}

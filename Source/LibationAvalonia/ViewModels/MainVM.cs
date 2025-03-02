@@ -41,7 +41,7 @@ namespace LibationAvalonia.ViewModels
 		{
 			await Task.WhenAll(
 				SetBackupCountsAsync(fullLibrary),
-				ProductsDisplay.UpdateGridAsync(fullLibrary));
+				Task.Run(() => ProductsDisplay.UpdateGridAsync(fullLibrary)));
 		}
 
 		private static string menufyText(string header) => Configuration.IsMacOs ? header : $"_{header}";
