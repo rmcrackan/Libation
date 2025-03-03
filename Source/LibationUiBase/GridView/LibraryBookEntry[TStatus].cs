@@ -33,6 +33,10 @@ namespace LibationUiBase.GridView
 			LoadCover();
 		}
 
+		/// <summary>
+		/// Creates <see cref="LibraryBookEntry{TStatus}"/> for all non-episode books in an enumeration of <see cref="LibraryBook"/>.
+		/// </summary>
+		/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="SynchronizationContext.Current"/> to be valid.</remarks>
 		public static async Task<List<IGridEntry>> GetAllProductsAsync(IEnumerable<LibraryBook> libraryBooks)
 		{
 			var products = libraryBooks.Where(lb => lb.Book.IsProduct()).ToArray();

@@ -56,6 +56,10 @@ namespace LibationUiBase.GridView
 			LoadCover();
 		}
 
+		/// <summary>
+		/// Creates <see cref="SeriesEntry{TStatus}"/> for all episodic series in an enumeration of <see cref="LibraryBook"/>.
+		/// </summary>
+		/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="SynchronizationContext.Current"/> to be valid.</remarks>
 		public static async Task<List<ISeriesEntry>> GetAllSeriesEntriesAsync(IEnumerable<LibraryBook> libraryBooks)
 		{
 			var seriesBooks = libraryBooks.Where(lb => lb.Book.IsEpisodeParent()).ToArray();

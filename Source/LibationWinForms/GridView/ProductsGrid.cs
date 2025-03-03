@@ -1,9 +1,9 @@
 ﻿using DataLayer;
 using Dinah.Core;
+using Dinah.Core.Collections.Generic;
 using Dinah.Core.WindowsDesktop.Forms;
 using LibationFileManager;
 using LibationUiBase.GridView;
-using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -216,8 +216,12 @@ namespace LibationWinForms.GridView
 
 		internal async Task BindToGridAsync(List<LibraryBook> dbBooks)
 		{
-			var geList = await LibraryBookEntry<WinFormsEntryStatus>.GetAllProductsAsync(dbBooks);
+			//Get the UI thread's synchronization context and set it on the current thread to ensure
+			//it's available for GetAllProductsAsync and GetAllSeriesEntriesAsync
+			var sc = Invoke(() => System.Threading.SynchronizationContext.Current);
+			System.Threading.SynchronizationContext.SetSynchronizationContext(sc);
 
+			var geList = await LibraryBookEntry<WinFormsEntryStatus>.GetAllProductsAsync(dbBooks);
 			var seriesEntries = await SeriesEntry<WinFormsEntryStatus>.GetAllSeriesEntriesAsync(dbBooks);
 
 			geList.AddRange(seriesEntries);
@@ -232,9 +236,12 @@ namespace LibationWinForms.GridView
 				foreach (var child in series.Children)
 					geList.Insert(++seriesIndex, child);
 			}
-
+			System.Threading.SynchronizationContext.SetSynchronizationContext(null);
+						
 			bindingList = new GridEntryBindingList(geList);
 			bindingList.CollapseAll();
+
+			//The syncBindingSource ensures that the IGridEntry list is added on the UI thread 
 			syncBindingSource.DataSource = bindingList;
 			VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 		}
@@ -252,14 +259,19 @@ namespace LibationWinForms.GridView
 
 			//Add absent entries to grid, or update existing entry
 
-			var allEntries = bindingList.AllItems().BookEntries();
+			var allEntries = bindingList.AllItems().BookEntries().ToDictionarySafe(b => b.AudibleProductId);
 			var seriesEntries = bindingList.AllItems().SeriesEntries().ToList();
 			var parentedEpisodes = dbBooks.ParentedEpisodes().ToHashSet();
+
+			//Get the UI thread's synchronization context and set it on the current thread to ensure
+			//it's available for creation of new IGridEntry items during upsert
+			var sc = Invoke(() => System.Threading.SynchronizationContext.Current);
+			System.Threading.SynchronizationContext.SetSynchronizationContext(sc);
 
 			bindingList.RaiseListChangedEvents = false;
 			foreach (var libraryBook in dbBooks.OrderBy(e => e.DateAdded))
 			{
-				var existingEntry = allEntries.FindByAsin(libraryBook.Book.AudibleProductId);
+				var existingEntry = allEntries.TryGetValue(libraryBook.Book.AudibleProductId, out var e) ? e : null;
 
 				if (libraryBook.Book.IsProduct())
 				{
@@ -288,6 +300,10 @@ namespace LibationWinForms.GridView
 				.AllItems()
 				.BookEntries()
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
+
+			removedBooks = bindingList
+				.AllItems()
+				.BookEntries().Take(10).ToList();
 
 			RemoveBooks(removedBooks);
 
