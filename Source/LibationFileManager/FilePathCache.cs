@@ -55,8 +55,9 @@ namespace LibationFileManager
 			{
 				if (!File.Exists(matchingFiles[i].Path))
 				{
+					var entryToRemove = matchingFiles[i];
 					matchingFiles.RemoveAt(i);
-					cacheChanged |= Remove(matchingFiles[i]);
+					cacheChanged |= Remove(entryToRemove);
 				}
 			}
 			if (cacheChanged)
@@ -79,8 +80,9 @@ namespace LibationFileManager
 						return matchingFiles[i].Path;
 					else
 					{
+						var entryToRemove = matchingFiles[i];
 						matchingFiles.RemoveAt(i);
-						cacheChanged |= Remove(matchingFiles[i]);
+						cacheChanged |= Remove(entryToRemove);
 					}
 				}
 				return null;
@@ -141,6 +143,7 @@ namespace LibationFileManager
 		{
 			[JsonProperty]
 			private readonly ConcurrentDictionary<string, List<TEntry>> Dictionary = new();
+			private static object lockObject = new();
 
 			public List<TEntry> GetIdEntries(string id)
 			{
@@ -164,7 +167,21 @@ namespace LibationFileManager
 			}
 
 			public bool Remove(string id, TEntry entry)
-				=> Dictionary.TryGetValue(id, out List<TEntry>? entries) && entries.Remove(entry);
+			{
+				lock (lockObject)
+				{
+					if (Dictionary.TryGetValue(id, out List<TEntry>? entries))
+					{
+						var removed = entries?.Remove(entry) ?? false;
+						if (removed && entries?.Count == 0)
+						{
+							Dictionary.Remove(id, out _);
+						}
+						return removed;
+					}
+					else return false;
+				}
+			}
 		}
 	}
 }

@@ -63,12 +63,14 @@ namespace LibationAvalonia.Views
 
 		public async Task OnLibraryLoadedAsync(List<LibraryBook> initialLibrary)
 		{
+			//Get the ViewModel before crossing the await boundary
+			var vm = ViewModel;
 			if (QuickFilters.UseDefault)
-				await ViewModel.PerformFilter(QuickFilters.Filters.FirstOrDefault());
+				await vm.PerformFilter(QuickFilters.Filters.FirstOrDefault());
 
 			await Task.WhenAll(
-				ViewModel.SetBackupCountsAsync(initialLibrary),
-				ViewModel.ProductsDisplay.BindToGridAsync(initialLibrary));
+				vm.SetBackupCountsAsync(initialLibrary),
+				Task.Run(() => vm.ProductsDisplay.BindToGridAsync(initialLibrary)));
 		}
 
 		public void ProductsDisplay_LiberateClicked(object _, LibraryBook libraryBook) => ViewModel.LiberateClicked(libraryBook);
