@@ -1,6 +1,9 @@
+using AudibleUtilities;
 using Avalonia.Input;
 using Avalonia.ReactiveUI;
+using Avalonia.Threading;
 using DataLayer;
+using FileManager;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
 using LibationUiBase.GridView;
@@ -18,6 +21,7 @@ namespace LibationAvalonia.Views
 		{
 			DataContext = new MainVM(this);
 
+			AudibleApiStorage.LoadError += AudibleApiStorage_LoadError;
 			InitializeComponent();
 			Configure_Upgrade();
 
@@ -31,6 +35,62 @@ namespace LibationAvalonia.Views
 				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ShowSettingsAsync), Gesture = new KeyGesture(Key.P, KeyModifiers.Control) });
 				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ShowAccountsAsync), Gesture = new KeyGesture(Key.A, KeyModifiers.Control | KeyModifiers.Shift) });
 				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ExportLibraryAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Control) });
+			}
+		}
+
+		private void AudibleApiStorage_LoadError(object sender, AccountSettingsLoadErrorEventArgs e)
+		{
+			try
+			{
+				//Backup AccountSettings.json and create a new, empty file.
+				var backupFile =
+					FileUtility.SaferMoveToValidPath(
+						e.SettingsFilePath,
+						e.SettingsFilePath,
+						ReplacementCharacters.Barebones,
+						"bak");
+				AudibleApiStorage.EnsureAccountsSettingsFileExists();
+				e.Handled = true;
+
+				showAccountSettingsRecoveredMessage(backupFile);
+			}
+			catch
+			{
+				showAccountSettingsUnrecoveredMessage();
+			}
+
+			async void showAccountSettingsRecoveredMessage(LongPath backupFile)
+			=> await MessageBox.Show(this, $"""
+				Libation could not load your account settings, so it had created a new, empty account settings file.
+
+				You will need to re-add you Audible account(s) before scanning or downloading.
+
+				The old account settings file has been archived at '{backupFile.PathWithoutPrefix}'
+
+				{e.GetException().ToString()}
+				""",
+				"Error Loading Account Settings",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Warning);
+
+			void showAccountSettingsUnrecoveredMessage()
+			{
+				var messageBoxWindow = MessageBox.Show(this, $"""
+				Libation could not load your account settings. The file may be corrupted, but Libation is unable to delete it.
+
+				Please move or delete the account settings file '{e.SettingsFilePath}'
+
+				{e.GetException().ToString()}
+				""",
+				"Error Loading Account Settings",
+				MessageBoxButtons.OK);
+
+				//Force the message box to show synchronously because we're not handling the exception
+				//and libation will crash after the event handler returns
+				var frame = new DispatcherFrame();
+				_ = messageBoxWindow.ContinueWith(static (_, s) => ((DispatcherFrame)s).Continue = false, frame);
+				Dispatcher.UIThread.PushFrame(frame);
+				messageBoxWindow.GetAwaiter().GetResult();
 			}
 		}
 
