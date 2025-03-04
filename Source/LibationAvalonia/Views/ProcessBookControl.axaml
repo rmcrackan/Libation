@@ -6,10 +6,20 @@
 			 x:DataType="vm:ProcessBookViewModel"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="87" MaxHeight="87" MinHeight="87" MinWidth="300"
              x:Class="LibationAvalonia.Views.ProcessBookControl" Background="{CompiledBinding BackgroundColor}">
-	
-	<Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="0,0,0,1">
+
+	<UserControl.Styles>
+		<Style Selector="Border#QueuedItemBorder:not(:pointerover) Button">
+			<Setter Property="IsVisible" Value="False" />
+		</Style>
+		<Style Selector="Border#QueuedItemBorder:pointerover Button">
+			<Setter Property="IsVisible" Value="True" />
+		</Style>
+	</UserControl.Styles>
+
+	<Border Name="QueuedItemBorder" Background="Transparent" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="0,0,0,1">
+
 		<Grid ColumnDefinitions="Auto,*,Auto">
-			
+
 			<Panel Grid.Column="0" Margin="3" Width="80" Height="80" HorizontalAlignment="Left">
 				<Image Width="80" Height="80" Source="{CompiledBinding Cover}" Stretch="Uniform" />
 			</Panel>
@@ -29,7 +39,7 @@
 					<TextBlock IsVisible="{CompiledBinding !IsDownloading}" Text="{CompiledBinding StatusText}"/>
 				</Panel>
 			</Grid>
-			<Grid Margin="3" Grid.Column="2" HorizontalAlignment="Right" ColumnDefinitions="Auto,Auto">
+			<Grid Name="ButtonsGrid" Margin="3" Grid.Column="2" HorizontalAlignment="Right" ColumnDefinitions="Auto,Auto">
 				<Grid.Styles>
 					<Style Selector="Button">
 						<Setter Property="Padding" Value="0,1,0,1" />
@@ -42,22 +52,22 @@
 					</Style>
 				</Grid.Styles>
 				<StackPanel IsVisible="{CompiledBinding Queued}" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Vertical">
-					
-					<Button Click="MoveFirst_Click">
+
+					<Button ToolTip.Tip="Move book to top of queue" Click="MoveFirst_Click">
 						<Path VerticalAlignment="Top" Data="{StaticResource	FirstButtonIcon}" />
 					</Button>
-					<Button Click="MoveUp_Click">
+					<Button ToolTip.Tip="Move book up in queue" Click="MoveUp_Click">
 						<Path VerticalAlignment="Top" Data="{StaticResource	UpButtonIcon}" />
 					</Button>
-					<Button Click="MoveDown_Click">
+					<Button ToolTip.Tip="Move book down in queue" Click="MoveDown_Click">
 						<Path VerticalAlignment="Bottom" Data="{StaticResource	DownButtonIcon}" />
 					</Button>
-					<Button Click="MoveLast_Click">
+					<Button ToolTip.Tip="Move book to bottom of queue" Click="MoveLast_Click">
 						<Path VerticalAlignment="Bottom" Data="{StaticResource	LastButtonIcon}" />
 					</Button>
 				</StackPanel>
-				<Panel Margin="3,0,0,0" Grid.Column="1" VerticalAlignment="Top">
-					<Button Height="32" Background="{DynamicResource CancelRed}" Width="22" IsVisible="{CompiledBinding !IsFinished}" CornerRadius="11" Click="Cancel_Click">
+				<Panel Margin="3,0,0,0" Grid.Column="1" VerticalAlignment="Top" IsVisible="{CompiledBinding !IsFinished}">
+					<Button Height="32" Background="{DynamicResource CancelRed}" Width="22" CornerRadius="11" Click="Cancel_Click">
 						<Path Fill="{DynamicResource ProcessQueueBookDefaultBrush}" VerticalAlignment="Center" Data="{StaticResource CancelButtonIcon}" RenderTransform="{StaticResource Rotate45Transform}" />
 					</Button>
 				</Panel>
@@ -65,7 +75,7 @@
 			<Panel Margin="3" Width="50" Grid.Column="2">
 				<TextPresenter FontSize="9" VerticalAlignment="Bottom" HorizontalAlignment="Right" IsVisible="{CompiledBinding IsDownloading}" Text="{CompiledBinding ETA}" />
 			</Panel>
-			
+
 		</Grid>
 	</Border>
 </UserControl>
