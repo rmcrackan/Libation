@@ -16,22 +16,23 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	public class ProductsDisplayViewModel : ViewModelBase
 	{
 		/// <summary>Number of visible rows has changed</summary>
-		public event EventHandler<int> VisibleCountChanged;
-		public event EventHandler<int> RemovableCountChanged;
+		public event EventHandler<int>? VisibleCountChanged;
+		public event EventHandler<int>? RemovableCountChanged;
 
 		/// <summary>Backing list of all grid entries</summary>
 		private readonly AvaloniaList<IGridEntry> SOURCE = new();
 		/// <summary>Grid entries included in the filter set. If null, all grid entries are shown</summary>
-		private HashSet<IGridEntry> FilteredInGridEntries;
-		public string FilterString { get; private set; }
+		private HashSet<IGridEntry>? FilteredInGridEntries;
+		public string? FilterString { get; private set; }
 
-		private DataGridCollectionView _gridEntries;
-		public DataGridCollectionView GridEntries
+		private DataGridCollectionView? _gridEntries;
+		public DataGridCollectionView? GridEntries
 		{
 			get => _gridEntries;
 			private set => this.RaiseAndSetIfChanged(ref _gridEntries, value);
@@ -60,14 +61,14 @@ namespace LibationAvalonia.ViewModels
 			VisibleCountChanged?.Invoke(this, 0);
 		}
 
-		private static readonly System.Reflection.MethodInfo SetFlagsMethod;
+		private static readonly System.Reflection.MethodInfo? SetFlagsMethod;
 
 		/// <summary>
 		/// Tells the <see cref="DataGridCollectionView"/> whether it should process changes to the underlying collection
 		/// </summary>
 		/// <remarks> DataGridCollectionView.CollectionViewFlags.ShouldProcessCollectionChanged = 4</remarks>
 		private void SetShouldProcessCollectionChanged(bool flagSet)
-			=> SetFlagsMethod.Invoke(GridEntries, new object[] { 4, flagSet });
+			=> SetFlagsMethod?.Invoke(GridEntries, new object[] { 4, flagSet });
 
 		static ProductsDisplayViewModel()
 		{
@@ -131,13 +132,16 @@ namespace LibationAvalonia.ViewModels
 			//Saves ~500 ms on a library of ~4500 books.
 			//Perform on UI thread for safety, but at this time, merely setting the DataGridCollectionView
 			//does not trigger UI actions in the way that modifying the list after it's been linked does.
-			await Dispatcher.UIThread.InvokeAsync(() => GridEntries = new(SOURCE) { Filter = CollectionFilter });
+			await Dispatcher.UIThread.InvokeAsync(() =>
+			{
+				GridEntries = new(SOURCE) { Filter = CollectionFilter };
+				GridEntries.CollectionChanged += GridEntries_CollectionChanged;
+			});
 
-			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
 			GridEntries_CollectionChanged();
 		}
 
-		private void GridEntries_CollectionChanged(object sender = null, EventArgs e = null)
+		private void GridEntries_CollectionChanged(object? sender = null, EventArgs? e = null)
 		{
 			var count
 				= FilteredInGridEntries?.OfType<ILibraryBookEntry>().Count()
@@ -151,7 +155,12 @@ namespace LibationAvalonia.ViewModels
 		/// </summary>
 		internal async Task UpdateGridAsync(List<LibraryBook> dbBooks)
 		{
-			GridEntries.CollectionChanged -= GridEntries_CollectionChanged;
+			if (GridEntries == null)
+			{
+				//always bind before updating. Binding creates GridEntries.
+				await BindToGridAsync(dbBooks);
+				return;
+			}
 
 			#region Add new or update existing grid entries
 
@@ -203,7 +212,8 @@ namespace LibationAvalonia.ViewModels
 			await Filter(FilterString);
 			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
 
-			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
+			if (GridEntries != null)
+				GridEntries.CollectionChanged += GridEntries_CollectionChanged;
 			GridEntries_CollectionChanged();
 		}
 
@@ -211,7 +221,7 @@ namespace LibationAvalonia.ViewModels
 		{
 			foreach (var removed in removedBooks.Cast<IGridEntry>().Concat(removedSeries).Where(b => b is not null).ToList())
 			{
-				if (GridEntries.PassesFilter(removed))
+				if (GridEntries?.PassesFilter(removed) ?? false)
 					GridEntries.Remove(removed);
 				else
 				{
@@ -222,7 +232,7 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		private void UpsertBook(LibraryBook book, ILibraryBookEntry existingBookEntry)
+		private void UpsertBook(LibraryBook book, ILibraryBookEntry? existingBookEntry)
 		{
 			if (existingBookEntry is null)
 				// Add the new product to top
@@ -232,7 +242,7 @@ namespace LibationAvalonia.ViewModels
 				existingBookEntry.UpdateLibraryBook(book);
 		}
 
-		private void UpsertEpisode(LibraryBook episodeBook, ILibraryBookEntry existingEpisodeEntry, List<ISeriesEntry> seriesEntries, IEnumerable<LibraryBook> dbBooks)
+		private void UpsertEpisode(LibraryBook episodeBook, ILibraryBookEntry? existingEpisodeEntry, List<ISeriesEntry> seriesEntries, IEnumerable<LibraryBook> dbBooks)
 		{
 			if (existingEpisodeEntry is null)
 			{
@@ -282,10 +292,13 @@ namespace LibationAvalonia.ViewModels
 
 		private async Task refreshGrid()
 		{
-			if (GridEntries.IsEditingItem)
-				await Dispatcher.UIThread.InvokeAsync(GridEntries.CommitEdit);
+			if (GridEntries != null)
+			{
+				if (GridEntries.IsEditingItem)
+					await Dispatcher.UIThread.InvokeAsync(GridEntries.CommitEdit);
 
-			await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
+				await Dispatcher.UIThread.InvokeAsync(GridEntries.Refresh);
+			}
 		}
 
 		public async Task ToggleSeriesExpanded(ISeriesEntry seriesEntry)
@@ -299,7 +312,7 @@ namespace LibationAvalonia.ViewModels
 
 		#region Filtering
 
-		public async Task Filter(string searchString)
+		public async Task Filter(string? searchString)
 		{
 			FilterString = searchString;
 
@@ -323,7 +336,7 @@ namespace LibationAvalonia.ViewModels
 			return FilteredInGridEntries.Contains(item);
 		}
 
-		private async void SearchEngineCommands_SearchEngineUpdated(object sender, EventArgs e)
+		private async void SearchEngineCommands_SearchEngineUpdated(object? sender, EventArgs? e)
 		{
 			var filterResults = SOURCE.FilterEntries(FilterString);
 
@@ -366,9 +379,9 @@ namespace LibationAvalonia.ViewModels
 			foreach (var book in selectedBooks)
 				book.PropertyChanged -= GridEntry_PropertyChanged;
 
-			void BindingList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+			void BindingList_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs? e)
 			{
-				if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+				if (e?.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
 					return;
 
 				//After DisplayBooks() re-creates the list,
@@ -380,7 +393,8 @@ namespace LibationAvalonia.ViewModels
 				GridEntries.CollectionChanged -= BindingList_CollectionChanged;
 			}
 
-			GridEntries.CollectionChanged += BindingList_CollectionChanged;
+			if (GridEntries != null)
+				GridEntries.CollectionChanged += BindingList_CollectionChanged;
 
 			//The RemoveBooksAsync will fire LibrarySizeChanged, which calls ProductsDisplay2.Display(),
 			//so there's no need to remove books from the grid display here.
@@ -432,9 +446,9 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		private void GridEntry_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		private void GridEntry_PropertyChanged(object? sender, PropertyChangedEventArgs? e)
 		{
-			if (e.PropertyName == nameof(IGridEntry.Remove) && sender is ILibraryBookEntry)
+			if (e?.PropertyName == nameof(IGridEntry.Remove) && sender is ILibraryBookEntry)
 			{
 				int removeCount = GetAllBookEntries().Count(lbe => lbe.Remove is true);
 				RemovableCountChanged?.Invoke(this, removeCount);
