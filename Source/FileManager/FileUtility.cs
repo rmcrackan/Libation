@@ -157,7 +157,7 @@ namespace FileManager
 		/// <param name="extension">File extension override to use for <paramref name="destination"/></param>
 		/// <param name="overwrite">If <c>false</c> and <paramref name="destination"/> exists, append " (n)" to filename and try again.</param>
 		/// <returns>The actual destination filename</returns>
-		public static string SaferMoveToValidPath(
+		public static LongPath SaferMoveToValidPath(
 			LongPath source,
 			LongPath destination,
 			ReplacementCharacters replacements,

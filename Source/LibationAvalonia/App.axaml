@@ -97,10 +97,13 @@
 				</Setter>
 			</Style>
 			<Style Selector="^[UseCustomTitleBar=true]">
+				<Style Selector="^[CanResize=false] Border#DialogWindowFormBorder">
+					<Setter Property="BorderThickness" Value="2" />
+				</Style>
 				<Setter Property="SystemDecorations" Value="BorderOnly"/>
 				<Setter Property="Template">
 					<ControlTemplate>
-						<Panel Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+						<Border Name="DialogWindowFormBorder" BorderBrush="{DynamicResource SystemBaseMediumLowColor}" Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
 							<Grid RowDefinitions="30,*">
 								<Border Name="DialogWindowTitleBorder" Margin="5,0" Background="{DynamicResource SystemAltMediumColor}">
 									<Border.Styles>
@@ -134,7 +137,7 @@
 								<Path Stroke="{DynamicResource SystemBaseMediumLowColor}" StrokeThickness="1" VerticalAlignment="Bottom" Stretch="Fill" Data="M0,0 L1,0" />
 								<ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}" />
 							</Grid>
-						</Panel>
+						</Border>
 					</ControlTemplate>
 				</Setter>
 			</Style>

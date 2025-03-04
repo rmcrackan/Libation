@@ -4,6 +4,7 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using DataLayer;
+using Dinah.Core.Collections.Generic;
 using LibationAvalonia.Dialogs.Login;
 using LibationFileManager;
 using LibationUiBase.GridView;
@@ -11,7 +12,6 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -103,17 +103,18 @@ namespace LibationAvalonia.ViewModels
 
 		internal async Task BindToGridAsync(List<LibraryBook> dbBooks)
 		{
+			//Get the UI thread's synchronization context and set it on the current thread to ensure
+			//it's available for GetAllProductsAsync and GetAllSeriesEntriesAsync
 			var sc = await Dispatcher.UIThread.InvokeAsync(() => AvaloniaSynchronizationContext.Current);
 			AvaloniaSynchronizationContext.SetSynchronizationContext(sc);
 
 			var geList = await LibraryBookEntry<AvaloniaEntryStatus>.GetAllProductsAsync(dbBooks);
 			var seriesEntries = await SeriesEntry<AvaloniaEntryStatus>.GetAllSeriesEntriesAsync(dbBooks);
 
-			//Create the filtered-in list before adding entries to avoid a refresh
-			FilteredInGridEntries = geList.Union(seriesEntries.SelectMany(s => s.Children)).FilterEntries(FilterString);
-			//Adding entries to the Source list will invoke CollectionFilter
-			//Perform on UI thread for safety
-			await Dispatcher.UIThread.InvokeAsync(() => SOURCE.AddRange(geList.Concat(seriesEntries).OrderDescending(new RowComparer(null))));
+			//Add all IGridEntries to the SOURCE list. Note that SOURCE has not yet been linked to the UI via
+			//the GridEntries property, so adding items to SOURCE will not trigger any refreshes or UI action.
+			//This this can be done on any thread.
+			SOURCE.AddRange(geList.Concat(seriesEntries).OrderDescending(new RowComparer(null)));
 
 			//Add all children beneath their parent
 			foreach (var series in seriesEntries)
@@ -123,10 +124,15 @@ namespace LibationAvalonia.ViewModels
 					SOURCE.Insert(++seriesIndex, child);
 			}
 
-			// Adding SOURCE to the DataGridViewCollection after building the source
+			//Create the filtered-in list before adding entries to GridEntries to avoid a refresh or UI action
+			FilteredInGridEntries = geList.Union(seriesEntries.SelectMany(s => s.Children)).FilterEntries(FilterString);
+
+			// Adding SOURCE to the DataGridViewCollection _after_ building the SOURCE list 
 			//Saves ~500 ms on a library of ~4500 books.
-			//Perform on UI thread for safety
+			//Perform on UI thread for safety, but at this time, merely setting the DataGridCollectionView
+			//does not trigger UI actions in the way that modifying the list after it's been linked does.
 			await Dispatcher.UIThread.InvokeAsync(() => GridEntries = new(SOURCE) { Filter = CollectionFilter });
+
 			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
 			GridEntries_CollectionChanged();
 		}
@@ -150,7 +156,7 @@ namespace LibationAvalonia.ViewModels
 			#region Add new or update existing grid entries
 
 			//Add absent entries to grid, or update existing entry
-			var allEntries = SOURCE.BookEntries().ToList();
+			var allEntries = SOURCE.BookEntries().ToDictionarySafe(b => b.AudibleProductId);
 			var seriesEntries = SOURCE.SeriesEntries().ToList();
 			var parentedEpisodes = dbBooks.ParentedEpisodes().ToHashSet();
 
@@ -158,7 +164,7 @@ namespace LibationAvalonia.ViewModels
 			{
 				foreach (var libraryBook in dbBooks.OrderBy(e => e.DateAdded))
 				{
-					var existingEntry = allEntries.FindByAsin(libraryBook.Book.AudibleProductId);
+					var existingEntry = allEntries.TryGetValue(libraryBook.Book.AudibleProductId, out var e) ? e : null;
 
 					if (libraryBook.Book.IsProduct())
 						UpsertBook(libraryBook, existingEntry);
