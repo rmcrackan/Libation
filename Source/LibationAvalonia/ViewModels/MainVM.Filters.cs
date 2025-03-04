@@ -66,6 +66,7 @@ namespace LibationAvalonia.ViewModels
 			}
 			catch (Exception ex)
 			{
+				Serilog.Log.Logger.Error(ex, "Error performing filtering.");
 				await MessageBox.Show($"Bad filter string:\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
 				// re-apply last good filter
