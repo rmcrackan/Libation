@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Styling;
 using LibationFileManager;
 using System;
 using System.Threading.Tasks;
@@ -30,6 +31,9 @@ namespace LibationAvalonia.Dialogs
 			Closing += DialogWindow_Closing;
 
 			UseCustomTitleBar = Configuration.IsWindows;
+
+			if (Design.IsDesignMode)
+				RequestedThemeVariant = ThemeVariant.Dark;
 		}
 
 		private bool fixedMinHeight = false;

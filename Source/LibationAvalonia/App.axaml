@@ -17,6 +17,9 @@
 				<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
 				<Setter Property="Background" Value="Transparent" />
 			</ControlTheme>
+			<ControlTheme x:Key="{x:Type DataGridCell}" TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+				<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+			</ControlTheme>
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Light">
 					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#abffab" />
