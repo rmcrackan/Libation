@@ -2,6 +2,7 @@
 using DataLayer;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace LibationUiBase.GridView
@@ -47,9 +48,11 @@ namespace LibationUiBase.GridView
 					otherSet is not null &&
 					searchSet.Intersect(otherSet).Count() != searchSet.Count);
 
-		public static HashSet<IGridEntry>? FilterEntries(this IEnumerable<IGridEntry> entries, string searchString)
+		[return: NotNullIfNotNull(nameof(searchString))]
+		public static HashSet<IGridEntry>? FilterEntries(this IEnumerable<IGridEntry> entries, string? searchString)
 		{
-			if (string.IsNullOrEmpty(searchString)) return null;
+			if (string.IsNullOrEmpty(searchString))
+				return null;
 
 			var searchResultSet = SearchEngineCommands.Search(searchString);
 
