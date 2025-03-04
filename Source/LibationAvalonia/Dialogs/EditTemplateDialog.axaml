@@ -51,7 +51,7 @@
 						<DataGridTemplateColumn Width="Auto" Header="Tag">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<TextPresenter Height="18" Margin="10,0,10,0" VerticalAlignment="Center" Text="{Binding Item1}" />
+									<TextBlock Height="18" Margin="10,0,10,0" VerticalAlignment="Center" Text="{Binding Item1}" />
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
@@ -59,7 +59,7 @@
 						<DataGridTemplateColumn Width="Auto" Header="Description">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<TextPresenter
+									<TextBlock
 										Height="18"
 										Margin="10,0,10,0"
 										VerticalAlignment="Center" Text="{Binding Item2}" />
