@@ -6,6 +6,7 @@ using Avalonia.Threading;
 using LibationAvalonia.Dialogs;
 using ReactiveUI;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
@@ -56,13 +57,13 @@ namespace LibationAvalonia.ViewModels
 			this.RaisePropertyChanged(nameof(LiberateVisibleToolStripText_2));
 		}
 
-		public async void ProductsDisplay_VisibleCountChanged(object sender, int qty)
+		public async void ProductsDisplay_VisibleCountChanged(object? sender, int qty)
 		{
 			setVisibleCount(qty);
 			await Dispatcher.UIThread.InvokeAsync(setLiberatedVisibleMenuItem);
 		}
 
-		private async void setLiberatedVisibleMenuItemAsync(object _, object __)
+		private async void setLiberatedVisibleMenuItemAsync(object? _, object __)
 			=> await Dispatcher.UIThread.InvokeAsync(setLiberatedVisibleMenuItem);
 
 

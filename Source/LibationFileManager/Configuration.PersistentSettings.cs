@@ -82,7 +82,7 @@ namespace LibationFileManager
 
 		public string SettingsFilePath => Path.Combine(LibationFiles, "Settings.json");
 
-		public static string? GetDescription(string propertyName)
+		public static string GetDescription(string propertyName)
 		{
 			var attribute = typeof(Configuration)
 				.GetProperty(propertyName)
@@ -90,7 +90,7 @@ namespace LibationFileManager
 				.SingleOrDefault()
 				as DescriptionAttribute;
 
-			return attribute?.Description;
+			return attribute?.Description ?? $"[{propertyName}]";
 		}
 
 		public bool Exists(string propertyName) => Settings.Exists(propertyName);
@@ -118,12 +118,15 @@ namespace LibationFileManager
 
 		// temp/working dir(s) should be outside of dropbox
 		[Description("Temporary location of files while they're in process of being downloaded and decrypted.\r\nWhen decryption is complete, the final file will be in Books location\r\nRecommend not using a folder which is backed up real time. Eg: Dropbox, iCloud, Google Drive")]
-		public string InProgress { get
+		public string InProgress
+		{
+			get
 			{
 				var tempDir = GetString();
 				return string.IsNullOrWhiteSpace(tempDir) ? WinTemp : tempDir;
 			}
-			set => SetString(value); }
+			set => SetString(value);
+		}
 
 		[Description("Allow Libation to fix up audiobook metadata")]
 		public bool AllowLibationFixup { get => GetNonString(defaultValue: true); set => SetNonString(value); }
@@ -162,10 +165,10 @@ namespace LibationFileManager
 		public NAudio.Lame.EncoderQuality LameEncoderQuality { get => GetNonString(defaultValue: NAudio.Lame.EncoderQuality.High); set => SetNonString(value); }
 
 		[Description("Lame encoder downsamples to mono")]
-		public bool LameDownsampleMono {  get => GetNonString(defaultValue: true); set => SetNonString(value); }
+		public bool LameDownsampleMono { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 		[Description("Lame target bitrate [16,320]")]
-		public int LameBitrate {  get => GetNonString(defaultValue: 64); set => SetNonString(value); }
+		public int LameBitrate { get => GetNonString(defaultValue: 64); set => SetNonString(value); }
 
 		[Description("Restrict encoder to constant bitrate?")]
 		public bool LameConstantBitrate { get => GetNonString(defaultValue: false); set => SetNonString(value); }
@@ -179,8 +182,8 @@ namespace LibationFileManager
 		private static readonly EquatableDictionary<string, bool> DefaultColumns = new(
 			new KeyValuePair<string, bool>[]
 			{
-				new ("SeriesOrder", false),
-				new ("LastDownload", false)
+			new ("SeriesOrder", false),
+			new ("LastDownload", false)
 			});
 
 		[Description("A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid")]
@@ -200,7 +203,7 @@ namespace LibationFileManager
 
 		[Description("Download clips and bookmarks?")]
 		public bool DownloadClipsBookmarks { get => GetNonString(defaultValue: false); set => SetNonString(value); }
-		
+
 		[Description("File format to save clips and bookmarks")]
 		public ClipBookmarkFormat ClipsBookmarksFileFormat { get => GetNonString(defaultValue: ClipBookmarkFormat.CSV); set => SetNonString(value); }
 

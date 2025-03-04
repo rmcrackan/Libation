@@ -6,6 +6,7 @@ using LibationAvalonia.Dialogs;
 using LibationFileManager;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia
 {
 	internal static class AvaloniaUtils
@@ -14,18 +15,18 @@ namespace LibationAvalonia
 			=> GetBrushFromResources(name, Brushes.Transparent);
 		public static IBrush GetBrushFromResources(string name, IBrush defaultBrush)
 		{
-			if (App.Current.TryGetResource(name, App.Current.ActualThemeVariant, out var value) && value is IBrush brush)
+			if ((App.Current?.TryGetResource(name, App.Current.ActualThemeVariant, out var value) ?? false) && value is IBrush brush)
 				return brush;
 			return defaultBrush;
 		}
 
-		public static Task<DialogResult> ShowDialogAsync(this DialogWindow dialogWindow, Window owner = null)
+		public static Task<DialogResult> ShowDialogAsync(this DialogWindow dialogWindow, Window? owner = null)
 			=> dialogWindow.ShowDialog<DialogResult>(owner ?? App.MainWindow);
 
-		public static Window GetParentWindow(this Control control) => control.GetVisualRoot() as Window;
+		public static Window? GetParentWindow(this Control control) => control.GetVisualRoot() as Window;
 
 
-		private static Bitmap defaultImage;
+		private static Bitmap? defaultImage;
 		public static Bitmap TryLoadImageOrDefault(byte[] picture, PictureSize defaultSize = PictureSize.Native)
 		{
 			try

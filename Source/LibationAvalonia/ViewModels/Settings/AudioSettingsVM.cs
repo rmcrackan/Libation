@@ -8,6 +8,7 @@ using ReactiveUI;
 using System;
 using System.Linq;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels.Settings
 {
 	public class AudioSettingsVM : ViewModelBase
@@ -33,17 +34,13 @@ namespace LibationAvalonia.ViewModels.Settings
 		= new(
 			new[]
 			{
-				NAudio.Lame.EncoderQuality.High,
-				NAudio.Lame.EncoderQuality.Standard,
-				NAudio.Lame.EncoderQuality.Fast,
+			NAudio.Lame.EncoderQuality.High,
+			NAudio.Lame.EncoderQuality.Standard,
+			NAudio.Lame.EncoderQuality.Fast,
 			});
 
 
 		public AudioSettingsVM(Configuration config)
-		{
-			LoadSettings(config);
-		}
-		public void LoadSettings(Configuration config)
 		{
 			CreateCueSheet = config.CreateCueSheet;
 			CombineNestedChapterTitles = config.CombineNestedChapterTitles;
@@ -57,7 +54,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			MergeOpeningAndEndCredits = config.MergeOpeningAndEndCredits;
 			StripAudibleBrandAudio = config.StripAudibleBrandAudio;
 			StripUnabridged = config.StripUnabridged;
-			ChapterTitleTemplate = config.ChapterTitleTemplate;
+			_chapterTitleTemplate = config.ChapterTitleTemplate;
 			DecryptToLossy = config.DecryptToLossy;
 			MoveMoovToBeginning = config.MoveMoovToBeginning;
 			LameTargetBitrate = config.LameTargetBitrate;
@@ -67,7 +64,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			LameBitrate = config.LameBitrate;
 			LameVBRQuality = config.LameVBRQuality;
 
-			SelectedSampleRate = SampleRates.SingleOrDefault(s => s.Value == config.MaxSampleRate);
+			SelectedSampleRate = SampleRates.SingleOrDefault(s => s.Value == config.MaxSampleRate) ?? SampleRates[0];
 			SelectedEncoderQuality = config.LameEncoderQuality;
 		}
 

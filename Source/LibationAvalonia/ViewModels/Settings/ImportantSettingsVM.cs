@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels.Settings
 {
 	public class ImportantSettingsVM : ViewModelBase
@@ -18,12 +19,8 @@ namespace LibationAvalonia.ViewModels.Settings
 		public ImportantSettingsVM(Configuration config)
 		{
 			this.config = config;
-			LoadSettings(config);
-		}
 
-		public void LoadSettings(Configuration config)
-		{
-			BooksDirectory = config.Books.PathWithoutPrefix;
+			BooksDirectory = config.Books?.PathWithoutPrefix ?? Configuration.DefaultBooksDirectory;
 			SavePodcastsToParentFolder = config.SavePodcastsToParentFolder;
 			OverwriteExisting = config.OverwriteExisting;
 			CreationTime = DateTimeSources.SingleOrDefault(v => v.Value == config.CreationTime) ?? DateTimeSources[0];
@@ -32,9 +29,9 @@ namespace LibationAvalonia.ViewModels.Settings
 			GridScaleFactor = scaleFactorToLinearRange(config.GridScaleFactor);
 			GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
 
-			ThemeVariant = initialThemeVariant = Configuration.Instance.GetString(propertyName: nameof(ThemeVariant));
-			if (string.IsNullOrWhiteSpace(initialThemeVariant)) 
-				ThemeVariant = initialThemeVariant = "System";
+			themeVariant = initialThemeVariant = Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)) ?? "";
+			if (string.IsNullOrWhiteSpace(initialThemeVariant))
+				themeVariant = initialThemeVariant = "System";
 		}
 
 		public void SaveSettings(Configuration config)
@@ -100,14 +97,17 @@ namespace LibationAvalonia.ViewModels.Settings
 			get => themeVariant;
 			set
 			{
+				var changed = !value.Equals(themeVariant);
 				this.RaiseAndSetIfChanged(ref themeVariant, value);
-				App.Current.RequestedThemeVariant = themeVariant switch
-				{
-					nameof(Avalonia.Styling.ThemeVariant.Dark) => Avalonia.Styling.ThemeVariant.Dark,
-					nameof(Avalonia.Styling.ThemeVariant.Light) => Avalonia.Styling.ThemeVariant.Light,
-					// "System"
-					_ => Avalonia.Styling.ThemeVariant.Default
-				};
+
+				if (changed && App.Current is Avalonia.Application app)
+					app.RequestedThemeVariant = themeVariant switch
+					{
+						nameof(Avalonia.Styling.ThemeVariant.Dark) => Avalonia.Styling.ThemeVariant.Dark,
+						nameof(Avalonia.Styling.ThemeVariant.Light) => Avalonia.Styling.ThemeVariant.Light,
+						// "System"
+						_ => Avalonia.Styling.ThemeVariant.Default
+					};
 			}
 		}
 	}

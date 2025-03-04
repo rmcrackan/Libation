@@ -5,6 +5,7 @@ using LibationFileManager;
 using System;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
@@ -18,7 +19,7 @@ namespace LibationAvalonia.ViewModels
 				var options = new FilePickerSaveOptions
 				{
 					Title = "Where to export Library",
-					SuggestedStartLocation = await MainWindow.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
+					SuggestedStartLocation = await MainWindow.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books?.PathWithoutPrefix ?? Configuration.DefaultBooksDirectory),
 					SuggestedFileName = $"Libation Library Export {DateTime.Now:yyyy-MM-dd}",
 					DefaultExtension = "xlsx",
 					ShowOverwritePrompt = true,
@@ -41,7 +42,7 @@ namespace LibationAvalonia.ViewModels
 							AppleUniformTypeIdentifiers = new[] { "public.json" }
 						},
 						new("All files (*.*)") { Patterns = new[] { "*" } }
-					}
+						}
 				};
 
 				var selectedFile = (await MainWindow.StorageProvider.SaveFilePickerAsync(options))?.TryGetLocalPath();

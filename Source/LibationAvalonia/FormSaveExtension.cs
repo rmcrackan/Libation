@@ -6,17 +6,17 @@ using LibationFileManager;
 using System;
 using System.Linq;
 
+#nullable enable
 namespace LibationAvalonia
 {
 	public static class FormSaveExtension
 	{
-		static readonly WindowIcon WindowIcon;
+		static readonly WindowIcon? WindowIcon;
 		static FormSaveExtension()
 		{
-			if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is not null)
-				WindowIcon = desktop.MainWindow.Icon;
-			else
-				WindowIcon = null;
+			WindowIcon = Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow?.Icon is WindowIcon icon
+				? icon
+				: null;
 		}
 
 		public static void SetLibationIcon(this Window form)
@@ -29,7 +29,7 @@ namespace LibationAvalonia
 			if (Design.IsDesignMode) return;
 			try
 			{
-				var savedState = config.GetNonString<FormSizeAndPosition>(defaultValue: null, form.GetType().Name);
+				var savedState = config.GetNonString<FormSizeAndPosition?>(defaultValue: null, form.GetType().Name);
 
 				if (savedState is null)
 					return;
@@ -40,12 +40,14 @@ namespace LibationAvalonia
 					savedState.Width = (int)form.Width;
 					savedState.Height = (int)form.Height;
 				}
-
-				// Fit to the current screen size in case the screen resolution changed since the size was last persisted
-				if (savedState.Width > form.Screens.Primary.WorkingArea.Width)
-					savedState.Width = form.Screens.Primary.WorkingArea.Width;
-				if (savedState.Height > form.Screens.Primary.WorkingArea.Height)
-					savedState.Height = form.Screens.Primary.WorkingArea.Height;
+				if (form.Screens.Primary is Screen primaryScreen)
+				{
+					// Fit to the current screen size in case the screen resolution changed since the size was last persisted
+					if (savedState.Width > primaryScreen.WorkingArea.Width)
+						savedState.Width = primaryScreen.WorkingArea.Width;
+					if (savedState.Height > primaryScreen.WorkingArea.Height)
+						savedState.Height = primaryScreen.WorkingArea.Height;
+				}
 
 				var rect = new PixelRect(savedState.X, savedState.Y, savedState.Width, savedState.Height);
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM

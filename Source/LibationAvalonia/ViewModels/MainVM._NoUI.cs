@@ -2,6 +2,7 @@
 using LibationUiBase;
 using System.IO;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM

@@ -3,6 +3,7 @@ using LibationFileManager;
 using ReactiveUI;
 using System.Collections.Generic;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels.Settings
 {
 	public class DownloadDecryptSettingsVM : ViewModelBase
@@ -15,7 +16,16 @@ namespace LibationAvalonia.ViewModels.Settings
 		public DownloadDecryptSettingsVM(Configuration config)
 		{
 			Config = config;
-			LoadSettings(config);
+			BadBookAsk = config.BadBook is Configuration.BadBookAction.Ask;
+			BadBookAbort = config.BadBook is Configuration.BadBookAction.Abort;
+			BadBookRetry = config.BadBook is Configuration.BadBookAction.Retry;
+			BadBookIgnore = config.BadBook is Configuration.BadBookAction.Ignore;
+			_folderTemplate = config.FolderTemplate;
+			_fileTemplate = config.FileTemplate;
+			_chapterFileTemplate = config.ChapterFileTemplate;
+			InProgressDirectory = config.InProgress;
+			UseCoverAsFolderIcon = config.UseCoverAsFolderIcon;
+			SaveMetadataToFile = config.SaveMetadataToFile;
 		}
 
 		public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
@@ -27,20 +37,6 @@ namespace LibationAvalonia.ViewModels.Settings
 			Configuration.KnownDirectories.MyDocs,
 			Configuration.KnownDirectories.LibationFiles
 		};
-
-		public void LoadSettings(Configuration config)
-		{
-			BadBookAsk = config.BadBook is Configuration.BadBookAction.Ask;
-			BadBookAbort = config.BadBook is Configuration.BadBookAction.Abort;
-			BadBookRetry = config.BadBook is Configuration.BadBookAction.Retry;
-			BadBookIgnore = config.BadBook is Configuration.BadBookAction.Ignore;
-			FolderTemplate = config.FolderTemplate;
-			FileTemplate = config.FileTemplate;
-			ChapterFileTemplate = config.ChapterFileTemplate;
-			InProgressDirectory = config.InProgress;
-			UseCoverAsFolderIcon = config.UseCoverAsFolderIcon;
-			SaveMetadataToFile = config.SaveMetadataToFile;
-		}
 
 		public void SaveSettings(Configuration config)
 		{
@@ -62,10 +58,10 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string UseCoverAsFolderIconText { get; } = Configuration.GetDescription(nameof(Configuration.UseCoverAsFolderIcon));
 		public string SaveMetadataToFileText { get; } = Configuration.GetDescription(nameof(Configuration.SaveMetadataToFile));
 		public string BadBookGroupboxText { get; } = Configuration.GetDescription(nameof(Configuration.BadBook));
-		public string BadBookAskText { get; } = Configuration.BadBookAction.Ask.GetDescription();
-		public string BadBookAbortText { get; } = Configuration.BadBookAction.Abort.GetDescription();
-		public string BadBookRetryText { get; } = Configuration.BadBookAction.Retry.GetDescription();
-		public string BadBookIgnoreText { get; } = Configuration.BadBookAction.Ignore.GetDescription();
+		public string BadBookAskText { get; } = Configuration.BadBookAction.Ask.GetDescription() ?? nameof(Configuration.BadBookAction.Ask);
+		public string BadBookAbortText { get; } = Configuration.BadBookAction.Abort.GetDescription() ?? nameof(Configuration.BadBookAction.Abort);
+		public string BadBookRetryText { get; } = Configuration.BadBookAction.Retry.GetDescription() ?? nameof(Configuration.BadBookAction.Retry);
+		public string BadBookIgnoreText { get; } = Configuration.BadBookAction.Ignore.GetDescription() ?? nameof(Configuration.BadBookAction.Ignore);
 		public string FolderTemplateText { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate));
 		public string FileTemplateText { get; } = Configuration.GetDescription(nameof(Configuration.FileTemplate));
 		public string ChapterFileTemplateText { get; } = Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate));

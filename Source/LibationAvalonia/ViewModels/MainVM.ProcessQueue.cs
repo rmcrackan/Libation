@@ -6,6 +6,7 @@ using Dinah.Core;
 using LibationUiBase.GridView;
 using ReactiveUI;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
