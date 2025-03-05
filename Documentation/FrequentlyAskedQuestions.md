@@ -33,7 +33,7 @@ Self-hosting online:
 
 ## Q: I'm having trouble loggin into my Brazil account.
 
-For reasons known only to Jeff Bezos and God, amazon and audible brazil handle logins slightly differently. [See this ticket for more details.](https://github.com/rmcrackan/Libation/issues/1103)
+For reasons known only to Jeff Bezos and God, amazon and audible brazil handle logins slightly differently. The external browser login option is not possible for Brazil. [See this ticket for more details.](https://github.com/rmcrackan/Libation/issues/1103)
 
 ## Q: How do I use Libation with a South Africa account?
 

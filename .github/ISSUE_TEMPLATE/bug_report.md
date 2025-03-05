@@ -6,10 +6,10 @@ labels: bug
 assignees: ''
 ---
 
-**Describe the bug**
+**Describe the bug**  
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+**To Reproduce**  
 Steps to reproduce the behavior:
 
 1. Go to '...'
@@ -17,15 +17,14 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
+**Expected behavior**  
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
+**Screenshots**  
 If applicable, add screenshots to help explain your problem.
 
-**Platform**
-
+**Platform**  
 [e.g. Windows 10, Windows 11, Mac, Linux (State distribution)]
 
-**Log Files**
-Attach your Libation log file here.
+**Log Files**  
+Attach your Libation log file here. Logs are typically in your `[user]\Libation` folder. (For example, on windows: `C:\my_username\Libation`) Also within Libation, on the first tab in Settings you can click the button 'Open log folder'
