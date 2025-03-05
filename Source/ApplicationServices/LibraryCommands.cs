@@ -15,12 +15,13 @@ using Newtonsoft.Json.Linq;
 using Serilog;
 using static DtoImporterService.PerfLogger;
 
+#nullable enable
 namespace ApplicationServices
 {
     public static class LibraryCommands
     {
-        public static event EventHandler<int> ScanBegin;
-        public static event EventHandler<int> ScanEnd;
+        public static event EventHandler<int>? ScanBegin;
+        public static event EventHandler<int>? ScanEnd;
 
         public static bool Scanning { get; private set; }
         private static object _lock { get; } = new();
@@ -100,7 +101,7 @@ namespace ApplicationServices
         }
 
         #region FULL LIBRARY scan and import
-        public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, params Account[] accounts)
+        public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, params Account[]? accounts)
         {
             logRestart();
 
@@ -236,7 +237,7 @@ namespace ApplicationServices
         {
             var tasks = new List<Task<List<ImportItem>>>();
 
-           await using LogArchiver archiver
+           await using LogArchiver? archiver
                 = Log.Logger.IsDebugEnabled()
                 ? new LogArchiver(System.IO.Path.Combine(Configuration.Instance.LibationFiles, "LibraryScans.zip"))
                 : default;
@@ -266,13 +267,13 @@ namespace ApplicationServices
             return importItems;
         }
 
-        private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions libraryOptions, LogArchiver archiver)
+        private static async Task<List<ImportItem>> scanAccountAsync(ApiExtended apiExtended, Account account, LibraryOptions libraryOptions, LogArchiver? archiver)
         {
             ArgumentValidator.EnsureNotNull(account, nameof(account));
 
             Log.Logger.Information("ImportLibraryAsync. {@DebugInfo}", new
             {
-                Account = account?.MaskedLogEntry ?? "[null]"
+                Account = account.MaskedLogEntry ?? "[null]"
             });
 
             logTime($"pre scanAccountAsync {account.AccountName}");
@@ -294,7 +295,7 @@ namespace ApplicationServices
 				throw new AggregateException(ex.InnerExceptions);
             }
 
-            async Task logDtoItemsAsync(IEnumerable<AudibleApi.Common.Item> dtoItems, IEnumerable<Exception> exceptions = null)
+            async Task logDtoItemsAsync(IEnumerable<AudibleApi.Common.Item> dtoItems, IEnumerable<Exception>? exceptions = null)
             {
 				if (archiver is not null)
 				{
@@ -452,28 +453,28 @@ namespace ApplicationServices
         }
 
         /// <summary>Occurs when the size of the library changes. ie: books are added or removed</summary>
-        public static event EventHandler<List<LibraryBook>> LibrarySizeChanged;
+        public static event EventHandler<List<LibraryBook>>? LibrarySizeChanged;
 
         /// <summary>
         /// Occurs when the size of the library does not change but book(s) details do. Especially when <see cref="UserDefinedItem.Tags"/>, <see cref="UserDefinedItem.BookStatus"/>, or <see cref="UserDefinedItem.PdfStatus"/> changed values are successfully persisted.
         /// </summary>
-        public static event EventHandler<IEnumerable<LibraryBook>> BookUserDefinedItemCommitted;
+        public static event EventHandler<IEnumerable<LibraryBook>>? BookUserDefinedItemCommitted;
 
         #region Update book details
         public static int UpdateUserDefinedItem(
             this LibraryBook lb,
-            string tags = null,
+            string? tags = null,
             LiberatedStatus? bookStatus = null,
             LiberatedStatus? pdfStatus = null,
-            Rating rating = null)
+            Rating? rating = null)
             => new[] { lb }.UpdateUserDefinedItem(tags, bookStatus, pdfStatus, rating);
 
         public static int UpdateUserDefinedItem(
             this IEnumerable<LibraryBook> lb,
-            string tags = null,
+            string? tags = null,
             LiberatedStatus? bookStatus = null,
             LiberatedStatus? pdfStatus = null,
-            Rating rating = null)
+            Rating? rating = null)
             => updateUserDefinedItem(
                 lb,
                 udi => {
@@ -532,7 +533,8 @@ namespace ApplicationServices
 					var udiEntity = context.Entry(book.Book.UserDefinedItem);
 
 					udiEntity.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-					udiEntity.Reference(udi => udi.Rating).TargetEntry.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                    if (udiEntity.Reference(udi => udi.Rating).TargetEntry is Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<Rating> ratingEntry)
+                        ratingEntry.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				}
 
                 var qtyChanges = context.SaveChanges();
@@ -598,7 +600,8 @@ namespace ApplicationServices
                 return sb.ToString();
 			}
 		}
-        public static LibraryStats GetCounts(IEnumerable<LibraryBook> libraryBooks = null)
+
+        public static LibraryStats GetCounts(IEnumerable<LibraryBook>? libraryBooks = null)
         {
             libraryBooks ??= DbContexts.GetLibrary_Flat_NoTracking();
 

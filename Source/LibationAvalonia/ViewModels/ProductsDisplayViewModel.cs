@@ -104,6 +104,9 @@ namespace LibationAvalonia.ViewModels
 
 		internal async Task BindToGridAsync(List<LibraryBook> dbBooks)
 		{
+			if (dbBooks == null)
+				throw new ArgumentNullException(nameof(dbBooks));
+
 			//Get the UI thread's synchronization context and set it on the current thread to ensure
 			//it's available for GetAllProductsAsync and GetAllSeriesEntriesAsync
 			var sc = await Dispatcher.UIThread.InvokeAsync(() => AvaloniaSynchronizationContext.Current);
@@ -155,12 +158,11 @@ namespace LibationAvalonia.ViewModels
 		/// </summary>
 		internal async Task UpdateGridAsync(List<LibraryBook> dbBooks)
 		{
+			if (dbBooks == null)
+				throw new ArgumentNullException(nameof(dbBooks));
+
 			if (GridEntries == null)
-			{
-				//always bind before updating. Binding creates GridEntries.
-				await BindToGridAsync(dbBooks);
-				return;
-			}
+				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(UpdateGridAsync)}");
 
 			#region Add new or update existing grid entries
 

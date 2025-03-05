@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using ApplicationServices;
 using AppScaffolding;
 using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.ReactiveUI;
 using LibationFileManager;
 
+#nullable enable
 namespace LibationAvalonia
 {
 	static class Program
@@ -57,7 +57,7 @@ namespace LibationAvalonia
 					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				}
 
-				BuildAvaloniaApp().StartWithClassicDesktopLifetime(null);
+				BuildAvaloniaApp().StartWithClassicDesktopLifetime([]);
 			}
 			catch (Exception ex)
 			{
@@ -77,27 +77,27 @@ namespace LibationAvalonia
 		private static void LogError(object exceptionObject)
 		{
 			var logError = $"""
-				{DateTime.Now} - Libation Crash
-				 OS                    {Configuration.OS}
-				 Version               {LibationScaffolding.BuildVersion}
-				 ReleaseIdentifier     {LibationScaffolding.ReleaseIdentifier}
-				 InteropFunctionsType  {InteropFactory.InteropFunctionsType}
-				 LibationFiles         {getConfigValue(c => c.LibationFiles)}
-				 Books Folder          {getConfigValue(c => c.Books)}
-				 === EXCEPTION ===
-				 {exceptionObject}
-				""";
+			{DateTime.Now} - Libation Crash
+			 OS                    {Configuration.OS}
+			 Version               {LibationScaffolding.BuildVersion}
+			 ReleaseIdentifier     {LibationScaffolding.ReleaseIdentifier}
+			 InteropFunctionsType  {InteropFactory.InteropFunctionsType}
+			 LibationFiles         {getConfigValue(c => c.LibationFiles)}
+			 Books Folder          {getConfigValue(c => c.Books)}
+			 === EXCEPTION ===
+			 {exceptionObject}
+			""";
 
 			var crashLog = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "LibationCrash.log");
 
 			using var sw = new StreamWriter(crashLog, true);
 			sw.WriteLine(logError);
 
-			static string getConfigValue(Func<Configuration, string> selector)
+			static string getConfigValue(Func<Configuration, string?> selector)
 			{
 				try
 				{
-					return selector(Configuration.Instance);
+					return selector(Configuration.Instance) ?? "[null]";
 				}
 				catch (Exception ex)
 				{

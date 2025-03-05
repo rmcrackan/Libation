@@ -4,6 +4,7 @@ using ReactiveUI;
 using System;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
@@ -12,7 +13,9 @@ namespace LibationAvalonia.ViewModels
 		public bool MenuBarVisible { get => _menuBarVisible; set => this.RaiseAndSetIfChanged(ref _menuBarVisible, value); }
 		private void Configure_Settings()
 		{
-			((NativeMenuItem)NativeMenu.GetMenu(App.Current).Items[0]).Command = ReactiveCommand.Create(ShowAboutAsync);
+			if (App.Current is Avalonia.Application app &&
+				NativeMenu.GetMenu(app)?.Items[0] is NativeMenuItem aboutMenu)
+				aboutMenu.Command = ReactiveCommand.Create(ShowAboutAsync);
 		}
 
 		public Task ShowAboutAsync() => new LibationAvalonia.Dialogs.AboutDialog().ShowDialog(MainWindow);

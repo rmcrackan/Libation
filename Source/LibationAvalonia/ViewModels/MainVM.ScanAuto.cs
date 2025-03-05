@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
@@ -50,7 +51,7 @@ namespace LibationAvalonia.ViewModels
 		}
 
 
-		private List<(string AccountId, string LocaleName)> preSaveDefaultAccounts;
+		private List<(string AccountId, string LocaleName)>? preSaveDefaultAccounts;
 		private List<(string AccountId, string LocaleName)> getDefaultAccounts()
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
@@ -61,17 +62,17 @@ namespace LibationAvalonia.ViewModels
 				.ToList();
 		}
 
-		private void accountsPreSave(object sender = null, EventArgs e = null)
+		private void accountsPreSave(object? sender = null, EventArgs? e = null)
 			=> preSaveDefaultAccounts = getDefaultAccounts();
 
-		private void accountsPostSave(object sender = null, EventArgs e = null)
+		private void accountsPostSave(object? sender = null, EventArgs? e = null)
 		{
-			if (getDefaultAccounts().Except(preSaveDefaultAccounts).Any())
+			if (getDefaultAccounts().Except(preSaveDefaultAccounts ?? Enumerable.Empty<(string AccountId, string LocaleName)>()).Any())
 				startAutoScan();
 		}
 
 		[PropertyChangeFilter(nameof(Configuration.AutoScan))]
-		private void startAutoScan(object sender = null, EventArgs e = null)
+		private void startAutoScan(object? sender = null, EventArgs? e = null)
 		{
 			AutoScanChecked = Configuration.Instance.AutoScan;
 			if (AutoScanChecked)

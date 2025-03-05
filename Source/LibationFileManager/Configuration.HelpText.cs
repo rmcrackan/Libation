@@ -19,7 +19,7 @@ namespace LibationFileManager
             {nameof(AllowLibationFixup), """
                 In addition to the options that are enabled if you allow
                 "fixing up" the audiobook, it does the following:
-                
+            
                 * Sets the ©gen metadata tag for the genres.
                 * Adds the TCOM (@wrt in M4B files) metadata tag for the narrators.
                 * Unescapes the copyright symbol (replace &#169; with ©)
@@ -30,7 +30,7 @@ namespace LibationFileManager
         }
         .AsReadOnly();
 
-        public static string? GetHelpText(string settingName)
-            => HelpText.TryGetValue(settingName, out var value) ? value : null;
-	}
+        public static string GetHelpText(string settingName)
+            => HelpText.TryGetValue(settingName, out var value) ? value : "";
+    }
 }

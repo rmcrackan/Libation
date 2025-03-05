@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	public enum ProcessBookResult
@@ -45,28 +46,28 @@ namespace LibationAvalonia.ViewModels
 	/// </summary>
 	public class ProcessBookViewModel : ViewModelBase
 	{
-		public event EventHandler Completed;
+		public event EventHandler? Completed;
 
 		public LibraryBook LibraryBook { get; private set; }
 
 		private ProcessBookResult _result = ProcessBookResult.None;
 		private ProcessBookStatus _status = ProcessBookStatus.Queued;
-		private string _narrator;
-		private string _author;
-		private string _title;
+		private string? _narrator;
+		private string? _author;
+		private string? _title;
 		private int _progress;
-		private string _eta;
-		private Bitmap _cover;
+		private string? _eta;
+		private Bitmap? _cover;
 
 		#region Properties exposed to the view
 		public ProcessBookResult Result { get => _result; set { this.RaiseAndSetIfChanged(ref _result, value); this.RaisePropertyChanged(nameof(StatusText)); } }
 		public ProcessBookStatus Status { get => _status; set { this.RaiseAndSetIfChanged(ref _status, value); this.RaisePropertyChanged(nameof(BackgroundColor)); this.RaisePropertyChanged(nameof(IsFinished)); this.RaisePropertyChanged(nameof(IsDownloading)); this.RaisePropertyChanged(nameof(Queued)); } }
-		public string Narrator { get => _narrator; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _narrator, value)); }
-		public string Author { get => _author; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _author, value)); }
-		public string Title { get => _title; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _title, value)); }
+		public string? Narrator { get => _narrator; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _narrator, value)); }
+		public string? Author { get => _author; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _author, value)); }
+		public string? Title { get => _title; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _title, value)); }
 		public int Progress { get => _progress; private set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _progress, value)); }
-		public string ETA { get => _eta; private set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _eta, value)); }
-		public Bitmap Cover { get => _cover; private set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _cover, value)); }
+		public string? ETA { get => _eta; private set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _eta, value)); }
+		public Bitmap? Cover { get => _cover; private set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _cover, value)); }
 		public bool IsFinished => Status is not ProcessBookStatus.Queued and not ProcessBookStatus.Working;
 		public bool IsDownloading => Status is ProcessBookStatus.Working;
 		public bool Queued => Status is ProcessBookStatus.Queued;
@@ -95,8 +96,8 @@ namespace LibationAvalonia.ViewModels
 
 		private TimeSpan TimeRemaining { set { ETA = $"ETA: {value:mm\\:ss}"; } }
 		private Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
-		private Processable NextProcessable() => _currentProcessable = null;
-		private Processable _currentProcessable;
+		private Processable? NextProcessable() => _currentProcessable = null;
+		private Processable? _currentProcessable;
 		private readonly Queue<Func<Processable>> Processes = new();
 		private readonly LogMe Logger;
 
@@ -118,7 +119,7 @@ namespace LibationAvalonia.ViewModels
 			_cover = AvaloniaUtils.TryLoadImageOrDefault(picture, PictureSize._80x80);
 		}
 
-		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
+		private void PictureStorage_PictureCached(object? sender, PictureCachedEventArgs e)
 		{
 			if (e.Definition.PictureId == LibraryBook.Book.PictureId)
 			{
@@ -255,14 +256,14 @@ namespace LibationAvalonia.ViewModels
 
 		#region AudioDecodable event handlers
 
-		private void AudioDecodable_TitleDiscovered(object sender, string title) => Title = title;
+		private void AudioDecodable_TitleDiscovered(object? sender, string title) => Title = title;
 
-		private void AudioDecodable_AuthorsDiscovered(object sender, string authors) => Author = authors;
+		private void AudioDecodable_AuthorsDiscovered(object? sender, string authors) => Author = authors;
 
-		private void AudioDecodable_NarratorsDiscovered(object sender, string narrators) => Narrator = narrators;
+		private void AudioDecodable_NarratorsDiscovered(object? sender, string narrators) => Narrator = narrators;
 
 
-		private byte[] AudioDecodable_RequestCoverArt(object sender, EventArgs e)
+		private byte[] AudioDecodable_RequestCoverArt(object? sender, EventArgs e)
 		{
 			var quality
 				= Configuration.Instance.FileDownloadQuality == Configuration.DownloadQuality.High && LibraryBook.Book.PictureLarge is not null
@@ -275,7 +276,7 @@ namespace LibationAvalonia.ViewModels
 			return coverData;
 		}
 
-		private void AudioDecodable_CoverImageDiscovered(object sender, byte[] coverArt)
+		private void AudioDecodable_CoverImageDiscovered(object? sender, byte[] coverArt)
 		{
 			using var ms = new System.IO.MemoryStream(coverArt);
 			Cover = new Avalonia.Media.Imaging.Bitmap(ms);
@@ -284,10 +285,10 @@ namespace LibationAvalonia.ViewModels
 		#endregion
 
 		#region Streamable event handlers
-		private void Streamable_StreamingTimeRemaining(object sender, TimeSpan timeRemaining) => TimeRemaining = timeRemaining;
+		private void Streamable_StreamingTimeRemaining(object? sender, TimeSpan timeRemaining) => TimeRemaining = timeRemaining;
 
 
-		private void Streamable_StreamingProgressChanged(object sender, Dinah.Core.Net.Http.DownloadProgress downloadProgress)
+		private void Streamable_StreamingProgressChanged(object? sender, Dinah.Core.Net.Http.DownloadProgress downloadProgress)
 		{
 			if (!downloadProgress.ProgressPercentage.HasValue)
 				return;
@@ -302,21 +303,25 @@ namespace LibationAvalonia.ViewModels
 
 		#region Processable event handlers
 
-		private async void Processable_Begin(object sender, LibraryBook libraryBook)
+		private async void Processable_Begin(object? sender, LibraryBook libraryBook)
 		{
 			await Dispatcher.UIThread.InvokeAsync(() => Status = ProcessBookStatus.Working);
 
-			Logger.Info($"{Environment.NewLine}{((Processable)sender).Name} Step, Begin: {libraryBook.Book}");
+			if (sender is Processable processable)
+				Logger.Info($"{Environment.NewLine}{processable.Name} Step, Begin: {libraryBook.Book}");
 
 			Title = libraryBook.Book.TitleWithSubtitle;
 			Author = libraryBook.Book.AuthorNames();
 			Narrator = libraryBook.Book.NarratorNames();
 		}
 
-		private async void Processable_Completed(object sender, LibraryBook libraryBook)
+		private async void Processable_Completed(object? sender, LibraryBook libraryBook)
 		{
-			Logger.Info($"{((Processable)sender).Name} Step, Completed: {libraryBook.Book}");
-			UnlinkProcessable((Processable)sender);
+			if (sender is Processable processable)
+			{
+				Logger.Info($"{processable.Name} Step, Completed: {libraryBook.Book}");
+				UnlinkProcessable(processable);
+			}
 
 			if (Processes.Count == 0)
 			{
@@ -375,7 +380,7 @@ namespace LibationAvalonia.ViewModels
 					: str;
 
 				details =
-$@"  Title: {libraryBook.Book.TitleWithSubtitle}
+	$@"  Title: {libraryBook.Book.TitleWithSubtitle}
   ID: {libraryBook.Book.AudibleProductId}
   Author: {trunc(libraryBook.Book.AuthorNames())}
   Narr: {trunc(libraryBook.Book.NarratorNames())}";

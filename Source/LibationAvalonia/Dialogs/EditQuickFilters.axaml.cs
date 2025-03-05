@@ -42,6 +42,17 @@ namespace LibationAvalonia.Dialogs
 		public EditQuickFilters()
 		{
 			InitializeComponent();
+			if (Design.IsDesignMode)
+			{
+				Filters = new ObservableCollection<Filter>([
+					new Filter { Name = "Filter 1", FilterString = "[filter1 string]" },
+					new Filter { Name = "Filter 2", FilterString = "[filter2 string]" },
+					new Filter { Name = "Filter 3", FilterString = "[filter3 string]" },
+					new Filter { Name = "Filter 4", FilterString = "[filter4 string]" }
+					]);
+				DataContext = this;
+				return;
+			}
 
 			// WARNING: accounts persister will write ANY EDIT to object immediately to file
 			// here: copy strings and dispose of persister

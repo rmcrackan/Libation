@@ -6,6 +6,7 @@ using ReactiveUI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	public partial class MainVM : ViewModelBase
@@ -37,11 +38,18 @@ namespace LibationAvalonia.ViewModels
 			Configure_VisibleBooks();
 		}
 
-		private async void LibraryCommands_LibrarySizeChanged(object sender, List<LibraryBook> fullLibrary)
+		private async void LibraryCommands_LibrarySizeChanged(object? sender, List<LibraryBook> fullLibrary)
 		{
-			await Task.WhenAll(
-				SetBackupCountsAsync(fullLibrary),
-				Task.Run(() => ProductsDisplay.UpdateGridAsync(fullLibrary)));
+			try
+			{
+				await Task.WhenAll(
+					SetBackupCountsAsync(fullLibrary),
+					Task.Run(() => ProductsDisplay.UpdateGridAsync(fullLibrary)));
+			}
+			catch (System.Exception ex)
+			{
+				await MessageBox.ShowAdminAlert(MainWindow, "An error occurred while updating the library.", "Library Size Change Error", ex);
+			}
 		}
 
 		private static string menufyText(string header) => Configuration.IsMacOs ? header : $"_{header}";

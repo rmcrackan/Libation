@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Input;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	public partial class MainVM
@@ -90,7 +91,9 @@ namespace LibationAvalonia.ViewModels
 		public async Task ScanAccountAsync()
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-			await scanLibrariesAsync(persister.AccountsSettings.GetAll().FirstOrDefault());
+			var firstAccount = persister.AccountsSettings.GetAll().FirstOrDefault();
+			if (firstAccount != null)
+				await scanLibrariesAsync(firstAccount);
 		}
 
 		public async Task ScanAllAccountsAsync()
@@ -194,7 +197,7 @@ namespace LibationAvalonia.ViewModels
 			await ProductsDisplay.ScanAndRemoveBooksAsync(accounts);
 		}
 
-		private async Task scanLibrariesAsync(params Account[] accounts)
+		private async Task scanLibrariesAsync(params Account[]? accounts)
 		{
 			try
 			{
@@ -218,37 +221,44 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		private void refreshImportMenu(object _ = null, EventArgs __ = null)
+		private void refreshImportMenu(object? _ = null, EventArgs? __ = null)
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			AccountsCount = persister.AccountsSettings.Accounts.Count;
 
-			var importMenuItem = (NativeMenuItem)NativeMenu.GetMenu(MainWindow).Items[0];
 
-			for (int i = importMenuItem.Menu.Items.Count - 1; i >= 2; i--)
-				importMenuItem.Menu.Items.RemoveAt(i);
+			if (NativeMenu.GetMenu(MainWindow)?.Items[0] is not NativeMenuItem ss ||
+				ss.Menu is not NativeMenu importMenuItem)
+			{
+				Serilog.Log.Logger.Error($"Unable to find {nameof(importMenuItem)}");
+				return;
+			}
+
+
+			for (int i = importMenuItem.Items.Count - 1; i >= 2; i--)
+				importMenuItem.Items.RemoveAt(i);
 
 			if (AccountsCount < 1)
 			{
-				importMenuItem.Menu.Items.Add(new NativeMenuItem { Header = "No accounts yet. Add Account...", Command = ReactiveCommand.Create(AddAccountsAsync) });
+				importMenuItem.Items.Add(new NativeMenuItem { Header = "No accounts yet. Add Account...", Command = ReactiveCommand.Create(AddAccountsAsync) });
 			}
 			else if (AccountsCount == 1)
 			{
-				importMenuItem.Menu.Items.Add(new NativeMenuItem { Header = "Scan Library", Command = ReactiveCommand.Create(ScanAccountAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Alt | KeyModifiers.Meta)});
-				importMenuItem.Menu.Items.Add(new NativeMenuItemSeparator());
-				importMenuItem.Menu.Items.Add(new NativeMenuItem { Header = "Remove Library Books", Command = ReactiveCommand.Create(RemoveBooksAsync), Gesture = new KeyGesture(Key.R, KeyModifiers.Alt | KeyModifiers.Meta)});
+				importMenuItem.Items.Add(new NativeMenuItem { Header = "Scan Library", Command = ReactiveCommand.Create(ScanAccountAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Alt | KeyModifiers.Meta) });
+				importMenuItem.Items.Add(new NativeMenuItemSeparator());
+				importMenuItem.Items.Add(new NativeMenuItem { Header = "Remove Library Books", Command = ReactiveCommand.Create(RemoveBooksAsync), Gesture = new KeyGesture(Key.R, KeyModifiers.Alt | KeyModifiers.Meta) });
 			}
 			else
 			{
-				importMenuItem.Menu.Items.Add(new NativeMenuItem { Header = "Scan Library of All Accounts", Command = ReactiveCommand.Create(ScanAllAccountsAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Alt | KeyModifiers.Meta)});
-				importMenuItem.Menu.Items.Add(new NativeMenuItem { Header = "Scan Library of Some Accounts", Command = ReactiveCommand.Create(ScanSomeAccountsAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Alt | KeyModifiers.Meta | KeyModifiers.Shift) });
-				importMenuItem.Menu.Items.Add(new NativeMenuItemSeparator());
-				importMenuItem.Menu.Items.Add(new NativeMenuItem { Header = "Remove Books from All Accounts", Command = ReactiveCommand.Create(RemoveBooksAllAsync), Gesture = new KeyGesture(Key.R, KeyModifiers.Alt | KeyModifiers.Meta)});
-				importMenuItem.Menu.Items.Add(new NativeMenuItem { Header = "Remove Books from Some Accounts", Command = ReactiveCommand.Create(RemoveBooksSomeAsync), Gesture = new KeyGesture(Key.R, KeyModifiers.Alt | KeyModifiers.Meta | KeyModifiers.Shift) });
+				importMenuItem.Items.Add(new NativeMenuItem { Header = "Scan Library of All Accounts", Command = ReactiveCommand.Create(ScanAllAccountsAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Alt | KeyModifiers.Meta) });
+				importMenuItem.Items.Add(new NativeMenuItem { Header = "Scan Library of Some Accounts", Command = ReactiveCommand.Create(ScanSomeAccountsAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Alt | KeyModifiers.Meta | KeyModifiers.Shift) });
+				importMenuItem.Items.Add(new NativeMenuItemSeparator());
+				importMenuItem.Items.Add(new NativeMenuItem { Header = "Remove Books from All Accounts", Command = ReactiveCommand.Create(RemoveBooksAllAsync), Gesture = new KeyGesture(Key.R, KeyModifiers.Alt | KeyModifiers.Meta) });
+				importMenuItem.Items.Add(new NativeMenuItem { Header = "Remove Books from Some Accounts", Command = ReactiveCommand.Create(RemoveBooksSomeAsync), Gesture = new KeyGesture(Key.R, KeyModifiers.Alt | KeyModifiers.Meta | KeyModifiers.Shift) });
 			}
 
-			importMenuItem.Menu.Items.Add(new NativeMenuItemSeparator());
-			importMenuItem.Menu.Items.Add(new NativeMenuItem { Header = "Locate Audiobooks...", Command = ReactiveCommand.Create(LocateAudiobooksAsync) });
+			importMenuItem.Items.Add(new NativeMenuItemSeparator());
+			importMenuItem.Items.Add(new NativeMenuItem { Header = "Locate Audiobooks...", Command = ReactiveCommand.Create(LocateAudiobooksAsync) });
 		}
 	}
 }

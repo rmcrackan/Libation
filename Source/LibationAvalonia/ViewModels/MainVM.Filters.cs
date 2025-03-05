@@ -9,16 +9,17 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
-		private QuickFilters.NamedFilter lastGoodFilter = new(string.Empty, null);
-		private QuickFilters.NamedFilter _selectedNamedFilter = new(string.Empty, null);
+		private QuickFilters.NamedFilter? lastGoodFilter = new(string.Empty, null);
+		private QuickFilters.NamedFilter? _selectedNamedFilter = new(string.Empty, null);
 		private bool _firstFilterIsDefault = true;
 
 		/// <summary> Library filterting query </summary>
-		public QuickFilters.NamedFilter SelectedNamedFilter { get => _selectedNamedFilter; set => this.RaiseAndSetIfChanged(ref _selectedNamedFilter, value); }
+		public QuickFilters.NamedFilter? SelectedNamedFilter { get => _selectedNamedFilter; set => this.RaiseAndSetIfChanged(ref _selectedNamedFilter, value); }
 		public AvaloniaList<Control> QuickFilterMenuItems { get; } = new();
 		/// <summary> Indicates if the first quick filter is the default filter </summary>
 		public bool FirstFilterIsDefault { get => _firstFilterIsDefault; set => QuickFilters.UseDefault = this.RaiseAndSetIfChanged(ref _firstFilterIsDefault, value); }
@@ -50,36 +51,44 @@ namespace LibationAvalonia.ViewModels
 			QuickFilterMenuItems.Add(new Separator());
 		}
 
-		public void AddQuickFilterBtn() => QuickFilters.Add(SelectedNamedFilter);
+		public void AddQuickFilterBtn() { if (SelectedNamedFilter != null) QuickFilters.Add(SelectedNamedFilter); }
 		public async Task FilterBtn() => await PerformFilter(SelectedNamedFilter);
 		public async Task FilterHelpBtn() => await new LibationAvalonia.Dialogs.SearchSyntaxDialog().ShowDialog(MainWindow);
 		public void ToggleFirstFilterIsDefault() => FirstFilterIsDefault = !FirstFilterIsDefault;
 		public async Task EditQuickFiltersAsync() => await new LibationAvalonia.Dialogs.EditQuickFilters().ShowDialog(MainWindow);
-		public async Task PerformFilter(QuickFilters.NamedFilter namedFilter)
+		public async Task PerformFilter(QuickFilters.NamedFilter? namedFilter)
 		{
 			SelectedNamedFilter = namedFilter;
+			var tryFilter = namedFilter?.Filter;
 
 			try
 			{
-				await ProductsDisplay.Filter(namedFilter.Filter);
+				await ProductsDisplay.Filter(tryFilter);
 				lastGoodFilter = namedFilter;
 			}
 			catch (Exception ex)
 			{
-				await MessageBox.Show($"Bad filter string:\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				Serilog.Log.Logger.Error(ex, "Error performing filtering. {@namedFilter} {@lastGoodFilter}", namedFilter, lastGoodFilter);
+				await MessageBox.Show($"Bad filter string: \"{tryFilter}\"\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
 				// re-apply last good filter
 				await PerformFilter(lastGoodFilter);
 			}
 		}
 
-		private void updateFiltersMenu(object _ = null, object __ = null)
+		private void updateFiltersMenu(object? _ = null, object? __ = null)
 		{
-			//Clear all filters
-			var quickFilterNativeMenu = (NativeMenuItem)NativeMenu.GetMenu(MainWindow).Items[3];
-			for (int i = quickFilterNativeMenu.Menu.Items.Count - 1; i >= 3; i--)
+			if (NativeMenu.GetMenu(MainWindow)?.Items[3] is not NativeMenuItem ss ||
+				ss.Menu is not NativeMenu quickFilterNativeMenu)
 			{
-				var command = ((NativeMenuItem)quickFilterNativeMenu.Menu.Items[i]).Command as IDisposable;
+				Serilog.Log.Logger.Error($"Unable to find {nameof(quickFilterNativeMenu)}");
+				return;
+			}
+
+			//Clear all filters
+			for (int i = quickFilterNativeMenu.Items.Count - 1; i >= 3; i--)
+			{
+				var command = ((NativeMenuItem)quickFilterNativeMenu.Items[i]).Command as IDisposable;
 				if (command != null)
 				{
 					var existingBinding = MainWindow.KeyBindings.FirstOrDefault(kb => kb.Command == command);
@@ -89,7 +98,7 @@ namespace LibationAvalonia.ViewModels
 					command.Dispose();
 				}
 
-				quickFilterNativeMenu.Menu.Items.RemoveAt(i);
+				quickFilterNativeMenu.Items.RemoveAt(i);
 				QuickFilterMenuItems.RemoveAt(i);
 			}
 
@@ -116,7 +125,7 @@ namespace LibationAvalonia.ViewModels
 				}
 
 				QuickFilterMenuItems.Add(menuItem);
-				quickFilterNativeMenu.Menu.Items.Add(nativeMenuItem);
+				quickFilterNativeMenu.Items.Add(nativeMenuItem);
 			}
 		}
 	}

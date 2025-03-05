@@ -1,15 +1,11 @@
 ﻿using LibationFileManager;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels.Settings
 {
 	public class ImportSettingsVM
 	{
 		public ImportSettingsVM(Configuration config)
-		{
-			LoadSettings(config);
-		}
-
-		public void LoadSettings(Configuration config)
 		{
 			AutoScan = config.AutoScan;
 			ShowImportedStats = config.ShowImportedStats;

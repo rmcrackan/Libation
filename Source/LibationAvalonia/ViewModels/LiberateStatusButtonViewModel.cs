@@ -1,5 +1,6 @@
 ﻿using ReactiveUI;
 
+#nullable enable
 namespace LibationAvalonia.ViewModels
 {
 	public class LiberateStatusButtonViewModel : ViewModelBase

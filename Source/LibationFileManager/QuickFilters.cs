@@ -46,7 +46,7 @@ namespace LibationFileManager
 
         // Note that records overload equality automagically, so should be able to
         // compare these the same way as comparing simple strings.
-        public record NamedFilter(string Filter, string Name)
+        public record NamedFilter(string Filter, string? Name)
         {
             public string Filter { get; set; } = Filter;
             public string? Name { get; set; } = Name;
