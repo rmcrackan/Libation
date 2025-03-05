@@ -16,6 +16,7 @@ There are lots of great ideas and many are beyond what we intend to do for Libat
 * playback features
 * web gui
 * supporting non-audible vendors
+* official docker support
 
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
