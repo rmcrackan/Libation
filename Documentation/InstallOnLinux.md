@@ -22,6 +22,11 @@ Run this command in your terminal to download and install Libation, replacing th
   wget -O libation.rpm https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay.rpm &&
   sudo yum install ./libation.rpm
   ```
+### Fedora
+  ```Console
+  wget -O libation.rpm https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay.rpm &&
+  sudo dnf5 install ./libation.rpm
+  ```
 ---
 ### Arch Linux
   ```Console
