@@ -28,4 +28,4 @@ If applicable, add screenshots to help explain your problem.
 [e.g. Windows 10, Windows 11, Mac, Linux (State distribution)]
 
 **Log Files**
-Attach your Libation log file here.
+Attach your Libation log file here. Logs are typically in your `[user]\Libation` folder. (For example, on windows: `C:\my_username\Libation`) Also within Libation, on the first tab in Settings you can click the button 'Open log folder'
