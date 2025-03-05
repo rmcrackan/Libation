@@ -24,7 +24,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		private string _chapterTitleTemplate;
 		public EnumDiaplay<SampleRate> SelectedSampleRate { get; set; }
 		public NAudio.Lame.EncoderQuality SelectedEncoderQuality { get; set; }
-
+		
 		public AvaloniaList<EnumDiaplay<SampleRate>> SampleRates { get; }
 				= new(Enum.GetValues<SampleRate>()
 				.Where(r => r >= SampleRate.Hz_8000 && r <= SampleRate.Hz_48000)
@@ -112,21 +112,28 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string StripUnabridgedText { get; } = Configuration.GetDescription(nameof(Configuration.StripUnabridged));
 		public string ChapterTitleTemplateText { get; } = Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate));
 		public string MoveMoovToBeginningText { get; } = Configuration.GetDescription(nameof(Configuration.MoveMoovToBeginning));
+		public string MoveMoovToBeginningTip => Configuration.GetHelpText(nameof(MoveMoovToBeginning));
 
 		public bool CreateCueSheet { get; set; }
 		public bool CombineNestedChapterTitles { get; set; }
 		public bool DownloadCoverArt { get; set; }
 		public bool RetainAaxFile { get; set; }
+		public string RetainAaxFileTip => Configuration.GetHelpText(nameof(RetainAaxFile));
 		public bool DownloadClipsBookmarks { get => _downloadClipsBookmarks; set => this.RaiseAndSetIfChanged(ref _downloadClipsBookmarks, value); }
 		public Configuration.DownloadQuality FileDownloadQuality { get; set; }
 		public Configuration.ClipBookmarkFormat ClipBookmarkFormat { get; set; }
 		public bool MergeOpeningAndEndCredits { get; set; }
+		public string MergeOpeningAndEndCreditsTip => Configuration.GetHelpText(nameof(MergeOpeningAndEndCredits));
 		public bool StripAudibleBrandAudio { get; set; }
+		public string StripAudibleBrandAudioTip => Configuration.GetHelpText(nameof(StripAudibleBrandAudio));
 		public bool StripUnabridged { get; set; }
+		public string StripUnabridgedTip => Configuration.GetHelpText(nameof(StripUnabridged));
 		public bool DecryptToLossy { get => _decryptToLossy; set => this.RaiseAndSetIfChanged(ref _decryptToLossy, value); }
+		public string DecryptToLossyTip => Configuration.GetHelpText(nameof(DecryptToLossy));
 		public bool MoveMoovToBeginning { get; set; }
 
 		public bool LameDownsampleMono { get; set; } = Design.IsDesignMode;
+		public string LameDownsampleMonoTip => Configuration.GetHelpText(nameof(LameDownsampleMono));
 		public bool LameConstantBitrate { get; set; } = Design.IsDesignMode;
 
 		public bool SplitFilesByChapter { get => _splitFilesByChapter; set { this.RaiseAndSetIfChanged(ref _splitFilesByChapter, value); } }

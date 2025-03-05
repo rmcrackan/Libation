@@ -23,6 +23,13 @@ namespace LibationWinForms.Dialogs
 
 			toolTip.SetToolTip(combineNestedChapterTitlesCbox, Configuration.GetHelpText(nameof(config.CombineNestedChapterTitles)));
 			toolTip.SetToolTip(allowLibationFixupCbox, Configuration.GetHelpText(nameof(config.AllowLibationFixup)));
+			toolTip.SetToolTip(moveMoovAtomCbox, Configuration.GetHelpText(nameof(config.MoveMoovToBeginning)));
+			toolTip.SetToolTip(lameDownsampleMonoCbox, Configuration.GetHelpText(nameof(config.LameDownsampleMono)));
+			toolTip.SetToolTip(convertLosslessRb, Configuration.GetHelpText(nameof(config.DecryptToLossy)));
+			toolTip.SetToolTip(convertLossyRb, Configuration.GetHelpText(nameof(config.DecryptToLossy)));
+			toolTip.SetToolTip(mergeOpeningEndCreditsCbox, Configuration.GetHelpText(nameof(config.MergeOpeningAndEndCredits)));
+			toolTip.SetToolTip(retainAaxFileCbox, Configuration.GetHelpText(nameof(config.RetainAaxFile)));
+			toolTip.SetToolTip(stripAudibleBrandingCbox, Configuration.GetHelpText(nameof(config.StripAudibleBrandAudio)));
 
 			fileDownloadQualityCb.Items.AddRange(
 				new object[]
@@ -152,6 +159,7 @@ namespace LibationWinForms.Dialogs
 		private void convertFormatRb_CheckedChanged(object sender, EventArgs e)
 		{
 			moveMoovAtomCbox.Enabled = convertLosslessRb.Checked;
+			lameOptionsGb.Enabled = !convertLosslessRb.Checked;
 			lameTargetRb_CheckedChanged(sender, e);
 			LameMatchSourceBRCbox_CheckedChanged(sender, e);
 		}
