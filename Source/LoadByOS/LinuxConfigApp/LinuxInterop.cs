@@ -25,21 +25,59 @@ namespace LinuxConfigApp
 		public void SetFolderIcon(string image, string directory) => throw new PlatformNotSupportedException();
 		public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 
-		public string ReleaseIdString => LibationScaffolding.ReleaseIdentifier.ToString() + (File.Exists("/bin/yum") ? "_RPM" : "");
+		public string ReleaseIdString => LibationScaffolding.ReleaseIdentifier.ToString() + (File.Exists("/bin/apt") ? "_DEB" : "_RPM");
 
 		//only run the auto upgrader if the current app was installed from the
 		//.deb or .rpm package. Try to detect this by checking if the symlink exists.
 		public bool CanUpgrade => File.Exists("/bin/libation");
 		public void InstallUpgrade(string upgradeBundle)
 		{
-			if (File.Exists("/bin/yum"))
+			if (File.Exists("/bin/dnf5"))
+				RunAsRoot("dnf5", $"install -y '{upgradeBundle}'");
+			else if (File.Exists("/bin/dnf"))
+				RunAsRoot("dnf", $"install -y '{upgradeBundle}'");
+			else if (File.Exists("/bin/yum"))
 				RunAsRoot("yum", $"install -y '{upgradeBundle}'");
 			else
 				RunAsRoot("apt", $"install '{upgradeBundle}'");
 		}
 
+		private bool FindPkexec(out string exePath)
+		{
+			if (File.Exists("/usr/bin/pkexec"))
+			{
+				exePath = "/usr/bin/pkexec";
+				return true;
+			}
+			else if (File.Exists("/bin/pkexec"))
+			{
+				exePath = "/bin/pkexec";
+				return true;
+			}
+			exePath = null;
+			return false;
+		}
+
 		public Process RunAsRoot(string exe, string args)
 		{
+			//try to use polkit directly
+			if (FindPkexec(out var pkexec))
+			{
+				ProcessStartInfo psi = new()
+				{
+					FileName = pkexec,
+					Arguments = $"\"{exe}\" {args}",
+					UseShellExecute = false,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true
+				};
+				try
+				{
+					return Process.Start(psi);
+				}
+				catch {/* fall back to old, script-based method */}
+			}
+
 			//cribbed this script from VirtualBox's guest additions installer.
 			//It's designed to launch the system's gui superuser password
 			//prompt across multiple distributions and desktop environments.
