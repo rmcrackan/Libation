@@ -69,3 +69,8 @@ If the user it's running as is correct, and it still cannot write, be sure to ch
 
 ### Advanced Database Options
 The docker image supports an optional database mount location defined by `LIBATION_DB_DIR`. This allows the database to be mounted as read/write, while allowing the rest of the configuration files to be mounted as read only. This is specifically useful if running in Kubernetes where you can use Configmaps and Secrets to define the configuration. If the `LIBATION_DB_DIR` is mounted, it will be used, otherwise it will look for the database in `LIBATION_CONFIG_DIR`. If it does not find the database in the expected location, it will attempt to make an empty database there.
+
+### Getting help
+As mentioned above: docker is not officially supported. I'm adding this at the bottom of the page for anyone serious enough to have read this far. If you've tried everything above and would still like help, you can open an [issue](https://github.com/rmcrackan/Libation/issues). Please include `[docker]` in the title. There are also some docker folks who have offered occasional assistance who you can tag within your issue: `@ducamagnifico` , `@wtanksleyjr` , `@CLHatch`.
+
+**Reminder** that these are just friendly users who are sometimes around. They're *not* our customer support.
