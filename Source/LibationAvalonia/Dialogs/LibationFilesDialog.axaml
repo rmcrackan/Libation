@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="165"
 		MinHeight="165" MaxHeight="165"
 		MinWidth="800" MaxWidth="800"
+		Width="800" Height="165"
         x:Class="LibationAvalonia.Dialogs.LibationFilesDialog"
         xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		WindowStartupLocation="CenterScreen"

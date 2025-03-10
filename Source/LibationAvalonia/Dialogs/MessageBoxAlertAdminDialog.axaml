@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
 		MinWidth="600" MinHeight="450"
 		MaxWidth="600" MaxHeight="450"
+		Width="600" Height="450"
         x:Class="LibationAvalonia.Dialogs.MessageBoxAlertAdminDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         Title="MessageBoxAlertAdminDialog"
