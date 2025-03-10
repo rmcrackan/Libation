@@ -301,10 +301,6 @@ namespace LibationWinForms.GridView
 				.BookEntries()
 				.ExceptBy(dbBooks.Select(lb => lb.Book.AudibleProductId), ge => ge.AudibleProductId);
 
-			removedBooks = bindingList
-				.AllItems()
-				.BookEntries().Take(10).ToList();
-
 			RemoveBooks(removedBooks);
 
 			gridEntryDataGridView.FirstDisplayedScrollingRowIndex = topRow;

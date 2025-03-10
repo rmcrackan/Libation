@@ -84,7 +84,7 @@ namespace LibationWinForms
 		public async Task InitLibraryAsync(List<LibraryBook> libraryBooks)
 		{
 			runBackupCountsAgain = true;
-			updateCountsBw.RunWorkerAsync(libraryBooks);
+			setBackupCounts(null, libraryBooks);
 			await productsDisplay.DisplayAsync(libraryBooks);
 		}
 
