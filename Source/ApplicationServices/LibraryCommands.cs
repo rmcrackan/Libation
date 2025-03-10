@@ -233,13 +233,42 @@ namespace ApplicationServices
             }
         }
 
+		private static LogArchiver? openLogArchive(string? archivePath)
+        {
+            if (string.IsNullOrWhiteSpace(archivePath))
+                return null;
+
+            try
+            {
+                return new LogArchiver(archivePath);
+            }
+            catch (System.IO.InvalidDataException)
+            {
+                try
+                {
+					Log.Logger.Warning($"Deleting corrupted {nameof(LogArchiver)} at {archivePath}");
+                    FileUtility.SaferDelete(archivePath);
+					return new LogArchiver(archivePath);
+				}
+                catch (Exception ex)
+				{
+					Log.Logger.Error(ex, $"Failed to open {nameof(LogArchiver)} at {archivePath}");
+				}
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, $"Failed to open {nameof(LogArchiver)} at {archivePath}");
+            }
+            return null;
+        }
+
 		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions libraryOptions)
         {
             var tasks = new List<Task<List<ImportItem>>>();
 
            await using LogArchiver? archiver
                 = Log.Logger.IsDebugEnabled()
-                ? new LogArchiver(System.IO.Path.Combine(Configuration.Instance.LibationFiles, "LibraryScans.zip"))
+                ? openLogArchive(System.IO.Path.Combine(Configuration.Instance.LibationFiles, "LibraryScans.zip"))
                 : default;
 
 			archiver?.DeleteAllButNewestN(20);
