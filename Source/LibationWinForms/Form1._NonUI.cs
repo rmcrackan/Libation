@@ -32,8 +32,8 @@ namespace LibationWinForms
 
                 var libraryStats = e.Result as LibraryCommands.LibraryStats;
 
-                if ((libraryStats.booksNoProgress + libraryStats.pdfsNotDownloaded) > 0)
-                    beginBookBackupsToolStripMenuItem_Click();
+                if ((libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded) > 0)
+                    Invoke(() => beginBookBackupsToolStripMenuItem_Click(null, System.EventArgs.Empty));
             };
 		}
 

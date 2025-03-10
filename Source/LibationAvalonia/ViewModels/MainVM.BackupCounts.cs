@@ -58,7 +58,7 @@ namespace LibationAvalonia.ViewModels
 				await Dispatcher.UIThread.InvokeAsync(() => LibraryStats = stats);
 
 				if (Configuration.Instance.AutoDownloadEpisodes
-					&& stats.booksNoProgress + stats.pdfsNotDownloaded > 0)
+					&& stats.PendingBooks + stats.pdfsNotDownloaded > 0)
 					await Dispatcher.UIThread.InvokeAsync(BackupAllBooks);
 			}
 		}
