@@ -35,7 +35,7 @@
 					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemChromeMediumLowColor}">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
 						<ScrollViewer
 							Name="scroller"
 							HorizontalScrollBarVisibility="Disabled"
@@ -81,7 +81,7 @@
 					<TextBlock FontSize="14" VerticalAlignment="Center">Queue Log</TextBlock>
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemChromeMediumLowColor}">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
 						<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
 							<DataGrid.Columns>
 								<DataGridTextColumn SortMemberPath="LogDate" Header="Timestamp" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>

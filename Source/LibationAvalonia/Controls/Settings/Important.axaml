@@ -158,15 +158,24 @@
 			<TextBlock
 				Grid.Column="0"
 				FontSize="16"
+				Margin="0,0,15,0"
 				VerticalAlignment="Center"
-				Text="Theme:  "/>
+				Text="Theme:"/>
 
 			<controls:WheelComboBox
+				Name="ThemeComboBox"
 				Grid.Column="1"
 				MinWidth="80"
 				SelectedItem="{CompiledBinding ThemeVariant, Mode=TwoWay}"
 				ItemsSource="{CompiledBinding Themes}"/>
 			
+			<Button
+				Grid.Column="2"
+				HorizontalAlignment="Right"
+				Padding="20,0"
+				VerticalAlignment="Stretch"
+				Content="Edit Theme Colors"
+				Click="EditThemeColors_Click"/>
 		</Grid>
 	</Grid>
 </UserControl>

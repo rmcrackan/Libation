@@ -61,7 +61,7 @@ namespace LibationAvalonia.ViewModels
 
 		#region Properties exposed to the view
 		public ProcessBookResult Result { get => _result; set { this.RaiseAndSetIfChanged(ref _result, value); this.RaisePropertyChanged(nameof(StatusText)); } }
-		public ProcessBookStatus Status { get => _status; set { this.RaiseAndSetIfChanged(ref _status, value); this.RaisePropertyChanged(nameof(BackgroundColor)); this.RaisePropertyChanged(nameof(IsFinished)); this.RaisePropertyChanged(nameof(IsDownloading)); this.RaisePropertyChanged(nameof(Queued)); } }
+		public ProcessBookStatus Status { get => _status; set { this.RaiseAndSetIfChanged(ref _status, value); this.RaisePropertyChanged(nameof(IsFinished)); this.RaisePropertyChanged(nameof(IsDownloading)); this.RaisePropertyChanged(nameof(Queued)); } }
 		public string? Narrator { get => _narrator; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _narrator, value)); }
 		public string? Author { get => _author; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _author, value)); }
 		public string? Title { get => _title; set => Dispatcher.UIThread.Invoke(() => this.RaiseAndSetIfChanged(ref _title, value)); }
@@ -72,13 +72,6 @@ namespace LibationAvalonia.ViewModels
 		public bool IsDownloading => Status is ProcessBookStatus.Working;
 		public bool Queued => Status is ProcessBookStatus.Queued;
 
-		public IBrush BackgroundColor => Status switch
-		{
-			ProcessBookStatus.Cancelled => App.ProcessQueueBookCancelledBrush,
-			ProcessBookStatus.Completed => App.ProcessQueueBookCompletedBrush,
-			ProcessBookStatus.Failed => App.ProcessQueueBookFailedBrush,
-			_ => App.ProcessQueueBookDefaultBrush,
-		};
 		public string StatusText => Result switch
 		{
 			ProcessBookResult.Success => "Finished",

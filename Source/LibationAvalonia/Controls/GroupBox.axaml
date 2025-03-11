@@ -28,7 +28,7 @@
 							<TextBlock
 								Name="PART_Label"
 								Padding="4,0"
-								Background="{DynamicResource SystemAltHighColor}"
+								Background="{DynamicResource SystemRegionColor}"
 								Text="{TemplateBinding Label}"
 								/>
 						</Grid>

@@ -10,6 +10,8 @@ namespace LibationAvalonia.Dialogs
 {
 	public abstract class DialogWindow : Window
 	{
+		protected bool CancelOnEscape { get; set; } = true;
+		protected bool SaveOnEnter { get; set; } = true;
 		public bool SaveAndRestorePosition { get; set; } = true;
 		public Control ControlToFocusOnShow { get; set; }
 		protected override Type StyleKeyOverride => typeof(DialogWindow);
@@ -132,9 +134,9 @@ namespace LibationAvalonia.Dialogs
 
 		private async void DialogWindow_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
 		{
-			if (e.Key == Avalonia.Input.Key.Escape)
+			if (CancelOnEscape && e.Key == Avalonia.Input.Key.Escape)
 				await CancelAndCloseAsync();
-			else if (e.Key == Avalonia.Input.Key.Return)
+			else if (SaveOnEnter && e.Key == Avalonia.Input.Key.Return)
 				await SaveAndCloseAsync();
 		}
 	}

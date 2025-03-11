@@ -1,6 +1,8 @@
 using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using DataLayer;
@@ -17,16 +19,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.Views
 {
 	public partial class ProductsDisplay : UserControl
 	{
-		public event EventHandler<LibraryBook> LiberateClicked;
-		public event EventHandler<ISeriesEntry> LiberateSeriesClicked;
-		public event EventHandler<LibraryBook> ConvertToMp3Clicked;
+		public event EventHandler<LibraryBook>? LiberateClicked;
+		public event EventHandler<ISeriesEntry>? LiberateSeriesClicked;
+		public event EventHandler<LibraryBook>? ConvertToMp3Clicked;
 
-		private ProductsDisplayViewModel _viewModel => DataContext as ProductsDisplayViewModel;
-		ImageDisplayDialog imageDisplayDialog;
+		private ProductsDisplayViewModel? _viewModel => DataContext as ProductsDisplayViewModel;
+		ImageDisplayDialog? imageDisplayDialog;
 
 		public ProductsDisplay()
 		{
@@ -52,6 +55,8 @@ namespace LibationAvalonia.Views
 			Configuration.Instance.PropertyChanged += Configuration_GridScaleChanged;
 			Configuration.Instance.PropertyChanged += Configuration_FontChanged;
 
+			#region Design Mode Testing
+#if DEBUG
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
@@ -80,6 +85,8 @@ namespace LibationAvalonia.Views
 				setFontScale(1);
 				return;
 			}
+#endif
+			#endregion
 
 			setGridScale(Configuration.Instance.GridScaleFactor);
 			setFontScale(Configuration.Instance.GridFontScaleFactor);
@@ -89,6 +96,14 @@ namespace LibationAvalonia.Views
 			{
 				column.CustomSortComparer = new RowComparer(column);
 			}
+		}
+
+		private void ProductsDisplay_LoadingRow(object sender, DataGridRowEventArgs e)
+		{
+			if (e.Row.DataContext is LibraryBookEntry<AvaloniaEntryStatus> entry && entry.Liberate.IsEpisode)
+				e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SeriesEntryGridBackgroundBrush");
+			else
+				e.Row.Background = Brushes.Transparent;
 		}
 
 		private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
@@ -105,13 +120,15 @@ namespace LibationAvalonia.Views
 		[PropertyChangeFilter(nameof(Configuration.GridScaleFactor))]
 		private void Configuration_GridScaleChanged(object sender, Dinah.Core.PropertyChangedEventArgsEx e)
 		{
-			setGridScale((float)e.NewValue);
+			if (e.NewValue is float value)
+				setGridScale(value);
 		}
 
 		[PropertyChangeFilter(nameof(Configuration.GridFontScaleFactor))]
 		private void Configuration_FontChanged(object sender, Dinah.Core.PropertyChangedEventArgsEx e)
 		{
-			setFontScale((float)e.NewValue);
+			if (e.NewValue is float value)
+				setFontScale(value);
 		}
 
 		private readonly Style rowHeightStyle;
@@ -171,17 +188,18 @@ namespace LibationAvalonia.Views
 
 		#region Cell Context Menu
 
-		public void ProductsGrid_CellContextMenuStripNeeded(object sender, DataGridCellContextMenuStripNeededEventArgs args)
+		public void ProductsGrid_CellContextMenuStripNeeded(object? sender, DataGridCellContextMenuStripNeededEventArgs args)
 		{
 			var entry = args.GridEntry;
 			var ctx = new GridContextMenu(entry, '_');
 
-			if (args.Column.SortMemberPath is not "Liberate" and not "Cover")
+			if (args.Column.SortMemberPath is not "Liberate" and not "Cover"
+				&& App.MainWindow?.Clipboard is IClipboard clipboard)
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
 					Header = ctx.CopyCellText,
-					Command = ReactiveCommand.CreateFromTask(() => App.MainWindow.Clipboard.SetTextAsync(args.CellClipboardContents))
+					Command = ReactiveCommand.CreateFromTask(() => clipboard?.SetTextAsync(args.CellClipboardContents) ?? Task.CompletedTask)
 				});
 				args.ContextMenuItems.Add(new Separator());
 			}
@@ -240,13 +258,14 @@ namespace LibationAvalonia.Views
 					{
 						try
 						{
-							var window = this.GetParentWindow();
+							if (this.GetParentWindow() is not Window window)
+								return;
 
 							var openFileDialogOptions = new FilePickerOpenOptions
 							{
 								Title = ctx.LocateFileDialogTitle,
 								AllowMultiple = false,
-								SuggestedStartLocation = await window.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix),
+								SuggestedStartLocation = await window.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books?.PathWithoutPrefix!),
 								FileTypeFilter = new FilePickerFileType[]
 								{
 									new("All files (*.*)") { Patterns = new[] { "*" } },
@@ -303,7 +322,7 @@ namespace LibationAvalonia.Views
 			{
 				var template = ctx.CreateTemplateEditor<T>(libraryBook, existingTemplate);
 				var form = new EditTemplateDialog(template);
-				if (await form.ShowDialog<DialogResult>(this.GetParentWindow()) == DialogResult.OK)
+				if (this.GetParentWindow() is Window window && await form.ShowDialog<DialogResult>(window) == DialogResult.OK)
 				{
 					setNewTemplate(template.EditingTemplate.TemplateText);
 				}
@@ -340,12 +359,12 @@ namespace LibationAvalonia.Views
 
 			#region View Bookmarks/Clips
 
-			if (!entry.Liberate.IsSeries)
+			if (!entry.Liberate.IsSeries && VisualRoot is Window window)
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
 					Header = ctx.ViewBookmarksText,
-					Command = ReactiveCommand.CreateFromTask(() => new BookRecordsDialog(entry.LibraryBook).ShowDialog(VisualRoot as Window))
+					Command = ReactiveCommand.CreateFromTask(() => new BookRecordsDialog(entry.LibraryBook).ShowDialog(window))
 				});
 			}
 
@@ -389,6 +408,9 @@ namespace LibationAvalonia.Views
 
 			var HeaderCell_PI = typeof(DataGridColumn).GetProperty("HeaderCell", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
+			if (HeaderCell_PI is null)
+				return;
+
 			foreach (var column in productsGrid.Columns)
 			{
 				var itemName = column.SortMemberPath;
@@ -406,8 +428,9 @@ namespace LibationAvalonia.Views
 						}
 					);
 
-				var headercell = HeaderCell_PI.GetValue(column) as DataGridColumnHeader;
-				headercell.ContextMenu = contextMenu;
+				var headerCell = HeaderCell_PI.GetValue(column) as DataGridColumnHeader;
+				if (headerCell is not null)
+					headerCell.ContextMenu = contextMenu;
 
 				column.IsVisible = gridColumnsVisibilities.GetValueOrDefault(itemName, true);
 			}
@@ -425,30 +448,30 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private void ContextMenu_ContextMenuOpening(object sender, System.ComponentModel.CancelEventArgs e)
+		private void ContextMenu_ContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
 		{
-			var contextMenu = sender as ContextMenu;
+			if (sender is not ContextMenu contextMenu)
+				return;
 			foreach (var mi in contextMenu.Items.OfType<MenuItem>())
 			{
-				if (mi.Tag is DataGridColumn column)
+				if (mi.Tag is DataGridColumn column && mi.Icon is CheckBox cbox)
 				{
-					var cbox = mi.Icon as CheckBox;
 					cbox.IsChecked = column.IsVisible;
 				}
 			}
 		}
 
-		private void ContextMenu_MenuClosed(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private void ContextMenu_MenuClosed(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			var contextMenu = sender as ContextMenu;
+			if (sender is not ContextMenu contextMenu)
+				return;
 			var config = Configuration.Instance;
 			var dictionary = config.GridColumnsVisibilities;
 
 			foreach (var mi in contextMenu.Items.OfType<MenuItem>())
 			{
-				if (mi.Tag is DataGridColumn column)
+				if (mi.Tag is DataGridColumn column && mi.Icon is CheckBox cbox)
 				{
-					var cbox = mi.Icon as CheckBox;
 					column.IsVisible = cbox.IsChecked == true;
 					dictionary[column.SortMemberPath] = cbox.IsChecked == true;
 				}
@@ -463,7 +486,7 @@ namespace LibationAvalonia.Views
 			config.GridColumnsVisibilities = dictionary;
 		}
 
-		private void ProductsGrid_ColumnDisplayIndexChanged(object sender, DataGridColumnEventArgs e)
+		private void ProductsGrid_ColumnDisplayIndexChanged(object? sender, DataGridColumnEventArgs e)
 		{
 			var config = Configuration.Instance;
 
@@ -478,9 +501,10 @@ namespace LibationAvalonia.Views
 
 		public async void LiberateButton_Click(object sender, EventArgs e)
 		{
-			var button = sender as LiberateStatusButton;
+			if (sender is not LiberateStatusButton button)
+				return;
 
-			if (button.DataContext is ISeriesEntry sEntry)
+			if (button.DataContext is ISeriesEntry sEntry && _viewModel is not null)
 			{
 				await _viewModel.ToggleSeriesExpanded(sEntry);
 
@@ -518,7 +542,7 @@ namespace LibationAvalonia.Views
 
 			var picDef = new PictureDefinition(gEntry.LibraryBook.Book.PictureLarge ?? gEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 
-			void PictureCached(object sender, PictureCachedEventArgs e)
+			void PictureCached(object? sender, PictureCachedEventArgs e)
 			{
 				if (e.Definition.PictureId == picDef.PictureId)
 					imageDisplayDialog.SetCoverBytes(e.Picture);
@@ -558,7 +582,7 @@ namespace LibationAvalonia.Views
 					DescriptionText = gEntry.Description,
 				};
 
-				void CloseWindow(object o, DataGridRowEventArgs e)
+				void CloseWindow(object? o, DataGridRowEventArgs e)
 				{
 					displayWindow.Close();
 				}
@@ -572,13 +596,13 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		BookDetailsDialog bookDetailsForm;
+		BookDetailsDialog? bookDetailsForm;
 
 		public void OnTagsButtonClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var button = args.Source as Button;
 
-			if (button.DataContext is ILibraryBookEntry lbEntry && VisualRoot is Window window)
+			if (button?.DataContext is ILibraryBookEntry lbEntry && VisualRoot is Window window)
 			{
 				if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
 				{

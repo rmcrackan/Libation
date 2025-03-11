@@ -2,7 +2,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Styling;
 using LibationAvalonia.Dialogs;
@@ -13,19 +12,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using Dinah.Core;
+using LibationAvalonia.Themes;
+using Avalonia.Data.Core.Plugins;
+using System.Linq;
 
+#nullable enable
 namespace LibationAvalonia
 {
 	public class App : Application
 	{
-		public static MainWindow MainWindow { get; private set; }
-		public static IBrush ProcessQueueBookFailedBrush { get; private set; }
-		public static IBrush ProcessQueueBookCompletedBrush { get; private set; }
-		public static IBrush ProcessQueueBookCancelledBrush { get; private set; }
-		public static IBrush ProcessQueueBookDefaultBrush { get; private set; }
-		public static IBrush SeriesEntryGridBackgroundBrush { get; private set; }
+		public static Task<List<DataLayer.LibraryBook>>? LibraryTask { get; set; }
+		public static ChardonnayTheme? DefaultThemeColors { get; private set; }
+		public static MainWindow? MainWindow { get; private set; }
+		public static Uri AssetUriBase { get; } = new("avares://Libation/Assets/");
+		public static new Application Current => Application.Current ?? throw new InvalidOperationException("The Avalonia app hasn't started yet.");
 
-		public static readonly Uri AssetUriBase = new("avares://Libation/Assets/");
 		public static Stream OpenAsset(string assetRelativePath)
 			=> AssetLoader.Open(new Uri(AssetUriBase, assetRelativePath));
 
@@ -34,12 +36,16 @@ namespace LibationAvalonia
 			AvaloniaXamlLoader.Load(this);
 		}
 
-		public static Task<List<DataLayer.LibraryBook>> LibraryTask;
-
 		public override void OnFrameworkInitializationCompleted()
 		{
+			DefaultThemeColors = ChardonnayTheme.GetLiveTheme();
+
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 			{
+				// Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
+				// More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
+				DisableAvaloniaDataAnnotationValidation();
+
 				var config = Configuration.Instance;
 
 				if (!config.LibationSettingsAreValid)
@@ -69,11 +75,23 @@ namespace LibationAvalonia
 
 			base.OnFrameworkInitializationCompleted();
 		}
-
-		private async void Setup_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		private void DisableAvaloniaDataAnnotationValidation()
 		{
-			var setupDialog = sender as SetupDialog;
-			var desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+			// Get an array of plugins to remove
+			var dataValidationPluginsToRemove =
+				BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
+
+			// remove each entry found
+			foreach (var plugin in dataValidationPluginsToRemove)
+			{
+				BindingPlugins.DataValidators.Remove(plugin);
+			}
+		}
+
+		private async void Setup_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+		{
+			if (sender is not SetupDialog setupDialog || ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
+				return;
 
 			try
 			{
@@ -87,7 +105,7 @@ namespace LibationAvalonia
 
 					if (setupDialog.Config.LibationSettingsAreValid)
 					{
-                        string theme = setupDialog.SelectedTheme.Content as string;
+						string? theme = setupDialog.SelectedTheme.Content as string;
 						
 						setupDialog.Config.SetString(theme, nameof(ThemeVariant));
 
@@ -143,7 +161,7 @@ namespace LibationAvalonia
 			desktop.MainWindow = libationFilesDialog;
 			libationFilesDialog.Show();
 
-			void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+			void WindowClosing(object? sender, System.ComponentModel.CancelEventArgs e)
 			{
 				libationFilesDialog.Closing -= WindowClosing;
 				e.Cancel = true;
@@ -201,16 +219,9 @@ namespace LibationAvalonia
 
 		private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)
 		{
-            Current.RequestedThemeVariant = Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)) switch
-            {
-                nameof(ThemeVariant.Dark) => ThemeVariant.Dark,
-                nameof(ThemeVariant.Light) => ThemeVariant.Light,
-				// "System"
-                _ => ThemeVariant.Default
-            };
+			Configuration.Instance.PropertyChanged += ThemeVariant_PropertyChanged;
+			OpenAndApplyTheme(Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)));
 
-            //Reload colors for current theme
-			LoadStyles();
 			var mainWindow = new MainWindow();
 			desktop.MainWindow = MainWindow = mainWindow;
 			mainWindow.Loaded += MainWindow_Loaded;
@@ -218,19 +229,23 @@ namespace LibationAvalonia
 			mainWindow.Show();
 		}
 
-		private static async void MainWindow_Loaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		[PropertyChangeFilter(nameof(ThemeVariant))]
+		private static void ThemeVariant_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
+			=> OpenAndApplyTheme(e.NewValue as string);
+
+		private static void OpenAndApplyTheme(string? themeVariant)
 		{
-			var library = await LibraryTask;
-			await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync(library));
+			using var themePersister = ChardonnayThemePersister.Create();
+			themePersister?.Target.ApplyTheme(themeVariant);
 		}
 
-		private static void LoadStyles()
+		private static async void MainWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			ProcessQueueBookFailedBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookFailedBrush));
-			ProcessQueueBookCompletedBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookCompletedBrush));
-			ProcessQueueBookCancelledBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookCancelledBrush));
-			SeriesEntryGridBackgroundBrush = AvaloniaUtils.GetBrushFromResources(nameof(SeriesEntryGridBackgroundBrush));
-			ProcessQueueBookDefaultBrush = AvaloniaUtils.GetBrushFromResources(nameof(ProcessQueueBookDefaultBrush));
+			if (LibraryTask is not null && MainWindow is not null)
+			{
+				var library = await LibraryTask;
+				await Dispatcher.UIThread.InvokeAsync(() => MainWindow.OnLibraryLoadedAsync(library));
+			}
 		}
 	}
 }
