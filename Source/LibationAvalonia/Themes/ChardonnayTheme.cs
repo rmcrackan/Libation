@@ -128,7 +128,6 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 
 			App.Current.Styles.Add(newFluent);
 		}
-
 	}
 
 	/// <summary> Get the currently-active theme colors. </summary>

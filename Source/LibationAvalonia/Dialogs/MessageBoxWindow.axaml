@@ -6,8 +6,8 @@
         mc:Ignorable="d" d:DesignWidth="265" d:DesignHeight="110"
 		MinWidth="265" MinHeight="110"
         x:Class="LibationAvalonia.Dialogs.MessageBoxWindow"
-        Title="{Binding Caption}" ShowInTaskbar="True"
-		Icon="/Assets/1x1.png">
+        Title="{Binding Caption}" ShowInTaskbar="True">
+	
 	<Grid ColumnDefinitions="*" RowDefinitions="*,Auto">
 		
 		<DockPanel Margin="5,10,10,20" Grid.Row="0">

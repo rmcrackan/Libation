@@ -16,7 +16,7 @@ public partial class ThemePickerDialog : DialogWindow
 	protected DataGridCollectionView ThemeColors { get; }
 	private ChardonnayTheme ExistingTheme { get; } = ChardonnayTheme.GetLiveTheme();
 
-	public ThemePickerDialog() : base(saveAndRestorePosition: false)
+	public ThemePickerDialog()
 	{
 		InitializeComponent();
 		CancelOnEscape = false;
