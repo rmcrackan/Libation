@@ -160,7 +160,7 @@
 			</Menu>
 				
 			<StackPanel IsVisible="{CompiledBinding ActivelyScanning}" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-				<Path VerticalAlignment="Center" Fill="{StaticResource IconFill}" Data="{StaticResource ImportIcon}" />
+				<Path VerticalAlignment="Center" Fill="{DynamicResource IconFill}" Data="{StaticResource ImportIcon}" />
 				<TextBlock Margin="5,0,5,0" VerticalAlignment="Center" Text="{CompiledBinding ScanningText}"/>
 			</StackPanel>
 		</Grid>
