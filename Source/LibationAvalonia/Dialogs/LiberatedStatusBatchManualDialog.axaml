@@ -9,8 +9,7 @@
 		MinWidth="400" MinHeight="100"
 		MaxWidth="400" MaxHeight="100"
 		Width="400" Height="100"
-		WindowStartupLocation="CenterOwner"
-		Icon="/Assets/libation.ico">
+		WindowStartupLocation="CenterOwner">
 
 	<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
 

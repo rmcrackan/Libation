@@ -7,8 +7,7 @@
 		MinWidth="500" MinHeight="500"
 		Width="500" Height="520"
         Title="Cover"
-		WindowStartupLocation="CenterOwner"
-		Icon="/Assets/libation.ico">
+		WindowStartupLocation="CenterOwner">
 
 	<Image Stretch="Uniform" Source="{Binding CoverImage}">
 		<Image.ContextMenu>

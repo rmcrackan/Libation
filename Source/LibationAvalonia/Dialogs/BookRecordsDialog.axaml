@@ -5,8 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
 		Width="700" Height="450"
         x:Class="LibationAvalonia.Dialogs.BookRecordsDialog"
-        Title="BookRecordsDialog"
-		Icon="/Assets/libation.ico">
+        Title="BookRecordsDialog">
 
 	<Grid RowDefinitions="*,Auto">
 

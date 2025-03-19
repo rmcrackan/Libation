@@ -6,8 +6,7 @@
 		Width="650" Height="500"
 		WindowStartupLocation="CenterOwner"
         x:Class="LibationAvalonia.Dialogs.Login.LoginExternalDialog"
-        Title="Audible Login External"
-		Icon="/Assets/libation.ico">
+        Title="Audible Login External">
 
 	<Grid RowDefinitions="Auto,Auto,*,Auto,*" ColumnDefinitions="*" Margin="5">
 

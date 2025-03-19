@@ -6,8 +6,7 @@
 		MinWidth="500" MinHeight="450"
 		Width="500" Height="450"
         x:Class="LibationAvalonia.Dialogs.EditReplacementChars"
-        Title="Illegal Character Replacement"		
-		Icon="/Assets/libation.ico">
+        Title="Illegal Character Replacement">
 
 	<Grid
 		RowDefinitions="*,Auto"

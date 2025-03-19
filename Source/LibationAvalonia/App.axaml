@@ -90,6 +90,7 @@
 
 		<Style Selector="dialogs|DialogWindow">
 			<Setter Property="SystemDecorations" Value="Full"/>
+			<Setter Property="Icon" Value="/Assets/libation.ico"/>
 			<Setter Property="Template">
 				<ControlTemplate>
 					<ContentPresenter Background="{DynamicResource SystemRegionColor}" Content="{TemplateBinding Content}" />

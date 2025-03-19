@@ -8,8 +8,7 @@
 		WindowStartupLocation="CenterOwner"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         x:Class="LibationAvalonia.Dialogs.Login.LoginChoiceEagerDialog"
-        Title="Audible Login"
-		Icon="/Assets/libation.ico" >
+        Title="Audible Login">
 
 	<Grid RowDefinitions="Auto,Auto,Auto,*" ColumnDefinitions="*" Margin="5">
 		

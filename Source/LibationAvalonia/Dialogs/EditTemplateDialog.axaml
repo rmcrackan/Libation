@@ -6,7 +6,6 @@
 		Width="800" Height="450"
         x:Class="LibationAvalonia.Dialogs.EditTemplateDialog"
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
-		Icon="/Assets/libation.ico"
         Title="EditTemplateDialog">
 
 	<Grid RowDefinitions="Auto,*,Auto">

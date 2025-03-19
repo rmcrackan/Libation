@@ -8,8 +8,7 @@
 		Width="400" Height="200"
 		WindowStartupLocation="CenterOwner"
         x:Class="LibationAvalonia.Dialogs.Login.MfaDialog"
-        Title="Two-Step Verification"
-		Icon="/Assets/libation.ico">
+        Title="Two-Step Verification">
 
 	<Grid RowDefinitions="*,Auto">
 

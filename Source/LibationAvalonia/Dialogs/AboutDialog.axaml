@@ -7,8 +7,7 @@
 		Width="400" Height="520"
         x:Class="LibationAvalonia.Dialogs.AboutDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
-        Title="About Libation"
-		Icon="/Assets/libation.ico">
+        Title="About Libation">
 	
 	<Grid Margin="10" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,*">
 		

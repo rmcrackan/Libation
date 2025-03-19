@@ -10,8 +10,7 @@
         xmlns:settings="clr-namespace:LibationAvalonia.Controls.Settings"
         xmlns:vm="clr-namespace:LibationAvalonia.ViewModels.Settings"
 		x:DataType="vm:SettingsVM"
-        Title="Edit Settings"
-		Icon="/Assets/libation.ico">
+        Title="Edit Settings">
 
 	<Grid RowDefinitions="*,Auto">
 

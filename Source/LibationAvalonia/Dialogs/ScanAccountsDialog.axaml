@@ -7,8 +7,7 @@
 		MinWidth="500" MinHeight="160"
 		Width="500" Height="200"
         Title="Which Accounts?"
-		WindowStartupLocation="CenterOwner"
-		Icon="/Assets/libation.ico">
+		WindowStartupLocation="CenterOwner">
 
 	<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*,Auto">
 		

@@ -6,8 +6,7 @@
 		Width="600" Height="450"
 		x:Class="LibationAvalonia.Dialogs.LocateAudiobooksDialog"
         Title="Locate Audiobooks"
-		WindowStartupLocation="CenterOwner"
-		Icon="/Assets/libation.ico">
+		WindowStartupLocation="CenterOwner">
 
 	<Grid Margin="5" ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
 		<TextBlock Grid.Column="0" Text="Found Audiobooks" />

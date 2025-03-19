@@ -22,10 +22,17 @@ namespace LibationAvalonia.Dialogs
 			KeyDown += DialogWindow_KeyDown;
 			Initialized += DialogWindow_Initialized;
 			Opened += DialogWindow_Opened;
+			Loaded += DialogWindow_Loaded;
 			Closing += DialogWindow_Closing;
 
 			if (Design.IsDesignMode)
 				RequestedThemeVariant = ThemeVariant.Dark;
+		}
+
+		private void DialogWindow_Loaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			if (!CanResize)
+				this.HideMinMaxBtns();
 		}
 
 		protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -38,11 +45,6 @@ namespace LibationAvalonia.Dialogs
 				Height = MinHeight;
 				Width = MinWidth;
 			}
-		}
-
-		private void CloseButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			CancelAndClose();
 		}
 
 		private void DialogWindow_Initialized(object sender, EventArgs e)

@@ -8,8 +8,7 @@
 		MaxWidth="630" MaxHeight="90"
 		Width="630" Height="110"
         Title="Replace Tags"
-		WindowStartupLocation="CenterOwner"
-		Icon="/Assets/libation.ico">
+		WindowStartupLocation="CenterOwner">
 
 	<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" Margin="10">
 		<TextBlock

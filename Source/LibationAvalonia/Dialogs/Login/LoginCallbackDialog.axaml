@@ -7,8 +7,7 @@
 		Width="300" Height="120"
 		WindowStartupLocation="CenterOwner"
         x:Class="LibationAvalonia.Dialogs.Login.LoginCallbackDialog"
-        Title="Audible Login" 
-		Icon="/Assets/libation.ico">
+        Title="Audible Login">
 
 
 	<Grid RowDefinitions="Auto,Auto,Auto,*" ColumnDefinitions="*" Margin="5">

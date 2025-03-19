@@ -8,8 +8,7 @@
 		Width="240" Height="140"
 		WindowStartupLocation="CenterOwner"
         x:Class="LibationAvalonia.Dialogs.Login.ApprovalNeededDialog"
-        Title="Approval Alert Detected"
-		Icon="/Assets/libation.ico">
+        Title="Approval Alert Detected">
 
 	<Grid RowDefinitions="Auto,Auto,*">
 

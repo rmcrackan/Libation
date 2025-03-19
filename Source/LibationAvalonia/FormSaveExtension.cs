@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform;
+using Dinah.Core;
 using LibationFileManager;
 using System;
 using System.Linq;
@@ -110,6 +111,64 @@ namespace LibationAvalonia
 			public int Height;
 			public int Width;
 			public bool IsMaximized;
+		}
+
+		public static void HideMinMaxBtns(this Window form)
+		{
+			if (Design.IsDesignMode || !Configuration.IsWindows || form.TryGetPlatformHandle() is not IPlatformHandle handle)
+				return;
+
+			var windowStyle
+				= GetWindowStyle(handle.Handle)
+				.Remove(WINDOW_STYLE.WS_MINIMIZEBOX)
+				.Remove(WINDOW_STYLE.WS_MAXIMIZEBOX);
+
+			SetWindowStyle(handle.Handle, windowStyle);
+		}
+
+		const int GWL_STYLE = -16;
+
+		[System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+		static extern long GetWindowLong(IntPtr hWnd, int nIndex);
+
+		[System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "SetWindowLong")]
+		static extern int SetWindowLong(IntPtr hWnd, int nIndex, long dwNewLong);
+
+		static WINDOW_STYLE GetWindowStyle(IntPtr hWnd) => (WINDOW_STYLE)GetWindowLong(hWnd, GWL_STYLE);
+		static void SetWindowStyle(IntPtr hWnd, WINDOW_STYLE style) => SetWindowLong(hWnd, GWL_STYLE, (long)style);
+		
+
+		[Flags]
+		enum WINDOW_STYLE : long
+		{
+			WS_OVERLAPPED = 0x0,
+			WS_TILED = 0x0,
+			WS_ACTIVECAPTION = 0x1,
+			WS_MAXIMIZEBOX = 0x10000,
+			WS_TABSTOP = 0x10000,
+			WS_MINIMIZEBOX = 0x20000,
+			WS_GROUP = 0x20000,
+			WS_THICKFRAME = 0x40000,
+			WS_SIZEBOX = 0x40000,
+			WS_SYSMENU = 0x80000,
+			WS_HSCROLL = 0x100000,
+			WS_VSCROLL = 0x200000,
+			WS_DLGFRAME = 0x400000,
+			WS_BORDER = 0x800000,
+			WS_CAPTION = 0xc00000,
+			WS_OVERLAPPEDWINDOW = 0xcf0000,
+			WS_TILEDWINDOW = 0xcf0000,
+			WS_MAXIMIZE = 0x1000000,
+			WS_CLIPCHILDREN = 0x2000000,
+			WS_CLIPSIBLINGS = 0x4000000,
+			WS_DISABLED = 0x8000000,
+			WS_VISIBLE = 0x10000000,
+			WS_ICONIC = 0x20000000,
+			WS_MINIMIZE = 0x20000000,
+			WS_CHILD = 0x40000000,
+			WS_CHILDWINDOW = 0x40000000,
+			WS_POPUP = 0x80000000,
+			WS_POPUPWINDOW = 0x80880000
 		}
 	}
 }

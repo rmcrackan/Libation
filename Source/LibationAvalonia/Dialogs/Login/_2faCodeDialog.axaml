@@ -8,8 +8,7 @@
 		Width="200" Height="200"
 		WindowStartupLocation="CenterOwner"
         x:Class="LibationAvalonia.Dialogs.Login._2faCodeDialog"
-        Title="2FA Code"
-		Icon="/Assets/libation.ico">
+        Title="2FA Code">
 	
 	<Grid
 		VerticalAlignment="Stretch"
