@@ -221,6 +221,7 @@
 					Name="productsDisplay"
 					DataContext="{CompiledBinding ProductsDisplay}"						
 					LiberateClicked="ProductsDisplay_LiberateClicked"
+					TagsButtonClicked="ProductsDisplay_TagsButtonClicked"
 					LiberateSeriesClicked="ProductsDisplay_LiberateSeriesClicked"
 					ConvertToMp3Clicked="ProductsDisplay_ConvertToMp3Clicked" />				
 			</SplitView>

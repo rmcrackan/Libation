@@ -2,69 +2,74 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
+		mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="850"
 		Width="450" Height="450"
 		x:Class="LibationAvalonia.Dialogs.ThemePickerDialog"
+		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		Title="Theme Editor">
-	<Grid
-		RowDefinitions="*,Auto">
-		<DataGrid
-			GridLinesVisibility="All"
-			Margin="5"
-			IsReadOnly="False"
-			ItemsSource="{Binding ThemeColors}">
-			<DataGrid.Columns>
-
-				<DataGridTemplateColumn Width="Auto" Header="Color">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<ColorPicker
-								IsHexInputVisible="True"
-								Color="{Binding ThemeColor, Mode=TwoWay}" />
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
-				
-				<DataGridTextColumn
-					Width="*"
-					Binding="{Binding ThemeItemName, Mode=TwoWay}"
-					Header="Theme Item"/>
-
-			</DataGrid.Columns>
-
-		</DataGrid>
+	
+	<Grid ColumnDefinitions="Auto,*">
+		<controls:ThemePreviewControl Name="ThemePickerPreviewControl" Margin="5" Grid.Column="1" />
 		<Grid
-			Grid.Row="1"
-			ColumnDefinitions="Auto,Auto,Auto,*,Auto">
-			
-			<Grid.Styles>
-				<Style Selector="Button">
-					<Setter Property="Height" Value="30" />
-					<Setter Property="Padding" Value="20,0" />
-					<Setter Property="Margin" Value="5" />
-				</Style>
-			</Grid.Styles>
-			
-			<Button
-				Grid.Column="0"
-				Content="Cancel"
-				Command="{Binding CancelAndClose}" />
-			
-			<Button
-				Grid.Column="1"
-				Content="Reset"
-				Command="{Binding ResetColors}" />
-			
-			<Button
-				Grid.Column="2"
-				Content="Defaults"
-				Command="{Binding LoadDefaultColors}" />
-			
-			<Button
-				Grid.Column="4"
-				Content="Save"
-				Command="{Binding SaveAndCloseAsync}" />
+			RowDefinitions="*,Auto">
+			<DataGrid
+				GridLinesVisibility="All"
+				Margin="5"
+				IsReadOnly="False"
+				ItemsSource="{Binding ThemeColors}">
+				<DataGrid.Columns>
 
+					<DataGridTemplateColumn Width="Auto" Header="Color">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<ColorPicker
+									IsHexInputVisible="True"
+									Color="{Binding ThemeColor, Mode=TwoWay}" />
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+				
+					<DataGridTextColumn
+						Width="Auto"
+						Binding="{Binding ThemeItemName, Mode=TwoWay}"
+						Header="Theme Item"/>
+
+				</DataGrid.Columns>
+
+			</DataGrid>
+			<Grid
+				Grid.Row="1"
+				ColumnDefinitions="Auto,Auto,Auto,*,Auto">
+			
+				<Grid.Styles>
+					<Style Selector="Button">
+						<Setter Property="Height" Value="30" />
+						<Setter Property="Padding" Value="20,0" />
+						<Setter Property="Margin" Value="5" />
+					</Style>
+				</Grid.Styles>
+			
+				<Button
+					Grid.Column="0"
+					Content="Cancel"
+					Command="{Binding CancelAndClose}" />
+			
+				<Button
+					Grid.Column="1"
+					Content="Reset"
+					Command="{Binding ResetColors}" />
+			
+				<Button
+					Grid.Column="2"
+					Content="Defaults"
+					Command="{Binding LoadDefaultColors}" />
+			
+				<Button
+					Grid.Column="4"
+					Content="Save"
+					Command="{Binding SaveAndCloseAsync}" />
+
+			</Grid>
 		</Grid>
 	</Grid>
 </Window>

@@ -27,6 +27,7 @@ namespace LibationAvalonia.Views
 		public event EventHandler<LibraryBook>? LiberateClicked;
 		public event EventHandler<ISeriesEntry>? LiberateSeriesClicked;
 		public event EventHandler<LibraryBook>? ConvertToMp3Clicked;
+		public event EventHandler<LibraryBook>? TagsButtonClicked;
 
 		private ProductsDisplayViewModel? _viewModel => DataContext as ProductsDisplayViewModel;
 		ImageDisplayDialog? imageDisplayDialog;
@@ -103,7 +104,7 @@ namespace LibationAvalonia.Views
 			if (e.Row.DataContext is LibraryBookEntry<AvaloniaEntryStatus> entry && entry.Liberate.IsEpisode)
 				e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SeriesEntryGridBackgroundBrush");
 			else
-				e.Row.Background = Brushes.Transparent;
+				e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SystemRegionColor");
 		}
 
 		private void RemoveColumn_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
@@ -596,21 +597,13 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		BookDetailsDialog? bookDetailsForm;
-
 		public void OnTagsButtonClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var button = args.Source as Button;
 
-			if (button?.DataContext is ILibraryBookEntry lbEntry && VisualRoot is Window window)
+			if (button?.DataContext is ILibraryBookEntry lbEntry)
 			{
-				if (bookDetailsForm is null || !bookDetailsForm.IsVisible)
-				{
-					bookDetailsForm = new BookDetailsDialog(lbEntry.LibraryBook);
-					bookDetailsForm.Show(window);
-				}
-				else
-					bookDetailsForm.LibraryBook = lbEntry.LibraryBook;
+				TagsButtonClicked?.Invoke(this, lbEntry.LibraryBook);
 			}
 		}
 

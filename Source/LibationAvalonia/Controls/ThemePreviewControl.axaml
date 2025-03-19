@@ -1,0 +1,52 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="650"
+		     xmlns:views="clr-namespace:LibationAvalonia.Views"
+		     xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+             x:Class="LibationAvalonia.Controls.ThemePreviewControl">
+	<Grid RowDefinitions="Auto,Auto,*">
+		<controls:GroupBox>
+			<WrapPanel>
+				<RadioButton Margin="5,0" Content="This is an option" IsChecked="True" />
+				<RadioButton Margin="5,0" Content="This is another option" />
+				<CheckBox Margin="5,0" Content="This is a check box" />
+				<controls:WheelComboBox
+					Margin="5,0"
+					ItemsSource="{Binding ComboBoxItems}"
+					SelectedIndex="{Binding ComboBoxSelectedIndex}" />
+				<TextBox Margin="5,0" Text="This is an editable text box" />
+				<TextBox Margin="5,0" Text="This is a read-only text box" IsReadOnly="True" />
+				<NumericUpDown Margin="5,0" Value="100" />
+				<controls:LinkLabel VerticalAlignment="Center" Margin="5,0" Text="This is an unvisited link" />
+				<controls:LinkLabel VerticalAlignment="Center" Margin="5,0" Text="This is a visited link" Foreground="{DynamicResource HyperlinkVisited}" />
+				<StackPanel Margin="5,0" Height="15" Orientation="Horizontal">
+					<StackPanel.Styles>
+						<Style Selector="Path">
+							<Setter Property="Stretch" Value="Uniform" />
+							<Setter Property="Margin" Value="3,0" />
+							<Setter Property="Fill" Value="{DynamicResource IconFill}" />
+						</Style>
+					</StackPanel.Styles>
+					<Path Data="{StaticResource QueuedIcon}" />
+					<Path Data="{StaticResource QueueCompletedIcon}" />
+					<Path Data="{StaticResource QueueErrorIcon}"/>
+				</StackPanel>
+			</WrapPanel>
+		</controls:GroupBox>
+		<WrapPanel Orientation="Horizontal" Grid.Row="1">
+			<views:ProcessBookControl DataContext="{Binding QueuedBook}" ProcessBookStatus="{Binding Status}"  />
+			<views:ProcessBookControl DataContext="{Binding WorkingBook}" ProcessBookStatus="{Binding Status}"  />
+			<views:ProcessBookControl DataContext="{Binding CompletedBook}" ProcessBookStatus="{Binding Status}"  />
+			<views:ProcessBookControl DataContext="{Binding CancelledBook}" ProcessBookStatus="{Binding Status}"  />
+			<views:ProcessBookControl DataContext="{Binding FailedBook}" ProcessBookStatus="{Binding Status}"  />
+
+		</WrapPanel>
+		
+		<views:ProductsDisplay
+			Grid.Row="2"
+			DataContext="{Binding ProductsDisplay}"	/>
+		
+	</Grid>
+</UserControl>
