@@ -24,6 +24,16 @@ public partial class ThemePickerDialog : DialogWindow
 		ThemeColors = new(EnumerateThemeItemColors(workingTheme, ActualThemeVariant));
 
 		DataContext = this;
+		Closing += ThemePickerDialog_Closing;
+	}
+
+	private void ThemePickerDialog_Closing(object? sender, Avalonia.Controls.WindowClosingEventArgs e)
+	{
+		if (!e.IsProgrammatic)
+		{
+			CancelAndClose();
+			e.Cancel = true;
+		}
 	}
 
 	protected override void CancelAndClose()
