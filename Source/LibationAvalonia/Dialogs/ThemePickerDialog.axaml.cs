@@ -7,6 +7,7 @@ using LibationAvalonia.Themes;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Platform.Storage;
 
 #nullable enable
 namespace LibationAvalonia.Dialogs;
@@ -15,13 +16,14 @@ public partial class ThemePickerDialog : DialogWindow
 {
 	protected DataGridCollectionView ThemeColors { get; }
 	private ChardonnayTheme ExistingTheme { get; } = ChardonnayTheme.GetLiveTheme();
+	private ChardonnayTheme WorkingTheme { get; }
 
 	public ThemePickerDialog()
 	{
 		InitializeComponent();
 		CancelOnEscape = false;
-		var workingTheme = (ChardonnayTheme)ExistingTheme.Clone();
-		ThemeColors = new(EnumerateThemeItemColors(workingTheme, ActualThemeVariant));
+		WorkingTheme = (ChardonnayTheme)ExistingTheme.Clone();
+		ThemeColors = new(EnumerateThemeItemColors());
 
 		DataContext = this;
 		Closing += ThemePickerDialog_Closing;
@@ -33,6 +35,78 @@ public partial class ThemePickerDialog : DialogWindow
 		{
 			CancelAndClose();
 			e.Cancel = true;
+		}
+	}
+
+	protected async Task ImportTheme()
+	{
+		try
+		{
+			var openFileDialogOptions = new FilePickerOpenOptions
+			{
+				Title = $"Select the ChardonnayTheme.json file",
+				AllowMultiple = false,
+				FileTypeFilter =
+				[
+					new("JSON files (*.json)")
+					{
+						Patterns = ["*.json"],
+						AppleUniformTypeIdentifiers  = ["public.json"]
+					}
+				]
+			};
+
+			var selectedFiles = await StorageProvider.OpenFilePickerAsync(openFileDialogOptions);
+			var selectedFile = selectedFiles.SingleOrDefault()?.TryGetLocalPath();
+
+			if (selectedFile is null) return;
+
+			using (var theme = new ChardonnayThemePersister(selectedFile))
+			{
+				theme.Target.ApplyTheme(ActualThemeVariant);
+			}
+
+			await MessageBox.Show(this, "Theme imported and applied", "Theme Imported");
+		}
+		catch (Exception ex)
+		{
+			await MessageBox.ShowAdminAlert(this, "Error attempting to import your chardonnay theme.", "Error Importing", ex);
+		}
+	}
+
+	protected async Task ExportTheme()
+	{
+		try
+		{
+			var options = new FilePickerSaveOptions
+			{
+				Title = "Where to export Library",
+				SuggestedFileName = $"ChardonnayTheme",
+				DefaultExtension = "json",
+				ShowOverwritePrompt = true,
+				FileTypeChoices =
+				[
+					new("JSON files (*.json)")
+					{
+						Patterns = ["*.json"],
+						AppleUniformTypeIdentifiers = ["public.json"]
+					},
+					new("All files (*.*)") { Patterns = ["*"] }
+				]
+			};
+
+			var selectedFile = (await StorageProvider.SaveFilePickerAsync(options))?.TryGetLocalPath();
+
+			if (selectedFile is null) return;
+
+			using (var theme = new ChardonnayThemePersister(WorkingTheme, selectedFile))
+				theme.Target.Save();
+
+			await MessageBox.Show(this, "Theme exported to:\r\n" + selectedFile, "Theme Exported");
+		}
+		catch (Exception ex)
+		{
+			await MessageBox.ShowAdminAlert(this, "Error attempting to export your chardonnay theme.", "Error Exporting", ex);
 		}
 	}
 
@@ -83,17 +157,17 @@ public partial class ThemePickerDialog : DialogWindow
 		}
 	}
 
-	private static IEnumerable<ThemeItemColor> EnumerateThemeItemColors(ChardonnayTheme workingTheme, ThemeVariant themeVariant)
-		=> workingTheme
-		.GetThemeColors(themeVariant)
+	private IEnumerable<ThemeItemColor> EnumerateThemeItemColors()
+		=> WorkingTheme
+		.GetThemeColors(ActualThemeVariant)
 		.Select(kvp => new ThemeItemColor
 		{
 			ThemeItemName = kvp.Key,
 			ThemeColor = kvp.Value,
 			ColorSetter = c =>
 			{
-				workingTheme.SetColor(themeVariant, kvp.Key, c);
-				workingTheme.ApplyTheme(themeVariant);
+				WorkingTheme.SetColor(ActualThemeVariant, kvp.Key, c);
+				WorkingTheme.ApplyTheme(ActualThemeVariant);
 			}
 		});
 

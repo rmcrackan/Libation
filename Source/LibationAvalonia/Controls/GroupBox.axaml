@@ -8,7 +8,7 @@
 
 	<ContentControl.Styles>
 		<Style Selector="controls|GroupBox">
-			<Setter Property="BorderBrush" Value="{DynamicResource SystemBaseMediumLowColor}" /> 
+			<Setter Property="BorderBrush" Value="{DynamicResource SystemBaseMediumColor}" /> 
 			<Setter Property="BorderThickness" Value="1" />
 			<Setter Property="CornerRadius" Value="3" />
 			<Setter Property="Template">

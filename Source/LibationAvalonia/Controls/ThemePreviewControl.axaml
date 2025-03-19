@@ -19,13 +19,13 @@
 				<TextBox Margin="5,0" Text="This is an editable text box" />
 				<TextBox Margin="5,0" Text="This is a read-only text box" IsReadOnly="True" />
 				<NumericUpDown Margin="5,0" Value="100" />
-				<controls:LinkLabel VerticalAlignment="Center" Margin="5,0" Text="This is an unvisited link" />
-				<controls:LinkLabel VerticalAlignment="Center" Margin="5,0" Text="This is a visited link" Foreground="{DynamicResource HyperlinkVisited}" />
-				<StackPanel Margin="5,0" Height="15" Orientation="Horizontal">
+				<controls:LinkLabel VerticalAlignment="Center" Margin="5,5" Text="This is an unvisited link" />
+				<controls:LinkLabel VerticalAlignment="Center" Margin="5,5" Text="This is a visited link" Foreground="{DynamicResource HyperlinkVisited}" />
+				<StackPanel Margin="5,0" Height="25" Orientation="Horizontal">
 					<StackPanel.Styles>
 						<Style Selector="Path">
 							<Setter Property="Stretch" Value="Uniform" />
-							<Setter Property="Margin" Value="3,0" />
+							<Setter Property="Margin" Value="3,5" />
 							<Setter Property="Fill" Value="{DynamicResource IconFill}" />
 						</Style>
 					</StackPanel.Styles>

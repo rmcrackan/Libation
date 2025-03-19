@@ -12,9 +12,9 @@ public class ChardonnayThemePersister : JsonFilePersister<ChardonnayTheme>
 {
 	public static string jsonPath = System.IO.Path.Combine(Configuration.Instance.LibationFiles, "ChardonnayTheme.json");
 
-	private ChardonnayThemePersister(string path)
+	public ChardonnayThemePersister(string path)
 		: base(path, null) { }
-	private ChardonnayThemePersister(ChardonnayTheme target, string path)
+	public ChardonnayThemePersister(ChardonnayTheme target, string path)
 		: base(target, path, null) { }
 
 	protected override JsonSerializerSettings GetSerializerSettings()
