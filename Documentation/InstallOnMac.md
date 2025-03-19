@@ -8,7 +8,7 @@
 # Run Libation on MacOS
 This walkthrough should get you up and running with Libation on your Mac.
 
-## Supports macOS 10.15 (Catalina) and above
+## Supports macOS 13 (Ventura) and above
 
 ## Install Libation
 
