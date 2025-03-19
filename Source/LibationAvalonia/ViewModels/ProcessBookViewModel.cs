@@ -76,9 +76,9 @@ namespace LibationAvalonia.ViewModels
 		{
 			ProcessBookResult.Success => "Finished",
 			ProcessBookResult.Cancelled => "Cancelled",
-			ProcessBookResult.ValidationFail => "Validion fail",
+			ProcessBookResult.ValidationFail => "Validation fail",
 			ProcessBookResult.FailedRetry => "Error, will retry later",
-			ProcessBookResult.FailedSkip => "Error, Skippping",
+			ProcessBookResult.FailedSkip => "Error, Skipping",
 			ProcessBookResult.FailedAbort => "Error, Abort",
 			ProcessBookResult.LicenseDenied => "License Denied",
 			ProcessBookResult.LicenseDeniedPossibleOutage => "Possible Service Interruption",
