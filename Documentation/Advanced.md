@@ -11,6 +11,7 @@
 - [Settings](#settings)
 - [Custom File Naming](NamingTemplates.md)
 - [Command Line Interface](#command-line-interface)
+- [Custom Theme Colors](#custom-theme-colors) (Chardonnay Only)
 
 
 
@@ -86,3 +87,25 @@ CLI: Full library. No prompt
   libationcli set-status -n
   libationcli set-status -d -n
 ```
+### Custom Theme Colors
+
+In Libation Chardonnay (not Classic), you may adjust the app colors using the built-in theme editor. Open the Settings window (from the menu bar: Settings > Settings). On the "Important" settings tab, click "Edit Theme Colors".
+
+#### Theme Editor Window
+
+The theme editor has a list of style names and their currently assigned colors. To change a style color, click on the color swatch in the left-hand column to open the color editor for that style. Observe the color changes in real-time on the built-in preview panel on the right-hand side of the theme editor.
+
+You may import or export themes using the buttons at the bottom-left of the theme editor.
+"Cancel" or closing the window will revert any changes you've made in the theme editor.
+"Reset" will reset any changes you've made in the theme editor.
+"Defaults" will restore the application default colors for the active theme ("Light" or "Dark")
+"Save" will save the theme colors to the ChardonnayTheme.json file and close the editor.
+
+Note: you may only edit the currently applied theme ("Light" or "Dark").
+
+#### Video Walkthrough
+The below video demonstrates using the theme editor to make changes to the Dark theme color pallet.
+
+[](https://github.com/user-attachments/assets/05c0cb7f-578f-4465-9691-77d694111349)
+
+
