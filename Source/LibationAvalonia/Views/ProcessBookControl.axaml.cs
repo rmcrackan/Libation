@@ -34,7 +34,6 @@ namespace LibationAvalonia.Views
 					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
 					LogMe.RegisterForm(default(ILogForm))
 					);
-
 				return;
 			}
 		}

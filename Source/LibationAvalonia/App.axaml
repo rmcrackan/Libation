@@ -25,8 +25,6 @@
 			</ControlTheme>
 			<x:Double x:Key="DataGridSortIconMinWidth">0</x:Double>
 
-			<SolidColorBrush x:Key="DisabledGrayBrush" Opacity="0.4"  Color="{StaticResource SystemChromeMediumColor}" />
-
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Light">
 					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#abffab" />
@@ -70,10 +68,10 @@
 		</FluentTheme>
 
 		<Style Selector="TextBox[IsReadOnly=true]">
-			<Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+			<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledHighColor}" />
 			<Setter Property="CaretBrush" Value="{DynamicResource SystemControlTransparentBrush}" />
 			<Style Selector="^ /template/ Border#PART_BorderElement">
-				<Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+				<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledHighColor}" />
 			</Style>
 		</Style>
 		<Style Selector="controls|LinkLabel">
