@@ -16,7 +16,7 @@ public partial class ThemePickerDialog : DialogWindow
 {
 	protected DataGridCollectionView ThemeColors { get; }
 	private ChardonnayTheme ExistingTheme { get; } = ChardonnayTheme.GetLiveTheme();
-	private ChardonnayTheme WorkingTheme { get; }
+	private ChardonnayTheme WorkingTheme { get; set; }
 
 	public ThemePickerDialog()
 	{
@@ -63,7 +63,7 @@ public partial class ThemePickerDialog : DialogWindow
 
 			using (var theme = new ChardonnayThemePersister(selectedFile))
 			{
-				theme.Target.ApplyTheme(ActualThemeVariant);
+				ResetTheme(theme.Target);
 			}
 
 			await MessageBox.Show(this, "Theme imported and applied", "Theme Imported");
@@ -147,13 +147,14 @@ public partial class ThemePickerDialog : DialogWindow
 
 	private void ResetTheme(ChardonnayTheme theme)
 	{
-		theme.ApplyTheme(ActualThemeVariant);
+		WorkingTheme = (ChardonnayTheme)theme.Clone();
+		WorkingTheme.ApplyTheme(ActualThemeVariant);
 
 		foreach (var i in ThemeColors.OfType<ThemeItemColor>())
 		{
-			i.SuppressSet = true;
-			i.ThemeColor = theme.GetColor(ActualThemeVariant, i.ThemeItemName);
-			i.SuppressSet = false;
+			i.ColorSetter = null;
+			i.ThemeColor = WorkingTheme.GetColor(ActualThemeVariant, i.ThemeItemName);
+			i.ColorSetter = ColorSetter;
 		}
 	}
 
@@ -164,18 +165,19 @@ public partial class ThemePickerDialog : DialogWindow
 		{
 			ThemeItemName = kvp.Key,
 			ThemeColor = kvp.Value,
-			ColorSetter = c =>
-			{
-				WorkingTheme.SetColor(ActualThemeVariant, kvp.Key, c);
-				WorkingTheme.ApplyTheme(ActualThemeVariant);
-			}
+			ColorSetter = ColorSetter
 		});
+
+	private void ColorSetter(Color color, string colorName)
+	{
+		WorkingTheme.SetColor(ActualThemeVariant, colorName, color);
+		WorkingTheme.ApplyTheme(ActualThemeVariant);
+	}
 
 	private class ThemeItemColor : ViewModels.ViewModelBase
 	{
-		public bool SuppressSet { get; set; }
 		public required string ThemeItemName { get; init; }
-		public required Action<Color> ColorSetter { get; init; }
+		public required Action<Color, string>? ColorSetter { get; set; }
 
 		private Color _themeColor;
 		public Color ThemeColor
@@ -183,10 +185,10 @@ public partial class ThemePickerDialog : DialogWindow
 			get => _themeColor;
 			set
 			{
-				var setColors = !SuppressSet && !_themeColor.Equals(value);
+				var setColors = !_themeColor.Equals(value);
 				this.RaiseAndSetIfChanged(ref _themeColor, value);
 				if (setColors)
-					ColorSetter?.Invoke(_themeColor);
+					ColorSetter?.Invoke(_themeColor, ThemeItemName);
 			}
 		}
 	}
