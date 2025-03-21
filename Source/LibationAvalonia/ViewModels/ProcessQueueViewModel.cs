@@ -91,19 +91,19 @@ namespace LibationAvalonia.ViewModels
 
 		public decimal SpeedLimitIncrement { get; private set; }
 
-		private async void Queue_CompletedCountChanged(object? sender, int e)
+		private void Queue_CompletedCountChanged(object? sender, int e)
 		{
 			int errCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.FailedAbort or ProcessBookResult.FailedSkip or ProcessBookResult.FailedRetry or ProcessBookResult.ValidationFail);
 			int completeCount = Queue.Completed.Count(p => p.Result is ProcessBookResult.Success);
 
 			ErrorCount = errCount;
 			CompletedCount = completeCount;
-			await Dispatcher.UIThread.InvokeAsync(() => this.RaisePropertyChanged(nameof(Progress)));
+			Dispatcher.UIThread.Invoke(() => this.RaisePropertyChanged(nameof(Progress)));
 		}
-		private async void Queue_QueuededCountChanged(object? sender, int cueCount)
+		private void Queue_QueuededCountChanged(object? sender, int cueCount)
 		{
 			QueuedCount = cueCount;
-			await Dispatcher.UIThread.InvokeAsync(() => this.RaisePropertyChanged(nameof(Progress)));
+			Dispatcher.UIThread.Invoke(() => this.RaisePropertyChanged(nameof(Progress)));
 		}
 
 		public void WriteLine(string text)

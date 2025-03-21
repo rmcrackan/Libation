@@ -537,9 +537,9 @@
             this.productsDisplay.TabIndex = 9;
             this.productsDisplay.VisibleCountChanged += new System.EventHandler<int>(this.productsDisplay_VisibleCountChanged);
             this.productsDisplay.RemovableCountChanged += new System.EventHandler<int>(this.productsDisplay_RemovableCountChanged);
-            this.productsDisplay.LiberateClicked += new System.EventHandler<DataLayer.LibraryBook>(this.ProductsDisplay_LiberateClicked);
+            this.productsDisplay.LiberateClicked += ProductsDisplay_LiberateClicked;
             this.productsDisplay.LiberateSeriesClicked += new System.EventHandler<LibationUiBase.GridView.ISeriesEntry>(this.ProductsDisplay_LiberateSeriesClicked);
-            this.productsDisplay.ConvertToMp3Clicked += new System.EventHandler<DataLayer.LibraryBook>(this.ProductsDisplay_ConvertToMp3Clicked);
+            this.productsDisplay.ConvertToMp3Clicked += ProductsDisplay_ConvertToMp3Clicked;
             this.productsDisplay.InitialLoaded += new System.EventHandler(this.productsDisplay_InitialLoaded);
             // 
             // toggleQueueHideBtn

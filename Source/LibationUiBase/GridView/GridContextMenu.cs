@@ -5,7 +5,6 @@ using LibationFileManager;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace LibationUiBase.GridView;
 
@@ -17,66 +16,68 @@ public class GridContextMenu
 	public string SetNotDownloadedText => $"Set Download status to '{Accelerator}Not Downloaded'";
 	public string RemoveText => $"{Accelerator}Remove from library";
 	public string LocateFileText => $"{Accelerator}Locate file...";
-	public string LocateFileDialogTitle => $"Locate the audio file for '{GridEntry.Book.TitleWithSubtitle}'";
+	public string LocateFileDialogTitle => $"Locate the audio file for '{GridEntries[0].Book.TitleWithSubtitle}'";
 	public string LocateFileErrorMessage => "Error saving book's location";
 	public string ConvertToMp3Text => $"{Accelerator}Convert to Mp3";
 	public string ReDownloadText => "Re-download this audiobook";
+	public string DownloadSelectedText => "Download selected audiobooks";
 	public string EditTemplatesText => "Edit Templates";
 	public string FolderTemplateText => "Folder Template";
 	public string FileTemplateText => "File Template";
 	public string MultipartTemplateText => "Multipart File Template";
 	public string ViewBookmarksText => "View _Bookmarks/Clips";
-	public string ViewSeriesText => GridEntry.Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
+	public string ViewSeriesText => GridEntries[0].Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
 
-	public bool LiberateEpisodesEnabled => GridEntry is ISeriesEntry sEntry && sEntry.Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload);
-	public bool SetDownloadedEnabled => GridEntry.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || GridEntry.Liberate.IsSeries;
-	public bool SetNotDownloadedEnabled => GridEntry.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || GridEntry.Liberate.IsSeries;
-	public bool ConvertToMp3Enabled => GridEntry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated;
-	public bool ReDownloadEnabled => GridEntry.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated;
+	public bool LiberateEpisodesEnabled => GridEntries.OfType<ISeriesEntry>().Any(sEntry => sEntry.Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload));
+	public bool SetDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || ge.Liberate.IsSeries);
+	public bool SetNotDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || ge.Liberate.IsSeries);
+	public bool ConvertToMp3Enabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
+	public bool ReDownloadEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
 
-	public IGridEntry GridEntry { get; }
+	private IGridEntry[] GridEntries { get; }
+	public ILibraryBookEntry[] LibraryBookEntries { get; }
 	public char Accelerator { get; }
 
-	public GridContextMenu(IGridEntry gridEntry, char accelerator)
+	public GridContextMenu(IGridEntry[] gridEntries, char accelerator)
 	{
-		GridEntry = gridEntry;
+		ArgumentNullException.ThrowIfNull(gridEntries, nameof(gridEntries));
+		ArgumentOutOfRangeException.ThrowIfZero(gridEntries.Length, $"{nameof(gridEntries)}.{nameof(gridEntries.Length)}");
+
+		GridEntries = gridEntries;
 		Accelerator = accelerator;
+		LibraryBookEntries
+			= GridEntries
+			.OfType<ISeriesEntry>()
+			.SelectMany(s => s.Children)
+			.Concat(GridEntries.OfType<ILibraryBookEntry>())
+			.ToArray();
 	}
 
 	public void SetDownloaded()
 	{
-		if (GridEntry is ISeriesEntry series)
-		{
-			series.Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.Liberated);
-		}
-		else
-		{
-			GridEntry.LibraryBook.UpdateBookStatus(LiberatedStatus.Liberated);
-		}
+		LibraryBookEntries.Select(e => e.LibraryBook)
+			.UpdateUserDefinedItem(udi =>
+			{
+				udi.BookStatus = LiberatedStatus.Liberated;
+				if (udi.Book.HasPdf())
+					udi.SetPdfStatus(LiberatedStatus.Liberated);
+			});
 	}
 
 	public void SetNotDownloaded()
 	{
-		if (GridEntry is ISeriesEntry series)
-		{
-			series.Children.Select(c => c.LibraryBook).UpdateBookStatus(LiberatedStatus.NotLiberated);
-		}
-		else
-		{
-			GridEntry.LibraryBook.UpdateBookStatus(LiberatedStatus.NotLiberated);
-		}
+		LibraryBookEntries.Select(e => e.LibraryBook)
+			.UpdateUserDefinedItem(udi =>
+			{
+				udi.BookStatus = LiberatedStatus.NotLiberated;
+				if (udi.Book.HasPdf())
+					udi.SetPdfStatus(LiberatedStatus.NotLiberated);
+			});
 	}
 
 	public async Task RemoveAsync()
 	{
-		if (GridEntry is ISeriesEntry series)
-		{
-			await series.Children.Select(c => c.LibraryBook).RemoveBooksAsync();
-		}
-		else
-		{
-			await Task.Run(GridEntry.LibraryBook.RemoveBook);
-		}
+		await LibraryBookEntries.Select(e => e.LibraryBook).RemoveBooksAsync();
 	}
 
 	public ITemplateEditor CreateTemplateEditor<T>(LibraryBook libraryBook, string existingTemplate)

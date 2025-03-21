@@ -24,9 +24,9 @@ namespace LibationAvalonia.Views
 {
 	public partial class ProductsDisplay : UserControl
 	{
-		public event EventHandler<LibraryBook>? LiberateClicked;
+		public event EventHandler<LibraryBook[]>? LiberateClicked;
 		public event EventHandler<ISeriesEntry>? LiberateSeriesClicked;
-		public event EventHandler<LibraryBook>? ConvertToMp3Clicked;
+		public event EventHandler<LibraryBook[]>? ConvertToMp3Clicked;
 		public event EventHandler<LibraryBook>? TagsButtonClicked;
 
 		private ProductsDisplayViewModel? _viewModel => DataContext as ProductsDisplayViewModel;
@@ -191,29 +191,41 @@ namespace LibationAvalonia.Views
 
 		public void ProductsGrid_CellContextMenuStripNeeded(object? sender, DataGridCellContextMenuStripNeededEventArgs args)
 		{
-			var entry = args.GridEntry;
-			var ctx = new GridContextMenu(entry, '_');
+			var entries = args.GridEntries;
+			var ctx = new GridContextMenu(entries, '_');
 
-			if (args.Column.SortMemberPath is not "Liberate" and not "Cover"
-				&& App.MainWindow?.Clipboard is IClipboard clipboard)
+			if (App.MainWindow?.Clipboard is IClipboard clipboard)
 			{
+				//Avalonia's DataGrid can't select individual cells, so add separate
+				//options for copying single cell's contents and who row contents.
+				if (entries.Length == 1 && args.Column.SortMemberPath is not "Liberate" and not "Cover")
+				{
+					args.ContextMenuItems.Add(new MenuItem
+					{
+						Header = ctx.CopyCellText,
+						Command = ReactiveCommand.CreateFromTask(() => clipboard?.SetTextAsync(args.CellClipboardContents) ?? Task.CompletedTask)
+					});
+				}
+
 				args.ContextMenuItems.Add(new MenuItem
 				{
-					Header = ctx.CopyCellText,
-					Command = ReactiveCommand.CreateFromTask(() => clipboard?.SetTextAsync(args.CellClipboardContents) ?? Task.CompletedTask)
+					Header = "_Copy Row Contents",
+					Command = ReactiveCommand.CreateFromTask(() => clipboard?.SetTextAsync(args.GetRowClipboardContents()) ?? Task.CompletedTask)
 				});
+
 				args.ContextMenuItems.Add(new Separator());
 			}
+			
 
-			#region Liberate all Episodes
+			#region Liberate all Episodes (Single series only)
 
-			if (entry.Liberate.IsSeries)
+			if (entries.Length == 1 && entries[0] is ISeriesEntry seriesEntry)
 			{
 				args.ContextMenuItems.Add(new MenuItem()
 				{
 					Header = ctx.LiberateEpisodesText,
 					IsEnabled = ctx.LiberateEpisodesEnabled,
-					Command = ReactiveCommand.Create(() => LiberateSeriesClicked?.Invoke(this, (ISeriesEntry)entry))
+					Command = ReactiveCommand.Create(() => LiberateSeriesClicked?.Invoke(this, seriesEntry))
 				});
 			}
 
@@ -238,20 +250,10 @@ namespace LibationAvalonia.Views
 			});
 
 			#endregion
-			#region Remove from library
+			#region Locate file (Single book only)
 
-			args.ContextMenuItems.Add(new MenuItem
+			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry)
 			{
-				Header = ctx.RemoveText,
-				Command = ReactiveCommand.CreateFromTask(ctx.RemoveAsync)
-			});
-
-			#endregion
-
-			if (!entry.Liberate.IsSeries)
-			{
-				#region Locate file
-
 				args.ContextMenuItems.Add(new MenuItem
 				{
 					Header = ctx.LocateFileText,
@@ -285,21 +287,44 @@ namespace LibationAvalonia.Views
 						}
 					})
 				});
+			}
 
-				#endregion
-				#region Convert to Mp3
+			#endregion
+			#region Remove from library
+
+			args.ContextMenuItems.Add(new MenuItem
+			{
+				Header = ctx.RemoveText,
+				Command = ReactiveCommand.CreateFromTask(ctx.RemoveAsync)
+			});
+
+			#endregion
+			#region Liberate All (multiple books only)
+			if (entries.OfType<ILibraryBookEntry>().Count() > 1)
+			{
+				args.ContextMenuItems.Add(new MenuItem
+				{
+					Header = ctx.DownloadSelectedText,
+					Command = ReactiveCommand.Create(() => LiberateClicked?.Invoke(this, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray()))
+				});
+			}
+
+			#endregion
+			#region Convert to Mp3
+
+			if (ctx.LibraryBookEntries.Length > 0)
+			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
 					Header = ctx.ConvertToMp3Text,
 					IsEnabled = ctx.ConvertToMp3Enabled,
-					Command = ReactiveCommand.Create(() => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook))
+					Command = ReactiveCommand.Create(() => ConvertToMp3Clicked?.Invoke(this, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray()))
 				});
-
-				#endregion
 			}
 
-			#region Force Re-Download
-			if (!entry.Liberate.IsSeries)
+			#endregion
+			#region Force Re-Download (Single book only)
+			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry4)
 			{
 				args.ContextMenuItems.Add(new MenuItem()
 				{
@@ -307,17 +332,23 @@ namespace LibationAvalonia.Views
 					IsEnabled = ctx.ReDownloadEnabled,
 					Command = ReactiveCommand.Create(() =>
 					{
-						//No need to persist this change. It only needs to last long for the file to start downloading
-						entry.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
-						LiberateClicked?.Invoke(this, entry.LibraryBook);
+						//No need to persist these changes. They only needs to last long for the files to start downloading
+						entry4.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
+						if (entry4.Book.HasPdf())
+							entry4.Book.UserDefinedItem.SetPdfStatus(LiberatedStatus.NotLiberated);
+						LiberateClicked?.Invoke(this, [entry4.LibraryBook]);
 					})
 				});
 			}
 			#endregion
 
+			if (entries.Length > 1)
+				return;
+
 			args.ContextMenuItems.Add(new Separator());
 
-			#region Edit Templates
+			#region Edit Templates (Single book only)
+
 			async Task editTemplate<T>(LibraryBook libraryBook, string existingTemplate, Action<string> setNewTemplate)
 				where T : Templates, LibationFileManager.ITemplate, new()
 			{
@@ -329,7 +360,7 @@ namespace LibationAvalonia.Views
 				}
 			}
 
-			if (!entry.Liberate.IsSeries)
+			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry2)
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
@@ -339,17 +370,17 @@ namespace LibationAvalonia.Views
 						new MenuItem
 						{
 							Header = ctx.FolderTemplateText,
-							Command = ReactiveCommand.CreateFromTask(() => editTemplate<Templates.FolderTemplate>(entry.LibraryBook, Configuration.Instance.FolderTemplate, t => Configuration.Instance.FolderTemplate = t))
+							Command = ReactiveCommand.CreateFromTask(() => editTemplate<Templates.FolderTemplate>(entry2.LibraryBook, Configuration.Instance.FolderTemplate, t => Configuration.Instance.FolderTemplate = t))
 						},
 						new MenuItem
 						{
 							Header = ctx.FileTemplateText,
-							Command = ReactiveCommand.CreateFromTask(() => editTemplate<Templates.FileTemplate>(entry.LibraryBook, Configuration.Instance.FileTemplate, t => Configuration.Instance.FileTemplate = t))
+							Command = ReactiveCommand.CreateFromTask(() => editTemplate<Templates.FileTemplate>(entry2.LibraryBook, Configuration.Instance.FileTemplate, t => Configuration.Instance.FileTemplate = t))
 						},
 						new MenuItem
 						{
 							Header = ctx.MultipartTemplateText,
-							Command = ReactiveCommand.CreateFromTask(() => editTemplate<Templates.ChapterFileTemplate>(entry.LibraryBook, Configuration.Instance.ChapterFileTemplate, t => Configuration.Instance.ChapterFileTemplate = t))
+							Command = ReactiveCommand.CreateFromTask(() => editTemplate<Templates.ChapterFileTemplate>(entry2.LibraryBook, Configuration.Instance.ChapterFileTemplate, t => Configuration.Instance.ChapterFileTemplate = t))
 						}
 					}
 				});
@@ -357,27 +388,26 @@ namespace LibationAvalonia.Views
 			}
 
 			#endregion
+			#region View Bookmarks/Clips (Single book only)
 
-			#region View Bookmarks/Clips
-
-			if (!entry.Liberate.IsSeries && VisualRoot is Window window)
+			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry3 && VisualRoot is Window window)
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
 					Header = ctx.ViewBookmarksText,
-					Command = ReactiveCommand.CreateFromTask(() => new BookRecordsDialog(entry.LibraryBook).ShowDialog(window))
+					Command = ReactiveCommand.CreateFromTask(() => new BookRecordsDialog(entry3.LibraryBook).ShowDialog(window))
 				});
 			}
 
 			#endregion
-			#region View All Series
+			#region View All Series (Single book only)
 
-			if (entry.Book.SeriesLink.Any())
+			if (entries.Length == 1 && entries[0].Book.SeriesLink.Any())
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
 					Header = ctx.ViewSeriesText,
-					Command = ReactiveCommand.Create(() => new SeriesViewDialog(entry.LibraryBook).Show())
+					Command = ReactiveCommand.Create(() => new SeriesViewDialog(entries[0].LibraryBook).Show())
 				});
 			}
 
@@ -515,7 +545,7 @@ namespace LibationAvalonia.Views
 			}
 			else if (button.DataContext is ILibraryBookEntry lbEntry)
 			{
-				LiberateClicked?.Invoke(this, lbEntry.LibraryBook);
+				LiberateClicked?.Invoke(this, [lbEntry.LibraryBook]);
 			}
 		}
 

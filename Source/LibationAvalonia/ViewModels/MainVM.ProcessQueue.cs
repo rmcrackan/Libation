@@ -33,37 +33,54 @@ namespace LibationAvalonia.ViewModels
 			setQueueCollapseState(collapseState);
 		}
 
-		public async void LiberateClicked(LibraryBook libraryBook)
+		public async void LiberateClicked(LibraryBook[] libraryBooks)
 		{
 			try
 			{
-				if (libraryBook.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
+				if (libraryBooks.Length == 1)
 				{
-					Serilog.Log.Logger.Information("Begin single book backup of {libraryBook}", libraryBook);
-					setQueueCollapseState(false);
-					ProcessQueue.AddDownloadDecrypt(libraryBook);
-				}
-				else if (libraryBook.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
-				{
-					Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", libraryBook);
-					setQueueCollapseState(false);
-					ProcessQueue.AddDownloadPdf(libraryBook);
-				}
-				else if (libraryBook.Book.Audio_Exists())
-				{
-					// liberated: open explorer to file
-					var filePath = AudibleFileStorage.Audio.GetPath(libraryBook.Book.AudibleProductId);
-
-					if (!Go.To.File(filePath?.ShortPathName))
+					var item = libraryBooks[0];
+					if (item.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
 					{
-						var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-						await MessageBox.Show($"File not found" + suffix);
+						Serilog.Log.Logger.Information("Begin single book backup of {libraryBook}", item);
+						setQueueCollapseState(false);
+						ProcessQueue.AddDownloadDecrypt(item);
+					}
+					else if (item.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
+					{
+						Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", item);
+						setQueueCollapseState(false);
+						ProcessQueue.AddDownloadPdf(item);
+					}
+					else if (item.Book.Audio_Exists())
+					{
+						// liberated: open explorer to file
+						var filePath = AudibleFileStorage.Audio.GetPath(item.Book.AudibleProductId);
+
+						if (!Go.To.File(filePath?.ShortPathName))
+						{
+							var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
+							await MessageBox.Show($"File not found" + suffix);
+						}
+					}
+				}
+				else
+				{
+					var toLiberate
+						= libraryBooks
+						.Where(x => x.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload || x.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
+						.ToArray();
+
+					if (toLiberate.Length > 0)
+					{
+						setQueueCollapseState(false);
+						ProcessQueue.AddDownloadDecrypt(toLiberate);
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "An error occurred while handling the stop light button click for {libraryBook}", libraryBook);
+				Serilog.Log.Logger.Error(ex, "An error occurred while handling the stop light button click for {libraryBook}", libraryBooks);
 			}
 		}
 
@@ -83,20 +100,21 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		public void ConvertToMp3Clicked(LibraryBook libraryBook)
+		public void ConvertToMp3Clicked(LibraryBook[] libraryBooks)
 		{
 			try
 			{
-				if (libraryBook.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated)
+				var preLiberated = libraryBooks.Where(lb => lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated).ToArray();
+				if (preLiberated.Length > 0)
 				{
-					Serilog.Log.Logger.Information("Begin convert to mp3 {libraryBook}", libraryBook);
+					Serilog.Log.Logger.Information("Begin convert {count} books to mp3", preLiberated.Length);
 					setQueueCollapseState(false);
-					ProcessQueue.AddConvertMp3(libraryBook);
+					ProcessQueue.AddConvertMp3(preLiberated);
 				}
 			}
 			catch (Exception ex)
 			{
-				Serilog.Log.Logger.Error(ex, "An error occurred while handling the stop light button click for {libraryBook}", libraryBook);
+				Serilog.Log.Logger.Error(ex, "An error occurred while handling the stop light button click for {libraryBook}", libraryBooks);
 			}
 		}
 
