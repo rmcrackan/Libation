@@ -61,7 +61,6 @@ namespace LibationUiBase.GridView
 				|| PdfStatus is not null and not LiberatedStatus.Liberated
 			);
 		public double Opacity => !IsSeries && Book.UserDefinedItem.Tags.ContainsInsensitive("hidden") ? 0.4 : 1;
-		public abstract object BackgroundBrush { get; }
 		public object ButtonImage => GetLiberateIcon();
 		public string ToolTip => GetTooltip();
 		private Book Book { get; }

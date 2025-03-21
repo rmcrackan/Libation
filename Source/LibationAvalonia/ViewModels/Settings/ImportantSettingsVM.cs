@@ -45,7 +45,6 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.CreationTime = CreationTime.Value;
 			config.LastWriteTime = LastWriteTime.Value;
 			config.LogLevel = LoggingLevel;
-			Configuration.Instance.SetString(ThemeVariant, nameof(ThemeVariant));
 		}
 
 		private static float scaleFactorToLinearRange(float scaleFactor)
@@ -95,20 +94,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string ThemeVariant
 		{
 			get => themeVariant;
-			set
-			{
-				var changed = !value.Equals(themeVariant);
-				this.RaiseAndSetIfChanged(ref themeVariant, value);
-
-				if (changed && App.Current is Avalonia.Application app)
-					app.RequestedThemeVariant = themeVariant switch
-					{
-						nameof(Avalonia.Styling.ThemeVariant.Dark) => Avalonia.Styling.ThemeVariant.Dark,
-						nameof(Avalonia.Styling.ThemeVariant.Light) => Avalonia.Styling.ThemeVariant.Light,
-						// "System"
-						_ => Avalonia.Styling.ThemeVariant.Default
-					};
-			}
+			set => this.RaiseAndSetIfChanged(ref themeVariant, value);
 		}
 	}
 }

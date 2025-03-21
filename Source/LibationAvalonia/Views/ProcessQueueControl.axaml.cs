@@ -9,13 +9,15 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.Views
 {
 	public partial class ProcessQueueControl : UserControl
 	{
-		private TrackedQueue<ProcessBookViewModel> Queue => _viewModel.Queue;
-		private ProcessQueueViewModel _viewModel => DataContext as ProcessQueueViewModel;
+		private TrackedQueue<ProcessBookViewModel>? Queue => _viewModel?.Queue;
+		private ProcessQueueViewModel? _viewModel => DataContext as ProcessQueueViewModel;
 
 		public ProcessQueueControl()
 		{
@@ -25,6 +27,7 @@ namespace LibationAvalonia.Views
 			ProcessBookControl.CancelButtonClicked += ProcessBookControl2_CancelButtonClicked;
 
 			#region Design Mode Testing
+#if DEBUG
 			if (Design.IsDesignMode)
 			{
 				var vm = new ProcessQueueViewModel();
@@ -85,6 +88,7 @@ namespace LibationAvalonia.Views
 				vm.Queue.MoveNext();
 				return;
 			}
+#endif
 			#endregion
 		}
 
@@ -98,53 +102,59 @@ namespace LibationAvalonia.Views
 		private async void ProcessBookControl2_CancelButtonClicked(ProcessBookViewModel item)
 		{
 			if (item is not null)
+			{
 				await item.CancelAsync();
-			Queue.RemoveQueued(item);
+				Queue?.RemoveQueued(item);
+			}
 		}
 
 		private void ProcessBookControl2_ButtonClicked(ProcessBookViewModel item, QueuePosition queueButton)
 		{
-			Queue.MoveQueuePosition(item, queueButton);
+			Queue?.MoveQueuePosition(item, queueButton);
 		}
 
 		public async void CancelAllBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			Queue.ClearQueue();
-			if (Queue.Current is not null)
+			Queue?.ClearQueue();
+			if (Queue?.Current is not null)
 				await Queue.Current.CancelAsync();
 		}
 
 		public void ClearFinishedBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			Queue.ClearCompleted();
+			Queue?.ClearCompleted();
 
-			if (!_viewModel.Running)
+			if (_viewModel?.Running is false)
 				_viewModel.RunningTime = string.Empty;
 		}
 
 		public void ClearLogBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			_viewModel.LogEntries.Clear();
+			_viewModel?.LogEntries.Clear();
 		}
 
 		private async void LogCopyBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			string logText = string.Join("\r\n", _viewModel.LogEntries.Select(r => $"{r.LogDate.ToShortDateString()} {r.LogDate.ToShortTimeString()}\t{r.LogMessage}"));
-			await App.MainWindow.Clipboard.SetTextAsync(logText);
+			if (_viewModel is ProcessQueueViewModel vm)
+			{
+				string logText = string.Join("\r\n", vm.LogEntries.Select(r => $"{r.LogDate.ToShortDateString()} {r.LogDate.ToShortTimeString()}\t{r.LogMessage}"));
+				if (App.MainWindow?.Clipboard?.SetTextAsync(logText) is Task setter)
+					await setter;
+			}
 		}
 
 		private async void cancelAllBtn_Click(object sender, EventArgs e)
 		{
-			Queue.ClearQueue();
-			if (Queue.Current is not null)
+			Queue?.ClearQueue();
+			if (Queue?.Current is not null)
 				await Queue.Current.CancelAsync();
 		}
 
 		private void btnClearFinished_Click(object sender, EventArgs e)
 		{
-			Queue.ClearCompleted();
+			Queue?.ClearCompleted();
 
-			if (!_viewModel.Running)
+			if (_viewModel?.Running is false)
 				_viewModel.RunningTime = string.Empty;
 		}
 
@@ -155,7 +165,7 @@ namespace LibationAvalonia.Views
 	{
 		public static readonly DecimalConverter Instance = new();
 
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
 			if (value is string sourceText && targetType.IsAssignableTo(typeof(decimal?)))
 			{
@@ -172,7 +182,7 @@ namespace LibationAvalonia.Views
 			return 0;
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
 		{
 			if (value is decimal val)
 			{
@@ -184,7 +194,7 @@ namespace LibationAvalonia.Views
 						: val.ToString("F2")
 					) + " MB/s";
 			}
-			return value.ToString();
+			return value?.ToString();
 		}
 	}
 }

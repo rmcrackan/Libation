@@ -7,10 +7,8 @@
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		MinWidth="500" MinHeight="400"
 		Height="450" Width="550"
-		
 		WindowStartupLocation="CenterOwner"
-        Title="Upgrade Available"
-		Icon="/Assets/libation.ico">
+        Title="Upgrade Available">
 
 	<Grid  Margin="6" RowDefinitions="Auto,*,Auto">
 		<TextBlock

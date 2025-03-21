@@ -9,8 +9,7 @@
         x:Class="LibationAvalonia.Dialogs.MessageBoxAlertAdminDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         Title="MessageBoxAlertAdminDialog"
-		WindowStartupLocation="CenterOwner"
-		Icon="/Assets/libation.ico">
+		WindowStartupLocation="CenterOwner">
 
 	<Grid RowDefinitions="Auto,*,Auto,Auto">
 

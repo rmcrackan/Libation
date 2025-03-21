@@ -7,8 +7,7 @@
 		Width="650" Height="500"
         x:Class="LibationAvalonia.Dialogs.BookDetailsDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
-        Title="Book Details" Name="BookDetails"
-		Icon="/Assets/libation.ico">
+        Title="Book Details" Name="BookDetails">
 
 	<Grid RowDefinitions="*,Auto,Auto,40">
 		<Grid.Styles>

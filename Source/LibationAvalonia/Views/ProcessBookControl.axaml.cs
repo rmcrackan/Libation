@@ -1,4 +1,5 @@
 using ApplicationServices;
+using Avalonia;
 using Avalonia.Controls;
 using DataLayer;
 using LibationAvalonia.ViewModels;
@@ -12,6 +13,16 @@ namespace LibationAvalonia.Views
 	{
 		public static event QueueItemPositionButtonClicked PositionButtonClicked;
 		public static event QueueItemCancelButtonClicked CancelButtonClicked;
+
+		public static readonly StyledProperty<ProcessBookStatus> ProcessBookStatusProperty =
+			AvaloniaProperty.Register<ProcessBookControl, ProcessBookStatus>(nameof(ProcessBookStatus), enableDataValidation: true);
+
+		public ProcessBookStatus ProcessBookStatus
+		{
+			get => GetValue(ProcessBookStatusProperty);
+			set => SetValue(ProcessBookStatusProperty, value);
+		}
+
 		public ProcessBookControl()
 		{
 			InitializeComponent();

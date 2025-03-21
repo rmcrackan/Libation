@@ -3,9 +3,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:vm="clr-namespace:LibationAvalonia.ViewModels"
+			 xmlns:views="clr-namespace:LibationAvalonia.Views"
 			 x:DataType="vm:ProcessBookViewModel"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="87" MaxHeight="87" MinHeight="87" MinWidth="300"
-             x:Class="LibationAvalonia.Views.ProcessBookControl" Background="{CompiledBinding BackgroundColor}">
+			 x:Class="LibationAvalonia.Views.ProcessBookControl">
 
 	<UserControl.Styles>
 		<Style Selector="Border#QueuedItemBorder:not(:pointerover) Button">
@@ -13,6 +14,18 @@
 		</Style>
 		<Style Selector="Border#QueuedItemBorder:pointerover Button">
 			<Setter Property="IsVisible" Value="True" />
+		</Style>
+		<Style Selector="views|ProcessBookControl">
+			<Setter Property="ProcessBookStatus" Value="{CompiledBinding Status}" />
+			<Style Selector="^[ProcessBookStatus=Cancelled]">
+				<Setter Property="Background" Value="{DynamicResource ProcessQueueBookCancelledBrush}" />
+			</Style>
+			<Style Selector="^[ProcessBookStatus=Failed]">
+				<Setter Property="Background" Value="{DynamicResource ProcessQueueBookFailedBrush}" />
+			</Style>
+			<Style Selector="^[ProcessBookStatus=Completed]">
+				<Setter Property="Background" Value="{DynamicResource ProcessQueueBookCompletedBrush}" />
+			</Style>
 		</Style>
 	</UserControl.Styles>
 
@@ -68,7 +81,7 @@
 				</StackPanel>
 				<Panel Margin="3,0,0,0" Grid.Column="1" VerticalAlignment="Top" IsVisible="{CompiledBinding !IsFinished}">
 					<Button Height="32" Background="{DynamicResource CancelRed}" Width="22" CornerRadius="11" Click="Cancel_Click">
-						<Path Fill="{DynamicResource ProcessQueueBookDefaultBrush}" VerticalAlignment="Center" Data="{StaticResource CancelButtonIcon}" RenderTransform="{StaticResource Rotate45Transform}" />
+						<Path Fill="{DynamicResource SystemAltHighColor}" VerticalAlignment="Center" Data="{StaticResource CancelButtonIcon}" RenderTransform="{StaticResource Rotate45Transform}" />
 					</Button>
 				</Panel>
 			</Grid>

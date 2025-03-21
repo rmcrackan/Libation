@@ -1,8 +1,8 @@
-﻿using Avalonia.Controls;
-using Avalonia.Media;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media.Imaging;
 using Avalonia.VisualTree;
-using LibationAvalonia.Dialogs;
 using LibationFileManager;
 using System.Threading.Tasks;
 
@@ -11,17 +11,21 @@ namespace LibationAvalonia
 {
 	internal static class AvaloniaUtils
 	{
-		public static IBrush GetBrushFromResources(string name)
-			=> GetBrushFromResources(name, Brushes.Transparent);
-		public static IBrush GetBrushFromResources(string name, IBrush defaultBrush)
+		public static T DynamicResource<T>(this T control, AvaloniaProperty prop, object resourceKey) where T : Control
 		{
-			if ((App.Current?.TryGetResource(name, App.Current.ActualThemeVariant, out var value) ?? false) && value is IBrush brush)
-				return brush;
-			return defaultBrush;
+			control[!prop] = new DynamicResourceExtension(resourceKey);
+			return control;
 		}
 
-		public static Task<DialogResult> ShowDialogAsync(this DialogWindow dialogWindow, Window? owner = null)
-			=> dialogWindow.ShowDialog<DialogResult>(owner ?? App.MainWindow);
+		public static Task<DialogResult> ShowDialogAsync(this Dialogs.DialogWindow dialogWindow, Window? owner = null)
+			=> ((owner ?? App.MainWindow) is Window window)
+			? dialogWindow.ShowDialog<DialogResult>(window)
+			: Task.FromResult(DialogResult.None);
+
+		public static Task<DialogResult> ShowDialogAsync(this Dialogs.Login.WebLoginDialog dialogWindow, Window? owner = null)
+			=> ((owner ?? App.MainWindow) is Window window)
+			? dialogWindow.ShowDialog<DialogResult>(window)
+			: Task.FromResult(DialogResult.None);
 
 		public static Window? GetParentWindow(this Control control) => control.GetVisualRoot() as Window;
 

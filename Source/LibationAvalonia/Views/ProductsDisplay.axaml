@@ -18,6 +18,7 @@
 			ItemsSource="{Binding GridEntries}"
 			CanUserSortColumns="True" BorderThickness="3"
 			CanUserResizeColumns="True"
+			LoadingRow="ProductsDisplay_LoadingRow"
 			CanUserReorderColumns="True">
 
 			<DataGrid.Styles>
@@ -93,7 +94,7 @@
 				<controls:DataGridTemplateColumnExt Header="Title" MinWidth="10" Width="{Binding TitleWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Title" ClipboardContentBinding="{Binding Title}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<TextBlock Classes="h1" Text="{CompiledBinding Title}" />
 							</Panel>
 						</DataTemplate>
@@ -103,7 +104,7 @@
 				<controls:DataGridTemplateColumnExt Header="Authors" MinWidth="10" Width="{Binding AuthorsWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Authors" ClipboardContentBinding="{Binding Authors}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<TextBlock Text="{CompiledBinding Authors}" />
 							</Panel>
 						</DataTemplate>
@@ -113,7 +114,7 @@
 				<controls:DataGridTemplateColumnExt Header="Narrators" MinWidth="10" Width="{Binding NarratorsWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Narrators" ClipboardContentBinding="{Binding Narrators}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<TextBlock Text="{CompiledBinding Narrators}" />
 							</Panel>
 						</DataTemplate>
@@ -123,7 +124,7 @@
 				<controls:DataGridTemplateColumnExt Header="Length" MinWidth="10" Width="{Binding LengthWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Length" ClipboardContentBinding="{Binding Length}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<TextBlock Text="{CompiledBinding Length}" />
 							</Panel>
 						</DataTemplate>
@@ -133,7 +134,7 @@
 				<controls:DataGridTemplateColumnExt Header="Series" MinWidth="10" Width="{Binding SeriesWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Series" ClipboardContentBinding="{Binding Series}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<TextBlock Text="{CompiledBinding Series}" />
 							</Panel>
 						</DataTemplate>
@@ -143,7 +144,7 @@
 				<controls:DataGridTemplateColumnExt Header="Series&#xA;Order" MinWidth="10" Width="{Binding SeriesOrderWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="SeriesOrder" ClipboardContentBinding="{Binding Series}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<TextBlock Text="{CompiledBinding SeriesOrder}" HorizontalAlignment="Center" />
 							</Panel>
 						</DataTemplate>
@@ -153,7 +154,7 @@
 				<controls:DataGridTemplateColumnExt Header="Description" MinWidth="10" Width="{Binding DescriptionWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Description" ClipboardContentBinding="{Binding Description}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Tapped="Description_Click" ToolTip.Tip="Click to see full description" >
 								<TextBlock Text="{CompiledBinding Description}" VerticalAlignment="Top" />
 							</Panel>
 						</DataTemplate>
@@ -163,7 +164,7 @@
 				<controls:DataGridTemplateColumnExt Header="Category" MinWidth="10" Width="{Binding CategoryWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Category" ClipboardContentBinding="{Binding Category}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<TextBlock Text="{CompiledBinding Category}" />
 							</Panel>
 						</DataTemplate>
@@ -177,14 +178,13 @@
 					MinWidth="10" Width="{Binding ProductRatingWidth, Mode=TwoWay}"
 					SortMemberPath="ProductRating" CanUserSort="True"
 					OpacityBinding="{CompiledBinding Liberate.Opacity}"
-					BackgroundBinding="{CompiledBinding Liberate.BackgroundBrush}"
 					ClipboardContentBinding="{CompiledBinding ProductRating}"
 					Binding="{CompiledBinding ProductRating}" />
 
 				<controls:DataGridTemplateColumnExt Header="Purchase&#xA;Date" MinWidth="10" Width="{Binding PurchaseDateWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="PurchaseDate" ClipboardContentBinding="{Binding PurchaseDate}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<TextBlock Text="{CompiledBinding PurchaseDate}" />
 							</Panel>
 						</DataTemplate>
@@ -198,14 +198,13 @@
 					MinWidth="10" Width="{Binding MyRatingWidth, Mode=TwoWay}"
 					SortMemberPath="MyRating" CanUserSort="True"
 					OpacityBinding="{CompiledBinding Liberate.Opacity}"
-					BackgroundBinding="{CompiledBinding Liberate.BackgroundBrush}"
 					ClipboardContentBinding="{CompiledBinding MyRating}"					
 					Binding="{CompiledBinding MyRating, Mode=TwoWay}" />
 
 				<controls:DataGridTemplateColumnExt Header="Misc" MinWidth="10" Width="{Binding MiscWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Misc" ClipboardContentBinding="{Binding Misc}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<TextBlock Text="{CompiledBinding Misc}" TextWrapping="WrapWithOverflow" />
 							</Panel>
 						</DataTemplate>
@@ -215,7 +214,7 @@
 				<controls:DataGridTemplateColumnExt Header="Last&#xA;Download" MinWidth="10" Width="{Binding LastDownloadWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="LastDownload" ClipboardContentBinding="{Binding LastDownload}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:IGridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" Background="{CompiledBinding Liberate.BackgroundBrush}" ToolTip.Tip="{CompiledBinding LastDownload.ToolTipText}" DoubleTapped="Version_DoubleClick">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}" ToolTip.Tip="{CompiledBinding LastDownload.ToolTipText}" DoubleTapped="Version_DoubleClick">
 								<TextBlock Text="{CompiledBinding LastDownload}" TextWrapping="WrapWithOverflow" />
 							</Panel>
 						</DataTemplate>

@@ -7,7 +7,6 @@
         Width="800" Height="450"
         x:Class="LibationAvalonia.Dialogs.EditQuickFilters"
         Title="Audible Accounts"
-		Icon="/Assets/libation.ico"
 		x:DataType="dialogs:EditQuickFilters">
 	<Grid RowDefinitions="*,Auto">
 

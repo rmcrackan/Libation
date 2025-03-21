@@ -8,8 +8,7 @@
 		Width="800" Height="650"
         x:Class="LibationAvalonia.Dialogs.SearchSyntaxDialog"
         Title="Filter Options"
-		WindowStartupLocation="CenterOwner"
-		Icon="/Assets/libation.ico">
+		WindowStartupLocation="CenterOwner">
 
 	<Grid
 		Margin="10,0,10,10"

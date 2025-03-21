@@ -2,13 +2,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="520"
-		MinWidth="400" MinHeight="520"
-		Width="400" Height="520"
+		mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="520"
+		MinWidth="450" MinHeight="520"
+		Width="450" Height="520"
         x:Class="LibationAvalonia.Dialogs.AboutDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
-        Title="About Libation"
-		Icon="/Assets/libation.ico">
+        Title="About Libation">
 	
 	<Grid Margin="10" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,*">
 		
@@ -65,6 +64,15 @@
 					<controls:LinkLabel Text="wtanksleyjr" Tapped="Link_GithubUser" />
 					<controls:LinkLabel Text="Dr.Blank" Tapped="Link_GithubUser" />
 					<controls:LinkLabel Text="CharlieRussel" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="cbordeman" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="jwillikers" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="Shuvashish76" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="RokeJulianLockhart" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="maaximal" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="muchtall" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="ScubyG" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="patienttruth" Tapped="Link_GithubUser" />
+					<controls:LinkLabel Text="stickystyle" Tapped="Link_GithubUser" />
 				</WrapPanel>
 			</StackPanel>			
 		</controls:GroupBox>

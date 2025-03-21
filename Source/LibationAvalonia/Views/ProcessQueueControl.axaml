@@ -7,6 +7,7 @@
 	xmlns:viewModels="clr-namespace:LibationAvalonia.ViewModels"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="650"
+	Background="{DynamicResource SystemRegionColor}"
 	x:Class="LibationAvalonia.Views.ProcessQueueControl">
 
 	<UserControl.Resources>
@@ -35,7 +36,7 @@
 					<TextBlock FontSize="14" VerticalAlignment="Center">Process Queue</TextBlock>
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemChromeMediumLowColor}">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
 						<ScrollViewer
 							Name="scroller"
 							HorizontalScrollBarVisibility="Disabled"
@@ -81,7 +82,7 @@
 					<TextBlock FontSize="14" VerticalAlignment="Center">Queue Log</TextBlock>
 				</TabItem.Header>
 				<Grid ColumnDefinitions="*" RowDefinitions="*,40">
-					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemChromeMediumLowColor}">
+					<Border Grid.Column="0" Grid.Row="0" BorderThickness="1" BorderBrush="{DynamicResource SystemBaseMediumColor}" Background="{DynamicResource SystemRegionColor}">
 						<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding LogEntries}">
 							<DataGrid.Columns>
 								<DataGridTextColumn SortMemberPath="LogDate" Header="Timestamp" CanUserSort="True" Binding="{Binding LogDateString}" Width="90"/>

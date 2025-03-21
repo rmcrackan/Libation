@@ -1,10 +1,10 @@
 ﻿using AudibleApi;
 using AudibleUtilities;
-using Avalonia.Threading;
 using LibationFileManager;
 using System;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.Dialogs.Login
 {
 	public class AvaloniaLoginChoiceEager : ILoginChoiceEager
@@ -23,14 +23,14 @@ namespace LibationAvalonia.Dialogs.Login
 			LoginCallback = new AvaloniaLoginCallback(_account);
 		}
 
-		public async Task<ChoiceOut> StartAsync(ChoiceIn choiceIn)
+		public async Task<ChoiceOut?> StartAsync(ChoiceIn choiceIn)
 		{
 			if (Configuration.IsWindows && Environment.OSVersion.Version.Major >= 10)
 			{
 				try
 				{
 					var weblogin = new WebLoginDialog(_account.AccountId, choiceIn.LoginUrl);
-					if (await weblogin.ShowDialog<DialogResult>(App.MainWindow) is DialogResult.OK)
+					if (await weblogin.ShowDialogAsync(App.MainWindow) is DialogResult.OK)
 						return ChoiceOut.External(weblogin.ResponseUrl);
 				}
 				catch (Exception ex)

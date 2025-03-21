@@ -20,6 +20,11 @@
 			<ControlTheme x:Key="{x:Type DataGridCell}" TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
 				<Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
 			</ControlTheme>
+			<ControlTheme x:Key="{x:Type DataGridColumnHeader}" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+				<Setter Property="Padding" Value="6,0,0,0" />
+			</ControlTheme>
+			<x:Double x:Key="DataGridSortIconMinWidth">0</x:Double>
+
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Light">
 					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#abffab" />
@@ -28,17 +33,11 @@
 					<SolidColorBrush x:Key="ProcessQueueBookCancelledBrush" Color="Khaki" />
 					<SolidColorBrush x:Key="HyperlinkNew" Color="Blue" />
 					<SolidColorBrush x:Key="HyperlinkVisited" Color="Purple" />
-					<SolidColorBrush x:Key="ProcessQueueBookDefaultBrush" Color="White" />
-					<SolidColorBrush x:Key="SystemOpaqueBase" Color="White" />
-
 					<SolidColorBrush x:Key="CancelRed" Color="FireBrick" />
 					<SolidColorBrush x:Key="IconFill" Color="#231F20" />
 					<SolidColorBrush x:Key="StoplightRed" Color="#F06060" />
 					<SolidColorBrush x:Key="StoplightYellow" Color="#F0E160" />
 					<SolidColorBrush x:Key="StoplightGreen" Color="#70FA70" />
-
-					<SolidColorBrush x:Key="DisabledGrayBrush" Opacity="0.4"  Color="{StaticResource SystemChromeMediumColor}" />
-
 				</ResourceDictionary>
 				<ResourceDictionary x:Key="Dark">
 					<SolidColorBrush x:Key="SeriesEntryGridBackgroundBrush" Opacity="0.3" Color="#bed2fa" />
@@ -47,35 +46,32 @@
 					<SolidColorBrush x:Key="ProcessQueueBookCancelledBrush" Color="#4e4b15" />
 					<SolidColorBrush x:Key="HyperlinkNew" Color="CornflowerBlue" />
 					<SolidColorBrush x:Key="HyperlinkVisited" Color="Orchid" />
-					<SolidColorBrush x:Key="ProcessQueueBookDefaultBrush" Color="Black" />
-					<SolidColorBrush x:Key="SystemOpaqueBase" Color="Black" />
-
 					<SolidColorBrush x:Key="CancelRed" Color="#802727" />
 					<SolidColorBrush x:Key="IconFill" Color="#DCE0DF" />
 					<SolidColorBrush x:Key="StoplightRed" Color="#7d1f1f" />
 					<SolidColorBrush x:Key="StoplightYellow" Color="#7d7d1f" />
-					<SolidColorBrush x:Key="StoplightGreen" Color="#1f7d1f" />
-
-
-					<SolidColorBrush x:Key="DisabledGrayBrush" Opacity="0.4"  Color="{StaticResource SystemChromeMediumColor}" />
-					
+					<SolidColorBrush x:Key="StoplightGreen" Color="#1f7d1f" />					
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>		
 	</Application.Resources>
 
 	<Application.Styles>
-		<FluentTheme />
-		<StyleInclude Source="avares://Avalonia.Themes.Fluent/FluentTheme.xaml"/>
 		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
 		<StyleInclude Source="/Assets/LibationVectorIcons.xaml"/>
-		<StyleInclude Source="/Assets/DataGridColumnHeader.xaml"/>
+		<FluentTheme>
+			<FluentTheme.Palettes>
+				<ColorPaletteResources x:Key="Light" />
+				<ColorPaletteResources x:Key="Dark" />
+			</FluentTheme.Palettes>
+		</FluentTheme>
 
 		<Style Selector="TextBox[IsReadOnly=true]">
-			<Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+			<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledHighColor}" />
 			<Setter Property="CaretBrush" Value="{DynamicResource SystemControlTransparentBrush}" />
 			<Style Selector="^ /template/ Border#PART_BorderElement">
-				<Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+				<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledHighColor}" />
 			</Style>
 		</Style>
 		<Style Selector="controls|LinkLabel">
@@ -84,6 +80,9 @@
 		</Style>
 		<Style Selector="Button">
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Style Selector="^">
+				<Setter Property="Foreground" Value="{DynamicResource SystemChromeAltLowColor}" />
+			</Style>
 		</Style>
 		<Style Selector="ScrollBar">
 			<!-- It's called AutoHide, but this is really the mouseover shrink/expand. -->
@@ -91,61 +90,14 @@
 		</Style>
 
 		<Style Selector="dialogs|DialogWindow">
-			<Style Selector="^[UseCustomTitleBar=false]">
-				<Setter Property="SystemDecorations" Value="Full"/>
-				<Setter Property="Template">
-					<ControlTemplate>
-						<ContentPresenter Background="{DynamicResource SystemControlBackgroundAltHighBrush}" Content="{TemplateBinding Content}" />
-					</ControlTemplate>
-				</Setter>
-			</Style>
-			<Style Selector="^[UseCustomTitleBar=true]">
-				<Style Selector="^[CanResize=false] Border#DialogWindowFormBorder">
-					<Setter Property="BorderThickness" Value="2" />
-				</Style>
-				<Setter Property="SystemDecorations" Value="BorderOnly"/>
-				<Setter Property="Template">
-					<ControlTemplate>
-						<Border Name="DialogWindowFormBorder" BorderBrush="{DynamicResource SystemBaseMediumLowColor}" Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-							<Grid RowDefinitions="30,*">
-								<Border Name="DialogWindowTitleBorder" Margin="5,0" Background="{DynamicResource SystemAltMediumColor}">
-									<Border.Styles>
-										<Style Selector="Button#DialogCloseButton">
-											<Style Selector="^:pointerover">
-												<Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-													<Setter Property="Background" Value="Red" />
-												</Style>
-												<Style Selector="^ Path">
-													<Setter Property="Fill" Value="{DynamicResource IconFill}" />
-												</Style>
-											</Style>
-											<Style Selector="^:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
-												<Setter Property="Background" Value="Transparent" />
-												<Setter Property="BorderBrush" Value="Transparent" />
-											</Style>
-										</Style>
-									</Border.Styles>
-								
-									<Grid ColumnDefinitions="Auto,*,Auto">
-
-										<Path Name="DialogWindowTitleIcon" Margin="3,5,0,5" Fill="{DynamicResource IconFill}" Stretch="Uniform"  Data="{StaticResource LibationGlassIcon}"/>
-									
-										<TextBlock Name="DialogWindowTitleTextBlock" Margin="8,0,0,0" VerticalAlignment="Center" FontWeight="DemiBold" FontSize="12" Grid.Column="1" Text="{TemplateBinding Title}" />
-
-										<Button Name="DialogCloseButton" Grid.Column="2">
-											<Path Fill="{DynamicResource SystemControlBackgroundBaseLowBrush}" VerticalAlignment="Center" Stretch="Uniform" RenderTransform="{StaticResource Rotate45Transform}" Data="{StaticResource CancelButtonIcon}" />
-										</Button>
-									</Grid>
-								</Border>
-								<Path Stroke="{DynamicResource SystemBaseMediumLowColor}" StrokeThickness="1" VerticalAlignment="Bottom" Stretch="Fill" Data="M0,0 L1,0" />
-								<ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}" />
-							</Grid>
-						</Border>
-					</ControlTemplate>
-				</Setter>
-			</Style>
-		</Style>
-		
+			<Setter Property="SystemDecorations" Value="Full"/>
+			<Setter Property="Icon" Value="/Assets/libation.ico"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<ContentPresenter Background="{DynamicResource SystemRegionColor}" Content="{TemplateBinding Content}" />
+				</ControlTemplate>
+			</Setter>
+		</Style>		
 	</Application.Styles>
 
 	<NativeMenu.Menu>

@@ -9,8 +9,7 @@
         x:Class="LibationAvalonia.Dialogs.LibationFilesDialog"
         xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		WindowStartupLocation="CenterScreen"
-        Title="Book Details"
-		Icon="/Assets/libation.ico">
+        Title="Book Details">
 	
 	<Grid
 		RowDefinitions="Auto,Auto">

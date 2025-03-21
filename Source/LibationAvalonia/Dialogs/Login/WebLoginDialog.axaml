@@ -7,7 +7,6 @@
         x:Class="LibationAvalonia.Dialogs.Login.WebLoginDialog"
 		Width="500" Height="800"
 		WindowStartupLocation="CenterOwner"
-		Icon="/Assets/libation.ico"
         Title="Audible Login">
 	<controls:NativeWebView Name="webView" />
 </Window>

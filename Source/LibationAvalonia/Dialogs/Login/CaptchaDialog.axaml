@@ -8,8 +8,7 @@
 		Width="220" Height="250"
 		WindowStartupLocation="CenterOwner"
         x:Class="LibationAvalonia.Dialogs.Login.CaptchaDialog"
-        Title="CAPTCHA"
-		Icon="/Assets/libation.ico">
+        Title="CAPTCHA">
 
 	<Grid
 		RowDefinitions="Auto,Auto,Auto,Auto,*"
