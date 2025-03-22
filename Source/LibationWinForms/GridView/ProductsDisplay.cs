@@ -20,9 +20,9 @@ namespace LibationWinForms.GridView
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 		public event EventHandler<int> RemovableCountChanged;
-		public event EventHandler<LibraryBook> LiberateClicked;
+		public event EventHandler<LibraryBook[]> LiberateClicked;
 		public event EventHandler<ISeriesEntry> LiberateSeriesClicked;
-		public event EventHandler<LibraryBook> ConvertToMp3Clicked;
+		public event EventHandler<LibraryBook[]> ConvertToMp3Clicked;
 		public event EventHandler InitialLoaded;
 
 		private bool hasBeenDisplayed;
@@ -123,12 +123,12 @@ namespace LibationWinForms.GridView
 
 		#region Cell Context Menu
 
-		private void productsGrid_CellContextMenuStripNeeded(IGridEntry entry, ContextMenuStrip ctxMenu)
+		private void productsGrid_CellContextMenuStripNeeded(IGridEntry[] entries, ContextMenuStrip ctxMenu)
 		{
-			var ctx = new GridContextMenu(entry, '&');
-			#region Liberate all Episodes
+			var ctx = new GridContextMenu(entries, '&');
+			#region Liberate all Episodes (Single series only)
 
-			if (entry.Liberate.IsSeries)
+			if (entries.Length == 1 && entries[0] is ISeriesEntry seriesEntry)
 			{
 				var liberateEpisodesMenuItem = new ToolStripMenuItem()
 				{
@@ -136,7 +136,7 @@ namespace LibationWinForms.GridView
 					Enabled = ctx.LiberateEpisodesEnabled
 				};
 
-				liberateEpisodesMenuItem.Click += (_, _) => LiberateSeriesClicked?.Invoke(this, (ISeriesEntry)entry);
+				liberateEpisodesMenuItem.Click += (_, _) => LiberateSeriesClicked?.Invoke(this, seriesEntry);
 				ctxMenu.Items.Add(liberateEpisodesMenuItem);
 			}
 
@@ -163,17 +163,10 @@ namespace LibationWinForms.GridView
 			ctxMenu.Items.Add(setNotDownloadMenuItem);
 
 			#endregion
-			#region Remove from library
+			#region Locate file (Single book only)
 
-			var removeMenuItem = new ToolStripMenuItem() { Text = ctx.RemoveText };
-			removeMenuItem.Click += async (_, _) => await ctx.RemoveAsync();
-			ctxMenu.Items.Add(removeMenuItem);
-
-			#endregion
-
-			if (!entry.Liberate.IsSeries)
+			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry)
 			{
-				#region Locate file
 				var locateFileMenuItem = new ToolStripMenuItem() { Text = ctx.LocateFileText };
 				ctxMenu.Items.Add(locateFileMenuItem);
 				locateFileMenuItem.Click += (_, _) =>
@@ -194,23 +187,49 @@ namespace LibationWinForms.GridView
 						MessageBoxLib.ShowAdminAlert(this, ctx.LocateFileErrorMessage, ctx.LocateFileErrorMessage, ex);
 					}
 				};
+			}
 
-				#endregion
-				#region Convert to Mp3
+			#endregion
+			#region Remove from library
 
+			var removeMenuItem = new ToolStripMenuItem() { Text = ctx.RemoveText };
+			removeMenuItem.Click += async (_, _) => await ctx.RemoveAsync();
+			ctxMenu.Items.Add(removeMenuItem);
+
+			#endregion
+			#region Liberate All (multiple books only)
+			if (entries.OfType<ILibraryBookEntry>().Count() > 1)
+			{
+				var downloadSelectedMenuItem = new ToolStripMenuItem()
+				{
+					Text = ctx.DownloadSelectedText
+				};
+				ctxMenu.Items.Add(downloadSelectedMenuItem);
+				downloadSelectedMenuItem.Click += (s, _) =>
+				{
+					LiberateClicked?.Invoke(s, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray());
+				};
+			}
+
+			#endregion
+			#region Convert to Mp3
+
+			if (ctx.LibraryBookEntries.Length > 0)
+			{
 				var convertToMp3MenuItem = new ToolStripMenuItem
 				{
 					Text = ctx.ConvertToMp3Text,
 					Enabled = ctx.ConvertToMp3Enabled
 				};
-				convertToMp3MenuItem.Click += (_, e) => ConvertToMp3Clicked?.Invoke(this, entry.LibraryBook);
+				convertToMp3MenuItem.Click += (_, e) => ConvertToMp3Clicked?.Invoke(this, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray());
 				ctxMenu.Items.Add(convertToMp3MenuItem);
 
-				#endregion
 			}
 
-			#region Force Re-Download
-			if (!entry.Liberate.IsSeries)
+			#endregion
+			#region Force Re-Download (Single book only)
+
+			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry4)
 			{
 				var reDownloadMenuItem = new ToolStripMenuItem()
 				{
@@ -220,13 +239,24 @@ namespace LibationWinForms.GridView
 				ctxMenu.Items.Add(reDownloadMenuItem);
 				reDownloadMenuItem.Click += (s, _) =>
 				{
-					//No need to persist this change. It only needs to last long for the file to start downloading
-					entry.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
-					LiberateClicked?.Invoke(s, entry.LibraryBook);
+					//No need to persist these changes. They only needs to last long for the files to start downloading
+					entry4.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
+					if (entry4.Book.HasPdf())
+						entry4.Book.UserDefinedItem.SetPdfStatus(LiberatedStatus.NotLiberated);
+
+					LiberateClicked?.Invoke(s, [entry4.LibraryBook]);
 				};
 			}
+
 			#endregion
-			#region Edit Templates
+
+			if (entries.Length > 1)
+				return;
+
+			ctxMenu.Items.Add(new ToolStripSeparator());
+
+			#region Edit Templates (Single book only)
+
 			void editTemplate<T>(LibraryBook libraryBook, string existingTemplate, Action<string> setNewTemplate)
 				where T : Templates, LibationFileManager.ITemplate, new()
 			{
@@ -238,14 +268,14 @@ namespace LibationWinForms.GridView
 				}
 			}
 
-			if (!entry.Liberate.IsSeries)
+			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry2)
 			{
 				var folderTemplateMenuItem = new ToolStripMenuItem { Text = ctx.FolderTemplateText };
 				var fileTemplateMenuItem = new ToolStripMenuItem { Text = ctx.FileTemplateText };
 				var multiFileTemplateMenuItem = new ToolStripMenuItem { Text = ctx.MultipartTemplateText };
-				folderTemplateMenuItem.Click += (s, _) => editTemplate<Templates.FolderTemplate>(entry.LibraryBook, Configuration.Instance.FolderTemplate, t => Configuration.Instance.FolderTemplate = t);
-				fileTemplateMenuItem.Click += (s, _) => editTemplate<Templates.FileTemplate>(entry.LibraryBook, Configuration.Instance.FileTemplate, t => Configuration.Instance.FileTemplate = t);
-				multiFileTemplateMenuItem.Click += (s, _) => editTemplate<Templates.ChapterFileTemplate>(entry.LibraryBook, Configuration.Instance.ChapterFileTemplate, t => Configuration.Instance.ChapterFileTemplate = t);
+				folderTemplateMenuItem.Click += (s, _) => editTemplate<Templates.FolderTemplate>(entry2.LibraryBook, Configuration.Instance.FolderTemplate, t => Configuration.Instance.FolderTemplate = t);
+				fileTemplateMenuItem.Click += (s, _) => editTemplate<Templates.FileTemplate>(entry2.LibraryBook, Configuration.Instance.FileTemplate, t => Configuration.Instance.FileTemplate = t);
+				multiFileTemplateMenuItem.Click += (s, _) => editTemplate<Templates.ChapterFileTemplate>(entry2.LibraryBook, Configuration.Instance.ChapterFileTemplate, t => Configuration.Instance.ChapterFileTemplate = t);
 
 				var editTemplatesMenuItem = new ToolStripMenuItem { Text = ctx.EditTemplatesText };
 				editTemplatesMenuItem.DropDownItems.AddRange(new[] { folderTemplateMenuItem, fileTemplateMenuItem, multiFileTemplateMenuItem });
@@ -255,25 +285,22 @@ namespace LibationWinForms.GridView
 			}
 
 			#endregion
+			#region View Bookmarks/Clips (Single book only)
 
-			ctxMenu.Items.Add(new ToolStripSeparator());
-
-			#region View Bookmarks/Clips
-
-			if (!entry.Liberate.IsSeries)
+			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry3)
 			{
 				var bookRecordMenuItem = new ToolStripMenuItem { Text = ctx.ViewBookmarksText };
-				bookRecordMenuItem.Click += (_, _) => new BookRecordsDialog(entry.LibraryBook).ShowDialog(this);
+				bookRecordMenuItem.Click += (_, _) => new BookRecordsDialog(entry3.LibraryBook).ShowDialog(this);
 				ctxMenu.Items.Add(bookRecordMenuItem);
 			}
 
 			#endregion
-			#region View All Series
+			#region View All Series (Single book only)
 
-			if (entry.Book.SeriesLink.Any())
+			if (entries.Length == 1 && entries[0].Book.SeriesLink.Any())
 			{
 				var viewSeriesMenuItem = new ToolStripMenuItem { Text = ctx.ViewSeriesText };
-				viewSeriesMenuItem.Click += (_, _) => new SeriesViewDialog(entry.LibraryBook).Show();
+				viewSeriesMenuItem.Click += (_, _) => new SeriesViewDialog(entries[0].LibraryBook).Show();
 				ctxMenu.Items.Add(viewSeriesMenuItem);
 			}
 
@@ -393,7 +420,7 @@ namespace LibationWinForms.GridView
 		{
 			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error
 				&& !liveGridEntry.Liberate.IsUnavailable)
-				LiberateClicked?.Invoke(this, liveGridEntry.LibraryBook);
+				LiberateClicked?.Invoke(this, [liveGridEntry.LibraryBook]);
 		}
 
 		private void productsGrid_RemovableCountChanged(object sender, EventArgs e)

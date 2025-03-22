@@ -164,6 +164,10 @@ namespace LibationAvalonia.ViewModels
 			if (GridEntries == null)
 				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(UpdateGridAsync)}");
 
+			//CollectionChanged fires for every book added, and the handler invokes
+			//VisibleCountChanged which triggers Libation to re-count all books.
+			GridEntries.CollectionChanged -= GridEntries_CollectionChanged;
+
 			#region Add new or update existing grid entries
 
 			//Add absent entries to grid, or update existing entry
@@ -214,8 +218,8 @@ namespace LibationAvalonia.ViewModels
 			await Filter(FilterString);
 			GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
 
-			if (GridEntries != null)
-				GridEntries.CollectionChanged += GridEntries_CollectionChanged;
+			//Resubscribe after all changes to the list have been made
+			GridEntries.CollectionChanged += GridEntries_CollectionChanged;
 			GridEntries_CollectionChanged();
 		}
 

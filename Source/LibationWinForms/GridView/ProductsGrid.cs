@@ -11,33 +11,34 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+#nullable enable
 
 namespace LibationWinForms.GridView
 {
 	public delegate void GridEntryClickedEventHandler(IGridEntry liveGridEntry);
 	public delegate void LibraryBookEntryClickedEventHandler(ILibraryBookEntry liveGridEntry);
 	public delegate void GridEntryRectangleClickedEventHandler(IGridEntry liveGridEntry, Rectangle cellRectangle);
-	public delegate void ProductsGridCellContextMenuStripNeededEventHandler(IGridEntry liveGridEntry, ContextMenuStrip ctxMenu);
+	public delegate void ProductsGridCellContextMenuStripNeededEventHandler(IGridEntry[] liveGridEntry, ContextMenuStrip ctxMenu);
 
 	public partial class ProductsGrid : UserControl
 	{
 		/// <summary>Number of visible rows has changed</summary>
-		public event EventHandler<int> VisibleCountChanged;
-		public event LibraryBookEntryClickedEventHandler LiberateClicked;
-		public event GridEntryClickedEventHandler CoverClicked;
-		public event LibraryBookEntryClickedEventHandler DetailsClicked;
-		public event GridEntryRectangleClickedEventHandler DescriptionClicked;
-		public new event EventHandler<ScrollEventArgs> Scroll;
-		public event EventHandler RemovableCountChanged;
-		public event ProductsGridCellContextMenuStripNeededEventHandler LiberateContextMenuStripNeeded;
+		public event EventHandler<int>? VisibleCountChanged;
+		public event LibraryBookEntryClickedEventHandler? LiberateClicked;
+		public event GridEntryClickedEventHandler? CoverClicked;
+		public event LibraryBookEntryClickedEventHandler? DetailsClicked;
+		public event GridEntryRectangleClickedEventHandler? DescriptionClicked;
+		public new event EventHandler<ScrollEventArgs>? Scroll;
+		public event EventHandler? RemovableCountChanged;
+		public event ProductsGridCellContextMenuStripNeededEventHandler? LiberateContextMenuStripNeeded;
 
-		private GridEntryBindingList bindingList;
+		private GridEntryBindingList? bindingList;
 		internal IEnumerable<LibraryBook> GetVisibleBooks()
 			=> bindingList
-			.GetFilteredInItems()
-			.Select(lbe => lbe.LibraryBook);
+			?.GetFilteredInItems()
+			.Select(lbe => lbe.LibraryBook) ?? Enumerable.Empty<LibraryBook>();
 		internal IEnumerable<ILibraryBookEntry> GetAllBookEntries()
-			=> bindingList.AllItems().BookEntries();
+			=> bindingList?.AllItems().BookEntries() ?? Enumerable.Empty<ILibraryBookEntry>();
 
 		public ProductsGrid()
 		{
@@ -64,11 +65,17 @@ namespace LibationWinForms.GridView
 
 		[PropertyChangeFilter(nameof(Configuration.GridFontScaleFactor))]
 		private void Configuration_FontScaleChanged(object sender, PropertyChangedEventArgsEx e)
-			=> setGridFontScale((float)e.NewValue);
+		{
+			if (e.NewValue is float v)
+				setGridFontScale(v);
+		}
 
 		[PropertyChangeFilter(nameof(Configuration.GridScaleFactor))]
 		private void Configuration_ScaleChanged(object sender, PropertyChangedEventArgsEx e)
-			=> setGridScale((float)e.NewValue);
+		{
+			if (e.NewValue is float v)
+				setGridScale(v);
+		}
 
 		/// <summary>
 		/// Keep track of the original dimensions for rescaling
@@ -106,10 +113,13 @@ namespace LibationWinForms.GridView
 
 		#endregion
 
-		private void GridEntryDataGridView_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs e)
+		private static string? RemoveLineBreaks(string? text)
+			=> text?.Replace("\r\n", "").Replace('\r', ' ').Replace('\n', ' ');
+
+		private void GridEntryDataGridView_CellContextMenuStripNeeded(object? sender, DataGridViewCellContextMenuStripNeededEventArgs e)
 		{
 			// header
-			if (e.RowIndex < 0)
+			if (e.RowIndex < 0 || sender is not DataGridView dgv)
 				return;
 
 			e.ContextMenuStrip = new ContextMenuStrip();
@@ -120,25 +130,89 @@ namespace LibationWinForms.GridView
 				{
 					try
 					{
-						var dgv = (DataGridView)sender;
-						var text = dgv[e.ColumnIndex, e.RowIndex].FormattedValue.ToString();
-						Clipboard.SetDataObject(text, false, 5, 150);
+						string clipboardText;
+
+						if (dgv.SelectedCells.Count <= 1)
+						{
+							//Copy contents only of cell that was right-clicked on.
+							clipboardText = dgv[e.ColumnIndex, e.RowIndex].FormattedValue?.ToString() ?? string.Empty;
+						}
+						else
+						{
+							//Copy contents of selected cells. Each row is a new line,
+							//and columns are separated with tabs. Similar formatting to Microsoft Excel.
+							var selectedCells
+							= dgv.SelectedCells
+							.OfType<DataGridViewCell>()
+							.Where(c => c.OwningColumn is not null && c.OwningRow is not null)
+							.OrderBy(c => c.RowIndex)
+							.ThenBy(c => c.OwningColumn!.DisplayIndex)
+							.ToList();
+
+							var headerText
+							= string.Join("\t",
+								selectedCells
+								.Select(c => c.OwningColumn)
+								.Distinct()
+								.Select(c => RemoveLineBreaks(c?.HeaderText))
+								.OfType<string>());
+
+							List<string> linesOfText = [headerText];
+							foreach (var distinctRow in selectedCells.Select(c => c.RowIndex).Distinct())
+							{
+								linesOfText.Add(string.Join("\t",
+									selectedCells
+									.Where(c => c.RowIndex == distinctRow)
+									.Select(c => RemoveLineBreaks(c.FormattedValue?.ToString()) ?? string.Empty)
+									));
+							}
+							clipboardText = string.Join(Environment.NewLine, linesOfText);
+						}
+						Clipboard.SetDataObject(clipboardText, false, 5, 150);
 					}
-					catch { }
+					catch(Exception ex)
+					{
+						Serilog.Log.Logger.Error(ex, "Error copying text to clipboard");
+					}
 				});
 				e.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 			}
 
-			var entry = getGridEntry(e.RowIndex);
-			var name = gridEntryDataGridView.Columns[e.ColumnIndex].DataPropertyName;
-			LiberateContextMenuStripNeeded?.Invoke(entry, e.ContextMenuStrip);
+			var clickedEntry = getGridEntry(e.RowIndex);
+
+			var allSelected
+				= gridEntryDataGridView
+				.SelectedCells
+				.OfType<DataGridViewCell>()
+				.Select(c => c.OwningRow)
+				.OfType<DataGridViewRow>()
+				.Distinct()
+				.OrderBy(r => r.Index)
+				.Select(r => r.DataBoundItem)
+				.OfType<IGridEntry>()
+				.ToArray();
+
+			var clickedIndex = Array.IndexOf(allSelected, clickedEntry);
+			if (clickedIndex == -1)
+			{
+				//User didn't right-click on a selected cell
+				gridEntryDataGridView.ClearSelection();
+				gridEntryDataGridView[e.ColumnIndex, e.RowIndex].Selected = true;
+				allSelected = [clickedEntry];
+			}
+			else if (clickedIndex > 0)
+			{
+				//Ensure the clicked entry is first in the list
+				(allSelected[0], allSelected[clickedIndex]) = (allSelected[clickedIndex], allSelected[0]);
+			}
+			LiberateContextMenuStripNeeded?.Invoke(allSelected, e.ContextMenuStrip);
 		}
 
 		private void EnableDoubleBuffering()
 		{
 			var propertyInfo = gridEntryDataGridView.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
-			propertyInfo.SetValue(gridEntryDataGridView, true, null);
+			propertyInfo?.SetValue(gridEntryDataGridView, true, null);
 		}
 
 		#region Button controls
@@ -167,11 +241,11 @@ namespace LibationWinForms.GridView
 					if (e.ColumnIndex == liberateGVColumn.Index)
 					{
 						if (sEntry.Liberate.Expanded)
-							bindingList.CollapseItem(sEntry);
+							bindingList?.CollapseItem(sEntry);
 						else
-							bindingList.ExpandItem(sEntry);
+							bindingList?.ExpandItem(sEntry);
 
-						VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
+						VisibleCountChanged?.Invoke(this, bindingList?.GetFilteredInItems().Count() ?? 0);
 					}
 					else if (e.ColumnIndex == descriptionGVColumn.Index)
 						DescriptionClicked?.Invoke(sEntry, gridEntryDataGridView.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, false));
@@ -202,7 +276,7 @@ namespace LibationWinForms.GridView
 			get => removeGVColumn.Visible;
 			set
 			{
-				if (value)
+				if (value && bindingList is not null)
 				{
 					foreach (var book in bindingList.AllItems())
 						book.Remove = false;
@@ -248,13 +322,16 @@ namespace LibationWinForms.GridView
 
 		internal void UpdateGrid(List<LibraryBook> dbBooks)
 		{
+			if (bindingList == null)
+				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(UpdateGrid)}");
+
 			//First row that is in view in the DataGridView
 			var topRow = gridEntryDataGridView.Rows.Cast<DataGridViewRow>().FirstOrDefault(r => r.Displayed)?.Index ?? 0;
 
 			#region Add new or update existing grid entries
 
-			//Remove filter prior to adding/updating boooks
-			string existingFilter = syncBindingSource.Filter;
+			//Remove filter prior to adding/updating books
+			string? existingFilter = syncBindingSource.Filter;
 			Filter(null);
 
 			//Add absent entries to grid, or update existing entry
@@ -308,6 +385,9 @@ namespace LibationWinForms.GridView
 
 		public void RemoveBooks(IEnumerable<ILibraryBookEntry> removedBooks)
 		{
+			if (bindingList == null)
+				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(RemoveBooks)}");
+
 			//Remove books in series from their parents' Children list
 			foreach (var removed in removedBooks.Where(b => b.Liberate.IsEpisode))
 				removed.Parent.RemoveChild(removed);
@@ -325,8 +405,11 @@ namespace LibationWinForms.GridView
 			VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 		}
 
-		private void AddOrUpdateBook(LibraryBook book, ILibraryBookEntry existingBookEntry)
+		private void AddOrUpdateBook(LibraryBook book, ILibraryBookEntry? existingBookEntry)
 		{
+			if (bindingList == null)
+				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(AddOrUpdateBook)}");
+
 			if (existingBookEntry is null)
 				// Add the new product to top
 				bindingList.Insert(0, new LibraryBookEntry<WinFormsEntryStatus>(book));
@@ -335,8 +418,11 @@ namespace LibationWinForms.GridView
 				existingBookEntry.UpdateLibraryBook(book);
 		}
 
-		private void AddOrUpdateEpisode(LibraryBook episodeBook, ILibraryBookEntry existingEpisodeEntry, List<ISeriesEntry> seriesEntries, IEnumerable<LibraryBook> dbBooks)
+		private void AddOrUpdateEpisode(LibraryBook episodeBook, ILibraryBookEntry? existingEpisodeEntry, List<ISeriesEntry> seriesEntries, IEnumerable<LibraryBook> dbBooks)
 		{
+			if (bindingList == null)
+				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(AddOrUpdateEpisode)}");
+
 			if (existingEpisodeEntry is null)
 			{
 				ILibraryBookEntry episodeEntry;
@@ -397,7 +483,7 @@ namespace LibationWinForms.GridView
 
 		#region Filter
 
-		public void Filter(string searchString)
+		public void Filter(string? searchString)
 		{
 			if (bindingList is null) return;
 
@@ -485,16 +571,16 @@ namespace LibationWinForms.GridView
 			removeGVColumn.IndeterminateValue = null;
 		}
 
-		private void HideMenuItem_Click(object sender, EventArgs e)
+		private void HideMenuItem_Click(object? sender, EventArgs e)
 		{
 			var menuItem = sender as ToolStripMenuItem;
-			var propertyName = menuItem.Tag as string;
+			var propertyName = menuItem?.Tag as string;
 
 			var column = gridEntryDataGridView.Columns
 				.Cast<DataGridViewColumn>()
 				.FirstOrDefault(c => c.DataPropertyName == propertyName);
 
-			if (column != null)
+			if (column != null && menuItem != null && propertyName != null)
 			{
 				var visible = menuItem.Checked;
 				menuItem.Checked = !visible;
@@ -508,7 +594,7 @@ namespace LibationWinForms.GridView
 			}
 		}
 
-		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object sender, DataGridViewColumnEventArgs e)
+		private void gridEntryDataGridView_ColumnDisplayIndexChanged(object? sender, DataGridViewColumnEventArgs e)
 		{
 			var config = Configuration.Instance;
 
@@ -517,7 +603,7 @@ namespace LibationWinForms.GridView
 			config.GridColumnsDisplayIndices = dictionary;
 		}
 
-		private void gridEntryDataGridView_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
+		private void gridEntryDataGridView_CellToolTipTextNeeded(object? sender, DataGridViewCellToolTipTextNeededEventArgs e)
 		{
 			if (e.ColumnIndex == descriptionGVColumn.Index)
 				e.ToolTipText = "Click to see full description";
@@ -525,7 +611,7 @@ namespace LibationWinForms.GridView
 				e.ToolTipText = "Click to see full size";
 		}
 
-		private void gridEntryDataGridView_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
+		private void gridEntryDataGridView_ColumnWidthChanged(object? sender, DataGridViewColumnEventArgs e)
 		{
 			var config = Configuration.Instance;
 

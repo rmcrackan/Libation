@@ -134,9 +134,9 @@ namespace LibationAvalonia.Views
 				Task.Run(() => vm.ProductsDisplay.BindToGridAsync(initialLibrary)));
 		}
 
-		public void ProductsDisplay_LiberateClicked(object _, LibraryBook libraryBook) => ViewModel.LiberateClicked(libraryBook);
+		public void ProductsDisplay_LiberateClicked(object _, LibraryBook[] libraryBook) => ViewModel.LiberateClicked(libraryBook);
 		public void ProductsDisplay_LiberateSeriesClicked(object _, ISeriesEntry series) => ViewModel.LiberateSeriesClicked(series);
-		public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook libraryBook) => ViewModel.ConvertToMp3Clicked(libraryBook);
+		public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook[] libraryBook) => ViewModel.ConvertToMp3Clicked(libraryBook);
 
 		BookDetailsDialog bookDetailsForm;
 		public void ProductsDisplay_TagsButtonClicked(object _, LibraryBook libraryBook)
