@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Forms;
 using Dinah.Core;
 using LibationFileManager;
+using LibationFileManager.Templates;
 
 namespace LibationWinForms.Dialogs
 {

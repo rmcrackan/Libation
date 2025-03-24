@@ -306,41 +306,41 @@ namespace LibationFileManager
 		[Description("How to format the folders in which files will be saved")]
 		public string FolderTemplate
 		{
-			get => getTemplate<Templates.FolderTemplate>();
-			set => setTemplate<Templates.FolderTemplate>(value);
+			get => getTemplate<Templates.Templates.FolderTemplate>();
+			set => setTemplate<Templates.Templates.FolderTemplate>(value);
 		}
 
 		[Description("How to format the saved pdf and audio files")]
 		public string FileTemplate
 		{
-			get => getTemplate<Templates.FileTemplate>();
-			set => setTemplate<Templates.FileTemplate>(value);
+			get => getTemplate<Templates.Templates.FileTemplate>();
+			set => setTemplate<Templates.Templates.FileTemplate>(value);
 		}
 
 		[Description("How to format the saved audio files when split by chapters")]
 		public string ChapterFileTemplate
 		{
-			get => getTemplate<Templates.ChapterFileTemplate>();
-			set => setTemplate<Templates.ChapterFileTemplate>(value);
+			get => getTemplate<Templates.Templates.ChapterFileTemplate>();
+			set => setTemplate<Templates.Templates.ChapterFileTemplate>(value);
 		}
 
 		[Description("How to format the file's Title stored in metadata")]
 		public string ChapterTitleTemplate
 		{
-			get => getTemplate<Templates.ChapterTitleTemplate>();
-			set => setTemplate<Templates.ChapterTitleTemplate>(value);
+			get => getTemplate<Templates.Templates.ChapterTitleTemplate>();
+			set => setTemplate<Templates.Templates.ChapterTitleTemplate>(value);
 		}
 
 		private string getTemplate<T>([CallerMemberName] string propertyName = "")
-			where T : Templates, ITemplate, new()
+			where T : Templates.Templates, Templates.ITemplate, new()
 		{
-			return Templates.GetTemplate<T>(GetString(defaultValue: T.DefaultTemplate, propertyName)).TemplateText;
+			return Templates.Templates.GetTemplate<T>(GetString(defaultValue: T.DefaultTemplate, propertyName)).TemplateText;
 		}
 
 		private void setTemplate<T>(string newValue, [CallerMemberName] string propertyName = "")
-			where T : Templates, ITemplate, new()
+			where T : Templates.Templates, Templates.ITemplate, new()
 		{
-			SetString(Templates.GetTemplate<T>(newValue).TemplateText, propertyName);
+			SetString(Templates.Templates.GetTemplate<T>(newValue).TemplateText, propertyName);
 		}
 		#endregion
 	}

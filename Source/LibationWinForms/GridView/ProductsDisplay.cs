@@ -3,6 +3,7 @@ using AudibleUtilities;
 using DataLayer;
 using FileLiberator;
 using LibationFileManager;
+using LibationFileManager.Templates;
 using LibationUiBase.GridView;
 using LibationWinForms.Dialogs;
 using LibationWinForms.SeriesView;
@@ -258,7 +259,7 @@ namespace LibationWinForms.GridView
 			#region Edit Templates (Single book only)
 
 			void editTemplate<T>(LibraryBook libraryBook, string existingTemplate, Action<string> setNewTemplate)
-				where T : Templates, LibationFileManager.ITemplate, new()
+				where T : Templates, ITemplate, new()
 			{
 				var template = ctx.CreateTemplateEditor<T>(libraryBook, existingTemplate);
 				var form = new EditTemplateDialog(template);
@@ -280,8 +281,8 @@ namespace LibationWinForms.GridView
 				var editTemplatesMenuItem = new ToolStripMenuItem { Text = ctx.EditTemplatesText };
 				editTemplatesMenuItem.DropDownItems.AddRange(new[] { folderTemplateMenuItem, fileTemplateMenuItem, multiFileTemplateMenuItem });
 
-				ctxMenu.Items.Add(new ToolStripSeparator());
 				ctxMenu.Items.Add(editTemplatesMenuItem);
+				ctxMenu.Items.Add(new ToolStripSeparator());
 			}
 
 			#endregion

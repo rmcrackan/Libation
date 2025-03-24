@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System;
 using System.IO;
 using ApplicationServices;
+using LibationFileManager.Templates;
 
 namespace FileLiberator
 {
@@ -26,8 +27,8 @@ namespace FileLiberator
 		public string Publisher => LibraryBook.Book.Publisher;
 		public string Language => LibraryBook.Book.Language;
 		public string AudibleProductId => LibraryBookDto.AudibleProductId;
-		public string SeriesName => LibraryBookDto.SeriesName;
-		public float? SeriesNumber => LibraryBookDto.SeriesNumber;
+		public string SeriesName => LibraryBookDto.FirstSeries?.Name;
+		public float? SeriesNumber => LibraryBookDto.FirstSeries?.Number;
 		public NAudio.Lame.LameConfig LameConfig { get; init; }
 		public string UserAgent => AudibleApi.Resources.Download_User_Agent;
 		public bool TrimOutputToChapterLength => config.AllowLibationFixup && config.StripAudibleBrandAudio;

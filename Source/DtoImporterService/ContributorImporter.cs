@@ -61,19 +61,19 @@ namespace DtoImporterService
 
 		private int upsertPeople(List<Person> people)
 		{
-			var hash = people
-				// new people only
-				.Where(p => !Cache.ContainsKey(p.Name))
-				// remove duplicates by Name. first in wins
-				.ToDictionarySafe(p => p.Name);
-
-			foreach (var kvp in hash)
+			var qtyNew = 0;
+			foreach (var person in people)
 			{
-				var person = kvp.Value;
-				addContributor(person.Name, person.Asin);
+				if (!Cache.TryGetValue(person.Name, out var contributor))
+				{
+					contributor = createContributor(person.Name, person.Asin);
+					qtyNew++;
+				}
+
+				updateContributor(person, contributor);
 			}
 
-			return hash.Count;
+			return qtyNew;
 		}
 
 		// only use after loading contributors => local
@@ -86,16 +86,22 @@ namespace DtoImporterService
 				.ToHashSet();
 
 			foreach (var pub in hash)
-				addContributor(pub);
+				createContributor(pub);
 
 			return hash.Count;
 		}
 
-		private Contributor addContributor(string name, string id = null)
+		private void updateContributor(Person person, Contributor contributor)
+		{
+			if (person.Asin != contributor.AudibleContributorId)
+				contributor.SetAudibleContributorId(person.Asin);
+		}
+
+		private Contributor createContributor(string name, string id = null)
 		{
 			try
 			{
-				var newContrib = new Contributor(name);
+				var newContrib = new Contributor(name, id);
 
 				var entityEntry = DbContext.Contributors.Add(newContrib);
 				var entity = entityEntry.Entity;

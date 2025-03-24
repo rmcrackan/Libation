@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DataLayer;
 using LibationFileManager;
+using LibationFileManager.Templates;
 
 namespace FileLiberator
 {

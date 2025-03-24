@@ -158,7 +158,7 @@ namespace FileLiberator
 
 			if (success && config.SaveMetadataToFile)
             {
-                var metadataFile = Templates.File.GetFilename(dlOptions.LibraryBookDto, Path.GetDirectoryName(outFileName), ".metadata.json");
+                var metadataFile = LibationFileManager.Templates.Templates.File.GetFilename(dlOptions.LibraryBookDto, Path.GetDirectoryName(outFileName), ".metadata.json");
 
                 var item = await api.GetCatalogProductAsync(libraryBook.Book.AudibleProductId, AudibleApi.CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
 				item.SourceJson.Add(nameof(ContentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(contentLic.ContentMetadata.ChapterInfo));

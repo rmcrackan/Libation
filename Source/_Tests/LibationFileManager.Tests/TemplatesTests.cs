@@ -6,7 +6,7 @@ using Dinah.Core;
 using FileManager;
 using FileManager.NamingTemplate;
 using FluentAssertions;
-using LibationFileManager;
+using LibationFileManager.Templates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using static TemplatesTests.Shared;
@@ -23,7 +23,10 @@ namespace TemplatesTests
 
 	public static class Shared
 	{
-		public static LibraryBookDto GetLibraryBook(string seriesName = "Sherlock Holmes")
+		public static LibraryBookDto GetLibraryBook()
+			=> GetLibraryBook([new SeriesDto("Sherlock Holmes", 1, "B08376S3R2")]);
+
+		public static LibraryBookDto GetLibraryBook(IEnumerable<SeriesDto> series)
 			=> new()
 			{
 				Account = "myaccount@example.co",
@@ -35,10 +38,9 @@ namespace TemplatesTests
 				Title = "A Study in Scarlet: A Sherlock Holmes Novel",
 				Locale = "us",
 				YearPublished = 2017,
-				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
-				Narrators = new List<string> { "Stephen Fry" },
-				SeriesName = seriesName ?? "",
-				SeriesNumber = 1,
+				Authors = [new("Arthur Conan Doyle", "B000AQ43GQ"), new("Stephen Fry - introductions", "B000APAGVS")],
+				Narrators = [new("Stephen Fry", "B000APAGVS"), new("Some Narrator", "B000000000")],
+				Series = series,
 				BitRate = 128,
 				SampleRate = 44100,
 				Channels = 2,
@@ -253,7 +255,6 @@ namespace TemplatesTests
 			}
 		}
 
-
 		[TestMethod]
 		[DataRow("<filedate[yy-MM-dd]> <date added[yy-MM-dd]> <pubdate[yy-MM]>", @"C:\foo\bar", ".m4b", @"C:\foo\bar\23-01-28.m4b")]
 		public void DateFormat_null(string template, string dirFullPath, string extension, string expected)
@@ -308,7 +309,7 @@ namespace TemplatesTests
 		public void NameFormat_unusual(string author, string expected)
 		{
 			var bookDto = GetLibraryBook();
-			bookDto.Authors = new List<string> { author };
+			bookDto.Authors = [new(author, null)];
 			Templates.TryGetTemplate<Templates.FileTemplate>("<author[format(Title={T}, First={F}, Middle={M} Last={L}, Suffix={S})]>", out var fileTemplate).Should().BeTrue();
 			fileTemplate
 				.GetFilename(bookDto, "", "", Replacements)
@@ -329,6 +330,11 @@ namespace TemplatesTests
 		[DataRow("<author[max(2)]>", "Jill Conner Browne, Charles E. Gannon")]
 		[DataRow("<author[max(3)]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf")]
 		[DataRow("<author[format({L}, {F})]>", "Browne, Jill, Gannon, Charles, Fetherolf, Christopher, Montgomery, Lucy, Bon Jovi, Jon, Van Doren, Paul")]
+		[DataRow("<author[format({L}, {F} {ID})]>", "Browne, Jill B1, Gannon, Charles B2, Fetherolf, Christopher B3, Montgomery, Lucy B4, Bon Jovi, Jon B5, Van Doren, Paul B6")]
+		[DataRow("<author[format({ID})]>", "B1, B2, B3, B4, B5, B6")]
+		[DataRow("<author[format({Id})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
+		[DataRow("<author[format({iD})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
+		[DataRow("<author[format({id})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
 		[DataRow("<author[format({f}, {l})]>", "Jill Conner Browne, Charles E. Gannon, Christopher John Fetherolf, Lucy Maud Montgomery, Jon Bon Jovi, Paul Van Doren")]
 		[DataRow("<author[format(First={F}, Last={L})]>", "First=Jill, Last=Browne, First=Charles, Last=Gannon, First=Christopher, Last=Fetherolf, First=Lucy, Last=Montgomery, First=Jon, Last=Bon Jovi, First=Paul, Last=Van Doren")]
 		[DataRow("<author[format({L}, {F}) separator( - ) max(3)]>", "Browne, Jill - Gannon, Charles - Fetherolf, Christopher")]
@@ -337,18 +343,21 @@ namespace TemplatesTests
 		//Jon Bon Jovi and Paul Van Doren don't have middle names, so they are sorted to the top.
 		//Since only the middle names of the first 2 names are to be displayed, the name string is empty.
 		[DataRow("<author[sort(M) max(2) separator(; ) format({M})]>", ";")]
+		[DataRow("<first author>", "Jill Conner Browne")]
+		[DataRow("<first author[]>", "Jill Conner Browne")]
+		[DataRow("<first author[{L}, {F}]>", "Browne, Jill")]
 		public void NameFormat_formatters(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
-			bookDto.Authors = new List<string>
-			{
-				"Jill Conner Browne",
-				"Charles E. Gannon",
-				"Christopher John Fetherolf",
-				"Lucy Maud Montgomery",
-				"Jon Bon Jovi",
-				"Paul Van Doren"
-			};
+			bookDto.Authors = 
+			[
+				new("Jill Conner Browne", "B1"),
+				new("Charles E. Gannon", "B2"),
+				new("Christopher John Fetherolf", "B3"),
+				new("Lucy Maud Montgomery", "B4"),
+				new("Jon Bon Jovi", "B5"),
+				new("Paul Van Doren", "B6")
+			];
 
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
@@ -357,6 +366,35 @@ namespace TemplatesTests
 				.Should().Be(expected);
 		}
 
+
+		[TestMethod]
+		[DataRow("<series>", "Series A, Series B, Series C")]
+		[DataRow("<series[]>", "Series A, Series B, Series C")]
+		[DataRow("<series[max(1)]>", "Series A")]
+		[DataRow("<series[max(2)]>", "Series A, Series B")]
+		[DataRow("<series[max(3)]>", "Series A, Series B, Series C")]
+		[DataRow("<series[format({N}, {#}, {ID}) separator(; )]>", "Series A, 1, B1; Series B, 6, B2; Series C, 2, B3")]
+		[DataRow("<series[format({N}, {#}, {ID}) separator(; ) max(3)]>", "Series A, 1, B1; Series B, 6, B2; Series C, 2, B3")]
+		[DataRow("<series[format({N}, {#}, {ID}) separator(; ) max(2)]>", "Series A, 1, B1; Series B, 6, B2")]
+		[DataRow("<first series>", "Series A")]
+		[DataRow("<first series[]>", "Series A")]
+		[DataRow("<first series[{N}, {#}, {ID}]>", "Series A, 1, B1")]
+		public void SeriesFormat_formatters(string template, string expected)
+		{
+			var bookDto = GetLibraryBook();
+			bookDto.Series =
+			[
+				new("Series A", 1,  "B1"),
+				new("Series B", 6,  "B2"),
+				new("Series C", 2,  "B3")
+			];
+			
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(bookDto, "", "", Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
 
 		[TestMethod]
 		[DataRow(@"C:\a\b", @"C:\a\b\foobar.ext", PlatformID.Win32NT)]

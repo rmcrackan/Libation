@@ -2,6 +2,7 @@
 using System.Linq;
 using Dinah.Core;
 using LibationFileManager;
+using LibationFileManager.Templates;
 
 namespace LibationWinForms.Dialogs
 {

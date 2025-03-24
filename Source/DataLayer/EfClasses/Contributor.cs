@@ -43,5 +43,7 @@ namespace DataLayer
 		}
 
 		public override string ToString() => Name;
+		public void SetAudibleContributorId(string audibleContributorId)
+			=> AudibleContributorId = audibleContributorId;
 	}
 }

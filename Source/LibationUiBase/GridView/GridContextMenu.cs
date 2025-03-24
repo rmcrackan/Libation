@@ -2,6 +2,7 @@
 using DataLayer;
 using FileLiberator;
 using LibationFileManager;
+using LibationFileManager.Templates;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ public class GridContextMenu
 	public string FolderTemplateText => "Folder Template";
 	public string FileTemplateText => "File Template";
 	public string MultipartTemplateText => "Multipart File Template";
-	public string ViewBookmarksText => "View _Bookmarks/Clips";
+	public string ViewBookmarksText => $"View {Accelerator}Bookmarks/Clips";
 	public string ViewSeriesText => GridEntries[0].Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
 
 	public bool LiberateEpisodesEnabled => GridEntries.OfType<ISeriesEntry>().Any(sEntry => sEntry.Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload));

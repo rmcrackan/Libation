@@ -1,7 +1,7 @@
 ﻿using FileManager.NamingTemplate;
 
 #nullable enable
-namespace LibationFileManager
+namespace LibationFileManager.Templates
 {
 	public sealed class TemplateTags : ITemplateTag
 	{
@@ -33,15 +33,15 @@ namespace LibationFileManager
 		public static TemplateTags FirstAuthor { get; } = new TemplateTags("first author", "First author");
 		public static TemplateTags Narrator { get; } = new TemplateTags("narrator", "Narrator(s)");
 		public static TemplateTags FirstNarrator { get; } = new TemplateTags("first narrator", "First narrator");
-		public static TemplateTags Series { get; } = new TemplateTags("series", "Name of series");
-		// can't also have a leading zeros version. Too many weird edge cases. Eg: "1-4"
-		public static TemplateTags SeriesNumber { get; } = new TemplateTags("series#", "Number order in series");
+		public static TemplateTags Series { get; } = new TemplateTags("series", "All series to which the book belongs (if any)");
+		public static TemplateTags FirstSeries { get; } = new TemplateTags("first series", "First series");
+		public static TemplateTags SeriesNumber { get; } = new TemplateTags("series#", "Number order in series (alias for <first series[{#}]>");
 		public static TemplateTags Bitrate { get; } = new TemplateTags("bitrate", "File's orig. bitrate");
 		public static TemplateTags SampleRate { get; } = new TemplateTags("samplerate", "File's orig. sample rate");
 		public static TemplateTags Channels { get; } = new TemplateTags("channels", "Number of audio channels");
 		public static TemplateTags Account { get; } = new TemplateTags("account", "Audible account of this book");
 		public static TemplateTags AccountNickname { get; } = new TemplateTags("account nickname", "Audible account nickname of this book");
-		public static TemplateTags Locale { get; } = new ("locale", "Region/country");
+		public static TemplateTags Locale { get; } = new("locale", "Region/country");
 		public static TemplateTags YearPublished { get; } = new("year", "Year published");
 		public static TemplateTags Language { get; } = new("language", "Book's language");
 		public static TemplateTags LanguageShort { get; } = new("language short", "Book's language abbreviated. Eg: ENG");
