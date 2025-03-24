@@ -2,9 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="520"
-		MinWidth="450" MinHeight="520"
-		Width="450" Height="520"
+		mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="540"
+		MinWidth="450" MinHeight="540"
+		Width="450" Height="540"
         x:Class="LibationAvalonia.Dialogs.AboutDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         Title="About Libation">
@@ -41,39 +41,38 @@
 
 		<controls:GroupBox Grid.Row="3" Label="Acknowledgements" Grid.ColumnSpan="2">
 			<StackPanel>
+				<StackPanel.Styles>
+					<Style Selector="controls|LinkLabel">
+						<Setter Property="Margin" Value="5,0" />
+						<Setter Property="FontSize" Value="13" />
+					</Style>
+				</StackPanel.Styles>
 
-				<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
-					<controls:LinkLabel FontWeight="Bold" Text="rmcrackan" Tapped="Link_GithubUser" />
-					<TextBlock Grid.Column="1" Margin="10,0" Text="Creator" />
-					<controls:LinkLabel Grid.Row="1" FontWeight="Bold" Text="Mbucari" Tapped="Link_GithubUser" />
-					<TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0" Text="Developer" />
-				</Grid>
+				<ItemsControl ItemsSource="{Binding PrimaryContributors}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<controls:LinkLabel FontWeight="Bold" Text="{Binding Name}" Tapped="ContributorLink_Tapped" />
+								<TextBlock Grid.Column="1" Margin="10,0" Text="{Binding Type}" />								
+							</StackPanel>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
 				
 				<TextBlock Margin="0,10" FontSize="12" Text="Additional Contributions by:" TextDecorations="Underline"/>
 
-				<WrapPanel>
-					<WrapPanel.Styles>
-						<Style Selector="controls|LinkLabel">
-							<Setter Property="Margin" Value="5,0" />
-							<Setter Property="FontSize" Value="13" />
-						</Style>
-					</WrapPanel.Styles>
-					<controls:LinkLabel Text="pixil98" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="hutattedonmyarm" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="seanke" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="wtanksleyjr" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="Dr.Blank" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="CharlieRussel" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="cbordeman" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="jwillikers" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="Shuvashish76" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="RokeJulianLockhart" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="maaximal" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="muchtall" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="ScubyG" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="patienttruth" Tapped="Link_GithubUser" />
-					<controls:LinkLabel Text="stickystyle" Tapped="Link_GithubUser" />
-				</WrapPanel>
+				<ItemsControl ItemsSource="{Binding AdditionalContributors}">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<WrapPanel />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<controls:LinkLabel Text="{Binding Name}" Tapped="ContributorLink_Tapped" />
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
 			</StackPanel>			
 		</controls:GroupBox>
 		
