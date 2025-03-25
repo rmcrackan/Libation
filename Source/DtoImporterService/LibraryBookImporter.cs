@@ -62,7 +62,7 @@ namespace DtoImporterService
 						existing.SetAccount(item.AccountId);
 					}
 
-					existing.AbsentFromLastScan = isPlusTitleUnavailable(item);
+					existing.AbsentFromLastScan = isUnavailable(item);
 				}
 				else
 				{
@@ -71,7 +71,7 @@ namespace DtoImporterService
 						item.DtoItem.DateAdded,
 						item.AccountId)
 						{
-							AbsentFromLastScan = isPlusTitleUnavailable(item)
+							AbsentFromLastScan = isUnavailable(item)
 						};
 
 					try
@@ -113,7 +113,13 @@ namespace DtoImporterService
 		}
 
 		private static ImportItem tieBreak(ImportItem item1, ImportItem item2)
-			=> isPlusTitleUnavailable(item1) && !isPlusTitleUnavailable(item2) ? item2 : item1;
+			=> isUnavailable(item1) && !isUnavailable(item2) ? item2 : item1;
+
+		private static bool isUnavailable(ImportItem item)
+			=> isFutureRelease(item) || isPlusTitleUnavailable(item);
+
+        private static bool isFutureRelease(ImportItem item)
+			=> item.DtoItem.IssueDate is DateTimeOffset dt && dt > DateTimeOffset.UtcNow;
 
 		private static bool isPlusTitleUnavailable(ImportItem item)
 			=> item.DtoItem.ContentType is null
