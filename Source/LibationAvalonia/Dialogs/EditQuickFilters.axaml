@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="350"
         Width="800" Height="450"
         x:Class="LibationAvalonia.Dialogs.EditQuickFilters"
-        Title="Audible Accounts"
+        Title="Edit Quick Filters"
 		x:DataType="dialogs:EditQuickFilters">
 	<Grid RowDefinitions="*,Auto">
 
