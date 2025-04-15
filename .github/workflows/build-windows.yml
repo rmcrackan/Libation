@@ -89,14 +89,6 @@ jobs:
         run: |
           $bin_dir = "${{ matrix.os }}-${{ matrix.release_name }}\"
           $delfiles = @(
-            "libmp3lame.x64.so",
-            "libmp3lame.arm64.so",
-            "libmp3lame.x64.dylib",
-            "libmp3lame.arm64.dylib",
-            "ffmpegaac.x64.so",
-            "ffmpegaac.arm64.so",
-            "ffmpegaac.x64.dylib",
-            "ffmpegaac.arm64.dylib",
             "WindowsConfigApp.exe",
             "WindowsConfigApp.runtimeconfig.json",
             "WindowsConfigApp.deps.json"
