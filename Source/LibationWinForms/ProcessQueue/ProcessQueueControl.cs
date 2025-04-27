@@ -86,7 +86,7 @@ namespace LibationWinForms.ProcessQueue
 			var entry = Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId);
 			if (entry == null)
 				return false;
-			else if (entry.Status is ProcessBookStatus.Cancelled or ProcessBookStatus.Failed or ProcessBookStatus.Completed)
+			else if (entry.Status is ProcessBookStatus.Cancelled or ProcessBookStatus.Failed)
 				return !Queue.RemoveCompleted(entry);
 			else
 				return true;
