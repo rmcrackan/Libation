@@ -246,8 +246,19 @@ namespace LibationFileManager
 		public enum DownloadQuality
 		{
 			High,
-			Normal
+			Normal,
+			Spatial
 		}
+
+		[JsonConverter(typeof(StringEnumConverter))]
+		public enum SpatialCodec
+		{
+			EC_3,
+			AC_4
+		}
+
+		[Description("Spatial audio codec:")]
+		public SpatialCodec SpatialAudioCodec { get => GetNonString(defaultValue: SpatialCodec.EC_3); set => SetNonString(value); }
 
 		[Description("Audio quality to request from Audible:")]
 		public DownloadQuality FileDownloadQuality { get => GetNonString(defaultValue: DownloadQuality.High); set => SetNonString(value); }

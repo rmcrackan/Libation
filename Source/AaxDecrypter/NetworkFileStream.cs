@@ -55,18 +55,23 @@ namespace AaxDecrypter
 		private CancellationTokenSource _cancellationSource { get; } = new();
 		private EventWaitHandle _downloadedPiece { get; set; }
 
+		private DateTime NextUpdateTime { get; set; }
+
 		#endregion
 
 		#region Constants
 
-		//Download buffer size
-		private const int DOWNLOAD_BUFF_SZ = 32 * 1024;
+		//Size of each range request. Android app uses 64MB chunks.
+		private const int RANGE_REQUEST_SZ = 64 * 1024 * 1024;
+
+		//Download memory buffer size
+		private const int DOWNLOAD_BUFF_SZ = 8 * 1024;
 
 		//NetworkFileStream will flush all data in _writeFile to disk after every
 		//DATA_FLUSH_SZ bytes are written to the file stream.
 		private const int DATA_FLUSH_SZ = 1024 * 1024;
 
-		//Number of times per second the download rate is checkd and throttled
+		//Number of times per second the download rate is checked and throttled
 		private const int THROTTLE_FREQUENCY = 8;
 
 		//Minimum throttle rate. The minimum amount of data that can be throttled
@@ -110,10 +115,14 @@ namespace AaxDecrypter
 		/// <summary> Update the <see cref="Dinah.Core.IO.JsonFilePersister{T}"/>. </summary>
 		private void OnUpdate()
 		{
-			RequestHeaders["Range"] = $"bytes={WritePosition}-";
 			try
 			{
-				Updated?.Invoke(this, EventArgs.Empty);
+				if (DateTime.UtcNow > NextUpdateTime)
+				{
+					Updated?.Invoke(this, EventArgs.Empty);
+					//JsonFilePersister Will not allow update intervals shorter than 100 milliseconds
+					NextUpdateTime = DateTime.UtcNow.AddMilliseconds(110);
+				}
 			}
 			catch (Exception ex)
 			{
@@ -135,7 +144,6 @@ namespace AaxDecrypter
 				throw new InvalidOperationException("Cannot change Uri after download has started.");
 
 			Uri = uriToSameFile;
-			RequestHeaders["Range"] = $"bytes={WritePosition}-";
 		}
 
 		/// <summary> Begins downloading <see cref="Uri"/> to <see cref="SaveFilePath"/> in a background thread. </summary>
@@ -151,39 +159,82 @@ namespace AaxDecrypter
 			if (ContentLength != 0 && WritePosition > ContentLength)
 				throw new WebException($"Specified write position (0x{WritePosition:X10}) is larger than  {nameof(ContentLength)} (0x{ContentLength:X10}).");
 
+			//Initiate connection with the first request block and
+			//get the total content length before returning.
+			using var client = new HttpClient();
+			var response = await RequestNextByteRangeAsync(client);
+
+			if (ContentLength != 0 && ContentLength != response.FileSize)
+				throw new WebException($"Content length of 0x{response.FileSize:X10} differs from partially downloaded content length of 0x{ContentLength:X10}");
+			
+			ContentLength = response.FileSize;
+
+			_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
+			//Hand off the open request to the downloader to download and write data to file.
+			DownloadTask = Task.Run(() => DownloadLoopInternal(response), _cancellationSource.Token);
+		}
+
+		private async Task DownloadLoopInternal(BlockResponse initialResponse)
+		{
+			await DownloadToFile(initialResponse);
+			initialResponse.Dispose();
+
+			try
+			{
+				using var client = new HttpClient();
+				while (WritePosition < ContentLength && !IsCancelled)
+				{
+					using var response = await RequestNextByteRangeAsync(client);
+					await DownloadToFile(response);
+				}
+			}
+			finally
+			{
+				_writeFile.Close();
+			}
+		}
+
+		private async Task<BlockResponse> RequestNextByteRangeAsync(HttpClient client)
+		{
 			var request = new HttpRequestMessage(HttpMethod.Get, Uri);
 
 			foreach (var header in RequestHeaders)
 				request.Headers.Add(header.Key, header.Value);
 
-			var response = await new HttpClient().SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _cancellationSource.Token);
+			request.Headers.Add("Range", $"bytes={WritePosition}-{WritePosition + RANGE_REQUEST_SZ - 1}");
+
+			var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _cancellationSource.Token);
 
 			if (response.StatusCode != HttpStatusCode.PartialContent)
 				throw new WebException($"Server at {Uri.Host} responded with unexpected status code: {response.StatusCode}.");
 
-			//Content length is the length of the range request, and it is only equal
-			//to the complete file length if requesting Range: bytes=0-
-			if (WritePosition == 0)
-				ContentLength = response.Content.Headers.ContentLength.GetValueOrDefault();
+			var totalSize = response.Content.Headers.ContentRange?.Length ??
+				throw new WebException("The response did not contain a total content length.");
 
-			var networkStream = await response.Content.ReadAsStreamAsync(_cancellationSource.Token);
-			_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
+			var rangeSize = response.Content.Headers.ContentLength ??
+				throw new WebException($"The response did not contain a {nameof(response.Content.Headers.ContentLength)};");
 
-			//Download the file in the background.
+			return new BlockResponse(response, rangeSize, totalSize);
+		}
 
-			DownloadTask = Task.Run(() => DownloadFile(networkStream), _cancellationSource.Token);
+		private readonly record struct BlockResponse(HttpResponseMessage Response, long BlockSize, long FileSize) : IDisposable
+		{
+			public void Dispose() => Response?.Dispose();
 		}
 
 		/// <summary> Download <see cref="Uri"/> to <see cref="SaveFilePath"/>.</summary>
-		private async Task DownloadFile(Stream networkStream)
+		private async Task DownloadToFile(BlockResponse block)
 		{
+			var endPosition = WritePosition + block.BlockSize;
+			var networkStream = await block.Response.Content.ReadAsStreamAsync(_cancellationSource.Token);
+
 			var downloadPosition = WritePosition;
 			var nextFlush = downloadPosition + DATA_FLUSH_SZ;
 			var buff = new byte[DOWNLOAD_BUFF_SZ];
 
 			try
 			{
-				DateTime startTime = DateTime.Now;
+				DateTime startTime = DateTime.UtcNow;
 				long bytesReadSinceThrottle = 0;
 				int bytesRead;
 				do
@@ -218,14 +269,15 @@ namespace AaxDecrypter
 
 					#endregion
 
-				} while (downloadPosition < ContentLength && !IsCancelled && bytesRead > 0);
+				} while (downloadPosition < endPosition && !IsCancelled && bytesRead > 0);
 
+				await _writeFile.FlushAsync(_cancellationSource.Token);
 				WritePosition = downloadPosition;
 
-				if (!IsCancelled && WritePosition < ContentLength)
+				if (!IsCancelled && WritePosition < endPosition)
 					throw new WebException($"Downloaded size (0x{WritePosition:X10}) is less than {nameof(ContentLength)} (0x{ContentLength:X10}).");
 
-				if (WritePosition > ContentLength)
+				if (WritePosition > endPosition)
 					throw new WebException($"Downloaded size (0x{WritePosition:X10}) is greater than {nameof(ContentLength)} (0x{ContentLength:X10}).");
 			}
 			catch (TaskCanceledException)
@@ -235,7 +287,6 @@ namespace AaxDecrypter
 			finally
 			{
 				networkStream.Close();
-				_writeFile.Close();
 				_downloadedPiece.Set();
 				OnUpdate();
 			}

@@ -47,6 +47,22 @@ namespace AudibleUtilities
 				update_no_validate();
 			}
 		}
+
+		private string _cdm;
+		[JsonProperty]
+		public string Cdm
+		{
+			get => _cdm;
+			set
+			{
+				if (value is null)
+					return;
+
+				_cdm = value;
+				update_no_validate();
+			}
+		}
+
 		[JsonIgnore]
 		public IReadOnlyList<Account> Accounts => _accounts_json.AsReadOnly();
 		#endregion

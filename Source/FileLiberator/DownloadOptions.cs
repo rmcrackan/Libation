@@ -11,7 +11,7 @@ using LibationFileManager.Templates;
 
 namespace FileLiberator
 {
-	public class DownloadOptions : IDownloadOptions, IDisposable
+	public partial class DownloadOptions : IDownloadOptions, IDisposable
 	{
 		public event EventHandler<long> DownloadSpeedChanged;
 		public LibraryBook LibraryBook { get; }
@@ -41,6 +41,9 @@ namespace FileLiberator
 		public bool Downsample => config.AllowLibationFixup && config.LameDownsampleMono;
 		public bool MatchSourceBitrate => config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate;
 		public bool MoveMoovToBeginning => config.MoveMoovToBeginning;
+		public AAXClean.FileType? InputType { get; init; }
+		public AudibleApi.Common.DrmType DrmType { get; init; }
+		public AudibleApi.Common.ContentMetadata ContentMetadata { get; init; }
 
 		public string GetMultipartFileName(MultiConvertFileProperties props)
 		{
@@ -83,9 +86,13 @@ namespace FileLiberator
 
 		private readonly Configuration config;
 		private readonly IDisposable cancellation;
-		public void Dispose() => cancellation?.Dispose();
+		public void Dispose()
+		{
+			cancellation?.Dispose();
+			GC.SuppressFinalize(this);
+		}
 
-		public DownloadOptions(Configuration config, LibraryBook libraryBook, string downloadUrl)
+		private DownloadOptions(Configuration config, LibraryBook libraryBook, [System.Diagnostics.CodeAnalysis.NotNull] string downloadUrl)
 		{
 			this.config = ArgumentValidator.EnsureNotNull(config, nameof(config));
 			LibraryBook = ArgumentValidator.EnsureNotNull(libraryBook, nameof(libraryBook));

@@ -3,6 +3,8 @@ using LibationFileManager;
 using System.Linq;
 using LibationUiBase;
 using LibationFileManager.Templates;
+using AudibleUtilities;
+using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs
 {
@@ -21,6 +23,7 @@ namespace LibationWinForms.Dialogs
 			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
 			this.moveMoovAtomCbox.Text = desc(nameof(config.MoveMoovToBeginning));
+			this.spatialCodecLbl.Text = desc(nameof(config.SpatialAudioCodec));
 
 			toolTip.SetToolTip(combineNestedChapterTitlesCbox, Configuration.GetHelpText(nameof(config.CombineNestedChapterTitles)));
 			toolTip.SetToolTip(allowLibationFixupCbox, Configuration.GetHelpText(nameof(config.AllowLibationFixup)));
@@ -31,41 +34,49 @@ namespace LibationWinForms.Dialogs
 			toolTip.SetToolTip(mergeOpeningEndCreditsCbox, Configuration.GetHelpText(nameof(config.MergeOpeningAndEndCredits)));
 			toolTip.SetToolTip(retainAaxFileCbox, Configuration.GetHelpText(nameof(config.RetainAaxFile)));
 			toolTip.SetToolTip(stripAudibleBrandingCbox, Configuration.GetHelpText(nameof(config.StripAudibleBrandAudio)));
+			toolTip.SetToolTip(spatialCodecLbl, Configuration.GetHelpText(nameof(config.SpatialAudioCodec)));
+			toolTip.SetToolTip(spatialAudioCodecCb, Configuration.GetHelpText(nameof(config.SpatialAudioCodec)));
 
 			fileDownloadQualityCb.Items.AddRange(
-				new object[]
-				{
-					Configuration.DownloadQuality.Normal,
-					Configuration.DownloadQuality.High
-				});
+				[
+					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.Normal),
+					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.High),
+					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.Spatial, "Spatial (if available)"),
+				]);
+
+			spatialAudioCodecCb.Items.AddRange(
+				[
+					new EnumDisplay<Configuration.SpatialCodec>(Configuration.SpatialCodec.EC_3, "Dolby Digital Plus (E-AC-3)"),
+					new EnumDisplay<Configuration.SpatialCodec>(Configuration.SpatialCodec.AC_4, "Dolby AC-4")
+				]);
 
 			clipsBookmarksFormatCb.Items.AddRange(
-				new object[]
-				{
+				[
 					Configuration.ClipBookmarkFormat.CSV,
 					Configuration.ClipBookmarkFormat.Xlsx,
 					Configuration.ClipBookmarkFormat.Json
-				});
+				]);
 
 			maxSampleRateCb.Items.AddRange(
 				Enum.GetValues<AAXClean.SampleRate>()
 				.Where(r => r >= AAXClean.SampleRate.Hz_8000 && r <= AAXClean.SampleRate.Hz_48000)
-				.Select(v => new EnumDiaplay<AAXClean.SampleRate>(v, $"{(int)v} Hz"))
+				.Select(v => new EnumDisplay<AAXClean.SampleRate>(v, $"{(int)v} Hz"))
 				.ToArray());
 
 			encoderQualityCb.Items.AddRange(
-				new object[]
-				{
+				[
 					NAudio.Lame.EncoderQuality.High,
 					NAudio.Lame.EncoderQuality.Standard,
 					NAudio.Lame.EncoderQuality.Fast,
-				});
+				]);
 
 			allowLibationFixupCbox.Checked = config.AllowLibationFixup;
 			createCueSheetCbox.Checked = config.CreateCueSheet;
 			downloadCoverArtCbox.Checked = config.DownloadCoverArt;
 			downloadClipsBookmarksCbox.Checked = config.DownloadClipsBookmarks;
 			fileDownloadQualityCb.SelectedItem = config.FileDownloadQuality;
+			spatialAudioCodecCb.SelectedItem = config.SpatialAudioCodec;
+
 			clipsBookmarksFormatCb.SelectedItem = config.ClipsBookmarksFileFormat;
 			retainAaxFileCbox.Checked = config.RetainAaxFile;
 			combineNestedChapterTitlesCbox.Checked = config.CombineNestedChapterTitles;
@@ -80,11 +91,7 @@ namespace LibationWinForms.Dialogs
 			lameTargetBitrateRb.Checked = config.LameTargetBitrate;
 			lameTargetQualityRb.Checked = !config.LameTargetBitrate;
 
-			maxSampleRateCb.SelectedItem
-				= maxSampleRateCb.Items
-				.Cast<EnumDiaplay<AAXClean.SampleRate>>()
-				.SingleOrDefault(v => v.Value == config.MaxSampleRate)
-				?? maxSampleRateCb.Items[0];
+			maxSampleRateCb.SelectedItem = config.MaxSampleRate;
 
 			encoderQualityCb.SelectedItem = config.LameEncoderQuality;
 			lameDownsampleMonoCbox.Checked = config.LameDownsampleMono;
@@ -110,7 +117,8 @@ namespace LibationWinForms.Dialogs
 			config.CreateCueSheet = createCueSheetCbox.Checked;
 			config.DownloadCoverArt = downloadCoverArtCbox.Checked;
 			config.DownloadClipsBookmarks = downloadClipsBookmarksCbox.Checked;
-			config.FileDownloadQuality = (Configuration.DownloadQuality)fileDownloadQualityCb.SelectedItem;
+			config.FileDownloadQuality = ((EnumDisplay<Configuration.DownloadQuality>)fileDownloadQualityCb.SelectedItem).Value;
+			config.SpatialAudioCodec = ((EnumDisplay<Configuration.SpatialCodec>)spatialAudioCodecCb.SelectedItem).Value;
 			config.ClipsBookmarksFileFormat = (Configuration.ClipBookmarkFormat)clipsBookmarksFormatCb.SelectedItem;
 			config.RetainAaxFile = retainAaxFileCbox.Checked;
 			config.CombineNestedChapterTitles = combineNestedChapterTitlesCbox.Checked;
@@ -121,7 +129,7 @@ namespace LibationWinForms.Dialogs
 			config.DecryptToLossy = convertLossyRb.Checked;
 			config.MoveMoovToBeginning = moveMoovAtomCbox.Checked;
 			config.LameTargetBitrate = lameTargetBitrateRb.Checked;
-			config.MaxSampleRate = ((EnumDiaplay<AAXClean.SampleRate>)maxSampleRateCb.SelectedItem).Value;
+			config.MaxSampleRate = ((EnumDisplay<AAXClean.SampleRate>)maxSampleRateCb.SelectedItem).Value;
 			config.LameEncoderQuality = (NAudio.Lame.EncoderQuality)encoderQualityCb.SelectedItem;
 			config.LameDownsampleMono = lameDownsampleMonoCbox.Checked;
 			config.LameBitrate = lameBitrateTb.Value;
@@ -180,6 +188,29 @@ namespace LibationWinForms.Dialogs
 				stripUnabridgedCbox.Checked = false;
 				stripAudibleBrandingCbox.Checked = false;
 			}
+		}
+
+		private void fileDownloadQualityCb_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			var selectedSpatial = fileDownloadQualityCb.SelectedItem.Equals(Configuration.DownloadQuality.Spatial);
+
+			if (selectedSpatial)
+			{
+				using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
+
+				if (!accounts.AccountsSettings.Accounts.Any(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
+				{
+					MessageBox.Show(this,
+						"Your must remove account(s) from Libation and then re-add them to enable spatial audiobook downloads.",
+						"Spatial Audio Unavailable",
+						MessageBoxButtons.OK);
+
+					fileDownloadQualityCb.SelectedItem = Configuration.DownloadQuality.High;
+					return;
+				}
+			}
+
+			spatialCodecLbl.Enabled = spatialAudioCodecCb.Enabled = selectedSpatial;
 		}
 	}
 }

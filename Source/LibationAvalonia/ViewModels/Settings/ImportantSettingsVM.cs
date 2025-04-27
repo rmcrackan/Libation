@@ -72,9 +72,9 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string OverwriteExistingText { get; } = Configuration.GetDescription(nameof(Configuration.OverwriteExisting));
 		public string CreationTimeText { get; } = Configuration.GetDescription(nameof(Configuration.CreationTime));
 		public string LastWriteTimeText { get; } = Configuration.GetDescription(nameof(Configuration.LastWriteTime));
-		public EnumDiaplay<Configuration.DateTimeSource>[] DateTimeSources { get; }
+		public EnumDisplay<Configuration.DateTimeSource>[] DateTimeSources { get; }
 			= Enum.GetValues<Configuration.DateTimeSource>()
-			.Select(v => new EnumDiaplay<Configuration.DateTimeSource>(v))
+			.Select(v => new EnumDisplay<Configuration.DateTimeSource>(v))
 			.ToArray();
 		public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
 		public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
@@ -87,8 +87,8 @@ namespace LibationAvalonia.ViewModels.Settings
 		public bool OverwriteExisting { get; set; }
 		public float GridScaleFactor { get; set; }
 		public float GridFontScaleFactor { get; set; }
-		public EnumDiaplay<Configuration.DateTimeSource> CreationTime { get; set; }
-		public EnumDiaplay<Configuration.DateTimeSource> LastWriteTime { get; set; }
+		public EnumDisplay<Configuration.DateTimeSource> CreationTime { get; set; }
+		public EnumDisplay<Configuration.DateTimeSource> LastWriteTime { get; set; }
 		public Serilog.Events.LogEventLevel LoggingLevel { get; set; }
 
 		public string ThemeVariant

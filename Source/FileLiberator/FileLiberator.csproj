@@ -19,5 +19,10 @@
 		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<Compile Update="DownloadOptions.*.cs">
+			<DependentUpon>DownloadOptions.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
 </Project>

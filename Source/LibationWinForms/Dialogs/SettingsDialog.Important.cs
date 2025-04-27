@@ -30,7 +30,7 @@ namespace LibationWinForms.Dialogs
 			gridScaleFactorLbl.Text = desc(nameof(config.GridScaleFactor));
 			gridFontScaleFactorLbl.Text = desc(nameof(config.GridFontScaleFactor));
 
-			var dateTimeSources = Enum.GetValues<Configuration.DateTimeSource>().Select(v => new EnumDiaplay<Configuration.DateTimeSource>(v)).ToArray();
+			var dateTimeSources = Enum.GetValues<Configuration.DateTimeSource>().Select(v => new EnumDisplay<Configuration.DateTimeSource>(v)).ToArray();
 			creationTimeCb.Items.AddRange(dateTimeSources);
 			lastWriteTimeCb.Items.AddRange(dateTimeSources);
 
@@ -92,8 +92,8 @@ namespace LibationWinForms.Dialogs
 			config.OverwriteExisting = overwriteExistingCbox.Checked;
 
 
-			config.CreationTime = ((EnumDiaplay<Configuration.DateTimeSource>)creationTimeCb.SelectedItem).Value;
-			config.LastWriteTime = ((EnumDiaplay<Configuration.DateTimeSource>)lastWriteTimeCb.SelectedItem).Value;
+			config.CreationTime = ((EnumDisplay<Configuration.DateTimeSource>)creationTimeCb.SelectedItem).Value;
+			config.LastWriteTime = ((EnumDisplay<Configuration.DateTimeSource>)lastWriteTimeCb.SelectedItem).Value;
 		}
 
 		private static int scaleFactorToLinearRange(float scaleFactor)

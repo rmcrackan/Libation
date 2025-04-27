@@ -23,7 +23,7 @@ namespace AaxDecrypter
 		public bool IsCanceled { get; protected set; }
 		protected AsyncStepSequence AsyncSteps { get; } = new();
 		protected string OutputFileName { get; }
-		protected IDownloadOptions DownloadOptions { get; }
+		public IDownloadOptions DownloadOptions { get; }
 		protected NetworkFileStream InputFileStream => nfsPersister.NetworkFileStream;
 		protected virtual long InputFilePosition => InputFileStream.Position;
 		private bool downloadFinished;
@@ -178,19 +178,33 @@ namespace AaxDecrypter
 			FileUtility.SaferDelete(jsonDownloadState);
 
 			if (!string.IsNullOrEmpty(DownloadOptions.AudibleKey) &&
-				DownloadOptions.RetainEncryptedFile)
+				DownloadOptions.RetainEncryptedFile &&
+				DownloadOptions.InputType is AAXClean.FileType fileType)
 			{
-				string aaxPath = Path.ChangeExtension(tempFilePath, ".aax");
-				FileUtility.SaferMove(tempFilePath, aaxPath);
-
 				//Write aax decryption key
-				string keyPath = Path.ChangeExtension(aaxPath, ".key");
+				string keyPath = Path.ChangeExtension(tempFilePath, ".key");
 				FileUtility.SaferDelete(keyPath);
+				string aaxPath;
 
-				if (string.IsNullOrEmpty(DownloadOptions.AudibleIV))
+				if (fileType is AAXClean.FileType.Aax)
+				{
 					await File.WriteAllTextAsync(keyPath, $"ActivationBytes={DownloadOptions.AudibleKey}");
-				else
+					aaxPath = Path.ChangeExtension(tempFilePath, ".aax");
+				}
+				else if (fileType is AAXClean.FileType.Aaxc)
+				{
 					await File.WriteAllTextAsync(keyPath, $"Key={DownloadOptions.AudibleKey}{Environment.NewLine}IV={DownloadOptions.AudibleIV}");
+					aaxPath = Path.ChangeExtension(tempFilePath, ".aaxc");
+				}
+				else if (fileType is AAXClean.FileType.Dash)
+				{
+					await File.WriteAllTextAsync(keyPath, $"KeyId={DownloadOptions.AudibleKey}{Environment.NewLine}Key={DownloadOptions.AudibleIV}");
+					aaxPath = Path.ChangeExtension(tempFilePath, ".dash");
+				}
+				else
+					throw new InvalidOperationException($"Unknown file type: {fileType}");
+
+				FileUtility.SaferMove(tempFilePath, aaxPath);
 
 				OnFileCreated(aaxPath);
 				OnFileCreated(keyPath);
@@ -217,6 +231,7 @@ namespace AaxDecrypter
 			}
 			catch
 			{
+				nfsp?.Target?.Dispose();
 				FileUtility.SaferDelete(jsonDownloadState);
 				FileUtility.SaferDelete(tempFilePath);
 				return nfsp = newNetworkFilePersister();

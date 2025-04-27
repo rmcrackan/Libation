@@ -44,13 +44,17 @@ namespace FileLiberator
 
 					var m4bBook = await Task.Run(() => new Mp4File(m4bPath, FileAccess.Read));
 
+					//AAXClean.Codecs only supports decoding AAC and E-AC-3 audio.
+					if (m4bBook.AudioSampleEntry.Esds is null && m4bBook.AudioSampleEntry.Dec3 is null)
+						continue;
+
 					OnTitleDiscovered(m4bBook.AppleTags.Title);
 					OnAuthorsDiscovered(m4bBook.AppleTags.FirstAuthor);
 					OnNarratorsDiscovered(m4bBook.AppleTags.Narrator);
 					OnCoverImageDiscovered(m4bBook.AppleTags.Cover);
 
 					var config = Configuration.Instance;
-					var lameConfig = GetLameOptions(config);
+					var lameConfig = DownloadOptions.GetLameOptions(config);
 					var chapters = m4bBook.GetChaptersFromMetadata();
 					//Finishing configuring lame encoder.
 					AaxDecrypter.MpegUtil.ConfigureLameOptions(

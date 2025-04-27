@@ -346,8 +346,8 @@ namespace FileLiberator.Tests
 				}
 			};
 
-			var flatChapters = DownloadDecryptBook.flattenChapters(HierarchicalChapters);
-			DownloadDecryptBook.combineCredits(flatChapters);
+			var flatChapters = DownloadOptions.flattenChapters(HierarchicalChapters);
+			DownloadOptions.combineCredits(flatChapters);
 			checkChapters(flatChapters, expected);
 		}
 
@@ -429,7 +429,7 @@ namespace FileLiberator.Tests
 				}
 			};
 			
-			var flatChapters = DownloadDecryptBook.flattenChapters(HierarchicalChapters);
+			var flatChapters = DownloadOptions.flattenChapters(HierarchicalChapters);
 
 			checkChapters(flatChapters, expected);
 		}
@@ -525,7 +525,7 @@ namespace FileLiberator.Tests
 				}
 			};
 			
-			var flatChapters = DownloadDecryptBook.flattenChapters(HierarchicalChapters_LongerParents);
+			var flatChapters = DownloadOptions.flattenChapters(HierarchicalChapters_LongerParents);
 
 			checkChapters(flatChapters, expected);
 		}

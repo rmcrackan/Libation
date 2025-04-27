@@ -122,15 +122,13 @@ namespace FileLiberator
 
             downloadValidation(libraryBook);
 
-            var quality = (AudibleApi.DownloadQuality)config.FileDownloadQuality;
             var api = await libraryBook.GetApiAsync();
-            var contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, quality);
-			using var dlOptions = BuildDownloadOptions(libraryBook, config, contentLic);
 
+            using var dlOptions = await DownloadOptions.InitiateDownloadAsync(api, libraryBook, config);
             var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, dlOptions.OutputFormat.ToString().ToLower());
             var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
-            if (contentLic.DrmType != DrmType.Adrm)
+            if (dlOptions.DrmType is not DrmType.Adrm and not DrmType.Widevine)
                 abDownloader = new UnencryptedAudiobookDownloader(outFileName, cacheDir, dlOptions);
             else
             {
@@ -140,7 +138,7 @@ namespace FileLiberator
                     new AaxcDownloadSingleConverter(outFileName, cacheDir, dlOptions);
 
                 if (config.AllowLibationFixup)
-                    converter.RetrievedMetadata += (_, tags) => tags.Generes = string.Join(", ", libraryBook.Book.LowestCategoryNames());
+                    converter.RetrievedMetadata += Converter_RetrievedMetadata;
 
                 abDownloader = converter;
             }
@@ -161,191 +159,37 @@ namespace FileLiberator
                 var metadataFile = LibationFileManager.Templates.Templates.File.GetFilename(dlOptions.LibraryBookDto, Path.GetDirectoryName(outFileName), ".metadata.json");
 
                 var item = await api.GetCatalogProductAsync(libraryBook.Book.AudibleProductId, AudibleApi.CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
-				item.SourceJson.Add(nameof(ContentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(contentLic.ContentMetadata.ChapterInfo));
-				item.SourceJson.Add(nameof(ContentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(contentLic.ContentMetadata.ContentReference));
+				item.SourceJson.Add(nameof(ContentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(dlOptions.ContentMetadata.ChapterInfo));
+				item.SourceJson.Add(nameof(ContentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(dlOptions.ContentMetadata.ContentReference));
 
-				File.WriteAllText(metadataFile, item.SourceJson.ToString());
-				OnFileCreated(libraryBook, metadataFile);
-			}            
+                File.WriteAllText(metadataFile, item.SourceJson.ToString());
+                OnFileCreated(libraryBook, metadataFile);
+            }
 			return success;
-        }
+		}
 
-		private DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, ContentLicense contentLic)
-        {
-			//If DrmType != Adrm the delivered file is an unencrypted mp3.
+		private void Converter_RetrievedMetadata(object sender, AAXClean.AppleTags tags)
+		{
+            if (sender is not AaxcDownloadConvertBase converter || converter.DownloadOptions is not DownloadOptions options)
+				return;
 
-            var outputFormat
-                = contentLic.DrmType != DrmType.Adrm || (config.AllowLibationFixup && config.DecryptToLossy)
-                ? OutputFormat.Mp3
-                : OutputFormat.M4b;
-
-            long chapterStartMs
-                = config.StripAudibleBrandAudio
-                ? contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs
-                : 0;
-
-            //Set the requested AudioFormat for use in file naming templates
-			libraryBook.Book.AudioFormat = AudioFormat.FromString(contentLic.ContentMetadata.ContentReference.ContentFormat);
-
-			var dlOptions = new DownloadOptions(config, libraryBook, contentLic?.ContentMetadata?.ContentUrl?.OfflineUrl)
+            tags.Title ??= options.LibraryBookDto.TitleWithSubtitle;
+            tags.Album ??= tags.Title;
+            tags.Artist ??= string.Join("; ", options.LibraryBook.Book.Authors.Select(a => a.Name));
+            tags.AlbumArtists ??= tags.Artist;
+			tags.Generes = string.Join(", ", options.LibraryBook.Book.LowestCategoryNames());
+            tags.ProductID ??= options.ContentMetadata.ContentReference.Sku;
+            tags.Comment ??= options.LibraryBook.Book.Description;
+            tags.LongDescription ??= tags.Comment;
+            tags.Publisher ??= options.LibraryBook.Book.Publisher;
+			tags.Narrator ??= string.Join("; ", options.LibraryBook.Book.Narrators.Select(n => n.Name));
+			tags.Asin = options.LibraryBook.Book.AudibleProductId;
+			tags.Acr = options.ContentMetadata.ContentReference.Acr;
+			tags.Version = options.ContentMetadata.ContentReference.Version;
+			if (options.LibraryBook.Book.DatePublished is DateTime pubDate)
             {
-                AudibleKey = contentLic?.Voucher?.Key,
-                AudibleIV = contentLic?.Voucher?.Iv,
-				OutputFormat = outputFormat,
-				LameConfig = GetLameOptions(config),
-				ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
-				RuntimeLength = TimeSpan.FromMilliseconds(contentLic?.ContentMetadata?.ChapterInfo?.RuntimeLengthMs ?? 0),
-			};
-
-            var titleConcat = config.CombineNestedChapterTitles ? ": " : null;
-            var chapters
-                = flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters, titleConcat)
-                .OrderBy(c => c.StartOffsetMs)
-                .ToList();
-
-            if (config.MergeOpeningAndEndCredits)
-                combineCredits(chapters);
-
-            for (int i = 0; i < chapters.Count; i++)
-            {
-                var chapter = chapters[i];
-                long chapLenMs = chapter.LengthMs;
-
-                if (i == 0)
-                    chapLenMs -= chapterStartMs;
-
-                if (config.StripAudibleBrandAudio && i == chapters.Count - 1)
-                    chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
-
-                dlOptions.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
-            }
-
-            return dlOptions;
-        }
-
-        /*
-
-		Flatten Audible's new hierarchical chapters, combining children into parents.
-
-		Audible may deliver chapters like this:
-
-		00:00 - 00:10	Opening Credits
-		00:10 - 00:12	Book 1
-		00:12 - 00:14	|	Part 1
-		00:14 - 01:40	|	|	Chapter 1
-		01:40 - 03:20	|	|	Chapter 2
-		03:20 - 03:22	|	Part 2
-		03:22 - 05:00	|	|	Chapter 3
-		05:00 - 06:40	|	|	Chapter 4
-		06:40 - 06:42	Book 2
-		06:42 - 06:44	|	Part 3
-		06:44 - 08:20	|	|	Chapter 5
-		08:20 - 10:00	|	|	Chapter 6
-		10:00 - 10:02	|	Part 4
-		10:02 - 11:40	|	|	Chapter 7
-		11:40 - 13:20	|	|	Chapter 8
-		13:20 - 13:30	End Credits
-
-		And flattenChapters will combine them into this:
-
-		00:00 - 00:10	Opening Credits
-		00:10 - 01:40	Book 1: Part 1: Chapter 1
-		01:40 - 03:20	Book 1: Part 1: Chapter 2
-		03:20 - 05:00	Book 1: Part 2: Chapter 3
-		05:00 - 06:40	Book 1: Part 2: Chapter 4
-		06:40 - 08:20	Book 2: Part 3: Chapter 5
-		08:20 - 10:00	Book 2: Part 3: Chapter 6
-		10:00 - 11:40	Book 2: Part 4: Chapter 7
-		11:40 - 13:20	Book 2: Part 4: Chapter 8
-		13:20 - 13:40	End Credits
-
-		However, if one of the parent chapters is longer than 10000 milliseconds, it's kept as its own
-		chapter. A duration longer than a few seconds implies that the chapter contains more than just
-		the narrator saying the chapter title, so it should probably be preserved as a separate chapter.
-		Using the example above, if "Book 1" was 15 seconds long and "Part 3" was 20 seconds long:
-
-		00:00 - 00:10	Opening Credits
-		00:10 - 00:25	Book 1
-		00:25 - 00:27	|	Part 1
-		00:27 - 01:40	|	|	Chapter 1
-		01:40 - 03:20	|	|	Chapter 2
-		03:20 - 03:22	|	Part 2
-		03:22 - 05:00	|	|	Chapter 3
-		05:00 - 06:40	|	|	Chapter 4
-		06:40 - 06:42	Book 2
-		06:42 - 07:02	|	Part 3
-		07:02 - 08:20	|	|	Chapter 5
-		08:20 - 10:00	|	|	Chapter 6
-		10:00 - 10:02	|	Part 4
-		10:02 - 11:40	|	|	Chapter 7
-		11:40 - 13:20	|	|	Chapter 8
-		13:20 - 13:30	End Credits
-
-		then flattenChapters will combine them into this:
-
-		00:00 - 00:10	Opening Credits
-		00:10 - 00:25	Book 1
-		00:25 - 01:40	Book 1: Part 1: Chapter 1
-		01:40 - 03:20	Book 1: Part 1: Chapter 2
-		03:20 - 05:00	Book 1: Part 2: Chapter 3
-		05:00 - 06:40	Book 1: Part 2: Chapter 4
-		06:40 - 07:02	Book 2: Part 3
-		07:02 - 08:20	Book 2: Part 3: Chapter 5
-		08:20 - 10:00	Book 2: Part 3: Chapter 6
-		10:00 - 11:40	Book 2: Part 4: Chapter 7
-		11:40 - 13:20	Book 2: Part 4: Chapter 8
-		13:20 - 13:40	End Credits
-
-		*/
-
-        public static List<Chapter> flattenChapters(IList<Chapter> chapters, string titleConcat = ": ")
-        {
-            List<Chapter> chaps = new();
-
-            foreach (var c in chapters)
-            {
-                if (c.Chapters is null)
-					chaps.Add(c);
-                else if (titleConcat is null)
-                {
-                    chaps.Add(c);
-					chaps.AddRange(flattenChapters(c.Chapters));
-                }
-				else
-				{
-                    if (c.LengthMs < 10000)
-                    {
-                        c.Chapters[0].StartOffsetMs = c.StartOffsetMs;
-                        c.Chapters[0].StartOffsetSec = c.StartOffsetSec;
-                        c.Chapters[0].LengthMs += c.LengthMs;
-                    }
-                    else
-                        chaps.Add(c);
-
-                    var children = flattenChapters(c.Chapters);
-
-                    foreach (var child in children)
-                        child.Title = $"{c.Title}{titleConcat}{child.Title}";
-
-                    chaps.AddRange(children);
-                }
-            }
-            return chaps;
-        }
-
-        public static void combineCredits(IList<Chapter> chapters)
-        {
-            if (chapters.Count > 1 && chapters[0].Title == "Opening Credits")
-            {
-                chapters[1].StartOffsetMs = chapters[0].StartOffsetMs;
-                chapters[1].StartOffsetSec = chapters[0].StartOffsetSec;
-                chapters[1].LengthMs += chapters[0].LengthMs;
-                chapters.RemoveAt(0);
-            }
-            if (chapters.Count > 1 && chapters[^1].Title == "End Credits")
-            {
-                chapters[^2].LengthMs += chapters[^1].LengthMs;
-                chapters.Remove(chapters[^1]);
+                tags.Year ??= pubDate.Year.ToString();
+                tags.ReleaseDate ??= pubDate.ToString("dd-MMM-yyyy");
             }
         }
 

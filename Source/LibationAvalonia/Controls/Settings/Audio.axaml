@@ -43,8 +43,24 @@
 				<controls:WheelComboBox
 					Margin="5,0,0,0"
 					Grid.Column="1"
+					SelectionChanged="Quality_SelectionChanged"
 					ItemsSource="{CompiledBinding DownloadQualities}"
 					SelectedItem="{CompiledBinding FileDownloadQuality}"/>
+			</Grid>
+
+			<Grid ColumnDefinitions="*,Auto" Margin="0,5,0,0"
+				  IsEnabled="{CompiledBinding SpatialSelected}"
+				  ToolTip.Tip="{CompiledBinding SpatialAudioCodecTip}">
+				
+				<TextBlock
+					VerticalAlignment="Center"
+					Text="{CompiledBinding SpatialAudioCodecText}" />
+
+				<controls:WheelComboBox
+					Margin="5,0,0,0"
+					Grid.Column="1"
+					ItemsSource="{CompiledBinding SpatialAudioCodecs}"
+					SelectedItem="{CompiledBinding SpatialAudioCodec}"/>
 			</Grid>
 
 			<CheckBox IsChecked="{CompiledBinding CreateCueSheet, Mode=TwoWay}">
