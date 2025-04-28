@@ -8,7 +8,7 @@ namespace AaxDecrypter
 	{
 		public event EventHandler<AppleTags> RetrievedMetadata;
 
-		protected AaxFile AaxFile { get; private set; }
+		protected Mp4File AaxFile { get; private set; }
 		protected Mp4Operation AaxConversion { get; set; }
 
 		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
@@ -29,14 +29,34 @@ namespace AaxDecrypter
 			FinalizeDownload();
 		}
 
+		private Mp4File Open()
+		{
+			if (DownloadOptions.InputType is FileType.Dash)
+			{
+				var dash = new DashFile(InputFileStream);
+				dash.SetDecryptionKey(DownloadOptions.AudibleKey, DownloadOptions.AudibleIV);
+				return dash;
+			}
+			else if (DownloadOptions.InputType is FileType.Aax)
+			{
+				var aax = new AaxFile(InputFileStream);
+				aax.SetDecryptionKey(DownloadOptions.AudibleKey);
+				return aax;
+			}
+			else if (DownloadOptions.InputType is FileType.Aaxc)
+			{
+				var aax = new AaxFile(InputFileStream);
+				aax.SetDecryptionKey(DownloadOptions.AudibleKey, DownloadOptions.AudibleIV);
+				return aax;
+			}
+			else throw new InvalidOperationException($"{nameof(DownloadOptions.InputType)} of '{DownloadOptions.InputType}' is unknown.");
+		}
+
 		protected bool Step_GetMetadata()
 		{
-			AaxFile = new AaxFile(InputFileStream);
+			AaxFile = Open();
 
-			if (DownloadOptions.AudibleKey?.Length == 8 && DownloadOptions.AudibleIV is null)
-				AaxFile.SetDecryptionKey(DownloadOptions.AudibleKey);
-			else
-				AaxFile.SetDecryptionKey(DownloadOptions.AudibleKey, DownloadOptions.AudibleIV);
+			RetrievedMetadata?.Invoke(this, AaxFile.AppleTags);
 
 			if (DownloadOptions.StripUnabridged)
 			{
@@ -86,8 +106,6 @@ namespace AaxDecrypter
 			OnRetrievedAuthors(AaxFile.AppleTags.FirstAuthor ?? "[unknown]");
 			OnRetrievedNarrators(AaxFile.AppleTags.Narrator ?? "[unknown]");
 			OnRetrievedCoverArt(AaxFile.AppleTags.Cover);
-
-			RetrievedMetadata?.Invoke(this, AaxFile.AppleTags);
 
 			return !IsCanceled;
 		}

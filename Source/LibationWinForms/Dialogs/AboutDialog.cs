@@ -1,5 +1,6 @@
 ﻿using LibationUiBase;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,8 +14,27 @@ namespace LibationWinForms.Dialogs
 			this.SetLibationIcon();
 			releaseNotesLbl.Text = $"Libation {AppScaffolding.LibationScaffolding.Variety} v{AppScaffolding.LibationScaffolding.BuildVersion}";
 
+			rmcrackanLbl.Tag = LibationContributor.PrimaryContributors.Single(c => c.Name == rmcrackanLbl.Text);
+			MBucariLbl.Tag = LibationContributor.PrimaryContributors.Single(c => c.Name == MBucariLbl.Text);
+
+			foreach (var contributor in LibationContributor.AdditionalContributors)
+			{
+				var label = new LinkLabel { Tag = contributor, Text = contributor.Name, AutoSize = true };
+				label.LinkClicked += ContributorLabel_LinkClicked;
+				flowLayoutPanel1.Controls.Add(label);
+			}
+
 			var toolTip = new ToolTip();
 			toolTip.SetToolTip(releaseNotesLbl, "View Release Notes");
+		}
+
+		private void ContributorLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			if (sender is LinkLabel lbl && lbl.Tag is LibationContributor contributor)
+			{
+				Dinah.Core.Go.To.Url(contributor.Link.AbsoluteUri);
+				e.Link.Visited = true;
+			}
 		}
 
 		private void releaseNotesLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -50,13 +70,5 @@ namespace LibationWinForms.Dialogs
 
 		private void getLibationLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 			=> Dinah.Core.Go.To.Url(AppScaffolding.LibationScaffolding.WebsiteUrl);
-
-		private void Link_GithubUser(object sender, LinkLabelLinkClickedEventArgs e)
-		{
-			if (sender is LinkLabel lbl)
-			{
-				Dinah.Core.Go.To.Url($"ht" + $"tps://github.com/{lbl.Text.Replace('.', '-')}");
-			}
-		}
 	}
 }

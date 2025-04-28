@@ -418,7 +418,6 @@ namespace AppScaffolding
             public List<string> Filters { get; set; } = new();
         }
 
-
 		public static void migrate_to_v12_0_1(Configuration config)
 		{
 #nullable enable

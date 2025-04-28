@@ -17,6 +17,9 @@ These templates apply to both GUI and CLI.
   - [Conditional Tags](#conditional-tags)
 - [Tag Formatters](#tag-formatters)
   - [Text Formatters](#text-formatters)
+  - [Series Formatters](#series-formatters)
+  - [Series List Formatters](#series-list-formatters)
+  - [Name Formatters](#name-formatters)
   - [Name List Formatters](#name-list-formatters)
   - [Number Formatters](#number-formatters)
   - [Date Formatters](#date-formatters)
@@ -32,32 +35,33 @@ These tags will be replaced in the template with the audiobook's values.
 |Tag|Description|Type|
 |-|-|-|
 |\<id\> **†**|Audible book ID (ASIN)|Text|
-|\<title\>|Full title with subtitle|Text|
-|\<title short\>|Title. Stop at first colon|Text|
-|\<audible title\>|Audible's title (does not include subtitle)|Text|
-|\<audible subtitle\>|Audible's subtitle|Text|
-|\<author\>|Author(s)|Name List|
-|\<first author\>|First author|Text|
-|\<narrator\>|Narrator(s)|Name List|
-|\<first narrator\>|First narrator|Text|
-|\<series\>|Name of series|Text|
-|\<series#\>|Number order in series|Number|
-|\<bitrate\>|File's original bitrate (Kbps)|Number|
-|\<samplerate\>|File's original audio sample rate|Number|
-|\<channels\>|Number of audio channels|Number|
-|\<account\>|Audible account of this book|Text|
-|\<account nickname\>|Audible account nickname of this book|Text|
-|\<locale\>|Region/country|Text|
-|\<year\>|Year published|Number|
-|\<language\>|Book's language|Text|
+|\<title\>|Full title with subtitle|[Text](#text-formatters)|
+|\<title short\>|Title. Stop at first colon|[Text](#text-formatters)|
+|\<audible title\>|Audible's title (does not include subtitle)|[Text](#text-formatters)|
+|\<audible subtitle\>|Audible's subtitle|[Text](#text-formatters)|
+|\<author\>|Author(s)|[Name List](#name-list-formatters)|
+|\<first author\>|First author|[Name](#name-formatters)|
+|\<narrator\>|Narrator(s)|[Name List](#name-list-formatters)|
+|\<first narrator\>|First narrator|[Name](#name-formatters)|
+|\<series\>|All series to which the book belongs (if any)|[Series List](#series-list-formatters)|
+|\<first series\>|First series|[Series](#series-formatters)|
+|\<series#\>|Number order in series (alias for \<first series[{#}]\>|[Number](#number-formatters)|
+|\<bitrate\>|File's original bitrate (Kbps)|[Number](#number-formatters)|
+|\<samplerate\>|File's original audio sample rate|[Number](#number-formatters)|
+|\<channels\>|Number of audio channels|[Number](#number-formatters)|
+|\<account\>|Audible account of this book|[Text](#text-formatters)|
+|\<account nickname\>|Audible account nickname of this book|[Text](#text-formatters)|
+|\<locale\>|Region/country|[Text](#text-formatters)|
+|\<year\>|Year published|[Number](#number-formatters)|
+|\<language\>|Book's language|[Text](#text-formatters)|
 |\<language short\> **†**|Book's language abbreviated. Eg: ENG|Text|
-|\<file date\>|File creation date/time.|DateTime|
-|\<pub date\>|Audiobook publication date|DateTime|
-|\<date added\>|Date the book added to your Audible account|DateTime|
-|\<ch count\> **‡**|Number of chapters|Number|
-|\<ch title\> **‡**|Chapter title|Text|
-|\<ch#\> **‡**|Chapter number|Number|
-|\<ch# 0\> **‡**|Chapter number with leading zeros|Number|
+|\<file date\>|File creation date/time.|[DateTime](#date-formatters)|
+|\<pub date\>|Audiobook publication date|[DateTime](#date-formatters)|
+|\<date added\>|Date the book added to your Audible account|[DateTime](#date-formatters)|
+|\<ch count\> **‡**|Number of chapters|[Number](#number-formatters)|
+|\<ch title\> **‡**|Chapter title|[Text](#text-formatters)|
+|\<ch#\> **‡**|Chapter number|[Number](#number-formatters)|
+|\<ch# 0\> **‡**|Chapter number with leading zeros|[Number](#number-formatters)|
 
 **†** Does not support custom formatting
 
@@ -95,11 +99,28 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 |L|Converts text to lowercase|\<title[L]\>|a study in scarlet꞉ a sherlock holmes novel|
 |U|Converts text to uppercase|\<title short[U]\>|A STUDY IN SCARLET|
 
+## Series Formatters
+|Formatter|Description|Example Usage|Example Result|
+|-|-|-|-|
+|\{N \| # \| ID\}|Formats the series using<br>the series part tags.<br>\{N\} = Series Name<br>\{#\} = Number order in series<br>\{ID\} = Audible Series ID<br><br>Default is \{N\}|`<first series>`<hr>`<first series[{N}]>`<hr>`<first series[{N}, {#}, {ID}]>`|Sherlock Holmes<hr>Sherlock Holmes<hr>Sherlock Holmes, 1, B08376S3R2|
+
+## Series List Formatters
+|Formatter|Description|Example Usage|Example Result|
+|-|-|-|-|
+|separator()|Speficy the text used to join<br>multiple series names.<br><br>Default is ", "|`<series[separator(; )]>`|Sherlock Holmes; Some Other Series|
+|format(\{N \| # \| ID\})|Formats the series properties<br>using the name series tags.<br>See [Series Formatter Usage](#series-formatters) above.|`<series[format({N}, {#})`<br>`separator(; )]>`<hr>`<author[format({L}, {ID}) separator(; )]>`|Sherlock Holmes, 1; Some Other Series, 1<hr>herlock Holmes, B08376S3R2; Some Other Series, B000000000|
+|max(#)|Only use the first # of series<br><br>Default is all series|`<series[max(1)]>`|Sherlock Holmes|
+
+## Name Formatters
+|Formatter|Description|Example Usage|Example Result|
+|-|-|-|-|
+|\{T \| F \| M \| L \| S \| ID\}|Formats the human name using<br>the name part tags.<br>\{T\} = Title (e.g. "Dr.")<br>\{F\} = First name<br>\{M\} = Middle name<br>\{L\} = Last Name<br>\{S\} = Suffix (e.g. "PhD")<br>\{ID\} = Audible Contributor ID<br><br>Default is \{P\} \{F\} \{M\} \{L\} \{S\}|`<first narrator[{L}, {F}]>`<hr>`<first author[{L}, {F} _{ID}_]>`|Fry, Stephen<hr>Doyle, Arthur \_B000AQ43GQ\_;<br>Fry, Stephen \_B000APAGVS\_|
+
 ## Name List Formatters
 |Formatter|Description|Example Usage|Example Result|
 |-|-|-|-|
 |separator()|Speficy the text used to join<br>multiple people's names.<br><br>Default is ", "|`<author[separator(; )]>`|Arthur Conan Doyle; Stephen Fry|
-|format(\{T \| F \| M \| L \| S\})|Formats the human name using<br>the name part tags.<br>\{T\} = Title (e.g. "Dr.")<br>\{F\} = First name<br>\{M\} = Middle name<br>\{L\} = Last Name<br>\{S\} = Suffix (e.g. "PhD")<br><br>Default is \{P\} \{F\} \{M\} \{L\} \{S\}|`<author[format({L}, {F})`<br>`separator(; )]>`|Doyle, Arthur; Fry, Stephen|
+|format(\{T \| F \| M \| L \| S \| ID\})|Formats the human name using<br>the name part tags.<br>See [Name Formatter Usage](#name-formatters) above.|`<author[format({L}, {F})`<br>`separator(; )]>`<hr>`<author[format({L}, {F}`<br>`_{ID}_) separator(; )]>`|Doyle, Arthur; Fry, Stephen<hr>Doyle, Arthur \_B000AQ43GQ\_;<br>Fry, Stephen \_B000APAGVS\_|
 |sort(F \| M \| L)|Sorts the names by first, middle,<br>or last name<br><br>Default is unsorted|`<author[sort(M)]>`|Stephen Fry, Arthur Conan Doyle|
 |max(#)|Only use the first # of names<br><br>Default is all names|`<author[max(1)]>`|Arthur Conan Doyle|
 

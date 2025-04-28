@@ -10,7 +10,7 @@ using FileManager.NamingTemplate;
 using NameParser;
 
 #nullable enable
-namespace LibationFileManager
+namespace LibationFileManager.Templates
 {
 	public interface ITemplate
 	{
@@ -58,19 +58,19 @@ namespace LibationFileManager
 		{
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.FolderTemplate))]
-				(_,e) => _folder = GetTemplate<FolderTemplate>(e.NewValue as string);
+			(_, e) => _folder = GetTemplate<FolderTemplate>(e.NewValue as string);
 
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.FileTemplate))]
-				(_, e) => _file = GetTemplate<FileTemplate>(e.NewValue as string);
+			(_, e) => _file = GetTemplate<FileTemplate>(e.NewValue as string);
 
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.ChapterFileTemplate))]
-				(_, e) => _chapterFile = GetTemplate<ChapterFileTemplate>(e.NewValue as string);
+			(_, e) => _chapterFile = GetTemplate<ChapterFileTemplate>(e.NewValue as string);
 
 			Configuration.Instance.PropertyChanged +=
 				[PropertyChangeFilter(nameof(Configuration.ChapterTitleTemplate))]
-				(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>(e.NewValue as string);
+			(_, e) => _chapterTitle = GetTemplate<ChapterTitleTemplate>(e.NewValue as string);
 
 			HumanName.Suffixes.Add("ret");
 			HumanName.Titles.Add("professor");
@@ -121,7 +121,7 @@ namespace LibationFileManager
 			ArgumentValidator.EnsureNotNull(fileExtension, nameof(fileExtension));
 
 			replacements ??= Configuration.Instance.ReplacementCharacters;
-			return GetFilename(baseDir, fileExtension,replacements, returnFirstExisting, libraryBookDto);
+			return GetFilename(baseDir, fileExtension, replacements, returnFirstExisting, libraryBookDto);
 		}
 
 		public LongPath GetFilename(LibraryBookDto libraryBookDto, MultiConvertFileProperties multiChapProps, string baseDir, string fileExtension, ReplacementCharacters? replacements = null, bool returnFirstExisting = false)
@@ -154,7 +154,7 @@ namespace LibationFileManager
 				//If file already exists, GetValidFilename will append " (n)" to the filename.
 				//This could cause the filename length to exceed MaxFilenameLength, so reduce
 				//allowable filename length by 5 chars, allowing for up to 99 duplicates.
-				var maxFilenameLength = LongPath.MaxFilenameLength - 
+				var maxFilenameLength = LongPath.MaxFilenameLength -
 					(i < pathParts.Count - 1 || string.IsNullOrEmpty(fileExtension) ? 0 : fileExtension.Length + 5);
 
 				while (part.Sum(LongPath.GetFilesystemStringLength) > maxFilenameLength)
@@ -170,7 +170,7 @@ namespace LibationFileManager
 
 			var fullPath = Path.Combine(pathParts.Select(fileParts => string.Concat(fileParts)).Prepend(baseDir).ToArray());
 
-			return  FileUtility.GetValidFilename(fullPath, replacements, fileExtension, returnFirstExisting);
+			return FileUtility.GetValidFilename(fullPath, replacements, fileExtension, returnFirstExisting);
 		}
 
 		/// <summary>
@@ -186,7 +186,7 @@ namespace LibationFileManager
 			foreach (var part in templateParts)
 			{
 				int slashIndex, lastIndex = 0;
-				while((slashIndex = part.IndexOf(Path.DirectorySeparatorChar, lastIndex)) > -1)
+				while ((slashIndex = part.IndexOf(Path.DirectorySeparatorChar, lastIndex)) > -1)
 				{
 					dir.Add(part[lastIndex..slashIndex]);
 					RemoveSpaces(dir);
@@ -229,7 +229,7 @@ namespace LibationFileManager
 				{
 					original = parts[i];
 					parts[i] = original.Replace("  ", " ");
-				}while(original.Length != parts[i].Length);
+				} while (original.Length != parts[i].Length);
 			}
 
 			//Remove instances of double spaces at part boundaries
@@ -262,11 +262,12 @@ namespace LibationFileManager
 			{ TemplateTags.AudibleTitle, lb => lb.Title },
 			{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
 			{ TemplateTags.Author, lb => lb.Authors, NameListFormat.Formatter },
-			{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor },
+			{ TemplateTags.FirstAuthor, lb => lb.FirstAuthor, FormattableFormatter },
 			{ TemplateTags.Narrator, lb => lb.Narrators, NameListFormat.Formatter },
-			{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator },
-			{ TemplateTags.Series, lb => lb.SeriesName },
-			{ TemplateTags.SeriesNumber, lb => lb.IsPodcastParent ? null : lb.SeriesNumber },
+			{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator, FormattableFormatter },
+			{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter },
+			{ TemplateTags.FirstSeries, lb => lb.FirstSeries, FormattableFormatter },
+			{ TemplateTags.SeriesNumber, lb => lb.FirstSeries?.Number },
 			{ TemplateTags.Language, lb => lb.Language },
 			//Don't allow formatting of LanguageShort
 			{ TemplateTags.LanguageShort, lb =>lb.Language, getLanguageShort },
@@ -280,7 +281,7 @@ namespace LibationFileManager
 			{ TemplateTags.DatePublished, lb => lb.DatePublished },
 			{ TemplateTags.DateAdded, lb => lb.DateAdded },
 			{ TemplateTags.FileDate, lb => lb.FileDate },
-		};
+			};
 
 		private static readonly List<TagCollection> chapterPropertyTags = new()
 		{
@@ -290,7 +291,8 @@ namespace LibationFileManager
 				{ TemplateTags.TitleShort, lb => getTitleShort(lb.Title) },
 				{ TemplateTags.AudibleTitle, lb => lb.Title },
 				{ TemplateTags.AudibleSubtitle, lb => lb.Subtitle },
-				{ TemplateTags.Series, lb => lb.SeriesName },
+				{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter },
+				{ TemplateTags.FirstSeries, lb => lb.FirstSeries, FormattableFormatter },
 			},
 			new PropertyTagCollection<MultiConvertFileProperties>(caseSensative: true, StringFormatter, IntegerFormatter, DateTimeFormatter)
 			{
@@ -332,6 +334,9 @@ namespace LibationFileManager
 			return language[..3].ToUpper();
 		}
 
+		private static string FormattableFormatter(ITemplateTag templateTag, IFormattable? value, string formatString)
+			=> value?.ToString(formatString, null) ?? "";
+
 		private static string StringFormatter(ITemplateTag templateTag, string value, string formatString)
 		{
 			if (value is null) return "";
@@ -368,7 +373,7 @@ namespace LibationFileManager
 
 		public class FolderTemplate : Templates, ITemplate
 		{
-			public static string Name { get; }= "Folder Template";
+			public static string Name { get; } = "Folder Template";
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title short> [<id>]";
 			public static IEnumerable<TagCollection> TagCollections

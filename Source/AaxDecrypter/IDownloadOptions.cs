@@ -35,5 +35,6 @@ namespace AaxDecrypter
         string GetMultipartFileName(MultiConvertFileProperties props);
         string GetMultipartTitle(MultiConvertFileProperties props);
         Task<string> SaveClipsAndBookmarksAsync(string fileName);
+        public FileType? InputType { get; }
     }
 }

@@ -15,34 +15,6 @@ namespace FileLiberator
         public event EventHandler<byte[]> CoverImageDiscovered;
         public abstract Task CancelAsync();
 
-        protected LameConfig GetLameOptions(Configuration config)
-        {
-			LameConfig lameConfig = new()
-			{
-				Mode = MPEGMode.Mono,
-				Quality = config.LameEncoderQuality,
-                OutputSampleRate = (int)config.MaxSampleRate
-			};
-
-			if (config.LameTargetBitrate)
-            {
-                if (config.LameConstantBitrate)
-                    lameConfig.BitRate = config.LameBitrate;
-                else
-                {
-                    lameConfig.ABRRateKbps = config.LameBitrate;
-                    lameConfig.VBR = VBRMode.ABR;
-                    lameConfig.WriteVBRTag = true;
-                }
-            }
-            else
-            {
-                lameConfig.VBR = VBRMode.Default;
-                lameConfig.VBRQuality = config.LameVBRQuality;
-                lameConfig.WriteVBRTag = true;
-            }
-            return lameConfig;
-        }
         protected void OnTitleDiscovered(string title) => OnTitleDiscovered(null, title);
         protected void OnTitleDiscovered(object _, string title)
 		{

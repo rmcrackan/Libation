@@ -105,7 +105,7 @@ public class AverageSpeed
 	public AverageSpeed() : this(TimeSpan.FromSeconds(15), Significance.P10, TimeSpan.FromSeconds(3), Significance.P01) { }
 
 	/// <param name="slowWindow">Total moving average time window</param>
-	/// <param name="slowSignificance">T-test signifance level at which the newest speed will be considered different from the slow window's mean speed.</param>
+	/// <param name="slowSignificance">T-test significance level at which the newest speed will be considered different from the slow window's mean speed.</param>
 	/// <param name="fastWindow">A shorter moving window of the most resent speeds. The average speed in <paramref name="fastWindow"/> is compared to the average speed in the rest of <paramref name="slowWindow"/> to quickly detect large changes in speed.</param>
 	/// <param name="fastSignificance">T-test significance level at which the mean speed in <paramref name="fastWindow"/> will be considered different from the mean speed of the remainder of <paramref name="slowWindow"/>.</param>
 	public AverageSpeed(TimeSpan slowWindow, Significance slowSignificance, TimeSpan fastWindow, Significance fastSignificance)
@@ -119,7 +119,7 @@ public class AverageSpeed
 	/// <summary>Add a new position to the moving average</summary>
 	public void AddPosition(double position)
 	{
-		var now = DateTime.Now;
+		var now = DateTime.UtcNow;
 		if (start == default)
 			start = now;
 

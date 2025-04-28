@@ -1,7 +1,10 @@
+using AudibleUtilities;
 using Avalonia.Controls;
 using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
+using LibationFileManager.Templates;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Controls.Settings
@@ -16,6 +19,25 @@ namespace LibationAvalonia.Controls.Settings
 			{
 				_ = Configuration.Instance.LibationFiles;
 				DataContext = new AudioSettingsVM(Configuration.Instance);
+			}
+		}
+
+
+		public async void Quality_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (_viewModel.SpatialSelected)
+			{
+				using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
+
+				if (!accounts.AccountsSettings.Accounts.Any(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
+				{
+					await MessageBox.Show(VisualRoot as Window,
+						"Your must remove account(s) from Libation and then re-add them to enable spatial audiobook downloads.",
+						"Spatial Audio Unavailable",
+						MessageBoxButtons.OK);
+
+					_viewModel.FileDownloadQuality = _viewModel.DownloadQualities[1];
+				}
 			}
 		}
 

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows.Forms;
 using LibationFileManager;
+using LibationFileManager.Templates;
 
 namespace LibationWinForms.Dialogs
 {

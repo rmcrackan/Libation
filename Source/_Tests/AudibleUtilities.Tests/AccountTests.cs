@@ -22,7 +22,7 @@ namespace AccountsTests
 #pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 	public class AccountsTestBase
     {
-        protected string EMPTY_FILE { get; } = "{\r\n  \"Accounts\": []\r\n}".Replace("\r\n", Environment.NewLine);
+        protected string EMPTY_FILE { get; } = "{\r\n  \"Accounts\": [],\r\n  \"Cdm\": null\r\n}".Replace("\r\n", Environment.NewLine);
 
         protected string TestFile;
         protected Locale usLocale => Localization.Get("us");

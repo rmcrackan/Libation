@@ -12,6 +12,7 @@ using LibationAvalonia.Controls;
 using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
+using LibationFileManager.Templates;
 using LibationUiBase.GridView;
 using ReactiveUI;
 using System;
@@ -350,7 +351,7 @@ namespace LibationAvalonia.Views
 			#region Edit Templates (Single book only)
 
 			async Task editTemplate<T>(LibraryBook libraryBook, string existingTemplate, Action<string> setNewTemplate)
-				where T : Templates, LibationFileManager.ITemplate, new()
+				where T : Templates, LibationFileManager.Templates.ITemplate, new()
 			{
 				var template = ctx.CreateTemplateEditor<T>(libraryBook, existingTemplate);
 				var form = new EditTemplateDialog(template);

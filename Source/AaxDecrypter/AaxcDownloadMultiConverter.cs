@@ -114,7 +114,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 					DownloadOptions.LameConfig
 				);
 
-			void newSplit(int currentChapter, ChapterInfo splitChapters, NewSplitCallback newSplitCallback)
+			void newSplit(int currentChapter, ChapterInfo splitChapters, INewSplitCallback newSplitCallback)
 			{
 				MultiConvertFileProperties props = new()
 				{
@@ -151,7 +151,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 			{
 				return Mp4File.RelocateMoovAsync(filename);
 			}
-			else return Mp4Operation.CompletedOperation;
+			else return Mp4Operation.FromCompleted(AaxFile);
 		}
 	}
 }

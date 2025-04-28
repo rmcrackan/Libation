@@ -1,11 +1,10 @@
 ﻿using AaxDecrypter;
 using FileManager;
-using System.Collections.Generic;
 using System;
 using System.IO;
 
 #nullable enable
-namespace LibationFileManager
+namespace LibationFileManager.Templates
 {
 	public interface ITemplateEditor
 	{
@@ -61,16 +60,15 @@ namespace LibationFileManager
 				AccountNickname = "my account",
 				DateAdded = new DateTime(2022, 6, 9, 0, 0, 0),
 				DatePublished = new DateTime(2017, 2, 27, 0, 0, 0),
-				AudibleProductId = "123456789",
+				AudibleProductId = "B06WLMWF2S",
 				Title = "A Study in Scarlet",
 				TitleWithSubtitle = "A Study in Scarlet: A Sherlock Holmes Novel",
 				Subtitle = "A Sherlock Holmes Novel",
 				Locale = "us",
 				YearPublished = 2017,
-				Authors = new List<string> { "Arthur Conan Doyle", "Stephen Fry - introductions" },
-				Narrators = new List<string> { "Stephen Fry" },
-				SeriesName = "Sherlock Holmes",
-				SeriesNumber = 1,
+				Authors = [new("Arthur Conan Doyle", "B000AQ43GQ"), new("Stephen Fry - introductions", "B000APAGVS")],
+				Narrators = [new("Stephen Fry", null)],
+				Series = [new("Sherlock Holmes", 1, "B08376S3R2"), new("Some Other Series", 1, "B000000000")],
 				BitRate = 128,
 				SampleRate = 44100,
 				Channels = 2,
@@ -131,7 +129,7 @@ namespace LibationFileManager
 
 			if (!templateEditor.IsFolder && !templateEditor.IsFilePath)
 				throw new InvalidOperationException($"This method is only for File and Folder templates. Use {nameof(CreateNameEditor)} for name templates");
-			
+
 			if (templateEditor.IsFolder)
 				templateEditor.File = Templates.File;
 			else

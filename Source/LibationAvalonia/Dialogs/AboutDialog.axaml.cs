@@ -5,6 +5,7 @@ using LibationFileManager;
 using LibationUiBase;
 using ReactiveUI;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
@@ -48,11 +49,11 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		private void Link_GithubUser(object sender, Avalonia.Input.TappedEventArgs e)
+		private void ContributorLink_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 		{
-			if (sender is LinkLabel lbl)
+			if (sender is LinkLabel lbl && lbl.DataContext is LibationContributor contributor)
 			{
-				Dinah.Core.Go.To.Url($"ht" + $"tps://github.com/{lbl.Text.Replace('.','-')}");
+				Dinah.Core.Go.To.Url(contributor.Link.AbsoluteUri);
 			}
 		}
 
@@ -71,6 +72,9 @@ namespace LibationAvalonia.Dialogs
 
 		private bool canCheckForUpgrade = true;
 		private string upgradeButtonText = "Check for Upgrade";
+
+		public IEnumerable<LibationContributor> PrimaryContributors => LibationContributor.PrimaryContributors;
+		public IEnumerable<LibationContributor> AdditionalContributors => LibationContributor.AdditionalContributors;
 
 		public AboutVM()
 		{

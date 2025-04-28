@@ -22,13 +22,13 @@ namespace LibationAvalonia.ViewModels.Settings
 		private int _lameBitrate;
 		private int _lameVBRQuality;
 		private string _chapterTitleTemplate;
-		public EnumDiaplay<SampleRate> SelectedSampleRate { get; set; }
+		public EnumDisplay<SampleRate> SelectedSampleRate { get; set; }
 		public NAudio.Lame.EncoderQuality SelectedEncoderQuality { get; set; }
 		
-		public AvaloniaList<EnumDiaplay<SampleRate>> SampleRates { get; }
+		public AvaloniaList<EnumDisplay<SampleRate>> SampleRates { get; }
 				= new(Enum.GetValues<SampleRate>()
 				.Where(r => r >= SampleRate.Hz_8000 && r <= SampleRate.Hz_48000)
-				.Select(v => new EnumDiaplay<SampleRate>(v, $"{(int)v} Hz")));
+				.Select(v => new EnumDisplay<SampleRate>(v, $"{(int)v} Hz")));
 
 		public AvaloniaList<NAudio.Lame.EncoderQuality> EncoderQualities { get; }
 		= new(
@@ -48,7 +48,6 @@ namespace LibationAvalonia.ViewModels.Settings
 			DownloadCoverArt = config.DownloadCoverArt;
 			RetainAaxFile = config.RetainAaxFile;
 			DownloadClipsBookmarks = config.DownloadClipsBookmarks;
-			FileDownloadQuality = config.FileDownloadQuality;
 			ClipBookmarkFormat = config.ClipsBookmarksFileFormat;
 			SplitFilesByChapter = config.SplitFilesByChapter;
 			MergeOpeningAndEndCredits = config.MergeOpeningAndEndCredits;
@@ -64,6 +63,8 @@ namespace LibationAvalonia.ViewModels.Settings
 			LameBitrate = config.LameBitrate;
 			LameVBRQuality = config.LameVBRQuality;
 
+			SpatialAudioCodec = SpatialAudioCodecs.SingleOrDefault(s => s.Value == config.SpatialAudioCodec) ?? SpatialAudioCodecs[0];
+			FileDownloadQuality = DownloadQualities.SingleOrDefault(s => s.Value == config.FileDownloadQuality) ?? DownloadQualities[0];
 			SelectedSampleRate = SampleRates.SingleOrDefault(s => s.Value == config.MaxSampleRate) ?? SampleRates[0];
 			SelectedEncoderQuality = config.LameEncoderQuality;
 		}
@@ -76,7 +77,6 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.DownloadCoverArt = DownloadCoverArt;
 			config.RetainAaxFile = RetainAaxFile;
 			config.DownloadClipsBookmarks = DownloadClipsBookmarks;
-			config.FileDownloadQuality = FileDownloadQuality;
 			config.ClipsBookmarksFileFormat = ClipBookmarkFormat;
 			config.SplitFilesByChapter = SplitFilesByChapter;
 			config.MergeOpeningAndEndCredits = MergeOpeningAndEndCredits;
@@ -94,11 +94,23 @@ namespace LibationAvalonia.ViewModels.Settings
 
 			config.LameEncoderQuality = SelectedEncoderQuality;
 			config.MaxSampleRate = SelectedSampleRate?.Value ?? config.MaxSampleRate;
+			config.FileDownloadQuality = FileDownloadQuality?.Value ?? config.FileDownloadQuality;
+			config.SpatialAudioCodec = SpatialAudioCodec?.Value ?? config.SpatialAudioCodec;
 		}
 
-		public AvaloniaList<Configuration.DownloadQuality> DownloadQualities { get; } = new(Enum<Configuration.DownloadQuality>.GetValues());
+		public AvaloniaList<EnumDisplay<Configuration.DownloadQuality>> DownloadQualities { get; } = new([
+					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.Normal),
+					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.High),
+					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.Spatial, "Spatial (if available)"),
+				]);
+		public AvaloniaList<EnumDisplay<Configuration.SpatialCodec>> SpatialAudioCodecs { get; } = new([
+					new EnumDisplay<Configuration.SpatialCodec>(Configuration.SpatialCodec.EC_3, "Dolby Digital Plus (E-AC-3)"),
+					new EnumDisplay<Configuration.SpatialCodec>(Configuration.SpatialCodec.AC_4, "Dolby AC-4")
+				]);
 		public AvaloniaList<Configuration.ClipBookmarkFormat> ClipBookmarkFormats { get; } = new(Enum<Configuration.ClipBookmarkFormat>.GetValues());
 		public string FileDownloadQualityText { get; } = Configuration.GetDescription(nameof(Configuration.FileDownloadQuality));
+		public string SpatialAudioCodecText { get; } = Configuration.GetDescription(nameof(Configuration.SpatialAudioCodec));
+		public string SpatialAudioCodecTip { get; } = Configuration.GetHelpText(nameof(Configuration.SpatialAudioCodec));
 		public string CreateCueSheetText { get; } = Configuration.GetDescription(nameof(Configuration.CreateCueSheet));
 		public string CombineNestedChapterTitlesText { get; } = Configuration.GetDescription(nameof(Configuration.CombineNestedChapterTitles));
 		public string CombineNestedChapterTitlesTip => Configuration.GetHelpText(nameof(CombineNestedChapterTitles));
@@ -120,7 +132,21 @@ namespace LibationAvalonia.ViewModels.Settings
 		public bool RetainAaxFile { get; set; }
 		public string RetainAaxFileTip => Configuration.GetHelpText(nameof(RetainAaxFile));
 		public bool DownloadClipsBookmarks { get => _downloadClipsBookmarks; set => this.RaiseAndSetIfChanged(ref _downloadClipsBookmarks, value); }
-		public Configuration.DownloadQuality FileDownloadQuality { get; set; }
+
+		public bool SpatialSelected { get; private set; }
+
+		private EnumDisplay<Configuration.DownloadQuality>? _fileDownloadQuality;
+		public EnumDisplay<Configuration.DownloadQuality> FileDownloadQuality
+		{
+			get => _fileDownloadQuality ?? DownloadQualities[0];
+			set
+			{
+				SpatialSelected = value?.Value == Configuration.DownloadQuality.Spatial;
+				this.RaiseAndSetIfChanged(ref _fileDownloadQuality, value);
+				this.RaisePropertyChanged(nameof(SpatialSelected));
+			}
+		}
+		public EnumDisplay<Configuration.SpatialCodec> SpatialAudioCodec { get; set; }
 		public Configuration.ClipBookmarkFormat ClipBookmarkFormat { get; set; }
 		public bool MergeOpeningAndEndCredits { get; set; }
 		public string MergeOpeningAndEndCreditsTip => Configuration.GetHelpText(nameof(MergeOpeningAndEndCredits));
