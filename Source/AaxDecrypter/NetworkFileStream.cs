@@ -359,7 +359,7 @@ namespace AaxDecrypter
 		/// <param name="requiredPosition">The minimum required flushed data length in <see cref="SaveFilePath"/>.</param>
 		private void WaitToPosition(long requiredPosition)
 		{
-			while (WritePosition < requiredPosition
+			while (_readFile.Position < requiredPosition
 				&& DownloadTask?.IsCompleted is false
 				&& !IsCancelled)
 			{
