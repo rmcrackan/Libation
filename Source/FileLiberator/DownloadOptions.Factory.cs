@@ -33,81 +33,78 @@ public partial class DownloadOptions
 
 	private static async Task<ContentLicense> ChooseContent(Api api, LibraryBook libraryBook, Configuration config)
 	{
-		var cdm = await Cdm.GetCdmAsync();
-
 		var dlQuality = config.FileDownloadQuality == Configuration.DownloadQuality.Normal ? DownloadQuality.Normal : DownloadQuality.High;
 
-		ContentLicense? contentLic = null;
-		ContentLicense? fallback = null;
+		if (!config.UseWidevine || await Cdm.GetCdmAsync() is not Cdm cdm)
+			return await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
 
-		if (cdm is null)
+		ContentLicense? contentLic = null, fallback = null;
+
+		try
 		{
-			//Doesn't matter what the user chose. We can't get a CDM so we must fall back to AAX(C)
-			contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+			//try to request a widevine content license using the user's spatial audio settings
+			var codecChoice = config.SpatialAudioCodec switch
+			{
+				Configuration.SpatialCodec.EC_3 => Ec3Codec,
+				Configuration.SpatialCodec.AC_4 => Ac4Codec,
+				_ => throw new NotSupportedException($"Unknown value for {nameof(config.SpatialAudioCodec)}")
+			};
+
+			contentLic
+				= await api.GetDownloadLicenseAsync(
+					libraryBook.Book.AudibleProductId,
+					dlQuality,
+					ChapterTitlesType.Tree,
+					DrmType.Widevine,
+					config.RequestSpatial,
+					codecChoice);
 		}
-		else
+		catch (Exception ex)
 		{
-			var spatial = config.FileDownloadQuality is Configuration.DownloadQuality.Spatial;
-			try
-				{
-				var codecChoice = config.SpatialAudioCodec switch
-				{
-					Configuration.SpatialCodec.EC_3 => Ec3Codec,
-					Configuration.SpatialCodec.AC_4 => Ac4Codec,
-					_ => throw new NotSupportedException($"Unknown value for {nameof(config.SpatialAudioCodec)}")
-				};
-				contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality, ChapterTitlesType.Tree, DrmType.Widevine, spatial, codecChoice);
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Failed to request a Widevine license.");
-			}
-
-			if (contentLic is null)
-			{
-				//We failed to get a widevine license, so fall back to AAX(C)
-				contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
-			}
-			else if (!contentLic.ContentMetadata.ContentReference.IsSpatial && contentLic.DrmType != DrmType.Adrm)
-			{
-				/*
-				We got a widevine license and we have a Cdm, but we still need to decide if we WANT the file
-				being delivered with widevine. This file is not "spatial", so it may be no better than the
-				audio in the Adrm files. All else being equal, we prefer Adrm files because they have more
-				build-in metadata and always AAC-LC, which is a codec playable by pretty much every device
-				in existence.
-
-				Unfortunately, there appears to be no way to determine which codec/quality combination we'll
-				get until we make the request and see what content gets delivered. For some books,
-				Widevine/High delivers 44.1 kHz / 128 kbps audio and Adrm/High delivers 22.05 kHz / 64 kbps.
-				In those cases, the Widevine content size is much larger. Other books will deliver the same
-				sample rate / bitrate for both Widevine and Adrm, the only difference being codec. Widevine
-				is usually xHE-AAC, but is sometimes AAC-LC. Adrm is always AAC-LC.
-
-				To decide which file we want, use this simple rule: if files are different codecs and
-				Widevine is significantly larger, use Widevine. Otherwise use ADRM.
-
-				*/
-				fallback = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
-
-				var wvCr = contentLic.ContentMetadata.ContentReference;
-				var adrmCr = fallback.ContentMetadata.ContentReference;
-
-				if (wvCr.Codec == adrmCr.Codec ||
-					adrmCr.ContentSizeInBytes > wvCr.ContentSizeInBytes ||
-					RelativePercentDifference(adrmCr.ContentSizeInBytes, wvCr.ContentSizeInBytes) < 0.05)
-				{
-					contentLic = fallback;
-				}
-			}
+			Serilog.Log.Logger.Error(ex, "Failed to request a Widevine license.");
+			//We failed to get a widevine license, so fall back to AAX(C)
+			return await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
 		}
 
-		if (contentLic.DrmType == DrmType.Widevine && cdm is not null)
+		if (!contentLic.ContentMetadata.ContentReference.IsSpatial && contentLic.DrmType != DrmType.Adrm)
+		{
+			/*
+			We got a widevine license and we have a Cdm, but we still need to decide if we WANT the file
+			being delivered with widevine. This file is not "spatial", so it may be no better than the
+			audio in the Adrm files. All else being equal, we prefer Adrm files because they have more
+			build-in metadata and always AAC-LC, which is a codec playable by pretty much every device
+			in existence.
+
+			Unfortunately, there appears to be no way to determine which codec/quality combination we'll
+			get until we make the request and see what content gets delivered. For some books,
+			Widevine/High delivers 44.1 kHz / 128 kbps audio and Adrm/High delivers 22.05 kHz / 64 kbps.
+			In those cases, the Widevine content size is much larger. Other books will deliver the same
+			sample rate / bitrate for both Widevine and Adrm, the only difference being codec. Widevine
+			is usually xHE-AAC, but is sometimes AAC-LC. Adrm is always AAC-LC.
+
+			To decide which file we want, use this simple rule: if files are different codecs and
+			Widevine is significantly larger, use Widevine. Otherwise use ADRM.
+			*/
+
+			fallback = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+
+			var wvCr = contentLic.ContentMetadata.ContentReference;
+			var adrmCr = fallback.ContentMetadata.ContentReference;
+
+			if (wvCr.Codec == adrmCr.Codec ||
+				adrmCr.ContentSizeInBytes > wvCr.ContentSizeInBytes ||
+				RelativePercentDifference(adrmCr.ContentSizeInBytes, wvCr.ContentSizeInBytes) < 0.05)
+			{
+				contentLic = fallback;
+			}
+		}		
+
+		if (contentLic.DrmType == DrmType.Widevine)
 		{
 			try
 			{
 				using var client = new HttpClient();
-				var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
+				using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
 				var dash = new MpegDash(mpdResponse.Content.ReadAsStream());
 
 				if (!dash.TryGetUri(new Uri(contentLic.LicenseResponse), out var contentUri))
@@ -124,7 +121,6 @@ public partial class DownloadOptions
 					Key = Convert.ToHexStringLower(keys[0].Kid.ToByteArray()),
 					Iv = Convert.ToHexStringLower(keys[0].Key)
 				};
-
 			}
 			catch
 			{

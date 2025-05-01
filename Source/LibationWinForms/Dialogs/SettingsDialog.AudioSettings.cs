@@ -23,6 +23,8 @@ namespace LibationWinForms.Dialogs
 			this.stripAudibleBrandingCbox.Text = desc(nameof(config.StripAudibleBrandAudio));
 			this.stripUnabridgedCbox.Text = desc(nameof(config.StripUnabridged));
 			this.moveMoovAtomCbox.Text = desc(nameof(config.MoveMoovToBeginning));
+			this.useWidevineCbox.Text = desc(nameof(config.UseWidevine));
+			this.requestSpatialCbox.Text = desc(nameof(config.RequestSpatial));
 			this.spatialCodecLbl.Text = desc(nameof(config.SpatialAudioCodec));
 
 			toolTip.SetToolTip(combineNestedChapterTitlesCbox, Configuration.GetHelpText(nameof(config.CombineNestedChapterTitles)));
@@ -34,6 +36,8 @@ namespace LibationWinForms.Dialogs
 			toolTip.SetToolTip(mergeOpeningEndCreditsCbox, Configuration.GetHelpText(nameof(config.MergeOpeningAndEndCredits)));
 			toolTip.SetToolTip(retainAaxFileCbox, Configuration.GetHelpText(nameof(config.RetainAaxFile)));
 			toolTip.SetToolTip(stripAudibleBrandingCbox, Configuration.GetHelpText(nameof(config.StripAudibleBrandAudio)));
+			toolTip.SetToolTip(useWidevineCbox, Configuration.GetHelpText(nameof(config.UseWidevine)));
+			toolTip.SetToolTip(requestSpatialCbox, Configuration.GetHelpText(nameof(config.RequestSpatial)));
 			toolTip.SetToolTip(spatialCodecLbl, Configuration.GetHelpText(nameof(config.SpatialAudioCodec)));
 			toolTip.SetToolTip(spatialAudioCodecCb, Configuration.GetHelpText(nameof(config.SpatialAudioCodec)));
 
@@ -41,7 +45,6 @@ namespace LibationWinForms.Dialogs
 				[
 					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.Normal),
 					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.High),
-					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.Spatial, "Spatial (if available)"),
 				]);
 
 			spatialAudioCodecCb.Items.AddRange(
@@ -76,6 +79,8 @@ namespace LibationWinForms.Dialogs
 			downloadClipsBookmarksCbox.Checked = config.DownloadClipsBookmarks;
 			fileDownloadQualityCb.SelectedItem = config.FileDownloadQuality;
 			spatialAudioCodecCb.SelectedItem = config.SpatialAudioCodec;
+			useWidevineCbox.Checked = config.UseWidevine;
+			requestSpatialCbox.Checked = config.RequestSpatial;
 
 			clipsBookmarksFormatCb.SelectedItem = config.ClipsBookmarksFileFormat;
 			retainAaxFileCbox.Checked = config.RetainAaxFile;
@@ -118,6 +123,8 @@ namespace LibationWinForms.Dialogs
 			config.DownloadCoverArt = downloadCoverArtCbox.Checked;
 			config.DownloadClipsBookmarks = downloadClipsBookmarksCbox.Checked;
 			config.FileDownloadQuality = ((EnumDisplay<Configuration.DownloadQuality>)fileDownloadQualityCb.SelectedItem).Value;
+			config.UseWidevine = useWidevineCbox.Checked;
+			config.RequestSpatial = requestSpatialCbox.Checked;
 			config.SpatialAudioCodec = ((EnumDisplay<Configuration.SpatialCodec>)spatialAudioCodecCb.SelectedItem).Value;
 			config.ClipsBookmarksFileFormat = (Configuration.ClipBookmarkFormat)clipsBookmarksFormatCb.SelectedItem;
 			config.RetainAaxFile = retainAaxFileCbox.Checked;
@@ -139,7 +146,6 @@ namespace LibationWinForms.Dialogs
 
 			config.ChapterTitleTemplate = chapterTitleTemplateTb.Text;
 		}
-
 
 		private void downloadClipsBookmarksCbox_CheckedChanged(object sender, EventArgs e)
 		{
@@ -190,27 +196,28 @@ namespace LibationWinForms.Dialogs
 			}
 		}
 
-		private void fileDownloadQualityCb_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			var selectedSpatial = fileDownloadQualityCb.SelectedItem.Equals(Configuration.DownloadQuality.Spatial);
 
-			if (selectedSpatial)
+
+		private void useWidevineCbox_CheckedChanged(object sender, EventArgs e)
+		{
+			if (useWidevineCbox.Checked)
 			{
 				using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
 
 				if (!accounts.AccountsSettings.Accounts.Any(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
 				{
 					MessageBox.Show(this,
-						"Your must remove account(s) from Libation and then re-add them to enable spatial audiobook downloads.",
-						"Spatial Audio Unavailable",
+						"Your must remove account(s) from Libation and then re-add them to enable widwvine content.",
+						"Widevine Content Unavailable",
 						MessageBoxButtons.OK);
 
-					fileDownloadQualityCb.SelectedItem = Configuration.DownloadQuality.High;
+					useWidevineCbox.Checked = false;
 					return;
 				}
 			}
-
-			spatialCodecLbl.Enabled = spatialAudioCodecCb.Enabled = selectedSpatial;
+			requestSpatialCbox.Enabled = useWidevineCbox.Checked;
+			spatialCodecLbl.Enabled = spatialAudioCodecCb.Enabled = useWidevineCbox.Checked && requestSpatialCbox.Checked;
 		}
+
 	}
 }

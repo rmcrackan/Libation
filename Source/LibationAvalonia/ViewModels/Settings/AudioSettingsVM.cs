@@ -67,6 +67,8 @@ namespace LibationAvalonia.ViewModels.Settings
 			FileDownloadQuality = DownloadQualities.SingleOrDefault(s => s.Value == config.FileDownloadQuality) ?? DownloadQualities[0];
 			SelectedSampleRate = SampleRates.SingleOrDefault(s => s.Value == config.MaxSampleRate) ?? SampleRates[0];
 			SelectedEncoderQuality = config.LameEncoderQuality;
+			UseWidevine = config.UseWidevine;
+			RequestSpatial = config.RequestSpatial;
 		}
 
 		public void SaveSettings(Configuration config)
@@ -96,12 +98,13 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.MaxSampleRate = SelectedSampleRate?.Value ?? config.MaxSampleRate;
 			config.FileDownloadQuality = FileDownloadQuality?.Value ?? config.FileDownloadQuality;
 			config.SpatialAudioCodec = SpatialAudioCodec?.Value ?? config.SpatialAudioCodec;
+			config.UseWidevine = UseWidevine;
+			config.RequestSpatial = RequestSpatial;
 		}
 
 		public AvaloniaList<EnumDisplay<Configuration.DownloadQuality>> DownloadQualities { get; } = new([
 					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.Normal),
 					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.High),
-					new EnumDisplay<Configuration.DownloadQuality>(Configuration.DownloadQuality.Spatial, "Spatial (if available)"),
 				]);
 		public AvaloniaList<EnumDisplay<Configuration.SpatialCodec>> SpatialAudioCodecs { get; } = new([
 					new EnumDisplay<Configuration.SpatialCodec>(Configuration.SpatialCodec.EC_3, "Dolby Digital Plus (E-AC-3)"),
@@ -109,6 +112,10 @@ namespace LibationAvalonia.ViewModels.Settings
 				]);
 		public AvaloniaList<Configuration.ClipBookmarkFormat> ClipBookmarkFormats { get; } = new(Enum<Configuration.ClipBookmarkFormat>.GetValues());
 		public string FileDownloadQualityText { get; } = Configuration.GetDescription(nameof(Configuration.FileDownloadQuality));
+		public string UseWidevineText { get; } = Configuration.GetDescription(nameof(Configuration.UseWidevine));
+		public string UseWidevineTip { get; } = Configuration.GetHelpText(nameof(Configuration.UseWidevine));
+		public string RequestSpatialText { get; } = Configuration.GetDescription(nameof(Configuration.RequestSpatial));
+		public string RequestSpatialTip { get; } = Configuration.GetHelpText(nameof(Configuration.RequestSpatial));
 		public string SpatialAudioCodecText { get; } = Configuration.GetDescription(nameof(Configuration.SpatialAudioCodec));
 		public string SpatialAudioCodecTip { get; } = Configuration.GetHelpText(nameof(Configuration.SpatialAudioCodec));
 		public string CreateCueSheetText { get; } = Configuration.GetDescription(nameof(Configuration.CreateCueSheet));
@@ -133,19 +140,13 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string RetainAaxFileTip => Configuration.GetHelpText(nameof(RetainAaxFile));
 		public bool DownloadClipsBookmarks { get => _downloadClipsBookmarks; set => this.RaiseAndSetIfChanged(ref _downloadClipsBookmarks, value); }
 
-		public bool SpatialSelected { get; private set; }
 
-		private EnumDisplay<Configuration.DownloadQuality>? _fileDownloadQuality;
-		public EnumDisplay<Configuration.DownloadQuality> FileDownloadQuality
-		{
-			get => _fileDownloadQuality ?? DownloadQualities[0];
-			set
-			{
-				SpatialSelected = value?.Value == Configuration.DownloadQuality.Spatial;
-				this.RaiseAndSetIfChanged(ref _fileDownloadQuality, value);
-				this.RaisePropertyChanged(nameof(SpatialSelected));
-			}
-		}
+		private bool _useWidevine;
+		private bool _requestSpatial;
+		public bool UseWidevine { get => _useWidevine; set => this.RaiseAndSetIfChanged(ref _useWidevine, value); }
+		public bool RequestSpatial { get => _requestSpatial; set => this.RaiseAndSetIfChanged(ref _requestSpatial, value); }
+
+		public EnumDisplay<Configuration.DownloadQuality> FileDownloadQuality { get; set; }
 		public EnumDisplay<Configuration.SpatialCodec> SpatialAudioCodec { get; set; }
 		public Configuration.ClipBookmarkFormat ClipBookmarkFormat { get; set; }
 		public bool MergeOpeningAndEndCredits { get; set; }

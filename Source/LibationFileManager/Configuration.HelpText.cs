@@ -89,6 +89,24 @@ namespace LibationFileManager
 
                 AC-4 cannot be converted to MP3.
                 """ },
+            {nameof(UseWidevine), """
+                Some audiobooks are only delivered in the highest
+                available quality with special, third-party content
+                protection. Enabling this option will make Libation
+                request audiobooks with Widevine DRM, which may
+                yield higher quality audiobook files. If they are
+                higher quality, however, they will also be encoded
+                with a somewhat uncommon codec (xHE-AAC USAC)
+                which you may have difficulty playing.
+
+                This must be enable to download spatial audiobooks.
+                """ },
+            {nameof(RequestSpatial), """
+                If selected, Libation will request audiobooks in the
+                Dolby Atmos 'Spatial Audio' format. Audiobooks which
+                don't have a spatial audio version will be download
+                as usual based on your other file quality settings.
+                """ },
         }
         .AsReadOnly();
 
