@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -23,7 +24,7 @@ public partial class DownloadOptions
 	/// <summary>
 	/// Initiate an audiobook download from the audible api.
 	/// </summary>
-	public static async Task<DownloadOptions> InitiateDownloadAsync(Api api, LibraryBook libraryBook, Configuration config)
+	public static async Task<DownloadOptions> InitiateDownloadAsync(Api api, Configuration config, LibraryBook libraryBook)
 	{
 		var license = await ChooseContent(api, libraryBook, config);
 		var options = BuildDownloadOptions(libraryBook, config, license);
@@ -172,6 +173,14 @@ public partial class DownloadOptions
 			RuntimeLength = TimeSpan.FromMilliseconds(contentLic.ContentMetadata.ChapterInfo.RuntimeLengthMs),
 		};
 
+		dlOptions.LibraryBookDto.Codec = contentLic.ContentMetadata.ContentReference.Codec;
+		if (TryGetAudioInfo(contentLic.ContentMetadata.ContentUrl, out int? bitrate, out int? sampleRate, out int? channels))
+		{
+			dlOptions.LibraryBookDto.BitRate = bitrate;
+			dlOptions.LibraryBookDto.SampleRate = sampleRate;
+			dlOptions.LibraryBookDto.Channels = channels;
+		}
+
 		var titleConcat = config.CombineNestedChapterTitles ? ": " : null;
 		var chapters
 			= flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters, titleConcat)
@@ -196,6 +205,43 @@ public partial class DownloadOptions
 		}
 
 		return dlOptions;
+	}
+
+	/// <summary>
+	/// The most reliable way to get these audio file properties is from the filename itself.
+	/// Using AAXClean to read the metadata works well for everything except AC-4 bitrate.
+	/// </summary>
+	private static bool TryGetAudioInfo(ContentUrl? contentUrl, out int? bitrate, out int? sampleRate, out int? channels)
+	{
+		bitrate = sampleRate = channels = null;
+
+		if (contentUrl?.OfflineUrl is not string url || !Uri.TryCreate(url, default, out var uri))
+			return false;
+
+		var file = Path.GetFileName(uri.LocalPath);
+
+		var match = AdrmAudioProperties().Match(file);
+		if (match.Success)
+		{
+			bitrate = int.Parse(match.Groups[1].Value);
+			sampleRate = int.Parse(match.Groups[2].Value);
+			channels = int.Parse(match.Groups[3].Value);
+			return true;
+		}
+		else if ((match = WidevineAudioProperties().Match(file)).Success)
+		{
+			bitrate = int.Parse(match.Groups[2].Value);
+			sampleRate = int.Parse(match.Groups[1].Value) * 1000;
+			channels = match.Groups[3].Value switch
+			{
+				"ec3" => 6,
+				"ac4" => 3,
+				_ => null
+			};
+			return true;
+		}
+
+		return false;
 	}
 
 	public static LameConfig GetLameOptions(Configuration config)
@@ -355,4 +401,9 @@ public partial class DownloadOptions
 
 	static double RelativePercentDifference(long num1, long num2)
 		=> Math.Abs(num1 - num2) / (double)(num1 + num2);
+
+	[GeneratedRegex(@".+_(\d+)_(\d+)-(\w+).mp4", RegexOptions.Singleline | RegexOptions.IgnoreCase)]
+	private static partial Regex WidevineAudioProperties();
+	[GeneratedRegex(@".+_lc_(\d+)_(\d+)_(\d+).aax", RegexOptions.Singleline | RegexOptions.IgnoreCase)]
+	private static partial Regex AdrmAudioProperties();
 }

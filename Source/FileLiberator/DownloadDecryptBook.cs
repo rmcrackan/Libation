@@ -47,13 +47,18 @@ namespace FileLiberator
                 if (libraryBook.Book.Audio_Exists())
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
+                downloadValidation(libraryBook);
+				var api = await libraryBook.GetApiAsync();
+                var config = Configuration.Instance;
+				using var downloadOptions = await DownloadOptions.InitiateDownloadAsync(api, config, libraryBook);
+
                 bool success = false;
                 try
                 {
                     FilePathCache.Inserted += FilePathCache_Inserted;
                     FilePathCache.Removed += FilePathCache_Removed;
 
-                    success = await downloadAudiobookAsync(libraryBook);
+                    success = await downloadAudiobookAsync(api, config, downloadOptions);
                 }
                 finally
                 {
@@ -78,12 +83,12 @@ namespace FileLiberator
                 var finalStorageDir = getDestinationDirectory(libraryBook);
 
                 var moveFilesTask = Task.Run(() => moveFilesToBooksDir(libraryBook, entries));
-                Task[] finalTasks = new[]
-                {
-                    Task.Run(() => downloadCoverArt(libraryBook)),
+                Task[] finalTasks =
+                [
+                    Task.Run(() => downloadCoverArt(downloadOptions)),
                     moveFilesTask,
                     Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(libraryBook.Book.PictureId, finalStorageDir))
-                };
+                ];
 
 				try
                 {
@@ -116,16 +121,11 @@ namespace FileLiberator
             }
         }
 
-        private async Task<bool> downloadAudiobookAsync(LibraryBook libraryBook)
+
+
+        private async Task<bool> downloadAudiobookAsync(AudibleApi.Api api, Configuration config, DownloadOptions dlOptions)
         {
-            var config = Configuration.Instance;
-
-            downloadValidation(libraryBook);
-
-            var api = await libraryBook.GetApiAsync();
-
-            using var dlOptions = await DownloadOptions.InitiateDownloadAsync(api, libraryBook, config);
-            var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(libraryBook, dlOptions.OutputFormat.ToString().ToLower());
+			var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(dlOptions.LibraryBookDto, dlOptions.OutputFormat.ToString().ToLower());
             var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
 
             if (dlOptions.DrmType is not DrmType.Adrm and not DrmType.Widevine)
@@ -149,7 +149,7 @@ namespace FileLiberator
             abDownloader.RetrievedAuthors += OnAuthorsDiscovered;
             abDownloader.RetrievedNarrators += OnNarratorsDiscovered;
             abDownloader.RetrievedCoverArt += AaxcDownloader_RetrievedCoverArt;
-            abDownloader.FileCreated += (_, path) => OnFileCreated(libraryBook, path);
+            abDownloader.FileCreated += (_, path) => OnFileCreated(dlOptions.LibraryBook, path);
 
             // REAL WORK DONE HERE
             var success = await abDownloader.RunAsync();
@@ -158,12 +158,12 @@ namespace FileLiberator
             {
                 var metadataFile = LibationFileManager.Templates.Templates.File.GetFilename(dlOptions.LibraryBookDto, Path.GetDirectoryName(outFileName), ".metadata.json");
 
-                var item = await api.GetCatalogProductAsync(libraryBook.Book.AudibleProductId, AudibleApi.CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
+                var item = await api.GetCatalogProductAsync(dlOptions.LibraryBook.Book.AudibleProductId, AudibleApi.CatalogOptions.ResponseGroupOptions.ALL_OPTIONS);
 				item.SourceJson.Add(nameof(ContentMetadata.ChapterInfo), Newtonsoft.Json.Linq.JObject.FromObject(dlOptions.ContentMetadata.ChapterInfo));
 				item.SourceJson.Add(nameof(ContentMetadata.ContentReference), Newtonsoft.Json.Linq.JObject.FromObject(dlOptions.ContentMetadata.ContentReference));
 
                 File.WriteAllText(metadataFile, item.SourceJson.ToString());
-                OnFileCreated(libraryBook, metadataFile);
+                OnFileCreated(dlOptions.LibraryBook, metadataFile);
             }
 			return success;
 		}
@@ -173,7 +173,7 @@ namespace FileLiberator
             if (sender is not AaxcDownloadConvertBase converter || converter.DownloadOptions is not DownloadOptions options)
 				return;
 
-            tags.Title ??= options.LibraryBookDto.TitleWithSubtitle;
+			tags.Title ??= options.LibraryBookDto.TitleWithSubtitle;
             tags.Album ??= tags.Title;
             tags.Artist ??= string.Join("; ", options.LibraryBook.Book.Authors.Select(a => a.Name));
             tags.AlbumArtists ??= tags.Artist;
@@ -280,7 +280,7 @@ namespace FileLiberator
 		private static FilePathCache.CacheEntry getFirstAudioFile(IEnumerable<FilePathCache.CacheEntry> entries)
             => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
 
-		private static void downloadCoverArt(LibraryBook libraryBook)
+		private static void downloadCoverArt(DownloadOptions options)
         {
 			if (!Configuration.Instance.DownloadCoverArt) return;
 
@@ -288,24 +288,24 @@ namespace FileLiberator
 
             try
             {
-                var destinationDir = getDestinationDirectory(libraryBook);
-                coverPath = AudibleFileStorage.Audio.GetBooksDirectoryFilename(libraryBook, ".jpg");
+                var destinationDir = getDestinationDirectory(options.LibraryBook);
+                coverPath = AudibleFileStorage.Audio.GetBooksDirectoryFilename(options.LibraryBookDto, ".jpg");
                 coverPath = Path.Combine(destinationDir, Path.GetFileName(coverPath));
 
                 if (File.Exists(coverPath))
                     FileUtility.SaferDelete(coverPath);
 
-                var picBytes = PictureStorage.GetPictureSynchronously(new(libraryBook.Book.PictureLarge ?? libraryBook.Book.PictureId, PictureSize.Native));
+                var picBytes = PictureStorage.GetPictureSynchronously(new(options.LibraryBook.Book.PictureLarge ?? options.LibraryBook.Book.PictureId, PictureSize.Native));
                 if (picBytes.Length > 0)
                 {
                     File.WriteAllBytes(coverPath, picBytes);
-                    SetFileTime(libraryBook, coverPath);
+                    SetFileTime(options.LibraryBook, coverPath);
                 }
             }
             catch (Exception ex)
             {
                 //Failure to download cover art should not be considered a failure to download the book
-                Serilog.Log.Logger.Error(ex, $"Error downloading cover art of {libraryBook.Book.AudibleProductId} to {coverPath} catalog product.");
+                Serilog.Log.Logger.Error(ex, $"Error downloading cover art of {options.LibraryBook.Book.AudibleProductId} to {coverPath} catalog product.");
             }
         }
     }
