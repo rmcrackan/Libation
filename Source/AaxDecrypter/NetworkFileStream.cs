@@ -185,14 +185,19 @@ namespace AaxDecrypter
 					}
 					catch (HttpIOException e)
 						when (e.HttpRequestError is HttpRequestError.ResponseEnded
+								&& WritePosition != startPosition
 								&& WritePosition < ContentLength && !IsCancelled)
 					{
+						Serilog.Log.Logger.Debug($"The download connection ended before the file completed downloading all 0x{ContentLength:X10} bytes");
+
 						//the download made *some* progress since the last attempt.
 						//Try again to complete the download from where it left off.
 						//Make sure to rewind file to last flush position.
 						_writeFile.Position = startPosition = WritePosition;
 						blockResponse.Dispose();
 						blockResponse = await RequestNextByteRangeAsync(client);
+
+						Serilog.Log.Logger.Debug($"Resuming the file download starting at position 0x{WritePosition:X10}.");
 					}
 				}
 			}
