@@ -152,7 +152,6 @@ namespace ApplicationServices
 				BookStatus = a.Book.UserDefinedItem.BookStatus.ToString(),
 				PdfStatus = a.Book.UserDefinedItem.PdfStatus.ToString(),
 				ContentType = a.Book.ContentType.ToString(),
-				AudioFormat = a.Book.AudioFormat.ToString(),
 				Language = a.Book.Language,
 				LastDownloaded = a.Book.UserDefinedItem.LastDownloaded,
 				LastDownloadedVersion = a.Book.UserDefinedItem.LastDownloadedVersion?.ToString() ?? "",

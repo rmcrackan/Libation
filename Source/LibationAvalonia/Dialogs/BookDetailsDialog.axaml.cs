@@ -114,7 +114,6 @@ Title: {title}
 Author(s): {Book.AuthorNames()}
 Narrator(s): {Book.NarratorNames()}
 Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
-Audio Bitrate: {Book.AudioFormat}
 Category: {string.Join(", ", Book.LowestCategoryNames())}
 Purchase Date: {libraryBook.DateAdded:d}
 Language: {Book.Language}

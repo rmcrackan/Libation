@@ -43,9 +43,9 @@ namespace DataLayer
         public ContentType ContentType { get; private set; }
         public string Locale { get; private set; }
 
-        internal AudioFormatEnum _audioFormat;
-
-        public AudioFormat AudioFormat { get => AudioFormat.FromEnum(_audioFormat); set => _audioFormat = value.ToEnum(); }
+        //This field is now unused, however, there is little sense in adding a
+        //database migration to remove an unused field. Leave it for compatibility.
+        internal long _audioFormat;
 
         // mutable
         public string PictureId { get; set; }

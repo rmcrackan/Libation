@@ -157,9 +157,6 @@ public partial class DownloadOptions
 			: contentLic.DrmType is DrmType.Adrm && contentLic.Voucher?.Key.Length == 32 && contentLic.Voucher?.Iv.Length == 32 ? AAXClean.FileType.Aaxc
 			: null;
 
-		//Set the requested AudioFormat for use in file naming templates
-		libraryBook.Book.AudioFormat = AudioFormat.FromString(contentLic.ContentMetadata.ContentReference.ContentFormat);
-
 		var dlOptions = new DownloadOptions(config, libraryBook, contentLic.ContentMetadata.ContentUrl?.OfflineUrl)
 		{
 			AudibleKey = contentLic.Voucher?.Key,
