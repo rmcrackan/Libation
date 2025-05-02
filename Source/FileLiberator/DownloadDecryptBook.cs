@@ -121,8 +121,6 @@ namespace FileLiberator
             }
         }
 
-
-
         private async Task<bool> downloadAudiobookAsync(AudibleApi.Api api, Configuration config, DownloadOptions dlOptions)
         {
 			var outFileName = AudibleFileStorage.Audio.GetInProgressFilename(dlOptions.LibraryBookDto, dlOptions.OutputFormat.ToString().ToLower());
