@@ -154,9 +154,6 @@ namespace DtoImporterService
 			// Update the book titles, since formatting can change
 			book.UpdateTitle(item.Title, item.Subtitle);
 
-			var codec = item.AvailableCodecs?.Max(f => AudioFormat.FromString(f.EnhancedCodec)) ?? new AudioFormat();
-			book.AudioFormat = codec;
-
 			// set/update book-specific info which may have changed
 			if (item.PictureId is not null)
 				book.PictureId = item.PictureId;

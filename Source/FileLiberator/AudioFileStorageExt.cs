@@ -39,14 +39,20 @@ namespace FileLiberator
 		/// Path: in progress directory.
 		/// File name: final file name.
 		/// </summary>
-		public static string GetInProgressFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
-			=> Templates.File.GetFilename(libraryBook.ToDto(), AudibleFileStorage.DecryptInProgressDirectory, extension, returnFirstExisting: true);
+		public static string GetInProgressFilename(this AudioFileStorage _, LibraryBookDto libraryBook, string extension)
+			=> Templates.File.GetFilename(libraryBook, AudibleFileStorage.DecryptInProgressDirectory, extension, returnFirstExisting: true);
 
 		/// <summary>
 		/// PDF: audio file does not exist
 		/// </summary>
 		public static string GetBooksDirectoryFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
 			=> Templates.File.GetFilename(libraryBook.ToDto(), AudibleFileStorage.BooksDirectory, extension);
+		
+		/// <summary>
+		/// PDF: audio file does not exist
+		/// </summary>
+		public static string GetBooksDirectoryFilename(this AudioFileStorage _, LibraryBookDto dto, string extension)
+			=> Templates.File.GetFilename(dto, AudibleFileStorage.BooksDirectory, extension);
 
 		/// <summary>
 		/// PDF: audio file already exists

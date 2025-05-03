@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -23,7 +24,7 @@ public partial class DownloadOptions
 	/// <summary>
 	/// Initiate an audiobook download from the audible api.
 	/// </summary>
-	public static async Task<DownloadOptions> InitiateDownloadAsync(Api api, LibraryBook libraryBook, Configuration config)
+	public static async Task<DownloadOptions> InitiateDownloadAsync(Api api, Configuration config, LibraryBook libraryBook)
 	{
 		var license = await ChooseContent(api, libraryBook, config);
 		var options = BuildDownloadOptions(libraryBook, config, license);
@@ -33,81 +34,78 @@ public partial class DownloadOptions
 
 	private static async Task<ContentLicense> ChooseContent(Api api, LibraryBook libraryBook, Configuration config)
 	{
-		var cdm = await Cdm.GetCdmAsync();
-
 		var dlQuality = config.FileDownloadQuality == Configuration.DownloadQuality.Normal ? DownloadQuality.Normal : DownloadQuality.High;
 
-		ContentLicense? contentLic = null;
-		ContentLicense? fallback = null;
+		if (!config.UseWidevine || await Cdm.GetCdmAsync() is not Cdm cdm)
+			return await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
 
-		if (cdm is null)
+		ContentLicense? contentLic = null, fallback = null;
+
+		try
 		{
-			//Doesn't matter what the user chose. We can't get a CDM so we must fall back to AAX(C)
-			contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+			//try to request a widevine content license using the user's spatial audio settings
+			var codecChoice = config.SpatialAudioCodec switch
+			{
+				Configuration.SpatialCodec.EC_3 => Ec3Codec,
+				Configuration.SpatialCodec.AC_4 => Ac4Codec,
+				_ => throw new NotSupportedException($"Unknown value for {nameof(config.SpatialAudioCodec)}")
+			};
+
+			contentLic
+				= await api.GetDownloadLicenseAsync(
+					libraryBook.Book.AudibleProductId,
+					dlQuality,
+					ChapterTitlesType.Tree,
+					DrmType.Widevine,
+					config.RequestSpatial,
+					codecChoice);
 		}
-		else
+		catch (Exception ex)
 		{
-			var spatial = config.FileDownloadQuality is Configuration.DownloadQuality.Spatial;
-			try
-				{
-				var codecChoice = config.SpatialAudioCodec switch
-				{
-					Configuration.SpatialCodec.EC_3 => Ec3Codec,
-					Configuration.SpatialCodec.AC_4 => Ac4Codec,
-					_ => throw new NotSupportedException($"Unknown value for {nameof(config.SpatialAudioCodec)}")
-				};
-				contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality, ChapterTitlesType.Tree, DrmType.Widevine, spatial, codecChoice);
-			}
-			catch (Exception ex)
-			{
-				Serilog.Log.Logger.Error(ex, "Failed to request a Widevine license.");
-			}
-
-			if (contentLic is null)
-			{
-				//We failed to get a widevine license, so fall back to AAX(C)
-				contentLic = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
-			}
-			else if (!contentLic.ContentMetadata.ContentReference.IsSpatial && contentLic.DrmType != DrmType.Adrm)
-			{
-				/*
-				We got a widevine license and we have a Cdm, but we still need to decide if we WANT the file
-				being delivered with widevine. This file is not "spatial", so it may be no better than the
-				audio in the Adrm files. All else being equal, we prefer Adrm files because they have more
-				build-in metadata and always AAC-LC, which is a codec playable by pretty much every device
-				in existence.
-
-				Unfortunately, there appears to be no way to determine which codec/quality combination we'll
-				get until we make the request and see what content gets delivered. For some books,
-				Widevine/High delivers 44.1 kHz / 128 kbps audio and Adrm/High delivers 22.05 kHz / 64 kbps.
-				In those cases, the Widevine content size is much larger. Other books will deliver the same
-				sample rate / bitrate for both Widevine and Adrm, the only difference being codec. Widevine
-				is usually xHE-AAC, but is sometimes AAC-LC. Adrm is always AAC-LC.
-
-				To decide which file we want, use this simple rule: if files are different codecs and
-				Widevine is significantly larger, use Widevine. Otherwise use ADRM.
-
-				*/
-				fallback = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
-
-				var wvCr = contentLic.ContentMetadata.ContentReference;
-				var adrmCr = fallback.ContentMetadata.ContentReference;
-
-				if (wvCr.Codec == adrmCr.Codec ||
-					adrmCr.ContentSizeInBytes > wvCr.ContentSizeInBytes ||
-					RelativePercentDifference(adrmCr.ContentSizeInBytes, wvCr.ContentSizeInBytes) < 0.05)
-				{
-					contentLic = fallback;
-				}
-			}
+			Serilog.Log.Logger.Error(ex, "Failed to request a Widevine license.");
+			//We failed to get a widevine license, so fall back to AAX(C)
+			return await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
 		}
 
-		if (contentLic.DrmType == DrmType.Widevine && cdm is not null)
+		if (!contentLic.ContentMetadata.ContentReference.IsSpatial && contentLic.DrmType != DrmType.Adrm)
+		{
+			/*
+			We got a widevine license and we have a Cdm, but we still need to decide if we WANT the file
+			being delivered with widevine. This file is not "spatial", so it may be no better than the
+			audio in the Adrm files. All else being equal, we prefer Adrm files because they have more
+			build-in metadata and always AAC-LC, which is a codec playable by pretty much every device
+			in existence.
+
+			Unfortunately, there appears to be no way to determine which codec/quality combination we'll
+			get until we make the request and see what content gets delivered. For some books,
+			Widevine/High delivers 44.1 kHz / 128 kbps audio and Adrm/High delivers 22.05 kHz / 64 kbps.
+			In those cases, the Widevine content size is much larger. Other books will deliver the same
+			sample rate / bitrate for both Widevine and Adrm, the only difference being codec. Widevine
+			is usually xHE-AAC, but is sometimes AAC-LC. Adrm is always AAC-LC.
+
+			To decide which file we want, use this simple rule: if files are different codecs and
+			Widevine is significantly larger, use Widevine. Otherwise use ADRM.
+			*/
+
+			fallback = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+
+			var wvCr = contentLic.ContentMetadata.ContentReference;
+			var adrmCr = fallback.ContentMetadata.ContentReference;
+
+			if (wvCr.Codec == adrmCr.Codec ||
+				adrmCr.ContentSizeInBytes > wvCr.ContentSizeInBytes ||
+				RelativePercentDifference(adrmCr.ContentSizeInBytes, wvCr.ContentSizeInBytes) < 0.05)
+			{
+				contentLic = fallback;
+			}
+		}		
+
+		if (contentLic.DrmType == DrmType.Widevine)
 		{
 			try
 			{
 				using var client = new HttpClient();
-				var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
+				using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
 				var dash = new MpegDash(mpdResponse.Content.ReadAsStream());
 
 				if (!dash.TryGetUri(new Uri(contentLic.LicenseResponse), out var contentUri))
@@ -124,7 +122,6 @@ public partial class DownloadOptions
 					Key = Convert.ToHexStringLower(keys[0].Kid.ToByteArray()),
 					Iv = Convert.ToHexStringLower(keys[0].Key)
 				};
-
 			}
 			catch
 			{
@@ -160,9 +157,6 @@ public partial class DownloadOptions
 			: contentLic.DrmType is DrmType.Adrm && contentLic.Voucher?.Key.Length == 32 && contentLic.Voucher?.Iv.Length == 32 ? AAXClean.FileType.Aaxc
 			: null;
 
-		//Set the requested AudioFormat for use in file naming templates
-		libraryBook.Book.AudioFormat = AudioFormat.FromString(contentLic.ContentMetadata.ContentReference.ContentFormat);
-
 		var dlOptions = new DownloadOptions(config, libraryBook, contentLic.ContentMetadata.ContentUrl?.OfflineUrl)
 		{
 			AudibleKey = contentLic.Voucher?.Key,
@@ -175,6 +169,14 @@ public partial class DownloadOptions
 			ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
 			RuntimeLength = TimeSpan.FromMilliseconds(contentLic.ContentMetadata.ChapterInfo.RuntimeLengthMs),
 		};
+
+		dlOptions.LibraryBookDto.Codec = contentLic.ContentMetadata.ContentReference.Codec;
+		if (TryGetAudioInfo(contentLic.ContentMetadata.ContentUrl, out int? bitrate, out int? sampleRate, out int? channels))
+		{
+			dlOptions.LibraryBookDto.BitRate = bitrate;
+			dlOptions.LibraryBookDto.SampleRate = sampleRate;
+			dlOptions.LibraryBookDto.Channels = channels;
+		}
 
 		var titleConcat = config.CombineNestedChapterTitles ? ": " : null;
 		var chapters
@@ -200,6 +202,43 @@ public partial class DownloadOptions
 		}
 
 		return dlOptions;
+	}
+
+	/// <summary>
+	/// The most reliable way to get these audio file properties is from the filename itself.
+	/// Using AAXClean to read the metadata works well for everything except AC-4 bitrate.
+	/// </summary>
+	private static bool TryGetAudioInfo(ContentUrl? contentUrl, out int? bitrate, out int? sampleRate, out int? channels)
+	{
+		bitrate = sampleRate = channels = null;
+
+		if (contentUrl?.OfflineUrl is not string url || !Uri.TryCreate(url, default, out var uri))
+			return false;
+
+		var file = Path.GetFileName(uri.LocalPath);
+
+		var match = AdrmAudioProperties().Match(file);
+		if (match.Success)
+		{
+			bitrate = int.Parse(match.Groups[1].Value);
+			sampleRate = int.Parse(match.Groups[2].Value);
+			channels = int.Parse(match.Groups[3].Value);
+			return true;
+		}
+		else if ((match = WidevineAudioProperties().Match(file)).Success)
+		{
+			bitrate = int.Parse(match.Groups[2].Value);
+			sampleRate = int.Parse(match.Groups[1].Value) * 1000;
+			channels = match.Groups[3].Value switch
+			{
+				"ec3" => 6,
+				"ac4" => 3,
+				_ => null
+			};
+			return true;
+		}
+
+		return false;
 	}
 
 	public static LameConfig GetLameOptions(Configuration config)
@@ -359,4 +398,9 @@ public partial class DownloadOptions
 
 	static double RelativePercentDifference(long num1, long num2)
 		=> Math.Abs(num1 - num2) / (double)(num1 + num2);
+
+	[GeneratedRegex(@".+_(\d+)_(\d+)-(\w+).mp4", RegexOptions.Singleline | RegexOptions.IgnoreCase)]
+	private static partial Regex WidevineAudioProperties();
+	[GeneratedRegex(@".+_lc_(\d+)_(\d+)_(\d+).aax", RegexOptions.Singleline | RegexOptions.IgnoreCase)]
+	private static partial Regex AdrmAudioProperties();
 }
