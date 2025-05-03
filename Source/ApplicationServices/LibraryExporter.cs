@@ -104,9 +104,6 @@ namespace ApplicationServices
 		[Name("Content Type")]
 		public string ContentType { get; set; }
 
-        [Name("Audio Format")]
-		public string AudioFormat { get; set; }
-
 		[Name("Language")]
         public string Language { get; set; }
 
@@ -152,7 +149,6 @@ namespace ApplicationServices
 				BookStatus = a.Book.UserDefinedItem.BookStatus.ToString(),
 				PdfStatus = a.Book.UserDefinedItem.PdfStatus.ToString(),
 				ContentType = a.Book.ContentType.ToString(),
-				AudioFormat = a.Book.AudioFormat.ToString(),
 				Language = a.Book.Language,
 				LastDownloaded = a.Book.UserDefinedItem.LastDownloaded,
 				LastDownloadedVersion = a.Book.UserDefinedItem.LastDownloadedVersion?.ToString() ?? "",
@@ -228,7 +224,6 @@ namespace ApplicationServices
 				nameof(ExportDto.BookStatus),
 				nameof(ExportDto.PdfStatus),
 				nameof(ExportDto.ContentType),
-				nameof(ExportDto.AudioFormat),
                 nameof(ExportDto.Language),
                 nameof(ExportDto.LastDownloaded),
                 nameof(ExportDto.LastDownloadedVersion),
@@ -299,7 +294,6 @@ namespace ApplicationServices
 				row.CreateCell(col++).SetCellValue(dto.BookStatus);
 				row.CreateCell(col++).SetCellValue(dto.PdfStatus);
 				row.CreateCell(col++).SetCellValue(dto.ContentType);
-                row.CreateCell(col++).SetCellValue(dto.AudioFormat);
                 row.CreateCell(col++).SetCellValue(dto.Language);
 
 				if (dto.LastDownloaded.HasValue)

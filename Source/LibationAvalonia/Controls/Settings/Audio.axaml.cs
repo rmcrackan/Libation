@@ -22,21 +22,21 @@ namespace LibationAvalonia.Controls.Settings
 			}
 		}
 
-
-		public async void Quality_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		private async void UseWidevine_IsCheckedChanged(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			if (_viewModel.SpatialSelected)
+			if (sender is CheckBox cbox && cbox.IsChecked is true)
 			{
 				using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
 
 				if (!accounts.AccountsSettings.Accounts.Any(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
 				{
-					await MessageBox.Show(VisualRoot as Window,
-						"Your must remove account(s) from Libation and then re-add them to enable spatial audiobook downloads.",
-						"Spatial Audio Unavailable",
+					if (VisualRoot is Window parent)
+						await MessageBox.Show(parent,
+						"Your must remove account(s) from Libation and then re-add them to enable widwvine content.",
+						"Widevine Content Unavailable",
 						MessageBoxButtons.OK);
 
-					_viewModel.FileDownloadQuality = _viewModel.DownloadQualities[1];
+					_viewModel.UseWidevine = false;
 				}
 			}
 		}

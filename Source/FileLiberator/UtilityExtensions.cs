@@ -55,9 +55,6 @@ namespace FileLiberator
 				IsPodcastParent = libraryBook.Book.IsEpisodeParent(),
 				IsPodcast = libraryBook.Book.IsEpisodeChild() || libraryBook.Book.IsEpisodeParent(),
 
-				BitRate = libraryBook.Book.AudioFormat.Bitrate,
-				SampleRate = libraryBook.Book.AudioFormat.SampleRate,
-				Channels = libraryBook.Book.AudioFormat.Channels,
 				Language = libraryBook.Book.Language
 			};
 		}

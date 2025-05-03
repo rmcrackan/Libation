@@ -103,8 +103,8 @@ namespace AaxDecrypter
 
 			OnInitialized();
 			OnRetrievedTitle(AaxFile.AppleTags.TitleSansUnabridged);
-			OnRetrievedAuthors(AaxFile.AppleTags.FirstAuthor ?? "[unknown]");
-			OnRetrievedNarrators(AaxFile.AppleTags.Narrator ?? "[unknown]");
+			OnRetrievedAuthors(AaxFile.AppleTags.FirstAuthor);
+			OnRetrievedNarrators(AaxFile.AppleTags.Narrator);
 			OnRetrievedCoverArt(AaxFile.AppleTags.Cover);
 
 			return !IsCanceled;

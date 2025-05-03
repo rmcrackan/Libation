@@ -61,9 +61,6 @@ namespace AaxDecrypter
 
 		#region Constants
 
-		//Size of each range request. Android app uses 64MB chunks.
-		private const int RANGE_REQUEST_SZ = 64 * 1024 * 1024;
-
 		//Download memory buffer size
 		private const int DOWNLOAD_BUFF_SZ = 8 * 1024;
 
@@ -161,7 +158,7 @@ namespace AaxDecrypter
 
 			//Initiate connection with the first request block and
 			//get the total content length before returning.
-			using var client = new HttpClient();
+			var client = new HttpClient();
 			var response = await RequestNextByteRangeAsync(client);
 
 			if (ContentLength != 0 && ContentLength != response.FileSize)
@@ -170,38 +167,59 @@ namespace AaxDecrypter
 			ContentLength = response.FileSize;
 
 			_downloadedPiece = new EventWaitHandle(false, EventResetMode.AutoReset);
-			//Hand off the open request to the downloader to download and write data to file.
-			DownloadTask = Task.Run(() => DownloadLoopInternal(response), _cancellationSource.Token);
+			//Hand off the client and the open request to the downloader to download and write data to file.
+			DownloadTask = Task.Run(() => DownloadLoopInternal(client , response), _cancellationSource.Token);
 		}
 
-		private async Task DownloadLoopInternal(BlockResponse initialResponse)
+		private async Task DownloadLoopInternal(HttpClient client, BlockResponse blockResponse)
 		{
-			await DownloadToFile(initialResponse);
-			initialResponse.Dispose();
-
 			try
 			{
-				using var client = new HttpClient();
+				long startPosition = WritePosition;
+
 				while (WritePosition < ContentLength && !IsCancelled)
 				{
-					using var response = await RequestNextByteRangeAsync(client);
-					await DownloadToFile(response);
+					try
+					{
+						await DownloadToFile(blockResponse);
+					}
+					catch (HttpIOException e)
+						when (e.HttpRequestError is HttpRequestError.ResponseEnded
+								&& WritePosition != startPosition
+								&& WritePosition < ContentLength && !IsCancelled)
+					{
+						Serilog.Log.Logger.Debug($"The download connection ended before the file completed downloading all 0x{ContentLength:X10} bytes");
+
+						//the download made *some* progress since the last attempt.
+						//Try again to complete the download from where it left off.
+						//Make sure to rewind file to last flush position.
+						_writeFile.Position = startPosition = WritePosition;
+						blockResponse.Dispose();
+						blockResponse = await RequestNextByteRangeAsync(client);
+
+						Serilog.Log.Logger.Debug($"Resuming the file download starting at position 0x{WritePosition:X10}.");
+					}
 				}
 			}
 			finally
 			{
-				_writeFile.Close();
+				_writeFile.Dispose();
+				blockResponse.Dispose();
+				client.Dispose();
 			}
 		}
 
 		private async Task<BlockResponse> RequestNextByteRangeAsync(HttpClient client)
 		{
-			var request = new HttpRequestMessage(HttpMethod.Get, Uri);
+			using var request = new HttpRequestMessage(HttpMethod.Get, Uri);
+
+			//Just in case it snuck in the saved json (Issue #1232)
+			RequestHeaders.Remove("Range");
 
 			foreach (var header in RequestHeaders)
 				request.Headers.Add(header.Key, header.Value);
 
-			request.Headers.Add("Range", $"bytes={WritePosition}-{WritePosition + RANGE_REQUEST_SZ - 1}");
+			request.Headers.Add("Range", $"bytes={WritePosition}-");
 
 			var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _cancellationSource.Token);
 
@@ -226,7 +244,7 @@ namespace AaxDecrypter
 		private async Task DownloadToFile(BlockResponse block)
 		{
 			var endPosition = WritePosition + block.BlockSize;
-			var networkStream = await block.Response.Content.ReadAsStreamAsync(_cancellationSource.Token);
+			using var networkStream = await block.Response.Content.ReadAsStreamAsync(_cancellationSource.Token);
 
 			var downloadPosition = WritePosition;
 			var nextFlush = downloadPosition + DATA_FLUSH_SZ;
@@ -286,7 +304,6 @@ namespace AaxDecrypter
 			}
 			finally
 			{
-				networkStream.Close();
 				_downloadedPiece.Set();
 				OnUpdate();
 			}

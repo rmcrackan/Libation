@@ -19,7 +19,6 @@ namespace DataLayer.Configurations
             //
             entity.Ignore(nameof(Book.Authors));
             entity.Ignore(nameof(Book.Narrators));
-            entity.Ignore(nameof(Book.AudioFormat));
             entity.Ignore(nameof(Book.TitleWithSubtitle));
             entity.Ignore(b => b.Categories);
 

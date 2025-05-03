@@ -27,9 +27,10 @@ public class BookDto
 	public bool IsPodcastParent { get; set; }
 	public bool IsPodcast { get; set; }
 
-	public int BitRate { get; set; }
-	public int SampleRate { get; set; }
-	public int Channels { get; set; }
+	public int? BitRate { get; set; }
+	public int? SampleRate { get; set; }
+	public int? Channels { get; set; }
+	public string? Codec { get; set; }
 	public DateTime FileDate { get; set; } = DateTime.Now;
 	public DateTime? DatePublished { get; set; }
 	public string? Language { get; set; }

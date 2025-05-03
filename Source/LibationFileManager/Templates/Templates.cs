@@ -271,9 +271,6 @@ namespace LibationFileManager.Templates
 			{ TemplateTags.Language, lb => lb.Language },
 			//Don't allow formatting of LanguageShort
 			{ TemplateTags.LanguageShort, lb =>lb.Language, getLanguageShort },
-			{ TemplateTags.Bitrate, lb => (int?)(lb.IsPodcastParent ? null : lb.BitRate) },
-			{ TemplateTags.SampleRate, lb => (int?)(lb.IsPodcastParent ? null : lb.SampleRate) },
-			{ TemplateTags.Channels, lb => (int?)(lb.IsPodcastParent ? null : lb.Channels) },
 			{ TemplateTags.Account, lb => lb.Account },
 			{ TemplateTags.AccountNickname, lb => lb.AccountNickname },
 			{ TemplateTags.Locale, lb => lb.Locale },
@@ -281,7 +278,16 @@ namespace LibationFileManager.Templates
 			{ TemplateTags.DatePublished, lb => lb.DatePublished },
 			{ TemplateTags.DateAdded, lb => lb.DateAdded },
 			{ TemplateTags.FileDate, lb => lb.FileDate },
-			};
+		};
+
+		private static readonly PropertyTagCollection<LibraryBookDto> audioFilePropertyTags =
+			new(caseSensative: true, StringFormatter, IntegerFormatter)
+		{
+			{ TemplateTags.Bitrate, lb => lb.BitRate },
+			{ TemplateTags.SampleRate, lb => lb.SampleRate },
+			{ TemplateTags.Channels, lb => lb.Channels },
+			{ TemplateTags.Codec, lb => lb.Codec },
+		};
 
 		private static readonly List<TagCollection> chapterPropertyTags = new()
 		{
@@ -376,8 +382,7 @@ namespace LibationFileManager.Templates
 			public static string Name { get; } = "Folder Template";
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title short> [<id>]";
-			public static IEnumerable<TagCollection> TagCollections
-				=> new TagCollection[] { filePropertyTags, conditionalTags, folderConditionalTags };
+			public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, conditionalTags, folderConditionalTags];
 
 			public override IEnumerable<string> Errors
 				=> TemplateText?.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ERROR_FULL_PATH_IS_INVALID) : base.Errors;
@@ -396,7 +401,7 @@ namespace LibationFileManager.Templates
 			public static string Name { get; } = "File Template";
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FileTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title> [<id>]";
-			public static IEnumerable<TagCollection> TagCollections { get; } = new TagCollection[] { filePropertyTags, conditionalTags };
+			public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, audioFilePropertyTags, conditionalTags];
 		}
 
 		public class ChapterFileTemplate : Templates, ITemplate
@@ -404,7 +409,8 @@ namespace LibationFileManager.Templates
 			public static string Name { get; } = "Chapter File Template";
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
-			public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(filePropertyTags).Append(conditionalTags);
+			public static IEnumerable<TagCollection> TagCollections { get; }
+				= chapterPropertyTags.Append(filePropertyTags).Append(audioFilePropertyTags).Append(conditionalTags);
 
 			public override IEnumerable<string> Warnings
 				=> NamingTemplate.TagsInUse.Any(t => t.TagName.In(TemplateTags.ChNumber.TagName, TemplateTags.ChNumber0.TagName))

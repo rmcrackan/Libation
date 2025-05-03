@@ -246,8 +246,7 @@ namespace LibationFileManager
 		public enum DownloadQuality
 		{
 			High,
-			Normal,
-			Spatial
+			Normal
 		}
 
 		[JsonConverter(typeof(StringEnumConverter))]
@@ -256,6 +255,12 @@ namespace LibationFileManager
 			EC_3,
 			AC_4
 		}
+
+		[Description("Use widevine DRM")]
+		public bool UseWidevine { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+
+		[Description("Request Spatial Audio")]
+		public bool RequestSpatial { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 		[Description("Spatial audio codec:")]
 		public SpatialCodec SpatialAudioCodec { get => GetNonString(defaultValue: SpatialCodec.EC_3); set => SetNonString(value); }

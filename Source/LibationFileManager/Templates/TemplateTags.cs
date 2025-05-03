@@ -36,9 +36,10 @@ namespace LibationFileManager.Templates
 		public static TemplateTags Series { get; } = new TemplateTags("series", "All series to which the book belongs (if any)");
 		public static TemplateTags FirstSeries { get; } = new TemplateTags("first series", "First series");
 		public static TemplateTags SeriesNumber { get; } = new TemplateTags("series#", "Number order in series (alias for <first series[{#}]>");
-		public static TemplateTags Bitrate { get; } = new TemplateTags("bitrate", "File's orig. bitrate");
-		public static TemplateTags SampleRate { get; } = new TemplateTags("samplerate", "File's orig. sample rate");
-		public static TemplateTags Channels { get; } = new TemplateTags("channels", "Number of audio channels");
+		public static TemplateTags Bitrate { get; } = new TemplateTags("bitrate", "Audiobook's source bitrate");
+		public static TemplateTags SampleRate { get; } = new TemplateTags("samplerate", "Audiobook's source sample rate");
+		public static TemplateTags Channels { get; } = new TemplateTags("channels", "Audiobook's source audio channel count");
+		public static TemplateTags Codec { get; } = new TemplateTags("codec", "Audiobook's source codec");
 		public static TemplateTags Account { get; } = new TemplateTags("account", "Audible account of this book");
 		public static TemplateTags AccountNickname { get; } = new TemplateTags("account nickname", "Audible account nickname of this book");
 		public static TemplateTags Locale { get; } = new("locale", "Region/country");
