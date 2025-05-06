@@ -277,11 +277,11 @@ namespace AaxDecrypter
 
 					if (SpeedLimit >= MIN_BYTES_PER_SECOND && bytesReadSinceThrottle > SpeedLimit / THROTTLE_FREQUENCY)
 					{
-						var delayMS = (int)(startTime.AddSeconds(1d / THROTTLE_FREQUENCY) - DateTime.Now).TotalMilliseconds;
+						var delayMS = (int)(startTime.AddSeconds(1d / THROTTLE_FREQUENCY) - DateTime.UtcNow).TotalMilliseconds;
 						if (delayMS > 0)
 							await Task.Delay(delayMS, _cancellationSource.Token);
 
-						startTime = DateTime.Now;
+						startTime = DateTime.UtcNow;
 						bytesReadSinceThrottle = 0;
 					}
 
