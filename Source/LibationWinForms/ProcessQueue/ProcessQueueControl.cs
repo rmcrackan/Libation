@@ -92,6 +92,11 @@ namespace LibationWinForms.ProcessQueue
 				return true;
 		}
 
+		public bool RemoveCompleted(DataLayer.LibraryBook libraryBook)
+			=> Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId) is ProcessBook entry
+			&& entry.Status is ProcessBookStatus.Completed
+			&& Queue.RemoveCompleted(entry);
+
 		public void AddDownloadPdf(DataLayer.LibraryBook libraryBook)
 			=> AddDownloadPdf(new List<DataLayer.LibraryBook>() { libraryBook });
 

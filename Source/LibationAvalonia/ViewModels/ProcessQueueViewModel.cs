@@ -130,6 +130,11 @@ namespace LibationAvalonia.ViewModels
 				return true;
 		}
 
+		public bool RemoveCompleted(LibraryBook libraryBook)
+			=> Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId) is ProcessBookViewModel entry
+			&& entry.Status is ProcessBookStatus.Completed
+			&& Queue.RemoveCompleted(entry);
+
 		public void AddDownloadPdf(LibraryBook libraryBook)
 			=> AddDownloadPdf(new List<LibraryBook>() { libraryBook });
 
