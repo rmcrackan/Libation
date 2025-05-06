@@ -27,6 +27,15 @@ public partial class DownloadOptions
 	public static async Task<DownloadOptions> InitiateDownloadAsync(Api api, Configuration config, LibraryBook libraryBook)
 	{
 		var license = await ChooseContent(api, libraryBook, config);
+
+		//Come audiobooks will have incorrect chapters in the metadata returned from the license request,
+		//but the metadata returned by the content metadata endpoint will be correct. Call the content
+		//metadata endpoint and use its chapters. Only replace the license request chapters if the total
+		//lengths match (defensive against different audio formats having slightly different lengths).
+		var metadata = await api.GetContentMetadataAsync(libraryBook.Book.AudibleProductId);
+		if (metadata.ChapterInfo.RuntimeLengthMs == license.ContentMetadata.ChapterInfo.RuntimeLengthMs)
+			license.ContentMetadata.ChapterInfo = metadata.ChapterInfo;
+
 		var options = BuildDownloadOptions(libraryBook, config, license);
 
 		return options;
@@ -356,7 +365,7 @@ public partial class DownloadOptions
 			else if (titleConcat is null)
 			{
 				chaps.Add(c);
-				chaps.AddRange(flattenChapters(c.Chapters));
+				chaps.AddRange(flattenChapters(c.Chapters, titleConcat));
 			}
 			else
 			{
@@ -369,7 +378,7 @@ public partial class DownloadOptions
 				else
 					chaps.Add(c);
 
-				var children = flattenChapters(c.Chapters);
+				var children = flattenChapters(c.Chapters, titleConcat);
 
 				foreach (var child in children)
 					child.Title = $"{c.Title}{titleConcat}{child.Title}";
