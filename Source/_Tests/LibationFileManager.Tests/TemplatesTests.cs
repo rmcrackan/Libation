@@ -284,7 +284,7 @@ namespace TemplatesTests
 		[DataRow("Carla Naumburg PhD", "Title=, First=Carla, Middle= Last=Naumburg, Suffix=PhD")]
 		[DataRow("Doug Stanhope and Friends", "Title=, First=Doug, Middle= Last=Stanhope and Friends, Suffix=")]
 		[DataRow("Tamara Lovatt-Smith", "Title=, First=Tamara, Middle= Last=Lovatt-Smith, Suffix=")]
-		[DataRow("Common", "Title=, First=Common, Middle= Last=Common, Suffix=")]
+		[DataRow("Common", "Title=, First=, Middle= Last=Common, Suffix=")]
 		[DataRow("Doug Tisdale Jr.", "Title=, First=Doug, Middle= Last=Tisdale, Suffix=Jr")]
 		[DataRow("Robert S. Mueller III", "Title=, First=Robert, Middle=S. Last=Mueller, Suffix=III")]
 		[DataRow("Frank T Vertosick Jr. MD", "Title=, First=Frank, Middle=T Last=Vertosick, Suffix=Jr. MD")]
