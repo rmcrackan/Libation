@@ -18,7 +18,6 @@ namespace HangoverAvalonia.Views
 
 		public void OnLoad()
 		{
-			deletedCbl.ItemCheck += Deleted_CheckedListBox_ItemCheck;
 			databaseTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) databaseTab_VisibleChanged(databaseTab.IsSelected); };
 			deletedTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) deletedTab_VisibleChanged(deletedTab.IsSelected); };
 			cliTab.PropertyChanged += (_, e) => { if (e.Property.Name == nameof(TabItem.IsSelected)) cliTab_VisibleChanged(cliTab.IsSelected); };

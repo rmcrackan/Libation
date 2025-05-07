@@ -41,10 +41,10 @@
 		<None Remove="Assets\img-coverart-prod-unavailable_500x500.jpg" />
 		<None Remove="Assets\img-coverart-prod-unavailable_80x80.jpg" />
 		<None Remove="Assets\1x1.png" />
-		<None Remove="Assets\MBIcons\Asterisk.png" />
-		<None Remove="Assets\MBIcons\error.png" />
-		<None Remove="Assets\MBIcons\Exclamation.png" />
-		<None Remove="Assets\MBIcons\Question.png" />
+		<None Remove="Assets\MBIcons\Asterisk_64.png" />
+		<None Remove="Assets\MBIcons\Error_64.png" />
+		<None Remove="Assets\MBIcons\Exclamation_64.png" />
+		<None Remove="Assets\MBIcons\Question_64.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -73,14 +73,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.2.8" />
-		<PackageReference Include="Avalonia.Diagnostics" Version="11.2.8" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
-		<PackageReference Include="Avalonia" Version="11.2.8" />
-		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.8" />
-		<PackageReference Include="Avalonia.Controls.ItemsRepeater" Version="11.1.5" />
-		<PackageReference Include="Avalonia.Desktop" Version="11.2.8" />
-		<PackageReference Include="Avalonia.ReactiveUI" Version="11.2.8" />
-		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.8" />
+		<PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.0" />
+		<PackageReference Include="Avalonia.Diagnostics" Version="11.3.0" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+		<PackageReference Include="Avalonia" Version="11.3.0" />
+		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.0" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
+		<PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -30,7 +30,8 @@ namespace LibationWinForms.Dialogs
 				return;
 
 			System.Media.SystemSounds.Hand.Play();
-			pictureBox1.Image = SystemIcons.Error.ToBitmap();
+			//This is a different (and newer) icon from SystemIcons.Error
+			pictureBox1.Image = SystemIcons.GetStockIcon(StockIconId.Error).ToBitmap();
 		}
 
 		private void githubLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

@@ -6,7 +6,30 @@
         <local:ViewLocator/>
     </Application.DataTemplates>
 
-    <Application.Styles>
-        <FluentTheme/>
-    </Application.Styles>
+	<Application.Styles>
+		<FluentTheme>
+			<FluentTheme.Palettes>
+				<ColorPaletteResources x:Key="Light" />
+				<ColorPaletteResources x:Key="Dark" />
+			</FluentTheme.Palettes>
+		</FluentTheme>
+
+		<Style Selector="TextBox[IsReadOnly=true]">
+			<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledHighColor}" />
+			<Setter Property="CaretBrush" Value="{DynamicResource SystemControlTransparentBrush}" />
+			<Style Selector="^ /template/ Border#PART_BorderElement">
+				<Setter Property="Background" Value="{DynamicResource SystemChromeDisabledHighColor}" />
+			</Style>
+		</Style>
+		<Style Selector="Button">
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Style Selector="^">
+				<Setter Property="Foreground" Value="{DynamicResource SystemChromeAltLowColor}" />
+			</Style>
+		</Style>
+		<Style Selector="ScrollBar">
+			<!-- It's called AutoHide, but this is really the mouseover shrink/expand. -->
+			<Setter Property="AllowAutoHide" Value="false"/>
+		</Style>
+	</Application.Styles>
 </Application>

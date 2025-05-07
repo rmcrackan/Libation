@@ -15,13 +15,11 @@
 
 	<TabControl Name="tabControl1" Grid.Row="0">
 		<TabControl.Styles>
-			<Style Selector="ItemsPresenter#PART_ItemsPresenter">
-				<Setter Property="Height" Value="23"/>
+			<Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter">
+				<Setter Property="Height" Value="33"/>
 			</Style>
-			<Style Selector="TabItem">
-				<Setter Property="MinHeight" Value="40"/>
-				<Setter Property="Height" Value="40"/>
-				<Setter Property="Padding" Value="8,2,8,5"/>
+			<Style Selector="TabItem /template/ Border#PART_LayoutRoot">
+				<Setter Property="Height" Value="33"/>
 			</Style>
 			<Style Selector="TabItem#Header TextBlock">
 				<Setter Property="MinHeight" Value="5"/>
@@ -51,6 +49,7 @@
 				
 				<TextBox
 					Margin="0,5,0,5"
+					AcceptsReturn="True"
 					Grid.Row="2" Text="{Binding SqlQuery, Mode=OneWayToSource}" />
 				
 				<Button
@@ -73,33 +72,58 @@
 			<TabItem.Header>
 				<TextBlock FontSize="14" VerticalAlignment="Center">Deleted Books</TextBlock>
 			</TabItem.Header>
-
 			<Grid
+				DataContext="{Binding TrashBinViewModel}"
 				RowDefinitions="Auto,*,Auto">
 
 				<TextBlock
 					Grid.Row="0"
 					Margin="5"
-					Text="To restore deleted book, check box and save" />
+					Text="Check books you want to permanently delete from or restore to Libation" />
 
 				<controls:CheckedListBox
 					Grid.Row="1"
 					Margin="5,0,5,0"
 					BorderThickness="1"
 					BorderBrush="Gray"
-					Name="deletedCbl"
+					IsEnabled="{Binding	ControlsEnabled}"
 					Items="{Binding DeletedBooks}" />
 
 				<Grid
 					Grid.Row="2"
 					Margin="5"
-					ColumnDefinitions="Auto,Auto,Auto,*">
+					ColumnDefinitions="Auto,Auto,*,Auto">
 
-					<Button Grid.Column="0" Margin="0,0,20,0" Content="Check All" Click="Deleted_CheckAll_Click" />
-					<Button Grid.Column="1" Margin="0,0,20,0" Content="Uncheck All" Click="Deleted_UncheckAll_Click" />
-					<TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding CheckedCountText}" />
-					<Button Grid.Column="3" HorizontalAlignment="Right" Content="Save" Click="Deleted_Save_Click" />
+					<CheckBox
+						IsEnabled="{Binding	ControlsEnabled}"
+						IsThreeState="True"
+						Margin="0,0,20,0"
+						IsChecked="{Binding EverythingChecked}"
+						Content="Everything" />
 
+					<TextBlock
+						Grid.Column="1"
+						VerticalAlignment="Center"
+						Text="{Binding CheckedCountText}" />
+
+					<Button
+						IsEnabled="{Binding	ControlsEnabled}"
+						Grid.Column="2"
+						Margin="0,0,20,0"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Stretch"
+						VerticalContentAlignment="Center"
+						Content="Restore"
+						Command="{Binding RestoreCheckedAsync}"/>
+
+					<Button
+						IsEnabled="{Binding	ControlsEnabled}"
+						Grid.Column="3"
+						Command="{Binding PermanentlyDeleteCheckedAsync}" >
+						<TextBlock
+							TextAlignment="Center"
+							Text="Permanently Delete&#xa;from Libation" />
+					</Button>
 				</Grid>
 			</Grid>
 		</TabItem>

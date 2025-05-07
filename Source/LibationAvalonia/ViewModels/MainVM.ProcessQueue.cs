@@ -40,6 +40,12 @@ namespace LibationAvalonia.ViewModels
 				if (libraryBooks.Length == 1)
 				{
 					var item = libraryBooks[0];
+
+					//Remove this item from the queue if it's already present and completed.
+					//Only do this when adding a single book at a time to prevent accidental
+					//extra downloads when queueing in batches.
+					ProcessQueue.RemoveCompleted(item);
+
 					if (item.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
 					{
 						Serilog.Log.Logger.Information("Begin single book backup of {libraryBook}", item);

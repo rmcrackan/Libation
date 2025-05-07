@@ -9,24 +9,16 @@
 	mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="650"
 	Background="{DynamicResource SystemRegionColor}"
 	x:Class="LibationAvalonia.Views.ProcessQueueControl">
-
 	<UserControl.Resources>
 		<views:DecimalConverter x:Key="myConverter" />
-		<RecyclePool x:Key="RecyclePool" />
-		<DataTemplate x:Key="queuedBook">
-			<views:ProcessBookControl />
-		</DataTemplate>
-		<RecyclingElementFactory x:Key="elementFactory" RecyclePool="{StaticResource RecyclePool}">
-			<RecyclingElementFactory.Templates>
-				<StaticResource x:Key="queuedBook" ResourceKey="queuedBook" />
-			</RecyclingElementFactory.Templates>
-		</RecyclingElementFactory>
 	</UserControl.Resources>
-
 	<Grid RowDefinitions="*,Auto">
 		<TabControl Grid.Row="0">
 			<TabControl.Styles>
-				<Style Selector="ItemsPresenter#PART_ItemsPresenter">
+				<Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter">
+					<Setter Property="Height" Value="33"/>
+				</Style>
+				<Style Selector="TabItem /template/ Border#PART_LayoutRoot">
 					<Setter Property="Height" Value="33"/>
 				</Style>
 			</TabControl.Styles>
@@ -42,14 +34,13 @@
 							HorizontalScrollBarVisibility="Disabled"
 							VerticalScrollBarVisibility="Auto"
 							AllowAutoHide="False">
-							<ItemsRepeater IsVisible="True"
-								Grid.Column="0"
-								Name="repeater"
-								VerticalCacheLength="1.2"
-								HorizontalCacheLength="1"
-								Background="Transparent"
-								ItemsSource="{Binding Items}"
-								ItemTemplate="{StaticResource elementFactory}" />
+							<ItemsControl ItemsSource="{Binding Items}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<views:ProcessBookControl DataContext="{Binding}" />
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
 						</ScrollViewer>
 					</Border>
 					<Grid Grid.Column="0" Grid.Row="1" ColumnDefinitions="*,Auto,Auto">
