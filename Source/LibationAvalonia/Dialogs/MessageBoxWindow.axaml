@@ -14,11 +14,11 @@
 			<StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
 				VerticalAlignment="Top">
 			
-				<Panel Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Top">				
-					<Image IsVisible="{Binding IsAsterisk}" Stretch="None" Source="/Assets/MBIcons/Asterisk.png"/>
-					<Image IsVisible="{Binding IsError}" Stretch="None" Source="/Assets/MBIcons/error.png"/>
-					<Image IsVisible="{Binding IsQuestion}" Stretch="None" Source="/Assets/MBIcons/Question.png"/>
-					<Image IsVisible="{Binding IsExclamation}" Stretch="None" Source="/Assets/MBIcons/Exclamation.png"/>
+				<Panel Height="32" Width="32" Grid.Column="0" Margin="5,0,5,0" VerticalAlignment="Top">				
+					<Image IsVisible="{Binding IsAsterisk}" Stretch="Uniform" Source="/Assets/MBIcons/Asterisk_64.png"/>
+					<Image IsVisible="{Binding IsError}" Stretch="Uniform" Source="/Assets/MBIcons/Error_64.png"/>
+					<Image IsVisible="{Binding IsQuestion}" Stretch="Uniform" Source="/Assets/MBIcons/Question_64.png"/>
+					<Image IsVisible="{Binding IsExclamation}" Stretch="Uniform" Source="/Assets/MBIcons/Exclamation_64.png"/>
 				</Panel>
 			
 				<TextBlock Margin="5,0,0,0" Name="messageTextBlock" MinHeight="45" MinWidth="193" TextWrapping="WrapWithOverflow" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="12" Text="{Binding Message}" />

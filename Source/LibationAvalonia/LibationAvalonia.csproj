@@ -41,10 +41,10 @@
 		<None Remove="Assets\img-coverart-prod-unavailable_500x500.jpg" />
 		<None Remove="Assets\img-coverart-prod-unavailable_80x80.jpg" />
 		<None Remove="Assets\1x1.png" />
-		<None Remove="Assets\MBIcons\Asterisk.png" />
-		<None Remove="Assets\MBIcons\error.png" />
-		<None Remove="Assets\MBIcons\Exclamation.png" />
-		<None Remove="Assets\MBIcons\Question.png" />
+		<None Remove="Assets\MBIcons\Asterisk_64.png" />
+		<None Remove="Assets\MBIcons\Error_64.png" />
+		<None Remove="Assets\MBIcons\Exclamation_64.png" />
+		<None Remove="Assets\MBIcons\Question_64.png" />
 	</ItemGroup>
 
 	<ItemGroup>
