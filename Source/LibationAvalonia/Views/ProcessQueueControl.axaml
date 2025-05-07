@@ -9,7 +9,9 @@
 	mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="650"
 	Background="{DynamicResource SystemRegionColor}"
 	x:Class="LibationAvalonia.Views.ProcessQueueControl">
-
+	<UserControl.Resources>
+		<views:DecimalConverter x:Key="myConverter" />
+	</UserControl.Resources>
 	<Grid RowDefinitions="*,Auto">
 		<TabControl Grid.Row="0">
 			<TabControl.Styles>
