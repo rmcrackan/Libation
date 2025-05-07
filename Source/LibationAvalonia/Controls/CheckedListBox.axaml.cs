@@ -12,24 +12,10 @@ namespace LibationAvalonia.Controls
 		AvaloniaProperty.Register<CheckedListBox, AvaloniaList<CheckBoxViewModel>>(nameof(Items));
 
 		public AvaloniaList<CheckBoxViewModel> Items { get => GetValue(ItemsProperty); set => SetValue(ItemsProperty, value); }
-		private CheckedListBoxViewModel _viewModel = new();
 
 		public CheckedListBox()
 		{
 			InitializeComponent();
-			scroller.DataContext = _viewModel;
-		}
-		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-		{
-			if (change.Property.Name == nameof(Items) && Items != null)
-				_viewModel.CheckboxItems = Items;
-			base.OnPropertyChanged(change);
-		}
-
-		private class CheckedListBoxViewModel : ViewModelBase
-		{
-			private AvaloniaList<CheckBoxViewModel> _checkboxItems;
-			public AvaloniaList<CheckBoxViewModel> CheckboxItems { get => _checkboxItems; set => this.RaiseAndSetIfChanged(ref _checkboxItems, value); }
 		}
 	}
 

@@ -5,26 +5,15 @@
 			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LibationAvalonia.Controls.CheckedListBox">
 	
-	<UserControl.Resources>
-		<RecyclePool x:Key="RecyclePool" />
-		<DataTemplate x:Key="queuedBook">
-			<CheckBox HorizontalAlignment="Stretch" Margin="10,0,0,0" Content="{Binding Item}" IsChecked="{Binding IsChecked, Mode=TwoWay}" />
-		</DataTemplate>
-		<RecyclingElementFactory x:Key="elementFactory" RecyclePool="{StaticResource RecyclePool}">
-			<RecyclingElementFactory.Templates>
-				<StaticResource x:Key="queuedBook" ResourceKey="queuedBook" />
-			</RecyclingElementFactory.Templates>
-		</RecyclingElementFactory>
-	</UserControl.Resources>
-
 	<ScrollViewer
-		Name="scroller"
 		HorizontalScrollBarVisibility="Disabled"
 		VerticalScrollBarVisibility="Auto">
-		<ItemsRepeater IsVisible="True"
-			VerticalCacheLength="1.2"
-			HorizontalCacheLength="1"
-			ItemsSource="{Binding CheckboxItems}"
-			ItemTemplate="{StaticResource elementFactory}" />
+		<ItemsControl ItemsSource="{Binding $parent[1].Items}">
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<CheckBox HorizontalAlignment="Stretch" Margin="10,0,0,0" Content="{Binding Item}" IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
 	</ScrollViewer>
 </UserControl>

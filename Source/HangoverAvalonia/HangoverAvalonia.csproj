@@ -76,7 +76,6 @@
 		<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
 		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.0" />
 		<PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
-		<PackageReference Include="Avalonia.Controls.ItemsRepeater" Version="11.1.5" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
 	</ItemGroup>
 	<ItemGroup>
