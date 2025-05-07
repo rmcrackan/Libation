@@ -43,9 +43,11 @@ namespace DataLayer
         public ContentType ContentType { get; private set; }
         public string Locale { get; private set; }
 
-        //This field is now unused, however, there is little sense in adding a
-        //database migration to remove an unused field. Leave it for compatibility.
-        internal long _audioFormat;
+		//This field is now unused, however, there is little sense in adding a
+		//database migration to remove an unused field. Leave it for compatibility.
+#pragma warning disable CS0649 // Field 'Book._audioFormat' is never assigned to, and will always have its default value 0
+		internal long _audioFormat;
+#pragma warning restore CS0649
 
         // mutable
         public string PictureId { get; set; }
