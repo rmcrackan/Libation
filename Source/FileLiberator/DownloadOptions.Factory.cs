@@ -28,7 +28,7 @@ public partial class DownloadOptions
 	{
 		var license = await ChooseContent(api, libraryBook, config);
 
-		//Come audiobooks will have incorrect chapters in the metadata returned from the license request,
+		//Some audiobooks will have incorrect chapters in the metadata returned from the license request,
 		//but the metadata returned by the content metadata endpoint will be correct. Call the content
 		//metadata endpoint and use its chapters. Only replace the license request chapters if the total
 		//lengths match (defensive against different audio formats having slightly different lengths).
