@@ -204,6 +204,9 @@ namespace AaxDecrypter
 				else
 					throw new InvalidOperationException($"Unknown file type: {fileType}");
 
+				if (tempFilePath != aaxPath)
+					FileUtility.SaferMove(tempFilePath, aaxPath);
+
 				OnFileCreated(aaxPath);
 				OnFileCreated(keyPath);
 			}
