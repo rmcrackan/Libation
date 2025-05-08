@@ -8,7 +8,7 @@ namespace AaxDecrypter
 	{
 		public event EventHandler<AppleTags> RetrievedMetadata;
 
-		protected Mp4File AaxFile { get; private set; }
+		public Mp4File AaxFile { get; private set; }
 		protected Mp4Operation AaxConversion { get; set; }
 
 		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)

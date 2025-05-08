@@ -31,16 +31,16 @@ namespace FileLiberator
 		public float? SeriesNumber => LibraryBookDto.FirstSeries?.Number;
 		public NAudio.Lame.LameConfig LameConfig { get; init; }
 		public string UserAgent => AudibleApi.Resources.Download_User_Agent;
-		public bool TrimOutputToChapterLength => config.AllowLibationFixup && config.StripAudibleBrandAudio;
-		public bool StripUnabridged => config.AllowLibationFixup && config.StripUnabridged;
-		public bool CreateCueSheet => config.CreateCueSheet;
-		public bool DownloadClipsBookmarks => config.DownloadClipsBookmarks;
-		public long DownloadSpeedBps => config.DownloadSpeedLimit;
-		public bool RetainEncryptedFile => config.RetainAaxFile;
-		public bool FixupFile => config.AllowLibationFixup;
-		public bool Downsample => config.AllowLibationFixup && config.LameDownsampleMono;
-		public bool MatchSourceBitrate => config.AllowLibationFixup && config.LameMatchSourceBR && config.LameTargetBitrate;
-		public bool MoveMoovToBeginning => config.MoveMoovToBeginning;
+		public bool TrimOutputToChapterLength => Config.AllowLibationFixup && Config.StripAudibleBrandAudio;
+		public bool StripUnabridged => Config.AllowLibationFixup && Config.StripUnabridged;
+		public bool CreateCueSheet => Config.CreateCueSheet;
+		public bool DownloadClipsBookmarks => Config.DownloadClipsBookmarks;
+		public long DownloadSpeedBps => Config.DownloadSpeedLimit;
+		public bool RetainEncryptedFile => Config.RetainAaxFile;
+		public bool FixupFile => Config.AllowLibationFixup;
+		public bool Downsample => Config.AllowLibationFixup && Config.LameDownsampleMono;
+		public bool MatchSourceBitrate => Config.AllowLibationFixup && Config.LameMatchSourceBR && Config.LameTargetBitrate;
+		public bool MoveMoovToBeginning => Config.MoveMoovToBeginning;
 		public AAXClean.FileType? InputType { get; init; }
 		public AudibleApi.Common.DrmType DrmType { get; init; }
 		public AudibleApi.Common.ContentMetadata ContentMetadata { get; init; }
@@ -59,7 +59,7 @@ namespace FileLiberator
 		{
 			if (DownloadClipsBookmarks)
 			{
-				var format = config.ClipsBookmarksFileFormat;
+				var format = Config.ClipsBookmarksFileFormat;
 
 				var formatExtension = format.ToString().ToLowerInvariant();
 				var filePath = Path.ChangeExtension(fileName, formatExtension);
@@ -84,7 +84,7 @@ namespace FileLiberator
 			return string.Empty;
 		}
 
-		private readonly Configuration config;
+		public Configuration Config { get; }
 		private readonly IDisposable cancellation;
 		public void Dispose()
 		{
@@ -94,7 +94,7 @@ namespace FileLiberator
 
 		private DownloadOptions(Configuration config, LibraryBook libraryBook, [System.Diagnostics.CodeAnalysis.NotNull] string downloadUrl)
 		{
-			this.config = ArgumentValidator.EnsureNotNull(config, nameof(config));
+			Config = ArgumentValidator.EnsureNotNull(config, nameof(config));
 			LibraryBook = ArgumentValidator.EnsureNotNull(libraryBook, nameof(libraryBook));
 			DownloadUrl = ArgumentValidator.EnsureNotNullOrEmpty(downloadUrl, nameof(downloadUrl));
 			// no null/empty check for key/iv. unencrypted files do not have them

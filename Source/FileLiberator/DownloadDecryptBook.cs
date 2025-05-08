@@ -171,6 +171,32 @@ namespace FileLiberator
             if (sender is not AaxcDownloadConvertBase converter || converter.DownloadOptions is not DownloadOptions options)
 				return;
 
+			#region Prevent erroneous truncation due to incorrect chapter info
+
+			//Sometimes the chapter info is not accurate. Since AAXClean trims audio
+			//files to the chapters start and end, if the last chapter's end time is
+			//before the end of the audio file, the file will be truncated to match
+			//the chapter. This is never desirable, so pad the last chapter to match
+			//the original audio length.
+
+			var fileDuration = converter.AaxFile.Duration;
+            if (options.Config.StripAudibleBrandAudio)
+                fileDuration -= TimeSpan.FromMilliseconds(options.ContentMetadata.ChapterInfo.BrandOutroDurationMs);
+
+            var durationDelta = fileDuration - options.ChapterInfo.EndOffset;
+            if (durationDelta.TotalMilliseconds > 0)
+            {
+				//only fix chapters which are shorter than the file. Chapters which are longer
+				//than the file will be truncated to match the file length, which is correct.
+				var chapters = options.ChapterInfo.Chapters as List<AAXClean.Chapter>;
+                var lastChapter = chapters[^1];
+
+                chapters.Remove(lastChapter);
+                options.ChapterInfo.Add(lastChapter.Title, lastChapter.Duration + durationDelta);
+            }
+            
+            #endregion
+
 			tags.Title ??= options.LibraryBookDto.TitleWithSubtitle;
             tags.Album ??= tags.Title;
             tags.Artist ??= string.Join("; ", options.LibraryBook.Book.Authors.Select(a => a.Name));
