@@ -184,16 +184,13 @@ namespace FileLiberator
                 fileDuration -= TimeSpan.FromMilliseconds(options.ContentMetadata.ChapterInfo.BrandOutroDurationMs);
 
             var durationDelta = fileDuration - options.ChapterInfo.EndOffset;
-            if (durationDelta.TotalMilliseconds > 0)
-            {
-				//only fix chapters which are shorter than the file. Chapters which are longer
-				//than the file will be truncated to match the file length, which is correct.
-				var chapters = options.ChapterInfo.Chapters as List<AAXClean.Chapter>;
-                var lastChapter = chapters[^1];
+			//Remove the last chapter and re-add it with the durationDelta that will
+            //make the chapter's end coincide with the end of the audio file.
+			var chapters = options.ChapterInfo.Chapters as List<AAXClean.Chapter>;
+			var lastChapter = chapters[^1];
 
-                chapters.Remove(lastChapter);
-                options.ChapterInfo.Add(lastChapter.Title, lastChapter.Duration + durationDelta);
-            }
+			chapters.Remove(lastChapter);
+			options.ChapterInfo.Add(lastChapter.Title, lastChapter.Duration + durationDelta);
             
             #endregion
 
