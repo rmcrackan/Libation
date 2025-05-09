@@ -51,12 +51,7 @@ public partial class DownloadOptions
 		try
 		{
 			//try to request a widevine content license using the user's spatial audio settings
-			var codecChoice = config.SpatialAudioCodec switch
-			{
-				Configuration.SpatialCodec.EC_3 => Ec3Codec,
-				Configuration.SpatialCodec.AC_4 => Ac4Codec,
-				_ => throw new NotSupportedException($"Unknown value for {nameof(config.SpatialAudioCodec)}")
-			};
+			var codecChoice = config.SpatialAudioCodec is Configuration.SpatialCodec.AC_4 ? Ac4Codec : Ec3Codec;
 
 			var contentLic
 				= await api.GetDownloadLicenseAsync(
