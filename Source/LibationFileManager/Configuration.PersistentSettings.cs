@@ -257,7 +257,7 @@ namespace LibationFileManager
 		}
 
 		[Description("Use widevine DRM")]
-		public bool UseWidevine { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+		public bool UseWidevine { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Request Spatial Audio")]
 		public bool RequestSpatial { get => GetNonString(defaultValue: true); set => SetNonString(value); }
