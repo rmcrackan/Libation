@@ -73,11 +73,16 @@ namespace AaxDecrypter
 			AsyncSteps[$"Cleanup"] = CleanupAsync;
 			(bool success, var elapsed) = await AsyncSteps.RunAsync();
 
+			//Stop the downloader so it doesn't keep running in the background.
+			if (!success)
+				nfsPersister.Dispose();
+
 			await progressTask;
 
 			var speedup = DownloadOptions.RuntimeLength / elapsed;
 			Serilog.Log.Information($"Speedup is {speedup:F0}x realtime.");
 
+			nfsPersister.Dispose();
 			return success;
 
 			async Task reportProgress()
@@ -177,7 +182,7 @@ namespace AaxDecrypter
 
 			FileUtility.SaferDelete(jsonDownloadState);
 
-			if (!string.IsNullOrEmpty(DownloadOptions.AudibleKey) &&
+			if (DownloadOptions.DecryptionKeys != null &&
 				DownloadOptions.RetainEncryptedFile &&
 				DownloadOptions.InputType is AAXClean.FileType fileType)
 			{
@@ -188,17 +193,21 @@ namespace AaxDecrypter
 
 				if (fileType is AAXClean.FileType.Aax)
 				{
-					await File.WriteAllTextAsync(keyPath, $"ActivationBytes={DownloadOptions.AudibleKey}");
+					await File.WriteAllTextAsync(keyPath, $"ActivationBytes={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart1)}");
 					aaxPath = Path.ChangeExtension(tempFilePath, ".aax");
 				}
 				else if (fileType is AAXClean.FileType.Aaxc)
 				{
-					await File.WriteAllTextAsync(keyPath, $"Key={DownloadOptions.AudibleKey}{Environment.NewLine}IV={DownloadOptions.AudibleIV}");
+					await File.WriteAllTextAsync(keyPath,
+						$"Key={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart1)}{Environment.NewLine}" +
+						$"IV={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart2)}");
 					aaxPath = Path.ChangeExtension(tempFilePath, ".aaxc");
 				}
 				else if (fileType is AAXClean.FileType.Dash)
 				{
-					await File.WriteAllTextAsync(keyPath, $"KeyId={DownloadOptions.AudibleKey}{Environment.NewLine}Key={DownloadOptions.AudibleIV}");
+					await File.WriteAllTextAsync(keyPath,
+						$"KeyId={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart1)}{Environment.NewLine}" +
+						$"Key={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart2)}");
 					aaxPath = Path.ChangeExtension(tempFilePath, ".dash");
 				}
 				else

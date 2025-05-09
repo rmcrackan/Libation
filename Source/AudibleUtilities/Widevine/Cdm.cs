@@ -55,7 +55,7 @@ public class WidevineKey
 		Type = (KeyType)type;
 		Key = key;
 	}
-	public override string ToString() => $"{Convert.ToHexString(Kid.ToByteArray()).ToLower()}:{Convert.ToHexString(Key).ToLower()}";
+	public override string ToString() => $"{Convert.ToHexString(Kid.ToByteArray(bigEndian: true)).ToLower()}:{Convert.ToHexString(Key).ToLower()}";
 }
 
 public partial class Cdm
@@ -192,7 +192,7 @@ public partial class Cdm
 					id = id.Append(new byte[16 - id.Length]);
 				}
 
-				keys[i] = new WidevineKey(new Guid(id), keyContainer.Type, keyBytes);
+				keys[i] = new WidevineKey(new Guid(id,bigEndian: true), keyContainer.Type, keyBytes);
 			}
 			return keys;
 		}

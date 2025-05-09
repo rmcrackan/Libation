@@ -41,12 +41,31 @@ public partial class DownloadOptions
 		return options;
 	}
 
-	private static async Task<ContentLicense> ChooseContent(Api api, LibraryBook libraryBook, Configuration config)
+	private class LicenseInfo
+	{
+		public DrmType DrmType { get; }
+		public ContentMetadata ContentMetadata { get; set; }
+		public KeyData[]? DecryptionKeys { get; }
+		public LicenseInfo(ContentLicense license, IEnumerable<KeyData>? keys = null)
+		{
+			DrmType = license.DrmType;
+			ContentMetadata = license.ContentMetadata;
+			DecryptionKeys = keys?.ToArray() ?? ToKeys(license.Voucher);
+		}
+
+		private static KeyData[]? ToKeys(VoucherDtoV10? voucher)
+			=> voucher is null ? null : [new KeyData(voucher.Key, voucher.Iv)];
+	}
+
+	private static async Task<LicenseInfo> ChooseContent(Api api, LibraryBook libraryBook, Configuration config)
 	{
 		var dlQuality = config.FileDownloadQuality == Configuration.DownloadQuality.Normal ? DownloadQuality.Normal : DownloadQuality.High;
 
 		if (!config.UseWidevine || await Cdm.GetCdmAsync() is not Cdm cdm)
-			return await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+		{
+			var license = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+			return new LicenseInfo(license);
+		}
 
 		try
 		{
@@ -62,6 +81,9 @@ public partial class DownloadOptions
 					config.RequestSpatial,
 					codecChoice);
 
+			if (contentLic.DrmType is not DrmType.Widevine)
+				return new LicenseInfo(contentLic);
+
 			using var client = new HttpClient();
 			using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
 			var dash = new MpegDash(mpdResponse.Content.ReadAsStream());
@@ -75,12 +97,7 @@ public partial class DownloadOptions
 			var challenge = session.GetLicenseChallenge(dash);
 			var licenseMessage = await api.WidevineDrmLicense(libraryBook.Book.AudibleProductId, challenge);
 			var keys = session.ParseLicense(licenseMessage);
-			contentLic.Voucher = new VoucherDtoV10()
-			{
-				Key = Convert.ToHexStringLower(keys[0].Kid.ToByteArray()),
-				Iv = Convert.ToHexStringLower(keys[0].Key)
-			};
-			return contentLic;
+			return new LicenseInfo(contentLic, keys.Select(k => new KeyData(k.Kid.ToByteArray(bigEndian: true), k.Key)));
 		}
 		catch (Exception ex)
 		{
@@ -93,41 +110,20 @@ public partial class DownloadOptions
 	}
 
 
-	private static DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, ContentLicense contentLic)
+	private static DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, LicenseInfo licInfo)
 	{
-		//If DrmType is not Adrm or Widevine, the delivered file is an unencrypted mp3.
-		var outputFormat
-			= contentLic.DrmType is not DrmType.Adrm and not DrmType.Widevine ||
-			(config.AllowLibationFixup && config.DecryptToLossy && contentLic.ContentMetadata.ContentReference.Codec != "ac-4")
-			? OutputFormat.Mp3
-			: OutputFormat.M4b;
-
 		long chapterStartMs
 			= config.StripAudibleBrandAudio
-			? contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs
+			? licInfo.ContentMetadata.ChapterInfo.BrandIntroDurationMs
 			: 0;
 
-		AAXClean.FileType? inputType
-			= contentLic.DrmType is DrmType.Widevine ? AAXClean.FileType.Dash
-			: contentLic.DrmType is DrmType.Adrm && contentLic.Voucher?.Key.Length == 8 && contentLic.Voucher?.Iv == null ? AAXClean.FileType.Aax
-			: contentLic.DrmType is DrmType.Adrm && contentLic.Voucher?.Key.Length == 32 && contentLic.Voucher?.Iv.Length == 32 ? AAXClean.FileType.Aaxc
-			: null;
-
-		var dlOptions = new DownloadOptions(config, libraryBook, contentLic.ContentMetadata.ContentUrl?.OfflineUrl)
+		var dlOptions = new DownloadOptions(config, libraryBook, licInfo)
 		{
-			AudibleKey = contentLic.Voucher?.Key,
-			AudibleIV = contentLic.Voucher?.Iv,
-			InputType = inputType,
-			OutputFormat = outputFormat,
-			DrmType = contentLic.DrmType,
-			ContentMetadata = contentLic.ContentMetadata,
-			LameConfig = outputFormat == OutputFormat.Mp3 ? GetLameOptions(config) : null,
 			ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
-			RuntimeLength = TimeSpan.FromMilliseconds(contentLic.ContentMetadata.ChapterInfo.RuntimeLengthMs),
+			RuntimeLength = TimeSpan.FromMilliseconds(licInfo.ContentMetadata.ChapterInfo.RuntimeLengthMs),
 		};
 
-		dlOptions.LibraryBookDto.Codec = contentLic.ContentMetadata.ContentReference.Codec;
-		if (TryGetAudioInfo(contentLic.ContentMetadata.ContentUrl, out int? bitrate, out int? sampleRate, out int? channels))
+		if (TryGetAudioInfo(licInfo.ContentMetadata.ContentUrl, out int? bitrate, out int? sampleRate, out int? channels))
 		{
 			dlOptions.LibraryBookDto.BitRate = bitrate;
 			dlOptions.LibraryBookDto.SampleRate = sampleRate;
@@ -136,7 +132,7 @@ public partial class DownloadOptions
 
 		var titleConcat = config.CombineNestedChapterTitles ? ": " : null;
 		var chapters
-			= flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters, titleConcat)
+			= flattenChapters(licInfo.ContentMetadata.ChapterInfo.Chapters, titleConcat)
 			.OrderBy(c => c.StartOffsetMs)
 			.ToList();
 
@@ -152,7 +148,7 @@ public partial class DownloadOptions
 				chapLenMs -= chapterStartMs;
 
 			if (config.StripAudibleBrandAudio && i == chapters.Count - 1)
-				chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
+				chapLenMs -= licInfo.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
 
 			dlOptions.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
 		}
