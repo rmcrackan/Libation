@@ -32,7 +32,7 @@ namespace LibationCli
 				: $"Scanning Audible library: {_accounts.Length} accounts. This may take a few minutes per account.";
 			Console.WriteLine(intro);
 
-			var (TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync((a) => ApiExtended.CreateAsync(a), _accounts);
+			var (TotalBooksProcessed, NewBooksAdded) = await LibraryCommands.ImportAccountAsync(_accounts);
 
 			Console.WriteLine("Scan complete.");
 			Console.WriteLine($"Total processed: {TotalBooksProcessed}");

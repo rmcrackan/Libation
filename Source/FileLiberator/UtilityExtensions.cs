@@ -20,9 +20,15 @@ namespace FileLiberator
 			account: libraryBook.Account.ToMask()
 			);
 
+		public static Func<Account, Task<ApiExtended>>? ApiExtendedFunc { get; set; }
+
 		public static async Task<AudibleApi.Api> GetApiAsync(this LibraryBook libraryBook)
 		{
-			var apiExtended = await ApiExtended.CreateAsync(libraryBook.Account, libraryBook.Book.Locale);
+			Account account;
+			using (var accounts = AudibleApiStorage.GetAccountsSettingsPersister())
+				account = accounts.AccountsSettings.GetAccount(libraryBook.Account, libraryBook.Book.Locale);
+
+			var apiExtended = await ApiExtended.CreateAsync(account);
 			return apiExtended.Api;
 		}
 

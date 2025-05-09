@@ -21,6 +21,7 @@ namespace LibationAvalonia.Views
 		public MainWindow()
 		{
 			DataContext = new MainVM(this);
+			ApiExtended.LoginChoiceFactory = account => new Dialogs.Login.AvaloniaLoginChoiceEager(account);
 
 			AudibleApiStorage.LoadError += AudibleApiStorage_LoadError;
 			InitializeComponent();

@@ -9,10 +9,6 @@ namespace LibationAvalonia.Dialogs.Login
 {
 	public class AvaloniaLoginChoiceEager : ILoginChoiceEager
 	{
-		/// <summary>Convenience method. Recommended when wiring up Winforms to <see cref="ApplicationServices.LibraryCommands.ImportAccountAsync"/></summary>
-		public static async Task<ApiExtended> ApiExtendedFunc(Account account)
-			=> await ApiExtended.CreateAsync(account, new AvaloniaLoginChoiceEager(account));
-
 		public ILoginCallback LoginCallback { get; }
 
 		private readonly Account _account;

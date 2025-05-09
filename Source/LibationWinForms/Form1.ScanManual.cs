@@ -74,7 +74,7 @@ namespace LibationWinForms
 		{
 			try
 			{
-				var (totalProcessed, newAdded) = await LibraryCommands.ImportAccountAsync(Login.WinformLoginChoiceEager.CreateApiExtendedFunc(this), accounts);
+				var (totalProcessed, newAdded) = await LibraryCommands.ImportAccountAsync(accounts);
 
 				// this is here instead of ScanEnd so that the following is only possible when it's user-initiated, not automatic loop
 				if (Configuration.Instance.ShowImportedStats && newAdded > 0)

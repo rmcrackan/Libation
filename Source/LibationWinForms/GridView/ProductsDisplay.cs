@@ -351,7 +351,7 @@ namespace LibationWinForms.GridView
 					.Select(lbe => lbe.LibraryBook)
 					.Where(lb => !lb.Book.HasLiberated());
 
-				var removedBooks = await LibraryCommands.FindInactiveBooks(Login.WinformLoginChoiceEager.CreateApiExtendedFunc(this), lib, accounts);
+				var removedBooks = await LibraryCommands.FindInactiveBooks(lib, accounts);
 
 				var removable = allBooks.Where(lbe => removedBooks.Any(rb => rb.Book.AudibleProductId == lbe.AudibleProductId)).ToList();
 
