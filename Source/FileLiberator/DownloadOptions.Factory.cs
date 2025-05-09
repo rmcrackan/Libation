@@ -48,8 +48,6 @@ public partial class DownloadOptions
 		if (!config.UseWidevine || await Cdm.GetCdmAsync() is not Cdm cdm)
 			return await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
 
-		ContentLicense? contentLic = null, fallback = null;
-
 		try
 		{
 			//try to request a widevine content license using the user's spatial audio settings
@@ -60,7 +58,7 @@ public partial class DownloadOptions
 				_ => throw new NotSupportedException($"Unknown value for {nameof(config.SpatialAudioCodec)}")
 			};
 
-			contentLic
+			var contentLic
 				= await api.GetDownloadLicenseAsync(
 					libraryBook.Book.AudibleProductId,
 					dlQuality,
@@ -68,81 +66,35 @@ public partial class DownloadOptions
 					DrmType.Widevine,
 					config.RequestSpatial,
 					codecChoice);
+
+			using var client = new HttpClient();
+			using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
+			var dash = new MpegDash(mpdResponse.Content.ReadAsStream());
+
+			if (!dash.TryGetUri(new Uri(contentLic.LicenseResponse), out var contentUri))
+				throw new InvalidDataException("Failed to get mpeg-dash content download url.");
+
+			contentLic.ContentMetadata.ContentUrl = new() { OfflineUrl = contentUri.ToString() };
+
+			using var session = cdm.OpenSession();
+			var challenge = session.GetLicenseChallenge(dash);
+			var licenseMessage = await api.WidevineDrmLicense(libraryBook.Book.AudibleProductId, challenge);
+			var keys = session.ParseLicense(licenseMessage);
+			contentLic.Voucher = new VoucherDtoV10()
+			{
+				Key = Convert.ToHexStringLower(keys[0].Kid.ToByteArray()),
+				Iv = Convert.ToHexStringLower(keys[0].Key)
+			};
+			return contentLic;
 		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "Failed to request a Widevine license.");
-			//We failed to get a widevine license, so fall back to AAX(C)
-			return await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+			//We failed to get a widevine content license. Depending on the
+			//failure reason, users can potentially still download this audiobook
+			//by disabling the "Use Widevine DRM" feature.
+			throw;
 		}
-
-		if (!contentLic.ContentMetadata.ContentReference.IsSpatial && contentLic.DrmType != DrmType.Adrm)
-		{
-			/*
-			We got a widevine license and we have a Cdm, but we still need to decide if we WANT the file
-			being delivered with widevine. This file is not "spatial", so it may be no better than the
-			audio in the Adrm files. All else being equal, we prefer Adrm files because they have more
-			build-in metadata and always AAC-LC, which is a codec playable by pretty much every device
-			in existence.
-
-			Unfortunately, there appears to be no way to determine which codec/quality combination we'll
-			get until we make the request and see what content gets delivered. For some books,
-			Widevine/High delivers 44.1 kHz / 128 kbps audio and Adrm/High delivers 22.05 kHz / 64 kbps.
-			In those cases, the Widevine content size is much larger. Other books will deliver the same
-			sample rate / bitrate for both Widevine and Adrm, the only difference being codec. Widevine
-			is usually xHE-AAC, but is sometimes AAC-LC. Adrm is always AAC-LC.
-
-			To decide which file we want, use this simple rule: if files are different codecs and
-			Widevine is significantly larger, use Widevine. Otherwise use ADRM.
-			*/
-
-			fallback = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
-
-			var wvCr = contentLic.ContentMetadata.ContentReference;
-			var adrmCr = fallback.ContentMetadata.ContentReference;
-
-			if (wvCr.Codec == adrmCr.Codec ||
-				adrmCr.ContentSizeInBytes > wvCr.ContentSizeInBytes ||
-				RelativePercentDifference(adrmCr.ContentSizeInBytes, wvCr.ContentSizeInBytes) < 0.05)
-			{
-				contentLic = fallback;
-			}
-		}		
-
-		if (contentLic.DrmType == DrmType.Widevine)
-		{
-			try
-			{
-				using var client = new HttpClient();
-				using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
-				var dash = new MpegDash(mpdResponse.Content.ReadAsStream());
-
-				if (!dash.TryGetUri(new Uri(contentLic.LicenseResponse), out var contentUri))
-					throw new InvalidDataException("Failed to get mpeg-dash content download url.");
-
-				contentLic.ContentMetadata.ContentUrl = new() { OfflineUrl = contentUri.ToString() };
-
-				using var session = cdm.OpenSession();
-				var challenge = session.GetLicenseChallenge(dash);
-				var licenseMessage = await api.WidevineDrmLicense(libraryBook.Book.AudibleProductId, challenge);
-				var keys = session.ParseLicense(licenseMessage);
-				contentLic.Voucher = new VoucherDtoV10()
-				{
-					Key = Convert.ToHexStringLower(keys[0].Kid.ToByteArray()),
-					Iv = Convert.ToHexStringLower(keys[0].Key)
-				};
-			}
-			catch
-			{
-				if (fallback != null)
-					return fallback;
-
-				//We won't have a fallback if the requested license is for a spatial audio file.
-				//Throw so that the user is aware that spatial audio exists and that they were not able to download it.
-				throw;
-			}
-		}
-		return contentLic;
 	}
 
 
