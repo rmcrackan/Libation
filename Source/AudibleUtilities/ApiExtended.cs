@@ -48,7 +48,7 @@ namespace AudibleUtilities
 			catch
 			{
 				if (LoginChoiceFactory is null)
-					throw new InvalidOperationException($"The UI module must first set {LoginChoiceFactory} before attempting to create the api");
+					throw new InvalidOperationException($"The UI module must first set {nameof(LoginChoiceFactory)} before attempting to create the api");
 
 				Serilog.Log.Logger.Information("{@DebugInfo}", new
 				{
