@@ -108,8 +108,8 @@ namespace FileLiberator
 			ContentMetadata = licInfo.ContentMetadata;
 			InputType
 			= licInfo.DrmType is AudibleApi.Common.DrmType.Widevine ? AAXClean.FileType.Dash
-			: licInfo.DrmType is AudibleApi.Common.DrmType.Adrm && licInfo.DecryptionKeys?.Length == 1 && licInfo.DecryptionKeys[0].KeyPart1.Length == 8 && licInfo.DecryptionKeys[0].KeyPart2 is null ? AAXClean.FileType.Aax
-			: licInfo.DrmType is AudibleApi.Common.DrmType.Adrm && licInfo.DecryptionKeys?.Length == 1 && licInfo.DecryptionKeys[0].KeyPart1.Length == 32 && licInfo.DecryptionKeys[0].KeyPart2?.Length == 32 ? AAXClean.FileType.Aaxc
+			: licInfo.DrmType is AudibleApi.Common.DrmType.Adrm && licInfo.DecryptionKeys?.Length == 1 && licInfo.DecryptionKeys[0].KeyPart1.Length == 4 && licInfo.DecryptionKeys[0].KeyPart2 is null ? AAXClean.FileType.Aax
+			: licInfo.DrmType is AudibleApi.Common.DrmType.Adrm && licInfo.DecryptionKeys?.Length == 1 && licInfo.DecryptionKeys[0].KeyPart1.Length == 16 && licInfo.DecryptionKeys[0].KeyPart2?.Length == 16 ? AAXClean.FileType.Aaxc
 			: null;
 
 			//If DrmType is not Adrm or Widevine, the delivered file is an unencrypted mp3.

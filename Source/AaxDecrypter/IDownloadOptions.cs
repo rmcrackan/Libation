@@ -19,9 +19,9 @@ namespace AaxDecrypter
         public KeyData(string keyPart1, string? keyPart2 = null)
         {
             ArgumentNullException.ThrowIfNull(keyPart1, nameof(keyPart1));
-            KeyPart1 = Convert.FromBase64String(keyPart1);
+            KeyPart1 = Convert.FromHexString(keyPart1);
             if (keyPart2 != null)
-                KeyPart2 = Convert.FromBase64String(keyPart2);
+                KeyPart2 = Convert.FromHexString(keyPart2);
         }
 	}    
 
