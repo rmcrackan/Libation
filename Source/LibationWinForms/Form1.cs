@@ -4,8 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
+using AudibleUtilities;
 using DataLayer;
 using LibationFileManager;
+using LibationWinForms.Login;
+using Octokit;
 
 namespace LibationWinForms
 {
@@ -56,6 +59,7 @@ namespace LibationWinForms
 					=> Invoke(() => productsDisplay.DisplayAsync(fullLibrary));
 			}
 			Shown += Form1_Shown;
+			ApiExtended.LoginChoiceFactory = account => new WinformLoginChoiceEager(account, this);
 		}
 
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)

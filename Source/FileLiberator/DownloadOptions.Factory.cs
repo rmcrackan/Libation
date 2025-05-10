@@ -41,26 +41,38 @@ public partial class DownloadOptions
 		return options;
 	}
 
-	private static async Task<ContentLicense> ChooseContent(Api api, LibraryBook libraryBook, Configuration config)
+	private class LicenseInfo
+	{
+		public DrmType DrmType { get; }
+		public ContentMetadata ContentMetadata { get; set; }
+		public KeyData[]? DecryptionKeys { get; }
+		public LicenseInfo(ContentLicense license, IEnumerable<KeyData>? keys = null)
+		{
+			DrmType = license.DrmType;
+			ContentMetadata = license.ContentMetadata;
+			DecryptionKeys = keys?.ToArray() ?? ToKeys(license.Voucher);
+		}
+
+		private static KeyData[]? ToKeys(VoucherDtoV10? voucher)
+			=> voucher is null ? null : [new KeyData(voucher.Key, voucher.Iv)];
+	}
+
+	private static async Task<LicenseInfo> ChooseContent(Api api, LibraryBook libraryBook, Configuration config)
 	{
 		var dlQuality = config.FileDownloadQuality == Configuration.DownloadQuality.Normal ? DownloadQuality.Normal : DownloadQuality.High;
 
 		if (!config.UseWidevine || await Cdm.GetCdmAsync() is not Cdm cdm)
-			return await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
-
-		ContentLicense? contentLic = null, fallback = null;
+		{
+			var license = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+			return new LicenseInfo(license);
+		}
 
 		try
 		{
 			//try to request a widevine content license using the user's spatial audio settings
-			var codecChoice = config.SpatialAudioCodec switch
-			{
-				Configuration.SpatialCodec.EC_3 => Ec3Codec,
-				Configuration.SpatialCodec.AC_4 => Ac4Codec,
-				_ => throw new NotSupportedException($"Unknown value for {nameof(config.SpatialAudioCodec)}")
-			};
+			var codecChoice = config.SpatialAudioCodec is Configuration.SpatialCodec.AC_4 ? Ac4Codec : Ec3Codec;
 
-			contentLic
+			var contentLic
 				= await api.GetDownloadLicenseAsync(
 					libraryBook.Book.AudibleProductId,
 					dlQuality,
@@ -68,119 +80,50 @@ public partial class DownloadOptions
 					DrmType.Widevine,
 					config.RequestSpatial,
 					codecChoice);
+
+			if (contentLic.DrmType is not DrmType.Widevine)
+				return new LicenseInfo(contentLic);
+
+			using var client = new HttpClient();
+			using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
+			var dash = new MpegDash(mpdResponse.Content.ReadAsStream());
+
+			if (!dash.TryGetUri(new Uri(contentLic.LicenseResponse), out var contentUri))
+				throw new InvalidDataException("Failed to get mpeg-dash content download url.");
+
+			contentLic.ContentMetadata.ContentUrl = new() { OfflineUrl = contentUri.ToString() };
+
+			using var session = cdm.OpenSession();
+			var challenge = session.GetLicenseChallenge(dash);
+			var licenseMessage = await api.WidevineDrmLicense(libraryBook.Book.AudibleProductId, challenge);
+			var keys = session.ParseLicense(licenseMessage);
+			return new LicenseInfo(contentLic, keys.Select(k => new KeyData(k.Kid.ToByteArray(bigEndian: true), k.Key)));
 		}
 		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "Failed to request a Widevine license.");
-			//We failed to get a widevine license, so fall back to AAX(C)
-			return await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
+			//We failed to get a widevine content license. Depending on the
+			//failure reason, users can potentially still download this audiobook
+			//by disabling the "Use Widevine DRM" feature.
+			throw;
 		}
-
-		if (!contentLic.ContentMetadata.ContentReference.IsSpatial && contentLic.DrmType != DrmType.Adrm)
-		{
-			/*
-			We got a widevine license and we have a Cdm, but we still need to decide if we WANT the file
-			being delivered with widevine. This file is not "spatial", so it may be no better than the
-			audio in the Adrm files. All else being equal, we prefer Adrm files because they have more
-			build-in metadata and always AAC-LC, which is a codec playable by pretty much every device
-			in existence.
-
-			Unfortunately, there appears to be no way to determine which codec/quality combination we'll
-			get until we make the request and see what content gets delivered. For some books,
-			Widevine/High delivers 44.1 kHz / 128 kbps audio and Adrm/High delivers 22.05 kHz / 64 kbps.
-			In those cases, the Widevine content size is much larger. Other books will deliver the same
-			sample rate / bitrate for both Widevine and Adrm, the only difference being codec. Widevine
-			is usually xHE-AAC, but is sometimes AAC-LC. Adrm is always AAC-LC.
-
-			To decide which file we want, use this simple rule: if files are different codecs and
-			Widevine is significantly larger, use Widevine. Otherwise use ADRM.
-			*/
-
-			fallback = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
-
-			var wvCr = contentLic.ContentMetadata.ContentReference;
-			var adrmCr = fallback.ContentMetadata.ContentReference;
-
-			if (wvCr.Codec == adrmCr.Codec ||
-				adrmCr.ContentSizeInBytes > wvCr.ContentSizeInBytes ||
-				RelativePercentDifference(adrmCr.ContentSizeInBytes, wvCr.ContentSizeInBytes) < 0.05)
-			{
-				contentLic = fallback;
-			}
-		}		
-
-		if (contentLic.DrmType == DrmType.Widevine)
-		{
-			try
-			{
-				using var client = new HttpClient();
-				using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
-				var dash = new MpegDash(mpdResponse.Content.ReadAsStream());
-
-				if (!dash.TryGetUri(new Uri(contentLic.LicenseResponse), out var contentUri))
-					throw new InvalidDataException("Failed to get mpeg-dash content download url.");
-
-				contentLic.ContentMetadata.ContentUrl = new() { OfflineUrl = contentUri.ToString() };
-
-				using var session = cdm.OpenSession();
-				var challenge = session.GetLicenseChallenge(dash);
-				var licenseMessage = await api.WidevineDrmLicense(libraryBook.Book.AudibleProductId, challenge);
-				var keys = session.ParseLicense(licenseMessage);
-				contentLic.Voucher = new VoucherDtoV10()
-				{
-					Key = Convert.ToHexStringLower(keys[0].Kid.ToByteArray()),
-					Iv = Convert.ToHexStringLower(keys[0].Key)
-				};
-			}
-			catch
-			{
-				if (fallback != null)
-					return fallback;
-
-				//We won't have a fallback if the requested license is for a spatial audio file.
-				//Throw so that the user is aware that spatial audio exists and that they were not able to download it.
-				throw;
-			}
-		}
-		return contentLic;
 	}
 
 
-	private static DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, ContentLicense contentLic)
+	private static DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, LicenseInfo licInfo)
 	{
-		//If DrmType is not Adrm or Widevine, the delivered file is an unencrypted mp3.
-		var outputFormat
-			= contentLic.DrmType is not DrmType.Adrm and not DrmType.Widevine ||
-			(config.AllowLibationFixup && config.DecryptToLossy && contentLic.ContentMetadata.ContentReference.Codec != "ac-4")
-			? OutputFormat.Mp3
-			: OutputFormat.M4b;
-
 		long chapterStartMs
 			= config.StripAudibleBrandAudio
-			? contentLic.ContentMetadata.ChapterInfo.BrandIntroDurationMs
+			? licInfo.ContentMetadata.ChapterInfo.BrandIntroDurationMs
 			: 0;
 
-		AAXClean.FileType? inputType
-			= contentLic.DrmType is DrmType.Widevine ? AAXClean.FileType.Dash
-			: contentLic.DrmType is DrmType.Adrm && contentLic.Voucher?.Key.Length == 8 && contentLic.Voucher?.Iv == null ? AAXClean.FileType.Aax
-			: contentLic.DrmType is DrmType.Adrm && contentLic.Voucher?.Key.Length == 32 && contentLic.Voucher?.Iv.Length == 32 ? AAXClean.FileType.Aaxc
-			: null;
-
-		var dlOptions = new DownloadOptions(config, libraryBook, contentLic.ContentMetadata.ContentUrl?.OfflineUrl)
+		var dlOptions = new DownloadOptions(config, libraryBook, licInfo)
 		{
-			AudibleKey = contentLic.Voucher?.Key,
-			AudibleIV = contentLic.Voucher?.Iv,
-			InputType = inputType,
-			OutputFormat = outputFormat,
-			DrmType = contentLic.DrmType,
-			ContentMetadata = contentLic.ContentMetadata,
-			LameConfig = outputFormat == OutputFormat.Mp3 ? GetLameOptions(config) : null,
 			ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
-			RuntimeLength = TimeSpan.FromMilliseconds(contentLic.ContentMetadata.ChapterInfo.RuntimeLengthMs),
+			RuntimeLength = TimeSpan.FromMilliseconds(licInfo.ContentMetadata.ChapterInfo.RuntimeLengthMs),
 		};
 
-		dlOptions.LibraryBookDto.Codec = contentLic.ContentMetadata.ContentReference.Codec;
-		if (TryGetAudioInfo(contentLic.ContentMetadata.ContentUrl, out int? bitrate, out int? sampleRate, out int? channels))
+		if (TryGetAudioInfo(licInfo.ContentMetadata.ContentUrl, out int? bitrate, out int? sampleRate, out int? channels))
 		{
 			dlOptions.LibraryBookDto.BitRate = bitrate;
 			dlOptions.LibraryBookDto.SampleRate = sampleRate;
@@ -189,7 +132,7 @@ public partial class DownloadOptions
 
 		var titleConcat = config.CombineNestedChapterTitles ? ": " : null;
 		var chapters
-			= flattenChapters(contentLic.ContentMetadata.ChapterInfo.Chapters, titleConcat)
+			= flattenChapters(licInfo.ContentMetadata.ChapterInfo.Chapters, titleConcat)
 			.OrderBy(c => c.StartOffsetMs)
 			.ToList();
 
@@ -205,7 +148,7 @@ public partial class DownloadOptions
 				chapLenMs -= chapterStartMs;
 
 			if (config.StripAudibleBrandAudio && i == chapters.Count - 1)
-				chapLenMs -= contentLic.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
+				chapLenMs -= licInfo.ContentMetadata.ChapterInfo.BrandOutroDurationMs;
 
 			dlOptions.ChapterInfo.AddChapter(chapter.Title, TimeSpan.FromMilliseconds(chapLenMs));
 		}

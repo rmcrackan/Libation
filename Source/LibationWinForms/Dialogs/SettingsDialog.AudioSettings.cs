@@ -206,10 +206,28 @@ namespace LibationWinForms.Dialogs
 
 				if (!accounts.AccountsSettings.Accounts.Any(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
 				{
-					MessageBox.Show(this,
-						"Your must remove account(s) from Libation and then re-add them to enable widwvine content.",
+					var choice = MessageBox.Show(this,
+						"In order to enable widevine content, Libation will need to log into your accounts again.\r\n\r\n" +
+						"Do you want Libation to clear your current account settings and prompt you to login before the next download?",
 						"Widevine Content Unavailable",
-						MessageBoxButtons.OK);
+						MessageBoxButtons.YesNo,
+						MessageBoxIcon.Question,
+						MessageBoxDefaultButton.Button2);
+
+					if (choice == DialogResult.Yes)
+					{
+						foreach (var account in accounts.AccountsSettings.Accounts.ToArray())
+						{
+							if (account.IdentityTokens.DeviceType != AudibleApi.Resources.DeviceType)
+							{
+								accounts.AccountsSettings.Delete(account);
+								var acc = accounts.AccountsSettings.Upsert(account.AccountId, account.Locale.Name);
+								acc.AccountName = account.AccountName;
+							}
+						}
+
+						return;
+					}
 
 					useWidevineCbox.Checked = false;
 					return;

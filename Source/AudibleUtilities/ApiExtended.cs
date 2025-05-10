@@ -11,11 +11,13 @@ using Polly;
 using Polly.Retry;
 using System.Threading;
 
+#nullable enable
 namespace AudibleUtilities
 {
 	/// <summary>USE THIS from within Libation. It wraps the call with correct JSONPath</summary>
 	public class ApiExtended
 	{
+		public static Func<Account, ILoginChoiceEager>? LoginChoiceFactory { get; set; }
 		public Api Api { get; private set; }
 
 		private const int MaxConcurrency = 10;
@@ -24,52 +26,46 @@ namespace AudibleUtilities
 		private ApiExtended(Api api) => Api = api;
 
 		/// <summary>Get api from existing tokens else login with 'eager' choice. External browser url is provided. Response can be external browser login or continuing with native api callbacks.</summary>
-		public static async Task<ApiExtended> CreateAsync(Account account, ILoginChoiceEager loginChoiceEager)
-		{
-			Serilog.Log.Logger.Information("{@DebugInfo}", new
-			{
-				LoginType = nameof(ILoginChoiceEager),
-				Account = account?.MaskedLogEntry ?? "[null]",
-				LocaleName = account?.Locale?.Name
-			});
-
-			var api = await EzApiCreator.GetApiAsync(
-				loginChoiceEager,
-				account.Locale,
-				AudibleApiStorage.AccountsSettingsFile,
-				account.GetIdentityTokensJsonPath());
-			return new ApiExtended(api);
-		}
-
-		/// <summary>Get api from existing tokens. Assumes you have valid login tokens. Else exception</summary>
 		public static async Task<ApiExtended> CreateAsync(Account account)
 		{
 			ArgumentValidator.EnsureNotNull(account, nameof(account));
+			ArgumentValidator.EnsureNotNull(account.AccountId, nameof(account.AccountId));
 			ArgumentValidator.EnsureNotNull(account.Locale, nameof(account.Locale));
 
-			Serilog.Log.Logger.Information("{@DebugInfo}", new
+			try
 			{
-				AccountMaskedLogEntry = account.MaskedLogEntry
-			});
+				Serilog.Log.Logger.Information("{@DebugInfo}", new
+				{
+					AccountMaskedLogEntry = account.MaskedLogEntry
+				});
 
-			return await CreateAsync(account.AccountId, account.Locale.Name);
-		}
-
-		/// <summary>Get api from existing tokens. Assumes you have valid login tokens. Else exception</summary>
-		public static async Task<ApiExtended> CreateAsync(string username, string localeName)
-		{
-			Serilog.Log.Logger.Information("{@DebugInfo}", new
+				var api = await EzApiCreator.GetApiAsync(
+						account.Locale,
+						AudibleApiStorage.AccountsSettingsFile,
+						account.GetIdentityTokensJsonPath());
+				return new ApiExtended(api);
+			}
+			catch
 			{
-				Username = username.ToMask(),
-				LocaleName = localeName,
-			});
+				if (LoginChoiceFactory is null)
+					throw new InvalidOperationException($"The UI module must first set {LoginChoiceFactory} before attempting to create the api");
 
-			var api = await EzApiCreator.GetApiAsync(
-					Localization.Get(localeName),
+				Serilog.Log.Logger.Information("{@DebugInfo}", new
+				{
+					LoginType = nameof(ILoginChoiceEager),
+					Account = account.MaskedLogEntry ?? "[null]",
+					LocaleName = account.Locale?.Name
+				});
+
+				var api = await EzApiCreator.GetApiAsync(
+					LoginChoiceFactory(account),
+					account.Locale,
 					AudibleApiStorage.AccountsSettingsFile,
-					AudibleApiStorage.GetIdentityTokensJsonPath(username, localeName));
-			return new ApiExtended(api);
-		}
+					account.GetIdentityTokensJsonPath());
+
+				return new ApiExtended(api);
+			}
+		}	
 
 		private static AsyncRetryPolicy policy { get; }
 			= Policy.Handle<Exception>()

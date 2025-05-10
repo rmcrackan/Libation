@@ -27,7 +27,7 @@ namespace LibationAvalonia.ViewModels
 				// in autoScan, new books SHALL NOT show dialog
 				try
 				{
-					await LibraryCommands.ImportAccountAsync(LibationAvalonia.Dialogs.Login.AvaloniaLoginChoiceEager.ApiExtendedFunc, accounts);
+					await LibraryCommands.ImportAccountAsync(accounts);
 				}
 				catch (OperationCanceledException)
 				{

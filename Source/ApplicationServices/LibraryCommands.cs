@@ -32,7 +32,7 @@ namespace ApplicationServices
             ScanEnd += (_, __) => Scanning = false;
         }
 
-        public static async Task<List<LibraryBook>> FindInactiveBooks(Func<Account, Task<ApiExtended>> apiExtendedfunc, IEnumerable<LibraryBook> existingLibrary, params Account[] accounts)
+        public static async Task<List<LibraryBook>> FindInactiveBooks(IEnumerable<LibraryBook> existingLibrary, params Account[] accounts)
         {
             logRestart();
 
@@ -58,7 +58,7 @@ namespace ApplicationServices
             try
             {
                 logTime($"pre {nameof(scanAccountsAsync)} all");
-                var libraryItems = await scanAccountsAsync(apiExtendedfunc, accounts, libraryOptions);
+                var libraryItems = await scanAccountsAsync(accounts, libraryOptions);
                 logTime($"post {nameof(scanAccountsAsync)} all");
 
                 var totalCount = libraryItems.Count;
@@ -101,7 +101,7 @@ namespace ApplicationServices
         }
 
         #region FULL LIBRARY scan and import
-        public static async Task<(int totalCount, int newCount)> ImportAccountAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, params Account[]? accounts)
+        public static async Task<(int totalCount, int newCount)> ImportAccountAsync(params Account[]? accounts)
         {
             logRestart();
 
@@ -131,7 +131,7 @@ namespace ApplicationServices
                         | LibraryOptions.ResponseGroupOptions.IsFinished,
 					ImageSizes = LibraryOptions.ImageSizeOptions._500 | LibraryOptions.ImageSizeOptions._1215
                 };
-                var importItems = await scanAccountsAsync(apiExtendedfunc, accounts, libraryOptions);
+                var importItems = await scanAccountsAsync(accounts, libraryOptions);
                 logTime($"post {nameof(scanAccountsAsync)} all");
 
                 var totalCount = importItems.Count;
@@ -262,7 +262,7 @@ namespace ApplicationServices
             return null;
         }
 
-		private static async Task<List<ImportItem>> scanAccountsAsync(Func<Account, Task<ApiExtended>> apiExtendedfunc, Account[] accounts, LibraryOptions libraryOptions)
+		private static async Task<List<ImportItem>> scanAccountsAsync(Account[] accounts, LibraryOptions libraryOptions)
         {
             var tasks = new List<Task<List<ImportItem>>>();
 
@@ -278,7 +278,7 @@ namespace ApplicationServices
                 try
                 {
                     // get APIs in serial b/c of logins. do NOT move inside of parallel (Task.WhenAll)
-                    var apiExtended = await apiExtendedfunc(account);
+                    var apiExtended = await ApiExtended.CreateAsync(account);
 
                     // add scanAccountAsync as a TASK: do not await
                     tasks.Add(scanAccountAsync(apiExtended, account, libraryOptions, archiver));

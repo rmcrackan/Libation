@@ -110,14 +110,16 @@ namespace AaxDecrypter
 		#region Downloader
 
 		/// <summary> Update the <see cref="Dinah.Core.IO.JsonFilePersister{T}"/>. </summary>
-		private void OnUpdate()
+		private void OnUpdate(bool waitForWrite = false)
 		{
 			try
 			{
-				if (DateTime.UtcNow > NextUpdateTime)
+				if (waitForWrite || DateTime.UtcNow > NextUpdateTime)
 				{
 					Updated?.Invoke(this, EventArgs.Empty);
 					//JsonFilePersister Will not allow update intervals shorter than 100 milliseconds
+					//If an update is called less than 100 ms since the last update, persister will
+					//sleep the thread until 100 ms has elapsed.
 					NextUpdateTime = DateTime.UtcNow.AddMilliseconds(110);
 				}
 			}
@@ -305,7 +307,7 @@ namespace AaxDecrypter
 			finally
 			{
 				_downloadedPiece.Set();
-				OnUpdate();
+				OnUpdate(waitForWrite: true);
 			}
 		}
 
@@ -402,7 +404,7 @@ namespace AaxDecrypter
 				_cancellationSource?.Dispose();
 				_readFile.Dispose();
 				_writeFile.Dispose();
-				OnUpdate();
+				OnUpdate(waitForWrite: true);
 			}
 
 			disposed = true;

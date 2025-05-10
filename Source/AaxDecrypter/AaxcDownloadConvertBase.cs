@@ -1,5 +1,6 @@
 ﻿using AAXClean;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AaxDecrypter
@@ -8,7 +9,7 @@ namespace AaxDecrypter
 	{
 		public event EventHandler<AppleTags> RetrievedMetadata;
 
-		protected Mp4File AaxFile { get; private set; }
+		public Mp4File AaxFile { get; private set; }
 		protected Mp4Operation AaxConversion { get; set; }
 
 		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
@@ -33,20 +34,33 @@ namespace AaxDecrypter
 		{
 			if (DownloadOptions.InputType is FileType.Dash)
 			{
+				//We may have multiple keys , so use the key whose key ID matches
+				//the dash files default Key ID.
+				var keyIds = DownloadOptions.DecryptionKeys.Select(k => new Guid(k.KeyPart1, bigEndian: true)).ToArray();
+
 				var dash = new DashFile(InputFileStream);
-				dash.SetDecryptionKey(DownloadOptions.AudibleKey, DownloadOptions.AudibleIV);
+				var kidIndex = Array.IndexOf(keyIds, dash.Tenc.DefaultKID);
+
+				if (kidIndex == -1)
+					throw new InvalidOperationException($"None of the {keyIds.Length} key IDs match the dash file's default KeyID of {dash.Tenc.DefaultKID}");
+
+				DownloadOptions.DecryptionKeys[0] = DownloadOptions.DecryptionKeys[kidIndex];
+				var keyId = DownloadOptions.DecryptionKeys[kidIndex].KeyPart1;
+				var key = DownloadOptions.DecryptionKeys[kidIndex].KeyPart2;
+
+				dash.SetDecryptionKey(keyId, key);
 				return dash;
 			}
 			else if (DownloadOptions.InputType is FileType.Aax)
 			{
 				var aax = new AaxFile(InputFileStream);
-				aax.SetDecryptionKey(DownloadOptions.AudibleKey);
+				aax.SetDecryptionKey(DownloadOptions.DecryptionKeys[0].KeyPart1);
 				return aax;
 			}
 			else if (DownloadOptions.InputType is FileType.Aaxc)
 			{
 				var aax = new AaxFile(InputFileStream);
-				aax.SetDecryptionKey(DownloadOptions.AudibleKey, DownloadOptions.AudibleIV);
+				aax.SetDecryptionKey(DownloadOptions.DecryptionKeys[0].KeyPart1, DownloadOptions.DecryptionKeys[0].KeyPart2);
 				return aax;
 			}
 			else throw new InvalidOperationException($"{nameof(DownloadOptions.InputType)} of '{DownloadOptions.InputType}' is unknown.");
