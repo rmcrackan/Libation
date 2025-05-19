@@ -35,6 +35,11 @@
 							VerticalScrollBarVisibility="Auto"
 							AllowAutoHide="False">
 							<ItemsControl ItemsSource="{Binding Items}">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<VirtualizingStackPanel />
+									</ItemsPanelTemplate>									
+								</ItemsControl.ItemsPanel>
 								<ItemsControl.ItemTemplate>
 									<DataTemplate>
 										<views:ProcessBookControl DataContext="{Binding}" />
