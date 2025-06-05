@@ -124,7 +124,7 @@ main() {
   init_config_file Settings.json
   
   info "loading settings"
-  update_settings Settings.json Books /data
+  update_settings Settings.json Books "${LIBATION_BOOKS_DIR:-/data}"
   update_settings Settings.json InProgress /tmp
 
   info "loading database"
