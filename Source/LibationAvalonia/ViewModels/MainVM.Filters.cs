@@ -14,8 +14,10 @@ namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
-		private QuickFilters.NamedFilter? lastGoodFilter = new(string.Empty, null);
-		private QuickFilters.NamedFilter? _selectedNamedFilter = new(string.Empty, null);
+		private string lastGoodSearch = string.Empty;
+		private QuickFilters.NamedFilter? lastGoodFilter => new(lastGoodSearch, null);
+
+        private QuickFilters.NamedFilter? _selectedNamedFilter = new(string.Empty, null);
 		private bool _firstFilterIsDefault = true;
 
 		/// <summary> Library filterting query </summary>
@@ -64,15 +66,16 @@ namespace LibationAvalonia.ViewModels
 			try
 			{
 				await ProductsDisplay.Filter(tryFilter);
-				lastGoodFilter = namedFilter;
+                lastGoodSearch = namedFilter?.Filter ?? "";
 			}
 			catch (Exception ex)
 			{
 				Serilog.Log.Logger.Error(ex, "Error performing filtering. {@namedFilter} {@lastGoodFilter}", namedFilter, lastGoodFilter);
 				await MessageBox.Show($"Bad filter string: \"{tryFilter}\"\r\n\r\n{ex.Message}", "Bad filter string", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-				// re-apply last good filter
-				await PerformFilter(lastGoodFilter);
+                // re-apply last good filter
+                namedFilter = (namedFilter ?? new(string.Empty, null)) with { Filter = lastGoodSearch };
+                await PerformFilter(namedFilter);
 			}
 		}
 
