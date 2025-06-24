@@ -8,23 +8,23 @@
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/libation.svg)](https://repology.org/project/libation/versions)
 
-New Libation releases are automatically packed into `.deb` and `.rpm` package and are available from the Libation repository's releases page.
+New Libation releases are automatically packed into `.deb` and `.rpm` package and are available from the [Libation repository's releases page](https://github.com/rmcrackan/Libation/releases).
 
-Run this command in your terminal to download and install Libation, replacing the url with the latest Libation package url:
+Run these commands in your terminal to download and install Libation. **Make sure you replace** `X.X.X` with the latest Libation version and `ARCH` with your CPU's architechture (either `amd64` or `arm64`).
 
 ### Debian
   ```Console
-  wget -O libation.deb https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay.deb &&
+  wget -O libation.deb https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay-ARCH.deb
   sudo apt install ./libation.deb
   ```
 ### Redhat and CentOS
   ```Console
-  wget -O libation.rpm https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay.rpm &&
+  wget -O libation.rpm https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay-ARCH.rpm
   sudo yum install ./libation.rpm
   ```
 ### Fedora
   ```Console
-  wget -O libation.rpm https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay.rpm &&
+  wget -O libation.rpm https://github.com/rmcrackan/Libation/releases/download/vX.X.X/Libation.X.X.X-linux-chardonnay-ARCH.rpm
   sudo dnf5 install ./libation.rpm
   ```
 ---
