@@ -132,7 +132,7 @@ namespace LibationFileManager
 		public bool AllowLibationFixup { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 		[Description("Create a cue sheet (.cue)")]
-		public bool CreateCueSheet { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+		public bool CreateCueSheet { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Retain the Aax file after successfully decrypting")]
 		public bool RetainAaxFile { get => GetNonString(defaultValue: false); set => SetNonString(value); }
