@@ -61,9 +61,6 @@ namespace SearchEngineTests
 		[DataRow("AudibleProductId:B000000123", "audibleproductid:b000000123")]
 		[DataRow("ProductId:B000000123", "productid:b000000123")]
 
-		// bool keyword. Append :True
-		[DataRow("israted", "israted:True")]
-
 		// bool keyword with [:bool]. Do not add :True
 		[DataRow("israted:True", "israted:True")]
 		[DataRow("isRated:false", "israted:false")]

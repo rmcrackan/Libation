@@ -117,7 +117,6 @@ namespace TemplatesTests
 		[DataRow("<bitrate>   42   <bitrate>", "", "", "1 8 1 8")]
 		[DataRow(" <bitrate> - <bitrate> ", "", "", "1 8 - 1 8")]
 		[DataRow("4<bitrate> - <bitrate> 4", "", "", "1 8 - 1 8")]
-		[DataRow("4<bitrate> - <bitrate> 4", "", "", "1 8 - 1 8")]
 		[DataRow("<channels><channels><samplerate><channels><channels>", "", "", "100")]
 		[DataRow(" <channels> <channels> <samplerate> <channels> <channels>", "", "", "100")]
 		[DataRow(" <channels> - <channels> <samplerate> <channels> - <channels>", "", "", "- 100 -")]
