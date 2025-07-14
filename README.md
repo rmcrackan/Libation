@@ -22,6 +22,7 @@
     - [Download PDF attachments](Documentation/GettingStarted.md#download-pdf-attachments)
     - [Details of downloaded files](Documentation/GettingStarted.md#details-of-downloaded-files)
     - [Export your library](Documentation/GettingStarted.md#export-your-library)
+    - If you still need help, [you can open an issue here](https://github.com/rmcrackan/Libation/issues) for bug reports, feature requests, or specialized help.
 - [Searching and filtering](Documentation/SearchingAndFiltering.md)
     - [Tags](Documentation/SearchingAndFiltering.md#tags)
     - [Searches](Documentation/SearchingAndFiltering.md#searches)

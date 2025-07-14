@@ -15,6 +15,7 @@
 - [Download PDF attachments](#download-pdf-attachments)
 - [Details of downloaded files](#details-of-downloaded-files)
 - [Export your library](#export-your-library)
+- [I still need help](#i-still-need-help)
 
 
 
@@ -148,3 +149,7 @@ When you set up Libation, you'll specify a Books directory. Libation looks insid
 ![Export](images/Export.png)
 
 Export your library to Excel, CSV, or JSON
+
+### I still need help
+
+[You can open an issue here](https://github.com/rmcrackan/Libation/issues) for bug reports, feature requests, or specialized help.

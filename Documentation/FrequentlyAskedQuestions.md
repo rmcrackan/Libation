@@ -7,6 +7,10 @@
 
 # Frequently Asked Questions
 
+## Q: Where can I get help for my specific problem?
+
+**A:** [You can open an issue here](https://github.com/rmcrackan/Libation/issues) for bug reports, feature requests, or specialized help.
+
 ## Q: What's the difference between 'Classic' and 'Chardonnay'?
 
 **A:** First and most importantly: Classic and Chardonnay have the exact same features.
