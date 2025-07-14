@@ -41,21 +41,25 @@ namespace LibationAvalonia.ViewModels
 				{
 					var item = libraryBooks[0];
 
-					//Remove this item from the queue if it's already present and completed.
-					//Only do this when adding a single book at a time to prevent accidental
-					//extra downloads when queueing in batches.
-					ProcessQueue.RemoveCompleted(item);
+					void initiateSingleDownload()
+					{
+						//Remove this item from the queue if it's already present and completed.
+						//Only do this when adding a single book at a time to prevent accidental
+						//extra downloads when queueing in batches.
+						ProcessQueue.RemoveCompleted(item);
+						setQueueCollapseState(false);
+					}
 
 					if (item.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
 					{
+						initiateSingleDownload();
 						Serilog.Log.Logger.Information("Begin single book backup of {libraryBook}", item);
-						setQueueCollapseState(false);
 						ProcessQueue.AddDownloadDecrypt(item);
 					}
 					else if (item.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
 					{
+						initiateSingleDownload();
 						Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", item);
-						setQueueCollapseState(false);
 						ProcessQueue.AddDownloadPdf(item);
 					}
 					else if (item.Book.Audio_Exists())
