@@ -290,33 +290,24 @@ namespace AppScaffolding
 		public static UpgradeProperties GetLatestRelease()
 		{
 			// timed out
-			(var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10));
+			(var version, var latest, var zip) = getLatestRelease(TimeSpan.FromSeconds(10));
 
-			if (latest is null || zip is null)
-				return null;
-
-			var latestVersionString = latest.TagName.Trim('v');
-			if (!Version.TryParse(latestVersionString, out var latestRelease))
-				return null;
-
-			// we're up to date
-			if (latestRelease <= BuildVersion)
+			if (version is null || latest is null || zip is null)
 				return null;
 
 			// we have an update
-
 			var zipUrl = zip?.BrowserDownloadUrl;
 
 			Log.Logger.Information("Update available: {@DebugInfo}", new
 			{
-				latestRelease = latestRelease.ToString(),
+				latestRelease = version.ToString(),
 				latest.HtmlUrl,
 				zipUrl
 			});
 
-			return new(zipUrl, latest.HtmlUrl, zip.Name, latestRelease, latest.Body);
+			return new(zipUrl, latest.HtmlUrl, zip.Name, version, latest.Body);
 		}
-		private static (Octokit.Release, Octokit.ReleaseAsset) getLatestRelease(TimeSpan timeout)
+		private static (Version releaseVersion, Octokit.Release, Octokit.ReleaseAsset) getLatestRelease(TimeSpan timeout)
 		{
 			try
 			{
@@ -330,14 +321,22 @@ namespace AppScaffolding
 			{
 				Log.Logger.Error(aggEx, "Checking for new version too often");
 			}
-			return (null, null);
+			return (null, null, null);
 		}
-		private static async System.Threading.Tasks.Task<(Octokit.Release, Octokit.ReleaseAsset)> getLatestRelease()
+		private static async System.Threading.Tasks.Task<(Version releaseVersion, Octokit.Release, Octokit.ReleaseAsset)> getLatestRelease()
 		{
 			const string ownerAccount = "rmcrackan";
 			const string repoName = "Libation";
 
 			var gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(repoName));
+
+			//https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release
+			var latestRelease = await gitHubClient.Repository.Release.GetLatest(ownerAccount, repoName);
+
+			//Ensure that latest release is greater than the current version
+			var latestVersionString = latestRelease.TagName.Trim('v');
+			if (!Version.TryParse(latestVersionString, out var releaseVersion) || releaseVersion <= BuildVersion)
+				return (null, null, null);
 
 			//Download the release index
 			var bts = await gitHubClient.Repository.Content.GetRawContent(ownerAccount, repoName, ".releaseindex.json");
@@ -356,10 +355,7 @@ namespace AppScaffolding
 
 			var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-			//https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-the-latest-release
-			var latestRelease = await gitHubClient.Repository.Release.GetLatest(ownerAccount, repoName);
-
-			return (latestRelease, latestRelease?.Assets?.FirstOrDefault(a => regex.IsMatch(a.Name)));
+			return (releaseVersion, latestRelease, latestRelease?.Assets?.FirstOrDefault(a => regex.IsMatch(a.Name)));
 		}
 	}
 
