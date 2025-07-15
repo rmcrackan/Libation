@@ -1,6 +1,8 @@
 ﻿using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
+using LibationUiBase;
+using LibationUiBase.Forms;
 using LibationUiBase.GridView;
 using LibationWinForms.ProcessQueue;
 using System;
@@ -27,53 +29,16 @@ namespace LibationWinForms
 		{
 			try
 			{
-				if (libraryBooks.Length == 1)
+				if (processBookQueue1.QueueDownloadDecrypt(libraryBooks))
+					SetQueueCollapseState(false);
+				else if (libraryBooks.Length == 1 && libraryBooks[0].Book.Audio_Exists())
 				{
-					var item = libraryBooks[0];
-
-					void initiateSingleDownload()
+					// liberated: open explorer to file
+					var filePath = AudibleFileStorage.Audio.GetPath(libraryBooks[0].Book.AudibleProductId);
+					if (!Go.To.File(filePath?.ShortPathName))
 					{
-						//Remove this item from the queue if it's already present and completed.
-						//Only do this when adding a single book at a time to prevent accidental
-						//extra downloads when queueing in batches.
-						processBookQueue1.RemoveCompleted(item);
-						SetQueueCollapseState(false);
-					}
-
-					if (item.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
-					{
-						initiateSingleDownload();
-						Serilog.Log.Logger.Information("Begin single book backup of {libraryBook}", item);
-						processBookQueue1.AddDownloadDecrypt(item);
-					}
-					else if (item.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
-					{
-						initiateSingleDownload();
-						Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", item);
-						processBookQueue1.AddDownloadPdf(item);
-					}
-					else if (item.Book.Audio_Exists())
-					{
-						// liberated: open explorer to file
-						var filePath = AudibleFileStorage.Audio.GetPath(item.Book.AudibleProductId);
-						if (!Go.To.File(filePath?.ShortPathName))
-						{
-							var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-							MessageBox.Show($"File not found" + suffix);
-						}
-					}
-				}
-				else
-				{
-					var toLiberate
-						= libraryBooks
-						.Where(x => x.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload || x.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
-						.ToArray();
-
-					if (toLiberate.Length > 0)
-					{
-						SetQueueCollapseState(false);
-						processBookQueue1.AddDownloadDecrypt(toLiberate);
+						var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
+						MessageBox.Show($"File not found" + suffix);
 					}
 				}
 			}
@@ -87,11 +52,10 @@ namespace LibationWinForms
 		{
 			try
 			{
-				SetQueueCollapseState(false);
-
 				Serilog.Log.Logger.Information("Begin backing up all {series} episodes", series.LibraryBook);
 
-				processBookQueue1.AddDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated());
+				if (processBookQueue1.QueueDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated().ToArray()))
+					SetQueueCollapseState(false);
 			}
 			catch (Exception ex)
 			{
@@ -103,13 +67,8 @@ namespace LibationWinForms
 		{
 			try
 			{
-				var preLiberated = libraryBooks.Where(lb => lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated).ToArray();
-				if (preLiberated.Length > 0)
-				{
-					Serilog.Log.Logger.Information("Begin convert {count} books to mp3", preLiberated.Length);
+				if (processBookQueue1.QueueConvertToMp3(libraryBooks))
 					SetQueueCollapseState(false);
-					processBookQueue1.AddConvertMp3(preLiberated);
-				}
 			}
 			catch (Exception ex)
 			{

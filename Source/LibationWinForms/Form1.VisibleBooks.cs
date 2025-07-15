@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
 using Dinah.Core.Threading;
+using LibationUiBase;
 using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
@@ -58,15 +59,8 @@ namespace LibationWinForms
 		{
 			try
 			{
-				SetQueueCollapseState(false);
-
-				Serilog.Log.Logger.Information("Begin backing up visible library books");
-
-				processBookQueue1.AddDownloadDecrypt(
-					productsDisplay
-					.GetVisible()
-					.UnLiberated()
-					);
+				if (processBookQueue1.QueueDownloadDecrypt(productsDisplay.GetVisible().UnLiberated().ToArray()))
+					SetQueueCollapseState(false);
 			}
 			catch (Exception ex)
 			{

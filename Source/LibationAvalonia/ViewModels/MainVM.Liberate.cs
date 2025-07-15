@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
 using LibationUiBase.Forms;
+using LibationUiBase;
+using System.Collections.Generic;
 
 #nullable enable
 namespace LibationAvalonia.ViewModels
@@ -13,19 +15,14 @@ namespace LibationAvalonia.ViewModels
 	{
 		public void Configure_Liberate() { }
 
-		public void BackupAllBooks()
+		public async Task BackupAllBooks()
 		{
 			try
 			{
-				setQueueCollapseState(false);
+				var unliberated = await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking().UnLiberated().ToArray());
 
-				Serilog.Log.Logger.Information("Begin backing up all library books");
-
-				ProcessQueue.AddDownloadDecrypt(
-					DbContexts
-					.GetLibrary_Flat_NoTracking()
-					.UnLiberated()
-					);
+				if (ProcessQueue.QueueDownloadDecrypt(unliberated))
+					setQueueCollapseState(false);
 			}
 			catch (Exception ex)
 			{
@@ -33,10 +30,10 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		public void BackupAllPdfs()
+		public async Task BackupAllPdfs()
 		{
-			setQueueCollapseState(false);
-			ProcessQueue.AddDownloadPdf(DbContexts.GetLibrary_Flat_NoTracking().Where(lb => lb.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated));
+			if (ProcessQueue.QueueDownloadPdf(await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking())))
+				setQueueCollapseState(false);
 		}
 
 		public async Task ConvertAllToMp3Async()
@@ -49,12 +46,8 @@ namespace LibationAvalonia.ViewModels
 				"Convert all M4b => Mp3?",
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Warning);
-			if (result == DialogResult.Yes)
-			{
+			if (result == DialogResult.Yes && ProcessQueue.QueueConvertToMp3(await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking())))
 				setQueueCollapseState(false);
-				ProcessQueue.AddConvertMp3(DbContexts.GetLibrary_Flat_NoTracking().Where(lb => lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated && lb.Book.ContentType is ContentType.Product));
-			}
-			//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.
 		}
 
 		private void setQueueCollapseState(bool collapsed)

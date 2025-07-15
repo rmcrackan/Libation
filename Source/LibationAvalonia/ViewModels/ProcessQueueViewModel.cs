@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace LibationAvalonia.ViewModels
 {
 
-	public class ProcessQueueViewModel : ViewModelBase, ILogForm
+	public class ProcessQueueViewModel : ViewModelBase, ILogForm, IProcessQueue
 	{
 		public ObservableCollection<LogEntry> LogEntries { get; } = new();
 		public AvaloniaList<ProcessBookViewModel> Items { get; } = new();
@@ -135,15 +135,6 @@ namespace LibationAvalonia.ViewModels
 			=> Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId) is ProcessBookViewModel entry
 			&& entry.Status is ProcessBookStatus.Completed
 			&& Queue.RemoveCompleted(entry);
-
-		public void AddDownloadPdf(LibraryBook libraryBook)
-			=> AddDownloadPdf(new List<LibraryBook>() { libraryBook });
-
-		public void AddDownloadDecrypt(LibraryBook libraryBook)
-			=> AddDownloadDecrypt(new List<LibraryBook>() { libraryBook });
-
-		public void AddConvertMp3(LibraryBook libraryBook)
-			=> AddConvertMp3(new List<LibraryBook>() { libraryBook });
 
 		public void AddDownloadPdf(IEnumerable<LibraryBook> entries)
 		{

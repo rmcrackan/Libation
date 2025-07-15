@@ -1,4 +1,5 @@
 ﻿using DataLayer;
+using LibationUiBase;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,19 +12,13 @@ namespace LibationWinForms
 		private void Configure_Liberate() { }
 
 		//GetLibrary_Flat_NoTracking() may take a long time on a hugh library. so run in new thread 
-		private void beginBookBackupsToolStripMenuItem_Click(object _ = null, EventArgs __ = null)
+		private async void beginBookBackupsToolStripMenuItem_Click(object _ = null, EventArgs __ = null)
 		{
 			try
 			{
-				SetQueueCollapseState(false);
-
-				Serilog.Log.Logger.Information("Begin backing up all library books");
-
-				processBookQueue1.AddDownloadDecrypt(
-					ApplicationServices.DbContexts
-					.GetLibrary_Flat_NoTracking()
-					.UnLiberated()
-					);
+				var unliberated = await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking().UnLiberated().ToArray());
+				if (processBookQueue1.QueueDownloadDecrypt(unliberated))
+					SetQueueCollapseState(false);
 			}
 			catch (Exception ex)
 			{
@@ -33,9 +28,8 @@ namespace LibationWinForms
 
 		private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			SetQueueCollapseState(false);
-			await Task.Run(() => processBookQueue1.AddDownloadPdf(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
-				  .Where(lb => lb.Book.UserDefinedItem.PdfStatus is DataLayer.LiberatedStatus.NotLiberated)));
+			if (processBookQueue1.QueueDownloadPdf(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
+				SetQueueCollapseState(false);
 		}
 
 		private async void convertAllM4bToMp3ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -48,13 +42,8 @@ namespace LibationWinForms
 				"Convert all M4b => Mp3?",
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Warning);
-			if (result == DialogResult.Yes)
-			{
+			if (result == DialogResult.Yes && processBookQueue1.QueueConvertToMp3(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
 				SetQueueCollapseState(false);
-				await Task.Run(() => processBookQueue1.AddConvertMp3(ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking()
-					.Where(lb => lb.Book.UserDefinedItem.BookStatus is DataLayer.LiberatedStatus.Liberated && lb.Book.ContentType is DataLayer.ContentType.Product)));
-			}
-			//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.
 		}
 	}
 }

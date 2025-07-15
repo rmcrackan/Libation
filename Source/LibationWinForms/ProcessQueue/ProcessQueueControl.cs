@@ -11,7 +11,7 @@ using LibationUiBase;
 
 namespace LibationWinForms.ProcessQueue
 {
-	internal partial class ProcessQueueControl : UserControl, ILogForm
+	internal partial class ProcessQueueControl : UserControl, ILogForm, IProcessQueue
 	{
 		private TrackedQueue<ProcessBook> Queue = new();
 		private readonly LogMe Logger;
@@ -97,15 +97,6 @@ namespace LibationWinForms.ProcessQueue
 			&& entry.Status is ProcessBookStatus.Completed
 			&& Queue.RemoveCompleted(entry);
 
-		public void AddDownloadPdf(DataLayer.LibraryBook libraryBook)
-			=> AddDownloadPdf(new List<DataLayer.LibraryBook>() { libraryBook });
-
-		public void AddDownloadDecrypt(DataLayer.LibraryBook libraryBook)
-			=> AddDownloadDecrypt(new List<DataLayer.LibraryBook>() { libraryBook });
-
-		public void AddConvertMp3(DataLayer.LibraryBook libraryBook)
-			=> AddConvertMp3(new List<DataLayer.LibraryBook>() { libraryBook });
-
 		public void AddDownloadPdf(IEnumerable<DataLayer.LibraryBook> entries)
 		{
 			List<ProcessBook> procs = new();
@@ -162,6 +153,9 @@ namespace LibationWinForms.ProcessQueue
 		}
 		private void AddToQueue(IEnumerable<ProcessBook> pbook)
 		{
+			if (!IsHandleCreated)
+				CreateControl();
+
 			BeginInvoke(() =>
 			{
 				Queue.Enqueue(pbook);

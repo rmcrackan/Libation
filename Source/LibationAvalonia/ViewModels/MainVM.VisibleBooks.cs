@@ -6,6 +6,8 @@ using Avalonia.Threading;
 using LibationAvalonia.Dialogs;
 using ReactiveUI;
 using LibationUiBase.Forms;
+using System.Linq;
+using LibationUiBase;
 
 #nullable enable
 namespace LibationAvalonia.ViewModels
@@ -72,15 +74,8 @@ namespace LibationAvalonia.ViewModels
 		{
 			try
 			{
-				setQueueCollapseState(false);
-
-				Serilog.Log.Logger.Information("Begin backing up visible library books");
-
-				ProcessQueue.AddDownloadDecrypt(
-					ProductsDisplay
-					.GetVisibleBookEntries()
-					.UnLiberated()
-					);
+				if (ProcessQueue.QueueDownloadDecrypt(ProductsDisplay.GetVisibleBookEntries().UnLiberated().ToArray()))
+					setQueueCollapseState(false);
 			}
 			catch (Exception ex)
 			{
