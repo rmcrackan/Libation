@@ -6,6 +6,7 @@ using DataLayer;
 using Dinah.Core.Logging;
 using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels.Dialogs;
+using LibationUiBase.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,54 +14,9 @@ using System.Threading.Tasks;
 
 namespace LibationAvalonia
 {
-	public enum DialogResult
-	{
-		None = 0,
-		OK = 1,
-		Cancel = 2,
-		Abort = 3,
-		Retry = 4,
-		Ignore = 5,
-		Yes = 6,
-		No = 7,
-		TryAgain = 10,
-		Continue = 11
-	}
-
-	public enum MessageBoxIcon
-	{
-		None = 0,
-		Error = 16,
-		Hand = 16,
-		Stop = 16,
-		Question = 32,
-		Exclamation = 48,
-		Warning = 48,
-		Asterisk = 64,
-		Information = 64
-	}
-
-	public enum MessageBoxButtons
-	{
-		OK,
-		OKCancel,
-		AbortRetryIgnore,
-		YesNoCancel,
-		YesNo,
-		RetryCancel,
-		CancelTryContinue
-	}
-
-	public enum MessageBoxDefaultButton
-	{
-		Button1,
-		Button2 = 256,
-		Button3 = 512,
-	}
 
 	public class MessageBox
 	{
-
 		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 			=> ShowCoreAsync(null, text, caption, buttons, icon, defaultButton);
 		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, bool saveAndRestorePosition = true)
@@ -71,8 +27,8 @@ namespace LibationAvalonia
 				=> ShowCoreAsync(null, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		public static Task<DialogResult> Show(string text)
 				=> ShowCoreAsync(null, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
-					=> ShowCoreAsync(owner, text, caption, buttons, icon, defaultButton);
+		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
+					=> ShowCoreAsync(owner, text, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 
 		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
 					=> ShowCoreAsync(owner, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);

@@ -5,6 +5,7 @@ using DataLayer;
 using Avalonia.Threading;
 using LibationAvalonia.Dialogs;
 using ReactiveUI;
+using LibationUiBase.Forms;
 
 #nullable enable
 namespace LibationAvalonia.ViewModels

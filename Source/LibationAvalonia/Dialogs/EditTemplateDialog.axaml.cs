@@ -6,6 +6,7 @@ using Avalonia.Styling;
 using Dinah.Core;
 using LibationFileManager;
 using LibationFileManager.Templates;
+using LibationUiBase.Forms;
 using ReactiveUI;
 using System;
 using System.IO;

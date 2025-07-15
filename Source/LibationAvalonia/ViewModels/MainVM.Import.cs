@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Input;
+using LibationUiBase.Forms;
 
 #nullable enable
 namespace LibationAvalonia.ViewModels

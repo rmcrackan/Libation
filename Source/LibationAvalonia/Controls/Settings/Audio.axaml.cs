@@ -4,6 +4,7 @@ using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
 using LibationFileManager.Templates;
+using LibationUiBase.Forms;
 using System.Linq;
 using System.Threading.Tasks;
 

@@ -22,6 +22,10 @@ namespace LibationWinForms
 		static void Main()
 		{
 			Task<List<LibraryBook>> libraryLoadTask;
+
+			LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = (owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition) =>
+				Task.FromResult((LibationUiBase.Forms.DialogResult)MessageBox.Show(owner as IWin32Window, message, caption, (MessageBoxButtons)buttons, (MessageBoxIcon)icon, (MessageBoxDefaultButton)defaultButton));
+
 			try
 			{
 				//// Uncomment to see Console. Must be called before anything writes to Console.
