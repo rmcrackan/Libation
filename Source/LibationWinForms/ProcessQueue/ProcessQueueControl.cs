@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ApplicationServices;
 using LibationFileManager;
 using LibationUiBase;
+using LibationUiBase.ProcessQueue;
 
 namespace LibationWinForms.ProcessQueue
 {
 	internal partial class ProcessQueueControl : UserControl, ILogForm, IProcessQueue
 	{
-		private TrackedQueue<ProcessBook> Queue = new();
+		private TrackedQueue<ProcessBookViewModel> Queue = new();
 		private readonly LogMe Logger;
 		private int QueuedCount
 		{
@@ -93,19 +95,19 @@ namespace LibationWinForms.ProcessQueue
 		}
 
 		public bool RemoveCompleted(DataLayer.LibraryBook libraryBook)
-			=> Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId) is ProcessBook entry
+			=> Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId) is ProcessBookViewModel entry
 			&& entry.Status is ProcessBookStatus.Completed
 			&& Queue.RemoveCompleted(entry);
 
 		public void AddDownloadPdf(IEnumerable<DataLayer.LibraryBook> entries)
 		{
-			List<ProcessBook> procs = new();
+			List<ProcessBookViewModel> procs = new();
 			foreach (var entry in entries)
 			{
 				if (isBookInQueue(entry))
 					continue;
 
-				ProcessBook pbook = new(entry, Logger);
+				ProcessBookViewModel pbook = new(entry, Logger);
 				pbook.PropertyChanged += Pbook_DataAvailable;
 				pbook.AddDownloadPdf();
 				procs.Add(pbook);
@@ -117,13 +119,13 @@ namespace LibationWinForms.ProcessQueue
 
 		public void AddDownloadDecrypt(IEnumerable<DataLayer.LibraryBook> entries)
 		{
-			List<ProcessBook> procs = new();
+			List<ProcessBookViewModel> procs = new();
 			foreach (var entry in entries)
 			{
 				if (isBookInQueue(entry))
 					continue;
 
-				ProcessBook pbook = new(entry, Logger);
+				ProcessBookViewModel pbook = new(entry, Logger);
 				pbook.PropertyChanged += Pbook_DataAvailable;
 				pbook.AddDownloadDecryptBook();
 				pbook.AddDownloadPdf();
@@ -136,13 +138,13 @@ namespace LibationWinForms.ProcessQueue
 		
 		public void AddConvertMp3(IEnumerable<DataLayer.LibraryBook> entries)
 		{
-			List<ProcessBook> procs = new();
+			List<ProcessBookViewModel> procs = new();
 			foreach (var entry in entries)
 			{
 				if (isBookInQueue(entry))
 					continue;
 
-				ProcessBook pbook = new(entry, Logger);
+				ProcessBookViewModel pbook = new(entry, Logger);
 				pbook.PropertyChanged += Pbook_DataAvailable;
 				pbook.AddConvertToMp3();
 				procs.Add(pbook);
@@ -151,7 +153,7 @@ namespace LibationWinForms.ProcessQueue
 			Serilog.Log.Logger.Information("Queueing {count} books", procs.Count);
 			AddToQueue(procs);
 		}
-		private void AddToQueue(IEnumerable<ProcessBook> pbook)
+		private void AddToQueue(IEnumerable<ProcessBookViewModel> pbook)
 		{
 			if (!IsHandleCreated)
 				CreateControl();
@@ -303,22 +305,22 @@ This error appears to be caused by a temporary interruption of service that some
 		#region View-Model update event handling
 
 		/// <summary>
-		/// Index of the first <see cref="ProcessBook"/> visible in the <see cref="VirtualFlowControl"/>
+		/// Index of the first <see cref="ProcessBookViewModel"/> visible in the <see cref="VirtualFlowControl"/>
 		/// </summary>
 		private int FirstVisible = 0;
 		/// <summary>
-		/// Number of <see cref="ProcessBook"/> visible in the <see cref="VirtualFlowControl"/>
+		/// Number of <see cref="ProcessBookViewModel"/> visible in the <see cref="VirtualFlowControl"/>
 		/// </summary>
 		private int NumVisible = 0;
 		/// <summary>
-		/// Controls displaying the <see cref="ProcessBook"/> state, starting with <see cref="FirstVisible"/> 
+		/// Controls displaying the <see cref="ProcessBookViewModel"/> state, starting with <see cref="FirstVisible"/> 
 		/// </summary>
 		private IReadOnlyList<ProcessBookControl> Panels;
 
 		/// <summary>
 		/// Updates the display of a single <see cref="ProcessBookControl"/> at <paramref name="queueIndex"/> within <see cref="Queue"/>
 		/// </summary>
-		/// <param name="queueIndex">index of the <see cref="ProcessBook"/> within the <see cref="Queue"/></param>
+		/// <param name="queueIndex">index of the <see cref="ProcessBookViewModel"/> within the <see cref="Queue"/></param>
 		/// <param name="propertyName">The nme of the property that needs updating. If null, all properties are updated.</param>
 		private void UpdateControl(int queueIndex, string propertyName = null)
 		{
@@ -334,8 +336,8 @@ This error appears to be caused by a temporary interruption of service that some
 				{
 					Panels[i].SuspendLayout();
 					if (propertyName is null or nameof(proc.Cover))
-						Panels[i].SetCover(proc.Cover);
-					if (propertyName is null or nameof(proc.BookText))
+						Panels[i].SetCover(proc.Cover as Image);
+					if (propertyName is null or nameof(proc.Title) or nameof(proc.Author) or nameof(proc.Narrator))
 						Panels[i].SetBookInfo(proc.BookText);
 
 					if (proc.Result != ProcessBookResult.None)
@@ -371,13 +373,13 @@ This error appears to be caused by a temporary interruption of service that some
 		/// <summary>
 		/// View notified the model that a botton was clicked
 		/// </summary>
-		/// <param name="queueIndex">index of the <see cref="ProcessBook"/> within <see cref="Queue"/></param>
+		/// <param name="queueIndex">index of the <see cref="ProcessBookViewModel"/> within <see cref="Queue"/></param>
 		/// <param name="panelClicked">The clicked control to update</param>
 		private async void VirtualFlowControl2_ButtonClicked(int queueIndex, string buttonName, ProcessBookControl panelClicked)
 		{
 			try
 			{
-				ProcessBook item = Queue[queueIndex];
+				ProcessBookViewModel item = Queue[queueIndex];
 				if (buttonName == nameof(panelClicked.cancelBtn))
 				{
 					if (item is not null)
@@ -432,7 +434,7 @@ This error appears to be caused by a temporary interruption of service that some
 		/// </summary>
 		private void Pbook_DataAvailable(object sender, PropertyChangedEventArgs e)
 		{
-			int index = Queue.IndexOf((ProcessBook)sender);
+			int index = Queue.IndexOf((ProcessBookViewModel)sender);
 			UpdateControl(index, e.PropertyName);
 		}
 

@@ -1,12 +1,10 @@
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
-using NPOI.Util.Collections;
+using LibationUiBase.ProcessQueue;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
