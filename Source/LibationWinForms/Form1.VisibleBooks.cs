@@ -25,9 +25,17 @@ namespace LibationWinForms
 		}
 		private async void setLiberatedVisibleMenuItemAsync(object _, object __)
 			=> await Task.Run(setLiberatedVisibleMenuItem);
+
+		private static DateTime lastVisibleCountUpdated;
 		void setLiberatedVisibleMenuItem()
 		{
+			//Assume that all calls to update arrive in order,
+			//Only display results of the latest book count.
+			var updaterTime = lastVisibleCountUpdated = DateTime.UtcNow;
 			var libraryStats = LibraryCommands.GetCounts(productsDisplay.GetVisible());
+			if (updaterTime < lastVisibleCountUpdated)
+				return;
+
 			this.UIThreadSync(() =>
 			{
 				if (libraryStats.HasPendingBooks)
