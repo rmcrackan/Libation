@@ -101,7 +101,13 @@ namespace LibationUiBase.GridView
 			else if (!IsUnavailable && second.IsUnavailable) return -1;
 			else if (BookStatus == LiberatedStatus.Liberated && second.BookStatus != LiberatedStatus.Liberated) return -1;
 			else if (BookStatus != LiberatedStatus.Liberated && second.BookStatus == LiberatedStatus.Liberated) return 1;
-			else return BookStatus.CompareTo(second.BookStatus);
+
+			var statusCompare = BookStatus.CompareTo(second.BookStatus);
+			if (statusCompare != 0) return statusCompare;
+			else if (PdfStatus is null && second.PdfStatus is null) return 0;
+			else if (PdfStatus is null && second.PdfStatus is not null) return 1;
+			else if (PdfStatus is not null && second.PdfStatus is null) return -1;
+			else return PdfStatus.Value.CompareTo(second.PdfStatus.Value);
 		}
 
 		private object GetLiberateIcon()
