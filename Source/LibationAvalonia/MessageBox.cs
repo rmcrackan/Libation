@@ -20,41 +20,39 @@ namespace LibationAvalonia
 		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
 			=> ShowCoreAsync(null, text, caption, buttons, icon, defaultButton);
 		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, bool saveAndRestorePosition = true)
-					=> ShowCoreAsync(null, text, caption, buttons, icon, MessageBoxDefaultButton.Button1, saveAndRestorePosition);
+			=> ShowCoreAsync(null, text, caption, buttons, icon, MessageBoxDefaultButton.Button1, saveAndRestorePosition);
 		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons)
-					=> ShowCoreAsync(null, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+			=> ShowCoreAsync(null, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		public static Task<DialogResult> Show(string text, string caption)
-				=> ShowCoreAsync(null, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+			=> ShowCoreAsync(null, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		public static Task<DialogResult> Show(string text)
-				=> ShowCoreAsync(null, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+			=> ShowCoreAsync(null, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
-					=> ShowCoreAsync(owner, text, caption, buttons, icon, defaultButton, saveAndRestorePosition);
-
+			=> ShowCoreAsync(owner, text, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
-					=> ShowCoreAsync(owner, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
+			=> ShowCoreAsync(owner, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
 		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons)
-				=> ShowCoreAsync(owner, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+			=> ShowCoreAsync(owner, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		public static Task<DialogResult> Show(Window owner, string text, string caption)
-				=> ShowCoreAsync(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
+			=> ShowCoreAsync(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		public static Task<DialogResult> Show(Window owner, string text)
 			=> ShowCoreAsync(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-
 
 		public static async Task VerboseLoggingWarning_ShowIfTrue()
 		{
 			// when turning on debug (and especially Verbose) to share logs, some privacy settings may not be obscured
 			if (Serilog.Log.Logger.IsVerboseEnabled())
-				await Show(@"
-Warning: verbose logging is enabled.
+				await Show("""
+				Warning: verbose logging is enabled.
 
-This should be used for debugging only. It creates many
-more logs and debug files, neither of which are as
-strictly anonymous.
+				This should be used for debugging only. It creates many
+				more logs and debug files, neither of which are as
+				strictly anonymous.
 
-When you are finished debugging, it's highly recommended
-to set your debug MinimumLevel to Information and restart
-Libation.
-".Trim(), "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				When you are finished debugging, it's highly recommended
+				to set your debug MinimumLevel to Information and restart
+				Libation.
+				""", "Verbose logging enabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 		}
 
 		/// <summary>
@@ -94,7 +92,8 @@ Libation.
 		{
 			// for development and debugging, show me what broke!
 			if (System.Diagnostics.Debugger.IsAttached)
-				throw exception;
+				//Wrap the exception to preserve its stack trace.
+				throw new Exception("An unhandled exception was encountered", exception);
 
 			try
 			{
@@ -131,7 +130,6 @@ Libation.
 			tbx.MinWidth = vm.TextBlockMinWidth;
 			tbx.Text = message;
 
-			
 			var thisScreen = owner.Screens?.ScreenFromVisual(owner);
 
 			var maxSize
@@ -185,6 +183,5 @@ Libation.
 				return await toDisplay.ShowDialog<DialogResult>(owner);
 			}
 		}
-
 	}
 }

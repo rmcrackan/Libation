@@ -169,17 +169,10 @@ internal partial class ProcessQueueControl : UserControl
 					Panels[i].SetCover(proc.Cover as Image);
 				if (propertyName is null or nameof(proc.Title) or nameof(proc.Author) or nameof(proc.Narrator))
 					Panels[i].SetBookInfo($"{proc.Title}\r\nBy {proc.Author}\r\nNarrated by {proc.Narrator}");
-
-				if (proc.Result != ProcessBookResult.None)
-				{
-					Panels[i].SetResult(proc.Result);
-					return;
-				}
-
-				if (propertyName is null or nameof(proc.Status))
-					Panels[i].SetStatus(proc.Status);
+				if (propertyName is null or nameof(proc.Status) or nameof(proc.StatusText))
+					Panels[i].SetStatus(proc.Status, proc.StatusText);
 				if (propertyName is null or nameof(proc.Progress))
-					Panels[i].SetProgrss(proc.Progress);
+					Panels[i].SetProgress(proc.Progress);
 				if (propertyName is null or nameof(proc.TimeRemaining))
 					Panels[i].SetRemainingTime(proc.TimeRemaining);
 				Panels[i].ResumeLayout();

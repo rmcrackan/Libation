@@ -42,8 +42,6 @@ public enum ProcessBookStatus
 /// </summary>
 public abstract class ProcessBookViewModelBase : ReactiveObject
 {
-	public event EventHandler? Completed;
-
 	private readonly LogMe Logger;
 	public LibraryBook LibraryBook { get; protected set; }
 
@@ -86,12 +84,12 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 
 	#endregion
 
-
 	protected Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
-	protected Processable? NextProcessable() => _currentProcessable = null;
+	protected void NextProcessable() => _currentProcessable = null;
 	private Processable? _currentProcessable;
-	protected readonly Queue<Func<Processable>> Processes = new();
 
+	/// <summary> A series of Processable actions to perform on this book </summary>
+	protected Queue<Func<Processable>> Processes { get; } = new();
 
 	protected ProcessBookViewModelBase(LibraryBook libraryBook, LogMe logme)
 	{
@@ -120,6 +118,7 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 			PictureStorage.PictureCached -= PictureStorage_PictureCached;
 		}
 	}
+
 	public async Task<ProcessBookResult> ProcessOneAsync()
 	{
 		string procName = CurrentProcessable.Name;
@@ -168,7 +167,7 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		finally
 		{
 			if (result == ProcessBookResult.None)
-				result = await showRetry(LibraryBook);
+				result = await GetFailureActionAsync(LibraryBook);
 
 			var status = result switch
 			{
@@ -197,13 +196,14 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		}
 	}
 
-	public void AddDownloadPdf() => AddProcessable<DownloadPdf>();
-	public void AddDownloadDecryptBook() => AddProcessable<DownloadDecryptBook>();
-	public void AddConvertToMp3() => AddProcessable<ConvertToMp3>();
+	public ProcessBookViewModelBase AddDownloadPdf() => AddProcessable<DownloadPdf>();
+	public ProcessBookViewModelBase AddDownloadDecryptBook() => AddProcessable<DownloadDecryptBook>();
+	public ProcessBookViewModelBase AddConvertToMp3() => AddProcessable<ConvertToMp3>();
 
-	private void AddProcessable<T>() where T : Processable, new()
+	private ProcessBookViewModelBase AddProcessable<T>() where T : Processable, new()
 	{
 		Processes.Enqueue(() => new T());
+		return this;
 	}
 
 	public override string ToString() => LibraryBook.ToString();
@@ -246,16 +246,13 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 
 	#endregion
 
-
-
 	#region AudioDecodable event handlers
 
 	private void AudioDecodable_TitleDiscovered(object? sender, string title) => Title = title;
-
 	private void AudioDecodable_AuthorsDiscovered(object? sender, string authors) => Author = authors;
-
 	private void AudioDecodable_NarratorsDiscovered(object? sender, string narrators) => Narrator = narrators;
-
+	private void AudioDecodable_CoverImageDiscovered(object? sender, byte[] coverArt)
+		=> Cover = LoadImageFromBytes(coverArt, PictureSize._80x80);
 
 	private byte[] AudioDecodable_RequestCoverArt(object? sender, EventArgs e)
 	{
@@ -270,17 +267,11 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		return coverData;
 	}
 
-	private void AudioDecodable_CoverImageDiscovered(object? sender, byte[] coverArt)
-	{
-		Cover = LoadImageFromBytes(coverArt, PictureSize._80x80);
-	}
-
 	#endregion
 
 	#region Streamable event handlers
+
 	private void Streamable_StreamingTimeRemaining(object? sender, TimeSpan timeRemaining) => TimeRemaining = timeRemaining;
-
-
 	private void Streamable_StreamingProgressChanged(object? sender, Dinah.Core.Net.Http.DownloadProgress downloadProgress)
 	{
 		if (!downloadProgress.ProgressPercentage.HasValue)
@@ -317,10 +308,7 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		}
 
 		if (Processes.Count == 0)
-		{
-			Completed?.Invoke(this, EventArgs.Empty);
 			return;
-		}
 
 		NextProcessable();
 		LinkProcessable(CurrentProcessable);
@@ -342,28 +330,39 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		{
 			foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
 				Logger.Error(errorMessage);
-
-			Completed?.Invoke(this, EventArgs.Empty);
 		}
 	}
 
 	#endregion
 
-	#region Failure Handler
+	#region Failure Handler	
 
-	protected async Task<ProcessBookResult> showRetry(LibraryBook libraryBook)
+	protected async Task<ProcessBookResult> GetFailureActionAsync(LibraryBook libraryBook)
 	{
-		Logger.Error("ERROR. All books have not been processed. Most recent book: processing failed");
+		const DialogResult SkipResult = DialogResult.Ignore;
+		Logger.Error($"ERROR. All books have not been processed. Book failed: {libraryBook.Book}");
 
 		DialogResult? dialogResult = Configuration.Instance.BadBook switch
 		{
 			Configuration.BadBookAction.Abort => DialogResult.Abort,
 			Configuration.BadBookAction.Retry => DialogResult.Retry,
 			Configuration.BadBookAction.Ignore => DialogResult.Ignore,
-			Configuration.BadBookAction.Ask => null,
-			_ => null
+			Configuration.BadBookAction.Ask or _ => await ShowRetryDialogAsync(libraryBook)
 		};
 
+		if (dialogResult == SkipResult)
+		{
+			libraryBook.UpdateBookStatus(LiberatedStatus.Error);
+			Logger.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.TitleWithSubtitle}");
+		}
+
+		return dialogResult is SkipResult ? ProcessBookResult.FailedSkip
+			 : dialogResult is DialogResult.Abort ? ProcessBookResult.FailedAbort
+			 : ProcessBookResult.FailedRetry;
+	}
+
+	protected async Task<DialogResult> ShowRetryDialogAsync(LibraryBook libraryBook)
+	{
 		string details;
 		try
 		{
@@ -372,49 +371,36 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 				: (str.Length > 50) ? $"{str.Truncate(47)}..."
 				: str;
 
-			details =
-$@"  Title: {libraryBook.Book.TitleWithSubtitle}
-  ID: {libraryBook.Book.AudibleProductId}
-  Author: {trunc(libraryBook.Book.AuthorNames())}
-  Narr: {trunc(libraryBook.Book.NarratorNames())}";
+			details = $"""
+				  Title: {libraryBook.Book.TitleWithSubtitle}
+				  ID: {libraryBook.Book.AudibleProductId}
+				  Author: {trunc(libraryBook.Book.AuthorNames())}
+				  Narr: {trunc(libraryBook.Book.NarratorNames())}
+				""";
 		}
 		catch
 		{
 			details = "[Error retrieving details]";
 		}
 
-		// if null then ask user
-		dialogResult ??= await MessageBoxBase.Show(string.Format(SkipDialogText + "\r\n\r\nSee Settings to avoid this box in the future.", details), "Skip importing this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
+		var skipDialogText = $"""
+			An error occurred while trying to process this book.
+			{details}
+			
+			- ABORT: Stop processing books.
+			
+			- RETRY: Skip this book for now, but retry if it is requeued. Continue processing the queued books.
+			
+			- IGNORE: Permanently ignore this book. Continue processing the queued books. (Will not try this book again later.)
 
-		if (dialogResult == DialogResult.Abort)
-			return ProcessBookResult.FailedAbort;
+			See Settings in the Download/Decrypt tab to avoid this box in the future.
+			""";
 
-		if (dialogResult == SkipResult)
-		{
-			libraryBook.UpdateBookStatus(LiberatedStatus.Error);
+		const MessageBoxButtons SkipDialogButtons = MessageBoxButtons.AbortRetryIgnore;
+		const MessageBoxDefaultButton SkipDialogDefaultButton = MessageBoxDefaultButton.Button1;
 
-			Logger.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.TitleWithSubtitle}");
-
-			return ProcessBookResult.FailedSkip;
-		}
-
-		return ProcessBookResult.FailedRetry;
+		return await MessageBoxBase.Show(skipDialogText, "Skip this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
 	}
 
-	private static string SkipDialogText => @"
-An error occurred while trying to process this book.
-{0}
-
-- ABORT: Stop processing books.
-
-- RETRY: retry this book later. Just skip it for now. Continue processing books. (Will try this book again later.)
-
-- IGNORE: Permanently ignore this book. Continue processing books. (Will not try this book again later.)
-".Trim();
-	private static MessageBoxButtons SkipDialogButtons => MessageBoxButtons.AbortRetryIgnore;
-	private static MessageBoxDefaultButton SkipDialogDefaultButton => MessageBoxDefaultButton.Button1;
-	private static DialogResult SkipResult => DialogResult.Ignore;
-
 	#endregion
-
 }

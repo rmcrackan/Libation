@@ -23,7 +23,8 @@ namespace LibationWinForms
 		{
 			// for development and debugging, show me what broke!
 			if (System.Diagnostics.Debugger.IsAttached)
-				throw exception;
+				//Wrap the exception to preserve its stack trace.
+				throw new Exception("An unhandled exception was encountered", exception);
 
 			try
 			{

@@ -36,7 +36,7 @@ namespace LibationUiBase
 	public class TrackedQueue<T> where T : class
 	{
 		public event EventHandler<int>? CompletedCountChanged;
-		public event EventHandler<int>? QueuededCountChanged;
+		public event EventHandler<int>? QueuedCountChanged;
 
 		public T? Current { get; private set; }
 
@@ -115,7 +115,7 @@ namespace LibationUiBase
 
 			if (itemsRemoved)
 			{
-				QueuededCountChanged?.Invoke(this, queuedCount);
+				QueuedCountChanged?.Invoke(this, queuedCount);
 				RebuildSecondary();
 			}
 			return itemsRemoved;
@@ -151,7 +151,7 @@ namespace LibationUiBase
 		{
 			lock (lockObject)
 				_queued.Clear();
-			QueuededCountChanged?.Invoke(this, 0);
+			QueuedCountChanged?.Invoke(this, 0);
 			RebuildSecondary();
 		}
 
@@ -248,7 +248,7 @@ namespace LibationUiBase
 			{
 				if (completedChanged)
 					CompletedCountChanged?.Invoke(this, completedCount);
-				QueuededCountChanged?.Invoke(this, queuedCount);
+				QueuedCountChanged?.Invoke(this, queuedCount);
 				RebuildSecondary();
 			}
 		}
@@ -263,7 +263,7 @@ namespace LibationUiBase
 			}
 			foreach (var i in item)
 				_underlyingList?.Add(i);
-			QueuededCountChanged?.Invoke(this, queueCount);
+			QueuedCountChanged?.Invoke(this, queueCount);
 		}
 
 		private void RebuildSecondary()

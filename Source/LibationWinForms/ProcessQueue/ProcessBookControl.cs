@@ -10,7 +10,7 @@ namespace LibationWinForms.ProcessQueue
 		private static int ControlNumberCounter = 0;
 
 		/// <summary>
-		/// The contol's position within <see cref="VirtualFlowControl"/>
+		/// The control's position within <see cref="VirtualFlowControl"/>
 		/// </summary>
 		public int ControlNumber { get; }
 		private ProcessBookStatus Status { get; set; } = ProcessBookStatus.Queued;
@@ -25,7 +25,6 @@ namespace LibationWinForms.ProcessQueue
 		public ProcessBookControl()
 		{
 			InitializeComponent();
-			statusLbl.Text = "Queued";
 			remainingTimeLbl.Visible = false;
 			progressBar1.Visible = false;
 			etaLbl.Visible = false;
@@ -45,7 +44,7 @@ namespace LibationWinForms.ProcessQueue
 			bookInfoLbl.Text = title;
 		}
 
-		public void SetProgrss(int progress)
+		public void SetProgress(int progress)
 		{
 			//Disable slow fill
 			//https://stackoverflow.com/a/5332770/3335599
@@ -59,25 +58,7 @@ namespace LibationWinForms.ProcessQueue
 			remainingTimeLbl.Text = $"{remaining:mm\\:ss}";
 		}
 
-		public void SetResult(ProcessBookResult result)
-		{
-			(string statusText, ProcessBookStatus status) = result switch
-			{
-				ProcessBookResult.Success => ("Finished", ProcessBookStatus.Completed),
-				ProcessBookResult.Cancelled => ("Cancelled", ProcessBookStatus.Cancelled),
-				ProcessBookResult.FailedRetry => ("Error, will retry later", ProcessBookStatus.Failed),
-				ProcessBookResult.FailedSkip => ("Error, Skipping", ProcessBookStatus.Failed),
-				ProcessBookResult.FailedAbort => ("Error, Abort", ProcessBookStatus.Failed),
-				ProcessBookResult.ValidationFail => ("Validation fail", ProcessBookStatus.Failed),
-				ProcessBookResult.LicenseDenied => ("License Denied", ProcessBookStatus.Failed),
-				ProcessBookResult.LicenseDeniedPossibleOutage => ("Possible Service Interruption", ProcessBookStatus.Failed),
-				_ => ("UNKNOWN", ProcessBookStatus.Failed),
-			};
-
-			SetStatus(status, statusText);
-		}
-
-		public void SetStatus(ProcessBookStatus status, string statusText = null)
+		public void SetStatus(ProcessBookStatus status, string statusText)
 		{
 			Status = status;
 
@@ -101,7 +82,7 @@ namespace LibationWinForms.ProcessQueue
 			progressBar1.Visible = Status == ProcessBookStatus.Working;
 			etaLbl.Visible = Status == ProcessBookStatus.Working;
 			statusLbl.Visible = Status != ProcessBookStatus.Working;
-			statusLbl.Text = statusText ?? Status.ToString();
+			statusLbl.Text = statusText;
 			BackColor = backColor;
 
 			int deltaX = Width - cancelBtn.Location.X - CancelBtnDistanceFromEdge;
@@ -110,7 +91,7 @@ namespace LibationWinForms.ProcessQueue
 			{
 				//If the last book to occupy this control before resizing was not
 				//queued, the buttons were not Visible so the Anchor property was
-				//ignored. Manually resize and reposition everyhting
+				//ignored. Manually resize and reposition everything
 
 				cancelBtn.Location = new Point(cancelBtn.Location.X + deltaX, cancelBtn.Location.Y);
 				moveFirstBtn.Location = new Point(moveFirstBtn.Location.X + deltaX, moveFirstBtn.Location.Y);

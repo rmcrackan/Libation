@@ -56,7 +56,7 @@ internal class ProcessQueueViewModel : ProcessQueueViewModelBase
 
 	public override void WriteLine(string text) => Invoke(() => LogWritten?.Invoke(this, text.Trim()));
 
-	protected override ProcessBookViewModelBase CreateNewBook(LibraryBook libraryBook)
+	protected override ProcessBookViewModelBase CreateNewProcessBook(LibraryBook libraryBook)
 		=> new ProcessBookViewModel(libraryBook, Logger);
 
 	private static ObservableCollection<ProcessBookViewModelBase> CreateEmptyList()
