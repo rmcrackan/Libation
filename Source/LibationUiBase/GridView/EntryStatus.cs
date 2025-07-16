@@ -16,9 +16,8 @@ namespace LibationUiBase.GridView
 	//This Class holds all book entry status info to help the grid properly render entries.
 	//The reason this info is in here instead of GridEntry is because all of this info is needed
 	//for the "Liberate" column's display and sorting functions.
-	public abstract class EntryStatus : SynchronizeInvoker, IComparable, INotifyPropertyChanged
+	public abstract class EntryStatus : ReactiveObject, IComparable
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
 		public LiberatedStatus? PdfStatus => LibraryCommands.Pdf_Status(Book);
 		public LiberatedStatus BookStatus
 		{
@@ -81,8 +80,6 @@ namespace LibationUiBase.GridView
 
 		internal protected abstract object LoadImage(byte[] picture);
 		protected abstract object GetResourceImage(string rescName);
-		public void RaisePropertyChanged(PropertyChangedEventArgs args) => this.UIThreadSync(() => PropertyChanged?.Invoke(this, args));
-		public void RaisePropertyChanged(string propertyName) => RaisePropertyChanged(new PropertyChangedEventArgs(propertyName));
 
 		/// <summary>Refresh BookStatus (so partial download files are checked again in the filesystem) and raise PropertyChanged for property names.</summary>
 		public void Invalidate(params string[] properties)
