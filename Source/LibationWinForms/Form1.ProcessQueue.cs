@@ -16,7 +16,7 @@ namespace LibationWinForms
 		int WidthChange = 0;
 		private void Configure_ProcessQueue()
 		{
-			processBookQueue1.popoutBtn.Click += ProcessBookQueue1_PopOut;
+			processBookQueue1.PopoutButton.Click += ProcessBookQueue1_PopOut;
 			
 			WidthChange = splitContainer1.Panel2.Width + splitContainer1.SplitterWidth;
 			int width = this.Width;
@@ -29,7 +29,7 @@ namespace LibationWinForms
 		{
 			try
 			{
-				if (processBookQueue1.QueueDownloadDecrypt(libraryBooks))
+				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(libraryBooks))
 					SetQueueCollapseState(false);
 				else if (libraryBooks.Length == 1 && libraryBooks[0].Book.Audio_Exists())
 				{
@@ -54,7 +54,7 @@ namespace LibationWinForms
 			{
 				Serilog.Log.Logger.Information("Begin backing up all {series} episodes", series.LibraryBook);
 
-				if (processBookQueue1.QueueDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated().ToArray()))
+				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated().ToArray()))
 					SetQueueCollapseState(false);
 			}
 			catch (Exception ex)
@@ -67,7 +67,7 @@ namespace LibationWinForms
 		{
 			try
 			{
-				if (processBookQueue1.QueueConvertToMp3(libraryBooks))
+				if (processBookQueue1.ViewModel.QueueConvertToMp3(libraryBooks))
 					SetQueueCollapseState(false);
 			}
 			catch (Exception ex)
@@ -87,10 +87,14 @@ namespace LibationWinForms
 			}
 			else if (!collapsed && splitContainer1.Panel2Collapsed)
 			{
+				if (!processBookQueue1.PopoutButton.Visible)
+					//Queue is in popout mode. Do nothing.
+					return;
+
 				Width += WidthChange;
 				splitContainer1.Panel2.Controls.Add(processBookQueue1);
 				splitContainer1.Panel2Collapsed = false;
-				processBookQueue1.popoutBtn.Visible = true;
+				processBookQueue1.PopoutButton.Visible = true;
 			}
 
 			Configuration.Instance.SetNonString(splitContainer1.Panel2Collapsed, nameof(splitContainer1.Panel2Collapsed));
@@ -110,7 +114,7 @@ namespace LibationWinForms
 			dockForm.FormClosing += DockForm_FormClosing;
 			splitContainer1.Panel2.Controls.Remove(processBookQueue1);
 			splitContainer1.Panel2Collapsed = true;
-			processBookQueue1.popoutBtn.Visible = false;
+			processBookQueue1.PopoutButton.Visible = false;
 			dockForm.PassControl(processBookQueue1);
 			dockForm.Show();
 			this.Width -= dockForm.WidthChange;
@@ -127,7 +131,7 @@ namespace LibationWinForms
 				this.Width += dockForm.WidthChange;
 				splitContainer1.Panel2.Controls.Add(dockForm.RegainControl());
 				splitContainer1.Panel2Collapsed = false;
-				processBookQueue1.popoutBtn.Visible = true;
+				processBookQueue1.PopoutButton.Visible = true;
 				dockForm.SaveSizeAndLocation(Configuration.Instance);
 				this.Focus();
 				toggleQueueHideBtn.Visible = true;

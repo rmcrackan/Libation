@@ -59,7 +59,7 @@ namespace LibationWinForms
 		{
 			try
 			{
-				if (processBookQueue1.QueueDownloadDecrypt(productsDisplay.GetVisible().UnLiberated().ToArray()))
+				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(productsDisplay.GetVisible().UnLiberated().ToArray()))
 					SetQueueCollapseState(false);
 			}
 			catch (Exception ex)

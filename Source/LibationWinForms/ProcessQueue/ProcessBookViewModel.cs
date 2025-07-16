@@ -11,6 +11,4 @@ public class ProcessBookViewModel : ProcessBookViewModelBase
 
 	protected override object LoadImageFromBytes(byte[] bytes, PictureSize pictureSize)
 		=> WinFormsUtil.TryLoadImageOrDefault(bytes, PictureSize._80x80);
-
-	public string BookText => $"{Title}\r\nBy {Author}\r\nNarrated by {Narrator}";
 }

@@ -17,7 +17,7 @@ namespace LibationWinForms
 			try
 			{
 				var unliberated = await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking().UnLiberated().ToArray());
-				if (processBookQueue1.QueueDownloadDecrypt(unliberated))
+				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(unliberated))
 					SetQueueCollapseState(false);
 			}
 			catch (Exception ex)
@@ -28,7 +28,7 @@ namespace LibationWinForms
 
 		private async void beginPdfBackupsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (processBookQueue1.QueueDownloadPdf(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
+			if (processBookQueue1.ViewModel.QueueDownloadPdf(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
 				SetQueueCollapseState(false);
 		}
 
@@ -42,7 +42,7 @@ namespace LibationWinForms
 				"Convert all M4b => Mp3?",
 				MessageBoxButtons.YesNo,
 				MessageBoxIcon.Warning);
-			if (result == DialogResult.Yes && processBookQueue1.QueueConvertToMp3(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
+			if (result == DialogResult.Yes && processBookQueue1.ViewModel.QueueConvertToMp3(await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking())))
 				SetQueueCollapseState(false);
 		}
 	}
