@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Dinah.Core;
+using LibationUiBase.Forms;
 using System;
 
 namespace LibationAvalonia.Dialogs.Login

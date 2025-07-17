@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dinah.Core" Version="9.0.1.1" />
-    <PackageReference Include="Polly" Version="8.5.2" />
+    <PackageReference Include="Polly" Version="8.6.2" />
   </ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

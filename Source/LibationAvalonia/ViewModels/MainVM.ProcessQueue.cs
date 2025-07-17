@@ -1,10 +1,11 @@
-﻿using LibationFileManager;
-using System;
-using System.Linq;
-using DataLayer;
+﻿using DataLayer;
 using Dinah.Core;
+using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.GridView;
 using ReactiveUI;
+using System;
+using System.Linq;
 
 #nullable enable
 namespace LibationAvalonia.ViewModels
@@ -37,50 +38,16 @@ namespace LibationAvalonia.ViewModels
 		{
 			try
 			{
-				if (libraryBooks.Length == 1)
+				if (ProcessQueue.QueueDownloadDecrypt(libraryBooks))
+					setQueueCollapseState(false);
+				else if (libraryBooks.Length == 1 && libraryBooks[0].Book.Audio_Exists())
 				{
-					var item = libraryBooks[0];
-
-					//Remove this item from the queue if it's already present and completed.
-					//Only do this when adding a single book at a time to prevent accidental
-					//extra downloads when queueing in batches.
-					ProcessQueue.RemoveCompleted(item);
-
-					if (item.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
+					// liberated: open explorer to file
+					var filePath = AudibleFileStorage.Audio.GetPath(libraryBooks[0].Book.AudibleProductId);
+					if (!Go.To.File(filePath?.ShortPathName))
 					{
-						Serilog.Log.Logger.Information("Begin single book backup of {libraryBook}", item);
-						setQueueCollapseState(false);
-						ProcessQueue.AddDownloadDecrypt(item);
-					}
-					else if (item.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
-					{
-						Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", item);
-						setQueueCollapseState(false);
-						ProcessQueue.AddDownloadPdf(item);
-					}
-					else if (item.Book.Audio_Exists())
-					{
-						// liberated: open explorer to file
-						var filePath = AudibleFileStorage.Audio.GetPath(item.Book.AudibleProductId);
-
-						if (!Go.To.File(filePath?.ShortPathName))
-						{
-							var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
-							await MessageBox.Show($"File not found" + suffix);
-						}
-					}
-				}
-				else
-				{
-					var toLiberate
-						= libraryBooks
-						.Where(x => x.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload || x.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated)
-						.ToArray();
-
-					if (toLiberate.Length > 0)
-					{
-						setQueueCollapseState(false);
-						ProcessQueue.AddDownloadDecrypt(toLiberate);
+						var suffix = string.IsNullOrWhiteSpace(filePath) ? "" : $":\r\n{filePath}";
+						await MessageBox.Show($"File not found" + suffix);
 					}
 				}
 			}
@@ -94,11 +61,10 @@ namespace LibationAvalonia.ViewModels
 		{
 			try
 			{
-				setQueueCollapseState(false);
-
 				Serilog.Log.Logger.Information("Begin backing up all {series} episodes", series.LibraryBook);
 
-				ProcessQueue.AddDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated());
+				if (ProcessQueue.QueueDownloadDecrypt(series.Children.Select(c => c.LibraryBook).UnLiberated().ToArray()))
+					setQueueCollapseState(false);
 			}
 			catch (Exception ex)
 			{
@@ -110,13 +76,8 @@ namespace LibationAvalonia.ViewModels
 		{
 			try
 			{
-				var preLiberated = libraryBooks.Where(lb => lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated).ToArray();
-				if (preLiberated.Length > 0)
-				{
-					Serilog.Log.Logger.Information("Begin convert {count} books to mp3", preLiberated.Length);
+				if (ProcessQueue.QueueConvertToMp3(libraryBooks))
 					setQueueCollapseState(false);
-					ProcessQueue.AddConvertMp3(preLiberated);
-				}
 			}
 			catch (Exception ex)
 			{

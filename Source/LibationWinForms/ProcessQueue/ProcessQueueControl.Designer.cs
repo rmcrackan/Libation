@@ -55,7 +55,6 @@
 			this.panel2 = new System.Windows.Forms.Panel();
 			this.logCopyBtn = new System.Windows.Forms.Button();
 			this.clearLogBtn = new System.Windows.Forms.Button();
-			this.counterTimer = new System.Windows.Forms.Timer(this.components);
 			this.statusStrip1.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
@@ -163,7 +162,6 @@
 			this.virtualFlowControl2.Name = "virtualFlowControl2";
 			this.virtualFlowControl2.Size = new System.Drawing.Size(390, 424);
 			this.virtualFlowControl2.TabIndex = 3;
-			this.virtualFlowControl2.VirtualControlCount = 0;
 			// 
 			// panel1
 			// 
@@ -329,11 +327,6 @@
 			this.clearLogBtn.UseVisualStyleBackColor = true;
 			this.clearLogBtn.Click += new System.EventHandler(this.clearLogBtn_Click);
 			// 
-			// counterTimer
-			// 
-			this.counterTimer.Interval = 950;
-			this.counterTimer.Tick += new System.EventHandler(this.CounterTimer_Tick);
-			// 
 			// ProcessQueueControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -377,7 +370,6 @@
 		private System.Windows.Forms.Panel panel3;
 		private System.Windows.Forms.Panel panel4;
 		private System.Windows.Forms.ToolStripStatusLabel runningTimeLbl;
-		private System.Windows.Forms.Timer counterTimer;
 		private System.Windows.Forms.DataGridView logDGV;
 		private System.Windows.Forms.DataGridViewTextBoxColumn timestampColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn logEntryColumn;

@@ -103,13 +103,11 @@ namespace DataLayer
                         ) == true
                     ).ToList();
 
-        public static IEnumerable<LibraryBook> UnLiberated(this IEnumerable<LibraryBook> bookList)
-            => bookList
-                .Where(
-                    lb =>
-                        !lb.AbsentFromLastScan &&
-                        (lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload
-                        || lb.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload)
-                    );
+		public static bool NeedsPdfDownload(this LibraryBook libraryBook)
+			=> !libraryBook.AbsentFromLastScan && libraryBook.Book.UserDefinedItem.PdfStatus is LiberatedStatus.NotLiberated;
+		public static bool NeedsBookDownload(this LibraryBook libraryBook)
+			=> !libraryBook.AbsentFromLastScan && libraryBook.Book.UserDefinedItem.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload;
+		public static IEnumerable<LibraryBook> UnLiberated(this IEnumerable<LibraryBook> bookList)
+            => bookList.Where(lb => lb.NeedsPdfDownload() || lb.NeedsBookDownload());
     }
 }

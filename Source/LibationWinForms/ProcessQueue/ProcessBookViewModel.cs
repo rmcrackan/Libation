@@ -3,15 +3,12 @@ using LibationFileManager;
 using LibationUiBase;
 using LibationUiBase.ProcessQueue;
 
-#nullable enable
-namespace LibationAvalonia.ViewModels;
+namespace LibationWinForms.ProcessQueue;
 
 public class ProcessBookViewModel : ProcessBookViewModelBase
 {
-
 	public ProcessBookViewModel(LibraryBook libraryBook, LogMe logme) : base(libraryBook, logme) { }
 
-	protected override object? LoadImageFromBytes(byte[] bytes, PictureSize pictureSize)
-		=> AvaloniaUtils.TryLoadImageOrDefault(bytes, pictureSize);
-
+	protected override object LoadImageFromBytes(byte[] bytes, PictureSize pictureSize)
+		=> WinFormsUtil.TryLoadImageOrDefault(bytes, PictureSize._80x80);
 }

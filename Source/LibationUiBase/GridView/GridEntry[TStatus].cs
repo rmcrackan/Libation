@@ -22,7 +22,7 @@ namespace LibationUiBase.GridView
 	}
 
 	/// <summary>The View Model base for the DataGridView</summary>
-	public abstract class GridEntry<TStatus> : SynchronizeInvoker, IGridEntry where TStatus : IEntryStatus
+	public abstract class GridEntry<TStatus> : ReactiveObject, IGridEntry where TStatus : IEntryStatus
 	{
 		[Browsable(false)] public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)] public LibraryBook LibraryBook { get; protected set; }
@@ -183,19 +183,6 @@ namespace LibationUiBase.GridView
 			}
 		}
 
-		private TRet RaiseAndSetIfChanged<TRet>(ref TRet backingField, TRet newValue, [CallerMemberName] string propertyName = null)
-		{
-			if (EqualityComparer<TRet>.Default.Equals(backingField, newValue)) return newValue;
-
-			backingField = newValue;
-			RaisePropertyChanged(new PropertyChangedEventArgs(propertyName));
-			return newValue;
-		}
-
-		public event PropertyChangedEventHandler PropertyChanged;
-		public void RaisePropertyChanged(PropertyChangedEventArgs args) => this.UIThreadSync(() => PropertyChanged?.Invoke(this, args));
-		public void RaisePropertyChanged(string propertyName) => RaisePropertyChanged(new PropertyChangedEventArgs(propertyName));
-
 		#endregion
 
 		#region Sorting
@@ -228,16 +215,16 @@ namespace LibationUiBase.GridView
 		// Instantiate comparers for every exposed member object type.
 		private static readonly Dictionary<Type, IComparer> memberTypeComparers = new()
 		{
-			{ typeof(RemoveStatus), new ObjectComparer<RemoveStatus>() },
-			{ typeof(string), new ObjectComparer<string>() },
-			{ typeof(int), new ObjectComparer<int>() },
-			{ typeof(float), new ObjectComparer<float>() },
-			{ typeof(bool), new ObjectComparer<bool>() },
-			{ typeof(Rating), new ObjectComparer<Rating>() },
-			{ typeof(DateTime), new ObjectComparer<DateTime>() },
-			{ typeof(EntryStatus), new ObjectComparer<EntryStatus>() },
-			{ typeof(SeriesOrder), new ObjectComparer<SeriesOrder>() },
-			{ typeof(LastDownloadStatus), new ObjectComparer<LastDownloadStatus>() },
+			{ typeof(RemoveStatus), Comparer<RemoveStatus>.Default },
+			{ typeof(string), Comparer<string>.Default },
+			{ typeof(int), Comparer <int>.Default },
+			{ typeof(float), Comparer<float >.Default },
+			{ typeof(bool), Comparer<bool>.Default },
+			{ typeof(Rating), Comparer<Rating>.Default },
+			{ typeof(DateTime), Comparer<DateTime>.Default },
+			{ typeof(EntryStatus), Comparer<EntryStatus>.Default },
+			{ typeof(SeriesOrder), Comparer<SeriesOrder>.Default },
+			{ typeof(LastDownloadStatus), Comparer<LastDownloadStatus>.Default },
 		};
 
 		#endregion

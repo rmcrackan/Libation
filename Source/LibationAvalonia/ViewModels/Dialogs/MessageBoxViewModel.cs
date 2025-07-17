@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibationUiBase.Forms;
+using System;
 
 namespace LibationAvalonia.ViewModels.Dialogs
 {

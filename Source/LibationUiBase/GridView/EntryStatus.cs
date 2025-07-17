@@ -16,9 +16,8 @@ namespace LibationUiBase.GridView
 	//This Class holds all book entry status info to help the grid properly render entries.
 	//The reason this info is in here instead of GridEntry is because all of this info is needed
 	//for the "Liberate" column's display and sorting functions.
-	public abstract class EntryStatus : SynchronizeInvoker, IComparable, INotifyPropertyChanged
+	public abstract class EntryStatus : ReactiveObject, IComparable
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
 		public LiberatedStatus? PdfStatus => LibraryCommands.Pdf_Status(Book);
 		public LiberatedStatus BookStatus
 		{
@@ -81,8 +80,6 @@ namespace LibationUiBase.GridView
 
 		internal protected abstract object LoadImage(byte[] picture);
 		protected abstract object GetResourceImage(string rescName);
-		public void RaisePropertyChanged(PropertyChangedEventArgs args) => this.UIThreadSync(() => PropertyChanged?.Invoke(this, args));
-		public void RaisePropertyChanged(string propertyName) => RaisePropertyChanged(new PropertyChangedEventArgs(propertyName));
 
 		/// <summary>Refresh BookStatus (so partial download files are checked again in the filesystem) and raise PropertyChanged for property names.</summary>
 		public void Invalidate(params string[] properties)
@@ -104,7 +101,13 @@ namespace LibationUiBase.GridView
 			else if (!IsUnavailable && second.IsUnavailable) return -1;
 			else if (BookStatus == LiberatedStatus.Liberated && second.BookStatus != LiberatedStatus.Liberated) return -1;
 			else if (BookStatus != LiberatedStatus.Liberated && second.BookStatus == LiberatedStatus.Liberated) return 1;
-			else return BookStatus.CompareTo(second.BookStatus);
+
+			var statusCompare = BookStatus.CompareTo(second.BookStatus);
+			if (statusCompare != 0) return statusCompare;
+			else if (PdfStatus is null && second.PdfStatus is null) return 0;
+			else if (PdfStatus is null && second.PdfStatus is not null) return 1;
+			else if (PdfStatus is not null && second.PdfStatus is null) return -1;
+			else return PdfStatus.Value.CompareTo(second.PdfStatus.Value);
 		}
 
 		private object GetLiberateIcon()

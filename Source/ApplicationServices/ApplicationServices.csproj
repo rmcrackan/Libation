@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="33.0.1" />
-    <PackageReference Include="NPOI" Version="2.7.3" />
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <PackageReference Include="NPOI" Version="2.7.4" />
   </ItemGroup>
 
   <ItemGroup>

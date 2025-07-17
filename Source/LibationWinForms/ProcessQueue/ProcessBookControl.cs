@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibationUiBase.ProcessQueue;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -6,45 +7,74 @@ namespace LibationWinForms.ProcessQueue
 {
 	internal partial class ProcessBookControl : UserControl
 	{
-		private static int ControlNumberCounter = 0;
-
-		/// <summary>
-		/// The contol's position within <see cref="VirtualFlowControl"/>
-		/// </summary>
-		public int ControlNumber { get; }
-		private ProcessBookStatus Status { get; set; } = ProcessBookStatus.Queued;
 		private readonly int CancelBtnDistanceFromEdge;
 		private readonly int ProgressBarDistanceFromEdge;
 
-		public static Color FailedColor = Color.LightCoral;
-		public static Color CancelledColor = Color.Khaki;
-		public static Color QueuedColor = SystemColors.Control;
-		public static Color SuccessColor = Color.PaleGreen;
+		private static Color FailedColor { get; } = Color.LightCoral;
+		private static Color CancelledColor { get; } = Color.Khaki;
+		private static Color QueuedColor { get; } = SystemColors.Control;
+		private static Color SuccessColor { get; } = Color.PaleGreen;
+
+		private ProcessBookViewModelBase m_Context;
+		public ProcessBookViewModelBase Context
+		{
+			get => m_Context;
+			set
+			{
+				if (m_Context != value)
+				{
+					OnContextChanging();
+					m_Context = value;
+					OnContextChanged();
+				}
+			}
+		}
 
 		public ProcessBookControl()
 		{
 			InitializeComponent();
-			statusLbl.Text = "Queued";
 			remainingTimeLbl.Visible = false;
 			progressBar1.Visible = false;
 			etaLbl.Visible = false;
 
 			CancelBtnDistanceFromEdge = Width - cancelBtn.Location.X;
 			ProgressBarDistanceFromEdge = Width - progressBar1.Location.X - progressBar1.Width;
-			ControlNumber = ControlNumberCounter++;
 		}
 
-		public void SetCover(Image cover)
+		private void OnContextChanging()
 		{
-			pictureBox1.Image = cover;
+			if (Context is not null)
+				Context.PropertyChanged -= Context_PropertyChanged;
 		}
 
-		public void SetBookInfo(string title)
+		private void OnContextChanged()
 		{
-			bookInfoLbl.Text = title;
+			Context.PropertyChanged += Context_PropertyChanged;
+			Context_PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(null));
 		}
 
-		public void SetProgrss(int progress)
+		private void Context_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			SuspendLayout();
+			if (e.PropertyName is null or nameof(Context.Cover))
+				SetCover(Context.Cover as Image);
+			if (e.PropertyName is null or nameof(Context.Title) or nameof(Context.Author) or nameof(Context.Narrator))
+				SetBookInfo($"{Context.Title}\r\nBy {Context.Author}\r\nNarrated by {Context.Narrator}");
+			if (e.PropertyName is null or nameof(Context.Status) or nameof(Context.StatusText))
+				SetStatus(Context.Status, Context.StatusText);
+			if (e.PropertyName is null or nameof(Context.Progress))
+				SetProgress(Context.Progress);
+			if (e.PropertyName is null or nameof(Context.TimeRemaining))
+				SetRemainingTime(Context.TimeRemaining);
+			ResumeLayout();
+		}
+
+		private void SetCover(Image cover) => pictureBox1.Image = cover;
+		private void SetBookInfo(string title) => bookInfoLbl.Text = title;
+		private void SetRemainingTime(TimeSpan remaining)
+			=> remainingTimeLbl.Text = $"{remaining:mm\\:ss}";
+
+		private void SetProgress(int progress)
 		{
 			//Disable slow fill
 			//https://stackoverflow.com/a/5332770/3335599
@@ -53,34 +83,9 @@ namespace LibationWinForms.ProcessQueue
 			progressBar1.Value = progress;
 		}
 
-		public void SetRemainingTime(TimeSpan remaining)
+		private void SetStatus(ProcessBookStatus status, string statusText)
 		{
-			remainingTimeLbl.Text = $"{remaining:mm\\:ss}";
-		}
-
-		public void SetResult(ProcessBookResult result)
-		{
-			(string statusText, ProcessBookStatus status) = result switch
-			{
-				ProcessBookResult.Success => ("Finished", ProcessBookStatus.Completed),
-				ProcessBookResult.Cancelled => ("Cancelled", ProcessBookStatus.Cancelled),
-				ProcessBookResult.FailedRetry => ("Error, will retry later", ProcessBookStatus.Failed),
-				ProcessBookResult.FailedSkip => ("Error, Skipping", ProcessBookStatus.Failed),
-				ProcessBookResult.FailedAbort => ("Error, Abort", ProcessBookStatus.Failed),
-				ProcessBookResult.ValidationFail => ("Validation fail", ProcessBookStatus.Failed),
-				ProcessBookResult.LicenseDenied => ("License Denied", ProcessBookStatus.Failed),
-				ProcessBookResult.LicenseDeniedPossibleOutage => ("Possible Service Interruption", ProcessBookStatus.Failed),
-				_ => ("UNKNOWN", ProcessBookStatus.Failed),
-			};
-
-			SetStatus(status, statusText);
-		}
-
-		public void SetStatus(ProcessBookStatus status, string statusText = null)
-		{
-			Status = status;
-
-			Color backColor = Status switch
+			Color backColor = status switch
 			{
 				ProcessBookStatus.Completed => SuccessColor,
 				ProcessBookStatus.Cancelled => CancelledColor,
@@ -89,27 +94,25 @@ namespace LibationWinForms.ProcessQueue
 				_ => FailedColor
 			};
 
-			SuspendLayout();
-
-			cancelBtn.Visible = Status is ProcessBookStatus.Queued or ProcessBookStatus.Working;
-			moveLastBtn.Visible = Status == ProcessBookStatus.Queued;
-			moveDownBtn.Visible = Status == ProcessBookStatus.Queued;
-			moveUpBtn.Visible = Status == ProcessBookStatus.Queued;
-			moveFirstBtn.Visible = Status == ProcessBookStatus.Queued;
-			remainingTimeLbl.Visible = Status == ProcessBookStatus.Working;
-			progressBar1.Visible = Status == ProcessBookStatus.Working;
-			etaLbl.Visible = Status == ProcessBookStatus.Working;
-			statusLbl.Visible = Status != ProcessBookStatus.Working;
-			statusLbl.Text = statusText ?? Status.ToString();
+			cancelBtn.Visible = status is ProcessBookStatus.Queued or ProcessBookStatus.Working;
+			moveLastBtn.Visible = status == ProcessBookStatus.Queued;
+			moveDownBtn.Visible = status == ProcessBookStatus.Queued;
+			moveUpBtn.Visible = status == ProcessBookStatus.Queued;
+			moveFirstBtn.Visible = status == ProcessBookStatus.Queued;
+			remainingTimeLbl.Visible = status == ProcessBookStatus.Working;
+			progressBar1.Visible = status == ProcessBookStatus.Working;
+			etaLbl.Visible = status == ProcessBookStatus.Working;
+			statusLbl.Visible = status != ProcessBookStatus.Working;
+			statusLbl.Text = statusText;
 			BackColor = backColor;
 
 			int deltaX = Width - cancelBtn.Location.X - CancelBtnDistanceFromEdge;
 
-			if (Status is ProcessBookStatus.Queued or ProcessBookStatus.Working && deltaX != 0)
+			if (status is ProcessBookStatus.Queued or ProcessBookStatus.Working && deltaX != 0)
 			{
 				//If the last book to occupy this control before resizing was not
 				//queued, the buttons were not Visible so the Anchor property was
-				//ignored. Manually resize and reposition everyhting
+				//ignored. Manually resize and reposition everything
 
 				cancelBtn.Location = new Point(cancelBtn.Location.X + deltaX, cancelBtn.Location.Y);
 				moveFirstBtn.Location = new Point(moveFirstBtn.Location.X + deltaX, moveFirstBtn.Location.Y);
@@ -129,13 +132,8 @@ namespace LibationWinForms.ProcessQueue
 			{
 				bookInfoLbl.Width = moveLastBtn.Location.X - bookInfoLbl.Location.X - bookInfoLbl.Padding.Left + moveLastBtn.Padding.Right;
 			}
-
-			ResumeLayout();
 		}
 
-		public override string ToString()
-		{
-			return bookInfoLbl.Text ?? "[NO TITLE]";
-		}
+		public override string ToString() => bookInfoLbl.Text ?? "[NO TITLE]";
 	}
 }

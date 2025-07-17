@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using DataLayer;
 using LibationAvalonia.ViewModels;
 using LibationUiBase;
+using LibationUiBase.ProcessQueue;
 
 namespace LibationAvalonia.Views
 {

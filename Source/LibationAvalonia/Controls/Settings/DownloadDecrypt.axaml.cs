@@ -3,6 +3,7 @@ using LibationAvalonia.Dialogs;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
 using LibationFileManager.Templates;
+using LibationUiBase.Forms;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Controls.Settings

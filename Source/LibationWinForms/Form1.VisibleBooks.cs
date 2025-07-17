@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using ApplicationServices;
 using DataLayer;
 using Dinah.Core.Threading;
+using LibationUiBase;
 using LibationWinForms.Dialogs;
 
 namespace LibationWinForms
@@ -25,9 +26,17 @@ namespace LibationWinForms
 		}
 		private async void setLiberatedVisibleMenuItemAsync(object _, object __)
 			=> await Task.Run(setLiberatedVisibleMenuItem);
+
+		private static DateTime lastVisibleCountUpdated;
 		void setLiberatedVisibleMenuItem()
 		{
+			//Assume that all calls to update arrive in order,
+			//Only display results of the latest book count.
+			var updaterTime = lastVisibleCountUpdated = DateTime.UtcNow;
 			var libraryStats = LibraryCommands.GetCounts(productsDisplay.GetVisible());
+			if (updaterTime < lastVisibleCountUpdated)
+				return;
+
 			this.UIThreadSync(() =>
 			{
 				if (libraryStats.HasPendingBooks)
@@ -50,15 +59,8 @@ namespace LibationWinForms
 		{
 			try
 			{
-				SetQueueCollapseState(false);
-
-				Serilog.Log.Logger.Information("Begin backing up visible library books");
-
-				processBookQueue1.AddDownloadDecrypt(
-					productsDisplay
-					.GetVisible()
-					.UnLiberated()
-					);
+				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(productsDisplay.GetVisible().UnLiberated().ToArray()))
+					SetQueueCollapseState(false);
 			}
 			catch (Exception ex)
 			{

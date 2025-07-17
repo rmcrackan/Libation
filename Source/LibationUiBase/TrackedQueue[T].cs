@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
 namespace LibationUiBase
 {
 	public enum QueuePosition
@@ -34,10 +35,10 @@ namespace LibationUiBase
 	 */
 	public class TrackedQueue<T> where T : class
 	{
-		public event EventHandler<int> CompletedCountChanged;
-		public event EventHandler<int> QueuededCountChanged;
+		public event EventHandler<int>? CompletedCountChanged;
+		public event EventHandler<int>? QueuedCountChanged;
 
-		public T Current { get; private set; }
+		public T? Current { get; private set; }
 
 		public IReadOnlyList<T> Queued => _queued;
 		public IReadOnlyList<T> Completed => _completed;
@@ -46,9 +47,10 @@ namespace LibationUiBase
 		private readonly List<T> _completed = new();
 		private readonly object lockObject = new();
 
-		private readonly ICollection<T> _underlyingList;
+		private readonly ICollection<T>? _underlyingList;
+		public ICollection<T>? UnderlyingList => _underlyingList;
 
-		public TrackedQueue(ICollection<T> underlyingList = null)
+		public TrackedQueue(ICollection<T>? underlyingList = null)
 		{
 			_underlyingList = underlyingList;
 		}
@@ -113,7 +115,7 @@ namespace LibationUiBase
 
 			if (itemsRemoved)
 			{
-				QueuededCountChanged?.Invoke(this, queuedCount);
+				QueuedCountChanged?.Invoke(this, queuedCount);
 				RebuildSecondary();
 			}
 			return itemsRemoved;
@@ -149,7 +151,7 @@ namespace LibationUiBase
 		{
 			lock (lockObject)
 				_queued.Clear();
-			QueuededCountChanged?.Invoke(this, 0);
+			QueuedCountChanged?.Invoke(this, 0);
 			RebuildSecondary();
 		}
 
@@ -169,7 +171,7 @@ namespace LibationUiBase
 			}
 		}
 
-		public T FirstOrDefault(Func<T, bool> predicate)
+		public T? FirstOrDefault(Func<T, bool> predicate)
 		{
 			lock (lockObject)
 			{
@@ -246,7 +248,7 @@ namespace LibationUiBase
 			{
 				if (completedChanged)
 					CompletedCountChanged?.Invoke(this, completedCount);
-				QueuededCountChanged?.Invoke(this, queuedCount);
+				QueuedCountChanged?.Invoke(this, queuedCount);
 				RebuildSecondary();
 			}
 		}
@@ -261,7 +263,7 @@ namespace LibationUiBase
 			}
 			foreach (var i in item)
 				_underlyingList?.Add(i);
-			QueuededCountChanged?.Invoke(this, queueCount);
+			QueuedCountChanged?.Invoke(this, queueCount);
 		}
 
 		private void RebuildSecondary()

@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using Dinah.Core;
 using LibationFileManager;
 using ReactiveUI;
@@ -90,7 +91,7 @@ namespace LibationAvalonia.Controls
 
 			var selectedFolders = await (VisualRoot as Window).StorageProvider.OpenFolderPickerAsync(options);
 
-			directoryState.CustomDir = selectedFolders.SingleOrDefault()?.Path?.LocalPath ?? directoryState.CustomDir;
+			directoryState.CustomDir = selectedFolders.SingleOrDefault()?.TryGetLocalPath() ?? directoryState.CustomDir;
 		}
 
 		private void DirectoryOrCustomSelectControl_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
