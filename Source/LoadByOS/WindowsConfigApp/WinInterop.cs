@@ -30,11 +30,12 @@ namespace WindowsConfigApp
 
 		public void InstallUpgrade(string upgradeBundle)
 		{
+			const string ExtractorExeName = "ZipExtractor.exe";
 			var thisExe = Environment.ProcessPath;
 			var thisDir = Path.GetDirectoryName(thisExe);
-			var zipExtractor = Path.Combine(Path.GetTempPath(), "ZipExtractor.exe");
+			var zipExtractor = Path.Combine(Path.GetTempPath(), ExtractorExeName);
 
-			File.Copy("ZipExtractor.exe", zipExtractor, overwrite: true);
+			File.Copy(Path.Combine(thisDir, ExtractorExeName), zipExtractor, overwrite: true);
 
 			RunAsRoot(zipExtractor,
                 $"--input {upgradeBundle.SurroundWithQuotes()} " +

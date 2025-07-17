@@ -166,20 +166,23 @@ namespace LibationAvalonia.Views
 		private void Configure_Upgrade()
 		{
 			setProgressVisible(false);
-#if !DEBUG
-			async System.Threading.Tasks.Task upgradeAvailable(LibationUiBase.UpgradeEventArgs e)
+#pragma warning disable CS8321 // Local function is declared but never used
+			async Task upgradeAvailable(LibationUiBase.UpgradeEventArgs e)
 			{
-				var notificationResult = await new Dialogs.UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade).ShowDialogAsync(this);
+				var notificationResult = await new UpgradeNotificationDialog(e.UpgradeProperties, e.CapUpgrade).ShowDialogAsync(this);
 
 				e.Ignore = notificationResult == DialogResult.Ignore;
 				e.InstallUpgrade = notificationResult == DialogResult.OK;
 			}
+#pragma warning restore CS8321 // Local function is declared but never used
 
 			var upgrader = new LibationUiBase.Upgrader();
-			upgrader.DownloadProgress += async (_, e) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => ViewModel.DownloadProgress = e.ProgressPercentage);
-			upgrader.DownloadBegin += async (_, _) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(true));
-			upgrader.DownloadCompleted += async (_, _) => await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(false));
+			upgrader.DownloadProgress += async (_, e) => await Dispatcher.UIThread.InvokeAsync(() => ViewModel.DownloadProgress = e.ProgressPercentage);
+			upgrader.DownloadBegin += async (_, _) => await Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(true));
+			upgrader.DownloadCompleted += async (_, _) => await Dispatcher.UIThread.InvokeAsync(() => setProgressVisible(false));
+			upgrader.UpgradeFailed += async (_, message) => await Dispatcher.UIThread.InvokeAsync(() => { setProgressVisible(false); MessageBox.Show(this, message, "Upgrade Failed", MessageBoxButtons.OK, MessageBoxIcon.Error); });
 
+#if !DEBUG
 			Opened += async (_, _) => await upgrader.CheckForUpgradeAsync(upgradeAvailable);
 #endif
 		}

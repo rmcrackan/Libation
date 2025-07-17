@@ -1,6 +1,7 @@
 ﻿using LibationUiBase;
 using LibationWinForms.Dialogs;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace LibationWinForms
 {
@@ -9,22 +10,25 @@ namespace LibationWinForms
 		private void Configure_Upgrade()
 		{
 			setProgressVisible(false);
-#if !DEBUG
+#pragma warning disable CS8321 // Local function is declared but never used
 			Task upgradeAvailable(UpgradeEventArgs e)
 			{
 				var notificationResult = new UpgradeNotificationDialog(e.UpgradeProperties).ShowDialog(this);
 
-				e.Ignore = notificationResult == System.Windows.Forms.DialogResult.Ignore;
-				e.InstallUpgrade = notificationResult == System.Windows.Forms.DialogResult.Yes;
+				e.Ignore = notificationResult == DialogResult.Ignore;
+				e.InstallUpgrade = notificationResult == DialogResult.Yes;
 
 				return Task.CompletedTask;
 			}
+#pragma warning restore CS8321 // Local function is declared but never used
 
 			var upgrader = new Upgrader();
 			upgrader.DownloadProgress += (_, e) => Invoke(() => upgradePb.Value = int.Max(0, int.Min(100, (int)(e.ProgressPercentage ?? 0))));
 			upgrader.DownloadBegin += (_, _) => Invoke(() => setProgressVisible(true));
 			upgrader.DownloadCompleted += (_, _) => Invoke(() => setProgressVisible(false));
+			upgrader.UpgradeFailed += (_, message) => Invoke(() => { setProgressVisible(false); MessageBox.Show(this, message, "Upgrade Failed", MessageBoxButtons.OK, MessageBoxIcon.Error); });
 
+#if !DEBUG
 			Shown += async (_, _) => await upgrader.CheckForUpgradeAsync(upgradeAvailable);
 #endif
 		}
