@@ -1,9 +1,6 @@
 ﻿using LibationFileManager;
 using LibationUiBase;
-using LibationUiBase.ProcessQueue;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
@@ -34,12 +31,11 @@ internal partial class ProcessQueueControl : UserControl
 		numericUpDown1.Value = speedLimitMBps > numericUpDown1.Maximum || speedLimitMBps < numericUpDown1.Minimum ? 0 : speedLimitMBps;
 		statusStrip1.Items.Add(PopoutButton);
 
-		virtualFlowControl2.RequestData += VirtualFlowControl1_RequestData;
 		virtualFlowControl2.ButtonClicked += VirtualFlowControl2_ButtonClicked;
 
 		ViewModel.LogWritten += (_, text) => WriteLine(text);
 		ViewModel.PropertyChanged += ProcessQueue_PropertyChanged;
-		ViewModel.BookPropertyChanged += ProcessBook_PropertyChanged;
+		virtualFlowControl2.Items = ViewModel.Items;
 		Load += ProcessQueueControl_Load;
 	}
 
@@ -60,15 +56,13 @@ internal partial class ProcessQueueControl : UserControl
 		ViewModel.Queue.ClearQueue();
 		if (ViewModel.Queue.Current is not null)
 			await ViewModel.Queue.Current.CancelAsync();
-		virtualFlowControl2.VirtualControlCount = ViewModel.Queue.Count;
-		UpdateAllControls();
+		virtualFlowControl2.RefreshDisplay();
 	}
 
 	private void btnClearFinished_Click(object? sender, EventArgs e)
 	{
 		ViewModel.Queue.ClearCompleted();
-		virtualFlowControl2.VirtualControlCount = ViewModel.Queue.Count;
-		UpdateAllControls();
+		virtualFlowControl2.RefreshDisplay();
 
 		if (!ViewModel.Running)
 			runningTimeLbl.Text = string.Empty;
@@ -92,22 +86,13 @@ internal partial class ProcessQueueControl : UserControl
 
 	#region View-Model update event handling
 
-	private void ProcessBook_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-	{
-		if (sender is not ProcessBookViewModel pbvm)
-			return;
-
-		int index = ViewModel.Queue.IndexOf(pbvm);
-		UpdateControl(index, e.PropertyName);
-	}
-
 	private void ProcessQueue_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 	{
 		if (e.PropertyName is null or nameof(ViewModel.QueuedCount))
 		{
 			queueNumberLbl.Text = ViewModel.QueuedCount.ToString();
 			queueNumberLbl.Visible = ViewModel.QueuedCount > 0;
-			virtualFlowControl2.VirtualControlCount = ViewModel.Queue.Count;
+			virtualFlowControl2.RefreshDisplay();
 		}
 		if (e.PropertyName is null or nameof(ViewModel.ErrorCount))
 		{
@@ -135,122 +120,45 @@ internal partial class ProcessQueueControl : UserControl
 	}
 
 	/// <summary>
-	/// Index of the first <see cref="ProcessBookViewModel"/> visible in the <see cref="VirtualFlowControl"/>
-	/// </summary>
-	private int FirstVisible = 0;
-	/// <summary>
-	/// Number of <see cref="ProcessBookViewModel"/> visible in the <see cref="VirtualFlowControl"/>
-	/// </summary>
-	private int NumVisible = 0;
-	/// <summary>
-	/// Controls displaying the <see cref="ProcessBookViewModel"/> state, starting with <see cref="FirstVisible"/> 
-	/// </summary>
-	private IReadOnlyList<ProcessBookControl>? Panels;
-
-	/// <summary>
-	/// Updates the display of a single <see cref="ProcessBookControl"/> at <paramref name="queueIndex"/> within <see cref="Queue"/>
-	/// </summary>
-	/// <param name="queueIndex">index of the <see cref="ProcessBookViewModel"/> within the <see cref="Queue"/></param>
-	/// <param name="propertyName">The nme of the property that needs updating. If null, all properties are updated.</param>
-	private void UpdateControl(int queueIndex, string? propertyName = null)
-	{
-		try
-		{
-			int i = queueIndex - FirstVisible;
-
-			if (Panels is null || i > NumVisible || i < 0) return;
-
-			var proc = ViewModel.Queue[queueIndex];
-
-			Invoke(() =>
-			{
-				Panels[i].SuspendLayout();
-				if (propertyName is null or nameof(proc.Cover))
-					Panels[i].SetCover(proc.Cover as Image);
-				if (propertyName is null or nameof(proc.Title) or nameof(proc.Author) or nameof(proc.Narrator))
-					Panels[i].SetBookInfo($"{proc.Title}\r\nBy {proc.Author}\r\nNarrated by {proc.Narrator}");
-				if (propertyName is null or nameof(proc.Status) or nameof(proc.StatusText))
-					Panels[i].SetStatus(proc.Status, proc.StatusText);
-				if (propertyName is null or nameof(proc.Progress))
-					Panels[i].SetProgress(proc.Progress);
-				if (propertyName is null or nameof(proc.TimeRemaining))
-					Panels[i].SetRemainingTime(proc.TimeRemaining);
-				Panels[i].ResumeLayout();
-			});
-		}
-		catch (Exception ex)
-		{
-			Serilog.Log.Logger.Error(ex, "Error updating the queued item's display.");
-		}
-	}
-
-	private void UpdateAllControls()
-	{
-		int numToShow = Math.Min(NumVisible, ViewModel.Queue.Count - FirstVisible);
-
-		for (int i = 0; i < numToShow; i++)
-			UpdateControl(FirstVisible + i);
-	}
-
-	/// <summary>
 	/// View notified the model that a botton was clicked
 	/// </summary>
-	/// <param name="queueIndex">index of the <see cref="ProcessBookViewModel"/> within <see cref="Queue"/></param>
-	/// <param name="panelClicked">The clicked control to update</param>
-	private async void VirtualFlowControl2_ButtonClicked(int queueIndex, string buttonName, ProcessBookControl panelClicked)
+	/// <param name="sender">the <see cref="ProcessBookControl"/> whose button was clicked</param>
+	/// <param name="buttonName">The name of the button clicked</param>
+	private async void VirtualFlowControl2_ButtonClicked(object? sender, string buttonName)
 	{
+		if (sender is not ProcessBookControl control || control.Context is not ProcessBookViewModel item)
+			return;
+
 		try
 		{
-			var item = ViewModel.Queue[queueIndex];
-			if (buttonName == nameof(panelClicked.cancelBtn))
+			if (buttonName is nameof(ProcessBookControl.cancelBtn))
 			{
-				if (item is not null)
+				await item.CancelAsync();
+				ViewModel.Queue.RemoveQueued(item);
+				virtualFlowControl2.RefreshDisplay();
+			}
+			else
+			{
+				QueuePosition? position = buttonName switch
 				{
-					await item.CancelAsync();
-					if (ViewModel.Queue.RemoveQueued(item))
-						virtualFlowControl2.VirtualControlCount = ViewModel.Queue.Count;
+					nameof(ProcessBookControl.moveFirstBtn) => QueuePosition.Fisrt,
+					nameof(ProcessBookControl.moveUpBtn) => QueuePosition.OneUp,
+					nameof(ProcessBookControl.moveDownBtn) => QueuePosition.OneDown,
+					nameof(ProcessBookControl.moveLastBtn) => QueuePosition.Last,
+					_ => null
+				};
+
+				if (position is not null)
+				{
+					ViewModel.Queue.MoveQueuePosition(item, position.Value);
+					virtualFlowControl2.RefreshDisplay();
 				}
-			}
-			else if (buttonName == nameof(panelClicked.moveFirstBtn))
-			{
-				ViewModel.Queue.MoveQueuePosition(item, QueuePosition.Fisrt);
-				UpdateAllControls();
-			}
-			else if (buttonName == nameof(panelClicked.moveUpBtn))
-			{
-				ViewModel.Queue.MoveQueuePosition(item, QueuePosition.OneUp);
-				UpdateControl(queueIndex);
-				if (queueIndex > 0)
-					UpdateControl(queueIndex - 1);
-			}
-			else if (buttonName == nameof(panelClicked.moveDownBtn))
-			{
-				ViewModel.Queue.MoveQueuePosition(item, QueuePosition.OneDown);
-				UpdateControl(queueIndex);
-				if (queueIndex + 1 < ViewModel.Queue.Count)
-					UpdateControl(queueIndex + 1);
-			}
-			else if (buttonName == nameof(panelClicked.moveLastBtn))
-			{
-				ViewModel.Queue.MoveQueuePosition(item, QueuePosition.Last);
-				UpdateAllControls();
 			}
 		}
 		catch(Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "Error handling button click from queued item");
 		}
-	}
-
-	/// <summary>
-	/// View needs updating
-	/// </summary>
-	private void VirtualFlowControl1_RequestData(int firstIndex, int numVisible, IReadOnlyList<ProcessBookControl> panelsToFill)
-	{
-		FirstVisible = firstIndex;
-		NumVisible = numVisible;
-		Panels = panelsToFill;
-		UpdateAllControls();
 	}
 
 	#endregion

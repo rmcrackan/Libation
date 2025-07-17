@@ -22,6 +22,49 @@ namespace LibationWinForms.ProcessQueue
 		public static Color QueuedColor = SystemColors.Control;
 		public static Color SuccessColor = Color.PaleGreen;
 
+		private ProcessBookViewModelBase m_Context;
+		public ProcessBookViewModelBase Context
+		{
+			get => m_Context;
+			set
+			{
+				if (m_Context != value)
+				{
+					OnContextChanging();
+					m_Context = value;
+					OnContextChanged();
+				}
+			}
+		}
+
+		private void OnContextChanging()
+		{
+			if (Context is not null)
+				Context.PropertyChanged -= Context_PropertyChanged;
+		}
+
+		private void OnContextChanged()
+		{
+			Context.PropertyChanged += Context_PropertyChanged;
+			Context_PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(null));
+		}
+
+		private void Context_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			SuspendLayout();
+			if (e.PropertyName is null or nameof(Context.Cover))
+				SetCover(Context.Cover as Image);
+			if (e.PropertyName is null or nameof(Context.Title) or nameof(Context.Author) or nameof(Context.Narrator))
+				SetBookInfo($"{Context.Title}\r\nBy {Context.Author}\r\nNarrated by {Context.Narrator}");
+			if (e.PropertyName is null or nameof(Context.Status) or nameof(Context.StatusText))
+				SetStatus(Context.Status, Context.StatusText);
+			if (e.PropertyName is null or nameof(Context.Progress))
+				SetProgress(Context.Progress);
+			if (e.PropertyName is null or nameof(Context.TimeRemaining))
+				SetRemainingTime(Context.TimeRemaining);
+			ResumeLayout();
+		}
+
 		public ProcessBookControl()
 		{
 			InitializeComponent();

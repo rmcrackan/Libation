@@ -1,44 +1,42 @@
-﻿using System;
+﻿using LibationUiBase.ProcessQueue;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace LibationWinForms.ProcessQueue
 {
-
-	internal delegate void RequestDataDelegate(int queueIndex, int numVisible, IReadOnlyList<ProcessBookControl> panelsToFill);
-	internal delegate void ControlButtonClickedDelegate(int queueIndex, string buttonName, ProcessBookControl panelClicked);
 	internal partial class VirtualFlowControl : UserControl
 	{
 		/// <summary>
-		/// Triggered when the <see cref="VirtualFlowControl"/> needs to update the displayed <see cref="ProcessBookControl"/>s
-		/// </summary>
-		public event RequestDataDelegate RequestData;
-		/// <summary>
 		/// Triggered when one of the <see cref="ProcessBookControl"/>'s buttons has been clicked
 		/// </summary>
-		public event ControlButtonClickedDelegate ButtonClicked;
+		public event EventHandler<string> ButtonClicked;
+
+		private List<ProcessBookViewModelBase> m_Items;
+		public List<ProcessBookViewModelBase> Items
+		{
+			get => m_Items;
+			set
+			{
+				m_Items = value;
+				if (m_Items is not null)
+					RefreshDisplay();
+			}
+		}
+
+		public void RefreshDisplay()
+		{
+			AdjustScrollBar();
+			DoVirtualScroll();
+		}
 
 		#region Dynamic Properties
 
 		/// <summary>
 		/// The number of virtual <see cref="ProcessBookControl"/>s in the <see cref="VirtualFlowControl"/>
 		/// </summary>
-		public int VirtualControlCount
-		{
-			get => _virtualControlCount;
-			set
-			{
-				if (_virtualControlCount == 0)
-					vScrollBar1.Value = 0;
-
-				_virtualControlCount = value;
-				AdjustScrollBar();
-				DoVirtualScroll();
-			}
-		}
-
-		private int _virtualControlCount;
+		public int VirtualControlCount => Items?.Count ?? 0;
 
 		int ScrollValue => Math.Max(vScrollBar1.Value, 0);
 		/// <summary>
@@ -100,12 +98,7 @@ namespace LibationWinForms.ProcessQueue
 		{
 			InitializeComponent();
 
-			panel1.Resize += (_, _) =>
-			{
-				AdjustScrollBar();
-				DoVirtualScroll();
-			};
-
+			panel1.Resize += (_, _) => RefreshDisplay();
 
 			var control = InitControl(0);
 			VirtualControlHeight = this.DpiUnscale(control.Height + control.Margin.Top + control.Margin.Bottom);
@@ -151,9 +144,7 @@ namespace LibationWinForms.ProcessQueue
 			while (form is not ProcessBookControl)
 				form = form.Parent;
 
-			int clickedIndex = BookControls.IndexOf((ProcessBookControl)form);
-
-			ButtonClicked?.Invoke(FirstVisibleVirtualIndex + clickedIndex, button.Name, BookControls[clickedIndex]);
+			ButtonClicked?.Invoke(form, button.Name);
 		}
 
 		/// <summary>
@@ -186,7 +177,8 @@ namespace LibationWinForms.ProcessQueue
 
 		/// <summary>
 		/// Calculated the virtual controls that are in view at the currrent scroll position and windows size,
-		/// positions <see cref="panel1"/> to simulate scroll activity, then fires <see cref="RequestData"/> to notify the model to update all visible controls
+		/// positions <see cref="panel1"/> to simulate scroll activity, then fires updates the controls with
+		/// the context corresponding to the virtual scroll position
 		/// </summary>
 		private void DoVirtualScroll()
 		{
@@ -203,10 +195,15 @@ namespace LibationWinForms.ProcessQueue
 			numVisible = Math.Min(numVisible, VirtualControlCount);
 			numVisible = Math.Min(numVisible, VirtualControlCount - firstVisible);
 
-			RequestData?.Invoke(firstVisible, numVisible, BookControls);
+			for (int i = 0; i < numVisible; i++)
+			{
+				BookControls[i].Context = Items[firstVisible + i];
+			}
 
 			for (int i = 0; i < BookControls.Count; i++)
+			{
 				BookControls[i].Visible = i < numVisible;
+			}
 		}
 
 		/// <summary>

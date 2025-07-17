@@ -162,7 +162,6 @@
 			this.virtualFlowControl2.Name = "virtualFlowControl2";
 			this.virtualFlowControl2.Size = new System.Drawing.Size(390, 424);
 			this.virtualFlowControl2.TabIndex = 3;
-			this.virtualFlowControl2.VirtualControlCount = 0;
 			// 
 			// panel1
 			// 
