@@ -399,7 +399,15 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		const MessageBoxButtons SkipDialogButtons = MessageBoxButtons.AbortRetryIgnore;
 		const MessageBoxDefaultButton SkipDialogDefaultButton = MessageBoxDefaultButton.Button1;
 
-		return await MessageBoxBase.Show(skipDialogText, "Skip this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
+		try
+		{
+			return await MessageBoxBase.Show(skipDialogText, "Skip this book?", SkipDialogButtons, MessageBoxIcon.Question, SkipDialogDefaultButton);
+		}
+		catch (Exception ex)
+		{
+			Serilog.Log.Logger.Error(ex, "Error showing retry dialog. Defaulting to 'Retry'; action.");
+			return DialogResult.Retry;
+		}
 	}
 
 	#endregion

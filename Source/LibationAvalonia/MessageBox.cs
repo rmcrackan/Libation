@@ -107,12 +107,12 @@ namespace LibationAvalonia
 		}
 
 		private static async Task<DialogResult> ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
+		=> await Dispatcher.UIThread.InvokeAsync(async () =>
 		{
 			owner = owner?.IsLoaded is true ? owner : null;
-			var dialog = await Dispatcher.UIThread.InvokeAsync(() => CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition));
-
+			var dialog = CreateMessageBox(owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 			return await DisplayWindow(dialog, owner);
-		}
+		});
 
 		private static MessageBoxWindow CreateMessageBox(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{

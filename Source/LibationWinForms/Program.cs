@@ -23,9 +23,6 @@ namespace LibationWinForms
 		{
 			Task<List<LibraryBook>> libraryLoadTask;
 
-			LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = (owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition) =>
-				Task.FromResult((LibationUiBase.Forms.DialogResult)MessageBox.Show(owner as IWin32Window, message, caption, (MessageBoxButtons)buttons, (MessageBoxIcon)icon, (MessageBoxDefaultButton)defaultButton));
-
 			try
 			{
 				//// Uncomment to see Console. Must be called before anything writes to Console.
@@ -90,7 +87,31 @@ namespace LibationWinForms
 
 			var form1 = new Form1();
 			form1.Load += async (_, _) => await form1.InitLibraryAsync(await libraryLoadTask);
+			LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = ShowMessageBox;
 			Application.Run(form1);
+
+			#region Message Box Handler for LibationUiBase
+			Task<LibationUiBase.Forms.DialogResult> ShowMessageBox(
+				object owner,
+				string message,
+				string caption,
+				LibationUiBase.Forms.MessageBoxButtons buttons,
+				LibationUiBase.Forms.MessageBoxIcon icon,
+				LibationUiBase.Forms.MessageBoxDefaultButton defaultButton,
+				bool _)
+			{
+				var result = form1.Invoke(() =>
+					MessageBox.Show(
+						owner as IWin32Window ?? form1,
+						message,
+						caption,
+						(MessageBoxButtons)buttons,
+						(MessageBoxIcon)icon,
+						(MessageBoxDefaultButton)defaultButton));
+
+				return Task.FromResult((LibationUiBase.Forms.DialogResult)result);
+			}
+			#endregion;
 		}
 
 		private static void RunInstaller(Configuration config)
