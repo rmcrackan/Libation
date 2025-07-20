@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using System.Threading;
-using System.Linq;
 
 namespace LibationUiBase.GridView
 {
@@ -36,29 +34,9 @@ namespace LibationUiBase.GridView
 		/// <summary>
 		/// Creates <see cref="LibraryBookEntry{TStatus}"/> for all non-episode books in an enumeration of <see cref="LibraryBook"/>.
 		/// </summary>
-		/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="SynchronizationContext.Current"/> to be valid.</remarks>
+		/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="System.Threading.SynchronizationContext.Current"/> to be valid.</remarks>
 		public static async Task<List<IGridEntry>> GetAllProductsAsync(IEnumerable<LibraryBook> libraryBooks)
-		{
-			var products = libraryBooks.Where(lb => lb.Book.IsProduct()).ToArray();
-			if (products.Length == 0)
-				return [];
-
-			int parallelism = int.Max(1, Environment.ProcessorCount - 1);
-
-			(int batchSize, int rem) = int.DivRem(products.Length, parallelism);
-			if (rem != 0) batchSize++;
-
-			var syncContext = SynchronizationContext.Current;
-
-			//Asynchronously create an ILibraryBookEntry for every book in the library
-			var tasks = products.Chunk(batchSize).Select(batch => Task.Run(() =>
-			{
-				SynchronizationContext.SetSynchronizationContext(syncContext);
-				return batch.Select(lb => new LibraryBookEntry<TStatus>(lb) as IGridEntry);
-			}));
-
-			return (await Task.WhenAll(tasks)).SelectMany(a => a).ToList();
-		}
+			=> await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsProduct(), lb => new LibraryBookEntry<TStatus>(lb) as IGridEntry);
 
 		protected override string GetBookTags() => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 	}

@@ -1,7 +1,6 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
-using Dinah.Core.Threading;
 using FileLiberator;
 using LibationFileManager;
 using System;
@@ -9,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LibationUiBase.GridView
@@ -310,6 +309,36 @@ namespace LibationUiBase.GridView
 		}
 
 		#endregion
+
+
+		/// <summary>
+		/// Creates <see cref="IGridEntry"/> for all non-episode books in an enumeration of <see cref="DataLayer.LibraryBook"/>.
+		/// </summary>
+		/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="SynchronizationContext.Current"/> to be valid.</remarks>
+		public static  async Task<List<TEntry>> GetAllProductsAsync<TEntry>(IEnumerable<LibraryBook> libraryBooks, Func<LibraryBook, bool> includeIf, Func<LibraryBook, TEntry> factory)
+			where TEntry : IGridEntry
+		{
+			var products = libraryBooks.Where(includeIf).ToArray();
+			if (products.Length == 0)
+				return [];
+
+			int parallelism = int.Max(1, Environment.ProcessorCount - 1);
+
+			(int batchSize, int rem) = int.DivRem(products.Length, parallelism);
+			if (rem != 0) batchSize++;
+
+			var syncContext = SynchronizationContext.Current;
+
+			//Asynchronously create a GridEntry for every book in the library
+			var tasks = products.Chunk(batchSize).Select(batch => Task.Run(() =>
+			{
+				SynchronizationContext.SetSynchronizationContext(syncContext);
+				return batch.Select(factory).OfType<TEntry>().ToArray();
+			}));
+
+			return (await Task.WhenAll(tasks)).SelectMany(a => a).ToList();
+		}
+
 
 		~GridEntry()
 		{
