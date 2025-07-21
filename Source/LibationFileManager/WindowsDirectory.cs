@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LibationFileManager
@@ -10,7 +11,7 @@ namespace LibationFileManager
     public static class WindowsDirectory
     {
 
-        public static void SetCoverAsFolderIcon(string pictureId, string directory)
+        public static void SetCoverAsFolderIcon(string pictureId, string directory, CancellationToken cancellationToken)
         {
             try
             {
@@ -19,9 +20,8 @@ namespace LibationFileManager
                     return;
 
                 // get path of cover art in Images dir. Download first if not exists
-                var coverArtPath = PictureStorage.GetPicturePathSynchronously(new(pictureId, PictureSize._300x300));
-
-                InteropFactory.Create().SetFolderIcon(image: coverArtPath, directory: directory);
+                var coverArtPath = PictureStorage.GetPicturePathSynchronously(new(pictureId, PictureSize._300x300), cancellationToken);
+				InteropFactory.Create().SetFolderIcon(image: coverArtPath, directory: directory);
             }
             catch (Exception ex)
             {

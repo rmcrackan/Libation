@@ -120,7 +120,12 @@ namespace AaxDecrypter
 			}
 		}
 
-		public abstract Task CancelAsync();
+		public virtual Task CancelAsync()
+		{
+			IsCanceled = true;
+			FinalizeDownload();
+			return Task.CompletedTask;
+		}
 		protected abstract Task<bool> Step_DownloadAndDecryptAudiobookAsync();
 
 		public virtual void SetCoverArt(byte[] coverArt) { }

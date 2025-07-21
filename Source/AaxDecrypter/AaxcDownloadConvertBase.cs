@@ -25,9 +25,8 @@ namespace AaxDecrypter
 
 		public override async Task CancelAsync()
 		{
-			IsCanceled = true;
+			await base.CancelAsync();
 			await (AaxConversion?.CancelAsync() ?? Task.CompletedTask);
-			FinalizeDownload();
 		}
 
 		private Mp4File Open()

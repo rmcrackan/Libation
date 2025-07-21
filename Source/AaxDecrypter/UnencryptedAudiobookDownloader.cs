@@ -17,13 +17,6 @@ namespace AaxDecrypter
 			AsyncSteps["Step 3: Create Cue"] = Step_CreateCueAsync;
 		}
 
-		public override Task CancelAsync()
-		{
-			IsCanceled = true;
-			FinalizeDownload();
-			return Task.CompletedTask;
-		}
-
 		protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
 		{
 			await InputFileStream.DownloadTask;
