@@ -2,7 +2,6 @@ using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
 using DataLayer;
-using LibationAvalonia.ViewModels;
 using LibationUiBase;
 using LibationUiBase.ProcessQueue;
 
@@ -31,10 +30,8 @@ namespace LibationAvalonia.Views
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
-				DataContext = new ProcessBookViewModel(
-					context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"),
-					LogMe.RegisterForm(default(ILogForm))
-					);
+				ViewModels.MainVM.Configure_NonUI();
+				DataContext = new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"));
 				return;
 			}
 		}
@@ -44,7 +41,7 @@ namespace LibationAvalonia.Views
 		public void Cancel_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> CancelButtonClicked?.Invoke(DataItem);
 		public void MoveFirst_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> PositionButtonClicked?.Invoke(DataItem, QueuePosition.Fisrt);
+			=> PositionButtonClicked?.Invoke(DataItem, QueuePosition.First);
 		public void MoveUp_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> PositionButtonClicked?.Invoke(DataItem, QueuePosition.OneUp);
 		public void MoveDown_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)

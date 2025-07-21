@@ -1,9 +1,7 @@
 ﻿using ApplicationServices;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using DataLayer;
-using LibationAvalonia.ViewModels;
 using LibationUiBase;
 using LibationUiBase.ProcessQueue;
 using System;
@@ -17,7 +15,7 @@ namespace LibationAvalonia.Views
 {
 	public partial class ProcessQueueControl : UserControl
 	{
-		private TrackedQueue<ProcessBookViewModelBase>? Queue => _viewModel?.Queue;
+		private TrackedQueue<ProcessBookViewModel>? Queue => _viewModel?.Queue;
 		private ProcessQueueViewModel? _viewModel => DataContext as ProcessQueueViewModel;
 
 		public ProcessQueueControl()
@@ -31,48 +29,49 @@ namespace LibationAvalonia.Views
 #if DEBUG
 			if (Design.IsDesignMode)
 			{
+				_ = LibationFileManager.Configuration.Instance.LibationFiles;
+				ViewModels.MainVM.Configure_NonUI();
 				var vm = new ProcessQueueViewModel();
-				var Logger = LogMe.RegisterForm(vm);
 				DataContext = vm;
 				using var context = DbContexts.GetContext();
 				List<ProcessBookViewModel> testList = new()
 				{
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"))
 					{
 						Result = ProcessBookResult.FailedAbort,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"))
 					{
 						Result = ProcessBookResult.FailedSkip,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"))
 					{
 						Result = ProcessBookResult.FailedRetry,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"))
 					{
 						Result = ProcessBookResult.ValidationFail,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"))
 					{
 						Result = ProcessBookResult.Cancelled,
 						Status = ProcessBookStatus.Cancelled,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"))
 					{
 						Result = ProcessBookResult.Success,
 						Status = ProcessBookStatus.Completed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"))
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Working,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"), Logger)
+					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"))
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Queued,

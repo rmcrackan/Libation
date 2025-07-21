@@ -36,11 +36,11 @@ public partial class ThemePreviewControl : UserControl
 			PictureStorage.SetDefaultImage(PictureSize._80x80, ms1.ToArray());
 		}
 
-		QueuedBook = new ProcessBookViewModel(sampleEntries[0], null) { Status = ProcessBookStatus.Queued };
-		WorkingBook = new ProcessBookViewModel(sampleEntries[0], null) { Status = ProcessBookStatus.Working };
-		CompletedBook = new ProcessBookViewModel(sampleEntries[0], null) { Status = ProcessBookStatus.Completed };
-		CancelledBook = new ProcessBookViewModel(sampleEntries[0], null) { Status = ProcessBookStatus.Cancelled };
-		FailedBook = new ProcessBookViewModel(sampleEntries[0], null) { Status = ProcessBookStatus.Failed };
+		QueuedBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Queued };
+		WorkingBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Working };
+		CompletedBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Completed };
+		CancelledBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Cancelled };
+		FailedBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Failed };
 
 		//Set the current processable so that the empty queue doesn't try to advance.
 		QueuedBook.AddDownloadPdf();

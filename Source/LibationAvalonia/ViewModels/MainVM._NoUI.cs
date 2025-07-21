@@ -8,7 +8,7 @@ namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
-		private void Configure_NonUI()
+		public  static void Configure_NonUI()
 		{
 			using var ms1 = new MemoryStream();
 			App.OpenAsset("img-coverart-prod-unavailable_80x80.jpg").CopyTo(ms1);

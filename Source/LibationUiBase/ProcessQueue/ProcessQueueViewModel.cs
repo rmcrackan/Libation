@@ -1,30 +1,32 @@
-﻿using DataLayer;
+﻿using ApplicationServices;
+using DataLayer;
 using LibationUiBase.Forms;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using ApplicationServices;
 using System.Threading.Tasks;
 
 #nullable enable
 namespace LibationUiBase.ProcessQueue;
 
-public abstract class ProcessQueueViewModelBase : ReactiveObject, ILogForm
+public record LogEntry(DateTime LogDate, string LogMessage)
 {
-	public abstract void WriteLine(string text);
-	protected abstract ProcessBookViewModelBase CreateNewProcessBook(LibraryBook libraryBook);
+	public string LogDateString => LogDate.ToShortTimeString();
+}
 
-	public TrackedQueue<ProcessBookViewModelBase> Queue { get; }
+public class ProcessQueueViewModel : ReactiveObject
+{
+	public ObservableCollection<LogEntry> LogEntries { get; } = new();
+	public TrackedQueue<ProcessBookViewModel> Queue { get; } = new();
 	public Task? QueueRunner { get; private set; }
 	public bool Running => !QueueRunner?.IsCompleted ?? false;
-	protected LogMe Logger { get; }
 
-	public ProcessQueueViewModelBase(ICollection<ProcessBookViewModelBase>? underlyingList)
+	public ProcessQueueViewModel()
 	{
-		Logger = LogMe.RegisterForm(this);
-		Queue = new(underlyingList);
 		Queue.QueuedCountChanged += Queue_QueuedCountChanged;
 		Queue.CompletedCountChanged += Queue_CompletedCountChanged;
+		SpeedLimit = LibationFileManager.Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
 	}
 
 	private int _completedCount;
@@ -32,6 +34,7 @@ public abstract class ProcessQueueViewModelBase : ReactiveObject, ILogForm
 	private int _queuedCount;
 	private string? _runningTime;
 	private bool _progressBarVisible;
+	private decimal _speedLimit;
 
 	public int CompletedCount { get => _completedCount; private set { RaiseAndSetIfChanged(ref _completedCount, value); RaisePropertyChanged(nameof(AnyCompleted)); } }
 	public int QueuedCount { get => _queuedCount; private set { this.RaiseAndSetIfChanged(ref _queuedCount, value); RaisePropertyChanged(nameof(AnyQueued)); } }
@@ -42,6 +45,32 @@ public abstract class ProcessQueueViewModelBase : ReactiveObject, ILogForm
 	public bool AnyQueued => QueuedCount > 0;
 	public bool AnyErrors => ErrorCount > 0;
 	public double Progress => 100d * Queue.Completed.Count / Queue.Count;
+	public decimal SpeedLimitIncrement { get; private set; }
+	public decimal SpeedLimit
+	{
+		get => _speedLimit;
+		set
+		{
+			var newValue = Math.Min(999 * 1024 * 1024, (long)Math.Ceiling(value * 1024 * 1024));
+			var config = LibationFileManager.Configuration.Instance;
+			config.DownloadSpeedLimit = newValue;
+
+			_speedLimit
+				= config.DownloadSpeedLimit <= newValue ? value
+				: value == 0.01m ? config.DownloadSpeedLimit / 1024m / 1024
+				: 0;
+
+			config.DownloadSpeedLimit = (long)(_speedLimit * 1024 * 1024);
+
+			SpeedLimitIncrement = _speedLimit > 100 ? 10
+				: _speedLimit > 10 ? 1
+				: _speedLimit > 1 ? 0.1m
+				: 0.01m;
+
+			RaisePropertyChanged(nameof(SpeedLimitIncrement));
+			RaisePropertyChanged(nameof(SpeedLimit));
+		}
+	}
 
 	private void Queue_CompletedCountChanged(object? sender, int e)
 	{
@@ -58,6 +87,9 @@ public abstract class ProcessQueueViewModelBase : ReactiveObject, ILogForm
 		QueuedCount = cueCount;
 		RaisePropertyChanged(nameof(Progress));
 	}
+
+	private void ProcessBook_LogWritten(object? sender, string logMessage)
+		=> Invoke(() => LogEntries.Add(new(DateTime.Now, logMessage.Trim())));
 
 	#region Add Books to Queue
 
@@ -124,47 +156,50 @@ public abstract class ProcessQueueViewModelBase : ReactiveObject, ILogForm
 	}
 
 	private bool IsBookInQueue(LibraryBook libraryBook)
-		=> Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId) is not ProcessBookViewModelBase entry ? false
+		=> Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId) is not ProcessBookViewModel entry ? false
 		: entry.Status is ProcessBookStatus.Cancelled or ProcessBookStatus.Failed ? !Queue.RemoveCompleted(entry)
 		: true;
 
 	private bool RemoveCompleted(LibraryBook libraryBook)
-		=> Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId) is ProcessBookViewModelBase entry
+		=> Queue.FirstOrDefault(b => b?.LibraryBook?.Book?.AudibleProductId == libraryBook.Book.AudibleProductId) is ProcessBookViewModel entry
 		&& entry.Status is ProcessBookStatus.Completed
 		&& Queue.RemoveCompleted(entry);
 
-	private void AddDownloadPdf(IEnumerable<LibraryBook> entries)
+	private void AddDownloadPdf(IList<LibraryBook> entries)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
 		Serilog.Log.Logger.Information("Queueing {count} books for PDF-only download", procs.Length);
 		AddToQueue(procs);
 
-		ProcessBookViewModelBase Create(LibraryBook entry)
-			=> CreateNewProcessBook(entry).AddDownloadPdf();
+		ProcessBookViewModel Create(LibraryBook entry)
+			=> new ProcessBookViewModel(entry).AddDownloadPdf();
 	}
 
-	private void AddDownloadDecrypt(IEnumerable<LibraryBook> entries)
+	private void AddDownloadDecrypt(IList<LibraryBook> entries)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
 		Serilog.Log.Logger.Information("Queueing {count} books ofr download/decrypt", procs.Length);
 		AddToQueue(procs);
-		
-		ProcessBookViewModelBase Create(LibraryBook entry)
-			=> CreateNewProcessBook(entry).AddDownloadDecryptBook().AddDownloadPdf();
+
+		ProcessBookViewModel Create(LibraryBook entry)
+			=> new ProcessBookViewModel(entry).AddDownloadDecryptBook().AddDownloadPdf();
 	}
 
-	private void AddConvertMp3(IEnumerable<LibraryBook> entries)
+	private void AddConvertMp3(IList<LibraryBook> entries)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
 		Serilog.Log.Logger.Information("Queueing {count} books for mp3 conversion", procs.Length);
 		AddToQueue(procs);
 
-		ProcessBookViewModelBase Create(LibraryBook entry)
-			=> CreateNewProcessBook(entry).AddConvertToMp3();
+		ProcessBookViewModel Create(LibraryBook entry)
+			=> new ProcessBookViewModel(entry).AddConvertToMp3();
 	}
 
-	private void AddToQueue(IEnumerable<ProcessBookViewModelBase> pbook)
+	private void AddToQueue(IList<ProcessBookViewModel> pbook)
 	{
+		foreach (var book in pbook)
+			book.LogWritten += ProcessBook_LogWritten;
+
 		Queue.Enqueue(pbook);
 		if (!Running)
 			QueueRunner = Task.Run(QueueLoop);
@@ -187,7 +222,7 @@ public abstract class ProcessQueueViewModelBase : ReactiveObject, ILogForm
 
 			while (Queue.MoveNext())
 			{
-				if (Queue.Current is not ProcessBookViewModelBase nextBook)
+				if (Queue.Current is not ProcessBookViewModel nextBook)
 				{
 					Serilog.Log.Logger.Information("Current queue item is empty.");
 					continue;
