@@ -53,8 +53,8 @@ namespace LibationAvalonia.Views
 		private void LiberateStatusButton_DataContextChanged(object sender, EventArgs e)
 		{
 			//Force book status recheck when an entry is scrolled into view.
-			//This will force a recheck for a paprtially downloaded file.
-			var status = DataContext as ILibraryBookEntry;
+			//This will force a recheck for a partially downloaded file.
+			var status = DataContext as LibraryBookEntry;
 			status?.Liberate.Invalidate(nameof(status.Liberate.BookStatus));
 		}
 

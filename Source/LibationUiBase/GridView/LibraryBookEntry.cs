@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace LibationUiBase.GridView
 {
 	/// <summary>The View Model for a LibraryBook that is ContentType.Product or ContentType.Episode</summary>
-	public class LibraryBookEntry<TStatus> : GridEntry<TStatus>, ILibraryBookEntry where TStatus : IEntryStatus
+	public class LibraryBookEntry : GridEntry
 	{
 		[Browsable(false)] public override DateTime DateAdded => LibraryBook.DateAdded;
-		[Browsable(false)] public ISeriesEntry Parent { get; }
+		[Browsable(false)] public SeriesEntry Parent { get; }
 
 		public override bool? Remove
 		{
@@ -24,7 +24,7 @@ namespace LibationUiBase.GridView
 			}
 		}
 
-		public LibraryBookEntry(LibraryBook libraryBook, ISeriesEntry parent = null)
+		public LibraryBookEntry(LibraryBook libraryBook, SeriesEntry parent = null)
 		{
 			Parent = parent;
 			UpdateLibraryBook(libraryBook);
@@ -35,8 +35,8 @@ namespace LibationUiBase.GridView
 		/// Creates <see cref="LibraryBookEntry{TStatus}"/> for all non-episode books in an enumeration of <see cref="LibraryBook"/>.
 		/// </summary>
 		/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="System.Threading.SynchronizationContext.Current"/> to be valid.</remarks>
-		public static async Task<List<IGridEntry>> GetAllProductsAsync(IEnumerable<LibraryBook> libraryBooks)
-			=> await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsProduct(), lb => new LibraryBookEntry<TStatus>(lb) as IGridEntry);
+		public static async Task<List<GridEntry>> GetAllProductsAsync(IEnumerable<LibraryBook> libraryBooks)
+			=> await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsProduct(), lb => new LibraryBookEntry(lb) as GridEntry);
 
 		protected override string GetBookTags() => string.Join("\r\n", Book.UserDefinedItem.TagsEnumerated);
 	}

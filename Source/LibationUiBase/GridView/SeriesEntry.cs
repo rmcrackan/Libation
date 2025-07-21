@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 namespace LibationUiBase.GridView
 {
 	/// <summary>The View Model for a LibraryBook that is ContentType.Parent</summary>
-	public class SeriesEntry<TStatus> : GridEntry<TStatus>, ISeriesEntry where TStatus : IEntryStatus
+	public class SeriesEntry : GridEntry
 	{
-		public List<ILibraryBookEntry> Children { get; }
+		public List<LibraryBookEntry> Children { get; }
 		public override DateTime DateAdded => Children.Max(c => c.DateAdded);
 
 		private bool suspendCounting = false;
@@ -49,9 +49,9 @@ namespace LibationUiBase.GridView
 			SeriesIndex = -1;
 
 			Children = children
-				.Select(c => new LibraryBookEntry<TStatus>(c, this))
+				.Select(c => new LibraryBookEntry(c, this))
 				.OrderByDescending(c => c.SeriesOrder)
-				.ToList<ILibraryBookEntry>();
+				.ToList<LibraryBookEntry>();
 
 			UpdateLibraryBook(parent);
 			LoadCover();
@@ -61,9 +61,9 @@ namespace LibationUiBase.GridView
 		/// Creates <see cref="SeriesEntry{TStatus}"/> for all episodic series in an enumeration of <see cref="LibraryBook"/>.
 		/// </summary>
 		/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="SynchronizationContext.Current"/> to be valid.</remarks>
-		public static async Task<List<ISeriesEntry>> GetAllSeriesEntriesAsync(IEnumerable<LibraryBook> libraryBooks)
+		public static async Task<List<SeriesEntry>> GetAllSeriesEntriesAsync(IEnumerable<LibraryBook> libraryBooks)
 		{
-			var seriesEntries = await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsEpisodeParent(), lb => new SeriesEntry<TStatus>(lb, []) as ISeriesEntry);
+			var seriesEntries = await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsEpisodeParent(), lb => new SeriesEntry(lb, []));
 			var seriesDict = seriesEntries.ToDictionarySafe(s => s.AudibleProductId);
 			await GetAllProductsAsync(libraryBooks, lb => lb.Book.IsEpisodeChild(), CreateAndLinkEpisodeEntry);
 
@@ -77,13 +77,13 @@ namespace LibationUiBase.GridView
 			return seriesEntries.Where(s => s.Children.Count != 0).ToList();
 
 			//Create a LibraryBookEntry for an episode and link it to its series parent
-			LibraryBookEntry<TStatus> CreateAndLinkEpisodeEntry(LibraryBook episode)
+			LibraryBookEntry CreateAndLinkEpisodeEntry(LibraryBook episode)
 			{
 				foreach (var s in episode.Book.SeriesLink)
 				{
 					if (seriesDict.TryGetValue(s.Series.AudibleSeriesId, out var seriesParent))
 					{
-						var entry = new LibraryBookEntry<TStatus>(episode, seriesParent);
+						var entry = new LibraryBookEntry(episode, seriesParent);
 						seriesParent.Children.Add(entry);
 						return entry;
 					}
@@ -92,7 +92,7 @@ namespace LibationUiBase.GridView
 			}
 		}
 
-		public void RemoveChild(ILibraryBookEntry lbe)
+		public void RemoveChild(LibraryBookEntry lbe)
 		{
 			Children.Remove(lbe);
 			PurchaseDate = GetPurchaseDateString();

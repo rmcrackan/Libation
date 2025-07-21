@@ -28,7 +28,7 @@ namespace LibationWinForms.GridView
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
             // series
-            if (rowIndex >= 0 && DataGridView.GetBoundItem<IGridEntry>(rowIndex) is ISeriesEntry)
+            if (rowIndex >= 0 && DataGridView.GetBoundItem<GridEntry>(rowIndex) is SeriesEntry)
 			{
                 base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, DataGridViewPaintParts.Background | DataGridViewPaintParts.Border);
             }

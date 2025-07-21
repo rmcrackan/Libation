@@ -137,7 +137,7 @@ namespace LibationAvalonia.Views
 		}
 
 		public void ProductsDisplay_LiberateClicked(object _, LibraryBook[] libraryBook) => ViewModel.LiberateClicked(libraryBook);
-		public void ProductsDisplay_LiberateSeriesClicked(object _, ISeriesEntry series) => ViewModel.LiberateSeriesClicked(series);
+		public void ProductsDisplay_LiberateSeriesClicked(object _, SeriesEntry series) => ViewModel.LiberateSeriesClicked(series);
 		public void ProductsDisplay_ConvertToMp3Clicked(object _, LibraryBook[] libraryBook) => ViewModel.ConvertToMp3Clicked(libraryBook);
 
 		BookDetailsDialog bookDetailsForm;

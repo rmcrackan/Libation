@@ -270,7 +270,7 @@ namespace LibationWinForms.GridView
 			// 
 			// syncBindingSource
 			// 
-			syncBindingSource.DataSource = typeof(IGridEntry);
+			syncBindingSource.DataSource = typeof(GridEntry);
 			// 
 			// ProductsGrid
 			// 

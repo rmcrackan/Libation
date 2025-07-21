@@ -29,17 +29,17 @@ public class GridContextMenu
 	public string ViewBookmarksText => $"View {Accelerator}Bookmarks/Clips";
 	public string ViewSeriesText => GridEntries[0].Liberate.IsSeries ? "View All Episodes in Series" : "View All Books in Series";
 
-	public bool LiberateEpisodesEnabled => GridEntries.OfType<ISeriesEntry>().Any(sEntry => sEntry.Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload));
+	public bool LiberateEpisodesEnabled => GridEntries.OfType<SeriesEntry>().Any(sEntry => sEntry.Children.Any(c => c.Liberate.BookStatus is LiberatedStatus.NotLiberated or LiberatedStatus.PartialDownload));
 	public bool SetDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || ge.Liberate.IsSeries);
 	public bool SetNotDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || ge.Liberate.IsSeries);
 	public bool ConvertToMp3Enabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
 	public bool ReDownloadEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
 
-	private IGridEntry[] GridEntries { get; }
-	public ILibraryBookEntry[] LibraryBookEntries { get; }
+	private GridEntry[] GridEntries { get; }
+	public LibraryBookEntry[] LibraryBookEntries { get; }
 	public char Accelerator { get; }
 
-	public GridContextMenu(IGridEntry[] gridEntries, char accelerator)
+	public GridContextMenu(GridEntry[] gridEntries, char accelerator)
 	{
 		ArgumentNullException.ThrowIfNull(gridEntries, nameof(gridEntries));
 		ArgumentOutOfRangeException.ThrowIfZero(gridEntries.Length, $"{nameof(gridEntries)}.{nameof(gridEntries.Length)}");
@@ -48,9 +48,9 @@ public class GridContextMenu
 		Accelerator = accelerator;
 		LibraryBookEntries
 			= GridEntries
-			.OfType<ISeriesEntry>()
+			.OfType<SeriesEntry>()
 			.SelectMany(s => s.Children)
-			.Concat(GridEntries.OfType<ILibraryBookEntry>())
+			.Concat(GridEntries.OfType<LibraryBookEntry>())
 			.ToArray();
 	}
 

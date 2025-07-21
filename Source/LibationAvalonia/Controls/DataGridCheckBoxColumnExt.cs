@@ -9,7 +9,7 @@ namespace LibationAvalonia.Controls
 		{
 			//Only SeriesEntry types have three-state checks, individual LibraryEntry books are binary.
 			var ele = base.GenerateEditingElementDirect(cell, dataItem) as CheckBox;
-			ele.IsThreeState = dataItem is ISeriesEntry;
+			ele.IsThreeState = dataItem is SeriesEntry;
 			return ele;
 		}
 	}

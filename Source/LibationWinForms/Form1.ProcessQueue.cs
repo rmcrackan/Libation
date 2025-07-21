@@ -48,7 +48,7 @@ namespace LibationWinForms
 			}
 		}
 
-		private void ProductsDisplay_LiberateSeriesClicked(object sender, ISeriesEntry series)
+		private void ProductsDisplay_LiberateSeriesClicked(object sender, SeriesEntry series)
 		{
 			try
 			{
