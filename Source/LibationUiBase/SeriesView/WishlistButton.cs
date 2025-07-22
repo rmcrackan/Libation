@@ -22,14 +22,7 @@ namespace LibationUiBase.SeriesView
 		public override bool Enabled
 		{
 			get => instanceEnabled;
-			protected set
-			{
-				if (instanceEnabled != value)
-				{
-					instanceEnabled = value;
-					OnPropertyChanged(nameof(Enabled));
-				}
-			}
+			protected set => RaiseAndSetIfChanged(ref instanceEnabled, value);
 		}
 
 		private bool InWishList
@@ -40,8 +33,8 @@ namespace LibationUiBase.SeriesView
 				if (inWishList != value)
 				{
 					inWishList = value;
-					OnPropertyChanged(nameof(InWishList));
-					OnPropertyChanged(nameof(DisplayText));
+					RaisePropertyChanged(nameof(InWishList));
+					RaisePropertyChanged(nameof(DisplayText));
 				}
 			}
 		}
