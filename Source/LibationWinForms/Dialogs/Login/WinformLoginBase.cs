@@ -5,18 +5,19 @@ namespace LibationWinForms.Dialogs.Login
 {
 	public abstract class WinformLoginBase
 	{
-		private readonly IWin32Window _owner;
-		protected WinformLoginBase(IWin32Window owner)
+		protected Control Owner { get; }
+		protected WinformLoginBase(Control owner)
 		{
-			_owner = owner;
+			Owner = owner;
 		}
 
 		/// <returns>True if ShowDialog's DialogResult == OK</returns>
 		protected bool ShowDialog(Form dialog)
-		{
-			var result = dialog.ShowDialog(_owner);
-			Serilog.Log.Logger.Debug("{@DebugInfo}", new { DialogResult = result });
-			return result == DialogResult.OK;
-		}
+			=> Owner.Invoke(() =>
+			{
+				var result = dialog.ShowDialog(Owner);
+				Serilog.Log.Logger.Debug("{@DebugInfo}", new { DialogResult = result });
+				return result == DialogResult.OK;
+			});
 	}
 }

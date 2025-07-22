@@ -13,13 +13,16 @@ namespace LibationWinForms.Login
 
 		private Account _account { get; }
 
-		public WinformLoginChoiceEager(Account account, IWin32Window owner) : base(owner)
+		public WinformLoginChoiceEager(Account account, Control owner) : base(owner)
 		{
 			_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
 			LoginCallback = new WinformLoginCallback(_account, owner);
 		}
 
 		public Task<ChoiceOut> StartAsync(ChoiceIn choiceIn)
+			=> Owner.Invoke(() => StartAsyncInternal(choiceIn));
+
+		private Task<ChoiceOut> StartAsyncInternal(ChoiceIn choiceIn)
 		{
 			if (Environment.OSVersion.Version.Major >= 10)
 			{
