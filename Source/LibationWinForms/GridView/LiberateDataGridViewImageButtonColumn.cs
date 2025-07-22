@@ -1,7 +1,9 @@
 ﻿using DataLayer;
+using LibationUiBase.GridView;
 using System.Drawing;
 using System.Windows.Forms;
 
+#nullable enable
 namespace LibationWinForms.GridView
 {
 	public class LiberateDataGridViewImageButtonColumn : DataGridViewButtonColumn, IDataGridScaleColumn
@@ -20,16 +22,18 @@ namespace LibationWinForms.GridView
 
         private static readonly Brush DISABLED_GRAY = new SolidBrush(Color.FromArgb(0x60, Color.LightGray));
 		private static readonly Color HiddenForeColor = Color.LightGray;
-		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
+		private static readonly Color SERIES_BG_COLOR = Color.FromArgb(230, 255, 230);
+
+		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object? value, object? formattedValue, string? errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
-			if (value is WinFormsEntryStatus status)
+			if (OwningRow is DataGridViewRow row && row.DataGridView is DataGridView grid && value is EntryStatus status)
 			{
 				if (status.BookStatus is LiberatedStatus.Error || status.IsUnavailable)
 					//Don't paint the button graphic
 					paintParts ^= DataGridViewPaintParts.ContentBackground | DataGridViewPaintParts.ContentForeground | DataGridViewPaintParts.SelectionBackground;
 
-				DataGridView.Rows[rowIndex].DefaultCellStyle.BackColor = (Color)status.BackgroundBrush;
-				DataGridView.Rows[rowIndex].DefaultCellStyle.ForeColor = status.Opacity == 1 ? DataGridView.DefaultCellStyle.ForeColor : HiddenForeColor;
+				row.DefaultCellStyle.BackColor = status.IsEpisode ? SERIES_BG_COLOR : grid.DefaultCellStyle.BackColor;
+				row.DefaultCellStyle.ForeColor = status.Opacity == 1 ? grid.DefaultCellStyle.ForeColor : HiddenForeColor;
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 
 				DrawButtonImage(graphics, (Image)status.ButtonImage, cellBounds);

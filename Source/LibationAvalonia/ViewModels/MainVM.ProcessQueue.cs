@@ -57,7 +57,7 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		public void LiberateSeriesClicked(ISeriesEntry series)
+		public void LiberateSeriesClicked(SeriesEntry series)
 		{
 			try
 			{

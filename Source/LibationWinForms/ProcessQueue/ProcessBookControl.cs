@@ -3,32 +3,19 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
+#nullable enable
 namespace LibationWinForms.ProcessQueue
 {
 	internal partial class ProcessBookControl : UserControl
 	{
 		private readonly int CancelBtnDistanceFromEdge;
 		private readonly int ProgressBarDistanceFromEdge;
+		private object? m_OldContext;
 
 		private static Color FailedColor { get; } = Color.LightCoral;
 		private static Color CancelledColor { get; } = Color.Khaki;
 		private static Color QueuedColor { get; } = SystemColors.Control;
 		private static Color SuccessColor { get; } = Color.PaleGreen;
-
-		private ProcessBookViewModelBase m_Context;
-		public ProcessBookViewModelBase Context
-		{
-			get => m_Context;
-			set
-			{
-				if (m_Context != value)
-				{
-					OnContextChanging();
-					m_Context = value;
-					OnContextChanged();
-				}
-			}
-		}
 
 		public ProcessBookControl()
 		{
@@ -41,35 +28,41 @@ namespace LibationWinForms.ProcessQueue
 			ProgressBarDistanceFromEdge = Width - progressBar1.Location.X - progressBar1.Width;
 		}
 
-		private void OnContextChanging()
+		protected override void OnDataContextChanged(EventArgs e)
 		{
-			if (Context is not null)
-				Context.PropertyChanged -= Context_PropertyChanged;
+			if (m_OldContext is ProcessBookViewModel oldContext)
+				oldContext.PropertyChanged -= DataContext_PropertyChanged;
+
+			if (DataContext is ProcessBookViewModel newContext)
+			{
+				m_OldContext = newContext;
+				newContext.PropertyChanged += DataContext_PropertyChanged;
+				DataContext_PropertyChanged(DataContext, new System.ComponentModel.PropertyChangedEventArgs(null));
+			}
+
+			base.OnDataContextChanged(e);
 		}
 
-		private void OnContextChanged()
+		private void DataContext_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			Context.PropertyChanged += Context_PropertyChanged;
-			Context_PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(null));
-		}
+			if (sender is not ProcessBookViewModel vm)
+				return;
 
-		private void Context_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
 			SuspendLayout();
-			if (e.PropertyName is null or nameof(Context.Cover))
-				SetCover(Context.Cover as Image);
-			if (e.PropertyName is null or nameof(Context.Title) or nameof(Context.Author) or nameof(Context.Narrator))
-				SetBookInfo($"{Context.Title}\r\nBy {Context.Author}\r\nNarrated by {Context.Narrator}");
-			if (e.PropertyName is null or nameof(Context.Status) or nameof(Context.StatusText))
-				SetStatus(Context.Status, Context.StatusText);
-			if (e.PropertyName is null or nameof(Context.Progress))
-				SetProgress(Context.Progress);
-			if (e.PropertyName is null or nameof(Context.TimeRemaining))
-				SetRemainingTime(Context.TimeRemaining);
+			if (e.PropertyName is null or nameof(vm.Cover))
+				SetCover(vm.Cover as Image);
+			if (e.PropertyName is null or nameof(vm.Title) or nameof(vm.Author) or nameof(vm.Narrator))
+				SetBookInfo($"{vm.Title}\r\nBy {vm.Author}\r\nNarrated by {vm.Narrator}");
+			if (e.PropertyName is null or nameof(vm.Status) or nameof(vm.StatusText))
+				SetStatus(vm.Status, vm.StatusText);
+			if (e.PropertyName is null or nameof(vm.Progress))
+				SetProgress(vm.Progress);
+			if (e.PropertyName is null or nameof(vm.TimeRemaining))
+				SetRemainingTime(vm.TimeRemaining);
 			ResumeLayout();
 		}
 
-		private void SetCover(Image cover) => pictureBox1.Image = cover;
+		private void SetCover(Image? cover) => pictureBox1.Image = cover;
 		private void SetBookInfo(string title) => bookInfoLbl.Text = title;
 		private void SetRemainingTime(TimeSpan remaining)
 			=> remainingTimeLbl.Text = $"{remaining:mm\\:ss}";

@@ -17,7 +17,7 @@ namespace LibationAvalonia.ViewModels
 		public RowComparer(DataGridColumn? column)
 		{
 			Column = column;
-			PropertyName = Column?.SortMemberPath ?? nameof(IGridEntry.DateAdded);
+			PropertyName = Column?.SortMemberPath ?? nameof(GridEntry.DateAdded);
 		}
 
 		//Avalonia doesn't expose the column's CurrentSortingState, so we must get it through reflection

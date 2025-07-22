@@ -1,5 +1,6 @@
 ﻿using LibationFileManager;
 using LibationUiBase;
+using System;
 using System.IO;
 
 #nullable enable
@@ -7,7 +8,7 @@ namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
-		private void Configure_NonUI()
+		public  static void Configure_NonUI()
 		{
 			using var ms1 = new MemoryStream();
 			App.OpenAsset("img-coverart-prod-unavailable_80x80.jpg").CopyTo(ms1);
@@ -23,6 +24,20 @@ namespace LibationAvalonia.ViewModels
 			PictureStorage.SetDefaultImage(PictureSize.Native, ms3.ToArray());
 
 			BaseUtil.SetLoadImageDelegate(AvaloniaUtils.TryLoadImageOrDefault);
+			BaseUtil.SetLoadResourceImageDelegate(LoadResourceImage);
+		}
+		private static Avalonia.Media.Imaging.Bitmap? LoadResourceImage(string resourceName)
+		{
+			try
+			{
+				using var stream = App.OpenAsset(resourceName);
+				return new Avalonia.Media.Imaging.Bitmap(stream);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "Failed to load resource image: {ResourceName}", resourceName);
+				return null;
+			}
 		}
 	}
 }

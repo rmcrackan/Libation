@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AaxDecrypter;
 using ApplicationServices;
@@ -18,10 +19,15 @@ namespace FileLiberator
     {
         public override string Name => "Download & Decrypt";
         private AudiobookDownloadBase abDownloader;
+		private readonly CancellationTokenSource cancellationTokenSource = new();
 
-        public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists();
-
-        public override Task CancelAsync() => abDownloader?.CancelAsync() ?? Task.CompletedTask;
+		public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists();
+        public override async Task CancelAsync()
+        {
+            cancellationTokenSource.Cancel();
+            if (abDownloader is not null)
+				await abDownloader.CancelAsync();
+		}
 
         public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
         {
@@ -41,8 +47,9 @@ namespace FileLiberator
             }
 
             OnBegin(libraryBook);
+            var cancellationToken = cancellationTokenSource.Token;
 
-            try
+			try
             {
                 if (libraryBook.Book.Audio_Exists())
                     return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
@@ -50,7 +57,7 @@ namespace FileLiberator
                 downloadValidation(libraryBook);
 				var api = await libraryBook.GetApiAsync();
                 var config = Configuration.Instance;
-				using var downloadOptions = await DownloadOptions.InitiateDownloadAsync(api, config, libraryBook);
+				using var downloadOptions = await DownloadOptions.InitiateDownloadAsync(api, config, libraryBook, cancellationToken);
 
                 bool success = false;
                 try
@@ -74,38 +81,32 @@ namespace FileLiberator
                         .Where(f => f.FileType != FileType.AAXC)
                         .Select(f => Task.Run(() => FileUtility.SaferDelete(f.Path))));
 
-                    return
-                        abDownloader?.IsCanceled is true
-                        ? new StatusHandler { "Cancelled" }
-                        : new StatusHandler { "Decrypt failed" };
+					cancellationToken.ThrowIfCancellationRequested();
+					return new StatusHandler { "Decrypt failed" };
                 }
 
                 var finalStorageDir = getDestinationDirectory(libraryBook);
 
-                var moveFilesTask = Task.Run(() => moveFilesToBooksDir(libraryBook, entries));
+                var moveFilesTask = Task.Run(() => moveFilesToBooksDir(libraryBook, entries, cancellationToken));
                 Task[] finalTasks =
                 [
-                    Task.Run(() => downloadCoverArt(downloadOptions)),
+                    Task.Run(() => downloadCoverArt(downloadOptions, cancellationToken)),
                     moveFilesTask,
-                    Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(libraryBook.Book.PictureId, finalStorageDir))
+                    Task.Run(() => WindowsDirectory.SetCoverAsFolderIcon(libraryBook.Book.PictureId, finalStorageDir, cancellationToken))
                 ];
 
 				try
                 {
-                    await Task.WhenAll(finalTasks);
-                }
-                catch
-                {
+					await Task.WhenAll(finalTasks);
+				}
+                catch when (!moveFilesTask.IsFaulted)
+				{
 					//Swallow downloadCoverArt and SetCoverAsFolderIcon exceptions.
-                    //Only fail if the downloaded audio files failed to move to Books directory
-					if (moveFilesTask.IsFaulted)
-                    {
-                        throw;
-                    }
-                }
-                finally
+					//Only fail if the downloaded audio files failed to move to Books directory
+				}
+				finally
                 {
-                    if (moveFilesTask.IsCompletedSuccessfully)
+                    if (moveFilesTask.IsCompletedSuccessfully && !cancellationToken.IsCancellationRequested)
                     {
                         await Task.Run(() => libraryBook.UpdateBookStatus(LiberatedStatus.Liberated, Configuration.LibationVersion));
 
@@ -114,8 +115,12 @@ namespace FileLiberator
 				}
 
 				return new StatusHandler();
-            }
-            finally
+			}
+			catch when (cancellationToken.IsCancellationRequested)
+			{
+				return new StatusHandler { "Cancelled" };
+			}
+			finally
             {
                 OnCompleted(libraryBook);
             }
@@ -257,16 +262,17 @@ namespace FileLiberator
 
         /// <summary>Move new files to 'Books' directory</summary>
         /// <returns>Return directory if audiobook file(s) were successfully created and can be located on disk. Else null.</returns>
-        private static void moveFilesToBooksDir(LibraryBook libraryBook, List<FilePathCache.CacheEntry> entries)
+        private static void moveFilesToBooksDir(LibraryBook libraryBook, List<FilePathCache.CacheEntry> entries, CancellationToken cancellationToken)
         {
             // create final directory. move each file into it
             var destinationDir = getDestinationDirectory(libraryBook);
+            cancellationToken.ThrowIfCancellationRequested();
 
 			for (var i = 0; i < entries.Count; i++)
             {
                 var entry = entries[i];
 
-                var realDest
+				var realDest
                     = FileUtility.SaferMoveToValidPath(
                         entry.Path,
                         Path.Combine(destinationDir, Path.GetFileName(entry.Path)),
@@ -278,7 +284,8 @@ namespace FileLiberator
 
                 // propagate corrected path. Must update cache with corrected path. Also want updated path for cue file (after this for-loop)
                 entries[i] = entry with { Path = realDest };
-            }
+                cancellationToken.ThrowIfCancellationRequested();
+			}
 
 			var cue = entries.FirstOrDefault(f => f.FileType == FileType.Cue);
             if (cue != default)
@@ -287,7 +294,8 @@ namespace FileLiberator
 				SetFileTime(libraryBook, cue.Path);
 			}
 
-            AudibleFileStorage.Audio.Refresh();
+			cancellationToken.ThrowIfCancellationRequested();
+			AudibleFileStorage.Audio.Refresh();
         }
 
         private static string getDestinationDirectory(LibraryBook libraryBook)
@@ -301,7 +309,7 @@ namespace FileLiberator
 		private static FilePathCache.CacheEntry getFirstAudioFile(IEnumerable<FilePathCache.CacheEntry> entries)
             => entries.FirstOrDefault(f => f.FileType == FileType.Audio);
 
-		private static void downloadCoverArt(DownloadOptions options)
+		private static void downloadCoverArt(DownloadOptions options, CancellationToken cancellationToken)
         {
 			if (!Configuration.Instance.DownloadCoverArt) return;
 
@@ -316,7 +324,7 @@ namespace FileLiberator
                 if (File.Exists(coverPath))
                     FileUtility.SaferDelete(coverPath);
 
-                var picBytes = PictureStorage.GetPictureSynchronously(new(options.LibraryBook.Book.PictureLarge ?? options.LibraryBook.Book.PictureId, PictureSize.Native));
+                var picBytes = PictureStorage.GetPictureSynchronously(new(options.LibraryBook.Book.PictureLarge ?? options.LibraryBook.Book.PictureId, PictureSize.Native), cancellationToken);
                 if (picBytes.Length > 0)
                 {
                     File.WriteAllBytes(coverPath, picBytes);
@@ -327,6 +335,7 @@ namespace FileLiberator
             {
                 //Failure to download cover art should not be considered a failure to download the book
                 Serilog.Log.Logger.Error(ex, $"Error downloading cover art of {options.LibraryBook.Book.AudibleProductId} to {coverPath} catalog product.");
+                throw;
             }
         }
     }

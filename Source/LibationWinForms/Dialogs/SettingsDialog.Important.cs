@@ -11,7 +11,13 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class SettingsDialog
 	{
-		private void logsBtn_Click(object sender, EventArgs e) => Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
+		private void logsBtn_Click(object sender, EventArgs e)
+		{
+			if (File.Exists(LogFileFilter.LogFilePath))
+				Go.To.File(LogFileFilter.LogFilePath);
+			else
+				Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
+		}
 
 		private void Load_Important(Configuration config)
 		{

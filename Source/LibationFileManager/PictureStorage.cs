@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -78,13 +79,13 @@ namespace LibationFileManager
 			}
 		}
 
-		public static string GetPicturePathSynchronously(PictureDefinition def)
+		public static string GetPicturePathSynchronously(PictureDefinition def, CancellationToken cancellationToken = default)
         {
-			GetPictureSynchronously(def);
+			GetPictureSynchronously(def, cancellationToken);
 			return getPath(def);
 		}
 
-		public static byte[] GetPictureSynchronously(PictureDefinition def)
+		public static byte[] GetPictureSynchronously(PictureDefinition def, CancellationToken cancellationToken = default)
 		{
 			lock (cacheLocker)
 			{
@@ -94,7 +95,7 @@ namespace LibationFileManager
 					var bytes
 						= File.Exists(path)
 						? File.ReadAllBytes(path)
-						: downloadBytes(def);
+						: downloadBytes(def, cancellationToken);
 					cache[def] = bytes;
 				}
 				return cache[def];
@@ -124,7 +125,7 @@ namespace LibationFileManager
 		}
 
 		private static HttpClient imageDownloadClient { get; } = new HttpClient();
-		private static byte[] downloadBytes(PictureDefinition def)
+		private static byte[] downloadBytes(PictureDefinition def, CancellationToken cancellationToken = default)
 		{
 			if (def.PictureId is null)
 				return GetDefaultImage(def.Size);
@@ -132,7 +133,7 @@ namespace LibationFileManager
 			try
 			{
 				var sizeStr = def.Size == PictureSize.Native ? "" : $"._SL{(int)def.Size}_";
-				var bytes = imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}{sizeStr}.jpg").Result;
+				var bytes = imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}{sizeStr}.jpg", cancellationToken).Result;
 
 				// save image file. make sure to not save default image
 				var path = getPath(def);

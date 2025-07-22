@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -24,9 +25,10 @@ public partial class DownloadOptions
 	/// <summary>
 	/// Initiate an audiobook download from the audible api.
 	/// </summary>
-	public static async Task<DownloadOptions> InitiateDownloadAsync(Api api, Configuration config, LibraryBook libraryBook)
+	public static async Task<DownloadOptions> InitiateDownloadAsync(Api api, Configuration config, LibraryBook libraryBook, CancellationToken token)
 	{
-		var license = await ChooseContent(api, libraryBook, config);
+		var license = await ChooseContent(api, libraryBook, config, token);
+		token.ThrowIfCancellationRequested();
 
 		//Some audiobooks will have incorrect chapters in the metadata returned from the license request,
 		//but the metadata returned by the content metadata endpoint will be correct. Call the content
@@ -36,9 +38,8 @@ public partial class DownloadOptions
 		if (metadata.ChapterInfo.RuntimeLengthMs == license.ContentMetadata.ChapterInfo.RuntimeLengthMs)
 			license.ContentMetadata.ChapterInfo = metadata.ChapterInfo;
 
-		var options = BuildDownloadOptions(libraryBook, config, license);
-
-		return options;
+		token.ThrowIfCancellationRequested();
+		return BuildDownloadOptions(libraryBook, config, license);
 	}
 
 	private class LicenseInfo
@@ -57,16 +58,18 @@ public partial class DownloadOptions
 			=> voucher is null ? null : [new KeyData(voucher.Key, voucher.Iv)];
 	}
 
-	private static async Task<LicenseInfo> ChooseContent(Api api, LibraryBook libraryBook, Configuration config)
+	private static async Task<LicenseInfo> ChooseContent(Api api, LibraryBook libraryBook, Configuration config, CancellationToken token)
 	{
 		var dlQuality = config.FileDownloadQuality == Configuration.DownloadQuality.Normal ? DownloadQuality.Normal : DownloadQuality.High;
 
 		if (!config.UseWidevine || await Cdm.GetCdmAsync() is not Cdm cdm)
 		{
+			token.ThrowIfCancellationRequested();
 			var license = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
 			return new LicenseInfo(license);
 		}
 
+		token.ThrowIfCancellationRequested();
 		try
 		{
 			//try to request a widevine content license using the user's spatial audio settings
@@ -85,8 +88,8 @@ public partial class DownloadOptions
 				return new LicenseInfo(contentLic);
 
 			using var client = new HttpClient();
-			using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse);
-			var dash = new MpegDash(mpdResponse.Content.ReadAsStream());
+			using var mpdResponse = await client.GetAsync(contentLic.LicenseResponse, token);
+			var dash = new MpegDash(mpdResponse.Content.ReadAsStream(token));
 
 			if (!dash.TryGetUri(new Uri(contentLic.LicenseResponse), out var contentUri))
 				throw new InvalidDataException("Failed to get mpeg-dash content download url.");

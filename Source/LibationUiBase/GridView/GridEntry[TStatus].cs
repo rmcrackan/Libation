@@ -1,7 +1,6 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
-using Dinah.Core.Threading;
 using FileLiberator;
 using LibationFileManager;
 using System;
@@ -9,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LibationUiBase.GridView
@@ -22,7 +21,7 @@ namespace LibationUiBase.GridView
 	}
 
 	/// <summary>The View Model base for the DataGridView</summary>
-	public abstract class GridEntry<TStatus> : ReactiveObject, IGridEntry where TStatus : IEntryStatus
+	public abstract class GridEntry : ReactiveObject
 	{
 		[Browsable(false)] public string AudibleProductId => Book.AudibleProductId;
 		[Browsable(false)] public LibraryBook LibraryBook { get; protected set; }
@@ -101,7 +100,7 @@ namespace LibationUiBase.GridView
 			LibraryBook = libraryBook;
 
 			var expanded = Liberate?.Expanded ?? false;
-			Liberate = TStatus.Create(libraryBook);
+			Liberate = new EntryStatus(libraryBook);
 			Liberate.Expanded = expanded;
 
 			Title = Book.TitleWithSubtitle;
@@ -240,7 +239,7 @@ namespace LibationUiBase.GridView
 				PictureStorage.PictureCached += PictureStorage_PictureCached;
 
 			// Mutable property. Set the field so PropertyChanged isn't fired.
-			_lazyCover = new Lazy<object>(() => Liberate.LoadImage(picture));
+			_lazyCover = new Lazy<object>(() => BaseUtil.LoadImage(picture, PictureSize._80x80));
 		}
 
 		private void PictureStorage_PictureCached(object sender, PictureCachedEventArgs e)
@@ -254,7 +253,7 @@ namespace LibationUiBase.GridView
 			// logic validation
 			if (e.Definition.PictureId == Book.PictureId)
 			{
-				_lazyCover = new Lazy<object>(() => Liberate.LoadImage(e.Picture));
+				_lazyCover = new Lazy<object>(() => BaseUtil.LoadImage(e.Picture, PictureSize._80x80));
 				RaisePropertyChanged(nameof(Cover));
 				PictureStorage.PictureCached -= PictureStorage_PictureCached;
 			}
@@ -310,6 +309,35 @@ namespace LibationUiBase.GridView
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Creates <see cref="GridEntry"/> for all non-episode books in an enumeration of <see cref="DataLayer.LibraryBook"/>.
+		/// </summary>
+		/// <remarks>Can be called from any thread, but requires the calling thread's <see cref="SynchronizationContext.Current"/> to be valid.</remarks>
+		public static  async Task<List<TEntry>> GetAllProductsAsync<TEntry>(IEnumerable<LibraryBook> libraryBooks, Func<LibraryBook, bool> includeIf, Func<LibraryBook, TEntry> factory)
+			where TEntry : GridEntry
+		{
+			var products = libraryBooks.Where(includeIf).ToArray();
+			if (products.Length == 0)
+				return [];
+
+			int parallelism = int.Max(1, Environment.ProcessorCount - 1);
+
+			(int batchSize, int rem) = int.DivRem(products.Length, parallelism);
+			if (rem != 0) batchSize++;
+
+			var syncContext = SynchronizationContext.Current;
+
+			//Asynchronously create a GridEntry for every book in the library
+			var tasks = products.Chunk(batchSize).Select(batch => Task.Run(() =>
+			{
+				SynchronizationContext.SetSynchronizationContext(syncContext);
+				return batch.Select(factory).OfType<TEntry>().ToArray();
+			}));
+
+			return (await Task.WhenAll(tasks)).SelectMany(a => a).ToList();
+		}
+
 
 		~GridEntry()
 		{

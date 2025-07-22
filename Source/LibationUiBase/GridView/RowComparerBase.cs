@@ -10,16 +10,16 @@ namespace LibationUiBase.GridView
 	/// are sorted by PropertyName while all episodes remain immediately beneath their parents and remain
 	/// sorted by series index, ascending.
 	/// </summary>
-	public abstract class RowComparerBase : IComparer, IComparer<IGridEntry>, IComparer<object>
+	public abstract class RowComparerBase : IComparer, IComparer<GridEntry>, IComparer<object>
 	{
 		public abstract string? PropertyName { get; set; }
 
 		public int Compare(object? x, object? y)
-			=> Compare(x as IGridEntry, y as IGridEntry);
+			=> Compare(x as GridEntry, y as GridEntry);
 
 		protected abstract ListSortDirection GetSortOrder();
 
-		private int InternalCompare(IGridEntry x, IGridEntry y)
+		private int InternalCompare(GridEntry x, GridEntry y)
 		{
 			var val1 = x.GetMemberValue(PropertyName);
 			var val2 = y.GetMemberValue(PropertyName);
@@ -32,7 +32,7 @@ namespace LibationUiBase.GridView
 				: compare;
 		}
 
-		public int Compare(IGridEntry? geA, IGridEntry? geB)
+		public int Compare(GridEntry? geA, GridEntry? geB)
 		{
 			if (geA is null && geB is not null) return -1;
 			if (geA is not null && geB is null) return 1;
@@ -40,12 +40,12 @@ namespace LibationUiBase.GridView
 
 			var sortDirection = GetSortOrder();
 
-			ISeriesEntry? parentA = null;
-			ISeriesEntry? parentB = null;
+			SeriesEntry? parentA = null;
+			SeriesEntry? parentB = null;
 
-			if (geA is ILibraryBookEntry lbA && lbA.Parent is ISeriesEntry seA)
+			if (geA is LibraryBookEntry lbA && lbA.Parent is SeriesEntry seA)
 				parentA = seA;
-			if (geB is ILibraryBookEntry lbB && lbB.Parent is ISeriesEntry seB)
+			if (geB is LibraryBookEntry lbB && lbB.Parent is SeriesEntry seB)
 				parentB = seB;
 
 			//both entries are children
@@ -59,7 +59,7 @@ namespace LibationUiBase.GridView
 					//and DateAdded, compare SeriesOrder instead..
 					return PropertyName switch
 					{
-						nameof(IGridEntry.DateAdded) or nameof(IGridEntry.PurchaseDate) => geA.SeriesOrder.CompareTo(geB.SeriesOrder),
+						nameof(GridEntry.DateAdded) or nameof(GridEntry.PurchaseDate) => geA.SeriesOrder.CompareTo(geB.SeriesOrder),
 						_ => InternalCompare(geA, geB),
 					};
 				}

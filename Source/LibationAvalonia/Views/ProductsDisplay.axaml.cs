@@ -26,7 +26,7 @@ namespace LibationAvalonia.Views
 	public partial class ProductsDisplay : UserControl
 	{
 		public event EventHandler<LibraryBook[]>? LiberateClicked;
-		public event EventHandler<ISeriesEntry>? LiberateSeriesClicked;
+		public event EventHandler<SeriesEntry>? LiberateSeriesClicked;
 		public event EventHandler<LibraryBook[]>? ConvertToMp3Clicked;
 		public event EventHandler<LibraryBook>? TagsButtonClicked;
 
@@ -102,7 +102,7 @@ namespace LibationAvalonia.Views
 
 		private void ProductsDisplay_LoadingRow(object sender, DataGridRowEventArgs e)
 		{
-			if (e.Row.DataContext is LibraryBookEntry<AvaloniaEntryStatus> entry && entry.Liberate.IsEpisode)
+			if (e.Row.DataContext is LibraryBookEntry entry && entry.Liberate.IsEpisode)
 				e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SeriesEntryGridBackgroundBrush");
 			else
 				e.Row.DynamicResource(DataGridRow.BackgroundProperty, "SystemRegionColor");
@@ -173,10 +173,10 @@ namespace LibationAvalonia.Views
 			{
 				switch (column.SortMemberPath)
 				{
-					case nameof(IGridEntry.Liberate):
+					case nameof(GridEntry.Liberate):
 						column.Width = new DataGridLength(BaseLiberateWidth * scaleFactor);
 						break;
-					case nameof(IGridEntry.Cover):
+					case nameof(GridEntry.Cover):
 						column.Width = new DataGridLength(BaseCoverWidth * scaleFactor);
 						break;
 				}
@@ -220,7 +220,7 @@ namespace LibationAvalonia.Views
 
 			#region Liberate all Episodes (Single series only)
 
-			if (entries.Length == 1 && entries[0] is ISeriesEntry seriesEntry)
+			if (entries.Length == 1 && entries[0] is SeriesEntry seriesEntry)
 			{
 				args.ContextMenuItems.Add(new MenuItem()
 				{
@@ -253,7 +253,7 @@ namespace LibationAvalonia.Views
 			#endregion
 			#region Locate file (Single book only)
 
-			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry)
+			if (entries.Length == 1 && entries[0] is LibraryBookEntry entry)
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
@@ -301,7 +301,7 @@ namespace LibationAvalonia.Views
 
 			#endregion
 			#region Liberate All (multiple books only)
-			if (entries.OfType<ILibraryBookEntry>().Count() > 1)
+			if (entries.OfType<LibraryBookEntry>().Count() > 1)
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
@@ -325,7 +325,7 @@ namespace LibationAvalonia.Views
 
 			#endregion
 			#region Force Re-Download (Single book only)
-			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry4)
+			if (entries.Length == 1 && entries[0] is LibraryBookEntry entry4)
 			{
 				args.ContextMenuItems.Add(new MenuItem()
 				{
@@ -361,7 +361,7 @@ namespace LibationAvalonia.Views
 				}
 			}
 
-			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry2)
+			if (entries.Length == 1 && entries[0] is LibraryBookEntry entry2)
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
@@ -391,7 +391,7 @@ namespace LibationAvalonia.Views
 			#endregion
 			#region View Bookmarks/Clips (Single book only)
 
-			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry3 && VisualRoot is Window window)
+			if (entries.Length == 1 && entries[0] is LibraryBookEntry entry3 && VisualRoot is Window window)
 			{
 				args.ContextMenuItems.Add(new MenuItem
 				{
@@ -447,7 +447,7 @@ namespace LibationAvalonia.Views
 			{
 				var itemName = column.SortMemberPath;
 
-				if (itemName == nameof(IGridEntry.Remove))
+				if (itemName == nameof(GridEntry.Remove))
 					continue;
 
 				menuItems.Add
@@ -536,7 +536,7 @@ namespace LibationAvalonia.Views
 			if (sender is not LiberateStatusButton button)
 				return;
 
-			if (button.DataContext is ISeriesEntry sEntry && _viewModel is not null)
+			if (button.DataContext is SeriesEntry sEntry && _viewModel is not null)
 			{
 				await _viewModel.ToggleSeriesExpanded(sEntry);
 
@@ -544,7 +544,7 @@ namespace LibationAvalonia.Views
 				//to the topright cell. Reset focus onto the clicked button's cell.
 				button.Focus();
 			}
-			else if (button.DataContext is ILibraryBookEntry lbEntry)
+			else if (button.DataContext is LibraryBookEntry lbEntry)
 			{
 				LiberateClicked?.Invoke(this, [lbEntry.LibraryBook]);
 			}
@@ -558,13 +558,13 @@ namespace LibationAvalonia.Views
 
 		public void Version_DoubleClick(object sender, Avalonia.Input.TappedEventArgs args)
 		{
-			if (sender is Control panel && panel.DataContext is ILibraryBookEntry lbe && lbe.LastDownload.IsValid)
+			if (sender is Control panel && panel.DataContext is LibraryBookEntry lbe && lbe.LastDownload.IsValid)
 				lbe.LastDownload.OpenReleaseUrl();
 		}
 
 		public void Cover_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
-			if (sender is not Image tblock || tblock.DataContext is not IGridEntry gEntry)
+			if (sender is not Image tblock || tblock.DataContext is not GridEntry gEntry)
 				return;
 
 			if (imageDisplayDialog is null || !imageDisplayDialog.IsVisible)
@@ -605,7 +605,7 @@ namespace LibationAvalonia.Views
 
 		public void Description_Click(object sender, Avalonia.Input.TappedEventArgs args)
 		{
-			if (sender is Control tblock && tblock.DataContext is IGridEntry gEntry)
+			if (sender is Control tblock && tblock.DataContext is GridEntry gEntry)
 			{
 				var pt = tblock.PointToScreen(tblock.Bounds.TopRight);
 				var displayWindow = new DescriptionDisplayDialog
@@ -632,7 +632,7 @@ namespace LibationAvalonia.Views
 		{
 			var button = args.Source as Button;
 
-			if (button?.DataContext is ILibraryBookEntry lbEntry)
+			if (button?.DataContext is LibraryBookEntry lbEntry)
 			{
 				TagsButtonClicked?.Invoke(this, lbEntry.LibraryBook);
 			}

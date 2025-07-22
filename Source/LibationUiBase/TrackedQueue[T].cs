@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 #nullable enable
@@ -7,7 +9,7 @@ namespace LibationUiBase
 {
 	public enum QueuePosition
 	{
-		Fisrt,
+		First,
 		OneUp,
 		OneDown,
 		Last,
@@ -22,38 +24,21 @@ namespace LibationUiBase
 	 *   3) the pile of chain at your feet grows by 1 link (Completed)
 	 *   
 	 * The index is the link position from the first link you lifted to the
-	 * last one in the chain.
-	 * 
-	 * 
-	 * For this to work with Avalonia's ItemsRepeater, it must be an ObservableCollection
-	 * (not merely a Collection with INotifyCollectionChanged, INotifyPropertyChanged). 
-	 * So TrackedQueue maintains 2 copies of the list. The primary copy of the list is
-	 * split into Completed, Current and Queued and is used by ProcessQueue to keep track
-	 * of what's what. The secondary copy is a concatenation of primary's three sources
-	 * and is stored in ObservableCollection.Items.  When the primary list changes, the
-	 * secondary list is cleared and reset to match the primary. 
+	 * last one in the chain. 
 	 */
-	public class TrackedQueue<T> where T : class
+	public class TrackedQueue<T> : IReadOnlyCollection<T>, IList, INotifyCollectionChanged where T : class
 	{
 		public event EventHandler<int>? CompletedCountChanged;
 		public event EventHandler<int>? QueuedCountChanged;
+		public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
 		public T? Current { get; private set; }
-
-		public IReadOnlyList<T> Queued => _queued;
 		public IReadOnlyList<T> Completed => _completed;
+		private List<T> Queued { get; } = new();
 
-		private readonly List<T> _queued = new();
 		private readonly List<T> _completed = new();
 		private readonly object lockObject = new();
-
-		private readonly ICollection<T>? _underlyingList;
-		public ICollection<T>? UnderlyingList => _underlyingList;
-
-		public TrackedQueue(ICollection<T>? underlyingList = null)
-		{
-			_underlyingList = underlyingList;
-		}
+		private int QueueStartIndex => Completed.Count + (Current is null ? 0 : 1);
 
 		public T this[int index]
 		{
@@ -61,17 +46,10 @@ namespace LibationUiBase
 			{
 				lock (lockObject)
 				{
-					if (index < _completed.Count)
-						return _completed[index];
-					index -= _completed.Count;
-
-					if (index == 0 && Current != null) return Current;
-
-					if (Current != null) index--;
-
-					if (index < _queued.Count) return _queued.ElementAt(index);
-
-					throw new IndexOutOfRangeException();
+					return index < Completed.Count ? Completed[index]
+						: index == Completed.Count && Current is not null ? Current
+						: index < Count ? Queued[index - QueueStartIndex]
+						: throw new IndexOutOfRangeException();
 				}
 			}
 		}
@@ -82,7 +60,7 @@ namespace LibationUiBase
 			{
 				lock (lockObject)
 				{
-					return _queued.Count + _completed.Count + (Current == null ? 0 : 1);
+					return QueueStartIndex + Queued.Count;
 				}
 			}
 		}
@@ -91,131 +69,117 @@ namespace LibationUiBase
 		{
 			lock (lockObject)
 			{
-				if (_completed.Contains(item))
-					return _completed.IndexOf(item);
-
-				if (Current == item) return _completed.Count;
-
-				if (_queued.Contains(item))
-					return _queued.IndexOf(item) + (Current is null ? 0 : 1);
-				return -1;
+				int index = _completed.IndexOf(item);
+				if (index < 0 && item == Current)
+					index = Completed.Count;
+				if (index < 0)
+				{
+					index = Queued.IndexOf(item);
+					if (index >= 0)
+						index += QueueStartIndex;
+				}
+				return index;
 			}
 		}
 
 		public bool RemoveQueued(T item)
 		{
-			bool itemsRemoved;
-			int queuedCount;
+			int queuedCount, queueIndex;
 
 			lock (lockObject)
 			{
-				itemsRemoved = _queued.Remove(item);
-				queuedCount = _queued.Count;
+				queueIndex = Queued.IndexOf(item);
+				if (queueIndex >= 0)
+					Queued.RemoveAt(queueIndex);
+				queuedCount = Queued.Count;
 			}
 
-			if (itemsRemoved)
+			if (queueIndex >= 0)
 			{
 				QueuedCountChanged?.Invoke(this, queuedCount);
-				RebuildSecondary();
+				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, QueueStartIndex + queueIndex));
+				return true;
 			}
-			return itemsRemoved;
-		}
-
-		public void ClearCurrent()
-		{
-			lock (lockObject)
-				Current = null;
-			RebuildSecondary();
+			return false;
 		}
 
 		public bool RemoveCompleted(T item)
 		{
-			bool itemsRemoved;
-			int completedCount;
+			int completedCount, completedIndex;
 
 			lock (lockObject)
 			{
-				itemsRemoved = _completed.Remove(item);
+				completedIndex = _completed.IndexOf(item);
+				if (completedIndex >= 0)
+					_completed.RemoveAt(completedIndex);
 				completedCount = _completed.Count;
 			}
 
-			if (itemsRemoved)
+			if (completedIndex >= 0)
 			{
 				CompletedCountChanged?.Invoke(this, completedCount);
-				RebuildSecondary();
+				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, completedIndex));
+				return true;
 			}
-			return itemsRemoved;
+			return false;
+		}
+
+		public void ClearCurrent()
+		{
+			T? current;
+			lock (lockObject)
+			{
+				current = Current;
+				Current = null;
+			}
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, current, _completed.Count));
 		}
 
 		public void ClearQueue()
 		{
+			List<T> queuedItems;
 			lock (lockObject)
-				_queued.Clear();
+			{
+				queuedItems = Queued.ToList();
+				Queued.Clear();
+			}
 			QueuedCountChanged?.Invoke(this, 0);
-			RebuildSecondary();
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, queuedItems, QueueStartIndex));
 		}
 
 		public void ClearCompleted()
 		{
+			List<T> completedItems;
 			lock (lockObject)
+			{
+				completedItems = _completed.ToList();
 				_completed.Clear();
+			}
 			CompletedCountChanged?.Invoke(this, 0);
-			RebuildSecondary();
-		}
-
-		public bool Any(Func<T, bool> predicate)
-		{
-			lock (lockObject)
-			{
-				return (Current != null && predicate(Current)) || _completed.Any(predicate) || _queued.Any(predicate);
-			}
-		}
-
-		public T? FirstOrDefault(Func<T, bool> predicate)
-		{
-			lock (lockObject)
-			{
-				return Current != null && predicate(Current) ? Current
-					: _completed.FirstOrDefault(predicate) is T completed ? completed
-					: _queued.FirstOrDefault(predicate);
-			}
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, completedItems, 0));
 		}
 
 		public void MoveQueuePosition(T item, QueuePosition requestedPosition)
 		{
+			int oldIndex, newIndex;
 			lock (lockObject)
 			{
-				if (_queued.Count == 0 || !_queued.Contains(item)) return;
+				oldIndex = Queued.IndexOf(item);
+				newIndex = requestedPosition switch
+				{
+					QueuePosition.First => 0,
+					QueuePosition.OneUp => oldIndex - 1,
+					QueuePosition.OneDown => oldIndex + 1,
+					QueuePosition.Last or _ => Queued.Count - 1
+				};
 
-				if ((requestedPosition == QueuePosition.Fisrt || requestedPosition == QueuePosition.OneUp) && _queued[0] == item)
+				if (oldIndex < 0 || newIndex < 0 || newIndex >= Queued.Count || newIndex == oldIndex)
 					return;
-				if ((requestedPosition == QueuePosition.Last || requestedPosition == QueuePosition.OneDown) && _queued[^1] == item)
-					return;
 
-				int queueIndex = _queued.IndexOf(item);
-
-				if (requestedPosition == QueuePosition.OneUp)
-				{
-					_queued.RemoveAt(queueIndex);
-					_queued.Insert(queueIndex - 1, item);
-				}
-				else if (requestedPosition == QueuePosition.OneDown)
-				{
-					_queued.RemoveAt(queueIndex);
-					_queued.Insert(queueIndex + 1, item);
-				}
-				else if (requestedPosition == QueuePosition.Fisrt)
-				{
-					_queued.RemoveAt(queueIndex);
-					_queued.Insert(0, item);
-				}
-				else
-				{
-					_queued.RemoveAt(queueIndex);
-					_queued.Insert(_queued.Count, item);
-				}
+				Queued.RemoveAt(oldIndex);
+				Queued.Insert(newIndex, item);
 			}
-			RebuildSecondary();
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, QueueStartIndex + newIndex, QueueStartIndex + oldIndex));
 		}
 
 		public bool MoveNext()
@@ -232,15 +196,15 @@ namespace LibationUiBase
 						completedCount = _completed.Count;
 						completedChanged = true;
 					}
-					if (_queued.Count == 0)
+					if (Queued.Count == 0)
 					{
 						Current = null;
 						return false;
 					}
-					Current = _queued[0];
-					_queued.RemoveAt(0);
+					Current = Queued[0];
+					Queued.RemoveAt(0);
 
-					queuedCount = _queued.Count;
+					queuedCount = Queued.Count;
 					return true;
 				}
 			}
@@ -249,34 +213,48 @@ namespace LibationUiBase
 				if (completedChanged)
 					CompletedCountChanged?.Invoke(this, completedCount);
 				QueuedCountChanged?.Invoke(this, queuedCount);
-				RebuildSecondary();
 			}
 		}
 
-		public void Enqueue(IEnumerable<T> item)
+		public void Enqueue(IList<T> item)
 		{
 			int queueCount;
 			lock (lockObject)
 			{
-				_queued.AddRange(item);
-				queueCount = _queued.Count;
+				Queued.AddRange(item);
+				queueCount = Queued.Count;
 			}
-			foreach (var i in item)
-				_underlyingList?.Add(i);
 			QueuedCountChanged?.Invoke(this, queueCount);
-		}
-
-		private void RebuildSecondary()
-		{
-			_underlyingList?.Clear();
-			foreach (var item in GetAllItems())
-				_underlyingList?.Add(item);
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, QueueStartIndex + Queued.Count));
 		}
 
 		public IEnumerable<T> GetAllItems()
 		{
-			if (Current is null) return Completed.Concat(Queued);
-			return Completed.Concat(new List<T> { Current }).Concat(Queued);
+			lock (lockObject)
+			{
+				if (Current is null) return Completed.Concat(Queued);
+				return Completed.Concat([Current]).Concat(Queued);
+			}
 		}
+
+		public IEnumerator<T> GetEnumerator() => GetAllItems().GetEnumerator();
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+		#region IList interface implementation
+		object? IList.this[int index] { get => this[index]; set => throw new NotSupportedException(); }
+		public bool IsReadOnly => true;
+		public bool IsFixedSize => false;
+		public bool IsSynchronized => false;
+		public object SyncRoot => this;
+		public int IndexOf(object? value) => value is T t ? IndexOf(t) : -1;
+		public bool Contains(object? value) => IndexOf(value) >= 0;
+		//These aren't used by anything, but they are IList interface members and this class needs to be an IList for Avalonia
+		public int Add(object? value) => throw new NotSupportedException();
+		public void Clear() => throw new NotSupportedException();
+		public void Insert(int index, object? value) => throw new NotSupportedException();
+		public void Remove(object? value) => throw new NotSupportedException();
+		public void RemoveAt(int index) => throw new NotSupportedException();
+		public void CopyTo(Array array, int index) => throw new NotSupportedException();
+		#endregion
 	}
 }

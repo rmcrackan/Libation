@@ -1,22 +1,15 @@
 ﻿using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
-using Dinah.Core.Threading;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace LibationUiBase.GridView
 {
-	public interface IEntryStatus
-	{
-		static abstract EntryStatus Create(LibraryBook libraryBook);
-	}
-
 	//This Class holds all book entry status info to help the grid properly render entries.
 	//The reason this info is in here instead of GridEntry is because all of this info is needed
 	//for the "Liberate" column's display and sorting functions.
-	public abstract class EntryStatus : ReactiveObject, IComparable
+	public class EntryStatus : ReactiveObject, IComparable
 	{
 		public LiberatedStatus? PdfStatus => LibraryCommands.Pdf_Status(Book);
 		public LiberatedStatus BookStatus
@@ -70,16 +63,13 @@ namespace LibationUiBase.GridView
 		private readonly bool isAbsent;
 		private static readonly Dictionary<string, object> iconCache = new();
 
-		protected EntryStatus(LibraryBook libraryBook)
+		internal EntryStatus(LibraryBook libraryBook)
 		{
 			Book = ArgumentValidator.EnsureNotNull(libraryBook, nameof(libraryBook)).Book;
 			isAbsent = libraryBook.AbsentFromLastScan is true;
 			IsEpisode = Book.ContentType is ContentType.Episode;
 			IsSeries = Book.ContentType is ContentType.Parent;
 		}
-
-		internal protected abstract object LoadImage(byte[] picture);
-		protected abstract object GetResourceImage(string rescName);
 
 		/// <summary>Refresh BookStatus (so partial download files are checked again in the filesystem) and raise PropertyChanged for property names.</summary>
 		public void Invalidate(params string[] properties)
@@ -179,7 +169,7 @@ namespace LibationUiBase.GridView
 		private object GetAndCacheResource(string rescName)
 		{
 			if (!iconCache.ContainsKey(rescName))
-				iconCache[rescName] = GetResourceImage(rescName);
+				iconCache[rescName] = BaseUtil.LoadResourceImage(rescName);
 			return iconCache[rescName];
 		}
 	}

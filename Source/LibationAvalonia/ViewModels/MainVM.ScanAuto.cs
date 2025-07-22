@@ -5,6 +5,7 @@ using LibationFileManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 #nullable enable
 namespace LibationAvalonia.ViewModels
@@ -27,7 +28,7 @@ namespace LibationAvalonia.ViewModels
 				// in autoScan, new books SHALL NOT show dialog
 				try
 				{
-					await LibraryCommands.ImportAccountAsync(accounts);
+					await Task.Run(() => LibraryCommands.ImportAccountAsync(accounts));
 				}
 				catch (OperationCanceledException)
 				{

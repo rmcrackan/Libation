@@ -115,11 +115,22 @@ namespace AppScaffolding
 		{
 			if (config.GetObject("Serilog") is JObject serilog)
 			{
-				if (serilog["WriteTo"] is JArray sinks && sinks.FirstOrDefault(s => s["Name"].Value<string>() is "File") is JToken fileSink)
+				bool fileChanged = false;
+				if (serilog.SelectToken("$.WriteTo[?(@.Name == 'ZipFile')]", false) is JObject zipFileSink)
 				{
-					fileSink["Name"] = "ZipFile";
-					config.SetNonString(serilog.DeepClone(), "Serilog");
+					zipFileSink["Name"] = "File";
+					fileChanged = true;
 				}
+				var hooks = $"{nameof(LibationFileManager)}.{nameof(FileSinkHook)}, {nameof(LibationFileManager)}";
+				if (serilog.SelectToken("$.WriteTo[?(@.Name == 'File')].Args", false) is JObject fileSinkArgs
+					&& fileSinkArgs["hooks"]?.Value<string>() != hooks)
+				{
+					fileSinkArgs["hooks"] = hooks;
+					fileChanged = true;
+				}
+
+				if (fileChanged)
+					config.SetNonString(serilog.DeepClone(), "Serilog");
 				return;
 			}
 
@@ -129,17 +140,17 @@ namespace AppScaffolding
 				{ "WriteTo", new JArray
 					{
 						// ABOUT SINKS
-						// Only ZipFile sink is currently used. By user request (June 2024) others packages are included for experimental use.
+						// Only File sink is currently used. By user request (June 2024) others packages are included for experimental use.
 
 						// new JObject { {"Name", "Console" } }, // this has caused more problems than it's solved
 						new JObject
 						{
-							{ "Name", "ZipFile" },
+							{ "Name", "File" },
 							{ "Args",
 								new JObject
 								{
 									// for this sink to work, a path must be provided. we override this below
-									{ "path", Path.Combine(config.LibationFiles, "_Log.log") },
+									{ "path", Path.Combine(config.LibationFiles, "Log.log") },
 									{ "rollingInterval", "Month" },
 									// Serilog template formatting examples
 									// - default:                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
@@ -274,7 +285,7 @@ namespace AppScaffolding
                 disableIPv6 = AppContext.TryGetSwitch("System.Net.DisableIPv6", out bool disableIPv6Value),
 			});
 
-            if (InteropFactory.InteropFunctionsType is null)
+			if (InteropFactory.InteropFunctionsType is null)
                 Serilog.Log.Logger.Warning("WARNING: OSInteropProxy.InteropFunctionsType is null");
         }
 

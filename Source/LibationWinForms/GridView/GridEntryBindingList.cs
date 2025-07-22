@@ -24,24 +24,24 @@ namespace LibationWinForms.GridView
 	 * event. Adding or removing from the underlying list will not change the
 	 * BindingList's subscription to that item.
 	 */
-	internal class GridEntryBindingList : BindingList<IGridEntry>, IBindingListView
+	internal class GridEntryBindingList : BindingList<GridEntry>, IBindingListView
 	{
-		public GridEntryBindingList(IEnumerable<IGridEntry> enumeration) : base(new List<IGridEntry>(enumeration))
+		public GridEntryBindingList(IEnumerable<GridEntry> enumeration) : base(new List<GridEntry>(enumeration))
 		{
 			SearchEngineCommands.SearchEngineUpdated += SearchEngineCommands_SearchEngineUpdated;
 			ListChanged += GridEntryBindingList_ListChanged;
 		}
 
 		/// <returns>All items in the list, including those filtered out.</returns>
-		public List<IGridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
+		public List<GridEntry> AllItems() => Items.Concat(FilterRemoved).ToList();
 
 		/// <summary>All items that pass the current filter</summary>
-		public IEnumerable<ILibraryBookEntry> GetFilteredInItems()
+		public IEnumerable<LibraryBookEntry> GetFilteredInItems()
 			=> FilteredInGridEntries?
-				.OfType<ILibraryBookEntry>()
+				.OfType<LibraryBookEntry>()
 			?? FilterRemoved
-				.OfType<ILibraryBookEntry>()
-				.Union(Items.OfType<ILibraryBookEntry>());
+				.OfType<LibraryBookEntry>()
+				.Union(Items.OfType<LibraryBookEntry>());
 
 		public bool SupportsFiltering => true;
 		public string Filter
@@ -67,12 +67,12 @@ namespace LibationWinForms.GridView
 		protected override ListSortDirection SortDirectionCore => Comparer.SortOrder;
 
 		/// <summary> Items that were removed from the base list due to filtering </summary>
-		private readonly List<IGridEntry> FilterRemoved = new();
+		private readonly List<GridEntry> FilterRemoved = new();
 		private string FilterString;
 		private bool isSorted;
 		private PropertyDescriptor propertyDescriptor;
 		/// <summary> All GridEntries present in the current filter set. If null, no filter is applied and all entries are filtered in.(This was a performance choice)</summary>
-		private HashSet<IGridEntry> FilteredInGridEntries;
+		private HashSet<GridEntry> FilteredInGridEntries;
 
 		#region Unused - Advanced Filtering
 		public bool SupportsAdvancedSorting => false;
@@ -84,7 +84,7 @@ namespace LibationWinForms.GridView
 		public ListSortDescriptionCollection SortDescriptions => throw new NotImplementedException();
 		#endregion
 
-		public new void Remove(IGridEntry entry)
+		public new void Remove(GridEntry entry)
 		{
 			FilterRemoved.Remove(entry);
 			base.Remove(entry);
@@ -122,13 +122,13 @@ namespace LibationWinForms.GridView
 			ResetList();
 			RaiseListChangedEvents = priorState;
 
-			void addRemovedItemsBack(List<IGridEntry> addBackEntries)
+			void addRemovedItemsBack(List<GridEntry> addBackEntries)
 			{
 				//Add removed entries back into Items so they are displayed
 				//(except for episodes that are collapsed)
 				foreach (var addBack in addBackEntries)
 				{
-					if (addBack is ILibraryBookEntry lbe && lbe.Parent is ISeriesEntry se && !se.Liberate.Expanded)
+					if (addBack is LibraryBookEntry lbe && lbe.Parent is SeriesEntry se && !se.Liberate.Expanded)
 						continue;
 
 					FilterRemoved.Remove(addBack);
@@ -160,7 +160,7 @@ namespace LibationWinForms.GridView
 				ExpandItem(series);
 		}
 
-		public void CollapseItem(ISeriesEntry sEntry)
+		public void CollapseItem(SeriesEntry sEntry)
 		{
 			foreach (var episode in sEntry.Children.Intersect(Items.BookEntries()).ToList())
 			{
@@ -171,7 +171,7 @@ namespace LibationWinForms.GridView
 			sEntry.Liberate.Expanded = false;
 		}
 
-		public void ExpandItem(ISeriesEntry sEntry)
+		public void ExpandItem(SeriesEntry sEntry)
 		{
 			var sindex = Items.IndexOf(sEntry);
 
@@ -208,7 +208,7 @@ namespace LibationWinForms.GridView
 
 		private void SortInternal()
 		{
-			var itemsList = (List<IGridEntry>)Items;
+			var itemsList = (List<GridEntry>)Items;
 			//User Order/OrderDescending and replace items in list instead of using List.Sort() to achieve stable sorting.
 			var sortedItems = Comparer.OrderEntries(itemsList).ToList();
 

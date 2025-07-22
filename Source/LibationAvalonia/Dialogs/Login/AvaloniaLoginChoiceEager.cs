@@ -1,5 +1,6 @@
 ﻿using AudibleApi;
 using AudibleUtilities;
+using Avalonia.Threading;
 using LibationFileManager;
 using LibationUiBase.Forms;
 using System;
@@ -21,6 +22,9 @@ namespace LibationAvalonia.Dialogs.Login
 		}
 
 		public async Task<ChoiceOut?> StartAsync(ChoiceIn choiceIn)
+			=> await Dispatcher.UIThread.InvokeAsync(() => StartAsyncInternal(choiceIn));
+
+		private async Task<ChoiceOut?> StartAsyncInternal(ChoiceIn choiceIn)
 		{
 			if (Configuration.IsWindows && Environment.OSVersion.Version.Major >= 10)
 			{

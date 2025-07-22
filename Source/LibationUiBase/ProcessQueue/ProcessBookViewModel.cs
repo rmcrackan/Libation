@@ -1,4 +1,4 @@
-﻿using ApplicationServices;
+﻿﻿using ApplicationServices;
 using AudibleApi;
 using AudibleApi.Common;
 using DataLayer;
@@ -40,9 +40,8 @@ public enum ProcessBookStatus
 /// <summary>
 /// This is the viewmodel for queued processables
 /// </summary>
-public abstract class ProcessBookViewModelBase : ReactiveObject
+public class ProcessBookViewModel : ReactiveObject
 {
-	private readonly LogMe Logger;
 	public LibraryBook LibraryBook { get; protected set; }
 
 	private ProcessBookResult _result = ProcessBookResult.None;
@@ -84,6 +83,21 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 
 	#endregion
 
+	#region Process Queue Logging
+
+	public event EventHandler<string>? LogWritten;
+	private void OnLogWritten(string text) => LogWritten?.Invoke(this, text.Trim());
+
+	private void LogError(string? message, Exception? ex = null)
+	{
+		OnLogWritten(message ?? "Automated backup: error");
+		if (ex is not null)
+			OnLogWritten("ERROR: " + ex.Message);
+	}
+	private void LogInfo(string text) => OnLogWritten(text);
+
+	#endregion
+
 	protected Processable CurrentProcessable => _currentProcessable ??= Processes.Dequeue().Invoke();
 	protected void NextProcessable() => _currentProcessable = null;
 	private Processable? _currentProcessable;
@@ -91,10 +105,9 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 	/// <summary> A series of Processable actions to perform on this book </summary>
 	protected Queue<Func<Processable>> Processes { get; } = new();
 
-	protected ProcessBookViewModelBase(LibraryBook libraryBook, LogMe logme)
+	public ProcessBookViewModel(LibraryBook libraryBook)
 	{
 		LibraryBook = libraryBook;
-		Logger = logme;
 
 		_title = LibraryBook.Book.TitleWithSubtitle;
 		_author = LibraryBook.Book.AuthorNames();
@@ -106,15 +119,14 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 			PictureStorage.PictureCached += PictureStorage_PictureCached;
 
 		// Mutable property. Set the field so PropertyChanged isn't fired.
-		_cover = LoadImageFromBytes(picture, PictureSize._80x80);
+		_cover = BaseUtil.LoadImage(picture, PictureSize._80x80);
 	}
 
-	protected abstract object? LoadImageFromBytes(byte[] bytes, PictureSize pictureSize);
 	private void PictureStorage_PictureCached(object? sender, PictureCachedEventArgs e)
 	{
 		if (e.Definition.PictureId == LibraryBook.Book.PictureId)
 		{
-			Cover = LoadImageFromBytes(e.Picture, PictureSize._80x80);
+			Cover = BaseUtil.LoadImage(e.Picture, PictureSize._80x80);
 			PictureStorage.PictureCached -= PictureStorage_PictureCached;
 		}
 	}
@@ -133,36 +145,36 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 				result = ProcessBookResult.Success;
 			else if (statusHandler.Errors.Contains("Cancelled"))
 			{
-				Logger.Info($"{procName}:  Process was cancelled - {LibraryBook.Book}");
+				LogInfo($"{procName}:  Process was cancelled - {LibraryBook.Book}");
 				result = ProcessBookResult.Cancelled;
 			}
 			else if (statusHandler.Errors.Contains("Validation failed"))
 			{
-				Logger.Info($"{procName}:  Validation failed - {LibraryBook.Book}");
+				LogInfo($"{procName}:  Validation failed - {LibraryBook.Book}");
 				result = ProcessBookResult.ValidationFail;
 			}
 			else
 			{
 				foreach (var errorMessage in statusHandler.Errors)
-					Logger.Error($"{procName}:  {errorMessage}");
+					LogError($"{procName}:  {errorMessage}");
 			}
 		}
 		catch (ContentLicenseDeniedException ldex)
 		{
 			if (ldex.AYCL?.RejectionReason is null or RejectionReason.GenericError)
 			{
-				Logger.Info($"{procName}:  Content license was denied, but this error appears to be caused by a temporary interruption of service. - {LibraryBook.Book}");
+				LogInfo($"{procName}:  Content license was denied, but this error appears to be caused by a temporary interruption of service. - {LibraryBook.Book}");
 				result = ProcessBookResult.LicenseDeniedPossibleOutage;
 			}
 			else
 			{
-				Logger.Info($"{procName}:  Content license denied. Check your Audible account to see if you have access to this title. - {LibraryBook.Book}");
+				LogInfo($"{procName}:  Content license denied. Check your Audible account to see if you have access to this title. - {LibraryBook.Book}");
 				result = ProcessBookResult.LicenseDenied;
 			}
 		}
 		catch (Exception ex)
 		{
-			Logger.Error(ex, procName);
+			LogError(procName, ex);
 		}
 		finally
 		{
@@ -192,15 +204,15 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		}
 		catch (Exception ex)
 		{
-			Logger.Error(ex, $"{CurrentProcessable.Name}:  Error while cancelling");
+			LogError($"{CurrentProcessable.Name}:  Error while cancelling", ex);
 		}
 	}
 
-	public ProcessBookViewModelBase AddDownloadPdf() => AddProcessable<DownloadPdf>();
-	public ProcessBookViewModelBase AddDownloadDecryptBook() => AddProcessable<DownloadDecryptBook>();
-	public ProcessBookViewModelBase AddConvertToMp3() => AddProcessable<ConvertToMp3>();
+	public ProcessBookViewModel AddDownloadPdf() => AddProcessable<DownloadPdf>();
+	public ProcessBookViewModel AddDownloadDecryptBook() => AddProcessable<DownloadDecryptBook>();
+	public ProcessBookViewModel AddConvertToMp3() => AddProcessable<ConvertToMp3>();
 
-	private ProcessBookViewModelBase AddProcessable<T>() where T : Processable, new()
+	private ProcessBookViewModel AddProcessable<T>() where T : Processable, new()
 	{
 		Processes.Enqueue(() => new T());
 		return this;
@@ -252,7 +264,7 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 	private void AudioDecodable_AuthorsDiscovered(object? sender, string authors) => Author = authors;
 	private void AudioDecodable_NarratorsDiscovered(object? sender, string narrators) => Narrator = narrators;
 	private void AudioDecodable_CoverImageDiscovered(object? sender, byte[] coverArt)
-		=> Cover = LoadImageFromBytes(coverArt, PictureSize._80x80);
+		=> Cover = BaseUtil.LoadImage(coverArt, PictureSize._80x80);
 
 	private byte[] AudioDecodable_RequestCoverArt(object? sender, EventArgs e)
 	{
@@ -292,7 +304,7 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		Status = ProcessBookStatus.Working;
 
 		if (sender is Processable processable)
-			Logger.Info($"{Environment.NewLine}{processable.Name} Step, Begin: {libraryBook.Book}");
+			LogInfo($"{Environment.NewLine}{processable.Name} Step, Begin: {libraryBook.Book}");
 
 		Title = libraryBook.Book.TitleWithSubtitle;
 		Author = libraryBook.Book.AuthorNames();
@@ -303,7 +315,7 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 	{
 		if (sender is Processable processable)
 		{
-			Logger.Info($"{processable.Name} Step, Completed: {libraryBook.Book}");
+			LogInfo($"{processable.Name} Step, Completed: {libraryBook.Book}");
 			UnlinkProcessable(processable);
 		}
 
@@ -329,7 +341,7 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		if (result.HasErrors)
 		{
 			foreach (var errorMessage in result.Errors.Where(e => e != "Validation failed"))
-				Logger.Error(errorMessage);
+				LogError(errorMessage);
 		}
 	}
 
@@ -340,7 +352,7 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 	protected async Task<ProcessBookResult> GetFailureActionAsync(LibraryBook libraryBook)
 	{
 		const DialogResult SkipResult = DialogResult.Ignore;
-		Logger.Error($"ERROR. All books have not been processed. Book failed: {libraryBook.Book}");
+		LogError($"ERROR. All books have not been processed. Book failed: {libraryBook.Book}");
 
 		DialogResult? dialogResult = Configuration.Instance.BadBook switch
 		{
@@ -353,7 +365,7 @@ public abstract class ProcessBookViewModelBase : ReactiveObject
 		if (dialogResult == SkipResult)
 		{
 			libraryBook.UpdateBookStatus(LiberatedStatus.Error);
-			Logger.Info($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.TitleWithSubtitle}");
+			LogInfo($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.TitleWithSubtitle}");
 		}
 
 		return dialogResult is SkipResult ? ProcessBookResult.FailedSkip

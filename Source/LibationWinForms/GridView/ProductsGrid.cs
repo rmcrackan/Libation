@@ -15,10 +15,10 @@ using System.Windows.Forms;
 
 namespace LibationWinForms.GridView
 {
-	public delegate void GridEntryClickedEventHandler(IGridEntry liveGridEntry);
-	public delegate void LibraryBookEntryClickedEventHandler(ILibraryBookEntry liveGridEntry);
-	public delegate void GridEntryRectangleClickedEventHandler(IGridEntry liveGridEntry, Rectangle cellRectangle);
-	public delegate void ProductsGridCellContextMenuStripNeededEventHandler(IGridEntry[] liveGridEntry, ContextMenuStrip ctxMenu);
+	public delegate void GridEntryClickedEventHandler(GridEntry liveGridEntry);
+	public delegate void LibraryBookEntryClickedEventHandler(LibraryBookEntry liveGridEntry);
+	public delegate void GridEntryRectangleClickedEventHandler(GridEntry liveGridEntry, Rectangle cellRectangle);
+	public delegate void ProductsGridCellContextMenuStripNeededEventHandler(GridEntry[] liveGridEntry, ContextMenuStrip ctxMenu);
 
 	public partial class ProductsGrid : UserControl
 	{
@@ -37,8 +37,8 @@ namespace LibationWinForms.GridView
 			=> bindingList
 			?.GetFilteredInItems()
 			.Select(lbe => lbe.LibraryBook) ?? Enumerable.Empty<LibraryBook>();
-		internal IEnumerable<ILibraryBookEntry> GetAllBookEntries()
-			=> bindingList?.AllItems().BookEntries() ?? Enumerable.Empty<ILibraryBookEntry>();
+		internal IEnumerable<LibraryBookEntry> GetAllBookEntries()
+			=> bindingList?.AllItems().BookEntries() ?? Enumerable.Empty<LibraryBookEntry>();
 
 		public ProductsGrid()
 		{
@@ -189,7 +189,7 @@ namespace LibationWinForms.GridView
 				.Distinct()
 				.OrderBy(r => r.Index)
 				.Select(r => r.DataBoundItem)
-				.OfType<IGridEntry>()
+				.OfType<GridEntry>()
 				.ToArray();
 
 			var clickedIndex = Array.IndexOf(allSelected, clickedEntry);
@@ -225,7 +225,7 @@ namespace LibationWinForms.GridView
 					return;
 
 				var entry = getGridEntry(e.RowIndex);
-				if (entry is ILibraryBookEntry lbEntry)
+				if (entry is LibraryBookEntry lbEntry)
 				{
 					if (e.ColumnIndex == liberateGVColumn.Index)
 						LiberateClicked?.Invoke(lbEntry);
@@ -236,7 +236,7 @@ namespace LibationWinForms.GridView
 					else if (e.ColumnIndex == coverGVColumn.Index)
 						CoverClicked?.Invoke(lbEntry);
 				}
-				else if (entry is ISeriesEntry sEntry)
+				else if (entry is SeriesEntry sEntry)
 				{
 					if (e.ColumnIndex == liberateGVColumn.Index)
 					{
@@ -265,7 +265,7 @@ namespace LibationWinForms.GridView
 			}
 		}
 
-		private IGridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<IGridEntry>(rowIndex);
+		private GridEntry getGridEntry(int rowIndex) => gridEntryDataGridView.GetBoundItem<GridEntry>(rowIndex);
 
 		#endregion
 
@@ -295,8 +295,8 @@ namespace LibationWinForms.GridView
 			var sc = Invoke(() => System.Threading.SynchronizationContext.Current);
 			System.Threading.SynchronizationContext.SetSynchronizationContext(sc);
 
-			var geList = await LibraryBookEntry<WinFormsEntryStatus>.GetAllProductsAsync(dbBooks);
-			var seriesEntries = await SeriesEntry<WinFormsEntryStatus>.GetAllSeriesEntriesAsync(dbBooks);
+			var geList = await LibraryBookEntry.GetAllProductsAsync(dbBooks);
+			var seriesEntries = await SeriesEntry.GetAllSeriesEntriesAsync(dbBooks);
 
 			geList.AddRange(seriesEntries);
 			//Sort descending by date (default sort property)
@@ -383,7 +383,7 @@ namespace LibationWinForms.GridView
 			gridEntryDataGridView.FirstDisplayedScrollingRowIndex = topRow;
 		}
 
-		public void RemoveBooks(IEnumerable<ILibraryBookEntry> removedBooks)
+		public void RemoveBooks(IEnumerable<LibraryBookEntry> removedBooks)
 		{
 			if (bindingList == null)
 				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(RemoveBooks)}");
@@ -398,34 +398,34 @@ namespace LibationWinForms.GridView
 				.AllItems()
 				.EmptySeries();
 
-			foreach (var removed in removedBooks.Cast<IGridEntry>().Concat(removedSeries))
+			foreach (var removed in removedBooks.Cast<GridEntry>().Concat(removedSeries))
 				//no need to re-filter for removed books
 				bindingList.Remove(removed);
 
 			VisibleCountChanged?.Invoke(this, bindingList.GetFilteredInItems().Count());
 		}
 
-		private void AddOrUpdateBook(LibraryBook book, ILibraryBookEntry? existingBookEntry)
+		private void AddOrUpdateBook(LibraryBook book, LibraryBookEntry? existingBookEntry)
 		{
 			if (bindingList == null)
 				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(AddOrUpdateBook)}");
 
 			if (existingBookEntry is null)
 				// Add the new product to top
-				bindingList.Insert(0, new LibraryBookEntry<WinFormsEntryStatus>(book));
+				bindingList.Insert(0, new LibraryBookEntry(book));
 			else
 				// update existing
 				existingBookEntry.UpdateLibraryBook(book);
 		}
 
-		private void AddOrUpdateEpisode(LibraryBook episodeBook, ILibraryBookEntry? existingEpisodeEntry, List<ISeriesEntry> seriesEntries, IEnumerable<LibraryBook> dbBooks)
+		private void AddOrUpdateEpisode(LibraryBook episodeBook, LibraryBookEntry? existingEpisodeEntry, List<SeriesEntry> seriesEntries, IEnumerable<LibraryBook> dbBooks)
 		{
 			if (bindingList == null)
 				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(AddOrUpdateEpisode)}");
 
 			if (existingEpisodeEntry is null)
 			{
-				ILibraryBookEntry episodeEntry;
+				LibraryBookEntry episodeEntry;
 
 				var seriesEntry = seriesEntries.FindSeriesParent(episodeBook);
 
@@ -443,7 +443,7 @@ namespace LibationWinForms.GridView
 						return;
 					}
 
-					seriesEntry = new SeriesEntry<WinFormsEntryStatus>(seriesBook, episodeBook);
+					seriesEntry = new SeriesEntry(seriesBook, episodeBook);
 					seriesEntries.Add(seriesEntry);
 
 					episodeEntry = seriesEntry.Children[0];
@@ -453,7 +453,7 @@ namespace LibationWinForms.GridView
 				else
 				{
 					//Series exists. Create and add episode child then update the SeriesEntry
-					episodeEntry = new LibraryBookEntry<WinFormsEntryStatus>(episodeBook, seriesEntry);
+					episodeEntry = new LibraryBookEntry(episodeBook, seriesEntry);
 					seriesEntry.Children.Add(episodeEntry);
 					seriesEntry.Children.Sort((c1, c2) => c1.SeriesIndex.CompareTo(c2.SeriesIndex));
 					var seriesBook = dbBooks.Single(lb => lb.Book.AudibleProductId == seriesEntry.LibraryBook.Book.AudibleProductId);

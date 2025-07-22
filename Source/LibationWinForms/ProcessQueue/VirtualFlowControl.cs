@@ -1,9 +1,11 @@
-﻿using LibationUiBase.ProcessQueue;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.Windows.Forms;
 
+#nullable enable
 namespace LibationWinForms.ProcessQueue
 {
 	internal partial class VirtualFlowControl : UserControl
@@ -11,18 +13,28 @@ namespace LibationWinForms.ProcessQueue
 		/// <summary>
 		/// Triggered when one of the <see cref="ProcessBookControl"/>'s buttons has been clicked
 		/// </summary>
-		public event EventHandler<string> ButtonClicked;
+		public event EventHandler<string>? ButtonClicked;
+		public IList? Items { get; private set; }
 
-		private List<ProcessBookViewModelBase> m_Items;
-		public List<ProcessBookViewModelBase> Items
+		private object? m_OldContext;
+		protected override void OnDataContextChanged(EventArgs e)
 		{
-			get => m_Items;
-			set
+			if (m_OldContext is INotifyCollectionChanged oldNotify)
+				oldNotify.CollectionChanged -= Items_CollectionChanged;
+
+			if (DataContext is INotifyCollectionChanged newNotify)
 			{
-				m_Items = value;
-				if (m_Items is not null)
-					RefreshDisplay();
+				m_OldContext = newNotify;
+				newNotify.CollectionChanged += Items_CollectionChanged;
 			}
+
+			Items = DataContext as IList;
+			base.OnDataContextChanged(e);
+		}
+
+		private void Items_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+		{
+			RefreshDisplay();
 		}
 
 		public void RefreshDisplay()
@@ -65,7 +77,7 @@ namespace LibationWinForms.ProcessQueue
 		#region Instance variables
 
 		/// <summary>
-		/// The total height, inclusing margins, of the repeated <see cref="ProcessBookControl"/>
+		/// The total height, including margins, of the repeated <see cref="ProcessBookControl"/>
 		/// </summary>
 		private readonly int VirtualControlHeight;
 		/// <summary>
@@ -137,14 +149,15 @@ namespace LibationWinForms.ProcessQueue
 		/// <summary>
 		/// Handles all button clicks from all <see cref="ProcessBookControl"/>, detects which one sent the click, and fires <see cref="ButtonClicked"/> to notify the model of the click
 		/// </summary>
-		private void ControlButton_Click(object sender, EventArgs e)
+		private void ControlButton_Click(object? sender, EventArgs e)
 		{
-			Control button = sender as Control;
-			Control form = button.Parent;
-			while (form is not ProcessBookControl)
-				form = form.Parent;
+			Control? button = sender as Control;
+			Control? form = button?.Parent;
+			while (form is not null and not ProcessBookControl)
+				form = form?.Parent;
 
-			ButtonClicked?.Invoke(form, button.Name);
+			if (form is not null && button?.Name is string buttonText)
+				ButtonClicked?.Invoke(form, buttonText);
 		}
 
 		/// <summary>
@@ -176,7 +189,7 @@ namespace LibationWinForms.ProcessQueue
 		}
 
 		/// <summary>
-		/// Calculated the virtual controls that are in view at the currrent scroll position and windows size,
+		/// Calculated the virtual controls that are in view at the current scroll position and windows size,
 		/// positions <see cref="panel1"/> to simulate scroll activity, then fires updates the controls with
 		/// the context corresponding to the virtual scroll position
 		/// </summary>
@@ -195,9 +208,10 @@ namespace LibationWinForms.ProcessQueue
 			numVisible = Math.Min(numVisible, VirtualControlCount);
 			numVisible = Math.Min(numVisible, VirtualControlCount - firstVisible);
 
-			for (int i = 0; i < numVisible; i++)
+			if (Items is IList items)
 			{
-				BookControls[i].Context = Items[firstVisible + i];
+				for (int i = 0; i < numVisible; i++)
+					BookControls[i].DataContext = items[firstVisible + i];
 			}
 
 			for (int i = 0; i < BookControls.Count; i++)

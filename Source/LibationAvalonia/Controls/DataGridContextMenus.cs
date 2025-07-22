@@ -34,11 +34,11 @@ namespace LibationAvalonia.Controls
 		private static void Cell_ContextRequested(object sender, ContextRequestedEventArgs e)
 		{
 			if (sender is DataGridCell cell &&
-				cell.DataContext is IGridEntry clickedEntry &&
+				cell.DataContext is GridEntry clickedEntry &&
 				OwningColumnProperty.GetValue(cell) is DataGridColumn column &&
 				OwningGridProperty.GetValue(column) is DataGrid grid)
 			{
-				var allSelected = grid.SelectedItems.OfType<IGridEntry>().ToArray();
+				var allSelected = grid.SelectedItems.OfType<GridEntry>().ToArray();
 				var clickedIndex = Array.IndexOf(allSelected, clickedEntry);
 				if (clickedIndex == -1)
 				{
@@ -101,7 +101,7 @@ namespace LibationAvalonia.Controls
 		private static string RemoveLineBreaks(string text)
 			=> text.Replace("\r\n", "").Replace('\r', ' ').Replace('\n', ' ');
 
-		private string GetRowClipboardContents(IGridEntry gridEntry)
+		private string GetRowClipboardContents(GridEntry gridEntry)
 		{
 			var contents = Grid.Columns.Where(c => c.IsVisible).OrderBy(c => c.DisplayIndex).Select(c => RemoveLineBreaks(GetCellValue(c, gridEntry))).ToArray();
 			return string.Join("\t", contents);
@@ -109,7 +109,7 @@ namespace LibationAvalonia.Controls
 
 		public required DataGrid Grid { get; init; }
 		public required DataGridColumn Column { get; init; }
-		public required IGridEntry[] GridEntries { get; init; }
+		public required GridEntry[] GridEntries { get; init; }
 		public required ContextMenu ContextMenu { get; init; }
 		public AvaloniaList<Control> ContextMenuItems
 			=> ContextMenu.ItemsSource as AvaloniaList<Control>;

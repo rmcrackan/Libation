@@ -1,5 +1,6 @@
 ﻿using LibationFileManager;
 using LibationUiBase;
+using LibationUiBase.ProcessQueue;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -27,28 +28,28 @@ internal partial class ProcessQueueControl : UserControl
 	{
 		InitializeComponent();
 
-		var speedLimitMBps = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
-		numericUpDown1.Value = speedLimitMBps > numericUpDown1.Maximum || speedLimitMBps < numericUpDown1.Minimum ? 0 : speedLimitMBps;
 		statusStrip1.Items.Add(PopoutButton);
 
 		virtualFlowControl2.ButtonClicked += VirtualFlowControl2_ButtonClicked;
+		virtualFlowControl2.DataContext = ViewModel.Queue;
 
-		ViewModel.LogWritten += (_, text) => WriteLine(text);
 		ViewModel.PropertyChanged += ProcessQueue_PropertyChanged;
-		virtualFlowControl2.Items = ViewModel.Items;
-		Load += ProcessQueueControl_Load;
+		ViewModel.LogEntries.CollectionChanged += LogEntries_CollectionChanged;
 	}
 
-	private void ProcessQueueControl_Load(object? sender, EventArgs e)
+	private void LogEntries_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+	{
+		if (!IsDisposed && e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+		{
+			foreach(var entry in e.NewItems?.OfType<LogEntry>() ?? [])
+				logDGV.Rows.Add(entry.LogDate, entry.LogMessage);
+		}
+	}
+
+	protected override void OnLoad(EventArgs e)
 	{
 		if (DesignMode) return;
 		ProcessQueue_PropertyChanged(this, new PropertyChangedEventArgs(null));
-	}
-
-	public void WriteLine(string text)
-	{
-		if (!IsDisposed)
-			logDGV.Rows.Add(DateTime.Now, text.Trim());
 	}
 
 	private async void cancelAllBtn_Click(object? sender, EventArgs e)
@@ -56,20 +57,18 @@ internal partial class ProcessQueueControl : UserControl
 		ViewModel.Queue.ClearQueue();
 		if (ViewModel.Queue.Current is not null)
 			await ViewModel.Queue.Current.CancelAsync();
-		virtualFlowControl2.RefreshDisplay();
 	}
 
 	private void btnClearFinished_Click(object? sender, EventArgs e)
 	{
 		ViewModel.Queue.ClearCompleted();
-		virtualFlowControl2.RefreshDisplay();
-
 		if (!ViewModel.Running)
 			runningTimeLbl.Text = string.Empty;
 	}
 
 	private void clearLogBtn_Click(object? sender, EventArgs e)
 	{
+		ViewModel.LogEntries.Clear();
 		logDGV.Rows.Clear();
 	}
 
@@ -92,7 +91,6 @@ internal partial class ProcessQueueControl : UserControl
 		{
 			queueNumberLbl.Text = ViewModel.QueuedCount.ToString();
 			queueNumberLbl.Visible = ViewModel.QueuedCount > 0;
-			virtualFlowControl2.RefreshDisplay();
 		}
 		if (e.PropertyName is null or nameof(ViewModel.ErrorCount))
 		{
@@ -117,16 +115,22 @@ internal partial class ProcessQueueControl : UserControl
 		{
 			runningTimeLbl.Text = ViewModel.RunningTime;
 		}
+		if (e.PropertyName is null or nameof(ViewModel.SpeedLimit))
+		{
+			numericUpDown1.Value = ViewModel.SpeedLimit;
+			numericUpDown1.Increment = ViewModel.SpeedLimitIncrement;
+			numericUpDown1.DecimalPlaces = ViewModel.SpeedLimit >= 10 ? 0 : ViewModel.SpeedLimit >= 1 ? 1 : 2;
+		}
 	}
 
 	/// <summary>
-	/// View notified the model that a botton was clicked
+	/// View notified the model that a button was clicked
 	/// </summary>
 	/// <param name="sender">the <see cref="ProcessBookControl"/> whose button was clicked</param>
 	/// <param name="buttonName">The name of the button clicked</param>
 	private async void VirtualFlowControl2_ButtonClicked(object? sender, string buttonName)
 	{
-		if (sender is not ProcessBookControl control || control.Context is not ProcessBookViewModel item)
+		if (sender is not ProcessBookControl control || control.DataContext is not ProcessBookViewModel item)
 			return;
 
 		try
@@ -135,13 +139,12 @@ internal partial class ProcessQueueControl : UserControl
 			{
 				await item.CancelAsync();
 				ViewModel.Queue.RemoveQueued(item);
-				virtualFlowControl2.RefreshDisplay();
 			}
 			else
 			{
 				QueuePosition? position = buttonName switch
 				{
-					nameof(ProcessBookControl.moveFirstBtn) => QueuePosition.Fisrt,
+					nameof(ProcessBookControl.moveFirstBtn) => QueuePosition.First,
 					nameof(ProcessBookControl.moveUpBtn) => QueuePosition.OneUp,
 					nameof(ProcessBookControl.moveDownBtn) => QueuePosition.OneDown,
 					nameof(ProcessBookControl.moveLastBtn) => QueuePosition.Last,
@@ -149,10 +152,7 @@ internal partial class ProcessQueueControl : UserControl
 				};
 
 				if (position is not null)
-				{
 					ViewModel.Queue.MoveQueuePosition(item, position.Value);
-					virtualFlowControl2.RefreshDisplay();
-				}
 			}
 		}
 		catch(Exception ex)
@@ -164,27 +164,7 @@ internal partial class ProcessQueueControl : UserControl
 	#endregion
 
 	private void numericUpDown1_ValueChanged(object? sender, EventArgs e)
-	{
-		var newValue = (long)(numericUpDown1.Value * 1024 * 1024);
-
-		var config = Configuration.Instance;
-		config.DownloadSpeedLimit = newValue;
-		if (config.DownloadSpeedLimit > newValue)
-			numericUpDown1.Value =
-				numericUpDown1.Value == 0.01m ? config.DownloadSpeedLimit / 1024m / 1024
-				: 0;
-
-		numericUpDown1.Increment =
-			numericUpDown1.Value > 100 ? 10
-			: numericUpDown1.Value > 10 ? 1
-			: numericUpDown1.Value > 1 ? 0.1m
-			: 0.01m;
-
-		numericUpDown1.DecimalPlaces =
-			numericUpDown1.Value >= 10 ? 0
-			: numericUpDown1.Value >= 1 ? 1
-			: 2;
-	}
+		=> ViewModel.SpeedLimit = numericUpDown1.Value;
 }
 
 public class NumericUpDownSuffix : NumericUpDown

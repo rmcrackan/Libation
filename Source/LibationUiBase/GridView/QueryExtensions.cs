@@ -10,19 +10,19 @@ namespace LibationUiBase.GridView
 #nullable enable
 	public static class QueryExtensions
 	{
-		public static IEnumerable<ILibraryBookEntry> BookEntries(this IEnumerable<IGridEntry> gridEntries)
-			=> gridEntries.OfType<ILibraryBookEntry>();
+		public static IEnumerable<LibraryBookEntry> BookEntries(this IEnumerable<GridEntry> gridEntries)
+			=> gridEntries.OfType<LibraryBookEntry>();
 
-		public static IEnumerable<ISeriesEntry> SeriesEntries(this IEnumerable<IGridEntry> gridEntries)
-			=> gridEntries.OfType<ISeriesEntry>();
+		public static IEnumerable<SeriesEntry> SeriesEntries(this IEnumerable<GridEntry> gridEntries)
+			=> gridEntries.OfType<SeriesEntry>();
 
-		public static T? FindByAsin<T>(this IEnumerable<T> gridEntries, string audibleProductID) where T : IGridEntry
+		public static T? FindByAsin<T>(this IEnumerable<T> gridEntries, string audibleProductID) where T : GridEntry
 			=> gridEntries.FirstOrDefault(i => i.AudibleProductId == audibleProductID);
 
-		public static IEnumerable<ISeriesEntry> EmptySeries(this IEnumerable<IGridEntry> gridEntries)
+		public static IEnumerable<SeriesEntry> EmptySeries(this IEnumerable<GridEntry> gridEntries)
 			=> gridEntries.SeriesEntries().Where(i => i.Children.Count == 0);
 
-		public static ISeriesEntry? FindSeriesParent(this IEnumerable<IGridEntry> gridEntries, LibraryBook seriesEpisode)
+		public static SeriesEntry? FindSeriesParent(this IEnumerable<GridEntry> gridEntries, LibraryBook seriesEpisode)
 		{
 			if (seriesEpisode.Book.SeriesLink is null) return null;
 
@@ -42,14 +42,14 @@ namespace LibationUiBase.GridView
 			}
 		}
 
-		public static bool SearchSetsDiffer(this HashSet<IGridEntry>? searchSet, HashSet<IGridEntry>? otherSet)
+		public static bool SearchSetsDiffer(this HashSet<GridEntry>? searchSet, HashSet<GridEntry>? otherSet)
 			=> searchSet is null != otherSet is null ||
 					(searchSet is not null &&
 					otherSet is not null &&
 					searchSet.Intersect(otherSet).Count() != searchSet.Count);
 
 		[return: NotNullIfNotNull(nameof(searchString))]
-		public static HashSet<IGridEntry>? FilterEntries(this IEnumerable<IGridEntry> entries, string? searchString)
+		public static HashSet<GridEntry>? FilterEntries(this IEnumerable<GridEntry> entries, string? searchString)
 		{
 			if (string.IsNullOrEmpty(searchString))
 				return null;
@@ -59,7 +59,7 @@ namespace LibationUiBase.GridView
 			var booksFilteredIn = entries.IntersectBy(searchResultSet.Docs.Select(d => d.ProductId), l => l.AudibleProductId);
 
 			//Find all series containing children that match the search criteria
-			var seriesFilteredIn = booksFilteredIn.OfType<ILibraryBookEntry>().Where(lbe => lbe.Parent is not null).Select(lbe => lbe.Parent).Distinct();
+			var seriesFilteredIn = booksFilteredIn.OfType<LibraryBookEntry>().Where(lbe => lbe.Parent is not null).Select(lbe => lbe.Parent).Distinct();
 
 			return booksFilteredIn.Concat(seriesFilteredIn).ToHashSet();
 		}

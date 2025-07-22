@@ -22,6 +22,7 @@ namespace LibationWinForms
             PictureStorage.SetDefaultImage(PictureSize.Native, Properties.Resources.default_cover_500x500.ToBytes(format));
 
             BaseUtil.SetLoadImageDelegate(WinFormsUtil.TryLoadImageOrDefault);
+            BaseUtil.SetLoadResourceImageDelegate(Properties.Resources.ResourceManager.GetObject);
 
             // wire-up event to automatically download after scan.
             // winforms only. this should NOT be allowed in cli

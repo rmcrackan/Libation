@@ -22,7 +22,7 @@ namespace LibationWinForms.GridView
 		public event EventHandler<int> VisibleCountChanged;
 		public event EventHandler<int> RemovableCountChanged;
 		public event EventHandler<LibraryBook[]> LiberateClicked;
-		public event EventHandler<ISeriesEntry> LiberateSeriesClicked;
+		public event EventHandler<SeriesEntry> LiberateSeriesClicked;
 		public event EventHandler<LibraryBook[]> ConvertToMp3Clicked;
 		public event EventHandler InitialLoaded;
 
@@ -36,7 +36,7 @@ namespace LibationWinForms.GridView
 		#region Button controls		
 
 		private ImageDisplay imageDisplay;
-		private void productsGrid_CoverClicked(IGridEntry liveGridEntry)
+		private void productsGrid_CoverClicked(GridEntry liveGridEntry)
 		{
 			var picDef = new PictureDefinition(liveGridEntry.LibraryBook.Book.PictureLarge ?? liveGridEntry.LibraryBook.Book.PictureId, PictureSize.Native);
 
@@ -71,7 +71,7 @@ namespace LibationWinForms.GridView
 				imageDisplay.Show(null);
 		}
 
-		private void productsGrid_DescriptionClicked(IGridEntry liveGridEntry, Rectangle cellRectangle)
+		private void productsGrid_DescriptionClicked(GridEntry liveGridEntry, Rectangle cellRectangle)
 		{
 			var displayWindow = new DescriptionDisplay
 			{
@@ -90,7 +90,7 @@ namespace LibationWinForms.GridView
 			displayWindow.Show(this);
 		}
 
-		private async void productsGrid_DetailsClicked(ILibraryBookEntry liveGridEntry)
+		private async void productsGrid_DetailsClicked(LibraryBookEntry liveGridEntry)
 		{
 			// HACK: workaround for a Winforms bug.
 			// This event is fired by the DataGridCell.OnMouseUpInternal
@@ -124,12 +124,12 @@ namespace LibationWinForms.GridView
 
 		#region Cell Context Menu
 
-		private void productsGrid_CellContextMenuStripNeeded(IGridEntry[] entries, ContextMenuStrip ctxMenu)
+		private void productsGrid_CellContextMenuStripNeeded(GridEntry[] entries, ContextMenuStrip ctxMenu)
 		{
 			var ctx = new GridContextMenu(entries, '&');
 			#region Liberate all Episodes (Single series only)
 
-			if (entries.Length == 1 && entries[0] is ISeriesEntry seriesEntry)
+			if (entries.Length == 1 && entries[0] is SeriesEntry seriesEntry)
 			{
 				var liberateEpisodesMenuItem = new ToolStripMenuItem()
 				{
@@ -166,7 +166,7 @@ namespace LibationWinForms.GridView
 			#endregion
 			#region Locate file (Single book only)
 
-			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry)
+			if (entries.Length == 1 && entries[0] is LibraryBookEntry entry)
 			{
 				var locateFileMenuItem = new ToolStripMenuItem() { Text = ctx.LocateFileText };
 				ctxMenu.Items.Add(locateFileMenuItem);
@@ -199,7 +199,7 @@ namespace LibationWinForms.GridView
 
 			#endregion
 			#region Liberate All (multiple books only)
-			if (entries.OfType<ILibraryBookEntry>().Count() > 1)
+			if (entries.OfType<LibraryBookEntry>().Count() > 1)
 			{
 				var downloadSelectedMenuItem = new ToolStripMenuItem()
 				{
@@ -230,7 +230,7 @@ namespace LibationWinForms.GridView
 			#endregion
 			#region Force Re-Download (Single book only)
 
-			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry4)
+			if (entries.Length == 1 && entries[0] is LibraryBookEntry entry4)
 			{
 				var reDownloadMenuItem = new ToolStripMenuItem()
 				{
@@ -269,7 +269,7 @@ namespace LibationWinForms.GridView
 				}
 			}
 
-			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry2)
+			if (entries.Length == 1 && entries[0] is LibraryBookEntry entry2)
 			{
 				var folderTemplateMenuItem = new ToolStripMenuItem { Text = ctx.FolderTemplateText };
 				var fileTemplateMenuItem = new ToolStripMenuItem { Text = ctx.FileTemplateText };
@@ -288,7 +288,7 @@ namespace LibationWinForms.GridView
 			#endregion
 			#region View Bookmarks/Clips (Single book only)
 
-			if (entries.Length == 1 && entries[0] is ILibraryBookEntry entry3)
+			if (entries.Length == 1 && entries[0] is LibraryBookEntry entry3)
 			{
 				var bookRecordMenuItem = new ToolStripMenuItem { Text = ctx.ViewBookmarksText };
 				bookRecordMenuItem.Click += (_, _) => new BookRecordsDialog(entry3.LibraryBook).ShowDialog(this);
@@ -417,7 +417,7 @@ namespace LibationWinForms.GridView
 			VisibleCountChanged?.Invoke(this, count);
 		}
 
-		private void productsGrid_LiberateClicked(ILibraryBookEntry liveGridEntry)
+		private void productsGrid_LiberateClicked(LibraryBookEntry liveGridEntry)
 		{
 			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error
 				&& !liveGridEntry.Liberate.IsUnavailable)
