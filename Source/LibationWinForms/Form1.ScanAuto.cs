@@ -32,11 +32,7 @@ namespace LibationWinForms
 				// in autoScan, new books SHALL NOT show dialog
 				try
 				{
-					Task importAsync() => LibraryCommands.ImportAccountAsync(accounts);
-					if (InvokeRequired)
-						await Invoke(importAsync);
-					else
-						await importAsync();
+					await Task.Run(() => LibraryCommands.ImportAccountAsync(accounts));
 				}
 				catch (OperationCanceledException)
 				{
