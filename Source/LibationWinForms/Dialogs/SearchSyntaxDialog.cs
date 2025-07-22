@@ -1,5 +1,5 @@
 ﻿using LibationSearchEngine;
-using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -11,13 +11,17 @@ namespace LibationWinForms.Dialogs
 		{
 			InitializeComponent();
 
-			label2.Text += "\r\n\r\n" + string.Join("\r\n", SearchEngine.FieldIndexRules.StringFieldNames);
-			label3.Text += "\r\n\r\n" + string.Join("\r\n", SearchEngine.FieldIndexRules.NumberFieldNames);
-			label4.Text += "\r\n\r\n" + string.Join("\r\n", SearchEngine.FieldIndexRules.BoolFieldNames);
-			label5.Text += "\r\n\r\n" + string.Join("\r\n", SearchEngine.FieldIndexRules.IdFieldNames);
+			lboxNumberFields.Items.AddRange(SearchEngine.FieldIndexRules.NumberFieldNames.ToArray());
+			lboxStringFields.Items.AddRange(SearchEngine.FieldIndexRules.StringFieldNames.ToArray());
+			lboxBoolFields.Items.AddRange(SearchEngine.FieldIndexRules.BoolFieldNames.ToArray());
+			lboxIdFields.Items.AddRange(SearchEngine.FieldIndexRules.IdFieldNames.ToArray());
 			this.SetLibationIcon();
+			this.RestoreSizeAndLocation(LibationFileManager.Configuration.Instance);
 		}
-
-		private void CloseBtn_Click(object sender, EventArgs e) => this.Close();
+		protected override void OnClosing(CancelEventArgs e)
+		{
+			base.OnClosing(e);
+			this.SaveSizeAndLocation(LibationFileManager.Configuration.Instance);
+		}
 	}
 }
