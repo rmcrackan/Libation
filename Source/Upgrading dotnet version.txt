@@ -6,4 +6,3 @@ For reasons I cannot figure out, upgrading the major .net version breaks Libatio
 
 * https://github.com/Mbucari/AAXClean.Codecs
 * https://github.com/Mbucari/AAXClean
-* https://github.com/Mbucari/serilog-sinks-zipfile

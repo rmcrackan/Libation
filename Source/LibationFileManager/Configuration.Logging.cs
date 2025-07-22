@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Linq;
 using Dinah.Core.Logging;
 using FileManager;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +9,7 @@ using Serilog.Events;
 #nullable enable
 namespace LibationFileManager
 {
-    public partial class Configuration
+	public partial class Configuration
     {
         private IConfigurationRoot? configuration;
 
@@ -19,13 +18,14 @@ namespace LibationFileManager
             configuration = new ConfigurationBuilder()
                 .AddJsonFile(SettingsFilePath, optional: false, reloadOnChange: true)
                 .Build();
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .Destructure.ByTransforming<LongPath>(lp => lp.Path)
-                .CreateLogger();
-        }
+			Log.Logger = new LoggerConfiguration()
+				 .ReadFrom.Configuration(configuration)
+				 .Destructure.ByTransforming<LongPath>(lp => lp.Path)
+				 .Destructure.With<LogFileFilter>()
+                 .CreateLogger();
+		}
 
-        [Description("The importance of a log event")]
+		[Description("The importance of a log event")]
         public LogEventLevel LogLevel
         {
             get

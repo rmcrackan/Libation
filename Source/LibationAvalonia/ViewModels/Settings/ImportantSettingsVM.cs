@@ -57,7 +57,13 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.GridFontScaleFactor = linearRangeToScaleFactor(GridFontScaleFactor);
 			config.GridScaleFactor = linearRangeToScaleFactor(GridScaleFactor);
 		}
-		public void OpenLogFolderButton() => Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
+		public void OpenLogFolderButton()
+		{
+			if (System.IO.File.Exists(LogFileFilter.LogFilePath))
+				Go.To.File(LogFileFilter.LogFilePath);
+			else
+				Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
+		}
 
 		public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
 		{

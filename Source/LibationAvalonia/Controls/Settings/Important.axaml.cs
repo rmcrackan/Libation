@@ -58,10 +58,5 @@ namespace LibationAvalonia.Controls.Settings
 			}
 			ThemeComboBox.SelectionChanged += ThemeComboBox_SelectionChanged;
 		}
-
-		public void OpenLogFolderButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-		{
-			Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
-		}
 	}
 }
