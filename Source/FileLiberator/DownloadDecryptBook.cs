@@ -118,6 +118,7 @@ namespace FileLiberator
 			}
 			catch when (cancellationToken.IsCancellationRequested)
 			{
+				Serilog.Log.Logger.Information("Download/Decrypt was cancelled. {@Book}", libraryBook.LogFriendly());
 				return new StatusHandler { "Cancelled" };
 			}
 			finally
