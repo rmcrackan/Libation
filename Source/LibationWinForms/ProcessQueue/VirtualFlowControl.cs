@@ -39,8 +39,19 @@ namespace LibationWinForms.ProcessQueue
 
 		public void RefreshDisplay()
 		{
-			AdjustScrollBar();
-			DoVirtualScroll();
+			if (InvokeRequired)
+			{
+				Invoke((MethodInvoker)delegate
+				{
+					AdjustScrollBar();
+					DoVirtualScroll();
+				});
+			}
+			else
+			{
+				AdjustScrollBar();
+				DoVirtualScroll();
+			}
 		}
 
 		#region Dynamic Properties
