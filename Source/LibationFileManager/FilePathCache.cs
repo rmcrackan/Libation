@@ -46,7 +46,9 @@ namespace LibationFileManager
 
 		public static List<(FileType fileType, LongPath path)> GetFiles(string id)
 		{
-			var matchingFiles = Cache.GetIdEntries(id);
+			List<CacheEntry> matchingFiles;
+			lock(locker)
+				matchingFiles = Cache.GetIdEntries(id);
 
 			bool cacheChanged = false;
 
@@ -68,7 +70,9 @@ namespace LibationFileManager
 
 		public static LongPath? GetFirstPath(string id, FileType type)
 		{
-			var matchingFiles = Cache.GetIdEntries(id).Where(e => e.FileType == type).ToList();
+			List<CacheEntry> matchingFiles;
+			lock (locker)
+				matchingFiles = Cache.GetIdEntries(id).Where(e => e.FileType == type).ToList();
 
 			bool cacheChanged = false;
 			try
@@ -96,7 +100,10 @@ namespace LibationFileManager
 
 		private static bool Remove(CacheEntry entry)
 		{
-			if (Cache.Remove(entry.Id, entry))
+			bool removed;
+			lock (locker)
+				removed = Cache.Remove(entry.Id, entry);
+			if (removed)
 			{
 				Removed?.Invoke(null, entry);
 				return true;
@@ -112,7 +119,8 @@ namespace LibationFileManager
 
 		public static void Insert(CacheEntry entry)
 		{
-			Cache.Add(entry.Id, entry);
+			lock(locker)
+				Cache.Add(entry.Id, entry);
 			Inserted?.Invoke(null, entry);
 			save();
 		}

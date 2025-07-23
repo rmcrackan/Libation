@@ -3,10 +3,8 @@ using AAXClean;
 using Dinah.Core;
 using DataLayer;
 using LibationFileManager;
-using System.Threading.Tasks;
 using System;
 using System.IO;
-using ApplicationServices;
 using LibationFileManager.Templates;
 
 #nullable enable
@@ -31,12 +29,9 @@ namespace FileLiberator
 		public float? SeriesNumber => LibraryBookDto.FirstSeries?.Number;
 		public NAudio.Lame.LameConfig? LameConfig { get; }
 		public string UserAgent => AudibleApi.Resources.Download_User_Agent;
-		public bool TrimOutputToChapterLength => Config.AllowLibationFixup && Config.StripAudibleBrandAudio;
 		public bool StripUnabridged => Config.AllowLibationFixup && Config.StripUnabridged;
 		public bool CreateCueSheet => Config.CreateCueSheet;
-		public bool DownloadClipsBookmarks => Config.DownloadClipsBookmarks;
 		public long DownloadSpeedBps => Config.DownloadSpeedLimit;
-		public bool RetainEncryptedFile => Config.RetainAaxFile;
 		public bool FixupFile => Config.AllowLibationFixup;
 		public bool Downsample => Config.AllowLibationFixup && Config.LameDownsampleMono;
 		public bool MatchSourceBitrate => Config.AllowLibationFixup && Config.LameMatchSourceBR && Config.LameTargetBitrate;
@@ -45,44 +40,8 @@ namespace FileLiberator
 		public AudibleApi.Common.DrmType DrmType { get; }
 		public AudibleApi.Common.ContentMetadata ContentMetadata { get; }
 
-		public string GetMultipartFileName(MultiConvertFileProperties props)
-		{
-			var baseDir = Path.GetDirectoryName(props.OutputFileName);
-			var extension = Path.GetExtension(props.OutputFileName);
-			return Templates.ChapterFile.GetFilename(LibraryBookDto, props, baseDir!, extension);
-		}
-
 		public string GetMultipartTitle(MultiConvertFileProperties props)
 			=> Templates.ChapterTitle.GetName(LibraryBookDto, props);
-
-		public async Task<string> SaveClipsAndBookmarksAsync(string fileName)
-		{
-			if (DownloadClipsBookmarks)
-			{
-				var format = Config.ClipsBookmarksFileFormat;
-
-				var formatExtension = format.ToString().ToLowerInvariant();
-				var filePath = Path.ChangeExtension(fileName, formatExtension);
-
-				var api = await LibraryBook.GetApiAsync();
-				var records = await api.GetRecordsAsync(LibraryBook.Book.AudibleProductId);
-
-				switch(format)
-				{
-					case Configuration.ClipBookmarkFormat.CSV:
-						RecordExporter.ToCsv(filePath, records);
-						break;
-					case Configuration.ClipBookmarkFormat.Xlsx:
-						RecordExporter.ToXlsx(filePath, records);
-						break;
-					case Configuration.ClipBookmarkFormat.Json:
-						RecordExporter.ToJson(filePath, LibraryBook, records);
-						break;
-				}
-				return filePath;
-			}
-			return string.Empty;
-		}
 
 		public Configuration Config { get; }
 		private readonly IDisposable cancellation;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AaxDecrypter;
 using DataLayer;
 using LibationFileManager;
 using LibationFileManager.Templates;
@@ -35,29 +36,16 @@ namespace FileLiberator
 		}
 
 		/// <summary>
-		/// DownloadDecryptBook:
-		/// Path: in progress directory.
-		/// File name: final file name.
-		/// </summary>
-		public static string GetInProgressFilename(this AudioFileStorage _, LibraryBookDto libraryBook, string extension)
-			=> Templates.File.GetFilename(libraryBook, AudibleFileStorage.DecryptInProgressDirectory, extension, returnFirstExisting: true);
-
-		/// <summary>
 		/// PDF: audio file does not exist
 		/// </summary>
-		public static string GetBooksDirectoryFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension)
-			=> Templates.File.GetFilename(libraryBook.ToDto(), AudibleFileStorage.BooksDirectory, extension);
-		
-		/// <summary>
-		/// PDF: audio file does not exist
-		/// </summary>
-		public static string GetBooksDirectoryFilename(this AudioFileStorage _, LibraryBookDto dto, string extension)
-			=> Templates.File.GetFilename(dto, AudibleFileStorage.BooksDirectory, extension);
+		public static string GetBooksDirectoryFilename(this AudioFileStorage _, LibraryBook libraryBook, string extension, bool returnFirstExisting = false)
+			=> Templates.File.GetFilename(libraryBook.ToDto(), AudibleFileStorage.BooksDirectory, extension, returnFirstExisting: returnFirstExisting);
 
 		/// <summary>
 		/// PDF: audio file already exists
 		/// </summary>
-		public static string GetCustomDirFilename(this AudioFileStorage _, LibraryBook libraryBook, string dirFullPath, string extension)
-			=> Templates.File.GetFilename(libraryBook.ToDto(), dirFullPath, extension);
+		public static string GetCustomDirFilename(this AudioFileStorage _, LibraryBook libraryBook, string dirFullPath, string extension, MultiConvertFileProperties partProperties = null, bool returnFirstExisting = false)
+			=> partProperties is null ? Templates.File.GetFilename(libraryBook.ToDto(), dirFullPath, extension, returnFirstExisting: returnFirstExisting)
+			: Templates.ChapterFile.GetFilename(libraryBook.ToDto(), partProperties, dirFullPath, extension, returnFirstExisting: returnFirstExisting);
 	}
 }
