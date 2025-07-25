@@ -82,7 +82,6 @@ namespace FileLiberator
 
 			// no null/empty check for key/iv. unencrypted files do not have them
 			LibraryBookDto = LibraryBook.ToDto();
-			LibraryBookDto.Codec = licInfo.ContentMetadata.ContentReference.Codec;
 
 			cancellation =
 				config

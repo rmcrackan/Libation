@@ -47,7 +47,7 @@ namespace FileLiberator
 				using var downloadOptions = await DownloadOptions.InitiateDownloadAsync(api, Configuration.Instance, libraryBook, cancellationToken);
 				var result = await DownloadAudiobookAsync(api, downloadOptions, cancellationToken);
 
-				if (!result.Success || getFirstAudioFile(result.ResultFiles) == default)
+				if (!result.Success || getFirstAudioFile(result.ResultFiles) is not TempFile audioFile)
 				{
 					// decrypt failed. Delete all output entries but leave the cache files.
 					result.ResultFiles.ForEach(f => FileUtility.SaferDelete(f.FilePath));
@@ -60,6 +60,12 @@ namespace FileLiberator
 					//Add the cached aaxc and key files to the entries list to be moved to the Books directory.
 					result.ResultFiles.AddRange(getAaxcFiles(result.CacheFiles));
 				}
+
+				//Set the last downloaded information on the book so that it can be used in the naming templates,
+				//but don't persist it until everything completes successfully (in the finally block)
+				var audioFormat = GetFileFormatInfo(downloadOptions, audioFile);
+				var audioVersion = downloadOptions.ContentMetadata.ContentReference.Version;
+				libraryBook.Book.UserDefinedItem.SetLastDownloaded(Configuration.LibationVersion, audioFormat, audioVersion);
 
 				var finalStorageDir = getDestinationDirectory(libraryBook);
 
@@ -80,14 +86,14 @@ namespace FileLiberator
 				}
 				catch when (!moveFilesTask.IsFaulted)
 				{
-					//Swallow DownloadCoverArt, SetCoverAsFolderIcon, and SaveMetadataAsync exceptions.
+					//Swallow DownloadCoverArt, DownloadRecordsAsync, DownloadMetadataAsync, and SetCoverAsFolderIcon exceptions.
 					//Only fail if the downloaded audio files failed to move to Books directory
 				}
 				finally
 				{
 					if (moveFilesTask.IsCompletedSuccessfully && !cancellationToken.IsCancellationRequested)
 					{
-						libraryBook.UpdateBookStatus(LiberatedStatus.Liberated, Configuration.LibationVersion!);
+						libraryBook.UpdateBookStatus(LiberatedStatus.Liberated, Configuration.LibationVersion, audioFormat, audioVersion);
 						SetDirectoryTime(libraryBook, finalStorageDir);
 						foreach (var cacheFile in result.CacheFiles.Where(f => File.Exists(f.FilePath)))
 						{
@@ -275,6 +281,31 @@ namespace FileLiberator
 		#endregion
 
 		#region Post-success routines
+		/// <summary>Read the audio format from the audio file's metadata.</summary>
+		public AudioFormat GetFileFormatInfo(DownloadOptions options, TempFile firstAudioFile)
+		{
+			try
+			{
+				return firstAudioFile.Extension.ToLowerInvariant() switch
+				{
+					".m4b" or ".m4a" or ".mp4" => GetMp4AudioFormat(),
+					".mp3" => AudioFormatDecoder.FromMpeg3(firstAudioFile.FilePath),
+					_ => AudioFormat.Default
+				};
+			}
+			catch (Exception ex)
+			{
+				//Failure to determine output audio format should not be considered a failure to download the book
+				Serilog.Log.Logger.Error(ex, "Error determining output audio format for {@Book}. File = '{@audioFile}'", options.LibraryBook, firstAudioFile);
+				return AudioFormat.Default;
+			}
+
+			AudioFormat GetMp4AudioFormat()
+				=> abDownloader is AaxcDownloadConvertBase converter && converter.AaxFile is AAXClean.Mp4File mp4File
+				? AudioFormatDecoder.FromMpeg4(mp4File)
+				: AudioFormatDecoder.FromMpeg4(firstAudioFile.FilePath);
+		}
+
 		/// <summary>Move new files to 'Books' directory</summary>
 		/// <returns>Return directory if audiobook file(s) were successfully created and can be located on disk. Else null.</returns>
 		private void MoveFilesToBooksDir(LibraryBook libraryBook, LongPath destinationDir, List<TempFile> entries, CancellationToken cancellationToken)
