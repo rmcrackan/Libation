@@ -504,9 +504,9 @@ namespace FileLiberator
 		private static FileType getFileType(TempFile file)
 			=> FileTypes.GetFileTypeFromPath(file.FilePath);
 		private static TempFile? getFirstAudioFile(IEnumerable<TempFile> entries)
-			=> entries.FirstOrDefault(f => getFileType(f) is FileType.Audio);
+			=> entries.FirstOrDefault(f => File.Exists(f.FilePath) && getFileType(f) is FileType.Audio);
 		private static IEnumerable<TempFile> getAaxcFiles(IEnumerable<TempFile> entries)
-			=> entries.Where(f => getFileType(f) is FileType.AAXC || f.Extension.Equals(".key", StringComparison.OrdinalIgnoreCase));
+			=> entries.Where(f => File.Exists(f.FilePath) && (getFileType(f) is FileType.AAXC || f.Extension.Equals(".key", StringComparison.OrdinalIgnoreCase)));
 		#endregion
 	}
 }
