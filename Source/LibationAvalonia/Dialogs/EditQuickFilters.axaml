@@ -24,9 +24,8 @@
 			CanUserSortColumns="False"
 			AutoGenerateColumns="False"
 			IsReadOnly="False"
-			ItemsSource="{Binding Filters}"
+			ItemsSource="{CompiledBinding Filters}"
 			GridLinesVisibility="All">
-
 			<DataGrid.Columns>
 
 				<DataGridTemplateColumn Header="Delete">
@@ -38,7 +37,7 @@
 								VerticalAlignment="Stretch"
 								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Center"
-								IsEnabled="{Binding !IsDefault}"
+								IsEnabled="{CompiledBinding !IsDefault}"
 								Click="DeleteButton_Clicked" />
 
 						</DataTemplate>
@@ -48,14 +47,13 @@
 				<DataGridTextColumn
     				Width="*"
 				    IsReadOnly="False"
-				    Binding="{Binding Name, Mode=TwoWay}"
+				    Binding="{CompiledBinding Name, Mode=TwoWay}"
 				    Header="Name"/>
-
 
 				<DataGridTextColumn
 					Width="*"
 					IsReadOnly="False"
-					Binding="{Binding FilterString, Mode=TwoWay}"
+					Binding="{CompiledBinding FilterString, Mode=TwoWay}"
 					Header="Filter"/>
 
 				<DataGridTemplateColumn Header="Move&#xa;Up">
@@ -67,16 +65,19 @@
 								VerticalAlignment="Stretch"
 								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Center"
-								IsEnabled="{Binding !IsDefault}"
-								ToolTip.Tip="Export account authorization to audible-cli"
-								Click="MoveUpButton_Clicked" />
+								Click="MoveUpButton_Clicked">
+								<Button.IsEnabled>
+									<MultiBinding Converter="{x:Static BoolConverters.And}">
+										<CompiledBinding Path="!IsTop" />
+										<CompiledBinding Path="!IsDefault" />
+									</MultiBinding>
+								</Button.IsEnabled>
+							</Button>
 
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
-
-
-
+				
 				<DataGridTemplateColumn Header="Move&#xa;Down">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
@@ -86,15 +87,18 @@
 								VerticalAlignment="Stretch"
 								HorizontalAlignment="Stretch"
 								HorizontalContentAlignment="Center"
-								IsEnabled="{Binding !IsDefault}"
-								ToolTip.Tip="Export account authorization to audible-cli"
-								Click="MoveDownButton_Clicked" />
+								Click="MoveDownButton_Clicked">
+								<Button.IsEnabled>
+									<MultiBinding Converter="{x:Static BoolConverters.And}">
+										<CompiledBinding Path="!IsBottom" />
+										<CompiledBinding Path="!IsDefault" />
+									</MultiBinding>
+								</Button.IsEnabled>
+							</Button>
 
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
-
-
 			</DataGrid.Columns>
 		</DataGrid>
 		<Grid
