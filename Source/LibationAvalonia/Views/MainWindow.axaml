@@ -191,10 +191,10 @@
 				<Button IsVisible="{CompiledBinding RemoveButtonsVisible}" Command="{CompiledBinding DoneRemovingBtn}" Content="Done Removing Books"/>
 			</StackPanel>
 				
-			<TextBox Grid.Column="1" Margin="10,0,0,0" Name="filterSearchTb" IsVisible="{CompiledBinding !RemoveButtonsVisible}" Text="{CompiledBinding SelectedNamedFilter.Filter, Mode=TwoWay}" KeyDown="filterSearchTb_KeyPress" />
+			<TextBox Grid.Column="1" Margin="10,0,0,0" Name="filterSearchTb" IsVisible="{CompiledBinding !RemoveButtonsVisible}" Text="{CompiledBinding SelectedNamedFilter.Filter, Mode=OneWay}" KeyDown="filterSearchTb_KeyPress" />
 
 			<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
-				<Button Name="filterBtn" Command="{CompiledBinding FilterBtn}" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
+				<Button Name="filterBtn" Command="{CompiledBinding FilterBtn}" CommandParameter="{CompiledBinding #filterSearchTb.Text}" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
 				<Button Padding="2,6,2,6" VerticalAlignment="Stretch" Command="{CompiledBinding ToggleQueueHideBtn}">
 					<Path Stretch="Uniform" Fill="{DynamicResource IconFill}" Data="{StaticResource	LeftArrows}">
 						<Path.RenderTransform>

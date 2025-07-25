@@ -1,4 +1,5 @@
 using AudibleUtilities;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.ReactiveUI;
 using Avalonia.Threading;
@@ -21,6 +22,9 @@ namespace LibationAvalonia.Views
 	{
 		public MainWindow()
 		{
+			if (Design.IsDesignMode)
+				_ = Configuration.Instance.LibationFiles;
+
 			DataContext = new MainVM(this);
 			ApiExtended.LoginChoiceFactory = account => Dispatcher.UIThread.Invoke(() => new Dialogs.Login.AvaloniaLoginChoiceEager(account));
 
@@ -156,7 +160,7 @@ namespace LibationAvalonia.Views
 		{
 			if (e.Key == Key.Return)
 			{
-				await ViewModel.PerformFilter(ViewModel.SelectedNamedFilter);
+				await ViewModel.FilterBtn(filterSearchTb.Text);
 
 				// silence the 'ding'
 				e.Handled = true;
