@@ -133,7 +133,7 @@ namespace FileLiberator
 				else
 				{
 					AaxcDownloadConvertBase converter
-						= dlOptions.Config.SplitFilesByChapter ?
+						= dlOptions.Config.SplitFilesByChapter && dlOptions.ChapterInfo.Count > 1 ?
 						new AaxcDownloadMultiConverter(outpoutDir, cacheDir, dlOptions) :
 						new AaxcDownloadSingleConverter(outpoutDir, cacheDir, dlOptions);
 
