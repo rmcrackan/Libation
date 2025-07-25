@@ -29,11 +29,12 @@ namespace LibationUiBase.GridView
 
 		public override string ToString()
 			=> IsValid ? $"""
-				{dateString()} (File v.{LastDownloadedFileVersion})
+				{dateString()} {versionString()}
 				{LastDownloadedFormat}
 				Libation v{LastDownloadedVersion.ToString(3)}
 				""" : "";
-			
+
+		private string versionString() => LastDownloadedFileVersion is string ver ? $"(File v.{ver})" : "";
 
 		//Call ToShortDateString to use current culture's date format.
 		private string dateString() => $"{LastDownloaded.Value.ToShortDateString()} {LastDownloaded.Value:HH:mm}";
