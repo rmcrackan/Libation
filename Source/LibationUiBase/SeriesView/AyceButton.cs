@@ -117,7 +117,7 @@ namespace LibationUiBase.SeriesView
 		}
 
 		private void DownloadButton_ButtonEnabled(object sender, EventArgs e)
-			=> OnPropertyChanged(nameof(Enabled));
+			=> RaisePropertyChanged(nameof(Enabled));
 
 		public override int CompareTo(object ob)
 		{

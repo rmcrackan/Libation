@@ -1,5 +1,6 @@
 ﻿using Dinah.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace DataLayer
 {
@@ -7,6 +8,7 @@ namespace DataLayer
     {
         protected override LibationContext CreateNewInstance(DbContextOptions<LibationContext> options) => new LibationContext(options);
         protected override void UseDatabaseEngine(DbContextOptionsBuilder optionsBuilder, string connectionString)
-            => optionsBuilder.UseSqlite(connectionString, ob => ob.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+            => optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
+            .UseSqlite(connectionString, ob => ob.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
     }
 }

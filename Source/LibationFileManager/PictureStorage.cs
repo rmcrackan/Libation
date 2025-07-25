@@ -133,7 +133,16 @@ namespace LibationFileManager
 			try
 			{
 				var sizeStr = def.Size == PictureSize.Native ? "" : $"._SL{(int)def.Size}_";
-				var bytes = imageDownloadClient.GetByteArrayAsync("ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}{sizeStr}.jpg", cancellationToken).Result;
+
+				using var requestMessage = new HttpRequestMessage(HttpMethod.Get, "ht" + $"tps://images-na.ssl-images-amazon.com/images/I/{def.PictureId}{sizeStr}.jpg");
+				using var response = imageDownloadClient.Send(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).EnsureSuccessStatusCode();
+				
+				if (response.Content.Headers.ContentLength is not long size)
+					return GetDefaultImage(def.Size);
+
+				var bytes = new byte[size];
+				using var respStream = response.Content.ReadAsStream(cancellationToken);
+				respStream.ReadExactly(bytes);
 
 				// save image file. make sure to not save default image
 				var path = getPath(def);

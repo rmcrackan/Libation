@@ -46,9 +46,12 @@ These tags will be replaced in the template with the audiobook's values.
 |\<series\>|All series to which the book belongs (if any)|[Series List](#series-list-formatters)|
 |\<first series\>|First series|[Series](#series-formatters)|
 |\<series#\>|Number order in series (alias for \<first series[{#}]\>|[Number](#number-formatters)|
-|\<bitrate\>|File's original bitrate (Kbps)|[Number](#number-formatters)|
-|\<samplerate\>|File's original audio sample rate|[Number](#number-formatters)|
-|\<channels\>|Number of audio channels|[Number](#number-formatters)|
+|\<bitrate\>|Bitrate (kbps) of the last downloaded audiobook|[Number](#number-formatters)|
+|\<samplerate\>|Sample rate (Hz) of the last downloaded audiobook|[Number](#number-formatters)|
+|\<channels\>|Number of audio channels in the last downloaded audiobook|[Number](#number-formatters)|
+|\<codec\>|Audio codec of the last downloaded audiobook|[Text](#text-formatters)|
+|\<file version\>|Audible's file version number of the last downloaded audiobook|[Text](#text-formatters)|
+|\<libation version\>|Libation version used during last download of the audiobook|[Text](#text-formatters)|
 |\<account\>|Audible account of this book|[Text](#text-formatters)|
 |\<account nickname\>|Audible account nickname of this book|[Text](#text-formatters)|
 |\<locale\>|Region/country|[Text](#text-formatters)|

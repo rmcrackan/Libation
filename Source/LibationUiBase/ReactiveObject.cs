@@ -7,8 +7,14 @@ using System.Runtime.CompilerServices;
 #nullable enable
 namespace LibationUiBase;
 
+/// <summary>
+/// ReactiveObject is the base object for ViewModel classes, and it implements INotifyPropertyChanging
+/// and INotifyPropertyChanged. Additionally
+/// object changes.
+/// </summary>
 public class ReactiveObject : SynchronizeInvoker, INotifyPropertyChanged, INotifyPropertyChanging
 {
+	// see also notes in Libation/Source/_ARCHITECTURE NOTES.txt :: MVVM
 	public event PropertyChangedEventHandler? PropertyChanged;
 	public event PropertyChangingEventHandler? PropertyChanging;
 

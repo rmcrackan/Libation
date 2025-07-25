@@ -287,6 +287,8 @@ namespace LibationFileManager.Templates
 			{ TemplateTags.SampleRate, lb => lb.SampleRate },
 			{ TemplateTags.Channels, lb => lb.Channels },
 			{ TemplateTags.Codec, lb => lb.Codec },
+			{ TemplateTags.FileVersion, lb => lb.FileVersion },
+			{ TemplateTags.LibationVersion, lb => lb.LibationVersion },
 		};
 
 		private static readonly List<TagCollection> chapterPropertyTags = new()
@@ -382,7 +384,7 @@ namespace LibationFileManager.Templates
 			public static string Name { get; } = "Folder Template";
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title short> [<id>]";
-			public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, conditionalTags, folderConditionalTags];
+			public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, audioFilePropertyTags, conditionalTags, folderConditionalTags];
 
 			public override IEnumerable<string> Errors
 				=> TemplateText?.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ERROR_FULL_PATH_IS_INVALID) : base.Errors;

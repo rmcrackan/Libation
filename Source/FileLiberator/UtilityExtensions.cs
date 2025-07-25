@@ -61,7 +61,13 @@ namespace FileLiberator
 				IsPodcastParent = libraryBook.Book.IsEpisodeParent(),
 				IsPodcast = libraryBook.Book.IsEpisodeChild() || libraryBook.Book.IsEpisodeParent(),
 
-				Language = libraryBook.Book.Language
+				Language = libraryBook.Book.Language,
+				Codec = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.CodecString,
+				BitRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.BitRate,
+				SampleRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.SampleRate,
+				Channels = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.ChannelCount,
+				LibationVersion = libraryBook.Book.UserDefinedItem.LastDownloadedVersion?.ToString(3),
+				FileVersion = libraryBook.Book.UserDefinedItem.LastDownloadedFileVersion
 			};
 		}
 

@@ -521,8 +521,8 @@ namespace ApplicationServices
                         udi.UpdateRating(rating.OverallRating, rating.PerformanceRating, rating.StoryRating);
 				});
 
-        public static int UpdateBookStatus(this LibraryBook lb, LiberatedStatus bookStatus, Version libationVersion)
-            => lb.UpdateUserDefinedItem(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion); });
+        public static int UpdateBookStatus(this LibraryBook lb, LiberatedStatus bookStatus, Version? libationVersion, AudioFormat audioFormat, string audioVersion)
+            => lb.UpdateUserDefinedItem(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion, audioFormat, audioVersion); });
 
         public static int UpdateBookStatus(this LibraryBook libraryBook, LiberatedStatus bookStatus)
             => libraryBook.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);

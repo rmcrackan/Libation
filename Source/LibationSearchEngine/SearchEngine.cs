@@ -50,6 +50,7 @@ namespace LibationSearchEngine
             { FieldType.Bool, lb => (lb.Book.UserDefinedItem.Rating.OverallRating > 0f).ToString(), "IsRated", "Rated" },
             { FieldType.Bool, lb => isAuthorNarrated(lb.Book).ToString(), "IsAuthorNarrated", "AuthorNarrated" },
             { FieldType.Bool, lb => lb.Book.IsAbridged.ToString(), nameof(Book.IsAbridged), "Abridged" },
+            { FieldType.Bool, lb => lb.Book.IsSpatial.ToString(), nameof(Book.IsSpatial), "Spatial" },
             { FieldType.Bool, lb => (lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.Liberated).ToString(), "IsLiberated", "Liberated" },
             { FieldType.Bool, lb => (lb.Book.UserDefinedItem.BookStatus == LiberatedStatus.Error).ToString(), "LiberatedError" },
             { FieldType.Bool, lb => lb.Book.IsEpisodeChild().ToString(), "Podcast", "Podcasts", "IsPodcast", "Episode", "Episodes", "IsEpisode" },

@@ -111,6 +111,8 @@ public class ProcessQueueViewModel : ReactiveObject
 		var preLiberated = libraryBooks.Where(lb => !lb.AbsentFromLastScan && lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated && lb.Book.ContentType is DataLayer.ContentType.Product).ToArray();
 		if (preLiberated.Length > 0)
 		{
+			if (preLiberated.Length == 1)
+				RemoveCompleted(preLiberated[0]);
 			Serilog.Log.Logger.Information("Begin convert {count} books to mp3", preLiberated.Length);
 			AddConvertMp3(preLiberated);
 			return true;

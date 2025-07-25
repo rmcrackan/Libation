@@ -40,7 +40,6 @@
 			this.runningTimeLbl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
-			this.panel3 = new System.Windows.Forms.Panel();
 			this.virtualFlowControl2 = new LibationWinForms.ProcessQueue.VirtualFlowControl();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.label1 = new System.Windows.Forms.Label();
@@ -134,7 +133,6 @@
 			// 
 			// tabPage1
 			// 
-			this.tabPage1.Controls.Add(this.panel3);
 			this.tabPage1.Controls.Add(this.virtualFlowControl2);
 			this.tabPage1.Controls.Add(this.panel1);
 			this.tabPage1.Location = new System.Drawing.Point(4, 24);
@@ -144,14 +142,6 @@
 			this.tabPage1.TabIndex = 0;
 			this.tabPage1.Text = "Process Queue";
 			this.tabPage1.UseVisualStyleBackColor = true;
-			// 
-			// panel3
-			// 
-			this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.panel3.Location = new System.Drawing.Point(3, 422);
-			this.panel3.Name = "panel3";
-			this.panel3.Size = new System.Drawing.Size(390, 5);
-			this.panel3.TabIndex = 4;
 			// 
 			// virtualFlowControl2
 			// 
@@ -174,14 +164,14 @@
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.panel1.Location = new System.Drawing.Point(3, 427);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(390, 25);
+			this.panel1.Size = new System.Drawing.Size(390, 29);
 			this.panel1.TabIndex = 2;
 			// 
 			// label1
 			// 
 			this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(148, 4);
+			this.label1.Location = new System.Drawing.Point(148, 6);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(54, 15);
 			this.label1.TabIndex = 5;
@@ -196,7 +186,7 @@
             0,
             0,
             65536});
-			this.numericUpDown1.Location = new System.Drawing.Point(208, 0);
+			this.numericUpDown1.Location = new System.Drawing.Point(208, 2);
 			this.numericUpDown1.Maximum = new decimal(new int[] {
             999,
             0,
@@ -348,7 +338,6 @@
 			this.panel2.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
-
 		}
 
 		#endregion
@@ -367,7 +356,6 @@
 		private System.Windows.Forms.ToolStripStatusLabel queueNumberLbl;
 		private System.Windows.Forms.ToolStripStatusLabel completedNumberLbl;
 		private System.Windows.Forms.ToolStripStatusLabel errorNumberLbl;
-		private System.Windows.Forms.Panel panel3;
 		private System.Windows.Forms.Panel panel4;
 		private System.Windows.Forms.ToolStripStatusLabel runningTimeLbl;
 		private System.Windows.Forms.DataGridView logDGV;

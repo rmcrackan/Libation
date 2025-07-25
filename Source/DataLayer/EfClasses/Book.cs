@@ -43,18 +43,13 @@ namespace DataLayer
         public ContentType ContentType { get; private set; }
         public string Locale { get; private set; }
 
-		//This field is now unused, however, there is little sense in adding a
-		//database migration to remove an unused field. Leave it for compatibility.
-#pragma warning disable CS0649 // Field 'Book._audioFormat' is never assigned to, and will always have its default value 0
-		internal long _audioFormat;
-#pragma warning restore CS0649
-
         // mutable
         public string PictureId { get; set; }
         public string PictureLarge { get; set; }
 
         // book details
         public bool IsAbridged { get; private set; }
+        public bool IsSpatial { get; private set; }
         public DateTime? DatePublished { get; private set; }
         public string Language { get; private set; }
 
@@ -242,10 +237,11 @@ namespace DataLayer
         public void UpdateProductRating(float overallRating, float performanceRating, float storyRating)
             => Rating.Update(overallRating, performanceRating, storyRating);
 
-        public void UpdateBookDetails(bool isAbridged, DateTime? datePublished, string language)
+        public void UpdateBookDetails(bool isAbridged, bool? isSpatial, DateTime? datePublished, string language)
         {
             // don't overwrite with default values
             IsAbridged |= isAbridged;
+            IsSpatial |= isSpatial ?? false;
             DatePublished = datePublished ?? DatePublished;
             Language = language?.FirstCharToUpper() ?? Language;
         }

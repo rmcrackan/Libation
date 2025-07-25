@@ -34,6 +34,8 @@ public class BookDto
 	public DateTime FileDate { get; set; } = DateTime.Now;
 	public DateTime? DatePublished { get; set; }
 	public string? Language { get; set; }
+	public string? LibationVersion { get; set; }
+	public string? FileVersion { get; set; }
 }
 
 public class LibraryBookDto : BookDto

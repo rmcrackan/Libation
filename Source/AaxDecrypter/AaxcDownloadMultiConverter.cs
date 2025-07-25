@@ -5,20 +5,20 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace AaxDecrypter
 {
 	public class AaxcDownloadMultiConverter : AaxcDownloadConvertBase
 	{
 		private static readonly TimeSpan minChapterLength = TimeSpan.FromSeconds(3);
-		private FileStream workingFileStream;
+		private FileStream? workingFileStream;
 
-		public AaxcDownloadMultiConverter(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
-			: base(outFileName, cacheDirectory, dlOptions)
+		public AaxcDownloadMultiConverter(string outDirectory, string cacheDirectory, IDownloadOptions dlOptions)
+			: base(outDirectory, cacheDirectory, dlOptions)
 		{
 			AsyncSteps.Name = $"Download, Convert Aaxc To {DownloadOptions.OutputFormat}, and Split";
 			AsyncSteps["Step 1: Get Aaxc Metadata"] = () => Task.Run(Step_GetMetadata);
 			AsyncSteps["Step 2: Download Decrypted Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
-			AsyncSteps["Step 3: Download Clips and Bookmarks"] = Step_DownloadClipsBookmarksAsync;
 		}
 
 		protected override void OnInitialized()
@@ -59,6 +59,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 		 */
 		protected async override Task<bool> Step_DownloadAndDecryptAudiobookAsync()
 		{
+			if (AaxFile is null) return false;
 			var chapters = DownloadOptions.ChapterInfo.Chapters;
 
 			// Ensure split files are at least minChapterLength in duration.
@@ -83,10 +84,10 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
 			try
 			{
-				await (AaxConversion = decryptMultiAsync(splitChapters));
+				await (AaxConversion = decryptMultiAsync(AaxFile, splitChapters));
 
 				if (AaxConversion.IsCompletedSuccessfully)
-					await moveMoovToBeginning(workingFileStream?.Name);
+					await moveMoovToBeginning(AaxFile, workingFileStream?.Name);
 
 				return AaxConversion.IsCompletedSuccessfully;
 			}
@@ -97,17 +98,17 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 			}
 		}
 
-		private Mp4Operation decryptMultiAsync(ChapterInfo splitChapters)
+		private Mp4Operation decryptMultiAsync(Mp4File aaxFile, ChapterInfo splitChapters)
 		{
 			var chapterCount = 0;
 			return
 				DownloadOptions.OutputFormat == OutputFormat.M4b
-				? AaxFile.ConvertToMultiMp4aAsync
+				? aaxFile.ConvertToMultiMp4aAsync
 				(
 					splitChapters,
 					newSplitCallback => newSplit(++chapterCount, splitChapters, newSplitCallback)
 				)
-				: AaxFile.ConvertToMultiMp3Async
+				: aaxFile.ConvertToMultiMp3Async
 				(
 					splitChapters,
 					newSplitCallback => newSplit(++chapterCount, splitChapters, newSplitCallback),
@@ -116,33 +117,32 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 
 			void newSplit(int currentChapter, ChapterInfo splitChapters, INewSplitCallback newSplitCallback)
 			{
+				moveMoovToBeginning(aaxFile, workingFileStream?.Name).GetAwaiter().GetResult();
+				var newTempFile = GetNewTempFilePath(DownloadOptions.OutputFormat.ToString());
 				MultiConvertFileProperties props = new()
 				{
-					OutputFileName = OutputFileName,
+					OutputFileName = newTempFile.FilePath,
 					PartsPosition = currentChapter,
 					PartsTotal = splitChapters.Count,
-					Title = newSplitCallback?.Chapter?.Title,
+					Title = newSplitCallback.Chapter?.Title,
 				};
-
-				moveMoovToBeginning(workingFileStream?.Name).GetAwaiter().GetResult();
 
 				newSplitCallback.OutputFile = workingFileStream = createOutputFileStream(props);
 				newSplitCallback.TrackTitle = DownloadOptions.GetMultipartTitle(props);
 				newSplitCallback.TrackNumber = currentChapter;
 				newSplitCallback.TrackCount = splitChapters.Count;
 
-				OnFileCreated(workingFileStream.Name);
+				OnTempFileCreated(newTempFile with { PartProperties = props });
 			}
 
 			FileStream createOutputFileStream(MultiConvertFileProperties multiConvertFileProperties)
 			{
-				var fileName = DownloadOptions.GetMultipartFileName(multiConvertFileProperties);
-				FileUtility.SaferDelete(fileName);
-				return File.Open(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+				FileUtility.SaferDelete(multiConvertFileProperties.OutputFileName);
+				return File.Open(multiConvertFileProperties.OutputFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 			}
 		}
 
-		private Mp4Operation moveMoovToBeginning(string filename)
+		private Mp4Operation moveMoovToBeginning(Mp4File aaxFile, string? filename)
 		{
 			if (DownloadOptions.OutputFormat is OutputFormat.M4b
 				&& DownloadOptions.MoveMoovToBeginning
@@ -151,7 +151,7 @@ That naming may not be desirable for everyone, but it's an easy change to instea
 			{
 				return Mp4File.RelocateMoovAsync(filename);
 			}
-			else return Mp4Operation.FromCompleted(AaxFile);
+			else return Mp4Operation.FromCompleted(aaxFile);
 		}
 	}
 }

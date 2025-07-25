@@ -137,8 +137,6 @@ namespace DtoImporterService
 				book.ReplacePublisher(publisher);
 			}
 
-            book.UpdateBookDetails(item.IsAbridged, item.DatePublished, item.Language);
-
             if (item.PdfUrl is not null)
 				book.AddSupplementDownloadUrl(item.PdfUrl.ToString());
 
@@ -166,8 +164,9 @@ namespace DtoImporterService
 
             // 2023-02-01
             // updateBook must update language on books which were imported before the migration which added language.
-            // Can eventually delete this
-            book.UpdateBookDetails(item.IsAbridged, item.DatePublished, item.Language);
+            // 2025-07-30
+            // updateBook must update isSpatial on books which were imported before the migration which added isSpatial.
+            book.UpdateBookDetails(item.IsAbridged, item.AssetDetails?.Any(a => a.IsSpatial), item.DatePublished, item.Language);
 
             book.UpdateProductRating(
 				(float)(item.Rating?.OverallDistribution?.AverageRating ?? 0),
