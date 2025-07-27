@@ -179,12 +179,14 @@ namespace LibationFileManager
 		[Description("Lame target VBR quality [10,100]")]
 		public int LameVBRQuality { get => GetNonString(defaultValue: 2); set => SetNonString(value); }
 
-		private static readonly EquatableDictionary<string, bool> DefaultColumns = new(
-			new KeyValuePair<string, bool>[]
-			{
+		private static readonly EquatableDictionary<string, bool> DefaultColumns = new([
 			new ("SeriesOrder", false),
-			new ("LastDownload", false)
-			});
+			new ("LastDownload", false),
+			new ("IsSpatial", false)
+			]);
+		public bool GetColumnVisibility(string columnName)
+			=> GridColumnsVisibilities.TryGetValue(columnName, out var isVisible) ? isVisible
+			:DefaultColumns.GetValueOrDefault(columnName, true);
 
 		[Description("A Dictionary of GridView data property names and bool indicating its column's visibility in ProductsGrid")]
 		public Dictionary<string, bool> GridColumnsVisibilities { get => GetNonString(defaultValue: DefaultColumns).Clone(); set => SetNonString(value); }
