@@ -426,7 +426,6 @@ namespace LibationAvalonia.Views
 			productsGrid.ColumnDisplayIndexChanged += ProductsGrid_ColumnDisplayIndexChanged;
 
 			var config = Configuration.Instance;
-			var gridColumnsVisibilities = config.GridColumnsVisibilities;
 			var displayIndices = config.GridColumnsDisplayIndices;
 
 			var contextMenu = new ContextMenu();
@@ -464,7 +463,7 @@ namespace LibationAvalonia.Views
 				if (headerCell is not null)
 					headerCell.ContextMenu = contextMenu;
 
-				column.IsVisible = gridColumnsVisibilities.GetValueOrDefault(itemName, true);
+				column.IsVisible = config.GetColumnVisibility(itemName);
 			}
 
 			//We must set DisplayIndex properties in ascending order

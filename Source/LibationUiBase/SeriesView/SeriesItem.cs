@@ -4,7 +4,6 @@ using AudibleApi.Common;
 using AudibleUtilities;
 using DataLayer;
 using Dinah.Core;
-using Dinah.Core.Threading;
 using FileLiberator;
 using LibationFileManager;
 using System.Collections.Generic;
@@ -15,15 +14,13 @@ using System.Threading.Tasks;
 
 namespace LibationUiBase.SeriesView
 {
-	public class SeriesItem : SynchronizeInvoker, INotifyPropertyChanged
+	public class SeriesItem : ReactiveObject
 	{
 		public object Cover { get; private set; }
 		public SeriesOrder Order { get; }
 		public string Title => Item.TitleWithSubtitle;
 		public SeriesButton Button { get; }
 		public Item Item { get; }
-
-		public event PropertyChangedEventHandler PropertyChanged;
 
 		private SeriesItem(Item item, string order, bool inLibrary, bool inWishList)
 		{
@@ -42,10 +39,7 @@ namespace LibationUiBase.SeriesView
 		}
 
 		private void DownloadButton_PropertyChanged(object sender, PropertyChangedEventArgs e)
-			=> OnPropertyChanged(nameof(Button));
-
-		private void OnPropertyChanged(string propertyName)
-			=> Invoke(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
+			=> RaisePropertyChanged(nameof(Button));
 
 		private void LoadCover(string pictureId)
 		{
@@ -66,7 +60,7 @@ namespace LibationUiBase.SeriesView
 				{
 					Cover = BaseUtil.LoadImage(e.Picture, PictureSize._80x80);
 					PictureStorage.PictureCached -= PictureStorage_PictureCached;
-					OnPropertyChanged(nameof(Cover));
+					RaisePropertyChanged(nameof(Cover));
 				}
 			}
 		}

@@ -100,6 +100,12 @@ namespace AaxDecrypter
 				Position = WritePosition
 			};
 
+			if (_writeFile.Length < WritePosition)
+			{
+				_writeFile.Dispose();
+				throw new InvalidDataException($"{SaveFilePath} file length is shorter than {WritePosition}");
+			}
+
 			_readFile = new FileStream(SaveFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
 			SetUriForSameFile(uri);

@@ -4,8 +4,8 @@ using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration.Attributes;
 using DataLayer;
+using Newtonsoft.Json;
 using NPOI.XSSF.UserModel;
-using Serilog;
 
 namespace ApplicationServices
 {
@@ -115,7 +115,29 @@ namespace ApplicationServices
 
 		[Name("IsFinished")]
         public bool IsFinished { get; set; }
-    }
+
+		[Name("IsSpatial")]
+		public bool IsSpatial { get; set; }
+
+		[Name("Last Downloaded File Version")]
+		public string LastDownloadedFileVersion { get; set; }
+
+		[Ignore /* csv ignore */]
+		public AudioFormat LastDownloadedFormat { get; set; }
+
+		[Name("Last Downloaded Codec"), JsonIgnore]
+		public string CodecString => LastDownloadedFormat?.CodecString ?? "";
+
+		[Name("Last Downloaded Sample rate"), JsonIgnore]
+		public int? SampleRate => LastDownloadedFormat?.SampleRate;
+
+		[Name("Last Downloaded Audio Channels"), JsonIgnore]
+		public int? ChannelCount => LastDownloadedFormat?.ChannelCount;
+
+		[Name("Last Downloaded Bitrate"), JsonIgnore]
+		public int? BitRate => LastDownloadedFormat?.BitRate;
+	}
+
 	public static class LibToDtos
 	{
 		public static List<ExportDto> ToDtos(this IEnumerable<LibraryBook> library)
@@ -135,16 +157,16 @@ namespace ApplicationServices
 				HasPdf = a.Book.HasPdf(),
 				SeriesNames = a.Book.SeriesNames(),
 				SeriesOrder = a.Book.SeriesLink.Any() ? a.Book.SeriesLink?.Select(sl => $"{sl.Order} : {sl.Series.Name}").Aggregate((a, b) => $"{a}, {b}") : "",
-				CommunityRatingOverall = a.Book.Rating?.OverallRating,
-				CommunityRatingPerformance = a.Book.Rating?.PerformanceRating,
-				CommunityRatingStory = a.Book.Rating?.StoryRating,
+				CommunityRatingOverall = a.Book.Rating?.OverallRating.ZeroIsNull(),
+				CommunityRatingPerformance = a.Book.Rating?.PerformanceRating.ZeroIsNull(),
+				CommunityRatingStory = a.Book.Rating?.StoryRating.ZeroIsNull(),
 				PictureId = a.Book.PictureId,
 				IsAbridged = a.Book.IsAbridged,
 				DatePublished = a.Book.DatePublished,
 				CategoriesNames = string.Join("; ", a.Book.LowestCategoryNames()),
-				MyRatingOverall = a.Book.UserDefinedItem.Rating.OverallRating,
-				MyRatingPerformance = a.Book.UserDefinedItem.Rating.PerformanceRating,
-				MyRatingStory = a.Book.UserDefinedItem.Rating.StoryRating,
+				MyRatingOverall = a.Book.UserDefinedItem.Rating.OverallRating.ZeroIsNull(),
+				MyRatingPerformance = a.Book.UserDefinedItem.Rating.PerformanceRating.ZeroIsNull(),
+				MyRatingStory = a.Book.UserDefinedItem.Rating.StoryRating.ZeroIsNull(),
 				MyLibationTags = a.Book.UserDefinedItem.Tags,
 				BookStatus = a.Book.UserDefinedItem.BookStatus.ToString(),
 				PdfStatus = a.Book.UserDefinedItem.PdfStatus.ToString(),
@@ -152,8 +174,13 @@ namespace ApplicationServices
 				Language = a.Book.Language,
 				LastDownloaded = a.Book.UserDefinedItem.LastDownloaded,
 				LastDownloadedVersion = a.Book.UserDefinedItem.LastDownloadedVersion?.ToString() ?? "",
-                IsFinished = a.Book.UserDefinedItem.IsFinished
-            }).ToList();
+				IsFinished = a.Book.UserDefinedItem.IsFinished,
+				IsSpatial = a.Book.IsSpatial,
+				LastDownloadedFileVersion = a.Book.UserDefinedItem.LastDownloadedFileVersion ?? "",
+				LastDownloadedFormat = a.Book.UserDefinedItem.LastDownloadedFormat
+			}).ToList();
+
+		private static float? ZeroIsNull(this float value) => value is 0 ? null : value;
 	}
 	public static class LibraryExporter
 	{
@@ -162,7 +189,6 @@ namespace ApplicationServices
 			var dtos = DbContexts.GetLibrary_Flat_NoTracking().ToDtos();
 			if (!dtos.Any())
 				return;
-
 			using var writer = new System.IO.StreamWriter(saveFilePath);
 			using var csv = new CsvWriter(writer, System.Globalization.CultureInfo.CurrentCulture);
 
@@ -174,7 +200,7 @@ namespace ApplicationServices
 		public static void ToJson(string saveFilePath)
 		{
 			var dtos = DbContexts.GetLibrary_Flat_NoTracking().ToDtos();
-			var json = Newtonsoft.Json.JsonConvert.SerializeObject(dtos, Newtonsoft.Json.Formatting.Indented);
+			var json = JsonConvert.SerializeObject(dtos, Formatting.Indented);
 			System.IO.File.WriteAllText(saveFilePath, json);
 		}
 
@@ -227,7 +253,13 @@ namespace ApplicationServices
                 nameof(ExportDto.Language),
                 nameof(ExportDto.LastDownloaded),
                 nameof(ExportDto.LastDownloadedVersion),
-                nameof(ExportDto.IsFinished)
+                nameof(ExportDto.IsFinished),
+                nameof(ExportDto.IsSpatial),
+                nameof(ExportDto.LastDownloadedFileVersion),
+                nameof(ExportDto.CodecString),
+                nameof(ExportDto.SampleRate),
+                nameof(ExportDto.ChannelCount),
+                nameof(ExportDto.BitRate)
             };
 			var col = 0;
 			foreach (var c in columns)
@@ -248,15 +280,10 @@ namespace ApplicationServices
 			foreach (var dto in dtos)
 			{
 				col = 0;
-
-				row = sheet.CreateRow(rowIndex);
+				row = sheet.CreateRow(rowIndex++);
 
 				row.CreateCell(col++).SetCellValue(dto.Account);
-
-				var dateCell = row.CreateCell(col++);
-				dateCell.CellStyle = dateStyle;
-				dateCell.SetCellValue(dto.DateAdded);
-
+				row.CreateCell(col++).SetCellValue(dto.DateAdded).CellStyle = dateStyle;
 				row.CreateCell(col++).SetCellValue(dto.AudibleProductId);
 				row.CreateCell(col++).SetCellValue(dto.Locale);
 				row.CreateCell(col++).SetCellValue(dto.Title);
@@ -269,56 +296,46 @@ namespace ApplicationServices
 				row.CreateCell(col++).SetCellValue(dto.HasPdf);
 				row.CreateCell(col++).SetCellValue(dto.SeriesNames);
 				row.CreateCell(col++).SetCellValue(dto.SeriesOrder);
-
-				col = createCell(row, col, dto.CommunityRatingOverall);
-				col = createCell(row, col, dto.CommunityRatingPerformance);
-				col = createCell(row, col, dto.CommunityRatingStory);
-
+				row.CreateCell(col++).SetCellValue(dto.CommunityRatingOverall);
+				row.CreateCell(col++).SetCellValue(dto.CommunityRatingPerformance);
+				row.CreateCell(col++).SetCellValue(dto.CommunityRatingStory);
 				row.CreateCell(col++).SetCellValue(dto.PictureId);
 				row.CreateCell(col++).SetCellValue(dto.IsAbridged);
-
-				var datePubCell = row.CreateCell(col++);
-				datePubCell.CellStyle = dateStyle;
-				if (dto.DatePublished.HasValue)
-					datePubCell.SetCellValue(dto.DatePublished.Value);
-				else
-					datePubCell.SetCellValue("");
-
+				row.CreateCell(col++).SetCellValue(dto.DatePublished).CellStyle = dateStyle;
 				row.CreateCell(col++).SetCellValue(dto.CategoriesNames);
-
-				col = createCell(row, col, dto.MyRatingOverall);
-				col = createCell(row, col, dto.MyRatingPerformance);
-				col = createCell(row, col, dto.MyRatingStory);
-
+				row.CreateCell(col++).SetCellValue(dto.MyRatingOverall);
+				row.CreateCell(col++).SetCellValue(dto.MyRatingPerformance);
+				row.CreateCell(col++).SetCellValue(dto.MyRatingStory);
 				row.CreateCell(col++).SetCellValue(dto.MyLibationTags);
 				row.CreateCell(col++).SetCellValue(dto.BookStatus);
 				row.CreateCell(col++).SetCellValue(dto.PdfStatus);
 				row.CreateCell(col++).SetCellValue(dto.ContentType);
-                row.CreateCell(col++).SetCellValue(dto.Language);
-
-				if (dto.LastDownloaded.HasValue)
-				{
-					dateCell = row.CreateCell(col);
-					dateCell.CellStyle = dateStyle;
-					dateCell.SetCellValue(dto.LastDownloaded.Value);
-				}
-
-                row.CreateCell(++col).SetCellValue(dto.LastDownloadedVersion);
-                row.CreateCell(++col).SetCellValue(dto.IsFinished);
-
-                rowIndex++;
+				row.CreateCell(col++).SetCellValue(dto.Language);
+				row.CreateCell(col++).SetCellValue(dto.LastDownloaded).CellStyle = dateStyle;
+				row.CreateCell(col++).SetCellValue(dto.LastDownloadedVersion);
+				row.CreateCell(col++).SetCellValue(dto.IsFinished);
+				row.CreateCell(col++).SetCellValue(dto.IsSpatial);
+				row.CreateCell(col++).SetCellValue(dto.LastDownloadedFileVersion);
+				row.CreateCell(col++).SetCellValue(dto.CodecString);
+				row.CreateCell(col++).SetCellValue(dto.SampleRate);
+				row.CreateCell(col++).SetCellValue(dto.ChannelCount);
+				row.CreateCell(col++).SetCellValue(dto.BitRate);
 			}
 
 			using var fileData = new System.IO.FileStream(saveFilePath, System.IO.FileMode.Create);
 			workbook.Write(fileData);
 		}
-		private static int createCell(NPOI.SS.UserModel.IRow row, int col, float? nullableFloat)
-		{
-			if (nullableFloat.HasValue)
-				row.CreateCell(col++).SetCellValue(nullableFloat.Value);
-			else
-				row.CreateCell(col++).SetCellValue("");
-			return col;
-		}
+
+		private static NPOI.SS.UserModel.ICell SetCellValue(this NPOI.SS.UserModel.ICell cell, DateTime? nullableDate)
+			=> nullableDate.HasValue ? cell.SetCellValue(nullableDate.Value)
+			: cell.SetCellType(NPOI.SS.UserModel.CellType.Numeric);
+
+		private static NPOI.SS.UserModel.ICell SetCellValue(this NPOI.SS.UserModel.ICell cell, int? nullableInt)
+			=> nullableInt.HasValue ? cell.SetCellValue(nullableInt.Value)
+			: cell.SetCellType(NPOI.SS.UserModel.CellType.Numeric);
+
+		private static NPOI.SS.UserModel.ICell SetCellValue(this NPOI.SS.UserModel.ICell cell, float? nullableFloat)
+			=> nullableFloat.HasValue ? cell.SetCellValue(nullableFloat.Value)
+			: cell.SetCellType(NPOI.SS.UserModel.CellType.Numeric);
 	}
 }

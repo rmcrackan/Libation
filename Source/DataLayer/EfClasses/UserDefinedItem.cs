@@ -24,24 +24,52 @@ namespace DataLayer
     {
         internal int BookId { get; private set; }
         public Book Book { get; private set; }
-        public DateTime? LastDownloaded { get; private set; }
-        public Version LastDownloadedVersion { get; private set; }
+		/// <summary>
+		/// Date the audio file was last downloaded.
+		/// </summary>
+		public DateTime? LastDownloaded { get; private set; }
+		/// <summary>
+		/// Version of Libation used the last time the audio file was downloaded.
+		/// </summary>
+		public Version LastDownloadedVersion { get; private set; }
+		/// <summary>
+		/// Audio format of the last downloaded audio file.
+		/// </summary>
+		public AudioFormat LastDownloadedFormat { get; private set; }
+		/// <summary>
+		/// Version of the audio file that was last downloaded.
+		/// </summary>
+		public string LastDownloadedFileVersion { get; private set; }
 
-        public void SetLastDownloaded(Version version)
+        public void SetLastDownloaded(Version libationVersion, AudioFormat audioFormat, string audioVersion)
         {
-            if (LastDownloadedVersion != version)
+            if (LastDownloadedVersion != libationVersion)
             {
-                LastDownloadedVersion = version;
+                LastDownloadedVersion = libationVersion;
 				OnItemChanged(nameof(LastDownloadedVersion));
 			}
+            if (LastDownloadedFormat != audioFormat)
+            {
+                LastDownloadedFormat = audioFormat;
+				OnItemChanged(nameof(LastDownloadedFormat));
+			}
+            if (LastDownloadedFileVersion != audioVersion)
+            {
+				LastDownloadedFileVersion = audioVersion;
+				OnItemChanged(nameof(LastDownloadedFileVersion));
+			}
 
-            if (version is null)
+            if (libationVersion is null)
+            {
                 LastDownloaded = null;
+                LastDownloadedFormat = null;
+                LastDownloadedFileVersion = null;
+            }
             else
             {
-				LastDownloaded = DateTime.Now;
+                LastDownloaded = DateTime.Now;
                 OnItemChanged(nameof(LastDownloaded));
-			}
+            }
 		}
 
 		private UserDefinedItem() { }

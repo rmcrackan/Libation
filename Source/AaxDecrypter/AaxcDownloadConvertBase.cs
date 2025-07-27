@@ -1,19 +1,21 @@
 ﻿using AAXClean;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace AaxDecrypter
 {	
 	public abstract class AaxcDownloadConvertBase : AudiobookDownloadBase
 	{
-		public event EventHandler<AppleTags> RetrievedMetadata;
+		public event EventHandler<AppleTags>? RetrievedMetadata;
 
-		public Mp4File AaxFile { get; private set; }
-		protected Mp4Operation AaxConversion { get; set; }
+		public Mp4File? AaxFile { get; private set; }
+		protected Mp4Operation? AaxConversion { get; set; }
 
-		protected AaxcDownloadConvertBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
-			: base(outFileName, cacheDirectory, dlOptions) { }
+		protected AaxcDownloadConvertBase(string outDirectory, string cacheDirectory, IDownloadOptions dlOptions)
+			: base(outDirectory, cacheDirectory, dlOptions) { }
 
 		/// <summary>Setting cover art by this method will insert the art into the audiobook metadata</summary>
 		public override void SetCoverArt(byte[] coverArt)
@@ -31,11 +33,13 @@ namespace AaxDecrypter
 
 		private Mp4File Open()
 		{
-			if (DownloadOptions.InputType is FileType.Dash)
+			if (DownloadOptions.DecryptionKeys is not KeyData[] keys || keys.Length == 0)
+				throw new InvalidOperationException($"{nameof(DownloadOptions.DecryptionKeys)} cannot be null or empty for a '{DownloadOptions.InputType}' file.");
+			else if (DownloadOptions.InputType is FileType.Dash)
 			{
 				//We may have multiple keys , so use the key whose key ID matches
 				//the dash files default Key ID.
-				var keyIds = DownloadOptions.DecryptionKeys.Select(k => new Guid(k.KeyPart1, bigEndian: true)).ToArray();
+				var keyIds = keys.Select(k => new Guid(k.KeyPart1, bigEndian: true)).ToArray();
 
 				var dash = new DashFile(InputFileStream);
 				var kidIndex = Array.IndexOf(keyIds, dash.Tenc.DefaultKID);
@@ -43,26 +47,38 @@ namespace AaxDecrypter
 				if (kidIndex == -1)
 					throw new InvalidOperationException($"None of the {keyIds.Length} key IDs match the dash file's default KeyID of {dash.Tenc.DefaultKID}");
 
-				DownloadOptions.DecryptionKeys[0] = DownloadOptions.DecryptionKeys[kidIndex];
-				var keyId = DownloadOptions.DecryptionKeys[kidIndex].KeyPart1;
-				var key = DownloadOptions.DecryptionKeys[kidIndex].KeyPart2;
-
+				keys[0] = keys[kidIndex];
+				var keyId = keys[kidIndex].KeyPart1;
+				var key = keys[kidIndex].KeyPart2 ?? throw new InvalidOperationException($"{nameof(DownloadOptions.DecryptionKeys)} for '{DownloadOptions.InputType}' must have a non-null decryption key (KeyPart2).");
 				dash.SetDecryptionKey(keyId, key);
+				WriteKeyFile($"KeyId={Convert.ToHexString(keyId)}{Environment.NewLine}Key={Convert.ToHexString(key)}");
 				return dash;
 			}
 			else if (DownloadOptions.InputType is FileType.Aax)
 			{
 				var aax = new AaxFile(InputFileStream);
-				aax.SetDecryptionKey(DownloadOptions.DecryptionKeys[0].KeyPart1);
+				var key = keys[0].KeyPart1;
+				aax.SetDecryptionKey(keys[0].KeyPart1);
+				WriteKeyFile($"ActivationBytes={Convert.ToHexString(key)}");
 				return aax;
 			}
 			else if (DownloadOptions.InputType is FileType.Aaxc)
 			{
 				var aax = new AaxFile(InputFileStream);
-				aax.SetDecryptionKey(DownloadOptions.DecryptionKeys[0].KeyPart1, DownloadOptions.DecryptionKeys[0].KeyPart2);
+				var key = keys[0].KeyPart1;
+				var iv = keys[0].KeyPart2 ?? throw new InvalidOperationException($"{nameof(DownloadOptions.DecryptionKeys)} for '{DownloadOptions.InputType}' must have a non-null initialization vector (KeyPart2).");
+				aax.SetDecryptionKey(keys[0].KeyPart1, iv);
+				WriteKeyFile($"Key={Convert.ToHexString(key)}{Environment.NewLine}IV={Convert.ToHexString(iv)}");
 				return aax;
 			}
 			else throw new InvalidOperationException($"{nameof(DownloadOptions.InputType)} of '{DownloadOptions.InputType}' is unknown.");
+
+			void WriteKeyFile(string contents)
+			{
+				var keyFile = Path.Combine(Path.ChangeExtension(InputFileStream.SaveFilePath, ".key"));
+				File.WriteAllText(keyFile, contents + Environment.NewLine);
+				OnTempFileCreated(new(keyFile));
+			}
 		}
 
 		protected bool Step_GetMetadata()

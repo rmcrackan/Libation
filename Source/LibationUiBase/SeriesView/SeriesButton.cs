@@ -1,8 +1,6 @@
 ﻿using AudibleApi.Common;
 using DataLayer;
-using Dinah.Core.Threading;
 using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace LibationUiBase.SeriesView
@@ -10,11 +8,9 @@ namespace LibationUiBase.SeriesView
 	/// <summary>
 	/// base view model for the Series Viewer 'Availability' button column
 	/// </summary>
-	public abstract class SeriesButton : SynchronizeInvoker, IComparable, INotifyPropertyChanged
+	public abstract class SeriesButton : ReactiveObject, IComparable
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
 		private bool inLibrary;
-
 		protected Item Item { get; }
 		public abstract string DisplayText { get; }
 		public abstract bool HasButtonAction { get; }
@@ -27,8 +23,8 @@ namespace LibationUiBase.SeriesView
 				if (inLibrary != value)
 				{
 					inLibrary = value;
-					OnPropertyChanged(nameof(InLibrary));
-					OnPropertyChanged(nameof(DisplayText));
+					RaisePropertyChanged(nameof(InLibrary));
+					RaisePropertyChanged(nameof(DisplayText));
 				}
 			}
 		}
@@ -40,9 +36,6 @@ namespace LibationUiBase.SeriesView
 		}
 
 		public abstract Task PerformClickAsync(LibraryBook accountBook);
-
-		protected void OnPropertyChanged(string propertyName)
-			=> Invoke(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
 
 		public override string ToString() => DisplayText;
 

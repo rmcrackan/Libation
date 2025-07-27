@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -112,7 +111,6 @@ public partial class DownloadOptions
 		}
 	}
 
-
 	private static DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, LicenseInfo licInfo)
 	{
 		long chapterStartMs
@@ -125,13 +123,6 @@ public partial class DownloadOptions
 			ChapterInfo = new AAXClean.ChapterInfo(TimeSpan.FromMilliseconds(chapterStartMs)),
 			RuntimeLength = TimeSpan.FromMilliseconds(licInfo.ContentMetadata.ChapterInfo.RuntimeLengthMs),
 		};
-
-		if (TryGetAudioInfo(licInfo.ContentMetadata.ContentUrl, out int? bitrate, out int? sampleRate, out int? channels))
-		{
-			dlOptions.LibraryBookDto.BitRate = bitrate;
-			dlOptions.LibraryBookDto.SampleRate = sampleRate;
-			dlOptions.LibraryBookDto.Channels = channels;
-		}
 
 		var titleConcat = config.CombineNestedChapterTitles ? ": " : null;
 		var chapters
@@ -157,43 +148,6 @@ public partial class DownloadOptions
 		}
 
 		return dlOptions;
-	}
-
-	/// <summary>
-	/// The most reliable way to get these audio file properties is from the filename itself.
-	/// Using AAXClean to read the metadata works well for everything except AC-4 bitrate.
-	/// </summary>
-	private static bool TryGetAudioInfo(ContentUrl? contentUrl, out int? bitrate, out int? sampleRate, out int? channels)
-	{
-		bitrate = sampleRate = channels = null;
-
-		if (contentUrl?.OfflineUrl is not string url || !Uri.TryCreate(url, default, out var uri))
-			return false;
-
-		var file = Path.GetFileName(uri.LocalPath);
-
-		var match = AdrmAudioProperties().Match(file);
-		if (match.Success)
-		{
-			bitrate = int.Parse(match.Groups[1].Value);
-			sampleRate = int.Parse(match.Groups[2].Value);
-			channels = int.Parse(match.Groups[3].Value);
-			return true;
-		}
-		else if ((match = WidevineAudioProperties().Match(file)).Success)
-		{
-			bitrate = int.Parse(match.Groups[2].Value);
-			sampleRate = int.Parse(match.Groups[1].Value) * 1000;
-			channels = match.Groups[3].Value switch
-			{
-				"ec3" => 6,
-				"ac4" => 3,
-				_ => null
-			};
-			return true;
-		}
-
-		return false;
 	}
 
 	public static LameConfig GetLameOptions(Configuration config)
@@ -350,12 +304,4 @@ public partial class DownloadOptions
 			chapters.Remove(chapters[^1]);
 		}
 	}
-
-	static double RelativePercentDifference(long num1, long num2)
-		=> Math.Abs(num1 - num2) / (double)(num1 + num2);
-
-	[GeneratedRegex(@".+_(\d+)_(\d+)-(\w+).mp4", RegexOptions.Singleline | RegexOptions.IgnoreCase)]
-	private static partial Regex WidevineAudioProperties();
-	[GeneratedRegex(@".+_lc_(\d+)_(\d+)_(\d+).aax", RegexOptions.Singleline | RegexOptions.IgnoreCase)]
-	private static partial Regex AdrmAudioProperties();
 }

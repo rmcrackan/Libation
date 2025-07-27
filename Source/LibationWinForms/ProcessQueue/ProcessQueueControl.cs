@@ -1,5 +1,4 @@
-﻿using LibationFileManager;
-using LibationUiBase;
+﻿using LibationUiBase;
 using LibationUiBase.ProcessQueue;
 using System;
 using System.ComponentModel;
@@ -35,21 +34,16 @@ internal partial class ProcessQueueControl : UserControl
 
 		ViewModel.PropertyChanged += ProcessQueue_PropertyChanged;
 		ViewModel.LogEntries.CollectionChanged += LogEntries_CollectionChanged;
+		ProcessQueue_PropertyChanged(this, new PropertyChangedEventArgs(null));
 	}
 
 	private void LogEntries_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 	{
 		if (!IsDisposed && e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
 		{
-			foreach(var entry in e.NewItems?.OfType<LogEntry>() ?? [])
+			foreach (var entry in e.NewItems?.OfType<LogEntry>() ?? [])
 				logDGV.Rows.Add(entry.LogDate, entry.LogMessage);
 		}
-	}
-
-	protected override void OnLoad(EventArgs e)
-	{
-		if (DesignMode) return;
-		ProcessQueue_PropertyChanged(this, new PropertyChangedEventArgs(null));
 	}
 
 	private async void cancelAllBtn_Click(object? sender, EventArgs e)
@@ -155,7 +149,7 @@ internal partial class ProcessQueueControl : UserControl
 					ViewModel.Queue.MoveQueuePosition(item, position.Value);
 			}
 		}
-		catch(Exception ex)
+		catch (Exception ex)
 		{
 			Serilog.Log.Logger.Error(ex, "Error handling button click from queued item");
 		}

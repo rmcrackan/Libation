@@ -2,71 +2,73 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="650"
-		MinWidth="800" MinHeight="650"
-		MaxWidth="800" MaxHeight="650"
+		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+		x:DataType="dialogs:SearchSyntaxDialog"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
+		MinWidth="500" MinHeight="650"
 		Width="800" Height="650"
         x:Class="LibationAvalonia.Dialogs.SearchSyntaxDialog"
         Title="Filter Options"
 		WindowStartupLocation="CenterOwner">
-
+	
 	<Grid
-		Margin="10,0,10,10"
-		RowDefinitions="Auto,Auto,*"
-		ColumnDefinitions="Auto,Auto,Auto,Auto">
+		RowDefinitions="Auto,*"
+		ColumnDefinitions="*,*,*,*">
 
 		<Grid.Styles>
+			<Style Selector="Grid > Grid">
+				<Setter Property="Margin" Value="10,0" />
+			</Style>
+			<Style Selector="Grid > TextBlock">
+				<Setter Property="TextWrapping" Value="Wrap" />
+			</Style>
 			<Style Selector="TextBlock">
 				<Setter Property="FontSize" Value="12" />
-				<Setter Property="Margin" Value="10" />
+				<Setter Property="Margin" Value="0,5" />
+			</Style>
+			<Style Selector="ListBox">
+				<Setter Property="Margin" Value="0,5,0,10"/>
+				<Style Selector="^ > ListBoxItem">
+					<Setter Property="Padding" Value="0"/>
+					<Style Selector="^ TextBlock">
+						<Setter Property="Margin" Value="8,1"/>
+					</Style>
+				</Style>
 			</Style>
 		</Grid.Styles>
 
-	    <TextBlock
-			Grid.Row="0"
-			Grid.Column="0"
+		<Grid
 			Grid.ColumnSpan="4"
-			Text="Full Lucene query syntax is supported&#xa;Fields with similar names are synomyns (eg: Author, Authors, AuthorNames)&#xa;&#xa;TAG FORMAT: [tagName]" />
-		
-	    <TextBlock
-			Grid.Row="1"
-			Grid.Column="0"
-			Text="STRING FIELDS" />
-		
-	    <TextBlock
-			Grid.Row="1"
-			Grid.Column="1"
-			Text="NUMBER FIELDS" />		
-		
-	    <TextBlock
-			Grid.Row="1"
-			Grid.Column="2"
-			Text="BOOLEAN (TRUE/FALSE) FIELDS" />		
-		
-	    <TextBlock
-			Grid.Row="1"
-			Grid.Column="3"
-			Text="ID FIELDS" />
-		
-	    <TextBlock
-			Grid.Row="2"
-			Grid.Column="0"
-			Text="{Binding StringFields}" />
-		
-	    <TextBlock
-			Grid.Row="2"
-			Grid.Column="1"
-			Text="{Binding NumberFields}" />		
-		
-	    <TextBlock
-			Grid.Row="2"
-			Grid.Column="2"
-			Text="{Binding BoolFields}" />		
-		
-	    <TextBlock
-			Grid.Row="2"
-			Grid.Column="3"
-			Text="{Binding IdFields}" />
-		
+			RowDefinitions="Auto,Auto">
+
+			<TextBlock
+				Text="Full Lucene query syntax is supported&#xa;Fields with similar names are synomyns (eg: Author, Authors, AuthorNames)" />
+
+			<TextBlock Grid.Row="1" Text="TAG FORMAT: [tagName]" />
+		</Grid>
+
+		<Grid Grid.Row="1" RowDefinitions="Auto,Auto,*">
+			<TextBlock Text="NUMBER FIELDS" />
+			<TextBlock Grid.Row="1" Text="{CompiledBinding StringUsage}" />
+			<ListBox Grid.Row="2" ItemsSource="{CompiledBinding StringFields}"/>
+		</Grid>
+
+		<Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,Auto,*">
+			<TextBlock Text="STRING FIELDS" />
+			<TextBlock Grid.Row="1" Text="{CompiledBinding NumberUsage}" />
+			<ListBox Grid.Row="2" ItemsSource="{CompiledBinding NumberFields}"/>
+		</Grid>
+
+		<Grid Grid.Row="1" Grid.Column="2" RowDefinitions="Auto,Auto,*">
+			<TextBlock Text="BOOLEAN (TRUE/FALSE) FIELDS" />
+			<TextBlock Grid.Row="1" Text="{CompiledBinding BoolUsage}" />
+			<ListBox Grid.Row="2" ItemsSource="{CompiledBinding BoolFields}"/>
+		</Grid>
+
+		<Grid Grid.Row="1" Grid.Column="3" RowDefinitions="Auto,Auto,*">
+			<TextBlock Text="ID FIELDS" />
+			<TextBlock Grid.Row="1" Text="{CompiledBinding IdUsage}" />
+			<ListBox Grid.Row="2" ItemsSource="{CompiledBinding IdFields}"/>
+		</Grid>		
 	</Grid>
 </Window>

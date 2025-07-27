@@ -1,6 +1,5 @@
 ﻿using AAXClean;
 using System;
-using System.Threading.Tasks;
 
 #nullable enable
 namespace AaxDecrypter
@@ -33,11 +32,8 @@ namespace AaxDecrypter
 		KeyData[]? DecryptionKeys { get; }
         TimeSpan RuntimeLength { get; }
         OutputFormat OutputFormat { get; }
-        bool TrimOutputToChapterLength { get; }
-        bool RetainEncryptedFile { get; }
         bool StripUnabridged { get; }
         bool CreateCueSheet { get; }
-        bool DownloadClipsBookmarks { get; }
         long DownloadSpeedBps { get; }
         ChapterInfo ChapterInfo { get; }
         bool FixupFile { get; }
@@ -52,9 +48,7 @@ namespace AaxDecrypter
         bool Downsample { get; }
         bool MatchSourceBitrate { get; }
         bool MoveMoovToBeginning { get; }
-        string GetMultipartFileName(MultiConvertFileProperties props);
         string GetMultipartTitle(MultiConvertFileProperties props);
-        Task<string> SaveClipsAndBookmarksAsync(string fileName);
         public FileType? InputType { get; }
     }
 }

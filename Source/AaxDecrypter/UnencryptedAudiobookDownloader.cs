@@ -1,5 +1,4 @@
 ﻿using FileManager;
-using System;
 using System.Threading.Tasks;
 
 namespace AaxDecrypter
@@ -8,13 +7,12 @@ namespace AaxDecrypter
 	{
 		protected override long InputFilePosition => InputFileStream.WritePosition;
 
-		public UnencryptedAudiobookDownloader(string outFileName, string cacheDirectory, IDownloadOptions dlLic)
-			: base(outFileName, cacheDirectory, dlLic)
+		public UnencryptedAudiobookDownloader(string outDirectory, string cacheDirectory, IDownloadOptions dlLic)
+			: base(outDirectory, cacheDirectory, dlLic)
 		{
 			AsyncSteps.Name = "Download Unencrypted Audiobook";
 			AsyncSteps["Step 1: Download Audiobook"] = Step_DownloadAndDecryptAudiobookAsync;
-			AsyncSteps["Step 2: Download Clips and Bookmarks"] = Step_DownloadClipsBookmarksAsync;
-			AsyncSteps["Step 3: Create Cue"] = Step_CreateCueAsync;
+			AsyncSteps["Step 2: Create Cue"] = Step_CreateCueAsync;
 		}
 
 		protected override async Task<bool> Step_DownloadAndDecryptAudiobookAsync()
@@ -26,8 +24,9 @@ namespace AaxDecrypter
 			else
 			{
 				FinalizeDownload();
-				FileUtility.SaferMove(InputFileStream.SaveFilePath, OutputFileName);
-				OnFileCreated(OutputFileName);
+				var tempFile = GetNewTempFilePath(DownloadOptions.OutputFormat.ToString());
+				FileUtility.SaferMove(InputFileStream.SaveFilePath, tempFile.FilePath);
+				OnTempFileCreated(tempFile);
 				return true;
 			}
 		}

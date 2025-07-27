@@ -13,7 +13,6 @@ namespace DataLayer.Configurations
 
             entity.OwnsOne(b => b.Rating);
 
-            entity.Property(nameof(Book._audioFormat));
             //
             // CRUCIAL: ignore unmapped collections, even get-only
             //
@@ -50,6 +49,11 @@ namespace DataLayer.Configurations
                     b_udi
                         .Property(udi => udi.LastDownloadedVersion)
                         .HasConversion(ver => ver.ToString(), str => Version.Parse(str));
+                    b_udi
+                        .Property(udi => udi.LastDownloadedFormat)
+                        .HasConversion(af => af.Serialize(), str => AudioFormat.Deserialize(str));
+
+					b_udi.Property(udi => udi.LastDownloadedFileVersion);
 
                     // owns it 1:1, store in same table
                     b_udi.OwnsOne(udi => udi.Rating);

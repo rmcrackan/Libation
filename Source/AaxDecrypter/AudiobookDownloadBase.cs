@@ -6,54 +6,49 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace AaxDecrypter
 {
 	public enum OutputFormat { M4b, Mp3 }
 
 	public abstract class AudiobookDownloadBase
 	{
-		public event EventHandler<string> RetrievedTitle;
-		public event EventHandler<string> RetrievedAuthors;
-		public event EventHandler<string> RetrievedNarrators;
-		public event EventHandler<byte[]> RetrievedCoverArt;
-		public event EventHandler<DownloadProgress> DecryptProgressUpdate;
-		public event EventHandler<TimeSpan> DecryptTimeRemaining;
-		public event EventHandler<string> FileCreated;
+		public event EventHandler<string?>? RetrievedTitle;
+		public event EventHandler<string?>? RetrievedAuthors;
+		public event EventHandler<string?>? RetrievedNarrators;
+		public event EventHandler<byte[]?>? RetrievedCoverArt;
+		public event EventHandler<DownloadProgress>? DecryptProgressUpdate;
+		public event EventHandler<TimeSpan>? DecryptTimeRemaining;
+		public event EventHandler<TempFile>? TempFileCreated;
 
 		public bool IsCanceled { get; protected set; }
 		protected AsyncStepSequence AsyncSteps { get; } = new();
-		protected string OutputFileName { get; }
+		protected string OutputDirectory { get; }
 		public IDownloadOptions DownloadOptions { get; }
-		protected NetworkFileStream InputFileStream => nfsPersister.NetworkFileStream;
+		protected NetworkFileStream InputFileStream => NfsPersister.NetworkFileStream;
 		protected virtual long InputFilePosition => InputFileStream.Position;
 		private bool downloadFinished;
 
-		private readonly NetworkFileStreamPersister nfsPersister;
+		private NetworkFileStreamPersister? m_nfsPersister;
+		private NetworkFileStreamPersister NfsPersister => m_nfsPersister ??= OpenNetworkFileStream();
 		private readonly DownloadProgress zeroProgress;
 		private readonly string jsonDownloadState;
 		private readonly string tempFilePath;
 
-		protected AudiobookDownloadBase(string outFileName, string cacheDirectory, IDownloadOptions dlOptions)
-		{
-			OutputFileName = ArgumentValidator.EnsureNotNullOrWhiteSpace(outFileName, nameof(outFileName));
+		protected AudiobookDownloadBase(string outDirectory, string cacheDirectory, IDownloadOptions dlOptions)
+		{			
+			OutputDirectory = ArgumentValidator.EnsureNotNullOrWhiteSpace(outDirectory, nameof(outDirectory));
+			DownloadOptions = ArgumentValidator.EnsureNotNull(dlOptions, nameof(dlOptions));
+			DownloadOptions.DownloadSpeedChanged += (_, speed) => InputFileStream.SpeedLimit = speed;
 
-			var outDir = Path.GetDirectoryName(OutputFileName);
-			if (!Directory.Exists(outDir))
-				Directory.CreateDirectory(outDir);
+			if (!Directory.Exists(OutputDirectory))
+				Directory.CreateDirectory(OutputDirectory);
 
 			if (!Directory.Exists(cacheDirectory))
 				Directory.CreateDirectory(cacheDirectory);
 
-			jsonDownloadState = Path.Combine(cacheDirectory, Path.GetFileName(Path.ChangeExtension(OutputFileName, ".json")));
+			jsonDownloadState = Path.Combine(cacheDirectory, $"{DownloadOptions.AudibleProductId}.json");
 			tempFilePath = Path.ChangeExtension(jsonDownloadState, ".aaxc");
-
-			DownloadOptions = ArgumentValidator.EnsureNotNull(dlOptions, nameof(dlOptions));
-			DownloadOptions.DownloadSpeedChanged += (_, speed) => InputFileStream.SpeedLimit = speed;
-
-			// delete file after validation is complete
-			FileUtility.SaferDelete(OutputFileName);
-
-			nfsPersister = OpenNetworkFileStream();
 
 			zeroProgress = new DownloadProgress
 			{
@@ -65,24 +60,30 @@ namespace AaxDecrypter
 			OnDecryptProgressUpdate(zeroProgress);
 		}
 
+		protected TempFile GetNewTempFilePath(string extension)
+		{
+			extension = FileUtility.GetStandardizedExtension(extension);
+			var path = Path.Combine(OutputDirectory, Guid.NewGuid().ToString("N") + extension);
+			return new(path, extension);
+		}
+
 		public async Task<bool> RunAsync()
 		{
 			await InputFileStream.BeginDownloadingAsync();
 			var progressTask = Task.Run(reportProgress);
 
-			AsyncSteps[$"Cleanup"] = CleanupAsync;
 			(bool success, var elapsed) = await AsyncSteps.RunAsync();
 
 			//Stop the downloader so it doesn't keep running in the background.
 			if (!success)
-				nfsPersister.Dispose();
+				NfsPersister.Dispose();
 
 			await progressTask;
 
 			var speedup = DownloadOptions.RuntimeLength / elapsed;
 			Serilog.Log.Information($"Speedup is {speedup:F0}x realtime.");
 
-			nfsPersister.Dispose();
+			NfsPersister.Dispose();
 			return success;
 
 			async Task reportProgress()
@@ -129,50 +130,43 @@ namespace AaxDecrypter
 		protected abstract Task<bool> Step_DownloadAndDecryptAudiobookAsync();
 
 		public virtual void SetCoverArt(byte[] coverArt) { }
-
-		protected void OnRetrievedTitle(string title)
+		protected void OnRetrievedTitle(string? title)
 			=> RetrievedTitle?.Invoke(this, title);
-		protected void OnRetrievedAuthors(string authors)
+		protected void OnRetrievedAuthors(string? authors)
 			=> RetrievedAuthors?.Invoke(this, authors);
-		protected void OnRetrievedNarrators(string narrators)
+		protected void OnRetrievedNarrators(string? narrators)
 			=> RetrievedNarrators?.Invoke(this, narrators);
-		protected void OnRetrievedCoverArt(byte[] coverArt)
+		protected void OnRetrievedCoverArt(byte[]? coverArt)
 			=> RetrievedCoverArt?.Invoke(this, coverArt);
 		protected void OnDecryptProgressUpdate(DownloadProgress downloadProgress)
 			=> DecryptProgressUpdate?.Invoke(this, downloadProgress);
 		protected void OnDecryptTimeRemaining(TimeSpan timeRemaining)
 			=> DecryptTimeRemaining?.Invoke(this, timeRemaining);
-		protected void OnFileCreated(string path)
-			=> FileCreated?.Invoke(this, path);
+		public void OnTempFileCreated(TempFile path)
+			=> TempFileCreated?.Invoke(this, path);
 
 		protected virtual void FinalizeDownload()
 		{
-			nfsPersister?.Dispose();
+			NfsPersister.Dispose();
 			downloadFinished = true;
-		}
-
-		protected async Task<bool> Step_DownloadClipsBookmarksAsync()
-		{
-			if (!IsCanceled && DownloadOptions.DownloadClipsBookmarks)
-			{
-				var recordsFile = await DownloadOptions.SaveClipsAndBookmarksAsync(OutputFileName);
-
-				if (File.Exists(recordsFile))
-					OnFileCreated(recordsFile);
-			}
-			return !IsCanceled;
 		}
 
 		protected async Task<bool> Step_CreateCueAsync()
 		{
 			if (!DownloadOptions.CreateCueSheet) return !IsCanceled;
 
+			if (DownloadOptions.ChapterInfo.Count <= 1)
+			{
+				Serilog.Log.Logger.Information($"Skipped creating .cue because book has no chapters.");
+				return !IsCanceled;
+			}
+
 			// not a critical step. its failure should not prevent future steps from running
 			try
 			{
-				var path = Path.ChangeExtension(OutputFileName, ".cue");
-				await File.WriteAllTextAsync(path, Cue.CreateContents(Path.GetFileName(OutputFileName), DownloadOptions.ChapterInfo));
-				OnFileCreated(path);
+				var tempFile = GetNewTempFilePath(".cue");
+				await File.WriteAllTextAsync(tempFile.FilePath, Cue.CreateContents(Path.GetFileName(tempFile.FilePath), DownloadOptions.ChapterInfo));
+				OnTempFileCreated(tempFile);
 			}
 			catch (Exception ex)
 			{
@@ -181,58 +175,9 @@ namespace AaxDecrypter
 			return !IsCanceled;
 		}
 
-		private async Task<bool> CleanupAsync()
-		{
-			if (IsCanceled) return false;
-
-			FileUtility.SaferDelete(jsonDownloadState);
-
-			if (DownloadOptions.DecryptionKeys != null &&
-				DownloadOptions.RetainEncryptedFile &&
-				DownloadOptions.InputType is AAXClean.FileType fileType)
-			{
-				//Write aax decryption key
-				string keyPath = Path.ChangeExtension(tempFilePath, ".key");
-				FileUtility.SaferDelete(keyPath);
-				string aaxPath;
-
-				if (fileType is AAXClean.FileType.Aax)
-				{
-					await File.WriteAllTextAsync(keyPath, $"ActivationBytes={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart1)}");
-					aaxPath = Path.ChangeExtension(tempFilePath, ".aax");
-				}
-				else if (fileType is AAXClean.FileType.Aaxc)
-				{
-					await File.WriteAllTextAsync(keyPath,
-						$"Key={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart1)}{Environment.NewLine}" +
-						$"IV={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart2)}");
-					aaxPath = Path.ChangeExtension(tempFilePath, ".aaxc");
-				}
-				else if (fileType is AAXClean.FileType.Dash)
-				{
-					await File.WriteAllTextAsync(keyPath,
-						$"KeyId={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart1)}{Environment.NewLine}" +
-						$"Key={Convert.ToHexString(DownloadOptions.DecryptionKeys[0].KeyPart2)}");
-					aaxPath = Path.ChangeExtension(tempFilePath, ".dash");
-				}
-				else
-					throw new InvalidOperationException($"Unknown file type: {fileType}");
-
-				if (tempFilePath != aaxPath)
-					FileUtility.SaferMove(tempFilePath, aaxPath);
-
-				OnFileCreated(aaxPath);
-				OnFileCreated(keyPath);
-			}
-			else
-				FileUtility.SaferDelete(tempFilePath);
-
-			return !IsCanceled;
-		}
-
 		private NetworkFileStreamPersister OpenNetworkFileStream()
 		{
-			NetworkFileStreamPersister nfsp = default;
+			NetworkFileStreamPersister? nfsp = default;
 			try
 			{
 				if (!File.Exists(jsonDownloadState))
@@ -253,8 +198,14 @@ namespace AaxDecrypter
 			}
 			finally
 			{
-				nfsp.NetworkFileStream.RequestHeaders["User-Agent"] = DownloadOptions.UserAgent;
-				nfsp.NetworkFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
+				//nfsp will only be null when an unhandled exception occurs. Let the caller handle it.
+				if (nfsp is not null)
+				{
+					nfsp.NetworkFileStream.RequestHeaders["User-Agent"] = DownloadOptions.UserAgent;
+					nfsp.NetworkFileStream.SpeedLimit = DownloadOptions.DownloadSpeedBps;
+					OnTempFileCreated(new(tempFilePath, DownloadOptions.InputType.ToString()));
+					OnTempFileCreated(new(jsonDownloadState));
+				}
 			}
 
 			NetworkFileStreamPersister newNetworkFilePersister()

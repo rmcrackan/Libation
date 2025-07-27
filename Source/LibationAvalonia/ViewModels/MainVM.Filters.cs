@@ -27,7 +27,6 @@ namespace LibationAvalonia.ViewModels
 		/// <summary> Indicates if the first quick filter is the default filter </summary>
 		public bool FirstFilterIsDefault { get => _firstFilterIsDefault; set => QuickFilters.UseDefault = this.RaiseAndSetIfChanged(ref _firstFilterIsDefault, value); }
 
-
 		private void Configure_Filters()
 		{
 			FirstFilterIsDefault = QuickFilters.UseDefault;
@@ -55,7 +54,7 @@ namespace LibationAvalonia.ViewModels
 		}
 
 		public void AddQuickFilterBtn() { if (SelectedNamedFilter != null) QuickFilters.Add(SelectedNamedFilter); }
-		public async Task FilterBtn() => await PerformFilter(SelectedNamedFilter);
+		public async Task FilterBtn(string filterString) => await PerformFilter(new(filterString, null));
 		public async Task FilterHelpBtn() => await new LibationAvalonia.Dialogs.SearchSyntaxDialog().ShowDialog(MainWindow);
 		public void ToggleFirstFilterIsDefault() => FirstFilterIsDefault = !FirstFilterIsDefault;
 		public async Task EditQuickFiltersAsync() => await new LibationAvalonia.Dialogs.EditQuickFilters().ShowDialog(MainWindow);

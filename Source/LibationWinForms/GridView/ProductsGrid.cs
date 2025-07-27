@@ -515,7 +515,6 @@ namespace LibationWinForms.GridView
 
 			//Restore Grid Display Settings
 			var config = Configuration.Instance;
-			var gridColumnsVisibilities = config.GridColumnsVisibilities;
 			var gridColumnsWidths = config.GridColumnsWidths;
 			var displayIndices = config.GridColumnsDisplayIndices;
 
@@ -524,7 +523,7 @@ namespace LibationWinForms.GridView
 			foreach (DataGridViewColumn column in gridEntryDataGridView.Columns)
 			{
 				var itemName = column.DataPropertyName;
-				var visible = gridColumnsVisibilities.GetValueOrDefault(itemName, true);
+				var visible = config.GetColumnVisibility(itemName);
 
 				var menuItem = new ToolStripMenuItem(column.HeaderText)
 				{
