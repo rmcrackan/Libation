@@ -130,11 +130,11 @@ namespace AaxDecrypter
 					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "PART", part.ToString());
 			}
 
-			OnInitialized();
 			OnRetrievedTitle(AaxFile.AppleTags.TitleSansUnabridged);
 			OnRetrievedAuthors(AaxFile.AppleTags.FirstAuthor);
 			OnRetrievedNarrators(AaxFile.AppleTags.Narrator);
 			OnRetrievedCoverArt(AaxFile.AppleTags.Cover);
+			OnInitialized();
 
 			return !IsCanceled;
 		}
