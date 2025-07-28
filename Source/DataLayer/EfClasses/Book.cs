@@ -241,7 +241,7 @@ namespace DataLayer
         {
             // don't overwrite with default values
             IsAbridged |= isAbridged;
-            IsSpatial |= isSpatial ?? false;
+            IsSpatial = isSpatial ?? IsSpatial;
             DatePublished = datePublished ?? DatePublished;
             Language = language?.FirstCharToUpper() ?? Language;
         }
