@@ -21,15 +21,24 @@ namespace LibationUiBase.GridView
 
 		private int InternalCompare(GridEntry x, GridEntry y)
 		{
-			var val1 = x.GetMemberValue(PropertyName);
-			var val2 = y.GetMemberValue(PropertyName);
+			//Default values (e.g. empty strings) always sort to the end of the list.
+			var val1IsDefault = x.MemberValueIsDefault(PropertyName);
+			var val2IsDefault = y.MemberValueIsDefault(PropertyName);
 
-			var compare = x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
+			if (val1IsDefault && val2IsDefault) return 0;
+			else if (val1IsDefault && !val2IsDefault) return GetSortOrder() is ListSortDirection.Ascending ? 1 : -1;
+			else if (!val1IsDefault && val2IsDefault) return GetSortOrder() is ListSortDirection.Ascending ? -1 : 1;
+			else
+			{
+				var val1 = x.GetMemberValue(PropertyName);
+				var val2 = y.GetMemberValue(PropertyName);
+				var compare = x.GetMemberComparer(val1.GetType()).Compare(val1, val2);
 
-			return compare == 0 && x.Liberate.IsSeries && y.Liberate.IsSeries
-				//Both a and b are series parents and compare as equal, so break the tie.
-				? x.AudibleProductId.CompareTo(y.AudibleProductId)
-				: compare;
+				return compare == 0 && x.Liberate.IsSeries && y.Liberate.IsSeries
+					//Both a and b are series parents and compare as equal, so break the tie.
+					? x.AudibleProductId.CompareTo(y.AudibleProductId)
+					: compare;
+			}
 		}
 
 		public int Compare(GridEntry? geA, GridEntry? geB)
