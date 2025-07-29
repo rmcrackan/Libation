@@ -26,7 +26,7 @@ namespace FileLiberator
 		public string Language => LibraryBook.Book.Language;
 		public string? AudibleProductId => LibraryBookDto.AudibleProductId;
 		public string? SeriesName => LibraryBookDto.FirstSeries?.Name;
-		public float? SeriesNumber => LibraryBookDto.FirstSeries?.Number;
+		public string? SeriesNumber => LibraryBookDto.FirstSeries?.Number;
 		public NAudio.Lame.LameConfig? LameConfig { get; }
 		public string UserAgent => AudibleApi.Resources.Download_User_Agent;
 		public bool StripUnabridged => Config.AllowLibationFixup && Config.StripUnabridged;

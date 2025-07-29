@@ -126,8 +126,8 @@ namespace AaxDecrypter
 				if (DownloadOptions.SeriesName is string series)
 					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "SERIES", series);
 
-				if (DownloadOptions.SeriesNumber is float part)
-					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "PART", part.ToString());
+				if (DownloadOptions.SeriesNumber is string part)
+					AaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "PART", part);
 			}
 
 			OnRetrievedTitle(AaxFile.AppleTags.TitleSansUnabridged);

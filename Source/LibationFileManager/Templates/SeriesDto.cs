@@ -7,9 +7,9 @@ public record SeriesDto : IFormattable
 {
 	public string Name { get; }
 
-	public float? Number { get; }
+	public string? Number { get; }
 	public string AudibleSeriesId { get; }
-	public SeriesDto(string name, float? number, string audibleSeriesId)
+	public SeriesDto(string name, string? number, string audibleSeriesId)
 	{
 		Name = name;
 		Number = number;

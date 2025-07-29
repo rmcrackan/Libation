@@ -43,7 +43,7 @@ namespace AaxDecrypter
 		string? Publisher { get; }
 		string? Language { get; }
 		string? SeriesName { get; }
-		float? SeriesNumber { get; }
+		string? SeriesNumber { get; }
 		NAudio.Lame.LameConfig? LameConfig { get; }
         bool Downsample { get; }
         bool MatchSourceBitrate { get; }

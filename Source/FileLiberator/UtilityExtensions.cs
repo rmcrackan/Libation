@@ -83,7 +83,7 @@ namespace FileLiberator
 				.Select(sb
 					=> new SeriesDto(
 						sb.Series.Name,
-						sb.Book.IsEpisodeParent() ? null : sb.Index,
+						sb.Book.IsEpisodeParent() ? null : sb.Order,
 						sb.Series.AudibleSeriesId)
 				).ToList();
 		}

@@ -24,7 +24,7 @@ namespace TemplatesTests
 	public static class Shared
 	{
 		public static LibraryBookDto GetLibraryBook()
-			=> GetLibraryBook([new SeriesDto("Sherlock Holmes", 1, "B08376S3R2")]);
+			=> GetLibraryBook([new SeriesDto("Sherlock Holmes", "1", "B08376S3R2")]);
 
 		public static LibraryBookDto GetLibraryBook(IEnumerable<SeriesDto> series)
 			=> new()
@@ -367,12 +367,13 @@ namespace TemplatesTests
 
 
 		[TestMethod]
-		[DataRow("<series>", "Series A, Series B, Series C")]
-		[DataRow("<series[]>", "Series A, Series B, Series C")]
+		[DataRow("<series>", "Series A, Series B, Series C, Series D")]
+		[DataRow("<series[]>", "Series A, Series B, Series C, Series D")]
 		[DataRow("<series[max(1)]>", "Series A")]
 		[DataRow("<series[max(2)]>", "Series A, Series B")]
 		[DataRow("<series[max(3)]>", "Series A, Series B, Series C")]
-		[DataRow("<series[format({N}, {#}, {ID}) separator(; )]>", "Series A, 1, B1; Series B, 6, B2; Series C, 2, B3")]
+		[DataRow("<series[max(4)]>", "Series A, Series B, Series C, Series D")]
+		[DataRow("<series[format({N}, {#}, {ID}) separator(; )]>", "Series A, 1, B1; Series B, 6, B2; Series C, 2, B3; Series D, 1-5, B4")]
 		[DataRow("<series[format({N}, {#}, {ID}) separator(; ) max(3)]>", "Series A, 1, B1; Series B, 6, B2; Series C, 2, B3")]
 		[DataRow("<series[format({N}, {#}, {ID}) separator(; ) max(2)]>", "Series A, 1, B1; Series B, 6, B2")]
 		[DataRow("<first series>", "Series A")]
@@ -383,9 +384,10 @@ namespace TemplatesTests
 			var bookDto = GetLibraryBook();
 			bookDto.Series =
 			[
-				new("Series A", 1,  "B1"),
-				new("Series B", 6,  "B2"),
-				new("Series C", 2,  "B3")
+				new("Series A", "1",  "B1"),
+				new("Series B", "6",  "B2"),
+				new("Series C", "2",  "B3"),
+				new("Series D", "1-5",  "B4"),
 			];
 			
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
