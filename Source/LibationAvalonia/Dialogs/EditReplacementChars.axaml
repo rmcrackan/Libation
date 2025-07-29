@@ -6,6 +6,8 @@
 		MinWidth="500" MinHeight="450"
 		Width="500" Height="450"
         x:Class="LibationAvalonia.Dialogs.EditReplacementChars"
+		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+		x:DataType="dialogs:EditReplacementChars"
         Title="Illegal Character Replacement">
 
 	<Grid
@@ -23,31 +25,30 @@
 			BeginningEdit="ReplacementGrid_BeginningEdit"
 			CellEditEnding="ReplacementGrid_CellEditEnding"
 			KeyDown="ReplacementGrid_KeyDown"
-			ItemsSource="{Binding replacements}">
+			ItemsSource="{CompiledBinding replacements}">
 
 			<DataGrid.Columns>
 
-
 				<DataGridTemplateColumn Header="Char to&#xa;Replace">
 					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<TextBox IsReadOnly="{Binding Mandatory}" Text="{Binding CharacterToReplace, Mode=TwoWay}" />
+						<DataTemplate x:DataType="dialogs:EditReplacementChars+ReplacementsExt">
+							<TextBox IsReadOnly="{CompiledBinding Mandatory}" Text="{CompiledBinding CharacterToReplace, Mode=TwoWay}" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				
 				<DataGridTemplateColumn Header="Replacement&#xa;Text">
 					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<TextBox Text="{Binding ReplacementText, Mode=TwoWay}" />
+						<DataTemplate x:DataType="dialogs:EditReplacementChars+ReplacementsExt">
+							<TextBox Text="{CompiledBinding ReplacementText, Mode=TwoWay}" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 
 				<DataGridTemplateColumn Width="*" Header="Description">
 					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate>
-							<TextBox IsReadOnly="{Binding Mandatory}" Text="{Binding Description, Mode=TwoWay}" />
+						<DataTemplate x:DataType="dialogs:EditReplacementChars+ReplacementsExt">
+							<TextBox IsReadOnly="{CompiledBinding Mandatory}" Text="{CompiledBinding Description, Mode=TwoWay}" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
@@ -55,21 +56,31 @@
 			</DataGrid.Columns>
 		</DataGrid>
 
-		<StackPanel
+		<Grid
 			Grid.Row="1"
 			Grid.Column="0"
+			RowDefinitions="Auto,Auto"
 			Margin="5"
-			Orientation="Horizontal">
-			
-			<Button Margin="0,0,10,0" Command="{Binding Defaults}" Content="Defaults" />
-			<Button Margin="0,0,10,0" Command="{Binding LoFiDefaults}" Content="LoFi Defaults" />
-			<Button Command="{Binding Barebones}" Content="Barebones" />
-		</StackPanel>
+			ColumnDefinitions="Auto,Auto,Auto,Auto">
+
+			<TextBlock IsVisible="{CompiledBinding !EnvironmentIsWindows}" Text="This System:" Margin="0,0,10,0" VerticalAlignment="Center" />
+			<TextBlock IsVisible="{CompiledBinding !EnvironmentIsWindows}" Grid.Row="1" Text="NTFS:" Margin="0,0,10,0" VerticalAlignment="Center" />
+
+			<Button Grid.Column="1" Margin="0,0,10,0" Command="{CompiledBinding Defaults}" CommandParameter="{CompiledBinding EnvironmentIsWindows}" Content="Defaults" />
+			<Button Grid.Column="2" Margin="0,0,10,0" Command="{CompiledBinding LoFiDefaults}" CommandParameter="{CompiledBinding EnvironmentIsWindows}" Content="LoFi Defaults" />
+			<Button Grid.Column="3" Command="{CompiledBinding Barebones}" CommandParameter="{CompiledBinding EnvironmentIsWindows}" Content="Barebones" />
+
+			<Button IsVisible="{CompiledBinding !EnvironmentIsWindows}" Grid.Row="1" Grid.Column="1" Margin="0,10,10,0" Command="{CompiledBinding Defaults}" CommandParameter="True" Content="Defaults" />
+			<Button IsVisible="{CompiledBinding !EnvironmentIsWindows}" Grid.Row="1" Grid.Column="2" Margin="0,10,10,0" Command="{CompiledBinding LoFiDefaults}" CommandParameter="True" Content="LoFi Defaults" />
+			<Button IsVisible="{CompiledBinding !EnvironmentIsWindows}" Grid.Row="1" Grid.Column="3" Margin="0,10,0,0" Command="{CompiledBinding Barebones}" CommandParameter="True" Content="Barebones" />
+
+		</Grid>
 
 		<StackPanel
 			Grid.Row="1"
 			Grid.Column="1"
 			Margin="5"
+			VerticalAlignment="Bottom"
 			Orientation="Horizontal">
 
 			<Button Margin="0,0,10,0" Command="{Binding Close}" Content="Cancel" />

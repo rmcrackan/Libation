@@ -319,7 +319,7 @@ namespace LibationFileManager
 		#region templates: custom file naming
 
 		[Description("Edit how filename characters are replaced")]
-		public ReplacementCharacters ReplacementCharacters { get => GetNonString(defaultValue: ReplacementCharacters.Default); set => SetNonString(value); }
+		public ReplacementCharacters ReplacementCharacters { get => GetNonString(defaultValue: ReplacementCharacters.Default(IsWindows)); set => SetNonString(value); }
 
 		[Description("How to format the folders in which files will be saved")]
 		public string FolderTemplate

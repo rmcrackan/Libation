@@ -56,7 +56,7 @@ namespace FileManager
 		{
 			ArgumentValidator.EnsureNotNull(name, nameof(name));
 
-			name = ReplacementCharacters.Barebones.ReplaceFilenameChars(name);
+			name = ReplacementCharacters.Barebones(true).ReplaceFilenameChars(name);
 			return Task.Run(() => AddFileInternal(name, contents.Span, comment));			
 		}
 

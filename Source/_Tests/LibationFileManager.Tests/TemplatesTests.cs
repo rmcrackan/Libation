@@ -66,7 +66,7 @@ namespace TemplatesTests
 	[TestClass]
 	public class getFileNamingTemplate
 	{
-		static ReplacementCharacters Replacements = ReplacementCharacters.Default;
+		static ReplacementCharacters Replacements = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		[TestMethod]
 		[DataRow(null)]
@@ -453,7 +453,7 @@ namespace Templates_Other
 	[TestClass]
 	public class GetFilePath
 	{
-		static ReplacementCharacters Replacements = ReplacementCharacters.Default;
+		static ReplacementCharacters Replacements = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		[TestMethod]
 		[DataRow(@"C:\foo\bar", @"\\Folder\<title>\[<id>]\\", @"C:\foo\bar\Folder\my_ book 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\[ID123456].txt", PlatformID.Win32NT)]
@@ -889,7 +889,7 @@ namespace Templates_ChapterFile_Tests
 	[TestClass]
 	public class GetFilename
 	{
-		static readonly ReplacementCharacters Default = ReplacementCharacters.Default;
+		static readonly ReplacementCharacters Default = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		[TestMethod]
 		[DataRow("[<id>] <ch# 0> of <ch count> - <ch title>", @"C:\foo\", "txt", 6, 10, "chap", @"C:\foo\[asin] 06 of 10 - chap.txt", PlatformID.Win32NT)]

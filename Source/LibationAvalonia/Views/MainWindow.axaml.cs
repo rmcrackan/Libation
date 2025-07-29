@@ -54,7 +54,7 @@ namespace LibationAvalonia.Views
 					FileUtility.SaferMoveToValidPath(
 						e.SettingsFilePath,
 						e.SettingsFilePath,
-						ReplacementCharacters.Barebones,
+						Configuration.Instance.ReplacementCharacters,
 						"bak");
 				AudibleApiStorage.EnsureAccountsSettingsFileExists();
 				e.Handled = true;

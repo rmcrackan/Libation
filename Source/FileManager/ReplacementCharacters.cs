@@ -74,12 +74,14 @@ namespace FileManager
 		}
 		public override int GetHashCode() => Replacements.GetHashCode();
 
-		public static readonly ReplacementCharacters Default
-			= IsWindows
-			? new()
-			{
-				Replacements = new Replacement[]
-				{
+		public static ReplacementCharacters Default(bool ntfs) => ntfs ? HiFi_NTFS : HiFi_Other;
+		public static ReplacementCharacters LoFiDefault(bool ntfs) => ntfs ? LoFi_NTFS : LoFi_Other;
+		public static ReplacementCharacters Barebones(bool ntfs) => ntfs ? BareBones_NTFS : BareBones_Other;
+
+		#region Defaults
+		private static readonly ReplacementCharacters HiFi_NTFS = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("∕"),
 					Replacement.FilenameBackSlash(""),
@@ -91,28 +93,23 @@ namespace FileManager
 					Replacement.Colon("_"),
 					Replacement.Asterisk("✱"),
 					Replacement.QuestionMark("？"),
-					Replacement.Pipe("⏐"),
-				}
-			}
-			: new()
-			{
-				Replacements = new Replacement[]
-				{
+					Replacement.Pipe("⏐")]
+		};
+
+		private static readonly ReplacementCharacters HiFi_Other = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("∕"),
 					Replacement.FilenameBackSlash("\\"),
 					Replacement.OpenQuote("“"),
 					Replacement.CloseQuote("”"),
-					Replacement.OtherQuote("\"")
-				}
-			};
+					Replacement.OtherQuote("\"")]
+		};
 
-		public static readonly ReplacementCharacters LoFiDefault
-			= IsWindows
-			? new()
-			{
-				Replacements = new Replacement[]
-				{
+		private static readonly ReplacementCharacters LoFi_NTFS = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("_"),
 					Replacement.FilenameBackSlash("_"),
@@ -121,50 +118,44 @@ namespace FileManager
 					Replacement.OtherQuote("'"),
 					Replacement.OpenAngleBracket("{"),
 					Replacement.CloseAngleBracket("}"),
-					Replacement.Colon("-"),
-				}
-			}
-			: new ()
-			{
-				Replacements = new Replacement[]
-				{
+					Replacement.Colon("-")]
+		};
+
+		private static readonly ReplacementCharacters LoFi_Other = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("_"),
 					Replacement.FilenameBackSlash("\\"),
 					Replacement.OpenQuote("\""),
 					Replacement.CloseQuote("\""),
-					Replacement.OtherQuote("\"")
-				}
-			};
+					Replacement.OtherQuote("\"")]
+		};
 
-		public static readonly ReplacementCharacters Barebones
-			= IsWindows
-			? new ()
-			{
-				Replacements = new Replacement[]
-				{
+		private static readonly ReplacementCharacters BareBones_NTFS = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("_"),
 					Replacement.FilenameBackSlash("_"),
 					Replacement.OpenQuote("_"),
 					Replacement.CloseQuote("_"),
-					Replacement.OtherQuote("_")
-				}
-			}
-			: new ()
-			{
-				Replacements = new Replacement[]
-				{
+					Replacement.OtherQuote("_")]
+		};
+
+		private static readonly ReplacementCharacters BareBones_Other = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("_"),
 					Replacement.FilenameBackSlash("\\"),
 					Replacement.OpenQuote("\""),
 					Replacement.CloseQuote("\""),
-					Replacement.OtherQuote("\"")
-				}
-			};
+					Replacement.OtherQuote("\"")]
+		};
+		#endregion
 
-		private static bool IsWindows => Environment.OSVersion.Platform is PlatformID.Win32NT;
+		internal static bool IsWindows => Environment.OSVersion.Platform is PlatformID.Win32NT;
 
 		private static readonly char[] invalidPathChars = Path.GetInvalidFileNameChars().Except(new[] {
 				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
@@ -301,23 +292,21 @@ namespace FileManager
 
 		public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
 		{
+			var defaults = ReplacementCharacters.Default(ReplacementCharacters.IsWindows).Replacements;
+
 			var jObj = JObject.Load(reader);
 			var replaceArr = jObj[nameof(Replacement)];
-			var dict
-				= replaceArr?.ToObject<Replacement[]>()?.ToList()
-				?? ReplacementCharacters.Default.Replacements;
-
+			var dict = replaceArr?.ToObject<Replacement[]>()?.ToList() ?? defaults;
 
 			//Ensure that the first 6 replacements are for the expected chars and that all replacement strings are valid.
 			//If not, reset to default.
-
 			for (int i = 0; i < Replacement.FIXED_COUNT; i++)
 			{
 				if (dict.Count < Replacement.FIXED_COUNT
-					|| dict[i].CharacterToReplace != ReplacementCharacters.Barebones.Replacements[i].CharacterToReplace
-					|| dict[i].Description != ReplacementCharacters.Barebones.Replacements[i].Description)
+					|| dict[i].CharacterToReplace != defaults[i].CharacterToReplace
+					|| dict[i].Description != defaults[i].Description)
 				{
-					dict = ReplacementCharacters.Default.Replacements;
+					dict = defaults;
 					break;
 				}
 

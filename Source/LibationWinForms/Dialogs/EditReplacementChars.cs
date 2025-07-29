@@ -50,13 +50,13 @@ namespace LibationWinForms.Dialogs
 		}
 
 		private void loFiDefaultsBtn_Click(object sender, EventArgs e)
-			=> LoadTable(ReplacementCharacters.LoFiDefault.Replacements);
+			=> LoadTable(ReplacementCharacters.LoFiDefault(ntfs: true).Replacements);
 
 		private void defaultsBtn_Click(object sender, EventArgs e)
-			=> LoadTable(ReplacementCharacters.Default.Replacements);
+			=> LoadTable(ReplacementCharacters.Default(ntfs: true).Replacements);
 
 		private void minDefaultBtn_Click(object sender, EventArgs e)
-			=> LoadTable(ReplacementCharacters.Barebones.Replacements);
+			=> LoadTable(ReplacementCharacters.Barebones(ntfs: true).Replacements);
 
 
 		private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
