@@ -70,7 +70,7 @@ namespace LibationFileManager.Templates
 				Narrators = [new("Stephen Fry", null)],
 				Series = [new("Sherlock Holmes", 1, "B08376S3R2"), new("Some Other Series", 1, "B000000000")],
 				Codec = "AAC-LC",
-				LibationVersion = Configuration.LibationVersion?.ToString(3),
+				LibationVersion = Configuration.LibationVersion?.ToVersionString(),
 				FileVersion = "36217811",
 				BitRate = 128,
 				SampleRate = 44100,

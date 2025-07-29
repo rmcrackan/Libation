@@ -210,6 +210,24 @@ namespace LibationUiBase.GridView
 			nameof(IsSpatial) => IsSpatial,
 			_ => null
 		};
+		
+		public bool MemberValueIsDefault(string memberName) => memberName switch
+		{
+			nameof(Series) => Book.SeriesLink?.Any() is not true,
+			nameof(SeriesOrder) => string.IsNullOrWhiteSpace(SeriesOrder.OrderString),
+			nameof(MyRating) => RatingIsDefault(Book.UserDefinedItem.Rating),
+			nameof(ProductRating) => RatingIsDefault(Book.Rating),
+			nameof(Authors) => string.IsNullOrWhiteSpace(Authors),
+			nameof(Narrators) => string.IsNullOrWhiteSpace(Narrators),
+			nameof(Description) => string.IsNullOrWhiteSpace(Description),
+			nameof(Category) => string.IsNullOrWhiteSpace(Category),
+			nameof(Misc) => string.IsNullOrWhiteSpace(Misc),
+			nameof(BookTags) => string.IsNullOrWhiteSpace(BookTags),
+			_ => false
+		};
+
+		private static bool RatingIsDefault(Rating rating)
+			=> rating is null || (rating.OverallRating == 0 && rating.PerformanceRating == 0 && rating.StoryRating == 0);
 
 		public IComparer GetMemberComparer(Type memberType)
 			=> memberTypeComparers.TryGetValue(memberType, out IComparer value) ? value : memberTypeComparers[memberType.BaseType];
@@ -340,7 +358,6 @@ namespace LibationUiBase.GridView
 
 			return (await Task.WhenAll(tasks)).SelectMany(a => a).ToList();
 		}
-
 
 		~GridEntry()
 		{

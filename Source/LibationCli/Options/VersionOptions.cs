@@ -1,5 +1,6 @@
 ﻿using AppScaffolding;
 using CommandLine;
+using LibationFileManager;
 using System;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ internal class VersionOptions : OptionsBase
 	protected override Task ProcessAsync()
 	{
 		const string checkingForUpgrade = "Checking for upgrade...";
-		Console.WriteLine($"Libation {LibationScaffolding.Variety} v{LibationScaffolding.BuildVersion.ToString(3)}");
+		Console.WriteLine($"Libation {LibationScaffolding.Variety} v{LibationScaffolding.BuildVersion.ToVersionString()}");
 
 		if (CheckForUpgrade)
 		{
@@ -34,7 +35,7 @@ internal class VersionOptions : OptionsBase
 				else
 				{
 					Console.ForegroundColor = ConsoleColor.Red;
-					ReplaceConsoleText(Console.Out, checkingForUpgrade.Length, $"Upgrade Available: v{upgradeProperties.LatestRelease.ToString(3)}");
+					ReplaceConsoleText(Console.Out, checkingForUpgrade.Length, $"Upgrade Available: v{upgradeProperties.LatestRelease.ToVersionString()}");
 					Console.WriteLine();
 					Console.WriteLine();
 					Console.WriteLine(upgradeProperties.ZipUrl);
