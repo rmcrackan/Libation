@@ -23,6 +23,15 @@ namespace TemplatesTests
 
 	public static class Shared
 	{
+		[System.Runtime.CompilerServices.ModuleInitializer]
+		public static void Init()
+		{
+			var thisDir = Path.GetDirectoryName(Environment.ProcessPath);
+			LibationFileManager.Configuration.SetLibationFiles(thisDir);
+			if (!LibationFileManager.Configuration.Instance.LibationSettingsAreValid)
+				LibationFileManager.Configuration.Instance.Books = Path.Combine(thisDir, "Books");
+		}
+
 		public static LibraryBookDto GetLibraryBook()
 			=> GetLibraryBook([new SeriesDto("Sherlock Holmes", "1", "B08376S3R2")]);
 

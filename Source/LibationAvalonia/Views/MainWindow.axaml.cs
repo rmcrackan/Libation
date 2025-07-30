@@ -43,6 +43,38 @@ namespace LibationAvalonia.Views
 				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ShowAccountsAsync), Gesture = new KeyGesture(Key.A, KeyModifiers.Control | KeyModifiers.Shift) });
 				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ExportLibraryAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Control) });
 			}
+
+			Configuration.Instance.PropertyChanged += Settings_PropertyChanged;
+			Settings_PropertyChanged(this, null);
+		}
+
+		[Dinah.Core.PropertyChangeFilter(nameof(Configuration.Books))]
+		private void Settings_PropertyChanged(object sender, Dinah.Core.PropertyChangedEventArgsEx e)
+		{
+			if (!Configuration.IsWindows && !Configuration.Instance.BooksCanWriteWindowsInvalidChars)
+			{
+				//The books directory does not support filenames with windows' invalid characters.
+				//Ensure that the ReplacementCharacters configuration has replacements for all invalid characters.
+				//We can't rely on the "other invalid characters" replacement because that is only used by
+				//ReplacementCharacters for platform-specific illegal characters, whereas for the Books directory
+				//we are concerned with the ultimate destination directory's capabilities. 
+				var defaults = ReplacementCharacters.Default(true).Replacements;
+				var replacements = Configuration.Instance.ReplacementCharacters.Replacements.ToList();
+				bool changed = false;
+				foreach (var c in FileSystemTest.AdditionalInvalidWindowsFilenameCharacters)
+				{
+					if (!replacements.Any(r => r.CharacterToReplace == c))
+					{
+						var replacement = defaults.FirstOrDefault(r => r.CharacterToReplace == c) ?? defaults[0];
+						replacements.Add(replacement);
+						changed = true;
+					}
+				}
+				if (changed)
+				{
+					Configuration.Instance.ReplacementCharacters = new ReplacementCharacters { Replacements = replacements };
+				}
+			}
 		}
 
 		private void AudibleApiStorage_LoadError(object sender, AccountSettingsLoadErrorEventArgs e)

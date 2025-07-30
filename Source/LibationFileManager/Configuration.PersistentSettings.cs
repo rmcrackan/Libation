@@ -111,7 +111,34 @@ namespace LibationFileManager
 		public bool BetaOptIn { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Location for book storage. Includes destination of newly liberated books")]
-		public LongPath? Books { get => GetString(); set => SetString(value); }
+		public LongPath? Books {
+			get => GetString();
+			set
+			{
+				if (value != Books)
+				{
+					OnPropertyChanging(nameof(Books), Books, value);
+					Settings.SetString(nameof(Books), value);
+					m_BooksCanWrite255UnicodeChars = null;
+					m_BooksCanWriteWindowsInvalidChars = null;
+					OnPropertyChanged(nameof(Books), value);
+				}
+			}
+		}
+
+		private bool? m_BooksCanWrite255UnicodeChars;
+		private bool? m_BooksCanWriteWindowsInvalidChars;
+		/// <summary>
+		/// True if the Books directory can be written to with 255 unicode character filenames
+		/// <para/> Does not persist. Check and set this value at runtime and whenever Books is changed.
+		/// </summary>
+		public bool BooksCanWrite255UnicodeChars => m_BooksCanWrite255UnicodeChars ??= FileSystemTest.CanWrite255UnicodeChars(Books);
+		/// <summary>
+		/// True if the Books directory can be written to with filenames containing characters invalid on Windows (:, *, ?, &lt;, &gt;, |)
+		/// <para/> Always false on Windows platforms.
+		/// <para/> Does not persist. Check and set this value at runtime and whenever Books is changed.
+		/// </summary>
+		public bool BooksCanWriteWindowsInvalidChars => !IsWindows && (m_BooksCanWriteWindowsInvalidChars ??= FileSystemTest.CanWriteWindowsInvalidChars(Books));
 
 		[Description("Overwrite existing files if they already exist?")]
 		public bool OverwriteExisting { get => GetNonString(defaultValue: false); set => SetNonString(value); }
