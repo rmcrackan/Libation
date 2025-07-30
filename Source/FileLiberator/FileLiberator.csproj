@@ -20,6 +20,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+
+	  <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
 		<Compile Update="DownloadOptions.*.cs">
 			<DependentUpon>DownloadOptions.cs</DependentUpon>
 		</Compile>
