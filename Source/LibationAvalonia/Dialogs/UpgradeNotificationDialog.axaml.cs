@@ -1,6 +1,7 @@
 using AppScaffolding;
 using Avalonia.Controls;
 using Dinah.Core;
+using LibationFileManager;
 using LibationUiBase.Forms;
 
 namespace LibationAvalonia.Dialogs
@@ -30,7 +31,7 @@ namespace LibationAvalonia.Dialogs
 
 		public UpgradeNotificationDialog(UpgradeProperties upgradeProperties, bool canUpgrade) : this()
 		{
-			Title = $"Libation version {upgradeProperties.LatestRelease.ToString(3)} is now available.";
+			Title = $"Libation version {upgradeProperties.LatestRelease.ToVersionString()} is now available.";
 			PackageUrl = upgradeProperties.ZipUrl;
 			DownloadLinkText = upgradeProperties.ZipName;
 			ReleaseNotes = upgradeProperties.Notes;

@@ -1,4 +1,5 @@
 ﻿using DataLayer;
+using LibationFileManager;
 using System;
 
 namespace LibationUiBase.GridView
@@ -10,7 +11,7 @@ namespace LibationUiBase.GridView
 		public string LastDownloadedFileVersion { get; }
 		public Version LastDownloadedVersion { get; }
 		public DateTime? LastDownloaded { get; }
-		public string ToolTipText => IsValid ? $"Double click to open v{LastDownloadedVersion.ToString(3)} release notes" : "";
+		public string ToolTipText => IsValid ? $"Double click to open v{LastDownloadedVersion.ToVersionString()} release notes" : "";
 
 		public LastDownloadStatus() { }
 		public LastDownloadStatus(UserDefinedItem udi)
@@ -24,14 +25,14 @@ namespace LibationUiBase.GridView
 		public void OpenReleaseUrl()
 		{
 			if (IsValid)
-				Dinah.Core.Go.To.Url($"{AppScaffolding.LibationScaffolding.RepositoryUrl}/releases/tag/v{LastDownloadedVersion.ToString(3)}");
+				Dinah.Core.Go.To.Url($"{AppScaffolding.LibationScaffolding.RepositoryUrl}/releases/tag/v{LastDownloadedVersion.ToVersionString()}");
 		}
 
 		public override string ToString()
 			=> IsValid ? $"""
 				{dateString()} {versionString()}
 				{LastDownloadedFormat}
-				Libation v{LastDownloadedVersion.ToString(3)}
+				Libation v{LastDownloadedVersion.ToVersionString()}
 				""" : "";
 
 		private string versionString() => LastDownloadedFileVersion is string ver ? $"(File v.{ver})" : "";

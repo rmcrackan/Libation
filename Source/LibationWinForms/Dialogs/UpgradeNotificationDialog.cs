@@ -18,7 +18,7 @@ namespace LibationWinForms.Dialogs
 
 		public UpgradeNotificationDialog(UpgradeProperties upgradeProperties) : this()
 		{
-			Text = $"Libation version {upgradeProperties.LatestRelease.ToString(3)} is now available.";
+			Text = $"Libation version {upgradeProperties.LatestRelease.ToVersionString()} is now available.";
 			PackageUrl = upgradeProperties.ZipUrl;
 			packageDlLink.Text = upgradeProperties.ZipName;
 			releaseNotesTbox.Text = upgradeProperties.Notes;			

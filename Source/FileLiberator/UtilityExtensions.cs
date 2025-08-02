@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AudibleUtilities;
 using DataLayer;
 using Dinah.Core;
+using LibationFileManager;
 using LibationFileManager.Templates;
 
 #nullable enable
@@ -66,7 +67,7 @@ namespace FileLiberator
 				BitRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.BitRate,
 				SampleRate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.SampleRate,
 				Channels = libraryBook.Book.UserDefinedItem.LastDownloadedFormat?.ChannelCount,
-				LibationVersion = libraryBook.Book.UserDefinedItem.LastDownloadedVersion?.ToString(3),
+				LibationVersion = libraryBook.Book.UserDefinedItem.LastDownloadedVersion?.ToVersionString(),
 				FileVersion = libraryBook.Book.UserDefinedItem.LastDownloadedFileVersion
 			};
 		}

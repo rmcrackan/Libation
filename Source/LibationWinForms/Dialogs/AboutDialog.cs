@@ -1,4 +1,5 @@
-﻿using LibationUiBase;
+﻿using LibationFileManager;
+using LibationUiBase;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace LibationWinForms.Dialogs
 		}
 
 		private void releaseNotesLbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-			=> Dinah.Core.Go.To.Url($"{AppScaffolding.LibationScaffolding.RepositoryUrl}/releases/tag/v{AppScaffolding.LibationScaffolding.BuildVersion.ToString(3)}");
+			=> Dinah.Core.Go.To.Url($"{AppScaffolding.LibationScaffolding.RepositoryUrl}/releases/tag/v{AppScaffolding.LibationScaffolding.BuildVersion.ToVersionString()}");
 
 		private async void checkForUpgradeBtn_Click(object sender, EventArgs e)
 		{

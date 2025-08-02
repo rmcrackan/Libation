@@ -1,6 +1,7 @@
 ﻿using AppScaffolding;
 using CommandLine;
 using CommandLine.Text;
+using LibationFileManager;
 
 namespace LibationCli;
 
@@ -20,7 +21,7 @@ internal class HelpVerb
 	{
 		AutoVersion = false,
 		AutoHelp = false,
-		Heading = $"LibationCli v{LibationScaffolding.BuildVersion.ToString(3)}",
+		Heading = $"LibationCli v{LibationScaffolding.BuildVersion.ToVersionString()}",
 		AdditionalNewLineAfterOption = true,
 		MaximumDisplayWidth = 80
 	};

@@ -16,6 +16,11 @@ namespace LibationFileManager
 		MacOS = 0x400000,
 	}
 
+	public static class Estensions
+	{
+		public static string ToVersionString(this Version version) => version.Revision > 1 ? version.ToString(4) : version.ToString(3);
+	}
+
 	public partial class Configuration
     {
 		public static bool IsWindows { get; } = OperatingSystem.IsWindows();
