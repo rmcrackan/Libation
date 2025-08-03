@@ -6,10 +6,21 @@
     "configurations": [
 
         {
-            "name": ".NET Core Launch (console)",
+            "name": ".NET Core Launch (console) Windows",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Source/bin/Avalonia/Debug/Libation.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+        {
+            "name": ".NET Core Launch (console) Linux",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build_linux",
             "program": "${workspaceFolder}/Source/bin/Avalonia/Debug/Libation.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
