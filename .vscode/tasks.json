@@ -37,6 +37,23 @@
                 //"reveal": "silent"
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+           "label": "build_linux",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/Source/LibationAvalonia/LibationAvalonia.csproj",
+                "-p:TargetFramework=net9.0",
+                "-p:TargetFrameworks=net9.0",
+                "-p:RuntimeIdentifier=linux-x64"
+            ],
+            "group": "build",
+            "presentation": {
+                //"reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
         }
     ]
 }
