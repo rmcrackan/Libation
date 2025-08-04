@@ -34,44 +34,51 @@ namespace LibationAvalonia.Views
 				var vm = new ProcessQueueViewModel();
 				DataContext = vm;
 				using var context = DbContexts.GetContext();
+
+
+				var trialBook = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G") ?? context.GetLibrary_Flat_NoTracking().FirstOrDefault();
+				if (trialBook is null)
+					return;
+
+
 				List<ProcessBookViewModel> testList = new()
 				{
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"))
+					new ProcessBookViewModel(trialBook)
 					{
 						Result = ProcessBookResult.FailedAbort,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"))
+					new ProcessBookViewModel(trialBook)
 					{
 						Result = ProcessBookResult.FailedSkip,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"))
+					new ProcessBookViewModel(trialBook)
 					{
 						Result = ProcessBookResult.FailedRetry,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"))
+					new ProcessBookViewModel(trialBook)
 					{
 						Result = ProcessBookResult.ValidationFail,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"))
+					new ProcessBookViewModel(trialBook)
 					{
 						Result = ProcessBookResult.Cancelled,
 						Status = ProcessBookStatus.Cancelled,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"))
+					new ProcessBookViewModel(trialBook)
 					{
 						Result = ProcessBookResult.Success,
 						Status = ProcessBookStatus.Completed,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"))
+					new ProcessBookViewModel(trialBook)
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Working,
 					},
-					new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"))
+					new ProcessBookViewModel(trialBook)
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Queued,
@@ -99,7 +106,7 @@ namespace LibationAvalonia.Views
 
 		#region Control event handlers
 
-		private async void ProcessBookControl2_CancelButtonClicked(ProcessBookViewModel item)
+		private async void ProcessBookControl2_CancelButtonClicked(ProcessBookViewModel? item)
 		{
 			if (item is not null)
 			{
@@ -108,19 +115,20 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private void ProcessBookControl2_ButtonClicked(ProcessBookViewModel item, QueuePosition queueButton)
+		private void ProcessBookControl2_ButtonClicked(ProcessBookViewModel? item, QueuePosition queueButton)
 		{
-			Queue?.MoveQueuePosition(item, queueButton);
+			if (item is not null)
+				Queue?.MoveQueuePosition(item, queueButton);
 		}
 
-		public async void CancelAllBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public async void CancelAllBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			Queue?.ClearQueue();
 			if (Queue?.Current is not null)
 				await Queue.Current.CancelAsync();
 		}
 
-		public void ClearFinishedBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void ClearFinishedBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			Queue?.ClearCompleted();
 
@@ -128,12 +136,12 @@ namespace LibationAvalonia.Views
 				_viewModel.RunningTime = string.Empty;
 		}
 
-		public void ClearLogBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void ClearLogBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			_viewModel?.LogEntries.Clear();
 		}
 
-		private async void LogCopyBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private async void LogCopyBtn_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			if (_viewModel is ProcessQueueViewModel vm)
 			{
@@ -143,14 +151,14 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private async void cancelAllBtn_Click(object sender, EventArgs e)
+		private async void cancelAllBtn_Click(object? sender, EventArgs e)
 		{
 			Queue?.ClearQueue();
 			if (Queue?.Current is not null)
 				await Queue.Current.CancelAsync();
 		}
 
-		private void btnClearFinished_Click(object sender, EventArgs e)
+		private void btnClearFinished_Click(object? sender, EventArgs e)
 		{
 			Queue?.ClearCompleted();
 

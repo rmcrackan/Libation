@@ -84,7 +84,7 @@ namespace LibationFileManager
 				ProcessDirectory,
 				LocalAppData,
 				UserProfile,
-				Path.Combine(Path.GetTempPath(), "Libation")
+				WinTemp,
 			};
 
 			//Try to find and validate appsettings.json in each folder
@@ -181,7 +181,7 @@ namespace LibationFileManager
 				}
 				catch (Exception e)
 				{
-					Serilog.Log.Error(e, "Failed to run shell command. {Arguments}", psi.ArgumentList);
+					Serilog.Log.Error(e, "Failed to run shell command. {@Arguments}", psi.ArgumentList);
 					return null;
 				}
 			}

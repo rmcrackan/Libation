@@ -62,25 +62,22 @@ namespace LibationAvalonia.Views
 			if (Design.IsDesignMode)
 			{
 				using var context = DbContexts.GetContext();
-				List<LibraryBook> sampleEntries;
+				LibraryBook?[] sampleEntries;
 				try
 				{
-					sampleEntries = new()
-					{
-						//context.GetLibraryBook_Flat_NoTracking("B00DCD0OXU"),try{
+					sampleEntries = [
 						context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"),
 						context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
 						context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
 						context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
 						context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"),
 						context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"),
-						context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")
-					};
+						context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")];
 				}
-				catch { sampleEntries = new(); }
+				catch { sampleEntries = []; }
 
 				var pdvm = new ProductsDisplayViewModel();
-				_ = pdvm.BindToGridAsync(sampleEntries);
+				_ = pdvm.BindToGridAsync(sampleEntries.OfType<LibraryBook>().ToList());
 				DataContext = pdvm;
 
 				setGridScale(1);

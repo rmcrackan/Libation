@@ -83,9 +83,11 @@ namespace LibationWinForms.Dialogs
 					if (lb.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Liberated)
 						await Task.Run(() => lb.UpdateBookStatus(LiberatedStatus.Liberated));
 
+					tokenSource.Token.ThrowIfCancellationRequested();
 					this.Invoke(FileFound, this, book);
 				}
-				catch(Exception ex)
+				catch (OperationCanceledException) { }
+				catch (Exception ex)
 				{
 					Serilog.Log.Error(ex, "Error adding found audiobook file to Libation. {@audioFile}", book);
 				}

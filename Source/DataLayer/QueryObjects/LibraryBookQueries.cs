@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
+#nullable enable
 namespace DataLayer
 {
     // only library importing should use tracking. All else should be NoTracking.
@@ -24,13 +25,13 @@ namespace DataLayer
 				.Where(c => !c.Book.IsEpisodeParent() || includeParents)
 				.ToList();
 
-        public static LibraryBook GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId)
+        public static LibraryBook? GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId)
             => context
                 .LibraryBooks
                 .AsNoTrackingWithIdentityResolution()
                 .GetLibraryBook(productId);
 
-        public static LibraryBook GetLibraryBook(this IQueryable<LibraryBook> library, string productId)
+        public static LibraryBook? GetLibraryBook(this IQueryable<LibraryBook> library, string productId)
             => library
                 .GetLibrary()
                 .SingleOrDefault(lb => lb.Book.AudibleProductId == productId);

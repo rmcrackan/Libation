@@ -5,14 +5,15 @@ using DataLayer;
 using LibationUiBase;
 using LibationUiBase.ProcessQueue;
 
+#nullable enable
 namespace LibationAvalonia.Views
 {
-	public delegate void QueueItemPositionButtonClicked(ProcessBookViewModel item, QueuePosition queueButton);
-	public delegate void QueueItemCancelButtonClicked(ProcessBookViewModel item);
+	public delegate void QueueItemPositionButtonClicked(ProcessBookViewModel? item, QueuePosition queueButton);
+	public delegate void QueueItemCancelButtonClicked(ProcessBookViewModel? item);
 	public partial class ProcessBookControl : UserControl
 	{
-		public static event QueueItemPositionButtonClicked PositionButtonClicked;
-		public static event QueueItemCancelButtonClicked CancelButtonClicked;
+		public static event QueueItemPositionButtonClicked? PositionButtonClicked;
+		public static event QueueItemCancelButtonClicked? CancelButtonClicked;
 
 		public static readonly StyledProperty<ProcessBookStatus> ProcessBookStatusProperty =
 			AvaloniaProperty.Register<ProcessBookControl, ProcessBookStatus>(nameof(ProcessBookStatus), enableDataValidation: true);
@@ -31,12 +32,13 @@ namespace LibationAvalonia.Views
 			{
 				using var context = DbContexts.GetContext();
 				ViewModels.MainVM.Configure_NonUI();
-				DataContext = new ProcessBookViewModel(context.GetLibraryBook_Flat_NoTracking("B017V4IM1G"));
+				if (context.GetLibraryBook_Flat_NoTracking("B017V4IM1G") is LibraryBook book)
+					DataContext = new ProcessBookViewModel(book);
 				return;
 			}
 		}
 
-		private ProcessBookViewModel DataItem => DataContext is null ? null : DataContext as ProcessBookViewModel;
+		private ProcessBookViewModel? DataItem => DataContext as ProcessBookViewModel;
 
 		public void Cancel_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> CancelButtonClicked?.Invoke(DataItem);

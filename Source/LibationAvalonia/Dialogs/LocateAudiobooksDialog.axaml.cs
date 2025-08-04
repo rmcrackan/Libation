@@ -13,11 +13,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationAvalonia.Dialogs
 {
 	public partial class LocateAudiobooksDialog : DialogWindow
 	{
-		private event EventHandler<FilePathCache.CacheEntry> FileFound;
+		private event EventHandler<FilePathCache.CacheEntry>? FileFound;
 		private readonly CancellationTokenSource tokenSource = new();
 		private readonly List<string> foundAsins = new();
 		private readonly LocatedAudiobooksViewModel _viewModel;
@@ -41,7 +42,7 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		private void LocateAudiobooksDialog_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		private void LocateAudiobooksDialog_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
 		{
 			tokenSource.Cancel();
 			//If this dialog is closed before it's completed, Closing is fired
@@ -50,7 +51,7 @@ namespace LibationAvalonia.Dialogs
 			this.SaveSizeAndLocation(Configuration.Instance);
 		}
 
-		private void LocateAudiobooks_FileFound(object sender, FilePathCache.CacheEntry e)
+		private void LocateAudiobooks_FileFound(object? sender, FilePathCache.CacheEntry e)
 		{
 			var newItem = new Tuple<string, string>($"[{e.Id}]", Path.GetFileName(e.Path));
 			_viewModel.FoundFiles.Add(newItem);
@@ -63,13 +64,13 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		private async void LocateAudiobooksDialog_Opened(object sender, EventArgs e)
+		private async void LocateAudiobooksDialog_Opened(object? sender, EventArgs e)
 		{
 			var folderPicker = new FolderPickerOpenOptions
 			{
 				Title = "Select the folder to search for audiobooks",
 				AllowMultiple = false,
-				SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books.PathWithoutPrefix)
+				SuggestedStartLocation = await StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books?.PathWithoutPrefix ?? "")
 			};
 
 			var selectedFolder = (await StorageProvider.OpenFolderPickerAsync(folderPicker))?.SingleOrDefault()?.TryGetLocalPath();
@@ -89,11 +90,13 @@ namespace LibationAvalonia.Dialogs
 					FilePathCache.Insert(book);
 
 					var lb = context.GetLibraryBook_Flat_NoTracking(book.Id);
-					if (lb?.Book?.UserDefinedItem.BookStatus is not LiberatedStatus.Liberated)
+					if (lb is not null && lb.Book?.UserDefinedItem.BookStatus is not LiberatedStatus.Liberated)
 						await Task.Run(() => lb.UpdateBookStatus(LiberatedStatus.Liberated));
 
+					tokenSource.Token.ThrowIfCancellationRequested();
 					FileFound?.Invoke(this, book);
 				}
+				catch (OperationCanceledException) { }
 				catch (Exception ex)
 				{
 					Serilog.Log.Error(ex, "Error adding found audiobook file to Libation. {@audioFile}", book);
