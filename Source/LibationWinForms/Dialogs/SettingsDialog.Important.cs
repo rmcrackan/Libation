@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
+#nullable enable
 namespace LibationWinForms.Dialogs
 {
 	public partial class SettingsDialog
@@ -55,7 +56,7 @@ namespace LibationWinForms.Dialogs
 				},
 				Configuration.KnownDirectories.UserProfile,
 				"Books");
-			booksSelectControl.SelectDirectory(config.Books.PathWithoutPrefix);
+			booksSelectControl.SelectDirectory(config.Books?.PathWithoutPrefix ?? "");
 
 			saveEpisodesToSeriesFolderCbox.Checked = config.SavePodcastsToParentFolder;
 			overwriteExistingCbox.Checked = config.OverwriteExisting;
@@ -63,7 +64,7 @@ namespace LibationWinForms.Dialogs
 			gridFontScaleFactorTbar.Value = scaleFactorToLinearRange(config.GridFontScaleFactor);
 		}
 
-		private void Save_Important(Configuration config)
+		private bool Save_Important(Configuration config)
 		{
 			var newBooks = booksSelectControl.SelectedDirectory;
 
@@ -73,19 +74,29 @@ namespace LibationWinForms.Dialogs
 			if (string.IsNullOrWhiteSpace(newBooks))
 			{
 				validationError("Cannot set Books Location to blank", "Location is blank");
-				return;
+				return false;
+			}
+			LongPath lonNewBooks = newBooks;
+			if (!Directory.Exists(lonNewBooks))
+			{
+				try
+				{
+					Directory.CreateDirectory(lonNewBooks);
+				}
+				catch (Exception ex)
+				{
+					validationError($"Error creating Books Location:\r\n{ex.Message}", "Error creating directory");
+					return false;
+				}
 			}
 			#endregion
 
-			LongPath lonNewBooks = newBooks;
-			if (!Directory.Exists(lonNewBooks))
-				Directory.CreateDirectory(lonNewBooks);
 
 			config.Books = newBooks;
 
 			{
 				var logLevelOld = config.LogLevel;
-				var logLevelNew = (Serilog.Events.LogEventLevel)loggingLevelCb.SelectedItem;
+				var logLevelNew = (loggingLevelCb.SelectedItem as Serilog.Events.LogEventLevel?) ?? Serilog.Events.LogEventLevel.Information;
 
 				config.LogLevel = logLevelNew;
 
@@ -97,9 +108,9 @@ namespace LibationWinForms.Dialogs
 			config.SavePodcastsToParentFolder = saveEpisodesToSeriesFolderCbox.Checked;
 			config.OverwriteExisting = overwriteExistingCbox.Checked;
 
-
-			config.CreationTime = ((EnumDisplay<Configuration.DateTimeSource>)creationTimeCb.SelectedItem).Value;
-			config.LastWriteTime = ((EnumDisplay<Configuration.DateTimeSource>)lastWriteTimeCb.SelectedItem).Value;
+			config.CreationTime = (creationTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;
+			config.LastWriteTime = (lastWriteTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;
+			return true;
 		}
 
 		private static int scaleFactorToLinearRange(float scaleFactor)

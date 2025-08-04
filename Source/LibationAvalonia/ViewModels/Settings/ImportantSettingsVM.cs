@@ -35,17 +35,17 @@ namespace LibationAvalonia.ViewModels.Settings
 		}
 
 		public void SaveSettings(Configuration config)
-		{
-			LongPath lonNewBooks = Configuration.GetKnownDirectory(BooksDirectory) is Configuration.KnownDirectories.None ? BooksDirectory : System.IO.Path.Combine(BooksDirectory, "Books");
-			if (!System.IO.Directory.Exists(lonNewBooks))
-				System.IO.Directory.CreateDirectory(lonNewBooks);
-			config.Books = lonNewBooks;
+		{			
+			config.Books = GetBooksDirectory();
 			config.SavePodcastsToParentFolder = SavePodcastsToParentFolder;
 			config.OverwriteExisting = OverwriteExisting;
 			config.CreationTime = CreationTime.Value;
 			config.LastWriteTime = LastWriteTime.Value;
 			config.LogLevel = LoggingLevel;
 		}
+
+		public LongPath GetBooksDirectory()
+			=> Configuration.GetKnownDirectory(BooksDirectory) is Configuration.KnownDirectories.None ? BooksDirectory : System.IO.Path.Combine(BooksDirectory, "Books");
 
 		private static float scaleFactorToLinearRange(float scaleFactor)
 			=> float.Round(100 * MathF.Log2(scaleFactor));

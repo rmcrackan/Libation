@@ -1,7 +1,9 @@
 using Avalonia.Controls;
+using FileManager;
 using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
 using LibationUiBase.Forms;
+using System;
 using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
@@ -39,6 +41,21 @@ namespace LibationAvalonia.Dialogs
 		}
 
 		public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> await SaveAndCloseAsync();
+		{
+			LongPath lonNewBooks = settingsDisp.ImportantSettings.GetBooksDirectory();
+			if (!System.IO.Directory.Exists(lonNewBooks))
+			{
+				try
+				{
+					System.IO.Directory.CreateDirectory(lonNewBooks);
+				}
+				catch (Exception ex)
+				{
+					await MessageBox.Show(this, $"Error creating Books Location:\n\n{ex.Message}", "Error creating directory", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return;
+				}
+			}
+			await SaveAndCloseAsync();
+		}
 	}
 }

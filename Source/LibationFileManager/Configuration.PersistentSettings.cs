@@ -36,12 +36,12 @@ namespace LibationFileManager
 
 		[return: NotNullIfNotNull(nameof(defaultValue))]
 		public T? GetNonString<T>(T defaultValue, [CallerMemberName] string propertyName = "")
-			=> Settings.GetNonString(propertyName, defaultValue);
+			=> Settings is null ? default : Settings.GetNonString(propertyName, defaultValue);
 
 
 		[return: NotNullIfNotNull(nameof(defaultValue))]
 		public string? GetString(string? defaultValue = null, [CallerMemberName] string propertyName = "")
-			=> Settings.GetString(propertyName, defaultValue);
+			=> Settings?.GetString(propertyName, defaultValue);
 
 		public object? GetObject([CallerMemberName] string propertyName = "") => Settings.GetObject(propertyName);
 
@@ -132,13 +132,13 @@ namespace LibationFileManager
 		/// True if the Books directory can be written to with 255 unicode character filenames
 		/// <para/> Does not persist. Check and set this value at runtime and whenever Books is changed.
 		/// </summary>
-		public bool BooksCanWrite255UnicodeChars => m_BooksCanWrite255UnicodeChars ??= FileSystemTest.CanWrite255UnicodeChars(Books);
+		public bool BooksCanWrite255UnicodeChars => m_BooksCanWrite255UnicodeChars ??= FileSystemTest.CanWrite255UnicodeChars(AudibleFileStorage.BooksDirectory);
 		/// <summary>
 		/// True if the Books directory can be written to with filenames containing characters invalid on Windows (:, *, ?, &lt;, &gt;, |)
 		/// <para/> Always false on Windows platforms.
 		/// <para/> Does not persist. Check and set this value at runtime and whenever Books is changed.
 		/// </summary>
-		public bool BooksCanWriteWindowsInvalidChars => !IsWindows && (m_BooksCanWriteWindowsInvalidChars ??= FileSystemTest.CanWriteWindowsInvalidChars(Books));
+		public bool BooksCanWriteWindowsInvalidChars => !IsWindows && (m_BooksCanWriteWindowsInvalidChars ??= FileSystemTest.CanWriteWindowsInvalidChars(AudibleFileStorage.BooksDirectory));
 
 		[Description("Overwrite existing files if they already exist?")]
 		public bool OverwriteExisting { get => GetNonString(defaultValue: false); set => SetNonString(value); }

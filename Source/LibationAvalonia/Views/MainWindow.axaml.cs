@@ -135,6 +135,20 @@ namespace LibationAvalonia.Views
 
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
+			if (AudibleFileStorage.BooksDirectory is null)
+			{
+				var result = await MessageBox.Show(
+					this,
+					"Please set a valid Books location in the settings dialog.",
+					"Books Directory Not Set",
+					MessageBoxButtons.OKCancel,
+					MessageBoxIcon.Warning,
+					MessageBoxDefaultButton.Button1);
+
+				if (result is DialogResult.OK)
+					await new SettingsDialog().ShowDialog(this);
+			}
+
 			if (Configuration.Instance.FirstLaunch)
 			{
 				var result = await MessageBox.Show(this, "Would you like a guided tour to get started?", "Libation Walkthrough", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);

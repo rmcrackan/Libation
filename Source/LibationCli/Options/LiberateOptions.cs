@@ -1,6 +1,8 @@
 ﻿using CommandLine;
 using DataLayer;
 using FileLiberator;
+using LibationFileManager;
+using System;
 using System.Threading.Tasks;
 
 namespace LibationCli
@@ -13,9 +15,17 @@ namespace LibationCli
 		public bool PdfOnly { get; set; }
 
 		protected override Task ProcessAsync()
-			=> PdfOnly
+		{
+			if (AudibleFileStorage.BooksDirectory is null)
+			{
+				Console.Error.WriteLine("Error: Books directory is not set. Please configure the 'Books' setting in Settings.json.");
+				return Task.CompletedTask;
+			}
+
+			return PdfOnly
 			? RunAsync(CreateProcessable<DownloadPdf>())
 			: RunAsync(CreateBackupBook());
+		}
 
 		private static Processable CreateBackupBook()
 		{
