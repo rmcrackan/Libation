@@ -16,7 +16,7 @@ namespace LibationWinForms
 		private void Configure_ScanManual()
         {
 			this.Load += refreshImportMenu;
-			AccountsSettingsPersister.Saved += refreshImportMenu;
+			AccountsSettingsPersister.Saved += (_, _) => Invoke(refreshImportMenu, null, null);
 		}
 
 		private void refreshImportMenu(object _, EventArgs __)

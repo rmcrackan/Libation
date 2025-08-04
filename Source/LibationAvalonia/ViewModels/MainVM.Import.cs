@@ -68,7 +68,8 @@ namespace LibationAvalonia.ViewModels
 			MainWindow.Loaded += (_, _) =>
 			{
 				refreshImportMenu();
-				AccountsSettingsPersister.Saved += refreshImportMenu;
+				AccountsSettingsPersister.Saved += (_, _)
+				=> Avalonia.Threading.Dispatcher.UIThread.Invoke(refreshImportMenu);
 			};
 
 			AutoScanChecked = Configuration.Instance.AutoScan;
@@ -222,7 +223,7 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
-		private void refreshImportMenu(object? _ = null, EventArgs? __ = null)
+		private void refreshImportMenu()
 		{
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			AccountsCount = persister.AccountsSettings.Accounts.Count;
