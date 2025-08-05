@@ -154,14 +154,18 @@ namespace FileManager
 					Replacement.OtherQuote("\"")]
 		};
 		#endregion
+		/// <summary>
+		/// Characters to consider invalid in filenames in addition to those returned by <see cref="Path.GetInvalidFileNameChars()"/>
+		/// </summary>
+		public static char[] AdditionalInvalidFilenameCharacters { get; set; } = [];
 
 		internal static bool IsWindows => Environment.OSVersion.Platform is PlatformID.Win32NT;
 
-		private static readonly char[] invalidPathChars = Path.GetInvalidFileNameChars().Except(new[] {
+		private static char[] invalidPathChars { get; } = Path.GetInvalidFileNameChars().Except(new[] {
 				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
 			}).ToArray();
 
-		private static readonly char[] invalidSlashes = Path.GetInvalidFileNameChars().Intersect(new[] {
+		private static char[] invalidSlashes { get; } = Path.GetInvalidFileNameChars().Intersect(new[] {
 				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
 			}).ToArray();
 
@@ -220,8 +224,11 @@ namespace FileManager
 			return DefaultReplacement;
 		}
 
+		private static bool CharIsPathInvalid(char c)
+			=> invalidPathChars.Contains(c) || AdditionalInvalidFilenameCharacters.Contains(c);
+
 		public static bool ContainsInvalidPathChar(string path)
-			=> path.Any(c => invalidPathChars.Contains(c));
+			=> path.Any(CharIsPathInvalid);
 		public static bool ContainsInvalidFilenameChar(string path)
 			=> ContainsInvalidPathChar(path) || path.Any(c => invalidSlashes.Contains(c));
 
@@ -233,7 +240,7 @@ namespace FileManager
 			{
 				var c = fileName[i];
 
-				if (invalidPathChars.Contains(c)
+				if (CharIsPathInvalid(c)
 					|| invalidSlashes.Contains(c)
 					|| Replacements.Any(r => r.CharacterToReplace == c) /* Replace any other legal characters that they user wants. */ )
 				{
@@ -258,14 +265,14 @@ namespace FileManager
 
 				if (
 					(
-						invalidPathChars.Contains(c)
-						|| (	// Replace any other legal characters that they user wants.
+						CharIsPathInvalid(c)
+						|| (    // Replace any other legal characters that they user wants.
 								c != Path.DirectorySeparatorChar
 								&& c != Path.AltDirectorySeparatorChar
 								&& Replacements.Any(r => r.CharacterToReplace == c)
 							)
 					)
-					&& !(	// replace all colons except drive letter designator on Windows
+					&& !(   // replace all colons except drive letter designator on Windows
 							c == ':'
 							&& i == 1
 							&& Path.IsPathRooted(pathStr)
@@ -273,9 +280,9 @@ namespace FileManager
 					)
 				)
 				{
-						char preceding = i > 0 ? pathStr[i - 1] : default;
-						char succeeding = i < pathStr.Length - 1 ? pathStr[i + 1] : default;
-						builder.Append(GetPathCharReplacement(c, preceding, succeeding));
+					char preceding = i > 0 ? pathStr[i - 1] : default;
+					char succeeding = i < pathStr.Length - 1 ? pathStr[i + 1] : default;
+					builder.Append(GetPathCharReplacement(c, preceding, succeeding));
 				}
 				else
 					builder.Append(c);
