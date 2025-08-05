@@ -20,6 +20,7 @@ namespace LibationAvalonia.ViewModels
 		private bool _removeButtonsVisible = Design.IsDesignMode;
 		private int _numAccountsScanning = 2;
 		private int _accountsCount = 0;
+		public string LocateAudiobooksTip => Configuration.GetHelpText("LocateAudiobooks");
 
 		/// <summary> Auto scanning accounts is enables </summary>
 		public bool AutoScanChecked { get => _autoScanChecked; set => Configuration.Instance.AutoScan = this.RaiseAndSetIfChanged(ref _autoScanChecked, value); }
@@ -173,8 +174,19 @@ namespace LibationAvalonia.ViewModels
 
 		public async Task LocateAudiobooksAsync()
 		{
-			var locateDialog = new LibationAvalonia.Dialogs.LocateAudiobooksDialog();
-			await locateDialog.ShowDialog(MainWindow);
+			var result = await MessageBox.Show(
+				MainWindow, 
+				Configuration.GetHelpText(nameof(LibationAvalonia.Dialogs.LocateAudiobooksDialog)),
+				"Locate Previously-Liberated Audiobook Files",
+				MessageBoxButtons.OKCancel,
+				MessageBoxIcon.Information,
+				MessageBoxDefaultButton.Button1);
+
+			if (result is DialogResult.OK)
+			{
+				var locateDialog = new LibationAvalonia.Dialogs.LocateAudiobooksDialog();
+				await locateDialog.ShowDialog(MainWindow);
+			}
 		}
 
 		private void setyNumScanningAccounts(int numScanning)

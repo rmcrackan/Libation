@@ -17,6 +17,7 @@ namespace LibationWinForms
         {
 			this.Load += refreshImportMenu;
 			AccountsSettingsPersister.Saved += (_, _) => Invoke(refreshImportMenu, null, null);
+			locateAudiobooksToolStripMenuItem.ToolTipText = Configuration.GetHelpText("LocateAudiobooks");
 		}
 
 		private void refreshImportMenu(object _, EventArgs __)
@@ -96,7 +97,16 @@ namespace LibationWinForms
 
 		private void locateAudiobooksToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			new LocateAudiobooksDialog().ShowDialog();
+			var result = MessageBox.Show(
+				this,
+				Configuration.GetHelpText(nameof(LocateAudiobooksDialog)),
+				"Locate Previously-Liberated Audiobook Files",
+				MessageBoxButtons.OKCancel,
+				MessageBoxIcon.Information,
+				MessageBoxDefaultButton.Button1);
+
+			if (result is DialogResult.OK)
+				new LocateAudiobooksDialog().ShowDialog();
 		}
 	}
 }
