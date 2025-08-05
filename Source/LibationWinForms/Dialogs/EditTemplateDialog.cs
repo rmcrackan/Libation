@@ -12,7 +12,7 @@ namespace LibationWinForms.Dialogs
 	{
 		private void resetTextBox(string value) => this.templateTb.Text = value;
 		private Configuration config { get; } = Configuration.Instance;
-		private ITemplateEditor templateEditor { get;}		
+		private ITemplateEditor templateEditor { get; }
 
 		public EditTemplateDialog()
 		{
@@ -54,7 +54,7 @@ namespace LibationWinForms.Dialogs
 
 		private void templateTb_TextChanged(object sender, EventArgs e)
 		{
-			templateEditor.SetTemplateText(templateTb.Text);			
+			templateEditor.SetTemplateText(templateTb.Text);
 
 			const char ZERO_WIDTH_SPACE = '\u200B';
 			var sing = $"{Path.DirectorySeparatorChar}";
@@ -149,6 +149,12 @@ namespace LibationWinForms.Dialogs
 
 			templateTb.Text = text.Insert(selStart, itemText);
 			templateTb.SelectionStart = selStart + itemText.Length;
+		}
+
+		private void llblGoToWiki_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Go.To.Url(@"ht" + "tps://github.com/Mbucari/Libation/blob/master/Documentation/NamingTemplates.md");
+			e.Link.Visited = true;
 		}
 	}
 }
