@@ -107,8 +107,27 @@ namespace LibationFileManager
                 don't have a spatial audio version will be download
                 as usual based on your other file quality settings.
                 """ },
-        }
-        .AsReadOnly();
+            {"LocateAudiobooks","""
+                Scan the contents a folder to find audio files that
+                match books in Libation's database. This is useful
+                if you moved your Books folder or re-installed 
+                Libation and want it to be able to find your
+                already downloaded audiobooks.
+
+                Prerequisite: An audiobook must already exist in
+                Libation's database (through an Audible account
+                scan) for a matching audio file to be found.
+                """ },
+            {"LocateAudiobooksDialog","""
+				Libation will search all .m4b and .mp3 files in a folder, looking for audio files belonging to library books in Libation's database.
+
+				If an audiobook file is found that matches one of Libation's library books, Libation will mark that book as "Liberated" (green stoplight).
+
+				For an audio file to be identified, Libation must have that library book in its database. If you're on a fresh installation of Libation, be sure to add and scan all of your Audible accounts before running this action.
+
+				This may take a while, depending on the number of audio files in the folder and the speed of your storage device.
+				""" }
+        }.AsReadOnly();
 
         public static string GetHelpText(string? settingName)
             => settingName != null && HelpText.TryGetValue(settingName, out var value) ? value : "";

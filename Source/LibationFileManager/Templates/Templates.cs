@@ -157,7 +157,7 @@ namespace LibationFileManager.Templates
 				var maxFilenameLength = LongPath.MaxFilenameLength -
 					(i < pathParts.Count - 1 || string.IsNullOrEmpty(fileExtension) ? 0 : fileExtension.Length + 5);
 
-				while (part.Sum(LongPath.GetFilesystemStringLength) > maxFilenameLength)
+				while (part.Sum(GetFilenameLength) > maxFilenameLength)
 				{
 					int maxLength = part.Max(p => p.Length);
 					var maxEntry = part.First(p => p.Length == maxLength);
@@ -172,6 +172,10 @@ namespace LibationFileManager.Templates
 
 			return FileUtility.GetValidFilename(fullPath, replacements, fileExtension, returnFirstExisting);
 		}
+
+		private static int GetFilenameLength(string filename)
+			=> Configuration.Instance.BooksCanWrite255UnicodeChars ? filename.Length
+			: System.Text.Encoding.UTF8.GetByteCount(filename);
 
 		/// <summary>
 		/// Organize template parts into directories. Any Extra slashes will be

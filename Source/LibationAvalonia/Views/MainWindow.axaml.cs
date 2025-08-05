@@ -43,6 +43,22 @@ namespace LibationAvalonia.Views
 				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ShowAccountsAsync), Gesture = new KeyGesture(Key.A, KeyModifiers.Control | KeyModifiers.Shift) });
 				KeyBindings.Add(new KeyBinding { Command = ReactiveCommand.Create(ViewModel.ExportLibraryAsync), Gesture = new KeyGesture(Key.S, KeyModifiers.Control) });
 			}
+
+			Configuration.Instance.PropertyChanged += Settings_PropertyChanged;
+			Settings_PropertyChanged(this, null);
+		}
+
+		[Dinah.Core.PropertyChangeFilter(nameof(Configuration.Books))]
+		private void Settings_PropertyChanged(object sender, Dinah.Core.PropertyChangedEventArgsEx e)
+		{
+			if (!Configuration.IsWindows)
+			{
+				//The books directory does not support filenames with windows' invalid characters.
+				//Tell the ReplacementCharacters configuration to treat those characters as invalid.
+				ReplacementCharacters.AdditionalInvalidFilenameCharacters
+					= Configuration.Instance.BooksCanWriteWindowsInvalidChars ? []
+					: FileSystemTest.AdditionalInvalidWindowsFilenameCharacters.ToArray();
+			}
 		}
 
 		private void AudibleApiStorage_LoadError(object sender, AccountSettingsLoadErrorEventArgs e)
@@ -54,7 +70,7 @@ namespace LibationAvalonia.Views
 					FileUtility.SaferMoveToValidPath(
 						e.SettingsFilePath,
 						e.SettingsFilePath,
-						ReplacementCharacters.Barebones,
+						Configuration.Instance.ReplacementCharacters,
 						"bak");
 				AudibleApiStorage.EnsureAccountsSettingsFileExists();
 				e.Handled = true;
@@ -103,6 +119,20 @@ namespace LibationAvalonia.Views
 
 		private async void MainWindow_Opened(object sender, EventArgs e)
 		{
+			if (AudibleFileStorage.BooksDirectory is null)
+			{
+				var result = await MessageBox.Show(
+					this,
+					"Please set a valid Books location in the settings dialog.",
+					"Books Directory Not Set",
+					MessageBoxButtons.OKCancel,
+					MessageBoxIcon.Warning,
+					MessageBoxDefaultButton.Button1);
+
+				if (result is DialogResult.OK)
+					await new SettingsDialog().ShowDialog(this);
+			}
+
 			if (Configuration.Instance.FirstLaunch)
 			{
 				var result = await MessageBox.Show(this, "Would you like a guided tour to get started?", "Libation Walkthrough", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
@@ -115,7 +145,7 @@ namespace LibationAvalonia.Views
 				Configuration.Instance.FirstLaunch = false;
 			}
 		}
-		
+
 		private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			productsDisplay?.CloseImageDisplay();

@@ -74,12 +74,14 @@ namespace FileManager
 		}
 		public override int GetHashCode() => Replacements.GetHashCode();
 
-		public static readonly ReplacementCharacters Default
-			= IsWindows
-			? new()
-			{
-				Replacements = new Replacement[]
-				{
+		public static ReplacementCharacters Default(bool ntfs) => ntfs ? HiFi_NTFS : HiFi_Other;
+		public static ReplacementCharacters LoFiDefault(bool ntfs) => ntfs ? LoFi_NTFS : LoFi_Other;
+		public static ReplacementCharacters Barebones(bool ntfs) => ntfs ? BareBones_NTFS : BareBones_Other;
+
+		#region Defaults
+		private static readonly ReplacementCharacters HiFi_NTFS = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("∕"),
 					Replacement.FilenameBackSlash(""),
@@ -91,28 +93,23 @@ namespace FileManager
 					Replacement.Colon("_"),
 					Replacement.Asterisk("✱"),
 					Replacement.QuestionMark("？"),
-					Replacement.Pipe("⏐"),
-				}
-			}
-			: new()
-			{
-				Replacements = new Replacement[]
-				{
+					Replacement.Pipe("⏐")]
+		};
+
+		private static readonly ReplacementCharacters HiFi_Other = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("∕"),
 					Replacement.FilenameBackSlash("\\"),
 					Replacement.OpenQuote("“"),
 					Replacement.CloseQuote("”"),
-					Replacement.OtherQuote("\"")
-				}
-			};
+					Replacement.OtherQuote("\"")]
+		};
 
-		public static readonly ReplacementCharacters LoFiDefault
-			= IsWindows
-			? new()
-			{
-				Replacements = new Replacement[]
-				{
+		private static readonly ReplacementCharacters LoFi_NTFS = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("_"),
 					Replacement.FilenameBackSlash("_"),
@@ -121,56 +118,54 @@ namespace FileManager
 					Replacement.OtherQuote("'"),
 					Replacement.OpenAngleBracket("{"),
 					Replacement.CloseAngleBracket("}"),
-					Replacement.Colon("-"),
-				}
-			}
-			: new ()
-			{
-				Replacements = new Replacement[]
-				{
+					Replacement.Colon("-")]
+		};
+
+		private static readonly ReplacementCharacters LoFi_Other = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("_"),
 					Replacement.FilenameBackSlash("\\"),
 					Replacement.OpenQuote("\""),
 					Replacement.CloseQuote("\""),
-					Replacement.OtherQuote("\"")
-				}
-			};
+					Replacement.OtherQuote("\"")]
+		};
 
-		public static readonly ReplacementCharacters Barebones
-			= IsWindows
-			? new ()
-			{
-				Replacements = new Replacement[]
-				{
+		private static readonly ReplacementCharacters BareBones_NTFS = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("_"),
 					Replacement.FilenameBackSlash("_"),
 					Replacement.OpenQuote("_"),
 					Replacement.CloseQuote("_"),
-					Replacement.OtherQuote("_")
-				}
-			}
-			: new ()
-			{
-				Replacements = new Replacement[]
-				{
+					Replacement.OtherQuote("_")]
+		};
+
+		private static readonly ReplacementCharacters BareBones_Other = new()
+		{
+			Replacements = [
 					Replacement.OtherInvalid("_"),
 					Replacement.FilenameForwardSlash("_"),
 					Replacement.FilenameBackSlash("\\"),
 					Replacement.OpenQuote("\""),
 					Replacement.CloseQuote("\""),
-					Replacement.OtherQuote("\"")
-				}
-			};
+					Replacement.OtherQuote("\"")]
+		};
+		#endregion
+		/// <summary>
+		/// Characters to consider invalid in filenames in addition to those returned by <see cref="Path.GetInvalidFileNameChars()"/>
+		/// </summary>
+		public static char[] AdditionalInvalidFilenameCharacters { get; set; } = [];
 
-		private static bool IsWindows => Environment.OSVersion.Platform is PlatformID.Win32NT;
+		internal static bool IsWindows => Environment.OSVersion.Platform is PlatformID.Win32NT;
 
-		private static readonly char[] invalidPathChars = Path.GetInvalidFileNameChars().Except(new[] {
+		private static char[] invalidPathChars { get; } = Path.GetInvalidFileNameChars().Except(new[] {
 				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
 			}).ToArray();
 
-		private static readonly char[] invalidSlashes = Path.GetInvalidFileNameChars().Intersect(new[] {
+		private static char[] invalidSlashes { get; } = Path.GetInvalidFileNameChars().Intersect(new[] {
 				Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
 			}).ToArray();
 
@@ -229,8 +224,11 @@ namespace FileManager
 			return DefaultReplacement;
 		}
 
+		private static bool CharIsPathInvalid(char c)
+			=> invalidPathChars.Contains(c) || AdditionalInvalidFilenameCharacters.Contains(c);
+
 		public static bool ContainsInvalidPathChar(string path)
-			=> path.Any(c => invalidPathChars.Contains(c));
+			=> path.Any(CharIsPathInvalid);
 		public static bool ContainsInvalidFilenameChar(string path)
 			=> ContainsInvalidPathChar(path) || path.Any(c => invalidSlashes.Contains(c));
 
@@ -242,7 +240,7 @@ namespace FileManager
 			{
 				var c = fileName[i];
 
-				if (invalidPathChars.Contains(c)
+				if (CharIsPathInvalid(c)
 					|| invalidSlashes.Contains(c)
 					|| Replacements.Any(r => r.CharacterToReplace == c) /* Replace any other legal characters that they user wants. */ )
 				{
@@ -267,14 +265,14 @@ namespace FileManager
 
 				if (
 					(
-						invalidPathChars.Contains(c)
-						|| (	// Replace any other legal characters that they user wants.
+						CharIsPathInvalid(c)
+						|| (    // Replace any other legal characters that they user wants.
 								c != Path.DirectorySeparatorChar
 								&& c != Path.AltDirectorySeparatorChar
 								&& Replacements.Any(r => r.CharacterToReplace == c)
 							)
 					)
-					&& !(	// replace all colons except drive letter designator on Windows
+					&& !(   // replace all colons except drive letter designator on Windows
 							c == ':'
 							&& i == 1
 							&& Path.IsPathRooted(pathStr)
@@ -282,9 +280,9 @@ namespace FileManager
 					)
 				)
 				{
-						char preceding = i > 0 ? pathStr[i - 1] : default;
-						char succeeding = i < pathStr.Length - 1 ? pathStr[i + 1] : default;
-						builder.Append(GetPathCharReplacement(c, preceding, succeeding));
+					char preceding = i > 0 ? pathStr[i - 1] : default;
+					char succeeding = i < pathStr.Length - 1 ? pathStr[i + 1] : default;
+					builder.Append(GetPathCharReplacement(c, preceding, succeeding));
 				}
 				else
 					builder.Append(c);
@@ -301,23 +299,21 @@ namespace FileManager
 
 		public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
 		{
+			var defaults = ReplacementCharacters.Default(ReplacementCharacters.IsWindows).Replacements;
+
 			var jObj = JObject.Load(reader);
 			var replaceArr = jObj[nameof(Replacement)];
-			var dict
-				= replaceArr?.ToObject<Replacement[]>()?.ToList()
-				?? ReplacementCharacters.Default.Replacements;
-
+			var dict = replaceArr?.ToObject<Replacement[]>()?.ToList() ?? defaults;
 
 			//Ensure that the first 6 replacements are for the expected chars and that all replacement strings are valid.
 			//If not, reset to default.
-
 			for (int i = 0; i < Replacement.FIXED_COUNT; i++)
 			{
 				if (dict.Count < Replacement.FIXED_COUNT
-					|| dict[i].CharacterToReplace != ReplacementCharacters.Barebones.Replacements[i].CharacterToReplace
-					|| dict[i].Description != ReplacementCharacters.Barebones.Replacements[i].Description)
+					|| dict[i].CharacterToReplace != defaults[i].CharacterToReplace
+					|| dict[i].Description != defaults[i].Description)
 				{
-					dict = ReplacementCharacters.Default.Replacements;
+					dict = defaults;
 					break;
 				}
 

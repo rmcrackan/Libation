@@ -110,7 +110,7 @@
 					<MenuItem IsVisible="{CompiledBinding MultipleAccounts}" IsEnabled="{CompiledBinding RemoveMenuItemsEnabled}" Command="{CompiledBinding RemoveBooksSomeAsync}" Header="_Remove Books from Some Accounts" />
 						
 					<Separator />
-					<MenuItem Command="{CompiledBinding LocateAudiobooksAsync}" Header="L_ocate Audiobooks..." />
+					<MenuItem Command="{CompiledBinding LocateAudiobooksAsync}" Header="L_ocate Audiobooks..." ToolTip.Tip="{CompiledBinding LocateAudiobooksTip}" />
 
 				</MenuItem>
 					

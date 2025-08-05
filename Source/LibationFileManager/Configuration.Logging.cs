@@ -27,6 +27,7 @@ namespace LibationFileManager
             //https://github.com/serilog/serilog-settings-configuration/issues/406
             var readerOptions = new ConfigurationReaderOptions(
                 typeof(ILogger).Assembly,                                 // Serilog
+                typeof(LoggerCallerEnrichmentConfiguration).Assembly,     // Dinah.Core
                 typeof(LoggerEnrichmentConfigurationExtensions).Assembly, // Serilog.Exceptions
                 typeof(ConsoleLoggerConfigurationExtensions).Assembly,    // Serilog.Sinks.Console
                 typeof(FileLoggerConfigurationExtensions).Assembly);      // Serilog.Sinks.File

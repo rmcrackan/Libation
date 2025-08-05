@@ -121,7 +121,7 @@ namespace AppScaffolding
 					zipFileSink["Name"] = "File";
 					fileChanged = true;
 				}
-				var hooks = $"{nameof(LibationFileManager)}.{nameof(FileSinkHook)}, {nameof(LibationFileManager)}";
+				var hooks = typeof(FileSinkHook).AssemblyQualifiedName;
 				if (serilog.SelectToken("$.WriteTo[?(@.Name == 'File')].Args", false) is JObject fileSinkArgs
 					&& fileSinkArgs["hooks"]?.Value<string>() != hooks)
 				{
@@ -158,7 +158,8 @@ namespace AppScaffolding
 									// - with class and method info: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception}";
 									//   output example:             2019-11-26 08:48:40.224 -05:00 [DBG] (at LibationWinForms.Program.init()) Begin Libation
 									// {Properties:j} needed for expanded exception logging
-									{ "outputTemplate", "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}" }
+									{ "outputTemplate", "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] (at {Caller}) {Message:lj}{NewLine}{Exception} {Properties:j}" },
+									{ "hooks", typeof(FileSinkHook).AssemblyQualifiedName }, // for FileSinkHook
 								}
 							}
 						}

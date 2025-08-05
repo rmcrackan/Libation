@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using DataLayer;
+using LibationFileManager;
 using LibationUiBase.Forms;
 using System;
 using System.Collections.Generic;
@@ -95,6 +96,9 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	public bool QueueDownloadPdf(IList<LibraryBook> libraryBooks)
 	{
+		if (!IsBooksDirectoryValid())
+			return false;
+
 		var needsPdf = libraryBooks.Where(lb => lb.NeedsPdfDownload()).ToArray();
 		if (needsPdf.Length > 0)
 		{
@@ -107,6 +111,9 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	public bool QueueConvertToMp3(IList<LibraryBook> libraryBooks)
 	{
+		if (!IsBooksDirectoryValid())
+			return false;
+
 		//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.
 		var preLiberated = libraryBooks.Where(lb => !lb.AbsentFromLastScan && lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated && lb.Book.ContentType is DataLayer.ContentType.Product).ToArray();
 		if (preLiberated.Length > 0)
@@ -122,6 +129,9 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	public bool QueueDownloadDecrypt(IList<LibraryBook> libraryBooks)
 	{
+		if (!IsBooksDirectoryValid())
+			return false;
+
 		if (libraryBooks.Count == 1)
 		{
 			var item = libraryBooks[0];
@@ -155,6 +165,32 @@ public class ProcessQueueViewModel : ReactiveObject
 			}
 		}
 		return false;
+	}
+
+	private bool IsBooksDirectoryValid()
+	{
+		if (string.IsNullOrWhiteSpace(Configuration.Instance.Books))
+		{
+			Serilog.Log.Logger.Error("Books location is not set in configuration.");
+			MessageBoxBase.Show(
+				"Please choose a \"Books location\" folder in the Settings menu.",
+				"Books Directory Not Set",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			return false;
+		}
+		else if (AudibleFileStorage.BooksDirectory is null)
+		{
+			Serilog.Log.Logger.Error("Failed to create books directory: {@booksDir}", Configuration.Instance.Books);
+			MessageBoxBase.Show(
+				$"Libation was unable to create the \"Books location\" folder at:\n{Configuration.Instance.Books}\n\nPlease change the Books location in the settings menu.",
+				"Failed to Create Books Directory",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			return false;
+		}
+
+		return true;
 	}
 
 	private bool IsBookInQueue(LibraryBook libraryBook)

@@ -111,7 +111,7 @@ namespace LibationAvalonia
 					if (setupDialog.Config.LibationSettingsAreValid)
 					{
 						string? theme = setupDialog.SelectedTheme.Content as string;
-						
+
 						setupDialog.Config.SetString(theme, nameof(ThemeVariant));
 
 						await RunMigrationsAsync(setupDialog.Config);
@@ -120,7 +120,10 @@ namespace LibationAvalonia
 						ShowMainWindow(desktop);
 					}
 					else
-						await CancelInstallation();
+					{
+						e.Cancel = true;
+						await CancelInstallation(setupDialog);
+					}
 				}
 				else if (setupDialog.IsReturningUser)
 				{
@@ -128,7 +131,8 @@ namespace LibationAvalonia
 				}
 				else
 				{
-					await CancelInstallation();
+					e.Cancel = true;
+					await CancelInstallation(setupDialog);
 					return;
 				}
 
@@ -139,11 +143,11 @@ namespace LibationAvalonia
 				var body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
 				try
 				{
-					await MessageBox.ShowAdminAlert(null, body, title, ex);
+					await MessageBox.ShowAdminAlert(setupDialog, body, title, ex);
 				}
 				catch
 				{
-					await MessageBox.Show($"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					await MessageBox.Show(setupDialog, $"{body}\r\n\r\n{ex.Message}\r\n\r\n{ex.StackTrace}", title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 				return;
 			}
@@ -190,6 +194,7 @@ namespace LibationAvalonia
 			{
 				// path did not result in valid settings
 				var continueResult = await MessageBox.Show(
+					libationFilesDialog,
 					$"No valid settings were found at this location.\r\nWould you like to create a new install settings in this folder?\r\n\r\n{libationFilesDialog.SelectedDirectory}",
 					"New install?",
 					MessageBoxButtons.YesNo,
@@ -207,18 +212,18 @@ namespace LibationAvalonia
 						ShowMainWindow(desktop);
 					}
 					else
-						await CancelInstallation();
+						await CancelInstallation(libationFilesDialog);
 				}
 				else
-					await CancelInstallation();
+					await CancelInstallation(libationFilesDialog);
 			}
 
 			libationFilesDialog.Close();
 		}
 
-		static async Task CancelInstallation()
+		static async Task CancelInstallation(Window window)
 		{
-			await MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			await MessageBox.Show(window, "Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			Environment.Exit(0);
 		}
 

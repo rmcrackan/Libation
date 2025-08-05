@@ -70,7 +70,7 @@ public partial class EditTemplateDialog : DialogWindow
 	public async void SaveButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		=> await SaveAndCloseAsync();
 
-	private class EditTemplateViewModel : ViewModels.ViewModelBase
+	internal class EditTemplateViewModel : ViewModels.ViewModelBase
 	{
 		private readonly Configuration config;
 		public InlineCollection Inlines { get; } = new();
@@ -95,6 +95,9 @@ public partial class EditTemplateDialog : DialogWindow
 				);
 
 		}
+
+		public void GoToNamingTemplateWiki()
+			=> Go.To.Url(@"ht" + "tps://github.com/rmcrackan/Libation/blob/master/Documentation/NamingTemplates.md");
 
 		// hold the work-in-progress value. not guaranteed to be valid
 		private string _userTemplateText;

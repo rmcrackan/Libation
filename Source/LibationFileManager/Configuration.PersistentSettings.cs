@@ -36,12 +36,12 @@ namespace LibationFileManager
 
 		[return: NotNullIfNotNull(nameof(defaultValue))]
 		public T? GetNonString<T>(T defaultValue, [CallerMemberName] string propertyName = "")
-			=> Settings.GetNonString(propertyName, defaultValue);
+			=> Settings is null ? default : Settings.GetNonString(propertyName, defaultValue);
 
 
 		[return: NotNullIfNotNull(nameof(defaultValue))]
 		public string? GetString(string? defaultValue = null, [CallerMemberName] string propertyName = "")
-			=> Settings.GetString(propertyName, defaultValue);
+			=> Settings?.GetString(propertyName, defaultValue);
 
 		public object? GetObject([CallerMemberName] string propertyName = "") => Settings.GetObject(propertyName);
 
@@ -111,7 +111,34 @@ namespace LibationFileManager
 		public bool BetaOptIn { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Location for book storage. Includes destination of newly liberated books")]
-		public LongPath? Books { get => GetString(); set => SetString(value); }
+		public LongPath? Books {
+			get => GetString();
+			set
+			{
+				if (value != Books)
+				{
+					OnPropertyChanging(nameof(Books), Books, value);
+					Settings.SetString(nameof(Books), value);
+					m_BooksCanWrite255UnicodeChars = null;
+					m_BooksCanWriteWindowsInvalidChars = null;
+					OnPropertyChanged(nameof(Books), value);
+				}
+			}
+		}
+
+		private bool? m_BooksCanWrite255UnicodeChars;
+		private bool? m_BooksCanWriteWindowsInvalidChars;
+		/// <summary>
+		/// True if the Books directory can be written to with 255 unicode character filenames
+		/// <para/> Does not persist. Check and set this value at runtime and whenever Books is changed.
+		/// </summary>
+		public bool BooksCanWrite255UnicodeChars => m_BooksCanWrite255UnicodeChars ??= FileSystemTest.CanWrite255UnicodeChars(AudibleFileStorage.BooksDirectory);
+		/// <summary>
+		/// True if the Books directory can be written to with filenames containing characters invalid on Windows (:, *, ?, &lt;, &gt;, |)
+		/// <para/> Always false on Windows platforms.
+		/// <para/> Does not persist. Check and set this value at runtime and whenever Books is changed.
+		/// </summary>
+		public bool BooksCanWriteWindowsInvalidChars => !IsWindows && (m_BooksCanWriteWindowsInvalidChars ??= FileSystemTest.CanWriteWindowsInvalidChars(AudibleFileStorage.BooksDirectory));
 
 		[Description("Overwrite existing files if they already exist?")]
 		public bool OverwriteExisting { get => GetNonString(defaultValue: false); set => SetNonString(value); }
@@ -319,7 +346,7 @@ namespace LibationFileManager
 		#region templates: custom file naming
 
 		[Description("Edit how filename characters are replaced")]
-		public ReplacementCharacters ReplacementCharacters { get => GetNonString(defaultValue: ReplacementCharacters.Default); set => SetNonString(value); }
+		public ReplacementCharacters ReplacementCharacters { get => GetNonString(defaultValue: ReplacementCharacters.Default(IsWindows)); set => SetNonString(value); }
 
 		[Description("How to format the folders in which files will be saved")]
 		public string FolderTemplate

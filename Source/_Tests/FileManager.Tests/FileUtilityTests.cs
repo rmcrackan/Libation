@@ -12,9 +12,9 @@ namespace FileUtilityTests
 	[TestClass]
 	public class GetSafePath
 	{
-		static readonly ReplacementCharacters Default = ReplacementCharacters.Default;
-		static readonly ReplacementCharacters LoFiDefault = ReplacementCharacters.LoFiDefault;
-		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Barebones;
+		static readonly ReplacementCharacters Default = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
+		static readonly ReplacementCharacters LoFiDefault = ReplacementCharacters.LoFiDefault(Environment.OSVersion.Platform == PlatformID.Win32NT);
+		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Barebones(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		[TestMethod]
 		public void null_path_throws() => Assert.ThrowsException<ArgumentNullException>(() => FileUtility.GetSafePath(null, Default));
@@ -98,9 +98,9 @@ namespace FileUtilityTests
 	[TestClass]
 	public class GetSafeFileName
 	{
-		static readonly ReplacementCharacters Default = ReplacementCharacters.Default;
-		static readonly ReplacementCharacters LoFiDefault = ReplacementCharacters.LoFiDefault;
-		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Barebones;
+		static readonly ReplacementCharacters Default = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
+		static readonly ReplacementCharacters LoFiDefault = ReplacementCharacters.LoFiDefault(Environment.OSVersion.Platform == PlatformID.Win32NT);
+		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Barebones(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		// needs separate method. middle null param not running correctly in TestExplorer when used in DataRow()
 		[TestMethod]
@@ -193,7 +193,7 @@ namespace FileUtilityTests
 	[TestClass]
 	public class GetValidFilename
 	{
-		static ReplacementCharacters Replacements = ReplacementCharacters.Default;
+		static ReplacementCharacters Replacements = ReplacementCharacters.Default(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		[TestMethod]
 		// dot-files

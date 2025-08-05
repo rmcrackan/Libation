@@ -68,7 +68,7 @@ namespace LibationFileManager.Templates
 				YearPublished = 2017,
 				Authors = [new("Arthur Conan Doyle", "B000AQ43GQ"), new("Stephen Fry - introductions", "B000APAGVS")],
 				Narrators = [new("Stephen Fry", null)],
-				Series = [new("Sherlock Holmes", 1, "B08376S3R2"), new("Some Other Series", 1, "B000000000")],
+				Series = [new("Sherlock Holmes", "1-6", "B08376S3R2"), new("Book Collection", "1", "B000000000")],
 				Codec = "AAC-LC",
 				LibationVersion = Configuration.LibationVersion?.ToVersionString(),
 				FileVersion = "36217811",

@@ -92,13 +92,11 @@ namespace LibationAvalonia.Controls
 			base.UpdateDataValidation(property, state, error);
 			if (property == CommandProperty)
 			{
-				if (state == BindingValueType.BindingError)
+				var canExecure = !state.HasFlag(BindingValueType.HasError);
+				if (canExecure != _commandCanExecute)
 				{
-					if (_commandCanExecute)
-					{
-						_commandCanExecute = false;
-						UpdateIsEffectivelyEnabled();
-					}
+					_commandCanExecute = canExecure;
+					UpdateIsEffectivelyEnabled();
 				}
 			}
 		}

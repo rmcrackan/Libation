@@ -13,6 +13,8 @@ namespace LibationAvalonia.Dialogs
 	{
 		Configuration config;
 
+		public bool EnvironmentIsWindows => Configuration.IsWindows;
+
 		private readonly List<ReplacementsExt> SOURCE = new();
 		public DataGridCollectionView replacements { get; }
 		public EditReplacementChars()
@@ -23,7 +25,7 @@ namespace LibationAvalonia.Dialogs
 
 			if (Design.IsDesignMode)
 			{
-				LoadTable(ReplacementCharacters.Default.Replacements);
+				LoadTable(ReplacementCharacters.Default(true).Replacements);
 			}
 
 			DataContext = this;
@@ -35,12 +37,12 @@ namespace LibationAvalonia.Dialogs
 			LoadTable(config.ReplacementCharacters.Replacements);
 		}
 
-		public void Defaults()
-			=> LoadTable(ReplacementCharacters.Default.Replacements);
-		public void LoFiDefaults()
-			=> LoadTable(ReplacementCharacters.LoFiDefault.Replacements);
-		public void Barebones()
-			=> LoadTable(ReplacementCharacters.Barebones.Replacements);
+		public void Defaults(bool isNtfs)
+			=> LoadTable(ReplacementCharacters.Default(isNtfs).Replacements);
+		public void LoFiDefaults(bool isNtfs)
+			=> LoadTable(ReplacementCharacters.LoFiDefault(isNtfs).Replacements);
+		public void Barebones(bool isNtfs)
+			=> LoadTable(ReplacementCharacters.Barebones(isNtfs).Replacements);
 
 		protected override void SaveAndClose()
 		{

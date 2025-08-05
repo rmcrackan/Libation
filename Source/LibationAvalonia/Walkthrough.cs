@@ -5,6 +5,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Dinah.Core;
 using Dinah.Core.StepRunner;
 using LibationAvalonia.Dialogs;
 using LibationAvalonia.Views;
@@ -164,8 +165,9 @@ namespace LibationAvalonia
 			{
 				//if we imported new books, wait for the grid to update before proceeding.
 				if (newCount > 0)
-					MainForm.ViewModel.ProductsDisplay.VisibleCountChanged += productsDisplay_VisibleCountChanged;
-				else 
+					Avalonia.Threading.Dispatcher.UIThread.Invoke(() =>
+						MainForm.ViewModel.ProductsDisplay.VisibleCountChanged += productsDisplay_VisibleCountChanged);
+				else
 					tcs.SetResult();
 			}
 			void productsDisplay_VisibleCountChanged(object sender, int e) => tcs.SetResult();
@@ -176,7 +178,7 @@ namespace LibationAvalonia
 			var books = DbContexts.GetLibrary_Flat_NoTracking();
 			if (books.Count == 0) return true;
 
-			var firstAuthor = getFirstAuthor();
+			var firstAuthor = getFirstAuthor()?.SurroundWithQuotes();
 			if (firstAuthor == null) return true;
 
 			if (!await ProceedMessageBox("You can filter the grid entries by searching", "Searching"))
@@ -193,7 +195,7 @@ namespace LibationAvalonia
 
 			await displayControlAsync(MainForm.filterBtn);
 
-			MainForm.filterBtn.Command.Execute(null);
+			MainForm.filterBtn.Command.Execute(firstAuthor);
 
 			await Task.Delay(1000);
 
@@ -209,8 +211,7 @@ namespace LibationAvalonia
 
 		private async Task<bool> ShowQuickFilters()
 		{
-			var firstAuthor = getFirstAuthor();
-
+			var firstAuthor = getFirstAuthor()?.SurroundWithQuotes();
 			if (firstAuthor == null) return true;
 
 			if (!await ProceedMessageBox("Queries that you perform regularly can be added to 'Quick Filters'", "Quick Filters"))
@@ -222,7 +223,7 @@ namespace LibationAvalonia
 
 			await Task.Delay(750);
 			await displayControlAsync(MainForm.addQuickFilterBtn);
-			MainForm.addQuickFilterBtn.Command.Execute(null);
+			MainForm.addQuickFilterBtn.Command.Execute(firstAuthor);
 			await displayControlAsync(MainForm.quickFiltersToolStripMenuItem);
 			await displayControlAsync(editQuickFiltersToolStripMenuItem);
 

@@ -43,7 +43,7 @@ namespace LibationWinForms.Dialogs
 
 		private void saveBtn_Click(object sender, EventArgs e)
 		{
-			Save_Important(config);
+			if (!Save_Important(config)) return;
 			Save_ImportLibrary(config);
 			Save_DownloadDecrypt(config);
 			Save_AudioSettings(config);

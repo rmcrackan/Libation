@@ -28,161 +28,168 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.saveBtn = new System.Windows.Forms.Button();
-			this.cancelBtn = new System.Windows.Forms.Button();
-			this.templateTb = new System.Windows.Forms.TextBox();
-			this.templateLbl = new System.Windows.Forms.Label();
-			this.resetToDefaultBtn = new System.Windows.Forms.Button();
-			this.listView1 = new System.Windows.Forms.ListView();
-			this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-			this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-			this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-			this.warningsLbl = new System.Windows.Forms.Label();
-			this.exampleLbl = new System.Windows.Forms.Label();
-			this.SuspendLayout();
+			saveBtn = new System.Windows.Forms.Button();
+			cancelBtn = new System.Windows.Forms.Button();
+			templateTb = new System.Windows.Forms.TextBox();
+			templateLbl = new System.Windows.Forms.Label();
+			resetToDefaultBtn = new System.Windows.Forms.Button();
+			listView1 = new System.Windows.Forms.ListView();
+			columnHeader1 = new System.Windows.Forms.ColumnHeader();
+			columnHeader2 = new System.Windows.Forms.ColumnHeader();
+			richTextBox1 = new System.Windows.Forms.RichTextBox();
+			warningsLbl = new System.Windows.Forms.Label();
+			exampleLbl = new System.Windows.Forms.Label();
+			llblGoToWiki = new System.Windows.Forms.LinkLabel();
+			SuspendLayout();
 			// 
 			// saveBtn
 			// 
-			this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.saveBtn.Location = new System.Drawing.Point(714, 345);
-			this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.saveBtn.Name = "saveBtn";
-			this.saveBtn.Size = new System.Drawing.Size(88, 27);
-			this.saveBtn.TabIndex = 98;
-			this.saveBtn.Text = "Save";
-			this.saveBtn.UseVisualStyleBackColor = true;
-			this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
+			saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+			saveBtn.Location = new System.Drawing.Point(714, 345);
+			saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			saveBtn.Name = "saveBtn";
+			saveBtn.Size = new System.Drawing.Size(88, 27);
+			saveBtn.TabIndex = 98;
+			saveBtn.Text = "Save";
+			saveBtn.UseVisualStyleBackColor = true;
+			saveBtn.Click += saveBtn_Click;
 			// 
 			// cancelBtn
 			// 
-			this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cancelBtn.Location = new System.Drawing.Point(832, 345);
-			this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.cancelBtn.Name = "cancelBtn";
-			this.cancelBtn.Size = new System.Drawing.Size(88, 27);
-			this.cancelBtn.TabIndex = 99;
-			this.cancelBtn.Text = "Cancel";
-			this.cancelBtn.UseVisualStyleBackColor = true;
-			this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
+			cancelBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+			cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			cancelBtn.Location = new System.Drawing.Point(832, 345);
+			cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			cancelBtn.Name = "cancelBtn";
+			cancelBtn.Size = new System.Drawing.Size(88, 27);
+			cancelBtn.TabIndex = 99;
+			cancelBtn.Text = "Cancel";
+			cancelBtn.UseVisualStyleBackColor = true;
+			cancelBtn.Click += cancelBtn_Click;
 			// 
 			// templateTb
 			// 
-			this.templateTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.templateTb.Location = new System.Drawing.Point(12, 27);
-			this.templateTb.Name = "templateTb";
-			this.templateTb.Size = new System.Drawing.Size(779, 23);
-			this.templateTb.TabIndex = 1;
-			this.templateTb.TextChanged += new System.EventHandler(this.templateTb_TextChanged);
+			templateTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			templateTb.Location = new System.Drawing.Point(12, 27);
+			templateTb.Name = "templateTb";
+			templateTb.Size = new System.Drawing.Size(779, 23);
+			templateTb.TabIndex = 1;
+			templateTb.TextChanged += templateTb_TextChanged;
 			// 
 			// templateLbl
 			// 
-			this.templateLbl.AutoSize = true;
-			this.templateLbl.Location = new System.Drawing.Point(12, 9);
-			this.templateLbl.Name = "templateLbl";
-			this.templateLbl.Size = new System.Drawing.Size(89, 15);
-			this.templateLbl.TabIndex = 0;
-			this.templateLbl.Text = "[template desc]";
+			templateLbl.AutoSize = true;
+			templateLbl.Location = new System.Drawing.Point(12, 9);
+			templateLbl.Name = "templateLbl";
+			templateLbl.Size = new System.Drawing.Size(89, 15);
+			templateLbl.TabIndex = 0;
+			templateLbl.Text = "[template desc]";
 			// 
 			// resetToDefaultBtn
 			// 
-			this.resetToDefaultBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.resetToDefaultBtn.Location = new System.Drawing.Point(797, 26);
-			this.resetToDefaultBtn.Name = "resetToDefaultBtn";
-			this.resetToDefaultBtn.Size = new System.Drawing.Size(124, 23);
-			this.resetToDefaultBtn.TabIndex = 2;
-			this.resetToDefaultBtn.Text = "Reset to default";
-			this.resetToDefaultBtn.UseVisualStyleBackColor = true;
-			this.resetToDefaultBtn.Click += new System.EventHandler(this.resetToDefaultBtn_Click);
+			resetToDefaultBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+			resetToDefaultBtn.Location = new System.Drawing.Point(797, 26);
+			resetToDefaultBtn.Name = "resetToDefaultBtn";
+			resetToDefaultBtn.Size = new System.Drawing.Size(124, 23);
+			resetToDefaultBtn.TabIndex = 2;
+			resetToDefaultBtn.Text = "Reset to default";
+			resetToDefaultBtn.UseVisualStyleBackColor = true;
+			resetToDefaultBtn.Click += resetToDefaultBtn_Click;
 			// 
 			// listView1
 			// 
-			this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2});
-			this.listView1.FullRowSelect = true;
-			this.listView1.GridLines = true;
-			this.listView1.Location = new System.Drawing.Point(12, 56);
-			this.listView1.MultiSelect = false;
-			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(328, 283);
-			this.listView1.TabIndex = 3;
-			this.listView1.UseCompatibleStateImageBehavior = false;
-			this.listView1.View = System.Windows.Forms.View.Details;
-			this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+			listView1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+			listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { columnHeader1, columnHeader2 });
+			listView1.FullRowSelect = true;
+			listView1.GridLines = true;
+			listView1.Location = new System.Drawing.Point(12, 56);
+			listView1.MultiSelect = false;
+			listView1.Name = "listView1";
+			listView1.Size = new System.Drawing.Size(328, 283);
+			listView1.TabIndex = 3;
+			listView1.UseCompatibleStateImageBehavior = false;
+			listView1.View = System.Windows.Forms.View.Details;
+			listView1.DoubleClick += listView1_DoubleClick;
 			// 
 			// columnHeader1
 			// 
-			this.columnHeader1.Text = "Tag";
-			this.columnHeader1.Width = 137;
+			columnHeader1.Text = "Tag";
+			columnHeader1.Width = 137;
 			// 
 			// columnHeader2
 			// 
-			this.columnHeader2.Text = "Description";
-			this.columnHeader2.Width = 170;
+			columnHeader2.Text = "Description";
+			columnHeader2.Width = 170;
 			// 
 			// richTextBox1
 			// 
-			this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.richTextBox1.Location = new System.Drawing.Point(346, 74);
-			this.richTextBox1.Name = "richTextBox1";
-			this.richTextBox1.ReadOnly = true;
-			this.richTextBox1.Size = new System.Drawing.Size(574, 185);
-			this.richTextBox1.TabIndex = 5;
-			this.richTextBox1.Text = "";
+			richTextBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			richTextBox1.Location = new System.Drawing.Point(346, 74);
+			richTextBox1.Name = "richTextBox1";
+			richTextBox1.ReadOnly = true;
+			richTextBox1.Size = new System.Drawing.Size(574, 185);
+			richTextBox1.TabIndex = 5;
+			richTextBox1.Text = "";
 			// 
 			// warningsLbl
 			// 
-			this.warningsLbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.warningsLbl.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-			this.warningsLbl.ForeColor = System.Drawing.Color.Firebrick;
-			this.warningsLbl.Location = new System.Drawing.Point(346, 262);
-			this.warningsLbl.Name = "warningsLbl";
-			this.warningsLbl.Size = new System.Drawing.Size(574, 77);
-			this.warningsLbl.TabIndex = 6;
-			this.warningsLbl.Text = "[warnings]";
+			warningsLbl.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+			warningsLbl.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+			warningsLbl.ForeColor = System.Drawing.Color.Firebrick;
+			warningsLbl.Location = new System.Drawing.Point(346, 262);
+			warningsLbl.Name = "warningsLbl";
+			warningsLbl.Size = new System.Drawing.Size(574, 77);
+			warningsLbl.TabIndex = 6;
+			warningsLbl.Text = "[warnings]";
 			// 
 			// exampleLbl
 			// 
-			this.exampleLbl.AutoSize = true;
-			this.exampleLbl.Location = new System.Drawing.Point(346, 56);
-			this.exampleLbl.Name = "exampleLbl";
-			this.exampleLbl.Size = new System.Drawing.Size(55, 15);
-			this.exampleLbl.TabIndex = 4;
-			this.exampleLbl.Text = "Example:";
+			exampleLbl.AutoSize = true;
+			exampleLbl.Location = new System.Drawing.Point(346, 56);
+			exampleLbl.Name = "exampleLbl";
+			exampleLbl.Size = new System.Drawing.Size(54, 15);
+			exampleLbl.TabIndex = 4;
+			exampleLbl.Text = "Example:";
+			// 
+			// llblGoToWiki
+			// 
+			llblGoToWiki.AutoSize = true;
+			llblGoToWiki.Location = new System.Drawing.Point(12, 357);
+			llblGoToWiki.Name = "llblGoToWiki";
+			llblGoToWiki.Size = new System.Drawing.Size(229, 15);
+			llblGoToWiki.TabIndex = 100;
+			llblGoToWiki.TabStop = true;
+			llblGoToWiki.Text = "Read about naming templates on the Wiki";
+			llblGoToWiki.LinkClicked += llblGoToWiki_LinkClicked;
 			// 
 			// EditTemplateDialog
 			// 
-			this.AcceptButton = this.saveBtn;
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.CancelButton = this.cancelBtn;
-			this.ClientSize = new System.Drawing.Size(933, 388);
-			this.Controls.Add(this.exampleLbl);
-			this.Controls.Add(this.warningsLbl);
-			this.Controls.Add(this.richTextBox1);
-			this.Controls.Add(this.listView1);
-			this.Controls.Add(this.resetToDefaultBtn);
-			this.Controls.Add(this.templateLbl);
-			this.Controls.Add(this.templateTb);
-			this.Controls.Add(this.cancelBtn);
-			this.Controls.Add(this.saveBtn);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-			this.MaximizeBox = false;
-			this.MinimizeBox = false;
-			this.Name = "EditTemplateDialog";
-			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Edit Template";
-			this.Load += new System.EventHandler(this.EditTemplateDialog_Load);
-			this.ResumeLayout(false);
-			this.PerformLayout();
+			AcceptButton = saveBtn;
+			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			CancelButton = cancelBtn;
+			ClientSize = new System.Drawing.Size(933, 388);
+			Controls.Add(llblGoToWiki);
+			Controls.Add(exampleLbl);
+			Controls.Add(warningsLbl);
+			Controls.Add(richTextBox1);
+			Controls.Add(listView1);
+			Controls.Add(resetToDefaultBtn);
+			Controls.Add(templateLbl);
+			Controls.Add(templateTb);
+			Controls.Add(cancelBtn);
+			Controls.Add(saveBtn);
+			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			MaximizeBox = false;
+			MinimizeBox = false;
+			Name = "EditTemplateDialog";
+			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			Text = "Edit Template";
+			Load += EditTemplateDialog_Load;
+			ResumeLayout(false);
+			PerformLayout();
 
 		}
 
@@ -198,5 +205,6 @@
 		private System.Windows.Forms.RichTextBox richTextBox1;
 		private System.Windows.Forms.Label warningsLbl;
 		private System.Windows.Forms.Label exampleLbl;
+		private System.Windows.Forms.LinkLabel llblGoToWiki;
 	}
 }

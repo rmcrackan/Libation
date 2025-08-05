@@ -45,13 +45,24 @@ namespace LibationFileManager
 
 		public static AudioFileStorage Audio { get; } = new AudioFileStorage();
 
-		public static LongPath BooksDirectory
+		/// <summary>
+		/// The fully-qualified Books durectory path if the directory exists, otherwise null.
+		/// </summary>
+		public static LongPath? BooksDirectory
 		{
 			get
 			{
 				if (string.IsNullOrWhiteSpace(Configuration.Instance.Books))
-					Configuration.Instance.Books = Configuration.DefaultBooksDirectory;
-				return Directory.CreateDirectory(Configuration.Instance.Books).FullName;
+					return null;
+				try
+				{
+					return Directory.CreateDirectory(Configuration.Instance.Books)?.FullName;
+				}
+				catch (Exception ex)
+				{
+					Serilog.Log.Error(ex, "Error creating Books directory: {@BooksDirectory}", Configuration.Instance.Books);
+					return null;
+				}
 			}
 		}
 		#endregion
@@ -129,8 +140,9 @@ namespace LibationFileManager
 		protected override LongPath? GetFilePathCustom(string productId)
 			=> GetFilePathsCustom(productId).FirstOrDefault();
 
-		private static BackgroundFileSystem newBookDirectoryFiles()
-			=> new BackgroundFileSystem(BooksDirectory, "*.*", SearchOption.AllDirectories);
+		private static BackgroundFileSystem? newBookDirectoryFiles()
+			=> BooksDirectory is LongPath books ? new BackgroundFileSystem(books, "*.*", SearchOption.AllDirectories)
+			: null;
 
 		protected override List<LongPath> GetFilePathsCustom(string productId)
 		{
@@ -140,6 +152,7 @@ namespace LibationFileManager
 					BookDirectoryFiles = newBookDirectoryFiles();
 
 			var regex = GetBookSearchRegex(productId);
+			var diskFiles = BookDirectoryFiles?.FindFiles(regex) ?? [];
 
 			//Find all extant files matching the productId
 			//using both the file system and the file path cache
@@ -148,17 +161,17 @@ namespace LibationFileManager
 				.GetFiles(productId)
 				.Where(c => c.fileType == FileType.Audio && File.Exists(c.path))
 				.Select(c => c.path)
-				.Union(BookDirectoryFiles.FindFiles(regex))
+				.Union(diskFiles)
 				.ToList();
 		}
 
 		public void Refresh()
 		{
-			if (BookDirectoryFiles is null)
+			if (BookDirectoryFiles is null && BooksDirectory is not null)
 				lock (bookDirectoryFilesLocker)
 					BookDirectoryFiles = newBookDirectoryFiles();
-			else
-				BookDirectoryFiles?.RefreshFiles();
+
+			BookDirectoryFiles?.RefreshFiles();
 		}
 
 		public LongPath? GetPath(string productId) => GetFilePath(productId);

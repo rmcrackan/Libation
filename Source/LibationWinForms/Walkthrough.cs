@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using AudibleUtilities;
+using Dinah.Core;
 using Dinah.Core.StepRunner;
 using LibationFileManager;
 using LibationWinForms.Dialogs;
@@ -163,7 +164,7 @@ namespace LibationWinForms
 			var books = DbContexts.GetLibrary_Flat_NoTracking();
 			if (books.Count == 0) return true;
 
-			var firstAuthor = getFirstAuthor();
+			var firstAuthor = getFirstAuthor()?.SurroundWithQuotes();
 			if (firstAuthor == null) return true;
 
 			if (!ProceedMessageBox("You can filter the grid entries by searching", "Searching"))
@@ -196,7 +197,7 @@ namespace LibationWinForms
 
 		private async Task<bool> ShowQuickFilters()
 		{
-			var firstAuthor = getFirstAuthor();
+			var firstAuthor = getFirstAuthor()?.SurroundWithQuotes();
 			if (firstAuthor == null) return true;
 
 			if (!ProceedMessageBox("Queries that you perform regularly can be added to 'Quick Filters'", "Quick Filters"))

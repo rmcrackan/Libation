@@ -47,7 +47,7 @@ namespace LibationWinForms
 					FileUtility.SaferMoveToValidPath(
 						e.SettingsFilePath,
 						e.SettingsFilePath,
-						ReplacementCharacters.Barebones,
+						Configuration.Instance.ReplacementCharacters,
 						"bak");
 
 				AudibleApiStorage.EnsureAccountsSettingsFileExists();

@@ -148,7 +148,10 @@ namespace LibationWinForms
 			}
 
 			if (setupDialog.IsNewUser)
+			{
 				Configuration.SetLibationFiles(defaultLibationFilesDir);
+				config.Books = Configuration.DefaultBooksDirectory;
+			}
 			else if (setupDialog.IsReturningUser)
 			{
 				var libationFilesDialog = new LibationFilesDialog();
@@ -175,16 +178,11 @@ namespace LibationWinForms
 					CancelInstallation();
 					return;
 				}
+				config.Books = Configuration.DefaultBooksDirectory;
 			}
 
-			// INIT DEFAULT SETTINGS
-			// if 'new user' was clicked, or if 'returning user' chose new install: show basic settings dialog
-			config.Books ??= Configuration.DefaultBooksDirectory;
-
-			if (config.LibationSettingsAreValid)
-				return;
-
-			CancelInstallation();
+			if (!config.LibationSettingsAreValid)
+				CancelInstallation();
 		}
 
 		/// <summary>migrations which require Forms or are long-running</summary>
