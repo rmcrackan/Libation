@@ -153,7 +153,7 @@ namespace LibationWinForms.Dialogs
 
 		private void llblGoToWiki_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			Go.To.Url(@"ht" + "tps://github.com/Mbucari/Libation/blob/master/Documentation/NamingTemplates.md");
+			Go.To.Url(@"ht" + "tps://github.com/rmcrackan/Libation/blob/master/Documentation/NamingTemplates.md");
 			e.Link.Visited = true;
 		}
 	}

@@ -97,7 +97,7 @@ public partial class EditTemplateDialog : DialogWindow
 		}
 
 		public void GoToNamingTemplateWiki()
-			=> Go.To.Url(@"ht" + "tps://github.com/Mbucari/Libation/blob/master/Documentation/NamingTemplates.md");
+			=> Go.To.Url(@"ht" + "tps://github.com/rmcrackan/Libation/blob/master/Documentation/NamingTemplates.md");
 
 		// hold the work-in-progress value. not guaranteed to be valid
 		private string _userTemplateText;
