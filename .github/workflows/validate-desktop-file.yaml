@@ -15,7 +15,7 @@ jobs:
   validate-desktop-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: sudo apt --yes install desktop-file-utils
       - name: Check the desktop file
         run: desktop-file-validate Source/LoadByOS/LinuxConfigApp/Libation.desktop
