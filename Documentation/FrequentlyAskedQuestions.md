@@ -35,9 +35,13 @@ Self-hosting online:
 * [audiobookshelf](https://www.audiobookshelf.org). On [reddit](https://www.reddit.com/r/audiobookshelf/)
 * [plex](https://www.plex.tv/). Listen with [Prologue](https://prologue.audio/) (iOS)
 
+## I'm having trouble playing my book with 4D, spatial audio, or Dolby Atmos, how can I fix this?
+
+**A:** Disable the 'Use widevine DRM' option in settings and download it again. [See this page for more information about this file format.](DolbyAtmos.md)
+
 ## Q: I'm having trouble loggin into my Brazil account.
 
-For reasons known only to Jeff Bezos and God, amazon and audible brazil handle logins slightly differently. The external browser login option is not possible for Brazil. [See this ticket for more details.](https://github.com/rmcrackan/Libation/issues/1103)
+**A:** For reasons known only to Jeff Bezos and God, amazon and audible brazil handle logins slightly differently. The external browser login option is not possible for Brazil. [See this ticket for more details.](https://github.com/rmcrackan/Libation/issues/1103)
 
 ## Q: How do I use Libation with a South Africa account?
 
