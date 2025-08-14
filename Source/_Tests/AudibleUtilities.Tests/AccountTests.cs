@@ -528,7 +528,7 @@ namespace AccountsTests
             var a2 = new Account("a") { AccountName = "two", IdentityTokens = idIn };
 
             // violation: validate()
-            Assert.ThrowsException<InvalidOperationException>(() => accountsSettings.Add(a2));
+            Assert.ThrowsExactly<InvalidOperationException>(() => accountsSettings.Add(a2));
         }
 
         [TestMethod]
@@ -545,7 +545,7 @@ namespace AccountsTests
             accountsSettings.Add(a2);
 
             // violation: GetAccount.SingleOrDefault
-            Assert.ThrowsException<InvalidOperationException>(() => a2.IdentityTokens = idIn);
+            Assert.ThrowsExactly<InvalidOperationException>(() => a2.IdentityTokens = idIn);
         }
     }
 
