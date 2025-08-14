@@ -34,6 +34,7 @@
     - [Custom File Naming](Documentation/NamingTemplates.md)
     - [Command Line Interface](Documentation/Advanced.md#command-line-interface)
     - [Custom Theme Colors](Documentation/Advanced.md#custom-theme-colors) (Chardonnay Only)
+    - [Audio Formats (Dolby Atmos, Widevine, Spacial Audio)](Documentation/AudioFileFormats.md)
 - [Docker](Documentation/Docker.md)
 - [Frequently Asked Questions](Documentation/FrequentlyAskedQuestions.md)
 

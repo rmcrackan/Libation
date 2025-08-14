@@ -12,7 +12,7 @@
 - [Custom File Naming](NamingTemplates.md)
 - [Command Line Interface](#command-line-interface)
 - [Custom Theme Colors](#custom-theme-colors) (Chardonnay Only)
-- [Dolby Atmos, Widevine, Spacial Audio, 4D](DolbyAtmos.md)
+- [Audio Formats (Dolby Atmos, Widevine, Spacial Audio)](AudioFileFormats.md)
 
 
 
