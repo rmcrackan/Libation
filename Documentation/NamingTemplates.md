@@ -105,13 +105,13 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 ## Series Formatters
 |Formatter|Description|Example Usage|Example Result|
 |-|-|-|-|
-|\{N \| # \| ID\}|Formats the series using<br>the series part tags.<br>\{N\} = Series Name<br>\{#\} = Number order in series<br>\{ID\} = Audible Series ID<br><br>Default is \{N\}|`<first series>`<hr>`<first series[{N}]>`<hr>`<first series[{N}, {#}, {ID}]>`|Sherlock Holmes<hr>Sherlock Holmes<hr>Sherlock Holmes, 1, B08376S3R2|
+|\{N \| # \| ID\}|Formats the series using<br>the series part tags.<br>\{N\} = Series Name<br>\{#\} = Number order in series<br>\{#:[Number_Formatter](#number-formatters)\} = Number order in series, formatted<br>\{ID\} = Audible Series ID<br><br>Default is \{N\}|`<first series>`<hr>`<first series[{N}]>`<hr>`<first series[{N}, {#}, {ID}]>`<hr>`<first series[{N}, {ID}, {#:00.0}]>`|Sherlock Holmes<hr>Sherlock Holmes<hr>Sherlock Holmes, 1-6, B08376S3R2<hr>Sherlock Holmes, B08376S3R2, 01.0-06.0|
 
 ## Series List Formatters
 |Formatter|Description|Example Usage|Example Result|
 |-|-|-|-|
 |separator()|Speficy the text used to join<br>multiple series names.<br><br>Default is ", "|`<series[separator(; )]>`|Sherlock Holmes; Some Other Series|
-|format(\{N \| # \| ID\})|Formats the series properties<br>using the name series tags.<br>See [Series Formatter Usage](#series-formatters) above.|`<series[format({N}, {#})`<br>`separator(; )]>`<hr>`<author[format({L}, {ID}) separator(; )]>`|Sherlock Holmes, 1; Some Other Series, 1<hr>herlock Holmes, B08376S3R2; Some Other Series, B000000000|
+|format(\{N \| # \| ID\})|Formats the series properties<br>using the name series tags.<br>See [Series Formatter Usage](#series-formatters) above.|`<series[format({N}, {#})`<br>`separator(; )]>`<hr>`<series[format({ID}-{N}, {#:00.0})]>`|Sherlock Holmes, 1-6; Book Collection, 1<hr>B08376S3R2-Sherlock Holmes, 01.0-06.0, B000000000-Book Collection, 01.0|
 |max(#)|Only use the first # of series<br><br>Default is all series|`<series[max(1)]>`|Sherlock Holmes|
 
 ## Name Formatters

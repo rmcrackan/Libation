@@ -388,6 +388,7 @@ namespace TemplatesTests
 		[DataRow("<first series>", "Series A")]
 		[DataRow("<first series[]>", "Series A")]
 		[DataRow("<first series[{N}, {#}, {ID}]>", "Series A, 1, B1")]
+		[DataRow("<first series[{N}, {#:00.0}]>", "Series A, 01.0")]
 		public void SeriesFormat_formatters(string template, string expected)
 		{
 			var bookDto = GetLibraryBook();
@@ -399,6 +400,30 @@ namespace TemplatesTests
 				new("Series D", "1-5",  "B4"),
 			];
 			
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(bookDto, "", "", Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
+
+		[TestMethod]
+		[DataRow("<first series[{#}]>", "1-6", "1-6")]
+		[DataRow("<series[format({#:F2})]>", "1-6", "1.00-6.00")]
+		[DataRow("<first series[{#:F2}]>", "1-6", "1.00-6.00")]
+		[DataRow("<series#[F2]>", "1-6", "1.00-6.00")]
+		[DataRow("<series#[F2]>", "front 1-6 back", "front 1.00-6.00 back")]
+		[DataRow("<series#[F2]>", "front    1 - 6    back", "front 1.00 - 6.00 back")]
+		[DataRow("<series#[F2]>", "f.1", "f.1.00")]
+		[DataRow("<series#[F2]>", "f1g", "f1.00g")]
+		[DataRow("<series#[F2]>", "   f1g   ", "f1.00g")]
+		[DataRow("<series#[]>", "1", "1")]
+		[DataRow("<series#>", "1", "1")]
+		public void SeriesOrder_formatters(string template, string seriesOrder, string expected)
+		{
+			var bookDto = GetLibraryBook();
+			bookDto.Series = [new("Series A", seriesOrder,  "B1")];
+
 			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
 			fileTemplate
 				.GetFilename(bookDto, "", "", Replacements)
@@ -496,7 +521,7 @@ namespace Templates_Other
 			var sb = new System.Text.StringBuilder();
 			sb.Append('0', 300);
 			var longText = sb.ToString();
-			Assert.ThrowsException<PathTooLongException>(() => NEW_GetValidFilename_FileNamingTemplate(baseDir, template, "my: book " + longText, "txt"));
+			Assert.ThrowsExactly<PathTooLongException>(() => NEW_GetValidFilename_FileNamingTemplate(baseDir, template, "my: book " + longText, "txt"));
 		}
 
 		private class TemplateTag : ITemplateTag
