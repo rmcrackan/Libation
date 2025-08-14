@@ -18,9 +18,6 @@ namespace FileLiberator;
 
 public partial class DownloadOptions
 {
-	private const string Ec3Codec = "ec+3";
-	private const string Ac4Codec = "ac-4";
-
 	/// <summary>
 	/// Initiate an audiobook download from the audible api.
 	/// </summary>
@@ -71,8 +68,10 @@ public partial class DownloadOptions
 		token.ThrowIfCancellationRequested();
 		try
 		{
-			//try to request a widevine content license using the user's spatial audio settings
-			var codecChoice = config.SpatialAudioCodec is Configuration.SpatialCodec.AC_4 ? Ac4Codec : Ec3Codec;
+			//try to request a widevine content license using the user's audio settings
+			var aacCodecChoice = config.Request_xHE_AAC ? Codecs.xHE_AAC : Codecs.AAC_LC;
+			//Always use the ec+3 codec if converting to mp3
+			var spatialCodecChoice = config.SpatialAudioCodec is Configuration.SpatialCodec.AC_4 && !config.DecryptToLossy ? Codecs.AC_4 : Codecs.EC_3;
 
 			var contentLic
 				= await api.GetDownloadLicenseAsync(
@@ -81,7 +80,8 @@ public partial class DownloadOptions
 					ChapterTitlesType.Tree,
 					DrmType.Widevine,
 					config.RequestSpatial,
-					codecChoice);
+					aacCodecChoice,
+					spatialCodecChoice);
 
 			if (contentLic.DrmType is not DrmType.Widevine)
 				return new LicenseInfo(contentLic);

@@ -285,8 +285,11 @@ namespace LibationFileManager
 			AC_4
 		}
 
-		[Description("Use widevine DRM")]
+		[Description("Use Widevine DRM")]
 		public bool UseWidevine { get => GetNonString(defaultValue: false); set => SetNonString(value); }
+
+		[Description("Request xHE-AAC codec")]
+		public bool Request_xHE_AAC { get => GetNonString(defaultValue: false); set => SetNonString(value); }
 
 		[Description("Request Spatial Audio")]
 		public bool RequestSpatial { get => GetNonString(defaultValue: true); set => SetNonString(value); }

@@ -54,7 +54,6 @@ namespace LibationAvalonia.ViewModels.Settings
 			StripAudibleBrandAudio = config.StripAudibleBrandAudio;
 			StripUnabridged = config.StripUnabridged;
 			_chapterTitleTemplate = config.ChapterTitleTemplate;
-			DecryptToLossy = config.DecryptToLossy;
 			MoveMoovToBeginning = config.MoveMoovToBeginning;
 			LameTargetBitrate = config.LameTargetBitrate;
 			LameDownsampleMono = config.LameDownsampleMono;
@@ -69,6 +68,8 @@ namespace LibationAvalonia.ViewModels.Settings
 			SelectedEncoderQuality = config.LameEncoderQuality;
 			UseWidevine = config.UseWidevine;
 			RequestSpatial = config.RequestSpatial;
+			Request_xHE_AAC = config.Request_xHE_AAC;
+			DecryptToLossy = config.DecryptToLossy;
 		}
 
 		public void SaveSettings(Configuration config)
@@ -100,6 +101,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.SpatialAudioCodec = SpatialAudioCodec?.Value ?? config.SpatialAudioCodec;
 			config.UseWidevine = UseWidevine;
 			config.RequestSpatial = RequestSpatial;
+			config.Request_xHE_AAC = Request_xHE_AAC;
 		}
 
 		public AvaloniaList<EnumDisplay<Configuration.DownloadQuality>> DownloadQualities { get; } = new([
@@ -114,9 +116,10 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string FileDownloadQualityText { get; } = Configuration.GetDescription(nameof(Configuration.FileDownloadQuality));
 		public string UseWidevineText { get; } = Configuration.GetDescription(nameof(Configuration.UseWidevine));
 		public string UseWidevineTip { get; } = Configuration.GetHelpText(nameof(Configuration.UseWidevine));
+		public string Request_xHE_AACText { get; } = Configuration.GetDescription(nameof(Configuration.Request_xHE_AAC));
+		public string Request_xHE_AACTip { get; } = Configuration.GetHelpText(nameof(Configuration.Request_xHE_AAC));
 		public string RequestSpatialText { get; } = Configuration.GetDescription(nameof(Configuration.RequestSpatial));
 		public string RequestSpatialTip { get; } = Configuration.GetHelpText(nameof(Configuration.RequestSpatial));
-		public string SpatialAudioCodecText { get; } = Configuration.GetDescription(nameof(Configuration.SpatialAudioCodec));
 		public string SpatialAudioCodecTip { get; } = Configuration.GetHelpText(nameof(Configuration.SpatialAudioCodec));
 		public string CreateCueSheetText { get; } = Configuration.GetDescription(nameof(Configuration.CreateCueSheet));
 		public string CombineNestedChapterTitlesText { get; } = Configuration.GetDescription(nameof(Configuration.CombineNestedChapterTitles));
@@ -140,10 +143,9 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string RetainAaxFileTip => Configuration.GetHelpText(nameof(RetainAaxFile));
 		public bool DownloadClipsBookmarks { get => _downloadClipsBookmarks; set => this.RaiseAndSetIfChanged(ref _downloadClipsBookmarks, value); }
 
-
-		private bool _useWidevine;
-		private bool _requestSpatial;
+		private bool _useWidevine, _requestSpatial, _request_xHE_AAC;
 		public bool UseWidevine { get => _useWidevine; set => this.RaiseAndSetIfChanged(ref _useWidevine, value); }
+		public bool Request_xHE_AAC { get => _request_xHE_AAC; set => this.RaiseAndSetIfChanged(ref _request_xHE_AAC, value); }
 		public bool RequestSpatial { get => _requestSpatial; set => this.RaiseAndSetIfChanged(ref _requestSpatial, value); }
 
 		public EnumDisplay<Configuration.DownloadQuality> FileDownloadQuality { get; set; }
@@ -155,7 +157,18 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string StripAudibleBrandAudioTip => Configuration.GetHelpText(nameof(StripAudibleBrandAudio));
 		public bool StripUnabridged { get; set; }
 		public string StripUnabridgedTip => Configuration.GetHelpText(nameof(StripUnabridged));
-		public bool DecryptToLossy { get => _decryptToLossy; set => this.RaiseAndSetIfChanged(ref _decryptToLossy, value); }
+		public bool DecryptToLossy {
+			get => _decryptToLossy;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref _decryptToLossy, value);
+				if (DecryptToLossy && SpatialAudioCodec.Value is Configuration.SpatialCodec.AC_4)
+				{
+					SpatialAudioCodec = SpatialAudioCodecs[0];
+					this.RaisePropertyChanged(nameof(SpatialAudioCodec));
+				}
+			}
+		}
 		public string DecryptToLossyTip => Configuration.GetHelpText(nameof(DecryptToLossy));
 		public bool MoveMoovToBeginning { get; set; }
 

@@ -84,10 +84,10 @@
 			folderTemplateTb = new System.Windows.Forms.TextBox();
 			folderTemplateLbl = new System.Windows.Forms.Label();
 			tab4AudioFileOptions = new System.Windows.Forms.TabPage();
+			request_xHE_AAC_Cbox = new System.Windows.Forms.CheckBox();
 			requestSpatialCbox = new System.Windows.Forms.CheckBox();
 			useWidevineCbox = new System.Windows.Forms.CheckBox();
 			spatialAudioCodecCb = new System.Windows.Forms.ComboBox();
-			spatialCodecLbl = new System.Windows.Forms.Label();
 			moveMoovAtomCbox = new System.Windows.Forms.CheckBox();
 			fileDownloadQualityCb = new System.Windows.Forms.ComboBox();
 			fileDownloadQualityLbl = new System.Windows.Forms.Label();
@@ -288,7 +288,7 @@
 			stripAudibleBrandingCbox.Location = new System.Drawing.Point(13, 70);
 			stripAudibleBrandingCbox.Name = "stripAudibleBrandingCbox";
 			stripAudibleBrandingCbox.Size = new System.Drawing.Size(143, 34);
-			stripAudibleBrandingCbox.TabIndex = 14;
+			stripAudibleBrandingCbox.TabIndex = 16;
 			stripAudibleBrandingCbox.Text = "[StripAudibleBranding\r\ndesc]";
 			stripAudibleBrandingCbox.UseVisualStyleBackColor = true;
 			// 
@@ -298,7 +298,7 @@
 			splitFilesByChapterCbox.Location = new System.Drawing.Point(13, 22);
 			splitFilesByChapterCbox.Name = "splitFilesByChapterCbox";
 			splitFilesByChapterCbox.Size = new System.Drawing.Size(162, 19);
-			splitFilesByChapterCbox.TabIndex = 12;
+			splitFilesByChapterCbox.TabIndex = 14;
 			splitFilesByChapterCbox.Text = "[SplitFilesByChapter desc]";
 			splitFilesByChapterCbox.UseVisualStyleBackColor = true;
 			splitFilesByChapterCbox.CheckedChanged += splitFilesByChapterCbox_CheckedChanged;
@@ -311,7 +311,7 @@
 			allowLibationFixupCbox.Location = new System.Drawing.Point(19, 230);
 			allowLibationFixupCbox.Name = "allowLibationFixupCbox";
 			allowLibationFixupCbox.Size = new System.Drawing.Size(162, 19);
-			allowLibationFixupCbox.TabIndex = 11;
+			allowLibationFixupCbox.TabIndex = 13;
 			allowLibationFixupCbox.Text = "[AllowLibationFixup desc]";
 			allowLibationFixupCbox.UseVisualStyleBackColor = true;
 			allowLibationFixupCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
@@ -323,6 +323,7 @@
 			convertLossyRb.Name = "convertLossyRb";
 			convertLossyRb.Size = new System.Drawing.Size(329, 19);
 			convertLossyRb.TabIndex = 27;
+			convertLossyRb.TabStop = true;
 			convertLossyRb.Text = "Download my books as .MP3 files (transcode if necessary)";
 			convertLossyRb.UseVisualStyleBackColor = true;
 			convertLossyRb.CheckedChanged += convertFormatRb_CheckedChanged;
@@ -774,10 +775,10 @@
 			// tab4AudioFileOptions
 			// 
 			tab4AudioFileOptions.AutoScroll = true;
+			tab4AudioFileOptions.Controls.Add(request_xHE_AAC_Cbox);
 			tab4AudioFileOptions.Controls.Add(requestSpatialCbox);
 			tab4AudioFileOptions.Controls.Add(useWidevineCbox);
 			tab4AudioFileOptions.Controls.Add(spatialAudioCodecCb);
-			tab4AudioFileOptions.Controls.Add(spatialCodecLbl);
 			tab4AudioFileOptions.Controls.Add(moveMoovAtomCbox);
 			tab4AudioFileOptions.Controls.Add(fileDownloadQualityCb);
 			tab4AudioFileOptions.Controls.Add(fileDownloadQualityLbl);
@@ -802,19 +803,31 @@
 			tab4AudioFileOptions.Text = "Audio File Options";
 			tab4AudioFileOptions.UseVisualStyleBackColor = true;
 			// 
+			// request_xHE_AAC_Cbox
+			// 
+			request_xHE_AAC_Cbox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+			request_xHE_AAC_Cbox.Checked = true;
+			request_xHE_AAC_Cbox.CheckState = System.Windows.Forms.CheckState.Checked;
+			request_xHE_AAC_Cbox.Location = new System.Drawing.Point(239, 35);
+			request_xHE_AAC_Cbox.Name = "request_xHE_AAC_Cbox";
+			request_xHE_AAC_Cbox.Size = new System.Drawing.Size(183, 19);
+			request_xHE_AAC_Cbox.TabIndex = 3;
+			request_xHE_AAC_Cbox.Text = "[Request_xHE_AAC desc]";
+			request_xHE_AAC_Cbox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			request_xHE_AAC_Cbox.UseVisualStyleBackColor = true;
+			// 
 			// requestSpatialCbox
 			// 
 			requestSpatialCbox.AutoSize = true;
-			requestSpatialCbox.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
 			requestSpatialCbox.Checked = true;
 			requestSpatialCbox.CheckState = System.Windows.Forms.CheckState.Checked;
-			requestSpatialCbox.Location = new System.Drawing.Point(284, 35);
+			requestSpatialCbox.Location = new System.Drawing.Point(19, 60);
 			requestSpatialCbox.Name = "requestSpatialCbox";
 			requestSpatialCbox.Size = new System.Drawing.Size(138, 19);
-			requestSpatialCbox.TabIndex = 29;
+			requestSpatialCbox.TabIndex = 4;
 			requestSpatialCbox.Text = "[RequestSpatial desc]";
 			requestSpatialCbox.UseVisualStyleBackColor = true;
-			requestSpatialCbox.CheckedChanged += useWidevineCbox_CheckedChanged;
+			requestSpatialCbox.CheckedChanged += requestSpatialCbox_CheckedChanged;
 			// 
 			// useWidevineCbox
 			// 
@@ -824,7 +837,7 @@
 			useWidevineCbox.Location = new System.Drawing.Point(19, 35);
 			useWidevineCbox.Name = "useWidevineCbox";
 			useWidevineCbox.Size = new System.Drawing.Size(129, 19);
-			useWidevineCbox.TabIndex = 28;
+			useWidevineCbox.TabIndex = 2;
 			useWidevineCbox.Text = "[UseWidevine desc]";
 			useWidevineCbox.UseVisualStyleBackColor = true;
 			useWidevineCbox.CheckedChanged += useWidevineCbox_CheckedChanged;
@@ -837,16 +850,8 @@
 			spatialAudioCodecCb.Margin = new System.Windows.Forms.Padding(3, 3, 5, 3);
 			spatialAudioCodecCb.Name = "spatialAudioCodecCb";
 			spatialAudioCodecCb.Size = new System.Drawing.Size(173, 23);
-			spatialAudioCodecCb.TabIndex = 2;
-			// 
-			// spatialCodecLbl
-			// 
-			spatialCodecLbl.AutoSize = true;
-			spatialCodecLbl.Location = new System.Drawing.Point(19, 62);
-			spatialCodecLbl.Name = "spatialCodecLbl";
-			spatialCodecLbl.Size = new System.Drawing.Size(143, 15);
-			spatialCodecLbl.TabIndex = 24;
-			spatialCodecLbl.Text = "[SpatialAudioCodec desc]";
+			spatialAudioCodecCb.TabIndex = 5;
+			spatialAudioCodecCb.SelectedIndexChanged += spatialAudioCodecCb_SelectedIndexChanged;
 			// 
 			// moveMoovAtomCbox
 			// 
@@ -875,7 +880,7 @@
 			fileDownloadQualityLbl.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
 			fileDownloadQualityLbl.Name = "fileDownloadQualityLbl";
 			fileDownloadQualityLbl.Size = new System.Drawing.Size(152, 15);
-			fileDownloadQualityLbl.TabIndex = 22;
+			fileDownloadQualityLbl.TabIndex = 1;
 			fileDownloadQualityLbl.Text = "[FileDownloadQuality desc]";
 			// 
 			// combineNestedChapterTitlesCbox
@@ -884,7 +889,7 @@
 			combineNestedChapterTitlesCbox.Location = new System.Drawing.Point(19, 206);
 			combineNestedChapterTitlesCbox.Name = "combineNestedChapterTitlesCbox";
 			combineNestedChapterTitlesCbox.Size = new System.Drawing.Size(217, 19);
-			combineNestedChapterTitlesCbox.TabIndex = 10;
+			combineNestedChapterTitlesCbox.TabIndex = 12;
 			combineNestedChapterTitlesCbox.Text = "[CombineNestedChapterTitles desc]";
 			combineNestedChapterTitlesCbox.UseVisualStyleBackColor = true;
 			// 
@@ -895,7 +900,7 @@
 			clipsBookmarksFormatCb.Location = new System.Drawing.Point(285, 132);
 			clipsBookmarksFormatCb.Name = "clipsBookmarksFormatCb";
 			clipsBookmarksFormatCb.Size = new System.Drawing.Size(67, 23);
-			clipsBookmarksFormatCb.TabIndex = 6;
+			clipsBookmarksFormatCb.TabIndex = 9;
 			// 
 			// downloadClipsBookmarksCbox
 			// 
@@ -903,7 +908,7 @@
 			downloadClipsBookmarksCbox.Location = new System.Drawing.Point(19, 134);
 			downloadClipsBookmarksCbox.Name = "downloadClipsBookmarksCbox";
 			downloadClipsBookmarksCbox.Size = new System.Drawing.Size(248, 19);
-			downloadClipsBookmarksCbox.TabIndex = 5;
+			downloadClipsBookmarksCbox.TabIndex = 8;
 			downloadClipsBookmarksCbox.Text = "Download Clips, Notes, and Bookmarks as";
 			downloadClipsBookmarksCbox.UseVisualStyleBackColor = true;
 			downloadClipsBookmarksCbox.CheckedChanged += downloadClipsBookmarksCbox_CheckedChanged;
@@ -916,7 +921,7 @@
 			audiobookFixupsGb.Location = new System.Drawing.Point(6, 254);
 			audiobookFixupsGb.Name = "audiobookFixupsGb";
 			audiobookFixupsGb.Size = new System.Drawing.Size(416, 114);
-			audiobookFixupsGb.TabIndex = 19;
+			audiobookFixupsGb.TabIndex = 14;
 			audiobookFixupsGb.TabStop = false;
 			audiobookFixupsGb.Text = "Audiobook Fix-ups";
 			// 
@@ -926,7 +931,7 @@
 			stripUnabridgedCbox.Location = new System.Drawing.Point(13, 46);
 			stripUnabridgedCbox.Name = "stripUnabridgedCbox";
 			stripUnabridgedCbox.Size = new System.Drawing.Size(147, 19);
-			stripUnabridgedCbox.TabIndex = 13;
+			stripUnabridgedCbox.TabIndex = 15;
 			stripUnabridgedCbox.Text = "[StripUnabridged desc]";
 			stripUnabridgedCbox.UseVisualStyleBackColor = true;
 			// 
@@ -948,7 +953,7 @@
 			chapterTitleTemplateBtn.Location = new System.Drawing.Point(769, 22);
 			chapterTitleTemplateBtn.Name = "chapterTitleTemplateBtn";
 			chapterTitleTemplateBtn.Size = new System.Drawing.Size(75, 23);
-			chapterTitleTemplateBtn.TabIndex = 15;
+			chapterTitleTemplateBtn.TabIndex = 17;
 			chapterTitleTemplateBtn.Text = "Edit...";
 			chapterTitleTemplateBtn.UseVisualStyleBackColor = true;
 			chapterTitleTemplateBtn.Click += chapterTitleTemplateBtn_Click;
@@ -960,7 +965,7 @@
 			chapterTitleTemplateTb.Name = "chapterTitleTemplateTb";
 			chapterTitleTemplateTb.ReadOnly = true;
 			chapterTitleTemplateTb.Size = new System.Drawing.Size(757, 23);
-			chapterTitleTemplateTb.TabIndex = 16;
+			chapterTitleTemplateTb.TabIndex = 18;
 			// 
 			// lameOptionsGb
 			// 
@@ -977,7 +982,7 @@
 			lameOptionsGb.Location = new System.Drawing.Point(438, 78);
 			lameOptionsGb.Name = "lameOptionsGb";
 			lameOptionsGb.Size = new System.Drawing.Size(412, 304);
-			lameOptionsGb.TabIndex = 14;
+			lameOptionsGb.TabIndex = 28;
 			lameOptionsGb.TabStop = false;
 			lameOptionsGb.Text = "Mp3 Encoding Options";
 			// 
@@ -997,7 +1002,7 @@
 			label21.Location = new System.Drawing.Point(227, 75);
 			label21.Name = "label21";
 			label21.Size = new System.Drawing.Size(94, 15);
-			label21.TabIndex = 3;
+			label21.TabIndex = 0;
 			label21.Text = "Encoder Quality:";
 			// 
 			// encoderQualityCb
@@ -1045,7 +1050,7 @@
 			lameBitrateGb.Location = new System.Drawing.Point(6, 100);
 			lameBitrateGb.Name = "lameBitrateGb";
 			lameBitrateGb.Size = new System.Drawing.Size(400, 92);
-			lameBitrateGb.TabIndex = 0;
+			lameBitrateGb.TabIndex = 33;
 			lameBitrateGb.TabStop = false;
 			lameBitrateGb.Text = "Bitrate";
 			// 
@@ -1170,7 +1175,7 @@
 			lameQualityGb.Location = new System.Drawing.Point(6, 196);
 			lameQualityGb.Name = "lameQualityGb";
 			lameQualityGb.Size = new System.Drawing.Size(400, 85);
-			lameQualityGb.TabIndex = 0;
+			lameQualityGb.TabIndex = 36;
 			lameQualityGb.TabStop = false;
 			lameQualityGb.Text = "Quality";
 			// 
@@ -1260,7 +1265,7 @@
 			label13.Location = new System.Drawing.Point(355, 66);
 			label13.Name = "label13";
 			label13.Size = new System.Drawing.Size(39, 15);
-			label13.TabIndex = 1;
+			label13.TabIndex = 0;
 			label13.Text = "Lower";
 			// 
 			// label10
@@ -1269,7 +1274,7 @@
 			label10.Location = new System.Drawing.Point(6, 66);
 			label10.Name = "label10";
 			label10.Size = new System.Drawing.Size(43, 15);
-			label10.TabIndex = 1;
+			label10.TabIndex = 0;
 			label10.Text = "Higher";
 			// 
 			// label14
@@ -1311,7 +1316,7 @@
 			groupBox2.Location = new System.Drawing.Point(6, 22);
 			groupBox2.Name = "groupBox2";
 			groupBox2.Size = new System.Drawing.Size(182, 45);
-			groupBox2.TabIndex = 0;
+			groupBox2.TabIndex = 28;
 			groupBox2.TabStop = false;
 			groupBox2.Text = "Target";
 			// 
@@ -1348,7 +1353,7 @@
 			label1.Location = new System.Drawing.Point(6, 286);
 			label1.Name = "label1";
 			label1.Size = new System.Drawing.Size(172, 15);
-			label1.TabIndex = 1;
+			label1.TabIndex = 0;
 			label1.Text = "Using L.A.M.E. encoding engine";
 			// 
 			// mergeOpeningEndCreditsCbox
@@ -1357,7 +1362,7 @@
 			mergeOpeningEndCreditsCbox.Location = new System.Drawing.Point(19, 182);
 			mergeOpeningEndCreditsCbox.Name = "mergeOpeningEndCreditsCbox";
 			mergeOpeningEndCreditsCbox.Size = new System.Drawing.Size(198, 19);
-			mergeOpeningEndCreditsCbox.TabIndex = 9;
+			mergeOpeningEndCreditsCbox.TabIndex = 11;
 			mergeOpeningEndCreditsCbox.Text = "[MergeOpeningEndCredits desc]";
 			mergeOpeningEndCreditsCbox.UseVisualStyleBackColor = true;
 			// 
@@ -1367,7 +1372,7 @@
 			retainAaxFileCbox.Location = new System.Drawing.Point(19, 158);
 			retainAaxFileCbox.Name = "retainAaxFileCbox";
 			retainAaxFileCbox.Size = new System.Drawing.Size(131, 19);
-			retainAaxFileCbox.TabIndex = 8;
+			retainAaxFileCbox.TabIndex = 10;
 			retainAaxFileCbox.Text = "[RetainAaxFile desc]";
 			retainAaxFileCbox.UseVisualStyleBackColor = true;
 			retainAaxFileCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
@@ -1380,7 +1385,7 @@
 			downloadCoverArtCbox.Location = new System.Drawing.Point(19, 110);
 			downloadCoverArtCbox.Name = "downloadCoverArtCbox";
 			downloadCoverArtCbox.Size = new System.Drawing.Size(162, 19);
-			downloadCoverArtCbox.TabIndex = 4;
+			downloadCoverArtCbox.TabIndex = 7;
 			downloadCoverArtCbox.Text = "[DownloadCoverArt desc]";
 			downloadCoverArtCbox.UseVisualStyleBackColor = true;
 			downloadCoverArtCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
@@ -1393,7 +1398,7 @@
 			createCueSheetCbox.Location = new System.Drawing.Point(19, 86);
 			createCueSheetCbox.Name = "createCueSheetCbox";
 			createCueSheetCbox.Size = new System.Drawing.Size(145, 19);
-			createCueSheetCbox.TabIndex = 3;
+			createCueSheetCbox.TabIndex = 6;
 			createCueSheetCbox.Text = "[CreateCueSheet desc]";
 			createCueSheetCbox.UseVisualStyleBackColor = true;
 			createCueSheetCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
@@ -1560,8 +1565,8 @@
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.Button applyDisplaySettingsBtn;
 		private System.Windows.Forms.ComboBox spatialAudioCodecCb;
-		private System.Windows.Forms.Label spatialCodecLbl;
 		private System.Windows.Forms.CheckBox useWidevineCbox;
 		private System.Windows.Forms.CheckBox requestSpatialCbox;
+		private System.Windows.Forms.CheckBox request_xHE_AAC_Cbox;
 	}
 }

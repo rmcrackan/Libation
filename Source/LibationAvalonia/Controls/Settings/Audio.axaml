@@ -47,52 +47,57 @@
 					SelectedItem="{CompiledBinding FileDownloadQuality}"/>
 			</Grid>
 
-
-			<Grid ColumnDefinitions="*,*">
-
+			<Grid ColumnDefinitions="*,Auto">
 				<CheckBox
-					IsChecked="{CompiledBinding UseWidevine, Mode=TwoWay}"
+					ToolTip.Tip="{CompiledBinding UseWidevineTip}"
 					IsCheckedChanged="UseWidevine_IsCheckedChanged"
-					ToolTip.Tip="{CompiledBinding UseWidevineTip}">
+					IsChecked="{CompiledBinding UseWidevine, Mode=TwoWay}">
 					<TextBlock Text="{CompiledBinding UseWidevineText}" />
 				</CheckBox>
-				
 				<CheckBox
 					Grid.Column="1"
-					HorizontalAlignment="Right"
+					ToolTip.Tip="{CompiledBinding Request_xHE_AACTip}"
+					IsEnabled="{CompiledBinding UseWidevine}"
+					IsChecked="{CompiledBinding Request_xHE_AAC, Mode=TwoWay}">
+					<TextBlock Text="{CompiledBinding Request_xHE_AACText}" />
+				</CheckBox>
+			</Grid>
+
+			<Grid ColumnDefinitions="*,Auto">
+				<CheckBox
 					ToolTip.Tip="{CompiledBinding RequestSpatialTip}"
 					IsEnabled="{CompiledBinding UseWidevine}"
 					IsChecked="{CompiledBinding RequestSpatial, Mode=TwoWay}">
 					<TextBlock Text="{CompiledBinding RequestSpatialText}" />
 				</CheckBox>
-			</Grid>
-
-			<Grid ColumnDefinitions="*,Auto"
-				  ToolTip.Tip="{CompiledBinding SpatialAudioCodecTip}">
-				<Grid.IsEnabled>
-					<MultiBinding Converter="{x:Static BoolConverters.And}">
-						<MultiBinding.Bindings>
-							<CompiledBinding Path="UseWidevine"/>
-							<CompiledBinding Path="RequestSpatial"/>
-						</MultiBinding.Bindings>
-					</MultiBinding>
-				</Grid.IsEnabled>
-				
-				<TextBlock
-					VerticalAlignment="Center"
-					Text="{CompiledBinding SpatialAudioCodecText}" />
-
-				<controls:WheelComboBox
-					Margin="5,0,0,0"
+				<Grid
 					Grid.Column="1"
-					ItemsSource="{CompiledBinding SpatialAudioCodecs}"
-					SelectedItem="{CompiledBinding SpatialAudioCodec}"/>
+					ColumnDefinitions="Auto,Auto"
+					VerticalAlignment="Top"
+					ToolTip.Tip="{CompiledBinding SpatialAudioCodecTip}">
+					<Grid.IsEnabled>
+						<MultiBinding Converter="{x:Static BoolConverters.And}">
+							<MultiBinding.Bindings>
+								<CompiledBinding Path="UseWidevine"/>
+								<CompiledBinding Path="RequestSpatial"/>
+							</MultiBinding.Bindings>
+						</MultiBinding>
+					</Grid.IsEnabled>
+					
+					<TextBlock
+						VerticalAlignment="Center"
+						Text="Codec:"/>
+
+					<controls:WheelComboBox
+						Margin="5,0,0,0"
+						Grid.Column="1"
+						VerticalAlignment="Center"
+						SelectionChanged="SpatialCodec_SelectionChanged"
+						ItemsSource="{CompiledBinding SpatialAudioCodecs}"
+						SelectedItem="{CompiledBinding SpatialAudioCodec}"/>
+				</Grid>
+				
 			</Grid>
-			
-			
-			
-			
-			
 
 			<CheckBox IsChecked="{CompiledBinding CreateCueSheet, Mode=TwoWay}">
 				<TextBlock Text="{CompiledBinding CreateCueSheetText}" />
