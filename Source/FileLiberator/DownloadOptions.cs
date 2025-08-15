@@ -26,7 +26,7 @@ namespace FileLiberator
 		public string Language => LibraryBook.Book.Language;
 		public string? AudibleProductId => LibraryBookDto.AudibleProductId;
 		public string? SeriesName => LibraryBookDto.FirstSeries?.Name;
-		public string? SeriesNumber => LibraryBookDto.FirstSeries?.Number;
+		public string? SeriesNumber => LibraryBookDto.FirstSeries?.Order?.ToString();
 		public NAudio.Lame.LameConfig? LameConfig { get; }
 		public string UserAgent => AudibleApi.Resources.Download_User_Agent;
 		public bool StripUnabridged => Config.AllowLibationFixup && Config.StripUnabridged;
@@ -74,7 +74,7 @@ namespace FileLiberator
 			//If DrmType is not Adrm or Widevine, the delivered file is an unencrypted mp3.
 			OutputFormat
 				= licInfo.DrmType is not AudibleApi.Common.DrmType.Adrm and not AudibleApi.Common.DrmType.Widevine ||
-				(config.AllowLibationFixup && config.DecryptToLossy && licInfo.ContentMetadata.ContentReference.Codec != Ac4Codec)
+				(config.AllowLibationFixup && config.DecryptToLossy && licInfo.ContentMetadata.ContentReference.Codec != AudibleApi.Codecs.AC_4)
 				? OutputFormat.Mp3
 				: OutputFormat.M4b;
 

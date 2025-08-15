@@ -1,21 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+using AssertionHelper;
 using AudibleApi;
 using AudibleApi.Authorization;
 using AudibleUtilities;
-using Dinah.Core;
-using FluentAssertions;
-using FluentAssertions.Common;
-using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace AccountsTests
 {
@@ -528,7 +518,7 @@ namespace AccountsTests
             var a2 = new Account("a") { AccountName = "two", IdentityTokens = idIn };
 
             // violation: validate()
-            Assert.ThrowsException<InvalidOperationException>(() => accountsSettings.Add(a2));
+            Assert.ThrowsExactly<InvalidOperationException>(() => accountsSettings.Add(a2));
         }
 
         [TestMethod]
@@ -545,7 +535,7 @@ namespace AccountsTests
             accountsSettings.Add(a2);
 
             // violation: GetAccount.SingleOrDefault
-            Assert.ThrowsException<InvalidOperationException>(() => a2.IdentityTokens = idIn);
+            Assert.ThrowsExactly<InvalidOperationException>(() => a2.IdentityTokens = idIn);
         }
     }
 

@@ -25,7 +25,7 @@ namespace LibationWinForms.Dialogs
 			this.moveMoovAtomCbox.Text = desc(nameof(config.MoveMoovToBeginning));
 			this.useWidevineCbox.Text = desc(nameof(config.UseWidevine));
 			this.requestSpatialCbox.Text = desc(nameof(config.RequestSpatial));
-			this.spatialCodecLbl.Text = desc(nameof(config.SpatialAudioCodec));
+			this.request_xHE_AAC_Cbox.Text = desc(nameof(config.Request_xHE_AAC));
 
 			toolTip.SetToolTip(combineNestedChapterTitlesCbox, Configuration.GetHelpText(nameof(config.CombineNestedChapterTitles)));
 			toolTip.SetToolTip(allowLibationFixupCbox, Configuration.GetHelpText(nameof(config.AllowLibationFixup)));
@@ -38,7 +38,7 @@ namespace LibationWinForms.Dialogs
 			toolTip.SetToolTip(stripAudibleBrandingCbox, Configuration.GetHelpText(nameof(config.StripAudibleBrandAudio)));
 			toolTip.SetToolTip(useWidevineCbox, Configuration.GetHelpText(nameof(config.UseWidevine)));
 			toolTip.SetToolTip(requestSpatialCbox, Configuration.GetHelpText(nameof(config.RequestSpatial)));
-			toolTip.SetToolTip(spatialCodecLbl, Configuration.GetHelpText(nameof(config.SpatialAudioCodec)));
+			toolTip.SetToolTip(request_xHE_AAC_Cbox, Configuration.GetHelpText(nameof(config.Request_xHE_AAC)));
 			toolTip.SetToolTip(spatialAudioCodecCb, Configuration.GetHelpText(nameof(config.SpatialAudioCodec)));
 
 			fileDownloadQualityCb.Items.AddRange(
@@ -80,6 +80,7 @@ namespace LibationWinForms.Dialogs
 			fileDownloadQualityCb.SelectedItem = config.FileDownloadQuality;
 			spatialAudioCodecCb.SelectedItem = config.SpatialAudioCodec;
 			useWidevineCbox.Checked = config.UseWidevine;
+			request_xHE_AAC_Cbox.Checked = config.Request_xHE_AAC;
 			requestSpatialCbox.Checked = config.RequestSpatial;
 
 			clipsBookmarksFormatCb.SelectedItem = config.ClipsBookmarksFileFormat;
@@ -124,6 +125,7 @@ namespace LibationWinForms.Dialogs
 			config.DownloadClipsBookmarks = downloadClipsBookmarksCbox.Checked;
 			config.FileDownloadQuality = ((EnumDisplay<Configuration.DownloadQuality>)fileDownloadQualityCb.SelectedItem).Value;
 			config.UseWidevine = useWidevineCbox.Checked;
+			config.Request_xHE_AAC = request_xHE_AAC_Cbox.Checked;
 			config.RequestSpatial = requestSpatialCbox.Checked;
 			config.SpatialAudioCodec = ((EnumDisplay<Configuration.SpatialCodec>)spatialAudioCodecCb.SelectedItem).Value;
 			config.ClipsBookmarksFileFormat = (Configuration.ClipBookmarkFormat)clipsBookmarksFormatCb.SelectedItem;
@@ -175,6 +177,13 @@ namespace LibationWinForms.Dialogs
 		{
 			moveMoovAtomCbox.Enabled = convertLosslessRb.Checked;
 			lameOptionsGb.Enabled = !convertLosslessRb.Checked;
+
+			if (convertLossyRb.Checked && requestSpatialCbox.Checked)
+			{
+				// Only E-AC-3 can be converted to mp3
+				spatialAudioCodecCb.SelectedIndex = 0;
+			}
+
 			lameTargetRb_CheckedChanged(sender, e);
 			LameMatchSourceBRCbox_CheckedChanged(sender, e);
 		}
@@ -196,7 +205,18 @@ namespace LibationWinForms.Dialogs
 			}
 		}
 
-
+		private void spatialAudioCodecCb_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (spatialAudioCodecCb.SelectedIndex == 1 && convertLossyRb.Checked)
+			{
+				// Only E-AC-3 can be converted to mp3
+				spatialAudioCodecCb.SelectedIndex = 0;
+			}
+		}
+		private void requestSpatialCbox_CheckedChanged(object sender, EventArgs e)
+		{
+			spatialAudioCodecCb.Enabled = requestSpatialCbox.Checked && useWidevineCbox.Checked;
+		}
 
 		private void useWidevineCbox_CheckedChanged(object sender, EventArgs e)
 		{
@@ -233,9 +253,13 @@ namespace LibationWinForms.Dialogs
 					return;
 				}
 			}
-			requestSpatialCbox.Enabled = useWidevineCbox.Checked;
-			spatialCodecLbl.Enabled = spatialAudioCodecCb.Enabled = useWidevineCbox.Checked && requestSpatialCbox.Checked;
-		}
+			else
+			{
+				requestSpatialCbox.Checked = request_xHE_AAC_Cbox.Checked = false;
+			}
 
+			requestSpatialCbox.Enabled = request_xHE_AAC_Cbox.Enabled = useWidevineCbox.Checked;
+			requestSpatialCbox_CheckedChanged(sender, e);
+		}
 	}
 }

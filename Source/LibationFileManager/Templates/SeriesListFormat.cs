@@ -12,6 +12,6 @@ internal partial class SeriesListFormat : IListFormat<SeriesListFormat>
 		: IListFormat<SeriesListFormat>.Join(formatString, series);
 
 	/// <summary> Format must have at least one of the string {N}, {#}, {ID} </summary>
-	[GeneratedRegex(@"[Ff]ormat\((.*?(?:{[N#]}|{ID})+.*?)\)")]
+	[GeneratedRegex(@"[Ff]ormat\((.*?(?:{#(?:\:.*?)?}|{N}|{ID})+.*?)\)")]
 	public static partial Regex FormatRegex();
 }

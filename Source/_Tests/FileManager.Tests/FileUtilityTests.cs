@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Dinah.Core;
+using AssertionHelper;
 using FileManager;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FileUtilityTests
@@ -17,7 +13,7 @@ namespace FileUtilityTests
 		static readonly ReplacementCharacters Barebones = ReplacementCharacters.Barebones(Environment.OSVersion.Platform == PlatformID.Win32NT);
 
 		[TestMethod]
-		public void null_path_throws() => Assert.ThrowsException<ArgumentNullException>(() => FileUtility.GetSafePath(null, Default));
+		public void null_path_throws() => Assert.ThrowsExactly<ArgumentNullException>(() => FileUtility.GetSafePath(null, Default));
 
 		[TestMethod]
 		// non-empty replacement
@@ -137,25 +133,25 @@ namespace FileUtilityTests
 	public class GetSequenceFormatted
 	{
 		[TestMethod]
-		public void negative_partsPosition() => Assert.ThrowsException<ArgumentException>(()
+		public void negative_partsPosition() => Assert.ThrowsExactly<ArgumentException>(()
 			=> FileUtility.GetSequenceFormatted(-1, 2)
 		);
 		[TestMethod]
-		public void zero_partsPosition() => Assert.ThrowsException<ArgumentException>(()
+		public void zero_partsPosition() => Assert.ThrowsExactly<ArgumentException>(()
 			=> FileUtility.GetSequenceFormatted(0, 2)
 		);
 
 		[TestMethod]
-		public void negative_partsTotal() => Assert.ThrowsException<ArgumentException>(()
+		public void negative_partsTotal() => Assert.ThrowsExactly<ArgumentException>(()
 			=> FileUtility.GetSequenceFormatted(2, -1)
 		);
 		[TestMethod]
-		public void zero_partsTotal() => Assert.ThrowsException<ArgumentException>(()
+		public void zero_partsTotal() => Assert.ThrowsExactly<ArgumentException>(()
 			=> FileUtility.GetSequenceFormatted(2, 0)
 		);
 
 		[TestMethod]
-		public void partsPosition_greater_than_partsTotal() => Assert.ThrowsException<ArgumentException>(()
+		public void partsPosition_greater_than_partsTotal() => Assert.ThrowsExactly<ArgumentException>(()
 			=> FileUtility.GetSequenceFormatted(2, 1)
 		);
 

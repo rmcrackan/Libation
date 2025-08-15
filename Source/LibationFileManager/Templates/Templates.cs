@@ -271,7 +271,7 @@ namespace LibationFileManager.Templates
 			{ TemplateTags.FirstNarrator, lb => lb.FirstNarrator, FormattableFormatter },
 			{ TemplateTags.Series, lb => lb.Series, SeriesListFormat.Formatter },
 			{ TemplateTags.FirstSeries, lb => lb.FirstSeries, FormattableFormatter },
-			{ TemplateTags.SeriesNumber, lb => lb.FirstSeries?.Number },
+			{ TemplateTags.SeriesNumber, lb => lb.FirstSeries?.Order, FormattableFormatter },
 			{ TemplateTags.Language, lb => lb.Language },
 			//Don't allow formatting of LanguageShort
 			{ TemplateTags.LanguageShort, lb =>lb.Language, getLanguageShort },

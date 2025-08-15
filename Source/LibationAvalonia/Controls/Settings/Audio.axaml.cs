@@ -5,6 +5,7 @@ using LibationAvalonia.ViewModels.Settings;
 using LibationFileManager;
 using LibationFileManager.Templates;
 using LibationUiBase.Forms;
+using ReactiveUI;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,6 +21,15 @@ namespace LibationAvalonia.Controls.Settings
 			{
 				_ = Configuration.Instance.LibationFiles;
 				DataContext = new AudioSettingsVM(Configuration.Instance);
+			}
+		}
+
+		private void SpatialCodec_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (_viewModel.SpatialAudioCodec.Value is Configuration.SpatialCodec.AC_4 && _viewModel.DecryptToLossy)
+			{
+				_viewModel.SpatialAudioCodec = _viewModel.SpatialAudioCodecs[0];
+				_viewModel.RaisePropertyChanged(nameof(AudioSettingsVM.SpatialAudioCodec));
 			}
 		}
 
@@ -58,6 +68,10 @@ namespace LibationAvalonia.Controls.Settings
 
 					_viewModel.UseWidevine = false;
 				}
+			}
+			else
+			{
+				_viewModel.Request_xHE_AAC = _viewModel.RequestSpatial = false;
 			}
 		}
 
