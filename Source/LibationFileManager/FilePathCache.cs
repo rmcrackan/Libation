@@ -1,10 +1,11 @@
-﻿using System;
+﻿using FileManager;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FileManager;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 #nullable enable
 namespace LibationFileManager
@@ -32,6 +33,10 @@ namespace LibationFileManager
 			{
 				Cache = JsonConvert.DeserializeObject<FileCacheV2<CacheEntry>>(File.ReadAllText(jsonFileV2))
 					?? throw new NullReferenceException("File exists but deserialize is null. This will never happen when file is healthy.");
+
+				//Once per startup, launch a task to validate existence of files in the cache.
+				//This is fire-and-forget. Since it is never awaited, it will no exceptions will be thrown to the caller.
+				Task.Run(ValidateAllFiles);
 			}
 			catch (Exception ex)
 			{
@@ -40,6 +45,23 @@ namespace LibationFileManager
 					File.Delete(jsonFileV2);
 				return;
 			}
+		}
+
+		private static void ValidateAllFiles()
+		{
+			bool cacheChanged = false;
+			foreach (var id in Cache.GetIDs())
+			{
+				foreach (var entry in Cache.GetIdEntries(id))
+				{
+					if (!File.Exists(entry.Path))
+					{
+						cacheChanged |= Remove(entry);
+					}
+				}
+			}
+			if (cacheChanged)
+				save();
 		}
 
 		public static bool Exists(string id, FileType type) => GetFirstPath(id, type) is not null;
@@ -111,10 +133,20 @@ namespace LibationFileManager
 			return false;
 		}
 
-		public static void Insert(string id, string path)
+		public static void Insert(string id, params string[] paths)
 		{
-			var type = FileTypes.GetFileTypeFromPath(path);
-			Insert(new CacheEntry(id, type, path));
+			var newEntries
+				= paths
+				.Select(path => new CacheEntry(id, FileTypes.GetFileTypeFromPath(path), path))
+				.ToList();
+
+			lock (locker)
+				Cache.AddRange(id, newEntries);
+
+			if (Inserted is not null)
+				newEntries.ForEach(e => Inserted?.Invoke(null, e));
+
+			save();
 		}
 
 		public static void Insert(CacheEntry entry)
@@ -150,8 +182,10 @@ namespace LibationFileManager
 		private class FileCacheV2<TEntry>
 		{
 			[JsonProperty]
-			private readonly ConcurrentDictionary<string, List<TEntry>> Dictionary = new();
+			private readonly ConcurrentDictionary<string, HashSet<TEntry>> Dictionary = new();
 			private static object lockObject = new();
+
+			public List<string> GetIDs() => Dictionary.Keys.ToList();
 
 			public List<TEntry> GetIdEntries(string id)
 			{
@@ -162,23 +196,34 @@ namespace LibationFileManager
 
 			public void Add(string id, TEntry entry)
 			{
-				Dictionary.AddOrUpdate(id, [entry], (id, entries) => { entries.Add(entry); return entries; });
+				Dictionary.AddOrUpdate<TEntry>(id,
+					(_, e) => [e],                         //Add new Dictionary Value
+					(id, existingEntries, newEntry) =>     //Update existing Dictionary Value
+					{
+						existingEntries.Add(entry);
+						return existingEntries;
+					},
+					entry);
 			}
 
 			public void AddRange(string id, IEnumerable<TEntry> entries)
 			{
-				Dictionary.AddOrUpdate(id, entries.ToList(), (id, entries) =>
-				{
-					entries.AddRange(entries);
-					return entries;
-				});
+				Dictionary.AddOrUpdate<IEnumerable<TEntry>>(id,
+					(_, e) => e.ToHashSet(),               //Add new Dictionary Value
+					(id, existingEntries, newEntries) =>   //Update existing Dictionary Value
+					{
+						foreach (var entry in newEntries)
+							existingEntries.Add(entry);
+						return existingEntries;
+					},
+					entries);
 			}
 
 			public bool Remove(string id, TEntry entry)
 			{
 				lock (lockObject)
 				{
-					if (Dictionary.TryGetValue(id, out List<TEntry>? entries))
+					if (Dictionary.TryGetValue(id, out HashSet<TEntry>? entries))
 					{
 						var removed = entries?.Remove(entry) ?? false;
 						if (removed && entries?.Count == 0)
