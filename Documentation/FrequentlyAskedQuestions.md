@@ -37,9 +37,9 @@ Self-hosting online:
 
 ## Q: I'm having trouble playing my non-spatial audiobook, how can I fix this?
 
-**A:** If you enabled the [Use Widevine DRM](AudioFileFormats.md#use-widevine-drm) option in settings, the audiobook is most likely being downloaded in the [xHE-AAC codec](AudioFileFormats.md#xhe-aac) which isn't widely supported. You have two options:
+**A:** If you enabled the [Request xHE-AAC Codec](AudioFileFormats.md#request-xhe-aac-codec) option in settings, then the audiobook is being downloaded in the [xHE-AAC codec](AudioFileFormats.md#xhe-aac) which isn't widely supported. You have two options:
 1. Use a media player which supports the xHE-AAC codec. [See an incomplete list of media players which support xHE-AAC](AudioFileFormats.md#supported-media-players).
-2. Disable [Use Widevine DRM](AudioFileFormats.md#use-widevine-drm) option in settings and re-download the audiobook. This will cause Libation to download audiobooks in the [AAC-LC codec](AudioFileFormats.md#aac-lc), which enjoys near-universal media player support.
+2. Disable the [Request xHE-AAC Codec](AudioFileFormats.md#request-xhe-aac-codec) option in settings and re-download the audiobook. This will cause Libation to download audiobooks in the [AAC-LC codec](AudioFileFormats.md#aac-lc), which enjoys near-universal media player support.
 
 ## Q: I'm having trouble playing my book with 4D, spatial audio, or Dolby Atmos, how can I fix this?
 
