@@ -102,6 +102,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libation UI", "Libation UI"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libation CLI", "Libation CLI", "{47E27674-595D-4F7A-8CFB-127E768E1D1E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssertionHelper", "_Tests\AssertionHelper\AssertionHelper.csproj", "{CFE7A0E5-37FE-40BE-A70B-41B5104181C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -220,6 +222,10 @@ Global
 		{E90C4651-AF11-41B4-A839-10082D0391F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E90C4651-AF11-41B4-A839-10082D0391F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E90C4651-AF11-41B4-A839-10082D0391F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFE7A0E5-37FE-40BE-A70B-41B5104181C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFE7A0E5-37FE-40BE-A70B-41B5104181C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFE7A0E5-37FE-40BE-A70B-41B5104181C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFE7A0E5-37FE-40BE-A70B-41B5104181C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -258,6 +264,7 @@ Global
 		{FDDABAFE-35AD-42FC-AC95-0B1FE0DF0DDE} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
 		{53758A35-1C7E-4702-9B96-433ABA457B37} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
 		{47E27674-595D-4F7A-8CFB-127E768E1D1E} = {8679CAC8-9164-4007-BDD2-F004810EDA14}
+		{CFE7A0E5-37FE-40BE-A70B-41B5104181C4} = {67E66E82-5532-4440-AFB3-9FB1DF9DEF53}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {615E00ED-BAEF-4E8E-A92A-9B82D87942A9}

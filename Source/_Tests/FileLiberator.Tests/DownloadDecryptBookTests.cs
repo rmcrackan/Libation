@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Generic;
+using AssertionHelper;
 using AudibleApi.Common;
-using Dinah.Core;
-using FileManager;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 
 namespace FileLiberator.Tests
 {

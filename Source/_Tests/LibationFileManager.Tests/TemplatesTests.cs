@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Dinah.Core;
+using AssertionHelper;
 using FileManager;
 using FileManager.NamingTemplate;
-using FluentAssertions;
 using LibationFileManager.Templates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

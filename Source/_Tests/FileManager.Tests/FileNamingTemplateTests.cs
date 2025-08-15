@@ -1,6 +1,6 @@
 ﻿using System.Linq;
+using AssertionHelper;
 using FileManager.NamingTemplate;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NamingTemplateTests

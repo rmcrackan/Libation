@@ -1,20 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using Dinah.Core;
-using FluentAssertions;
-using FluentAssertions.Common;
+using AssertionHelper;
 using LibationSearchEngine;
 using Lucene.Net.Analysis.Standard;
-using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace SearchEngineTests
 {
