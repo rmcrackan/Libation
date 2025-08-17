@@ -6,6 +6,10 @@ labels: bug
 assignees: ''
 ---
 
+PLEASE FILL OUT THE FOLLOWING. Bug reports with limited information or lacking an attached log file may get limited or delayed help.
+
+___
+
 **Describe the bug**  
 A clear and concise description of what the bug is.
 
