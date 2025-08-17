@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 using System.Security.Cryptography;
 
 #nullable enable
@@ -56,18 +57,97 @@ internal class Device
 
 	public byte[] SignMessage(byte[] message)
 	{
-		using var sha1 = SHA1.Create();
-		var digestion = sha1.ComputeHash(message);
-		return CdmKey.SignHash(digestion, HashAlgorithmName.SHA1, RSASignaturePadding.Pss);
+		var digestion = SHA1.HashData(message);
+		return PssSha1Signer.SignHash(CdmKey, digestion);
 	}
 
 	public bool VerifyMessage(byte[] message, byte[] signature)
 	{
-		using var sha1 = SHA1.Create();
-		var digestion = sha1.ComputeHash(message);
+		var digestion = SHA1.HashData(message);
 		return CdmKey.VerifyHash(digestion, signature, HashAlgorithmName.SHA1, RSASignaturePadding.Pss);
 	}
 
 	public byte[] DecryptSessionKey(byte[] sessionKey)
 		=> CdmKey.Decrypt(sessionKey, RSAEncryptionPadding.OaepSHA1);
+
+	/// <summary>
+	/// Completely managed implementation of RSASSA-PSS using SHA-1.
+	/// https://github.com/bcgit/bc-csharp/blob/master/crypto/src/crypto/signers/PssSigner.cs
+	/// </summary>
+	private static class PssSha1Signer
+	{
+		private const int Sha1DigestSize = 20;
+		private const int Trailer = 0xBC;
+
+		public static byte[] SignHash(RSA rsa, ReadOnlySpan<byte> hash)
+		{
+			ArgumentOutOfRangeException.ThrowIfNotEqual(hash.Length, Sha1DigestSize);
+
+			var parameters = rsa.ExportParameters(true);
+			var Modulus = new BigInteger(parameters.Modulus, isUnsigned: true, isBigEndian: true);
+			var Exponent = new BigInteger(parameters.D, isUnsigned: true, isBigEndian: true);
+			var emBits = rsa.KeySize - 1;
+			var block = new byte[(emBits + 7) / 8];
+			var firstByteMask = (byte)(0xFFU >> ((block.Length * 8) - emBits));
+
+			Span<byte> mDash = new byte[8 + 2 * Sha1DigestSize];
+
+			hash.CopyTo(mDash.Slice(8));
+			var h = SHA1.HashData(mDash);
+
+			block[^(2 * (Sha1DigestSize + 1))] = 1;
+			byte[] dbMask = MaskGeneratorFunction1(h, 0, h.Length, block.Length - Sha1DigestSize - 1);
+			for (int i = 0; i != dbMask.Length; i++)
+				block[i] ^= dbMask[i];
+
+			h.CopyTo(block, block.Length - Sha1DigestSize - 1);
+
+			block[0] &= firstByteMask;
+			block[^1] = Trailer;
+
+			var input = new BigInteger(block, isUnsigned: true, isBigEndian: true);
+			var result = BigInteger.ModPow(input, Exponent, Modulus);
+			return result.ToByteArray(isUnsigned: true, isBigEndian: true);
+		}
+
+		private static byte[] MaskGeneratorFunction1(byte[] Z, int zOff, int zLen, int length)
+		{
+			byte[] mask = new byte[length];
+			byte[] hashBuf = new byte[Sha1DigestSize];
+			byte[] C = new byte[4];
+			int counter = 0;
+
+			using var sha = SHA1.Create();
+
+			for (; counter < (length / Sha1DigestSize); counter++)
+			{
+				ItoOSP(counter, C);
+
+				sha.TransformBlock(Z, zOff, zLen, null, 0);
+				sha.TransformFinalBlock(C, 0, C.Length);
+
+				sha.Hash!.CopyTo(mask, counter * Sha1DigestSize);
+			}
+
+			if ((counter * Sha1DigestSize) < length)
+			{
+				ItoOSP(counter, C);
+
+				sha.TransformBlock(Z, zOff, zLen, null, 0);
+				sha.TransformFinalBlock(C, 0, C.Length);
+
+				Array.Copy(sha.Hash!, 0, mask, counter * Sha1DigestSize, mask.Length - (counter * Sha1DigestSize));
+			}
+
+			return mask;
+		}
+
+		private static void ItoOSP(int i, byte[] sp)
+		{
+			sp[0] = (byte)((uint)i >> 24);
+			sp[1] = (byte)((uint)i >> 16);
+			sp[2] = (byte)((uint)i >> 8);
+			sp[3] = (byte)((uint)i >> 0);
+		}
+	}
 }

@@ -74,7 +74,7 @@ public class SeriesOrder : IFormattable
 					continue;
 
 				var substring = numString[s..e];
-				if (float.TryParse(substring, out value))
+				if (float.TryParse(substring, System.Globalization.CultureInfo.InvariantCulture, out value))
 				{
 					range = new Range(s, e);
 					return true;
