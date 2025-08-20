@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AaxDecrypter;
 using AssertionHelper;
 using FileManager;
 using FileManager.NamingTemplate;
@@ -52,8 +53,13 @@ namespace TemplatesTests
 				BitRate = 128,
 				SampleRate = 44100,
 				Channels = 2,
-                Language = "English"
-            };
+                Language = "English",
+				Subtitle = "An Audible Original Drama",
+				TitleWithSubtitle = "A Study in Scarlet: An Audible Original Drama",
+				Codec = "AAC-LC",
+				FileVersion = "1.0",
+				LibationVersion = "1.0.0",
+			};
 	}
 
 	[TestClass]
@@ -373,6 +379,55 @@ namespace TemplatesTests
 				.Should().Be(expected);
 		}
 
+		[TestMethod]
+		[DataRow("<has id->true<-has>", "true")]
+		[DataRow("<has title->true<-has>", "true")]
+		[DataRow("<has title short->true<-has>", "true")]
+		[DataRow("<has audible title->true<-has>", "true")]
+		[DataRow("<has audible subtitle->true<-has>", "true")]
+		[DataRow("<has author->true<-has>", "true")]
+		[DataRow("<has first author->true<-has>", "true")]
+		[DataRow("<has narrator->true<-has>", "true")]
+		[DataRow("<has first narrator->true<-has>", "true")]
+		[DataRow("<has series->true<-has>", "true")]
+		[DataRow("<has first series->true<-has>", "true")]
+		[DataRow("<has series#->true<-has>", "true")]
+		[DataRow("<has bitrate->true<-has>", "true")]
+		[DataRow("<has samplerate->true<-has>", "true")]
+		[DataRow("<has channels->true<-has>", "true")]
+		[DataRow("<has codec->true<-has>", "true")]
+		[DataRow("<has file version->true<-has>", "true")]
+		[DataRow("<has libation version->true<-has>", "true")]
+		[DataRow("<has account->true<-has>", "true")]
+		[DataRow("<has account nickname->true<-has>", "true")]
+		[DataRow("<has locale->true<-has>", "true")]
+		[DataRow("<has year->true<-has>", "true")]
+		[DataRow("<has language->true<-has>", "true")]
+		[DataRow("<has language short->true<-has>", "true")]
+		[DataRow("<has file date->true<-has>", "true")]
+		[DataRow("<has pub date->true<-has>", "true")]
+		[DataRow("<has date added->true<-has>", "true")]
+		[DataRow("<has ch count->true<-has>", "true")]
+		[DataRow("<has ch title->true<-has>", "true")]
+		[DataRow("<has ch#->true<-has>", "true")]
+		[DataRow("<has ch# 0->true<-has>", "true")]
+		[DataRow("<has FAKE->true<-has>", "")]
+		public void HasValue_test(string template, string expected)
+		{
+			var bookDto = GetLibraryBook();
+			var multiDto = new MultiConvertFileProperties
+			{
+				PartsPosition = 1,
+				PartsTotal = 2,
+				Title = bookDto.Title,
+			};
+
+			Templates.TryGetTemplate<Templates.FileTemplate>(template, out var fileTemplate).Should().BeTrue();
+			fileTemplate
+				.GetFilename(bookDto, multiDto, "", "", Replacements)
+				.PathWithoutPrefix
+				.Should().Be(expected);
+		}
 
 		[TestMethod]
 		[DataRow("<series>", "Series A, Series B, Series C, Series D")]
@@ -418,6 +473,7 @@ namespace TemplatesTests
 		[DataRow("<series#[F2]>", "   f1g   ", "f1.00g")]
 		[DataRow("<series#[]>", "1", "1")]
 		[DataRow("<series#>", "1", "1")]
+		[DataRow("<series#>", " 1 6 ", "1 6")]
 		public void SeriesOrder_formatters(string template, string seriesOrder, string expected)
 		{
 			var bookDto = GetLibraryBook();

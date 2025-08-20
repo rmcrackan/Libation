@@ -48,13 +48,13 @@
 		</Grid>
 
 		<Grid Grid.Row="1" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="NUMBER FIELDS" />
+			<TextBlock Text="STRING FIELDS" />
 			<TextBlock Grid.Row="1" Text="{CompiledBinding StringUsage}" />
 			<ListBox Grid.Row="2" ItemsSource="{CompiledBinding StringFields}"/>
 		</Grid>
 
 		<Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,Auto,*">
-			<TextBlock Text="STRING FIELDS" />
+			<TextBlock Text="NUMBER FIELDS" />
 			<TextBlock Grid.Row="1" Text="{CompiledBinding NumberUsage}" />
 			<ListBox Grid.Row="2" ItemsSource="{CompiledBinding NumberFields}"/>
 		</Grid>

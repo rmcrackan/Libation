@@ -9,7 +9,7 @@ public static class AssertionExtensions
 
 	[StackTraceHidden]
 	public static void Be<T>(this T? value, T? expectedValue) where T : IEquatable<T>
-		=> Assert.AreEqual(value, expectedValue);
+		=> Assert.AreEqual(expectedValue, value);
 
 	[StackTraceHidden]
 	public static void BeNull<T>(this T? value) where T : class
@@ -17,7 +17,7 @@ public static class AssertionExtensions
 
 	[StackTraceHidden]
 	public static void BeSameAs<T>(this T? value, T? otherValue)
-		=> Assert.AreSame(value, otherValue);
+		=> Assert.AreSame(otherValue, value);
 
 	[StackTraceHidden]
 	public static void BeFalse(this bool value)
@@ -33,5 +33,5 @@ public static class AssertionExtensions
 
 	[StackTraceHidden]
 	public static void BeEquivalentTo<T>(this IEnumerable<T?>? value, IEnumerable<T?>? expectedValue)
-		=> CollectionAssert.AreEquivalent(value, expectedValue, EqualityComparer<T?>.Default);
+		=> CollectionAssert.AreEquivalent(expectedValue, value, EqualityComparer<T?>.Default);
 }

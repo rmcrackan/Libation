@@ -22,6 +22,8 @@ internal interface IClosingPropertyTag : IPropertyTag
 	bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag);
 }
 
+public delegate bool Conditional<T>(ITemplateTag templateTag, T value, string condition);
+
 public class ConditionalTagCollection<TClass> : TagCollection
 {
 	public ConditionalTagCollection(bool caseSensative = true) :base(typeof(TClass), caseSensative) { }
@@ -32,9 +34,18 @@ public class ConditionalTagCollection<TClass> : TagCollection
 	/// <param name="propertyGetter">A Func to get the condition's <see cref="bool"/> value from <see cref="TClass"/></param>
 	public void Add(ITemplateTag templateTag, Func<TClass, bool> propertyGetter)
 	{
-		var expr = Expression.Call(Expression.Constant(propertyGetter.Target), propertyGetter.Method, Parameter);
-
+		var target = propertyGetter.Target is null ? null : Expression.Constant(propertyGetter.Target);
+		var expr = Expression.Call(target, propertyGetter.Method, Parameter);
 		AddPropertyTag(new ConditionalTag(templateTag, Options, expr));
+	}
+
+	/// <summary>
+	/// Register a conditional tag.
+	/// </summary>
+	/// <param name="conditional">A <see cref="Conditional{TClass}"/> to get the condition's <see cref="bool"/> value</param>
+	public void Add(ITemplateTag templateTag, Conditional<TClass> conditional)
+	{
+		AddPropertyTag(new ConditionalTag(templateTag, Options, Parameter, conditional));
 	}
 	
 	private class ConditionalTag : TagBase, IClosingPropertyTag
@@ -42,11 +53,30 @@ public class ConditionalTagCollection<TClass> : TagCollection
 		public override Regex NameMatcher { get; }
 		public Regex NameCloseMatcher { get; }
 
+		private Func<string?, Expression> CreateConditionExpression { get; }
+
 		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, Expression conditionExpression)
 			: base(templateTag, conditionExpression)
 		{
-			NameMatcher = new Regex($"^<(!)?{templateTag.TagName}->", options);
+			NameMatcher = new Regex(@$"^<(!)?{templateTag.TagName}->", options);
 			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
+			CreateConditionExpression = _ => conditionExpression;
+		}
+
+		public ConditionalTag(ITemplateTag templateTag, RegexOptions options, ParameterExpression parameter, Conditional<TClass> conditional)
+			: base(templateTag, Expression.Constant(false))
+		{
+			NameMatcher = new Regex(@$"^<(!)?{templateTag.TagName}(?:\s+?(.*?)\s*?)?->", options);
+			NameCloseMatcher = new Regex($"^<-{templateTag.TagName}>", options);
+
+			var target = conditional.Target is null ? null : Expression.Constant(conditional.Target);
+			CreateConditionExpression = condition
+				=> Expression.Call(
+					conditional.Target is null ? null : Expression.Constant(conditional.Target),
+					conditional.Method,
+					Expression.Constant(templateTag),
+					parameter,
+					Expression.Constant(condition));
 		}
 
 		public bool StartsWithClosing(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out IClosingPropertyTag? propertyTag)
@@ -64,6 +94,13 @@ public class ConditionalTagCollection<TClass> : TagCollection
 			return false;
 		}
 
-		protected override Expression GetTagExpression(string exactName, string formatter) => formatter == "!" ? Expression.Not(ValueExpression) : ValueExpression;
+		protected override Expression GetTagExpression(string exactName, string[] extraData)
+		{
+			if (extraData.Length is not (1 or 2) || extraData[0] is not ("!" or "") || extraData.Length == 2 && string.IsNullOrWhiteSpace(extraData[1]))
+				return Expression.Constant(false);
+
+			var getBool = extraData.Length == 2 ? CreateConditionExpression(extraData[1]) : CreateConditionExpression(null);
+			return extraData[0] == "!" ? Expression.Not(getBool) : getBool;
+		}
 	}
 }

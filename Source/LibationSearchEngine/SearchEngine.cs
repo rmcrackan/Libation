@@ -46,6 +46,7 @@ namespace LibationSearchEngine
             { FieldType.String, lb => lb.Book.UserDefinedItem.Tags, TAGS.FirstCharToUpper() },
             { FieldType.String, lb => lb.Book.Locale, "Locale", "Region" },
             { FieldType.String, lb => lb.Account, "Account", "Email" },
+            { FieldType.String, lb => lb.Book.UserDefinedItem.LastDownloadedFormat?.CodecString, "Codec", "DownloadedCodec" },
             { FieldType.Bool, lb => lb.Book.HasPdf().ToString(), "HasDownloads", "HasDownload", "Downloads" , "Download", "HasPDFs", "HasPDF" , "PDFs", "PDF" },
             { FieldType.Bool, lb => (lb.Book.UserDefinedItem.Rating.OverallRating > 0f).ToString(), "IsRated", "Rated" },
             { FieldType.Bool, lb => isAuthorNarrated(lb.Book).ToString(), "IsAuthorNarrated", "AuthorNarrated" },
@@ -65,7 +66,9 @@ namespace LibationSearchEngine
             { FieldType.Number, lb => lb.Book.UserDefinedItem.Rating.OverallRating.ToLuceneString(), "UserRating", "MyRating" },
             { FieldType.Number, lb => lb.Book.DatePublished?.ToLuceneString() ?? "", nameof(Book.DatePublished) },
             { FieldType.Number, lb => lb.Book.UserDefinedItem.LastDownloaded.ToLuceneString(), nameof(UserDefinedItem.LastDownloaded), "LastDownload" },
-            { FieldType.Number, lb => lb.DateAdded.ToLuceneString(), nameof(LibraryBook.DateAdded) }
+			{ FieldType.Number, lb => lb.Book.UserDefinedItem.LastDownloadedFormat?.BitRate.ToLuceneString(), "Bitrate", "DownloadedBitrate" },
+			{ FieldType.Number, lb => lb.Book.UserDefinedItem.LastDownloadedFormat?.SampleRate.ToLuceneString(), "SampleRate", "DownloadedSampleRate" },
+			{ FieldType.Number, lb => lb.DateAdded.ToLuceneString(), nameof(LibraryBook.DateAdded) }
 		};
         #endregion
 

@@ -1,6 +1,7 @@
 ﻿using Dinah.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -109,6 +110,25 @@ public class PropertyTagCollection<TClass> : TagCollection
 		catch { return null; }
 	}
 
+	/// <summary>
+	/// Try to get the default (unformatted) value of a property tag.
+	/// </summary>
+	/// <param name="tagName">Name of the tag value to get</param>
+	/// <param name="object">The property class from which the tag's value is read</param>
+	/// <param name="value"><paramref name="tagName"/>'s string value if it is in this collection, otherwise null</param>
+	/// <returns>True if the <paramref name="tagName"/> is in this collection, otherwise false</returns>
+	public bool TryGetValue(string tagName, TClass @object, [NotNullWhen(true)] out string? value)
+	{
+		value = null;
+
+		if (!StartsWith($"<{tagName}>", out var exactName, out var propertyTag, out var valueExpression))
+			return false;
+
+		var func = Expression.Lambda<Func<TClass, string>>(valueExpression, Parameter).Compile();
+		value = func(@object);
+		return true;
+	}
+
 	private class PropertyTag<TPropertyValue> : TagBase
 	{
 		public override Regex NameMatcher { get; }
@@ -138,8 +158,13 @@ public class PropertyTagCollection<TClass> : TagCollection
 						expVal);
 		}
 
-		protected override Expression GetTagExpression(string exactName, string formatString)
+		protected override Expression GetTagExpression(string exactName, string[] extraData)
 		{
+			if (extraData.Length is not (0 or 1))
+				return Expression.Constant(exactName);
+
+			string formatString = extraData.Length == 1 ? extraData[0] : "";
+
 			Expression toStringExpression
 				= !ReturnType.IsValueType
 				? Expression.Condition(

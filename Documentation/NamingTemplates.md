@@ -81,17 +81,22 @@ Anything between the opening tag (`<tagname->`) and closing tag (`<-tagname>`) w
 |\<if podcast-\>...\<-if podcast\>|Only include if part of a podcast|Conditional|
 |\<if bookseries-\>...\<-if bookseries\>|Only include if part of a book series|Conditional|
 |\<if podcastparent-\>...\<-if podcastparent\>**†**|Only include if item is a podcast series parent|Conditional|
+|\<has PROPERTY-\>...\<-has\>|Only include if the PROPERTY has a value (i.e. not null or empty)|Conditional|
 
 **†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
-For example, <if podcast-\>\<series\>\<-if podcast\> will evaluate to the podcast's series name if the file is a podcast. For audiobooks that are not podcasts, that tag will be blank.
+For example, `<if podcast-><series><-if podcast>` will evaluate to the podcast's series name if the file is a podcast. For audiobooks that are not podcasts, that tag will be blank.
 
-You can invert the condition (instead of displaying the text when the condition is true, display the text when it is false) by playing a '!' symbol before the opening tag name.
+You can invert the condition (instead of displaying the text when the condition is true, display the text when it is false) by playing a `!` symbol before the opening tag name.
 
 As an example, this folder template will place all Liberated podcasts into a "Podcasts" folder and all liberated books (not podcasts) into a "Books" folder.
 
-\<if podcast-\>Podcasts<-if podcast\>\<!if podcast-\>Books\<-if podcast\>\\\<title\>
+`<if podcast->Podcasts<-if podcast><!if podcast->Books<-if podcast>\<title>`
 
+This example will add a number if the `<series#\>` tag has a value:
+`<has series#><series#><-has>`
+And this example will customize the title based on whether the book has a subtitle:
+`<audible title><has audible subtitle->-<audible subtitle><-has>`
 
 # Tag Formatters
 **Text**, **Name List**, **Number**, and **DateTime** tags can be optionally formatted using format text in square brackets after the tag name. Below is a list of supported formatters for each tag type.

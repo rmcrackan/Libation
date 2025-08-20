@@ -18,7 +18,7 @@ public abstract class TagCollection : IEnumerable<ITemplateTag>
 	/// <summary>The <see cref="ParameterExpression"/> of the <see cref="TagCollection"/>'s TClass type.</summary>
 	internal ParameterExpression Parameter { get; }
 	protected RegexOptions Options { get; } = RegexOptions.Compiled;
-	private List<IPropertyTag> PropertyTags { get; } = new();
+	internal List<IPropertyTag> PropertyTags { get; } = new();
 
 	protected TagCollection(Type classType, bool caseSensative = true)
 	{

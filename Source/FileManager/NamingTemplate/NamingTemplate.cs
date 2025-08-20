@@ -30,7 +30,7 @@ public class NamingTemplate
 	/// Invoke the <see cref="NamingTemplate"/>
 	/// </summary>
 	/// <param name="propertyClasses">Instances of the TClass used in <see cref="PropertyTagCollection{TClass}"/> and <see cref="ConditionalTagCollection{TClass}"/></param>
-	public TemplatePart Evaluate(params object[] propertyClasses)
+	public TemplatePart Evaluate(params object?[] propertyClasses)
 	{
 		if (templateToString is null)
 			throw new InvalidOperationException();
@@ -38,8 +38,8 @@ public class NamingTemplate
 		// Match propertyClasses to the arguments required by templateToString.DynamicInvoke(). 
 		// First parameter is "this", so ignore it.
 		var delegateArgTypes = templateToString.Method.GetParameters().Skip(1);
-
-		object[] args = delegateArgTypes.Join(propertyClasses, o => o.ParameterType, i => i.GetType(), (_, i) => i).ToArray();
+		
+		object?[] args = delegateArgTypes.Join(propertyClasses, o => o.ParameterType, i => i?.GetType(), (_, i) => i).ToArray();
 		
 		if (args.Length != delegateArgTypes.Count())
 			throw new ArgumentException($"This instance of {nameof(NamingTemplate)} requires the following arguments: {string.Join(", ", delegateArgTypes.Select(t => t.Name).Distinct())}");
