@@ -94,8 +94,11 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 `<if podcast->Podcasts<-if podcast><!if podcast->Books<-if podcast>\<title>`
 
 This example will add a number if the `<series#\>` tag has a value:
+
 `<has series#><series#><-has>`
+
 And this example will customize the title based on whether the book has a subtitle:
+
 `<audible title><has audible subtitle->-<audible subtitle><-has>`
 
 # Tag Formatters
