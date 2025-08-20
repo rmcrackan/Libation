@@ -15,6 +15,7 @@ namespace NamingTemplateTests
 		public string Item1 { get; set; }
 		public string Item2 { get; set; }
 		public string Item3 { get; set; }
+		public string NullItem { get; set; }
 		public int Int1 { get; set; }
 		public bool Condition { get; set; }
 	}
@@ -25,6 +26,7 @@ namespace NamingTemplateTests
 		public string Item2 { get; set; }
 		public string Item3 { get; set; }
 		public string Item4 { get; set; }
+		public string NullItem { get; set; }
 		public bool Condition { get; set; }
 	}
 	class PropertyClass3
@@ -33,6 +35,7 @@ namespace NamingTemplateTests
 		public string Item2 { get; set; }
 		public string Item3 { get; set; }
 		public string Item4 { get; set; }
+		public string NullItem { get; set; }
 		public ReferenceType RefType { get; set; }
 		public int? Int2 { get; set; }
 		public bool Condition { get; set; }
@@ -49,40 +52,53 @@ namespace NamingTemplateTests
 	[TestClass]
 	public class GetPortionFilename
 	{
-		PropertyTagCollection<PropertyClass1> props1 = new()
+		static PropertyTagCollection<PropertyClass1> props1 = new()
 		{
 			{ new TemplateTag { TagName = "item1" }, i => i.Item1 },
 			{ new TemplateTag { TagName = "item2" }, i => i.Item2 },
-			{ new TemplateTag { TagName = "item3" }, i => i.Item3 }
+			{ new TemplateTag { TagName = "item3" }, i => i.Item3 },
+			{ new TemplateTag { TagName = "null_1" }, i => i.NullItem }
 		};
 
-		PropertyTagCollection<PropertyClass2> props2 = new()
+		static PropertyTagCollection<PropertyClass2> props2 = new()
 		{
 			{ new TemplateTag { TagName = "item1" }, i => i.Item1 },
 			{ new TemplateTag { TagName = "item2" }, i => i.Item2 },
 			{ new TemplateTag { TagName = "item3" }, i => i.Item3 },
 			{ new TemplateTag { TagName = "item4" }, i => i.Item4 },
+			{ new TemplateTag { TagName = "null_2" }, i => i.NullItem }
 		};
-		PropertyTagCollection<PropertyClass3> props3 = new(true, GetVal)
+		static PropertyTagCollection<PropertyClass3> props3 = new(true, GetVal)
 		{
 			{ new TemplateTag { TagName = "item3_1" }, i => i.Item1 },
 			{ new TemplateTag { TagName = "item3_2" }, i => i.Item2 },
 			{ new TemplateTag { TagName = "item3_3" }, i => i.Item3 },
 			{ new TemplateTag { TagName = "item3_4" }, i => i.Item4 },
+			{ new TemplateTag { TagName = "null_3" }, i => i.NullItem },
 			{ new TemplateTag { TagName = "reftype" }, i => i.RefType },
 		};
 		ConditionalTagCollection<PropertyClass1> conditional1 = new()
 		{
 			{ new TemplateTag { TagName = "ifc1" }, i => i.Condition },
+			{ new TemplateTag { TagName = "has1" }, HasValue }
 		};
 		ConditionalTagCollection<PropertyClass2> conditional2 = new()
 		{
 			{ new TemplateTag { TagName = "ifc2" }, i => i.Condition },
+			{ new TemplateTag { TagName = "has2" }, HasValue }
 		};
 		ConditionalTagCollection<PropertyClass3> conditional3 = new()
 		{
 			{ new TemplateTag { TagName = "ifc3" }, i => i.Condition },
+			{ new TemplateTag { TagName = "has3" }, HasValue }
 		};
+
+		private static bool HasValue(ITemplateTag templateTag, PropertyClass1 referenceType, string condition)
+			=> props1.TryGetValue(condition, referenceType, out var value) && !string.IsNullOrEmpty(value);
+		private static bool HasValue(ITemplateTag templateTag, PropertyClass2 referenceType, string condition)
+			=> props2.TryGetValue(condition, referenceType, out var value) && !string.IsNullOrEmpty(value);
+		private static bool HasValue(ITemplateTag templateTag, PropertyClass3 referenceType, string condition)
+			=> props3.TryGetValue(condition, referenceType, out var value) && !string.IsNullOrEmpty(value);
 
 		PropertyClass1 propertyClass1 = new()
 		{
@@ -123,6 +139,8 @@ namespace NamingTemplateTests
 		[DataRow("<ifc1-><ifc3-><item1><ifc2-><item4><-ifc2><item3_2><-ifc3><-ifc1>", "prop1_item1prop3_item2", 3)]
 		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><-ifc2>", "", 3)]
 		[DataRow("<!ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><-ifc2>", "prop1_item1prop2_item4prop3_item2", 3)]
+		[DataRow("<!has1 null_1-><has2 item1-><has3 item3_2-><item1><item4><item3_2><-has3><-has2><-has1>", "prop1_item1prop2_item4prop3_item2", 3)]
+		[DataRow("<!has1 null_1->null_1 is null, <-has1><has2 item1-><item1><-has2><has3 item3_2-><item3_2><-has3>", "null_1 is null, prop1_item1prop3_item2", 2)]
 		public void test(string inStr, string outStr, int numTags)
 		{
 			var template = NamingTemplate.Parse(inStr, new TagCollection[] { props1, props2, props3, conditional1, conditional2, conditional3 });
@@ -137,7 +155,62 @@ namespace NamingTemplateTests
 		}
 
 		[TestMethod]
+		[DataRow("<has1->true<-has1>", "" )]
+		[DataRow("<has2->true<-has2>", "" )]
+		[DataRow("<has3->true<-has3>", "" )]
+		[DataRow("<has4->true<-has4>", "<has4->true<-has4>")]
+		[DataRow("<has1 null_1->true<-has1>", "")]
+		[DataRow("<has2 null_2->true<-has2>", "")]
+		[DataRow("<has3 null_3->true<-has3>", "")]
+		[DataRow("<!has1 null_1->true<-has1>", "true")]
+		[DataRow("<!has2 null_2->true<-has2>", "true")]
+		[DataRow("<!has3 null_3->true<-has3>", "true")]
+		[DataRow("<has1 item1->true<-has1>", "true")]
+		[DataRow("<has2 item1->true<-has2>", "true")]
+		[DataRow("<has3 item3_1->true<-has3>", "true")]
+		[DataRow("<!has1 item1->true<-has1>", "")]
+		[DataRow("<!has2 item1->true<-has2>", "")]
+		[DataRow("<!has3 item3_1->true<-has3>", "")]
+		[DataRow("<has3    item3_1  ->true<-has3>", "true")]
+		public void Has_test(string inStr, string outStr)
+		{
+			var template = NamingTemplate.Parse(inStr, [props1, props2, props3, conditional1, conditional2, conditional3]);
+
+			template.Warnings.Should().HaveCount(1);
+			template.Errors.Should().HaveCount(0);
+
+			var templateText = string.Concat(template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
+
+			templateText.Should().Be(outStr);
+		}
+
+		[TestMethod]
+		[DataRow("<has3item3_1->true<-has3>", "<has3item3_1->true")]
+		[DataRow("< has3 item3_1->true<-has3>", "< has3 item3_1->true")]
+		[DataRow("<has3 item3_1- >true<-has3>", "<has3 item3_1- >true")]
+		[DataRow("<has3 item3_1 >true<-has3>", "<has3 item3_1 >true")]
+		[DataRow("<has3 item3_1>true<-has3>", "<has3 item3_1>true")]
+		[DataRow("<has3 item3_1->true<- has3>", "true<- has3>")]
+		[DataRow("<has3 item3_1->true< has3>", "true< has3>")]
+		[DataRow("<has3 item3_1->true<!has3>", "true<!has3>")]
+		[DataRow("<has3 item3_1->true<has3>", "true<has3>")]
+		[DataRow("<has3 item3_1->true<has3 >", "true<has3 >")]
+		[DataRow("<has3 item3_1->true< -has3>", "true< -has3>")]
+		public void Has_invalid(string inStr, string outStr)
+		{
+			var template = NamingTemplate.Parse(inStr, [props1, props2, props3, conditional1, conditional2, conditional3]);
+
+			template.Warnings.Should().HaveCount(2);
+			template.Errors.Should().HaveCount(0);
+
+			var templateText = string.Concat(template.Evaluate(propertyClass3, propertyClass2, propertyClass1).Select(v => v.Value));
+
+			templateText.Should().Be(outStr);
+		}
+
+		[TestMethod]
 		[DataRow("<ifc2-><ifc1-><ifc3-><item1><item4><item3_2><-ifc3><-ifc1><ifc2->", new string[] { "Missing <-ifc2> closing conditional.", "Missing <-ifc2> closing conditional." })]
+		[DataRow("<has2-><has1-><has3-><item1><item4><item3_2><-has3><-has1><has2->", new string[] { "Missing <-has2> closing conditional.", "Missing <-has2> closing conditional." })]
 		[DataRow("<ifc2-><ifc1-><ifc3-><-ifc3><-ifc1><-ifc2>", new string[] { "Should use tags. Eg: <title>" })]
 		[DataRow("<ifc1-><ifc3-><item1><-ifc3><-ifc1><-ifc2>", new string[] { "Missing <ifc2-> open conditional." })]
 		[DataRow("<ifc1-><ifc3-><-ifc3><-ifc1><-ifc2>", new string[] { "Missing <ifc2-> open conditional.", "Should use tags. Eg: <title>" })]

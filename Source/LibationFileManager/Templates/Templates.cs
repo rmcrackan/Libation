@@ -111,7 +111,7 @@ namespace LibationFileManager.Templates
 		{
 			ArgumentValidator.EnsureNotNull(libraryBookDto, nameof(libraryBookDto));
 			ArgumentValidator.EnsureNotNull(multiChapProps, nameof(multiChapProps));
-			return string.Concat(NamingTemplate.Evaluate(libraryBookDto, multiChapProps).Select(p => p.Value));
+			return string.Concat(NamingTemplate.Evaluate(libraryBookDto, multiChapProps, new CombinedDto(libraryBookDto, multiChapProps)).Select(p => p.Value));
 		}
 
 		public LongPath GetFilename(LibraryBookDto libraryBookDto, string baseDir, string fileExtension, ReplacementCharacters? replacements = null, bool returnFirstExisting = false)
@@ -138,11 +138,11 @@ namespace LibationFileManager.Templates
 		protected virtual IEnumerable<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
 			=> parts.Select(p => replacements.ReplaceFilenameChars(p.Value));
 
-		private LongPath GetFilename(string baseDir, string fileExtension, ReplacementCharacters replacements, bool returnFirstExisting, params object[] dtos)
+		private LongPath GetFilename(string baseDir, string fileExtension, ReplacementCharacters replacements, bool returnFirstExisting, LibraryBookDto lbDto, MultiConvertFileProperties? multiDto = null)
 		{
 			fileExtension = FileUtility.GetStandardizedExtension(fileExtension);
 
-			var parts = NamingTemplate.Evaluate(dtos).ToList();
+			var parts = NamingTemplate.Evaluate(lbDto, multiDto, new CombinedDto(lbDto, multiDto)).ToList();
 			var pathParts = GetPathParts(GetTemplatePartsStrings(parts, replacements));
 
 			//Remove 1 character from the end of the longest filename part until
@@ -323,6 +323,35 @@ namespace LibationFileManager.Templates
 			{ TemplateTags.IfBookseries, lb => lb.IsSeries && !lb.IsPodcast && !lb.IsPodcastParent },
 		};
 
+		private static readonly ConditionalTagCollection<CombinedDto> combinedConditionalTags = new()
+		{
+			{ TemplateTags.Has, HasValue}
+		};
+
+		private static bool HasValue(ITemplateTag tag, CombinedDto dtos, string condition)
+		{
+			foreach (var c in chapterPropertyTags.OfType<PropertyTagCollection<LibraryBookDto>>().Append(filePropertyTags).Append(audioFilePropertyTags))
+			{
+				if (c.TryGetValue(condition, dtos.LibraryBook, out var value))
+				{
+					return !string.IsNullOrWhiteSpace(value);
+				}
+			}
+
+			if (dtos.MultiConvert is null)
+				return false;
+
+			foreach (var c in chapterPropertyTags.OfType<PropertyTagCollection<MultiConvertFileProperties>>())
+			{
+				if (c.TryGetValue(condition, dtos.MultiConvert, out var value))
+				{
+					return !string.IsNullOrWhiteSpace(value);
+				}
+			}
+
+			return false;
+		}
+
 		private static readonly ConditionalTagCollection<LibraryBookDto> folderConditionalTags = new()
 		{
 			{ TemplateTags.IfPodcastParent, lb => lb.IsPodcastParent }
@@ -388,7 +417,7 @@ namespace LibationFileManager.Templates
 			public static string Name { get; } = "Folder Template";
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FolderTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title short> [<id>]";
-			public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, audioFilePropertyTags, conditionalTags, folderConditionalTags];
+			public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, audioFilePropertyTags, conditionalTags, folderConditionalTags, combinedConditionalTags];
 
 			public override IEnumerable<string> Errors
 				=> TemplateText?.Length >= 2 && Path.IsPathFullyQualified(TemplateText) ? base.Errors.Append(ERROR_FULL_PATH_IS_INVALID) : base.Errors;
@@ -407,7 +436,7 @@ namespace LibationFileManager.Templates
 			public static string Name { get; } = "File Template";
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.FileTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title> [<id>]";
-			public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, audioFilePropertyTags, conditionalTags];
+			public static IEnumerable<TagCollection> TagCollections { get; } = [filePropertyTags, audioFilePropertyTags, conditionalTags, combinedConditionalTags];
 		}
 
 		public class ChapterFileTemplate : Templates, ITemplate
@@ -416,7 +445,7 @@ namespace LibationFileManager.Templates
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterFileTemplate)) ?? "";
 			public static string DefaultTemplate { get; } = "<title> [<id>] - <ch# 0> - <ch title>";
 			public static IEnumerable<TagCollection> TagCollections { get; }
-				= chapterPropertyTags.Append(filePropertyTags).Append(audioFilePropertyTags).Append(conditionalTags);
+				= chapterPropertyTags.Append(filePropertyTags).Append(audioFilePropertyTags).Append(conditionalTags).Append(combinedConditionalTags);
 
 			public override IEnumerable<string> Warnings
 				=> NamingTemplate.TagsInUse.Any(t => t.TagName.In(TemplateTags.ChNumber.TagName, TemplateTags.ChNumber0.TagName))
@@ -429,7 +458,7 @@ namespace LibationFileManager.Templates
 			public static string Name { get; } = "Chapter Title Template";
 			public static string Description { get; } = Configuration.GetDescription(nameof(Configuration.ChapterTitleTemplate)) ?? "";
 			public static string DefaultTemplate => "<ch#> - <title short>: <ch title>";
-			public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(conditionalTags);
+			public static IEnumerable<TagCollection> TagCollections { get; } = chapterPropertyTags.Append(conditionalTags).Append(combinedConditionalTags);
 
 			protected override IEnumerable<string> GetTemplatePartsStrings(List<TemplatePart> parts, ReplacementCharacters replacements)
 				=> parts.Select(p => p.Value);

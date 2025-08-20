@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
@@ -42,8 +43,8 @@ internal abstract class TagBase : IPropertyTag
 
 	/// <summary>Create an <see cref="Expression"/> that returns the property's value.</summary>
 	/// <param name="exactName">The exact string that was matched to <see cref="ITemplateTag"/></param>
-	/// <param name="formatter">The optional format string in the match inside the square brackets</param>
-	protected abstract Expression GetTagExpression(string exactName, string formatter);
+	/// <param name="extraData">Optional extra data parsed from the tag, such as a format string in the match the square brackets, logical negation, and conditional options</param>
+	protected abstract Expression GetTagExpression(string exactName, string[] extraData);
 
 	public bool StartsWith(string templateString, [NotNullWhen(true)] out string? exactName, [NotNullWhen(true)] out Expression? propertyValue)
 	{
@@ -51,7 +52,7 @@ internal abstract class TagBase : IPropertyTag
 		if (match.Success)
 		{
 			exactName = match.Value;
-			propertyValue = GetTagExpression(exactName, match.Groups.Count == 2 ? match.Groups[1].Value.Trim() : "");
+			propertyValue = GetTagExpression(exactName, match.Groups.Values.Skip(1).Select(v => v.Value.Trim()).ToArray());
 			return true;
 		}
 
