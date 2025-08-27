@@ -107,6 +107,10 @@ This example will add a number if the `<series#\>` tag has a value:
 
 `<has series#><series#><-has>`
 
+This example will put non-series books in a "Standalones" folder:
+
+`<!if series->Standalones/<-if series>`
+
 And this example will customize the title based on whether the book has a subtitle:
 
 `<audible title><has audible subtitle->-<audible subtitle><-has>`
