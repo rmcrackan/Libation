@@ -82,6 +82,7 @@ Anything between the opening tag (`<tagname->`) and closing tag (`<-tagname>`) w
 |\<if bookseries-\>...\<-if bookseries\>|Only include if part of a book series|Conditional|
 |\<if podcastparent-\>...\<-if podcastparent\>**†**|Only include if item is a podcast series parent|Conditional|
 |\<has PROPERTY-\>...\<-has\>|Only include if the PROPERTY has a value (i.e. not null or empty)|Conditional|
+|\<not-has PROPERTY-\>...\<-not-has\>|Only include if the PROPERTY does not have a value (i.e. null or empty)|Conditional|
 
 **†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
@@ -96,6 +97,10 @@ As an example, this folder template will place all Liberated podcasts into a "Po
 This example will add a number if the `<series#\>` tag has a value:
 
 `<has series#><series#><-has>`
+
+This example will put non-series books in a "Standalones" folder:
+
+`<not-has series>Standalones/<-not-has>`
 
 And this example will customize the title based on whether the book has a subtitle:
 

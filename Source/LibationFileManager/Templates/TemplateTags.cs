@@ -57,5 +57,6 @@ namespace LibationFileManager.Templates
 		public static TemplateTags IfPodcastParent { get; } = new TemplateTags("if podcastparent", "Only include if item is a podcast series parent", "<if podcastparent-><-if podcastparent>", "<if podcastparent->...<-if podcastparent>");
 		public static TemplateTags IfBookseries { get; } = new TemplateTags("if bookseries", "Only include if part of a book series", "<if bookseries-><-if bookseries>", "<if bookseries->...<-if bookseries>");
 		public static TemplateTags Has { get; } = new TemplateTags("has", "Only include if PROPERTY has a value (i.e. not null or empty)", "<has -><-has>", "<has PROPERTY->...<-has>");
+		public static TemplateTags NotHas { get; } = new TemplateTags("not-has", "Only include if PROPERTY is missing (i.e. null or empty)", "<not-has -><-not-has>", "<not-has PROPERTY->...<-not-has>");
 	}
 }

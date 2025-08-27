@@ -325,7 +325,9 @@ namespace LibationFileManager.Templates
 
 		private static readonly ConditionalTagCollection<CombinedDto> combinedConditionalTags = new()
 		{
-			{ TemplateTags.Has, HasValue}
+			{ TemplateTags.Has, HasValue},
+			{ TemplateTags.NotHas, NotHasValue}
+
 		};
 
 		private static bool HasValue(ITemplateTag tag, CombinedDto dtos, string condition)
@@ -350,6 +352,11 @@ namespace LibationFileManager.Templates
 			}
 
 			return false;
+		}
+
+		private static bool NotHasValue(ITemplateTag tag, CombinedDto dtos, string condition)
+		{
+			return !HasValue(tag, dtos, condition);
 		}
 
 		private static readonly ConditionalTagCollection<LibraryBookDto> folderConditionalTags = new()
