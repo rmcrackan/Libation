@@ -87,7 +87,17 @@ Anything between the opening tag (`<tagname->`) and closing tag (`<-tagname>`) w
 
 For example, `<if podcast-><series><-if podcast>` will evaluate to the podcast's series name if the file is a podcast. For audiobooks that are not podcasts, that tag will be blank.
 
-You can invert the condition (instead of displaying the text when the condition is true, display the text when it is false) by playing a `!` symbol before the opening tag name.
+You can invert the condition (instead of displaying the text when the condition is true, display the text when it is false) by playing a `!` symbol before the opening tag name. 
+
+|Inverted Tag|Description|Type|
+|-|-|-|
+|\<!if series-\>...\<-if series\>|Only include if *not* part of a book series or podcast|Conditional|
+|\<!if podcast-\>...\<-if podcast\>|Only include if *not* part of a podcast|Conditional|
+|\<!if bookseries-\>...\<-if bookseries\>|Only include if *not* part of a book series|Conditional|
+|\<!if podcastparent-\>...\<-if podcastparent\>**†**|Only include if item is *not* a podcast series parent|Conditional|
+|\<!has PROPERTY-\>...\<-has\>|Only include if the PROPERTY *does not* have a value (i.e. is null or empty)|Conditional|
+
+**†** Only affects the podcast series folder naming if "Save all podcast episodes to the series parent folder" option is checked.
 
 As an example, this folder template will place all Liberated podcasts into a "Podcasts" folder and all liberated books (not podcasts) into a "Books" folder.
 
