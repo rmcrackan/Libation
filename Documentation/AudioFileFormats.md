@@ -58,6 +58,11 @@ This is a proprietary codec created by the [Fraunhofer Institute for Integrated 
 
 xHE-AAC boasts significantly higher quality audio at low bitrates. Though it has existed since at least 2016, playback support is still quite limited. FFmpeg has recently added partial decoder support for the USAC profiles, but it is insufficient to decode the xHE-AAC audio files acquired from Audible (due to FFmpeg's lack of support for MPEG Surround for Mono to Stereo Upmixing; ISO 23003-3:2012 §7.11)
 
+Note that the xHE-AAC files authored by Audible have some USAC conformance errors including:
+- Number of samples per frame not matching the UsacConfig coreCoderFrameLength value.
+- Disagreement between stts and UsacFrame usacIndependencyFlag value.
+- Stts indicating a frame is an immediate play-out frame, but USAC AudioPreRoll is absent.
+
 ## Dolby Atmos
 Atmos is a surround sound technology that expands on existing surround sound systems by adding height channels as well as free-moving sound objects. Audible delivers Dolby Atmos in two formats: E-AC-3 and AC-4.
 
