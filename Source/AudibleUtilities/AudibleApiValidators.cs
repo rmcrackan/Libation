@@ -28,10 +28,11 @@ namespace AudibleUtilities
 
 			if (items.Any(i => string.IsNullOrWhiteSpace(i.ProductId)))
 				exceptions.Add(new ArgumentException($"Collection contains item(s) with null or blank {nameof(Item.ProductId)}", nameof(items)));
-			if (items.Any(i => i.DateAdded < new DateTime(1980, 1, 1)))
-				exceptions.Add(new ArgumentException($"Collection contains item(s) with invalid {nameof(Item.DateAdded)}", nameof(items)));
+            //// unfortunately, an actual user has a title with a beginning-of-time 'purchase_date'
+            //if (items.Any(i => i.DateAdded < new DateTime(1980, 1, 1)))
+            //	exceptions.Add(new ArgumentException($"Collection contains item(s) with invalid {nameof(Item.DateAdded)}", nameof(items)));
 
-			return exceptions;
+            return exceptions;
 		}
 	}
 	public class BookValidator : IValidator
@@ -91,7 +92,7 @@ namespace AudibleUtilities
 			if (distinct.Any(s => s.SeriesId is null))
 				exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(Series.SeriesId)}", nameof(items)));
 
-			//// unfortunately, a user has a series with no name
+			//// unfortunately, an actual user has a series with no name
 			//if (distinct.Any(s => s.SeriesName is null))
 			//    exceptions.Add(new ArgumentException($"Collection contains {nameof(Item.Series)} with null {nameof(Series.SeriesName)}", nameof(items)));
 
