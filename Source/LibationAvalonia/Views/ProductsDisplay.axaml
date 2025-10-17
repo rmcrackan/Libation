@@ -213,6 +213,16 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 				
+				<controls:DataGridTemplateColumnExt Header="Included Until" MinWidth="10" Width="{CompiledBinding IncludedUntilWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="IncludedUntil" ClipboardContentBinding="{Binding IncludedUntil}">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="uibase:GridEntry">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
+								<TextBlock Text="{CompiledBinding Misc}" TextWrapping="WrapWithOverflow" />
+							</Panel>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</controls:DataGridTemplateColumnExt>
+				
 				<controls:DataGridTemplateColumnExt Header="Last&#xA;Download" MinWidth="10" Width="{CompiledBinding LastDownloadWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="LastDownload" ClipboardContentBinding="{Binding LastDownload}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
