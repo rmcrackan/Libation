@@ -106,7 +106,7 @@ namespace DtoImporterService
 			{
 				foreach (var plan in item.Plans)
 				{
-					if (plan.IsAyce && plan.EndDate.Value.Year != 2099 && plan.EndDate.HasValue)
+					if (plan.IsAyce && plan.EndDate.Value.Year != 2099 && plan.EndDate.Value.Year != 9999 && plan.EndDate.HasValue)
 					{
 						includedUntil = plan.EndDate.Value.LocalDateTime;
 					}
