@@ -211,7 +211,7 @@ namespace ApplicationServices
             
             if (book is null)
             {
-                book = new LibraryBook(bookImporter.Cache[importItem.DtoItem.ProductId], importItem.DtoItem.DateAdded, importItem.AccountId);
+                book = new LibraryBook(bookImporter.Cache[importItem.DtoItem.ProductId], importItem.DtoItem.DateAdded, importItem.AccountId,DateTime.Now);
                 context.LibraryBooks.Add(book);
             }
             else

@@ -15,7 +15,7 @@ namespace DataLayer.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
 
             modelBuilder.Entity("CategoryCategoryLadder", b =>
                 {
@@ -192,6 +192,9 @@ namespace DataLayer.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateAdded")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("IncludedUntil")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")

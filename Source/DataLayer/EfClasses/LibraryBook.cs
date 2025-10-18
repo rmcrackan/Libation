@@ -13,9 +13,10 @@ namespace DataLayer
 
         public bool IsDeleted { get; set; }
         public bool AbsentFromLastScan { get; set; }
-
+        
+        public DateTime? IncludedUntil { get; private set; }
         private LibraryBook() { }
-        public LibraryBook(Book book, DateTime dateAdded, string account)
+        public LibraryBook(Book book, DateTime dateAdded, string account, DateTime? includedUntil)
         {
             ArgumentValidator.EnsureNotNull(book, nameof(book));
             ArgumentValidator.EnsureNotNull(account, nameof(account));
@@ -23,6 +24,7 @@ namespace DataLayer
             Book = book;
             DateAdded = dateAdded;
             Account = account;
+            IncludedUntil = includedUntil;
         }
 
         public void SetAccount(string account) => Account = account;

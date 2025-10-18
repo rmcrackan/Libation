@@ -42,7 +42,6 @@ namespace DataLayer
         public int LengthInMinutes { get; private set; }
         public ContentType ContentType { get; private set; }
         public string Locale { get; private set; }
-        public DateTime? IncludedUntil { get; private set; }
 
         // mutable
         public string PictureId { get; set; }
@@ -74,8 +73,7 @@ namespace DataLayer
             ContentType contentType,
             IEnumerable<Contributor> authors,
             IEnumerable<Contributor> narrators,
-            string localeName,
-            DateTime? includedUntil
+            string localeName
             )
         {
             // validate
@@ -100,7 +98,6 @@ namespace DataLayer
             UpdateTitle(title, subtitle);
             Description = description?.Trim() ?? "";
             LengthInMinutes = lengthInMinutes;
-            IncludedUntil = includedUntil;
             ContentType = contentType;
 
             // assigns with biz logic
@@ -117,9 +114,6 @@ namespace DataLayer
 
         public void UpdateLengthInMinutes(int lengthInMinutes)
             => LengthInMinutes = lengthInMinutes;
-        
-        public void UpdateIncludedUntil(DateTime? includedUntil)
-            => IncludedUntil = includedUntil;
 
 		#region contributors, authors, narrators
 		internal HashSet<BookContributor> ContributorsLink { get; private set; }

@@ -98,20 +98,6 @@ namespace DtoImporterService
 					.DistinctBy(a => a.Name)
                     .Select(n => contributorImporter.Cache[n.Name])
 					.ToList();
-		     
-			//Used to determine when your audible plus or free book will expire from your library  
-			//plan.IsAyce from underlying AudibleApi project determines the plans to look at, first plan found is used. 
-			DateTime? includedUntil = null;
-			if (item.Plans is not null)
-			{
-				foreach (var plan in item.Plans)
-				{
-					if (plan.IsAyce && plan.EndDate.Value.Year != 2099 && plan.EndDate.Value.Year != 9999 && plan.EndDate.HasValue)
-					{
-						includedUntil = plan.EndDate.Value.LocalDateTime;
-					}
-				}
-			}
 
 			Book book;
 			try
@@ -125,8 +111,7 @@ namespace DtoImporterService
 					contentType,
 					authors,
 					narrators,
-					importItem.LocaleName,
-					includedUntil
+					importItem.LocaleName
 					)
 					).Entity;
 				Cache.Add(book.AudibleProductId, book);
@@ -141,8 +126,7 @@ namespace DtoImporterService
 					contentType,
 					QtyAuthors = authors?.Count,
 					QtyNarrators = narrators?.Count,
-					importItem.LocaleName,
-					includedUntil
+					importItem.LocaleName
 				});
 				throw;
 			}

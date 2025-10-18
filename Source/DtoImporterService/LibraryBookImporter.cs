@@ -51,6 +51,9 @@ namespace DtoImporterService
 			var uniqueImportItems = ToDictionarySafe(importItems, dto => dto.DtoItem.ProductId, tieBreak);
 
 			int qtyNew = 0;
+			
+			
+			
 
 			foreach (var item in uniqueImportItems.Values)
 			{
@@ -66,10 +69,26 @@ namespace DtoImporterService
 				}
 				else
 				{
+					
+					//Used to determine when your audible plus or free book will expire from your library  
+					//plan.IsAyce from underlying AudibleApi project determines the plans to look at, first plan found is used. 
+					DateTime? includedUntil = null;
+					if (item.DtoItem.Plans is not null)
+					{
+						foreach (var plan in item.DtoItem.Plans)
+						{
+							if (plan.IsAyce && plan.EndDate.Value.Year != 2099 && plan.EndDate.Value.Year != 9999 && plan.EndDate.HasValue)
+							{
+								includedUntil = plan.EndDate.Value.LocalDateTime;
+							}
+						}
+					}
+					
 					var libraryBook = new LibraryBook(
 						bookImporter.Cache[item.DtoItem.ProductId],
 						item.DtoItem.DateAdded,
-						item.AccountId)
+						item.AccountId,
+						includedUntil)
 						{
 							AbsentFromLastScan = isUnavailable(item)
 						};
