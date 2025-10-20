@@ -130,9 +130,10 @@ namespace LibationUiBase.GridView
 
 		protected abstract string GetBookTags();
 		protected virtual DateTime GetPurchaseDate() => LibraryBook.DateAdded;
+		protected virtual DateTime? GetIncludedUntil() => LibraryBook.IncludedUntil;
 		protected virtual int GetLengthInMinutes() => Book.LengthInMinutes;
 		protected string GetPurchaseDateString() => GetPurchaseDate().ToString("d");
-		protected string GetIncludedUntilString() => LibraryBook.IncludedUntil?.ToString("d") ?? string.Empty;
+		protected string GetIncludedUntilString() => GetIncludedUntil()?.ToString("d") ?? string.Empty;
 		protected string GetBookLengthString()
 		{
 			int bookLenMins = GetLengthInMinutes();
@@ -213,7 +214,7 @@ namespace LibationUiBase.GridView
 			nameof(Liberate) => Liberate,
 			nameof(DateAdded) => DateAdded,
 			nameof(IsSpatial) => IsSpatial,
-			nameof(IncludedUntil) => IncludedUntil,
+			nameof(IncludedUntil) => GetIncludedUntil() ?? default,
 			_ => null
 		};
 		
