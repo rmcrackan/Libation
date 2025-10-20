@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(LibationContext))]
-    [Migration("20251018045524_IncludedUntil")]
-    partial class IncludedUntil
+    [Migration("20251020175053_AddIncludedUntil")]
+    partial class AddIncludedUntil
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
