@@ -213,11 +213,11 @@
 					</DataGridTemplateColumn.CellTemplate>
 				</controls:DataGridTemplateColumnExt>
 				
-				<controls:DataGridTemplateColumnExt Header="Included Until" MinWidth="10" Width="{CompiledBinding IncludedUntilWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="IncludedUntil" ClipboardContentBinding="{Binding IncludedUntil}">
+				<controls:DataGridTemplateColumnExt Header="Included&#xA;Until" MinWidth="10" Width="{CompiledBinding IncludedUntilWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="IncludedUntil" ClipboardContentBinding="{Binding IncludedUntil}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
 							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
-								<TextBlock Text="{CompiledBinding Misc}" TextWrapping="WrapWithOverflow" />
+								<TextBlock Text="{CompiledBinding IncludedUntil}" TextWrapping="WrapWithOverflow" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

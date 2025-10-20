@@ -16,7 +16,7 @@ namespace DataLayer
         
         public DateTime? IncludedUntil { get; private set; }
         private LibraryBook() { }
-        public LibraryBook(Book book, DateTime dateAdded, string account, DateTime? includedUntil)
+        public LibraryBook(Book book, DateTime dateAdded, string account)
         {
             ArgumentValidator.EnsureNotNull(book, nameof(book));
             ArgumentValidator.EnsureNotNull(account, nameof(account));
@@ -24,11 +24,10 @@ namespace DataLayer
             Book = book;
             DateAdded = dateAdded;
             Account = account;
-            IncludedUntil = includedUntil;
         }
 
         public void SetAccount(string account) => Account = account;
-
-		public override string ToString() => $"{DateAdded:d} {Book}";
-	}
+        public void SetIncludedUntil(DateTime? includedUntil) => IncludedUntil = includedUntil;
+        public override string ToString() => $"{DateAdded:d} {Book}";
+    }
 }

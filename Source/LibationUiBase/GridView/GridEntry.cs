@@ -158,7 +158,7 @@ namespace LibationUiBase.GridView
 			{
 				//If UserDefinedItem was changed on a different Book instance (such as when batch liberating via menus),
 				//Liberate.Book and LibraryBook.Book instances will not have the current DB state.
-				Invoke(() => UpdateLibraryBook(new LibraryBook(udi.Book, LibraryBook.DateAdded, LibraryBook.Account,LibraryBook.IncludedUntil)));
+				Invoke(() => UpdateLibraryBook(new LibraryBook(udi.Book, LibraryBook.DateAdded, LibraryBook.Account)));
 				return;
 			}
 

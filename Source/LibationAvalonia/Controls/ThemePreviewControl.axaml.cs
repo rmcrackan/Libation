@@ -59,12 +59,12 @@ public partial class ThemePreviewControl : UserControl
 		var author = new Contributor("Some Author", "asin_contributor");
 		var narrator = new Contributor("Some Narrator", "asin_narrator");
 
-		var book1 = new Book(new AudibleProductId("asin_book1"), "Some Book 1", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us", null);
-		var book2 = new Book(new AudibleProductId("asin_book2"), "Some Book 2", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us", null);
-		var book3 = new Book(new AudibleProductId("asin_book3"), "Some Book 3", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us", null);
-		var book4 = new Book(new AudibleProductId("asin_book4"), "Some Book 4", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us", null);
-		var seriesParent = new Book(new AudibleProductId("asin_series"), "Some Series", "", "Demo Series Entry", 0, ContentType.Parent, [author], [narrator], "us",null);
-		var episode = new Book(new AudibleProductId("asin_episode"), "Some Episode", "Episode 1", "Demo Episode Entry", 56, ContentType.Episode, [author], [narrator], "us",null);
+		var book1 = new Book(new AudibleProductId("asin_book1"), "Some Book 1", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us");
+		var book2 = new Book(new AudibleProductId("asin_book2"), "Some Book 2", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us");
+		var book3 = new Book(new AudibleProductId("asin_book3"), "Some Book 3", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us");
+		var book4 = new Book(new AudibleProductId("asin_book4"), "Some Book 4", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us");
+		var seriesParent = new Book(new AudibleProductId("asin_series"), "Some Series", "", "Demo Series Entry", 0, ContentType.Parent, [author], [narrator], "us");
+		var episode = new Book(new AudibleProductId("asin_episode"), "Some Episode", "Episode 1", "Demo Episode Entry", 56, ContentType.Episode, [author], [narrator], "us");
 
 		var series = new Series(new AudibleSeriesId(seriesParent.AudibleProductId), seriesParent.Title);
 
