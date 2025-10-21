@@ -209,7 +209,8 @@ namespace LibationFileManager
 		private static readonly EquatableDictionary<string, bool> DefaultColumns = new([
 			new ("SeriesOrder", false),
 			new ("LastDownload", false),
-			new ("IsSpatial", false)
+			new ("IsSpatial", false),
+			new ("IncludedUntil", false), 
 			]);
 		public bool GetColumnVisibility(string columnName)
 			=> GridColumnsVisibilities.TryGetValue(columnName, out var isVisible) ? isVisible

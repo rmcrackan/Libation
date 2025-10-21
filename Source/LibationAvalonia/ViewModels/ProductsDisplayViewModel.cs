@@ -477,6 +477,7 @@ namespace LibationAvalonia.ViewModels
 		public DataGridLength PurchaseDateWidth { get => getColumnWidth("PurchaseDate", 75); set => setColumnWidth("PurchaseDate", value); }
 		public DataGridLength MyRatingWidth { get => getColumnWidth("MyRating", 95); set => setColumnWidth("MyRating", value); }
 		public DataGridLength MiscWidth { get => getColumnWidth("Misc", 140); set => setColumnWidth("Misc", value); }
+		public DataGridLength IncludedUntilWidth { get => getColumnWidth("IncludedUntil", 140); set => setColumnWidth("IncludedUntil", value); }
 		public DataGridLength LastDownloadWidth { get => getColumnWidth("LastDownload", 100); set => setColumnWidth("LastDownload", value); }
 		public DataGridLength BookTagsWidth { get => getColumnWidth("BookTags", 100); set => setColumnWidth("BookTags", value); }
 		public DataGridLength IsSpatialWidth { get => getColumnWidth("IsSpatial", 100); set => setColumnWidth("IsSpatial", value); }

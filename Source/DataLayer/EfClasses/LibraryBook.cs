@@ -13,7 +13,8 @@ namespace DataLayer
 
         public bool IsDeleted { get; set; }
         public bool AbsentFromLastScan { get; set; }
-
+        
+        public DateTime? IncludedUntil { get; private set; }
         private LibraryBook() { }
         public LibraryBook(Book book, DateTime dateAdded, string account)
         {
@@ -26,7 +27,7 @@ namespace DataLayer
         }
 
         public void SetAccount(string account) => Account = account;
-
-		public override string ToString() => $"{DateAdded:d} {Book}";
-	}
+        public void SetIncludedUntil(DateTime? includedUntil) => IncludedUntil = includedUntil;
+        public override string ToString() => $"{DateAdded:d} {Book}";
+    }
 }

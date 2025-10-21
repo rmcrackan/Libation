@@ -54,6 +54,7 @@ namespace LibationWinForms.GridView
 			lastDownloadedGVColumn = new LastDownloadedGridViewColumn();
 			isSpatialGVColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			tagAndDetailsGVColumn = new EditTagsDataGridViewImageButtonColumn();
+			includedUntilGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			((System.ComponentModel.ISupportInitialize)gridEntryDataGridView).BeginInit();
 			((System.ComponentModel.ISupportInitialize)syncBindingSource).BeginInit();
 			SuspendLayout();
@@ -66,7 +67,7 @@ namespace LibationWinForms.GridView
 			gridEntryDataGridView.AllowUserToResizeRows = false;
 			gridEntryDataGridView.AutoGenerateColumns = false;
 			gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { removeGVColumn, liberateGVColumn, coverGVColumn, titleGVColumn, authorsGVColumn, narratorsGVColumn, lengthGVColumn, seriesGVColumn, seriesOrderGVColumn, descriptionGVColumn, categoryGVColumn, productRatingGVColumn, purchaseDateGVColumn, myRatingGVColumn, miscGVColumn, lastDownloadedGVColumn, isSpatialGVColumn, tagAndDetailsGVColumn });
+			gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { removeGVColumn, liberateGVColumn, coverGVColumn, titleGVColumn, authorsGVColumn, narratorsGVColumn, lengthGVColumn, seriesGVColumn, seriesOrderGVColumn, descriptionGVColumn, categoryGVColumn, productRatingGVColumn, purchaseDateGVColumn, myRatingGVColumn, miscGVColumn, lastDownloadedGVColumn, isSpatialGVColumn, tagAndDetailsGVColumn, includedUntilGVColumn });
 			gridEntryDataGridView.ContextMenuStrip = showHideColumnsContextMenuStrip;
 			gridEntryDataGridView.DataSource = syncBindingSource;
 			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -276,6 +277,16 @@ namespace LibationWinForms.GridView
 			tagAndDetailsGVColumn.ScaleFactor = 0F;
 			tagAndDetailsGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
 			// 
+			// includedUntilGVColumn
+			// 
+			includedUntilGVColumn.DataPropertyName = "IncludedUntil";
+			includedUntilGVColumn.HeaderText = "Included Until";
+			includedUntilGVColumn.MinimumWidth = 10;
+			includedUntilGVColumn.Name = "includedUntilGVColumn";
+			includedUntilGVColumn.ReadOnly = true;
+			includedUntilGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			includedUntilGVColumn.Width = 108;
+			// 
 			// ProductsGrid
 			// 
 			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -314,5 +325,6 @@ namespace LibationWinForms.GridView
 		private LastDownloadedGridViewColumn lastDownloadedGVColumn;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn isSpatialGVColumn;
 		private EditTagsDataGridViewImageButtonColumn tagAndDetailsGVColumn;
+		private System.Windows.Forms.DataGridViewTextBoxColumn includedUntilGVColumn;
 	}
 }

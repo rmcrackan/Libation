@@ -49,6 +49,7 @@ namespace LibationUiBase.GridView
 		private string _bookTags;
 		private Rating _myRating;
 		private bool _isSpatial;
+		private string _includedUntil;
 		public abstract bool? Remove { get; set; }
 		public EntryStatus Liberate { get => _liberate; private set => RaiseAndSetIfChanged(ref _liberate, value); }
 		public string PurchaseDate { get => _purchasedate; protected set => RaiseAndSetIfChanged(ref _purchasedate, value); }
@@ -66,6 +67,7 @@ namespace LibationUiBase.GridView
 		public Rating ProductRating { get => _productrating; private set => RaiseAndSetIfChanged(ref _productrating, value); }
 		public string BookTags { get => _bookTags; private set => RaiseAndSetIfChanged(ref _bookTags, value); }
 		public bool IsSpatial { get => _isSpatial; protected set => RaiseAndSetIfChanged(ref _isSpatial, value); }
+		public string IncludedUntil { get => _includedUntil; protected set => RaiseAndSetIfChanged(ref _includedUntil, value); }
 
 		public Rating MyRating
 		{
@@ -120,14 +122,18 @@ namespace LibationUiBase.GridView
 			SeriesIndex = Book.SeriesLink.FirstOrDefault()?.Index ?? 0;
 			BookTags = GetBookTags();
 			IsSpatial = Book.IsSpatial;
+			IncludedUntil = GetIncludedUntilString();
+			
 
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
 
 		protected abstract string GetBookTags();
 		protected virtual DateTime GetPurchaseDate() => LibraryBook.DateAdded;
+		protected virtual DateTime? GetIncludedUntil() => LibraryBook.IncludedUntil;
 		protected virtual int GetLengthInMinutes() => Book.LengthInMinutes;
 		protected string GetPurchaseDateString() => GetPurchaseDate().ToString("d");
+		protected string GetIncludedUntilString() => GetIncludedUntil()?.ToString("d") ?? string.Empty;
 		protected string GetBookLengthString()
 		{
 			int bookLenMins = GetLengthInMinutes();
@@ -208,6 +214,7 @@ namespace LibationUiBase.GridView
 			nameof(Liberate) => Liberate,
 			nameof(DateAdded) => DateAdded,
 			nameof(IsSpatial) => IsSpatial,
+			nameof(IncludedUntil) => GetIncludedUntil() ?? default,
 			_ => null
 		};
 		
