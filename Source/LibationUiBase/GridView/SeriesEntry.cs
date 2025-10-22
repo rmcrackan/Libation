@@ -102,5 +102,6 @@ namespace LibationUiBase.GridView
 		protected override string GetBookTags() => null;
 		protected override int GetLengthInMinutes() => Children.Count == 0 ? 0 : Children.Sum(c => c.LibraryBook.Book.LengthInMinutes);
 		protected override DateTime GetPurchaseDate() => Children.Count == 0 ? default : Children.Min(c => c.LibraryBook.DateAdded);
+		protected override DateTime? GetIncludedUntil() => Children.Count == 0 ? default : Children.Min(c => c.LibraryBook.IncludedUntil);
 	}
 }

@@ -111,7 +111,8 @@ namespace DtoImporterService
 					contentType,
 					authors,
 					narrators,
-					importItem.LocaleName)
+					importItem.LocaleName
+					)
 					).Entity;
 				Cache.Add(book.AudibleProductId, book);
 			}

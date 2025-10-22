@@ -73,7 +73,8 @@ namespace DataLayer
             ContentType contentType,
             IEnumerable<Contributor> authors,
             IEnumerable<Contributor> narrators,
-            string localeName)
+            string localeName
+            )
         {
             // validate
             ArgumentValidator.EnsureNotNull(audibleProductId, nameof(audibleProductId));
