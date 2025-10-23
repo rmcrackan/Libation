@@ -1,9 +1,11 @@
 ﻿using DataLayer.Configurations;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading.Tasks;
 
 namespace DataLayer
 {
-    public class LibationContext : DbContext
+    public class LibationContext : DbContext, INotifyDisposed
     {
         // IMPORTANT: USING DbSet<>
         // ========================
@@ -24,6 +26,18 @@ namespace DataLayer
         public DbSet<Series> Series { get; private set; }
         public DbSet<Category> Categories { get; private set; }
         public DbSet<CategoryLadder> CategoryLadders { get; private set; }
+
+        public event EventHandler ObjectDisposed;
+        public override void Dispose()
+        {
+            base.Dispose();
+            ObjectDisposed?.Invoke(this, EventArgs.Empty);
+        }
+        public override async ValueTask DisposeAsync()
+        {
+            await base.DisposeAsync();
+            ObjectDisposed?.Invoke(this, EventArgs.Empty);
+        }
 
         public static LibationContext Create(string connectionString)
         {

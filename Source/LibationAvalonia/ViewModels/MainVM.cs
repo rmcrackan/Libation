@@ -12,6 +12,7 @@ namespace LibationAvalonia.ViewModels
 {
 	public partial class MainVM : ViewModelBase
 	{
+		public Task? BindToGridTask { get; set; }
 		public ProcessQueueViewModel ProcessQueue { get; } = new ProcessQueueViewModel();
 		public ProductsDisplayViewModel ProductsDisplay { get; } = new ProductsDisplayViewModel();
 
@@ -43,6 +44,13 @@ namespace LibationAvalonia.ViewModels
 		{
 			try
 			{
+				//Prevent race condition which can occur if an auto-scan
+				//completes before the initial grid binding completes.
+				if (BindToGridTask is null)
+					return;
+				else if (BindToGridTask.IsCompleted is false)
+					await BindToGridTask;
+
 				await Task.WhenAll(
 					SetBackupCountsAsync(fullLibrary),
 					Task.Run(() => ProductsDisplay.UpdateGridAsync(fullLibrary)));

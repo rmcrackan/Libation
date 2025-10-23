@@ -165,9 +165,10 @@ namespace LibationAvalonia.Views
 			if (QuickFilters.UseDefault)
 				await vm.PerformFilter(QuickFilters.Filters.FirstOrDefault());
 
-			await Task.WhenAll(
+			ViewModel.BindToGridTask = Task.WhenAll(
 				vm.SetBackupCountsAsync(initialLibrary),
 				Task.Run(() => vm.ProductsDisplay.BindToGridAsync(initialLibrary)));
+			await ViewModel.BindToGridTask;
 		}
 
 		public void ProductsDisplay_LiberateClicked(object _, LibraryBook[] libraryBook) => ViewModel.LiberateClicked(libraryBook);
