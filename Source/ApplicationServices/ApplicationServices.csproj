@@ -12,6 +12,8 @@
   <ItemGroup>
     <ProjectReference Include="..\DtoImporterService\DtoImporterService.csproj" />
     <ProjectReference Include="..\LibationSearchEngine\LibationSearchEngine.csproj" />
+    <ProjectReference Include="..\DataLayer.Postgres\DataLayer.Postgres.csproj" />
+    <ProjectReference Include="..\DataLayer.Sqlite\DataLayer.Sqlite.csproj" />
   </ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -1,5 +1,0 @@
-{
-  "ConnectionStrings": {
-    "LibationContext": "Data Source=LibationContext.db;Foreign Keys=False;"
-  }
-}
