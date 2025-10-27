@@ -110,7 +110,7 @@ jobs:
           Compress-Archive -Path "${bin_dir}*" -DestinationPath "$artifact.zip"
 
       - name: Publish artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ steps.zip.outputs.artifact }}.zip
           path: ./Source/bin/Publish/${{ steps.zip.outputs.artifact }}.zip
