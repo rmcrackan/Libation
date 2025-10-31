@@ -23,7 +23,8 @@ namespace LibationWinForms.Dialogs
 
 			deletedCheckedTemplate = deletedCheckedLbl.Text;
 
-			var deletedBooks = DbContexts.GetContext().GetDeletedLibraryBooks();
+			using var context = DbContexts.GetContext();
+			var deletedBooks = context.GetDeletedLibraryBooks();
 			foreach (var lb in deletedBooks)
 				deletedCbl.Items.Add(lb);
 

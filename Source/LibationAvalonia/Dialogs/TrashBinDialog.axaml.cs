@@ -122,7 +122,8 @@ namespace LibationAvalonia.Dialogs
 
 		private void Reload()
 		{
-			var deletedBooks = DbContexts.GetContext().GetDeletedLibraryBooks();
+			using var context = DbContexts.GetContext();
+			var deletedBooks = context.GetDeletedLibraryBooks();
 
 			DeletedBooks.Clear();
 			DeletedBooks.AddRange(deletedBooks.Select(lb => new CheckBoxViewModel { Item = lb }));
