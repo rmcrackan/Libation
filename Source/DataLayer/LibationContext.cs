@@ -39,15 +39,8 @@ namespace DataLayer
             ObjectDisposed?.Invoke(this, EventArgs.Empty);
         }
 
-        public static LibationContext Create(string connectionString)
-        {
-            var factory = new LibationContextFactory();
-            var context = factory.Create(connectionString);
-            return context;
-        }
-
         // see DesignTimeDbContextFactoryBase for info about ctors and connection strings/OnConfiguring()
-        internal LibationContext(DbContextOptions options) : base(options) { }
+        public LibationContext(DbContextOptions options) : base(options) { }
 
         // typically only called once per execution; NOT once per instantiation
         protected override void OnModelCreating(ModelBuilder modelBuilder)
