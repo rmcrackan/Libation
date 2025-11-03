@@ -68,6 +68,10 @@ liberate all books and pdfs
 liberate pdfs only
   libationcli liberate --pdf
   libationcli liberate -p
+
+Copy the local sqlite database to postgres
+  libationcli copydb --connectionString "my postgres connection string"
+  libationcli copydb -c "my postgres connection string"
   
 export library to file
   libationcli export --path "C:\foo\bar\my.json" --json
