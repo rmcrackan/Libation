@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		Upgrading dotnet version.txt = Upgrading dotnet version.txt
 		_ARCHITECTURE NOTES.txt = _ARCHITECTURE NOTES.txt
 		_AvaloniaUI Primer.txt = _AvaloniaUI Primer.txt
+		_DB_NOTES.txt = _DB_NOTES.txt
 		__README - COLLABORATORS.txt = __README - COLLABORATORS.txt
 	EndProjectSection
 EndProject
