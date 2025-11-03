@@ -11,21 +11,15 @@ namespace ApplicationServices
         public static LibationContext GetContext()
             => InstanceQueue<LibationContext>.WaitToCreateInstance(() =>
             {
-                var context = !string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString)
+                return !string.IsNullOrEmpty(Configuration.Instance.PostgresqlConnectionString)
                     ? LibationContextFactory.CreatePostgres(Configuration.Instance.PostgresqlConnectionString)
                     : LibationContextFactory.CreateSqlite(SqliteStorage.ConnectionString);
-
-                context.Database.Migrate();
-
-                return context;
             });
 
         /// <summary>Use for full library querying. No lazy loading</summary>
         public static List<LibraryBook> GetLibrary_Flat_NoTracking(bool includeParents = false)
         {
             using var context = GetContext();
-
-            context.Database.Migrate();
 
             return context.GetLibrary_Flat_NoTracking(includeParents);
         }
