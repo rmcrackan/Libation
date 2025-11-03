@@ -1,10 +1,11 @@
 ﻿using AudibleApi.Common;
+using ClosedXML.Excel;
 using CsvHelper;
 using DataLayer;
 using Newtonsoft.Json.Linq;
-using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace ApplicationServices
@@ -16,19 +17,10 @@ namespace ApplicationServices
 			if (!records.Any())
 				return;
 
-			using var workbook = new XSSFWorkbook();
-			var sheet = workbook.CreateSheet("Records");
-
-			var detailSubtotalFont = workbook.CreateFont();
-			detailSubtotalFont.IsBold = true;
-
-			var detailSubtotalCellStyle = workbook.CreateCellStyle();
-			detailSubtotalCellStyle.SetFont(detailSubtotalFont);
+			using var workbook = new XLWorkbook();
+			var worksheet = workbook.AddWorksheet("Records");
 
 			// headers
-			var rowIndex = 0;
-			var row = sheet.CreateRow(rowIndex);
-
 			var columns = new List<string>
 			{
 				nameof(Type.Name),
@@ -49,56 +41,52 @@ namespace ApplicationServices
 			if (records.OfType<Clip>().Any())
 				columns.Add(nameof(Clip.Title));
 
-			var col = 0;
+			int rowIndex = 1, col = 1;
+			var headerRow = worksheet.Row(rowIndex++);
 			foreach (var c in columns)
 			{
-				var cell = row.CreateCell(col++);
-				cell.SetCellValue(c);
-				cell.CellStyle = detailSubtotalCellStyle;
+				var headerCell = headerRow.Cell(col++);
+				headerCell.Value = c;
+				headerCell.Style.Font.Bold = true;
 			}
 
-			var dateFormat = workbook.CreateDataFormat();
-			var dateStyle = workbook.CreateCellStyle();
-			dateStyle.DataFormat = dateFormat.GetFormat("MM/dd/yyyy HH:mm:ss");
+			var dateFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " HH:mm:ss";
 
 			// Add data rows
 			foreach (var record in records)
 			{
-				col = 0;
+				col = 1;
+				var row = worksheet.Row(rowIndex++);
 
-				row = sheet.CreateRow(++rowIndex);
-
-				row.CreateCell(col++).SetCellValue(record.GetType().Name);
-
-				var dateCreatedCell = row.CreateCell(col++);
-				dateCreatedCell.CellStyle = dateStyle;
-				dateCreatedCell.SetCellValue(record.Created.DateTime);
-
-				row.CreateCell(col++).SetCellValue(record.Start.TotalMilliseconds);
+				row.Cell(col++).Value = record.GetType().Name;
+				row.Cell(col++).SetDate(record.Created.DateTime, dateFormat);
+				row.Cell(col++).Value = record.Start.TotalMilliseconds;
 
 				if (record is IAnnotation annotation)
 				{
-					row.CreateCell(col++).SetCellValue(annotation.AnnotationId);
 
-					var lastModifiedCell = row.CreateCell(col++);
-					lastModifiedCell.CellStyle = dateStyle;
-					lastModifiedCell.SetCellValue(annotation.LastModified.DateTime);
+					row.Cell(col++).Value = annotation.AnnotationId;
+					row.Cell(col++).SetDate(annotation.LastModified.DateTime, dateFormat);
 
 					if (annotation is IRangeAnnotation rangeAnnotation)
 					{
-						row.CreateCell(col++).SetCellValue(rangeAnnotation.End.TotalMilliseconds);
-						row.CreateCell(col++).SetCellValue(rangeAnnotation.Text);
+						row.Cell(col++).Value = rangeAnnotation.End.TotalMilliseconds;
+						row.Cell(col++).Value = rangeAnnotation.Text;
 
 						if (rangeAnnotation is Clip clip)
-							row.CreateCell(col++).SetCellValue(clip.Title);
+							row.Cell(col++).Value = clip.Title;
 					}
 				}
 			}
 
-			using var fileData = new System.IO.FileStream(saveFilePath, System.IO.FileMode.Create);
-			workbook.Write(fileData);
+			workbook.SaveAs(saveFilePath);
 		}
 
+		private static void SetDate(this IXLCell cell, DateTime? value, string dateFormat)
+		{
+			cell.Value = value;
+			cell.Style.DateFormat.Format = dateFormat;
+		}
 		public static void ToJson(string saveFilePath, LibraryBook libraryBook, IEnumerable<IRecord> records)
 		{
 			if (!records.Any())
