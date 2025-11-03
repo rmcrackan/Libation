@@ -38,7 +38,7 @@ public class LogFileFilter : IDestructuringPolicy
 	private static readonly object lockObj = new();
 	public static string? ZipFilePath { get; private set; }
 	public static string? LogFilePath { get; private set; }
-	public static void SetLogFilePath(string? logFilePath)
+	internal static void SetLogFilePath(string? logFilePath)
 	{
 		lock(lockObj)
 		{

@@ -37,33 +37,34 @@ namespace LibationAvalonia.Dialogs
 			}
 			catch
 			{
-				await MessageBox.Show($"Error opening url\r\n{url}", "Error opening url", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				await MessageBox.Show(this, $"Error opening url\r\n{url}", "Error opening url", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 
 		private async void GoToLogs_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
 		{
-			LongPath dir = "";
 			try
 			{
-				dir = LibationFileManager.Configuration.Instance.LibationFiles;
-			}
-			catch { }
-
-			try
-			{
-				Go.To.Folder(dir.ShortPathName);
+				Go.To.File(LibationFileManager.LogFileFilter.LogFilePath);
 			}
 			catch
 			{
-				await MessageBox.Show($"Error opening folder\r\n{dir}", "Error opening folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
+				LongPath dir = "";
+				try
+				{
+					dir = LibationFileManager.Configuration.Instance.LibationFiles;
+					Go.To.Folder(dir.ShortPathName);
+				}
+				catch
+				{
+					await MessageBox.Show(this, $"Error opening folder\r\n{dir}", "Error opening folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+			}		
 		}
 
 		public void OkButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			SaveAndClose();
 		}
-
 	}
 }
