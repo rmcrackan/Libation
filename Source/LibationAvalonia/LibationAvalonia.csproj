@@ -3,8 +3,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net9.0-windows7.0</TargetFramework>
-		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<TargetFramework>net9.0</TargetFramework>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<ApplicationIcon>Assets/libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
@@ -79,6 +78,7 @@
 		<PackageReference Include="Avalonia.Desktop" Version="11.3.8" />
 		<PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.8" />
+		<PackageReference Include="WebViewControlAvaloniaFree" Version="11.3.14" />
 	</ItemGroup>
 
 	<ItemGroup>

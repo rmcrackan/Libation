@@ -23,11 +23,6 @@ namespace LibationAvalonia
 			? dialogWindow.ShowDialog<DialogResult>(window)
 			: Task.FromResult(DialogResult.None);
 
-		public static Task<DialogResult> ShowDialogAsync(this Dialogs.Login.WebLoginDialog dialogWindow, Window? owner = null)
-			=> ((owner ?? App.MainWindow) is Window window)
-			? dialogWindow.ShowDialog<DialogResult>(window)
-			: Task.FromResult(DialogResult.None);
-
 		public static Window? GetParentWindow(this Control control) => control.GetVisualRoot() as Window;
 
 

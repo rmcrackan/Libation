@@ -10,7 +10,6 @@ namespace LibationFileManager
 		public NullInteropFunctions() { }
         public NullInteropFunctions(params object[] values) { }
 
-		public IWebViewAdapter? CreateWebViewAdapter() => throw new PlatformNotSupportedException();
 		public void SetFolderIcon(string image, string directory) => throw new PlatformNotSupportedException();
         public void DeleteFolderIcon(string directory) => throw new PlatformNotSupportedException();
 		public bool CanUpgrade => throw new PlatformNotSupportedException();

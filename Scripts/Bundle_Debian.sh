@@ -113,6 +113,7 @@ Essential: no
 Priority: optional
 Maintainer: github.com/rmcrackan
 Description: liberate your audiobooks
+Recommends: libgtk-3-0, libwebkit2gtk-4.1-0
 " >> $FOLDER_DEBIAN/control
 
 echo "Changing permissions for pre- and post-install files..."

@@ -5,12 +5,10 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net9.0-windows7.0</TargetFramework>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
-		<UseWindowsForms>true</UseWindowsForms>
 		<ApplicationIcon>libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
 
 		<PublishReadyToRun>true</PublishReadyToRun>
-		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 		<IsPublishable>true</IsPublishable>
@@ -43,6 +41,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="9.0.3.1" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3595.46" />
 	</ItemGroup>
 
 	<ItemGroup>
