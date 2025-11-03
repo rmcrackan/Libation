@@ -8,7 +8,7 @@
     <PackageReference Include="Octokit" Version="14.0.0" />
     <!-- Do not remove unused Serilog.Sinks -->
     <!-- Only File sink is currently used. By user request (June 2024) others packages are included for experimental use. -->
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>

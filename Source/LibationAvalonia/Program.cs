@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using ApplicationServices;
 using AppScaffolding;
 using Avalonia;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using LibationFileManager;
 
 #nullable enable

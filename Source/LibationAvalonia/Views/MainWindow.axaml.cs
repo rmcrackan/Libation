@@ -1,7 +1,7 @@
 using AudibleUtilities;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using Avalonia.Threading;
 using DataLayer;
 using FileManager;
