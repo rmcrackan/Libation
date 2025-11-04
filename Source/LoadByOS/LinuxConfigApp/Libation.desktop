@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Libation
-Exec=sh -c 'export WEBKIT_DISABLE_COMPOSITING_MODE=1; libation'
+Exec=env WEBKIT_DISABLE_COMPOSITING_MODE=1 libation
 Icon=libation
 Comment=Liberate your Audiobooks
 Terminal=false
