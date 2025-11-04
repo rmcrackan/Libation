@@ -39,10 +39,15 @@ public partial class DownloadOptions
 
 		//Some audiobooks will have incorrect chapters in the metadata returned from the license request,
 		//but the metadata returned by the content metadata endpoint will be correct. Call the content
-		//metadata endpoint and use its chapters. Only replace the license request chapters if the total
-		//lengths match (defensive against different audio formats having slightly different lengths).
-		var metadata = await api.GetContentMetadataAsync(libraryBook.Book.AudibleProductId);
-		if (metadata.ChapterInfo.RuntimeLengthMs == license.ContentMetadata.ChapterInfo.RuntimeLengthMs)
+		//metadata endpoint and use its chapters. Only replace the license request chapters if the content
+		//references match (defensive against different audio formats having slightly different lengths).
+		var metadata = await api.GetContentMetadataAsync(
+		   libraryBook.Book.AudibleProductId,
+		   license.DrmType,
+		   license.ContentMetadata.ContentReference.Acr,
+		   license.ContentMetadata.ContentReference.FileVersion);
+
+		if (metadata is not null && metadata.ContentReference == license.ContentMetadata.ContentReference)
 			license.ContentMetadata.ChapterInfo = metadata.ChapterInfo;
 
 		token.ThrowIfCancellationRequested();
@@ -52,7 +57,7 @@ public partial class DownloadOptions
 	private class LicenseInfo
 	{
 		public DrmType DrmType { get; }
-		public ContentMetadata ContentMetadata { get; set; }
+		public ContentMetadata ContentMetadata { get; }
 		public KeyData[]? DecryptionKeys { get; }
 		public LicenseInfo(ContentLicense license, IEnumerable<KeyData>? keys = null)
 		{
@@ -283,8 +288,11 @@ public partial class DownloadOptions
 
 	*/
 
-	public static List<Chapter> flattenChapters(IList<Chapter> chapters, string? titleConcat = ": ")
+	public static List<Chapter> flattenChapters(IList<Chapter>? chapters, string? titleConcat = ": ")
 	{
+		if (chapters is null)
+			return [];
+
 		List<Chapter> chaps = new();
 
 		foreach (var c in chapters)
