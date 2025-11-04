@@ -3,6 +3,7 @@ using AudibleApi;
 using AudibleApi.Common;
 using AudibleUtilities.Widevine;
 using DataLayer;
+using Dinah.Core;
 using LibationFileManager;
 using NAudio.Lame;
 using System;
@@ -24,6 +25,16 @@ public partial class DownloadOptions
 	public static async Task<DownloadOptions> InitiateDownloadAsync(Api api, Configuration config, LibraryBook libraryBook, CancellationToken token)
 	{
 		var license = await ChooseContent(api, libraryBook, config, token);
+		Serilog.Log.Logger.Debug("Content License {@License}", new
+		{
+			license.DrmType,
+			license.ContentMetadata.ContentReference.Codec,
+			license.ContentMetadata.ContentReference.Marketplace,
+			license.ContentMetadata.ContentReference.ContentSizeInBytes,
+			license.ContentMetadata.ContentReference.Version,
+			license.ContentMetadata.ContentReference.FileVersion
+		});
+
 		token.ThrowIfCancellationRequested();
 
 		//Some audiobooks will have incorrect chapters in the metadata returned from the license request,
@@ -56,10 +67,28 @@ public partial class DownloadOptions
 
 	private static async Task<LicenseInfo> ChooseContent(Api api, LibraryBook libraryBook, Configuration config, CancellationToken token)
 	{
+		Serilog.Log.Logger.Debug("Download Settings {@Settings}", new
+		{
+			config.FileDownloadQuality,
+			config.UseWidevine,
+			config.Request_xHE_AAC,
+			config.RequestSpatial,
+			config.SpatialAudioCodec
+		});
+
 		var dlQuality = config.FileDownloadQuality == Configuration.DownloadQuality.Normal ? DownloadQuality.Normal : DownloadQuality.High;
 
-		if (!config.UseWidevine || await Cdm.GetCdmAsync() is not Cdm cdm)
+		bool canUseWidevine = api.SupportsWidevine();
+		if (!config.UseWidevine || !canUseWidevine || await Cdm.GetCdmAsync() is not Cdm cdm)
 		{
+			if (config.UseWidevine)
+			{
+				if (canUseWidevine)
+					Serilog.Log.Logger.Information("Unable to get a Widevine CDM. Falling back to ADRM.");
+				else
+					Serilog.Log.Logger.Information("Account {@account} is not registered as an android device, so content will not be downloaded with Widevine DRM. Remove and re-add the account in Libation to fix.", libraryBook.Account.ToMask());
+			}
+
 			token.ThrowIfCancellationRequested();
 			var license = await api.GetDownloadLicenseAsync(libraryBook.Book.AudibleProductId, dlQuality);
 			return new LicenseInfo(license);

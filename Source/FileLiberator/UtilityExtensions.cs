@@ -7,6 +7,7 @@ using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
 using LibationFileManager.Templates;
+using System.Security.Authentication;
 
 #nullable enable
 namespace FileLiberator
@@ -25,12 +26,20 @@ namespace FileLiberator
 
 		public static async Task<AudibleApi.Api> GetApiAsync(this LibraryBook libraryBook)
 		{
-			Account account;
-			using (var accounts = AudibleApiStorage.GetAccountsSettingsPersister())
-				account = accounts.AccountsSettings.GetAccount(libraryBook.Account, libraryBook.Book.Locale);
+			using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
+			var account = accounts.AccountsSettings.GetAccount(libraryBook.Account, libraryBook.Book.Locale)
+				?? throw new InvalidCredentialException($"No account found for '{libraryBook.Account}' and locale '{libraryBook.Book.Locale}'");
 
 			var apiExtended = await ApiExtended.CreateAsync(account);
 			return apiExtended.Api;
+		}
+
+		public static bool SupportsWidevine(this AudibleApi.Api api)
+		{
+			//TODO: Expose Api's identity maintainer directly instead of using reflection.
+			var identityProperty = api.GetType().GetProperty("_identityMaintainer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+			return identityProperty?.GetValue(api) is AudibleApi.Authorization.IIdentityMaintainer identityMaintainer
+				&& identityMaintainer.DeviceType == AudibleApi.Resources.DeviceType;
 		}
 
 		public static LibraryBookDto ToDto(this LibraryBook libraryBook)

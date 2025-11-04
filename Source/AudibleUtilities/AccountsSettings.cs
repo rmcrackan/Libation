@@ -6,6 +6,7 @@ using AudibleApi.Authorization;
 using Dinah.Core;
 using Newtonsoft.Json;
 
+#nullable enable
 namespace AudibleUtilities
 {
 	// 'AccountsSettings' is intentionally NOT IEnumerable<> so that properties can be added/extended
@@ -14,8 +15,8 @@ namespace AudibleUtilities
 	//   JSON :  Array (properties on the collection will not be serialized)
 	public class AccountsSettings : IUpdatable
 	{
-		public event EventHandler Updated;
-		private void update(object sender = null, EventArgs e = null)
+		public event EventHandler? Updated;
+		private void update(object? sender = null, EventArgs? e = null)
 		{
 			foreach (var account in Accounts)
 				validate(account);
@@ -48,9 +49,9 @@ namespace AudibleUtilities
 			}
 		}
 
-		private string _cdm;
+		private string? _cdm;
 		[JsonProperty]
-		public string Cdm
+		public string? Cdm
 		{
 			get => _cdm;
 			set
@@ -68,7 +69,7 @@ namespace AudibleUtilities
 		#endregion
 
 		#region de/serialize
-		public static AccountsSettings FromJson(string json)
+		public static AccountsSettings? FromJson(string json)
 			=> JsonConvert.DeserializeObject<AccountsSettings>(json, Identity.GetJsonSerializerSettings());
 
 		public string ToJson(Formatting formatting = Formatting.Indented)
@@ -107,7 +108,7 @@ namespace AudibleUtilities
 			account.Updated += update;
 		}
 
-		public Account GetAccount(string accountId, string locale)
+		public Account? GetAccount(string accountId, string? locale)
 		{
 			if (locale is null)
 				return null;

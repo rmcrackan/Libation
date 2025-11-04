@@ -224,7 +224,7 @@ namespace LibationWinForms.Dialogs
 			{
 				using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
 
-				if (!accounts.AccountsSettings.Accounts.Any(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
+				if (!accounts.AccountsSettings.Accounts.All(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
 				{
 					var choice = MessageBox.Show(this,
 						"In order to enable widevine content, Libation will need to log into your accounts again.\r\n\r\n" +
