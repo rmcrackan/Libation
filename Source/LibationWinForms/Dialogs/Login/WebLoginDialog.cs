@@ -53,7 +53,7 @@ namespace LibationWinForms.Login
 
 		private static string getScript(string accountID) => $$"""
 			(function() {
-				var email = document.querySelector("input[name='email']");
+				var email = document.querySelector("input[id='ap_email_login']");
 				if (email !== null)
 					email.value = '{{accountID}}';
 			
