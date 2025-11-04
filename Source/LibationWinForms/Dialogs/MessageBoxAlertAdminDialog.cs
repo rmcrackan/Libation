@@ -43,26 +43,28 @@ namespace LibationWinForms.Dialogs
 			}
 			catch
 			{
-				MessageBox.Show($"Error opening url\r\n{url}", "Error opening url", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show(this, $"Error opening url\r\n{url}", "Error opening url", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 
 		private void logsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
 		{
-			LongPath dir = "";
 			try
 			{
-				dir = LibationFileManager.Configuration.Instance.LibationFiles;
-			}
-			catch { }
-
-			try
-			{
-				Go.To.Folder(dir.ShortPathName);
+				Go.To.File(LibationFileManager.LogFileFilter.LogFilePath);
 			}
 			catch
 			{
-				MessageBox.Show($"Error opening folder\r\n{dir}", "Error opening folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				LongPath dir = "";
+				try
+				{
+					dir = LibationFileManager.Configuration.Instance.LibationFiles;
+					Go.To.Folder(dir.ShortPathName);
+				}
+				catch
+				{
+					MessageBox.Show(this, $"Error opening folder\r\n{dir}", "Error opening folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
 			}
 		}
 
