@@ -3,15 +3,16 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
 namespace FileManager
 {
-    /// <summary>
-    /// Tracks actual locations of files.
-    /// </summary>
-    public class BackgroundFileSystem
+	/// <summary>
+	/// Tracks actual locations of files.
+	/// </summary>
+	public class BackgroundFileSystem : IDisposable
     {
         public LongPath RootDirectory { get; private set; }
         public string SearchPattern { get; private set; }
@@ -21,7 +22,7 @@ namespace FileManager
         private BlockingCollection<FileSystemEventArgs>? directoryChangesEvents { get; set; }
         private Task? backgroundScanner { get; set; }
 
-        private object fsCacheLocker { get; } = new();
+        private Lock fsCacheLocker { get; } = new();
         private List<LongPath> fsCache { get; } = new();
 
         public BackgroundFileSystem(LongPath rootDirectory, string searchPattern, SearchOption searchOptions)
@@ -100,7 +101,6 @@ namespace FileManager
 
         private void FileSystemWatcher_Error(object sender, ErrorEventArgs e)
         {
-            Stop();
             Init();
         }
 
@@ -181,8 +181,12 @@ namespace FileManager
                 fsCache.Add(newFile);
         }
 
-        #endregion
+		#endregion
 
-        ~BackgroundFileSystem() => Stop();
-    }
+		public void Dispose()
+		{
+			Stop();
+			GC.SuppressFinalize(this);
+		}
+	}
 }

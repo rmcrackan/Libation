@@ -129,7 +129,7 @@ namespace LibationFileManager
 			=> BookDirectoryFiles ??= newBookDirectoryFiles();
 
 		private static BackgroundFileSystem? BookDirectoryFiles { get; set; }
-		private static object bookDirectoryFilesLocker { get; } = new();
+		private static Lock bookDirectoryFilesLocker { get; } = new();
 		private static EnumerationOptions enumerationOptions { get; } = new()
 		{
 			RecurseSubdirectories = true,
@@ -148,8 +148,13 @@ namespace LibationFileManager
 		{
 			// If user changed the BooksDirectory: reinitialize
 			lock (bookDirectoryFilesLocker)
+			{
 				if (BooksDirectory != BookDirectoryFiles?.RootDirectory)
+				{
+					BookDirectoryFiles?.Dispose();
 					BookDirectoryFiles = newBookDirectoryFiles();
+				}
+			}
 
 			var regex = GetBookSearchRegex(productId);
 			var diskFiles = BookDirectoryFiles?.FindFiles(regex) ?? [];
@@ -167,9 +172,10 @@ namespace LibationFileManager
 
 		public void Refresh()
 		{
-			if (BookDirectoryFiles is null && BooksDirectory is not null)
-				lock (bookDirectoryFilesLocker)
-					BookDirectoryFiles = newBookDirectoryFiles();
+			lock (bookDirectoryFilesLocker)
+			{
+				BookDirectoryFiles ??= newBookDirectoryFiles();
+			}
 
 			BookDirectoryFiles?.RefreshFiles();
 		}
