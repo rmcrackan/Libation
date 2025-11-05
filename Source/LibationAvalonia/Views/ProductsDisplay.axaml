@@ -236,8 +236,18 @@
 				<controls:DataGridTemplateColumnExt Header="Is&#xA;Spatial" MinWidth="10" Width="{CompiledBinding IsSpatialWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="IsSpatial" ClipboardContentBinding="{Binding IsSpatial}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" ToolTip.Tip="{CompiledBinding LastDownload.ToolTipText}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<CheckBox IsChecked="{CompiledBinding IsSpatial}" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Center" />
+							</Panel>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</controls:DataGridTemplateColumnExt>
+				
+				<controls:DataGridTemplateColumnExt Header="Account" MinWidth="10" Width="{CompiledBinding AccountWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Account" ClipboardContentBinding="{Binding Account}">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="uibase:GridEntry">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
+								<TextBlock Text="{CompiledBinding Account}" TextWrapping="Wrap" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

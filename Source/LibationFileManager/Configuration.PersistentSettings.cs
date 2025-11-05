@@ -211,6 +211,7 @@ namespace LibationFileManager
 			new ("LastDownload", false),
 			new ("IsSpatial", false),
 			new ("IncludedUntil", false), 
+			new ("Account", false),
 			]);
 		public bool GetColumnVisibility(string columnName)
 			=> GridColumnsVisibilities.TryGetValue(columnName, out var isVisible) ? isVisible

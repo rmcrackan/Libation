@@ -481,6 +481,7 @@ namespace LibationAvalonia.ViewModels
 		public DataGridLength LastDownloadWidth { get => getColumnWidth("LastDownload", 100); set => setColumnWidth("LastDownload", value); }
 		public DataGridLength BookTagsWidth { get => getColumnWidth("BookTags", 100); set => setColumnWidth("BookTags", value); }
 		public DataGridLength IsSpatialWidth { get => getColumnWidth("IsSpatial", 100); set => setColumnWidth("IsSpatial", value); }
+		public DataGridLength AccountWidth { get => getColumnWidth(nameof(GridEntry.Account), 100); set => setColumnWidth(nameof(GridEntry.Account), value); }
 
 		private static DataGridLength getColumnWidth(string columnName, double defaultWidth)
 			=> Configuration.Instance.GridColumnsWidths.TryGetValue(columnName, out var val)
