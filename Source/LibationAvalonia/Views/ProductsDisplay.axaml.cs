@@ -2,6 +2,7 @@ using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input.Platform;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using DataLayer;
@@ -431,8 +432,9 @@ namespace LibationAvalonia.Views
 			List<Control> menuItems = new();
 			contextMenu.ItemsSource = menuItems;
 
-			menuItems.Add(new MenuItem { Header = "Show / Hide Columns" });
-			menuItems.Add(new MenuItem { Header = "-" });
+			var menuPadding = new Thickness(5, 0, -10, 0);
+			menuItems.Add(new MenuItem { Header = "Show / Hide Columns", Padding = menuPadding });
+			menuItems.Add(new MenuItem { Header = "-", Padding = menuPadding });
 
 			var HeaderCell_PI = typeof(DataGridColumn).GetProperty("HeaderCell", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
@@ -446,13 +448,23 @@ namespace LibationAvalonia.Views
 				if (itemName == nameof(GridEntry.Remove))
 					continue;
 
+				var name = ((string)column.Header).Replace('\n', ' ');
 				menuItems.Add
 					(
 						new MenuItem
 						{
-							Header = ((string)column.Header).Replace('\n', ' '),
+							Header = new CheckBox
+							{
+								IsHitTestVisible = true,
+								BorderBrush = Brushes.Black,
+								VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
+								VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
+								HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+								HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+								Content = new TextBlock { Text = name, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center }
+							},
+							Padding = menuPadding,
 							Tag = column,
-							Icon = new CheckBox(),
 						}
 					);
 
@@ -482,7 +494,7 @@ namespace LibationAvalonia.Views
 				return;
 			foreach (var mi in contextMenu.Items.OfType<MenuItem>())
 			{
-				if (mi.Tag is DataGridColumn column && mi.Icon is CheckBox cbox)
+				if (mi.Tag is DataGridColumn column && mi.Header is CheckBox cbox)
 				{
 					cbox.IsChecked = column.IsVisible;
 				}
@@ -498,7 +510,7 @@ namespace LibationAvalonia.Views
 
 			foreach (var mi in contextMenu.Items.OfType<MenuItem>())
 			{
-				if (mi.Tag is DataGridColumn column && mi.Icon is CheckBox cbox)
+				if (mi.Tag is DataGridColumn column && mi.Header is CheckBox cbox)
 				{
 					column.IsVisible = cbox.IsChecked == true;
 					dictionary[column.SortMemberPath] = cbox.IsChecked == true;
