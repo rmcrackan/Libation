@@ -230,7 +230,8 @@ namespace LibationAvalonia
 		private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)
 		{
 			Configuration.Instance.PropertyChanged += ThemeVariant_PropertyChanged;
-			OpenAndApplyTheme(Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)));
+			Current.ActualThemeVariantChanged += OnActualThemeVariantChanged;
+			OnActualThemeVariantChanged(Current, EventArgs.Empty);
 
 			var mainWindow = new MainWindow();
 			desktop.MainWindow = MainWindow = mainWindow;
@@ -242,6 +243,9 @@ namespace LibationAvalonia
 		[PropertyChangeFilter(nameof(ThemeVariant))]
 		private static void ThemeVariant_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
 			=> OpenAndApplyTheme(e.NewValue as string);
+
+		private static void OnActualThemeVariantChanged(object? sender, EventArgs e)
+			=> OpenAndApplyTheme(Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)));
 
 		private static void OpenAndApplyTheme(string? themeVariant)
 		{
