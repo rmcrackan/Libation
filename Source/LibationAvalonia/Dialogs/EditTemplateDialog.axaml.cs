@@ -25,10 +25,11 @@ public partial class EditTemplateDialog : DialogWindow
 
 		if (Design.IsDesignMode)
 		{
-			_ = Configuration.Instance.LibationFiles;
+			var mockInstance = Configuration.CreateMockInstance();
+			mockInstance.Books = Configuration.DefaultBooksDirectory;
 			RequestedThemeVariant  = ThemeVariant.Dark;
-			var editor = TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(Configuration.Instance.Books, Configuration.Instance.FileTemplate);
-			_viewModel = new(Configuration.Instance, editor);
+			var editor = TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(mockInstance.Books, mockInstance.FileTemplate);
+			_viewModel = new(mockInstance, editor);
 			_viewModel.ResetTextBox(editor.EditingTemplate.TemplateText);
 			Title = $"Edit {editor.TemplateName}";
 			DataContext = _viewModel;

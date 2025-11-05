@@ -20,9 +20,9 @@ namespace LibationFileManager
 		// config class is only responsible for path. not responsible for setting defaults, dir validation, or dir creation
 		// exceptions: appsettings.json, LibationFiles dir, Settings.json
 
-		private PersistentDictionary? persistentDictionary;
+		private IPersistentDictionary? persistentDictionary;
 
-		private PersistentDictionary Settings
+		private IPersistentDictionary Settings
 		{
 			get
 			{

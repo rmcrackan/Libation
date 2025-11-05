@@ -2,11 +2,8 @@ using Avalonia.Controls;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
 using LibationAvalonia.ViewModels;
-using LibationFileManager;
 using LibationUiBase.ProcessQueue;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -32,9 +29,7 @@ public partial class ThemePreviewControl : UserControl
 
 		if (Design.IsDesignMode)
 		{
-			using var ms1 = new MemoryStream();
-			App.OpenAsset("img-coverart-prod-unavailable_80x80.jpg").CopyTo(ms1);
-			PictureStorage.SetDefaultImage(PictureSize._80x80, ms1.ToArray());
+			MainVM.Configure_NonUI();
 		}
 
 		QueuedBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Queued };
@@ -56,32 +51,12 @@ public partial class ThemePreviewControl : UserControl
 
 	private IEnumerable<LibraryBook> CreateMockBooks()
 	{
-		var author = new Contributor("Some Author", "asin_contributor");
-		var narrator = new Contributor("Some Narrator", "asin_narrator");
-
-		var book1 = new Book(new AudibleProductId("asin_book1"), "Some Book 1", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us");
-		var book2 = new Book(new AudibleProductId("asin_book2"), "Some Book 2", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us");
-		var book3 = new Book(new AudibleProductId("asin_book3"), "Some Book 3", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us");
-		var book4 = new Book(new AudibleProductId("asin_book4"), "Some Book 4", "The Theming", "Demo Book Entry", 525600, ContentType.Product, [author], [narrator], "us");
-		var seriesParent = new Book(new AudibleProductId("asin_series"), "Some Series", "", "Demo Series Entry", 0, ContentType.Parent, [author], [narrator], "us");
-		var episode = new Book(new AudibleProductId("asin_episode"), "Some Episode", "Episode 1", "Demo Episode Entry", 56, ContentType.Episode, [author], [narrator], "us");
-
-		var series = new Series(new AudibleSeriesId(seriesParent.AudibleProductId), seriesParent.Title);
-
-		seriesParent.UpsertSeries(series, "");
-		episode.UpsertSeries(series, "1");
-
-		book1.UserDefinedItem.BookStatus = LiberatedStatus.Liberated;
-		book4.UserDefinedItem.BookStatus = LiberatedStatus.Error;
-		//Set the backing field directly to preserve LiberatedStatus.PartialDownload
-		typeof(UserDefinedItem).GetField("_bookStatus", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(book2.UserDefinedItem, LiberatedStatus.PartialDownload);
-
-		yield return new LibraryBook(book1, System.DateTime.Now.AddDays(4), "someone@email.co");
-		yield return new LibraryBook(book2, System.DateTime.Now.AddDays(3), "someone@email.co");
-		yield return new LibraryBook(book3, System.DateTime.Now.AddDays(2), "someone@email.co") { AbsentFromLastScan = true };
-		yield return new LibraryBook(book4, System.DateTime.Now.AddDays(1), "someone@email.co");
-		yield return new LibraryBook(seriesParent, System.DateTime.Now, "someone@email.co");
-		yield return new LibraryBook(episode, System.DateTime.Now, "someone@email.co");
+		yield return MockLibraryBook.CreateBook(title: "Some Book 1", subtitle: "The Theming", dateAdded: System.DateTime.Now.AddDays(4)).WithBookStatus(LiberatedStatus.Liberated);
+		yield return MockLibraryBook.CreateBook(title: "Some Book 2", dateAdded: System.DateTime.Now.AddDays(3)).WithBookStatus(LiberatedStatus.PartialDownload);
+		yield return MockLibraryBook.CreateBook(title: "Some Book 3", dateAdded: System.DateTime.Now.AddDays(2), absetFromLastScan: true).WithPdfStatus(LiberatedStatus.NotLiberated);
+		yield return MockLibraryBook.CreateBook(title: "Some Book 4", dateAdded: System.DateTime.Now.AddDays(1)).WithBookStatus(LiberatedStatus.Error);
+		yield return MockLibraryBook.CreateBook(title: "Some Series", subtitle: "", contentType: ContentType.Parent).AddSeries("Some Series", 0);
+		yield return MockLibraryBook.CreateBook(title: "Some Episode", subtitle: "Episode 1", contentType: ContentType.Episode).AddSeries("Some Series", 1);
 	}
 
 	private class MockProcessable : FileLiberator.Processable

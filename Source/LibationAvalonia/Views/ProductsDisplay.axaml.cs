@@ -62,20 +62,14 @@ namespace LibationAvalonia.Views
 #if DEBUG
 			if (Design.IsDesignMode)
 			{
-				using var context = DbContexts.GetContext();
-				LibraryBook?[] sampleEntries;
-				try
-				{
-					sampleEntries = [
-						context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"),
-						context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")];
-				}
-				catch { sampleEntries = []; }
+				MainVM.Configure_NonUI();
+				LibraryBook[] sampleEntries = [
+					MockLibraryBook.CreateBook(title: "Book 1"),
+					MockLibraryBook.CreateBook(title: "Book 2"),
+					MockLibraryBook.CreateBook(title: "Book 3"),
+					MockLibraryBook.CreateBook(title: "Book 4"),
+					MockLibraryBook.CreateBook(title: "Book 5"),
+					MockLibraryBook.CreateBook(title: "Book 6")];
 
 				var pdvm = new ProductsDisplayViewModel();
 				_ = pdvm.BindToGridAsync(sampleEntries.OfType<LibraryBook>().ToList());

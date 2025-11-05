@@ -29,7 +29,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			GridScaleFactor = scaleFactorToLinearRange(config.GridScaleFactor);
 			GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
 
-			themeVariant = initialThemeVariant = Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)) ?? "";
+			themeVariant = initialThemeVariant = config.GetString(propertyName: nameof(ThemeVariant)) ?? "";
 			if (string.IsNullOrWhiteSpace(initialThemeVariant))
 				themeVariant = initialThemeVariant = "System";
 		}

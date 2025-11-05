@@ -27,7 +27,15 @@ namespace LibationAvalonia.Dialogs
 			Closing += DialogWindow_Closing;
 
 			if (Design.IsDesignMode)
-				RequestedThemeVariant = ThemeVariant.Dark;
+			{
+				var themeVariant = Configuration.CreateMockInstance().GetString(propertyName: nameof(ThemeVariant));
+				RequestedThemeVariant = themeVariant switch
+				{
+					nameof(ThemeVariant.Dark) => ThemeVariant.Dark,
+					nameof(ThemeVariant.Light) => ThemeVariant.Light,
+					_ => ThemeVariant.Default,
+				};
+			}
 		}
 
 		private void DialogWindow_Loaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)

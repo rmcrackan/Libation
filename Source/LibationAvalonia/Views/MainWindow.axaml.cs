@@ -23,7 +23,7 @@ namespace LibationAvalonia.Views
 		public MainWindow()
 		{
 			if (Design.IsDesignMode)
-				_ = Configuration.Instance.LibationFiles;
+				Configuration.CreateMockInstance();
 
 			DataContext = new MainVM(this);
 			ApiExtended.LoginChoiceFactory = account => Dispatcher.UIThread.Invoke(() => new Dialogs.Login.AvaloniaLoginChoiceEager(account));

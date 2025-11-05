@@ -19,8 +19,7 @@ namespace LibationAvalonia.Controls.Settings
 			InitializeComponent();
 			if (Design.IsDesignMode)
 			{
-				_ = Configuration.Instance.LibationFiles;
-				DataContext = new AudioSettingsVM(Configuration.Instance);
+				DataContext = new AudioSettingsVM(Configuration.CreateMockInstance());
 			}
 		}
 

@@ -37,8 +37,17 @@ namespace LibationAvalonia.Dialogs
 
 			if (Design.IsDesignMode)
 			{
-				using var context = DbContexts.GetContext();
-				LibraryBook = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G");
+				MainVM.Configure_NonUI();
+				LibraryBook
+					= MockLibraryBook
+					.CreateBook()
+					.AddAuthor("Author 2")
+					.AddNarrator("Narrator 2")
+					.AddSeries("Series Name", 1)
+					.AddCategoryLadder("Parent", "Child Category")
+					.AddCategoryLadder("Parent", "Child Category 2")
+					.WithBookStatus(LiberatedStatus.NotLiberated)
+					.WithPdfStatus(LiberatedStatus.Liberated);
 			}
 		}
 		public BookDetailsDialog(LibraryBook libraryBook) : this()

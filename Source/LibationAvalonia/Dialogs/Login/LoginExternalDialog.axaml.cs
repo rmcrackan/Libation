@@ -20,9 +20,10 @@ namespace LibationAvalonia.Dialogs.Login
 
 			if (Design.IsDesignMode)
 			{
-				using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
-				var accounts = persister.AccountsSettings.Accounts;
-				Account = accounts.FirstOrDefault();
+				Account = new Account("someemail.somedomain.co")
+				{
+					IdentityTokens = new AudibleApi.Authorization.Identity(AudibleApi.Localization.Locales.First())
+				};
 				ExternalLoginUrl = "ht" + "tps://us.audible.com/Test_url";
 				DataContext = this;
 			}
