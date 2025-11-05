@@ -417,59 +417,23 @@ namespace LibationAvalonia.Views
 
 			productsGrid.ColumnDisplayIndexChanged += ProductsGrid_ColumnDisplayIndexChanged;
 
-			var config = Configuration.Instance;
-			var displayIndices = config.GridColumnsDisplayIndices;
-
-			var contextMenu = new ContextMenu();
-			contextMenu.Closed += ContextMenu_MenuClosed;
-			contextMenu.Opening += ContextMenu_ContextMenuOpening;
-			List<Control> menuItems = new();
-			contextMenu.ItemsSource = menuItems;
-
-			var menuPadding = new Thickness(5, 0, -10, 0);
-			menuItems.Add(new MenuItem { Header = "Show / Hide Columns", Padding = menuPadding });
-			menuItems.Add(new MenuItem { Header = "-", Padding = menuPadding });
-
-			var HeaderCell_PI = typeof(DataGridColumn).GetProperty("HeaderCell", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-			if (HeaderCell_PI is null)
-				return;
-
 			foreach (var column in productsGrid.Columns)
 			{
 				var itemName = column.SortMemberPath;
-
 				if (itemName == nameof(GridEntry.Remove))
 					continue;
 
-				var name = ((string)column.Header).Replace('\n', ' ');
-				menuItems.Add
-					(
-						new MenuItem
-						{
-							Header = new CheckBox
-							{
-								IsHitTestVisible = true,
-								BorderBrush = Brushes.Black,
-								VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
-								VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
-								HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-								HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-								Content = new TextBlock { Text = name, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center }
-							},
-							Padding = menuPadding,
-							Tag = column,
-						}
-					);
+				GridHeaderContextMenu.Items.Add(new MenuItem
+				{
+					Header = new CheckBox { Content = new TextBlock { Text = ((string)column.Header).Replace('\n', ' ') } },
+					Tag = column,
+				});
 
-				var headerCell = HeaderCell_PI.GetValue(column) as DataGridColumnHeader;
-				if (headerCell is not null)
-					headerCell.ContextMenu = contextMenu;
-
-				column.IsVisible = config.GetColumnVisibility(itemName);
+				column.IsVisible = Configuration.Instance.GetColumnVisibility(itemName);
 			}
 
 			//We must set DisplayIndex properties in ascending order
+			var displayIndices = Configuration.Instance.GridColumnsDisplayIndices;
 			foreach (var itemName in displayIndices.OrderBy(i => i.Value).Select(i => i.Key))
 			{
 				if (!productsGrid.Columns.Any(c => c.SortMemberPath == itemName))
@@ -482,7 +446,7 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private void ContextMenu_ContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
+		public void ContextMenu_ContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
 		{
 			if (sender is not ContextMenu contextMenu)
 				return;
@@ -495,7 +459,7 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private void ContextMenu_MenuClosed(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void ContextMenu_MenuClosed(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			if (sender is not ContextMenu contextMenu)
 				return;

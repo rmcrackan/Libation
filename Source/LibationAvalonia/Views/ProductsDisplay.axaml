@@ -24,6 +24,33 @@
 			CanUserReorderColumns="True">
 
 			<DataGrid.Styles>
+				<Style Selector="DataGridColumnHeader">
+					<Setter Property="ContextMenu">
+						<ContextMenu Name="GridHeaderContextMenu" Opening="ContextMenu_ContextMenuOpening" Closed="ContextMenu_MenuClosed">
+							<ContextMenu.Styles>
+								<Style Selector="MenuItem">
+									<Setter Property="Padding" Value="10,0,-10,0" />
+									<Style Selector="^ CheckBox">
+										<Setter Property="IsHitTestVisible" Value="True" />
+										<Setter Property="HorizontalAlignment" Value="Stretch" />
+										<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+										<Setter Property="VerticalAlignment" Value="Stretch" />
+										<Setter Property="VerticalContentAlignment" Value="Stretch" />
+											<Style Selector="^ TextBlock">
+												<Setter Property="VerticalAlignment" Value="Center" />
+											</Style>
+									</Style>
+								</Style>
+							</ContextMenu.Styles>
+							<MenuItem>
+								<MenuItem.Header>
+									<TextBlock Text="Show / Hide Columns" />
+								</MenuItem.Header>
+							</MenuItem>
+							<MenuItem Header="-"/>                    
+						</ContextMenu>
+					</Setter>
+				</Style>
 				<Style Selector="DataGridCell > Panel">
 					<Setter Property="VerticalAlignment" Value="Stretch"/>
 				</Style>
