@@ -10,8 +10,8 @@ namespace LibationFileManager
 {
     public partial class Configuration
     {
-        public static string ProcessDirectory { get; } = Path.GetDirectoryName(Exe.FileLocationOnDisk)!;
-		public static string AppDir_Relative => $@".{Path.PathSeparator}{LIBATION_FILES_KEY}";
+        public static string ProcessDirectory { get; } = Path.GetDirectoryName(Environment.ProcessPath)!;
+		public static string AppDir_Relative => $@".{Path.DirectorySeparatorChar}{LIBATION_FILES_KEY}";
         public static string AppDir_Absolute => Path.GetFullPath(Path.Combine(ProcessDirectory, LIBATION_FILES_KEY));
         public static string MyDocs => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Libation"));
         public static string MyMusic => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "Libation"));

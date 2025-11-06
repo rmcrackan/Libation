@@ -67,10 +67,11 @@ namespace LibationAvalonia.ViewModels.Settings
 
 		public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()
 		{
-			Configuration.KnownDirectories.UserProfile,
-			Configuration.KnownDirectories.AppDir,
-			Configuration.KnownDirectories.MyDocs,
+			Configuration.KnownDirectories.LibationFiles,
 			Configuration.KnownDirectories.MyMusic,
+			Configuration.KnownDirectories.MyDocs,
+			Configuration.KnownDirectories.AppDir,
+			Configuration.KnownDirectories.UserProfile
 		};
 
 		public string BooksText { get; } = Configuration.GetDescription(nameof(Configuration.Books));

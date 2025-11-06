@@ -6,29 +6,63 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="LibationAvalonia.Controls.DirectoryOrCustomSelectControl">
 	
-	<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Name="grid">
-		<controls:DirectorySelectControl
-			Grid.Column="1"
-			Grid.Row="0"
-			IsEnabled="{Binding KnownChecked}"
-			SelectedDirectory="{Binding SelectedDirectory, Mode=TwoWay}"
-			SubDirectory="{Binding $parent[1].SubDirectory}"
-			KnownDirectories="{Binding $parent[1].KnownDirectories}" />
+    <Grid
+        RowDefinitions="Auto,Auto,Auto"
+        ColumnDefinitions="Auto,*,Auto">
 
-		<RadioButton
-			Grid.Column="0"
-			Grid.Row="0"
-			IsChecked="{Binding KnownChecked, Mode=TwoWay}"/>
+        <RadioButton
+            Grid.RowSpan="2"
+            Name="rbKnown" />
 
-		<RadioButton
-			Grid.Column="0"
-			Grid.Row="1"
-			IsChecked="{Binding CustomChecked, Mode=TwoWay}"/>
+        <TextBlock
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Center"
+            Margin="10,0"
+            IsEnabled="False"
+            IsVisible="{Binding #cmbKnownDirs.SelectedItem, Converter={x:Static ObjectConverters.IsNull}}"
+            Text="Select Known Directory:" />
 
-		<Grid Grid.Column="1" Grid.Row="1" ColumnDefinitions="*,Auto"
-			  IsEnabled="{Binding CustomChecked}">
-			<TextBox Grid.Column="0" IsReadOnly="True" Text="{Binding CustomDir, Mode=TwoWay}" />
-			<Button Grid.Column="1" Content="..." Margin="5,0,0,0" Padding="10,0,10,0" Click="CustomDirBrowseBtn_Click" VerticalAlignment="Stretch" />
-		</Grid>
-	</Grid>
+		<controls:WheelComboBox
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            HorizontalAlignment="Stretch"
+            Margin="0,0,0,3"
+            IsEnabled="{Binding #rbKnown.IsChecked}"
+            Name="cmbKnownDirs" />
+
+        <TextBox
+            Grid.Row="1"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            IsReadOnly="True"
+            Margin="0,0,0,8"
+            Name="tboxKnownDirPath"
+            IsEnabled="{Binding #rbKnown.IsChecked}"
+            Text="{Binding #cmbKnownDirs.SelectedItem.Directory}" />
+
+        
+        <RadioButton
+            Grid.Row="2"
+            Name="rbCustom" />
+
+        <TextBox
+        Grid.Row="2"
+            Grid.Column="1"
+            HorizontalAlignment="Stretch"
+            Name="tboxCustomDirPath"
+            Margin="0,0,10,0"
+            VerticalAlignment="Center"
+            Text="{Binding $parent[1].Directory, Mode=OneWayToSource}"
+            IsEnabled="{Binding #rbCustom.IsChecked}"/>
+
+        <Button
+             Grid.Row="2"
+             Grid.Column="2"
+             Name="btnBrowse"
+             IsEnabled="{Binding #rbCustom.IsChecked}">
+                <TextBlock Text="..." />
+        </Button>
+
+    </Grid>
 </UserControl>
