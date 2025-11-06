@@ -16,6 +16,7 @@ namespace LibationAvalonia.Dialogs
 		public bool SaveAndRestorePosition { get; set; }
 		public Control ControlToFocusOnShow { get; set; }
 		protected override Type StyleKeyOverride => typeof(DialogWindow);
+		public DialogResult DialogResult { get; private set; } = DialogResult.None;
 
 		public DialogWindow(bool saveAndRestorePosition = true)
 		{
@@ -72,6 +73,12 @@ namespace LibationAvalonia.Dialogs
 		private void DialogWindow_Opened(object sender, EventArgs e)
 		{
 			ControlToFocusOnShow?.Focus();
+		}
+
+		public void Close(DialogResult dialogResult)
+		{
+			DialogResult = dialogResult;
+			base.Close(dialogResult);
 		}
 
 		protected virtual void SaveAndClose() => Close(DialogResult.OK);
