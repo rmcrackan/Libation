@@ -60,14 +60,10 @@ namespace LibationFileManager
 
 		#region singleton stuff
 
-		private static readonly Configuration s_SingletonInstance = new();
-		public static Configuration Instance { get; private set; } = s_SingletonInstance;
+#if !DEBUG
 
 		public static Configuration CreateMockInstance()
 		{
-#if !DEBUG
-			throw new InvalidOperationException("CreateMockInstance should only be called in design mode.");
-#endif
 			var mockInstance = new Configuration() { persistentDictionary = new MockPersistentDictionary() };
 			mockInstance.SetString("Light", "ThemeVariant");
 			Instance = mockInstance;
@@ -77,6 +73,16 @@ namespace LibationFileManager
 		{
 			Instance = s_SingletonInstance;
 		}
+		private static readonly Configuration s_SingletonInstance = new();
+		public static Configuration Instance { get; private set; } = s_SingletonInstance;
+#else
+
+		public static Configuration CreateMockInstance()
+			=> throw new InvalidOperationException($"Can only mock {nameof(Configuration)} in Debug mode.");
+		public static void RestoreSingletonInstance()
+			=> throw new InvalidOperationException($"Can only mock {nameof(Configuration)} in Debug mode.");
+		public static Configuration Instance { get; } = new();
+#endif
 
 		private Configuration() { }
 		#endregion
