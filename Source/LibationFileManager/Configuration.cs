@@ -60,7 +60,7 @@ namespace LibationFileManager
 
 		#region singleton stuff
 
-#if !DEBUG
+#if DEBUG
 
 		public static Configuration CreateMockInstance()
 		{
