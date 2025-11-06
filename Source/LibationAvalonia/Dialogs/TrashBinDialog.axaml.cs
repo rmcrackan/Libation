@@ -14,12 +14,11 @@ using System.Threading.Tasks;
 
 namespace LibationAvalonia.Dialogs
 {
-	public partial class TrashBinDialog : Window
+	public partial class TrashBinDialog : DialogWindow
 	{
 		public TrashBinDialog()
 		{
 			InitializeComponent();
-			this.RestoreSizeAndLocation(Configuration.Instance);
 			DataContext = new TrashBinViewModel();
 
 			this.Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);

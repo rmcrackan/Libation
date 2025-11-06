@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Dinah.Core;
@@ -58,7 +59,31 @@ namespace LibationFileManager
 		}
 
 		#region singleton stuff
-		public static Configuration Instance { get; } = new Configuration();
+
+#if !DEBUG
+
+		public static Configuration CreateMockInstance()
+		{
+			var mockInstance = new Configuration() { persistentDictionary = new MockPersistentDictionary() };
+			mockInstance.SetString("Light", "ThemeVariant");
+			Instance = mockInstance;
+			return mockInstance;
+		}
+		public static void RestoreSingletonInstance()
+		{
+			Instance = s_SingletonInstance;
+		}
+		private static readonly Configuration s_SingletonInstance = new();
+		public static Configuration Instance { get; private set; } = s_SingletonInstance;
+#else
+
+		public static Configuration CreateMockInstance()
+			=> throw new InvalidOperationException($"Can only mock {nameof(Configuration)} in Debug mode.");
+		public static void RestoreSingletonInstance()
+			=> throw new InvalidOperationException($"Can only mock {nameof(Configuration)} in Debug mode.");
+		public static Configuration Instance { get; } = new();
+#endif
+
 		private Configuration() { }
 		#endregion
 	}

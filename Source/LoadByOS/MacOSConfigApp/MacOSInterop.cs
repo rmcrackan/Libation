@@ -10,7 +10,6 @@ namespace MacOSConfigApp
 		public MacOSInterop() { }
         public MacOSInterop(params object[] values) { }
 
-		public IWebViewAdapter CreateWebViewAdapter() => null;
 		public void SetFolderIcon(string image, string directory)
 		{
 			Process.Start("fileicon", $"set {directory.SurroundWithQuotes()} {image.SurroundWithQuotes()}").WaitForExit();

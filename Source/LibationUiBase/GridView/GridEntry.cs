@@ -50,6 +50,7 @@ namespace LibationUiBase.GridView
 		private Rating _myRating;
 		private bool _isSpatial;
 		private string _includedUntil;
+		private string _account;
 		public abstract bool? Remove { get; set; }
 		public EntryStatus Liberate { get => _liberate; private set => RaiseAndSetIfChanged(ref _liberate, value); }
 		public string PurchaseDate { get => _purchasedate; protected set => RaiseAndSetIfChanged(ref _purchasedate, value); }
@@ -68,6 +69,7 @@ namespace LibationUiBase.GridView
 		public string BookTags { get => _bookTags; private set => RaiseAndSetIfChanged(ref _bookTags, value); }
 		public bool IsSpatial { get => _isSpatial; protected set => RaiseAndSetIfChanged(ref _isSpatial, value); }
 		public string IncludedUntil { get => _includedUntil; protected set => RaiseAndSetIfChanged(ref _includedUntil, value); }
+		public string Account { get => _account; protected set => RaiseAndSetIfChanged(ref _account, value); }
 
 		public Rating MyRating
 		{
@@ -123,7 +125,7 @@ namespace LibationUiBase.GridView
 			BookTags = GetBookTags();
 			IsSpatial = Book.IsSpatial;
 			IncludedUntil = GetIncludedUntilString();
-			
+			Account = libraryBook.Account;			
 
 			UserDefinedItem.ItemChanged += UserDefinedItem_ItemChanged;
 		}
@@ -215,6 +217,7 @@ namespace LibationUiBase.GridView
 			nameof(DateAdded) => DateAdded,
 			nameof(IsSpatial) => IsSpatial,
 			nameof(IncludedUntil) => GetIncludedUntil() ?? default,
+			nameof(Account) => Account,
 			_ => null
 		};
 		

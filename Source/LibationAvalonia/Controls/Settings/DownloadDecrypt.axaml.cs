@@ -16,8 +16,7 @@ namespace LibationAvalonia.Controls.Settings
 			InitializeComponent();
 			if (Design.IsDesignMode)
 			{
-				_ = Configuration.Instance.LibationFiles;
-				DataContext = new DownloadDecryptSettingsVM(Configuration.Instance);
+				DataContext = new DownloadDecryptSettingsVM(Configuration.CreateMockInstance());
 			}
 		}
 

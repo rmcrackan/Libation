@@ -1,5 +1,5 @@
 ﻿using Dinah.Core;
-using LibationFileManager;
+using Microsoft.Web.WebView2.WinForms;
 using System;
 using System.Windows.Forms;
 
@@ -9,19 +9,19 @@ namespace LibationWinForms.Login
 	{
 		public string ResponseUrl { get; private set; }
 		private readonly string accountID;
-		private readonly IWebViewAdapter webView;
+		private readonly WebView2 webView;
 		public WebLoginDialog()
 		{
 			InitializeComponent();
-			webView = InteropFactory.Create().CreateWebViewAdapter();
+			webView = new WebView2();
 
-			var webViewControl = webView.NativeWebView as Control;
-			webViewControl.Dock = DockStyle.Fill;
-			Controls.Add(webViewControl);
+			webView.Dock = DockStyle.Fill;
+			Controls.Add(webView);
 
-			webView.NavigationStarted += WebView_NavigationStarted;
-			webView.DOMContentLoaded += WebView_DOMContentLoaded;
+			webView.NavigationStarting += WebView_NavigationStarting;
+			webView.CoreWebView2InitializationCompleted += WebView_CoreWebView2InitializationCompleted;
 			this.SetLibationIcon();
+		
 		}
 
 		public WebLoginDialog(string accountID, string loginUrl) : this()
@@ -30,32 +30,36 @@ namespace LibationWinForms.Login
 			webView.Source = new Uri(ArgumentValidator.EnsureNotNullOrWhiteSpace(loginUrl, nameof(loginUrl)));
 		}
 
-		private void WebView_NavigationStarted(object sender, WebViewNavigationEventArgs e)
+		private void WebView_NavigationStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
 		{
-			if (e.Request?.AbsolutePath.Contains("/ap/maplanding") is true)
+			if (e.Uri.Contains("/ap/maplanding") is true)
 			{
-				ResponseUrl = e.Request.ToString();
+				ResponseUrl = e.Uri;
 				DialogResult = DialogResult.OK;
 				Close();
 			}
 		}
 
-		private async void WebView_DOMContentLoaded(object sender, EventArgs e)
+		private void WebView_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
 		{
-			await webView.InvokeScriptAsync(getScript(accountID));
+			webView.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoaded;
+			webView.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoaded;
+		}
+
+		private async void CoreWebView2_DOMContentLoaded(object sender, Microsoft.Web.WebView2.Core.CoreWebView2DOMContentLoadedEventArgs e)
+		{
+			await webView.ExecuteScriptAsync(getScript(accountID));
 		}
 
 		private static string getScript(string accountID) => $$"""
 			(function() {
-				var inputs = document.getElementsByTagName('input');
-				for (index = 0; index < inputs.length; ++index) {
-					if (inputs[index].name.includes('email')) {
-						inputs[index].value = '{{accountID}}';
-					}
-					if (inputs[index].name.includes('password')) {
-						inputs[index].focus();
-					}
-				}
+				var email = document.querySelector("input[id='ap_email_login']");
+				if (email !== null)
+					email.value = '{{accountID}}';
+			
+				var pass = document.querySelector("input[name='password']");
+				if (pass !== null)
+					pass.focus();
 			})()
 			""";
 	}

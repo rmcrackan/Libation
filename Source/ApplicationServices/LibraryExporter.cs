@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ClosedXML.Excel;
 using CsvHelper;
 using CsvHelper.Configuration.Attributes;
 using DataLayer;
 using Newtonsoft.Json;
-using NPOI.XSSF.UserModel;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace ApplicationServices
 {
@@ -208,19 +209,11 @@ namespace ApplicationServices
 		{
 			var dtos = DbContexts.GetLibrary_Flat_NoTracking().ToDtos();
 
-			var workbook = new XSSFWorkbook();
-			var sheet = workbook.CreateSheet("Library");
+			using var workbook = new XLWorkbook();
+			var sheet = workbook.AddWorksheet("Library");
 
-			var detailSubtotalFont = workbook.CreateFont();
-			detailSubtotalFont.IsBold = true;
-
-			var detailSubtotalCellStyle = workbook.CreateCellStyle();
-			detailSubtotalCellStyle.SetFont(detailSubtotalFont);
 
 			// headers
-			var rowIndex = 0;
-			var row = sheet.CreateRow(rowIndex);
-
 			var columns = new[] {
 				nameof(ExportDto.Account),
 				nameof(ExportDto.DateAdded),
@@ -261,81 +254,71 @@ namespace ApplicationServices
                 nameof(ExportDto.ChannelCount),
                 nameof(ExportDto.BitRate)
             };
-			var col = 0;
+
+			int rowIndex = 1, col = 1;
+			var headerRow = sheet.Row(rowIndex++);
 			foreach (var c in columns)
 			{
-				var cell = row.CreateCell(col++);
-				var name = ExportDto.GetName(c);
-				cell.SetCellValue(name);
-				cell.CellStyle = detailSubtotalCellStyle;
+				var headerCell = headerRow.Cell(col++);
+				headerCell.Value = ExportDto.GetName(c);
+				headerCell.Style.Font.Bold = true;
 			}
 
-			var dateFormat = workbook.CreateDataFormat();
-			var dateStyle = workbook.CreateCellStyle();
-			dateStyle.DataFormat = dateFormat.GetFormat("MM/dd/yyyy HH:mm:ss");
-
-			rowIndex++;
+			var dateFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " HH:mm:ss";
 
 			// Add data rows
 			foreach (var dto in dtos)
 			{
-				col = 0;
-				row = sheet.CreateRow(rowIndex++);
+				col = 1;
+				var row = sheet.Row(rowIndex++);
 
-				row.CreateCell(col++).SetCellValue(dto.Account);
-				row.CreateCell(col++).SetCellValue(dto.DateAdded).CellStyle = dateStyle;
-				row.CreateCell(col++).SetCellValue(dto.AudibleProductId);
-				row.CreateCell(col++).SetCellValue(dto.Locale);
-				row.CreateCell(col++).SetCellValue(dto.Title);
-				row.CreateCell(col++).SetCellValue(dto.Subtitle);
-				row.CreateCell(col++).SetCellValue(dto.AuthorNames);
-				row.CreateCell(col++).SetCellValue(dto.NarratorNames);
-				row.CreateCell(col++).SetCellValue(dto.LengthInMinutes);
-				row.CreateCell(col++).SetCellValue(dto.Description);
-				row.CreateCell(col++).SetCellValue(dto.Publisher);
-				row.CreateCell(col++).SetCellValue(dto.HasPdf);
-				row.CreateCell(col++).SetCellValue(dto.SeriesNames);
-				row.CreateCell(col++).SetCellValue(dto.SeriesOrder);
-				row.CreateCell(col++).SetCellValue(dto.CommunityRatingOverall);
-				row.CreateCell(col++).SetCellValue(dto.CommunityRatingPerformance);
-				row.CreateCell(col++).SetCellValue(dto.CommunityRatingStory);
-				row.CreateCell(col++).SetCellValue(dto.PictureId);
-				row.CreateCell(col++).SetCellValue(dto.IsAbridged);
-				row.CreateCell(col++).SetCellValue(dto.DatePublished).CellStyle = dateStyle;
-				row.CreateCell(col++).SetCellValue(dto.CategoriesNames);
-				row.CreateCell(col++).SetCellValue(dto.MyRatingOverall);
-				row.CreateCell(col++).SetCellValue(dto.MyRatingPerformance);
-				row.CreateCell(col++).SetCellValue(dto.MyRatingStory);
-				row.CreateCell(col++).SetCellValue(dto.MyLibationTags);
-				row.CreateCell(col++).SetCellValue(dto.BookStatus);
-				row.CreateCell(col++).SetCellValue(dto.PdfStatus);
-				row.CreateCell(col++).SetCellValue(dto.ContentType);
-				row.CreateCell(col++).SetCellValue(dto.Language);
-				row.CreateCell(col++).SetCellValue(dto.LastDownloaded).CellStyle = dateStyle;
-				row.CreateCell(col++).SetCellValue(dto.LastDownloadedVersion);
-				row.CreateCell(col++).SetCellValue(dto.IsFinished);
-				row.CreateCell(col++).SetCellValue(dto.IsSpatial);
-				row.CreateCell(col++).SetCellValue(dto.LastDownloadedFileVersion);
-				row.CreateCell(col++).SetCellValue(dto.CodecString);
-				row.CreateCell(col++).SetCellValue(dto.SampleRate);
-				row.CreateCell(col++).SetCellValue(dto.ChannelCount);
-				row.CreateCell(col++).SetCellValue(dto.BitRate);
+				row.Cell(col++).Value = dto.Account;
+				row.Cell(col++).SetDate(dto.DateAdded, dateFormat);
+				row.Cell(col++).Value = dto.AudibleProductId;
+				row.Cell(col++).Value = dto.Locale;
+				row.Cell(col++).Value = dto.Title;
+				row.Cell(col++).Value = dto.Subtitle;
+				row.Cell(col++).Value = dto.AuthorNames;
+				row.Cell(col++).Value = dto.NarratorNames;
+				row.Cell(col++).Value = dto.LengthInMinutes;
+				row.Cell(col++).Value = dto.Description;
+				row.Cell(col++).Value = dto.Publisher;
+				row.Cell(col++).Value = dto.HasPdf;
+				row.Cell(col++).Value = dto.SeriesNames;
+				row.Cell(col++).Value = dto.SeriesOrder;
+				row.Cell(col++).Value = dto.CommunityRatingOverall;
+				row.Cell(col++).Value = dto.CommunityRatingPerformance;
+				row.Cell(col++).Value = dto.CommunityRatingStory;
+				row.Cell(col++).Value = dto.PictureId;
+				row.Cell(col++).Value = dto.IsAbridged;
+				row.Cell(col++).SetDate(dto.DatePublished, dateFormat);
+				row.Cell(col++).Value = dto.CategoriesNames;
+				row.Cell(col++).Value = dto.MyRatingOverall;
+				row.Cell(col++).Value = dto.MyRatingPerformance;
+				row.Cell(col++).Value = dto.MyRatingStory;
+				row.Cell(col++).Value = dto.MyLibationTags;
+				row.Cell(col++).Value = dto.BookStatus;
+				row.Cell(col++).Value = dto.PdfStatus;
+				row.Cell(col++).Value = dto.ContentType;
+				row.Cell(col++).Value = dto.Language;
+				row.Cell(col++).SetDate(dto.LastDownloaded, dateFormat);
+				row.Cell(col++).Value = dto.LastDownloadedVersion;
+				row.Cell(col++).Value = dto.IsFinished;
+				row.Cell(col++).Value = dto.IsSpatial;
+				row.Cell(col++).Value = dto.LastDownloadedFileVersion;
+				row.Cell(col++).Value = dto.CodecString;
+				row.Cell(col++).Value = dto.SampleRate;
+				row.Cell(col++).Value = dto.ChannelCount;
+				row.Cell(col++).Value = dto.BitRate;
 			}
 
-			using var fileData = new System.IO.FileStream(saveFilePath, System.IO.FileMode.Create);
-			workbook.Write(fileData);
+			workbook.SaveAs(saveFilePath);
 		}
 
-		private static NPOI.SS.UserModel.ICell SetCellValue(this NPOI.SS.UserModel.ICell cell, DateTime? nullableDate)
-			=> nullableDate.HasValue ? cell.SetCellValue(nullableDate.Value)
-			: cell.SetCellType(NPOI.SS.UserModel.CellType.Numeric);
-
-		private static NPOI.SS.UserModel.ICell SetCellValue(this NPOI.SS.UserModel.ICell cell, int? nullableInt)
-			=> nullableInt.HasValue ? cell.SetCellValue(nullableInt.Value)
-			: cell.SetCellType(NPOI.SS.UserModel.CellType.Numeric);
-
-		private static NPOI.SS.UserModel.ICell SetCellValue(this NPOI.SS.UserModel.ICell cell, float? nullableFloat)
-			=> nullableFloat.HasValue ? cell.SetCellValue(nullableFloat.Value)
-			: cell.SetCellType(NPOI.SS.UserModel.CellType.Numeric);
+		private static void SetDate(this IXLCell cell, DateTime? value, string dateFormat)
+		{
+			cell.Value = value;
+			cell.Style.DateFormat.Format = dateFormat;
+		}
 	}
 }

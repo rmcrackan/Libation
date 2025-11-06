@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using DataLayer;
+using LibationFileManager;
 using LibationUiBase;
 using LibationUiBase.ProcessQueue;
 using System;
@@ -29,18 +30,12 @@ namespace LibationAvalonia.Views
 #if DEBUG
 			if (Design.IsDesignMode)
 			{
-				_ = LibationFileManager.Configuration.Instance.LibationFiles;
 				ViewModels.MainVM.Configure_NonUI();
+				Configuration.CreateMockInstance();
 				var vm = new ProcessQueueViewModel();
 				DataContext = vm;
-				using var context = DbContexts.GetContext();
 
-
-				var trialBook = context.GetLibraryBook_Flat_NoTracking("B017V4IM1G") ?? context.GetLibrary_Flat_NoTracking().FirstOrDefault();
-				if (trialBook is null)
-					return;
-
-
+				var trialBook = MockLibraryBook.CreateBook();
 				List<ProcessBookViewModel> testList = new()
 				{
 					new ProcessBookViewModel(trialBook)

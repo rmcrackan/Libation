@@ -62,7 +62,7 @@ License:        GPLv3+
 URL:            https://github.com/rmcrackan/Libation
 Source0:        https://github.com/rmcrackan/Libation   
 
-Requires:       bash
+Requires:       bash gtk3 webkit2gtk4.1
 
 
 %define __os_install_post %{nil}

@@ -3,8 +3,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net9.0-windows7.0</TargetFramework>
-		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<TargetFramework>net9.0</TargetFramework>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<ApplicationIcon>Assets/libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
@@ -73,13 +72,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.3" />
-		<PackageReference Include="Avalonia.Diagnostics" Version="11.3.3" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
-		<PackageReference Include="Avalonia" Version="11.3.3" />
-		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.3" />
-		<PackageReference Include="Avalonia.Desktop" Version="11.3.3" />
-		<PackageReference Include="Avalonia.ReactiveUI" Version="11.3.3" />
-		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.3" />
+		<PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.8" />
+		<PackageReference Include="Avalonia.Diagnostics" Version="11.3.8" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.8" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.3.8" />
+		<PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.8" />
+		<PackageReference Include="WebViewControlAvaloniaFree" Version="11.3.14" />
 	</ItemGroup>
 
 	<ItemGroup>

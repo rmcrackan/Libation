@@ -34,8 +34,6 @@ namespace LibationWinForms.GridView
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			gridEntryDataGridView = new System.Windows.Forms.DataGridView();
-			showHideColumnsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
-			syncBindingSource = new SyncBindingSource(components);
 			removeGVColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			liberateGVColumn = new LiberateDataGridViewImageButtonColumn();
 			coverGVColumn = new System.Windows.Forms.DataGridViewImageColumn();
@@ -55,6 +53,9 @@ namespace LibationWinForms.GridView
 			isSpatialGVColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
 			tagAndDetailsGVColumn = new EditTagsDataGridViewImageButtonColumn();
 			includedUntilGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			showHideColumnsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
+			syncBindingSource = new SyncBindingSource(components);
+			accountGVColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			((System.ComponentModel.ISupportInitialize)gridEntryDataGridView).BeginInit();
 			((System.ComponentModel.ISupportInitialize)syncBindingSource).BeginInit();
 			SuspendLayout();
@@ -67,7 +68,7 @@ namespace LibationWinForms.GridView
 			gridEntryDataGridView.AllowUserToResizeRows = false;
 			gridEntryDataGridView.AutoGenerateColumns = false;
 			gridEntryDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { removeGVColumn, liberateGVColumn, coverGVColumn, titleGVColumn, authorsGVColumn, narratorsGVColumn, lengthGVColumn, seriesGVColumn, seriesOrderGVColumn, descriptionGVColumn, categoryGVColumn, productRatingGVColumn, purchaseDateGVColumn, myRatingGVColumn, miscGVColumn, lastDownloadedGVColumn, isSpatialGVColumn, tagAndDetailsGVColumn, includedUntilGVColumn });
+			gridEntryDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { removeGVColumn, liberateGVColumn, coverGVColumn, titleGVColumn, authorsGVColumn, narratorsGVColumn, lengthGVColumn, seriesGVColumn, seriesOrderGVColumn, descriptionGVColumn, categoryGVColumn, productRatingGVColumn, purchaseDateGVColumn, myRatingGVColumn, miscGVColumn, lastDownloadedGVColumn, isSpatialGVColumn, tagAndDetailsGVColumn, includedUntilGVColumn, accountGVColumn });
 			gridEntryDataGridView.ContextMenuStrip = showHideColumnsContextMenuStrip;
 			gridEntryDataGridView.DataSource = syncBindingSource;
 			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -90,17 +91,6 @@ namespace LibationWinForms.GridView
 			gridEntryDataGridView.TabIndex = 0;
 			gridEntryDataGridView.CellContentClick += DataGridView_CellContentClick;
 			gridEntryDataGridView.CellToolTipTextNeeded += gridEntryDataGridView_CellToolTipTextNeeded;
-			// 
-			// showHideColumnsContextMenuStrip
-			// 
-			showHideColumnsContextMenuStrip.ImageScalingSize = new System.Drawing.Size(32, 32);
-			showHideColumnsContextMenuStrip.Name = "contextMenuStrip1";
-			showHideColumnsContextMenuStrip.ShowCheckMargin = true;
-			showHideColumnsContextMenuStrip.Size = new System.Drawing.Size(83, 4);
-			// 
-			// syncBindingSource
-			// 
-			syncBindingSource.DataSource = typeof(GridEntry);
 			// 
 			// removeGVColumn
 			// 
@@ -284,8 +274,26 @@ namespace LibationWinForms.GridView
 			includedUntilGVColumn.MinimumWidth = 10;
 			includedUntilGVColumn.Name = "includedUntilGVColumn";
 			includedUntilGVColumn.ReadOnly = true;
-			includedUntilGVColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
 			includedUntilGVColumn.Width = 108;
+			// 
+			// showHideColumnsContextMenuStrip
+			// 
+			showHideColumnsContextMenuStrip.ImageScalingSize = new System.Drawing.Size(32, 32);
+			showHideColumnsContextMenuStrip.Name = "contextMenuStrip1";
+			showHideColumnsContextMenuStrip.ShowCheckMargin = true;
+			showHideColumnsContextMenuStrip.Size = new System.Drawing.Size(83, 4);
+			// 
+			// syncBindingSource
+			// 
+			syncBindingSource.DataSource = typeof(GridEntry);
+			// 
+			// accountGVColumn
+			// 
+			accountGVColumn.DataPropertyName = "Account";
+			accountGVColumn.HeaderText = "Account";
+			accountGVColumn.MinimumWidth = 10;
+			accountGVColumn.Name = "accountGVColumn";
+			accountGVColumn.ReadOnly = true;
 			// 
 			// ProductsGrid
 			// 
@@ -326,5 +334,6 @@ namespace LibationWinForms.GridView
 		private System.Windows.Forms.DataGridViewCheckBoxColumn isSpatialGVColumn;
 		private EditTagsDataGridViewImageButtonColumn tagAndDetailsGVColumn;
 		private System.Windows.Forms.DataGridViewTextBoxColumn includedUntilGVColumn;
+		private System.Windows.Forms.DataGridViewTextBoxColumn accountGVColumn;
 	}
 }

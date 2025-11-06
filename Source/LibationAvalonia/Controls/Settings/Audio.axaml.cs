@@ -19,8 +19,7 @@ namespace LibationAvalonia.Controls.Settings
 			InitializeComponent();
 			if (Design.IsDesignMode)
 			{
-				_ = Configuration.Instance.LibationFiles;
-				DataContext = new AudioSettingsVM(Configuration.Instance);
+				DataContext = new AudioSettingsVM(Configuration.CreateMockInstance());
 			}
 		}
 
@@ -39,7 +38,7 @@ namespace LibationAvalonia.Controls.Settings
 			{
 				using var accounts = AudibleApiStorage.GetAccountsSettingsPersister();
 
-				if (!accounts.AccountsSettings.Accounts.Any(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
+				if (!accounts.AccountsSettings.Accounts.All(a => a.IdentityTokens.DeviceType == AudibleApi.Resources.DeviceType))
 				{
 					if (VisualRoot is Window parent)
 					{

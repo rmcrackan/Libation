@@ -7,16 +7,16 @@ using LibationWinForms.Dialogs.Login;
 
 namespace LibationWinForms.Login
 {
-	public class WinformLoginChoiceEager : WinformLoginBase, ILoginChoiceEager
+	public class WinformLoginChoiceEager : ILoginChoiceEager
 	{
-		public ILoginCallback LoginCallback { get; private set; }
+		public ILoginCallback LoginCallback { get; } = new WinformLoginCallback();
 
 		private Account _account { get; }
-
-		public WinformLoginChoiceEager(Account account, Control owner) : base(owner)
+		private Control Owner { get; }
+		public WinformLoginChoiceEager(Account account, Control owner)
 		{
 			_account = Dinah.Core.ArgumentValidator.EnsureNotNull(account, nameof(account));
-			LoginCallback = new WinformLoginCallback(_account, owner);
+			Owner = Dinah.Core.ArgumentValidator.EnsureNotNull(owner, nameof(owner));
 		}
 
 		public Task<ChoiceOut> StartAsync(ChoiceIn choiceIn)
@@ -38,26 +38,20 @@ namespace LibationWinForms.Login
 				}
 			}
 
-			using var dialog = new LoginChoiceEagerDialog(_account);
-
-			if (!ShowDialog(dialog) || (dialog.LoginMethod is LoginMethod.Api && string.IsNullOrWhiteSpace(dialog.Password)))
-				return null;
-
-			switch (dialog.LoginMethod)
-			{
-				case LoginMethod.Api:
-					return Task.FromResult(ChoiceOut.WithApi(dialog.Email, dialog.Password));
-				case LoginMethod.External:
-					{
-						using var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
-						return Task.FromResult(
-							ShowDialog(externalDialog)
-							? ChoiceOut.External(externalDialog.ResponseUrl)
-							: null);
-					}
-				default:
-					throw new Exception($"Unknown {nameof(LoginMethod)} value");
-			}
+			using var externalDialog = new LoginExternalDialog(_account, choiceIn.LoginUrl);
+			return Task.FromResult(
+				ShowDialog(externalDialog)
+				? ChoiceOut.External(externalDialog.ResponseUrl)
+				: null);
 		}
+
+		/// <returns>True if ShowDialog's DialogResult == OK</returns>
+		private bool ShowDialog(Form dialog)
+			=> Owner.Invoke(() =>
+			{
+				var result = dialog.ShowDialog(Owner);
+				Serilog.Log.Logger.Debug("{@DebugInfo}", new { DialogResult = result });
+				return result == DialogResult.OK;
+			});
 	}
 }

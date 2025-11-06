@@ -18,7 +18,7 @@
 			Margin="10,10,10,0"
 			ColumnDefinitions="Auto,*">
 			
-			<Image Grid.Column="0" Width="64" Height="64" Source="/Assets/MBIcons/error.png" />
+			<Image Grid.Column="0" Width="64" Height="64" Source="/Assets/MBIcons/Error_64.png" />
 			<TextBlock
 				Grid.Column="1"
 				Margin="10"
@@ -54,7 +54,7 @@
 					Tapped="GoToGithub_Tapped"
 					Text="Click to go to github" />
 
-				<TextBlock
+				<controls:LinkLabel
 					Margin="10"
 					Tapped="GoToLogs_Tapped"
 					Text="Click to open log files folder" />

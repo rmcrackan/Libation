@@ -16,9 +16,6 @@ namespace LibationAvalonia.Dialogs
 		private readonly AboutVM _viewModel;
 		public AboutDialog() : base(saveAndRestorePosition:false)
 		{
-			if (Design.IsDesignMode)
-				_ = Configuration.Instance.LibationFiles;
-
 			InitializeComponent();
 
 			DataContext = _viewModel = new AboutVM();

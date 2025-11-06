@@ -24,6 +24,33 @@
 			CanUserReorderColumns="True">
 
 			<DataGrid.Styles>
+				<Style Selector="DataGridColumnHeader">
+					<Setter Property="ContextMenu">
+						<ContextMenu Name="GridHeaderContextMenu" Opening="ContextMenu_ContextMenuOpening" Closed="ContextMenu_MenuClosed">
+							<ContextMenu.Styles>
+								<Style Selector="MenuItem">
+									<Setter Property="Padding" Value="10,0,-10,0" />
+									<Style Selector="^ CheckBox">
+										<Setter Property="IsHitTestVisible" Value="True" />
+										<Setter Property="HorizontalAlignment" Value="Stretch" />
+										<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+										<Setter Property="VerticalAlignment" Value="Stretch" />
+										<Setter Property="VerticalContentAlignment" Value="Stretch" />
+											<Style Selector="^ TextBlock">
+												<Setter Property="VerticalAlignment" Value="Center" />
+											</Style>
+									</Style>
+								</Style>
+							</ContextMenu.Styles>
+							<MenuItem>
+								<MenuItem.Header>
+									<TextBlock Text="Show / Hide Columns" />
+								</MenuItem.Header>
+							</MenuItem>
+							<MenuItem Header="-"/>                    
+						</ContextMenu>
+					</Setter>
+				</Style>
 				<Style Selector="DataGridCell > Panel">
 					<Setter Property="VerticalAlignment" Value="Stretch"/>
 				</Style>
@@ -236,8 +263,18 @@
 				<controls:DataGridTemplateColumnExt Header="Is&#xA;Spatial" MinWidth="10" Width="{CompiledBinding IsSpatialWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="IsSpatial" ClipboardContentBinding="{Binding IsSpatial}">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate x:DataType="uibase:GridEntry">
-							<Panel Opacity="{CompiledBinding Liberate.Opacity}" ToolTip.Tip="{CompiledBinding LastDownload.ToolTipText}">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
 								<CheckBox IsChecked="{CompiledBinding IsSpatial}" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Center" />
+							</Panel>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</controls:DataGridTemplateColumnExt>
+				
+				<controls:DataGridTemplateColumnExt Header="Account" MinWidth="10" Width="{CompiledBinding AccountWidth, Mode=TwoWay}" CanUserSort="True" SortMemberPath="Account" ClipboardContentBinding="{Binding Account}">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate x:DataType="uibase:GridEntry">
+							<Panel Opacity="{CompiledBinding Liberate.Opacity}">
+								<TextBlock Text="{CompiledBinding Account}" TextWrapping="Wrap" />
 							</Panel>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>

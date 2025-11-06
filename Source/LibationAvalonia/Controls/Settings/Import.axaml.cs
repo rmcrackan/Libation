@@ -12,8 +12,7 @@ namespace LibationAvalonia.Controls.Settings
 
 			if (Design.IsDesignMode)
 			{
-				_ = Configuration.Instance.LibationFiles;
-				DataContext = new ImportSettingsVM(Configuration.Instance);
+				DataContext = new ImportSettingsVM(Configuration.CreateMockInstance());
 			}
 		}
 	}

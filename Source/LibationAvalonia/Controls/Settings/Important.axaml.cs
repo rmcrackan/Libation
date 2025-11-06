@@ -18,8 +18,7 @@ namespace LibationAvalonia.Controls.Settings
 			InitializeComponent();
 			if (Design.IsDesignMode)
 			{
-				_ = Configuration.Instance.LibationFiles;
-				DataContext = new ImportantSettingsVM(Configuration.Instance);
+				DataContext = new ImportantSettingsVM(Configuration.CreateMockInstance());
 			}
 
 			ThemeComboBox.SelectionChanged += ThemeComboBox_SelectionChanged;

@@ -2,6 +2,7 @@ using ApplicationServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input.Platform;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using DataLayer;
@@ -61,20 +62,14 @@ namespace LibationAvalonia.Views
 #if DEBUG
 			if (Design.IsDesignMode)
 			{
-				using var context = DbContexts.GetContext();
-				LibraryBook?[] sampleEntries;
-				try
-				{
-					sampleEntries = [
-						context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4IWVG"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4JA2Q"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4NUPO"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4NMX4"),
-						context.GetLibraryBook_Flat_NoTracking("B017V4NOZ0"),
-						context.GetLibraryBook_Flat_NoTracking("B017WJ5ZK6")];
-				}
-				catch { sampleEntries = []; }
+				MainVM.Configure_NonUI();
+				LibraryBook[] sampleEntries = [
+					MockLibraryBook.CreateBook(title: "Book 1"),
+					MockLibraryBook.CreateBook(title: "Book 2"),
+					MockLibraryBook.CreateBook(title: "Book 3"),
+					MockLibraryBook.CreateBook(title: "Book 4"),
+					MockLibraryBook.CreateBook(title: "Book 5"),
+					MockLibraryBook.CreateBook(title: "Book 6")];
 
 				var pdvm = new ProductsDisplayViewModel();
 				_ = pdvm.BindToGridAsync(sampleEntries.OfType<LibraryBook>().ToList());
@@ -422,48 +417,23 @@ namespace LibationAvalonia.Views
 
 			productsGrid.ColumnDisplayIndexChanged += ProductsGrid_ColumnDisplayIndexChanged;
 
-			var config = Configuration.Instance;
-			var displayIndices = config.GridColumnsDisplayIndices;
-
-			var contextMenu = new ContextMenu();
-			contextMenu.Closed += ContextMenu_MenuClosed;
-			contextMenu.Opening += ContextMenu_ContextMenuOpening;
-			List<Control> menuItems = new();
-			contextMenu.ItemsSource = menuItems;
-
-			menuItems.Add(new MenuItem { Header = "Show / Hide Columns" });
-			menuItems.Add(new MenuItem { Header = "-" });
-
-			var HeaderCell_PI = typeof(DataGridColumn).GetProperty("HeaderCell", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-			if (HeaderCell_PI is null)
-				return;
-
 			foreach (var column in productsGrid.Columns)
 			{
 				var itemName = column.SortMemberPath;
-
 				if (itemName == nameof(GridEntry.Remove))
 					continue;
 
-				menuItems.Add
-					(
-						new MenuItem
-						{
-							Header = ((string)column.Header).Replace('\n', ' '),
-							Tag = column,
-							Icon = new CheckBox(),
-						}
-					);
+				GridHeaderContextMenu.Items.Add(new MenuItem
+				{
+					Header = new CheckBox { Content = new TextBlock { Text = ((string)column.Header).Replace('\n', ' ') } },
+					Tag = column,
+				});
 
-				var headerCell = HeaderCell_PI.GetValue(column) as DataGridColumnHeader;
-				if (headerCell is not null)
-					headerCell.ContextMenu = contextMenu;
-
-				column.IsVisible = config.GetColumnVisibility(itemName);
+				column.IsVisible = Configuration.Instance.GetColumnVisibility(itemName);
 			}
 
 			//We must set DisplayIndex properties in ascending order
+			var displayIndices = Configuration.Instance.GridColumnsDisplayIndices;
 			foreach (var itemName in displayIndices.OrderBy(i => i.Value).Select(i => i.Key))
 			{
 				if (!productsGrid.Columns.Any(c => c.SortMemberPath == itemName))
@@ -476,20 +446,20 @@ namespace LibationAvalonia.Views
 			}
 		}
 
-		private void ContextMenu_ContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
+		public void ContextMenu_ContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
 		{
 			if (sender is not ContextMenu contextMenu)
 				return;
 			foreach (var mi in contextMenu.Items.OfType<MenuItem>())
 			{
-				if (mi.Tag is DataGridColumn column && mi.Icon is CheckBox cbox)
+				if (mi.Tag is DataGridColumn column && mi.Header is CheckBox cbox)
 				{
 					cbox.IsChecked = column.IsVisible;
 				}
 			}
 		}
 
-		private void ContextMenu_MenuClosed(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		public void ContextMenu_MenuClosed(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			if (sender is not ContextMenu contextMenu)
 				return;
@@ -498,7 +468,7 @@ namespace LibationAvalonia.Views
 
 			foreach (var mi in contextMenu.Items.OfType<MenuItem>())
 			{
-				if (mi.Tag is DataGridColumn column && mi.Icon is CheckBox cbox)
+				if (mi.Tag is DataGridColumn column && mi.Header is CheckBox cbox)
 				{
 					column.IsVisible = cbox.IsChecked == true;
 					dictionary[column.SortMemberPath] = cbox.IsChecked == true;

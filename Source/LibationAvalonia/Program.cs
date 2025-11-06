@@ -5,18 +5,23 @@ using System.Threading.Tasks;
 using ApplicationServices;
 using AppScaffolding;
 using Avalonia;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using LibationFileManager;
+using LibationAvalonia.Dialogs;
+using Avalonia.Threading;
+using FileManager;
+using System.Linq;
 
 #nullable enable
 namespace LibationAvalonia
 {
 	static class Program
 	{
+		private static System.Threading.Lock SetupLock { get; } = new();
+		private static bool LoggingEnabled { get; set; }
 		[STAThread]
 		static void Main(string[] args)
 		{
-
 			if (Configuration.IsMacOs && args?.Length > 0 && args[0] == "hangover")
 			{
 				//Launch the Hangover app within the sandbox
@@ -34,9 +39,8 @@ namespace LibationAvalonia
 					$"\"{Configuration.ProcessDirectory}\"");
 				return;
 			}
-			AppDomain.CurrentDomain.UnhandledException += (o, e) => LogError(e.ExceptionObject);
+			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-			bool loggingEnabled = false;
 			//***********************************************//
 			//                                               //
 			//   do not use Configuration before this line   //
@@ -51,30 +55,86 @@ namespace LibationAvalonia
 					// most migrations go in here
 					LibationScaffolding.RunPostConfigMigrations(config);
 					LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
-					loggingEnabled = true;
+					LoggingEnabled = true;
 
 					//Start loading the library before loading the main form
 					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				}
-
-				BuildAvaloniaApp().StartWithClassicDesktopLifetime([]);
+				BuildAvaloniaApp()?.StartWithClassicDesktopLifetime([]);
 			}
 			catch (Exception ex)
 			{
-				if (loggingEnabled)
-					Serilog.Log.Logger.Error(ex, "CRASH");
-				else
-					LogError(ex);
+				LogAndShowCrashMessage(ex);
 			}
 		}
 
-		public static AppBuilder BuildAvaloniaApp()
-			=> AppBuilder.Configure<App>()
-			.UsePlatformDetect()
-			.LogToTrace()
-			.UseReactiveUI();
+		public static AppBuilder? BuildAvaloniaApp()
+		{
+			//Ensure that setup is only run once
+			SetupLock.Enter();
+			if (Application.Current is not null)
+			{
+				SetupLock.Exit();
+				return null;
+			}
+			else
+			{
+				return AppBuilder.Configure<App>()
+					.UsePlatformDetect()
+					.LogToTrace()
+					.UseReactiveUI()
+					.AfterSetup(_ => SetupLock.Exit());
+			}
+		}
 
-		private static void LogError(object exceptionObject)
+		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		{
+			var ex = e.ExceptionObject as Exception ?? new Exception(e.ExceptionObject.ToString());
+			LogAndShowCrashMessage(ex);
+		}
+
+		private static void LogAndShowCrashMessage(Exception exception)
+		{
+			try
+			{
+				//Try to log the error message before displaying the crash dialog
+				if (LoggingEnabled)
+					Serilog.Log.Logger.Error(exception, "CRASH");
+				else
+					LogErrorWithoutSerilog(exception);
+			}
+			catch { /* continue to show the crash dialog even if logging fails */ }
+
+			//Run setup if needed so that we can show the crash dialog
+			BuildAvaloniaApp()?.SetupWithoutStarting();
+
+			try
+			{
+				Dispatcher.UIThread.Invoke(() => DisplayErrorMessage(exception));
+			}
+			catch (Exception ex)
+			{
+				Environment.FailFast("Fatal error displaying crash message", new AggregateException(ex, exception));
+			}
+		}
+
+		private static void DisplayErrorMessage(Exception exception)
+		{
+			var dispatcher = new DispatcherFrame();
+
+			var mbAlert = new MessageBoxAlertAdminDialog("""
+				Libation encountered a fatal error and must close.
+
+				Please consider reporting this issue on GitHub, including the contents of the LibationCrash.log file created in your user folder.
+				""",
+				"Libation Crash",
+				exception);
+			mbAlert.Closed += (_, _) => dispatcher.Continue = false;
+			mbAlert.Show();
+			Dispatcher.UIThread.PushFrame(dispatcher);
+		}
+
+		private static void LogErrorWithoutSerilog(object exceptionObject)
 		{
 			var logError = $"""
 			{DateTime.Now} - Libation Crash
@@ -88,9 +148,25 @@ namespace LibationAvalonia
 			 {exceptionObject}
 			""";
 
-			var crashLog = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "LibationCrash.log");
+			LongPath logFile;
+			try
+			{
+				//Try to add crash message to the newest existing Libation log file
+				//then to LibationFiles/LibationCrash.log
+				//then to %UserProfile%/LibationCrash.log
+				string logDir = Configuration.Instance.LibationFiles;
+				var existingLogFiles = Directory.GetFiles(logDir, "Log*.log");
 
-			using var sw = new StreamWriter(crashLog, true);
+				logFile = existingLogFiles.Length == 0 ? getFallbackLogFile()
+					: existingLogFiles.Select(f => new FileInfo(f)).OrderByDescending(f => f.CreationTimeUtc).First().FullName;
+			}
+			catch
+			{
+				logFile = getFallbackLogFile();
+			}
+
+
+			using var sw = new StreamWriter(logFile, true);
 			sw.WriteLine(logError);
 
 			static string getConfigValue(Func<Configuration, string?> selector)
@@ -102,6 +178,23 @@ namespace LibationAvalonia
 				catch (Exception ex)
 				{
 					return ex.ToString();
+				}
+			}
+
+			static string getFallbackLogFile()
+			{
+				try
+				{
+
+					string logDir = Configuration.Instance.LibationFiles;
+					if (!Directory.Exists(logDir))
+						logDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+					return Path.Combine(logDir, "LibationCrash.log");
+				}
+				catch
+				{
+					return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "LibationCrash.log");
 				}
 			}
 		}

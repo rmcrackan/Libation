@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 #nullable enable
 namespace FileManager
 {
-    public class PersistentDictionary
+    public class PersistentDictionary : IPersistentDictionary
     {
         public string Filepath { get; }
         public bool IsReadOnly { get; }
@@ -60,21 +59,8 @@ namespace FileManager
                 objectCache[propertyName] = defaultValue;
                 return defaultValue;
             }
-            if (obj.GetType().IsAssignableTo(typeof(T))) return (T)obj;
-            if (obj is JObject jObject) return jObject.ToObject<T>();
-            if (obj is JValue jValue)
-            {
-                if (typeof(T).IsAssignableTo(typeof(Enum)))
-                {
-                    return
-                        Enum.TryParse(typeof(T), jValue.Value<string>(), out var enumVal)
-                        ? (T)enumVal
-                        : Enum.GetValues(typeof(T)).Cast<T>().First();
-                }
-                return jValue.Value<T>();
-            }
-            throw new InvalidCastException($"{obj.GetType()} is not convertible to {typeof(T)}");
-        }
+            return IPersistentDictionary.UpCast<T>(obj);
+		}
 
         public object? GetObject(string propertyName)
         {
@@ -89,7 +75,6 @@ namespace FileManager
             return objectCache[propertyName];
         }
 
-        public string? GetStringFromJsonPath(string jsonPath, string propertyName) => GetStringFromJsonPath($"{jsonPath}.{propertyName}");
         public string? GetStringFromJsonPath(string jsonPath)
         {
             if (!stringCache.ContainsKey(jsonPath))

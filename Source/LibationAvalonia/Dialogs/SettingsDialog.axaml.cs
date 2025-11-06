@@ -12,11 +12,9 @@ namespace LibationAvalonia.Dialogs
 	{
 		private SettingsVM settingsDisp;
 
-		private readonly Configuration config = Configuration.Instance;
+		private readonly Configuration config = Design.IsDesignMode ? Configuration.CreateMockInstance() : Configuration.Instance;
 		public SettingsDialog()
 		{
-			if (Design.IsDesignMode)
-				_ = Configuration.Instance.LibationFiles;
 			InitializeComponent();
 
 			DataContext = settingsDisp = new(config);

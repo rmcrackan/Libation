@@ -19,12 +19,10 @@ namespace LibationAvalonia.Dialogs
 
 		protected override void SaveAndClose() { }
 
-		public DialogResult DialogResult { get; private set; }
-
 		public void Button1_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var vm = DataContext as MessageBoxViewModel;
-			DialogResult = vm.Buttons switch
+			var dialogResult = vm.Buttons switch
 			{
 				MessageBoxButtons.OK => DialogResult.OK,
 				MessageBoxButtons.OKCancel => DialogResult.OK,
@@ -35,12 +33,12 @@ namespace LibationAvalonia.Dialogs
 				MessageBoxButtons.CancelTryContinue => DialogResult.Cancel,
 				_ => DialogResult.None
 			};
-			Close(DialogResult);
+			Close(dialogResult);
 		}
 		public void Button2_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var vm = DataContext as MessageBoxViewModel;
-			DialogResult = vm.Buttons switch
+			var dialogResult = vm.Buttons switch
 			{
 				MessageBoxButtons.OKCancel => DialogResult.Cancel,
 				MessageBoxButtons.AbortRetryIgnore => DialogResult.Retry,
@@ -50,19 +48,19 @@ namespace LibationAvalonia.Dialogs
 				MessageBoxButtons.CancelTryContinue => DialogResult.TryAgain,
 				_ => DialogResult.None
 			};
-			Close(DialogResult);
+			Close(dialogResult);
 		}
 		public void Button3_Click(object sender, Avalonia.Interactivity.RoutedEventArgs args)
 		{
 			var vm = DataContext as MessageBoxViewModel;
-			DialogResult = vm.Buttons switch
+			var dialogResult = vm.Buttons switch
 			{
 				MessageBoxButtons.AbortRetryIgnore => DialogResult.Ignore,
 				MessageBoxButtons.YesNoCancel => DialogResult.Cancel,
 				MessageBoxButtons.CancelTryContinue => DialogResult.Continue,
 				_ => DialogResult.None
 			};
-			Close(DialogResult);
+			Close(dialogResult);
 		}
 	}
 }

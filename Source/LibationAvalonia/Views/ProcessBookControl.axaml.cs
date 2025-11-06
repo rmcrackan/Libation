@@ -30,10 +30,8 @@ namespace LibationAvalonia.Views
 
 			if (Design.IsDesignMode)
 			{
-				using var context = DbContexts.GetContext();
 				ViewModels.MainVM.Configure_NonUI();
-				if (context.GetLibraryBook_Flat_NoTracking("B017V4IM1G") is LibraryBook book)
-					DataContext = new ProcessBookViewModel(book);
+				DataContext = new ProcessBookViewModel(MockLibraryBook.CreateBook());
 				return;
 			}
 		}
