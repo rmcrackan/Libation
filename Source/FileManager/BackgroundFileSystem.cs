@@ -14,7 +14,7 @@ namespace FileManager
 	/// </summary>
 	public class BackgroundFileSystem : IDisposable
     {
-        public LongPath RootDirectory { get; private set; }
+        public LongPath? RootDirectory { get; private set; }
         public string SearchPattern { get; private set; }
         public SearchOption SearchOption { get; private set; }
 
@@ -51,7 +51,8 @@ namespace FileManager
             lock (fsCacheLocker)
             {
                 fsCache.Clear();
-                fsCache.AddRange(SafestEnumerateFiles(RootDirectory));
+                if (Directory.Exists(RootDirectory))
+                    fsCache.AddRange(SafestEnumerateFiles(RootDirectory));
             }
         }
 
@@ -60,7 +61,14 @@ namespace FileManager
             Stop();
 
             lock (fsCacheLocker)
-                fsCache.AddRange(SafestEnumerateFiles(RootDirectory));
+            {
+                if (!Directory.Exists(RootDirectory))
+                {
+                    RootDirectory = null;
+					return;
+                }
+				fsCache.AddRange(SafestEnumerateFiles(RootDirectory));
+            }
 
             directoryChangesEvents = new BlockingCollection<FileSystemEventArgs>();
 			fileSystemWatcher = new FileSystemWatcher(RootDirectory)

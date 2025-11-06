@@ -146,16 +146,7 @@ namespace LibationFileManager
 
 		protected override List<LongPath> GetFilePathsCustom(string productId)
 		{
-			// If user changed the BooksDirectory: reinitialize
-			lock (bookDirectoryFilesLocker)
-			{
-				if (BooksDirectory != BookDirectoryFiles?.RootDirectory)
-				{
-					BookDirectoryFiles?.Dispose();
-					BookDirectoryFiles = newBookDirectoryFiles();
-				}
-			}
-
+			ValidateBookDirectoryFiles();
 			var regex = GetBookSearchRegex(productId);
 			var diskFiles = BookDirectoryFiles?.FindFiles(regex) ?? [];
 
@@ -172,13 +163,24 @@ namespace LibationFileManager
 
 		public void Refresh()
 		{
-			lock (bookDirectoryFilesLocker)
-			{
-				BookDirectoryFiles ??= newBookDirectoryFiles();
-			}
-
+			ValidateBookDirectoryFiles();
 			BookDirectoryFiles?.RefreshFiles();
 		}
+
+		private void ValidateBookDirectoryFiles()
+		{
+			lock (bookDirectoryFilesLocker)
+			{
+				if (BooksDirectory != BookDirectoryFiles?.RootDirectory)
+				{
+					//Will happen if the user changed the Books directory
+					//or if BackgroundFileSystem errored out.
+					BookDirectoryFiles?.Dispose();
+					BookDirectoryFiles = newBookDirectoryFiles();
+				}
+			}
+		}
+
 
 		public LongPath? GetPath(string productId) => GetFilePath(productId);
 
