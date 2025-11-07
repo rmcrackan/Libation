@@ -20,7 +20,7 @@ namespace LibationAvalonia.Dialogs
 			{
 				TopMessage = UpdateMessage;
 				Title = "Libation version 8.7.0 is now available.";
-				DownloadLinkText = "Libation.8.7.0-macos-chardonnay.tar.gz";
+				DownloadLinkText = "\r\nLibation.12.7.0-macOS-chardonnay-arm64.tgz ";
 				ReleaseNotes = "New features:\r\n\r\n* 'Remove' now removes forever. Removed books won't be re-added on next scan\r\n* #406 : Right Click Menu for Stop-Light Icon\r\n* #398 : Grid, right-click, copy\r\n* Add option for user to choose custom temp folder\r\n* Build Docker image\r\n\r\nEnhancements\r\n\r\n* Illegal Char Replace dialog in Chardonnay\r\n* Filename character replacement allows replacing any char, not just illegal\r\n* #352 : Better error messages for license denial\r\n* Improve 'cancel download'\r\n\r\nThanks to @Mbucari (u/MSWMan), @pixil98 (u/pixil)\r\n\r\nLibation is a free, open source audible library manager for Windows. Decrypt, backup, organize, and search your audible library\r\n\r\nI intend to keep Libation free and open source, but if you want to leave a tip, who am I to argue?";
 				OkText = "Yes";
 				DataContext = this;
