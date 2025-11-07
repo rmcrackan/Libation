@@ -1,10 +1,14 @@
+using Avalonia;
 using LibationSearchEngine;
+using System;
 using System.Linq;
 
+#nullable enable
 namespace LibationAvalonia.Dialogs
 {
 	public partial class SearchSyntaxDialog : DialogWindow
 	{
+		public event EventHandler<string>? TagDoubleClicked;
 		public string StringUsage { get; }
 		public string NumberUsage { get; }
 		public string BoolUsage { get; }
@@ -50,6 +54,14 @@ namespace LibationAvalonia.Dialogs
 			""";
 
 			DataContext = this;
+		}
+
+		private void ListBox_DoubleTapped(object? sender, Avalonia.Input.TappedEventArgs e)
+		{
+			if (e.Source is StyledElement { DataContext: string tag })
+			{
+				TagDoubleClicked?.Invoke(this, tag);
+			}
 		}
 	}
 }

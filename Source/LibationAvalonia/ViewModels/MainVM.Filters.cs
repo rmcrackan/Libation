@@ -55,7 +55,7 @@ namespace LibationAvalonia.ViewModels
 
 		public void AddQuickFilterBtn() { if (SelectedNamedFilter != null) QuickFilters.Add(SelectedNamedFilter); }
 		public async Task FilterBtn(string filterString) => await PerformFilter(new(filterString, null));
-		public async Task FilterHelpBtn() => await new LibationAvalonia.Dialogs.SearchSyntaxDialog().ShowDialog(MainWindow);
+		public void FilterHelpBtn() => MainWindow.ShowSearchSyntaxDialog();
 		public void ToggleFirstFilterIsDefault() => FirstFilterIsDefault = !FirstFilterIsDefault;
 		public async Task EditQuickFiltersAsync() => await new LibationAvalonia.Dialogs.EditQuickFilters().ShowDialog(MainWindow);
 		public async Task PerformFilter(QuickFilters.NamedFilter? namedFilter)
