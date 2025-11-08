@@ -9,15 +9,15 @@
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
         Title="About Libation">
 	
-	<Grid Margin="10" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,*">
+	<Grid Margin="10" RowDefinitions="Auto,Auto,Auto,Auto,*">
 		
-		<controls:LinkLabel Grid.ColumnSpan="2" FontSize="16" FontWeight="Bold" Text="{Binding Version}" ToolTip.Tip="View Release Notes" Tapped="ViewReleaseNotes_Tapped" />
+		<controls:LinkLabel FontSize="16" FontWeight="Bold" Text="{Binding Version}" ToolTip.Tip="View Release Notes" Tapped="ViewReleaseNotes_Tapped" />
 
-		<controls:LinkLabel Grid.Column="1" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Right" Text="https://getlibation.com" Tapped="Link_getlibation"/>
+		<controls:LinkLabel Grid.Row="1" FontSize="14" VerticalAlignment="Center" Text="https://getlibation.com" Tapped="Link_getlibation"/>
 		
-		<Button Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,20,0,0"  IsEnabled="{Binding CanCheckForUpgrade}" Content="{Binding UpgradeButtonText}" Click="CheckForUpgrade_Click" />
+		<Button Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="0,10,0,0"  IsEnabled="{Binding CanCheckForUpgrade}" Content="{Binding UpgradeButtonText}" Click="CheckForUpgrade_Click" />
 
-		<Canvas Grid.Row="2" Grid.ColumnSpan="2" Margin="0,30,0,20" Width="280" Height="220">
+		<Canvas Grid.Row="3" Margin="0,30,0,20" Width="280" Height="220">
 			<Path Stretch="None" Fill="{DynamicResource IconFill}" Data="{DynamicResource LibationCheersIcon}">
 				<Path.RenderTransform>
 					<TransformGroup>
@@ -39,7 +39,7 @@
 			</Path>
 		</Canvas>
 
-		<controls:GroupBox Grid.Row="3" Label="Acknowledgements" Grid.ColumnSpan="2">
+		<controls:GroupBox Grid.Row="4" Label="Acknowledgements">
 			<StackPanel>
 				<StackPanel.Styles>
 					<Style Selector="controls|LinkLabel">

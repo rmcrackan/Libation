@@ -1,7 +1,6 @@
 using AudibleUtilities;
-using Avalonia.Controls;
+using Avalonia.Collections;
 using LibationUiBase.Forms;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,41 +9,36 @@ namespace LibationAvalonia.Dialogs
 {
 	public partial class ScanAccountsDialog : DialogWindow
 	{
-		public List<Account> CheckedAccounts { get; } = new();
-		private List<listItem> _accounts { get; } = new();
-		public IList Accounts => _accounts;
-		private class listItem
+		public IEnumerable<Account> CheckedAccounts => Accounts.Where(a => a.IsChecked).Select(a => a.Account);
+		public AvaloniaList<ListItem> Accounts { get; } = new();
+		public class ListItem
 		{
-			public Account Account { get; set; }
-			public string Text { get; set; }
-			public bool IsChecked { get; set; } = true;
+			public ListItem(Account account)
+			{
+				Account = account;
+				IsChecked = account.LibraryScan;
+				Text = $"{account.AccountName} ({account.AccountId} - {account.Locale.Name})";
+			}
+			public Account Account { get; }
+			public string Text { get; }
+			public bool IsChecked { get; set; }
 			public override string ToString() => Text;
 		}
 
 		public ScanAccountsDialog()
 		{
 			InitializeComponent();
-
-			ControlToFocusOnShow = this.FindControl<Button>(nameof(ImportButton));
-
+			ControlToFocusOnShow = ImportButton;
+			DataContext = this;
 			LoadAccounts();
 		}
 
 		private void LoadAccounts()
 		{
-			_accounts.Clear();
+			Accounts.Clear();
 			using var persister = AudibleApiStorage.GetAccountsSettingsPersister();
 			var accounts = persister.AccountsSettings.Accounts;
-
-			foreach (var account in accounts)
-				_accounts.Add(new listItem
-				{
-					Account = account,
-					IsChecked = account.LibraryScan,
-					Text = $"{account.AccountName} ({account.AccountId} - {account.Locale.Name})"
-				});
-
-			DataContext = this;
+			Accounts.AddRange(accounts.Select(account => new ListItem(account)));
 		}
 
 		public async Task EditAccountsAsync()
@@ -56,12 +50,7 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		protected override void SaveAndClose()
-		{
-			foreach (listItem item in _accounts.Where(a => a.IsChecked))
-				CheckedAccounts.Add(item.Account);
-
-			base.SaveAndClose();
-		}
+		public new void SaveAndClose()
+			=> base.SaveAndClose();
 	}
 }

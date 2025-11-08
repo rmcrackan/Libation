@@ -1,142 +1,184 @@
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Dinah.Core;
 using LibationFileManager;
 using ReactiveUI;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
+#nullable enable
 namespace LibationAvalonia.Controls
 {
 	public partial class DirectoryOrCustomSelectControl : UserControl
 	{
-		public static readonly StyledProperty<List<Configuration.KnownDirectories>> KnownDirectoriesProperty =
-		AvaloniaProperty.Register<DirectorySelectControl, List<Configuration.KnownDirectories>>(nameof(KnownDirectories), DirectorySelectControl.DefaultKnownDirectories);
+		public static readonly StyledProperty<IList<Configuration.KnownDirectories>?> KnownDirectoriesProperty =
+		AvaloniaProperty.Register<DirectoryOrCustomSelectControl, IList<Configuration.KnownDirectories>?>(nameof(KnownDirectories), DefaultKnownDirectories);
 
-		public static readonly StyledProperty<string> SubDirectoryProperty =
-		AvaloniaProperty.Register<DirectorySelectControl, string>(nameof(SubDirectory));
+		public static readonly StyledProperty<string?> SubDirectoryProperty =
+		AvaloniaProperty.Register<DirectoryOrCustomSelectControl, string?>(nameof(SubDirectory));
 
-		public static readonly StyledProperty<string> DirectoryProperty =
-		AvaloniaProperty.Register<DirectorySelectControl, string>(nameof(Directory));
+		public static readonly StyledProperty<string?> DirectoryProperty =
+		AvaloniaProperty.Register<DirectoryOrCustomSelectControl, string?>(nameof(Directory));
 
-		public List<Configuration.KnownDirectories> KnownDirectories
+		public IList<Configuration.KnownDirectories>? KnownDirectories
 		{
 			get => GetValue(KnownDirectoriesProperty);
 			set => SetValue(KnownDirectoriesProperty, value);
 		}
 
-		public string Directory
+		public string? Directory
 		{
 			get => GetValue(DirectoryProperty);
 			set => SetValue(DirectoryProperty, value);
 		}
 
-		public string SubDirectory
+		public string? SubDirectory
 		{
 			get => GetValue(SubDirectoryProperty);
 			set => SetValue(SubDirectoryProperty, value);
 		}
 
-		private readonly DirectoryState directoryState = new();
+		public static IList<Configuration.KnownDirectories> DefaultKnownDirectories => [
+			Configuration.KnownDirectories.WinTemp,
+			Configuration.KnownDirectories.UserProfile,
+			Configuration.KnownDirectories.ApplicationData,
+			Configuration.KnownDirectories.AppDir,
+			Configuration.KnownDirectories.MyMusic,
+			Configuration.KnownDirectories.MyDocs,
+			Configuration.KnownDirectories.LibationFiles];
 
+		private readonly AvaloniaList<KnownDirectoryItem> _knownDirNames;
 		public DirectoryOrCustomSelectControl()
 		{
 			InitializeComponent();
-
-			grid.DataContext = directoryState;
-
-			directoryState.PropertyChanged += DirectoryState_PropertyChanged;
-			PropertyChanged += DirectoryOrCustomSelectControl_PropertyChanged;
+			_knownDirNames = new(GetKnownDirectories(DefaultKnownDirectories));
+			cmbKnownDirs.ItemsSource = _knownDirNames;
+			cmbKnownDirs.SelectionChanged += CmbKnownDirs_SelectionChanged;
+			btnBrowse.Click += Browse_Click;
 		}
 
-		private void DirectoryState_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void CmbKnownDirs_SelectionChanged(object? sender, SelectionChangedEventArgs e)
 		{
-			if (e.PropertyName is nameof(DirectoryState.SelectedDirectory) or nameof(DirectoryState.KnownChecked) &&
-				directoryState.KnownChecked &&
-				directoryState.SelectedDirectory is Configuration.KnownDirectories kdir &&
-				kdir is not Configuration.KnownDirectories.None)
+			if (cmbKnownDirs.SelectedItem is KnownDirectoryItem item && item.Directory is not null)
 			{
-				Directory = kdir is Configuration.KnownDirectories.AppDir ? Configuration.AppDir_Absolute : Configuration.GetKnownDirectoryPath(kdir);
-			}
-			else if (e.PropertyName is nameof(DirectoryState.CustomDir) or nameof(DirectoryState.CustomChecked) &&
-				directoryState.CustomChecked &&
-				directoryState.CustomDir is not null)
-			{
-				Directory = directoryState.CustomDir;
+				Directory = item.Directory;
 			}
 		}
 
-		private class DirectoryState : ViewModels.ViewModelBase
-		{
-			private string _customDir;
-			private string _subDirectory;
-			private bool _knownChecked;
-			private bool _customChecked;
-			private Configuration.KnownDirectories? _selectedDirectory;
-			public string CustomDir { get => _customDir; set => this.RaiseAndSetIfChanged(ref _customDir, value); }
-			public string SubDirectory { get => _subDirectory; set => this.RaiseAndSetIfChanged(ref _subDirectory, value); }
-			public bool KnownChecked { get => _knownChecked; set => this.RaiseAndSetIfChanged(ref _knownChecked, value); }
-			public bool CustomChecked { get => _customChecked; set => this.RaiseAndSetIfChanged(ref _customChecked, value); }
+		private IEnumerable<KnownDirectoryItem> GetKnownDirectories(IEnumerable<Configuration.KnownDirectories> knownDirs)
+			=> knownDirs.Select(k => new KnownDirectoryItem(k, SubDirectory)).Where(k => k.Directory is not null);
 
-			public Configuration.KnownDirectories? SelectedDirectory { get => _selectedDirectory; set => this.RaiseAndSetIfChanged(ref _selectedDirectory, value); }
+		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+		{
+			if (change.Property == SubDirectoryProperty)
+			{
+				foreach (var item in _knownDirNames)
+				{
+					item.SubDirectory = SubDirectory;
+				}
+				VerifyAndApplyDirectory(Directory);
+			}
+			else if (change.Property == KnownDirectoriesProperty)
+			{
+				var knownDirs = KnownDirectories?.Count > 0 ? KnownDirectories : DefaultKnownDirectories;
+				if (!_knownDirNames.Select(k => k.KnownDirectory).SequenceEqual(knownDirs))
+				{
+					_knownDirNames.Clear();
+					_knownDirNames.AddRange(GetKnownDirectories(knownDirs));
+				}
+				VerifyAndApplyDirectory(Directory);
+			}
+			else if (change.Property == DirectoryProperty)
+			{
+				VerifyAndApplyDirectory(Directory);
+			}
+
+			base.OnPropertyChanged(change);
 		}
 
-		private async void CustomDirBrowseBtn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+		private void VerifyAndApplyDirectory(string? directory)
 		{
-			var options = new Avalonia.Platform.Storage.FolderPickerOpenOptions
+			if (string.IsNullOrWhiteSpace(Directory))
+				return;
+
+			bool dirIsKnown = false;
+			foreach (var item in _knownDirNames)
+			{
+				if (item.IsSamePathAs(directory))
+				{
+					rbKnown.IsChecked = true;
+					Directory = item.Directory;
+					cmbKnownDirs.SelectedItem = item;
+					dirIsKnown = true;
+					break;
+				}
+			}
+			if (!dirIsKnown)
+			{
+				tboxCustomDirPath.Text = directory;
+				rbCustom.IsChecked = true;
+			}
+		}
+
+		public async void Browse_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			if (VisualRoot is not Window window)
+				return;
+
+			var options = new FolderPickerOpenOptions
 			{
 				AllowMultiple = false
 			};
 
-			var selectedFolders = await (VisualRoot as Window).StorageProvider.OpenFolderPickerAsync(options);
-
-			directoryState.CustomDir = selectedFolders.SingleOrDefault()?.TryGetLocalPath() ?? directoryState.CustomDir;
+			var selectedFolders = await window.StorageProvider.OpenFolderPickerAsync(options);
+			Directory = selectedFolders.SingleOrDefault()?.TryGetLocalPath() ?? Directory;
 		}
 
-		private void DirectoryOrCustomSelectControl_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+		private class KnownDirectoryItem : ReactiveObject
 		{
-			if (e.Property == DirectoryProperty)
+			public Configuration.KnownDirectories KnownDirectory { get; set; }
+			private string? _directory;
+			public string? Directory { get => _directory; private set => this.RaiseAndSetIfChanged(ref _directory, value); }
+			public string? Name { get; }
+			private string? _subDir;
+			public string? SubDirectory
 			{
-				var directory = Directory?.Trim() ?? "";
-
-				var noSubDir = RemoveSubDirectoryFromPath(directory);
-				var known = Configuration.GetKnownDirectory(noSubDir);
-
-				if (known == Configuration.KnownDirectories.None && noSubDir == Configuration.AppDir_Absolute)
-					known = Configuration.KnownDirectories.AppDir;
-
-				if (known is Configuration.KnownDirectories.None)
+				get => _subDir;
+				set
 				{
-					directoryState.CustomDir = directory;
-					directoryState.CustomChecked = true;
-				}
-				else
-				{
-					directoryState.SelectedDirectory = known;
-					directoryState.KnownChecked = true;
+					_subDir = value;
+					if (Configuration.GetKnownDirectoryPath(KnownDirectory) is string dir)
+					{
+						Directory = Path.Combine(dir, _subDir ?? "");
+					}
 				}
 			}
-			else if (e.Property == KnownDirectoriesProperty &&
-					KnownDirectories.Count > 0 &&
-					directoryState.SelectedDirectory is null or Configuration.KnownDirectories.None)
-				directoryState.SelectedDirectory = KnownDirectories[0];
-		}
 
-		private string RemoveSubDirectoryFromPath(string path)
-		{
-			if (string.IsNullOrWhiteSpace(SubDirectory))
-				return path;
+			public KnownDirectoryItem(Configuration.KnownDirectories known, string? subDir)
+			{
+				Name = known.GetDescription();
+				KnownDirectory = known;
+				SubDirectory = subDir;
+			}
 
-			path = path?.Trim() ?? "";
-			if (string.IsNullOrWhiteSpace(path))
-				return path;
+			public bool IsSamePathAs(string? otherPath)
+			{
+				if (string.IsNullOrWhiteSpace(otherPath) || string.IsNullOrWhiteSpace(Directory))
+					return false;
 
-			var bottomDir = System.IO.Path.GetFileName(path);
-			if (SubDirectory.EqualsInsensitive(bottomDir))
-				return System.IO.Path.GetDirectoryName(path);
+				try
+				{
+					var p1 = Path.GetFullPath(Directory);
+					var p2 = Path.GetFullPath(otherPath);
+					return p1.Equals(p2, System.StringComparison.OrdinalIgnoreCase);
+				}
+				catch { return false; }
+			}
 
-			return path;
+			public override string? ToString() => Name?.ToString();
 		}
 	}
 }

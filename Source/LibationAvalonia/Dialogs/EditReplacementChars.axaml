@@ -2,92 +2,80 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
-		MinWidth="500" MinHeight="450"
-		Width="500" Height="450"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
+		MinWidth="450" MinHeight="450"
+		Width="450" Height="450"
         x:Class="LibationAvalonia.Dialogs.EditReplacementChars"
 		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
 		x:DataType="dialogs:EditReplacementChars"
-        Title="Illegal Character Replacement">
+		x:CompileBindings="True"
+		Title="File Path Character Replacement">
 
-	<Grid
-		RowDefinitions="*,Auto"
-		ColumnDefinitions="*,Auto">
-
+	<Grid RowDefinitions="*,Auto">
 		<DataGrid
 			Grid.Row="0"
 			Grid.ColumnSpan="2"
-			GridLinesVisibility="All"
 			Margin="5"
-			Name="replacementGrid"
-			AutoGenerateColumns="False"
 			IsReadOnly="False"
-			BeginningEdit="ReplacementGrid_BeginningEdit"
-			CellEditEnding="ReplacementGrid_CellEditEnding"
-			KeyDown="ReplacementGrid_KeyDown"
-			ItemsSource="{CompiledBinding replacements}">
-
+			GridLinesVisibility="All"
+			CanUserSortColumns="False"
+			AutoGenerateColumns="False"
+			ItemsSource="{Binding Replacements}"
+			KeyDown="replacementGrid_KeyDown"
+			BeginningEdit="replacementGrid_BeginningEdit"
+			CellEditEnded="replacementGrid_CellEditEnded"
+			CellEditEnding="replacementGrid_CellEditEnding">
 			<DataGrid.Columns>
 
-				<DataGridTemplateColumn Header="Char to&#xa;Replace">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate x:DataType="dialogs:EditReplacementChars+ReplacementsExt">
-							<TextBox IsReadOnly="{CompiledBinding Mandatory}" Text="{CompiledBinding CharacterToReplace, Mode=TwoWay}" />
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
-				
-				<DataGridTemplateColumn Header="Replacement&#xa;Text">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate x:DataType="dialogs:EditReplacementChars+ReplacementsExt">
-							<TextBox Text="{CompiledBinding ReplacementText, Mode=TwoWay}" />
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
+				<controls:DataGridTextColumnExt
+					x:DataType="dialogs:EditReplacementChars+ReplacementsExt"
+					MaxLength="1"
+					Header="Char to&#xa;Replace"
+					Binding="{Binding CharacterToReplace, Mode=TwoWay}"/>
 
-				<DataGridTemplateColumn Width="*" Header="Description">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate x:DataType="dialogs:EditReplacementChars+ReplacementsExt">
-							<TextBox IsReadOnly="{CompiledBinding Mandatory}" Text="{CompiledBinding Description, Mode=TwoWay}" />
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
+				<DataGridTextColumn
+					x:DataType="dialogs:EditReplacementChars+ReplacementsExt"
+					Header="Replacement&#xa;Text"
+					Binding="{Binding ReplacementText, Mode=TwoWay}"/>
+            
+				<DataGridTextColumn
+					x:DataType="dialogs:EditReplacementChars+ReplacementsExt"
+					Header="Description"
+					Binding="{Binding Description, Mode=TwoWay}"/>
 
 			</DataGrid.Columns>
 		</DataGrid>
 
 		<Grid
 			Grid.Row="1"
-			Grid.Column="0"
 			RowDefinitions="Auto,Auto"
-			Margin="5"
-			ColumnDefinitions="Auto,Auto,Auto,Auto">
+			ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto"
+			Margin="5">
+			<Grid.Styles>
+				<Style Selector="Button">
+					<Setter Property="Margin" Value="2"/>
+					<Setter Property="Padding" Value="6"/>
+					<Setter Property="VerticalAlignment" Value="Bottom"/>
+				</Style>
+				<Style Selector="TextBlock">
+					<Setter Property="VerticalAlignment" Value="Center"/>
+				</Style>
+			</Grid.Styles>
 
-			<TextBlock IsVisible="{CompiledBinding !EnvironmentIsWindows}" Text="This System:" Margin="0,0,10,0" VerticalAlignment="Center" />
-			<TextBlock IsVisible="{CompiledBinding !EnvironmentIsWindows}" Grid.Row="1" Text="NTFS:" Margin="0,0,10,0" VerticalAlignment="Center" />
+			<TextBlock Grid.Row="0" Text="This&#xa;System:" IsVisible="{Binding !EnvironmentIsWindows}" />
+			<TextBlock Grid.Row="1" Text="NTFS:" IsVisible="{Binding !EnvironmentIsWindows}" />
 
-			<Button Grid.Column="1" Margin="0,0,10,0" Command="{CompiledBinding Defaults}" CommandParameter="{CompiledBinding EnvironmentIsWindows}" Content="Defaults" />
-			<Button Grid.Column="2" Margin="0,0,10,0" Command="{CompiledBinding LoFiDefaults}" CommandParameter="{CompiledBinding EnvironmentIsWindows}" Content="LoFi Defaults" />
-			<Button Grid.Column="3" Command="{CompiledBinding Barebones}" CommandParameter="{CompiledBinding EnvironmentIsWindows}" Content="Barebones" />
+			<Button Grid.Column="1" Command="{Binding Defaults}" CommandParameter="{Binding EnvironmentIsWindows}" Content="Defaults" />
+			<Button Grid.Column="2" Command="{Binding LoFiDefaults}" CommandParameter="{Binding EnvironmentIsWindows}" Content="LoFi Defaults" />
+			<Button Grid.Column="3" Command="{Binding Barebones}" CommandParameter="{Binding EnvironmentIsWindows}" Content="Barebones" />
 
-			<Button IsVisible="{CompiledBinding !EnvironmentIsWindows}" Grid.Row="1" Grid.Column="1" Margin="0,10,10,0" Command="{CompiledBinding Defaults}" CommandParameter="True" Content="Defaults" />
-			<Button IsVisible="{CompiledBinding !EnvironmentIsWindows}" Grid.Row="1" Grid.Column="2" Margin="0,10,10,0" Command="{CompiledBinding LoFiDefaults}" CommandParameter="True" Content="LoFi Defaults" />
-			<Button IsVisible="{CompiledBinding !EnvironmentIsWindows}" Grid.Row="1" Grid.Column="3" Margin="0,10,0,0" Command="{CompiledBinding Barebones}" CommandParameter="True" Content="Barebones" />
-
-		</Grid>
-
-		<StackPanel
-			Grid.Row="1"
-			Grid.Column="1"
-			Margin="5"
-			VerticalAlignment="Bottom"
-			Orientation="Horizontal">
-
-			<Button Margin="0,0,10,0" Command="{Binding Close}" Content="Cancel" />
-			<Button Padding="20,5,20,6" Command="{Binding SaveAndClose}" Content="Save" />
-		</StackPanel>
-		
-	</Grid>
-	
-	
+			<Button Grid.Row="1" Grid.Column="1" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Defaults}" CommandParameter="True" Content="Defaults" />
+			<Button Grid.Row="1" Grid.Column="2" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding LoFiDefaults}" CommandParameter="True" Content="LoFi Defaults" />
+			<Button Grid.Row="1" Grid.Column="3" IsVisible="{Binding !EnvironmentIsWindows}" Command="{Binding Barebones}" CommandParameter="True" Content="Barebones" />
+						
+			<Button Grid.RowSpan="2" Grid.Column="4" Command="{Binding Close}" Content="Cancel" />
+			<Button Grid.RowSpan="2" Grid.Column="5" Padding="20,6" Command="{Binding SaveAndClose}" Content="Save" />
+		</Grid>	
+	</Grid>	
 </Window>

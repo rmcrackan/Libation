@@ -203,9 +203,10 @@ namespace LibationAvalonia
 			
 			await displayControlAsync(MainForm.filterHelpBtn);
 
-			var filterHelp = new SearchSyntaxDialog();
-			await filterHelp.ShowDialog(MainForm);
-
+			var searchDialog = MainForm.ShowSearchSyntaxDialog();
+			var tcs = new TaskCompletionSource();
+			searchDialog.Closed += (_, _) => tcs.SetResult();
+			await tcs.Task;
 			return true;
 		}
 

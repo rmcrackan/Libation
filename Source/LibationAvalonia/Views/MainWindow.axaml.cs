@@ -223,5 +223,28 @@ namespace LibationAvalonia.Views
 		}
 
 		private void setProgressVisible(bool visible) => ViewModel.DownloadProgress = visible ? 0 : null;
+
+		public SearchSyntaxDialog ShowSearchSyntaxDialog()
+		{
+			var dialog = new SearchSyntaxDialog();
+			dialog.TagDoubleClicked += Dialog_TagDoubleClicked;
+			dialog.Closed += Dialog_Closed;
+			filterHelpBtn.IsEnabled = false;
+			dialog.Show(this);
+			return dialog;
+
+			void Dialog_Closed(object sender, EventArgs e)
+			{
+				dialog.TagDoubleClicked -= Dialog_TagDoubleClicked;
+				filterHelpBtn.IsEnabled = true;
+			}
+			void Dialog_TagDoubleClicked(object sender, string tag)
+			{
+				var text = filterSearchTb.Text;
+				filterSearchTb.Text = text.Insert(Math.Min(Math.Max(0, filterSearchTb.CaretIndex), text.Length), tag);
+				filterSearchTb.CaretIndex += tag.Length;
+				filterSearchTb.Focus();
+			}
+		}
 	}
 }

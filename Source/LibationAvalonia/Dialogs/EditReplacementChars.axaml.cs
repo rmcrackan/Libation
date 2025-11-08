@@ -1,27 +1,27 @@
 using Avalonia.Collections;
 using Avalonia.Controls;
-using Avalonia.Data;
 using FileManager;
 using LibationFileManager;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
 namespace LibationAvalonia.Dialogs
 {
 	public partial class EditReplacementChars : DialogWindow
 	{
-		Configuration config;
+		private Configuration? Config { get; }
 
 		public bool EnvironmentIsWindows => Configuration.IsWindows;
 
-		private readonly List<ReplacementsExt> SOURCE = new();
-		public DataGridCollectionView replacements { get; }
+		private readonly AvaloniaList<ReplacementsExt> SOURCE = new();
+		public DataGridCollectionView Replacements { get; }
 		public EditReplacementChars()
 		{
 			InitializeComponent();
 
-			replacements = new(SOURCE);
+			Replacements = new(SOURCE);
 
 			if (Design.IsDesignMode)
 			{
@@ -33,7 +33,7 @@ namespace LibationAvalonia.Dialogs
 
 		public EditReplacementChars(Configuration config) : this()
 		{
-			this.config = config;
+			Config = config;
 			LoadTable(config.ReplacementCharacters.Replacements);
 		}
 
@@ -44,15 +44,14 @@ namespace LibationAvalonia.Dialogs
 		public void Barebones(bool isNtfs)
 			=> LoadTable(ReplacementCharacters.Barebones(isNtfs).Replacements);
 
-		protected override void SaveAndClose()
+		public new void Close() => base.Close();
+		public new void SaveAndClose()
 		{
-			var replacements = SOURCE
-				.Where(r => !r.IsDefault)
-				.Select(r => new Replacement(r.Character, r.ReplacementText, r.Description) { Mandatory = r.Mandatory })
-				.ToList();
-
-			if (config is not null)
-				config.ReplacementCharacters = new ReplacementCharacters { Replacements = replacements };
+			if (Config is not null)
+			{
+				var replacements = SOURCE.Where(r => !r.IsDefault).Select(r => r.ToReplacement()).ToArray();
+				Config.ReplacementCharacters = new ReplacementCharacters { Replacements = replacements };
+			}
 			base.SaveAndClose();
 		}
 
@@ -61,59 +60,64 @@ namespace LibationAvalonia.Dialogs
 			SOURCE.Clear();
 			SOURCE.AddRange(replacements.Select(r => new ReplacementsExt(r)));
 			SOURCE.Add(new ReplacementsExt());
-			this.replacements.Refresh();
 		}
 
-		public void ReplacementGrid_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
+		private bool ColumnIsCharacter(DataGridColumn column)
+			=> column.DisplayIndex is 0;
+
+		private bool ColumnIsReplacement(DataGridColumn column)
+			=> column.DisplayIndex is 1;
+
+		private bool RowIsReadOnly(DataGridRow row)
+			=> row.DataContext is ReplacementsExt rep && rep.Mandatory;
+
+		private bool CanDeleteSelectedItem(ReplacementsExt selectedItem)
+			=> !selectedItem.Mandatory && (!selectedItem.IsDefault || SOURCE[^1] != selectedItem);
+
+		private void replacementGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
 		{
-			if (e.Key == Avalonia.Input.Key.Delete
-				&& ((DataGrid)sender).SelectedItem is ReplacementsExt repl
-				&& !repl.Mandatory
-				&& !repl.IsDefault)
-			{
-				replacements.Remove(repl);
-			}
+			e.Cancel = RowIsReadOnly(e.Row) && !ColumnIsReplacement(e.Column);
 		}
 
-		public void ReplacementGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+		private void replacementGrid_CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
 		{
-			var replacement = e.Row.DataContext as ReplacementsExt;
-			var colBinding = columnBindingPath(e.Column);
-
-			//Prevent duplicate CharacterToReplace
-			if (e.EditingElement is TextBox tbox
-				&& colBinding == nameof(replacement.CharacterToReplace)
-				&& SOURCE.Any(r => r != replacement && r.CharacterToReplace == tbox.Text))
+			//Disallow duplicates of CharacterToReplace
+			if (ColumnIsCharacter(e.Column) && e.Row.DataContext is ReplacementsExt r && r.CharacterToReplace.Length > 0 && SOURCE.Count(rep => rep.CharacterToReplace == r.CharacterToReplace) > 1)
 			{
-				tbox.Text = replacement.CharacterToReplace;
-			}
-
-			//Add new blank row
-			void Replacement_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-			{
-				if (!SOURCE.Any(r => r.IsDefault))
-				{
-					var rewRepl = new ReplacementsExt();
-					SOURCE.Add(rewRepl);
-				}
-				replacement.PropertyChanged -= Replacement_PropertyChanged;
-			}
-
-			replacement.PropertyChanged += Replacement_PropertyChanged;
-		}
-
-		public void ReplacementGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
-		{
-			var replacement = e.Row.DataContext as ReplacementsExt;
-
-			//Disallow editing of Mandatory CharacterToReplace and Descriptions
-			if (replacement.Mandatory
-				&& columnBindingPath(e.Column) != nameof(replacement.ReplacementText))
+				r.CharacterToReplace = "";
 				e.Cancel = true;
+			}
 		}
 
-		private static string columnBindingPath(DataGridColumn column)
-			=> ((Binding)((DataGridBoundColumn)column).Binding).Path;
+		private void replacementGrid_CellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
+		{
+			if (ColumnIsCharacter(e.Column) && e.Row.DataContext is ReplacementsExt r && r.CharacterToReplace.Length > 0 && !SOURCE[^1].IsDefault)
+			{
+				Replacements.AddNew();
+			}
+		}
+
+		private void replacementGrid_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
+		{
+			if (e.Key == Avalonia.Input.Key.Delete && (sender as DataGrid)?.SelectedItem is ReplacementsExt r && CanDeleteSelectedItem(r))
+			{
+				if (Replacements.IsEditingItem)
+				{
+					if (Replacements.CanCancelEdit)
+						Replacements.CancelEdit();
+					else
+						Replacements.CommitEdit();
+				}
+				if (Replacements.IsAddingNew)
+				{
+					Replacements.CancelNew();
+				}
+				if (Replacements.CanRemove)
+				{
+					Replacements.Remove(r);
+				}
+			}
+		}
 
 		public class ReplacementsExt : ViewModels.ViewModelBase
 		{
@@ -122,7 +126,6 @@ namespace LibationAvalonia.Dialogs
 				_replacementText = string.Empty;
 				_description = string.Empty;
 				_characterToReplace = string.Empty;
-				IsDefault = true;
 			}
 			public ReplacementsExt(Replacement replacement)
 			{
@@ -131,41 +134,19 @@ namespace LibationAvalonia.Dialogs
 				_description = replacement.Description;
 				Mandatory = replacement.Mandatory;
 			}
+
 			private string _replacementText;
 			private string _description;
 			private string _characterToReplace;
-			public bool Mandatory { get; }
-			public string ReplacementText
-			{
-				get => _replacementText;
-				set
-				{
-					if (ReplacementCharacters.ContainsInvalidFilenameChar(value))
-						this.RaisePropertyChanged(nameof(ReplacementText));
-					else
-						this.RaiseAndSetIfChanged(ref _replacementText, value);
-				}
-			}
-
+			public string ReplacementText { get => _replacementText; set => this.RaiseAndSetIfChanged(ref _replacementText, value); }
 			public string Description { get => _description; set => this.RaiseAndSetIfChanged(ref _description, value); }
-
-			public string CharacterToReplace
-			{
-				get => _characterToReplace;
-
-				set
-				{
-					if (value?.Length != 1)
-						this.RaisePropertyChanged(nameof(CharacterToReplace));
-					else
-					{
-						IsDefault = false;
-						this.RaiseAndSetIfChanged(ref _characterToReplace, value);
-					}
-				}
-			}
+			public string CharacterToReplace { get => _characterToReplace; set => this.RaiseAndSetIfChanged(ref _characterToReplace, value); }
 			public char Character => string.IsNullOrEmpty(_characterToReplace) ? default : _characterToReplace[0];
-			public bool IsDefault { get; private set; }
+			public bool IsDefault => !Mandatory && string.IsNullOrEmpty(CharacterToReplace);
+			public bool Mandatory { get; }
+
+			public Replacement ToReplacement()
+				=> new(Character, ReplacementText, Description) { Mandatory = Mandatory };
 		}
 	}
 }
