@@ -25,6 +25,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			OverwriteExisting = config.OverwriteExisting;
 			CreationTime = DateTimeSources.SingleOrDefault(v => v.Value == config.CreationTime) ?? DateTimeSources[0];
 			LastWriteTime = DateTimeSources.SingleOrDefault(v => v.Value == config.LastWriteTime) ?? DateTimeSources[0];
+			UseWebView = config.UseWebView;
 			LoggingLevel = config.LogLevel;
 			GridScaleFactor = scaleFactorToLinearRange(config.GridScaleFactor);
 			GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
@@ -41,6 +42,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			config.OverwriteExisting = OverwriteExisting;
 			config.CreationTime = CreationTime.Value;
 			config.LastWriteTime = LastWriteTime.Value;
+			config.UseWebView = UseWebView;
 			config.LogLevel = LoggingLevel;
 		}
 
@@ -83,6 +85,8 @@ namespace LibationAvalonia.ViewModels.Settings
 			= Enum.GetValues<Configuration.DateTimeSource>()
 			.Select(v => new EnumDisplay<Configuration.DateTimeSource>(v))
 			.ToArray();
+
+		public string UseWebViewText { get; } = Configuration.GetDescription(nameof(Configuration.UseWebView));
 		public Serilog.Events.LogEventLevel[] LoggingLevels { get; } = Enum.GetValues<Serilog.Events.LogEventLevel>();
 		public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
 		public string GridFontScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridFontScaleFactor));
@@ -96,6 +100,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public float GridFontScaleFactor { get; set; }
 		public EnumDisplay<Configuration.DateTimeSource> CreationTime { get; set; }
 		public EnumDisplay<Configuration.DateTimeSource> LastWriteTime { get; set; }
+		public bool UseWebView { get; set; }
 		public Serilog.Events.LogEventLevel LoggingLevel { get; set; }
 
 		public string ThemeVariant

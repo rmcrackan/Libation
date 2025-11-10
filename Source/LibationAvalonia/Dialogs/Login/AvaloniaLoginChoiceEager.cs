@@ -28,7 +28,7 @@ namespace LibationAvalonia.Dialogs.Login
 		{
 			try
 			{
-				if (await BrowserLoginAsync(choiceIn.LoginUrl) is ChoiceOut external)
+				if (Configuration.Instance.UseWebView && await BrowserLoginAsync(choiceIn.LoginUrl) is ChoiceOut external)
 					return external;
 			}
 			catch (Exception ex)
