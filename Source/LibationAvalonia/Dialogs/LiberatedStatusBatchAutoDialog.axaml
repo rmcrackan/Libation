@@ -37,7 +37,7 @@
 		
 		<Button
 			Grid.Row="1"
-			Padding="30,5"
+			Classes="SaveButton"
 			Name="SaveButton"
 			HorizontalAlignment="Right"
 			Content="Save"

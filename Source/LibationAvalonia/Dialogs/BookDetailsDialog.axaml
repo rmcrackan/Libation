@@ -140,7 +140,7 @@
 			<Button
 				Grid.Column="1"
 				Content="Save"
-				Padding="30,3,30,3"
+				Classes="SaveButton"
 				Click="SaveButton_Clicked" />
 		</Grid>
 		

@@ -100,7 +100,7 @@
 
 			<Button
 				Grid.Column="1"
-				Padding="30,5"
+				Classes="SaveButton"
 				Name="saveBtn"
 				Content="Save"
 				Command="{Binding SaveAndClose}" />

@@ -64,11 +64,10 @@
 
 		<Button
 			Grid.Row="3"
-			Height="30"
 			HorizontalAlignment="Center"
-			Margin="10,10,10,10"
-			Padding="30,3,30,3"
+			Margin="10"
 			Name="OkButton"
+			Classes="SaveButton"
 			Content="Ok"
 			Click="OkButton_Clicked" />
 	</Grid>

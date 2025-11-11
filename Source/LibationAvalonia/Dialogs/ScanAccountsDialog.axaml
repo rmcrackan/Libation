@@ -53,7 +53,7 @@
 		<Button
 			Grid.Row="2"
 			Grid.Column="1"
-			Padding="30,6"
+			Classes="SaveButton"
 			HorizontalAlignment="Right"
 			Content="Import"
 			Name="ImportButton"

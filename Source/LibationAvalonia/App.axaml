@@ -84,6 +84,9 @@
 				<Setter Property="Foreground" Value="{DynamicResource SystemChromeAltLowColor}" />
 			</Style>
 		</Style>
+		<Style Selector="Button.SaveButton">
+			<Setter Property="Padding" Value="30,6" />
+		</Style>
 		<Style Selector="ScrollBar">
 			<!-- It's called AutoHide, but this is really the mouseover shrink/expand. -->
             <Setter Property="AllowAutoHide" Value="false"/>
