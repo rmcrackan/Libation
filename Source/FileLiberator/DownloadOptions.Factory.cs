@@ -4,6 +4,7 @@ using AudibleApi.Common;
 using AudibleUtilities.Widevine;
 using DataLayer;
 using Dinah.Core;
+using DocumentFormat.OpenXml.Wordprocessing;
 using LibationFileManager;
 using NAudio.Lame;
 using System;
@@ -28,11 +29,7 @@ public partial class DownloadOptions
 		Serilog.Log.Logger.Debug("Content License {@License}", new
 		{
 			license.DrmType,
-			license.ContentMetadata.ContentReference.Codec,
-			license.ContentMetadata.ContentReference.Marketplace,
-			license.ContentMetadata.ContentReference.ContentSizeInBytes,
-			license.ContentMetadata.ContentReference.Version,
-			license.ContentMetadata.ContentReference.FileVersion
+			license.ContentMetadata.ContentReference
 		});
 
 		token.ThrowIfCancellationRequested();
@@ -47,7 +44,24 @@ public partial class DownloadOptions
 		   license.ContentMetadata.ContentReference.Acr,
 		   license.ContentMetadata.ContentReference.FileVersion);
 
-		if (metadata is not null && metadata.ContentReference == license.ContentMetadata.ContentReference)
+		if (metadata is null)
+		{
+			Serilog.Log.Logger.Warning("Unable to retrieve metadata for {@FileReference}", new
+			{
+				libraryBook.Book.AudibleProductId,
+				license.DrmType,
+				license.ContentMetadata.ContentReference.Acr,
+				license.ContentMetadata.ContentReference.FileVersion
+			});
+		}
+		else if (metadata.ContentReference != license.ContentMetadata.ContentReference)
+		{
+			Serilog.Log.Logger.Warning("Metadata ContentReference does not match License ContentReference with drm_type = {@DrmType}. {@Metadata}. {@License} ",
+			license.DrmType,
+			metadata.ContentReference,
+			license.ContentMetadata.ContentReference);
+		}
+		else
 			license.ContentMetadata.ChapterInfo = metadata.ChapterInfo;
 
 		token.ThrowIfCancellationRequested();
@@ -72,7 +86,7 @@ public partial class DownloadOptions
 
 	private static async Task<LicenseInfo> ChooseContent(Api api, LibraryBook libraryBook, Configuration config, CancellationToken token)
 	{
-		Serilog.Log.Logger.Debug("Download Settings {@Settings}", new
+		Serilog.Log.Logger.Information("Download Settings {@Settings}", new
 		{
 			config.FileDownloadQuality,
 			config.UseWidevine,
@@ -89,9 +103,9 @@ public partial class DownloadOptions
 			if (config.UseWidevine)
 			{
 				if (canUseWidevine)
-					Serilog.Log.Logger.Information("Unable to get a Widevine CDM. Falling back to ADRM.");
+					Serilog.Log.Logger.Warning("Unable to get a Widevine CDM. Falling back to ADRM.");
 				else
-					Serilog.Log.Logger.Information("Account {@account} is not registered as an android device, so content will not be downloaded with Widevine DRM. Remove and re-add the account in Libation to fix.", libraryBook.Account.ToMask());
+					Serilog.Log.Logger.Warning("Account {@account} is not registered as an android device, so content will not be downloaded with Widevine DRM. Remove and re-add the account in Libation to fix.", libraryBook.Account.ToMask());
 			}
 
 			token.ThrowIfCancellationRequested();
