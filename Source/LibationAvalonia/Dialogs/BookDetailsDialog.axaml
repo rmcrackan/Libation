@@ -7,6 +7,9 @@
 		Width="650" Height="500"
         x:Class="LibationAvalonia.Dialogs.BookDetailsDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+		x:DataType="dialogs:BookDetailsDialog+BookDetailsDialogViewModel"
+		x:CompileBindings="True"
         Title="Book Details" Name="BookDetails">
 
 	<Grid RowDefinitions="*,Auto,Auto,40">
@@ -27,7 +30,7 @@
 					Margin="10"
 					TextWrapping="Wrap"
 					TextAlignment="Center"
-					Tapped="GoToAudible_Tapped"
+					Command="{Binding OpenInAudibleCommand}"
 					Text="Open in&#xa;Audible&#xa;(Browser)" />
 			</Panel>
 			
@@ -91,6 +94,7 @@
 						MinHeight="25"
 						Height="25"
 						VerticalAlignment="Center"
+						SelectionChanged="BookStatus_SelectionChanged"
 						SelectedItem="{Binding BookLiberatedSelectedItem, Mode=TwoWay}"
 						ItemsSource="{Binding BookLiberatedItems}">
 						
