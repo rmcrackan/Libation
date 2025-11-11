@@ -13,7 +13,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="AAXClean.Codecs" Version="2.0.2.2" />
+	  <PackageReference Include="AAXClean.Codecs" Version="2.0.3.1" />
 	</ItemGroup>
 
 	<ItemGroup>
