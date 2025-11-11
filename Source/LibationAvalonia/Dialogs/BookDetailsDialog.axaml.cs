@@ -43,7 +43,7 @@ namespace LibationAvalonia.Dialogs
 				MainVM.Configure_NonUI();
 				LibraryBook
 					= MockLibraryBook
-					.CreateBook()
+					.CreateBook(isSpatial: true)
 					.AddAuthor("Author 2")
 					.AddNarrator("Narrator 2")
 					.AddSeries("Series Name", 1)
@@ -87,10 +87,9 @@ namespace LibationAvalonia.Dialogs
 			public Bitmap Cover { get; set; }
 			public string DetailsText { get; set; }
 			public string Tags { get; set; }
+			public bool IsSpatial { get; }
 
 			public bool HasPDF => PdfLiberatedItems?.Count > 0;
-
-			private liberatedComboBoxItem _bookLiberatedSelectedItem;
 			public AvaloniaList<liberatedComboBoxItem> BookLiberatedItems { get; } = new();
 			public List<liberatedComboBoxItem> PdfLiberatedItems { get; } = new();
 			public liberatedComboBoxItem PdfLiberatedSelectedItem { get; set; }
@@ -104,6 +103,7 @@ namespace LibationAvalonia.Dialogs
 				var locale = AudibleApi.Localization.Get(libraryBook.Book.Locale);
 				var link = $"https://www.audible.{locale.TopDomain}/pd/{libraryBook.Book.AudibleProductId}";
 				OpenInAudibleCommand = ReactiveCommand.Create(() => Go.To.Url(link));
+				IsSpatial = libraryBook.Book.IsSpatial;
 
 				//init tags
 				Tags = libraryBook.Book.UserDefinedItem.Tags;

@@ -39,6 +39,7 @@ namespace LibationWinForms.Dialogs
 		private void initDetails()
 		{
 			this.Text = Book.TitleWithSubtitle;
+			dolbyAtmosPb.Visible = Book.IsSpatial;
 
 			(_, var picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
 			this.coverPb.Image = WinFormsUtil.TryLoadImageOrDefault(picture, PictureSize._80x80);
