@@ -65,7 +65,7 @@ namespace LibationAvalonia
 			}
 			catch (Exception ex)
 			{
-				if (new StackTrace(ex).GetFrames().Any(f => f.GetMethod()?.DeclaringType == typeof(NativeWebDialog)))
+				if (new StackTrace(ex).GetFrames().Any(f => f.GetMethod()?.DeclaringType?.Assembly == typeof(NativeWebDialog).Assembly))
 				{
 					//Many of the NativeWebDialog exceptions cannot be handled by user code,
 					//so a webview failure is a fatal error. Disable webview usage and rely

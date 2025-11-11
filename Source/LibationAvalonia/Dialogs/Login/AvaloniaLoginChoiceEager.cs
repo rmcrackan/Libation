@@ -53,7 +53,6 @@ namespace LibationAvalonia.Dialogs.Login
 				Source = new Uri(url)
 			};
 
-			dialog.AdapterCreated += Dialog_AdapterCreated;
 			dialog.NavigationCompleted += Dialog_NavigationCompleted;
 			dialog.Closing += (_, _) => tcs.TrySetResult(null);
 			dialog.NavigationStarted += (_, e) =>
@@ -78,15 +77,6 @@ namespace LibationAvalonia.Dialogs.Login
 			if (e.IsSuccess && sender is NativeWebDialog dialog)
 			{
 				await dialog.InvokeScript(getScript(_account.AccountId));
-			}
-		}
-
-		private void Dialog_AdapterCreated(object? sender, WebViewAdapterEventArgs e)
-		{
-			if ((sender as NativeWebDialog)?.TryGetWindow() is Window window)
-			{
-				window.Width = 450;
-				window.Height = 700;
 			}
 		}
 
