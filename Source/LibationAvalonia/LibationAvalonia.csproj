@@ -78,7 +78,7 @@
 		<PackageReference Include="Avalonia.Desktop" Version="11.3.8" />
 		<PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.8" />
-		<PackageReference Include="WebViewControlAvaloniaFree" Version="11.3.14" />
+		<PackageReference Include="WebViewControlAvaloniaFree" Version="11.3.15" />
 	</ItemGroup>
 
 	<ItemGroup>

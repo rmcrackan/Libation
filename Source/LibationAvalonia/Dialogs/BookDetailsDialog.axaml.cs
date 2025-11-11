@@ -1,13 +1,16 @@
 using ApplicationServices;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using DataLayer;
 using Dinah.Core;
+using LibationAvalonia.Controls;
 using LibationAvalonia.ViewModels;
 using LibationFileManager;
+using ReactiveUI;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Input;
 
 namespace LibationAvalonia.Dialogs
 {
@@ -40,7 +43,7 @@ namespace LibationAvalonia.Dialogs
 				MainVM.Configure_NonUI();
 				LibraryBook
 					= MockLibraryBook
-					.CreateBook()
+					.CreateBook(isSpatial: true)
 					.AddAuthor("Author 2")
 					.AddNarrator("Narrator 2")
 					.AddSeries("Series Name", 1)
@@ -61,52 +64,46 @@ namespace LibationAvalonia.Dialogs
 			base.SaveAndClose();
 		}
 
-		public void GoToAudible_Tapped(object sender, Avalonia.Input.TappedEventArgs e)
+		public void BookStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			var locale = AudibleApi.Localization.Get(_libraryBook.Book.Locale);
-			var link = $"https://www.audible.{locale.TopDomain}/pd/{_libraryBook.Book.AudibleProductId}";
-			Go.To.Url(link);
+			if (sender is not WheelComboBox { SelectedItem: liberatedComboBoxItem { Status: LiberatedStatus.Error } } &&
+				_viewModel.BookLiberatedItems.SingleOrDefault(s => s.Status == LiberatedStatus.Error) is liberatedComboBoxItem errorItem)
+			{
+				_viewModel.BookLiberatedItems.Remove(errorItem);
+			}
 		}
 
 		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 			=> SaveAndClose();
-
-		private class BookDetailsDialogViewModel : ViewModelBase
+		public class liberatedComboBoxItem
 		{
-			public class liberatedComboBoxItem
-			{
-				public LiberatedStatus Status { get; set; }
-				public string Text { get; set; }
-				public override string ToString() => Text;
-			}
+			public LiberatedStatus Status { get; set; }
+			public string Text { get; set; }
+			public override string ToString() => Text;
+		}
 
+		public class BookDetailsDialogViewModel : ViewModelBase
+		{
 			public Bitmap Cover { get; set; }
 			public string DetailsText { get; set; }
 			public string Tags { get; set; }
+			public bool IsSpatial { get; }
 
 			public bool HasPDF => PdfLiberatedItems?.Count > 0;
-
-			private liberatedComboBoxItem _bookLiberatedSelectedItem;
-			public ObservableCollection<liberatedComboBoxItem> BookLiberatedItems { get; } = new();
+			public AvaloniaList<liberatedComboBoxItem> BookLiberatedItems { get; } = new();
 			public List<liberatedComboBoxItem> PdfLiberatedItems { get; } = new();
 			public liberatedComboBoxItem PdfLiberatedSelectedItem { get; set; }
-
-			public liberatedComboBoxItem BookLiberatedSelectedItem
-			{
-				get => _bookLiberatedSelectedItem;
-				set
-				{
-					_bookLiberatedSelectedItem = value;
-					if (value?.Status is not LiberatedStatus.Error)
-					{
-						BookLiberatedItems.Remove(BookLiberatedItems.SingleOrDefault(s => s.Status == LiberatedStatus.Error));
-					}
-				}
-			}
+			public liberatedComboBoxItem BookLiberatedSelectedItem { get; set; }
+			public ICommand OpenInAudibleCommand { get; }
 
 			public BookDetailsDialogViewModel(LibraryBook libraryBook)
 			{
 				var Book = libraryBook.Book;
+
+				var locale = AudibleApi.Localization.Get(libraryBook.Book.Locale);
+				var link = $"https://www.audible.{locale.TopDomain}/pd/{libraryBook.Book.AudibleProductId}";
+				OpenInAudibleCommand = ReactiveCommand.Create(() => Go.To.Url(link));
+				IsSpatial = libraryBook.Book.IsSpatial;
 
 				//init tags
 				Tags = libraryBook.Book.UserDefinedItem.Tags;

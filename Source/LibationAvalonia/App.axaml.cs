@@ -222,6 +222,7 @@ public class App : Application
 
 		// logging is init'd here
 		AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(AppScaffolding.Variety.Chardonnay, config);
+		Program.LoggingEnabled = true;
 	}
 
 	private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)

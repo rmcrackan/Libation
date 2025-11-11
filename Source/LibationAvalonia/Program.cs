@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ApplicationServices;
 using AppScaffolding;
 using Avalonia;
+using Avalonia.Controls;
 using ReactiveUI.Avalonia;
 using LibationFileManager;
 using LibationAvalonia.Dialogs;
@@ -18,7 +19,7 @@ namespace LibationAvalonia
 	static class Program
 	{
 		private static System.Threading.Lock SetupLock { get; } = new();
-		private static bool LoggingEnabled { get; set; }
+		internal static bool LoggingEnabled { get; set; }
 		[STAThread]
 		static void Main(string[] args)
 		{
@@ -64,6 +65,13 @@ namespace LibationAvalonia
 			}
 			catch (Exception ex)
 			{
+				if (new StackTrace(ex).GetFrames().Any(f => f.GetMethod()?.DeclaringType == typeof(NativeWebDialog)))
+				{
+					//Many of the NativeWebDialog exceptions cannot be handled by user code,
+					//so a webview failure is a fatal error. Disable webview usage and rely
+					//on the external browser login method instead.
+					Configuration.Instance.UseWebView = false;
+				}
 				LogAndShowCrashMessage(ex);
 			}
 		}

@@ -20,219 +20,226 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
+		#region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
-            this.saveBtn = new System.Windows.Forms.Button();
-            this.newTagsTb = new System.Windows.Forms.TextBox();
-            this.tagsDescLbl = new System.Windows.Forms.Label();
-            this.coverPb = new System.Windows.Forms.PictureBox();
-            this.detailsTb = new System.Windows.Forms.TextBox();
-            this.tagsGb = new System.Windows.Forms.GroupBox();
-            this.cancelBtn = new System.Windows.Forms.Button();
-            this.liberatedGb = new System.Windows.Forms.GroupBox();
-            this.pdfLiberatedCb = new System.Windows.Forms.ComboBox();
-            this.pdfLiberatedLbl = new System.Windows.Forms.Label();
-            this.bookLiberatedCb = new System.Windows.Forms.ComboBox();
-            this.bookLiberatedLbl = new System.Windows.Forms.Label();
-            this.liberatedDescLbl = new System.Windows.Forms.Label();
-            this.audibleLink = new System.Windows.Forms.LinkLabel();
-            ((System.ComponentModel.ISupportInitialize)(this.coverPb)).BeginInit();
-            this.tagsGb.SuspendLayout();
-            this.liberatedGb.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // saveBtn
-            // 
-            this.saveBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.saveBtn.Location = new System.Drawing.Point(376, 427);
-            this.saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.saveBtn.Name = "saveBtn";
-            this.saveBtn.Size = new System.Drawing.Size(88, 27);
-            this.saveBtn.TabIndex = 4;
-            this.saveBtn.Text = "Save";
-            this.saveBtn.UseVisualStyleBackColor = true;
-            this.saveBtn.Click += new System.EventHandler(this.saveBtn_Click);
-            // 
-            // newTagsTb
-            // 
-            this.newTagsTb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.newTagsTb.Location = new System.Drawing.Point(7, 40);
-            this.newTagsTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.newTagsTb.Name = "newTagsTb";
-            this.newTagsTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.newTagsTb.Size = new System.Drawing.Size(556, 23);
-            this.newTagsTb.TabIndex = 1;
-            // 
-            // tagsDescLbl
-            // 
-            this.tagsDescLbl.AutoSize = true;
-            this.tagsDescLbl.Location = new System.Drawing.Point(7, 19);
-            this.tagsDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.tagsDescLbl.Name = "tagsDescLbl";
-            this.tagsDescLbl.Size = new System.Drawing.Size(458, 15);
-            this.tagsDescLbl.TabIndex = 0;
-            this.tagsDescLbl.Text = "Tags are separated by a space. Each tag can contain letters, numbers, and undersc" +
-    "ores";
-            // 
-            // coverPb
-            // 
-            this.coverPb.Location = new System.Drawing.Point(12, 12);
-            this.coverPb.Name = "coverPb";
-            this.coverPb.Size = new System.Drawing.Size(80, 80);
-            this.coverPb.TabIndex = 3;
-            this.coverPb.TabStop = false;
-            // 
-            // detailsTb
-            // 
-            this.detailsTb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.detailsTb.Location = new System.Drawing.Point(98, 12);
-            this.detailsTb.Multiline = true;
-            this.detailsTb.Name = "detailsTb";
-            this.detailsTb.ReadOnly = true;
-            this.detailsTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.detailsTb.Size = new System.Drawing.Size(484, 202);
-            this.detailsTb.TabIndex = 3;
-            // 
-            // tagsGb
-            // 
-            this.tagsGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tagsGb.Controls.Add(this.tagsDescLbl);
-            this.tagsGb.Controls.Add(this.newTagsTb);
-            this.tagsGb.Location = new System.Drawing.Point(12, 220);
-            this.tagsGb.Name = "tagsGb";
-            this.tagsGb.Size = new System.Drawing.Size(570, 73);
-            this.tagsGb.TabIndex = 0;
-            this.tagsGb.TabStop = false;
-            this.tagsGb.Text = "Edit Tags";
-            // 
-            // cancelBtn
-            // 
-            this.cancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cancelBtn.Location = new System.Drawing.Point(494, 427);
-            this.cancelBtn.Name = "cancelBtn";
-            this.cancelBtn.Size = new System.Drawing.Size(88, 27);
-            this.cancelBtn.TabIndex = 5;
-            this.cancelBtn.Text = "Cancel";
-            this.cancelBtn.UseVisualStyleBackColor = true;
-            this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
-            // 
-            // liberatedGb
-            // 
-            this.liberatedGb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.liberatedGb.Controls.Add(this.pdfLiberatedCb);
-            this.liberatedGb.Controls.Add(this.pdfLiberatedLbl);
-            this.liberatedGb.Controls.Add(this.bookLiberatedCb);
-            this.liberatedGb.Controls.Add(this.bookLiberatedLbl);
-            this.liberatedGb.Controls.Add(this.liberatedDescLbl);
-            this.liberatedGb.Location = new System.Drawing.Point(12, 299);
-            this.liberatedGb.Name = "liberatedGb";
-            this.liberatedGb.Size = new System.Drawing.Size(570, 122);
-            this.liberatedGb.TabIndex = 1;
-            this.liberatedGb.TabStop = false;
-            this.liberatedGb.Text = "Liberated status: Whether the book/pdf has been downloaded";
-            // 
-            // pdfLiberatedCb
-            // 
-            this.pdfLiberatedCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.pdfLiberatedCb.FormattingEnabled = true;
-            this.pdfLiberatedCb.Location = new System.Drawing.Point(244, 86);
-            this.pdfLiberatedCb.Name = "pdfLiberatedCb";
-            this.pdfLiberatedCb.Size = new System.Drawing.Size(121, 23);
-            this.pdfLiberatedCb.TabIndex = 4;
-            // 
-            // pdfLiberatedLbl
-            // 
-            this.pdfLiberatedLbl.AutoSize = true;
-            this.pdfLiberatedLbl.Location = new System.Drawing.Point(210, 89);
-            this.pdfLiberatedLbl.Name = "pdfLiberatedLbl";
-            this.pdfLiberatedLbl.Size = new System.Drawing.Size(28, 15);
-            this.pdfLiberatedLbl.TabIndex = 3;
-            this.pdfLiberatedLbl.Text = "PDF";
-            // 
-            // bookLiberatedCb
-            // 
-            this.bookLiberatedCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.bookLiberatedCb.FormattingEnabled = true;
-            this.bookLiberatedCb.Location = new System.Drawing.Point(47, 86);
-            this.bookLiberatedCb.Name = "bookLiberatedCb";
-            this.bookLiberatedCb.Size = new System.Drawing.Size(121, 23);
-            this.bookLiberatedCb.TabIndex = 2;
-            // 
-            // bookLiberatedLbl
-            // 
-            this.bookLiberatedLbl.AutoSize = true;
-            this.bookLiberatedLbl.Location = new System.Drawing.Point(7, 89);
-            this.bookLiberatedLbl.Name = "bookLiberatedLbl";
-            this.bookLiberatedLbl.Size = new System.Drawing.Size(34, 15);
-            this.bookLiberatedLbl.TabIndex = 1;
-            this.bookLiberatedLbl.Text = "Book";
-            // 
-            // liberatedDescLbl
-            // 
-            this.liberatedDescLbl.AutoSize = true;
-            this.liberatedDescLbl.Location = new System.Drawing.Point(20, 31);
-            this.liberatedDescLbl.Name = "liberatedDescLbl";
-            this.liberatedDescLbl.Size = new System.Drawing.Size(312, 30);
-            this.liberatedDescLbl.TabIndex = 0;
-            this.liberatedDescLbl.Text = "To download again next time: change to Not Downloaded\r\nTo not download: change to" +
-    " Downloaded";
-            // 
-            // audibleLink
-            // 
-            this.audibleLink.AutoSize = true;
-            this.audibleLink.Location = new System.Drawing.Point(12, 169);
-            this.audibleLink.Name = "audibleLink";
-            this.audibleLink.Size = new System.Drawing.Size(57, 45);
-            this.audibleLink.TabIndex = 2;
-            this.audibleLink.TabStop = true;
-            this.audibleLink.Text = "Open in\r\nAudible\r\n(browser)";
-            this.audibleLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.audibleLink_LinkClicked);
-            // 
-            // BookDetailsDialog
-            // 
-            this.AcceptButton = this.saveBtn;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.CancelButton = this.cancelBtn;
-            this.ClientSize = new System.Drawing.Size(594, 466);
-            this.Controls.Add(this.audibleLink);
-            this.Controls.Add(this.liberatedGb);
-            this.Controls.Add(this.cancelBtn);
-            this.Controls.Add(this.tagsGb);
-            this.Controls.Add(this.detailsTb);
-            this.Controls.Add(this.coverPb);
-            this.Controls.Add(this.saveBtn);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "BookDetailsDialog";
-            this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Book Details";
-            ((System.ComponentModel.ISupportInitialize)(this.coverPb)).EndInit();
-            this.tagsGb.ResumeLayout(false);
-            this.tagsGb.PerformLayout();
-            this.liberatedGb.ResumeLayout(false);
-            this.liberatedGb.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
+			saveBtn = new System.Windows.Forms.Button();
+			newTagsTb = new System.Windows.Forms.TextBox();
+			tagsDescLbl = new System.Windows.Forms.Label();
+			coverPb = new System.Windows.Forms.PictureBox();
+			detailsTb = new System.Windows.Forms.TextBox();
+			tagsGb = new System.Windows.Forms.GroupBox();
+			cancelBtn = new System.Windows.Forms.Button();
+			liberatedGb = new System.Windows.Forms.GroupBox();
+			pdfLiberatedCb = new System.Windows.Forms.ComboBox();
+			pdfLiberatedLbl = new System.Windows.Forms.Label();
+			bookLiberatedCb = new System.Windows.Forms.ComboBox();
+			bookLiberatedLbl = new System.Windows.Forms.Label();
+			liberatedDescLbl = new System.Windows.Forms.Label();
+			audibleLink = new System.Windows.Forms.LinkLabel();
+			dolbyAtmosPb = new System.Windows.Forms.PictureBox();
+			((System.ComponentModel.ISupportInitialize)coverPb).BeginInit();
+			tagsGb.SuspendLayout();
+			liberatedGb.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)dolbyAtmosPb).BeginInit();
+			SuspendLayout();
+			// 
+			// saveBtn
+			// 
+			saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+			saveBtn.Location = new System.Drawing.Point(376, 427);
+			saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			saveBtn.Name = "saveBtn";
+			saveBtn.Size = new System.Drawing.Size(88, 27);
+			saveBtn.TabIndex = 4;
+			saveBtn.Text = "Save";
+			saveBtn.UseVisualStyleBackColor = true;
+			saveBtn.Click += saveBtn_Click;
+			// 
+			// newTagsTb
+			// 
+			newTagsTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			newTagsTb.Location = new System.Drawing.Point(7, 40);
+			newTagsTb.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			newTagsTb.Name = "newTagsTb";
+			newTagsTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			newTagsTb.Size = new System.Drawing.Size(556, 23);
+			newTagsTb.TabIndex = 1;
+			// 
+			// tagsDescLbl
+			// 
+			tagsDescLbl.AutoSize = true;
+			tagsDescLbl.Location = new System.Drawing.Point(7, 19);
+			tagsDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			tagsDescLbl.Name = "tagsDescLbl";
+			tagsDescLbl.Size = new System.Drawing.Size(459, 15);
+			tagsDescLbl.TabIndex = 0;
+			tagsDescLbl.Text = "Tags are separated by a space. Each tag can contain letters, numbers, and underscores";
+			// 
+			// coverPb
+			// 
+			coverPb.Location = new System.Drawing.Point(12, 12);
+			coverPb.Name = "coverPb";
+			coverPb.Size = new System.Drawing.Size(80, 80);
+			coverPb.TabIndex = 3;
+			coverPb.TabStop = false;
+			// 
+			// detailsTb
+			// 
+			detailsTb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			detailsTb.Location = new System.Drawing.Point(98, 12);
+			detailsTb.Multiline = true;
+			detailsTb.Name = "detailsTb";
+			detailsTb.ReadOnly = true;
+			detailsTb.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			detailsTb.Size = new System.Drawing.Size(484, 202);
+			detailsTb.TabIndex = 3;
+			// 
+			// tagsGb
+			// 
+			tagsGb.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			tagsGb.Controls.Add(tagsDescLbl);
+			tagsGb.Controls.Add(newTagsTb);
+			tagsGb.Location = new System.Drawing.Point(12, 220);
+			tagsGb.Name = "tagsGb";
+			tagsGb.Size = new System.Drawing.Size(570, 73);
+			tagsGb.TabIndex = 0;
+			tagsGb.TabStop = false;
+			tagsGb.Text = "Edit Tags";
+			// 
+			// cancelBtn
+			// 
+			cancelBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+			cancelBtn.Location = new System.Drawing.Point(494, 427);
+			cancelBtn.Name = "cancelBtn";
+			cancelBtn.Size = new System.Drawing.Size(88, 27);
+			cancelBtn.TabIndex = 5;
+			cancelBtn.Text = "Cancel";
+			cancelBtn.UseVisualStyleBackColor = true;
+			cancelBtn.Click += cancelBtn_Click;
+			// 
+			// liberatedGb
+			// 
+			liberatedGb.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			liberatedGb.Controls.Add(pdfLiberatedCb);
+			liberatedGb.Controls.Add(pdfLiberatedLbl);
+			liberatedGb.Controls.Add(bookLiberatedCb);
+			liberatedGb.Controls.Add(bookLiberatedLbl);
+			liberatedGb.Controls.Add(liberatedDescLbl);
+			liberatedGb.Location = new System.Drawing.Point(12, 299);
+			liberatedGb.Name = "liberatedGb";
+			liberatedGb.Size = new System.Drawing.Size(570, 122);
+			liberatedGb.TabIndex = 1;
+			liberatedGb.TabStop = false;
+			liberatedGb.Text = "Liberated status: Whether the book/pdf has been downloaded";
+			// 
+			// pdfLiberatedCb
+			// 
+			pdfLiberatedCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			pdfLiberatedCb.FormattingEnabled = true;
+			pdfLiberatedCb.Location = new System.Drawing.Point(244, 86);
+			pdfLiberatedCb.Name = "pdfLiberatedCb";
+			pdfLiberatedCb.Size = new System.Drawing.Size(121, 23);
+			pdfLiberatedCb.TabIndex = 4;
+			// 
+			// pdfLiberatedLbl
+			// 
+			pdfLiberatedLbl.AutoSize = true;
+			pdfLiberatedLbl.Location = new System.Drawing.Point(210, 89);
+			pdfLiberatedLbl.Name = "pdfLiberatedLbl";
+			pdfLiberatedLbl.Size = new System.Drawing.Size(28, 15);
+			pdfLiberatedLbl.TabIndex = 3;
+			pdfLiberatedLbl.Text = "PDF";
+			// 
+			// bookLiberatedCb
+			// 
+			bookLiberatedCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			bookLiberatedCb.FormattingEnabled = true;
+			bookLiberatedCb.Location = new System.Drawing.Point(47, 86);
+			bookLiberatedCb.Name = "bookLiberatedCb";
+			bookLiberatedCb.Size = new System.Drawing.Size(121, 23);
+			bookLiberatedCb.TabIndex = 2;
+			// 
+			// bookLiberatedLbl
+			// 
+			bookLiberatedLbl.AutoSize = true;
+			bookLiberatedLbl.Location = new System.Drawing.Point(7, 89);
+			bookLiberatedLbl.Name = "bookLiberatedLbl";
+			bookLiberatedLbl.Size = new System.Drawing.Size(34, 15);
+			bookLiberatedLbl.TabIndex = 1;
+			bookLiberatedLbl.Text = "Book";
+			// 
+			// liberatedDescLbl
+			// 
+			liberatedDescLbl.AutoSize = true;
+			liberatedDescLbl.Location = new System.Drawing.Point(20, 31);
+			liberatedDescLbl.Name = "liberatedDescLbl";
+			liberatedDescLbl.Size = new System.Drawing.Size(312, 30);
+			liberatedDescLbl.TabIndex = 0;
+			liberatedDescLbl.Text = "To download again next time: change to Not Downloaded\r\nTo not download: change to Downloaded";
+			// 
+			// audibleLink
+			// 
+			audibleLink.Location = new System.Drawing.Point(12, 169);
+			audibleLink.Name = "audibleLink";
+			audibleLink.Size = new System.Drawing.Size(80, 45);
+			audibleLink.TabIndex = 2;
+			audibleLink.TabStop = true;
+			audibleLink.Text = "Open in\r\nAudible\r\n(browser)";
+			audibleLink.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+			audibleLink.LinkClicked += audibleLink_LinkClicked;
+			// 
+			// dolbyAtmosPb
+			// 
+			dolbyAtmosPb.Image = Properties.Resources.Dolby_Atmos_Vertical_80;
+			dolbyAtmosPb.Location = new System.Drawing.Point(12, 112);
+			dolbyAtmosPb.Name = "dolbyAtmosPb";
+			dolbyAtmosPb.Size = new System.Drawing.Size(80, 36);
+			dolbyAtmosPb.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+			dolbyAtmosPb.TabIndex = 6;
+			dolbyAtmosPb.TabStop = false;
+			// 
+			// BookDetailsDialog
+			// 
+			AcceptButton = saveBtn;
+			AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			CancelButton = cancelBtn;
+			ClientSize = new System.Drawing.Size(594, 466);
+			Controls.Add(dolbyAtmosPb);
+			Controls.Add(audibleLink);
+			Controls.Add(liberatedGb);
+			Controls.Add(cancelBtn);
+			Controls.Add(tagsGb);
+			Controls.Add(detailsTb);
+			Controls.Add(coverPb);
+			Controls.Add(saveBtn);
+			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			MaximizeBox = false;
+			MinimizeBox = false;
+			Name = "BookDetailsDialog";
+			ShowInTaskbar = false;
+			StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+			Text = "Book Details";
+			((System.ComponentModel.ISupportInitialize)coverPb).EndInit();
+			tagsGb.ResumeLayout(false);
+			tagsGb.PerformLayout();
+			liberatedGb.ResumeLayout(false);
+			liberatedGb.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)dolbyAtmosPb).EndInit();
+			ResumeLayout(false);
+			PerformLayout();
 
-        }
+		}
 
-        #endregion
-        private System.Windows.Forms.Button saveBtn;
+		#endregion
+		private System.Windows.Forms.Button saveBtn;
         private System.Windows.Forms.TextBox newTagsTb;
         private System.Windows.Forms.Label tagsDescLbl;
 		private System.Windows.Forms.PictureBox coverPb;
@@ -246,5 +253,6 @@
 		private System.Windows.Forms.Label bookLiberatedLbl;
 		private System.Windows.Forms.Label liberatedDescLbl;
         private System.Windows.Forms.LinkLabel audibleLink;
-    }
+		private System.Windows.Forms.PictureBox dolbyAtmosPb;
+	}
 }

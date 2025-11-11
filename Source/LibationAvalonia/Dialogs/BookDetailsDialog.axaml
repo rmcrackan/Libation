@@ -7,6 +7,9 @@
 		Width="650" Height="500"
         x:Class="LibationAvalonia.Dialogs.BookDetailsDialog"
 		xmlns:controls="clr-namespace:LibationAvalonia.Controls"
+		xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+		x:DataType="dialogs:BookDetailsDialog+BookDetailsDialogViewModel"
+		x:CompileBindings="True"
         Title="Book Details" Name="BookDetails">
 
 	<Grid RowDefinitions="*,Auto,Auto,40">
@@ -16,27 +19,32 @@
 				<Setter Property="BorderThickness" Value="2" />
 			</Style>
 		</Grid.Styles>
-		<Grid ColumnDefinitions="Auto,*" RowDefinitions="*,Auto" Margin="10,10,10,0">
-			<Panel VerticalAlignment="Top" Margin="5" Background="LightGray" Width="80" Height="80" >
-				<Image Grid.Column="0" Width="80" Height="80" Source="{Binding Cover}" />
-			</Panel>
+		<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*,Auto" Margin="10">
+			<Image Source="{Binding Cover}" />
 
-			<Panel Grid.Column="0" Grid.Row="1">
+			<Path
+				Grid.Row="1"
+				VerticalAlignment="Center"
+				Stretch="Uniform"
+				Width="80"
+				Fill="{DynamicResource IconFill}"
+				IsVisible="{Binding IsSpatial}"
+				Data="{StaticResource DolbyAtmosLogoVertical}" />
 
-				<controls:LinkLabel
-					Margin="10"
-					TextWrapping="Wrap"
-					TextAlignment="Center"
-					Tapped="GoToAudible_Tapped"
-					Text="Open in&#xa;Audible&#xa;(Browser)" />
-			</Panel>
+			<controls:LinkLabel
+				Grid.Row="2"
+				HorizontalAlignment="Center"
+				TextAlignment="Center"
+				VerticalAlignment="Bottom"
+				TextWrapping="Wrap"
+				Command="{Binding OpenInAudibleCommand}"
+				Text="Open in &#xa;Audible&#xa;(Browser)" />
 			
 			<TextBox
 				Grid.Column="1"
-				Grid.Row="0"
-				Grid.RowSpan="2"
+				Grid.RowSpan="3"
+				Margin="10,0,0,0"
 				TextWrapping="Wrap"
-				Margin="5"
 				FontSize="12"
 				Text="{Binding DetailsText}" />
 		</Grid>
@@ -91,6 +99,7 @@
 						MinHeight="25"
 						Height="25"
 						VerticalAlignment="Center"
+						SelectionChanged="BookStatus_SelectionChanged"
 						SelectedItem="{Binding BookLiberatedSelectedItem, Mode=TwoWay}"
 						ItemsSource="{Binding BookLiberatedItems}">
 						
