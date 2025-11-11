@@ -57,6 +57,7 @@
 			VerticalAlignment="Stretch"
 			HorizontalAlignment="Right"
 			Content="Save"
+			Name="SaveButton"
 			Click="SaveButton_Clicked" />
 	</Grid>
 </Window>

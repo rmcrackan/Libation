@@ -13,12 +13,6 @@
         Title="Book Details" Name="BookDetails">
 
 	<Grid RowDefinitions="*,Auto,Auto,40">
-		<Grid.Styles>
-			<Style Selector="Button:focus">
-				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
-				<Setter Property="BorderThickness" Value="2" />
-			</Style>
-		</Grid.Styles>
 		<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*,Auto" Margin="10">
 			<Image Source="{Binding Cover}" />
 

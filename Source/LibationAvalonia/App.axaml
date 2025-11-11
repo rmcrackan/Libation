@@ -97,7 +97,11 @@
 					<ContentPresenter Background="{DynamicResource SystemRegionColor}" Content="{TemplateBinding Content}" />
 				</ControlTemplate>
 			</Setter>
-		</Style>		
+			<Style Selector="^ Button:focus">
+				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderThickness" Value="2" />
+			</Style>
+		</Style>
 	</Application.Styles>
 
 	<NativeMenu.Menu>

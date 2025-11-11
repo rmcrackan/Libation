@@ -7,14 +7,6 @@
         x:Class="LibationAvalonia.Dialogs.AccountsDialog"
         Title="Audible Accounts">
 	<Grid RowDefinitions="*,Auto">
-
-		<Grid.Styles>
-			<Style Selector="Button:focus">
-				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
-				<Setter Property="BorderThickness" Value="2" />
-			</Style>
-		</Grid.Styles>
-
 		<DataGrid
 			Grid.Row="0"
 			CanUserReorderColumns="False"

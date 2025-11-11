@@ -38,6 +38,7 @@
 		<Button
 			Grid.Row="1"
 			Padding="30,5"
+			Name="SaveButton"
 			HorizontalAlignment="Right"
 			Content="Save"
 			Command="{Binding SaveAndClose}"/>
