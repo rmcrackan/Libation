@@ -16,6 +16,9 @@ on:
         required: false
         default: true
 
+env:
+  DOTNET_VERSION: "9.x"
+
 jobs:
   windows:
     strategy:
@@ -23,6 +26,7 @@ jobs:
         architecture: [x64]
     uses: ./.github/workflows/build-windows.yml
     with:
+      dotnet_version: ${{ env.DOTNET_VERSION }}
       version_override: ${{ inputs.version_override }}
       run_unit_tests: ${{ inputs.run_unit_tests }}
       architecture: ${{ matrix.architecture }}
@@ -34,20 +38,10 @@ jobs:
         architecture: [x64, arm64]
     uses: ./.github/workflows/build-linux.yml
     with:
+      dotnet_version: ${{ env.DOTNET_VERSION }}
       version_override: ${{ inputs.version_override }}
       runs_on: ubuntu-latest
       OS: ${{ matrix.OS }}
       architecture: ${{ matrix.architecture }}
       run_unit_tests: ${{ inputs.run_unit_tests }}
 
-  macos:
-    strategy:
-      matrix:
-        architecture: [x64, arm64]
-    uses: ./.github/workflows/build-linux.yml
-    with:
-      version_override: ${{ inputs.version_override }}
-      runs_on: macos-latest
-      OS: MacOS
-      architecture: ${{ matrix.architecture }}
-      run_unit_tests: ${{ inputs.run_unit_tests }}

@@ -19,26 +19,27 @@ on:
         type: string
         description: "CPU architecture targeted by the build."
         required: true
+      dotnet_version:
+        type: string
+        description: ".NET version to target"
+        required: true
 
 env:
   DOTNET_CONFIGURATION: "Release"
-  DOTNET_VERSION: "9.0.x"
 
 jobs:
   build:
-    name: "${{ matrix.os }}-${{ matrix.release_name }}-${{ inputs.architecture }}"
+    name: "Windows-${{ matrix.release_name }}-${{ inputs.architecture }}"
     runs-on: windows-latest
     env:
-      OUTPUT_NAME: "${{ matrix.os }}-${{ matrix.release_name }}-${{ inputs.architecture }}"
+      OUTPUT_NAME: "Windows-${{ matrix.release_name }}-${{ inputs.architecture }}"
       RUNTIME_ID: "win-${{ inputs.architecture }}"
     strategy:
       matrix:
-        os: [Windows]
         ui: [Avalonia]
         release_name: [chardonnay]
         include:
-          - os: Windows
-            ui: WinForms
+          - ui: WinForms
             release_name: classic
             prefix: Classic-
     steps:
@@ -46,10 +47,8 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          dotnet-version: ${{ inputs.dotnet_version }}
+          
       - name: Get version
         id: get_version
         run: |
@@ -68,31 +67,17 @@ jobs:
       - name: Publish
         working-directory: ./Source
         run: |
-          dotnet publish `
-              Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj `
-              --runtime ${{ env.RUNTIME_ID }} `
-              --configuration ${{ env.DOTNET_CONFIGURATION }} `
-              --output bin/Publish/${{ env.OUTPUT_NAME }} `
-              -p:PublishProfile=Libation${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          dotnet publish `
-              LoadByOS/${{ matrix.os }}ConfigApp/${{ matrix.os }}ConfigApp.csproj `
-              --runtime ${{ env.RUNTIME_ID }} `
-              --configuration ${{ env.DOTNET_CONFIGURATION }} `
-              --output bin/Publish/${{ env.OUTPUT_NAME }} `
-              -p:PublishProfile=LoadByOS/${{ matrix.os }}ConfigApp/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          dotnet publish `
-              LibationCli/LibationCli.csproj `
-              --runtime ${{ env.RUNTIME_ID }} `
-              --configuration ${{ env.DOTNET_CONFIGURATION }} `
-              --output bin/Publish/${{ env.OUTPUT_NAME }} `
-              -p:DefineConstants="${{ matrix.release_name }}" `
-              -p:PublishProfile=LibationCli/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          dotnet publish `
-              Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj `
-              --runtime ${{ env.RUNTIME_ID }} `
-              --configuration ${{ env.DOTNET_CONFIGURATION }} `
-              --output bin/Publish/${{ env.OUTPUT_NAME }} `
-              -p:PublishProfile=Hangover${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+          $PUBLISH_ARGS=@(
+            "--runtime", ${{ env.RUNTIME_ID }},
+            "--configuration", ${{ env.DOTNET_CONFIGURATION }},
+            "--output", "./bin/Publish/${{ env.OUTPUT_NAME }}",
+            "-p:PublishProtocol=FileSystem",
+            "-p:SelfContained=true")
+
+          dotnet publish  @("publish", "Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj") + $PUBLISH_ARGS
+          #dotnet publish  @("publish", "LoadByOS/WindowsConfigApp/WindowsConfigApp.csproj") + $PUBLISH_ARGS
+          #dotnet publish  @("publish", "LibationCli/LibationCli.csproj") + $PUBLISH_ARGS
+          #dotnet publish  @("publish", "Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj") + $PUBLISH_ARGS
 
       - name: Zip artifact
         id: zip
@@ -105,7 +90,7 @@ jobs:
             "WindowsConfigApp.deps.json"
             )
           foreach ($file in $delfiles){ if (test-path $bin_dir$file){ Remove-Item $bin_dir$file } }
-          $artifact="${{ matrix.prefix }}Libation.${{ steps.get_version.outputs.version }}-" + "${{ matrix.os }}".ToLower() + "-${{ matrix.release_name }}-${{ inputs.architecture }}"
+          $artifact="${{ matrix.prefix }}Libation.${{ steps.get_version.outputs.version }}-windows-${{ matrix.release_name }}-${{ inputs.architecture }}"
           "artifact=$artifact" >> $env:GITHUB_OUTPUT
           Compress-Archive -Path "${bin_dir}*" -DestinationPath "$artifact.zip"
 

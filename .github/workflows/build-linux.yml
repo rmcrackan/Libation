@@ -30,24 +30,28 @@ on:
         type: string
         description: "CPU architecture targeted by the build."
         required: true
+      dotnet_version:
+        type: string
+        description: ".NET version to target"
+        required: true
 
 env:
   DOTNET_CONFIGURATION: "Release"
-  DOTNET_VERSION: "9.0.x"
   RELEASE_NAME: "chardonnay"
 
 jobs:
   build:
     name: "${{ inputs.OS }}-${{ inputs.architecture }}"
     runs-on: ${{ inputs.runs_on }}
+    env:
+      OUTPUT_NAME: "Linux-${{ inputs.architecture }}-${{ env.RELEASE_NAME }}"
+      RUNTIME_ID: "linux-${{ inputs.architecture }}"
     steps:
       - uses: actions/checkout@v5
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          dotnet-version: ${{ inputs.dotnet_version }}
 
       - name: Get version
         id: get_version
@@ -70,49 +74,16 @@ jobs:
         id: publish
         working-directory: ./Source
         run: |
-          if [[ "${{ inputs.OS }}" == "MacOS" ]]
-          then
-            display_os="macOS"
-            RUNTIME_ID="osx-${{ inputs.architecture }}"
-          else
-            display_os="Linux"
-            RUNTIME_ID="linux-${{ inputs.architecture }}"
-          fi
+          PUBLISH_ARGS="--runtime ${{ env.RUNTIME_ID }} --configuration ${{ env.DOTNET_CONFIGURATION }} --output ./bin/Publish/${{ env.OUTPUT_NAME }} -p:PublishProtocol=FileSystem -p:SelfContained=true"
 
-          OUTPUT="bin/Publish/${display_os}-${{ inputs.architecture }}-${{ env.RELEASE_NAME }}"
-
-          echo "display_os=${display_os}" >> $GITHUB_OUTPUT
-          echo "Runtime Identifier: $RUNTIME_ID"
-          echo "Output Directory: $OUTPUT"
-
-          dotnet publish \
-              LibationAvalonia/LibationAvalonia.csproj \
-              --runtime $RUNTIME_ID \
-              --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output $OUTPUT \
-              -p:PublishProfile=LibationAvalonia/Properties/PublishProfiles/${display_os}Profile.pubxml
-          dotnet publish \
-              LoadByOS/${display_os}ConfigApp/${display_os}ConfigApp.csproj \
-              --runtime $RUNTIME_ID \
-              --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output $OUTPUT \
-              -p:PublishProfile=LoadByOS/Properties/${display_os}ConfigApp/PublishProfiles/${display_os}Profile.pubxml
-          dotnet publish \
-              LibationCli/LibationCli.csproj \
-              --runtime $RUNTIME_ID \
-              --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output $OUTPUT \
-              -p:PublishProfile=LibationCli/Properties/PublishProfiles/${display_os}Profile.pubxml
-          dotnet publish \
-              HangoverAvalonia/HangoverAvalonia.csproj \
-              --runtime $RUNTIME_ID \
-              --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output $OUTPUT \
-              -p:PublishProfile=HangoverAvalonia/Properties/PublishProfiles/${display_os}Profile.pubxml
+          dotnet publish LibationAvalonia/LibationAvalonia.csproj $PUBLISH_ARGS
+          #dotnet publish LoadByOS/LinuxConfigApp/LinuxConfigApp.csproj $PUBLISH_ARGS
+          #dotnet publish LibationCli/LibationCli.csproj $PUBLISH_ARGS
+          #dotnet publish HangoverAvalonia/HangoverAvalonia.csproj $PUBLISH_ARGS
 
       - name: Build bundle
         id: bundle
-        working-directory: ./Source/bin/Publish/${{ steps.publish.outputs.display_os }}-${{ inputs.architecture }}-${{ env.RELEASE_NAME }}
+        working-directory: ./Source/bin/Publish/${{ env.OUTPUT_NAME }}
         run: |
           BUNDLE_DIR=$(pwd)
           echo "Bundle dir: ${BUNDLE_DIR}"
