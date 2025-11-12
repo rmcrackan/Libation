@@ -37,14 +37,13 @@ on:
 
 env:
   DOTNET_CONFIGURATION: "Release"
-  RELEASE_NAME: "chardonnay"
 
 jobs:
   build:
     name: "${{ inputs.OS }}-${{ inputs.architecture }}"
     runs-on: ${{ inputs.runs_on }}
     env:
-      OUTPUT_NAME: "Linux-${{ inputs.architecture }}-${{ env.RELEASE_NAME }}"
+      OUTPUT_NAME: "Linux-${{ inputs.architecture }}-chardonnay"
       RUNTIME_ID: "linux-${{ inputs.architecture }}"
     steps:
       - uses: actions/checkout@v5
