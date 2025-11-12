@@ -16,7 +16,30 @@ on:
         required: false
         default: true
 
-jobs: 
+jobs:
+  windows:
+    strategy:
+      matrix:
+        architecture: [x64]
+    uses: ./.github/workflows/build-windows.yml
+    with:
+      version_override: ${{ inputs.version_override }}
+      run_unit_tests: ${{ inputs.run_unit_tests }}
+      architecture: ${{ matrix.architecture }}
+
+  linux:
+    strategy:
+      matrix:
+        OS: [Redhat, Debian]
+        architecture: [x64, arm64]
+    uses: ./.github/workflows/build-linux.yml
+    with:
+      version_override: ${{ inputs.version_override }}
+      runs_on: ubuntu-latest
+      OS: ${{ matrix.OS }}
+      architecture: ${{ matrix.architecture }}
+      run_unit_tests: ${{ inputs.run_unit_tests }}
+
   macos:
     strategy:
       matrix:
