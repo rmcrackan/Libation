@@ -14,10 +14,11 @@ on:
         type: boolean
         description: "Skip running unit tests"
         required: false
-        default: true
-
-env:
-  DOTNET_VERSION: "9.x"
+        default: true        
+      dotnet_version:
+        type: string
+        description: ".NET version to target"
+        default: "9.x"
 
 jobs:
   windows:
@@ -26,7 +27,7 @@ jobs:
         architecture: [x64]
     uses: ./.github/workflows/build-windows.yml
     with:
-      dotnet_version: ${{ env.DOTNET_VERSION }}
+      dotnet_version: ${{ inputs.dotnet_version }}
       version_override: ${{ inputs.version_override }}
       run_unit_tests: ${{ inputs.run_unit_tests }}
       architecture: ${{ matrix.architecture }}
@@ -38,7 +39,7 @@ jobs:
         architecture: [x64, arm64]
     uses: ./.github/workflows/build-linux.yml
     with:
-      dotnet_version: ${{ env.DOTNET_VERSION }}
+      dotnet_version: ${{ inputs.dotnet_version }}
       version_override: ${{ inputs.version_override }}
       runs_on: ubuntu-latest
       OS: ${{ matrix.OS }}
