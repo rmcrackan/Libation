@@ -8,7 +8,7 @@ on:
       - "v*"
 jobs:
   prerelease:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
@@ -31,9 +31,10 @@ jobs:
   build:
     needs: [prerelease]
     uses: ./.github/workflows/build.yml
+    secrets: inherit
     with:
-      version_override: ${{ needs.prerelease.outputs.version }}
-      run_unit_tests: false
+      libation-version: ${{ needs.prerelease.outputs.version }}
+      publish-r2r: true
 
   release:
     needs: [prerelease, build]

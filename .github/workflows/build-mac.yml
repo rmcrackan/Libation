@@ -1,5 +1,5 @@
-# build-linux.yml
-# Reusable workflow that builds the Linux and MacOS (x64 and arm64) versions of Libation.
+# build-mac.yml
+# Reusable workflow that builds the MacOS (x64 and arm64) versions of Libation.
 ---
 name: build
 
@@ -22,21 +22,24 @@ on:
         type: string
         description: "CPU architecture targeted by the build."
         required: true
-      OS:
-        type: string
-        description: >
-          The operating system targeted by the build.
-          
-          There must be a corresponding Bundle_$OS.sh script file in ./Scripts
-        required: true
+
+env:
+  WAIT_FOR_NOTARIZE: true
 
 jobs:
   build:
-    name: "${{ inputs.OS }}-${{ inputs.architecture }}"
-    runs-on: ubuntu-latest
+    name: "macOS-${{ inputs.architecture }}"
+    runs-on: macos-latest
     env:
-      RUNTIME_ID: "linux-${{ inputs.architecture }}"
-    steps:
+      RUNTIME_ID: "osx-${{ inputs.architecture }}"
+      CAN_SIGN: ${{ secrets.APPLE_TEAM_ID != '' && vars.APPLE_DEV_EMAIL != '' && secrets.APPLE_DEV_PASSWORD != '' }}
+    steps:    
+      - uses: apple-actions/import-codesign-certs@v3
+        if: ${{ env.CAN_SIGN == 'true' }}
+        with: 
+          p12-file-base64: ${{ secrets.DISTRIBUTION_SIGNING_CERT }}
+          p12-password: ${{ secrets.DISTRIBUTION_SIGNING_CERT_PW }}       
+          
       - uses: actions/checkout@v5
       
       - uses: actions/setup-dotnet@v5
@@ -60,20 +63,33 @@ jobs:
             '-p:PublishProtocol=FileSystem'
             "-p:PublishReadyToRun=${{ inputs.publish-r2r }}"
             '-p:SelfContained=true')
-            
+          
           dotnet publish LibationAvalonia/LibationAvalonia.csproj "${PUBLISH_ARGS[@]}"
-          dotnet publish LoadByOS/LinuxConfigApp/LinuxConfigApp.csproj "${PUBLISH_ARGS[@]}"
+          dotnet publish LoadByOS/MacOSConfigApp/MacOSConfigApp.csproj "${PUBLISH_ARGS[@]}"
           dotnet publish LibationCli/LibationCli.csproj "${PUBLISH_ARGS[@]}"
           dotnet publish HangoverAvalonia/HangoverAvalonia.csproj "${PUBLISH_ARGS[@]}"
 
       - name: Build bundle
         id: bundle
         run: |
-          SCRIPT=./Scripts/Bundle_${{ inputs.OS }}.sh
+          SCRIPT=./Scripts/Bundle_MacOS.sh
           chmod +rx ${SCRIPT}
-          ${SCRIPT} ./bin "${{ inputs.libation-version }}" "${{ inputs.architecture }}"
+          ${SCRIPT} ./bin "${{ inputs.libation-version }}" "${{ inputs.architecture }}" ${{ env.CAN_SIGN }}
           artifact=$(ls ./bundle)
           echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
+
+      - name: Notarize bundle
+        if: ${{ env.CAN_SIGN == 'true' }}
+        run: |          
+          if [ ${{ env.WAIT_FOR_NOTARIZE }} ]; then
+            WAIT="--wait"
+          fi
+          
+          xcrun notarytool submit ./bundle/${{ steps.bundle.outputs.artifact }} $WAIT --no-progress --apple-id ${{ vars.APPLE_DEV_EMAIL }} --password ${{ secrets.APPLE_DEV_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }}
+          
+          if [ ${{ env.WAIT_FOR_NOTARIZE }} ]; then
+            xcrun stapler staple "./bundle/${{ steps.bundle.outputs.artifact }}"
+          fi
 
       - uses: actions/upload-artifact@v5
         with:

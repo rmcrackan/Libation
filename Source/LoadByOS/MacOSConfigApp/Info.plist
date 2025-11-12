@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-
 <dict>
 	<key>CFBundleExecutable</key>
 	<string>Libation</string>
@@ -19,17 +18,5 @@
 	<string>libation.icns</string>
 	<key>CFBundleVersion</key>
 	<string>VERSION_STRING</string>
-	<key>com.apple.security.app-sandbox</key>
-	<false/>	
-	<key>com.apple.security.cs.allow-jit</key>
-	<true/>
-	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
-	<true/>
-	<key>com.apple.security.cs.disable-library-validation</key>
-	<true/>
-	<key>com.apple.security.cs.disable-executable-page-protection</key>
-	<true/>
-	<key>com.apple.security.automation.apple-events</key>
-	<true/>
 </dict>
 </plist>
