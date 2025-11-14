@@ -31,7 +31,7 @@ fi
 
 if [ "$SIGN_WITH_KEY" != "true" ]
 then
-  echo "[WARNING] App will fail Gatekeeper verification without valid Apple Team information."
+  echo "::warning:: App will fail Gatekeeper verification without valid Apple Team information."
 fi
 
 BUNDLE=./Libation.app
@@ -80,7 +80,6 @@ mv $BUNDLE_MACOS/background.png ./background.png
 
 echo "Moving background.png file..."
 mv $BUNDLE_MACOS/Libation.entitlements ./Libation.entitlements
-ENTITLEMENTS="./Libation.entitlements"
 
 PLIST_ARCH=$(echo $ARCH | sed 's/x64/x86_64/')
 echo "Set LSArchitecturePriority to $PLIST_ARCH"
@@ -103,7 +102,7 @@ identity=$(echo ${all_identities} | sed -n 's/.*"\(.*\)".*/\1/p')
 
 if [ "$SIGN_WITH_KEY" == "true" ]; then
   echo "Signing executables in: $BUNDLE"
-  codesign --force --deep --timestamp --options=runtime --entitlements "$ENTITLEMENTS" --sign "${identity}" "$BUNDLE"
+  codesign --force --deep --timestamp --options=runtime --entitlements "./Libation.entitlements" --sign "${identity}" "$BUNDLE"
   codesign --verify --verbose "$BUNDLE"
 else
   echo "Signing with empty key: $BUNDLE"
@@ -119,6 +118,11 @@ mv background.png Libation/.background/
 ln -s /Applications "./Libation/ "
 mkdir ./bundle
 hdiutil create -srcFolder ./Libation -o "./bundle/$DMG_FILE"
+# Create a .DS_Store by:
+#  - mounting an existing image in shadow mode (hdiutil attach Libation.dmg -shadow junk.dmg)
+#  - Open the folder and edit it to your liking.
+#  - Copy the .DS_Store from the directory and save it to Libation_DS_Store
+
 
 if [ "$SIGN_WITH_KEY" == "true" ]; then
   echo "Signing $DMG_FILE"

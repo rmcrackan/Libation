@@ -18,13 +18,13 @@ on:
         type: boolean
       retention-days:
         type: number
+      sign-app:
+        type: boolean
+        description: "Wheather to sign an notorize the app bundle and dmg."
       architecture:
         type: string
         description: "CPU architecture targeted by the build."
         required: true
-
-env:
-  WAIT_FOR_NOTARIZE: true
 
 jobs:
   build:
@@ -32,10 +32,10 @@ jobs:
     runs-on: macos-latest
     env:
       RUNTIME_ID: "osx-${{ inputs.architecture }}"
-      CAN_SIGN: ${{ secrets.APPLE_TEAM_ID != '' && vars.APPLE_DEV_EMAIL != '' && secrets.APPLE_DEV_PASSWORD != '' }}
+      WAIT_FOR_NOTARIZE: ${{ vars.WAIT_FOR_NOTARIZE == 'true' }}
     steps:    
       - uses: apple-actions/import-codesign-certs@v3
-        if: ${{ env.CAN_SIGN == 'true' }}
+        if: ${{ inputs.sign-app }}
         with: 
           p12-file-base64: ${{ secrets.DISTRIBUTION_SIGNING_CERT }}
           p12-password: ${{ secrets.DISTRIBUTION_SIGNING_CERT_PW }}       
@@ -74,20 +74,25 @@ jobs:
         run: |
           SCRIPT=./Scripts/Bundle_MacOS.sh
           chmod +rx ${SCRIPT}
-          ${SCRIPT} ./bin "${{ inputs.libation-version }}" "${{ inputs.architecture }}" ${{ env.CAN_SIGN }}
+          ${SCRIPT} ./bin "${{ inputs.libation-version }}" "${{ inputs.architecture }}" "${{ inputs.sign-app }}"
           artifact=$(ls ./bundle)
           echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
 
       - name: Notarize bundle
-        if: ${{ env.CAN_SIGN == 'true' }}
+        if: ${{ inputs.sign-app }}
         run: |          
-          if [ ${{ env.WAIT_FOR_NOTARIZE }} ]; then
+          if [ ${{ vars.WAIT_FOR_NOTARIZE == 'true' }} ]; then
             WAIT="--wait"
           fi
+          echo "::debug::Submitting the disk image for notarization"
+          RESPONSE=$(xcrun notarytool submit ./bundle/${{ steps.bundle.outputs.artifact }} $WAIT --no-progress --apple-id ${{ vars.APPLE_DEV_EMAIL }} --password ${{ secrets.APPLE_DEV_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }} 2>&1)
+          SUBMISSION_ID=$(echo "$RESPONSE" | awk '/id: / { print $2;exit; }')
           
-          xcrun notarytool submit ./bundle/${{ steps.bundle.outputs.artifact }} $WAIT --no-progress --apple-id ${{ vars.APPLE_DEV_EMAIL }} --password ${{ secrets.APPLE_DEV_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }}
+          echo "$RESPONSE"
+          echo "::notice::Noraty Submission Id: $SUBMISSION_ID"
           
-          if [ ${{ env.WAIT_FOR_NOTARIZE }} ]; then
+          if [ ${{ vars.WAIT_FOR_NOTARIZE == 'true' }} ]; then
+            echo "::debug::Stapling the notarization ticket to the disk image"
             xcrun stapler staple "./bundle/${{ steps.bundle.outputs.artifact }}"
           fi
 
