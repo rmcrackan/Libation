@@ -14,8 +14,7 @@
 			RowDefinitions="*,Auto,Auto">
 			<Grid.Styles>
 				<Style Selector="Button">
-					<Setter Property="Height" Value="30" />
-					<Setter Property="Padding" Value="20,0" />
+					<Setter Property="Padding" Value="20,6" />
 					<Setter Property="Margin" Value="5" />
 				</Style>
 			</Grid.Styles>

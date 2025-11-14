@@ -6,63 +6,46 @@ name: build
 on:
   workflow_call:
     inputs:
-      version_override:
+      libation-version:
         type: string
-        description: "Version number override"
-        required: false
-      run_unit_tests:
+        required: true
+      dotnet-version:
+        type: string
+        required: true
+      run-unit-tests:
         type: boolean
-        description: "Skip running unit tests"
-        required: false
-        default: true
-      runs_on:
+      publish-r2r:
+        type: boolean
+      retention-days:
+        type: number
+      architecture:
         type: string
-        description: "The GitHub hosted runner to use"
+        description: "CPU architecture targeted by the build."
         required: true
       OS:
         type: string
         description: >
           The operating system targeted by the build.
-
+          
           There must be a corresponding Bundle_$OS.sh script file in ./Scripts
         required: true
-      architecture:
-        type: string
-        description: "CPU architecture targeted by the build."
-        required: true
-
-env:
-  DOTNET_CONFIGURATION: "Release"
-  DOTNET_VERSION: "9.0.x"
-  RELEASE_NAME: "chardonnay"
 
 jobs:
   build:
     name: "${{ inputs.OS }}-${{ inputs.architecture }}"
-    runs-on: ${{ inputs.runs_on }}
+    runs-on: ubuntu-latest
+    env:
+      RUNTIME_ID: "linux-${{ inputs.architecture }}"
     steps:
       - uses: actions/checkout@v5
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+      
+      - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get version
-        id: get_version
-        run: |
-          inputVersion="${{ inputs.version_override }}"
-          if [[ "${#inputVersion}" -gt 0 ]]
-          then
-            version="${inputVersion}"
-          else
-            version="$(grep -Eio -m 1 '<Version>.*</Version>' ./Source/AppScaffolding/AppScaffolding.csproj | sed -r 's/<\/?Version>//g')"
-          fi
-          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          dotnet-version: ${{ inputs.dotnet-version }}
+          dotnet-quality: "ga"
 
       - name: Unit test
-        if: ${{ inputs.run_unit_tests }}
+        if: ${{ inputs.run-unit-tests }}
         working-directory: ./Source
         run: dotnet test
 
@@ -70,63 +53,31 @@ jobs:
         id: publish
         working-directory: ./Source
         run: |
-          if [[ "${{ inputs.OS }}" == "MacOS" ]]
-          then
-            display_os="macOS"
-            RUNTIME_ID="osx-${{ inputs.architecture }}"
-          else
-            display_os="Linux"
-            RUNTIME_ID="linux-${{ inputs.architecture }}"
-          fi
-
-          OUTPUT="bin/Publish/${display_os}-${{ inputs.architecture }}-${{ env.RELEASE_NAME }}"
-
-          echo "display_os=${display_os}" >> $GITHUB_OUTPUT
-          echo "Runtime Identifier: $RUNTIME_ID"
-          echo "Output Directory: $OUTPUT"
-
-          dotnet publish \
-              LibationAvalonia/LibationAvalonia.csproj \
-              --runtime $RUNTIME_ID \
-              --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output $OUTPUT \
-              -p:PublishProfile=LibationAvalonia/Properties/PublishProfiles/${display_os}Profile.pubxml
-          dotnet publish \
-              LoadByOS/${display_os}ConfigApp/${display_os}ConfigApp.csproj \
-              --runtime $RUNTIME_ID \
-              --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output $OUTPUT \
-              -p:PublishProfile=LoadByOS/Properties/${display_os}ConfigApp/PublishProfiles/${display_os}Profile.pubxml
-          dotnet publish \
-              LibationCli/LibationCli.csproj \
-              --runtime $RUNTIME_ID \
-              --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output $OUTPUT \
-              -p:PublishProfile=LibationCli/Properties/PublishProfiles/${display_os}Profile.pubxml
-          dotnet publish \
-              HangoverAvalonia/HangoverAvalonia.csproj \
-              --runtime $RUNTIME_ID \
-              --configuration ${{ env.DOTNET_CONFIGURATION }} \
-              --output $OUTPUT \
-              -p:PublishProfile=HangoverAvalonia/Properties/PublishProfiles/${display_os}Profile.pubxml
+          PUBLISH_ARGS=(
+            '--runtime' '${{ env.RUNTIME_ID }}'
+            '--configuration' 'Release'
+            '--output' '../bin'
+            '-p:PublishProtocol=FileSystem'
+            "-p:PublishReadyToRun=${{ inputs.publish-r2r }}"
+            '-p:SelfContained=true')
+            
+          dotnet publish LibationAvalonia/LibationAvalonia.csproj "${PUBLISH_ARGS[@]}"
+          dotnet publish LoadByOS/LinuxConfigApp/LinuxConfigApp.csproj "${PUBLISH_ARGS[@]}"
+          dotnet publish LibationCli/LibationCli.csproj "${PUBLISH_ARGS[@]}"
+          dotnet publish HangoverAvalonia/HangoverAvalonia.csproj "${PUBLISH_ARGS[@]}"
 
       - name: Build bundle
         id: bundle
-        working-directory: ./Source/bin/Publish/${{ steps.publish.outputs.display_os }}-${{ inputs.architecture }}-${{ env.RELEASE_NAME }}
         run: |
-          BUNDLE_DIR=$(pwd)
-          echo "Bundle dir: ${BUNDLE_DIR}"
-          cd ..
-          SCRIPT=../../../Scripts/Bundle_${{ inputs.OS }}.sh
+          SCRIPT=./Scripts/Bundle_${{ inputs.OS }}.sh
           chmod +rx ${SCRIPT}
-          ${SCRIPT} "${BUNDLE_DIR}" "${{ steps.get_version.outputs.version }}" "${{ inputs.architecture }}"
+          ${SCRIPT} ./bin "${{ inputs.libation-version }}" "${{ inputs.architecture }}"
           artifact=$(ls ./bundle)
           echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
 
-      - name: Publish bundle
-        uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ steps.bundle.outputs.artifact }}
-          path: ./Source/bin/Publish/bundle/${{ steps.bundle.outputs.artifact }}
+          path: ./bundle/${{ steps.bundle.outputs.artifact }}
           if-no-files-found: error
-          retention-days: 7
+          retention-days: ${{ inputs.retention-days }}

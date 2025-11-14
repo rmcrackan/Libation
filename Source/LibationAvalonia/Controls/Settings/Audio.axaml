@@ -412,7 +412,7 @@
 				<Button
 					Grid.Column="1"
 					Content="Edit"
-					Padding="30,0"
+					Classes="SaveButton"
 					Margin="10,0,0,0"
 					VerticalAlignment="Stretch"
 					Click="EditChapterTitleTemplateButton_Click" />

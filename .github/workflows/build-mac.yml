@@ -1,0 +1,104 @@
+# build-mac.yml
+# Reusable workflow that builds the MacOS (x64 and arm64) versions of Libation.
+---
+name: build
+
+on:
+  workflow_call:
+    inputs:
+      libation-version:
+        type: string
+        required: true
+      dotnet-version:
+        type: string
+        required: true
+      run-unit-tests:
+        type: boolean
+      publish-r2r:
+        type: boolean
+      retention-days:
+        type: number
+      sign-app:
+        type: boolean
+        description: "Wheather to sign an notorize the app bundle and dmg."
+      architecture:
+        type: string
+        description: "CPU architecture targeted by the build."
+        required: true
+
+jobs:
+  build:
+    name: "macOS-${{ inputs.architecture }}"
+    runs-on: macos-latest
+    env:
+      RUNTIME_ID: "osx-${{ inputs.architecture }}"
+      WAIT_FOR_NOTARIZE: ${{ vars.WAIT_FOR_NOTARIZE == 'true' }}
+    steps:    
+      - uses: apple-actions/import-codesign-certs@v3
+        if: ${{ inputs.sign-app }}
+        with: 
+          p12-file-base64: ${{ secrets.DISTRIBUTION_SIGNING_CERT }}
+          p12-password: ${{ secrets.DISTRIBUTION_SIGNING_CERT_PW }}       
+          
+      - uses: actions/checkout@v5
+      
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+          dotnet-quality: "ga"
+
+      - name: Unit test
+        if: ${{ inputs.run-unit-tests }}
+        working-directory: ./Source
+        run: dotnet test
+
+      - name: Publish
+        id: publish
+        working-directory: ./Source
+        run: |
+          PUBLISH_ARGS=(
+            '--runtime' '${{ env.RUNTIME_ID }}'
+            '--configuration' 'Release'
+            '--output' '../bin'
+            '-p:PublishProtocol=FileSystem'
+            "-p:PublishReadyToRun=${{ inputs.publish-r2r }}"
+            '-p:SelfContained=true')
+          
+          dotnet publish LibationAvalonia/LibationAvalonia.csproj "${PUBLISH_ARGS[@]}"
+          dotnet publish LoadByOS/MacOSConfigApp/MacOSConfigApp.csproj "${PUBLISH_ARGS[@]}"
+          dotnet publish LibationCli/LibationCli.csproj "${PUBLISH_ARGS[@]}"
+          dotnet publish HangoverAvalonia/HangoverAvalonia.csproj "${PUBLISH_ARGS[@]}"
+
+      - name: Build bundle
+        id: bundle
+        run: |
+          SCRIPT=./Scripts/Bundle_MacOS.sh
+          chmod +rx ${SCRIPT}
+          ${SCRIPT} ./bin "${{ inputs.libation-version }}" "${{ inputs.architecture }}" "${{ inputs.sign-app }}"
+          artifact=$(ls ./bundle)
+          echo "artifact=${artifact}" >> "${GITHUB_OUTPUT}"
+
+      - name: Notarize bundle
+        if: ${{ inputs.sign-app }}
+        run: |          
+          if [ ${{ vars.WAIT_FOR_NOTARIZE == 'true' }} ]; then
+            WAIT="--wait"
+          fi
+          echo "::debug::Submitting the disk image for notarization"
+          RESPONSE=$(xcrun notarytool submit ./bundle/${{ steps.bundle.outputs.artifact }} $WAIT --no-progress --apple-id ${{ vars.APPLE_DEV_EMAIL }} --password ${{ secrets.APPLE_DEV_PASSWORD }} --team-id ${{ secrets.APPLE_TEAM_ID }} 2>&1)
+          SUBMISSION_ID=$(echo "$RESPONSE" | awk '/id: / { print $2;exit; }')
+          
+          echo "$RESPONSE"
+          echo "::notice::Noraty Submission Id: $SUBMISSION_ID"
+          
+          if [ ${{ vars.WAIT_FOR_NOTARIZE == 'true' }} ]; then
+            echo "::debug::Stapling the notarization ticket to the disk image"
+            xcrun stapler staple "./bundle/${{ steps.bundle.outputs.artifact }}"
+          fi
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: ${{ steps.bundle.outputs.artifact }}
+          path: ./bundle/${{ steps.bundle.outputs.artifact }}
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}

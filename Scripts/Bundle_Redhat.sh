@@ -28,14 +28,6 @@ then
   exit
 fi
 
-contains() { case "$1" in *"$2"*) true ;; *) false ;; esac }
-
-if ! contains "$BIN_DIR" "$ARCH"
-then
-  echo "This script must be called with a Libation binaries for ${ARCH}."
-  exit
-fi
-
 BASEDIR=$(pwd)
 
 delfiles=('LinuxConfigApp' 'LinuxConfigApp.deps.json' 'LinuxConfigApp.runtimeconfig.json')

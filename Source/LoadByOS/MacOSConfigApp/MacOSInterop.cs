@@ -29,17 +29,8 @@ namespace MacOSConfigApp
 		{
 			Serilog.Log.Information($"Extracting upgrade bundle to {AppPath}");
 
-			//tar wil overwrite existing without elevated privileges
-			Process.Start("tar", $"-xf {upgradeBundle.SurroundWithQuotes()} -C \"/Applications\"").WaitForExit();
-			
-			//For now, it seems like this step is unnecessary. We can overwrite and
-			//run Libation without needing to re-add the exception. This is insurance.
-			RunAsRoot(null, $"""
-sudo spctl --master-disable
-sudo spctl --add --label 'Libation' {AppPath}
-open {AppPath}
-sudo spctl --master-enable
-""");
+			//Upgrade bundle is a DMG
+			Process.Start("open", upgradeBundle.SurroundWithQuotes())?.WaitForExit();
 		}
 
 		//Using osascript -e '[script]' works from the terminal, but I haven't figured

@@ -126,8 +126,10 @@ namespace LibationWinForms
 			var defaultLibationFilesDir = Configuration.DefaultLibationFilesDirectory;
 
 			// check for existing settings in default location
+			// First check if file exists so that, if it doesn't, we don't
+			// overwrite user's LibationFiles setting in appsettings.json
 			var defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
-			if (Configuration.SettingsFileIsValid(defaultSettingsFile))
+			if (File.Exists(defaultSettingsFile) && Configuration.SettingsFileIsValid(defaultSettingsFile))
 				Configuration.SetLibationFiles(defaultLibationFilesDir);
 
 			if (config.LibationSettingsAreValid)
@@ -149,7 +151,6 @@ namespace LibationWinForms
 
 			if (setupDialog.IsNewUser)
 			{
-				Configuration.SetLibationFiles(defaultLibationFilesDir);
 				config.Books = Configuration.DefaultBooksDirectory;
 			}
 			else if (setupDialog.IsReturningUser)

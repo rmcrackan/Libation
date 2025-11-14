@@ -6,113 +6,77 @@ name: build
 on:
   workflow_call:
     inputs:
-      version_override:
+      libation-version:
         type: string
-        description: "Version number override"
-        required: false
-      run_unit_tests:
-        type: boolean
-        description: "Skip running unit tests"
-        required: false
-        default: true
-      architecture:
-        type: string
-        description: "CPU architecture targeted by the build."
         required: true
-
-env:
-  DOTNET_CONFIGURATION: "Release"
-  DOTNET_VERSION: "9.0.x"
+      dotnet-version:
+        type: string
+        required: true
+      run-unit-tests:
+        type: boolean
+      publish-r2r:
+        type: boolean
+      retention-days:
+        type: number
 
 jobs:
   build:
-    name: "${{ matrix.os }}-${{ matrix.release_name }}-${{ inputs.architecture }}"
+    name: "Windows-${{ matrix.release_name }}-x64"
     runs-on: windows-latest
-    env:
-      OUTPUT_NAME: "${{ matrix.os }}-${{ matrix.release_name }}-${{ inputs.architecture }}"
-      RUNTIME_ID: "win-${{ inputs.architecture }}"
     strategy:
       matrix:
-        os: [Windows]
         ui: [Avalonia]
         release_name: [chardonnay]
         include:
-          - os: Windows
-            ui: WinForms
+          - ui: WinForms
             release_name: classic
             prefix: Classic-
     steps:
       - uses: actions/checkout@v5
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+      
+      - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get version
-        id: get_version
-        run: |
-          if ("${{ inputs.version_override }}".length -gt 0) {
-            $version = "${{ inputs.version_override }}"
-          } else {
-            $version = (Select-Xml -Path "./Source/AppScaffolding/AppScaffolding.csproj" -XPath "/Project/PropertyGroup/Version").Node.InnerXML.Trim()
-          }
-          "version=$version" >> $env:GITHUB_OUTPUT
+          dotnet-version: ${{ inputs.dotnet-version }}
+          dotnet-quality: "ga"
 
       - name: Unit test
-        if: ${{ inputs.run_unit_tests }}
+        if: ${{ inputs.run-unit-tests }}
         working-directory: ./Source
         run: dotnet test
-
+        
       - name: Publish
         working-directory: ./Source
         run: |
-          dotnet publish `
-              Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj `
-              --runtime ${{ env.RUNTIME_ID }} `
-              --configuration ${{ env.DOTNET_CONFIGURATION }} `
-              --output bin/Publish/${{ env.OUTPUT_NAME }} `
-              -p:PublishProfile=Libation${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          dotnet publish `
-              LoadByOS/${{ matrix.os }}ConfigApp/${{ matrix.os }}ConfigApp.csproj `
-              --runtime ${{ env.RUNTIME_ID }} `
-              --configuration ${{ env.DOTNET_CONFIGURATION }} `
-              --output bin/Publish/${{ env.OUTPUT_NAME }} `
-              -p:PublishProfile=LoadByOS/${{ matrix.os }}ConfigApp/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          dotnet publish `
-              LibationCli/LibationCli.csproj `
-              --runtime ${{ env.RUNTIME_ID }} `
-              --configuration ${{ env.DOTNET_CONFIGURATION }} `
-              --output bin/Publish/${{ env.OUTPUT_NAME }} `
-              -p:DefineConstants="${{ matrix.release_name }}" `
-              -p:PublishProfile=LibationCli/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
-          dotnet publish `
-              Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj `
-              --runtime ${{ env.RUNTIME_ID }} `
-              --configuration ${{ env.DOTNET_CONFIGURATION }} `
-              --output bin/Publish/${{ env.OUTPUT_NAME }} `
-              -p:PublishProfile=Hangover${{ matrix.ui }}/Properties/PublishProfiles/${{ matrix.os }}Profile.pubxml
+          $PUBLISH_ARGS=@(
+            "--runtime", "win-x64",
+            "--configuration", "Release",
+            "--output", "../bin",
+            "-p:PublishProtocol=FileSystem",
+            "-p:PublishReadyToRun=${{ inputs.publish-r2r }}",
+            "-p:SelfContained=true")            
+          
+          dotnet publish "Libation${{ matrix.ui }}/Libation${{ matrix.ui }}.csproj" $PUBLISH_ARGS
+          dotnet publish "LoadByOS/WindowsConfigApp/WindowsConfigApp.csproj" $PUBLISH_ARGS
+          dotnet publish "LibationCli/LibationCli.csproj" $PUBLISH_ARGS
+          dotnet publish "Hangover${{ matrix.ui }}/Hangover${{ matrix.ui }}.csproj" $PUBLISH_ARGS
 
       - name: Zip artifact
         id: zip
-        working-directory: ./Source/bin/Publish
+        working-directory: ./bin
         run: |
-          $bin_dir = "${{ env.OUTPUT_NAME }}\"
           $delfiles = @(
             "WindowsConfigApp.exe",
             "WindowsConfigApp.runtimeconfig.json",
-            "WindowsConfigApp.deps.json"
-            )
-          foreach ($file in $delfiles){ if (test-path $bin_dir$file){ Remove-Item $bin_dir$file } }
-          $artifact="${{ matrix.prefix }}Libation.${{ steps.get_version.outputs.version }}-" + "${{ matrix.os }}".ToLower() + "-${{ matrix.release_name }}-${{ inputs.architecture }}"
+            "WindowsConfigApp.deps.json")
+          
+          foreach ($file in $delfiles){ if (test-path $file){ Remove-Item $file } }
+          $artifact="${{ matrix.prefix }}Libation.${{ inputs.libation-version }}-windows-${{ matrix.release_name }}-x64.zip"
           "artifact=$artifact" >> $env:GITHUB_OUTPUT
-          Compress-Archive -Path "${bin_dir}*" -DestinationPath "$artifact.zip"
+          Compress-Archive -Path * -DestinationPath "$artifact"
 
-      - name: Publish artifact
-        uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v5
         with:
-          name: ${{ steps.zip.outputs.artifact }}.zip
-          path: ./Source/bin/Publish/${{ steps.zip.outputs.artifact }}.zip
+          name: ${{ steps.zip.outputs.artifact }}
+          path: ./bin/${{ steps.zip.outputs.artifact }}
           if-no-files-found: error
-          retention-days: 7
+          retention-days: ${{ inputs.retention-days }}

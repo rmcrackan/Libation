@@ -110,7 +110,7 @@
 			Command="{Binding GoToNamingTemplateWiki}" />
 		<Button
 			Grid.Row="2"
-			Padding="30,5,30,5"
+				Classes="SaveButton"
 			HorizontalAlignment="Right"
 			Content="Save"
 			Click="SaveButton_Click" />

@@ -3,8 +3,8 @@
   "WindowsAvalonia":         "Libation\\.\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?-win(?:dows)?-chardonnay-x64\\.zip",
   "LinuxAvalonia":           "Libation\\.\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?-linux-chardonnay-amd64\\.deb",
   "LinuxAvalonia_RPM":       "Libation\\.\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?-linux-chardonnay-amd64\\.rpm",
-  "MacOSAvalonia":           "Libation\\.\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?-macOS-chardonnay-x64\\.tgz",
+  "MacOSAvalonia":           "Libation\\.\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?-macOS-chardonnay-x64\\.dmg",
   "LinuxAvalonia_Arm64":     "Libation\\.\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?-linux-chardonnay-arm64\\.deb",
   "LinuxAvalonia_Arm64_RPM": "Libation\\.\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?-linux-chardonnay-arm64\\.rpm",
-  "MacOSAvalonia_Arm64":     "Libation\\.\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?-macOS-chardonnay-arm64\\.tgz"
+  "MacOSAvalonia_Arm64":     "Libation\\.\\d+\\.\\d+\\.\\d+(?:\\.\\d+)?-macOS-chardonnay-arm64\\.dmg"
 }

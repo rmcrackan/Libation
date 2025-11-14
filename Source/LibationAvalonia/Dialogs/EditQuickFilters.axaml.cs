@@ -66,8 +66,11 @@ namespace LibationAvalonia.Dialogs
 			ControlToFocusOnShow = this.FindControl<Button>(nameof(saveBtn));
 
 			var allFilters = QuickFilters.Filters.Select(f => new Filter { FilterString = f.Filter, Name = f.Name }).ToList();
-			allFilters[0].IsTop = true;
-			allFilters[^1].IsBottom = true;
+			if (allFilters.Count > 0)
+			{
+				allFilters[0].IsTop = true;
+				allFilters[^1].IsBottom = true;
+			}
 			allFilters.Add(new Filter());
 
 			foreach (var f in allFilters)

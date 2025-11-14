@@ -263,5 +263,27 @@ namespace FileManager
 
 			return foundFiles;
 		}
+
+		/// <summary>
+		/// Creates a subdirectory or subdirectories on the specified path.
+		/// The specified path can be relative to this instance of the <see cref="DirectoryInfo"/> class.
+		/// <para/>
+		/// Fixes an issue with <see cref="DirectoryInfo.CreateSubdirectory(string)"/> where it fails when the parent <see cref="DirectoryInfo"/> is a drive root.
+		/// </summary>
+		/// <param name="path">The specified path. This cannot be a different disk volume or Universal Naming Convention (UNC) name.</param>
+		/// <returns>The last directory specified in <paramref name="path"/></returns>
+		public static DirectoryInfo CreateSubdirectoryEx(this DirectoryInfo parent, string path)
+		{
+			if (parent.Root.FullName != parent.FullName || Path.IsPathRooted(path))
+				return parent.CreateSubdirectory(path);
+
+			// parent is a drive root and subDirectory is relative
+			//Solves a problem with DirectoryInfo.CreateSubdirectory where it fails
+			//If the parent DirectoryInfo is a drive root.
+			var fullPath = Path.GetFullPath(Path.Combine(parent.FullName, path));
+			var directoryInfo = new DirectoryInfo(fullPath);
+			directoryInfo.Create();
+			return directoryInfo;
+		}
 	}
 }

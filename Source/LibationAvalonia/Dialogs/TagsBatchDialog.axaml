@@ -24,7 +24,7 @@
 			Grid.Row="1"
 			Grid.Column="1"
 			Margin="10,0,0,0"
-			Padding="20,3"
+			Classes="SaveButton"
 			VerticalAlignment="Stretch"
 			Content="Save"
 			Command="{Binding SaveAndClose}"/>

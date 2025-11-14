@@ -306,7 +306,7 @@ namespace AaxDecrypter
 				if (WritePosition > endPosition)
 					throw new WebException($"Downloaded size (0x{WritePosition:X10}) is greater than {nameof(ContentLength)} (0x{ContentLength:X10}).");
 			}
-			catch (TaskCanceledException)
+			catch (OperationCanceledException)
 			{
 				Serilog.Log.Information("Download was cancelled");
 			}
@@ -402,7 +402,7 @@ namespace AaxDecrypter
 		 */
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing && !disposed)
+			if (disposing && !Interlocked.CompareExchange(ref disposed, true, false))
 			{
 				_cancellationSource.Cancel();
 				DownloadTask?.GetAwaiter().GetResult();
@@ -413,7 +413,6 @@ namespace AaxDecrypter
 				OnUpdate(waitForWrite: true);
 			}
 
-			disposed = true;
 			base.Dispose(disposing);
 		}
 

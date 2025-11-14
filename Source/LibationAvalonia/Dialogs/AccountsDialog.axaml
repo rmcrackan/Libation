@@ -7,14 +7,6 @@
         x:Class="LibationAvalonia.Dialogs.AccountsDialog"
         Title="Audible Accounts">
 	<Grid RowDefinitions="*,Auto">
-
-		<Grid.Styles>
-			<Style Selector="Button:focus">
-				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
-				<Setter Property="BorderThickness" Value="2" />
-			</Style>
-		</Grid.Styles>
-
 		<DataGrid
 			Grid.Row="0"
 			CanUserReorderColumns="False"
@@ -107,13 +99,12 @@
 
 			<Button
 				Grid.Column="0"
-				Padding="5,5"
 				Content="Import from audible-cli"
 				Click="ImportButton_Clicked" />
 
 			<Button
 				Grid.Column="1"
-				Padding="30,5"
+				Classes="SaveButton"
 				Content="Save"
 				Click="SaveButton_Clicked" />
 		</Grid>

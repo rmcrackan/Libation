@@ -1,13 +1,15 @@
 using Avalonia;
 using Avalonia.Controls;
 using System;
+using System.Linq;
 
+#nullable enable
 namespace LibationAvalonia.Dialogs
 {
 	public partial class DescriptionDisplayDialog : Window
 	{
 		public Point SpawnLocation { get; set; }
-		public string DescriptionText { get; init; }
+		public string? DescriptionText { get; init; }
 		public DescriptionDisplayDialog()
 		{
 			InitializeComponent();
@@ -17,15 +19,15 @@ namespace LibationAvalonia.Dialogs
 			Opened += DescriptionDisplay_Opened;
 		}
 
-		private void DescriptionDisplay_Opened(object sender, EventArgs e)
+		private void DescriptionDisplay_Opened(object? sender, EventArgs e)
 		{
 			DescriptionTextBox.Focus();
 		}
 
-		private void DescriptionDisplay_Activated(object sender, EventArgs e)
+		private void DescriptionDisplay_Activated(object? sender, EventArgs e)
 		{
 			DataContext = this;
-			var workingHeight = this.Screens.Primary.WorkingArea.Height;
+			var workingHeight = (Screens.ScreenFromTopLevel(this) ?? Screens.Primary ?? Screens.All.FirstOrDefault())?.WorkingArea.Height ?? 1080;
 			DescriptionTextBox.Measure(new Size(DescriptionTextBox.MinWidth, workingHeight * 0.8));
 
 			this.Width = DescriptionTextBox.DesiredSize.Width;

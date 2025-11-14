@@ -371,3 +371,9 @@ FodyWeavers.xsd
 /__TODO.txt
 /DataLayer/LibationContext.db
 */bin-Avalonia
+
+# macOS Directory Info
+.DS_Store
+
+# JetBrains Rider Settings
+**/.idea/

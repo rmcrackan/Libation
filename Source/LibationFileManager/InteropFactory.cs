@@ -65,11 +65,19 @@ namespace LibationFileManager
 
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
-            var configAppAssembly = Assembly.LoadFrom(configApp);
-            var type = typeof(IInteropFunctions);
-            InteropFunctionsType = configAppAssembly
-                .GetTypes()
-                .FirstOrDefault(type.IsAssignableFrom);
+            try
+            {
+                var configAppAssembly = Assembly.LoadFrom(configApp);
+                var type = typeof(IInteropFunctions);
+                InteropFunctionsType = configAppAssembly
+                    .GetTypes()
+                    .FirstOrDefault(type.IsAssignableFrom);
+            }
+            catch (Exception e)
+            {
+                //None of the interop functions are strictly necessary for Libation to run.
+                Serilog.Log.Logger.Error(e, "Unable to load types from assembly {@configApp}", configApp);
+            }
         }
         private static string? getOSConfigApp()
         {

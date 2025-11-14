@@ -15,6 +15,8 @@ namespace LibationFileManager
     {
         private IConfigurationRoot? configuration;
 
+        public bool LoggingEnabled { get; private set; }
+
         public void ConfigureLogging()
         {
             //pass explicit assemblies to the ConfigurationReaderOptions
@@ -40,7 +42,8 @@ namespace LibationFileManager
 				 .Destructure.ByTransforming<LongPath>(lp => lp.Path)
 				 .Destructure.With<LogFileFilter>()
                  .CreateLogger();
-		}
+            LoggingEnabled = true;
+        }
 
 		[Description("The importance of a log event")]
         public LogEventLevel LogLevel

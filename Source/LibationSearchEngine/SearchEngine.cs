@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DataLayer;
 using Dinah.Core;
+using FileManager;
 using LibationFileManager;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
@@ -279,6 +280,6 @@ namespace LibationSearchEngine
 
         // not customizable. don't move to config
         private static string SearchEngineDirectory { get; }
-            = new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectory("SearchEngine").FullName;
+            = new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectoryEx("SearchEngine").FullName;
     }
 }

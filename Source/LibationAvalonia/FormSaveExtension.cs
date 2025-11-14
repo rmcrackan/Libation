@@ -41,7 +41,7 @@ namespace LibationAvalonia
 					savedState.Width = (int)form.Width;
 					savedState.Height = (int)form.Height;
 				}
-				if (form.Screens.Primary is Screen primaryScreen)
+				if ((form.Screens.Primary ?? form.Screens.All.FirstOrDefault()) is Screen primaryScreen)
 				{
 					// Fit to the current screen size in case the screen resolution changed since the size was last persisted
 					if (savedState.Width > primaryScreen.WorkingArea.Width)

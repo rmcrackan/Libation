@@ -173,9 +173,8 @@
 					<Setter Property="MinHeight" Value="10" />
 				</Style>
 				<Style Selector="Button">
-					<Setter Property="Padding" Value="15,0,15,0" />
+					<Setter Property="Padding" Value="15,6" />
 					<Setter Property="Margin" Value="10,0,0,0" />
-					<Setter Property="Height" Value="30" />
 					<Setter Property="HorizontalContentAlignment" Value="Center" />
 					<Setter Property="VerticalContentAlignment" Value="Center" />
 				</Style>
@@ -195,7 +194,7 @@
 
 			<StackPanel Grid.Column="2" Height="30" Orientation="Horizontal">
 				<Button Name="filterBtn" Command="{CompiledBinding FilterBtn}" CommandParameter="{CompiledBinding #filterSearchTb.Text}" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="Filter"/>
-				<Button Padding="2,6,2,6" VerticalAlignment="Stretch" Command="{CompiledBinding ToggleQueueHideBtn}">
+				<Button Padding="2,6" VerticalAlignment="Stretch" Command="{CompiledBinding ToggleQueueHideBtn}">
 					<Path Stretch="Uniform" Fill="{DynamicResource IconFill}" Data="{StaticResource	LeftArrows}">
 						<Path.RenderTransform>
 							<RotateTransform Angle="{CompiledBinding QueueButtonAngle}"/>

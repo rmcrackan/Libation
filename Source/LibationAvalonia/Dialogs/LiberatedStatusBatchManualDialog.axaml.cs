@@ -44,6 +44,7 @@ namespace LibationAvalonia.Dialogs
 			InitializeComponent();
 			SelectedItem = BookStatuses[0] as liberatedComboBoxItem;
 			DataContext = this;
+			ControlToFocusOnShow = SaveButton;
 		}
 
 		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)

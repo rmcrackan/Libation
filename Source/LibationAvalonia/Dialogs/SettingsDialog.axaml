@@ -18,8 +18,7 @@
 			Grid.Row="1"
 			Margin="10"
 			HorizontalAlignment="Right"
-			Height="30"
-			Padding="30,3,30,3"
+			Classes="SaveButton"
 			Content="Save"
 			Name="saveBtn"
 			Click="SaveButton_Clicked" />

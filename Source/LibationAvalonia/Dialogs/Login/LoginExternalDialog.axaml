@@ -102,7 +102,8 @@
 			<Button
 				Grid.Row="1"
 				Margin="0,5,0,0"
-				Padding="30,3,30,3" HorizontalAlignment="Right"
+				Classes="SaveButton"
+				HorizontalAlignment="Right"
 				Content="Submit"
 				Click="Submit_Click" />
 		</Grid>

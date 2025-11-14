@@ -27,6 +27,7 @@ namespace LibationAvalonia.Dialogs
 			}
 
 			InitializeComponent();
+			ControlToFocusOnShow = btnYes;
 		}
 
 		public UpgradeNotificationDialog(UpgradeProperties upgradeProperties, bool canUpgrade) : this()
