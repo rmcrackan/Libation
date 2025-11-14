@@ -12,6 +12,7 @@ using LibationAvalonia.Dialogs;
 using Avalonia.Threading;
 using FileManager;
 using System.Linq;
+using System.Reflection;
 
 #nullable enable
 namespace LibationAvalonia
@@ -19,7 +20,6 @@ namespace LibationAvalonia
 	static class Program
 	{
 		private static System.Threading.Lock SetupLock { get; } = new();
-		internal static bool LoggingEnabled { get; set; }
 		[STAThread]
 		static void Main(string[] args)
 		{
@@ -56,7 +56,6 @@ namespace LibationAvalonia
 					// most migrations go in here
 					LibationScaffolding.RunPostConfigMigrations(config);
 					LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
-					LoggingEnabled = true;
 
 					//Start loading the library before loading the main form
 					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
@@ -106,7 +105,7 @@ namespace LibationAvalonia
 			try
 			{
 				//Try to log the error message before displaying the crash dialog
-				if (LoggingEnabled)
+				if (Configuration.Instance.LoggingEnabled)
 					Serilog.Log.Logger.Error(exception, "CRASH");
 				else
 					LogErrorWithoutSerilog(exception);
