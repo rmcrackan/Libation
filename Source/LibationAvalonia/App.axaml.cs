@@ -58,9 +58,11 @@ public class App : Application
 			{
 				string defaultLibationFilesDir = Configuration.DefaultLibationFilesDirectory;
 
-				// check for existing settings in default location
+				// check for existing settings in default location.
+				// First check if file exists so that, if it doesn't, we don't
+				// overwrite user's LibationFiles setting in appsettings.json
 				string defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
-				if (Configuration.SettingsFileIsValid(defaultSettingsFile))
+				if (File.Exists(defaultSettingsFile) && Configuration.SettingsFileIsValid(defaultSettingsFile))
 					Configuration.SetLibationFiles(defaultLibationFilesDir);
 
 				if (config.LibationSettingsAreValid)
@@ -103,7 +105,6 @@ public class App : Application
 		{
 			if (setupDialog.IsNewUser)
 			{
-				Configuration.SetLibationFiles(Configuration.DefaultLibationFilesDirectory);
 				setupDialog.Config.Books = Configuration.DefaultBooksDirectory;
 
 				if (setupDialog.Config.LibationSettingsAreValid)

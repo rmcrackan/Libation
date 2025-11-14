@@ -19,9 +19,13 @@ namespace LibationFileManager
         public static string UserProfile => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Libation"));
         public static string LocalAppData => Path.GetFullPath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Libation"));
         public static string DefaultLibationFilesDirectory => !IsWindows ? LocalAppData : UserProfile;
-        public static string DefaultBooksDirectory => Path.Combine(!IsWindows ? MyMusic : UserProfile, nameof(Books));
+        public static string DefaultBooksDirectory
+            => !IsWindows ? Path.Combine(MyMusic, nameof(Books))
+            : LibationSettingsDirectory is null ? Path.Combine(UserProfile, nameof(Books))
+            : Path.Combine(LibationSettingsDirectory, nameof(Books));
 
-        public enum KnownDirectories
+
+		public enum KnownDirectories
         {
             None = 0,
 
