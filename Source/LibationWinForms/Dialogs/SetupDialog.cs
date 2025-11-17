@@ -1,10 +1,11 @@
-﻿using System;
+﻿using LibationUiBase;
+using System;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace LibationWinForms.Dialogs
 {
-	public partial class SetupDialog : Form
+	public partial class SetupDialog : Form, ILibationSetup
 	{
 		public bool IsNewUser { get; private set; }
 		public bool IsReturningUser { get; private set; }

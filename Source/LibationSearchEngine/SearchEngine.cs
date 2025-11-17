@@ -280,6 +280,6 @@ namespace LibationSearchEngine
 
         // not customizable. don't move to config
         private static string SearchEngineDirectory { get; }
-            = new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectoryEx("SearchEngine").FullName;
+            = new System.IO.DirectoryInfo(Configuration.Instance.LibationFiles.Location).CreateSubdirectoryEx("SearchEngine").FullName;
     }
 }

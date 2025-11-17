@@ -21,7 +21,7 @@ namespace AppScaffolding
 	public static class UNSAFE_MigrationHelper
 	{
 		public static string SettingsDirectory
-			=> !APPSETTINGS_TryGet(LIBATION_FILES_KEY, out var value) || value is null
+			=> !APPSETTINGS_TryGet(LibationFiles.LIBATION_FILES_KEY, out var value) || value is null
 			? null
 			: value;
 
@@ -59,7 +59,7 @@ namespace AppScaffolding
 		/// <param name="save">True: save if contents changed. False: no not attempt save</param>
 		private static void process_APPSETTINGS_Json(Action<JObject> action, bool save = true)
 		{
-			var startingContents = File.ReadAllText(Configuration.AppsettingsJsonFile);
+			var startingContents = File.ReadAllText(Configuration.Instance.LibationFiles.AppsettingsJsonFile);
 
 			JObject jObj;
 			try
@@ -82,15 +82,13 @@ namespace AppScaffolding
 			if (startingContents.EqualsInsensitive(endingContents_indented) || startingContents.EqualsInsensitive(endingContents_compact))
 				return;
 
-			File.WriteAllText(Configuration.AppsettingsJsonFile, endingContents_indented);
+			File.WriteAllText(Configuration.Instance.LibationFiles.AppsettingsJsonFile, endingContents_indented);
 			System.Threading.Thread.Sleep(100);
 		}
 		#endregion
 		#region Settings.json
-		public const string LIBATION_FILES_KEY = "LibationFiles";
-		private const string SETTINGS_JSON = "Settings.json";
 
-		public static string SettingsJsonPath => SettingsDirectory is null ? null : Path.Combine(SettingsDirectory, SETTINGS_JSON);
+		public static string SettingsJsonPath => SettingsDirectory is null ? null : Path.Combine(SettingsDirectory, LibationFiles.SETTINGS_JSON);
 		public static bool SettingsJson_Exists => SettingsJsonPath is not null && File.Exists(SettingsJsonPath);
 
 		public static bool Settings_TryGet(string key, out string value)

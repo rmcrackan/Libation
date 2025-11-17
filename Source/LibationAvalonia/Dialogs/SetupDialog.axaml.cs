@@ -1,15 +1,15 @@
 using Avalonia.Controls;
 using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.Forms;
 
 namespace LibationAvalonia.Dialogs
 {
-	public partial class SetupDialog : Window
+	public partial class SetupDialog : Window, ILibationSetup
 	{
 		public bool IsNewUser { get; private set; }
 		public bool IsReturningUser { get; private set; }
 		public ComboBoxItem SelectedTheme { get; set; }
-		public Configuration Config { get; init; }
 		public SetupDialog()
 		{
 			InitializeComponent();

@@ -35,7 +35,7 @@ namespace LibationFileManager
                 typeof(FileLoggerConfigurationExtensions).Assembly);      // Serilog.Sinks.File
 
             configuration = new ConfigurationBuilder()
-                .AddJsonFile(SettingsFilePath, optional: false, reloadOnChange: true)
+                .AddJsonFile(Instance.LibationFiles.SettingsFilePath, optional: false, reloadOnChange: true)
                 .Build();
 			Log.Logger = new LoggerConfiguration()
 				 .ReadFrom.Configuration(configuration, readerOptions)

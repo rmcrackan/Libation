@@ -25,7 +25,7 @@ namespace AudibleUtilities
 
 	public static class AudibleApiStorage
 	{
-		public static string AccountsSettingsFile => Path.Combine(Configuration.Instance.LibationFiles, "AccountsSettings.json");
+		public static string AccountsSettingsFile => Path.Combine(Configuration.Instance.LibationFiles.Location, "AccountsSettings.json");
 
 		public static event EventHandler<AccountSettingsLoadErrorEventArgs> LoadError;
 

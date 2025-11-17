@@ -58,7 +58,7 @@ namespace LibationWinForms.Dialogs
 				LongPath dir = "";
 				try
 				{
-					dir = LibationFileManager.Configuration.Instance.LibationFiles;
+					dir = LibationFileManager.Configuration.Instance.LibationFiles.Location;
 					Go.To.Folder(dir.ShortPathName);
 				}
 				catch

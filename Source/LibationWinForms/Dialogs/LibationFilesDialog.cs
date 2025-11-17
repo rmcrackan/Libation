@@ -1,10 +1,11 @@
-﻿using System;
+﻿using LibationFileManager;
+using LibationUiBase;
+using System;
 using System.Windows.Forms;
-using LibationFileManager;
 
 namespace LibationWinForms.Dialogs
 {
-	public partial class LibationFilesDialog : Form
+	public partial class LibationFilesDialog : Form, ILibationInstallLocation
 	{
 		public string SelectedDirectory { get; private set; }
 
@@ -26,7 +27,12 @@ namespace LibationWinForms.Dialogs
 				Configuration.KnownDirectories.AppDir,
 				Configuration.KnownDirectories.MyDocs
 			}, Configuration.KnownDirectories.UserProfile);
-			libationFilesSelectControl.SelectDirectory(config.LibationFiles);
+
+			var selectedDir = System.IO.Directory.Exists(Configuration.Instance.LibationFiles.Location.PathWithoutPrefix)
+				? Configuration.Instance.LibationFiles.Location.PathWithoutPrefix
+				: Configuration.GetKnownDirectoryPath(Configuration.KnownDirectories.UserProfile);
+
+			libationFilesSelectControl.SelectDirectory(selectedDir);
 		}
 
 		private void saveBtn_Click(object sender, EventArgs e)

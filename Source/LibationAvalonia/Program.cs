@@ -51,7 +51,7 @@ namespace LibationAvalonia
 			try
 			{
 				var config = LibationScaffolding.RunPreConfigMigrations();
-				if (config.LibationSettingsAreValid)
+				if (config.LibationFiles.SettingsAreValid)
 				{
 					// most migrations go in here
 					LibationScaffolding.RunPostConfigMigrations(config);
@@ -60,7 +60,7 @@ namespace LibationAvalonia
 					//Start loading the library before loading the main form
 					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				}
-				BuildAvaloniaApp()?.StartWithClassicDesktopLifetime([]);
+				BuildAvaloniaApp()?.StartWithClassicDesktopLifetime([], ShutdownMode.OnExplicitShutdown);
 			}
 			catch (Exception ex)
 			{
@@ -149,7 +149,7 @@ namespace LibationAvalonia
 			 Version               {LibationScaffolding.BuildVersion}
 			 ReleaseIdentifier     {LibationScaffolding.ReleaseIdentifier}
 			 InteropFunctionsType  {InteropFactory.InteropFunctionsType}
-			 LibationFiles         {getConfigValue(c => c.LibationFiles)}
+			 LibationFiles         {getConfigValue(c => c.LibationFiles.Location)}
 			 Books Folder          {getConfigValue(c => c.Books)}
 			 === EXCEPTION ===
 			 {exceptionObject}
@@ -161,7 +161,7 @@ namespace LibationAvalonia
 				//Try to add crash message to the newest existing Libation log file
 				//then to LibationFiles/LibationCrash.log
 				//then to %UserProfile%/LibationCrash.log
-				string logDir = Configuration.Instance.LibationFiles;
+				string logDir = Configuration.Instance.LibationFiles.Location;
 				var existingLogFiles = Directory.GetFiles(logDir, "Log*.log");
 
 				logFile = existingLogFiles.Length == 0 ? getFallbackLogFile()
@@ -193,7 +193,7 @@ namespace LibationAvalonia
 				try
 				{
 
-					string logDir = Configuration.Instance.LibationFiles;
+					string logDir = Configuration.Instance.LibationFiles.Location;
 					if (!Directory.Exists(logDir))
 						logDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 

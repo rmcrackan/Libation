@@ -43,7 +43,7 @@ namespace LibationFileManager
     {
         // not customizable. don't move to config
         private static string ImagesDirectory { get; }
-            = new DirectoryInfo(Configuration.Instance.LibationFiles).CreateSubdirectoryEx("Images").FullName;
+            = new DirectoryInfo(Configuration.Instance.LibationFiles.Location).CreateSubdirectoryEx("Images").FullName;
 
 		private static string getPath(PictureDefinition def)
 			=> Path.Combine(ImagesDirectory, $"{def.PictureId}{def.Size}.jpg");

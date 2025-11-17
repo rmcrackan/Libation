@@ -152,13 +152,22 @@ namespace LibationAvalonia
 			dialog.Width = dialog.MinWidth;
 			return dialog;
 		}
-		private static async Task<DialogResult> DisplayWindow(Window toDisplay, Window owner)
+		private static async Task<DialogResult> DisplayWindow(DialogWindow toDisplay, Window owner)
 		{
 			if (owner is null)
 			{
 				if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 				{
-					return await toDisplay.ShowDialog<DialogResult>(desktop.MainWindow);
+					if (desktop.MainWindow.IsLoaded)
+						return await toDisplay.ShowDialog<DialogResult>(desktop.MainWindow);
+					else
+					{
+						var tcs = new TaskCompletionSource<DialogResult>();
+						desktop.MainWindow = toDisplay;
+						toDisplay.Closed += (_, _) => tcs.SetResult(toDisplay.DialogResult);
+						toDisplay.Show();
+						return await tcs.Task;
+					}
 				}
 				else
 				{

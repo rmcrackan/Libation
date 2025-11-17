@@ -16,10 +16,11 @@ namespace LibationAvalonia.ViewModels
 		{
 			try
 			{
+				var startFolder = Configuration.Instance.Books?.PathWithoutPrefix;
 				var options = new FilePickerSaveOptions
 				{
 					Title = "Where to export Library",
-					SuggestedStartLocation = await MainWindow.StorageProvider.TryGetFolderFromPathAsync(Configuration.Instance.Books?.PathWithoutPrefix ?? Configuration.DefaultBooksDirectory),
+					SuggestedStartLocation = startFolder is null ? null : await MainWindow.StorageProvider.TryGetFolderFromPathAsync(startFolder),
 					SuggestedFileName = $"Libation Library Export {DateTime.Now:yyyy-MM-dd}",
 					DefaultExtension = "xlsx",
 					ShowOverwritePrompt = true,

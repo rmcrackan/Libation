@@ -10,7 +10,7 @@ namespace LibationAvalonia.Themes;
 
 public class ChardonnayThemePersister : JsonFilePersister<ChardonnayTheme>
 {
-	public static string jsonPath = System.IO.Path.Combine(Configuration.Instance.LibationFiles, "ChardonnayTheme.json");
+	public static string jsonPath = System.IO.Path.Combine(Configuration.Instance.LibationFiles.Location, "ChardonnayTheme.json");
 
 	public ChardonnayThemePersister(string path)
 		: base(path, null) { }

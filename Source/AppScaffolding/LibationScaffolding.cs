@@ -81,6 +81,7 @@ namespace AppScaffolding
 		/// <summary>most migrations go in here</summary>
 		public static void RunPostConfigMigrations(Configuration config)
 		{
+			config.LoadPersistentSettings(config.LibationFiles.SettingsFilePath);
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
 
 			//
@@ -150,7 +151,7 @@ namespace AppScaffolding
 								new JObject
 								{
 									// for this sink to work, a path must be provided. we override this below
-									{ "path", Path.Combine(config.LibationFiles, "Log.log") },
+									{ "path", Path.Combine(config.LibationFiles.Location, "Log.log") },
 									{ "rollingInterval", "Month" },
 									// Serilog template formatting examples
 									// - default:                    "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
@@ -433,8 +434,8 @@ namespace AppScaffolding
 			const string FILENAME_V1 = "FileLocations.json";
 			const string FILENAME_V2 = "FileLocationsV2.json";
 
-			var jsonFileV1 = Path.Combine(Configuration.Instance.LibationFiles, FILENAME_V1);
-			var jsonFileV2 = Path.Combine(Configuration.Instance.LibationFiles, FILENAME_V2);
+			var jsonFileV1 = Path.Combine(Configuration.Instance.LibationFiles.Location, FILENAME_V1);
+			var jsonFileV2 = Path.Combine(Configuration.Instance.LibationFiles.Location, FILENAME_V2);
 
 			if (!File.Exists(jsonFileV2) && File.Exists(jsonFileV1))
 			{

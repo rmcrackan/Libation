@@ -70,7 +70,7 @@ namespace ApplicationServices
             }
             catch (AudibleApi.Authentication.LoginFailedException lfEx)
             {
-                lfEx.SaveFiles(Configuration.Instance.LibationFiles);
+                lfEx.SaveFiles(Configuration.Instance.LibationFiles.Location);
 
                 // nuget Serilog.Exceptions would automatically log custom properties
                 //   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
@@ -150,7 +150,7 @@ namespace ApplicationServices
             }
             catch (AudibleApi.Authentication.LoginFailedException lfEx)
             {
-                lfEx.SaveFiles(Configuration.Instance.LibationFiles);
+                lfEx.SaveFiles(Configuration.Instance.LibationFiles.Location);
 
                 // nuget Serilog.Exceptions would automatically log custom properties
                 //   However, it comes with a scary warning when used with EntityFrameworkCore which I'm not yet ready to implement:
@@ -268,7 +268,7 @@ namespace ApplicationServices
 
            await using LogArchiver? archiver
                 = Log.Logger.IsDebugEnabled()
-                ? openLogArchive(System.IO.Path.Combine(Configuration.Instance.LibationFiles, "LibraryScans.zip"))
+                ? openLogArchive(System.IO.Path.Combine(Configuration.Instance.LibationFiles.Location, "LibraryScans.zip"))
                 : default;
 
 			archiver?.DeleteAllButNewestN(20);

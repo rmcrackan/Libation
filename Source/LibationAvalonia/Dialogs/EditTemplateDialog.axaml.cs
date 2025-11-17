@@ -26,7 +26,7 @@ public partial class EditTemplateDialog : DialogWindow
 		if (Design.IsDesignMode)
 		{
 			var mockInstance = Configuration.CreateMockInstance();
-			mockInstance.Books = Configuration.DefaultBooksDirectory;
+			mockInstance.Books = "/Path/To/Books";
 			RequestedThemeVariant  = ThemeVariant.Dark;
 			var editor = TemplateEditor<Templates.FileTemplate>.CreateFilenameEditor(mockInstance.Books, mockInstance.FileTemplate);
 			_viewModel = new(mockInstance, editor);
