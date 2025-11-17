@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+#nullable enable
 namespace FileManager
 {
 	public static class FileSystemTest
@@ -15,8 +16,10 @@ namespace FileManager
 		/// <summary>
 		/// Test if the directory supports filenames with characters that are invalid on Windows (:, *, ?, &lt;, &gt;, |).
 		/// </summary>
-		public static bool CanWriteWindowsInvalidChars(LongPath directoryName)
+		public static bool CanWriteWindowsInvalidChars(LongPath? directoryName)
 		{
+			if (directoryName is null)
+				return false;
 			var testFile = Path.Combine(directoryName, AdditionalInvalidWindowsFilenameCharacters + Guid.NewGuid().ToString());
 			return CanWriteFile(testFile);
 		}
@@ -24,8 +27,10 @@ namespace FileManager
 		/// <summary>
 		/// Test if the directory supports filenames with 255 unicode characters.
 		/// </summary>
-		public static bool CanWrite255UnicodeChars(LongPath directoryName)
+		public static bool CanWrite255UnicodeChars(LongPath? directoryName)
 		{
+			if (directoryName is null)
+				return false;
 			const char unicodeChar = 'ü';
 			var testFileName = new string(unicodeChar, 255);
 			var testFile = Path.Combine(directoryName, testFileName);
