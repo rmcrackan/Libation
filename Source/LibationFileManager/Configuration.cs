@@ -21,7 +21,7 @@ namespace LibationFileManager
 				throw new InvalidOperationException($"Can only mock {nameof(Configuration)} in Debug mode or in test assemblies.");
 #endif
 
-			var mockInstance = new Configuration() { persistentDictionary = new MockPersistentDictionary() };
+			var mockInstance = new Configuration() { JsonBackedDictionary = new EphemeralDictionary() };
 			mockInstance.SetString("Light", "ThemeVariant");
 			Instance = mockInstance;
 			return mockInstance;

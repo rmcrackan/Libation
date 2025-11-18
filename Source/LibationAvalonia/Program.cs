@@ -105,7 +105,7 @@ namespace LibationAvalonia
 			try
 			{
 				//Try to log the error message before displaying the crash dialog
-				if (Configuration.Instance.LoggingEnabled)
+				if (Configuration.Instance.SerilogInitialized)
 					Serilog.Log.Logger.Error(exception, "CRASH");
 				else
 					LogErrorWithoutSerilog(exception);

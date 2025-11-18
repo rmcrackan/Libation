@@ -15,7 +15,7 @@ namespace LibationFileManager
     {
         private IConfigurationRoot? configuration;
 
-        public bool LoggingEnabled { get; private set; }
+        public bool SerilogInitialized { get; private set; }
 
         public void ConfigureLogging()
         {
@@ -42,7 +42,7 @@ namespace LibationFileManager
 				 .Destructure.ByTransforming<LongPath>(lp => lp.Path)
 				 .Destructure.With<LogFileFilter>()
                  .CreateLogger();
-            LoggingEnabled = true;
+            SerilogInitialized = true;
         }
 
 		[Description("The importance of a log event")]

@@ -23,6 +23,11 @@ namespace FileLiberator
 		private CancellationTokenSource? cancellationTokenSource;
 		private AudiobookDownloadBase? abDownloader;
 
+		/// <summary>
+		/// Optional override to supply license info directly instead of querying the api based on Configuration options
+		/// </summary>
+		public DownloadOptions.LicenseInfo? LicenseInfo { get; set; }
+
 		public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists();
 		public override async Task CancelAsync()
 		{
@@ -44,7 +49,9 @@ namespace FileLiberator
 				DownloadValidation(libraryBook);
 
 				var api = await libraryBook.GetApiAsync();
-				using var downloadOptions = await DownloadOptions.InitiateDownloadAsync(api, Configuration.Instance, libraryBook, cancellationToken);
+
+				LicenseInfo ??= await DownloadOptions.GetDownloadLicenseAsync(api, libraryBook, Configuration.Instance, cancellationToken);
+				using var downloadOptions = DownloadOptions.BuildDownloadOptions(libraryBook, Configuration.Instance, LicenseInfo);
 				var result = await DownloadAudiobookAsync(api, downloadOptions, cancellationToken);
 
 				if (!result.Success || getFirstAudioFile(result.ResultFiles) is not TempFile audioFile)

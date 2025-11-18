@@ -25,6 +25,7 @@ public  class LibationFiles
 
 	public const string LIBATION_FILES_KEY = "LibationFiles";
 	public const string SETTINGS_JSON = "Settings.json";
+	public const string LIBATION_FILES_DIR = "LIBATION_FILES_DIR";
 
 	/// <summary>
 	/// Directory pointed to by appsettings.json
@@ -38,13 +39,25 @@ public  class LibationFiles
 	/// <summary>
 	/// Found Location of appsettings.json. This file must exist or be able to be created for Libation to start.
 	/// </summary>
-	internal string AppsettingsJsonFile { get; }
+	internal string? AppsettingsJsonFile { get; }
 	/// <summary>
 	/// File path to Settings.json inside <see cref="Location"/>
 	/// </summary>
 	public string SettingsFilePath => Path.Combine(Location, SETTINGS_JSON);
 
-	internal LibationFiles() : this(GetOrCreateAppsettingsFile()) { }
+	internal LibationFiles()
+	{
+		var libationFilesDir = Environment.GetEnvironmentVariable(LIBATION_FILES_DIR);
+		if (Directory.Exists(libationFilesDir))
+		{
+			Location = libationFilesDir;
+		}
+		else
+		{
+			AppsettingsJsonFile = GetOrCreateAppsettingsFile();
+			Location = GetLibationFilesFromAppsettings(AppsettingsJsonFile);
+		}
+	}
 
 	internal LibationFiles(string appSettingsFile)
 	{
@@ -57,6 +70,12 @@ public  class LibationFiles
 	/// </summary>
 	public void SetLibationFiles(LongPath libationFilesDirectory)
 	{
+		if (AppsettingsJsonFile is null)
+		{
+			Environment.SetEnvironmentVariable(LIBATION_FILES_DIR, libationFilesDirectory);
+			return;
+		}
+
 		var startingContents = File.ReadAllText(AppsettingsJsonFile);
 		var jObj = JObject.Parse(startingContents);
 

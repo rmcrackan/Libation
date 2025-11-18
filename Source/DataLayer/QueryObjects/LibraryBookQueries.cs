@@ -25,16 +25,17 @@ namespace DataLayer
 				.Where(c => !c.Book.IsEpisodeParent() || includeParents)
 				.ToList();
 
-        public static LibraryBook? GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId)
-            => context
+        public static LibraryBook? GetLibraryBook_Flat_NoTracking(this LibationContext context, string productId, bool caseSensative = true)
+        {
+            var libraryQuery
+                = context
                 .LibraryBooks
                 .AsNoTrackingWithIdentityResolution()
-                .GetLibraryBook(productId);
+                .GetLibrary();
 
-        public static LibraryBook? GetLibraryBook(this IQueryable<LibraryBook> library, string productId)
-            => library
-                .GetLibrary()
-                .SingleOrDefault(lb => lb.Book.AudibleProductId == productId);
+            return caseSensative ? libraryQuery.SingleOrDefault(lb => lb.Book.AudibleProductId == productId)
+                : libraryQuery.SingleOrDefault(lb => EF.Functions.Collate(lb.Book.AudibleProductId, "NOCASE") == productId);
+		}
 
         /// <summary>This is still IQueryable. YOU MUST CALL ToList() YOURSELF</summary>
         public static IQueryable<LibraryBook> GetLibrary(this IQueryable<LibraryBook> library)

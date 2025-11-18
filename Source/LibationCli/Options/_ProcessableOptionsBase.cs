@@ -1,28 +1,34 @@
 ﻿using ApplicationServices;
 using CommandLine;
 using DataLayer;
-using Dinah.Core;
 using FileLiberator;
+using LibationFileManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationCli
 {
 	public abstract class ProcessableOptionsBase : OptionsBase
 	{
 
 		[Value(0, MetaName = "[asins]", HelpText = "Optional product IDs of books to process.")]
-		public IEnumerable<string> Asins { get; set; }
+		public IEnumerable<string>? Asins { get; set; }
 
-		protected static TProcessable CreateProcessable<TProcessable>(EventHandler<LibraryBook> completedAction = null)
+		protected static TProcessable CreateProcessable<TProcessable>(EventHandler<LibraryBook>? completedAction = null)
 			where TProcessable : Processable, new()
 		{
 			var progressBar = new ConsoleProgressBar(Console.Out);
 			var strProc = new TProcessable();
+			LibraryBook? currentLibraryBook = null;
 
-			strProc.Begin += (o, e) => Console.WriteLine($"{typeof(TProcessable).Name} Begin: {e}");
+			strProc.Begin += (o, e) =>
+			{
+				currentLibraryBook = e;
+				Console.WriteLine($"{typeof(TProcessable).Name} Begin: {e}");
+			};
 
 			strProc.Completed += (o, e) =>
 			{
@@ -46,24 +52,57 @@ namespace LibationCli
 			strProc.StreamingTimeRemaining += (_, e) => progressBar.RemainingTime = e;
 			strProc.StreamingProgressChanged += (_, e) => progressBar.Progress = e.ProgressPercentage;
 
+			if (strProc is AudioDecodable audDec)
+			{
+				audDec.RequestCoverArt += (_,_) =>
+				{
+					if (currentLibraryBook is null)
+						return null;
+
+					var quality
+						= Configuration.Instance.FileDownloadQuality == Configuration.DownloadQuality.High && currentLibraryBook.Book.PictureLarge is not null
+						? new PictureDefinition(currentLibraryBook.Book.PictureLarge, PictureSize.Native)
+						: new PictureDefinition(currentLibraryBook.Book.PictureId, PictureSize._500x500);
+
+					return PictureStorage.GetPictureSynchronously(quality);
+				};
+			}
+
 			return strProc;
 		}
 
-		protected async Task RunAsync(Processable Processable)
+		protected async Task RunAsync(Processable Processable, Action<LibraryBook>? config = null)
 		{
-			var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
-
-			if (Asins.Any())
+			if (Asins?.Any() is true)
 			{
-				var asinsLower = Asins.Select(a => a.TrimStart('[').TrimEnd(']').ToLower()).ToArray();
-
-				foreach (var lb in libraryBooks.Where(lb => lb.Book.AudibleProductId.ToLower().In(asinsLower)))
-					await ProcessOneAsync(Processable, lb, true);
+				foreach (var asin in Asins.Select(a => a.TrimStart('[').TrimEnd(']')))
+				{
+					LibraryBook? lb = null;
+					using (var dbContext = DbContexts.GetContext())
+					{
+						lb = dbContext.GetLibraryBook_Flat_NoTracking(asin, caseSensative: false);
+					}
+					if (lb is not null)
+					{
+						config?.Invoke(lb);
+						await ProcessOneAsync(Processable, lb, true);
+					}
+					else
+					{
+						var msg = $"Book with ASIN '{asin}' not found in library. Skipping.";
+						Console.Error.WriteLine(msg);
+						Serilog.Log.Logger.Error(msg);
+					}
+				}
 			}
 			else
 			{
+				var libraryBooks = DbContexts.GetLibrary_Flat_NoTracking();
 				foreach (var lb in Processable.GetValidLibraryBooks(libraryBooks))
+				{
+					config?.Invoke(lb);
 					await ProcessOneAsync(Processable, lb, false);
+				}
 			}
 
 			var done = "Done. All books have been processed";
@@ -71,7 +110,7 @@ namespace LibationCli
 			Serilog.Log.Logger.Information(done);
 		}
 
-		private static async Task ProcessOneAsync(Processable Processable, LibraryBook libraryBook, bool validate)
+		protected async Task ProcessOneAsync(Processable Processable, LibraryBook libraryBook, bool validate)
 		{
 			try
 			{

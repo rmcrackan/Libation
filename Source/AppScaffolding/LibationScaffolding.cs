@@ -79,9 +79,17 @@ namespace AppScaffolding
 		}
 
 		/// <summary>most migrations go in here</summary>
-		public static void RunPostConfigMigrations(Configuration config)
+		public static void RunPostConfigMigrations(Configuration config, bool ephemeralSettings = false)
 		{
-			config.LoadPersistentSettings(config.LibationFiles.SettingsFilePath);
+			if (ephemeralSettings)
+			{
+				var settings = JObject.Parse(File.ReadAllText(config.LibationFiles.SettingsFilePath));
+				config.LoadEphemeralSettings(settings);
+			}
+			else
+			{
+				config.LoadPersistentSettings(config.LibationFiles.SettingsFilePath);
+			}
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
 
 			//

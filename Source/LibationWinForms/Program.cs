@@ -1,13 +1,11 @@
 using ApplicationServices;
 using AppScaffolding;
 using DataLayer;
-using Dinah.Core.WindowsDesktop.Processes;
 using LibationFileManager;
 using LibationUiBase;
 using LibationWinForms.Dialogs;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -90,7 +88,7 @@ namespace LibationWinForms
 			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
 			postLoggingGlobalExceptionHandling();
 
-			var form1 = new Form1();
+			form1 = new Form1();
 			form1.Load += async (_, _) => await form1.InitLibraryAsync(await libraryLoadTask);
 			Application.Run(form1);
 		}
