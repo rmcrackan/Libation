@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 #nullable enable
 namespace FileManager
 {
-    public class PersistentDictionary : IPersistentDictionary
+    public class PersistentDictionary : IJsonBackedDictionary
     {
         public string Filepath { get; }
         public bool IsReadOnly { get; }
@@ -59,7 +59,7 @@ namespace FileManager
                 objectCache[propertyName] = defaultValue;
                 return defaultValue;
             }
-            return IPersistentDictionary.UpCast<T>(obj);
+            return IJsonBackedDictionary.UpCast<T>(obj);
 		}
 
         public object? GetObject(string propertyName)

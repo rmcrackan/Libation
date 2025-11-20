@@ -109,6 +109,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayer.Postgres", "DataL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayer.Sqlite", "DataLayer.Sqlite\DataLayer.Sqlite.csproj", "{1E689E85-279E-39D4-7D97-3E993FB6D95B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibationUiBase.Tests", "_Tests\LibationUiBase.Tests\LibationUiBase.Tests.csproj", "{6F9DB713-2879-4B14-9F9E-3B13C9B7F35C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -239,6 +241,10 @@ Global
 		{1E689E85-279E-39D4-7D97-3E993FB6D95B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E689E85-279E-39D4-7D97-3E993FB6D95B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E689E85-279E-39D4-7D97-3E993FB6D95B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F9DB713-2879-4B14-9F9E-3B13C9B7F35C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F9DB713-2879-4B14-9F9E-3B13C9B7F35C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F9DB713-2879-4B14-9F9E-3B13C9B7F35C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F9DB713-2879-4B14-9F9E-3B13C9B7F35C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -280,6 +286,7 @@ Global
 		{CFE7A0E5-37FE-40BE-A70B-41B5104181C4} = {67E66E82-5532-4440-AFB3-9FB1DF9DEF53}
 		{0E480D2D-C7C1-A6FE-8C90-8A6F0DBCEAC2} = {751093DD-5DBA-463E-ADBE-E05FAFB6983E}
 		{1E689E85-279E-39D4-7D97-3E993FB6D95B} = {751093DD-5DBA-463E-ADBE-E05FAFB6983E}
+		{6F9DB713-2879-4B14-9F9E-3B13C9B7F35C} = {67E66E82-5532-4440-AFB3-9FB1DF9DEF53}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {615E00ED-BAEF-4E8E-A92A-9B82D87942A9}

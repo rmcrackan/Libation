@@ -12,6 +12,7 @@ using LibationAvalonia.Dialogs;
 using Avalonia.Threading;
 using FileManager;
 using System.Linq;
+using System.Reflection;
 
 #nullable enable
 namespace LibationAvalonia
@@ -19,7 +20,6 @@ namespace LibationAvalonia
 	static class Program
 	{
 		private static System.Threading.Lock SetupLock { get; } = new();
-		internal static bool LoggingEnabled { get; set; }
 		[STAThread]
 		static void Main(string[] args)
 		{
@@ -51,21 +51,20 @@ namespace LibationAvalonia
 			try
 			{
 				var config = LibationScaffolding.RunPreConfigMigrations();
-				if (config.LibationSettingsAreValid)
+				if (config.LibationFiles.SettingsAreValid)
 				{
 					// most migrations go in here
 					LibationScaffolding.RunPostConfigMigrations(config);
 					LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
-					LoggingEnabled = true;
 
 					//Start loading the library before loading the main form
 					App.LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
 				}
-				BuildAvaloniaApp()?.StartWithClassicDesktopLifetime([]);
+				BuildAvaloniaApp()?.StartWithClassicDesktopLifetime([], ShutdownMode.OnExplicitShutdown);
 			}
 			catch (Exception ex)
 			{
-				if (new StackTrace(ex).GetFrames().Any(f => f.GetMethod()?.DeclaringType == typeof(NativeWebDialog)))
+				if (new StackTrace(ex).GetFrames().Any(f => f.GetMethod()?.DeclaringType?.Assembly == typeof(NativeWebDialog).Assembly))
 				{
 					//Many of the NativeWebDialog exceptions cannot be handled by user code,
 					//so a webview failure is a fatal error. Disable webview usage and rely
@@ -106,7 +105,7 @@ namespace LibationAvalonia
 			try
 			{
 				//Try to log the error message before displaying the crash dialog
-				if (LoggingEnabled)
+				if (Configuration.Instance.SerilogInitialized)
 					Serilog.Log.Logger.Error(exception, "CRASH");
 				else
 					LogErrorWithoutSerilog(exception);
@@ -150,7 +149,7 @@ namespace LibationAvalonia
 			 Version               {LibationScaffolding.BuildVersion}
 			 ReleaseIdentifier     {LibationScaffolding.ReleaseIdentifier}
 			 InteropFunctionsType  {InteropFactory.InteropFunctionsType}
-			 LibationFiles         {getConfigValue(c => c.LibationFiles)}
+			 LibationFiles         {getConfigValue(c => c.LibationFiles.Location)}
 			 Books Folder          {getConfigValue(c => c.Books)}
 			 === EXCEPTION ===
 			 {exceptionObject}
@@ -162,7 +161,7 @@ namespace LibationAvalonia
 				//Try to add crash message to the newest existing Libation log file
 				//then to LibationFiles/LibationCrash.log
 				//then to %UserProfile%/LibationCrash.log
-				string logDir = Configuration.Instance.LibationFiles;
+				string logDir = Configuration.Instance.LibationFiles.Location;
 				var existingLogFiles = Directory.GetFiles(logDir, "Log*.log");
 
 				logFile = existingLogFiles.Length == 0 ? getFallbackLogFile()
@@ -194,7 +193,7 @@ namespace LibationAvalonia
 				try
 				{
 
-					string logDir = Configuration.Instance.LibationFiles;
+					string logDir = Configuration.Instance.LibationFiles.Location;
 					if (!Directory.Exists(logDir))
 						logDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 

@@ -20,7 +20,7 @@ namespace LibationFileManager
             public List<NamedFilter> Filters { get; set; } = new();
         }
 
-        public static string JsonFile => Path.Combine(Configuration.Instance.LibationFiles, "QuickFilters.json");
+        public static string JsonFile => Path.Combine(Configuration.Instance.LibationFiles.Location, "QuickFilters.json");
 
 
         // load json into memory. if file doesn't exist, nothing to do. save() will create if needed

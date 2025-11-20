@@ -36,12 +36,6 @@
 		</DockPanel>
 
 		<DockPanel Height="45" Grid.Row="1" Background="{DynamicResource SystemChromeMediumLowColor}">
-			<DockPanel.Styles>
-				<Style Selector="Button:focus">
-					<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
-					<Setter Property="BorderThickness" Value="2" />
-				</Style>
-			</DockPanel.Styles>
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5" DockPanel.Dock="Bottom">
 				<Button Grid.Column="0" MinWidth="75" MinHeight="28" Name="Button1" Click="Button1_Click" Margin="5">
 					<TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="{CompiledBinding Button1Text}"/>

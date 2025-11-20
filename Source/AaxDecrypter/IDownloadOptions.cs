@@ -15,6 +15,7 @@ namespace AaxDecrypter
             KeyPart2 = keyPart2;
         }
 
+        [Newtonsoft.Json.JsonConstructor]
         public KeyData(string keyPart1, string? keyPart2 = null)
         {
             ArgumentNullException.ThrowIfNull(keyPart1, nameof(keyPart1));

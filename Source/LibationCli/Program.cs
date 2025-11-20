@@ -19,7 +19,7 @@ namespace LibationCli
 		public readonly static Type[] VerbTypes = Setup.LoadVerbs();
 		static async Task Main(string[] args)
 		{
-
+			Console.OutputEncoding = Console.InputEncoding = System.Text.Encoding.UTF8;
 #if DEBUG
 			string input = "";
 
@@ -32,6 +32,9 @@ namespace LibationCli
 			//input = "  scan  rmcrackan";
 			//input = "  help  set-status";
 			//input = "  liberate ";
+			//input = "get-setting -o Replace_OpenQuote=[ ";
+			//input = "get-setting ";
+			//input = "liberate B017V4NOZ0 --force -o Books=\"./Books\"";
 
 			// note: this hack will fail for quoted file paths with spaces because it will break on those spaces
 			if (!string.IsNullOrWhiteSpace(input))
@@ -56,15 +59,6 @@ namespace LibationCli
 			else
 			{
 				//Everything parsed correctly, so execute the command
-
-				//***********************************************//
-				//                                               //
-				//   do not use Configuration before this line   //
-				//                                               //
-				//***********************************************//
-				Setup.Initialize();
-
-				// if successfully parsed
 				// async: run parsed options
 				await result.WithParsedAsync<OptionsBase>(opt => opt.Run());
 			}
@@ -108,6 +102,7 @@ namespace LibationCli
 
 		private static void ConfigureParser(ParserSettings settings)
 		{
+			settings.AllowMultiInstance = true;
 			settings.AutoVersion = false;
 			settings.AutoHelp = false;
 		}

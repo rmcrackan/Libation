@@ -7,6 +7,7 @@ using LibationFileManager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+#nullable enable
 namespace AppScaffolding
 {
 	/// <summary>
@@ -20,21 +21,21 @@ namespace AppScaffolding
 	/// </summary>
 	public static class UNSAFE_MigrationHelper
 	{
-		public static string SettingsDirectory
-			=> !APPSETTINGS_TryGet(LIBATION_FILES_KEY, out var value) || value is null
+		public static string? SettingsDirectory
+			=> !APPSETTINGS_TryGet(LibationFiles.LIBATION_FILES_KEY, out var value) || value is null
 			? null
 			: value;
 
 		#region appsettings.json
 
-		public static bool APPSETTINGS_TryGet(string key, out string value)
+		public static bool APPSETTINGS_TryGet(string key, out string? value)
 		{
 			bool success = false;
-			JToken val = null;
+			JToken? val = null;
 
 			process_APPSETTINGS_Json(jObj => success = jObj.TryGetValue(key, out val), false);
 
-			value = success ? val.Value<string>() : null;
+			value = success ? val?.Value<string>() : null;
 			return success;
 		}
 
@@ -59,7 +60,10 @@ namespace AppScaffolding
 		/// <param name="save">True: save if contents changed. False: no not attempt save</param>
 		private static void process_APPSETTINGS_Json(Action<JObject> action, bool save = true)
 		{
-			var startingContents = File.ReadAllText(Configuration.AppsettingsJsonFile);
+			if (Configuration.Instance.LibationFiles.AppsettingsJsonFile is not string appSettingsFile)
+				return;
+
+			var startingContents = File.ReadAllText(appSettingsFile);
 
 			JObject jObj;
 			try
@@ -82,40 +86,37 @@ namespace AppScaffolding
 			if (startingContents.EqualsInsensitive(endingContents_indented) || startingContents.EqualsInsensitive(endingContents_compact))
 				return;
 
-			File.WriteAllText(Configuration.AppsettingsJsonFile, endingContents_indented);
+			File.WriteAllText(Configuration.Instance.LibationFiles.AppsettingsJsonFile, endingContents_indented);
 			System.Threading.Thread.Sleep(100);
 		}
 		#endregion
 		#region Settings.json
-		public const string LIBATION_FILES_KEY = "LibationFiles";
-		private const string SETTINGS_JSON = "Settings.json";
 
-		public static string SettingsJsonPath => SettingsDirectory is null ? null : Path.Combine(SettingsDirectory, SETTINGS_JSON);
-		public static bool SettingsJson_Exists => SettingsJsonPath is not null && File.Exists(SettingsJsonPath);
+		public static string? SettingsJsonPath => SettingsDirectory is null ? null : Path.Combine(SettingsDirectory, LibationFiles.SETTINGS_JSON);
 
-		public static bool Settings_TryGet(string key, out string value)
+		public static bool Settings_TryGet(string key, out string? value)
 		{
 			bool success = false;
-			JToken val = null;
+			JToken? val = null;
 
 			process_SettingsJson(jObj => success = jObj.TryGetValue(key, out val), false);
 
-			value = success ? val.Value<string>() : null;
+			value = success ? val?.Value<string>() : null;
 			return success;
 		}
 
 		public static bool Settings_JsonPathIsType(string jsonPath, JTokenType jTokenType)
 		{
-			JToken val = null;
+			JToken? val = null;
 
 			process_SettingsJson(jObj => val = jObj.SelectToken(jsonPath), false);
 
 			return val?.Type == jTokenType;
 		}
 
-		public static bool Settings_TryGetFromJsonPath(string jsonPath, out string value)
+		public static bool Settings_TryGetFromJsonPath(string jsonPath, out string? value)
 		{
-			JToken val = null;
+			JToken? val = null;
 
 			process_SettingsJson(jObj => val = jObj.SelectToken(jsonPath), false);
 
@@ -157,10 +158,10 @@ namespace AppScaffolding
 			if (!Settings_JsonPathIsType(jsonPath, JTokenType.Array))
 				return false;
 
-			JArray array = null;
-			process_SettingsJson(jObj => array = (JArray)jObj.SelectToken(jsonPath));
+			JArray? array = null;
+			process_SettingsJson(jObj => array = jObj.SelectToken(jsonPath) as JArray);
 
-			length = array.Count;
+			length = array?.Count ?? 0;
 			return true;
 		}
 
@@ -171,8 +172,7 @@ namespace AppScaffolding
 
 			process_SettingsJson(jObj =>
 			{
-				var array = (JArray)jObj.SelectToken(jsonPath);
-				array.Add(newValue);
+				(jObj.SelectToken(jsonPath) as JArray)?.Add(newValue);
 			});
 		}
 
@@ -200,8 +200,7 @@ namespace AppScaffolding
 
 			process_SettingsJson(jObj =>
 			{
-				var array = (JArray)jObj.SelectToken(jsonPath);
-				if (position < array.Count)
+				if (jObj.SelectToken(jsonPath) is JArray array && position < array.Count)
 					array.RemoveAt(position);
 			});
 		}
@@ -228,7 +227,7 @@ namespace AppScaffolding
 		private static void process_SettingsJson(Action<JObject> action, bool save = true)
 		{
 			// only insert if not exists
-			if (!SettingsJson_Exists)
+			if (!File.Exists(SettingsJsonPath))
 				return;
 
 			var startingContents = File.ReadAllText(SettingsJsonPath);
@@ -260,7 +259,7 @@ namespace AppScaffolding
 		#endregion
 		#region LibationContext.db
 		public const string LIBATION_CONTEXT = "LibationContext.db";
-		public static string DatabaseFile => SettingsDirectory is null ? null : Path.Combine(SettingsDirectory, LIBATION_CONTEXT);
+		public static string? DatabaseFile => SettingsDirectory is null ? null : Path.Combine(SettingsDirectory, LIBATION_CONTEXT);
 		public static bool DatabaseFile_Exists => DatabaseFile is not null && File.Exists(DatabaseFile);
 		#endregion
 	}

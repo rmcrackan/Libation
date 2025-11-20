@@ -21,7 +21,7 @@ namespace LibationCli
 		[Option(shortName: 'n', longName: "not-downloaded", Group = "Download Status", HelpText = "set download status to 'Not Downloaded'")]
 		public bool SetNotDownloaded { get; set; }
 
-		[Option("force", HelpText = "Set the download status regardless of whether the book's audio file can be found. Only one download status option may be used with this option.")]
+		[Option('f', "force", HelpText = "Set the download status regardless of whether the book's audio file can be found. Only one download status option may be used with this option.")]
 		public bool Force { get; set; }
 
 		[Value(0, MetaName = "[asins]", HelpText = "Optional product IDs of books on which to set download status.")]

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using FileManager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 #nullable enable
 namespace LibationFileManager
@@ -19,18 +19,19 @@ namespace LibationFileManager
 		// default setting and directory creation occur in class responsible for files.
 		// config class is only responsible for path. not responsible for setting defaults, dir validation, or dir creation
 		// exceptions: appsettings.json, LibationFiles dir, Settings.json
+		private IJsonBackedDictionary? JsonBackedDictionary { get; set; }
+		private IJsonBackedDictionary Settings => JsonBackedDictionary
+			?? throw new InvalidOperationException($"{nameof(LoadPersistentSettings)} must first be called prior to accessing {nameof(Settings)}");
 
-		private IPersistentDictionary? persistentDictionary;
+		internal void LoadPersistentSettings(string settingsFile)
+			=> JsonBackedDictionary = new PersistentDictionary(settingsFile);
 
-		private IPersistentDictionary Settings
-		{
-			get
-			{
-				if (persistentDictionary is null)
-					throw new InvalidOperationException($"{nameof(persistentDictionary)} must first be set by accessing {nameof(LibationFiles)} or calling {nameof(SettingsFileIsValid)}");
-				return persistentDictionary;
-			}
-		}
+		internal void LoadEphemeralSettings(JObject dataStore)
+			=> JsonBackedDictionary = new EphemeralDictionary(dataStore);
+
+		private LibationFiles? _libationFiles;
+		[Description("Location for storage of program-created files")]
+		public LibationFiles LibationFiles => _libationFiles ??= new LibationFiles();
 
 		public bool RemoveProperty(string propertyName) => Settings.RemoveProperty(propertyName);
 
@@ -79,8 +80,6 @@ namespace LibationFileManager
 			if (settingWasChanged)
 				configuration?.Reload();
 		}
-
-		public string SettingsFilePath => Path.Combine(LibationFiles, "Settings.json");
 
 		public static string GetDescription(string propertyName)
 		{

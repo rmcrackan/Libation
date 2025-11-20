@@ -17,7 +17,7 @@ namespace LibationWinForms.Dialogs
 			if (File.Exists(LogFileFilter.LogFilePath))
 				Go.To.File(LogFileFilter.LogFilePath);
 			else
-				Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
+				Go.To.Folder(Configuration.Instance.LibationFiles.Location.ShortPathName);
 		}
 
 		private void Load_Important(Configuration config)

@@ -4,9 +4,9 @@ using AudibleApi.Common;
 using AudibleUtilities.Widevine;
 using DataLayer;
 using Dinah.Core;
-using DocumentFormat.OpenXml.Wordprocessing;
 using LibationFileManager;
 using NAudio.Lame;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,9 +21,9 @@ namespace FileLiberator;
 public partial class DownloadOptions
 {
 	/// <summary>
-	/// Initiate an audiobook download from the audible api.
+	/// Requests a download license from the Api using the Configuration settings to choose the appropriate content.
 	/// </summary>
-	public static async Task<DownloadOptions> InitiateDownloadAsync(Api api, Configuration config, LibraryBook libraryBook, CancellationToken token)
+	public static async Task<LicenseInfo> GetDownloadLicenseAsync(Api api, LibraryBook libraryBook, Configuration config, CancellationToken token)
 	{
 		var license = await ChooseContent(api, libraryBook, config, token);
 		Serilog.Log.Logger.Debug("Content License {@License}", new
@@ -65,14 +65,20 @@ public partial class DownloadOptions
 			license.ContentMetadata.ChapterInfo = metadata.ChapterInfo;
 
 		token.ThrowIfCancellationRequested();
-		return BuildDownloadOptions(libraryBook, config, license);
+		return license;
 	}
 
-	private class LicenseInfo
+	public class LicenseInfo
 	{
-		public DrmType DrmType { get; }
-		public ContentMetadata ContentMetadata { get; }
-		public KeyData[]? DecryptionKeys { get; }
+		public DrmType DrmType { get; set; }
+		public ContentMetadata ContentMetadata { get; set; }
+		public KeyData[]? DecryptionKeys { get; set; }
+
+		[JsonConstructor]
+		private LicenseInfo()
+		{
+			ContentMetadata = null!;
+		}
 		public LicenseInfo(ContentLicense license, IEnumerable<KeyData>? keys = null)
 		{
 			DrmType = license.DrmType;
@@ -159,7 +165,10 @@ public partial class DownloadOptions
 		}
 	}
 
-	private static DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, LicenseInfo licInfo)
+	/// <summary>
+	/// Builds DownloadOptions from the given LibraryBook, Configuration, and LicenseInfo.
+	/// </summary>
+	public static DownloadOptions BuildDownloadOptions(LibraryBook libraryBook, Configuration config, LicenseInfo licInfo)
 	{
 		long chapterStartMs
 			= config.StripAudibleBrandAudio

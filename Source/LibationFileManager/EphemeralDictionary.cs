@@ -4,16 +4,25 @@ using Newtonsoft.Json.Linq;
 #nullable enable
 namespace LibationFileManager;
 
-internal class MockPersistentDictionary : IPersistentDictionary
+internal class EphemeralDictionary : IJsonBackedDictionary
 {
-	private JObject JsonObject { get; } = new();
+	private JObject JsonObject { get; }
+
+	public EphemeralDictionary()
+	{
+		JsonObject = new();
+	}
+	public EphemeralDictionary(JObject dataStore)
+	{
+		JsonObject = dataStore;
+	}
 
 	public bool Exists(string propertyName)
 		=> JsonObject.ContainsKey(propertyName);
 	public string? GetString(string propertyName, string? defaultValue = null)
 		=> JsonObject[propertyName]?.Value<string>() ?? defaultValue;
 	public T? GetNonString<T>(string propertyName, T? defaultValue = default)
-		=> GetObject(propertyName) is object obj ? IPersistentDictionary.UpCast<T>(obj) : defaultValue;
+		=> GetObject(propertyName) is object obj ? IJsonBackedDictionary.UpCast<T>(obj) : defaultValue;
 	public object? GetObject(string propertyName)
 		=> JsonObject[propertyName]?.Value<object>();
 	public void SetString(string propertyName, string? newValue)

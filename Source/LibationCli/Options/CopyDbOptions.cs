@@ -6,15 +6,15 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace LibationCli
 {
     [Verb("copydb", HelpText = "Copy the local sqlite database to postgres.")]
     public class CopyDbOptions : OptionsBase
-    {
-        [Option(shortName: 'c', longName: "connectionString")]
-        public string PostgresConnectionString { get; set; }
-
-        protected override async Task ProcessAsync()
+	{
+		[Option(shortName: 'c', longName: "connectionString", HelpText = "Postgres Database connection string")]
+		public string? PostgresConnectionString { get; set; }
+		protected override async Task ProcessAsync()
         {
             var srcConnectionString = SqliteStorage.ConnectionString;
             var destConnectionString = PostgresConnectionString ?? Configuration.Instance.PostgresqlConnectionString;

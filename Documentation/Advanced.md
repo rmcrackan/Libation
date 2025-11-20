@@ -10,11 +10,9 @@
 - [Files and folders](#files-and-folders)
 - [Settings](#settings)
 - [Custom File Naming](NamingTemplates.md)
-- [Command Line Interface](#command-line-interface)
 - [Custom Theme Colors](#custom-theme-colors) (Chardonnay Only)
+- [Command Line Interface](#command-line-interface)
 - [Audio Formats (Dolby Atmos, Widevine, Spacial Audio)](AudioFileFormats.md)
-
-
 
 ### Files and folders
 
@@ -39,59 +37,6 @@ In addition to the options that are enabled if you allow Libation to "fix up" th
 * Replaces the chapter markers embedded in the aax file with the chapter markers retrieved from Audible's API.
 * Sets the embedded cover art image with the 500x500 px cover art retrieved from Audible
 
-### Command Line Interface
-
-Libationcli.exe allows limited access to Libation's functionalities as a CLI.
-
-Warnings about relying solely on on the CLI:
-* CLI will not perform any upgrades.
-* It will show that there is an upgrade, but that will likely scroll by too fast to notice.
-* It will not perform all post-upgrade migrations. Some migrations are only be possible by launching GUI.
-
-```
-help
-  libationcli --help
-  
-verb-specific help
-  libationcli scan --help
-  
-scan all libraries
-  libationcli scan
-scan only libraries for specific accounts
-  libationcli scan nickname1 nickname2
-  
-convert all m4b files to mp3
-  libationcli convert
-  
-liberate all books and pdfs
-  libationcli liberate
-liberate pdfs only
-  libationcli liberate --pdf
-  libationcli liberate -p
-
-Copy the local sqlite database to postgres
-  libationcli copydb --connectionString "my postgres connection string"
-  libationcli copydb -c "my postgres connection string"
-  
-export library to file
-  libationcli export --path "C:\foo\bar\my.json" --json
-  libationcli export -p "C:\foo\bar\my.json" -j
-  libationcli export -p "C:\foo\bar\my.csv" --csv
-  libationcli export -p "C:\foo\bar\my.csv" -c
-  libationcli export -p "C:\foo\bar\my.xlsx" --xlsx
-  libationcli export -p "C:\foo\bar\my.xlsx" -x
-
-Set download statuses throughout library based on whether each book's audio file can be found.   
-Must include at least one flag: --downloaded , --not-downloaded.  
-Downloaded: If the audio file can be found, set download status to 'Downloaded'.  
-Not Downloaded: If the audio file cannot be found, set download status to 'Not Downloaded'  
-UI: Visible Books \> Set 'Downloaded' status automatically. Visible books. Prompts before saving changes  
-CLI: Full library. No prompt
-
-  libationcli set-status -d
-  libationcli set-status -n
-  libationcli set-status -d -n
-```
 ### Custom Theme Colors
 
 In Libation Chardonnay (not Classic), you may adjust the app colors using the built-in theme editor. Open the Settings window (from the menu bar: Settings > Settings). On the "Important" settings tab, click "Edit Theme Colors".
@@ -113,4 +58,102 @@ The below video demonstrates using the theme editor to make changes to the Dark 
 
 [](https://github.com/user-attachments/assets/05c0cb7f-578f-4465-9691-77d694111349)
 
+### Command Line Interface
 
+Libationcli.exe allows limited access to Libation's functionalities as a CLI.
+
+Warnings about relying solely on on the CLI:
+* CLI will not perform any upgrades.
+* It will show that there is an upgrade, but that will likely scroll by too fast to notice.
+* It will not perform all post-upgrade migrations. Some migrations are only be possible by launching GUI.
+
+#### Help
+```console
+libationcli --help
+```
+#### Verb-Specific Help
+```console
+libationcli scan --help
+```
+#### Scan All Libraries
+```console
+libationcli scan
+```
+#### Scan Only Libraries for Specific Accounts
+```console
+libationcli scan nickname1 nickname2
+```
+#### Convert All m4b Files to mp3
+```console
+libationcli convert
+```
+#### Liberate All Books and Pdfs
+```console
+libationcli liberate
+```
+#### Liberate Pdfs Only
+```console
+libationcli liberate --pdf
+libationcli liberate -p
+```
+#### Force Book(s) to Re-Liberate
+```console
+libationcli liberate --force
+libationcli liberate -f
+```
+#### List Libation Settings
+```console
+libationcli get-setting
+libationcli get-setting -b
+libationcli get-setting FileDownloadQuality
+```
+#### Override Libation Settings for the Command
+```console
+libationcli liberate B017V4IM1G -override FileDownloadQuality=Normal
+libationcli liberate B017V4IM1G -o FileDownloadQuality=normal -o UseWidevine=true Request_xHE_AAC=true -f
+```
+#### Copy the Local SQLite Database to Postgres
+```console
+libationcli copydb --connectionString "my postgres connection string"
+libationcli copydb -c "my postgres connection string"
+```
+#### Export Library to File
+```console
+libationcli export --path "C:\foo\bar\my.json" --json
+libationcli export -p "C:\foo\bar\my.json" -j
+libationcli export -p "C:\foo\bar\my.csv" --csv
+libationcli export -p "C:\foo\bar\my.csv" -c
+libationcli export -p "C:\foo\bar\my.xlsx" --xlsx
+libationcli export -p "C:\foo\bar\my.xlsx" -x
+```
+#### Set Download Status
+Set download statuses throughout library based on whether each book's audio file can be found.   
+Must include at least one flag: --downloaded , --not-downloaded.  
+Downloaded: If the audio file can be found, set download status to 'Downloaded'.  
+Not Downloaded: If the audio file cannot be found, set download status to 'Not Downloaded'  
+UI: Visible Books \> Set 'Downloaded' status automatically. Visible books. Prompts before saving changes  
+CLI: Full library. No prompt
+
+```console
+libationcli set-status -d
+libationcli set-status -n
+libationcli set-status -d -n
+```
+#### Get a Content License Without Downloading
+```console
+libationcli get-license B017V4IM1G
+```
+#### Example Powershell Script to Download Four Differenf Versions f the Same Book
+```powershell
+$asin="B017V4IM1G"
+
+$xHE_AAC=@('true', 'false')
+$Qualities=@('Normal', 'High')
+foreach($q in $Qualities){
+  foreach($x in $xHE_AAC){
+	$license = ./libationcli get-license $asin --override FileDownloadQuality=$q --override Request_xHE_AAC=$x
+	echo $($license | ConvertFrom-Json).ContentMetadata.content_reference
+	echo $license | ./libationcli liberate --force
+  }
+}
+```

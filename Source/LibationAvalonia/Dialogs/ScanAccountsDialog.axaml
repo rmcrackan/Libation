@@ -18,14 +18,6 @@
 		ColumnDefinitions="*,Auto"
 		RowDefinitions="Auto,*,Auto"
 		Margin="10">
-		
-		<Grid.Styles>
-			<Style Selector="Button:focus">
-				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
-				<Setter Property="BorderThickness" Value="2" />
-			</Style>
-		</Grid.Styles>
-		
 		<TextBlock
 			Grid.Row="0"
 			Grid.Column="0"
@@ -61,7 +53,7 @@
 		<Button
 			Grid.Row="2"
 			Grid.Column="1"
-			Padding="30,6"
+			Classes="SaveButton"
 			HorizontalAlignment="Right"
 			Content="Import"
 			Name="ImportButton"

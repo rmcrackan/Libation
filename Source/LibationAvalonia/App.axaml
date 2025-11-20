@@ -84,6 +84,9 @@
 				<Setter Property="Foreground" Value="{DynamicResource SystemChromeAltLowColor}" />
 			</Style>
 		</Style>
+		<Style Selector="Button.SaveButton">
+			<Setter Property="Padding" Value="30,6" />
+		</Style>
 		<Style Selector="ScrollBar">
 			<!-- It's called AutoHide, but this is really the mouseover shrink/expand. -->
             <Setter Property="AllowAutoHide" Value="false"/>
@@ -97,7 +100,11 @@
 					<ContentPresenter Background="{DynamicResource SystemRegionColor}" Content="{TemplateBinding Content}" />
 				</ControlTemplate>
 			</Setter>
-		</Style>		
+			<Style Selector="^ Button:focus">
+				<Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+				<Setter Property="BorderThickness" Value="2" />
+			</Style>
+		</Style>
 	</Application.Styles>
 
 	<NativeMenu.Menu>

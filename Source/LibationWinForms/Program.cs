@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using ApplicationServices;
 using AppScaffolding;
 using DataLayer;
 using LibationFileManager;
+using LibationUiBase;
 using LibationWinForms.Dialogs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace LibationWinForms
 {
@@ -18,8 +18,10 @@ namespace LibationWinForms
 		[return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
 		static extern bool AllocConsole();
 
+		private static Form1 form1;
+
 		[STAThread]
-		static void Main()
+		static async Task Main()
 		{
 			Task<List<LibraryBook>> libraryLoadTask;
 
@@ -41,9 +43,10 @@ namespace LibationWinForms
 				//***********************************************//
 				// Migrations which must occur before configuration is loaded for the first time. Usually ones which alter the Configuration
 				var config = AppScaffolding.LibationScaffolding.RunPreConfigMigrations();
+				LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = ShowMessageBox;
 
 				// do this as soon as possible (post-config)
-				RunInstaller(config);
+				await RunSetupIfNeededAsync(config);
 
 				// most migrations go in here
 				LibationScaffolding.RunPostConfigMigrations(config);
@@ -85,104 +88,62 @@ namespace LibationWinForms
 			// global exception handling (ShowAdminAlert) attempts to use logging. only call it after logging has been init'd
 			postLoggingGlobalExceptionHandling();
 
-			var form1 = new Form1();
+			form1 = new Form1();
 			form1.Load += async (_, _) => await form1.InitLibraryAsync(await libraryLoadTask);
-			LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = ShowMessageBox;
 			Application.Run(form1);
-
-			#region Message Box Handler for LibationUiBase
-			Task<LibationUiBase.Forms.DialogResult> ShowMessageBox(
-				object owner,
-				string message,
-				string caption,
-				LibationUiBase.Forms.MessageBoxButtons buttons,
-				LibationUiBase.Forms.MessageBoxIcon icon,
-				LibationUiBase.Forms.MessageBoxDefaultButton defaultButton,
-				bool _)
-			{
-				var result = form1.Invoke(() =>
-					MessageBox.Show(
-						owner as IWin32Window ?? form1,
-						message,
-						caption,
-						(MessageBoxButtons)buttons,
-						(MessageBoxIcon)icon,
-						(MessageBoxDefaultButton)defaultButton));
-
-				return Task.FromResult((LibationUiBase.Forms.DialogResult)result);
-			}
-			#endregion;
 		}
 
-		private static void RunInstaller(Configuration config)
+		#region Message Box Handler for LibationUiBase
+		static Task<LibationUiBase.Forms.DialogResult> ShowMessageBox(
+			object owner,
+			string message,
+			string caption,
+			LibationUiBase.Forms.MessageBoxButtons buttons,
+			LibationUiBase.Forms.MessageBoxIcon icon,
+			LibationUiBase.Forms.MessageBoxDefaultButton defaultButton,
+			bool _)
 		{
-			// all returns should be preceded by either:
-			// - if config.LibationSettingsAreValid
-			// - error message, Exit()
+			Func<DialogResult> showMessageBox = () => MessageBox.Show(
+					owner as IWin32Window ?? form1,
+					message,
+					caption,
+					(MessageBoxButtons)buttons,
+					(MessageBoxIcon)icon,
+					(MessageBoxDefaultButton)defaultButton);
 
-			if (config.LibationSettingsAreValid)
-				return;
 
-			var defaultLibationFilesDir = Configuration.DefaultLibationFilesDirectory;
+			var result = form1 is null ? showMessageBox() : form1.Invoke(showMessageBox);
+			return Task.FromResult((LibationUiBase.Forms.DialogResult)result);
+		}
+		#endregion;
 
-			// check for existing settings in default location
-			var defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
-			if (Configuration.SettingsFileIsValid(defaultSettingsFile))
-				Configuration.SetLibationFiles(defaultLibationFilesDir);
+		private static async Task RunSetupIfNeededAsync(Configuration config)
+		{
+			var setup = new LibationSetup(config.LibationFiles)
+			{
+				SetupPrompt = ShowSetup,
+				SelectFolderPrompt = SelectInstallLocation
+			};
 
-			if (config.LibationSettingsAreValid)
-				return;
-
-			static void CancelInstallation()
+			if (!await setup.RunSetupIfNeededAsync())
 			{
 				MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				Application.Exit();
-				Environment.Exit(0);
+				Environment.Exit(-1);
 			}
 
-			var setupDialog = new SetupDialog();
-			if (setupDialog.ShowDialog() != DialogResult.OK)
+			static ILibationSetup ShowSetup()
 			{
-				CancelInstallation();
-				return;
+				var setupDialog = new SetupDialog();
+				setupDialog.ShowDialog();
+				return setupDialog;
 			}
 
-			if (setupDialog.IsNewUser)
-			{
-				Configuration.SetLibationFiles(defaultLibationFilesDir);
-				config.Books = Configuration.DefaultBooksDirectory;
-			}
-			else if (setupDialog.IsReturningUser)
+			static ILibationInstallLocation SelectInstallLocation()
 			{
 				var libationFilesDialog = new LibationFilesDialog();
-
-				if (libationFilesDialog.ShowDialog() != DialogResult.OK)
-				{
-					CancelInstallation();
-					return;
-				}
-
-				Configuration.SetLibationFiles(libationFilesDialog.SelectedDirectory);
-				if (config.LibationSettingsAreValid)
-					return;
-
-				// path did not result in valid settings
-				var continueResult = MessageBox.Show(
-					$"No valid settings were found at this location.\r\nWould you like to create a new install settings in this folder?\r\n\r\n{libationFilesDialog.SelectedDirectory}",
-					"New install?",
-					MessageBoxButtons.YesNo,
-					MessageBoxIcon.Question);
-
-				if (continueResult != DialogResult.Yes)
-				{
-					CancelInstallation();
-					return;
-				}
-				config.Books = Configuration.DefaultBooksDirectory;
+				return libationFilesDialog.ShowDialog() is DialogResult.OK ? libationFilesDialog : null;
 			}
-
-			if (!config.LibationSettingsAreValid)
-				CancelInstallation();
 		}
 
 		/// <summary>migrations which require Forms or are long-running</summary>

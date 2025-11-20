@@ -19,7 +19,7 @@ namespace LibationFileManager
 		public static event EventHandler<CacheEntry>? Inserted;
 		public static event EventHandler<CacheEntry>? Removed;
 
-		private static LongPath jsonFileV2 => Path.Combine(Configuration.Instance.LibationFiles, FILENAME_V2);
+		private static LongPath jsonFileV2 => Path.Combine(Configuration.Instance.LibationFiles.Location, FILENAME_V2);
 
 		private static readonly FileCacheV2<CacheEntry> Cache = new();
 

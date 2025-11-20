@@ -15,6 +15,8 @@ namespace LibationFileManager
     {
         private IConfigurationRoot? configuration;
 
+        public bool SerilogInitialized { get; private set; }
+
         public void ConfigureLogging()
         {
             //pass explicit assemblies to the ConfigurationReaderOptions
@@ -33,14 +35,15 @@ namespace LibationFileManager
                 typeof(FileLoggerConfigurationExtensions).Assembly);      // Serilog.Sinks.File
 
             configuration = new ConfigurationBuilder()
-                .AddJsonFile(SettingsFilePath, optional: false, reloadOnChange: true)
+                .AddJsonFile(Instance.LibationFiles.SettingsFilePath, optional: false, reloadOnChange: true)
                 .Build();
 			Log.Logger = new LoggerConfiguration()
 				 .ReadFrom.Configuration(configuration, readerOptions)
 				 .Destructure.ByTransforming<LongPath>(lp => lp.Path)
 				 .Destructure.With<LogFileFilter>()
                  .CreateLogger();
-		}
+            SerilogInitialized = true;
+        }
 
 		[Description("The importance of a log event")]
         public LogEventLevel LogLevel

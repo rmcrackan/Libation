@@ -5,7 +5,7 @@ using System.Linq;
 #nullable enable
 namespace FileManager;
 
-public interface IPersistentDictionary
+public interface IJsonBackedDictionary
 {
 	bool Exists(string propertyName);
 	string? GetString(string propertyName, string? defaultValue = null);

@@ -9,6 +9,7 @@ namespace LibationAvalonia.Dialogs
 		{
 			InitializeComponent();
 			DataContext = this;
+			ControlToFocusOnShow = SaveButton;
 		}
 	}
 }

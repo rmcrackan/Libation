@@ -6,26 +6,51 @@ name: build
 on:
   workflow_call:
     inputs:
-      version_override:
+      libation-version:
         type: string
-        description: "Version number override"
-        required: false
-      run_unit_tests:
+        description: "Libation version number"
+        required: true
+      dotnet-version:
+        type: string
+        default: "9.x"
+        description: ".NET version to target"
+      run-unit-tests:
         type: boolean
-        description: "Skip running unit tests"
-        required: false
-        default: true
+        description: "Whether to run unit tests prior to publishing."
+      publish-r2r:
+        type: boolean
+        description: "Whether to publish assemblies as ReadyToRun."
+      release:
+        type: boolean
+        description: "Whether this workflow is being called as a release"
+      retention-days:
+        type: number
+        description: "Number of days the artifacts are to be retained."
 
-jobs:
+jobs:    
   windows:
-    strategy:
-      matrix:
-        architecture: [x64]
     uses: ./.github/workflows/build-windows.yml
     with:
-      version_override: ${{ inputs.version_override }}
-      run_unit_tests: ${{ inputs.run_unit_tests }}
+      libation-version: ${{ inputs.libation-version }}
+      dotnet-version: ${{ inputs.dotnet-version }}
+      run-unit-tests: ${{ inputs.run-unit-tests }}
+      publish-r2r: ${{ inputs.publish-r2r }}
+      retention-days: ${{ inputs.retention-days }}
+      
+  macOS:
+    strategy:
+      matrix:
+        architecture: [x64, arm64]
+    uses: ./.github/workflows/build-mac.yml
+    with:
+      libation-version: ${{ inputs.libation-version }}
+      dotnet-version: ${{ inputs.dotnet-version }}
+      run-unit-tests: ${{ inputs.run-unit-tests }}
+      publish-r2r: ${{ inputs.publish-r2r }}
+      retention-days: ${{ inputs.retention-days }}
       architecture: ${{ matrix.architecture }}
+      sign-app: ${{ inputs.release || vars.SIGN_MAC_APP_ON_VALIDATE == 'true' }}
+    secrets: inherit
 
   linux:
     strategy:
@@ -34,20 +59,11 @@ jobs:
         architecture: [x64, arm64]
     uses: ./.github/workflows/build-linux.yml
     with:
-      version_override: ${{ inputs.version_override }}
-      runs_on: ubuntu-latest
+      libation-version: ${{ inputs.libation-version }}
+      dotnet-version: ${{ inputs.dotnet-version }}
+      run-unit-tests: ${{ inputs.run-unit-tests }}
+      publish-r2r: ${{ inputs.publish-r2r }}
+      retention-days: ${{ inputs.retention-days }}
+      architecture: ${{ matrix.architecture }}
       OS: ${{ matrix.OS }}
-      architecture: ${{ matrix.architecture }}
-      run_unit_tests: ${{ inputs.run_unit_tests }}
 
-  macos:
-    strategy:
-      matrix:
-        architecture: [x64, arm64]
-    uses: ./.github/workflows/build-linux.yml
-    with:
-      version_override: ${{ inputs.version_override }}
-      runs_on: macos-latest
-      OS: MacOS
-      architecture: ${{ matrix.architecture }}
-      run_unit_tests: ${{ inputs.run_unit_tests }}

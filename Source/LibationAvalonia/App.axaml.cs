@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using AppScaffolding;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -12,6 +13,7 @@ using LibationAvalonia.Dialogs;
 using LibationAvalonia.Themes;
 using LibationAvalonia.Views;
 using LibationFileManager;
+using LibationUiBase;
 using LibationUiBase.Forms;
 using System;
 using System.Collections.Generic;
@@ -41,47 +43,68 @@ public class App : Application
 
 		if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 		{
-			// Chardonnay uses the OnLastWindowClose shutdown mode. As long as the application lifetime
-			// has one active window, the application will stay alive. Setup windows must be daisy chained,
-			// each closing windows opens the next window before closing itself to prevent the app from exiting.
-
+			// Chardonnay uses the OnExplicitShutdown shutdown mode. The application will stay alive until
+			// Shutdown() is called on App.Current.ApplicationLifetime.
 			MessageBoxBase.ShowAsyncImpl = (owner, message, caption, buttons, icon, defaultButton, saveAndRestorePosition) =>
 				MessageBox.Show(owner as Window, message, caption, buttons, icon, defaultButton, saveAndRestorePosition);
 
 			// Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
 			// More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
 			DisableAvaloniaDataAnnotationValidation();
-
-			Configuration config = Configuration.Instance;
-
-			if (!config.LibationSettingsAreValid)
-			{
-				string defaultLibationFilesDir = Configuration.DefaultLibationFilesDirectory;
-
-				// check for existing settings in default location
-				string defaultSettingsFile = Path.Combine(defaultLibationFilesDir, "Settings.json");
-				if (Configuration.SettingsFileIsValid(defaultSettingsFile))
-					Configuration.SetLibationFiles(defaultLibationFilesDir);
-
-				if (config.LibationSettingsAreValid)
-				{
-					LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-					ShowMainWindow(desktop);
-				}
-				else
-				{
-					SetupDialog setupDialog = new() { Config = config };
-					setupDialog.Closing += (_, e) => SetupClosing(setupDialog, desktop, e);
-					desktop.MainWindow = setupDialog;
-				}
-			}
-			else
-			{
-				ShowMainWindow(desktop);
-			}
+			RunSetupIfNeededAsync(desktop, Configuration.Instance);
 		}
 
 		base.OnFrameworkInitializationCompleted();
+	}
+
+	private static async void RunSetupIfNeededAsync(IClassicDesktopStyleApplicationLifetime desktop, Configuration config)
+	{
+		var setup = new LibationSetup(config.LibationFiles)
+		{
+			SetupPromptAsync =() => ShowSetupAsync(desktop),
+			SelectFolderPromptAsync = () => SelectInstallLocation(desktop, config.LibationFiles)
+		};
+		if (await setup.RunSetupIfNeededAsync())
+		{
+			// setup succeeded or wasn't needed and LibationFiles are valid
+			await RunMigrationsAsync(config);
+			LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
+			ShowMainWindow(desktop);
+		}
+		else
+		{
+			await MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			desktop.Shutdown(-1);
+		}
+	}
+
+	static async Task<ILibationSetup> ShowSetupAsync(IClassicDesktopStyleApplicationLifetime desktop)
+	{
+		var tcs = new TaskCompletionSource<ILibationSetup>();
+		var setupDialog = new SetupDialog();
+		desktop.MainWindow = setupDialog;
+		setupDialog.Closed += (_, _) => tcs.SetResult(setupDialog);
+		setupDialog.Show();
+		return await tcs.Task;
+	}
+
+	static async Task<ILibationInstallLocation?> SelectInstallLocation(IClassicDesktopStyleApplicationLifetime desktop, LibationFiles libationFiles)
+	{
+		var tcs = new TaskCompletionSource<ILibationInstallLocation>();
+		var libationFilesDialog = new LibationFilesDialog(libationFiles.Location.PathWithoutPrefix);
+		desktop.MainWindow = libationFilesDialog;
+		libationFilesDialog.Closed += (_, _) => tcs.SetResult(libationFilesDialog);
+		libationFilesDialog.Show();
+		return await tcs.Task;
+	}
+
+	private static async Task RunMigrationsAsync(Configuration config)
+	{
+		// most migrations go in here
+		LibationScaffolding.RunPostConfigMigrations(config);
+		await MessageBox.VerboseLoggingWarning_ShowIfTrue();
+		// logging is init'd here
+		LibationScaffolding.RunPostMigrationScaffolding(Variety.Chardonnay, config);
 	}
 
 	private void DisableAvaloniaDataAnnotationValidation()
@@ -97,134 +120,6 @@ public class App : Application
 		}
 	}
 
-	private async void SetupClosing(SetupDialog setupDialog, IClassicDesktopStyleApplicationLifetime desktop, System.ComponentModel.CancelEventArgs e)
-	{
-		try
-		{
-			if (setupDialog.IsNewUser)
-			{
-				Configuration.SetLibationFiles(Configuration.DefaultLibationFilesDirectory);
-				setupDialog.Config.Books = Configuration.DefaultBooksDirectory;
-
-				if (setupDialog.Config.LibationSettingsAreValid)
-				{
-					string? theme = setupDialog.SelectedTheme.Content as string;
-					setupDialog.Config.SetString(theme, nameof(ThemeVariant));
-
-					await RunMigrationsAsync(setupDialog.Config);
-					LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-					AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
-					ShowMainWindow(desktop);
-				}
-				else
-				{
-					e.Cancel = true;
-					await CancelInstallation(setupDialog);
-				}
-			}
-			else if (setupDialog.IsReturningUser)
-			{
-				ShowLibationFilesDialog(desktop, setupDialog.Config);
-			}
-			else
-			{
-				e.Cancel = true;
-				await CancelInstallation(setupDialog);
-			}
-		}
-		catch (Exception ex)
-		{
-			string title = "Fatal error, pre-logging";
-			string body = "An unrecoverable error occurred. Since this error happened before logging could be initialized, this error can not be written to the log file.";
-
-			MessageBoxAlertAdminDialog alert = new(body, title, ex);
-			desktop.MainWindow = alert;
-			alert.Show();
-		}
-	}
-
-	private void ShowLibationFilesDialog(IClassicDesktopStyleApplicationLifetime desktop, Configuration config)
-	{
-		LibationFilesDialog libationFilesDialog = new();
-		desktop.MainWindow = libationFilesDialog;
-		libationFilesDialog.Show();
-
-		async void WindowClosing(object? sender, System.ComponentModel.CancelEventArgs e)
-		{
-			libationFilesDialog.Closing -= WindowClosing;
-			e.Cancel = true;
-			if (libationFilesDialog.DialogResult == DialogResult.OK)
-				OnLibationFilesCompleted(desktop, libationFilesDialog, config);
-			else
-				await CancelInstallation(libationFilesDialog);
-		}
-		libationFilesDialog.Closing += WindowClosing;
-	}
-
-	private async void OnLibationFilesCompleted(IClassicDesktopStyleApplicationLifetime desktop, LibationFilesDialog libationFilesDialog, Configuration config)
-	{
-		Configuration.SetLibationFiles(libationFilesDialog.SelectedDirectory);
-		if (config.LibationSettingsAreValid)
-		{
-			await RunMigrationsAsync(config);
-
-			LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-			AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
-			ShowMainWindow(desktop);
-		}
-		else
-		{
-			// path did not result in valid settings
-			DialogResult continueResult = await MessageBox.Show(
-				libationFilesDialog,
-				$"No valid settings were found at this location.\r\nWould you like to create a new install settings in this folder?\r\n\r\n{libationFilesDialog.SelectedDirectory}",
-				"New install?",
-				MessageBoxButtons.YesNo,
-				MessageBoxIcon.Question);
-
-			if (continueResult == DialogResult.Yes)
-			{
-				config.Books = Path.Combine(libationFilesDialog.SelectedDirectory, nameof(Configuration.Books));
-
-				if (config.LibationSettingsAreValid)
-				{
-					await RunMigrationsAsync(config);
-					LibraryTask = Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking(includeParents: true));
-					AudibleUtilities.AudibleApiStorage.EnsureAccountsSettingsFileExists();
-					ShowMainWindow(desktop);
-				}
-				else
-				{
-					await CancelInstallation(libationFilesDialog);
-				}
-			}
-			else
-			{
-				await CancelInstallation(libationFilesDialog);
-			}
-		}
-
-		libationFilesDialog.Close();
-	}
-
-	private static async Task CancelInstallation(Window window)
-	{
-		await MessageBox.Show(window, "Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-		Environment.Exit(-1);
-	}
-
-	private async Task RunMigrationsAsync(Configuration config)
-	{
-		// most migrations go in here
-		AppScaffolding.LibationScaffolding.RunPostConfigMigrations(config);
-
-		await MessageBox.VerboseLoggingWarning_ShowIfTrue();
-
-		// logging is init'd here
-		AppScaffolding.LibationScaffolding.RunPostMigrationScaffolding(AppScaffolding.Variety.Chardonnay, config);
-		Program.LoggingEnabled = true;
-	}
-
 	private static void ShowMainWindow(IClassicDesktopStyleApplicationLifetime desktop)
 	{
 		Configuration.Instance.PropertyChanged += ThemeVariant_PropertyChanged;
@@ -234,6 +129,7 @@ public class App : Application
 		MainWindow mainWindow = new();
 		desktop.MainWindow = MainWindow = mainWindow;
 		mainWindow.Loaded += MainWindow_Loaded;
+		mainWindow.Closed += (_, _) => desktop.Shutdown();
 		mainWindow.RestoreSizeAndLocation(Configuration.Instance);
 		mainWindow.Show();
 	}

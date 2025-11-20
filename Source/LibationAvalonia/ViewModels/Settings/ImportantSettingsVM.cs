@@ -20,7 +20,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		{
 			this.config = config;
 
-			BooksDirectory = config.Books?.PathWithoutPrefix ?? Configuration.DefaultBooksDirectory;
+			BooksDirectory = config.Books?.PathWithoutPrefix ?? "";
 			SavePodcastsToParentFolder = config.SavePodcastsToParentFolder;
 			OverwriteExisting = config.OverwriteExisting;
 			CreationTime = DateTimeSources.SingleOrDefault(v => v.Value == config.CreationTime) ?? DateTimeSources[0];
@@ -64,7 +64,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			if (System.IO.File.Exists(LogFileFilter.LogFilePath))
 				Go.To.File(LogFileFilter.LogFilePath);
 			else
-				Go.To.Folder(((LongPath)Configuration.Instance.LibationFiles).ShortPathName);
+				Go.To.Folder(Configuration.Instance.LibationFiles.Location.ShortPathName);
 		}
 
 		public List<Configuration.KnownDirectories> KnownDirectories { get; } = new()

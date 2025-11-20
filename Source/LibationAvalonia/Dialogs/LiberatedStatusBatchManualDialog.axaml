@@ -53,10 +53,11 @@
 			Grid.Row="1"
 			Grid.Column="1"
 			Margin="10,0"
-			Padding="30,5"
+			Classes="SaveButton"
 			VerticalAlignment="Stretch"
 			HorizontalAlignment="Right"
 			Content="Save"
+			Name="SaveButton"
 			Click="SaveButton_Clicked" />
 	</Grid>
 </Window>
