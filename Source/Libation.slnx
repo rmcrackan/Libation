@@ -1,0 +1,72 @@
+<Solution>
+  <Folder Name="/1 Core Libraries/">
+    <Project Path="FileManager/FileManager.csproj" />
+  </Folder>
+  <Folder Name="/2 Utilities (domain ignorant)/">
+    <Project Path="AaxDecrypter/AaxDecrypter.csproj" />
+  </Folder>
+  <Folder Name="/3 Domain Internal Utilities (db ignorant)/">
+    <Project Path="AudibleUtilities/AudibleUtilities.csproj" />
+    <Project Path="LibationFileManager/LibationFileManager.csproj" />
+  </Folder>
+  <Folder Name="/4 Domain (db)/">
+    <Project Path="DataLayer.Postgres/DataLayer.Postgres.csproj" />
+    <Project Path="DataLayer.Sqlite/DataLayer.Sqlite.csproj" />
+    <Project Path="DataLayer/DataLayer.csproj" />
+  </Folder>
+  <Folder Name="/5 Domain Utilities (db aware)/">
+    <Project Path="ApplicationServices/ApplicationServices.csproj" />
+    <Project Path="DtoImporterService/DtoImporterService.csproj" />
+    <Project Path="FileLiberator/FileLiberator.csproj" />
+    <Project Path="LibationSearchEngine/LibationSearchEngine.csproj" />
+  </Folder>
+  <Folder Name="/6 Application/">
+    <Project Path="AppScaffolding/AppScaffolding.csproj" />
+  </Folder>
+  <Folder Name="/6 Application/Hangover/">
+    <Project Path="HangoverAvalonia/HangoverAvalonia.csproj" />
+    <Project Path="HangoverBase/HangoverBase.csproj" />
+    <Project Path="HangoverWinForms/HangoverWinForms.csproj" />
+  </Folder>
+  <Folder Name="/6 Application/Libation CLI/">
+    <Project Path="LibationCli/LibationCli.csproj" />
+  </Folder>
+  <Folder Name="/6 Application/Libation UI/">
+    <Project Path="LibationAvalonia/LibationAvalonia.csproj" />
+    <Project Path="LibationUiBase/LibationUiBase.csproj" />
+    <Project Path="LibationWinForms/LibationWinForms.csproj">
+      <BuildDependency Project="HangoverWinForms/HangoverWinForms.csproj" />
+      <BuildDependency Project="LibationCli/LibationCli.csproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/6 Application/LoadByOS/">
+    <File Path="LoadByOS/README.txt" />
+    <Project Path="LoadByOS/LinuxConfigApp/LinuxConfigApp.csproj" />
+    <Project Path="LoadByOS/MacOSConfigApp/MacOSConfigApp.csproj" />
+    <Project Path="LoadByOS/WindowsConfigApp/WindowsConfigApp.csproj" />
+  </Folder>
+  <Folder Name="/_Demos/" />
+  <Folder Name="/_Demos/LoadByOS/">
+    <Project Path="_Demos/LoadByOS/CrossPlatformClientExe/CrossPlatformClientExe.csproj" />
+    <Project Path="_Demos/LoadByOS/LinuxConfigApp/LinuxConfigApp.csproj" />
+    <Project Path="_Demos/LoadByOS/WindowsConfigApp/WindowsConfigApp.csproj" />
+  </Folder>
+  <Folder Name="/_Solution Items/">
+    <File Path="add-migrations.ps1" />
+    <File Path="REFERENCE.txt" />
+    <File Path="Upgrading dotnet version.txt" />
+    <File Path="_ARCHITECTURE NOTES.txt" />
+    <File Path="_AvaloniaUI Primer.txt" />
+    <File Path="_DB_NOTES.txt" />
+    <File Path="__README - COLLABORATORS.txt" />
+  </Folder>
+  <Folder Name="/_Tests/">
+    <Project Path="_Tests/AssertionHelper/AssertionHelper.csproj" />
+    <Project Path="_Tests/AudibleUtilities.Tests/AudibleUtilities.Tests.csproj" />
+    <Project Path="_Tests/FileLiberator.Tests/FileLiberator.Tests.csproj" />
+    <Project Path="_Tests/FileManager.Tests/FileManager.Tests.csproj" />
+    <Project Path="_Tests/LibationFileManager.Tests/LibationFileManager.Tests.csproj" />
+    <Project Path="_Tests/LibationSearchEngine.Tests/LibationSearchEngine.Tests.csproj" />
+    <Project Path="_Tests/LibationUiBase.Tests/LibationUiBase.Tests.csproj" />
+  </Folder>
+</Solution>

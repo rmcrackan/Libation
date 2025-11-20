@@ -1,16 +1,19 @@
 # Dockerfile
-FROM --platform=${BUILDPLATFORM} mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM --platform=${BUILDPLATFORM} mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG TARGETARCH
 
 COPY Source /Source
 RUN dotnet publish \
     /Source/LibationCli/LibationCli.csproj \
+    --os linux \
     --arch ${TARGETARCH} \
     --configuration Release \
     --output /Source/bin/Publish/Linux-chardonnay \
-    -p:PublishProfile=/Source/LibationCli/Properties/PublishProfiles/LinuxProfile.pubxml
+    -p:PublishProtocol=FileSystem \
+    -p:PublishReadyToRun=true \
+    -p:SelfContained=true
 
-FROM mcr.microsoft.com/dotnet/runtime:9.0
+FROM mcr.microsoft.com/dotnet/runtime:10.0
 ARG USER_UID=1001
 ARG USER_GID=1001
 

@@ -19,7 +19,7 @@ namespace LibationWinForms.Dialogs
 
 			this.SetLibationIcon();
 			this.RestoreSizeAndLocation(Configuration.Instance);
-			this.Closing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
+			this.FormClosing += (_, _) => this.SaveSizeAndLocation(Configuration.Instance);
 
 			deletedCheckedTemplate = deletedCheckedLbl.Text;
 

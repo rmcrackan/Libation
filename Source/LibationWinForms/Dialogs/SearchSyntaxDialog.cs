@@ -18,9 +18,9 @@ namespace LibationWinForms.Dialogs
 			this.SetLibationIcon();
 			this.RestoreSizeAndLocation(LibationFileManager.Configuration.Instance);
 		}
-		protected override void OnClosing(CancelEventArgs e)
+		protected override void OnFormClosing(FormClosingEventArgs e)
 		{
-			base.OnClosing(e);
+			base.OnFormClosing(e);
 			this.SaveSizeAndLocation(LibationFileManager.Configuration.Instance);
 		}
 	}

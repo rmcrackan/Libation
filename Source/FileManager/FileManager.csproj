@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dinah.Core" Version="9.0.3.1" />
+    <PackageReference Include="Dinah.Core" Version="10.0.0.1" />
     <PackageReference Include="Polly" Version="8.6.4" />
   </ItemGroup>
 
