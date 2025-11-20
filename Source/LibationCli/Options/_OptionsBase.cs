@@ -19,7 +19,7 @@ namespace LibationCli
 		[Option(longName: "libationFiles", HelpText = "Path to Libation Files directory")]
 		public DirectoryInfo? LibationFiles { get; set; }
 
-		[Option('o', "override",  HelpText = "Configuration setting override", MetaValue = "[SettingName]=\"Setting_Value\"")]
+		[Option('o', "override",  HelpText = "Configuration setting override [SettingName]=\"Setting_Value\"")]
 		public IEnumerable<OptionOverride>? SettingOverrides { get; set; }
 
 		public async Task Run()
