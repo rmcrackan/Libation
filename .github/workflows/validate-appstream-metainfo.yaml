@@ -17,6 +17,6 @@ jobs:
     container:
       image: ghcr.io/flathub/flatpak-builder-lint:latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Check the MetaInfo file
         run: flatpak-builder-lint appstream Source/LoadByOS/LinuxConfigApp/com.getlibation.Libation.metainfo.xml

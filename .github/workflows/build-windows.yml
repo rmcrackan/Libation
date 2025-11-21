@@ -32,7 +32,7 @@ jobs:
             release_name: classic
             prefix: Classic-
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - uses: actions/setup-dotnet@v5
         with:
