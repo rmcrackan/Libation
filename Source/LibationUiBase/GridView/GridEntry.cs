@@ -98,8 +98,8 @@ namespace LibationUiBase.GridView
 			RaiseAndSetIfChanged(ref _myRating, Book.UserDefinedItem.Rating, nameof(MyRating));
 			PurchaseDate = GetPurchaseDateString();
 			ProductRating = Book.Rating ?? new Rating(0, 0, 0);
-			Authors = Book.AuthorNames();
-			Narrators = Book.NarratorNames();
+			Authors = Book.AuthorNames;
+			Narrators = Book.NarratorNames;
 			Category = string.Join(", ", Book.LowestCategoryNames());
 			Misc = GetMiscDisplay(libraryBook);
 			LastDownload = new(Book.UserDefinedItem);
@@ -306,7 +306,7 @@ namespace LibationUiBase.GridView
 
 			details.Add($"Account: {locale} - {acct}");
 
-			if (libraryBook.Book.HasPdf())
+			if (libraryBook.Book.HasPdf)
 				details.Add("Has PDF");
 			if (libraryBook.Book.IsAbridged)
 				details.Add("Abridged");

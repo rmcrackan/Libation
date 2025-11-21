@@ -28,7 +28,7 @@ namespace FileLiberator
 		/// </summary>
 		public DownloadOptions.LicenseInfo? LicenseInfo { get; set; }
 
-		public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.Audio_Exists();
+		public override bool Validate(LibraryBook libraryBook) => !libraryBook.Book.AudioExists;
 		public override async Task CancelAsync()
 		{
 			if (abDownloader is not null) await abDownloader.CancelAsync();
@@ -43,7 +43,7 @@ namespace FileLiberator
 
 			try
 			{
-				if (libraryBook.Book.Audio_Exists())
+				if (libraryBook.Book.AudioExists)
 					return new StatusHandler { "Cannot find decrypt. Final audio file already exists" };
 
 				DownloadValidation(libraryBook);

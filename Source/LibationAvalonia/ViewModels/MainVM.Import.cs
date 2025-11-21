@@ -15,7 +15,6 @@ namespace LibationAvalonia.ViewModels
 	public partial class MainVM
 	{
 		private int _numAccountsScanning = 2;
-		private int _accountsCount = 0;
 		public string LocateAudiobooksTip => Configuration.GetHelpText("LocateAudiobooks");
 
 		/// <summary> Auto scanning accounts is enables </summary>

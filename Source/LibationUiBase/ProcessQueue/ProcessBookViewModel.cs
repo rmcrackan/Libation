@@ -100,8 +100,8 @@ public class ProcessBookViewModel : ReactiveObject
 		LibraryBook = libraryBook;
 
 		Title = LibraryBook.Book.TitleWithSubtitle;
-		Author = LibraryBook.Book.AuthorNames();
-		Narrator = LibraryBook.Book.NarratorNames();
+		Author = LibraryBook.Book.AuthorNames;
+		Narrator = LibraryBook.Book.NarratorNames;
 
 		(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._80x80));
 
@@ -296,8 +296,8 @@ public class ProcessBookViewModel : ReactiveObject
 			LogInfo($"{Environment.NewLine}{processable.Name} Step, Begin: {libraryBook.Book}");
 
 		Title = libraryBook.Book.TitleWithSubtitle;
-		Author = libraryBook.Book.AuthorNames();
-		Narrator = libraryBook.Book.NarratorNames();
+		Author = libraryBook.Book.AuthorNames;
+		Narrator = libraryBook.Book.NarratorNames;
 	}
 
 	private async void Processable_Completed(object? sender, LibraryBook libraryBook)
@@ -375,8 +375,8 @@ public class ProcessBookViewModel : ReactiveObject
 			details = $"""
 				  Title: {libraryBook.Book.TitleWithSubtitle}
 				  ID: {libraryBook.Book.AudibleProductId}
-				  Author: {trunc(libraryBook.Book.AuthorNames())}
-				  Narr: {trunc(libraryBook.Book.NarratorNames())}
+				  Author: {trunc(libraryBook.Book.AuthorNames)}
+				  Narr: {trunc(libraryBook.Book.NarratorNames)}
 				""";
 		}
 		catch

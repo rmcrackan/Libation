@@ -38,7 +38,7 @@ namespace LibationAvalonia.ViewModels
 			{
 				if (ProcessQueue.QueueDownloadDecrypt(libraryBooks))
 					setQueueCollapseState(false);
-				else if (libraryBooks.Length == 1 && libraryBooks[0].Book.Audio_Exists())
+				else if (libraryBooks.Length == 1 && libraryBooks[0].Book.AudioExists)
 				{
 					// liberated: open explorer to file
 					var filePath = AudibleFileStorage.Audio.GetPath(libraryBooks[0].Book.AudibleProductId);
