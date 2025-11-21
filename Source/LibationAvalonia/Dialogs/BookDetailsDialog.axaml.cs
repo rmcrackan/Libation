@@ -17,16 +17,15 @@ namespace LibationAvalonia.Dialogs
 {
 	public partial class BookDetailsDialog : DialogWindow
 	{
-		private LibraryBook _libraryBook;
 		private BookDetailsDialogViewModel _viewModel;
 		public LibraryBook LibraryBook
 		{
-			get => _libraryBook;
+			get => field;
 			set
 			{
-				_libraryBook = value;
-				Title = _libraryBook.Book.TitleWithSubtitle;
-				DataContext = _viewModel = new BookDetailsDialogViewModel(_libraryBook);
+				field = value;
+				Title = field.Book.TitleWithSubtitle;
+				DataContext = _viewModel = new BookDetailsDialogViewModel(field);
 			}
 		}
 

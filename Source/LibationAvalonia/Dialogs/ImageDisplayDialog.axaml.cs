@@ -61,15 +61,7 @@ namespace LibationAvalonia.Dialogs
 
 		public class BitmapHolder : ViewModels.ViewModelBase
 		{
-			private Bitmap _coverImage;
-			public Bitmap CoverImage
-			{
-				get => _coverImage;
-				set
-				{
-					this.RaiseAndSetIfChanged(ref _coverImage, value);
-				}
-			}
+			public Bitmap CoverImage { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 		}
 	}
 }

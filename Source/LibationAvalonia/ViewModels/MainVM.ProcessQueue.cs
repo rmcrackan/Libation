@@ -12,15 +12,13 @@ namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
-		private bool _queueOpen = false;
-
 		/// <summary> The Process Queue panel is open </summary>
 		public bool QueueOpen
 		{
-			get => _queueOpen;
+			get => field;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref _queueOpen, value);
+				this.RaiseAndSetIfChanged(ref field, value);
 				QueueButtonAngle = value ? 180 : 0;
 				this.RaisePropertyChanged(nameof(QueueButtonAngle));
 			}

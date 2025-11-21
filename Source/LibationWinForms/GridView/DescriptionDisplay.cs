@@ -7,18 +7,16 @@ namespace LibationWinForms.GridView
 {
 	public partial class DescriptionDisplay : Form
 	{
-		private int borderThickness = 5;
-
 		public int BorderThickness
 		{
-			get => borderThickness;
+			get => field;
 			set
 			{
-				borderThickness = value;
-				textBox1.Location = new Point(borderThickness, borderThickness);
-				textBox1.Size = new Size(Width - 2 * borderThickness, Height - 2 * borderThickness);
+				field = value;
+				textBox1.Location = new Point(field, field);
+				textBox1.Size = new Size(Width - 2 * field, Height - 2 * field);
 			}
-		}
+		} = 5;
 		public string DescriptionText { get => textBox1.Text; set => textBox1.Text = value; }
 		public Point SpawnLocation { get; set; }
 		public DescriptionDisplay()

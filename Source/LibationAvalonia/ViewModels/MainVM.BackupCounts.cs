@@ -12,7 +12,6 @@ namespace LibationAvalonia.ViewModels
 	partial class MainVM
 	{
 		private Task<LibraryCommands.LibraryStats>? updateCountsTask;
-		private LibraryCommands.LibraryStats? _libraryStats;
 
 		/// <summary> The "Begin Book and PDF Backup" menu item header text </summary>
 		public string BookBackupsToolStripText { get; private set; } = "Begin Book and PDF Backups: 0";
@@ -22,10 +21,10 @@ namespace LibationAvalonia.ViewModels
 		/// <summary> The user's library statistics </summary>
 		public LibraryCommands.LibraryStats? LibraryStats
 		{
-			get => _libraryStats;
+			get => field;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref _libraryStats, value);
+				this.RaiseAndSetIfChanged(ref field, value);
 
 				BookBackupsToolStripText
 					= LibraryStats?.HasPendingBooks ?? false

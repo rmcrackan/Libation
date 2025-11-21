@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LuceneNet303r2" Version="3.0.3.10" />
+    <PackageReference Include="LuceneNet303r2" Version="3.0.3.11" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,8 +5,7 @@ namespace LibationAvalonia.ViewModels.Dialogs
 {
 	public class MessageBoxViewModel
 	{
-		private string _message;
-		public string Message { get { return _message; } set { _message = value; } }
+		public string Message { get => field; set => field = value; }
 		public string Caption { get; } = "Message Box";
 		private MessageBoxButtons _button;
 		private MessageBoxIcon _icon;

@@ -14,30 +14,26 @@ namespace LibationAvalonia.ViewModels
 {
 	public partial class MainVM
 	{
-		private bool _autoScanChecked = Configuration.Instance.AutoScan;
-		private string _removeBooksButtonText = "Remove # Books from Libation";
-		private bool _removeBooksButtonEnabled = Design.IsDesignMode;
-		private bool _removeButtonsVisible = Design.IsDesignMode;
 		private int _numAccountsScanning = 2;
 		private int _accountsCount = 0;
 		public string LocateAudiobooksTip => Configuration.GetHelpText("LocateAudiobooks");
 
 		/// <summary> Auto scanning accounts is enables </summary>
-		public bool AutoScanChecked { get => _autoScanChecked; set => Configuration.Instance.AutoScan = this.RaiseAndSetIfChanged(ref _autoScanChecked, value); }
+		public bool AutoScanChecked { get => field; set => Configuration.Instance.AutoScan = this.RaiseAndSetIfChanged(ref field, value); } = Configuration.Instance.AutoScan;
 		/// <summary> Display text for the "Remove # Books from Libation" button </summary>
-		public string RemoveBooksButtonText { get => _removeBooksButtonText; set => this.RaiseAndSetIfChanged(ref _removeBooksButtonText, value); }
+		public string RemoveBooksButtonText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }= "Remove # Books from Libation";
 		/// <summary> Indicates if the "Remove # Books from Libation" button is enabled </summary>
-		public bool RemoveBooksButtonEnabled { get => _removeBooksButtonEnabled; set { this.RaiseAndSetIfChanged(ref _removeBooksButtonEnabled, value); } }
+		public bool RemoveBooksButtonEnabled { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } } = Design.IsDesignMode;
 		/// <summary> Indicates if the "Remove # Books from Libation" and "Done Removing" buttons should be visible </summary>
 		public bool RemoveButtonsVisible
 		{
-			get => _removeButtonsVisible;
+			get => field;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref _removeButtonsVisible, value);
+				this.RaiseAndSetIfChanged(ref field, value);
 				this.RaisePropertyChanged(nameof(RemoveMenuItemsEnabled));
 			}
-		}
+		} = Design.IsDesignMode;
 		/// <summary> Indicates if Libation is currently scanning account(s) </summary>
 		public bool ActivelyScanning => _numAccountsScanning > 0;
 		/// <summary> Indicates if the "Remove Books" menu items are enabled</summary>
@@ -53,10 +49,10 @@ namespace LibationAvalonia.ViewModels
 		/// <summary> The number of accounts added to Libation </summary>
 		public int AccountsCount
 		{
-			get => _accountsCount;
+			get => field;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref _accountsCount, value);
+				this.RaiseAndSetIfChanged(ref field, value);
 				this.RaisePropertyChanged(nameof(AnyAccounts));
 				this.RaisePropertyChanged(nameof(OneAccount));
 				this.RaisePropertyChanged(nameof(MultipleAccounts));

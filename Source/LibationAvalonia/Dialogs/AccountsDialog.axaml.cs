@@ -19,15 +19,14 @@ namespace LibationAvalonia.Dialogs
 		public AvaloniaList<AccountDto> Accounts { get; } = new();
 		public class AccountDto : ViewModels.ViewModelBase
 		{
-			private string _accountId;
 			public IReadOnlyList<Locale> Locales => AccountsDialog.Locales;
 			public bool LibraryScan { get; set; } = true;
 			public string AccountId
 			{
-				get => _accountId;
+				get => field;
 				set
 				{
-					this.RaiseAndSetIfChanged(ref _accountId, value);
+					this.RaiseAndSetIfChanged(ref field, value);
 					this.RaisePropertyChanged(nameof(IsDefault));
 				}
 			}

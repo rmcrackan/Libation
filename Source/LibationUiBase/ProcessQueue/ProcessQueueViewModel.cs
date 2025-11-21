@@ -30,23 +30,18 @@ public class ProcessQueueViewModel : ReactiveObject
 		SpeedLimit = LibationFileManager.Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
 	}
 
-	private int _completedCount;
-	private int _errorCount;
-	private int _queuedCount;
-	private string? _runningTime;
-	private bool _progressBarVisible;
-	private decimal _speedLimit;
-
-	public int CompletedCount { get => _completedCount; private set { RaiseAndSetIfChanged(ref _completedCount, value); RaisePropertyChanged(nameof(AnyCompleted)); } }
-	public int QueuedCount { get => _queuedCount; private set { this.RaiseAndSetIfChanged(ref _queuedCount, value); RaisePropertyChanged(nameof(AnyQueued)); } }
-	public int ErrorCount { get => _errorCount; private set { RaiseAndSetIfChanged(ref _errorCount, value); RaisePropertyChanged(nameof(AnyErrors)); } }
-	public string? RunningTime { get => _runningTime; set => RaiseAndSetIfChanged(ref _runningTime, value); }
-	public bool ProgressBarVisible { get => _progressBarVisible; set => RaiseAndSetIfChanged(ref _progressBarVisible, value); }
+	public int CompletedCount { get => field; private set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyCompleted)); } }
+	public int QueuedCount { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyQueued)); } }
+	public int ErrorCount { get => field; private set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyErrors)); } }
+	public string? RunningTime { get => field; set => RaiseAndSetIfChanged(ref field, value); }
+	public bool ProgressBarVisible { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool AnyCompleted => CompletedCount > 0;
 	public bool AnyQueued => QueuedCount > 0;
 	public bool AnyErrors => ErrorCount > 0;
 	public double Progress => 100d * Queue.Completed.Count / Queue.Count;
 	public decimal SpeedLimitIncrement { get; private set; }
+
+	private decimal _speedLimit;
 	public decimal SpeedLimit
 	{
 		get => _speedLimit;

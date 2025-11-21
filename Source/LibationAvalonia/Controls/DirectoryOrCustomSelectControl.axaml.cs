@@ -140,19 +140,17 @@ namespace LibationAvalonia.Controls
 		private class KnownDirectoryItem : ReactiveObject
 		{
 			public Configuration.KnownDirectories KnownDirectory { get; set; }
-			private string? _directory;
-			public string? Directory { get => _directory; private set => this.RaiseAndSetIfChanged(ref _directory, value); }
+			public string? Directory { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 			public string? Name { get; }
-			private string? _subDir;
 			public string? SubDirectory
 			{
-				get => _subDir;
+				get => field;
 				set
 				{
-					_subDir = value;
+					field = value;
 					if (Configuration.GetKnownDirectoryPath(KnownDirectory) is string dir)
 					{
-						Directory = Path.Combine(dir, _subDir ?? "");
+						Directory = Path.Combine(dir, field ?? "");
 					}
 				}
 			}

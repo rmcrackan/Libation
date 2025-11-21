@@ -35,9 +35,7 @@ namespace LibationAvalonia.Dialogs
 	{
 		public AvaloniaList<CheckBoxViewModel> DeletedBooks { get; }
 		public string CheckedCountText => $"Checked : {_checkedBooksCount} of {_totalBooksCount}";
-
-		private bool _controlsEnabled = true;
-		public bool ControlsEnabled { get => _controlsEnabled; set => this.RaiseAndSetIfChanged(ref _controlsEnabled, value); }
+		public bool ControlsEnabled { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = true;
 
 		private bool? everythingChecked = false;
 		public bool? EverythingChecked

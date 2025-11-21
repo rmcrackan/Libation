@@ -204,9 +204,8 @@ namespace LibationAvalonia.Dialogs
 		private class BookRecordEntry : ViewModels.ViewModelBase
 		{
 			private const string DateFormat = "yyyy-MM-dd HH\\:mm";
-			private bool _ischecked;
 			public IRecord Record { get; }
-			public bool IsChecked { get => _ischecked; set => this.RaiseAndSetIfChanged(ref _ischecked, value); }
+			public bool IsChecked { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 			public string Type => Record.GetType().Name;
 			public string Start => formatTimeSpan(Record.Start);
 			public string Created => Record.Created.ToString(DateFormat);

@@ -32,44 +32,27 @@ namespace LibationUiBase.GridView
 		#region Model properties exposed to the view
 
 		protected bool? remove = false;
-		private EntryStatus _liberate;
-		private string _purchasedate;
-		private string _length;
-		private LastDownloadStatus _lastDownload;
 		private Lazy<object> _lazyCover;
-		private string _series;
-		private SeriesOrder _seriesOrder;
-		private string _title;
-		private string _authors;
-		private string _narrators;
-		private string _category;
-		private string _misc;
-		private string _description;
-		private Rating _productrating;
-		private string _bookTags;
 		private Rating _myRating;
-		private bool _isSpatial;
-		private string _includedUntil;
-		private string _account;
 		public abstract bool? Remove { get; set; }
-		public EntryStatus Liberate { get => _liberate; private set => RaiseAndSetIfChanged(ref _liberate, value); }
-		public string PurchaseDate { get => _purchasedate; protected set => RaiseAndSetIfChanged(ref _purchasedate, value); }
-		public string Length { get => _length; protected set => RaiseAndSetIfChanged(ref _length, value); }
-		public LastDownloadStatus LastDownload { get => _lastDownload; protected set => RaiseAndSetIfChanged(ref _lastDownload, value); }
+		public EntryStatus Liberate { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string PurchaseDate { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+		public string Length { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+		public LastDownloadStatus LastDownload { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
 		public object Cover { get => _lazyCover.Value; }
-		public string Series { get => _series; private set => RaiseAndSetIfChanged(ref _series, value); }
-		public SeriesOrder SeriesOrder { get => _seriesOrder; private set => RaiseAndSetIfChanged(ref _seriesOrder, value); }
-		public string Title { get => _title; private set => RaiseAndSetIfChanged(ref _title, value); }
-		public string Authors { get => _authors; private set => RaiseAndSetIfChanged(ref _authors, value); }
-		public string Narrators { get => _narrators; private set => RaiseAndSetIfChanged(ref _narrators, value); }
-		public string Category { get => _category; private set => RaiseAndSetIfChanged(ref _category, value); }
-		public string Misc { get => _misc; private set => RaiseAndSetIfChanged(ref _misc, value); }
-		public string Description { get => _description; private set => RaiseAndSetIfChanged(ref _description, value); }
-		public Rating ProductRating { get => _productrating; private set => RaiseAndSetIfChanged(ref _productrating, value); }
-		public string BookTags { get => _bookTags; private set => RaiseAndSetIfChanged(ref _bookTags, value); }
-		public bool IsSpatial { get => _isSpatial; protected set => RaiseAndSetIfChanged(ref _isSpatial, value); }
-		public string IncludedUntil { get => _includedUntil; protected set => RaiseAndSetIfChanged(ref _includedUntil, value); }
-		public string Account { get => _account; protected set => RaiseAndSetIfChanged(ref _account, value); }
+		public string Series { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public SeriesOrder SeriesOrder { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string Title { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string Authors { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string Narrators { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string Category { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string Misc { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string Description { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public Rating ProductRating { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public string BookTags { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+		public bool IsSpatial { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+		public string IncludedUntil { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+		public string Account { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
 
 		public Rating MyRating
 		{

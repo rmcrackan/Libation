@@ -32,12 +32,12 @@ namespace LibationUiBase.GridView
 
 		public bool Expanded
 		{
-			get => expanded;
+			get => field;
 			set
 			{
-				if (value != expanded)
+				if (value != field)
 				{
-					expanded = value;
+					field = value;
 					Invalidate(nameof(Expanded), nameof(ButtonImage));
 				}
 			}
@@ -59,7 +59,6 @@ namespace LibationUiBase.GridView
 
 		private DateTime lastBookUpdate;
 		private LiberatedStatus bookStatus;
-		private bool expanded;
 		private readonly bool isAbsent;
 		private static readonly Dictionary<string, object> iconCache = new();
 
