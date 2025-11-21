@@ -69,10 +69,10 @@ namespace ApplicationServices
             return Count;
         }
 
-        public void Execute()
+        public async Task ExecuteAsync()
         {
             foreach (var a in actionSets)
-                a.LibraryBooks.UpdateBookStatus(a.newStatus);
+                await a.LibraryBooks.UpdateBookStatusAsync(a.newStatus);
         }
     }
 }

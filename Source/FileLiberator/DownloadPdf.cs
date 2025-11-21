@@ -35,7 +35,7 @@ namespace FileLiberator
 					SetFileTime(libraryBook, actualDownloadedFilePath);
 					SetDirectoryTime(libraryBook, Path.GetDirectoryName(actualDownloadedFilePath));
 				}
-				libraryBook.UpdatePdfStatus(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
+				await libraryBook.UpdatePdfStatusAsync(result.IsSuccess ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated);
 
                 return result;
             }

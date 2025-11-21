@@ -48,7 +48,7 @@ namespace LibationWinForms.GridView
 			gridEntryDataGridView.CellContextMenuStripNeeded += GridEntryDataGridView_CellContextMenuStripNeeded;
 			removeGVColumn.Frozen = false;
 
-			defaultFont = gridEntryDataGridView.DefaultCellStyle.Font;
+			defaultFont = gridEntryDataGridView.DefaultCellStyle.Font ?? gridEntryDataGridView.Font;
 			setGridFontScale(Configuration.Instance.GridFontScaleFactor);
 			setGridScale(Configuration.Instance.GridScaleFactor);
 			Configuration.Instance.PropertyChanged += Configuration_ScaleChanged;

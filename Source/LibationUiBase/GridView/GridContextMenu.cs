@@ -57,7 +57,7 @@ public class GridContextMenu
 	public void SetDownloaded()
 	{
 		LibraryBookEntries.Select(e => e.LibraryBook)
-			.UpdateUserDefinedItem(udi =>
+			.UpdateUserDefinedItemAsync(udi =>
 			{
 				udi.BookStatus = LiberatedStatus.Liberated;
 				if (udi.Book.HasPdf())
@@ -68,7 +68,7 @@ public class GridContextMenu
 	public void SetNotDownloaded()
 	{
 		LibraryBookEntries.Select(e => e.LibraryBook)
-			.UpdateUserDefinedItem(udi =>
+			.UpdateUserDefinedItemAsync(udi =>
 			{
 				udi.BookStatus = LiberatedStatus.NotLiberated;
 				if (udi.Book.HasPdf())
@@ -90,8 +90,7 @@ public class GridContextMenu
 			Configuration.Instance.SavePodcastsToParentFolder &&
 			libraryBook.Book.SeriesLink.SingleOrDefault() is SeriesBook series)
 		{
-			using var context = DbContexts.GetContext();
-			var seriesParent = context.GetLibraryBook_Flat_NoTracking(series.Series.AudibleSeriesId);
+			var seriesParent = DbContexts.GetLibraryBook_Flat_NoTracking(series.Series.AudibleSeriesId);
 			folderDto = seriesParent?.ToDto() ?? fileDto;
 		}
 

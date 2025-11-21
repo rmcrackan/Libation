@@ -102,7 +102,7 @@ namespace LibationAvalonia.ViewModels
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			visibleLibraryBooks.UpdateTags(dialog.NewTags);
+			await visibleLibraryBooks.UpdateTagsAsync(dialog.NewTags);
 		}
 
 		public async Task SetBookDownloadedAsync()
@@ -124,7 +124,7 @@ namespace LibationAvalonia.ViewModels
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			visibleLibraryBooks.UpdateBookStatus(dialog.BookLiberatedStatus);
+			await visibleLibraryBooks.UpdateBookStatusAsync(dialog.BookLiberatedStatus);
 		}
 
 		public async Task SetPdfDownloadedAsync()
@@ -146,7 +146,7 @@ namespace LibationAvalonia.ViewModels
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			visibleLibraryBooks.UpdatePdfStatus(dialog.BookLiberatedStatus);
+			await visibleLibraryBooks.UpdatePdfStatusAsync(dialog.BookLiberatedStatus);
 		}
 
 		public async Task SetDownloadedAutoAsync()
@@ -172,7 +172,7 @@ namespace LibationAvalonia.ViewModels
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			bulkSetStatus.Execute();
+			await bulkSetStatus.ExecuteAsync();
 		}
 
 		public async Task RemoveVisibleAsync()

@@ -23,9 +23,7 @@ namespace FileLiberator
 				var series = libraryBook.Book.SeriesLink.SingleOrDefault();
 				if (series is not null)
 				{
-					using var context = ApplicationServices.DbContexts.GetContext();
-					var seriesParent = context.GetLibraryBook_Flat_NoTracking(series.Series.AudibleSeriesId);
-
+					LibraryBook seriesParent = ApplicationServices.DbContexts.GetLibraryBook_Flat_NoTracking(series.Series.AudibleSeriesId);					
 					if (seriesParent is not null)
 					{
 						return Templates.Folder.GetFilename(seriesParent.ToDto(), AudibleFileStorage.BooksDirectory, "");

@@ -23,8 +23,7 @@ namespace LibationWinForms.Dialogs
 
 			deletedCheckedTemplate = deletedCheckedLbl.Text;
 
-			using var context = DbContexts.GetContext();
-			var deletedBooks = context.GetDeletedLibraryBooks();
+			var deletedBooks = DbContexts.GetDeletedLibraryBooks();
 			foreach (var lb in deletedBooks)
 				deletedCbl.Items.Add(lb);
 
@@ -44,7 +43,7 @@ namespace LibationWinForms.Dialogs
 			var removed = deletedCbl.CheckedItems.Cast<LibraryBook>().ToList();
 
 			removeFromCheckList(removed);
-			await Task.Run(removed.PermanentlyDeleteBooks);
+			await removed.PermanentlyDeleteBooksAsync();
 
 			setControlsEnabled(true);
 		}
@@ -56,7 +55,7 @@ namespace LibationWinForms.Dialogs
 			var removed = deletedCbl.CheckedItems.Cast<LibraryBook>().ToList();
 
 			removeFromCheckList(removed);
-			await Task.Run(removed.RestoreBooks);
+			await removed.RestoreBooksAsync();
 
 			setControlsEnabled(true);
 		}

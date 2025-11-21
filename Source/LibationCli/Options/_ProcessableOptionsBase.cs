@@ -77,12 +77,7 @@ namespace LibationCli
 			{
 				foreach (var asin in Asins.Select(a => a.TrimStart('[').TrimEnd(']')))
 				{
-					LibraryBook? lb = null;
-					using (var dbContext = DbContexts.GetContext())
-					{
-						lb = dbContext.GetLibraryBook_Flat_NoTracking(asin, caseSensative: false);
-					}
-					if (lb is not null)
+					if (DbContexts.GetLibraryBook_Flat_NoTracking(asin, caseSensative: false) is LibraryBook lb)
 					{
 						config?.Invoke(lb);
 						await ProcessOneAsync(Processable, lb, true);

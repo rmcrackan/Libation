@@ -100,7 +100,7 @@ namespace FileLiberator
 				{
 					if (moveFilesTask.IsCompletedSuccessfully && !cancellationToken.IsCancellationRequested)
 					{
-						libraryBook.UpdateBookStatus(LiberatedStatus.Liberated, Configuration.LibationVersion, audioFormat, audioVersion);
+						await libraryBook.UpdateBookStatusAsync(LiberatedStatus.Liberated, Configuration.LibationVersion, audioFormat, audioVersion);
 						SetDirectoryTime(libraryBook, finalStorageDir);
 						foreach (var cacheFile in result.CacheFiles.Where(f => File.Exists(f.FilePath)))
 						{

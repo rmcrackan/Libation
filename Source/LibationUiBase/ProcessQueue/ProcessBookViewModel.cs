@@ -364,7 +364,7 @@ public class ProcessBookViewModel : ReactiveObject
 
 		if (dialogResult == SkipResult)
 		{
-			libraryBook.UpdateBookStatus(LiberatedStatus.Error);
+			await libraryBook.UpdateBookStatusAsync(LiberatedStatus.Error);
 			LogInfo($"Error. Skip: [{libraryBook.Book.AudibleProductId}] {libraryBook.Book.TitleWithSubtitle}");
 		}
 

@@ -71,17 +71,15 @@ namespace LibationWinForms.Dialogs
 				return;
 			}
 
-			using var context = DbContexts.GetContext();
-
 			await foreach (var book in AudioFileStorage.FindAudiobooksAsync(fbd.SelectedPath, tokenSource.Token))
 			{
 				try
 				{
 					FilePathCache.Insert(book);
 
-					var lb = context.GetLibraryBook_Flat_NoTracking(book.Id);
+					var lb = DbContexts.GetLibraryBook_Flat_NoTracking(book.Id);
 					if (lb.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Liberated)
-						await Task.Run(() => lb.UpdateBookStatus(LiberatedStatus.Liberated));
+						await lb.UpdateBookStatusAsync(LiberatedStatus.Liberated);
 
 					tokenSource.Token.ThrowIfCancellationRequested();
 					this.Invoke(FileFound, this, book);

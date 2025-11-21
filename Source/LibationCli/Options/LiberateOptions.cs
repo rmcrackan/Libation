@@ -53,15 +53,10 @@ namespace LibationCli
 						return;
 					}
 
-					LibraryBook libraryBook;
-					using (var dbContext = DbContexts.GetContext())
+					if (DbContexts.GetLibraryBook_Flat_NoTracking(asin) is not LibraryBook libraryBook)
 					{
-						if (dbContext.GetLibraryBook_Flat_NoTracking(asin) is not LibraryBook lb)
-						{
-							Console.Error.WriteLine($"Book not found with asin={asin}");
-							return;
-						}
-						libraryBook = lb;
+						Console.Error.WriteLine($"Book not found with asin={asin}");
+						return;
 					}
 
 					SetDownloadedStatus(libraryBook);

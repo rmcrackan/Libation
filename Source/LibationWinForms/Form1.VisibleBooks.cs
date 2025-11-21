@@ -68,7 +68,7 @@ namespace LibationWinForms
 			}
 		}
 
-		private void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
+		private async void replaceTagsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			var dialog = new TagsBatchDialog();
 			var result = dialog.ShowDialog();
@@ -86,10 +86,10 @@ namespace LibationWinForms
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-            visibleLibraryBooks.UpdateTags(dialog.NewTags);
+			await visibleLibraryBooks.UpdateTagsAsync(dialog.NewTags);
         }
 
-		private void setBookDownloadedManualToolStripMenuItem_Click(object sender, EventArgs e)
+		private async void setBookDownloadedManualToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			var dialog = new LiberatedStatusBatchManualDialog();
 			var result = dialog.ShowDialog();
@@ -107,10 +107,10 @@ namespace LibationWinForms
 			if (confirmationResult != DialogResult.Yes)
 				return;
 
-			visibleLibraryBooks.UpdateBookStatus(dialog.BookLiberatedStatus);
+			await visibleLibraryBooks.UpdateBookStatusAsync(dialog.BookLiberatedStatus);
         }
 
-        private void setPdfDownloadedManualToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void setPdfDownloadedManualToolStripMenuItem_Click(object sender, EventArgs e)
         {
 			var dialog = new LiberatedStatusBatchManualDialog(isPdf: true);
             var result = dialog.ShowDialog();
@@ -128,7 +128,7 @@ namespace LibationWinForms
             if (confirmationResult != DialogResult.Yes)
                 return;
 
-            visibleLibraryBooks.UpdatePdfStatus(dialog.BookLiberatedStatus);
+			await visibleLibraryBooks.UpdatePdfStatusAsync(dialog.BookLiberatedStatus);
         }
 
         private async void setDownloadedAutoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -154,7 +154,7 @@ namespace LibationWinForms
             if (confirmationResult != DialogResult.Yes)
                 return;
 
-            bulkSetStatus.Execute();
+            await bulkSetStatus.ExecuteAsync();
         }
 
         private async void removeToolStripMenuItem_Click(object sender, EventArgs e)
