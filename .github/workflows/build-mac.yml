@@ -40,7 +40,7 @@ jobs:
           p12-file-base64: ${{ secrets.DISTRIBUTION_SIGNING_CERT }}
           p12-password: ${{ secrets.DISTRIBUTION_SIGNING_CERT_PW }}       
           
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - uses: actions/setup-dotnet@v5
         with:
