@@ -34,7 +34,7 @@ jobs:
       RUNTIME_ID: "osx-${{ inputs.architecture }}"
       WAIT_FOR_NOTARIZE: ${{ vars.WAIT_FOR_NOTARIZE == 'true' }}
     steps:    
-      - uses: apple-actions/import-codesign-certs@v3
+      - uses: apple-actions/import-codesign-certs@v5
         if: ${{ inputs.sign-app }}
         with: 
           p12-file-base64: ${{ secrets.DISTRIBUTION_SIGNING_CERT }}
