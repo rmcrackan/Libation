@@ -48,9 +48,21 @@ namespace DtoImporterService
 				.Distinct()
 				.ToHashSet();
 
-			Cache = DbContext.Books
-				.GetBooks(b => productIds.Contains(b.AudibleProductId))
-				.ToDictionarySafe(b => b.AudibleProductId);
+			if (productIds.Count > 100)
+			{
+				//For large imports, it is faster to get the whole library and filter in memory.
+				Cache = DbContext.Books
+					.GetBooks()
+					.ToArray()
+					.Where(b => productIds.Contains(b.AudibleProductId))
+					.ToDictionarySafe(b => b.AudibleProductId);
+			}
+			else
+			{
+				Cache = DbContext.Books
+					.GetBooks(b => productIds.Contains(b.AudibleProductId))
+					.ToDictionarySafe(b => b.AudibleProductId);
+			}
 		}
 
 		private int upsertBooks(IEnumerable<ImportItem> importItems)
