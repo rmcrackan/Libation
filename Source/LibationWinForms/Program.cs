@@ -21,7 +21,7 @@ namespace LibationWinForms
 		private static Form1 form1;
 
 		[STAThread]
-		static async Task Main()
+		static void Main()
 		{
 			Task<List<LibraryBook>> libraryLoadTask;
 
@@ -46,7 +46,7 @@ namespace LibationWinForms
 				LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = ShowMessageBox;
 
 				// do this as soon as possible (post-config)
-				await RunSetupIfNeededAsync(config);
+				RunSetupIfNeededAsync(config).Wait();
 
 				// most migrations go in here
 				LibationScaffolding.RunPostConfigMigrations(config);

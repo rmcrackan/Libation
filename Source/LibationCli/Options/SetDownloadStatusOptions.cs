@@ -53,14 +53,14 @@ namespace LibationCli
 			{
 				var status = SetDownloaded ? LiberatedStatus.Liberated : LiberatedStatus.NotLiberated;
 
-				var num = libraryBooks.UpdateBookStatus(status);
+				var num = await libraryBooks.UpdateBookStatusAsync(status);
 				Console.WriteLine($"Set LiberatedStatus to '{status}' on {"book".PluralizeWithCount(num)}");
 			}
 			else
 			{
 				var bulkSetStatus = new BulkSetDownloadStatus(libraryBooks, SetDownloaded, SetNotDownloaded);
 				await Task.Run(() => bulkSetStatus.Discover());
-				bulkSetStatus.Execute();
+				await bulkSetStatus.ExecuteAsync();
 
 				foreach (var msg in bulkSetStatus.Messages)
 					Console.WriteLine(msg);

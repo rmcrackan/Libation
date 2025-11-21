@@ -3,7 +3,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net9.0-windows7.0</TargetFramework>
+		<TargetFramework>net10.0-windows7.0</TargetFramework>
 		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<ApplicationIcon>libation.ico</ApplicationIcon>
 		<AssemblyName>Libation</AssemblyName>
@@ -40,7 +40,7 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="9.0.3.1" />
+		<PackageReference Include="Dinah.Core.WindowsDesktop" Version="10.0.0.1" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3595.46" />
 	</ItemGroup>
 

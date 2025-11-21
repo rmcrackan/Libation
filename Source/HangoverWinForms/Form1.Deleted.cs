@@ -39,19 +39,22 @@ namespace HangoverWinForms
                 deletedCbl.SetItemChecked(i, false);
         }
 
-        private void saveBtn_Click(object sender, EventArgs e)
+        private async void saveBtn_Click(object sender, EventArgs e)
         {
             var libraryBooksToRestore = deletedCbl.CheckedItems.Cast<LibraryBook>().ToList();
-            var qtyChanges = libraryBooksToRestore.RestoreBooks();
+            saveBtn.Enabled = false;
+			var qtyChanges = await libraryBooksToRestore.RestoreBooksAsync();
             if (qtyChanges > 0)
-                reload();
-        }
+				Invoke(reload);
+            Invoke(() => saveBtn.Enabled = true);
+		}
 
         private void reload()
         {
             deletedCbl.Items.Clear();
-            var deletedBooks = DbContexts.GetContext().GetDeletedLibraryBooks();
-            foreach (var lb in deletedBooks)
+            List<LibraryBook> deletedBooks = DbContexts.GetDeletedLibraryBooks();
+
+			foreach (var lb in deletedBooks)
                 deletedCbl.Items.Add(lb);
 
             setLabel();

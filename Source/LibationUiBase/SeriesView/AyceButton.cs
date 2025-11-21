@@ -70,9 +70,8 @@ namespace LibationUiBase.SeriesView
 
 			if (await api.RemoveItemFromLibraryAsync(Item.ProductId))
 			{
-				using var context = DbContexts.GetContext();
-				var lb = context.GetLibraryBook_Flat_NoTracking(Item.ProductId);
-				int result = await Task.Run((new[] { lb }).PermanentlyDeleteBooks);
+				var lb = DbContexts.GetLibraryBook_Flat_NoTracking(Item.ProductId);
+				int result = await LibraryCommands.PermanentlyDeleteBooksAsync([lb]);
 				InLibrary = result == 0;
 			}
 		}

@@ -12,7 +12,7 @@ on:
         required: true
       dotnet-version:
         type: string
-        default: "9.x"
+        default: "10.x"
         description: ".NET version to target"
       run-unit-tests:
         type: boolean

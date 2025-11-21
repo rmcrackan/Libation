@@ -104,7 +104,7 @@ namespace LibationAvalonia.Dialogs
 		public async Task RestoreCheckedAsync()
 		{
 			ControlsEnabled = false;
-			var qtyChanges = await Task.Run(CheckedBooks.RestoreBooks);
+			var qtyChanges = await CheckedBooks.RestoreBooksAsync();
 			if (qtyChanges > 0)
 				Reload();
 			ControlsEnabled = true;
@@ -113,7 +113,7 @@ namespace LibationAvalonia.Dialogs
 		public async Task PermanentlyDeleteCheckedAsync()
 		{
 			ControlsEnabled = false;
-			var qtyChanges = await Task.Run(CheckedBooks.PermanentlyDeleteBooks);
+			var qtyChanges = await CheckedBooks.PermanentlyDeleteBooksAsync();
 			if (qtyChanges > 0)
 				Reload();
 			ControlsEnabled = true;
@@ -121,8 +121,7 @@ namespace LibationAvalonia.Dialogs
 
 		private void Reload()
 		{
-			using var context = DbContexts.GetContext();
-			var deletedBooks = context.GetDeletedLibraryBooks();
+			var deletedBooks = DbContexts.GetDeletedLibraryBooks();
 
 			DeletedBooks.Clear();
 			DeletedBooks.AddRange(deletedBooks.Select(lb => new CheckBoxViewModel { Item = lb }));

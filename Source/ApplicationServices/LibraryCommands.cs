@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AudibleApi;
+﻿using AudibleApi;
 using AudibleUtilities;
 using DataLayer;
 using Dinah.Core;
@@ -11,8 +6,14 @@ using Dinah.Core.Logging;
 using DtoImporterService;
 using FileManager;
 using LibationFileManager;
+using Microsoft.Extensions.DependencyModel;
 using Newtonsoft.Json.Linq;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using static DtoImporterService.PerfLogger;
 
 #nullable enable
@@ -141,9 +142,9 @@ namespace ApplicationServices
                     return default;
 
                 Log.Logger.Information("Begin long-running import");
-                logTime($"pre {nameof(importIntoDbAsync)}");
-                newCount = await importIntoDbAsync(importItems);
-                logTime($"post {nameof(importIntoDbAsync)}");
+                logTime($"pre {nameof(ImportIntoDbAsync)}");
+                newCount = await Task.Run(() => ImportIntoDbAsync(importItems));
+                logTime($"post {nameof(ImportIntoDbAsync)}");
                 Log.Logger.Information($"Import complete. New count {newCount}");
 
                 return (totalCount, newCount);
@@ -180,7 +181,8 @@ namespace ApplicationServices
             }
         }
 
-        public static async Task<int> ImportSingleToDbAsync(AudibleApi.Common.Item item, string accountId, string localeName)
+        public static Task<int> ImportSingleToDbAsync(AudibleApi.Common.Item item, string accountId, string localeName) => Task.Run(() => importSingleToDb(item, accountId, localeName));
+		private static int importSingleToDb(AudibleApi.Common.Item item, string accountId, string localeName)
         {
             ArgumentValidator.EnsureNotNull(item, "item");
             ArgumentValidator.EnsureNotNull(accountId, "accountId");
@@ -203,35 +205,23 @@ namespace ApplicationServices
                 return 0;
             }
 
-            using var context = DbContexts.GetContext();
+			return DoDbSizeChangeOperation(ctx =>
+			{
+				var bookImporter = new BookImporter(ctx);
+				bookImporter.Import(importItems);
+				var book = ctx.LibraryBooks.FirstOrDefault(lb => lb.Book.AudibleProductId == importItem.DtoItem.ProductId);
 
-            var bookImporter = new BookImporter(context);
-            await Task.Run(() => bookImporter.Import(importItems));
-            var book = await Task.Run(() => context.LibraryBooks.FirstOrDefault(lb => lb.Book.AudibleProductId == importItem.DtoItem.ProductId));
-            
-            if (book is null)
-            {
-                book = new LibraryBook(bookImporter.Cache[importItem.DtoItem.ProductId], importItem.DtoItem.DateAdded, importItem.AccountId);
-                context.LibraryBooks.Add(book);
-            }
-            else
-            {
-                book.AbsentFromLastScan = false;
-            }
-
-            try
-            {
-                int qtyChanged = await Task.Run(() => SaveContext(context));
-                if (qtyChanged > 0)
-                    await Task.Run(() => finalizeLibrarySizeChange(context));
-                return qtyChanged;
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex, "Error adding single library book to DB. {@DebugInfo}", new { item, accountId, localeName });
-                return 0;
-            }
-        }
+				if (book is null)
+				{
+					book = new LibraryBook(bookImporter.Cache[importItem.DtoItem.ProductId], importItem.DtoItem.DateAdded, importItem.AccountId);
+					ctx.LibraryBooks.Add(book);
+				}
+				else
+				{
+					book.AbsentFromLastScan = false;
+				}
+			});
+		}
 
 		private static LogArchiver? openLogArchive(string? archivePath)
         {
@@ -347,23 +337,21 @@ namespace ApplicationServices
 			}
         }
 
-        private static async Task<int> importIntoDbAsync(List<ImportItem> importItems)
+        private static async Task<int> ImportIntoDbAsync(List<ImportItem> importItems) => await Task.Run(() => importIntoDb(importItems));
+		private static int importIntoDb(List<ImportItem> importItems)
         {
-            logTime("importIntoDbAsync -- pre db");
-            using var context = DbContexts.GetContext();
-            var libraryBookImporter = new LibraryBookImporter(context);
-            var newCount = await Task.Run(() => libraryBookImporter.Import(importItems));
-            logTime("importIntoDbAsync -- post Import()");
-            int qtyChanges = SaveContext(context);
-            logTime("importIntoDbAsync -- post SaveChanges");
+			logTime("importIntoDbAsync -- pre db");
 
-            // this is any changes at all to the database, not just new books
-            if (qtyChanges > 0)
-                await Task.Run(() => finalizeLibrarySizeChange(context));
-            logTime("importIntoDbAsync -- post finalizeLibrarySizeChange");
+            int newCount = 0;
 
-            return newCount;
-        }
+            DoDbSizeChangeOperation(ctx =>
+			{
+				var libraryBookImporter = new LibraryBookImporter(ctx);
+				newCount = libraryBookImporter.Import(importItems);
+				logTime("importIntoDbAsync -- post Import()");
+			});
+			return newCount;
+		}
 
         public static int SaveContext(LibationContext context)
         {
@@ -389,57 +377,58 @@ namespace ApplicationServices
 
         #region remove/restore books
         public static Task<int> RemoveBooksAsync(this IEnumerable<LibraryBook> idsToRemove) => Task.Run(() => removeBooks(idsToRemove));
-        public static int RemoveBook(this LibraryBook idToRemove) => removeBooks(new[] { idToRemove });
         private static int removeBooks(IEnumerable<LibraryBook> removeLibraryBooks)
-        {
-            try
-            {
-                if (removeLibraryBooks is null || !removeLibraryBooks.Any())
-                    return 0;
+		{
+			if (removeLibraryBooks is null || !removeLibraryBooks.Any())
+				return 0;
 
-                using var context = DbContexts.GetContext();
-
+			return DoDbSizeChangeOperation(ctx =>
+			{
 				// Entry() NoTracking entities before SaveChanges()
 				foreach (var lb in removeLibraryBooks)
-                {
+				{
 					lb.IsDeleted = true;
-					context.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+					ctx.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 				}
+			});			
+        }
 
-                var qtyChanges = context.SaveChanges();
-                if (qtyChanges > 0)
-                    finalizeLibrarySizeChange(context);
-
-                return qtyChanges;
-            }
+		public static Task<int> RestoreBooksAsync(this IEnumerable<LibraryBook> idsToRemove) => Task.Run(() => restoreBooks(idsToRemove));
+		private static int restoreBooks(this IEnumerable<LibraryBook> libraryBooks)
+		{
+			if (libraryBooks is null || !libraryBooks.Any())
+				return 0;
+			try
+            {
+				return DoDbSizeChangeOperation(ctx =>
+				{
+					// Entry() NoTracking entities before SaveChanges()
+					foreach (var lb in libraryBooks)
+					{
+						lb.IsDeleted = false;
+						ctx.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+					}
+				});
+			}
             catch (Exception ex)
             {
-                Log.Logger.Error(ex, "Error removing books");
+                Log.Logger.Error(ex, "Error restoring books");
                 throw;
             }
         }
 
-        public static int RestoreBooks(this IEnumerable<LibraryBook> libraryBooks)
-        {
-            try
+		public static Task<int> PermanentlyDeleteBooksAsync(this IEnumerable<LibraryBook> idsToRemove) => Task.Run(() => permanentlyDeleteBooks(idsToRemove));
+		private static int permanentlyDeleteBooks(this IEnumerable<LibraryBook> libraryBooks)
+		{
+			if (libraryBooks is null || !libraryBooks.Any())
+				return 0;
+			try
             {
-                if (libraryBooks is null || !libraryBooks.Any())
-                    return 0;
-
-                using var context = DbContexts.GetContext();
-
-				// Entry() NoTracking entities before SaveChanges()
-				foreach (var lb in libraryBooks)
-				{
-					lb.IsDeleted = false;
-					context.Entry(lb).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-				}
-
-                var qtyChanges = context.SaveChanges();
-                if (qtyChanges > 0)
-                    finalizeLibrarySizeChange(context);
-
-                return qtyChanges;
+				return DoDbSizeChangeOperation(ctx =>
+                {
+					ctx.LibraryBooks.RemoveRange(libraryBooks);
+					ctx.Books.RemoveRange(libraryBooks.Select(lb => lb.Book));
+				});
             }
             catch (Exception ex)
             {
@@ -448,36 +437,40 @@ namespace ApplicationServices
             }
         }
 
-        public static int PermanentlyDeleteBooks(this IEnumerable<LibraryBook> libraryBooks)
+        static int DoDbSizeChangeOperation(Action<LibationContext> action)
         {
-            try
-            {
-                if (libraryBooks is null || !libraryBooks.Any())
-                    return 0;
+			try
+			{
+				int qtyChanges;
+				List<LibraryBook>? library;
 
-                using var context = DbContexts.GetContext();
+				using (var context = DbContexts.GetContext())
+				{
+					action?.Invoke(context);
 
-				context.LibraryBooks.RemoveRange(libraryBooks);
-				context.Books.RemoveRange(libraryBooks.Select(lb => lb.Book));				
+					qtyChanges = SaveContext(context);
+					logTime("importIntoDbAsync -- post SaveChanges");
+					library = qtyChanges == 0 ? null : context.GetLibrary_Flat_NoTracking(includeParents: true);
+				}
 
-                var qtyChanges = context.SaveChanges();
-				if (qtyChanges > 0)
-					finalizeLibrarySizeChange(context);
+				if (library is not null)
+					finalizeLibrarySizeChange(library);
+				logTime("importIntoDbAsync -- post finalizeLibrarySizeChange");
 
 				return qtyChanges;
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex, "Error restoring books");
-                throw;
-            }
-        }
+			}
+			catch (Exception ex)
+			{
+				Log.Logger.Error(ex, "Error performing DB Size change operation");
+				throw;
+			}
+		}
+
         #endregion
 
         // call this whenever books are added or removed from library
-        private static void finalizeLibrarySizeChange(LibationContext context)
+        private static void finalizeLibrarySizeChange(List<LibraryBook> library)
         {
-            var library = context.GetLibrary_Flat_NoTracking(includeParents: true);
             LibrarySizeChanged?.Invoke(null, library);
         }
 
@@ -490,21 +483,21 @@ namespace ApplicationServices
         public static event EventHandler<IEnumerable<LibraryBook>>? BookUserDefinedItemCommitted;
 
         #region Update book details
-        public static int UpdateUserDefinedItem(
+        public static async Task<int> UpdateUserDefinedItemAsync(
             this LibraryBook lb,
             string? tags = null,
             LiberatedStatus? bookStatus = null,
             LiberatedStatus? pdfStatus = null,
             Rating? rating = null)
-            => new[] { lb }.UpdateUserDefinedItem(tags, bookStatus, pdfStatus, rating);
+            => await UpdateUserDefinedItemAsync([lb], tags, bookStatus, pdfStatus, rating);
 
-        public static int UpdateUserDefinedItem(
+        public static async Task<int> UpdateUserDefinedItemAsync(
             this IEnumerable<LibraryBook> lb,
             string? tags = null,
             LiberatedStatus? bookStatus = null,
             LiberatedStatus? pdfStatus = null,
             Rating? rating = null)
-            => updateUserDefinedItem(
+            => await UpdateUserDefinedItemAsync(
                 lb,
                 udi => {
                     // blank tags are expected. null tags are not
@@ -521,52 +514,54 @@ namespace ApplicationServices
                         udi.UpdateRating(rating.OverallRating, rating.PerformanceRating, rating.StoryRating);
 				});
 
-        public static int UpdateBookStatus(this LibraryBook lb, LiberatedStatus bookStatus, Version? libationVersion, AudioFormat audioFormat, string audioVersion)
-            => lb.UpdateUserDefinedItem(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion, audioFormat, audioVersion); });
+        public static async Task<int> UpdateBookStatusAsync(this LibraryBook lb, LiberatedStatus bookStatus, Version? libationVersion, AudioFormat audioFormat, string audioVersion)
+            => await lb.UpdateUserDefinedItemAsync(udi => { udi.BookStatus = bookStatus; udi.SetLastDownloaded(libationVersion, audioFormat, audioVersion); });
 
-        public static int UpdateBookStatus(this LibraryBook libraryBook, LiberatedStatus bookStatus)
-            => libraryBook.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
-        public static int UpdateBookStatus(this IEnumerable<LibraryBook> libraryBooks, LiberatedStatus bookStatus)
-            => libraryBooks.UpdateUserDefinedItem(udi => udi.BookStatus = bookStatus);
+        public static async Task<int> UpdateBookStatusAsync(this LibraryBook libraryBook, LiberatedStatus bookStatus)
+            => await libraryBook.UpdateUserDefinedItemAsync(udi => udi.BookStatus = bookStatus);
+        public static async Task<int> UpdateBookStatusAsync(this IEnumerable<LibraryBook> libraryBooks, LiberatedStatus bookStatus)
+            => await libraryBooks.UpdateUserDefinedItemAsync(udi => udi.BookStatus = bookStatus);
 
-        public static int UpdatePdfStatus(this LibraryBook libraryBook, LiberatedStatus pdfStatus)
-            => libraryBook.UpdateUserDefinedItem(udi => udi.SetPdfStatus(pdfStatus));
-        public static int UpdatePdfStatus(this IEnumerable<LibraryBook> libraryBooks, LiberatedStatus pdfStatus)
-            => libraryBooks.UpdateUserDefinedItem(udi => udi.SetPdfStatus(pdfStatus));
+        public static async Task<int> UpdatePdfStatusAsync(this LibraryBook libraryBook, LiberatedStatus pdfStatus)
+            => await libraryBook.UpdateUserDefinedItemAsync(udi => udi.SetPdfStatus(pdfStatus));
+        public static async Task<int> UpdatePdfStatusAsync(this IEnumerable<LibraryBook> libraryBooks, LiberatedStatus pdfStatus)
+            => await libraryBooks.UpdateUserDefinedItemAsync(udi => udi.SetPdfStatus(pdfStatus));
 
-        public static int UpdateTags(this LibraryBook libraryBook, string tags)
-            => libraryBook.UpdateUserDefinedItem(udi => udi.Tags = tags);
-        public static int UpdateTags(this IEnumerable<LibraryBook> libraryBooks, string tags)
-            => libraryBooks.UpdateUserDefinedItem(udi => udi.Tags = tags);
+        public static async Task<int> UpdateTagsAsync(this LibraryBook libraryBook, string tags)
+            => await libraryBook.UpdateUserDefinedItemAsync(udi => udi.Tags = tags);
+        public static async Task<int> UpdateTagsAsync(this IEnumerable<LibraryBook> libraryBooks, string tags)
+            => await libraryBooks.UpdateUserDefinedItemAsync(udi => udi.Tags = tags);
 
-        public static int UpdateUserDefinedItem(this LibraryBook libraryBook, Action<UserDefinedItem> action)
-            => libraryBook.updateUserDefinedItem(action);
-        public static int UpdateUserDefinedItem(this IEnumerable<LibraryBook> libraryBooks, Action<UserDefinedItem> action)
-            => libraryBooks.updateUserDefinedItem(action);
+		public static async Task<int> UpdateUserDefinedItemAsync(this LibraryBook libraryBook, Action<UserDefinedItem> action)
+            => await UpdateUserDefinedItemAsync([libraryBook], action);
 
-        private static int updateUserDefinedItem(this LibraryBook libraryBook, Action<UserDefinedItem> action) => new[] { libraryBook }.updateUserDefinedItem(action);
-        private static int updateUserDefinedItem(this IEnumerable<LibraryBook> libraryBooks, Action<UserDefinedItem> action)
+		public static Task<int> UpdateUserDefinedItemAsync(this IEnumerable<LibraryBook> libraryBooks, Action<UserDefinedItem> action)
+            => Task.Run(() => libraryBooks.updateUserDefinedItem(action));
+
+		private static int updateUserDefinedItem(this IEnumerable<LibraryBook> libraryBooks, Action<UserDefinedItem> action)
         {
             try
             {
                 if (libraryBooks is null || !libraryBooks.Any())
                     return 0;
 
-                using var context = DbContexts.GetContext();
-
-				// Entry() instead of Attach() due to possible stack overflow with large tables
-				foreach (var book in libraryBooks)
+                int qtyChanges;
+                using (var context = DbContexts.GetContext())
                 {
-					action?.Invoke(book.Book.UserDefinedItem);
+                    // Entry() instead of Attach() due to possible stack overflow with large tables
+                    foreach (var book in libraryBooks)
+                    {
+                        action?.Invoke(book.Book.UserDefinedItem);
 
-					var udiEntity = context.Entry(book.Book.UserDefinedItem);
+                        var udiEntity = context.Entry(book.Book.UserDefinedItem);
 
-					udiEntity.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                    if (udiEntity.Reference(udi => udi.Rating).TargetEntry is Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<Rating> ratingEntry)
-                        ratingEntry.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-				}
+                        udiEntity.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                        if (udiEntity.Reference(udi => udi.Rating).TargetEntry is Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<Rating> ratingEntry)
+                            ratingEntry.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                    }
 
-                var qtyChanges = context.SaveChanges();
+                    qtyChanges = context.SaveChanges();
+                }
                 if (qtyChanges > 0)
                     BookUserDefinedItemCommitted?.Invoke(null, libraryBooks);
 

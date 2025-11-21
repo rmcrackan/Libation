@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LuceneNet303r2" Version="3.0.3.9" />
+    <PackageReference Include="LuceneNet303r2" Version="3.0.3.10" />
   </ItemGroup>
 
   <ItemGroup>

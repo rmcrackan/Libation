@@ -277,7 +277,7 @@ public class ProcessQueueViewModel : ReactiveObject
 				else if (result == ProcessBookResult.FailedAbort)
 					Queue.ClearQueue();
 				else if (result == ProcessBookResult.FailedSkip)
-					nextBook.LibraryBook.UpdateBookStatus(LiberatedStatus.Error);
+					await nextBook.LibraryBook.UpdateBookStatusAsync(LiberatedStatus.Error);
 				else if (result == ProcessBookResult.LicenseDeniedPossibleOutage && !shownServiceOutageMessage)
 				{
 					await MessageBoxBase.Show($"""

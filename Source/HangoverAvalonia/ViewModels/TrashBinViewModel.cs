@@ -80,7 +80,7 @@ public class TrashBinViewModel : ViewModelBase, IDisposable
 	public async Task RestoreCheckedAsync()
 	{
 		ControlsEnabled = false;
-		var qtyChanges = await Task.Run(CheckedBooks.RestoreBooks);
+		var qtyChanges = await CheckedBooks.RestoreBooksAsync();
 		if (qtyChanges > 0)
 			Reload();
 		ControlsEnabled = true;
@@ -89,7 +89,7 @@ public class TrashBinViewModel : ViewModelBase, IDisposable
 	public async Task PermanentlyDeleteCheckedAsync()
 	{
 		ControlsEnabled = false;
-		var qtyChanges = await Task.Run(CheckedBooks.PermanentlyDeleteBooks);
+		var qtyChanges = await CheckedBooks.PermanentlyDeleteBooksAsync();
 		if (qtyChanges > 0)
 			Reload();
 		ControlsEnabled = true;
@@ -97,7 +97,7 @@ public class TrashBinViewModel : ViewModelBase, IDisposable
 
 	public void Reload()
 	{
-		var deletedBooks = DbContexts.GetContext().GetDeletedLibraryBooks();
+		var deletedBooks = DbContexts.GetDeletedLibraryBooks();
 
 		DeletedBooks.Clear();
 		DeletedBooks.AddRange(deletedBooks.Select(lb => new CheckBoxViewModel { Item = lb }));

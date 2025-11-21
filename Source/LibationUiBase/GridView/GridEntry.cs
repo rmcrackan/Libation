@@ -91,7 +91,7 @@ namespace LibationUiBase.GridView
 			var api = await LibraryBook.GetApiAsync();
 
 			if (await api.ReviewAsync(Book.AudibleProductId, (int)rating.OverallRating, (int)rating.PerformanceRating, (int)rating.StoryRating))
-				LibraryBook.UpdateUserDefinedItem(Book.UserDefinedItem.Tags, Book.UserDefinedItem.BookStatus, Book.UserDefinedItem.PdfStatus, rating);
+				await LibraryBook.UpdateUserDefinedItemAsync(Book.UserDefinedItem.Tags, Book.UserDefinedItem.BookStatus, Book.UserDefinedItem.PdfStatus, rating);
 		}
 
 		#endregion

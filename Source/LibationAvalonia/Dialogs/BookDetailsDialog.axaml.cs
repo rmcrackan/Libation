@@ -10,6 +10,7 @@ using LibationFileManager;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace LibationAvalonia.Dialogs
@@ -58,10 +59,10 @@ namespace LibationAvalonia.Dialogs
 			LibraryBook = libraryBook;
 		}
 
-		protected override void SaveAndClose()
+		protected override async Task SaveAndCloseAsync()
 		{
-			LibraryBook.UpdateUserDefinedItem(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
-			base.SaveAndClose();
+			await LibraryBook.UpdateUserDefinedItemAsync(NewTags, bookStatus: BookLiberatedStatus, pdfStatus: PdfLiberatedStatus);
+			await base.SaveAndCloseAsync();
 		}
 
 		public void BookStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)

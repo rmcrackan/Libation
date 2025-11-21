@@ -25,8 +25,7 @@ internal class GetLicenseOptions : OptionsBase
 			return;
 		}
 
-		using var dbContext = DbContexts.GetContext();
-		if (dbContext.GetLibraryBook_Flat_NoTracking(Asin) is not LibraryBook libraryBook)
+		if (DbContexts.GetLibraryBook_Flat_NoTracking(Asin) is not LibraryBook libraryBook)
 		{
 			Console.Error.WriteLine($"Book not found with asin={Asin}");
 			return;
