@@ -243,6 +243,7 @@ namespace AppScaffolding
             //Log.Logger.Here().Debug("Begin Libation. Debug with line numbers");
         }
 
+#nullable enable
 		private static void logStartupState(Configuration config)
 		{
 #if DEBUG
@@ -256,9 +257,11 @@ namespace AppScaffolding
 			// begin logging session with a form feed
 			Log.Logger.Information("\r\n\f");
 
-			static int fileCount(FileManager.LongPath longPath)
+			static int fileCount(FileManager.LongPath? longPath)
             {
-                try { return FileManager.FileUtility.SaferEnumerateFiles(longPath).Count(); }
+				if (longPath is null)
+					return -1;
+				try { return FileManager.FileUtility.SaferEnumerateFiles(longPath).Count(); }
                 catch { return -1; }
             }
 
@@ -298,8 +301,8 @@ namespace AppScaffolding
 			if (InteropFactory.InteropFunctionsType is null)
                 Serilog.Log.Logger.Warning("WARNING: OSInteropProxy.InteropFunctionsType is null");
         }
-
-        private static void wireUpSystemEvents(Configuration configuration)
+#nullable restore
+		private static void wireUpSystemEvents(Configuration configuration)
 		{
 			LibraryCommands.LibrarySizeChanged += (object _, List<DataLayer.LibraryBook> libraryBooks)
 				=> SearchEngineCommands.FullReIndex(libraryBooks);

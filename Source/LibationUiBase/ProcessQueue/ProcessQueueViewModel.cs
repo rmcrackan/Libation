@@ -184,6 +184,26 @@ public class ProcessQueueViewModel : ReactiveObject
 				MessageBoxIcon.Error);
 			return false;
 		}
+		else if (AudibleFileStorage.DownloadsInProgressDirectory is null)
+		{
+			Serilog.Log.Logger.Error("Failed to create DownloadsInProgressDirectory in {@InProgress}", Configuration.Instance.InProgress);
+			MessageBoxBase.Show(
+				$"Libation was unable to create the \"Downloads In Progress\" folder in:\n{Configuration.Instance.InProgress}\n\nPlease change the In Progress location in the settings menu.",
+				"Failed to Create Downloads In Progress Directory",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			return false;
+		}
+		else if (AudibleFileStorage.DecryptInProgressDirectory is null)
+		{
+			Serilog.Log.Logger.Error("Failed to create DecryptInProgressDirectory in {@InProgress}", Configuration.Instance.InProgress);
+			MessageBoxBase.Show(
+				$"Libation was unable to create the \"Decrypt In Progress\" folder in:\n{Configuration.Instance.InProgress}\n\nPlease change the In Progress location in the settings menu.",
+				"Failed to Create Decrypt In Progress Directory",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			return false;
+		}
 
 		return true;
 	}

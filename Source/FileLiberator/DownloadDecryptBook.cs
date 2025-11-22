@@ -129,20 +129,21 @@ namespace FileLiberator
 
 		private async Task<AudiobookDecryptResult> DownloadAudiobookAsync(AudibleApi.Api api, DownloadOptions dlOptions, CancellationToken cancellationToken)
 		{
-			var outpoutDir = AudibleFileStorage.DecryptInProgressDirectory;
-			var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory;
+			//Directories are validated prior to beginning download/decrypt
+			var outputDir = AudibleFileStorage.DecryptInProgressDirectory!;
+			var cacheDir = AudibleFileStorage.DownloadsInProgressDirectory!;
 			var result = new AudiobookDecryptResult(false, [], []);
 
 			try
 			{
 				if (dlOptions.DrmType is not DrmType.Adrm and not DrmType.Widevine)
-					abDownloader = new UnencryptedAudiobookDownloader(outpoutDir, cacheDir, dlOptions);
+					abDownloader = new UnencryptedAudiobookDownloader(outputDir, cacheDir, dlOptions);
 				else
 				{
 					AaxcDownloadConvertBase converter
 						= dlOptions.Config.SplitFilesByChapter && dlOptions.ChapterInfo.Count > 1 ?
-						new AaxcDownloadMultiConverter(outpoutDir, cacheDir, dlOptions) :
-						new AaxcDownloadSingleConverter(outpoutDir, cacheDir, dlOptions);
+						new AaxcDownloadMultiConverter(outputDir, cacheDir, dlOptions) :
+						new AaxcDownloadSingleConverter(outputDir, cacheDir, dlOptions);
 
 					if (dlOptions.Config.AllowLibationFixup)
 						converter.RetrievedMetadata += Converter_RetrievedMetadata;
@@ -176,7 +177,7 @@ namespace FileLiberator
 
 			void AbDownloader_TempFileCreated(object? sender, TempFile e)
 			{
-				if (Path.GetDirectoryName(e.FilePath) == outpoutDir)
+				if (Path.GetDirectoryName(e.FilePath) == outputDir)
 				{
 					result.ResultFiles.Add(e);
 				}

@@ -19,8 +19,32 @@ namespace LibationFileManager
 		protected abstract List<LongPath> GetFilePathsCustom(string productId);
 
 		#region static
-		public static LongPath DownloadsInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DownloadsInProgress")).FullName;
-		public static LongPath DecryptInProgressDirectory => Directory.CreateDirectory(Path.Combine(Configuration.Instance.InProgress, "DecryptInProgress")).FullName;
+
+		/*
+		 * Operations like LibraryCommands.GetCounts() hit the file system hard.
+		 * Since failing to create a directory and exception handling is expensive,
+		 * only retry creating InProgress subdirectories every RetryInProgressInterval.
+		 */
+		private static DateTime lastInProgressFail;
+		private static readonly TimeSpan RetryInProgressInterval = TimeSpan.FromSeconds(2);
+
+		private static DirectoryInfo? CreateInProgressDirectory(string subDirectory)
+		{
+			try
+			{
+				return (DateTime.UtcNow - lastInProgressFail) < RetryInProgressInterval ? null
+					: new DirectoryInfo(Configuration.Instance.InProgress).CreateSubdirectoryEx(subDirectory);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "Error creating subdirectory in {@InProgress}", Configuration.Instance.InProgress);
+				lastInProgressFail = DateTime.UtcNow;
+				return null;
+			}
+		}
+
+		public static LongPath? DownloadsInProgressDirectory => CreateInProgressDirectory("DownloadsInProgress")?.FullName;
+		public static LongPath? DecryptInProgressDirectory => CreateInProgressDirectory("DecryptInProgress")?.FullName;
 
 		static AudibleFileStorage()
 		{
@@ -28,7 +52,9 @@ namespace LibationFileManager
 			//Do not clean DownloadsInProgressDirectory. Those files are resumable.
 			try
             {
-                foreach (var tempFile in FileUtility.SaferEnumerateFiles(DecryptInProgressDirectory))
+				if (DecryptInProgressDirectory is not LongPath decryptDir)
+					return;
+                foreach (var tempFile in FileUtility.SaferEnumerateFiles(decryptDir))
                     FileUtility.SaferDelete(tempFile);
             }
             catch (Exception ex)
@@ -114,9 +140,12 @@ namespace LibationFileManager
 
 		protected override List<LongPath> GetFilePathsCustom(string productId)
 		{
+			if (DownloadsInProgressDirectory is not LongPath dlFolder)
+				return [];
+
 			var regex = GetBookSearchRegex(productId);
 			return FileUtility
-				.SaferEnumerateFiles(DownloadsInProgressDirectory, "*.*", SearchOption.AllDirectories)
+				.SaferEnumerateFiles(dlFolder, "*.*", SearchOption.AllDirectories)
 				.Where(s => regex.IsMatch(s)).ToList();
 		}
 
