@@ -18,7 +18,7 @@ namespace FileLiberator
 		public override string Name => "Download Pdf";
 		public override bool Validate(LibraryBook libraryBook)
 			=> !string.IsNullOrWhiteSpace(getdownloadUrl(libraryBook))
-			&& !libraryBook.Book.PDF_Exists();
+			&& !libraryBook.Book.PdfExists;
 
 		public override async Task<StatusHandler> ProcessAsync(LibraryBook libraryBook)
 		{

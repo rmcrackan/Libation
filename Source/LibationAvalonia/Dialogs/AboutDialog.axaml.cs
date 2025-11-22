@@ -64,12 +64,8 @@ namespace LibationAvalonia.Dialogs
 	public class AboutVM : ViewModelBase
 	{
 		public string Version { get; }
-		public bool CanCheckForUpgrade { get => canCheckForUpgrade; set => this.RaiseAndSetIfChanged(ref canCheckForUpgrade, value); }
-		public string UpgradeButtonText { get => upgradeButtonText; set => this.RaiseAndSetIfChanged(ref upgradeButtonText, value); }
-
-
-		private bool canCheckForUpgrade = true;
-		private string upgradeButtonText = "Check for Upgrade";
+		public bool CanCheckForUpgrade { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = true;
+		public string UpgradeButtonText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }= "Check for Upgrade";
 
 		public IEnumerable<LibationContributor> PrimaryContributors => LibationContributor.PrimaryContributors;
 		public IEnumerable<LibationContributor> AdditionalContributors => LibationContributor.AdditionalContributors;

@@ -108,8 +108,7 @@ namespace LibationAvalonia.Dialogs
 
 	public class LocatedAudiobooksViewModel : ViewModelBase
 	{
-		private int _foundAsins = 0;
 		public AvaloniaList<Tuple<string, string>> FoundFiles { get; } = new();
-		public int FoundAsins { get => _foundAsins; set => this.RaiseAndSetIfChanged(ref _foundAsins, value); }
+		public int FoundAsins { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 	}
 }

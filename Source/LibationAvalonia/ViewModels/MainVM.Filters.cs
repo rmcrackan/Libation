@@ -18,14 +18,11 @@ namespace LibationAvalonia.ViewModels
 		private string lastGoodSearch = string.Empty;
 		private QuickFilters.NamedFilter? lastGoodFilter => new(lastGoodSearch, null);
 
-        private QuickFilters.NamedFilter? _selectedNamedFilter = new(string.Empty, null);
-		private bool _firstFilterIsDefault = true;
-
 		/// <summary> Library filterting query </summary>
-		public QuickFilters.NamedFilter? SelectedNamedFilter { get => _selectedNamedFilter; set => this.RaiseAndSetIfChanged(ref _selectedNamedFilter, value); }
+		public QuickFilters.NamedFilter? SelectedNamedFilter { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = new(string.Empty, null);
 		public AvaloniaList<Control> QuickFilterMenuItems { get; } = new();
 		/// <summary> Indicates if the first quick filter is the default filter </summary>
-		public bool FirstFilterIsDefault { get => _firstFilterIsDefault; set => QuickFilters.UseDefault = this.RaiseAndSetIfChanged(ref _firstFilterIsDefault, value); }
+		public bool FirstFilterIsDefault { get => field; set => QuickFilters.UseDefault = this.RaiseAndSetIfChanged(ref field, value); }
 
 		private void Configure_Filters()
 		{

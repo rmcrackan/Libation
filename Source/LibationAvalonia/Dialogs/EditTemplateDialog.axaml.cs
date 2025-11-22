@@ -101,19 +101,17 @@ public partial class EditTemplateDialog : DialogWindow
 			=> Go.To.Url(@"ht" + "tps://github.com/rmcrackan/Libation/blob/master/Documentation/NamingTemplates.md");
 
 		// hold the work-in-progress value. not guaranteed to be valid
-		private string _userTemplateText;
 		public string UserTemplateText
 		{
-			get => _userTemplateText;
+			get => field;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref _userTemplateText, value);
+				this.RaiseAndSetIfChanged(ref field, value);
 				templateTb_TextChanged();
 			}
 		}
 
-		private string _warningText;
-		public string WarningText { get => _warningText; set => this.RaiseAndSetIfChanged(ref _warningText, value); }
+		public string WarningText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 
 		public string Description { get; }
 

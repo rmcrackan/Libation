@@ -12,10 +12,10 @@ internal class ConsoleProgressBar
 
 	public double? Progress
 	{
-		get => m_Progress;
+		get => field;
 		set
 		{
-			m_Progress = value ?? 0;
+			field = value ?? 0;
 			WriteProgress();
 		}
 	}

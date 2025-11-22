@@ -150,6 +150,8 @@ namespace LibationAvalonia.Views
 		{
 			productsDisplay?.CloseImageDisplay();
 			this.SaveSizeAndLocation(Configuration.Instance);
+			//This is double firing with 11.3.9
+			Closing -= MainWindow_Closing;
 		}
 
 		private void selectAndFocusSearchBox()

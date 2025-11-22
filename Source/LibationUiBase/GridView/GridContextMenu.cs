@@ -60,7 +60,7 @@ public class GridContextMenu
 			.UpdateUserDefinedItemAsync(udi =>
 			{
 				udi.BookStatus = LiberatedStatus.Liberated;
-				if (udi.Book.HasPdf())
+				if (udi.Book.HasPdf)
 					udi.SetPdfStatus(LiberatedStatus.Liberated);
 			});
 	}
@@ -71,7 +71,7 @@ public class GridContextMenu
 			.UpdateUserDefinedItemAsync(udi =>
 			{
 				udi.BookStatus = LiberatedStatus.NotLiberated;
-				if (udi.Book.HasPdf())
+				if (udi.Book.HasPdf)
 					udi.SetPdfStatus(LiberatedStatus.NotLiberated);
 			});
 	}

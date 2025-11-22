@@ -13,14 +13,6 @@ namespace LibationAvalonia.ViewModels.Settings
 {
 	public class AudioSettingsVM : ViewModelBase
 	{
-		private bool _downloadClipsBookmarks;
-		private bool _decryptToLossy;
-		private bool _splitFilesByChapter;
-		private bool _allowLibationFixup;
-		private bool _lameTargetBitrate;
-		private bool _lameMatchSource;
-		private int _lameBitrate;
-		private int _lameVBRQuality;
 		private string _chapterTitleTemplate;
 		public EnumDisplay<SampleRate> SelectedSampleRate { get; set; }
 		public NAudio.Lame.EncoderQuality SelectedEncoderQuality { get; set; }
@@ -31,13 +23,11 @@ namespace LibationAvalonia.ViewModels.Settings
 				.Select(v => new EnumDisplay<SampleRate>(v, $"{((int)v):N0} Hz")));
 
 		public AvaloniaList<NAudio.Lame.EncoderQuality> EncoderQualities { get; }
-		= new(
-			new[]
-			{
+		= new([
 			NAudio.Lame.EncoderQuality.High,
 			NAudio.Lame.EncoderQuality.Standard,
 			NAudio.Lame.EncoderQuality.Fast,
-			});
+			]);
 
 
 		public AudioSettingsVM(Configuration config)
@@ -141,12 +131,10 @@ namespace LibationAvalonia.ViewModels.Settings
 		public bool DownloadCoverArt { get; set; }
 		public bool RetainAaxFile { get; set; }
 		public string RetainAaxFileTip => Configuration.GetHelpText(nameof(RetainAaxFile));
-		public bool DownloadClipsBookmarks { get => _downloadClipsBookmarks; set => this.RaiseAndSetIfChanged(ref _downloadClipsBookmarks, value); }
-
-		private bool _useWidevine, _requestSpatial, _request_xHE_AAC;
-		public bool UseWidevine { get => _useWidevine; set => this.RaiseAndSetIfChanged(ref _useWidevine, value); }
-		public bool Request_xHE_AAC { get => _request_xHE_AAC; set => this.RaiseAndSetIfChanged(ref _request_xHE_AAC, value); }
-		public bool RequestSpatial { get => _requestSpatial; set => this.RaiseAndSetIfChanged(ref _requestSpatial, value); }
+		public bool DownloadClipsBookmarks { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		public bool UseWidevine { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		public bool Request_xHE_AAC { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		public bool RequestSpatial { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 
 		public EnumDisplay<Configuration.DownloadQuality> FileDownloadQuality { get; set; }
 		public EnumDisplay<Configuration.SpatialCodec> SpatialAudioCodec { get; set; }
@@ -158,10 +146,10 @@ namespace LibationAvalonia.ViewModels.Settings
 		public bool StripUnabridged { get; set; }
 		public string StripUnabridgedTip => Configuration.GetHelpText(nameof(StripUnabridged));
 		public bool DecryptToLossy {
-			get => _decryptToLossy;
+			get => field;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref _decryptToLossy, value);
+				this.RaiseAndSetIfChanged(ref field, value);
 				if (DecryptToLossy && SpatialAudioCodec.Value is Configuration.SpatialCodec.AC_4)
 				{
 					SpatialAudioCodec = SpatialAudioCodecs[0];
@@ -176,20 +164,20 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string LameDownsampleMonoTip => Configuration.GetHelpText(nameof(LameDownsampleMono));
 		public bool LameConstantBitrate { get; set; } = Design.IsDesignMode;
 
-		public bool SplitFilesByChapter { get => _splitFilesByChapter; set { this.RaiseAndSetIfChanged(ref _splitFilesByChapter, value); } }
-		public bool LameTargetBitrate { get => _lameTargetBitrate; set { this.RaiseAndSetIfChanged(ref _lameTargetBitrate, value); } }
-		public bool LameMatchSource { get => _lameMatchSource; set { this.RaiseAndSetIfChanged(ref _lameMatchSource, value); } }
-		public int LameBitrate { get => _lameBitrate; set { this.RaiseAndSetIfChanged(ref _lameBitrate, value); } }
-		public int LameVBRQuality { get => _lameVBRQuality; set { this.RaiseAndSetIfChanged(ref _lameVBRQuality, value); } }
+		public bool SplitFilesByChapter { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
+		public bool LameTargetBitrate { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
+		public bool LameMatchSource { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
+		public int LameBitrate { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
+		public int LameVBRQuality { get => field; set { this.RaiseAndSetIfChanged(ref field, value); } }
 
 		public string ChapterTitleTemplate { get => _chapterTitleTemplate; set { this.RaiseAndSetIfChanged(ref _chapterTitleTemplate, value); } }
 
 		public bool AllowLibationFixup
 		{
-			get => _allowLibationFixup;
+			get => field;
 			set
 			{
-				if (!this.RaiseAndSetIfChanged(ref _allowLibationFixup, value))
+				if (!this.RaiseAndSetIfChanged(ref field, value))
 				{
 					SplitFilesByChapter = false;
 					StripAudibleBrandAudio = false;

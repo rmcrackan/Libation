@@ -219,7 +219,7 @@ namespace LibationWinForms.GridView
 				{
 					//No need to persist these changes. They only needs to last long for the files to start downloading
 					entry4.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
-					if (entry4.Book.HasPdf())
+					if (entry4.Book.HasPdf)
 						entry4.Book.UserDefinedItem.SetPdfStatus(LiberatedStatus.NotLiberated);
 
 					LiberateClicked?.Invoke(s, [entry4.LibraryBook]);

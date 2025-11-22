@@ -45,16 +45,16 @@ namespace LibationWinForms.Dialogs
 			this.coverPb.Image = WinFormsUtil.TryLoadImageOrDefault(picture, PictureSize._80x80);
 
 			var title = string.IsNullOrEmpty(Book.Subtitle) ? Book.Title : $"{Book.Title}\r\n        {Book.Subtitle}";
-			var t = @$"
-Title: {title}
-Author(s): {Book.AuthorNames()}
-Narrator(s): {Book.NarratorNames()}
-Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
-Category: {string.Join(", ", Book.LowestCategoryNames())}
-Purchase Date: {_libraryBook.DateAdded:d}
-Language: {Book.Language}
-Audible ID: {Book.AudibleProductId}
-".Trim();
+			var t = $"""
+			Title: {title}
+			Author(s): {Book.AuthorNames}
+			Narrator(s): {Book.NarratorNames}
+			Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
+			Category: {string.Join(", ", Book.LowestCategoryNames())}
+			Purchase Date: {_libraryBook.DateAdded:d}
+			Language: {Book.Language}
+			Audible ID: {Book.AudibleProductId}
+			""";
 
 			var seriesNames = Book.SeriesNames();
 			if (!string.IsNullOrWhiteSpace(seriesNames))

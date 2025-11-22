@@ -253,9 +253,8 @@ namespace LibationWinForms.Dialogs
 		private class BookRecordEntry : LibationUiBase.ReactiveObject
 		{
 			private const string DateFormat = "yyyy-MM-dd HH\\:mm";
-			private bool _ischecked;
 			public IRecord Record { get; }
-			public bool IsChecked { get => _ischecked; set => RaiseAndSetIfChanged(ref _ischecked, value); }
+			public bool IsChecked { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 			public string Type => Record.GetType().Name;
 			public string Start => formatTimeSpan(Record.Start);
 			public string Created => Record.Created.ToString(DateFormat);

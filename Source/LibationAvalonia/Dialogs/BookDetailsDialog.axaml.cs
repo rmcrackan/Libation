@@ -17,16 +17,15 @@ namespace LibationAvalonia.Dialogs
 {
 	public partial class BookDetailsDialog : DialogWindow
 	{
-		private LibraryBook _libraryBook;
 		private BookDetailsDialogViewModel _viewModel;
 		public LibraryBook LibraryBook
 		{
-			get => _libraryBook;
+			get => field;
 			set
 			{
-				_libraryBook = value;
-				Title = _libraryBook.Book.TitleWithSubtitle;
-				DataContext = _viewModel = new BookDetailsDialogViewModel(_libraryBook);
+				field = value;
+				Title = field.Book.TitleWithSubtitle;
+				DataContext = _viewModel = new BookDetailsDialogViewModel(field);
 			}
 		}
 
@@ -116,16 +115,16 @@ namespace LibationAvalonia.Dialogs
 				var title = string.IsNullOrEmpty(Book.Subtitle) ? Book.Title : $"{Book.Title}\r\n        {Book.Subtitle}";
 
 				//init book details
-				DetailsText = @$"
-Title: {title}
-Author(s): {Book.AuthorNames()}
-Narrator(s): {Book.NarratorNames()}
-Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
-Category: {string.Join(", ", Book.LowestCategoryNames())}
-Purchase Date: {libraryBook.DateAdded:d}
-Language: {Book.Language}
-Audible ID: {Book.AudibleProductId}
-".Trim();
+				DetailsText = $"""
+				Title: {title}
+				Author(s): {Book.AuthorNames}
+				Narrator(s): {Book.NarratorNames}
+				Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
+				Category: {string.Join(", ", Book.LowestCategoryNames())}
+				Purchase Date: {libraryBook.DateAdded:d}
+				Language: {Book.Language}
+				Audible ID: {Book.AudibleProductId}
+				""";
 
 				var seriesNames = libraryBook.Book.SeriesNames();
 				if (!string.IsNullOrWhiteSpace(seriesNames))
