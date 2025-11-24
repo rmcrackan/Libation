@@ -23,6 +23,10 @@ namespace LibationCli
 
 		[Option(shortName: 'f', longName: "force", Required = false, Default = false, HelpText = "Force the book to re-download")]
 		public bool Force { get; set; }
+		
+
+		[Option(shortName: 'l', longName: "license", Required = false, Default = null, HelpText = "A license file from the get-license command. Either a file path or dash ('-') to read from standard input.")]
+		public string? LicenseInput { get; set; }
 
 		protected override async Task ProcessAsync()
 		{
@@ -32,45 +36,95 @@ namespace LibationCli
 				return;
 			}
 
-			if (Console.IsInputRedirected)
+			if (LicenseInput is string licenseInput)
 			{
-				Console.WriteLine("Reading license file from standard input.");
-				using var reader = new StreamReader(Console.OpenStandardInput());
-				var stdIn = await reader.ReadToEndAsync();
-				try
-				{
-
-					var jsonSettings = new JsonSerializerSettings
-					{
-						NullValueHandling = NullValueHandling.Ignore,
-						Converters = [new StringEnumConverter(), new ByteArrayHexConverter()]
-					};
-					var licenseInfo = JsonConvert.DeserializeObject<DownloadOptions.LicenseInfo>(stdIn, jsonSettings);
-
-					if (licenseInfo?.ContentMetadata?.ContentReference?.Asin is not string asin)
-					{
-						Console.Error.WriteLine("Error: License file is missing ASIN information.");
-						return;
-					}
-
-					if (DbContexts.GetLibraryBook_Flat_NoTracking(asin) is not LibraryBook libraryBook)
-					{
-						Console.Error.WriteLine($"Book not found with asin={asin}");
-						return;
-					}
-
-					SetDownloadedStatus(libraryBook);
-					await ProcessOneAsync(GetProcessable(licenseInfo), libraryBook, true);
-				}
-				catch
-				{
-					Console.Error.WriteLine("Error: Failed to read license file from standard input. Please ensure the input is a valid license file in JSON format.");
-				}
+				await LiberateFromLicense(licenseInput);
 			}
 			else
 			{
 				await RunAsync(GetProcessable(), SetDownloadedStatus);
 			}
+		}
+
+		private async Task LiberateFromLicense(string licPath)
+		{
+			var licenseInfo = licPath is "-" ? ReadLicenseFromStdIn()
+				: ReadLicenseFromFile(licPath);
+
+			if (licenseInfo is null)
+				return;
+
+			if (licenseInfo?.ContentMetadata?.ContentReference?.Asin is not string asin)
+			{
+				Console.Error.WriteLine("Error: License file is missing ASIN information.");
+				return;
+			}
+
+			if (DbContexts.GetLibraryBook_Flat_NoTracking(asin) is not LibraryBook libraryBook)
+			{
+				Console.Error.WriteLine($"Book not found with asin={asin}");
+				return;
+			}
+
+			SetDownloadedStatus(libraryBook);
+			await ProcessOneAsync(GetProcessable(licenseInfo), libraryBook, true);
+		}
+
+		private static DownloadOptions.LicenseInfo? ReadLicenseFromFile(string licFile)
+		{
+			if (!File.Exists(licFile))
+			{
+				Console.Error.WriteLine("File does not exist: " + licFile);
+				return null;
+			}
+
+			Console.WriteLine("Reading license from file.");
+			try
+			{
+				var serializer = CreateLicenseInfoSerializer();
+				using var reader = new JsonTextReader(new StreamReader(licFile));
+				return serializer.Deserialize<DownloadOptions.LicenseInfo>(reader);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "Failed to read license file: {@LicenseFile}", licFile);
+				Console.Error.WriteLine("Error: Failed to read license file. Please ensure the file is a valid license file in JSON format.");
+			}
+			return null;
+		}
+
+		private static DownloadOptions.LicenseInfo? ReadLicenseFromStdIn()
+		{
+			if (!Console.IsInputRedirected)
+			{
+				Console.Error.WriteLine("Ther is nothing in standard input to read.");
+				return null;
+			}
+
+			Console.WriteLine("Reading license from standard input.");
+			try
+			{
+				var serializer = CreateLicenseInfoSerializer();
+				using var reader = new JsonTextReader(new StreamReader(Console.OpenStandardInput()));
+				return serializer.Deserialize<DownloadOptions.LicenseInfo>(reader);
+			}
+			catch (Exception ex)
+			{
+				Serilog.Log.Error(ex, "Failed to read license from standard input");
+				Console.Error.WriteLine("Error: Failed to read license file from standard input. Please ensure the input is a valid license file in JSON format.");
+			}
+			return null;
+		}
+
+		private static JsonSerializer CreateLicenseInfoSerializer()
+		{
+			var jsonSettings = new JsonSerializerSettings
+			{
+				NullValueHandling = NullValueHandling.Ignore,
+				Converters = [new StringEnumConverter(), new ByteArrayHexConverter()]
+			};
+
+			return JsonSerializer.Create(jsonSettings);
 		}
 
 		private Processable GetProcessable(DownloadOptions.LicenseInfo? licenseInfo = null)

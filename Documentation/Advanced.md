@@ -101,6 +101,11 @@ libationcli liberate -p
 libationcli liberate --force
 libationcli liberate -f
 ```
+#### Liberate using a license file from the `get-license` command
+```console
+libationcli liberate --license /path/to/license.lic
+libationcli liberate --license - < /path/to/license.lic
+```
 #### List Libation Settings
 ```console
 libationcli get-setting
@@ -153,7 +158,7 @@ foreach($q in $Qualities){
   foreach($x in $xHE_AAC){
 	$license = ./libationcli get-license $asin --override FileDownloadQuality=$q --override Request_xHE_AAC=$x
 	echo $($license | ConvertFrom-Json).ContentMetadata.content_reference
-	echo $license | ./libationcli liberate --force
+	echo $license | ./libationcli liberate --force --license -
   }
 }
 ```
