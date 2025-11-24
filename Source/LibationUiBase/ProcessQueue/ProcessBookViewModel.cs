@@ -150,6 +150,7 @@ public class ProcessBookViewModel : ReactiveObject
 		}
 		catch (ContentLicenseDeniedException ldex)
 		{
+			Serilog.Log.Logger.Error(ldex, "Content license was denied for {#Book}", LibraryBook.LogFriendly());
 			if (ldex.AYCL?.RejectionReason is null or RejectionReason.GenericError)
 			{
 				LogInfo($"{procName}:  Content license was denied, but this error appears to be caused by a temporary interruption of service. - {LibraryBook.Book}");
@@ -163,6 +164,7 @@ public class ProcessBookViewModel : ReactiveObject
 		}
 		catch (Exception ex)
 		{
+			Serilog.Log.Logger.Error(ex, $"Unhandled exception in {procName} for {{@Book}}", LibraryBook.LogFriendly());
 			LogError(procName, ex);
 		}
 		finally
