@@ -3,6 +3,7 @@ using AudibleUtilities;
 using Avalonia.Controls;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using Dinah.Core;
 using LibationFileManager;
 using LibationUiBase.Forms;
 using System;
@@ -67,8 +68,17 @@ namespace LibationAvalonia.Dialogs.Login
 			{
 				if (dialog.TryGetCookieManager() is NativeWebViewCookieManager cookieManager)
 				{
-					foreach (System.Net.Cookie c in shoiceIn.SignInCookies)
-						cookieManager.AddOrUpdateCookie(c);
+					foreach (System.Net.Cookie c in shoiceIn.SignInCookies ?? [])
+					{
+						try
+						{
+							cookieManager.AddOrUpdateCookie(c);
+						}
+						catch (Exception ex)
+						{
+							Serilog.Log.Logger.Error(ex, $"Failed to set cookie {c.Name} for domain {c.Domain}");
+						}
+					}
 				}
 				//Set the source only after loading cookies
 				dialog.Source = new Uri(shoiceIn.LoginUrl);

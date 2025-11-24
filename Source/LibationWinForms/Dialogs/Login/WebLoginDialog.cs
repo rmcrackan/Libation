@@ -41,7 +41,14 @@ namespace LibationWinForms.Login
 				//Load init cookies
 				foreach (System.Net.Cookie cookie in choiceIn.SignInCookies ?? [])
 				{
-					webView.CoreWebView2.CookieManager.AddOrUpdateCookie(webView.CoreWebView2.CookieManager.CreateCookieWithSystemNetCookie(cookie));
+					try
+					{
+						webView.CoreWebView2.CookieManager.AddOrUpdateCookie(webView.CoreWebView2.CookieManager.CreateCookieWithSystemNetCookie(cookie));
+					}
+					catch (Exception ex)
+					{
+						Serilog.Log.Logger.Error(ex, $"Failed to set cookie {cookie.Name} for domain {cookie.Domain}");
+					}
 				}
 
 				webView.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoaded;
