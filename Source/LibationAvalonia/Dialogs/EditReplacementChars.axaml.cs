@@ -123,25 +123,22 @@ namespace LibationAvalonia.Dialogs
 		{
 			public ReplacementsExt()
 			{
-				_replacementText = string.Empty;
-				_description = string.Empty;
-				_characterToReplace = string.Empty;
+				ReplacementText = string.Empty;
+				Description = string.Empty;
+				CharacterToReplace = string.Empty;
 			}
 			public ReplacementsExt(Replacement replacement)
 			{
-				_characterToReplace = replacement.CharacterToReplace == default ? "" : replacement.CharacterToReplace.ToString();
-				_replacementText = replacement.ReplacementString;
-				_description = replacement.Description;
+				CharacterToReplace = replacement.CharacterToReplace == default ? "" : replacement.CharacterToReplace.ToString();
+				ReplacementText = replacement.ReplacementString;
+				Description = replacement.Description;
 				Mandatory = replacement.Mandatory;
 			}
 
-			private string _replacementText;
-			private string _description;
-			private string _characterToReplace;
-			public string ReplacementText { get => _replacementText; set => this.RaiseAndSetIfChanged(ref _replacementText, value); }
-			public string Description { get => _description; set => this.RaiseAndSetIfChanged(ref _description, value); }
-			public string CharacterToReplace { get => _characterToReplace; set => this.RaiseAndSetIfChanged(ref _characterToReplace, value); }
-			public char Character => string.IsNullOrEmpty(_characterToReplace) ? default : _characterToReplace[0];
+			public string ReplacementText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+			public string Description { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+			public string CharacterToReplace { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+			public char Character => string.IsNullOrEmpty(CharacterToReplace) ? default : CharacterToReplace[0];
 			public bool IsDefault => !Mandatory && string.IsNullOrEmpty(CharacterToReplace);
 			public bool Mandatory { get; }
 

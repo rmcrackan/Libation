@@ -1,6 +1,6 @@
 ﻿using FileManager;
 using System.Threading.Tasks;
-
+#nullable enable
 namespace AaxDecrypter
 {
 	public class UnencryptedAudiobookDownloader : AudiobookDownloadBase

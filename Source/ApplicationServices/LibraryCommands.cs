@@ -577,7 +577,7 @@ namespace ApplicationServices
 
         // must be here instead of in db layer due to AaxcExists
         public static LiberatedStatus Liberated_Status(Book book)
-            => book.Audio_Exists() ? book.UserDefinedItem.BookStatus
+            => book.AudioExists ? book.UserDefinedItem.BookStatus
             : AudibleFileStorage.AaxcExists(book.AudibleProductId) ? LiberatedStatus.PartialDownload
             : LiberatedStatus.NotLiberated;
 
@@ -645,7 +645,7 @@ namespace ApplicationServices
 
             var pdfResults = libraryBooks
                 .AsParallel()
-                .Where(lb => lb.Book.HasPdf())
+                .Where(lb => lb.Book.HasPdf)
                 .Select(lb => new { absent = lb.AbsentFromLastScan, status = Pdf_Status(lb.Book) })
                 .ToList();
 

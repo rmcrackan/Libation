@@ -4,8 +4,6 @@ namespace LibationWinForms
 {
     public class AccessibleDataGridViewButtonCell : DataGridViewButtonCell
     {
-        private string accessibilityDescription;
-
         protected string AccessibilityName { get; }
 
         /// <summary>
@@ -13,10 +11,10 @@ namespace LibationWinForms
         /// </summary>
         protected string AccessibilityDescription
         {
-            get => accessibilityDescription;
+            get => field;
             set
             {
-                accessibilityDescription = value;
+                field = value;
                 ToolTipText = value;
             }
         }

@@ -31,15 +31,8 @@ namespace LibationAvalonia.ViewModels
 		private HashSet<GridEntry>? FilteredInGridEntries;
 		public string? FilterString { get; private set; }
 
-		private DataGridCollectionView? _gridEntries;
-		public DataGridCollectionView? GridEntries
-		{
-			get => _gridEntries;
-			private set => this.RaiseAndSetIfChanged(ref _gridEntries, value);
-		}
-
-		private bool _removeColumnVisible;
-		public bool RemoveColumnVisible { get => _removeColumnVisible; private set => this.RaiseAndSetIfChanged(ref _removeColumnVisible, value); }
+		public DataGridCollectionView? GridEntries { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
+		public bool RemoveColumnVisible { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 
 		public List<LibraryBook> GetVisibleBookEntries()
 			=> FilteredInGridEntries?
@@ -104,8 +97,7 @@ namespace LibationAvalonia.ViewModels
 
 		internal async Task BindToGridAsync(List<LibraryBook> dbBooks)
 		{
-			if (dbBooks == null)
-				throw new ArgumentNullException(nameof(dbBooks));
+			ArgumentNullException.ThrowIfNull(dbBooks, nameof(dbBooks));
 
 			//Get the UI thread's synchronization context and set it on the current thread to ensure
 			//it's available for GetAllProductsAsync and GetAllSeriesEntriesAsync
@@ -158,8 +150,7 @@ namespace LibationAvalonia.ViewModels
 		/// </summary>
 		internal async Task UpdateGridAsync(List<LibraryBook> dbBooks)
 		{
-			if (dbBooks == null)
-				throw new ArgumentNullException(nameof(dbBooks));
+			ArgumentNullException.ThrowIfNull(dbBooks, nameof(dbBooks));
 
 			if (GridEntries == null)
 				throw new InvalidOperationException($"Must call {nameof(BindToGridAsync)} before calling {nameof(UpdateGridAsync)}");

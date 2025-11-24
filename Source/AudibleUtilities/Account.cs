@@ -18,68 +18,64 @@ namespace AudibleUtilities
 		public string AccountId { get; }
 
 		// user-friendly, non-canonical name. mutable
-		private string _accountName;
 		public string AccountName
 		{
-			get => _accountName;
+			get => field;
 			set
 			{
 				if (string.IsNullOrWhiteSpace(value))
 					return;
 				var v = value.Trim();
-				if (v == _accountName)
+				if (v == field)
 					return;
-				_accountName = v;
+				field = v;
 				update();
 			}
 		}
 
 		// whether to include this account when scanning libraries.
 		// technically this is an app setting; not an attribute of account. but since it's managed with accounts, it makes sense to put this exception-to-the-rule here
-		private bool _libraryScan = true;
 		public bool LibraryScan
 		{
-			get => _libraryScan;
+			get => field;
 			set
 			{
-				if (value == _libraryScan)
+				if (value == field)
 					return;
-				_libraryScan = value;
+				field = value;
 				update();
 			}
 		}
 
-		private string _decryptKey = "";
 		/// <summary>aka: activation bytes</summary>
 		public string DecryptKey
 		{
-			get => _decryptKey;
+			get => field ?? "";
 			set
 			{
 				var v = (value ?? "").Trim();
-				if (v == _decryptKey)
+				if (v == field)
 					return;
-				_decryptKey = v;
+				field = v;
 				update();
 			}
 		}
 
-		private Identity _identity;
 		public Identity IdentityTokens
 		{
-			get => _identity;
+			get => field;
 			set
 			{
-				if (_identity is null && value is null)
+				if (field is null && value is null)
 					return;
 
-				if (_identity is not null)
-					_identity.Updated -= update;
+				if (field is not null)
+					field.Updated -= update;
 
 				if (value is not null)
 					value.Updated += update;
 
-				_identity = value;
+				field = value;
 				update();
 			}
 		}

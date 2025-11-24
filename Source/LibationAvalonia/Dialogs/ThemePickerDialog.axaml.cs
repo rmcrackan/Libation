@@ -180,16 +180,15 @@ public partial class ThemePickerDialog : DialogWindow
 		public required string ThemeItemName { get; init; }
 		public required Action<Color, string>? ColorSetter { get; set; }
 
-		private Color _themeColor;
 		public Color ThemeColor
 		{
-			get => _themeColor;
+			get => field;
 			set
 			{
-				var setColors = !_themeColor.Equals(value);
-				this.RaiseAndSetIfChanged(ref _themeColor, value);
+				var setColors = !field.Equals(value);
+				this.RaiseAndSetIfChanged(ref field, value);
 				if (setColors)
-					ColorSetter?.Invoke(_themeColor, ThemeItemName);
+					ColorSetter?.Invoke(field, ThemeItemName);
 			}
 		}
 	}

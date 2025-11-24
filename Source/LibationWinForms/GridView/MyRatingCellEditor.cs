@@ -13,24 +13,23 @@ namespace LibationWinForms.GridView
 		private const string SOLID_STAR = "★";
 		private const string HOLLOW_STAR = "☆";
 
-		private Rating _rating;
 		public Rating Rating
 		{ 
-			get => _rating;
+			get => field;
 			set
 			{
-				_rating = value;
+				field = value;
 				int rating = 0;
 				foreach (NoBorderLabel star in panelOverall.Controls)
-					star.Tag = star.Text = _rating.OverallRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
+					star.Tag = star.Text = field.OverallRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
 
 				rating = 0;
 				foreach (NoBorderLabel star in panelPerform.Controls)
-					star.Tag = star.Text = _rating.PerformanceRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
+					star.Tag = star.Text = field.PerformanceRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
 
 				rating = 0;
 				foreach (NoBorderLabel star in panelStory.Controls)
-					star.Tag = star.Text = _rating.StoryRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
+					star.Tag = star.Text = field.StoryRating > rating++ ? SOLID_STAR : HOLLOW_STAR;
 			}
 		}
 

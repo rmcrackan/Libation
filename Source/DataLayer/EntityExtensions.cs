@@ -13,69 +13,74 @@ namespace DataLayer
 				.Where(a => a.Role == role)
 				.OrderBy(a => a.Order);
 
-		public static string TitleSortable(this Book book) => Formatters.GetSortName(book.Title + book.Subtitle);
 
-        public static string AuthorNames(this Book book) => string.Join(", ", book.Authors.Select(a => a.Name));
-        public static string NarratorNames(this Book book) => string.Join(", ", book.Narrators.Select(n => n.Name));
+		extension(Book book)
+		{
+			public string SeriesSortable() => Formatters.GetSortName(book.SeriesNames(true));
+			public string TitleSortable() => Formatters.GetSortName(book.Title + book.Subtitle);
 
-        /// <summary>True if IsLiberated or Error. False if NotLiberated</summary>
-        public static bool Audio_Exists(this Book book) => book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated;
-        /// <summary>True if exists and IsLiberated. Else false</summary>
-        public static bool PDF_Exists(this Book book) => book.UserDefinedItem.PdfStatus == LiberatedStatus.Liberated;
+			public string AuthorNames => string.Join(", ", book.Authors.Select(a => a.Name));
+			public string NarratorNames => string.Join(", ", book.Narrators.Select(n => n.Name));
+			/// <summary>True if IsLiberated or Error. False if NotLiberated</summary>
+			public bool AudioExists => book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated or LiberatedStatus.Error;
+			/// <summary>True if exists and IsLiberated. Else false</summary>
+			public bool PdfExists => book.UserDefinedItem.PdfStatus == LiberatedStatus.NotLiberated;
+			/// <summary> Whether the book has any supplements </summary>
+			public bool HasPdf => book.Supplements.Any();
 
-        public static string SeriesSortable(this Book book) => Formatters.GetSortName(book.SeriesNames(true));
-		public static bool HasPdf(this Book book) => book.Supplements.Any();
-        public static string SeriesNames(this Book book, bool includeIndex = false)
-        {
-            if (book.SeriesLink is null)
-                return "";
+			public string SeriesNames(bool includeIndex = false)
+			{
+				if (book.SeriesLink is null)
+					return "";
 
-            // first: alphabetical by name
-            var withNames = book.SeriesLink
-                .Where(s => !string.IsNullOrWhiteSpace(s.Series.Name))
-                .Select(getSeriesNameString)
-                .OrderBy(a => a)
-                .ToList();
-            // then un-named are alpha by series id
-            var nullNames = book.SeriesLink
-                .Where(s => string.IsNullOrWhiteSpace(s.Series.Name))
-                .Select(s => s.Series.AudibleSeriesId)
-                .OrderBy(a => a)
-                .ToList();
+				// first: alphabetical by name
+				var withNames = book.SeriesLink
+					.Where(s => !string.IsNullOrWhiteSpace(s.Series.Name))
+					.Select(getSeriesNameString)
+					.OrderBy(a => a)
+					.ToList();
+				// then un-named are alpha by series id
+				var nullNames = book.SeriesLink
+					.Where(s => string.IsNullOrWhiteSpace(s.Series.Name))
+					.Select(s => s.Series.AudibleSeriesId)
+					.OrderBy(a => a)
+					.ToList();
 
-            var all = withNames.Union(nullNames).ToList();
-            return string.Join(", ", all);
+				var all = withNames.Union(nullNames).ToList();
+				return string.Join(", ", all);
 
-            string getSeriesNameString(SeriesBook sb)
-                => includeIndex && !string.IsNullOrWhiteSpace(sb.Order) && sb.Order != "-1"
-                ? $"{sb.Series.Name} (#{sb.Order})"
-                : sb.Series.Name;
+				string getSeriesNameString(SeriesBook sb)
+					=> includeIndex && !string.IsNullOrWhiteSpace(sb.Order) && sb.Order != "-1"
+					? $"{sb.Series.Name} (#{sb.Order})"
+					: sb.Series.Name;
+			}
+
+			public string[] LowestCategoryNames()
+				=> book.CategoriesLink?.Any() is not true ? Array.Empty<string>()
+				: book
+					.CategoriesLink
+					.Select(cl => cl.CategoryLadder.Categories.LastOrDefault()?.Name)
+					.Where(c => c is not null)
+					.Distinct()
+					.ToArray();
+
+			public string[] AllCategoryNames()
+				=> book.CategoriesLink?.Any() is not true ? Array.Empty<string>()
+				: book
+					.CategoriesLink
+					.SelectMany(cl => cl.CategoryLadder.Categories)
+					.Select(c => c.Name)
+					.ToArray();
+
+			public string[] AllCategoryIds()
+				=> book.CategoriesLink?.Any() is not true ? null
+				: book
+					.CategoriesLink
+					.SelectMany(cl => cl.CategoryLadder.Categories)
+					.Select(c => c.AudibleCategoryId)
+					.ToArray();
 		}
 
-        public static string[] LowestCategoryNames(this Book book)
-            => book.CategoriesLink?.Any() is not true ? Array.Empty<string>()
-			: book
-                .CategoriesLink
-                .Select(cl => cl.CategoryLadder.Categories.LastOrDefault()?.Name)
-                .Where(c => c is not null)
-                .Distinct()
-                .ToArray();
-
-        public static string[] AllCategoryNames(this Book book)
-            => book.CategoriesLink?.Any() is not true ? Array.Empty<string>()
-            : book
-                .CategoriesLink
-                .SelectMany(cl => cl.CategoryLadder.Categories)
-                .Select(c => c.Name)
-                .ToArray();
-
-		public static string[] AllCategoryIds(this Book book)
-            => book.CategoriesLink?.Any() is not true ? null
-            : book
-                .CategoriesLink
-                .SelectMany(cl => cl.CategoryLadder.Categories)
-                .Select(c => c.AudibleCategoryId)
-                .ToArray();
 
         public static string AggregateTitles(this IEnumerable<LibraryBook> libraryBooks, int max = 5)
 		{
@@ -93,7 +98,7 @@ namespace DataLayer
 			return titlesAgg;
 		}
 
-        public static float FirstScore(this Rating rating)
+		public static float FirstScore(this Rating rating)
             => rating.OverallRating > 0 ? rating.OverallRating
             : rating.PerformanceRating > 0 ? rating.PerformanceRating
             : rating.StoryRating;

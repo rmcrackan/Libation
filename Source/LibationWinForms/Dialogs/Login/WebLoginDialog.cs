@@ -1,4 +1,6 @@
-﻿using Dinah.Core;
+﻿using AudibleApi;
+using Dinah.Core;
+using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using System;
 using System.Windows.Forms;
@@ -19,15 +21,32 @@ namespace LibationWinForms.Login
 			Controls.Add(webView);
 
 			webView.NavigationStarting += WebView_NavigationStarting;
-			webView.CoreWebView2InitializationCompleted += WebView_CoreWebView2InitializationCompleted;
 			this.SetLibationIcon();
-		
-		}
+		}		
 
-		public WebLoginDialog(string accountID, string loginUrl) : this()
+		public WebLoginDialog(string accountID, ChoiceIn choiceIn) : this()
 		{
 			this.accountID = ArgumentValidator.EnsureNotNullOrWhiteSpace(accountID, nameof(accountID));
-			webView.Source = new Uri(ArgumentValidator.EnsureNotNullOrWhiteSpace(loginUrl, nameof(loginUrl)));
+			ArgumentValidator.EnsureNotNullOrWhiteSpace(choiceIn?.LoginUrl, nameof(choiceIn));
+			this.Load += async (_, _) =>
+			{
+				//enable private browsing
+				var env = await CoreWebView2Environment.CreateAsync();
+				var options = env.CreateCoreWebView2ControllerOptions();
+				options.IsInPrivateModeEnabled = true;
+				await webView.EnsureCoreWebView2Async(env, options);
+
+				webView.CoreWebView2.Settings.UserAgent = Resources.User_Agent;
+
+				//Load init cookies
+				foreach (System.Net.Cookie cookie in choiceIn.SignInCookies ?? [])
+				{
+					webView.CoreWebView2.CookieManager.AddOrUpdateCookie(webView.CoreWebView2.CookieManager.CreateCookieWithSystemNetCookie(cookie));
+				}
+
+				webView.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoaded;
+				Invoke(() => webView.Source = new Uri(choiceIn.LoginUrl));
+			};
 		}
 
 		private void WebView_NavigationStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
@@ -40,13 +59,7 @@ namespace LibationWinForms.Login
 			}
 		}
 
-		private void WebView_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
-		{
-			webView.CoreWebView2.DOMContentLoaded -= CoreWebView2_DOMContentLoaded;
-			webView.CoreWebView2.DOMContentLoaded += CoreWebView2_DOMContentLoaded;
-		}
-
-		private async void CoreWebView2_DOMContentLoaded(object sender, Microsoft.Web.WebView2.Core.CoreWebView2DOMContentLoadedEventArgs e)
+		private async void CoreWebView2_DOMContentLoaded(object sender, CoreWebView2DOMContentLoadedEventArgs e)
 		{
 			await webView.ExecuteScriptAsync(getScript(accountID));
 		}

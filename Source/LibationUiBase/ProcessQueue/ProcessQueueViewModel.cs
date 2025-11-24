@@ -30,23 +30,18 @@ public class ProcessQueueViewModel : ReactiveObject
 		SpeedLimit = LibationFileManager.Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
 	}
 
-	private int _completedCount;
-	private int _errorCount;
-	private int _queuedCount;
-	private string? _runningTime;
-	private bool _progressBarVisible;
-	private decimal _speedLimit;
-
-	public int CompletedCount { get => _completedCount; private set { RaiseAndSetIfChanged(ref _completedCount, value); RaisePropertyChanged(nameof(AnyCompleted)); } }
-	public int QueuedCount { get => _queuedCount; private set { this.RaiseAndSetIfChanged(ref _queuedCount, value); RaisePropertyChanged(nameof(AnyQueued)); } }
-	public int ErrorCount { get => _errorCount; private set { RaiseAndSetIfChanged(ref _errorCount, value); RaisePropertyChanged(nameof(AnyErrors)); } }
-	public string? RunningTime { get => _runningTime; set => RaiseAndSetIfChanged(ref _runningTime, value); }
-	public bool ProgressBarVisible { get => _progressBarVisible; set => RaiseAndSetIfChanged(ref _progressBarVisible, value); }
+	public int CompletedCount { get => field; private set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyCompleted)); } }
+	public int QueuedCount { get => field; private set { this.RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyQueued)); } }
+	public int ErrorCount { get => field; private set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyErrors)); } }
+	public string? RunningTime { get => field; set => RaiseAndSetIfChanged(ref field, value); }
+	public bool ProgressBarVisible { get => field; set => RaiseAndSetIfChanged(ref field, value); }
 	public bool AnyCompleted => CompletedCount > 0;
 	public bool AnyQueued => QueuedCount > 0;
 	public bool AnyErrors => ErrorCount > 0;
 	public double Progress => 100d * Queue.Completed.Count / Queue.Count;
 	public decimal SpeedLimitIncrement { get; private set; }
+
+	private decimal _speedLimit;
 	public decimal SpeedLimit
 	{
 		get => _speedLimit;
@@ -185,6 +180,26 @@ public class ProcessQueueViewModel : ReactiveObject
 			MessageBoxBase.Show(
 				$"Libation was unable to create the \"Books location\" folder at:\n{Configuration.Instance.Books}\n\nPlease change the Books location in the settings menu.",
 				"Failed to Create Books Directory",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			return false;
+		}
+		else if (AudibleFileStorage.DownloadsInProgressDirectory is null)
+		{
+			Serilog.Log.Logger.Error("Failed to create DownloadsInProgressDirectory in {@InProgress}", Configuration.Instance.InProgress);
+			MessageBoxBase.Show(
+				$"Libation was unable to create the \"Downloads In Progress\" folder in:\n{Configuration.Instance.InProgress}\n\nPlease change the In Progress location in the settings menu.",
+				"Failed to Create Downloads In Progress Directory",
+				MessageBoxButtons.OK,
+				MessageBoxIcon.Error);
+			return false;
+		}
+		else if (AudibleFileStorage.DecryptInProgressDirectory is null)
+		{
+			Serilog.Log.Logger.Error("Failed to create DecryptInProgressDirectory in {@InProgress}", Configuration.Instance.InProgress);
+			MessageBoxBase.Show(
+				$"Libation was unable to create the \"Decrypt In Progress\" folder in:\n{Configuration.Instance.InProgress}\n\nPlease change the In Progress location in the settings menu.",
+				"Failed to Create Decrypt In Progress Directory",
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
 			return false;

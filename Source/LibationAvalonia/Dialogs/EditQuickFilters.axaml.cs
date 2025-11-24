@@ -13,29 +13,25 @@ namespace LibationAvalonia.Dialogs
 
 		public class Filter : ViewModels.ViewModelBase
 		{ 
-            private string _name;
             public string Name
             {
-                get => _name;
-                set => this.RaiseAndSetIfChanged(ref _name, value);
+                get => field;
+                set => this.RaiseAndSetIfChanged(ref field, value);
 			}
 
-            private string _filterString;
 			public string FilterString
 			{
-				get => _filterString;
+				get => field;
 				set
 				{
 					IsDefault = string.IsNullOrEmpty(value);
-					this.RaiseAndSetIfChanged(ref _filterString, value);
+					this.RaiseAndSetIfChanged(ref field, value);
 					this.RaisePropertyChanged(nameof(IsDefault));
 				}
 			}
 			public bool IsDefault { get; private set; } = true;
-			private bool _isTop;
-			private bool _isBottom;
-			public bool IsTop { get => _isTop; set => this.RaiseAndSetIfChanged(ref _isTop, value); }
-			public bool IsBottom { get => _isBottom; set => this.RaiseAndSetIfChanged(ref _isBottom, value); }
+			public bool IsTop { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+			public bool IsBottom { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 
 			public QuickFilters.NamedFilter AsNamedFilter() => new(FilterString, Name);
 

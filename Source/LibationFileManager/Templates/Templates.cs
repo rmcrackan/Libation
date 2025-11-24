@@ -86,11 +86,10 @@ namespace LibationFileManager.Templates
 			=> NamingTemplate?.TagsInUse.Cast<TemplateTags>() ?? Enumerable.Empty<TemplateTags>();
 		public string TemplateText => NamingTemplate?.TemplateText ?? "";
 
-		private readonly NamingTemplate? _namingTemplate;
 		protected NamingTemplate NamingTemplate
 		{
-			get => _namingTemplate ?? throw new NullReferenceException(nameof(_namingTemplate));
-			private init => _namingTemplate = value;
+			get => field ?? throw new NullReferenceException(nameof(NamingTemplate));
+			private init => field = value;
 		}
 
 		#endregion

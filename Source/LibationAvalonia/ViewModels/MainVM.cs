@@ -16,8 +16,7 @@ namespace LibationAvalonia.ViewModels
 		public ProcessQueueViewModel ProcessQueue { get; } = new ProcessQueueViewModel();
 		public ProductsDisplayViewModel ProductsDisplay { get; } = new ProductsDisplayViewModel();
 
-		private double? _downloadProgress = null;
-		public double? DownloadProgress { get => _downloadProgress; set => this.RaiseAndSetIfChanged(ref _downloadProgress, value); }
+		public double? DownloadProgress { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 
 
 		private readonly MainWindow MainWindow;

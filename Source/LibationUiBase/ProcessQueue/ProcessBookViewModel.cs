@@ -44,26 +44,16 @@ public class ProcessBookViewModel : ReactiveObject
 {
 	public LibraryBook LibraryBook { get; protected set; }
 
-	private ProcessBookResult _result = ProcessBookResult.None;
-	private ProcessBookStatus _status = ProcessBookStatus.Queued;
-	private string? _narrator;
-	private string? _author;
-	private string? _title;
-	private int _progress;
-	private string? _eta;
-	private object? _cover;
-	private TimeSpan _timeRemaining;
-
 	#region Properties exposed to the view
-	public ProcessBookResult Result { get => _result; set { RaiseAndSetIfChanged(ref _result, value); RaisePropertyChanged(nameof(StatusText)); } }
-	public ProcessBookStatus Status { get => _status; set { RaiseAndSetIfChanged(ref _status, value); RaisePropertyChanged(nameof(IsFinished)); RaisePropertyChanged(nameof(IsDownloading)); RaisePropertyChanged(nameof(Queued)); } }
-	public string? Narrator { get => _narrator; set => RaiseAndSetIfChanged(ref _narrator, value); }
-	public string? Author { get => _author; set => RaiseAndSetIfChanged(ref _author, value); }
-	public string? Title { get => _title; set => RaiseAndSetIfChanged(ref _title, value); }
-	public int Progress { get => _progress; protected set => RaiseAndSetIfChanged(ref _progress, value); }
-	public TimeSpan TimeRemaining { get => _timeRemaining; set { RaiseAndSetIfChanged(ref _timeRemaining, value); ETA = $"ETA: {value:mm\\:ss}"; } }
-	public string? ETA { get => _eta; private set => RaiseAndSetIfChanged(ref _eta, value); }
-	public object? Cover { get => _cover; protected set => RaiseAndSetIfChanged(ref _cover, value); }
+	public ProcessBookResult Result { get => field; set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(StatusText)); } }
+	public ProcessBookStatus Status { get => field; set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(IsFinished)); RaisePropertyChanged(nameof(IsDownloading)); RaisePropertyChanged(nameof(Queued)); } }
+	public string? Narrator { get => field; set => RaiseAndSetIfChanged(ref field, value); }
+	public string? Author { get => field; set => RaiseAndSetIfChanged(ref field, value); }
+	public string? Title { get => field; set => RaiseAndSetIfChanged(ref field, value); }
+	public int Progress { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
+	public TimeSpan TimeRemaining { get => field; set { RaiseAndSetIfChanged(ref field, value); ETA = $"ETA: {value:mm\\:ss}"; } }
+	public string? ETA { get => field; private set => RaiseAndSetIfChanged(ref field, value); }
+	public object? Cover { get => field; protected set => RaiseAndSetIfChanged(ref field, value); }
 	public bool IsFinished => Status is not ProcessBookStatus.Queued and not ProcessBookStatus.Working;
 	public bool IsDownloading => Status is ProcessBookStatus.Working;
 	public bool Queued => Status is ProcessBookStatus.Queued;
@@ -109,17 +99,16 @@ public class ProcessBookViewModel : ReactiveObject
 	{
 		LibraryBook = libraryBook;
 
-		_title = LibraryBook.Book.TitleWithSubtitle;
-		_author = LibraryBook.Book.AuthorNames();
-		_narrator = LibraryBook.Book.NarratorNames();
+		Title = LibraryBook.Book.TitleWithSubtitle;
+		Author = LibraryBook.Book.AuthorNames;
+		Narrator = LibraryBook.Book.NarratorNames;
 
 		(bool isDefault, byte[] picture) = PictureStorage.GetPicture(new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._80x80));
 
 		if (isDefault)
 			PictureStorage.PictureCached += PictureStorage_PictureCached;
 
-		// Mutable property. Set the field so PropertyChanged isn't fired.
-		_cover = BaseUtil.LoadImage(picture, PictureSize._80x80);
+		Cover = BaseUtil.LoadImage(picture, PictureSize._80x80);
 	}
 
 	private void PictureStorage_PictureCached(object? sender, PictureCachedEventArgs e)
@@ -307,8 +296,8 @@ public class ProcessBookViewModel : ReactiveObject
 			LogInfo($"{Environment.NewLine}{processable.Name} Step, Begin: {libraryBook.Book}");
 
 		Title = libraryBook.Book.TitleWithSubtitle;
-		Author = libraryBook.Book.AuthorNames();
-		Narrator = libraryBook.Book.NarratorNames();
+		Author = libraryBook.Book.AuthorNames;
+		Narrator = libraryBook.Book.NarratorNames;
 	}
 
 	private async void Processable_Completed(object? sender, LibraryBook libraryBook)
@@ -386,8 +375,8 @@ public class ProcessBookViewModel : ReactiveObject
 			details = $"""
 				  Title: {libraryBook.Book.TitleWithSubtitle}
 				  ID: {libraryBook.Book.AudibleProductId}
-				  Author: {trunc(libraryBook.Book.AuthorNames())}
-				  Narr: {trunc(libraryBook.Book.NarratorNames())}
+				  Author: {trunc(libraryBook.Book.AuthorNames)}
+				  Narr: {trunc(libraryBook.Book.NarratorNames)}
 				""";
 		}
 		catch

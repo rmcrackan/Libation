@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dinah.Core;
+using System;
 using System.IO;
 
 namespace LibationCli;
@@ -12,10 +13,10 @@ internal class ConsoleProgressBar
 
 	public double? Progress
 	{
-		get => m_Progress;
+		get => field;
 		set
 		{
-			m_Progress = value ?? 0;
+			field = value ?? 0;
 			WriteProgress();
 		}
 	}
@@ -30,7 +31,6 @@ internal class ConsoleProgressBar
 		}
 	}
 
-	private double m_Progress;
 	private TimeSpan m_RemainingTime;
 	private int m_LastWriteLength = 0;
 	private const int MAX_ETA_LEN = 10;
@@ -51,7 +51,7 @@ internal class ConsoleProgressBar
 
 	private void WriteProgress()
 	{
-		var numCompleted = (int)Math.Round(double.Min(100, m_Progress) * m_NumProgressPieces / 100);
+		var numCompleted = (int)Math.Round(double.Min(100, Progress?? 0) * m_NumProgressPieces / 100);
 		var numRemaining = m_NumProgressPieces - numCompleted;
 		var progressBar = $"[{new string(ProgressChar, numCompleted)}{new string(NoProgressChar, numRemaining)}]  ";
 

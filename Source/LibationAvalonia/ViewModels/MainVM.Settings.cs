@@ -9,8 +9,7 @@ namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
-		private bool _menuBarVisible = !Configuration.IsMacOs;
-		public bool MenuBarVisible { get => _menuBarVisible; set => this.RaiseAndSetIfChanged(ref _menuBarVisible, value); }
+		public bool MenuBarVisible { get => field; set => this.RaiseAndSetIfChanged(ref field, value); } = !Configuration.IsMacOs;
 		private void Configure_Settings()
 		{
 			if (App.Current is Avalonia.Application app &&

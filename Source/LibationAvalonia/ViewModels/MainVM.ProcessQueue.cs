@@ -12,15 +12,13 @@ namespace LibationAvalonia.ViewModels
 {
 	partial class MainVM
 	{
-		private bool _queueOpen = false;
-
 		/// <summary> The Process Queue panel is open </summary>
 		public bool QueueOpen
 		{
-			get => _queueOpen;
+			get => field;
 			set
 			{
-				this.RaiseAndSetIfChanged(ref _queueOpen, value);
+				this.RaiseAndSetIfChanged(ref field, value);
 				QueueButtonAngle = value ? 180 : 0;
 				this.RaisePropertyChanged(nameof(QueueButtonAngle));
 			}
@@ -40,7 +38,7 @@ namespace LibationAvalonia.ViewModels
 			{
 				if (ProcessQueue.QueueDownloadDecrypt(libraryBooks))
 					setQueueCollapseState(false);
-				else if (libraryBooks.Length == 1 && libraryBooks[0].Book.Audio_Exists())
+				else if (libraryBooks.Length == 1 && libraryBooks[0].Book.AudioExists)
 				{
 					// liberated: open explorer to file
 					var filePath = AudibleFileStorage.Audio.GetPath(libraryBooks[0].Book.AudibleProductId);
