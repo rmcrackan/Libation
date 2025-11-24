@@ -70,13 +70,16 @@ namespace FileLiberator
 
 				//Set the last downloaded information on the book so that it can be used in the naming templates,
 				//but don't persist it until everything completes successfully (in the finally block)
+				Serilog.Log.Verbose("Setting last downloaded info for {@Book}", libraryBook.LogFriendly());
 				var audioFormat = GetFileFormatInfo(downloadOptions, audioFile);
 				var audioVersion = downloadOptions.ContentMetadata.ContentReference.Version;
 				libraryBook.Book.UserDefinedItem.SetLastDownloaded(Configuration.LibationVersion, audioFormat, audioVersion);
 
+				//Verbose logging inside getDestinationDirectory
 				var finalStorageDir = getDestinationDirectory(libraryBook);
 
 				//post-download tasks done in parallel.
+				Serilog.Log.Verbose("Starting post-liberation finalization tasks");
 				var moveFilesTask = Task.Run(() => MoveFilesToBooksDir(libraryBook, finalStorageDir, result.ResultFiles, cancellationToken));
 				Task[] finalTasks =
 				[
@@ -89,19 +92,26 @@ namespace FileLiberator
 
 				try
 				{
+					Serilog.Log.Verbose("Awaiting post-liberation finalization tasks");
 					await Task.WhenAll(finalTasks);
 				}
-				catch when (!moveFilesTask.IsFaulted)
+				catch (Exception ex)
 				{
+					Serilog.Log.Verbose(ex, "An error occurred in the post-liberation finalization tasks");
 					//Swallow DownloadCoverArt, DownloadRecordsAsync, DownloadMetadataAsync, and SetCoverAsFolderIcon exceptions.
 					//Only fail if the downloaded audio files failed to move to Books directory
+					if (moveFilesTask.IsFaulted)
+						throw;
 				}
 				finally
 				{
 					if (moveFilesTask.IsCompletedSuccessfully && !cancellationToken.IsCancellationRequested)
 					{
+						Serilog.Log.Verbose("Updating liberated status for {@Book}", libraryBook.LogFriendly());
 						await libraryBook.UpdateBookStatusAsync(LiberatedStatus.Liberated, Configuration.LibationVersion, audioFormat, audioVersion);
+						Serilog.Log.Verbose("Setting directory time for {@Book}", libraryBook.LogFriendly());
 						SetDirectoryTime(libraryBook, finalStorageDir);
+						Serilog.Log.Verbose("Deleting cache files for {@Book}", libraryBook.LogFriendly());
 						foreach (var cacheFile in result.CacheFiles.Where(f => File.Exists(f.FilePath)))
 						{
 							//Delete cache files only after the download/decrypt operation completes successfully.
@@ -110,6 +120,7 @@ namespace FileLiberator
 					}
 				}
 
+				Serilog.Log.Verbose("Returning successful status handler for {@Book}", libraryBook.LogFriendly());
 				return new StatusHandler();
 			}
 			catch when (cancellationToken.IsCancellationRequested)
@@ -503,9 +514,15 @@ namespace FileLiberator
 		#region Macros
 		private static string getDestinationDirectory(LibraryBook libraryBook)
 		{
+			Serilog.Log.Verbose("Getting destination directory for {@Book}", libraryBook.LogFriendly());
 			var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
+			Serilog.Log.Verbose("Got destination directory for {@Book}. {@Directory}", libraryBook.LogFriendly(), destinationDir);
 			if (!Directory.Exists(destinationDir))
+			{
+				Serilog.Log.Verbose("Creating destination {@Directory}", destinationDir);
 				Directory.CreateDirectory(destinationDir);
+				Serilog.Log.Verbose("Created destination {@Directory}", destinationDir);
+			}
 			return destinationDir;
 		}
 
