@@ -28,7 +28,7 @@ namespace LibationWinForms.Login
 			{
 				try
 				{
-					using var weblogin = new WebLoginDialog(_account.AccountId, choiceIn.LoginUrl);
+					using var weblogin = new WebLoginDialog(_account.AccountId, choiceIn);
 					if (ShowDialog(weblogin))
 						return Task.FromResult(ChoiceOut.External(weblogin.ResponseUrl));
 				}
