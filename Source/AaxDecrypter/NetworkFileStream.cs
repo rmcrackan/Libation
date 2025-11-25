@@ -209,6 +209,12 @@ namespace AaxDecrypter
 					}
 				}
 			}
+			catch (Exception ex)
+			{
+				//Don't throw from DownloadTask.
+				//This task gets awaited in Dispose() and we don't want to have an unhandled exception there.
+				Serilog.Log.Error(ex, "An error was encountered during the download process.");
+			}
 			finally
 			{
 				_writeFile.Dispose();
