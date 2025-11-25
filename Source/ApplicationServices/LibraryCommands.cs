@@ -586,7 +586,7 @@ namespace ApplicationServices
 
         // below are queries, not commands. maybe I should make a LibraryQueries. except there's already one of those...
 
-        public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int booksError, int booksUnavailable, int pdfsDownloaded, int pdfsNotDownloaded, int pdfsUnavailable)
+        public record LibraryStats(int booksFullyBackedUp, int booksDownloadedOnly, int booksNoProgress, int booksError, int booksUnavailable, int pdfsDownloaded, int pdfsNotDownloaded, int pdfsUnavailable, IEnumerable<LibraryBook> LibraryBooks)
         {
             public int PendingBooks => booksNoProgress + booksDownloadedOnly;
             public bool HasPendingBooks => PendingBooks > 0;
@@ -655,7 +655,7 @@ namespace ApplicationServices
 
 			Log.Logger.Information("PDF counts. {@DebugInfo}", new { total = pdfResults.Count, pdfsDownloaded, pdfsNotDownloaded, pdfsUnavailable });
 
-            return new(booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError, booksUnavailable, pdfsDownloaded, pdfsNotDownloaded, pdfsUnavailable);
+            return new(booksFullyBackedUp, booksDownloadedOnly, booksNoProgress, booksError, booksUnavailable, pdfsDownloaded, pdfsNotDownloaded, pdfsUnavailable, libraryBooks);
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using DataLayer;
-using LibationUiBase;
+﻿using ApplicationServices;
+using DataLayer;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,11 +15,20 @@ namespace LibationWinForms
 		//GetLibrary_Flat_NoTracking() may take a long time on a hugh library. so run in new thread 
 		private async void beginBookBackupsToolStripMenuItem_Click(object _ = null, EventArgs __ = null)
 		{
+			var library = await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking());
+			BackupAllBooks(library);
+		}
+
+		private void BackupAllBooks(IEnumerable<LibraryBook> books)
+		{
 			try
 			{
-				var unliberated = await Task.Run(() => ApplicationServices.DbContexts.GetLibrary_Flat_NoTracking().UnLiberated().ToArray());
-				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(unliberated))
-					SetQueueCollapseState(false);
+				var unliberated = books.UnLiberated().ToArray();
+				Invoke(() =>
+				{
+					if (processBookQueue1.ViewModel.QueueDownloadDecrypt(unliberated))
+						SetQueueCollapseState(false);
+				});
 			}
 			catch (Exception ex)
 			{

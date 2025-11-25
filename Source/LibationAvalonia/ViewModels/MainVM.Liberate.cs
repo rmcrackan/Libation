@@ -7,6 +7,7 @@ using DataLayer;
 using LibationUiBase.Forms;
 using LibationUiBase;
 using System.Collections.Generic;
+using Avalonia.Threading;
 
 #nullable enable
 namespace LibationAvalonia.ViewModels
@@ -15,14 +16,24 @@ namespace LibationAvalonia.ViewModels
 	{
 		public void Configure_Liberate() { }
 
+		/// <summary> This gets called by the "Begin Book and PDF Backups" menu item. </summary>
 		public async Task BackupAllBooks()
+		{
+			var books = await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking());
+			BackupAllBooks(books);
+		}
+
+		private void BackupAllBooks(IEnumerable<LibraryBook> books)
 		{
 			try
 			{
-				var unliberated = await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking().UnLiberated().ToArray());
+				var unliberated = books.UnLiberated().ToArray();
 
-				if (ProcessQueue.QueueDownloadDecrypt(unliberated))
-					setQueueCollapseState(false);
+				Dispatcher.UIThread.Invoke(() =>
+				{
+					if (ProcessQueue.QueueDownloadDecrypt(unliberated))
+						setQueueCollapseState(false);
+				});
 			}
 			catch (Exception ex)
 			{
@@ -30,9 +41,11 @@ namespace LibationAvalonia.ViewModels
 			}
 		}
 
+		/// <summary> This gets called by the "Begin PDF Only Backups" menu item. </summary>
 		public async Task BackupAllPdfs()
 		{
-			if (ProcessQueue.QueueDownloadPdf(await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking())))
+			var books = await Task.Run(() => DbContexts.GetLibrary_Flat_NoTracking());
+			if (ProcessQueue.QueueDownloadPdf(books))
 				setQueueCollapseState(false);
 		}
 
