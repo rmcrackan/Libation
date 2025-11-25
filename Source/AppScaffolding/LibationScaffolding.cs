@@ -90,6 +90,7 @@ namespace AppScaffolding
 			{
 				config.LoadPersistentSettings(config.LibationFiles.SettingsFilePath);
 			}
+			DeleteOpenSqliteFiles(config);
 			AudibleApiStorage.EnsureAccountsSettingsFileExists();
 
 			//
@@ -100,6 +101,19 @@ namespace AppScaffolding
             Migrations.migrate_to_v11_5_0(config);
 			Migrations.migrate_to_v11_6_5(config);
 			Migrations.migrate_to_v12_0_1(config);
+		}
+
+		/// <summary>
+		/// Delete shared memory and write-ahead log SQLite database files which may prevent access to the database.
+		/// </summary>
+		private static void DeleteOpenSqliteFiles(Configuration config)
+		{
+			var walFile = SqliteStorage.DatabasePath + "-wal";
+			var shmFile = SqliteStorage.DatabasePath + "-shm";
+			if (File.Exists(walFile))
+				FileManager.FileUtility.SaferDelete(walFile);
+			if (File.Exists(shmFile))
+				FileManager.FileUtility.SaferDelete(shmFile);
 		}
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>
