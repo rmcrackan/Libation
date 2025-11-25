@@ -73,8 +73,8 @@ namespace LibationAvalonia.Dialogs
 			}
 		}
 
-		public void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-			=> SaveAndClose();
+		public async void SaveButton_Clicked(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+			=> await SaveAndCloseAsync();
 		public class liberatedComboBoxItem
 		{
 			public LiberatedStatus Status { get; set; }
