@@ -26,7 +26,17 @@ namespace AaxDecrypter
 		protected string OutputDirectory { get; }
 		public IDownloadOptions DownloadOptions { get; }
 		protected NetworkFileStream InputFileStream => NfsPersister.NetworkFileStream;
-		protected virtual long InputFilePosition => InputFileStream.Position;
+		protected virtual long InputFilePosition
+		{
+			get
+			{
+				//Use try/catch instread of checking CanRead to avoid
+				//a race with the background download completing
+				//between the check and the Position call.
+				try { return InputFileStream.Position; }
+				catch { return InputFileStream.Length; }
+			}
+		}
 		private bool downloadFinished;
 
 		private NetworkFileStreamPersister? m_nfsPersister;
