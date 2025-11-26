@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace DataLayer.Postgres
+namespace DataLayer.Sqlite
 {
     public class SqliteContextFactory : IDesignTimeDbContextFactory<LibationContext>
     {

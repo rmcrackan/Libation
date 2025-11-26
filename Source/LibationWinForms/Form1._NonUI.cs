@@ -28,13 +28,11 @@ namespace LibationWinForms
             // winforms only. this should NOT be allowed in cli
             updateCountsBw.RunWorkerCompleted += (object sender, System.ComponentModel.RunWorkerCompletedEventArgs e) =>
             {
-                if (!Configuration.Instance.AutoDownloadEpisodes)
+                if (!Configuration.Instance.AutoDownloadEpisodes || e.Result is not LibraryCommands.LibraryStats libraryStats)
                     return;
 
-                var libraryStats = e.Result as LibraryCommands.LibraryStats;
-
                 if ((libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded) > 0)
-                    Invoke(() => beginBookBackupsToolStripMenuItem_Click(null, System.EventArgs.Empty));
+					BackupAllBooks(libraryStats.LibraryBooks);
             };
 		}
 
