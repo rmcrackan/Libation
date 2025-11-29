@@ -11,10 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Platform;
 
+#nullable enable
 namespace LibationAvalonia
 {
-
 	public class MessageBox
 	{
 		public static Task<DialogResult> Show(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton)
@@ -27,15 +28,15 @@ namespace LibationAvalonia
 			=> ShowCoreAsync(null, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 		public static Task<DialogResult> Show(string text)
 			=> ShowCoreAsync(null, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
+		public static Task<DialogResult> Show(Window? owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 			=> ShowCoreAsync(owner, text, caption, buttons, icon, defaultButton, saveAndRestorePosition);
-		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
+		public static Task<DialogResult> Show(Window? owner, string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon)
 			=> ShowCoreAsync(owner, text, caption, buttons, icon, MessageBoxDefaultButton.Button1);
-		public static Task<DialogResult> Show(Window owner, string text, string caption, MessageBoxButtons buttons)
+		public static Task<DialogResult> Show(Window? owner, string text, string caption, MessageBoxButtons buttons)
 			=> ShowCoreAsync(owner, text, caption, buttons, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		public static Task<DialogResult> Show(Window owner, string text, string caption)
+		public static Task<DialogResult> Show(Window? owner, string text, string caption)
 			=> ShowCoreAsync(owner, text, caption, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-		public static Task<DialogResult> Show(Window owner, string text)
+		public static Task<DialogResult> Show(Window? owner, string text)
 			=> ShowCoreAsync(owner, text, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
 		public static async Task VerboseLoggingWarning_ShowIfTrue()
@@ -58,7 +59,7 @@ namespace LibationAvalonia
 		/// <summary>
 		/// Note: the format field should use {0} and NOT use the `$` string interpolation. Formatting is done inside this method.
 		/// </summary>
-		public static async Task<DialogResult> ShowConfirmationDialog(Window owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
+		public static async Task<DialogResult> ShowConfirmationDialog(Window? owner, IEnumerable<LibraryBook> libraryBooks, string format, string title, MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1)
 		{
 			if (libraryBooks is null || !libraryBooks.Any())
 				return DialogResult.Cancel;
@@ -88,7 +89,7 @@ namespace LibationAvalonia
 		/// <param name="text">The text to display in the message box.</param>
 		/// <param name="caption">The text to display in the title bar of the message box.</param>
 		/// <param name="exception">Exception to log.</param>
-		public static async Task ShowAdminAlert(Window owner, string text, string caption, Exception exception)
+		public static async Task ShowAdminAlert(Window? owner, string text, string caption, Exception exception)
 		{
 			// for development and debugging, show me what broke!
 			if (System.Diagnostics.Debugger.IsAttached)
@@ -106,7 +107,7 @@ namespace LibationAvalonia
 			await DisplayWindow(form, owner);
 		}
 
-		private static async Task<DialogResult> ShowCoreAsync(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
+		private static async Task<DialogResult> ShowCoreAsync(Window? owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		=> await Dispatcher.UIThread.InvokeAsync(async () =>
 		{
 			owner = owner?.IsLoaded is true ? owner : null;
@@ -114,10 +115,8 @@ namespace LibationAvalonia
 			return await DisplayWindow(dialog, owner);
 		});
 
-		private static MessageBoxWindow CreateMessageBox(Window owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
+		private static MessageBoxWindow CreateMessageBox(Window? owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		{
-			owner ??= (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow;
-
 			var dialog = new MessageBoxWindow(saveAndRestorePosition);
 
 			var vm = new MessageBoxViewModel(message, caption, buttons, icon, defaultButton);
@@ -125,18 +124,12 @@ namespace LibationAvalonia
 			dialog.ControlToFocusOnShow = dialog.FindControl<Control>(defaultButton.ToString());
 			dialog.CanResize = false;
 			dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-			var tbx = dialog.FindControl<TextBlock>("messageTextBlock");
+			var tbx = dialog.messageTextBlock;
 
 			tbx.MinWidth = vm.TextBlockMinWidth;
 			tbx.Text = message;
 
-			var thisScreen = owner.Screens?.ScreenFromVisual(owner);
-
-			var maxSize
-				= thisScreen is null ? owner.ClientSize
-				: new Size(0.20 * thisScreen.Bounds.Width, 0.9 * thisScreen.Bounds.Height - 55);
-
-			var desiredMax = new Size(maxSize.Width, maxSize.Height);
+			var desiredMax = GetMaxMessageBoxSizeFromOwner(owner);
 
 			tbx.Measure(desiredMax);
 
@@ -152,13 +145,34 @@ namespace LibationAvalonia
 			dialog.Width = dialog.MinWidth;
 			return dialog;
 		}
-		private static async Task<DialogResult> DisplayWindow(DialogWindow toDisplay, Window owner)
+
+		private static Size GetMaxMessageBoxSizeFromOwner(TopLevel? owner)
+		{
+			if (owner is null && App.Current is IClassicDesktopStyleApplicationLifetime lt)
+			{
+				//The Windows enumeration will only contain active (non-disposed) windows.
+				//If none are available, the last disposed window may still be in MainWindow
+				//Just be careful what you use it for. It will still have Screens, but
+				//ScreenFromTopLevel can't be used on macOS.
+				owner = lt.Windows.FirstOrDefault() ?? lt.MainWindow;
+			}
+			if (owner?.Screens is Screens screens)
+			{
+				var mainScreen = owner?.PlatformImpl is null ? screens.Primary : screens.ScreenFromTopLevel(owner);
+				if (mainScreen is not null)
+					return new Size(0.20 * mainScreen.Bounds.Width, 0.9 * mainScreen.Bounds.Height - 55);
+			}
+
+			return owner?.ClientSize ?? new Size(800, 600);
+		}
+
+		private static async Task<DialogResult> DisplayWindow(DialogWindow toDisplay, Window? owner)
 		{
 			if (owner is null)
 			{
-				if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+				if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 				{
-					if (desktop.MainWindow.IsLoaded)
+					if (desktop.MainWindow?.IsLoaded is true)
 						return await toDisplay.ShowDialog<DialogResult>(desktop.MainWindow);
 					else
 					{
@@ -185,7 +199,6 @@ namespace LibationAvalonia
 					window.Close();
 					return result;
 				}
-
 			}
 			else
 			{
