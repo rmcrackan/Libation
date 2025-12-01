@@ -1,8 +1,9 @@
-﻿using System.Windows.Forms;
+﻿using LibationWinForms.GridView;
+using System.Windows.Forms;
 
 namespace LibationWinForms
 {
-    public class AccessibleDataGridViewButtonCell : DataGridViewButtonCell
+	public class AccessibleDataGridViewButtonCell : DataGridViewButtonCell
     {
         protected string AccessibilityName { get; }
 
@@ -24,7 +25,8 @@ namespace LibationWinForms
         public AccessibleDataGridViewButtonCell(string accessibilityName) : base()
         {
             AccessibilityName = accessibilityName;
-        }
+            FlatStyle = Application.IsDarkModeEnabled ? FlatStyle.Flat : FlatStyle.System;
+		}
 
         protected class ButtonCellAccessibilityObject : DataGridViewButtonCellAccessibleObject
         {

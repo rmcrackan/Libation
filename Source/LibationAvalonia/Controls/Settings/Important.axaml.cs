@@ -52,7 +52,8 @@ namespace LibationAvalonia.Controls.Settings
 			var parent = ThemeComboBox.Parent as Panel;
 			if (parent?.Children.Remove(ThemeComboBox) ?? false)
 			{
-				Configuration.Instance.SetString(ViewModel?.ThemeVariant, nameof(ViewModel.ThemeVariant));
+
+				Configuration.Instance.ThemeVariant = ViewModel?.ThemeVariant.Value ?? Configuration.Theme.System;
 				parent.Children.Add(ThemeComboBox);
 			}
 			ThemeComboBox.SelectionChanged += ThemeComboBox_SelectionChanged;

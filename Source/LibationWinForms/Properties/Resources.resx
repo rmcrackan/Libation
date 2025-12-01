@@ -130,8 +130,8 @@
   <data name="liberate_yellow" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\liberate_yellow.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="edit_64x64" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit_64x64.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="edit_25x25" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\edit_25x25.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="default_cover_300x300" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\img-coverart-prod-unavailable_300x300.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -142,14 +142,8 @@
   <data name="liberate_red" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\liberate_red.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="edit_tags_50x50" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit-tags-50x50.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="liberate_green_pdf_yes" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\liberate_green_pdf_yes.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="edit_25x25" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit_25x25.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="plus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\plus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -178,10 +172,97 @@
   <data name="liberate_yellow_pdf_no" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\liberate_yellow_pdf_no.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="edit_tags_25x25" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit-tags-25x25.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Dolby_Atmos_Vertical_80" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Dolby_Atmos_Vertical_80.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="liberate_green_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\liberate_green_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="liberate_green_pdf_no_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\liberate_green_pdf_no_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="liberate_green_pdf_yes_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\liberate_green_pdf_yes_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="liberate_red_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\liberate_red_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="liberate_red_pdf_no_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\liberate_red_pdf_no_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="liberate_red_pdf_yes_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\liberate_red_pdf_yes_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="plus_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\plus_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="minus_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\minus_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="liberate_yellow_pdf_yes_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\liberate_yellow_pdf_yes_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="liberate_yellow_pdf_no_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\liberate_yellow_pdf_no_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="liberate_yellow_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\liberate_yellow_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Dolby_Atmos_Vertical_80_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dolby_Atmos_Vertical_80_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="cheers_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cheers_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="edit_25x25_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\edit_25x25_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="error_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\error_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="import_16x16_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\import_16x16_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="move_first" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\move_first.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="move_first_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\move_first_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="move_up" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\move_up.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="move_up_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\move_up_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="move_down" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\move_down.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="move_down_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\move_down_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="move_last" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\move_last.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="move_last_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\move_last_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="queue_completed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\queue_completed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="queue_completed_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\queue_completed_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="queue_error" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\queue_error.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="queue_error_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\queue_error_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="queue_queued" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\queue_queued.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="queue_queued_dark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\queue_queued_dark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

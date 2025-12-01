@@ -21,7 +21,7 @@ namespace LibationWinForms.Dialogs
 		public BookRecordsDialog()
 		{
 			InitializeComponent();
-
+			dataGridView1.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
 			if (!DesignMode)
 			{
 				//Prevent the designer from auto-generating columns

@@ -37,7 +37,7 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 	/// <summary> Invoke <see cref="IUpdatable.Updated"/> </summary>
 	public void Save() => Updated?.Invoke(this, EventArgs.Empty);
 
-	public Color GetColor(string? themeVariant, string itemName)
+	public Color GetColor(LibationFileManager.Configuration.Theme themeVariant, string itemName)
 		=> GetColor(FromVariantName(themeVariant), itemName);
 
 	public Color GetColor(ThemeVariant themeVariant, string itemName)
@@ -46,7 +46,7 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 		return ThemeColors[themeVariant].TryGetValue(itemName, out var color) ? color : default;
 	}
 
-	public ChardonnayTheme SetColor(string? themeVariant, Expression<Func<ColorPaletteResources, Color>> colorSelector, Color color)
+	public ChardonnayTheme SetColor(LibationFileManager.Configuration.Theme themeVariant, Expression<Func<ColorPaletteResources, Color>> colorSelector, Color color)
 		=> SetColor(FromVariantName(themeVariant), colorSelector, color);
 
 	public ChardonnayTheme SetColor(ThemeVariant themeVariant, Expression<Func<ColorPaletteResources, Color>> colorSelector, Color color)
@@ -59,7 +59,7 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 		return this;
 	}
 
-	public ChardonnayTheme SetColor(string? themeVariant, string itemName, Color itemColor)
+	public ChardonnayTheme SetColor(LibationFileManager.Configuration.Theme themeVariant, string itemName, Color itemColor)
 		=> SetColor(FromVariantName(themeVariant), itemName, itemColor);
 
 	public ChardonnayTheme SetColor(ThemeVariant themeVariant, string itemName, Color itemColor)
@@ -69,7 +69,7 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 		return this;
 	}
 
-	public FrozenDictionary<string, Color> GetThemeColors(string? themeVariant)
+	public FrozenDictionary<string, Color> GetThemeColors(LibationFileManager.Configuration.Theme themeVariant)
 		=> GetThemeColors(FromVariantName(themeVariant));
 
 	public FrozenDictionary<string, Color> GetThemeColors(ThemeVariant themeVariant)
@@ -78,7 +78,7 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 		return ThemeColors[themeVariant].ToFrozenDictionary();
 	}
 
-	public void ApplyTheme(string? themeVariant)
+	public void ApplyTheme(LibationFileManager.Configuration.Theme themeVariant)
 		=> ApplyTheme(FromVariantName(themeVariant));
 
 	public void ApplyTheme(ThemeVariant themeVariant)
@@ -195,11 +195,11 @@ public class ChardonnayTheme : IUpdatable, ICloneable
 			throw new InvalidOperationException("FluentTheme.Palettes only supports Light and Dark variants.");
 	}
 
-	private static ThemeVariant FromVariantName(string? variantName)
+	private static ThemeVariant FromVariantName(LibationFileManager.Configuration.Theme variantName)
 		=> variantName switch
 		{
-			nameof(ThemeVariant.Dark) => ThemeVariant.Dark,
-			nameof(ThemeVariant.Light) => ThemeVariant.Light,
+			LibationFileManager.Configuration.Theme.Dark => ThemeVariant.Dark,
+			LibationFileManager.Configuration.Theme.Light => ThemeVariant.Light,
 			// "System"
 			_ => ThemeVariant.Default
 		};

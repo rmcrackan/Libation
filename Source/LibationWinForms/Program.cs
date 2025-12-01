@@ -46,10 +46,11 @@ namespace LibationWinForms
 				LibationUiBase.Forms.MessageBoxBase.ShowAsyncImpl = ShowMessageBox;
 
 				// do this as soon as possible (post-config)
-				RunSetupIfNeededAsync(config).Wait();
+				RunSetupIfNeededAsync(config);
 
 				// most migrations go in here
 				LibationScaffolding.RunPostConfigMigrations(config);
+				SetThemeColor(config);
 
 				// migrations which require Forms or are long-running
 				RunWindowsOnlyMigrations(config);
@@ -117,7 +118,19 @@ namespace LibationWinForms
 		}
 		#endregion;
 
-		private static async Task RunSetupIfNeededAsync(Configuration config)
+		private static void SetThemeColor(Configuration config)
+		{
+			var theme = config.ThemeVariant switch
+			{
+				Configuration.Theme.Light => SystemColorMode.Classic,
+				Configuration.Theme.Dark => SystemColorMode.Dark,
+				_ => SystemColorMode.System,
+			};
+
+			Application.SetColorMode(theme);
+		}
+
+		private static void RunSetupIfNeededAsync(Configuration config)
 		{
 			var setup = new LibationSetup(config.LibationFiles)
 			{
@@ -125,7 +138,7 @@ namespace LibationWinForms
 				SelectFolderPrompt = SelectInstallLocation
 			};
 
-			if (!await setup.RunSetupIfNeededAsync())
+			if (!setup.RunSetupIfNeededAsync().GetAwaiter().GetResult())
 			{
 				MessageBox.Show("Initial set up cancelled.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				Application.Exit();

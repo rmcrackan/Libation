@@ -12,8 +12,7 @@ namespace LibationAvalonia.ViewModels.Settings
 {
 	public class ImportantSettingsVM : ViewModelBase
 	{
-		private string themeVariant;
-		private string initialThemeVariant;
+		private EnumDisplay<Configuration.Theme> themeVariant;
 		private readonly Configuration config;
 
 		public ImportantSettingsVM(Configuration config)
@@ -30,9 +29,7 @@ namespace LibationAvalonia.ViewModels.Settings
 			GridScaleFactor = scaleFactorToLinearRange(config.GridScaleFactor);
 			GridFontScaleFactor = scaleFactorToLinearRange(config.GridFontScaleFactor);
 
-			themeVariant = initialThemeVariant = config.GetString(propertyName: nameof(ThemeVariant)) ?? "";
-			if (string.IsNullOrWhiteSpace(initialThemeVariant))
-				themeVariant = initialThemeVariant = "System";
+			themeVariant = Themes.Single(v => v.Value == config.ThemeVariant);
 		}
 
 		public void SaveSettings(Configuration config)
@@ -91,7 +88,10 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string GridScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridScaleFactor));
 		public string GridFontScaleFactorText { get; } = Configuration.GetDescription(nameof(Configuration.GridFontScaleFactor));
 		public string BetaOptInText { get; } = Configuration.GetDescription(nameof(Configuration.BetaOptIn));
-		public string[] Themes { get; } = { "System", nameof(Avalonia.Styling.ThemeVariant.Light), nameof(Avalonia.Styling.ThemeVariant.Dark) };
+		public EnumDisplay<Configuration.Theme>[] Themes { get; }
+			= Enum.GetValues<Configuration.Theme>()
+			.Select(v => new EnumDisplay<Configuration.Theme>(v))
+			.ToArray();
 
 		public string BooksDirectory { get; set; }
 		public bool SavePodcastsToParentFolder { get; set; }
@@ -103,7 +103,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public bool UseWebView { get; set; }
 		public Serilog.Events.LogEventLevel LoggingLevel { get; set; }
 
-		public string ThemeVariant
+		public EnumDisplay<Configuration.Theme> ThemeVariant
 		{
 			get => themeVariant;
 			set => this.RaiseAndSetIfChanged(ref themeVariant, value);

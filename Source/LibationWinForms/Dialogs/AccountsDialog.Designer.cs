@@ -31,11 +31,11 @@
             this.cancelBtn = new System.Windows.Forms.Button();
             this.saveBtn = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.DeleteAccount = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.ExportAccount = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.DeleteAccount = new DeleteColumn();
+            this.ExportAccount = new ExportColumn();
             this.LibraryScan = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.AccountId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Locale = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.Locale = new LocaleColumn();
             this.AccountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.importBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -165,11 +165,11 @@
 		private System.Windows.Forms.Button saveBtn;
 		private System.Windows.Forms.DataGridView dataGridView1;
 		private System.Windows.Forms.Button importBtn;
-		private System.Windows.Forms.DataGridViewButtonColumn DeleteAccount;
-		private System.Windows.Forms.DataGridViewButtonColumn ExportAccount;
+		private DeleteColumn DeleteAccount;
+		private ExportColumn ExportAccount;
 		private System.Windows.Forms.DataGridViewCheckBoxColumn LibraryScan;
 		private System.Windows.Forms.DataGridViewTextBoxColumn AccountId;
-		private System.Windows.Forms.DataGridViewComboBoxColumn Locale;
+		private LocaleColumn Locale;
 		private System.Windows.Forms.DataGridViewTextBoxColumn AccountName;
 	}
 }

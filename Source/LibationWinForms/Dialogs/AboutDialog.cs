@@ -14,7 +14,7 @@ namespace LibationWinForms.Dialogs
 			InitializeComponent();
 			this.SetLibationIcon();
 			releaseNotesLbl.Text = $"Libation {AppScaffolding.LibationScaffolding.Variety} v{AppScaffolding.LibationScaffolding.BuildVersion}";
-
+			pictureBox1.Image = Application.IsDarkModeEnabled ? Properties.Resources.cheers_dark : Properties.Resources.cheers;
 			rmcrackanLbl.Tag = LibationContributor.PrimaryContributors.Single(c => c.Name == rmcrackanLbl.Text);
 			MBucariLbl.Tag = LibationContributor.PrimaryContributors.Single(c => c.Name == MBucariLbl.Text);
 
@@ -22,8 +22,13 @@ namespace LibationWinForms.Dialogs
 			{
 				var label = new LinkLabel { Tag = contributor, Text = contributor.Name, AutoSize = true };
 				label.LinkClicked += ContributorLabel_LinkClicked;
+				label.SetLinkLabelColors();
 				flowLayoutPanel1.Controls.Add(label);
 			}
+			rmcrackanLbl.SetLinkLabelColors();
+			MBucariLbl.SetLinkLabelColors();
+			releaseNotesLbl.SetLinkLabelColors();
+			getLibationLbl.SetLinkLabelColors();
 
 			var toolTip = new ToolTip();
 			toolTip.SetToolTip(releaseNotesLbl, "View Release Notes");

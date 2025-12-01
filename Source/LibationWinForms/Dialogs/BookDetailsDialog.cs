@@ -27,6 +27,7 @@ namespace LibationWinForms.Dialogs
 		{
 			InitializeComponent();
 			this.SetLibationIcon();
+			audibleLink.SetLinkLabelColors();
 		}
 		public BookDetailsDialog(LibraryBook libraryBook) : this()
 		{
@@ -40,6 +41,7 @@ namespace LibationWinForms.Dialogs
 		{
 			this.Text = Book.TitleWithSubtitle;
 			dolbyAtmosPb.Visible = Book.IsSpatial;
+			dolbyAtmosPb.Image = Application.IsDarkModeEnabled ? Properties.Resources.Dolby_Atmos_Vertical_80_dark : Properties.Resources.Dolby_Atmos_Vertical_80;
 
 			(_, var picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
 			this.coverPb.Image = WinFormsUtil.TryLoadImageOrDefault(picture, PictureSize._80x80);
@@ -138,6 +140,7 @@ namespace LibationWinForms.Dialogs
 			var locale = AudibleApi.Localization.Get(_libraryBook.Book.Locale);
 			var link = $"https://www.audible.{locale.TopDomain}/pd/{Book.AudibleProductId}";
 			Go.To.Url(link);
+			e.Link.Visited = true;
 		}
     }
 }

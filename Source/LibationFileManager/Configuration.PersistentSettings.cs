@@ -154,6 +154,9 @@ namespace LibationFileManager
 			set => SetString(value);
 		}
 
+		[Description("Libation's display color theme")]
+		public Theme ThemeVariant { get => GetNonString(defaultValue: Theme.System); set => SetNonString(value); }
+
 		[Description("Allow Libation to fix up audiobook metadata")]
 		public bool AllowLibationFixup { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
@@ -259,6 +262,14 @@ namespace LibationFileManager
 			Retry = 2,
 			[Description("Permanently ignore book. Continue processing books. Do not try book again.")]
 			Ignore = 3
+		}
+
+		[JsonConverter(typeof(StringEnumConverter))]
+		public enum Theme
+		{
+			System = 0,
+			Light = 1,
+			Dark = 2
 		}
 
 		[JsonConverter(typeof(StringEnumConverter))]

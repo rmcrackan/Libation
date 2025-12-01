@@ -44,6 +44,7 @@ namespace LibationWinForms.SeriesView
 					dgv.CellContentClick += Dgv_CellContentClick;
 					dgv.DataSource = new SeriesEntryBindingList(seriesEntries[series]);
 					dgv.BindingContextChanged += (_, _) => dgv.Sort(dgv.Columns["Order"], ListSortDirection.Ascending);
+					dgv.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
 
 					var tab = new TabPage { Text = series.Title };
 					tab.Controls.Add(dgv);
@@ -171,6 +172,8 @@ namespace LibationWinForms.SeriesView
 				TrackVisitedState = true,
 				SortMode = DataGridViewColumnSortMode.Automatic,
 				Width = 200,
+				LinkColor = ThemeExtensions.LinkColor,
+				VisitedLinkColor = ThemeExtensions.VisitedLinkColor,
 			});
 
 			dgv.CellToolTipTextNeeded += Dgv_CellToolTipTextNeeded;
