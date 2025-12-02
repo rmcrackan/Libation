@@ -63,11 +63,11 @@ namespace LibationAvalonia.ViewModels
 		public async void ProductsDisplay_VisibleCountChanged(object? sender, int qty)
 		{
 			setVisibleCount(qty);
-			await Dispatcher.UIThread.InvokeAsync(setLiberatedVisibleMenuItem);
+			await setLiberatedVisibleMenuItemAsync();
 		}
 
 		private async void setLiberatedVisibleMenuItemAsync(object? _, object __)
-			=> await Dispatcher.UIThread.InvokeAsync(setLiberatedVisibleMenuItem);
+			=> await setLiberatedVisibleMenuItemAsync();
 
 
 		public void LiberateVisible()
@@ -191,10 +191,11 @@ namespace LibationAvalonia.ViewModels
 				await visibleLibraryBooks.RemoveBooksAsync();
 		}
 
-		private void setLiberatedVisibleMenuItem()
+		private async Task setLiberatedVisibleMenuItemAsync()
 		{
-			var libraryStats = LibraryCommands.GetCounts(ProductsDisplay.GetVisibleBookEntries());
-			setVisibleNotLiberatedCount(libraryStats.PendingBooks);
+			var visible = ProductsDisplay.GetVisibleBookEntries();
+			var libraryStats = await Task.Run(() => LibraryCommands.GetCounts(visible));
+			await Dispatcher.UIThread.InvokeAsync(() => setVisibleNotLiberatedCount(libraryStats.PendingBooks));
 		}
 	}
 }
