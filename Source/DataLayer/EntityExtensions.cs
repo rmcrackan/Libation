@@ -24,7 +24,7 @@ namespace DataLayer
 			/// <summary>True if IsLiberated or Error. False if NotLiberated</summary>
 			public bool AudioExists => book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated or LiberatedStatus.Error;
 			/// <summary>True if exists and IsLiberated. Else false</summary>
-			public bool PdfExists => book.UserDefinedItem.PdfStatus == LiberatedStatus.NotLiberated;
+			public bool PdfExists => book.UserDefinedItem.PdfStatus is LiberatedStatus.Liberated;
 			/// <summary> Whether the book has any supplements </summary>
 			public bool HasPdf => book.Supplements.Any();
 
