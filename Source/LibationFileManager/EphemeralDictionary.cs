@@ -17,6 +17,7 @@ internal class EphemeralDictionary : IJsonBackedDictionary
 		JsonObject = dataStore;
 	}
 
+	public JObject GetJObject() => (JObject)JsonObject.DeepClone();
 	public bool Exists(string propertyName)
 		=> JsonObject.ContainsKey(propertyName);
 	public string? GetString(string propertyName, string? defaultValue = null)

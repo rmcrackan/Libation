@@ -29,11 +29,11 @@ namespace LibationAvalonia.Dialogs
 
 			if (Design.IsDesignMode)
 			{
-				var themeVariant = Configuration.CreateMockInstance().GetString(propertyName: nameof(ThemeVariant));
+				var themeVariant = Configuration.CreateMockInstance().ThemeVariant;
 				RequestedThemeVariant = themeVariant switch
 				{
-					nameof(ThemeVariant.Dark) => ThemeVariant.Dark,
-					nameof(ThemeVariant.Light) => ThemeVariant.Light,
+					Configuration.Theme.Dark => ThemeVariant.Dark,
+					Configuration.Theme.Light => ThemeVariant.Light,
 					_ => ThemeVariant.Default,
 				};
 			}

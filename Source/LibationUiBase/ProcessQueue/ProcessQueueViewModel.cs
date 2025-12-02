@@ -27,7 +27,7 @@ public class ProcessQueueViewModel : ReactiveObject
 	{
 		Queue.QueuedCountChanged += Queue_QueuedCountChanged;
 		Queue.CompletedCountChanged += Queue_CompletedCountChanged;
-		SpeedLimit = LibationFileManager.Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
+		SpeedLimit = Configuration.Instance.DownloadSpeedLimit / 1024m / 1024;
 	}
 
 	public int CompletedCount { get => field; private set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(AnyCompleted)); } }
@@ -48,7 +48,7 @@ public class ProcessQueueViewModel : ReactiveObject
 		set
 		{
 			var newValue = Math.Min(999 * 1024 * 1024, (long)Math.Ceiling(value * 1024 * 1024));
-			var config = LibationFileManager.Configuration.Instance;
+			var config = Configuration.Instance;
 			config.DownloadSpeedLimit = newValue;
 
 			_speedLimit
@@ -57,6 +57,8 @@ public class ProcessQueueViewModel : ReactiveObject
 				: 0;
 
 			config.DownloadSpeedLimit = (long)(_speedLimit * 1024 * 1024);
+			if (Queue.Current is ProcessBookViewModel currentBook)
+				currentBook.Configuration.DownloadSpeedLimit = config.DownloadSpeedLimit;
 
 			SpeedLimitIncrement = _speedLimit > 100 ? 10
 				: _speedLimit > 10 ? 1
@@ -89,24 +91,26 @@ public class ProcessQueueViewModel : ReactiveObject
 
 	#region Add Books to Queue
 
-	public bool QueueDownloadPdf(IList<LibraryBook> libraryBooks)
+	public bool QueueDownloadPdf(IList<LibraryBook> libraryBooks, Configuration? config = null)
 	{
-		if (!IsBooksDirectoryValid())
+		config ??= Configuration.Instance;
+		if (!IsBooksDirectoryValid(config))
 			return false;
 
 		var needsPdf = libraryBooks.Where(lb => lb.NeedsPdfDownload()).ToArray();
 		if (needsPdf.Length > 0)
 		{
 			Serilog.Log.Logger.Information("Begin download {count} pdfs", needsPdf.Length);
-			AddDownloadPdf(needsPdf);
+			AddDownloadPdf(needsPdf, config);
 			return true;
 		}
 		return false;
 	}
 
-	public bool QueueConvertToMp3(IList<LibraryBook> libraryBooks)
+	public bool QueueConvertToMp3(IList<LibraryBook> libraryBooks, Configuration? config = null)
 	{
-		if (!IsBooksDirectoryValid())
+		config ??= Configuration.Instance;
+		if (!IsBooksDirectoryValid(config))
 			return false;
 
 		//Only Queue Liberated books for conversion.  This isn't a perfect filter, but it's better than nothing.
@@ -116,15 +120,16 @@ public class ProcessQueueViewModel : ReactiveObject
 			if (preLiberated.Length == 1)
 				RemoveCompleted(preLiberated[0]);
 			Serilog.Log.Logger.Information("Begin convert {count} books to mp3", preLiberated.Length);
-			AddConvertMp3(preLiberated);
+			AddConvertMp3(preLiberated, config);
 			return true;
 		}
 		return false;
 	}
 
-	public bool QueueDownloadDecrypt(IList<LibraryBook> libraryBooks)
+	public bool QueueDownloadDecrypt(IList<LibraryBook> libraryBooks, Configuration? config = null)
 	{
-		if (!IsBooksDirectoryValid())
+		config ??= Configuration.Instance;
+		if (!IsBooksDirectoryValid(config))
 			return false;
 
 		if (libraryBooks.Count == 1)
@@ -137,14 +142,14 @@ public class ProcessQueueViewModel : ReactiveObject
 			{
 				RemoveCompleted(item);
 				Serilog.Log.Logger.Information("Begin single library book backup of {libraryBook}", item);
-				AddDownloadDecrypt([item]);
+				AddDownloadDecrypt([item], config);
 				return true;
 			}
 			else if (item.NeedsPdfDownload())
 			{
 				RemoveCompleted(item);
 				Serilog.Log.Logger.Information("Begin single pdf backup of {libraryBook}", item);
-				AddDownloadPdf([item]);
+				AddDownloadPdf([item], config);
 				return true;
 			}
 		}
@@ -155,16 +160,16 @@ public class ProcessQueueViewModel : ReactiveObject
 			if (toLiberate.Length > 0)
 			{
 				Serilog.Log.Logger.Information("Begin backup of {count} library books", toLiberate.Length);
-				AddDownloadDecrypt(toLiberate);
+				AddDownloadDecrypt(toLiberate, config);
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private bool IsBooksDirectoryValid()
+	private bool IsBooksDirectoryValid(Configuration config)
 	{
-		if (string.IsNullOrWhiteSpace(Configuration.Instance.Books))
+		if (string.IsNullOrWhiteSpace(config.Books))
 		{
 			Serilog.Log.Logger.Error("Books location is not set in configuration.");
 			MessageBoxBase.Show(
@@ -176,9 +181,9 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		else if (AudibleFileStorage.BooksDirectory is null)
 		{
-			Serilog.Log.Logger.Error("Failed to create books directory: {@booksDir}", Configuration.Instance.Books);
+			Serilog.Log.Logger.Error("Failed to create books directory: {@booksDir}", config.Books);
 			MessageBoxBase.Show(
-				$"Libation was unable to create the \"Books location\" folder at:\n{Configuration.Instance.Books}\n\nPlease change the Books location in the settings menu.",
+				$"Libation was unable to create the \"Books location\" folder at:\n{config.Books}\n\nPlease change the Books location in the settings menu.",
 				"Failed to Create Books Directory",
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
@@ -186,9 +191,9 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		else if (AudibleFileStorage.DownloadsInProgressDirectory is null)
 		{
-			Serilog.Log.Logger.Error("Failed to create DownloadsInProgressDirectory in {@InProgress}", Configuration.Instance.InProgress);
+			Serilog.Log.Logger.Error("Failed to create DownloadsInProgressDirectory in {@InProgress}", config.InProgress);
 			MessageBoxBase.Show(
-				$"Libation was unable to create the \"Downloads In Progress\" folder in:\n{Configuration.Instance.InProgress}\n\nPlease change the In Progress location in the settings menu.",
+				$"Libation was unable to create the \"Downloads In Progress\" folder in:\n{config.InProgress}\n\nPlease change the In Progress location in the settings menu.",
 				"Failed to Create Downloads In Progress Directory",
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
@@ -196,9 +201,9 @@ public class ProcessQueueViewModel : ReactiveObject
 		}
 		else if (AudibleFileStorage.DecryptInProgressDirectory is null)
 		{
-			Serilog.Log.Logger.Error("Failed to create DecryptInProgressDirectory in {@InProgress}", Configuration.Instance.InProgress);
+			Serilog.Log.Logger.Error("Failed to create DecryptInProgressDirectory in {@InProgress}", config.InProgress);
 			MessageBoxBase.Show(
-				$"Libation was unable to create the \"Decrypt In Progress\" folder in:\n{Configuration.Instance.InProgress}\n\nPlease change the In Progress location in the settings menu.",
+				$"Libation was unable to create the \"Decrypt In Progress\" folder in:\n{config.InProgress}\n\nPlease change the In Progress location in the settings menu.",
 				"Failed to Create Decrypt In Progress Directory",
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error);
@@ -218,34 +223,34 @@ public class ProcessQueueViewModel : ReactiveObject
 		&& entry.Status is ProcessBookStatus.Completed
 		&& Queue.RemoveCompleted(entry);
 
-	private void AddDownloadPdf(IList<LibraryBook> entries)
+	private void AddDownloadPdf(IList<LibraryBook> entries, Configuration config)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
 		Serilog.Log.Logger.Information("Queueing {count} books for PDF-only download", procs.Length);
 		AddToQueue(procs);
 
 		ProcessBookViewModel Create(LibraryBook entry)
-			=> new ProcessBookViewModel(entry).AddDownloadPdf();
+			=> new ProcessBookViewModel(entry, config).AddDownloadPdf();
 	}
 
-	private void AddDownloadDecrypt(IList<LibraryBook> entries)
+	private void AddDownloadDecrypt(IList<LibraryBook> entries, Configuration config)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
 		Serilog.Log.Logger.Information("Queueing {count} books ofr download/decrypt", procs.Length);
 		AddToQueue(procs);
 
 		ProcessBookViewModel Create(LibraryBook entry)
-			=> new ProcessBookViewModel(entry).AddDownloadDecryptBook().AddDownloadPdf();
+			=> new ProcessBookViewModel(entry, config).AddDownloadDecryptBook().AddDownloadPdf();
 	}
 
-	private void AddConvertMp3(IList<LibraryBook> entries)
+	private void AddConvertMp3(IList<LibraryBook> entries, Configuration config)
 	{
 		var procs = entries.Where(e => !IsBookInQueue(e)).Select(Create).ToArray();
 		Serilog.Log.Logger.Information("Queueing {count} books for mp3 conversion", procs.Length);
 		AddToQueue(procs);
 
 		ProcessBookViewModel Create(LibraryBook entry)
-			=> new ProcessBookViewModel(entry).AddConvertToMp3();
+			=> new ProcessBookViewModel(entry, config).AddConvertToMp3();
 	}
 
 	private void AddToQueue(IList<ProcessBookViewModel> pbook)
@@ -282,7 +287,7 @@ public class ProcessQueueViewModel : ReactiveObject
 				}
 
 				Serilog.Log.Logger.Information("Begin processing queued item: '{item_LibraryBook}'", nextBook.LibraryBook);
-
+				SpeedLimit = nextBook.Configuration.DownloadSpeedLimit / 1024m / 1024;
 				var result = await nextBook.ProcessOneAsync();
 
 				Serilog.Log.Logger.Information("Completed processing queued item: '{item_LibraryBook}' with result: {result}", nextBook.LibraryBook, result);

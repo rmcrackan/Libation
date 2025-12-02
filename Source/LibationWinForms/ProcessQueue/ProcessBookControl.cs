@@ -12,10 +12,10 @@ namespace LibationWinForms.ProcessQueue
 		private readonly int ProgressBarDistanceFromEdge;
 		private object? m_OldContext;
 
-		private static Color FailedColor { get; } = Color.LightCoral;
-		private static Color CancelledColor { get; } = Color.Khaki;
+		private static Color FailedColor => Application.IsDarkModeEnabled ? Color.FromArgb(0x50, 0x27, 0x27) : Color.LightCoral;
+		private static Color CancelledColor => Application.IsDarkModeEnabled ? Color.FromArgb(0x4e, 0x4b, 0x15) : Color.Khaki;
 		private static Color QueuedColor { get; } = SystemColors.Control;
-		private static Color SuccessColor { get; } = Color.PaleGreen;
+		private static Color SuccessColor => Application.IsDarkModeEnabled ? Color.FromArgb(0x1c, 0x3e, 0x20) : Color.PaleGreen;
 
 		public ProcessBookControl()
 		{
@@ -23,6 +23,10 @@ namespace LibationWinForms.ProcessQueue
 			remainingTimeLbl.Visible = false;
 			progressBar1.Visible = false;
 			etaLbl.Visible = false;
+			moveDownBtn.BackgroundImage = Application.IsDarkModeEnabled ? Properties.Resources.move_down_dark : Properties.Resources.move_down;
+			moveUpBtn.BackgroundImage = Application.IsDarkModeEnabled ? Properties.Resources.move_up_dark : Properties.Resources.move_up;
+			moveFirstBtn.BackgroundImage = Application.IsDarkModeEnabled ? Properties.Resources.move_first_dark : Properties.Resources.move_first;
+			moveLastBtn.BackgroundImage = Application.IsDarkModeEnabled ? Properties.Resources.move_last_dark : Properties.Resources.move_last;
 
 			CancelBtnDistanceFromEdge = Width - cancelBtn.Location.X;
 			ProgressBarDistanceFromEdge = Width - progressBar1.Location.X - progressBar1.Width;

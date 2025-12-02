@@ -31,7 +31,7 @@ namespace LibationAvalonia.Views
 			if (Design.IsDesignMode)
 			{
 				ViewModels.MainVM.Configure_NonUI();
-				DataContext = new ProcessBookViewModel(MockLibraryBook.CreateBook());
+				DataContext = new ProcessBookViewModel(MockLibraryBook.CreateBook(), LibationFileManager.Configuration.Instance);
 				return;
 			}
 		}

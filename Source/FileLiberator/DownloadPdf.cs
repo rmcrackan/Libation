@@ -13,7 +13,7 @@ using LibationFileManager;
 
 namespace FileLiberator
 {
-	public class DownloadPdf : Processable
+	public class DownloadPdf : Processable, IProcessable<DownloadPdf>
 	{
 		public override string Name => "Download Pdf";
 		public override bool Validate(LibraryBook libraryBook)
@@ -89,5 +89,8 @@ namespace FileLiberator
 			=> !File.Exists(actualDownloadedFilePath)
 			? new StatusHandler { "Downloaded PDF cannot be found" }
 			: new StatusHandler();
+
+		public static DownloadPdf Create(Configuration config) => new() { Configuration = config };
+		private DownloadPdf() { }
 	}
 }

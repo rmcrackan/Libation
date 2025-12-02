@@ -138,15 +138,35 @@ namespace LibationFileManager
 		protected override LongPath? GetFilePathCustom(string productId)
 			=> GetFilePathsCustom(productId).FirstOrDefault();
 
+		//GetFilePathsCustom gets called for every book during LibraryCommands.GetCounts().
+		//Cache the results for a short time to avoid excessive file system hits.
+		private DateTime lastDlInProgressEnumeration;
+		private static TimeSpan dlInProgressCacheTime = TimeSpan.FromSeconds(10);
+		private IEnumerable<LongPath>? dlInProgressFilesCache;
+
 		protected override List<LongPath> GetFilePathsCustom(string productId)
 		{
 			if (DownloadsInProgressDirectory is not LongPath dlFolder)
 				return [];
 
 			var regex = GetBookSearchRegex(productId);
-			return FileUtility
-				.SaferEnumerateFiles(dlFolder, "*.*", SearchOption.AllDirectories)
-				.Where(s => regex.IsMatch(s)).ToList();
+
+			if (DateTime.UtcNow - lastDlInProgressEnumeration > dlInProgressCacheTime)
+			{
+				dlInProgressFilesCache = null;
+			}
+
+			if (dlInProgressFilesCache is null)
+			{
+				dlInProgressFilesCache
+					= FileUtility
+					.SaferEnumerateFiles(dlFolder, "*.*", SearchOption.AllDirectories)
+					.ToArray();
+
+				lastDlInProgressEnumeration = DateTime.UtcNow;
+			}
+
+			return dlInProgressFilesCache.Where(s => regex.IsMatch(s)).ToList();
 		}
 
 		public bool Exists(string productId) => GetFilePath(productId) is not null;

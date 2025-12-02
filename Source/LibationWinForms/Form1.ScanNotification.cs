@@ -21,6 +21,7 @@ namespace LibationWinForms
 			scanLibraryOfAllAccountsToolStripMenuItem.Enabled = false;
 			scanLibraryOfSomeAccountsToolStripMenuItem.Enabled = false;
 
+			this.scanningToolStripMenuItem.Image = System.Windows.Forms.Application.IsDarkModeEnabled ? Properties.Resources.import_16x16_dark : Properties.Resources.import_16x16;
 			this.scanningToolStripMenuItem.Visible = true;
 			this.scanningToolStripMenuItem.Text
 				= (accountsLength == 1)

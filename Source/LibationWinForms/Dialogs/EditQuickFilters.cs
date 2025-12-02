@@ -55,7 +55,7 @@ namespace LibationWinForms.Dialogs
 		public EditQuickFilters()
 		{
 			InitializeComponent();
-
+			dataGridView1.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
 			dataGridView1.Columns[COL_Filter].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
 			populateGridValues();

@@ -32,13 +32,13 @@ namespace LibationAvalonia.ViewModels
 			setQueueCollapseState(collapseState);
 		}
 
-		public async void LiberateClicked(LibraryBook[] libraryBooks)
+		public async void LiberateClicked(System.Collections.Generic.IList<LibraryBook> libraryBooks, Configuration config)
 		{
 			try
 			{
-				if (ProcessQueue.QueueDownloadDecrypt(libraryBooks))
+				if (ProcessQueue.QueueDownloadDecrypt(libraryBooks, config))
 					setQueueCollapseState(false);
-				else if (libraryBooks.Length == 1 && libraryBooks[0].Book.AudioExists)
+				else if (libraryBooks.Count == 1 && libraryBooks[0].Book.AudioExists)
 				{
 					// liberated: open explorer to file
 					var filePath = AudibleFileStorage.Audio.GetPath(libraryBooks[0].Book.AudibleProductId);

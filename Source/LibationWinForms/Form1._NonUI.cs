@@ -22,7 +22,7 @@ namespace LibationWinForms
             PictureStorage.SetDefaultImage(PictureSize.Native, Properties.Resources.default_cover_500x500.ToBytes(format));
 
             BaseUtil.SetLoadImageDelegate(WinFormsUtil.TryLoadImageOrDefault);
-            BaseUtil.SetLoadResourceImageDelegate(Properties.Resources.ResourceManager.GetObject);
+            BaseUtil.SetLoadResourceImageDelegate(LoadResourceImage);
 
             // wire-up event to automatically download after scan.
             // winforms only. this should NOT be allowed in cli
@@ -34,6 +34,13 @@ namespace LibationWinForms
                 if ((libraryStats.PendingBooks + libraryStats.pdfsNotDownloaded) > 0)
 					BackupAllBooks(libraryStats.LibraryBooks);
             };
+		}
+
+		private static object LoadResourceImage(string resourceName)
+		{
+			if (Application.IsDarkModeEnabled)
+				resourceName += "_dark";
+			return Properties.Resources.ResourceManager.GetObject(resourceName);
 		}
 
 		private void AudibleApiStorage_LoadError(object sender, AccountSettingsLoadErrorEventArgs e)

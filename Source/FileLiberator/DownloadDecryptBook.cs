@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 #nullable enable
 namespace FileLiberator
 {
-	public class DownloadDecryptBook : AudioDecodable
+	public class DownloadDecryptBook : AudioDecodable, IProcessable<DownloadDecryptBook>
 	{
 		public override string Name => "Download & Decrypt";
 		private CancellationTokenSource? cancellationTokenSource;
@@ -50,8 +50,10 @@ namespace FileLiberator
 
 				var api = await libraryBook.GetApiAsync();
 
-				LicenseInfo ??= await DownloadOptions.GetDownloadLicenseAsync(api, libraryBook, Configuration.Instance, cancellationToken);
-				using var downloadOptions = DownloadOptions.BuildDownloadOptions(libraryBook, Configuration.Instance, LicenseInfo);
+				//Processable instances are reusable, so don't set LicenseInfo
+				//override from within a DownloadDecryptBook instance.
+				var license = LicenseInfo ?? await DownloadOptions.GetDownloadLicenseAsync(api, libraryBook, Configuration, cancellationToken);
+				using var downloadOptions = DownloadOptions.BuildDownloadOptions(libraryBook, Configuration, license);
 				var result = await DownloadAudiobookAsync(api, downloadOptions, cancellationToken);
 
 				if (!result.Success || getFirstAudioFile(result.ResultFiles) is not TempFile audioFile)
@@ -62,7 +64,7 @@ namespace FileLiberator
 					return new StatusHandler { "Decrypt failed" };
 				}
 
-				if (Configuration.Instance.RetainAaxFile)
+				if (Configuration.RetainAaxFile)
 				{
 					//Add the cached aaxc and key files to the entries list to be moved to the Books directory.
 					result.ResultFiles.AddRange(getAaxcFiles(result.CacheFiles));
@@ -256,7 +258,7 @@ namespace FileLiberator
 
 		private void AaxcDownloader_RetrievedCoverArt(object? sender, byte[]? e)
 		{
-			if (Configuration.Instance.AllowLibationFixup && sender is AaxcDownloadConvertBase downloader)
+			if (Configuration.AllowLibationFixup && sender is AaxcDownloadConvertBase downloader)
 			{
 				try
 				{
@@ -345,15 +347,15 @@ namespace FileLiberator
 						destinationDir,
 						entry.Extension,
 						entry.PartProperties,
-						Configuration.Instance.OverwriteExisting);
+						Configuration.OverwriteExisting);
 
 				var realDest
 					= FileUtility.SaferMoveToValidPath(
 						entry.FilePath,
 						destFileName,
-						Configuration.Instance.ReplacementCharacters,
+						Configuration.ReplacementCharacters,
 						entry.Extension,
-						Configuration.Instance.OverwriteExisting);
+						Configuration.OverwriteExisting);
 
 				#region File Move Progress
 				totalBytesMoved += new FileInfo(realDest).Length;
@@ -403,7 +405,7 @@ namespace FileLiberator
 						options.LibraryBook,
 						destinationDir,
 						extension: ".jpg",
-						returnFirstExisting: Configuration.Instance.OverwriteExisting);
+						returnFirstExisting: Configuration.OverwriteExisting);
 
 				if (File.Exists(coverPath))
 					FileUtility.SaferDelete(coverPath);
@@ -440,7 +442,7 @@ namespace FileLiberator
 						options.LibraryBook,
 						destinationDir,
 						extension: formatExtension,
-						returnFirstExisting: Configuration.Instance.OverwriteExisting);
+						returnFirstExisting: Configuration.OverwriteExisting);
 
 				if (File.Exists(recordsPath))
 					FileUtility.SaferDelete(recordsPath);
@@ -487,7 +489,7 @@ namespace FileLiberator
 						options.LibraryBook,
 						destinationDir,
 						extension: ".metadata.json",
-						returnFirstExisting: Configuration.Instance.OverwriteExisting);
+						returnFirstExisting: Configuration.OverwriteExisting);
 
 				if (File.Exists(metadataPath))
 					FileUtility.SaferDelete(metadataPath);
@@ -512,10 +514,10 @@ namespace FileLiberator
 		#endregion
 
 		#region Macros
-		private static string getDestinationDirectory(LibraryBook libraryBook)
+		private string getDestinationDirectory(LibraryBook libraryBook)
 		{
 			Serilog.Log.Verbose("Getting destination directory for {@Book}", libraryBook.LogFriendly());
-			var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook);
+			var destinationDir = AudibleFileStorage.Audio.GetDestinationDirectory(libraryBook, Configuration);
 			Serilog.Log.Verbose("Got destination directory for {@Book}. {@Directory}", libraryBook.LogFriendly(), destinationDir);
 			if (!Directory.Exists(destinationDir))
 			{
@@ -533,5 +535,8 @@ namespace FileLiberator
 		private static IEnumerable<TempFile> getAaxcFiles(IEnumerable<TempFile> entries)
 			=> entries.Where(f => File.Exists(f.FilePath) && (getFileType(f) is FileType.AAXC || f.Extension.Equals(".key", StringComparison.OrdinalIgnoreCase)));
 		#endregion
+
+		public static DownloadDecryptBook Create(Configuration config) => new() { Configuration = config };
+		private DownloadDecryptBook() { }
 	}
 }

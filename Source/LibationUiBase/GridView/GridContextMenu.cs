@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace LibationUiBase.GridView;
 
+public delegate void LiberateClickedHandler(object sender, System.Collections.Generic.IList<LibraryBook> libraryBooks, Configuration config);
 public class GridContextMenu
 {
 	public string CopyCellText => $"{Accelerator}Copy Cell Contents";
@@ -20,6 +21,7 @@ public class GridContextMenu
 	public string LocateFileDialogTitle => $"Locate the audio file for '{GridEntries[0].Book.TitleWithSubtitle}'";
 	public string LocateFileErrorMessage => "Error saving book's location";
 	public string ConvertToMp3Text => $"{Accelerator}Convert to Mp3";
+	public string DownloadAsChapters => $"Download {Accelerator}split by chapters";
 	public string ReDownloadText => "Re-download this audiobook";
 	public string DownloadSelectedText => "Download selected audiobooks";
 	public string EditTemplatesText => "Edit Templates";
@@ -33,6 +35,7 @@ public class GridContextMenu
 	public bool SetDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus != LiberatedStatus.Liberated || ge.Liberate.IsSeries);
 	public bool SetNotDownloadedEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus != LiberatedStatus.NotLiberated || ge.Liberate.IsSeries);
 	public bool ConvertToMp3Enabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
+	public bool DownloadAsChaptersEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error);
 	public bool ReDownloadEnabled => LibraryBookEntries.Any(ge => ge.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated);
 
 	private GridEntry[] GridEntries { get; }

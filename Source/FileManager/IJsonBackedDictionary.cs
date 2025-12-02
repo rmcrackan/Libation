@@ -7,6 +7,7 @@ namespace FileManager;
 
 public interface IJsonBackedDictionary
 {
+	JObject GetJObject();
 	bool Exists(string propertyName);
 	string? GetString(string propertyName, string? defaultValue = null);
 	T? GetNonString<T>(string propertyName, T? defaultValue = default);

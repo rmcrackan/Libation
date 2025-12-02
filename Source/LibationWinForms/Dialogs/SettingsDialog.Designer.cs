@@ -44,13 +44,14 @@
 			allowLibationFixupCbox = new System.Windows.Forms.CheckBox();
 			convertLossyRb = new System.Windows.Forms.RadioButton();
 			convertLosslessRb = new System.Windows.Forms.RadioButton();
-			inProgressSelectControl = new DirectorySelectControl();
 			logsBtn = new System.Windows.Forms.Button();
-			booksSelectControl = new DirectoryOrCustomSelectControl();
 			loggingLevelLbl = new System.Windows.Forms.Label();
 			loggingLevelCb = new System.Windows.Forms.ComboBox();
 			tabControl = new System.Windows.Forms.TabControl();
 			tab1ImportantSettings = new System.Windows.Forms.TabPage();
+			themeLbl = new System.Windows.Forms.Label();
+			themeCb = new System.Windows.Forms.ComboBox();
+			label22 = new System.Windows.Forms.Label();
 			groupBox1 = new System.Windows.Forms.GroupBox();
 			applyDisplaySettingsBtn = new System.Windows.Forms.Button();
 			gridScaleFactorLbl = new System.Windows.Forms.Label();
@@ -58,6 +59,7 @@
 			gridFontScaleFactorLbl = new System.Windows.Forms.Label();
 			gridFontScaleFactorTbar = new System.Windows.Forms.TrackBar();
 			booksGb = new System.Windows.Forms.GroupBox();
+			booksSelectControl = new DirectoryOrCustomSelectControl();
 			lastWriteTimeCb = new System.Windows.Forms.ComboBox();
 			creationTimeCb = new System.Windows.Forms.ComboBox();
 			lastWriteTimeLbl = new System.Windows.Forms.Label();
@@ -65,6 +67,7 @@
 			overwriteExistingCbox = new System.Windows.Forms.CheckBox();
 			saveEpisodesToSeriesFolderCbox = new System.Windows.Forms.CheckBox();
 			tab2ImportLibrary = new System.Windows.Forms.TabPage();
+			importPlusTitlesCb = new System.Windows.Forms.CheckBox();
 			autoDownloadEpisodesCb = new System.Windows.Forms.CheckBox();
 			autoScanCb = new System.Windows.Forms.CheckBox();
 			showImportedStatsCb = new System.Windows.Forms.CheckBox();
@@ -72,6 +75,7 @@
 			saveMetadataToFileCbox = new System.Windows.Forms.CheckBox();
 			useCoverAsFolderIconCb = new System.Windows.Forms.CheckBox();
 			inProgressFilesGb = new System.Windows.Forms.GroupBox();
+			inProgressSelectControl = new DirectoryOrCustomSelectControl();
 			customFileNamingGb = new System.Windows.Forms.GroupBox();
 			editCharreplacementBtn = new System.Windows.Forms.Button();
 			chapterFileTemplateBtn = new System.Windows.Forms.Button();
@@ -172,7 +176,7 @@
 			// inProgressDescLbl
 			// 
 			inProgressDescLbl.AutoSize = true;
-			inProgressDescLbl.Location = new System.Drawing.Point(7, 19);
+			inProgressDescLbl.Location = new System.Drawing.Point(7, 17);
 			inProgressDescLbl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			inProgressDescLbl.Name = "inProgressDescLbl";
 			inProgressDescLbl.Size = new System.Drawing.Size(100, 45);
@@ -182,8 +186,8 @@
 			// saveBtn
 			// 
 			saveBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-			saveBtn.Location = new System.Drawing.Point(668, 499);
-			saveBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			saveBtn.Location = new System.Drawing.Point(668, 501);
+			saveBtn.Margin = new System.Windows.Forms.Padding(4, 1, 4, 1);
 			saveBtn.Name = "saveBtn";
 			saveBtn.Size = new System.Drawing.Size(88, 27);
 			saveBtn.TabIndex = 98;
@@ -195,8 +199,8 @@
 			// 
 			cancelBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 			cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			cancelBtn.Location = new System.Drawing.Point(786, 499);
-			cancelBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			cancelBtn.Location = new System.Drawing.Point(785, 501);
+			cancelBtn.Margin = new System.Windows.Forms.Padding(1);
 			cancelBtn.Name = "cancelBtn";
 			cancelBtn.Size = new System.Drawing.Size(88, 27);
 			cancelBtn.TabIndex = 99;
@@ -217,10 +221,10 @@
 			// downloadEpisodesCb
 			// 
 			downloadEpisodesCb.AutoSize = true;
-			downloadEpisodesCb.Location = new System.Drawing.Point(6, 81);
+			downloadEpisodesCb.Location = new System.Drawing.Point(6, 106);
 			downloadEpisodesCb.Name = "downloadEpisodesCb";
 			downloadEpisodesCb.Size = new System.Drawing.Size(163, 19);
-			downloadEpisodesCb.TabIndex = 4;
+			downloadEpisodesCb.TabIndex = 5;
 			downloadEpisodesCb.Text = "[download episodes desc]";
 			downloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
@@ -341,15 +345,6 @@
 			convertLosslessRb.UseVisualStyleBackColor = true;
 			convertLosslessRb.CheckedChanged += convertFormatRb_CheckedChanged;
 			// 
-			// inProgressSelectControl
-			// 
-			inProgressSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			inProgressSelectControl.Location = new System.Drawing.Point(6, 85);
-			inProgressSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-			inProgressSelectControl.Name = "inProgressSelectControl";
-			inProgressSelectControl.Size = new System.Drawing.Size(830, 49);
-			inProgressSelectControl.TabIndex = 19;
-			// 
 			// logsBtn
 			// 
 			logsBtn.Location = new System.Drawing.Point(256, 424);
@@ -359,15 +354,6 @@
 			logsBtn.Text = "Open log folder";
 			logsBtn.UseVisualStyleBackColor = true;
 			logsBtn.Click += logsBtn_Click;
-			// 
-			// booksSelectControl
-			// 
-			booksSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			booksSelectControl.Location = new System.Drawing.Point(6, 37);
-			booksSelectControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-			booksSelectControl.Name = "booksSelectControl";
-			booksSelectControl.Size = new System.Drawing.Size(832, 102);
-			booksSelectControl.TabIndex = 2;
 			// 
 			// loggingLevelLbl
 			// 
@@ -397,12 +383,16 @@
 			tabControl.Location = new System.Drawing.Point(12, 12);
 			tabControl.Name = "tabControl";
 			tabControl.SelectedIndex = 0;
-			tabControl.Size = new System.Drawing.Size(864, 481);
+			tabControl.Size = new System.Drawing.Size(864, 485);
 			tabControl.TabIndex = 100;
 			// 
 			// tab1ImportantSettings
 			// 
 			tab1ImportantSettings.AutoScroll = true;
+			tab1ImportantSettings.BackColor = System.Drawing.SystemColors.Window;
+			tab1ImportantSettings.Controls.Add(themeLbl);
+			tab1ImportantSettings.Controls.Add(themeCb);
+			tab1ImportantSettings.Controls.Add(label22);
 			tab1ImportantSettings.Controls.Add(groupBox1);
 			tab1ImportantSettings.Controls.Add(booksGb);
 			tab1ImportantSettings.Controls.Add(logsBtn);
@@ -411,10 +401,37 @@
 			tab1ImportantSettings.Location = new System.Drawing.Point(4, 24);
 			tab1ImportantSettings.Name = "tab1ImportantSettings";
 			tab1ImportantSettings.Padding = new System.Windows.Forms.Padding(3);
-			tab1ImportantSettings.Size = new System.Drawing.Size(856, 453);
+			tab1ImportantSettings.Size = new System.Drawing.Size(856, 457);
 			tab1ImportantSettings.TabIndex = 0;
 			tab1ImportantSettings.Text = "Important settings";
-			tab1ImportantSettings.UseVisualStyleBackColor = true;
+			// 
+			// themeLbl
+			// 
+			themeLbl.AutoSize = true;
+			themeLbl.Location = new System.Drawing.Point(190, 393);
+			themeLbl.Name = "themeLbl";
+			themeLbl.Size = new System.Drawing.Size(296, 15);
+			themeLbl.TabIndex = 12;
+			themeLbl.Text = "You must restart Libation for this change to take effect.";
+			// 
+			// themeCb
+			// 
+			themeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			themeCb.FormattingEnabled = true;
+			themeCb.Location = new System.Drawing.Point(63, 390);
+			themeCb.Name = "themeCb";
+			themeCb.Size = new System.Drawing.Size(121, 23);
+			themeCb.TabIndex = 11;
+			themeCb.SelectedIndexChanged += themeCb_SelectedIndexChanged;
+			// 
+			// label22
+			// 
+			label22.AutoSize = true;
+			label22.Location = new System.Drawing.Point(4, 393);
+			label22.Name = "label22";
+			label22.Size = new System.Drawing.Size(44, 15);
+			label22.TabIndex = 10;
+			label22.Text = "Theme";
 			// 
 			// groupBox1
 			// 
@@ -434,7 +451,7 @@
 			// applyDisplaySettingsBtn
 			// 
 			applyDisplaySettingsBtn.Anchor = System.Windows.Forms.AnchorStyles.Right;
-			applyDisplaySettingsBtn.Location = new System.Drawing.Point(689, 26);
+			applyDisplaySettingsBtn.Location = new System.Drawing.Point(672, 26);
 			applyDisplaySettingsBtn.Name = "applyDisplaySettingsBtn";
 			applyDisplaySettingsBtn.Size = new System.Drawing.Size(148, 34);
 			applyDisplaySettingsBtn.TabIndex = 9;
@@ -487,13 +504,13 @@
 			// booksGb
 			// 
 			booksGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			booksGb.Controls.Add(booksSelectControl);
 			booksGb.Controls.Add(lastWriteTimeCb);
 			booksGb.Controls.Add(creationTimeCb);
 			booksGb.Controls.Add(lastWriteTimeLbl);
 			booksGb.Controls.Add(creationTimeLbl);
 			booksGb.Controls.Add(overwriteExistingCbox);
 			booksGb.Controls.Add(saveEpisodesToSeriesFolderCbox);
-			booksGb.Controls.Add(booksSelectControl);
 			booksGb.Controls.Add(booksLocationDescLbl);
 			booksGb.Location = new System.Drawing.Point(6, 6);
 			booksGb.Name = "booksGb";
@@ -501,6 +518,14 @@
 			booksGb.TabIndex = 0;
 			booksGb.TabStop = false;
 			booksGb.Text = "Books location";
+			// 
+			// booksSelectControl
+			// 
+			booksSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			booksSelectControl.Location = new System.Drawing.Point(8, 37);
+			booksSelectControl.Name = "booksSelectControl";
+			booksSelectControl.Size = new System.Drawing.Size(830, 80);
+			booksSelectControl.TabIndex = 6;
 			// 
 			// lastWriteTimeCb
 			// 
@@ -563,6 +588,8 @@
 			// tab2ImportLibrary
 			// 
 			tab2ImportLibrary.AutoScroll = true;
+			tab2ImportLibrary.BackColor = System.Drawing.SystemColors.Window;
+			tab2ImportLibrary.Controls.Add(importPlusTitlesCb);
 			tab2ImportLibrary.Controls.Add(autoDownloadEpisodesCb);
 			tab2ImportLibrary.Controls.Add(autoScanCb);
 			tab2ImportLibrary.Controls.Add(showImportedStatsCb);
@@ -571,18 +598,27 @@
 			tab2ImportLibrary.Location = new System.Drawing.Point(4, 24);
 			tab2ImportLibrary.Name = "tab2ImportLibrary";
 			tab2ImportLibrary.Padding = new System.Windows.Forms.Padding(3);
-			tab2ImportLibrary.Size = new System.Drawing.Size(856, 453);
+			tab2ImportLibrary.Size = new System.Drawing.Size(856, 457);
 			tab2ImportLibrary.TabIndex = 1;
 			tab2ImportLibrary.Text = "Import library";
-			tab2ImportLibrary.UseVisualStyleBackColor = true;
+			// 
+			// importPlusTitlesCb
+			// 
+			importPlusTitlesCb.AutoSize = true;
+			importPlusTitlesCb.Location = new System.Drawing.Point(6, 81);
+			importPlusTitlesCb.Name = "importPlusTitlesCb";
+			importPlusTitlesCb.Size = new System.Drawing.Size(199, 19);
+			importPlusTitlesCb.TabIndex = 4;
+			importPlusTitlesCb.Text = "[import audible plus books desc]";
+			importPlusTitlesCb.UseVisualStyleBackColor = true;
 			// 
 			// autoDownloadEpisodesCb
 			// 
 			autoDownloadEpisodesCb.AutoSize = true;
-			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 106);
+			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 131);
 			autoDownloadEpisodesCb.Name = "autoDownloadEpisodesCb";
 			autoDownloadEpisodesCb.Size = new System.Drawing.Size(190, 19);
-			autoDownloadEpisodesCb.TabIndex = 5;
+			autoDownloadEpisodesCb.TabIndex = 6;
 			autoDownloadEpisodesCb.Text = "[auto download episodes desc]";
 			autoDownloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
@@ -609,6 +645,7 @@
 			// tab3DownloadDecrypt
 			// 
 			tab3DownloadDecrypt.AutoScroll = true;
+			tab3DownloadDecrypt.BackColor = System.Drawing.SystemColors.Window;
 			tab3DownloadDecrypt.Controls.Add(saveMetadataToFileCbox);
 			tab3DownloadDecrypt.Controls.Add(useCoverAsFolderIconCb);
 			tab3DownloadDecrypt.Controls.Add(inProgressFilesGb);
@@ -617,15 +654,15 @@
 			tab3DownloadDecrypt.Location = new System.Drawing.Point(4, 24);
 			tab3DownloadDecrypt.Name = "tab3DownloadDecrypt";
 			tab3DownloadDecrypt.Padding = new System.Windows.Forms.Padding(3);
-			tab3DownloadDecrypt.Size = new System.Drawing.Size(856, 453);
+			tab3DownloadDecrypt.Size = new System.Drawing.Size(856, 457);
 			tab3DownloadDecrypt.TabIndex = 2;
 			tab3DownloadDecrypt.Text = "Download/Decrypt";
-			tab3DownloadDecrypt.UseVisualStyleBackColor = true;
 			// 
 			// saveMetadataToFileCbox
 			// 
+			saveMetadataToFileCbox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
 			saveMetadataToFileCbox.AutoSize = true;
-			saveMetadataToFileCbox.Location = new System.Drawing.Point(482, 428);
+			saveMetadataToFileCbox.Location = new System.Drawing.Point(481, 435);
 			saveMetadataToFileCbox.Name = "saveMetadataToFileCbox";
 			saveMetadataToFileCbox.Size = new System.Drawing.Size(166, 19);
 			saveMetadataToFileCbox.TabIndex = 22;
@@ -634,8 +671,9 @@
 			// 
 			// useCoverAsFolderIconCb
 			// 
+			useCoverAsFolderIconCb.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
 			useCoverAsFolderIconCb.AutoSize = true;
-			useCoverAsFolderIconCb.Location = new System.Drawing.Point(7, 428);
+			useCoverAsFolderIconCb.Location = new System.Drawing.Point(6, 435);
 			useCoverAsFolderIconCb.Name = "useCoverAsFolderIconCb";
 			useCoverAsFolderIconCb.Size = new System.Drawing.Size(180, 19);
 			useCoverAsFolderIconCb.TabIndex = 22;
@@ -644,15 +682,23 @@
 			// 
 			// inProgressFilesGb
 			// 
-			inProgressFilesGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-			inProgressFilesGb.Controls.Add(inProgressDescLbl);
+			inProgressFilesGb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			inProgressFilesGb.Controls.Add(inProgressSelectControl);
+			inProgressFilesGb.Controls.Add(inProgressDescLbl);
 			inProgressFilesGb.Location = new System.Drawing.Point(6, 281);
 			inProgressFilesGb.Name = "inProgressFilesGb";
-			inProgressFilesGb.Size = new System.Drawing.Size(842, 141);
+			inProgressFilesGb.Size = new System.Drawing.Size(842, 148);
 			inProgressFilesGb.TabIndex = 21;
 			inProgressFilesGb.TabStop = false;
 			inProgressFilesGb.Text = "In progress files";
+			// 
+			// inProgressSelectControl
+			// 
+			inProgressSelectControl.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+			inProgressSelectControl.Location = new System.Drawing.Point(6, 65);
+			inProgressSelectControl.Name = "inProgressSelectControl";
+			inProgressSelectControl.Size = new System.Drawing.Size(830, 80);
+			inProgressSelectControl.TabIndex = 19;
 			// 
 			// customFileNamingGb
 			// 
@@ -775,6 +821,7 @@
 			// tab4AudioFileOptions
 			// 
 			tab4AudioFileOptions.AutoScroll = true;
+			tab4AudioFileOptions.BackColor = System.Drawing.SystemColors.Window;
 			tab4AudioFileOptions.Controls.Add(request_xHE_AAC_Cbox);
 			tab4AudioFileOptions.Controls.Add(requestSpatialCbox);
 			tab4AudioFileOptions.Controls.Add(useWidevineCbox);
@@ -798,10 +845,9 @@
 			tab4AudioFileOptions.Location = new System.Drawing.Point(4, 24);
 			tab4AudioFileOptions.Name = "tab4AudioFileOptions";
 			tab4AudioFileOptions.Padding = new System.Windows.Forms.Padding(3);
-			tab4AudioFileOptions.Size = new System.Drawing.Size(856, 453);
+			tab4AudioFileOptions.Size = new System.Drawing.Size(856, 457);
 			tab4AudioFileOptions.TabIndex = 3;
 			tab4AudioFileOptions.Text = "Audio File Options";
-			tab4AudioFileOptions.UseVisualStyleBackColor = true;
 			// 
 			// request_xHE_AAC_Cbox
 			// 
@@ -1183,6 +1229,7 @@
 			// 
 			label19.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label19.AutoSize = true;
+			label19.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label19.Location = new System.Drawing.Point(332, 47);
 			label19.Name = "label19";
 			label19.Size = new System.Drawing.Size(20, 15);
@@ -1193,6 +1240,7 @@
 			// 
 			label18.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label18.AutoSize = true;
+			label18.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label18.Location = new System.Drawing.Point(291, 47);
 			label18.Name = "label18";
 			label18.Size = new System.Drawing.Size(20, 15);
@@ -1203,6 +1251,7 @@
 			// 
 			label17.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label17.AutoSize = true;
+			label17.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label17.Location = new System.Drawing.Point(251, 47);
 			label17.Name = "label17";
 			label17.Size = new System.Drawing.Size(20, 15);
@@ -1213,6 +1262,7 @@
 			// 
 			label16.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label16.AutoSize = true;
+			label16.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label16.Location = new System.Drawing.Point(212, 47);
 			label16.Name = "label16";
 			label16.Size = new System.Drawing.Size(20, 15);
@@ -1223,6 +1273,7 @@
 			// 
 			label12.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label12.AutoSize = true;
+			label12.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label12.Location = new System.Drawing.Point(170, 47);
 			label12.Name = "label12";
 			label12.Size = new System.Drawing.Size(20, 15);
@@ -1233,6 +1284,7 @@
 			// 
 			label15.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label15.AutoSize = true;
+			label15.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label15.Location = new System.Drawing.Point(130, 47);
 			label15.Name = "label15";
 			label15.Size = new System.Drawing.Size(20, 15);
@@ -1243,6 +1295,7 @@
 			// 
 			label9.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label9.AutoSize = true;
+			label9.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label9.Location = new System.Drawing.Point(89, 47);
 			label9.Name = "label9";
 			label9.Size = new System.Drawing.Size(20, 15);
@@ -1253,6 +1306,7 @@
 			// 
 			label8.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label8.AutoSize = true;
+			label8.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label8.Location = new System.Drawing.Point(371, 47);
 			label8.Name = "label8";
 			label8.Size = new System.Drawing.Size(20, 15);
@@ -1281,6 +1335,7 @@
 			// 
 			label14.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label14.AutoSize = true;
+			label14.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label14.Location = new System.Drawing.Point(50, 47);
 			label14.Name = "label14";
 			label14.Size = new System.Drawing.Size(20, 15);
@@ -1291,6 +1346,7 @@
 			// 
 			label2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
 			label2.AutoSize = true;
+			label2.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			label2.Location = new System.Drawing.Point(10, 47);
 			label2.Name = "label2";
 			label2.Size = new System.Drawing.Size(20, 15);
@@ -1464,8 +1520,6 @@
 		public System.Windows.Forms.Button saveBtn;
 		public System.Windows.Forms.Button cancelBtn;
 		private System.Windows.Forms.CheckBox allowLibationFixupCbox;
-		private DirectoryOrCustomSelectControl booksSelectControl;
-		private DirectorySelectControl inProgressSelectControl;
 		private System.Windows.Forms.RadioButton convertLossyRb;
 		private System.Windows.Forms.RadioButton convertLosslessRb;
 		private System.Windows.Forms.Button logsBtn;
@@ -1568,5 +1622,11 @@
 		private System.Windows.Forms.CheckBox useWidevineCbox;
 		private System.Windows.Forms.CheckBox requestSpatialCbox;
 		private System.Windows.Forms.CheckBox request_xHE_AAC_Cbox;
+		private DirectoryOrCustomSelectControl inProgressSelectControl;
+		private DirectoryOrCustomSelectControl booksSelectControl;
+		private System.Windows.Forms.Label label22;
+		private System.Windows.Forms.ComboBox themeCb;
+		private System.Windows.Forms.Label themeLbl;
+		private System.Windows.Forms.CheckBox importPlusTitlesCb;
 	}
 }

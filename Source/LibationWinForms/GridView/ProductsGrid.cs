@@ -53,6 +53,7 @@ namespace LibationWinForms.GridView
 			setGridScale(Configuration.Instance.GridScaleFactor);
 			Configuration.Instance.PropertyChanged += Configuration_ScaleChanged;
 			Configuration.Instance.PropertyChanged += Configuration_FontScaleChanged;
+			gridEntryDataGridView.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
 
 			gridEntryDataGridView.Disposed += (_, _) =>
 			{

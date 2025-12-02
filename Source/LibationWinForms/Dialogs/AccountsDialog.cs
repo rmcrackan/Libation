@@ -20,7 +20,7 @@ namespace LibationWinForms.Dialogs
 		public AccountsDialog()
 		{
 			InitializeComponent();
-
+			dataGridView1.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
 			dataGridView1.Columns[COL_AccountName].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
 			populateDropDown();
@@ -299,5 +299,55 @@ namespace LibationWinForms.Dialogs
 						ex);
 			}
 		}
+		#region Accessable Columns
+
+		public class DeleteColumn : DataGridViewButtonColumn
+		{
+			public DeleteColumn() : base()
+			{
+				this.CellTemplate = new DeleteColumnCell();
+			}
+		}
+
+		public class ExportColumn : DataGridViewButtonColumn
+		{
+			public ExportColumn() : base()
+			{
+				this.CellTemplate = new ExportColumnCell();
+			}
+		}
+
+		public class LocaleColumn : DataGridViewComboBoxColumn
+		{
+			public LocaleColumn() : base()
+			{
+				this.CellTemplate = new LocaleColumnCell();
+			}
+		}
+
+		public class DeleteColumnCell : AccessibleDataGridViewButtonCell
+		{
+			public DeleteColumnCell() : base("Delete account from Libation")
+			{
+				ToolTipText = AccessibilityName;
+			}
+		}
+
+		public class LocaleColumnCell : AccessibleDataGridViewComboBoxCell
+		{
+			public LocaleColumnCell() : base("Select Audible account region")
+			{
+				ToolTipText = AccessibilityName;
+			}
+		}
+
+		public class ExportColumnCell : AccessibleDataGridViewButtonCell
+		{
+			public ExportColumnCell() : base("Export account to mkb79/audible-cli format")
+			{
+				ToolTipText = AccessibilityName;
+			}
+		}
+		#endregion
 	}
 }

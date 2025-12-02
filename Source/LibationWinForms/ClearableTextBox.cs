@@ -18,6 +18,18 @@ namespace LibationWinForms
 			}
 		}
 
+		public int SelectionStart
+		{
+			get => textBox1.SelectionStart;
+			set => textBox1.SelectionStart = value;
+		}
+
+		protected override void OnGotFocus(EventArgs e)
+		{
+			base.OnGotFocus(e);
+			textBox1.Focus();
+		}
+
 		public ClearableTextBox()
 		{
 			InitializeComponent();

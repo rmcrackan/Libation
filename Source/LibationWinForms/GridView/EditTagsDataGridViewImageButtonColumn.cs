@@ -23,7 +23,7 @@ namespace LibationWinForms.GridView
     {
         public EditTagsDataGridViewImageButtonCell() : base("Edit Tags button") { }
 
-        private static Image ButtonImage { get; } = Properties.Resources.edit_25x25;
+        private static Image ButtonImage => Application.IsDarkModeEnabled ? Properties.Resources.edit_25x25_dark : Properties.Resources.edit_25x25;
 
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object value, object formattedValue, string errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{

@@ -10,6 +10,7 @@ using Dinah.Core;
 using Polly;
 using Polly.Retry;
 using System.Threading;
+using LibationFileManager;
 
 #nullable enable
 namespace AudibleUtilities
@@ -72,16 +73,16 @@ namespace AudibleUtilities
 			// 2 retries == 3 total
 			.RetryAsync(2);
 
-		public Task<List<Item>> GetLibraryValidatedAsync(LibraryOptions libraryOptions, bool importEpisodes = true)
+		public Task<List<Item>> GetLibraryValidatedAsync(LibraryOptions libraryOptions)
 		{
 			// bug on audible's side. the 1st time after a long absence, a query to get library will return without titles or authors. a subsequent identical query will be successful. this is true whether or not tokens are refreshed
 			// worse, this 1st dummy call doesn't seem to help:
 			//    var page = await api.GetLibraryAsync(new AudibleApi.LibraryOptions { NumberOfResultPerPage = 1, PageNumber = 1, PurchasedAfter = DateTime.Now.AddYears(-20), ResponseGroups = AudibleApi.LibraryOptions.ResponseGroupOptions.ALL_OPTIONS });
 			// i don't want to incur the cost of making a full dummy call every time because it fails sometimes
-			return policy.ExecuteAsync(() => getItemsAsync(libraryOptions, importEpisodes));
+			return policy.ExecuteAsync(() => getItemsAsync(libraryOptions));
 		}
 
-		private async Task<List<Item>> getItemsAsync(LibraryOptions libraryOptions, bool importEpisodes)
+		private async Task<List<Item>> getItemsAsync(LibraryOptions libraryOptions)
 		{
 			Serilog.Log.Logger.Debug("Beginning library scan.");
 
@@ -95,12 +96,12 @@ namespace AudibleUtilities
 
 			//Scan the library for all added books.
 			//Get relationship asins from episode-type items and write them to episodeChannel where they will be batched and queried.
-			await foreach (var item in Api.GetLibraryItemsPagesAsync(libraryOptions, BatchSize, semaphore))
+			await foreach (var itemsBatch in Api.GetLibraryItemsPagesAsync(libraryOptions, BatchSize, semaphore))
 			{
-				if (importEpisodes)
+				if (Configuration.Instance.ImportEpisodes)
 				{
-					var episodes = item.Where(i => i.IsEpisodes).ToList();
-					var series = item.Where(i => i.IsSeriesParent).ToList();
+					var episodes = itemsBatch.Where(i => i.IsEpisodes).ToList();
+					var series = itemsBatch.Where(i => i.IsSeriesParent).ToList();
 
 					var parentAsins = episodes
 						.SelectMany(i => i.Relationships)
@@ -119,7 +120,11 @@ namespace AudibleUtilities
 					items.AddRange(series);
 				}
 
-				items.AddRange(item.Where(i => !i.IsSeriesParent && !i.IsEpisodes));
+				var booksInBatch
+					= itemsBatch
+					.Where(i => !i.IsSeriesParent && !i.IsEpisodes)
+					.Where(i => i.IsAyce is not true || Configuration.Instance.ImportPlusTitles);
+				items.AddRange(booksInBatch);
 			}
 
 			sw.Stop();

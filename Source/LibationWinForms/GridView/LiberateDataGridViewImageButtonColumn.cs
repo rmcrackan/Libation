@@ -23,6 +23,8 @@ namespace LibationWinForms.GridView
         private static readonly Brush DISABLED_GRAY = new SolidBrush(Color.FromArgb(0x60, Color.LightGray));
 		private static readonly Color HiddenForeColor = Color.LightGray;
 		private static readonly Color SERIES_BG_COLOR = Color.FromArgb(230, 255, 230);
+		private static readonly Color SERIES_BG_COLOR_DARK = Color.FromArgb(76, 82, 93);
+		private static Color SeriesBgColor => Application.IsDarkModeEnabled ? SERIES_BG_COLOR_DARK:SERIES_BG_COLOR;
 
 		protected override void Paint(Graphics graphics, Rectangle clipBounds, Rectangle cellBounds, int rowIndex, DataGridViewElementStates elementState, object? value, object? formattedValue, string? errorText, DataGridViewCellStyle cellStyle, DataGridViewAdvancedBorderStyle advancedBorderStyle, DataGridViewPaintParts paintParts)
 		{
@@ -32,7 +34,7 @@ namespace LibationWinForms.GridView
 					//Don't paint the button graphic
 					paintParts ^= DataGridViewPaintParts.ContentBackground | DataGridViewPaintParts.ContentForeground | DataGridViewPaintParts.SelectionBackground;
 
-				row.DefaultCellStyle.BackColor = status.IsEpisode ? SERIES_BG_COLOR : grid.DefaultCellStyle.BackColor;
+				row.DefaultCellStyle.BackColor = status.IsEpisode ? SeriesBgColor : grid.DefaultCellStyle.BackColor;
 				row.DefaultCellStyle.ForeColor = status.Opacity == 1 ? grid.DefaultCellStyle.ForeColor : HiddenForeColor;
 				base.Paint(graphics, clipBounds, cellBounds, rowIndex, elementState, null, null, null, cellStyle, advancedBorderStyle, paintParts);
 

@@ -136,12 +136,12 @@ public class App : Application
 
 	[PropertyChangeFilter(nameof(ThemeVariant))]
 	private static void ThemeVariant_PropertyChanged(object sender, PropertyChangedEventArgsEx e)
-		=> OpenAndApplyTheme(e.NewValue as string);
+		=> OpenAndApplyTheme(e.NewValue as Configuration.Theme? ?? Configuration.Theme.System);
 
 	private static void OnActualThemeVariantChanged(object? sender, EventArgs e)
-		=> OpenAndApplyTheme(Configuration.Instance.GetString(propertyName: nameof(ThemeVariant)));
+		=> OpenAndApplyTheme(Configuration.Instance.ThemeVariant);
 
-	private static void OpenAndApplyTheme(string? themeVariant)
+	private static void OpenAndApplyTheme(Configuration.Theme themeVariant)
 	{
 		using ChardonnayThemePersister? themePersister = ChardonnayThemePersister.Create();
 		themePersister?.Target.ApplyTheme(themeVariant);

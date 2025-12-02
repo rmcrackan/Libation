@@ -84,7 +84,7 @@
 			label3.Location = new System.Drawing.Point(4, 18);
 			label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			label3.Name = "label3";
-			label3.Size = new System.Drawing.Size(218, 120);
+			label3.Size = new System.Drawing.Size(218, 150);
 			label3.TabIndex = 2;
 			label3.Text = resources.GetString("label3.Text");
 			// 
@@ -155,6 +155,7 @@
 			lboxIdFields.Name = "lboxIdFields";
 			lboxIdFields.Size = new System.Drawing.Size(220, 305);
 			lboxIdFields.TabIndex = 0;
+			lboxIdFields.DoubleClick += lboxFields_DoubleClick;
 			// 
 			// label9
 			// 
@@ -194,6 +195,7 @@
 			lboxBoolFields.Name = "lboxBoolFields";
 			lboxBoolFields.Size = new System.Drawing.Size(220, 365);
 			lboxBoolFields.TabIndex = 0;
+			lboxBoolFields.DoubleClick += lboxFields_DoubleClick;
 			// 
 			// label8
 			// 
@@ -229,10 +231,11 @@
 			// 
 			lboxNumberFields.Dock = System.Windows.Forms.DockStyle.Fill;
 			lboxNumberFields.FormattingEnabled = true;
-			lboxNumberFields.Location = new System.Drawing.Point(3, 141);
+			lboxNumberFields.Location = new System.Drawing.Point(3, 171);
 			lboxNumberFields.Name = "lboxNumberFields";
-			lboxNumberFields.Size = new System.Drawing.Size(220, 275);
+			lboxNumberFields.Size = new System.Drawing.Size(220, 245);
 			lboxNumberFields.TabIndex = 0;
+			lboxNumberFields.DoubleClick += lboxFields_DoubleClick;
 			// 
 			// label7
 			// 
@@ -272,6 +275,7 @@
 			lboxStringFields.Name = "lboxStringFields";
 			lboxStringFields.Size = new System.Drawing.Size(220, 350);
 			lboxStringFields.TabIndex = 0;
+			lboxStringFields.DoubleClick += lboxFields_DoubleClick;
 			// 
 			// label6
 			// 

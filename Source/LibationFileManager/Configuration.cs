@@ -32,7 +32,14 @@ namespace LibationFileManager
 		}
 		private static readonly Configuration s_SingletonInstance = new();
 		public static Configuration Instance { get; private set; } = s_SingletonInstance;
+		public bool IsEphemeralInstance => JsonBackedDictionary is EphemeralDictionary;
 
+		public Configuration CreateEphemeralCopy()
+		{
+			var copy = new Configuration();
+			copy.LoadEphemeralSettings(Settings.GetJObject());
+			return copy;
+		}
 
 		private Configuration() { }
 		#endregion

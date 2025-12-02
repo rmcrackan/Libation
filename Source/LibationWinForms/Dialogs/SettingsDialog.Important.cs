@@ -1,4 +1,6 @@
 ﻿using Dinah.Core;
+using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Office2013.Theme;
 using FileManager;
 using LibationFileManager;
 using LibationUiBase;
@@ -19,6 +21,8 @@ namespace LibationWinForms.Dialogs
 			else
 				Go.To.Folder(Configuration.Instance.LibationFiles.Location.ShortPathName);
 		}
+		private Configuration.Theme themeVariant;
+		private Configuration.Theme initialThemeVariant;
 
 		private void Load_Important(Configuration config)
 		{
@@ -44,6 +48,10 @@ namespace LibationWinForms.Dialogs
 			creationTimeCb.SelectedItem = dateTimeSources.SingleOrDefault(v => v.Value == config.CreationTime) ?? dateTimeSources[0];
 			lastWriteTimeCb.SelectedItem = dateTimeSources.SingleOrDefault(v => v.Value == config.LastWriteTime) ?? dateTimeSources[0];
 
+			themeVariant = initialThemeVariant = config.ThemeVariant;
+			var themes = Enum.GetValues<Configuration.Theme>().Select(v => new EnumDisplay<Configuration.Theme>(v)).ToArray();
+			themeCb.Items.AddRange(themes);
+			themeCb.SelectedItem = themes.SingleOrDefault(v => v.Value == themeVariant) ?? themes[0];
 
 			booksSelectControl.SetSearchTitle("books location");
 			booksSelectControl.SetDirectoryItems(
@@ -110,6 +118,7 @@ namespace LibationWinForms.Dialogs
 
 			config.CreationTime = (creationTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;
 			config.LastWriteTime = (lastWriteTimeCb.SelectedItem as EnumDisplay<Configuration.DateTimeSource>)?.Value ?? Configuration.DateTimeSource.File;
+			config.ThemeVariant = (themeCb.SelectedItem as EnumDisplay<Configuration.Theme>)?.Value ?? Configuration.Theme.System;
 			return true;
 		}
 
@@ -122,6 +131,16 @@ namespace LibationWinForms.Dialogs
 		{
 			config.GridFontScaleFactor = linearRangeToScaleFactor(gridFontScaleFactorTbar.Value);
 			config.GridScaleFactor = linearRangeToScaleFactor(gridScaleFactorTbar.Value);
+		}
+
+		private void themeCb_SelectedIndexChanged(object? sender, EventArgs e)
+		{
+			var selected = themeCb.SelectedItem as EnumDisplay<Configuration.Theme>;
+			if (selected != null)
+			{
+				themeVariant = selected.Value;
+				themeLbl.Visible = themeVariant != initialThemeVariant;
+			}
 		}
 	}
 }

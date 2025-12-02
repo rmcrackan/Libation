@@ -154,6 +154,9 @@ namespace LibationFileManager
 			set => SetString(value);
 		}
 
+		[Description("Libation's display color theme")]
+		public Theme ThemeVariant { get => GetNonString(defaultValue: Theme.System); set => SetNonString(value); }
+
 		[Description("Allow Libation to fix up audiobook metadata")]
 		public bool AllowLibationFixup { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
@@ -262,6 +265,14 @@ namespace LibationFileManager
 		}
 
 		[JsonConverter(typeof(StringEnumConverter))]
+		public enum Theme
+		{
+			System = 0,
+			Light = 1,
+			Dark = 2
+		}
+
+		[JsonConverter(typeof(StringEnumConverter))]
 		public enum DateTimeSource
 		{
 			[Description("File creation date/time")]
@@ -318,6 +329,9 @@ namespace LibationFileManager
 
 		[Description("Import episodes? (eg: podcasts) When unchecked, episodes will not be imported into Libation.")]
 		public bool ImportEpisodes { get => GetNonString(defaultValue: true); set => SetNonString(value); }
+
+		[Description("Import Audible Plus books (books you do not own)? When unchecked, Audible Plus books will not be imported into Libation.")]
+		public bool ImportPlusTitles { get => GetNonString(defaultValue: true); set => SetNonString(value); }
 
 		[Description("Download episodes? (eg: podcasts). When unchecked, episodes already in Libation will not be downloaded.")]
 		public bool DownloadEpisodes { get => GetNonString(defaultValue: true); set => SetNonString(value); }

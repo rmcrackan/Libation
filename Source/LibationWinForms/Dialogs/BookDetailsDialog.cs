@@ -20,26 +20,34 @@ namespace LibationWinForms.Dialogs
 		public LiberatedStatus BookLiberatedStatus { get; private set; }
 		public LiberatedStatus? PdfLiberatedStatus { get; private set; }
 
-		private LibraryBook _libraryBook { get; }
-		private Book Book => _libraryBook.Book;
+		private Book Book => LibraryBook.Book;
 
 		public BookDetailsDialog()
 		{
 			InitializeComponent();
 			this.SetLibationIcon();
+			audibleLink.SetLinkLabelColors();
 		}
-		public BookDetailsDialog(LibraryBook libraryBook) : this()
+
+		public LibraryBook LibraryBook
 		{
-			_libraryBook = ArgumentValidator.EnsureNotNull(libraryBook, nameof(libraryBook));
-			initDetails();
-			initTags();
-			initLiberated();
+			get => field;
+			set
+			{
+				field = value;
+				initDetails();
+				initTags();
+				initLiberated();
+			}
 		}
+
 		// 1st draft: lazily cribbed from GridEntry.ctor()
 		private void initDetails()
 		{
+			audibleLink.LinkVisited = false;
 			this.Text = Book.TitleWithSubtitle;
 			dolbyAtmosPb.Visible = Book.IsSpatial;
+			dolbyAtmosPb.Image = Application.IsDarkModeEnabled ? Properties.Resources.Dolby_Atmos_Vertical_80_dark : Properties.Resources.Dolby_Atmos_Vertical_80;
 
 			(_, var picture) = PictureStorage.GetPicture(new PictureDefinition(Book.PictureId, PictureSize._80x80));
 			this.coverPb.Image = WinFormsUtil.TryLoadImageOrDefault(picture, PictureSize._80x80);
@@ -51,7 +59,7 @@ namespace LibationWinForms.Dialogs
 			Narrator(s): {Book.NarratorNames}
 			Length: {(Book.LengthInMinutes == 0 ? "" : $"{Book.LengthInMinutes / 60} hr {Book.LengthInMinutes % 60} min")}
 			Category: {string.Join(", ", Book.LowestCategoryNames())}
-			Purchase Date: {_libraryBook.DateAdded:d}
+			Purchase Date: {LibraryBook.DateAdded:d}
 			Language: {Book.Language}
 			Audible ID: {Book.AudibleProductId}
 			""";
@@ -135,9 +143,10 @@ namespace LibationWinForms.Dialogs
 
         private void audibleLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-			var locale = AudibleApi.Localization.Get(_libraryBook.Book.Locale);
+			var locale = AudibleApi.Localization.Get(Book.Locale);
 			var link = $"https://www.audible.{locale.TopDomain}/pd/{Book.AudibleProductId}";
 			Go.To.Url(link);
+			e.Link.Visited = true;
 		}
     }
 }

@@ -30,6 +30,10 @@
 			<TextBlock Text="{CompiledBinding ImportEpisodesText}" />
 		</CheckBox>
 
+		<CheckBox IsChecked="{CompiledBinding ImportPlusTitles, Mode=TwoWay}">
+			<TextBlock Text="{CompiledBinding ImportPlusTitlesText}" />
+		</CheckBox>
+
 		<CheckBox IsChecked="{CompiledBinding DownloadEpisodes, Mode=TwoWay}">
 			<TextBlock Text="{CompiledBinding DownloadEpisodesText}" />
 		</CheckBox>

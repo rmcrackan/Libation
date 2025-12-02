@@ -13,7 +13,7 @@ using LibationFileManager;
 
 namespace FileLiberator
 {
-	public class ConvertToMp3 : AudioDecodable
+	public class ConvertToMp3 : AudioDecodable, IProcessable<ConvertToMp3>
 	{
 		public override string Name => "Convert to Mp3";
 		private Mp4Operation Mp4Operation;
@@ -72,15 +72,14 @@ namespace FileLiberator
 					OnNarratorsDiscovered(m4bBook.AppleTags.Narrator);
 					OnCoverImageDiscovered(m4bBook.AppleTags.Cover);
 
-					var config = Configuration.Instance;
-					var lameConfig = DownloadOptions.GetLameOptions(config);
+					var lameConfig = DownloadOptions.GetLameOptions(Configuration);
 					var chapters = m4bBook.GetChaptersFromMetadata();
 					//Finishing configuring lame encoder.
 					AaxDecrypter.MpegUtil.ConfigureLameOptions(
 						m4bBook,
 						lameConfig,
-						config.LameDownsampleMono,
-						config.LameMatchSourceBR,
+						Configuration.LameDownsampleMono,
+						Configuration.LameMatchSourceBR,
 						chapters);
 
 					if (m4bBook.AppleTags.Tracks is (int trackNum, int trackCount))
@@ -108,9 +107,9 @@ namespace FileLiberator
 								= FileUtility.SaferMoveToValidPath(
 									tempPath,
 									entry.proposedMp3Path,
-									Configuration.Instance.ReplacementCharacters,
+									Configuration.ReplacementCharacters,
 									extension: "mp3",
-									Configuration.Instance.OverwriteExisting);
+									Configuration.OverwriteExisting);
 
 						SetFileTime(libraryBook, realMp3Path);
 						SetDirectoryTime(libraryBook, Path.GetDirectoryName(realMp3Path));
@@ -169,5 +168,7 @@ namespace FileLiberator
 					TotalBytesToReceive = totalInputSize
 				});
 		}
+		public static ConvertToMp3 Create(Configuration config) => new() { Configuration = config };
+		private ConvertToMp3() { }
 	}
 }

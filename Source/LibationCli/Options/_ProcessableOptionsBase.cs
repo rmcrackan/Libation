@@ -18,10 +18,10 @@ namespace LibationCli
 		public IEnumerable<string>? Asins { get; set; }
 
 		protected static TProcessable CreateProcessable<TProcessable>(EventHandler<LibraryBook>? completedAction = null)
-			where TProcessable : Processable, new()
+			where TProcessable : Processable, IProcessable<TProcessable>
 		{
 			var progressBar = new ConsoleProgressBar(Console.Out);
-			var strProc = new TProcessable();
+			var strProc = TProcessable.Create(Configuration.Instance);
 			LibraryBook? currentLibraryBook = null;
 
 			strProc.Begin += (o, e) =>

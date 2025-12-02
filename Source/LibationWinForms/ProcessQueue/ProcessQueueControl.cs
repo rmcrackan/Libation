@@ -31,7 +31,11 @@ internal partial class ProcessQueueControl : UserControl
 
 		virtualFlowControl2.ButtonClicked += VirtualFlowControl2_ButtonClicked;
 		virtualFlowControl2.DataContext = ViewModel.Queue;
+		queueNumberLbl.Image = Application.IsDarkModeEnabled ? Properties.Resources.queue_queued_dark : Properties.Resources.queue_queued;
+		errorNumberLbl.Image = Application.IsDarkModeEnabled ? Properties.Resources.queue_error_dark : Properties.Resources.queue_error;
+		completedNumberLbl.Image = Application.IsDarkModeEnabled ? Properties.Resources.queue_completed_dark : Properties.Resources.queue_completed;
 
+		logDGV.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
 		ViewModel.PropertyChanged += ProcessQueue_PropertyChanged;
 		ViewModel.LogEntries.CollectionChanged += LogEntries_CollectionChanged;
 		ProcessQueue_PropertyChanged(this, new PropertyChangedEventArgs(null));
