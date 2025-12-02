@@ -49,6 +49,7 @@
 			loggingLevelCb = new System.Windows.Forms.ComboBox();
 			tabControl = new System.Windows.Forms.TabControl();
 			tab1ImportantSettings = new System.Windows.Forms.TabPage();
+			themeLbl = new System.Windows.Forms.Label();
 			themeCb = new System.Windows.Forms.ComboBox();
 			label22 = new System.Windows.Forms.Label();
 			groupBox1 = new System.Windows.Forms.GroupBox();
@@ -66,6 +67,7 @@
 			overwriteExistingCbox = new System.Windows.Forms.CheckBox();
 			saveEpisodesToSeriesFolderCbox = new System.Windows.Forms.CheckBox();
 			tab2ImportLibrary = new System.Windows.Forms.TabPage();
+			importPlusTitlesCb = new System.Windows.Forms.CheckBox();
 			autoDownloadEpisodesCb = new System.Windows.Forms.CheckBox();
 			autoScanCb = new System.Windows.Forms.CheckBox();
 			showImportedStatsCb = new System.Windows.Forms.CheckBox();
@@ -139,7 +141,6 @@
 			retainAaxFileCbox = new System.Windows.Forms.CheckBox();
 			downloadCoverArtCbox = new System.Windows.Forms.CheckBox();
 			createCueSheetCbox = new System.Windows.Forms.CheckBox();
-			themeLbl = new System.Windows.Forms.Label();
 			badBookGb.SuspendLayout();
 			tabControl.SuspendLayout();
 			tab1ImportantSettings.SuspendLayout();
@@ -220,10 +221,10 @@
 			// downloadEpisodesCb
 			// 
 			downloadEpisodesCb.AutoSize = true;
-			downloadEpisodesCb.Location = new System.Drawing.Point(6, 81);
+			downloadEpisodesCb.Location = new System.Drawing.Point(6, 106);
 			downloadEpisodesCb.Name = "downloadEpisodesCb";
 			downloadEpisodesCb.Size = new System.Drawing.Size(163, 19);
-			downloadEpisodesCb.TabIndex = 4;
+			downloadEpisodesCb.TabIndex = 5;
 			downloadEpisodesCb.Text = "[download episodes desc]";
 			downloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
@@ -404,10 +405,19 @@
 			tab1ImportantSettings.TabIndex = 0;
 			tab1ImportantSettings.Text = "Important settings";
 			// 
+			// themeLbl
+			// 
+			themeLbl.AutoSize = true;
+			themeLbl.Location = new System.Drawing.Point(190, 393);
+			themeLbl.Name = "themeLbl";
+			themeLbl.Size = new System.Drawing.Size(296, 15);
+			themeLbl.TabIndex = 12;
+			themeLbl.Text = "You must restart Libation for this change to take effect.";
+			// 
 			// themeCb
 			// 
-			themeCb.FormattingEnabled = true;
 			themeCb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			themeCb.FormattingEnabled = true;
 			themeCb.Location = new System.Drawing.Point(63, 390);
 			themeCb.Name = "themeCb";
 			themeCb.Size = new System.Drawing.Size(121, 23);
@@ -579,6 +589,7 @@
 			// 
 			tab2ImportLibrary.AutoScroll = true;
 			tab2ImportLibrary.BackColor = System.Drawing.SystemColors.Window;
+			tab2ImportLibrary.Controls.Add(importPlusTitlesCb);
 			tab2ImportLibrary.Controls.Add(autoDownloadEpisodesCb);
 			tab2ImportLibrary.Controls.Add(autoScanCb);
 			tab2ImportLibrary.Controls.Add(showImportedStatsCb);
@@ -591,13 +602,23 @@
 			tab2ImportLibrary.TabIndex = 1;
 			tab2ImportLibrary.Text = "Import library";
 			// 
+			// importPlusTitlesCb
+			// 
+			importPlusTitlesCb.AutoSize = true;
+			importPlusTitlesCb.Location = new System.Drawing.Point(6, 81);
+			importPlusTitlesCb.Name = "importPlusTitlesCb";
+			importPlusTitlesCb.Size = new System.Drawing.Size(199, 19);
+			importPlusTitlesCb.TabIndex = 4;
+			importPlusTitlesCb.Text = "[import audible plus books desc]";
+			importPlusTitlesCb.UseVisualStyleBackColor = true;
+			// 
 			// autoDownloadEpisodesCb
 			// 
 			autoDownloadEpisodesCb.AutoSize = true;
-			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 106);
+			autoDownloadEpisodesCb.Location = new System.Drawing.Point(6, 131);
 			autoDownloadEpisodesCb.Name = "autoDownloadEpisodesCb";
 			autoDownloadEpisodesCb.Size = new System.Drawing.Size(190, 19);
-			autoDownloadEpisodesCb.TabIndex = 5;
+			autoDownloadEpisodesCb.TabIndex = 6;
 			autoDownloadEpisodesCb.Text = "[auto download episodes desc]";
 			autoDownloadEpisodesCb.UseVisualStyleBackColor = true;
 			// 
@@ -1438,15 +1459,6 @@
 			createCueSheetCbox.UseVisualStyleBackColor = true;
 			createCueSheetCbox.CheckedChanged += allowLibationFixupCbox_CheckedChanged;
 			// 
-			// themeLbl
-			// 
-			themeLbl.AutoSize = true;
-			themeLbl.Location = new System.Drawing.Point(190, 393);
-			themeLbl.Name = "themeLbl";
-			themeLbl.Size = new System.Drawing.Size(296, 15);
-			themeLbl.TabIndex = 12;
-			themeLbl.Text = "You must restart Libation for this change to take effect.";
-			// 
 			// SettingsDialog
 			// 
 			AcceptButton = saveBtn;
@@ -1615,5 +1627,6 @@
 		private System.Windows.Forms.Label label22;
 		private System.Windows.Forms.ComboBox themeCb;
 		private System.Windows.Forms.Label themeLbl;
+		private System.Windows.Forms.CheckBox importPlusTitlesCb;
 	}
 }

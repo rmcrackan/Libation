@@ -299,7 +299,7 @@ namespace ApplicationServices
 
             try
             {
-                var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions, Configuration.Instance.ImportEpisodes);
+                var dtoItems = await apiExtended.GetLibraryValidatedAsync(libraryOptions);
 
                 logTime($"post scanAccountAsync {account.AccountName} qty: {dtoItems.Count}");
                 
