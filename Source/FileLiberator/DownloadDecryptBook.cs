@@ -50,8 +50,10 @@ namespace FileLiberator
 
 				var api = await libraryBook.GetApiAsync();
 
-				LicenseInfo ??= await DownloadOptions.GetDownloadLicenseAsync(api, libraryBook, Configuration, cancellationToken);
-				using var downloadOptions = DownloadOptions.BuildDownloadOptions(libraryBook, Configuration, LicenseInfo);
+				//Processable instances are reusable, so don't set LicenseInfo
+				//override from within a DownloadDecryptBook instance.
+				var license = LicenseInfo ?? await DownloadOptions.GetDownloadLicenseAsync(api, libraryBook, Configuration, cancellationToken);
+				using var downloadOptions = DownloadOptions.BuildDownloadOptions(libraryBook, Configuration, license);
 				var result = await DownloadAudiobookAsync(api, downloadOptions, cancellationToken);
 
 				if (!result.Success || getFirstAudioFile(result.ResultFiles) is not TempFile audioFile)
