@@ -38,42 +38,42 @@ namespace LibationAvalonia.Views
 				var trialBook = MockLibraryBook.CreateBook();
 				List<ProcessBookViewModel> testList = new()
 				{
-					new ProcessBookViewModel(trialBook)
+					new ProcessBookViewModel(trialBook, Configuration.Instance)
 					{
 						Result = ProcessBookResult.FailedAbort,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(trialBook)
+					new ProcessBookViewModel(trialBook, Configuration.Instance)
 					{
 						Result = ProcessBookResult.FailedSkip,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(trialBook)
+					new ProcessBookViewModel(trialBook, Configuration.Instance)
 					{
 						Result = ProcessBookResult.FailedRetry,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(trialBook)
+					new ProcessBookViewModel(trialBook, Configuration.Instance)
 					{
 						Result = ProcessBookResult.ValidationFail,
 						Status = ProcessBookStatus.Failed,
 					},
-					new ProcessBookViewModel(trialBook)
+					new ProcessBookViewModel(trialBook, Configuration.Instance)
 					{
 						Result = ProcessBookResult.Cancelled,
 						Status = ProcessBookStatus.Cancelled,
 					},
-					new ProcessBookViewModel(trialBook)
+					new ProcessBookViewModel(trialBook, Configuration.Instance)
 					{
 						Result = ProcessBookResult.Success,
 						Status = ProcessBookStatus.Completed,
 					},
-					new ProcessBookViewModel(trialBook)
+					new ProcessBookViewModel(trialBook, Configuration.Instance)
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Working,
 					},
-					new ProcessBookViewModel(trialBook)
+					new ProcessBookViewModel(trialBook, Configuration.Instance)
 					{
 						Result = ProcessBookResult.None,
 						Status = ProcessBookStatus.Queued,

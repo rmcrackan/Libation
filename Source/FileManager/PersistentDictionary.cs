@@ -273,5 +273,7 @@ namespace FileManager
         {
             File.WriteAllText(Filepath, "{}");
         }
-    }
+
+		public JObject GetJObject() => readFile();
+	}
 }

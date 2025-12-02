@@ -22,7 +22,7 @@ namespace LibationWinForms.GridView
 		/// <summary>Number of visible rows has changed</summary>
 		public event EventHandler<int> VisibleCountChanged;
 		public event EventHandler<int> RemovableCountChanged;
-		public event EventHandler<LibraryBook[]> LiberateClicked;
+		public event LiberateClickedHandler LiberateClicked;
 		public event EventHandler<SeriesEntry> LiberateSeriesClicked;
 		public event EventHandler<LibraryBook[]> ConvertToMp3Clicked;
 		public event EventHandler InitialLoaded;
@@ -202,8 +202,29 @@ namespace LibationWinForms.GridView
 				ctxMenu.Items.Add(downloadSelectedMenuItem);
 				downloadSelectedMenuItem.Click += (s, _) =>
 				{
-					LiberateClicked?.Invoke(s, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray());
+					LiberateClicked?.Invoke(s, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray(), Configuration.Instance);
 				};
+			}
+
+			#endregion
+			#region Download split by chapters
+
+			if (ctx.LibraryBookEntries.Length > 0)
+			{
+				var downloadChaptersMenuItem = new ToolStripMenuItem
+				{
+					Text = ctx.DownloadAsChapters,
+					Enabled = ctx.DownloadAsChaptersEnabled
+				};
+				downloadChaptersMenuItem.Click += (_, e) =>
+				{
+					var config = Configuration.Instance.CreateEphemeralCopy();
+					config.AllowLibationFixup = config.SplitFilesByChapter = true;
+					var books = ctx.LibraryBookEntries.Select(e => e.LibraryBook).Where(lb => lb.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error).ToList();
+					books.ForEach(b => b.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated);
+					LiberateClicked?.Invoke(this, books, config);
+				};
+				ctxMenu.Items.Add(downloadChaptersMenuItem);
 			}
 
 			#endregion
@@ -218,7 +239,6 @@ namespace LibationWinForms.GridView
 				};
 				convertToMp3MenuItem.Click += (_, e) => ConvertToMp3Clicked?.Invoke(this, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray());
 				ctxMenu.Items.Add(convertToMp3MenuItem);
-
 			}
 
 			#endregion
@@ -239,7 +259,7 @@ namespace LibationWinForms.GridView
 					if (entry4.Book.HasPdf)
 						entry4.Book.UserDefinedItem.SetPdfStatus(LiberatedStatus.NotLiberated);
 
-					LiberateClicked?.Invoke(s, [entry4.LibraryBook]);
+					LiberateClicked?.Invoke(s, [entry4.LibraryBook], Configuration.Instance);
 				};
 			}
 
@@ -415,7 +435,7 @@ namespace LibationWinForms.GridView
 		{
 			if (liveGridEntry.LibraryBook.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error
 				&& !liveGridEntry.Liberate.IsUnavailable)
-				LiberateClicked?.Invoke(this, [liveGridEntry.LibraryBook]);
+				LiberateClicked?.Invoke(this, [liveGridEntry.LibraryBook], Configuration.Instance);
 		}
 
 		private void productsGrid_RemovableCountChanged(object sender, EventArgs e)

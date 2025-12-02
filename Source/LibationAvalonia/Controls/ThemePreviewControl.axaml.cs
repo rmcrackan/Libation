@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using DataLayer;
 using Dinah.Core.ErrorHandling;
 using LibationAvalonia.ViewModels;
+using LibationFileManager;
 using LibationUiBase.ProcessQueue;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,11 +33,11 @@ public partial class ThemePreviewControl : UserControl
 			MainVM.Configure_NonUI();
 		}
 
-		QueuedBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Queued };
-		WorkingBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Working };
-		CompletedBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Completed };
-		CancelledBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Cancelled };
-		FailedBook = new ProcessBookViewModel(sampleEntries[0]) { Status = ProcessBookStatus.Failed };
+		QueuedBook = new ProcessBookViewModel(sampleEntries[0], Configuration.Instance) { Status = ProcessBookStatus.Queued };
+		WorkingBook = new ProcessBookViewModel(sampleEntries[0], Configuration.Instance) { Status = ProcessBookStatus.Working };
+		CompletedBook = new ProcessBookViewModel(sampleEntries[0], Configuration.Instance) { Status = ProcessBookStatus.Completed };
+		CancelledBook = new ProcessBookViewModel(sampleEntries[0], Configuration.Instance) { Status = ProcessBookStatus.Cancelled };
+		FailedBook = new ProcessBookViewModel(sampleEntries[0], Configuration.Instance) { Status = ProcessBookStatus.Failed };
 
 		//Set the current processable so that the empty queue doesn't try to advance.
 		QueuedBook.AddDownloadPdf();

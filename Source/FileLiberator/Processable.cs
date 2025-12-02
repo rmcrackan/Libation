@@ -9,24 +9,36 @@ using Dinah.Core.ErrorHandling;
 using Dinah.Core.Net.Http;
 using LibationFileManager;
 
+#nullable enable
 namespace FileLiberator
 {
-    public abstract class Processable
+    public interface IProcessable<T>  where T : IProcessable<T>
+	{
+		/// <summary>
+		/// Create a new instance of the Processable which uses a specific Configuration
+		/// </summary>
+		/// <param name="config">The <see cref="Configuration"/> this <typeparamref name="T"/> will use</param>
+		static abstract T Create(Configuration config);
+	}
+	public abstract class Processable
     {
         public abstract string Name { get; }
-        public event EventHandler<LibraryBook> Begin;
+        public event EventHandler<LibraryBook>? Begin;
 
         /// <summary>General string message to display. DON'T rely on this for success, failure, or control logic</summary>
-        public event EventHandler<string> StatusUpdate;
+        public event EventHandler<string>? StatusUpdate;
         /// <summary>Fired when a file is successfully saved to disk</summary>
-        public event EventHandler<(string id, string path)> FileCreated;
-        public event EventHandler<DownloadProgress> StreamingProgressChanged;
-        public event EventHandler<TimeSpan> StreamingTimeRemaining;
+        public event EventHandler<(string id, string path)>? FileCreated;
+        public event EventHandler<DownloadProgress>? StreamingProgressChanged;
+        public event EventHandler<TimeSpan>? StreamingTimeRemaining;
 
-        public event EventHandler<LibraryBook> Completed;
+        public event EventHandler<LibraryBook>? Completed;
 
-        /// <returns>True == Valid</returns>
-        public abstract bool Validate(LibraryBook libraryBook);
+        public required Configuration Configuration{ get; init; }
+        protected Processable() { }
+
+		/// <returns>True == Valid</returns>
+		public abstract bool Validate(LibraryBook libraryBook);
 
         /// <returns>True == success</returns>
         public abstract Task<StatusHandler> ProcessAsync(LibraryBook libraryBook);
@@ -35,7 +47,7 @@ namespace FileLiberator
         public IEnumerable<LibraryBook> GetValidLibraryBooks(IEnumerable<LibraryBook> library)
             => library.Where(libraryBook =>
                 Validate(libraryBook)
-                && (!libraryBook.Book.IsEpisodeChild() || Configuration.Instance.DownloadEpisodes)
+                && (!libraryBook.Book.IsEpisodeChild() || Configuration.DownloadEpisodes)
                 );
 
         public async Task<StatusHandler> ProcessSingleAsync(LibraryBook libraryBook, bool validate)
@@ -86,12 +98,12 @@ namespace FileLiberator
 
         protected void OnStreamingProgressChanged(DownloadProgress progress)
             => OnStreamingProgressChanged(null, progress);
-        protected void OnStreamingProgressChanged(object _, DownloadProgress progress)
+        protected void OnStreamingProgressChanged(object? _, DownloadProgress progress)
             => StreamingProgressChanged?.Invoke(this, progress);
 
         protected void OnStreamingTimeRemaining(TimeSpan timeRemaining)
             => OnStreamingTimeRemaining(null, timeRemaining);
-        protected void OnStreamingTimeRemaining(object _, TimeSpan timeRemaining)
+        protected void OnStreamingTimeRemaining(object? _, TimeSpan timeRemaining)
             => StreamingTimeRemaining?.Invoke(this, timeRemaining);
 
         protected void OnCompleted(LibraryBook libraryBook)
@@ -100,17 +112,17 @@ namespace FileLiberator
             Completed?.Invoke(this, libraryBook);
         }
 
-		protected static void SetFileTime(LibraryBook libraryBook, string file)
+		protected void SetFileTime(LibraryBook libraryBook, string file)
 			=> setFileSystemTime(libraryBook, new FileInfo(file));
-		protected static void SetDirectoryTime(LibraryBook libraryBook, string file)
+		protected void SetDirectoryTime(LibraryBook libraryBook, string file)
 			=> setFileSystemTime(libraryBook, new DirectoryInfo(file));
 
-		private static void setFileSystemTime(LibraryBook libraryBook, FileSystemInfo fileInfo)
+		private void setFileSystemTime(LibraryBook libraryBook, FileSystemInfo fileInfo)
 		{
 			if (!fileInfo.Exists) return;
 
-            fileInfo.CreationTimeUtc = getTimeValue(Configuration.Instance.CreationTime) ?? fileInfo.CreationTimeUtc;
-            fileInfo.LastWriteTimeUtc = getTimeValue(Configuration.Instance.LastWriteTime) ?? fileInfo.LastWriteTimeUtc;			
+            fileInfo.CreationTimeUtc = getTimeValue(Configuration.CreationTime) ?? fileInfo.CreationTimeUtc;
+            fileInfo.LastWriteTimeUtc = getTimeValue(Configuration.LastWriteTime) ?? fileInfo.LastWriteTimeUtc;			
 
 			DateTime? getTimeValue(Configuration.DateTimeSource source) => source switch
 			{

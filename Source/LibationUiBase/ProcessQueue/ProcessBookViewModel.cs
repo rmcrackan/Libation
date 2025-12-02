@@ -43,6 +43,7 @@ public enum ProcessBookStatus
 public class ProcessBookViewModel : ReactiveObject
 {
 	public LibraryBook LibraryBook { get; protected set; }
+	public Configuration Configuration { get; }
 
 	#region Properties exposed to the view
 	public ProcessBookResult Result { get => field; set { RaiseAndSetIfChanged(ref field, value); RaisePropertyChanged(nameof(StatusText)); } }
@@ -95,9 +96,10 @@ public class ProcessBookViewModel : ReactiveObject
 	/// <summary> A series of Processable actions to perform on this book </summary>
 	protected Queue<Func<Processable>> Processes { get; } = new();
 
-	public ProcessBookViewModel(LibraryBook libraryBook)
+	public ProcessBookViewModel(LibraryBook libraryBook, Configuration configuration)
 	{
 		LibraryBook = libraryBook;
+		Configuration = configuration;
 
 		Title = LibraryBook.Book.TitleWithSubtitle;
 		Author = LibraryBook.Book.AuthorNames;
@@ -203,9 +205,9 @@ public class ProcessBookViewModel : ReactiveObject
 	public ProcessBookViewModel AddDownloadDecryptBook() => AddProcessable<DownloadDecryptBook>();
 	public ProcessBookViewModel AddConvertToMp3() => AddProcessable<ConvertToMp3>();
 
-	private ProcessBookViewModel AddProcessable<T>() where T : Processable, new()
+	private ProcessBookViewModel AddProcessable<T>() where T : Processable, IProcessable<T>
 	{
-		Processes.Enqueue(() => new T());
+		Processes.Enqueue(() => T.Create(Configuration));
 		return this;
 	}
 
@@ -260,7 +262,7 @@ public class ProcessBookViewModel : ReactiveObject
 	private byte[] AudioDecodable_RequestCoverArt(object? sender, EventArgs e)
 	{
 		var quality
-			= Configuration.Instance.FileDownloadQuality == Configuration.DownloadQuality.High && LibraryBook.Book.PictureLarge is not null
+			= Configuration.FileDownloadQuality == Configuration.DownloadQuality.High && LibraryBook.Book.PictureLarge is not null
 			? new PictureDefinition(LibraryBook.Book.PictureLarge, PictureSize.Native)
 			: new PictureDefinition(LibraryBook.Book.PictureId, PictureSize._500x500);
 
@@ -345,7 +347,7 @@ public class ProcessBookViewModel : ReactiveObject
 		const DialogResult SkipResult = DialogResult.Ignore;
 		LogError($"ERROR. All books have not been processed. Book failed: {libraryBook.Book}");
 
-		DialogResult? dialogResult = Configuration.Instance.BadBook switch
+		DialogResult? dialogResult = Configuration.BadBook switch
 		{
 			Configuration.BadBookAction.Abort => DialogResult.Abort,
 			Configuration.BadBookAction.Retry => DialogResult.Retry,

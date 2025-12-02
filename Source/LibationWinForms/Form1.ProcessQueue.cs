@@ -25,13 +25,13 @@ namespace LibationWinForms
 			this.Width = width;
 		}
 
-		private void ProductsDisplay_LiberateClicked(object sender, LibraryBook[] libraryBooks)
+		private void ProductsDisplay_LiberateClicked(object sender, System.Collections.Generic.IList<LibraryBook> libraryBooks, Configuration config)
 		{
 			try
 			{
-				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(libraryBooks))
+				if (processBookQueue1.ViewModel.QueueDownloadDecrypt(libraryBooks, config))
 					SetQueueCollapseState(false);
-				else if (libraryBooks.Length == 1 && libraryBooks[0].Book.AudioExists)
+				else if (libraryBooks.Count == 1 && libraryBooks[0].Book.AudioExists)
 				{
 					// liberated: open explorer to file
 					var filePath = AudibleFileStorage.Audio.GetPath(libraryBooks[0].Book.AudibleProductId);

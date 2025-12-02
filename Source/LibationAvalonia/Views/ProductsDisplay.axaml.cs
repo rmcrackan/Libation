@@ -26,7 +26,7 @@ namespace LibationAvalonia.Views
 {
 	public partial class ProductsDisplay : UserControl
 	{
-		public event EventHandler<LibraryBook[]>? LiberateClicked;
+		public event LiberateClickedHandler? LiberateClicked;
 		public event EventHandler<SeriesEntry>? LiberateSeriesClicked;
 		public event EventHandler<LibraryBook[]>? ConvertToMp3Clicked;
 		public event EventHandler<LibraryBook>? TagsButtonClicked;
@@ -298,10 +298,29 @@ namespace LibationAvalonia.Views
 				args.ContextMenuItems.Add(new MenuItem
 				{
 					Header = ctx.DownloadSelectedText,
-					Command = ReactiveCommand.Create(() => LiberateClicked?.Invoke(this, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray()))
+					Command = ReactiveCommand.Create(() => LiberateClicked?.Invoke(this, ctx.LibraryBookEntries.Select(e => e.LibraryBook).ToArray(), Configuration.Instance))
 				});
 			}
 
+			#endregion
+			#region Download split by chapters
+			if (entries.Length == 1 && entries[0] is LibraryBookEntry entry3_a)
+			{
+				args.ContextMenuItems.Add(new MenuItem()
+				{
+					Header = ctx.DownloadAsChapters,
+					IsEnabled = ctx.DownloadAsChaptersEnabled,
+					Command = ReactiveCommand.Create(() =>
+					{
+						var config = Configuration.Instance.CreateEphemeralCopy();
+						config.AllowLibationFixup = config.SplitFilesByChapter = true;
+						var books = ctx.LibraryBookEntries.Select(e => e.LibraryBook).Where(lb => lb.Book.UserDefinedItem.BookStatus is not LiberatedStatus.Error).ToList();
+						//No need to persist BookStatus changes. They only needs to last long for the files to start downloading
+						books.ForEach(b => b.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated);
+						LiberateClicked?.Invoke(this, [entry3_a.LibraryBook], config);
+					})
+				});
+			}
 			#endregion
 			#region Convert to Mp3
 
@@ -329,7 +348,7 @@ namespace LibationAvalonia.Views
 						entry4.Book.UserDefinedItem.BookStatus = LiberatedStatus.NotLiberated;
 						if (entry4.Book.HasPdf)
 							entry4.Book.UserDefinedItem.SetPdfStatus(LiberatedStatus.NotLiberated);
-						LiberateClicked?.Invoke(this, [entry4.LibraryBook]);
+						LiberateClicked?.Invoke(this, [entry4.LibraryBook], Configuration.Instance);
 					})
 				});
 			}
@@ -512,7 +531,7 @@ namespace LibationAvalonia.Views
 			}
 			else if (button.DataContext is LibraryBookEntry lbEntry)
 			{
-				LiberateClicked?.Invoke(this, [lbEntry.LibraryBook]);
+				LiberateClicked?.Invoke(this, [lbEntry.LibraryBook], Configuration.Instance);
 			}
 		}
 

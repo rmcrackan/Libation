@@ -16,9 +16,10 @@ namespace FileLiberator
 		/// Path: directory nested inside of Books directory
 		/// File name: n/a
 		/// </summary>
-		public static string GetDestinationDirectory(this AudioFileStorage _, LibraryBook libraryBook)
+		public static string GetDestinationDirectory(this AudioFileStorage _, LibraryBook libraryBook, Configuration config = null)
 		{
-			if (libraryBook.Book.IsEpisodeChild() && Configuration.Instance.SavePodcastsToParentFolder)
+			config ??= Configuration.Instance;
+			if (libraryBook.Book.IsEpisodeChild() && config.SavePodcastsToParentFolder)
 			{
 				var series = libraryBook.Book.SeriesLink.SingleOrDefault();
 				if (series is not null)
