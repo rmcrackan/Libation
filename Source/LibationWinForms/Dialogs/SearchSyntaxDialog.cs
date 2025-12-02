@@ -1,5 +1,5 @@
 ﻿using LibationSearchEngine;
-using System.ComponentModel;
+using System;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -7,6 +7,7 @@ namespace LibationWinForms.Dialogs
 {
 	public partial class SearchSyntaxDialog : Form
 	{
+		public event EventHandler<string> TagDoubleClicked;
 		public SearchSyntaxDialog()
 		{
 			InitializeComponent();
@@ -22,6 +23,14 @@ namespace LibationWinForms.Dialogs
 		{
 			base.OnFormClosing(e);
 			this.SaveSizeAndLocation(LibationFileManager.Configuration.Instance);
+		}
+
+		private void lboxFields_DoubleClick(object sender, EventArgs e)
+		{
+			if (sender is ListBox { SelectedItem: string tagName })
+			{
+				TagDoubleClicked?.Invoke(this, tagName);
+			}
 		}
 	}
 }

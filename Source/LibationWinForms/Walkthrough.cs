@@ -144,19 +144,10 @@ namespace LibationWinForms
 			LibraryCommands.ScanEnd += LibraryCommands_ScanEnd;
 			await tcs.Task;
 			LibraryCommands.ScanEnd -= LibraryCommands_ScanEnd;
-			MainForm.productsDisplay.VisibleCountChanged -= productsDisplay_VisibleCountChanged;
 
 			return true;
 
-			void LibraryCommands_ScanEnd(object sender, int newCount)
-			{
-				//if we imported new books, wait for the grid to update before proceeding.
-				if (newCount > 0)
-					MainForm.productsDisplay.VisibleCountChanged += productsDisplay_VisibleCountChanged;
-				else
-					tcs.SetResult();
-			}
-			void productsDisplay_VisibleCountChanged(object sender, int e) => tcs.SetResult();
+			void LibraryCommands_ScanEnd(object _, int __) => tcs.SetResult();
 		}
 
 		private async Task<bool> ShowSearching()
@@ -189,9 +180,10 @@ namespace LibationWinForms
 
 			await displayControlAsync(MainForm.filterHelpBtn);
 
-			using var filterHelp = MainForm.Invoke(() => new SearchSyntaxDialog());
-			MainForm.Invoke(filterHelp.ShowDialog);
-
+			using var filterHelp = MainForm.Invoke(MainForm.ShowSearchSyntaxDialog);
+			var tcs = new TaskCompletionSource();
+			filterHelp.FormClosed += (_, _) => tcs.SetResult();
+			await tcs.Task;
 			return true;
 		}
 

@@ -8,7 +8,7 @@ namespace LibationWinForms
     {
 		protected void Configure_Filter() { }
 
-		private void filterHelpBtn_Click(object sender, EventArgs e) => new SearchSyntaxDialog().ShowDialog();
+		private void filterHelpBtn_Click(object sender, EventArgs e) => ShowSearchSyntaxDialog();
 
 		private void filterSearchTb_TextCleared(object sender, EventArgs e)
 		{
@@ -43,6 +43,33 @@ namespace LibationWinForms
 
 				// re-apply last good filter
 				performFilter(lastGoodFilter);
+			}
+		}
+
+		public SearchSyntaxDialog ShowSearchSyntaxDialog()
+		{
+			var dialog = new SearchSyntaxDialog();
+			dialog.TagDoubleClicked += Dialog_TagDoubleClicked;
+			dialog.FormClosed += Dialog_Closed;
+			filterHelpBtn.Enabled = false;
+			dialog.Show(this);
+			return dialog;
+
+			void Dialog_Closed(object sender, FormClosedEventArgs e)
+			{
+				dialog.TagDoubleClicked -= Dialog_TagDoubleClicked;
+				filterHelpBtn.Enabled = true;
+			}
+			void Dialog_TagDoubleClicked(object sender, string tag)
+			{
+				if (string.IsNullOrEmpty(tag)) return;
+
+				var text = filterSearchTb.Text;
+				var selStart = Math.Min(Math.Max(0, filterSearchTb.SelectionStart), text.Length);
+
+				filterSearchTb.Text = text.Insert(selStart, tag);
+				filterSearchTb.SelectionStart = selStart + tag.Length;
+				filterSearchTb.Focus();
 			}
 		}
 	}

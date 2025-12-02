@@ -149,6 +149,7 @@ namespace LibationWinForms.Dialogs
 
 			templateTb.Text = text.Insert(selStart, itemText);
 			templateTb.SelectionStart = selStart + itemText.Length;
+			templateTb.Focus();
 		}
 
 		private void llblGoToWiki_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

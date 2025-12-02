@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace LibationWinForms.GridView
 {
 	public partial class ProductsDisplay : UserControl
@@ -68,7 +69,7 @@ namespace LibationWinForms.GridView
 				PictureStorage.PictureCached -= PictureCached;
 
 			if (!imageDisplay.Visible)
-				imageDisplay.Show(null);
+				imageDisplay.Show(this);
 		}
 
 		private void productsGrid_DescriptionClicked(GridEntry liveGridEntry, Rectangle cellRectangle)
@@ -90,11 +91,27 @@ namespace LibationWinForms.GridView
 			displayWindow.Show(this);
 		}
 
-		private async void productsGrid_DetailsClicked(LibraryBookEntry liveGridEntry)
+		private BookDetailsDialog bookDetailsForm;
+		private void productsGrid_DetailsClicked(LibraryBookEntry liveGridEntry)
 		{
-			var bookDetailsForm = new BookDetailsDialog(liveGridEntry.LibraryBook);
-			if (bookDetailsForm.ShowDialog() == DialogResult.OK)
-				await liveGridEntry.LibraryBook.UpdateUserDefinedItemAsync(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+			if (bookDetailsForm is null || bookDetailsForm.IsDisposed || !bookDetailsForm.Visible)
+			{
+				bookDetailsForm = new();
+				bookDetailsForm.RestoreSizeAndLocation(Configuration.Instance);
+				bookDetailsForm.FormClosed += bookDetailsForm_FormClosed;
+			}
+
+			bookDetailsForm.LibraryBook = liveGridEntry.LibraryBook;
+			if (!bookDetailsForm.Visible)
+				bookDetailsForm.Show(this);
+
+			async void bookDetailsForm_FormClosed(object sender, FormClosedEventArgs e)
+			{
+				bookDetailsForm.FormClosed -= bookDetailsForm_FormClosed;
+				bookDetailsForm.SaveSizeAndLocation(Configuration.Instance);
+				if (e.CloseReason is CloseReason.UserClosing && bookDetailsForm.DialogResult is DialogResult.OK)
+					await liveGridEntry.LibraryBook.UpdateUserDefinedItemAsync(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
+			}
 		}
 
 		#endregion
