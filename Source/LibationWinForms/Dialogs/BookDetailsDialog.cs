@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
+using ApplicationServices;
 using DataLayer;
 using Dinah.Core;
 using LibationFileManager;
@@ -83,7 +84,7 @@ namespace LibationWinForms.Dialogs
 		{
 			{
 				var status = Book.UserDefinedItem.BookStatus;
-
+				this.bookLiberatedCb.Items.Clear();
 				this.bookLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
 				this.bookLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" });
 
@@ -96,10 +97,9 @@ namespace LibationWinForms.Dialogs
 
 			{
 				var status = Book.UserDefinedItem.PdfStatus;
-
-				if (status is null)
-					this.pdfLiberatedCb.Enabled = false;
-				else
+				this.pdfLiberatedCb.Items.Clear();
+				this.pdfLiberatedCb.Enabled = status is not null;
+				if (status is not null)
 				{
 					this.pdfLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.Liberated, Text = "Downloaded" });
 					this.pdfLiberatedCb.Items.Add(new liberatedComboBoxItem { Status = LiberatedStatus.NotLiberated, Text = "Not Downloaded" });
@@ -123,16 +123,17 @@ namespace LibationWinForms.Dialogs
 				comboBox.SelectedIndex = 0;
 		}
 
-		private void saveBtn_Click(object sender, EventArgs e)
+		private async void saveBtn_Click(object sender, EventArgs e)
 		{
 			NewTags = this.newTagsTb.Text;
-
 			BookLiberatedStatus = ((liberatedComboBoxItem)this.bookLiberatedCb.SelectedItem).Status;
 
 			if (this.pdfLiberatedCb.Enabled)
 				PdfLiberatedStatus = ((liberatedComboBoxItem)this.pdfLiberatedCb.SelectedItem).Status;
 
-			this.DialogResult = DialogResult.OK;
+			Invoke(() => saveBtn.Enabled = cancelBtn.Enabled = false);
+			await LibraryBook.UpdateUserDefinedItemAsync(NewTags, BookLiberatedStatus, PdfLiberatedStatus);
+			Invoke(() => saveBtn.Enabled = cancelBtn.Enabled = true);
 		}
 
 		private void cancelBtn_Click(object sender, EventArgs e)
