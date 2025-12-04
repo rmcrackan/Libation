@@ -105,15 +105,35 @@ namespace AppScaffolding
 
 		/// <summary>
 		/// Delete shared memory and write-ahead log SQLite database files which may prevent access to the database.
+		/// These file may or may not cause libation to hang on CreateContext,
+		/// so try our luck by swallowing any exceptions and continuing.
 		/// </summary>
 		private static void DeleteOpenSqliteFiles(Configuration config)
 		{
 			var walFile = SqliteStorage.DatabasePath + "-wal";
 			var shmFile = SqliteStorage.DatabasePath + "-shm";
 			if (File.Exists(walFile))
-				FileManager.FileUtility.SaferDelete(walFile);
+			{
+				try
+				{
+					FileManager.FileUtility.SaferDelete(walFile);
+				}
+				catch(Exception ex)
+				{
+					Log.Logger.Warning(ex, "Could not delete SQLite WAL file: {@WalFile}", walFile);
+				}
+			}
 			if (File.Exists(shmFile))
-				FileManager.FileUtility.SaferDelete(shmFile);
+			{
+				try
+				{
+					FileManager.FileUtility.SaferDelete(shmFile);
+				}
+				catch (Exception ex)
+				{
+					Log.Logger.Warning(ex, "Could not delete SQLite SHM file: {@ShmFile}", shmFile);
+				}
+			}
 		}
 
 		/// <summary>Initialize logging. Wire-up events. Run after migration</summary>
