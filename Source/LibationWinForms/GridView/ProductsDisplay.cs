@@ -109,8 +109,6 @@ namespace LibationWinForms.GridView
 			{
 				bookDetailsForm.FormClosed -= bookDetailsForm_FormClosed;
 				bookDetailsForm.SaveSizeAndLocation(Configuration.Instance);
-				if (e.CloseReason is CloseReason.UserClosing && bookDetailsForm.DialogResult is DialogResult.OK)
-					await liveGridEntry.LibraryBook.UpdateUserDefinedItemAsync(bookDetailsForm.NewTags, bookDetailsForm.BookLiberatedStatus, bookDetailsForm.PdfLiberatedStatus);
 			}
 		}
 
