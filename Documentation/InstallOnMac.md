@@ -13,51 +13,14 @@ This walkthrough should get you up and running with Libation on your Mac.
 ## Install Libation
 
 - Download the file from the latest release and extract it.
-  - Apple Silicon (M1, M2, ...): `Libation.x.x.x-macOS-chardonnay-`**arm64**`.tgz`
-  - Intel: `Libation.x.x.x-macOS-chardonnay-`**x64**`.tgz`
-- Move the extracted Libation app bundle to your applications folder.
-- Right-click on Libation and then click on open
-- The first time, it will not immediately show you an option to open it. Just dismiss the dialog and do the same thing again (right-click -> open) then you will get an option to run the unsigned application. This takes about 10 seconds.
+  - Apple Silicon (M1, M2, ...): `Libation.x.x.x-macOS-chardonnay-`**arm64**`.dmg`
+  - Intel: `Libation.x.x.x-macOS-chardonnay-`**x64**`.dmg`
+- Mount the dmg and open the disk folder (should open automatically). Drag-drop the Libation app into your Applications folder.
 
-## If this doesn't work
+  ![macOS-drag-drop-install](images/macOS-drag-drop-install.png)
+- Go to your applications folder and double-click Libation to start it. The first time you run Libation, you'll be asked if you want to run this program downloaded from the internet. Click "Open".
 
-You can add Libation as a safe app without touching Gatekeeper.
-
-- Copy/paste/run the following command. Adjust the file path to the Libation.app on your computer if necessary.
-
-  ```Console
-  xattr -r -d com.apple.quarantine ~/Downloads/Libation.app
-  ```
-- Close the terminal and use Libation!
-
-## If this still doesn't work
-
-- Copy/paste/run the following command (you'll be prompted to enter your Mac password)
-
-  ```Console
-  sudo spctl --master-disable && sudo spctl --add --label "Libation" /Applications/Libation.app && open /Applications/Libation.app && sudo spctl --master-enable
-  ```
-
-* Close the terminal and use Libation!
-
-## "Apple can't check app for malicious software"
-
-From: [How to Open Anyway](https://support.apple.com/guide/mac-help/apple-cant-check-app-for-malicious-software-mchleab3a043/mac):
-
-* On your Mac, choose Apple menu > System Settings, then click Privacy & Security in the sidebar. (You may need to scroll down.)
-* Go to Security, then click Open.
-* Click Open Anyway. This button is available for about an hour after you try to open the app.
-* Enter your login password, then click OK.
-
-## Troubleshooting
-
-If Libation fails to start after completing the above steps, try the following:
-
-1. Right-click the Libation app in your applications folder and select _Show Package Contents_
-2. Open the `Contents` folder and then the `MacOS` folder.
-3. Find the file named `Libation`, right-click it, and then select _Open_.
-
-Libation _should_ launch, and you should now be able to open Libation by just double-clicking the app bundle in your applications folder.
+  ![macOS-libation-first-run](images/macOS-libation-first-run.png)
 
 
 ## Running Hangover
