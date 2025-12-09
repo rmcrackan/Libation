@@ -56,15 +56,18 @@ namespace FileManager
 
 			fileExtension = GetStandardizedExtension(fileExtension);
 
-			// remove invalid chars
-			path = GetSafePath(path, replacements);
+			var pathStr = removeInvalidWhitespace(path.Path);
+			var pathWithoutExtension = pathStr.EndsWithInsensitive(fileExtension)
+				? pathStr[..^fileExtension.Length]
+				: path.Path;
+
+			// remove invalid chars, but leave file extension untouched
+			pathWithoutExtension = GetSafePath(pathWithoutExtension, replacements);
 
 			// ensure uniqueness and check lengths
-			var dir = Path.GetDirectoryName(path)?.TruncateFilename(LongPath.MaxDirectoryLength) ?? string.Empty;
+			var dir = Path.GetDirectoryName(pathWithoutExtension)?.TruncateFilename(LongPath.MaxDirectoryLength) ?? string.Empty;
 
-			var fileName = Path.GetFileName(path);
-			var extIndex = fileName.LastIndexOf(fileExtension, StringComparison.OrdinalIgnoreCase);
-			var filenameWithoutExtension = extIndex >= 0 ? fileName.Remove(extIndex, fileExtension.Length) : fileName;
+			var filenameWithoutExtension = Path.GetFileName(pathWithoutExtension);
 			var fileStem
 				= Path.Combine(dir, filenameWithoutExtension.TruncateFilename(LongPath.MaxFilenameLength - fileExtension.Length))
 				.TruncateFilename(LongPath.MaxPathLength - fileExtension.Length);

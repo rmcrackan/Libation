@@ -90,6 +90,7 @@ namespace LibationAvalonia
 		/// <param name="caption">The text to display in the title bar of the message box.</param>
 		/// <param name="exception">Exception to log.</param>
 		public static async Task ShowAdminAlert(Window? owner, string text, string caption, Exception exception)
+		=> await Dispatcher.UIThread.InvokeAsync(async () =>
 		{
 			// for development and debugging, show me what broke!
 			if (System.Diagnostics.Debugger.IsAttached)
@@ -105,7 +106,7 @@ namespace LibationAvalonia
 			var form = new MessageBoxAlertAdminDialog(text, caption, exception);
 
 			await DisplayWindow(form, owner);
-		}
+		});
 
 		private static async Task<DialogResult> ShowCoreAsync(Window? owner, string message, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, bool saveAndRestorePosition = true)
 		=> await Dispatcher.UIThread.InvokeAsync(async () =>
