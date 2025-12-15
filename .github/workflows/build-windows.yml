@@ -74,7 +74,7 @@ jobs:
           "artifact=$artifact" >> $env:GITHUB_OUTPUT
           Compress-Archive -Path * -DestinationPath "$artifact"
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.zip.outputs.artifact }}
           path: ./bin/${{ steps.zip.outputs.artifact }}
