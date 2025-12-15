@@ -31,7 +31,7 @@ New locale options include many more regions including old audible accounts whic
 
 ![Choose your account locales](images/v40_locales.png)
 
-## Import your library
+## Import Your Library
 
 Be default, Libation will periodically scan the accounts you added above with a checkbox next to them. Nothing for you to do. You can also scan manually.
 
@@ -71,7 +71,7 @@ Success! We see how many new titles are imported:
 
 ![Import step 3](images/Import3.png)
 
-## Download your books -- DRM-free!
+## Download Your Books — DRM-free!
 
 Automatically download some or all of your audible books. This shows you how much of your library is not yet downloaded and decrypted:
 
@@ -107,7 +107,7 @@ And voila! If you have multiple books not yet liberated, Libation will automatic
 
 The Audible id must be somewhere in the book's file or folder name for Libation to detect your downloaded book.
 
-## Download PDF attachments
+## Download PDF Attachments
 
 For books which include PDF downloads, Libation can download these for you as well and will attempt to store them with the book. "Book backup" will already download an available PDF. This additional option is useful when Audible adds a PDF to your book after you've already backed it up.
 
@@ -119,7 +119,7 @@ The downloads work just like with books, only with no additional decryption need
 
 ![PDF download step 3](images/PdfDownload3.png)
 
-## Details of downloaded files
+## Details of Downloaded Files
 
 ![Post download](images/PostDownload.png)
 
@@ -128,12 +128,12 @@ When you set up Libation, you'll specify a Books directory. Libation looks insid
 - .m4b: your audiobook in m4b format. This is the most pure version of your audiobook and retains the highest quality. Now that it's decrypted, you can play it on any audio player and put it on any device. If you'd like, you can also use 3rd party tools to turn it into an mp3. The freedom to do what you want with your files was the original inspiration for Libation.
 - .cue: this is a file which logs where chapter breaks occur. Many tools are able to use this if you want to split your book into files along chapter lines.
 
-## Export your library
+## Export Your Library
 
 ![Export](images/Export.png)
 
 Export your library to Excel, CSV, or JSON
 
-## I still need help
+## I Still Need Help
 
 [You can open an issue here](https://github.com/rmcrackan/Libation/issues) for bug reports, feature requests, or specialized help.

@@ -1,10 +1,10 @@
 # Frequently Asked Questions
 
-## Where can I get help for my specific problem?
+## Where Can I Get Help For My Specific Problem?
 
 You can open an issue here for bug reports, feature requests, or specialized help.
 
-## What's the difference between 'Classic' and 'Chardonnay'?
+## What's the Difference Between 'Classic' and 'Chardonnay'?
 
 First and most importantly: Classic and Chardonnay have the exact same features.
 
@@ -12,7 +12,7 @@ First and most importantly: Classic and Chardonnay have the exact same features.
 
 - **Chardonnay** is available for Windows, Mac, and Linux. Its modern design has a more open look and feel.
 
-## Now that I've downloaded my books, how can I listen to them?
+## Now That I've Downloaded My Books, How Can I Listen to Them?
 
 You can use any app which plays m4b files (or mp3 files if you used that setting). Here are just a few ideas. Disclaimer: I have no affiliation with any of these companies:
 
@@ -28,25 +28,24 @@ Self-hosting online:
 - [audiobookshelf](https://www.audiobookshelf.org). On [reddit](https://www.reddit.com/r/audiobookshelf/)
 - [plex](https://www.plex.tv/). Listen with [Prologue](https://prologue.audio/) (iOS)
 
-## I'm having trouble playing my non-spatial audiobook, how can I fix this?
+## I'm Having Trouble Playing My Non-Spatial Audiobook, How Can I Fix This?
 
 If you enabled the [Request xHE-AAC Codec](./features/audio-file-formats.md#request-xhe-aac-codec) option in settings, then the audiobook is being downloaded in the [xHE-AAC codec](./features/audio-file-formats.md#xhe-aac) which isn't widely supported. You have two options:
 
 1. Use a media player which supports the xHE-AAC codec. [See an incomplete list of media players which support xHE-AAC](./features/audio-file-formats.md#supported-media-players).
 2. Disable the [Request xHE-AAC Codec](./features/audio-file-formats.md#request-xhe-aac-codec) option in settings and re-download the audiobook. This will cause Libation to download audiobooks in the [AAC-LC codec](./features/audio-file-formats.md#aac-lc), which enjoys near-universal media player support.
 
-## I'm having trouble playing my book with 4D, spatial audio, or Dolby Atmos, how can I fix this?
+## I'm Having Trouble Playing My Book with 4D, Spatial Audio, or Dolby Atmos, How Can I Fix This?
 
 Spatial audiobooks are delivered in two formats: [E-AC-3](./features/audio-file-formats.md#e-ac-3) and [AC-4](./features/audio-file-formats.md#ac-4). [See an incomplete list of media players which support those codecs](./features/audio-file-formats.md#supported-media-players).
 
-## I'm having trouble loggin into my Brazil account.
+## I'm Having Trouble Logging Into My Brazil Account
 
 For reasons known only to Jeff Bezos and God, amazon and audible brazil handle logins slightly differently. The external browser login option is not possible for Brazil. [See this ticket for more details.](https://github.com/rmcrackan/Libation/issues/1103)
 
-## How do I use Libation with a South Africa account?
+## How Do I Use Libation With a South Africa Account?
 
 Like many countries, amazon gives South Africa it's own amazon site. [Unlike many other regions](https://www.audible.com/ep/country-selector) there is not South Africa specific audible site. Use `US` for your region -- ie: audible.com.
 
-::: info
-(Not exactly a _frequently_ asked question but it's come up more than once)
-:::
+> [!NOTE]
+> (Not exactly a _frequently_ asked question but it's come up more than once)

@@ -1,7 +1,6 @@
+# Searching and Filtering
 
-# Searching and filtering
-
-### Tags
+## Tags
 
 To add tags to a title, click the tags button
 
@@ -17,21 +16,21 @@ Tags are saved non-case specific for easy search. There is one special tag "hidd
 
 To edit tags, just click the button again.
 
-### Searches
+## Searches
 
 Libation's advanced searching is built on the powerful Lucene search engine. Simple searches are effortless and powerful searches are simple. To search, just type and click Filter or press enter
 
-* Type anything in the search box to search common fields: title, authors, narrators, and the book's audible id
-* Use Lucene's "Query Parser Syntax" for advanced searching.
-    * Easy tutorial: http://www.lucenetutorial.com/lucene-query-syntax.html
-    * Full official guide: https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
-* Tons of search fields, specific to audiobooks
-* Synonyms so you don't have to memorize magic words. Eg: author and author**s** will both work
-* Click [?] button for a full list of search fields and synonyms ![Filter options](../images/FilterOptionsButton.png)
-* Search by tag like \[this\]
-* When tags have an underscore you can use part of the tag. This is useful for quick categories. The below examples make this more clear.
+- Type anything in the search box to search common fields: title, authors, narrators, and the book's audible id
+- Use Lucene's "Query Parser Syntax" for advanced searching.
+  - Easy tutorial: http://www.lucenetutorial.com/lucene-query-syntax.html
+  - Full official guide: https://lucene.apache.org/core/2_9_4/queryparsersyntax.html
+- Tons of search fields, specific to audiobooks
+- Synonyms so you don't have to memorize magic words. Eg: author and author**s** will both work
+- Click [?] button for a full list of search fields and synonyms ![Filter options](../images/FilterOptionsButton.png)
+- Search by tag like \[this\]
+- When tags have an underscore you can use part of the tag. This is useful for quick categories. The below examples make this more clear.
 
-### Search examples
+## Search Examples
 
 Search for anything with the word potter
 
@@ -52,10 +51,10 @@ To see only books written by Neil Gaiman where he also narrates his own book. (I
 
 I tagged autobiographies as auto_bio and biographies written by someone else as bio. I can get only autobiographies with \[auto_bio\] or get both by searching \[bio\]
 
-![Search example: \[bio\]](../images/SearchExampleBio.png)
-![Search example: \[auto_bio\]](../images/SearchExampleAutoBio.png)
+![Search example: [bio]](../images/SearchExampleBio.png)
+![Search example: [auto_bio]](../images/SearchExampleAutoBio.png)
 
-### Filters
+## Filters
 
 If you have a search you want to save, click Add To Quick Filters to save it in your Quick Filters list. To use it again, select it from the Quick Filters list.
 
