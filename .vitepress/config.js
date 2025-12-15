@@ -48,9 +48,9 @@ export default defineConfig({
         items: [
           {
             text: "Install on Linux",
-            link: "/docs/installation/install-on-linux",
+            link: "/docs/installation/linux",
           },
-          { text: "Install on Mac", link: "/docs/installation/install-on-mac" },
+          { text: "Install on Mac", link: "/docs/installation/mac" },
           { text: "Docker", link: "/docs/installation/docker" },
         ],
       },
