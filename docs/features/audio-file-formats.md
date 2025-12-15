@@ -6,7 +6,7 @@ Notes:
 - Audiobook file extensions are either `.m4b` or `.mp3`. Libation uses the `.m4b` file extension for all non-MP3 files, regardless of the audio codec contained therein. Some media players don't recognize the `.m4b` file extension and may require the extension be changed to `.m4a` or `.mp4`.
 - Most (but not all) podcasts are delivered by Audible as native MP3 files. None of the following audio formats and settings discussions pertain to those podcasts because MP3s have no DRM, and those episodes are copied directly to their output folders.
 
-![Audio format settings menu](images/AudioFormatSettings.png)
+![Audio format settings menu](../images/AudioFormatSettings.png)
 
 ## Settings Summary
 ### Audio quality to request from Audible

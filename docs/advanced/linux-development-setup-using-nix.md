@@ -41,7 +41,7 @@ nix develop
 code .
 # Run or Debug using VSCode and VSCodium using the linux Launch configuration.
 ```
-![Debug using VSCode and VSCodium](./images/StartingDebuggingInVSCode.png)
+![Debug using VSCode and VSCodium](../images/StartingDebuggingInVSCode.png)
 
 You can also Build and run your application inside the shell.
 ``` 

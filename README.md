@@ -7,69 +7,44 @@
 
 
 
-# Table of Contents
+## Development
+### Documentation
 
-- [Audible audiobook manager](#audible-audiobook-manager)
-    - [The good](#the-good)
-    - [The bad](#the-bad)
-    - [The ugly](#the-ugly)
-- [Getting started](Documentation/GettingStarted.md)
-    - [Download Libation](Documentation/GettingStarted.md#download-libation-1)
-    - [Installation](Documentation/GettingStarted.md#installation)
-    - [Create Accounts](Documentation/GettingStarted.md#create-accounts)
-    - [Import your library](Documentation/GettingStarted.md#import-your-library)
-    - [Download your books -- DRM-free!](Documentation/GettingStarted.md#download-your-books----drm-free)
-    - [Download PDF attachments](Documentation/GettingStarted.md#download-pdf-attachments)
-    - [Details of downloaded files](Documentation/GettingStarted.md#details-of-downloaded-files)
-    - [Export your library](Documentation/GettingStarted.md#export-your-library)
-    - If you still need help, [you can open an issue here](https://github.com/rmcrackan/Libation/issues) for bug reports, feature requests, or specialized help.
-- [Searching and filtering](Documentation/SearchingAndFiltering.md)
-    - [Tags](Documentation/SearchingAndFiltering.md#tags)
-    - [Searches](Documentation/SearchingAndFiltering.md#searches)
-    - [Search examples](Documentation/SearchingAndFiltering.md#search-examples)
-    - [Filters](Documentation/SearchingAndFiltering.md#filters)
-- [Advanced](Documentation/Advanced.md)
-    - [Files and folders](Documentation/Advanced.md#files-and-folders)
-    - [Settings](Documentation/Advanced.md#settings)
-    - [Custom File Naming](Documentation/NamingTemplates.md)
-    - [Command Line Interface](Documentation/Advanced.md#command-line-interface)
-    - [Custom Theme Colors](Documentation/Advanced.md#custom-theme-colors) (Chardonnay Only)
-    - [Audio Formats (Dolby Atmos, Widevine, Spacial Audio)](Documentation/AudioFileFormats.md)
-- [Docker](Documentation/Docker.md)
-- [Frequently Asked Questions](Documentation/FrequentlyAskedQuestions.md)
+The documentation is built with [VitePress](https://vitepress.dev/). For more information, see the [VitePress documentation](https://vuejs.github.io/vitepress/v1/guide/getting-started).
 
-## Getting started
+### Prerequisites
 
-* [Download](https://github.com/rmcrackan/Libation/releases/latest)
-* [Step-by-step walk-through](Documentation/GettingStarted.md)
+- [Node.js](https://nodejs.org/) version 18 or higher
 
-## Audible audiobook manager
+### Setup
 
-### The good
+Install dependencies:
+```bash
+npm install
+```
 
-* Import library from audible, including cover art
-* Download and remove DRM from all books
-* Download accompanying PDFs
-* Add tags to books for better organization
-* Powerful advanced search built on the Lucene search engine
-* Customizable saved filters for common searches
-* Open source
-* Supports most regions: US, UK, Canada, Germany, France, Australia, Japan, India, and Spain
-* Fully supported in Windows, Mac, and Linux
+### Development
 
-<a name="theBad"/>
+Start the local dev server with hot reload:
+```bash
+npm run docs:dev
+```
 
-### The bad
+The site will be available at `http://localhost:5173`.
 
-* Large file size
-* Made by a programmer, not a designer so the goals are function rather than beauty. And it shows
+### Build
 
-### The ugly
+Build the static site for production:
+```bash
+npm run docs:build
+```
 
-* Documentation? Yer lookin' at it
-* This is a single-developer personal passion project. Support, response, updates, enhancements, bug fixes etc are as my free time allows
-* I have a full-time job, a life, and a finite attention span. Therefore a lot of time can potentially go by with no improvements of any kind
+Preview the production build locally:
+```bash
+npm run docs:preview
+```
 
-Disclaimer: I've made every good-faith effort to include nothing insecure, malicious, anti-privacy, or destructive. That said: use at your own risk.
+### Deployment
 
-I made this for myself and I want to share it with the great programming and audible/audiobook communities which have been so generous with their time and help.
+The built site is output to `Documentation/.vitepress/dist`. Deploy this directory to any static hosting service (GitHub Pages, Cloudflare Pages, Vercel, Netlify, etc.).
+

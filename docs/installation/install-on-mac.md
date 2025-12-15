@@ -1,11 +1,5 @@
-## [Download Libation](https://github.com/rmcrackan/Libation/releases/latest)
+  # Install on MacOS
 
-### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PayPal.me](https://paypal.me/mcrackan?locale.x=en_us)
-...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
-
-
-
-# Run Libation on MacOS
 This walkthrough should get you up and running with Libation on your Mac.
 
 ## Supports macOS 13 (Ventura) and above
@@ -17,10 +11,10 @@ This walkthrough should get you up and running with Libation on your Mac.
   - Intel: `Libation.x.x.x-macOS-chardonnay-`**x64**`.dmg`
 - Mount the dmg and open the disk folder (should open automatically). Drag-drop the Libation app into your Applications folder.
 
-  ![macOS-drag-drop-install](images/macOS-drag-drop-install.png)
+  ![macOS-drag-drop-install](../images/macOS-drag-drop-install.png)
 - Go to your applications folder and double-click Libation to start it. The first time you run Libation, you'll be asked if you want to run this program downloaded from the internet. Click "Open".
 
-  ![macOS-libation-first-run](images/macOS-libation-first-run.png)
+  ![macOS-libation-first-run](../images/macOS-libation-first-run.png)
 
 
 ## Running Hangover
