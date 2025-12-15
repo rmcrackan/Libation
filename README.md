@@ -3,48 +3,29 @@
 ## [Download Libation](https://github.com/rmcrackan/Libation/releases/latest)
 
 ### If you found this useful, tell a friend. If you found this REALLY useful, you can click here to [PayPal.me](https://paypal.me/mcrackan?locale.x=en_us)
+
 ...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
 
-
-
 ## Development
+
 ### Documentation
 
-The documentation is built with [VitePress](https://vitepress.dev/). For more information, see the [VitePress documentation](https://vuejs.github.io/vitepress/v1/guide/getting-started).
+The documentation is built with [VitePress](https://vitepress.dev/) and located in the `docs` directory. For more information like [markdown syntax](https://vitepress.dev/guide/markdown#advanced-configuration) and [routing](https://vitepress.dev/guide/routing) or other features, refer [VitePress documentation](https://vitepress.dev/guide).
 
-### Prerequisites
+**Prerequisites**: Node.js 18+
 
-- [Node.js](https://nodejs.org/) version 18 or higher
+**Commands**:
 
-### Setup
-
-Install dependencies:
 ```bash
+# Install dependencies
 npm install
-```
 
-### Development
-
-Start the local dev server with hot reload:
-```bash
+# Start local dev server (http://localhost:5173)
 npm run docs:dev
-```
 
-The site will be available at `http://localhost:5173`.
-
-### Build
-
-Build the static site for production:
-```bash
+# Build for production (output: docs/.vitepress/dist)
 npm run docs:build
-```
 
-Preview the production build locally:
-```bash
+# Preview production build
 npm run docs:preview
 ```
-
-### Deployment
-
-The built site is output to `Documentation/.vitepress/dist`. Deploy this directory to any static hosting service (GitHub Pages, Cloudflare Pages, Vercel, Netlify, etc.).
-
