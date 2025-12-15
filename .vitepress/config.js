@@ -4,12 +4,12 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "Libation",
   description: "Libation: Liberate your Library - A free application for downloading your Audible audiobooks",
-  head: [["link", { rel: "icon", href: "/.vitepress/public/favicon.ico" }]],
+  head: [["link", { rel: "icon", href: "/favicon.ico" }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: {
-      light: "/.vitepress/public/libation_logo_light.svg",
-      dark: "/.vitepress/public/libation_logo_dark.svg",
+      light: "/libation_logo_light.svg",
+      dark: "/libation_logo_dark.svg",
     },
 
     footer: {
