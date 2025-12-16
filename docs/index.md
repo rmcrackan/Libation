@@ -18,8 +18,8 @@ Nearly 100% of the difference is look and feel -- it's a matter of preference.
 
 Extract the zip file to a folder and then run `Libation.exe` from inside of that folder. Do not put it in Program Files. The inability to edit files from there causes problems with configuration and updating.
 
-- [Linux](./installation/install-on-linux.md)
-- [MacOS](./installation/install-on-mac.md)
+- [Linux](./installation/linux.md)
+- [MacOS](./installation/mac.md)
 
 ## Create Accounts
 
