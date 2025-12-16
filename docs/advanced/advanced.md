@@ -45,7 +45,7 @@ You may import or export themes using the buttons at the bottom-left of the them
 
 The below video demonstrates using the theme editor to make changes to the Dark theme color pallet.
 
-[](https://github.com/user-attachments/assets/05c0cb7f-578f-4465-9691-77d694111349)
+<video src="https://github.com/user-attachments/assets/05c0cb7f-578f-4465-9691-77d694111349" controls></video>
 
 ## Command Line Interface
 

@@ -2,9 +2,9 @@
 
 This walkthrough should get you up and running with Libation on your Mac.
 
-## Supports macOS 13 (Ventura) and above
+> [!WARNING] Supports macOS 13 (Ventura) and above
 
-## Install Libation
+### Install Libation
 
 - Download the file from the latest release and extract it.
   - Apple Silicon (M1, M2, ...): `Libation.x.x.x-macOS-chardonnay-`**arm64**`.dmg`
@@ -39,4 +39,4 @@ Then use `./LibationCli` to execute a command.
 
 ## Get Libation Running on Mac
 
-[Run Libation on MacOS](https://user-images.githubusercontent.com/37587114/219271379-a922e4e1-48a0-48e4-bd81-48aa1226a4f5.mp4)
+<video src="https://user-images.githubusercontent.com/37587114/219271379-a922e4e1-48a0-48e4-bd81-48aa1226a4f5.mp4" controls></video>

@@ -29,3 +29,5 @@ npm run docs:build
 # Preview production build
 npm run docs:preview
 ```
+
+**Note**: New pages are automatically routed based on their folder structure (e.g., `docs/docs/index.md` maps to `/docs/index`). To add them to the sidebar, update the `sidebar` configuration in `.vitepress/config.js`.
