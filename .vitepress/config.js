@@ -29,16 +29,16 @@ export default defineConfig({
     nav: [
       { text: "Getting Started", link: "/docs/getting-started" },
       { text: "Download", link: "https://github.com/rmcrackan/Libation/releases/latest" },
-      { text: "Report Issues", link: "https://github.com/rmcrackan/Libation/issues" },
+      { text: "Issues & Requests", link: "https://github.com/rmcrackan/Libation/issues" },
       { text: "Donate", link: "https://www.paypal.com/paypalme/mcrackan" },
     ],
     sidebar: [
       {
         items: [
-          { text: "Getting Started", link: "/docs/index" },
+          { text: "Getting Started", link: "/docs/getting-started" },
           { text: "FAQ", link: "/docs/frequently-asked-questions" },
           {
-            text: "Report Issues",
+            text: "Issues & Requests",
             link: "https://github.com/rmcrackan/Libation/issues",
           },
           { text: "Donate", link: "https://www.paypal.com/paypalme/mcrackan" },
@@ -47,25 +47,17 @@ export default defineConfig({
       {
         text: "Installation",
         collapsed: false,
-
         items: [
-          {
-            text: "Install on Linux",
-            link: "/docs/installation/linux",
-          },
-          { text: "Install on Mac", link: "/docs/installation/mac" },
+          { text: "Linux", link: "/docs/installation/linux" },
+          { text: "Mac", link: "/docs/installation/mac" },
           { text: "Docker", link: "/docs/installation/docker" },
         ],
       },
       {
         text: "Features",
         collapsed: false,
-
         items: [
-          {
-            text: "Audio File Formats",
-            link: "/docs/features/audio-file-formats",
-          },
+          { text: "Audio File Formats", link: "/docs/features/audio-file-formats" },
           { text: "Naming Templates", link: "/docs/features/naming-templates" },
           {
             text: "Searching & Filtering",

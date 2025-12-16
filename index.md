@@ -13,7 +13,7 @@ hero:
       text: Download
       link: https://github.com/rmcrackan/Libation/releases/latest
     - theme: alt
-      text: Report Issues
+      text: Issues & Requests
       link: https://github.com/rmcrackan/Libation/issues
 
 features:
