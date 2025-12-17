@@ -21,16 +21,21 @@ on:
 
 jobs:
   build:
-    name: "Windows-${{ matrix.release_name }}-x64"
+    name: "Windows-${{ matrix.release_name }}-${{ matrix.architecture }} (${{ matrix.ui }})"
     runs-on: windows-latest
     strategy:
       matrix:
         ui: [Avalonia]
+        architecture: [x64]
         release_name: [chardonnay]
         include:
-          - ui: WinForms
+          - architecture: x64
+            ui: WinForms
             release_name: classic
             prefix: Classic-
+          - architecture: arm64
+            ui: Avalonia
+            release_name: chardonnay
     steps:
       - uses: actions/checkout@v6
       
@@ -48,7 +53,7 @@ jobs:
         working-directory: ./Source
         run: |
           $PUBLISH_ARGS=@(
-            "--runtime", "win-x64",
+            "--runtime", "win-${{ matrix.architecture }}",
             "--configuration", "Release",
             "--output", "../bin",
             "-p:PublishProtocol=FileSystem",
@@ -70,7 +75,7 @@ jobs:
             "WindowsConfigApp.deps.json")
           
           foreach ($file in $delfiles){ if (test-path $file){ Remove-Item $file } }
-          $artifact="${{ matrix.prefix }}Libation.${{ inputs.libation-version }}-windows-${{ matrix.release_name }}-x64.zip"
+          $artifact="${{ matrix.prefix }}Libation.${{ inputs.libation-version }}-windows-${{ matrix.release_name }}-${{ matrix.architecture }}.zip"
           "artifact=$artifact" >> $env:GITHUB_OUTPUT
           Compress-Archive -Path * -DestinationPath "$artifact"
 
