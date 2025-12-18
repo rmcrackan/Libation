@@ -1,0 +1,15 @@
+/* Custom styles for Libation documentation */
+
+/* Hide certain nav items on tablet devices to prevent horizontal scroll */
+@media (min-width: 640px) and (max-width: 959px) {
+  /* Target specific nav items by their position */
+  /* Hide "Issues & Requests" and "Donate" links on tablet */
+  .VPNav .VPNavBar .nav .VPNavBarMenu .VPMenu:nth-child(3) {
+    display: none;
+  }
+
+  /* Alternative: Use a more specific selector if needed */
+  .VPNavBarMenuLink[href*="issues"] {
+    display: none;
+  }
+}
