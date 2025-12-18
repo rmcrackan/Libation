@@ -6,9 +6,6 @@ export default defineConfig({
   description: "Libation: Liberate your Library - A free application for downloading your Audible audiobooks",
   head: [["link", { rel: "icon", href: "/favicon.ico" }]],
   cleanUrls: true,
-  rewrites: {
-    "docs/index.md": "docs/getting-started.md",
-  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: {
@@ -28,6 +25,7 @@ export default defineConfig({
 
     nav: [
       { text: "Getting Started", link: "/docs/getting-started" },
+      { text: "Docs", link: "/docs/index" },
       { text: "Download", link: "https://github.com/rmcrackan/Libation/releases/latest" },
       { text: "Issues & Requests", link: "https://github.com/rmcrackan/Libation/issues" },
       { text: "Donate", link: "https://www.paypal.com/paypalme/mcrackan" },
@@ -35,6 +33,7 @@ export default defineConfig({
     sidebar: [
       {
         items: [
+          { text: "Overview", link: "/docs/index"},
           { text: "Getting Started", link: "/docs/getting-started" },
           { text: "FAQ", link: "/docs/frequently-asked-questions" },
           {
