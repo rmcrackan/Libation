@@ -145,18 +145,7 @@ namespace LibationAvalonia.ViewModels.Settings
 		public string StripAudibleBrandAudioTip => Configuration.GetHelpText(nameof(StripAudibleBrandAudio));
 		public bool StripUnabridged { get; set; }
 		public string StripUnabridgedTip => Configuration.GetHelpText(nameof(StripUnabridged));
-		public bool DecryptToLossy {
-			get => field;
-			set
-			{
-				this.RaiseAndSetIfChanged(ref field, value);
-				if (DecryptToLossy && SpatialAudioCodec.Value is Configuration.SpatialCodec.AC_4)
-				{
-					SpatialAudioCodec = SpatialAudioCodecs[0];
-					this.RaisePropertyChanged(nameof(SpatialAudioCodec));
-				}
-			}
-		}
+		public bool DecryptToLossy { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 		public string DecryptToLossyTip => Configuration.GetHelpText(nameof(DecryptToLossy));
 		public bool MoveMoovToBeginning { get; set; }
 
