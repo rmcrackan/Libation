@@ -74,7 +74,7 @@ namespace FileLiberator
 			//If DrmType is not Adrm or Widevine, the delivered file is an unencrypted mp3.
 			OutputFormat
 				= licInfo.DrmType is not AudibleApi.Common.DrmType.Adrm and not AudibleApi.Common.DrmType.Widevine ||
-				(config.AllowLibationFixup && config.DecryptToLossy && licInfo.ContentMetadata.ContentReference.Codec != AudibleApi.Codecs.AC_4)
+				(config.AllowLibationFixup && config.DecryptToLossy)
 				? OutputFormat.Mp3
 				: OutputFormat.M4b;
 

@@ -125,7 +125,7 @@ public partial class DownloadOptions
 			//try to request a widevine content license using the user's audio settings
 			var aacCodecChoice = config.Request_xHE_AAC ? Codecs.xHE_AAC : Codecs.AAC_LC;
 			//Always use the ec+3 codec if converting to mp3
-			var spatialCodecChoice = config.SpatialAudioCodec is Configuration.SpatialCodec.AC_4 && !config.DecryptToLossy ? Codecs.AC_4 : Codecs.EC_3;
+			var spatialCodecChoice = config.SpatialAudioCodec is Configuration.SpatialCodec.AC_4 ? Codecs.AC_4 : Codecs.EC_3;
 
 			var contentLic
 				= await api.GetDownloadLicenseAsync(
