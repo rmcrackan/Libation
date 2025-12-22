@@ -6,8 +6,14 @@ name: validate
 on:
   push:
     branches: [master]
+    paths:
+      - Source/**
+      - .github/workflows/**
   pull_request:
     branches: [master]
+    paths:
+      - Source/**
+      - .github/workflows/**
 
 jobs:
   get_version:

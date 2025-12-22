@@ -5,6 +5,9 @@ on:
   # using the `master` branch as the default branch.
   push:
     branches: [master]
+    paths:
+      - .github/workflows/deploy.yml
+      - docs/**
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
