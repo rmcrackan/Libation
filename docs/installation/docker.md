@@ -41,14 +41,15 @@ sudo docker run -d \
 
 ## Environment Variables
 
-| Env Var             | Default | Description                                                                                                           |
-| ------------------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
-| SLEEP_TIME          | -1      | Length of time to sleep before doing another scan/download. Set to -1 to run one.                                     |
-| LIBATION_BOOKS_DIR  | /data   | Folder where books will be saved                                                                                      |
-| LIBATION_CONFIG_DIR | /config | Folder to read configuration from.                                                                                    |
-| LIBATION_DB_DIR     | /db     | Optional folder to load database from. If not mounted, will load database from `LIBATION_CONFIG_DIR`.                 |
-| LIBATION_DB_FILE    |         | Name of database file to load. By default it will look for all `.db` files and load one if there is only one present. |
-| LIBATION_CREATE_DB  | true    | Whether or not the image should create a database file if none are found.                                             |
+| Env Var                    | Default | Description                                                                                                           |
+| -------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
+| SLEEP_TIME                 | -1      | Length of time to sleep before doing another scan/download. Set to -1 to run one.                                     |
+| LIBATION_BOOKS_DIR         | /data   | Folder where books will be saved                                                                                      |
+| LIBATION_CONFIG_DIR        | /config | Folder to read configuration from.                                                                                    |
+| LIBATION_DB_DIR            | /db     | Optional folder to load database from. If not mounted, will load database from `LIBATION_CONFIG_DIR`.                 |
+| LIBATION_DB_FILE           |         | Name of database file to load. By default it will look for all `.db` files and load one if there is only one present. |
+| LIBATION_CREATE_DB         | true    | Whether or not the image should create a database file if none are found.                                             |
+| LIBATION_CONNECTION_STRING |         | Connection string for Postgresql.                                                                                     |
 
 ## User
 
