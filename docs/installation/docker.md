@@ -49,7 +49,7 @@ sudo docker run -d \
 | LIBATION_DB_DIR            | /db     | Optional folder to load database from. If not mounted, will load database from `LIBATION_CONFIG_DIR`.                 |
 | LIBATION_DB_FILE           |         | Name of database file to load. By default it will look for all `.db` files and load one if there is only one present. |
 | LIBATION_CREATE_DB         | true    | Whether or not the image should create a database file if none are found.                                             |
-| LIBATION_CONNECTION_STRING |         | Connection string for Postgresql.                                                                                     |
+| LIBATION_CONNECTION_STRING |         | Connection string for Postgresql. If not present, Libation uses the default sqlite.                                   |
 
 ## User
 
