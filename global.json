@@ -1,0 +1,9 @@
+{
+    "$schema": "https://json.schemastore.org/global.json",
+    "sdk": {
+        "version": "10.0.101"
+    },
+    "test": {
+        "runner": "Microsoft.Testing.Platform"
+    }
+}
