@@ -6,6 +6,15 @@
 
 ...or just tell more friends. As long as I'm maintaining this software, it will remain **free** and **open source**.
 
+## Getting started with Libation
+
+All documentation has been moved to our new site: [getlibation.com](https://getlibation.com). Or jump to the important bits:
+
+* [Getting Started](https://getlibation.com/docs/getting-started)
+* [Download](https://github.com/rmcrackan/Libation/releases/latest)
+* [Issues, bugs, and requests](https://github.com/rmcrackan/Libation/issues)
+* [Documentation](https://getlibation.com/docs/index)
+
 ## Development
 
 ### Documentation
