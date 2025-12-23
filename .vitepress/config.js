@@ -1,4 +1,5 @@
 import { defineConfig } from "vitepress";
+import { routex } from "@itznotabug/routex";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -86,5 +87,21 @@ export default defineConfig({
     search: {
       provider: "local",
     },
+  },
+  vite: {
+    plugins: [
+      routex({
+        "/Documentation/Advanced.md": "/docs/advanced/advanced",
+        "/Documentation/AudioFileFormats.md": "/docs/features/audio-file-formats",
+        "/Documentation/Docker.md": "/docs/installation/docker",
+        "/Documentation/FrequentlyAskedQuestions.md": "/docs/frequently-asked-questions",
+        "/Documentation/GettingStarted.md": "/docs/getting-started",
+        "/Documentation/InstallOnLinux.md": "/docs/installation/linux",
+        "/Documentation/InstallOnMac.md": "/docs/installation/mac",
+        "/Documentation/LinuxDevelopmentSetupUsingNix.md": "/docs/advanced/linux-development-setup-using-nix",
+        "/Documentation/NamingTemplates.md": "/docs/features/naming-templates",
+        "/Documentation/SearchingAndFiltering.md": "/docs/features/searching-and-filtering",
+      }),
+    ],
   },
 });
