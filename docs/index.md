@@ -25,10 +25,16 @@ Learn about Libation's powerful features:
 
 ## Advanced
 
-Advanced topics for power users and developers:
+- **[Advanced Topics](/docs/advanced/advanced)** - Deep dives and configuration details
 
-- **[Advanced Topics](/docs/advanced/advanced)** - Advanced configuration and usage
-- **[Linux Development Setup](/docs/advanced/linux-development-setup-using-nix)** - Set up a development environment on Linux using Nix
+## Development
+
+Join the community and contribute to Libation:
+
+- **[Getting Started](/docs/development/getting-started)** - Set up your development environment
+- **[Contribute](/docs/development/contribute)** - How to contribute code and handle PRs
+- **[Website & Docs](/docs/development/website)** - Help improve this documentation
+- **[Linux Setup (Nix)](/docs/development/nix-linux-setup)** - Nix-based setup for Linux users
 
 ## Support & Community
 
