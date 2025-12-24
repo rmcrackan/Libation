@@ -178,12 +178,6 @@ namespace LibationWinForms.Dialogs
 			moveMoovAtomCbox.Enabled = convertLosslessRb.Checked;
 			lameOptionsGb.Enabled = !convertLosslessRb.Checked;
 
-			if (convertLossyRb.Checked && requestSpatialCbox.Checked)
-			{
-				// Only E-AC-3 can be converted to mp3
-				spatialAudioCodecCb.SelectedIndex = 0;
-			}
-
 			lameTargetRb_CheckedChanged(sender, e);
 			LameMatchSourceBRCbox_CheckedChanged(sender, e);
 		}
@@ -205,14 +199,6 @@ namespace LibationWinForms.Dialogs
 			}
 		}
 
-		private void spatialAudioCodecCb_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			if (spatialAudioCodecCb.SelectedIndex == 1 && convertLossyRb.Checked)
-			{
-				// Only E-AC-3 can be converted to mp3
-				spatialAudioCodecCb.SelectedIndex = 0;
-			}
-		}
 		private void requestSpatialCbox_CheckedChanged(object sender, EventArgs e)
 		{
 			spatialAudioCodecCb.Enabled = requestSpatialCbox.Checked && useWidevineCbox.Checked;

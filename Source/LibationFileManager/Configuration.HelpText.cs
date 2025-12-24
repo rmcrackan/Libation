@@ -86,8 +86,6 @@ namespace LibationFileManager
                 The Dolby Digital Plus (E-AC-3) codec is more widely
                 supported than the AC-4 codec, but E-AC-3 files are
                 much larger than AC-4 files.
-
-                AC-4 cannot be converted to MP3.
                 """ },
 			{nameof(UseWidevine), """
                 Some audiobooks are only delivered in the highest

@@ -11,7 +11,16 @@
 - **Fast & Efficient**: Powered by AAXClean for fast decryption without heavy dependencies like ffmpeg.
 - **Import**: Easily import your existing library, including cover art.
 
-## [Download](https://github.com/rmcrackan/Libation/releases/latest)
+## Getting started with Libation
+
+All documentation has been moved to our new site: [getlibation.com](https://getlibation.com). Or jump to the important bits:
+
+* [Getting Started](https://getlibation.com/docs/getting-started)
+* [Download](https://github.com/rmcrackan/Libation/releases/latest)
+* [Issues, bugs, and requests](https://github.com/rmcrackan/Libation/issues)
+* [Documentation](https://getlibation.com/docs/index)
+
+## Development
 
 Grab the latest release for your platform from the [Releases Page](https://github.com/rmcrackan/Libation/releases/latest).
 

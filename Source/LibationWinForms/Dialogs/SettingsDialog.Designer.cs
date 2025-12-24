@@ -897,7 +897,6 @@
 			spatialAudioCodecCb.Name = "spatialAudioCodecCb";
 			spatialAudioCodecCb.Size = new System.Drawing.Size(173, 23);
 			spatialAudioCodecCb.TabIndex = 5;
-			spatialAudioCodecCb.SelectedIndexChanged += spatialAudioCodecCb_SelectedIndexChanged;
 			// 
 			// moveMoovAtomCbox
 			// 

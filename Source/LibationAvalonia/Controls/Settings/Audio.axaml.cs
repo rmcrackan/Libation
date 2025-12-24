@@ -23,15 +23,6 @@ namespace LibationAvalonia.Controls.Settings
 			}
 		}
 
-		private void SpatialCodec_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			if (_viewModel.SpatialAudioCodec.Value is Configuration.SpatialCodec.AC_4 && _viewModel.DecryptToLossy)
-			{
-				_viewModel.SpatialAudioCodec = _viewModel.SpatialAudioCodecs[0];
-				_viewModel.RaisePropertyChanged(nameof(AudioSettingsVM.SpatialAudioCodec));
-			}
-		}
-
 		private async void UseWidevine_IsCheckedChanged(object sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
 			if (sender is CheckBox cbox && cbox.IsChecked is true)

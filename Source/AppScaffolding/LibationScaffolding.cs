@@ -24,7 +24,8 @@ namespace AppScaffolding
 		LinuxAvalonia = OS.Linux | Variety.Chardonnay | Architecture.X64,
 		MacOSAvalonia = OS.MacOS | Variety.Chardonnay | Architecture.X64,
 		LinuxAvalonia_Arm64 = OS.Linux | Variety.Chardonnay | Architecture.Arm64,
-		MacOSAvalonia_Arm64 = OS.MacOS | Variety.Chardonnay | Architecture.Arm64
+		MacOSAvalonia_Arm64 = OS.MacOS | Variety.Chardonnay | Architecture.Arm64,
+		WindowsAvalonia_Arm64 = OS.Windows | Variety.Chardonnay | Architecture.Arm64,
 	}
 
 	// I know I'm taking the wine metaphor a bit far by naming this "Variety", but I don't know what else to call it

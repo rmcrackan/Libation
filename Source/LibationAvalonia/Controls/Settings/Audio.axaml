@@ -92,7 +92,6 @@
 						Margin="5,0,0,0"
 						Grid.Column="1"
 						VerticalAlignment="Center"
-						SelectionChanged="SpatialCodec_SelectionChanged"
 						ItemsSource="{CompiledBinding SpatialAudioCodecs}"
 						SelectedItem="{CompiledBinding SpatialAudioCodec}"/>
 				</Grid>

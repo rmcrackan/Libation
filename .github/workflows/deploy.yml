@@ -5,6 +5,9 @@ on:
   # using the `master` branch as the default branch.
   push:
     branches: [master]
+    paths:
+      - .github/workflows/deploy.yml
+      - docs/**
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -27,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Not needed if lastUpdated is not enabled
       # - uses: pnpm/action-setup@v4 # Uncomment this block if you're using pnpm
@@ -40,13 +43,13 @@ jobs:
           node-version: 24
           cache: npm # or pnpm / yarn
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
       - name: Install dependencies
         run: npm ci # or pnpm install / yarn install / bun install
       - name: Build with VitePress
         run: npm run docs:build # or pnpm docs:build / yarn docs:build / bun run docs:build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: .vitepress/dist
 
