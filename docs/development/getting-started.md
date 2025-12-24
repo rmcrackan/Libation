@@ -56,10 +56,10 @@ To run the desktop application (Avalonia):
 
 For Linux users, we have a specific guide using Nix:
 
-- [Linux Development Setup with Nix](./linux-setup.md)
+- [Linux Development Setup with Nix](./nix-linux-setup.md)
 
 ## Documentation Specifics
 
 For Documentaion, we have a specific guide using VitePress:
 
-- [Documentation Development](./documentation.md)
+- [Website & Docs Development](./website.md)
