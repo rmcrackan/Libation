@@ -110,19 +110,19 @@ export default defineConfig({
   vite: {
     plugins: [
       routex({
-        "/Documentation/Advanced.md": "/docs/advanced/advanced",
-        "/Documentation/AudioFileFormats.md":
+        "/Libation/Documentation/Advanced.md": "/docs/advanced/advanced",
+        "/Libation/Documentation/AudioFileFormats.md":
           "/docs/features/audio-file-formats",
-        "/Documentation/Docker.md": "/docs/installation/docker",
-        "/Documentation/FrequentlyAskedQuestions.md":
+        "/Libation/Documentation/Docker.md": "/docs/installation/docker",
+        "/Libation/Documentation/FrequentlyAskedQuestions.md":
           "/docs/frequently-asked-questions",
-        "/Documentation/GettingStarted.md": "/docs/getting-started",
-        "/Documentation/InstallOnLinux.md": "/docs/installation/linux",
-        "/Documentation/InstallOnMac.md": "/docs/installation/mac",
-        "/Documentation/LinuxDevelopmentSetupUsingNix.md":
+        "/Libation/Documentation/GettingStarted.md": "/docs/getting-started",
+        "/Libation/Documentation/InstallOnLinux.md": "/docs/installation/linux",
+        "/Libation/Documentation/InstallOnMac.md": "/docs/installation/mac",
+        "/Libation/Documentation/LinuxDevelopmentSetupUsingNix.md":
           "/docs/development/nix-linux-setup",
-        "/Documentation/NamingTemplates.md": "/docs/features/naming-templates",
-        "/Documentation/SearchingAndFiltering.md":
+        "/Libation/Documentation/NamingTemplates.md": "/docs/features/naming-templates",
+        "/Libation/Documentation/SearchingAndFiltering.md":
           "/docs/features/searching-and-filtering",
       }),
     ],
