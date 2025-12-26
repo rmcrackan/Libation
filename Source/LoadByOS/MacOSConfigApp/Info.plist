@@ -18,5 +18,7 @@
 	<string>libation.icns</string>
 	<key>CFBundleVersion</key>
 	<string>VERSION_STRING</string>
+	<key>CFBundleShortVersionString</key>
+	<string>VERSION_STRING</string>
 </dict>
 </plist>
