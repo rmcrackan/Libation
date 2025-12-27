@@ -10,7 +10,6 @@
     "docs:preview": "vitepress preview"
   },
   "devDependencies": {
-    "@itznotabug/routex": "^0.0.3",
     "vitepress": "^1.6.4"
   }
 }
