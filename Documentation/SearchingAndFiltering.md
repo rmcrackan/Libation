@@ -1,0 +1,1 @@
+# This page has been moved to https://getlibation.com/docs/features/searching-and-filtering
