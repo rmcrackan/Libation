@@ -63,10 +63,6 @@ namespace FileLiberator
 					using var m4bFileStream = File.Open(entry.m4bPath, FileMode.Open, FileAccess.Read, FileShare.Read);
 					var m4bBook = new Mp4File(m4bFileStream);
 
-					//AAXClean.Codecs only supports decoding AAC and E-AC-3 audio.
-					if (m4bBook.AudioSampleEntry.Esds is null && m4bBook.AudioSampleEntry.Dec3 is null)
-						continue;
-
 					OnTitleDiscovered(m4bBook.AppleTags.Title);
 					OnAuthorsDiscovered(m4bBook.AppleTags.FirstAuthor);
 					OnNarratorsDiscovered(m4bBook.AppleTags.Narrator);

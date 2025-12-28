@@ -254,6 +254,11 @@ namespace FileLiberator
 				tags.Year ??= pubDate.Year.ToString();
 				tags.ReleaseDate ??= pubDate.ToString("dd-MMM-yyyy");
 			}
+
+			const string tagDomain = "org.libation";
+			aaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_ACR", tags.Acr);
+			aaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_DRM_TYPE", options.DrmType.ToString());
+			aaxFile.AppleTags.AppleListBox.EditOrAddFreeformTag(tagDomain, "AUDIBLE_LOCALE", options.LibraryBook.Book.Locale);
 		}
 
 		private void AaxcDownloader_RetrievedCoverArt(object? sender, byte[]? e)

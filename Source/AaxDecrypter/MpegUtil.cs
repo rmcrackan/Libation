@@ -2,7 +2,9 @@
 using AAXClean.Codecs;
 using NAudio.Lame;
 using System;
+using System.Linq;
 
+#nullable enable
 namespace AaxDecrypter
 {
 	public static class MpegUtil
@@ -50,19 +52,21 @@ namespace AaxDecrypter
 			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "SUBTITLE") is string subtitle)
 				lameConfig.ID3.Subtitle = subtitle;
 
-			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "LANGUAGE") is string lang)
-				lameConfig.ID3.UserDefinedText.Add("LANGUAGE", lang);
-
-			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "SERIES") is string series)
-				lameConfig.ID3.UserDefinedText.Add("SERIES", series);
-
-			if (mp4File.AppleTags.AppleListBox.GetFreeformTagString(TagDomain, "PART") is string part)
-				lameConfig.ID3.UserDefinedText.Add("PART", part);
-
 			if (chapters?.Count > 0)
 			{
 				var cue = Cue.CreateContents(lameConfig.ID3.Title + ".mp3", chapters);
 				lameConfig.ID3.UserDefinedText.Add("CUESHEET", cue);
+			}
+
+			//Copy over all other freeform tags
+			foreach (var t in mp4File.AppleTags.AppleListBox.Tags.OfType<Mpeg4Lib.Boxes.FreeformTagBox>())
+			{
+				if (t.Name?.Name is string name &&
+					t.Mean?.ReverseDnsDomain is string domain &&
+					!lameConfig.ID3.UserDefinedText.ContainsKey(name) &&
+					mp4File.AppleTags.AppleListBox.GetFreeformTagString(domain, name) is string tagStr &&
+					!string.IsNullOrWhiteSpace(tagStr))
+					lameConfig.ID3.UserDefinedText.Add(name, tagStr);
 			}
 		}
 	}
