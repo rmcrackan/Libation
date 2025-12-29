@@ -119,6 +119,13 @@ namespace LibationFileManager
                 Libation's database (through an Audible account
                 scan) for a matching audio file to be found.
                 """ },
+            {"FindBetterQualityBooks","""
+                For all liberated audiobooks in your library, scan
+                Audible's servers to see if a higher-quality audio
+                format exists. If a better quality format is found,
+                you can choose to mark those books for re
+                -download.
+                """ },
             {"LocateAudiobooksDialog","""
 				Libation will search all .m4b and .mp3 files in a folder, looking for audio files belonging to library books in Libation's database.
 

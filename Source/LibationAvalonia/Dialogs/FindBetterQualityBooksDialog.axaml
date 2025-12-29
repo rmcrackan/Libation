@@ -1,0 +1,85 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dialogs="clr-namespace:LibationAvalonia.Dialogs"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		Width="800" Height="450"
+        x:Class="LibationAvalonia.Dialogs.FindBetterQualityBooksDialog"
+		x:DataType="dialogs:FindBetterQualityBooksDialog+ScanVM"
+        Title="FindBetterQualityBooksDialog">
+
+  <Grid Margin="5" RowDefinitions="*,Auto">
+	  <DataGrid
+		Name="booksDataGrid"
+		GridLinesVisibility="All"
+		CanUserReorderColumns="False"
+		CanUserResizeColumns="False"
+		CanUserSortColumns="False"
+		AutoGenerateColumns="False"
+		IsReadOnly="True"
+		ItemsSource="{CompiledBinding Books}">
+		  <DataGrid.Styles>
+			  <Style x:DataType="dialogs:FindBetterQualityBooksDialog+BookData" Selector="DataGridRow">
+				  	<Setter Property="Background" Value="{CompiledBinding ScanStatus, Converter={x:Static dialogs:FindBetterQualityBooksDialog.RowConverter }}" />
+			  </Style>
+		  </DataGrid.Styles>
+		  <DataGrid.Columns>
+			  
+				<DataGridTextColumn
+    				Width="120"
+				    IsReadOnly="False"
+				    Binding="{CompiledBinding Asin}"
+				    Header="ASIN"/>
+
+				<DataGridTextColumn
+    				Width="*"
+				    IsReadOnly="True"
+				    Binding="{CompiledBinding Title}"
+				    Header="Title"/>
+
+				<DataGridTextColumn
+    				Width="90"
+				    IsReadOnly="True"
+				    Binding="{CompiledBinding Codec}"
+				    Header="Existing&#xa;Codec"/>
+
+				<DataGridTextColumn
+    				Width="90"
+				    IsReadOnly="True"
+				    Binding="{CompiledBinding BitrateString}"
+				    Header="Existing&#xa;Bitrate"/>
+
+				<DataGridTextColumn
+    				Width="90"
+				    IsReadOnly="True"
+				    Binding="{CompiledBinding AvailableCodec}"
+				    Header="Available&#xa;Codec"/>
+
+				<DataGridTextColumn
+    				Width="90"
+				    IsReadOnly="True"
+				    Binding="{CompiledBinding AvailableBitrateString}"
+				    Header="Available&#xa;Bitrate"/>
+
+			  <DataGridCheckBoxColumn
+    				Width="90"
+				    IsReadOnly="True"
+					Binding="{CompiledBinding IsSignificant}"
+				    Header="Significantly&#xa;Greater?"/>
+
+          </DataGrid.Columns>
+      </DataGrid>
+	  <Grid Margin="0,5,0,0" Grid.Row="1"
+		 ColumnDefinitions="Auto,Auto,*,Auto">
+		  
+		  <CheckBox IsChecked="{Binding ScanWidevine, Mode=TwoWay}" Content="Use Widevine?" Margin="0,0,5,0" />
+
+		  <Button Grid.Column="1" Classes="SaveButton" Content="Scan Audible for Higher Quality Audio" IsVisible="{Binding !IsScanning}" Command="{Binding ScanAsync}" />
+		  <Button Grid.Column="1" Classes="SaveButton" Content="Stop Scan" IsVisible="{Binding IsScanning}" Command="{Binding StopScan}" />
+
+		  <Button Grid.Column="3" Classes="SaveButton" Content="{Binding MarkBooksButtonText}"
+			IsVisible="{Binding SignificantCount}" Command="{Binding MarkBooksAsync}" />
+	  </Grid>
+  </Grid>
+</Window>
