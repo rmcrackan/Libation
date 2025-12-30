@@ -14,6 +14,17 @@ namespace LibationWinForms.ProcessQueue
 		/// Triggered when one of the <see cref="ProcessBookControl"/>'s buttons has been clicked
 		/// </summary>
 		public event EventHandler<string>? ButtonClicked;
+
+		/// <summary>
+		/// Gets the index of the first realized element, or -1 if no elements are realized.
+		/// </summary>
+		public int FirstRealizedIndex { get; private set; } = -1;
+
+		/// <summary>
+		/// Gets the index of the last realized element, or -1 if no elements are realized.
+		/// </summary>
+		public int LastRealizedIndex { get; private set; } = -1;
+
 		public IList? Items { get; private set; }
 
 		private object? m_OldContext;
@@ -200,6 +211,27 @@ namespace LibationWinForms.ProcessQueue
 		}
 
 		/// <summary>
+		/// Scrolls the specified item into view.
+		/// </summary>
+		/// <param name="index">The index of the item.</param>
+		public void ScrollIntoView(int index)
+		{
+			if (index < 0 || index >= VirtualControlCount)
+				throw new ArgumentOutOfRangeException(nameof(index));
+			int firstVisible = FirstVisibleVirtualIndex;
+			int lastVisible = firstVisible + (DisplayHeight / VirtualControlHeight) - 1;
+			if (index < firstVisible)
+			{
+				SetScrollPosition(index * VirtualControlHeight);
+			}
+			else if (index > lastVisible)
+			{
+				int newScrollPos = (index - (lastVisible - firstVisible)) * VirtualControlHeight;
+				SetScrollPosition(newScrollPos);
+			}
+		}
+
+		/// <summary>
 		/// Calculated the virtual controls that are in view at the current scroll position and windows size,
 		/// positions <see cref="panel1"/> to simulate scroll activity, then fires updates the controls with
 		/// the context corresponding to the virtual scroll position
@@ -229,6 +261,9 @@ namespace LibationWinForms.ProcessQueue
 			{
 				BookControls[i].Visible = i < numVisible;
 			}
+
+			FirstRealizedIndex = firstVisible;
+			LastRealizedIndex = firstVisible + numVisible - 1;
 		}
 
 		/// <summary>

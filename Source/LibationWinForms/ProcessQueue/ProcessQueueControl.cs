@@ -38,7 +38,24 @@ internal partial class ProcessQueueControl : UserControl
 		logDGV.EnableHeadersVisualStyles = !Application.IsDarkModeEnabled;
 		ViewModel.PropertyChanged += ProcessQueue_PropertyChanged;
 		ViewModel.LogEntries.CollectionChanged += LogEntries_CollectionChanged;
+		ViewModel.ProcessStart += Book_ProcessStart;
 		ProcessQueue_PropertyChanged(this, new PropertyChangedEventArgs(null));
+	}
+
+	private void Book_ProcessStart(object? sender, ProcessBookViewModel e)
+	{
+		Invoke(() =>
+		{
+			if (ViewModel.Queue?.IndexOf(e) is int newtBookIndex && newtBookIndex > 0 && itemIsVisible(newtBookIndex - 1))
+			{
+				// Only scroll the new item into view if the previous item is visible.
+				// This allows users to scroll through the queue without being interrupted.
+				virtualFlowControl2.ScrollIntoView(newtBookIndex);
+			}
+		});
+
+		bool itemIsVisible(int newtBookIndex)
+			=> virtualFlowControl2.FirstRealizedIndex <= newtBookIndex && virtualFlowControl2.LastRealizedIndex >= newtBookIndex;
 	}
 
 	private void LogEntries_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
