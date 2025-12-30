@@ -12,7 +12,7 @@ using System.IO;
 namespace AaxDecrypter;
 
 /// <summary> Read audio codec, bitrate, sample rate, and channel count from MP4 and MP3 audio files. </summary>
-internal static class AudioFormatDecoder
+public static class AudioFormatDecoder
 {
 	public static AudioFormat FromMpeg4(string filename)
 	{

@@ -13,9 +13,9 @@
 	  <DataGrid
 		Name="booksDataGrid"
 		GridLinesVisibility="All"
-		CanUserReorderColumns="False"
-		CanUserResizeColumns="False"
-		CanUserSortColumns="False"
+		CanUserReorderColumns="True"
+		CanUserResizeColumns="True"
+		CanUserSortColumns="True"
 		AutoGenerateColumns="False"
 		IsReadOnly="True"
 		ItemsSource="{CompiledBinding Books}">
@@ -33,10 +33,16 @@
 				    Header="ASIN"/>
 
 				<DataGridTextColumn
-    				Width="*"
+    				Width="120"
 				    IsReadOnly="True"
 				    Binding="{CompiledBinding Title}"
 				    Header="Title"/>
+
+				<DataGridTextColumn
+    				Width="120"
+				    IsReadOnly="True"
+				    Binding="{CompiledBinding FoundFile}"
+				    Header="Best Found File"/>
 
 				<DataGridTextColumn
     				Width="90"
@@ -47,6 +53,7 @@
 				<DataGridTextColumn
     				Width="90"
 				    IsReadOnly="True"
+					SortMemberPath="Bitrate"
 				    Binding="{CompiledBinding BitrateString}"
 				    Header="Existing&#xa;Bitrate"/>
 
@@ -59,6 +66,7 @@
 				<DataGridTextColumn
     				Width="90"
 				    IsReadOnly="True"
+					SortMemberPath="AvailableBitrate"
 				    Binding="{CompiledBinding AvailableBitrateString}"
 				    Header="Available&#xa;Bitrate"/>
 
@@ -78,6 +86,7 @@
 		  <Button Grid.Column="1" Classes="SaveButton" Content="Scan Audible for Higher Quality Audio" IsVisible="{Binding !IsScanning}" Command="{Binding ScanAsync}" />
 		  <Button Grid.Column="1" Classes="SaveButton" Content="Stop Scan" IsVisible="{Binding IsScanning}" Command="{Binding StopScan}" />
 
+		  <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding ScanCount}" Margin="10,0,0,0" />
 		  <Button Grid.Column="3" Classes="SaveButton" Content="{Binding MarkBooksButtonText}"
 			IsVisible="{Binding SignificantCount}" Command="{Binding MarkBooksAsync}" />
 	  </Grid>

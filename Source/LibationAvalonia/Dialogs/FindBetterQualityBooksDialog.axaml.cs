@@ -1,9 +1,11 @@
+using AaxDecrypter;
 using ApplicationServices;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using DataLayer;
+using Dinah.Core;
 using Dinah.Core.Net.Http;
 using DynamicData;
 using LibationAvalonia.ViewModels;
@@ -58,10 +60,7 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 	private static bool ShouldScan(LibraryBook lb)
 		=> lb.Book.ContentType is ContentType.Product //only scan books, not podcasts
 		&& !lb.Book.IsSpatial //skip spatial audio books. When querying the /metadata endpoint, it will only show ac-4 data for spatial audiobooks.
-		&& lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated //only check if the book is liberated
-		&& lb.Book.UserDefinedItem.LastDownloadedFormat is not null //Don't check if it wast downloaded prior to adding format tracking
-		&& lb.Book.UserDefinedItem.LastDownloadedFormat.Codec is not Codec.Mp3 //If they downloaded as mp3, no way to tell what source material was. Skip.
-		&& lb.Book.AudioExists; //only check if audio files exist
+		&& lb.Book.UserDefinedItem.BookStatus is LiberatedStatus.Liberated;
 
 	private void OnBookDataAdded(BookData bookData)
 	{
@@ -117,6 +116,7 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 		}
 		public bool IsScanning { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 		public string? MarkBooksButtonText { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		public string? ScanCount { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 
 		private CancellationTokenSource? cts;
 
@@ -145,20 +145,51 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
             if (cts?.IsCancellationRequested is true || Design.IsDesignMode)
                 return;
             IsScanning = true;
-            try
+
+			foreach (var b in Books)
+			{
+				b.AvailableBitrate = 0;
+				b.AvailableCodec = null;
+				b.ScanStatus = ScanStatus.None;
+			}
+			ScanCount = $"0 of {Books.Count:N0} scanned";
+
+			try
             {
                 using var cli = new HttpClient();
                 cts = new CancellationTokenSource();
-				foreach (var b in Books.Where(b => b.ScanStatus is not ScanStatus.Completed))
+				for(int i = 0; i < Books.Count; i++)
 				{
+					var b = Books[i];
 					var url = GetUrl(b.LibraryBook);
 					try
 					{
+						var (file, bestformat) = FindHighestExistingFormat(b.LibraryBook);
+
+						if (file is not null)
+						{
+							b.FoundFile = Configuration.Instance.Books?.Path is string booksDir ? Path.GetRelativePath(booksDir, file) : file;
+							b.Bitrate = bestformat.BitRate;
+							b.Codec = bestformat.CodecString;
+						}
+						else if (b.LibraryBook.Book.UserDefinedItem.LastDownloadedFormat is not null)
+						{
+							b.FoundFile = "File not found. Using 'Last Downloaded' format.";
+							b.Bitrate = b.LibraryBook.Book.UserDefinedItem.LastDownloadedFormat.BitRate;
+							b.Codec = b.LibraryBook.Book.UserDefinedItem.LastDownloadedFormat.CodecString;
+						}
+						else
+						{
+							b.FoundFile = "File not found and no 'Last Downloaded' format found.";
+							b.ScanStatus = ScanStatus.Error;
+							continue;
+						}
+
 						var resp = await cli.GetAsync(url, cts.Token);
 						var (codecString, bitrate) = await ReadAudioInfoAsync(resp.EnsureSuccessStatusCode());
 
-						b.AvailableBitrate = bitrate;
 						b.AvailableCodec = codecString;
+						b.AvailableBitrate = bitrate;
 						b.ScanStatus = ScanStatus.Completed;
 					}
 					catch (OperationCanceledException)
@@ -174,6 +205,7 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 					finally
 					{
 						SignificantCount = Books.Count(b => b.IsSignificant);
+						ScanCount = $"{i:N0} of {Books.Count:N0} scanned";
 					}
 				}
             }
@@ -183,6 +215,21 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
                 cts = null;
                 IsScanning = false;
 			}
+		}
+
+		private static (string? file, AudioFormat format) FindHighestExistingFormat(LibraryBook libraryBook)
+		{
+			var largestfile
+				= AudibleFileStorage.Audio
+				.GetPaths(libraryBook.Book.AudibleProductId)
+				.Select(p => new FileInfo(p))
+				.Where(f => f.Exists && f.Extension.EqualsInsensitive(".m4b"))
+				.OrderByDescending(f => f.Length)
+				.FirstOrDefault();
+
+			if (largestfile is null)
+				return (null, AudioFormat.Default);
+			return (largestfile.FullName, AudioFormatDecoder.FromMpeg4(largestfile.FullName));
 		}
 
         static async Task<(string codec, int bitrate)> ReadAudioInfoAsync(HttpResponseMessage response)
@@ -224,15 +271,21 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 			LibraryBook = libraryBook;
 			Asin = libraryBook.Book.AudibleProductId;
 			Title = libraryBook.Book.Title;
-			Codec = libraryBook.Book.UserDefinedItem.LastDownloadedFormat!.CodecString;
-			Bitrate = libraryBook.Book.UserDefinedItem.LastDownloadedFormat.BitRate;
-			BitrateString = GetBitrateString(Bitrate);
 		}
 		public string Asin { get; }
 		public string Title { get; }
-		public string Codec { get; }
-		public int Bitrate { get; }
-		public string BitrateString { get; }
+		public string? FoundFile { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		public string? Codec { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
+		public int Bitrate
+		{
+			get => field;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref field, value);
+				BitrateString = GetBitrateString(value);
+			}
+		}
+		public string? BitrateString { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 		public string? AvailableCodec { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
 		public int AvailableBitrate
 		{
@@ -248,6 +301,6 @@ public partial class FindBetterQualityBooksDialog : DialogWindow
 		public string? AvailableBitrateString { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 		public bool IsSignificant { get => field; private set => this.RaiseAndSetIfChanged(ref field, value); }
 		public ScanStatus ScanStatus { get => field; set => this.RaiseAndSetIfChanged(ref field, value); }
-		private static string GetBitrateString(int bitrate) => $"{bitrate} kbps";
+		private static string? GetBitrateString(int bitrate) => bitrate > 0 ? $"{bitrate} kbps" : null;
 	}
 }
